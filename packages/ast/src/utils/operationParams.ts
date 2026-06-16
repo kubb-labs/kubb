@@ -206,7 +206,7 @@ export function resolveParamType({
   const groupName = groupLocation ? groupResolvers[groupLocation].call(resolver, node, param) : undefined
 
   if (groupName && groupName !== individualName) {
-    return createIndexedAccessType({ objectType: groupName, indexType: param.name })
+    return createIndexedAccessType({ target: groupName, key: param.name })
   }
 
   return individualName

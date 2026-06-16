@@ -43,11 +43,11 @@ export type TypeLiteralNode = BaseNode & {
 
 /**
  * AST node for a single field accessed from a named group type.
- * TypeScript renders as `objectType['indexType']`.
+ * TypeScript renders as `target['key']`.
  *
  * @example
  * ```ts
- * createIndexedAccessType({ objectType: 'GetPetPathParams', indexType: 'petId' })
+ * createIndexedAccessType({ target: 'GetPetPathParams', key: 'petId' })
  * // GetPetPathParams['petId']
  * ```
  */
@@ -56,11 +56,11 @@ export type IndexedAccessTypeNode = BaseNode & {
   /**
    * Name of the type being indexed, e.g. `'GetPetPathParams'`.
    */
-  objectType: string
+  target: string
   /**
    * Field key to access, e.g. `'petId'`.
    */
-  indexType: string
+  key: string
 }
 
 /**
@@ -235,7 +235,7 @@ export const createTypeLiteral = typeLiteralDef.create
  *
  * @example
  * ```ts
- * createIndexedAccessType({ objectType: 'DeletePetPathParams', indexType: 'petId' })
+ * createIndexedAccessType({ target: 'DeletePetPathParams', key: 'petId' })
  * // DeletePetPathParams['petId']
  * ```
  */

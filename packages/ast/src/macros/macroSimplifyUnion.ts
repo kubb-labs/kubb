@@ -1,29 +1,18 @@
-import { isScalarPrimitive } from '../constants.ts'
 import { defineMacro } from '../defineMacro.ts'
 import { narrowSchema } from '../guards.ts'
 import type { SchemaNode } from '../nodes/schema.ts'
 
+type ScalarPrimitive = 'string' | 'number' | 'integer' | 'bigint' | 'boolean'
+
 /**
- * Removes union members a broader scalar primitive already covers, such as a multi-value string enum
- * sitting next to a plain `string`. Single-value enums are kept.
- *
- * @example
- * ```ts
- * const next = applyMacros(unionSchema, [macroSimplifyUnion], { depth: 'shallow' })
- * ```
+ * Scalar primitive schema types used for union simplification and type narrowing.
  */
-export const macroSimplifyUnion = defineMacro({
-  name: 'simplify-union',
-  schema(node) {
-    const unionNode = narrowSchema(node, 'union')
-    if (!unionNode?.members?.length) return undefined
+const SCALAR_PRIMITIVE_TYPES = new Set<ScalarPrimitive>(['string', 'number', 'integer', 'bigint', 'boolean'])
 
-    const simplified = simplifyUnionMembers(unionNode.members)
-    if (simplified.length === unionNode.members.length) return undefined
 
-    return { ...unionNode, members: simplified }
-  },
-})
+function isScalarPrimitive(type: string): type is ScalarPrimitive {
+  return SCALAR_PRIMITIVE_TYPES.has(type as ScalarPrimitive)
+}
 
 /**
  * Filters union members, dropping enum members that a broader scalar primitive already covers.
@@ -48,3 +37,25 @@ function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNode> {
     return true
   })
 }
+
+/**
+ * Removes union members a broader scalar primitive already covers, such as a multi-value string enum
+ * sitting next to a plain `string`. Single-value enums are kept.
+ *
+ * @example
+ * ```ts
+ * const next = applyMacros(unionSchema, [macroSimplifyUnion], { depth: 'shallow' })
+ * ```
+ */
+export const macroSimplifyUnion = defineMacro({
+  name: 'simplify-union',
+  schema(node) {
+    const unionNode = narrowSchema(node, 'union')
+    if (!unionNode?.members?.length) return undefined
+
+    const simplified = simplifyUnionMembers(unionNode.members)
+    if (simplified.length === unionNode.members.length) return undefined
+
+    return { ...unionNode, members: simplified }
+  },
+})

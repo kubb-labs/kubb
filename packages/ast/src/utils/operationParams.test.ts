@@ -699,8 +699,8 @@ describe('createOperationParams', () => {
           optional: false,
           type: {
             kind: 'IndexedAccessType',
-            objectType: 'DeletePetPathParams',
-            indexType: 'petId',
+            target: 'DeletePetPathParams',
+            key: 'petId',
           },
         },
         {
@@ -709,8 +709,8 @@ describe('createOperationParams', () => {
           optional: true,
           type: {
             kind: 'IndexedAccessType',
-            objectType: 'DeletePetPathParams',
-            indexType: 'name',
+            target: 'DeletePetPathParams',
+            key: 'name',
           },
         },
       ])
@@ -978,8 +978,8 @@ describe('createOperationParams', () => {
                   optional: false,
                   type: {
                     kind: 'IndexedAccessType',
-                    objectType: 'GetPetByIdPathParams',
-                    indexType: 'petId',
+                    target: 'GetPetByIdPathParams',
+                    key: 'petId',
                   },
                 },
               ],

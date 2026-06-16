@@ -1,4 +1,3 @@
-import type { HttpMethod } from './nodes/operation.ts'
 import type { SchemaType } from './nodes/schema.ts'
 
 /**
@@ -126,35 +125,6 @@ export const schemaTypes = {
    */
   never: 'never',
 } as const satisfies Record<SchemaType, SchemaType>
-
-export type ScalarPrimitive = 'string' | 'number' | 'integer' | 'bigint' | 'boolean'
-
-/**
- * Scalar primitive schema types used for union simplification and type narrowing.
- */
-const SCALAR_PRIMITIVE_TYPES = new Set<ScalarPrimitive>(['string', 'number', 'integer', 'bigint', 'boolean'])
-
-/**
- * Returns `true` when `type` is a scalar primitive that can be assigned without wrapping
- * (for example `string | number | boolean`).
- */
-export function isScalarPrimitive(type: string): type is ScalarPrimitive {
-  return SCALAR_PRIMITIVE_TYPES.has(type as ScalarPrimitive)
-}
-
-/**
- * HTTP method identifiers used by operation nodes.
- */
-export const httpMethods = {
-  get: 'GET',
-  post: 'POST',
-  put: 'PUT',
-  patch: 'PATCH',
-  delete: 'DELETE',
-  head: 'HEAD',
-  options: 'OPTIONS',
-  trace: 'TRACE',
-} as const satisfies Record<Lowercase<HttpMethod>, HttpMethod>
 
 /**
  * Default concurrency limit for the `walk()` traversal utility.

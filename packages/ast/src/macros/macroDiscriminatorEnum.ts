@@ -3,6 +3,12 @@ import { narrowSchema } from '../guards.ts'
 import { createProperty } from '../nodes/property.ts'
 import { createSchema } from '../nodes/schema.ts'
 
+type Props = {
+  propertyName: string
+  values: Array<string>
+  enumName?: string
+}
+
 /**
  * Builds a macro that replaces a discriminator property's schema with a string enum of the given
  * values. Object schemas that lack the property are returned unchanged.
@@ -13,7 +19,7 @@ import { createSchema } from '../nodes/schema.ts'
  * const next = applyMacros(objectSchema, [macro], { depth: 'shallow' })
  * ```
  */
-export function macroDiscriminatorEnum({ propertyName, values, enumName }: { propertyName: string; values: Array<string>; enumName?: string }) {
+export function macroDiscriminatorEnum({ propertyName, values, enumName }: Props) {
   return defineMacro({
     name: 'discriminator-enum',
     schema(node) {

@@ -250,12 +250,12 @@ describe('createTypeLiteral', () => {
 
 describe('createIndexedAccessType', () => {
   it('creates an indexed access type', () => {
-    const node = createIndexedAccessType({ objectType: 'GetPetPathParams', indexType: 'petId' })
+    const node = createIndexedAccessType({ target: 'GetPetPathParams', key: 'petId' })
 
     expect(node).toStrictEqual({
       kind: 'IndexedAccessType',
-      objectType: 'GetPetPathParams',
-      indexType: 'petId',
+      target: 'GetPetPathParams',
+      key: 'petId',
     })
   })
 })
