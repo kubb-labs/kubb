@@ -430,10 +430,41 @@ describe('Code Generation', () => {
         }),
       ),
     ).toMatchSnapshot()
+
+    // empty string is a valid enum value and must not be dropped
+    expect(
+      await formatTS(
+        createEnumDeclaration({
+          type: 'asConst',
+          name: 'proxyHostALPN',
+          typeName: 'ProxyHostALPNKey',
+          enums: [
+            ['', ''],
+            ['h3', 'h3'],
+            ['h2', 'h2'],
+          ],
+        }),
+      ),
+    ).toMatchSnapshot()
+
+    expect(
+      await formatTS(
+        createEnumDeclaration({
+          type: 'literal',
+          name: 'proxyHostALPN',
+          typeName: 'ProxyHostALPN',
+          enums: [
+            ['', ''],
+            ['h3', 'h3'],
+            ['h2', 'h2'],
+          ],
+        }),
+      ),
+    ).toMatchSnapshot()
   })
 
   it('should quote enum keys that parse as private identifiers (#-prefixed)', async () => {
-    // A `#`-prefixed name (e.g. a hex colour like `#ccff9a`) parses as a TypeScript
+    // A `#`-prefixed name (e.g. a hex color like `#ccff9a`) parses as a TypeScript
     // private identifier, which is only valid inside a class body. As an object key it
     // must be quoted, otherwise the generated `as const` map is a syntax error (TS18016).
     const output = await formatTS(

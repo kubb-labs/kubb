@@ -122,6 +122,21 @@ exports[`Code Generation > should create enum declaration 10`] = `
 "
 `;
 
+exports[`Code Generation > should create enum declaration 11`] = `
+"export const proxyHostALPN = {
+  '': '',
+  h3: 'h3',
+  h2: 'h2',
+} as const
+export type ProxyHostALPNKey = (typeof proxyHostALPN)[keyof typeof proxyHostALPN]
+"
+`;
+
+exports[`Code Generation > should create enum declaration 12`] = `
+"export type ProxyHostALPN = '' | 'h3' | 'h2'
+"
+`;
+
 exports[`Code Generation > should create export declaration 1`] = `
 "export * from './hello.ts'
 "

@@ -497,7 +497,7 @@ export function createEnumDeclaration({
               if (typeof value === 'boolean') {
                 return factory.createLiteralTypeNode(value ? factory.createTrue() : factory.createFalse())
               }
-              if (value) {
+              if (value !== null && value !== undefined) {
                 return factory.createLiteralTypeNode(factory.createStringLiteral(value.toString()))
               }
 
@@ -537,7 +537,7 @@ export function createEnumDeclaration({
               return factory.createEnumMember(propertyName(casingKey), initializer)
             }
 
-            if (key) {
+            if (key !== null && key !== undefined) {
               const casingKey = applyEnumKeyCasing(key.toString(), enumKeyCasing)
               return factory.createEnumMember(propertyName(casingKey), initializer)
             }
@@ -600,7 +600,7 @@ export function createEnumDeclaration({
                       initializer = value ? factory.createTrue() : factory.createFalse()
                     }
 
-                    if (key) {
+                    if (key !== null && key !== undefined) {
                       const casingKey = applyEnumKeyCasing(key.toString(), enumKeyCasing)
                       return factory.createPropertyAssignment(propertyName(casingKey), initializer)
                     }
