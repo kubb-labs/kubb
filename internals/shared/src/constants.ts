@@ -81,16 +81,3 @@ export const availablePlugins: Array<PluginOption> = [
     category: 'documentation',
   },
 ]
-
-export const pluginDefaultConfigs = {
-  'plugin-ts': `pluginTs()`,
-  'plugin-client': `pluginClient()`,
-  'plugin-react-query': `pluginReactQuery()`,
-  'plugin-vue-query': `pluginVueQuery()`,
-  'plugin-zod': `pluginZod()`,
-  'plugin-faker': `pluginFaker()`,
-  'plugin-msw': `pluginMsw()`,
-  'plugin-cypress': `pluginCypress()`,
-  'plugin-mcp': `pluginMcp()`,
-  'plugin-redoc': `pluginRedoc()`,
-} as const satisfies Record<string, string>

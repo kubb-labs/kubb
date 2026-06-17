@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { renderHelp } from './help.ts'
-import type { CommandDefinition } from './types.ts'
+import type { CommandDefinition } from './defineCommand.ts'
+import { renderHelp } from './renderHelp.ts'
 
 describe('renderHelp', () => {
   let consoleSpy: ReturnType<typeof vi.spyOn>

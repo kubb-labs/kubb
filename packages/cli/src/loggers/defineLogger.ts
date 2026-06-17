@@ -35,8 +35,6 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
   install: (context: LoggerContext, options?: TOptions) => void | Promise<void>
 }
 
-export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Logger<TOptions>
-
 /**
  * Defines a typed logger. The `install` method subscribes to lifecycle events
  * on the shared emitter and forwards them to the logger's destination.
@@ -54,6 +52,6 @@ export type UserLogger<TOptions extends LoggerOptions = LoggerOptions> = Logger<
  * })
  * ```
  */
-export function defineLogger<Options extends LoggerOptions = LoggerOptions>(logger: UserLogger<Options>): Logger<Options> {
+export function defineLogger<Options extends LoggerOptions = LoggerOptions>(logger: Logger<Options>): Logger<Options> {
   return logger
 }

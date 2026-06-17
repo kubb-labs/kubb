@@ -160,16 +160,20 @@ function getResponseBody(responseBody: boolean | ResponseObject, contentType?: s
  * getResponseSchema(document, operation, '4XX')       // {}
  * ```
  */
-export function getResponseSchema(document: Document, operation: Operation, statusCode: string | number, options: OperationsOptions = {}): SchemaObject {
-  if (operation.schema.responses) {
-    const responses = operation.schema.responses
-    for (const key in responses) {
-      const schema = responses[key]
-      if (schema && isReference(schema)) {
-        responses[key] = resolveRef<any>(document, schema.$ref)
-      }
+// Dereference every response `$ref` in place so callers can read response bodies directly.
+function resolveResponseRefs(document: Document, operation: Operation): void {
+  const responses = operation.schema.responses
+  if (!responses) return
+  for (const key in responses) {
+    const schema = responses[key]
+    if (schema && isReference(schema)) {
+      responses[key] = resolveRef<any>(document, schema.$ref)
     }
   }
+}
+
+export function getResponseSchema(document: Document, operation: Operation, statusCode: string | number, options: OperationsOptions = {}): SchemaObject {
+  resolveResponseRefs(document, operation)
 
   const responseBody = getResponseBody(getResponseByStatusCode({ document, operation, statusCode }), options.contentType)
 
@@ -391,10 +395,6 @@ const semanticSuffixes: Record<SchemaSourceMode, string> = {
   requestBodies: 'Request',
 }
 
-function getSemanticSuffix(source: SchemaSourceMode): string {
-  return semanticSuffixes[source]
-}
-
 function resolveSchemaRef(document: Document, schema: SchemaObject): SchemaObject {
   if (!isReference(schema)) return schema
   const resolved = resolveRef<SchemaObject>(document, schema.$ref)
@@ -466,7 +466,7 @@ export function getSchemas(document: Document, { contentType }: GetSchemasOption
     }
 
     items.forEach((item, index) => {
-      const suffix = isSingle ? '' : hasMultipleSources ? getSemanticSuffix(item.source) : index === 0 ? '' : String(index + 1)
+      const suffix = isSingle ? '' : hasMultipleSources ? semanticSuffixes[item.source] : index === 0 ? '' : String(index + 1)
       const uniqueName = item.originalName + suffix
       schemas[uniqueName] = item.schema
       nameMapping.set(`#/components/${item.source}/${item.originalName}`, uniqueName)
@@ -572,15 +572,7 @@ export function getRequestBodyContentTypes(document: Document, operation: Operat
  * ```
  */
 export function getResponseBodyContentTypes(document: Document, operation: Operation, statusCode: string | number): Array<string> {
-  if (operation.schema.responses) {
-    const responses = operation.schema.responses
-    for (const key in responses) {
-      const schema = responses[key]
-      if (schema && isReference(schema)) {
-        responses[key] = resolveRef<any>(document, schema.$ref)
-      }
-    }
-  }
+  resolveResponseRefs(document, operation)
 
   const responseObj = getResponseByStatusCode({ document, operation, statusCode })
   if (!responseObj || typeof responseObj !== 'object' || isReference(responseObj)) return []

@@ -1,4 +1,4 @@
-import { ast } from '@kubb/core'
+import type { ast } from '@kubb/core'
 
 /**
  * Default parser options applied when no explicit options are provided.
@@ -123,13 +123,3 @@ export const formatMap = {
  * ```
  */
 export const enumExtensionKeys = ['x-enumNames', 'x-enum-varnames'] as const
-
-/**
- * Maps the `unknownType`/`emptySchemaType` option string to its `ScalarSchemaType` constant.
- * A `Map` (over a plain object) lets callers test key membership with `.has()`.
- */
-export const typeOptionMap = new Map<'any' | 'unknown' | 'void', ast.ScalarSchemaType>([
-  ['any', ast.schemaTypes.any],
-  ['unknown', ast.schemaTypes.unknown],
-  ['void', ast.schemaTypes.void],
-])

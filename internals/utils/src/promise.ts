@@ -91,18 +91,6 @@ export function isPromise<T>(result: PossiblePromise<T>): result is Promise<T> {
   return result !== null && result !== undefined && typeof (result as Record<string, unknown>)['then'] === 'function'
 }
 
-/** Returns `true` when `result` is a rejected `Promise.allSettled` result with a typed `reason`.
- *
- * @example
- * ```ts
- * const results = await Promise.allSettled([p1, p2])
- * results.filter(isPromiseRejectedResult<Error>).map((r) => r.reason.message)
- * ```
- */
-export function isPromiseRejectedResult<T>(result: PromiseSettledResult<unknown>): result is Omit<PromiseRejectedResult, 'reason'> & { reason: T } {
-  return result.status === 'rejected'
-}
-
 type Store<TKey, TValue> = {
   has(key: TKey): boolean
   get(key: TKey): TValue | undefined

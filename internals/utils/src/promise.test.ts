@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { forBatches, isPromise, isPromiseRejectedResult, memoize } from './promise.ts'
+import { forBatches, isPromise, memoize } from './promise.ts'
 
 describe('promise utilities', () => {
   describe('isPromise', () => {
@@ -19,24 +19,6 @@ describe('promise utilities', () => {
       expect(isPromise(null)).toBe(false)
       expect(isPromise(undefined)).toBe(false)
       expect(isPromise({})).toBe(false)
-    })
-  })
-
-  describe('isPromiseRejectedResult', () => {
-    it('should return true for rejected result', () => {
-      const result: PromiseRejectedResult = {
-        status: 'rejected',
-        reason: new Error('test'),
-      }
-      expect(isPromiseRejectedResult(result)).toBe(true)
-    })
-
-    it('should return false for fulfilled result', () => {
-      const result: PromiseFulfilledResult<string> = {
-        status: 'fulfilled',
-        value: 'test',
-      }
-      expect(isPromiseRejectedResult(result)).toBe(false)
     })
   })
 })

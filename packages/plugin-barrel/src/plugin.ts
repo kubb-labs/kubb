@@ -1,5 +1,4 @@
 import path from 'node:path'
-import { resolve } from 'node:path'
 import type { FileNode } from '@kubb/ast'
 import { definePlugin } from '@kubb/core'
 import type { Config, NormalizedPlugin, Plugin } from '@kubb/core'
@@ -133,8 +132,8 @@ export const pluginBarrel = definePlugin(() => {
         const barrelType = barrelConfig.type
         const nested = barrelConfig.nested ?? false
 
-        const base = resolve(config.root, config.output.path)
-        const target = resolve(base, plugin.options.output.path)
+        const base = path.resolve(config.root, config.output.path)
+        const target = path.resolve(base, plugin.options.output.path)
         const relative = path.relative(base, target)
         if (relative.startsWith('..') || path.isAbsolute(relative)) {
           throw new Error('Invalid output path')
@@ -153,7 +152,7 @@ export const pluginBarrel = definePlugin(() => {
 
         const barrelType = barrelConfig.type
 
-        for (const file of getBarrelFiles({ outputPath: resolve(config.root, config.output.path), files: filteredFiles, barrelType })) {
+        for (const file of getBarrelFiles({ outputPath: path.resolve(config.root, config.output.path), files: filteredFiles, barrelType })) {
           upsertFile(file)
         }
       },
