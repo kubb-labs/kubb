@@ -1,8 +1,6 @@
 import path from 'node:path'
 import { camelCase, pascalCase, toFilePath } from '@internals/utils'
-import type { FileNode, InputMeta, Node, OperationNode, SchemaNode } from '@kubb/ast'
-import { operationDef, schemaDef } from '@kubb/ast'
-import * as factory from '@kubb/ast/factory'
+import { ast, operationDef, schemaDef, type FileNode, type InputMeta, type Node, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { Diagnostics } from './diagnostics.ts'
 import type { PluginFactoryOptions } from './definePlugin.ts'
 import type { Config, Group, Output } from './types.ts'
@@ -500,7 +498,7 @@ export function defaultResolveFile(this: Resolver, { name, extname, tag, path: g
   const baseName = `${resolvedName}${extname}` as FileNode['baseName']
   const filePath = this.resolvePath({ baseName, tag, path: groupPath }, context)
 
-  return factory.createFile({
+  return ast.factory.createFile({
     path: filePath,
     baseName: path.basename(filePath) as `${string}.${string}`,
     meta: {

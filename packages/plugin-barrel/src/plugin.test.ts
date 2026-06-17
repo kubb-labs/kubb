@@ -1,14 +1,14 @@
-import * as factory from '@kubb/ast/factory'
+import { ast } from '@kubb/ast'
 import { createKubb, definePlugin, memoryStorage } from '@kubb/core'
 import type { Config, Plugin } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { pluginBarrel } from './plugin.ts'
 
 function makeFile(filePath: string, name: string) {
-  return factory.createFile({
+  return ast.factory.createFile({
     path: filePath,
     baseName: filePath.split('/').pop() as `${string}.${string}`,
-    sources: [factory.createSource({ name, isIndexable: true, nodes: [factory.createText(`export const ${name} = null`)] })],
+    sources: [ast.factory.createSource({ name, isIndexable: true, nodes: [ast.factory.createText(`export const ${name} = null`)] })],
     imports: [],
     exports: [],
   })

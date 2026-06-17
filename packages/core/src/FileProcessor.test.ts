@@ -1,14 +1,13 @@
-import type { FileNode } from '@kubb/ast'
-import * as factory from '@kubb/ast/factory'
+import { ast, type FileNode } from '@kubb/ast'
 import { describe, expect, it, vi } from 'vitest'
 import { FileProcessor } from './FileProcessor.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
 function makeFile(path: string, sources: Array<string> = []) {
-  return factory.createFile({
+  return ast.factory.createFile({
     path,
     baseName: path.split('/').pop() as `${string}.${string}`,
-    sources: sources.map((value) => factory.createSource({ nodes: [factory.createText(value)] })),
+    sources: sources.map((value) => ast.factory.createSource({ nodes: [ast.factory.createText(value)] })),
     imports: [],
     exports: [],
   })

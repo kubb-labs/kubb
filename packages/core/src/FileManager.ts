@@ -1,6 +1,5 @@
 import { AsyncEventEmitter } from '@internals/utils'
-import type { FileNode } from '@kubb/ast'
-import * as factory from '@kubb/ast/factory'
+import { ast, type FileNode } from '@kubb/ast'
 
 /**
  * Hooks fired by a `FileManager`.
@@ -79,7 +78,7 @@ export class FileManager {
 
     for (const file of batch) {
       const existing = this.#cache.get(file.path)
-      const merged = existing && mergeExisting ? factory.createFile(mergeFile(existing, file)) : factory.createFile(file)
+      const merged = existing && mergeExisting ? ast.factory.createFile(mergeFile(existing, file)) : ast.factory.createFile(file)
       this.#cache.set(merged.path, merged)
       resolved.push(merged)
       this.hooks.emit('upsert', merged)

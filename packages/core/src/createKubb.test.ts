@@ -1,6 +1,5 @@
 import { AsyncEventEmitter } from '@internals/utils'
-import type { OperationNode, SchemaNode } from '@kubb/ast'
-import * as factory from '@kubb/ast/factory'
+import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
@@ -17,10 +16,10 @@ describe('createKubb', () => {
     resolvePath: vi.fn(),
   } as const
 
-  const file = factory.createFile({
+  const file = ast.factory.createFile({
     path: 'hello/world.json',
     baseName: 'world.json',
-    sources: [factory.createSource({ nodes: [factory.createText(`{ "hello": "world" }`)] })],
+    sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`{ "hello": "world" }`)] })],
     imports: [],
     exports: [],
   })
@@ -256,10 +255,10 @@ describe('createKubb', () => {
               name: `${name}-generator`,
               schema() {
                 return [
-                  factory.createFile({
+                  ast.factory.createFile({
                     path: filePath,
                     baseName: filePath.split('/').pop() as `${string}.${string}`,
-                    sources: [factory.createSource({ nodes: [factory.createText(`export const ${name.replaceAll('-', '_')} = null`)] })],
+                    sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`export const ${name.replaceAll('-', '_')} = null`)] })],
                     imports: [],
                     exports: [],
                   }),
@@ -277,7 +276,7 @@ describe('createKubb', () => {
         parse: async () => ({
           kind: 'Input' as const,
           meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
-          schemas: [factory.createSchema({ name: 'Pet', type: 'string' })],
+          schemas: [ast.factory.createSchema({ name: 'Pet', type: 'string' })],
           operations: [],
         }),
       }),
@@ -355,10 +354,10 @@ describe('createKubb', () => {
                 const path = `/gen/${node.name}.ts`
                 generatedPaths.push(path)
                 return [
-                  factory.createFile({
+                  ast.factory.createFile({
                     path,
                     baseName: `${node.name}.ts` as `${string}.ts`,
-                    sources: [factory.createSource({ nodes: [factory.createText(`export const x = null`)] })],
+                    sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`export const x = null`)] })],
                     imports: [],
                     exports: [],
                   }),
@@ -372,7 +371,7 @@ describe('createKubb', () => {
 
     it('generates all files when schema count exceeds SCHEMA_PARALLEL', async () => {
       const count = SCHEMA_PARALLEL * 3 + 1
-      const schemas = Array.from({ length: count }, (_, i) => factory.createSchema({ name: `Schema${i}`, type: 'string' }))
+      const schemas = Array.from({ length: count }, (_, i) => ast.factory.createSchema({ name: `Schema${i}`, type: 'string' }))
       const generatedPaths: Array<string> = []
 
       const { files } = await createKubb(
@@ -400,7 +399,7 @@ describe('createKubb', () => {
     it('preserves operation insertion order for collectedOperations across batches', async () => {
       const opCount = SCHEMA_PARALLEL * 2 + 3
       const operations = Array.from({ length: opCount }, (_, i) =>
-        factory.createOperation({ operationId: `op${i}`, method: 'GET', path: `/path${i}`, parameters: [], responses: [], tags: [] }),
+        ast.factory.createOperation({ operationId: `op${i}`, method: 'GET', path: `/path${i}`, parameters: [], responses: [], tags: [] }),
       )
       const receivedOrder: Array<string> = []
 
@@ -441,7 +440,7 @@ describe('createKubb', () => {
 
     it('processes schemas from adapter.stream() across batches', async () => {
       const count = SCHEMA_PARALLEL * 2 + 1
-      const schemas = Array.from({ length: count }, (_, i) => factory.createSchema({ name: `StreamSchema${i}`, type: 'string' }))
+      const schemas = Array.from({ length: count }, (_, i) => ast.factory.createSchema({ name: `StreamSchema${i}`, type: 'string' }))
       const generatedPaths: Array<string> = []
 
       async function* asyncSchemas() {
@@ -458,7 +457,7 @@ describe('createKubb', () => {
         }),
       })
       Object.assign(streamAdapter, {
-        stream: async () => factory.createInput({ stream: true, schemas: asyncSchemas(), operations: asyncOps() }),
+        stream: async () => ast.factory.createInput({ stream: true, schemas: asyncSchemas(), operations: asyncOps() }),
       })
 
       const { files } = await createKubb(
@@ -513,7 +512,7 @@ describe('createKubb', () => {
         {
           ...config,
           storage: memoryStorage(),
-          adapter: makeAdapter({ schemas: [factory.createSchema({ name: 'A', type: 'string' }), factory.createSchema({ name: 'B', type: 'string' })] }),
+          adapter: makeAdapter({ schemas: [ast.factory.createSchema({ name: 'A', type: 'string' }), ast.factory.createSchema({ name: 'B', type: 'string' })] }),
           plugins: [overridePlugin as unknown as Plugin],
         },
         { hooks: new AsyncEventEmitter<KubbHooks>() },
@@ -550,7 +549,7 @@ describe('createKubb', () => {
           ...config,
           storage: memoryStorage(),
           adapter: makeAdapter({
-            operations: [factory.createOperation({ operationId: 'getPet', method: 'GET', path: '/pet', parameters: [], responses: [], tags: [] })],
+            operations: [ast.factory.createOperation({ operationId: 'getPet', method: 'GET', path: '/pet', parameters: [], responses: [], tags: [] })],
           }),
           plugins: [transformPlugin as unknown as Plugin],
         },
@@ -567,7 +566,7 @@ describe('createKubb', () => {
   describe('streaming flush during generation', () => {
     it('flushes files mid-generation when schema count exceeds STREAM_FLUSH_EVERY', async () => {
       const count = STREAM_FLUSH_EVERY + 10
-      const schemas = Array.from({ length: count }, (_, i) => factory.createSchema({ name: `FlushSchema${i}`, type: 'string' }))
+      const schemas = Array.from({ length: count }, (_, i) => ast.factory.createSchema({ name: `FlushSchema${i}`, type: 'string' }))
       const hooks = new AsyncEventEmitter<KubbHooks>()
       const flushEvents: Array<number> = []
       hooks.on('kubb:files:processing:start', ({ files }) => {
@@ -582,10 +581,10 @@ describe('createKubb', () => {
               name: 'flush-gen',
               schema(node) {
                 return [
-                  factory.createFile({
+                  ast.factory.createFile({
                     path: `/gen/${node.name}.ts`,
                     baseName: `${node.name}.ts` as `${string}.ts`,
-                    sources: [factory.createSource({ nodes: [factory.createText('export const x = null')] })],
+                    sources: [ast.factory.createSource({ nodes: [ast.factory.createText('export const x = null')] })],
                     imports: [],
                     exports: [],
                   }),
@@ -635,10 +634,10 @@ describe('createKubb', () => {
           'kubb:plugin:setup'(ctx) {
             for (let i = 0; i < fileCount; i++) {
               ctx.injectFile(
-                factory.createFile({
+                ast.factory.createFile({
                   path: `/gen/file${i}.ts`,
                   baseName: `file${i}.ts` as `${string}.ts`,
-                  sources: [factory.createSource({ nodes: [factory.createText(`export const v${i} = ${i}`)] })],
+                  sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`export const v${i} = ${i}`)] })],
                   imports: [],
                   exports: [],
                 }),

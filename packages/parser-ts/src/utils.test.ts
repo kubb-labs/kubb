@@ -1,4 +1,4 @@
-import * as factory from '@kubb/ast/factory'
+import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import {
   dedent,
@@ -161,22 +161,22 @@ describe('printNodes', () => {
   })
 
   it('joins multiple nodes with newline', () => {
-    const nodes = [factory.createText('const x = 1'), factory.createText('const y = 2')]
+    const nodes = [ast.factory.createText('const x = 1'), ast.factory.createText('const y = 2')]
     expect(printNodes(nodes)).toBe('const x = 1\nconst y = 2')
   })
 
   it('inserts a single blank line for a break', () => {
-    const nodes = [factory.createText('const x = 1'), factory.createBreak(), factory.createText('const y = 2')]
+    const nodes = [ast.factory.createText('const x = 1'), ast.factory.createBreak(), ast.factory.createText('const y = 2')]
     expect(printNodes(nodes)).toBe('const x = 1\n\nconst y = 2')
   })
 
   it('folds consecutive breaks into one blank line', () => {
-    const nodes = [factory.createText('const x = 1'), factory.createBreak(), factory.createBreak(), factory.createText('const y = 2')]
+    const nodes = [ast.factory.createText('const x = 1'), ast.factory.createBreak(), ast.factory.createBreak(), ast.factory.createText('const y = 2')]
     expect(printNodes(nodes)).toBe('const x = 1\n\nconst y = 2')
   })
 
   it('ignores leading and trailing breaks', () => {
-    const nodes = [factory.createBreak(), factory.createText('const x = 1'), factory.createBreak()]
+    const nodes = [ast.factory.createBreak(), ast.factory.createText('const x = 1'), ast.factory.createBreak()]
     expect(printNodes(nodes)).toBe('const x = 1')
   })
 })
@@ -211,53 +211,53 @@ describe('printJSDoc', () => {
 
 describe('printConst', () => {
   it('generates a minimal const declaration', () => {
-    const node = factory.createConst({ name: 'pet', nodes: [factory.createText('{}')] })
+    const node = ast.factory.createConst({ name: 'pet', nodes: [ast.factory.createText('{}')] })
     expect(printConst(node)).toBe('const pet = {}')
   })
 
   it('generates an exported const', () => {
-    const node = factory.createConst({
+    const node = ast.factory.createConst({
       name: 'pet',
       export: true,
-      nodes: [factory.createText('{}')],
+      nodes: [ast.factory.createText('{}')],
     })
     expect(printConst(node)).toBe('export const pet = {}')
   })
 
   it('generates a typed const', () => {
-    const node = factory.createConst({
+    const node = ast.factory.createConst({
       name: 'pet',
       type: 'Pet',
-      nodes: [factory.createText('{}')],
+      nodes: [ast.factory.createText('{}')],
     })
     expect(printConst(node)).toBe('const pet: Pet = {}')
   })
 
   it('generates a const with asConst', () => {
-    const node = factory.createConst({
+    const node = ast.factory.createConst({
       name: 'pets',
       export: true,
       type: 'Pet[]',
       asConst: true,
-      nodes: [factory.createText('[]')],
+      nodes: [ast.factory.createText('[]')],
     })
     expect(printConst(node)).toBe('export const pets: Pet[] = [] as const')
   })
 
   it('includes JSDoc when provided', () => {
-    const node = factory.createConst({
+    const node = ast.factory.createConst({
       name: 'pet',
       JSDoc: { comments: ['@description A pet'] },
-      nodes: [factory.createText('{}')],
+      nodes: [ast.factory.createText('{}')],
     })
     expect(printConst(node)).toBe('/**\n * @description A pet\n */\nconst pet = {}')
   })
 
   it('normalizes a multi-line value authored with baked-in indentation', () => {
-    const node = factory.createConst({
+    const node = ast.factory.createConst({
       name: 'pet',
       export: true,
-      nodes: [factory.createText('\n    {\n      foo: 1,\n      bar: 2,\n    }\n  ')],
+      nodes: [ast.factory.createText('\n    {\n      foo: 1,\n      bar: 2,\n    }\n  ')],
     })
     expect(printConst(node)).toMatchInlineSnapshot(`
       "export const pet = {
@@ -268,10 +268,10 @@ describe('printConst', () => {
   })
 
   it('preserves a correctly authored multi-line value', () => {
-    const node = factory.createConst({
+    const node = ast.factory.createConst({
       name: 'pet',
       export: true,
-      nodes: [factory.createText('{\n  foo: 1,\n  bar: 2,\n}')],
+      nodes: [ast.factory.createText('{\n  foo: 1,\n  bar: 2,\n}')],
     })
     expect(printConst(node)).toMatchInlineSnapshot(`
       "export const pet = {
@@ -284,42 +284,42 @@ describe('printConst', () => {
 
 describe('printType', () => {
   it('generates a minimal type alias', () => {
-    const node = factory.createType({
+    const node = ast.factory.createType({
       name: 'Pet',
-      nodes: [factory.createText('{ id: number }')],
+      nodes: [ast.factory.createText('{ id: number }')],
     })
     expect(printType(node)).toBe('type Pet = { id: number }')
   })
 
   it('generates an exported type alias', () => {
-    const node = factory.createType({
+    const node = ast.factory.createType({
       name: 'Pet',
       export: true,
-      nodes: [factory.createText('{ id: number }')],
+      nodes: [ast.factory.createText('{ id: number }')],
     })
     expect(printType(node)).toBe('export type Pet = { id: number }')
   })
 
   it('includes JSDoc when provided', () => {
-    const node = factory.createType({
+    const node = ast.factory.createType({
       name: 'PetStatus',
       export: true,
       JSDoc: { comments: ['@description Status of a pet'] },
-      nodes: [factory.createText('string')],
+      nodes: [ast.factory.createText('string')],
     })
     expect(printType(node)).toBe('/**\n * @description Status of a pet\n */\nexport type PetStatus = string')
   })
 
   it('handles empty nodes', () => {
-    const node = factory.createType({ name: 'Pet' })
+    const node = ast.factory.createType({ name: 'Pet' })
     expect(printType(node)).toBe('type Pet = ')
   })
 
   it('normalizes a multi-line object type authored with baked-in indentation', () => {
-    const node = factory.createType({
+    const node = ast.factory.createType({
       name: 'Pet',
       export: true,
-      nodes: [factory.createText('\n    {\n      id: number\n      name: string\n    }\n  ')],
+      nodes: [ast.factory.createText('\n    {\n      id: number\n      name: string\n    }\n  ')],
     })
     expect(printType(node)).toMatchInlineSnapshot(`
       "export type Pet = {
@@ -332,17 +332,17 @@ describe('printType', () => {
 
 describe('printFunction', () => {
   it('generates a minimal function declaration', () => {
-    const node = factory.createFunction({ name: 'getPet' })
+    const node = ast.factory.createFunction({ name: 'getPet' })
     expect(printFunction(node)).toBe('function getPet() {}')
   })
 
   it('generates an exported function', () => {
-    const node = factory.createFunction({ name: 'getPet', export: true })
+    const node = ast.factory.createFunction({ name: 'getPet', export: true })
     expect(printFunction(node)).toBe('export function getPet() {}')
   })
 
   it('generates an async function with Promise return type', () => {
-    const node = factory.createFunction({
+    const node = ast.factory.createFunction({
       name: 'fetchPet',
       export: true,
       async: true,
@@ -352,17 +352,17 @@ describe('printFunction', () => {
   })
 
   it('generates a function with non-async return type', () => {
-    const node = factory.createFunction({ name: 'getPet', returnType: 'Pet' })
+    const node = ast.factory.createFunction({ name: 'getPet', returnType: 'Pet' })
     expect(printFunction(node)).toBe('function getPet(): Pet {}')
   })
 
   it('generates a function with params', () => {
-    const node = factory.createFunction({ name: 'getPet', params: 'id: string' })
+    const node = ast.factory.createFunction({ name: 'getPet', params: 'id: string' })
     expect(printFunction(node)).toBe('function getPet(id: string) {}')
   })
 
   it('generates a function with generics as array', () => {
-    const node = factory.createFunction({
+    const node = ast.factory.createFunction({
       name: 'identity',
       generics: ['T'],
       params: 'value: T',
@@ -372,7 +372,7 @@ describe('printFunction', () => {
   })
 
   it('generates a function with generics as string', () => {
-    const node = factory.createFunction({
+    const node = ast.factory.createFunction({
       name: 'identity',
       generics: 'T extends string',
       params: 'value: T',
@@ -382,7 +382,7 @@ describe('printFunction', () => {
   })
 
   it('generates a default export function', () => {
-    const node = factory.createFunction({
+    const node = ast.factory.createFunction({
       name: 'handler',
       default: true,
       export: true,
@@ -391,9 +391,9 @@ describe('printFunction', () => {
   })
 
   it('generates a function with body', () => {
-    const node = factory.createFunction({
+    const node = ast.factory.createFunction({
       name: 'getPet',
-      nodes: [factory.createText('return fetch("/pets")')],
+      nodes: [ast.factory.createText('return fetch("/pets")')],
     })
     expect(printFunction(node)).toMatchInlineSnapshot(`
       "function getPet() {
@@ -403,7 +403,7 @@ describe('printFunction', () => {
   })
 
   it('includes JSDoc when provided', () => {
-    const node = factory.createFunction({
+    const node = ast.factory.createFunction({
       name: 'getPet',
       JSDoc: { comments: ['@description Fetch a pet'] },
     })
@@ -411,9 +411,9 @@ describe('printFunction', () => {
   })
 
   it('normalizes a body authored with baked-in indentation to a single level', () => {
-    const node = factory.createFunction({
+    const node = ast.factory.createFunction({
       name: 'getPet',
-      nodes: [factory.createText('      const a = 1\n      const b = 2')],
+      nodes: [ast.factory.createText('      const a = 1\n      const b = 2')],
     })
     expect(printFunction(node)).toMatchInlineSnapshot(`
       "function getPet() {
@@ -424,8 +424,8 @@ describe('printFunction', () => {
   })
 
   it('indents a nested function cumulatively', () => {
-    const inner = factory.createFunction({ name: 'inner', nodes: [factory.createText('return 1')] })
-    const node = factory.createFunction({ name: 'outer', nodes: [inner] })
+    const inner = ast.factory.createFunction({ name: 'inner', nodes: [ast.factory.createText('return 1')] })
+    const node = ast.factory.createFunction({ name: 'outer', nodes: [inner] })
     expect(printFunction(node)).toMatchInlineSnapshot(`
       "function outer() {
         function inner() {
@@ -438,17 +438,17 @@ describe('printFunction', () => {
 
 describe('printArrowFunction', () => {
   it('generates a minimal arrow function', () => {
-    const node = factory.createArrowFunction({ name: 'getPet' })
+    const node = ast.factory.createArrowFunction({ name: 'getPet' })
     expect(printArrowFunction(node)).toBe('const getPet = () => {}')
   })
 
   it('generates an exported arrow function', () => {
-    const node = factory.createArrowFunction({ name: 'getPet', export: true })
+    const node = ast.factory.createArrowFunction({ name: 'getPet', export: true })
     expect(printArrowFunction(node)).toBe('export const getPet = () => {}')
   })
 
   it('generates an async arrow function with Promise return type', () => {
-    const node = factory.createArrowFunction({
+    const node = ast.factory.createArrowFunction({
       name: 'fetchPet',
       export: true,
       async: true,
@@ -458,19 +458,19 @@ describe('printArrowFunction', () => {
   })
 
   it('generates a single-line arrow function', () => {
-    const node = factory.createArrowFunction({
+    const node = ast.factory.createArrowFunction({
       name: 'double',
       params: 'n: number',
       singleLine: true,
-      nodes: [factory.createText('n * 2')],
+      nodes: [ast.factory.createText('n * 2')],
     })
     expect(printArrowFunction(node)).toBe('const double = (n: number) => n * 2')
   })
 
   it('generates an arrow function with body', () => {
-    const node = factory.createArrowFunction({
+    const node = ast.factory.createArrowFunction({
       name: 'getPet',
-      nodes: [factory.createText('return fetch("/pets")')],
+      nodes: [ast.factory.createText('return fetch("/pets")')],
     })
     expect(printArrowFunction(node)).toMatchInlineSnapshot(`
       "const getPet = () => {
@@ -480,19 +480,19 @@ describe('printArrowFunction', () => {
   })
 
   it('generates an arrow function with generics', () => {
-    const node = factory.createArrowFunction({
+    const node = ast.factory.createArrowFunction({
       name: 'identity',
       generics: ['T'],
       params: 'value: T',
       returnType: 'T',
       singleLine: true,
-      nodes: [factory.createText('value')],
+      nodes: [ast.factory.createText('value')],
     })
     expect(printArrowFunction(node)).toBe('const identity = <T>(value: T): T => value')
   })
 
   it('generates an async arrow function with generics', () => {
-    const node = factory.createArrowFunction({
+    const node = ast.factory.createArrowFunction({
       name: 'fetchPet',
       async: true,
       generics: ['T'],
@@ -503,7 +503,7 @@ describe('printArrowFunction', () => {
   })
 
   it('includes JSDoc when provided', () => {
-    const node = factory.createArrowFunction({
+    const node = ast.factory.createArrowFunction({
       name: 'getPet',
       JSDoc: { comments: ['@description Fetch a pet'] },
     })
@@ -511,9 +511,9 @@ describe('printArrowFunction', () => {
   })
 
   it('normalizes a body authored with baked-in indentation to a single level', () => {
-    const node = factory.createArrowFunction({
+    const node = ast.factory.createArrowFunction({
       name: 'getPet',
-      nodes: [factory.createText('      const a = 1\n      const b = 2')],
+      nodes: [ast.factory.createText('      const a = 1\n      const b = 2')],
     })
     expect(printArrowFunction(node)).toMatchInlineSnapshot(`
       "const getPet = () => {
@@ -526,47 +526,47 @@ describe('printArrowFunction', () => {
 
 describe('printCodeNode', () => {
   it('dispatches Const nodes', () => {
-    const node = factory.createConst({ name: 'x', nodes: [factory.createText('1')] })
+    const node = ast.factory.createConst({ name: 'x', nodes: [ast.factory.createText('1')] })
     expect(printCodeNode(node)).toBe('const x = 1')
   })
 
   it('dispatches Type nodes', () => {
-    const node = factory.createType({
+    const node = ast.factory.createType({
       name: 'Pet',
-      nodes: [factory.createText('{ id: number }')],
+      nodes: [ast.factory.createText('{ id: number }')],
     })
     expect(printCodeNode(node)).toBe('type Pet = { id: number }')
   })
 
   it('dispatches Function nodes', () => {
-    const node = factory.createFunction({ name: 'foo' })
+    const node = ast.factory.createFunction({ name: 'foo' })
     expect(printCodeNode(node)).toBe('function foo() {}')
   })
 
   it('dispatches ArrowFunction nodes', () => {
-    const node = factory.createArrowFunction({ name: 'bar' })
+    const node = ast.factory.createArrowFunction({ name: 'bar' })
     expect(printCodeNode(node)).toBe('const bar = () => {}')
   })
 })
 
 describe('printSource', () => {
   it('converts nodes to source string', () => {
-    const node = factory.createSource({ nodes: [factory.createText('const x = 1')] })
+    const node = ast.factory.createSource({ nodes: [ast.factory.createText('const x = 1')] })
     expect(printSource(node)).toBe('const x = 1')
   })
 
   it('converts nodes when source has structured nodes', () => {
-    const node = factory.createSource({
-      nodes: [factory.createConst({ name: 'x', nodes: [factory.createText('1')] })],
+    const node = ast.factory.createSource({
+      nodes: [ast.factory.createConst({ name: 'x', nodes: [ast.factory.createText('1')] })],
     })
     expect(printSource(node)).toBe('const x = 1')
   })
 
   it('separates multiple top-level declarations with a blank line', () => {
-    const node = factory.createSource({
+    const node = ast.factory.createSource({
       nodes: [
-        factory.createConst({ name: 'x', nodes: [factory.createText('1')] }),
-        factory.createType({ name: 'Pet', nodes: [factory.createText('{ id: number }')] }),
+        ast.factory.createConst({ name: 'x', nodes: [ast.factory.createText('1')] }),
+        ast.factory.createType({ name: 'Pet', nodes: [ast.factory.createText('{ id: number }')] }),
       ],
     })
     expect(printSource(node)).toMatchInlineSnapshot(`
@@ -577,11 +577,11 @@ describe('printSource', () => {
   })
 
   it('preserves DOM order when JSX elements and text nodes are interleaved', () => {
-    const node = factory.createSource({
+    const node = ast.factory.createSource({
       nodes: [
-        factory.createConst({ name: 'server', nodes: [factory.createText('new McpServer()')] }),
-        factory.createText('server.registerTool("foo", {})'),
-        factory.createConst({ name: 'x', nodes: [factory.createText('1')] }),
+        ast.factory.createConst({ name: 'server', nodes: [ast.factory.createText('new McpServer()')] }),
+        ast.factory.createText('server.registerTool("foo", {})'),
+        ast.factory.createConst({ name: 'x', nodes: [ast.factory.createText('1')] }),
       ],
     })
     expect(printSource(node)).toMatchInlineSnapshot(`
@@ -594,16 +594,16 @@ describe('printSource', () => {
   })
 
   it('normalizes a top-level text node with baked-in indentation to column zero', () => {
-    const node = factory.createSource({ nodes: [factory.createText('    const x = 1')] })
+    const node = ast.factory.createSource({ nodes: [ast.factory.createText('    const x = 1')] })
     expect(printSource(node)).toMatchInlineSnapshot(`"const x = 1"`)
   })
 
   it('does not add an extra blank line for an explicit break', () => {
-    const node = factory.createSource({
+    const node = ast.factory.createSource({
       nodes: [
-        factory.createConst({ name: 'x', nodes: [factory.createText('1')] }),
-        factory.createBreak(),
-        factory.createConst({ name: 'y', nodes: [factory.createText('2')] }),
+        ast.factory.createConst({ name: 'x', nodes: [ast.factory.createText('1')] }),
+        ast.factory.createBreak(),
+        ast.factory.createConst({ name: 'y', nodes: [ast.factory.createText('2')] }),
       ],
     })
     expect(printSource(node)).toMatchInlineSnapshot(`
@@ -614,7 +614,7 @@ describe('printSource', () => {
   })
 
   it('returns empty string when source has no nodes', () => {
-    const node = factory.createSource({})
+    const node = ast.factory.createSource({})
     expect(printSource(node)).toBe('')
   })
 })

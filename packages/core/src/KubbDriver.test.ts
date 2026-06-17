@@ -1,6 +1,5 @@
 import { AsyncEventEmitter } from '@internals/utils'
-import * as factory from '@kubb/ast/factory'
-import type { FileNode } from '@kubb/ast'
+import { ast, type FileNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
 import { type Diagnostic, Diagnostics } from './diagnostics.ts'
@@ -136,7 +135,7 @@ describe('PluginDriver', () => {
 })
 
 function file(name: string): FileNode {
-  return factory.createFile({ baseName: `${name}.ts`, path: `${name}.ts` })
+  return ast.factory.createFile({ baseName: `${name}.ts`, path: `${name}.ts` })
 }
 
 function makeDriver(): KubbDriver {
