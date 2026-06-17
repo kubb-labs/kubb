@@ -1,5 +1,27 @@
 # Changelog
 
+## v5.0.0-beta.68 — Jun 17, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Reframe each package description and its keywords around Kubb. Only the `kubb` meta-package calls itself the meta framework for code generation, and only `@kubb/adapter-oas` still names OpenAPI and Swagger, since that is the package that parses them. The READMEs use the same wording. ([#3625](https://github.com/kubb-labs/kubb/pull/3625), [`420c8d4`](https://github.com/kubb-labs/kubb/commit/420c8d446e6e1c3855d76b4d2c762dadbfe78ee2))
+
+### @kubb/ast
+
+#### Features
+
+- Add a `copy` field to the file model so plugins can emit a real on-disk file into the generated folder verbatim. Set `copy` to an absolute path on a `UserFileNode` (via `injectFile`/`upsertFile` or `createFile`), or pass `copy` to the JSX `<File copy={…} />` component, and Kubb writes that file's content unchanged, applying only `banner`/`footer` and bypassing the language parser. This lets a plugin ship a hand-authored template as a real `.ts` file and drop it into the output without inlining its source as a string.
+  
+  Remove the unused `output.override` boolean from the config and plugin output options. It was documented as overwriting or skipping existing files, but nothing in the write path read it (`fsStorage` already skips writes only when content is byte-identical), so it had no effect. ([#3627](https://github.com/kubb-labs/kubb/pull/3627), [`bf1a3a8`](https://github.com/kubb-labs/kubb/commit/bf1a3a825400c10a34fe149f6fa1a54b4fef67c7))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.67 — Jun 17, 2026
 
 ### @kubb/ast
