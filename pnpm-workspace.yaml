@@ -9,18 +9,11 @@ allowBuilds:
   msw: true
 catalog:
   '@types/node': ^22.19.21
-  '@types/react': ^19.2.17
-  '@types/react-reconciler': 0.33.0
   '@vitest/coverage-v8': ^4.1.8
   '@vitest/ui': ^4.1.8
-  oxfmt: ^0.51.0
+  oxfmt: ^0.54.0
   oxlint: ^1.69.0
-  p-limit: ^7.3.0
-  react: 19.2.6
-  react-reconciler: 0.33.0
-  remeda: ^2.39.0
-  # tinyexec 1.2.x lost npm `trusted-with-provenance` status; stay on 1.1.x until restored.
-  'tinyexec': ~1.1.2
+  'tinyexec': ^1.2.4
   tsdown: ^0.22.2
   typescript: ^6.0.3
   vitest: ^4.1.8
