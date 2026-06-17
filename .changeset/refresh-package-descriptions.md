@@ -12,4 +12,4 @@
 'unplugin-kubb': patch
 ---
 
-Refresh package descriptions and keywords to frame each package around Kubb, the meta framework for code generation, and keep OpenAPI and Swagger naming scoped to `@kubb/adapter-oas`. README descriptions are aligned with the same wording.
+Reframe each package description and its keywords around Kubb, the meta framework for code generation. Only `@kubb/adapter-oas` still names OpenAPI and Swagger, since that is the package that parses them. The READMEs use the same wording.
