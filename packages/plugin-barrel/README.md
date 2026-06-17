@@ -22,7 +22,7 @@
 
 # @kubb/plugin-barrel
 
-### Barrel-file plugin for Kubb, the meta framework for code generation
+### Barrel-file plugin for Kubb
 
 Automatically generates `index.ts` re-export files for each plugin output directory and an optional root barrel after all plugins have run.
 

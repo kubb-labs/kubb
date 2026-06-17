@@ -22,7 +22,7 @@
 
 # @kubb/renderer-jsx
 
-### JSX-based renderer for Kubb, the meta framework for code generation
+### JSX-based renderer for Kubb
 
 Provides a React-free JSX runtime and built-in components (`File`, `Function`, `Type`, `Const`) for component-based, type-safe code generation inside Kubb plugins.
 

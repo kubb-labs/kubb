@@ -12,4 +12,4 @@
 'unplugin-kubb': patch
 ---
 
-Reframe each package description and its keywords around Kubb, the meta framework for code generation. Only `@kubb/adapter-oas` still names OpenAPI and Swagger, since that is the package that parses them. The READMEs use the same wording.
+Reframe each package description and its keywords around Kubb. Only the `kubb` meta-package calls itself the meta framework for code generation, and only `@kubb/adapter-oas` still names OpenAPI and Swagger, since that is the package that parses them. The READMEs use the same wording.

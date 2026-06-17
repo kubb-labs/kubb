@@ -22,7 +22,7 @@
 
 # @kubb/parser-ts
 
-### TypeScript source file parser for Kubb, the meta framework for code generation
+### TypeScript source file parser for Kubb
 
 Converts AST nodes and raw TypeScript code into formatted source strings using the TypeScript compiler API. Handles both `.ts` and `.tsx` output.
 

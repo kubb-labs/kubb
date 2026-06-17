@@ -22,7 +22,7 @@
 
 # @kubb/ast
 
-### Spec-agnostic AST layer for Kubb, the meta framework for code generation
+### Spec-agnostic AST layer for Kubb
 
 Defines the node tree, visitor pattern, factory functions, and type guards used across every Kubb code generation plugin.
 

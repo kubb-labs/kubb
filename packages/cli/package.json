@@ -1,7 +1,7 @@
 {
   "name": "@kubb/cli",
   "version": "5.0.0-beta.67",
-  "description": "Official CLI for Kubb, the meta framework for code generation. Run kubb generate, kubb init, kubb validate, and kubb mcp to manage the full code generation lifecycle.",
+  "description": "Official CLI for Kubb. Run kubb generate, kubb init, kubb validate, and kubb mcp to manage the full code generation lifecycle.",
   "keywords": [
     "cli",
     "code-generator",

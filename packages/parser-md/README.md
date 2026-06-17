@@ -22,7 +22,7 @@
 
 # @kubb/parser-md
 
-### Markdown source file parser for Kubb, the meta framework for code generation
+### Markdown source file parser for Kubb
 
 Joins source blocks as plain markdown and renders YAML frontmatter via `parserMd.print`.
 

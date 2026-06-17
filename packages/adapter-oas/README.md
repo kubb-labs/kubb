@@ -22,7 +22,7 @@
 
 # @kubb/adapter-oas
 
-### OpenAPI and Swagger adapter for Kubb, the meta framework for code generation
+### OpenAPI and Swagger adapter for Kubb
 
 Parses and validates Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1 specifications and transforms them into a `@kubb/ast` `RootNode` for downstream code generation plugins.
 

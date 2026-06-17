@@ -24,7 +24,7 @@
 
 ### Model Context Protocol server for Kubb
 
-MCP server for Kubb, the meta framework for code generation. Exposes code generation as a tool over the [Model Context Protocol](https://modelcontextprotocol.io) so AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible clients can generate TypeScript types, API clients, and more using natural language.
+MCP server for Kubb. Exposes code generation as a tool over the [Model Context Protocol](https://modelcontextprotocol.io) so AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible clients can generate TypeScript types, API clients, and more using natural language.
 
 The server exposes a `generate` tool that runs a full Kubb build from a `kubb.config.ts`. It streams build events back to the client as real-time progress notifications. The server communicates over stdio and works with any MCP-compatible client.
 
