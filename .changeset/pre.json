@@ -60,6 +60,7 @@
     "ast-babel-style-traversal",
     "ast-cjs-sideeffects-utils",
     "ast-colocate-node-builders",
+    "ast-create-printer",
     "ast-define-dialect",
     "ast-define-node",
     "ast-derive-node-touchpoints",
