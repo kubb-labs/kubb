@@ -1,5 +1,4 @@
-import { readFileSync } from 'node:fs'
-import { AsyncEventEmitter } from '@internals/utils'
+import { AsyncEventEmitter, read } from '@internals/utils'
 import type { CodeNode, FileNode } from '@kubb/ast'
 import { extractStringsFromNodes } from '@kubb/ast/utils'
 import { STREAM_FLUSH_EVERY } from './constants.ts'
@@ -60,10 +59,10 @@ function joinSources(file: FileNode): string {
   return parts.join('\n\n')
 }
 
-function parseCopy(file: FileNode): string {
+async function parseCopy(file: FileNode): Promise<string> {
   let content: string
   try {
-    content = readFileSync(file.copy as string, 'utf-8')
+    content = await read(file.copy as string)
   } catch (err) {
     throw new Error(`[kubb] Could not copy file into output: ${file.copy}`, { cause: err })
   }
@@ -109,7 +108,7 @@ export class FileProcessor {
     return this.#pending.size
   }
 
-  parse(file: FileNode): string {
+  async parse(file: FileNode): Promise<string> {
     if (file.copy) {
       return parseCopy(file)
     }
@@ -130,13 +129,13 @@ export class FileProcessor {
     return parser.parse(file, { extname: parseExtName })
   }
 
-  *stream(files: ReadonlyArray<FileNode>): Generator<ParsedFile> {
+  async *stream(files: ReadonlyArray<FileNode>): AsyncGenerator<ParsedFile> {
     const total = files.length
     if (total === 0) return
 
     let processed = 0
     for (const file of files) {
-      const source = this.parse(file)
+      const source = await this.parse(file)
       processed++
 
       yield { file, source, processed, total, percentage: (processed / total) * 100 }
@@ -146,7 +145,7 @@ export class FileProcessor {
   async run(files: Array<FileNode>): Promise<Array<FileNode>> {
     await this.hooks.emit('start', files)
 
-    for (const { file, source, processed, total, percentage } of this.stream(files)) {
+    for await (const { file, source, processed, total, percentage } of this.stream(files)) {
       await this.hooks.emit('update', { file, source, processed, percentage, total })
     }
 
@@ -205,7 +204,7 @@ export class FileProcessor {
     // Single pass: each file's write starts right after its `update` fires, so IO overlaps
     // parsing and the batch never holds every rendered source in memory at once.
     const queue: Array<Promise<void>> = []
-    for (const item of this.stream(files)) {
+    for await (const item of this.stream(files)) {
       await this.hooks.emit('update', item)
       if (item.source) {
         queue.push(storage.setItem(item.file.path, item.source))

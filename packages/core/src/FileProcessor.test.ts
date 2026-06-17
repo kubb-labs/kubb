@@ -91,7 +91,7 @@ describe('FileProcessor', () => {
         const processor = new FileProcessor({ storage: memoryStorage() })
         const file = ast.factory.createFile({ path: '/src/client.ts', baseName: 'client.ts', copy: '/does/not/exist.ts' })
 
-        expect(() => processor.parse(file)).toThrow(/Could not copy file into output/)
+        await expect(processor.parse(file)).rejects.toThrow(/Could not copy file into output/)
       })
     })
   })
