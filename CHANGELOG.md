@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.67 — Jun 17, 2026
+
+### @kubb/ast
+
+#### Breaking Changes
+
+- Rename `definePrinter` to `createPrinter` and drop the `createPrinterFactory` export.
+  
+  `createPrinter` is the single helper for building a schema printer. The generic `createPrinterFactory` that sat behind it is now inlined, since the only consumer that keyed a printer by a field other than `node.type` (`@kubb/plugin-ts`'s function printer) no longer needs it. Replace `definePrinter(...)` with `createPrinter(...)`; the builder shape, options, and `Printer` result are unchanged. ([#3622](https://github.com/kubb-labs/kubb/pull/3622), [`e2caa72`](https://github.com/kubb-labs/kubb/commit/e2caa728b774897d4f526ac54c755196a72ac560))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.66 — Jun 17, 2026
 
 ### @kubb/adapter-oas
