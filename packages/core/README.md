@@ -22,7 +22,7 @@
 
 # @kubb/core
 
-### Core engine for plugin-based code generation
+### Core engine for Kubb, the meta framework for code generation
 
 Core engine for Kubb's plugin-based code generation system. Provides the plugin driver, file manager, `defineConfig`, `definePlugin`, `defineMiddleware`, and the build orchestration layer used by every Kubb plugin.
 

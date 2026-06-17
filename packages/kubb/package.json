@@ -1,7 +1,7 @@
 {
   "name": "kubb",
   "version": "5.0.0-beta.67",
-  "description": "Meta-package and entry point for Kubb — a plugin-based code generation framework for OpenAPI. Includes defineConfig, all public APIs, and serves as the gateway to the entire Kubb ecosystem.",
+  "description": "Meta-package and entry point for Kubb, the meta framework for code generation. Includes defineConfig, all public APIs, and serves as the gateway to the entire Kubb ecosystem.",
   "keywords": [
     "api-client",
     "code-generator",
@@ -10,11 +10,9 @@
     "kubb",
     "meta-framework",
     "msw",
-    "openapi",
     "plugin-system",
     "react-query",
     "sdk-generator",
-    "swagger",
     "tanstack-query",
     "typescript",
     "zod"
