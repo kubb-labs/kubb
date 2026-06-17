@@ -1,6 +1,5 @@
 import { extname, resolve } from 'node:path'
-import * as factory from '@kubb/ast/factory'
-import type { ExportNode, FileNode, SourceNode } from '@kubb/ast'
+import { ast, type ExportNode, type FileNode, type SourceNode } from '@kubb/ast'
 import type { Config, NormalizedPlugin } from '@kubb/core'
 import { type BuildTree, buildTree, toPosixPath } from '@internals/utils'
 import type { BarrelType } from './types.ts'
@@ -17,7 +16,7 @@ function isBarrelPath(path: string): boolean {
 }
 
 function makeBarrel(dirPath: string, exports: Array<ExportNode>): FileNode {
-  return factory.createFile({
+  return ast.factory.createFile({
     baseName: 'index.ts',
     path: `${dirPath}${BARREL_SUFFIX}`,
     exports,
@@ -61,13 +60,13 @@ function partitionIndexableNames(sources: ReadonlyArray<SourceNode>): Map<boolea
 
 const allStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
   if (sourceFile && hasOnlyNonIndexableSources(sourceFile.sources)) return []
-  return [factory.createExport({ path: toRelativeModulePath(dirPath, leafPath) })]
+  return [ast.factory.createExport({ path: toRelativeModulePath(dirPath, leafPath) })]
 }
 
 const namedStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
   const modulePath = toRelativeModulePath(dirPath, leafPath)
 
-  if (!sourceFile) return [factory.createExport({ path: modulePath })]
+  if (!sourceFile) return [ast.factory.createExport({ path: modulePath })]
 
   const namesByTypeOnly = partitionIndexableNames(sourceFile.sources)
   const valueNames = namesByTypeOnly.get(false)!
@@ -75,15 +74,15 @@ const namedStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
 
   if (valueNames.size === 0 && typeNames.size === 0) {
     if (sourceFile.sources.length > 0) return []
-    return [factory.createExport({ path: modulePath })]
+    return [ast.factory.createExport({ path: modulePath })]
   }
 
   const exports: Array<ExportNode> = []
   if (valueNames.size > 0) {
-    exports.push(factory.createExport({ name: [...valueNames].sort(), path: modulePath }))
+    exports.push(ast.factory.createExport({ name: [...valueNames].sort(), path: modulePath }))
   }
   if (typeNames.size > 0) {
-    exports.push(factory.createExport({ name: [...typeNames].sort(), path: modulePath, isTypeOnly: true }))
+    exports.push(ast.factory.createExport({ name: [...typeNames].sort(), path: modulePath, isTypeOnly: true }))
   }
   return exports
 }
@@ -137,12 +136,12 @@ function* walkNested(node: BuildTree): Generator<FileNode> {
   for (const child of node.children) {
     if (child.isFile) {
       if (isBarrelPath(child.path)) continue
-      exports.push(factory.createExport({ path: toRelativeModulePath(node.path, child.path) }))
+      exports.push(ast.factory.createExport({ path: toRelativeModulePath(node.path, child.path) }))
       continue
     }
 
     yield* walkNested(child)
-    exports.push(factory.createExport({ path: toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`) }))
+    exports.push(ast.factory.createExport({ path: toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`) }))
   }
 
   if (exports.length > 0) {

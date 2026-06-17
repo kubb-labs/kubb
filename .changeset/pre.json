@@ -23,6 +23,7 @@
     "adapter-oas-drop-oas-packages",
     "adapter-oas-integer-type-bigint-default",
     "adapter-oas-lazy-load-heavy-deps",
+    "adapter-oas-octet-stream-request-body",
     "adapter-oas-scalar-upgrader",
     "adapter-oas-schema-dialect",
     "adapter-oas-schema-enum-dedupe",

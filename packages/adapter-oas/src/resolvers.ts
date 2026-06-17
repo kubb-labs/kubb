@@ -209,7 +209,15 @@ export function getRequestSchema(document: Document, operation: Operation, optio
     return null
   }
 
+  const mediaType = Array.isArray(requestBody) ? requestBody[0] : options.contentType
   const schema = Array.isArray(requestBody) ? requestBody[1].schema : requestBody.schema
+
+  // OAS 3.1 (and the 3.0 -> 3.1 upgrade) drops the schema for an `application/octet-stream` body,
+  // leaving an empty media type object. Synthesize the binary schema so generators still emit a
+  // request body type for the operation.
+  if (mediaType === 'application/octet-stream' && (!schema || Object.keys(schema).length === 0)) {
+    return { type: 'string', contentMediaType: 'application/octet-stream' }
+  }
 
   if (!schema) {
     return null

@@ -1,19 +1,19 @@
-import * as factory from '@kubb/ast/factory'
+import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { parserTs } from './parserTs.ts'
 
 describe('parserTs', () => {
   it('parses a source with structured nodes', async () => {
-    const file = factory.createFile({
+    const file = ast.factory.createFile({
       baseName: 'test.ts',
       path: '/test.ts',
       sources: [
-        factory.createSource({
+        ast.factory.createSource({
           nodes: [
-            factory.createConst({
+            ast.factory.createConst({
               name: 'schema',
               export: true,
-              nodes: [factory.createText('z.string()')],
+              nodes: [ast.factory.createText('z.string()')],
             }),
           ],
         }),
@@ -27,21 +27,21 @@ describe('parserTs', () => {
   })
 
   it('parses a source with type and const nodes', async () => {
-    const file = factory.createFile({
+    const file = ast.factory.createFile({
       baseName: 'test.ts',
       path: '/test.ts',
       sources: [
-        factory.createSource({
+        ast.factory.createSource({
           nodes: [
-            factory.createType({
+            ast.factory.createType({
               name: 'Pet',
               export: true,
-              nodes: [factory.createText('{ id: number }')],
+              nodes: [ast.factory.createText('{ id: number }')],
             }),
-            factory.createConst({
+            ast.factory.createConst({
               name: 'pet',
               export: true,
-              nodes: [factory.createText('{}')],
+              nodes: [ast.factory.createText('{}')],
             }),
           ],
         }),

@@ -1,8 +1,7 @@
 import { resolve } from 'node:path'
 import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs, isPromise, memoize, Url } from '@internals/utils'
-import * as factory from '@kubb/ast/factory'
 import { collectUsedSchemaNames } from '@kubb/ast/utils'
-import type { Enforce, FileNode, InputMeta, InputNode, OperationNode, SchemaNode } from '@kubb/ast'
+import { ast, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
@@ -168,7 +167,7 @@ export class KubbDriver {
   /**
    * Parses the adapter source into `this.inputNode`. Idempotent, so repeated calls from
    * `run` do not re-parse. Adapters with `stream()` are used directly.
-   * Adapters with only `parse()` are wrapped via `factory.createInput({ stream: true })` so the dispatch loop
+   * Adapters with only `parse()` are wrapped via `ast.factory.createInput({ stream: true })` so the dispatch loop
    * stays stream-only.
    */
   async #parseInput(): Promise<void> {
@@ -183,7 +182,7 @@ export class KubbDriver {
     }
 
     const parsed = await adapter.parse(source)
-    this.inputNode = factory.createInput({
+    this.inputNode = ast.factory.createInput({
       stream: true,
       schemas: arrayToAsyncIterable(parsed.schemas),
       operations: arrayToAsyncIterable(parsed.operations),
@@ -234,7 +233,7 @@ export class KubbDriver {
             }
           },
           injectFile: (userFileNode) => {
-            this.fileManager.add(factory.createFile(userFileNode))
+            this.fileManager.add(ast.factory.createFile(userFileNode))
           },
         }
         return hooks['kubb:plugin:setup']!(pluginCtx)
