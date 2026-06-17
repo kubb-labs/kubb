@@ -148,7 +148,7 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
   print?: (this: PrinterHandlerContext<T['output'], T['options']>, node: SchemaNode) => T['printOutput'] | null
 }
 /**
- * Defines a schema printer: a function that takes a `SchemaNode` and emits
+ * Creates a schema printer: a function that takes a `SchemaNode` and emits
  * code in your target language. Each plugin that produces code from schemas
  * (TypeScript types, Zod schemas, Faker factories) ships a printer built
  * with this helper.
@@ -167,11 +167,11 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  *
  * @example Tiny Zod printer
  * ```ts
- * import { definePrinter, type PrinterFactoryOptions } from '@kubb/ast'
+ * import { createPrinter, type PrinterFactoryOptions } from '@kubb/ast'
  *
  * type PrinterZod = PrinterFactoryOptions<'zod', { strict?: boolean }, string>
  *
- * export const zodPrinter = definePrinter<PrinterZod>((options) => ({
+ * export const zodPrinter = createPrinter<PrinterZod>((options) => ({
  *   name: 'zod',
  *   options: { strict: options.strict ?? true },
  *   nodes: {
@@ -186,68 +186,25 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  * }))
  * ```
  */
-export function definePrinter<T extends PrinterFactoryOptions = PrinterFactoryOptions>(build: PrinterBuilder<T>): (options?: T['options']) => Printer<T> {
-  return createPrinterFactory<SchemaNode, SchemaType, SchemaNodeByType>((node) => node.type)(build) as (options?: T['options']) => Printer<T>
-}
+export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOptions>(build: PrinterBuilder<T>): (options?: T['options']) => Printer<T> {
+  return (options) => {
+    const { name, options: resolvedOptions, nodes, print: printOverride } = build(options ?? ({} as T['options']))
 
-/**
- * Generic printer factory behind `definePrinter`. Pass a `getKey` function that maps a node to its
- * handler key, and it returns a `definePrinter`-style helper for that node and key type. `definePrinter`
- * itself is this factory keyed by `node.type`.
- *
- * Internal to `@kubb/ast`: `definePrinter` is the supported entry point for building schema printers.
- */
-function createPrinterFactory<TNode, TKey extends string, TNodeByKey extends Partial<Record<TKey, TNode>>>(getKey: (node: TNode) => TKey | null) {
-  return function <T extends PrinterFactoryOptions>(
-    build: (options: T['options']) => {
-      name: T['name']
-      options: T['options']
-      nodes: Partial<{
-        [K in TKey]: (
-          this: {
-            transform: (node: TNode) => T['output'] | null
-            options: T['options']
-          },
-          node: TNodeByKey[K],
-        ) => T['output'] | null
-      }>
-      print?: (
-        this: {
-          transform: (node: TNode) => T['output'] | null
-          options: T['options']
-        },
-        node: TNode,
-      ) => T['printOutput'] | null
-    },
-  ): (options?: T['options']) => {
-    name: T['name']
-    options: T['options']
-    transform: (node: TNode) => T['output'] | null
-    print: (node: TNode) => T['printOutput'] | null
-  } {
-    return (options) => {
-      const { name, options: resolvedOptions, nodes, print: printOverride } = build(options ?? ({} as T['options']))
+    const context = {
+      options: resolvedOptions,
+      transform: (node: SchemaNode): T['output'] | null => {
+        const handler = nodes[node.type]
+        if (!handler) return null
 
-      const context = {
-        options: resolvedOptions,
-        transform: (node: TNode): T['output'] | null => {
-          const key = getKey(node)
-          if (key === null) return null
+        return (handler as (this: typeof context, node: SchemaNode) => T['output'] | null).call(context, node)
+      },
+    }
 
-          const handler = nodes[key]
-
-          if (!handler) return null
-
-          return (handler as (this: typeof context, node: TNode) => T['output'] | null).call(context, node)
-        },
-      }
-
-      return {
-        name,
-        options: resolvedOptions,
-        transform: context.transform,
-        print: (printOverride ? printOverride.bind(context) : context.transform) as (node: TNode) => T['printOutput'] | null,
-      }
+    return {
+      name,
+      options: resolvedOptions,
+      transform: context.transform,
+      print: (printOverride ? printOverride.bind(context) : context.transform) as (node: SchemaNode) => T['printOutput'] | null,
     }
   }
 }

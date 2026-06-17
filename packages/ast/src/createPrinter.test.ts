@@ -1,13 +1,13 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { createProperty } from './nodes/property.ts'
 import { createSchema } from './nodes/schema.ts'
-import type { PrinterFactoryOptions } from './definePrinter.ts'
-import { definePrinter } from './definePrinter.ts'
+import type { PrinterFactoryOptions } from './createPrinter.ts'
+import { createPrinter } from './createPrinter.ts'
 
-describe('definePrinter', () => {
+describe('createPrinter', () => {
   type P = PrinterFactoryOptions<'zod', { strict?: boolean }, string>
 
-  const zodPrinter = definePrinter<P>((options) => {
+  const zodPrinter = createPrinter<P>((options) => {
     return { name: 'zod', options, nodes: {} }
   })
 
@@ -25,7 +25,7 @@ describe('definePrinter', () => {
   it('dispatches print() to the matching node handler', () => {
     type P = PrinterFactoryOptions<'zod', object, string>
 
-    const zodPrinter = definePrinter<P>(() => ({
+    const zodPrinter = createPrinter<P>(() => ({
       name: 'zod',
       options: {},
       nodes: {
@@ -45,7 +45,7 @@ describe('definePrinter', () => {
   it('exposes resolved options on this.options inside handlers', () => {
     type P = PrinterFactoryOptions<'zod', { prefix?: string }, string>
 
-    const zodPrinter = definePrinter<P>((options) => {
+    const zodPrinter = createPrinter<P>((options) => {
       const { prefix = 'z' } = options
       return {
         name: 'zod',
@@ -66,7 +66,7 @@ describe('definePrinter', () => {
   it('supports recursive this.transform() for object properties', () => {
     type P = PrinterFactoryOptions<'zod', object, string>
 
-    const zodPrinter = definePrinter<P>(() => ({
+    const zodPrinter = createPrinter<P>(() => ({
       name: 'zod',
       options: {},
       nodes: {
@@ -103,7 +103,7 @@ describe('definePrinter', () => {
   it('supports recursive this.transform() for union members', () => {
     type P = PrinterFactoryOptions<'zod', object, string>
 
-    const zodPrinter = definePrinter<P>(() => ({
+    const zodPrinter = createPrinter<P>(() => ({
       name: 'zod',
       options: {},
       nodes: {
@@ -130,7 +130,7 @@ describe('definePrinter', () => {
 
   it('infers the Printer type correctly', () => {
     type P = PrinterFactoryOptions<'zod', object, string>
-    const zodPrinter = definePrinter<P>(() => ({
+    const zodPrinter = createPrinter<P>(() => ({
       name: 'zod',
       options: {},
       nodes: {},
