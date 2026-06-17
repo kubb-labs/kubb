@@ -242,6 +242,7 @@ function* walkFiles(element: unknown): Generator<FileNode> {
           meta: props['meta'] || {},
           footer: props['footer'],
           banner: props['banner'],
+          copy: props['copy'],
           sources,
           exports,
           imports,

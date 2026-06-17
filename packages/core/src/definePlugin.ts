@@ -58,13 +58,6 @@ export type Output<_TOptions = unknown> = {
    * Pass a function to compute the footer from the file's `BannerMeta`.
    */
   footer?: string | ((meta: BannerMeta) => string)
-  /**
-   * Allows the plugin to overwrite hand-written files at the same path.
-   * Defaults to `false` to protect manual edits.
-   *
-   * @default false
-   */
-  override?: boolean
 } & ExtractRegistryKey<Kubb.PluginOptionsRegistry, 'output'>
 
 /**
@@ -313,6 +306,9 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
   setOptions(options: TFactory['resolvedOptions']): void
   /**
    * Inject a raw file into the build output, bypassing the generation pipeline.
+   *
+   * Pass `copy` with an absolute path to emit a real source file (a shipped template) into the
+   * generated folder verbatim, instead of building its content from `sources`.
    */
   injectFile(userFileNode: UserFileNode): void
   /**

@@ -1,5 +1,8 @@
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import { ast, type FileNode } from '@kubb/ast'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { FileProcessor } from './FileProcessor.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
@@ -45,6 +48,51 @@ describe('FileProcessor', () => {
       const result = await processor.parse(file)
       expect(mockParse).toHaveBeenCalledWith(file, { extname: undefined })
       expect(result).toBe('// formatted\nconst a = 1')
+    })
+
+    describe('copy', () => {
+      let dir: string | undefined
+
+      afterEach(() => {
+        if (dir) rmSync(dir, { recursive: true, force: true })
+        dir = undefined
+      })
+
+      it('copies a real file verbatim and bypasses the parser', async () => {
+        dir = mkdtempSync(path.join(tmpdir(), 'kubb-copy-'))
+        const template = path.join(dir, 'template.ts')
+        const content = "import a from 'b'\nexport const z = 1\nimport c from 'd'\n"
+        writeFileSync(template, content)
+
+        const parse = vi.fn().mockReturnValue('SHOULD NOT RUN')
+        const parser = { name: 'ts', type: 'parser' as const, extNames: ['.ts' as const], install: vi.fn(), parse, print: vi.fn().mockReturnValue('') }
+        const processor = new FileProcessor({ storage: memoryStorage(), parsers: new Map([['.ts' as const, parser]]) })
+
+        const file = ast.factory.createFile({ path: '/src/client.ts', baseName: 'client.ts', copy: template })
+        const result = await processor.parse(file)
+
+        expect(parse).not.toHaveBeenCalled()
+        expect(result).toBe(content.trimEnd())
+      })
+
+      it('wraps the copied content with banner and footer', async () => {
+        dir = mkdtempSync(path.join(tmpdir(), 'kubb-copy-'))
+        const template = path.join(dir, 'template.ts')
+        writeFileSync(template, 'export const z = 1')
+
+        const processor = new FileProcessor({ storage: memoryStorage() })
+        const file = ast.factory.createFile({ path: '/src/client.ts', baseName: 'client.ts', copy: template, banner: '/* top */', footer: '/* bottom */' })
+        const result = await processor.parse(file)
+
+        expect(result).toBe('/* top */\nexport const z = 1\n/* bottom */')
+      })
+
+      it('throws a clear error when the file is missing', async () => {
+        const processor = new FileProcessor({ storage: memoryStorage() })
+        const file = ast.factory.createFile({ path: '/src/client.ts', baseName: 'client.ts', copy: '/does/not/exist.ts' })
+
+        await expect(processor.parse(file)).rejects.toThrow(/Could not copy file into output/)
+      })
     })
   })
 

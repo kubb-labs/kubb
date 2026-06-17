@@ -18,6 +18,8 @@ function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNod
     // file at the same path.
     banner: b.banner,
     footer: b.footer,
+    // A verbatim-copy file cannot be merged with rendered content; the incoming `copy` wins.
+    copy: b.copy ?? a.copy,
     sources: a.sources.length ? (b.sources.length ? [...a.sources, ...b.sources] : a.sources) : b.sources,
     imports: a.imports.length ? (b.imports.length ? [...a.imports, ...b.imports] : a.imports) : b.imports,
     exports: a.exports.length ? (b.exports.length ? [...a.exports, ...b.exports] : a.exports) : b.exports,
