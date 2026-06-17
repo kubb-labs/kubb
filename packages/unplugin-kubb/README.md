@@ -24,7 +24,7 @@
 
 ### Universal build integration for Kubb
 
-Runs OpenAPI code generation as part of your build pipeline in Vite, Webpack, Rollup, esbuild, Rspack, Nuxt, and Astro, powered by [unplugin](https://github.com/unjs/unplugin).
+Runs Kubb code generation as part of your build pipeline in Vite, Webpack, Rollup, esbuild, Rspack, Nuxt, and Astro, powered by [unplugin](https://github.com/unjs/unplugin).
 
 ## Installation
 

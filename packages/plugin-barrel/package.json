@@ -6,6 +6,7 @@
     "barrel",
     "codegen",
     "kubb",
+    "meta-framework",
     "plugin",
     "typescript"
   ],

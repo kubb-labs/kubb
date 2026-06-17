@@ -25,7 +25,7 @@
 
 ### The meta framework for code generation
 
-Point Kubb at an OpenAPI spec and it generates types, clients, hooks, validators, mocks, and more.
+Point Kubb at a schema and it generates types, clients, hooks, validators, mocks, and more.
 
 ## Installation
 
@@ -55,8 +55,8 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 
 ## Features
 
-- Generate from a spec: point Kubb at an OpenAPI document and it produces TypeScript types, type-safe API clients, [TanStack Query](https://github.com/TanStack/query) hooks for React and Vue, [SWR](https://github.com/vercel/swr) hooks, [Zod](https://github.com/colinhacks/zod) validators, [Faker](https://github.com/faker-js/faker) mocks, and [MSW](https://github.com/mswjs/msw) handlers.
-- Read Swagger 2.0, OpenAPI 3.0, and 3.1, with TypeScript-first output that runs on Node.js and Bun.
+- Generate from a schema: Kubb produces TypeScript types, type-safe API clients, [TanStack Query](https://github.com/TanStack/query) hooks for React and Vue, [SWR](https://github.com/vercel/swr) hooks, [Zod](https://github.com/colinhacks/zod) validators, [Faker](https://github.com/faker-js/faker) mocks, and [MSW](https://github.com/mswjs/msw) handlers.
+- Plug in input formats through adapters like [`@kubb/adapter-oas`](https://npmx.dev/package/@kubb/adapter-oas), with TypeScript-first output that runs on Node.js and Bun.
 - Pick what you generate from the [plugin ecosystem](https://github.com/kubb-labs/kubb-plugins): `plugin-ts`, `plugin-client`, `plugin-react-query`, `plugin-vue-query`, `plugin-swr`, `plugin-zod`, `plugin-faker`, `plugin-msw`, `plugin-cypress`, `plugin-redoc`, and `plugin-mcp`. Enable only the ones a project needs.
 - Choose your HTTP client: use the axios or fetch presets, or point at a custom client module so generated requests run through your own wrapper.
 - Control the generated tree: group files by tag, emit barrel exports, and include or exclude operations to keep the output focused.

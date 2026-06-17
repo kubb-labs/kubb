@@ -1,12 +1,12 @@
 {
   "name": "@kubb/core",
   "version": "5.0.0-beta.67",
-  "description": "Core engine for Kubb's plugin-based code generation system. Provides the plugin driver, file manager, defineConfig, and build orchestration used by every Kubb plugin.",
+  "description": "Core engine for Kubb. Provides the plugin driver, file manager, defineConfig, and build orchestration used by every Kubb plugin.",
   "keywords": [
     "code-generator",
     "codegen",
     "kubb",
-    "openapi",
+    "meta-framework",
     "plugin-system",
     "typescript"
   ],

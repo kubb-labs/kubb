@@ -6,6 +6,7 @@
     "ast",
     "codegen",
     "kubb",
+    "meta-framework",
     "typescript"
   ],
   "license": "MIT",
