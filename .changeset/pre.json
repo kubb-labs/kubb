@@ -186,6 +186,7 @@
     "reduce-kubb-install-size",
     "reduce-memory-fs-caching",
     "reduce-memory-snapshot-cache",
+    "refresh-package-descriptions",
     "remove-agent-package",
     "remove-build-snapshot-cache",
     "remove-config-lifecycle-events",

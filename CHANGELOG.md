@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.68 — Jun 17, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Reframe each package description and its keywords around Kubb. Only the `kubb` meta-package calls itself the meta framework for code generation, and only `@kubb/adapter-oas` still names OpenAPI and Swagger, since that is the package that parses them. The READMEs use the same wording. ([#3625](https://github.com/kubb-labs/kubb/pull/3625), [`420c8d4`](https://github.com/kubb-labs/kubb/commit/420c8d446e6e1c3855d76b4d2c762dadbfe78ee2))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.67 — Jun 17, 2026
 
 ### @kubb/ast
