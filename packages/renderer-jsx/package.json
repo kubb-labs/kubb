@@ -17,7 +17,6 @@
     "directory": "packages/renderer-jsx"
   },
   "files": [
-    "src",
     "dist",
     "*.d.ts",
     "*.d.cts",

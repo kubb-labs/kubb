@@ -1,12 +1,11 @@
 import { startServer } from './server.ts'
 
 export { createMcpServer } from './server.ts'
-export type { ServerOptions } from './server.ts'
 
 /**
- * Entry point that starts the MCP server. The first argument is accepted for
- * CLI parity but ignored, so behavior is driven entirely by `options`.
+ * Entry point that starts the MCP server over stdio. The argument is accepted
+ * for CLI parity but ignored.
  */
-export async function run(_argv?: Array<string>, options?: import('./server.ts').ServerOptions): Promise<void> {
-  await startServer(options)
+export async function run(_argv?: Array<string>): Promise<void> {
+  await startServer()
 }

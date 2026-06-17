@@ -3,10 +3,10 @@ import { exists, mergeDeep, Url } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { compileErrors, validate } from '@readme/openapi-parser'
+import { upgrade } from '@scalar/openapi-upgrader'
 import { parse } from 'yaml'
 import { bundleDocument } from './bundler.ts'
 import { MERGE_DEFAULT_TITLE, MERGE_DEFAULT_VERSION, MERGE_OPENAPI_VERSION } from './constants.ts'
-import { isOpenApiV2Document } from './guards.ts'
 import type { Document } from './types.ts'
 
 export type ParseOptions = {
@@ -23,7 +23,7 @@ export type ValidateDocumentOptions = {
  * Accepts a file path string or an already-parsed document object. File paths and URLs are
  * bundled via `api-ref-bundler`, hoisting external file schemas into named `components.schemas`
  * entries so generators can emit named types and imports. Swagger 2.0 documents are
- * automatically up-converted to OpenAPI 3.0 via `swagger2openapi`.
+ * automatically up-converted to OpenAPI 3.0 via `@scalar/openapi-upgrader`.
  *
  * @example
  * ```ts
@@ -42,16 +42,9 @@ export async function parseDocument(pathOrApi: string | Document, { canBundle = 
   // `bundleDocument` first. `yaml.parse` also parses JSON, since JSON is a subset of YAML.
   const document = (typeof pathOrApi === 'string' ? parse(pathOrApi) : pathOrApi) as Document
 
-  if (isOpenApiV2Document(document)) {
-    const { default: swagger2openapi } = await import('swagger2openapi')
-    const { openapi } = await swagger2openapi.convertObj(document, {
-      anchors: true,
-    })
-
-    return openapi as Document
-  }
-
-  return document
+  // `upgrade` only converts Swagger 2.0 (it checks `swagger: '2.0'` internally) and returns 3.0/3.1
+  // documents untouched, so this is a no-op for anything already on OpenAPI 3.x.
+  return upgrade(document, '3.0') as Document
 }
 
 /**

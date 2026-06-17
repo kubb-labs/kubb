@@ -9,31 +9,19 @@ type McpOptions = {
    * Current `@kubb/cli` version string, used for the telemetry payload.
    */
   version: string
-  /**
-   * TCP port for the HTTP MCP server. When `undefined`, the server uses stdio transport.
-   */
-  port?: string
-  /**
-   * Hostname to bind to when running in HTTP mode.
-   *
-   * @default 'localhost'
-   */
-  host?: string
 }
 
 /**
- * Starts the `@kubb/mcp` server and reports the outcome to telemetry.
- *
- * Runs over HTTP when `port` is set, otherwise over stdio.
+ * Starts the `@kubb/mcp` server over stdio and reports the outcome to telemetry.
  */
-export async function run({ version, port, host }: McpOptions): Promise<void> {
+export async function run({ version }: McpOptions): Promise<void> {
   const { run: startMcpServer } = (await import('@kubb/mcp')) as typeof McpModule
   const hrStart = process.hrtime()
   const report = (status: 'success' | 'failed') => Telemetry.send(Telemetry.build({ command: 'mcp', kubbVersion: version, hrStart, status }))
   try {
     console.log(styleText('cyan', '⏳ Starting MCP server...'))
     console.warn(styleText('yellow', 'This feature is still under development, use with caution'))
-    await startMcpServer(undefined, { port: port !== undefined ? Number(port) : undefined, host })
+    await startMcpServer()
     await report('success')
   } catch (error) {
     await report('failed')

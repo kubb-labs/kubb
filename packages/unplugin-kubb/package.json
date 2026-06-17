@@ -25,7 +25,6 @@
     "directory": "packages/unplugin"
   },
   "files": [
-    "src",
     "dist",
     "!/**/**.test.**",
     "!/**/__tests__/**",

@@ -1,6 +1,12 @@
 #!/usr/bin/env node
-process.setSourceMapsEnabled?.(true)
 
-const { run } = await import('../dist/index.js')
+process.setSourceMapsEnabled?.(true)
 process.title = 'Kubb'
-run(process.argv)
+
+try {
+  const { run } = await import('../dist/index.js')
+  await run(process.argv)
+} catch (err) {
+  console.error(err)
+  process.exit(1)
+}

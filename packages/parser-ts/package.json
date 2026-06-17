@@ -17,7 +17,6 @@
     "directory": "packages/parser-ts"
   },
   "files": [
-    "src",
     "dist",
     "!/**/**.test.**",
     "!/**/__tests__/**",

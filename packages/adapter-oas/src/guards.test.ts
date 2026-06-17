@@ -1,33 +1,7 @@
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { isDiscriminator, isNullable, isOpenApiV2Document, isReference } from './guards.ts'
+import { isDiscriminator, isNullable, isReference } from './guards.ts'
 import type { SchemaObject } from './types.ts'
-
-describe('isOpenApiV2Document', () => {
-  it('returns true for a Swagger 2.0 document', () => {
-    const doc = { swagger: '2.0', info: { title: '', version: '' }, paths: {} }
-
-    expect(isOpenApiV2Document(doc)).toBe(true)
-    if (isOpenApiV2Document(doc)) {
-      expectTypeOf(doc).toEqualTypeOf<OpenAPIV2.Document>()
-    }
-  })
-
-  it('returns false for an OpenAPI 3 document', () => {
-    expect(
-      isOpenApiV2Document({
-        openapi: '3.0.0',
-        info: { title: '', version: '' },
-        paths: {},
-      }),
-    ).toBe(false)
-  })
-
-  it('returns false for null / non-objects', () => {
-    expect(isOpenApiV2Document(null)).toBe(false)
-    expect(isOpenApiV2Document('string')).toBe(false)
-  })
-})
 
 describe('isNullable', () => {
   it('returns true for nullable: true (OAS 3.0)', () => {

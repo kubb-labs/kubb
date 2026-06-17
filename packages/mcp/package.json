@@ -23,7 +23,6 @@
     "kubb-mcp": "bin/kubb-mcp.cjs"
   },
   "files": [
-    "src",
     "dist",
     "bin",
     "!/**/**.test.**",
@@ -63,9 +62,7 @@
   "dependencies": {
     "@kubb/adapter-oas": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@remix-run/node-fetch-server": "^0.13.3",
     "@tmcp/adapter-valibot": "^0.1.6",
-    "@tmcp/transport-http": "^0.8.6",
     "@tmcp/transport-stdio": "^0.4.3",
     "jiti": "^2.7.0",
     "tmcp": "^1.19.4",
