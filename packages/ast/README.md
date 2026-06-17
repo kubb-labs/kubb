@@ -28,13 +28,13 @@ Defines the node tree, visitor pattern, factory functions, and type guards used 
 
 ## Imports
 
-| Path                | Contents                                                                                 |
-| ------------------- | ---------------------------------------------------------------------------------------- |
-| `@kubb/ast`         | Runtime: node definitions, guards, visitor, macro engine, constants                      |
-| `@kubb/ast/factory` | Node constructors (`createSchema`, `createFile`, and friends), the `ts.factory` analogue |
-| `@kubb/ast/macros`  | Built-in macro presets: `macroDiscriminatorEnum`, `macroSimplifyUnion`, `macroEnumName`  |
-| `@kubb/ast/types`   | Types only: all node interfaces, type aliases, visitor types                             |
-| `@kubb/ast/utils`   | Spec-agnostic string and identifier helpers, ref helpers                                 |
+| Path                            | Contents                                                                                 |
+| ------------------------------- | ---------------------------------------------------------------------------------------- |
+| `@kubb/ast`                     | Runtime: node definitions, guards, visitor, macro engine, constants                      |
+| `ast.factory` (via `@kubb/ast`) | Node constructors (`createSchema`, `createFile`, and friends), the `ts.factory` analogue |
+| `@kubb/ast/macros`              | Built-in macro presets: `macroDiscriminatorEnum`, `macroSimplifyUnion`, `macroEnumName`  |
+| `@kubb/ast/types`               | Types only: all node interfaces, type aliases, visitor types                             |
+| `@kubb/ast/utils`               | Spec-agnostic string and identifier helpers, ref helpers                                 |
 
 ## Node tree
 
@@ -59,10 +59,12 @@ SchemaNode (discriminated union)
 
 ### Factory
 
-Constructors live on the `@kubb/ast/factory` subpath, mirroring `ts.factory.createX`. Through `@kubb/core` the same set is reachable as `ast.factory.createSchema(...)`.
+Constructors are available as `ast.factory` from `@kubb/ast`, mirroring `ts.factory.createX`.
 
 ```ts
-import { createInput, createSchema, createProperty } from '@kubb/ast/factory'
+import { ast } from '@kubb/ast'
+
+const { createInput, createSchema, createProperty } = ast.factory
 
 const root = createInput({
   schemas: [
