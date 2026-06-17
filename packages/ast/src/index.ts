@@ -1,5 +1,5 @@
 export { schemaTypes } from './constants.ts'
-export { defineDialect } from './dialect.ts'
+export { defineDialect } from './defineDialect.ts'
 export { isHttpOperationNode, narrowSchema } from './guards.ts'
 export { applyMacros, composeMacros, defineMacro } from './defineMacro.ts'
 export { defineNode } from './defineNode.ts'

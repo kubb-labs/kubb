@@ -45,7 +45,7 @@ export type Dedupe<TPlan = unknown, TContext = unknown> = {
  * A spec adapter's dialect. `name` identifies it in logs and diagnostics, `schema` holds the
  * spec-specific schema questions the parser answers, and `dedupe` is the schema-sharing seam.
  */
-export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema, TDocument = unknown, TDedupe extends Dedupe = Dedupe> = {
+export type DefineDialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema, TDocument = unknown, TDedupe extends Dedupe = Dedupe> = {
   /**
    * Identifies the dialect in logs and diagnostics.
    */
@@ -61,7 +61,7 @@ export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema,
 }
 
 /**
- * Types a {@link Dialect} for an adapter. Adds no runtime behavior and only pins the
+ * Types a {@link DefineDialect} for an adapter. Adds no runtime behavior and only pins the
  * dialect's type for inference.
  *
  * @example
@@ -80,7 +80,7 @@ export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema,
  * ```
  */
 export function defineDialect<TSchema, TRef, TDiscriminated, TDocument, TDedupe extends Dedupe>(
-  dialect: Dialect<TSchema, TRef, TDiscriminated, TDocument, TDedupe>,
-): Dialect<TSchema, TRef, TDiscriminated, TDocument, TDedupe> {
+  dialect: DefineDialect<TSchema, TRef, TDiscriminated, TDocument, TDedupe>,
+): DefineDialect<TSchema, TRef, TDiscriminated, TDocument, TDedupe> {
   return dialect
 }
