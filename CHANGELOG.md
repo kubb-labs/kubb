@@ -1,5 +1,56 @@
 # Changelog
 
+## v5.0.0-beta.64 — Jun 17, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Convert Swagger 2.0 specs with `@scalar/openapi-upgrader` instead of `swagger2openapi`.
+  
+  The old converter pulled in the legacy oas-kit and node-fetch dependency tree (around 1.5 MB) for a single `convertObj` call. `@scalar/openapi-upgrader` is a focused ESM package that does the same 2.0 to 3.0 transform, cutting install size to roughly 480 KB. The upgrader runs on every parsed document and only rewrites Swagger 2.0 input (it checks for `swagger: '2.0'` internally), so OpenAPI 3.0 and 3.1 documents pass through untouched. The internal `isOpenApiV2Document` guard is gone as a result. ([#3611](https://github.com/kubb-labs/kubb/pull/3611), [`8bd4085`](https://github.com/kubb-labs/kubb/commit/8bd4085f7ab455099890454439ac5f7699109268))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Stop publishing `src/` in the package tarballs.
+  
+  The shipped sourcemaps already embed their sources and no declaration maps point at `src/`, so source-level debugging and go-to-definition are unaffected while each tarball drops by roughly a third. ([#3611](https://github.com/kubb-labs/kubb/pull/3611), [`8bd4085`](https://github.com/kubb-labs/kubb/commit/8bd4085f7ab455099890454439ac5f7699109268))
+- Expose every `@kubb/ast` export under a single `ast` namespace and make the package tree-shakable.
+  
+  `import { ast } from '@kubb/ast'` (or from `@kubb/core`) now reaches the whole surface the way the TypeScript compiler exposes `ts.factory`, for example `ast.factory.createSchema(...)`. The namespace is a compile-time re-export and the package is marked side-effect-free, so a bundler keeps only the factories you actually use. Flat named imports such as `import { factory, defineNode } from '@kubb/ast'` keep working. ([#3611](https://github.com/kubb-labs/kubb/pull/3611), [`8bd4085`](https://github.com/kubb-labs/kubb/commit/8bd4085f7ab455099890454439ac5f7699109268))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Load the Kubb config with `unconfig` and accept only JavaScript and TypeScript module configs.
+  
+  Discovery now matches `kubb.config.{ts,mts,cts,js,mjs,cjs}` and the matching `.kubbrc.*` variants (also under `.config/` and `configs/`). YAML, JSON, and the `package.json` `kubb` key are no longer read, since a Kubb config is defined with `defineConfig` and plugin function calls that those formats cannot express. This replaces `cosmiconfig` and its YAML and JSON loader chain, reducing install size. TypeScript and JSX configs keep loading through the existing jiti loader. ([#3611](https://github.com/kubb-labs/kubb/pull/3611), [`8bd4085`](https://github.com/kubb-labs/kubb/commit/8bd4085f7ab455099890454439ac5f7699109268))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Lead terminal diagnostics with the code and rename the help/docs labels.
+  
+  A diagnostic now prints as `[CODE] plugin: message` with the code tinted by severity, followed by indented `at:`, `fix:`, and `see:` rows. The `help:` and `docs:` labels are renamed to `fix:` and `see:`, matching the diagnostics docs pages, and the standalone `×`/`⚠`/`ℹ` glyph is dropped. The `--reporter json` output and the `SerializedDiagnostic` fields (`help`, `docsUrl`) are unchanged. ([#3606](https://github.com/kubb-labs/kubb/pull/3606), [`799c660`](https://github.com/kubb-labs/kubb/commit/799c66050922f0f2c8becf2255e096c524ba16d9))
+
+### @kubb/mcp
+
+#### Bug Fixes
+
+- Serve the MCP server over stdio only and drop the HTTP transport.
+  
+  Every local MCP client (Claude, Copilot, editors) launches the server as a subprocess and talks to it over stdio, so the HTTP transport and its `--port` and `--host` flags are removed along with the `@remix-run/node-fetch-server` and `@tmcp/transport-http` dependencies. `startServer()` no longer takes `port` or `host` options. ([#3611](https://github.com/kubb-labs/kubb/pull/3611), [`8bd4085`](https://github.com/kubb-labs/kubb/commit/8bd4085f7ab455099890454439ac5f7699109268))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.63 — Jun 16, 2026
 
 ### @kubb/adapter-oas
