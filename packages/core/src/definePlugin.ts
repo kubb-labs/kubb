@@ -313,6 +313,9 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
   setOptions(options: TFactory['resolvedOptions']): void
   /**
    * Inject a raw file into the build output, bypassing the generation pipeline.
+   *
+   * Pass `copy` with an absolute path to emit a real source file (a shipped template) into the
+   * generated folder verbatim, instead of building its content from `sources`.
    */
   injectFile(userFileNode: UserFileNode): void
   /**

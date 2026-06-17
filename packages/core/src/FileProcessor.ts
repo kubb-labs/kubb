@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { AsyncEventEmitter } from '@internals/utils'
 import type { CodeNode, FileNode } from '@kubb/ast'
 import { extractStringsFromNodes } from '@kubb/ast/utils'
@@ -59,6 +60,20 @@ function joinSources(file: FileNode): string {
   return parts.join('\n\n')
 }
 
+function parseCopy(file: FileNode): string {
+  let content: string
+  try {
+    content = readFileSync(file.copy as string, 'utf-8')
+  } catch (err) {
+    throw new Error(`[kubb] Could not copy file into output: ${file.copy}`, { cause: err })
+  }
+
+  return [file.banner, content, file.footer]
+    .filter((segment): segment is string => Boolean(segment))
+    .map((segment) => segment.trimEnd())
+    .join('\n')
+}
+
 /**
  * Turns `FileNode`s into source strings and writes them to storage.
  *
@@ -95,6 +110,10 @@ export class FileProcessor {
   }
 
   parse(file: FileNode): string {
+    if (file.copy) {
+      return parseCopy(file)
+    }
+
     const parsers = this.#parsers
     const parseExtName = this.#extension?.[file.extname] || undefined
 
