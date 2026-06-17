@@ -195,14 +195,9 @@ export function definePrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
  * handler key, and it returns a `definePrinter`-style helper for that node and key type. `definePrinter`
  * itself is this factory keyed by `node.type`.
  *
- * @example Key a printer by `node.kind` instead of `node.type`
- * ```ts
- * const defineFunctionPrinter = createPrinterFactory<FunctionParamNode, FunctionParamKind, Partial<Record<FunctionParamKind, FunctionParamNode>>>(
- *   (node) => node.kind,
- * )
- * ```
+ * Internal to `@kubb/ast`: `definePrinter` is the supported entry point for building schema printers.
  */
-export function createPrinterFactory<TNode, TKey extends string, TNodeByKey extends Partial<Record<TKey, TNode>>>(getKey: (node: TNode) => TKey | null) {
+function createPrinterFactory<TNode, TKey extends string, TNodeByKey extends Partial<Record<TKey, TNode>>>(getKey: (node: TNode) => TKey | null) {
   return function <T extends PrinterFactoryOptions>(
     build: (options: T['options']) => {
       name: T['name']

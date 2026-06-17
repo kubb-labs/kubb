@@ -4,7 +4,7 @@ export { isHttpOperationNode, narrowSchema } from './guards.ts'
 export { applyMacros, composeMacros, defineMacro } from './defineMacro.ts'
 export { defineNode } from './defineNode.ts'
 export { optionality } from './optionality.ts'
-export { createPrinterFactory, definePrinter } from './definePrinter.ts'
+export { definePrinter } from './definePrinter.ts'
 export { signatureOf } from './signature.ts'
 export { collect, transform, walk } from './visitor.ts'
 
