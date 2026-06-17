@@ -9,7 +9,7 @@ function stringEnum(values: Array<string>, extra: Partial<Parameters<typeof crea
 
 describe('signatureOf', () => {
   it('ignores documentation and usage-slot fields', () => {
-    const a = stringEnum(['a', 'b'], { description: 'one', example: 'a', deprecated: true, optional: true })
+    const a = stringEnum(['a', 'b'], { description: 'one', examples: ['a'], deprecated: true, optional: true })
     const b = stringEnum(['a', 'b'], { title: 'two' })
 
     expect(signatureOf(a)).toBe(signatureOf(b))

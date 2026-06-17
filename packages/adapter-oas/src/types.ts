@@ -1,7 +1,7 @@
 import type { AdapterFactoryOptions } from '@kubb/core'
 import type { ast } from '@kubb/core'
 import type { JSONSchema4, JSONSchema6, JSONSchema7 } from 'json-schema'
-import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+import type { OpenAPIV3_1 } from 'openapi-types'
 import type { Operation } from './operation.ts'
 
 export type { Operation }
@@ -70,7 +70,7 @@ export type SchemaObject = {
    * Allowed values for this schema.
    */
   enum?: Array<string | number | boolean | null>
-} & (OpenAPIV3.SchemaObject | OpenAPIV3_1.SchemaObject | JSONSchema4 | JSONSchema6 | JSONSchema7)
+} & (OpenAPIV3_1.SchemaObject | JSONSchema4 | JSONSchema6 | JSONSchema7)
 
 /**
  * HTTP method in the lowercase form an OpenAPI path item uses for its keys.
@@ -80,54 +80,54 @@ export type HttpMethod = Lowercase<ast.HttpMethod>
 /**
  * Normalized OpenAPI document after parsing.
  */
-export type Document = (OpenAPIV3.Document | OpenAPIV3_1.Document) & Record<string, unknown>
+export type Document = OpenAPIV3_1.Document & Record<string, unknown>
 
 /**
  * Single operation object (the `get`/`post`/… entry on a path item) plus any vendor extensions.
  */
-export type OperationObject = (OpenAPIV3.OperationObject | OpenAPIV3_1.OperationObject) & Record<string, unknown>
+export type OperationObject = OpenAPIV3_1.OperationObject & Record<string, unknown>
 
 /**
  * Path item object holding the operations and shared parameters for a single URL path.
  */
-export type PathItemObject = OpenAPIV3.PathItemObject | OpenAPIV3_1.PathItemObject
+export type PathItemObject = OpenAPIV3_1.PathItemObject
 
 /**
  * Discriminator object for `oneOf`/`anyOf` schemas in OpenAPI.
  */
-export type DiscriminatorObject = OpenAPIV3.DiscriminatorObject | OpenAPIV3_1.DiscriminatorObject
+export type DiscriminatorObject = OpenAPIV3_1.DiscriminatorObject
 
 /**
  * OpenAPI reference object pointing to a schema definition via `$ref`.
  */
-export type ReferenceObject = OpenAPIV3.ReferenceObject
+export type ReferenceObject = OpenAPIV3_1.ReferenceObject
 
 /**
  * OpenAPI response object holding the content and headers for one status code.
  */
-export type ResponseObject = OpenAPIV3.ResponseObject | OpenAPIV3_1.ResponseObject
+export type ResponseObject = OpenAPIV3_1.ResponseObject
 
 /**
  * OpenAPI request body object that maps content types to their media type objects.
  */
-export type RequestBodyObject = OpenAPIV3.RequestBodyObject | OpenAPIV3_1.RequestBodyObject
+export type RequestBodyObject = OpenAPIV3_1.RequestBodyObject
 
 /**
  * OpenAPI media type object that maps a content-type string to its schema.
  */
-export type MediaTypeObject = OpenAPIV3.MediaTypeObject | OpenAPIV3_1.MediaTypeObject
+export type MediaTypeObject = OpenAPIV3_1.MediaTypeObject
 
 /**
  * OpenAPI parameter object, narrowed so `in` is always one of the four valid locations.
  */
 export type ParameterObject = {
   in: 'cookie' | 'header' | 'path' | 'query'
-} & (OpenAPIV3.ParameterObject | OpenAPIV3_1.ParameterObject)
+} & OpenAPIV3_1.ParameterObject
 
 /**
  * OpenAPI server object describing a base URL and its `{variable}` substitutions.
  */
-export type ServerObject = OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject
+export type ServerObject = OpenAPIV3_1.ServerObject
 
 /**
  * Configuration for the OpenAPI adapter: spec validation, content-type selection,

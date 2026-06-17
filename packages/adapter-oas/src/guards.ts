@@ -1,5 +1,4 @@
-import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
-import type { DiscriminatorObject, SchemaObject } from './types.ts'
+import type { DiscriminatorObject, ReferenceObject, SchemaObject } from './types.ts'
 
 /**
  * Returns `true` when a schema should be treated as nullable.
@@ -34,7 +33,7 @@ export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): 
  * isReference({ type: 'string' })                   // false
  * ```
  */
-export function isReference(obj?: unknown): obj is OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject {
+export function isReference(obj?: unknown): obj is ReferenceObject {
   return !!obj && typeof obj === 'object' && '$ref' in obj
 }
 

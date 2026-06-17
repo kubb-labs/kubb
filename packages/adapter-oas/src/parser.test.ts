@@ -127,7 +127,7 @@ describe('buildAst', () => {
       expect(nullableString?.type).toBe('string')
       expect(nullableString?.nullable).toBe(true)
       expect(nullableString?.readOnly).toBe(true)
-      expect(nullableString?.example).toBe('some-value')
+      expect(nullableString?.examples).toStrictEqual(['some-value'])
     })
 
     it('flattens single-member allOf for nullable $ref', async () => {
@@ -518,6 +518,22 @@ describe('buildAst', () => {
       expect(ok?.content).toHaveLength(1)
       expect(ok?.content?.[0]?.contentType).toBe('application/xml')
     })
+  })
+})
+
+describe('parseSchema examples', () => {
+  const ctx = { document: emptyDocument }
+
+  it('reads the OAS 3.1 examples array', () => {
+    const node = parseSchema(ctx, { schema: { type: 'string', examples: ['a', 'b'] } })
+
+    expect(node.examples).toStrictEqual(['a', 'b'])
+  })
+
+  it('normalizes a singular OAS 3.0 example into the examples array', () => {
+    const node = parseSchema(ctx, { schema: { type: 'string', example: 'doggie' } })
+
+    expect(node.examples).toStrictEqual(['doggie'])
   })
 })
 

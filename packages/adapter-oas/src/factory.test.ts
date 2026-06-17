@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { mergeDocuments, parseDocument, parseFromConfig, validateDocument } from './factory.ts'
+import { parseDocument, parseFromConfig, validateDocument } from './factory.ts'
 import type { Document } from './types.ts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -13,17 +13,6 @@ const petSchema: Document = {
   components: {
     schemas: {
       Pet: { type: 'object', properties: { name: { type: 'string' } } },
-    },
-  },
-} as Document
-
-const orderSchema: Document = {
-  openapi: '3.0.3',
-  info: { title: 'Orders API', version: '1.0.0' },
-  paths: {},
-  components: {
-    schemas: {
-      Order: { type: 'object', properties: { id: { type: 'integer' } } },
     },
   },
 } as Document
@@ -109,28 +98,6 @@ describe('parseDocument', () => {
   })
 })
 
-describe('mergeDocuments', () => {
-  it('merges two documents into one', async () => {
-    const merged = await mergeDocuments([petSchema, orderSchema])
-
-    expect(merged.components?.schemas?.['Pet']).toBeDefined()
-    expect(merged.components?.schemas?.['Order']).toBeDefined()
-  })
-
-  it('throws a coded diagnostic when given an empty array', async () => {
-    await expect(mergeDocuments([])).rejects.toMatchObject({
-      name: 'DiagnosticError',
-      diagnostic: { code: 'KUBB_INPUT_REQUIRED', severity: 'error' },
-    })
-  })
-
-  it('returns a single document unchanged when only one is provided', async () => {
-    const merged = await mergeDocuments([petSchema])
-
-    expect(merged.components?.schemas?.['Pet']).toBeDefined()
-  })
-})
-
 describe('parseFromConfig', () => {
   it('parses an inline object via type: data', async () => {
     const doc = await parseFromConfig({ type: 'data', data: petSchema })
@@ -162,16 +129,6 @@ components:
     const doc = await parseFromConfig({ type: 'data', data: yaml })
 
     expect(doc.components?.schemas?.['Pet']).toBeDefined()
-  })
-
-  it('merges multiple documents via type: paths (using object sources)', async () => {
-    const doc = await parseFromConfig({
-      type: 'paths',
-      paths: [petSchema as unknown as string, orderSchema as unknown as string],
-    })
-
-    expect(doc.components?.schemas?.['Pet']).toBeDefined()
-    expect(doc.components?.schemas?.['Order']).toBeDefined()
   })
 })
 

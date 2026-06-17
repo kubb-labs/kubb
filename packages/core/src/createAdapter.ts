@@ -6,10 +6,9 @@ import type { ImportNode, InputNode, SchemaNode } from '@kubb/ast'
  * input shape with paths resolved to absolute.
  *
  * - `{ type: 'path' }`: single file on disk.
- * - `{ type: 'paths' }`: multiple files (e.g. split spec).
  * - `{ type: 'data' }`: raw string or parsed object provided inline.
  */
-export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown } | { type: 'paths'; paths: Array<string> }
+export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown }
 
 /**
  * Generic parameters used by `createAdapter` and the resulting `Adapter` type.

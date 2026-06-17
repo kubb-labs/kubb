@@ -518,6 +518,16 @@ export function getDateType(
 /**
  * Collects the shared metadata fields passed to every `createSchema` call.
  */
+/**
+ * Reads schema examples as an array. OAS 3.1 uses an `examples` array, but specs (including ones
+ * labeled 3.1) still use the singular OAS 3.0 `example`, which the upgrader only converts on the
+ * 3.0 -> 3.1 hop. Normalize both into one array so the AST node exposes only `examples`.
+ */
+export function extractExamples(schema: SchemaObject): Array<unknown> | undefined {
+  if (Array.isArray(schema.examples)) return schema.examples
+  return schema.example !== undefined ? [schema.example] : undefined
+}
+
 export function buildSchemaNode(schema: SchemaObject, name: string | null | undefined, nullable: true | undefined, defaultValue: unknown) {
   return {
     name,
@@ -528,7 +538,7 @@ export function buildSchemaNode(schema: SchemaObject, name: string | null | unde
     readOnly: schema.readOnly,
     writeOnly: schema.writeOnly,
     default: defaultValue,
-    example: schema.example,
+    examples: extractExamples(schema),
     format: schema.format,
   } as const
 }

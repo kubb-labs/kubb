@@ -37,21 +37,6 @@ export const SCHEMA_REF_PREFIX = '#/components/schemas/' as const
 export const SUPPORTED_METHODS: ReadonlySet<string> = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
 
 /**
- * OpenAPI version string written into the stub document created during multi-spec merges.
- */
-export const MERGE_OPENAPI_VERSION = '3.0.0' as const
-
-/**
- * Fallback `info.title` placed in the stub document when merging multiple API files.
- */
-export const MERGE_DEFAULT_TITLE = 'Merged API' as const
-
-/**
- * Fallback `info.version` placed in the stub document when merging multiple API files.
- */
-export const MERGE_DEFAULT_VERSION = '1.0.0' as const
-
-/**
  * Set of JSON Schema keywords that prevent a schema fragment from being inlined during `allOf` flattening.
  *
  * A fragment that contains any of these keys carries structural meaning of its own and must stay as a separate
