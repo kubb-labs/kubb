@@ -10,11 +10,6 @@ import { NonZeroExitError, x } from 'tinyexec'
 import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
 import { WATCHER_IGNORED_PATHS } from '../../constants.ts'
 
-type ConfigResult = {
-  filepath: string
-  config: PossibleConfig<CLIOptions>
-}
-
 const loader = createModuleLoader()
 
 // Kubb configs are JS/TS modules (they call `defineConfig`/`pluginX()`), so YAML and JSON are not
@@ -25,26 +20,6 @@ const MODULE_NAME = 'kubb'
 
 const SEARCH_FILES = ['', '.config/', 'configs/'].flatMap((prefix) => [`${prefix}.${MODULE_NAME}rc`, `${prefix}${MODULE_NAME}.config`])
 const SEARCH_EXTENSIONS = ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs']
-
-async function getConfig(configFile?: string): Promise<ConfigResult> {
-  const sources: Array<LoadConfigSource<unknown>> = configFile
-    ? [{ files: [basename(resolve(configFile))], extensions: [], parser: tsLoader }]
-    : [{ files: SEARCH_FILES, extensions: SEARCH_EXTENSIONS, parser: tsLoader }]
-
-  let result: LoadConfigResult<unknown>
-  try {
-    result = await loadConfig<unknown>({ cwd: configFile ? dirname(resolve(configFile)) : process.cwd(), sources, merge: false })
-  } catch (error) {
-    throw new Error('Config failed loading', { cause: error })
-  }
-
-  const [filepath] = result.sources
-  if (!result.config || !filepath) {
-    throw new Error('Config not defined, create a kubb.config.js or pass through your config with the option --config')
-  }
-
-  return { filepath, config: result.config as PossibleConfig<CLIOptions> }
-}
 
 type GetConfigsOptions = {
   /**
@@ -81,13 +56,30 @@ type GetConfigsResult = {
  * Every config in the result is guaranteed to have a `plugins` array.
  */
 export async function getConfigs({ configPath, input, watch, logLevel }: GetConfigsOptions): Promise<GetConfigsResult> {
-  const result = await getConfig(configPath)
+  const abs = configPath ? resolve(configPath) : undefined
+  const sources: Array<LoadConfigSource<unknown>> = abs
+    ? [{ files: [basename(abs)], extensions: [], parser: tsLoader }]
+    : [{ files: SEARCH_FILES, extensions: SEARCH_EXTENSIONS, parser: tsLoader }]
+
+  let result: LoadConfigResult<unknown>
+  try {
+    result = await loadConfig<unknown>({ cwd: abs ? dirname(abs) : process.cwd(), sources, merge: false })
+  } catch (error) {
+    throw new Error('Config failed loading', { cause: error })
+  }
+
+  const [filepath] = result.sources
+  if (!result.config || !filepath) {
+    throw new Error('Config not defined, create a kubb.config.js or pass through your config with the option --config')
+  }
+
+  const config = result.config as PossibleConfig<CLIOptions>
   const cli: CLIOptions = { config: configPath, input, watch, logLevel }
-  const resolved = await (typeof result.config === 'function' ? result.config(cli) : result.config)
+  const resolved = await (typeof config === 'function' ? config(cli) : config)
   const userConfigs = Array.isArray(resolved) ? resolved : [resolved]
 
   return {
-    configPath: result.filepath,
+    configPath: filepath,
     configs: userConfigs.map((item) => ({ ...item, plugins: item.plugins ?? [] }) as Config),
   }
 }
