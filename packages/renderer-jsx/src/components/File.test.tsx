@@ -29,6 +29,19 @@ describe('File.Source', () => {
   })
 })
 
+describe('File copy', () => {
+  it('passes the copy path through to the file node', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(<File baseName="client.ts" path="src/gen/.kubb/client.ts" copy="/abs/templates/client.ts" />)
+
+    expect(renderer.files[0]).toMatchObject({
+      baseName: 'client.ts',
+      path: 'src/gen/.kubb/client.ts',
+      copy: '/abs/templates/client.ts',
+    })
+  })
+})
+
 describe('File.Import', () => {
   it('should register import attributes', async () => {
     const renderer = jsxRenderer()

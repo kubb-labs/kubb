@@ -49,6 +49,13 @@ type Props<TMeta> = BaseProps & {
    */
   footer?: string | null
   /**
+   * Absolute on-disk path to copy verbatim into the output, bypassing the parser. Use to emit a
+   * real source file shipped inside a package (a template) into the generated folder. Only
+   * `banner`/`footer` are applied around the copied content; child source blocks are ignored for
+   * output but still drive barrel generation.
+   */
+  copy?: string | null
+  /**
    * Child nodes rendered as the content of this file (source blocks, imports, exports).
    */
   children?: KubbReactNode

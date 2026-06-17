@@ -58,13 +58,6 @@ export type Output<_TOptions = unknown> = {
    * Pass a function to compute the footer from the file's `BannerMeta`.
    */
   footer?: string | ((meta: BannerMeta) => string)
-  /**
-   * Allows the plugin to overwrite hand-written files at the same path.
-   * Defaults to `false` to protect manual edits.
-   *
-   * @default false
-   */
-  override?: boolean
 } & ExtractRegistryKey<Kubb.PluginOptionsRegistry, 'output'>
 
 /**

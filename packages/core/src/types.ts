@@ -192,17 +192,6 @@ export type Config<TInput = Input> = {
      * ```
      */
     defaultBanner?: 'simple' | 'full' | false
-    /**
-     * Overwrite existing files when `true`, skip files that already exist when `false`. Individual
-     * plugins can override it. Keep `false` to avoid clobbering local edits in the output folder.
-     *
-     * @example
-     * ```ts
-     * override: true   // regenerate everything, even existing files
-     * override: false  // skip files that already exist
-     * ```
-     */
-    override?: boolean
   } & ExtractRegistryKey<Kubb.ConfigOptionsRegistry, 'output'>
   /**
    * Where generated files are persisted. Defaults to `fsStorage()` (disk). Pass `memoryStorage()`

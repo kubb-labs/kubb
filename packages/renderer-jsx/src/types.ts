@@ -38,7 +38,11 @@ export type KubbFileProps = {
   children?: KubbReactNode
   baseName: string
   path: string
-  override?: boolean | null
+  /**
+   * Absolute on-disk path to copy verbatim into the output, bypassing the parser. Use to emit a
+   * real source file shipped inside a package (a template) into the generated folder.
+   */
+  copy?: string | null
   meta?: FileNode['meta'] | null
 }
 
