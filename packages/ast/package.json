@@ -16,7 +16,6 @@
     "directory": "packages/ast"
   },
   "files": [
-    "src",
     "dist",
     "!/**/**.test.**",
     "!/**/__tests__/**",

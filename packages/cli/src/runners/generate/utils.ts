@@ -1,71 +1,29 @@
 import { hash } from 'node:crypto'
+import { basename, dirname, resolve } from 'node:path'
+import process from 'node:process'
 import { styleText } from 'node:util'
 import { createModuleLoader } from '@internals/shared'
 import type { AsyncEventEmitter } from '@internals/utils'
 import { toError } from '@internals/utils'
 import type { CLIOptions, Config, KubbHooks, PossibleConfig } from '@kubb/core'
-import { cosmiconfig } from 'cosmiconfig'
 import { NonZeroExitError, x } from 'tinyexec'
+import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
 import { WATCHER_IGNORED_PATHS } from '../../constants.ts'
-
-type CosmiconfigResult = {
-  filepath: string
-  isEmpty?: boolean
-  config: PossibleConfig<CLIOptions>
-}
 
 const loader = createModuleLoader()
 
+// Kubb configs are JS/TS modules (they call `defineConfig`/`pluginX()`), so YAML and JSON are not
+// supported. The jiti loader handles every module format and the JSX runtime, returning the default export.
 const tsLoader = (configFile: string) => loader.load(configFile, { default: true })
 
 const MODULE_NAME = 'kubb'
 
-const BASE_SEARCH_PLACES = [
-  'package.json',
-  `.${MODULE_NAME}rc`,
-  `.${MODULE_NAME}rc.json`,
-  `.${MODULE_NAME}rc.yaml`,
-  `.${MODULE_NAME}rc.yml`,
-  `.${MODULE_NAME}rc.ts`,
-  `.${MODULE_NAME}rc.mts`,
-  `.${MODULE_NAME}rc.cts`,
-  `.${MODULE_NAME}rc.js`,
-  `.${MODULE_NAME}rc.mjs`,
-  `.${MODULE_NAME}rc.cjs`,
-  `${MODULE_NAME}.config.ts`,
-  `${MODULE_NAME}.config.mts`,
-  `${MODULE_NAME}.config.cts`,
-  `${MODULE_NAME}.config.js`,
-  `${MODULE_NAME}.config.mjs`,
-  `${MODULE_NAME}.config.cjs`,
-]
-
-const SEARCH_PLACES = ['', '.config/', 'configs/'].flatMap((prefix) => BASE_SEARCH_PLACES.map((p) => `${prefix}${p}`))
-
-async function getCosmiConfig(configFile?: string): Promise<CosmiconfigResult> {
-  const explorer = cosmiconfig(MODULE_NAME, {
-    cache: false,
-    searchPlaces: SEARCH_PLACES,
-    loaders: { '.ts': tsLoader, '.mts': tsLoader, '.cts': tsLoader },
-  })
-
-  let result: CosmiconfigResult
-  try {
-    result = (configFile ? await explorer.load(configFile) : await explorer.search()) as CosmiconfigResult
-  } catch (error) {
-    throw new Error('Config failed loading', { cause: error })
-  }
-
-  if (!result?.config || result.isEmpty) {
-    throw new Error('Config not defined, create a kubb.config.js or pass through your config with the option --config')
-  }
-
-  return result
-}
+const SEARCH_FILES = ['', '.config/', 'configs/'].flatMap((prefix) => [`${prefix}.${MODULE_NAME}rc`, `${prefix}${MODULE_NAME}.config`])
+const SEARCH_EXTENSIONS = ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs']
 
 type GetConfigsOptions = {
   /**
-   * Explicit path to the Kubb config file. When omitted, cosmiconfig searches from the current directory.
+   * Explicit path to the Kubb config file. When omitted, the loader searches up from the current directory.
    */
   configPath?: string
   /**
@@ -94,17 +52,34 @@ type GetConfigsResult = {
 }
 
 /**
- * Discovers the Kubb config via cosmiconfig and resolves it into a normalized array of configs.
+ * Discovers the Kubb config and resolves it into a normalized array of configs.
  * Every config in the result is guaranteed to have a `plugins` array.
  */
 export async function getConfigs({ configPath, input, watch, logLevel }: GetConfigsOptions): Promise<GetConfigsResult> {
-  const result = await getCosmiConfig(configPath)
+  const abs = configPath ? resolve(configPath) : undefined
+  const sources: Array<LoadConfigSource<unknown>> = abs
+    ? [{ files: [basename(abs)], extensions: [], parser: tsLoader }]
+    : [{ files: SEARCH_FILES, extensions: SEARCH_EXTENSIONS, parser: tsLoader }]
+
+  let result: LoadConfigResult<unknown>
+  try {
+    result = await loadConfig<unknown>({ cwd: abs ? dirname(abs) : process.cwd(), sources, merge: false })
+  } catch (error) {
+    throw new Error('Config failed loading', { cause: error })
+  }
+
+  const [filepath] = result.sources
+  if (!result.config || !filepath) {
+    throw new Error('Config not defined, create a kubb.config.js or pass through your config with the option --config')
+  }
+
+  const config = result.config as PossibleConfig<CLIOptions>
   const cli: CLIOptions = { config: configPath, input, watch, logLevel }
-  const resolved = await (typeof result.config === 'function' ? result.config(cli) : result.config)
+  const resolved = await (typeof config === 'function' ? config(cli) : config)
   const userConfigs = Array.isArray(resolved) ? resolved : [resolved]
 
   return {
-    configPath: result.filepath,
+    configPath: filepath,
     configs: userConfigs.map((item) => ({ ...item, plugins: item.plugins ?? [] }) as Config),
   }
 }

@@ -30,7 +30,6 @@
     "kubb": "bin/kubb.js"
   },
   "files": [
-    "src",
     "dist",
     "bin",
     "!/**/**.test.**",

@@ -18,7 +18,6 @@
     "directory": "packages/core"
   },
   "files": [
-    "src",
     "schemas",
     "dist",
     "*.d.ts",

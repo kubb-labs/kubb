@@ -18,7 +18,6 @@
     "directory": "packages/parser-md"
   },
   "files": [
-    "src",
     "dist",
     "!/**/**.test.**",
     "!/**/__tests__/**",

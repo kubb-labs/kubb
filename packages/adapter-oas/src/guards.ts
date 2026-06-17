@@ -1,20 +1,5 @@
-import { isPlainObject } from '@internals/utils'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import type { DiscriminatorObject, SchemaObject } from './types.ts'
-
-/**
- * Returns `true` when `doc` is a Swagger 2.0 document (no `openapi` key).
- *
- * @example
- * ```ts
- * if (isOpenApiV2Document(doc)) {
- *   // doc is OpenAPIV2.Document
- * }
- * ```
- */
-export function isOpenApiV2Document(doc: unknown): doc is OpenAPIV2.Document {
-  return !!doc && isPlainObject(doc) && !('openapi' in doc)
-}
 
 /**
  * Returns `true` when a schema should be treated as nullable.

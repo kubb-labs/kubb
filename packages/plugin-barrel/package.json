@@ -17,7 +17,6 @@
     "directory": "packages/plugin-barrel"
   },
   "files": [
-    "src",
     "dist",
     "*.d.ts",
     "*.d.cts",

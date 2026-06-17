@@ -23,7 +23,6 @@
     "kubb": "bin/kubb.js"
   },
   "files": [
-    "src",
     "dist",
     "bin",
     "!/**/**.test.**",
@@ -62,9 +61,9 @@
     "@clack/prompts": "^1.5.1",
     "@kubb/core": "workspace:*",
     "chokidar": "^5.0.0",
-    "cosmiconfig": "^9.0.2",
     "jiti": "^2.7.0",
-    "tinyexec": "catalog:"
+    "tinyexec": "catalog:",
+    "unconfig": "^7.5.0"
   },
   "devDependencies": {
     "@internals/shared": "workspace:*",
