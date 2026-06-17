@@ -442,6 +442,35 @@ describe('buildAst', () => {
       expect(upload?.requestBody?.content?.[0]?.contentType).toBe('multipart/form-data')
     })
 
+    it('keeps a binary requestBody for an application/octet-stream body upgraded to 3.1', async () => {
+      const oas = await parseDocument({
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/pet/{petId}/uploadImage': {
+            post: {
+              operationId: 'uploadFile',
+              requestBody: {
+                required: true,
+                content: {
+                  'application/octet-stream': {
+                    schema: { type: 'string', format: 'binary' },
+                  },
+                },
+              },
+              responses: { '200': { description: 'successful operation' } },
+            },
+          },
+        },
+      })
+      const root = parseOas(oas).root
+      const uploadFile = root.operations.find((op) => op.operationId === 'uploadFile')
+
+      expect(uploadFile?.requestBody?.content).toHaveLength(1)
+      expect(uploadFile?.requestBody?.content?.[0]?.contentType).toBe('application/octet-stream')
+      expect(uploadFile?.requestBody?.content?.[0]?.schema?.type).toBe('blob')
+    })
+
     it('populates response.content with a single entry when the response has one content type', async () => {
       const oas = await buildMinimalOas()
       const root = parseOas(oas).root

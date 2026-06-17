@@ -19,3 +19,19 @@ const jsonMimeFragments = ['application/json', 'application/x-json', 'text/json'
 export function isJsonMimeType(mimeType: string): boolean {
   return jsonMimeFragments.some((fragment) => mimeType.includes(fragment))
 }
+
+/**
+ * Returns `true` when a media type denotes a raw binary body.
+ *
+ * OAS 3.1 (and the 3.0 -> 3.1 upgrade) represents an `application/octet-stream` body as an empty
+ * media type object, dropping the schema. Generators use this to recognize the body is still binary.
+ *
+ * @example
+ * ```ts
+ * isBinaryMimeType('application/octet-stream') // true
+ * isBinaryMimeType('application/json')         // false
+ * ```
+ */
+export function isBinaryMimeType(mimeType: string): boolean {
+  return mimeType === 'application/octet-stream'
+}

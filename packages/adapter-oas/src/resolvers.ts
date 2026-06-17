@@ -3,7 +3,7 @@ import { Diagnostics } from '@kubb/core'
 import type { ast } from '@kubb/core'
 import { formatMap, SCHEMA_REF_PREFIX, specialCasedFormats, structuralKeys } from './constants.ts'
 import { isReference } from './guards.ts'
-import { isJsonMimeType } from './mime.ts'
+import { isBinaryMimeType, isJsonMimeType } from './mime.ts'
 import { getRequestContent, getResponseByStatusCode } from './operation.ts'
 import { dereferenceWithRef, resolveRef } from './refs.ts'
 import type { ContentType, Document, MediaTypeObject, Operation, ParameterObject, ResponseObject, SchemaObject, ServerObject } from './types.ts'
@@ -209,7 +209,15 @@ export function getRequestSchema(document: Document, operation: Operation, optio
     return null
   }
 
+  const mediaType = Array.isArray(requestBody) ? requestBody[0] : options.contentType
   const schema = Array.isArray(requestBody) ? requestBody[1].schema : requestBody.schema
+
+  // OAS 3.1 (and the 3.0 -> 3.1 upgrade) drops the schema for an `application/octet-stream` body,
+  // leaving an empty media type object. Synthesize the binary schema so generators still emit a
+  // request body type for the operation.
+  if (mediaType && isBinaryMimeType(mediaType) && (!schema || Object.keys(schema).length === 0)) {
+    return { type: 'string', contentMediaType: 'application/octet-stream' }
+  }
 
   if (!schema) {
     return null
