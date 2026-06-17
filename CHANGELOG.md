@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.66 — Jun 17, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Keep generating a request body schema for `application/octet-stream` bodies.
+  
+  The 3.0 -> 3.1 upgrade drops the schema from an `application/octet-stream` request body, leaving an empty media type object. `getRequestSchema` now recognizes a binary media type and synthesizes the `{ type: 'string', contentMediaType: 'application/octet-stream' }` schema, so operations like `uploadFile` still emit a binary request body type (for example the Zod `uploadFileDataSchema`). ([#3621](https://github.com/kubb-labs/kubb/pull/3621), [`f6d1256`](https://github.com/kubb-labs/kubb/commit/f6d1256348a853c13c713e93b894e9e64866fb5f))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.65 — Jun 17, 2026
 
 ### @kubb/adapter-oas
