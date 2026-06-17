@@ -1,5 +1,26 @@
 # @kubb/plugin-ts
 
+## 4.38.1
+
+### Patch Changes
+
+- [#3605](https://github.com/kubb-labs/kubb/pull/3605) [`4064fca`](https://github.com/kubb-labs/kubb/commit/4064fcac907c337abd1eb969a3dafa7b13bf8a8a) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix empty string enum values being dropped from generated TypeScript types.
+
+  OpenAPI enums containing `""` (empty string) were silently omitted from the emitted
+  TypeScript type in all enum modes (`asConst`, `asPascalConst`, `literal`, `inlineLiteral`,
+  `enum`, `constEnum`). The Zod plugin already handled empty strings correctly, causing a
+  mismatch and a broken cast (`as unknown as z.ZodType<...>`).
+
+  Root cause: three truthiness guards (`if (value)` / `if (key)`) in
+  `createEnumDeclaration` treated `''` as falsy. Replaced all three with explicit
+  `!== null && !== undefined` checks.
+
+- Updated dependencies []:
+  - @kubb/ast@4.38.1
+  - @kubb/core@4.38.1
+  - @kubb/oas@4.38.1
+  - @kubb/plugin-oas@4.38.1
+
 ## 4.38.0
 
 ### Patch Changes
