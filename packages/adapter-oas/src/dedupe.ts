@@ -73,7 +73,7 @@ function createRefNode(node: ast.SchemaNode, target: Target): ast.SchemaNode {
     deprecated: node.deprecated,
     description: node.description,
     default: node.default,
-    example: node.example,
+    examples: node.examples,
   })
 }
 

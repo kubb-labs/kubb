@@ -1,6 +1,9 @@
 import { parseDocument } from '../src/factory.ts'
+import type { Document } from '../src/types.ts'
 
 export async function buildMinimalOas() {
+  // Intentionally a 3.0.3 document (note `nullable`) to exercise the 3.0 -> 3.1 upgrade in
+  // `parseDocument`. The `Document` type describes the upgraded 3.1 output, so cast the input.
   return parseDocument({
     openapi: '3.0.3',
     info: { title: 'Test', version: '1.0.0' },
@@ -178,5 +181,5 @@ export async function buildMinimalOas() {
         },
       },
     },
-  })
+  } as unknown as Document)
 }

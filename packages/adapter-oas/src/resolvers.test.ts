@@ -105,7 +105,7 @@ describe('buildSchemaNode', () => {
       deprecated: true,
       readOnly: true,
       writeOnly: false,
-      example: 42,
+      examples: [42],
       format: 'email',
     }
     const node = buildSchemaNode(schema, 'myName', true, 'defaultVal')
@@ -114,7 +114,7 @@ describe('buildSchemaNode', () => {
       default: 'defaultVal',
       deprecated: true,
       description: 'A description',
-      example: 42,
+      examples: [42],
       format: 'email',
       name: 'myName',
       nullable: true,

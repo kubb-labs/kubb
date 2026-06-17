@@ -1,7 +1,6 @@
-import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { isDiscriminator, isNullable, isReference } from './guards.ts'
-import type { SchemaObject } from './types.ts'
+import type { ReferenceObject, SchemaObject } from './types.ts'
 
 describe('isNullable', () => {
   it('returns true for nullable: true (OAS 3.0)', () => {
@@ -35,7 +34,7 @@ describe('isReference', () => {
     expect(isReference(ref)).toBe(true)
 
     if (isReference(ref)) {
-      expectTypeOf(ref).toEqualTypeOf<OpenAPIV3.ReferenceObject | OpenAPIV3_1.ReferenceObject>()
+      expectTypeOf(ref).toEqualTypeOf<ReferenceObject>()
     }
   })
 

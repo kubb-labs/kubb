@@ -148,9 +148,9 @@ type SchemaNodeBase = BaseNode & {
    */
   default?: unknown
   /**
-   * Example value.
+   * Example values (OAS 3.1 `examples` array).
    */
-  example?: unknown
+  examples?: Array<unknown>
   /**
    * Base primitive type.
    * For example, this is `'string'` for a `uuid` schema.

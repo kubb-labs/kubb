@@ -179,7 +179,7 @@ const signatureCache = new WeakMap<SchemaNode, string>()
 /**
  * Computes a deterministic, shape-only signature (a content hash) for a schema node. Two schemas
  * share a signature when they are structurally identical, ignoring documentation (`name`, `title`,
- * `description`, `example`, `default`, `deprecated`) and usage-slot flags (`optional`, `nullish`,
+ * `description`, `examples`, `default`, `deprecated`) and usage-slot flags (`optional`, `nullish`,
  * `readOnly`, `writeOnly`). `nullable` is kept because it changes the produced type, and `ref`
  * nodes compare by target name, which also terminates on circular shapes.
  *

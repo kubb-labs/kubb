@@ -8,6 +8,7 @@ import { createDiscriminantNode, findDiscriminator } from './discriminator.ts'
 import { getOperationId, getOperations, getRequestContentType, getResponseByStatusCode, getResponseStatusCodes } from './operation.ts'
 import {
   buildSchemaNode,
+  extractExamples,
   flattenSchema,
   getDateType,
   getParameters,
@@ -228,7 +229,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
         readOnly: schema.readOnly ?? memberNode.readOnly,
         writeOnly: schema.writeOnly ?? memberNode.writeOnly,
         default: mergedDefault,
-        example: schema.example ?? memberNode.example,
+        examples: extractExamples(schema) ?? memberNode.examples,
         pattern: schema.pattern ?? ('pattern' in memberNode ? memberNode.pattern : undefined),
         format: schema.format ?? memberNode.format,
       } as ast.DistributiveOmit<ast.SchemaNode, 'kind'>)
@@ -555,7 +556,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       readOnly: schema.readOnly,
       writeOnly: schema.writeOnly,
       default: enumDefault,
-      example: schema.example,
+      examples: extractExamples(schema),
       format: schema.format,
     }
 

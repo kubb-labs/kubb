@@ -1,97 +1,42 @@
 import path from 'node:path'
-import { exists, mergeDeep, Url } from '@internals/utils'
+import { exists, Url } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { compileErrors, validate } from '@readme/openapi-parser'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { parse } from 'yaml'
 import { bundleDocument } from './bundler.ts'
-import { MERGE_DEFAULT_TITLE, MERGE_DEFAULT_VERSION, MERGE_OPENAPI_VERSION } from './constants.ts'
 import type { Document } from './types.ts'
-
-export type ParseOptions = {
-  canBundle?: boolean
-}
-
-export type ValidateDocumentOptions = {
-  throwOnError?: boolean
-}
 
 /**
  * Loads and bundles an OpenAPI document, returning the raw `Document`.
  *
- * Accepts a file path string or an already-parsed document object. File paths and URLs are
- * bundled via `api-ref-bundler`, hoisting external file schemas into named `components.schemas`
- * entries so generators can emit named types and imports. Swagger 2.0 documents are
- * automatically up-converted to OpenAPI 3.0 via `@scalar/openapi-upgrader`.
+ * A string is a file path or URL: it is bundled via `api-ref-bundler`, hoisting external file
+ * schemas into named `components.schemas` entries so generators can emit named types and imports.
+ * An object is treated as an already-parsed document. Swagger 2.0 and OpenAPI 3.0 documents are
+ * up-converted to OpenAPI 3.1 via `@scalar/openapi-upgrader`.
  *
  * @example
  * ```ts
  * const document = await parseDocument('./openapi.yaml')
- * const document = await parse(rawDocumentObject, { canBundle: false })
+ * const document = await parseDocument(rawDocumentObject)
  * ```
  */
-export async function parseDocument(pathOrApi: string | Document, { canBundle = true }: ParseOptions = {}): Promise<Document> {
-  if (typeof pathOrApi === 'string' && canBundle) {
+export async function parseDocument(pathOrApi: string | Document): Promise<Document> {
+  if (typeof pathOrApi === 'string') {
     const bundled = await bundleDocument(pathOrApi)
 
-    return parseDocument(bundled, { canBundle: false })
+    return parseDocument(bundled)
   }
 
-  // A string here is always inline YAML/JSON content: file paths and URLs are read and parsed by
-  // `bundleDocument` first. `yaml.parse` also parses JSON, since JSON is a subset of YAML.
-  const document = (typeof pathOrApi === 'string' ? parse(pathOrApi) : pathOrApi) as Document
-
-  // `upgrade` only converts Swagger 2.0 (it checks `swagger: '2.0'` internally) and returns 3.0/3.1
-  // documents untouched, so this is a no-op for anything already on OpenAPI 3.x.
-  return upgrade(document, '3.0') as Document
-}
-
-/**
- * Deep-merges multiple OpenAPI documents into a single `Document`.
- *
- * Each document is parsed independently, then deep-merged into one in array order.
- * Throws when the input array is empty.
- *
- * @example
- * ```ts
- * const document = await mergeDocuments(['./pets.yaml', './orders.yaml'])
- * ```
- */
-export async function mergeDocuments(pathOrApi: Array<string | Document>): Promise<Document> {
-  const documents = await Promise.all(pathOrApi.map((p) => parseDocument(p, { canBundle: false })))
-
-  if (documents.length === 0) {
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.inputRequired,
-      severity: 'error',
-      message: 'No OAS documents were provided for merging.',
-      help: 'Pass at least one path or document to `input.path`.',
-      location: { kind: 'config' },
-    })
-  }
-
-  const seed: Document = {
-    openapi: MERGE_OPENAPI_VERSION,
-    info: { title: MERGE_DEFAULT_TITLE, version: MERGE_DEFAULT_VERSION },
-    paths: {},
-    components: { schemas: {} },
-  } as Document
-
-  const merged = documents.reduce(
-    (acc, current) => mergeDeep(acc as Record<string, unknown>, current as Record<string, unknown>),
-    seed as Record<string, unknown>,
-  )
-
-  return parseDocument(merged as Document)
+  // `upgrade` chains Swagger 2.0 -> 3.0 -> 3.1, leaving documents already on 3.1 untouched.
+  return upgrade(pathOrApi, '3.1') as Document
 }
 
 /**
  * Creates a `Document` from an `AdapterSource`.
  *
- * Handles all three source types:
  * - `{ type: 'path' }` resolves and bundles a local file path or remote URL.
- * - `{ type: 'paths' }` merges multiple file paths into a single document.
  * - `{ type: 'data' }` parses an inline string (YAML/JSON) or raw object.
  *
  * @example
@@ -102,15 +47,10 @@ export async function mergeDocuments(pathOrApi: Array<string | Document>): Promi
  */
 export async function parseFromConfig(source: AdapterSource): Promise<Document> {
   if (source.type === 'data') {
-    if (typeof source.data === 'object') {
-      return parseDocument(structuredClone(source.data) as Document)
-    }
-
-    return parseDocument(source.data as string, { canBundle: false })
-  }
-
-  if (source.type === 'paths') {
-    return mergeDocuments(source.paths)
+    // Inline data is a parsed object or a raw YAML/JSON string. Parse the string here so
+    // `parseDocument` never mistakes inline content for a file path. `parse` also handles JSON.
+    const data = typeof source.data === 'string' ? parse(source.data) : structuredClone(source.data)
+    return parseDocument(data as Document)
   }
 
   // type === 'path'
@@ -151,7 +91,7 @@ export async function assertInputExists(input: string): Promise<void> {
  * await validateDocument(document)
  * ```
  */
-export async function validateDocument(document: Document, { throwOnError = false }: ValidateDocumentOptions = {}): Promise<void> {
+export async function validateDocument(document: Document, { throwOnError = false }: { throwOnError?: boolean } = {}): Promise<void> {
   try {
     // `validate` dereferences its input in place, so clone to keep the cached document intact.
     const result = await validate(structuredClone(document), {
