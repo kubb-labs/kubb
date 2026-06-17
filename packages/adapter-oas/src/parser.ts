@@ -2,7 +2,7 @@ import { pascalCase } from '@internals/utils'
 import { macroDiscriminatorEnum, macroEnumName, macroSimplifyUnion } from '@kubb/ast/macros'
 import { childName, enumPropName, extractRefName, mergeAdjacentObjectsLazy } from '@kubb/ast/utils'
 import { ast } from '@kubb/core'
-import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, SCHEMA_REF_PREFIX, typeOptionMap } from './constants.ts'
+import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, SCHEMA_REF_PREFIX } from './constants.ts'
 import { oasDialect, type OasDialect } from './dialect.ts'
 import { createDiscriminantNode, findDiscriminator } from './discriminator.ts'
 import { getOperationId, getOperations, getRequestContentType, getResponseByStatusCode, getResponseStatusCodes } from './operation.ts'
@@ -624,7 +624,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       if (additionalProperties && Object.keys(additionalProperties).length > 0) {
         return parseSchema({ schema: additionalProperties as SchemaObject }, rawOptions)
       }
-      if (additionalProperties) return ast.factory.createSchema({ type: typeOptionMap.get(options.unknownType)! })
+      if (additionalProperties) return ast.factory.createSchema({ type: options.unknownType })
       return undefined
     })()
 
@@ -636,7 +636,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
             pattern,
             patternSchema === true || (typeof patternSchema === 'object' && Object.keys(patternSchema).length === 0)
               ? ast.factory.createSchema({
-                  type: typeOptionMap.get(options.unknownType)!,
+                  type: options.unknownType,
                 })
               : parseSchema({ schema: patternSchema as SchemaObject }, rawOptions),
           ]),
@@ -869,7 +869,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       if (node) return node
     }
 
-    const emptyType = typeOptionMap.get(options.emptySchemaType)!
+    const emptyType = options.emptySchemaType
     return ast.factory.createSchema({
       type: emptyType as ast.ScalarSchemaType,
       name,
@@ -889,7 +889,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
 
     const schema: ast.SchemaNode = param['schema']
       ? parseSchema({ schema: param['schema'] as SchemaObject, name: schemaName }, options)
-      : ast.factory.createSchema({ type: typeOptionMap.get(options.unknownType)! })
+      : ast.factory.createSchema({ type: options.unknownType })
 
     return ast.factory.createParameter({
       name: paramName,
@@ -1007,7 +1007,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
         const node =
           raw && Object.keys(raw).length > 0
             ? parseSchema({ schema: raw, name: responseName }, options)
-            : ast.factory.createSchema({ type: typeOptionMap.get(options.emptySchemaType)! })
+            : ast.factory.createSchema({ type: options.emptySchemaType })
         return { schema: node, keysToOmit: collectPropertyKeysByFlag(raw, 'writeOnly') }
       }
 

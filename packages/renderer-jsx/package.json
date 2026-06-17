@@ -26,18 +26,12 @@
     "!/**/__snapshots__/**"
   ],
   "type": "module",
-  "sideEffects": [
-    "./dist/globals.js",
-    "./dist/globals.cjs"
-  ],
+  "sideEffects": false,
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "globals": [
-        "./dist/globals.d.ts"
-      ],
       "jsx-dev-runtime": [
         "./dist/jsx-runtime.d.ts"
       ],

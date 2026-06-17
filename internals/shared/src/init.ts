@@ -1,4 +1,3 @@
-import { pluginDefaultConfigs } from './constants.ts'
 import type { PluginOption } from './types.ts'
 
 export function generateConfigFile({
@@ -12,12 +11,7 @@ export function generateConfigFile({
 }): string {
   const imports = selectedPlugins.map((plugin) => `import { ${plugin.importName} } from '${plugin.packageName}'`).join('\n')
 
-  const pluginConfigs = selectedPlugins
-    .map((plugin) => {
-      const config = (pluginDefaultConfigs as Record<string, string>)[plugin.value] ?? `${plugin.importName}()`
-      return `    ${config},`
-    })
-    .join('\n')
+  const pluginConfigs = selectedPlugins.map((plugin) => `    ${plugin.importName}(),`).join('\n')
 
   return `import { defineConfig } from 'kubb'
 ${imports}

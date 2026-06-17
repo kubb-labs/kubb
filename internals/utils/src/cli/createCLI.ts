@@ -1,5 +1,22 @@
 import { nodeAdapter } from './adapters/nodeAdapter.ts'
-import type { CLIAdapter, CommandDefinition, RunOptions } from './types.ts'
+import type { CommandDefinition } from './defineCommand.ts'
+
+/**
+ * Options passed to every `CLIAdapter.run` invocation.
+ */
+export type RunOptions = {
+  programName: string
+  defaultCommandName: string
+  version: string
+}
+
+/**
+ * Interface a CLI adapter must implement to plug into `createCLI`.
+ */
+export type CLIAdapter = {
+  run(commands: Array<CommandDefinition>, argv: Array<string>, opts: RunOptions): Promise<void>
+  renderHelp(def: CommandDefinition, parentName?: string): void
+}
 
 /**
  * Creates a CLI runner bound to a specific adapter.

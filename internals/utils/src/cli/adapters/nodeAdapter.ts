@@ -1,7 +1,7 @@
 import { parseArgs, styleText } from 'node:util'
-import { defineCLIAdapter } from '../define.ts'
-import { renderHelp } from '../help.ts'
-import type { CommandDefinition, OptionType, ParsedArgs, RunOptions } from '../types.ts'
+import type { CLIAdapter, RunOptions } from '../createCLI.ts'
+import type { CommandDefinition, OptionType, ParsedArgs } from '../defineCommand.ts'
+import { renderHelp } from '../renderHelp.ts'
 
 type ParseOption = {
   type: OptionType
@@ -94,7 +94,7 @@ function printRootHelp(programName: string, version: string, defs: Array<Command
 /**
  * CLI adapter using `node:util parseArgs`. No external dependencies.
  */
-export const nodeAdapter = defineCLIAdapter({
+export const nodeAdapter: CLIAdapter = {
   renderHelp(def: CommandDefinition, parentName?: string): void {
     renderHelp(def, parentName)
   },
@@ -171,4 +171,4 @@ export const nodeAdapter = defineCLIAdapter({
 
     await runCommand(def, commandArgv, parentName)
   },
-})
+}
