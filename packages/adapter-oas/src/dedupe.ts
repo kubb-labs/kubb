@@ -51,10 +51,10 @@ export type DedupeContext = {
   circularSchemas: ReadonlySet<string>
   usedNames: Set<string>
   /**
-   * Names an operation already claims for a generated type (its response-status, data, and
-   * parameter types). An inline shape with no named component falls back to its parser-assigned
-   * name, which for an operation body is one of these. Extracting it under that name would clash
-   * with the operation's own type, so such a shape is left inline instead of hoisted.
+   * Names an operation already uses for its own generated types: the response-status, data, and
+   * parameter types. An inline shape with no named component would be hoisted under its
+   * parser-assigned name, and for an operation body that name is one of these. Hoisting it would
+   * clash with the operation's own type, so the shape stays inline.
    */
   reservedNames?: ReadonlySet<string>
 }
