@@ -12,16 +12,11 @@ type Target = {
 }
 
 /**
- * The result of {@link plan}: the shared definitions to prepend to the schema list, plus the
- * rewriting behavior that repoints duplicate shapes at their shared target. The lookup maps stay
- * private to the closure, so callers interact with one object instead of three collections.
+ * The result of {@link plan}: the rewriting behavior that repoints duplicate shapes at their
+ * shared target. The lookup maps stay private to the closure, so callers interact with one object
+ * instead of several collections.
  */
 export type Plan = {
-  /**
-   * New top-level schema definitions created for inline shapes that had no existing named
-   * component. Nested duplicates inside each definition are already collapsed.
-   */
-  extracted: Array<ast.SchemaNode>
   /**
    * Rewrites an operation or nested schema, replacing every duplicate sub-schema with a `ref` to
    * its shared target. Replacing a node prunes its subtree, so nested duplicates inside a replaced
@@ -44,17 +39,10 @@ export type Plan = {
 
 /**
  * Runtime state {@link plan} reads from the current parse: schema names that take part in a
- * circular chain (never extracted, extracting them would break the cycle) and the names already in
- * use (so extracted definitions resolve collisions).
+ * circular chain. These are never deduplicated, since collapsing them would break the cycle.
  */
 export type DedupeContext = {
   circularSchemas: ReadonlySet<string>
-  usedNames: Set<string>
-  /**
-   * Names operations already use for their own types. A shape that would be hoisted under one
-   * of these stays inline instead, avoiding a clash with the operation's type.
-   */
-  reservedNames?: ReadonlySet<string>
 }
 
 /**
@@ -83,17 +71,9 @@ function createRefNode(node: ast.SchemaNode, target: Target): ast.SchemaNode {
 }
 
 /**
- * Strips usage-slot flags from an extracted definition and applies its name.
- * A standalone definition is never optional, so `optional`/`nullish` are cleared.
- */
-function cleanDefinition(node: ast.SchemaNode, name: string): ast.SchemaNode {
-  return { ...node, name, optional: undefined, nullish: undefined }
-}
-
-/**
  * Returns `true` when a node is eligible for deduplication. Only enums and objects qualify, and
  * object shapes that take part in a circular chain are rejected so recursive structures are not
- * extracted (which would break the cycle).
+ * collapsed (which would break the cycle).
  */
 function isCandidate(node: ast.SchemaNode, circularSchemas: ReadonlySet<string>): boolean {
   if (node.type === 'enum') return true
@@ -103,44 +83,26 @@ function isCandidate(node: ast.SchemaNode, circularSchemas: ReadonlySet<string>)
 }
 
 /**
- * Produces the name for an inline shape with no existing named component, resolving
- * collisions against `usedNames`. Returns `null` for an unnamed shape, which stays inline.
- */
-function nameFor(node: ast.SchemaNode, usedNames: Set<string>): string | null {
-  const base = node.name
-  if (!base) return null
-
-  let name = base
-  let counter = 2
-  while (usedNames.has(name)) {
-    name = `${base}${counter++}`
-  }
-  usedNames.add(name)
-  return name
-}
-
-/**
  * Scans a forest of schema and operation nodes and produces a {@link Plan}.
  *
- * A shape that occurs at least {@link MIN_OCCURRENCES} times is deduplicated: if any occurrence is
- * a named top-level schema, the first one becomes the target (so other top-level duplicates and
- * inline copies turn into references to it). Other top-level names with the same content are
- * recorded as aliases. Otherwise a new definition is extracted using {@link nameFor}. The returned
- * plan rewrites nodes against those decisions.
+ * A shape that occurs at least {@link MIN_OCCURRENCES} times and is backed by a named top-level
+ * schema is deduplicated: the first named occurrence becomes the target, so other top-level
+ * duplicates and inline copies turn into references to it. Other top-level names with the same
+ * content are recorded as aliases. Inline shapes with no named component are left in place — they
+ * are only collapsed when they match a schema the spec already names.
  *
  * @example
  * ```ts
- * const dedupePlan = plan([...schemaNodes, ...operationNodes], { circularSchemas, usedNames })
+ * const dedupePlan = plan([...schemaNodes, ...operationNodes], { circularSchemas })
  * ```
  */
 export function plan(roots: ReadonlyArray<ast.Node>, context: DedupeContext): Plan {
-  const { circularSchemas, usedNames, reservedNames = new Set<string>() } = context
+  const { circularSchemas } = context
 
   const topLevelNodes = new Set<ast.SchemaNode>()
 
   type Group = {
     count: number
-    representative: ast.SchemaNode
     topLevelNames: Array<string>
   }
   const groups = new Map<string, Group>()
@@ -157,38 +119,27 @@ export function plan(roots: ReadonlyArray<ast.Node>, context: DedupeContext): Pl
         group.count++
         if (isTopLevel) group.topLevelNames.push(schemaNode.name!)
       } else {
-        groups.set(signature, { count: 1, representative: schemaNode, topLevelNames: isTopLevel ? [schemaNode.name!] : [] })
+        groups.set(signature, { count: 1, topLevelNames: isTopLevel ? [schemaNode.name!] : [] })
       }
     }
   }
 
   const bySignature = new Map<string, Target>()
   const byName = new Map<string, Target>()
-  const pendingExtractions: Array<{ name: string; representative: ast.SchemaNode }> = []
 
   for (const [signature, group] of groups) {
     if (group.count < MIN_OCCURRENCES) continue
 
+    // Only collapse shapes the spec already names. An inline shape with no named component is
+    // left in place rather than hoisted under an invented name.
     const [firstName, ...duplicateNames] = group.topLevelNames
-    if (firstName) {
-      const target: Target = { name: firstName, ref: `${SCHEMA_REF_PREFIX}${firstName}` }
-      bySignature.set(signature, target)
-      for (const duplicate of duplicateNames) {
-        byName.set(duplicate, target)
-      }
-      continue
+    if (!firstName) continue
+
+    const target: Target = { name: firstName, ref: `${SCHEMA_REF_PREFIX}${firstName}` }
+    bySignature.set(signature, target)
+    for (const duplicate of duplicateNames) {
+      byName.set(duplicate, target)
     }
-
-    // No named component backs this shape, so it would be extracted under its parser-assigned
-    // name. When an operation already claims that name for one of its own types, keep the shape
-    // inline rather than emit a colliding shared definition.
-    if (group.representative.name && reservedNames.has(group.representative.name)) continue
-
-    const name = nameFor(group.representative, usedNames)
-    if (!name) continue
-
-    bySignature.set(signature, { name, ref: `${SCHEMA_REF_PREFIX}${name}` })
-    pendingExtractions.push({ name, representative: group.representative })
   }
 
   // Rewrites a node against the resolved targets. `skipRootMatch` keeps a definition's own root from
@@ -217,12 +168,7 @@ export function plan(roots: ReadonlyArray<ast.Node>, context: DedupeContext): Pl
     }) as T
   }
 
-  // Build extracted definitions only after every target name is known, so nested
-  // duplicates inside a definition also resolve to refs.
-  const extracted = pendingExtractions.map(({ name, representative }) => cleanDefinition(rewrite(representative, true), name))
-
   return {
-    extracted,
     apply<T extends ast.Node>(node: T): T {
       return rewrite(node, false)
     },

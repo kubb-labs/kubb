@@ -12,26 +12,22 @@ function stringEnum(values: Array<string>, extra: Partial<Parameters<typeof crea
 }
 
 function context(extra: Partial<DedupeContext> = {}): DedupeContext {
-  return { circularSchemas: new Set(), usedNames: new Set(), ...extra }
+  return { circularSchemas: new Set(), ...extra }
 }
 
 /**
- * A plan whose only target is an inline `['active', 'inactive']` enum hoisted as `PetStatus`,
- * duplicated across `Pet` and `Order`.
+ * A plan with a top-level `Status` enum and an inline copy of the same shape inside `Pet`, so the
+ * inline copy collapses into a ref at the named `Status`.
  */
-function enumPlan() {
+function namedEnumPlan() {
+  const status = stringEnum(['active', 'inactive'], { name: 'Status' })
   const pet = createSchema({
     type: 'object',
     name: 'Pet',
     properties: [createProperty({ name: 'status', schema: stringEnum(['active', 'inactive'], { name: 'PetStatus' }) })],
   })
-  const order = createSchema({
-    type: 'object',
-    name: 'Order',
-    properties: [createProperty({ name: 'state', schema: stringEnum(['active', 'inactive'], { name: 'OrderState' }) })],
-  })
 
-  return plan([pet, order], context())
+  return { status, pet, dedupePlan: plan([status, pet], context()) }
 }
 
 /**
@@ -45,33 +41,31 @@ function catDogPlan() {
 }
 
 describe('plan', () => {
-  it('hoists an inline shape duplicated across schemas', () => {
+  it('collapses an inline copy into the named component it matches', () => {
+    const { pet, dedupePlan } = namedEnumPlan()
+
+    const applied = narrowSchema(dedupePlan.apply(pet), 'object')!
+    const statusSchema = applied.properties.find((prop) => prop.name === 'status')!.schema
+    expect(narrowSchema(statusSchema, 'ref')).toMatchObject({ name: 'Status', ref: '#/components/schemas/Status', type: 'ref' })
+  })
+
+  it('leaves an inline shape inline when no named component matches', () => {
+    // The same enum shape appears in two component properties, but no top-level schema names it,
+    // so it is not hoisted — each copy stays inline.
     const pet = createSchema({
       type: 'object',
       name: 'Pet',
-      properties: [
-        createProperty({ name: 'status', schema: stringEnum(['active', 'inactive'], { name: 'PetStatus' }) }),
-        createProperty({ name: 'id', schema: createSchema({ type: 'string' }) }),
-      ],
+      properties: [createProperty({ name: 'status', schema: stringEnum(['active', 'inactive'], { name: 'PetStatus' }) })],
     })
     const order = createSchema({
       type: 'object',
       name: 'Order',
-      properties: [
-        createProperty({ name: 'state', schema: stringEnum(['active', 'inactive'], { name: 'OrderState' }) }),
-        createProperty({ name: 'total', schema: createSchema({ type: 'number' }) }),
-      ],
+      properties: [createProperty({ name: 'state', schema: stringEnum(['active', 'inactive'], { name: 'OrderState' }) })],
     })
 
     const dedupePlan = plan([pet, order], context())
 
-    expect(dedupePlan.extracted).toHaveLength(1)
-    expect(dedupePlan.extracted[0]).toMatchObject({ enumValues: ['active', 'inactive'], kind: 'Schema', name: 'PetStatus', primitive: 'string', type: 'enum' })
-
-    // The duplicated enum resolves to a ref at the hoisted PetStatus.
-    const applied = narrowSchema(dedupePlan.apply(order), 'object')!
-    const stateSchema = applied.properties.find((prop) => prop.name === 'state')!.schema
-    expect(narrowSchema(stateSchema, 'ref')).toMatchObject({ name: 'PetStatus', ref: '#/components/schemas/PetStatus', type: 'ref' })
+    expect(dedupePlan.apply(order)).toBe(order)
   })
 
   it('leaves singletons untouched', () => {
@@ -83,14 +77,12 @@ describe('plan', () => {
 
     const dedupePlan = plan([pet], context())
 
-    expect(dedupePlan.extracted).toHaveLength(0)
     expect(dedupePlan.apply(pet)).toBe(pet)
   })
 
-  it('reuses an existing top-level name instead of extracting', () => {
+  it('reuses an existing top-level name instead of duplicating', () => {
     const { cat, dedupePlan } = catDogPlan()
 
-    expect(dedupePlan.extracted).toHaveLength(0)
     expect(dedupePlan.isAlias('Dog')).toBe(true)
     // Cat is the shared target, so it keeps its own object root.
     expect(dedupePlan.applyTopLevel(cat).type).toBe('object')
@@ -122,56 +114,14 @@ describe('plan', () => {
 
     const dedupePlan = plan([node, other], context({ circularSchemas: new Set(['Tree']) }))
 
-    expect(dedupePlan.extracted).toHaveLength(0)
     expect(dedupePlan.isAlias('Tree')).toBe(false)
     expect(dedupePlan.applyTopLevel(node)).toBe(node)
-  })
-
-  it('resolves a extracted name against usedNames', () => {
-    const pet = createSchema({
-      type: 'object',
-      name: 'Pet',
-      properties: [
-        createProperty({ name: 'status', schema: stringEnum(['active', 'inactive'], { name: 'Status' }) }),
-        createProperty({ name: 'state', schema: stringEnum(['active', 'inactive'], { name: 'Status' }) }),
-      ],
-    })
-
-    const dedupePlan = plan([pet], context({ usedNames: new Set(['Status']) }))
-
-    expect(dedupePlan.extracted[0]).toMatchObject({ name: 'Status2' })
-  })
-
-  it('keeps an inline shape inline when its name is reserved by an operation', () => {
-    // An operation response inline shape carries the operation-scoped name the generator also
-    // uses for its own type. Hoisting it under that name would collide, so it stays inline.
-    const pet = createSchema({
-      type: 'object',
-      name: 'Pet',
-      properties: [
-        createProperty({ name: 'error', schema: stringEnum(['active', 'inactive'], { name: 'PostPetStatus400' }) }),
-        createProperty({ name: 'id', schema: createSchema({ type: 'string' }) }),
-      ],
-    })
-    const order = createSchema({
-      type: 'object',
-      name: 'Order',
-      properties: [
-        createProperty({ name: 'error', schema: stringEnum(['active', 'inactive'], { name: 'PostPetStatus400' }) }),
-        createProperty({ name: 'total', schema: createSchema({ type: 'number' }) }),
-      ],
-    })
-
-    const dedupePlan = plan([pet, order], context({ reservedNames: new Set(['PostPetStatus400']) }))
-
-    expect(dedupePlan.extracted).toHaveLength(0)
-    expect(dedupePlan.apply(order)).toBe(order)
   })
 })
 
 describe('apply', () => {
   it('replaces a duplicated occurrence with a ref and prunes', () => {
-    const dedupePlan = enumPlan()
+    const { dedupePlan } = namedEnumPlan()
     const order = createSchema({
       type: 'object',
       name: 'Order',
@@ -186,22 +136,22 @@ describe('apply', () => {
 
     expect(narrowSchema(stateSchema, 'ref')).toMatchObject({
       kind: 'Schema',
-      name: 'PetStatus',
-      ref: '#/components/schemas/PetStatus',
+      name: 'Status',
+      ref: '#/components/schemas/Status',
       type: 'ref',
     })
   })
 
   it('keeps a shared definition root with applyTopLevel but reffs a bare duplicate', () => {
-    const dedupePlan = enumPlan()
-    const enumNode = stringEnum(['active', 'inactive'], { name: 'PetStatus' })
+    const { dedupePlan } = namedEnumPlan()
+    const enumNode = stringEnum(['active', 'inactive'], { name: 'Status' })
 
     expect(dedupePlan.applyTopLevel(enumNode).type).toBe('enum')
     expect(dedupePlan.apply(enumNode).type).toBe('ref')
   })
 
   it('returns the same reference when nothing matches', () => {
-    const dedupePlan = enumPlan()
+    const { dedupePlan } = namedEnumPlan()
     const node = createSchema({ type: 'object', properties: [createProperty({ name: 'id', schema: createSchema({ type: 'string' }) })] })
 
     expect(dedupePlan.apply(node)).toBe(node)

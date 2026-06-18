@@ -48,7 +48,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     serverIndex,
     serverVariables,
     discriminator = 'strict',
-    dedupe = true,
     dateType = DEFAULT_PARSER_OPTIONS.dateType,
     integerType = DEFAULT_PARSER_OPTIONS.integerType,
     unknownType = DEFAULT_PARSER_OPTIONS.unknownType,
@@ -123,7 +122,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     const cached = preScanCache.get(document)
     if (cached) return cached
 
-    const result = preScan({ schemas, parseSchema, parseOperation, document, parserOptions, discriminator, dedupe })
+    const result = preScan({ schemas, parseSchema, parseOperation, document, parserOptions, discriminator })
     preScanCache.set(document, result)
     return result
   }
@@ -163,7 +162,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         serverIndex,
         serverVariables,
         discriminator,
-        dedupe,
         dateType,
         integerType,
         unknownType,

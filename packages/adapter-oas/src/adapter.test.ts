@@ -192,83 +192,44 @@ describe('adapterOas dedupe', () => {
     return ast.narrowSchema(schema, 'object')?.properties.find((prop) => prop.name === propName)?.schema
   }
 
-  it('leaves output unchanged when dedupe is disabled', async () => {
-    const adapter = adapterOas({ validate: false, dedupe: false })
-    const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: dedupeSpec }))
+  it('keeps duplicated inline enums inline', async () => {
+    const adapter = adapterOas({ validate: false })
+    const node = await adapter.stream!({ type: 'data', data: dedupeSpec })
+    const schemas = await collectSchemas(node)
 
-    expect(schemas.map((schema) => schema.name)).toStrictEqual(['Pet', 'Order', 'Cat', 'Dog'])
+    // The inline enum is shared by Pet, Order and the operation, but no top-level schema names it,
+    // so it is not hoisted — each occurrence stays inline.
     expect(
       propertySchema(
         schemas.find((schema) => schema.name === 'Pet'),
         'status',
       )?.type,
     ).toBe('enum')
-    expect(schemas.find((schema) => schema.name === 'Dog')?.type).toBe('object')
-  })
-
-  it('dedupes by default when no option is passed', async () => {
-    const adapter = adapterOas({ validate: false })
-    const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: dedupeSpec }))
-
-    expect(schemas.map((schema) => schema.name)).toStrictEqual(['PetStatusEnum', 'Pet', 'Order', 'Cat'])
-    expect(schemas.find((schema) => schema.name === 'Dog')).toBeUndefined()
-  })
-
-  it('hoists a duplicated enum into one shared schema and refs every occurrence', async () => {
-    const adapter = adapterOas({ validate: false, dedupe: true })
-    const node = await adapter.stream!({ type: 'data', data: dedupeSpec })
-    const schemas = await collectSchemas(node)
-
-    const enums = schemas.filter((schema) => schema.type === 'enum')
-    expect(enums).toHaveLength(1)
-    const sharedEnum = ast.narrowSchema(enums[0], 'enum')!
-    expect({ name: sharedEnum.name, primitive: sharedEnum.primitive, enumValues: sharedEnum.enumValues }).toMatchObject({
-      enumValues: ['active', 'inactive'],
-      name: 'PetStatusEnum',
-      primitive: 'string',
-    })
-    expect(node.meta?.enumNames).toContain(sharedEnum.name)
-
-    const petStatus = ast.narrowSchema(
-      propertySchema(
-        schemas.find((schema) => schema.name === 'Pet'),
-        'status',
-      ),
-      'ref',
-    )
-    expect(petStatus?.name).toBe(sharedEnum.name)
-    const orderState = ast.narrowSchema(
+    expect(
       propertySchema(
         schemas.find((schema) => schema.name === 'Order'),
         'state',
-      ),
-      'ref',
-    )
-    expect(orderState?.name).toBe(sharedEnum.name)
-  })
-
-  it('drops a structurally identical top-level schema and keeps the first one', async () => {
-    const adapter = adapterOas({ validate: false, dedupe: true })
-    const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: dedupeSpec }))
-
-    expect(schemas.find((schema) => schema.name === 'Cat')?.type).toBe('object')
-    expect(schemas.find((schema) => schema.name === 'Dog')).toBeUndefined()
-  })
-
-  it('rewrites duplicated inline shapes inside operations', async () => {
-    const adapter = adapterOas({ validate: false, dedupe: true })
-    const node = await adapter.stream!({ type: 'data', data: dedupeSpec })
+      )?.type,
+    ).toBe('enum')
+    expect(schemas.some((schema) => schema.type === 'enum')).toBe(false)
 
     const operations: Array<ast.OperationNode> = []
     for await (const operation of node.operations) operations.push(operation)
-
     const refNames = ast.collect<string>(operations[0]!, {
       schema(schema) {
         return ast.narrowSchema(schema, 'ref')?.name ?? null
       },
     })
+    expect(refNames).toStrictEqual([])
+  })
 
-    expect(refNames).toStrictEqual(['PetStatusEnum'])
+  it('collapses structurally identical top-level schemas and keeps the first one', async () => {
+    const adapter = adapterOas({ validate: false })
+    const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: dedupeSpec }))
+
+    expect(schemas.map((schema) => schema.name)).toStrictEqual(['Pet', 'Order', 'Cat'])
+    expect(schemas.find((schema) => schema.name === 'Cat')?.type).toBe('object')
+    expect(schemas.find((schema) => schema.name === 'Dog')).toBeUndefined()
   })
 })
 
@@ -324,7 +285,7 @@ describe('adapterOas duplicate top-level schemas', () => {
   }
 
   it('drops a duplicate schema and keeps the first one with the same content', async () => {
-    const adapter = adapterOas({ validate: false, dedupe: true })
+    const adapter = adapterOas({ validate: false })
     const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: bundledSpec }))
 
     expect(schemas.map((schema) => schema.name)).toStrictEqual(['Category', 'Category2', 'Pet'])
@@ -332,7 +293,7 @@ describe('adapterOas duplicate top-level schemas', () => {
   })
 
   it('repoints schema refs from the duplicate name to the shared one', async () => {
-    const adapter = adapterOas({ validate: false, dedupe: true })
+    const adapter = adapterOas({ validate: false })
     const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: bundledSpec }))
 
     const pet = ast.narrowSchema(
@@ -348,7 +309,7 @@ describe('adapterOas duplicate top-level schemas', () => {
   })
 
   it('repoints operation refs from the duplicate name to the shared one', async () => {
-    const adapter = adapterOas({ validate: false, dedupe: true })
+    const adapter = adapterOas({ validate: false })
     const node = await adapter.stream!({ type: 'data', data: bundledSpec })
 
     const operations: Array<ast.OperationNode> = []
@@ -364,16 +325,9 @@ describe('adapterOas duplicate top-level schemas', () => {
   })
 
   it('keeps a suffixed schema whose shape differs from the base name', async () => {
-    const adapter = adapterOas({ validate: false, dedupe: true })
+    const adapter = adapterOas({ validate: false })
     const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: bundledSpec }))
 
     expect(schemas.find((schema) => schema.name === 'Category2')?.type).toBe('object')
-  })
-
-  it('keeps the suffixed schema when dedupe is disabled', async () => {
-    const adapter = adapterOas({ validate: false, dedupe: false })
-    const schemas = await collectSchemas(await adapter.stream!({ type: 'data', data: bundledSpec }))
-
-    expect(schemas.map((schema) => schema.name)).toStrictEqual(['Category', 'Category1', 'Category2', 'Pet'])
   })
 })
