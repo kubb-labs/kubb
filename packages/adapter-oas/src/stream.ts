@@ -30,13 +30,7 @@ export type PreScanResult = {
  * @example Override a path variable
  * `resolveBaseUrl({ document, server: { index: 0, variables: { version: 'v2' } } })`
  */
-export function resolveBaseUrl({
-  document,
-  server,
-}: {
-  document: Document
-  server?: ServerOptions
-}): string | null {
+export function resolveBaseUrl({ document, server }: { document: Document; server?: ServerOptions }): string | null {
   const index = server?.index
   const entry = index !== undefined ? document.servers?.at(index) : undefined
   return entry?.url ? resolveServerUrl(entry, server?.variables) : null
