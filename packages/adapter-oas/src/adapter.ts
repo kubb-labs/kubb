@@ -48,6 +48,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     serverIndex,
     serverVariables,
     discriminator = 'strict',
+    enums = 'inline',
     dateType = DEFAULT_PARSER_OPTIONS.dateType,
     integerType = DEFAULT_PARSER_OPTIONS.integerType,
     unknownType = DEFAULT_PARSER_OPTIONS.unknownType,
@@ -117,11 +118,12 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     document: Document,
     schemas: ReturnType<typeof getSchemas>['schemas'],
     parseSchema: ReturnType<typeof ensureSchemaParser>['parseSchema'],
+    parseOperation: ReturnType<typeof ensureSchemaParser>['parseOperation'],
   ): ReturnType<typeof preScan> {
     const cached = preScanCache.get(document)
     if (cached) return cached
 
-    const result = preScan({ schemas, parseSchema, parserOptions, discriminator })
+    const result = preScan({ schemas, parseSchema, parseOperation, document, parserOptions, discriminator, enums })
     preScanCache.set(document, result)
     return result
   }
@@ -130,7 +132,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     const document = await ensureDocument(source)
     const schemas = await ensureSchemas(document)
     const { parseSchema, parseOperation } = ensureSchemaParser(document)
-    const { refAliasMap, enumNames, circularNames, discriminatorChildMap } = ensurePreScan(document, schemas, parseSchema)
+    const { refAliasMap, enumNames, circularNames, discriminatorChildMap, promotedEnums } = ensurePreScan(document, schemas, parseSchema, parseOperation)
 
     return createInputStream({
       schemas,
@@ -140,6 +142,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       parserOptions,
       refAliasMap,
       discriminatorChildMap,
+      promotedEnums,
       meta: {
         title: document.info?.title,
         description: document.info?.description,
@@ -160,6 +163,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         serverIndex,
         serverVariables,
         discriminator,
+        enums,
         dateType,
         integerType,
         unknownType,

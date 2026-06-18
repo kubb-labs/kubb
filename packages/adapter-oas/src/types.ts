@@ -187,6 +187,15 @@ export type AdapterOasOptions = {
    * @default 'strict'
    */
   discriminator?: 'strict' | 'inherit'
+  /**
+   * Where inline enums live.
+   * - `'inline'` keeps each enum inline on the property that declares it.
+   * - `'root'` lifts every inline enum to a reusable top-level schema named after its context
+   *   (e.g. `PetStatusEnum`) and references it everywhere it appears.
+   *
+   * @default 'inline'
+   */
+  enums?: 'inline' | 'root'
 } & Partial<ast.ParserOptions>
 
 /**
@@ -198,6 +207,7 @@ export type AdapterOasResolvedOptions = {
   serverIndex: AdapterOasOptions['serverIndex']
   serverVariables: AdapterOasOptions['serverVariables']
   discriminator: NonNullable<AdapterOasOptions['discriminator']>
+  enums: NonNullable<AdapterOasOptions['enums']>
   dateType: NonNullable<AdapterOasOptions['dateType']>
   integerType: NonNullable<AdapterOasOptions['integerType']>
   unknownType: NonNullable<AdapterOasOptions['unknownType']>

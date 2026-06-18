@@ -3,6 +3,7 @@ import { ast } from '@kubb/core'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
 import { getOperations } from './operation.ts'
 import type { SchemaParser } from './parser.ts'
+import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
 import { resolveServerUrl } from './resolvers.ts'
 import { reportSchemaDiagnostics } from './schemaDiagnostics.ts'
 import type { DiscriminatorTarget } from './discriminator.ts'
@@ -13,6 +14,7 @@ export type PreScanResult = {
   enumNames: Array<string>
   circularNames: Array<string>
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
+  promotedEnums: Map<string, ast.SchemaNode> | null
 }
 
 /**
@@ -68,13 +70,19 @@ export function resolveBaseUrl({
 export function preScan({
   schemas,
   parseSchema,
+  parseOperation,
+  document,
   parserOptions,
   discriminator,
+  enums = 'inline',
 }: {
   schemas: Record<string, SchemaObject>
   parseSchema: (entry: { schema: SchemaObject; name: string }, options: ast.ParserOptions) => ast.SchemaNode
+  parseOperation?: SchemaParser['parseOperation']
+  document?: Document
   parserOptions: ast.ParserOptions
   discriminator: AdapterOas['options']['discriminator']
+  enums?: AdapterOas['options']['enums']
 }): PreScanResult {
   const allNodes: Array<ast.SchemaNode> = []
   const refAliasMap = new Map<string, ast.SchemaNode>()
@@ -99,7 +107,20 @@ export function preScan({
   const circularNames = [...findCircularSchemas(allNodes)]
   const discriminatorChildMap = discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 
-  return { refAliasMap, enumNames, circularNames, discriminatorChildMap }
+  let promotedEnums: Map<string, ast.SchemaNode> | null = null
+  if (enums === 'root' && document && parseOperation) {
+    // Walk operations too so inline enums in request/response bodies are promoted.
+    const operationNodes: Array<ast.OperationNode> = []
+    for (const operation of getOperations(document)) {
+      const operationNode = parseOperation(parserOptions, operation)
+      if (operationNode) operationNodes.push(operationNode)
+    }
+
+    promotedEnums = collectInlineEnums([...allNodes, ...operationNodes], new Set(Object.keys(schemas)))
+    for (const name of promotedEnums.keys()) enumNames.push(name)
+  }
+
+  return { refAliasMap, enumNames, circularNames, discriminatorChildMap, promotedEnums }
 }
 
 /**
@@ -128,6 +149,7 @@ export function createInputStream({
   parserOptions,
   refAliasMap,
   discriminatorChildMap,
+  promotedEnums,
   meta,
 }: {
   schemas: Record<string, SchemaObject>
@@ -137,23 +159,31 @@ export function createInputStream({
   parserOptions: ast.ParserOptions
   refAliasMap: Map<string, ast.SchemaNode>
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
+  promotedEnums?: Map<string, ast.SchemaNode> | null
   meta: ast.InputMeta
 }): ast.InputNode<true> {
   const schemasIterable: AsyncIterable<ast.SchemaNode> = {
     [Symbol.asyncIterator]() {
       return (async function* () {
+        // Promoted enums are emitted first so the schema list owns the lifted definitions.
+        if (promotedEnums) {
+          for (const definition of promotedEnums.values()) yield definition
+        }
+
         for (const [name, schema] of Object.entries(schemas)) {
           // Inline ref aliases: replace the alias entry with its target's parsed node
           // (keeping the alias name). Skip the first parse entirely for alias entries
           // since that result is never used.
           const alias = refAliasMap.get(name)
           if (alias?.name && schemas[alias.name]) {
-            yield { ...parseSchema({ schema: schemas[alias.name]!, name: alias.name }, parserOptions), name }
+            const aliasNode = { ...parseSchema({ schema: schemas[alias.name]!, name: alias.name }, parserOptions), name }
+            yield promotedEnums ? refPromotedEnums(aliasNode, promotedEnums) : aliasNode
             continue
           }
 
           const parsed = parseSchema({ schema, name }, parserOptions)
-          yield discriminatorChildMap?.get(name) ? patchDiscriminatorNode(parsed, discriminatorChildMap.get(name)!) : parsed
+          const node = discriminatorChildMap?.get(name) ? patchDiscriminatorNode(parsed, discriminatorChildMap.get(name)!) : parsed
+          yield promotedEnums ? refPromotedEnums(node, promotedEnums) : node
         }
       })()
     },
@@ -164,7 +194,7 @@ export function createInputStream({
       return (async function* () {
         for (const operation of getOperations(document)) {
           const node = parseOperation(parserOptions, operation)
-          if (node) yield node
+          if (node) yield promotedEnums ? refPromotedEnums(node, promotedEnums) : node
         }
       })()
     },
