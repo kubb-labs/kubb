@@ -1,7 +1,5 @@
 import { findCircularSchemas } from '@kubb/ast/utils'
 import { ast } from '@kubb/core'
-import type { Plan } from './dedupe.ts'
-import { oasDialect } from './dialect.ts'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
 import { getOperations } from './operation.ts'
 import type { SchemaParser } from './parser.ts'
@@ -15,7 +13,6 @@ export type PreScanResult = {
   enumNames: Array<string>
   circularNames: Array<string>
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
-  dedupePlan: Plan
 }
 
 /**
@@ -71,15 +68,11 @@ export function resolveBaseUrl({
 export function preScan({
   schemas,
   parseSchema,
-  parseOperation,
-  document,
   parserOptions,
   discriminator,
 }: {
   schemas: Record<string, SchemaObject>
   parseSchema: (entry: { schema: SchemaObject; name: string }, options: ast.ParserOptions) => ast.SchemaNode
-  parseOperation: SchemaParser['parseOperation']
-  document: Document
   parserOptions: ast.ParserOptions
   discriminator: AdapterOas['options']['discriminator']
 }): PreScanResult {
@@ -106,22 +99,7 @@ export function preScan({
   const circularNames = [...findCircularSchemas(allNodes)]
   const discriminatorChildMap = discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 
-  // One extra parse pass over operations so duplicates in request/response bodies are seen.
-  // Reuses the already-parsed `allNodes` for schemas, no second schema parse.
-  const operationNodes: Array<ast.OperationNode> = []
-  for (const operation of getOperations(document)) {
-    const operationNode = parseOperation(parserOptions, operation)
-    if (operationNode) operationNodes.push(operationNode)
-  }
-
-  const circularSchemas = new Set(circularNames)
-  const dedupePlan = oasDialect.dedupe.plan([...allNodes, ...operationNodes], { circularSchemas })
-
-  // Enum names that duplicate an earlier schema's content are never emitted, so they are not
-  // advertised to plugins either.
-  const emittedEnumNames = enumNames.filter((name) => !dedupePlan.isAlias(name))
-
-  return { refAliasMap, enumNames: emittedEnumNames, circularNames, discriminatorChildMap, dedupePlan }
+  return { refAliasMap, enumNames, circularNames, discriminatorChildMap }
 }
 
 /**
@@ -150,7 +128,6 @@ export function createInputStream({
   parserOptions,
   refAliasMap,
   discriminatorChildMap,
-  dedupePlan,
   meta,
 }: {
   schemas: Record<string, SchemaObject>
@@ -160,31 +137,23 @@ export function createInputStream({
   parserOptions: ast.ParserOptions
   refAliasMap: Map<string, ast.SchemaNode>
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
-  dedupePlan: Plan
   meta: ast.InputMeta
 }): ast.InputNode<true> {
   const schemasIterable: AsyncIterable<ast.SchemaNode> = {
     [Symbol.asyncIterator]() {
       return (async function* () {
         for (const [name, schema] of Object.entries(schemas)) {
-          // A top-level schema whose content duplicates an earlier one is not emitted: every
-          // ref to it is repointed at the first schema with that content, so its model would
-          // be dead code.
-          if (dedupePlan.isAlias(name)) continue
-
           // Inline ref aliases: replace the alias entry with its target's parsed node
           // (keeping the alias name). Skip the first parse entirely for alias entries
           // since that result is never used.
           const alias = refAliasMap.get(name)
           if (alias?.name && schemas[alias.name]) {
-            const aliasNode = { ...parseSchema({ schema: schemas[alias.name]!, name: alias.name }, parserOptions), name }
-            yield dedupePlan.applyTopLevel(aliasNode)
+            yield { ...parseSchema({ schema: schemas[alias.name]!, name: alias.name }, parserOptions), name }
             continue
           }
 
           const parsed = parseSchema({ schema, name }, parserOptions)
-          const node = discriminatorChildMap?.get(name) ? patchDiscriminatorNode(parsed, discriminatorChildMap.get(name)!) : parsed
-          yield dedupePlan.applyTopLevel(node)
+          yield discriminatorChildMap?.get(name) ? patchDiscriminatorNode(parsed, discriminatorChildMap.get(name)!) : parsed
         }
       })()
     },
@@ -195,7 +164,7 @@ export function createInputStream({
       return (async function* () {
         for (const operation of getOperations(document)) {
           const node = parseOperation(parserOptions, operation)
-          if (node) yield dedupePlan.apply(node)
+          if (node) yield node
         }
       })()
     },

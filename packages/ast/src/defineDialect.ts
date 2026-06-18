@@ -43,7 +43,8 @@ export type Dedupe<TPlan = unknown, TContext = unknown> = {
 
 /**
  * A spec adapter's dialect. `name` identifies it in logs and diagnostics, `schema` holds the
- * spec-specific schema questions the parser answers, and `dedupe` is the schema-sharing seam.
+ * spec-specific schema questions the parser answers, and the optional `dedupe` is the
+ * schema-sharing seam an adapter can supply to collapse repeated shapes.
  */
 export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema, TDocument = unknown, TDedupe extends Dedupe = Dedupe> = {
   /**
@@ -55,9 +56,10 @@ export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema,
    */
   schema: SchemaDialect<TSchema, TRef, TDiscriminated, TDocument>
   /**
-   * The schema-sharing behavior. See {@link Dedupe}.
+   * The schema-sharing behavior. See {@link Dedupe}. Omit it to emit every named schema as its
+   * own type.
    */
-  dedupe: TDedupe
+  dedupe?: TDedupe
 }
 
 /**
@@ -75,7 +77,6 @@ export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema,
  *     isBinary: (schema) => schema.type === 'string' && schema.contentMediaType === 'application/octet-stream',
  *     resolveRef,
  *   },
- *   dedupe: { plan },
  * })
  * ```
  */

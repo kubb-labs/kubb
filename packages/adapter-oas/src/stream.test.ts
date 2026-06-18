@@ -2,13 +2,9 @@ import { ast } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { parseFromConfig } from './factory.ts'
-import { plan } from './dedupe.ts'
 import { createSchemaParser } from './parser.ts'
 import { createInputStream, preScan, resolveBaseUrl } from './stream.ts'
 import type { Document, SchemaObject } from './types.ts'
-
-// A plan over no schemas: every `apply`/`applyTopLevel` is a passthrough.
-const noopPlan = plan([], { circularSchemas: new Set() })
 
 const minimalSpec: Document = {
   openapi: '3.0.0',
@@ -74,10 +70,6 @@ describe('preScan', () => {
     Status: statusSchema,
     PetAlias: { $ref: '#/components/schemas/Pet' },
   }
-
-  // dedupe is off in these cases, so parseOperation is never invoked and the document is unused.
-  const noopParseOperation = (() => null) as unknown as Parameters<typeof preScan>[0]['parseOperation']
-
   // The real parser sets `name` to the referenced schema name (not the alias key).
   // That is how `node.name !== name` detects top-level $ref aliases.
   const makeParseSchema =
@@ -95,8 +87,6 @@ describe('preScan', () => {
     const { enumNames } = preScan({
       schemas,
       parseSchema: makeParseSchema(),
-      parseOperation: noopParseOperation,
-      document: minimalSpec,
       parserOptions,
       discriminator: 'strict',
     })
@@ -107,8 +97,6 @@ describe('preScan', () => {
     const { refAliasMap } = preScan({
       schemas,
       parseSchema: makeParseSchema(),
-      parseOperation: noopParseOperation,
-      document: minimalSpec,
       parserOptions,
       discriminator: 'strict',
     })
@@ -127,8 +115,6 @@ describe('preScan', () => {
     const { circularNames } = preScan({
       schemas: circularSchemas,
       parseSchema,
-      parseOperation: noopParseOperation,
-      document,
       parserOptions,
       discriminator: 'strict',
     })
@@ -139,8 +125,6 @@ describe('preScan', () => {
     const { discriminatorChildMap } = preScan({
       schemas,
       parseSchema: makeParseSchema(),
-      parseOperation: noopParseOperation,
-      document: minimalSpec,
       parserOptions,
       discriminator: 'strict',
     })
@@ -162,7 +146,6 @@ describe('createInputStream', () => {
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,
-      dedupePlan: noopPlan,
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -186,7 +169,6 @@ describe('createInputStream', () => {
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,
-      dedupePlan: noopPlan,
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -220,7 +202,6 @@ describe('createInputStream', () => {
       parserOptions,
       refAliasMap,
       discriminatorChildMap: null,
-      dedupePlan: noopPlan,
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -243,7 +224,6 @@ describe('createInputStream', () => {
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,
-      dedupePlan: noopPlan,
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -267,7 +247,6 @@ describe('createInputStream', () => {
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,
-      dedupePlan: noopPlan,
       meta,
     })
 
