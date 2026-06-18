@@ -1,5 +1,56 @@
 # Changelog
 
+## v5.0.0-beta.69 — Jun 18, 2026
+
+### @kubb/adapter-oas
+
+#### Breaking Changes
+
+- `@kubb/adapter-oas` no longer deduplicates schemas, and the `dedupe` option is removed. Every named schema in the spec becomes its own type, and inline shapes stay inline.
+  
+  Earlier versions collapsed structurally identical schemas into one shared definition and hoisted repeated inline shapes under an invented name. That hoisting could collide with a generated operation type (a shared `{ error?: string }` 400 response became `PostV1WorkoutsStatus400`, the same name the response-status type uses), producing a self-referential `export type X = X` and duplicate exports. Output is now faithful to the spec: to share a shape, name it as a component and `$ref` it.
+  
+  `@kubb/ast`: the dialect `dedupe` seam is removed — `defineDialect` no longer accepts a `dedupe` member and the `Dedupe` type is gone. The `signatureOf` and `isSchemaEqual` helpers are removed too, since deduplication was their only consumer. ([#3632](https://github.com/kubb-labs/kubb/pull/3632), [`8addaf3`](https://github.com/kubb-labs/kubb/commit/8addaf354b8440ce820c338c820d308e1116e46e))
+
+#### Features
+
+- Add an `enums` option to `adapterOas` that controls where inline enums live. The default `'inline'` keeps each enum on the property that declares it. `'root'` lifts every inline enum to a reusable top-level schema named after its context (e.g. `PetStatusEnum`) and references it wherever it appears, so types, zod, and faker all share one definition. ([#3632](https://github.com/kubb-labs/kubb/pull/3632), [`8addaf3`](https://github.com/kubb-labs/kubb/commit/8addaf354b8440ce820c338c820d308e1116e46e))
+- Group the server options and rename the discriminator modes.
+  
+  ## Breaking changes
+  
+  ### Server options
+  
+  `serverIndex` and `serverVariables` are replaced by a single `server` object.
+  
+  ```ts
+  // Before
+  adapterOas({ serverIndex: 0, serverVariables: { env: 'prod' } })
+  
+  // After
+  adapterOas({ server: { index: 0, variables: { env: 'prod' } } })
+  ```
+  
+  `resolveBaseUrl` now takes `{ document, server }` instead of `{ document, serverIndex, serverVariables }`.
+  
+  ### Discriminator modes
+  
+  The `discriminator` values are renamed for clarity. `'strict'` becomes `'preserve'` and `'inherit'` becomes `'propagate'`. The default is now `'preserve'`.
+  
+  ```ts
+  // Before
+  adapterOas({ discriminator: 'inherit' })
+  
+  // After
+  adapterOas({ discriminator: 'propagate' })
+  ``` ([#3634](https://github.com/kubb-labs/kubb/pull/3634), [`9f6b051`](https://github.com/kubb-labs/kubb/commit/9f6b05150a6f5002f7b0ccaa204448b524a05e98))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.68 — Jun 17, 2026
 
 ### @kubb/adapter-oas
