@@ -8,7 +8,7 @@ import type { SchemaParser } from './parser.ts'
 import { resolveServerUrl } from './resolvers.ts'
 import { reportSchemaDiagnostics } from './schemaDiagnostics.ts'
 import type { DiscriminatorTarget } from './discriminator.ts'
-import type { AdapterOas, Document, SchemaObject } from './types.ts'
+import type { AdapterOas, Document, SchemaObject, ServerOptions } from './types.ts'
 
 export type PreScanResult = {
   refAliasMap: Map<string, ast.SchemaNode>
@@ -19,28 +19,21 @@ export type PreScanResult = {
 }
 
 /**
- * Reads the server URL from the document's `servers` array at `serverIndex`,
- * interpolating any `serverVariables` into the URL template.
+ * Reads the server URL from the document's `servers` array at `server.index`,
+ * interpolating any `server.variables` into the URL template.
  *
- * Returns `null` when `serverIndex` is omitted or out of range.
+ * Returns `null` when `server.index` is omitted or out of range.
  *
  * @example Resolve the first server
- * `resolveBaseUrl({ document, serverIndex: 0 })`
+ * `resolveBaseUrl({ document, server: { index: 0 } })`
  *
  * @example Override a path variable
- * `resolveBaseUrl({ document, serverIndex: 0, serverVariables: { version: 'v2' } })`
+ * `resolveBaseUrl({ document, server: { index: 0, variables: { version: 'v2' } } })`
  */
-export function resolveBaseUrl({
-  document,
-  serverIndex,
-  serverVariables,
-}: {
-  document: Document
-  serverIndex?: number
-  serverVariables?: Record<string, string>
-}): string | null {
-  const server = serverIndex !== undefined ? document.servers?.at(serverIndex) : undefined
-  return server?.url ? resolveServerUrl(server, serverVariables) : null
+export function resolveBaseUrl({ document, server }: { document: Document; server?: ServerOptions }): string | null {
+  const index = server?.index
+  const entry = index !== undefined ? document.servers?.at(index) : undefined
+  return entry?.url ? resolveServerUrl(entry, server?.variables) : null
 }
 
 /**
@@ -64,7 +57,7 @@ export function resolveBaseUrl({
  *   schemas,
  *   parseSchema,
  *   parserOptions,
- *   discriminator: 'strict',
+ *   discriminator: 'preserve',
  * })
  * ```
  */
@@ -100,7 +93,7 @@ export function preScan({
     if (ast.narrowSchema(node, ast.schemaTypes.enum) && node.name) {
       enumNames.push(node.name)
     }
-    if (discriminator === 'inherit' && (schema.oneOf ?? schema.anyOf) && schema.discriminator?.propertyName) {
+    if (discriminator === 'propagate' && (schema.oneOf ?? schema.anyOf) && schema.discriminator?.propertyName) {
       discriminatorParentNodes.push(node)
     }
   }

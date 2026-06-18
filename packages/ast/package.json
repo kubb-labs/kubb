@@ -31,10 +31,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./factory": {
-      "import": "./dist/factory.js",
-      "require": "./dist/factory.cjs"
-    },
     "./macros": {
       "import": "./dist/macros.js",
       "require": "./dist/macros.cjs"
