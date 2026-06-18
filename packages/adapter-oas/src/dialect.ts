@@ -1,5 +1,4 @@
 import { ast } from '@kubb/core'
-import { plan } from './dedupe.ts'
 import { isDiscriminator, isNullable, isReference } from './guards.ts'
 import { resolveRef } from './refs.ts'
 import type { SchemaObject } from './types.ts'
@@ -32,7 +31,6 @@ export const oasDialect = ast.defineDialect({
     isBinary: (schema: SchemaObject) => schema.type === 'string' && schema.contentMediaType === 'application/octet-stream',
     resolveRef,
   },
-  dedupe: { plan },
 })
 
 /**

@@ -1,10 +1,9 @@
 import { findCircularSchemas } from '@kubb/ast/utils'
 import { ast } from '@kubb/core'
-import type { Plan } from './dedupe.ts'
-import { oasDialect } from './dialect.ts'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
 import { getOperations } from './operation.ts'
 import type { SchemaParser } from './parser.ts'
+import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
 import { resolveServerUrl } from './resolvers.ts'
 import { reportSchemaDiagnostics } from './schemaDiagnostics.ts'
 import type { DiscriminatorTarget } from './discriminator.ts'
@@ -15,7 +14,7 @@ export type PreScanResult = {
   enumNames: Array<string>
   circularNames: Array<string>
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
-  dedupePlan: Plan | null
+  promotedEnums: Map<string, ast.SchemaNode> | null
 }
 
 /**
@@ -68,15 +67,15 @@ export function preScan({
   document,
   parserOptions,
   discriminator,
-  dedupe,
+  enums = 'inline',
 }: {
   schemas: Record<string, SchemaObject>
   parseSchema: (entry: { schema: SchemaObject; name: string }, options: ast.ParserOptions) => ast.SchemaNode
-  parseOperation: SchemaParser['parseOperation']
-  document: Document
+  parseOperation?: SchemaParser['parseOperation']
+  document?: Document
   parserOptions: ast.ParserOptions
   discriminator: AdapterOas['options']['discriminator']
-  dedupe: boolean
+  enums?: AdapterOas['options']['enums']
 }): PreScanResult {
   const allNodes: Array<ast.SchemaNode> = []
   const refAliasMap = new Map<string, ast.SchemaNode>()
@@ -101,31 +100,20 @@ export function preScan({
   const circularNames = [...findCircularSchemas(allNodes)]
   const discriminatorChildMap = discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 
-  let dedupePlan: Plan | null = null
-  if (dedupe) {
-    // One extra parse pass over operations so duplicates in request/response bodies are seen.
-    // Reuses the already-parsed `allNodes` for schemas, no second schema parse.
+  let promotedEnums: Map<string, ast.SchemaNode> | null = null
+  if (enums === 'root' && document && parseOperation) {
+    // Walk operations too so inline enums in request/response bodies are promoted.
     const operationNodes: Array<ast.OperationNode> = []
     for (const operation of getOperations(document)) {
       const operationNode = parseOperation(parserOptions, operation)
       if (operationNode) operationNodes.push(operationNode)
     }
 
-    const circularSchemas = new Set(circularNames)
-    const usedNames = new Set(Object.keys(schemas))
-
-    dedupePlan = oasDialect.dedupe.plan([...allNodes, ...operationNodes], { circularSchemas, usedNames })
-
-    for (const definition of dedupePlan.extracted) {
-      if (definition.type === 'enum' && definition.name) enumNames.push(definition.name)
-    }
+    promotedEnums = collectInlineEnums([...allNodes, ...operationNodes], new Set(Object.keys(schemas)))
+    for (const name of promotedEnums.keys()) enumNames.push(name)
   }
 
-  // Enum names that duplicate an earlier schema's content are never emitted, so they are not
-  // advertised to plugins either.
-  const emittedEnumNames = dedupePlan ? enumNames.filter((name) => !dedupePlan.isAlias(name)) : enumNames
-
-  return { refAliasMap, enumNames: emittedEnumNames, circularNames, discriminatorChildMap, dedupePlan }
+  return { refAliasMap, enumNames, circularNames, discriminatorChildMap, promotedEnums }
 }
 
 /**
@@ -154,7 +142,7 @@ export function createInputStream({
   parserOptions,
   refAliasMap,
   discriminatorChildMap,
-  dedupePlan,
+  promotedEnums,
   meta,
 }: {
   schemas: Record<string, SchemaObject>
@@ -164,36 +152,31 @@ export function createInputStream({
   parserOptions: ast.ParserOptions
   refAliasMap: Map<string, ast.SchemaNode>
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
-  dedupePlan: Plan | null
+  promotedEnums?: Map<string, ast.SchemaNode> | null
   meta: ast.InputMeta
 }): ast.InputNode<true> {
   const schemasIterable: AsyncIterable<ast.SchemaNode> = {
     [Symbol.asyncIterator]() {
       return (async function* () {
-        // Extracted shared definitions are emitted first so the schema list owns the shared shapes.
-        if (dedupePlan) {
-          for (const definition of dedupePlan.extracted) yield definition
+        // Promoted enums are emitted first so the schema list owns the lifted definitions.
+        if (promotedEnums) {
+          for (const definition of promotedEnums.values()) yield definition
         }
 
         for (const [name, schema] of Object.entries(schemas)) {
-          // A top-level schema whose content duplicates an earlier one is not emitted: every
-          // ref to it is repointed at the first schema with that content, so its model would
-          // be dead code.
-          if (dedupePlan?.isAlias(name)) continue
-
           // Inline ref aliases: replace the alias entry with its target's parsed node
           // (keeping the alias name). Skip the first parse entirely for alias entries
           // since that result is never used.
           const alias = refAliasMap.get(name)
           if (alias?.name && schemas[alias.name]) {
             const aliasNode = { ...parseSchema({ schema: schemas[alias.name]!, name: alias.name }, parserOptions), name }
-            yield dedupePlan ? dedupePlan.applyTopLevel(aliasNode) : aliasNode
+            yield promotedEnums ? refPromotedEnums(aliasNode, promotedEnums) : aliasNode
             continue
           }
 
           const parsed = parseSchema({ schema, name }, parserOptions)
           const node = discriminatorChildMap?.get(name) ? patchDiscriminatorNode(parsed, discriminatorChildMap.get(name)!) : parsed
-          yield dedupePlan ? dedupePlan.applyTopLevel(node) : node
+          yield promotedEnums ? refPromotedEnums(node, promotedEnums) : node
         }
       })()
     },
@@ -204,7 +187,7 @@ export function createInputStream({
       return (async function* () {
         for (const operation of getOperations(document)) {
           const node = parseOperation(parserOptions, operation)
-          if (node) yield dedupePlan ? dedupePlan.apply(node) : node
+          if (node) yield promotedEnums ? refPromotedEnums(node, promotedEnums) : node
         }
       })()
     },

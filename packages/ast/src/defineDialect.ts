@@ -1,5 +1,3 @@
-import type { Node } from './nodes/index.ts'
-
 /**
  * The spec-specific questions a schema parser answers while turning a source document into Kubb
  * AST nodes. The rest of the pipeline is generic JSON Schema, so this is the one seam where
@@ -29,23 +27,10 @@ export type SchemaDialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TS
 }
 
 /**
- * How a dialect collapses structurally identical schemas into shared definitions. The contract is
- * generic over the plan and context types, which the adapter supplies. The mechanics live in the
- * adapter, not here, so `@kubb/ast` carries no dedupe logic. The returned plan owns the rewriting
- * behavior, so callers interact with one object.
+ * A spec adapter's dialect. `name` identifies it in logs and diagnostics, and `schema` holds the
+ * spec-specific schema questions the parser answers.
  */
-export type Dedupe<TPlan = unknown, TContext = unknown> = {
-  /**
-   * Scans a forest of nodes and produces a plan describing which shapes to share.
-   */
-  plan(roots: ReadonlyArray<Node>, context: TContext): TPlan
-}
-
-/**
- * A spec adapter's dialect. `name` identifies it in logs and diagnostics, `schema` holds the
- * spec-specific schema questions the parser answers, and `dedupe` is the schema-sharing seam.
- */
-export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema, TDocument = unknown, TDedupe extends Dedupe = Dedupe> = {
+export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema, TDocument = unknown> = {
   /**
    * Identifies the dialect in logs and diagnostics.
    */
@@ -54,10 +39,6 @@ export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema,
    * The spec-specific schema behavior. See {@link SchemaDialect}.
    */
   schema: SchemaDialect<TSchema, TRef, TDiscriminated, TDocument>
-  /**
-   * The schema-sharing behavior. See {@link Dedupe}.
-   */
-  dedupe: TDedupe
 }
 
 /**
@@ -75,12 +56,11 @@ export type Dialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema,
  *     isBinary: (schema) => schema.type === 'string' && schema.contentMediaType === 'application/octet-stream',
  *     resolveRef,
  *   },
- *   dedupe: { plan },
  * })
  * ```
  */
-export function defineDialect<TSchema, TRef, TDiscriminated, TDocument, TDedupe extends Dedupe>(
-  dialect: Dialect<TSchema, TRef, TDiscriminated, TDocument, TDedupe>,
-): Dialect<TSchema, TRef, TDiscriminated, TDocument, TDedupe> {
+export function defineDialect<TSchema, TRef, TDiscriminated, TDocument>(
+  dialect: Dialect<TSchema, TRef, TDiscriminated, TDocument>,
+): Dialect<TSchema, TRef, TDiscriminated, TDocument> {
   return dialect
 }

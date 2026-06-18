@@ -88,10 +88,6 @@ describe('preScan', () => {
     Status: statusSchema,
     PetAlias: { $ref: '#/components/schemas/Pet' },
   }
-
-  // dedupe is off in these cases, so parseOperation is never invoked and the document is unused.
-  const noopParseOperation = (() => null) as unknown as Parameters<typeof preScan>[0]['parseOperation']
-
   // The real parser sets `name` to the referenced schema name (not the alias key).
   // That is how `node.name !== name` detects top-level $ref aliases.
   const makeParseSchema =
@@ -109,11 +105,8 @@ describe('preScan', () => {
     const { enumNames } = preScan({
       schemas,
       parseSchema: makeParseSchema(),
-      parseOperation: noopParseOperation,
-      document: minimalSpec,
       parserOptions,
       discriminator: 'preserve',
-      dedupe: false,
     })
     expect(enumNames).toStrictEqual(['Status'])
   })
@@ -122,11 +115,8 @@ describe('preScan', () => {
     const { refAliasMap } = preScan({
       schemas,
       parseSchema: makeParseSchema(),
-      parseOperation: noopParseOperation,
-      document: minimalSpec,
       parserOptions,
       discriminator: 'preserve',
-      dedupe: false,
     })
     expect([...refAliasMap.keys()]).toStrictEqual(['PetAlias'])
   })
@@ -143,11 +133,8 @@ describe('preScan', () => {
     const { circularNames } = preScan({
       schemas: circularSchemas,
       parseSchema,
-      parseOperation: noopParseOperation,
-      document,
       parserOptions,
       discriminator: 'preserve',
-      dedupe: false,
     })
     expect(circularNames).toStrictEqual(['Cat', 'Dog'])
   })
@@ -156,11 +143,8 @@ describe('preScan', () => {
     const { discriminatorChildMap } = preScan({
       schemas,
       parseSchema: makeParseSchema(),
-      parseOperation: noopParseOperation,
-      document: minimalSpec,
       parserOptions,
       discriminator: 'preserve',
-      dedupe: false,
     })
     expect(discriminatorChildMap).toBeNull()
   })
@@ -187,11 +171,9 @@ describe('preScan', () => {
     const { discriminatorChildMap } = preScan({
       schemas: unionSpec.components!.schemas as Record<string, SchemaObject>,
       parseSchema,
-      parseOperation: noopParseOperation,
       document,
       parserOptions,
       discriminator: 'propagate',
-      dedupe: false,
     })
 
     expect(discriminatorChildMap?.get('Cat')).toStrictEqual({ propertyName: 'type', enumValues: ['cat'] })
@@ -213,7 +195,6 @@ describe('createInputStream', () => {
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,
-      dedupePlan: null,
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -237,7 +218,6 @@ describe('createInputStream', () => {
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,
-      dedupePlan: null,
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -271,7 +251,6 @@ describe('createInputStream', () => {
       parserOptions,
       refAliasMap,
       discriminatorChildMap: null,
-      dedupePlan: null,
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -294,7 +273,6 @@ describe('createInputStream', () => {
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,
-      dedupePlan: null,
       meta: { circularNames: [], enumNames: [] },
     })
 
@@ -318,7 +296,6 @@ describe('createInputStream', () => {
       parserOptions,
       refAliasMap: new Map(),
       discriminatorChildMap: null,
-      dedupePlan: null,
       meta,
     })
 
