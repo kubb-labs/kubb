@@ -47,20 +47,38 @@ const statusSchema: SchemaObject = { type: 'string', enum: ['active', 'inactive'
 describe('resolveBaseUrl', () => {
   it('returns the server URL at the given index', async () => {
     const document = await parseFromConfig({ type: 'data', data: minimalSpec })
-    const url = resolveBaseUrl({ document, serverIndex: 0 })
+    const url = resolveBaseUrl({ document, server: { index: 0 } })
     expect(url).toBe('https://api.example.com/v1')
   })
 
-  it('returns null when no serverIndex is provided', async () => {
+  it('returns null when no server index is provided', async () => {
+    const document = await parseFromConfig({ type: 'data', data: minimalSpec })
+    const url = resolveBaseUrl({ document, server: {} })
+    expect(url).toBeNull()
+  })
+
+  it('returns null when no server is provided', async () => {
     const document = await parseFromConfig({ type: 'data', data: minimalSpec })
     const url = resolveBaseUrl({ document })
     expect(url).toBeNull()
   })
 
-  it('returns null when serverIndex is out of range', async () => {
+  it('returns null when the server index is out of range', async () => {
     const document = await parseFromConfig({ type: 'data', data: minimalSpec })
-    const url = resolveBaseUrl({ document, serverIndex: 99 })
+    const url = resolveBaseUrl({ document, server: { index: 99 } })
     expect(url).toBeNull()
+  })
+
+  it('substitutes server variables into the resolved URL', async () => {
+    const document = await parseFromConfig({
+      type: 'data',
+      data: {
+        ...minimalSpec,
+        servers: [{ url: 'https://api.{env}.example.com', variables: { env: { default: 'dev' } } }],
+      },
+    })
+    const url = resolveBaseUrl({ document, server: { index: 0, variables: { env: 'prod' } } })
+    expect(url).toBe('https://api.prod.example.com')
   })
 })
 
@@ -88,7 +106,7 @@ describe('preScan', () => {
       schemas,
       parseSchema: makeParseSchema(),
       parserOptions,
-      discriminator: 'strict',
+      discriminator: 'preserve',
     })
     expect(enumNames).toStrictEqual(['Status'])
   })
@@ -98,7 +116,7 @@ describe('preScan', () => {
       schemas,
       parseSchema: makeParseSchema(),
       parserOptions,
-      discriminator: 'strict',
+      discriminator: 'preserve',
     })
     expect([...refAliasMap.keys()]).toStrictEqual(['PetAlias'])
   })
@@ -116,19 +134,50 @@ describe('preScan', () => {
       schemas: circularSchemas,
       parseSchema,
       parserOptions,
-      discriminator: 'strict',
+      discriminator: 'preserve',
     })
     expect(circularNames).toStrictEqual(['Cat', 'Dog'])
   })
 
-  it('returns null discriminatorChildMap when discriminator is strict', () => {
+  it('returns null discriminatorChildMap when discriminator is preserve', () => {
     const { discriminatorChildMap } = preScan({
       schemas,
       parseSchema: makeParseSchema(),
       parserOptions,
-      discriminator: 'strict',
+      discriminator: 'preserve',
     })
     expect(discriminatorChildMap).toBeNull()
+  })
+
+  it('builds discriminatorChildMap when discriminator is propagate', async () => {
+    const unionSpec: Document = {
+      openapi: '3.0.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Cat: { type: 'object', properties: { type: { type: 'string' }, indoor: { type: 'boolean' } } },
+          Dog: { type: 'object', properties: { type: { type: 'string' }, name: { type: 'string' } } },
+          Animal: {
+            oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+            discriminator: { propertyName: 'type', mapping: { cat: '#/components/schemas/Cat', dog: '#/components/schemas/Dog' } },
+          },
+        },
+      },
+    }
+    const document = await parseFromConfig({ type: 'data', data: unionSpec })
+    const { parseSchema } = createSchemaParser({ document })
+
+    const { discriminatorChildMap } = preScan({
+      schemas: unionSpec.components!.schemas as Record<string, SchemaObject>,
+      parseSchema,
+      document,
+      parserOptions,
+      discriminator: 'propagate',
+    })
+
+    expect(discriminatorChildMap?.get('Cat')).toStrictEqual({ propertyName: 'type', enumValues: ['cat'] })
+    expect(discriminatorChildMap?.get('Dog')).toStrictEqual({ propertyName: 'type', enumValues: ['dog'] })
   })
 })
 

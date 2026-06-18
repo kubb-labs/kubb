@@ -130,6 +130,23 @@ export type ParameterObject = {
 export type ServerObject = OpenAPIV3_1.ServerObject
 
 /**
+ * Selects which entry in the spec's `servers` array becomes the base URL and
+ * supplies values for its `{variable}` placeholders.
+ */
+export type ServerOptions = {
+  /**
+   * Index into the `servers` array from your OpenAPI spec. Most projects pick
+   * `0` for the primary server. Omit to leave `baseURL` undefined.
+   */
+  index?: number
+  /**
+   * Override values for `{variable}` placeholders in the selected server URL.
+   * Variables you do not provide use their `default` value from the spec.
+   */
+  variables?: Record<string, string>
+}
+
+/**
  * Configuration for the OpenAPI adapter: spec validation, content-type selection,
  * server URL resolution, and how schema types are derived.
  *
@@ -138,8 +155,7 @@ export type ServerObject = OpenAPIV3_1.ServerObject
  * adapterOas({
  *   validate: false,
  *   dateType: 'date',
- *   serverIndex: 0,
- *   serverVariables: { env: 'prod' },
+ *   server: { index: 0, variables: { env: 'prod' } },
  * })
  * ```
  */
@@ -158,35 +174,29 @@ export type AdapterOasOptions = {
    */
   contentType?: ContentType
   /**
-   * Index into the `servers` array from your OpenAPI spec. Used to compute the
-   * base URL for plugins that need it. Most projects pick `0` for the primary
-   * server. Omit to leave `baseURL` undefined.
-   */
-  serverIndex?: number
-  /**
-   * Override values for `{variable}` placeholders in the selected server URL.
-   * Only used when `serverIndex` is set. Variables you do not provide use
-   * their `default` value from the spec.
+   * Selects the server entry used to compute the base URL for plugins that need
+   * it, and overrides its `{variable}` placeholders. Omit to leave `baseURL`
+   * undefined.
    *
    * @example
    * ```ts
    * // spec server: "https://api.{env}.example.com"
-   * serverVariables: { env: 'prod' }
+   * server: { index: 0, variables: { env: 'prod' } }
    * // → baseURL: "https://api.prod.example.com"
    * ```
    */
-  serverVariables?: Record<string, string>
+  server?: ServerOptions
   /**
    * How the `discriminator` field on `oneOf`/`anyOf` schemas is interpreted.
-   * - `'strict'` child schemas stay exactly as written. The discriminator
+   * - `'preserve'` child schemas stay exactly as written. The discriminator
    *   narrows types at the call site but child shapes are not modified.
-   * - `'inherit'` Kubb propagates the discriminator property as a literal
-   *   value into each child schema, so each branch's discriminator field is
-   *   precisely typed.
+   * - `'propagate'` Kubb pushes the discriminator property as a literal value
+   *   into each child schema, so each branch's discriminator field is precisely
+   *   typed.
    *
-   * @default 'strict'
+   * @default 'preserve'
    */
-  discriminator?: 'strict' | 'inherit'
+  discriminator?: 'preserve' | 'propagate'
   /**
    * Where inline enums live.
    * - `'inline'` keeps each enum inline on the property that declares it.
@@ -204,8 +214,7 @@ export type AdapterOasOptions = {
 export type AdapterOasResolvedOptions = {
   validate: boolean
   contentType: AdapterOasOptions['contentType']
-  serverIndex: AdapterOasOptions['serverIndex']
-  serverVariables: AdapterOasOptions['serverVariables']
+  server: AdapterOasOptions['server']
   discriminator: NonNullable<AdapterOasOptions['discriminator']>
   enums: NonNullable<AdapterOasOptions['enums']>
   dateType: NonNullable<AdapterOasOptions['dateType']>
