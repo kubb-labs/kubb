@@ -27,6 +27,7 @@
     "adapter-oas-scalar-upgrader",
     "adapter-oas-schema-dialect",
     "adapter-oas-schema-enum-dedupe",
+    "adapter-oas-server-object-discriminator-rename",
     "adapter-oas-target-openapi-31",
     "add-adapter-document-field",
     "add-ast-dispatch-helper",
