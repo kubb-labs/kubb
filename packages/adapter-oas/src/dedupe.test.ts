@@ -141,6 +141,32 @@ describe('plan', () => {
 
     expect(dedupePlan.extracted[0]).toMatchObject({ name: 'Status2' })
   })
+
+  it('keeps an inline shape inline when its name is reserved by an operation', () => {
+    // An operation response inline shape carries the operation-scoped name the generator also
+    // uses for its own type. Hoisting it under that name would collide, so it stays inline.
+    const pet = createSchema({
+      type: 'object',
+      name: 'Pet',
+      properties: [
+        createProperty({ name: 'error', schema: stringEnum(['active', 'inactive'], { name: 'PostPetStatus400' }) }),
+        createProperty({ name: 'id', schema: createSchema({ type: 'string' }) }),
+      ],
+    })
+    const order = createSchema({
+      type: 'object',
+      name: 'Order',
+      properties: [
+        createProperty({ name: 'error', schema: stringEnum(['active', 'inactive'], { name: 'PostPetStatus400' }) }),
+        createProperty({ name: 'total', schema: createSchema({ type: 'number' }) }),
+      ],
+    })
+
+    const dedupePlan = plan([pet, order], context({ reservedNames: new Set(['PostPetStatus400']) }))
+
+    expect(dedupePlan.extracted).toHaveLength(0)
+    expect(dedupePlan.apply(order)).toBe(order)
+  })
 })
 
 describe('apply', () => {

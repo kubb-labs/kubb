@@ -121,7 +121,17 @@ export function preScan({
     const circularSchemas = new Set(circularNames)
     const usedNames = new Set(Object.keys(schemas))
 
-    dedupePlan = oasDialect.dedupe.plan([...allNodes, ...operationNodes], { circularSchemas, usedNames })
+    // Names operations assign to their own inline schemas (response-status, data, params). An
+    // anonymous shape that recurs across operations must not be hoisted under one of these, or it
+    // would collide with that operation's generated type.
+    const reservedNames = new Set<string>()
+    for (const operationNode of operationNodes) {
+      for (const name of ast.collect<string | undefined>(operationNode, { schema: (schemaNode) => schemaNode.name ?? undefined })) {
+        if (name) reservedNames.add(name)
+      }
+    }
+
+    dedupePlan = oasDialect.dedupe.plan([...allNodes, ...operationNodes], { circularSchemas, usedNames, reservedNames })
 
     for (const definition of dedupePlan.extracted) {
       if (definition.type === 'enum' && definition.name) enumNames.push(definition.name)

@@ -50,6 +50,13 @@ export type Plan = {
 export type DedupeContext = {
   circularSchemas: ReadonlySet<string>
   usedNames: Set<string>
+  /**
+   * Names an operation already claims for a generated type (its response-status, data, and
+   * parameter types). An inline shape with no named component falls back to its parser-assigned
+   * name, which for an operation body is one of these. Extracting it under that name would clash
+   * with the operation's own type, so such a shape is left inline instead of hoisted.
+   */
+  reservedNames?: ReadonlySet<string>
 }
 
 /**
@@ -129,7 +136,7 @@ function nameFor(node: ast.SchemaNode, usedNames: Set<string>): string | null {
  * ```
  */
 export function plan(roots: ReadonlyArray<ast.Node>, context: DedupeContext): Plan {
-  const { circularSchemas, usedNames } = context
+  const { circularSchemas, usedNames, reservedNames = new Set<string>() } = context
 
   const topLevelNodes = new Set<ast.SchemaNode>()
 
@@ -173,6 +180,11 @@ export function plan(roots: ReadonlyArray<ast.Node>, context: DedupeContext): Pl
       }
       continue
     }
+
+    // No named component backs this shape, so it would be extracted under its parser-assigned
+    // name. When an operation already claims that name for one of its own types, keep the shape
+    // inline rather than emit a colliding shared definition.
+    if (group.representative.name && reservedNames.has(group.representative.name)) continue
 
     const name = nameFor(group.representative, usedNames)
     if (!name) continue
