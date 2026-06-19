@@ -97,6 +97,7 @@
     "core-hot-path-perf",
     "core-remove-middleware",
     "core-renderer-contract-trim",
+    "core-simplify-generate-dispatch",
     "core-split-createkubb-types",
     "core-type-safety-escape-hatches",
     "create-kubb-user-config-signature",

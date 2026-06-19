@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.70 — Jun 19, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Simplify the generate phase: schema and operation nodes now run through each plugin's generators in a single ordered pass instead of parallel batches.
+  
+  The generators run synchronously, so the old `Promise.all` batching never overlapped any work. It only marked where queued writes flushed. The pass now walks nodes in order and flushes every `GENERATE_FLUSH_EVERY` nodes (the renamed `SCHEMA_PARALLEL`), keeping the generation/write overlap that speeds up large specs on disk while dropping the `forBatches` helper. ([#3638](https://github.com/kubb-labs/kubb/pull/3638), [`3055bca`](https://github.com/kubb-labs/kubb/commit/3055bca1a41b7c41a841c1b66769b38bd4b9fed0))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.69 — Jun 18, 2026
 
 ### @kubb/adapter-oas
