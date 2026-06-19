@@ -6,7 +6,7 @@ import { createKubb } from './createKubb.ts'
 import { Diagnostics } from './diagnostics.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
-import { HOOK_LISTENERS_PER_PLUGIN, SCHEMA_PARALLEL, STREAM_FLUSH_EVERY } from './constants.ts'
+import { GENERATE_FLUSH_EVERY, HOOK_LISTENERS_PER_PLUGIN, STREAM_FLUSH_EVERY } from './constants.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
@@ -369,8 +369,8 @@ describe('createKubb', () => {
       }))()
     }
 
-    it('generates all files when schema count exceeds SCHEMA_PARALLEL', async () => {
-      const count = SCHEMA_PARALLEL * 3 + 1
+    it('generates all files when schema count exceeds GENERATE_FLUSH_EVERY', async () => {
+      const count = GENERATE_FLUSH_EVERY * 3 + 1
       const schemas = Array.from({ length: count }, (_, i) => ast.factory.createSchema({ name: `Schema${i}`, type: 'string' }))
       const generatedPaths: Array<string> = []
 
@@ -396,8 +396,8 @@ describe('createKubb', () => {
       expect(generatedPaths).toStrictEqual(schemas.map((s) => `/gen/${s.name}.ts`))
     })
 
-    it('preserves operation insertion order for collectedOperations across batches', async () => {
-      const opCount = SCHEMA_PARALLEL * 2 + 3
+    it('passes operations to gen.operations() in insertion order', async () => {
+      const opCount = GENERATE_FLUSH_EVERY * 2 + 3
       const operations = Array.from({ length: opCount }, (_, i) =>
         ast.factory.createOperation({ operationId: `op${i}`, method: 'GET', path: `/path${i}`, parameters: [], responses: [], tags: [] }),
       )
@@ -439,7 +439,7 @@ describe('createKubb', () => {
     })
 
     it('processes schemas from adapter.stream() across batches', async () => {
-      const count = SCHEMA_PARALLEL * 2 + 1
+      const count = GENERATE_FLUSH_EVERY * 2 + 1
       const schemas = Array.from({ length: count }, (_, i) => ast.factory.createSchema({ name: `StreamSchema${i}`, type: 'string' }))
       const generatedPaths: Array<string> = []
 

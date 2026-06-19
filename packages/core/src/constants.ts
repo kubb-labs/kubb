@@ -14,9 +14,10 @@ export const SUMMARY_MAX_BAR_LENGTH = 10 as const
 export const SUMMARY_TIME_SCALE_DIVISOR = 100 as const
 
 /**
- * Number of schema/operation nodes to dispatch concurrently during generation.
+ * How many schema/operation nodes to generate between write flushes. Flushing as generation runs
+ * lets writes reach disk before the build finishes, rather than queuing them all to the end.
  */
-export const SCHEMA_PARALLEL = 8
+export const GENERATE_FLUSH_EVERY = 8
 
 /**
  * Upper bound of hook listeners a single plugin can add to one event (its schema, operation,

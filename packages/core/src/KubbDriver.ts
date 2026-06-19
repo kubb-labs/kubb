@@ -1,8 +1,8 @@
 import { resolve } from 'node:path'
-import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs, isPromise, memoize, Url } from '@internals/utils'
+import { arrayToAsyncIterable, type AsyncEventEmitter, getElapsedMs, isPromise, memoize, Url } from '@internals/utils'
 import { collectUsedSchemaNames } from '@kubb/ast/utils'
 import { ast, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
-import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
+import { GENERATE_FLUSH_EVERY, OPERATION_FILTER_TYPES } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
@@ -573,18 +573,16 @@ export class KubbDriver {
       return { transformedNode, options }
     }
 
-    // Schema and operation passes share this body. They differ only in which generator
-    // method runs, which hook is emitted, and the schema-only `allowedSchemaNames` prune
-    // (operations don't carry that constraint).
-    const dispatchNode = async <TNode extends SchemaNode | OperationNode>(
-      state: PluginState,
-      node: TNode,
-      dispatch: {
-        method: 'schema' | 'operation'
-        checkAllowedNames: boolean
-        emit: ((node: TNode, ctx: GeneratorContext) => Promise<void> | void) | null
-      },
-    ): Promise<void> => {
+    // One generation pass: which generator method runs, which kubb:generate hook fires, and
+    // whether the schema-only allowedSchemaNames prune applies.
+    type NodeDispatch<TNode extends SchemaNode | OperationNode> = {
+      method: 'schema' | 'operation'
+      checkAllowedNames: boolean
+      emit: ((node: TNode, ctx: GeneratorContext) => Promise<void> | void) | null
+    }
+
+    // Schemas and operations share this body, differing only in the dispatch descriptor.
+    const dispatchNode = async <TNode extends SchemaNode | OperationNode>(state: PluginState, node: TNode, dispatch: NodeDispatch<TNode>): Promise<void> => {
       if (state.failed) return
       try {
         const resolved = resolveForPlugin(state, node)
@@ -628,37 +626,42 @@ export class KubbDriver {
       emit: emitsOperationHook ? (node: OperationNode, ctx: GeneratorContext) => this.hooks.emit('kubb:generate:operation', node, ctx) : null,
     } as const
 
+    // Walk nodes in order, flushing queued writes every GENERATE_FLUSH_EVERY nodes so writes
+    // reach disk while later nodes are still generating. The generators are synchronous, so
+    // batching them through Promise.all never overlapped anything a sequential walk doesn't.
+    const dispatchPass = async <TNode extends SchemaNode | OperationNode>(
+      state: PluginState,
+      nodes: ReadonlyArray<TNode>,
+      dispatch: NodeDispatch<TNode>,
+    ): Promise<void> => {
+      let sinceFlush = 0
+      for (const node of nodes) {
+        await dispatchNode(state, node, dispatch)
+        if (++sinceFlush >= GENERATE_FLUSH_EVERY) {
+          sinceFlush = 0
+          await flushPending()
+        }
+      }
+      if (sinceFlush > 0) await flushPending()
+    }
+
     for (const state of states) {
-      // Skip building the aggregated operations array when this plugin doesn't consume it.
-      // Saves an N-sized allocation when the plugin only defines per-node `gen.operation`.
-      const needsCollectedOperations = emitsOperationsHook || state.generators.some((gen) => !!gen.operations)
-      const collectedOperations: Array<OperationNode> | undefined = needsCollectedOperations ? [] : undefined
+      // Only plugins with a gen.operations (or a kubb:generate:operations listener) need the
+      // aggregated pass below.
+      const needsOperationsAggregate = emitsOperationsHook || state.generators.some((gen) => !!gen.operations)
 
-      // Run schemas before operations: the two passes share `flushPending` and the
-      // FileProcessor's event emitter, so running them concurrently would interleave
-      // `kubb:files:processing:start|end` events and race on the shared dirty list.
-      await forBatches(schemasBuffer, (nodes) => Promise.all(nodes.map((node) => dispatchNode(state, node, schemaDispatch))), {
-        concurrency: SCHEMA_PARALLEL,
-        flush: flushPending,
-      })
+      // Run schemas before operations: the two passes share the flush and the FileProcessor's
+      // event emitter, so interleaving them would race on the shared dirty list.
+      await dispatchPass(state, schemasBuffer, schemaDispatch)
+      await dispatchPass(state, operationsBuffer, operationDispatch)
 
-      await forBatches(
-        operationsBuffer,
-        (nodes) => {
-          if (needsCollectedOperations) collectedOperations?.push(...nodes)
-          return Promise.all(nodes.map((node) => dispatchNode(state, node, operationDispatch)))
-        },
-        { concurrency: SCHEMA_PARALLEL, flush: flushPending },
-      )
-
-      if (!state.failed && needsCollectedOperations) {
+      if (!state.failed && needsOperationsAggregate) {
         try {
           const { plugin, generatorContext, generators } = state
           const ctx = { ...generatorContext, options: plugin.options }
-          // Match what the per-node dispatch passes to gen.operation(): the transformed node,
-          // already filtered by excludes/includes/overrides.
-          const ops = collectedOperations ?? []
-          const pluginOperations = ops.reduce<Array<OperationNode>>((acc, node) => {
+          // Match what the per-node dispatch passed to gen.operation(): each operation
+          // transformed and filtered by this plugin's excludes/includes/overrides.
+          const pluginOperations = operationsBuffer.reduce<Array<OperationNode>>((acc, node) => {
             const resolved = resolveForPlugin(state, node)
             if (resolved) acc.push(resolved.transformedNode)
             return acc
