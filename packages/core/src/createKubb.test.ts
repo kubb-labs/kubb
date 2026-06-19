@@ -396,7 +396,7 @@ describe('createKubb', () => {
       expect(generatedPaths).toStrictEqual(schemas.map((s) => `/gen/${s.name}.ts`))
     })
 
-    it('preserves operation insertion order for collectedOperations across batches', async () => {
+    it('passes operations to gen.operations() in insertion order', async () => {
       const opCount = GENERATE_FLUSH_EVERY * 2 + 3
       const operations = Array.from({ length: opCount }, (_, i) =>
         ast.factory.createOperation({ operationId: `op${i}`, method: 'GET', path: `/path${i}`, parameters: [], responses: [], tags: [] }),
