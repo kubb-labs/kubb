@@ -136,4 +136,36 @@ describe('bundleDocument', () => {
   it('throws when the input file does not exist', async () => {
     await expect(bundleDocument(path.resolve(__dirname, '../mocks/doesNotExist.yaml'))).rejects.toThrow()
   })
+
+  it('shifts bundler-created collision suffixes from 1-based to 2-based', async () => {
+    // When api-ref-bundler bundles an external schema whose name collides with a local one,
+    // it appends a numeric counter starting at 1 (e.g. Category → Category1). This test
+    // verifies that bundleDocument shifts those suffixes up by 1 so the convention matches
+    // getSchemas' same-source collision naming (2, 3, …).
+    const externalCategory = `
+type: object
+properties:
+  id:
+    type: integer
+`
+
+    using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input: string | URL | Request) => {
+      const href = input instanceof URL ? input.href : String(input)
+      if (href === 'https://external.example.com/schemas/Category.yaml') {
+        return Promise.resolve(new Response(externalCategory, { status: 200 }))
+      }
+      return Promise.resolve(new Response('not found', { status: 404 }))
+    })
+
+    const doc = await bundleDocument(path.resolve(__dirname, '../mocks/withDuplicateSchemaRef.yaml'))
+
+    // Category1 (from bundler) should be renamed to Category2; Category stays unchanged.
+    expect(doc.components?.schemas?.['Category']).toMatchObject({ type: 'object', properties: { name: { type: 'string' } } })
+    expect(doc.components?.schemas?.['Category1']).toBeUndefined()
+    expect(doc.components?.schemas?.['Category2']).toMatchObject({ type: 'object', properties: { id: { type: 'integer' } } })
+
+    // $ref strings must be updated to point at Category2.
+    const pet = doc.components?.schemas?.['Pet'] as Record<string, unknown>
+    expect((pet?.properties as Record<string, unknown>)?.['category']).toStrictEqual({ $ref: '#/components/schemas/Category2' })
+  })
 })

@@ -1,0 +1,29 @@
+openapi: '3.0.3'
+info:
+  title: Duplicate Schema Name API
+  version: 1.0.0
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        name:
+          type: string
+    Pet:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          $ref: 'https://external.example.com/schemas/Category.yaml'
