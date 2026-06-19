@@ -1,8 +1,8 @@
 import { resolve } from 'node:path'
-import { arrayToAsyncIterable, type AsyncEventEmitter, forBatches, getElapsedMs, isPromise, memoize, Url } from '@internals/utils'
+import { arrayToAsyncIterable, type AsyncEventEmitter, getElapsedMs, isPromise, memoize, Url } from '@internals/utils'
 import { collectUsedSchemaNames } from '@kubb/ast/utils'
 import { ast, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
-import { OPERATION_FILTER_TYPES, SCHEMA_PARALLEL } from './constants.ts'
+import { GENERATE_FLUSH_EVERY, OPERATION_FILTER_TYPES } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
@@ -628,28 +628,38 @@ export class KubbDriver {
       emit: emitsOperationHook ? (node: OperationNode, ctx: GeneratorContext) => this.hooks.emit('kubb:generate:operation', node, ctx) : null,
     } as const
 
+    // Dispatch each node through the plugin's generators in order, flushing queued writes every
+    // GENERATE_FLUSH_EVERY nodes so disk writes overlap generation. The generators are
+    // synchronous, so a parallel batch would not actually overlap; a single ordered pass also
+    // keeps the shared flush and the FileProcessor's event stream race-free.
+    const dispatchPass = async <TNode extends SchemaNode | OperationNode>(
+      state: PluginState,
+      nodes: ReadonlyArray<TNode>,
+      dispatch: { method: 'schema' | 'operation'; checkAllowedNames: boolean; emit: ((node: TNode, ctx: GeneratorContext) => Promise<void> | void) | null },
+      onNode?: (node: TNode) => void,
+    ): Promise<void> => {
+      let sinceFlush = 0
+      for (const node of nodes) {
+        onNode?.(node)
+        await dispatchNode(state, node, dispatch)
+        if (++sinceFlush >= GENERATE_FLUSH_EVERY) {
+          sinceFlush = 0
+          await flushPending()
+        }
+      }
+      if (sinceFlush > 0) await flushPending()
+    }
+
     for (const state of states) {
       // Skip building the aggregated operations array when this plugin doesn't consume it.
       // Saves an N-sized allocation when the plugin only defines per-node `gen.operation`.
       const needsCollectedOperations = emitsOperationsHook || state.generators.some((gen) => !!gen.operations)
       const collectedOperations: Array<OperationNode> | undefined = needsCollectedOperations ? [] : undefined
 
-      // Run schemas before operations: the two passes share `flushPending` and the
-      // FileProcessor's event emitter, so running them concurrently would interleave
-      // `kubb:files:processing:start|end` events and race on the shared dirty list.
-      await forBatches(schemasBuffer, (nodes) => Promise.all(nodes.map((node) => dispatchNode(state, node, schemaDispatch))), {
-        concurrency: SCHEMA_PARALLEL,
-        flush: flushPending,
-      })
-
-      await forBatches(
-        operationsBuffer,
-        (nodes) => {
-          if (needsCollectedOperations) collectedOperations?.push(...nodes)
-          return Promise.all(nodes.map((node) => dispatchNode(state, node, operationDispatch)))
-        },
-        { concurrency: SCHEMA_PARALLEL, flush: flushPending },
-      )
+      // Run schemas before operations: the two passes share the flush and the FileProcessor's
+      // event emitter, so interleaving them would race on the shared dirty list.
+      await dispatchPass(state, schemasBuffer, schemaDispatch)
+      await dispatchPass(state, operationsBuffer, operationDispatch, collectedOperations ? (node) => collectedOperations.push(node) : undefined)
 
       if (!state.failed && needsCollectedOperations) {
         try {
