@@ -100,7 +100,7 @@ function shiftBundlerCollisionSuffix(doc: Document): Document {
     const obj = value as Record<string, unknown>
     const ref = obj['$ref']
     if (typeof ref === 'string' && refRenames.has(ref)) {
-      return { ...obj, '$ref': refRenames.get(ref) }
+      return { ...obj, $ref: refRenames.get(ref) }
     }
 
     return Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, walk(v)]))
