@@ -79,9 +79,7 @@ function shiftBundlerCollisionSuffix(doc: Document): Document {
   }
 
   const updated = JSON.parse(json) as Document
-  updated.components!.schemas = Object.fromEntries(
-    Object.entries(updated.components!.schemas!).map(([k, v]) => [renames.get(k) ?? k, v]),
-  )
+  updated.components!.schemas = Object.fromEntries(Object.entries(updated.components!.schemas!).map(([k, v]) => [renames.get(k) ?? k, v]))
 
   return updated
 }
