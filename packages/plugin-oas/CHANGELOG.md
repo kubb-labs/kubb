@@ -1,5 +1,37 @@
 # @kubb/swagger
 
+## 4.39.0
+
+### Minor Changes
+
+- [#3642](https://github.com/kubb-labs/kubb/pull/3642) [`9bd4e76`](https://github.com/kubb-labs/kubb/commit/9bd4e76b42d605bc44cca1c3d2f73bfda9b7bddc) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Add the `output.barrel` object and `@deprecated` hints to prepare for v5.
+
+  `output.barrel` replaces `output.barrelType` and works now, on the root config and on each plugin's `output`, so you can move to the v5 barrel shape while still on v4:
+
+  ```ts
+  output: { barrelType: 'named' }                     // deprecated
+  output: { barrel: { type: 'named' } }               // root or plugin
+  output: { barrel: { type: 'named', nested: true } } // plugin only, replaces 'propagate'
+  output: { barrel: false }                           // disable
+  ```
+
+  The `@deprecated` hints only flag what you can act on in v4 today, and each links the [v5 migration guide](https://kubb.dev/docs/5.x/migration-guide):
+  - `defineConfig` from `@kubb/core`, now re-exported from `kubb`. Import it from `kubb` so the deprecation does not follow you.
+  - `output.barrelType` (use `output.barrel`) and `output.override` (gone in v5).
+  - `generators`, `paramsType`, `pathParamsType`, `paramsCasing`, and `bundle` on the client and query plugins.
+  - `version` on `@kubb/plugin-zod` (v5 always targets Zod v4).
+  - `@kubb/plugin-solid-query` and `@kubb/plugin-svelte-query`, which have no v5 equivalent.
+
+  When v4 already has the value that becomes fixed in v5, the message names it so you can set it early: `paramsCasing: 'camelcase'`, `paramsType: 'object'`, `bundle: true`, and `version: '4'`.
+
+  Options whose only replacement is a v5-only API stay untouched for now, since there is nothing to switch to in v4. That covers the `resolver`, `macros`, and `printer` plugin options and the schema options that move to `@kubb/adapter-oas`.
+
+### Patch Changes
+
+- Updated dependencies [[`9bd4e76`](https://github.com/kubb-labs/kubb/commit/9bd4e76b42d605bc44cca1c3d2f73bfda9b7bddc)]:
+  - @kubb/core@4.39.0
+  - @kubb/oas@4.39.0
+
 ## 4.38.1
 
 ### Patch Changes
