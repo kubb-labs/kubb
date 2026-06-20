@@ -138,7 +138,7 @@ export type Options = {
    * - 'camelcase' uses camelCase for pathParams, queryParams and headerParams property names
    * @default undefined
    * @note response types (data/body) are NOT affected by this option
-   * @deprecated Removed in v5, where parameters always use camelCase names. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated Removed in v5, where parameters always use camelCase names. Set `paramsCasing: 'camelcase'` now to match the v5 behavior. See https://kubb.dev/docs/5.x/migration-guide
    */
   paramsCasing?: 'camelcase'
   /**

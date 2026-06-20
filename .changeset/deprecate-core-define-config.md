@@ -33,6 +33,8 @@ output: { barrel: false }                         // disable
 - `output.barrelType` (use `output.barrel`) and `output.override` (removed in v5).
 - `generators`, `paramsType`, `pathParamsType`, `paramsCasing`, and `bundle` on the client and query plugins.
 - `version` on `@kubb/plugin-zod` (always Zod v4 in v5).
+
+Where v4 already has a value that matches the fixed v5 behavior, the deprecation message names it so a config can align early, for example `paramsCasing: 'camelcase'`, `paramsType: 'object'`, `bundle: true`, and `version: '4'`.
 - `@kubb/plugin-solid-query` and `@kubb/plugin-svelte-query`, which have no v5 equivalent.
 
 Options whose only replacement is a v5-only API (the `resolver`/`macros`/`printer` plugin options and the schema options that move to `@kubb/adapter-oas`) are intentionally not deprecated yet, since there is no v4 alternative to point users at.

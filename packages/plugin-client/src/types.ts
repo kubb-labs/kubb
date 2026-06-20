@@ -92,7 +92,7 @@ export type Options = {
    * How to style your params, by default no casing is applied
    * - 'camelcase' uses camelCase for pathParams, queryParams and headerParams names
    * @note response types (data/body) are not affected by this option
-   * @deprecated Removed in v5, where parameters always use camelCase names. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated Removed in v5, where parameters always use camelCase names. Set `paramsCasing: 'camelcase'` now to match the v5 behavior. See https://kubb.dev/docs/5.x/migration-guide
    */
   paramsCasing?: 'camelcase'
   /**
@@ -100,7 +100,7 @@ export type Options = {
    * - 'object' returns the params and pathParams as an object.
    * - 'inline' returns the params as comma separated params.
    * @default 'inline'
-   * @deprecated Removed in v5, where generated functions take a single grouped options object. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated Removed in v5, where generated functions take a single grouped options object. Set `paramsType: 'object'` now to match the v5 behavior. See https://kubb.dev/docs/5.x/migration-guide
    */
   paramsType?: 'object' | 'inline'
   /**
@@ -108,7 +108,7 @@ export type Options = {
    * - 'object' returns the pathParams as an object.
    * - 'inline' returns the pathParams as comma separated params.
    * @default 'inline'
-   * @deprecated Removed in v5, where generated functions take a single grouped options object. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated Removed in v5, where generated functions take a single grouped options object. Set `pathParamsType: 'object'` now to match the v5 behavior. See https://kubb.dev/docs/5.x/migration-guide
    */
   pathParamsType?: 'object' | 'inline'
   /**
@@ -131,7 +131,7 @@ export type Options = {
    * When disabled the generated clients will import the shared runtime from `@kubb/plugin-client/clients/*`.
    * @default false
    * In version 5 of Kubb this is by default true
-   * @deprecated Removed in v5, where the client is always bundled. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated Removed in v5, where the client is always bundled. Set `bundle: true` now (or set `importPath` to import from an external module) to match the v5 behavior. See https://kubb.dev/docs/5.x/migration-guide
    */
   bundle?: boolean
   /**

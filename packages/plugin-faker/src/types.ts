@@ -88,7 +88,7 @@ export type Options = {
    * When set to 'camelcase', parameter names in path, query, and header params will be transformed to camelCase.
    * This should match the paramsCasing setting used in @kubb/plugin-ts.
    * @default undefined
-   * @deprecated Removed in v5, where parameters always use camelCase names. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated Removed in v5, where parameters always use camelCase names. Set `paramsCasing: 'camelcase'` now to match the v5 behavior. See https://kubb.dev/docs/5.x/migration-guide
    */
   paramsCasing?: 'camelcase'
   transformers?: {
