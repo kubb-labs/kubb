@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.72 — Jun 20, 2026
+
+### @kubb/ast
+
+#### Breaking Changes
+
+- Remove the TypeScript function-parameter model from `@kubb/ast`. The function-parameter nodes and factories (`createFunctionParameter`, `createFunctionParameters`, `createTypeLiteral`, `createIndexedAccessType`, `createObjectBindingPattern`), the `createOperationParams` builder, the `caseParams` helper, and the `OperationParamsResolver` type are no longer part of `@kubb/ast`. These are language-specific code generation, so they now live in `@kubb/plugin-ts` (the node model and `createOperationParams`) and the shared plugin internals (`caseParams`, `OperationParamsResolver`). `@kubb/ast` keeps the spec-agnostic node tree. ([#3647](https://github.com/kubb-labs/kubb/pull/3647), [`1fd1136`](https://github.com/kubb-labs/kubb/commit/1fd113658911141979bcc80c4baeb2e9c23ea946))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.71 — Jun 20, 2026
 
 ### @kubb/ast
