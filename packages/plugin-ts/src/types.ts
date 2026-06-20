@@ -13,6 +13,7 @@ export type Options = {
   /**
    * Define which contentType should be used.
    * By default, uses the first valid JSON media type.
+   * @deprecated Set `contentType` on `adapterOas()` (the top-level `adapter`) instead. See https://kubb.dev/docs/5.x/migration-guide
    */
   contentType?: contentType
   /**
@@ -68,6 +69,7 @@ export type Options = {
   /**
    * Set a suffix for the generated enums.
    * @default 'enum'
+   * @deprecated Set `enumSuffix` on `adapterOas()` (the top-level `adapter`) instead. See https://kubb.dev/docs/5.x/migration-guide
    */
   enumSuffix?: string
   /**
@@ -75,6 +77,7 @@ export type Options = {
    * - 'string' represents dates as string values.
    * - 'date' represents dates as JavaScript Date objects.
    * @default 'string'
+   * @deprecated Set this on `adapterOas()` (the top-level `adapter`) instead. The schema options moved off the plugins so the OpenAPI spec is parsed once and shared. See https://kubb.dev/docs/5.x/migration-guide
    */
   dateType?: 'string' | 'date'
   /**
@@ -83,6 +86,7 @@ export type Options = {
    * - 'bigint' uses the TypeScript `bigint` type (accurate for values exceeding Number.MAX_SAFE_INTEGER).
    * @note in v5 of Kubb 'bigint' will become the default to better align with OpenAPI's int64 specification.
    * @default 'number'
+   * @deprecated Set this on `adapterOas()` (the top-level `adapter`) instead. The schema options moved off the plugins so the OpenAPI spec is parsed once and shared. See https://kubb.dev/docs/5.x/migration-guide
    */
   integerType?: 'number' | 'bigint'
   /**
@@ -91,6 +95,7 @@ export type Options = {
    * - 'unknown' requires type narrowing before use.
    * - 'void' represents no value.
    * @default 'any'
+   * @deprecated Set this on `adapterOas()` (the top-level `adapter`) instead. The schema options moved off the plugins so the OpenAPI spec is parsed once and shared. See https://kubb.dev/docs/5.x/migration-guide
    */
   unknownType?: 'any' | 'unknown' | 'void'
   /**
@@ -99,6 +104,7 @@ export type Options = {
    * - 'unknown' requires type narrowing before use.
    * - 'void' represents no value.
    * @default `unknownType`
+   * @deprecated Set this on `adapterOas()` (the top-level `adapter`) instead. The schema options moved off the plugins so the OpenAPI spec is parsed once and shared. See https://kubb.dev/docs/5.x/migration-guide
    */
   emptySchemaType?: 'any' | 'unknown' | 'void'
   /**
@@ -116,6 +122,9 @@ export type Options = {
    * @default 'array'
    */
   arrayType?: 'generic' | 'array'
+  /**
+   * @deprecated Use `resolver.resolveTypeName` for naming and `macros` for schema transforms instead of `transformers`. See https://kubb.dev/docs/5.x/migration-guide
+   */
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -131,6 +140,7 @@ export type Options = {
    *   factory.createToken(ts.SyntaxKind.QuestionToken),
    *   factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)
    * )
+   * @deprecated `mapper` is removed in v5. Use `printer` to override AST node renderers, or `macros` for schema transforms. See https://kubb.dev/docs/5.x/migration-guide
    */
   mapper?: Record<string, ts.PropertySignature>
   /**
@@ -138,10 +148,12 @@ export type Options = {
    * - 'camelcase' uses camelCase for pathParams, queryParams and headerParams property names
    * @default undefined
    * @note response types (data/body) are NOT affected by this option
+   * @deprecated `paramsCasing` is removed in v5. Parameters always use camelCase names and the wire-name mapping is automatic. See https://kubb.dev/docs/5.x/migration-guide
    */
   paramsCasing?: 'camelcase'
   /**
    * Define some generators next to the ts generators
+   * @deprecated The `generators` option is removed in v5. To add custom output, build your own plugin. See https://kubb.dev/docs/5.x/migration-guide
    */
   generators?: Array<Generator<PluginTs>>
   /**

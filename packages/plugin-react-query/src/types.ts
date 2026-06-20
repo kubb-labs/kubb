@@ -125,6 +125,7 @@ export type Options = {
   /**
    * How to style your params, by default no casing is applied
    * - 'camelcase' uses camelcase for the params names
+   * @deprecated `paramsCasing` is removed in v5. Parameters always use camelCase names and the wire-name mapping is automatic. See https://kubb.dev/docs/5.x/migration-guide
    */
   paramsCasing?: 'camelcase'
   /**
@@ -132,6 +133,7 @@ export type Options = {
    * - 'object' returns the params and pathParams as an object.
    * - 'inline' returns the params as comma separated params.
    * @default 'inline'
+   * @deprecated `paramsType` is removed in v5. Generated functions always take one grouped options object `{ body, path, query, headers }` with camelCase names. See https://kubb.dev/docs/5.x/migration-guide
    */
   paramsType?: 'object' | 'inline'
   /**
@@ -139,6 +141,7 @@ export type Options = {
    * - 'object' returns the pathParams as an object.
    * - 'inline': returns the pathParams as comma separated params.
    * @default 'inline'
+   * @deprecated `pathParamsType` is removed in v5. Generated functions always take one grouped options object `{ body, path, query, headers }` with camelCase names. See https://kubb.dev/docs/5.x/migration-guide
    */
   pathParamsType?: PluginClient['options']['pathParamsType']
 
@@ -170,6 +173,9 @@ export type Options = {
    * `'zod'` uses `@kubb/plugin-zod` to parse the data.
    */
   parser?: PluginClient['options']['parser']
+  /**
+   * @deprecated Use `resolver.resolveName` for naming and `macros` for schema transforms instead of `transformers`. See https://kubb.dev/docs/5.x/migration-guide
+   */
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -178,6 +184,7 @@ export type Options = {
   }
   /**
    * Define some generators next to the react-query generators
+   * @deprecated The `generators` option is removed in v5. To add custom output, build your own plugin. See https://kubb.dev/docs/5.x/migration-guide
    */
   generators?: Array<Generator<PluginReactQuery>>
 }

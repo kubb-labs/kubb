@@ -13,6 +13,7 @@ export type Options = {
   /**
    * Define which contentType should be used.
    * By default, the first JSON valid mediaType is used
+   * @deprecated Set `contentType` on `adapterOas()` (the top-level `adapter`) instead. See https://kubb.dev/docs/5.x/migration-guide
    */
   contentType?: contentType
   baseURL?: string
@@ -32,6 +33,9 @@ export type Options = {
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<ResolvedOptions>>
+  /**
+   * @deprecated Use `resolver.resolveName` for naming and `macros` for schema transforms instead of `transformers`. See https://kubb.dev/docs/5.x/migration-guide
+   */
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -52,6 +56,7 @@ export type Options = {
   parser?: 'data' | 'faker'
   /**
    * Define some generators next to the msw generators
+   * @deprecated The `generators` option is removed in v5. To add custom output, build your own plugin. See https://kubb.dev/docs/5.x/migration-guide
    */
   generators?: Array<Generator<PluginMsw>>
 }

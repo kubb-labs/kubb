@@ -203,6 +203,7 @@ export type Config<TInput = Input> = {
     /**
      * Configures how `index.ts` files are created, including disabling barrel file generation. Each plugin has its own `barrelType` option; this setting controls the root barrel file (e.g., `src/gen/index.ts`).
      * @default 'named'
+     * @deprecated Use `output.barrel` instead. `barrelType: 'named'` becomes `barrel: { type: 'named' }`, `'all'` becomes `barrel: { type: 'all' }`, and `false` stays `barrel: false`. See https://kubb.dev/docs/5.x/migration-guide
      */
     barrelType?: Exclude<BarrelType, 'propagate'> | false
     /**
@@ -218,6 +219,7 @@ export type Config<TInput = Input> = {
      * When setting the option in the global configuration, all plugins inherit the same behavior by default.
      * However, all plugins also have an `output.override` option, which can be used to override the behavior for a specific plugin.
      * @default false
+     * @deprecated `output.override` is removed in v5 and no longer has any effect. To keep specific files from being written, supply a custom `storage` that no-ops `setItem` for those paths. See https://kubb.dev/docs/5.x/migration-guide
      */
     override?: boolean
   }
@@ -442,6 +444,7 @@ export type Output<TOptions> = {
   /**
    * Define what needs to be exported, here you can also disable the export of barrel files
    * @default 'named'
+   * @deprecated Use `output.barrel` instead. `barrelType: 'named'` becomes `barrel: { type: 'named' }`, `'all'` becomes `barrel: { type: 'all' }`, `'propagate'` becomes `barrel: { type: 'named', nested: true }`, and `false` stays `barrel: false`. See https://kubb.dev/docs/5.x/migration-guide
    */
   barrelType?: BarrelType | false
   /**
@@ -455,6 +458,7 @@ export type Output<TOptions> = {
   /**
    * Whether to override existing external files if they already exist.
    * @default false
+   * @deprecated `output.override` is removed in v5 and no longer has any effect. To keep specific files from being written, supply a custom `storage` that no-ops `setItem` for those paths. See https://kubb.dev/docs/5.x/migration-guide
    */
   override?: boolean
 }

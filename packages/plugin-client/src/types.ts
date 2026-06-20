@@ -32,6 +32,7 @@ export type ClientImportPath =
       /**
        * `bundle` has no effect when `importPath` is set.
        * Use either `bundle` (with `client`) or `importPath`, not both.
+       * @deprecated `bundle` is removed in v5. The client is always bundled into `.kubb/client.ts`. To import the client from an external module, set `importPath`. See https://kubb.dev/docs/5.x/migration-guide
        */
       bundle?: never
     }
@@ -91,6 +92,7 @@ export type Options = {
    * How to style your params, by default no casing is applied
    * - 'camelcase' uses camelCase for pathParams, queryParams and headerParams names
    * @note response types (data/body) are not affected by this option
+   * @deprecated `paramsCasing` is removed in v5. Parameters always use camelCase names and the wire-name mapping is automatic. See https://kubb.dev/docs/5.x/migration-guide
    */
   paramsCasing?: 'camelcase'
   /**
@@ -98,6 +100,7 @@ export type Options = {
    * - 'object' returns the params and pathParams as an object.
    * - 'inline' returns the params as comma separated params.
    * @default 'inline'
+   * @deprecated `paramsType` is removed in v5. Generated functions always take one grouped options object `{ body, path, query, headers }` with camelCase names. See https://kubb.dev/docs/5.x/migration-guide
    */
   paramsType?: 'object' | 'inline'
   /**
@@ -105,6 +108,7 @@ export type Options = {
    * - 'object' returns the pathParams as an object.
    * - 'inline' returns the pathParams as comma separated params.
    * @default 'inline'
+   * @deprecated `pathParamsType` is removed in v5. Generated functions always take one grouped options object `{ body, path, query, headers }` with camelCase names. See https://kubb.dev/docs/5.x/migration-guide
    */
   pathParamsType?: 'object' | 'inline'
   /**
@@ -127,6 +131,7 @@ export type Options = {
    * When disabled the generated clients will import the shared runtime from `@kubb/plugin-client/clients/*`.
    * @default false
    * In version 5 of Kubb this is by default true
+   * @deprecated `bundle` is removed in v5. The client is always bundled into `.kubb/client.ts`. To import the client from an external module, set `importPath`. See https://kubb.dev/docs/5.x/migration-guide
    */
   bundle?: boolean
   /**
@@ -138,6 +143,9 @@ export type Options = {
      */
     className: string
   }
+  /**
+   * @deprecated Use `resolver.resolveName` for naming and `macros` for schema transforms instead of `transformers`. See https://kubb.dev/docs/5.x/migration-guide
+   */
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -146,6 +154,7 @@ export type Options = {
   }
   /**
    * Define some generators next to the client generators
+   * @deprecated The `generators` option is removed in v5. To add custom output, build your own plugin. See https://kubb.dev/docs/5.x/migration-guide
    */
   generators?: Array<Generator<PluginClient>>
 } & ClientImportPath

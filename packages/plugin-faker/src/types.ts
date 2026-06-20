@@ -36,6 +36,7 @@ export type Options = {
    * - 'string' represents dates as string values.
    * - 'date' represents dates as JavaScript Date objects.
    * @default 'string'
+   * @deprecated Set this on `adapterOas()` (the top-level `adapter`) instead. The schema options moved off the plugins so the OpenAPI spec is parsed once and shared. See https://kubb.dev/docs/5.x/migration-guide
    */
   dateType?: 'string' | 'date'
   /**
@@ -44,6 +45,7 @@ export type Options = {
    * - 'bigint' uses the JavaScript `bigint` type (accurate for values exceeding Number.MAX_SAFE_INTEGER).
    * @note in v5 of Kubb 'bigint' will become the default to better align with OpenAPI's int64 specification.
    * @default 'number'
+   * @deprecated Set this on `adapterOas()` (the top-level `adapter`) instead. The schema options moved off the plugins so the OpenAPI spec is parsed once and shared. See https://kubb.dev/docs/5.x/migration-guide
    */
   integerType?: 'number' | 'bigint'
   /**
@@ -60,6 +62,7 @@ export type Options = {
    * - 'unknown' requires type narrowing before use.
    * - 'void' represents no value.
    * @default 'any'
+   * @deprecated Set this on `adapterOas()` (the top-level `adapter`) instead. The schema options moved off the plugins so the OpenAPI spec is parsed once and shared. See https://kubb.dev/docs/5.x/migration-guide
    */
   unknownType?: 'any' | 'unknown' | 'void'
   /**
@@ -68,6 +71,7 @@ export type Options = {
    * - 'unknown' requires type narrowing before use.
    * - 'void' represents no value.
    * @default `unknownType`
+   * @deprecated Set this on `adapterOas()` (the top-level `adapter`) instead. The schema options moved off the plugins so the OpenAPI spec is parsed once and shared. See https://kubb.dev/docs/5.x/migration-guide
    */
   emptySchemaType?: 'any' | 'unknown' | 'void'
   /**
@@ -78,6 +82,9 @@ export type Options = {
    */
   regexGenerator?: 'faker' | 'randexp'
 
+  /**
+   * @deprecated `mapper` is removed in v5. Use `printer` to override AST node renderers, or `macros` for schema transforms. See https://kubb.dev/docs/5.x/migration-guide
+   */
   mapper?: Record<string, string>
   /**
    * The use of Seed is intended to allow for consistent values in a test.
@@ -88,8 +95,12 @@ export type Options = {
    * When set to 'camelcase', parameter names in path, query, and header params will be transformed to camelCase.
    * This should match the paramsCasing setting used in @kubb/plugin-ts.
    * @default undefined
+   * @deprecated `paramsCasing` is removed in v5. Parameters always use camelCase names and the wire-name mapping is automatic. See https://kubb.dev/docs/5.x/migration-guide
    */
   paramsCasing?: 'camelcase'
+  /**
+   * @deprecated Use `resolver.resolveName` for naming and `macros` for schema transforms instead of `transformers`. See https://kubb.dev/docs/5.x/migration-guide
+   */
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
@@ -104,6 +115,7 @@ export type Options = {
   }
   /**
    * Define some generators next to the faker generators
+   * @deprecated The `generators` option is removed in v5. To add custom output, build your own plugin. See https://kubb.dev/docs/5.x/migration-guide
    */
   generators?: Array<Generator<PluginFaker>>
 }

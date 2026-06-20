@@ -14,6 +14,9 @@ import type { PluginSvelteQuery } from './types.ts'
 
 export const pluginSvelteQueryName = 'plugin-svelte-query' satisfies PluginSvelteQuery['name']
 
+/**
+ * @deprecated `@kubb/plugin-svelte-query` has no v5 equivalent and is removed in v5. See https://kubb.dev/docs/5.x/migration-guide
+ */
 export const pluginSvelteQuery = definePlugin<PluginSvelteQuery>((options) => {
   const {
     output = { path: 'hooks', barrelType: 'named' },

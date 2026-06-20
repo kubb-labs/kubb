@@ -48,6 +48,7 @@ export type Options = {
    * @example
    * - `0` returns `http://petstore.swagger.io/api`
    * - `1` returns `http://localhost:3000`
+   * @deprecated `pluginOas` is replaced by `adapterOas` from `@kubb/adapter-oas` (the top-level `adapter`). Move `serverIndex` to `server.index`. See https://kubb.dev/docs/5.x/migration-guide
    */
   serverIndex?: number
   /**
@@ -75,6 +76,7 @@ export type Options = {
    * })
    * ```
    * Results in baseURL: `https://api.prod.example.com`
+   * @deprecated `pluginOas` is replaced by `adapterOas` from `@kubb/adapter-oas` (the top-level `adapter`). Move `serverVariables` to `server.variables`. See https://kubb.dev/docs/5.x/migration-guide
    */
   serverVariables?: Record<string, string>
   /**
@@ -88,6 +90,7 @@ export type Options = {
    * - 'inherit' replaces the oneOf schema with the schema referenced by discriminator.mapping[key].
    * @default 'strict'
    * @see https://github.com/kubb-labs/kubb/issues/1736
+   * @deprecated `pluginOas` is replaced by `adapterOas` from `@kubb/adapter-oas` (the top-level `adapter`). `discriminator` now takes `'preserve'` (was `'strict'`) or `'propagate'` (was `'inherit'`). See https://kubb.dev/docs/5.x/migration-guide
    */
   discriminator?: 'strict' | 'inherit'
   /**
@@ -96,6 +99,7 @@ export type Options = {
   oasClass?: typeof Oas
   /**
    * Define some generators next to the JSON generation
+   * @deprecated The `generators` option is removed in v5. To add custom output, build your own plugin. See https://kubb.dev/docs/5.x/migration-guide
    */
   generators?: Array<Generator<PluginOas>>
   /**

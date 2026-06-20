@@ -14,6 +14,9 @@ import type { PluginSolidQuery } from './types.ts'
 
 export const pluginSolidQueryName = 'plugin-solid-query' satisfies PluginSolidQuery['name']
 
+/**
+ * @deprecated `@kubb/plugin-solid-query` has no v5 equivalent and is removed in v5. See https://kubb.dev/docs/5.x/migration-guide
+ */
 export const pluginSolidQuery = definePlugin<PluginSolidQuery>((options) => {
   const {
     output = { path: 'hooks', barrelType: 'named' },
