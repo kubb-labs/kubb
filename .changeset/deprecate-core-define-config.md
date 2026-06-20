@@ -16,18 +16,23 @@
 "@kubb/plugin-svelte-query": minor
 ---
 
-Add `@deprecated` JSDoc warnings to options and exports that change in v5, so editors surface what to migrate ahead of the upgrade. Nothing is removed or behaves differently yet, these are documentation-only hints pointing at the [v5 migration guide](https://kubb.dev/docs/5.x/migration-guide).
+Add the `output.barrel` object and `@deprecated` JSDoc warnings to prepare for v5.
 
-- `defineConfig` from `@kubb/core` is deprecated in favor of importing it from `kubb`. The `kubb` package now exports its own `defineConfig` so the deprecation does not leak through to consumers importing from `kubb`.
-- `output.barrelType` (use `output.barrel`) and `output.override` (removed) on the core config.
-- The schema options `dateType`, `integerType`, `unknownType`, `emptySchemaType`, `enumSuffix`, and `contentType` that move to `adapterOas()`.
-- `transformers` (use `resolver` and `macros`), `mapper` (use `printer` or `macros`), and `generators` (build your own plugin).
-- `paramsType`, `pathParamsType`, `paramsCasing`, and `bundle` on the client and query plugins.
-- `version` on `@kubb/plugin-zod` (always Zod v4 in v5).
-- `serverIndex`, `serverVariables`, and `discriminator` on `@kubb/plugin-oas`, which is replaced by `@kubb/adapter-oas`.
-- `@kubb/plugin-solid-query` and `@kubb/plugin-svelte-query`, which have no v5 equivalent.
+`output.barrel` is the forward-compatible replacement for `output.barrelType`, available now on both the root config and each plugin's `output` so a config can migrate ahead of the v5 upgrade:
 
 ```ts
-import { defineConfig } from '@kubb/core' // deprecated
-import { defineConfig } from 'kubb' // recommended
+output: { barrelType: 'named' }                  // deprecated
+output: { barrel: { type: 'named' } }            // root or plugin
+output: { barrel: { type: 'named', nested: true } } // plugin only, replaces 'propagate'
+output: { barrel: false }                         // disable
 ```
+
+`@deprecated` hints were added where there is something to do in v4 today, each linking the [v5 migration guide](https://kubb.dev/docs/5.x/migration-guide):
+
+- `defineConfig` from `@kubb/core` (import it from `kubb` instead). `kubb` now exports its own `defineConfig` so the deprecation does not leak through.
+- `output.barrelType` (use `output.barrel`) and `output.override` (removed in v5).
+- `generators`, `paramsType`, `pathParamsType`, `paramsCasing`, and `bundle` on the client and query plugins.
+- `version` on `@kubb/plugin-zod` (always Zod v4 in v5).
+- `@kubb/plugin-solid-query` and `@kubb/plugin-svelte-query`, which have no v5 equivalent.
+
+Options whose only replacement is a v5-only API (the `resolver`/`macros`/`printer` plugin options and the schema options that move to `@kubb/adapter-oas`) are intentionally not deprecated yet, since there is no v4 alternative to point users at.

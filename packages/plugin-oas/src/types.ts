@@ -48,7 +48,6 @@ export type Options = {
    * @example
    * - `0` returns `http://petstore.swagger.io/api`
    * - `1` returns `http://localhost:3000`
-   * @deprecated In v5 `@kubb/plugin-oas` is replaced by `@kubb/adapter-oas`, where `serverIndex` becomes `server.index`. See https://kubb.dev/docs/5.x/migration-guide
    */
   serverIndex?: number
   /**
@@ -76,7 +75,6 @@ export type Options = {
    * })
    * ```
    * Results in baseURL: `https://api.prod.example.com`
-   * @deprecated In v5 `@kubb/plugin-oas` is replaced by `@kubb/adapter-oas`, where `serverVariables` becomes `server.variables`. See https://kubb.dev/docs/5.x/migration-guide
    */
   serverVariables?: Record<string, string>
   /**
@@ -90,7 +88,6 @@ export type Options = {
    * - 'inherit' replaces the oneOf schema with the schema referenced by discriminator.mapping[key].
    * @default 'strict'
    * @see https://github.com/kubb-labs/kubb/issues/1736
-   * @deprecated In v5 `@kubb/plugin-oas` is replaced by `@kubb/adapter-oas`, and `discriminator` takes `'preserve'` (was `'strict'`) or `'propagate'` (was `'inherit'`). See https://kubb.dev/docs/5.x/migration-guide
    */
   discriminator?: 'strict' | 'inherit'
   /**

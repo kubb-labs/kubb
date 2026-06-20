@@ -41,9 +41,6 @@ export type Options = {
    * Array containing override parameters to override `options` based on tags/operations/methods/paths.
    */
   override?: Array<Override<ResolvedOptions>>
-  /**
-   * @deprecated In v5 `transformers` is replaced by the `resolver` (naming) and `macros` (schema transforms) options. See https://kubb.dev/docs/5.x/migration-guide
-   */
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.

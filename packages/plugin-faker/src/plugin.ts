@@ -135,7 +135,6 @@ export const pluginFaker = definePlugin<PluginFaker>((options) => {
       await this.upsertFile(...operationFiles)
 
       const barrelFiles = await getBarrelFiles(this.fabric.files, {
-        type: output.barrelType ?? 'named',
         root,
         output,
         meta: {

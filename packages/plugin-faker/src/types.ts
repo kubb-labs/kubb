@@ -36,7 +36,6 @@ export type Options = {
    * - 'string' represents dates as string values.
    * - 'date' represents dates as JavaScript Date objects.
    * @default 'string'
-   * @deprecated In v5 this option moves to `adapterOas` from `@kubb/adapter-oas`. See https://kubb.dev/docs/5.x/migration-guide
    */
   dateType?: 'string' | 'date'
   /**
@@ -45,7 +44,6 @@ export type Options = {
    * - 'bigint' uses the JavaScript `bigint` type (accurate for values exceeding Number.MAX_SAFE_INTEGER).
    * @note in v5 of Kubb 'bigint' will become the default to better align with OpenAPI's int64 specification.
    * @default 'number'
-   * @deprecated In v5 this option moves to `adapterOas` from `@kubb/adapter-oas`. See https://kubb.dev/docs/5.x/migration-guide
    */
   integerType?: 'number' | 'bigint'
   /**
@@ -62,7 +60,6 @@ export type Options = {
    * - 'unknown' requires type narrowing before use.
    * - 'void' represents no value.
    * @default 'any'
-   * @deprecated In v5 this option moves to `adapterOas` from `@kubb/adapter-oas`. See https://kubb.dev/docs/5.x/migration-guide
    */
   unknownType?: 'any' | 'unknown' | 'void'
   /**
@@ -71,7 +68,6 @@ export type Options = {
    * - 'unknown' requires type narrowing before use.
    * - 'void' represents no value.
    * @default `unknownType`
-   * @deprecated In v5 this option moves to `adapterOas` from `@kubb/adapter-oas`. See https://kubb.dev/docs/5.x/migration-guide
    */
   emptySchemaType?: 'any' | 'unknown' | 'void'
   /**
@@ -82,9 +78,6 @@ export type Options = {
    */
   regexGenerator?: 'faker' | 'randexp'
 
-  /**
-   * @deprecated Removed in v5; replaced by the `printer` and `macros` options. See https://kubb.dev/docs/5.x/migration-guide
-   */
   mapper?: Record<string, string>
   /**
    * The use of Seed is intended to allow for consistent values in a test.
@@ -98,9 +91,6 @@ export type Options = {
    * @deprecated Removed in v5, where parameters always use camelCase names. See https://kubb.dev/docs/5.x/migration-guide
    */
   paramsCasing?: 'camelcase'
-  /**
-   * @deprecated In v5 `transformers` is replaced by the `resolver` (naming) and `macros` (schema transforms) options. See https://kubb.dev/docs/5.x/migration-guide
-   */
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.

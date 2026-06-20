@@ -11,9 +11,6 @@ import type { PluginOas } from './types.ts'
 
 export const pluginOasName = 'plugin-oas' satisfies PluginOas['name']
 
-/**
- * @deprecated In v5 `@kubb/plugin-oas` is replaced by `@kubb/adapter-oas`. See https://kubb.dev/docs/5.x/migration-guide
- */
 export const pluginOas = definePlugin<PluginOas>((options) => {
   const {
     output = {

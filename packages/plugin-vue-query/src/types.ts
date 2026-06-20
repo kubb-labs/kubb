@@ -146,9 +146,6 @@ export type Options = {
    * `'zod'` uses `@kubb/plugin-zod` to parse the data.
    */
   parser?: PluginClient['options']['parser']
-  /**
-   * @deprecated In v5 `transformers` is replaced by the `resolver` (naming) and `macros` (schema transforms) options. See https://kubb.dev/docs/5.x/migration-guide
-   */
   transformers?: {
     /**
      * Customize the names based on the type that is provided by the plugin.
