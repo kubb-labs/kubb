@@ -1,5 +1,24 @@
 # Changelog
 
+## v5.0.0-beta.71 — Jun 20, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Let `createFunctionParameter` accept a pre-built `ObjectBindingPatternNode` as its `name`.
+  
+  The `name`-form input now takes `string | ObjectBindingPatternNode`, so a destructured group that is typed from a single reference (or carries no type) can go through the factory instead of a hand-built `{ kind: 'FunctionParameter' }` literal, for example `createFunctionParameter({ name: createObjectBindingPattern({ elements: [{ name: 'path' }] }), type: "Omit<Config, 'url'>", default: '{}' })`. The `FunctionParameterNode` shape is unchanged. ([#3643](https://github.com/kubb-labs/kubb/pull/3643), [`711d1f2`](https://github.com/kubb-labs/kubb/commit/711d1f210a2273f254f8178344ea43cd766bdb19))
+- Stop re-exporting unused internal helpers from `@kubb/ast/utils`.
+  
+  `resolveRefName`, `resolveGroupType`, `buildGroupParam`, `buildTypeLiteral`, and `resolveParamType`, plus the `MappedProperty`, `MappedSchema`, `SchemaTransform`, `BuildGroupArgs`, and `ParamGroupType` types, were exported from the `@kubb/ast/utils` barrel but nothing consumed them through it. They stay available to the package internally. Keep importing the public helpers (`caseParams`, `createOperationParams`, `mapSchemaItems`, `syncSchemaRef`, and the rest) as before. ([#3640](https://github.com/kubb-labs/kubb/pull/3640), [`02fc0f6`](https://github.com/kubb-labs/kubb/commit/02fc0f6612009575d09e0017178b7021eea08f08))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.70 — Jun 19, 2026
 
 ### @kubb/core
