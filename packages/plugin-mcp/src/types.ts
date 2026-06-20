@@ -22,7 +22,7 @@ export type Options = {
    * When set to 'camelcase', parameter names in path, query, and header params will be transformed to camelCase.
    * This should match the paramsCasing setting used in @kubb/plugin-ts.
    * @default undefined
-   * @deprecated `paramsCasing` is removed in v5. Parameters always use camelCase names and the wire-name mapping is automatic. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated Removed in v5, where parameters always use camelCase names. See https://kubb.dev/docs/5.x/migration-guide
    */
   paramsCasing?: 'camelcase'
   /**
@@ -42,7 +42,7 @@ export type Options = {
    */
   override?: Array<Override<ResolvedOptions>>
   /**
-   * @deprecated Use `resolver.resolveName` for naming and `macros` for schema transforms instead of `transformers`. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated In v5 `transformers` is replaced by the `resolver` (naming) and `macros` (schema transforms) options. See https://kubb.dev/docs/5.x/migration-guide
    */
   transformers?: {
     /**
@@ -52,7 +52,7 @@ export type Options = {
   }
   /**
    * Define some generators next to the Mcp generators.
-   * @deprecated The `generators` option is removed in v5. To add custom output, build your own plugin. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated Removed in v5. To add custom output, build your own plugin. See https://kubb.dev/docs/5.x/migration-guide
    */
   generators?: Array<Generator<PluginMcp>>
 }

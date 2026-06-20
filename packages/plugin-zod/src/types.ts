@@ -47,7 +47,7 @@ export type Options = {
    * - 'date' uses z.date() for JavaScript Date objects.
    * @default 'string'
    * @note 'stringOffset' will become the default in Kubb v3.
-   * @deprecated Set this on `adapterOas()` (the top-level `adapter`) instead. The schema options moved off the plugins so the OpenAPI spec is parsed once and shared. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated In v5 this option moves to `adapterOas` from `@kubb/adapter-oas`. See https://kubb.dev/docs/5.x/migration-guide
    */
   dateType?: false | 'string' | 'stringOffset' | 'stringLocal' | 'date'
   /**
@@ -56,7 +56,7 @@ export type Options = {
    * - 'bigint' uses the JavaScript `bigint` type (accurate for values exceeding Number.MAX_SAFE_INTEGER).
    * @note in v5 of Kubb 'bigint' will become the default to better align with OpenAPI's int64 specification.
    * @default 'number'
-   * @deprecated Set this on `adapterOas()` (the top-level `adapter`) instead. The schema options moved off the plugins so the OpenAPI spec is parsed once and shared. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated In v5 this option moves to `adapterOas` from `@kubb/adapter-oas`. See https://kubb.dev/docs/5.x/migration-guide
    */
   integerType?: 'number' | 'bigint'
   /**
@@ -65,7 +65,7 @@ export type Options = {
    * - 'unknown' requires type narrowing before use.
    * - 'void' represents no value.
    * @default 'any'
-   * @deprecated Set this on `adapterOas()` (the top-level `adapter`) instead. The schema options moved off the plugins so the OpenAPI spec is parsed once and shared. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated In v5 this option moves to `adapterOas` from `@kubb/adapter-oas`. See https://kubb.dev/docs/5.x/migration-guide
    */
   unknownType?: 'any' | 'unknown' | 'void'
   /**
@@ -74,7 +74,7 @@ export type Options = {
    * - 'unknown' requires type narrowing before use.
    * - 'void' represents no value.
    * @default `unknownType`
-   * @deprecated Set this on `adapterOas()` (the top-level `adapter`) instead. The schema options moved off the plugins so the OpenAPI spec is parsed once and shared. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated In v5 this option moves to `adapterOas` from `@kubb/adapter-oas`. See https://kubb.dev/docs/5.x/migration-guide
    */
   emptySchemaType?: 'any' | 'unknown' | 'void'
   /**
@@ -98,11 +98,11 @@ export type Options = {
       }
   operations?: boolean
   /**
-   * @deprecated `mapper` is removed in v5. Use `printer` to override AST node renderers, or `macros` for schema transforms. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated Removed in v5; replaced by the `printer` and `macros` options. See https://kubb.dev/docs/5.x/migration-guide
    */
   mapper?: Record<string, string>
   /**
-   * @deprecated Use `resolver.resolveSchemaName` for naming and `macros` for schema transforms instead of `transformers`. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated In v5 `transformers` is replaced by the `resolver` (naming) and `macros` (schema transforms) options. See https://kubb.dev/docs/5.x/migration-guide
    */
   transformers?: {
     /**
@@ -128,7 +128,7 @@ export type Options = {
    * - '3' uses Zod v3.x syntax and features.
    * - '4' uses Zod v4.x syntax and features.
    * @default '3'
-   * @deprecated `version` is removed in v5. Generated schemas always target Zod v4, so set your `zod` dependency to `^4`. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated Removed in v5, where schemas always target Zod v4. See https://kubb.dev/docs/5.x/migration-guide
    */
   version?: '3' | '4'
   /**
@@ -155,7 +155,7 @@ export type Options = {
   wrapOutput?: (arg: { output: string; schema: SchemaObject }) => string | undefined
   /**
    * Define some generators next to the zod generators
-   * @deprecated The `generators` option is removed in v5. To add custom output, build your own plugin. See https://kubb.dev/docs/5.x/migration-guide
+   * @deprecated Removed in v5. To add custom output, build your own plugin. See https://kubb.dev/docs/5.x/migration-guide
    */
   generators?: Array<Generator<PluginZod>>
 }
