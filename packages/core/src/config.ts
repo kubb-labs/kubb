@@ -36,6 +36,14 @@ export type ConfigInput = PossiblePromise<UserConfig | UserConfig[]> | ((cli: CL
  * - A function returning the config(s), optionally async,
  *   receiving the CLI options as argument
  *
+ * @deprecated Import `defineConfig` from `kubb` instead of `@kubb/core`. The `kubb`
+ * package wires up the OpenAPI adapter, the TypeScript parsers, and the barrel plugin
+ * for you. See the v5 migration guide: https://kubb.dev/docs/5.x/migration-guide
+ *
+ * ```ts
+ * import { defineConfig } from '@kubb/core' // [!code --]
+ * import { defineConfig } from 'kubb' // [!code ++]
+ * ```
  * @example
  * export default defineConfig(({ logLevel }) => ({
  *   root: 'src',
