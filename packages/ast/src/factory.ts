@@ -5,9 +5,33 @@ import type { Node } from './nodes/index.ts'
 // barrel surface every `createX` alongside the `createFile`/`update` helpers from a single module.
 export { createArrowFunction, createBreak, createConst, createFunction, createJsx, createText, createType } from './nodes/code.ts'
 export { createContent } from './nodes/content.ts'
+export {
+  createArray,
+  createArrow,
+  createAs,
+  createCall,
+  createIdentifier,
+  createLiteral,
+  createMember,
+  createObject,
+  createRaw,
+  createSpread,
+} from './nodes/expression.ts'
 export { createExport, createFile, createImport, createSource } from './nodes/file.ts'
 export type { UserFileNode } from './nodes/file.ts'
 export { createFunctionParameter, createFunctionParameters, createIndexedAccessType, createObjectBindingPattern, createTypeLiteral } from './nodes/function.ts'
+export {
+  createTypeArray,
+  createTypeIntersection,
+  createTypeKeyword,
+  createTypeLiteralType,
+  createTypeObject,
+  createTypeOmit,
+  createTypeReference,
+  createTypeTuple,
+  createTypeUnion,
+  createTypeUrlTemplate,
+} from './nodes/type.ts'
 export { createInput } from './nodes/input.ts'
 export { createOperation } from './nodes/operation.ts'
 export { createOutput } from './nodes/output.ts'

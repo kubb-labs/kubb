@@ -1,5 +1,6 @@
 import { defineNode } from '../defineNode.ts'
 import type { BaseNode } from './base.ts'
+import type { ExpressionNode } from './expression.ts'
 
 /**
  * JSDoc documentation metadata attached to code declarations.
@@ -236,9 +237,10 @@ export type JsxNode = BaseNode & {
  * Union of all code-generation AST nodes.
  *
  * These nodes mirror the JSX components from `@kubb/renderer-jsx` and are used as
- * structured children in {@link SourceNode.nodes}.
+ * structured children in {@link SourceNode.nodes}. {@link ExpressionNode} members are the value
+ * side of a declaration, e.g. the `z.object({ … })` inside a {@link ConstNode}.
  */
-export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode | TextNode | BreakNode | JsxNode
+export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode | TextNode | BreakNode | JsxNode | ExpressionNode
 
 /**
  * Definition for the {@link ConstNode}.

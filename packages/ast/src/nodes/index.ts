@@ -14,6 +14,23 @@ import type { SchemaNode } from './schema.ts'
 export type { NodeKind } from './base.ts'
 export type { ArrowFunctionNode, BreakNode, CodeNode, ConstNode, FunctionNode, JSDocNode, JsxNode, TextNode, TypeNode } from './code.ts'
 export type { ContentNode } from './content.ts'
+export type {
+  ArrayExpressionNode,
+  ArrowExpressionNode,
+  AsNode,
+  CallNode,
+  ExpressionNode,
+  IdentifierNode,
+  LiteralNode,
+  MemberNode,
+  ObjectExpressionNode,
+  ObjectExpressionProperty,
+  ObjectGetterEntry,
+  ObjectPropertyEntry,
+  ObjectSpreadEntry,
+  RawExpressionNode,
+  SpreadNode,
+} from './expression.ts'
 export type { ExportNode, FileNode, ImportNode, SourceNode, UserFileNode } from './file.ts'
 export type {
   FunctionParamKind,
@@ -25,6 +42,22 @@ export type {
   TypeExpression,
   TypeLiteralNode,
 } from './function.ts'
+export type {
+  TypeArrayNode,
+  TypeIndexSignature,
+  TypeIntersectionNode,
+  TypeIRNode,
+  TypeKeywordName,
+  TypeKeywordNode,
+  TypeLiteralTypeNode,
+  TypeMember,
+  TypeObjectNode,
+  TypeOmitNode,
+  TypeReferenceNode,
+  TypeTupleNode,
+  TypeUnionNode,
+  TypeUrlTemplateNode,
+} from './type.ts'
 export type { InputMeta, InputNode } from './input.ts'
 export type { GenericOperationNode, HttpMethod, HttpOperationNode, OperationNode } from './operation.ts'
 export type { OutputNode } from './output.ts'
