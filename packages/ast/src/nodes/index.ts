@@ -1,7 +1,6 @@
 import type { ArrowFunctionNode, ConstNode, FunctionNode, TypeNode } from './code.ts'
 import type { ContentNode } from './content.ts'
 import type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
-import type { FunctionParamNode } from './function.ts'
 import type { InputNode } from './input.ts'
 import type { OperationNode } from './operation.ts'
 import type { OutputNode } from './output.ts'
@@ -15,16 +14,6 @@ export type { NodeKind } from './base.ts'
 export type { ArrowFunctionNode, BreakNode, CodeNode, ConstNode, FunctionNode, JSDocNode, JsxNode, TextNode, TypeNode } from './code.ts'
 export type { ContentNode } from './content.ts'
 export type { ExportNode, FileNode, ImportNode, SourceNode, UserFileNode } from './file.ts'
-export type {
-  FunctionParamKind,
-  FunctionParameterNode,
-  FunctionParametersNode,
-  FunctionParamNode,
-  IndexedAccessTypeNode,
-  ObjectBindingPatternNode,
-  TypeExpression,
-  TypeLiteralNode,
-} from './function.ts'
 export type { InputMeta, InputNode } from './input.ts'
 export type { GenericOperationNode, HttpMethod, HttpOperationNode, OperationNode } from './operation.ts'
 export type { OutputNode } from './output.ts'
@@ -82,7 +71,6 @@ export type Node =
   | ResponseNode
   | RequestBodyNode
   | ContentNode
-  | FunctionParamNode
   | FileNode
   | ImportNode
   | ExportNode
