@@ -1,6 +1,6 @@
 {
   "name": "kubb",
-  "version": "5.0.0-beta.70",
+  "version": "5.0.0-beta.71",
   "description": "Meta-package and entry point for Kubb, the meta framework for code generation. Bundles defineConfig and all public APIs into a single install.",
   "keywords": [
     "api-client",

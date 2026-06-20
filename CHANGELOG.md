@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.71 — Jun 20, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Stop re-exporting unused internal helpers from `@kubb/ast/utils`.
+  
+  `resolveRefName`, `resolveGroupType`, `buildGroupParam`, `buildTypeLiteral`, and `resolveParamType`, plus the `MappedProperty`, `MappedSchema`, `SchemaTransform`, `BuildGroupArgs`, and `ParamGroupType` types, were exported from the `@kubb/ast/utils` barrel but nothing consumed them through it. They stay available to the package internally. Keep importing the public helpers (`caseParams`, `createOperationParams`, `mapSchemaItems`, `syncSchemaRef`, and the rest) as before. ([#3640](https://github.com/kubb-labs/kubb/pull/3640), [`02fc0f6`](https://github.com/kubb-labs/kubb/commit/02fc0f6612009575d09e0017178b7021eea08f08))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.70 — Jun 19, 2026
 
 ### @kubb/core
