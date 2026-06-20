@@ -52,6 +52,7 @@ export type Options = {
   parser?: 'data' | 'faker'
   /**
    * Define some generators next to the msw generators
+   * @deprecated Removed in v5. To add custom output, build your own plugin. See https://kubb.dev/docs/5.x/migration-guide
    */
   generators?: Array<Generator<PluginMsw>>
 }

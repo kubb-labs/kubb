@@ -49,6 +49,9 @@ type Mutation = {
   importPath?: string
 }
 
+/**
+ * @deprecated `@kubb/plugin-solid-query` has no v5 equivalent and is removed in v5. See https://kubb.dev/docs/5.x/migration-guide
+ */
 export type Options = {
   /**
    * Specify the export location for the files and define the behavior of the output

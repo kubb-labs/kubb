@@ -118,6 +118,7 @@ export type Options = {
    * - '3' uses Zod v3.x syntax and features.
    * - '4' uses Zod v4.x syntax and features.
    * @default '3'
+   * @deprecated Removed in v5, where schemas always target Zod v4. Set `version: '4'` now to match the v5 behavior. See https://kubb.dev/docs/5.x/migration-guide
    */
   version?: '3' | '4'
   /**
@@ -144,6 +145,7 @@ export type Options = {
   wrapOutput?: (arg: { output: string; schema: SchemaObject }) => string | undefined
   /**
    * Define some generators next to the zod generators
+   * @deprecated Removed in v5. To add custom output, build your own plugin. See https://kubb.dev/docs/5.x/migration-guide
    */
   generators?: Array<Generator<PluginZod>>
 }

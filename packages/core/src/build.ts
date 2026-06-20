@@ -13,6 +13,7 @@ import { fsStorage } from './storages/fsStorage.ts'
 import type { AdapterSource, Config, DefineStorage, KubbEvents, Output, Plugin, UserConfig } from './types.ts'
 import { getDiagnosticInfo } from './utils/diagnostics.ts'
 import type { FileMetaBase } from './utils/getBarrelFiles.ts'
+import { resolveBarrelType } from './utils/resolveBarrelType.ts'
 
 type BuildOptions = {
   config: UserConfig
@@ -161,7 +162,7 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
     logs: [
       '✓ Fabric initialized',
       `  • Storage: ${storage ? storage.name : 'disabled (dry-run)'}`,
-      `  • Barrel type: ${definedConfig.output.barrelType || 'none'}`,
+      `  • Barrel type: ${resolveBarrelType(definedConfig.output) || 'none'}`,
     ],
   })
 
@@ -286,14 +287,15 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
       }
     }
 
-    if (config.output.barrelType) {
+    const rootBarrelType = resolveBarrelType(config.output)
+    if (rootBarrelType) {
       const root = resolve(config.root)
       const rootPath = resolve(root, config.output.path, BARREL_FILENAME)
       const rootDir = dirname(rootPath)
 
       await events.emit('debug', {
         date: new Date(),
-        logs: ['Generating barrel file', `  • Type: ${config.output.barrelType}`, `  • Path: ${rootPath}`],
+        logs: ['Generating barrel file', `  • Type: ${rootBarrelType}`, `  • Path: ${rootPath}`],
       })
 
       const barrelFiles = fabric.files.filter((file) => {
@@ -361,6 +363,7 @@ type BuildBarrelExportsParams = {
 }
 
 function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, pluginManager }: BuildBarrelExportsParams): KubbFile.Export[] {
+  const rootBarrelType = resolveBarrelType(config.output)
   const pluginKeyMap = new Map<string, Plugin>()
   for (const plugin of pluginManager.plugins) {
     pluginKeyMap.set(JSON.stringify(plugin.key), plugin)
@@ -378,11 +381,11 @@ function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, plu
       const plugin = meta?.pluginKey ? pluginKeyMap.get(JSON.stringify(meta.pluginKey)) : undefined
       const pluginOptions = plugin?.options as { output?: Output<unknown> } | undefined
 
-      if (!pluginOptions || pluginOptions.output?.barrelType === false) {
+      if (!pluginOptions || resolveBarrelType(pluginOptions.output) === false) {
         return []
       }
 
-      const exportName = config.output.barrelType === 'all' ? undefined : source.name ? [source.name] : undefined
+      const exportName = rootBarrelType === 'all' ? undefined : source.name ? [source.name] : undefined
       if (exportName?.some((n) => existingExports.has(n))) {
         return []
       }
@@ -391,7 +394,7 @@ function buildBarrelExports({ barrelFiles, rootDir, existingExports, config, plu
         {
           name: exportName,
           path: getRelativePath(rootDir, file.path),
-          isTypeOnly: config.output.barrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
+          isTypeOnly: rootBarrelType === 'all' ? containsOnlyTypes : source.isTypeOnly,
         } satisfies KubbFile.Export,
       ]
     })

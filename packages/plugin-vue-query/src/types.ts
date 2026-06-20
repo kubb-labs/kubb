@@ -108,6 +108,7 @@ export type Options = {
   /**
    * How to style your params, by default no casing is applied
    * - 'camelcase' uses camelcase for the params names
+   * @deprecated Removed in v5, where parameters always use camelCase names. Set `paramsCasing: 'camelcase'` now to match the v5 behavior. See https://kubb.dev/docs/5.x/migration-guide
    */
   paramsCasing?: 'camelcase'
   /**
@@ -115,6 +116,7 @@ export type Options = {
    * - 'object' returns the params and pathParams as an object.
    * - 'inline' returns the params as comma separated params.
    * @default 'inline'
+   * @deprecated Removed in v5, where generated functions take a single grouped options object. Set `paramsType: 'object'` now to match the v5 behavior. See https://kubb.dev/docs/5.x/migration-guide
    */
   paramsType?: 'object' | 'inline'
   /**
@@ -122,6 +124,7 @@ export type Options = {
    * - 'object' returns the pathParams as an object.
    * - 'inline': returns the pathParams as comma separated params.
    * @default 'inline'
+   * @deprecated Removed in v5, where generated functions take a single grouped options object. Set `pathParamsType: 'object'` now to match the v5 behavior. See https://kubb.dev/docs/5.x/migration-guide
    */
   pathParamsType?: PluginClient['options']['pathParamsType']
   /**
@@ -151,6 +154,7 @@ export type Options = {
   }
   /**
    * Define some generators next to the vue-query generators
+   * @deprecated Removed in v5. To add custom output, build your own plugin. See https://kubb.dev/docs/5.x/migration-guide
    */
   generators?: Array<Generator<PluginVueQuery>>
 }

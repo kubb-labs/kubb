@@ -138,10 +138,12 @@ export type Options = {
    * - 'camelcase' uses camelCase for pathParams, queryParams and headerParams property names
    * @default undefined
    * @note response types (data/body) are NOT affected by this option
+   * @deprecated Removed in v5, where parameters always use camelCase names. Set `paramsCasing: 'camelcase'` now to match the v5 behavior. See https://kubb.dev/docs/5.x/migration-guide
    */
   paramsCasing?: 'camelcase'
   /**
    * Define some generators next to the ts generators
+   * @deprecated Removed in v5. To add custom output, build your own plugin. See https://kubb.dev/docs/5.x/migration-guide
    */
   generators?: Array<Generator<PluginTs>>
   /**

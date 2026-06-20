@@ -96,6 +96,7 @@ export type Options = {
   oasClass?: typeof Oas
   /**
    * Define some generators next to the JSON generation
+   * @deprecated Removed in v5. To add custom output, build your own plugin. See https://kubb.dev/docs/5.x/migration-guide
    */
   generators?: Array<Generator<PluginOas>>
   /**

@@ -1,14 +1,18 @@
 import { join } from 'node:path'
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { BarrelManager } from '../BarrelManager.ts'
-import type { BarrelType, Plugin } from '../types.ts'
+import type { Barrel, BarrelType, Plugin } from '../types.ts'
+import { resolveBarrelType } from './resolveBarrelType.ts'
 
 export type FileMetaBase = {
   pluginKey?: Plugin['key']
 }
 
 type AddIndexesProps = {
-  type: BarrelType | false | undefined
+  /**
+   * Explicit barrel strategy. When omitted it is resolved from `output.barrel` (preferred) or the legacy `output.barrelType`.
+   */
+  type?: BarrelType | false
   /**
    * Root based on root and output.path specified in the config
    */
@@ -18,6 +22,8 @@ type AddIndexesProps = {
    */
   output: {
     path: string
+    barrel?: Barrel | false
+    barrelType?: BarrelType | false
   }
   group?: {
     output: string
@@ -38,7 +44,9 @@ function trimExtName(text: string): string {
 }
 
 export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type, meta = {}, root, output }: AddIndexesProps): Promise<KubbFile.File[]> {
-  if (!type || type === 'propagate') {
+  const resolvedType = type ?? resolveBarrelType(output) ?? 'named'
+
+  if (!resolvedType || resolvedType === 'propagate') {
     return []
   }
 
@@ -56,7 +64,7 @@ export async function getBarrelFiles(files: Array<KubbFile.ResolvedFile>, { type
     meta,
   })
 
-  if (type === 'all') {
+  if (resolvedType === 'all') {
     return barrelFiles.map((file) => {
       return {
         ...file,
