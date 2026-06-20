@@ -2,7 +2,6 @@ import type { NodeDef } from './defineNode.ts'
 import { arrowFunctionDef, breakDef, constDef, functionDef, jsxDef, textDef, typeDef } from './nodes/code.ts'
 import { contentDef } from './nodes/content.ts'
 import { exportDef, fileDef, importDef, sourceDef } from './nodes/file.ts'
-import { functionParameterDef, functionParametersDef, indexedAccessTypeDef, objectBindingPatternDef, typeLiteralDef } from './nodes/function.ts'
 import { inputDef } from './nodes/input.ts'
 import { operationDef } from './nodes/operation.ts'
 import { outputDef } from './nodes/output.ts'
@@ -22,13 +21,9 @@ export {
   exportDef,
   fileDef,
   functionDef,
-  functionParameterDef,
-  functionParametersDef,
   importDef,
-  indexedAccessTypeDef,
   inputDef,
   jsxDef,
-  objectBindingPatternDef,
   operationDef,
   outputDef,
   parameterDef,
@@ -39,7 +34,6 @@ export {
   sourceDef,
   textDef,
   typeDef,
-  typeLiteralDef,
 }
 
 /**
@@ -56,11 +50,6 @@ export const nodeDefs = [
   schemaDef,
   propertyDef,
   parameterDef,
-  functionParameterDef,
-  functionParametersDef,
-  typeLiteralDef,
-  indexedAccessTypeDef,
-  objectBindingPatternDef,
   constDef,
   typeDef,
   functionDef,

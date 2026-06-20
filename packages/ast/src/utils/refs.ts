@@ -1,8 +1,7 @@
 import { pascalCase } from '@internals/utils'
 import { narrowSchema } from '../guards.ts'
-import type { OperationNode, ParameterNode, SchemaNode } from '../nodes/index.ts'
+import type { SchemaNode } from '../nodes/index.ts'
 import { createSchema, type SchemaType } from '../nodes/schema.ts'
-import type { OperationParamsResolver, ParamGroupType } from './operationParams.ts'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
 
@@ -102,33 +101,4 @@ export function isStringType(node: SchemaNode): boolean {
   }
 
   return false
-}
-
-/**
- * Derives a {@link ParamGroupType} for a query or header group from the resolver.
- *
- * Returns `null` when there is no resolver, no params, or the group name equals the
- * individual param name (so there is no real group to emit).
- */
-export function resolveGroupType({
-  node,
-  params,
-  group,
-  resolver,
-}: {
-  node: OperationNode
-  params: Array<ParameterNode>
-  group: 'query' | 'header'
-  resolver: OperationParamsResolver | undefined
-}): ParamGroupType | null {
-  if (!resolver || !params.length) {
-    return null
-  }
-  const firstParam = params[0]!
-  const groupMethod = group === 'query' ? resolver.resolveQueryParamsName : resolver.resolveHeaderParamsName
-  const groupName = groupMethod.call(resolver, node, firstParam)
-  if (groupName === resolver.resolveParamName(node, firstParam)) {
-    return null
-  }
-  return { type: groupName, optional: params.every((p) => !p.required) }
 }
