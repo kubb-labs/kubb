@@ -188,7 +188,7 @@ type FunctionParameterProperty = {
 }
 
 type FunctionParameterInput =
-  | { name: string; type?: TypeExpression; optional?: boolean; default?: string; rest?: boolean }
+  | { name: string | ObjectBindingPatternNode; type?: TypeExpression; optional?: boolean; default?: string; rest?: boolean }
   | { properties: Array<FunctionParameterProperty>; optional?: boolean; default?: string }
 
 /**
@@ -265,6 +265,12 @@ export const createObjectBindingPattern = objectBindingPatternDef.create
  * ```ts
  * createFunctionParameter({ properties: [{ name: 'id', type: 'string' }, { name: 'name', type: 'string', optional: true }], default: '{}' })
  * // → { id, name }: { id: string; name?: string } = {}
+ * ```
+ *
+ * @example Destructured group typed from a single reference
+ * ```ts
+ * createFunctionParameter({ name: createObjectBindingPattern({ elements: [{ name: 'path' }] }), type: "Omit<Config, 'url'>", default: '{}' })
+ * // → { path }: Omit<Config, 'url'> = {}
  * ```
  */
 export const createFunctionParameter = functionParameterDef.create
