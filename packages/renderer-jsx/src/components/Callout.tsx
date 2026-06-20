@@ -8,7 +8,7 @@ const CALLOUT_LABEL = {
   caution: 'CAUTION',
 } as const
 
-export type CalloutType = keyof typeof CALLOUT_LABEL
+type CalloutType = keyof typeof CALLOUT_LABEL
 
 type Props = {
   key?: Key

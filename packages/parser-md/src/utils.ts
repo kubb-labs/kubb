@@ -11,7 +11,7 @@ export type PrintInput = string | Record<string, unknown>
  * Returns an empty string for `null`, `undefined`, or empty objects so callers
  * can drop the result through the same filter chain as other optional fields.
  */
-export function stringifyFrontmatter(data: Record<string, unknown> | null | undefined): string {
+function stringifyFrontmatter(data: Record<string, unknown> | null | undefined): string {
   if (!data || Object.keys(data).length === 0) return ''
   return `---\n${stringify(data).trimEnd()}\n---`
 }
