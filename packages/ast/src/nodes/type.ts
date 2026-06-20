@@ -112,7 +112,7 @@ export type TypeTupleNode = BaseNode & {
    */
   min?: number
   /**
-   * Upper bound on the fixed element count; pads with `rest` when items fall short.
+   * Upper bound on the fixed element count. Pads with `rest` when items fall short.
    */
   max?: number
   /**

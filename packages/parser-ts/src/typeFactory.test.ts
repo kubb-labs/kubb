@@ -58,7 +58,7 @@ describe('typeIRToNode', () => {
   })
 
   it('renders a tuple with trailing optional elements', () => {
-    // The TypeScript printer emits synthesized tuple types multiline; downstream formatting collapses them.
+    // The TypeScript printer emits synthesized tuple types multiline. Downstream formatting collapses them.
     expect(printType(ast.factory.createTypeTuple({ items: [keyword('string'), keyword('number'), keyword('boolean')], min: 1 }))).toMatchInlineSnapshot(`
       "[
           string,

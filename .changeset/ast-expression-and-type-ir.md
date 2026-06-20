@@ -3,10 +3,10 @@
 '@kubb/parser-ts': minor
 ---
 
-Add the expression and type intermediate representations so the Kubb AST can describe generated values and types directly, instead of leaning on hand-built strings and the TypeScript compiler factory inside each plugin.
+Add an expression IR and a type IR so the Kubb AST can describe generated values and types on its own, instead of building strings by hand and calling the TypeScript compiler factory in each plugin.
 
-`@kubb/ast` gains an expression IR (`createIdentifier`, `createLiteral`, `createMember`, `createCall`, `createObject`, `createArray`, `createArrow`, `createSpread`, `createAs`, `createRaw`) for schema values such as `z.object({ … })`, and a type IR (`createTypeKeyword`, `createTypeReference`, `createTypeArray`, `createTypeUnion`, `createTypeIntersection`, `createTypeTuple`, `createTypeObject`, `createTypeOmit`, `createTypeUrlTemplate`, `createTypeLiteralType`) for TypeScript types. Both are plain, language-agnostic data nodes with no dependency on `typescript`.
+`@kubb/ast` gets the expression IR (`createIdentifier`, `createLiteral`, `createMember`, `createCall`, `createObject`, `createArray`, `createArrow`, `createSpread`, `createAs`, `createRaw`) for schema values like `z.object({ … })`, and the type IR (`createTypeKeyword`, `createTypeReference`, `createTypeArray`, `createTypeUnion`, `createTypeIntersection`, `createTypeTuple`, `createTypeObject`, `createTypeOmit`, `createTypeUrlTemplate`, `createTypeLiteralType`) for TypeScript types. The nodes are plain data and do not import `typescript`.
 
-`@kubb/parser-ts` serializes them: `printExpression` renders the expression IR to source, reusing the existing `buildObject`/`buildList`/`objectKey` formatters, and `typeIRToNode` converts the type IR to TypeScript compiler nodes for `parserTs.print`. Output stays byte-identical to the current printers, and all TypeScript-syntax knowledge now lives in the parser, so a parser for another language can serialize the same IR.
+`@kubb/parser-ts` turns them into source. `printExpression` renders the expression IR with the existing `buildObject`, `buildList`, and `objectKey` formatters, and `typeIRToNode` converts the type IR to TypeScript compiler nodes for `parserTs.print`. The output matches the current printers byte for byte, and the TypeScript syntax now lives in the parser, so a parser for another language can render the same IR.
 
-This is additive: the existing printer layer keeps working unchanged.
+The change is additive. The existing printer layer keeps working.

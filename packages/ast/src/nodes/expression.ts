@@ -87,7 +87,7 @@ export type ObjectPropertyEntry = {
 
 /**
  * A getter member of an {@link ObjectExpressionNode}, used to defer evaluation of a
- * recursive value. Non-memoized renders as `get key() { return value }`; memoized caches
+ * recursive value. Non-memoized renders as `get key() { return value }`. Memoized caches
  * the value on first access through `Object.defineProperty`.
  */
 export type ObjectGetterEntry = {
