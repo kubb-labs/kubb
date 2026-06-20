@@ -14,7 +14,7 @@ catalog:
   oxfmt: ^0.54.0
   oxlint: ^1.70.0
   'tinyexec': ^1.2.4
-  tsdown: ^0.22.2
+  tsdown: ^0.22.3
   typescript: ^6.0.3
   vitest: ^4.1.9
   yaml: ^2.9.0
