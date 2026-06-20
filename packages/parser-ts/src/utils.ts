@@ -1,6 +1,20 @@
 import { normalize, relative } from 'node:path'
 import { trimExtName } from '@internals/utils'
-import type { ArrowFunctionNode, CodeNode, ConstNode, FunctionNode, JSDocNode, JsxNode, SourceNode, TextNode, TypeNode } from '@kubb/ast'
+import { isExpressionNode } from '@kubb/ast'
+import type {
+  ArrowFunctionNode,
+  CodeNode,
+  ConstNode,
+  ExpressionNode,
+  FunctionNode,
+  JSDocNode,
+  JsxNode,
+  ObjectExpressionProperty,
+  SourceNode,
+  TextNode,
+  TypeNode,
+} from '@kubb/ast'
+import { buildList, buildObject, lazyGetter, objectKey, stringify } from '@kubb/ast/utils'
 import ts from 'typescript'
 import {
   CARRIAGE_RETURN_PATTERN,
@@ -348,6 +362,71 @@ export function printArrowFunction(node: ArrowFunctionNode): string {
 }
 
 /**
+ * Serializes a {@link LiteralNode} value: strings single-quoted, `null` as `null`, numbers and
+ * booleans written bare.
+ */
+function printLiteral(value: string | number | boolean | null): string {
+  if (value === null) return 'null'
+  if (typeof value === 'string') return stringify(value)
+  return String(value)
+}
+
+/**
+ * Serializes one object member: a plain `key: value`, a lazy or memoizing getter for a recursive
+ * value, or a `...spread`.
+ */
+function printObjectProperty(entry: ObjectExpressionProperty): string {
+  if (entry.type === 'spread') return `...${printExpression(entry.expression)}`
+  if (entry.type === 'prop') return `${objectKey(entry.key)}: ${printExpression(entry.value)}`
+
+  const body = printExpression(entry.value)
+  if (entry.memoize) {
+    return `get ${objectKey(entry.key)}() { const _value = ${body}; Object.defineProperty(this, ${JSON.stringify(entry.key)}, { value: _value, configurable: true, writable: true, enumerable: true }); return _value }`
+  }
+  return lazyGetter({ name: entry.key, body })
+}
+
+/**
+ * Converts an {@link ExpressionNode} to its TypeScript string representation. Reuses the shared
+ * `buildObject`/`buildList`/`objectKey` formatters so the output matches the hand-built strings the
+ * schema printers emit today. A future parser serializes the same nodes for its own language.
+ *
+ * @example
+ * ```ts
+ * printExpression(factory.createCall({ callee: factory.createMember({ object: factory.createIdentifier({ name: 'z' }), property: 'string' }), args: [] }))
+ * // 'z.string()'
+ * ```
+ */
+export function printExpression(node: ExpressionNode): string {
+  switch (node.kind) {
+    case 'Identifier':
+      return node.name
+    case 'Literal':
+      return printLiteral(node.value)
+    case 'Member':
+      return `${printExpression(node.object)}.${node.property}`
+    case 'Call': {
+      const typeArgs = node.typeArgs?.length ? `<${node.typeArgs.join(', ')}>` : ''
+      return `${printExpression(node.callee)}${typeArgs}(${node.args.map(printExpression).join(', ')})`
+    }
+    case 'ObjectExpression':
+      return buildObject(node.properties.map(printObjectProperty))
+    case 'ArrayExpression':
+      return buildList(node.elements.map(printExpression))
+    case 'Arrow':
+      return `(${node.params.join(', ')}) => ${printExpression(node.body)}`
+    case 'Spread':
+      return `...${printExpression(node.expression)}`
+    case 'As':
+      return `${printExpression(node.expression)} as ${node.type}`
+    case 'RawExpression':
+      return node.value
+    default:
+      return ''
+  }
+}
+
+/**
  * Converts a {@link CodeNode} to its TypeScript string representation.
  *
  * Dispatches to the appropriate printer based on the node's `kind`.
@@ -366,6 +445,7 @@ export function printCodeNode(node: CodeNode): string {
   if (node.kind === 'Type') return printType(node)
   if (node.kind === 'Function') return printFunction(node)
   if (node.kind === 'ArrowFunction') return printArrowFunction(node)
+  if (isExpressionNode(node)) return printExpression(node)
   return ''
 }
 

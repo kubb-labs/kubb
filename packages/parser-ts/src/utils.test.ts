@@ -10,6 +10,7 @@ import {
   printCodeNode,
   printConst,
   printExport,
+  printExpression,
   printFunction,
   printImport,
   printJSDoc,
@@ -672,5 +673,195 @@ describe('printExport', () => {
 
   it('renders a type-only named re-export', () => {
     expect(printExport({ name: ['Pet'], path: './Pet.ts', isTypeOnly: true })).toMatchInlineSnapshot(`"export type { Pet } from './Pet.ts'"`)
+  })
+})
+
+describe('printExpression', () => {
+  const z = ast.factory.createIdentifier({ name: 'z' })
+  const zMember = (property: string) => ast.factory.createMember({ object: z, property })
+  const zCall = (property: string) => ast.factory.createCall({ callee: zMember(property), args: [] })
+
+  it('renders an identifier verbatim', () => {
+    expect(printExpression(ast.factory.createIdentifier({ name: 'faker' }))).toBe('faker')
+  })
+
+  it('single-quotes a string literal', () => {
+    expect(printExpression(ast.factory.createLiteral({ value: 'active' }))).toBe("'active'")
+  })
+
+  it('renders null and bare number/boolean literals', () => {
+    expect(printExpression(ast.factory.createLiteral({ value: null }))).toBe('null')
+    expect(printExpression(ast.factory.createLiteral({ value: 200 }))).toBe('200')
+    expect(printExpression(ast.factory.createLiteral({ value: true }))).toBe('true')
+  })
+
+  it('renders a method call', () => {
+    expect(printExpression(zCall('string'))).toBe('z.string()')
+  })
+
+  it('renders a nested member chain', () => {
+    const node = ast.factory.createCall({ callee: ast.factory.createMember({ object: zMember('iso'), property: 'date' }), args: [] })
+    expect(printExpression(node)).toBe('z.iso.date()')
+  })
+
+  it('renders call type arguments', () => {
+    const node = ast.factory.createCall({
+      callee: ast.factory.createMember({
+        object: ast.factory.createMember({ object: ast.factory.createIdentifier({ name: 'faker' }), property: 'helpers' }),
+        property: 'arrayElement',
+      }),
+      typeArgs: ['Pet'],
+      args: [ast.factory.createArray({ elements: [ast.factory.createLiteral({ value: 1 })] })],
+    })
+    expect(printExpression(node)).toBe('faker.helpers.arrayElement<Pet>([1])')
+  })
+
+  it('renders an enum as a call with an array of single-quoted literals', () => {
+    const node = ast.factory.createCall({
+      callee: zMember('enum'),
+      args: [
+        ast.factory.createArray({
+          elements: [ast.factory.createLiteral({ value: 'a' }), ast.factory.createLiteral({ value: 'b' }), ast.factory.createLiteral({ value: 'c' })],
+        }),
+      ],
+    })
+    expect(printExpression(node)).toBe("z.enum(['a', 'b', 'c'])")
+  })
+
+  it('renders a single-line union via buildList', () => {
+    const node = ast.factory.createCall({ callee: zMember('union'), args: [ast.factory.createArray({ elements: [zCall('string'), zCall('number')] })] })
+    expect(printExpression(node)).toBe('z.union([z.string(), z.number()])')
+  })
+
+  it('renders an object literal multiline via buildObject', () => {
+    const node = ast.factory.createCall({
+      callee: zMember('object'),
+      args: [
+        ast.factory.createObject({
+          properties: [
+            { type: 'prop', key: 'id', value: zCall('int') },
+            { type: 'prop', key: 'name', value: zCall('string') },
+          ],
+        }),
+      ],
+    })
+    expect(printExpression(node)).toBe(`z.object({
+  id: z.int(),
+  name: z.string(),
+})`)
+  })
+
+  it('renders a non-memoized getter via lazyGetter', () => {
+    const node = ast.factory.createObject({
+      properties: [
+        {
+          type: 'getter',
+          key: 'children',
+          value: ast.factory.createCall({
+            callee: ast.factory.createMember({ object: ast.factory.createIdentifier({ name: 'TreeNode' }), property: 'optional' }),
+            args: [],
+          }),
+        },
+        { type: 'prop', key: 'name', value: zCall('string') },
+      ],
+    })
+    expect(printExpression(node)).toBe(`{
+  get children() { return TreeNode.optional() },
+  name: z.string(),
+}`)
+  })
+
+  it('renders a memoizing getter for a cyclic property', () => {
+    const node = ast.factory.createObject({
+      properties: [{ type: 'getter', key: 'friend', value: ast.factory.createIdentifier({ name: 'mockFriend' }), memoize: true }],
+    })
+    const result = printExpression(node)
+    expect(result).toContain('get friend()')
+    expect(result).toContain('Object.defineProperty(this, "friend"')
+    expect(result).toContain('configurable: true')
+  })
+
+  it('renders a multiline union when a member spans lines', () => {
+    const object = (key: string, property: string) =>
+      ast.factory.createCall({ callee: zMember('object'), args: [ast.factory.createObject({ properties: [{ type: 'prop', key, value: zCall(property) }] })] })
+    const node = ast.factory.createCall({
+      callee: zMember('union'),
+      args: [ast.factory.createArray({ elements: [object('valueA', 'string'), object('valueB', 'number')] })],
+    })
+    expect(printExpression(node)).toBe(`z.union([
+  z.object({
+    valueA: z.string(),
+  }),
+  z.object({
+    valueB: z.number(),
+  }),
+])`)
+  })
+
+  it('renders an arrow for z.lazy', () => {
+    const node = ast.factory.createCall({
+      callee: zMember('lazy'),
+      args: [ast.factory.createArrow({ params: [], body: ast.factory.createIdentifier({ name: 'Pet' }) })],
+    })
+    expect(printExpression(node)).toBe('z.lazy(() => Pet)')
+  })
+
+  it('renders a spread element', () => {
+    expect(printExpression(ast.factory.createSpread({ expression: ast.factory.createIdentifier({ name: 'rest' }) }))).toBe('...rest')
+  })
+
+  it('renders chained as assertions', () => {
+    const url = ast.factory.createCall({
+      callee: ast.factory.createMember({
+        object: ast.factory.createMember({ object: ast.factory.createIdentifier({ name: 'faker' }), property: 'image' }),
+        property: 'url',
+      }),
+      args: [],
+    })
+    const node = ast.factory.createAs({ expression: ast.factory.createAs({ expression: url, type: 'unknown' }), type: 'Blob' })
+    expect(printExpression(node)).toBe('faker.image.url() as unknown as Blob')
+  })
+
+  it('passes a raw expression through verbatim', () => {
+    expect(printExpression(ast.factory.createRaw('z.string().optional()'))).toBe('z.string().optional()')
+  })
+})
+
+describe('expression dispatch', () => {
+  it('routes expression nodes through printCodeNode', () => {
+    const node = ast.factory.createCall({
+      callee: ast.factory.createMember({ object: ast.factory.createIdentifier({ name: 'z' }), property: 'string' }),
+      args: [],
+    })
+    expect(printCodeNode(node)).toBe('z.string()')
+  })
+
+  it('renders an expression value inside printConst', () => {
+    const value = ast.factory.createCall({
+      callee: ast.factory.createMember({ object: ast.factory.createIdentifier({ name: 'z' }), property: 'object' }),
+      args: [
+        ast.factory.createObject({
+          properties: [
+            {
+              type: 'prop',
+              key: 'id',
+              value: ast.factory.createCall({
+                callee: ast.factory.createMember({ object: ast.factory.createIdentifier({ name: 'z' }), property: 'int' }),
+                args: [],
+              }),
+            },
+          ],
+        }),
+      ],
+    })
+    const node = ast.factory.createConst({ name: 'petSchema', export: true, nodes: [value] })
+    expect(printConst(node)).toBe(`export const petSchema = z.object({
+  id: z.int(),
+})`)
+  })
+
+  it('folds a break between expression nodes', () => {
+    const nodes = [ast.factory.createIdentifier({ name: 'a' }), ast.factory.createBreak(), ast.factory.createIdentifier({ name: 'b' })]
+    expect(printNodes(nodes)).toBe('a\n\nb')
   })
 })

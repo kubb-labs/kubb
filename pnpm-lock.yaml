@@ -272,6 +272,9 @@ importers:
 
   packages/parser-ts:
     dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -282,9 +285,6 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
 
   packages/plugin-barrel:
     dependencies:

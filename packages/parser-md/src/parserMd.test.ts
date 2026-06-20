@@ -18,6 +18,27 @@ describe('parserMd', () => {
     expect(parserMd.parse(file)).toBe('# Hello\n\nBody paragraph.')
   })
 
+  it('extracts identifier references from expression nodes', () => {
+    const file = ast.factory.createFile({
+      baseName: 'post.md',
+      path: '/post.md',
+      sources: [
+        ast.factory.createSource({
+          nodes: [
+            ast.factory.createCall({
+              callee: ast.factory.createMember({ object: ast.factory.createIdentifier({ name: 'Pet' }), property: 'optional' }),
+              args: [],
+            }),
+          ],
+        }),
+      ],
+      imports: [],
+      exports: [],
+    })
+
+    expect(parserMd.parse(file)).toBe('Pet')
+  })
+
   it('emits frontmatter from file meta', () => {
     const file = ast.factory.createFile<{ frontmatter?: Record<string, unknown> }>({
       baseName: 'post.md',
