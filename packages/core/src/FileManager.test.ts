@@ -36,7 +36,7 @@ describe('FileManager', () => {
 
     it('keeps a default client import when grouped sources omit its body usage', () => {
       const manager = new FileManager()
-      const clientPath = '@kubb/plugin-client/clients/axios'
+      const clientPath = '@kubb/plugin-axios/clients/axios'
       // Source references the type imports (Client/RequestConfig) but not the lowercase `client`
       // binding — mirroring grouped output where the function body that uses `client` is omitted.
       const make = (op: string) =>

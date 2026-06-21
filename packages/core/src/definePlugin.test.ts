@@ -548,7 +548,7 @@ describe('normalizeOutput', () => {
   })
 
   it('passes through directory mode when a group is configured', () => {
-    const result = normalizeOutput({ output: { path: 'clients', mode: 'directory' }, group: { type: 'tag' }, pluginName: 'plugin-client' })
+    const result = normalizeOutput({ output: { path: 'clients', mode: 'directory' }, group: { type: 'tag' }, pluginName: 'plugin-axios' })
 
     expect(result).toStrictEqual({ path: 'clients', mode: 'directory' })
   })

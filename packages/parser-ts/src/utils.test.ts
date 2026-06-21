@@ -635,8 +635,8 @@ describe('printImport', () => {
   })
 
   it('renders a default import', () => {
-    expect(printImport({ name: 'client', path: '@kubb/plugin-client/clients/axios' })).toMatchInlineSnapshot(
-      `"import client from '@kubb/plugin-client/clients/axios'"`,
+    expect(printImport({ name: 'client', path: '@kubb/plugin-axios/clients/axios' })).toMatchInlineSnapshot(
+      `"import client from '@kubb/plugin-axios/clients/axios'"`,
     )
   })
 

@@ -296,8 +296,8 @@ describe('combineImports', () => {
   })
 
   it('keeps a default import when a used named import from the same path is retained', () => {
-    const client = createImport({ name: 'client', path: '@kubb/plugin-client/clients/axios' })
-    const types = createImport({ name: ['Client', 'RequestConfig'], path: '@kubb/plugin-client/clients/axios', isTypeOnly: true })
+    const client = createImport({ name: 'client', path: '@kubb/plugin-axios/clients/axios' })
+    const types = createImport({ name: ['Client', 'RequestConfig'], path: '@kubb/plugin-axios/clients/axios', isTypeOnly: true })
     // The merged grouped source omits the function body, so `client` is absent — but `Client` is referenced.
     const result = combineImports([client, types], [], 'Partial<RequestConfig> & { client?: Client }')
 
@@ -306,8 +306,8 @@ describe('combineImports', () => {
   })
 
   it('still drops a default import when no named import from the same path is used', () => {
-    const client = createImport({ name: 'client', path: '@kubb/plugin-client/clients/axios' })
-    const types = createImport({ name: ['Client'], path: '@kubb/plugin-client/clients/axios', isTypeOnly: true })
+    const client = createImport({ name: 'client', path: '@kubb/plugin-axios/clients/axios' })
+    const types = createImport({ name: ['Client'], path: '@kubb/plugin-axios/clients/axios', isTypeOnly: true })
     const result = combineImports([client, types], [], 'const x = 1')
 
     expect(result).toHaveLength(0)

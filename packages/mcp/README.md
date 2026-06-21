@@ -157,7 +157,7 @@ Example `kubb.config.ts`:
 import { defineConfig } from 'kubb'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginTs } from '@kubb/plugin-ts'
-import { pluginClient } from '@kubb/plugin-client'
+import { pluginAxios } from '@kubb/plugin-axios'
 
 export default defineConfig({
   input: {
@@ -166,7 +166,7 @@ export default defineConfig({
   output: {
     path: './src/generated',
   },
-  plugins: [pluginOas(), pluginTs(), pluginClient()],
+  plugins: [pluginOas(), pluginTs(), pluginAxios()],
 })
 ```
 
