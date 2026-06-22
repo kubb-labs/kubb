@@ -1,5 +1,14 @@
 # kubb
 
+## 3.2.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/cli@4.39.1
+  - @kubb/core@4.39.1
+  - @kubb/mcp@4.39.1
+
 ## 3.2.0
 
 ### Minor Changes
