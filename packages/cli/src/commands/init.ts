@@ -9,7 +9,7 @@ export const command = defineCommand({
     'kubb init',
     'kubb init --yes',
     'kubb init --input ./openapi.yaml --output ./src/gen --plugins plugin-ts,plugin-zod',
-    'kubb init --plugins plugin-ts,plugin-client,plugin-react-query',
+    'kubb init --plugins plugin-ts,plugin-axios,plugin-react-query',
   ],
   options: {
     yes: {
@@ -33,7 +33,7 @@ export const command = defineCommand({
     plugins: {
       type: 'string',
       description:
-        'Comma-separated list of plugins to use (plugin-ts, plugin-client, plugin-react-query, plugin-vue-query, plugin-zod, plugin-faker, plugin-msw, plugin-cypress, plugin-mcp, plugin-redoc)',
+        'Comma-separated list of plugins to use (plugin-ts, plugin-axios, plugin-fetch, plugin-react-query, plugin-vue-query, plugin-zod, plugin-faker, plugin-msw, plugin-cypress, plugin-mcp, plugin-redoc)',
       hint: 'plugin-ts,plugin-zod,...',
     },
   },

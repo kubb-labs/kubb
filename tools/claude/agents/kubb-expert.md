@@ -18,7 +18,7 @@ Approach:
    `kubb validate --input <spec>` before doing anything destructive.
 2. Decide which `@kubb/plugin-*` packages match what the user wants generated. Keep `plugin-ts`
    as the base, since the client, framework and MSW plugins need it. Add a client or framework
-   plugin for data fetching (the framework plugins also pull in `plugin-client`), `plugin-zod` for
+   plugin for data fetching (the framework plugins also pull in a client plugin like `plugin-axios` or `plugin-fetch`), `plugin-zod` for
    runtime validation, and `plugin-faker` with `plugin-msw` for tests (MSW needs faker). Check the
    plugin's docs page on kubb.dev for the full dependency list. There is no `pluginOas`, since the
    OpenAPI adapter is applied automatically.

@@ -58,7 +58,7 @@ describe('Telemetry.build', () => {
     const hrStart = process.hrtime()
     const plugins: Array<TelemetryPlugin> = [
       { name: 'plugin-ts', options: { output: { path: 'types' } } },
-      { name: 'plugin-client', options: { output: { path: 'clients' } } },
+      { name: 'plugin-axios', options: { output: { path: 'clients' } } },
     ]
     const event = Telemetry.build({
       command: 'generate',

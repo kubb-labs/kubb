@@ -18,10 +18,17 @@ export const availablePlugins: Array<PluginOption> = [
     category: 'types',
   },
   {
-    value: 'plugin-client',
-    label: 'Client (Fetch/Axios)',
-    packageName: '@kubb/plugin-client',
-    importName: 'pluginClient',
+    value: 'plugin-axios',
+    label: 'Axios Client',
+    packageName: '@kubb/plugin-axios',
+    importName: 'pluginAxios',
+    category: 'client',
+  },
+  {
+    value: 'plugin-fetch',
+    label: 'Fetch Client',
+    packageName: '@kubb/plugin-fetch',
+    importName: 'pluginFetch',
     category: 'client',
   },
   {

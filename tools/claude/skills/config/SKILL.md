@@ -27,7 +27,7 @@ build powers the bundled MCP server.
 ```ts
 import { defineConfig } from 'kubb'
 import { pluginTs } from '@kubb/plugin-ts'
-import { pluginClient } from '@kubb/plugin-client'
+import { pluginAxios } from '@kubb/plugin-axios'
 
 export default defineConfig({
   root: '.',
@@ -41,7 +41,7 @@ export default defineConfig({
   },
   plugins: [
     pluginTs({ output: { path: 'models' } }),
-    pluginClient({ output: { path: 'clients' } }),
+    pluginAxios({ output: { path: 'clients' } }),
   ],
 })
 ```
@@ -51,8 +51,8 @@ Rules that matter:
 - Set adapter options only when you need them, through a top-level
   `adapter: adapterOas({ ... })` from `@kubb/adapter-oas` (for `validate`, `serverIndex`,
   `serverVariables`, `discriminator` or `contentType`).
-- `pluginTs` is the base. `pluginClient` needs it, the framework plugins (`pluginReactQuery`,
-  `pluginVueQuery`, `pluginSwr`) need `pluginTs` and `pluginClient`, and `pluginMsw` needs
+- `pluginTs` is the base. The client plugins (`pluginAxios`, `pluginFetch`) need it, the framework plugins (`pluginReactQuery`,
+  `pluginVueQuery`, `pluginSwr`) need `pluginTs` and a client plugin, and `pluginMsw` needs
   `pluginTs` and `pluginFaker`. Check the plugin's docs page on kubb.dev
   (`https://kubb.dev/plugins/plugin-<name>`) for the full dependency list.
 - Each generator plugin takes its own `output.path`, resolved relative to the top-level
@@ -71,7 +71,8 @@ Pick plugins by what the consumer needs, then install `kubb` plus each package.
 | Need | Package | Import |
 | --- | --- | --- |
 | TypeScript types (recommended base) | `@kubb/plugin-ts` | `pluginTs` |
-| Fetch/Axios client | `@kubb/plugin-client` | `pluginClient` |
+| Axios client | `@kubb/plugin-axios` | `pluginAxios` |
+| Fetch client | `@kubb/plugin-fetch` | `pluginFetch` |
 | TanStack React Query hooks | `@kubb/plugin-react-query` | `pluginReactQuery` |
 | Vue Query hooks | `@kubb/plugin-vue-query` | `pluginVueQuery` |
 | SWR hooks | `@kubb/plugin-swr` | `pluginSwr` |
@@ -91,7 +92,7 @@ truth instead of guessing an option name.
 Common combinations:
 
 - Types only: `pluginTs()`.
-- Typed data fetching: add `pluginClient()`, or a framework plugin (`pluginReactQuery`,
+- Typed data fetching: add `pluginAxios()` or `pluginFetch()`, or a framework plugin (`pluginReactQuery`,
   `pluginVueQuery` or `pluginSwr`) which pulls in client generation.
 - Runtime validation: add `pluginZod()` and point the client at it for typed, validated responses.
 - Testing and mocks: add `pluginFaker()` and `pluginMsw()`.

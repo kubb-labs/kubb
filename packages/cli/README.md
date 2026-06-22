@@ -62,7 +62,7 @@ npx kubb init
 | `--output <path>`  | `-o`  | string  | `./src/gen`      | Output directory for generated files       |
 | `--plugins <list>` |       | string  |                  | Comma-separated list of plugins to install |
 
-Available plugin values for `--plugins`: `plugin-ts`, `plugin-client`, `plugin-react-query`, `plugin-vue-query`, `plugin-zod`, `plugin-faker`, `plugin-msw`, `plugin-cypress`, `plugin-mcp`, `plugin-redoc`.
+Available plugin values for `--plugins`: `plugin-ts`, `plugin-axios`, `plugin-fetch`, `plugin-react-query`, `plugin-vue-query`, `plugin-zod`, `plugin-faker`, `plugin-msw`, `plugin-cypress`, `plugin-mcp`, `plugin-redoc`.
 
 #### Examples
 
@@ -77,7 +77,7 @@ npx kubb init --yes
 npx kubb init --input ./openapi.yaml --output ./src/gen --plugins plugin-ts,plugin-zod
 
 # Select specific plugins only
-npx kubb init --plugins plugin-ts,plugin-client,plugin-react-query
+npx kubb init --plugins plugin-ts,plugin-axios,plugin-react-query
 ```
 
 The wizard will:

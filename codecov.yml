@@ -49,10 +49,6 @@ component_management:
       name: '@kubb/mcp'
       paths:
         - packages/mcp/**
-    - component_id: plugin-client
-      name: '@kubb/plugin-client'
-      paths:
-        - packages/plugin-client/**
     - component_id:  plugin-cypress
       name: '@kubb/plugin-cypress'
       paths:

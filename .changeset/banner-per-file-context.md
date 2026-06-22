@@ -7,7 +7,7 @@ Give `output.banner`/`output.footer` per-file context so a directive like `'use 
 A `banner`/`footer` function now receives a `BannerMeta`, the document `InputMeta` extended with the file it is rendered into: `filePath`, `baseName`, `isBarrel` (an `index.ts` barrel), and `isAggregation` (a group `[dir]/[dir].ts` file). Existing `(meta) => ...` functions keep working since `BannerMeta` extends `InputMeta`.
 
 ```ts
-pluginClient({
+pluginAxios({
   output: {
     banner: (meta) => (meta.isBarrel || meta.isAggregation ? '' : "'use server'"),
   },
