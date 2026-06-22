@@ -12,6 +12,10 @@ Create a Changeset for the changes above.
    `minor` for backwards-compatible features, `major` for breaking changes.
 3. Add a markdown file under `.changeset/` with the correct frontmatter and a concise,
    user-facing summary of what changed and why.
+4. Never list `@internals/*` packages in the frontmatter. They are private and excluded from
+   releases by the changeset `ignore` config, so a changeset that bumps one fails
+   `changeset version`. Reference them in the summary text when relevant, but do not give them a
+   `patch`, `minor`, or `major` bump.
 
 For wording and release-note conventions, follow the `changelog` skill. For the surrounding
 PR checklist, follow the `pr` skill.
