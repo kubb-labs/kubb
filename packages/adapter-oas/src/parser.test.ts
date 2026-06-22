@@ -1906,6 +1906,25 @@ describe('parseSchema prefixItems (tuple)', () => {
     expect(narrowed?.rest?.type).toBe('any')
   })
 
+  it('omits rest when items is false — closed tuple', () => {
+    const node = parseSchema(ctx, {
+      schema: { prefixItems: [{ type: 'number' }, { type: 'number' }], items: false },
+    })
+    const narrowed = ast.narrowSchema(node, 'tuple')
+
+    expect(narrowed?.items).toHaveLength(2)
+    expect(narrowed?.rest).toBeUndefined()
+  })
+
+  it('defaults rest to any when items is true', () => {
+    const node = parseSchema(ctx, {
+      schema: { prefixItems: [{ type: 'string' }], items: true },
+    })
+    const narrowed = ast.narrowSchema(node, 'tuple')
+
+    expect(narrowed?.rest?.type).toBe('any')
+  })
+
   it('converts a $ref prefixItem to a ref node', () => {
     const node = parseSchema(ctx, {
       schema: {

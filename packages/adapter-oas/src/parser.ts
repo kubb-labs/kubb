@@ -666,11 +666,23 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
   }
 
   /**
+   * Resolves a tuple's rest-element schema from the `items` keyword that sits alongside `prefixItems`.
+   *
+   * `items: false` closes the tuple, so no rest element is emitted. An absent `items` widens the tail
+   * to `any`, and a schema object (or `items: true`) becomes the homogeneous rest type.
+   */
+  function resolveTupleRest(items: SchemaObject['items'], rawOptions: Partial<ast.ParserOptions> | undefined): ast.SchemaNode | undefined {
+    if (items === false) return undefined
+    if (!items || items === true) return ast.factory.createSchema({ type: 'any' })
+    return parseSchema({ schema: items as SchemaObject }, rawOptions)
+  }
+
+  /**
    * Converts an OAS 3.1 `prefixItems` tuple into a `TupleSchemaNode`.
    */
   function convertTuple({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): ast.SchemaNode {
     const tupleItems = (schema.prefixItems ?? []).map((item) => parseSchema({ schema: item as SchemaObject }, rawOptions))
-    const rest = schema.items ? parseSchema({ schema: schema.items as SchemaObject }, rawOptions) : ast.factory.createSchema({ type: 'any' })
+    const rest = resolveTupleRest(schema.items, rawOptions)
 
     return ast.factory.createSchema({
       type: 'tuple',

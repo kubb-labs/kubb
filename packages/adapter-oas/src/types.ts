@@ -64,8 +64,11 @@ export type SchemaObject = {
   patternProperties?: Record<string, SchemaObject | boolean>
   /**
    * Single-schema form of `items`. Narrowed from the base type to take precedence over the tuple overload.
+   *
+   * Alongside `prefixItems`, the JSON Schema boolean form applies: `items: false` closes the tuple
+   * (no extra elements allowed), while `items: true` is equivalent to an unconstrained rest.
    */
-  items?: SchemaObject | ReferenceObject
+  items?: SchemaObject | ReferenceObject | boolean
   /**
    * Allowed values for this schema.
    */
