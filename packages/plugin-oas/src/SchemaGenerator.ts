@@ -1090,6 +1090,17 @@ export class SchemaGenerator<
       const min = schemaObject.minimum ?? schemaObject.minLength ?? schemaObject.minItems ?? undefined
       const max = schemaObject.maximum ?? schemaObject.maxLength ?? schemaObject.maxItems ?? undefined
 
+      // `items: false` closes the tuple — JSON Schema forbids extra elements, so emit no rest.
+      const isClosedTuple = 'items' in schemaObject && (schemaObject.items as unknown) === false
+      const rest = isClosedTuple
+        ? undefined
+        : this.parse({
+            schema: items,
+            name,
+            parentName,
+            rootName,
+          })[0]
+
       return [
         {
           keyword: schemaKeywords.tuple,
@@ -1101,12 +1112,7 @@ export class SchemaGenerator<
                 return this.parse({ schema: item, name, parentName, rootName })[0]
               })
               .filter((x): x is Schema => Boolean(x)),
-            rest: this.parse({
-              schema: items,
-              name,
-              parentName,
-              rootName,
-            })[0],
+            rest,
           },
         },
         ...baseItems.filter((item) => item.keyword !== schemaKeywords.min && item.keyword !== schemaKeywords.max),
