@@ -452,4 +452,45 @@ describe('SchemaGenerator core', async () => {
     // The items should resolve to an inline object schema
     expect(tree).toMatchSnapshot()
   })
+
+  test('prefixItems with items: false produces a closed tuple without a rest element', async () => {
+    const oas = await parse(path.resolve(__dirname, '../mocks/petStore.yaml'))
+
+    const closedTuple = {
+      type: 'array',
+      prefixItems: [{ type: 'number' }, { type: 'number' }],
+      items: false,
+    } as unknown as SchemaObject
+
+    const options: GetSchemaGeneratorOptions<SchemaGenerator> = {
+      emptySchemaType: 'unknown',
+      dateType: 'date',
+      transformers: {},
+      unknownType: 'unknown',
+    }
+    const plugin = { options } as Plugin<any>
+
+    const generator = new SchemaGenerator(options, {
+      fabric,
+      oas,
+      include: undefined,
+      pluginManager: mockedPluginManager,
+      plugin,
+      contentType: undefined,
+      override: undefined,
+      mode: 'split',
+    })
+
+    const tree = generator.parse({
+      schema: closedTuple,
+      name: 'Coords',
+      parentName: null,
+    })
+
+    const tuple = tree.find((item) => item.keyword === schemaKeywords.tuple) as Extract<(typeof tree)[number], { keyword: typeof schemaKeywords.tuple }>
+
+    expect(tuple).toBeDefined()
+    expect(tuple.args.items).toHaveLength(2)
+    expect(tuple.args.rest).toBeUndefined()
+  })
 })
