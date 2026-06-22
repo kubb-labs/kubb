@@ -1,24 +1,10 @@
-coverage:
-  status:
-    project:
-      default:
-        target: 80%
-        threshold: 10%
-
-comment:
-  require_bundle_changes: True
-
-bundle_analysis:
-  warning_threshold: "10MB"
-  status: True
-
-
 # configuration related to pull request comments
 comment: false # do not comment PR with the result
 
 ignore:
   - '**/examples/**'
   - '**/tests/**'
+
 coverage:
   range: 50..90 # coverage lower than 50 is red, higher than 90 green, between color code
 
@@ -31,8 +17,20 @@ coverage:
     # do not run coverage on patch nor changes
     patch: off
 
+bundle_analysis:
+  warning_threshold: '10MB'
+  status: true
+
 component_management:
   individual_components:
+    - component_id: adapter-oas
+      name: '@kubb/adapter-oas'
+      paths:
+        - packages/adapter-oas/**
+    - component_id: ast
+      name: '@kubb/ast'
+      paths:
+        - packages/ast/**
     - component_id: cli
       name: '@kubb/cli'
       paths:
@@ -49,58 +47,22 @@ component_management:
       name: '@kubb/mcp'
       paths:
         - packages/mcp/**
-    - component_id:  plugin-cypress
-      name: '@kubb/plugin-cypress'
+    - component_id: parser-md
+      name: '@kubb/parser-md'
       paths:
-        - packages/plugin-cypress/**
-    - component_id:  plugin-faker
-      name: '@kubb/plugin-faker'
+        - packages/parser-md/**
+    - component_id: parser-ts
+      name: '@kubb/parser-ts'
       paths:
-        - packages/plugin-faker/**
-    - component_id:  plugin-mcp
-      name: '@kubb/plugin-mcp'
+        - packages/parser-ts/**
+    - component_id: plugin-barrel
+      name: '@kubb/plugin-barrel'
       paths:
-        - packages/plugin-mcp/**
-    - component_id: plugin-msw
-      name: '@kubb/plugin-msw'
+        - packages/plugin-barrel/**
+    - component_id: renderer-jsx
+      name: '@kubb/renderer-jsx'
       paths:
-        - packages/plugin-msw/**
-    - component_id: plugin-oas
-      name: '@kubb/plugin-oas'
-      paths:
-        - packages/plugin-oas/**
-    - component_id: plugin-react-query
-      name: '@kubb/plugin-react-query'
-      paths:
-        - packages/plugin-react-query/**
-    - component_id: plugin-redoc
-      name: '@kubb/plugin-redoc'
-      paths:
-        - packages/plugin-redoc/**
-    - component_id: plugin-solid-query
-      name: '@kubb/plugin-solid-query'
-      paths:
-        - packages/plugin-solid-query/**
-    - component_id: plugin-svelte-query
-      name:  '@kubb/plugin-svelte-query'
-      paths:
-        - packages/plugin-svelte-query/**
-    - component_id: plugin-swr
-      name: '@kubb/plugin-swr'
-      paths:
-        - packages/plugin-swr/**
-    - component_id: plugin-ts
-      name: '@kubb/plugin-ts'
-      paths:
-        - packages/plugin-ts/**
-    - component_id: plugin-vue-query
-      name: '@kubb/plugin-vue-query'
-      paths:
-        - packages/plugin-vue-query/**
-    - component_id: plugin-zod
-      name: '@kubb/plugin-zod'
-      paths:
-        - packages/plugin-zod/**
+        - packages/renderer-jsx/**
     - component_id: unplugin-kubb
       name: 'unplugin-kubb'
       paths:
