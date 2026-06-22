@@ -155,6 +155,7 @@
     "hooks-max-listeners",
     "humanize-core-jsdoc",
     "improve-kubb-driver",
+    "init-axios-fetch-plugins",
     "input-meta-circular-enum-names",
     "itchy-wombats-change",
     "jsdoc-accuracy-pass",

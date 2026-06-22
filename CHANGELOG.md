@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.73 — Jun 22, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb init` now scaffolds and lists `@kubb/plugin-axios` and `@kubb/plugin-fetch` instead of the removed `@kubb/plugin-client`. ([#3650](https://github.com/kubb-labs/kubb/pull/3650), [`7577c64`](https://github.com/kubb-labs/kubb/commit/7577c649f667de350e63f7217ca28c8d9922fdb8))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.72 — Jun 20, 2026
 
 ### @kubb/ast
