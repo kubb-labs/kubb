@@ -1,5 +1,27 @@
 # Changelog
 
+## v5.0.0-beta.73 — Jun 22, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Close tuples when `prefixItems` is paired with `items: false`.
+  
+  A `prefixItems` schema with `items: false` is the canonical closed-tuple pattern in JSON Schema 2020-12 / OpenAPI 3.1: the prefix defines the positions and `items: false` forbids any extra elements. The boolean was being read as a falsy rest schema, so the tuple gained a stray `...any[]` tail (`[number, number, ...any[]]`) that both allowed extra elements and widened them to `any`. The rest element is now omitted, producing a closed `[number, number]`. An absent `items` still widens the tail to `any`, and `items: true` keeps the unconstrained rest. ([#3651](https://github.com/kubb-labs/kubb/pull/3651), [`7bbc0f6`](https://github.com/kubb-labs/kubb/commit/7bbc0f651035d9c601b9b9212b21db064c26d50d))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb init` now scaffolds and lists `@kubb/plugin-axios` and `@kubb/plugin-fetch` instead of the removed `@kubb/plugin-client`. ([#3650](https://github.com/kubb-labs/kubb/pull/3650), [`7577c64`](https://github.com/kubb-labs/kubb/commit/7577c649f667de350e63f7217ca28c8d9922fdb8))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.72 — Jun 20, 2026
 
 ### @kubb/ast
