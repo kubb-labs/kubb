@@ -37,7 +37,7 @@ export type ModuleLoader = {
  * ```
  */
 export function createModuleLoader(): ModuleLoader {
-  const jiti= createJiti(import.meta.url, JITI_OPTIONS)
+  const jiti = createJiti(import.meta.url, JITI_OPTIONS)
 
   return {
     load<T>(filePath: string, options?: LoadModuleOptions) {
