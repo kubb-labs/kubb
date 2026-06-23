@@ -1,10 +1,9 @@
 import { styleText } from 'node:util'
-import { createCLI } from '@internals/utils'
+import { runCLI } from '@internals/utils'
 import { Telemetry } from './Telemetry.ts'
 import { version } from '../package.json'
 import { QUIET_FLAGS } from './constants.ts'
 
-const cli = createCLI()
 /**
  * Entry point for the `kubb` CLI. Prints the telemetry notice unless telemetry is disabled or a
  * quiet flag is passed, then runs the generate, validate, mcp, and init commands. Defaults to
@@ -24,7 +23,7 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
   const { command: mcpCommand } = await import('./commands/mcp.ts')
   const { command: initCommand } = await import('./commands/init.ts')
 
-  await cli.run([generateCommand, validateCommand, mcpCommand, initCommand], argv, {
+  await runCLI([generateCommand, validateCommand, mcpCommand, initCommand], argv, {
     programName: 'kubb',
     defaultCommandName: 'generate',
     version,

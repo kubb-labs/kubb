@@ -24,7 +24,8 @@
 
 ### The command-line interface for Kubb
 
-Official CLI for Kubb. Run `kubb generate` to produce TypeScript types, API clients, hooks, validators, and mocks. Includes interactive project setup (`kubb init`), spec validation, watch mode, and an MCP server.
+Official CLI for Kubb. Run `kubb generate` to produce TypeScript types, API clients, hooks, validators, and mocks.
+Includes interactive project setup (`kubb init`), spec validation, watch mode, and an MCP server.
 
 ## Installation
 

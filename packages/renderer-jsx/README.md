@@ -24,7 +24,8 @@
 
 ### JSX-based renderer for Kubb
 
-Provides a React-free JSX runtime and built-in components (`File`, `Function`, `Type`, `Const`) for component-based, type-safe code generation inside Kubb plugins.
+Provides a JSX runtime and built-in components (`File`, `Function`, `Type`, `Const`) for component-based, type-safe code generation inside Kubb plugins.
+An alternative for the ast.factory syntax.
 
 ## Installation
 

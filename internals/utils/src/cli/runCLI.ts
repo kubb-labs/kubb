@@ -1,7 +1,15 @@
 import { parseArgs, styleText } from 'node:util'
-import type { CLIAdapter, RunOptions } from '../createCLI.ts'
-import type { CommandDefinition, OptionType, ParsedArgs } from '../defineCommand.ts'
-import { renderHelp } from '../renderHelp.ts'
+import type { CommandDefinition, OptionType, ParsedArgs } from './defineCommand.ts'
+import { renderHelp } from './renderHelp.ts'
+
+/**
+ * Options passed to every `runCLI` invocation.
+ */
+export type RunOptions = {
+  programName: string
+  defaultCommandName: string
+  version: string
+}
 
 type ParseOption = {
   type: OptionType
@@ -92,83 +100,87 @@ function printRootHelp(programName: string, version: string, defs: Array<Command
 }
 
 /**
- * CLI adapter using `node:util parseArgs`. No external dependencies.
+ * Parses `argv` and runs the matching command using `node:util parseArgs`. No external dependencies.
+ * Falls back to `defaultCommandName` when no command is given.
+ *
+ * @example
+ * ```ts
+ * await runCLI(commands, process.argv, {
+ *   programName: 'kubb',
+ *   defaultCommandName: 'generate',
+ *   version: '5.0.0',
+ * })
+ * ```
  */
-export const nodeAdapter: CLIAdapter = {
-  renderHelp(def: CommandDefinition, parentName?: string): void {
-    renderHelp(def, parentName)
-  },
+export async function runCLI(defs: Array<CommandDefinition>, argv: Array<string>, opts: RunOptions): Promise<void> {
+  const { programName, defaultCommandName, version } = opts
 
-  async run(defs: Array<CommandDefinition>, argv: Array<string>, opts: RunOptions): Promise<void> {
-    const { programName, defaultCommandName, version } = opts
+  // Strip the leading executable + script entries when process.argv is passed directly.
+  // Handles Node.js (/usr/bin/node), Bun (/usr/local/bin/bun), Deno, tsx, etc.
+  // All runtime executable paths contain a path separator; bare command names do not.
+  const firstArgIsExecutablePath = (argv[0]?.includes('/') || argv[0]?.includes('\\')) ?? false
+  const args = argv.length >= 2 && firstArgIsExecutablePath ? argv.slice(2) : argv
 
-    // Strip the leading executable + script entries when process.argv is passed directly.
-    // Handles Node.js (/usr/bin/node), Bun (/usr/local/bin/bun), Deno, tsx, etc.
-    // All runtime executable paths contain a path separator; bare command names do not.
-    const firstArgIsExecutablePath = (argv[0]?.includes('/') || argv[0]?.includes('\\')) ?? false
-    const args = argv.length >= 2 && firstArgIsExecutablePath ? argv.slice(2) : argv
+  if (args[0] === '--version' || args[0] === '-v') {
+    console.log(version)
+    process.exit(0)
+  }
 
-    if (args[0] === '--version' || args[0] === '-v') {
-      console.log(version)
-      process.exit(0)
-    }
+  if (args[0] === '--help' || args[0] === '-h') {
+    printRootHelp(programName, version, defs)
+    process.exit(0)
+  }
 
-    if (args[0] === '--help' || args[0] === '-h') {
-      printRootHelp(programName, version, defs)
-      process.exit(0)
-    }
-
-    if (args.length === 0) {
-      const defaultDef = defs.find((d) => d.name === defaultCommandName)
-      if (defaultDef?.run) {
-        await runCommand(defaultDef, [], programName)
-      } else {
-        printRootHelp(programName, version, defs)
-      }
-      return
-    }
-
-    const [first, ...rest] = args
-    const isKnownSubcommand = defs.some((d) => d.name === first)
-
-    let def: CommandDefinition | undefined
-    let commandArgv: Array<string>
-    let parentName: string | undefined
-
-    if (isKnownSubcommand) {
-      def = defs.find((d) => d.name === first)
-      commandArgv = rest
-      parentName = programName
+  if (args.length === 0) {
+    const defaultDef = defs.find((d) => d.name === defaultCommandName)
+    if (defaultDef?.run) {
+      await runCommand(defaultDef, [], programName)
     } else {
-      def = defs.find((d) => d.name === defaultCommandName)
-      commandArgv = args
-      parentName = programName
-    }
-
-    if (!def) {
-      console.error(`Unknown command: ${first}`)
       printRootHelp(programName, version, defs)
-      process.exit(1)
+    }
+    return
+  }
+
+  const [first, ...rest] = args
+  const isKnownSubcommand = defs.some((d) => d.name === first)
+
+  let def: CommandDefinition | undefined
+  let commandArgv: Array<string>
+  let parentName: string | undefined
+
+  if (isKnownSubcommand) {
+    def = defs.find((d) => d.name === first)
+    commandArgv = rest
+    parentName = programName
+  } else {
+    def = defs.find((d) => d.name === defaultCommandName)
+    commandArgv = args
+    parentName = programName
+  }
+
+  if (!def) {
+    console.error(`Unknown command: ${first}`)
+    printRootHelp(programName, version, defs)
+    process.exit(1)
+  }
+
+  if (def.subCommands?.length) {
+    const [subName, ...subRest] = commandArgv
+    const subDef = def.subCommands.find((s) => s.name === subName)
+
+    if (subName === '--help' || subName === '-h') {
+      renderHelp(def, parentName)
+      process.exit(0)
     }
 
-    if (def.subCommands?.length) {
-      const [subName, ...subRest] = commandArgv
-      const subDef = def.subCommands.find((s) => s.name === subName)
-
-      if (subName === '--help' || subName === '-h') {
-        renderHelp(def, parentName)
-        process.exit(0)
-      }
-
-      if (!subDef) {
-        renderHelp(def, parentName)
-        process.exit(subName ? 1 : 0)
-      }
-
-      await runCommand(subDef, subRest, `${parentName} ${def.name}`)
-      return
+    if (!subDef) {
+      renderHelp(def, parentName)
+      process.exit(subName ? 1 : 0)
     }
 
-    await runCommand(def, commandArgv, parentName)
-  },
+    await runCommand(subDef, subRest, `${parentName} ${def.name}`)
+    return
+  }
+
+  await runCommand(def, commandArgv, parentName)
 }

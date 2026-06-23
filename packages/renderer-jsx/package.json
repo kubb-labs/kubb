@@ -1,7 +1,7 @@
 {
   "name": "@kubb/renderer-jsx",
   "version": "5.0.0-beta.73",
-  "description": "Self-contained synchronous JSX renderer for Kubb. Turns JSX into FileNodes with built-in components (File, Function, Type, Const) for component-based, type-safe code generation. No React dependency.",
+  "description": "Self-contained synchronous JSX renderer for Kubb. Turns JSX into FileNodes with built-in components (File, Function, Type, Const). An alternative for the ast.factory syntax.",
   "keywords": [
     "codegen",
     "jsx",

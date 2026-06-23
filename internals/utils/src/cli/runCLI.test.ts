@@ -1,15 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { RunOptions } from '../createCLI.ts'
-import type { CommandDefinition } from '../defineCommand.ts'
-import { nodeAdapter } from './nodeAdapter.ts'
-
-vi.mock('node:util', async (importOriginal) => {
-  const original = await importOriginal<typeof import('node:util')>()
-  return {
-    ...original,
-    parseArgs: vi.fn().mockImplementation(original.parseArgs),
-  }
-})
+import type { CommandDefinition } from './defineCommand.ts'
+import { type RunOptions, runCLI } from './runCLI.ts'
 
 const opts: RunOptions = {
   programName: 'kubb',
@@ -17,7 +8,7 @@ const opts: RunOptions = {
   version: '2.0.0',
 }
 
-function makeCmd(name: string, run?: (args: { values: Record<string, unknown>; positionals: string[] }) => Promise<void>): CommandDefinition {
+function makeCmd(name: string, run?: (args: { values: Record<string, unknown>; positionals: Array<string> }) => Promise<void>): CommandDefinition {
   return {
     name,
     description: `${name} command`,
@@ -26,7 +17,7 @@ function makeCmd(name: string, run?: (args: { values: Record<string, unknown>; p
   }
 }
 
-describe('nodeAdapter', () => {
+describe('runCLI', () => {
   let consoleSpy: ReturnType<typeof vi.spyOn>
   let consoleErrorSpy: ReturnType<typeof vi.spyOn>
 
@@ -48,14 +39,14 @@ describe('nodeAdapter', () => {
 
   describe('--version / -v', () => {
     it.each(['--version', '-v'])('prints version and exits 0 on %s', async (flag) => {
-      await expect(nodeAdapter.run([], [flag], opts)).rejects.toThrow('exit:0')
+      await expect(runCLI([], [flag], opts)).rejects.toThrow('exit:0')
       expect(consoleSpy).toHaveBeenCalledWith('2.0.0')
     })
   })
 
   describe('--help / -h', () => {
     it.each(['--help', '-h'])('prints root help and exits 0 on %s', async (flag) => {
-      await expect(nodeAdapter.run([makeCmd('generate')], [flag], opts)).rejects.toThrow('exit:0')
+      await expect(runCLI([makeCmd('generate')], [flag], opts)).rejects.toThrow('exit:0')
       expect(logOutput()).toContain('generate')
     })
   })
@@ -63,31 +54,31 @@ describe('nodeAdapter', () => {
   describe('argv stripping', () => {
     it('strips leading node/script entries when argv[0] includes "node"', async () => {
       const runFn = vi.fn().mockResolvedValue(undefined)
-      await nodeAdapter.run([makeCmd('generate', runFn)], ['/usr/bin/node', 'kubb.js', 'generate'], opts)
+      await runCLI([makeCmd('generate', runFn)], ['/usr/bin/node', 'kubb.js', 'generate'], opts)
       expect(runFn).toHaveBeenCalled()
     })
 
     it('strips leading bun/script entries when run via bunx', async () => {
       const runFn = vi.fn().mockResolvedValue(undefined)
-      await nodeAdapter.run([makeCmd('generate', runFn)], ['/usr/local/bin/bun', 'kubb.js', 'generate'], opts)
+      await runCLI([makeCmd('generate', runFn)], ['/usr/local/bin/bun', 'kubb.js', 'generate'], opts)
       expect(runFn).toHaveBeenCalled()
     })
 
     it('strips leading deno/script entries when run via deno', async () => {
       const runFn = vi.fn().mockResolvedValue(undefined)
-      await nodeAdapter.run([makeCmd('generate', runFn)], ['/usr/bin/deno', 'kubb.js', 'generate'], opts)
+      await runCLI([makeCmd('generate', runFn)], ['/usr/bin/deno', 'kubb.js', 'generate'], opts)
       expect(runFn).toHaveBeenCalled()
     })
 
     it('does not strip when argv[0] does not contain a path separator', async () => {
       const runFn = vi.fn().mockResolvedValue(undefined)
-      await nodeAdapter.run([makeCmd('generate', runFn)], ['generate'], opts)
+      await runCLI([makeCmd('generate', runFn)], ['generate'], opts)
       expect(runFn).toHaveBeenCalled()
     })
 
     it('passes the OpenAPI input positional correctly when run via bunx', async () => {
       const runFn = vi.fn().mockResolvedValue(undefined)
-      await nodeAdapter.run([makeCmd('generate', runFn)], ['/usr/local/bin/bun', 'kubb.js', 'generate', './openapi.yaml'], opts)
+      await runCLI([makeCmd('generate', runFn)], ['/usr/local/bin/bun', 'kubb.js', 'generate', './openapi.yaml'], opts)
       expect(runFn).toHaveBeenCalledWith(expect.objectContaining({ positionals: ['./openapi.yaml'] }))
     })
   })
@@ -95,12 +86,12 @@ describe('nodeAdapter', () => {
   describe('empty args', () => {
     it('runs default command when no args provided', async () => {
       const runFn = vi.fn().mockResolvedValue(undefined)
-      await nodeAdapter.run([makeCmd('generate', runFn)], [], opts)
+      await runCLI([makeCmd('generate', runFn)], [], opts)
       expect(runFn).toHaveBeenCalledWith({ values: {}, positionals: [] })
     })
 
     it('shows root help when default command has no run', async () => {
-      await nodeAdapter.run([makeCmd('generate')], [], opts)
+      await runCLI([makeCmd('generate')], [], opts)
       expect(logOutput()).toContain('kubb')
     })
   })
@@ -108,19 +99,19 @@ describe('nodeAdapter', () => {
   describe('known command routing', () => {
     it('runs a known command', async () => {
       const runFn = vi.fn().mockResolvedValue(undefined)
-      await nodeAdapter.run([makeCmd('generate', runFn)], ['generate'], opts)
+      await runCLI([makeCmd('generate', runFn)], ['generate'], opts)
       expect(runFn).toHaveBeenCalled()
     })
 
     it('routes unrecognized first arg to default command', async () => {
       const runFn = vi.fn().mockResolvedValue(undefined)
-      await nodeAdapter.run([makeCmd('generate', runFn)], ['--config', 'kubb.config.ts'], opts)
+      await runCLI([makeCmd('generate', runFn)], ['--config', 'kubb.config.ts'], opts)
       expect(runFn).toHaveBeenCalled()
     })
 
     it('passes flags as values to the command', async () => {
       const runFn = vi.fn().mockResolvedValue(undefined)
-      await nodeAdapter.run([makeCmd('generate', runFn)], ['generate', '--config', 'my.config.ts'], opts)
+      await runCLI([makeCmd('generate', runFn)], ['generate', '--config', 'my.config.ts'], opts)
       expect(runFn).toHaveBeenCalledWith(
         expect.objectContaining({
           values: expect.objectContaining({ config: 'my.config.ts' }),
@@ -129,18 +120,18 @@ describe('nodeAdapter', () => {
     })
 
     it('shows command help on --help flag', async () => {
-      await expect(nodeAdapter.run([makeCmd('generate')], ['generate', '--help'], opts)).rejects.toThrow('exit:0')
+      await expect(runCLI([makeCmd('generate')], ['generate', '--help'], opts)).rejects.toThrow('exit:0')
     })
 
     it('shows command help and exits 0 when command has no run', async () => {
-      await expect(nodeAdapter.run([makeCmd('generate')], ['generate'], opts)).rejects.toThrow('exit:0')
+      await expect(runCLI([makeCmd('generate')], ['generate'], opts)).rejects.toThrow('exit:0')
     })
   })
 
   describe('unknown top-level command', () => {
     it('prints error and exits 1 when no matching command found', async () => {
       const cmd = makeCmd('validate')
-      await expect(nodeAdapter.run([cmd], ['unknown-cmd'], opts)).rejects.toThrow('exit:1')
+      await expect(runCLI([cmd], ['unknown-cmd'], opts)).rejects.toThrow('exit:1')
       expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('unknown-cmd'))
     })
   })
@@ -154,20 +145,20 @@ describe('nodeAdapter', () => {
 
     it('routes to a matching subcommand', async () => {
       const startFn = vi.fn().mockResolvedValue(undefined)
-      await nodeAdapter.run([agentWithStart(startFn)], ['agent', 'start'], opts)
+      await runCLI([agentWithStart(startFn)], ['agent', 'start'], opts)
       expect(startFn).toHaveBeenCalled()
     })
 
     it('shows command help when no subcommand given', async () => {
-      await expect(nodeAdapter.run([agentWithStart()], ['agent'], opts)).rejects.toThrow('exit:0')
+      await expect(runCLI([agentWithStart()], ['agent'], opts)).rejects.toThrow('exit:0')
     })
 
     it('exits 1 for unknown subcommand', async () => {
-      await expect(nodeAdapter.run([agentWithStart()], ['agent', 'unknown'], opts)).rejects.toThrow('exit:1')
+      await expect(runCLI([agentWithStart()], ['agent', 'unknown'], opts)).rejects.toThrow('exit:1')
     })
 
     it('shows command help on --help before subcommand', async () => {
-      await expect(nodeAdapter.run([agentWithStart()], ['agent', '--help'], opts)).rejects.toThrow('exit:0')
+      await expect(runCLI([agentWithStart()], ['agent', '--help'], opts)).rejects.toThrow('exit:0')
     })
   })
 
@@ -191,7 +182,7 @@ describe('nodeAdapter', () => {
           throw thrown
         },
       }
-      await expect(nodeAdapter.run([cmd], ['generate'], opts)).rejects.toThrow('exit:1')
+      await expect(runCLI([cmd], ['generate'], opts)).rejects.toThrow('exit:1')
       expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining(contains))
     })
   })
@@ -205,7 +196,7 @@ describe('nodeAdapter', () => {
         options: { output: { type: 'string', description: 'Output dir' } },
         run: runFn,
       }
-      await nodeAdapter.run([cmd], ['generate', '--output', 'dist'], opts)
+      await runCLI([cmd], ['generate', '--output', 'dist'], opts)
       expect(runFn).toHaveBeenCalledWith(
         expect.objectContaining({
           values: expect.objectContaining({ output: 'dist' }),
@@ -223,27 +214,12 @@ describe('nodeAdapter', () => {
         },
         run: runFn,
       }
-      await nodeAdapter.run([cmd], ['generate'], opts)
+      await runCLI([cmd], ['generate'], opts)
       expect(runFn).toHaveBeenCalledWith(
         expect.objectContaining({
           values: expect.objectContaining({ watch: false }),
         }),
       )
-    })
-  })
-
-  describe('renderHelp', () => {
-    it('prints formatted help for the command', () => {
-      const cmd: CommandDefinition = {
-        name: 'generate',
-        description: 'Generate code from OpenAPI',
-        options: {
-          config: { type: 'string', short: 'c', description: 'Config path' },
-        },
-      }
-      nodeAdapter.renderHelp(cmd, 'kubb')
-      expect(logOutput()).toContain('kubb generate')
-      expect(logOutput()).toContain('--config')
     })
   })
 })

@@ -1,7 +1,7 @@
 {
   "name": "unplugin-kubb",
   "version": "5.0.0-beta.73",
-  "description": "Universal build integration for Kubb. Plug code generation into Vite, Webpack, Rollup, esbuild, Rspack, Nuxt, and Astro as part of your regular build pipeline.",
+  "description": "Integration of Kubb for Vite, Webpack, Rollup, esbuild, Rspack, Nuxt, and Astro.",
   "keywords": [
     "astro",
     "codegen",

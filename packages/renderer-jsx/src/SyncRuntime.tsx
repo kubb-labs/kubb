@@ -44,10 +44,6 @@ function walkElement(element: unknown, onText: OnText, onHost: OnHost): void {
   }
 }
 
-function toBool(val: unknown): boolean {
-  return (val ?? false) as boolean
-}
-
 function collectCodeNodes(props: Record<string, unknown>): Array<CodeNode> {
   const nodes: Array<CodeNode> = []
   collectCode(props['children'], nodes)
@@ -164,9 +160,9 @@ function collectFileChildren(element: unknown): FileChildren {
         sources.push(
           ast.factory.createSource({
             name: props['name']?.toString(),
-            isTypeOnly: toBool(props['isTypeOnly']),
-            isExportable: toBool(props['isExportable']),
-            isIndexable: toBool(props['isIndexable']),
+            isTypeOnly: !!props['isTypeOnly'],
+            isExportable: !!props['isExportable'],
+            isIndexable: !!props['isIndexable'],
             nodes: collectCodeNodes(props),
           }),
         )
@@ -178,8 +174,8 @@ function collectFileChildren(element: unknown): FileChildren {
           ast.factory.createExport({
             name: props['name'] as ExportNode['name'],
             path: props['path'] as string,
-            isTypeOnly: toBool(props['isTypeOnly']),
-            asAlias: toBool(props['asAlias']),
+            isTypeOnly: !!props['isTypeOnly'],
+            asAlias: !!props['asAlias'],
           }),
         )
         return
@@ -191,8 +187,8 @@ function collectFileChildren(element: unknown): FileChildren {
             name: props['name'] as ImportNode['name'],
             path: props['path'] as string,
             root: props['root'] as string | null | undefined,
-            isTypeOnly: toBool(props['isTypeOnly']),
-            isNameSpace: toBool(props['isNameSpace']),
+            isTypeOnly: !!props['isTypeOnly'],
+            isNameSpace: !!props['isNameSpace'],
           }),
         )
         return

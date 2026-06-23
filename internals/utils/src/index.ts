@@ -1,7 +1,7 @@
 export { AsyncEventEmitter } from './asyncEventEmitter.ts'
 export { camelCase, pascalCase } from './casing.ts'
-export { createCLI } from './cli/createCLI.ts'
 export { defineCommand } from './cli/defineCommand.ts'
+export { runCLI } from './cli/runCLI.ts'
 export { formatMsWithColor, getIntro, randomCliColor } from './colors.ts'
 export { type BuildTree, buildTree } from './buildTree.ts'
 export { canUseTTY, isCIEnvironment } from './env.ts'
