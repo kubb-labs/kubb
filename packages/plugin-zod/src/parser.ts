@@ -555,9 +555,7 @@ export const parse = createParser<string, ParserOptions>({
       const members = sorted.filter((item) => !isModifier(item))
       const modifiers = sorted.filter(isModifier)
 
-      const items = members
-        .map((it: Schema, _index, siblings) => this.parse({ schema, parent: current, name, current: it, siblings }, options))
-        .filter(Boolean)
+      const items = members.map((it: Schema, _index, siblings) => this.parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean)
 
       const base = `${items.slice(0, 1)}${zodKeywordMapper.and(items.slice(1), options.mini)}`
 
