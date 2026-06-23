@@ -198,7 +198,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     expect(hooks.listenerCount('kubb:generate:operations')).toBe(1)
   })
 
-  it('addGenerator() flattens arrays so an existing list can be passed directly', async () => {
+  it('addGenerator() registers a spread list so an existing array can be passed in one call', async () => {
     const generators = [
       { name: 'gen-schema', schema: vi.fn() },
       { name: 'gen-operation', operation: vi.fn() },
@@ -207,7 +207,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       name: 'hook-plugin',
       hooks: {
         'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator(generators)
+          ctx.addGenerator(...generators)
         },
       },
     }))()
