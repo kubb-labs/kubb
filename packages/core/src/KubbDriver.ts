@@ -213,8 +213,10 @@ export class KubbDriver {
         const pluginCtx: KubbPluginSetupContext = {
           ...globalCtx,
           options: plugin.options ?? {},
-          addGenerator: (gen) => {
-            this.registerGenerator(plugin.name, gen)
+          addGenerator: (...generators) => {
+            for (const generator of generators.flat()) {
+              this.registerGenerator(plugin.name, generator)
+            }
           },
           setResolver: (resolver) => {
             this.setPluginResolver(plugin.name, resolver)

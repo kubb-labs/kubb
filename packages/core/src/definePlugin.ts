@@ -281,10 +281,20 @@ export type PluginFactoryOptions<
  */
 export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
-   * Register a generator dynamically. Generators fire during the AST walk (schema/operation/operations)
-   * just like generators declared statically on `createPlugin`.
+   * Register one or more generators dynamically. Generators fire during the AST walk
+   * (schema/operation/operations) just like generators declared statically on `createPlugin`.
+   *
+   * Pass generators as separate arguments or as arrays. Arrays are flattened, so spreading an
+   * existing list is optional.
+   *
+   * @example
+   * ```ts
+   * ctx.addGenerator(myGenerator)
+   * ctx.addGenerator(schemaGenerator, operationGenerator)
+   * ctx.addGenerator(selectedGenerators)
+   * ```
    */
-  addGenerator<TElement = unknown>(generator: Generator<TFactory, TElement>): void
+  addGenerator<TElement = unknown>(...generators: Array<Generator<TFactory, TElement> | Array<Generator<TFactory, TElement>>>): void
   /**
    * Set or override the resolver for this plugin.
    * The resolver controls file naming and path resolution.
