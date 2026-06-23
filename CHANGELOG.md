@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.74 — Jun 23, 2026
+
+### @kubb/core
+
+#### Features
+
+- Let `ctx.addGenerator` register several generators in one call. Pass them as separate arguments (`ctx.addGenerator(schemaGenerator, operationGenerator)`) or hand it an existing list (`ctx.addGenerator(selectedGenerators)`), and the arrays are flattened for you. A single generator still works as before, so there is no need to loop over each one. ([#3663](https://github.com/kubb-labs/kubb/pull/3663), [`c21d008`](https://github.com/kubb-labs/kubb/commit/c21d0086234ae474aed3d32fa72e43af0bd8e190))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.73 — Jun 22, 2026
 
 ### @kubb/adapter-oas
