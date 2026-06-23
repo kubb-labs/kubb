@@ -542,14 +542,33 @@ export const parse = createParser<string, ParserOptions>({
     and(tree, options) {
       const { current, schema, name } = tree
 
-      const items = sort(current.args)
-        .filter((schema: Schema) => {
-          return ![schemaKeywords.optional, schemaKeywords.describe].includes(schema.keyword as typeof schemaKeywords.describe)
-        })
+      // Modifier keywords (nullable, optional, default, ...) are not intersection members. When a
+      // single nullable allOf member is merged into the `and`, its `nullable` keyword ends up as a
+      // sibling here; treating it as a member produced invalid output like `.and(.nullable())`.
+      // Keep the real members for the `.and()` chain and wrap the result with the modifiers instead.
+      const isModifier = (item: Schema) =>
+        [schemaKeywords.optional, schemaKeywords.nullable, schemaKeywords.nullish, schemaKeywords.default, schemaKeywords.describe].some((keyword) =>
+          isKeyword(item, keyword),
+        )
+
+      const sorted = sort(current.args)
+      const members = sorted.filter((item) => !isModifier(item))
+      const modifiers = sorted.filter(isModifier)
+
+      const items = members.map((it: Schema, _index, siblings) => this.parse({ schema, parent: current, name, current: it, siblings }, options)).filter(Boolean)
+
+      const base = `${items.slice(0, 1)}${zodKeywordMapper.and(items.slice(1), options.mini)}`
+
+      if (options.mini) {
+        return wrapWithMiniModifiers(base, extractMiniModifiers(modifiers))
+      }
+
+      const suffix = modifiers
         .map((it: Schema, _index, siblings) => this.parse({ schema, parent: current, name, current: it, siblings }, options))
         .filter(Boolean)
+        .join('')
 
-      return `${items.slice(0, 1)}${zodKeywordMapper.and(items.slice(1), options.mini)}`
+      return `${base}${suffix}`
     },
     array(tree, options) {
       const { current, schema, name } = tree

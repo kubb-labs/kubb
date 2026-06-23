@@ -1,0 +1,33 @@
+openapi: 3.0.3
+info:
+  title: Minimal API
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/NullableString'
+components:
+  schemas:
+    NullableString:
+      type: string
+      nullable: true
+    NullableAllOf:
+      allOf:
+        - $ref: '#/components/schemas/NullableString'
+    NullableAllOfMulti:
+      allOf:
+        - $ref: '#/components/schemas/Base'
+        - $ref: '#/components/schemas/NullableString'
+    Base:
+      type: object
+      properties:
+        id:
+          type: string
