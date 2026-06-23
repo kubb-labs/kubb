@@ -1,5 +1,16 @@
 # @kubb/plugin-client
 
+## 4.39.2
+
+### Patch Changes
+
+- Updated dependencies [[`2a473cf`](https://github.com/kubb-labs/kubb/commit/2a473cf5cf237758ccd13357263ee086d77ff654)]:
+  - @kubb/plugin-zod@4.39.2
+  - @kubb/core@4.39.2
+  - @kubb/oas@4.39.2
+  - @kubb/plugin-oas@4.39.2
+  - @kubb/plugin-ts@4.39.2
+
 ## 4.39.1
 
 ### Patch Changes

@@ -1,5 +1,19 @@
 # @kubb/plugin-zod
 
+## 4.39.2
+
+### Patch Changes
+
+- [#3665](https://github.com/kubb-labs/kubb/pull/3665) [`2a473cf`](https://github.com/kubb-labs/kubb/commit/2a473cf5cf237758ccd13357263ee086d77ff654) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix invalid Zod output when a nullable schema sits inside an `allOf`.
+
+  A nullable member of an `allOf` was treated as an intersection member, so its `nullable` keyword leaked into the `.and()` chain and produced invalid syntax like `z.lazy(() => nullableStringSchema).and(.nullable())`. Modifier keywords (`nullable`, `nullish`, `optional`, `default`, `describe`) are now lifted out of the intersection and wrap the whole schema instead, emitting `z.lazy(() => nullableStringSchema).nullable()`.
+
+- Updated dependencies []:
+  - @kubb/core@4.39.2
+  - @kubb/oas@4.39.2
+  - @kubb/plugin-oas@4.39.2
+  - @kubb/plugin-ts@4.39.2
+
 ## 4.39.1
 
 ### Patch Changes
