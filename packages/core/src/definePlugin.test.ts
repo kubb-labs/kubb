@@ -171,6 +171,58 @@ describe('PluginDriver — hook-style plugin registration', () => {
     expect(driver.plugins.get('hook-plugin')?.generators ?? []).toHaveLength(0)
   })
 
+  it('addGenerator() registers every generator passed as separate arguments', async () => {
+    const hookPlugin = definePlugin(() => ({
+      name: 'hook-plugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.addGenerator(
+            { name: 'gen-schema', schema: vi.fn() },
+            { name: 'gen-operation', operation: vi.fn() },
+            { name: 'gen-operations', operations: vi.fn() },
+          )
+        },
+      },
+    }))()
+
+    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks })
+    await driver.setup()
+
+    await driver.emitSetupHooks()
+
+    expect(driver.hasEventGenerators('hook-plugin')).toBe(true)
+    // Each generator wires up the listener for the hook it implements.
+    expect(hooks.listenerCount('kubb:generate:schema')).toBe(1)
+    expect(hooks.listenerCount('kubb:generate:operation')).toBe(1)
+    expect(hooks.listenerCount('kubb:generate:operations')).toBe(1)
+  })
+
+  it('addGenerator() flattens arrays so an existing list can be passed directly', async () => {
+    const generators = [
+      { name: 'gen-schema', schema: vi.fn() },
+      { name: 'gen-operation', operation: vi.fn() },
+    ]
+    const hookPlugin = definePlugin(() => ({
+      name: 'hook-plugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.addGenerator(generators)
+        },
+      },
+    }))()
+
+    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks })
+    await driver.setup()
+
+    await driver.emitSetupHooks()
+
+    expect(driver.hasEventGenerators('hook-plugin')).toBe(true)
+    expect(hooks.listenerCount('kubb:generate:schema')).toBe(1)
+    expect(hooks.listenerCount('kubb:generate:operation')).toBe(1)
+  })
+
   it('options passed to definePlugin are forwarded via ctx.options', async () => {
     const capturedOptions: Array<unknown> = []
     const hookPlugin = definePlugin<TestPluginOptions>((options) => ({
