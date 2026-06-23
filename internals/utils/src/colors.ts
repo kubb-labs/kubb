@@ -138,6 +138,7 @@ export function randomCliColor(text?: string): string {
   if (!text) return ''
   const index = hash('sha256', text, 'buffer').readUInt32BE(0) % randomColors.length
   const color = randomColors[index] ?? 'white'
+
   return styleText(color, text)
 }
 
@@ -156,5 +157,6 @@ export function formatMsWithColor(ms: number): string {
   const formatted = formatMs(ms)
   if (ms <= 500) return styleText('green', formatted)
   if (ms <= 1000) return styleText('yellow', formatted)
+
   return styleText('red', formatted)
 }

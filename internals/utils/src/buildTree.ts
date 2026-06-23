@@ -80,6 +80,7 @@ export function buildTree(rootPath: string, filePaths: ReadonlyArray<string>): B
 function sortTree(node: BuildTree): void {
   if (node.children.length === 0) return
   node.children.sort(compareByPath)
+
   for (const child of node.children) {
     if (!child.isFile) sortTree(child)
   }

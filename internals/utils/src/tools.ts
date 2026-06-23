@@ -59,6 +59,7 @@ export const linters = {
 async function isToolAvailable(tool: string): Promise<boolean> {
   return new Promise((resolve) => {
     const child = spawn(tool, ['--version'], { stdio: 'ignore' })
+
     child.on('close', (code) => resolve(code === 0))
     child.on('error', () => resolve(false))
   })
