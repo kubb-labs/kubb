@@ -1,12 +1,21 @@
 import path from 'node:path'
+import * as kit from '@nuxt/kit'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { ast, definePlugin, type Storage, type UserConfig } from '@kubb/core'
 import { describe, expect, test, vi } from 'vitest'
 import type { UnpluginBuildContext } from 'unplugin'
 import nuxtModule from './nuxt.ts'
+import rolldown from './rolldown.ts'
 import { unpluginFactory } from './unpluginFactory.ts'
 import vite from './vite.ts'
 import webpack from './webpack.ts'
+
+// @nuxt/kit re-exports addVitePlugin and addWebpackPlugin as non-configurable ESM
+// bindings, so they cannot be spied per test. Mock just those two and keep the rest real.
+vi.mock('@nuxt/kit', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@nuxt/kit')>()
+  return { ...actual, addVitePlugin: vi.fn(), addWebpackPlugin: vi.fn() }
+})
 
 type KubbUnpluginOptions = ReturnType<typeof unpluginFactory>
 
@@ -67,9 +76,10 @@ function createMemoryStorage() {
 }
 
 describe('unpluginFactory', () => {
-  test('creates vite and webpack subpackage plugins', () => {
+  test('creates vite, webpack, and rolldown subpackage plugins', () => {
     expect(vite({ config: { output: { path: './gen' } } })).toMatchObject({ name: 'unplugin-kubb' })
     expect(webpack({ config: { output: { path: './gen' } } })).toBeDefined()
+    expect(rolldown({ config: { output: { path: './gen' } } })).toMatchObject({ name: 'unplugin-kubb' })
   })
 
   test('creates a nuxt module that registers vite and webpack integrations', async () => {
@@ -77,6 +87,25 @@ describe('unpluginFactory', () => {
       name: 'nuxt-unplugin-kubb',
       configKey: 'unpluginKubb',
     })
+
+    const addVite = vi.mocked(kit.addVitePlugin)
+    const addWebpack = vi.mocked(kit.addWebpackPlugin)
+    addVite.mockClear()
+    addWebpack.mockClear()
+
+    const fakeNuxt = {
+      options: { _modules: [], build: { transpile: [] }, modules: [] },
+      hook: vi.fn(),
+      callHook: vi.fn(),
+      hooks: { hook: vi.fn(), callHook: vi.fn() },
+    }
+    await (nuxtModule as unknown as (options: unknown, nuxt: unknown) => Promise<void>)({ config: { output: { path: './gen' } } }, fakeNuxt)
+
+    expect(addVite).toHaveBeenCalledTimes(1)
+    expect(addWebpack).toHaveBeenCalledTimes(1)
+
+    const registerVitePlugin = addVite.mock.calls.at(0)?.at(0) as () => { name: string }
+    expect(registerVitePlugin()).toMatchObject({ name: 'unplugin-kubb' })
   })
 
   test('uses the same generation defaults as defineConfig', async () => {
