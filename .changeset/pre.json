@@ -41,6 +41,7 @@
     "add-file-processor-stream",
     "add-find-circular-schemas",
     "add-function-parameter-nodes",
+    "add-generator-array-to-add-generator",
     "add-generator-context-api",
     "add-generator-run-helpers",
     "add-kubb-event-prefix",
