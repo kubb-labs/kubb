@@ -90,7 +90,10 @@ describe('resolveDeferredImports', () => {
     const consumer = createFile({
       baseName: 'useAddPet.ts',
       path: 'src/hooks/useAddPet.ts',
-      imports: [createImport({ name: ['useMutation'], path: '@tanstack/react-query' }), createImport({ name: ['Pet'], path: '', resolveFromExports: true, isTypeOnly: true })],
+      imports: [
+        createImport({ name: ['useMutation'], path: '@tanstack/react-query' }),
+        createImport({ name: ['Pet'], path: '', resolveFromExports: true, isTypeOnly: true }),
+      ],
       sources: [createSource({ name: 'useAddPet', nodes: [createText('export const useAddPet = () => useMutation<Pet>()')] })],
     })
 
