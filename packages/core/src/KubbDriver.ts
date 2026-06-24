@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import { arrayToAsyncIterable, type AsyncEventEmitter, getElapsedMs, isPromise, memoize, Url } from '@internals/utils'
-import { collectUsedSchemaNames } from '@kubb/ast/utils'
+import { buildExportRegistry, collectUsedSchemaNames, hasDeferredImports, resolveDeferredImports } from '@kubb/ast/utils'
 import { ast, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { GENERATE_FLUSH_EVERY, OPERATION_FILTER_TYPES } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
@@ -355,9 +355,24 @@ export class KubbDriver {
       await hooks.emit('kubb:files:processing:end', { files })
     })
     const onFileUpsert = (file: FileNode): void => {
+      // Files whose imports must be resolved from the export registry are held back: the registry
+      // is only complete once every file exists, so they are resolved and enqueued at the drain
+      // barrier below. Everything else streams to the processor as usual.
+      if (hasDeferredImports(file)) return
       processor.enqueue(file)
     }
     this.fileManager.hooks.on('upsert', onFileUpsert)
+
+    // Resolves every held deferred-import file against the now-complete export registry and queues
+    // the rewritten versions for writing. Run right before draining so all defining files exist.
+    const enqueueDeferredImports = (): void => {
+      const filesWithDeferred = this.fileManager.files.filter(hasDeferredImports)
+      if (filesWithDeferred.length === 0) return
+      const registry = buildExportRegistry(this.fileManager.files)
+      for (const file of filesWithDeferred) {
+        processor.enqueue(resolveDeferredImports(file, registry))
+      }
+    }
 
     // Make `diagnostics` the active sink so deep code (adapter parse, lazily consumed
     // streams, generators) can report into this run via `Diagnostics.report`.
@@ -417,6 +432,8 @@ export class KubbDriver {
           // When there are no entries it returns early. When `inputNode` is missing it still
           // closes out each entry's `kubb:plugin:end` directly.
           diagnostics.push(...(await this.#runGenerators(generatorPlugins, () => processor.flush())))
+          // Resolve registry-backed imports now that every generated file exists, then write.
+          enqueueDeferredImports()
           // Wait for the last in-flight batch and write anything still pending.
           await processor.drain()
 

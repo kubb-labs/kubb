@@ -1,5 +1,6 @@
 export { isValidVarName } from '@internals/utils'
 export { buildJSDoc, buildList, buildObject, objectKey } from './codegen.ts'
+export { buildExportRegistry, hasDeferredImports, resolveDeferredImports, type ExportRegistry } from './exportRegistry.ts'
 export { extractStringsFromNodes } from './extractStringsFromNodes.ts'
 export { childName, enumPropName, extractRefName, isStringType, syncSchemaRef } from './refs.ts'
 export { mergeAdjacentObjectsLazy } from './schemaMerge.ts'

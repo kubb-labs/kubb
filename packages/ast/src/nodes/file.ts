@@ -57,6 +57,14 @@ export type ImportNode = BaseNode & {
    */
   path: string
   /**
+   * Resolve {@link path} from the build's export registry instead of providing it up front.
+   * When `true`, the import's `name`(s) are matched against the names every generated file exports,
+   * and the import is rewritten to point at the file that defines each name (grouped per file).
+   * Lets a generator reference a symbol owned by another plugin without knowing which file it lands
+   * in. Unresolved names are dropped. `path` is ignored while this is set.
+   */
+  resolveFromExports?: boolean | null
+  /**
    * Add a type-only import prefix.
    * - `true` generates `import type { Type } from './path'`
    * - `false` generates `import { Type } from './path'`
