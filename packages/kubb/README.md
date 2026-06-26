@@ -9,6 +9,7 @@
 [![License][license-src]][license-href]
 [![Coverage][coverage-src]][coverage-href]
 [![Node][node-src]][node-href]
+[![OC Backers][oc-backers-src]][oc-backers-href]
 
 <h4>
 <a href="https://kubb.dev" target="_blank">Documentation</a>
@@ -70,11 +71,12 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 Kubb is an open source project, and its development is funded entirely by sponsors. If you would like to become a sponsor, please consider:
 
 - [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
+- [Back Kubb on Open Collective](https://opencollective.com/kubb)
 - [See sponsorship tiers and our sponsors](https://kubb.dev/sponsors)
 
 <p align="center">
   <a href="https://github.com/sponsors/stijnvanhulle">
-    <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
+    <img src="https://shieldcn.dev/sponsors/stijnvanhulle.svg?titleAlign=center&mode=dark" alt="stijnvanhulle sponsors" width="100%" />
   </a>
 </p>
 
@@ -181,13 +183,7 @@ See [LICENSE](./LICENSE) for details.
 
 ## Star history
 
-<a href="https://star-history.com/#kubb-labs/kubb&Date">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=kubb-labs/kubb&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=kubb-labs/kubb&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=kubb-labs/kubb&type=Date" />
-  </picture>
-</a>
+<img alt="Star history chart" src="https://shieldcn.dev/chart/github/stars/kubb-labs/kubb.svg?theme=orange" width="100%" />
 
 <!-- Badges -->
 
@@ -205,3 +201,5 @@ See [LICENSE](./LICENSE) for details.
 [contributors-href]: #contributors-
 [coverage-src]: https://shieldcn.dev/codecov/github/kubb-labs/kubb.svg?variant=secondary&size=xs&theme=zinc&mode=dark
 [coverage-href]: https://app.codecov.io/gh/kubb-labs/kubb
+[oc-backers-src]: https://shieldcn.dev/opencollective/backers/kubb.svg?variant=secondary&size=xs&theme=zinc&mode=dark
+[oc-backers-href]: https://opencollective.com/kubb
