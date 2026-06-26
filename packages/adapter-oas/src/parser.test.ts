@@ -547,6 +547,105 @@ describe('buildAst', () => {
       expect(ok?.content).toHaveLength(1)
       expect(ok?.content?.[0]?.contentType).toBe('application/xml')
     })
+
+    describe('keysToOmit by direction (readOnly / writeOnly)', () => {
+      async function parseUserOperation() {
+        const oas = await parseDocument({
+          openapi: '3.0.3',
+          info: { title: 'Test', version: '1.0.0' },
+          paths: {
+            '/users': {
+              post: {
+                operationId: 'createUser',
+                requestBody: {
+                  required: true,
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'string', readOnly: true },
+                          name: { type: 'string' },
+                          password: { type: 'string', writeOnly: true },
+                        },
+                      },
+                    },
+                  },
+                },
+                responses: {
+                  '200': {
+                    description: 'The created user',
+                    content: {
+                      'application/json': {
+                        schema: {
+                          type: 'object',
+                          properties: {
+                            id: { type: 'string', readOnly: true },
+                            name: { type: 'string' },
+                            password: { type: 'string', writeOnly: true },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
+        return parseOas(oas).root.operations.find((op) => op.operationId === 'createUser')
+      }
+
+      it('marks readOnly request-body keys to omit so they never reach the request type', async () => {
+        const createUser = await parseUserOperation()
+
+        expect(createUser?.requestBody?.content?.[0]?.keysToOmit).toStrictEqual(['id'])
+      })
+
+      it('marks writeOnly response keys to omit so a password never leaks into the response type', async () => {
+        const createUser = await parseUserOperation()
+        const ok = createUser?.responses.find((r) => r.statusCode === '200')
+
+        expect(ok?.content?.[0]?.keysToOmit).toStrictEqual(['password'])
+      })
+
+      it('leaves keysToOmit null when a body has no readOnly or writeOnly properties', async () => {
+        const oas = await parseDocument({
+          openapi: '3.0.3',
+          info: { title: 'Test', version: '1.0.0' },
+          paths: {
+            '/pets': {
+              post: {
+                operationId: 'createPet',
+                requestBody: {
+                  required: true,
+                  content: {
+                    'application/json': {
+                      schema: { type: 'object', properties: { name: { type: 'string' } } },
+                    },
+                  },
+                },
+                responses: {
+                  '200': {
+                    description: 'OK',
+                    content: {
+                      'application/json': {
+                        schema: { type: 'object', properties: { name: { type: 'string' } } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
+        const createPet = parseOas(oas).root.operations.find((op) => op.operationId === 'createPet')
+        const ok = createPet?.responses.find((r) => r.statusCode === '200')
+
+        expect(createPet?.requestBody?.content?.[0]?.keysToOmit).toBeNull()
+        expect(ok?.content?.[0]?.keysToOmit).toBeNull()
+      })
+    })
   })
 })
 
