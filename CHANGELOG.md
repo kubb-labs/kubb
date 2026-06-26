@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.76 — Jun 26, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Capture the OpenAPI parameter `style` and `explode` on the AST.
+  
+  `ParameterNode` gains optional `style` (`'matrix' | 'label' | 'form' | 'simple' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject'`) and `explode` fields, and the OpenAPI adapter now reads them from each parameter object. Both stay `undefined` when the spec omits them, so consumers keep applying the per-location default. This lets client generators emit per-parameter serialization metadata for full `label` / `matrix` path-parameter support. ([#3676](https://github.com/kubb-labs/kubb/pull/3676), [`7ce0de6`](https://github.com/kubb-labs/kubb/commit/7ce0de6cd06dc8513c15f73b498509c46654ace5))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.75 — Jun 26, 2026
 
 ### @kubb/adapter-oas
