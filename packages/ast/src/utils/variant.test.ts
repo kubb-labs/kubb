@@ -6,7 +6,11 @@ import { createSchema } from '../nodes/schema.ts'
 import { buildSchemaVariant, computeVariantNames, variantName } from './variant.ts'
 
 function object(name: string | null, properties: Array<{ name: string; schema: SchemaNode; required?: boolean }>): SchemaNode {
-  return createSchema({ type: 'object', name, properties: properties.map((p) => createProperty({ name: p.name, schema: p.schema, required: p.required ?? false })) })
+  return createSchema({
+    type: 'object',
+    name,
+    properties: properties.map((p) => createProperty({ name: p.name, schema: p.schema, required: p.required ?? false })),
+  })
 }
 
 const string = (extra: { readOnly?: boolean; writeOnly?: boolean } = {}) => createSchema({ type: 'string', ...extra })
@@ -68,7 +72,12 @@ describe('buildSchemaVariant', () => {
         name: 'items',
         schema: createSchema({
           type: 'array',
-          items: [object(null, [{ name: 'id', schema: string({ readOnly: true }) }, { name: 'name', schema: string() }])],
+          items: [
+            object(null, [
+              { name: 'id', schema: string({ readOnly: true }) },
+              { name: 'name', schema: string() },
+            ]),
+          ],
         }),
       },
     ])

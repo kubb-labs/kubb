@@ -1140,10 +1140,20 @@ export function parseOas(
   const variantSchemas: Array<ast.SchemaNode> = namedSchemas.flatMap((node) => {
     const variants: Array<ast.SchemaNode> = []
     if (variantNames.request.has(node.name)) {
-      variants.push(ast.factory.createSchema({ ...buildSchemaVariant({ node, variant: 'request', variantNames: variantNames.request }), name: variantName(node.name, 'request') }))
+      variants.push(
+        ast.factory.createSchema({
+          ...buildSchemaVariant({ node, variant: 'request', variantNames: variantNames.request }),
+          name: variantName(node.name, 'request'),
+        }),
+      )
     }
     if (variantNames.response.has(node.name)) {
-      variants.push(ast.factory.createSchema({ ...buildSchemaVariant({ node, variant: 'response', variantNames: variantNames.response }), name: variantName(node.name, 'response') }))
+      variants.push(
+        ast.factory.createSchema({
+          ...buildSchemaVariant({ node, variant: 'response', variantNames: variantNames.response }),
+          name: variantName(node.name, 'response'),
+        }),
+      )
     }
     return variants
   })
