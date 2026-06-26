@@ -274,6 +274,44 @@ describe('buildAst', () => {
       expect((petId?.schema as { name?: string }).name).toBe('PetId')
     })
 
+    it('captures the parameter style and explode metadata', async () => {
+      const oas = await parseDocument({
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/pets/{ids}': {
+            get: {
+              operationId: 'listPetsByIds',
+              parameters: [
+                { name: 'ids', in: 'path', required: true, style: 'matrix', explode: true, schema: { type: 'array', items: { type: 'integer' } } },
+                { name: 'tags', in: 'query', style: 'spaceDelimited', explode: false, schema: { type: 'array', items: { type: 'string' } } },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      })
+      const root = parseOas(oas).root
+      const op = root.operations.find((o) => o.operationId === 'listPetsByIds')
+      const ids = op?.parameters.find((p) => p.name === 'ids')
+      const tags = op?.parameters.find((p) => p.name === 'tags')
+
+      expect(ids?.style).toBe('matrix')
+      expect(ids?.explode).toBe(true)
+      expect(tags?.style).toBe('spaceDelimited')
+      expect(tags?.explode).toBe(false)
+    })
+
+    it('leaves style and explode undefined when the spec omits them', async () => {
+      const oas = await buildMinimalOas()
+      const root = parseOas(oas).root
+      const getPet = root.operations.find((op) => op.operationId === 'getPetById')
+      const petId = getPet?.parameters.find((p) => p.name === 'petId')
+
+      expect(petId?.style).toBeUndefined()
+      expect(petId?.explode).toBeUndefined()
+    })
+
     it('converts requestBody', async () => {
       const oas = await buildMinimalOas()
       const root = parseOas(oas).root

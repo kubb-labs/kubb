@@ -6,6 +6,11 @@ import type { SchemaNode } from './schema.ts'
 export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie'
 
 /**
+ * OpenAPI parameter serialization style, controlling how a parameter value is rendered into the URL.
+ */
+export type ParameterStyle = 'matrix' | 'label' | 'form' | 'simple' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject'
+
+/**
  * AST node representing one operation parameter.
  *
  * @example
@@ -37,6 +42,16 @@ export type ParameterNode = BaseNode & {
    * Whether the parameter is required.
    */
   required: boolean
+  /**
+   * OpenAPI serialization style. Absent when the spec omits it, leaving consumers to apply the
+   * per-location default (`simple` for `path` / `header`, `form` for `query` / `cookie`).
+   */
+  style?: ParameterStyle
+  /**
+   * Whether array and object values expand into separate values. Absent when the spec omits it,
+   * leaving consumers to apply the OpenAPI default for the style.
+   */
+  explode?: boolean
 }
 
 type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial<Omit<ParameterNode, 'kind' | 'name' | 'in' | 'schema'>>
