@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.75 — Jun 26, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Stop treating an OpenAPI 3.1 `const` as a named enum.
+  
+  A `const` is parsed into a single-value enum. The pre-scan no longer records these in `enumNames`, and `enums: 'root'` no longer lifts them to top-level enums, so a reference to a `const` resolves to its plain name and `@kubb/plugin-ts` can render it as an inline literal. ([#3672](https://github.com/kubb-labs/kubb/pull/3672), [`4e1ed4f`](https://github.com/kubb-labs/kubb/commit/4e1ed4fd97ffbbc7589ed9093413164f982ea5a3))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.74 — Jun 23, 2026
 
 ### @kubb/core

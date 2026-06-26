@@ -178,6 +178,7 @@
     "node-22-minimum",
     "null-undefined-standardization",
     "objectkey-singlequote-blanklines",
+    "openapi-const-literal",
     "optional-cli-validate-adapter-peer",
     "output-mode-explicit",
     "parser-normalize-helpers",
