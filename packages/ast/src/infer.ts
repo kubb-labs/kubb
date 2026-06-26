@@ -16,7 +16,7 @@ import type {
 } from './nodes/index.ts'
 
 /**
- * Options that control how the adapter parser maps OpenAPI schemas to AST nodes.
+ * Options that control how the adapter parser maps source schemas to AST nodes.
  */
 export type ParserOptions = {
   /**

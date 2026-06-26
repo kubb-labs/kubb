@@ -910,6 +910,9 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       ? parseSchema({ schema: param['schema'] as SchemaObject, name: schemaName }, options)
       : ast.factory.createSchema({ type: options.unknownType })
 
+    const style = param['style'] as ast.ParameterStyle | undefined
+    const explode = param['explode'] as boolean | undefined
+
     return ast.factory.createParameter({
       name: paramName,
       in: param['in'] as ast.ParameterLocation,
@@ -918,6 +921,8 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
         description: (param['description'] as string | undefined) ?? schema.description,
       },
       required,
+      ...(style !== undefined ? { style } : {}),
+      ...(explode !== undefined ? { explode } : {}),
     })
   }
 

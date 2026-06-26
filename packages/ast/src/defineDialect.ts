@@ -1,7 +1,7 @@
 /**
  * The spec-specific questions a schema parser answers while turning a source document into Kubb
- * AST nodes. The rest of the pipeline is generic JSON Schema, so this is the one seam where
- * OpenAPI, AsyncAPI, and plain JSON Schema differ.
+ * AST nodes. The rest of the pipeline is generic, so this is the one seam where source formats
+ * differ.
  */
 export type SchemaDialect<TSchema = unknown, TRef = TSchema, TDiscriminated = TSchema, TDocument = unknown> = {
   /**

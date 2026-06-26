@@ -23,12 +23,11 @@ type OperationNodeBase = BaseNode & {
    */
   kind: 'Operation'
   /**
-   * Operation identifier, usually from OpenAPI `operationId`.
+   * Stable identifier for the operation.
    */
   operationId: string
   /**
    * Group labels for the operation.
-   * Usually copied from OpenAPI `tags`.
    */
   tags: Array<string>
   /**
@@ -58,7 +57,7 @@ type OperationNodeBase = BaseNode & {
 }
 
 /**
- * Operation served over HTTP/REST (OpenAPI). `method` and `path` are guaranteed.
+ * Operation served over HTTP. `method` and `path` are guaranteed.
  *
  * @example
  * ```ts
@@ -84,7 +83,7 @@ export type HttpOperationNode = OperationNodeBase & {
    */
   method: HttpMethod
   /**
-   * OpenAPI-style path string, for example `/pets/{petId}`, with `{param}` notation preserved.
+   * Path string, for example `/pets/{petId}`, with `{param}` notation preserved.
    */
   path: string
 }

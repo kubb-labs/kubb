@@ -17,7 +17,7 @@ export type { ExportNode, FileNode, ImportNode, SourceNode, UserFileNode } from 
 export type { InputMeta, InputNode } from './input.ts'
 export type { GenericOperationNode, HttpMethod, HttpOperationNode, OperationNode } from './operation.ts'
 export type { OutputNode } from './output.ts'
-export type { ParameterLocation, ParameterNode } from './parameter.ts'
+export type { ParameterLocation, ParameterNode, ParameterStyle } from './parameter.ts'
 export type { PropertyNode } from './property.ts'
 export type { RequestBodyNode } from './requestBody.ts'
 export type { ResponseNode, StatusCode } from './response.ts'

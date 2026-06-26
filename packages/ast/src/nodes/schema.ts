@@ -148,7 +148,7 @@ type SchemaNodeBase = BaseNode & {
    */
   default?: unknown
   /**
-   * Example values (OAS 3.1 `examples` array).
+   * Example values from an `examples` array.
    */
   examples?: Array<unknown>
   /**
@@ -276,7 +276,7 @@ export type UnionSchemaNode = CompositeSchemaNodeBase & {
    */
   type: 'union'
   /**
-   * Discriminator property name from OpenAPI `discriminator.propertyName`.
+   * Discriminator property name for a polymorphic union.
    */
   discriminatorPropertyName?: string
   /**
@@ -391,7 +391,7 @@ export type RefSchemaNode = SchemaNodeBase & {
   pattern?: string
   /**
    * The fully-parsed schema this ref resolves to, so its structure (`primitive`, `properties`)
-   * can be read without following the reference. Populated during OAS parsing when the
+   * can be read without following the reference. Populated during parsing when the
    * definition resolves, `null` when it can't or the ref is circular, and `undefined` when
    * resolution has not been attempted.
    */
@@ -534,7 +534,7 @@ export type ScalarSchemaNode = SchemaNodeBase & {
 
 /**
  * URL schema node.
- * Can include an OpenAPI-style path template for template literal types.
+ * Can include a path template for template literal types.
  *
  * @example
  * ```ts
@@ -547,7 +547,7 @@ export type UrlSchemaNode = SchemaNodeBase & {
    */
   type: 'url'
   /**
-   * OpenAPI-style path template, for example, `'/pets/{petId}'`.
+   * Path template, for example, `'/pets/{petId}'`.
    */
   path?: string
   /**

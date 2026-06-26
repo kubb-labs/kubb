@@ -13,7 +13,7 @@ import type { SchemaNode } from './schema.ts'
  *
  * @example
  * ```ts
- * const meta: InputMeta = { title: 'Pet Store', version: '1.0.0', baseURL: 'https://petstore.swagger.io/v2', circularNames: [], enumNames: [] }
+ * const meta: InputMeta = { title: 'Pet Store', version: '1.0.0', baseURL: 'https://api.example.com/v2', circularNames: [], enumNames: [] }
  * ```
  */
 export type InputMeta = {
