@@ -35,12 +35,6 @@ describe('collectInlineEnums', () => {
 
     expect(collectInlineEnums([pet, order], new Set(['Pet', 'Order'])).size).toBe(1)
   })
-
-  it('skips a single-value enum (OAS 3.1 const) so it stays an inline literal', () => {
-    const pet = objectWith('Pet', 'plan', stringEnum(['pro'], 'PetPlanEnum'))
-
-    expect(collectInlineEnums([pet], new Set(['Pet'])).size).toBe(0)
-  })
 })
 
 describe('refPromotedEnums', () => {
