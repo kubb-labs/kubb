@@ -183,13 +183,7 @@ See [LICENSE](./LICENSE) for details.
 
 ## Star history
 
-<a href="https://star-history.com/#kubb-labs/kubb&Date">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=kubb-labs/kubb&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=kubb-labs/kubb&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=kubb-labs/kubb&type=Date" />
-  </picture>
-</a>
+![Star history chart](https://shieldcn.dev/chart/github/stars/kubb-labs/kubb.svg?theme=orange)
 
 <!-- Badges -->
 
