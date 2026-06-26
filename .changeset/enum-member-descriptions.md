@@ -3,6 +3,6 @@
 '@kubb/ast': patch
 ---
 
-Surface enum member descriptions from the `x-enumDescriptions` / `x-enum-descriptions` vendor extensions.
+Read enum member descriptions from the `x-enumDescriptions` and `x-enum-descriptions` vendor extensions.
 
-`adapter-oas` now reads these extensions alongside the existing `x-enumNames` / `x-enum-varnames` name extensions and attaches each label to the matching `namedEnumValues` entry (new optional `description` on the AST `EnumValueNode`). A string enum that only carries `x-enum-descriptions` (no varnames) now produces `namedEnumValues` too, so the descriptions are not lost. `@kubb/plugin-ts` renders them as per-member JSDoc.
+`adapter-oas` already mapped the `x-enumNames` / `x-enum-varnames` names into `namedEnumValues`. It now reads the matching description extensions too, attaching each label to its `namedEnumValues` entry through a new optional `description` on the AST `EnumValueNode`. An enum that carries only `x-enum-descriptions` (no varnames) now produces `namedEnumValues` as well, so those labels survive instead of being dropped. `@kubb/plugin-ts` renders them as per-member JSDoc.
