@@ -183,6 +183,7 @@
     "openapi-const-literal",
     "optional-cli-validate-adapter-peer",
     "output-mode-explicit",
+    "parameter-style-explode",
     "parser-normalize-helpers",
     "parser-ts-dedent-output",
     "parser-ts-extract-utils",
