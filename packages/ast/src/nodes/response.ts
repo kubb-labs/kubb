@@ -141,18 +141,17 @@ type ResponseInput = Pick<ResponseNode, 'statusCode'> &
     content?: Array<ContentNode>
     schema?: SchemaNode
     mediaType?: string | null
-    keysToOmit?: Array<string> | null
   }
 
 /**
- * Definition for the {@link ResponseNode}. A single legacy `schema` (with optional
- * `mediaType`/`keysToOmit`) is normalized into one `content` entry.
+ * Definition for the {@link ResponseNode}. A single legacy `schema` (with an optional
+ * `mediaType`) is normalized into one `content` entry.
  */
 export const responseDef = defineNode<ResponseNode, ResponseInput>({
   kind: 'Response',
   build: (props) => {
-    const { schema, mediaType, keysToOmit, content, ...rest } = props
-    const entries = content ?? (schema ? [createContent({ contentType: mediaType ?? 'application/json', schema, keysToOmit: keysToOmit ?? null })] : undefined)
+    const { schema, mediaType, content, ...rest } = props
+    const entries = content ?? (schema ? [createContent({ contentType: mediaType ?? 'application/json', schema })] : undefined)
     return { ...rest, content: entries }
   },
   children: ['content'],

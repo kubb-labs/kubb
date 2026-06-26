@@ -1,6 +1,7 @@
 import { pascalCase } from '@internals/utils'
 import { macroDiscriminatorEnum, macroEnumName, macroSimplifyUnion } from '@kubb/ast/macros'
-import { childName, enumPropName, extractRefName, mergeAdjacentObjectsLazy } from '@kubb/ast/utils'
+import { buildSchemaVariant, childName, computeVariantNames, enumPropName, extractRefName, mergeAdjacentObjectsLazy, variantName } from '@kubb/ast/utils'
+import type { SchemaVariant } from '@kubb/ast/utils'
 import { ast } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS, enumDescriptionKeys, enumExtensionKeys, SCHEMA_REF_PREFIX } from './constants.ts'
 import { oasDialect, type OasDialect } from './dialect.ts'
@@ -144,6 +145,26 @@ function nameEnums(node: ast.SchemaNode, options: { parentName: string | null | 
  */
 export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = oasDialect) {
   const document = ctx.document
+
+  /**
+   * Per-direction sets of named schemas that have a generated variant. Populated by `parseOas`
+   * once all component schemas are parsed and before operations are built, so request/response
+   * bodies can be rewired to their `*Request`/`*Response` shape with nested `$ref`s following suit.
+   */
+  let variantNames: Record<SchemaVariant, Set<string>> = { request: new Set(), response: new Set() }
+
+  function setVariantNames(value: Record<SchemaVariant, Set<string>>): void {
+    variantNames = value
+  }
+
+  /**
+   * Rewrites a request/response body schema into its directional variant, dropping
+   * `readOnly`/`writeOnly` properties recursively and pointing nested `$ref`s at the matching
+   * variant. A no-op when nothing in the tree carries the relevant flag.
+   */
+  function toVariant(node: ast.SchemaNode, variant: SchemaVariant): ast.SchemaNode {
+    return buildSchemaVariant({ node, variant, variantNames: variantNames[variant] })
+  }
 
   // Branch handlers, each converts one OAS schema pattern to a SchemaNode.
 
@@ -946,23 +967,6 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
   }
 
   /**
-   * Collects property names whose schema has a truthy boolean flag (`readOnly` or `writeOnly`).
-   * `$ref` entries are skipped since their flags live on the dereferenced target.
-   */
-  function collectPropertyKeysByFlag(schema: SchemaObject | null, flag: 'readOnly' | 'writeOnly'): Array<string> | null {
-    if (!schema?.properties) return null
-
-    const keys: Array<string> = []
-    for (const key in schema.properties) {
-      const prop = schema.properties[key]
-      if (prop && !dialect.schema.isReference(prop) && (prop as Record<string, unknown>)[flag]) {
-        keys.push(key)
-      }
-    }
-    return keys.length ? keys : null
-  }
-
-  /**
    * Converts an OAS `Operation` into an `OperationNode`.
    */
   function parseOperation(options: ast.ParserOptions, operation: Operation): ast.OperationNode {
@@ -986,8 +990,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       return [
         ast.factory.createContent({
           contentType: ct,
-          schema: ast.optionality(parseSchema({ schema, name: requestBodyName }, options), requestBodyMeta.required),
-          keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
+          schema: toVariant(ast.optionality(parseSchema({ schema, name: requestBodyName }, options), requestBodyMeta.required), 'request'),
         }),
       ]
     })
@@ -1016,7 +1019,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
           raw && Object.keys(raw).length > 0
             ? parseSchema({ schema: raw, name: responseName }, options)
             : ast.factory.createSchema({ type: options.emptySchemaType })
-        return { schema: node, keysToOmit: collectPropertyKeysByFlag(raw, 'writeOnly') }
+        return { schema: toVariant(node, 'response') }
       }
 
       // Build one entry per declared response content type so plugins can union the variants.
@@ -1066,7 +1069,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     })
   }
 
-  return { parseSchema, parseOperation, parseParameter }
+  return { parseSchema, parseOperation, parseParameter, setVariantNames }
 }
 
 /**
@@ -1123,15 +1126,33 @@ export function parseOas(
   const { schemas: schemaObjects, nameMapping } = getSchemas(document, {
     contentType,
   })
-  const { parseSchema: _parseSchema, parseOperation: _parseOperation } = createSchemaParser({ document, contentType })
+  const { parseSchema: _parseSchema, parseOperation: _parseOperation, setVariantNames } = createSchemaParser({ document, contentType })
 
   const schemas: Array<ast.SchemaNode> = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, mergedOptions))
+
+  // Generate `*Request`/`*Response` variants for every named schema whose tree (transitively)
+  // carries a `readOnly`/`writeOnly` property, and tell the parser their names so operation bodies
+  // and nested `$ref`s resolve to the right variant. Done before operations are built.
+  const namedSchemas = schemas.filter((node): node is ast.SchemaNode & { name: string } => typeof node.name === 'string')
+  const variantNames = computeVariantNames(namedSchemas.map((node) => ({ name: node.name, node })))
+  setVariantNames(variantNames)
+
+  const variantSchemas: Array<ast.SchemaNode> = namedSchemas.flatMap((node) => {
+    const variants: Array<ast.SchemaNode> = []
+    if (variantNames.request.has(node.name)) {
+      variants.push(ast.factory.createSchema({ ...buildSchemaVariant({ node, variant: 'request', variantNames: variantNames.request }), name: variantName(node.name, 'request') }))
+    }
+    if (variantNames.response.has(node.name)) {
+      variants.push(ast.factory.createSchema({ ...buildSchemaVariant({ node, variant: 'response', variantNames: variantNames.response }), name: variantName(node.name, 'response') }))
+    }
+    return variants
+  })
 
   const operations: Array<ast.OperationNode> = getOperations(document)
     .map((operation) => _parseOperation(mergedOptions, operation))
     .filter((op): op is ast.OperationNode => op !== null)
 
-  const root = ast.factory.createInput({ schemas, operations })
+  const root = ast.factory.createInput({ schemas: [...schemas, ...variantSchemas], operations })
 
   return { root, nameMapping }
 }

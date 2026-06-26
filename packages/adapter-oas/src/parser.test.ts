@@ -1409,6 +1409,73 @@ describe('parseSchema readOnly / writeOnly', () => {
   })
 })
 
+describe('readOnly / writeOnly schema variants', () => {
+  const components = {
+    schemas: {
+      User: {
+        type: 'object',
+        required: ['id', 'username'],
+        properties: {
+          id: { type: 'string', readOnly: true },
+          username: { type: 'string' },
+          password: { type: 'string', writeOnly: true },
+          metadata: {
+            type: 'object',
+            properties: {
+              createdBy: { type: 'string', readOnly: true },
+              internalNotes: { type: 'string', writeOnly: true },
+            },
+          },
+        },
+      },
+    },
+  }
+
+  async function parse(paths: Record<string, unknown>) {
+    const oas = await parseDocument({ openapi: '3.0.3', info: { title: 'T', version: '1' }, paths, components } as unknown as Document)
+    return parseOas(oas).root
+  }
+
+  const propNames = (node: ast.SchemaNode | undefined) => ast.narrowSchema(node, 'object')?.properties.map((p) => p.name)
+  const metadataOf = (node: ast.SchemaNode | undefined) =>
+    ast.narrowSchema(ast.narrowSchema(node, 'object')?.properties.find((p) => p.name === 'metadata')?.schema, 'object')
+
+  it('adds UserRequest (no readOnly) and UserResponse (no writeOnly) to the schemas', async () => {
+    const root = await parse({ '/u': { get: { operationId: 'getUser', responses: { '204': { description: 'ok' } } } } })
+    const names = root.schemas.map((s) => s.name)
+
+    expect(names).toContain('UserRequest')
+    expect(names).toContain('UserResponse')
+    expect(propNames(root.schemas.find((s) => s.name === 'UserRequest'))).toStrictEqual(['username', 'password', 'metadata'])
+    expect(propNames(root.schemas.find((s) => s.name === 'UserResponse'))).toStrictEqual(['id', 'username', 'metadata'])
+  })
+
+  it('filters nested objects inside the variants', async () => {
+    const root = await parse({ '/u': { get: { operationId: 'getUser', responses: { '204': { description: 'ok' } } } } })
+
+    expect(metadataOf(root.schemas.find((s) => s.name === 'UserRequest'))?.properties.map((p) => p.name)).toStrictEqual(['internalNotes'])
+    expect(metadataOf(root.schemas.find((s) => s.name === 'UserResponse'))?.properties.map((p) => p.name)).toStrictEqual(['createdBy'])
+  })
+
+  it('points an operation request body at the *Request variant', async () => {
+    const root = await parse({
+      '/u': {
+        post: {
+          operationId: 'addUser',
+          requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } } },
+          responses: { '200': { description: 'ok', content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } } } },
+        },
+      },
+    })
+    const op = root.operations.find((o) => o.operationId === 'addUser')
+    const requestRef = ast.narrowSchema(op?.requestBody?.content?.[0]?.schema, 'ref')
+    const responseRef = ast.narrowSchema(op?.responses?.find((r) => r.statusCode === '200')?.content?.[0]?.schema, 'ref')
+
+    expect(requestRef?.name).toBe('UserRequest')
+    expect(responseRef?.name).toBe('UserResponse')
+  })
+})
+
 describe('parseSchema deprecated', () => {
   const ctx = { document: emptyDocument }
 

@@ -27,14 +27,11 @@ export type ContentNode = BaseNode & {
    */
   contentType: string
   /**
-   * Body schema for this content type.
+   * Body schema for this content type. For request and response bodies this already points at the
+   * directional `*Request`/`*Response` variant when the schema carries `readOnly`/`writeOnly`
+   * properties, so no further omission is needed downstream.
    */
   schema?: SchemaNode
-  /**
-   * Property keys to exclude from the generated type via `Omit<Type, Keys>`.
-   * Set when a referenced schema has `readOnly`/`writeOnly` fields that should be omitted.
-   */
-  keysToOmit?: Array<string> | null
 }
 
 /**
