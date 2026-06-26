@@ -71,10 +71,6 @@ type SchemaContext = {
  */
 type SchemaRule = {
   /**
-   * Identifies the rule when reading the table or debugging which branch ran.
-   */
-  name: string
-  /**
    * Returns `true` when this rule is responsible for the given context.
    */
   match: (context: SchemaContext) => boolean
@@ -107,7 +103,7 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
  * Builds a `null` scalar node carrying the schema's documentation. Shared by the `const: null`
  * and the drf-spectacular `NullEnum` (`{ enum: [null] }`) branches, which render identically.
  */
-function createNullSchema(schema: SchemaObject, name: string | null | undefined): ast.SchemaNode {
+function createNullSchema(schema: SchemaObject, name: string | null | undefined, nullable?: true): ast.SchemaNode {
   return ast.factory.createSchema({
     type: 'null',
     primitive: 'null',
@@ -115,6 +111,7 @@ function createNullSchema(schema: SchemaObject, name: string | null | undefined)
     title: schema.title,
     description: schema.description,
     deprecated: schema.deprecated,
+    nullable,
     format: schema.format,
   })
 }
@@ -336,6 +333,48 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       })
     }
 
+    // Silent walk — reporting resolver would flag missing refs as errors during speculative lookup.
+    function resolveRefSilent($ref: string): SchemaObject | null {
+      if (!$ref.startsWith('#')) return null
+      const target = decodeURIComponent($ref.substring(1))
+        .split('/')
+        .filter(Boolean)
+        .reduce<unknown>((obj, key) => (obj as Record<string, unknown> | undefined)?.[key], document)
+
+      return (target as SchemaObject | undefined) ?? null
+    }
+
+    function implicitDiscriminantValue(member: unknown): string | null {
+      if (!discriminator || discriminator.mapping || !dialect.schema.isReference(member)) return null
+      const value = extractRefName(member.$ref)
+      if (!value) return null
+      const variant = resolveRefSilent(member.$ref)
+      if (!variant) return null
+
+      const propertyName = discriminator.propertyName
+      // Intersecting two different literals on the same property collapses it to `never`,
+      // so skip folding the implicit name when the variant already pins the discriminator.
+      const seen = new Set([member.$ref])
+
+      function constrains(v: SchemaObject): boolean {
+        const prop = v.properties?.[propertyName]
+        const resolved = prop && dialect.schema.isReference(prop) ? resolveRefSilent(prop.$ref) : (prop as SchemaObject | undefined)
+        if (resolved && (Array.isArray(resolved.enum) || resolved.const !== undefined)) return true
+        const composition = v.allOf ?? v.oneOf ?? v.anyOf
+        if (!composition) return false
+
+        return composition.some((m) => {
+          if (!dialect.schema.isReference(m)) return constrains(m as SchemaObject)
+          if (seen.has(m.$ref)) return false
+          seen.add(m.$ref)
+          const r = resolveRefSilent(m.$ref)
+          return r ? constrains(r) : false
+        })
+      }
+
+      return constrains(variant) ? null : value
+    }
+
     const unionMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
     const strategy: 'one' | 'any' = schema.oneOf ? 'one' : 'any'
     const unionBase = {
@@ -344,20 +383,13 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       strategy,
     }
     const discriminator = dialect.schema.isDiscriminator(schema) ? schema.discriminator : undefined
-    const sharedPropertiesNode = schema.properties
-      ? (() => {
-          const { oneOf: _oneOf, anyOf: _anyOf, ...schemaWithoutUnion } = schema
-          const memberBaseSchema: SchemaObject = discriminator
-            ? (Object.fromEntries(Object.entries(schemaWithoutUnion).filter(([key]) => key !== 'discriminator')) as SchemaObject)
-            : schemaWithoutUnion
-          return parseSchema({ schema: memberBaseSchema, name }, rawOptions)
-        })()
-      : undefined
+    const { oneOf: _o, anyOf: _a, discriminator: _d, ...memberBaseSchema } = schema
+    const sharedPropertiesNode = schema.properties ? parseSchema({ schema: memberBaseSchema as SchemaObject, name }, rawOptions) : undefined
 
-    if (sharedPropertiesNode || discriminator?.mapping) {
+    if (sharedPropertiesNode || discriminator) {
       const members = unionMembers.map((s) => {
         const ref = dialect.schema.isReference(s) ? s.$ref : undefined
-        const discriminatorValue = findDiscriminator(discriminator?.mapping, ref)
+        const discriminatorValue = findDiscriminator(discriminator?.mapping, ref) ?? implicitDiscriminantValue(s)
         const memberNode = parseSchema({ schema: s as SchemaObject, name }, rawOptions)
 
         if (!discriminatorValue || !discriminator) {
@@ -669,23 +701,17 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
   }
 
   /**
-   * Resolves a tuple's rest-element schema from the `items` keyword that sits alongside `prefixItems`.
-   *
-   * `items: false` closes the tuple, so no rest element is emitted. An absent `items` widens the tail
-   * to `any`, and a schema object (or `items: true`) becomes the homogeneous rest type.
-   */
-  function resolveTupleRest(items: SchemaObject['items'], rawOptions: Partial<ast.ParserOptions> | undefined): ast.SchemaNode | undefined {
-    if (items === false) return undefined
-    if (!items || items === true) return ast.factory.createSchema({ type: 'any' })
-    return parseSchema({ schema: items as SchemaObject }, rawOptions)
-  }
-
-  /**
    * Converts an OAS 3.1 `prefixItems` tuple into a `TupleSchemaNode`.
    */
   function convertTuple({ schema, name, nullable, defaultValue, rawOptions }: SchemaContext): ast.SchemaNode {
     const tupleItems = (schema.prefixItems ?? []).map((item) => parseSchema({ schema: item as SchemaObject }, rawOptions))
-    const rest = resolveTupleRest(schema.items, rawOptions)
+    // items: false closes the tuple; absent/true widens the tail to any.
+    const rest =
+      schema.items === false
+        ? undefined
+        : !schema.items || schema.items === true
+          ? ast.factory.createSchema({ type: 'any' })
+          : parseSchema({ schema: schema.items as SchemaObject }, rawOptions)
 
     return ast.factory.createSchema({
       type: 'tuple',
@@ -759,22 +785,6 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
   }
 
   /**
-   * Converts an explicit `type: 'null'` schema.
-   */
-  function convertNull({ schema, name, nullable }: SchemaContext): ast.SchemaNode {
-    return ast.factory.createSchema({
-      type: 'null',
-      primitive: 'null',
-      name,
-      title: schema.title,
-      description: schema.description,
-      deprecated: schema.deprecated,
-      nullable,
-      format: schema.format,
-    })
-  }
-
-  /**
    * Converts a binary string schema (`type: 'string'`, `contentMediaType: 'application/octet-stream'`)
    * into a `blob` node.
    */
@@ -812,40 +822,33 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
    * match/convert/fall-through contract.
    */
   const schemaRules: Array<SchemaRule> = [
-    { name: 'ref', match: ({ schema }) => dialect.schema.isReference(schema), convert: convertRef },
-    { name: 'allOf', match: ({ schema }) => !!schema.allOf?.length, convert: convertAllOf },
-    { name: 'union', match: ({ schema }) => !!(schema.oneOf?.length || schema.anyOf?.length), convert: convertUnion },
-    { name: 'const', match: ({ schema }) => 'const' in schema && schema.const !== undefined, convert: convertConst },
-    { name: 'format', match: ({ schema }) => !!schema.format, convert: convertFormat },
+    { match: ({ schema }) => dialect.schema.isReference(schema), convert: convertRef },
+    { match: ({ schema }) => !!schema.allOf?.length, convert: convertAllOf },
+    { match: ({ schema }) => !!(schema.oneOf?.length || schema.anyOf?.length), convert: convertUnion },
+    { match: ({ schema }) => 'const' in schema && schema.const !== undefined, convert: convertConst },
+    { match: ({ schema }) => !!schema.format, convert: convertFormat },
+    { match: ({ schema }) => dialect.schema.isBinary(schema), convert: convertBlob },
+    { match: ({ schema }) => Array.isArray(schema.type) && schema.type.length > 1, convert: convertMultiType },
     {
-      name: 'blob',
-      match: ({ schema }) => dialect.schema.isBinary(schema),
-      convert: convertBlob,
-    },
-    { name: 'multi-type', match: ({ schema }) => Array.isArray(schema.type) && schema.type.length > 1, convert: convertMultiType },
-    {
-      name: 'constrained-string',
       match: ({ schema, type }) => !type && (schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined),
       convert: convertString,
     },
     {
-      name: 'constrained-number',
       match: ({ schema, type }) => !type && (schema.minimum !== undefined || schema.maximum !== undefined),
       convert: (ctx) => convertNumeric(ctx, 'number'),
     },
-    { name: 'enum', match: ({ schema }) => !!schema.enum?.length, convert: convertEnum },
+    { match: ({ schema }) => !!schema.enum?.length, convert: convertEnum },
     {
-      name: 'object',
       match: ({ schema, type }) => type === 'object' || !!schema.properties || !!schema.additionalProperties || 'patternProperties' in schema,
       convert: convertObject,
     },
-    { name: 'tuple', match: ({ schema }) => 'prefixItems' in schema, convert: convertTuple },
-    { name: 'array', match: ({ schema, type }) => type === 'array' || 'items' in schema, convert: convertArray },
-    { name: 'string', match: ({ type }) => type === 'string', convert: convertString },
-    { name: 'number', match: ({ type }) => type === 'number', convert: (ctx) => convertNumeric(ctx, 'number') },
-    { name: 'integer', match: ({ type }) => type === 'integer', convert: (ctx) => convertNumeric(ctx, 'integer') },
-    { name: 'boolean', match: ({ type }) => type === 'boolean', convert: convertBoolean },
-    { name: 'null', match: ({ type }) => type === 'null', convert: convertNull },
+    { match: ({ schema }) => 'prefixItems' in schema, convert: convertTuple },
+    { match: ({ schema, type }) => type === 'array' || 'items' in schema, convert: convertArray },
+    { match: ({ type }) => type === 'string', convert: convertString },
+    { match: ({ type }) => type === 'number', convert: (ctx) => convertNumeric(ctx, 'number') },
+    { match: ({ type }) => type === 'integer', convert: (ctx) => convertNumeric(ctx, 'integer') },
+    { match: ({ type }) => type === 'boolean', convert: convertBoolean },
+    { match: ({ type }) => type === 'null', convert: ({ schema, name, nullable }) => createNullSchema(schema, name, nullable) },
   ]
 
   /**
@@ -938,22 +941,6 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
   }
 
   /**
-   * Reads the inline response object (not a `$ref`) and returns its description plus its `content` map.
-   */
-  function getResponseMeta(responseObj: unknown): {
-    description?: string
-    content?: Record<string, unknown>
-  } {
-    if (typeof responseObj !== 'object' || responseObj === null || Array.isArray(responseObj)) return {}
-
-    const inline = responseObj as {
-      description?: string
-      content?: Record<string, unknown>
-    }
-    return { description: inline.description, content: inline.content }
-  }
-
-  /**
    * Collects property names whose schema has a truthy boolean flag (`readOnly` or `writeOnly`).
    * `$ref` entries are skipped since their flags live on the dereferenced target.
    */
@@ -1016,7 +1003,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       // qualified names for nested enums don't collide with top-level component schemas that
       // happen to be named `<operation><statusCode>` (e.g. `GetMaintenance200`).
       const responseName = operationName ? `${operationName}Status${statusCode}` : undefined
-      const { description } = getResponseMeta(responseObj)
+      const description = typeof responseObj === 'object' && responseObj !== null ? (responseObj as { description?: string }).description : undefined
 
       const parseEntrySchema = (contentType?: string) => {
         const raw = getResponseSchema(document, operation, statusCode, { contentType })

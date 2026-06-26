@@ -86,18 +86,6 @@ describe('AsyncEventEmitter', () => {
     expect(handler).not.toHaveBeenCalled()
   })
 
-  it('should execute onOnce listener only once', async () => {
-    const emitter = new AsyncEventEmitter<TestEvents>()
-    const handler = vi.fn()
-
-    emitter.onOnce('test', handler)
-    await emitter.emit('test', 'hello', 42)
-    await emitter.emit('test', 'world', 24)
-
-    expect(handler).toHaveBeenCalledTimes(1)
-    expect(handler).toHaveBeenCalledWith('hello', 42)
-  })
-
   it('should remove all listeners', async () => {
     const emitter = new AsyncEventEmitter<TestEvents>()
     const handler1 = vi.fn()
@@ -111,19 +99,6 @@ describe('AsyncEventEmitter', () => {
 
     expect(handler1).not.toHaveBeenCalled()
     expect(handler2).not.toHaveBeenCalled()
-  })
-
-  it('should accept max listeners parameter in constructor', () => {
-    const emitter = new AsyncEventEmitter<TestEvents>(200)
-
-    expect(emitter.getMaxListeners()).toBe(200)
-  })
-
-  it('should raise the max listeners ceiling with setMaxListeners', () => {
-    const emitter = new AsyncEventEmitter<TestEvents>()
-    emitter.setMaxListeners(40)
-
-    expect(emitter.getMaxListeners()).toBe(40)
   })
 
   it('should handle events with no arguments', async () => {

@@ -77,17 +77,6 @@ function toParamsObject(
  */
 export class Url {
   /**
-   * Reports whether `url` is a parseable absolute URL. Delegates to the native `URL.canParse`.
-   *
-   * @example
-   * Url.canParse('https://petstore.swagger.io/v2') // true
-   * Url.canParse('/pet/{petId}')                   // false
-   */
-  static canParse(url: string, base?: string | URL): boolean {
-    return URL.canParse(url, base)
-  }
-
-  /**
    * Converts an OpenAPI/Swagger path to Express-style colon syntax.
    *
    * @example

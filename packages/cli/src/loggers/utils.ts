@@ -1,6 +1,6 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { canUseTTY, formatHrtime, getElapsedMs } from '@internals/utils'
+import { canUseTTY, formatMs, getElapsedMs } from '@internals/utils'
 import type { Reporter, ReporterContext } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
 import type { Logger, LoggerContext, LoggerOptions } from './defineLogger.ts'
@@ -58,7 +58,7 @@ type ProgressState = {
  */
 export function buildProgressLine(state: ProgressState): string | null {
   const parts: Array<string> = []
-  const duration = formatHrtime(state.hrStart)
+  const duration = formatMs(getElapsedMs(state.hrStart))
 
   if (state.totalPlugins > 0) {
     const pluginStr =
