@@ -76,7 +76,7 @@ Kubb is an open source project, and its development is funded entirely by sponso
 
 <p align="center">
   <a href="https://github.com/sponsors/stijnvanhulle">
-    <img src="https://raw.githubusercontent.com/stijnvanhulle/sponsors/main/sponsors.svg" alt="My sponsors" />
+    <img src="https://shieldcn.dev/sponsors/stijnvanhulle.svg?titleAlign=center&mode=dark" alt="stijnvanhulle sponsors" />
   </a>
 </p>
 
