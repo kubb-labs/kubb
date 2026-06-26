@@ -9,6 +9,7 @@
 [![License][license-src]][license-href]
 [![Coverage][coverage-src]][coverage-href]
 [![Node][node-src]][node-href]
+[![OC Backers][oc-backers-src]][oc-backers-href]
 
 <h4>
 <a href="https://kubb.dev" target="_blank">Documentation</a>
@@ -70,6 +71,7 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 Kubb is an open source project, and its development is funded entirely by sponsors. If you would like to become a sponsor, please consider:
 
 - [Become a Sponsor on GitHub](https://github.com/sponsors/stijnvanhulle)
+- [Back Kubb on Open Collective](https://opencollective.com/kubb)
 - [See sponsorship tiers and our sponsors](https://kubb.dev/sponsors)
 
 <p align="center">
@@ -205,3 +207,5 @@ See [LICENSE](./LICENSE) for details.
 [contributors-href]: #contributors-
 [coverage-src]: https://shieldcn.dev/codecov/github/kubb-labs/kubb.svg?variant=secondary&size=xs&theme=zinc&mode=dark
 [coverage-href]: https://app.codecov.io/gh/kubb-labs/kubb
+[oc-backers-src]: https://shieldcn.dev/opencollective/backers/kubb.svg?variant=secondary&size=xs&theme=zinc&mode=dark
+[oc-backers-href]: https://opencollective.com/kubb
