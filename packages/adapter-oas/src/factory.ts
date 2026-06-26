@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { exists, Url } from '@internals/utils'
+import { exists } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { compileErrors, validate } from '@readme/openapi-parser'
@@ -54,7 +54,7 @@ export async function parseFromConfig(source: AdapterSource): Promise<Document> 
   }
 
   // type === 'path'
-  if (Url.canParse(source.path)) {
+  if (URL.canParse(source.path)) {
     return parseDocument(source.path)
   }
 
@@ -69,7 +69,7 @@ export async function parseFromConfig(source: AdapterSource): Promise<Document> 
  * its parse error instead.
  */
 export async function assertInputExists(input: string): Promise<void> {
-  if (Url.canParse(input)) {
+  if (URL.canParse(input)) {
     return
   }
   if (!(await exists(input))) {

@@ -37,17 +37,3 @@ export function formatMs(ms: number): string {
   }
   return `${Math.round(ms)}ms`
 }
-
-/**
- * Formats the elapsed time since `hrStart` as a human-readable string.
- *
- * @example
- * ```ts
- * const start = process.hrtime()
- * doWork()
- * formatHrtime(start) // '1.50s'
- * ```
- */
-export function formatHrtime(hrStart: [number, number]): string {
-  return formatMs(getElapsedMs(hrStart))
-}

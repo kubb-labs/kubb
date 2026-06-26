@@ -80,22 +80,6 @@ export class AsyncEventEmitter<TEvents extends { [K in keyof TEvents]: Array<unk
   }
 
   /**
-   * Registers a one-shot listener that removes itself after the first invocation.
-   *
-   * @example
-   * ```ts
-   * emitter.onOnce('build', async (name) => { console.log(name) })
-   * ```
-   */
-  onOnce<TEventName extends keyof TEvents & string>(eventName: TEventName, handler: AsyncListener<TEvents[TEventName]>): void {
-    const wrapper: AsyncListener<TEvents[TEventName]> = (...args) => {
-      this.off(eventName, wrapper)
-      return handler(...args)
-    }
-    this.on(eventName, wrapper)
-  }
-
-  /**
    * Removes a previously registered listener.
    *
    * @example
@@ -131,13 +115,6 @@ export class AsyncEventEmitter<TEvents extends { [K in keyof TEvents]: Array<unk
    */
   setMaxListeners(max: number): void {
     this.#emitter.setMaxListeners(max)
-  }
-
-  /**
-   * Returns the current per-event listener ceiling.
-   */
-  getMaxListeners(): number {
-    return this.#emitter.getMaxListeners()
   }
 
   /**

@@ -6,7 +6,7 @@ import { createKubb } from './createKubb.ts'
 import { Diagnostics } from './diagnostics.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
-import { GENERATE_FLUSH_EVERY, HOOK_LISTENERS_PER_PLUGIN, STREAM_FLUSH_EVERY } from './constants.ts'
+import { GENERATE_FLUSH_EVERY, STREAM_FLUSH_EVERY } from './constants.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
@@ -86,23 +86,6 @@ describe('createKubb', () => {
 
     expect(kubb.config.root).toBe(process.cwd())
     expect(kubb.config.parsers).toStrictEqual([])
-  })
-
-  test('keeps the hooks ceiling at 10 for a single plugin', async () => {
-    const kubb = createKubb(config, { hooks: new AsyncEventEmitter<KubbHooks>() })
-
-    await kubb.setup()
-
-    expect(kubb.hooks.getMaxListeners()).toBe(10)
-  })
-
-  test('scales the hooks ceiling with the plugin count during setup', async () => {
-    const plugins = ['a', 'b', 'c', 'd'].map((name) => definePlugin(() => ({ name, hooks: {} }))())
-    const kubb = createKubb({ ...config, plugins: plugins as unknown as Array<Plugin> }, { hooks: new AsyncEventEmitter<KubbHooks>() })
-
-    await kubb.setup()
-
-    expect(kubb.hooks.getMaxListeners()).toBe(plugins.length * HOOK_LISTENERS_PER_PLUGIN)
   })
 
   test('if build with one plugin is running the different hooks in the correct order', async () => {

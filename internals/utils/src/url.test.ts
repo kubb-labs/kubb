@@ -3,13 +3,6 @@
 import { describe, expect, test } from 'vitest'
 import { Url } from './url.ts'
 
-describe('Url.canParse', () => {
-  test('returns true for an absolute URL and false for a template path', () => {
-    expect(Url.canParse('https://petstore.swagger.io/v2')).toBe(true)
-    expect(Url.canParse('/pet/{petId}')).toBe(false)
-  })
-})
-
 describe('Url.toTemplateString', () => {
   test('renders path params as template literal interpolations', () => {
     expect(Url.toTemplateString('/user/{userID}/monetary-account/{monetary-accountID}/whitelist-sdd/{itemId}')).toBe(
