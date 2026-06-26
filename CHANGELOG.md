@@ -1,5 +1,32 @@
 # Changelog
 
+## v5.0.0-beta.75 — Jun 26, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Read enum member descriptions from the `x-enumDescriptions` and `x-enum-descriptions` vendor extensions.
+  
+  `adapter-oas` already mapped the `x-enumNames` / `x-enum-varnames` names into `namedEnumValues`. It now reads the matching description extensions too, attaching each label to its `namedEnumValues` entry through a new optional `description` on the AST `EnumValueNode`. An enum that carries only `x-enum-descriptions` (no varnames) now produces `namedEnumValues` as well, so those labels survive instead of being dropped. `@kubb/plugin-ts` renders them as per-member JSDoc. ([#3669](https://github.com/kubb-labs/kubb/pull/3669), [`5d7b128`](https://github.com/kubb-labs/kubb/commit/5d7b128f09adebf20a8855de9abc66a1d24d3231))
+
+#### Bug Fixes
+
+- Narrow `oneOf`/`anyOf` discriminated unions that omit a `mapping`.
+  
+  A `discriminator` without a `mapping` still has a value per branch: OpenAPI takes it from the variant's own schema name. The parser now folds that literal into each `$ref` branch, turning a bare `Cat | Dog` into `(Cat & { petType: "Cat" }) | (Dog & { petType: "Dog" })`. Generated types, Zod schemas, and Faker mocks then narrow on the discriminator field, matching what an explicit `mapping` already produces.
+  
+  A variant that pins the discriminator to its own `enum` or `const` is left as a plain ref, because intersecting two different literals collapses the property to `never`. Unresolvable refs and plain unions stay untouched. ([#3673](https://github.com/kubb-labs/kubb/pull/3673), [`6e25c4e`](https://github.com/kubb-labs/kubb/commit/6e25c4e6fe71f8f7ee5e29c543195c1395f87375))
+- Stop treating an OpenAPI 3.1 `const` as a named enum.
+  
+  A `const` is parsed into a single-value enum. The pre-scan no longer records these in `enumNames`, and `enums: 'root'` no longer lifts them to top-level enums, so a reference to a `const` resolves to its plain name and `@kubb/plugin-ts` can render it as an inline literal. ([#3672](https://github.com/kubb-labs/kubb/pull/3672), [`4e1ed4f`](https://github.com/kubb-labs/kubb/commit/4e1ed4fd97ffbbc7589ed9093413164f982ea5a3))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.74 — Jun 23, 2026
 
 ### @kubb/core

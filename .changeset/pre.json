@@ -18,6 +18,7 @@
   },
   "changesets": [
     "adapter-oas-bundle-named-components",
+    "adapter-oas-discriminator-implicit-mapping",
     "adapter-oas-drf-null-enum",
     "adapter-oas-drop-oas-packages",
     "adapter-oas-faithful-schemas",
@@ -114,6 +115,7 @@
     "diagnostics-tree-render",
     "drop-published-src",
     "enforce-array-type-syntax",
+    "enum-member-descriptions",
     "export-ast-input-output-guards",
     "export-ast-namespace-from-core",
     "extend-diagnostics-debugging",
@@ -178,6 +180,7 @@
     "node-22-minimum",
     "null-undefined-standardization",
     "objectkey-singlequote-blanklines",
+    "openapi-const-literal",
     "optional-cli-validate-adapter-peer",
     "output-mode-explicit",
     "parser-normalize-helpers",
