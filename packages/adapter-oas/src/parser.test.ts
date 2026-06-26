@@ -2385,6 +2385,51 @@ describe('parseSchema enum', () => {
     expect(values?.map((v) => v.value)).toStrictEqual(['active', 'inactive'])
   })
 
+  it('uses x-enumDescriptions as namedEnumValues descriptions', () => {
+    const node = parseSchema(ctx, {
+      schema: {
+        type: 'integer',
+        enum: [1, 2],
+        'x-enumNames': ['One', 'Two'],
+        'x-enumDescriptions': ['The first value', 'The second value'],
+      },
+    })
+    const narrowed = ast.narrowSchema(node, 'enum')
+
+    const values = narrowed?.namedEnumValues
+    expect(values?.map((v) => v.name)).toStrictEqual(['One', 'Two'])
+    expect(values?.map((v) => v.description)).toStrictEqual(['The first value', 'The second value'])
+  })
+
+  it('uses x-enum-descriptions as namedEnumValues descriptions', () => {
+    const node = parseSchema(ctx, {
+      schema: {
+        enum: ['active', 'inactive'],
+        'x-enum-varnames': ['Active', 'Inactive'],
+        'x-enum-descriptions': ['Currently active', 'No longer active'],
+      },
+    })
+    const narrowed = ast.narrowSchema(node, 'enum')
+
+    const values = narrowed?.namedEnumValues
+    expect(values?.map((v) => v.name)).toStrictEqual(['Active', 'Inactive'])
+    expect(values?.map((v) => v.description)).toStrictEqual(['Currently active', 'No longer active'])
+  })
+
+  it('produces namedEnumValues from x-enumDescriptions on a string enum without varnames', () => {
+    const node = parseSchema(ctx, {
+      schema: {
+        enum: ['active', 'inactive'],
+        'x-enum-descriptions': ['Currently active', 'No longer active'],
+      },
+    })
+    const narrowed = ast.narrowSchema(node, 'enum')
+
+    const values = narrowed?.namedEnumValues
+    expect(values?.map((v) => v.name)).toStrictEqual(['active', 'inactive'])
+    expect(values?.map((v) => v.description)).toStrictEqual(['Currently active', 'No longer active'])
+  })
+
   it('x-enumNames deduplicates names', () => {
     const node = parseSchema(ctx, {
       schema: {

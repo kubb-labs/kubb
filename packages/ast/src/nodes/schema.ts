@@ -322,6 +322,12 @@ type EnumValueNode = {
    * Primitive type of the enum value.
    */
   primitive: Extract<PrimitiveSchemaType, 'string' | 'number' | 'boolean'>
+  /**
+   * Label for the enum item, taken from the `x-enumDescriptions` or
+   * `x-enum-descriptions` vendor extension. `@kubb/plugin-ts` renders it as
+   * JSDoc on the matching enum member.
+   */
+  description?: string
 }
 
 /**

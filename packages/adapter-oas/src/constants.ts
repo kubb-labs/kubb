@@ -108,3 +108,15 @@ export const formatMap = {
  * ```
  */
 export const enumExtensionKeys = ['x-enumNames', 'x-enum-varnames'] as const
+
+/**
+ * Vendor extension keys that attach human-readable descriptions to enum values, checked in priority order.
+ *
+ * @example
+ * ```ts
+ * import { enumDescriptionKeys } from '@kubb/adapter-oas'
+ *
+ * const key = enumDescriptionKeys.find((k) => k in schema) // 'x-enumDescriptions' | 'x-enum-descriptions' | undefined
+ * ```
+ */
+export const enumDescriptionKeys = ['x-enumDescriptions', 'x-enum-descriptions'] as const

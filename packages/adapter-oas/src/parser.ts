@@ -2,7 +2,7 @@ import { pascalCase } from '@internals/utils'
 import { macroDiscriminatorEnum, macroEnumName, macroSimplifyUnion } from '@kubb/ast/macros'
 import { childName, enumPropName, extractRefName, mergeAdjacentObjectsLazy } from '@kubb/ast/utils'
 import { ast } from '@kubb/core'
-import { DEFAULT_PARSER_OPTIONS, enumExtensionKeys, SCHEMA_REF_PREFIX } from './constants.ts'
+import { DEFAULT_PARSER_OPTIONS, enumDescriptionKeys, enumExtensionKeys, SCHEMA_REF_PREFIX } from './constants.ts'
 import { oasDialect, type OasDialect } from './dialect.ts'
 import { createDiscriminantNode, findDiscriminator } from './discriminator.ts'
 import { getOperationId, getOperations, getRequestContentType, getResponseByStatusCode, getResponseStatusCodes } from './operation.ts'
@@ -561,12 +561,14 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     }
 
     const extensionKey = enumExtensionKeys.find((key) => key in schema)
-    if (extensionKey || enumPrimitive === 'number' || enumPrimitive === 'integer' || enumPrimitive === 'boolean') {
+    const descriptionKey = enumDescriptionKeys.find((key) => key in schema)
+    if (extensionKey || descriptionKey || enumPrimitive === 'number' || enumPrimitive === 'integer' || enumPrimitive === 'boolean') {
       const enumPrimitiveType = (enumPrimitive === 'number' || enumPrimitive === 'integer' ? 'number' : enumPrimitive === 'boolean' ? 'boolean' : 'string') as
         | 'number'
         | 'boolean'
         | 'string'
       const rawEnumNames = extensionKey ? ((schema as Record<string, unknown>)[extensionKey] as Array<string | number>) : undefined
+      const rawEnumDescriptions = descriptionKey ? ((schema as Record<string, unknown>)[descriptionKey] as Array<string>) : undefined
       const uniqueValues = [...new Set(filteredValues)]
       const seenNames = new Set<string>()
 
@@ -578,6 +580,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
             name: String(rawEnumNames?.[index] ?? value),
             value,
             primitive: enumPrimitiveType,
+            description: rawEnumDescriptions?.[index],
           }))
           .filter((entry) => {
             if (seenNames.has(entry.name)) return false
