@@ -322,6 +322,11 @@ type EnumValueNode = {
    * Primitive type of the enum value.
    */
   primitive: Extract<PrimitiveSchemaType, 'string' | 'number' | 'boolean'>
+  /**
+   * Human-readable label for the enum item, sourced from the `x-enumDescriptions`
+   * or `x-enum-descriptions` vendor extension. Surfaced as per-member JSDoc.
+   */
+  description?: string
 }
 
 /**
