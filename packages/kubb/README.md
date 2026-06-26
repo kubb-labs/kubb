@@ -183,7 +183,7 @@ See [LICENSE](./LICENSE) for details.
 
 ## Star history
 
-![Star history chart](https://shieldcn.dev/chart/github/stars/kubb-labs/kubb.svg?theme=orange)
+<img alt="Star history chart" src="https://shieldcn.dev/chart/github/stars/kubb-labs/kubb.svg?theme=orange" width="100%" />
 
 <!-- Badges -->
 
