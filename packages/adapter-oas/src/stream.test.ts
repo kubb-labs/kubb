@@ -111,6 +111,21 @@ describe('preScan', () => {
     expect(enumNames).toStrictEqual(['Status'])
   })
 
+  it('excludes single-value enums (OAS 3.1 const) from enum names', () => {
+    const document: Document = { openapi: '3.1.0', info: { title: 'Test API', version: '1.0.0' }, paths: {} }
+    const { parseSchema } = createSchemaParser({ document })
+    const constSchemas: Record<string, SchemaObject> = { Status: statusSchema, Plan: { const: 'pro' } }
+
+    const { enumNames } = preScan({
+      schemas: constSchemas,
+      parseSchema,
+      parserOptions,
+      discriminator: 'preserve',
+    })
+
+    expect(enumNames).toStrictEqual(['Status'])
+  })
+
   it('builds refAliasMap for pure $ref alias schemas only', () => {
     const { refAliasMap } = preScan({
       schemas,

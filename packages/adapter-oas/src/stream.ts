@@ -89,7 +89,11 @@ export function preScan({
     if (node.type === 'ref' && node.name && node.name !== name) {
       refAliasMap.set(name, node)
     }
-    if (ast.narrowSchema(node, ast.schemaTypes.enum) && node.name) {
+    const enumNode = ast.narrowSchema(node, ast.schemaTypes.enum)
+    // A single-value enum is an OAS 3.1 `const`: it renders as a literal type, not a named enum, so
+    // it must not be registered as an enum name (which would suffix references to it).
+    const isConstEnum = (enumNode?.namedEnumValues ?? enumNode?.enumValues ?? []).length === 1
+    if (enumNode && node.name && !isConstEnum) {
       enumNames.push(node.name)
     }
     if (discriminator === 'propagate' && (schema.oneOf ?? schema.anyOf) && schema.discriminator?.propertyName) {

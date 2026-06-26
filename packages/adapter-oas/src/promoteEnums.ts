@@ -13,6 +13,9 @@ export function collectInlineEnums(roots: ReadonlyArray<ast.Node>, topLevelNames
     const isSchemaRoot = root.kind === 'Schema'
     for (const node of ast.collect<ast.SchemaNode>(root, { schema: (schemaNode) => schemaNode })) {
       if (node.type !== 'enum' || !node.name) continue
+      // A single-value enum is an OAS 3.1 `const`: it stays an inline literal, so it is never lifted
+      // to a named top-level enum.
+      if ((node.namedEnumValues ?? node.enumValues ?? []).length === 1) continue
       // Skip a top-level enum component (it is already its own type) and any enum whose name a
       // component already owns.
       if (isSchemaRoot && node === root) continue
