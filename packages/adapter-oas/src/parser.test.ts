@@ -3720,7 +3720,7 @@ describe('parseSchema discriminator on union without sibling properties', () => 
     expect(members![1]?.type).toBe('string')
   })
 
-  it('produces a plain union when no discriminator mapping is present', () => {
+  it('leaves members as plain refs when the variant cannot be resolved', () => {
     const node = parseSchema(ctx, {
       schema: {
         oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
@@ -3730,8 +3730,64 @@ describe('parseSchema discriminator on union without sibling properties', () => 
 
     expect(node.type).toBe('union')
     const { members } = ast.narrowSchema(node, 'union')!
-    // No mapping → no intersection wrapping
+    // Dog and Cat are absent from this document, so the implicit value can't be safely derived.
     expect(members!.every((m) => m.type !== 'intersection')).toBe(true)
+  })
+
+  it('folds the implicit schema-name value into ref members when no mapping is present', async () => {
+    const oas = await parseDocument({
+      openapi: '3.0.3',
+      info: { title: 'ImplicitDiscriminator', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Pet: {
+            oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+            discriminator: { propertyName: 'petType' },
+          },
+          Cat: { type: 'object', properties: { petType: { type: 'string' }, name: { type: 'string' } } },
+          Dog: { type: 'object', properties: { petType: { type: 'string' }, bark: { type: 'boolean' } } },
+        },
+      },
+    })
+
+    const pet = parseOas(oas).root.schemas.find((s) => s.name === 'Pet')
+    const { members } = ast.narrowSchema(pet, 'union')!
+
+    const discriminantOf = (member: ast.SchemaNode) => {
+      const discNode = ast.narrowSchema(ast.narrowSchema(member, 'intersection')?.members?.[1], 'object')
+      return ast.narrowSchema(discNode?.properties?.find((p) => p.name === 'petType')?.schema, 'enum')?.enumValues
+    }
+
+    expect(members![0]?.type).toBe('intersection')
+    expect(discriminantOf(members![0]!)).toStrictEqual(['Cat'])
+    expect(members![1]?.type).toBe('intersection')
+    expect(discriminantOf(members![1]!)).toStrictEqual(['Dog'])
+  })
+
+  it('leaves a ref member untouched when the variant already pins the discriminator to a literal', async () => {
+    const oas = await parseDocument({
+      openapi: '3.0.3',
+      info: { title: 'SelfDescribingDiscriminator', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Notification: {
+            oneOf: [{ $ref: '#/components/schemas/Approved' }, { $ref: '#/components/schemas/Disapproved' }],
+            discriminator: { propertyName: 'kind' },
+          },
+          Approved: { type: 'object', properties: { kind: { type: 'string', enum: ['APPROVED'] } } },
+          Disapproved: { type: 'object', properties: { kind: { type: 'string', enum: ['DISAPPROVED'] } } },
+        },
+      },
+    })
+
+    const notification = parseOas(oas).root.schemas.find((s) => s.name === 'Notification')
+    const { members } = ast.narrowSchema(notification, 'union')!
+
+    // Each variant already carries its own `kind` literal, so folding the schema name would
+    // collide with it; the members must stay plain refs.
+    expect(members!.every((m) => m.type === 'ref')).toBe(true)
   })
 })
 

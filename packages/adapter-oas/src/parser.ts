@@ -336,6 +336,70 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       })
     }
 
+    /**
+     * Resolves a local `$ref` against the document without reporting a diagnostic when it is
+     * missing. The reporting resolver would flag an otherwise-valid spec as an error during this
+     * speculative discriminator lookup, so an unresolved ref simply yields `null` here.
+     */
+    function resolveRefSilent($ref: string): SchemaObject | null {
+      if (!$ref.startsWith('#')) return null
+      const target = globalThis
+        .decodeURIComponent($ref.substring(1))
+        .split('/')
+        .filter(Boolean)
+        .reduce<unknown>((obj, key) => (obj as Record<string, unknown> | undefined)?.[key], document)
+
+      return (target as SchemaObject | undefined) ?? null
+    }
+
+    /**
+     * Reports whether a variant already pins the discriminator property to a literal (an `enum`
+     * or `const`), directly or through an `allOf`/`oneOf`/`anyOf` parent. When it does, the
+     * implicit schema-name value must not be folded in: intersecting two different literals
+     * collapses the property to `never`.
+     */
+    function variantConstrainsDiscriminator({ variant, propertyName, seen }: { variant: SchemaObject; propertyName: string; seen: Set<string> }): boolean {
+      const property = variant.properties?.[propertyName]
+      const resolvedProperty = property && dialect.schema.isReference(property) ? resolveRefSilent(property.$ref) : (property as SchemaObject | undefined)
+      if (resolvedProperty && (Array.isArray(resolvedProperty.enum) || resolvedProperty.const !== undefined)) {
+        return true
+      }
+
+      const composition = variant.allOf ?? variant.oneOf ?? variant.anyOf
+      if (!composition) return false
+
+      return composition.some((member) => {
+        if (!dialect.schema.isReference(member)) {
+          return variantConstrainsDiscriminator({ variant: member as SchemaObject, propertyName, seen })
+        }
+        if (seen.has(member.$ref)) return false
+        seen.add(member.$ref)
+        const resolved = resolveRefSilent(member.$ref)
+        return resolved ? variantConstrainsDiscriminator({ variant: resolved, propertyName, seen }) : false
+      })
+    }
+
+    /**
+     * Implicit OpenAPI discriminator value for a `$ref` member of a union that declares a
+     * discriminator but no `mapping`: the referenced schema's own name. Returns `null` when the
+     * member is not a ref, when the variant cannot be resolved, or when the variant already pins
+     * the discriminator itself, so plain unions and variants carrying their own literal are left
+     * untouched.
+     */
+    function implicitDiscriminantValue(member: unknown): string | null {
+      if (!discriminator || discriminator.mapping || !dialect.schema.isReference(member)) return null
+
+      const value = extractRefName(member.$ref)
+      if (!value) return null
+
+      const variant = resolveRefSilent(member.$ref)
+      if (!variant || variantConstrainsDiscriminator({ variant, propertyName: discriminator.propertyName, seen: new Set([member.$ref]) })) {
+        return null
+      }
+
+      return value
+    }
+
     const unionMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
     const strategy: 'one' | 'any' = schema.oneOf ? 'one' : 'any'
     const unionBase = {
@@ -354,10 +418,10 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
         })()
       : undefined
 
-    if (sharedPropertiesNode || discriminator?.mapping) {
+    if (sharedPropertiesNode || discriminator) {
       const members = unionMembers.map((s) => {
         const ref = dialect.schema.isReference(s) ? s.$ref : undefined
-        const discriminatorValue = findDiscriminator(discriminator?.mapping, ref)
+        const discriminatorValue = findDiscriminator(discriminator?.mapping, ref) ?? implicitDiscriminantValue(s)
         const memberNode = parseSchema({ schema: s as SchemaObject, name }, rawOptions)
 
         if (!discriminatorValue || !discriminator) {
