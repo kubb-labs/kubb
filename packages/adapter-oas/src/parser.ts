@@ -339,7 +339,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     /**
      * Resolves a local `$ref` against the document without reporting a diagnostic when it is
      * missing. The reporting resolver would flag an otherwise-valid spec as an error during this
-     * speculative discriminator lookup, so an unresolved ref simply yields `null` here.
+     * speculative discriminator lookup, so an unresolved ref yields `null` here.
      */
     function resolveRefSilent($ref: string): SchemaObject | null {
       if (!$ref.startsWith('#')) return null
@@ -381,10 +381,9 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
 
     /**
      * Implicit OpenAPI discriminator value for a `$ref` member of a union that declares a
-     * discriminator but no `mapping`: the referenced schema's own name. Returns `null` when the
-     * member is not a ref, when the variant cannot be resolved, or when the variant already pins
-     * the discriminator itself, so plain unions and variants carrying their own literal are left
-     * untouched.
+     * discriminator but no `mapping`: the referenced schema's own name. Returns `null` for a
+     * non-ref member, an unresolvable variant, or a variant that already pins the discriminator,
+     * so plain unions and self-describing variants keep their original shape.
      */
     function implicitDiscriminantValue(member: unknown): string | null {
       if (!discriminator || discriminator.mapping || !dialect.schema.isReference(member)) return null

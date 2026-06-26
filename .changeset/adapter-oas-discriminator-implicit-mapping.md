@@ -4,6 +4,6 @@
 
 Narrow `oneOf`/`anyOf` discriminated unions that omit a `mapping`.
 
-When a union declares a `discriminator` without a `mapping`, OpenAPI's implicit mapping uses each variant's schema name as the discriminant value. The parser now folds that literal into every `$ref` branch (`Cat & { petType: "Cat" }`), so the generated TypeScript types, Zod schemas, and Faker mocks can narrow on the discriminator field the same way they already do for an explicit `mapping`.
+A `discriminator` without a `mapping` still has a value per branch: OpenAPI takes it from the variant's own schema name. The parser now folds that literal into each `$ref` branch, turning a bare `Cat | Dog` into `(Cat & { petType: "Cat" }) | (Dog & { petType: "Dog" })`. Generated types, Zod schemas, and Faker mocks then narrow on the discriminator field, matching what an explicit `mapping` already produces.
 
-A variant that already pins the discriminator to its own `enum`/`const` is left untouched, since intersecting two different literals would collapse the property to `never`. Unresolvable refs and plain (non-discriminated) unions are unaffected.
+A variant that pins the discriminator to its own `enum` or `const` is left as a plain ref, because intersecting two different literals collapses the property to `never`. Unresolvable refs and plain unions stay untouched.
