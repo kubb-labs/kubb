@@ -184,8 +184,11 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
           const schemaRef = narrowSchema(schemaNode, 'ref')
           if (!schemaRef?.ref) return null
 
-          const rawName = extractRefName(schemaRef.ref)
-          const schemaName = nameMapping.get(rawName) ?? rawName
+          // `nameMapping` is keyed by the full component pointer (e.g. `#/components/schemas/Order`),
+          // so look it up with the raw `$ref`. Collision-renamed schemas (`Order` -> `OrderSchema`)
+          // only resolve through this map; falling back to the bare segment would import a file that
+          // the writer never emitted.
+          const schemaName = nameMapping.get(schemaRef.ref) ?? extractRefName(schemaRef.ref)
           const result = resolve(schemaName)
           if (!result) return null
 
