@@ -95,7 +95,14 @@ export function defineNode<TNode extends BaseNode, TInput = Omit<TNode, 'kind'>,
 
   function create(input: TInput): TNode {
     const base = build ? build(input) : input
-    return { ...defaults, ...(base as object), kind } as TNode
+    // `kind` is written first so the discriminant lands at a fixed in-object offset for every node
+    // of this kind. Hot dispatch paths (`transform`, `walk`, the parser printers) read `node.kind`
+    // constantly; a trailing-only `kind` floats its offset with each node's field count and turns
+    // those reads megamorphic. The post-spread reassignment keeps `kind` authoritative when an input
+    // carries a (wrong) `kind`: it overwrites the offset-0 slot in place without reshaping the node.
+    const node = { kind, ...defaults, ...(base as object) } as TNode
+    node.kind = kind
+    return node
   }
 
   return { kind, create, is: isKind<TNode>(kind), children, visitorKey }
