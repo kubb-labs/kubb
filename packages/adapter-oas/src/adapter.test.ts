@@ -143,4 +143,31 @@ describe('adapterOas.getImports', () => {
 
     expect(imports).toMatchObject([{ kind: 'Import', name: ['PetType'], path: './pet.ts' }])
   })
+
+  it('resolves a $ref to a collision-renamed component name', async () => {
+    const adapter = adapterOas()
+
+    // schemas/Order and requestBodies/Order collide, so getSchemas renames the schema OrderSchema.
+    await adapter.parse({
+      type: 'data',
+      data: {
+        openapi: '3.0.0',
+        info: { title: 'test', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: { Order: { type: 'object', properties: { id: { type: 'string' } } } },
+          requestBodies: {
+            Order: { description: 'body', content: { 'application/json': { schema: { type: 'object' } } } },
+          },
+        },
+      },
+    })
+
+    const imports = adapter.getImports(
+      ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Order', name: 'Order' }),
+      (schemaName) => ({ name: schemaName, path: `./${schemaName}.ts` }),
+    )
+
+    expect(imports).toMatchObject([{ kind: 'Import', name: ['OrderSchema'], path: './OrderSchema.ts' }])
+  })
 })

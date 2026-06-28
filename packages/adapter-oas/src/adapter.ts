@@ -184,8 +184,9 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
           const schemaRef = narrowSchema(schemaNode, 'ref')
           if (!schemaRef?.ref) return null
 
-          const rawName = extractRefName(schemaRef.ref)
-          const schemaName = nameMapping.get(rawName) ?? rawName
+          // `nameMapping` is keyed by the full `$ref` path, so look up the collision-resolved name
+          // by `schemaRef.ref` first; fall back to the short ref name for refs with no mapping.
+          const schemaName = nameMapping.get(schemaRef.ref) ?? extractRefName(schemaRef.ref)
           const result = resolve(schemaName)
           if (!result) return null
 
