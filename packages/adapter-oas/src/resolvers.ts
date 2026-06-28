@@ -293,8 +293,10 @@ export function flattenSchema(schema: SchemaObject | null): SchemaObject | null 
   if (allOfFragments.some((item) => isReference(item))) return schema
   if (allOfFragments.some(hasStructuralKeywords)) return schema
 
-  const merged: SchemaObject = { ...schema }
-  delete merged.allOf
+  // Destructure `allOf` out instead of `delete merged.allOf`: a `delete` transitions the freshly
+  // spread object into V8 dictionary (slow) mode, and this runs per `allOf` schema during parsing.
+  const { allOf: _allOf, ...rest } = schema
+  const merged = rest as SchemaObject
 
   for (const fragment of allOfFragments) {
     for (const [key, value] of Object.entries(fragment)) {
