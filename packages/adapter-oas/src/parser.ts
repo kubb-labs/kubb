@@ -164,6 +164,26 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
   const resolvedRefCache = new Map<string, ast.SchemaNode | null>()
 
   /**
+   * Memoized record of whether a `$ref` path resolves to a node the document actually defines.
+   * A circular ref still resolves to an existing target, so this stays `true` for cycles and only
+   * goes `false` for a `$ref` that points at a component the spec never declares.
+   */
+  const refExistence = new Map<string, boolean>()
+
+  function refExists(refPath: string): boolean {
+    if (!refExistence.has(refPath)) {
+      let exists = false
+      try {
+        exists = !!dialect.schema.resolveRef(document, refPath)
+      } catch {
+        exists = false
+      }
+      refExistence.set(refPath, exists)
+    }
+    return refExistence.get(refPath) ?? false
+  }
+
+  /**
    * Converts a `$ref` schema into a `RefSchemaNode`.
    *
    * The resolved schema is stored in `node.schema`. Usage-site sibling fields
@@ -189,6 +209,18 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
         resolvedRefCache.set(refPath, resolvedSchema)
       }
       resolvedSchema = resolvedRefCache.get(refPath) ?? null
+    }
+
+    // A `$ref` to a component the document never defines (a malformed spec) would otherwise emit an
+    // import to a module that is never generated, leaving the output uncompilable. Fall back to
+    // `unknown` so the rest of the schema still resolves. Only do this for a document that declares a
+    // component registry — a registry-less fragment (e.g. a minimal `parseSchema` call) parses refs
+    // leniently, since the target is expected to live outside the fragment.
+    if (refPath && document.components && !refExists(refPath)) {
+      return ast.factory.createSchema({
+        ...buildSchemaNode(schema, name, nullable, defaultValue),
+        type: 'unknown',
+      })
     }
 
     return ast.factory.createSchema({
