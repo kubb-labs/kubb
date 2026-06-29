@@ -30,6 +30,7 @@
     "adapter-oas-schema-dialect",
     "adapter-oas-server-object-discriminator-rename",
     "adapter-oas-target-openapi-31",
+    "adapter-oas-unresolvable-ref-fallback",
     "add-adapter-document-field",
     "add-ast-dispatch-helper",
     "add-claude-code-plugin",
