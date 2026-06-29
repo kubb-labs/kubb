@@ -5,20 +5,26 @@
 '@kubb/ast': patch
 ---
 
-Keep the code-generation hot paths on V8's optimized tier for large specs.
+Faster code generation with less allocation churn on large specs.
 
-Profiling code generation with [`@e18e/deopt`](https://github.com/e18e/deopt) showed the node
+Profiling with [`@e18e/deopt`](https://github.com/e18e/deopt) and Node's GC tracing showed the node
 factory, the `transform`/`collect` visitors, and the TypeScript printer falling off V8's fast path
-on big specs. `defineNode` now writes the `kind` discriminant at a fixed object offset, so the
-`node.kind` reads that drive every visitor and printer dispatch stay monomorphic instead of going
-megamorphic. `transform` and `collect` thread the visitor through the recursion rather than
-rebuilding an options object per node, and `extractStringsFromNodes` and `printSource` run as flat
-loops instead of `map().filter().join()` chains.
+and allocating more than they needed to. The fixes are behavior-preserving and produce identical
+output.
 
-The OpenAPI adapter and barrel plugin pick up two smaller fixes from the same profiling pass.
-`flattenSchema` destructures `allOf` out instead of `delete`-ing it, which kept the merged schema in
-V8's fast property mode, and the barrel plugin's excluded-path check loops over the prefix set
-directly instead of allocating an iterator through `.values().some()`.
+`defineNode` writes the `kind` discriminant at a fixed object offset, so the `node.kind` reads that
+drive every visitor and printer dispatch stay monomorphic. `transform` and `collect` thread the
+visitor through the recursion instead of rebuilding an options object per node, and `transform`
+rebuilds an array child only once a descendant actually changes, so unchanged subtrees keep their
+original arrays and allocate nothing. `walk` collects child promises in a single array rather than
+two. `extractStringsFromNodes` and `printSource` run as flat loops instead of `map().filter().join()`
+chains.
 
-Same output and behavior throughout. About 20% faster on the transform-and-print path in local
-benchmarks, with the build pipeline unchanged.
+`createFile` no longer builds the source string or the local-name set for files that declare no
+imports, since import resolution is their only consumer, and it extracts the source in one pass
+instead of wrapping each code node in a throwaway array. The OpenAPI adapter drops a `delete` that
+forced dictionary mode in `flattenSchema`, and the barrel plugin loops over its prefix set directly
+instead of allocating an iterator through `.values().some()`.
+
+In local benchmarks this runs about 16 to 17% faster on both the transform-and-print path and the
+file-build path, with fewer garbage-collection cycles and the same retained memory.
