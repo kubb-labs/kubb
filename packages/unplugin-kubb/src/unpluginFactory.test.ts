@@ -18,6 +18,9 @@ function getPluginOptions(options: KubbUnpluginOptions) {
   return options
 }
 
+// unplugin@3's UnpluginContextMeta requires a `versions` map alongside `framework`.
+const viteMeta = { framework: 'vite', versions: {} } as const
+
 function createBuildContext(): UnpluginBuildContext {
   return {
     addWatchFile: vi.fn(),
@@ -102,7 +105,7 @@ describe('unpluginFactory', () => {
       plugins: [plugin],
       storage,
     } satisfies UserConfig
-    const pluginOptions = getPluginOptions(unpluginFactory({ config }, { framework: 'vite' }))
+    const pluginOptions = getPluginOptions(unpluginFactory({ config }, viteMeta))
 
     await pluginOptions.buildStart?.call(createBuildContext())
 
@@ -119,7 +122,7 @@ describe('unpluginFactory', () => {
       adapter: createMockedAdapter(),
       storage,
     } satisfies UserConfig
-    const pluginOptions = getPluginOptions(unpluginFactory({ config }, { framework: 'vite' }))
+    const pluginOptions = getPluginOptions(unpluginFactory({ config }, viteMeta))
 
     await pluginOptions.buildStart?.call(createBuildContext())
 
@@ -141,7 +144,7 @@ describe('unpluginFactory', () => {
       adapter: createMockedAdapter(),
       plugins: [plugin],
     } satisfies UserConfig
-    const pluginOptions = getPluginOptions(unpluginFactory({ config }, { framework: 'vite' }))
+    const pluginOptions = getPluginOptions(unpluginFactory({ config }, viteMeta))
 
     await expect(pluginOptions.buildStart?.call(createBuildContext())).rejects.toThrow('[unplugin-kubb]')
   })
