@@ -467,8 +467,8 @@ export function getSchemas(document: Document, { contentType }: GetSchemasOption
     let hasMultipleSources = false
     if (!isSingle) {
       const firstSource = items[0]!.source
-      for (let i = 1; i < items.length; i++) {
-        if (items[i]!.source !== firstSource) {
+      for (const item of items) {
+        if (item.source !== firstSource) {
           hasMultipleSources = true
           break
         }
