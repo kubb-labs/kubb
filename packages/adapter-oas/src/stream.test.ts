@@ -122,13 +122,14 @@ describe('preScan', () => {
   })
 
   it('detects circular schema names', async () => {
-    const document = await parseFromConfig({ type: 'data', data: minimalSpec })
-    const { parseSchema } = createSchemaParser({ document })
-
     const circularSchemas: Record<string, SchemaObject> = {
       Cat: { type: 'object', properties: { enemy: { $ref: '#/components/schemas/Dog' } } },
       Dog: { type: 'object', properties: { enemy: { $ref: '#/components/schemas/Cat' } } },
     }
+    // The parser document must declare the schemas it scans, as it does in real generation — a `$ref`
+    // to a component the document never defines now resolves to `unknown` rather than a ref node.
+    const document = await parseFromConfig({ type: 'data', data: { ...minimalSpec, components: { schemas: circularSchemas } } })
+    const { parseSchema } = createSchemaParser({ document })
 
     const { circularNames } = preScan({
       schemas: circularSchemas,

@@ -179,6 +179,27 @@ describe('buildAst', () => {
     })
   })
 
+  describe('$ref resolution', () => {
+    const document = {
+      openapi: '3.0.0',
+      info: { title: '', version: '' },
+      paths: {},
+      components: { schemas: { Pet: { type: 'object', properties: { id: { type: 'integer' } } } } },
+    } as Document
+
+    it('resolves a $ref to a defined component as a ref node', () => {
+      const node = parseSchema({ document }, { schema: { $ref: '#/components/schemas/Pet' } })
+
+      expect(node.type).toBe('ref')
+    })
+
+    it('falls back to unknown for a $ref to a component the document never defines', () => {
+      const node = parseSchema({ document }, { schema: { $ref: '#/components/schemas/Missing' } })
+
+      expect(node.type).toBe('unknown')
+    })
+  })
+
   describe('operations', () => {
     it('converts all operations', async () => {
       const oas = await buildMinimalOas()
