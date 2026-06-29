@@ -2,18 +2,18 @@ packages:
   - packages/*
   - internals/*
 allowBuilds:
-  '@parcel/watcher': true
+  "@parcel/watcher": true
   core-js: true
   es5-ext: true
   esbuild: true
   msw: true
 catalog:
-  '@types/node': ^22.20.0
-  '@vitest/coverage-v8': ^4.1.9
-  '@vitest/ui': ^4.1.9
-  oxfmt: ^0.54.0
+  "@types/node": ^22.20.0
+  "@vitest/coverage-v8": ^4.1.9
+  "@vitest/ui": ^4.1.9
+  oxfmt: ^0.56.0
   oxlint: ^1.71.0
-  'tinyexec': ^1.2.4
+  "tinyexec": ^1.2.4
   tsdown: ^0.22.3
   typescript: ^6.0.3
   vitest: ^4.1.9
