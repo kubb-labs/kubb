@@ -1,5 +1,31 @@
 # Changelog
 
+## v5.0.0-beta.77 — Jun 29, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Fix `getImports` importing the un-renamed name for collision-renamed schemas.
+  
+  When two component schemas collide (case-insensitively, or across sources like `schemas` vs `requestBodies`), the schema is renamed (`Order` -> `OrderSchema`) and recorded in `nameMapping`. `getImports` looked that map up with the bare ref segment (`Order`), but its keys are full component pointers (`#/components/schemas/Order`), so every lookup missed and a `$ref` to a renamed schema imported the original name and path — a file the writer never emitted (`TS2307`). The lookup now uses the full `$ref`, so importers stay in sync with the renamed files. ([#3681](https://github.com/kubb-labs/kubb/pull/3681), [`972fba0`](https://github.com/kubb-labs/kubb/commit/972fba03f85c2a3ee0c6f0764e6ff82e2f4f94bb))
+
+### @kubb/parser-ts
+
+#### Bug Fixes
+
+- Faster code generation with less allocation churn on large specs.
+  
+  Profiling with [`@e18e/deopt`](https://github.com/e18e/deopt) and GC tracing turned up generation hot paths that kept falling off V8's fast path. The node factory now writes `kind` at a fixed offset so visitor and printer dispatch stays monomorphic, `transform` rebuilds an array only once a child actually changes, and `createFile` skips building the source text for files with no imports. A dictionary-mode `delete`, an iterator allocation, and a few `map().filter().join()` chains are gone too.
+  
+  Output is unchanged. Local benchmarks run about 16 to 17% faster with fewer GC cycles. ([#3683](https://github.com/kubb-labs/kubb/pull/3683), [`9bd4b7f`](https://github.com/kubb-labs/kubb/commit/9bd4b7f641e772108656cfa8950fa3c780cf7f2e))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.76 — Jun 26, 2026
 
 ### @kubb/ast
