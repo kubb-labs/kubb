@@ -389,10 +389,16 @@ export function printSource(node: SourceNode): string {
 
   if (!nodes || nodes.length === 0) return ''
 
-  return nodes
-    .map((child) => printCodeNode(child as CodeNode))
-    .filter(Boolean)
-    .join('\n\n')
+  // Imperative join. `map().filter().join()` allocated a closure and two arrays per source, and
+  // this runs once per source fragment during printing, so it surfaced in the deopt churn trace.
+  let result = ''
+  for (const child of nodes) {
+    const text = printCodeNode(child as CodeNode)
+    if (!text) continue
+    result = result ? `${result}\n\n${text}` : text
+  }
+
+  return result
 }
 
 /**

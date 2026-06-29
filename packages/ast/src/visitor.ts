@@ -302,7 +302,7 @@ const visitorKeysByKind = VISITOR_KEYS as Record<string, ReadonlyArray<string> |
  * Returns `true` when `value` is an AST node (an object carrying a `kind`).
  */
 function isNode(value: unknown): value is Node {
-  return typeof value === 'object' && value !== null && 'kind' in value
+  return typeof value === 'object' && value !== null && typeof (value as { kind?: unknown }).kind === 'string'
 }
 
 /**
@@ -387,10 +387,14 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
   // run at once. Awaiting each child sequentially here would serialize the whole
   // traversal and make `concurrency` inert. Every visitor callback would run one
   // at a time regardless of the limit.
-  const children = Array.from(getChildren(node, recurse))
-  if (children.length === 0) return
-
-  await Promise.all(children.map((child) => _walk(child, visitor, recurse, limit, node)))
+  // Build the child-walk promises in one pass. The earlier `Array.from(getChildren()).map()`
+  // materialized two arrays per node (the children, then the promises). Collecting straight from
+  // the generator into a single array drops one of them.
+  let pending: Array<Promise<void>> | undefined
+  for (const child of getChildren(node, recurse)) {
+    ;(pending ??= []).push(_walk(child, visitor, recurse, limit, node))
+  }
+  if (pending) await Promise.all(pending)
 }
 
 /**
@@ -429,13 +433,21 @@ export function transform(node: Node, options: TransformOptions): Node {
   const { depth, parent, ...visitor } = options
   const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
 
-  const visited = applyVisitor<Node>(node, visitor, parent) ?? node
-  const rebuilt = transformChildren(visited, options, recurse)
+  // Split the visitor object out once here, then thread it plus `recurse`/`parent` as plain
+  // arguments through the recursion. The previous code re-ran the `...visitor` rest-destructure on
+  // every recursive `transform` call and rebuilt a `{ ...options, parent }` object per node, so the
+  // options shape (which callbacks are present) varied call to call and the hot recursion churned.
+  return transformNode(node, visitor, recurse, parent)
+}
 
-  // Structural sharing: when the visitor and child rebuild both left this node
-  // untouched, return the original reference so callers can detect "nothing
-  // changed" by identity and ancestors can avoid reallocating.
-  return rebuilt
+/**
+ * Visits a single node, then immutably rebuilds its children. Returns the original
+ * reference when neither the visitor nor the child rebuild changed anything, so callers
+ * can detect "nothing changed" by identity and ancestors avoid reallocating.
+ */
+function transformNode(node: Node, visitor: Visitor, recurse: boolean, parent: Node | undefined): Node {
+  const visited = applyVisitor<Node>(node, visitor, parent) ?? node
+  return transformChildren(visited, visitor, recurse)
 }
 
 /**
@@ -443,30 +455,34 @@ export function transform(node: Node, options: TransformOptions): Node {
  * each child node and leaving non-node values (e.g. `additionalProperties: true`) intact.
  * `Schema` children are skipped in shallow mode.
  */
-function transformChildren(node: Node, options: TransformOptions, recurse: boolean): Node {
+function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node {
   if (node.kind === 'Schema' && !recurse) return node
 
   const keys = visitorKeysByKind[node.kind]
   if (!keys) return node
 
   const record = node as unknown as Record<string, unknown>
-  const childOptions = { ...options, parent: node }
   let updates: Record<string, unknown> | undefined
 
   for (const key of keys) {
     if (!(key in record)) continue
     const value = record[key]
     if (Array.isArray(value)) {
-      let changed = false
-      const mapped = value.map((item) => {
-        if (!isNode(item)) return item
-        const next = transform(item, childOptions)
-        if (next !== item) changed = true
-        return next
-      })
-      if (changed) (updates ??= {})[key] = mapped
+      // Rebuild the array lazily: allocate a new array only once a child actually changes, copying
+      // the unchanged prefix at that point. An unchanged array keeps its original reference and
+      // allocates nothing. This also drops the per-array `.map` closure that ran on every node.
+      let mapped: Array<unknown> | undefined
+      for (const [i, item] of value.entries()) {
+        const next = isNode(item) ? transformNode(item, visitor, recurse, node) : item
+        if (mapped) {
+          mapped.push(next)
+          continue
+        }
+        if (next !== item) mapped = [...value.slice(0, i), next]
+      }
+      if (mapped) (updates ??= {})[key] = mapped
     } else if (isNode(value)) {
-      const next = transform(value, childOptions)
+      const next = transformNode(value, visitor, recurse, node)
       if (next !== value) (updates ??= {})[key] = next
     }
   }
@@ -493,11 +509,17 @@ export function* collectLazy<T>(node: Node, options: CollectOptions<T>): Generat
   const { depth, parent, ...visitor } = options
   const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
 
+  // Thread the split-out visitor through the recursion instead of rebuilding `{ ...options, parent }`
+  // for every child, mirroring `transform`. Keeps the recursive object shape stable.
+  yield* collectNode<T>(node, visitor as CollectVisitor<T>, recurse, parent)
+}
+
+function* collectNode<T>(node: Node, visitor: CollectVisitor<T>, recurse: boolean, parent: Node | undefined): Generator<T, void, undefined> {
   const v = applyVisitor<T>(node, visitor, parent)
   if (v != null) yield v
 
   for (const child of getChildren(node, recurse)) {
-    yield* collectLazy(child, { ...options, parent: node })
+    yield* collectNode<T>(child, visitor, recurse, node)
   }
 }
 

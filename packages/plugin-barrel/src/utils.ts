@@ -249,5 +249,11 @@ export function getPluginOutputPrefix(plugin: NormalizedPlugin, config: Config):
  */
 export function isExcludedPath(filePath: string, prefixes: ReadonlySet<string>): boolean {
   const normalized = toPosixPath(filePath)
-  return prefixes.values().some((prefix) => (prefix.endsWith('/') ? normalized.startsWith(prefix) : normalized === prefix))
+  // Plain `for...of` over the Set rather than `.values().some()`: the iterator-helper `some`
+  // allocates an iterator object per call, and this runs once per file during barrel generation.
+  for (const prefix of prefixes) {
+    const matched = prefix.endsWith('/') ? normalized.startsWith(prefix) : normalized === prefix
+    if (matched) return true
+  }
+  return false
 }
