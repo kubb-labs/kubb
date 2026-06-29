@@ -387,10 +387,14 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
   // run at once. Awaiting each child sequentially here would serialize the whole
   // traversal and make `concurrency` inert. Every visitor callback would run one
   // at a time regardless of the limit.
-  const children = Array.from(getChildren(node, recurse))
-  if (children.length === 0) return
-
-  await Promise.all(children.map((child) => _walk(child, visitor, recurse, limit, node)))
+  // Build the child-walk promises in one pass. The earlier `Array.from(getChildren()).map()`
+  // materialized two arrays per node (the children, then the promises); collecting straight from
+  // the generator into a single array drops one of them.
+  let pending: Array<Promise<void>> | undefined
+  for (const child of getChildren(node, recurse)) {
+    ;(pending ??= []).push(_walk(child, visitor, recurse, limit, node))
+  }
+  if (pending) await Promise.all(pending)
 }
 
 /**
@@ -464,14 +468,19 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
     if (!(key in record)) continue
     const value = record[key]
     if (Array.isArray(value)) {
-      let changed = false
-      const mapped = value.map((item) => {
-        if (!isNode(item)) return item
-        const next = transformNode(item, visitor, recurse, node)
-        if (next !== item) changed = true
-        return next
-      })
-      if (changed) (updates ??= {})[key] = mapped
+      // Rebuild the array lazily: allocate a new array only once a child actually changes, copying
+      // the unchanged prefix at that point. An unchanged array keeps its original reference and
+      // allocates nothing. This also drops the per-array `.map` closure that ran on every node.
+      let mapped: Array<unknown> | undefined
+      for (const [i, item] of value.entries()) {
+        const next = isNode(item) ? transformNode(item, visitor, recurse, node) : item
+        if (mapped) {
+          mapped.push(next)
+          continue
+        }
+        if (next !== item) mapped = [...value.slice(0, i), next]
+      }
+      if (mapped) (updates ??= {})[key] = mapped
     } else if (isNode(value)) {
       const next = transformNode(value, visitor, recurse, node)
       if (next !== value) (updates ??= {})[key] = next
