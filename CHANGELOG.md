@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.78 — Jun 29, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Fall back to `unknown` for a `$ref` that points at a component the document never defines.
+  
+  A malformed spec can `$ref` a component (for example `#/components/schemas/AppFeeAllocation`) that is missing from `components.schemas`. The parser used to emit a `ref` node for it anyway, so generators produced an import to a module that was never written and the output failed to compile. Such refs now resolve to an `unknown` node, leaving the surrounding schema usable. Registry-less fragments (a minimal `parseSchema` call with no `components`) keep parsing refs leniently, since the target is expected to live outside the fragment. ([#3685](https://github.com/kubb-labs/kubb/pull/3685), [`a2272a8`](https://github.com/kubb-labs/kubb/commit/a2272a8ae264cfb8cd5b23981d9950f1e76d3122))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.77 — Jun 29, 2026
 
 ### @kubb/adapter-oas
