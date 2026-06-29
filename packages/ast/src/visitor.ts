@@ -388,7 +388,7 @@ async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit:
   // traversal and make `concurrency` inert. Every visitor callback would run one
   // at a time regardless of the limit.
   // Build the child-walk promises in one pass. The earlier `Array.from(getChildren()).map()`
-  // materialized two arrays per node (the children, then the promises); collecting straight from
+  // materialized two arrays per node (the children, then the promises). Collecting straight from
   // the generator into a single array drops one of them.
   let pending: Array<Promise<void>> | undefined
   for (const child of getChildren(node, recurse)) {
