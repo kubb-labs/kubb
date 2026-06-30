@@ -57,9 +57,9 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 ## Features
 
 - Generate from a schema: Kubb produces TypeScript types, type-safe API clients, [TanStack Query](https://github.com/TanStack/query) hooks for React and Vue, [SWR](https://github.com/vercel/swr) hooks, [Zod](https://github.com/colinhacks/zod) validators, [Faker](https://github.com/faker-js/faker) mocks, and [MSW](https://github.com/mswjs/msw) handlers.
+- Generate a typed [axios](https://axios-http.com/) or [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) client with status-keyed results, auth from your security schemes, runtime validation, server-sent events, interceptors, and a swappable transport.
 - Plug in input formats through adapters like [`@kubb/adapter-oas`](https://npmx.dev/package/@kubb/adapter-oas), with TypeScript-first output that runs on Node.js and Bun.
 - Pick what you generate from the [plugin ecosystem](https://github.com/kubb-labs/plugins): `plugin-ts`, `plugin-axios`, `plugin-fetch`, `plugin-react-query`, `plugin-vue-query`, `plugin-swr`, `plugin-zod`, `plugin-faker`, `plugin-msw`, `plugin-cypress`, `plugin-redoc`, and `plugin-mcp`. Enable only the ones a project needs.
-- Choose your HTTP client: use the axios or fetch presets, or point at a custom client module so generated requests run through your own wrapper.
 - Control the generated tree: group files by tag, emit barrel exports, and include or exclude operations to keep the output focused.
 - Build your own output with custom plugins, adapters, and the JSX-based renderer (`@kubb/renderer-jsx`) for full control over what lands on disk.
 - Hook into your bundler with `unplugin-kubb`, which runs generation inside [Vite](https://github.com/vitejs/vite), [Nuxt](https://github.com/nuxt/nuxt), [Astro](https://github.com/withastro/astro), [webpack](https://github.com/webpack/webpack), and other build tools.
