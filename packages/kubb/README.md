@@ -56,15 +56,14 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 
 ## Features
 
-- Generate from a schema: Kubb produces TypeScript types, type-safe API clients, [TanStack Query](https://github.com/TanStack/query) hooks for React and Vue, [SWR](https://github.com/vercel/swr) hooks, [Zod](https://github.com/colinhacks/zod) validators, [Faker](https://github.com/faker-js/faker) mocks, and [MSW](https://github.com/mswjs/msw) handlers.
-- Plug in input formats through adapters like [`@kubb/adapter-oas`](https://npmx.dev/package/@kubb/adapter-oas), with TypeScript-first output that runs on Node.js and Bun.
-- Pick what you generate from the [plugin ecosystem](https://github.com/kubb-labs/plugins): `plugin-ts`, `plugin-axios`, `plugin-fetch`, `plugin-react-query`, `plugin-vue-query`, `plugin-swr`, `plugin-zod`, `plugin-faker`, `plugin-msw`, `plugin-cypress`, `plugin-redoc`, and `plugin-mcp`. Enable only the ones a project needs.
-- Choose your HTTP client: use the axios or fetch presets, or point at a custom client module so generated requests run through your own wrapper.
-- Control the generated tree: group files by tag, emit barrel exports, and include or exclude operations to keep the output focused.
-- Build your own output with custom plugins, adapters, and the JSX-based renderer (`@kubb/renderer-jsx`) for full control over what lands on disk.
-- Hook into your bundler with `unplugin-kubb`, which runs generation inside [Vite](https://github.com/vitejs/vite), [Nuxt](https://github.com/nuxt/nuxt), [Astro](https://github.com/withastro/astro), [webpack](https://github.com/webpack/webpack), and other build tools.
-- Drive generation from AI tools through the built-in Model Context Protocol (MCP) server, which works with [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible assistants.
-- Generate from inside [Claude Code](https://kubb.dev/docs/5.x/ai/claude) with the Kubb plugin, which adds slash commands, a config skill, and an agent that run the Kubb CLI.
+- Generate TypeScript types, type-safe clients, [TanStack Query](https://github.com/TanStack/query) and [SWR](https://github.com/vercel/swr) hooks, [Zod](https://github.com/colinhacks/zod) validators, [Faker](https://github.com/faker-js/faker) mocks, and [MSW](https://github.com/mswjs/msw) handlers from one schema.
+- Generate a typed [axios](https://axios-http.com/) or [Fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) client with status-keyed results, auth, validation, file uploads, server-sent events, interceptors, and a swappable transport.
+- Read OpenAPI 2.0, 3.0, and 3.1 through adapters like [`@kubb/adapter-oas`](https://npmx.dev/package/@kubb/adapter-oas), with output for Node.js and Bun.
+- Enable only the [plugins](https://github.com/kubb-labs/plugins) you need: `plugin-ts`, `plugin-axios`, `plugin-fetch`, `plugin-react-query`, `plugin-vue-query`, `plugin-swr`, `plugin-zod`, `plugin-faker`, `plugin-msw`, `plugin-cypress`, `plugin-redoc`, `plugin-mcp`.
+- Shape the output by grouping files by tag, including or excluding operations, and writing to disk, memory, or a custom storage backend.
+- Build your own output with custom plugins, adapters, and the JSX renderer (`@kubb/renderer-jsx`).
+- Run generation in your bundler with `unplugin-kubb` for [Vite](https://github.com/vitejs/vite), [Nuxt](https://github.com/nuxt/nuxt), [Astro](https://github.com/withastro/astro), [webpack](https://github.com/webpack/webpack), and more.
+- Drive generation from AI tools over the built-in MCP server ([Claude](https://claude.ai), [Cursor](https://cursor.sh)) or inside [Claude Code](https://kubb.dev/docs/5.x/ai/claude).
 
 ## Supporting Kubb
 
