@@ -36,22 +36,18 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
 }
 
 /**
- * Defines a typed logger. The `install` method subscribes to lifecycle events
- * on the shared emitter and forwards them to the logger's destination.
+ * Type-safe helper for authoring a {@link Logger}.
  *
  * @example
  * ```ts
- * import { defineLogger } from '@kubb/cli'
- *
  * export const myLogger = defineLogger({
  *   name: 'my-logger',
  *   install(context) {
  *     context.on('kubb:info', ({ message }) => console.log('ℹ', message))
- *     context.on('kubb:error', ({ error }) => console.error('✗', error.message))
  *   },
  * })
  * ```
  */
-export function defineLogger<Options extends LoggerOptions = LoggerOptions>(logger: Logger<Options>): Logger<Options> {
+export function defineLogger<TOptions extends LoggerOptions = LoggerOptions>(logger: Logger<TOptions>): Logger<TOptions> {
   return logger
 }
