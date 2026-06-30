@@ -1,5 +1,13 @@
 # Changelog
 
+## v5.0.0-beta.79 — Jun 30, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Cleanup defineLogger
+
 ## v5.0.0-beta.78 — Jun 29, 2026
 
 ### @kubb/adapter-oas
