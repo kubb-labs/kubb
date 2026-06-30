@@ -147,7 +147,12 @@ export async function getReleaseLine(changeset, type, options = {}) {
   if (seen.has(changeset.id)) return ''
   seen.add(changeset.id)
 
-  const line = await changelogGithub.getReleaseLine(changeset, type, options)
+  let line
+  try {
+    line = await changelogGithub.getReleaseLine(changeset, type, options)
+  } catch {
+    line = `- ${changeset.summary}`
+  }
   const packages = Object.fromEntries(changeset.releases.map((r) => [r.name, r.type]))
 
   pending.push({ packages, line, options: { ...options, repo: options.repo ?? DEFAULTS.repo } })
