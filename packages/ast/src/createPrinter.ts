@@ -20,6 +20,13 @@ type PrinterHandlerContext<TOutput, TOptions extends object> = {
    */
   transform: (node: SchemaNode) => TOutput | null
   /**
+   * Run the printer's built-in handler for the node, ignoring any override for its type.
+   * Inside an override, `this.base(node)` returns what the printer would have emitted,
+   * so the override can wrap it instead of re-implementing the handler. Nested nodes
+   * still dispatch through the overrides.
+   */
+  base: (node: SchemaNode) => TOutput | null
+  /**
    * Options for this printer instance.
    */
   options: TOptions
@@ -141,6 +148,14 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
     [K in SchemaType]: PrinterHandler<T['output'], T['options'], K>
   }>
   /**
+   * User-supplied handler overrides. An override wins over the matching `nodes` handler,
+   * and can call `this.base(node)` to reuse the handler it replaced. Pass overrides here
+   * instead of spreading them into `nodes`, otherwise `this.base` cannot find the original.
+   */
+  overrides?: Partial<{
+    [K in SchemaType]: PrinterHandler<T['output'], T['options'], K>
+  }>
+  /**
    * Optional root-level print override. When provided, becomes the public `printer.print`.
    * Use `this.transform(node)` inside this function to dispatch to the node-level handlers (`nodes`),
    * not the override itself, so recursion is safe.
@@ -159,6 +174,8 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  * - `options` stored on the returned printer instance.
  * - `nodes` map of `SchemaType` → handler. Handlers return the rendered
  *   output (a string, a TypeScript AST node, ...) for that schema type.
+ * - `overrides` (optional), user-supplied handlers that win over `nodes`.
+ *   An override can call `this.base(node)` to reuse the handler it replaced.
  * - `print` (optional), top-level override exposed as `printer.print`.
  *   Use `this.transform(node)` inside it to dispatch to `nodes` recursively.
  *
@@ -188,11 +205,18 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  */
 export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOptions>(build: PrinterBuilder<T>): (options?: T['options']) => Printer<T> {
   return (options) => {
-    const { name, options: resolvedOptions, nodes, print: printOverride } = build(options ?? ({} as T['options']))
+    const { name, options: resolvedOptions, nodes, overrides, print: printOverride } = build(options ?? ({} as T['options']))
+    const merged = overrides ? { ...nodes, ...overrides } : nodes
 
     const context = {
       options: resolvedOptions,
       transform: (node: SchemaNode): T['output'] | null => {
+        const handler = merged[node.type]
+        if (!handler) return null
+
+        return (handler as (this: typeof context, node: SchemaNode) => T['output'] | null).call(context, node)
+      },
+      base: (node: SchemaNode): T['output'] | null => {
         const handler = nodes[node.type]
         if (!handler) return null
 
