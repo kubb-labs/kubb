@@ -28,7 +28,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
         with:
-          node-version: '22'
+          node-version: '22.22.3'
 
       - name: Build
         run: pnpm run build
