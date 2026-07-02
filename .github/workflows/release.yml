@@ -28,7 +28,8 @@ jobs:
       pull-requests: write
       issues: write
     outputs:
-      released: ${{ steps.changesets.outputs.staged == 'true' }}
+      staged: ${{ steps.changesets.outputs.staged }}
+      staged_packages: ${{ steps.changesets.outputs.staged_packages }}
     steps:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -48,6 +49,10 @@ jobs:
       # When pending changesets exist, changesets/action opens the Version
       # Packages PR. When versions are already bumped, it runs the publish
       # command, which stages the workspace via `scripts/release.mjs`.
+      # createGithubReleases is off here on purpose: a staged version isn't
+      # public yet, so nothing should announce it until the `promote` job
+      # below confirms a maintainer approved it on npm and it's actually
+      # live.
       - name: Release
         id: changesets
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
@@ -57,10 +62,19 @@ jobs:
           commit: 'ci(changesets): version packages'
           title: 'ci(changesets): version packages'
           setupGitUser: false
+          createGithubReleases: false
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Canary is an intentional exception to staged publishing: it's meant
+      # to be automatic and immediate on every main push, and its
+      # 0.0.0-canary-<ts> base under the `canary` tag can never satisfy a
+      # normal semver range against latest/beta/rc, bounding the blast
+      # radius of a compromised publish here. If the npm Trusted Publisher
+      # for these packages is ever locked to stage-only (registry-side
+      # hardening, tracked separately), this step will need its own
+      # non-stage-restricted publisher entry or it will start failing.
       - name: Publish canary
         if: ${{ steps.changesets.outputs.staged != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         continue-on-error: true
@@ -77,10 +91,56 @@ jobs:
           pnpm run build
           pnpm exec changeset publish --tag canary
 
+  promote:
+    name: Promote staged release
+    needs: [release]
+    if: ${{ needs.release.outputs.staged == 'true' }}
+    environment:
+      name: npm-release-approval
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # gh release create
+    outputs:
+      approved: ${{ steps.verify.outputs.approved }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@61cdd3211cf116b44033357a5baff45dc28f0ca5 # main
+        with:
+          node-version: '22.22.3'
+          cache: 'false'
+
+      # A green environment review only means a maintainer clicked approve,
+      # not that they actually ran `npm stage approve`. This confirms the
+      # staged versions are really live on the registry before anything
+      # public fires.
+      - name: Verify staged versions are live on npm
+        id: verify
+        run: node scripts/verifyRegistry.mjs
+        env:
+          STAGED_PACKAGES: ${{ needs.release.outputs.staged_packages }}
+
+      - name: Create GitHub Releases
+        shell: bash
+        env:
+          STAGED_PACKAGES: ${{ needs.release.outputs.staged_packages }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$STAGED_PACKAGES" | jq -c '.[]' | while read -r pkg; do
+            name=$(echo "$pkg" | jq -r '.name')
+            version=$(echo "$pkg" | jq -r '.version')
+            gh release create "${name}@${version}" \
+              --title "${name}@${version}" \
+              --notes "Published via \`npm stage approve\`. See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)."
+          done
+
   notify:
     name: Send Discord Notification
-    needs: [release]
-    if: ${{ needs.release.outputs.released == 'true' }}
+    needs: [release, promote]
+    if: ${{ needs.promote.outputs.approved == 'true' }}
     runs-on: ubuntu-latest
     permissions: {}
     steps:
@@ -113,8 +173,8 @@ jobs:
   # not needed as the sync-changelog-docs will already to the trick
   # deploy-platform:
   #   name: Dispatch content-updated to platform
-  #   needs: [release]
-  #   if: ${{ needs.release.outputs.released == 'true' }}
+  #   needs: [release, promote]
+  #   if: ${{ needs.promote.outputs.approved == 'true' }}
   #   runs-on: ubuntu-latest
   #   permissions: {}
   #   steps:
@@ -127,8 +187,8 @@ jobs:
 
   sync-changelog-docs:
     name: Dispatch changelog-sync to docs
-    needs: [release]
-    if: ${{ needs.release.outputs.released == 'true' }}
+    needs: [release, promote]
+    if: ${{ needs.promote.outputs.approved == 'true' }}
     runs-on: ubuntu-latest
     permissions: {}
     steps:

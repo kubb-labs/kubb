@@ -25,13 +25,11 @@ function capture(cmd, args) {
 
 // Parse pnpm stage publish output into [{ name, version }]. Prefers --json
 // payload, falls back to scanning text output for `+ <name>@<version>` lines.
-function parseStaged(output) {
+export function parseStaged(output) {
   try {
     const parsed = JSON.parse(output)
     if (Array.isArray(parsed)) {
-      return parsed
-        .filter((entry) => entry?.name && entry?.version)
-        .map((entry) => ({ name: entry.name, version: entry.version }))
+      return parsed.filter((entry) => entry?.name && entry?.version).map((entry) => ({ name: entry.name, version: entry.version }))
     }
   } catch {}
 
@@ -50,14 +48,11 @@ if (tag) stageArgs.push('--tag', tag)
 const output = capture('pnpm', stageArgs)
 const staged = parseStaged(output)
 
-// Emit the marker changesets/action listens for so it creates a GitHub Release
-// per staged package. Format matches @changesets/cli publish output.
-for (const pkg of staged) {
-  console.log(`🦋  New tag:  ${pkg.name}@${pkg.version}`)
-}
-
-// Create annotated git tags locally for the new versions, then push them so
-// the Release created above has a tag to point at on the remote.
+// The only tag-push path: createGithubReleases is off on the changesets/action
+// step, so the action no longer pushes tags itself. Tags are safe to push at
+// stage time, since they're git refs, not a public npm-installability signal,
+// and give the `promote` job's `gh release create` step something to point at
+// once npm approval is confirmed.
 run('pnpm', ['exec', 'changeset', 'tag'])
 run('git', ['push', '--tags'])
 
@@ -66,4 +61,5 @@ run('git', ['push', '--tags'])
 // fire instead — that's the intent for ordinary main pushes.
 if (staged.length > 0 && process.env.GITHUB_OUTPUT) {
   appendFileSync(process.env.GITHUB_OUTPUT, 'staged=true\n')
+  appendFileSync(process.env.GITHUB_OUTPUT, `staged_packages=${JSON.stringify(staged)}\n`)
 }
