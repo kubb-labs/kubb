@@ -1,6 +1,6 @@
 {
   "name": "@kubb/ast",
-  "version": "5.0.0-beta.79",
+  "version": "5.0.0-beta.80",
   "description": "Spec-agnostic AST layer for Kubb. Defines the node tree, visitor pattern, factory functions, and type guards used across all code generation plugins.",
   "keywords": [
     "ast",

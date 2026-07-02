@@ -1,5 +1,37 @@
 # Changelog
 
+## v5.0.0-beta.80 — Jul 2, 2026
+
+### @kubb/ast
+
+#### Features
+
+- Let a printer node override reuse the handler it replaces. A printer builder can now pass user handlers through the new `overrides` field instead of spreading them into `nodes`, and an override can call `this.base(node)` to get the built-in output and wrap it:
+  
+  ```ts
+  pluginZod({
+    printer: {
+      nodes: {
+        object(node) {
+          return `${this.base(node)}.openapi(${JSON.stringify({ description: node.description })})`
+        },
+      },
+    },
+  })
+  ``` ([#3689](https://github.com/kubb-labs/kubb/pull/3689), [`ba518fa`](https://github.com/kubb-labs/kubb/commit/ba518fa20bce515a3533c69ce17714a913ec8221))
+
+### @kubb/parser-md
+
+#### Bug Fixes
+
+- Correct the `parserMd` JSDoc: the parser runs by default next to `parserTs` and `parserTsx` instead of being opt-in, and a custom `parsers` array replaces the default set. ([#3689](https://github.com/kubb-labs/kubb/pull/3689), [`a60888d`](https://github.com/kubb-labs/kubb/commit/a60888d6607baff0231eeb410bca797c22f5c00f))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.79 — Jun 30, 2026
 
 ### @kubb/cli
