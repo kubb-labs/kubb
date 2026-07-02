@@ -128,6 +128,100 @@ describe('createPrinter', () => {
     expect(zodPrinter().print(node)).toBe('z.union([z.string(), z.number()])')
   })
 
+  it('dispatches overrides before nodes handlers', () => {
+    type P = PrinterFactoryOptions<'zod', object, string>
+
+    const zodPrinter = createPrinter<P>(() => ({
+      name: 'zod',
+      options: {},
+      nodes: {
+        string() {
+          return 'z.string()'
+        },
+      },
+      overrides: {
+        string() {
+          return 'z.string().trim()'
+        },
+      },
+    }))
+
+    expect(zodPrinter().print(createSchema({ type: 'string' }))).toBe('z.string().trim()')
+  })
+
+  it('lets an override wrap the replaced handler via this.base()', () => {
+    type P = PrinterFactoryOptions<'zod', object, string>
+
+    const zodPrinter = createPrinter<P>(() => ({
+      name: 'zod',
+      options: {},
+      nodes: {
+        string() {
+          return 'z.string()'
+        },
+      },
+      overrides: {
+        string(node) {
+          return `${this.base(node)}.describe('wrapped')`
+        },
+      },
+    }))
+
+    expect(zodPrinter().print(createSchema({ type: 'string' }))).toBe("z.string().describe('wrapped')")
+  })
+
+  it('dispatches nested nodes through overrides when a base handler recurses', () => {
+    type P = PrinterFactoryOptions<'zod', object, string>
+
+    const zodPrinter = createPrinter<P>(() => ({
+      name: 'zod',
+      options: {},
+      nodes: {
+        string() {
+          return 'z.string()'
+        },
+        object(node) {
+          const props = node.properties.map((p) => `${p.name}: ${this.transform(p.schema)}`).join(', ')
+          return `z.object({ ${props} })`
+        },
+      },
+      overrides: {
+        string(node) {
+          return `${this.base(node)}.min(1)`
+        },
+      },
+    }))
+
+    const node = createSchema({
+      type: 'object',
+      properties: [
+        createProperty({
+          name: 'label',
+          schema: createSchema({ type: 'string' }),
+        }),
+      ],
+    })
+
+    expect(zodPrinter().print(node)).toBe('z.object({ label: z.string().min(1) })')
+  })
+
+  it('returns null from this.base() when no base handler exists for the type', () => {
+    type P = PrinterFactoryOptions<'zod', object, string>
+
+    const zodPrinter = createPrinter<P>(() => ({
+      name: 'zod',
+      options: {},
+      nodes: {},
+      overrides: {
+        string(node) {
+          return this.base(node) ?? 'z.string()'
+        },
+      },
+    }))
+
+    expect(zodPrinter().print(createSchema({ type: 'string' }))).toBe('z.string()')
+  })
+
   it('infers the Printer type correctly', () => {
     type P = PrinterFactoryOptions<'zod', object, string>
     const zodPrinter = createPrinter<P>(() => ({

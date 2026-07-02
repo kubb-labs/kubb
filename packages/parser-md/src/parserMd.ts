@@ -17,20 +17,23 @@ export type MdMeta = {
  * markdown (separated by blank lines) and, when `file.meta.frontmatter` is set,
  * prepends a YAML frontmatter envelope produced by `parserMd.print`.
  *
- * Add to the `parsers` array on `defineConfig` to opt in. `parserTs` keeps
- * handling `.ts`/`.js` files, `parserMd` claims `.md`/`.markdown`.
+ * Runs by default next to `parserTs` and `parserTsx`. Add it to a custom
+ * `parsers` array yourself, since a custom list replaces the default set.
+ * `parserTs` keeps handling `.ts`/`.js` files, `parserMd` claims
+ * `.md`/`.markdown`.
  *
  * @example
  * ```ts
  * import { defineConfig } from 'kubb'
  * import { adapterOas } from '@kubb/adapter-oas'
  * import { parserMd } from '@kubb/parser-md'
+ * import { parserTs, parserTsx } from '@kubb/parser-ts'
  *
  * export default defineConfig({
  *   input: { path: './petStore.yaml' },
  *   output: { path: './src/gen' },
  *   adapter: adapterOas(),
- *   parsers: [parserMd],
+ *   parsers: [parserTs, parserTsx, parserMd],
  *   plugins: [],
  * })
  * ```
