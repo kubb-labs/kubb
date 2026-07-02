@@ -44,7 +44,7 @@ jobs:
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@61cdd3211cf116b44033357a5baff45dc28f0ca5 # main
         with:
-          node-version: '22'
+          node-version: '22.22.3'
           cache: 'false'
           force-install: 'true'
 
