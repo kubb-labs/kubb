@@ -1,5 +1,59 @@
 # Changelog
 
+## v5.0.0-beta.81 — Jul 3, 2026
+
+### @kubb/ast
+
+#### Breaking Changes
+
+- Fold the `@kubb/ast/utils` and `@kubb/ast/macros` subpaths into the root `@kubb/ast` export and remove both subpaths.
+  
+  ```diff
+  - import { extractRefName, syncSchemaRef } from '@kubb/ast/utils'
+  + import { extractRefName, syncSchemaRef } from '@kubb/ast'
+  
+  - import { macroSimplifyUnion } from '@kubb/ast/macros'
+  + import { macroSimplifyUnion } from '@kubb/ast'
+  ```
+  
+  `@kubb/ast/types` is unaffected. ([#3693](https://github.com/kubb-labs/kubb/pull/3693), [`d546ee1`](https://github.com/kubb-labs/kubb/commit/d546ee11f6a76e332db153214d3540abe85b984c))
+
+### @kubb/core
+
+#### Breaking Changes
+
+- Remove the `ast` re-export from `@kubb/core`. Import it from `@kubb/ast` instead (or `kubb/kit`, which re-exports it alongside the rest of the authoring toolkit).
+  
+  ```diff
+  - import { ast } from '@kubb/core'
+  + import { ast } from '@kubb/ast'
+  ``` ([#3693](https://github.com/kubb-labs/kubb/pull/3693), [`d546ee1`](https://github.com/kubb-labs/kubb/commit/d546ee11f6a76e332db153214d3540abe85b984c))
+
+#### Bug Fixes
+
+- Fix `resolveOptions` throwing `Invalid value used as weak map key` when a plugin's `options` is falsy but not `null`/`undefined` (for example `false`), such as a plugin re-instantiated by an external merge (Kubb Studio, custom tooling) with an unexpected options value. The memoization cache now only keys by `options` when it's actually an object, falling back to a direct (uncached) resolve otherwise. ([#3694](https://github.com/kubb-labs/kubb/pull/3694), [`20cb559`](https://github.com/kubb-labs/kubb/commit/20cb55925196c93521c106dcc1867fd7fae5a23d))
+
+### @kubb/kit
+
+#### Features
+
+- Add `@kubb/kit`, the authoring toolkit for plugins, generators, adapters, resolvers, and renderers, re-exporting `definePlugin`, `defineGenerator`, `defineResolver`, `defineParser`, `createAdapter`, `createRenderer`, `createStorage`, `Diagnostics`, `memoryStorage`, `fsStorage`, the `ast` namespace and `factory` node builders, and their companion option and hook types. `@kubb/kit/testing` holds the Vitest-backed test helpers (`createMockedPlugin`, `createMockedAdapter`, `renderGeneratorOperation`, `matchFiles`) on a separate entry point so the main import never pulls in Vitest.
+  
+  `kubb` gains matching subpaths so most consumers never need to install `@kubb/kit`, `@kubb/ast`, or `@kubb/renderer-jsx` directly:
+  
+  - `kubb/kit` and `kubb/kit/testing` re-export `@kubb/kit`
+  - `kubb/ast` re-exports everything `@kubb/ast` exports except `ast` and `factory`, which live in `kubb/kit` instead, alongside the rest of the plugin authoring toolkit
+  - `kubb/jsx` re-exports `@kubb/renderer-jsx` and its types, with `kubb/jsx/jsx-runtime` and `kubb/jsx/jsx-dev-runtime` for `jsxImportSource: "kubb/jsx"`
+  - `kubb/config` re-exports `defineConfig`, which also stays on the `kubb` root
+  
+  `@kubb/core`, `@kubb/ast`, and `@kubb/renderer-jsx` stay published and importable directly. This is additive: existing imports keep working. ([#3693](https://github.com/kubb-labs/kubb/pull/3693), [`d546ee1`](https://github.com/kubb-labs/kubb/commit/d546ee11f6a76e332db153214d3540abe85b984c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.80 — Jul 2, 2026
 
 ### @kubb/ast
