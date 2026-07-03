@@ -39,9 +39,27 @@ function createRelease({ tag, title, notes }) {
   if (result.status !== 0) process.exit(result.status ?? 1)
 }
 
-function createPerPackageReleases({ staged, changelog, repo }) {
+function getWorkspacePaths() {
+  const result = spawnSync('pnpm', ['ls', '-r', '--json', '--depth', '0'], { encoding: 'utf8' })
+  if (result.status !== 0) return {}
+  try {
+    return Object.fromEntries(JSON.parse(result.stdout).map((pkg) => [pkg.name, pkg.path]))
+  } catch {
+    return {}
+  }
+}
+
+function createPerPackageReleases({ staged, repo }) {
+  const pkgPaths = getWorkspacePaths()
   for (const pkg of staged) {
-    const notes = extractPackageNotes({ changelog, name: pkg.name, version: pkg.version }) ?? `Dependency update only, no direct changes for this package. See [CHANGELOG.md](https://github.com/${repo}/blob/main/CHANGELOG.md) for the full release notes.`
+    let notes = null
+    const pkgPath = pkgPaths[pkg.name]
+    if (pkgPath) {
+      try {
+        notes = extractVersionNotes({ changelog: readFileSync(`${pkgPath}/CHANGELOG.md`, 'utf8'), version: pkg.version })
+      } catch {}
+    }
+    notes ??= `Dependency update only, no direct changes for this package. See [CHANGELOG.md](https://github.com/${repo}/blob/main/CHANGELOG.md) for the full release notes.`
     createRelease({ tag: `${pkg.name}@${pkg.version}`, title: `${pkg.name}@${pkg.version}`, notes })
   }
 }
@@ -65,12 +83,11 @@ function main() {
   }
 
   const repo = process.env.GITHUB_REPOSITORY
-  const changelog = readFileSync('CHANGELOG.md', 'utf8')
 
   if (process.env.RELEASE_MODE === 'combined') {
-    createCombinedRelease({ staged, changelog, repo })
+    createCombinedRelease({ staged, changelog: readFileSync('CHANGELOG.md', 'utf8'), repo })
   } else {
-    createPerPackageReleases({ staged, changelog, repo })
+    createPerPackageReleases({ staged, repo })
   }
 }
 
