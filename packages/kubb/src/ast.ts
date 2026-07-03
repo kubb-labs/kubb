@@ -35,6 +35,7 @@ export {
   mapSchemaProperties,
   mergeAdjacentObjectsLazy,
   narrowSchema,
+  objectKey,
   optionality,
   schemaTypes,
   stringify,
