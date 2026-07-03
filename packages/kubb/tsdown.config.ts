@@ -8,6 +8,15 @@ const entry = {
   jsx: 'src/jsx.ts',
   'jsx/jsx-runtime': 'src/jsx/jsx-runtime.ts',
   'jsx/jsx-dev-runtime': 'src/jsx/jsx-dev-runtime.ts',
+  astro: 'src/astro.ts',
+  esbuild: 'src/esbuild.ts',
+  farm: 'src/farm.ts',
+  nuxt: 'src/nuxt.ts',
+  rolldown: 'src/rolldown.ts',
+  rollup: 'src/rollup.ts',
+  rspack: 'src/rspack.ts',
+  vite: 'src/vite.ts',
+  webpack: 'src/webpack.ts',
 }
 
 const shared: Partial<UserConfig> = {
