@@ -52,12 +52,12 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
     "typescript": "catalog:"
   },
   "devDependencies": {
-    "@internals/utils": "workspace:*"
+    "@internals/utils": "workspace:*",
+    "@kubb/ast": "workspace:*"
   },
   "engines": {
     "node": ">=22"
