@@ -123,3 +123,23 @@ pnpm changeset
 ```
 
 Pick the packages you changed, choose the bump (patch for fixes, minor for features, major for breaking changes), and write a short summary aimed at users. Commit the generated file under `.changeset/`. Docs-only or internal changes that touch no published package do not need one.
+
+## Releasing
+
+This section covers what happens after a PR with a changeset merges. Contributors don't need it, but maintainers do.
+
+Merging a changeset into `main` queues or updates the "Version Packages" PR, opened automatically by the release workflow (`.github/workflows/release.yml`). Merging that PR triggers the release job, which stages every changed package with `pnpm stage publish` (npm's staged publishing). A staged package is not installable yet. Nothing becomes public until a maintainer approves it.
+
+To approve a release:
+
+1. A maintainer with npm publish access and two-factor authentication runs `npm stage approve` (or approves from npmjs.com) for each staged package.
+2. The same maintainer approves the `promote` job's environment review on the workflow run in the Actions tab.
+3. The `promote` job then verifies the versions are actually live on npm, tags the released versions, creates a GitHub Release, and only then triggers the Discord announcement and the changelog sync to [kubb-labs/docs](https://github.com/kubb-labs/docs).
+
+Every published package in this repo shares one version (see the `fixed` group in `.changeset/config.json`), so a release here creates a single combined GitHub Release for the whole version, tagged with `kubb`'s own tag, with notes covering every package's section of that version's block in `CHANGELOG.md`. This differs from [kubb-labs/plugins](https://github.com/kubb-labs/plugins), where packages version independently and each gets its own release. `scripts/createReleases.mjs` supports both modes through the `RELEASE_MODE` environment variable.
+
+If a staged version turns out to be wrong, reject it with `npm stage reject` instead of approving it. Nothing downstream fires for a rejected version.
+
+Reviewers for the `promote` job's environment are managed on GitHub, under the repository's Settings > Environments > `npm-release-approval` (this is separate from npm's own settings on npmjs.com).
+
+Canary releases are the one exception to this flow. Every push to `main` publishes a `0.0.0-canary-<timestamp>` version under the `canary` dist-tag directly, without staging, so that canary installs stay immediate and automatic. See the comment above the `Publish canary` step in `release.yml` for why this is safe to leave unstaged.
