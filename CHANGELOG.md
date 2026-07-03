@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.85 — Jul 3, 2026
+
+### kubb
+
+#### Features
+
+- `kubb` gains bundler integration subpaths backed by `unplugin-kubb`, so most consumers never need to install `unplugin-kubb` directly: `kubb/vite`, `kubb/webpack`, `kubb/rollup`, `kubb/rolldown`, `kubb/esbuild`, `kubb/farm`, `kubb/rspack`, `kubb/astro`, and `kubb/nuxt`. Each re-exports the matching `unplugin-kubb/*` entry point.
+  
+  `unplugin-kubb` stays published and importable directly. This is additive: existing `unplugin-kubb/*` imports keep working. ([#3711](https://github.com/kubb-labs/kubb/pull/3711), [`9df7876`](https://github.com/kubb-labs/kubb/commit/9df7876cfe692573e71399b194cb292aa46bf7b2))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.84 — Jul 3, 2026
 
 ### @kubb/core

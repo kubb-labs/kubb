@@ -179,6 +179,7 @@
     "knip-remove-dead-code",
     "knip-trim-unused-exports",
     "kubb-bun-native-runtime",
+    "kubb-bundler-integration-subpaths",
     "kubb-create-kubb-export",
     "kubb-driver-streaming-cleanup",
     "macro-ast-transform-layer",
