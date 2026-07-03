@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.81 — Jul 3, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Fix `resolveOptions` throwing `Invalid value used as weak map key` when a plugin's `options` is falsy but not `null`/`undefined` (for example `false`), such as a plugin re-instantiated by an external merge (Kubb Studio, custom tooling) with an unexpected options value. The memoization cache now only keys by `options` when it's actually an object, falling back to a direct (uncached) resolve otherwise. ([#3694](https://github.com/kubb-labs/kubb/pull/3694), [`20cb559`](https://github.com/kubb-labs/kubb/commit/20cb55925196c93521c106dcc1867fd7fae5a23d))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.80 — Jul 2, 2026
 
 ### @kubb/ast
