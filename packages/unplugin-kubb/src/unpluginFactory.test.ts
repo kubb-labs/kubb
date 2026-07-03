@@ -1,6 +1,7 @@
 import path from 'node:path'
+import { ast } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
-import { ast, definePlugin, type Storage, type UserConfig } from '@kubb/core'
+import { definePlugin, type Storage, type UserConfig } from '@kubb/core'
 import { describe, expect, test, vi } from 'vitest'
 import type { UnpluginBuildContext } from 'unplugin'
 import nuxtModule from './nuxt.ts'

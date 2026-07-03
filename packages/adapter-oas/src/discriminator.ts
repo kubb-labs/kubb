@@ -1,5 +1,4 @@
-import { ast } from '@kubb/core'
-import type { SchemaNodeByType } from '@kubb/ast'
+import { ast, type SchemaNodeByType } from '@kubb/ast'
 
 export type DiscriminatorTarget = {
   propertyName: string

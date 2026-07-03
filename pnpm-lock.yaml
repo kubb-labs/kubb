@@ -186,17 +186,36 @@ importers:
         specifier: workspace:*
         version: link:../renderer-jsx
 
+  packages/kit:
+    dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@internals/utils':
+        specifier: workspace:*
+        version: link:../../internals/utils
+
   packages/kubb:
     dependencies:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../adapter-oas
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/cli':
         specifier: workspace:*
         version: link:../cli
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/kit':
+        specifier: workspace:*
+        version: link:../kit
       '@kubb/mcp':
         specifier: workspace:*
         version: link:../mcp
@@ -336,6 +355,9 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@nuxt/kit':
         specifier: ^4.4.8
         version: 4.4.8(magicast@0.5.3)

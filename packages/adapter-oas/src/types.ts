@@ -1,5 +1,5 @@
+import type { ast } from '@kubb/ast'
 import type { AdapterFactoryOptions } from '@kubb/core'
-import type { ast } from '@kubb/core'
 import type { JSONSchema4, JSONSchema6, JSONSchema7 } from 'json-schema'
 import type { OpenAPIV3_1 } from 'openapi-types'
 import type { Operation } from './operation.ts'
