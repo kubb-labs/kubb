@@ -2,7 +2,7 @@
 '@kubb/cli': patch
 ---
 
-Fix the update check, watch mode, and hook orchestration in `kubb generate`.
+Fix the update check, watch mode, and hook handling in `kubb generate`.
 
 The npm update check compared versions as strings, so `5.9.0 < 5.10.0` evaluated as `false` and update notices were skipped (or shown wrongly) around double-digit parts. It now compares numeric semver parts and aborts after 3 seconds so a slow registry never stalls a run.
 

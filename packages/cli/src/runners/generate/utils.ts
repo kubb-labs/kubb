@@ -97,6 +97,9 @@ export type HookResult = {
    * `true` when the command exited with code `0`.
    */
   success: boolean
+  /**
+   * What went wrong, `null` when the command succeeded.
+   */
   error: Error | null
   /**
    * Captured stdout, only present on a non-zero exit.
@@ -123,6 +126,12 @@ export function createHookId(): string {
  * Returns `true` when `latest` is a newer semver version than `current`. Compares each numeric
  * part, so `5.10.0` beats `5.9.0` where a plain string comparison would not. Prerelease
  * suffixes are ignored, and a malformed version never reports an update.
+ *
+ * @example Double-digit minor
+ * `isNewerVersion('5.9.0', '5.10.0') // true`
+ *
+ * @example String comparison would get this wrong the other way
+ * `isNewerVersion('5.10.0', '5.9.0') // false`
  */
 export function isNewerVersion(current: string, latest: string): boolean {
   const parse = (value: string) => (value.split('-')[0] ?? '').split('.').map(Number)

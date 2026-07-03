@@ -51,11 +51,11 @@ function enforceOrder(enforce: Enforce | undefined): number {
 
 /**
  * Orders plugins so every dependency runs before its dependents (Kahn's algorithm), with
- * `enforce` (`'pre'` < normal < `'post'`) and declaration order as tiebreaks. A pairwise
- * `Array.sort` comparator cannot do this: dependency relations are not transitive at the
- * comparator level, so a chain like A → B → C could come out wrong when A and C are never
- * compared directly. Dependencies on plugins missing from the config are ignored here and
- * surface later through `requirePlugin`.
+ * `enforce` (`'pre'` before normal before `'post'`) and declaration order as tiebreaks.
+ * A pairwise `Array.sort` comparator cannot do this: dependency relations are not transitive
+ * at the comparator level, so a chain where A depends on B and B depends on C could come out
+ * wrong when A and C are never compared directly. Dependencies on plugins missing from the
+ * config are ignored here and surface later through `requirePlugin`.
  */
 function sortPlugins(plugins: Array<NormalizedPlugin>): Array<NormalizedPlugin> {
   const queue = [...plugins].sort((a, b) => enforceOrder(a.enforce) - enforceOrder(b.enforce))
