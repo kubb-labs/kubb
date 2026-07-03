@@ -36,6 +36,8 @@ Defines the node tree, visitor pattern, factory functions, and type guards used 
 | `kubb/kit`                      | Re-exports the `ast` and `factory` namespaces, so plugin authors reach the AST without a direct dependency   |
 | `kubb/ast`                      | The flat runtime and types bundled in the top-level `kubb` package, without the `ast` / `factory` namespaces |
 
+`@kubb/ast` is internal to the kubb monorepo. Import it directly only from inside kubb itself. Plugins and user code reach the same surface through `kubb/kit` (the `ast` and `factory` namespaces) or `kubb/ast` (the flat runtime and types), so the `@kubb/ast` examples below map to those paths outside the monorepo.
+
 The macro presets (`macroDiscriminatorEnum`, `macroSimplifyUnion`, `macroEnumName`) and the string, identifier, and ref helpers live on the root `@kubb/ast` export. They no longer ship as separate `@kubb/ast/macros` and `@kubb/ast/utils` subpaths.
 
 ## Node tree
