@@ -154,4 +154,35 @@ describe('validateDocument', () => {
   it('throws when throwOnError is enabled', async () => {
     await expect(validateDocument(invalidSchema, { throwOnError: true })).rejects.toThrow()
   })
+
+  it('accepts anonymous security alternatives', async () => {
+    await expect(
+      validateDocument(
+        {
+          openapi: '3.1.0',
+          info: { title: 'Optional Security API', version: '1.0.0' },
+          paths: {
+            '/public-or-keyed': {
+              get: {
+                security: [{ ApiKeyAuth: [] }, {}],
+                responses: {
+                  default: { description: 'ok' },
+                },
+              },
+            },
+          },
+          components: {
+            securitySchemes: {
+              ApiKeyAuth: {
+                type: 'apiKey',
+                in: 'header',
+                name: 'X-API-Key',
+              },
+            },
+          },
+        } as unknown as Document,
+        { throwOnError: true },
+      ),
+    ).resolves.toBeUndefined()
+  })
 })
