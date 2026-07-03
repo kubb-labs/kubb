@@ -35,7 +35,7 @@ Defines the node tree, visitor pattern, factory functions, and type guards used 
 | `@kubb/ast/types`               | Types only: all node interfaces, type aliases, visitor types                                                      |
 | `kubb/kit`                      | Re-exports the `ast` and `factory` namespaces, the way most Kubb code reaches the AST without a direct dependency |
 
-Install `@kubb/ast` when you want the AST on its own. Inside the Kubb ecosystem the same surface travels on the `ast` namespace from `kubb/kit`, so plugins and generators reach it there. The examples below import from `@kubb/ast`; through `kubb/kit` the same calls read as `ast.walk`, `ast.factory.createSchema`, and so on.
+`@kubb/ast` is an internal library. Inside the Kubb ecosystem the whole surface travels on the `ast` namespace from `kubb/kit`, so plugins and generators reach it there instead of depending on this package directly. The examples below import from `@kubb/ast` for clarity; through `kubb/kit` the same calls read as `ast.walk`, `ast.factory.createSchema`, and so on.
 
 The macro presets (`macroDiscriminatorEnum`, `macroSimplifyUnion`, `macroEnumName`) and the string, identifier, and ref helpers live on the root `@kubb/ast` export. They no longer ship as separate `@kubb/ast/macros` and `@kubb/ast/utils` subpaths.
 
