@@ -1,6 +1,11 @@
 name: Release
 on:
   workflow_dispatch:
+    inputs:
+      version_only:
+        description: 'Only open or update the Version Packages PR. Skip staging entirely'
+        type: boolean
+        default: false
   push:
     branches: ['main', 'alpha', 'beta', 'rc']
     paths:
@@ -43,7 +48,11 @@ jobs:
           cache: 'false'
           force-install: 'true'
 
+      # Skipped entirely for a version_only manual dispatch: that mode exists
+      # so a maintainer can safely refresh the Version Packages PR without any
+      # chance of staging real packages.
       - name: Build
+        if: ${{ !inputs.version_only }}
         run: pnpm run build
 
       # createGithubReleases stays off: a staged version isn't public until
@@ -53,7 +62,7 @@ jobs:
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
         with:
           version: pnpm exec changeset version
-          publish: node scripts/release.mjs
+          publish: ${{ !inputs.version_only && 'node scripts/release.mjs' || '' }}
           commit: 'ci(changesets): version packages'
           title: 'ci(changesets): version packages'
           setupGitUser: false
@@ -77,7 +86,7 @@ jobs:
         run: |
           canary_version="0.0.0-canary-$(date -u +%Y%m%d%H%M%S)"
           echo "Canary version: ${canary_version}"
-          pnpm -r exec npm --no-git-tag-version version "${canary_version}"
+          pnpm -r exec bash -c "npm --no-git-tag-version version '${canary_version}' || true"
           pnpm run build
           pnpm exec changeset publish --tag canary
 
@@ -96,6 +105,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@61cdd3211cf116b44033357a5baff45dc28f0ca5 # main

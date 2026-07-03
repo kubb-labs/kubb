@@ -2,6 +2,7 @@ import changelogGithub from '@changesets/changelog-github'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { versionHeadingPattern } from './format.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 
@@ -125,7 +126,7 @@ export function flush() {
   const existing = fs.existsSync(rootChangelog) ? fs.readFileSync(rootChangelog, 'utf8') : ''
   const body = existing.startsWith('---') ? existing.replace(/^---[\s\S]*?---\n\n?/, '') : existing
 
-  if (new RegExp(`^##\\s+v?${version.replace(/[.+\-]/g, '\\$&')}\\b`, 'm').test(body)) return
+  if (versionHeadingPattern(version).test(body)) return
 
   const block = buildBlock({ version, byPackage, contributors, typeOrder, typeHeaders })
 

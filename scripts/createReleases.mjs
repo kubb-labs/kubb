@@ -3,12 +3,9 @@ import { spawnSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+import { packageHeadingPattern, versionHeadingPattern } from '../internals/changelog/format.mjs'
 
 const CHANGELOG_PATH = 'CHANGELOG.md'
-
-function escapeForRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
 
 // The custom changelog hook (internals/changelog/index.mjs) writes one root
 // CHANGELOG.md with a `## v<version>` heading per release and a `### <name>`
@@ -16,8 +13,7 @@ function escapeForRegExp(value) {
 // shared starting point for both a combined, whole-version release and a
 // single package's own subsection within it.
 function findVersionBlock({ changelog, version }) {
-  const versionHeading = new RegExp(`^##\\s+v?${escapeForRegExp(version)}\\b.*$`, 'm')
-  const versionMatch = versionHeading.exec(changelog)
+  const versionMatch = versionHeadingPattern(version).exec(changelog)
   if (!versionMatch) return null
 
   const afterVersion = changelog.slice(versionMatch.index + versionMatch[0].length)
@@ -32,8 +28,7 @@ export function extractPackageNotes({ changelog, name, version }) {
   const versionBlock = findVersionBlock({ changelog, version })
   if (versionBlock === null) return null
 
-  const packageHeading = new RegExp(`^###\\s+${escapeForRegExp(name)}\\s*$`, 'm')
-  const packageMatch = packageHeading.exec(versionBlock)
+  const packageMatch = packageHeadingPattern(name).exec(versionBlock)
   if (!packageMatch) return null
 
   const afterPackage = versionBlock.slice(packageMatch.index + packageMatch[0].length)
@@ -84,6 +79,11 @@ function createCombinedRelease({ staged, changelog, repo }) {
 
 function main() {
   const staged = JSON.parse(process.env.STAGED_PACKAGES || '[]')
+  if (staged.length === 0) {
+    console.error('STAGED_PACKAGES is empty. The promote job only runs when release staged something, so this should never happen.')
+    process.exit(1)
+  }
+
   const repo = process.env.GITHUB_REPOSITORY
   const changelog = readFileSync(CHANGELOG_PATH, 'utf8')
 

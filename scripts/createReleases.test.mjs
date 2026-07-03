@@ -58,6 +58,11 @@ describe('extractPackageNotes', () => {
   it('returns null when the package has no section in that version', () => {
     expect(extractPackageNotes({ changelog, name: '@kubb/core', version: '5.0.0-beta.80' })).toBeNull()
   })
+
+  it('does not match a longer prerelease version sharing the same numeric prefix', () => {
+    const withPrerelease = `# Changelog\n\n## v5.0.0-rc.1 — Jul 3, 2026\n\n### @kubb/ast\n\n#### Features\n\n- Something.\n`
+    expect(extractPackageNotes({ changelog: withPrerelease, name: '@kubb/ast', version: '5.0.0' })).toBeNull()
+  })
 })
 
 describe('extractVersionNotes', () => {
