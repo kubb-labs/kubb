@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { isPromise, memoize } from './promise.ts'
+import { createSerialRunner, isPromise, memoize } from './promise.ts'
 
 describe('promise utilities', () => {
   describe('isPromise', () => {
@@ -70,5 +70,51 @@ describe('memoize', () => {
 
     expect(outerFactory).toHaveBeenCalledTimes(1)
     expect(innerFactory).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('createSerialRunner', () => {
+  it('collapses triggers that land during a run into one rerun', async () => {
+    let calls = 0
+    const gates: Array<() => void> = []
+    const runner = createSerialRunner({
+      run: () =>
+        new Promise<void>((resolve) => {
+          calls += 1
+          gates.push(resolve)
+        }),
+      onError: () => {},
+    })
+
+    const first = runner()
+    void runner()
+    void runner()
+    void runner()
+    expect(calls).toBe(1)
+
+    gates[0]?.()
+    await vi.waitFor(() => expect(calls).toBe(2))
+
+    gates[1]?.()
+    await first
+    expect(calls).toBe(2)
+  })
+
+  it('reports a run error through onError and keeps accepting triggers', async () => {
+    const errors: Array<string> = []
+    let shouldFail = true
+    const runner = createSerialRunner({
+      run: async () => {
+        if (shouldFail) throw new Error('run exploded')
+      },
+      onError: (error) => errors.push(error.message),
+    })
+
+    await runner()
+    expect(errors).toStrictEqual(['run exploded'])
+
+    shouldFail = false
+    await runner()
+    expect(errors).toStrictEqual(['run exploded'])
   })
 })

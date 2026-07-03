@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { createModuleLoader } from '@internals/shared'
 import type { AsyncEventEmitter } from '@internals/utils'
-import { toError } from '@internals/utils'
+import { createSerialRunner, toError } from '@internals/utils'
 import type { CLIOptions, Config, KubbHooks, PossibleConfig } from '@kubb/core'
 import { NonZeroExitError, x } from 'tinyexec'
 import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
@@ -244,37 +244,6 @@ type WatcherLog = {
 }
 
 /**
- * Serializes build runs for the watcher: a trigger that lands while a build is running marks the
- * queue dirty and reruns once after, so bursts of file events never overlap builds on the shared
- * hooks emitter. Errors go to `onError` instead of rejecting, so the watcher keeps running.
- */
-export function createBuildRunner(run: () => Promise<void>, onError: (error: Error) => void): () => Promise<void> {
-  let running = false
-  let dirty = false
-
-  const execute = async (): Promise<void> => {
-    if (running) {
-      dirty = true
-      return
-    }
-    running = true
-    try {
-      await run()
-    } catch (error) {
-      onError(toError(error))
-    } finally {
-      running = false
-      if (dirty) {
-        dirty = false
-        await execute()
-      }
-    }
-  }
-
-  return execute
-}
-
-/**
  * Starts a file watcher on the given paths and calls `cb` on any change.
  * Ignores `.git` and `node_modules` directories. Event bursts (an editor save emits several)
  * are debounced into one build, and builds never overlap: changes during a build queue exactly
@@ -297,10 +266,12 @@ export async function startWatcher(
     watcher.close()
   })
 
-  const runBuild = createBuildRunner(
-    () => cb(path),
-    () => log.error(styleText('red', 'Watcher failed')),
-  )
+  // Bursts never overlap builds on the shared hooks emitter: a change during a build
+  // queues exactly one rerun.
+  const runBuild = createSerialRunner({
+    run: () => cb(path),
+    onError: () => log.error(styleText('red', 'Watcher failed')),
+  })
   let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
   watcher.on('all', (type, file) => {

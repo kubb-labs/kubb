@@ -1,3 +1,5 @@
+import { toError } from './errors.ts'
+
 /** A value that may already be resolved or still pending.
  *
  * @example
@@ -80,6 +82,58 @@ export function memoize<TKey, TValue>(store: Store<TKey, TValue>, factory: (key:
  * ```
  */
 export type Streamable<T, Stream extends boolean = false> = Stream extends true ? AsyncIterable<T> : Array<T>
+
+type SerialRunnerOptions = {
+  /**
+   * The async work to serialize.
+   */
+  run(): Promise<void>
+  /**
+   * Receives errors thrown by `run`, so a failure never rejects the returned trigger.
+   */
+  onError(error: Error): void
+}
+
+/**
+ * Wraps `run` so invocations never overlap: a trigger that lands while a run is in flight
+ * marks it dirty and runs once more after it finishes, no matter how many triggers arrived.
+ * Useful for event-driven reruns (a file watcher, a queue drain) where bursts should
+ * coalesce into a single trailing run.
+ *
+ * @example
+ * ```ts
+ * const rebuild = createSerialRunner({
+ *   run: () => build(),
+ *   onError: (error) => log.error(error.message),
+ * })
+ * watcher.on('change', () => void rebuild())
+ * ```
+ */
+export function createSerialRunner({ run, onError }: SerialRunnerOptions): () => Promise<void> {
+  let running = false
+  let dirty = false
+
+  const execute = async (): Promise<void> => {
+    if (running) {
+      dirty = true
+      return
+    }
+    running = true
+    try {
+      await run()
+    } catch (error) {
+      onError(toError(error))
+    } finally {
+      running = false
+      if (dirty) {
+        dirty = false
+        await execute()
+      }
+    }
+  }
+
+  return execute
+}
 
 /**
  * Wraps a plain array in a reusable `AsyncIterable`.
