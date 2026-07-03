@@ -63,6 +63,21 @@ describe('defineResolver', () => {
     expect(resolver.default('hello')).toBe('HELLO')
     expect(resolver.greet('world')).toBe('WORLD')
   })
+
+  it('resolveOptions does not throw when options is not an object', () => {
+    const resolver = defineResolver<TestPluginFactory>(() => ({
+      pluginName: 'test',
+      name: 'test',
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    }))
+
+    // A re-instantiated plugin can hand back a falsy-but-not-nullish `options` (e.g. `false`).
+    // `resolveOptions` caches by `options` identity in a `WeakMap`, which only accepts object
+    // keys, so this must fall back to computing directly instead of throwing.
+    expect(() => resolver.resolveOptions({} as never, { options: false as never })).not.toThrow()
+    expect(resolver.resolveOptions({} as never, { options: false as never })).toBe(false)
+  })
 })
 
 describe('defaultResolvePath', () => {

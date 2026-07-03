@@ -356,11 +356,18 @@ function computeOptions<TOptions>(
 }
 
 function defaultResolveOptions<TOptions>(node: Node, { options, exclude = [], include, override = [] }: ResolveOptionsContext<TOptions>): TOptions | null {
-  const optionsKey = options as object
-  let byOptions = resolveOptionsCache.get(optionsKey)
+  // A plugin's `options` is normally an object, but a re-instantiated plugin (e.g. a
+  // Studio/agent merge) can hand back something falsy-but-not-nullish. `WeakMap` only
+  // accepts object keys, so cache only when `options` actually qualifies; otherwise fall
+  // back to computing directly instead of throwing "Invalid value used as weak map key".
+  if (typeof options !== 'object' || options === null) {
+    return computeOptions(node, options, exclude, include, override)
+  }
+
+  let byOptions = resolveOptionsCache.get(options)
   if (!byOptions) {
     byOptions = new WeakMap()
-    resolveOptionsCache.set(optionsKey, byOptions)
+    resolveOptionsCache.set(options, byOptions)
   }
   const cached = byOptions.get(node)
   if (cached !== undefined) return cached.value as TOptions | null
