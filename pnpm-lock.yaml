@@ -144,9 +144,6 @@ importers:
       '@clack/prompts':
         specifier: ^1.6.0
         version: 1.6.0
-      '@kubb/adapter-oas':
-        specifier: workspace:*
-        version: link:../adapter-oas
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -172,6 +169,9 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../adapter-oas
 
   packages/core:
     dependencies:
