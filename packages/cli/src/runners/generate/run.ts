@@ -42,10 +42,15 @@ type RunToolPassOptions = {
   outputPath: string
   logLevel: number
   hooks: AsyncEventEmitter<KubbHooks>
-  onStart: () => Promise<void>
-  onEnd: () => Promise<void>
+  onStart: () => Promise<void> | void
+  onEnd: () => Promise<void> | void
 }
 
+/**
+ * Runs one formatter or linter pass over the output directory. Returns the failure instead of
+ * throwing, so the caller can turn it into a coded diagnostic. Failures never render here:
+ * the caller emits them through `Diagnostics.emit`, like every other diagnostic.
+ */
 async function runToolPass({
   toolValue,
   detect,
@@ -58,7 +63,7 @@ async function runToolPass({
   hooks,
   onStart,
   onEnd,
-}: RunToolPassOptions) {
+}: RunToolPassOptions): Promise<Error | null> {
   await onStart()
 
   let resolvedTool = toolValue
@@ -72,7 +77,7 @@ async function runToolPass({
     }
   }
 
-  let toolError: Error | undefined
+  let toolError: Error | null = null
 
   // Nothing to lint or format when the output dir was never written. Skip so the tool
   // (e.g. oxlint with --no-ignore) doesn't fail with "No files found to lint".
@@ -99,8 +104,6 @@ async function runToolPass({
       if (result.success) {
         await hooks.emit('kubb:success', { message: successMessage })
       } else {
-        // Don't render here. The caller turns this into a coded diagnostic and emits it through
-        // `Diagnostics.emit`, so format/lint failures render like every other diagnostic.
         toolError = result.error ?? new Error(toolConfig.errorMessage)
       }
     } catch (caughtError) {
@@ -110,9 +113,7 @@ async function runToolPass({
 
   await onEnd()
 
-  if (toolError) {
-    throw toolError
-  }
+  return toolError
 }
 
 async function generate(options: GenerateProps): Promise<boolean> {
@@ -172,10 +173,14 @@ async function generate(options: GenerateProps): Promise<boolean> {
   // failures used to only emit `kubb:error`, so they never reached the summary, the json report,
   // or the exit code. Collect them as coded diagnostics here.
   const outputDiagnostics: Array<Diagnostic> = []
+  const reportOutputFailure = async (code: ProblemDiagnostic['code'], label: string, error: Error) => {
+    const diagnostic = outputDiagnostic(code, label, error)
+    outputDiagnostics.push(diagnostic)
+    await Diagnostics.emit(hooks, diagnostic)
+  }
 
-  const toolPasses = [
-    config.output.format && {
-      code: Diagnostics.code.formatFailed,
+  if (config.output.format) {
+    const error = await runToolPass({
       toolValue: config.output.format,
       detect: () => detectTool(['oxfmt', 'biome', 'prettier'] as const),
       toolMap: formatters,
@@ -184,9 +189,15 @@ async function generate(options: GenerateProps): Promise<boolean> {
       noToolMessage: 'No formatter found (oxfmt, biome, or prettier). Skipping formatting.',
       onStart: () => hooks.emit('kubb:format:start'),
       onEnd: () => hooks.emit('kubb:format:end'),
-    },
-    config.output.lint && {
-      code: Diagnostics.code.lintFailed,
+      outputPath,
+      logLevel,
+      hooks,
+    })
+    if (error) await reportOutputFailure(Diagnostics.code.formatFailed, 'formatter', error)
+  }
+
+  if (config.output.lint) {
+    const error = await runToolPass({
       toolValue: config.output.lint,
       detect: () => detectTool(['oxlint', 'biome', 'eslint'] as const),
       toolMap: linters,
@@ -195,17 +206,11 @@ async function generate(options: GenerateProps): Promise<boolean> {
       noToolMessage: 'No linter found (oxlint, biome, or eslint). Skipping linting.',
       onStart: () => hooks.emit('kubb:lint:start'),
       onEnd: () => hooks.emit('kubb:lint:end'),
-    },
-  ].filter(Boolean) as Array<{ code: ProblemDiagnostic['code'] } & Omit<RunToolPassOptions, 'outputPath' | 'logLevel' | 'hooks'>>
-
-  for (const { code, ...pass } of toolPasses) {
-    try {
-      await runToolPass({ ...pass, outputPath, logLevel, hooks })
-    } catch (caughtError) {
-      const diagnostic = outputDiagnostic(code, pass.toolLabel, caughtError)
-      outputDiagnostics.push(diagnostic)
-      await Diagnostics.emit(hooks, diagnostic)
-    }
+      outputPath,
+      logLevel,
+      hooks,
+    })
+    if (error) await reportOutputFailure(Diagnostics.code.lintFailed, 'linter', error)
   }
 
   if (config.hooks) {
@@ -213,9 +218,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
     const hookResults = await executeHooks({ configHooks: config.hooks, hooks })
     for (const result of hookResults) {
       if (result.success) continue
-      const diagnostic = outputDiagnostic(Diagnostics.code.hookFailed, 'Post-generate hook', result.error ?? new Error('Post-generate hook failed'))
-      outputDiagnostics.push(diagnostic)
-      await Diagnostics.emit(hooks, diagnostic)
+      await reportOutputFailure(Diagnostics.code.hookFailed, 'Post-generate hook', result.error ?? new Error('Post-generate hook failed'))
     }
     await hooks.emit('kubb:hooks:end')
   }

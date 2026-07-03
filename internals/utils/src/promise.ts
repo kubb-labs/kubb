@@ -113,26 +113,22 @@ export function createSerialRunner({ run, onError }: SerialRunnerOptions): () =>
   let running = false
   let dirty = false
 
-  const execute = async (): Promise<void> => {
+  return async (): Promise<void> => {
     if (running) {
       dirty = true
       return
     }
     running = true
-    try {
-      await run()
-    } catch (error) {
-      onError(toError(error))
-    } finally {
-      running = false
-      if (dirty) {
-        dirty = false
-        await execute()
+    do {
+      dirty = false
+      try {
+        await run()
+      } catch (error) {
+        onError(toError(error))
       }
-    }
+    } while (dirty)
+    running = false
   }
-
-  return execute
 }
 
 /**
