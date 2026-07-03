@@ -40,6 +40,7 @@ Kubb spans a few repositories. Knowing where code lives saves time:
 kubb/
 ├── packages/                # Published npm packages and core modules
 │   ├── core/                # Plugin system and code generation orchestration
+│   ├── kit/                 # Authoring toolkit re-exported through kubb/kit (definePlugin, ast, factories)
 │   ├── ast/                 # Spec-agnostic AST layer (nodes, visitors, factories)
 │   ├── adapter-oas/         # OpenAPI/Swagger adapter (OAS to AST)
 │   ├── parser-ts/           # TypeScript parser for AST manipulation
