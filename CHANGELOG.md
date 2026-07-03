@@ -1,5 +1,50 @@
 # Changelog
 
+## v5.0.0-beta.83 — Jul 3, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Update the README to match the current export map. The imports table drops the removed `@kubb/ast/utils`, `@kubb/ast/macros`, and `kubb/ast` paths, and a note explains that `@kubb/ast` is the standalone install for AST-only usage while most Kubb code reaches the same surface through the `ast` namespace from `kubb/kit`. ([#3702](https://github.com/kubb-labs/kubb/pull/3702), [`d277b3c`](https://github.com/kubb-labs/kubb/commit/d277b3cb303ca16b94eca3a3fadaee8ab99a0247))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Frame `@kubb/core` and `@kubb/ast` as internal libraries in their READMEs. Plugin authors import from `kubb/kit`, which re-exports the authoring surface of both packages, instead of depending on them directly. ([#3706](https://github.com/kubb-labs/kubb/pull/3706), [`7cd9b51`](https://github.com/kubb-labs/kubb/commit/7cd9b51508d1dfa278f8a9068bf8bc0172c92b24))
+
+### @kubb/kit
+
+#### Breaking Changes
+
+- Remove the bare `factory` export from `kubb/kit`. Build nodes through `ast.factory` instead.
+  
+  ```diff
+  - import { factory } from 'kubb/kit'
+  - factory.createFile(...)
+  + import { ast } from 'kubb/kit'
+  + ast.factory.createFile(...)
+  ``` ([#3702](https://github.com/kubb-labs/kubb/pull/3702), [`e9199ef`](https://github.com/kubb-labs/kubb/commit/e9199ef3dfd80851503390e148a7cdeb143bd60f))
+
+### kubb
+
+#### Breaking Changes
+
+- Remove the `kubb/ast` subpath. Reach the AST through the `ast` namespace from `kubb/kit`, and install `@kubb/ast` when you want the AST on its own.
+  
+  ```diff
+  - import { extractRefName, walk } from 'kubb/ast'
+  + import { ast } from 'kubb/kit'
+  + // ast.extractRefName(...), ast.walk(...)
+  ``` ([#3702](https://github.com/kubb-labs/kubb/pull/3702), [`eb2915e`](https://github.com/kubb-labs/kubb/commit/eb2915e0bede83348ba5a1506a9d19bad1972cc9))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.82 — Jul 3, 2026
 
 ### @kubb/core
