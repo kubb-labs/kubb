@@ -1,8 +1,8 @@
 import process from 'node:process'
 import { AsyncEventEmitter } from '@internals/utils'
 import type { KubbHooks } from '@kubb/core'
-import { describe, expect, it } from 'vitest'
-import { runHook } from './utils.ts'
+import { describe, expect, it, vi } from 'vitest'
+import { createBuildRunner, isNewerVersion, runHook } from './utils.ts'
 
 const node = process.execPath
 
@@ -85,5 +85,104 @@ describe('runHook', () => {
     })
 
     expect(succeeded).toBe(true)
+  })
+
+  it('returns success=true with no error when the command exits 0', async () => {
+    const hooks = new AsyncEventEmitter<KubbHooks>()
+
+    const result = await runHook({
+      id: 'e',
+      command: node,
+      args: ['-e', 'console.log("noop")'],
+      commandWithArgs: 'node',
+      hooks,
+    })
+
+    expect(result).toStrictEqual({ success: true, error: null })
+  })
+
+  it('returns success=false with the error and captured output on a non-zero exit', async () => {
+    const hooks = new AsyncEventEmitter<KubbHooks>()
+
+    const result = await runHook({
+      id: 'f',
+      command: node,
+      args: ['-e', 'process.stdout.write("out"); process.stderr.write("boom"); process.exit(1)'],
+      commandWithArgs: 'node',
+      hooks,
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.error?.message).toContain('Hook execute failed')
+    expect(result.stdout).toContain('out')
+    expect(result.stderr).toContain('boom')
+  })
+})
+
+describe('isNewerVersion', () => {
+  it('returns true when the latest minor is double-digit', () => {
+    expect(isNewerVersion('5.9.0', '5.10.0')).toBe(true)
+  })
+
+  it('returns false when the versions are equal', () => {
+    expect(isNewerVersion('5.9.0', '5.9.0')).toBe(false)
+  })
+
+  it('returns false when the latest version is older', () => {
+    expect(isNewerVersion('5.10.0', '5.9.9')).toBe(false)
+  })
+
+  it('ignores prerelease suffixes when comparing', () => {
+    expect(isNewerVersion('5.9.0-beta.1', '5.9.1')).toBe(true)
+  })
+
+  it('returns false for a malformed latest version', () => {
+    expect(isNewerVersion('5.9.0', 'not-a-version')).toBe(false)
+  })
+})
+
+describe('createBuildRunner', () => {
+  it('collapses triggers that land during a build into one rerun', async () => {
+    let calls = 0
+    const gates: Array<() => void> = []
+    const runner = createBuildRunner(
+      () =>
+        new Promise<void>((resolve) => {
+          calls += 1
+          gates.push(resolve)
+        }),
+      () => {},
+    )
+
+    const first = runner()
+    void runner()
+    void runner()
+    void runner()
+    expect(calls).toBe(1)
+
+    gates[0]?.()
+    await vi.waitFor(() => expect(calls).toBe(2))
+
+    gates[1]?.()
+    await first
+    expect(calls).toBe(2)
+  })
+
+  it('reports a build error through onError and keeps accepting triggers', async () => {
+    const errors: Array<string> = []
+    let shouldFail = true
+    const runner = createBuildRunner(
+      async () => {
+        if (shouldFail) throw new Error('build exploded')
+      },
+      (error) => errors.push(error.message),
+    )
+
+    await runner()
+    expect(errors).toStrictEqual(['build exploded'])
+
+    shouldFail = false
+    await runner()
+    expect(errors).toStrictEqual(['build exploded'])
   })
 })

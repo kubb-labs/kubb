@@ -1,4 +1,3 @@
-import { hash } from 'node:crypto'
 import { basename, dirname, resolve } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
@@ -8,7 +7,7 @@ import { toError } from '@internals/utils'
 import type { CLIOptions, Config, KubbHooks, PossibleConfig } from '@kubb/core'
 import { NonZeroExitError, x } from 'tinyexec'
 import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
-import { WATCHER_IGNORED_PATHS } from '../../constants.ts'
+import { WATCHER_DEBOUNCE_MS, WATCHER_IGNORED_PATHS } from '../../constants.ts'
 
 const loader = createModuleLoader()
 
@@ -90,6 +89,57 @@ type ExecuteHooksOptions = {
 }
 
 /**
+ * Outcome of a single hook subprocess, returned by `runHook` alongside the
+ * `kubb:hook:end` event it emits for the loggers.
+ */
+export type HookResult = {
+  /**
+   * `true` when the command exited with code `0`.
+   */
+  success: boolean
+  error: Error | null
+  /**
+   * Captured stdout, only present on a non-zero exit.
+   */
+  stdout?: string
+  /**
+   * Captured stderr, only present on a non-zero exit.
+   */
+  stderr?: string
+}
+
+let hookSequence = 0
+
+/**
+ * Returns a process-unique id that correlates a hook's `kubb:hook:start` and `kubb:hook:end`
+ * events, which loggers use to key their per-hook state.
+ */
+export function createHookId(): string {
+  hookSequence += 1
+  return `hook-${hookSequence}`
+}
+
+/**
+ * Returns `true` when `latest` is a newer semver version than `current`. Compares each numeric
+ * part, so `5.10.0` beats `5.9.0` where a plain string comparison would not. Prerelease
+ * suffixes are ignored, and a malformed version never reports an update.
+ */
+export function isNewerVersion(current: string, latest: string): boolean {
+  const parse = (value: string) => (value.split('-')[0] ?? '').split('.').map(Number)
+  const currentParts = parse(current)
+  const latestParts = parse(latest)
+
+  for (let index = 0; index < Math.max(currentParts.length, latestParts.length); index++) {
+    const currentPart = currentParts[index] ?? 0
+    const latestPart = latestParts[index] ?? 0
+    if (Number.isNaN(currentPart) || Number.isNaN(latestPart)) return false
+    if (latestPart > currentPart) return true
+    if (latestPart < currentPart) return false
+  }
+  return false
+}
+
+/**
  * Tokenizes a shell command string, respecting single and double quotes.
  *
  * @example
@@ -103,21 +153,25 @@ function tokenize(command: string): Array<string> {
 }
 
 /**
- * Runs the `done` hooks defined in a Kubb config in sequence.
+ * Runs the `done` hooks defined in a Kubb config in sequence and returns each hook's outcome,
+ * so the caller can turn failures into diagnostics.
  */
-export async function executeHooks({ configHooks, hooks }: ExecuteHooksOptions): Promise<void> {
+export async function executeHooks({ configHooks, hooks }: ExecuteHooksOptions): Promise<Array<HookResult>> {
   const commands = Array.isArray(configHooks.done) ? configHooks.done : [configHooks.done].filter(Boolean)
+  const results: Array<HookResult> = []
 
   for (const command of commands) {
     const [cmd, ...args] = tokenize(command)
     if (!cmd) continue
 
-    const hookId = hash('sha256', command, 'hex')
+    const hookId = createHookId()
     const commandWithArgs = [cmd, ...args].join(' ')
 
     await hooks.emit('kubb:hook:start', { id: hookId, command: cmd, args })
-    await runHook({ id: hookId, command: cmd, args, commandWithArgs, hooks })
+    results.push(await runHook({ id: hookId, command: cmd, args, commandWithArgs, hooks }))
   }
+
+  return results
 }
 
 type RunHookOptions = {
@@ -129,14 +183,16 @@ type RunHookOptions = {
 }
 
 /**
- * Spawns a hook command and reports its outcome through `kubb:hook:end`.
- * A non-zero exit signals failure via `kubb:hook:end` rather than throwing, so the caller can turn
+ * Spawns a hook command and returns its outcome, mirroring it through `kubb:hook:end` for the
+ * loggers. A non-zero exit returns `success: false` rather than throwing, so the caller can turn
  * it into a diagnostic. Other spawn errors do the same. Output is streamed through `kubb:hook:line`
  * only while a listener is attached.
  */
-export async function runHook({ id, command, args, commandWithArgs, hooks }: RunHookOptions): Promise<void> {
-  const emitEnd = (success: boolean, error: Error | null, output?: { stdout?: string; stderr?: string }) =>
-    hooks.emit('kubb:hook:end', { command, args, id, success, error, ...output })
+export async function runHook({ id, command, args, commandWithArgs, hooks }: RunHookOptions): Promise<HookResult> {
+  const emitEnd = async (result: HookResult): Promise<HookResult> => {
+    await hooks.emit('kubb:hook:end', { command, args, id, ...result })
+    return result
+  }
 
   // Only stream line-by-line when a logger is listening, so the non-streaming plain
   // logger doesn't pay to iterate the subprocess output.
@@ -156,22 +212,20 @@ export async function runHook({ id, command, args, commandWithArgs, hooks }: Run
 
     await proc
     await hooks.emit('kubb:success', { message: `${styleText('dim', commandWithArgs)} successfully executed` })
-    await emitEnd(true, null)
+    return emitEnd({ success: true, error: null })
   } catch (err) {
     if (!(err instanceof NonZeroExitError)) {
-      const error = toError(err)
-      await emitEnd(false, error)
-      return
+      return emitEnd({ success: false, error: toError(err) })
     }
 
     const stderr = err.output?.stderr ?? ''
     const stdout = err.output?.stdout ?? ''
 
     const error = new Error(`Hook execute failed: ${commandWithArgs}`)
-    // Signal the failure via `kubb:hook:end` only, carrying the captured output so the logger can
-    // render it. The caller turns this into a coded diagnostic and emits that through
-    // `Diagnostics.emit`, so emitting `kubb:error` here would render it twice.
-    await emitEnd(false, error, { stdout, stderr })
+    // Signal the failure via the result and `kubb:hook:end` only, carrying the captured output so
+    // the logger can render it. The caller turns this into a coded diagnostic and emits that
+    // through `Diagnostics.emit`, so emitting `kubb:error` here would render it twice.
+    return emitEnd({ success: false, error, stdout, stderr })
   }
 }
 
@@ -181,8 +235,41 @@ type WatcherLog = {
 }
 
 /**
+ * Serializes build runs for the watcher: a trigger that lands while a build is running marks the
+ * queue dirty and reruns once after, so bursts of file events never overlap builds on the shared
+ * hooks emitter. Errors go to `onError` instead of rejecting, so the watcher keeps running.
+ */
+export function createBuildRunner(run: () => Promise<void>, onError: (error: Error) => void): () => Promise<void> {
+  let running = false
+  let dirty = false
+
+  const execute = async (): Promise<void> => {
+    if (running) {
+      dirty = true
+      return
+    }
+    running = true
+    try {
+      await run()
+    } catch (error) {
+      onError(toError(error))
+    } finally {
+      running = false
+      if (dirty) {
+        dirty = false
+        await execute()
+      }
+    }
+  }
+
+  return execute
+}
+
+/**
  * Starts a file watcher on the given paths and calls `cb` on any change.
- * Ignores `.git` and `node_modules` directories.
+ * Ignores `.git` and `node_modules` directories. Event bursts (an editor save emits several)
+ * are debounced into one build, and builds never overlap: changes during a build queue exactly
+ * one rebuild.
  */
 export async function startWatcher(
   path: Array<string>,
@@ -190,7 +277,9 @@ export async function startWatcher(
   log: WatcherLog = { info: console.log, error: console.log },
 ): Promise<void> {
   const { watch } = await import('chokidar')
-  const watcher = watch(path, { ignorePermissionErrors: true, ignored: WATCHER_IGNORED_PATHS })
+  // `ignoreInitial` skips the `add` events chokidar fires for existing files at startup, which
+  // would otherwise rebuild right after the initial run.
+  const watcher = watch(path, { ignorePermissionErrors: true, ignored: WATCHER_IGNORED_PATHS, ignoreInitial: true })
 
   process.once('SIGINT', () => {
     watcher.close()
@@ -199,12 +288,18 @@ export async function startWatcher(
     watcher.close()
   })
 
-  watcher.on('all', async (type, file) => {
+  const runBuild = createBuildRunner(
+    () => cb(path),
+    () => log.error(styleText('red', 'Watcher failed')),
+  )
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null
+
+  watcher.on('all', (type, file) => {
     log.info(styleText('yellow', styleText('bold', `Change detected: ${type} ${file}`)))
-    try {
-      await cb(path)
-    } catch (_e) {
-      log.error(styleText('red', 'Watcher failed'))
-    }
+    if (debounceTimer) clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(() => {
+      debounceTimer = null
+      void runBuild()
+    }, WATCHER_DEBOUNCE_MS)
   })
 }

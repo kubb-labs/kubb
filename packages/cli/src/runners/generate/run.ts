@@ -1,4 +1,3 @@
-import { hash } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -19,10 +18,10 @@ import {
   type ReporterName,
 } from '@kubb/core'
 import { version } from '../../../package.json'
-import { KUBB_NPM_PACKAGE_URL } from '../../constants.ts'
+import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.ts'
 import { Telemetry } from '../../Telemetry.ts'
 import setupReporters, { selectReporters } from '../../loggers/utils.ts'
-import { executeHooks, getConfigs, runHook, startWatcher } from './utils.ts'
+import { createHookId, executeHooks, getConfigs, isNewerVersion, runHook, startWatcher } from './utils.ts'
 
 type GenerateProps = {
   input?: string
@@ -40,36 +39,11 @@ type RunToolPassOptions = {
   toolLabel: string
   successPrefix: string
   noToolMessage: string
-  configName: string | undefined
   outputPath: string
   logLevel: number
   hooks: AsyncEventEmitter<KubbHooks>
   onStart: () => Promise<void>
   onEnd: () => Promise<void>
-}
-
-/**
- * Registers a one-shot `kubb:hook:end` listener for `hookId` before the caller emits `kubb:hook:start`,
- * so a synchronous emitter cannot fire end before the listener is attached.
- */
-function waitForHookEnd(
-  hooks: AsyncEventEmitter<KubbHooks>,
-  hookId: string,
-  onSuccess: () => Promise<void> | void,
-  fallbackErrorMessage: string,
-): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    const handler = (ctx: { id?: string; command: string; args?: ReadonlyArray<string>; success: boolean; error: Error | null }) => {
-      if (ctx.id !== hookId) return
-      hooks.off('kubb:hook:end', handler)
-      if (!ctx.success) {
-        reject(ctx.error ?? new Error(fallbackErrorMessage))
-        return
-      }
-      Promise.resolve(onSuccess()).then(resolve).catch(reject)
-    }
-    hooks.on('kubb:hook:end', handler)
-  })
 }
 
 async function runToolPass({
@@ -79,7 +53,6 @@ async function runToolPass({
   toolLabel,
   successPrefix,
   noToolMessage,
-  configName,
   outputPath,
   logLevel,
   hooks,
@@ -105,7 +78,6 @@ async function runToolPass({
   // (e.g. oxlint with --no-ignore) doesn't fail with "No files found to lint".
   if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in toolMap && existsSync(outputPath)) {
     const toolConfig = toolMap[resolvedTool as keyof ToolMap]
-    const hookId = hash('sha256', [configName, resolvedTool].filter(Boolean).join('-'), 'hex')
 
     const successMessage = [
       `${successPrefix} with ${styleText('dim', resolvedTool)}`,
@@ -116,24 +88,22 @@ async function runToolPass({
       .join(' ')
 
     try {
+      const hookId = createHookId()
       const hookArgs = toolConfig.args(outputPath)
       const commandWithArgs = [toolConfig.command, ...hookArgs].join(' ')
-      const hookEndPromise = waitForHookEnd(hooks, hookId, () => hooks.emit('kubb:success', { message: successMessage }), toolConfig.errorMessage)
 
       await hooks.emit('kubb:hook:start', { id: hookId, command: toolConfig.command, args: hookArgs })
 
-      runHook({
-        id: hookId,
-        command: toolConfig.command,
-        args: hookArgs,
-        commandWithArgs,
-        hooks,
-      }).catch(() => {})
+      const result = await runHook({ id: hookId, command: toolConfig.command, args: hookArgs, commandWithArgs, hooks })
 
-      await hookEndPromise
+      if (result.success) {
+        await hooks.emit('kubb:success', { message: successMessage })
+      } else {
+        // Don't render here. The caller turns this into a coded diagnostic and emits it through
+        // `Diagnostics.emit`, so format/lint failures render like every other diagnostic.
+        toolError = result.error ?? new Error(toolConfig.errorMessage)
+      }
     } catch (caughtError) {
-      // Don't render here. The caller turns this into a coded diagnostic and emits it through
-      // `Diagnostics.emit`, so format/lint/hook failures render like every other diagnostic.
       toolError = toError(caughtError)
     }
   }
@@ -154,8 +124,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
   const config: Config = {
     ...options.config,
     input: inputPath ? { ...options.config.input, path: inputPath } : options.config.input,
-    ...options.config.output,
-  } satisfies Config
+  }
 
   const kubb = createKubb(config, { hooks })
 
@@ -227,11 +196,11 @@ async function generate(options: GenerateProps): Promise<boolean> {
       onStart: () => hooks.emit('kubb:lint:start'),
       onEnd: () => hooks.emit('kubb:lint:end'),
     },
-  ].filter(Boolean) as Array<{ code: ProblemDiagnostic['code'] } & Omit<RunToolPassOptions, 'configName' | 'outputPath' | 'logLevel' | 'hooks'>>
+  ].filter(Boolean) as Array<{ code: ProblemDiagnostic['code'] } & Omit<RunToolPassOptions, 'outputPath' | 'logLevel' | 'hooks'>>
 
   for (const { code, ...pass } of toolPasses) {
     try {
-      await runToolPass({ ...pass, configName: config.name, outputPath, logLevel, hooks })
+      await runToolPass({ ...pass, outputPath, logLevel, hooks })
     } catch (caughtError) {
       const diagnostic = outputDiagnostic(code, pass.toolLabel, caughtError)
       outputDiagnostics.push(diagnostic)
@@ -241,20 +210,10 @@ async function generate(options: GenerateProps): Promise<boolean> {
 
   if (config.hooks) {
     await hooks.emit('kubb:hooks:start')
-    // `runHook` reports a failed `done` hook via `kubb:hook:end` rather than throwing, so listen
-    // for it across this pass and collect each failure.
-    const hookFailures: Array<Error> = []
-    const onHookEnd = (ctx: { success: boolean; error: Error | null }) => {
-      if (!ctx.success) hookFailures.push(ctx.error ?? new Error('Post-generate hook failed'))
-    }
-    hooks.on('kubb:hook:end', onHookEnd)
-    try {
-      await executeHooks({ configHooks: config.hooks, hooks })
-    } finally {
-      hooks.off('kubb:hook:end', onHookEnd)
-    }
-    for (const error of hookFailures) {
-      const diagnostic = outputDiagnostic(Diagnostics.code.hookFailed, 'Post-generate hook', error)
+    const hookResults = await executeHooks({ configHooks: config.hooks, hooks })
+    for (const result of hookResults) {
+      if (result.success) continue
+      const diagnostic = outputDiagnostic(Diagnostics.code.hookFailed, 'Post-generate hook', result.error ?? new Error('Post-generate hook failed'))
       outputDiagnostics.push(diagnostic)
       await Diagnostics.emit(hooks, diagnostic)
     }
@@ -306,9 +265,9 @@ type GenerateCommandOptions = {
 
 async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void> {
   try {
-    const res = await fetch(KUBB_NPM_PACKAGE_URL)
+    const res = await fetch(KUBB_NPM_PACKAGE_URL, { signal: AbortSignal.timeout(UPDATE_CHECK_TIMEOUT_MS) })
     const data = (await res.json()) as { version: string }
-    if (data.version && version < data.version) {
+    if (data.version && isNewerVersion(version, data.version)) {
       await Diagnostics.emit(hooks, Diagnostics.update({ currentVersion: version, latestVersion: data.version }))
     }
   } catch {
@@ -364,18 +323,24 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     let anyFailed = false
     for (const config of configs) {
       if (config.input && 'path' in config.input && watch) {
-        await startWatcher(
-          [input || config.input.path],
-          async (paths) => {
-            // Don't removeAll(), that would also drop logger and lifecycle listeners.
-            // Plugin listeners are already disposed by safeBuild's
-            // setupResult.dispose() in its finally block, so re-running generate()
-            // on the same hooks emitter is safe.
-            await generate({ input, config, logLevel, hooks })
-            clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
-          },
-          { info: (msg) => clack.log.info(msg), error: (msg) => clack.log.error(msg) },
-        )
+        const watchedPaths = [input || config.input.path]
+        // Don't removeAll() between builds, that would also drop logger and lifecycle
+        // listeners. Plugin listeners are already disposed by safeBuild's dispose()
+        // in its finally block, so re-running generate() on the same hooks emitter is safe.
+        const build = async (paths: Array<string>) => {
+          await generate({ input, config, logLevel, hooks })
+          clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
+        }
+
+        // The watcher ignores chokidar's startup events, so run the first build here. A failing
+        // first build keeps watching, since the user can fix the input and save.
+        try {
+          await build(watchedPaths)
+        } catch (buildError) {
+          await hooks.emit('kubb:error', { error: toError(buildError) })
+        }
+
+        await startWatcher(watchedPaths, build, { info: (msg) => clack.log.info(msg), error: (msg) => clack.log.error(msg) })
       } else {
         try {
           const succeeded = await generate({ input, config, logLevel, hooks })
