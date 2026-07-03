@@ -65,7 +65,7 @@ function resolveConfig(userConfig: UserConfig): Config {
   }
 }
 
-type CreateKubbOptions = {
+export type CreateKubbOptions = {
   hooks?: AsyncEventEmitter<KubbHooks>
 }
 
