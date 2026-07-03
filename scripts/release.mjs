@@ -10,14 +10,6 @@ function readPreTag() {
   }
 }
 
-function capture({ cmd, args }) {
-  const result = spawnSync(cmd, args, { encoding: 'utf8' })
-  if (result.stdout) process.stdout.write(result.stdout)
-  if (result.stderr) process.stderr.write(result.stderr)
-  if (result.status !== 0) process.exit(result.status ?? 1)
-  return result.stdout ?? ''
-}
-
 // Parse pnpm stage publish output into [{ name, version }]. Prefers the --json
 // payload, in whichever shape it comes in (a bare array, or an object keyed by
 // package name, both observed across pnpm/npm staged-publish responses), then
@@ -49,7 +41,11 @@ function main() {
   const stageArgs = ['stage', 'publish', '-r', '--no-git-check', '--access', 'public', '--json']
   if (tag) stageArgs.push('--tag', tag)
 
-  const output = capture({ cmd: 'pnpm', args: stageArgs })
+  const result = spawnSync('pnpm', stageArgs, { encoding: 'utf8' })
+  if (result.stdout) process.stdout.write(result.stdout)
+  if (result.stderr) process.stderr.write(result.stderr)
+  if (result.status !== 0) process.exit(result.status ?? 1)
+  const output = result.stdout ?? ''
   const staged = parseStaged(output)
 
   // Tags aren't created here. A staged package may still be rejected on npm,

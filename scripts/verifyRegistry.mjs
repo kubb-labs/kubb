@@ -5,16 +5,12 @@ import { appendFileSync } from 'node:fs'
 const RETRY_ATTEMPTS = 6
 const RETRY_DELAY_MS = 10_000
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
 function isLiveOnRegistry(pkg) {
   const result = spawnSync('npm', ['view', `${pkg.name}@${pkg.version}`, '--json'], { encoding: 'utf8' })
   if (result.status !== 0) return false
 
   try {
-    const parsed = JSON.parse(result.stdout || '{}')
+    const parsed = JSON.parse(result.stdout)
     return Boolean(parsed?.version)
   } catch {
     return false
@@ -28,7 +24,7 @@ function isLiveOnRegistry(pkg) {
 export async function verifyPackage({ pkg, attempts = RETRY_ATTEMPTS, delayMs = RETRY_DELAY_MS }) {
   for (let attempt = 1; attempt <= attempts; attempt++) {
     if (isLiveOnRegistry(pkg)) return true
-    if (attempt < attempts) await sleep(delayMs)
+    if (attempt < attempts) await new Promise((r) => setTimeout(r, delayMs))
   }
 
   return false
