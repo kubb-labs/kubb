@@ -1,13 +1,13 @@
 {
-  "name": "@kubb/renderer-jsx",
+  "name": "@kubb/kit",
   "version": "5.0.0-beta.81",
-  "description": "Self-contained synchronous JSX renderer for Kubb. Turns JSX into FileNodes with built-in components (File, Function, Type, Const). An alternative for the ast.factory syntax.",
+  "description": "Authoring toolkit for Kubb plugins, generators, adapters, resolvers, and renderers.",
   "keywords": [
     "codegen",
-    "jsx",
-    "jsx-runtime",
+    "kit",
     "kubb",
     "meta-framework",
+    "plugin",
     "typescript"
   ],
   "license": "MIT",
@@ -15,13 +15,12 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/renderer-jsx"
+    "directory": "packages/kit"
   },
   "files": [
     "dist",
     "*.d.ts",
     "*.d.cts",
-    "!*.map",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
@@ -31,35 +30,14 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "jsx-dev-runtime": [
-        "./dist/jsx-runtime.d.ts"
-      ],
-      "jsx-runtime": [
-        "./dist/jsx-runtime.d.ts"
-      ],
-      "types": [
-        "./dist/types.d.ts"
-      ]
-    }
-  },
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./jsx-dev-runtime": {
-      "import": "./dist/jsx-dev-runtime.js",
-      "require": "./dist/jsx-dev-runtime.cjs"
-    },
-    "./jsx-runtime": {
-      "import": "./dist/jsx-runtime.js",
-      "require": "./dist/jsx-runtime.cjs"
-    },
-    "./types": {
-      "import": "./dist/types.js",
-      "require": "./dist/types.cjs"
+    "./testing": {
+      "import": "./dist/testing.js",
+      "require": "./dist/testing.cjs"
     },
     "./package.json": "./package.json"
   },
@@ -69,19 +47,24 @@
   },
   "scripts": {
     "build": "tsdown",
-    "clean": "node -e \"require('fs').rmSync('./dist', {recursive:true,force:true})\"",
+    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
-    "start": "tsdown --watch ./src",
+    "release": "pnpm publish --no-git-check",
+    "release:stage": "pnpm stage publish --no-git-check",
+    "start": "tsdown --watch",
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@kubb/ast": "workspace:*",
-    "yaml": "catalog:"
+    "@kubb/core": "workspace:*"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*"
+  },
+  "peerDependencies": {
+    "@kubb/core": "workspace:*"
   },
   "engines": {
     "node": ">=22"

@@ -14,7 +14,8 @@
     "@internals/shared": "0.0.0",
     "@internals/utils": "0.0.0",
     "@kubb/parser-md": "5.0.0-beta.24",
-    "@kubb/plugin-barrel": "5.0.0-beta.50"
+    "@kubb/plugin-barrel": "5.0.0-beta.50",
+    "@kubb/kit": "5.0.0-beta.80"
   },
   "changesets": [
     "adapter-oas-bundle-named-components",
@@ -73,6 +74,7 @@
     "ast-epic2-abstraction-boundaries",
     "ast-export-param-helpers",
     "ast-factory-namespace",
+    "ast-fold-utils-macros-into-root",
     "ast-function-parameter-binding-name",
     "ast-helper-reorganization",
     "ast-multi-spec-vocabulary",
@@ -102,8 +104,10 @@
     "core-compiler-phases",
     "core-getmode-static-cleanup",
     "core-hot-path-perf",
+    "core-remove-ast-reexport",
     "core-remove-middleware",
     "core-renderer-contract-trim",
+    "core-resolve-options-weak-map-guard",
     "core-simplify-generate-dispatch",
     "core-split-createkubb-types",
     "core-type-safety-escape-hatches",
@@ -168,6 +172,7 @@
     "input-meta-circular-enum-names",
     "itchy-wombats-change",
     "jsdoc-accuracy-pass",
+    "kit-new-package",
     "knip-remove-dead-code",
     "knip-trim-unused-exports",
     "kubb-bun-native-runtime",

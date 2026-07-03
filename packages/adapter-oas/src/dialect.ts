@@ -1,4 +1,4 @@
-import { ast } from '@kubb/core'
+import { ast } from '@kubb/ast'
 import { isDiscriminator, isNullable, isReference } from './guards.ts'
 import { resolveRef } from './refs.ts'
 import type { SchemaObject } from './types.ts'

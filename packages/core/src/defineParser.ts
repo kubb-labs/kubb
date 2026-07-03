@@ -42,7 +42,7 @@ export type Parser<TMeta extends object = object, TNode = unknown> = {
  * @example
  * ```ts
  * import { defineParser } from '@kubb/core'
- * import { extractStringsFromNodes } from '@kubb/ast/utils'
+ * import { extractStringsFromNodes } from '@kubb/ast'
  *
  * export const jsonParser = defineParser({
  *   name: 'json',

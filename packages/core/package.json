@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "5.0.0-beta.80",
+  "version": "5.0.0-beta.81",
   "description": "Core engine for Kubb. Provides the plugin driver, file manager and build orchestration used by every Kubb plugin.",
   "keywords": [
     "code-generator",
@@ -67,11 +67,7 @@
     "@kubb/ast": "workspace:*"
   },
   "devDependencies": {
-    "@internals/utils": "workspace:*",
-    "@kubb/renderer-jsx": "workspace:*"
-  },
-  "peerDependencies": {
-    "@kubb/renderer-jsx": "workspace:*"
+    "@internals/utils": "workspace:*"
   },
   "engines": {
     "node": ">=22"

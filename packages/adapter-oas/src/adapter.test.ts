@@ -1,4 +1,4 @@
-import { ast } from '@kubb/core'
+import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { adapterOas } from './adapter.ts'
 

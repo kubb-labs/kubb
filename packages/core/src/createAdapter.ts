@@ -102,7 +102,8 @@ type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) =
  *
  * @example
  * ```ts
- * import { createAdapter, ast, type AdapterFactoryOptions } from '@kubb/core'
+ * import { createAdapter, type AdapterFactoryOptions } from '@kubb/core'
+ * import { ast } from '@kubb/ast'
  *
  * type MyAdapter = AdapterFactoryOptions<'my-adapter', { validate?: boolean }>
  *

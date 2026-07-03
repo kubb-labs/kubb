@@ -1,4 +1,5 @@
-import { ast, createAdapter } from '@kubb/core'
+import { ast, collect, extractRefName, narrowSchema } from '@kubb/ast'
+import { createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { assertInputExists, parseDocument, parseFromConfig, validateDocument } from './factory.ts'
@@ -6,8 +7,6 @@ import { createSchemaParser } from './parser.ts'
 import { getSchemas } from './resolvers.ts'
 import { createInputStream, preScan, resolveBaseUrl } from './stream.ts'
 import type { AdapterOas, Document } from './types.ts'
-import { collect, narrowSchema } from '@kubb/ast'
-import { extractRefName } from '@kubb/ast/utils'
 
 /**
  * The `name` of `@kubb/adapter-oas`, used to identify this adapter in a Kubb config.

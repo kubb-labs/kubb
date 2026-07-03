@@ -1,5 +1,4 @@
-import { findCircularSchemas } from '@kubb/ast/utils'
-import { ast } from '@kubb/core'
+import { ast, findCircularSchemas } from '@kubb/ast'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
 import { getOperations } from './operation.ts'
 import type { SchemaParser } from './parser.ts'

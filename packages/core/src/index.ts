@@ -1,5 +1,4 @@
 export { AsyncEventEmitter, Url } from '@internals/utils'
-export { ast } from '@kubb/ast'
 export { createAdapter } from './createAdapter.ts'
 export { Diagnostics } from './diagnostics.ts'
 export { createKubb } from './createKubb.ts'
