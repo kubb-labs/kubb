@@ -102,6 +102,7 @@
     "cli-unconfig-module-configs",
     "coded-errors-and-mcp-diagnostics",
     "cool-jokes-pump",
+    "core-ast-readme-internal-library",
     "core-compiler-phases",
     "core-getmode-static-cleanup",
     "core-hot-path-perf",
