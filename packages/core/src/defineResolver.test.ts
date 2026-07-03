@@ -1,5 +1,5 @@
 import { camelCase } from '@internals/utils'
-import type { InputMeta } from '@kubb/ast'
+import { ast, type InputMeta } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { defaultResolveBanner, defaultResolveFile, defaultResolveFooter, defaultResolvePath, defineResolver } from './defineResolver.ts'
 import type { Config, Resolver, ResolverContext } from './types.ts'
@@ -62,6 +62,23 @@ describe('defineResolver', () => {
 
     expect(resolver.default('hello')).toBe('HELLO')
     expect(resolver.greet('world')).toBe('WORLD')
+  })
+
+  it('resolveOptions does not throw when options is not an object', () => {
+    const resolver = defineResolver<TestPluginFactory>(() => ({
+      pluginName: 'test',
+      name: 'test',
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    }))
+
+    const node = ast.factory.createFile({ baseName: 'pet.ts', path: 'src/pet.ts' })
+
+    // A re-instantiated plugin can hand back a falsy-but-not-nullish `options` (e.g. `false`).
+    // `resolveOptions` caches by `options` identity in a `WeakMap`, which only accepts object
+    // keys, so this must fall back to computing directly instead of throwing.
+    expect(() => resolver.resolveOptions<boolean>(node, { options: false })).not.toThrow()
+    expect(resolver.resolveOptions<boolean>(node, { options: false })).toBe(false)
   })
 })
 
