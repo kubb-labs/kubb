@@ -797,7 +797,7 @@ export type {
   SerializedDiagnostic,
   UpdateDiagnostic,
 } from './diagnostics.ts'
-export type { Kubb } from './createKubb.ts'
+export type { CreateKubbOptions, Kubb } from './createKubb.ts'
 export type { GenerationResult, Reporter, ReporterContext, ReporterName, UserReporter } from './createReporter.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'
 export type { Storage } from './createStorage.ts'
