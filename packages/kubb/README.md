@@ -61,7 +61,7 @@ See the [documentation](https://kubb.dev) for detailed usage and advanced featur
 - Read OpenAPI 2.0, 3.0, and 3.1 through adapters like [`@kubb/adapter-oas`](https://npmx.dev/package/@kubb/adapter-oas), with output for Node.js and Bun.
 - Enable only the [plugins](https://github.com/kubb-labs/plugins) you need: `plugin-ts`, `plugin-axios`, `plugin-fetch`, `plugin-react-query`, `plugin-vue-query`, `plugin-swr`, `plugin-zod`, `plugin-faker`, `plugin-msw`, `plugin-cypress`, `plugin-redoc`, `plugin-mcp`.
 - Shape the output by grouping files by tag, including or excluding operations, and writing to disk, memory, or a custom storage backend.
-- Build your own output with custom plugins, adapters, and the JSX renderer (`@kubb/renderer-jsx`).
+- Build your own plugins, generators, adapters, and renderers with the [`kubb/kit`](https://kubb.dev/docs/5.x/reference/kit) authoring toolkit, plus a JSX renderer for component-based output.
 - Run generation in your bundler with `unplugin-kubb` for [Vite](https://github.com/vitejs/vite), [Nuxt](https://github.com/nuxt/nuxt), [Astro](https://github.com/withastro/astro), [webpack](https://github.com/webpack/webpack), and more.
 - Drive generation from AI tools over the built-in MCP server ([Claude](https://claude.ai), [Cursor](https://cursor.sh)) or inside [Claude Code](https://kubb.dev/docs/5.x/ai/claude).
 

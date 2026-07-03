@@ -6,6 +6,7 @@ Kubb is a code-generation toolkit for generating TypeScript, React-Query, Zod, F
 
 Kubb is built from:
 - Core engine (`@kubb/core`) runs the plugin system and orchestrates code generation
+- Authoring kit (`@kubb/kit`, reached through the `kubb/kit` subpath) bundles the helpers for building plugins, generators, adapters, resolvers, and renderers
 - Adapters (`@kubb/adapter-oas`) transform OpenAPI specs into an AST
 - Renderers and utilities turn the AST into code
 - The CLI is the entry point for code generation
