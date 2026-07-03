@@ -44,7 +44,44 @@ type RequirePluginContext = {
 }
 
 function enforceOrder(enforce: Enforce | undefined): number {
-  return enforce === 'pre' ? -1 : enforce === 'post' ? 1 : 0
+  if (enforce === 'pre') return -1
+  if (enforce === 'post') return 1
+  return 0
+}
+
+/**
+ * Orders plugins so every dependency runs before its dependents (Kahn's algorithm), with
+ * `enforce` (`'pre'` before normal before `'post'`) and declaration order as tiebreaks.
+ * A pairwise `Array.sort` comparator cannot do this: dependency relations are not transitive
+ * at the comparator level, so a chain where A depends on B and B depends on C could come out
+ * wrong when A and C are never compared directly. Dependencies on plugins missing from the
+ * config are ignored here and surface later through `requirePlugin`.
+ */
+function sortPlugins(plugins: Array<NormalizedPlugin>): Array<NormalizedPlugin> {
+  const queue = [...plugins].sort((a, b) => enforceOrder(a.enforce) - enforceOrder(b.enforce))
+  const names = new Set(queue.map((plugin) => plugin.name))
+  const blockedBy = new Map(queue.map((plugin) => [plugin.name, new Set(plugin.dependencies?.filter((name) => names.has(name) && name !== plugin.name))]))
+
+  const sorted: Array<NormalizedPlugin> = []
+  while (queue.length > 0) {
+    const index = queue.findIndex((plugin) => blockedBy.get(plugin.name)?.size === 0)
+    if (index === -1) {
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.invalidPluginOptions,
+        severity: 'error',
+        message: `Plugin dependencies form a cycle: ${queue.map((plugin) => plugin.name).join(' → ')}.`,
+        help: 'Remove one of the `dependencies` entries so the plugins can be ordered.',
+        location: { kind: 'config' },
+      })
+    }
+    const [plugin] = queue.splice(index, 1)
+    if (!plugin) break
+    sorted.push(plugin)
+    for (const blockers of blockedBy.values()) {
+      blockers.delete(plugin.name)
+    }
+  }
+  return sorted
 }
 
 export class KubbDriver {
@@ -113,16 +150,7 @@ export class KubbDriver {
    * so `run` can parse it later.
    */
   async setup() {
-    const normalized: Array<NormalizedPlugin> = this.config.plugins.map((rawPlugin) => this.#normalizePlugin(rawPlugin as Plugin))
-
-    const dependenciesByName = new Map(normalized.map((plugin) => [plugin.name, new Set(plugin.dependencies ?? [])]))
-
-    normalized.sort((a, b) => {
-      if (dependenciesByName.get(b.name)?.has(a.name)) return -1
-      if (dependenciesByName.get(a.name)?.has(b.name)) return 1
-
-      return enforceOrder(a.enforce) - enforceOrder(b.enforce)
-    })
+    const normalized = sortPlugins(this.config.plugins.map((rawPlugin) => this.#normalizePlugin(rawPlugin as Plugin)))
 
     for (const plugin of normalized) {
       if (plugin.apply) {

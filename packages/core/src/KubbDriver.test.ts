@@ -74,6 +74,37 @@ describe('PluginDriver', () => {
     expect(names.indexOf('normal')).toBeLessThan(names.indexOf('post'))
   })
 
+  test('orders a transitive dependency chain so dependencies always run first', async () => {
+    const pluginTop = { name: 'top', dependencies: ['middle'], hooks: {} }
+    const pluginMiddle = { name: 'middle', dependencies: ['base'], hooks: {} }
+    const pluginBase = { name: 'base', hooks: {} }
+
+    const cfg = {
+      ...config,
+      // declared dependents-first so declaration order alone cannot produce the result
+      plugins: [pluginTop, pluginMiddle, pluginBase] as unknown as Array<Plugin>,
+    } satisfies Config
+
+    const driver = new KubbDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    await driver.setup()
+
+    expect([...driver.plugins.keys()]).toStrictEqual(['base', 'middle', 'top'])
+  })
+
+  test('setup rejects with a config diagnostic when plugin dependencies form a cycle', async () => {
+    const first = { name: 'first', dependencies: ['second'], hooks: {} }
+    const second = { name: 'second', dependencies: ['first'], hooks: {} }
+
+    const cfg = {
+      ...config,
+      plugins: [first, second] as unknown as Array<Plugin>,
+    } satisfies Config
+
+    const driver = new KubbDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })
+
+    await expect(driver.setup()).rejects.toThrow('Plugin dependencies form a cycle')
+  })
+
   test('does not throw when a plugin has no hooks property', async () => {
     const pluginWithoutHooks = { name: 'no-hooks' } as unknown as Plugin
     const cfg = {

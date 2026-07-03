@@ -2,7 +2,7 @@ import process from 'node:process'
 import { AsyncEventEmitter } from '@internals/utils'
 import type { KubbHooks } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { runHook } from './utils.ts'
+import { isNewerVersion, runHook } from './utils.ts'
 
 const node = process.execPath
 
@@ -85,5 +85,58 @@ describe('runHook', () => {
     })
 
     expect(succeeded).toBe(true)
+  })
+
+  it('returns success=true with no error when the command exits 0', async () => {
+    const hooks = new AsyncEventEmitter<KubbHooks>()
+
+    const result = await runHook({
+      id: 'e',
+      command: node,
+      args: ['-e', 'console.log("noop")'],
+      commandWithArgs: 'node',
+      hooks,
+    })
+
+    expect(result).toStrictEqual({ success: true, error: null })
+  })
+
+  it('returns success=false with the error and captured output on a non-zero exit', async () => {
+    const hooks = new AsyncEventEmitter<KubbHooks>()
+
+    const result = await runHook({
+      id: 'f',
+      command: node,
+      args: ['-e', 'process.stdout.write("out"); process.stderr.write("boom"); process.exit(1)'],
+      commandWithArgs: 'node',
+      hooks,
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.error?.message).toContain('Hook execute failed')
+    expect(result.stdout).toContain('out')
+    expect(result.stderr).toContain('boom')
+  })
+})
+
+describe('isNewerVersion', () => {
+  it('returns true when the latest minor is double-digit', () => {
+    expect(isNewerVersion('5.9.0', '5.10.0')).toBe(true)
+  })
+
+  it('returns false when the versions are equal', () => {
+    expect(isNewerVersion('5.9.0', '5.9.0')).toBe(false)
+  })
+
+  it('returns false when the latest version is older', () => {
+    expect(isNewerVersion('5.10.0', '5.9.9')).toBe(false)
+  })
+
+  it('ignores prerelease suffixes when comparing', () => {
+    expect(isNewerVersion('5.9.0-beta.1', '5.9.1')).toBe(true)
+  })
+
+  it('returns false for a malformed latest version', () => {
+    expect(isNewerVersion('5.9.0', 'not-a-version')).toBe(false)
   })
 })
