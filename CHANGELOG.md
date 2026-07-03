@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.84 — Jul 3, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Frame `@kubb/core` and `@kubb/ast` as internal libraries in their READMEs. Plugin authors import from `kubb/kit`, which re-exports the authoring surface of both packages, instead of depending on them directly. ([#3706](https://github.com/kubb-labs/kubb/pull/3706), [`7cd9b51`](https://github.com/kubb-labs/kubb/commit/7cd9b51508d1dfa278f8a9068bf8bc0172c92b24))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.83 — Jul 3, 2026
 
 ### @kubb/ast
