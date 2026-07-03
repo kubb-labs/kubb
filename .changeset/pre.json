@@ -176,6 +176,7 @@
     "knip-remove-dead-code",
     "knip-trim-unused-exports",
     "kubb-bun-native-runtime",
+    "kubb-create-kubb-export",
     "kubb-driver-streaming-cleanup",
     "macro-ast-transform-layer",
     "make-adapter-and-input-optional",
