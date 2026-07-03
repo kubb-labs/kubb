@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { extractPackageNotes } from './createReleases.mjs'
+import { extractPackageNotes, extractVersionNotes } from './createReleases.mjs'
 
 const changelog = `# Changelog
 
@@ -57,5 +57,20 @@ describe('extractPackageNotes', () => {
 
   it('returns null when the package has no section in that version', () => {
     expect(extractPackageNotes({ changelog, name: '@kubb/core', version: '5.0.0-beta.80' })).toBeNull()
+  })
+})
+
+describe('extractVersionNotes', () => {
+  it('returns the whole version block, covering every package in it', () => {
+    const notes = extractVersionNotes({ changelog, version: '5.0.0-beta.80' })
+
+    expect(notes).toContain('### @kubb/ast')
+    expect(notes).toContain('### @kubb/parser-md')
+    expect(notes).toContain('### Contributors')
+    expect(notes).not.toContain('v5.0.0-beta.79')
+  })
+
+  it('returns null when the version heading does not exist', () => {
+    expect(extractVersionNotes({ changelog, version: '9.9.9' })).toBeNull()
   })
 })

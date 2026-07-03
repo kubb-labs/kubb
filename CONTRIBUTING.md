@@ -134,9 +134,9 @@ To approve a release:
 
 1. A maintainer with npm publish access and two-factor authentication runs `npm stage approve` (or approves from npmjs.com) for each staged package.
 2. The same maintainer approves the `promote` job's environment review on the workflow run in the Actions tab.
-3. The `promote` job then verifies the versions are actually live on npm, tags and creates a GitHub Release per package, and only then triggers the Discord announcement and the changelog sync to [kubb-labs/docs](https://github.com/kubb-labs/docs).
+3. The `promote` job then verifies the versions are actually live on npm, tags the released versions, creates a GitHub Release, and only then triggers the Discord announcement and the changelog sync to [kubb-labs/docs](https://github.com/kubb-labs/docs).
 
-Each package's GitHub Release notes come from that package's own section of the current version's block in `CHANGELOG.md`. A package that only picked up a dependency bump, with no changelog entry of its own, gets a short note saying so instead of an empty release.
+Every published package in this repo shares one version (see the `fixed` group in `.changeset/config.json`), so a release here creates a single combined GitHub Release for the whole version, tagged with `kubb`'s own tag, with notes covering every package's section of that version's block in `CHANGELOG.md`. This differs from [kubb-labs/plugins](https://github.com/kubb-labs/plugins), where packages version independently and each gets its own release. `scripts/createReleases.mjs` supports both modes through the `RELEASE_MODE` environment variable.
 
 If a staged version turns out to be wrong, reject it with `npm stage reject` instead of approving it. Nothing downstream fires for a rejected version.
 

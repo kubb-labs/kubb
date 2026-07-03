@@ -12,19 +12,25 @@ function escapeForRegExp(value) {
 
 // The custom changelog hook (internals/changelog/index.mjs) writes one root
 // CHANGELOG.md with a `## v<version>` heading per release and a `### <name>`
-// subsection per package inside it. Since every published package here sits
-// in one fixed version group, a single version heading covers all of them,
-// so pulling out one package's subsection reproduces what changesets/action
-// would normally show per package, sourced from this repo's aggregated file
-// instead of a per-package changelog.
-export function extractPackageNotes({ changelog, name, version }) {
+// subsection per package inside it. This finds that whole version block, the
+// shared starting point for both a combined, whole-version release and a
+// single package's own subsection within it.
+function findVersionBlock({ changelog, version }) {
   const versionHeading = new RegExp(`^##\\s+v?${escapeForRegExp(version)}\\b.*$`, 'm')
   const versionMatch = versionHeading.exec(changelog)
   if (!versionMatch) return null
 
   const afterVersion = changelog.slice(versionMatch.index + versionMatch[0].length)
   const nextVersionHeading = /^##\s+/m.exec(afterVersion)
-  const versionBlock = nextVersionHeading ? afterVersion.slice(0, nextVersionHeading.index) : afterVersion
+  return (nextVersionHeading ? afterVersion.slice(0, nextVersionHeading.index) : afterVersion).trim()
+}
+
+// Reproduces what changesets/action would normally show for one package,
+// sourced from this repo's aggregated CHANGELOG.md instead of a per-package
+// changelog.
+export function extractPackageNotes({ changelog, name, version }) {
+  const versionBlock = findVersionBlock({ changelog, version })
+  if (versionBlock === null) return null
 
   const packageHeading = new RegExp(`^###\\s+${escapeForRegExp(name)}\\s*$`, 'm')
   const packageMatch = packageHeading.exec(versionBlock)
@@ -37,18 +43,43 @@ export function extractPackageNotes({ changelog, name, version }) {
   return packageBlock.trim() || null
 }
 
+// For a repo where every published package is fixed to one shared version
+// (this repo's `fixed` group in .changeset/config.json covers all of them),
+// one release per package is redundant noise. This returns the whole version
+// block, covering every package's section in one go.
+export function extractVersionNotes({ changelog, version }) {
+  return findVersionBlock({ changelog, version })
+}
+
 function fallbackNotes({ repo }) {
   return `Dependency update only, no direct changes for this package. See [CHANGELOG.md](https://github.com/${repo}/blob/main/CHANGELOG.md) for the full release notes.`
 }
 
-function createRelease({ name, version, notes }) {
-  const tag = `${name}@${version}`
+function createRelease({ tag, title, notes }) {
   const dir = mkdtempSync(path.join(tmpdir(), 'release-notes-'))
   const notesPath = path.join(dir, 'notes.md')
   writeFileSync(notesPath, notes)
 
-  const result = spawnSync('gh', ['release', 'create', tag, '--title', tag, '--notes-file', notesPath], { stdio: 'inherit' })
+  const result = spawnSync('gh', ['release', 'create', tag, '--title', title, '--notes-file', notesPath], { stdio: 'inherit' })
   if (result.status !== 0) process.exit(result.status ?? 1)
+}
+
+function createPerPackageReleases({ staged, changelog, repo }) {
+  for (const pkg of staged) {
+    const notes = extractPackageNotes({ changelog, name: pkg.name, version: pkg.version }) ?? fallbackNotes({ repo })
+    createRelease({ tag: `${pkg.name}@${pkg.version}`, title: `${pkg.name}@${pkg.version}`, notes })
+  }
+}
+
+// One release for the whole version, tagged with the flagship package's own
+// tag (already created by the `changeset tag` step) rather than inventing a
+// second, parallel tagging scheme.
+function createCombinedRelease({ staged, changelog, repo }) {
+  const flagship = staged.find((pkg) => pkg.name === 'kubb') ?? staged[0]
+  if (!flagship) return
+
+  const notes = extractVersionNotes({ changelog, version: flagship.version }) ?? fallbackNotes({ repo })
+  createRelease({ tag: `${flagship.name}@${flagship.version}`, title: `v${flagship.version}`, notes })
 }
 
 function main() {
@@ -56,9 +87,10 @@ function main() {
   const repo = process.env.GITHUB_REPOSITORY
   const changelog = readFileSync(CHANGELOG_PATH, 'utf8')
 
-  for (const pkg of staged) {
-    const notes = extractPackageNotes({ changelog, name: pkg.name, version: pkg.version }) ?? fallbackNotes({ repo })
-    createRelease({ name: pkg.name, version: pkg.version, notes })
+  if (process.env.RELEASE_MODE === 'combined') {
+    createCombinedRelease({ staged, changelog, repo })
+  } else {
+    createPerPackageReleases({ staged, changelog, repo })
   }
 }
 

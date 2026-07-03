@@ -122,14 +122,18 @@ jobs:
           pnpm exec changeset tag
           git push --tags
 
-      # One release per package, notes pulled from that package's own section
-      # of CHANGELOG.md for this version, matching how changesets/action
-      # would normally format per-package releases.
+      # One combined release for the whole version, not one per package: every
+      # published package here sits in one fixed version group (see
+      # .changeset/config.json), so per-package releases would just repeat
+      # the same version number across a dozen separate pages. createReleases.mjs
+      # also supports per-package mode (RELEASE_MODE unset or 'per-package'),
+      # for a repo like kubb-labs/plugins where packages version independently.
       - name: Create GitHub Releases
         run: node scripts/createReleases.mjs
         env:
           STAGED_PACKAGES: ${{ needs.release.outputs.staged_packages }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_MODE: combined
 
   notify:
     name: Send Discord Notification
