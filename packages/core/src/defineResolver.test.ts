@@ -1,5 +1,5 @@
 import { camelCase } from '@internals/utils'
-import type { InputMeta } from '@kubb/ast'
+import { ast, type InputMeta } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { defaultResolveBanner, defaultResolveFile, defaultResolveFooter, defaultResolvePath, defineResolver } from './defineResolver.ts'
 import type { Config, Resolver, ResolverContext } from './types.ts'
@@ -72,11 +72,13 @@ describe('defineResolver', () => {
       farewell: (name: string) => name,
     }))
 
+    const node = ast.factory.createFile({ baseName: 'pet.ts', path: 'src/pet.ts' })
+
     // A re-instantiated plugin can hand back a falsy-but-not-nullish `options` (e.g. `false`).
     // `resolveOptions` caches by `options` identity in a `WeakMap`, which only accepts object
     // keys, so this must fall back to computing directly instead of throwing.
-    expect(() => resolver.resolveOptions({} as never, { options: false as never })).not.toThrow()
-    expect(resolver.resolveOptions({} as never, { options: false as never })).toBe(false)
+    expect(() => resolver.resolveOptions<boolean>(node, { options: false })).not.toThrow()
+    expect(resolver.resolveOptions<boolean>(node, { options: false })).toBe(false)
   })
 })
 
