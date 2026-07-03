@@ -10,7 +10,7 @@ function readPreTag() {
   }
 }
 
-function capture(cmd, args) {
+function capture({ cmd, args }) {
   const result = spawnSync(cmd, args, { encoding: 'utf8' })
   if (result.stdout) process.stdout.write(result.stdout)
   if (result.stderr) process.stderr.write(result.stderr)
@@ -18,13 +18,21 @@ function capture(cmd, args) {
   return result.stdout ?? ''
 }
 
-// Parse pnpm stage publish output into [{ name, version }]. Prefers --json
-// payload, falls back to scanning text output for `+ <name>@<version>` lines.
+// Parse pnpm stage publish output into [{ name, version }]. Prefers the --json
+// payload, in whichever shape it comes in (a bare array, or an object keyed by
+// package name, both observed across pnpm/npm staged-publish responses), then
+// falls back to scanning text output for `+ <name>@<version>` lines.
 export function parseStaged(output) {
   try {
     const parsed = JSON.parse(output)
-    if (Array.isArray(parsed)) {
-      return parsed.filter((entry) => entry?.name && entry?.version).map((entry) => ({ name: entry.name, version: entry.version }))
+    const entries = Array.isArray(parsed)
+      ? parsed
+      : parsed && typeof parsed === 'object'
+        ? Object.entries(parsed).map(([key, value]) => ({ name: value?.name ?? value?.packageName ?? key, version: value?.version }))
+        : null
+
+    if (entries) {
+      return entries.filter((entry) => entry?.name && entry?.version).map((entry) => ({ name: entry.name, version: entry.version }))
     }
   } catch {}
 
@@ -41,7 +49,7 @@ function main() {
   const stageArgs = ['stage', 'publish', '-r', '--no-git-check', '--access', 'public', '--json']
   if (tag) stageArgs.push('--tag', tag)
 
-  const output = capture('pnpm', stageArgs)
+  const output = capture({ cmd: 'pnpm', args: stageArgs })
   const staged = parseStaged(output)
 
   // Tags aren't created here. A staged package may still be rejected on npm,
