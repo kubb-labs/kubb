@@ -10,11 +10,6 @@ function readPreTag() {
   }
 }
 
-function run(cmd, args) {
-  const result = spawnSync(cmd, args, { stdio: 'inherit' })
-  if (result.status !== 0) process.exit(result.status ?? 1)
-}
-
 function capture(cmd, args) {
   const result = spawnSync(cmd, args, { encoding: 'utf8' })
   if (result.stdout) process.stdout.write(result.stdout)
@@ -49,14 +44,11 @@ function main() {
   const output = capture('pnpm', stageArgs)
   const staged = parseStaged(output)
 
-  // The only tag-push path: createGithubReleases is off on the changesets/action
-  // step, so the action no longer pushes tags itself. Tags are safe to push at
-  // stage time, since they're git refs, not a public npm-installability signal,
-  // and give the `promote` job's `gh release create` step something to point at
-  // once npm approval is confirmed.
-  run('pnpm', ['exec', 'changeset', 'tag'])
-  run('git', ['push', '--tags'])
-
+  // Tags aren't created here. A staged package may still be rejected on npm,
+  // and changesets/changesets#2025 specifically warns against tagging at
+  // stage time for that reason. The `promote` job creates and pushes tags
+  // itself, after confirming the versions are actually live.
+  //
   // Only signal a stage to the workflow if pnpm actually published something.
   // When everything was skipped (versions already on npm), let the canary step
   // fire instead — that's the intent for ordinary main pushes.
