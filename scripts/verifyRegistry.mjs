@@ -36,13 +36,21 @@ export async function verifyPackage({ pkg, attempts = RETRY_ATTEMPTS, delayMs = 
 
 async function main() {
   const staged = JSON.parse(process.env.STAGED_PACKAGES || '[]')
-  const results = []
-
-  for (const pkg of staged) {
-    process.stdout.write(`Checking ${pkg.name}@${pkg.version} ...\n`)
-    const live = await verifyPackage({ pkg })
-    results.push({ pkg, live })
+  if (staged.length === 0) {
+    console.error('STAGED_PACKAGES is empty. The promote job only runs when release staged something, so this should never happen.')
+    process.exit(1)
   }
+
+  // Each package's retries run independently, so verifying them concurrently
+  // instead of one after another keeps the total wait close to the slowest
+  // single package's retry budget, not the sum across every staged package.
+  const results = await Promise.all(
+    staged.map(async (pkg) => {
+      process.stdout.write(`Checking ${pkg.name}@${pkg.version} ...\n`)
+      const live = await verifyPackage({ pkg })
+      return { pkg, live }
+    }),
+  )
 
   const missing = results.filter((result) => !result.live)
   if (missing.length > 0) {
