@@ -28,18 +28,20 @@
 
 ## Installation
 
+Install `kubb` and import from the `kubb/kit` subpath, rather than depending on `@kubb/kit` directly.
+
 ```bash
-bun add @kubb/kit
+bun add kubb
 # or
-pnpm add @kubb/kit
+pnpm add kubb
 # or
-npm install @kubb/kit
+npm install kubb
 ```
 
 ## Usage
 
 ```typescript
-import { ast, definePlugin, defineGenerator } from '@kubb/kit'
+import { ast, definePlugin, defineGenerator } from 'kubb/kit'
 
 export const pluginExample = definePlugin(() => {
   return {
@@ -65,10 +67,10 @@ Rounding out the package are the option and hook types every plugin, generator, 
 
 ## Testing helpers
 
-`@kubb/kit/testing` holds the Vitest-backed test helpers (`createMockedPlugin`, `createMockedAdapter`, `renderGeneratorOperation`, `matchFiles`) used to unit test a plugin or generator without running a full build. It is a separate entry point so the main `@kubb/kit` import never pulls in Vitest.
+`kubb/kit/testing` holds the Vitest-backed test helpers (`createMockedPlugin`, `createMockedAdapter`, `renderGeneratorOperation`, `matchFiles`) used to unit test a plugin or generator without running a full build. It is a separate entry point so the main `kubb/kit` import never pulls in Vitest.
 
 ```typescript
-import { createMockedPlugin, renderGeneratorSchema } from '@kubb/kit/testing'
+import { createMockedPlugin, renderGeneratorSchema } from 'kubb/kit/testing'
 ```
 
 ## Why a separate package from `@kubb/core`
