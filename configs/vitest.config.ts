@@ -4,6 +4,14 @@ export default defineConfig({
   test: {
     testTimeout: 30_000,
     exclude: ['**/node_modules/**', '**/dist/**', '**/mocks/**', '**/*.bench.ts'],
+    server: {
+      deps: {
+        // Keep the TypeScript compiler external so Vite never runs it through
+        // import-analysis. Its bundle ships a sourceMappingURL without a .map,
+        // which Vite 8.1.1 fails to read.
+        external: ['typescript'],
+      },
+    },
     coverage: {
       exclude: [
         '**/**/plugin.ts', // exclude because we have e2e
