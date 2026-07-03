@@ -8,7 +8,13 @@ permissions: {}
 
 jobs:
   delete-branch:
-    if: github.event.pull_request.merged == true
+    # Bot-generated `chore/update-generated-examples-*` branches are excepted from the
+    # merged-only guard: their PR targets the source PR's own branch (mirroring
+    # kubb-labs/plugins' pr.yml), so if that source branch merges or closes first, GitHub
+    # auto-closes this PR unmerged and the branch would otherwise never get cleaned up.
+    if: >-
+      github.event.pull_request.merged == true ||
+      startsWith(github.event.pull_request.head.ref, 'chore/update-generated-examples-')
     runs-on: ubuntu-latest
     permissions:
       contents: write
