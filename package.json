@@ -48,7 +48,7 @@
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
-  "packageManager": "pnpm@11.5.2",
+  "packageManager": "pnpm@11.9.0",
   "engines": {
     "node": ">=22",
     "pnpm": ">=11.0.0"
