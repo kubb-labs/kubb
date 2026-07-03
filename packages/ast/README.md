@@ -30,13 +30,12 @@ Defines the node tree, visitor pattern, factory functions, and type guards used 
 
 | Path                            | Contents                                                                                                     |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `@kubb/ast`                     | Runtime: node definitions, guards, visitor, macro engine, string and ref helpers, constants                  |
-| `ast.factory` (via `@kubb/ast`) | Node constructors (`createSchema`, `createFile`, and friends), the `ts.factory` analogue                     |
-| `@kubb/ast/types`               | Types only: all node interfaces, type aliases, visitor types                                                 |
-| `kubb/kit`                      | Re-exports the `ast` and `factory` namespaces, so plugin authors reach the AST without a direct dependency   |
-| `kubb/ast`                      | The flat runtime and types bundled in the top-level `kubb` package, without the `ast` / `factory` namespaces |
+| `@kubb/ast`                     | Runtime: node definitions, guards, visitor, macro engine, string and ref helpers, constants                |
+| `ast.factory` (via `@kubb/ast`) | Node constructors (`createSchema`, `createFile`, and friends), the `ts.factory` analogue                   |
+| `@kubb/ast/types`               | Types only: all node interfaces, type aliases, visitor types                                               |
+| `kubb/kit`                      | Re-exports the `ast` and `factory` namespaces, the way most Kubb code reaches the AST without a direct dependency |
 
-`@kubb/ast` is internal to the kubb monorepo. Import it directly only from inside kubb itself. Plugins and user code reach the same surface through `kubb/kit` (the `ast` and `factory` namespaces) or `kubb/ast` (the flat runtime and types), so the `@kubb/ast` examples below map to those paths outside the monorepo.
+Install `@kubb/ast` when you want the AST on its own. Inside the Kubb ecosystem the same surface travels on the `ast` namespace from `kubb/kit`, so plugins and generators reach it there. The examples below import from `@kubb/ast`; through `kubb/kit` the same calls read as `ast.walk`, `ast.factory.createSchema`, and so on.
 
 The macro presets (`macroDiscriminatorEnum`, `macroSimplifyUnion`, `macroEnumName`) and the string, identifier, and ref helpers live on the root `@kubb/ast` export. They no longer ship as separate `@kubb/ast/macros` and `@kubb/ast/utils` subpaths.
 
