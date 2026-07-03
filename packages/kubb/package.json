@@ -142,42 +142,6 @@
     "vite": "^8.1.1",
     "webpack": "^5.108.3"
   },
-  "peerDependencies": {
-    "@farmfe/core": "^1.7.0",
-    "@nuxt/kit": "^3 || ^4",
-    "@nuxt/schema": "^3 || ^4",
-    "esbuild": "*",
-    "rolldown": ">=1",
-    "rollup": "^3 || ^4",
-    "vite": ">=3",
-    "webpack": "^5"
-  },
-  "peerDependenciesMeta": {
-    "@farmfe/core": {
-      "optional": true
-    },
-    "@nuxt/kit": {
-      "optional": true
-    },
-    "@nuxt/schema": {
-      "optional": true
-    },
-    "esbuild": {
-      "optional": true
-    },
-    "rolldown": {
-      "optional": true
-    },
-    "rollup": {
-      "optional": true
-    },
-    "vite": {
-      "optional": true
-    },
-    "webpack": {
-      "optional": true
-    }
-  },
   "preferGlobal": true,
   "engines": {
     "node": ">=22"
