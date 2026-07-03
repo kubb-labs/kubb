@@ -1,4 +1,4 @@
-// `ast` and `factory` stay out of this file's exports — they live in `kubb/kit` only.
+// `ast` and `factory` stay out of this file's exports, since they live in `kubb/kit` only.
 export type * from '@kubb/ast'
 export {
   applyMacros,
