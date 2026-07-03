@@ -28,13 +28,16 @@ Defines the node tree, visitor pattern, factory functions, and type guards used 
 
 ## Imports
 
-| Path                            | Contents                                                                                 |
-| ------------------------------- | ---------------------------------------------------------------------------------------- |
-| `@kubb/ast`                     | Runtime: node definitions, guards, visitor, macro engine, constants                      |
-| `ast.factory` (via `@kubb/ast`) | Node constructors (`createSchema`, `createFile`, and friends), the `ts.factory` analogue |
-| `@kubb/ast/macros`              | Built-in macro presets: `macroDiscriminatorEnum`, `macroSimplifyUnion`, `macroEnumName`  |
-| `@kubb/ast/types`               | Types only: all node interfaces, type aliases, visitor types                             |
-| `@kubb/ast/utils`               | Spec-agnostic string and identifier helpers, ref helpers                                 |
+| Path                            | Contents                                                                                                          |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `@kubb/ast`                     | Runtime: node definitions, guards, visitor, macro engine, string and ref helpers, constants                       |
+| `ast.factory` (via `@kubb/ast`) | Node constructors (`createSchema`, `createFile`, and friends), the `ts.factory` analogue                          |
+| `@kubb/ast/types`               | Types only: all node interfaces, type aliases, visitor types                                                      |
+| `kubb/kit`                      | Re-exports the `ast` and `factory` namespaces, the way most Kubb code reaches the AST without a direct dependency |
+
+Install `@kubb/ast` when you want the AST on its own. Inside the Kubb ecosystem the same surface travels on the `ast` namespace from `kubb/kit`, so plugins and generators reach it there. The examples below import from `@kubb/ast`; through `kubb/kit` the same calls read as `ast.walk`, `ast.factory.createSchema`, and so on.
+
+The macro presets (`macroDiscriminatorEnum`, `macroSimplifyUnion`, `macroEnumName`) and the string, identifier, and ref helpers live on the root `@kubb/ast` export. They no longer ship as separate `@kubb/ast/macros` and `@kubb/ast/utils` subpaths.
 
 ## Node tree
 
@@ -132,7 +135,7 @@ function process(node: Node) {
 ### Refs
 
 ```ts
-import { extractRefName } from '@kubb/ast/utils'
+import { extractRefName } from '@kubb/ast'
 
 extractRefName('#/components/schemas/Pet') // 'Pet'
 ```

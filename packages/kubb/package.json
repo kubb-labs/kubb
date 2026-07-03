@@ -42,10 +42,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./ast": {
-      "import": "./dist/ast.js",
-      "require": "./dist/ast.cjs"
-    },
     "./config": {
       "import": "./dist/config.js",
       "require": "./dist/config.cjs"

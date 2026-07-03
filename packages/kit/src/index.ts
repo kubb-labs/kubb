@@ -1,4 +1,4 @@
-export { ast, factory } from '@kubb/ast'
+export { ast } from '@kubb/ast'
 export { createAdapter } from '@kubb/core'
 export { createRenderer } from '@kubb/core'
 export { createStorage } from '@kubb/core'
