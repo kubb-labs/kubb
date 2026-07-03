@@ -1,7 +1,4 @@
-// `ast` and `factory` are deliberately not re-exported here — they live in `kubb/kit`
-// alongside the rest of the plugin authoring toolkit. Everything else `@kubb/ast`
-// exports (guards, macros, schema and string helpers, dialect, printer, visitor,
-// registry, and node types) is exposed here.
+// `ast` and `factory` stay out of this file's exports — they live in `kubb/kit` only.
 export type * from '@kubb/ast'
 export {
   applyMacros,

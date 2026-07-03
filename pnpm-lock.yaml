@@ -144,6 +144,9 @@ importers:
       '@clack/prompts':
         specifier: ^1.6.0
         version: 1.6.0
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../adapter-oas
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -169,22 +172,19 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
-      '@kubb/adapter-oas':
-        specifier: workspace:*
-        version: link:../adapter-oas
 
   packages/core:
     dependencies:
       '@kubb/ast':
         specifier: workspace:*
         version: link:../ast
+      '@kubb/renderer-jsx':
+        specifier: workspace:*
+        version: link:../renderer-jsx
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
-      '@kubb/renderer-jsx':
-        specifier: workspace:*
-        version: link:../renderer-jsx
 
   packages/kit:
     dependencies:
@@ -291,6 +291,9 @@ importers:
 
   packages/parser-ts:
     dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -301,9 +304,6 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
 
   packages/plugin-barrel:
     dependencies:
@@ -336,6 +336,9 @@ importers:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../adapter-oas
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -355,9 +358,6 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
       '@nuxt/kit':
         specifier: ^4.4.8
         version: 4.4.8(magicast@0.5.3)

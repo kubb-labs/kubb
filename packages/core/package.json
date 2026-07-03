@@ -67,11 +67,11 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:*"
+    "@kubb/ast": "workspace:*",
+    "@kubb/renderer-jsx": "workspace:*"
   },
   "devDependencies": {
-    "@internals/utils": "workspace:*",
-    "@kubb/renderer-jsx": "workspace:*"
+    "@internals/utils": "workspace:*"
   },
   "peerDependencies": {
     "@kubb/renderer-jsx": "workspace:*"
