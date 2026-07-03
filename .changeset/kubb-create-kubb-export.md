@@ -3,6 +3,6 @@
 'kubb': patch
 ---
 
-Export `createKubb` from the `kubb` package so you can run a build programmatically without installing `@kubb/core`.
+Re-export `createKubb` from the `kubb` package so you can run a build programmatically without adding `@kubb/core` as a separate dependency.
 
-`kubb`'s `createKubb` fills in the same defaults as `defineConfig` (`adapterOas`, the default parsers, the built-in reporters, and `pluginBarrel`), so a script needs only `input`, `output`, and its plugins. The `@kubb/core` `createKubb` stays available for callers that wire the adapter and parsers themselves; its `CreateKubbOptions` type is now exported too.
+`kubb` now re-exports `createKubb` (and the `BuildOutput`, `Config`, `CreateKubbOptions`, `Kubb`, and `UserConfig` types) from `@kubb/core`. It is the same function, so pass your `adapter`, `parsers`, and plugins as you would with `@kubb/core`. `@kubb/core` now also exports the `CreateKubbOptions` type.

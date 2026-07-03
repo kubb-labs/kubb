@@ -28,7 +28,7 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
  * - `output.format` defaults to `false`
  * - `output.lint` defaults to `false`
  */
-export function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
+function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
   const alreadyHasBarrel = config.plugins?.some((p) => p.name === pluginBarrelName)
   const plugins = alreadyHasBarrel ? (config.plugins ?? []) : [...(config.plugins ?? []), pluginBarrel()]
   const hasBarrelPlugin = plugins.some((p) => p.name === pluginBarrelName)
