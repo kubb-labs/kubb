@@ -1,6 +1,6 @@
 import { pascalCase } from '@internals/utils'
+import type { ast } from '@kubb/ast'
 import { Diagnostics } from '@kubb/core'
-import type { ast } from '@kubb/core'
 import { formatMap, SCHEMA_REF_PREFIX, specialCasedFormats, structuralKeys } from './constants.ts'
 import { isReference } from './guards.ts'
 import { isJsonMimeType } from './mime.ts'

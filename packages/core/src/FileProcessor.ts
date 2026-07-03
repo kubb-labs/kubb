@@ -1,6 +1,5 @@
 import { AsyncEventEmitter, read } from '@internals/utils'
-import type { CodeNode, FileNode } from '@kubb/ast'
-import { extractStringsFromNodes } from '@kubb/ast/utils'
+import { extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
 import { STREAM_FLUSH_EVERY } from './constants.ts'
 import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'

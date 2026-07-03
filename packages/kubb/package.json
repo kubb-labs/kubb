@@ -42,6 +42,34 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./ast": {
+      "import": "./dist/ast.js",
+      "require": "./dist/ast.cjs"
+    },
+    "./config": {
+      "import": "./dist/config.js",
+      "require": "./dist/config.cjs"
+    },
+    "./jsx": {
+      "import": "./dist/jsx.js",
+      "require": "./dist/jsx.cjs"
+    },
+    "./jsx/jsx-dev-runtime": {
+      "import": "./dist/jsx/jsx-dev-runtime.js",
+      "require": "./dist/jsx/jsx-dev-runtime.cjs"
+    },
+    "./jsx/jsx-runtime": {
+      "import": "./dist/jsx/jsx-runtime.js",
+      "require": "./dist/jsx/jsx-runtime.cjs"
+    },
+    "./kit": {
+      "import": "./dist/kit.js",
+      "require": "./dist/kit.cjs"
+    },
+    "./kit/testing": {
+      "import": "./dist/kit/testing.js",
+      "require": "./dist/kit/testing.cjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -62,8 +90,10 @@
   },
   "dependencies": {
     "@kubb/adapter-oas": "workspace:*",
+    "@kubb/ast": "workspace:*",
     "@kubb/cli": "workspace:*",
     "@kubb/core": "workspace:*",
+    "@kubb/kit": "workspace:*",
     "@kubb/mcp": "workspace:*",
     "@kubb/parser-md": "workspace:*",
     "@kubb/parser-ts": "workspace:*",

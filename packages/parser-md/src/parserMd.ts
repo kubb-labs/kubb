@@ -1,6 +1,5 @@
-import type { ast } from '@kubb/core'
 import { defineParser } from '@kubb/core'
-import { extractStringsFromNodes } from '@kubb/ast/utils'
+import { extractStringsFromNodes, type ast } from '@kubb/ast'
 
 import { print, type PrintInput } from './utils.ts'
 

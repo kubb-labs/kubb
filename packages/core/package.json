@@ -70,11 +70,7 @@
     "@kubb/ast": "workspace:*"
   },
   "devDependencies": {
-    "@internals/utils": "workspace:*",
-    "@kubb/renderer-jsx": "workspace:*"
-  },
-  "peerDependencies": {
-    "@kubb/renderer-jsx": "workspace:*"
+    "@internals/utils": "workspace:*"
   },
   "engines": {
     "node": ">=22"

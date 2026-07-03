@@ -1,4 +1,4 @@
-import { ast } from '@kubb/core'
+import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { parseFromConfig } from './factory.ts'

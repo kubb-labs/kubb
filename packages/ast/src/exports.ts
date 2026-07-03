@@ -6,6 +6,8 @@ export { defineNode } from './defineNode.ts'
 export { optionality } from './optionality.ts'
 export { createPrinter } from './createPrinter.ts'
 export { collect, transform, walk } from './visitor.ts'
+export * from './utils/index.ts'
+export * from './macros/index.ts'
 
 export * as factory from './factory.ts'
 export * from './registry.ts'

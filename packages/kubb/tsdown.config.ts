@@ -2,6 +2,13 @@ import { defineConfig, type UserConfig } from 'tsdown'
 
 const entry = {
   index: 'src/index.ts',
+  config: 'src/config.ts',
+  kit: 'src/kit.ts',
+  'kit/testing': 'src/kit/testing.ts',
+  ast: 'src/ast.ts',
+  jsx: 'src/jsx.ts',
+  'jsx/jsx-runtime': 'src/jsx/jsx-runtime.ts',
+  'jsx/jsx-dev-runtime': 'src/jsx/jsx-dev-runtime.ts',
 }
 
 const shared: Partial<UserConfig> = {

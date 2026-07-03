@@ -1,5 +1,5 @@
+import type { ast } from '@kubb/ast'
 import { Diagnostics } from '@kubb/core'
-import type { ast } from '@kubb/core'
 import { isHandledFormat } from './resolvers.ts'
 
 /**

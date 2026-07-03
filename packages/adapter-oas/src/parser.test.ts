@@ -1,5 +1,4 @@
-import { syncSchemaRef } from '@kubb/ast/utils'
-import { ast } from '@kubb/core'
+import { ast, syncSchemaRef } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
 import { oasDialect, type OasDialect } from './dialect.ts'

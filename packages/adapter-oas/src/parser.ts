@@ -1,7 +1,15 @@
 import { pascalCase } from '@internals/utils'
-import { macroDiscriminatorEnum, macroEnumName, macroSimplifyUnion } from '@kubb/ast/macros'
-import { childName, enumPropName, extractRefName, mergeAdjacentObjectsLazy } from '@kubb/ast/utils'
-import { ast } from '@kubb/core'
+import {
+  ast,
+  childName,
+  enumPropName,
+  extractRefName,
+  macroDiscriminatorEnum,
+  macroEnumName,
+  macroSimplifyUnion,
+  mergeAdjacentObjectsLazy,
+  type StatusCode,
+} from '@kubb/ast'
 import { DEFAULT_PARSER_OPTIONS, enumDescriptionKeys, enumExtensionKeys, SCHEMA_REF_PREFIX } from './constants.ts'
 import { oasDialect, type OasDialect } from './dialect.ts'
 import { createDiscriminantNode, findDiscriminator } from './discriminator.ts'
@@ -21,7 +29,6 @@ import {
   getSchemaType,
 } from './resolvers.ts'
 import type { ContentType, Document, Operation, ReferenceObject, SchemaObject } from './types.ts'
-import type { StatusCode } from '@kubb/ast'
 
 /**
  * Parser context holding the raw OpenAPI document and optional content-type override.
