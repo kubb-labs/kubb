@@ -134,10 +134,12 @@ To approve a release:
 
 1. A maintainer with npm publish access and two-factor authentication runs `npm stage approve` (or approves from npmjs.com) for each staged package.
 2. The same maintainer approves the `promote` job's environment review on the workflow run in the Actions tab.
-3. The `promote` job then verifies the versions are actually live on npm, creates the GitHub Releases, and only then triggers the Discord announcement and the changelog sync to [kubb-labs/docs](https://github.com/kubb-labs/docs).
+3. The `promote` job then verifies the versions are actually live on npm, tags and creates a GitHub Release per package, and only then triggers the Discord announcement and the changelog sync to [kubb-labs/docs](https://github.com/kubb-labs/docs).
+
+Each package's GitHub Release notes come from that package's own section of the current version's block in `CHANGELOG.md`. A package that only picked up a dependency bump, with no changelog entry of its own, gets a short note saying so instead of an empty release.
 
 If a staged version turns out to be wrong, reject it with `npm stage reject` instead of approving it. Nothing downstream fires for a rejected version.
 
-Reviewers for the `promote` job's environment are managed under repository Settings > Environments > `npm-release-approval`.
+Reviewers for the `promote` job's environment are managed on GitHub, under the repository's Settings > Environments > `npm-release-approval` (this is separate from npm's own settings on npmjs.com).
 
 Canary releases are the one exception to this flow. Every push to `main` publishes a `0.0.0-canary-<timestamp>` version under the `canary` dist-tag directly, without staging, so that canary installs stay immediate and automatic. See the comment above the `Publish canary` step in `release.yml` for why this is safe to leave unstaged.

@@ -122,19 +122,14 @@ jobs:
           pnpm exec changeset tag
           git push --tags
 
+      # One release per package, notes pulled from that package's own section
+      # of CHANGELOG.md for this version, matching how changesets/action
+      # would normally format per-package releases.
       - name: Create GitHub Releases
-        shell: bash
+        run: node scripts/createReleases.mjs
         env:
           STAGED_PACKAGES: ${{ needs.release.outputs.staged_packages }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "$STAGED_PACKAGES" | jq -c '.[]' | while read -r pkg; do
-            name=$(echo "$pkg" | jq -r '.name')
-            version=$(echo "$pkg" | jq -r '.version')
-            gh release create "${name}@${version}" \
-              --title "${name}@${version}" \
-              --notes "Published via \`npm stage approve\`. See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)."
-          done
 
   notify:
     name: Send Discord Notification
