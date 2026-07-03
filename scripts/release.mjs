@@ -41,25 +41,31 @@ export function parseStaged(output) {
   return found
 }
 
-const tag = readPreTag()
-const stageArgs = ['stage', 'publish', '-r', '--no-git-check', '--access', 'public', '--json']
-if (tag) stageArgs.push('--tag', tag)
+function main() {
+  const tag = readPreTag()
+  const stageArgs = ['stage', 'publish', '-r', '--no-git-check', '--access', 'public', '--json']
+  if (tag) stageArgs.push('--tag', tag)
 
-const output = capture('pnpm', stageArgs)
-const staged = parseStaged(output)
+  const output = capture('pnpm', stageArgs)
+  const staged = parseStaged(output)
 
-// The only tag-push path: createGithubReleases is off on the changesets/action
-// step, so the action no longer pushes tags itself. Tags are safe to push at
-// stage time, since they're git refs, not a public npm-installability signal,
-// and give the `promote` job's `gh release create` step something to point at
-// once npm approval is confirmed.
-run('pnpm', ['exec', 'changeset', 'tag'])
-run('git', ['push', '--tags'])
+  // The only tag-push path: createGithubReleases is off on the changesets/action
+  // step, so the action no longer pushes tags itself. Tags are safe to push at
+  // stage time, since they're git refs, not a public npm-installability signal,
+  // and give the `promote` job's `gh release create` step something to point at
+  // once npm approval is confirmed.
+  run('pnpm', ['exec', 'changeset', 'tag'])
+  run('git', ['push', '--tags'])
 
-// Only signal a stage to the workflow if pnpm actually published something.
-// When everything was skipped (versions already on npm), let the canary step
-// fire instead — that's the intent for ordinary main pushes.
-if (staged.length > 0 && process.env.GITHUB_OUTPUT) {
-  appendFileSync(process.env.GITHUB_OUTPUT, 'staged=true\n')
-  appendFileSync(process.env.GITHUB_OUTPUT, `staged_packages=${JSON.stringify(staged)}\n`)
+  // Only signal a stage to the workflow if pnpm actually published something.
+  // When everything was skipped (versions already on npm), let the canary step
+  // fire instead — that's the intent for ordinary main pushes.
+  if (staged.length > 0 && process.env.GITHUB_OUTPUT) {
+    appendFileSync(process.env.GITHUB_OUTPUT, 'staged=true\n')
+    appendFileSync(process.env.GITHUB_OUTPUT, `staged_packages=${JSON.stringify(staged)}\n`)
+  }
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main()
 }
