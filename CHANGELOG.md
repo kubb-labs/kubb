@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.82 — Jul 3, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Re-export `createKubb` from the `kubb` package so you can run a build programmatically without adding `@kubb/core` as a separate dependency.
+  
+  `kubb` now re-exports `createKubb` (and the `BuildOutput`, `Config`, `CreateKubbOptions`, `Kubb`, and `UserConfig` types) from `@kubb/core`. It is the same function, so pass your `adapter`, `parsers`, and plugins as you would with `@kubb/core`. `@kubb/core` now also exports the `CreateKubbOptions` type. ([#3698](https://github.com/kubb-labs/kubb/pull/3698), [`098f9bd`](https://github.com/kubb-labs/kubb/commit/098f9bd2f142bcf5e223847794740ce67c92386b))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.81 — Jul 3, 2026
 
 ### @kubb/ast
