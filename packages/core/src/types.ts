@@ -808,13 +808,14 @@ export type { Exclude, Group, Include, Output, OutputMode, OutputOptions, Overri
 export type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, NormalizedPlugin, Plugin, PluginFactoryOptions } from './definePlugin.ts'
 export type {
   BannerMeta,
-  DeepPartial,
   ResolveBannerContext,
   ResolveBannerFile,
   ResolveOptionsContext,
   Resolver,
   ResolverContext,
   ResolverCore,
+  ResolverFileFactory,
   ResolverFileParams,
+  ResolverOverride,
   ResolverPathParams,
 } from './defineResolver.ts'

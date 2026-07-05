@@ -9,8 +9,8 @@ import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { Plugin } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
-import type { DeepPartial } from './defineResolver.ts'
-import { bindResolver, defineResolver, mergeResolver } from './defineResolver.ts'
+import type { ResolverOverride } from './defineResolver.ts'
+import { defineResolver, mergeResolver } from './defineResolver.ts'
 import { FileManager } from './FileManager.ts'
 import { FileProcessor } from './FileProcessor.ts'
 import { Transform } from './Transform.ts'
@@ -801,9 +801,9 @@ export class KubbDriver {
    * Also mirrors it onto `plugin.resolver` so callers using `getPlugin(name).resolver`
    * get the up-to-date resolver without going through `getResolver()`.
    */
-  setPluginResolver(pluginName: string, partial: DeepPartial<Resolver>): void {
+  setPluginResolver(pluginName: string, partial: ResolverOverride<Resolver>): void {
     const defaultResolver = this.#getDefaultResolver(pluginName)
-    const merged = bindResolver(mergeResolver<Resolver>(defaultResolver, partial))
+    const merged = mergeResolver(defaultResolver, partial)
     this.#resolvers.set(pluginName, merged)
     const plugin = this.plugins.get(pluginName)
     if (plugin) {

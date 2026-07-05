@@ -84,25 +84,40 @@ describe('defineResolver', () => {
     expect(resolver.core.fileName('hello world')).toBe('helloWorld')
   })
 
-  it('binds nested namespace methods so `this` is the whole resolver', () => {
-    type NamespacedResolver = Resolver & { schema: { name(name: string): string; typeName(name: string): string } }
-    type NamespacedFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: NamespacedResolver }
+  it('lets a top-level method reach core through `this`', () => {
+    type SchemaResolver = Resolver & { resolveSchemaName(name: string): string; resolveSchemaTypeName(name: string): string }
+    type SchemaFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: SchemaResolver }
 
-    const resolver = defineResolver<NamespacedFactory>(() => ({
+    const resolver = defineResolver<SchemaFactory>(() => ({
       pluginName: 'test',
       name: 'custom',
-      schema: {
-        name(this: NamespacedResolver, name: string) {
-          return `${this.core.name(name)}Schema`
-        },
-        typeName(this: NamespacedResolver, name: string) {
-          return `${this.core.name(name)}SchemaType`
-        },
+      resolveSchemaName(name) {
+        return `${this.core.name(name)}Schema`
+      },
+      resolveSchemaTypeName(name) {
+        return `${this.core.name(name)}SchemaType`
       },
     }))
 
-    expect(resolver.schema.name('list pets')).toBe('listPetsSchema')
-    expect(resolver.schema.typeName('list pets')).toBe('listPetsSchemaType')
+    expect(resolver.resolveSchemaName('list pets')).toBe('listPetsSchema')
+    expect(resolver.resolveSchemaTypeName('list pets')).toBe('listPetsSchemaType')
+  })
+
+  it('resolves core.file through the built resolver, with core overrides applied', () => {
+    const resolver = defineResolver<TestPluginFactory>(() => ({
+      pluginName: 'test',
+      name: 'custom',
+      core: {
+        fileName(name: string) {
+          return `${name.toLowerCase()}.gen`
+        },
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    }))
+
+    const file = resolver.core.file({ name: 'Pet', extname: '.ts' }, context)
+    expect(file.baseName).toBe('pet.gen.ts')
   })
 
   it('resolveOptions does not throw when options is not an object', () => {
@@ -244,7 +259,7 @@ describe('defaultResolveFile', () => {
   }))
 
   it('resolves a file with correct baseName and path', () => {
-    const file = defaultResolveFile.call(resolver, { name: 'pet', extname: '.ts' }, context)
+    const file = defaultResolveFile(resolver, { name: 'pet', extname: '.ts' }, context)
 
     expect(file.baseName).toBe('pet.ts')
     expect(file.path).toBe('/root/types/pet.ts')
@@ -254,7 +269,7 @@ describe('defaultResolveFile', () => {
   })
 
   it('uses the core file-name casing via resolver.core.fileName', () => {
-    const file = defaultResolveFile.call(resolver, { name: 'list pets', extname: '.ts' }, context)
+    const file = defaultResolveFile(resolver, { name: 'list pets', extname: '.ts' }, context)
 
     expect(file.baseName).toBe('listPets.ts')
   })
@@ -268,13 +283,13 @@ describe('defaultResolveFile', () => {
     // leading dots must not escape the output directory
     ['..Schema', '/root/types/schema.ts'],
   ])('nests dotted file name %s into %s', (name, expected) => {
-    const file = defaultResolveFile.call(resolver, { name, extname: '.ts' }, context)
+    const file = defaultResolveFile(resolver, { name, extname: '.ts' }, context)
 
     expect(file.path).toBe(expected)
   })
 
   it('omits the file name and writes to the output file in file mode', () => {
-    const file = defaultResolveFile.call(
+    const file = defaultResolveFile(
       resolver,
       { name: 'pet', extname: '.ts' },
       {
@@ -292,7 +307,7 @@ describe('defaultResolveFile', () => {
   })
 
   it('groups by tag when resolver is tag-grouped', () => {
-    const file = defaultResolveFile.call(
+    const file = defaultResolveFile(
       resolver,
       { name: 'pet', extname: '.ts', tag: 'pets' },
       {

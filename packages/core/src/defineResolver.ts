@@ -63,16 +63,13 @@ export type ResolverCore = {
  * Base constraint for all plugin resolver objects.
  *
  * Shared helpers live under `core` (injected by `defineResolver`). Extend this type with your own
- * namespaces to group related naming methods, and reach the shared helpers from any of them via
- * `this.core`.
+ * naming methods and reach the shared helpers from them via `this.core`.
  *
  * @example
  * ```ts
  * type MyResolver = Resolver & {
- *   schema: {
- *     name(name: string): string
- *     typeName(name: string): string
- *   }
+ *   resolveName(name: string): string
+ *   resolveTypeName(name: string): string
  * }
  * ```
  */
@@ -259,14 +256,14 @@ function buildBannerMeta({ meta, file }: { meta: InputMeta | undefined; file: Re
  * Builder type for the plugin-specific resolver fields.
  *
  * `core` is optional and merged over the built-in defaults, so a plugin can override just the
- * helpers it cares about. Plugin-specific namespaces are required. Methods call sibling resolver
- * methods via `this`; nested namespace methods must type their receiver explicitly
- * (`method(this: TResolver, …)`) since `ThisType` only reaches the top-level object.
+ * helpers it cares about. Plugin-specific naming methods are required. Methods call sibling resolver
+ * methods via `this`, which `ThisType` types as the full resolver. A `core.file` override receives
+ * the assembled resolver as its first argument instead of using `this`.
  */
 type ResolverBuilder<T extends PluginFactoryOptions> = () => Omit<T['resolver'], 'core' | 'name' | 'pluginName'> & {
   name: string
   pluginName: T['name']
-  core?: Partial<ResolverCore>
+  core?: Partial<Omit<ResolverCore, 'file'>> & { file?: ResolverFileFactory<T['resolver']> }
 } & ThisType<T['resolver']>
 
 // String patterns are compiled lazily and cached, so the same filter is reused for every node.
@@ -503,19 +500,17 @@ export function defaultResolvePath({ baseName, tag, path: groupPath }: ResolverP
  *
  * In `mode: 'file'` the name is omitted and the file sits directly at the output path.
  *
+ * The assembled `resolver` is passed as the first argument so the builder never needs `this`.
+ *
  * @example Resolve a schema file
  * ```ts
- * const file = defaultResolveFile.call(
- *   resolver,
- *   { name: 'pet', extname: '.ts' },
- *   { root: '/src', output: { path: 'types' } },
- * )
+ * const file = defaultResolveFile(resolver, { name: 'pet', extname: '.ts' }, { root: '/src', output: { path: 'types' } })
  * // → { baseName: 'pet.ts', path: '/src/types/pet.ts', sources: [], ... }
  * ```
  *
  * @example Resolve an operation file with tag grouping
  * ```ts
- * const file = defaultResolveFile.call(
+ * const file = defaultResolveFile(
  *   resolver,
  *   { name: 'listPets', extname: '.ts', tag: 'pets' },
  *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
@@ -523,17 +518,17 @@ export function defaultResolvePath({ baseName, tag, path: groupPath }: ResolverP
  * // → { baseName: 'listPets.ts', path: '/src/types/pets/listPets.ts', ... }
  * ```
  */
-export function defaultResolveFile(this: Resolver, { name, extname, tag, path: groupPath }: ResolverFileParams, context: ResolverContext): FileNode {
+export function defaultResolveFile(resolver: Resolver, { name, extname, tag, path: groupPath }: ResolverFileParams, context: ResolverContext): FileNode {
   const mode = context.output.mode ?? 'directory'
-  const resolvedName = mode === 'file' ? '' : this.core.fileName(name)
+  const resolvedName = mode === 'file' ? '' : resolver.core.fileName(name)
   const baseName = `${resolvedName}${extname}` as FileNode['baseName']
-  const filePath = this.core.path({ baseName, tag, path: groupPath }, context)
+  const filePath = resolver.core.path({ baseName, tag, path: groupPath }, context)
 
   return ast.factory.createFile({
     path: filePath,
     baseName: path.basename(filePath) as `${string}.${string}`,
     meta: {
-      pluginName: this.pluginName,
+      pluginName: resolver.pluginName,
     },
     sources: [],
     imports: [],
@@ -680,83 +675,68 @@ export function defaultResolveFooter(meta: InputMeta | undefined, { output, file
 }
 
 /**
- * The built-in `core` helpers, injected into every resolver before a plugin's overrides.
+ * Builds a `FileNode` from the assembled resolver and the file params. It receives the resolver as
+ * its first argument so a builder never needs `this` to reach `resolver.core.fileName`,
+ * `resolver.core.path`, or `resolver.pluginName`.
  */
-const defaultCore: ResolverCore = {
+export type ResolverFileFactory<TResolver extends Resolver = Resolver> = (
+  resolver: TResolver,
+  params: ResolverFileParams,
+  context: ResolverContext,
+) => FileNode
+
+/**
+ * A resolver override applied over a built resolver. Top-level members and `core` members are each
+ * optional, so an override can name a single helper (`{ core: { name } }` or one `resolveName`)
+ * without restating the rest.
+ */
+export type ResolverOverride<T extends Resolver> = Partial<Omit<T, 'core'>> & {
+  core?: Partial<Omit<ResolverCore, 'file'>> & { file?: ResolverFileFactory<T> | ResolverCore['file'] }
+}
+
+/**
+ * The built-in `core` helpers, injected into every resolver before a plugin's overrides. `file` is
+ * wired separately by `wireFile`, since it needs the assembled resolver.
+ */
+const defaultCore: Omit<ResolverCore, 'file'> = {
   name: defaultName,
   fileName: defaultFileName,
   options: defaultResolveOptions,
   path: defaultResolvePath,
-  file: defaultResolveFile,
   banner: defaultResolveBanner,
   footer: defaultResolveFooter,
 }
 
-// Marks the original, unbound implementation on a bound method, so re-binding after a later merge
-// binds the true original to the new root instead of a function whose `this` is already frozen.
-const originalFn = Symbol('kubb.resolver.original')
-
-type BoundFn = ((...args: Array<unknown>) => unknown) & { [originalFn]?: (...args: Array<unknown>) => unknown }
+// The wired `core.file` remembers its factory so a later merge can re-wire it over the merged resolver.
+type WiredFile = ResolverCore['file'] & { raw?: ResolverFileFactory }
 
 /**
- * A recursively-optional resolver override: every namespace object is optional down to the leaf,
- * while methods and scalars keep their exact type. Lets an override name a single helper without
- * restating the rest of the tree.
+ * Points `resolver.core.file` at `factory`, closing over the assembled resolver, and remembers the
+ * factory so a later merge re-wires it over the merged resolver.
  */
-export type DeepPartial<T> = T extends (...args: Array<never>) => unknown ? T : T extends object ? { [K in keyof T]?: DeepPartial<T[K]> } : T
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  if (typeof value !== 'object' || value === null) return false
-  const proto = Object.getPrototypeOf(value)
-  return proto === Object.prototype || proto === null
+function wireFile<T extends Resolver>(resolver: T, factory: ResolverFileFactory<T>): T {
+  const wired: WiredFile = (params, context) => factory(resolver, params, context)
+  wired.raw = factory as ResolverFileFactory
+  resolver.core.file = wired
+  return resolver
 }
 
 /**
- * Deep-merges a resolver `override` over `base`. Nested namespaces (`core`, and any plugin
- * namespace object) merge key by key, so overriding one helper keeps the sibling defaults;
- * functions and every non-plain value replace wholesale.
+ * Merges a resolver `override` over `base` one level deep: top-level members and `core` members are
+ * replaced individually, so overriding a single `core` helper keeps the other built-ins. The
+ * `core.file` factory is re-wired over the merged resolver.
  */
-export function mergeResolver<T>(base: T, override: DeepPartial<T>): T {
-  const result: Record<string, unknown> = { ...(base as Record<string, unknown>) }
-
-  for (const key of Object.keys(override as Record<string, unknown>)) {
-    const overrideValue = (override as Record<string, unknown>)[key]
-    if (overrideValue === undefined) continue
-
-    const baseValue = result[key]
-    result[key] = isPlainObject(baseValue) && isPlainObject(overrideValue) ? mergeResolver(baseValue, overrideValue) : overrideValue
-  }
-
-  return result as T
-}
-
-/**
- * Binds the methods inside each namespace (`core`, and any plugin namespace object) to `root`, so a
- * nested method reads the fully assembled resolver as `this` regardless of the namespace it is
- * called through (`resolver.schema.name()` still sees `this.core`). Top-level methods are left alone:
- * called on the resolver they already get the right `this`, and leaving them unbound keeps the
- * ergonomic `{ ...resolver, overrideMethod }` override pattern working. Re-runnable: it rebinds each
- * method's original implementation, so merging a resolver again and rebinding stays correct.
- */
-export function bindResolver<T extends object>(root: T): T {
-  const bindNested = (node: Record<string, unknown>): void => {
-    for (const key of Object.keys(node)) {
-      const value = node[key]
-      if (typeof value === 'function') {
-        const original = (value as BoundFn)[originalFn] ?? (value as BoundFn)
-        const bound = original.bind(root) as BoundFn
-        bound[originalFn] = original
-        node[key] = bound
-        continue
-      }
-      if (isPlainObject(value)) bindNested(value)
-    }
-  }
-
-  for (const value of Object.values(root as Record<string, unknown>)) {
-    if (isPlainObject(value)) bindNested(value)
-  }
-  return root
+export function mergeResolver<T extends Resolver>(base: T, override: ResolverOverride<T>): T {
+  const merged = {
+    ...base,
+    ...override,
+    core: { ...base.core, ...override.core },
+  } as T
+  // An override's `core.file` may be a raw factory or a wired `core.file` (when a whole resolver is
+  // passed as the override), in which case its remembered `.raw` factory is the one to re-wire.
+  const overrideFile = override.core?.file as (ResolverFileFactory & WiredFile) | undefined
+  const factory = overrideFile?.raw ?? overrideFile ?? (base.core.file as WiredFile).raw ?? defaultResolveFile
+  return wireFile(merged, factory as ResolverFileFactory<T>)
 }
 
 /**
@@ -766,21 +746,17 @@ export function bindResolver<T extends object>(root: T): T {
  * `FileNode`, and `banner`/`footer` for the top and bottom of file text. Return a partial `core` to
  * override any of them, and add your own namespaces to group plugin-specific naming methods.
  *
- * Methods reach sibling helpers through `this` (for example `this.core.name(name)`); the whole
- * tree is bound to the assembled resolver, so a nested namespace method still sees `this.core`.
+ * Top-level methods reach sibling helpers through `this` (for example `this.core.name(name)`), since
+ * a method called on the resolver already has the resolver as `this`. `core.file` is the exception:
+ * it receives the assembled resolver as its first argument instead of using `this`.
  *
- * @example Naming helpers grouped in a namespace
+ * @example Add a naming helper that reuses core
  * ```ts
  * export const resolverTs = defineResolver<PluginTs>(() => ({
  *   name: 'default',
  *   pluginName: 'plugin-ts',
- *   schema: {
- *     name(this: ResolverTs, name) {
- *       return this.core.name(name)
- *     },
- *     typeName(this: ResolverTs, name) {
- *       return `${this.core.name(name)}Type`
- *     },
+ *   resolveTypeName(name) {
+ *     return `${this.core.name(name)}Type`
  *   },
  * }))
  * ```
@@ -801,8 +777,12 @@ export function bindResolver<T extends object>(root: T): T {
  * ```
  */
 export function defineResolver<T extends PluginFactoryOptions>(build: ResolverBuilder<T>): T['resolver'] {
-  const base = { core: { ...defaultCore } } as T['resolver']
-  const merged = mergeResolver<T['resolver']>(base, build() as DeepPartial<T['resolver']>)
+  const built = build()
+  const merged = {
+    ...built,
+    core: { ...defaultCore, ...built.core },
+  } as unknown as T['resolver']
+  const factory = (built.core?.file ?? defaultResolveFile) as ResolverFileFactory<T['resolver']>
 
-  return bindResolver(merged as object) as T['resolver']
+  return wireFile(merged, factory)
 }
