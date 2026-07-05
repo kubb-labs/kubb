@@ -80,8 +80,7 @@ describe('defineResolver', () => {
     }))
 
     expect(resolver.core.name('hello world')).toBe('HELLO WORLD')
-    // typeName/fileName fall back to the built-in casing
-    expect(resolver.core.typeName('hello world')).toBe('HelloWorld')
+    // fileName falls back to the built-in casing
     expect(resolver.core.fileName('hello world')).toBe('helloWorld')
   })
 
@@ -97,13 +96,13 @@ describe('defineResolver', () => {
           return `${this.core.name(name)}Schema`
         },
         typeName(this: NamespacedResolver, name: string) {
-          return `${this.core.typeName(name)}Schema`
+          return `${this.core.name(name)}SchemaType`
         },
       },
     }))
 
     expect(resolver.schema.name('list pets')).toBe('listPetsSchema')
-    expect(resolver.schema.typeName('list pets')).toBe('ListPetsSchema')
+    expect(resolver.schema.typeName('list pets')).toBe('listPetsSchemaType')
   })
 
   it('resolveOptions does not throw when options is not an object', () => {

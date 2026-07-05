@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { camelCase, pascalCase, toFilePath } from '@internals/utils'
+import { camelCase, toFilePath } from '@internals/utils'
 import { ast, operationDef, schemaDef, type FileNode, type InputMeta, type Node, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { Diagnostics } from './diagnostics.ts'
 import type { PluginFactoryOptions } from './definePlugin.ts'
@@ -35,22 +35,19 @@ export type ResolveOptionsContext<TOptions> = {
 /**
  * Shared resolution helpers injected into every plugin resolver under `resolver.core`.
  *
- * The three naming helpers replace the old `default(name, type)` discriminator with one dedicated
- * helper per kind: `name` for runtime-value identifiers, `typeName` for type identifiers, and
- * `fileName` for file paths. `options`, `path`, `file`, `banner`, and `footer` compute the rest.
+ * The naming helpers replace the old `default(name, type)` discriminator: `name` for generated
+ * identifiers and `fileName` for file paths. `options`, `path`, `file`, `banner`, and `footer`
+ * compute the rest.
  *
  * Plugins override any of these by returning a partial `core` from `defineResolver`; unset members
  * keep the built-in behavior.
  */
 export type ResolverCore = {
   /**
-   * Casing for a runtime-value identifier — functions, consts, and variables. camelCase by default.
+   * Casing for a generated identifier — the plugin's primary naming convention (camelCase by
+   * default; a plugin overrides it, for example PascalCase for types or a suffixed variant).
    */
   name(name: string): string
-  /**
-   * Casing for a type identifier. PascalCase by default.
-   */
-  typeName(name: string): string
   /**
    * Casing for a file path or base name, splitting dotted names into nested segments.
    */
@@ -311,17 +308,11 @@ function matchesSchemaPattern(node: SchemaNode, type: string, pattern: string | 
 }
 
 /**
- * Default casing for a runtime-value identifier (functions, consts, variables).
+ * Default casing for a generated identifier (camelCase). A plugin overrides this with its own
+ * convention, for example PascalCase or a suffixed variant.
  */
 function defaultName(name: string): string {
   return camelCase(name)
-}
-
-/**
- * Default casing for a type identifier.
- */
-function defaultTypeName(name: string): string {
-  return pascalCase(name)
 }
 
 /**
@@ -693,7 +684,6 @@ export function defaultResolveFooter(meta: InputMeta | undefined, { output, file
  */
 const defaultCore: ResolverCore = {
   name: defaultName,
-  typeName: defaultTypeName,
   fileName: defaultFileName,
   options: defaultResolveOptions,
   path: defaultResolvePath,
@@ -771,12 +761,12 @@ export function bindResolver<T extends object>(root: T): T {
 
 /**
  * Defines a plugin resolver — the object that decides what every generated symbol and file path is
- * called. Built-in helpers live under `core`: `name`/`typeName`/`fileName` for casing, `options`
+ * called. Built-in helpers live under `core`: `name`/`fileName` for casing, `options`
  * for include/exclude/override filtering, `path` for the output path, `file` for the full
  * `FileNode`, and `banner`/`footer` for the top and bottom of file text. Return a partial `core` to
  * override any of them, and add your own namespaces to group plugin-specific naming methods.
  *
- * Methods reach sibling helpers through `this` (for example `this.core.typeName(name)`); the whole
+ * Methods reach sibling helpers through `this` (for example `this.core.name(name)`); the whole
  * tree is bound to the assembled resolver, so a nested namespace method still sees `this.core`.
  *
  * @example Naming helpers grouped in a namespace
@@ -789,7 +779,7 @@ export function bindResolver<T extends object>(root: T): T {
  *       return this.core.name(name)
  *     },
  *     typeName(this: ResolverTs, name) {
- *       return this.core.typeName(name)
+ *       return `${this.core.name(name)}Type`
  *     },
  *   },
  * }))

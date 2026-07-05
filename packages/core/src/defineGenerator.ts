@@ -67,8 +67,8 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    * called. Kubb picks a `setResolver` registration first, then the plugin's static
    * `resolver`, then the built-in default.
    *
-   * @example Resolve a type name
-   * `ctx.resolver.core.typeName('pet') // 'Pet'`
+   * @example Resolve a name
+   * `ctx.resolver.core.name('pet') // 'pet'`
    *
    * @example Resolve an output file
    * `ctx.resolver.core.file({ name: 'pet', extname: '.ts' }, { root, output })`
