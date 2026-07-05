@@ -791,10 +791,7 @@ export class KubbDriver {
     this.dispose()
   }
 
-  #getDefaultResolver = memoize(
-    this.#defaultResolvers,
-    (pluginName: string): Resolver => defineResolver<PluginFactoryOptions>(() => ({ pluginName })),
-  )
+  #getDefaultResolver = memoize(this.#defaultResolvers, (pluginName: string): Resolver => defineResolver<PluginFactoryOptions>(() => ({ pluginName })))
 
   /**
    * Merges `partial` with the plugin's default resolver and stores the result.
