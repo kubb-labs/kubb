@@ -114,7 +114,6 @@
     "core-split-createkubb-types",
     "core-type-safety-escape-hatches",
     "create-kubb-user-config-signature",
-    "ctx-param-in-define-resolver",
     "debug-logger-and-diagnostics",
     "dedupe-single-plan",
     "define-config-defaults-jsdoc",
