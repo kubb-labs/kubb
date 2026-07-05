@@ -15,6 +15,7 @@ export type {
   AdapterSource,
   BannerMeta,
   Config,
+  DeepPartial,
   Exclude,
   Generator,
   GeneratorContext,
