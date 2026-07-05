@@ -741,13 +741,15 @@ export function mergeResolver<T>(base: T, override: DeepPartial<T>): T {
 }
 
 /**
- * Binds every method in the resolver tree to `root`, so a method reads the fully assembled resolver
- * as `this` regardless of the namespace it is called through (`resolver.schema.name()` still sees
- * `this.core`). Re-runnable: it rebinds each method's original implementation, so merging a resolver
- * again and rebinding stays correct.
+ * Binds the methods inside each namespace (`core`, and any plugin namespace object) to `root`, so a
+ * nested method reads the fully assembled resolver as `this` regardless of the namespace it is
+ * called through (`resolver.schema.name()` still sees `this.core`). Top-level methods are left alone:
+ * called on the resolver they already get the right `this`, and leaving them unbound keeps the
+ * ergonomic `{ ...resolver, overrideMethod }` override pattern working. Re-runnable: it rebinds each
+ * method's original implementation, so merging a resolver again and rebinding stays correct.
  */
 export function bindResolver<T extends object>(root: T): T {
-  const walk = (node: Record<string, unknown>): void => {
+  const bindNested = (node: Record<string, unknown>): void => {
     for (const key of Object.keys(node)) {
       const value = node[key]
       if (typeof value === 'function') {
@@ -757,11 +759,13 @@ export function bindResolver<T extends object>(root: T): T {
         node[key] = bound
         continue
       }
-      if (isPlainObject(value)) walk(value)
+      if (isPlainObject(value)) bindNested(value)
     }
   }
 
-  walk(root as Record<string, unknown>)
+  for (const value of Object.values(root as Record<string, unknown>)) {
+    if (isPlainObject(value)) bindNested(value)
+  }
   return root
 }
 
