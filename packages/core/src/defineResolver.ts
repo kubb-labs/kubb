@@ -679,11 +679,7 @@ export function defaultResolveFooter(meta: InputMeta | undefined, { output, file
  * its first argument so a builder never needs `this` to reach `resolver.core.fileName`,
  * `resolver.core.path`, or `resolver.pluginName`.
  */
-export type ResolverFileFactory<TResolver extends Resolver = Resolver> = (
-  resolver: TResolver,
-  params: ResolverFileParams,
-  context: ResolverContext,
-) => FileNode
+export type ResolverFileFactory<TResolver extends Resolver = Resolver> = (resolver: TResolver, params: ResolverFileParams, context: ResolverContext) => FileNode
 
 /**
  * A resolver override applied over a built resolver. Top-level members and `core` members are each
