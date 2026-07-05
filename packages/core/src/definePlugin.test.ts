@@ -252,8 +252,10 @@ describe('PluginDriver — hook-style plugin registration', () => {
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.setResolver({
-            default() {
-              return 'CustomTypeName'
+            core: {
+              typeName() {
+                return 'CustomTypeName'
+              },
             },
           })
         },
@@ -268,9 +270,9 @@ describe('PluginDriver — hook-style plugin registration', () => {
     await driver.emitSetupHooks()
 
     const resolver = driver.getResolver('hook-plugin')
-    expect(resolver.default('any value', 'type')).toBe('CustomTypeName')
+    expect(resolver.core.typeName('any value')).toBe('CustomTypeName')
     expect(
-      resolver.resolvePath(
+      resolver.core.path(
         { baseName: 'pets.ts' },
         {
           root: '/tmp/root',
@@ -286,8 +288,10 @@ describe('PluginDriver — hook-style plugin registration', () => {
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.setResolver({
-            default() {
-              return 'FromPlugin'
+            core: {
+              typeName() {
+                return 'FromPlugin'
+              },
             },
           })
         },
@@ -303,7 +307,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
 
     const plugin = driver.plugins.get('hook-plugin')!
     expect(plugin.resolver).toBeDefined()
-    expect(plugin.resolver!.default('test', 'type')).toBe('FromPlugin')
+    expect(plugin.resolver!.core.typeName('test')).toBe('FromPlugin')
   })
 
   it('uses default resolver when setResolver() is never called', async () => {
@@ -319,7 +323,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     await driver.setup()
 
     const resolver = driver.getResolver('hook-plugin')
-    expect(resolver.default('my custom type', 'type')).toBe('MyCustomType')
+    expect(resolver.core.typeName('my custom type')).toBe('MyCustomType')
   })
 
   it('setOptions() merges resolved options into the normalized plugin', async () => {
@@ -538,7 +542,7 @@ describe('PluginDriver — generator event dispatch', () => {
   it('registerGenerator() receives the resolved resolver on ctx.resolver', async () => {
     const capturedResolverResult = vi.fn()
     const schemaMock = vi.fn(function (_node: SchemaNode, ctx: GeneratorContext) {
-      capturedResolverResult(ctx.resolver.default('pet schema', 'type'))
+      capturedResolverResult(ctx.resolver.core.typeName('pet schema'))
       return undefined
     })
 
@@ -547,8 +551,10 @@ describe('PluginDriver — generator event dispatch', () => {
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.setResolver({
-            default() {
-              return 'ResolvedFromSetup'
+            core: {
+              typeName() {
+                return 'ResolvedFromSetup'
+              },
             },
           })
           ctx.addGenerator({ name: 'test-gen', schema: schemaMock })

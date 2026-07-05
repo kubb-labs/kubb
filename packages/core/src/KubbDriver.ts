@@ -9,7 +9,8 @@ import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { Plugin } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
-import { defineResolver } from './defineResolver.ts'
+import type { DeepPartial } from './defineResolver.ts'
+import { bindResolver, defineResolver, mergeResolver } from './defineResolver.ts'
 import { FileManager } from './FileManager.ts'
 import { FileProcessor } from './FileProcessor.ts'
 import { Transform } from './Transform.ts'
@@ -573,7 +574,7 @@ export class KubbDriver {
       for (const operation of operationsBuffer) {
         for (const state of pruningStates) {
           const { exclude, include, override } = state.plugin.options
-          const options = state.generatorContext.resolver.resolveOptions(operation, { options: state.plugin.options, exclude, include, override })
+          const options = state.generatorContext.resolver.core.options(operation, { options: state.plugin.options, exclude, include, override })
           if (options !== null) includedOpsByState.get(state)?.push(operation)
         }
       }
@@ -597,7 +598,7 @@ export class KubbDriver {
       if (state.optionsAreStatic) return { transformedNode, options: plugin.options }
 
       const { exclude, include, override } = plugin.options
-      const options = generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
+      const options = generatorContext.resolver.core.options(transformedNode, { options: plugin.options, exclude, include, override })
       if (options === null) return null
       return { transformedNode, options }
     }
@@ -800,9 +801,9 @@ export class KubbDriver {
    * Also mirrors it onto `plugin.resolver` so callers using `getPlugin(name).resolver`
    * get the up-to-date resolver without going through `getResolver()`.
    */
-  setPluginResolver(pluginName: string, partial: Partial<Resolver>): void {
+  setPluginResolver(pluginName: string, partial: DeepPartial<Resolver>): void {
     const defaultResolver = this.#getDefaultResolver(pluginName)
-    const merged = { ...defaultResolver, ...partial }
+    const merged = bindResolver(mergeResolver<Resolver>(defaultResolver, partial))
     this.#resolvers.set(pluginName, merged)
     const plugin = this.plugins.get(pluginName)
     if (plugin) {

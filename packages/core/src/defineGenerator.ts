@@ -68,10 +68,10 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    * `resolver`, then the built-in default.
    *
    * @example Resolve a type name
-   * `ctx.resolver.default('pet', 'type') // 'Pet'`
+   * `ctx.resolver.core.typeName('pet') // 'Pet'`
    *
    * @example Resolve an output file
-   * `ctx.resolver.resolveFile({ name: 'pet', extname: '.ts' }, { root, output })`
+   * `ctx.resolver.core.file({ name: 'pet', extname: '.ts' }, { root, output })`
    */
   resolver: TOptions['resolver']
   /**

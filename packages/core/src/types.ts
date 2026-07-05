@@ -813,6 +813,7 @@ export type {
   ResolveOptionsContext,
   Resolver,
   ResolverContext,
+  ResolverCore,
   ResolverFileParams,
   ResolverPathParams,
 } from './defineResolver.ts'

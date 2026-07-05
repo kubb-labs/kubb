@@ -35,33 +35,75 @@ describe('defineResolver', () => {
       },
     }))
 
-    expect(resolver.default).toBeTypeOf('function')
-    expect(resolver.resolveOptions).toBeTypeOf('function')
-    expect(resolver.resolvePath).toBeTypeOf('function')
-    expect(resolver.resolveFile).toBeTypeOf('function')
+    expect(resolver.core.name).toBeTypeOf('function')
+    expect(resolver.core.options).toBeTypeOf('function')
+    expect(resolver.core.path).toBeTypeOf('function')
+    expect(resolver.core.file).toBeTypeOf('function')
     expect(resolver.name).toBe('test')
   })
 
-  it('build function values override defaults', () => {
+  it('build values override the built-in core helpers', () => {
     const resolver = defineResolver<TestPluginFactory>(() => {
       const build = {
         pluginName: 'test' as const,
         name: 'custom',
-        default(name: string) {
-          return name.toUpperCase()
+        core: {
+          name(name: string) {
+            return name.toUpperCase()
+          },
         },
         greet(name: string) {
-          return build.default(name)
+          return build.core.name(name)
         },
         farewell(name: string) {
-          return `bye ${build.default(name)}`
+          return `bye ${build.core.name(name)}`
         },
       }
       return build
     })
 
-    expect(resolver.default('hello')).toBe('HELLO')
+    expect(resolver.core.name('hello')).toBe('HELLO')
     expect(resolver.greet('world')).toBe('WORLD')
+  })
+
+  it('keeps sibling core defaults when only one helper is overridden', () => {
+    const resolver = defineResolver<TestPluginFactory>(() => ({
+      pluginName: 'test',
+      name: 'custom',
+      core: {
+        name(name: string) {
+          return name.toUpperCase()
+        },
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    }))
+
+    expect(resolver.core.name('hello world')).toBe('HELLO WORLD')
+    // typeName/fileName fall back to the built-in casing
+    expect(resolver.core.typeName('hello world')).toBe('HelloWorld')
+    expect(resolver.core.fileName('hello world')).toBe('helloWorld')
+  })
+
+  it('binds nested namespace methods so `this` is the whole resolver', () => {
+    type NamespacedResolver = Resolver & { schema: { name(name: string): string; typeName(name: string): string } }
+    type NamespacedFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: NamespacedResolver }
+
+    const resolver = defineResolver<NamespacedFactory>(() => ({
+      pluginName: 'test',
+      name: 'custom',
+      schema: {
+        name(this: NamespacedResolver, name: string) {
+          return `${this.core.name(name)}Schema`
+        },
+        typeName(this: NamespacedResolver, name: string) {
+          return `${this.core.typeName(name)}Schema`
+        },
+      },
+    }))
+
+    expect(resolver.schema.name('list pets')).toBe('listPetsSchema')
+    expect(resolver.schema.typeName('list pets')).toBe('ListPetsSchema')
   })
 
   it('resolveOptions does not throw when options is not an object', () => {
@@ -77,8 +119,8 @@ describe('defineResolver', () => {
     // A re-instantiated plugin can hand back a falsy-but-not-nullish `options` (e.g. `false`).
     // `resolveOptions` caches by `options` identity in a `WeakMap`, which only accepts object
     // keys, so this must fall back to computing directly instead of throwing.
-    expect(() => resolver.resolveOptions<boolean>(node, { options: false })).not.toThrow()
-    expect(resolver.resolveOptions<boolean>(node, { options: false })).toBe(false)
+    expect(() => resolver.core.options<boolean>(node, { options: false })).not.toThrow()
+    expect(resolver.core.options<boolean>(node, { options: false })).toBe(false)
   })
 })
 
@@ -212,7 +254,7 @@ describe('defaultResolveFile', () => {
     expect(file.exports).toStrictEqual([])
   })
 
-  it('uses PascalCase file name via resolver.default', () => {
+  it('uses the core file-name casing via resolver.core.fileName', () => {
     const file = defaultResolveFile.call(resolver, { name: 'list pets', extname: '.ts' }, context)
 
     expect(file.baseName).toBe('listPets.ts')

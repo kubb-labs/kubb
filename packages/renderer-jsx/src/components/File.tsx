@@ -40,12 +40,12 @@ type Props<TMeta> = BaseProps & {
   meta?: TMeta | null
   /**
    * Text prepended to the generated file content before any source blocks.
-   * Accepts `null` so `resolver.resolveBanner()` results can be passed directly.
+   * Accepts `null` so `resolver.core.banner()` results can be passed directly.
    */
   banner?: string | null
   /**
    * Text appended to the generated file content after all source blocks.
-   * Accepts `null` so `resolver.resolveFooter()` results can be passed directly.
+   * Accepts `null` so `resolver.core.footer()` results can be passed directly.
    */
   footer?: string | null
   /**
