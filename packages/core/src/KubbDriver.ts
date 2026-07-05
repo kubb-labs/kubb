@@ -574,7 +574,7 @@ export class KubbDriver {
       for (const operation of operationsBuffer) {
         for (const state of pruningStates) {
           const { exclude, include, override } = state.plugin.options
-          const options = state.generatorContext.resolver.core.options(operation, { options: state.plugin.options, exclude, include, override })
+          const options = state.generatorContext.resolver.default.options(operation, { options: state.plugin.options, exclude, include, override })
           if (options !== null) includedOpsByState.get(state)?.push(operation)
         }
       }
@@ -598,7 +598,7 @@ export class KubbDriver {
       if (state.optionsAreStatic) return { transformedNode, options: plugin.options }
 
       const { exclude, include, override } = plugin.options
-      const options = generatorContext.resolver.core.options(transformedNode, { options: plugin.options, exclude, include, override })
+      const options = generatorContext.resolver.default.options(transformedNode, { options: plugin.options, exclude, include, override })
       if (options === null) return null
       return { transformedNode, options }
     }
@@ -793,7 +793,7 @@ export class KubbDriver {
 
   #getDefaultResolver = memoize(
     this.#defaultResolvers,
-    (pluginName: string): Resolver => defineResolver<PluginFactoryOptions>(() => ({ name: 'default', pluginName })),
+    (pluginName: string): Resolver => defineResolver<PluginFactoryOptions>(() => ({ pluginName })),
   )
 
   /**

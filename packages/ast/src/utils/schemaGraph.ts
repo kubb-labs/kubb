@@ -91,7 +91,7 @@ function computeUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schema
  *
  * @example Only generate schemas referenced by included operations
  * ```ts
- * const includedOps = operations.filter((op) => resolver.core.options(op, { options, include }) !== null)
+ * const includedOps = operations.filter((op) => resolver.default.options(op, { options, include }) !== null)
  * const allowed = collectUsedSchemaNames(includedOps, schemas)
  *
  * for (const schema of schemas) {

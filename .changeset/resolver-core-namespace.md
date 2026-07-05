@@ -2,23 +2,32 @@
 "@kubb/core": minor
 ---
 
-Group the built-in resolver helpers under `resolver.core` and replace the `default(name, type)` discriminator with dedicated per-kind helpers.
+Replace the `default(name, type)` discriminator with a `resolver.default` namespace and top-level `name`/`file` entries.
 
-The stringly-typed `default(name, type?: 'file' | 'function' | 'type' | 'const')` is gone. Naming now has two dedicated helpers on `core`:
+The stringly-typed `default(name, type?: 'file' | 'function' | 'type' | 'const')` is gone. The built-in machinery now lives under `resolver.default` — `name` (camelCase identifier casing), `file` (the `FileNode` builder), `options`, `path`, `banner`, and `footer` (previously `resolveOptions`, `resolvePath`, `resolveFile`, `resolveBanner`, `resolveFooter`).
 
-- `resolver.core.name(name)` — the generated identifier casing (was `default(name)` / `default(name, 'function' | 'const' | 'type')`; a plugin sets its own convention, camelCase or PascalCase)
-- `resolver.core.fileName(name)` — file paths (was `default(name, 'file')`)
+Generators call the two top-level entries, each of which defaults to its `default` counterpart:
 
-The other built-ins move alongside them: `resolver.core.options`, `resolver.core.path`, `resolver.core.file`, `resolver.core.banner`, and `resolver.core.footer` (previously `resolveOptions`, `resolvePath`, `resolveFile`, `resolveBanner`, `resolveFooter`). A plugin that names types differently from values adds its own method (for example `resolveTypeName`) alongside the built-ins and reaches the shared casing through `this.core`, since a method called on the resolver already has the resolver as `this`.
+- `resolver.name(name)` — the plugin's identifier casing. Override it to set a convention (PascalCase, a suffix, …).
+- `resolver.file(params, context)` — builds a `FileNode`. Override it for custom file-name casing, threading a caser through `params.resolveName` (default `toFilePath`).
+
+Group a plugin's other naming methods into namespaces (`query`, `schema`, …); inside a namespace method `this` is the resolver, so `this.name`, `this.default`, and `this.file` all resolve.
 
 ```ts
 export const resolverTs = defineResolver<PluginTs>(() => ({
-  name: 'default',
   pluginName: 'plugin-ts',
-  resolveTypeName(name) {
-    return `${this.core.name(name)}Type`
+  name(name) {
+    return ensureValidVarName(pascalCase(name))
+  },
+  file(params, context) {
+    return this.default.file({ ...params, resolveName: (name) => toFilePath(name, pascalCase) }, context)
+  },
+  query: {
+    keyName(node) {
+      return `${this.name(node.operationId)}QueryKey`
+    },
   },
 }))
 ```
 
-`setResolver` and the new `mergeResolver(base, override)` export accept a partial override that merges one level deep, so an override can name a single helper (`{ core: { name } }`) without restating the rest. `core.file` receives the assembled resolver as its first argument, so a custom file builder never needs `this`.
+`setResolver` and `mergeResolver(base, override)` accept a partial override that merges one level deep, so an override can name a single member (`{ name }`, `{ default: { path } }`) without restating the rest. The base `Resolver` no longer carries a `name` string field — `name` is the top-level casing method.

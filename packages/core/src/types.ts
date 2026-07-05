@@ -813,7 +813,7 @@ export type {
   ResolveOptionsContext,
   Resolver,
   ResolverContext,
-  ResolverCore,
+  ResolverDefault,
   ResolverFileFactory,
   ResolverFileParams,
   ResolverOverride,
