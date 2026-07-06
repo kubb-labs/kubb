@@ -14,12 +14,6 @@ export const SUMMARY_MAX_BAR_LENGTH = 10 as const
 export const SUMMARY_TIME_SCALE_DIVISOR = 100 as const
 
 /**
- * How many schema/operation nodes to generate between write flushes. Flushing as generation runs
- * lets writes reach disk before the build finishes, rather than queuing them all to the end.
- */
-export const GENERATE_FLUSH_EVERY = 8
-
-/**
  * Upper bound of hook listeners a single plugin can add to one event (its schema, operation,
  * and operations generators, plus lifecycle hooks). Used to size the hooks emitter's
  * max-listener ceiling so a multi-generator plugin set does not trip Node's leak warning.

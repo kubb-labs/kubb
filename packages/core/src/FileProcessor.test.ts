@@ -144,49 +144,33 @@ describe('FileProcessor — queue: enqueue', () => {
   })
 })
 
-describe('FileProcessor — queue: flush', () => {
-  it('is a no-op when nothing is queued', async () => {
+describe('FileProcessor — queue: self-scheduling batches', () => {
+  it('drain is a no-op when nothing is queued', async () => {
     const { processor, storage } = makeQueueProcessor()
     const setItem = vi.spyOn(storage, 'setItem')
 
-    await processor.flush()
+    await processor.drain()
 
     expect(setItem).not.toHaveBeenCalled()
   })
 
-  it('clears pending and writes every file in the batch', async () => {
-    const { processor, storage } = makeQueueProcessor()
-    processor.enqueue(makeFile('a.ts', ['/* a.ts */']))
-    processor.enqueue(makeFile('b.ts', ['/* b.ts */']))
-
-    await processor.flush()
-    await processor.drain()
-
-    expect(await storage.getItem('a.ts')).toContain('/* a.ts */')
-    expect(await storage.getItem('b.ts')).toContain('/* b.ts */')
-  })
-
-  it('returns before the in-flight batch finishes so the caller can pipeline', async () => {
-    const { promise: firstWriteBlocker, resolve: resolveFirstWrite } = Promise.withResolvers<void>()
+  it('starts writing on enqueue without waiting for drain', async () => {
+    const { promise: written, resolve: markWritten } = Promise.withResolvers<void>()
     const storage = memoryStorage()
     const realSetItem = storage.setItem.bind(storage)
     storage.setItem = async (path: string, source: string) => {
-      if (path === 'a.ts') await firstWriteBlocker
       await realSetItem(path, source)
+      markWritten()
     }
     const { processor } = makeQueueProcessor({ storage })
 
     processor.enqueue(makeFile('a.ts', ['/* a.ts */']))
-    await processor.flush()
 
-    expect(await storage.getItem('a.ts')).toBeNull()
-
-    resolveFirstWrite()
-    await processor.drain()
+    await written
     expect(await storage.getItem('a.ts')).toContain('/* a.ts */')
   })
 
-  it('runs in-flight batches one at a time: a second flush waits for the first', async () => {
+  it('enqueue never blocks: files queued during a slow write ride the next batch', async () => {
     const order: Array<string> = []
     const { promise: firstBlocker, resolve: resolveFirst } = Promise.withResolvers<void>()
     const storage = memoryStorage()
@@ -200,19 +184,27 @@ describe('FileProcessor — queue: flush', () => {
     const { processor } = makeQueueProcessor({ storage })
 
     processor.enqueue(makeFile('first.ts', ['/* first */']))
-    await processor.flush()
-
     processor.enqueue(makeFile('second.ts', ['/* second */']))
-    const secondFlush = processor.flush()
 
     await new Promise((resolve) => setTimeout(resolve, 5))
     expect(order).toStrictEqual(['set:first.ts'])
 
     resolveFirst()
-    await secondFlush
     await processor.drain()
 
     expect(order).toStrictEqual(['set:first.ts', 'done:first.ts', 'set:second.ts', 'done:second.ts'])
+  })
+
+  it('drain rethrows a write error from an earlier batch', async () => {
+    const storage = memoryStorage()
+    storage.setItem = async () => {
+      throw new Error('disk full')
+    }
+    const { processor } = makeQueueProcessor({ storage })
+
+    processor.enqueue(makeFile('a.ts', ['/* a */']))
+
+    await expect(processor.drain()).rejects.toThrow('disk full')
   })
 })
 
@@ -276,7 +268,6 @@ describe('FileProcessor — queue: drain', () => {
   it('writes everything still pending and waits for the in-flight batch', async () => {
     const { processor, storage } = makeQueueProcessor()
     processor.enqueue(makeFile('a.ts', ['/* a */']))
-    await processor.flush()
     processor.enqueue(makeFile('b.ts', ['/* b */']))
 
     await processor.drain()

@@ -69,12 +69,14 @@ async function parseCopy(file: FileNode): Promise<string> {
  * Turns `FileNode`s into source strings and writes them to storage.
  *
  * Two modes share the same instance. Stateless mode (`parse`, `stream`) just runs the
- * conversion. Queue mode (`enqueue`, `flush`, `drain`) buffers files deduped by path and
- * writes each batch through storage with up to `STREAM_FLUSH_EVERY` requests in flight.
+ * conversion. Queue mode (`enqueue`, `drain`) buffers files deduped by path and writes them
+ * in self-scheduling batches, with up to `STREAM_FLUSH_EVERY` storage requests in flight
+ * per batch.
  *
- * `flush` does not wait for its batch to finish, so dispatch can overlap with IO. The next
- * `flush` or `drain` picks the in-flight batch up. `drain` blocks until everything has been
- * written and is meant for the end of a build.
+ * The first `enqueue` starts a batch right away. Files enqueued while a batch is writing
+ * collect into the next one, which starts as soon as the current batch finishes, so writes
+ * continuously trail generation without the caller pacing anything. `drain` blocks until
+ * the queue is empty and is meant for the end of a build.
  *
  * To surface build-level hook signals (`kubb:files:processing:*` and friends) subscribe to
  * `hooks` and re-emit on the kubb bus.
@@ -85,7 +87,8 @@ export class FileProcessor {
   readonly #storage: Storage
   readonly #extension: Record<FileNode['extname'], FileNode['extname'] | ''> | null
   readonly #pending = new Map<string, FileNode>()
-  #runningFlush: Promise<void> | null = null
+  #runningBatch: Promise<void> | null = null
+  #writeError: unknown = null
 
   constructor(options: FileProcessorOptions) {
     this.#parsers = options.parsers ?? null
@@ -128,40 +131,44 @@ export class FileProcessor {
   }
 
   /**
-   * Adds a file to the next flush. A later `enqueue` for the same path replaces the previous
-   * entry, matching `FileManager.upsert`.
+   * Adds a file to the write queue and starts a batch when none is running. A later
+   * `enqueue` for the same path replaces the previous entry, matching `FileManager.upsert`.
    */
   enqueue(file: FileNode): void {
     this.#pending.set(file.path, file)
+    this.#kick()
   }
 
-  /**
-   * Starts processing the queued files. Waits for any previous flush to finish (so two
-   * batches never run together) and then returns without waiting for the new one. The next
-   * `flush` or `drain` picks up the in-flight task.
-   */
-  async flush(): Promise<void> {
-    if (this.#runningFlush) await this.#runningFlush
-    if (this.#pending.size === 0) return
+  // Starts the next batch unless one is running or a previous batch failed. Called again
+  // from the batch's finally, so the queue keeps draining on its own while the caller
+  // generates more files. A batch failure parks its error for `drain` and stops the queue.
+  #kick(): void {
+    if (this.#runningBatch || this.#writeError !== null || this.#pending.size === 0) return
 
     const batch = [...this.#pending.values()]
     this.#pending.clear()
 
-    this.#runningFlush = this.#processAndWrite(batch).finally(() => {
-      this.#runningFlush = null
-    })
+    this.#runningBatch = this.#processAndWrite(batch)
+      .catch((error: unknown) => {
+        this.#writeError = error
+      })
+      .finally(() => {
+        this.#runningBatch = null
+        this.#kick()
+      })
   }
 
   /**
-   * Waits for the in-flight flush and writes any files still queued.
+   * Waits until every queued file has been written, then rethrows the first batch error
+   * when one occurred.
    */
   async drain(): Promise<void> {
-    if (this.#runningFlush) await this.#runningFlush
+    while (this.#runningBatch) await this.#runningBatch
 
-    if (this.#pending.size > 0) {
-      const batch = [...this.#pending.values()]
-      this.#pending.clear()
-      await this.#processAndWrite(batch)
+    if (this.#writeError !== null) {
+      const error = this.#writeError
+      this.#writeError = null
+      throw error
     }
   }
 

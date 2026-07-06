@@ -5,7 +5,7 @@ import { createKubb } from './createKubb.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
-import { GENERATE_FLUSH_EVERY, STREAM_FLUSH_EVERY } from './constants.ts'
+import { STREAM_FLUSH_EVERY } from './constants.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { AsyncEventEmitter } from './asyncEventEmitter.ts'
@@ -352,8 +352,8 @@ describe('createKubb', () => {
       }))()
     }
 
-    it('generates all files when schema count exceeds GENERATE_FLUSH_EVERY', async () => {
-      const count = GENERATE_FLUSH_EVERY * 3 + 1
+    it('generates all files when the schema count spans several write batches', async () => {
+      const count = 25
       const schemas = Array.from({ length: count }, (_, i) => ast.factory.createSchema({ name: `Schema${i}`, type: 'string' }))
       const generatedPaths: Array<string> = []
 
@@ -380,7 +380,7 @@ describe('createKubb', () => {
     })
 
     it('passes operations to gen.operations() in insertion order', async () => {
-      const opCount = GENERATE_FLUSH_EVERY * 2 + 3
+      const opCount = 19
       const operations = Array.from({ length: opCount }, (_, i) =>
         ast.factory.createOperation({ operationId: `op${i}`, method: 'GET', path: `/path${i}`, parameters: [], responses: [], tags: [] }),
       )
@@ -422,7 +422,7 @@ describe('createKubb', () => {
     })
 
     it('processes schemas from adapter.stream() across batches', async () => {
-      const count = GENERATE_FLUSH_EVERY * 2 + 1
+      const count = 17
       const schemas = Array.from({ length: count }, (_, i) => ast.factory.createSchema({ name: `StreamSchema${i}`, type: 'string' }))
       const generatedPaths: Array<string> = []
 

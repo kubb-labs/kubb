@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import { arrayToAsyncIterable, getElapsedMs, memoize } from '@internals/utils'
 import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
-import { GENERATE_FLUSH_EVERY, OPERATION_FILTER_TYPES } from './constants.ts'
+import { OPERATION_FILTER_TYPES } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
@@ -428,9 +428,9 @@ export class KubbDriver {
           }
 
           // Stream every node through the transform registry and into each plugin's generators.
-          // When there are no entries it returns early. When `inputNode` is missing it still
-          // closes out each entry's `kubb:plugin:end` directly.
-          diagnostics.push(...(await this.#runGenerators(generatorPlugins, () => processor.flush())))
+          // Generated files reach the processor through the upsert bridge above and write out
+          // in self-scheduling batches while generation continues.
+          diagnostics.push(...(await this.#runGenerators(generatorPlugins)))
           // Wait for the last in-flight batch and write anything still pending.
           await processor.drain()
 
@@ -477,7 +477,7 @@ export class KubbDriver {
    * Streams schemas and operations through every plugin's generators. Each node is run
    * through the plugin's macros (from `this.#transforms`) before the generator sees it,
    * so plugins stay isolated and the hot path stays per-node. Schemas run before operations
-   * because the two passes share `flushPending` and the FileProcessor's event emitter.
+   * so file output stays deterministic across runs.
    * A failing plugin contributes an error diagnostic so the rest of the build continues.
    * Every plugin also contributes a `timing` diagnostic.
    *
@@ -491,7 +491,6 @@ export class KubbDriver {
    */
   async #runGenerators(
     entries: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }>,
-    flushPending: () => Promise<void>,
   ): Promise<Array<Diagnostic>> {
     const diagnostics: Array<Diagnostic> = []
 
@@ -634,30 +633,16 @@ export class KubbDriver {
       emit: (node: OperationNode, ctx: GeneratorContext) => this.hooks.emit('kubb:generate:operation', node, ctx),
     } as const
 
-    // Walk nodes in order, flushing queued writes every GENERATE_FLUSH_EVERY nodes so writes
-    // reach disk while later nodes are still generating. The generators are synchronous, so
-    // batching them through Promise.all never overlapped anything a sequential walk doesn't.
-    const dispatchPass = async <TNode extends SchemaNode | OperationNode>(
-      state: PluginState,
-      nodes: ReadonlyArray<TNode>,
-      dispatch: NodeDispatch<TNode>,
-    ): Promise<void> => {
-      let sinceFlush = 0
-      for (const node of nodes) {
-        await dispatchNode(state, node, dispatch)
-        if (++sinceFlush >= GENERATE_FLUSH_EVERY) {
-          sinceFlush = 0
-          await flushPending()
-        }
-      }
-      if (sinceFlush > 0) await flushPending()
-    }
-
     for (const state of states) {
-      // Run schemas before operations: the two passes share the flush and the FileProcessor's
-      // event emitter, so interleaving them would race on the shared dirty list.
-      if (emitsSchemaHook) await dispatchPass(state, schemasBuffer, schemaDispatch)
-      if (emitsOperationHook) await dispatchPass(state, operationsBuffer, operationDispatch)
+      // Schemas before operations, in buffer order, so file output stays deterministic.
+      // Writes stream out through the FileProcessor's self-scheduling queue as upserts land,
+      // so there is no explicit flushing here.
+      if (emitsSchemaHook) {
+        for (const node of schemasBuffer) await dispatchNode(state, node, schemaDispatch)
+      }
+      if (emitsOperationHook) {
+        for (const node of operationsBuffer) await dispatchNode(state, node, operationDispatch)
+      }
 
       if (!state.failed && emitsOperationsHook) {
         try {
