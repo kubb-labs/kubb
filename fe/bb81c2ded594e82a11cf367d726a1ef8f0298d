@@ -1,0 +1,19 @@
+.changeset/reduce-memory-fs-caching.md
+  s_648a586824545d::t_600330df6bd5c6 10,12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "febb81c2ded594e82a11cf367d726a1ef8f0298d",
+  "prompts": {},
+  "sessions": {
+    "s_648a586824545d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fcfdcfb3-3ac1-4294-b3ed-745a33419726",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
