@@ -1,0 +1,129 @@
+packages/core/src/definePlugin.ts
+  s_4c3ffc7bada6c0::t_fa7cf211a00a08 21
+  s_2cdd63e8e0cc24::t_9cb9a08842898e 4
+  s_4c3ffc7bada6c0::t_7c4c9e9aeab2c8 301
+  s_2cdd63e8e0cc24::t_90f978e175121f 267
+  s_4c3ffc7bada6c0::t_e71ecb9ff38011 191-195,209,223,248
+  s_4c3ffc7bada6c0::t_1b86638b6e7770 190
+packages/kit/src/index.ts
+  s_13a89e3ed5f3fb::t_71623714e89bcb 8
+packages/core/src/types.ts
+  s_2cdd63e8e0cc24::t_9cb9a08842898e 816
+  s_4c3ffc7bada6c0::t_212f183c45568d 803
+.changeset/rename-define-to-create.md
+  s_2cdd63e8e0cc24::t_84e83c626a2277 3
+  s_4c3ffc7bada6c0::t_fcbbababc7d56a 6,8-10,12
+packages/core/src/diagnostics.ts
+  s_a19e8756a19dc9::t_f07d147d29177f 229-232
+  s_a19e8756a19dc9::t_73786bb3e1b6ea 635
+packages/core/src/KubbDriver.ts
+  s_2cdd63e8e0cc24::t_9cb9a08842898e 12
+  s_4c3ffc7bada6c0::t_0a08e518fd4dd8 804
+  s_4c3ffc7bada6c0::t_25add1ee441c6e 46
+  s_4c3ffc7bada6c0::t_f055669bca2d99 598-603
+  s_13a89e3ed5f3fb::t_0c85ebb05642f4 806
+  s_13a89e3ed5f3fb::t_cf8ec1d580b8ab 13
+  s_4c3ffc7bada6c0::t_6fc190bac77b9e 57-59
+  s_2cdd63e8e0cc24::t_b893a30f87b516 797
+packages/unplugin-kubb/src/unpluginFactory.ts
+  s_4c3ffc7bada6c0::t_eb4cc49a22b093 86
+packages/adapter-oas/src/resolvers.ts
+  s_4c3ffc7bada6c0::t_a03436da5a51e3 303
+packages/core/src/createResolver.test.ts
+  s_13a89e3ed5f3fb::t_dfa7bcf2cac0d4 142-154
+  s_2cdd63e8e0cc24::t_525bd98f017ef2 71,81
+  s_2cdd63e8e0cc24::t_6abc9c375d5845 49,60
+  s_2cdd63e8e0cc24::t_ee09a5544ec805 102,106
+  s_2cdd63e8e0cc24::t_e933f9ef3a9697 270,274
+  s_4c3ffc7bada6c0::t_f7f4395a72663d 117,138
+  s_13a89e3ed5f3fb::t_eb10ae1edcb3ba 130
+  s_13a89e3ed5f3fb::t_85d22a929ba3af 116,118-129,131-137,139-141
+  s_13a89e3ed5f3fb::t_50f41bfbfe37c2 5
+  s_13a89e3ed5f3fb::t_92bddb13d422c7 4
+  s_2cdd63e8e0cc24::t_4c917a5966dad6 27,35
+  s_13a89e3ed5f3fb::t_99c41fcdb200df 45
+  s_2cdd63e8e0cc24::t_5f2bece588f6f6 88,95
+packages/core/src/FileProcessor.ts
+  s_a19e8756a19dc9::t_9fa88b504b63d3 10
+  s_a19e8756a19dc9::t_841e037e40cbae 51-54
+  s_a19e8756a19dc9::t_ad2f691ed4bc05 74
+packages/kubb/src/defineConfig.ts
+  s_4c3ffc7bada6c0::t_acdfcae9d8e62b 35
+packages/core/src/defineGenerator.ts
+  s_2cdd63e8e0cc24::t_9cb9a08842898e 8
+packages/core/src/index.ts
+  s_13a89e3ed5f3fb::t_7b6c8552d0b832 14
+packages/core/src/createResolver.ts
+  s_4c3ffc7bada6c0::t_b10a064d674be2 629
+  s_4c3ffc7bada6c0::t_5d7ca463ca6074 611,613-616,618
+  s_13a89e3ed5f3fb::t_681a682f879670 731,743,753
+  s_4c3ffc7bada6c0::t_bc2d612341807c 751-752
+  s_4c3ffc7bada6c0::t_de97a2303597fe 660
+  s_2cdd63e8e0cc24::t_1165f79efdea9c 636,764-766,770,778,781
+  s_a19e8756a19dc9::t_bebf5b3be3bddb 480-483,486-489,491,493-496,498-500,502-504,506-512,514-516
+  s_13a89e3ed5f3fb::t_5ce6678bdc8469 648
+  s_4c3ffc7bada6c0::t_eda4bb25406cd6 621
+  s_13a89e3ed5f3fb::t_6d3bc6ccb47859 746,754
+  s_4c3ffc7bada6c0::t_9f42a72a366e48 5
+  s_4c3ffc7bada6c0::t_5f7135af6470c8 225-226
+  s_13a89e3ed5f3fb::t_4b72acf85e6913 641-646,649-653,666,675-684,686-693,695-697,703-706,710,719-726,728-730,732-742,744-745
+  s_13a89e3ed5f3fb::t_7fc0366e0c7935 661-664
+  s_13a89e3ed5f3fb::t_75758952337240 707-709,711-718
+  s_4c3ffc7bada6c0::t_d821c03e1b09c0 283-285
+  s_13a89e3ed5f3fb::t_90ec344dd5a12f 747-750
+  s_4c3ffc7bada6c0::t_ed7a4c02d8916e 15-17
+  s_13a89e3ed5f3fb::t_82e3ffc7b1ba5e 656-658,670-673,685,694
+  s_13a89e3ed5f3fb::t_111a04140c4d01 762
+  s_13a89e3ed5f3fb::t_efd29a7c909789 782
+  s_4c3ffc7bada6c0::t_62e1880c148601 622,625-626,628
+packages/core/src/FileProcessor.test.ts
+  s_a19e8756a19dc9::t_c296c0c96695ec 99-100,104-107,109-112,115,117-121
+  s_4c3ffc7bada6c0::t_e2b29b15e24ecf 133-134,136-138,140-143
+.changeset/resolver-core-namespace.md
+  s_13a89e3ed5f3fb::t_425e4ae8f2a593 2,14,22-23
+  s_2cdd63e8e0cc24::t_50df2a25933460 17,30
+  s_4c3ffc7bada6c0::t_290c047d4a5f36 33-35
+  s_13a89e3ed5f3fb::t_1b9cdb313389b7 5
+.changeset/kit-new-package.md
+  s_4c3ffc7bada6c0::t_8bb870d955a3b6 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "7f41b89800194d3a2ad009e1e22f8cb7d3ccdfd3",
+  "prompts": {},
+  "sessions": {
+    "s_13a89e3ed5f3fb": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "2e2ed68f-0699-49ff-a2af-95ce07dc6a6d",
+        "model": "composer-2.5-fast"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    },
+    "s_2cdd63e8e0cc24": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7561e413-f3f2-4792-8d1b-58905335edaf",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    },
+    "s_4c3ffc7bada6c0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c60d386b-447c-4cfd-9e41-3b0ddbd1dc70",
+        "model": "default"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    },
+    "s_a19e8756a19dc9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c634c390-a77e-4c7f-ab12-5e79c08da27b",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
