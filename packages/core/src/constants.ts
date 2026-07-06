@@ -1,9 +1,4 @@
 /**
- * Number of file writes to batch in parallel during `flushPendingFiles`.
- */
-export const STREAM_FLUSH_EVERY = 50
-
-/**
  * Maximum number of █ characters in a plugin timing bar.
  */
 export const SUMMARY_MAX_BAR_LENGTH = 10 as const

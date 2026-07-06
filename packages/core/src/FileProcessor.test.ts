@@ -95,126 +95,36 @@ describe('FileProcessor', () => {
       })
     })
   })
-
-  describe('stream', () => {
-    it('yields one item per file in order with processed count and percentage', async () => {
-      const processor = new FileProcessor({ storage: memoryStorage() })
-      const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
-
-      const items = []
-      for await (const item of processor.stream(files)) {
-        items.push({ path: item.file.path, processed: item.processed, percentage: item.percentage, total: item.total })
-      }
-
-      expect(items).toStrictEqual([
-        { path: '/src/a.ts', processed: 1, percentage: 50, total: 2 },
-        { path: '/src/b.ts', processed: 2, percentage: 100, total: 2 },
-      ])
-    })
-
-    it('yields nothing for an empty files array', async () => {
-      const processor = new FileProcessor({ storage: memoryStorage() })
-      const items = []
-      for await (const item of processor.stream([])) {
-        items.push(item)
-      }
-      expect(items).toStrictEqual([])
-    })
-  })
 })
 
-function makeQueueProcessor(overrides: { storage?: ReturnType<typeof memoryStorage> } = {}) {
-  const storage = overrides.storage ?? memoryStorage()
-  const processor = new FileProcessor({ storage })
-  return { processor, storage }
-}
-
-describe('FileProcessor — queue: enqueue', () => {
-  it('dedupes files by path so a second enqueue replaces the first', async () => {
-    const { processor, storage } = makeQueueProcessor()
-
-    processor.enqueue(makeFile('a.ts', ['/* first */']))
-    processor.enqueue(makeFile('a.ts', ['/* second */']))
-    processor.enqueue(makeFile('b.ts', ['/* b */']))
-
-    await processor.drain()
-
-    expect(await storage.getItem('a.ts')).toContain('/* second */')
-    expect(await storage.getItem('b.ts')).toContain('/* b */')
-  })
-})
-
-describe('FileProcessor — queue: self-scheduling batches', () => {
-  it('drain is a no-op when nothing is queued', async () => {
-    const { processor, storage } = makeQueueProcessor()
+describe('FileProcessor — write', () => {
+  it('is a no-op for an empty batch', async () => {
+    const storage = memoryStorage()
     const setItem = vi.spyOn(storage, 'setItem')
+    const processor = new FileProcessor({ storage })
 
-    await processor.drain()
+    await processor.write([])
 
     expect(setItem).not.toHaveBeenCalled()
   })
 
-  it('starts writing on enqueue without waiting for drain', async () => {
-    const { promise: written, resolve: markWritten } = Promise.withResolvers<void>()
+  it('writes every file in the batch', async () => {
     const storage = memoryStorage()
-    const realSetItem = storage.setItem.bind(storage)
-    storage.setItem = async (path: string, source: string) => {
-      await realSetItem(path, source)
-      markWritten()
-    }
-    const { processor } = makeQueueProcessor({ storage })
+    const processor = new FileProcessor({ storage })
 
-    processor.enqueue(makeFile('a.ts', ['/* a.ts */']))
+    await processor.write([makeFile('a.ts', ['/* a.ts */']), makeFile('b.ts', ['/* b.ts */'])])
 
-    await written
     expect(await storage.getItem('a.ts')).toContain('/* a.ts */')
+    expect(await storage.getItem('b.ts')).toContain('/* b.ts */')
   })
 
-  it('enqueue never blocks: files queued during a slow write ride the next batch', async () => {
-    const order: Array<string> = []
-    const { promise: firstBlocker, resolve: resolveFirst } = Promise.withResolvers<void>()
+  it('parses each file before writing it', async () => {
+    const parsed: Array<string> = []
+    const written: Array<string> = []
     const storage = memoryStorage()
     const realSetItem = storage.setItem.bind(storage)
     storage.setItem = async (path: string, source: string) => {
-      order.push(`set:${path}`)
-      if (path === 'first.ts') await firstBlocker
-      await realSetItem(path, source)
-      order.push(`done:${path}`)
-    }
-    const { processor } = makeQueueProcessor({ storage })
-
-    processor.enqueue(makeFile('first.ts', ['/* first */']))
-    processor.enqueue(makeFile('second.ts', ['/* second */']))
-
-    await new Promise((resolve) => setTimeout(resolve, 5))
-    expect(order).toStrictEqual(['set:first.ts'])
-
-    resolveFirst()
-    await processor.drain()
-
-    expect(order).toStrictEqual(['set:first.ts', 'done:first.ts', 'set:second.ts', 'done:second.ts'])
-  })
-
-  it('drain rethrows a write error from an earlier batch', async () => {
-    const storage = memoryStorage()
-    storage.setItem = async () => {
-      throw new Error('disk full')
-    }
-    const { processor } = makeQueueProcessor({ storage })
-
-    processor.enqueue(makeFile('a.ts', ['/* a */']))
-
-    await expect(processor.drain()).rejects.toThrow('disk full')
-  })
-})
-
-describe('FileProcessor — queue: streaming writes', () => {
-  it('starts writing a file before parsing the next one', async () => {
-    const order: Array<string> = []
-    const storage = memoryStorage()
-    const realSetItem = storage.setItem.bind(storage)
-    storage.setItem = async (path: string, source: string) => {
-      order.push(`set:${path}`)
+      written.push(path)
       await realSetItem(path, source)
     }
     const parser = {
@@ -223,56 +133,93 @@ describe('FileProcessor — queue: streaming writes', () => {
       extNames: ['.ts' as const],
       install: vi.fn(),
       parse: vi.fn((file: FileNode) => {
-        order.push(`parse:${file.path}`)
+        parsed.push(file.path)
         return `/* ${file.path} */`
       }),
       print: vi.fn().mockReturnValue(''),
     }
     const processor = new FileProcessor({ storage, parsers: new Map([['.ts' as const, parser]]) })
 
-    processor.enqueue(makeFile('a.ts', ['/* a */']))
-    processor.enqueue(makeFile('b.ts', ['/* b */']))
-    await processor.drain()
+    await processor.write([makeFile('a.ts', ['/* a */']), makeFile('b.ts', ['/* b */'])])
 
-    expect(order).toStrictEqual(['parse:a.ts', 'set:a.ts', 'parse:b.ts', 'set:b.ts'])
+    expect(parsed.toSorted()).toStrictEqual(['a.ts', 'b.ts'])
+    expect(written.toSorted()).toStrictEqual(['a.ts', 'b.ts'])
   })
 
-  it('fires end only after the last write has finished', async () => {
+  it('fires start once, update per file, then end once, writing every file concurrently', async () => {
     const events: Array<string> = []
+    const storage = memoryStorage()
+    const processor = new FileProcessor({ storage })
+    processor.hooks.on('start', (files) => {
+      events.push(`start:${files.length}`)
+    })
+    processor.hooks.on('update', (item) => {
+      events.push(`update:${item.file.path}`)
+    })
+    processor.hooks.on('end', (files) => {
+      events.push(`end:${files.length}`)
+    })
+
+    await processor.write([makeFile('a.ts', ['/* a */']), makeFile('b.ts', ['/* b */'])])
+
+    expect(events[0]).toBe('start:2')
+    expect(events.at(-1)).toBe('end:2')
+    expect(events.slice(1, -1).toSorted()).toStrictEqual(['update:a.ts', 'update:b.ts'])
+  })
+
+  it('runs writes concurrently instead of pacing itself between files', async () => {
+    const { promise: blockA, resolve: unblockA } = Promise.withResolvers<void>()
+    const storage = memoryStorage()
+    const realSetItem = storage.setItem.bind(storage)
+    const started: Array<string> = []
+    storage.setItem = async (path: string, source: string) => {
+      started.push(path)
+      if (path === 'a.ts') await blockA
+      await realSetItem(path, source)
+    }
+    const processor = new FileProcessor({ storage })
+
+    const writing = processor.write([makeFile('a.ts', ['/* a */']), makeFile('b.ts', ['/* b */'])])
+    await new Promise((resolve) => setTimeout(resolve, 5))
+
+    // b.ts's write started without waiting for a.ts's still-blocked write to finish.
+    expect(started.toSorted()).toStrictEqual(['a.ts', 'b.ts'])
+
+    unblockA()
+    await writing
+  })
+
+  it('waits for every write to finish before resolving', async () => {
     const { promise: blocker, resolve: unblock } = Promise.withResolvers<void>()
     const storage = memoryStorage()
     const realSetItem = storage.setItem.bind(storage)
+    let settled = false
     storage.setItem = async (path: string, source: string) => {
       await blocker
       await realSetItem(path, source)
-      events.push(`done:${path}`)
     }
-    const { processor } = makeQueueProcessor({ storage })
-    processor.hooks.on('end', () => {
-      events.push('end')
-    })
+    const processor = new FileProcessor({ storage })
 
-    processor.enqueue(makeFile('a.ts', ['/* a */']))
-    const draining = processor.drain()
+    const writing = processor.write([makeFile('a.ts', ['/* a */'])]).then(() => {
+      settled = true
+    })
     await new Promise((resolve) => setTimeout(resolve, 5))
-    expect(events).toStrictEqual([])
+    expect(settled).toBe(false)
 
     unblock()
-    await draining
+    await writing
 
-    expect(events).toStrictEqual(['done:a.ts', 'end'])
-  })
-})
-
-describe('FileProcessor — queue: drain', () => {
-  it('writes everything still pending and waits for the in-flight batch', async () => {
-    const { processor, storage } = makeQueueProcessor()
-    processor.enqueue(makeFile('a.ts', ['/* a */']))
-    processor.enqueue(makeFile('b.ts', ['/* b */']))
-
-    await processor.drain()
-
+    expect(settled).toBe(true)
     expect(await storage.getItem('a.ts')).toContain('/* a */')
-    expect(await storage.getItem('b.ts')).toContain('/* b */')
+  })
+
+  it('rejects when a write fails', async () => {
+    const storage = memoryStorage()
+    storage.setItem = async () => {
+      throw new Error('disk full')
+    }
+    const processor = new FileProcessor({ storage })
+
+    await expect(processor.write([makeFile('a.ts', ['/* a */'])])).rejects.toThrow('disk full')
   })
 })

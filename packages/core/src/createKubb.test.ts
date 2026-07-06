@@ -5,7 +5,6 @@ import { createKubb } from './createKubb.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
-import { STREAM_FLUSH_EVERY } from './constants.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { AsyncEventEmitter } from './asyncEventEmitter.ts'
@@ -222,7 +221,7 @@ describe('createKubb', () => {
     expect(endSpy).toHaveBeenCalled()
   })
 
-  it('flushes generated files per plugin so kubb:plugin:end fires progressively', async () => {
+  it('writes every generated file in one batch after plugin:end fires for each plugin', async () => {
     const hooks = new AsyncEventEmitter<KubbHooks>()
     const batches: Array<number> = []
     hooks.on('kubb:files:processing:start', ({ files }) => {
@@ -273,10 +272,10 @@ describe('createKubb', () => {
 
     const { files } = await createKubb(streamingConfig, { hooks }).build()
 
-    // Each plugin runs its generator pass sequentially, so its file batch flushes
-    // before the next plugin starts. Two plugins, two single-file flushes — and the
-    // `plugin:end` order matches that progression, which drives the CLI counter.
-    expect(batches).toStrictEqual([1, 1])
+    // Plugins still run their generator pass sequentially, so `plugin:end` fires in
+    // declaration order, which drives the CLI counter. Writing to storage happens once,
+    // after every plugin (and post-processing) has finished generating.
+    expect(batches).toStrictEqual([2])
     expect(endOrder).toStrictEqual(['plugin-one', 'plugin-two'])
     expect(files.map((file) => file.path)).toStrictEqual(['/workspace/src/gen/one.ts', '/workspace/src/gen/two.ts'])
   })
@@ -546,14 +545,14 @@ describe('createKubb', () => {
     })
   })
 
-  describe('streaming flush during generation', () => {
-    it('flushes files mid-generation when schema count exceeds STREAM_FLUSH_EVERY', async () => {
-      const count = STREAM_FLUSH_EVERY + 10
+  describe('write batch after generation', () => {
+    it('writes all generated files in a single batch, regardless of schema count', async () => {
+      const count = 60
       const schemas = Array.from({ length: count }, (_, i) => ast.factory.createSchema({ name: `FlushSchema${i}`, type: 'string' }))
       const hooks = new AsyncEventEmitter<KubbHooks>()
-      const flushEvents: Array<number> = []
+      const batches: Array<number> = []
       hooks.on('kubb:files:processing:start', ({ files }) => {
-        flushEvents.push(files.length)
+        batches.push(files.length)
       })
 
       const flushPlugin = definePlugin(() => ({
@@ -596,13 +595,13 @@ describe('createKubb', () => {
       ).build()
 
       expect(files).toHaveLength(count)
-      expect(flushEvents.length).toBeGreaterThanOrEqual(2)
+      expect(batches).toStrictEqual([count])
     })
   })
 
-  describe('parallel file writes', () => {
-    it('writes all files correctly when flush batch exceeds STREAM_FLUSH_EVERY', async () => {
-      const fileCount = STREAM_FLUSH_EVERY * 2 + 5
+  describe('large file writes', () => {
+    it('writes every file exactly once', async () => {
+      const fileCount = 105
       const writtenPaths: Array<string> = []
       const storage = memoryStorage()
       const originalSetItem = storage.setItem.bind(storage)

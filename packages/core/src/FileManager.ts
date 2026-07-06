@@ -1,14 +1,4 @@
 import { ast, type FileNode } from '@kubb/ast'
-import { AsyncEventEmitter } from './asyncEventEmitter.ts'
-
-/**
- * Hooks fired by a `FileManager`.
- *
- * - `upsert` fires once per resolved file added through `add` or `upsert`.
- */
-export type FileManagerHooks = {
-  upsert: [file: FileNode]
-}
 
 function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNode<TMeta>): FileNode<TMeta> {
   return {
@@ -55,11 +45,6 @@ function compareFiles(a: FileNode, b: FileNode): number {
  * ```
  */
 export class FileManager {
-  /**
-   * Subscribe to file-store changes. Listeners on `upsert` see each resolved file as it lands
-   * through `add` or `upsert`.
-   */
-  readonly hooks = new AsyncEventEmitter<FileManagerHooks>()
   readonly #cache = new Map<string, FileNode>()
   // Cached sorted view. Null means stale and rebuilt lazily on next `files` read.
   // Nulled (not mutated) on every write so callers holding a prior reference keep
@@ -84,7 +69,6 @@ export class FileManager {
       const merged = existing && mergeExisting ? ast.factory.createFile(mergeFile(existing, file)) : ast.factory.createFile(file)
       this.#cache.set(merged.path, merged)
       resolved.push(merged)
-      this.hooks.emit('upsert', merged)
     }
 
     if (resolved.length > 0) this.#sorted = null
@@ -108,12 +92,10 @@ export class FileManager {
   }
 
   /**
-   * Releases all stored files and clears every `hooks` listener. Called by the core after
-   * `kubb:build:end`.
+   * Releases all stored files. Called by the core after `kubb:build:end`.
    */
   dispose(): void {
     this.clear()
-    this.hooks.removeAll()
   }
 
   /**
