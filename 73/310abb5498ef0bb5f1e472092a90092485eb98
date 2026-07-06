@@ -1,0 +1,19 @@
+.changeset/merge-file-processor-into-file-manager.md
+  s_648a586824545d::t_078709a313ddfa 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "73310abb5498ef0bb5f1e472092a90092485eb98",
+  "prompts": {},
+  "sessions": {
+    "s_648a586824545d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fcfdcfb3-3ac1-4294-b3ed-745a33419726",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
