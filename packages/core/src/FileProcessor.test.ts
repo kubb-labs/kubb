@@ -142,17 +142,6 @@ describe('FileProcessor — queue: enqueue', () => {
     expect(await storage.getItem('a.ts')).toContain('/* second */')
     expect(await storage.getItem('b.ts')).toContain('/* b */')
   })
-
-  it('fires the enqueue event for every call', () => {
-    const { processor } = makeQueueProcessor()
-    const onEnqueue = vi.fn()
-    processor.hooks.on('enqueue', onEnqueue)
-
-    processor.enqueue(makeFile('a.ts'))
-    processor.enqueue(makeFile('a.ts'))
-
-    expect(onEnqueue).toHaveBeenCalledTimes(2)
-  })
 })
 
 describe('FileProcessor — queue: flush', () => {
@@ -294,16 +283,5 @@ describe('FileProcessor — queue: drain', () => {
 
     expect(await storage.getItem('a.ts')).toContain('/* a */')
     expect(await storage.getItem('b.ts')).toContain('/* b */')
-  })
-
-  it('fires the drain event once everything is written', async () => {
-    const { processor } = makeQueueProcessor()
-    const onDrain = vi.fn()
-    processor.hooks.on('drain', onDrain)
-
-    processor.enqueue(makeFile('a.ts', ['/* a */']))
-    await processor.drain()
-
-    expect(onDrain).toHaveBeenCalledOnce()
   })
 })

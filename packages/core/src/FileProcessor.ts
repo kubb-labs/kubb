@@ -11,15 +11,11 @@ import { AsyncEventEmitter } from './asyncEventEmitter.ts'
  * - `start` opens a batch on a queue flush.
  * - `update` fires once per file as it is converted.
  * - `end` closes a batch.
- * - `enqueue` fires for every `enqueue` call.
- * - `drain` fires when `drain()` empties the queue with no in-flight batch left.
  */
 export type FileProcessorHooks = {
   start: [files: Array<FileNode>]
   update: [params: { file: FileNode; source?: string; processed: number; total: number; percentage: number }]
   end: [files: Array<FileNode>]
-  enqueue: [file: FileNode]
-  drain: []
 }
 
 /**
@@ -133,11 +129,10 @@ export class FileProcessor {
 
   /**
    * Adds a file to the next flush. A later `enqueue` for the same path replaces the previous
-   * entry, matching `FileManager.upsert`. Fires the `enqueue` event.
+   * entry, matching `FileManager.upsert`.
    */
   enqueue(file: FileNode): void {
     this.#pending.set(file.path, file)
-    this.hooks.emit('enqueue', file)
   }
 
   /**
@@ -158,8 +153,7 @@ export class FileProcessor {
   }
 
   /**
-   * Waits for the in-flight flush and writes any files still queued. Fires the `drain` event
-   * when both are done.
+   * Waits for the in-flight flush and writes any files still queued.
    */
   async drain(): Promise<void> {
     if (this.#runningFlush) await this.#runningFlush
@@ -169,8 +163,6 @@ export class FileProcessor {
       this.#pending.clear()
       await this.#processAndWrite(batch)
     }
-
-    await this.hooks.emit('drain')
   }
 
   async #processAndWrite(files: Array<FileNode>): Promise<void> {
@@ -191,17 +183,5 @@ export class FileProcessor {
     await Promise.all(queue)
 
     await this.hooks.emit('end', files)
-  }
-
-  /**
-   * Clears every listener and the pending queue.
-   */
-  dispose(): void {
-    this.hooks.removeAll()
-    this.#pending.clear()
-  }
-
-  [Symbol.dispose](): void {
-    this.dispose()
   }
 }

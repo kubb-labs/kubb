@@ -110,37 +110,6 @@ describe('FileManager', () => {
     })
   })
 
-  describe('getByPath', () => {
-    it('returns the file for a known path', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/foo.ts'))
-      const file = manager.getByPath('/src/foo.ts')
-      expect(file).not.toBeNull()
-      expect(file?.path).toBe('/src/foo.ts')
-    })
-
-    it('returns null for an unknown path', () => {
-      const manager = new FileManager()
-      expect(manager.getByPath('/src/unknown.ts')).toBeNull()
-    })
-  })
-
-  describe('deleteByPath', () => {
-    it('removes the file with the given path', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/foo.ts'))
-      manager.deleteByPath('/src/foo.ts')
-      expect(manager.files).toHaveLength(0)
-    })
-
-    it('is a no-op for an unknown path', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/foo.ts'))
-      manager.deleteByPath('/src/other.ts')
-      expect(manager.files).toHaveLength(1)
-    })
-  })
-
   describe('clear', () => {
     it('removes all stored files', () => {
       const manager = new FileManager()

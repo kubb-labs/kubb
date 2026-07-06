@@ -38,6 +38,7 @@ function compareFiles(a: FileNode, b: FileNode): number {
   const bIsIndex = isIndexPath(b.path)
   if (aIsIndex && !bIsIndex) return 1
   if (!aIsIndex && bIsIndex) return -1
+
   return 0
 }
 
@@ -101,15 +102,6 @@ export class FileManager {
     return [...seen.values()]
   }
 
-  getByPath(path: string): FileNode | null {
-    return this.#cache.get(path) ?? null
-  }
-
-  deleteByPath(path: string): void {
-    if (!this.#cache.delete(path)) return
-    this.#sorted = null
-  }
-
   clear(): void {
     this.#cache.clear()
     this.#sorted = null
@@ -122,10 +114,6 @@ export class FileManager {
   dispose(): void {
     this.clear()
     this.hooks.removeAll()
-  }
-
-  [Symbol.dispose](): void {
-    this.dispose()
   }
 
   /**
