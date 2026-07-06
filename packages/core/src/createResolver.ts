@@ -237,24 +237,13 @@ export class Resolver {
    * plugin overrides the top-level `name` or `file`.
    */
   get default(): ResolverDefault {
-    const self = this
     return {
       name: camelCase,
-      options(node, context) {
-        return self.#resolveOptions(node, context)
-      },
-      path(params, context) {
-        return self.#resolvePath(params, context)
-      },
-      file(params, context) {
-        return self.#resolveFile(params, context)
-      },
-      banner(meta, context) {
-        return self.#resolveBanner(meta, context)
-      },
-      footer(meta, context) {
-        return self.#resolveFooter(meta, context)
-      },
+      options: this.#resolveOptions.bind(this),
+      path: this.#resolvePath.bind(this),
+      file: this.#resolveFile.bind(this),
+      banner: this.#resolveBanner.bind(this),
+      footer: this.#resolveFooter.bind(this),
     }
   }
 
