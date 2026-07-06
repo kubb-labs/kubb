@@ -1,0 +1,22 @@
+packages/core/src/FileProcessor.ts
+  s_648a586824545d::t_fa5feece66bd67 156
+  s_648a586824545d::t_9f2c612b695a2b 132
+packages/core/src/FileManager.ts
+  s_648a586824545d::t_55a2c1f59c2056 41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "12088a43ea504bc4fbd4005127f4d393240ba865",
+  "prompts": {},
+  "sessions": {
+    "s_648a586824545d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fcfdcfb3-3ac1-4294-b3ed-745a33419726",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
