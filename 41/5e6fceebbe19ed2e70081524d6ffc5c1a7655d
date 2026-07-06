@@ -1,0 +1,64 @@
+packages/core/src/KubbDriver.ts
+  s_648a586824545d::t_979db309b90171 183-185
+  s_d07c4bb01a2334::t_b9ab3096f604d0 513-516,518-523,525-526,529-550,552-555,567,570,592,598,604,608-609,611-612,614
+  s_648a586824545d::t_95b34010e39e91 558-560
+  s_648a586824545d::t_cd350c47ad773d 431-434
+  s_648a586824545d::t_98f88858257dc8 469,476-478
+  s_648a586824545d::t_819169fa196904 426
+  s_d07c4bb01a2334::t_597a8d1885d088 562-566,568-569,571-575,577,579-589
+  s_d07c4bb01a2334::t_8d9fce558e4235 524
+  s_d07c4bb01a2334::t_55862ef3a47aae 551
+packages/core/src/types.ts
+  s_648a586824545d::t_38ddb2b6bf1953 800
+packages/core/src/createKubb.test.ts
+  s_648a586824545d::t_d708efc6aa2e33 224
+  s_648a586824545d::t_b0c8b58709cb31 548-549,553,555,598
+  s_648a586824545d::t_f00e6ecbcb3f54 602-604
+  s_648a586824545d::t_3edd22d6b1bd4d 275-278
+  s_648a586824545d::t_41b2d0ad2d91a8 550
+packages/core/src/storages/fsStorage.ts
+  s_648a586824545d::t_a59826c522dc20 88-98,100-101,104-109,111-114
+  s_648a586824545d::t_5f9b644059dc5c 8-36,49-50,64-65,67-87
+  s_648a586824545d::t_fba37002b9e243 6-7
+packages/core/src/FileManager.test.ts
+  s_648a586824545d::t_09d824bf917e03 2
+  s_648a586824545d::t_b48a5419e88fd6 141-142,147
+packages/core/src/FileProcessor.test.ts
+  s_648a586824545d::t_853d71fdd99067 100-102,104,106,111,113,115,118,140,143,152,163,192,196,201,203-205,207,210,212-213,216-221,223
+  s_648a586824545d::t_4ee1345795b8ea 153-161
+  s_648a586824545d::t_382220a5336c9a 121-123,127,130-136,145-146,149,165-167,170-171,174,176-177,180,182-183,185-189
+  s_648a586824545d::t_e63893b9a86d4e 137-139
+  s_648a586824545d::t_a2d81e5f59c61a 141
+  s_648a586824545d::t_fba67e6af8561c 150
+packages/core/src/FileManager.ts
+  s_648a586824545d::t_2efa1bec50a4c7 95
+packages/core/src/FileProcessor.ts
+  s_648a586824545d::t_5f76a520c65a34 88-97
+  s_648a586824545d::t_c29016e478368e 80-81
+  s_648a586824545d::t_e2ad4e70ceda1a 83-84
+  s_648a586824545d::t_4b2dd305071b8c 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "415e6fceebbe19ed2e70081524d6ffc5c1a7655d",
+  "prompts": {},
+  "sessions": {
+    "s_648a586824545d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fcfdcfb3-3ac1-4294-b3ed-745a33419726",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    },
+    "s_d07c4bb01a2334": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5ed35065-e2e7-4f25-a5c0-9bdcb79fe8a7",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
