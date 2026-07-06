@@ -1,4 +1,47 @@
-import { ast, type FileNode } from '@kubb/ast'
+import { read } from '@internals/utils'
+import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
+import type { Storage } from './createStorage.ts'
+import type { Parser } from './defineParser.ts'
+import { AsyncEventEmitter } from './asyncEventEmitter.ts'
+
+/**
+ * Hooks fired around a `FileManager#write` batch: `start` before it, `update` per file, `end` after.
+ */
+export type FileManagerHooks = {
+  start: [files: Array<FileNode>]
+  update: [params: { file: FileNode; source?: string; processed: number; total: number; percentage: number }]
+  end: [files: Array<FileNode>]
+}
+
+type ParseOptions = {
+  parsers?: Map<FileNode['extname'], Parser>
+  extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
+}
+
+type WriteOptions = ParseOptions & {
+  storage: Storage
+}
+
+function joinSources(file: FileNode): string {
+  return file.sources
+    .map((source) => extractStringsFromNodes(source.nodes as Array<CodeNode>))
+    .filter(Boolean)
+    .join('\n\n')
+}
+
+async function parseCopy(file: FileNode): Promise<string> {
+  let content: string
+  try {
+    content = await read(file.copy as string)
+  } catch (err) {
+    throw new Error(`[kubb] Could not copy file into output: ${file.copy}`, { cause: err })
+  }
+
+  return [file.banner, content, file.footer]
+    .filter((segment): segment is string => Boolean(segment))
+    .map((segment) => segment.trimEnd())
+    .join('\n')
+}
 
 function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNode<TMeta>): FileNode<TMeta> {
   return {
@@ -33,18 +76,21 @@ function compareFiles(a: FileNode, b: FileNode): number {
 }
 
 /**
- * In-memory file store for generated files. Files sharing a `path` are merged
- * (sources/imports/exports concatenated). The `files` getter is sorted by
- * path length (barrel `index.ts` last within a bucket).
+ * In-memory file store for generated files, and the writer that turns them into source
+ * strings on `storage`. Files sharing a `path` are merged (sources/imports/exports
+ * concatenated). The `files` getter is sorted by path length (barrel `index.ts` last
+ * within a bucket).
  *
  * @example
  * ```ts
  * const manager = new FileManager()
  * manager.upsert(myFile)
  * manager.files // sorted view
+ * await manager.write(manager.files, { storage: fsStorage() })
  * ```
  */
 export class FileManager {
+  readonly hooks = new AsyncEventEmitter<FileManagerHooks>()
   readonly #cache = new Map<string, FileNode>()
   // Cached sorted view. Null means stale and rebuilt lazily on next `files` read.
   // Nulled (not mutated) on every write so callers holding a prior reference keep
@@ -92,10 +138,12 @@ export class FileManager {
   }
 
   /**
-   * Releases all stored files. Called by the core after `kubb:build:end`.
+   * Releases all stored files and clears every `hooks` listener. Called by the core after
+   * `kubb:build:end`.
    */
   dispose(): void {
     this.clear()
+    this.hooks.removeAll()
   }
 
   /**
@@ -104,5 +152,51 @@ export class FileManager {
    */
   get files(): Array<FileNode> {
     return (this.#sorted ??= [...this.#cache.values()].sort(compareFiles))
+  }
+
+  /**
+   * Converts a file's AST sources (or its `copy` source) into the final on-disk string.
+   */
+  async parse(file: FileNode, { parsers, extension }: ParseOptions = {}): Promise<string> {
+    if (file.copy) {
+      return parseCopy(file)
+    }
+
+    const parseExtName = extension?.[file.extname] || undefined
+
+    if (!parsers || !file.extname) {
+      return joinSources(file)
+    }
+
+    const parser = parsers.get(file.extname)
+
+    if (!parser) {
+      return joinSources(file)
+    }
+
+    return parser.parse(file, { extname: parseExtName })
+  }
+
+  /**
+   * Converts and writes every file at once, letting `storage.setItem` decide how much of
+   * that runs concurrently.
+   */
+  async write(files: Array<FileNode>, { storage, parsers, extension }: WriteOptions): Promise<void> {
+    if (files.length === 0) return
+
+    await this.hooks.emit('start', files)
+
+    const total = files.length
+    let processed = 0
+    await Promise.all(
+      files.map(async (file) => {
+        const source = await this.parse(file, { parsers, extension })
+        processed++
+        await this.hooks.emit('update', { file, source, processed, total, percentage: (processed / total) * 100 })
+        if (source) await storage.setItem(file.path, source)
+      }),
+    )
+
+    await this.hooks.emit('end', files)
   }
 }

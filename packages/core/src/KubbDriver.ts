@@ -12,7 +12,6 @@ import { normalizeOutput } from './definePlugin.ts'
 import type { ResolverOverride } from './createResolver.ts'
 import { createResolver, Resolver } from './createResolver.ts'
 import { FileManager } from './FileManager.ts'
-import { FileProcessor } from './FileProcessor.ts'
 import { Transform } from './Transform.ts'
 
 import type {
@@ -341,7 +340,7 @@ export class KubbDriver {
    * contributes a `timing` diagnostic for the run summary.
    */
   async run({ storage }: { storage: Storage }): Promise<{ diagnostics: Array<Diagnostic> }> {
-    const { hooks, config } = this
+    const { hooks, config, fileManager } = this
     const diagnostics: Array<Diagnostic> = []
     const parsersMap = new Map<FileNode['extname'], Parser>()
 
@@ -351,23 +350,26 @@ export class KubbDriver {
       }
     }
 
-    const processor = new FileProcessor({ parsers: parsersMap, storage, extension: config.output.extension })
-    // Bridge processor lifecycle to the user-facing kubb hooks so existing listeners on
-    // kubb:files:processing:* keep firing.
-    processor.hooks.on('start', async (files) => {
+    // Bridge the write batch's lifecycle to the user-facing kubb hooks so existing listeners
+    // on kubb:files:processing:* keep firing. Tracked locally (not via #trackListener) since
+    // these must come off at the end of this run, not just at driver disposal.
+    const onWriteStart = async (files: Array<FileNode>) => {
       await hooks.emit('kubb:files:processing:start', { files })
-    })
+    }
     const updateBuffer: Array<{ file: FileNode; source?: string; processed: number; total: number; percentage: number }> = []
-    processor.hooks.on('update', (item) => {
+    const onWriteUpdate = (item: (typeof updateBuffer)[number]) => {
       updateBuffer.push(item)
-    })
-    processor.hooks.on('end', async (files) => {
+    }
+    const onWriteEnd = async (files: Array<FileNode>) => {
       await hooks.emit('kubb:files:processing:update', {
         files: updateBuffer.map((item) => ({ ...item, config })),
       })
       updateBuffer.length = 0
       await hooks.emit('kubb:files:processing:end', { files })
-    })
+    }
+    fileManager.hooks.on('start', onWriteStart)
+    fileManager.hooks.on('update', onWriteUpdate)
+    fileManager.hooks.on('end', onWriteEnd)
 
     // Make `diagnostics` the active sink so deep code (adapter parse, lazily consumed
     // streams, generators) can report into this run via `Diagnostics.report`.
@@ -431,7 +433,7 @@ export class KubbDriver {
           // Write every generated file once, after post-processing (barrel etc.) has had its
           // chance to add more. Writing mid-generation measured no faster in practice, so a
           // single pass keeps the pipeline simpler.
-          await processor.write(this.fileManager.files)
+          await fileManager.write(fileManager.files, { storage, parsers: parsersMap, extension: config.output.extension })
 
           await hooks.emit('kubb:build:end', { files: this.fileManager.files, config, outputDir: outputRoot })
 
@@ -439,6 +441,10 @@ export class KubbDriver {
         } catch (caughtError) {
           diagnostics.push(Diagnostics.from(caughtError))
           return { diagnostics: Diagnostics.dedupe(diagnostics) }
+        } finally {
+          fileManager.hooks.off('start', onWriteStart)
+          fileManager.hooks.off('update', onWriteUpdate)
+          fileManager.hooks.off('end', onWriteEnd)
         }
       },
     )
