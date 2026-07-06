@@ -16,11 +16,14 @@ type McpOptions = {
  */
 export async function run({ version }: McpOptions): Promise<void> {
   const { run: startMcpServer } = (await import('@kubb/mcp')) as typeof McpModule
+
   const hrStart = process.hrtime()
   const report = (status: 'success' | 'failed') => Telemetry.send(Telemetry.build({ command: 'mcp', kubbVersion: version, hrStart, status }))
+
   try {
     console.log(styleText('cyan', '⏳ Starting MCP server...'))
     console.warn(styleText('yellow', 'This feature is still under development, use with caution'))
+
     await startMcpServer()
     await report('success')
   } catch (error) {

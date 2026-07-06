@@ -144,7 +144,7 @@ describe('defineConfig', () => {
     expect(barrelCount).toBe(1)
   })
 
-  test('does not default barrel when pluginBarrel is not in plugins', () => {
+  test('appends pluginBarrel and defaults barrel when plugins omit it', () => {
     const customPlugin = createMockedPlugin({ name: 'custom', options: undefined as any })
     const config = defineConfig({
       root: '.',
@@ -154,9 +154,6 @@ describe('defineConfig', () => {
     } as UserConfig)
     const resolved = config as UserConfig
 
-    // pluginBarrel gets appended by default, so barrel IS defaulted here —
-    // this test verifies the scenario where pluginBarrel is explicitly removed
-    // cannot be expressed with the new approach (barrel always defaults unless barrel: false)
     expect(resolved.plugins?.some((p) => p.name === pluginBarrelName)).toBe(true)
     expect(resolved.output.barrel).toStrictEqual({ type: 'named' })
   })

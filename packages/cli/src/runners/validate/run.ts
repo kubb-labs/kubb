@@ -14,31 +14,16 @@ type ValidateOptions = {
   version: string
 }
 
-type ValidateModule = typeof import('@kubb/adapter-oas')
-type ValidateDependencies = {
-  /**
-   * Loads `@kubb/adapter-oas`. Injected so tests can substitute a mock.
-   */
-  loadValidateModule: () => Promise<ValidateModule>
-}
-
-/**
- * Dynamically loads `@kubb/adapter-oas` for OpenAPI validation.
- */
-export function loadValidateModule(): Promise<ValidateModule> {
-  return import('@kubb/adapter-oas') as Promise<ValidateModule>
-}
-
 /**
  * Validates an OpenAPI/Swagger file at `input` using `@kubb/adapter-oas`.
  * Exits the process with code 1 on validation failure or missing dependency.
  */
-export async function run({ input, version }: ValidateOptions, dependencies: ValidateDependencies = { loadValidateModule }): Promise<void> {
+export async function run({ input, version }: ValidateOptions): Promise<void> {
   const hrStart = process.hrtime()
   const report = (status: 'success' | 'failed') => Telemetry.send(Telemetry.build({ command: 'validate', kubbVersion: version, hrStart, status }))
 
   try {
-    const { adapterOas } = await dependencies.loadValidateModule()
+    const { adapterOas } = await import('@kubb/adapter-oas')
 
     const adapter = adapterOas()
     if (!adapter.validate) {

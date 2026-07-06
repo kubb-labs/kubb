@@ -4,105 +4,35 @@ import process from 'node:process'
 import { isCIEnvironment, runtime } from '@internals/utils'
 import { OTLP_ENDPOINT } from './constants.ts'
 
-// OpenTelemetry OTLP JSON types
-// https://github.com/open-telemetry/opentelemetry-proto/blob/main/opentelemetry/proto/trace/v1/trace.proto
-// https://github.com/open-telemetry/opentelemetry-proto/blob/main/opentelemetry/proto/common/v1/common.proto
-
-type OtlpStringValue = { stringValue: string }
-type OtlpBoolValue = { boolValue: boolean }
-type OtlpIntValue = { intValue: number }
-type OtlpDoubleValue = { doubleValue: number }
-type OtlpBytesValue = { bytesValue: string }
-type OtlpArrayValue = { arrayValue: { values: Array<OtlpAnyValue> } }
-type OtlpKvListValue = { kvlistValue: { values: Array<OtlpKeyValue> } }
-
-type OtlpAnyValue = OtlpStringValue | OtlpBoolValue | OtlpIntValue | OtlpDoubleValue | OtlpBytesValue | OtlpArrayValue | OtlpKvListValue
-
 type OtlpKeyValue = {
   key: string
-  value: OtlpAnyValue
-}
-
-type OtlpResource = {
-  attributes: Array<OtlpKeyValue>
-  droppedAttributesCount?: number
-}
-
-type OtlpInstrumentationScope = {
-  name: string
-  version?: string
-  attributes?: Array<OtlpKeyValue>
-  droppedAttributesCount?: number
-}
-
-/**
- * @see https://github.com/open-telemetry/opentelemetry-proto/blob/main/opentelemetry/proto/trace/v1/trace.proto#L103
- */
-type OtlpSpanKind = 0 | 1 | 2 | 3 | 4 | 5
-
-/**
- * Span status code.
- * - `0` is unset
- * - `1` is OK
- * - `2` is error
- */
-type OtlpStatusCode = 0 | 1 | 2
-
-type OtlpStatus = {
-  code: OtlpStatusCode
-  message?: string
+  value:
+    | { stringValue: string }
+    | { boolValue: boolean }
+    | { intValue: number }
+    | { arrayValue: { values: Array<{ kvlistValue: { values: Array<OtlpKeyValue> } }> } }
+    | { kvlistValue: { values: Array<OtlpKeyValue> } }
 }
 
 type OtlpSpan = {
   traceId: string
   spanId: string
-  traceState?: string
-  parentSpanId?: string
   name: string
-  kind: OtlpSpanKind
+  kind: 1
   startTimeUnixNano: string
   endTimeUnixNano: string
-  attributes?: Array<OtlpKeyValue>
-  droppedAttributesCount?: number
-  events?: Array<OtlpSpanEvent>
-  droppedEventsCount?: number
-  links?: Array<OtlpSpanLink>
-  droppedLinksCount?: number
-  status?: OtlpStatus
+  attributes: Array<OtlpKeyValue>
+  status: { code: 1 | 2 }
 }
 
-type OtlpSpanEvent = {
-  timeUnixNano: string
-  name: string
-  attributes?: Array<OtlpKeyValue>
-  droppedAttributesCount?: number
-}
-
-type OtlpSpanLink = {
-  traceId: string
-  spanId: string
-  traceState?: string
-  attributes?: Array<OtlpKeyValue>
-  droppedAttributesCount?: number
-}
-
-type OtlpScopeSpans = {
-  scope: OtlpInstrumentationScope
-  spans: Array<OtlpSpan>
-  schemaUrl?: string
-}
-
-type OtlpResourceSpans = {
-  resource: OtlpResource
-  scopeSpans: Array<OtlpScopeSpans>
-  schemaUrl?: string
-}
-
-/**
- * Root payload sent to POST /v1/traces.
- */
 type OtlpExportTraceServiceRequest = {
-  resourceSpans: Array<OtlpResourceSpans>
+  resourceSpans: Array<{
+    resource: { attributes: Array<OtlpKeyValue> }
+    scopeSpans: Array<{
+      scope: { name: string; version: string }
+      spans: Array<OtlpSpan>
+    }>
+  }>
 }
 
 /**
@@ -217,24 +147,22 @@ export class Telemetry {
         key: 'kubb.plugins',
         value: {
           arrayValue: {
-            values: event.plugins.map(
-              (p): OtlpKvListValue => ({
-                kvlistValue: {
-                  values: [
-                    { key: 'name', value: { stringValue: p.name } },
-                    {
-                      key: 'options',
-                      value: {
-                        stringValue: JSON.stringify({
-                          ...p.options,
-                          usedEnumNames: undefined,
-                        }),
-                      },
+            values: event.plugins.map((p) => ({
+              kvlistValue: {
+                values: [
+                  { key: 'name', value: { stringValue: p.name } },
+                  {
+                    key: 'options',
+                    value: {
+                      stringValue: JSON.stringify({
+                        ...p.options,
+                        usedEnumNames: undefined,
+                      }),
                     },
-                  ],
-                },
-              }),
-            ),
+                  },
+                ],
+              },
+            })),
           },
         },
       },
@@ -261,12 +189,12 @@ export class Telemetry {
                   traceId,
                   spanId,
                   name: event.command,
-                  kind: 1 satisfies OtlpSpanKind,
+                  kind: 1,
                   startTimeUnixNano: String(startTimeNs),
                   endTimeUnixNano: String(endTimeNs),
                   attributes,
                   status: {
-                    code: (event.status === 'success' ? 1 : 2) satisfies OtlpStatusCode,
+                    code: event.status === 'success' ? 1 : 2,
                   },
                 },
               ],

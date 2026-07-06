@@ -1,6 +1,6 @@
 import { access, glob, readFile, rm } from 'node:fs/promises'
 import { join, relative, resolve } from 'node:path'
-import { clean, runtime, toPosixPath, write } from '@internals/utils'
+import { clean, toPosixPath, write } from '@internals/utils'
 import { createStorage } from '../createStorage.ts'
 
 /**
@@ -53,13 +53,8 @@ export const fsStorage = createStorage(() => ({
   },
   async getKeys(base?: string) {
     const resolvedBase = resolve(base ?? process.cwd())
-
-    if (runtime.isBun) {
-      const bunGlob = new Bun.Glob('**/*')
-      return Array.fromAsync(bunGlob.scan({ cwd: resolvedBase, onlyFiles: true, dot: true }))
-    }
-
     const keys: Array<string> = []
+
     try {
       for await (const entry of glob('**/*', { cwd: resolvedBase, withFileTypes: true })) {
         if (entry.isFile()) {

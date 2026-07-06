@@ -23,26 +23,20 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
  * - `parsers` defaults to `[parserTs, parserTsx, parserMd]`
  * - `reporters` defaults to `[cliReporter, jsonReporter, fileReporter]`
  * - `plugins` gets `pluginBarrel()` appended when none is already present
- * - `output.barrel` defaults to `{ type: 'named' }` only when `pluginBarrel` is part of `plugins`.
- *   When the user provides a plugins list without `pluginBarrel`, `barrel` is left untouched.
+ * - `output.barrel` defaults to `{ type: 'named' }` when not set (`pluginBarrel` is always present after the step above)
  * - `output.format` defaults to `false`
  * - `output.lint` defaults to `false`
  */
 function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
   const alreadyHasBarrel = config.plugins?.some((p) => p.name === pluginBarrelName)
   const plugins = alreadyHasBarrel ? (config.plugins ?? []) : [...(config.plugins ?? []), pluginBarrel()]
-  const hasBarrelPlugin = plugins.some((p) => p.name === pluginBarrelName)
 
   const output = { ...config.output }
-  if (hasBarrelPlugin && output.barrel === undefined) {
+  if (output.barrel === undefined) {
     output.barrel = { type: 'named' }
   }
-  if (output.format === undefined) {
-    output.format = false
-  }
-  if (output.lint === undefined) {
-    output.lint = false
-  }
+  output.format ??= false
+  output.lint ??= false
 
   return {
     ...config,
@@ -71,8 +65,7 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  * - `parsers` → `[parserTs, parserTsx, parserMd]`.
  * - `reporters` → `[cliReporter, jsonReporter, fileReporter]`.
  * - `plugins` → `pluginBarrel()` is appended when not already present.
- * - `output.barrel` → `{ type: 'named' }` only when `pluginBarrel` is
- *   in the plugins list.
+ * - `output.barrel` → `{ type: 'named' }` when not set.
  * - `output.format` and `output.lint` → `false`.
  *
  * Accepts a config object, an array of configs, a Promise resolving to one,

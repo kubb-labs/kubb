@@ -1,12 +1,11 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { canUseTTY, formatMs, getElapsedMs } from '@internals/utils'
+import { canUseTTY, formatMs, getElapsedMs, toCause } from '@internals/utils'
 import type { Reporter, ReporterContext } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
-import type { Logger, LoggerContext, LoggerOptions } from './defineLogger.ts'
+import type { LoggerContext, LoggerOptions } from './defineLogger.ts'
 import { clackLogger } from './clackLogger.ts'
 import { plainLogger } from './plainLogger.ts'
-import type { LoggerType } from './types.ts'
 
 /**
  * Optionally prefix a message with a [HH:MM:SS] timestamp when logLevel >= verbose.
@@ -23,6 +22,36 @@ export function formatMessage(message: string, logLevel: number): string {
     return `${styleText('dim', `[${timestamp}]`)} ${message}`
   }
   return message
+}
+
+/**
+ * First stack frames for verbose error output, including an optional `cause` chain.
+ */
+export function formatErrorFrames(error: Error): { frames: Array<string>; cause?: { header: string; frames: Array<string> } } | null {
+  if (!error.stack) {
+    return null
+  }
+
+  const frames = error.stack
+    .split('\n')
+    .slice(1, 4)
+    .map((frame) => frame.trim())
+  const caused = toCause(error)
+
+  if (!caused?.stack) {
+    return { frames }
+  }
+
+  return {
+    frames,
+    cause: {
+      header: `└─ caused by ${caused.message}`,
+      frames: caused.stack
+        .split('\n')
+        .slice(1, 4)
+        .map((frame) => frame.trim()),
+    },
+  }
 }
 
 type ProgressState = {
@@ -127,7 +156,6 @@ export type HookTimer = {
    * Returns the elapsed milliseconds since `start(id)`, or `undefined` when no start was recorded.
    */
   end(id: string): number | undefined
-  clear(): void
 }
 
 /**
@@ -148,9 +176,6 @@ export function createHookTimer(): HookTimer {
       starts.delete(id)
       return getElapsedMs(hrStart)
     },
-    clear(): void {
-      starts.clear()
-    },
   }
 }
 
@@ -162,18 +187,6 @@ export function createHookTimer(): HookTimer {
  */
 export function formatCommandWithArgs(command: string, args?: ReadonlyArray<string>): string {
   return args?.length ? `${command} ${args.join(' ')}` : command
-}
-
-function detectLogger(): LoggerType {
-  if (canUseTTY()) {
-    return 'clack'
-  }
-  return 'plain'
-}
-
-const logMapper: Record<LoggerType, Logger> = {
-  clack: clackLogger,
-  plain: plainLogger,
 }
 
 /**
@@ -210,11 +223,7 @@ async function setupReporters(context: LoggerContext, { logLevel, reporters }: L
       if (hasJson) {
         continue
       }
-      const type = detectLogger()
-      const logger = logMapper[type]
-      if (!logger) {
-        throw new Error(`Unknown adapter type: ${type}`)
-      }
+      const logger = canUseTTY() ? clackLogger : plainLogger
       await logger.install(context, { logLevel })
     }
 
