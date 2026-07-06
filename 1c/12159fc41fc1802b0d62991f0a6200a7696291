@@ -1,0 +1,69 @@
+packages/cli/src/loggers/clackLogger.ts
+  s_4c3ffc7bada6c0::t_a4a37f9af8fd96 5,8-16
+  s_4c3ffc7bada6c0::t_1f96a89047d568 143-146,149-150,152-153
+packages/cli/src/Telemetry.ts
+  s_4c3ffc7bada6c0::t_95ce0c3ce6806c 192,197
+  s_4c3ffc7bada6c0::t_b6136a60ddab59 150-160,162-165
+  s_4c3ffc7bada6c0::t_2547b51b1980ae 9-14,21,24-25,29-35
+packages/cli/src/runners/validate/run.ts
+  s_4c3ffc7bada6c0::t_b8cb4c2af4b4a3 21,26
+packages/cli/src/runners/validate/run.test.ts
+  s_4c3ffc7bada6c0::t_772dc6396f84b8 42-46
+  s_4c3ffc7bada6c0::t_e1f3f3f7929463 28-30,35,54
+packages/cli/src/loggers/utils.ts
+  s_a19e8756a19dc9::t_e2ed2022afce8f 6
+  s_4c3ffc7bada6c0::t_e6f4edb3a2b92c 3
+  s_4c3ffc7bada6c0::t_2b4ccea030c0a1 27-56
+  s_4c3ffc7bada6c0::t_e1bfe122745cd2 226
+packages/unplugin-kubb/src/unpluginFactory.ts
+  s_4c3ffc7bada6c0::t_819110484ca4e9 86
+  s_4c3ffc7bada6c0::t_8943b6fdd4b61e 89-90
+packages/kubb/src/defineConfig.test.ts
+  s_4c3ffc7bada6c0::t_2b1dd807741b29 147
+packages/cli/src/loggers/plainLogger.ts
+  s_4c3ffc7bada6c0::t_4418eb73949bbe 2,5
+  s_4c3ffc7bada6c0::t_78cb6e96e2e3b8 65-68,71-72,74-75
+packages/core/src/storages/fsStorage.ts
+  s_4c3ffc7bada6c0::t_3ae89246b39cde 3
+  s_4c3ffc7bada6c0::t_0361e10b21579c 57
+packages/kubb/src/defineConfig.ts
+  s_4c3ffc7bada6c0::t_7e5bf8e8462b29 26
+  s_4c3ffc7bada6c0::t_c6b70acef56c7c 68
+  s_4c3ffc7bada6c0::t_194516102b8c49 35
+  s_4c3ffc7bada6c0::t_cf15d385cb658a 38-39
+packages/cli/src/runners/mcp/run.ts
+  s_2cdd63e8e0cc24::t_65325d4b730974 26
+  s_2cdd63e8e0cc24::t_51cbe7bc3b3263 19,22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "1c12159fc41fc1802b0d62991f0a6200a7696291",
+  "prompts": {},
+  "sessions": {
+    "s_2cdd63e8e0cc24": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7561e413-f3f2-4792-8d1b-58905335edaf",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    },
+    "s_4c3ffc7bada6c0": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "c60d386b-447c-4cfd-9e41-3b0ddbd1dc70",
+        "model": "default"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    },
+    "s_a19e8756a19dc9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c634c390-a77e-4c7f-ab12-5e79c08da27b",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
