@@ -16,6 +16,5 @@ export { fsStorage } from './storages/fsStorage.ts'
 export { memoryStorage } from './storages/memoryStorage.ts'
 
 export { AsyncEventEmitter } from './asyncEventEmitter.ts'
-export { Url } from './Url.ts'
 
 export * from './types.ts'

@@ -9,3 +9,4 @@ export { isIdentifier, isValidVarName, transformReservedWord } from './reserved.
 export { runtime } from './runtime.ts'
 export { singleQuote } from './string.ts'
 export { formatMs, getElapsedMs } from './time.ts'
+export { Url } from './Url.ts'
