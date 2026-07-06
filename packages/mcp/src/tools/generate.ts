@@ -1,5 +1,4 @@
-import { AsyncEventEmitter } from '@internals/utils'
-import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks } from '@kubb/core'
+import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks, AsyncEventEmitter } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import type * as v from 'valibot'

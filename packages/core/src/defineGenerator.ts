@@ -1,4 +1,4 @@
-import type { AsyncEventEmitter, PossiblePromise } from '@internals/utils'
+import type { PossiblePromise } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import type { Adapter } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
@@ -7,6 +7,7 @@ import type { KubbDriver } from './KubbDriver.ts'
 import type { Plugin, PluginFactoryOptions } from './definePlugin.ts'
 import type { Resolver } from './defineResolver.ts'
 import type { Config } from './types.ts'
+import type {AsyncEventEmitter} from "./asyncEventEmitter.ts";
 
 /**
  * Context passed to a generator's `schema`, `operation`, and `operations` methods.

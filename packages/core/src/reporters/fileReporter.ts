@@ -3,7 +3,7 @@ import process from 'node:process'
 import { stripVTControlCharacters } from 'node:util'
 import { formatMs, write } from '@internals/utils'
 import { createReporter } from '../createReporter.ts'
-import { type Diagnostic, Diagnostics } from '../diagnostics.ts'
+import { type Diagnostic, Diagnostics } from '../Diagnostics.ts'
 import { buildReport, type Report } from './report.ts'
 
 /**

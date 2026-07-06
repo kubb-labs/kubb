@@ -1,5 +1,5 @@
 import type { Config } from './types.ts'
-import type { Diagnostic } from './diagnostics.ts'
+import type { Diagnostic } from './Diagnostics.ts'
 
 /**
  * Numeric log-level thresholds used internally to compare verbosity.

@@ -2,7 +2,7 @@ import type { Enforce, FileNode, HttpMethod, Macro, UserFileNode } from '@kubb/a
 import { diagnosticCode } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { BannerMeta, Resolver } from './defineResolver.ts'
-import { Diagnostics } from './diagnostics.ts'
+import { Diagnostics } from './Diagnostics.ts'
 import type { Config, KubbHooks } from './types.ts'
 
 /**

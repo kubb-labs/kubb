@@ -3,9 +3,9 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { detectPackageManager } from '@internals/utils'
 import { availablePlugins, generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, type PluginOption } from '@internals/shared'
 import { hasPackageJson, initPackageJson, installPackages } from './utils.ts'
+import {detectPackageManager} from "../../tools.ts";
 
 function cancelAndExit(message = 'Operation canceled.'): never {
   clack.cancel(message)

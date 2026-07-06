@@ -1,6 +1,5 @@
 import process from 'node:process'
-import { AsyncEventEmitter } from '@internals/utils'
-import type { KubbHooks } from '@kubb/core'
+import { AsyncEventEmitter, type KubbHooks } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { isNewerVersion, runHook } from './utils.ts'
 

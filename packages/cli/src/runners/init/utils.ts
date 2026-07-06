@@ -1,8 +1,8 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import type { PackageManagerInfo, PackageManagerName } from '@internals/utils'
 import { x } from 'tinyexec'
+import type {PackageManagerInfo, PackageManagerName} from "../../tools.ts";
 
 /**
  * Returns `true` when a `package.json` exists at `cwd`.

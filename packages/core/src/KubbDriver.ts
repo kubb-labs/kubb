@@ -1,8 +1,8 @@
 import { resolve } from 'node:path'
-import { arrayToAsyncIterable, type AsyncEventEmitter, getElapsedMs, isPromise, memoize } from '@internals/utils'
+import { arrayToAsyncIterable, getElapsedMs, isPromise, memoize } from '@internals/utils'
 import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { GENERATE_FLUSH_EVERY, OPERATION_FILTER_TYPES } from './constants.ts'
-import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
+import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -26,6 +26,7 @@ import type {
   PluginFactoryOptions,
   Resolver,
 } from './types.ts'
+import type {AsyncEventEmitter} from "./asyncEventEmitter.ts";
 
 type Options = {
   hooks: AsyncEventEmitter<KubbHooks>

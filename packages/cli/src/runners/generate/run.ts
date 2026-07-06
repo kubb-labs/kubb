@@ -3,9 +3,9 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import type { AsyncEventEmitter } from '@internals/utils'
-import { AsyncEventEmitter as AsyncEventEmitterClass, detectTool, formatters, linters, toError } from '@internals/utils'
+import { toError } from '@internals/utils'
 import {
+  AsyncEventEmitter,
   type CLIOptions,
   cliReporter,
   type Config,
@@ -22,6 +22,7 @@ import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.t
 import { Telemetry } from '../../Telemetry.ts'
 import setupReporters, { selectReporters } from '../../loggers/utils.ts'
 import { createHookId, executeHooks, getConfigs, isNewerVersion, runHook, startWatcher } from './utils.ts'
+import {detectTool, formatters, linters} from "../../tools.ts";
 
 type GenerateProps = {
   input?: string
@@ -285,7 +286,7 @@ async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void
  */
 export async function run({ input, configPath, logLevel: logLevelKey, watch, reporters: cliReporters }: GenerateCommandOptions): Promise<void> {
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
-  const hooks = new AsyncEventEmitterClass<KubbHooks>()
+  const hooks = new AsyncEventEmitter<KubbHooks>()
 
   // Load the config first so `config.reporters` can pick the reporters. A failure here has no
   // reporter installed yet, so fall back to the default `cli` reporter to surface it.

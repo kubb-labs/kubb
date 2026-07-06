@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { GenerationResult } from '../createReporter.ts'
-import { Diagnostics } from '../diagnostics.ts'
+import { Diagnostics } from '../Diagnostics.ts'
 import type { Config } from '../types.ts'
 import { buildReport } from './report.ts'
 

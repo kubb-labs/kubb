@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './diagnostics.ts'
+import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 
 const problem = (over: Partial<ProblemDiagnostic> = {}): ProblemDiagnostic => ({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', ...over })
 

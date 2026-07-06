@@ -1,7 +1,6 @@
 import process from 'node:process'
-import { AsyncEventEmitter } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, createKubb, Diagnostics, type KubbHooks } from '@kubb/core'
+import { type Config, createKubb, Diagnostics, type KubbHooks, AsyncEventEmitter } from '@kubb/core'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import type { UnpluginFactory } from 'unplugin'

@@ -1,11 +1,12 @@
 import { resolve } from 'node:path'
-import { AsyncEventEmitter, BuildError } from '@internals/utils'
+import { BuildError } from '@internals/utils'
 import { HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
-import { Diagnostics } from './diagnostics.ts'
+import { Diagnostics } from './Diagnostics.ts'
 import { createStorage, type Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { BuildOutput, Config, KubbHooks, UserConfig } from './types.ts'
+import { AsyncEventEmitter } from './asyncEventEmitter.ts'
 
 /**
  * Builds a `Storage` view scoped to the file paths produced by the current build.
