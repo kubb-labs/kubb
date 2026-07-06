@@ -1,0 +1,40 @@
+packages/core/src/KubbDriver.ts
+  s_648a586824545d::t_3e3cb55b6ca675 343,353-356,358,360,362-363,369-372
+  s_648a586824545d::t_deec04d09bc21a 436,444-447
+packages/core/src/mocks.ts
+  s_648a586824545d::t_be2f0603dac81b 224,232
+packages/core/src/FileManager.ts
+  s_648a586824545d::t_9493380b35ad7b 141-142,146,156-201
+  s_648a586824545d::t_3b8b367c90e4ad 1-44
+  s_648a586824545d::t_debe6d48b289b8 79-82,89,93
+packages/core/src/types.ts
+  s_648a586824545d::t_507427d7aa82e4 797
+packages/core/src/FileManager.test.ts
+  s_648a586824545d::t_7ccf7cb603ba5c 1-5,7,9,11-12,20-26
+  s_648a586824545d::t_13aa499811abd6 27,164-372
+  s_530277e3024e1e::t_a8ec9a1960d1d1 28-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "a072e0bd453d391e110dca15900689edab99c9dd",
+  "prompts": {},
+  "sessions": {
+    "s_530277e3024e1e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7bb2b929-fa54-417a-8e23-bcdabf858853",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    },
+    "s_648a586824545d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fcfdcfb3-3ac1-4294-b3ed-745a33419726",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
