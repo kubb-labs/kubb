@@ -184,7 +184,6 @@
     "mcp-stdio-only",
     "migrate-mcp-to-tmcp",
     "modernize-node-22-natives",
-    "move-match-files-to-mocks",
     "move-plugins-to-own-repo",
     "move-telemetry-definelogger-to-cli",
     "multi-content-type-response",
