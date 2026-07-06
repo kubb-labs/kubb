@@ -10,10 +10,6 @@ import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartConte
 import type { KubbDriver } from './KubbDriver.ts'
 
 /**
- * Extracts a type from a registry, falling back to `{}` when the key doesn't exist.
- * Lets plugins augment `Kubb.ConfigOptionsRegistry` and `Kubb.PluginOptionsRegistry`
- * without changing core.
- *
  * @internal
  */
 type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
@@ -804,7 +800,7 @@ export type { Storage } from './createStorage.ts'
 export type { FileProcessorHooks, ParsedFile } from './FileProcessor.ts'
 export type { Generator, GeneratorContext } from './defineGenerator.ts'
 export type { Parser } from './defineParser.ts'
-export type { Exclude, Group, Include, Output, OutputMode, OutputOptions, Override } from './definePlugin.ts'
+export type { Exclude, Filter, Group, Include, Output, OutputMode, OutputOptions, Override } from './definePlugin.ts'
 export type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, NormalizedPlugin, Plugin, PluginFactoryOptions } from './definePlugin.ts'
 export type {
   BannerMeta,
@@ -817,4 +813,4 @@ export type {
   ResolverFileParams,
   ResolverOverride,
   ResolverPathParams,
-} from './defineResolver.ts'
+} from './createResolver.ts'

@@ -3,7 +3,7 @@
 'kubb': minor
 ---
 
-Add `@kubb/kit`, the authoring toolkit for plugins, generators, adapters, resolvers, and renderers, re-exporting `definePlugin`, `defineGenerator`, `defineResolver`, `defineParser`, `createAdapter`, `createRenderer`, `createStorage`, `Diagnostics`, `memoryStorage`, `fsStorage`, the `ast` namespace and `factory` node builders, and their companion option and hook types. `@kubb/kit/testing` holds the Vitest-backed test helpers (`createMockedPlugin`, `createMockedAdapter`, `renderGeneratorOperation`, `matchFiles`) on a separate entry point so the main import never pulls in Vitest.
+Add `@kubb/kit`, the authoring toolkit for plugins, generators, adapters, resolvers, and renderers, re-exporting `definePlugin`, `defineGenerator`, `createResolver`, `Resolver`, `defineParser`, `createAdapter`, `createRenderer`, `createStorage`, `Diagnostics`, `memoryStorage`, `fsStorage`, the `ast` namespace and `factory` node builders, and their companion option and hook types. `@kubb/kit/testing` holds the Vitest-backed test helpers (`createMockedPlugin`, `createMockedAdapter`, `renderGeneratorOperation`, `matchFiles`) on a separate entry point so the main import never pulls in Vitest.
 
 `kubb` gains matching subpaths so most consumers never need to install `@kubb/kit`, `@kubb/ast`, or `@kubb/renderer-jsx` directly:
 

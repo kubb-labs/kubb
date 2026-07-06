@@ -1,17 +1,10 @@
 import type { Enforce, FileNode, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import { diagnosticCode } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
-import type { BannerMeta, Resolver, ResolverOverride } from './defineResolver.ts'
+import type { BannerMeta, Resolver, ResolverOverride } from './createResolver.ts'
 import { Diagnostics } from './diagnostics.ts'
 import type { Config, KubbHooks } from './types.ts'
 
-/**
- * Reads a type from a registry, falling back to `{}` when the key is absent. Lets
- * `Kubb.ConfigOptionsRegistry` and `Kubb.PluginOptionsRegistry` be augmented without
- * touching core.
- *
- * @internal
- */
 type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
 
 /**
@@ -25,7 +18,7 @@ export type OutputMode = 'directory' | 'file'
  * Output configuration shared by every plugin. Each plugin extends this with
  * its own keys via the `Kubb.PluginOptionsRegistry.output` interface merge.
  */
-export type Output<_TOptions = unknown> = {
+export type Output = {
   /**
    * Directory where the plugin writes its generated code, resolved against the global
    * `output.path` set on `defineConfig`. With `mode: 'file'`, this is the full output file
@@ -195,6 +188,12 @@ type ByContentType = {
 }
 
 /**
+ * Pattern filter for include, exclude, and override rules. Matches operations or schemas
+ * by tag, operationId, path, method, content type, or schema name.
+ */
+export type Filter = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
+
+/**
  * Filter that skips matching operations or schemas during generation, for example
  * deprecated endpoints or internal-only schemas.
  *
@@ -207,7 +206,7 @@ type ByContentType = {
  * ]
  * ```
  */
-export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
+export type Exclude = Filter
 
 /**
  * Filter that restricts generation to operations or schemas matching at least
@@ -221,7 +220,7 @@ export type Exclude = ByTag | ByOperationId | ByPath | ByMethod | ByContentType 
  * ]
  * ```
  */
-export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
+export type Include = Filter
 
 /**
  * Filter paired with a partial options object. When the filter matches, the
@@ -246,7 +245,7 @@ export type Include = ByTag | ByOperationId | ByPath | ByMethod | ByContentType 
  * ]
  * ```
  */
-export type Override<TOptions> = (ByTag | ByOperationId | ByPath | ByMethod | BySchemaName | ByContentType) & {
+export type Override<TOptions> = Filter & {
   options: Omit<Partial<TOptions>, 'override'>
 }
 
@@ -265,7 +264,7 @@ export type PluginFactoryOptions<
   TResolvedOptions extends object = TOptions,
   /**
    * Resolver that encapsulates naming and path-resolution helpers.
-   * Define with `defineResolver` and export alongside the plugin.
+   * Define with `createResolver` and export alongside the plugin.
    */
   TResolver extends Resolver = Resolver,
 > = {
@@ -299,7 +298,7 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
    * The resolver controls file naming and path resolution. Overrides merge over the built-in
    * defaults, so a partial `core` or a single namespace method replaces only what it names.
    */
-  setResolver(resolver: ResolverOverride<TFactory['resolver']>): void
+  setResolver(resolver: ResolverOverride): void
   /**
    * Add a macro that rewrites AST nodes before they reach generators. Macros run in the order they
    * are added, after any macros from earlier `addMacro` calls.

@@ -226,10 +226,10 @@ const isUpdate = isKind<UpdateDiagnostic>('update')
  * Accent color per severity. The color tints the `[CODE]` tag (red error, yellow warning,
  * blue info).
  */
-const severityStyle: Record<DiagnosticSeverity, { color: 'red' | 'yellow' | 'blue' }> = {
-  error: { color: 'red' },
-  warning: { color: 'yellow' },
-  info: { color: 'blue' },
+const severityStyle: Record<DiagnosticSeverity, 'red' | 'yellow' | 'blue'> = {
+  error: 'red',
+  warning: 'yellow',
+  info: 'blue',
 }
 
 /**
@@ -632,7 +632,7 @@ export class Diagnostics {
    */
   static format(diagnostic: Diagnostic): { headline: string; details: Array<string> } {
     const { code, severity, message } = diagnostic
-    const { color } = severityStyle[severity]
+    const color = severityStyle[severity]
     const problem = isProblem(diagnostic) ? diagnostic : undefined
 
     const tag = styleText(color, styleText('bold', `[${code}]`))

@@ -96,102 +96,29 @@ describe('FileProcessor', () => {
     })
   })
 
-  describe('run', () => {
-    it('emits start and end events with the full files list', async () => {
+  describe('stream', () => {
+    it('yields one item per file in order with processed count and percentage', async () => {
       const processor = new FileProcessor({ storage: memoryStorage() })
       const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
-      const onStart = vi.fn()
-      const onEnd = vi.fn()
 
-      processor.hooks.on('start', onStart)
-      processor.hooks.on('end', onEnd)
+      const items = []
+      for await (const item of processor.stream(files)) {
+        items.push({ path: item.file.path, processed: item.processed, percentage: item.percentage, total: item.total })
+      }
 
-      await processor.run(files)
-
-      expect(onStart).toHaveBeenCalledWith(files)
-      expect(onEnd).toHaveBeenCalledWith(files)
+      expect(items).toStrictEqual([
+        { path: '/src/a.ts', processed: 1, percentage: 50, total: 2 },
+        { path: '/src/b.ts', processed: 2, percentage: 100, total: 2 },
+      ])
     })
 
-    it('emits update event once per file', async () => {
+    it('yields nothing for an empty files array', async () => {
       const processor = new FileProcessor({ storage: memoryStorage() })
-      const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
-      const onUpdate = vi.fn()
-
-      processor.hooks.on('update', onUpdate)
-
-      await processor.run(files)
-
-      expect(onUpdate).toHaveBeenCalledTimes(2)
-    })
-
-    it('passes correct percentage and processed count via update event', async () => {
-      const processor = new FileProcessor({ storage: memoryStorage() })
-      const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
-      const updates: Array<{
-        processed: number
-        percentage: number
-        total: number
-      }> = []
-
-      processor.hooks.on('update', ({ processed, percentage, total }) => {
-        updates.push({ processed, percentage, total })
-      })
-
-      await processor.run(files)
-
-      expect(updates[0]).toStrictEqual({ processed: 1, percentage: 50, total: 2 })
-      expect(updates[1]).toStrictEqual({ processed: 2, percentage: 100, total: 2 })
-    })
-
-    it('returns the original files array', async () => {
-      const processor = new FileProcessor({ storage: memoryStorage() })
-      const files = [makeFile('/src/a.ts')]
-      const result = await processor.run(files)
-      expect(result).toBe(files)
-    })
-
-    it('processes files sequentially by default', async () => {
-      const processor = new FileProcessor({ storage: memoryStorage() })
-      const order: Array<string> = []
-      const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
-
-      processor.hooks.on('update', ({ file }) => {
-        order.push(file.path)
-      })
-
-      await processor.run(files)
-
-      expect(order).toStrictEqual(['/src/a.ts', '/src/b.ts'])
-    })
-
-    it('runs without errors', async () => {
-      const processor = new FileProcessor({ storage: memoryStorage() })
-      const files = [makeFile('/src/a.ts', ['a']), makeFile('/src/b.ts', ['b'])]
-      const onUpdate = vi.fn()
-
-      processor.hooks.on('update', onUpdate)
-
-      await processor.run(files)
-
-      expect(onUpdate).toHaveBeenCalledTimes(2)
-    })
-
-    it('handles an empty files array', async () => {
-      const processor = new FileProcessor({ storage: memoryStorage() })
-      const onStart = vi.fn()
-      const onEnd = vi.fn()
-      const onUpdate = vi.fn()
-
-      processor.hooks.on('start', onStart)
-      processor.hooks.on('end', onEnd)
-      processor.hooks.on('update', onUpdate)
-
-      const result = await processor.run([])
-
-      expect(onStart).toHaveBeenCalledWith([])
-      expect(onEnd).toHaveBeenCalledWith([])
-      expect(onUpdate).not.toHaveBeenCalled()
-      expect(result).toStrictEqual([])
+      const items = []
+      for await (const item of processor.stream([])) {
+        items.push(item)
+      }
+      expect(items).toStrictEqual([])
     })
   })
 })
@@ -203,14 +130,17 @@ function makeQueueProcessor(overrides: { storage?: ReturnType<typeof memoryStora
 }
 
 describe('FileProcessor — queue: enqueue', () => {
-  it('dedupes files by path so a second enqueue replaces the first', () => {
-    const { processor } = makeQueueProcessor()
+  it('dedupes files by path so a second enqueue replaces the first', async () => {
+    const { processor, storage } = makeQueueProcessor()
 
-    processor.enqueue(makeFile('a.ts'))
-    processor.enqueue(makeFile('a.ts'))
-    processor.enqueue(makeFile('b.ts'))
+    processor.enqueue(makeFile('a.ts', ['/* first */']))
+    processor.enqueue(makeFile('a.ts', ['/* second */']))
+    processor.enqueue(makeFile('b.ts', ['/* b */']))
 
-    expect(processor.size).toBe(2)
+    await processor.drain()
+
+    expect(await storage.getItem('a.ts')).toContain('/* second */')
+    expect(await storage.getItem('b.ts')).toContain('/* b */')
   })
 
   it('fires the enqueue event for every call', () => {
@@ -243,7 +173,6 @@ describe('FileProcessor — queue: flush', () => {
     await processor.flush()
     await processor.drain()
 
-    expect(processor.size).toBe(0)
     expect(await storage.getItem('a.ts')).toContain('/* a.ts */')
     expect(await storage.getItem('b.ts')).toContain('/* b.ts */')
   })
@@ -261,7 +190,6 @@ describe('FileProcessor — queue: flush', () => {
     processor.enqueue(makeFile('a.ts', ['/* a.ts */']))
     await processor.flush()
 
-    expect(processor.size).toBe(0)
     expect(await storage.getItem('a.ts')).toBeNull()
 
     resolveFirstWrite()
@@ -364,7 +292,6 @@ describe('FileProcessor — queue: drain', () => {
 
     await processor.drain()
 
-    expect(processor.size).toBe(0)
     expect(await storage.getItem('a.ts')).toContain('/* a */')
     expect(await storage.getItem('b.ts')).toContain('/* b */')
   })

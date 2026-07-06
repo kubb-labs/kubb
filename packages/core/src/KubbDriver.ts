@@ -9,8 +9,8 @@ import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { Plugin } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
-import type { ResolverOverride } from './defineResolver.ts'
-import { defineResolver, mergeResolver } from './defineResolver.ts'
+import type { ResolverOverride } from './createResolver.ts'
+import { createResolver, Resolver } from './createResolver.ts'
 import { FileManager } from './FileManager.ts'
 import { FileProcessor } from './FileProcessor.ts'
 import { Transform } from './Transform.ts'
@@ -25,7 +25,6 @@ import type {
   KubbPluginSetupContext,
   NormalizedPlugin,
   PluginFactoryOptions,
-  Resolver,
 } from './types.ts'
 
 type Options = {
@@ -44,11 +43,7 @@ type RequirePluginContext = {
   requiredBy?: string
 }
 
-function enforceOrder(enforce: Enforce | undefined): number {
-  if (enforce === 'pre') return -1
-  if (enforce === 'post') return 1
-  return 0
-}
+const ENFORCE_ORDER = { pre: -1, post: 1 } satisfies Record<Enforce, number>
 
 /**
  * Orders plugins so every dependency runs before its dependents (Kahn's algorithm), with
@@ -59,7 +54,9 @@ function enforceOrder(enforce: Enforce | undefined): number {
  * config are ignored here and surface later through `requirePlugin`.
  */
 function sortPlugins(plugins: Array<NormalizedPlugin>): Array<NormalizedPlugin> {
-  const queue = [...plugins].sort((a, b) => enforceOrder(a.enforce) - enforceOrder(b.enforce))
+  const queue = [...plugins].sort(
+    (a, b) => (a.enforce ? ENFORCE_ORDER[a.enforce] : 0) - (b.enforce ? ENFORCE_ORDER[b.enforce] : 0),
+  )
   const names = new Set(queue.map((plugin) => plugin.name))
   const blockedBy = new Map(queue.map((plugin) => [plugin.name, new Set(plugin.dependencies?.filter((name) => names.has(name) && name !== plugin.name))]))
 
@@ -598,8 +595,14 @@ export class KubbDriver {
       if (state.optionsAreStatic) return { transformedNode, options: plugin.options }
 
       const { exclude, include, override } = plugin.options
-      const options = generatorContext.resolver.default.options(transformedNode, { options: plugin.options, exclude, include, override })
+      const options = generatorContext.resolver.default.options<NormalizedPlugin['options']>(transformedNode, {
+        options: plugin.options,
+        exclude,
+        include,
+        override,
+      })
       if (options === null) return null
+
       return { transformedNode, options }
     }
 
@@ -791,16 +794,16 @@ export class KubbDriver {
     this.dispose()
   }
 
-  #getDefaultResolver = memoize(this.#defaultResolvers, (pluginName: string): Resolver => defineResolver<PluginFactoryOptions>(() => ({ pluginName })))
+  #getDefaultResolver = memoize(this.#defaultResolvers, (pluginName: string): Resolver => createResolver<PluginFactoryOptions>({ pluginName }))
 
   /**
    * Merges `partial` with the plugin's default resolver and stores the result.
    * Also mirrors it onto `plugin.resolver` so callers using `getPlugin(name).resolver`
    * get the up-to-date resolver without going through `getResolver()`.
    */
-  setPluginResolver(pluginName: string, partial: ResolverOverride<Resolver>): void {
+  setPluginResolver(pluginName: string, partial: ResolverOverride): void {
     const defaultResolver = this.#getDefaultResolver(pluginName)
-    const merged = mergeResolver(defaultResolver, partial)
+    const merged = Resolver.merge(defaultResolver, partial)
     this.#resolvers.set(pluginName, merged)
     const plugin = this.plugins.get(pluginName)
     if (plugin) {

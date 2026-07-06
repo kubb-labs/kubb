@@ -5,7 +5,7 @@ import type { RendererFactory } from './createRenderer.ts'
 import type { KubbHooks } from './types.ts'
 import type { KubbDriver } from './KubbDriver.ts'
 import type { Plugin, PluginFactoryOptions } from './definePlugin.ts'
-import type { Resolver } from './defineResolver.ts'
+import type { Resolver } from './createResolver.ts'
 import type { Config } from './types.ts'
 
 /**

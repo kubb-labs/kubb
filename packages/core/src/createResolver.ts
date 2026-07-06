@@ -2,23 +2,8 @@ import path from 'node:path'
 import { camelCase, toFilePath } from '@internals/utils'
 import { ast, operationDef, schemaDef, type FileNode, type InputMeta, type Node, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { Diagnostics } from './diagnostics.ts'
-import type { PluginFactoryOptions } from './definePlugin.ts'
+import type { Filter, Override, PluginFactoryOptions } from './definePlugin.ts'
 import type { Config, Group, Output } from './types.ts'
-
-/**
- * Type/string pattern filter for include/exclude/override matching.
- */
-type PatternFilter = {
-  type: string
-  pattern: string | RegExp
-}
-
-/**
- * Pattern filter with partial option overrides applied when the pattern matches.
- */
-type PatternOverride<TOptions> = PatternFilter & {
-  options: Omit<Partial<TOptions>, 'override'>
-}
 
 /**
  * Context for resolving filtered options for a given operation or schema node.
@@ -27,9 +12,9 @@ type PatternOverride<TOptions> = PatternFilter & {
  */
 export type ResolveOptionsContext<TOptions> = {
   options: TOptions
-  exclude?: Array<PatternFilter>
-  include?: Array<PatternFilter>
-  override?: Array<PatternOverride<TOptions>>
+  exclude?: Array<Filter>
+  include?: Array<Filter>
+  override?: Array<Override<TOptions>>
 }
 
 /**
@@ -50,39 +35,6 @@ export type ResolverDefault = {
   file(params: ResolverFileParams, context: ResolverContext): FileNode
   banner(meta: InputMeta | undefined, context: ResolveBannerContext): string | null
   footer(meta: InputMeta | undefined, context: ResolveBannerContext): string | null
-}
-
-/**
- * Base constraint for all plugin resolver objects.
- *
- * The built-in machinery lives under `default`. `name` and `file` are the top-level entries generators
- * call; each defaults to its `default` counterpart and a plugin overrides it to set its convention.
- * Extend this type with your own naming namespaces (for example `query`, `schema`) and reach the shared
- * helpers from them via `this.default`, `this.name`, and `this.file`.
- *
- * @example
- * ```ts
- * type MyResolver = Resolver & {
- *   query: {
- *     name(node: OperationNode): string
- *     keyName(node: OperationNode): string
- *   }
- * }
- * ```
- */
-export type Resolver = {
-  pluginName: string
-  default: ResolverDefault
-  /**
-   * The plugin's identifier casing for a raw name. Defaults to `this.default.name`; override to set a
-   * convention such as PascalCase or a suffixed variant.
-   */
-  name(name: string): string
-  /**
-   * Builds a `FileNode` for a generated file. Defaults to `this.default.file`; override for custom
-   * file-name casing, usually by delegating to `this.default.file` with a `params.resolveName` caser.
-   */
-  file(params: ResolverFileParams, context: ResolverContext): FileNode
 }
 
 /**
@@ -264,32 +216,14 @@ function buildBannerMeta({ meta, file }: { meta: InputMeta | undefined; file: Re
   }
 }
 
-/**
- * Builder type for the plugin-specific resolver fields.
- *
- * `default`, `name`, and `file` are optional — the built-ins are injected when omitted. Plugin-specific
- * naming namespaces are required. Methods call sibling resolver methods via `this`, which `ThisType`
- * types as the full resolver. A `file` override receives its params/context and delegates to
- * `this.default.file`. The `default.file` builder isn't overridable here; customize file naming through
- * the top-level `file` entry instead.
- */
-type ResolverBuilder<T extends PluginFactoryOptions> = () => Omit<T['resolver'], 'default' | 'name' | 'file' | 'pluginName'> & {
-  pluginName: T['name']
-  name?: T['resolver']['name']
-  file?: T['resolver']['file']
-  default?: Partial<Omit<ResolverDefault, 'file'>>
-} & ThisType<T['resolver']>
-
 // String patterns are compiled lazily and cached, so the same filter is reused for every node.
 const stringPatternCache = new Map<string, RegExp>()
 
 function testPattern(value: string, pattern: string | RegExp): boolean {
   if (typeof pattern === 'string') {
     let regex = stringPatternCache.get(pattern)
-    if (!regex) {
-      regex = new RegExp(pattern)
-      stringPatternCache.set(pattern, regex)
-    }
+    regex ??= new RegExp(pattern)
+    stringPatternCache.set(pattern, regex)
     return regex.test(value)
   }
   // Use .match() for user-supplied RegExp to preserve semantics regardless of `g`/`y` flags.
@@ -316,14 +250,6 @@ function matchesOperationPattern(node: OperationNode, type: string, pattern: str
 function matchesSchemaPattern(node: SchemaNode, type: string, pattern: string | RegExp): boolean | null {
   if (type === 'schemaName') return node.name ? testPattern(node.name, pattern) : false
   return null
-}
-
-/**
- * Default casing for a generated identifier (camelCase). A plugin overrides this with its own
- * convention, for example PascalCase or a suffixed variant.
- */
-function defaultName(name: string): string {
-  return camelCase(name)
 }
 
 /**
@@ -354,9 +280,9 @@ const resolveOptionsCache = new WeakMap<object, WeakMap<Node, { value: unknown }
 function computeOptions<TOptions>(
   node: Node,
   options: TOptions,
-  exclude: Array<PatternFilter>,
-  include: Array<PatternFilter> | undefined,
-  override: Array<PatternOverride<TOptions>>,
+  exclude: Array<Filter>,
+  include: Array<Filter> | undefined,
+  override: Array<Override<TOptions>>,
 ): TOptions | null {
   if (operationDef.is(node)) {
     if (exclude.some(({ type, pattern }) => matchesOperationPattern(node, type, pattern))) return null
@@ -408,7 +334,7 @@ function defaultResolveOptions<TOptions>(node: Node, { options, exclude = [], in
 }
 
 /**
- * Default path resolver used by `defineResolver`.
+ * Default path resolver used by `createResolver`.
  *
  * - `mode: 'file'` resolves directly to `output.path` (the full file path, extension included).
  * - `mode: 'directory'` (default) resolves to `output.path/{baseName}`, or into a
@@ -499,16 +425,16 @@ export function defaultResolvePath({ baseName, tag, path: groupPath }: ResolverP
 }
 
 /**
- * Default file resolver used by `defineResolver`, exposed as `resolver.default.file`.
+ * Default file resolver used by `createResolver`, exposed as `resolver.default.file`.
  *
  * Resolves a `FileNode` by combining file-name casing (`params.resolveName`, default `toFilePath`)
- * with path resolution (`this.default.path`). The resolved file always has empty
+ * with path resolution (`resolver.default.path`). The resolved file always has empty
  * `sources`, `imports`, and `exports` arrays, which consumers populate separately.
  *
  * In `mode: 'file'` the name is omitted and the file sits directly at the output path.
  *
- * Bound to the resolver root (like a naming namespace), so `this` reaches `this.default.path`
- * and `this.pluginName`.
+ * The resolver is passed explicitly so the builder reaches `resolver.default.path` and
+ * `resolver.pluginName` without `this`.
  *
  * @example Resolve a schema file
  * ```ts
@@ -526,20 +452,20 @@ export function defaultResolvePath({ baseName, tag, path: groupPath }: ResolverP
  * ```
  */
 export function defaultResolveFile(
-  this: Resolver,
+  resolver: Resolver,
   { name, extname, tag, path: groupPath, resolveName = toFilePath }: ResolverFileParams,
   context: ResolverContext,
 ): FileNode {
   const mode = context.output.mode ?? 'directory'
   const resolvedName = mode === 'file' ? '' : resolveName(name)
   const baseName = `${resolvedName}${extname}` as FileNode['baseName']
-  const filePath = this.default.path({ baseName, tag, path: groupPath }, context)
+  const filePath = resolver.default.path({ baseName, tag, path: groupPath }, context)
 
   return ast.factory.createFile({
     path: filePath,
     baseName: path.basename(filePath) as `${string}.${string}`,
     meta: {
-      pluginName: this.pluginName,
+      pluginName: resolver.pluginName,
     },
     sources: [],
     imports: [],
@@ -551,47 +477,43 @@ export function defaultResolveFile(
  * Generates the default "Generated by Kubb" banner from config and optional node metadata.
  */
 function buildDefaultBanner({ title, description, version, config }: { title?: string; description?: string; version?: string; config: Config }): string {
-  try {
-    const source = (() => {
-      if (Array.isArray(config.input)) {
-        const first = config.input[0]
-        if (first && 'path' in first) return path.basename(first.path)
-        return ''
-      }
-      if (config.input && 'path' in config.input) return path.basename(config.input.path)
-      if (config.input && 'data' in config.input) return 'text content'
+  const source = (() => {
+    if (Array.isArray(config.input)) {
+      const first = config.input[0]
+      if (first && 'path' in first) return path.basename(first.path)
       return ''
-    })()
-
-    let banner = '/**\n* Generated by Kubb (https://kubb.dev/).\n* Do not edit manually.\n'
-
-    if (config.output.defaultBanner === 'simple') {
-      banner += '*/\n'
-      return banner
     }
+    if (config.input && 'path' in config.input) return path.basename(config.input.path)
+    if (config.input && 'data' in config.input) return 'text content'
+    return ''
+  })()
 
-    if (source) {
-      banner += `* Source: ${source}\n`
-    }
+  let banner = '/**\n* Generated by Kubb (https://kubb.dev/).\n* Do not edit manually.\n'
 
-    if (title) {
-      banner += `* Title: ${title}\n`
-    }
-
-    if (description) {
-      const formattedDescription = description.replace(/\n/gm, '\n* ')
-      banner += `* Description: ${formattedDescription}\n`
-    }
-
-    if (version) {
-      banner += `* OpenAPI spec version: ${version}\n`
-    }
-
+  if (config.output.defaultBanner === 'simple') {
     banner += '*/\n'
     return banner
-  } catch (_error) {
-    return '/**\n* Generated by Kubb (https://kubb.dev/).\n* Do not edit manually.\n*/'
   }
+
+  if (source) {
+    banner += `* Source: ${source}\n`
+  }
+
+  if (title) {
+    banner += `* Title: ${title}\n`
+  }
+
+  if (description) {
+    const formattedDescription = description.replace(/\n/gm, '\n* ')
+    banner += `* Description: ${formattedDescription}\n`
+  }
+
+  if (version) {
+    banner += `* OpenAPI spec version: ${version}\n`
+  }
+
+  banner += '*/\n'
+  return banner
 }
 
 /**
@@ -686,113 +608,150 @@ export function defaultResolveFooter(meta: InputMeta | undefined, { output, file
 }
 
 /**
- * A resolver override applied over a built resolver. Top-level members (`name`, `file`, plugin
- * namespaces) and `default` members are each optional, so an override can name a single helper
- * (`{ name }`, `{ default: { path } }`) without restating the rest. The `default.file` builder isn't
- * overridable; customize file naming through the top-level `file` entry instead.
+ * Raw resolver fields passed to `createResolver`, or patched through `Resolver.merge` / `setResolver`.
  */
-export type ResolverOverride<T extends Resolver> = Partial<Omit<T, 'default'>> & {
+type ResolverBuildOptions = {
+  pluginName: string
+  name?: (name: string) => string
+  file?: (params: ResolverFileParams, context: ResolverContext) => FileNode
   default?: Partial<Omit<ResolverDefault, 'file'>>
+  [key: string]: unknown
 }
+
+export type ResolverOverride = Omit<ResolverBuildOptions, 'pluginName'>
 
 /**
  * The built-in `default` helpers, injected into every resolver before a plugin's overrides. `file` is
- * bound to the resolver root by `bindNamespaces`, since it needs `this.default.path` and `this.pluginName`.
+ * excluded here and set per-resolver by `createResolver`, since it closes over the resolver to reach
+ * `default.path` and `pluginName`.
  */
-const builtinDefault: ResolverDefault = {
-  name: defaultName,
+const builtinDefault: Omit<ResolverDefault, 'file'> = {
+  name: camelCase,
   options: defaultResolveOptions,
   path: defaultResolvePath,
-  file: defaultResolveFile,
   banner: defaultResolveBanner,
   footer: defaultResolveFooter,
 }
 
-/**
- * Default top-level `name`: the plugin's identifier casing, delegating to the built-in `default.name`.
- */
-function defaultResolveName(this: Resolver, name: string): string {
-  return this.default.name(name)
-}
-
-/**
- * Default top-level `file`: delegates to the built-in `default.file` builder.
- */
-function defaultResolveFileEntry(this: Resolver, params: ResolverFileParams, context: ResolverContext): FileNode {
-  return this.default.file(params, context)
-}
-
-type BoundMethod = ((...args: Array<unknown>) => unknown) & { raw?: (...args: Array<unknown>) => unknown }
-
-function isNamespace(value: unknown): value is Record<string, BoundMethod> {
+function isNamespace(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 /**
- * Binds `method` to `resolver`, keeping its unbound original on `.raw` so a later merge can re-bind it
- * over the merged resolver.
+ * The plugin-specific resolver fields handed to `createResolver`.
+ *
+ * `default`, `name`, and `file` are optional — the built-ins are injected when omitted. Plugin-specific
+ * naming namespaces are required. Every method reaches sibling helpers through `this`, which `ThisType`
+ * types as the full resolver. The `default.file` builder isn't overridable here; customize file naming
+ * through the top-level `file` entry instead.
  */
-function bindToResolver(method: BoundMethod, resolver: Resolver): BoundMethod {
-  const raw = method.raw ?? method
-  const bound = raw.bind(resolver) as BoundMethod
-  bound.raw = raw
-  return bound
+type ResolverOptions<T extends PluginFactoryOptions> = Omit<T['resolver'], keyof Resolver> & {
+  pluginName: T['name']
+  name?: T['resolver']['name']
+  file?: T['resolver']['file']
+  default?: Partial<Omit<ResolverDefault, 'file'>>
+} & ThisType<T['resolver']>
+
+/**
+ * Merges `override` over `base` one level deep. `default` is merged member-by-member; every other key
+ * (`name`, `file`, plugin namespaces) is replaced wholesale. No cloning: the result is only ever read
+ * by the constructor, which rebinds helpers into fresh objects.
+ */
+function mergeBuildOptions(base: ResolverBuildOptions, override: ResolverBuildOptions | ResolverOverride): ResolverBuildOptions {
+  const patch = override as ResolverBuildOptions
+  const merged: ResolverBuildOptions = { ...base, ...patch }
+  if (base.default || patch.default) {
+    merged.default = { ...base.default, ...patch.default }
+  }
+  return merged
 }
 
 /**
- * Binds the method members of each plugin naming namespace (`query`, `schema`, …) plus `default.file`
- * to `resolver`, so each reaches the resolver root through `this` (`this.name`, `this.default.path`,
- * `this.pluginName`). A single shallow pass — the other `default` helpers are plain functions that
- * need no `this`.
+ * Populates `resolver` from `options`: injects `default` over the built-ins, then binds each remaining
+ * entry to the resolver root so `this.name`, `this.default`, and `this.file` resolve there. Top-level
+ * helpers (`name`, `file`, `typeName`, …) and namespace methods (`query.name`, …) are both handled by
+ * the generic loop; omitted `name`/`file` fall back to the class prototype.
  */
-function bindNamespaces<T extends Resolver>(resolver: T): T {
-  const root = resolver as Record<string, unknown>
-  for (const key of Object.keys(root)) {
-    if (key === 'default') continue
-    const namespace = root[key]
-    if (!isNamespace(namespace)) continue
-    for (const methodKey of Object.keys(namespace)) {
-      const method = namespace[methodKey]
-      if (typeof method !== 'function') continue
-      namespace[methodKey] = bindToResolver(method, resolver)
+function applyResolverOptions(resolver: Resolver, options: ResolverBuildOptions): void {
+  resolver.default = {
+    ...builtinDefault,
+    file: (params, context) => defaultResolveFile(resolver, params, context),
+    ...(options.default as object | undefined),
+  }
+
+  const root = resolver as Resolver & Record<string, unknown>
+
+  for (const key of Object.keys(options)) {
+    if (key === 'pluginName' || key === 'default') continue
+    const value = options[key]
+    if (isNamespace(value)) {
+      const bound: Record<string, unknown> = {}
+      for (const method of Object.keys(value)) {
+        const member = value[method]
+        bound[method] = typeof member === 'function' ? member.bind(root) : member
+      }
+      root[key] = bound
+    } else if (typeof value === 'function') {
+      root[key] = value.bind(root)
+    } else if (value !== undefined) {
+      root[key] = value
     }
   }
-  resolver.default.file = bindToResolver(resolver.default.file as BoundMethod, resolver) as unknown as ResolverDefault['file']
-  return resolver
 }
 
 /**
- * Clones the plugin naming namespaces of `resolver` (fresh objects, methods reset to their unbound
- * originals) so a merge can rebind them without mutating the source resolver.
+ * Base constraint for all plugin resolver objects.
+ *
+ * The built-in machinery lives under `default`. `name` and `file` are the top-level entries generators
+ * call; each defaults to its `default` counterpart and a plugin overrides it to set its convention.
+ * Extend with top-level helpers (`typeName`, …) and/or grouped namespaces (`query`, `schema`, …).
+ * Namespace and top-level helpers reach shared machinery through `this.name`, `this.default`, and
+ * `this.file`.
+ *
+ * @example Top-level helper
+ * ```ts
+ * type MyResolver = Resolver & {
+ *   typeName(name: string): string
+ * }
+ * ```
+ *
+ * @example Grouped namespace
+ * ```ts
+ * type MyResolver = Resolver & {
+ *   query: {
+ *     name(node: OperationNode): string
+ *     keyName(node: OperationNode): string
+ *   }
+ * }
+ * ```
  */
-function cloneNamespaces<T extends Resolver>(resolver: T): T {
-  const clone = { ...resolver } as Record<string, unknown>
-  for (const key of Object.keys(clone)) {
-    if (key === 'default') continue
-    const namespace = clone[key]
-    if (!isNamespace(namespace)) continue
-    const copy: Record<string, BoundMethod> = {}
-    for (const methodKey of Object.keys(namespace)) {
-      const method = namespace[methodKey]
-      copy[methodKey] = (typeof method === 'function' ? (method.raw ?? method) : method) as BoundMethod
-    }
-    clone[key] = copy
+export class Resolver {
+  readonly pluginName: string
+  default!: ResolverDefault
+  #options: ResolverBuildOptions
+
+  name(name: string): string {
+    return this.default.name(name)
   }
-  return clone as T
-}
 
-/**
- * Merges a resolver `override` over `base` one level deep: top-level members (`name`, `file`, plugin
- * namespaces) and `default` members are replaced individually, so overriding a single helper keeps the
- * rest. Namespace methods and `default.file` are re-bound over the merged resolver.
- */
-export function mergeResolver<T extends Resolver>(base: T, override: ResolverOverride<T>): T {
-  const merged = {
-    ...cloneNamespaces(base),
-    ...override,
-    default: { ...base.default, ...override.default },
-  } as T
-  return bindNamespaces(merged)
+  file(params: ResolverFileParams, context: ResolverContext): FileNode {
+    return this.default.file(params, context)
+  }
+
+  constructor(options: ResolverBuildOptions) {
+    this.pluginName = options.pluginName
+    this.#options = options
+    applyResolverOptions(this, options)
+  }
+
+  /**
+   * Merges `override` over `base` and returns a new resolver with helpers re-bound.
+   * Used by the framework when applying `setResolver` partial overrides.
+   */
+  static merge<T extends Resolver>(base: T, override: ResolverOverride | Resolver): T {
+    const overrideOptions = override instanceof Resolver ? override.#options : override
+    return createResolver(mergeBuildOptions(base.#options, overrideOptions)) as T
+  }
 }
 
 /**
@@ -800,14 +759,15 @@ export function mergeResolver<T extends Resolver>(base: T, override: ResolverOve
  * called. The built-in machinery lives under `default` (`name` casing, `options` filtering, `path`,
  * the `file` builder, `banner`/`footer`). Generators call the top-level `name` and `file`, each of
  * which defaults to its `default` counterpart; override them to set the plugin's conventions, and add
- * your own naming namespaces (`query`, `schema`, …) to group the rest.
+ * your own naming helpers — top-level (`typeName`, …) or grouped in namespaces (`query`, `schema`, …).
  *
- * Top-level methods reach sibling helpers through `this` (for example `this.default.name(name)`), and
- * namespace methods (plus `default.file`) are bound so `this` is the resolver there too.
+ * Every method reaches sibling helpers through `this`. Top-level methods get it from their call site
+ * (`resolver.name(...)`); namespace methods are bound to the resolver so `this.name`, `this.default`,
+ * and `this.file` resolve there too.
  *
  * @example Custom identifier and file casing
  * ```ts
- * export const resolverTs = defineResolver<PluginTs>(() => ({
+ * export const resolverTs = createResolver<PluginTs>({
  *   pluginName: 'plugin-ts',
  *   name(name) {
  *     return ensureValidVarName(pascalCase(name))
@@ -815,29 +775,9 @@ export function mergeResolver<T extends Resolver>(base: T, override: ResolverOve
  *   file(params, context) {
  *     return this.default.file({ ...params, resolveName: (name) => toFilePath(name, pascalCase) }, context)
  *   },
- * }))
- * ```
- *
- * @example Grouped naming namespace
- * ```ts
- * export const resolverReactQuery = defineResolver<PluginReactQuery>(() => ({
- *   pluginName: 'plugin-react-query',
- *   query: {
- *     name(node) {
- *       return `use${capitalize(this.name(node.operationId))}`
- *     },
- *   },
- * }))
+ * })
  * ```
  */
-export function defineResolver<T extends PluginFactoryOptions>(build: ResolverBuilder<T>): T['resolver'] {
-  const built = build() as Record<string, unknown>
-  const merged = {
-    name: defaultResolveName,
-    file: defaultResolveFileEntry,
-    ...built,
-    default: { ...builtinDefault, ...(built.default as object | undefined) },
-  } as unknown as T['resolver']
-
-  return bindNamespaces(merged)
+export function createResolver<T extends PluginFactoryOptions>(options: ResolverOptions<T>): T['resolver'] {
+  return new Resolver(options as unknown as ResolverBuildOptions) as T['resolver']
 }

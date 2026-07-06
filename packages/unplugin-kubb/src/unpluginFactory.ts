@@ -83,9 +83,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     const alreadyHasBarrel = options.config.plugins?.some((p) => p.name === pluginBarrelName)
     const plugins = alreadyHasBarrel ? (options.config.plugins ?? []) : [...(options.config.plugins ?? []), pluginBarrel()]
     const output = { ...options.config.output }
-    if (output.barrel === undefined) {
-      output.barrel = { type: 'named' }
-    }
+    output.barrel ??= { type: 'named' }
     output.format ??= false
     output.lint ??= false
 

@@ -32,9 +32,7 @@ function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
   const plugins = alreadyHasBarrel ? (config.plugins ?? []) : [...(config.plugins ?? []), pluginBarrel()]
 
   const output = { ...config.output }
-  if (output.barrel === undefined) {
-    output.barrel = { type: 'named' }
-  }
+  output.barrel ??= { type: 'named' }
   output.format ??= false
   output.lint ??= false
 

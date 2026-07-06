@@ -5,7 +5,7 @@ export { createStorage } from '@kubb/core'
 export { defineGenerator } from '@kubb/core'
 export { defineParser } from '@kubb/core'
 export { definePlugin } from '@kubb/core'
-export { createResolver, mergeResolver } from '@kubb/core'
+export { createResolver, Resolver } from '@kubb/core'
 export { Diagnostics } from '@kubb/core'
 export { fsStorage } from '@kubb/core'
 export { memoryStorage } from '@kubb/core'
@@ -36,7 +36,6 @@ export type {
   ResolveBannerContext,
   ResolveBannerFile,
   ResolveOptionsContext,
-  Resolver,
   ResolverContext,
   ResolverDefault,
   ResolverFileParams,

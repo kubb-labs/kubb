@@ -7,7 +7,7 @@ import type { Parser } from './defineParser.ts'
 /**
  * Hooks fired by a `FileProcessor`.
  *
- * - `start` opens a batch, from `run` or a queue flush.
+ * - `start` opens a batch on a queue flush.
  * - `update` fires once per file as it is converted.
  * - `end` closes a batch.
  * - `enqueue` fires for every `enqueue` call.
@@ -48,14 +48,10 @@ type FileProcessorOptions = {
 }
 
 function joinSources(file: FileNode): string {
-  const sources = file.sources
-  if (sources.length === 0) return ''
-  const parts: Array<string> = []
-  for (const source of sources) {
-    const text = extractStringsFromNodes(source.nodes as Array<CodeNode>)
-    if (text) parts.push(text)
-  }
-  return parts.join('\n\n')
+  return file.sources
+    .map((source) => extractStringsFromNodes(source.nodes as Array<CodeNode>))
+    .filter(Boolean)
+    .join('\n\n')
 }
 
 async function parseCopy(file: FileNode): Promise<string> {
@@ -75,7 +71,7 @@ async function parseCopy(file: FileNode): Promise<string> {
 /**
  * Turns `FileNode`s into source strings and writes them to storage.
  *
- * Two modes share the same instance. Stateless mode (`parse`, `stream`, `run`) just runs the
+ * Two modes share the same instance. Stateless mode (`parse`, `stream`) just runs the
  * conversion. Queue mode (`enqueue`, `flush`, `drain`) buffers files deduped by path and
  * writes each batch through storage with up to `STREAM_FLUSH_EVERY` requests in flight.
  *
@@ -98,13 +94,6 @@ export class FileProcessor {
     this.#parsers = options.parsers ?? null
     this.#storage = options.storage
     this.#extension = options.extension ?? null
-  }
-
-  /**
-   * Files waiting in the queue.
-   */
-  get size(): number {
-    return this.#pending.size
   }
 
   async parse(file: FileNode): Promise<string> {
@@ -139,18 +128,6 @@ export class FileProcessor {
 
       yield { file, source, processed, total, percentage: (processed / total) * 100 }
     }
-  }
-
-  async run(files: Array<FileNode>): Promise<Array<FileNode>> {
-    await this.hooks.emit('start', files)
-
-    for await (const { file, source, processed, total, percentage } of this.stream(files)) {
-      await this.hooks.emit('update', { file, source, processed, percentage, total })
-    }
-
-    await this.hooks.emit('end', files)
-
-    return files
   }
 
   /**
