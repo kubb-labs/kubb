@@ -352,9 +352,7 @@ export type UserFileNode<TMeta extends object = object> = Omit<FileNode<TMeta>, 
  * ```
  */
 export function createFile<TMeta extends object = object>(input: UserFileNode<TMeta>): FileNode<TMeta> {
-  const rawExtname = path.extname(input.baseName)
-  // Handle dotfile basename like '.ts' where path.extname returns ''
-  const extname = (rawExtname || (input.baseName.startsWith('.') ? input.baseName : '')) as `.${string}`
+  const extname = path.extname(input.baseName) as `.${string}`
   if (!extname) {
     throw new Error(`No extname found for ${input.baseName}`)
   }
@@ -367,26 +365,25 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
   // is irrelevant here: `source` only feeds combineImports' `String.includes` usage check.
   let resolvedImports: Array<ImportNode> = []
   if (input.imports?.length) {
-    const codeNodes = (input.sources ?? []).flatMap((item) => item.nodes ?? [])
-    const source = extractStringsFromNodes(codeNodes) || undefined
+    const sources = input.sources ?? []
+    const source = extractStringsFromNodes(sources.flatMap((item) => item.nodes ?? [])) || undefined
     const combinedImports = combineImports(input.imports, resolvedExports, source)
-    const localNames = new Set((input.sources ?? []).map((item) => item.name).filter((name): name is string => Boolean(name)))
+    const localNames = new Set(sources.map((item) => item.name).filter((name): name is string => Boolean(name)))
     const nameOf = (item: string | { propertyName: string; name?: string }): string => (typeof item === 'string' ? item : (item.name ?? item.propertyName))
     // Drop self-imports. Consolidating output (`mode: 'file'`) can place a symbol's
-    // definition and a cross-file import of it in the same file. The first pass catches imports that
-    // resolve to this file's own path. The second drops imports of names the file already defines,
-    // the case consolidation produces when the import path no longer matches `input.path`. Sources
-    // stay intact, so the local definition remains. Bare specifiers like `'zod'` never match a path.
-    resolvedImports = combinedImports
-      .filter((imp) => imp.path !== input.path)
-      .flatMap((imp) => {
-        if (!Array.isArray(imp.name)) {
-          return typeof imp.name === 'string' && localNames.has(imp.name) ? [] : [imp]
-        }
-        const kept = imp.name.filter((item) => !localNames.has(nameOf(item)))
-        if (!kept.length) return []
-        return [kept.length === imp.name.length ? imp : { ...imp, name: kept }]
-      })
+    // definition and a cross-file import of it in the same file. The path check catches imports
+    // that resolve to this file's own path. The name check drops imports of names the file already
+    // defines, the case consolidation produces when the import path no longer matches `input.path`.
+    // Sources stay intact, so the local definition remains. Bare specifiers like `'zod'` never match a path.
+    resolvedImports = combinedImports.flatMap((imp) => {
+      if (imp.path === input.path) return []
+      if (!Array.isArray(imp.name)) {
+        return typeof imp.name === 'string' && localNames.has(imp.name) ? [] : [imp]
+      }
+      const kept = imp.name.filter((item) => !localNames.has(nameOf(item)))
+      if (!kept.length) return []
+      return [kept.length === imp.name.length ? imp : { ...imp, name: kept }]
+    })
   }
   const resolvedSources = input.sources?.length ? combineSources(input.sources) : []
 

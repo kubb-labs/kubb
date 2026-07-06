@@ -22,7 +22,7 @@ import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.t
 import { Telemetry } from '../../Telemetry.ts'
 import setupReporters, { selectReporters } from '../../loggers/utils.ts'
 import { createHookId, executeHooks, getConfigs, isNewerVersion, runHook, startWatcher } from './utils.ts'
-import {detectTool, formatters, linters} from "../../tools.ts";
+import { detectTool, formatters, linters } from '../../tools.ts'
 
 type GenerateProps = {
   input?: string

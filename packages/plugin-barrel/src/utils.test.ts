@@ -2,7 +2,7 @@ import { ast } from '@kubb/ast'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import type { Config } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import {buildTree, getBarrelFiles, getPluginOutputPrefix, isExcludedPath} from './utils.ts'
+import { buildTree, getBarrelFiles, getPluginOutputPrefix, isExcludedPath } from './utils.ts'
 
 function makeConfig(): Config {
   return {

@@ -124,6 +124,6 @@ export function createReporter<T = void>(reporter: UserReporter<T>): Reporter {
     },
     [Symbol.dispose]() {
       reports.clear()
-    }
+    },
   }
 }

@@ -8,7 +8,7 @@ import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
 import { GENERATE_FLUSH_EVERY, STREAM_FLUSH_EVERY } from './constants.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
-import { AsyncEventEmitter } from "./asyncEventEmitter.ts"
+import { AsyncEventEmitter } from './asyncEventEmitter.ts'
 
 describe('createKubb', () => {
   const pluginMocks = {

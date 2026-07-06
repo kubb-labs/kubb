@@ -7,7 +7,7 @@ import type { KubbDriver } from './KubbDriver.ts'
 import type { Plugin, PluginFactoryOptions } from './definePlugin.ts'
 import type { Resolver } from './defineResolver.ts'
 import type { Config } from './types.ts'
-import type {AsyncEventEmitter} from "./asyncEventEmitter.ts";
+import type { AsyncEventEmitter } from './asyncEventEmitter.ts'
 
 /**
  * Context passed to a generator's `schema`, `operation`, and `operations` methods.

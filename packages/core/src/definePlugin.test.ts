@@ -7,7 +7,7 @@ import { Diagnostics } from './Diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, GeneratorContext, KubbHooks, KubbPluginSetupContext, Output, Plugin, PluginFactoryOptions } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import {AsyncEventEmitter} from "./asyncEventEmitter.ts";
+import { AsyncEventEmitter } from './asyncEventEmitter.ts'
 
 // ---------------------------------------------------------------------------
 // Module-level declare global augmentations used by the type tests below.

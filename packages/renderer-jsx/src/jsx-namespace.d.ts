@@ -1,8 +1,4 @@
-import type {
-  KubbReactElement,
-  KubbReactNode,
-  Key,
-} from './types'
+import type { KubbReactElement, KubbReactNode, Key } from './types'
 
 import type { ArrowFunctionNode, ConstNode, ExportNode, FunctionNode, ImportNode, SourceNode, TypeNode } from '@kubb/ast'
 
@@ -64,10 +60,10 @@ export namespace JSX {
     ['kubb-const']: Omit<ConstNode, 'kind'> & {
       children?: KubbReactNode
     }
-    ['kubb-type']:  Omit<TypeNode, 'kind'> & {
+    ['kubb-type']: Omit<TypeNode, 'kind'> & {
       children?: KubbReactNode
     }
-    br: {  }
+    br: {}
   }
 
   type LibraryManagedAttributes<C, P> = P

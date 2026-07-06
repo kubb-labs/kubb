@@ -5,7 +5,7 @@ import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, KubbHooks, Plugin } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import {AsyncEventEmitter} from "./asyncEventEmitter.ts";
+import { AsyncEventEmitter } from './asyncEventEmitter.ts'
 
 describe('PluginDriver', () => {
   const pluginA = {

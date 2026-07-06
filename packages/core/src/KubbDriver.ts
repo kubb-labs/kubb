@@ -26,7 +26,7 @@ import type {
   PluginFactoryOptions,
   Resolver,
 } from './types.ts'
-import type {AsyncEventEmitter} from "./asyncEventEmitter.ts";
+import type { AsyncEventEmitter } from './asyncEventEmitter.ts'
 
 type Options = {
   hooks: AsyncEventEmitter<KubbHooks>

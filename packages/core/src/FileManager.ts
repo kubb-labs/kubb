@@ -1,5 +1,5 @@
 import { ast, type FileNode } from '@kubb/ast'
-import {AsyncEventEmitter} from "./asyncEventEmitter.ts";
+import { AsyncEventEmitter } from './asyncEventEmitter.ts'
 
 /**
  * Hooks fired by a `FileManager`.

@@ -3,7 +3,7 @@ import { extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast
 import { STREAM_FLUSH_EVERY } from './constants.ts'
 import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'
-import {AsyncEventEmitter} from "./asyncEventEmitter.ts";
+import { AsyncEventEmitter } from './asyncEventEmitter.ts'
 
 /**
  * Hooks fired by a `FileProcessor`.

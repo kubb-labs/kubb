@@ -3,7 +3,6 @@ import { KUBB_ARROW_FUNCTION, KUBB_CONST, KUBB_EXPORT, KUBB_FILE, KUBB_FUNCTION,
 import { Fragment } from './jsx-runtime.ts'
 import type { KubbReactElement } from './types.ts'
 
-
 type OnText = (text: string) => void
 type OnHost = (type: string, props: Record<string, unknown>) => void
 
