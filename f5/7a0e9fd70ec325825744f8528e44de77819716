@@ -1,0 +1,182 @@
+packages/core/src/FileManager.ts
+  s_5c19a40c069760::t_b83119af4f53a8 2
+packages/core/src/createReporter.ts
+  s_5c19a40c069760::t_b83119af4f53a8 2,76-77,113,118-119,122-126
+packages/cli/src/loggers/reporters.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1
+packages/renderer-jsx/src/components/md/Paragraph.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-28
+packages/renderer-jsx/src/index.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1-2,4-11
+packages/renderer-jsx/src/components/md/Paragraph.test.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-19
+packages/cli/src/runners/generate/run.ts
+  s_5c19a40c069760::t_b83119af4f53a8 6,8,25,289
+packages/adapter-oas/src/adapter.ts
+  s_5c19a40c069760::t_b83119af4f53a8 7-8
+packages/renderer-jsx/src/components/js/Type.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-65
+packages/mcp/src/utils.ts
+  s_5c19a40c069760::t_b83119af4f53a8 150
+packages/cli/src/index.ts
+  s_5c19a40c069760::t_b83119af4f53a8 2,7-16,36-50
+packages/core/src/Url.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1-141
+packages/renderer-jsx/src/components/jsx/Jsx.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-35
+packages/cli/src/commands/mcp.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1,4,8
+packages/cli/src/runners/init/run.ts
+  s_5c19a40c069760::t_b83119af4f53a8 8
+packages/cli/src/runners/init/utils.ts
+  s_5c19a40c069760::t_b83119af4f53a8 5
+packages/core/src/createResolver.ts
+  s_5c19a40c069760::t_b83119af4f53a8 4
+packages/core/src/KubbDriver.ts
+  s_5c19a40c069760::t_b83119af4f53a8 2,5,29
+packages/core/src/reporters/fileReporter.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 4
+packages/renderer-jsx/src/components/File.test.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 2
+packages/mcp/src/tools/generate.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1
+packages/core/src/asyncEventEmitter.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1-131
+packages/renderer-jsx/src/components/md/List.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-40
+packages/cli/src/commands/init.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1,4,13-14,25,31,37
+packages/cli/src/runners/init/utils.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 5
+packages/ast/src/utils/mergeAdjacentSchemas.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1-34
+.changeset/tidy-hounds-relax.md
+  s_5c19a40c069760::t_b83119af4f53a8 1-9
+packages/ast/src/utils/mergeAdjacentSchemas.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1-52
+packages/ast/src/utils/schemaTraversal.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 5
+packages/cli/src/tools.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1-194
+packages/renderer-jsx/src/components/md/Callout.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-58
+packages/core/src/Url.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1-72
+packages/renderer-jsx/src/components/md/Heading.test.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-17
+packages/core/src/index.ts
+  s_5c19a40c069760::t_b83119af4f53a8 2,17-20
+packages/renderer-jsx/src/components/md/List.test.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-34
+packages/renderer-jsx/src/jsx-namespace.d.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1-3,34-66
+packages/renderer-jsx/src/components/md/Heading.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-34
+packages/ast/src/utils/codegen.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 2,83-91
+  s_5c19a40c069760::t_1f226456856b3f 92
+packages/adapter-oas/src/stream.ts
+  s_5c19a40c069760::t_b83119af4f53a8 8
+packages/unplugin-kubb/src/unpluginFactory.ts
+  s_5c19a40c069760::t_b83119af4f53a8 3
+packages/adapter-oas/src/stream.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 6-7
+packages/cli/src/commands/generate.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1,4-24,28-34,41-42,65,67-68,80
+packages/cli/src/tools.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1-55
+packages/core/src/Diagnostics.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1-228
+packages/ast/src/utils/codegen.ts
+  s_5c19a40c069760::t_b83119af4f53a8 104-118
+packages/core/src/FileProcessor.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1,6
+packages/core/src/asyncEventEmitter.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1-113
+packages/renderer-jsx/src/components/js/Const.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-70
+packages/adapter-oas/src/resolvers.ts
+  s_5c19a40c069760::t_b83119af4f53a8 9-28
+packages/core/src/defineGenerator.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1,10
+packages/cli/src/runners/generate/utils.test.ts
+  s_5c19a40c069760::t_187af8484e885e 4-5,7
+packages/core/src/createKubb.ts
+  s_5c19a40c069760::t_b83119af4f53a8 2,4,9
+packages/core/src/definePlugin.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 6,10
+packages/core/src/reporters/report.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 3
+packages/cli/src/loggers/defineLogger.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1
+packages/parser-ts/src/constants.ts
+  s_5c19a40c069760::t_b83119af4f53a8 9
+packages/renderer-jsx/src/components/md/Frontmatter.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-37
+packages/cli/src/runners/generate/utils.ts
+  s_5c19a40c069760::t_b83119af4f53a8 6
+packages/renderer-jsx/src/components/js/Function.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-148
+packages/core/src/reporters/fileReporter.ts
+  s_5c19a40c069760::t_b83119af4f53a8 6
+packages/core/src/Diagnostics.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1-663
+packages/core/src/types.ts
+  s_5c19a40c069760::t_b83119af4f53a8 6,795
+packages/renderer-jsx/src/jsxRenderer.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-56
+packages/core/src/KubbDriver.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 4,8
+packages/renderer-jsx/src/jsxRenderer.test.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-218
+packages/plugin-barrel/src/utils.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 5,97-170
+  s_5c19a40c069760::t_e0a213df12d42e 171
+packages/cli/src/commands/validate.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1,4,8-9,17,20
+packages/renderer-jsx/src/components/md/Frontmatter.test.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-24
+packages/plugin-barrel/src/utils.ts
+  s_5c19a40c069760::t_b83119af4f53a8 4,10-98
+  s_5c19a40c069760::t_e8b826f96363ce 99
+packages/cli/package.json
+  s_5c19a40c069760::t_b83119af4f53a8 60
+packages/ast/src/nodes/file.ts
+  s_5c19a40c069760::t_b83119af4f53a8 5,355,362-373,376-388
+packages/renderer-jsx/src/Runtime.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-295
+packages/ast/src/utils/combineFileMembers.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1-315
+packages/core/src/definePlugin.ts
+  s_5c19a40c069760::t_b83119af4f53a8 5
+packages/ast/src/utils/combineFileMembers.ts
+  s_5c19a40c069760::t_b83119af4f53a8 1-183
+packages/core/src/reporters/report.ts
+  s_5c19a40c069760::t_b83119af4f53a8 4
+packages/renderer-jsx/src/components/md/Callout.test.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-123
+packages/ast/src/utils/index.ts
+  s_5c19a40c069760::t_b83119af4f53a8 2-3,5,8-9
+packages/renderer-jsx/src/components/js/Type.test.tsx
+  s_5c19a40c069760::t_b83119af4f53a8 1-45
+packages/core/src/createKubb.test.ts
+  s_5c19a40c069760::t_b83119af4f53a8 5,11
+pnpm-lock.yaml
+  s_5c19a40c069760::t_9ac939daba336e 156-158,2163-2166,5013-5014
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "f57a0e9fd70ec325825744f8528e44de77819716",
+  "prompts": {},
+  "sessions": {
+    "s_5c19a40c069760": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "69985ab6-50d7-48c7-993e-b3654e3e4739",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
