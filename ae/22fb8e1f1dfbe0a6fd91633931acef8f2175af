@@ -1,0 +1,27 @@
+packages/core/src/createResolver.ts
+  s_13a89e3ed5f3fb::t_e5cb62e7b1d4c9 395-397
+  s_13a89e3ed5f3fb::t_4ee560ab8f7a07 333-343
+  s_13a89e3ed5f3fb::t_7f20cbbf4ebc14 602,614-616
+  s_13a89e3ed5f3fb::t_99f468b6421437 645-649
+  s_13a89e3ed5f3fb::t_3da2ecfd01b7be 633-636
+  s_13a89e3ed5f3fb::t_fcc1fa4cf5336c 719-721,724-725
+  s_13a89e3ed5f3fb::t_b879c41d8569f4 332
+.changeset/resolver-core-namespace.md
+  s_13a89e3ed5f3fb::t_75112bbcf76fcc 14-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "ae22fb8e1f1dfbe0a6fd91633931acef8f2175af",
+  "prompts": {},
+  "sessions": {
+    "s_13a89e3ed5f3fb": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "2e2ed68f-0699-49ff-a2af-95ce07dc6a6d",
+        "model": "composer-2.5-fast"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
