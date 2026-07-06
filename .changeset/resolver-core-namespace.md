@@ -11,6 +11,8 @@ Generators call the two top-level entries, each of which defaults to its `defaul
 - `resolver.name(name)` — the plugin's identifier casing. Override it to set a convention (PascalCase, a suffix, …).
 - `resolver.file(params, context)` — builds a `FileNode`. Override it for custom file-name casing, threading a caser through `params.resolveName` (default `toFilePath`).
 
+`resolver.default` is the built-in machinery and is not overridable — plugins delegate to it via `this.default.*` rather than replace it.
+
 Add plugin-specific helpers as top-level methods (`typeName`, …) and/or grouped namespaces (`query`, `schema`, …). Every helper reaches shared machinery through `this.name`, `this.default`, and `this.file`.
 
 ```ts

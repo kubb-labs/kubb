@@ -83,10 +83,6 @@ export type ResolverContext = {
   root: string
   output: Output
   group?: Group
-  /**
-   * Plugin name used to populate `meta.pluginName` on the resolved file.
-   */
-  pluginName?: string
 }
 
 /**
@@ -334,6 +330,18 @@ function defaultResolveOptions<TOptions>(node: Node, { options, exclude = [], in
 }
 
 /**
+ * Resolves the subdirectory name for a grouped file. A custom `group.name` wins; otherwise `tag`
+ * groups use the camelCased tag and `path` groups use the first non-traversal segment (`''` when
+ * none remain, placing the file in the output root — the caller's boundary check keeps it safe).
+ */
+function resolveGroupDir(group: Group, groupValue: string): string {
+  if (group.name) return group.name({ group: groupValue })
+  if (group.type === 'tag') return camelCase(groupValue)
+  const segment = groupValue.split('/').filter((part) => part !== '' && part !== '.' && part !== '..')[0]
+  return segment ? camelCase(segment) : ''
+}
+
+/**
  * Default path resolver used by `createResolver`.
  *
  * - `mode: 'file'` resolves directly to `output.path` (the full file path, extension included).
@@ -384,32 +392,14 @@ export function defaultResolvePath({ baseName, tag, path: groupPath }: ResolverP
     return path.resolve(root, output.path)
   }
 
-  const result: string = (() => {
-    if (group && (groupPath || tag)) {
-      const groupValue = group.type === 'path' ? groupPath! : tag!
-      const defaultName =
-        group.type === 'tag'
-          ? ({ group: groupName }: { group: string }) => camelCase(groupName)
-          : ({ group: groupName }: { group: string }) => {
-              // Strip traversal components (empty, '.', '..') before taking the first meaningful segment.
-              // When every segment is a traversal component (e.g. '../../') we fall back to '' so the
-              // file is placed directly in the output root, and the boundary check below ensures safety.
-              const segment = groupName.split('/').filter((part) => part !== '' && part !== '.' && part !== '..')[0]
-              return segment ? camelCase(segment) : ''
-            }
-      const resolveName = group.name ?? defaultName
-      const groupName = resolveName({ group: groupValue })
-
-      return path.resolve(root, output.path, groupName, baseName)
-    }
-    return path.resolve(root, output.path, baseName)
-  })()
+  const outputDir = path.resolve(root, output.path)
+  const result =
+    group && (groupPath || tag) ? path.resolve(outputDir, resolveGroupDir(group, group.type === 'path' ? groupPath! : tag!), baseName) : path.resolve(outputDir, baseName)
 
   // Ensure the resolved path stays within the configured output directory.
   // This prevents path traversal from malicious OpenAPI specs or custom group.name functions.
   // `result === outputDir` is intentionally permitted: it matches edge cases where baseName
   // resolves to the output directory itself.
-  const outputDir = path.resolve(root, output.path)
   const outputDirWithSep = outputDir.endsWith(path.sep) ? outputDir : `${outputDir}${path.sep}`
   if (result !== outputDir && !result.startsWith(outputDirWithSep)) {
     throw new Diagnostics.Error({
@@ -609,21 +599,21 @@ export function defaultResolveFooter(meta: InputMeta | undefined, { output, file
 
 /**
  * Raw resolver fields passed to `createResolver`, or patched through `Resolver.merge` / `setResolver`.
+ * `default` is the built-in machinery and is not user-settable — it's injected by the constructor.
  */
 type ResolverBuildOptions = {
   pluginName: string
   name?: (name: string) => string
   file?: (params: ResolverFileParams, context: ResolverContext) => FileNode
-  default?: Partial<Omit<ResolverDefault, 'file'>>
   [key: string]: unknown
 }
 
 export type ResolverOverride = Omit<ResolverBuildOptions, 'pluginName'>
 
 /**
- * The built-in `default` helpers, injected into every resolver before a plugin's overrides. `file` is
- * excluded here and set per-resolver by `createResolver`, since it closes over the resolver to reach
- * `default.path` and `pluginName`.
+ * The built-in `default` helpers, injected into every resolver. `file` is excluded here and set
+ * per-resolver by `createResolver`, since it closes over the resolver to reach `default.path` and
+ * `pluginName`.
  */
 const builtinDefault: Omit<ResolverDefault, 'file'> = {
   name: camelCase,
@@ -640,43 +630,28 @@ function isNamespace(value: unknown): value is Record<string, unknown> {
 /**
  * The plugin-specific resolver fields handed to `createResolver`.
  *
- * `default`, `name`, and `file` are optional — the built-ins are injected when omitted. Plugin-specific
- * naming namespaces are required. Every method reaches sibling helpers through `this`, which `ThisType`
- * types as the full resolver. The `default.file` builder isn't overridable here; customize file naming
- * through the top-level `file` entry instead.
+ * `name` and `file` are optional — the built-ins are injected when omitted. `default` is the built-in
+ * machinery and is not settable; delegate to it via `this.default.*` and customize file naming through
+ * the top-level `file` entry. Every method reaches sibling helpers through `this`, which `ThisType`
+ * types as the full resolver.
  */
 type ResolverOptions<T extends PluginFactoryOptions> = Omit<T['resolver'], keyof Resolver> & {
   pluginName: T['name']
   name?: T['resolver']['name']
   file?: T['resolver']['file']
-  default?: Partial<Omit<ResolverDefault, 'file'>>
 } & ThisType<T['resolver']>
 
 /**
- * Merges `override` over `base` one level deep. `default` is merged member-by-member; every other key
- * (`name`, `file`, plugin namespaces) is replaced wholesale. No cloning: the result is only ever read
- * by the constructor, which rebinds helpers into fresh objects.
- */
-function mergeBuildOptions(base: ResolverBuildOptions, override: ResolverBuildOptions | ResolverOverride): ResolverBuildOptions {
-  const patch = override as ResolverBuildOptions
-  const merged: ResolverBuildOptions = { ...base, ...patch }
-  if (base.default || patch.default) {
-    merged.default = { ...base.default, ...patch.default }
-  }
-  return merged
-}
-
-/**
- * Populates `resolver` from `options`: injects `default` over the built-ins, then binds each remaining
- * entry to the resolver root so `this.name`, `this.default`, and `this.file` resolve there. Top-level
- * helpers (`name`, `file`, `typeName`, …) and namespace methods (`query.name`, …) are both handled by
- * the generic loop; omitted `name`/`file` fall back to the class prototype.
+ * Populates `resolver` from `options`: injects the built-in `default` machinery, then binds each
+ * remaining entry to the resolver root so `this.name`, `this.default`, and `this.file` resolve there.
+ * Top-level helpers (`name`, `file`, `typeName`, …) and namespace methods (`query.name`, …) are both
+ * handled by the generic loop; omitted `name`/`file` fall back to the class prototype. `default` is
+ * skipped so it can't be shadowed — it's not part of the settable options.
  */
 function applyResolverOptions(resolver: Resolver, options: ResolverBuildOptions): void {
   resolver.default = {
     ...builtinDefault,
     file: (params, context) => defaultResolveFile(resolver, params, context),
-    ...(options.default as object | undefined),
   }
 
   const root = resolver as Resolver & Record<string, unknown>
@@ -729,28 +704,25 @@ export class Resolver {
   readonly pluginName: string
   default!: ResolverDefault
   #options: ResolverBuildOptions
-
   name(name: string): string {
     return this.default.name(name)
   }
-
   file(params: ResolverFileParams, context: ResolverContext): FileNode {
     return this.default.file(params, context)
   }
-
   constructor(options: ResolverBuildOptions) {
     this.pluginName = options.pluginName
     this.#options = options
     applyResolverOptions(this, options)
   }
-
   /**
-   * Merges `override` over `base` and returns a new resolver with helpers re-bound.
-   * Used by the framework when applying `setResolver` partial overrides.
+   * Merges `override` over `base` and returns a new resolver with helpers re-bound. Each key (`name`,
+   * `file`, plugin namespaces) is replaced wholesale; `default` is rebuilt from the built-ins, never
+   * carried over. Used by the framework when applying `setResolver` partial overrides.
    */
   static merge<T extends Resolver>(base: T, override: ResolverOverride | Resolver): T {
-    const overrideOptions = override instanceof Resolver ? override.#options : override
-    return createResolver(mergeBuildOptions(base.#options, overrideOptions)) as T
+    const patch = override instanceof Resolver ? override.#options : override
+    return createResolver({ ...base.#options, ...patch }) as T
   }
 }
 
