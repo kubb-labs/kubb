@@ -1,0 +1,24 @@
+packages/core/src/KubbDriver.ts
+  s_648a586824545d::t_bc2a42f3aa2d26 596-597,600,621,630,634
+  s_648a586824545d::t_daa0187fcad8bc 2
+  s_648a586824545d::t_199796c190a46e 783-784,789
+  s_648a586824545d::t_d9c06d95320938 659-660,662,664,666
+  s_648a586824545d::t_6e16a54d94cfd9 328,331
+  s_648a586824545d::t_3cc135d3cae8f8 168-169,172
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e13bbfbb78ff68fb7057c778acb75ea324b03e96",
+  "prompts": {},
+  "sessions": {
+    "s_648a586824545d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fcfdcfb3-3ac1-4294-b3ed-745a33419726",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
