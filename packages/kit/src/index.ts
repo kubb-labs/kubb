@@ -39,7 +39,6 @@ export type {
   Resolver,
   ResolverContext,
   ResolverDefault,
-  ResolverFileFactory,
   ResolverFileParams,
   ResolverOverride,
   ResolverPathParams,

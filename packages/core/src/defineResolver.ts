@@ -270,13 +270,14 @@ function buildBannerMeta({ meta, file }: { meta: InputMeta | undefined; file: Re
  * `default`, `name`, and `file` are optional — the built-ins are injected when omitted. Plugin-specific
  * naming namespaces are required. Methods call sibling resolver methods via `this`, which `ThisType`
  * types as the full resolver. A `file` override receives its params/context and delegates to
- * `this.default.file`; a raw `default.file` factory receives the assembled resolver as its first argument.
+ * `this.default.file`. The `default.file` builder isn't overridable here; customize file naming through
+ * the top-level `file` entry instead.
  */
 type ResolverBuilder<T extends PluginFactoryOptions> = () => Omit<T['resolver'], 'default' | 'name' | 'file' | 'pluginName'> & {
   pluginName: T['name']
   name?: T['resolver']['name']
   file?: T['resolver']['file']
-  default?: Partial<Omit<ResolverDefault, 'file'>> & { file?: ResolverFileFactory<T['resolver']> }
+  default?: Partial<Omit<ResolverDefault, 'file'>>
 } & ThisType<T['resolver']>
 
 // String patterns are compiled lazily and cached, so the same filter is reused for every node.
@@ -498,26 +499,26 @@ export function defaultResolvePath({ baseName, tag, path: groupPath }: ResolverP
 }
 
 /**
- * Default file resolver used by `defineResolver`.
+ * Default file resolver used by `defineResolver`, exposed as `resolver.default.file`.
  *
  * Resolves a `FileNode` by combining file-name casing (`params.resolveName`, default `toFilePath`)
- * with path resolution (`resolver.default.path`). The resolved file always has empty
+ * with path resolution (`this.default.path`). The resolved file always has empty
  * `sources`, `imports`, and `exports` arrays, which consumers populate separately.
  *
  * In `mode: 'file'` the name is omitted and the file sits directly at the output path.
  *
- * The assembled `resolver` is passed as the first argument so the builder never needs `this`.
+ * Bound to the resolver root (like a naming namespace), so `this` reaches `this.default.path`
+ * and `this.pluginName`.
  *
  * @example Resolve a schema file
  * ```ts
- * const file = defaultResolveFile(resolver, { name: 'pet', extname: '.ts' }, { root: '/src', output: { path: 'types' } })
+ * const file = resolver.default.file({ name: 'pet', extname: '.ts' }, { root: '/src', output: { path: 'types' } })
  * // → { baseName: 'pet.ts', path: '/src/types/pet.ts', sources: [], ... }
  * ```
  *
  * @example Resolve an operation file with tag grouping
  * ```ts
- * const file = defaultResolveFile(
- *   resolver,
+ * const file = resolver.default.file(
  *   { name: 'listPets', extname: '.ts', tag: 'pets' },
  *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
  * )
@@ -525,20 +526,20 @@ export function defaultResolvePath({ baseName, tag, path: groupPath }: ResolverP
  * ```
  */
 export function defaultResolveFile(
-  resolver: Resolver,
+  this: Resolver,
   { name, extname, tag, path: groupPath, resolveName = toFilePath }: ResolverFileParams,
   context: ResolverContext,
 ): FileNode {
   const mode = context.output.mode ?? 'directory'
   const resolvedName = mode === 'file' ? '' : resolveName(name)
   const baseName = `${resolvedName}${extname}` as FileNode['baseName']
-  const filePath = resolver.default.path({ baseName, tag, path: groupPath }, context)
+  const filePath = this.default.path({ baseName, tag, path: groupPath }, context)
 
   return ast.factory.createFile({
     path: filePath,
     baseName: path.basename(filePath) as `${string}.${string}`,
     meta: {
-      pluginName: resolver.pluginName,
+      pluginName: this.pluginName,
     },
     sources: [],
     imports: [],
@@ -685,29 +686,24 @@ export function defaultResolveFooter(meta: InputMeta | undefined, { output, file
 }
 
 /**
- * Builds a `FileNode` from the assembled resolver and the file params. It receives the resolver as
- * its first argument so a `default.file` factory never needs `this` to reach `resolver.default.path`
- * or `resolver.pluginName`.
- */
-export type ResolverFileFactory<TResolver extends Resolver = Resolver> = (resolver: TResolver, params: ResolverFileParams, context: ResolverContext) => FileNode
-
-/**
  * A resolver override applied over a built resolver. Top-level members (`name`, `file`, plugin
  * namespaces) and `default` members are each optional, so an override can name a single helper
- * (`{ name }`, `{ default: { path } }`) without restating the rest.
+ * (`{ name }`, `{ default: { path } }`) without restating the rest. The `default.file` builder isn't
+ * overridable; customize file naming through the top-level `file` entry instead.
  */
 export type ResolverOverride<T extends Resolver> = Partial<Omit<T, 'default'>> & {
-  default?: Partial<Omit<ResolverDefault, 'file'>> & { file?: ResolverFileFactory<T> | ResolverDefault['file'] }
+  default?: Partial<Omit<ResolverDefault, 'file'>>
 }
 
 /**
  * The built-in `default` helpers, injected into every resolver before a plugin's overrides. `file` is
- * wired separately by `wireFile`, since it needs the assembled resolver.
+ * bound to the resolver root by `bindNamespaces`, since it needs `this.default.path` and `this.pluginName`.
  */
-const builtinDefault: Omit<ResolverDefault, 'file'> = {
+const builtinDefault: ResolverDefault = {
   name: defaultName,
   options: defaultResolveOptions,
   path: defaultResolvePath,
+  file: defaultResolveFile,
   banner: defaultResolveBanner,
   footer: defaultResolveFooter,
 }
@@ -726,20 +722,6 @@ function defaultResolveFileEntry(this: Resolver, params: ResolverFileParams, con
   return this.default.file(params, context)
 }
 
-// The wired `default.file` remembers its factory so a later merge can re-wire it over the merged resolver.
-type WiredFile = ResolverDefault['file'] & { raw?: ResolverFileFactory }
-
-/**
- * Points `resolver.default.file` at `factory`, closing over the assembled resolver, and remembers the
- * factory so a later merge re-wires it over the merged resolver.
- */
-function wireFile<T extends Resolver>(resolver: T, factory: ResolverFileFactory<T>): T {
-  const wired: WiredFile = (params, context) => factory(resolver, params, context)
-  wired.raw = factory as ResolverFileFactory
-  resolver.default.file = wired
-  return resolver
-}
-
 type BoundMethod = ((...args: Array<unknown>) => unknown) & { raw?: (...args: Array<unknown>) => unknown }
 
 function isNamespace(value: unknown): value is Record<string, BoundMethod> {
@@ -747,10 +729,21 @@ function isNamespace(value: unknown): value is Record<string, BoundMethod> {
 }
 
 /**
- * Binds the method members of each plugin naming namespace (`query`, `schema`, …) to `resolver`, so a
- * namespace method reaches the resolver root through `this` (`this.name`, `this.default`). A single
- * shallow pass — `default` is skipped (its `file` is wired and the rest need no `this`). Each bound
- * method keeps its unbound original on `.raw`, so a later merge re-binds to the merged resolver.
+ * Binds `method` to `resolver`, keeping its unbound original on `.raw` so a later merge can re-bind it
+ * over the merged resolver.
+ */
+function bindToResolver(method: BoundMethod, resolver: Resolver): BoundMethod {
+  const raw = method.raw ?? method
+  const bound = raw.bind(resolver) as BoundMethod
+  bound.raw = raw
+  return bound
+}
+
+/**
+ * Binds the method members of each plugin naming namespace (`query`, `schema`, …) plus `default.file`
+ * to `resolver`, so each reaches the resolver root through `this` (`this.name`, `this.default.path`,
+ * `this.pluginName`). A single shallow pass — the other `default` helpers are plain functions that
+ * need no `this`.
  */
 function bindNamespaces<T extends Resolver>(resolver: T): T {
   const root = resolver as Record<string, unknown>
@@ -761,12 +754,10 @@ function bindNamespaces<T extends Resolver>(resolver: T): T {
     for (const methodKey of Object.keys(namespace)) {
       const method = namespace[methodKey]
       if (typeof method !== 'function') continue
-      const raw = method.raw ?? method
-      const bound = raw.bind(resolver) as BoundMethod
-      bound.raw = raw
-      namespace[methodKey] = bound
+      namespace[methodKey] = bindToResolver(method, resolver)
     }
   }
+  resolver.default.file = bindToResolver(resolver.default.file as BoundMethod, resolver) as unknown as ResolverDefault['file']
   return resolver
 }
 
@@ -793,7 +784,7 @@ function cloneNamespaces<T extends Resolver>(resolver: T): T {
 /**
  * Merges a resolver `override` over `base` one level deep: top-level members (`name`, `file`, plugin
  * namespaces) and `default` members are replaced individually, so overriding a single helper keeps the
- * rest. The `default.file` factory is re-wired and namespace methods re-bound over the merged resolver.
+ * rest. Namespace methods and `default.file` are re-bound over the merged resolver.
  */
 export function mergeResolver<T extends Resolver>(base: T, override: ResolverOverride<T>): T {
   const merged = {
@@ -801,11 +792,7 @@ export function mergeResolver<T extends Resolver>(base: T, override: ResolverOve
     ...override,
     default: { ...base.default, ...override.default },
   } as T
-  // An override's `default.file` may be a raw factory or a wired `default.file` (when a whole resolver
-  // is passed as the override), in which case its remembered `.raw` factory is the one to re-wire.
-  const overrideFile = override.default?.file as (ResolverFileFactory & WiredFile) | undefined
-  const factory = overrideFile?.raw ?? overrideFile ?? (base.default.file as WiredFile).raw ?? defaultResolveFile
-  return bindNamespaces(wireFile(merged, factory as ResolverFileFactory<T>))
+  return bindNamespaces(merged)
 }
 
 /**
@@ -816,8 +803,7 @@ export function mergeResolver<T extends Resolver>(base: T, override: ResolverOve
  * your own naming namespaces (`query`, `schema`, …) to group the rest.
  *
  * Top-level methods reach sibling helpers through `this` (for example `this.default.name(name)`), and
- * namespace methods are bound so `this` is the resolver there too. A raw `default.file` factory is the
- * exception: it receives the assembled resolver as its first argument.
+ * namespace methods (plus `default.file`) are bound so `this` is the resolver there too.
  *
  * @example Custom identifier and file casing
  * ```ts
@@ -852,7 +838,6 @@ export function defineResolver<T extends PluginFactoryOptions>(build: ResolverBu
     ...built,
     default: { ...builtinDefault, ...(built.default as object | undefined) },
   } as unknown as T['resolver']
-  const factory = ((built.default as { file?: ResolverFileFactory } | undefined)?.file ?? defaultResolveFile) as ResolverFileFactory<T['resolver']>
 
-  return bindNamespaces(wireFile(merged, factory))
+  return bindNamespaces(merged)
 }

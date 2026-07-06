@@ -1,7 +1,7 @@
 import { camelCase } from '@internals/utils'
 import { ast, type InputMeta } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
-import { defaultResolveBanner, defaultResolveFile, defaultResolveFooter, defaultResolvePath, defineResolver } from './defineResolver.ts'
+import { defaultResolveBanner, defaultResolveFooter, defaultResolvePath, defineResolver } from './defineResolver.ts'
 import type { Config, Resolver, ResolverContext } from './types.ts'
 
 type TestResolver = Resolver & {
@@ -234,7 +234,7 @@ describe('defaultResolveFile', () => {
   }))
 
   it('resolves a file with correct baseName and path', () => {
-    const file = defaultResolveFile(resolver, { name: 'pet', extname: '.ts' }, context)
+    const file = resolver.default.file({ name: 'pet', extname: '.ts' }, context)
 
     expect(file.baseName).toBe('pet.ts')
     expect(file.path).toBe('/root/types/pet.ts')
@@ -244,7 +244,7 @@ describe('defaultResolveFile', () => {
   })
 
   it('uses the default toFilePath casing for the file name', () => {
-    const file = defaultResolveFile(resolver, { name: 'list pets', extname: '.ts' }, context)
+    const file = resolver.default.file({ name: 'list pets', extname: '.ts' }, context)
 
     expect(file.baseName).toBe('listPets.ts')
   })
@@ -258,14 +258,13 @@ describe('defaultResolveFile', () => {
     // leading dots must not escape the output directory
     ['..Schema', '/root/types/schema.ts'],
   ])('nests dotted file name %s into %s', (name, expected) => {
-    const file = defaultResolveFile(resolver, { name, extname: '.ts' }, context)
+    const file = resolver.default.file({ name, extname: '.ts' }, context)
 
     expect(file.path).toBe(expected)
   })
 
   it('omits the file name and writes to the output file in file mode', () => {
-    const file = defaultResolveFile(
-      resolver,
+    const file = resolver.default.file(
       { name: 'pet', extname: '.ts' },
       {
         ...context,
@@ -282,8 +281,7 @@ describe('defaultResolveFile', () => {
   })
 
   it('groups by tag when resolver is tag-grouped', () => {
-    const file = defaultResolveFile(
-      resolver,
+    const file = resolver.default.file(
       { name: 'pet', extname: '.ts', tag: 'pets' },
       {
         root: '/root',
