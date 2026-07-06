@@ -1,0 +1,19 @@
+packages/core/src/createResolver.ts
+  s_aa922f4f7fac29::t_12c1fe37181a00 242-246
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "1b0f53ae6f018cc148e434e7229d8c08c79d8c96",
+  "prompts": {},
+  "sessions": {
+    "s_aa922f4f7fac29": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f830ccf0-4ff2-4be9-b933-da71bf93072f",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
