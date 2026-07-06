@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { camelCase, toFilePath } from '@internals/utils'
 import { ast, operationDef, schemaDef, type FileNode, type InputMeta, type Node, type OperationNode, type SchemaNode } from '@kubb/ast'
-import { Diagnostics } from './diagnostics.ts'
+import { Diagnostics } from './Diagnostics.ts'
 import type { Filter, Override, PluginFactoryOptions } from './definePlugin.ts'
 import type { Config, Group, Output } from './types.ts'
 

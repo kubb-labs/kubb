@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { parseFromConfig } from './factory.ts'
 import { createSchemaParser } from './parser.ts'
-import { createInputStream, preScan, resolveBaseUrl } from './stream.ts'
+import { createInputStream, preScan } from './stream.ts'
+import { resolveBaseUrl } from './resolvers.ts'
 import type { Document, SchemaObject } from './types.ts'
 
 const minimalSpec: Document = {

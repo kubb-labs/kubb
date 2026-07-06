@@ -1,5 +1,4 @@
-import type { AsyncEventEmitter } from '@internals/utils'
-import type { KubbHooks } from '@kubb/core'
+import type { KubbHooks, AsyncEventEmitter } from '@kubb/core'
 
 /**
  * Options accepted by a logger's `install` callback.

@@ -1,18 +1,6 @@
-import type {
-  KubbArrowFunctionProps,
-  KubbConstProps,
-  KubbExportProps,
-  KubbFileProps,
-  KubbFunctionProps,
-  KubbImportProps,
-  KubbJsxProps,
-  KubbReactElement,
-  KubbReactNode,
-  KubbSourceProps,
-  KubbTypeProps,
-  Key,
-  LineBreakProps,
-} from './types'
+import type { KubbReactElement, KubbReactNode, Key } from './types'
+
+import type { ArrowFunctionNode, ConstNode, ExportNode, FunctionNode, ImportNode, SourceNode, TypeNode } from '@kubb/ast'
 
 /**
  * JSX contract for `@kubb/renderer-jsx`, resolved through `jsxImportSource`.
@@ -43,16 +31,39 @@ export namespace JSX {
   }
 
   interface IntrinsicElements {
-    'kubb-jsx': KubbJsxProps
-    'kubb-file': KubbFileProps
-    'kubb-source': KubbSourceProps
-    'kubb-import': KubbImportProps
-    'kubb-export': KubbExportProps
-    'kubb-function': KubbFunctionProps
-    'kubb-arrow-function': KubbArrowFunctionProps
-    'kubb-const': KubbConstProps
-    'kubb-type': KubbTypeProps
-    br: LineBreakProps
+    ['kubb-jsx']: {
+      children?: string
+    }
+    ['kubb-file']: {
+      id?: string | null
+      children?: KubbReactNode
+      baseName: string
+      path: string
+      /**
+       * Absolute on-disk path to copy verbatim into the output, bypassing the parser. Use to emit a
+       * real source file shipped inside a package (a template) into the generated folder.
+       */
+      copy?: string | null
+      meta?: FileNode['meta'] | null
+    }
+    ['kubb-source']: Omit<SourceNode, 'kind'> & {
+      children?: KubbReactNode
+    }
+    ['kubb-import']: Omit<ImportNode, 'kind'> & {}
+    ['kubb-export']: Omit<ExportNode, 'kind'> & {}
+    ['kubb-function']: Omit<FunctionNode, 'kind'> & {
+      children?: KubbReactNode
+    }
+    ['kubb-arrow-function']: Omit<ArrowFunctionNode, 'kind'> & {
+      children?: KubbReactNode
+    }
+    ['kubb-const']: Omit<ConstNode, 'kind'> & {
+      children?: KubbReactNode
+    }
+    ['kubb-type']: Omit<TypeNode, 'kind'> & {
+      children?: KubbReactNode
+    }
+    br: {}
   }
 
   type LibraryManagedAttributes<C, P> = P

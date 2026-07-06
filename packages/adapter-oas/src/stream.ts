@@ -3,10 +3,9 @@ import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './discrimina
 import { getOperations } from './operation.ts'
 import type { SchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
-import { resolveServerUrl } from './resolvers.ts'
 import { reportSchemaDiagnostics } from './schemaDiagnostics.ts'
 import type { DiscriminatorTarget } from './discriminator.ts'
-import type { AdapterOas, Document, SchemaObject, ServerOptions } from './types.ts'
+import type { AdapterOas, Document, SchemaObject } from './types.ts'
 
 export type PreScanResult = {
   refAliasMap: Map<string, ast.SchemaNode>
@@ -14,24 +13,6 @@ export type PreScanResult = {
   circularNames: Array<string>
   discriminatorChildMap: Map<string, DiscriminatorTarget> | null
   promotedEnums: Map<string, ast.SchemaNode> | null
-}
-
-/**
- * Reads the server URL from the document's `servers` array at `server.index`,
- * interpolating any `server.variables` into the URL template.
- *
- * Returns `null` when `server.index` is omitted or out of range.
- *
- * @example Resolve the first server
- * `resolveBaseUrl({ document, server: { index: 0 } })`
- *
- * @example Override a path variable
- * `resolveBaseUrl({ document, server: { index: 0, variables: { version: 'v2' } } })`
- */
-export function resolveBaseUrl({ document, server }: { document: Document; server?: ServerOptions }): string | null {
-  const index = server?.index
-  const entry = index !== undefined ? document.servers?.at(index) : undefined
-  return entry?.url ? resolveServerUrl(entry, server?.variables) : null
 }
 
 /**

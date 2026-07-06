@@ -1,5 +1,5 @@
 import type { Config } from './types.ts'
-import type { Diagnostic } from './diagnostics.ts'
+import type { Diagnostic } from './Diagnostics.ts'
 
 /**
  * Numeric log-level thresholds used internally to compare verbosity.
@@ -73,7 +73,8 @@ export type Reporter = {
    * Optional finalizer called once after the run's last config. The host wires it to
    * `kubb:lifecycle:end`. {@link createReporter} closes it over the values that `report` returned.
    */
-  drain?: (context: ReporterContext) => void | Promise<void>
+  drain: (context: ReporterContext) => void | Promise<void>
+  [Symbol.dispose](): void
 }
 
 /**
@@ -109,26 +110,20 @@ export type UserReporter<T = void> = {
  * ```
  */
 export function createReporter<T = void>(reporter: UserReporter<T>): Reporter {
-  const drain = reporter.drain
-  if (!drain) {
-    return {
-      name: reporter.name,
-      async report(result, context) {
-        await reporter.report(result, context)
-      },
-    }
-  }
-
-  const reports: Array<T> = []
+  const reports = new Set<T>()
 
   return {
     name: reporter.name,
     async report(result, context) {
-      reports.push(await reporter.report(result, context))
+      const report = await reporter.report(result, context)
+      reports.add(report)
     },
     async drain(context) {
-      await drain(context, reports)
-      reports.length = 0
+      await reporter.drain?.(context, Array.from(reports))
+      reports.clear()
+    },
+    [Symbol.dispose]() {
+      reports.clear()
     },
   }
 }

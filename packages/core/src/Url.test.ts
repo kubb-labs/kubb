@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/suspicious/noTemplateCurlyInString: test case */
 
 import { describe, expect, test } from 'vitest'
-import { Url } from './url.ts'
+import { Url } from './Url.ts'
 
 describe('Url.toTemplateString', () => {
   test('renders path params as template literal interpolations', () => {

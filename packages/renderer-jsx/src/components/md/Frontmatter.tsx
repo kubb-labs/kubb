@@ -1,5 +1,5 @@
 import { stringify } from 'yaml'
-import type { Key, KubbReactElement } from '../types.ts'
+import type { Key, KubbReactElement } from '../../types.ts'
 
 type Props = {
   key?: Key

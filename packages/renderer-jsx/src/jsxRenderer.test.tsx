@@ -1,10 +1,10 @@
 import type { FileNode } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
-import { Const } from './components/Const.tsx'
+import { Const } from './components/js/Const.tsx'
 import { File } from './components/File.tsx'
-import { Function } from './components/Function.tsx'
-import { Type } from './components/Type.tsx'
-import { jsxRenderer } from './createRenderer.tsx'
+import { Function } from './components/js/Function.tsx'
+import { Type } from './components/js/Type.tsx'
+import { jsxRenderer } from './jsxRenderer.tsx'
 
 describe('jsxRenderer', () => {
   it('should collect imports, exports, and typed source nodes from multiple files', async () => {

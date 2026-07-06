@@ -1,11 +1,11 @@
-import { AsyncEventEmitter } from '@internals/utils'
 import { ast, type FileNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
-import { type Diagnostic, Diagnostics } from './diagnostics.ts'
+import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, KubbHooks, Plugin } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
+import { AsyncEventEmitter } from './asyncEventEmitter.ts'
 
 describe('PluginDriver', () => {
   const pluginA = {

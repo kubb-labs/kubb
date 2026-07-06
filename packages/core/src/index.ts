@@ -1,6 +1,5 @@
-export { AsyncEventEmitter, Url } from '@internals/utils'
 export { createAdapter } from './createAdapter.ts'
-export { Diagnostics } from './diagnostics.ts'
+export { Diagnostics } from './Diagnostics.ts'
 export { createKubb } from './createKubb.ts'
 export { createReporter, logLevel } from './createReporter.ts'
 export { cliReporter } from './reporters/cliReporter.ts'
@@ -15,4 +14,8 @@ export { createResolver, Resolver } from './createResolver.ts'
 export { KubbDriver } from './KubbDriver.ts'
 export { fsStorage } from './storages/fsStorage.ts'
 export { memoryStorage } from './storages/memoryStorage.ts'
+
+export { AsyncEventEmitter } from './asyncEventEmitter.ts'
+export { Url } from './Url.ts'
+
 export * from './types.ts'

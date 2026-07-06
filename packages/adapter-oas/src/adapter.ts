@@ -4,8 +4,8 @@ import type { AdapterSource } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { assertInputExists, parseDocument, parseFromConfig, validateDocument } from './factory.ts'
 import { createSchemaParser } from './parser.ts'
-import { getSchemas } from './resolvers.ts'
-import { createInputStream, preScan, resolveBaseUrl } from './stream.ts'
+import { getSchemas, resolveBaseUrl } from './resolvers.ts'
+import { createInputStream, preScan } from './stream.ts'
 import type { AdapterOas, Document } from './types.ts'
 
 /**

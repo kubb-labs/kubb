@@ -1,12 +1,10 @@
-import process from 'node:process'
-import { AsyncEventEmitter } from '@internals/utils'
-import type { KubbHooks } from '@kubb/core'
-import { isNewerVersion, runHook } from './utils.ts'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import process from 'node:process'
+import { AsyncEventEmitter, type KubbHooks } from '@kubb/core'
 import { afterEach, describe, expect, it } from 'vitest'
-import { getConfigs } from './utils.ts'
+import { getConfigs, isNewerVersion, runHook } from './utils.ts'
 
 const node = process.execPath
 

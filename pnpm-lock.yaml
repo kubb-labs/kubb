@@ -153,6 +153,9 @@ importers:
       chokidar:
         specifier: ^5.0.0
         version: 5.0.0
+      gunshi:
+        specifier: ^0.35.1
+        version: 0.35.1
       jiti:
         specifier: ^2.7.0
         version: 2.7.0
@@ -376,9 +379,6 @@ importers:
       '@farmfe/core':
         specifier: ^1.7.11
         version: 1.7.11(@types/node@26.0.1)
-      '@internals/utils':
-        specifier: workspace:*
-        version: link:../../internals/utils
       '@kubb/ast':
         specifier: workspace:*
         version: link:../ast
@@ -2159,6 +2159,10 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  gunshi@0.35.1:
+    resolution: {integrity: sha512-Fn+IZReFITpU1lfjLdQG9WXk5+NqolwR1Q6gnSeEicstlZZfVKqnANCo4YbR4ml3/4JkyJSi3vYmxb9XdCeN3g==}
+    engines: {node: '>= 22'}
 
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
@@ -5005,6 +5009,8 @@ snapshots:
   gopd@1.2.0: {}
 
   graceful-fs@4.2.11: {}
+
+  gunshi@0.35.1: {}
 
   has-flag@4.0.0: {}
 

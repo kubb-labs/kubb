@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createText } from '../nodes/code.ts'
 import { createExport, createImport, createSource } from '../nodes/file.ts'
-import { combineExports, combineImports, combineSources } from './fileMerge.ts'
+import { combineExports, combineImports, combineSources } from './combineFileMembers.ts'
 
 describe('combineSources', () => {
   it('deduplicates sources with the same name', () => {

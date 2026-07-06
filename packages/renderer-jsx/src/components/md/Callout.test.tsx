@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { jsxRenderer } from '../createRenderer.tsx'
+import { jsxRenderer } from '../../jsxRenderer.tsx'
 import { Callout } from './Callout.tsx'
-import { File } from './File.tsx'
+import { File } from '../File.tsx'
 
 describe('Callout', () => {
   it('renders a tip callout without a title', async () => {

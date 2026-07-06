@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createProperty } from '../nodes/property.ts'
 import { createSchema, type SchemaNode } from '../nodes/schema.ts'
-import { mergeAdjacentObjectsLazy } from './schemaMerge.ts'
+import { mergeAdjacentObjectsLazy } from './mergeAdjacentSchemas.ts'
 
 function mergeAdjacentObjects(members: Array<SchemaNode>): Array<SchemaNode> {
   return [...mergeAdjacentObjectsLazy(members)]

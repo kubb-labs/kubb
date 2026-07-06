@@ -57,6 +57,7 @@
     "@clack/prompts": "^1.6.0",
     "@kubb/core": "workspace:*",
     "chokidar": "^5.0.0",
+    "gunshi": "^0.35.1",
     "jiti": "^2.7.0",
     "tinyexec": "catalog:",
     "unconfig": "^7.5.0"

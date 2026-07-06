@@ -3,7 +3,7 @@ import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import type { Adapter } from './createAdapter.ts'
 import type { Reporter, ReporterName } from './createReporter.ts'
 import type { Storage } from './createStorage.ts'
-import type { Diagnostic, ProblemDiagnostic, UpdateDiagnostic } from './diagnostics.ts'
+import type { Diagnostic, ProblemDiagnostic, UpdateDiagnostic } from './Diagnostics.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, Plugin } from './definePlugin.ts'
@@ -792,7 +792,7 @@ export type {
   ProblemDiagnostic,
   SerializedDiagnostic,
   UpdateDiagnostic,
-} from './diagnostics.ts'
+} from './Diagnostics.ts'
 export type { CreateKubbOptions, Kubb } from './createKubb.ts'
 export type { GenerationResult, Reporter, ReporterContext, ReporterName, UserReporter } from './createReporter.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'

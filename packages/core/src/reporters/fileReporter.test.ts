@@ -1,7 +1,7 @@
 import * as utils from '@internals/utils'
 import { describe, expect, it, vi } from 'vitest'
 import { logLevel } from '../createReporter.ts'
-import { Diagnostics } from '../diagnostics.ts'
+import { Diagnostics } from '../Diagnostics.ts'
 import type { Config } from '../types.ts'
 import { fileReporter } from './fileReporter.ts'
 

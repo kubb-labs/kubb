@@ -1,4 +1,4 @@
-import type { KubbReactElement } from '../types.ts'
+import type { KubbReactElement } from '../../types.ts'
 
 type Props = {
   /**

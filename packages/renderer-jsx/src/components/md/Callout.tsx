@@ -1,4 +1,4 @@
-import type { Key, KubbReactElement } from '../types.ts'
+import type { Key, KubbReactElement } from '../../types.ts'
 
 const CALLOUT_LABEL = {
   tip: 'TIP',

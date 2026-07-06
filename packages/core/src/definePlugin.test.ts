@@ -1,13 +1,13 @@
-import { AsyncEventEmitter } from '@internals/utils'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { definePlugin, normalizeOutput } from './definePlugin.ts'
-import { Diagnostics } from './diagnostics.ts'
+import { Diagnostics } from './Diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, GeneratorContext, KubbHooks, KubbPluginSetupContext, Output, Plugin, PluginFactoryOptions } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
+import { AsyncEventEmitter } from './asyncEventEmitter.ts'
 
 // ---------------------------------------------------------------------------
 // Module-level declare global augmentations used by the type tests below.

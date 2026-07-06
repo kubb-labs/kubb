@@ -101,3 +101,18 @@ export function buildList(items: Array<string>, brackets: [open: string, close: 
 
   return `${open}\n${body}\n${close}`
 }
+
+/**
+ * Emits a lazy getter for a circular-ref property position, `get name() { return body }`. The key
+ * is quoted only when it is not a valid identifier. Used by the string printers to defer evaluation
+ * of a recursive schema until first access.
+ *
+ * @example
+ * ```ts
+ * lazyGetter({ name: 'parent', body: 'z.lazy(() => Pet)' })
+ * // "get parent() { return z.lazy(() => Pet) }"
+ * ```
+ */
+export function lazyGetter({ name, body }: { name: string; body: string }): string {
+  return `get ${objectKey(name)}() { return ${body} }`
+}

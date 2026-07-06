@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildJSDoc, buildList, buildObject, objectKey } from './codegen.ts'
+import { buildJSDoc, buildList, buildObject, lazyGetter, objectKey } from './codegen.ts'
 
 describe('buildJSDoc', () => {
   it('builds a comment block from lines', () => {
@@ -78,5 +78,15 @@ describe('buildList', () => {
 
   it('uses custom brackets', () => {
     expect(buildList(['a', 'b'], ['(', ')'])).toMatchInlineSnapshot(`"(a, b)"`)
+  })
+})
+
+describe('lazyGetter', () => {
+  it('emits a getter for a valid identifier key', () => {
+    expect(lazyGetter({ name: 'parent', body: 'z.lazy(() => Pet)' })).toBe('get parent() { return z.lazy(() => Pet) }')
+  })
+
+  it('quotes a key that is not a valid identifier', () => {
+    expect(lazyGetter({ name: 'x-total', body: 'z.number()' })).toBe("get 'x-total'() { return z.number() }")
   })
 })

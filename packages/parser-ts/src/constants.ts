@@ -4,14 +4,9 @@
 export const INDENT_CHAR = ' '
 
 /**
- * Number of {@link INDENT_CHAR} repeats that make up one nesting level.
- */
-const INDENT_SIZE = 2 as const
-
-/**
  * Indentation unit prepended once per nesting level when pretty-printing.
  */
-export const INDENT = INDENT_CHAR.repeat(INDENT_SIZE)
+export const INDENT = INDENT_CHAR.repeat(2)
 
 /**
  * Matches only the final `.<ext>` of a path, so a name like `foo.bar.ts` keeps

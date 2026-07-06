@@ -1,14 +1,14 @@
-import { AsyncEventEmitter } from '@internals/utils'
 import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
-import { Diagnostics } from './diagnostics.ts'
+import { Diagnostics } from './Diagnostics.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
 import { GENERATE_FLUSH_EVERY, STREAM_FLUSH_EVERY } from './constants.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
+import { AsyncEventEmitter } from './asyncEventEmitter.ts'
 
 describe('createKubb', () => {
   const pluginMocks = {
