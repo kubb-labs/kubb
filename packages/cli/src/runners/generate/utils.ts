@@ -134,18 +134,14 @@ export function createHookId(): string {
  * `isNewerVersion('5.10.0', '5.9.0') // false`
  */
 export function isNewerVersion(current: string, latest: string): boolean {
-  const parse = (value: string) => (value.split('-')[0] ?? '').split('.').map(Number)
-  const currentParts = parse(current)
-  const latestParts = parse(latest)
+  const release = (value: string) => value.split('-')[0] ?? ''
+  const isNumeric = (value: string) => /^\d+(\.\d+)*$/.test(value)
 
-  for (let index = 0; index < Math.max(currentParts.length, latestParts.length); index++) {
-    const currentPart = currentParts[index] ?? 0
-    const latestPart = latestParts[index] ?? 0
-    if (Number.isNaN(currentPart) || Number.isNaN(latestPart)) return false
-    if (latestPart > currentPart) return true
-    if (latestPart < currentPart) return false
-  }
-  return false
+  const currentRelease = release(current)
+  const latestRelease = release(latest)
+  if (!isNumeric(currentRelease) || !isNumeric(latestRelease)) return false
+
+  return currentRelease.localeCompare(latestRelease, undefined, { numeric: true }) < 0
 }
 
 /**

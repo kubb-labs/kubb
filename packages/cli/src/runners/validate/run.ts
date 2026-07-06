@@ -36,14 +36,18 @@ export function loadValidateModule(): Promise<ValidateModule> {
 export async function run({ input, version }: ValidateOptions, dependencies: ValidateDependencies = { loadValidateModule }): Promise<void> {
   const hrStart = process.hrtime()
   const report = (status: 'success' | 'failed') => Telemetry.send(Telemetry.build({ command: 'validate', kubbVersion: version, hrStart, status }))
+
   try {
     const { adapterOas } = await dependencies.loadValidateModule()
+
     const adapter = adapterOas()
     if (!adapter.validate) {
       throw new Error('The loaded adapter does not support validation.')
     }
+
     await adapter.validate(input, { throwOnError: true })
     await report('success')
+
     console.log('✅ Validation success')
   } catch (error) {
     await report('failed')
@@ -58,6 +62,7 @@ export async function run({ input, version }: ValidateOptions, dependencies: Val
     }
     console.error('❌ Validation failed')
     console.error(getErrorMessage(error))
+
     process.exit(1)
   }
 }
