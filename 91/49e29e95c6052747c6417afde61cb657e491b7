@@ -1,0 +1,33 @@
+packages/core/src/FileProcessor.ts
+  s_648a586824545d::t_26492d5ca9c180 72-74,76-79,90-91
+  s_648a586824545d::t_4c9e074ffe9664 134-135,139,142-146,151-158,162-163,166,168-171
+packages/core/src/createKubb.test.ts
+  s_648a586824545d::t_7b1bb5f223e19e 8
+  s_648a586824545d::t_8dde0b0f380705 383
+  s_648a586824545d::t_0fb50bf632fb2e 355-356
+  s_648a586824545d::t_962d47dd256452 425
+packages/core/src/FileProcessor.test.ts
+  s_648a586824545d::t_bd2a0c1c7a8486 147-148,154,157-158,163,169,173,197-207
+  s_648a586824545d::t_c59be7d05f37d4 208
+packages/core/src/KubbDriver.ts
+  s_648a586824545d::t_ab5f66e32e5ff6 431-433
+  s_648a586824545d::t_ec50d8380bb8b4 637-645
+  s_648a586824545d::t_84d32373323239 4
+  s_648a586824545d::t_48d2d7f0834cba 480
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "9149e29e95c6052747c6417afde61cb657e491b7",
+  "prompts": {},
+  "sessions": {
+    "s_648a586824545d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "fcfdcfb3-3ac1-4294-b3ed-745a33419726",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
