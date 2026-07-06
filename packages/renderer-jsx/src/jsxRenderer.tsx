@@ -1,5 +1,5 @@
 import type { FileNode } from '@kubb/ast'
-import { SyncRuntime } from './SyncRuntime.tsx'
+import { Runtime } from './Runtime.tsx'
 import type { KubbReactElement } from './types.ts'
 
 /**
@@ -39,7 +39,7 @@ import type { KubbReactElement } from './types.ts'
  * ```
  */
 export const jsxRenderer = () => {
-  const runtime = new SyncRuntime()
+  const runtime = new Runtime()
 
   return {
     async render(element: KubbReactElement): Promise<void> {

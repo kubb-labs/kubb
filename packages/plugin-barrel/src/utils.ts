@@ -1,11 +1,102 @@
 import { extname, resolve } from 'node:path'
 import { ast, type ExportNode, type FileNode, type SourceNode } from '@kubb/ast'
 import type { Config, NormalizedPlugin } from '@kubb/core'
-import { type BuildTree, buildTree, toPosixPath } from '@internals/utils'
+import { toPosixPath } from '@internals/utils'
 import type { BarrelType } from './types.ts'
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx'])
 const BARREL_SUFFIX = `/index.ts`
+
+/**
+ * A node in the directory tree used to compute barrel file exports.
+ * Either represents a directory (with `children`) or a file (`isFile: true`, empty `children`).
+ */
+type BuildTree = {
+  /**
+   * Absolute filesystem path of this directory or file. Always normalized to POSIX (`/`) separators.
+   */
+  path: string
+  /**
+   * Sub-directories and files contained within this directory.
+   * Always empty for file nodes.
+   */
+  children: Array<BuildTree>
+  /**
+   * `true` when this node represents a file (leaf), `false` for directory nodes.
+   */
+  isFile: boolean
+}
+
+/**
+ * Builds a directory tree rooted at `rootPath` from a list of absolute file paths.
+ * Paths outside `rootPath` are silently ignored. Children are sorted alphabetically
+ * by path so consumers (barrel exports, propagated indexes) emit a deterministic order.
+ *
+ * Both POSIX (`/`) and Windows (`\`) separators are accepted in input paths; emitted node
+ * paths are always POSIX-normalized so downstream prefix/lookup operations behave the same
+ * across platforms.
+ *
+ * @example
+ * ```ts
+ * buildTree('/src/gen/types', [
+ *   '/src/gen/types/pet.ts',
+ *   '/src/gen/types/pets/listPets.ts',
+ * ])
+ * ```
+ */
+export function buildTree(rootPath: string, filePaths: ReadonlyArray<string>): BuildTree {
+  const normalizedRoot = toPosixPath(rootPath)
+  const root: BuildTree = { path: normalizedRoot, children: [], isFile: false }
+  // Per-directory child lookup avoids the O(N) `Array.find` scan during insertion.
+  // WeakMap keyed by object identity so directory nodes are GC-eligible once the tree is discarded.
+  const childIndex = new WeakMap<BuildTree, Map<string, BuildTree>>()
+  childIndex.set(root, new Map())
+
+  const rootPrefix = `${normalizedRoot}/`
+
+  for (const filePath of filePaths) {
+    const normalized = toPosixPath(filePath)
+    if (!normalized.startsWith(rootPrefix)) continue
+
+    const parts = normalized.slice(rootPrefix.length).split('/')
+    if (parts.length === 0) continue
+
+    let current = root
+    const lastIndex = parts.length - 1
+    for (const [i, part] of parts.entries()) {
+      if (!part) continue
+
+      const isLast = i === lastIndex
+      const siblings = childIndex.get(current)!
+      let child = siblings.get(part)
+      if (!child) {
+        child = { path: `${current.path}/${part}`, children: [], isFile: isLast }
+        current.children.push(child)
+        siblings.set(part, child)
+        if (!isLast) childIndex.set(child, new Map())
+      }
+      current = child
+    }
+  }
+
+  sortTree(root)
+
+  return root
+}
+
+function sortTree(node: BuildTree): void {
+  if (node.children.length === 0) return
+  node.children.sort(compareByPath)
+
+  for (const child of node.children) {
+    if (!child.isFile) sortTree(child)
+  }
+}
+
+function compareByPath(a: BuildTree, b: BuildTree): number {
+  return a.path < b.path ? -1 : a.path > b.path ? 1 : 0
+}
+
 
 function toRelativeModulePath(fromDir: string, filePath: string): string {
   return `./${filePath.slice(fromDir.length + 1)}`

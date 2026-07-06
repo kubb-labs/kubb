@@ -3,6 +3,7 @@ import { KUBB_ARROW_FUNCTION, KUBB_CONST, KUBB_EXPORT, KUBB_FILE, KUBB_FUNCTION,
 import { Fragment } from './jsx-runtime.ts'
 import type { KubbReactElement } from './types.ts'
 
+
 type OnText = (text: string) => void
 type OnHost = (type: string, props: Record<string, unknown>) => void
 
@@ -260,7 +261,7 @@ function* walkFiles(element: unknown): Generator<FileNode> {
  * All components must be pure functions. Hooks and class components are not
  * supported.
  */
-export class SyncRuntime {
+export class Runtime {
   /**
    * Accumulated {@link FileNode} results from every {@link render} call.
    */
