@@ -1,0 +1,31 @@
+packages/cli/src/runners/generate/utils.ts
+  s_69e11355eb9e51::t_b5177bf516ee21 137-144
+packages/kit/src/index.ts
+  s_2cdd63e8e0cc24::t_5f10dcf20450fc 8
+packages/cli/src/runners/validate/run.ts
+  s_2cdd63e8e0cc24::t_e2d95d23933eb2 39,42,47,50,65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "f550655d46efe306dd1cd22e09758dff8c98c35a",
+  "prompts": {},
+  "sessions": {
+    "s_2cdd63e8e0cc24": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7561e413-f3f2-4792-8d1b-58905335edaf",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    },
+    "s_69e11355eb9e51": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ab9f4d19-f772-4c41-8b3c-edbcf00c3fb9",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
