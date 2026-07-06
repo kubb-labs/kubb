@@ -25,7 +25,7 @@ export type OutputMode = 'directory' | 'file'
  * Output configuration shared by every plugin. Each plugin extends this with
  * its own keys via the `Kubb.PluginOptionsRegistry.output` interface merge.
  */
-export type Output<_TOptions = unknown> = {
+export type Output = {
   /**
    * Directory where the plugin writes its generated code, resolved against the global
    * `output.path` set on `defineConfig`. With `mode: 'file'`, this is the full output file
