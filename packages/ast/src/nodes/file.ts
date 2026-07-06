@@ -359,32 +359,33 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
 
   const resolvedExports = input.exports?.length ? combineExports(input.exports) : []
 
-  // Import resolution is the only consumer of the source text and the local-name set, so build
-  // neither when the file declares no imports. When it does, extract the source from the flattened
-  // code nodes in one pass instead of wrapping each node in a throwaway array. The join separator
-  // is irrelevant here: `source` only feeds combineImports' `String.includes` usage check.
-  let resolvedImports: Array<ImportNode> = []
-  if (input.imports?.length) {
-    const sources = input.sources ?? []
-    const source = extractStringsFromNodes(sources.flatMap((item) => item.nodes ?? [])) || undefined
+  // Skip building the source text and local-name set when there are no imports to resolve against them.
+  const resolvedImports: Array<ImportNode> = (() => {
+    if (!input.imports?.length) return []
+
+    const sourceParts: Array<string> = []
+    const localNames = new Set<string>()
+    for (const item of input.sources ?? []) {
+      const extracted = item.nodes && extractStringsFromNodes(item.nodes)
+      if (extracted) sourceParts.push(extracted)
+      if (item.name) localNames.add(item.name)
+    }
+    const source = sourceParts.join('\n') || undefined
     const combinedImports = combineImports(input.imports, resolvedExports, source)
-    const localNames = new Set(sources.map((item) => item.name).filter((name): name is string => Boolean(name)))
     const nameOf = (item: string | { propertyName: string; name?: string }): string => (typeof item === 'string' ? item : (item.name ?? item.propertyName))
-    // Drop self-imports. Consolidating output (`mode: 'file'`) can place a symbol's
-    // definition and a cross-file import of it in the same file. The path check catches imports
-    // that resolve to this file's own path. The name check drops imports of names the file already
-    // defines, the case consolidation produces when the import path no longer matches `input.path`.
-    // Sources stay intact, so the local definition remains. Bare specifiers like `'zod'` never match a path.
-    resolvedImports = combinedImports.flatMap((imp) => {
+    // Consolidating output (`mode: 'file'`) can put a symbol's definition and an import of it in the
+    // same file: by path when the import still targets this file, by name when consolidation moved it.
+    return combinedImports.flatMap((imp) => {
       if (imp.path === input.path) return []
       if (!Array.isArray(imp.name)) {
         return typeof imp.name === 'string' && localNames.has(imp.name) ? [] : [imp]
       }
       const kept = imp.name.filter((item) => !localNames.has(nameOf(item)))
+
       if (!kept.length) return []
       return [kept.length === imp.name.length ? imp : { ...imp, name: kept }]
     })
-  }
+  })()
   const resolvedSources = input.sources?.length ? combineSources(input.sources) : []
 
   return {
