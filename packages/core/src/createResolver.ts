@@ -394,7 +394,9 @@ export function defaultResolvePath({ baseName, tag, path: groupPath }: ResolverP
 
   const outputDir = path.resolve(root, output.path)
   const result =
-    group && (groupPath || tag) ? path.resolve(outputDir, resolveGroupDir(group, group.type === 'path' ? groupPath! : tag!), baseName) : path.resolve(outputDir, baseName)
+    group && (groupPath || tag)
+      ? path.resolve(outputDir, resolveGroupDir(group, group.type === 'path' ? groupPath! : tag!), baseName)
+      : path.resolve(outputDir, baseName)
 
   // Ensure the resolved path stays within the configured output directory.
   // This prevents path traversal from malicious OpenAPI specs or custom group.name functions.

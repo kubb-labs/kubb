@@ -54,9 +54,7 @@ const ENFORCE_ORDER = { pre: -1, post: 1 } satisfies Record<Enforce, number>
  * config are ignored here and surface later through `requirePlugin`.
  */
 function sortPlugins(plugins: Array<NormalizedPlugin>): Array<NormalizedPlugin> {
-  const queue = [...plugins].sort(
-    (a, b) => (a.enforce ? ENFORCE_ORDER[a.enforce] : 0) - (b.enforce ? ENFORCE_ORDER[b.enforce] : 0),
-  )
+  const queue = [...plugins].sort((a, b) => (a.enforce ? ENFORCE_ORDER[a.enforce] : 0) - (b.enforce ? ENFORCE_ORDER[b.enforce] : 0))
   const names = new Set(queue.map((plugin) => plugin.name))
   const blockedBy = new Map(queue.map((plugin) => [plugin.name, new Set(plugin.dependencies?.filter((name) => names.has(name) && name !== plugin.name))]))
 
