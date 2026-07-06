@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { jsxRenderer } from '../createRenderer.tsx'
-import { File } from './File.tsx'
+import { jsxRenderer } from '../../createRenderer.tsx'
+import { File } from '../File.tsx'
 import { Heading } from './Heading.tsx'
 
 describe('Heading', () => {

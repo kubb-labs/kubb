@@ -1,4 +1,4 @@
-import type { JSDoc, Key, KubbReactElement, KubbReactNode } from '../types.ts'
+import type { JSDoc, Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
 type TypeProps = {
   key?: Key

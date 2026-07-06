@@ -47,6 +47,7 @@ function walkElement(element: unknown, onText: OnText, onHost: OnHost): void {
 function collectCodeNodes(props: Record<string, unknown>): Array<CodeNode> {
   const nodes: Array<CodeNode> = []
   collectCode(props['children'], nodes)
+
   return nodes
 }
 
@@ -211,6 +212,7 @@ function* walkFiles(element: unknown): Generator<FileNode> {
 
   if (Array.isArray(element)) {
     for (const child of element) yield* walkFiles(child)
+
     return
   }
 
