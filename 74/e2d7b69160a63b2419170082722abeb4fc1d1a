@@ -1,0 +1,52 @@
+packages/ast/src/nodes/file.ts
+  s_945bada44cd377::t_012e620a2b1c83 355
+  s_945bada44cd377::t_6974eec364078d 368-369,371,374-386
+packages/cli/src/loggers/reporters.test.ts
+  s_945bada44cd377::t_f20d8a0a0c7235 1
+packages/cli/src/runners/generate/run.ts
+  s_945bada44cd377::t_69b34aba82a110 25
+packages/cli/src/runners/init/run.ts
+  s_945bada44cd377::t_9333218e23189c 8
+packages/cli/src/runners/init/utils.test.ts
+  s_945bada44cd377::t_dfc50c8b14300f 5
+packages/cli/src/runners/init/utils.ts
+  s_945bada44cd377::t_10ac3952bf16b7 5
+packages/core/src/Diagnostics.ts
+  s_945bada44cd377::t_4fb515e51a5dbe 7
+packages/core/src/FileManager.ts
+  s_945bada44cd377::t_df690e1817abc1 2
+packages/core/src/FileProcessor.ts
+  s_945bada44cd377::t_a99e4f1a1c1627 6
+packages/core/src/KubbDriver.test.ts
+  s_945bada44cd377::t_e1f4fc27d64710 8
+packages/core/src/KubbDriver.ts
+  s_945bada44cd377::t_36874a377b5b95 29
+packages/core/src/createKubb.test.ts
+  s_945bada44cd377::t_3318493b3424a3 11
+packages/core/src/createReporter.ts
+  s_945bada44cd377::t_65c51177d4fb29 127
+packages/core/src/defineGenerator.ts
+  s_945bada44cd377::t_db3fda998bb4ca 10
+packages/core/src/definePlugin.test.ts
+  s_945bada44cd377::t_0017410d5175f0 10
+packages/plugin-barrel/src/utils.test.ts
+  s_945bada44cd377::t_17103e76c0d74c 5
+packages/renderer-jsx/src/jsx-namespace.d.ts
+  s_945bada44cd377::t_503f14bf63987d 1,63,66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "74e2d7b69160a63b2419170082722abeb4fc1d1a",
+  "prompts": {},
+  "sessions": {
+    "s_945bada44cd377": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2a875a99-003c-48b2-b142-f1bccb2d7695",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
