@@ -1,8 +1,5 @@
 import type { Node } from './nodes/index.ts'
 
-// Node constructors, grouped under the `factory` namespace the way the TypeScript compiler exposes
-// `ts.factory.createX`. Aggregating them here lets `export * as factory from './factory.ts'` in the
-// barrel surface every `createX` alongside the `createFile`/`update` helpers from a single module.
 export { createArrowFunction, createBreak, createConst, createFunction, createJsx, createText, createType } from './nodes/code.ts'
 export { createContent } from './nodes/content.ts'
 export { createExport, createFile, createImport, createSource } from './nodes/file.ts'

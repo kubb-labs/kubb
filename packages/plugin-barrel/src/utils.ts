@@ -97,7 +97,6 @@ function compareByPath(a: BuildTree, b: BuildTree): number {
   return a.path < b.path ? -1 : a.path > b.path ? 1 : 0
 }
 
-
 function toRelativeModulePath(fromDir: string, filePath: string): string {
   return `./${filePath.slice(fromDir.length + 1)}`
 }

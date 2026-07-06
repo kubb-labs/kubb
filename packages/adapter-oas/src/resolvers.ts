@@ -8,7 +8,6 @@ import { getRequestContent, getResponseByStatusCode } from './operation.ts'
 import { dereferenceWithRef, resolveRef } from './refs.ts'
 import type { ContentType, Document, MediaTypeObject, Operation, ParameterObject, ResponseObject, SchemaObject, ServerObject, ServerOptions } from './types.ts'
 
-
 /**
  * Reads the server URL from the document's `servers` array at `server.index`,
  * interpolating any `server.variables` into the URL template.

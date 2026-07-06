@@ -1,6 +1,4 @@
 export { camelCase, pascalCase } from './casing.ts'
-export { defineCommand } from './cli/defineCommand.ts'
-export { runCLI } from './cli/runCLI.ts'
 export { formatMsWithColor, getIntro, randomCliColor } from './colors.ts'
 export { canUseTTY, isCIEnvironment } from './env.ts'
 export { BuildError, getErrorMessage, toCause, toError } from './errors.ts'

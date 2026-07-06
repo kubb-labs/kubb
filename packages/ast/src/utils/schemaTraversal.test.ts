@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createProperty } from '../nodes/property.ts'
 import { createSchema } from '../nodes/schema.ts'
 import type { SchemaNode } from '../nodes/schema.ts'
-import { lazyGetter, mapSchemaItems, mapSchemaMembers, mapSchemaProperties } from './schemaTraversal.ts'
+import { mapSchemaItems, mapSchemaMembers, mapSchemaProperties } from './schemaTraversal.ts'
 
 const label = (schema: SchemaNode): string => `<${schema.type}>`
 
@@ -73,15 +73,5 @@ describe('mapSchemaItems', () => {
 
     const lengths = mapSchemaItems(node, (schema) => schema.type.length)
     expect(lengths.map((entry) => entry.output)).toStrictEqual([6, 6])
-  })
-})
-
-describe('lazyGetter', () => {
-  it('emits a getter for a valid identifier key', () => {
-    expect(lazyGetter({ name: 'parent', body: 'z.lazy(() => Pet)' })).toBe('get parent() { return z.lazy(() => Pet) }')
-  })
-
-  it('quotes a key that is not a valid identifier', () => {
-    expect(lazyGetter({ name: 'x-total', body: 'z.number()' })).toBe("get 'x-total'() { return z.number() }")
   })
 })

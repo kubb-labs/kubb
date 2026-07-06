@@ -1,8 +1,18 @@
 import { styleText } from 'node:util'
-import { runCLI } from '@internals/utils'
+import { cli } from 'gunshi'
 import { Telemetry } from './Telemetry.ts'
 import { version } from '../package.json'
 import { QUIET_FLAGS } from './constants.ts'
+
+/**
+ * Strips the leading executable + script entries when `process.argv` is passed directly.
+ * Handles Node.js (`/usr/bin/node`), Bun (`/usr/local/bin/bun`), Deno, tsx, etc. All runtime
+ * executable paths contain a path separator; bare command names do not.
+ */
+function stripExecArgs(argv: Array<string>): Array<string> {
+  const firstArgIsExecutablePath = (argv[0]?.includes('/') || argv[0]?.includes('\\')) ?? false
+  return argv.length >= 2 && firstArgIsExecutablePath ? argv.slice(2) : argv
+}
 
 /**
  * Entry point for the `kubb` CLI. Prints the telemetry notice unless telemetry is disabled or a
@@ -23,9 +33,19 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
   const { command: mcpCommand } = await import('./commands/mcp.ts')
   const { command: initCommand } = await import('./commands/init.ts')
 
-  await runCLI([generateCommand, validateCommand, mcpCommand, initCommand], argv, {
-    programName: 'kubb',
-    defaultCommandName: 'generate',
-    version,
-  })
+  try {
+    await cli(stripExecArgs(argv), generateCommand, {
+      name: 'kubb',
+      version,
+      description: generateCommand.description,
+      subCommands: {
+        init: initCommand,
+        validate: validateCommand,
+        mcp: mcpCommand,
+      },
+      fallbackToEntry: true,
+    })
+  } catch {
+    process.exit(1)
+  }
 }

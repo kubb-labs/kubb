@@ -19,7 +19,6 @@ export type KubbReactElement = {
  */
 export type KubbReactNode = KubbReactElement | string | number | bigint | boolean | null | undefined | Iterable<KubbReactNode>
 
-
 /**
  * JSDoc comment block to attach to a generated declaration.
  * Each string in `comments` becomes one line inside the `/** … *\/` block.
