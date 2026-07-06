@@ -1,7 +1,7 @@
-import { defineCommand } from '@internals/utils'
+import { define } from 'gunshi'
 import { version } from '../../package.json'
 
-export const command = defineCommand({
+export const command = define({
   name: 'init',
   description:
     'Scaffold a kubb.config.ts and install plugins for code generation from an OpenAPI spec. Run without flags for interactive setup, or pass --input, --output, and --plugins to skip the prompts.',
@@ -10,8 +10,8 @@ export const command = defineCommand({
     'kubb init --yes',
     'kubb init --input ./openapi.yaml --output ./src/gen --plugins plugin-ts,plugin-zod',
     'kubb init --plugins plugin-ts,plugin-axios,plugin-react-query',
-  ],
-  options: {
+  ].join('\n'),
+  args: {
     yes: {
       type: 'boolean',
       description: 'Skip prompts and use default options',
@@ -22,19 +22,19 @@ export const command = defineCommand({
       type: 'string',
       description: 'Path to the OpenAPI specification',
       short: 'i',
-      hint: 'path',
+      metavar: 'path',
     },
     output: {
       type: 'string',
       description: 'Output directory for generated files',
       short: 'o',
-      hint: 'path',
+      metavar: 'path',
     },
     plugins: {
       type: 'string',
       description:
         'Comma-separated list of plugins to use (plugin-ts, plugin-axios, plugin-fetch, plugin-react-query, plugin-vue-query, plugin-zod, plugin-faker, plugin-msw, plugin-cypress, plugin-mcp, plugin-redoc)',
-      hint: 'plugin-ts,plugin-zod,...',
+      metavar: 'plugin-ts,plugin-zod,...',
     },
   },
   async run({ values }) {

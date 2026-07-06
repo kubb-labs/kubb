@@ -1,5 +1,4 @@
 import type { ArraySchemaNode, IntersectionSchemaNode, ObjectSchemaNode, PropertyNode, SchemaNode, UnionSchemaNode } from '../nodes/index.ts'
-import { objectKey } from './codegen.ts'
 
 /**
  * Converts a child schema to printer output. Plugins instantiate it with their own output type:
@@ -68,19 +67,4 @@ export function mapSchemaMembers<TOutput>(node: UnionSchemaNode | IntersectionSc
  */
 export function mapSchemaItems<TOutput>(node: ArraySchemaNode, transform: SchemaTransform<TOutput>): Array<MappedSchema<TOutput>> {
   return (node.items ?? []).map((schema) => ({ schema, output: transform(schema) }))
-}
-
-/**
- * Emits a lazy getter for a circular-ref property position, `get name() { return body }`. The key
- * is quoted only when it is not a valid identifier. Used by the string printers to defer evaluation
- * of a recursive schema until first access.
- *
- * @example
- * ```ts
- * lazyGetter({ name: 'parent', body: 'z.lazy(() => Pet)' })
- * // "get parent() { return z.lazy(() => Pet) }"
- * ```
- */
-export function lazyGetter({ name, body }: { name: string; body: string }): string {
-  return `get ${objectKey(name)}() { return ${body} }`
 }
