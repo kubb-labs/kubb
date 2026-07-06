@@ -6,7 +6,27 @@ import { isReference } from './guards.ts'
 import { isJsonMimeType } from './mime.ts'
 import { getRequestContent, getResponseByStatusCode } from './operation.ts'
 import { dereferenceWithRef, resolveRef } from './refs.ts'
-import type { ContentType, Document, MediaTypeObject, Operation, ParameterObject, ResponseObject, SchemaObject, ServerObject } from './types.ts'
+import type { ContentType, Document, MediaTypeObject, Operation, ParameterObject, ResponseObject, SchemaObject, ServerObject, ServerOptions } from './types.ts'
+
+
+/**
+ * Reads the server URL from the document's `servers` array at `server.index`,
+ * interpolating any `server.variables` into the URL template.
+ *
+ * Returns `null` when `server.index` is omitted or out of range.
+ *
+ * @example Resolve the first server
+ * `resolveBaseUrl({ document, server: { index: 0 } })`
+ *
+ * @example Override a path variable
+ * `resolveBaseUrl({ document, server: { index: 0, variables: { version: 'v2' } } })`
+ */
+export function resolveBaseUrl({ document, server }: { document: Document; server?: ServerOptions }): string | null {
+  const index = server?.index
+  const entry = index !== undefined ? document.servers?.at(index) : undefined
+
+  return entry?.url ? resolveServerUrl(entry, server?.variables) : null
+}
 
 /**
  * Replaces `{variable}` placeholders in an OpenAPI server URL with provided values.
