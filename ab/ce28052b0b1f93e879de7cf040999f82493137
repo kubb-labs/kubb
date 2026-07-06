@@ -1,0 +1,26 @@
+internals/utils/src/index.ts
+  s_776c47cee51657::t_17a5fe9871136f 12
+packages/kit/src/index.ts
+  s_776c47cee51657::t_94919ee1ebe9ec 2
+internals/utils/src/Url.ts
+  s_776c47cee51657::t_021b3fd7db8e79 3-141
+  s_776c47cee51657::t_ccb7bd38fcab98 1-2
+internals/utils/src/Url.test.ts
+  s_776c47cee51657::t_021b3fd7db8e79 1-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "abce28052b0b1f93e879de7cf040999f82493137",
+  "prompts": {},
+  "sessions": {
+    "s_776c47cee51657": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "916df567-c769-45e1-bf5e-f152ae6b64a1",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
