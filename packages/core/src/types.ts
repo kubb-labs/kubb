@@ -767,14 +767,11 @@ export type BuildOutput = {
    */
   driver: KubbDriver
   /**
-   * Read-only view of every file written during this build.
-   * Reads go straight to `config.storage`, nothing extra is held in memory.
+   * The configured `Storage` backend, for reading back a generated file's final content.
+   * Use `files` to list what this build produced.
    *
    * @example Read a generated file
    * `const code = await buildOutput.storage.getItem('/src/gen/pet.ts')`
-   *
-   * @example List all generated file paths
-   * `const paths = await buildOutput.storage.getKeys()`
    */
   storage: Storage
 }

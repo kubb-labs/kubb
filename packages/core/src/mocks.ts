@@ -39,11 +39,6 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
       if (!renderer) return
 
       using instance = renderer()
-      if (instance.stream) {
-        for (const file of instance.stream(result)) fileManager.upsert(file)
-        return
-      }
-
       await instance.render(result)
       fileManager.upsert(...instance.files)
     },

@@ -214,23 +214,7 @@ describe('KubbDriver#dispatch', () => {
     expect(upsert).not.toHaveBeenCalled()
   })
 
-  it('routes element results through the renderer stream when present', () => {
-    const driver = makeDriver()
-    const rendered = [file('rendered-1'), file('rendered-2')]
-    const renderer = vi.fn(() => ({
-      stream: vi.fn(function* () {
-        yield* rendered
-      }),
-      [Symbol.dispose]: () => {},
-    }))
-
-    driver.dispatch({ result: { kind: 'element' }, renderer: renderer as never })
-
-    expect(renderer).toHaveBeenCalledOnce()
-    expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['rendered-1', 'rendered-2'])
-  })
-
-  it('routes element results through the async render path when no stream is exposed', async () => {
+  it('routes element results through the renderer, upserting its files', async () => {
     const driver = makeDriver()
     const renderer = {
       render: vi.fn(async () => {}),
@@ -239,8 +223,7 @@ describe('KubbDriver#dispatch', () => {
     }
     const factory = vi.fn(() => renderer)
 
-    const result = driver.dispatch({ result: { kind: 'element' }, renderer: factory as never })
-    await result
+    await driver.dispatch({ result: { kind: 'element' }, renderer: factory as never })
 
     expect(renderer.render).toHaveBeenCalledOnce()
     expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['async-1'])

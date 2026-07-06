@@ -1,4 +1,3 @@
-import type { FileNode } from '@kubb/ast'
 import { Runtime } from './Runtime.tsx'
 import type { KubbReactElement } from './types.ts'
 
@@ -9,8 +8,7 @@ import type { KubbReactElement } from './types.ts'
  * generic, with no hard dependency on `@kubb/renderer-jsx`.
  *
  * Every component must be a pure function. Hooks, suspense, and class
- * components are not supported. The returned renderer also exposes `stream()`
- * for incremental file emission.
+ * components are not supported.
  *
  * @example Wire up a JSX generator
  * ```tsx
@@ -29,14 +27,6 @@ import type { KubbReactElement } from './types.ts'
  *   },
  * })
  * ```
- *
- * @example Stream files as they are produced
- * ```tsx
- * const renderer = jsxRenderer()
- * for (const file of renderer.stream(element)) {
- *   await writeFile(file.path, file.sources[0])
- * }
- * ```
  */
 export const jsxRenderer = () => {
   const runtime = new Runtime()
@@ -47,9 +37,6 @@ export const jsxRenderer = () => {
     },
     get files() {
       return runtime.nodes
-    },
-    stream(element: KubbReactElement): Generator<FileNode> {
-      return runtime.stream(element)
     },
     [Symbol.dispose]() {},
   }

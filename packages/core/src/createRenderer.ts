@@ -16,14 +16,8 @@ export type Renderer<TElement = unknown> = {
   render(element: TElement): Promise<void>
   /**
    * Accumulated {@link FileNode} results produced by the last {@link render} call.
-   * Not populated when {@link stream} is implemented.
    */
   readonly files: Array<FileNode>
-  /**
-   * When present, core calls this instead of {@link render} and {@link files},
-   * forwarding each file to `FileManager` as soon as it is ready.
-   */
-  stream?(element: TElement): Iterable<FileNode>
   /**
    * Disposer hook so renderers participate in `using` blocks: `using r = rendererFactory()`
    * runs cleanup on every exit path, including thrown errors.

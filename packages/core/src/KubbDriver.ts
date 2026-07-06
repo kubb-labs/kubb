@@ -648,13 +648,6 @@ export class KubbDriver {
     }
 
     using instance = renderer()
-    if (instance.stream) {
-      for (const file of instance.stream(result)) {
-        this.fileManager.upsert(file)
-      }
-      return
-    }
-
     await instance.render(result)
     this.fileManager.upsert(...instance.files)
   }
