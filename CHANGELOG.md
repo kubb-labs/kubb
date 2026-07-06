@@ -1,5 +1,41 @@
 # Changelog
 
+## v5.0.0-beta.85 — Jul 6, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Fix the update check, watch mode, and hook handling in `kubb generate`.
+  
+  The npm update check compared versions as strings, so `5.9.0 < 5.10.0` evaluated as `false` and update notices were skipped (or shown wrongly) around double-digit parts. It now compares numeric semver parts and aborts after 3 seconds so a slow registry never stalls a run.
+  
+  Watch mode no longer rebuilds once per chokidar startup event: the first build runs explicitly, event bursts from a single save are debounced into one rebuild, and builds never overlap (a change during a build queues exactly one rerun). A failing first build keeps watching instead of exiting.
+  
+  The formatter, linter, and `done` hooks now get their outcome directly from `runHook`, which returns `{ success, error, stdout, stderr }` while still emitting `kubb:hook:end` for the loggers. This removes the listener round-trip that could hang generation forever when a hook process never reported back. A stray spread that copied `output.*` keys onto the root of the resolved config is also removed. ([#3710](https://github.com/kubb-labs/kubb/pull/3710), [`995802a`](https://github.com/kubb-labs/kubb/commit/995802a89139c5b6383d6ef919d6f591ed1d17b7))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Order plugins with a topological sort instead of a pairwise comparator.
+  
+  The previous `Array.sort` comparator checked dependencies pairwise, which is not transitive: in a chain where A depends on B and B depends on C, A and C may never be compared directly, so the order could come out wrong depending on declaration order. Plugins are now sorted with Kahn's algorithm, with `enforce` (`pre` before normal before `post`) and declaration order as tiebreaks, and a dependency cycle now fails setup with a `KUBB_INVALID_PLUGIN_OPTIONS` diagnostic naming the plugins in the cycle. ([#3710](https://github.com/kubb-labs/kubb/pull/3710), [`61ab61f`](https://github.com/kubb-labs/kubb/commit/61ab61f274bd503e2657c20880228ded8f96cba1))
+
+### kubb
+
+#### Features
+
+- `kubb` gains bundler integration subpaths backed by `unplugin-kubb`, so most consumers never need to install `unplugin-kubb` directly: `kubb/vite`, `kubb/webpack`, `kubb/rollup`, `kubb/rolldown`, `kubb/esbuild`, `kubb/farm`, `kubb/rspack`, `kubb/astro`, and `kubb/nuxt`. Each re-exports the matching `unplugin-kubb/*` entry point.
+  
+  `unplugin-kubb` stays published and importable directly. This is additive: existing `unplugin-kubb/*` imports keep working. ([#3711](https://github.com/kubb-labs/kubb/pull/3711), [`9df7876`](https://github.com/kubb-labs/kubb/commit/9df7876cfe692573e71399b194cb292aa46bf7b2))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.84 — Jul 3, 2026
 
 ### @kubb/core
