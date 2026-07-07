@@ -1,0 +1,43 @@
+packages/core/src/definePlugin.test.ts
+  s_be7f57b4e03274::t_32770e12456273 163,168,194,221,452,468,470
+packages/core/src/KubbDriver.ts
+  s_be7f57b4e03274::t_e40190f1aef49e 36
+  s_be7f57b4e03274::t_d2cfcc756df0cb 424-426,429
+  s_be7f57b4e03274::t_e0e095f5191de7 508,524,538-548,552,554,556,559,562-575,577-581,584-588,593,595-596,603
+  s_be7f57b4e03274::t_b44a3fd130c1f1 296,299,310,313-315,317
+  s_be7f57b4e03274::t_8e3513275b8a0a 651-652,655
+  s_be7f57b4e03274::t_2c3b8bfdedbb2f 55-60,65-68,71-74,78,83
+  s_be7f57b4e03274::t_b71d6a64a1eaca 340
+  s_be7f57b4e03274::t_1258985fe8f8d9 365,374,383
+  s_be7f57b4e03274::t_76e3fc9b68fb3e 468
+  s_be7f57b4e03274::t_0673eede6f8dd0 46-51
+  s_be7f57b4e03274::t_ba05678d13eabc 142-144
+  s_be7f57b4e03274::t_995171797b5a6c 246
+  s_be7f57b4e03274::t_c96fa5a71d7fa4 378
+  s_be7f57b4e03274::t_b969aaf5c1128b 495,500-501,503
+  s_be7f57b4e03274::t_cd2f84625941e5 471,473
+  s_be7f57b4e03274::t_4c5bfc68819229 403
+  s_be7f57b4e03274::t_c62525747d6121 423,427-428,430-467,469-470,475-477
+  s_be7f57b4e03274::t_06af36f018d18c 324,327-328
+  s_be7f57b4e03274::t_63333974405679 200
+  s_be7f57b4e03274::t_adb2f86e8225d1 341
+  s_be7f57b4e03274::t_9cbb6c09b1a820 250-252,255
+  s_be7f57b4e03274::t_7ac3a600648b5f 113-114,116
+  s_be7f57b4e03274::t_02c569b2eb645d 295,297-298,300-301
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "f5734ce03160aefa2d7f257f77f23123f2a766f8",
+  "prompts": {},
+  "sessions": {
+    "s_be7f57b4e03274": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a664054e-6f27-4e74-b5c3-e53712fd1a8f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
