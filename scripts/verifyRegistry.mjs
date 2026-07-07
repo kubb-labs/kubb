@@ -2,8 +2,8 @@
 import { spawnSync } from 'node:child_process'
 import { appendFileSync } from 'node:fs'
 
-const RETRY_ATTEMPTS = 6
-const RETRY_DELAY_MS = 10_000
+const RETRY_ATTEMPTS = Number(process.env.VERIFY_RETRY_ATTEMPTS) || 6
+const RETRY_DELAY_MS = (Number(process.env.VERIFY_INTERVAL_SECONDS) || 10) * 1_000
 
 function isLiveOnRegistry(pkg) {
   const result = spawnSync('npm', ['view', `${pkg.name}@${pkg.version}`, '--json'], { encoding: 'utf8' })
