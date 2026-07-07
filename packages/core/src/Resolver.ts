@@ -125,8 +125,8 @@ export type ResolveFileOptions = ResolverFileParams & {
  * @example Own the full path
  * ```ts
  * file: {
- *   path({ baseName, extname, output }) {
- *     return `${output.path}/mocks/${baseName}${extname}`
+ *   path({ baseName, output }) {
+ *     return `${output.path}/mocks/${baseName}`
  *   },
  * }
  * ```
@@ -149,13 +149,12 @@ export type ResolverFile = {
 
 /**
  * The argument to a resolver's `file.path`: the resolved `baseName` (what `file.baseName` produced,
- * without the extension), the `extname`, and the active `output`. `tag`, `path`, and `group` are
+ * with the extension already appended) and the active `output`. `tag`, `path`, and `group` are
  * omitted because `file.path` owns the whole path and bypasses grouping, and `root` because the
  * returned path is resolved against it.
  */
 export type ResolverFilePathParams = {
-  baseName: string
-  extname: FileNode['extname']
+  baseName: FileNode['baseName']
   output: Output
 }
 
@@ -493,11 +492,11 @@ export class Resolver {
     resolvePath?: (params: ResolverFilePathParams) => string,
   ): FileNode {
     const { name, extname, tag, path: groupPath, root, output, group } = options
-    const baseName = resolveName(name)
+    const resolvedName = resolveName(name)
     const filePath = resolvePath
-      ? this.#resolveOverridePath(resolvePath({ baseName, extname, output }), root)
+      ? this.#resolveOverridePath(resolvePath({ baseName: `${resolvedName}${extname}` as FileNode['baseName'], output }), root)
       : this.#resolvePath({
-          baseName: `${output.mode === 'file' ? '' : baseName}${extname}` as FileNode['baseName'],
+          baseName: `${output.mode === 'file' ? '' : resolvedName}${extname}` as FileNode['baseName'],
           tag,
           path: groupPath,
           root,

@@ -49,8 +49,8 @@ type ResolverOptions<T extends PluginFactoryOptions> = Omit<T['resolver'], keyof
  * export const resolverFaker = createResolver<PluginFaker>({
  *   pluginName: 'plugin-faker',
  *   file: {
- *     path({ baseName, extname, output }) {
- *       return `${output.path}/mocks/${baseName}${extname}`
+ *     path({ baseName, output }) {
+ *       return `${output.path}/mocks/${baseName}`
  *     },
  *   },
  * })

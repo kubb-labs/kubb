@@ -143,8 +143,8 @@ describe('createResolver', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
       file: {
-        path({ baseName, extname }) {
-          return `mocks/${baseName}${extname}`
+        path({ baseName }) {
+          return `mocks/${baseName}`
         },
       },
       greet: (name: string) => name,
@@ -156,22 +156,19 @@ describe('createResolver', () => {
     expect(file.baseName).toBe('pet.ts')
   })
 
-  it('a file.path receives the merged context and reaches `this`', () => {
+  it('a file.path reaches the resolver through `this`', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
-      name(name) {
-        return name.toUpperCase()
-      },
       file: {
-        path({ baseName, extname, output }) {
-          return `${output.path}/${this.name(baseName)}${extname}`
+        path({ baseName, output }) {
+          return `${output.path}/${this.pluginName}/${baseName}`
         },
       },
       greet: (name: string) => name,
       farewell: (name: string) => name,
     })
 
-    expect(resolver.file({ name: 'pet', extname: '.ts', ...context }).path).toBe('/root/types/PET.ts')
+    expect(resolver.file({ name: 'pet', extname: '.ts', ...context }).path).toBe('/root/types/test/pet.ts')
   })
 
   it('file.path receives the base name from file.baseName', () => {
@@ -181,8 +178,8 @@ describe('createResolver', () => {
         baseName(name) {
           return `${name}.gen`
         },
-        path({ baseName, extname }) {
-          return `custom/${baseName}${extname}`
+        path({ baseName }) {
+          return `custom/${baseName}`
         },
       },
       greet: (name: string) => name,

@@ -25,7 +25,7 @@ createResolver({
 })
 ```
 
-`file.baseName` receives the identifier and returns the base name. `file.path` receives a single object (the resolved base name from `file.baseName`, the `extname`, and the active `output`) and returns the complete path, resolved against the project root (it may not escape it). Both reach sibling helpers through `this`, and are accepted the same way in a plugin `resolver` override and in `Resolver.merge`.
+`file.baseName` receives the identifier and returns the base name. `file.path` receives a single object (the resolved `baseName` including its extension, plus the active `output`) and returns the complete path, resolved against the project root (it may not escape it). Both reach sibling helpers through `this`, and are accepted the same way in a plugin `resolver` override and in `Resolver.merge`.
 
 This replaces the previous approach of overriding `file(params, context)` and threading a `resolveName` function through `this.default.file`. The `file` function form and the `resolveName` field on `ResolverFileParams` are removed. Migrate by moving the caser into `file.baseName`:
 
