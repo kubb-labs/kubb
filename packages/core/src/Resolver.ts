@@ -422,7 +422,11 @@ export class Resolver {
    * or the built-in `toFilePath`) with path resolution. The resolved file starts with empty
    * `sources`, `imports`, and `exports`, which consumers populate separately.
    */
-  #resolveFile({ name, extname, tag, path: groupPath }: ResolverFileParams, context: ResolverContext, resolveName: (name: string) => string = toFilePath): FileNode {
+  #resolveFile(
+    { name, extname, tag, path: groupPath }: ResolverFileParams,
+    context: ResolverContext,
+    resolveName: (name: string) => string = toFilePath,
+  ): FileNode {
     const resolvedName = context.output.mode === 'file' ? '' : resolveName(name)
     const filePath = this.#resolvePath({ baseName: `${resolvedName}${extname}` as FileNode['baseName'], tag, path: groupPath }, context)
 
