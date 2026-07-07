@@ -1,0 +1,108 @@
+packages/core/src/Hookable.ts
+  s_24b1a06ea587c4::t_d5c042bd9e3639 5-6,8
+  s_24b1a06ea587c4::t_adfb3f47b7828b 72,76-77,80,82,96-98,101
+  s_c2f1fd76c381df::t_4891bbd23a4767 148,151
+  s_c2f1fd76c381df::t_e4cf0f43375619 17-18
+  s_24b1a06ea587c4::t_e39a3653c03121 86-95,99-100,102
+  s_c2f1fd76c381df::t_4552a845989cbb 33,38,41
+  s_c2f1fd76c381df::t_401be8b1572df5 110,113,122
+  s_24b1a06ea587c4::t_8b9efe680f5fe5 83-85
+packages/core/src/Hookable.test.ts
+  s_24b1a06ea587c4::t_67af68caeb4136 17,30,41,84,97-98,113-183
+  s_24b1a06ea587c4::t_08d05e577647df 16
+  s_24b1a06ea587c4::t_f55d70a50cf8e6 28-29
+  s_24b1a06ea587c4::t_3d05e6ea3b8862 40
+  s_24b1a06ea587c4::t_8466879d9097c7 82-83
+  s_24b1a06ea587c4::t_cf399a4f1052aa 94-96
+  s_24b1a06ea587c4::t_c9c5df9067715a 48,57,61-62,69,72,74,78,108-109
+packages/core/src/types.ts
+  s_c2f1fd76c381df::t_ebc19a1140283d 398,402
+.changeset/hookable-hook-callhook-naming.md
+  s_c2f1fd76c381df::t_2b4f796a24a8dc 1-16
+packages/core/src/definePlugin.test.ts
+  s_24b1a06ea587c4::t_658b77e8931866 114,127
+  s_24b1a06ea587c4::t_13a0244afa1d5e 130,143,165,192,219,244,268,302,344,364,367,403,412,435,445,469,489,501,524,534,564
+  s_24b1a06ea587c4::t_3ae0b23bdf8bbd 573
+packages/core/src/definePlugin.ts
+  s_24b1a06ea587c4::t_731a44fbd3c52c 392-396
+packages/core/src/KubbDriver.ts
+  s_24b1a06ea587c4::t_e1627cc31abe82 102,181,188,190,193-196,198-221,296,330
+  s_24b1a06ea587c4::t_13a0244afa1d5e 185
+  s_24b1a06ea587c4::t_638784d25b11a0 259-260
+  s_24b1a06ea587c4::t_5cacea363f4c77 714-721
+  s_24b1a06ea587c4::t_d530004ad89c34 34
+  s_24b1a06ea587c4::t_194f93ade30de8 2
+  s_24b1a06ea587c4::t_65eef23309ba1b 71,115-120,124,126-144,168,540
+  s_24b1a06ea587c4::t_da2305a28c5996 145,149,222,261,385,406,723
+  s_24b1a06ea587c4::t_65f731a7d28fa2 197
+  s_24b1a06ea587c4::t_e49d1cf65c673e 122-123,125
+  s_24b1a06ea587c4::t_cbbff1776624dc 96-97,243-246,248,251,256-257
+  s_24b1a06ea587c4::t_9f112520ff7385 93-95
+  s_24b1a06ea587c4::t_7327cbb6df013f 98-101
+  s_24b1a06ea587c4::t_838668ed069aa1 146-148
+  s_24b1a06ea587c4::t_01def55c1e51ec 150-152
+  s_24b1a06ea587c4::t_738c642655bed1 167
+  s_24b1a06ea587c4::t_e1ef3d6959ac61 169-170
+  s_24b1a06ea587c4::t_78b3af0062fecb 186-187
+  s_24b1a06ea587c4::t_18c2aad0a55c60 223-225
+  s_24b1a06ea587c4::t_ebe0439cd3df81 258
+  s_24b1a06ea587c4::t_540a4663f51d51 262
+  s_24b1a06ea587c4::t_52a40f23549f4d 722
+  s_24b1a06ea587c4::t_29ab3bf790003c 724-726
+packages/core/src/createKubb.ts
+  s_24b1a06ea587c4::t_b90433349152fa 46,116-118
+packages/cli/src/loggers/clackLogger.ts
+  s_c2f1fd76c381df::t_65e897b346c4c6 78,94,108,122,134,159,195,201,218,244,265,282,287,302,323,335,352,358,391
+packages/cli/src/loggers/defineLogger.ts
+  s_c2f1fd76c381df::t_c7786fc8d847a8 15,45
+packages/cli/src/loggers/plainLogger.ts
+  s_c2f1fd76c381df::t_bca7b4e9c59ffc 22,30,40,50,60,81,89,93,99,108,119,129,139,149,162,175
+packages/cli/src/loggers/reporters.test.ts
+  s_c2f1fd76c381df::t_8835c7c3c3edbe 16,24,32,51,75
+packages/cli/src/loggers/utils.ts
+  s_c2f1fd76c381df::t_73042fe4ec2579 197,202
+packages/cli/src/runners/generate/run.ts
+  s_c2f1fd76c381df::t_a1f1921cc16ed1 74,77,101,106,133-134,138,142,157,165,191-192,208-209,218,224,231,234,306,317,324-325,344,353,359,365
+packages/cli/src/runners/generate/utils.test.ts
+  s_c2f1fd76c381df::t_60b24bfe7cbb29 15,34,55,58,77
+packages/cli/src/runners/generate/utils.ts
+  s_c2f1fd76c381df::t_dbbccec4da8828 174,197,213,218
+packages/core/src/Diagnostics.ts
+  s_c2f1fd76c381df::t_ac37f97215b1b9 455,459
+packages/core/src/FileManager.test.ts
+  s_c2f1fd76c381df::t_c423d117485572 300,303,306
+packages/core/src/FileManager.ts
+  s_c2f1fd76c381df::t_d940c9e562f8bf 146,187,195,200
+packages/core/src/KubbDriver.test.ts
+  s_c2f1fd76c381df::t_3aa5559b8e900a 51,135,144,156,158,253,299
+packages/core/src/createKubb.test.ts
+  s_c2f1fd76c381df::t_66f69972cfed42 215-216,227,269,518
+packages/mcp/src/tools/generate.ts
+  s_c2f1fd76c381df::t_333045e324c53c 26,30,34,38,42,46,50,54,58,62,66,70
+packages/unplugin-kubb/src/unpluginFactory.ts
+  s_c2f1fd76c381df::t_afb8dee2b539e6 28,32,36,40,44,48,54,60,98,105,118,120,122,126,135
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "c2be51dc4c5e150cf6e1124773f726342d276834",
+  "prompts": {},
+  "sessions": {
+    "s_24b1a06ea587c4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8353f61e-128b-4de2-85bd-ecc9d4852219",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    },
+    "s_c2f1fd76c381df": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4ce11fe0-5be5-415b-b356-d2f18c3d8df4",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
