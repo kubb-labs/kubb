@@ -37,8 +37,8 @@ type ResolverOptions<T extends PluginFactoryOptions> = Omit<T['resolver'], keyof
  *     return camelCase(name, { prefix: 'create' })
  *   },
  *   file: {
- *     baseName(name) {
- *       return camelCase(name, { prefix: 'create' })
+ *     baseName({ name, extname }) {
+ *       return `${camelCase(name, { prefix: 'create' })}${extname}`
  *     },
  *   },
  * })

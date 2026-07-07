@@ -91,8 +91,8 @@ describe('createResolver', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
       file: {
-        baseName(name) {
-          return `${name.toLowerCase()}.gen`
+        baseName({ name, extname }) {
+          return `${name.toLowerCase()}.gen${extname}`
         },
       },
       greet: (name: string) => name,
@@ -110,8 +110,8 @@ describe('createResolver', () => {
         return name.toUpperCase()
       },
       file: {
-        baseName(name) {
-          return `${this.name(name)}.schema`
+        baseName({ name, extname }) {
+          return `${this.name(name)}.schema${extname}`
         },
       },
       greet: (name: string) => name,
@@ -130,8 +130,8 @@ describe('createResolver', () => {
 
     const merged = Resolver.merge(base, {
       file: {
-        baseName(name) {
-          return `${name}.mock`
+        baseName({ name, extname }) {
+          return `${name}.mock${extname}`
         },
       },
     })
@@ -175,8 +175,8 @@ describe('createResolver', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
       file: {
-        baseName(name) {
-          return `${name}.gen`
+        baseName({ name, extname }) {
+          return `${name}.gen${extname}`
         },
         path({ baseName }) {
           return `custom/${baseName}`
