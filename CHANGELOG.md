@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.88 — Jul 7, 2026
+
+### @kubb/core
+
+#### Breaking Changes
+
+- `KubbDriver.run()` no longer takes a `storage` argument.
+  
+  `Config.storage` was already required and passed into the driver's constructor, so `run({ storage })` was redundant. `run()` now reads `config.storage` directly, so callers should switch to `driver.run()`. ([#3730](https://github.com/kubb-labs/kubb/pull/3730), [`8bc38cb`](https://github.com/kubb-labs/kubb/commit/8bc38cb0e8d94ff1437a058c2069999f7f3d6d07))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.87 — Jul 7, 2026
 
 ### @kubb/cli

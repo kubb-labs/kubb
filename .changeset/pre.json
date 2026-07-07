@@ -184,6 +184,7 @@
     "kubb-bundler-integration-subpaths",
     "kubb-create-kubb-export",
     "kubb-driver-streaming-cleanup",
+    "kubbdriver-run-drop-storage-param",
     "macro-ast-transform-layer",
     "make-adapter-and-input-optional",
     "make-getplugin-typesafe",
