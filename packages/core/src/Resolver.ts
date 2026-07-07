@@ -97,9 +97,9 @@ export type ResolverFileParams = {
 }
 
 /**
- * The `file` field of a resolver: supply the base-name caser and Kubb applies it when building
- * every generated file's name. This is how a resolver renames its files, replacing the older
- * per-call `resolveName` hook.
+ * The `file` field of a resolver: decides what a generated file is called and, optionally, where
+ * it lives. This is how a resolver renames or relocates its files, replacing the older per-call
+ * `resolveName` hook.
  *
  * @example Suffix every generated file
  * ```ts
@@ -109,15 +109,30 @@ export type ResolverFileParams = {
  *   },
  * }
  * ```
+ *
+ * @example Own the full path
+ * ```ts
+ * file: {
+ *   path(params, context) {
+ *     return `${context.output.path}/mocks/${params.name}.ts`
+ *   },
+ * }
+ * ```
  */
-export type ResolverFileName = {
+export type ResolverFile = {
   /**
    * Turns a generated identifier into the file's base name (without extension). Reaches sibling
    * resolver helpers through `this`.
    *
    * @default toFilePath
    */
-  name(name: string): string
+  name?(name: string): string
+  /**
+   * Returns the file's complete path, resolved against the project `root`. Bypasses `output.path`
+   * and `group`, so the resolver owns the layout. The returned path may not escape `root`. Reaches
+   * sibling resolver helpers through `this`.
+   */
+  path?(params: ResolverFileParams, context: ResolverContext): string
 }
 
 /**
@@ -187,7 +202,7 @@ export type ResolveBannerContext = {
 export type ResolverBuildOptions = {
   pluginName: string
   name?: (name: string) => string
-  file?: ResolverFileName
+  file?: ResolverFile
   [key: string]: unknown
 }
 
@@ -198,7 +213,7 @@ export type ResolverBuildOptions = {
  */
 export type ResolverPatch<T extends Resolver = Resolver> = Partial<Omit<T, keyof Resolver>> & {
   name?: T['name']
-  file?: ResolverFileName
+  file?: ResolverFile
 } & ThisType<T>
 
 function isNamespace(value: unknown): value is Record<string, unknown> {
@@ -237,13 +252,17 @@ export class Resolver {
   readonly pluginName: string
   #options: ResolverBuildOptions
   // Base-name caser from `options.file.name`, bound to the resolver so it can reach `this`.
-  // Defaults to `toFilePath` when a resolver sets no `file`.
+  // Defaults to `toFilePath` when a resolver sets no `file.name`.
   #fileName: (name: string) => string
+  // Full-path override from `options.file.path`, bound to the resolver. Absent by default, in which
+  // case the built-in `output.path`/`group` layout is used.
+  #filePath: ((params: ResolverFileParams, context: ResolverContext) => string) | undefined
 
   constructor(options: ResolverBuildOptions) {
     this.pluginName = options.pluginName
     this.#options = options
-    this.#fileName = options.file ? options.file.name.bind(this) : toFilePath
+    this.#fileName = options.file?.name ? options.file.name.bind(this) : toFilePath
+    this.#filePath = options.file?.path ? options.file.path.bind(this) : undefined
     this.#apply(options)
   }
 
@@ -267,7 +286,7 @@ export class Resolver {
   }
 
   file(params: ResolverFileParams, context: ResolverContext): FileNode {
-    return this.#resolveFile(params, context, this.#fileName)
+    return this.#resolveFile(params, context, this.#fileName, this.#filePath)
   }
 
   /**
@@ -418,17 +437,43 @@ export class Resolver {
   }
 
   /**
-   * Builds a `FileNode` by combining file-name casing (`resolveName`, the resolver's `file.name`
-   * or the built-in `toFilePath`) with path resolution. The resolved file starts with empty
-   * `sources`, `imports`, and `exports`, which consumers populate separately.
+   * Resolves a resolver-supplied full path (`file.path`) against `root`, bypassing `output.path`
+   * and `group`. The path may not escape `root`, which keeps a `file.path` that interpolates
+   * spec-derived values from writing outside the project.
+   */
+  #resolveOverridePath(filePath: string, { root }: ResolverContext): string {
+    const resolved = path.resolve(root, filePath)
+    const rootWithSep = root.endsWith(path.sep) ? root : `${root}${path.sep}`
+    if (resolved !== root && !resolved.startsWith(rootWithSep)) {
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.pathTraversal,
+        severity: 'error',
+        message: `Resolved path "${resolved}" is outside the project root "${root}".`,
+        help: 'A resolver `file.path` must return a path inside the project root.',
+        location: { kind: 'config' },
+      })
+    }
+
+    return resolved
+  }
+
+  /**
+   * Builds a `FileNode`. When `resolvePath` (the resolver's `file.path`) is set it owns the whole
+   * path; otherwise the path comes from file-name casing (`resolveName`, the resolver's `file.name`
+   * or the built-in `toFilePath`) plus the `output.path`/`group` layout. The resolved file starts
+   * with empty `sources`, `imports`, and `exports`, which consumers populate separately.
    */
   #resolveFile(
-    { name, extname, tag, path: groupPath }: ResolverFileParams,
+    params: ResolverFileParams,
     context: ResolverContext,
     resolveName: (name: string) => string = toFilePath,
+    resolvePath?: (params: ResolverFileParams, context: ResolverContext) => string,
   ): FileNode {
+    const { name, extname, tag, path: groupPath } = params
     const resolvedName = context.output.mode === 'file' ? '' : resolveName(name)
-    const filePath = this.#resolvePath({ baseName: `${resolvedName}${extname}` as FileNode['baseName'], tag, path: groupPath }, context)
+    const filePath = resolvePath
+      ? this.#resolveOverridePath(resolvePath(params, context), context)
+      : this.#resolvePath({ baseName: `${resolvedName}${extname}` as FileNode['baseName'], tag, path: groupPath }, context)
 
     return ast.factory.createFile({
       path: filePath,

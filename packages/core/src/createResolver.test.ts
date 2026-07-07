@@ -139,6 +139,76 @@ describe('createResolver', () => {
     expect(merged.file({ name: 'pet', extname: '.ts' }, context).baseName).toBe('pet.mock.ts')
   })
 
+  it('a file.path owns the whole path, resolved against root and bypassing output.path', () => {
+    const resolver = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      file: {
+        path(params) {
+          return `mocks/${params.name}${params.extname}`
+        },
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+
+    const file = resolver.file({ name: 'pet', extname: '.ts' }, context)
+    expect(file.path).toBe('/root/mocks/pet.ts')
+    expect(file.baseName).toBe('pet.ts')
+  })
+
+  it('a file.path receives params and context and reaches `this`', () => {
+    const resolver = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      name(name) {
+        return name.toUpperCase()
+      },
+      file: {
+        path(params, ctx) {
+          return `${ctx.output.path}/${this.name(params.name)}${params.extname}`
+        },
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+
+    expect(resolver.file({ name: 'pet', extname: '.ts' }, context).path).toBe('/root/types/PET.ts')
+  })
+
+  it('file.path wins over file.name for the location', () => {
+    const resolver = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      file: {
+        name(name) {
+          return `${name}.gen`
+        },
+        path(params) {
+          return `custom/${params.name}${params.extname}`
+        },
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+
+    const file = resolver.file({ name: 'pet', extname: '.ts' }, context)
+    expect(file.path).toBe('/root/custom/pet.ts')
+    expect(file.baseName).toBe('pet.ts')
+  })
+
+  it('a file.path that escapes the project root throws', () => {
+    const resolver = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      file: {
+        path() {
+          return '../outside/pet.ts'
+        },
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+
+    expect(() => resolver.file({ name: 'pet', extname: '.ts' }, context)).toThrow('outside the project root')
+  })
+
   it('resolveOptions does not throw when options is not an object', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',

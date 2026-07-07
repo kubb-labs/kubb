@@ -807,7 +807,7 @@ export type {
   Resolver,
   ResolverContext,
   ResolverDefault,
-  ResolverFileName,
+  ResolverFile,
   ResolverFileParams,
   ResolverPatch,
   ResolverPathParams,
