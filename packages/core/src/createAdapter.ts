@@ -80,14 +80,6 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * Validate the document at the given path or URL.
    */
   validate: (input: string, options?: { throwOnError?: boolean }) => Promise<void>
-  /**
-   * Memory-efficient streaming variant of `parse()`.
-   *
-   * Returns an `InputNode<true>` whose `schemas` and `operations` are `AsyncIterable`.
-   * Each `for await` loop creates a fresh parse pass over the cached in-memory document.
-   * No pre-built arrays are held in memory.
-   */
-  stream?: (source: AdapterSource) => Promise<InputNode<true>>
 }
 
 type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) => Adapter<T>

@@ -1,4 +1,3 @@
-import type { Streamable } from '@internals/utils'
 import { defineNode } from '../defineNode.ts'
 import type { BaseNode } from './base.ts'
 import type { OperationNode } from './operation.ts'
@@ -67,9 +66,6 @@ export type InputMeta = {
  * Input AST node that contains all schemas and operations for one API document.
  * Produced by the adapter and consumed by all Kubb plugins.
  *
- * `Stream` switches `schemas` and `operations` between eager `Array`s (the default) and lazy
- * `AsyncIterable`s. The streaming variant `InputNode<true>` yields nodes one at a time.
- *
  * @example
  * ```ts
  * const input: InputNode = {
@@ -79,15 +75,8 @@ export type InputMeta = {
  *   meta: { circularNames: [], enumNames: [] },
  * }
  * ```
- *
- * @example Streaming variant for large specs
- * ```ts
- * for await (const schema of inputNode.schemas) {
- *   // only this one SchemaNode is live here. Previous ones are GC-eligible
- * }
- * ```
  */
-export type InputNode<Stream extends boolean = false> = BaseNode & {
+export type InputNode = BaseNode & {
   /**
    * Node kind.
    */
@@ -95,11 +84,11 @@ export type InputNode<Stream extends boolean = false> = BaseNode & {
   /**
    * All schema nodes in the document.
    */
-  schemas: Streamable<SchemaNode, Stream>
+  schemas: Array<SchemaNode>
   /**
    * All operation nodes in the document.
    */
-  operations: Streamable<OperationNode, Stream>
+  operations: Array<OperationNode>
   /**
    * Document metadata populated by the adapter.
    */
@@ -117,28 +106,15 @@ export const inputDef = defineNode<InputNode, Partial<Omit<InputNode, 'kind'>>>(
 })
 
 /**
- * Creates an `InputNode`. Pass `stream: true` for the streaming variant whose `schemas` and
- * `operations` are `AsyncIterable` sources. Otherwise it builds the eager variant with array
- * `schemas`/`operations`. Both variants get the defaulted `meta`.
+ * Creates an `InputNode`, defaulting `schemas`/`operations` to empty arrays and `meta` per
+ * {@link inputDef}.
  *
- * @example Eager
+ * @example
  * ```ts
  * const input = createInput()
  * // { kind: 'Input', schemas: [], operations: [] }
  * ```
- *
- * @example Streaming
- * ```ts
- * const node = createInput({ stream: true, schemas: schemasIterable, operations: operationsIterable, meta: { title: 'My API' } })
- * ```
  */
-export function createInput<Stream extends boolean = false>(options: Partial<Omit<InputNode<Stream>, 'kind'>> & { stream?: Stream } = {}): InputNode<Stream> {
-  const { stream, ...overrides } = options
-  // Streaming inputs carry AsyncIterable sources, so skip the array defaults that
-  // inputDef.create applies for the eager variant. Keep the meta default.
-  if (stream) {
-    return { kind: 'Input', meta: { circularNames: [], enumNames: [] }, ...overrides } as InputNode<Stream>
-  }
-
-  return inputDef.create(overrides as Partial<Omit<InputNode, 'kind'>>) as InputNode<Stream>
+export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): InputNode {
+  return inputDef.create(overrides)
 }

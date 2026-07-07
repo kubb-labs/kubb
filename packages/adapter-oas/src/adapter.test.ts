@@ -28,43 +28,20 @@ const minimalSpec = {
   },
 } as const
 
-describe('adapterOas.stream', () => {
-  it('yields each schema lazily via for await', async () => {
+describe('adapterOas.parse', () => {
+  it('parses each schema', async () => {
     const adapter = adapterOas({ validate: false })
 
-    const node = await adapter.stream!({ type: 'data', data: minimalSpec })
-    const schemas: Array<ast.SchemaNode> = []
-    for await (const schema of node.schemas) {
-      schemas.push(schema)
-    }
+    const node = await adapter.parse({ type: 'data', data: minimalSpec })
 
-    expect(schemas.map((s) => s.name)).toStrictEqual(['Pet', 'Category'])
+    expect(node.schemas.map((s) => s.name)).toStrictEqual(['Pet', 'Category'])
   })
 
-  it('each for await on schemas creates a fresh independent pass', async () => {
+  it('parses operations', async () => {
     const adapter = adapterOas({ validate: false })
-    const node = await adapter.stream!({ type: 'data', data: minimalSpec })
+    const node = await adapter.parse({ type: 'data', data: minimalSpec })
 
-    const first: Array<ast.SchemaNode> = []
-    for await (const schema of node.schemas) first.push(schema)
-
-    const second: Array<ast.SchemaNode> = []
-    for await (const schema of node.schemas) second.push(schema)
-
-    expect(first.map((s) => s.name)).toStrictEqual(['Pet', 'Category'])
-    expect(second.map((s) => s.name)).toStrictEqual(first.map((s) => s.name))
-  })
-
-  it('yields operations lazily via for await', async () => {
-    const adapter = adapterOas({ validate: false })
-    const node = await adapter.stream!({ type: 'data', data: minimalSpec })
-
-    const operations: Array<ast.OperationNode> = []
-    for await (const op of node.operations) {
-      operations.push(op)
-    }
-
-    expect(operations.map((operation) => operation.operationId)).toStrictEqual(['listPets'])
+    expect(node.operations.map((operation) => operation.operationId)).toStrictEqual(['listPets'])
   })
 
   it('parses each source when one adapter instance is reused across configs', async () => {
@@ -79,22 +56,17 @@ describe('adapterOas.stream', () => {
     // its own document instead of replaying the first one.
     const adapter = adapterOas({ validate: false })
 
-    const first = await adapter.stream!({ type: 'data', data: minimalSpec })
-    const firstNames: Array<string> = []
-    for await (const schema of first.schemas) if (schema.name) firstNames.push(schema.name)
+    const first = await adapter.parse({ type: 'data', data: minimalSpec })
+    const second = await adapter.parse({ type: 'data', data: other })
 
-    const second = await adapter.stream!({ type: 'data', data: other })
-    const secondNames: Array<string> = []
-    for await (const schema of second.schemas) if (schema.name) secondNames.push(schema.name)
-
-    expect(firstNames).toStrictEqual(['Pet', 'Category'])
-    expect(secondNames).toStrictEqual(['Order'])
+    expect(first.schemas.map((s) => s.name)).toStrictEqual(['Pet', 'Category'])
+    expect(second.schemas.map((s) => s.name)).toStrictEqual(['Order'])
     expect(second.meta?.title).toBe('Other API')
   })
 
-  it('exposes meta before the first yield', async () => {
+  it('exposes meta', async () => {
     const adapter = adapterOas({ validate: false })
-    const node = await adapter.stream!({ type: 'data', data: minimalSpec })
+    const node = await adapter.parse({ type: 'data', data: minimalSpec })
 
     expect(node.meta).toMatchObject({
       baseURL: null,

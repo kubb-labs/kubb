@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { arrayToAsyncIterable, getElapsedMs, memoize } from '@internals/utils'
+import { getElapsedMs, memoize } from '@internals/utils'
 import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { OPERATION_FILTER_TYPES } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
@@ -85,13 +85,12 @@ export class KubbDriver {
   readonly options: Options
 
   /**
-   * The streaming `InputNode<true>` produced by the adapter. Set after adapter setup.
-   * Parse-only adapters are wrapped automatically.
+   * The `InputNode` produced by the adapter. Set after adapter setup.
    */
-  inputNode: InputNode<true> | null = null
+  inputNode: InputNode | null = null
   adapter: Adapter | null = null
   /**
-   * Raw adapter source so `adapter.parse()` / `adapter.stream()` can run lazily.
+   * Raw adapter source so `adapter.parse()` can run lazily.
    * Intentionally outlives the build, cleared by `dispose()`.
    */
   #adapterSource: AdapterSource | null = null
@@ -179,28 +178,12 @@ export class KubbDriver {
 
   /**
    * Parses the adapter source into `this.inputNode`. Idempotent, so repeated calls from
-   * `run` do not re-parse. Adapters with `stream()` are used directly; adapters with only
-   * `parse()` get wrapped via `ast.factory.createInput({ stream: true })`, so `inputNode` is
-   * always the same `InputNode<true>` shape either way.
+   * `run` do not re-parse.
    */
   async #parseInput(): Promise<void> {
     if (this.inputNode || !this.adapter || !this.#adapterSource) return
 
-    const adapter = this.adapter
-    const source = this.#adapterSource
-
-    if (adapter.stream) {
-      this.inputNode = await adapter.stream(source)
-      return
-    }
-
-    const parsed = await adapter.parse(source)
-    this.inputNode = ast.factory.createInput({
-      stream: true,
-      schemas: arrayToAsyncIterable(parsed.schemas),
-      operations: arrayToAsyncIterable(parsed.operations),
-      meta: parsed.meta,
-    })
+    this.inputNode = await this.adapter.parse(this.#adapterSource)
   }
 
   /**
@@ -371,15 +354,15 @@ export class KubbDriver {
     fileManager.hooks.on('update', onWriteUpdate)
     fileManager.hooks.on('end', onWriteEnd)
 
-    // Make `diagnostics` the active sink so deep code (adapter parse, lazily consumed
-    // streams, generators) can report into this run via `Diagnostics.report`.
+    // Make `diagnostics` the active sink so deep code (adapter parse, generators) can
+    // report into this run via `Diagnostics.report`.
     return Diagnostics.scope(
       (diagnostic) => diagnostics.push(diagnostic),
       async () => {
         try {
           const outputRoot = resolve(config.root, config.output.path)
 
-          // Parse the adapter source into the streaming `InputNode`.
+          // Parse the adapter source into `this.inputNode`.
           await this.#parseInput()
           // Emit `kubb:plugin:setup` so plugins can register macros via `addMacro`/`setMacros`.
           // Each call writes into `this.#transforms`, which `#runGenerators` later reads through
@@ -509,12 +492,6 @@ export class KubbDriver {
     const emitsOperationHook = this.hooks.listenerCount('kubb:generate:operation') > 0
     const emitsOperationsHook = this.hooks.listenerCount('kubb:generate:operations') > 0
 
-    // Buffer the streaming adapter's nodes once. Each plugin reads the same buffer
-    // instead of re-parsing the document per pass, and the pruning pre-scan below
-    // shares it too (previously it iterated its own copies).
-    const schemasBuffer: Array<SchemaNode> = await Array.fromAsync(schemas)
-    const operationsBuffer: Array<OperationNode> = await Array.fromAsync(operations)
-
     // Pre-scan: plugins with operation-based includes (but no schemaName include) need
     // the reachable schema set, keyed by plugin name. This requires the full schema graph
     // in memory at once, since transitive reachability can't be derived from a single node.
@@ -526,10 +503,10 @@ export class KubbDriver {
       if (!needsPruning) continue
 
       const resolver = this.getResolver(plugin.name)
-      const includedOps = operationsBuffer.filter(
+      const includedOps = operations.filter(
         (operation) => resolver.default.options(operation, { options: plugin.options, exclude, include, override }) !== null,
       )
-      allowedSchemaNamesByPlugin.set(plugin.name, collectUsedSchemaNames(includedOps, schemasBuffer))
+      allowedSchemaNamesByPlugin.set(plugin.name, collectUsedSchemaNames(includedOps, schemas))
     }
 
     for (const { plugin, context, hrStart } of entries) {
@@ -561,11 +538,11 @@ export class KubbDriver {
         return { transformedNode, options }
       }
 
-      // Schemas before operations, in buffer order, so file output stays deterministic. A
+      // Schemas before operations, in adapter order, so file output stays deterministic. A
       // caught error stops this plugin but not the others, so its remaining nodes are
       // skipped rather than retried.
       if (emitsSchemaHook) {
-        for (const node of schemasBuffer) {
+        for (const node of schemas) {
           if (error) break
           try {
             const resolved = resolveForPlugin(node)
@@ -582,7 +559,7 @@ export class KubbDriver {
       }
 
       if (emitsOperationHook) {
-        for (const node of operationsBuffer) {
+        for (const node of operations) {
           if (error) break
           try {
             const resolved = resolveForPlugin(node)
@@ -600,7 +577,7 @@ export class KubbDriver {
           const ctx = { ...generatorContext, options: plugin.options }
           // Match what the per-node dispatch emitted on kubb:generate:operation: each operation
           // transformed and filtered by this plugin's excludes/includes/overrides.
-          const pluginOperations = operationsBuffer.reduce<Array<OperationNode>>((acc, node) => {
+          const pluginOperations = operations.reduce<Array<OperationNode>>((acc, node) => {
             const resolved = resolveForPlugin(node)
             if (resolved) acc.push(resolved.transformedNode)
             return acc
