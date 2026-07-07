@@ -1,0 +1,52 @@
+packages/core/src/KubbDriver.test.ts
+  s_be7f57b4e03274::t_693ae2652c18b0 297
+packages/core/src/definePlugin.test.ts
+  s_be7f57b4e03274::t_693ae2652c18b0 114,130,147,167,373
+  s_be7f57b4e03274::t_8dec594c0de34c 123-124,127,170,238,240,244,263,265,297,299,315,317,339,341,359-360,364,367,398,400,412,430,432,445,462,464,484,486,501,519,521,534,559,561,573
+packages/core/src/createKubb.test.ts
+  s_be7f57b4e03274::t_693ae2652c18b0 210
+packages/core/src/definePlugin.ts
+  s_be7f57b4e03274::t_87627ddc0278d2 366-367
+packages/core/src/KubbDriver.ts
+  s_be7f57b4e03274::t_70f8ddbc445341 260,282
+packages/core/src/reporters/fileReporter.ts
+  s_be7f57b4e03274::t_aca2f6a5dc110d 80
+packages/core/src/defineGenerator.ts
+  s_be7f57b4e03274::t_ac9e73d7b96da2 58
+packages/core/src/constants.ts
+  s_be7f57b4e03274::t_ec97b3df44e4e2 12
+packages/cli/src/loggers/defineLogger.ts
+  s_be7f57b4e03274::t_149b176749ddb3 31-32
+  s_be7f57b4e03274::t_be65dab0533e0c 21-22
+packages/core/src/types.ts
+  s_be7f57b4e03274::t_407de4985b54a5 654
+  s_be7f57b4e03274::t_de510d64064e23 393
+  s_be7f57b4e03274::t_55e89055279d16 673
+  s_be7f57b4e03274::t_ce6a534f6b89e9 684
+packages/core/src/createReporter.ts
+  s_be7f57b4e03274::t_20f89c2bc20a1c 94
+  s_be7f57b4e03274::t_9a860e9077f533 60
+packages/plugin-barrel/src/plugin.ts
+  s_be7f57b4e03274::t_70f8ddbc445341 107
+  s_be7f57b4e03274::t_3a0ee10faaf145 65
+packages/core/src/Diagnostics.ts
+  s_be7f57b4e03274::t_96be2771c91ca1 454
+packages/core/src/createKubb.ts
+  s_be7f57b4e03274::t_6902a2e352d0cb 41
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "abb4bf6142767feaae0661a83357cb52e0f2c44d",
+  "prompts": {},
+  "sessions": {
+    "s_be7f57b4e03274": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a664054e-6f27-4e74-b5c3-e53712fd1a8f",
+        "model": "claude-fable-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
