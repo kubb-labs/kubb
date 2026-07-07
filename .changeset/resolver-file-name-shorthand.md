@@ -42,3 +42,15 @@ file: {
   },
 }
 ```
+
+The file-resolution methods also take a single options object now, and the `ResolverContext` type is removed (its `root`/`output`/`group` fold into each method's options):
+
+```ts
+// before
+resolver.file({ name, extname: '.ts', tag, path }, { root, output, group })
+// after
+resolver.file({ name, extname: '.ts', tag, path, root, output, group })
+```
+
+`resolver.file`, `resolver.default.file`, and `resolver.default.path` now accept `ResolveFileOptions` / `ResolvePathOptions` (a merge of the file request and where the output goes) instead of `(params, context)`.
+

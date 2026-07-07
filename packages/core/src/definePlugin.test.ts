@@ -270,13 +270,11 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const resolver = driver.getResolver('hook-plugin')
     expect(resolver.name('any value')).toBe('CustomName')
     expect(
-      resolver.default.path(
-        { baseName: 'pets.ts' },
-        {
-          root: '/tmp/root',
-          output: { path: 'gen' },
-        },
-      ),
+      resolver.default.path({
+        baseName: 'pets.ts',
+        root: '/tmp/root',
+        output: { path: 'gen' },
+      }),
     ).toBe('/tmp/root/gen/pets.ts')
   })
 

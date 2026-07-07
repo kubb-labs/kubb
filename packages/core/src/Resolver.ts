@@ -28,24 +28,15 @@ export type ResolverDefault = {
    */
   name(name: string): string
   options<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
-  path(params: ResolverPathParams, context: ResolverContext): string
-  file(params: ResolverFileParams, context: ResolverContext): FileNode
+  path(options: ResolvePathOptions): string
+  file(options: ResolveFileOptions): FileNode
   banner(meta: InputMeta | undefined, context: ResolveBannerContext): string | null
   footer(meta: InputMeta | undefined, context: ResolveBannerContext): string | null
 }
 
 /**
- * File-specific parameters for `resolver.default.path`.
- * Provide `tag` for tag-based grouping or `path` for path-based grouping.
- *
- * @example
- * ```ts
- * resolver.default.path(
- *   { baseName: 'petTypes.ts', tag: 'pets' },
- *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
- * )
- * // → '/src/types/pets/petTypes.ts'
- * ```
+ * The name request for `resolver.default.path`: a `baseName` plus the optional `tag`/`path` that
+ * grouping keys off.
  */
 export type ResolverPathParams = {
   baseName: FileNode['baseName']
@@ -60,28 +51,33 @@ export type ResolverPathParams = {
 }
 
 /**
- * Shared context passed as the second argument to `resolver.default.path` and
- * `resolver.default.file`: where output is rooted, which output config is active,
- * and the optional grouping strategy.
+ * Options for `resolver.default.path`: the name request (`baseName`, `tag`, `path`) plus where the
+ * output goes (`root`, `output`, `group`).
+ *
+ * @example
+ * ```ts
+ * resolver.default.path({ baseName: 'petTypes.ts', tag: 'pets', root: '/src', output: { path: 'types' }, group: { type: 'tag' } })
+ * // → '/src/types/pets/petTypes.ts'
+ * ```
  */
-export type ResolverContext = {
+export type ResolvePathOptions = ResolverPathParams & {
+  /**
+   * Absolute project root that the output path is resolved against.
+   */
   root: string
+  /**
+   * Active output config; `output.path` is the base directory.
+   */
   output: Output
+  /**
+   * Optional grouping strategy applied to `tag` (tag grouping) or `path` (path grouping).
+   */
   group?: Group
 }
 
 /**
- * File-specific parameters for `resolver.default.file`.
- * `tag` and `path` are used only when a matching `group` is present in the context.
- *
- * @example
- * ```ts
- * resolver.default.file(
- *   { name: 'listPets', extname: '.ts', tag: 'pets' },
- *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
- * )
- * // → { baseName: 'listPets.ts', path: '/src/types/pets/listPets.ts', ... }
- * ```
+ * The file request for `resolver.file` and `resolver.default.file`: the `name` and `extname` plus
+ * the optional `tag`/`path` that grouping keys off.
  */
 export type ResolverFileParams = {
   name: string
@@ -94,6 +90,22 @@ export type ResolverFileParams = {
    * Path value used when `group.type === 'path'`.
    */
   path?: string
+}
+
+/**
+ * Options for `resolver.file` and `resolver.default.file`: the file request (`name`, `extname`,
+ * `tag`, `path`) plus where the output goes (`root`, `output`, `group`).
+ *
+ * @example
+ * ```ts
+ * resolver.default.file({ name: 'listPets', extname: '.ts', tag: 'pets', root: '/src', output: { path: 'types' }, group: { type: 'tag' } })
+ * // → { baseName: 'listPets.ts', path: '/src/types/pets/listPets.ts', ... }
+ * ```
+ */
+export type ResolveFileOptions = ResolverFileParams & {
+  root: string
+  output: Output
+  group?: Group
 }
 
 /**
@@ -140,7 +152,7 @@ export type ResolverFile = {
  * plus the active `output`. `root` is omitted because the returned path is resolved against it, and
  * `group` because `file.path` bypasses grouping.
  */
-export type ResolverFilePathParams = ResolverFileParams & Pick<ResolverContext, 'output'>
+export type ResolverFilePathParams = ResolverFileParams & { output: Output }
 
 /**
  * Per-file context describing the file a banner/footer is being resolved for, so a
@@ -292,8 +304,8 @@ export class Resolver {
     return this.default.name(name)
   }
 
-  file(params: ResolverFileParams, context: ResolverContext): FileNode {
-    return this.#resolveFile(params, context, this.#fileName, this.#filePath)
+  file(options: ResolveFileOptions): FileNode {
+    return this.#resolveFile(options, this.#fileName, this.#filePath)
   }
 
   /**
@@ -415,7 +427,7 @@ export class Resolver {
    * to `output.path/{baseName}`, or into a subdirectory when `group` and a `tag`/`path` value
    * are provided.
    */
-  #resolvePath({ baseName, tag, path: groupPath }: ResolverPathParams, { root, output, group }: ResolverContext): string {
+  #resolvePath({ baseName, tag, path: groupPath, root, output, group }: ResolvePathOptions): string {
     if (output.mode === 'file') {
       return path.resolve(root, output.path)
     }
@@ -448,7 +460,7 @@ export class Resolver {
    * and `group`. The path may not escape `root`, which keeps a `file.path` that interpolates
    * spec-derived values from writing outside the project.
    */
-  #resolveOverridePath(filePath: string, { root }: ResolverContext): string {
+  #resolveOverridePath(filePath: string, root: string): string {
     const resolved = path.resolve(root, filePath)
     const rootWithSep = root.endsWith(path.sep) ? root : `${root}${path.sep}`
     if (resolved !== root && !resolved.startsWith(rootWithSep)) {
@@ -471,16 +483,15 @@ export class Resolver {
    * with empty `sources`, `imports`, and `exports`, which consumers populate separately.
    */
   #resolveFile(
-    params: ResolverFileParams,
-    context: ResolverContext,
+    options: ResolveFileOptions,
     resolveName: (name: string) => string = toFilePath,
     resolvePath?: (params: ResolverFilePathParams) => string,
   ): FileNode {
-    const { name, extname, tag, path: groupPath } = params
-    const resolvedName = context.output.mode === 'file' ? '' : resolveName(name)
+    const { name, extname, tag, path: groupPath, root, output, group } = options
+    const resolvedName = output.mode === 'file' ? '' : resolveName(name)
     const filePath = resolvePath
-      ? this.#resolveOverridePath(resolvePath({ ...params, output: context.output }), context)
-      : this.#resolvePath({ baseName: `${resolvedName}${extname}` as FileNode['baseName'], tag, path: groupPath }, context)
+      ? this.#resolveOverridePath(resolvePath({ name, extname, tag, path: groupPath, output }), root)
+      : this.#resolvePath({ baseName: `${resolvedName}${extname}` as FileNode['baseName'], tag, path: groupPath, root, output, group })
 
     return ast.factory.createFile({
       path: filePath,

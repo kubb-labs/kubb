@@ -63,7 +63,7 @@ export const pluginExample = definePlugin(() => {
 
 `ast` and `factory` are the node builders a generator calls to construct the file, schema, and operation nodes it returns. `Diagnostics` is the structured error a plugin throws to report a problem with a location and a fix suggestion, and `memoryStorage` and `fsStorage` are the built-in storage backends, useful in tests and custom configs.
 
-Rounding out the package are the option and hook types every plugin, generator, adapter, resolver, and renderer author references, among them `PluginFactoryOptions`, `GeneratorContext`, `ResolverContext`, `AdapterFactoryOptions`, `RendererFactory`, and `KubbHooks`.
+Rounding out the package are the option and hook types every plugin, generator, adapter, resolver, and renderer author references, among them `PluginFactoryOptions`, `GeneratorContext`, `ResolveFileOptions`, `AdapterFactoryOptions`, `RendererFactory`, and `KubbHooks`.
 
 ## Testing helpers
 

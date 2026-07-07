@@ -72,7 +72,7 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    * `ctx.resolver.name('pet') // 'pet'`
    *
    * @example Resolve an output file
-   * `ctx.resolver.file({ name: 'pet', extname: '.ts' }, { root, output })`
+   * `ctx.resolver.file({ name: 'pet', extname: '.ts', root, output })`
    */
   resolver: TOptions['resolver']
   /**
