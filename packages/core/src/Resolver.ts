@@ -132,7 +132,7 @@ export type ResolverFile = {
    * and `group`, so the resolver owns the layout. The returned path may not escape `root`. Reaches
    * sibling resolver helpers through `this`.
    */
-  path?(context: ResolverFilePathContext): string
+  path?(params: ResolverFilePathParams): string
 }
 
 /**
@@ -140,7 +140,7 @@ export type ResolverFile = {
  * plus the active `output`. `root` is omitted because the returned path is resolved against it, and
  * `group` because `file.path` bypasses grouping.
  */
-export type ResolverFilePathContext = ResolverFileParams & Pick<ResolverContext, 'output'>
+export type ResolverFilePathParams = ResolverFileParams & Pick<ResolverContext, 'output'>
 
 /**
  * Per-file context describing the file a banner/footer is being resolved for, so a
@@ -263,7 +263,7 @@ export class Resolver {
   #fileName: (name: string) => string
   // Full-path override from `options.file.path`, bound to the resolver. Absent by default, in which
   // case the built-in `output.path`/`group` layout is used.
-  #filePath: ((context: ResolverFilePathContext) => string) | undefined
+  #filePath: ((params: ResolverFilePathParams) => string) | undefined
 
   constructor(options: ResolverBuildOptions) {
     this.pluginName = options.pluginName
@@ -474,7 +474,7 @@ export class Resolver {
     params: ResolverFileParams,
     context: ResolverContext,
     resolveName: (name: string) => string = toFilePath,
-    resolvePath?: (context: ResolverFilePathContext) => string,
+    resolvePath?: (params: ResolverFilePathParams) => string,
   ): FileNode {
     const { name, extname, tag, path: groupPath } = params
     const resolvedName = context.output.mode === 'file' ? '' : resolveName(name)

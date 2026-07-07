@@ -35,8 +35,8 @@ export type {
   RendererFactory,
   ResolverContext,
   ResolverFile,
-  ResolverFilePathContext,
   ResolverFileParams,
+  ResolverFilePathParams,
   ResolverPatch,
   Storage,
 } from '@kubb/core'

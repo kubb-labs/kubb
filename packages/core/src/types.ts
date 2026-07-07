@@ -808,8 +808,8 @@ export type {
   ResolverContext,
   ResolverDefault,
   ResolverFile,
-  ResolverFilePathContext,
   ResolverFileParams,
+  ResolverFilePathParams,
   ResolverPatch,
   ResolverPathParams,
 } from './Resolver.ts'
