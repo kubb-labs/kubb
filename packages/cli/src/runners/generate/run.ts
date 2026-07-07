@@ -71,10 +71,10 @@ async function runToolPass({
   if (resolvedTool === 'auto') {
     const detected = await detect()
     if (!detected) {
-      await hooks.emit('kubb:warn', { message: noToolMessage })
+      await hooks.callHook('kubb:warn', { message: noToolMessage })
     } else {
       resolvedTool = detected
-      await hooks.emit('kubb:info', { message: `Auto-detected ${toolLabel}: ${styleText('dim', resolvedTool)}` })
+      await hooks.callHook('kubb:info', { message: `Auto-detected ${toolLabel}: ${styleText('dim', resolvedTool)}` })
     }
   }
 
@@ -98,12 +98,12 @@ async function runToolPass({
       const hookArgs = toolConfig.args(outputPath)
       const commandWithArgs = [toolConfig.command, ...hookArgs].join(' ')
 
-      await hooks.emit('kubb:hook:start', { id: hookId, command: toolConfig.command, args: hookArgs })
+      await hooks.callHook('kubb:hook:start', { id: hookId, command: toolConfig.command, args: hookArgs })
 
       const result = await runHook({ id: hookId, command: toolConfig.command, args: hookArgs, commandWithArgs, hooks })
 
       if (result.success) {
-        await hooks.emit('kubb:success', { message: successMessage })
+        await hooks.callHook('kubb:success', { message: successMessage })
       } else {
         toolError = result.error ?? new Error(toolConfig.errorMessage)
       }
@@ -130,16 +130,16 @@ async function generate(options: GenerateProps): Promise<boolean> {
 
   const kubb = createKubb(config, { hooks })
 
-  await hooks.emit('kubb:generation:start', { config })
-  await hooks.emit('kubb:info', { message: config.name ? `Setup generation ${styleText('bold', config.name)}` : 'Setup generation', info: inputPath })
+  await hooks.callHook('kubb:generation:start', { config })
+  await hooks.callHook('kubb:info', { message: config.name ? `Setup generation ${styleText('bold', config.name)}` : 'Setup generation', info: inputPath })
 
   await kubb.setup()
 
-  await hooks.emit('kubb:info', { message: config.name ? `Build generation ${styleText('bold', config.name)}` : 'Build generation', info: inputPath })
+  await hooks.callHook('kubb:info', { message: config.name ? `Build generation ${styleText('bold', config.name)}` : 'Build generation', info: inputPath })
 
   const { files, diagnostics, driver } = await kubb.safeBuild()
 
-  await hooks.emit('kubb:info', { message: 'Load summary' })
+  await hooks.callHook('kubb:info', { message: 'Load summary' })
 
   const telemetryPlugins = Array.from(driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> }))
 
@@ -154,7 +154,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
     }
     const unknown = Diagnostics.narrow(diagnostic, Diagnostics.code.unknown)
     if (unknown) {
-      await hooks.emit('kubb:error', { error: unknown.cause ?? new Error(unknown.message) })
+      await hooks.callHook('kubb:error', { error: unknown.cause ?? new Error(unknown.message) })
     } else {
       await Diagnostics.emit(hooks, diagnostic)
     }
@@ -162,7 +162,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
 
   // Only an error-severity diagnostic fails the run. Warnings and info do not.
   if (Diagnostics.hasError(diagnostics)) {
-    await hooks.emit('kubb:generation:end', { config, storage: kubb.storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
+    await hooks.callHook('kubb:generation:end', { config, storage: kubb.storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
 
     await reportTelemetry('failed')
     return false
@@ -188,8 +188,8 @@ async function generate(options: GenerateProps): Promise<boolean> {
       toolLabel: 'formatter',
       successPrefix: 'Formatting',
       noToolMessage: 'No formatter found (oxfmt, biome, or prettier). Skipping formatting.',
-      onStart: () => hooks.emit('kubb:format:start'),
-      onEnd: () => hooks.emit('kubb:format:end'),
+      onStart: () => hooks.callHook('kubb:format:start'),
+      onEnd: () => hooks.callHook('kubb:format:end'),
       outputPath,
       logLevel,
       hooks,
@@ -205,8 +205,8 @@ async function generate(options: GenerateProps): Promise<boolean> {
       toolLabel: 'linter',
       successPrefix: 'Linting',
       noToolMessage: 'No linter found (oxlint, biome, or eslint). Skipping linting.',
-      onStart: () => hooks.emit('kubb:lint:start'),
-      onEnd: () => hooks.emit('kubb:lint:end'),
+      onStart: () => hooks.callHook('kubb:lint:start'),
+      onEnd: () => hooks.callHook('kubb:lint:end'),
       outputPath,
       logLevel,
       hooks,
@@ -215,23 +215,23 @@ async function generate(options: GenerateProps): Promise<boolean> {
   }
 
   if (config.hooks) {
-    await hooks.emit('kubb:hooks:start')
+    await hooks.callHook('kubb:hooks:start')
     const hookResults = await executeHooks({ configHooks: config.hooks, hooks })
     for (const result of hookResults) {
       if (result.success) continue
       await reportOutputFailure(Diagnostics.code.hookFailed, 'Post-generate hook', result.error ?? new Error('Post-generate hook failed'))
     }
-    await hooks.emit('kubb:hooks:end')
+    await hooks.callHook('kubb:hooks:end')
   }
 
   const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
   const failed = Diagnostics.hasError(outputDiagnostics)
 
   if (!failed) {
-    await hooks.emit('kubb:success', { message: 'Generation succeeded', info: inputPath })
+    await hooks.callHook('kubb:success', { message: 'Generation succeeded', info: inputPath })
   }
 
-  await hooks.emit('kubb:generation:end', {
+  await hooks.callHook('kubb:generation:end', {
     config,
     storage: kubb.storage,
     diagnostics: finalDiagnostics,
@@ -303,7 +303,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     resolvedConfigPath = loaded.configPath
   } catch (error) {
     await setupReporters(hooks, { logLevel, reporters: [cliReporter] })
-    await hooks.emit('kubb:error', { error: toError(error) })
+    await hooks.callHook('kubb:error', { error: toError(error) })
     process.exit(1)
   }
 
@@ -314,15 +314,15 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   const reporters = selectReporters(available, requestedNames)
   await setupReporters(hooks, { logLevel, reporters })
 
-  await hooks.emit('kubb:lifecycle:start', { version })
+  await hooks.callHook('kubb:lifecycle:start', { version })
 
   await checkForUpdate(hooks)
 
   try {
     const relativeConfigPath = path.relative(process.cwd(), resolvedConfigPath)
 
-    await hooks.emit('kubb:info', { message: 'Config loaded', info: relativeConfigPath })
-    await hooks.emit('kubb:success', { message: 'Config loaded successfully', info: relativeConfigPath })
+    await hooks.callHook('kubb:info', { message: 'Config loaded', info: relativeConfigPath })
+    await hooks.callHook('kubb:success', { message: 'Config loaded successfully', info: relativeConfigPath })
 
     let anyFailed = false
     for (const config of configs) {
@@ -341,7 +341,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         try {
           await build(watchedPaths)
         } catch (buildError) {
-          await hooks.emit('kubb:error', { error: toError(buildError) })
+          await hooks.callHook('kubb:error', { error: toError(buildError) })
         }
 
         await startWatcher(watchedPaths, build, { info: (msg) => clack.log.info(msg), error: (msg) => clack.log.error(msg) })
@@ -350,19 +350,19 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
           const succeeded = await generate({ input, config, logLevel, hooks })
           if (!succeeded) anyFailed = true
         } catch (configError) {
-          await hooks.emit('kubb:error', { error: toError(configError) })
+          await hooks.callHook('kubb:error', { error: toError(configError) })
           anyFailed = true
         }
       }
     }
 
-    await hooks.emit('kubb:lifecycle:end')
+    await hooks.callHook('kubb:lifecycle:end')
 
     if (anyFailed) {
       process.exit(1)
     }
   } catch (error) {
-    await hooks.emit('kubb:error', { error: toError(error) })
+    await hooks.callHook('kubb:error', { error: toError(error) })
     process.exit(1)
   }
 }

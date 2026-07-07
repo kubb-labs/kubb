@@ -395,11 +395,11 @@ declare global {
  *
  * @example
  * ```ts
- * kubb.hooks.on('kubb:lifecycle:start', () => {
+ * kubb.hooks.hook('kubb:lifecycle:start', () => {
  *   console.log('Starting Kubb generation')
  * })
  *
- * kubb.hooks.on('kubb:plugin:end', ({ plugin, duration }) => {
+ * kubb.hooks.hook('kubb:plugin:end', ({ plugin, duration }) => {
  *   console.log(`${plugin.name} completed in ${duration}ms`)
  * })
  * ```

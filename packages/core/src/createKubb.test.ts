@@ -212,8 +212,8 @@ describe('createKubb', () => {
     const startSpy = vi.fn()
     const endSpy = vi.fn()
 
-    hooks.on('kubb:plugin:start', startSpy)
-    hooks.on('kubb:plugin:end', endSpy)
+    hooks.hook('kubb:plugin:start', startSpy)
+    hooks.hook('kubb:plugin:end', endSpy)
 
     await createKubb(config, { hooks }).build()
 
@@ -224,7 +224,7 @@ describe('createKubb', () => {
   it('writes every generated file in one batch after plugin:end fires for each plugin', async () => {
     const hooks = new Hookable<KubbHooks>()
     const batches: Array<number> = []
-    hooks.on('kubb:files:processing:start', ({ files }) => {
+    hooks.hook('kubb:files:processing:start', ({ files }) => {
       batches.push(files.length)
     })
 
@@ -266,7 +266,7 @@ describe('createKubb', () => {
     } satisfies Config
 
     const endOrder: Array<string> = []
-    hooks.on('kubb:plugin:end', ({ plugin }) => {
+    hooks.hook('kubb:plugin:end', ({ plugin }) => {
       endOrder.push(plugin.name)
     })
 
@@ -515,7 +515,7 @@ describe('createKubb', () => {
       const schemas = Array.from({ length: count }, (_, i) => ast.factory.createSchema({ name: `FlushSchema${i}`, type: 'string' }))
       const hooks = new Hookable<KubbHooks>()
       const batches: Array<number> = []
-      hooks.on('kubb:files:processing:start', ({ files }) => {
+      hooks.hook('kubb:files:processing:start', ({ files }) => {
         batches.push(files.length)
       })
 

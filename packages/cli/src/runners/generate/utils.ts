@@ -171,7 +171,7 @@ export async function executeHooks({ configHooks, hooks }: ExecuteHooksOptions):
     const hookId = createHookId()
     const commandWithArgs = [cmd, ...args].join(' ')
 
-    await hooks.emit('kubb:hook:start', { id: hookId, command: cmd, args })
+    await hooks.callHook('kubb:hook:start', { id: hookId, command: cmd, args })
     results.push(await runHook({ id: hookId, command: cmd, args, commandWithArgs, hooks }))
   }
 
@@ -194,7 +194,7 @@ type RunHookOptions = {
  */
 export async function runHook({ id, command, args, commandWithArgs, hooks }: RunHookOptions): Promise<HookResult> {
   const emitEnd = async (result: HookResult): Promise<HookResult> => {
-    await hooks.emit('kubb:hook:end', { command, args, id, ...result })
+    await hooks.callHook('kubb:hook:end', { command, args, id, ...result })
     return result
   }
 
@@ -210,12 +210,12 @@ export async function runHook({ id, command, args, commandWithArgs, hooks }: Run
 
     if (stream) {
       for await (const line of proc) {
-        await hooks.emit('kubb:hook:line', { id, line })
+        await hooks.callHook('kubb:hook:line', { id, line })
       }
     }
 
     await proc
-    await hooks.emit('kubb:success', { message: `${styleText('dim', commandWithArgs)} successfully executed` })
+    await hooks.callHook('kubb:success', { message: `${styleText('dim', commandWithArgs)} successfully executed` })
     return emitEnd({ success: true, error: null })
   } catch (err) {
     if (!(err instanceof NonZeroExitError)) {

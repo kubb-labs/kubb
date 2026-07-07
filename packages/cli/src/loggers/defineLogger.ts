@@ -12,7 +12,7 @@ export type LoggerOptions = {
 }
 
 /**
- * Hook emitter handed to `Logger.install`. Use `.on('kubb:info', ...)` to
+ * Hook emitter handed to `Logger.install`. Use `.hook('kubb:info', ...)` to
  * subscribe to build hooks.
  */
 export type LoggerContext = Hookable<KubbHooks>
@@ -42,7 +42,7 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
  * export const myLogger = defineLogger({
  *   name: 'my-logger',
  *   install(context) {
- *     context.on('kubb:info', ({ message }) => console.log('ℹ', message))
+ *     context.hook('kubb:info', ({ message }) => console.log('ℹ', message))
  *   },
  * })
  * ```

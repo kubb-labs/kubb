@@ -143,7 +143,7 @@ export class FileManager {
    */
   dispose(): void {
     this.clear()
-    this.hooks.removeAll()
+    this.hooks.removeAllHooks()
   }
 
   /**
@@ -184,7 +184,7 @@ export class FileManager {
   async write(files: Array<FileNode>, { storage, parsers, extension }: WriteOptions): Promise<void> {
     if (files.length === 0) return
 
-    await this.hooks.emit('start', files)
+    await this.hooks.callHook('start', files)
 
     const total = files.length
     let processed = 0
@@ -192,11 +192,11 @@ export class FileManager {
       files.map(async (file) => {
         const source = await this.parse(file, { parsers, extension })
         processed++
-        await this.hooks.emit('update', { file, source, processed, total, percentage: (processed / total) * 100 })
+        await this.hooks.callHook('update', { file, source, processed, total, percentage: (processed / total) * 100 })
         if (source) await storage.setItem(file.path, source)
       }),
     )
 
-    await this.hooks.emit('end', files)
+    await this.hooks.callHook('end', files)
   }
 }

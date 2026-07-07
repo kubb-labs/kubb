@@ -23,51 +23,51 @@ export const generateTool = defineTool(
         messages.push(data ? `${type}: ${message} ${JSON.stringify(data)}` : `${type}: ${message}`)
       }
 
-      hooks.on('kubb:info', async ({ message }: { message: string }) => {
+      hooks.hook('kubb:info', async ({ message }: { message: string }) => {
         await notify(NotifyTypes.INFO, message)
       })
 
-      hooks.on('kubb:success', async ({ message }: { message: string }) => {
+      hooks.hook('kubb:success', async ({ message }: { message: string }) => {
         await notify(NotifyTypes.SUCCESS, message)
       })
 
-      hooks.on('kubb:error', async ({ error }: { error: Error }) => {
+      hooks.hook('kubb:error', async ({ error }: { error: Error }) => {
         await notify(NotifyTypes.ERROR, error.message)
       })
 
-      hooks.on('kubb:warn', async ({ message }: { message: string }) => {
+      hooks.hook('kubb:warn', async ({ message }: { message: string }) => {
         await notify(NotifyTypes.WARN, message)
       })
 
-      hooks.on('kubb:diagnostic', async ({ diagnostic }: { diagnostic: Diagnostic }) => {
+      hooks.hook('kubb:diagnostic', async ({ diagnostic }: { diagnostic: Diagnostic }) => {
         await notify(NotifyTypes.DIAGNOSTIC, diagnostic.message, Diagnostics.serialize(diagnostic))
       })
 
-      hooks.on('kubb:plugin:start', async ({ plugin }) => {
+      hooks.hook('kubb:plugin:start', async ({ plugin }) => {
         await notify(NotifyTypes.PLUGIN_START, `Plugin starting: ${plugin.name}`)
       })
 
-      hooks.on('kubb:plugin:end', async ({ plugin, duration }) => {
+      hooks.hook('kubb:plugin:end', async ({ plugin, duration }) => {
         await notify(NotifyTypes.PLUGIN_END, `Plugin finished: ${plugin.name}`, { duration })
       })
 
-      hooks.on('kubb:files:processing:start', async () => {
+      hooks.hook('kubb:files:processing:start', async () => {
         await notify(NotifyTypes.FILES_START, 'Starting file processing')
       })
 
-      hooks.on('kubb:files:processing:update', async ({ files }: { files: Array<{ file: { name: string } }> }) => {
+      hooks.hook('kubb:files:processing:update', async ({ files }: { files: Array<{ file: { name: string } }> }) => {
         await notify(NotifyTypes.FILES_UPDATE, `Processing ${files.length} files`)
       })
 
-      hooks.on('kubb:files:processing:end', async () => {
+      hooks.hook('kubb:files:processing:end', async () => {
         await notify(NotifyTypes.FILES_END, 'File processing complete')
       })
 
-      hooks.on('kubb:generation:start', async () => {
+      hooks.hook('kubb:generation:start', async () => {
         await notify(NotifyTypes.GENERATION_START, 'Generation started')
       })
 
-      hooks.on('kubb:generation:end', async () => {
+      hooks.hook('kubb:generation:end', async () => {
         await notify(NotifyTypes.GENERATION_END, 'Generation ended')
       })
 

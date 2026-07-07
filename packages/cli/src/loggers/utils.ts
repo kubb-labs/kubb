@@ -194,12 +194,12 @@ export function formatCommandWithArgs(command: string, args?: ReadonlyArray<stri
  * {@link GenerationResult} on `kubb:generation:end`. The reporter never touches the emitter.
  */
 export function installReporter(context: LoggerContext, reporter: Reporter, ctx: ReporterContext): void {
-  context.on('kubb:generation:end', async ({ config, diagnostics = [], filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
+  context.hook('kubb:generation:end', async ({ config, diagnostics = [], filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
     await reporter.report({ config, diagnostics, filesCreated, status, hrStart }, ctx)
   })
 
   if (reporter.drain) {
-    context.on('kubb:lifecycle:end', () => reporter.drain?.(ctx))
+    context.hook('kubb:lifecycle:end', () => reporter.drain?.(ctx))
   }
 }
 
