@@ -43,7 +43,7 @@ export type CreateKubbOptions = {
  * @example
  * ```ts
  * const kubb = createKubb(userConfig)
- * kubb.hooks.on('kubb:plugin:end', ({ plugin, duration }) => console.log(plugin.name, duration))
+ * kubb.hooks.hook('kubb:plugin:end', ({ plugin, duration }) => console.log(plugin.name, duration))
  * const { files, diagnostics } = await kubb.safeBuild()
  * ```
  */
@@ -113,9 +113,9 @@ export class Kubb {
    */
   async safeBuild(): Promise<BuildOutput> {
     if (!this.#driver) await this.setup()
-    using cleanup = this
-    const driver = cleanup.driver
-    const storage = cleanup.storage
+    using self = this
+    const driver = self.driver
+    const storage = self.storage
     const { diagnostics } = await driver.run({ storage })
 
     return { diagnostics, files: driver.fileManager.files, driver, storage }

@@ -111,7 +111,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     expect(driver.plugins.has('hook-plugin')).toBe(true)
   })
 
-  it('registers kubb:plugin:setup handler on the hook emitter', async () => {
+  it('does not register kubb:plugin:setup on the hook emitter', async () => {
     const setupHandler = vi.fn()
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
@@ -124,10 +124,10 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks })
     await driver.setup()
 
-    expect(hooks.listenerCount('kubb:plugin:setup')).toBeGreaterThan(0)
+    expect(hooks.listenerCount('kubb:plugin:setup')).toBe(0)
   })
 
-  it('calls kubb:plugin:setup handler when hook is emitted', async () => {
+  it('runs the kubb:plugin:setup handler on setupHooks', async () => {
     const setupHandler = vi.fn()
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
@@ -140,7 +140,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks })
     await driver.setup()
 
-    await hooks.emit('kubb:plugin:setup', createSetupCtxStub(makeConfig([])))
+    await driver.setupHooks()
     expect(setupHandler).toHaveBeenCalledOnce()
   })
 
@@ -162,7 +162,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     // Before emit — no generators yet
     expect(driver.hasHookGenerators('hook-plugin')).toBe(false)
 
-    await driver.emitSetupHooks()
+    await driver.setupHooks()
 
     // After emit — generator is registered via the hook-based path
     expect(driver.hasHookGenerators('hook-plugin')).toBe(true)
@@ -189,7 +189,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks })
     await driver.setup()
 
-    await driver.emitSetupHooks()
+    await driver.setupHooks()
 
     expect(driver.hasHookGenerators('hook-plugin')).toBe(true)
     // Each generator wires up the listener for the hook it implements.
@@ -216,7 +216,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks })
     await driver.setup()
 
-    await driver.emitSetupHooks()
+    await driver.setupHooks()
 
     expect(driver.hasHookGenerators('hook-plugin')).toBe(true)
     expect(hooks.listenerCount('kubb:generate:schema')).toBe(1)
@@ -241,7 +241,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     })
     await driver.setup()
 
-    await hooks.emit('kubb:plugin:setup', createSetupCtxStub(makeConfig([])))
+    await driver.setupHooks()
 
     expect(capturedOptions[0]).toStrictEqual({ tag: 'pets' })
   })
@@ -265,7 +265,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       hooks,
     })
     await driver.setup()
-    await driver.emitSetupHooks()
+    await driver.setupHooks()
 
     const resolver = driver.getResolver('hook-plugin')
     expect(resolver.name('any value')).toBe('CustomName')
@@ -299,7 +299,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       hooks,
     })
     await driver.setup()
-    await driver.emitSetupHooks()
+    await driver.setupHooks()
 
     const plugin = driver.plugins.get('hook-plugin')!
     expect(plugin.resolver).toBeDefined()
@@ -341,7 +341,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       hooks,
     })
     await driver.setup()
-    await driver.emitSetupHooks()
+    await driver.setupHooks()
 
     const plugin = driver.plugins.get('hook-plugin')!
     const opts = plugin.options as Record<string, unknown>
@@ -361,10 +361,10 @@ describe('PluginDriver — hook-style plugin registration', () => {
     await driver.setup()
 
     const externalListener = vi.fn()
-    hooks.on('kubb:plugin:setup', externalListener)
+    hooks.hook('kubb:plugin:setup', externalListener)
 
     const ctx = createSetupCtxStub(makeConfig([]))
-    await hooks.emit('kubb:plugin:setup', ctx)
+    await hooks.callHook('kubb:plugin:setup', ctx)
 
     expect(externalListener).toHaveBeenCalledWith(ctx)
   })
@@ -400,7 +400,7 @@ describe('PluginDriver — generator hook dispatch', () => {
       hooks,
     })
     await driver.setup()
-    await driver.emitSetupHooks()
+    await driver.setupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!
     const fakeCtx = {
@@ -409,7 +409,7 @@ describe('PluginDriver — generator hook dispatch', () => {
     } as unknown as GeneratorContext
     const fakeNode = { kind: 'Schema', name: 'Pet' } as unknown as SchemaNode
 
-    await hooks.emit('kubb:generate:schema', fakeNode, {
+    await hooks.callHook('kubb:generate:schema', fakeNode, {
       ...fakeCtx,
       options: {},
     })
@@ -432,7 +432,7 @@ describe('PluginDriver — generator hook dispatch', () => {
       hooks,
     })
     await driver.setup()
-    await driver.emitSetupHooks()
+    await driver.setupHooks()
 
     // Emit with a DIFFERENT plugin name in the context — should NOT trigger the listener
     const otherPlugin = { name: 'other-plugin' } as unknown as Plugin
@@ -442,7 +442,7 @@ describe('PluginDriver — generator hook dispatch', () => {
     } as unknown as GeneratorContext
     const fakeNode = { kind: 'Schema', name: 'Pet' } as unknown as SchemaNode
 
-    await hooks.emit('kubb:generate:schema', fakeNode, {
+    await hooks.callHook('kubb:generate:schema', fakeNode, {
       ...fakeCtx,
       options: {},
     })
@@ -466,7 +466,7 @@ describe('PluginDriver — generator hook dispatch', () => {
     await driver.setup()
 
     expect(driver.hasHookGenerators('hook-plugin')).toBe(false)
-    await driver.emitSetupHooks()
+    await driver.setupHooks()
     expect(driver.hasHookGenerators('hook-plugin')).toBe(true)
   })
 
@@ -486,7 +486,7 @@ describe('PluginDriver — generator hook dispatch', () => {
       hooks,
     })
     await driver.setup()
-    await driver.emitSetupHooks()
+    await driver.setupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!
     const fakeCtx = {
@@ -498,7 +498,7 @@ describe('PluginDriver — generator hook dispatch', () => {
       operationId: 'getPet',
     } as unknown as OperationNode
 
-    await hooks.emit('kubb:generate:operation', fakeNode, {
+    await hooks.callHook('kubb:generate:operation', fakeNode, {
       ...fakeCtx,
       options: {},
     })
@@ -521,7 +521,7 @@ describe('PluginDriver — generator hook dispatch', () => {
       hooks,
     })
     await driver.setup()
-    await driver.emitSetupHooks()
+    await driver.setupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!
     const fakeCtx = {
@@ -531,7 +531,7 @@ describe('PluginDriver — generator hook dispatch', () => {
     } as unknown as GeneratorContext
     const fakeNodes = [{ kind: 'Operation', operationId: 'getPet' }] as unknown as Array<OperationNode>
 
-    await hooks.emit('kubb:generate:operations', fakeNodes, fakeCtx)
+    await hooks.callHook('kubb:generate:operations', fakeNodes, fakeCtx)
     expect(operationsMock).toHaveBeenCalledOnce()
   })
 
@@ -561,7 +561,7 @@ describe('PluginDriver — generator hook dispatch', () => {
       hooks,
     })
     await driver.setup()
-    await driver.emitSetupHooks()
+    await driver.setupHooks()
 
     const fakePlugin = driver.plugins.get('hook-plugin')!
     const fakeCtx = {
@@ -570,7 +570,7 @@ describe('PluginDriver — generator hook dispatch', () => {
     } as unknown as GeneratorContext
     const fakeNode = { kind: 'Schema', name: 'Pet' } as unknown as SchemaNode
 
-    await hooks.emit('kubb:generate:schema', fakeNode, {
+    await hooks.callHook('kubb:generate:schema', fakeNode, {
       ...fakeCtx,
       options: {} as unknown as GeneratorContext['options'],
     })

@@ -25,39 +25,39 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
   const hooks = new Hookable<KubbHooks>()
   const isVite = meta.framework === 'vite'
 
-  hooks.on('kubb:lifecycle:start', ({ version }) => {
+  hooks.hook('kubb:lifecycle:start', ({ version }) => {
     console.log(`Kubb Unplugin ${version} 🧩`)
   })
 
-  hooks.on('kubb:error', ({ error }) => {
+  hooks.hook('kubb:error', ({ error }) => {
     console.error(`✗ ${error?.message || 'failed'}`)
   })
 
-  hooks.on('kubb:warn', ({ message }) => {
+  hooks.hook('kubb:warn', ({ message }) => {
     console.warn(`⚠ ${message}`)
   })
 
-  hooks.on('kubb:info', ({ message }) => {
+  hooks.hook('kubb:info', ({ message }) => {
     console.info(`ℹ ${message}`)
   })
 
-  hooks.on('kubb:success', ({ message }) => {
+  hooks.hook('kubb:success', ({ message }) => {
     console.log(`✓ ${message}`)
   })
 
-  hooks.on('kubb:plugin:end', ({ plugin, duration }) => {
+  hooks.hook('kubb:plugin:end', ({ plugin, duration }) => {
     const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
 
     console.log(`✓ ${plugin.name} completed in ${durationStr}`)
   })
 
-  hooks.on('kubb:files:processing:end', () => {
+  hooks.hook('kubb:files:processing:end', () => {
     const text = '✓ Files written successfully'
 
     console.log(text)
   })
 
-  hooks.on('kubb:generation:end', ({ config, status, diagnostics }) => {
+  hooks.hook('kubb:generation:end', ({ config, status, diagnostics }) => {
     console.log(config.name ? `✓ Generation completed for ${config.name}` : '✓ Generation completed')
 
     if (!diagnostics || !status) return
@@ -95,14 +95,14 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     }
     const hrStart = process.hrtime()
 
-    await hooks.emit('kubb:lifecycle:start', { version: unpluginVersion })
+    await hooks.callHook('kubb:lifecycle:start', { version: unpluginVersion })
 
     const userConfig = config as Config
 
     const kubb = createKubb(userConfig, { hooks })
     await kubb.setup()
 
-    await hooks.emit('kubb:generation:start', { config: kubb.config })
+    await hooks.callHook('kubb:generation:start', { config: kubb.config })
 
     const { diagnostics, files, storage } = await kubb.safeBuild()
 
@@ -115,15 +115,15 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
         continue
       }
       if (diagnostic.severity === 'error') {
-        hooks.emit('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+        hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
       } else if (diagnostic.severity === 'warning') {
-        hooks.emit('kubb:warn', { message: diagnostic.message })
+        hooks.callHook('kubb:warn', { message: diagnostic.message })
       } else {
-        hooks.emit('kubb:info', { message: diagnostic.message })
+        hooks.callHook('kubb:info', { message: diagnostic.message })
       }
     }
 
-    await hooks.emit('kubb:generation:end', {
+    await hooks.callHook('kubb:generation:end', {
       config: kubb.config,
       storage,
       diagnostics,
@@ -132,7 +132,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       hrStart,
     })
 
-    await hooks.emit('kubb:lifecycle:end')
+    await hooks.callHook('kubb:lifecycle:end')
 
     if (hasFailures) {
       const failedCount = Diagnostics.failedPlugins(diagnostics).length

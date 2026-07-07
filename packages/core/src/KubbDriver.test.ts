@@ -48,7 +48,7 @@ describe('PluginDriver', () => {
   })
 
   afterEach(() => {
-    pluginDriver.hooks.removeAll()
+    pluginDriver.hooks.removeAllHooks()
   })
 
   test('if pluginDriver can be created', () => {
@@ -132,7 +132,7 @@ describe('PluginDriver', () => {
     const hooks = new Hookable<KubbHooks>()
     const driver = new KubbDriver(cfg, { hooks })
     await driver.setup()
-    await hooks.emit('kubb:plugin:start', { plugin: plugin as never })
+    await hooks.callHook('kubb:plugin:start', { plugin: plugin as never })
 
     expect(calls).toStrictEqual(['plugin', 'post-plugin'])
     expect(hooks.listenerCount('kubb:plugin:start')).toBe(2)
@@ -141,7 +141,7 @@ describe('PluginDriver', () => {
 
     expect(hooks.listenerCount('kubb:plugin:start')).toBe(0)
 
-    await hooks.emit('kubb:plugin:start', { plugin: plugin as never })
+    await hooks.callHook('kubb:plugin:start', { plugin: plugin as never })
 
     expect(pluginHook).toHaveBeenCalledTimes(1)
     expect(postPluginHook).toHaveBeenCalledTimes(1)
@@ -153,9 +153,9 @@ describe('PluginDriver', () => {
     const driver = new KubbDriver(config, { hooks })
     await driver.setup()
 
-    hooks.on('kubb:build:end', external)
+    hooks.hook('kubb:build:end', external)
     driver.dispose()
-    await hooks.emit('kubb:build:end', {
+    await hooks.callHook('kubb:build:end', {
       files: [],
       config,
       outputDir: '/tmp',
@@ -250,7 +250,7 @@ describe('GeneratorContext diagnostics', () => {
   })
 
   afterEach(() => {
-    driver.hooks.removeAll()
+    driver.hooks.removeAllHooks()
   })
 
   function context() {
@@ -296,7 +296,7 @@ describe('GeneratorContext diagnostics', () => {
 
   it('collects the diagnostic only and does not emit a live hook', () => {
     const onError = vi.fn()
-    driver.hooks.on('kubb:error', onError)
+    driver.hooks.hook('kubb:error', onError)
 
     collect((ctx) => ctx.error('boom'))
 

@@ -19,7 +19,7 @@ export const plainLogger = defineLogger({
 
     // Registers a handler that logs a fixed message, skipped at silent level.
     function onStep<E extends keyof KubbHooks>(hook: E, message: string): void {
-      context.on(hook, () => {
+      context.hook(hook, () => {
         if (logLevel <= logLevelMap.silent) {
           return
         }
@@ -27,7 +27,7 @@ export const plainLogger = defineLogger({
       })
     }
 
-    context.on('kubb:info', ({ message, info }) => {
+    context.hook('kubb:info', ({ message, info }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -37,7 +37,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:success', ({ message, info = '' }) => {
+    context.hook('kubb:success', ({ message, info = '' }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -47,7 +47,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:warn', ({ message, info }) => {
+    context.hook('kubb:warn', ({ message, info }) => {
       if (logLevel < logLevelMap.warn) {
         return
       }
@@ -57,7 +57,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:error', ({ error }) => {
+    context.hook('kubb:error', ({ error }) => {
       const text = getMessage(['✗', error.message].join(' '))
 
       console.log(text)
@@ -78,7 +78,7 @@ export const plainLogger = defineLogger({
       }
     })
 
-    context.on('kubb:diagnostic', ({ diagnostic }) => {
+    context.hook('kubb:diagnostic', ({ diagnostic }) => {
       // Silent still surfaces errors so failures stay visible. It drops warnings and info.
       if (logLevel <= logLevelMap.silent && diagnostic.severity !== 'error') {
         return
@@ -86,17 +86,17 @@ export const plainLogger = defineLogger({
       console.log(getMessage(Diagnostics.formatLines(diagnostic).join('\n')))
     })
 
-    context.on('kubb:lifecycle:start', ({ version }) => {
+    context.hook('kubb:lifecycle:start', ({ version }) => {
       console.log(`Kubb CLI v${version}`)
     })
 
-    context.on('kubb:generation:start', () => {
+    context.hook('kubb:generation:start', () => {
       const text = getMessage('Generation started')
 
       console.log(text)
     })
 
-    context.on('kubb:plugin:start', ({ plugin }) => {
+    context.hook('kubb:plugin:start', ({ plugin }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -105,7 +105,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:plugin:end', ({ plugin, duration, success }) => {
+    context.hook('kubb:plugin:end', ({ plugin, duration, success }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -116,7 +116,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:files:processing:start', ({ files }) => {
+    context.hook('kubb:files:processing:start', ({ files }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -126,7 +126,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:files:processing:update', ({ files }) => {
+    context.hook('kubb:files:processing:update', ({ files }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -136,7 +136,7 @@ export const plainLogger = defineLogger({
       }
     })
 
-    context.on('kubb:files:processing:end', () => {
+    context.hook('kubb:files:processing:end', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -146,7 +146,7 @@ export const plainLogger = defineLogger({
       console.log(text)
     })
 
-    context.on('kubb:generation:end', ({ config }) => {
+    context.hook('kubb:generation:end', ({ config }) => {
       const text = getMessage(config.name ? `Generation completed for ${config.name}` : 'Generation completed')
 
       console.log(text)
@@ -159,7 +159,7 @@ export const plainLogger = defineLogger({
     onStep('kubb:hooks:start', 'Hooks started')
     onStep('kubb:hooks:end', 'Hooks completed')
 
-    context.on('kubb:hook:start', ({ id, command, args }) => {
+    context.hook('kubb:hook:start', ({ id, command, args }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -172,7 +172,7 @@ export const plainLogger = defineLogger({
       console.log(getMessage(`Hook ${commandWithArgs} started`))
     })
 
-    context.on('kubb:hook:end', ({ id, command, args, success, error, stdout, stderr }) => {
+    context.hook('kubb:hook:end', ({ id, command, args, success, error, stdout, stderr }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }

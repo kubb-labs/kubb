@@ -12,7 +12,7 @@ describe('runHook', () => {
   it('emits kubb:hook:line for each stdout line when a listener is attached', async () => {
     const hooks = new Hookable<KubbHooks>()
     const lines: Array<string> = []
-    hooks.on('kubb:hook:line', ({ line }) => {
+    hooks.hook('kubb:hook:line', ({ line }) => {
       lines.push(line)
     })
 
@@ -31,7 +31,7 @@ describe('runHook', () => {
   it('emits kubb:hook:end with captured stdout/stderr and success=false on a non-zero exit', async () => {
     const hooks = new Hookable<KubbHooks>()
     let end: { success: boolean; stdout?: string; stderr?: string } | undefined
-    hooks.on('kubb:hook:end', (ctx) => {
+    hooks.hook('kubb:hook:end', (ctx) => {
       end = ctx
     })
 
@@ -52,10 +52,10 @@ describe('runHook', () => {
     const hooks = new Hookable<KubbHooks>()
     const lines: Array<string> = []
     let end: { success: boolean } | undefined
-    hooks.on('kubb:hook:line', ({ line }) => {
+    hooks.hook('kubb:hook:line', ({ line }) => {
       lines.push(line)
     })
-    hooks.on('kubb:hook:end', (ctx) => {
+    hooks.hook('kubb:hook:end', (ctx) => {
       end = ctx
     })
 
@@ -74,7 +74,7 @@ describe('runHook', () => {
   it('completes without streaming when no kubb:hook:line listener is attached', async () => {
     const hooks = new Hookable<KubbHooks>()
     let succeeded = false
-    hooks.on('kubb:hook:end', ({ success }) => {
+    hooks.hook('kubb:hook:end', ({ success }) => {
       succeeded = success
     })
 

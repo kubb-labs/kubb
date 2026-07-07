@@ -13,7 +13,7 @@ describe('jsonReporter', () => {
 
     await setupReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
 
-    await context.emit('kubb:generation:end', {
+    await context.callHook('kubb:generation:end', {
       config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
       storage: {} as Storage,
       diagnostics: [{ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing Pet', plugin: '@kubb/plugin-zod' }],
@@ -21,7 +21,7 @@ describe('jsonReporter', () => {
       status: 'failed',
       hrStart: process.hrtime(),
     })
-    await context.emit('kubb:generation:end', {
+    await context.callHook('kubb:generation:end', {
       config: { name: 'orders', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
       storage: {} as Storage,
       diagnostics: [],
@@ -29,7 +29,7 @@ describe('jsonReporter', () => {
       status: 'success',
       hrStart: process.hrtime(),
     })
-    await context.emit('kubb:lifecycle:end')
+    await context.callHook('kubb:lifecycle:end')
 
     const reports = JSON.parse(writes.join(''))
     expect(reports).toHaveLength(2)
@@ -48,7 +48,7 @@ describe('cliReporter', () => {
 
     installReporter(context, cliReporter, { logLevel: logLevel.info })
 
-    await context.emit('kubb:generation:end', {
+    await context.callHook('kubb:generation:end', {
       config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}, {}] } as unknown as Config,
       storage: {} as Storage,
       diagnostics: [],
@@ -72,7 +72,7 @@ describe('cliReporter', () => {
 
     installReporter(context, cliReporter, { logLevel: logLevel.silent })
 
-    await context.emit('kubb:generation:end', {
+    await context.callHook('kubb:generation:end', {
       config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
       storage: {} as Storage,
       diagnostics: [],

@@ -452,11 +452,11 @@ export class Diagnostics {
 
   /**
    * Emits a diagnostic on the run's `kubb:diagnostic` hook so the loggers render it live.
-   * Use it instead of calling `hooks.emit('kubb:diagnostic', ...)` directly. To collect a
+   * Use it instead of calling `hooks.callHook('kubb:diagnostic', ...)` directly. To collect a
    * diagnostic into the build result from deep in a run, use {@link Diagnostics.report} instead.
    */
   static async emit(hooks: Hookable<KubbHooks>, diagnostic: ProblemDiagnostic | UpdateDiagnostic): Promise<void> {
-    await hooks.emit('kubb:diagnostic', { diagnostic })
+    await hooks.callHook('kubb:diagnostic', { diagnostic })
   }
 
   /**

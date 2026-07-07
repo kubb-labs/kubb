@@ -75,7 +75,7 @@ export const clackLogger = defineLogger({
 
     // Registers a handler that prints a fixed step message, skipped at silent level.
     function onStep<E extends keyof KubbHooks>(hook: E, message: string): void {
-      context.on(hook, () => {
+      context.hook(hook, () => {
         if (logLevel <= logLevelMap.silent) {
           return
         }
@@ -91,7 +91,7 @@ export const clackLogger = defineLogger({
       state.isSpinning = false
     }
 
-    context.on('kubb:info', ({ message, info = '' }) => {
+    context.hook('kubb:info', ({ message, info = '' }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -105,7 +105,7 @@ export const clackLogger = defineLogger({
       clack.log.info(text)
     })
 
-    context.on('kubb:success', ({ message, info = '' }) => {
+    context.hook('kubb:success', ({ message, info = '' }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -119,7 +119,7 @@ export const clackLogger = defineLogger({
       clack.log.success(text)
     })
 
-    context.on('kubb:warn', ({ message, info }) => {
+    context.hook('kubb:warn', ({ message, info }) => {
       if (logLevel < logLevelMap.warn) {
         return
       }
@@ -131,7 +131,7 @@ export const clackLogger = defineLogger({
       clack.log.warn(text)
     })
 
-    context.on('kubb:error', ({ error }) => {
+    context.hook('kubb:error', ({ error }) => {
       const text = [styleText('red', '✗'), error.message].join(' ')
 
       if (state.isSpinning) {
@@ -156,7 +156,7 @@ export const clackLogger = defineLogger({
       }
     })
 
-    context.on('kubb:diagnostic', ({ diagnostic }) => {
+    context.hook('kubb:diagnostic', ({ diagnostic }) => {
       // Silent still surfaces errors so failures stay visible. It drops warnings and info.
       if (logLevel <= logLevelMap.silent && diagnostic.severity !== 'error') {
         return
@@ -192,13 +192,13 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.log.message([headline, ...details], { symbol: '', secondarySymbol: '' })
     })
 
-    context.on('kubb:lifecycle:start', async ({ version }) => {
+    context.hook('kubb:lifecycle:start', async ({ version }) => {
       console.log(`\n${getIntro({ title: 'The meta framework for code generation', description: 'Ready to start', version, areEyesOpen: true })}\n`)
 
       reset()
     })
 
-    context.on('kubb:generation:start', ({ config }) => {
+    context.hook('kubb:generation:start', ({ config }) => {
       reset()
 
       // Initialize progress tracking for this generation
@@ -215,7 +215,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
     // Plugins run concurrently, so they share a single progress bar. A bar per plugin
     // would make clack render them side by side and pile up keypress listeners.
-    context.on('kubb:plugin:start', ({ plugin }) => {
+    context.hook('kubb:plugin:start', ({ plugin }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -241,7 +241,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       state.activeProgress.set('plugins', { progressBar })
     })
 
-    context.on('kubb:plugin:end', ({ plugin, success }) => {
+    context.hook('kubb:plugin:end', ({ plugin, success }) => {
       stopSpinner()
 
       const active = state.activeProgress.get('plugins')
@@ -262,7 +262,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
     })
 
-    context.on('kubb:files:processing:start', ({ files }) => {
+    context.hook('kubb:files:processing:start', ({ files }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -279,12 +279,12 @@ Run \`npm install -g @kubb/cli\` to update`,
         size: 30,
       })
 
-      context.emit('kubb:info', { message: text })
+      context.callHook('kubb:info', { message: text })
       progressBar.start(getMessage(text))
       state.activeProgress.set('files', { progressBar })
     })
 
-    context.on('kubb:files:processing:update', ({ files }) => {
+    context.hook('kubb:files:processing:update', ({ files }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -299,7 +299,7 @@ Run \`npm install -g @kubb/cli\` to update`,
         }
       }
     })
-    context.on('kubb:files:processing:end', () => {
+    context.hook('kubb:files:processing:end', () => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -320,7 +320,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       showProgressStep()
     })
 
-    context.on('kubb:generation:end', ({ config }) => {
+    context.hook('kubb:generation:end', ({ config }) => {
       stopSpinner()
 
       const text = getMessage(config.name ? `Generation completed for ${styleText('dim', config.name)}` : 'Generation completed')
@@ -332,7 +332,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     onStep('kubb:lint:start', 'Linting')
     onStep('kubb:hooks:start', 'Running hooks')
 
-    context.on('kubb:hook:start', ({ id, command, args }) => {
+    context.hook('kubb:hook:start', ({ id, command, args }) => {
       if (logLevel <= logLevelMap.silent || !id) {
         return
       }
@@ -349,13 +349,13 @@ Run \`npm install -g @kubb/cli\` to update`,
     // Registered only when not silent, so its presence is what tells the runner to stream
     // (`kubb:hook:line` listenerCount). At silent level the listener is absent, so no streaming happens.
     if (logLevel > logLevelMap.silent) {
-      context.on('kubb:hook:line', ({ id, line }) => {
+      context.hook('kubb:hook:line', ({ id, line }) => {
         const active = state.activeHookLogs.get(id)
         active?.taskLog.message(styleText('dim', line))
       })
     }
 
-    context.on('kubb:hook:end', ({ id, command, args, success, error, stdout, stderr }) => {
+    context.hook('kubb:hook:end', ({ id, command, args, success, error, stdout, stderr }) => {
       if (!id) {
         return
       }
@@ -388,7 +388,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       }
     })
 
-    context.on('kubb:lifecycle:end', () => {
+    context.hook('kubb:lifecycle:end', () => {
       reset()
     })
   },

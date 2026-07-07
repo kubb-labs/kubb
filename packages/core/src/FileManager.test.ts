@@ -297,13 +297,13 @@ describe('FileManager', () => {
       const hookCalls: Array<string> = []
       const storage = memoryStorage()
       const manager = new FileManager()
-      manager.hooks.on('start', (files) => {
+      manager.hooks.hook('start', (files) => {
         hookCalls.push(`start:${files.length}`)
       })
-      manager.hooks.on('update', (item) => {
+      manager.hooks.hook('update', (item) => {
         hookCalls.push(`update:${item.file.path}`)
       })
-      manager.hooks.on('end', (files) => {
+      manager.hooks.hook('end', (files) => {
         hookCalls.push(`end:${files.length}`)
       })
 
