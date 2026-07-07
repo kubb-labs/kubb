@@ -233,12 +233,12 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
   meta?: TMeta
   /**
    * Optional banner prepended to the generated file content.
-   * Accepts `null` so `resolver.resolveBanner()` results can be passed directly.
+   * Accepts `null` so `resolver.default.banner()` results can be passed directly.
    */
   banner?: string | null
   /**
    * Optional footer appended to the generated file content.
-   * Accepts `null` so `resolver.resolveFooter()` results can be passed directly.
+   * Accepts `null` so `resolver.default.footer()` results can be passed directly.
    */
   footer?: string | null
   /**

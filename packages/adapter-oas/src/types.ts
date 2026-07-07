@@ -227,7 +227,7 @@ export type AdapterOasResolvedOptions = {
   enumSuffix: AdapterOasOptions['enumSuffix']
   /**
    * Map from original `$ref` paths to their collision-resolved schema names.
-   * Populated once the adapter resolves a spec's schemas, on the first `stream()` or `parse()`.
+   * Populated once the adapter resolves a spec's schemas, on the first `parse()`.
    *
    * @example
    * ```ts

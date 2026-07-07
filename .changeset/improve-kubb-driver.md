@@ -35,5 +35,4 @@ hooks.on('kubb:files:processing:update', ({ files }) => {
 - `mergeFile` avoids array allocations when one side's `sources`/`imports`/`exports` is empty, returning the non-empty reference directly.
 - `createFile` (SHA-256 + import/export combining) is skipped for new files that don't require merging with an existing cache entry.
 - `kubb:generate:schema` and `kubb:generate:operation` are gated on `listenerCount`, so builds with no listeners on these channels drop the per-node emit overhead entirely.
-- `FileProcessor` is a long-lived class field on `KubbDriver` rather than a per-`run()` scoped resource.
-- `dispose()` methods added to `FileProcessor`, `Kubb`, and `Renderer` implementations, with `[Symbol.dispose]()` delegating to them consistently across the codebase.
+- `dispose()` methods added to `Kubb` and `Renderer` implementations, with `[Symbol.dispose]()` delegating to them consistently across the codebase.

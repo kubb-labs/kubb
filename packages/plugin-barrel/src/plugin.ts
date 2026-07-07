@@ -24,8 +24,8 @@ function withBarrelBannerFooter({ file, plugin, config }: { file: FileNode; plug
   const context = { output, config, file: { path: file.path, baseName: file.baseName, isBarrel: true } }
   return {
     ...file,
-    banner: hasBanner ? resolver.resolveBanner(undefined, context) : file.banner,
-    footer: hasFooter ? resolver.resolveFooter(undefined, context) : file.footer,
+    banner: hasBanner ? resolver.default.banner(undefined, context) : file.banner,
+    footer: hasFooter ? resolver.default.footer(undefined, context) : file.footer,
   }
 }
 

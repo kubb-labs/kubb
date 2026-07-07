@@ -10,10 +10,6 @@ import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartConte
 import type { KubbDriver } from './KubbDriver.ts'
 
 /**
- * Extracts a type from a registry, falling back to `{}` when the key doesn't exist.
- * Lets plugins augment `Kubb.ConfigOptionsRegistry` and `Kubb.PluginOptionsRegistry`
- * without changing core.
- *
  * @internal
  */
 type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
@@ -771,14 +767,11 @@ export type BuildOutput = {
    */
   driver: KubbDriver
   /**
-   * Read-only view of every file written during this build.
-   * Reads go straight to `config.storage`, nothing extra is held in memory.
+   * The configured `Storage` backend, for reading back a generated file's final content.
+   * Use `files` to list what this build produced.
    *
    * @example Read a generated file
    * `const code = await buildOutput.storage.getItem('/src/gen/pet.ts')`
-   *
-   * @example List all generated file paths
-   * `const paths = await buildOutput.storage.getKeys()`
    */
   storage: Storage
 }
@@ -801,10 +794,10 @@ export type { CreateKubbOptions, Kubb } from './createKubb.ts'
 export type { GenerationResult, Reporter, ReporterContext, ReporterName, UserReporter } from './createReporter.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'
 export type { Storage } from './createStorage.ts'
-export type { FileProcessorHooks, ParsedFile } from './FileProcessor.ts'
+export type { FileManagerHooks } from './FileManager.ts'
 export type { Generator, GeneratorContext } from './defineGenerator.ts'
 export type { Parser } from './defineParser.ts'
-export type { Exclude, Group, Include, Output, OutputMode, OutputOptions, Override } from './definePlugin.ts'
+export type { Exclude, Filter, Group, Include, Output, OutputMode, OutputOptions, Override } from './definePlugin.ts'
 export type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, NormalizedPlugin, Plugin, PluginFactoryOptions } from './definePlugin.ts'
 export type {
   BannerMeta,
@@ -813,6 +806,8 @@ export type {
   ResolveOptionsContext,
   Resolver,
   ResolverContext,
+  ResolverDefault,
   ResolverFileParams,
+  ResolverOverride,
   ResolverPathParams,
-} from './defineResolver.ts'
+} from './createResolver.ts'

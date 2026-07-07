@@ -54,7 +54,7 @@
   "dependencies": {
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
-    "@readme/openapi-parser": "^6.1.3",
+    "@readme/openapi-parser": "^6.2.0",
     "@scalar/openapi-upgrader": "^0.2.9",
     "api-ref-bundler": "0.5.1",
     "yaml": "catalog:"

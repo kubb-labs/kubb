@@ -25,25 +25,25 @@ describe('runValidate', () => {
 
   it('validates input when @kubb/adapter-oas is available', async () => {
     const validate = vi.fn(async () => undefined)
+    vi.doMock('@kubb/adapter-oas', () => ({
+      adapterOas: () => ({ validate }),
+    }))
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
     const { run: runValidate } = await import('./run.ts')
 
-    await runValidate(
-      { input: 'spec.yaml', version: '1.0.0' },
-      {
-        loadValidateModule: async () =>
-          ({
-            adapterOas: () => ({ validate }),
-          }) as unknown as Awaited<ReturnType<(typeof import('./run.ts'))['loadValidateModule']>>,
-      },
-    )
+    await runValidate({ input: 'spec.yaml', version: '1.0.0' })
 
     expect(validate).toHaveBeenCalledWith('spec.yaml', { throwOnError: true })
     expect(logSpy).toHaveBeenCalledWith('✅ Validation success')
   })
 
   it('prints install guidance when @kubb/adapter-oas is missing', async () => {
+    vi.doMock('@kubb/adapter-oas', () => ({
+      adapterOas: () => {
+        throw new Error("Cannot find module '@kubb/adapter-oas'")
+      },
+    }))
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {
       throw new Error('process.exit')
@@ -51,16 +51,7 @@ describe('runValidate', () => {
 
     const { run: runValidate } = await import('./run.ts')
 
-    await expect(
-      runValidate(
-        { input: 'spec.yaml', version: '1.0.0' },
-        {
-          loadValidateModule: async () => {
-            throw new Error("Cannot find module '@kubb/adapter-oas'")
-          },
-        },
-      ),
-    ).rejects.toThrow('process.exit')
+    await expect(runValidate({ input: 'spec.yaml', version: '1.0.0' })).rejects.toThrow('process.exit')
 
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('The @kubb/adapter-oas package is not installed.'))
     expect(errorSpy).toHaveBeenCalledWith('Install it with:')

@@ -2,51 +2,11 @@ import { resolve } from 'node:path'
 import { BuildError } from '@internals/utils'
 import { HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import { Diagnostics } from './Diagnostics.ts'
-import { createStorage, type Storage } from './createStorage.ts'
+import type { Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { BuildOutput, Config, KubbHooks, UserConfig } from './types.ts'
 import { AsyncEventEmitter } from './asyncEventEmitter.ts'
-
-/**
- * Builds a `Storage` view scoped to the file paths produced by the current build.
- * Reads delegate to the underlying `storage` so source bytes stay where they were
- * written. Writes register the key so subsequent reads and `getKeys` are scoped
- * to this build's output.
- */
-function createSourcesView(storage: Storage): Storage {
-  const paths = new Set<string>()
-
-  return createStorage(() => ({
-    name: `${storage.name}:sources`,
-    async hasItem(key: string) {
-      return paths.has(key) && (await storage.hasItem(key))
-    },
-    async getItem(key: string) {
-      return paths.has(key) ? storage.getItem(key) : null
-    },
-    async setItem(key: string, value: string) {
-      paths.add(key)
-      await storage.setItem(key, value)
-    },
-    async removeItem(key: string) {
-      paths.delete(key)
-      await storage.removeItem(key)
-    },
-    async getKeys(base?: string) {
-      if (!base) return [...paths]
-      const result: Array<string> = []
-      for (const key of paths) {
-        if (key.startsWith(base)) result.push(key)
-      }
-      return result
-    },
-    async clear() {
-      paths.clear()
-      await storage.clear()
-    },
-  }))()
-}
 
 function resolveConfig(userConfig: UserConfig): Config {
   return {
@@ -114,7 +74,6 @@ export class Kubb {
   async setup(): Promise<void> {
     const config = this.config
     const driver = new KubbDriver(config, { hooks: this.hooks })
-    const storage = createSourcesView(config.storage)
 
     // Each generator a plugin registers adds a listener to the shared hooks emitter, so size the
     // ceiling to the plugin count. Without this, a multi-generator plugin set trips Node's
@@ -128,7 +87,7 @@ export class Kubb {
     await driver.setup()
 
     this.#driver = driver
-    this.#storage = storage
+    this.#storage = config.storage
   }
 
   /**

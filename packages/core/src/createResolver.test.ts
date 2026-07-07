@@ -1,8 +1,8 @@
 import { camelCase } from '@internals/utils'
 import { ast, type InputMeta } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
-import { defaultResolveBanner, defaultResolveFile, defaultResolveFooter, defaultResolvePath, defineResolver } from './defineResolver.ts'
-import type { Config, Resolver, ResolverContext } from './types.ts'
+import { createResolver, Resolver } from './createResolver.ts'
+import type { Config, ResolverContext } from './types.ts'
 
 type TestResolver = Resolver & {
   greet(name: string): string
@@ -16,87 +16,161 @@ type TestPluginFactory = {
   resolver: TestResolver
 }
 
+const baseResolver = new Resolver({ pluginName: 'test' })
+
 const context: ResolverContext = {
   root: '/root',
   output: { path: 'types' },
   group: undefined,
 }
 
-describe('defineResolver', () => {
-  it('injects default and resolveOptions', () => {
-    const resolver = defineResolver<TestPluginFactory>(() => ({
+describe('createResolver', () => {
+  it('injects the default machinery and top-level name/file', () => {
+    const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
-      name: 'test',
       greet(name) {
         return `Hello ${name}`
       },
       farewell(name) {
         return `Goodbye ${name}`
       },
-    }))
-
-    expect(resolver.default).toBeTypeOf('function')
-    expect(resolver.resolveOptions).toBeTypeOf('function')
-    expect(resolver.resolvePath).toBeTypeOf('function')
-    expect(resolver.resolveFile).toBeTypeOf('function')
-    expect(resolver.name).toBe('test')
-  })
-
-  it('build function values override defaults', () => {
-    const resolver = defineResolver<TestPluginFactory>(() => {
-      const build = {
-        pluginName: 'test' as const,
-        name: 'custom',
-        default(name: string) {
-          return name.toUpperCase()
-        },
-        greet(name: string) {
-          return build.default(name)
-        },
-        farewell(name: string) {
-          return `bye ${build.default(name)}`
-        },
-      }
-      return build
     })
 
-    expect(resolver.default('hello')).toBe('HELLO')
+    expect(resolver.default.name).toBeTypeOf('function')
+    expect(resolver.default.options).toBeTypeOf('function')
+    expect(resolver.default.path).toBeTypeOf('function')
+    expect(resolver.default.file).toBeTypeOf('function')
+    expect(resolver.name).toBeTypeOf('function')
+    expect(resolver.file).toBeTypeOf('function')
+    // the injected top-level name delegates to the built-in camelCase default
+    expect(resolver.name('list pets')).toBe('listPets')
+    expect(resolver).toBeInstanceOf(Resolver)
+  })
+
+  it('a plugin overrides the top-level name; default.name keeps the built-in casing', () => {
+    const resolver = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      name(name) {
+        return name.toUpperCase()
+      },
+      greet(name) {
+        return this.name(name)
+      },
+      farewell(name) {
+        return `bye ${this.name(name)}`
+      },
+    })
+
+    expect(resolver.name('hello')).toBe('HELLO')
     expect(resolver.greet('world')).toBe('WORLD')
+    expect(resolver.default.name('list pets')).toBe('listPets')
+  })
+
+  it('a namespace method reaches the resolver root through `this`', () => {
+    type SchemaResolver = Resolver & { schema: { name(name: string): string; typeName(name: string): string } }
+    type SchemaFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: SchemaResolver }
+
+    const resolver = createResolver<SchemaFactory>({
+      pluginName: 'test',
+      schema: {
+        name(name) {
+          return `${this.name(name)}Schema`
+        },
+        typeName(name) {
+          return `${this.name(name)}SchemaType`
+        },
+      },
+    })
+
+    expect(resolver.schema.name('list pets')).toBe('listPetsSchema')
+    expect(resolver.schema.typeName('list pets')).toBe('listPetsSchemaType')
+  })
+
+  it('a file override threads a custom caser through default.file', () => {
+    const resolver = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      file(params, ctx) {
+        return this.default.file({ ...params, resolveName: (name) => `${name.toLowerCase()}.gen` }, ctx)
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+
+    const file = resolver.file({ name: 'Pet', extname: '.ts' }, context)
+    expect(file.baseName).toBe('pet.gen.ts')
   })
 
   it('resolveOptions does not throw when options is not an object', () => {
-    const resolver = defineResolver<TestPluginFactory>(() => ({
+    const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
-      name: 'test',
       greet: (name: string) => name,
       farewell: (name: string) => name,
-    }))
+    })
 
     const node = ast.factory.createFile({ baseName: 'pet.ts', path: 'src/pet.ts' })
 
     // A re-instantiated plugin can hand back a falsy-but-not-nullish `options` (e.g. `false`).
     // `resolveOptions` caches by `options` identity in a `WeakMap`, which only accepts object
     // keys, so this must fall back to computing directly instead of throwing.
-    expect(() => resolver.resolveOptions<boolean>(node, { options: false })).not.toThrow()
-    expect(resolver.resolveOptions<boolean>(node, { options: false })).toBe(false)
+    expect(() => resolver.default.options<boolean>(node, { options: false })).not.toThrow()
+    expect(resolver.default.options<boolean>(node, { options: false })).toBe(false)
+  })
+
+  it('Resolver.merge() rebuilds helpers on a new instance', () => {
+    type SchemaResolver = Resolver & { schema: { label(name: string): string } }
+    type SchemaFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: SchemaResolver }
+
+    const base = createResolver<SchemaFactory>({
+      pluginName: 'test',
+      schema: {
+        label(name) {
+          return `base:${this.name(name)}`
+        },
+      },
+    })
+
+    const merged = Resolver.merge(base, {
+      name(name) {
+        return name.toUpperCase()
+      },
+    })
+
+    expect(merged).not.toBe(base)
+    expect(merged).toBeInstanceOf(Resolver)
+    expect(merged.name('hello')).toBe('HELLO')
+    expect(merged.schema.label('pets')).toBe('base:PETS')
+  })
+
+  it('supports top-level helpers like typeName', () => {
+    type TypeResolver = Resolver & { typeName(name: string): string }
+    type TypeFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: TypeResolver }
+
+    const resolver = createResolver<TypeFactory>({
+      pluginName: 'test',
+      typeName(name) {
+        return `${this.name(name)}Type`
+      },
+    })
+
+    expect(resolver.typeName('list pets')).toBe('listPetsType')
   })
 })
 
-describe('defaultResolvePath', () => {
+describe('default.path', () => {
   it('resolves flat path (directory mode)', () => {
-    const result = defaultResolvePath({ baseName: 'petTypes.ts' }, { root: '/root', output: { path: 'types' }, group: undefined })
+    const result = baseResolver.default.path({ baseName: 'petTypes.ts' }, { root: '/root', output: { path: 'types' }, group: undefined })
 
     expect(result).toBe('/root/types/petTypes.ts')
   })
 
   it('returns the output file as-is in file mode', () => {
-    const result = defaultResolvePath({ baseName: 'petTypes.ts' }, { root: '/root', output: { path: 'types.ts', mode: 'file' }, group: undefined })
+    const result = baseResolver.default.path({ baseName: 'petTypes.ts' }, { root: '/root', output: { path: 'types.ts', mode: 'file' }, group: undefined })
 
     expect(result).toBe('/root/types.ts')
   })
 
   it('groups by tag using the plain camelCased tag by default', () => {
-    const result = defaultResolvePath(
+    const result = baseResolver.default.path(
       { baseName: 'petTypes.ts', tag: 'pet store' },
       {
         root: '/root',
@@ -109,7 +183,7 @@ describe('defaultResolvePath', () => {
   })
 
   it('groups by path when group.type is path', () => {
-    const result = defaultResolvePath(
+    const result = baseResolver.default.path(
       { baseName: 'petTypes.ts', path: '/pets/list' },
       {
         root: '/root',
@@ -127,7 +201,7 @@ describe('defaultResolvePath', () => {
   })
 
   it('uses custom group.name when provided', () => {
-    const result = defaultResolvePath(
+    const result = baseResolver.default.path(
       { baseName: 'petTypes.ts', tag: 'pets' },
       {
         root: '/root',
@@ -140,7 +214,7 @@ describe('defaultResolvePath', () => {
   })
 
   it('falls back to flat path when group present but no tag or path given', () => {
-    const result = defaultResolvePath(
+    const result = baseResolver.default.path(
       { baseName: 'petTypes.ts', tag: 'pets' },
       {
         root: '/root',
@@ -158,7 +232,7 @@ describe('defaultResolvePath', () => {
   })
 
   it('sanitizes traversal segments in default path-based grouping', () => {
-    const result = defaultResolvePath(
+    const result = baseResolver.default.path(
       { baseName: 'petTypes.ts', path: '../../etc/passwd' },
       {
         root: '/root',
@@ -176,7 +250,7 @@ describe('defaultResolvePath', () => {
 
   it('throws when a custom group.name returns a path outside the output directory', () => {
     expect(() =>
-      defaultResolvePath(
+      baseResolver.default.path(
         { baseName: 'petTypes.ts', path: '/pets' },
         {
           root: '/root',
@@ -188,22 +262,21 @@ describe('defaultResolvePath', () => {
   })
 
   it('throws when baseName contains a traversal sequence', () => {
-    expect(() => defaultResolvePath({ baseName: '../../etc/passwd' }, { root: '/root', output: { path: 'types' }, group: undefined })).toThrow(
+    expect(() => baseResolver.default.path({ baseName: '../../etc/passwd' }, { root: '/root', output: { path: 'types' }, group: undefined })).toThrow(
       'outside the output directory',
     )
   })
 })
 
-describe('defaultResolveFile', () => {
-  const resolver = defineResolver<TestPluginFactory>(() => ({
-    name: 'test',
+describe('default.file', () => {
+  const resolver = createResolver<TestPluginFactory>({
     pluginName: 'test',
     greet: () => '',
     farewell: () => '',
-  }))
+  })
 
   it('resolves a file with correct baseName and path', () => {
-    const file = defaultResolveFile.call(resolver, { name: 'pet', extname: '.ts' }, context)
+    const file = resolver.default.file({ name: 'pet', extname: '.ts' }, context)
 
     expect(file.baseName).toBe('pet.ts')
     expect(file.path).toBe('/root/types/pet.ts')
@@ -212,8 +285,8 @@ describe('defaultResolveFile', () => {
     expect(file.exports).toStrictEqual([])
   })
 
-  it('uses PascalCase file name via resolver.default', () => {
-    const file = defaultResolveFile.call(resolver, { name: 'list pets', extname: '.ts' }, context)
+  it('uses the default toFilePath casing for the file name', () => {
+    const file = resolver.default.file({ name: 'list pets', extname: '.ts' }, context)
 
     expect(file.baseName).toBe('listPets.ts')
   })
@@ -227,14 +300,13 @@ describe('defaultResolveFile', () => {
     // leading dots must not escape the output directory
     ['..Schema', '/root/types/schema.ts'],
   ])('nests dotted file name %s into %s', (name, expected) => {
-    const file = defaultResolveFile.call(resolver, { name, extname: '.ts' }, context)
+    const file = resolver.default.file({ name, extname: '.ts' }, context)
 
     expect(file.path).toBe(expected)
   })
 
   it('omits the file name and writes to the output file in file mode', () => {
-    const file = defaultResolveFile.call(
-      resolver,
+    const file = resolver.default.file(
       { name: 'pet', extname: '.ts' },
       {
         ...context,
@@ -251,8 +323,7 @@ describe('defaultResolveFile', () => {
   })
 
   it('groups by tag when resolver is tag-grouped', () => {
-    const file = defaultResolveFile.call(
-      resolver,
+    const file = resolver.default.file(
       { name: 'pet', extname: '.ts', tag: 'pets' },
       {
         root: '/root',
@@ -270,9 +341,9 @@ const mockConfig = {
   output: { path: 'src/generated', defaultBanner: true },
 } as unknown as Config
 
-describe('defaultResolveBanner', () => {
+describe('default.banner', () => {
   it('returns default banner when no output.banner is configured', () => {
-    const result = defaultResolveBanner(undefined, { config: mockConfig })
+    const result = baseResolver.default.banner(undefined, { config: mockConfig })
     expect(result).toContain('Generated by Kubb')
     expect(result).toContain('petStore.yaml')
   })
@@ -282,7 +353,7 @@ describe('defaultResolveBanner', () => {
       ...mockConfig,
       output: { ...mockConfig.output, defaultBanner: 'simple' },
     } as unknown as Config
-    const result = defaultResolveBanner(undefined, { config })
+    const result = baseResolver.default.banner(undefined, { config })
     expect(result).toBe('/**\n* Generated by Kubb (https://kubb.dev/).\n* Do not edit manually.\n*/\n')
   })
 
@@ -291,12 +362,12 @@ describe('defaultResolveBanner', () => {
       ...mockConfig,
       output: { ...mockConfig.output, defaultBanner: false },
     } as unknown as Config
-    const result = defaultResolveBanner(undefined, { config })
+    const result = baseResolver.default.banner(undefined, { config })
     expect(result).toBeNull()
   })
 
   it('user string banner overrides the Kubb default', () => {
-    const result = defaultResolveBanner(undefined, {
+    const result = baseResolver.default.banner(undefined, {
       config: mockConfig,
       output: { banner: '// custom banner' },
     })
@@ -305,7 +376,7 @@ describe('defaultResolveBanner', () => {
 
   it('user function banner overrides the Kubb default when meta is provided', () => {
     const meta: InputMeta = { title: 'Petstore', description: 'Test API', version: '1.0.0', circularNames: [], enumNames: [] }
-    const result = defaultResolveBanner(meta, {
+    const result = baseResolver.default.banner(meta, {
       config: mockConfig,
       output: { banner: (m?: InputMeta) => `// title: ${m?.title}` },
     })
@@ -314,7 +385,7 @@ describe('defaultResolveBanner', () => {
 
   it('includes meta title and version (but not description) in the Kubb banner when meta is provided', () => {
     const meta: InputMeta = { title: 'Pet API', description: 'A very long description', version: '2.0.0', circularNames: [], enumNames: [] }
-    const result = defaultResolveBanner(meta, {
+    const result = baseResolver.default.banner(meta, {
       config: mockConfig,
     })
     expect(result).toContain('Pet API')
@@ -325,17 +396,17 @@ describe('defaultResolveBanner', () => {
   it('function banner receives per-file context and can skip aggregation files', () => {
     const banner = (m: { isBarrel: boolean; isAggregation: boolean }) => (m.isBarrel || m.isAggregation ? '' : "'use server'")
 
-    const aggregation = defaultResolveBanner(undefined, {
+    const aggregation = baseResolver.default.banner(undefined, {
       config: mockConfig,
       output: { banner },
       file: { path: 'src/gen/clients/stocks/stocks.ts', baseName: 'stocks.ts', isAggregation: true },
     })
-    const barrel = defaultResolveBanner(undefined, {
+    const barrel = baseResolver.default.banner(undefined, {
       config: mockConfig,
       output: { banner },
       file: { path: 'src/gen/clients/index.ts', baseName: 'index.ts', isBarrel: true },
     })
-    const source = defaultResolveBanner(undefined, {
+    const source = baseResolver.default.banner(undefined, {
       config: mockConfig,
       output: { banner },
       file: { path: 'src/gen/clients/getStock.ts', baseName: 'getStock.ts' },
@@ -347,7 +418,7 @@ describe('defaultResolveBanner', () => {
   })
 
   it('function banner receives filePath and baseName from the file context', () => {
-    const result = defaultResolveBanner(undefined, {
+    const result = baseResolver.default.banner(undefined, {
       config: mockConfig,
       output: { banner: (m) => `// ${m.baseName} @ ${m.filePath}` },
       file: { path: 'a/b.ts', baseName: 'b.ts' },
@@ -356,7 +427,7 @@ describe('defaultResolveBanner', () => {
   })
 
   it('per-file fields default to false/empty when no file context is provided', () => {
-    const result = defaultResolveBanner(undefined, {
+    const result = baseResolver.default.banner(undefined, {
       config: mockConfig,
       output: { banner: (m) => `${m.isBarrel}-${m.isAggregation}-[${m.filePath}]-[${m.baseName}]` },
     })
@@ -364,14 +435,14 @@ describe('defaultResolveBanner', () => {
   })
 })
 
-describe('defaultResolveFooter', () => {
+describe('default.footer', () => {
   it('returns null when no output.footer is configured', () => {
-    const result = defaultResolveFooter(undefined, { config: mockConfig })
+    const result = baseResolver.default.footer(undefined, { config: mockConfig })
     expect(result).toBeNull()
   })
 
   it('returns static string footer from output.footer', () => {
-    const result = defaultResolveFooter(undefined, {
+    const result = baseResolver.default.footer(undefined, {
       config: mockConfig,
       output: { footer: '// end of file' },
     })
@@ -380,7 +451,7 @@ describe('defaultResolveFooter', () => {
 
   it('calls output.footer function with meta when meta is provided', () => {
     const meta: InputMeta = { title: 'Petstore', circularNames: [], enumNames: [] }
-    const result = defaultResolveFooter(meta, {
+    const result = baseResolver.default.footer(meta, {
       config: mockConfig,
       output: { footer: (m?: InputMeta) => `// footer for ${m?.title}` },
     })
@@ -388,7 +459,7 @@ describe('defaultResolveFooter', () => {
   })
 
   it('calls output.footer function with undefined when meta is undefined', () => {
-    const result = defaultResolveFooter(undefined, {
+    const result = baseResolver.default.footer(undefined, {
       config: mockConfig,
       output: { footer: (_m?: InputMeta) => '// called' },
     })
@@ -396,7 +467,7 @@ describe('defaultResolveFooter', () => {
   })
 
   it('function footer receives per-file context', () => {
-    const result = defaultResolveFooter(undefined, {
+    const result = baseResolver.default.footer(undefined, {
       config: mockConfig,
       output: { footer: (m) => (m.isBarrel ? '// barrel' : `// ${m.baseName}`) },
       file: { path: 'src/gen/index.ts', baseName: 'index.ts', isBarrel: true },

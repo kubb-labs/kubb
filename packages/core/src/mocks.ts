@@ -5,9 +5,7 @@ import { applyMacros } from '@kubb/ast'
 import { expect } from 'vitest'
 import type { Parser } from './defineParser.ts'
 import { FileManager } from './FileManager.ts'
-import { FileProcessor } from './FileProcessor.ts'
 import type { KubbDriver } from './KubbDriver.ts'
-import { memoryStorage } from './storages/memoryStorage.ts'
 import type { Adapter, AdapterFactoryOptions, Config, Generator, GeneratorContext, NormalizedPlugin, PluginFactoryOptions, RendererFactory } from './types.ts'
 
 /**
@@ -39,11 +37,6 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
       if (!renderer) return
 
       using instance = renderer()
-      if (instance.stream) {
-        for (const file of instance.stream(result)) fileManager.upsert(file)
-        return
-      }
-
       await instance.render(result)
       fileManager.upsert(...instance.files)
     },
@@ -228,7 +221,7 @@ export async function matchFiles(files: Array<FileNode> | undefined, options: Ma
   if (!files?.length) return
 
   const { parsers = new Map(), format, pre } = options
-  const fileProcessor = new FileProcessor({ storage: memoryStorage(), parsers })
+  const fileManager = new FileManager()
   const processed = new Map<string, string>()
 
   for (const file of files) {
@@ -236,7 +229,7 @@ export async function matchFiles(files: Array<FileNode> | undefined, options: Ma
       continue
     }
 
-    const parsed = await fileProcessor.parse(file)
+    const parsed = await fileManager.parse(file, { parsers })
     const code = file.baseName.endsWith('.json') || !format ? parsed : await format(parsed)
 
     processed.set(file.path, code)

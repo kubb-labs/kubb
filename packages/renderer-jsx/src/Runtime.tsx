@@ -276,20 +276,4 @@ export class Runtime {
       this.nodes.push(file)
     }
   }
-
-  /**
-   * Walks `element` synchronously and yields each {@link FileNode} as it is
-   * produced, without buffering into an intermediate array first. Callers can
-   * begin processing each file before the rest of the element tree is traversed.
-   *
-   * @example
-   * ```ts
-   * for (const file of runtime.stream(element)) {
-   *   await writeFile(file)
-   * }
-   * ```
-   */
-  *stream(element: KubbReactElement): Generator<FileNode> {
-    yield* walkFiles(element)
-  }
 }

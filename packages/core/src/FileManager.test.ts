@@ -1,15 +1,29 @@
-import { ast } from '@kubb/ast'
-import { describe, expect, it, vi } from 'vitest'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
+import { ast, type FileNode } from '@kubb/ast'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { FileManager } from './FileManager.ts'
+import { memoryStorage } from './storages/memoryStorage.ts'
 
-function makeFile(path: string, sourceValue?: string, extra?: Partial<Parameters<typeof ast.factory.createFile>[0]>) {
+function makeFile(filePath: string, sourceValue?: string, extra?: Partial<Parameters<typeof ast.factory.createFile>[0]>) {
   return ast.factory.createFile({
-    path,
-    baseName: path.split('/').pop() as `${string}.${string}`,
+    path: filePath,
+    baseName: filePath.split('/').pop() as `${string}.${string}`,
     sources: sourceValue ? [ast.factory.createSource({ nodes: [ast.factory.createText(sourceValue)] })] : [],
     imports: [],
     exports: [],
     ...extra,
+  })
+}
+
+function makeFileWithSources(filePath: string, sources: Array<string> = []) {
+  return ast.factory.createFile({
+    path: filePath,
+    baseName: filePath.split('/').pop() as `${string}.${string}`,
+    sources: sources.map((value) => ast.factory.createSource({ nodes: [ast.factory.createText(value)] })),
+    imports: [],
+    exports: [],
   })
 }
 
@@ -110,37 +124,6 @@ describe('FileManager', () => {
     })
   })
 
-  describe('getByPath', () => {
-    it('returns the file for a known path', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/foo.ts'))
-      const file = manager.getByPath('/src/foo.ts')
-      expect(file).not.toBeNull()
-      expect(file?.path).toBe('/src/foo.ts')
-    })
-
-    it('returns null for an unknown path', () => {
-      const manager = new FileManager()
-      expect(manager.getByPath('/src/unknown.ts')).toBeNull()
-    })
-  })
-
-  describe('deleteByPath', () => {
-    it('removes the file with the given path', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/foo.ts'))
-      manager.deleteByPath('/src/foo.ts')
-      expect(manager.files).toHaveLength(0)
-    })
-
-    it('is a no-op for an unknown path', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/foo.ts'))
-      manager.deleteByPath('/src/other.ts')
-      expect(manager.files).toHaveLength(1)
-    })
-  })
-
   describe('clear', () => {
     it('removes all stored files', () => {
       const manager = new FileManager()
@@ -169,50 +152,222 @@ describe('FileManager', () => {
     })
   })
 
-  describe('hooks.upsert', () => {
-    it('fires once per file resolved through upsert', () => {
+  describe('dispose', () => {
+    it('clears all stored files', () => {
       const manager = new FileManager()
-      const listener = vi.fn()
-      manager.hooks.on('upsert', listener)
-
-      manager.upsert(makeFile('/src/a.ts'), makeFile('/src/b.ts'))
-
-      expect(listener).toHaveBeenCalledTimes(2)
-      expect(listener.mock.calls[0]?.[0].path).toBe('/src/a.ts')
-      expect(listener.mock.calls[1]?.[0].path).toBe('/src/b.ts')
-    })
-
-    it('fires when files land through add', () => {
-      const manager = new FileManager()
-      const listener = vi.fn()
-      manager.hooks.on('upsert', listener)
-
       manager.add(makeFile('/src/a.ts'))
-
-      expect(listener).toHaveBeenCalledOnce()
-      expect(listener.mock.calls[0]?.[0].path).toBe('/src/a.ts')
-    })
-
-    it('stops firing after off detaches the listener', () => {
-      const manager = new FileManager()
-      const listener = vi.fn()
-      manager.hooks.on('upsert', listener)
-      manager.hooks.off('upsert', listener)
-
-      manager.upsert(makeFile('/src/a.ts'))
-
-      expect(listener).not.toHaveBeenCalled()
-    })
-
-    it('clears every listener on dispose', () => {
-      const manager = new FileManager()
-      const listener = vi.fn()
-      manager.hooks.on('upsert', listener)
       manager.dispose()
 
-      manager.upsert(makeFile('/src/a.ts'))
+      expect(manager.files).toHaveLength(0)
+    })
+  })
 
-      expect(listener).not.toHaveBeenCalled()
+  describe('parse', () => {
+    it('joins source values when no parsers are provided', async () => {
+      const manager = new FileManager()
+      const file = makeFileWithSources('/src/foo.ts', ['const a = 1', 'const b = 2'])
+      const result = await manager.parse(file)
+      expect(result).toBe('const a = 1\n\nconst b = 2')
+    })
+
+    it('joins source values when no matching parser is registered', async () => {
+      const manager = new FileManager()
+      const file = makeFileWithSources('/src/foo.ts', ['const a = 1'])
+      const result = await manager.parse(file, { parsers: new Map() })
+      expect(result).toBe('const a = 1')
+    })
+
+    it('calls the registered parser for a matching extension', async () => {
+      const file = makeFileWithSources('/src/foo.ts', ['const a = 1'])
+      const mockParse = vi.fn().mockResolvedValue('// formatted\nconst a = 1')
+      const parser = {
+        name: 'ts',
+        type: 'parser' as const,
+        extNames: ['.ts' as const],
+        install: vi.fn(),
+        parse: mockParse,
+        print: vi.fn().mockReturnValue(''),
+      }
+      const parsers = new Map([['.ts' as const, parser]])
+      const manager = new FileManager()
+      const result = await manager.parse(file, { parsers })
+      expect(mockParse).toHaveBeenCalledWith(file, { extname: undefined })
+      expect(result).toBe('// formatted\nconst a = 1')
+    })
+
+    describe('copy', () => {
+      let dir: string | undefined
+
+      afterEach(() => {
+        if (dir) rmSync(dir, { recursive: true, force: true })
+        dir = undefined
+      })
+
+      it('copies a real file verbatim and bypasses the parser', async () => {
+        dir = mkdtempSync(path.join(tmpdir(), 'kubb-copy-'))
+        const template = path.join(dir, 'template.ts')
+        const content = "import a from 'b'\nexport const z = 1\nimport c from 'd'\n"
+        writeFileSync(template, content)
+
+        const parse = vi.fn().mockReturnValue('SHOULD NOT RUN')
+        const parser = { name: 'ts', type: 'parser' as const, extNames: ['.ts' as const], install: vi.fn(), parse, print: vi.fn().mockReturnValue('') }
+        const manager = new FileManager()
+
+        const file = ast.factory.createFile({ path: '/src/client.ts', baseName: 'client.ts', copy: template })
+        const result = await manager.parse(file, { parsers: new Map([['.ts' as const, parser]]) })
+
+        expect(parse).not.toHaveBeenCalled()
+        expect(result).toBe(content.trimEnd())
+      })
+
+      it('wraps the copied content with banner and footer', async () => {
+        dir = mkdtempSync(path.join(tmpdir(), 'kubb-copy-'))
+        const template = path.join(dir, 'template.ts')
+        writeFileSync(template, 'export const z = 1')
+
+        const manager = new FileManager()
+        const file = ast.factory.createFile({ path: '/src/client.ts', baseName: 'client.ts', copy: template, banner: '/* top */', footer: '/* bottom */' })
+        const result = await manager.parse(file)
+
+        expect(result).toBe('/* top */\nexport const z = 1\n/* bottom */')
+      })
+
+      it('throws a clear error when the file is missing', async () => {
+        const manager = new FileManager()
+        const file = ast.factory.createFile({ path: '/src/client.ts', baseName: 'client.ts', copy: '/does/not/exist.ts' })
+
+        await expect(manager.parse(file)).rejects.toThrow(/Could not copy file into output/)
+      })
+    })
+  })
+
+  describe('write', () => {
+    it('is a no-op for an empty batch', async () => {
+      const storage = memoryStorage()
+      const setItem = vi.spyOn(storage, 'setItem')
+      const manager = new FileManager()
+
+      await manager.write([], { storage })
+
+      expect(setItem).not.toHaveBeenCalled()
+    })
+
+    it('writes every file in the batch', async () => {
+      const storage = memoryStorage()
+      const manager = new FileManager()
+
+      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */']), makeFileWithSources('b.ts', ['/* b.ts */'])], { storage })
+
+      expect(await storage.getItem('a.ts')).toContain('/* a.ts */')
+      expect(await storage.getItem('b.ts')).toContain('/* b.ts */')
+    })
+
+    it('parses each file before writing it', async () => {
+      const parsed: Array<string> = []
+      const written: Array<string> = []
+      const storage = memoryStorage()
+      const realSetItem = storage.setItem.bind(storage)
+      storage.setItem = async (itemPath: string, source: string) => {
+        written.push(itemPath)
+        await realSetItem(itemPath, source)
+      }
+      const parser = {
+        name: 'ts',
+        type: 'parser' as const,
+        extNames: ['.ts' as const],
+        install: vi.fn(),
+        parse: vi.fn((file: FileNode) => {
+          parsed.push(file.path)
+          return `/* ${file.path} */`
+        }),
+        print: vi.fn().mockReturnValue(''),
+      }
+      const manager = new FileManager()
+
+      await manager.write([makeFileWithSources('a.ts', ['/* a */']), makeFileWithSources('b.ts', ['/* b */'])], {
+        storage,
+        parsers: new Map([['.ts' as const, parser]]),
+      })
+
+      expect(parsed.toSorted()).toStrictEqual(['a.ts', 'b.ts'])
+      expect(written.toSorted()).toStrictEqual(['a.ts', 'b.ts'])
+    })
+
+    it('fires start once, update per file, then end once, writing every file concurrently', async () => {
+      const events: Array<string> = []
+      const storage = memoryStorage()
+      const manager = new FileManager()
+      manager.hooks.on('start', (files) => {
+        events.push(`start:${files.length}`)
+      })
+      manager.hooks.on('update', (item) => {
+        events.push(`update:${item.file.path}`)
+      })
+      manager.hooks.on('end', (files) => {
+        events.push(`end:${files.length}`)
+      })
+
+      await manager.write([makeFileWithSources('a.ts', ['/* a */']), makeFileWithSources('b.ts', ['/* b */'])], { storage })
+
+      expect(events[0]).toBe('start:2')
+      expect(events.at(-1)).toBe('end:2')
+      expect(events.slice(1, -1).toSorted()).toStrictEqual(['update:a.ts', 'update:b.ts'])
+    })
+
+    it('runs writes concurrently instead of pacing itself between files', async () => {
+      const { promise: blockA, resolve: unblockA } = Promise.withResolvers<void>()
+      const storage = memoryStorage()
+      const realSetItem = storage.setItem.bind(storage)
+      const started: Array<string> = []
+      storage.setItem = async (itemPath: string, source: string) => {
+        started.push(itemPath)
+        if (itemPath === 'a.ts') await blockA
+        await realSetItem(itemPath, source)
+      }
+      const manager = new FileManager()
+
+      const writing = manager.write([makeFileWithSources('a.ts', ['/* a */']), makeFileWithSources('b.ts', ['/* b */'])], { storage })
+      await new Promise((resolve) => setTimeout(resolve, 5))
+
+      // b.ts's write started without waiting for a.ts's still-blocked write to finish.
+      expect(started.toSorted()).toStrictEqual(['a.ts', 'b.ts'])
+
+      unblockA()
+      await writing
+    })
+
+    it('waits for every write to finish before resolving', async () => {
+      const { promise: blocker, resolve: unblock } = Promise.withResolvers<void>()
+      const storage = memoryStorage()
+      const realSetItem = storage.setItem.bind(storage)
+      let settled = false
+      storage.setItem = async (itemPath: string, source: string) => {
+        await blocker
+        await realSetItem(itemPath, source)
+      }
+      const manager = new FileManager()
+
+      const writing = manager.write([makeFileWithSources('a.ts', ['/* a */'])], { storage }).then(() => {
+        settled = true
+      })
+      await new Promise((resolve) => setTimeout(resolve, 5))
+      expect(settled).toBe(false)
+
+      unblock()
+      await writing
+
+      expect(settled).toBe(true)
+      expect(await storage.getItem('a.ts')).toContain('/* a */')
+    })
+
+    it('rejects when a write fails', async () => {
+      const storage = memoryStorage()
+      storage.setItem = async () => {
+        throw new Error('disk full')
+      }
+      const manager = new FileManager()
+
+      await expect(manager.write([makeFileWithSources('a.ts', ['/* a */'])], { storage })).rejects.toThrow('disk full')
     })
   })
 })

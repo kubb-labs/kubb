@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
-import { arrayToAsyncIterable, getElapsedMs, isPromise, memoize } from '@internals/utils'
+import { getElapsedMs, memoize } from '@internals/utils'
 import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
-import { GENERATE_FLUSH_EVERY, OPERATION_FILTER_TYPES } from './constants.ts'
+import { OPERATION_FILTER_TYPES } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
@@ -9,9 +9,9 @@ import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { Plugin } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
-import { defineResolver } from './defineResolver.ts'
+import type { ResolverOverride } from './createResolver.ts'
+import { createResolver, Resolver } from './createResolver.ts'
 import { FileManager } from './FileManager.ts'
-import { FileProcessor } from './FileProcessor.ts'
 import { Transform } from './Transform.ts'
 
 import type {
@@ -24,7 +24,6 @@ import type {
   KubbPluginSetupContext,
   NormalizedPlugin,
   PluginFactoryOptions,
-  Resolver,
 } from './types.ts'
 import type { AsyncEventEmitter } from './asyncEventEmitter.ts'
 
@@ -44,11 +43,7 @@ type RequirePluginContext = {
   requiredBy?: string
 }
 
-function enforceOrder(enforce: Enforce | undefined): number {
-  if (enforce === 'pre') return -1
-  if (enforce === 'post') return 1
-  return 0
-}
+const ENFORCE_ORDER = { pre: -1, post: 1 } satisfies Record<Enforce, number>
 
 /**
  * Orders plugins so every dependency runs before its dependents (Kahn's algorithm), with
@@ -59,7 +54,7 @@ function enforceOrder(enforce: Enforce | undefined): number {
  * config are ignored here and surface later through `requirePlugin`.
  */
 function sortPlugins(plugins: Array<NormalizedPlugin>): Array<NormalizedPlugin> {
-  const queue = [...plugins].sort((a, b) => enforceOrder(a.enforce) - enforceOrder(b.enforce))
+  const queue = [...plugins].sort((a, b) => (a.enforce ? ENFORCE_ORDER[a.enforce] : 0) - (b.enforce ? ENFORCE_ORDER[b.enforce] : 0))
   const names = new Set(queue.map((plugin) => plugin.name))
   const blockedBy = new Map(queue.map((plugin) => [plugin.name, new Set(plugin.dependencies?.filter((name) => names.has(name) && name !== plugin.name))]))
 
@@ -90,13 +85,12 @@ export class KubbDriver {
   readonly options: Options
 
   /**
-   * The streaming `InputNode<true>` produced by the adapter. Set after adapter setup.
-   * Parse-only adapters are wrapped automatically.
+   * The `InputNode` produced by the adapter. Set after adapter setup.
    */
-  inputNode: InputNode<true> | null = null
+  inputNode: InputNode | null = null
   adapter: Adapter | null = null
   /**
-   * Raw adapter source so `adapter.parse()` / `adapter.stream()` can run lazily.
+   * Raw adapter source so `adapter.parse()` can run lazily.
    * Intentionally outlives the build, cleared by `dispose()`.
    */
   #adapterSource: AdapterSource | null = null
@@ -154,10 +148,6 @@ export class KubbDriver {
     const normalized = sortPlugins(this.config.plugins.map((rawPlugin) => this.#normalizePlugin(rawPlugin as Plugin)))
 
     for (const plugin of normalized) {
-      if (plugin.apply) {
-        plugin.apply(this.config)
-      }
-
       this.#registerPlugin(plugin)
       this.plugins.set(plugin.name, plugin)
     }
@@ -173,49 +163,27 @@ export class KubbDriver {
 
   /**
    * Builds a `NormalizedPlugin` from a hook-style plugin, filling in default
-   * options and copying `apply` when present. Registering its lifecycle handlers
-   * on the `AsyncEventEmitter` is done separately by `#registerPlugin`.
+   * options. Registering its lifecycle handlers on the `AsyncEventEmitter` is
+   * done separately by `#registerPlugin`.
    */
   #normalizePlugin(plugin: Plugin): NormalizedPlugin {
-    const normalized: NormalizedPlugin = {
+    return {
       name: plugin.name,
       dependencies: plugin.dependencies,
       enforce: plugin.enforce,
       hooks: plugin.hooks,
       options: plugin.options ?? { output: { path: '.', mode: 'directory' }, exclude: [], override: [] },
     } as NormalizedPlugin
-
-    if ('apply' in plugin && typeof plugin.apply === 'function') {
-      normalized.apply = plugin.apply as (config: Config) => boolean
-    }
-
-    return normalized
   }
 
   /**
    * Parses the adapter source into `this.inputNode`. Idempotent, so repeated calls from
-   * `run` do not re-parse. Adapters with `stream()` are used directly.
-   * Adapters with only `parse()` are wrapped via `ast.factory.createInput({ stream: true })` so the dispatch loop
-   * stays stream-only.
+   * `run` do not re-parse.
    */
   async #parseInput(): Promise<void> {
     if (this.inputNode || !this.adapter || !this.#adapterSource) return
 
-    const adapter = this.adapter
-    const source = this.#adapterSource
-
-    if (adapter.stream) {
-      this.inputNode = await adapter.stream(source)
-      return
-    }
-
-    const parsed = await adapter.parse(source)
-    this.inputNode = ast.factory.createInput({
-      stream: true,
-      schemas: arrayToAsyncIterable(parsed.schemas),
-      operations: arrayToAsyncIterable(parsed.operations),
-      meta: parsed.meta,
-    })
+    this.inputNode = await this.adapter.parse(this.#adapterSource)
   }
 
   /**
@@ -339,10 +307,10 @@ export class KubbDriver {
 
   /**
    * Returns `true` when at least one generator was registered for the given plugin
-   * via `addGenerator()` in `kubb:plugin:setup` (event-based path).
+   * via `addGenerator()` in `kubb:plugin:setup`.
    *
    * Used by the build loop to decide whether to walk the AST and emit generator events
-   * for a plugin that has no static `plugin.generators`.
+   * for a plugin.
    */
   hasEventGenerators(pluginName: string): boolean {
     return this.#eventGeneratorPlugins.has(pluginName)
@@ -355,7 +323,7 @@ export class KubbDriver {
    * contributes a `timing` diagnostic for the run summary.
    */
   async run({ storage }: { storage: Storage }): Promise<{ diagnostics: Array<Diagnostic> }> {
-    const { hooks, config } = this
+    const { hooks, config, fileManager } = this
     const diagnostics: Array<Diagnostic> = []
     const parsersMap = new Map<FileNode['extname'], Parser>()
 
@@ -365,37 +333,36 @@ export class KubbDriver {
       }
     }
 
-    const processor = new FileProcessor({ parsers: parsersMap, storage, extension: config.output.extension })
-    // Bridge processor lifecycle to the user-facing kubb hooks so existing listeners on
-    // kubb:files:processing:* keep firing.
-    processor.hooks.on('start', async (files) => {
+    // Bridge the write batch's lifecycle to the user-facing kubb hooks so existing listeners
+    // on kubb:files:processing:* keep firing. Tracked locally (not via #trackListener) since
+    // these must come off at the end of this run, not just at driver disposal.
+    const onWriteStart = async (files: Array<FileNode>) => {
       await hooks.emit('kubb:files:processing:start', { files })
-    })
+    }
     const updateBuffer: Array<{ file: FileNode; source?: string; processed: number; total: number; percentage: number }> = []
-    processor.hooks.on('update', (item) => {
+    const onWriteUpdate = (item: (typeof updateBuffer)[number]) => {
       updateBuffer.push(item)
-    })
-    processor.hooks.on('end', async (files) => {
+    }
+    const onWriteEnd = async (files: Array<FileNode>) => {
       await hooks.emit('kubb:files:processing:update', {
         files: updateBuffer.map((item) => ({ ...item, config })),
       })
       updateBuffer.length = 0
       await hooks.emit('kubb:files:processing:end', { files })
-    })
-    const onFileUpsert = (file: FileNode): void => {
-      processor.enqueue(file)
     }
-    this.fileManager.hooks.on('upsert', onFileUpsert)
+    fileManager.hooks.on('start', onWriteStart)
+    fileManager.hooks.on('update', onWriteUpdate)
+    fileManager.hooks.on('end', onWriteEnd)
 
-    // Make `diagnostics` the active sink so deep code (adapter parse, lazily consumed
-    // streams, generators) can report into this run via `Diagnostics.report`.
+    // Make `diagnostics` the active sink so deep code (adapter parse, generators) can
+    // report into this run via `Diagnostics.report`.
     return Diagnostics.scope(
       (diagnostic) => diagnostics.push(diagnostic),
       async () => {
         try {
           const outputRoot = resolve(config.root, config.output.path)
 
-          // Parse the adapter source into the streaming `InputNode`.
+          // Parse the adapter source into `this.inputNode`.
           await this.#parseInput()
           // Emit `kubb:plugin:setup` so plugins can register macros via `addMacro`/`setMacros`.
           // Each call writes into `this.#transforms`, which `#runGenerators` later reads through
@@ -441,17 +408,15 @@ export class KubbDriver {
             await this.#emitPluginEnd({ plugin, duration, success: true })
           }
 
-          // Stream every node through the transform registry and into each plugin's generators.
-          // When there are no entries it returns early. When `inputNode` is missing it still
-          // closes out each entry's `kubb:plugin:end` directly.
-          diagnostics.push(...(await this.#runGenerators(generatorPlugins, () => processor.flush())))
-          // Wait for the last in-flight batch and write anything still pending.
-          await processor.drain()
+          // Run every node through the transform registry and into each plugin's generators.
+          diagnostics.push(...(await this.#runGenerators(generatorPlugins)))
 
           await hooks.emit('kubb:plugins:end', Object.assign({ config }, this.#filesPayload()))
 
-          // Plugins-end listeners (barrel plugin etc.) may have queued more files.
-          await processor.drain()
+          // Write every generated file once, after post-processing (barrel etc.) has had its
+          // chance to add more. Writing mid-generation measured no faster in practice, so a
+          // single pass keeps the pipeline simpler.
+          await fileManager.write(fileManager.files, { storage, parsers: parsersMap, extension: config.output.extension })
 
           await hooks.emit('kubb:build:end', { files: this.fileManager.files, config, outputDir: outputRoot })
 
@@ -460,7 +425,9 @@ export class KubbDriver {
           diagnostics.push(Diagnostics.from(caughtError))
           return { diagnostics: Diagnostics.dedupe(diagnostics) }
         } finally {
-          this.fileManager.hooks.off('upsert', onFileUpsert)
+          fileManager.hooks.off('start', onWriteStart)
+          fileManager.hooks.off('update', onWriteUpdate)
+          fileManager.hooks.off('end', onWriteEnd)
         }
       },
     )
@@ -488,24 +455,22 @@ export class KubbDriver {
   }
 
   /**
-   * Streams schemas and operations through every plugin's generators. Each node is run
+   * Runs schemas and operations through every plugin's generators. Each node is run
    * through the plugin's macros (from `this.#transforms`) before the generator sees it,
    * so plugins stay isolated and the hot path stays per-node. Schemas run before operations
-   * because the two passes share `flushPending` and the FileProcessor's event emitter.
+   * so file output stays deterministic across runs.
    * A failing plugin contributes an error diagnostic so the rest of the build continues.
    * Every plugin also contributes a `timing` diagnostic.
    *
-   * Plugins run sequentially so `kubb:plugin:end` fires as each plugin completes, instead
-   * of all at once after every plugin has marched through the parallel batches together.
-   * That ordering is what drives the CLI's `Plugins N/M` counter. Without it the bar would
-   * sit at the initial value until the very end of the run.
+   * Plugins are processed one at a time, in full, so `kubb:plugin:end` fires as each one
+   * completes rather than all at once at the end. That ordering drives the CLI's
+   * `Plugins N/M` counter.
    *
    * When `this.inputNode` is `null`, every entry still gets a `kubb:plugin:end` so
    * post-plugin listeners (the barrel writer and friends) complete.
    */
   async #runGenerators(
     entries: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }>,
-    flushPending: () => Promise<void>,
   ): Promise<Array<Diagnostic>> {
     const diagnostics: Array<Diagnostic> = []
 
@@ -523,198 +488,113 @@ export class KubbDriver {
     const transforms = this.#transforms
     const { schemas, operations } = this.inputNode
 
-    type PluginState = {
-      plugin: NormalizedPlugin
-      generatorContext: Omit<GeneratorContext, 'options'>
-      generators: Array<Generator>
-      hrStart: ReturnType<typeof process.hrtime>
-      failed: boolean
-      error: Error | null
-      optionsAreStatic: boolean
-      allowedSchemaNames: Set<string> | null
-    }
-
-    const states: Array<PluginState> = entries.map(({ plugin, context, hrStart }) => {
-      const { exclude, include, override } = plugin.options
-      const hasExclude = Array.isArray(exclude) && exclude.length > 0
-      const hasInclude = Array.isArray(include) && include.length > 0
-      const hasOverride = Array.isArray(override) && override.length > 0
-      return {
-        plugin,
-        generatorContext: { ...context, resolver: this.getResolver(plugin.name) },
-        generators: plugin.generators ?? [],
-        hrStart,
-        failed: false,
-        error: null,
-        optionsAreStatic: !hasExclude && !hasInclude && !hasOverride,
-        allowedSchemaNames: null,
-      }
-    })
-
     const emitsSchemaHook = this.hooks.listenerCount('kubb:generate:schema') > 0
     const emitsOperationHook = this.hooks.listenerCount('kubb:generate:operation') > 0
     const emitsOperationsHook = this.hooks.listenerCount('kubb:generate:operations') > 0
 
-    // Buffer the streaming adapter's nodes once. Each plugin reads the same buffer
-    // instead of re-parsing the document per pass, and the pruning pre-scan below
-    // shares it too (previously it iterated its own copies).
-    const schemasBuffer: Array<SchemaNode> = await Array.fromAsync(schemas)
-    const operationsBuffer: Array<OperationNode> = await Array.fromAsync(operations)
-
     // Pre-scan: plugins with operation-based includes (but no schemaName include) need
-    // the reachable schema set. This requires the full schema graph in memory at once,
-    // since transitive reachability can't be derived from a single node.
-    const pruningStates = states.filter(({ plugin }) => {
-      const { include } = plugin.options
-      return (include?.some(({ type }) => OPERATION_FILTER_TYPES.has(type)) ?? false) && !(include?.some(({ type }) => type === 'schemaName') ?? false)
-    })
-
-    if (pruningStates.length > 0) {
-      const includedOpsByState = new Map<PluginState, Array<OperationNode>>(pruningStates.map((state) => [state, []]))
-      for (const operation of operationsBuffer) {
-        for (const state of pruningStates) {
-          const { exclude, include, override } = state.plugin.options
-          const options = state.generatorContext.resolver.resolveOptions(operation, { options: state.plugin.options, exclude, include, override })
-          if (options !== null) includedOpsByState.get(state)?.push(operation)
-        }
-      }
-
-      for (const state of pruningStates) {
-        state.allowedSchemaNames = collectUsedSchemaNames(includedOpsByState.get(state) ?? [], schemasBuffer)
-        includedOpsByState.delete(state)
-      }
-    }
-
-    // Apply the plugin's macros, then resolve options (skipping the resolver when
-    // optionsAreStatic). Returns null when include/exclude/override rules out the node.
-    // The per-node dispatch and the collected-operations tail both go through this so
-    // they agree on what a plugin sees.
-    const resolveForPlugin = <TNode extends SchemaNode | OperationNode>(
-      state: PluginState,
-      node: TNode,
-    ): { transformedNode: TNode; options: NormalizedPlugin['options'] } | null => {
-      const { plugin, generatorContext } = state
-      const transformedNode = transforms.applyTo(plugin.name, node)
-      if (state.optionsAreStatic) return { transformedNode, options: plugin.options }
-
+    // the reachable schema set, keyed by plugin name. This requires the full schema graph
+    // in memory at once, since transitive reachability can't be derived from a single node.
+    const allowedSchemaNamesByPlugin = new Map<string, Set<string>>()
+    for (const { plugin } of entries) {
       const { exclude, include, override } = plugin.options
-      const options = generatorContext.resolver.resolveOptions(transformedNode, { options: plugin.options, exclude, include, override })
-      if (options === null) return null
-      return { transformedNode, options }
+      const needsPruning =
+        (include?.some(({ type }) => OPERATION_FILTER_TYPES.has(type)) ?? false) && !(include?.some(({ type }) => type === 'schemaName') ?? false)
+      if (!needsPruning) continue
+
+      const resolver = this.getResolver(plugin.name)
+      const includedOps = operations.filter(
+        (operation) => resolver.default.options(operation, { options: plugin.options, exclude, include, override }) !== null,
+      )
+      allowedSchemaNamesByPlugin.set(plugin.name, collectUsedSchemaNames(includedOps, schemas))
     }
 
-    // One generation pass: which generator method runs, which kubb:generate hook fires, and
-    // whether the schema-only allowedSchemaNames prune applies.
-    type NodeDispatch<TNode extends SchemaNode | OperationNode> = {
-      method: 'schema' | 'operation'
-      checkAllowedNames: boolean
-      emit: ((node: TNode, ctx: GeneratorContext) => Promise<void> | void) | null
-    }
+    for (const { plugin, context, hrStart } of entries) {
+      const generatorContext = { ...context, resolver: this.getResolver(plugin.name) }
+      const { exclude, include, override } = plugin.options
+      const optionsAreStatic = !exclude?.length && !include?.length && !override?.length
+      const allowedSchemaNames = allowedSchemaNamesByPlugin.get(plugin.name) ?? null
 
-    // Schemas and operations share this body, differing only in the dispatch descriptor.
-    const dispatchNode = async <TNode extends SchemaNode | OperationNode>(state: PluginState, node: TNode, dispatch: NodeDispatch<TNode>): Promise<void> => {
-      if (state.failed) return
-      try {
-        const resolved = resolveForPlugin(state, node)
-        if (!resolved) return
+      let error: Error | null = null
 
-        const { transformedNode, options } = resolved
-        if (
-          dispatch.checkAllowedNames &&
-          state.allowedSchemaNames !== null &&
-          'name' in transformedNode &&
-          transformedNode.name &&
-          !state.allowedSchemaNames.has(transformedNode.name)
-        ) {
-          return
-        }
+      // Applies the plugin's macros, then resolves options (skipping the resolver when
+      // optionsAreStatic). Returns null when include/exclude/override rules out the node.
+      // The per-node dispatch and the collected-operations tail both go through this so
+      // they agree on what the plugin sees.
+      const resolveForPlugin = <TNode extends SchemaNode | OperationNode>(
+        node: TNode,
+      ): { transformedNode: TNode; options: NormalizedPlugin['options'] } | null => {
+        const transformedNode = transforms.applyTo(plugin.name, node)
+        if (optionsAreStatic) return { transformedNode, options: plugin.options }
 
-        const ctx = { ...state.generatorContext, options }
-        for (const gen of state.generators) {
-          const run = gen[dispatch.method] as ((node: TNode, ctx: GeneratorContext) => unknown) | undefined
-          if (!run) continue
-          const raw = run(transformedNode, ctx)
-          const result = isPromise(raw) ? await raw : raw
-          const applied = this.dispatch({ result, renderer: gen.renderer })
-          if (isPromise(applied)) await applied
-        }
-        if (dispatch.emit) await dispatch.emit(transformedNode, ctx)
-      } catch (caughtError) {
-        state.failed = true
-        state.error = caughtError as Error
+        const options = generatorContext.resolver.default.options<NormalizedPlugin['options']>(transformedNode, {
+          options: plugin.options,
+          exclude,
+          include,
+          override,
+        })
+        if (options === null) return null
+
+        return { transformedNode, options }
       }
-    }
 
-    const schemaDispatch = {
-      method: 'schema',
-      checkAllowedNames: true,
-      emit: emitsSchemaHook ? (node: SchemaNode, ctx: GeneratorContext) => this.hooks.emit('kubb:generate:schema', node, ctx) : null,
-    } as const
-    const operationDispatch = {
-      method: 'operation',
-      checkAllowedNames: false,
-      emit: emitsOperationHook ? (node: OperationNode, ctx: GeneratorContext) => this.hooks.emit('kubb:generate:operation', node, ctx) : null,
-    } as const
+      // Schemas before operations, in adapter order, so file output stays deterministic. A
+      // caught error stops this plugin but not the others, so its remaining nodes are
+      // skipped rather than retried.
+      if (emitsSchemaHook) {
+        for (const node of schemas) {
+          if (error) break
+          try {
+            const resolved = resolveForPlugin(node)
+            if (!resolved) continue
 
-    // Walk nodes in order, flushing queued writes every GENERATE_FLUSH_EVERY nodes so writes
-    // reach disk while later nodes are still generating. The generators are synchronous, so
-    // batching them through Promise.all never overlapped anything a sequential walk doesn't.
-    const dispatchPass = async <TNode extends SchemaNode | OperationNode>(
-      state: PluginState,
-      nodes: ReadonlyArray<TNode>,
-      dispatch: NodeDispatch<TNode>,
-    ): Promise<void> => {
-      let sinceFlush = 0
-      for (const node of nodes) {
-        await dispatchNode(state, node, dispatch)
-        if (++sinceFlush >= GENERATE_FLUSH_EVERY) {
-          sinceFlush = 0
-          await flushPending()
+            const { transformedNode, options } = resolved
+            if (allowedSchemaNames !== null && transformedNode.name && !allowedSchemaNames.has(transformedNode.name)) continue
+
+            await this.hooks.emit('kubb:generate:schema', transformedNode, { ...generatorContext, options })
+          } catch (caughtError) {
+            error = caughtError as Error
+          }
         }
       }
-      if (sinceFlush > 0) await flushPending()
-    }
 
-    for (const state of states) {
-      // Only plugins with a gen.operations (or a kubb:generate:operations listener) need the
-      // aggregated pass below.
-      const needsOperationsAggregate = emitsOperationsHook || state.generators.some((gen) => !!gen.operations)
+      if (emitsOperationHook) {
+        for (const node of operations) {
+          if (error) break
+          try {
+            const resolved = resolveForPlugin(node)
+            if (!resolved) continue
 
-      // Run schemas before operations: the two passes share the flush and the FileProcessor's
-      // event emitter, so interleaving them would race on the shared dirty list.
-      await dispatchPass(state, schemasBuffer, schemaDispatch)
-      await dispatchPass(state, operationsBuffer, operationDispatch)
+            await this.hooks.emit('kubb:generate:operation', resolved.transformedNode, { ...generatorContext, options: resolved.options })
+          } catch (caughtError) {
+            error = caughtError as Error
+          }
+        }
+      }
 
-      if (!state.failed && needsOperationsAggregate) {
+      if (!error && emitsOperationsHook) {
         try {
-          const { plugin, generatorContext, generators } = state
           const ctx = { ...generatorContext, options: plugin.options }
-          // Match what the per-node dispatch passed to gen.operation(): each operation
+          // Match what the per-node dispatch emitted on kubb:generate:operation: each operation
           // transformed and filtered by this plugin's excludes/includes/overrides.
-          const pluginOperations = operationsBuffer.reduce<Array<OperationNode>>((acc, node) => {
-            const resolved = resolveForPlugin(state, node)
+          const pluginOperations = operations.reduce<Array<OperationNode>>((acc, node) => {
+            const resolved = resolveForPlugin(node)
             if (resolved) acc.push(resolved.transformedNode)
             return acc
           }, [])
-          for (const gen of generators) {
-            if (!gen.operations) continue
-            const result = await gen.operations(pluginOperations, ctx)
-            await this.dispatch({ result, renderer: gen.renderer })
-          }
           await this.hooks.emit('kubb:generate:operations', pluginOperations, ctx)
         } catch (caughtError) {
-          state.failed = true
-          state.error = caughtError as Error
+          error = caughtError as Error
         }
       }
 
-      const duration = getElapsedMs(state.hrStart)
-      await this.#emitPluginEnd({ plugin: state.plugin, duration, success: !state.failed, error: state.failed && state.error ? state.error : undefined })
+      const duration = getElapsedMs(hrStart)
+      await this.#emitPluginEnd({ plugin, duration, success: !error, error: error ?? undefined })
 
-      if (state.failed && state.error) {
-        diagnostics.push({ ...Diagnostics.from(state.error), plugin: state.plugin.name })
+      if (error) {
+        diagnostics.push({ ...Diagnostics.from(error), plugin: plugin.name })
       }
-      diagnostics.push(Diagnostics.performance({ plugin: state.plugin.name, duration }))
+      diagnostics.push(Diagnostics.performance({ plugin: plugin.name, duration }))
     }
 
     return diagnostics
@@ -751,13 +631,6 @@ export class KubbDriver {
     }
 
     using instance = renderer()
-    if (instance.stream) {
-      for (const file of instance.stream(result)) {
-        this.fileManager.upsert(file)
-      }
-      return
-    }
-
     await instance.render(result)
     this.fileManager.upsert(...instance.files)
   }
@@ -791,19 +664,16 @@ export class KubbDriver {
     this.dispose()
   }
 
-  #getDefaultResolver = memoize(
-    this.#defaultResolvers,
-    (pluginName: string): Resolver => defineResolver<PluginFactoryOptions>(() => ({ name: 'default', pluginName })),
-  )
+  #getDefaultResolver = memoize(this.#defaultResolvers, (pluginName: string): Resolver => createResolver<PluginFactoryOptions>({ pluginName }))
 
   /**
    * Merges `partial` with the plugin's default resolver and stores the result.
    * Also mirrors it onto `plugin.resolver` so callers using `getPlugin(name).resolver`
    * get the up-to-date resolver without going through `getResolver()`.
    */
-  setPluginResolver(pluginName: string, partial: Partial<Resolver>): void {
+  setPluginResolver(pluginName: string, partial: ResolverOverride): void {
     const defaultResolver = this.#getDefaultResolver(pluginName)
-    const merged = { ...defaultResolver, ...partial }
+    const merged = Resolver.merge(defaultResolver, partial)
     this.#resolvers.set(pluginName, merged)
     const plugin = this.plugins.get(pluginName)
     if (plugin) {
@@ -814,13 +684,13 @@ export class KubbDriver {
   /**
    * Returns the resolver for the given plugin.
    *
-   * Resolution order: dynamic resolver set via `setPluginResolver` → static resolver on the
-   * plugin → lazily created default resolver (identity name, no path transforms).
+   * Resolution order: resolver set via `setPluginResolver` → lazily created default
+   * resolver (identity name, no path transforms).
    */
   getResolver<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Kubb.PluginRegistry[TName]['resolver']
   getResolver<TResolver extends Resolver = Resolver>(pluginName: string): TResolver
   getResolver(pluginName: string): Resolver {
-    return this.#resolvers.get(pluginName) ?? this.plugins.get(pluginName)?.resolver ?? this.#getDefaultResolver(pluginName)
+    return this.#resolvers.get(pluginName) ?? this.#getDefaultResolver(pluginName)
   }
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {

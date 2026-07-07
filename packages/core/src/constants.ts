@@ -1,9 +1,4 @@
 /**
- * Number of file writes to batch in parallel during `flushPendingFiles`.
- */
-export const STREAM_FLUSH_EVERY = 50
-
-/**
  * Maximum number of █ characters in a plugin timing bar.
  */
 export const SUMMARY_MAX_BAR_LENGTH = 10 as const
@@ -12,12 +7,6 @@ export const SUMMARY_MAX_BAR_LENGTH = 10 as const
  * Divides elapsed milliseconds into bar-length units (1 block per 100 ms).
  */
 export const SUMMARY_TIME_SCALE_DIVISOR = 100 as const
-
-/**
- * How many schema/operation nodes to generate between write flushes. Flushing as generation runs
- * lets writes reach disk before the build finishes, rather than queuing them all to the end.
- */
-export const GENERATE_FLUSH_EVERY = 8
 
 /**
  * Upper bound of hook listeners a single plugin can add to one event (its schema, operation,

@@ -17,4 +17,4 @@ Printer type exports now follow `Printer{Suffix}` convention:
 
 - Replace `mergeResolvers` with a single `resolver` partial override pattern using `withFallback`
 - Replace `transformers: Array<Visitor>` with a single `transformer?: Visitor`
-- `getPreset` accepts `resolver?: Partial<TResolver>`. Use `this.default(...)` to call the preset implementation
+- `getPreset` accepts `resolver?: Partial<TResolver>`. Use `this.name(...)` / `this.default.name(...)` to call the preset implementation

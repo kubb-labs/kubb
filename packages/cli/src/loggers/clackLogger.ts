@@ -2,10 +2,18 @@ import { relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { formatMsWithColor, getElapsedMs, getIntro, toCause } from '@internals/utils'
+import { formatMsWithColor, getElapsedMs, getIntro } from '@internals/utils'
 import { Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { defineLogger } from './defineLogger.ts'
-import { buildProgressLine, createProgressCounters, formatCommandWithArgs, formatMessage, recordPluginResult, resetProgressCounters } from './utils.ts'
+import {
+  buildProgressLine,
+  createProgressCounters,
+  formatCommandWithArgs,
+  formatErrorFrames,
+  formatMessage,
+  recordPluginResult,
+  resetProgressCounters,
+} from './utils.ts'
 
 /**
  * TTY logger for local development, with spinners and progress bars.
@@ -124,8 +132,6 @@ export const clackLogger = defineLogger({
     })
 
     context.on('kubb:error', ({ error }) => {
-      const caused = toCause(error)
-
       const text = [styleText('red', '✗'), error.message].join(' ')
 
       if (state.isSpinning) {
@@ -134,19 +140,17 @@ export const clackLogger = defineLogger({
       }
       clack.log.error(getMessage(text))
 
-      // Show stack trace in verbose mode (first 3 frames)
-      if (logLevel >= logLevelMap.verbose && error.stack) {
-        const frames = error.stack.split('\n').slice(1, 4)
-        for (const frame of frames) {
-          clack.log.message(getMessage(styleText('dim', frame.trim())))
+      const frames = logLevel >= logLevelMap.verbose ? formatErrorFrames(error) : null
+      if (frames) {
+        for (const frame of frames.frames) {
+          clack.log.message(getMessage(styleText('dim', frame)))
         }
 
-        if (caused?.stack) {
-          clack.log.message(styleText('dim', `└─ caused by ${caused.message}`))
+        if (frames.cause) {
+          clack.log.message(styleText('dim', frames.cause.header))
 
-          const frames = caused.stack.split('\n').slice(1, 4)
-          for (const frame of frames) {
-            clack.log.message(getMessage(`    ${styleText('dim', frame.trim())}`))
+          for (const frame of frames.cause.frames) {
+            clack.log.message(getMessage(`    ${styleText('dim', frame)}`))
           }
         }
       }

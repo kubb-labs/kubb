@@ -10,12 +10,11 @@ export { createStorage } from './createStorage.ts'
 export { defineGenerator } from './defineGenerator.ts'
 export { defineParser } from './defineParser.ts'
 export { definePlugin } from './definePlugin.ts'
-export { defineResolver } from './defineResolver.ts'
+export { createResolver, Resolver } from './createResolver.ts'
 export { KubbDriver } from './KubbDriver.ts'
 export { fsStorage } from './storages/fsStorage.ts'
 export { memoryStorage } from './storages/memoryStorage.ts'
 
 export { AsyncEventEmitter } from './asyncEventEmitter.ts'
-export { Url } from './Url.ts'
 
 export * from './types.ts'

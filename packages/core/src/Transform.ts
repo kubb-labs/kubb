@@ -23,13 +23,6 @@ export class Transform {
   readonly #memo = new Map<string, WeakMap<SchemaNode | OperationNode, SchemaNode | OperationNode>>()
 
   /**
-   * Number of plugins with at least one registered macro.
-   */
-  get size(): number {
-    return this.#macros.size
-  }
-
-  /**
    * Appends `macro` to the plugin's list, after any macros already registered.
    */
   add(pluginName: string, macro: Macro): void {
@@ -45,13 +38,6 @@ export class Transform {
   set(pluginName: string, macros: ReadonlyArray<Macro>): void {
     this.#macros.set(pluginName, [...macros])
     this.#invalidate(pluginName)
-  }
-
-  /**
-   * Looks up the composed visitor for `pluginName`, or `undefined` when the plugin has no macros.
-   */
-  get(pluginName: string): Visitor | undefined {
-    return this.#visitorFor(pluginName)
   }
 
   /**

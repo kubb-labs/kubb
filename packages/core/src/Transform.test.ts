@@ -114,25 +114,12 @@ describe('Transform — memoization', () => {
 })
 
 describe('Transform — registry', () => {
-  it('tracks size and exposes get', () => {
-    const transforms = new Transform()
-
-    expect(transforms.size).toBe(0)
-    expect(transforms.get('a')).toBeUndefined()
-
-    transforms.set('a', [{ name: 'a', schema: () => undefined }])
-
-    expect(transforms.size).toBe(1)
-    expect(transforms.get('a')).toBeDefined()
-  })
-
   it('overwrites a previous macro list for the same plugin', () => {
     const transforms = new Transform()
 
     transforms.set('a', [{ name: 'first', schema: (node) => ({ ...node, name: 'first' }) }])
     transforms.set('a', [{ name: 'second', schema: (node) => ({ ...node, name: 'second' }) }])
 
-    expect(transforms.size).toBe(1)
     expect(transforms.applyTo('a', namedSchema('original')).name).toBe('second')
   })
 
@@ -142,8 +129,6 @@ describe('Transform — registry', () => {
 
     transforms.dispose()
 
-    expect(transforms.size).toBe(0)
-    expect(transforms.get('a')).toBeUndefined()
     expect(transforms.applyTo('a', namedSchema('Pet')).name).toBe('Pet')
   })
 })

@@ -319,9 +319,7 @@ export function flattenSchema(schema: SchemaObject | null): SchemaObject | null 
 
   for (const fragment of allOfFragments) {
     for (const [key, value] of Object.entries(fragment)) {
-      if (merged[key as keyof typeof merged] === undefined) {
-        merged[key as keyof typeof merged] = value
-      }
+      merged[key as keyof SchemaObject] ??= value as SchemaObject[keyof SchemaObject]
     }
   }
 

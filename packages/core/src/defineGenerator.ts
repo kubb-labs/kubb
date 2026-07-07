@@ -5,7 +5,7 @@ import type { RendererFactory } from './createRenderer.ts'
 import type { KubbHooks } from './types.ts'
 import type { KubbDriver } from './KubbDriver.ts'
 import type { Plugin, PluginFactoryOptions } from './definePlugin.ts'
-import type { Resolver } from './defineResolver.ts'
+import type { Resolver } from './createResolver.ts'
 import type { Config } from './types.ts'
 import type { AsyncEventEmitter } from './asyncEventEmitter.ts'
 
@@ -68,11 +68,11 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    * called. Kubb picks a `setResolver` registration first, then the plugin's static
    * `resolver`, then the built-in default.
    *
-   * @example Resolve a type name
-   * `ctx.resolver.default('pet', 'type') // 'Pet'`
+   * @example Resolve a name
+   * `ctx.resolver.name('pet') // 'pet'`
    *
    * @example Resolve an output file
-   * `ctx.resolver.resolveFile({ name: 'pet', extname: '.ts' }, { root, output })`
+   * `ctx.resolver.file({ name: 'pet', extname: '.ts' }, { root, output })`
    */
   resolver: TOptions['resolver']
   /**

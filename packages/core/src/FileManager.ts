@@ -1,13 +1,46 @@
-import { ast, type FileNode } from '@kubb/ast'
+import { read } from '@internals/utils'
+import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
+import type { Storage } from './createStorage.ts'
+import type { Parser } from './defineParser.ts'
 import { AsyncEventEmitter } from './asyncEventEmitter.ts'
 
 /**
- * Hooks fired by a `FileManager`.
- *
- * - `upsert` fires once per resolved file added through `add` or `upsert`.
+ * Hooks fired around a `FileManager#write` batch: `start` before it, `update` per file, `end` after.
  */
 export type FileManagerHooks = {
-  upsert: [file: FileNode]
+  start: [files: Array<FileNode>]
+  update: [params: { file: FileNode; source?: string; processed: number; total: number; percentage: number }]
+  end: [files: Array<FileNode>]
+}
+
+type ParseOptions = {
+  parsers?: Map<FileNode['extname'], Parser>
+  extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
+}
+
+type WriteOptions = ParseOptions & {
+  storage: Storage
+}
+
+function joinSources(file: FileNode): string {
+  return file.sources
+    .map((source) => extractStringsFromNodes(source.nodes as Array<CodeNode>))
+    .filter(Boolean)
+    .join('\n\n')
+}
+
+async function parseCopy(file: FileNode): Promise<string> {
+  let content: string
+  try {
+    content = await read(file.copy as string)
+  } catch (err) {
+    throw new Error(`[kubb] Could not copy file into output: ${file.copy}`, { cause: err })
+  }
+
+  return [file.banner, content, file.footer]
+    .filter((segment): segment is string => Boolean(segment))
+    .map((segment) => segment.trimEnd())
+    .join('\n')
 }
 
 function mergeFile<TMeta extends object = object>(a: FileNode<TMeta>, b: FileNode<TMeta>): FileNode<TMeta> {
@@ -38,26 +71,25 @@ function compareFiles(a: FileNode, b: FileNode): number {
   const bIsIndex = isIndexPath(b.path)
   if (aIsIndex && !bIsIndex) return 1
   if (!aIsIndex && bIsIndex) return -1
+
   return 0
 }
 
 /**
- * In-memory file store for generated files. Files sharing a `path` are merged
- * (sources/imports/exports concatenated). The `files` getter is sorted by
- * path length (barrel `index.ts` last within a bucket).
+ * In-memory file store for generated files, and the writer that turns them into source
+ * strings on `storage`. Files sharing a `path` are merged (sources/imports/exports
+ * concatenated). The `files` getter is sorted by path length (barrel `index.ts` last
+ * within a bucket).
  *
  * @example
  * ```ts
  * const manager = new FileManager()
  * manager.upsert(myFile)
  * manager.files // sorted view
+ * await manager.write(manager.files, { storage: fsStorage() })
  * ```
  */
 export class FileManager {
-  /**
-   * Subscribe to file-store changes. Listeners on `upsert` see each resolved file as it lands
-   * through `add` or `upsert`.
-   */
   readonly hooks = new AsyncEventEmitter<FileManagerHooks>()
   readonly #cache = new Map<string, FileNode>()
   // Cached sorted view. Null means stale and rebuilt lazily on next `files` read.
@@ -83,7 +115,6 @@ export class FileManager {
       const merged = existing && mergeExisting ? ast.factory.createFile(mergeFile(existing, file)) : ast.factory.createFile(file)
       this.#cache.set(merged.path, merged)
       resolved.push(merged)
-      this.hooks.emit('upsert', merged)
     }
 
     if (resolved.length > 0) this.#sorted = null
@@ -101,15 +132,6 @@ export class FileManager {
     return [...seen.values()]
   }
 
-  getByPath(path: string): FileNode | null {
-    return this.#cache.get(path) ?? null
-  }
-
-  deleteByPath(path: string): void {
-    if (!this.#cache.delete(path)) return
-    this.#sorted = null
-  }
-
   clear(): void {
     this.#cache.clear()
     this.#sorted = null
@@ -124,15 +146,57 @@ export class FileManager {
     this.hooks.removeAll()
   }
 
-  [Symbol.dispose](): void {
-    this.dispose()
-  }
-
   /**
    * All stored files in stable sort order (shortest path first, barrel files
    * last within a length bucket). Returns a cached view, do not mutate.
    */
   get files(): Array<FileNode> {
     return (this.#sorted ??= [...this.#cache.values()].sort(compareFiles))
+  }
+
+  /**
+   * Converts a file's AST sources (or its `copy` source) into the final on-disk string.
+   */
+  async parse(file: FileNode, { parsers, extension }: ParseOptions = {}): Promise<string> {
+    if (file.copy) {
+      return parseCopy(file)
+    }
+
+    const parseExtName = extension?.[file.extname] || undefined
+
+    if (!parsers || !file.extname) {
+      return joinSources(file)
+    }
+
+    const parser = parsers.get(file.extname)
+
+    if (!parser) {
+      return joinSources(file)
+    }
+
+    return parser.parse(file, { extname: parseExtName })
+  }
+
+  /**
+   * Converts and writes every file at once, letting `storage.setItem` decide how much of
+   * that runs concurrently.
+   */
+  async write(files: Array<FileNode>, { storage, parsers, extension }: WriteOptions): Promise<void> {
+    if (files.length === 0) return
+
+    await this.hooks.emit('start', files)
+
+    const total = files.length
+    let processed = 0
+    await Promise.all(
+      files.map(async (file) => {
+        const source = await this.parse(file, { parsers, extension })
+        processed++
+        await this.hooks.emit('update', { file, source, processed, total, percentage: (processed / total) * 100 })
+        if (source) await storage.setItem(file.path, source)
+      }),
+    )
+
+    await this.hooks.emit('end', files)
   }
 }

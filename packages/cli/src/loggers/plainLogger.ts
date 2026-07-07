@@ -1,8 +1,8 @@
 import { relative } from 'node:path'
-import { formatMs, toCause } from '@internals/utils'
+import { formatMs } from '@internals/utils'
 import { Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { defineLogger } from './defineLogger.ts'
-import { createHookTimer, formatCommandWithArgs, formatMessage } from './utils.ts'
+import { createHookTimer, formatCommandWithArgs, formatErrorFrames, formatMessage } from './utils.ts'
 
 /**
  * Plain console adapter for non-TTY environments, built on `console.log`.
@@ -58,25 +58,21 @@ export const plainLogger = defineLogger({
     })
 
     context.on('kubb:error', ({ error }) => {
-      const caused = toCause(error)
-
       const text = getMessage(['✗', error.message].join(' '))
 
       console.log(text)
 
-      // Show stack trace in verbose mode (first 3 frames)
-      if (logLevel >= logLevelMap.verbose && error.stack) {
-        const frames = error.stack.split('\n').slice(1, 4)
-        for (const frame of frames) {
-          console.log(getMessage(frame.trim()))
+      const frames = logLevel >= logLevelMap.verbose ? formatErrorFrames(error) : null
+      if (frames) {
+        for (const frame of frames.frames) {
+          console.log(getMessage(frame))
         }
 
-        if (caused?.stack) {
-          console.log(`└─ caused by ${caused.message}`)
+        if (frames.cause) {
+          console.log(frames.cause.header)
 
-          const frames = caused.stack.split('\n').slice(1, 4)
-          for (const frame of frames) {
-            console.log(getMessage(`    ${frame.trim()}`))
+          for (const frame of frames.cause.frames) {
+            console.log(getMessage(`    ${frame}`))
           }
         }
       }

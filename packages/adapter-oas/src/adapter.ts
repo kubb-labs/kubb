@@ -1,12 +1,16 @@
-import { ast, collect, extractRefName, narrowSchema } from '@kubb/ast'
+import { ast, collect, extractRefName, findCircularSchemas, narrowSchema } from '@kubb/ast'
 import { createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
+import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
+import type { DiscriminatorTarget } from './discriminator.ts'
 import { assertInputExists, parseDocument, parseFromConfig, validateDocument } from './factory.ts'
+import { getOperations } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
+import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
 import { getSchemas, resolveBaseUrl } from './resolvers.ts'
-import { createInputStream, preScan } from './stream.ts'
-import type { AdapterOas, Document } from './types.ts'
+import { reportSchemaDiagnostics } from './schemaDiagnostics.ts'
+import type { AdapterOas, Document, SchemaObject } from './types.ts'
 
 /**
  * The `name` of `@kubb/adapter-oas`, used to identify this adapter in a Kubb config.
@@ -67,14 +71,11 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   let parsedDocument: Document | null = null
 
   // Cache per source and per document so one adapter instance reused across a `defineConfig` array
-  // parses each config's spec instead of replaying the first one. Keying the document by its source
-  // object still collapses a config's concurrent `stream()` (build) and `parse()` (studio) calls,
-  // which share one source object, onto a single parse. The document-derived caches key off the
-  // resulting document, so distinct configs (distinct documents) stay isolated.
+  // parses each config's spec instead of replaying the first one. The document-derived caches key
+  // off the resulting document, so distinct configs (distinct documents) stay isolated.
   const documentCache = new WeakMap<AdapterSource, Promise<Document>>()
   const schemasCache = new WeakMap<Document, Promise<ReturnType<typeof getSchemas>['schemas']>>()
   const schemaParserCache = new WeakMap<Document, ReturnType<typeof createSchemaParser>>()
-  const preScanCache = new WeakMap<Document, ReturnType<typeof preScan>>()
 
   function ensureDocument(source: AdapterSource): Promise<Document> {
     const cached = documentCache.get(source)
@@ -112,35 +113,76 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     return parser
   }
 
-  function ensurePreScan(
-    document: Document,
-    schemas: ReturnType<typeof getSchemas>['schemas'],
-    parseSchema: ReturnType<typeof ensureSchemaParser>['parseSchema'],
-    parseOperation: ReturnType<typeof ensureSchemaParser>['parseOperation'],
-  ): ReturnType<typeof preScan> {
-    const cached = preScanCache.get(document)
-    if (cached) return cached
+  // Parses every schema and operation once. Ref aliases and discriminator children are
+  // resolved from the schemas already parsed in this same pass rather than re-parsed.
+  function parseInput({
+    document,
+    schemas,
+    parser,
+  }: {
+    document: Document
+    schemas: Record<string, SchemaObject>
+    parser: ReturnType<typeof ensureSchemaParser>
+  }): ast.InputNode {
+    const { parseSchema, parseOperation } = parser
 
-    const result = preScan({ schemas, parseSchema, parseOperation, document, parserOptions, discriminator, enums })
-    preScanCache.set(document, result)
-    return result
-  }
+    const parsedByName = new Map<string, ast.SchemaNode>()
+    const refAliasMap = new Map<string, ast.SchemaNode>()
+    const enumNames: Array<string> = []
+    const discriminatorParentNodes: Array<ast.SchemaNode> = []
 
-  async function createStream(source: AdapterSource): Promise<ast.InputNode<true>> {
-    const document = await ensureDocument(source)
-    const schemas = await ensureSchemas(document)
-    const { parseSchema, parseOperation } = ensureSchemaParser(document)
-    const { refAliasMap, enumNames, circularNames, discriminatorChildMap, promotedEnums } = ensurePreScan(document, schemas, parseSchema, parseOperation)
+    for (const [name, schema] of Object.entries(schemas)) {
+      const node = parseSchema({ schema, name }, parserOptions)
+      parsedByName.set(name, node)
+      reportSchemaDiagnostics({ node, name })
+      if (node.type === 'ref' && node.name && node.name !== name) {
+        refAliasMap.set(name, node)
+      }
+      if (narrowSchema(node, 'enum') && node.name) {
+        enumNames.push(node.name)
+      }
+      if (discriminator === 'propagate' && (schema.oneOf ?? schema.anyOf) && schema.discriminator?.propertyName) {
+        discriminatorParentNodes.push(node)
+      }
+    }
 
-    return createInputStream({
-      schemas,
-      parseSchema,
-      parseOperation,
-      document,
-      parserOptions,
-      refAliasMap,
-      discriminatorChildMap,
-      promotedEnums,
+    const circularNames = [...findCircularSchemas([...parsedByName.values()])]
+    const discriminatorChildMap: Map<string, DiscriminatorTarget> | null =
+      discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
+
+    const operationNodes: Array<ast.OperationNode> = []
+    for (const operation of getOperations(document)) {
+      const operationNode = parseOperation(parserOptions, operation)
+      if (operationNode) operationNodes.push(operationNode)
+    }
+
+    let promotedEnums: Map<string, ast.SchemaNode> | null = null
+    if (enums === 'root') {
+      promotedEnums = collectInlineEnums([...parsedByName.values(), ...operationNodes], new Set(Object.keys(schemas)))
+      for (const name of promotedEnums.keys()) enumNames.push(name)
+    }
+
+    const schemaNodes: Array<ast.SchemaNode> = promotedEnums ? [...promotedEnums.values()] : []
+    for (const name of Object.keys(schemas)) {
+      const alias = refAliasMap.get(name)
+
+      let node: ast.SchemaNode
+      if (alias?.name && parsedByName.has(alias.name)) {
+        node = { ...parsedByName.get(alias.name)!, name }
+      } else {
+        const parsed = parsedByName.get(name)!
+        const child = discriminatorChildMap?.get(name)
+        node = child ? patchDiscriminatorNode(parsed, child) : parsed
+      }
+
+      schemaNodes.push(promotedEnums ? refPromotedEnums(node, promotedEnums) : node)
+    }
+
+    const operations = promotedEnums ? operationNodes.map((node) => refPromotedEnums(node, promotedEnums!)) : operationNodes
+
+    return ast.factory.createInput({
+      schemas: schemaNodes,
+      operations,
       meta: {
         title: document.info?.title,
         description: document.info?.description,
@@ -196,12 +238,11 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       })
     },
     async parse(source) {
-      const streamNode = await createStream(source)
+      const document = await ensureDocument(source)
+      const schemas = await ensureSchemas(document)
+      const parser = ensureSchemaParser(document)
 
-      const [schemas, operations] = await Promise.all([Array.fromAsync(streamNode.schemas), Array.fromAsync(streamNode.operations)])
-
-      return ast.factory.createInput({ schemas, operations, meta: streamNode.meta })
+      return parseInput({ document, schemas, parser })
     },
-    stream: createStream,
   }
 })

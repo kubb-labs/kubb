@@ -80,13 +80,4 @@ describe('createHookTimer', () => {
 
     expect(timer.end('a')).toBeUndefined()
   })
-
-  it('clear drops pending starts', () => {
-    const timer = createHookTimer()
-
-    timer.start('a')
-    timer.clear()
-
-    expect(timer.end('a')).toBeUndefined()
-  })
 })
