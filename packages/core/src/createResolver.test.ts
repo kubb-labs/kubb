@@ -101,6 +101,58 @@ describe('createResolver', () => {
     expect(file.baseName).toBe('pet.gen.ts')
   })
 
+  it('a file shorthand object renames the base name via file.name', () => {
+    const resolver = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      file: {
+        name(name) {
+          return `${name.toLowerCase()}.gen`
+        },
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+
+    const file = resolver.file({ name: 'Pet', extname: '.ts' }, context)
+    expect(file.baseName).toBe('pet.gen.ts')
+  })
+
+  it('a file shorthand reaches sibling helpers through `this`', () => {
+    const resolver = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      name(name) {
+        return name.toUpperCase()
+      },
+      file: {
+        name(name) {
+          return `${this.name(name)}.schema`
+        },
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+
+    expect(resolver.file({ name: 'pet', extname: '.ts' }, context).baseName).toBe('PET.schema.ts')
+  })
+
+  it('Resolver.merge accepts a file shorthand patch', () => {
+    const base = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+
+    const merged = Resolver.merge(base, {
+      file: {
+        name(name) {
+          return `${name}.mock`
+        },
+      },
+    })
+
+    expect(merged.file({ name: 'pet', extname: '.ts' }, context).baseName).toBe('pet.mock.ts')
+  })
+
   it('resolveOptions does not throw when options is not an object', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',

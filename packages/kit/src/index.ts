@@ -34,6 +34,7 @@ export type {
   Renderer,
   RendererFactory,
   ResolverContext,
+  ResolverFileName,
   ResolverFileParams,
   ResolverPatch,
   Storage,
