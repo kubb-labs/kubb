@@ -143,8 +143,8 @@ describe('createResolver', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
       file: {
-        path({ name, extname }) {
-          return `mocks/${name}${extname}`
+        path({ baseName, extname }) {
+          return `mocks/${baseName}${extname}`
         },
       },
       greet: (name: string) => name,
@@ -163,8 +163,8 @@ describe('createResolver', () => {
         return name.toUpperCase()
       },
       file: {
-        path({ name, extname, output }) {
-          return `${output.path}/${this.name(name)}${extname}`
+        path({ baseName, extname, output }) {
+          return `${output.path}/${this.name(baseName)}${extname}`
         },
       },
       greet: (name: string) => name,
@@ -174,15 +174,15 @@ describe('createResolver', () => {
     expect(resolver.file({ name: 'pet', extname: '.ts', ...context }).path).toBe('/root/types/PET.ts')
   })
 
-  it('file.path wins over file.baseName for the location', () => {
+  it('file.path receives the base name from file.baseName', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
       file: {
         baseName(name) {
           return `${name}.gen`
         },
-        path({ name, extname }) {
-          return `custom/${name}${extname}`
+        path({ baseName, extname }) {
+          return `custom/${baseName}${extname}`
         },
       },
       greet: (name: string) => name,
@@ -190,8 +190,8 @@ describe('createResolver', () => {
     })
 
     const file = resolver.file({ name: 'pet', extname: '.ts', ...context })
-    expect(file.path).toBe('/root/custom/pet.ts')
-    expect(file.baseName).toBe('pet.ts')
+    expect(file.path).toBe('/root/custom/pet.gen.ts')
+    expect(file.baseName).toBe('pet.gen.ts')
   })
 
   it('a file.path that escapes the project root throws', () => {
