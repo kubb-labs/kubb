@@ -137,10 +137,10 @@ export type ResolverFile = {
 
 /**
  * The argument to a resolver's `file.path`: the file request (`name`, `extname`, `tag`, `path`)
- * merged with the resolver context (`root`, `output`, `group`), so the override can read both when
- * building the path.
+ * plus the active `output`. `root` is omitted because the returned path is resolved against it, and
+ * `group` because `file.path` bypasses grouping.
  */
-export type ResolverFilePathContext = ResolverFileParams & ResolverContext
+export type ResolverFilePathContext = ResolverFileParams & Pick<ResolverContext, 'output'>
 
 /**
  * Per-file context describing the file a banner/footer is being resolved for, so a
@@ -479,7 +479,7 @@ export class Resolver {
     const { name, extname, tag, path: groupPath } = params
     const resolvedName = context.output.mode === 'file' ? '' : resolveName(name)
     const filePath = resolvePath
-      ? this.#resolveOverridePath(resolvePath({ ...params, ...context }), context)
+      ? this.#resolveOverridePath(resolvePath({ ...params, output: context.output }), context)
       : this.#resolvePath({ baseName: `${resolvedName}${extname}` as FileNode['baseName'], tag, path: groupPath }, context)
 
     return ast.factory.createFile({
