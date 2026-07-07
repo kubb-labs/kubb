@@ -116,7 +116,7 @@ export class Kubb {
     using self = this
     const driver = self.driver
     const storage = self.storage
-    const { diagnostics } = await driver.run({ storage })
+    const { diagnostics } = await driver.run()
 
     return { diagnostics, files: driver.fileManager.files, driver, storage }
   }
