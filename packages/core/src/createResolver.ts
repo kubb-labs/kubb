@@ -9,7 +9,7 @@ import { Resolver, type ResolverBuildOptions, type ResolverFileName } from './Re
 type ResolverOptions<T extends PluginFactoryOptions> = Omit<T['resolver'], keyof Resolver> & {
   pluginName: T['name']
   name?: T['resolver']['name']
-  file?: T['resolver']['file'] | ResolverFileName
+  file?: ResolverFileName
 } & ThisType<T['resolver']>
 
 /**

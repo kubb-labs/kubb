@@ -1,10 +1,10 @@
 ---
-'@kubb/core': minor
+'@kubb/core': major
 ---
 
-Add a `file: { name }` shorthand to resolver definitions.
+Rename generated files through a resolver's `file: { name }` instead of the `resolveName` hook.
 
-A resolver can now rename generated files by supplying just the base-name caser, instead of writing the full `file` override that threads `resolveName` through `this.default.file`:
+A resolver now sets file naming by supplying a base-name caser:
 
 ```ts
 createResolver({
@@ -20,4 +20,20 @@ createResolver({
 })
 ```
 
-`file.name` receives the identifier and returns the file's base name, reaching sibling helpers through `this`. The full `file(params, context)` function form still works for cases that need the path context. The same shorthand is accepted in a `resolver` override passed to a plugin and in `Resolver.merge`.
+`file.name` receives the identifier and returns the file's base name, reaching sibling helpers through `this`, and is accepted the same way in a plugin `resolver` override and in `Resolver.merge`.
+
+This replaces the previous approach of overriding `file(params, context)` and threading a `resolveName` function through `this.default.file`. The `file` function form and the `resolveName` field on `ResolverFileParams` are removed. Migrate by moving the caser into `file.name`:
+
+```ts
+// before
+file(params, context) {
+  return this.default.file({ ...params, resolveName: (name) => toFilePath(name, pascalCase) }, context)
+}
+
+// after
+file: {
+  name(name) {
+    return toFilePath(name, pascalCase)
+  },
+}
+```

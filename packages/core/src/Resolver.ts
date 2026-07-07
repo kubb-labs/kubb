@@ -94,20 +94,12 @@ export type ResolverFileParams = {
    * Path value used when `group.type === 'path'`.
    */
   path?: string
-  /**
-   * Casing applied to `name` to build the file base name. A plugin's `file` override
-   * threads its own caser here to change file naming without reimplementing the builder.
-   * The `file: { name }` shorthand sets this for you.
-   *
-   * @default toFilePath
-   */
-  resolveName?: (name: string) => string
 }
 
 /**
- * Shorthand for a resolver's `file` field: supply only the base-name caser and Kubb wires it into
- * the built-in file builder as `resolveName`. Use this to rename generated files without writing
- * the full `file` override or importing the file-path helpers.
+ * The `file` field of a resolver: supply the base-name caser and Kubb applies it when building
+ * every generated file's name. This is how a resolver renames its files, replacing the older
+ * per-call `resolveName` hook.
  *
  * @example Suffix every generated file
  * ```ts
@@ -122,6 +114,8 @@ export type ResolverFileName = {
   /**
    * Turns a generated identifier into the file's base name (without extension). Reaches sibling
    * resolver helpers through `this`.
+   *
+   * @default toFilePath
    */
   name(name: string): string
 }
@@ -193,7 +187,7 @@ export type ResolveBannerContext = {
 export type ResolverBuildOptions = {
   pluginName: string
   name?: (name: string) => string
-  file?: ((params: ResolverFileParams, context: ResolverContext) => FileNode) | ResolverFileName
+  file?: ResolverFileName
   [key: string]: unknown
 }
 
@@ -204,7 +198,7 @@ export type ResolverBuildOptions = {
  */
 export type ResolverPatch<T extends Resolver = Resolver> = Partial<Omit<T, keyof Resolver>> & {
   name?: T['name']
-  file?: T['file'] | ResolverFileName
+  file?: ResolverFileName
 } & ThisType<T>
 
 function isNamespace(value: unknown): value is Record<string, unknown> {
@@ -242,30 +236,15 @@ export class Resolver {
 
   readonly pluginName: string
   #options: ResolverBuildOptions
+  // Base-name caser from `options.file.name`, bound to the resolver so it can reach `this`.
+  // Defaults to `toFilePath` when a resolver sets no `file`.
+  #fileName: (name: string) => string
 
   constructor(options: ResolverBuildOptions) {
-    const expanded = Resolver.#expandFileShorthand(options)
-    this.pluginName = expanded.pluginName
-    this.#options = expanded
-    this.#apply(expanded)
-  }
-
-  /**
-   * Expands the `file: { name }` shorthand into a full `file` builder so generators keep calling
-   * `resolver.file(params, context)`. The supplied caser is threaded through the built-in builder
-   * as `resolveName`, bound to the resolver so it can reach `this`. A function `file` is left as is.
-   */
-  static #expandFileShorthand(options: ResolverBuildOptions): ResolverBuildOptions {
-    const { file } = options
-    if (!file || typeof file === 'function') return options
-
-    const resolveName = file.name
-    return {
-      ...options,
-      file(this: Resolver, params: ResolverFileParams, context: ResolverContext): FileNode {
-        return this.default.file({ ...params, resolveName: (name) => resolveName.call(this, name) }, context)
-      },
-    }
+    this.pluginName = options.pluginName
+    this.#options = options
+    this.#fileName = options.file ? options.file.name.bind(this) : toFilePath
+    this.#apply(options)
   }
 
   /**
@@ -288,7 +267,7 @@ export class Resolver {
   }
 
   file(params: ResolverFileParams, context: ResolverContext): FileNode {
-    return this.default.file(params, context)
+    return this.#resolveFile(params, context, this.#fileName)
   }
 
   /**
@@ -310,7 +289,9 @@ export class Resolver {
     const bind = (value: unknown) => (typeof value === 'function' ? value.bind(root) : value)
 
     for (const [key, value] of Object.entries(options)) {
-      if (key === 'pluginName' || key === 'default' || value === undefined) continue
+      // `file` drives file naming through `#fileName`, not a top-level method, so it must not be
+      // assigned here (it would shadow the `file` method with a plain `{ name }` object).
+      if (key === 'pluginName' || key === 'default' || key === 'file' || value === undefined) continue
       root[key] = isNamespace(value) ? Object.fromEntries(Object.entries(value).map(([method, member]) => [method, bind(member)])) : bind(value)
     }
   }
@@ -437,11 +418,11 @@ export class Resolver {
   }
 
   /**
-   * Builds a `FileNode` by combining file-name casing (`params.resolveName`) with path
-   * resolution. The resolved file starts with empty `sources`, `imports`, and `exports`,
-   * which consumers populate separately.
+   * Builds a `FileNode` by combining file-name casing (`resolveName`, the resolver's `file.name`
+   * or the built-in `toFilePath`) with path resolution. The resolved file starts with empty
+   * `sources`, `imports`, and `exports`, which consumers populate separately.
    */
-  #resolveFile({ name, extname, tag, path: groupPath, resolveName = toFilePath }: ResolverFileParams, context: ResolverContext): FileNode {
+  #resolveFile({ name, extname, tag, path: groupPath }: ResolverFileParams, context: ResolverContext, resolveName: (name: string) => string = toFilePath): FileNode {
     const resolvedName = context.output.mode === 'file' ? '' : resolveName(name)
     const filePath = this.#resolvePath({ baseName: `${resolvedName}${extname}` as FileNode['baseName'], tag, path: groupPath }, context)
 

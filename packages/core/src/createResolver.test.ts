@@ -87,21 +87,7 @@ describe('createResolver', () => {
     expect(resolver.schema.typeName('list pets')).toBe('listPetsSchemaType')
   })
 
-  it('a file override threads a custom caser through default.file', () => {
-    const resolver = createResolver<TestPluginFactory>({
-      pluginName: 'test',
-      file(params, ctx) {
-        return this.default.file({ ...params, resolveName: (name) => `${name.toLowerCase()}.gen` }, ctx)
-      },
-      greet: (name: string) => name,
-      farewell: (name: string) => name,
-    })
-
-    const file = resolver.file({ name: 'Pet', extname: '.ts' }, context)
-    expect(file.baseName).toBe('pet.gen.ts')
-  })
-
-  it('a file shorthand object renames the base name via file.name', () => {
+  it('a file renames the base name via file.name', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
       file: {
@@ -117,7 +103,7 @@ describe('createResolver', () => {
     expect(file.baseName).toBe('pet.gen.ts')
   })
 
-  it('a file shorthand reaches sibling helpers through `this`', () => {
+  it('a file reaches sibling helpers through `this`', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
       name(name) {
@@ -135,7 +121,7 @@ describe('createResolver', () => {
     expect(resolver.file({ name: 'pet', extname: '.ts' }, context).baseName).toBe('PET.schema.ts')
   })
 
-  it('Resolver.merge accepts a file shorthand patch', () => {
+  it('Resolver.merge accepts a file patch', () => {
     const base = createResolver<TestPluginFactory>({
       pluginName: 'test',
       greet: (name: string) => name,
