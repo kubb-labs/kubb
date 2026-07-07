@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { createModuleLoader } from '@internals/shared'
 import { createSerialRunner, toError } from '@internals/utils'
-import type { CLIOptions, Config, KubbHooks, PossibleConfig, AsyncEventEmitter } from '@kubb/core'
+import type { CLIOptions, Config, KubbHooks, PossibleConfig, Hookable } from '@kubb/core'
 import { NonZeroExitError, x } from 'tinyexec'
 import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
 import { WATCHER_DEBOUNCE_MS, WATCHER_IGNORED_PATHS } from '../../constants.ts'
@@ -84,12 +84,12 @@ export async function getConfigs({ configPath, input, watch, logLevel }: GetConf
 
 type ExecuteHooksOptions = {
   configHooks: NonNullable<Config['hooks']>
-  hooks: AsyncEventEmitter<KubbHooks>
+  hooks: Hookable<KubbHooks>
 }
 
 /**
  * Outcome of a single hook subprocess, returned by `runHook` alongside the
- * `kubb:hook:end` event it emits for the loggers.
+ * `kubb:hook:end` hook it emits for the loggers.
  */
 export type HookResult = {
   /**
@@ -114,7 +114,7 @@ let hookSequence = 0
 
 /**
  * Returns a process-unique id that correlates a hook's `kubb:hook:start` and `kubb:hook:end`
- * events, which loggers use to key their per-hook state.
+ * emissions, which loggers use to key their per-hook state.
  */
 export function createHookId(): string {
   hookSequence += 1
@@ -183,7 +183,7 @@ type RunHookOptions = {
   command: string
   args?: ReadonlyArray<string>
   commandWithArgs: string
-  hooks: AsyncEventEmitter<KubbHooks>
+  hooks: Hookable<KubbHooks>
 }
 
 /**

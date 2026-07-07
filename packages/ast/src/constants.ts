@@ -137,8 +137,3 @@ export const schemaTypes = {
  * ```
  */
 export const WALK_CONCURRENCY = 30
-
-/**
- * One indentation level (two spaces) used when assembling multi-line code as strings.
- */
-export const INDENT = '  '

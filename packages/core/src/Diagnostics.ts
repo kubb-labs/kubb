@@ -4,7 +4,7 @@ import { getErrorMessage } from '@internals/utils'
 import { version } from '../package.json'
 import { type DiagnosticCode, diagnosticCode } from './constants.ts'
 import type { KubbHooks } from './types.ts'
-import type { AsyncEventEmitter } from './asyncEventEmitter.ts'
+import type { Hookable } from './Hookable.ts'
 
 /**
  * Docs major version, derived from the package version so the link tracks the published major.
@@ -451,11 +451,11 @@ export class Diagnostics {
   }
 
   /**
-   * Emits a diagnostic on the run's `kubb:diagnostic` event so the loggers render it live.
+   * Emits a diagnostic on the run's `kubb:diagnostic` hook so the loggers render it live.
    * Use it instead of calling `hooks.emit('kubb:diagnostic', ...)` directly. To collect a
    * diagnostic into the build result from deep in a run, use {@link Diagnostics.report} instead.
    */
-  static async emit(hooks: AsyncEventEmitter<KubbHooks>, diagnostic: ProblemDiagnostic | UpdateDiagnostic): Promise<void> {
+  static async emit(hooks: Hookable<KubbHooks>, diagnostic: ProblemDiagnostic | UpdateDiagnostic): Promise<void> {
     await hooks.emit('kubb:diagnostic', { diagnostic })
   }
 
@@ -464,7 +464,7 @@ export class Diagnostics {
    * keeps its structured data, and anything else becomes a `KUBB_UNKNOWN` error.
    */
   static from(error: unknown): ProblemDiagnostic {
-    // The event emitter and BuildError wrap the original, so walk the cause chain to
+    // The hook emitter and BuildError wrap the original, so walk the cause chain to
     // recover a Diagnostics.Error thrown deeper down. `root` tracks the deepest error so
     // the unknown diagnostic reports the original message and stack, not the wrapper's.
     const seen = new Set<unknown>()

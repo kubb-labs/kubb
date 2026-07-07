@@ -9,7 +9,7 @@ export const SUMMARY_MAX_BAR_LENGTH = 10 as const
 export const SUMMARY_TIME_SCALE_DIVISOR = 100 as const
 
 /**
- * Upper bound of hook listeners a single plugin can add to one event (its schema, operation,
+ * Upper bound of hook listeners a single plugin can add to one hook (its schema, operation,
  * and operations generators, plus lifecycle hooks). Used to size the hooks emitter's
  * max-listener ceiling so a multi-generator plugin set does not trip Node's leak warning.
  */

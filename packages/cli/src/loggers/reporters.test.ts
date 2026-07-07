@@ -1,10 +1,10 @@
-import { AsyncEventEmitter, cliReporter, type Config, fileReporter, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
+import { Hookable, cliReporter, type Config, fileReporter, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import setupReporters, { installReporter } from './utils.ts'
 
 describe('jsonReporter', () => {
   it('writes one JSON array for every config on lifecycle end', async () => {
-    const context = new AsyncEventEmitter<KubbHooks>()
+    const context = new Hookable<KubbHooks>()
     const writes: Array<string> = []
     using _ = vi.spyOn(process.stdout, 'write').mockImplementation((chunk) => {
       writes.push(String(chunk))
@@ -40,7 +40,7 @@ describe('jsonReporter', () => {
 
 describe('cliReporter', () => {
   it('renders the summary per config', async () => {
-    const context = new AsyncEventEmitter<KubbHooks>()
+    const context = new Hookable<KubbHooks>()
     const logs: Array<string> = []
     using _ = vi.spyOn(console, 'log').mockImplementation((...args) => {
       logs.push(args.join(' '))
@@ -64,7 +64,7 @@ describe('cliReporter', () => {
   })
 
   it('renders nothing at silent', async () => {
-    const context = new AsyncEventEmitter<KubbHooks>()
+    const context = new Hookable<KubbHooks>()
     const logs: Array<string> = []
     using _ = vi.spyOn(console, 'log').mockImplementation((...args) => {
       logs.push(args.join(' '))
@@ -87,7 +87,7 @@ describe('cliReporter', () => {
 
 describe('setupReporters', () => {
   it('lets json own stdout without installing the live logger when json is selected', async () => {
-    const context = new AsyncEventEmitter<KubbHooks>()
+    const context = new Hookable<KubbHooks>()
 
     await setupReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
 
@@ -95,8 +95,8 @@ describe('setupReporters', () => {
     expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
   })
 
-  it('wires the file reporter to the generation event', async () => {
-    const context = new AsyncEventEmitter<KubbHooks>()
+  it('wires the file reporter to the generation hook', async () => {
+    const context = new Hookable<KubbHooks>()
 
     await setupReporters(context, { logLevel: logLevel.info, reporters: [fileReporter] })
 

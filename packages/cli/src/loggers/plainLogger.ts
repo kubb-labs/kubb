@@ -18,8 +18,8 @@ export const plainLogger = defineLogger({
     }
 
     // Registers a handler that logs a fixed message, skipped at silent level.
-    function onStep<E extends keyof KubbHooks>(event: E, message: string): void {
-      context.on(event, () => {
+    function onStep<E extends keyof KubbHooks>(hook: E, message: string): void {
+      context.on(hook, () => {
         if (logLevel <= logLevelMap.silent) {
           return
         }

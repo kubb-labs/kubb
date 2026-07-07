@@ -77,7 +77,7 @@ function buildTimingSection(report: Report): Array<string> {
  * `## Timings` section. Selected with `--reporter file` (or `reporters: ['file']`).
  *
  * @note It captures the collected diagnostics once a config finishes, not the live
- * `kubb:info`/`kubb:plugin` event stream. Color is stripped so the file stays plain text even when
+ * `kubb:info`/`kubb:plugin` hook stream. Color is stripped so the file stays plain text even when
  * the run is attached to a TTY.
  */
 export const fileReporter = createReporter({

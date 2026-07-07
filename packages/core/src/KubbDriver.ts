@@ -9,8 +9,8 @@ import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { Plugin } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
-import type { ResolverOverride } from './createResolver.ts'
-import { createResolver, Resolver } from './createResolver.ts'
+import { createResolver } from './createResolver.ts'
+import { Resolver, type ResolverPatch } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import { Transform } from './Transform.ts'
 
@@ -25,15 +25,15 @@ import type {
   NormalizedPlugin,
   PluginFactoryOptions,
 } from './types.ts'
-import type { AsyncEventEmitter } from './asyncEventEmitter.ts'
+import type { Hookable } from './Hookable.ts'
 
 type Options = {
-  hooks: AsyncEventEmitter<KubbHooks>
+  hooks: Hookable<KubbHooks>
 }
 
 type HookListener<TArgs extends Array<unknown>, TResult = void> = (...args: TArgs) => TResult | Promise<TResult>
 
-type ListenerEntry = [event: keyof KubbHooks & string, handler: HookListener<Array<unknown>, unknown>]
+type ListenerEntry = [hook: keyof KubbHooks & string, handler: HookListener<Array<unknown>, unknown>]
 
 type RequirePluginContext = {
   /**
@@ -104,10 +104,10 @@ export class KubbDriver {
   readonly plugins = new Map<string, NormalizedPlugin>()
 
   /**
-   * Tracks which plugins have generators registered via `addGenerator()` (event-based path).
-   * Used by the build loop to decide whether to emit generator events for a given plugin.
+   * Tracks which plugins have generators registered via `addGenerator()` (hook-based path).
+   * Used by the build loop to decide whether to emit generator hooks for a given plugin.
    */
-  readonly #eventGeneratorPlugins = new Set<string>()
+  readonly #hookGeneratorPlugins = new Set<string>()
   readonly #resolvers = new Map<string, Resolver>()
   readonly #defaultResolvers = new Map<string, Resolver>()
 
@@ -133,9 +133,9 @@ export class KubbDriver {
    * Attaches a listener to the shared emitter and tracks it so `dispose()` can remove it later.
    * Listeners attached directly via `hooks.on(...)` are not tracked and survive disposal.
    */
-  #trackListener<K extends keyof KubbHooks & string>(event: K, handler: HookListener<KubbHooks[K], unknown>): void {
-    this.hooks.on(event, handler as HookListener<KubbHooks[K]>)
-    this.#listeners.push([event, handler as HookListener<Array<unknown>, unknown>])
+  #trackListener<K extends keyof KubbHooks & string>(hook: K, handler: HookListener<KubbHooks[K], unknown>): void {
+    this.hooks.on(hook, handler as HookListener<KubbHooks[K]>)
+    this.#listeners.push([hook, handler as HookListener<Array<unknown>, unknown>])
   }
 
   /**
@@ -163,7 +163,7 @@ export class KubbDriver {
 
   /**
    * Builds a `NormalizedPlugin` from a hook-style plugin, filling in default
-   * options. Registering its lifecycle handlers on the `AsyncEventEmitter` is
+   * options. Registering its lifecycle handlers on the `Hookable` is
    * done separately by `#registerPlugin`.
    */
   #normalizePlugin(plugin: Plugin): NormalizedPlugin {
@@ -187,11 +187,11 @@ export class KubbDriver {
   }
 
   /**
-   * Registers a hook-style plugin's lifecycle handlers on the shared `AsyncEventEmitter`.
+   * Registers a hook-style plugin's lifecycle handlers on the shared `Hookable`.
    *
    * The `kubb:plugin:setup` listener wraps the global context in a plugin-specific one so
    * `addGenerator`, `setResolver`, and `setMacros` target the right `normalizedPlugin`.
-   * Every other `KubbHooks` event registers as a pass-through listener that external tooling
+   * Every other `KubbHooks` hook registers as a pass-through listener that external tooling
    * can observe via `hooks.on(...)`.
    *
    * @internal
@@ -241,17 +241,17 @@ export class KubbDriver {
     }
 
     // All other hooks are registered as direct pass-through listeners on the shared emitter.
-    for (const event of Object.keys(hooks) as Array<keyof KubbHooks & string>) {
-      if (event === 'kubb:plugin:setup') continue
-      const handler = hooks[event]
+    for (const hook of Object.keys(hooks) as Array<keyof KubbHooks & string>) {
+      if (hook === 'kubb:plugin:setup') continue
+      const handler = hooks[hook]
       if (!handler) continue
 
-      this.#trackListener(event, handler as HookListener<KubbHooks[typeof event], unknown>)
+      this.#trackListener(hook, handler as HookListener<KubbHooks[typeof hook], unknown>)
     }
   }
 
   /**
-   * Emits the `kubb:plugin:setup` event so that all registered hook-style plugin listeners
+   * Emits the `kubb:plugin:setup` hook so that all registered hook-style plugin listeners
    * can configure generators, resolvers, macros and renderers before `buildStart` runs.
    *
    * Called once from `run` before the plugin execution loop begins.
@@ -273,7 +273,7 @@ export class KubbDriver {
   }
 
   /**
-   * Registers a generator for the given plugin on the shared event emitter.
+   * Registers a generator for the given plugin on the shared hook emitter.
    *
    * The generator's `schema`, `operation`, and `operations` methods are registered as
    * listeners on `kubb:generate:schema`, `kubb:generate:operation`, and `kubb:generate:operations`
@@ -286,7 +286,7 @@ export class KubbDriver {
    * Call this method inside `addGenerator()` (in `kubb:plugin:setup`) to wire up a generator.
    */
   registerGenerator(pluginName: string, generator: Generator): void {
-    const register = <TNode>(event: keyof KubbHooks & string, method: ((node: TNode, ctx: GeneratorContext) => unknown) | undefined): void => {
+    const register = <TNode>(hook: keyof KubbHooks & string, method: ((node: TNode, ctx: GeneratorContext) => unknown) | undefined): void => {
       if (!method) return
 
       const handler = async (node: TNode, ctx: GeneratorContext) => {
@@ -295,25 +295,25 @@ export class KubbDriver {
         await this.dispatch({ result, renderer: generator.renderer })
       }
 
-      this.#trackListener(event, handler as HookListener<KubbHooks[typeof event], unknown>)
+      this.#trackListener(hook, handler as HookListener<KubbHooks[typeof hook], unknown>)
     }
 
     register('kubb:generate:schema', generator.schema)
     register('kubb:generate:operation', generator.operation)
     register('kubb:generate:operations', generator.operations)
 
-    this.#eventGeneratorPlugins.add(pluginName)
+    this.#hookGeneratorPlugins.add(pluginName)
   }
 
   /**
    * Returns `true` when at least one generator was registered for the given plugin
    * via `addGenerator()` in `kubb:plugin:setup`.
    *
-   * Used by the build loop to decide whether to walk the AST and emit generator events
+   * Used by the build loop to decide whether to walk the AST and emit generator hooks
    * for a plugin.
    */
-  hasEventGenerators(pluginName: string): boolean {
-    return this.#eventGeneratorPlugins.has(pluginName)
+  hasHookGenerators(pluginName: string): boolean {
+    return this.#hookGeneratorPlugins.has(pluginName)
   }
 
   /**
@@ -396,7 +396,7 @@ export class KubbDriver {
               continue
             }
 
-            if (this.hasEventGenerators(plugin.name)) {
+            if (this.hasHookGenerators(plugin.name)) {
               generatorPlugins.push({ plugin, context, hrStart })
 
               continue
@@ -642,11 +642,11 @@ export class KubbDriver {
    * @internal
    */
   dispose(): void {
-    for (const [event, handler] of this.#listeners) {
-      this.hooks.off(event, handler as HookListener<KubbHooks[typeof event]>)
+    for (const [hook, handler] of this.#listeners) {
+      this.hooks.off(hook, handler as HookListener<KubbHooks[typeof hook]>)
     }
     this.#listeners.length = 0
-    this.#eventGeneratorPlugins.clear()
+    this.#hookGeneratorPlugins.clear()
     this.#transforms.dispose()
     // Release resolver closures. The driver is rebuilt for each build() call
     // so there is no value in retaining these maps after disposal.
@@ -671,7 +671,7 @@ export class KubbDriver {
    * Also mirrors it onto `plugin.resolver` so callers using `getPlugin(name).resolver`
    * get the up-to-date resolver without going through `getResolver()`.
    */
-  setPluginResolver(pluginName: string, partial: ResolverOverride): void {
+  setPluginResolver(pluginName: string, partial: ResolverPatch | Resolver): void {
     const defaultResolver = this.#getDefaultResolver(pluginName)
     const merged = Resolver.merge(defaultResolver, partial)
     this.#resolvers.set(pluginName, merged)

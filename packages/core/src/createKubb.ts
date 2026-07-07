@@ -6,7 +6,7 @@ import type { Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { BuildOutput, Config, KubbHooks, UserConfig } from './types.ts'
-import { AsyncEventEmitter } from './asyncEventEmitter.ts'
+import { Hookable } from './Hookable.ts'
 
 function resolveConfig(userConfig: UserConfig): Config {
   return {
@@ -27,7 +27,7 @@ function resolveConfig(userConfig: UserConfig): Config {
 }
 
 export type CreateKubbOptions = {
-  hooks?: AsyncEventEmitter<KubbHooks>
+  hooks?: Hookable<KubbHooks>
 }
 
 /**
@@ -38,7 +38,7 @@ export type CreateKubbOptions = {
  * `createKubb` takes a plain config object (the shape `defineConfig` produces),
  * not a fluent builder.
  *
- * Attach event listeners to `.hooks` before calling `setup()` or `build()`.
+ * Attach hook listeners to `.hooks` before calling `setup()` or `build()`.
  *
  * @example
  * ```ts
@@ -48,14 +48,14 @@ export type CreateKubbOptions = {
  * ```
  */
 export class Kubb {
-  readonly hooks: AsyncEventEmitter<KubbHooks>
+  readonly hooks: Hookable<KubbHooks>
   readonly config: Config
   #driver: KubbDriver | null = null
   #storage: Storage | null = null
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
     this.config = resolveConfig(userConfig)
-    this.hooks = options.hooks ?? new AsyncEventEmitter<KubbHooks>()
+    this.hooks = options.hooks ?? new Hookable<KubbHooks>()
   }
 
   get storage(): Storage {

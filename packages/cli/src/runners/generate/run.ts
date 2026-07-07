@@ -5,7 +5,7 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { toError } from '@internals/utils'
 import {
-  AsyncEventEmitter,
+  Hookable,
   type CLIOptions,
   cliReporter,
   type Config,
@@ -27,7 +27,7 @@ import { detectTool, formatters, linters } from '../../tools.ts'
 type GenerateProps = {
   input?: string
   config: Config
-  hooks: AsyncEventEmitter<KubbHooks>
+  hooks: Hookable<KubbHooks>
   logLevel: number
 }
 
@@ -42,7 +42,7 @@ type RunToolPassOptions = {
   noToolMessage: string
   outputPath: string
   logLevel: number
-  hooks: AsyncEventEmitter<KubbHooks>
+  hooks: Hookable<KubbHooks>
   onStart: () => Promise<void> | void
   onEnd: () => Promise<void> | void
 }
@@ -267,7 +267,7 @@ type GenerateCommandOptions = {
   reporters?: Array<ReporterName>
 }
 
-async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void> {
+async function checkForUpdate(hooks: Hookable<KubbHooks>): Promise<void> {
   try {
     const res = await fetch(KUBB_NPM_PACKAGE_URL, { signal: AbortSignal.timeout(UPDATE_CHECK_TIMEOUT_MS) })
     const data = (await res.json()) as { version: string }
@@ -286,7 +286,7 @@ async function checkForUpdate(hooks: AsyncEventEmitter<KubbHooks>): Promise<void
  */
 export async function run({ input, configPath, logLevel: logLevelKey, watch, reporters: cliReporters }: GenerateCommandOptions): Promise<void> {
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
-  const hooks = new AsyncEventEmitter<KubbHooks>()
+  const hooks = new Hookable<KubbHooks>()
 
   // Load the config first so `config.reporters` can pick the reporters. A failure here has no
   // reporter installed yet, so fall back to the default `cli` reporter to surface it.

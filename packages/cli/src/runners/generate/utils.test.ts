@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import process from 'node:process'
-import { AsyncEventEmitter, type KubbHooks } from '@kubb/core'
+import { Hookable, type KubbHooks } from '@kubb/core'
 import { afterEach, describe, expect, it } from 'vitest'
 import { getConfigs, isNewerVersion, runHook } from './utils.ts'
 
@@ -10,7 +10,7 @@ const node = process.execPath
 
 describe('runHook', () => {
   it('emits kubb:hook:line for each stdout line when a listener is attached', async () => {
-    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const hooks = new Hookable<KubbHooks>()
     const lines: Array<string> = []
     hooks.on('kubb:hook:line', ({ line }) => {
       lines.push(line)
@@ -29,7 +29,7 @@ describe('runHook', () => {
   })
 
   it('emits kubb:hook:end with captured stdout/stderr and success=false on a non-zero exit', async () => {
-    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const hooks = new Hookable<KubbHooks>()
     let end: { success: boolean; stdout?: string; stderr?: string } | undefined
     hooks.on('kubb:hook:end', (ctx) => {
       end = ctx
@@ -49,7 +49,7 @@ describe('runHook', () => {
   })
 
   it('streams output as kubb:hook:line and still ends with success=false when a streamed hook fails', async () => {
-    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const hooks = new Hookable<KubbHooks>()
     const lines: Array<string> = []
     let end: { success: boolean } | undefined
     hooks.on('kubb:hook:line', ({ line }) => {
@@ -72,7 +72,7 @@ describe('runHook', () => {
   })
 
   it('completes without streaming when no kubb:hook:line listener is attached', async () => {
-    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const hooks = new Hookable<KubbHooks>()
     let succeeded = false
     hooks.on('kubb:hook:end', ({ success }) => {
       succeeded = success
@@ -90,7 +90,7 @@ describe('runHook', () => {
   })
 
   it('returns success=true with no error when the command exits 0', async () => {
-    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const hooks = new Hookable<KubbHooks>()
 
     const result = await runHook({
       id: 'e',
@@ -104,7 +104,7 @@ describe('runHook', () => {
   })
 
   it('returns success=false with the error and captured output on a non-zero exit', async () => {
-    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const hooks = new Hookable<KubbHooks>()
 
     const result = await runHook({
       id: 'f',

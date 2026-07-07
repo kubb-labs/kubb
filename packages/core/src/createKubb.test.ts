@@ -7,7 +7,7 @@ import { definePlugin } from './definePlugin.ts'
 import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
-import { AsyncEventEmitter } from './asyncEventEmitter.ts'
+import { Hookable } from './Hookable.ts'
 
 describe('createKubb', () => {
   const pluginMocks = {
@@ -58,7 +58,7 @@ describe('createKubb', () => {
 
   test('if build can run and return created files and the pluginDriver', async () => {
     const { driver, files } = await createKubb(config, {
-      hooks: new AsyncEventEmitter<KubbHooks>(),
+      hooks: new Hookable<KubbHooks>(),
     }).build()
 
     expect(files).toBeDefined()
@@ -80,7 +80,7 @@ describe('createKubb', () => {
     } satisfies UserConfig
 
     const kubb = createKubb(userConfig, {
-      hooks: new AsyncEventEmitter<KubbHooks>(),
+      hooks: new Hookable<KubbHooks>(),
     })
 
     expect(kubb.config.root).toBe(process.cwd())
@@ -89,7 +89,7 @@ describe('createKubb', () => {
 
   test('if build with one plugin is running the different hooks in the correct order', async () => {
     const { files } = await createKubb(config, {
-      hooks: new AsyncEventEmitter<KubbHooks>(),
+      hooks: new Hookable<KubbHooks>(),
     }).build()
 
     expect(
@@ -144,14 +144,14 @@ describe('createKubb', () => {
     }
 
     const { diagnostics } = await createKubb(errorConfig, {
-      hooks: new AsyncEventEmitter<KubbHooks>(),
+      hooks: new Hookable<KubbHooks>(),
     }).safeBuild()
 
     const problems = diagnostics.filter(Diagnostics.isProblem)
     expect(problems).toHaveLength(1)
     const diagnostic = problems[0]
     expect(diagnostic?.plugin).toBe('errorPlugin')
-    // AsyncEventEmitter wraps the error; the original message survives on the diagnostic or its cause
+    // Hookable wraps the error; the original message survives on the diagnostic or its cause
     expect(`${diagnostic?.message} ${diagnostic?.cause?.message ?? ''}`).toContain('Installation failed')
   })
 
@@ -167,7 +167,7 @@ describe('createKubb', () => {
 
     const { diagnostics } = await createKubb(
       { ...config, plugins: [errorPlugin] as unknown as Array<Plugin> },
-      { hooks: new AsyncEventEmitter<KubbHooks>() },
+      { hooks: new Hookable<KubbHooks>() },
     ).safeBuild()
 
     const problems = diagnostics.filter(Diagnostics.isProblem)
@@ -191,7 +191,7 @@ describe('createKubb', () => {
     }
 
     const result = await createKubb(throwingConfig, {
-      hooks: new AsyncEventEmitter<KubbHooks>(),
+      hooks: new Hookable<KubbHooks>(),
     }).safeBuild()
 
     expect(Diagnostics.hasError(result.diagnostics)).toBe(true)
@@ -199,7 +199,7 @@ describe('createKubb', () => {
 
   it('should track plugin timings as performance diagnostics', async () => {
     const { diagnostics } = await createKubb(config, {
-      hooks: new AsyncEventEmitter<KubbHooks>(),
+      hooks: new Hookable<KubbHooks>(),
     }).build()
 
     const timings = diagnostics.filter(Diagnostics.isPerformance)
@@ -207,8 +207,8 @@ describe('createKubb', () => {
     expect(timings.every((diagnostic) => typeof diagnostic.duration === 'number')).toBe(true)
   })
 
-  it('should emit plugin lifecycle events', async () => {
-    const hooks = new AsyncEventEmitter<KubbHooks>()
+  it('should emit plugin lifecycle hooks', async () => {
+    const hooks = new Hookable<KubbHooks>()
     const startSpy = vi.fn()
     const endSpy = vi.fn()
 
@@ -222,7 +222,7 @@ describe('createKubb', () => {
   })
 
   it('writes every generated file in one batch after plugin:end fires for each plugin', async () => {
-    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const hooks = new Hookable<KubbHooks>()
     const batches: Array<number> = []
     hooks.on('kubb:files:processing:start', ({ files }) => {
       batches.push(files.length)
@@ -281,7 +281,7 @@ describe('createKubb', () => {
   })
 
   it('cleans up hook-style plugin listeners between builds on shared hooks', async () => {
-    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const hooks = new Hookable<KubbHooks>()
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
       hooks: {
@@ -370,7 +370,7 @@ describe('createKubb', () => {
           }),
           plugins: [makeBatchPlugin(generatedPaths) as unknown as Plugin],
         },
-        { hooks: new AsyncEventEmitter<KubbHooks>() },
+        { hooks: new Hookable<KubbHooks>() },
       ).build()
 
       expect(files).toHaveLength(count)
@@ -414,7 +414,7 @@ describe('createKubb', () => {
           }),
           plugins: [orderPlugin as unknown as Plugin],
         },
-        { hooks: new AsyncEventEmitter<KubbHooks>() },
+        { hooks: new Hookable<KubbHooks>() },
       ).build()
 
       expect(receivedOrder).toStrictEqual(operations.map((o) => o.operationId))
@@ -461,7 +461,7 @@ describe('createKubb', () => {
           adapter: makeAdapter({ schemas: [ast.factory.createSchema({ name: 'A', type: 'string' }), ast.factory.createSchema({ name: 'B', type: 'string' })] }),
           plugins: [overridePlugin as unknown as Plugin],
         },
-        { hooks: new AsyncEventEmitter<KubbHooks>() },
+        { hooks: new Hookable<KubbHooks>() },
       ).build()
 
       expect(seen).toHaveLength(2)
@@ -499,7 +499,7 @@ describe('createKubb', () => {
           }),
           plugins: [transformPlugin as unknown as Plugin],
         },
-        { hooks: new AsyncEventEmitter<KubbHooks>() },
+        { hooks: new Hookable<KubbHooks>() },
       ).build()
 
       expect(perNode).toHaveLength(1)
@@ -513,7 +513,7 @@ describe('createKubb', () => {
     it('writes all generated files in a single batch, regardless of schema count', async () => {
       const count = 60
       const schemas = Array.from({ length: count }, (_, i) => ast.factory.createSchema({ name: `FlushSchema${i}`, type: 'string' }))
-      const hooks = new AsyncEventEmitter<KubbHooks>()
+      const hooks = new Hookable<KubbHooks>()
       const batches: Array<number> = []
       hooks.on('kubb:files:processing:start', ({ files }) => {
         batches.push(files.length)
@@ -600,7 +600,7 @@ describe('createKubb', () => {
           adapter: createMockedAdapter(),
           plugins: [plugin as unknown as Plugin],
         },
-        { hooks: new AsyncEventEmitter<KubbHooks>() },
+        { hooks: new Hookable<KubbHooks>() },
       ).build()
 
       expect(files).toHaveLength(fileCount)

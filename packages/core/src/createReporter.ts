@@ -57,7 +57,7 @@ export type ReporterContext = {
 
 /**
  * Host-facing reporter, as installed onto a run. Unlike a Logger (the live TUI view), a reporter
- * never sees the event emitter. `report` runs once per config. `drain`, when present, runs once
+ * never sees the hook emitter. `report` runs once per config. `drain`, when present, runs once
  * after the last config.
  */
 export type Reporter = {
@@ -91,7 +91,7 @@ export type UserReporter<T = void> = {
 /**
  * Defines a reporter. When the definition has a `drain`, the returned reporter buffers each value
  * `report` returns and hands the array to `drain` once, then clears it. Without a `drain`, nothing
- * is buffered. Wiring the reporter onto the run's events is the host's job, so the reporter only
+ * is buffered. Wiring the reporter onto the run's hooks is the host's job, so the reporter only
  * ever deals with a {@link GenerationResult}.
  *
  * @example

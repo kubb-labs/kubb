@@ -74,8 +74,8 @@ export const clackLogger = defineLogger({
     }
 
     // Registers a handler that prints a fixed step message, skipped at silent level.
-    function onStep<E extends keyof KubbHooks>(event: E, message: string): void {
-      context.on(event, () => {
+    function onStep<E extends keyof KubbHooks>(hook: E, message: string): void {
+      context.on(hook, () => {
         if (logLevel <= logLevelMap.silent) {
           return
         }

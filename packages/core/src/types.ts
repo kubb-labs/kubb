@@ -226,7 +226,7 @@ export type Config<TInput = Input> = {
    */
   plugins: Array<Plugin>
   /**
-   * Lifecycle hooks that run external tools (prettier, eslint, a custom script) on build events.
+   * Lifecycle hooks that run external tools (prettier, eslint, a custom script) at points in the build.
    *
    * Currently supports the `done` hook, which fires after all plugins complete.
    *
@@ -390,7 +390,7 @@ declare global {
 }
 
 /**
- * Lifecycle events emitted during Kubb code generation.
+ * Lifecycle hooks emitted during Kubb code generation.
  * Attach listeners before calling `setup()` or `build()` to observe and react to build progress.
  *
  * @example
@@ -651,7 +651,7 @@ export type KubbFilesProcessingEndContext = {
 
 export type KubbHookStartContext = {
   /**
-   * Optional identifier for correlating start/end events.
+   * Optional identifier for correlating start/end hooks.
    */
   id?: string
   /**
@@ -670,7 +670,7 @@ export type KubbHookStartContext = {
  */
 export type KubbHookLineContext = {
   /**
-   * Identifier matching the corresponding `kubb:hook:start` event.
+   * Identifier matching the corresponding `kubb:hook:start` hook.
    */
   id: string
   /**
@@ -681,7 +681,7 @@ export type KubbHookLineContext = {
 
 export type KubbHookEndContext = {
   /**
-   * Optional identifier matching the corresponding `kubb:hook:start` event.
+   * Optional identifier matching the corresponding `kubb:hook:start` hook.
    */
   id?: string
   /**
@@ -808,6 +808,6 @@ export type {
   ResolverContext,
   ResolverDefault,
   ResolverFileParams,
-  ResolverOverride,
+  ResolverPatch,
   ResolverPathParams,
-} from './createResolver.ts'
+} from './Resolver.ts'

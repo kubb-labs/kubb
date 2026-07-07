@@ -2,7 +2,7 @@ import { read } from '@internals/utils'
 import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
 import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'
-import { AsyncEventEmitter } from './asyncEventEmitter.ts'
+import { Hookable } from './Hookable.ts'
 
 /**
  * Hooks fired around a `FileManager#write` batch: `start` before it, `update` per file, `end` after.
@@ -90,7 +90,7 @@ function compareFiles(a: FileNode, b: FileNode): number {
  * ```
  */
 export class FileManager {
-  readonly hooks = new AsyncEventEmitter<FileManagerHooks>()
+  readonly hooks = new Hookable<FileManagerHooks>()
   readonly #cache = new Map<string, FileNode>()
   // Cached sorted view. Null means stale and rebuilt lazily on next `files` read.
   // Nulled (not mutated) on every write so callers holding a prior reference keep

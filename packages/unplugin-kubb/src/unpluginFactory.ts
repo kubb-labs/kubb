@@ -1,6 +1,6 @@
 import process from 'node:process'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, createKubb, Diagnostics, type KubbHooks, AsyncEventEmitter } from '@kubb/core'
+import { type Config, createKubb, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import type { UnpluginFactory } from 'unplugin'
@@ -22,7 +22,7 @@ type RollupContext = {
  */
 export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, meta) => {
   const name = 'unplugin-kubb' as const
-  const hooks = new AsyncEventEmitter<KubbHooks>()
+  const hooks = new Hookable<KubbHooks>()
   const isVite = meta.framework === 'vite'
 
   hooks.on('kubb:lifecycle:start', ({ version }) => {

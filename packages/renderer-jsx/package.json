@@ -80,9 +80,6 @@
     "@kubb/ast": "workspace:*",
     "yaml": "catalog:"
   },
-  "devDependencies": {
-    "@internals/utils": "workspace:*"
-  },
   "engines": {
     "node": ">=22"
   }

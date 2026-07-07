@@ -62,7 +62,7 @@ declare global {
 
 /**
  * Canonical plugin name for `@kubb/plugin-barrel`. Used for driver lookups
- * and to guard the `kubb:plugin:end` handler against reacting to its own lifecycle event.
+ * and to guard the `kubb:plugin:end` handler against reacting to its own lifecycle hook.
  */
 export const pluginBarrelName = 'plugin-barrel' satisfies Plugin['name']
 
@@ -104,7 +104,7 @@ export const pluginBarrel = definePlugin(() => {
     enforce: 'post' as const,
     hooks: {
       'kubb:plugin:end'({ plugin, config, files, upsertFile }) {
-        // Skip reactions to the barrel plugin's own lifecycle event
+        // Skip reactions to the barrel plugin's own lifecycle hook
         if (plugin.name === pluginBarrelName) return
 
         const pluginBarrelOpt = plugin.options.output?.barrel

@@ -83,9 +83,6 @@ importers:
 
   internals/shared:
     devDependencies:
-      '@internals/utils':
-        specifier: workspace:*
-        version: link:../utils
       '@types/node':
         specifier: 'catalog:'
         version: 22.20.0
@@ -311,10 +308,6 @@ importers:
       yaml:
         specifier: 'catalog:'
         version: 2.9.0
-    devDependencies:
-      '@internals/utils':
-        specifier: workspace:*
-        version: link:../../internals/utils
 
   packages/parser-ts:
     dependencies:
@@ -353,10 +346,6 @@ importers:
       yaml:
         specifier: 'catalog:'
         version: 2.9.0
-    devDependencies:
-      '@internals/utils':
-        specifier: workspace:*
-        version: link:../../internals/utils
 
   packages/unplugin-kubb:
     dependencies:

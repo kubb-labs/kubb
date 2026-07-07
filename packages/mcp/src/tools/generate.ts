@@ -1,4 +1,4 @@
-import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks, AsyncEventEmitter } from '@kubb/core'
+import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import type * as v from 'valibot'
@@ -16,7 +16,7 @@ export const generateTool = defineTool(
     const { config: configPath, input, output, logLevel } = schema
 
     try {
-      const hooks = new AsyncEventEmitter<KubbHooks>()
+      const hooks = new Hookable<KubbHooks>()
       const messages: Array<string> = []
 
       const notify = async (type: string, message: string, data?: Record<string, unknown>) => {

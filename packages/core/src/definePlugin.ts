@@ -1,7 +1,7 @@
 import type { Enforce, FileNode, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import { diagnosticCode } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
-import type { BannerMeta, Resolver, ResolverOverride } from './createResolver.ts'
+import type { BannerMeta, Resolver, ResolverPatch } from './Resolver.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Config, KubbHooks } from './types.ts'
 
@@ -298,7 +298,7 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
    * The resolver controls file naming and path resolution. Overrides merge over the built-in
    * defaults, so a partial `core` or a single namespace method replaces only what it names.
    */
-  setResolver(resolver: ResolverOverride): void
+  setResolver(resolver: ResolverPatch<TFactory['resolver']> | TFactory['resolver']): void
   /**
    * Add a macro that rewrites AST nodes before they reach generators. Macros run in the order they
    * are added, after any macros from earlier `addMacro` calls.
@@ -363,8 +363,8 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    */
   options?: TFactory['options']
   /**
-   * Lifecycle event handlers for this plugin.
-   * Any event from the global `KubbHooks` map can be subscribed to here.
+   * Lifecycle hook handlers for this plugin.
+   * Any hook from the global `KubbHooks` map can be subscribed to here.
    */
   hooks: {
     [K in keyof KubbHooks as K extends 'kubb:plugin:setup' ? never : K]?: (...args: KubbHooks[K]) => void | Promise<void>

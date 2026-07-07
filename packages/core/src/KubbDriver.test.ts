@@ -5,7 +5,7 @@ import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, KubbHooks, Plugin } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
-import { AsyncEventEmitter } from './asyncEventEmitter.ts'
+import { Hookable } from './Hookable.ts'
 
 describe('PluginDriver', () => {
   const pluginA = {
@@ -42,7 +42,7 @@ describe('PluginDriver', () => {
 
   beforeEach(async () => {
     pluginDriver = new KubbDriver(config, {
-      hooks: new AsyncEventEmitter<KubbHooks>(),
+      hooks: new Hookable<KubbHooks>(),
     })
     await pluginDriver.setup()
   })
@@ -66,7 +66,7 @@ describe('PluginDriver', () => {
       plugins: [postPlugin, normalPlugin, prePlugin] as unknown as Array<Plugin>,
     } satisfies Config
 
-    const driver = new KubbDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    const driver = new KubbDriver(cfg, { hooks: new Hookable<KubbHooks>() })
     await driver.setup()
     const names = [...driver.plugins.keys()]
 
@@ -85,7 +85,7 @@ describe('PluginDriver', () => {
       plugins: [pluginTop, pluginMiddle, pluginBase] as unknown as Array<Plugin>,
     } satisfies Config
 
-    const driver = new KubbDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    const driver = new KubbDriver(cfg, { hooks: new Hookable<KubbHooks>() })
     await driver.setup()
 
     expect([...driver.plugins.keys()]).toStrictEqual(['base', 'middle', 'top'])
@@ -100,7 +100,7 @@ describe('PluginDriver', () => {
       plugins: [first, second] as unknown as Array<Plugin>,
     } satisfies Config
 
-    const driver = new KubbDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    const driver = new KubbDriver(cfg, { hooks: new Hookable<KubbHooks>() })
 
     await expect(driver.setup()).rejects.toThrow('Plugin dependencies form a cycle')
   })
@@ -112,7 +112,7 @@ describe('PluginDriver', () => {
       plugins: [pluginWithoutHooks],
     } satisfies Config
 
-    const driver = new KubbDriver(cfg, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    const driver = new KubbDriver(cfg, { hooks: new Hookable<KubbHooks>() })
     await expect(driver.setup()).resolves.not.toThrow()
   })
 
@@ -129,7 +129,7 @@ describe('PluginDriver', () => {
       plugins: [plugin, postPlugin],
     } satisfies Config
 
-    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const hooks = new Hookable<KubbHooks>()
     const driver = new KubbDriver(cfg, { hooks })
     await driver.setup()
     await hooks.emit('kubb:plugin:start', { plugin: plugin as never })
@@ -149,7 +149,7 @@ describe('PluginDriver', () => {
 
   test('listeners attached directly to hooks survive dispose', async () => {
     const external = vi.fn()
-    const hooks = new AsyncEventEmitter<KubbHooks>()
+    const hooks = new Hookable<KubbHooks>()
     const driver = new KubbDriver(config, { hooks })
     await driver.setup()
 
@@ -181,7 +181,7 @@ function makeDriver(): KubbDriver {
       plugins: [],
       storage: fsStorage(),
     } satisfies Config,
-    { hooks: new AsyncEventEmitter<KubbHooks>() },
+    { hooks: new Hookable<KubbHooks>() },
   )
 }
 
@@ -245,7 +245,7 @@ describe('GeneratorContext diagnostics', () => {
   let driver: KubbDriver
 
   beforeEach(async () => {
-    driver = new KubbDriver(config, { hooks: new AsyncEventEmitter<KubbHooks>() })
+    driver = new KubbDriver(config, { hooks: new Hookable<KubbHooks>() })
     await driver.setup()
   })
 
@@ -294,7 +294,7 @@ describe('GeneratorContext diagnostics', () => {
     expect(diagnostics).toMatchObject([{ code: Diagnostics.code.pluginInfo, severity: 'info', message: 'heads up', plugin: 'pluginA' }])
   })
 
-  it('collects the diagnostic only and does not emit a live hook event', () => {
+  it('collects the diagnostic only and does not emit a live hook', () => {
     const onError = vi.fn()
     driver.hooks.on('kubb:error', onError)
 

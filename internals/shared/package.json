@@ -47,7 +47,6 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "devDependencies": {
-    "@internals/utils": "workspace:*",
     "@types/node": "catalog:",
     "jiti": "^2.7.0"
   },

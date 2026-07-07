@@ -1,4 +1,4 @@
-import type { KubbHooks, AsyncEventEmitter } from '@kubb/core'
+import type { KubbHooks, Hookable } from '@kubb/core'
 
 /**
  * Options accepted by a logger's `install` callback.
@@ -12,14 +12,14 @@ export type LoggerOptions = {
 }
 
 /**
- * Event emitter handed to `Logger.install`. Use `.on('kubb:info', ...)` to
- * subscribe to build events.
+ * Hook emitter handed to `Logger.install`. Use `.on('kubb:info', ...)` to
+ * subscribe to build hooks.
  */
-export type LoggerContext = AsyncEventEmitter<KubbHooks>
+export type LoggerContext = Hookable<KubbHooks>
 
 /**
- * Logger contract. A logger receives the build's event emitter and subscribes
- * to whichever lifecycle events it wants to forward to its destination
+ * Logger contract. A logger receives the build's hook emitter and subscribes
+ * to whichever lifecycle hooks it wants to forward to its destination
  * (console, file, remote service).
  */
 export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
@@ -28,8 +28,8 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
    */
   name: string
   /**
-   * Called once per build with the shared event emitter. Subscribe to the
-   * lifecycle events the logger wants to forward to its destination.
+   * Called once per build with the shared hook emitter. Subscribe to the
+   * lifecycle hooks the logger wants to forward to its destination.
    */
   install: (context: LoggerContext, options?: TOptions) => void | Promise<void>
 }

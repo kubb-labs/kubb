@@ -190,7 +190,7 @@ export function formatCommandWithArgs(command: string, args?: ReadonlyArray<stri
 }
 
 /**
- * Bridges a {@link Reporter} onto the run's event emitter: calls `report` with each config's
+ * Bridges a {@link Reporter} onto the run's hook emitter: calls `report` with each config's
  * {@link GenerationResult} on `kubb:generation:end`. The reporter never touches the emitter.
  */
 export function installReporter(context: LoggerContext, reporter: Reporter, ctx: ReporterContext): void {

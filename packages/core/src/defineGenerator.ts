@@ -5,9 +5,9 @@ import type { RendererFactory } from './createRenderer.ts'
 import type { KubbHooks } from './types.ts'
 import type { KubbDriver } from './KubbDriver.ts'
 import type { Plugin, PluginFactoryOptions } from './definePlugin.ts'
-import type { Resolver } from './createResolver.ts'
+import type { Resolver } from './Resolver.ts'
 import type { Config } from './types.ts'
-import type { AsyncEventEmitter } from './asyncEventEmitter.ts'
+import type { Hookable } from './Hookable.ts'
 
 /**
  * Context passed to a generator's `schema`, `operation`, and `operations` methods.
@@ -55,10 +55,10 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    */
   upsertFile: (...file: Array<FileNode>) => Promise<void>
   /**
-   * The build's event bus. Emit or listen to any `KubbHooks` event, for example to react to
+   * The build's hook bus. Emit or listen to any `KubbHooks` hook, for example to react to
    * `kubb:build:end` from inside a generator.
    */
-  hooks: AsyncEventEmitter<KubbHooks>
+  hooks: Hookable<KubbHooks>
   /**
    * The current plugin instance.
    */

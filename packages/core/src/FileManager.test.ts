@@ -294,24 +294,24 @@ describe('FileManager', () => {
     })
 
     it('fires start once, update per file, then end once, writing every file concurrently', async () => {
-      const events: Array<string> = []
+      const hookCalls: Array<string> = []
       const storage = memoryStorage()
       const manager = new FileManager()
       manager.hooks.on('start', (files) => {
-        events.push(`start:${files.length}`)
+        hookCalls.push(`start:${files.length}`)
       })
       manager.hooks.on('update', (item) => {
-        events.push(`update:${item.file.path}`)
+        hookCalls.push(`update:${item.file.path}`)
       })
       manager.hooks.on('end', (files) => {
-        events.push(`end:${files.length}`)
+        hookCalls.push(`end:${files.length}`)
       })
 
       await manager.write([makeFileWithSources('a.ts', ['/* a */']), makeFileWithSources('b.ts', ['/* b */'])], { storage })
 
-      expect(events[0]).toBe('start:2')
-      expect(events.at(-1)).toBe('end:2')
-      expect(events.slice(1, -1).toSorted()).toStrictEqual(['update:a.ts', 'update:b.ts'])
+      expect(hookCalls[0]).toBe('start:2')
+      expect(hookCalls.at(-1)).toBe('end:2')
+      expect(hookCalls.slice(1, -1).toSorted()).toStrictEqual(['update:a.ts', 'update:b.ts'])
     })
 
     it('runs writes concurrently instead of pacing itself between files', async () => {
