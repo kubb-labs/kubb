@@ -68,12 +68,12 @@ export const command = define({
       parse: parseReporters,
     },
   },
-  async run({ values, positionals }) {
+  async run({ values }) {
     const logLevel = values.verbose ? 'verbose' : values.silent ? 'silent' : values.logLevel
     const { run } = await import('../runners/generate/run.ts')
 
     await run({
-      input: positionals[0],
+      input: values.input,
       configPath: values.config,
       logLevel,
       watch: values.watch,
