@@ -113,8 +113,8 @@ export type ResolverFileParams = {
  * @example Own the full path
  * ```ts
  * file: {
- *   path(params, context) {
- *     return `${context.output.path}/mocks/${params.name}.ts`
+ *   path({ name, output }) {
+ *     return `${output.path}/mocks/${name}.ts`
  *   },
  * }
  * ```
@@ -132,8 +132,15 @@ export type ResolverFile = {
    * and `group`, so the resolver owns the layout. The returned path may not escape `root`. Reaches
    * sibling resolver helpers through `this`.
    */
-  path?(params: ResolverFileParams, context: ResolverContext): string
+  path?(context: ResolverFilePathContext): string
 }
+
+/**
+ * The argument to a resolver's `file.path`: the file request (`name`, `extname`, `tag`, `path`)
+ * merged with the resolver context (`root`, `output`, `group`), so the override can read both when
+ * building the path.
+ */
+export type ResolverFilePathContext = ResolverFileParams & ResolverContext
 
 /**
  * Per-file context describing the file a banner/footer is being resolved for, so a
@@ -256,7 +263,7 @@ export class Resolver {
   #fileName: (name: string) => string
   // Full-path override from `options.file.path`, bound to the resolver. Absent by default, in which
   // case the built-in `output.path`/`group` layout is used.
-  #filePath: ((params: ResolverFileParams, context: ResolverContext) => string) | undefined
+  #filePath: ((context: ResolverFilePathContext) => string) | undefined
 
   constructor(options: ResolverBuildOptions) {
     this.pluginName = options.pluginName
@@ -467,12 +474,12 @@ export class Resolver {
     params: ResolverFileParams,
     context: ResolverContext,
     resolveName: (name: string) => string = toFilePath,
-    resolvePath?: (params: ResolverFileParams, context: ResolverContext) => string,
+    resolvePath?: (context: ResolverFilePathContext) => string,
   ): FileNode {
     const { name, extname, tag, path: groupPath } = params
     const resolvedName = context.output.mode === 'file' ? '' : resolveName(name)
     const filePath = resolvePath
-      ? this.#resolveOverridePath(resolvePath(params, context), context)
+      ? this.#resolveOverridePath(resolvePath({ ...params, ...context }), context)
       : this.#resolvePath({ baseName: `${resolvedName}${extname}` as FileNode['baseName'], tag, path: groupPath }, context)
 
     return ast.factory.createFile({

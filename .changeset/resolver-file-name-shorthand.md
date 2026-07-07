@@ -18,14 +18,14 @@ createResolver({
       return camelCase(name, { prefix: 'create' })
     },
     // full path, resolved against the project root, bypassing `output.path` and `group`
-    path(params, context) {
-      return `${context.output.path}/mocks/${params.name}.ts`
+    path({ name, output }) {
+      return `${output.path}/mocks/${name}.ts`
     },
   },
 })
 ```
 
-`file.name` receives the identifier and returns the base name. `file.path` receives the file params and context and returns the complete path (it may not escape the project root). Both reach sibling helpers through `this`, and are accepted the same way in a plugin `resolver` override and in `Resolver.merge`.
+`file.name` receives the identifier and returns the base name. `file.path` receives a single object (the file params merged with the resolver context) and returns the complete path (it may not escape the project root). Both reach sibling helpers through `this`, and are accepted the same way in a plugin `resolver` override and in `Resolver.merge`.
 
 This replaces the previous approach of overriding `file(params, context)` and threading a `resolveName` function through `this.default.file`. The `file` function form and the `resolveName` field on `ResolverFileParams` are removed. Migrate by moving the caser into `file.name`:
 

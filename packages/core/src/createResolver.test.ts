@@ -143,8 +143,8 @@ describe('createResolver', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
       file: {
-        path(params) {
-          return `mocks/${params.name}${params.extname}`
+        path({ name, extname }) {
+          return `mocks/${name}${extname}`
         },
       },
       greet: (name: string) => name,
@@ -156,15 +156,15 @@ describe('createResolver', () => {
     expect(file.baseName).toBe('pet.ts')
   })
 
-  it('a file.path receives params and context and reaches `this`', () => {
+  it('a file.path receives the merged context and reaches `this`', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
       name(name) {
         return name.toUpperCase()
       },
       file: {
-        path(params, ctx) {
-          return `${ctx.output.path}/${this.name(params.name)}${params.extname}`
+        path({ name, extname, output }) {
+          return `${output.path}/${this.name(name)}${extname}`
         },
       },
       greet: (name: string) => name,
@@ -181,8 +181,8 @@ describe('createResolver', () => {
         name(name) {
           return `${name}.gen`
         },
-        path(params) {
-          return `custom/${params.name}${params.extname}`
+        path({ name, extname }) {
+          return `custom/${name}${extname}`
         },
       },
       greet: (name: string) => name,
