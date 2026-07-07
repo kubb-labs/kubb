@@ -39,6 +39,7 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
       version,
       description: generateCommand.description,
       subCommands: {
+        generate: generateCommand,
         init: initCommand,
         validate: validateCommand,
         mcp: mcpCommand,
