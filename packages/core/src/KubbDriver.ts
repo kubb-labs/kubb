@@ -4,7 +4,6 @@ import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMet
 import { OPERATION_FILTER_TYPES } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
-import type { Storage } from './createStorage.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { Plugin } from './definePlugin.ts'
@@ -281,7 +280,7 @@ export class KubbDriver {
    * the failure as a {@link Diagnostic} instead of propagating. Each plugin also
    * contributes a `timing` diagnostic for the run summary.
    */
-  async run({ storage }: { storage: Storage }): Promise<{ diagnostics: Array<Diagnostic> }> {
+  async run(): Promise<{ diagnostics: Array<Diagnostic> }> {
     const { hooks, config, fileManager } = this
     const diagnostics: Array<Diagnostic> = []
     const parsersMap = new Map<FileNode['extname'], Parser>()
@@ -373,7 +372,7 @@ export class KubbDriver {
           // Write every generated file once, after post-processing (barrel etc.) has had its
           // chance to add more. Writing mid-generation measured no faster in practice, so a
           // single pass keeps the pipeline simpler.
-          await fileManager.write(fileManager.files, { storage, parsers: parsersMap, extension: config.output.extension })
+          await fileManager.write(fileManager.files, { storage: config.storage, parsers: parsersMap, extension: config.output.extension })
 
           await hooks.callHook('kubb:build:end', { files: this.fileManager.files, config, outputDir: outputRoot })
 
