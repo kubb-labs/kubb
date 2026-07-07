@@ -1,0 +1,55 @@
+packages/adapter-oas/src/resolvers.test.ts
+  s_f5d36156a467a2::t_8f7a44de8dbcd1 3,12,18-77
+  s_f5d36156a467a2::t_16c52c90b6e1dc 78
+packages/adapter-oas/src/adapter.test.ts
+  s_f5d36156a467a2::t_34596246354479 31-32,35,37,40,42,44,59-60,62-63,67,69
+packages/adapter-oas/src/adapter.ts
+  s_f5d36156a467a2::t_05512b1f39123d 1,5-6,8,10,12-13
+  s_f5d36156a467a2::t_0f0c0938a13893 116-117,127-165,167,178-179,181-185
+  s_f5d36156a467a2::t_4cd5e050cc3a71 74-75
+  s_f5d36156a467a2::t_021ec93306a6e0 166,168-176
+  s_f5d36156a467a2::t_566afdf0d93380 241-243
+  s_f5d36156a467a2::t_b37237155a626e 245
+  s_f5d36156a467a2::t_7d183dfaf0c362 118-126
+internals/utils/src/index.ts
+  s_f5d36156a467a2::t_a1a16c5c3bc8da 6-7
+packages/adapter-oas/src/discriminator.ts
+  s_f5d36156a467a2::t_4f496b83d87438 76
+  s_f5d36156a467a2::t_00e9b7c8398d77 12-13
+.changeset/remove-adapter-streaming.md
+  s_f5d36156a467a2::t_b4edfe26d6e75c 1-11
+packages/core/src/KubbDriver.ts
+  s_f5d36156a467a2::t_0700b71a39187e 181,186
+  s_f5d36156a467a2::t_4eed329956d883 357-358
+  s_f5d36156a467a2::t_40cd9ca36af561 541
+  s_f5d36156a467a2::t_93e94b4d811866 2
+  s_f5d36156a467a2::t_375f6d16aa9b0e 509,545
+  s_f5d36156a467a2::t_fb1a45c2445774 88,90,93
+  s_f5d36156a467a2::t_d3e85fb73ea053 365
+  s_f5d36156a467a2::t_5d5cfb7ca94e47 506,562,580
+packages/adapter-oas/src/schemaDiagnostics.ts
+  s_f5d36156a467a2::t_5ea7364759b039 7
+packages/core/src/Diagnostics.ts
+  s_f5d36156a467a2::t_72a0e7a4c0862a 361-362
+packages/ast/src/nodes/input.ts
+  s_f5d36156a467a2::t_976fd46e512c52 79,87,91
+  s_f5d36156a467a2::t_52b84472f25ec0 109-110,112,118-119
+packages/adapter-oas/src/types.ts
+  s_f5d36156a467a2::t_01cddce019b59b 230
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "8279e86ca1b3cbf5c3afcdcb998fab6c3c47c8d0",
+  "prompts": {},
+  "sessions": {
+    "s_f5d36156a467a2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b36c7d90-3e3e-4b06-9324-b33e320508df",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
