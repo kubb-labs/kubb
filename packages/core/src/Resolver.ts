@@ -116,7 +116,7 @@ export type ResolveFileOptions = ResolverFileParams & {
  * @example Suffix every generated file
  * ```ts
  * file: {
- *   name(name) {
+ *   baseName(name) {
  *     return `${name}Faker`
  *   },
  * }
@@ -133,12 +133,12 @@ export type ResolveFileOptions = ResolverFileParams & {
  */
 export type ResolverFile = {
   /**
-   * Turns a generated identifier into the file's base name (without extension). Reaches sibling
-   * resolver helpers through `this`.
+   * Turns a generated identifier into the file's base name (without the extension, which Kubb
+   * appends). Reaches sibling resolver helpers through `this`.
    *
    * @default toFilePath
    */
-  name?(name: string): string
+  baseName?(name: string): string
   /**
    * Returns the file's complete path, resolved against the project `root`. Bypasses `output.path`
    * and `group`, so the resolver owns the layout. The returned path may not escape `root`. Reaches
@@ -270,9 +270,9 @@ export class Resolver {
 
   readonly pluginName: string
   #options: ResolverBuildOptions
-  // Base-name caser from `options.file.name`, bound to the resolver so it can reach `this`.
-  // Defaults to `toFilePath` when a resolver sets no `file.name`.
-  #fileName: (name: string) => string
+  // Base-name caser from `options.file.baseName`, bound to the resolver so it can reach `this`.
+  // Defaults to `toFilePath` when a resolver sets no `file.baseName`.
+  #baseName: (name: string) => string
   // Full-path override from `options.file.path`, bound to the resolver. Absent by default, in which
   // case the built-in `output.path`/`group` layout is used.
   #filePath: ((params: ResolverFilePathParams) => string) | undefined
@@ -280,7 +280,7 @@ export class Resolver {
   constructor(options: ResolverBuildOptions) {
     this.pluginName = options.pluginName
     this.#options = options
-    this.#fileName = options.file?.name ? options.file.name.bind(this) : toFilePath
+    this.#baseName = options.file?.baseName ? options.file.baseName.bind(this) : toFilePath
     this.#filePath = options.file?.path ? options.file.path.bind(this) : undefined
     this.#apply(options)
   }
@@ -305,7 +305,7 @@ export class Resolver {
   }
 
   file(options: ResolveFileOptions): FileNode {
-    return this.#resolveFile(options, this.#fileName, this.#filePath)
+    return this.#resolveFile(options, this.#baseName, this.#filePath)
   }
 
   /**
@@ -327,7 +327,7 @@ export class Resolver {
     const bind = (value: unknown) => (typeof value === 'function' ? value.bind(root) : value)
 
     for (const [key, value] of Object.entries(options)) {
-      // `file` drives file naming through `#fileName`, not a top-level method, so it must not be
+      // `file` drives file naming through `#baseName`, not a top-level method, so it must not be
       // assigned here (it would shadow the `file` method with a plain `{ name }` object).
       if (key === 'pluginName' || key === 'default' || key === 'file' || value === undefined) continue
       root[key] = isNamespace(value) ? Object.fromEntries(Object.entries(value).map(([method, member]) => [method, bind(member)])) : bind(value)
@@ -478,7 +478,7 @@ export class Resolver {
 
   /**
    * Builds a `FileNode`. When `resolvePath` (the resolver's `file.path`) is set it owns the whole
-   * path; otherwise the path comes from file-name casing (`resolveName`, the resolver's `file.name`
+   * path; otherwise the path comes from file-name casing (`resolveName`, the resolver's `file.baseName`
    * or the built-in `toFilePath`) plus the `output.path`/`group` layout. The resolved file starts
    * with empty `sources`, `imports`, and `exports`, which consumers populate separately.
    */

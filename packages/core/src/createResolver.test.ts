@@ -87,11 +87,11 @@ describe('createResolver', () => {
     expect(resolver.schema.typeName('list pets')).toBe('listPetsSchemaType')
   })
 
-  it('a file renames the base name via file.name', () => {
+  it('a file renames the base name via file.baseName', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
       file: {
-        name(name) {
+        baseName(name) {
           return `${name.toLowerCase()}.gen`
         },
       },
@@ -110,7 +110,7 @@ describe('createResolver', () => {
         return name.toUpperCase()
       },
       file: {
-        name(name) {
+        baseName(name) {
           return `${this.name(name)}.schema`
         },
       },
@@ -130,7 +130,7 @@ describe('createResolver', () => {
 
     const merged = Resolver.merge(base, {
       file: {
-        name(name) {
+        baseName(name) {
           return `${name}.mock`
         },
       },
@@ -174,11 +174,11 @@ describe('createResolver', () => {
     expect(resolver.file({ name: 'pet', extname: '.ts', ...context }).path).toBe('/root/types/PET.ts')
   })
 
-  it('file.path wins over file.name for the location', () => {
+  it('file.path wins over file.baseName for the location', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
       file: {
-        name(name) {
+        baseName(name) {
           return `${name}.gen`
         },
         path({ name, extname }) {

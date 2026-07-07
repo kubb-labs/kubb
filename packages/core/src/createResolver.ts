@@ -29,7 +29,7 @@ type ResolverOptions<T extends PluginFactoryOptions> = Omit<T['resolver'], keyof
  * })
  * ```
  *
- * @example Rename generated files with `file.name`
+ * @example Rename generated files with `file.baseName`
  * ```ts
  * export const resolverFaker = createResolver<PluginFaker>({
  *   pluginName: 'plugin-faker',
@@ -37,7 +37,7 @@ type ResolverOptions<T extends PluginFactoryOptions> = Omit<T['resolver'], keyof
  *     return camelCase(name, { prefix: 'create' })
  *   },
  *   file: {
- *     name(name) {
+ *     baseName(name) {
  *       return camelCase(name, { prefix: 'create' })
  *     },
  *   },

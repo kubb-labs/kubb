@@ -4,7 +4,7 @@
 
 Rename and relocate generated files through a resolver's `file` object instead of the `resolveName` hook.
 
-A resolver sets file naming with `file.name` and, optionally, the full path with `file.path`:
+A resolver sets file naming with `file.baseName` and, optionally, the full path with `file.path`:
 
 ```ts
 createResolver({
@@ -14,7 +14,7 @@ createResolver({
   },
   file: {
     // base name (without extension); defaults to `toFilePath`
-    name(name) {
+    baseName(name) {
       return camelCase(name, { prefix: 'create' })
     },
     // full path, resolved against the project root, bypassing `output.path` and `group`
@@ -25,9 +25,9 @@ createResolver({
 })
 ```
 
-`file.name` receives the identifier and returns the base name. `file.path` receives a single object (the file's `name`/`extname` plus the active `output`) and returns the complete path, resolved against the project root (it may not escape it). Both reach sibling helpers through `this`, and are accepted the same way in a plugin `resolver` override and in `Resolver.merge`.
+`file.baseName` receives the identifier and returns the base name. `file.path` receives a single object (the file's `name`/`extname` plus the active `output`) and returns the complete path, resolved against the project root (it may not escape it). Both reach sibling helpers through `this`, and are accepted the same way in a plugin `resolver` override and in `Resolver.merge`.
 
-This replaces the previous approach of overriding `file(params, context)` and threading a `resolveName` function through `this.default.file`. The `file` function form and the `resolveName` field on `ResolverFileParams` are removed. Migrate by moving the caser into `file.name`:
+This replaces the previous approach of overriding `file(params, context)` and threading a `resolveName` function through `this.default.file`. The `file` function form and the `resolveName` field on `ResolverFileParams` are removed. Migrate by moving the caser into `file.baseName`:
 
 ```ts
 // before
@@ -37,7 +37,7 @@ file(params, context) {
 
 // after
 file: {
-  name(name) {
+  baseName(name) {
     return toFilePath(name, pascalCase)
   },
 }
