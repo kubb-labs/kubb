@@ -1,5 +1,55 @@
 # Changelog
 
+## v5.0.0-beta.86 — Jul 7, 2026
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- [`01990f0`](https://github.com/kubb-labs/kubb/commit/01990f04b77dae9bba8496e6db60b774715e7b82) - Remove unused JS-string and codegen helpers from `@kubb/ast`.
+  
+  `jsStringEscape`, `stringify`, `stringifyObject`, `toRegExpString`, `trimQuotes`, `getNestedAccessor`, `buildJSDoc`, `buildList`, `buildObject`, `lazyGetter`, `objectKey`, and the `isValidVarName` re-export were exported from the public barrel but nothing in the kubb or plugins ecosystem imported them through `@kubb/ast`, the plugin packages maintain their own equivalents in `@internals/utils`. Runtime behavior is unchanged. ([`01990f0`](https://github.com/kubb-labs/kubb/commit/01990f04b77dae9bba8496e6db60b774715e7b82))
+
+### @kubb/core
+
+#### Breaking Changes
+
+- Rename `Hookable`'s `on`/`emit`/`off`/`removeAll` to `hook`/`callHook`/`removeHook`/`removeAllHooks`, matching the naming convention used by [unjs/hookable](https://github.com/unjs/hookable) (the library Nuxt and Nitro use for their own hook systems).
+  
+  - `hooks.on(name, handler)` → `hooks.hook(name, handler)`
+  - `hooks.emit(name, ...args)` → `hooks.callHook(name, ...args)`
+  - `hooks.off(name, handler)` → `hooks.removeHook(name, handler)`
+  - `hooks.removeAll()` → `hooks.removeAllHooks()`
+  - `hooks.listenerCount(name)` and `hooks.setMaxListeners(max)` are unchanged.
+  
+  This affects any code that calls these methods directly on the `hooks` option/property of
+  `createKubb`/`KubbDriver`, or on a `LoggerContext` inside a custom `defineLogger` install
+  callback. Update the four call names above; behavior (sequential await, error wrapping,
+  listener counting, the leak-warning ceiling) is unchanged. ([#3723](https://github.com/kubb-labs/kubb/pull/3723), [`c2be51d`](https://github.com/kubb-labs/kubb/commit/c2be51dc4c5e150cf6e1124773f726342d276834))
+- [`01990f0`](https://github.com/kubb-labs/kubb/commit/01990f04b77dae9bba8496e6db60b774715e7b82) - Rename `ResolverOverride` to `ResolverPatch` and make it generic so `Resolver.merge` and `setResolver` accept a full resolver instance without a cast.
+  
+  - `ResolverPatch<T extends Resolver = Resolver>` (was `ResolverOverride`, non-generic). Parameterize it with a concrete resolver type (`ResolverPatch<ResolverTs>`) to type-check namespace overrides and bind `this` to the full resolver. The bare `ResolverPatch` still accepts any resolver's fields.
+  - `Resolver.merge` and `KubbPluginSetupContext['setResolver']` now accept `ResolverPatch<T> | T` (previously only `ResolverOverride`), so a plugin's own preset resolver, or a merge of it with a user override, passes straight through.
+  - `KubbDriver.setPluginResolver` accepts `ResolverPatch | Resolver` to match.
+  
+  Before this fix, a real `Resolver` instance (a class with a private field) couldn't satisfy `ResolverOverride`'s index signature, so every built-in plugin needed `ctx.setResolver(... as unknown as ResolverOverride)` to work around a typecheck-only failure. That workaround is no longer needed.
+  
+  ```ts
+  // before
+  ctx.setResolver((userResolver ? Resolver.merge(resolverTs, userResolver) : resolverTs) as unknown as ResolverOverride)
+  
+  // after
+  ctx.setResolver(userResolver ? Resolver.merge(resolverTs, userResolver) : resolverTs)
+  ```
+  
+  Update any `ResolverOverride` import to `ResolverPatch`. ([`01990f0`](https://github.com/kubb-labs/kubb/commit/01990f04b77dae9bba8496e6db60b774715e7b82))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.85 — Jul 7, 2026
 
 ### @kubb/adapter-oas
