@@ -4,7 +4,7 @@ import { isHandledFormat } from './resolvers.ts'
 
 /**
  * Reports the advisory diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`) for one
- * top-level schema. Walks the node the parser produced during `preScan`, threading the RFC 6901
+ * top-level schema. Walks the node the parser produced, threading the RFC 6901
  * pointer as it descends so a nested field reports against its full path
  * (`#/components/schemas/Pet/properties/owner/properties/name`). Refs are not followed, so the
  * resolved schema is reported under its own walk. Reports land in the active build run, are a

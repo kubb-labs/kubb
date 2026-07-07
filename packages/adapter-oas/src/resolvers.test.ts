@@ -1,5 +1,6 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
+import { parseFromConfig } from './factory.ts'
 import {
   buildSchemaNode,
   extractSchemaFromContent,
@@ -8,10 +9,72 @@ import {
   getPrimitiveType,
   getSchemas,
   getSchemaType,
+  resolveBaseUrl,
   resolveServerUrl,
   sortSchemas,
 } from './resolvers.ts'
 import type { Document } from './types.ts'
+
+const minimalSpec: Document = {
+  openapi: '3.0.0',
+  info: { title: 'Test API', version: '1.0.0' },
+  servers: [{ url: 'https://api.example.com/v1' }],
+  paths: {
+    '/pets': {
+      get: {
+        operationId: 'listPets',
+        responses: { '200': { description: 'ok' } },
+      },
+    },
+  },
+  components: {
+    schemas: {
+      Pet: {
+        type: 'object',
+        properties: { id: { type: 'string' }, name: { type: 'string' } },
+        required: ['id'],
+      },
+    },
+  },
+}
+
+describe('resolveBaseUrl', () => {
+  it('returns the server URL at the given index', async () => {
+    const document = await parseFromConfig({ type: 'data', data: minimalSpec })
+    const url = resolveBaseUrl({ document, server: { index: 0 } })
+    expect(url).toBe('https://api.example.com/v1')
+  })
+
+  it('returns null when no server index is provided', async () => {
+    const document = await parseFromConfig({ type: 'data', data: minimalSpec })
+    const url = resolveBaseUrl({ document, server: {} })
+    expect(url).toBeNull()
+  })
+
+  it('returns null when no server is provided', async () => {
+    const document = await parseFromConfig({ type: 'data', data: minimalSpec })
+    const url = resolveBaseUrl({ document })
+    expect(url).toBeNull()
+  })
+
+  it('returns null when the server index is out of range', async () => {
+    const document = await parseFromConfig({ type: 'data', data: minimalSpec })
+    const url = resolveBaseUrl({ document, server: { index: 99 } })
+    expect(url).toBeNull()
+  })
+
+  it('substitutes server variables into the resolved URL', async () => {
+    const document = await parseFromConfig({
+      type: 'data',
+      data: {
+        ...minimalSpec,
+        servers: [{ url: 'https://api.{env}.example.com', variables: { env: { default: 'dev' } } }],
+      },
+    })
+    const url = resolveBaseUrl({ document, server: { index: 0, variables: { env: 'prod' } } })
+    expect(url).toBe('https://api.prod.example.com')
+  })
+})
 
 describe('getSchemaType', () => {
   it('returns the SchemaType for a known format', () => {

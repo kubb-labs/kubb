@@ -419,42 +419,6 @@ describe('createKubb', () => {
 
       expect(receivedOrder).toStrictEqual(operations.map((o) => o.operationId))
     })
-
-    it('processes schemas from adapter.stream() across batches', async () => {
-      const count = 17
-      const schemas = Array.from({ length: count }, (_, i) => ast.factory.createSchema({ name: `StreamSchema${i}`, type: 'string' }))
-      const generatedPaths: Array<string> = []
-
-      async function* asyncSchemas() {
-        for (const s of schemas) yield s
-      }
-      async function* asyncOps() {}
-
-      const streamAdapter = createMockedAdapter({
-        parse: async () => ({
-          kind: 'Input' as const,
-          meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
-          schemas: [],
-          operations: [],
-        }),
-      })
-      Object.assign(streamAdapter, {
-        stream: async () => ast.factory.createInput({ stream: true, schemas: asyncSchemas(), operations: asyncOps() }),
-      })
-
-      const { files } = await createKubb(
-        {
-          ...config,
-          storage: memoryStorage(),
-          adapter: streamAdapter,
-          plugins: [makeBatchPlugin(generatedPaths) as unknown as Plugin],
-        },
-        { hooks: new AsyncEventEmitter<KubbHooks>() },
-      ).build()
-
-      expect(files).toHaveLength(count)
-      expect(generatedPaths).toHaveLength(count)
-    })
   })
 
   describe('per-node options and transform reuse', () => {

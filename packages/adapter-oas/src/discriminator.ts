@@ -9,8 +9,8 @@ export type DiscriminatorTarget = {
  * Maps each child schema name to its discriminator patch data by scanning the given
  * top-level AST schema nodes for union schemas that carry a `discriminatorPropertyName`.
  *
- * The streaming path calls this on a small pre-parsed subset of schemas (only the
- * discriminator parents) rather than on all schemas at once.
+ * Called on a small pre-parsed subset of schemas (only the discriminator parents)
+ * rather than on all schemas at once.
  */
 export function buildDiscriminatorChildMap(schemas: Array<ast.SchemaNode>): Map<string, DiscriminatorTarget> {
   const childMap = new Map<string, DiscriminatorTarget>()
@@ -73,8 +73,7 @@ export function buildDiscriminatorChildMap(schemas: Array<ast.SchemaNode>): Map<
 
 /**
  * Patches a single top-level `SchemaNode` with its discriminator entry (adds or replaces
- * the discriminant property). Used by the streaming path to apply patches inline per yield
- * without buffering all schemas.
+ * the discriminant property).
  */
 export function patchDiscriminatorNode(node: ast.SchemaNode, entry: { propertyName: string; enumValues: Array<string | number | boolean> }): ast.SchemaNode {
   const objectNode = ast.narrowSchema(node, 'object')

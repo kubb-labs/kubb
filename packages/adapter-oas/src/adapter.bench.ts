@@ -1,15 +1,10 @@
 import path from 'node:path'
-import { existsSync } from 'node:fs'
 import { bench, describe } from 'vitest'
-import { adapterOas } from './adapter.ts'
 import { parseDocument } from './factory.ts'
 import { parseOas } from './parser.ts'
 import type { Document } from './types.ts'
-import type { AdapterSource } from '@kubb/core'
 
 const petStorePath = path.resolve(import.meta.dirname, '../mocks/petStore.yaml')
-const stripeSpecPath = '/tmp/kubb-stripe-spec3.json'
-const hasStripe = existsSync(stripeSpecPath)
 
 let petStoreDoc: Document | undefined
 
@@ -28,33 +23,5 @@ describe('parseOas() performance', () => {
       parseOas(doc)
     },
     { iterations: 5, warmupIterations: 1 },
-  )
-})
-
-describe.skipIf(!hasStripe)('Stripe spec — batch vs streaming (1,385 schemas)', () => {
-  const stripeSource: AdapterSource = { type: 'path', path: stripeSpecPath }
-
-  bench(
-    'batch — adapter.parse()',
-    async () => {
-      const adapter = adapterOas({ validate: false })
-      await adapter.parse(stripeSource)
-    },
-    { iterations: 3, warmupIterations: 1 },
-  )
-
-  bench(
-    'streaming — adapter.stream() drain',
-    async () => {
-      const adapter = adapterOas({ validate: false })
-      const stream = await adapter.stream!(stripeSource)
-      for await (const _ of stream.schemas) {
-        /* drain */
-      }
-      for await (const _ of stream.operations) {
-        /* drain */
-      }
-    },
-    { iterations: 3, warmupIterations: 1 },
   )
 })

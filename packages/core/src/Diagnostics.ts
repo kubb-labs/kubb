@@ -358,8 +358,8 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
  *
  * The sink lives in a single `AsyncLocalStorage` in the `@kubb/core` bundle.
  * `Diagnostics.scope` activates it for a run, so anything inside that run (the
- * adapter parse, a lazily consumed stream, a generator) reports through
- * `Diagnostics.report` and lands in the same run.
+ * adapter parse, a generator) reports through `Diagnostics.report` and lands
+ * in the same run.
  */
 export class Diagnostics {
   static #reporterStorage = new AsyncLocalStorage<(diagnostic: Diagnostic) => void>()
