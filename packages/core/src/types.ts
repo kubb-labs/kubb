@@ -811,6 +811,7 @@ export type {
   ResolverFile,
   ResolverFileParams,
   ResolverFilePathParams,
+  ResolverOverride,
   ResolverPatch,
   ResolverPathParams,
 } from './Resolver.ts'

@@ -1,7 +1,7 @@
 import type { Enforce, FileNode, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import { diagnosticCode } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
-import type { BannerMeta, Resolver, ResolverPatch } from './Resolver.ts'
+import type { BannerMeta, Resolver, ResolverOverride } from './Resolver.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Config, KubbHooks } from './types.ts'
 
@@ -298,7 +298,7 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
    * The resolver controls file naming and path resolution. Overrides merge over the built-in
    * defaults, so a partial `core` or a single namespace method replaces only what it names.
    */
-  setResolver(resolver: ResolverPatch<TFactory['resolver']> | TFactory['resolver']): void
+  setResolver(resolver: ResolverOverride<TFactory['resolver']>): void
   /**
    * Add a macro that rewrites AST nodes before they reach generators. Macros run in the order they
    * are added, after any macros from earlier `addMacro` calls.

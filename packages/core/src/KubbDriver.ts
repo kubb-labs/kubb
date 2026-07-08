@@ -10,7 +10,7 @@ import type { Parser } from './defineParser.ts'
 import type { Plugin } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { createResolver } from './createResolver.ts'
-import { Resolver, type ResolverPatch } from './Resolver.ts'
+import { Resolver, type ResolverOverride } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import { Transform } from './Transform.ts'
 
@@ -625,7 +625,7 @@ export class KubbDriver {
    * Also mirrors it onto `plugin.resolver` so callers using `getPlugin(name).resolver`
    * get the up-to-date resolver without going through `getResolver()`.
    */
-  setPluginResolver(pluginName: string, partial: ResolverPatch | Resolver): void {
+  setPluginResolver(pluginName: string, partial: ResolverOverride): void {
     const defaultResolver = this.#getDefaultResolver(pluginName)
     const merged = Resolver.merge(defaultResolver, partial)
     this.#resolvers.set(pluginName, merged)
