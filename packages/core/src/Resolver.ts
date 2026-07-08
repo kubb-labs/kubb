@@ -254,10 +254,6 @@ function isNamespace(value: unknown): value is Record<string, unknown> {
  */
 const resolverOptions: unique symbol = Symbol.for('@kubb/core/resolver/options')
 
-function hasResolverOptions(value: object): value is { readonly [resolverOptions]: ResolverBuildOptions } {
-  return resolverOptions in value
-}
-
 /**
  * Built-in `file.baseName`: casts the identifier with `toFilePath` and appends the extension.
  */
@@ -311,10 +307,7 @@ export class Resolver {
     this.#apply(options)
   }
 
-  /**
-   * Exposes the raw build options so `Resolver.merge` can read them across `@kubb/core` copies.
-   * Keyed by a shared `Symbol.for`, so it stays off the public API.
-   */
+  /** Exposes the raw build options so `Resolver.merge` can read them across `@kubb/core` copies. */
   get [resolverOptions](): ResolverBuildOptions {
     return this.#options
   }
@@ -350,7 +343,7 @@ export class Resolver {
    * survives even when `base` and `override` come from different `@kubb/core` copies.
    */
   static merge<T extends Resolver>(base: T, override: ResolverPatch<T> | Resolver): T {
-    const patch = hasResolverOptions(override) ? override[resolverOptions] : override
+    const patch = resolverOptions in override ? override[resolverOptions] : override
     const merged: Record<string, unknown> = { ...base[resolverOptions] }
     for (const [key, value] of Object.entries(patch)) {
       if (value === undefined) continue
