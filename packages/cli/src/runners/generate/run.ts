@@ -13,7 +13,7 @@ import {
   createKubb,
   type Diagnostic,
   Diagnostics,
-  isInlineDocument,
+  getInputKind,
   type KubbHooks,
   logLevel as logLevelMap,
   type ProblemDiagnostic,
@@ -329,7 +329,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     let anyFailed = false
     for (const config of configs) {
       const effectiveInput = input ?? config.input
-      const watchPath = typeof effectiveInput === 'string' && !isInlineDocument(effectiveInput) && !URL.canParse(effectiveInput) ? effectiveInput : undefined
+      const watchPath = typeof effectiveInput === 'string' && getInputKind(effectiveInput) === 'file' ? effectiveInput : undefined
       if (watchPath && watch) {
         const watchedPaths = [watchPath]
         // Don't removeAll() between builds, that would also drop logger and lifecycle

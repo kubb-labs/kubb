@@ -1,18 +1,34 @@
 import { resolve } from 'node:path'
 import { Diagnostics } from './Diagnostics.ts'
-import type { AdapterSource, Config } from './types.ts'
+import type { AdapterSource, Config, Input } from './types.ts'
 
 /**
- * Detects whether a string is inline OpenAPI content rather than a file path or URL.
+ * What an `input` value points at, once Kubb has looked at it.
  *
- * Inline content is JSON (starts with `{` or `[`), spans multiple lines, or opens with a YAML
- * `openapi:`/`swagger:` key. A path or URL is a single line that never starts with a brace, so
- * running this check before the path/URL branch is safe.
+ * - `file` is a local file path, absolute or relative to the config file.
+ * - `url` is a remote document to fetch.
+ * - `inline` is OpenAPI content held in the string itself (JSON or YAML).
+ * - `object` is an already-parsed spec.
  */
-export function isInlineDocument(value: string): boolean {
-  const trimmed = value.trimStart()
+export type InputKind = 'file' | 'url' | 'inline' | 'object'
 
-  return trimmed.startsWith('{') || trimmed.startsWith('[') || value.includes('\n') || /^(openapi|swagger)\s*:/i.test(trimmed)
+/**
+ * Classifies an `input` value so callers branch on it once instead of repeating the checks.
+ *
+ * A non-string is a parsed spec (`object`). A string is `inline` when it holds OpenAPI content,
+ * meaning it starts with `{` or `[`, spans multiple lines, or opens with a YAML `openapi:` or
+ * `swagger:` key. Otherwise a string is a `url` when it parses as one, or a `file` path.
+ */
+export function getInputKind(input: NonNullable<Input>): InputKind {
+  if (typeof input !== 'string') return 'object'
+
+  const trimmed = input.trimStart()
+  const isInline = trimmed.startsWith('{') || trimmed.startsWith('[') || input.includes('\n') || /^(openapi|swagger)\s*:/i.test(trimmed)
+  if (isInline) return 'inline'
+
+  if (URL.canParse(input)) return 'url'
+
+  return 'file'
 }
 
 /**
@@ -38,13 +54,9 @@ export function inputToAdapterSource(config: Config): AdapterSource {
     return { type: 'data', data: input }
   }
 
-  if (isInlineDocument(input)) {
-    return { type: 'data', data: input }
-  }
-
-  if (URL.canParse(input)) {
-    return { type: 'path', path: input }
-  }
+  const kind = getInputKind(input)
+  if (kind === 'inline') return { type: 'data', data: input }
+  if (kind === 'url') return { type: 'path', path: input }
 
   return { type: 'path', path: resolve(config.root, input) }
 }

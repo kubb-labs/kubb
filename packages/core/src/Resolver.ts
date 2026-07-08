@@ -2,7 +2,7 @@ import path from 'node:path'
 import { camelCase, toFilePath } from '@internals/utils'
 import { ast, operationDef, schemaDef, type FileNode, type InputMeta, type Node, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { Diagnostics } from './Diagnostics.ts'
-import { isInlineDocument } from './input.ts'
+import { getInputKind } from './input.ts'
 import type { Filter, Override } from './definePlugin.ts'
 import type { Config, Group, Output } from './types.ts'
 
@@ -577,7 +577,7 @@ export class Resolver {
       const input = config.input
       let source = ''
       if (typeof input === 'string') {
-        source = isInlineDocument(input) ? 'text content' : path.basename(input)
+        source = getInputKind(input) === 'inline' ? 'text content' : path.basename(input)
       } else if (input) {
         source = 'text content'
       }

@@ -1,35 +1,39 @@
 import { describe, expect, it } from 'vitest'
 import { Diagnostics } from './Diagnostics.ts'
-import { inputToAdapterSource, isInlineDocument } from './input.ts'
+import { getInputKind, inputToAdapterSource } from './input.ts'
 import type { Config } from './types.ts'
 
 function createConfig(input: Config['input'], root = '/project'): Config {
   return { root, input } as unknown as Config
 }
 
-describe('isInlineDocument', () => {
-  it('treats a relative path as a reference, not inline content', () => {
-    expect(isInlineDocument('./petStore.yaml')).toBe(false)
+describe('getInputKind', () => {
+  it('classifies a relative path as a file', () => {
+    expect(getInputKind('./petStore.yaml')).toBe('file')
   })
 
-  it('treats an absolute path as a reference, not inline content', () => {
-    expect(isInlineDocument('/specs/openapi.json')).toBe(false)
+  it('classifies an absolute path as a file', () => {
+    expect(getInputKind('/specs/openapi.json')).toBe('file')
   })
 
-  it('treats a URL as a reference, not inline content', () => {
-    expect(isInlineDocument('https://example.com/openapi.json')).toBe(false)
+  it('classifies an http(s) address as a url', () => {
+    expect(getInputKind('https://example.com/openapi.json')).toBe('url')
   })
 
-  it('detects inline JSON content', () => {
-    expect(isInlineDocument('{ "openapi": "3.1.0" }')).toBe(true)
+  it('classifies inline JSON content as inline', () => {
+    expect(getInputKind('{ "openapi": "3.1.0" }')).toBe('inline')
   })
 
-  it('detects multi-line YAML content', () => {
-    expect(isInlineDocument('openapi: 3.1.0\ninfo:\n  title: Pets')).toBe(true)
+  it('classifies multi-line YAML content as inline', () => {
+    expect(getInputKind('openapi: 3.1.0\ninfo:\n  title: Pets')).toBe('inline')
   })
 
-  it('detects a single-line YAML document marker', () => {
-    expect(isInlineDocument('swagger: "2.0"')).toBe(true)
+  it('classifies a single-line YAML document marker as inline', () => {
+    expect(getInputKind('swagger: "2.0"')).toBe('inline')
+  })
+
+  it('classifies a parsed spec as an object', () => {
+    expect(getInputKind({ openapi: '3.1.0' })).toBe('object')
   })
 })
 
