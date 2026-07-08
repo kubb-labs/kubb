@@ -24,7 +24,11 @@ function isLiveOnRegistry(pkg) {
 export async function verifyPackage({ pkg, attempts = RETRY_ATTEMPTS, delayMs = RETRY_DELAY_MS }) {
   for (let attempt = 1; attempt <= attempts; attempt++) {
     if (isLiveOnRegistry(pkg)) return true
-    if (attempt < attempts) await new Promise((r) => setTimeout(r, delayMs))
+
+    if (attempt < attempts) {
+      process.stdout.write(`${pkg.name}@${pkg.version} not live yet (attempt ${attempt}/${attempts}), retrying in ${delayMs / 1_000}s ...\n`)
+      await new Promise((r) => setTimeout(r, delayMs))
+    }
   }
 
   return false
@@ -50,9 +54,10 @@ async function main() {
 
   const missing = results.filter((result) => !result.live)
   if (missing.length > 0) {
+    const waitedSeconds = ((RETRY_ATTEMPTS - 1) * RETRY_DELAY_MS) / 1_000
     for (const { pkg } of missing) {
       console.error(
-        `${pkg.name}@${pkg.version} isn't live on npm yet. Confirm npm stage approve was run for this exact version, or that the staged version hasn't expired.`,
+        `${pkg.name}@${pkg.version} isn't live on npm yet after ${RETRY_ATTEMPTS} attempts over ${waitedSeconds}s. Confirm npm stage approve was run for this exact version, or that the staged version hasn't expired.`,
       )
     }
     process.exit(1)
