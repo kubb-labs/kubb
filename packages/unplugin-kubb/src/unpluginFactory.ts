@@ -1,6 +1,6 @@
 import process from 'node:process'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, createKubb, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
+import { applyConfigDefaults, type Config, createKubb, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import type { UnpluginFactory } from 'unplugin'
@@ -79,16 +79,16 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       return
     }
 
-    const alreadyHasBarrel = options.config.plugins?.some((p) => p.name === pluginBarrelName)
-    const plugins = alreadyHasBarrel ? (options.config.plugins ?? []) : [...(options.config.plugins ?? []), pluginBarrel()]
-    const output = { ...options.config.output }
-    output.barrel ??= { type: 'named' }
-    output.format ??= false
-    output.lint ??= false
+    const { adapter, output, plugins } = applyConfigDefaults(options.config, {
+      defaultAdapter: adapterOas(),
+      barrelPlugin: pluginBarrel(),
+      barrelPluginName: pluginBarrelName,
+      defaultOutput: { barrel: { type: 'named' }, format: false, lint: false },
+    })
 
     const config = {
       ...options.config,
-      adapter: options.config.adapter ?? adapterOas(),
+      adapter,
       parsers: options.config.parsers?.length ? options.config.parsers : [parserTs, parserTsx],
       plugins,
       output,

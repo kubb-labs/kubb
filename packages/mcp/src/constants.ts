@@ -3,31 +3,3 @@
  * extension is rejected before it is loaded.
  */
 export const ALLOWED_CONFIG_EXTENSIONS = new Set(['.ts', '.mts', '.cts', '.js', '.mjs', '.cjs'])
-
-/**
- * Notification kinds reported back to the MCP client while loading config and
- * running generation, covering progress, results, and errors.
- */
-export const NotifyTypes = {
-  INFO: 'INFO',
-  SUCCESS: 'SUCCESS',
-  ERROR: 'ERROR',
-  WARN: 'WARN',
-  DIAGNOSTIC: 'DIAGNOSTIC',
-  PLUGIN_START: 'PLUGIN_START',
-  PLUGIN_END: 'PLUGIN_END',
-  FILES_START: 'FILES_START',
-  FILES_UPDATE: 'FILES_UPDATE',
-  FILES_END: 'FILES_END',
-  GENERATION_START: 'GENERATION_START',
-  GENERATION_END: 'GENERATION_END',
-  CONFIG_LOADED: 'CONFIG_LOADED',
-  CONFIG_ERROR: 'CONFIG_ERROR',
-  CONFIG_READY: 'CONFIG_READY',
-  SETUP_START: 'SETUP_START',
-  SETUP_END: 'SETUP_END',
-  BUILD_START: 'BUILD_START',
-  BUILD_END: 'BUILD_END',
-  BUILD_FAILED: 'BUILD_FAILED',
-  BUILD_SUCCESS: 'BUILD_SUCCESS',
-} as const

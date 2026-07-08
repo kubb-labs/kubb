@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { getErrorMessage } from '@internals/utils'
-import { Telemetry } from '../../Telemetry.ts'
+import { toError } from '@internals/utils'
+import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import type * as McpModule from '@kubb/mcp'
 
 type McpOptions = {
@@ -18,7 +18,7 @@ export async function run({ version }: McpOptions): Promise<void> {
   const { run: startMcpServer } = (await import('@kubb/mcp')) as typeof McpModule
 
   const hrStart = process.hrtime()
-  const report = (status: 'success' | 'failed') => Telemetry.send(Telemetry.build({ command: 'mcp', kubbVersion: version, hrStart, status }))
+  const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'mcp', kubbVersion: version, hrStart, status }))
 
   try {
     console.log(styleText('cyan', '⏳ Starting MCP server...'))
@@ -28,6 +28,6 @@ export async function run({ version }: McpOptions): Promise<void> {
     await report('success')
   } catch (error) {
     await report('failed')
-    console.error(getErrorMessage(error))
+    console.error(toError(error).message)
   }
 }

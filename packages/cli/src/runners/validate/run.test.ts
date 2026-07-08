@@ -2,14 +2,12 @@ import process from 'node:process'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@internals/utils', () => ({
-  getErrorMessage: vi.fn((error: unknown) => (error instanceof Error ? error.message : String(error))),
+  toError: vi.fn((error: unknown) => (error instanceof Error ? error : new Error(String(error)))),
 }))
 
 vi.mock('../../Telemetry.ts', () => ({
-  Telemetry: {
-    build: vi.fn((payload: object) => payload),
-    send: vi.fn(async () => undefined),
-  },
+  buildTelemetryEvent: vi.fn((payload: object) => payload),
+  sendTelemetry: vi.fn(async () => undefined),
 }))
 
 describe('runValidate', () => {

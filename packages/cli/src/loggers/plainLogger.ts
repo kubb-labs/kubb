@@ -1,13 +1,13 @@
 import { relative } from 'node:path'
 import { formatMs } from '@internals/utils'
 import { Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { defineLogger } from './defineLogger.ts'
+import type { Logger } from './defineLogger.ts'
 import { createHookTimer, formatCommandWithArgs, formatErrorFrames, formatMessage } from './utils.ts'
 
 /**
  * Plain console adapter for non-TTY environments, built on `console.log`.
  */
-export const plainLogger = defineLogger({
+export const plainLogger = {
   name: 'plain',
   install(context, options) {
     const logLevel = options?.logLevel ?? logLevelMap.info
@@ -192,4 +192,4 @@ export const plainLogger = defineLogger({
       }
     })
   },
-})
+} satisfies Logger

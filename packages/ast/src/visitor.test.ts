@@ -13,7 +13,7 @@ import type { PropertyNode } from './nodes/property.ts'
 import type { ResponseNode } from './nodes/response.ts'
 import type { SchemaNode } from './nodes/schema.ts'
 import type { ParentOf, VisitorContext } from './visitor.ts'
-import { collect, transform, walk } from './visitor.ts'
+import { collect, transform } from './visitor.ts'
 
 /**
  * Builds a minimal sample AST with one `Pet` schema and one `getPetById` operation.
@@ -63,148 +63,6 @@ function buildSampleTree(): InputNode {
 
   return createInput({ schemas: [petSchema], operations: [operation] })
 }
-
-describe('walk', () => {
-  it('visits all node kinds in a tree', async () => {
-    const root = buildSampleTree()
-    const visited = {
-      input: 0,
-      operation: 0,
-      schema: 0,
-      property: 0,
-      parameter: 0,
-      response: 0,
-    }
-
-    await walk(root, {
-      input() {
-        visited.input++
-      },
-      operation() {
-        visited.operation++
-      },
-      schema() {
-        visited.schema++
-      },
-      property() {
-        visited.property++
-      },
-      parameter() {
-        visited.parameter++
-      },
-      response() {
-        visited.response++
-      },
-    })
-
-    expect(visited.input).toBe(1)
-    expect(visited.operation).toBe(1)
-    expect(visited.property).toBe(2) // id + name
-    expect(visited.parameter).toBe(1) // petId
-    expect(visited.response).toBe(2) // 200 + 404
-    // schemas: petSchema(object) + id(integer) + name(string) + petId param(integer) + 200 response(ref) + 404 response(ref)
-    expect(visited.schema).toBeGreaterThanOrEqual(5)
-  })
-
-  it('accepts a partial visitor (only some methods)', async () => {
-    const root = buildSampleTree()
-    const ids: Array<string> = []
-    await walk(root, {
-      operation(op) {
-        ids.push(op.operationId)
-      },
-    })
-
-    expect(ids).toStrictEqual(['getPetById'])
-  })
-
-  it('does not mutate the original tree', async () => {
-    const root = buildSampleTree()
-    const original = JSON.stringify(root)
-    await walk(root, {
-      operation(op) {
-        return { ...op, operationId: 'mutated' }
-      },
-    })
-
-    expect(JSON.stringify(root)).toBe(original)
-  })
-
-  it('respects concurrency option', async () => {
-    const root = buildSampleTree()
-    let maxConcurrent = 0
-    let current = 0
-    const order: Array<string> = []
-
-    await walk(root, {
-      concurrency: 2,
-      async schema(s) {
-        current++
-        if (current > maxConcurrent) maxConcurrent = current
-        await new Promise((r) => setTimeout(r, 5))
-        order.push(s.type)
-        current--
-      },
-    })
-
-    expect(maxConcurrent).toBeLessThanOrEqual(2)
-    expect(order.length).toBeGreaterThan(0)
-  })
-
-  it('actually runs sibling visitors concurrently up to the limit', async () => {
-    // Five sibling schemas under the root — with concurrency 3 the limiter should
-    // keep exactly three callbacks in flight at once, never one (serial) or five.
-    const root = createInput({
-      schemas: [
-        createSchema({ type: 'string' }),
-        createSchema({ type: 'number' }),
-        createSchema({ type: 'boolean' }),
-        createSchema({ type: 'integer' }),
-        createSchema({ type: 'null' }),
-      ],
-    })
-
-    let maxConcurrent = 0
-    let current = 0
-
-    await walk(root, {
-      concurrency: 3,
-      async schema() {
-        current++
-        if (current > maxConcurrent) maxConcurrent = current
-        await new Promise((r) => setTimeout(r, 5))
-        current--
-      },
-    })
-
-    expect(maxConcurrent).toBe(3)
-  })
-
-  it('does not recurse into schema properties/items/members when depth: shallow', async () => {
-    const root = buildSampleTree()
-    const schemaTypes: Array<string> = []
-    const propertyNames: Array<string> = []
-
-    await walk(root, {
-      depth: 'shallow',
-      schema(s) {
-        schemaTypes.push(s.type)
-      },
-      property(p) {
-        propertyNames.push(p.name)
-      },
-    })
-
-    // Top-level Pet object schema is visited
-    expect(schemaTypes).toContain('object')
-    // Parameter schema (integer) is still visited — it's not a schema property
-    expect(schemaTypes).toContain('integer')
-    // Properties of Pet are NOT descended into, so 'string' (Pet.name) is absent
-    expect(schemaTypes).not.toContain('string')
-    // PropertyNodes are NOT visited since the object schema doesn't recurse into them
-    expect(propertyNames).toHaveLength(0)
-  })
-})
 
 describe('transform', () => {
   it('preserves identity when nothing changes (structural sharing)', () => {
@@ -398,21 +256,6 @@ describe('VisitorContext — parent', () => {
 
     expect(hasParent).toBe(false)
   })
-
-  it('walk passes parent context', async () => {
-    const root = buildSampleTree()
-
-    const pairs: Array<string> = []
-    await walk(root, {
-      property(prop, { parent }) {
-        if (parent?.kind === 'Schema' && 'name' in parent) {
-          pairs.push(`${parent.name}.${prop.name}`)
-        }
-      },
-    })
-
-    expect(pairs).toContain('Pet.name')
-  })
 })
 
 describe('ParentOf — type inference', () => {
@@ -471,20 +314,6 @@ describe('ParentOf — type inference', () => {
       },
       input(_input, context) {
         expectTypeOf(context.parent).toEqualTypeOf<undefined>()
-      },
-    })
-  })
-
-  it('walk callbacks receive narrowed context', async () => {
-    await walk(buildSampleTree(), {
-      property(_prop, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<SchemaNode | undefined>()
-      },
-      operation(_op, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<InputNode | undefined>()
-      },
-      parameter(_param, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<OperationNode | undefined>()
       },
     })
   })

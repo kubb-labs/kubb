@@ -3,7 +3,7 @@ import path from 'node:path'
 import { createModuleLoader } from '@internals/shared'
 import { isPromise } from '@internals/utils'
 import type { CLIOptions, Config, PossibleConfig, SerializedDiagnostic } from '@kubb/core'
-import { ALLOWED_CONFIG_EXTENSIONS, NotifyTypes } from './constants.ts'
+import { ALLOWED_CONFIG_EXTENSIONS } from './constants.ts'
 
 /**
  * Renders serialized diagnostics as a plain-text block for an AI assistant. Each entry
@@ -39,10 +39,6 @@ const loader = createModuleLoader()
 const loadedModules = new Map<string, unknown>()
 
 async function loadModule(filePath: string): Promise<unknown> {
-  const ext = path.extname(filePath)
-  if (!ALLOWED_CONFIG_EXTENSIONS.has(ext)) {
-    throw new Error(`Invalid config file extension "${ext}". Allowed: ${[...ALLOWED_CONFIG_EXTENSIONS].join(', ')}`)
-  }
   if (loadedModules.has(filePath)) {
     return loadedModules.get(filePath)
   }
@@ -64,7 +60,7 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
     const ext = path.extname(configPath)
     if (!ALLOWED_CONFIG_EXTENSIONS.has(ext)) {
       const msg = `Invalid config file extension "${ext}". Allowed: ${[...ALLOWED_CONFIG_EXTENSIONS].join(', ')}`
-      await notify(NotifyTypes.CONFIG_ERROR, msg)
+      await notify('CONFIG_ERROR', msg)
       throw new Error(msg)
     }
     const base = path.resolve(process.cwd())
@@ -72,17 +68,17 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
     const relative = path.relative(base, resolvedConfigPath)
     if (relative.startsWith('..') || path.isAbsolute(relative)) {
       const msg = 'Invalid config file path: must be within the current working directory'
-      await notify(NotifyTypes.CONFIG_ERROR, msg)
+      await notify('CONFIG_ERROR', msg)
       throw new Error(msg)
     }
     const cwd = path.dirname(resolvedConfigPath)
     try {
       const userConfig = (await loadModule(resolvedConfigPath)) as Config
-      await notify(NotifyTypes.CONFIG_LOADED, `Loaded config from ${resolvedConfigPath}`)
+      await notify('CONFIG_LOADED', `Loaded config from ${resolvedConfigPath}`)
       return { userConfig, cwd }
     } catch (error) {
       const msg = `Failed to load config: ${error instanceof Error ? error.message : String(error)}`
-      await notify(NotifyTypes.CONFIG_ERROR, msg)
+      await notify('CONFIG_ERROR', msg)
       throw new Error(msg)
     }
   }
@@ -95,14 +91,14 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
     if (!existsSync(configFilePath)) continue
     try {
       const userConfig = (await loadModule(configFilePath)) as Config
-      await notify(NotifyTypes.CONFIG_LOADED, `Loaded ${configFileName} from current directory`)
+      await notify('CONFIG_LOADED', `Loaded ${configFileName} from current directory`)
       return { userConfig, cwd }
     } catch (err) {
-      await notify(NotifyTypes.CONFIG_ERROR, `Failed to load ${configFileName}: ${err instanceof Error ? err.message : String(err)}`)
+      await notify('CONFIG_ERROR', `Failed to load ${configFileName}: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
 
-  await notify(NotifyTypes.CONFIG_ERROR, 'No config file found')
+  await notify('CONFIG_ERROR', 'No config file found')
   throw new Error(`No config file found. Please provide a config path or create one of: ${configFileNames.join(', ')}`)
 }
 

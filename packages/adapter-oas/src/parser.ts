@@ -13,7 +13,7 @@ import {
 import { DEFAULT_PARSER_OPTIONS, enumDescriptionKeys, enumExtensionKeys, SCHEMA_REF_PREFIX } from './constants.ts'
 import { oasDialect, type OasDialect } from './dialect.ts'
 import { createDiscriminantNode, findDiscriminator } from './discriminator.ts'
-import { getOperationId, getOperations, getRequestContentType, getResponseByStatusCode, getResponseStatusCodes } from './operation.ts'
+import { getOperationId, getRequestContentType, getResponseByStatusCode, getResponseStatusCodes } from './operation.ts'
 import {
   buildSchemaNode,
   extractExamples,
@@ -25,7 +25,6 @@ import {
   getRequestSchema,
   getResponseBodyContentTypes,
   getResponseSchema,
-  getSchemas,
   getSchemaType,
 } from './resolvers.ts'
 import type { ContentType, Document, Operation, ReferenceObject, SchemaObject } from './types.ts'
@@ -1106,71 +1105,4 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
   }
 
   return { parseSchema, parseOperation, parseParameter }
-}
-
-/**
- * Parses a single OpenAPI `SchemaObject` into a `SchemaNode`.
- *
- * Reach for this when you only need one schema, not the whole spec. To parse a full spec
- * with its operations and schemas, call `parseOas()`.
- *
- * @note Internal state tracks `$ref` paths under resolution, so circular schemas stop
- * recursing instead of looping.
- *
- * @example
- * ```ts
- * const document = yaml.parse(fs.readFileSync('openapi.yaml', 'utf8'))
- * const ctx = { document }
- * const schema = parseSchema(ctx, { schema: { type: 'string', format: 'uuid' } })
- * ```
- */
-export function parseSchema(
-  ctx: OasParserContext,
-  { schema, name }: { schema: SchemaObject; name?: string },
-  options?: Partial<ast.ParserOptions>,
-): ast.SchemaNode {
-  return createSchemaParser(ctx).parseSchema({ schema, name }, options)
-}
-
-/**
- * Parses an OpenAPI specification into Kubb's universal `InputNode` AST.
- *
- * This is the main entry point for `@kubb/adapter-oas`. It converts OpenAPI/Swagger specs into a spec-agnostic tree
- * that downstream plugins (`plugin-ts`, `plugin-zod`, etc.) consume for code generation. No code is generated here.
- * The tree is a pure data structure of all schemas and operations.
- *
- * Returns the AST root and a `nameMapping` for resolving schema references.
- *
- * @example
- * ```ts
- * import { parseOas } from '@kubb/adapter-oas'
- *
- * const document = await parseFromConfig(config)
- * const { root, nameMapping } = parseOas(document, { dateType: 'date', contentType: 'application/json' })
- * ```
- */
-export function parseOas(
-  document: Document,
-  options: Partial<ast.ParserOptions> & { contentType?: ContentType } = {},
-): { root: ast.InputNode; nameMapping: Map<string, string> } {
-  const { contentType, ...parserOptions } = options
-  const mergedOptions: ast.ParserOptions = {
-    ...DEFAULT_PARSER_OPTIONS,
-    ...parserOptions,
-  }
-
-  const { schemas: schemaObjects, nameMapping } = getSchemas(document, {
-    contentType,
-  })
-  const { parseSchema: _parseSchema, parseOperation: _parseOperation } = createSchemaParser({ document, contentType })
-
-  const schemas: Array<ast.SchemaNode> = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, mergedOptions))
-
-  const operations: Array<ast.OperationNode> = getOperations(document)
-    .map((operation) => _parseOperation(mergedOptions, operation))
-    .filter((op): op is ast.OperationNode => op !== null)
-
-  const root = ast.factory.createInput({ schemas, operations })
-
-  return { root, nameMapping }
 }

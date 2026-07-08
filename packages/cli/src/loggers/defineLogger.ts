@@ -33,20 +33,3 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
    */
   install: (context: LoggerContext, options?: TOptions) => void | Promise<void>
 }
-
-/**
- * Type-safe helper for authoring a {@link Logger}.
- *
- * @example
- * ```ts
- * export const myLogger = defineLogger({
- *   name: 'my-logger',
- *   install(context) {
- *     context.hook('kubb:info', ({ message }) => console.log('ℹ', message))
- *   },
- * })
- * ```
- */
-export function defineLogger<TOptions extends LoggerOptions = LoggerOptions>(logger: Logger<TOptions>): Logger<TOptions> {
-  return logger
-}

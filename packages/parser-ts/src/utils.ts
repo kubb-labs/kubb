@@ -18,19 +18,12 @@ import {
 const { factory } = ts
 
 /**
- * Normalizes a file-system path to POSIX separators and strips any leading `../` segment.
- */
-export function slash(path: string): string {
-  return normalize(path).replaceAll(WINDOWS_PATH_SEPARATOR, '/').replace(PARENT_DIRECTORY_PREFIX, '')
-}
-
-/**
  * Resolves `filePath` relative to `rootDir` and returns a POSIX-style path
  * prefixed with `./` when the target sits inside the root, or `../` when it escapes it.
  */
 export function getRelativePath(rootDir: string, filePath: string): string {
   const rel = relative(rootDir, filePath)
-  const slashed = slash(rel)
+  const slashed = normalize(rel).replaceAll(WINDOWS_PATH_SEPARATOR, '/').replace(PARENT_DIRECTORY_PREFIX, '')
   return slashed.startsWith(PARENT_DIRECTORY_PREFIX) ? slashed : `${CURRENT_DIRECTORY_PREFIX}${slashed}`
 }
 

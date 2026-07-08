@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { basename, dirname, resolve } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
@@ -110,17 +111,6 @@ export type HookResult = {
   stderr?: string
 }
 
-let hookSequence = 0
-
-/**
- * Returns a process-unique id that correlates a hook's `kubb:hook:start` and `kubb:hook:end`
- * emissions, which loggers use to key their per-hook state.
- */
-export function createHookId(): string {
-  hookSequence += 1
-  return `hook-${hookSequence}`
-}
-
 /**
  * Returns `true` when `latest` is a newer semver version than `current`. Compares each numeric
  * part, so `5.10.0` beats `5.9.0` where a plain string comparison would not. Prerelease
@@ -168,7 +158,7 @@ export async function executeHooks({ configHooks, hooks }: ExecuteHooksOptions):
     const [cmd, ...args] = tokenize(command)
     if (!cmd) continue
 
-    const hookId = createHookId()
+    const hookId = randomUUID()
     const commandWithArgs = [cmd, ...args].join(' ')
 
     await hooks.callHook('kubb:hook:start', { id: hookId, command: cmd, args })

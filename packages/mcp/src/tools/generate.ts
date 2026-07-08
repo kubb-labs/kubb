@@ -2,7 +2,6 @@ import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks, 
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import type * as v from 'valibot'
-import { NotifyTypes } from '../constants.ts'
 import { generateSchema } from '../schemas/generateSchema.ts'
 import { formatDiagnostics, loadUserConfig, resolveCwd, resolveUserConfig } from '../utils.ts'
 
@@ -24,51 +23,51 @@ export const generateTool = defineTool(
       }
 
       hooks.hook('kubb:info', async ({ message }: { message: string }) => {
-        await notify(NotifyTypes.INFO, message)
+        await notify('INFO', message)
       })
 
       hooks.hook('kubb:success', async ({ message }: { message: string }) => {
-        await notify(NotifyTypes.SUCCESS, message)
+        await notify('SUCCESS', message)
       })
 
       hooks.hook('kubb:error', async ({ error }: { error: Error }) => {
-        await notify(NotifyTypes.ERROR, error.message)
+        await notify('ERROR', error.message)
       })
 
       hooks.hook('kubb:warn', async ({ message }: { message: string }) => {
-        await notify(NotifyTypes.WARN, message)
+        await notify('WARN', message)
       })
 
       hooks.hook('kubb:diagnostic', async ({ diagnostic }: { diagnostic: Diagnostic }) => {
-        await notify(NotifyTypes.DIAGNOSTIC, diagnostic.message, Diagnostics.serialize(diagnostic))
+        await notify('DIAGNOSTIC', diagnostic.message, Diagnostics.serialize(diagnostic))
       })
 
       hooks.hook('kubb:plugin:start', async ({ plugin }) => {
-        await notify(NotifyTypes.PLUGIN_START, `Plugin starting: ${plugin.name}`)
+        await notify('PLUGIN_START', `Plugin starting: ${plugin.name}`)
       })
 
       hooks.hook('kubb:plugin:end', async ({ plugin, duration }) => {
-        await notify(NotifyTypes.PLUGIN_END, `Plugin finished: ${plugin.name}`, { duration })
+        await notify('PLUGIN_END', `Plugin finished: ${plugin.name}`, { duration })
       })
 
       hooks.hook('kubb:files:processing:start', async () => {
-        await notify(NotifyTypes.FILES_START, 'Starting file processing')
+        await notify('FILES_START', 'Starting file processing')
       })
 
       hooks.hook('kubb:files:processing:update', async ({ files }: { files: Array<{ file: { name: string } }> }) => {
-        await notify(NotifyTypes.FILES_UPDATE, `Processing ${files.length} files`)
+        await notify('FILES_UPDATE', `Processing ${files.length} files`)
       })
 
       hooks.hook('kubb:files:processing:end', async () => {
-        await notify(NotifyTypes.FILES_END, 'File processing complete')
+        await notify('FILES_END', 'File processing complete')
       })
 
       hooks.hook('kubb:generation:start', async () => {
-        await notify(NotifyTypes.GENERATION_START, 'Generation started')
+        await notify('GENERATION_START', 'Generation started')
       })
 
       hooks.hook('kubb:generation:end', async () => {
-        await notify(NotifyTypes.GENERATION_END, 'Generation ended')
+        await notify('GENERATION_END', 'Generation ended')
       })
 
       let userConfig: Config
@@ -89,7 +88,7 @@ export const generateTool = defineTool(
         })
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
-        await notify(NotifyTypes.CONFIG_ERROR, errorMessage)
+        await notify('CONFIG_ERROR', errorMessage)
         return tool.error(errorMessage)
       }
 
@@ -112,27 +111,27 @@ export const generateTool = defineTool(
           : userConfig.output,
       }
 
-      await notify(NotifyTypes.CONFIG_READY, 'Configuration ready')
-      await notify(NotifyTypes.SETUP_START, 'Setting up Kubb')
+      await notify('CONFIG_READY', 'Configuration ready')
+      await notify('SETUP_START', 'Setting up Kubb')
 
       const kubb = createKubb(config, { hooks })
       await kubb.setup()
-      await notify(NotifyTypes.SETUP_END, 'Kubb setup complete')
+      await notify('SETUP_END', 'Kubb setup complete')
 
-      await notify(NotifyTypes.BUILD_START, 'Starting build')
+      await notify('BUILD_START', 'Starting build')
       const { files, diagnostics } = await kubb.safeBuild()
-      await notify(NotifyTypes.BUILD_END, `Build complete - Generated ${files.length} files`)
+      await notify('BUILD_END', `Build complete - Generated ${files.length} files`)
 
       const problems = diagnostics.filter(Diagnostics.isProblem)
       const errors = problems.filter((diagnostic) => diagnostic.severity === 'error')
       if (errors.length > 0) {
-        await notify(NotifyTypes.BUILD_FAILED, `Build failed with ${errors.length} diagnostic(s)`)
+        await notify('BUILD_FAILED', `Build failed with ${errors.length} diagnostic(s)`)
 
         const serialized = problems.map((diagnostic) => Diagnostics.serialize(diagnostic))
         return tool.error(`Build failed:\n${formatDiagnostics(serialized)}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\``)
       }
 
-      await notify(NotifyTypes.BUILD_SUCCESS, `Build completed successfully - Generated ${files.length} files`)
+      await notify('BUILD_SUCCESS', `Build completed successfully - Generated ${files.length} files`)
 
       return tool.text(`Build completed successfully!\n\nGenerated ${files.length} files\n\n${messages.join('\n')}`)
     } catch (caughtError) {

@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -19,9 +20,9 @@ import {
 } from '@kubb/core'
 import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.ts'
-import { Telemetry } from '../../Telemetry.ts'
+import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import setupReporters, { selectReporters } from '../../loggers/utils.ts'
-import { createHookId, executeHooks, getConfigs, isNewerVersion, runHook, startWatcher } from './utils.ts'
+import { executeHooks, getConfigs, isNewerVersion, runHook, startWatcher } from './utils.ts'
 import { detectTool, formatters, linters } from '../../tools.ts'
 
 type GenerateProps = {
@@ -94,7 +95,7 @@ async function runToolPass({
       .join(' ')
 
     try {
-      const hookId = createHookId()
+      const hookId = randomUUID()
       const hookArgs = toolConfig.args(outputPath)
       const commandWithArgs = [toolConfig.command, ...hookArgs].join(' ')
 
@@ -144,7 +145,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
   const telemetryPlugins = Array.from(driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> }))
 
   const reportTelemetry = (status: 'success' | 'failed') =>
-    Telemetry.send(Telemetry.build({ command: 'generate', kubbVersion: version, plugins: telemetryPlugins, hrStart, filesCreated: files.length, status }))
+    sendTelemetry(buildTelemetryEvent({ command: 'generate', kubbVersion: version, plugins: telemetryPlugins, hrStart, filesCreated: files.length, status }))
 
   // Render every problem, not just on failure, so warnings and info surface too.
   // `performance` diagnostics feed the summary, not the log.

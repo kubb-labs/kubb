@@ -321,10 +321,6 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
    */
   injectFile(userFileNode: UserFileNode): void
   /**
-   * Merge a partial config update into the current build configuration.
-   */
-  updateConfig(config: Partial<Config>): void
-  /**
    * The resolved build configuration at setup time.
    */
   config: Config

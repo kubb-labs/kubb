@@ -1,25 +1,10 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { availablePlugins, generateConfigFile, KUBB_CONFIG_FILENAME, type PluginOption } from '@internals/shared'
+import { generateConfigFile, KUBB_CONFIG_FILENAME, resolvePlugins } from '@internals/shared'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import { initSchema } from '../schemas/initSchema.ts'
-
-/**
- * Resolves a comma-separated plugin flag into the matching known plugin options.
- * Unrecognized names are dropped, and a missing flag yields an empty list.
- */
-export function resolvePlugins(pluginsFlag: string | undefined): Array<PluginOption> {
-  if (!pluginsFlag) {
-    return []
-  }
-  const requested = pluginsFlag
-    .split(',')
-    .map((v) => v.trim())
-    .filter(Boolean)
-  return availablePlugins.filter((p) => requested.includes(p.value))
-}
 
 export const initTool = defineTool(
   {

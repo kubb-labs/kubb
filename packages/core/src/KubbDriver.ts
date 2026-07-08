@@ -187,8 +187,6 @@ export class KubbDriver {
    * plugins can configure generators, resolvers, macros, and options before `buildStart`.
    */
   async setupHooks(): Promise<void> {
-    const noop = () => {}
-
     for (const plugin of this.plugins.values()) {
       const setup = plugin.hooks?.['kubb:plugin:setup']
       if (!setup) continue
@@ -196,7 +194,6 @@ export class KubbDriver {
       await setup({
         config: this.config,
         options: plugin.options ?? {},
-        updateConfig: noop,
         addGenerator: (...generators) => {
           for (const generator of generators) {
             this.registerGenerator(plugin.name, generator)

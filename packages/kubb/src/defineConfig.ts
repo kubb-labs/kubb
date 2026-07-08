@@ -1,6 +1,6 @@
 import { isPromise, type PossiblePromise } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import { cliReporter, type CLIOptions, fileReporter, jsonReporter, type UserConfig } from '@kubb/core'
+import { applyConfigDefaults, cliReporter, type CLIOptions, fileReporter, jsonReporter, type UserConfig } from '@kubb/core'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import { parserMd } from '@kubb/parser-md'
@@ -28,18 +28,17 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
  * - `output.lint` defaults to `false`
  */
 function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
-  const alreadyHasBarrel = config.plugins?.some((p) => p.name === pluginBarrelName)
-  const plugins = alreadyHasBarrel ? (config.plugins ?? []) : [...(config.plugins ?? []), pluginBarrel()]
-
-  const output = { ...config.output }
-  output.barrel ??= { type: 'named' }
-  output.format ??= false
-  output.lint ??= false
+  const { adapter, output, plugins } = applyConfigDefaults(config, {
+    defaultAdapter: adapterOas(),
+    barrelPlugin: pluginBarrel(),
+    barrelPluginName: pluginBarrelName,
+    defaultOutput: { barrel: { type: 'named' }, format: false, lint: false },
+  })
 
   return {
     ...config,
     root: config.root || process.cwd(),
-    adapter: config.adapter ?? adapterOas(),
+    adapter,
     parsers: config.parsers?.length ? config.parsers : [parserTs, parserTsx, parserMd],
     reporters: config.reporters?.length ? config.reporters : [cliReporter, jsonReporter, fileReporter],
     plugins,

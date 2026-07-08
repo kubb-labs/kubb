@@ -124,16 +124,3 @@ export const schemaTypes = {
    */
   never: 'never',
 } as const satisfies Record<SchemaType, SchemaType>
-
-/**
- * Default sibling concurrency for `walk()`. Higher values overlap I/O-bound visitor work,
- * lower values reduce memory pressure. Pass `concurrency` to `walk()` to override it.
- *
- * @example
- * ```ts
- * import { walk, WALK_CONCURRENCY } from '@kubb/ast'
- *
- * walk(root, { concurrency: WALK_CONCURRENCY, operation: () => {} })
- * ```
- */
-export const WALK_CONCURRENCY = 30
