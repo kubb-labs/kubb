@@ -34,7 +34,6 @@ jobs:
       issues: write
     outputs:
       staged: ${{ steps.changesets.outputs.staged }}
-      published: ${{ steps.changesets.outputs.published }}
       staged_packages: ${{ steps.changesets.outputs.staged_packages }}
     steps:
       - name: Check out code
@@ -71,16 +70,12 @@ jobs:
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Repo variable (Settings > Actions > Variables), not a per-run
-          # input: flip it to 'true' to bypass npm's staged-publish +
-          # environment-approval gate for every push until it's flipped back.
-          SKIP_STAGED_PUBLISH: ${{ vars.SKIP_STAGED_PUBLISH }}
 
       # Canary skips staging on purpose, so it stays automatic on every push.
       # If the npm Trusted Publisher for these packages is ever locked to
       # stage-only, this step will need its own non-stage-restricted entry.
       - name: Publish canary
-        if: ${{ steps.changesets.outputs.staged != 'true' && steps.changesets.outputs.published != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ steps.changesets.outputs.staged != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         continue-on-error: true
         shell: bash
         env:
@@ -98,16 +93,15 @@ jobs:
   promote:
     name: Promote staged release
     needs: [release]
-    if: ${{ needs.release.outputs.staged == 'true' || needs.release.outputs.published == 'true' }}
-    # A direct publish is already live, so it skips the approval environment.
+    if: ${{ needs.release.outputs.staged == 'true' }}
     environment:
-      name: ${{ needs.release.outputs.published == 'true' && '' || 'npm-release-approval' }}
+      name: npm-release-approval
     timeout-minutes: 20
     runs-on: ubuntu-latest
     permissions:
       contents: write # gh release create
     outputs:
-      approved: ${{ steps.verify.outputs.approved || steps.mark-published.outputs.approved }}
+      approved: ${{ steps.verify.outputs.approved }}
     steps:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -126,17 +120,13 @@ jobs:
       # public fires.
       - name: Verify staged versions are live on npm
         id: verify
-        if: ${{ needs.release.outputs.staged == 'true' }}
         run: node scripts/verifyRegistry.mjs
         env:
           STAGED_PACKAGES: ${{ needs.release.outputs.staged_packages }}
+          # How often to re-poll npm while waiting for a staged version to
+          # propagate, and how many times to try before giving up.
           VERIFY_INTERVAL_SECONDS: '10'
           VERIFY_RETRY_ATTEMPTS: '6'
-
-      - name: Mark direct-published versions as approved
-        id: mark-published
-        if: ${{ needs.release.outputs.published == 'true' }}
-        run: echo "approved=true" >> "$GITHUB_OUTPUT"
 
       # Tags are created here, not at stage time, so a rejected or expired
       # staged package never leaves a dangling tag behind (see
