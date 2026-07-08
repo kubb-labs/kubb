@@ -280,6 +280,24 @@ describe('createResolver', () => {
     expect(merged.query.keyName({ operationId: 'get pet' })).toBe('getPetKey')
   })
 
+  it('Resolver.merge() keeps a file override from a resolver in another @kubb/core copy', () => {
+    type TestFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: Resolver }
+    const base = createResolver<TestFactory>({ pluginName: 'test' })
+
+    // A resolver loaded from a second @kubb/core copy (a CommonJS config next to the ESM CLI) is not
+    // `instanceof Resolver`, but shares the brand, so its `file` override must still be honored.
+    const foreign = {
+      [Symbol.for('@kubb/core/resolver/options')]: {
+        pluginName: 'test',
+        file: { baseName: ({ name, extname }: { name: string; extname: string }) => `${name}Faker${extname}` },
+      },
+    } as unknown as Resolver
+
+    const merged = Resolver.merge(base, foreign)
+
+    expect(merged.file({ name: 'pet', extname: '.ts', root: '/root', output: { path: 'mocks' }, group: undefined }).baseName).toBe('petFaker.ts')
+  })
+
   it('supports top-level helpers like typeName', () => {
     type TypeResolver = Resolver & { typeName(name: string): string }
     type TypeFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: TypeResolver }
