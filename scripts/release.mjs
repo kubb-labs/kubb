@@ -10,10 +10,10 @@ function readPreTag() {
   }
 }
 
-// Parse pnpm stage publish output into [{ name, version }]. Prefers the --json
-// payload, in whichever shape it comes in (a bare array, or an object keyed by
-// package name, both observed across pnpm/npm staged-publish responses), then
-// falls back to scanning text output for `+ <name>@<version>` lines.
+// Parse pnpm publish output (staged or direct) into [{ name, version }].
+// Prefers the --json payload, in whichever shape it comes in (a bare array,
+// or an object keyed by package name), then falls back to scanning text
+// output for `+ <name>@<version>` lines.
 export function parseStaged(output) {
   try {
     const parsed = JSON.parse(output)
@@ -38,27 +38,32 @@ export function parseStaged(output) {
 
 function main() {
   const tag = readPreTag()
-  const stageArgs = ['stage', 'publish', '-r', '--no-git-check', '--access', 'public', '--json']
-  if (tag) stageArgs.push('--tag', tag)
 
-  const result = spawnSync('pnpm', stageArgs, { encoding: 'utf8' })
+  // Bypasses npm's staged-publish + environment-approval gate: packages go
+  // live the moment `pnpm publish` returns.
+  const skipStaging = process.env.SKIP_STAGED_PUBLISH === 'true'
+  const publishArgs = skipStaging
+    ? ['publish', '-r', '--no-git-check', '--access', 'public', '--json']
+    : ['stage', 'publish', '-r', '--no-git-check', '--access', 'public', '--json']
+  if (tag) publishArgs.push('--tag', tag)
+
+  const result = spawnSync('pnpm', publishArgs, { encoding: 'utf8' })
   if (result.stdout) process.stdout.write(result.stdout)
   if (result.stderr) process.stderr.write(result.stderr)
   if (result.status !== 0) process.exit(result.status ?? 1)
   const output = result.stdout ?? ''
-  const staged = parseStaged(output)
+  const published = parseStaged(output)
 
-  // Tags aren't created here. A staged package may still be rejected on npm,
-  // and changesets/changesets#2025 specifically warns against tagging at
-  // stage time for that reason. The `promote` job creates and pushes tags
-  // itself, after confirming the versions are actually live.
+  // Tags aren't created here. The `promote` job does that after confirming
+  // (or, for a direct publish, already knowing) the versions are live. See
+  // changesets/changesets#2025 for why staging shouldn't tag early.
   //
-  // Only signal a stage to the workflow if pnpm actually published something.
-  // When everything was skipped (versions already on npm), let the canary step
-  // fire instead — that's the intent for ordinary main pushes.
-  if (staged.length > 0 && process.env.GITHUB_OUTPUT) {
-    appendFileSync(process.env.GITHUB_OUTPUT, 'staged=true\n')
-    appendFileSync(process.env.GITHUB_OUTPUT, `staged_packages=${JSON.stringify(staged)}\n`)
+  // Only signal a publish if pnpm actually published something. When
+  // everything was skipped (versions already on npm), let the canary step
+  // fire instead.
+  if (published.length > 0 && process.env.GITHUB_OUTPUT) {
+    appendFileSync(process.env.GITHUB_OUTPUT, `${skipStaging ? 'published' : 'staged'}=true\n`)
+    appendFileSync(process.env.GITHUB_OUTPUT, `staged_packages=${JSON.stringify(published)}\n`)
   }
 }
 
