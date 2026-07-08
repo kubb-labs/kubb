@@ -353,6 +353,14 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
 }
 
 /**
+ * Shared brand marking a {@link Diagnostics.Error}. `Diagnostics.isError` reads this instead of
+ * relying on `instanceof`, which fails when an adapter or plugin bundles its own `@kubb/core` copy.
+ * `Symbol.for` resolves to one key across those copies, so a structured error keeps its identity
+ * and its `code` survives the throw/catch path.
+ */
+const diagnosticError: unique symbol = Symbol.for('@kubb/core/diagnostics/error')
+
+/**
  * Static helpers for working with {@link Diagnostic}s, plus the run-scoped sink
  * that lets deep code report a diagnostic without threading a callback.
  *
@@ -399,6 +407,7 @@ export class Diagnostics {
    * ```
    */
   static Error = class DiagnosticError extends Error {
+    readonly [diagnosticError] = true
     diagnostic: ProblemDiagnostic
 
     constructor(diagnostic: ProblemDiagnostic) {
@@ -409,12 +418,15 @@ export class Diagnostics {
   }
 
   /**
-   * Structural check for a {@link Diagnostics.Error}, including one thrown from a duplicated
-   * `@kubb/core` copy where `instanceof` fails. Matches on the `name` and a `diagnostic`
-   * that carries a `code`.
+   * Checks for a {@link Diagnostics.Error}, including one thrown from a duplicated `@kubb/core`
+   * copy where `instanceof` fails. The shared brand resolves across copies; the structural
+   * fallback still recognizes an error thrown by an older copy that predates the brand.
    */
   static isError(error: unknown): error is InstanceType<typeof Diagnostics.Error> {
-    if (error instanceof Diagnostics.Error) {
+    if (typeof error !== 'object' || error === null) {
+      return false
+    }
+    if ((error as Record<PropertyKey, unknown>)[diagnosticError] === true) {
       return true
     }
     return (

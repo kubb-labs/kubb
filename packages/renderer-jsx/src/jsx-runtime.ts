@@ -1,6 +1,11 @@
 import type { Key, KubbReactElement, KubbReactNode } from './types.ts'
 
-const KUBB_ELEMENT = Symbol.for('kubb.element')
+/**
+ * Brand marking a Kubb JSX element's `$$typeof`. `Symbol.for` resolves to one key across
+ * duplicated `@kubb/renderer-jsx` copies, and its value tells a Kubb element apart from a React
+ * element (which brands its own `$$typeof`), so the renderer never walks a foreign tree.
+ */
+export const KUBB_ELEMENT = Symbol.for('kubb.element')
 
 /**
  * Fragment marker. A `<>…</>` compiles to `jsx(Fragment, …)`, and the renderer

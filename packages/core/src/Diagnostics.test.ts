@@ -98,6 +98,33 @@ describe('Diagnostics.from', () => {
   })
 })
 
+describe('Diagnostics.isError', () => {
+  it('recognizes a locally thrown DiagnosticError', () => {
+    expect(Diagnostics.isError(new Diagnostics.Error({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing' }))).toBe(true)
+  })
+
+  it('recognizes a DiagnosticError from a duplicated core copy through the shared brand', () => {
+    // A different `@kubb/core` copy fails `instanceof` but sets the same `Symbol.for` brand.
+    const foreign = { [Symbol.for('@kubb/core/diagnostics/error')]: true }
+
+    expect(Diagnostics.isError(foreign)).toBe(true)
+  })
+
+  it('recognizes a DiagnosticError structurally when it predates the brand', () => {
+    // An older duplicated copy carries no brand, only the `name` and a `diagnostic` with a code.
+    const foreign = Object.assign(new Error('missing'), {
+      name: 'DiagnosticError',
+      diagnostic: { code: 'KUBB_INPUT_NOT_FOUND', severity: 'error', message: 'missing' },
+    })
+
+    expect(Diagnostics.isError(foreign)).toBe(true)
+  })
+
+  it('rejects a plain error', () => {
+    expect(Diagnostics.isError(new Error('boom'))).toBe(false)
+  })
+})
+
 describe('Diagnostics.count', () => {
   it('counts problems by severity and ignores performance', () => {
     const counts = Diagnostics.count([

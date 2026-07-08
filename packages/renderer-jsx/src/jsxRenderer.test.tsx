@@ -87,4 +87,41 @@ describe('jsxRenderer', () => {
     expect(renderer.files.find((f) => f.baseName === 'first.ts')).toBeDefined()
     expect(renderer.files.find((f) => f.baseName === 'second.ts')).toBeDefined()
   })
+
+  it('ignores a foreign element whose $$typeof is not the Kubb brand', async () => {
+    const renderer = jsxRenderer()
+    // A React element carries `Symbol.for('react.element')`, not the Kubb brand, so the renderer
+    // must skip it instead of mistaking it for a `<File>`.
+    const reactElement = {
+      $$typeof: Symbol.for('react.element'),
+      type: 'kubb-file',
+      props: { baseName: 'foreign.ts', path: 'src/foreign.ts', children: [] },
+      key: null,
+    }
+
+    await renderer.render(reactElement)
+
+    expect(renderer.files).toHaveLength(0)
+  })
+
+  it('skips a foreign child element inside a File', async () => {
+    const renderer = jsxRenderer()
+    // The same foreign brand nested as a child: the child walk must not collect it as an import.
+    const foreignImport = {
+      $$typeof: Symbol.for('react.element'),
+      type: 'kubb-import',
+      props: { name: ['z'], path: 'zod' },
+      key: null,
+    }
+
+    await renderer.render(
+      <File baseName="models.ts" path="src/models.ts">
+        {foreignImport}
+      </File>,
+    )
+
+    const file = renderer.files.find((f) => f.baseName === 'models.ts')
+    expect(file).toBeDefined()
+    expect(file?.imports).toHaveLength(0)
+  })
 })
