@@ -173,7 +173,7 @@ function makeDriver(): KubbDriver {
   return new KubbDriver(
     {
       root: '.',
-      input: { path: './petStore.yaml' },
+      input: './petStore.yaml',
       output: { path: './gen', clean: true },
       parsers: [],
       reporters: [],
@@ -233,7 +233,7 @@ describe('KubbDriver#dispatch', () => {
 describe('GeneratorContext diagnostics', () => {
   const config = {
     root: '.',
-    input: { path: './petStore.yaml' },
+    input: './petStore.yaml',
     output: { path: './src/gen', clean: true },
     parsers: [],
     reporters: [],

@@ -19,7 +19,7 @@ import { getRelativePath, print, printExport, printImport, printSource, resolveO
  * import { parserTs } from '@kubb/parser-ts'
  *
  * export default defineConfig({
- *   input: { path: './petStore.yaml' },
+ *   input: './petStore.yaml',
  *   output: { path: './src/gen' },
  *   adapter: adapterOas(),
  *   parsers: [parserTs],

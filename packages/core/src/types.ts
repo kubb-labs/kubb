@@ -15,40 +15,22 @@ import type { KubbDriver } from './KubbDriver.ts'
 type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
 
 /**
- * Path to an input file to generate from, absolute or relative to the config file. The adapter
- * parses it (e.g. an OpenAPI YAML or JSON spec) into the universal AST.
+ * Source to generate from. Kubb detects what it was given:
+ *
+ * - A string that is a local file path (absolute or relative to the config file) or a URL is
+ *   read and parsed by the adapter (e.g. an OpenAPI YAML or JSON spec).
+ * - A string that is inline OpenAPI content (JSON or YAML) is parsed directly.
+ * - A parsed object is used as-is, without touching the filesystem.
+ *
+ * @example
+ * ```ts
+ * './petstore.yaml'                       // local path
+ * 'https://example.com/openapi.json'      // URL
+ * '{ "openapi": "3.1.0", "info": {...} }' // inline JSON
+ * { openapi: '3.1.0', info: { ... } }     // parsed object
+ * ```
  */
-export type InputPath = {
-  /**
-   * Path to your Swagger/OpenAPI file, absolute or relative to the config file location.
-   *
-   * @example
-   * ```ts
-   * { path: './petstore.yaml' }
-   * { path: '/absolute/path/to/openapi.json' }
-   * ```
-   */
-  path: string
-}
-
-/**
- * Inline spec to generate from, passed directly instead of read from a file. A string
- * (YAML/JSON) or a parsed object.
- */
-export type InputData = {
-  /**
-   * Swagger/OpenAPI data as a string (YAML/JSON) or a parsed object.
-   *
-   * @example
-   * ```ts
-   * { data: fs.readFileSync('./openapi.yaml', 'utf8') }
-   * { data: { openapi: '3.1.0', info: { ... } } }
-   * ```
-   */
-  data: string | unknown
-}
-
-type Input = InputPath | InputData
+export type Input = string | Record<string, unknown>
 
 /**
  * Resolved build configuration for a Kubb run: what to generate from (adapter, input), where to
@@ -105,14 +87,14 @@ export type Config<TInput = Input> = {
    * import { adapterOas } from '@kubb/adapter-oas'
    * export default defineConfig({
    *   adapter: adapterOas(),
-   *   input: { path: './petstore.yaml' },
+   *   input: './petstore.yaml',
    * })
    * ```
    */
   adapter?: Adapter
   /**
-   * Source file or data to generate code from.
-   * Use `input.path` for a file path or `input.data` for inline data.
+   * Source to generate code from: a local file path, a URL, inline OpenAPI content
+   * (JSON or YAML string), or a parsed spec object. Kubb detects which one it was given.
    * Required when an adapter is configured. Omit it when running in plugin-only mode.
    */
   input?: TInput
@@ -284,7 +266,7 @@ export type Config<TInput = Input> = {
  * @example
  * ```ts
  * export default defineConfig({
- *   input: { path: './petstore.yaml' },
+ *   input: './petstore.yaml',
  *   output: { path: './src/gen' },
  *   plugins: [pluginTs(), pluginZod()],
  * })
@@ -719,8 +701,8 @@ export type CLIOptions = {
    */
   config?: string
   /**
-   * OpenAPI input path passed as the positional argument to `kubb generate`.
-   * Overrides `config.input.path` when set.
+   * OpenAPI input path or URL passed as the positional argument to `kubb generate`.
+   * Overrides `config.input` when set.
    */
   input?: string
   /**

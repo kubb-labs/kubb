@@ -12,6 +12,7 @@ import { createResolver } from './createResolver.ts'
 import { Resolver, type ResolverPatch } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import { Transform } from './Transform.ts'
+import { inputToAdapterSource } from './input.ts'
 
 import type { Adapter, AdapterSource, Config, GeneratorContext, Group, KubbHooks, NormalizedPlugin, PluginFactoryOptions } from './types.ts'
 import type { Hookable } from './Hookable.ts'
@@ -722,29 +723,4 @@ export class KubbDriver {
       location: { kind: 'config' },
     })
   }
-}
-
-function inputToAdapterSource(config: Config): AdapterSource {
-  const input = config.input
-  if (!input) {
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.inputRequired,
-      severity: 'error',
-      message: 'An adapter is configured without an input.',
-      help: 'Provide `input.path` (a file or URL) or `input.data` (an inline spec) in your Kubb config.',
-      location: { kind: 'config' },
-    })
-  }
-
-  if ('data' in input) {
-    return { type: 'data', data: input.data }
-  }
-
-  if (URL.canParse(input.path)) {
-    return { type: 'path', path: input.path }
-  }
-
-  const resolved = resolve(config.root, input.path)
-
-  return { type: 'path', path: resolved }
 }

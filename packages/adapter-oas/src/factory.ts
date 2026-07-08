@@ -76,8 +76,8 @@ export async function assertInputExists(input: string): Promise<void> {
     throw new Diagnostics.Error({
       code: Diagnostics.code.inputNotFound,
       severity: 'error',
-      message: `Cannot read the file set in \`input.path\` (or via \`kubb generate PATH\`): ${input}`,
-      help: 'Check that the path exists and is readable, then set it in `input.path` or pass it as `kubb generate PATH`.',
+      message: `Cannot read the file set as \`input\` (or via \`kubb generate PATH\`): ${input}`,
+      help: 'Check that the path exists and is readable, then set it as `input` or pass it as `kubb generate PATH`.',
       location: { kind: 'config' },
     })
   }

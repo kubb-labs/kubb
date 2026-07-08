@@ -104,7 +104,7 @@ npx kubb generate
 
 | Flag                 | Short | Type    | Default | Description                                                                                         |
 | -------------------- | ----- | ------- | ------- | --------------------------------------------------------------------------------------------------- |
-| `[input]`            |       | string  |         | OpenAPI file path — overrides `input.path` in the config                                            |
+| `[input]`            |       | string  |         | OpenAPI file path or URL that overrides `input` in the config                                       |
 | `--config <path>`    | `-c`  | string  |         | Path to the Kubb config file                                                                        |
 | `--logLevel <level>` | `-l`  | string  | `info`  | Log level: `silent`, `info`, or `verbose`                                                           |
 | `--watch`            | `-w`  | boolean | `false` | Re-generate whenever the input file changes                                                         |

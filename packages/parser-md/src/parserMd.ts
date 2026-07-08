@@ -29,7 +29,7 @@ export type MdMeta = {
  * import { parserTs, parserTsx } from '@kubb/parser-ts'
  *
  * export default defineConfig({
- *   input: { path: './petStore.yaml' },
+ *   input: './petStore.yaml',
  *   output: { path: './src/gen' },
  *   adapter: adapterOas(),
  *   parsers: [parserTs, parserTsx, parserMd],

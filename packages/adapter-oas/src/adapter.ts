@@ -19,9 +19,9 @@ export const adapterOasName = 'oas' satisfies AdapterOas['name']
 
 /**
  * Default Kubb adapter for OpenAPI 2.0, 3.0, and 3.1 specifications. Reads the
- * file at `input.path`, validates it, resolves the base URL, and converts every
- * schema and operation into the universal AST that every downstream plugin
- * consumes.
+ * spec from `input` (a file path, URL, inline content, or parsed object), validates
+ * it, resolves the base URL, and converts every schema and operation into the
+ * universal AST that every downstream plugin consumes.
  *
  * Configure once on `defineConfig`. The adapter's choices (date representation,
  * integer width, server URL) apply to every plugin in the build.
@@ -33,7 +33,7 @@ export const adapterOasName = 'oas' satisfies AdapterOas['name']
  * import { pluginTs } from '@kubb/plugin-ts'
  *
  * export default defineConfig({
- *   input: { path: './petStore.yaml' },
+ *   input: './petStore.yaml',
  *   output: { path: './src/gen' },
  *   adapter: adapterOas({
  *     server: { index: 0 },
