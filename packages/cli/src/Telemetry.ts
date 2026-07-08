@@ -50,7 +50,7 @@ export type TelemetryPlugin = {
 }
 
 /**
- * Anonymous snapshot of a single Kubb run, built by {@link Telemetry.build} and sent by {@link Telemetry.send}.
+ * Anonymous snapshot of a single Kubb run, built by {@link buildTelemetryEvent} and sent by {@link sendTelemetry}.
  */
 export type TelemetryEvent = {
   command: string
@@ -76,157 +76,151 @@ export type TelemetryEvent = {
 }
 
 /**
- * Anonymous OTLP usage telemetry for a Kubb run. The API is static, so call it as `Telemetry.build(...)`
- * and `Telemetry.send(...)`. No file paths, OpenAPI specs, or secrets are sent, and sending fails
- * silently so a failed request never breaks the run.
+ * Returns `true` when telemetry is disabled via `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY`.
  */
-export class Telemetry {
-  /**
-   * Returns `true` when telemetry is disabled via `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY`.
-   */
-  static get isDisabled(): boolean {
-    return (
-      process.env['DO_NOT_TRACK'] === '1' ||
-      process.env['DO_NOT_TRACK'] === 'true' ||
-      process.env['KUBB_DISABLE_TELEMETRY'] === '1' ||
-      process.env['KUBB_DISABLE_TELEMETRY'] === 'true'
-    )
+export function isDisabled(): boolean {
+  return (
+    process.env['DO_NOT_TRACK'] === '1' ||
+    process.env['DO_NOT_TRACK'] === 'true' ||
+    process.env['KUBB_DISABLE_TELEMETRY'] === '1' ||
+    process.env['KUBB_DISABLE_TELEMETRY'] === 'true'
+  )
+}
+
+/**
+ * Build an anonymous telemetry payload from a completed generation run.
+ */
+export function buildTelemetryEvent(options: {
+  command: 'generate' | 'mcp' | 'validate' | 'agent'
+  kubbVersion: string
+  plugins?: Array<TelemetryPlugin>
+  hrStart: [number, number]
+  filesCreated?: number
+  status: 'success' | 'failed'
+}): TelemetryEvent {
+  const [seconds, nanoseconds] = process.hrtime(options.hrStart)
+  const duration = Math.round(seconds * 1000 + nanoseconds / 1e6)
+
+  return {
+    command: options.command,
+    kubbVersion: options.kubbVersion,
+    nodeVersion: process.versions.node.split('.')[0] as string,
+    runtime: runtime.name,
+    runtimeVersion: runtime.version.split('.')[0] as string,
+    platform: os.platform(),
+    ci: isCIEnvironment(),
+    plugins: options.plugins ?? [],
+    duration,
+    filesCreated: options.filesCreated ?? 0,
+    status: options.status,
   }
+}
 
-  /**
-   * Build an anonymous telemetry payload from a completed generation run.
-   */
-  static build(options: {
-    command: 'generate' | 'mcp' | 'validate' | 'agent'
-    kubbVersion: string
-    plugins?: Array<TelemetryPlugin>
-    hrStart: [number, number]
-    filesCreated?: number
-    status: 'success' | 'failed'
-  }): TelemetryEvent {
-    const [seconds, nanoseconds] = process.hrtime(options.hrStart)
-    const duration = Math.round(seconds * 1000 + nanoseconds / 1e6)
+/**
+ * Convert a {@link TelemetryEvent} into an OTLP-compatible JSON trace payload.
+ *
+ * @see https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/
+ */
+export function buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceRequest {
+  const traceId = randomBytes(16).toString('hex')
+  const spanId = randomBytes(8).toString('hex')
+  const endTimeNs = BigInt(Date.now()) * 1_000_000n
+  const startTimeNs = endTimeNs - BigInt(event.duration) * 1_000_000n
 
-    return {
-      command: options.command,
-      kubbVersion: options.kubbVersion,
-      nodeVersion: process.versions.node.split('.')[0] as string,
-      runtime: runtime.name,
-      runtimeVersion: runtime.version.split('.')[0] as string,
-      platform: os.platform(),
-      ci: isCIEnvironment(),
-      plugins: options.plugins ?? [],
-      duration,
-      filesCreated: options.filesCreated ?? 0,
-      status: options.status,
-    }
-  }
-
-  /**
-   * Convert a {@link TelemetryEvent} into an OTLP-compatible JSON trace payload.
-   *
-   * @see https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/
-   */
-  static buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceRequest {
-    const traceId = randomBytes(16).toString('hex')
-    const spanId = randomBytes(8).toString('hex')
-    const endTimeNs = BigInt(Date.now()) * 1_000_000n
-    const startTimeNs = endTimeNs - BigInt(event.duration) * 1_000_000n
-
-    const attributes: Array<OtlpKeyValue> = [
-      { key: 'kubb.command', value: { stringValue: event.command } },
-      { key: 'kubb.version', value: { stringValue: event.kubbVersion } },
-      { key: 'kubb.node_version', value: { stringValue: event.nodeVersion } },
-      { key: 'kubb.runtime', value: { stringValue: event.runtime } },
-      { key: 'kubb.runtime_version', value: { stringValue: event.runtimeVersion } },
-      { key: 'kubb.platform', value: { stringValue: event.platform } },
-      { key: 'kubb.ci', value: { boolValue: event.ci } },
-      { key: 'kubb.files_created', value: { intValue: event.filesCreated } },
-      { key: 'kubb.status', value: { stringValue: event.status } },
-      {
-        key: 'kubb.plugins',
-        value: {
-          arrayValue: {
-            values: event.plugins.map((p) => ({
-              kvlistValue: {
-                values: [
-                  { key: 'name', value: { stringValue: p.name } },
-                  {
-                    key: 'options',
-                    value: {
-                      stringValue: JSON.stringify({
-                        ...p.options,
-                        usedEnumNames: undefined,
-                      }),
-                    },
-                  },
-                ],
-              },
-            })),
-          },
-        },
-      },
-    ]
-
-    return {
-      resourceSpans: [
-        {
-          resource: {
-            attributes: [
-              { key: 'service.name', value: { stringValue: 'kubb-core' } },
-              {
-                key: 'service.version',
-                value: { stringValue: event.kubbVersion },
-              },
-              { key: 'telemetry.sdk.language', value: { stringValue: 'nodejs' } },
-            ],
-          },
-          scopeSpans: [
-            {
-              scope: { name: 'kubb-core', version: event.kubbVersion },
-              spans: [
+  const attributes: Array<OtlpKeyValue> = [
+    { key: 'kubb.command', value: { stringValue: event.command } },
+    { key: 'kubb.version', value: { stringValue: event.kubbVersion } },
+    { key: 'kubb.node_version', value: { stringValue: event.nodeVersion } },
+    { key: 'kubb.runtime', value: { stringValue: event.runtime } },
+    { key: 'kubb.runtime_version', value: { stringValue: event.runtimeVersion } },
+    { key: 'kubb.platform', value: { stringValue: event.platform } },
+    { key: 'kubb.ci', value: { boolValue: event.ci } },
+    { key: 'kubb.files_created', value: { intValue: event.filesCreated } },
+    { key: 'kubb.status', value: { stringValue: event.status } },
+    {
+      key: 'kubb.plugins',
+      value: {
+        arrayValue: {
+          values: event.plugins.map((p) => ({
+            kvlistValue: {
+              values: [
+                { key: 'name', value: { stringValue: p.name } },
                 {
-                  traceId,
-                  spanId,
-                  name: event.command,
-                  kind: 1,
-                  startTimeUnixNano: String(startTimeNs),
-                  endTimeUnixNano: String(endTimeNs),
-                  attributes,
-                  status: {
-                    code: event.status === 'success' ? 1 : 2,
+                  key: 'options',
+                  value: {
+                    stringValue: JSON.stringify({
+                      ...p.options,
+                      usedEnumNames: undefined,
+                    }),
                   },
                 },
               ],
             },
+          })),
+        },
+      },
+    },
+  ]
+
+  return {
+    resourceSpans: [
+      {
+        resource: {
+          attributes: [
+            { key: 'service.name', value: { stringValue: 'kubb-core' } },
+            {
+              key: 'service.version',
+              value: { stringValue: event.kubbVersion },
+            },
+            { key: 'telemetry.sdk.language', value: { stringValue: 'nodejs' } },
           ],
         },
-      ],
-    }
+        scopeSpans: [
+          {
+            scope: { name: 'kubb-core', version: event.kubbVersion },
+            spans: [
+              {
+                traceId,
+                spanId,
+                name: event.command,
+                kind: 1,
+                startTimeUnixNano: String(startTimeNs),
+                endTimeUnixNano: String(endTimeNs),
+                attributes,
+                status: {
+                  code: event.status === 'success' ? 1 : 2,
+                },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  }
+}
+
+/**
+ * Send an anonymous telemetry event to the Kubb OTLP endpoint. Respects `DO_NOT_TRACK` and
+ * `KUBB_DISABLE_TELEMETRY`, and fails silently so telemetry never interrupts a run. No file
+ * paths, OpenAPI specs, or secrets are sent.
+ */
+export async function sendTelemetry(event: TelemetryEvent): Promise<void> {
+  if (isDisabled()) {
+    return
   }
 
-  /**
-   * Send an anonymous telemetry event to the Kubb OTLP endpoint. Respects `DO_NOT_TRACK` and
-   * `KUBB_DISABLE_TELEMETRY`, and fails silently so telemetry never interrupts a run.
-   */
-  static async send(event: TelemetryEvent): Promise<void> {
-    if (Telemetry.isDisabled) {
-      return
-    }
-
-    try {
-      await fetch(`${OTLP_ENDPOINT}/v1/traces`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Kubb-Telemetry-Version': '1',
-          'Kubb-Telemetry-Source': 'kubb-core',
-        },
-        body: JSON.stringify(Telemetry.buildOtlpPayload(event)),
-        signal: AbortSignal.timeout(5_000),
-      })
-    } catch (_e) {
-      // Fail silently, telemetry must never break the run
-    }
+  try {
+    await fetch(`${OTLP_ENDPOINT}/v1/traces`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Kubb-Telemetry-Version': '1',
+        'Kubb-Telemetry-Source': 'kubb-core',
+      },
+      body: JSON.stringify(buildOtlpPayload(event)),
+      signal: AbortSignal.timeout(5_000),
+    })
+  } catch (_e) {
+    // Fail silently, telemetry must never break the run
   }
 }

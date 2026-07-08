@@ -1,4 +1,21 @@
+import { availablePlugins } from './constants.ts'
 import type { PluginOption } from './types.ts'
+
+/**
+ * Resolves a comma-separated plugin flag (e.g. `--plugins plugin-ts,plugin-zod`) into the
+ * matching known plugin options. Unrecognized names are dropped, and a missing flag yields
+ * an empty list.
+ */
+export function resolvePlugins(pluginsFlag: string | undefined): Array<PluginOption> {
+  if (!pluginsFlag) {
+    return []
+  }
+  const requested = pluginsFlag
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean)
+  return availablePlugins.filter((plugin) => requested.includes(plugin.value))
+}
 
 export function generateConfigFile({
   selectedPlugins,

@@ -4,7 +4,7 @@ import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { formatMsWithColor, getElapsedMs, getIntro } from '@internals/utils'
 import { Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { defineLogger } from './defineLogger.ts'
+import type { Logger } from './defineLogger.ts'
 import {
   buildProgressLine,
   createProgressCounters,
@@ -18,7 +18,7 @@ import {
 /**
  * TTY logger for local development, with spinners and progress bars.
  */
-export const clackLogger = defineLogger({
+export const clackLogger = {
   name: 'clack',
   install(context, options) {
     const logLevel = options?.logLevel ?? logLevelMap.info
@@ -392,4 +392,4 @@ Run \`npm install -g @kubb/cli\` to update`,
       reset()
     })
   },
-})
+} satisfies Logger

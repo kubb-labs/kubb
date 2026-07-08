@@ -33,11 +33,6 @@ export type Storage = {
    * Removes every entry. Pass `base` to scope the wipe to a key prefix.
    */
   clear(base?: string): Promise<void>
-  /**
-   * Optional teardown hook for a backend to flush buffers, close connections,
-   * or release file locks.
-   */
-  dispose?(): Promise<void>
 }
 
 /**

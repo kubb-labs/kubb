@@ -1,16 +1,55 @@
 import { ast, syncSchemaRef } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
+import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { oasDialect, type OasDialect } from './dialect.ts'
 import { parseDocument } from './factory.ts'
-import { createSchemaParser, parseOas, parseSchema } from './parser.ts'
-import type { Document, SchemaObject } from './types.ts'
+import { getOperations } from './operation.ts'
+import { createSchemaParser, type OasParserContext } from './parser.ts'
+import { getSchemas } from './resolvers.ts'
+import type { ContentType, Document, SchemaObject } from './types.ts'
 
 const emptyDocument: Document = {
   openapi: '3.0.0',
   info: { title: '', version: '' },
   paths: {},
 } as Document
+
+/**
+ * Parses a single OpenAPI `SchemaObject` into a `SchemaNode`, mirroring the
+ * `createSchemaParser().parseSchema` helper for single-schema test cases.
+ */
+function parseSchema(ctx: OasParserContext, { schema, name }: { schema: SchemaObject; name?: string }, options?: Partial<ast.ParserOptions>): ast.SchemaNode {
+  return createSchemaParser(ctx).parseSchema({ schema, name }, options)
+}
+
+/**
+ * Parses a full OpenAPI document into Kubb's universal `InputNode` AST, mirroring
+ * `parseInput()` in `adapter.ts` for whole-spec test cases.
+ */
+function parseOas(
+  document: Document,
+  options: Partial<ast.ParserOptions> & { contentType?: ContentType } = {},
+): { root: ast.InputNode; nameMapping: Map<string, string> } {
+  const { contentType, ...parserOptions } = options
+  const mergedOptions: ast.ParserOptions = {
+    ...DEFAULT_PARSER_OPTIONS,
+    ...parserOptions,
+  }
+
+  const { schemas: schemaObjects, nameMapping } = getSchemas(document, { contentType })
+  const { parseSchema: _parseSchema, parseOperation: _parseOperation } = createSchemaParser({ document, contentType })
+
+  const schemas: Array<ast.SchemaNode> = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, mergedOptions))
+
+  const operations: Array<ast.OperationNode> = getOperations(document)
+    .map((operation) => _parseOperation(mergedOptions, operation))
+    .filter((op): op is ast.OperationNode => op !== null)
+
+  const root = ast.factory.createInput({ schemas, operations })
+
+  return { root, nameMapping }
+}
 
 describe('buildAst', () => {
   it('returns an InputNode', async () => {

@@ -277,9 +277,6 @@ importers:
       '@tmcp/transport-stdio':
         specifier: ^0.4.3
         version: 0.4.3(tmcp@1.19.4(typescript@6.0.3))
-      jiti:
-        specifier: ^2.7.0
-        version: 2.7.0
       tmcp:
         specifier: ^1.19.4
         version: 1.19.4(typescript@6.0.3)

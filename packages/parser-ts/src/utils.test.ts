@@ -17,22 +17,7 @@ import {
   printSource,
   printType,
   resolveOutputPath,
-  slash,
 } from './utils.ts'
-
-describe('slash', () => {
-  it('converts backslashes to forward slashes', () => {
-    expect(slash('foo\\bar\\baz')).toBe('foo/bar/baz')
-  })
-
-  it('leaves forward-slash paths unchanged', () => {
-    expect(slash('foo/bar/baz')).toBe('foo/bar/baz')
-  })
-
-  it('strips a leading ../ segment', () => {
-    expect(slash('../foo/bar')).toBe('foo/bar')
-  })
-})
 
 describe('getRelativePath', () => {
   it('returns a ./ prefixed path for a file inside the root', () => {

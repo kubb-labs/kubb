@@ -1,6 +1,6 @@
 import { styleText } from 'node:util'
 import { cli } from 'gunshi'
-import { Telemetry } from './Telemetry.ts'
+import { isDisabled as isTelemetryDisabled } from './Telemetry.ts'
 import { version } from '../package.json'
 import { QUIET_FLAGS } from './constants.ts'
 
@@ -22,7 +22,7 @@ function stripExecArgs(argv: Array<string>): Array<string> {
 export async function run(argv: Array<string> = process.argv): Promise<void> {
   const isQuietFlag = argv.some((arg) => QUIET_FLAGS.has(arg))
 
-  if (!Telemetry.isDisabled && !isQuietFlag) {
+  if (!isTelemetryDisabled() && !isQuietFlag) {
     console.log(
       `${styleText('yellow', 'Notice:')} Kubb collects anonymous telemetry data to help improve the tool. No personal data or file contents are collected. \nTo disable, set ${styleText('cyan', 'KUBB_DISABLE_TELEMETRY=1')}.\n`,
     )

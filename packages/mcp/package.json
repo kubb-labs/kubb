@@ -61,7 +61,6 @@
     "@kubb/core": "workspace:*",
     "@tmcp/adapter-valibot": "^0.1.6",
     "@tmcp/transport-stdio": "^0.4.3",
-    "jiti": "^2.7.0",
     "tmcp": "^1.19.4",
     "valibot": "^1.4.2"
   },

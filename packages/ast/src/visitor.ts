@@ -1,5 +1,5 @@
 import type { VisitorDepth } from './constants.ts'
-import { visitorDepths, WALK_CONCURRENCY } from './constants.ts'
+import { visitorDepths } from './constants.ts'
 import type { NodeDef } from './defineNode.ts'
 import type {
   ContentNode,
@@ -31,48 +31,6 @@ const VISITOR_KEYS = Object.fromEntries(nodeDefs.flatMap((def) => (def.children 
 const VISITOR_KEY_BY_KIND = Object.fromEntries(nodeDefs.flatMap((def) => (def.visitorKey ? [[def.kind, def.visitorKey] as const] : []))) as Partial<
   Record<NodeKind, NonNullable<NodeDef['visitorKey']>>
 >
-
-/**
- * Creates a small async concurrency limiter.
- *
- * At most `concurrency` tasks are in flight at once. Extra tasks are queued.
- *
- * @example
- * ```ts
- * const limit = createLimit(2)
- * for (const task of [taskA, taskB, taskC]) {
- *   await limit(() => task())
- * }
- * // only 2 tasks run at the same time
- * ```
- */
-function createLimit(concurrency: number) {
-  let active = 0
-  const queue: Array<() => void> = []
-
-  function next() {
-    if (active < concurrency && queue.length > 0) {
-      active++
-      queue.shift()!()
-    }
-  }
-
-  return function limit<T>(fn: () => Promise<T> | T): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
-      queue.push(() => {
-        Promise.resolve(fn())
-          .then(resolve, reject)
-          .finally(() => {
-            active--
-            next()
-          })
-      })
-      next()
-    })
-  }
-}
-
-type LimitFn = ReturnType<typeof createLimit>
 
 /**
  * Ordered mapping of `[NodeType, ParentType]` pairs.
@@ -181,33 +139,6 @@ export type Visitor = {
 }
 
 /**
- * A visitor callback result that may be sync or async.
- */
-type MaybePromise<T> = T | Promise<T>
-
-/**
- * Async visitor for `walk`. Synchronous `Visitor` objects are compatible.
- *
- * @example
- * ```ts
- * const visitor: AsyncVisitor = {
- *   async operation(node) {
- *     await Promise.resolve(node.operationId)
- *   },
- * }
- * ```
- */
-type AsyncVisitor = {
-  input?(node: InputNode, context: VisitorContext<InputNode>): MaybePromise<undefined | null | InputNode>
-  output?(node: OutputNode, context: VisitorContext<OutputNode>): MaybePromise<undefined | null | OutputNode>
-  operation?(node: OperationNode, context: VisitorContext<OperationNode>): MaybePromise<undefined | null | OperationNode>
-  schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): MaybePromise<undefined | null | SchemaNode>
-  property?(node: PropertyNode, context: VisitorContext<PropertyNode>): MaybePromise<undefined | null | PropertyNode>
-  parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): MaybePromise<undefined | null | ParameterNode>
-  response?(node: ResponseNode, context: VisitorContext<ResponseNode>): MaybePromise<undefined | null | ResponseNode>
-}
-
-/**
  * Visitor used by `collect`.
  *
  * @example
@@ -253,27 +184,6 @@ export type TransformOptions = Visitor & {
    * Internal parent override used during recursion.
    */
   parent?: Node
-}
-
-/**
- * Options for `walk`.
- *
- * @example
- * ```ts
- * const options: WalkOptions = { depth: 'deep', concurrency: 10, root: () => {} }
- * ```
- */
-export type WalkOptions = AsyncVisitor & {
-  /**
-   * Traversal depth.
-   * @default 'deep'
-   */
-  depth?: VisitorDepth
-  /**
-   * Maximum number of sibling nodes visited concurrently.
-   * @default 30
-   */
-  concurrency?: number
 }
 
 /**
@@ -338,63 +248,17 @@ function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undef
  * context. The result is a replacement node, a collected value, or `undefined`
  * when no callback is registered for the kind.
  *
- * Shared by `walk`, `transform`, and `collectLazy` so node-kind dispatch lives
- * in one place. `TResult` is the caller's expected return: the same node type
- * for `transform`, the collected value type for `collectLazy`, ignored for `walk`.
+ * Shared by `transform` and `collectLazy` so node-kind dispatch lives in one place.
+ * `TResult` is the caller's expected return: the same node type for `transform`,
+ * the collected value type for `collectLazy`.
  */
-function applyVisitor<TResult>(node: Node, visitor: Visitor | AsyncVisitor | CollectVisitor<unknown>, parent: Node | undefined): TResult | null | undefined {
+function applyVisitor<TResult>(node: Node, visitor: Visitor | CollectVisitor<unknown>, parent: Node | undefined): TResult | null | undefined {
   const key = VISITOR_KEY_BY_KIND[node.kind]
   if (!key) return undefined
 
   const fn = visitor[key] as ((node: Node, context: VisitorContext) => TResult | null | undefined) | undefined
 
   return fn?.(node, { parent })
-}
-
-/**
- * Async depth-first traversal for side effects. Visitor return values are
- * ignored. Use `transform` when you want to rewrite nodes.
- *
- * Sibling nodes at each depth run concurrently up to `options.concurrency`
- * (defaults to `WALK_CONCURRENCY`). Higher values overlap I/O-bound visitor
- * work. Lower values reduce memory pressure.
- *
- * @example Log every operation
- * ```ts
- * await walk(root, {
- *   operation(node) {
- *     console.log(node.operationId)
- *   },
- * })
- * ```
- *
- * @example Only visit the root node
- * ```ts
- * await walk(root, { depth: 'shallow', input: () => {} })
- * ```
- */
-export async function walk(node: Node, options: WalkOptions): Promise<void> {
-  const recurse = (options.depth ?? visitorDepths.deep) === visitorDepths.deep
-  const limit = createLimit(options.concurrency ?? WALK_CONCURRENCY)
-
-  return _walk(node, options, recurse, limit, undefined)
-}
-
-async function _walk(node: Node, visitor: AsyncVisitor, recurse: boolean, limit: LimitFn, parent: Node | undefined): Promise<void> {
-  await limit(() => applyVisitor(node, visitor, parent))
-
-  // Visit siblings concurrently and let the shared `limit` cap how many callbacks
-  // run at once. Awaiting each child sequentially here would serialize the whole
-  // traversal and make `concurrency` inert. Every visitor callback would run one
-  // at a time regardless of the limit.
-  // Build the child-walk promises in one pass. The earlier `Array.from(getChildren()).map()`
-  // materialized two arrays per node (the children, then the promises). Collecting straight from
-  // the generator into a single array drops one of them.
-  let pending: Array<Promise<void>> | undefined
-  for (const child of getChildren(node, recurse)) {
-    ;(pending ??= []).push(_walk(child, visitor, recurse, limit, node))
-  }
-  if (pending) await Promise.all(pending)
 }
 
 /**

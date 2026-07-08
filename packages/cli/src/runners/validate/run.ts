@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { getErrorMessage } from '@internals/utils'
-import { Telemetry } from '../../Telemetry.ts'
+import { toError } from '@internals/utils'
+import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 
 type ValidateOptions = {
   /**
@@ -20,7 +20,7 @@ type ValidateOptions = {
  */
 export async function run({ input, version }: ValidateOptions): Promise<void> {
   const hrStart = process.hrtime()
-  const report = (status: 'success' | 'failed') => Telemetry.send(Telemetry.build({ command: 'validate', kubbVersion: version, hrStart, status }))
+  const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'validate', kubbVersion: version, hrStart, status }))
 
   try {
     const { adapterOas } = await import('@kubb/adapter-oas')
@@ -46,7 +46,7 @@ export async function run({ input, version }: ValidateOptions): Promise<void> {
       console.error('')
     }
     console.error('❌ Validation failed')
-    console.error(getErrorMessage(error))
+    console.error(toError(error).message)
 
     process.exit(1)
   }

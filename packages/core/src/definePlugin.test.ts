@@ -52,7 +52,6 @@ function createSetupCtxStub(config: Config): KubbPluginSetupContext {
     setRenderer: () => {},
     setOptions: () => {},
     injectFile: () => {},
-    updateConfig: () => {},
     options: {},
   } as unknown as KubbPluginSetupContext
 }
