@@ -238,13 +238,6 @@ export type ResolverPatch<T extends Resolver = Resolver> = Partial<Omit<T, keyof
   file?: ResolverFile
 } & ThisType<T>
 
-/**
- * What a plugin's `resolver` override accepts: the partial params you would pass to
- * `createResolver` (`ResolverPatch`), or a resolver already built with `createResolver`. Either
- * form merges over the plugin's defaults through `Resolver.merge`.
- */
-export type ResolverOverride<T extends Resolver = Resolver> = ResolverPatch<T> | T
-
 function isNamespace(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
