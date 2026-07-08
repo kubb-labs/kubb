@@ -1,5 +1,5 @@
 import type { PluginFactoryOptions } from './definePlugin.ts'
-import { Resolver, type ResolverBuildOptions } from './Resolver.ts'
+import { Resolver, type ResolverBuildOptions, type ResolverFile } from './Resolver.ts'
 
 /**
  * The plugin-specific resolver fields handed to `createResolver`. `name` and `file` fall
@@ -9,7 +9,7 @@ import { Resolver, type ResolverBuildOptions } from './Resolver.ts'
 type ResolverOptions<T extends PluginFactoryOptions> = Omit<T['resolver'], keyof Resolver> & {
   pluginName: T['name']
   name?: T['resolver']['name']
-  file?: T['resolver']['file']
+  file?: ResolverFile
 } & ThisType<T['resolver']>
 
 /**
@@ -19,15 +19,39 @@ type ResolverOptions<T extends PluginFactoryOptions> = Omit<T['resolver'], keyof
  * (`query`, `schema`, …). Every method reaches sibling helpers and the built-in machinery
  * through `this.name`, `this.file`, and `this.default`.
  *
- * @example Custom identifier and file casing
+ * @example Custom identifier casing
  * ```ts
  * export const resolverTs = createResolver<PluginTs>({
  *   pluginName: 'plugin-ts',
  *   name(name) {
  *     return ensureValidVarName(pascalCase(name))
  *   },
- *   file(params, context) {
- *     return this.default.file({ ...params, resolveName: (name) => toFilePath(name, pascalCase) }, context)
+ * })
+ * ```
+ *
+ * @example Rename generated files with `file.baseName`
+ * ```ts
+ * export const resolverFaker = createResolver<PluginFaker>({
+ *   pluginName: 'plugin-faker',
+ *   name(name) {
+ *     return camelCase(name, { prefix: 'create' })
+ *   },
+ *   file: {
+ *     baseName({ name, extname }) {
+ *       return `${camelCase(name, { prefix: 'create' })}${extname}`
+ *     },
+ *   },
+ * })
+ * ```
+ *
+ * @example Own the full path with `file.path`
+ * ```ts
+ * export const resolverFaker = createResolver<PluginFaker>({
+ *   pluginName: 'plugin-faker',
+ *   file: {
+ *     path({ baseName, output }) {
+ *       return `${output.path}/mocks/${baseName}`
+ *     },
  *   },
  * })
  * ```

@@ -3,7 +3,7 @@ import { ast, type InputMeta } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
-import type { Config, ResolverContext } from './types.ts'
+import type { Config } from './types.ts'
 
 type TestResolver = Resolver & {
   greet(name: string): string
@@ -19,9 +19,9 @@ type TestPluginFactory = {
 
 const baseResolver = new Resolver({ pluginName: 'test' })
 
-const context: ResolverContext = {
+const context = {
   root: '/root',
-  output: { path: 'types' },
+  output: { path: 'types' as const },
   group: undefined,
 }
 
@@ -87,18 +87,123 @@ describe('createResolver', () => {
     expect(resolver.schema.typeName('list pets')).toBe('listPetsSchemaType')
   })
 
-  it('a file override threads a custom caser through default.file', () => {
+  it('a file renames the base name via file.baseName', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
-      file(params, ctx) {
-        return this.default.file({ ...params, resolveName: (name) => `${name.toLowerCase()}.gen` }, ctx)
+      file: {
+        baseName({ name, extname }) {
+          return `${name.toLowerCase()}.gen${extname}`
+        },
       },
       greet: (name: string) => name,
       farewell: (name: string) => name,
     })
 
-    const file = resolver.file({ name: 'Pet', extname: '.ts' }, context)
+    const file = resolver.file({ name: 'Pet', extname: '.ts', ...context })
     expect(file.baseName).toBe('pet.gen.ts')
+  })
+
+  it('a file reaches sibling helpers through `this`', () => {
+    const resolver = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      name(name) {
+        return name.toUpperCase()
+      },
+      file: {
+        baseName({ name, extname }) {
+          return `${this.name(name)}.schema${extname}`
+        },
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+
+    expect(resolver.file({ name: 'pet', extname: '.ts', ...context }).baseName).toBe('PET.schema.ts')
+  })
+
+  it('Resolver.merge accepts a file patch', () => {
+    const base = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+
+    const merged = Resolver.merge(base, {
+      file: {
+        baseName({ name, extname }) {
+          return `${name}.mock${extname}`
+        },
+      },
+    })
+
+    expect(merged.file({ name: 'pet', extname: '.ts', ...context }).baseName).toBe('pet.mock.ts')
+  })
+
+  it('a file.path owns the whole path, resolved against root and bypassing output.path', () => {
+    const resolver = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      file: {
+        path({ baseName }) {
+          return `mocks/${baseName}`
+        },
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+
+    const file = resolver.file({ name: 'pet', extname: '.ts', ...context })
+    expect(file.path).toBe('/root/mocks/pet.ts')
+    expect(file.baseName).toBe('pet.ts')
+  })
+
+  it('a file.path reaches the resolver through `this`', () => {
+    const resolver = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      file: {
+        path({ baseName, output }) {
+          return `${output.path}/${this.pluginName}/${baseName}`
+        },
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+
+    expect(resolver.file({ name: 'pet', extname: '.ts', ...context }).path).toBe('/root/types/test/pet.ts')
+  })
+
+  it('file.path receives the base name from file.baseName', () => {
+    const resolver = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      file: {
+        baseName({ name, extname }) {
+          return `${name}.gen${extname}`
+        },
+        path({ baseName }) {
+          return `custom/${baseName}`
+        },
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+
+    const file = resolver.file({ name: 'pet', extname: '.ts', ...context })
+    expect(file.path).toBe('/root/custom/pet.gen.ts')
+    expect(file.baseName).toBe('pet.gen.ts')
+  })
+
+  it('a file.path that escapes the project root throws', () => {
+    const resolver = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      file: {
+        path() {
+          return '../outside/pet.ts'
+        },
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+
+    expect(() => resolver.file({ name: 'pet', extname: '.ts', ...context })).toThrow('outside the project root')
   })
 
   it('resolveOptions does not throw when options is not an object', () => {
@@ -142,6 +247,39 @@ describe('createResolver', () => {
     expect(merged.schema.label('pets')).toBe('base:PETS')
   })
 
+  it('Resolver.merge() overrides one namespace method and keeps the siblings', () => {
+    type QueryResolver = Resolver & {
+      query: {
+        name(node: { operationId: string }): string
+        keyName(node: { operationId: string }): string
+      }
+    }
+    type QueryFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: QueryResolver }
+
+    const base = createResolver<QueryFactory>({
+      pluginName: 'test',
+      query: {
+        name(node) {
+          return this.name(node.operationId)
+        },
+        keyName(node) {
+          return `${this.name(node.operationId)}Key`
+        },
+      },
+    })
+
+    const merged = Resolver.merge(base, {
+      query: {
+        name(node) {
+          return `use_${this.name(node.operationId)}`
+        },
+      },
+    })
+
+    expect(merged.query.name({ operationId: 'get pet' })).toBe('use_getPet')
+    expect(merged.query.keyName({ operationId: 'get pet' })).toBe('getPetKey')
+  })
+
   it('supports top-level helpers like typeName', () => {
     type TypeResolver = Resolver & { typeName(name: string): string }
     type TypeFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: TypeResolver }
@@ -159,88 +297,83 @@ describe('createResolver', () => {
 
 describe('default.path', () => {
   it('resolves flat path (directory mode)', () => {
-    const result = baseResolver.default.path({ baseName: 'petTypes.ts' }, { root: '/root', output: { path: 'types' }, group: undefined })
+    const result = baseResolver.default.path({ baseName: 'petTypes.ts', root: '/root', output: { path: 'types' }, group: undefined })
 
     expect(result).toBe('/root/types/petTypes.ts')
   })
 
   it('returns the output file as-is in file mode', () => {
-    const result = baseResolver.default.path({ baseName: 'petTypes.ts' }, { root: '/root', output: { path: 'types.ts', mode: 'file' }, group: undefined })
+    const result = baseResolver.default.path({ baseName: 'petTypes.ts', root: '/root', output: { path: 'types.ts', mode: 'file' }, group: undefined })
 
     expect(result).toBe('/root/types.ts')
   })
 
   it('groups by tag using the plain camelCased tag by default', () => {
-    const result = baseResolver.default.path(
-      { baseName: 'petTypes.ts', tag: 'pet store' },
-      {
-        root: '/root',
-        output: { path: 'types' },
-        group: { type: 'tag' },
-      },
-    )
+    const result = baseResolver.default.path({
+      baseName: 'petTypes.ts',
+      tag: 'pet store',
+      root: '/root',
+      output: { path: 'types' },
+      group: { type: 'tag' },
+    })
 
     expect(result).toBe('/root/types/petStore/petTypes.ts')
   })
 
   it('groups by path when group.type is path', () => {
-    const result = baseResolver.default.path(
-      { baseName: 'petTypes.ts', path: '/pets/list' },
-      {
-        root: '/root',
-        output: { path: 'types' },
-        group: {
-          type: 'path',
-          name: (ctx: { group: string }) => {
-            return `${camelCase(ctx.group)}Controller`
-          },
+    const result = baseResolver.default.path({
+      baseName: 'petTypes.ts',
+      path: '/pets/list',
+      root: '/root',
+      output: { path: 'types' },
+      group: {
+        type: 'path',
+        name: (ctx: { group: string }) => {
+          return `${camelCase(ctx.group)}Controller`
         },
       },
-    )
+    })
 
     expect(result).toBe('/root/types/petsListController/petTypes.ts')
   })
 
   it('uses custom group.name when provided', () => {
-    const result = baseResolver.default.path(
-      { baseName: 'petTypes.ts', tag: 'pets' },
-      {
-        root: '/root',
-        output: { path: 'types' },
-        group: { type: 'tag', name: ({ group }) => `custom_${group}` },
-      },
-    )
+    const result = baseResolver.default.path({
+      baseName: 'petTypes.ts',
+      tag: 'pets',
+      root: '/root',
+      output: { path: 'types' },
+      group: { type: 'tag', name: ({ group }) => `custom_${group}` },
+    })
 
     expect(result).toBe('/root/types/custom_pets/petTypes.ts')
   })
 
   it('falls back to flat path when group present but no tag or path given', () => {
-    const result = baseResolver.default.path(
-      { baseName: 'petTypes.ts', tag: 'pets' },
-      {
-        root: '/root',
-        output: { path: 'types' },
-        group: {
-          type: 'tag',
-          name: (ctx: { group: string }) => {
-            return `${camelCase(ctx.group)}Controller`
-          },
+    const result = baseResolver.default.path({
+      baseName: 'petTypes.ts',
+      tag: 'pets',
+      root: '/root',
+      output: { path: 'types' },
+      group: {
+        type: 'tag',
+        name: (ctx: { group: string }) => {
+          return `${camelCase(ctx.group)}Controller`
         },
       },
-    )
+    })
 
     expect(result).toBe('/root/types/petsController/petTypes.ts')
   })
 
   it('sanitizes traversal segments in default path-based grouping', () => {
-    const result = baseResolver.default.path(
-      { baseName: 'petTypes.ts', path: '../../etc/passwd' },
-      {
-        root: '/root',
-        output: { path: 'types' },
-        group: { type: 'path' },
-      },
-    )
+    const result = baseResolver.default.path({
+      baseName: 'petTypes.ts',
+      path: '../../etc/passwd',
+      root: '/root',
+      output: { path: 'types' },
+      group: { type: 'path' },
+    })
 
     // Traversal components (..) are stripped; first valid segment ('etc') is used as the directory
     expect(result).toBe('/root/types/etc/petTypes.ts')
@@ -251,19 +384,18 @@ describe('default.path', () => {
 
   it('throws when a custom group.name returns a path outside the output directory', () => {
     expect(() =>
-      baseResolver.default.path(
-        { baseName: 'petTypes.ts', path: '/pets' },
-        {
-          root: '/root',
-          output: { path: 'types' },
-          group: { type: 'path', name: () => '../../secrets' },
-        },
-      ),
+      baseResolver.default.path({
+        baseName: 'petTypes.ts',
+        path: '/pets',
+        root: '/root',
+        output: { path: 'types' },
+        group: { type: 'path', name: () => '../../secrets' },
+      }),
     ).toThrow('outside the output directory')
   })
 
   it('throws when baseName contains a traversal sequence', () => {
-    expect(() => baseResolver.default.path({ baseName: '../../etc/passwd' }, { root: '/root', output: { path: 'types' }, group: undefined })).toThrow(
+    expect(() => baseResolver.default.path({ baseName: '../../etc/passwd', root: '/root', output: { path: 'types' }, group: undefined })).toThrow(
       'outside the output directory',
     )
   })
@@ -277,7 +409,7 @@ describe('default.file', () => {
   })
 
   it('resolves a file with correct baseName and path', () => {
-    const file = resolver.default.file({ name: 'pet', extname: '.ts' }, context)
+    const file = resolver.default.file({ name: 'pet', extname: '.ts', ...context })
 
     expect(file.baseName).toBe('pet.ts')
     expect(file.path).toBe('/root/types/pet.ts')
@@ -287,7 +419,7 @@ describe('default.file', () => {
   })
 
   it('uses the default toFilePath casing for the file name', () => {
-    const file = resolver.default.file({ name: 'list pets', extname: '.ts' }, context)
+    const file = resolver.default.file({ name: 'list pets', extname: '.ts', ...context })
 
     expect(file.baseName).toBe('listPets.ts')
   })
@@ -301,37 +433,36 @@ describe('default.file', () => {
     // leading dots must not escape the output directory
     ['..Schema', '/root/types/schema.ts'],
   ])('nests dotted file name %s into %s', (name, expected) => {
-    const file = resolver.default.file({ name, extname: '.ts' }, context)
+    const file = resolver.default.file({ name, extname: '.ts', ...context })
 
     expect(file.path).toBe(expected)
   })
 
   it('omits the file name and writes to the output file in file mode', () => {
-    const file = resolver.default.file(
-      { name: 'pet', extname: '.ts' },
-      {
-        ...context,
-        output: {
-          ...context.output,
-          path: 'types.ts' as const,
-          mode: 'file' as const,
-        },
+    const file = resolver.default.file({
+      name: 'pet',
+      extname: '.ts',
+      ...context,
+      output: {
+        ...context.output,
+        path: 'types.ts' as const,
+        mode: 'file' as const,
       },
-    )
+    })
 
     expect(file.path).toBe('/root/types.ts')
     expect(file.baseName).toBe('types.ts')
   })
 
   it('groups by tag when resolver is tag-grouped', () => {
-    const file = resolver.default.file(
-      { name: 'pet', extname: '.ts', tag: 'pets' },
-      {
-        root: '/root',
-        output: { path: 'types' },
-        group: { type: 'tag' },
-      },
-    )
+    const file = resolver.default.file({
+      name: 'pet',
+      extname: '.ts',
+      tag: 'pets',
+      root: '/root',
+      output: { path: 'types' },
+      group: { type: 'tag' },
+    })
 
     expect(file.path).toBe('/root/types/pets/pet.ts')
   })

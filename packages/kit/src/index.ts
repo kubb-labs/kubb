@@ -33,8 +33,11 @@ export type {
   PluginFactoryOptions,
   Renderer,
   RendererFactory,
-  ResolverContext,
+  ResolveFileOptions,
+  ResolvePathOptions,
+  ResolverFile,
   ResolverFileParams,
+  ResolverFilePathParams,
   ResolverPatch,
   Storage,
 } from '@kubb/core'

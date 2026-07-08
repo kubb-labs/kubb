@@ -28,24 +28,15 @@ export type ResolverDefault = {
    */
   name(name: string): string
   options<TOptions>(node: Node, context: ResolveOptionsContext<TOptions>): TOptions | null
-  path(params: ResolverPathParams, context: ResolverContext): string
-  file(params: ResolverFileParams, context: ResolverContext): FileNode
+  path(options: ResolvePathOptions): string
+  file(options: ResolveFileOptions): FileNode
   banner(meta: InputMeta | undefined, context: ResolveBannerContext): string | null
   footer(meta: InputMeta | undefined, context: ResolveBannerContext): string | null
 }
 
 /**
- * File-specific parameters for `resolver.default.path`.
- * Provide `tag` for tag-based grouping or `path` for path-based grouping.
- *
- * @example
- * ```ts
- * resolver.default.path(
- *   { baseName: 'petTypes.ts', tag: 'pets' },
- *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
- * )
- * // → '/src/types/pets/petTypes.ts'
- * ```
+ * The name request for `resolver.default.path`: a `baseName` plus the optional `tag`/`path` that
+ * grouping keys off.
  */
 export type ResolverPathParams = {
   baseName: FileNode['baseName']
@@ -60,28 +51,33 @@ export type ResolverPathParams = {
 }
 
 /**
- * Shared context passed as the second argument to `resolver.default.path` and
- * `resolver.default.file`: where output is rooted, which output config is active,
- * and the optional grouping strategy.
+ * Options for `resolver.default.path`: the name request (`baseName`, `tag`, `path`) plus where the
+ * output goes (`root`, `output`, `group`).
+ *
+ * @example
+ * ```ts
+ * resolver.default.path({ baseName: 'petTypes.ts', tag: 'pets', root: '/src', output: { path: 'types' }, group: { type: 'tag' } })
+ * // → '/src/types/pets/petTypes.ts'
+ * ```
  */
-export type ResolverContext = {
+export type ResolvePathOptions = ResolverPathParams & {
+  /**
+   * Absolute project root that the output path is resolved against.
+   */
   root: string
+  /**
+   * Active output config; `output.path` is the base directory.
+   */
   output: Output
+  /**
+   * Optional grouping strategy applied to `tag` (tag grouping) or `path` (path grouping).
+   */
   group?: Group
 }
 
 /**
- * File-specific parameters for `resolver.default.file`.
- * `tag` and `path` are used only when a matching `group` is present in the context.
- *
- * @example
- * ```ts
- * resolver.default.file(
- *   { name: 'listPets', extname: '.ts', tag: 'pets' },
- *   { root: '/src', output: { path: 'types' }, group: { type: 'tag' } },
- * )
- * // → { baseName: 'listPets.ts', path: '/src/types/pets/listPets.ts', ... }
- * ```
+ * The file request for `resolver.file` and `resolver.default.file`: the `name` and `extname` plus
+ * the optional `tag`/`path` that grouping keys off.
  */
 export type ResolverFileParams = {
   name: string
@@ -94,13 +90,71 @@ export type ResolverFileParams = {
    * Path value used when `group.type === 'path'`.
    */
   path?: string
+}
+
+/**
+ * Options for `resolver.file` and `resolver.default.file`: the file request (`name`, `extname`,
+ * `tag`, `path`) plus where the output goes (`root`, `output`, `group`).
+ *
+ * @example
+ * ```ts
+ * resolver.default.file({ name: 'listPets', extname: '.ts', tag: 'pets', root: '/src', output: { path: 'types' }, group: { type: 'tag' } })
+ * // → { baseName: 'listPets.ts', path: '/src/types/pets/listPets.ts', ... }
+ * ```
+ */
+export type ResolveFileOptions = ResolverFileParams & {
+  root: string
+  output: Output
+  group?: Group
+}
+
+/**
+ * The `file` field of a resolver: decides what a generated file is called and, optionally, where
+ * it lives. This is how a resolver renames or relocates its files, replacing the older per-call
+ * `resolveName` hook.
+ *
+ * @example Suffix every generated file
+ * ```ts
+ * file: {
+ *   baseName({ name, extname }) {
+ *     return `${name}Faker${extname}`
+ *   },
+ * }
+ * ```
+ *
+ * @example Own the full path
+ * ```ts
+ * file: {
+ *   path({ baseName, output }) {
+ *     return `${output.path}/mocks/${baseName}`
+ *   },
+ * }
+ * ```
+ */
+export type ResolverFile = {
   /**
-   * Casing applied to `name` to build the file base name. A plugin's `file` override
-   * threads its own caser here to change file naming without reimplementing the builder.
-   *
-   * @default toFilePath
+   * Builds the file's complete base name, extension included, from the identifier and the target
+   * `extname`. Defaults to `toFilePath(name)` with `extname` appended. Reaches sibling resolver
+   * helpers through `this`.
    */
-  resolveName?: (name: string) => string
+  baseName?(params: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName']
+  /**
+   * Returns the file's complete path, resolved against the project `root`. Bypasses `output.path`
+   * and `group`, so the resolver owns the layout. The returned path may not escape `root`. Reaches
+   * sibling resolver helpers through `this`.
+   */
+  path?(params: ResolverFilePathParams): string
+}
+
+/**
+ * The argument to a resolver's `file.path`: the resolved `baseName` (what `file.baseName` produced,
+ * with the extension already appended) and the active `output`. `tag`, `path`, and `group` are
+ * omitted because `file.path` owns the whole path and bypasses grouping, and `root` because the
+ * returned path is resolved against it.
+ */
+export type ResolverFilePathParams = {
+  baseName: FileNode['baseName']
+  output: Output
 }
 
 /**
@@ -170,22 +224,33 @@ export type ResolveBannerContext = {
 export type ResolverBuildOptions = {
   pluginName: string
   name?: (name: string) => string
-  file?: (params: ResolverFileParams, context: ResolverContext) => FileNode
+  file?: ResolverFile
   [key: string]: unknown
 }
 
 /**
  * Partial resolver fields accepted by `Resolver.merge` and `setResolver`. Parameterize with a
- * concrete resolver type (e.g. `ResolverPatch<ResolverTs>`) to type-check namespace overrides
- * and bind `this` to the full resolver. The bare form accepts any resolver's fields.
+ * concrete resolver type (e.g. `ResolverPatch<ResolverTs>`) to type-check overrides and bind
+ * `this` to the full resolver. Namespaces are partial, so a patch may override a single method
+ * (`query.name`) and the rest keep the plugin defaults. Overriding a whole resolver is not the
+ * job of this patch, that is what a custom plugin is for.
  */
-export type ResolverPatch<T extends Resolver = Resolver> = Partial<Omit<T, keyof Resolver>> & {
+export type ResolverPatch<T extends Resolver = Resolver> = {
+  [K in keyof Omit<T, keyof Resolver>]?: T[K] extends (...args: Array<never>) => unknown ? T[K] : Partial<T[K]>
+} & {
   name?: T['name']
-  file?: T['file']
+  file?: ResolverFile
 } & ThisType<T>
 
 function isNamespace(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+/**
+ * Built-in `file.baseName`: casts the identifier with `toFilePath` and appends the extension.
+ */
+function toBaseName({ name, extname }: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName'] {
+  return `${toFilePath(name)}${extname}` as FileNode['baseName']
 }
 
 /**
@@ -219,10 +284,18 @@ export class Resolver {
 
   readonly pluginName: string
   #options: ResolverBuildOptions
+  // Base-name builder from `options.file.baseName`, bound to the resolver so it can reach `this`.
+  // Defaults to `toBaseName` when a resolver sets no `file.baseName`.
+  #baseName: (params: Pick<ResolverFileParams, 'name' | 'extname'>) => FileNode['baseName']
+  // Full-path override from `options.file.path`, bound to the resolver. Absent by default, in which
+  // case the built-in `output.path`/`group` layout is used.
+  #filePath: ((params: ResolverFilePathParams) => string) | undefined
 
   constructor(options: ResolverBuildOptions) {
     this.pluginName = options.pluginName
     this.#options = options
+    this.#baseName = options.file?.baseName ? options.file.baseName.bind(this) : toBaseName
+    this.#filePath = options.file?.path ? options.file.path.bind(this) : undefined
     this.#apply(options)
   }
 
@@ -245,17 +318,24 @@ export class Resolver {
     return this.default.name(name)
   }
 
-  file(params: ResolverFileParams, context: ResolverContext): FileNode {
-    return this.default.file(params, context)
+  file(options: ResolveFileOptions): FileNode {
+    return this.#resolveFile(options)
   }
 
   /**
-   * Merges `override` over `base` and returns a new resolver with helpers re-bound.
-   * Each key is replaced wholesale. Used when applying `setResolver` partial overrides.
+   * Merges `override` over `base` and returns a new resolver with helpers re-bound. Top-level
+   * keys replace, and a namespace (or `file`) merges per method, so overriding `query.name`
+   * keeps the base `query.keyName`. Used when applying `setResolver` partial overrides.
    */
   static merge<T extends Resolver>(base: T, override: ResolverPatch<T> | Resolver): T {
     const patch = override instanceof Resolver ? override.#options : override
-    return new Resolver({ ...base.#options, ...patch }) as T
+    const merged: Record<string, unknown> = { ...base.#options }
+    for (const [key, value] of Object.entries(patch)) {
+      if (value === undefined) continue
+      const current = merged[key]
+      merged[key] = isNamespace(value) && isNamespace(current) ? { ...current, ...value } : value
+    }
+    return new Resolver(merged as ResolverBuildOptions) as T
   }
 
   /**
@@ -268,7 +348,9 @@ export class Resolver {
     const bind = (value: unknown) => (typeof value === 'function' ? value.bind(root) : value)
 
     for (const [key, value] of Object.entries(options)) {
-      if (key === 'pluginName' || key === 'default' || value === undefined) continue
+      // `file` drives file naming through `#baseName`, not a top-level method, so it must not be
+      // assigned here (it would shadow the `file` method with a plain `{ name }` object).
+      if (key === 'pluginName' || key === 'default' || key === 'file' || value === undefined) continue
       root[key] = isNamespace(value) ? Object.fromEntries(Object.entries(value).map(([method, member]) => [method, bind(member)])) : bind(value)
     }
   }
@@ -366,7 +448,7 @@ export class Resolver {
    * to `output.path/{baseName}`, or into a subdirectory when `group` and a `tag`/`path` value
    * are provided.
    */
-  #resolvePath({ baseName, tag, path: groupPath }: ResolverPathParams, { root, output, group }: ResolverContext): string {
+  #resolvePath({ baseName, tag, path: groupPath, root, output, group }: ResolvePathOptions): string {
     if (output.mode === 'file') {
       return path.resolve(root, output.path)
     }
@@ -395,13 +477,38 @@ export class Resolver {
   }
 
   /**
-   * Builds a `FileNode` by combining file-name casing (`params.resolveName`) with path
-   * resolution. The resolved file starts with empty `sources`, `imports`, and `exports`,
-   * which consumers populate separately.
+   * Resolves a resolver-supplied full path (`file.path`) against `root`, bypassing `output.path`
+   * and `group`. The path may not escape `root`, which keeps a `file.path` that interpolates
+   * spec-derived values from writing outside the project.
    */
-  #resolveFile({ name, extname, tag, path: groupPath, resolveName = toFilePath }: ResolverFileParams, context: ResolverContext): FileNode {
-    const resolvedName = context.output.mode === 'file' ? '' : resolveName(name)
-    const filePath = this.#resolvePath({ baseName: `${resolvedName}${extname}` as FileNode['baseName'], tag, path: groupPath }, context)
+  #resolveOverridePath(filePath: string, root: string): string {
+    const resolved = path.resolve(root, filePath)
+    const rootWithSep = root.endsWith(path.sep) ? root : `${root}${path.sep}`
+    if (resolved !== root && !resolved.startsWith(rootWithSep)) {
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.pathTraversal,
+        severity: 'error',
+        message: `Resolved path "${resolved}" is outside the project root "${root}".`,
+        help: 'A resolver `file.path` must return a path inside the project root.',
+        location: { kind: 'config' },
+      })
+    }
+
+    return resolved
+  }
+
+  /**
+   * Builds a `FileNode`. When `#filePath` (the resolver's `file.path`) is set it owns the whole
+   * path; otherwise the base name (from `#baseName`, the resolver's `file.baseName` or the
+   * built-in `toBaseName`) is placed by the `output.path`/`group` layout. The resolved file starts
+   * with empty `sources`, `imports`, and `exports`, which consumers populate separately.
+   */
+  #resolveFile(options: ResolveFileOptions): FileNode {
+    const { name, extname, tag, path: groupPath, root, output, group } = options
+    const baseName = this.#baseName({ name, extname })
+    const filePath = this.#filePath
+      ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root)
+      : this.#resolvePath({ baseName, tag, path: groupPath, root, output, group })
 
     return ast.factory.createFile({
       path: filePath,
