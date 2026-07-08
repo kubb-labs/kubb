@@ -319,7 +319,7 @@ export class Resolver {
   }
 
   file(options: ResolveFileOptions): FileNode {
-    return this.#resolveFile(options, this.#baseName, this.#filePath)
+    return this.#resolveFile(options)
   }
 
   /**
@@ -498,20 +498,16 @@ export class Resolver {
   }
 
   /**
-   * Builds a `FileNode`. When `resolvePath` (the resolver's `file.path`) is set it owns the whole
-   * path; otherwise the base name (the resolver's `file.baseName` or the built-in `toBaseName`) is
-   * placed by the `output.path`/`group` layout. The resolved file starts with empty `sources`,
-   * `imports`, and `exports`, which consumers populate separately.
+   * Builds a `FileNode`. When `#filePath` (the resolver's `file.path`) is set it owns the whole
+   * path; otherwise the base name (from `#baseName`, the resolver's `file.baseName` or the
+   * built-in `toBaseName`) is placed by the `output.path`/`group` layout. The resolved file starts
+   * with empty `sources`, `imports`, and `exports`, which consumers populate separately.
    */
-  #resolveFile(
-    options: ResolveFileOptions,
-    resolveBaseName: (params: Pick<ResolverFileParams, 'name' | 'extname'>) => FileNode['baseName'] = toBaseName,
-    resolvePath?: (params: ResolverFilePathParams) => string,
-  ): FileNode {
+  #resolveFile(options: ResolveFileOptions): FileNode {
     const { name, extname, tag, path: groupPath, root, output, group } = options
-    const baseName = resolveBaseName({ name, extname })
-    const filePath = resolvePath
-      ? this.#resolveOverridePath(resolvePath({ baseName, output }), root)
+    const baseName = this.#baseName({ name, extname })
+    const filePath = this.#filePath
+      ? this.#resolveOverridePath(this.#filePath({ baseName, output }), root)
       : this.#resolvePath({ baseName, tag, path: groupPath, root, output, group })
 
     return ast.factory.createFile({
