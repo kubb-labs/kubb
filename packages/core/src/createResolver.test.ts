@@ -247,6 +247,39 @@ describe('createResolver', () => {
     expect(merged.schema.label('pets')).toBe('base:PETS')
   })
 
+  it('Resolver.merge() overrides one namespace method and keeps the siblings', () => {
+    type QueryResolver = Resolver & {
+      query: {
+        name(node: { operationId: string }): string
+        keyName(node: { operationId: string }): string
+      }
+    }
+    type QueryFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: QueryResolver }
+
+    const base = createResolver<QueryFactory>({
+      pluginName: 'test',
+      query: {
+        name(node) {
+          return this.name(node.operationId)
+        },
+        keyName(node) {
+          return `${this.name(node.operationId)}Key`
+        },
+      },
+    })
+
+    const merged = Resolver.merge(base, {
+      query: {
+        name(node) {
+          return `use_${this.name(node.operationId)}`
+        },
+      },
+    })
+
+    expect(merged.query.name({ operationId: 'get pet' })).toBe('use_getPet')
+    expect(merged.query.keyName({ operationId: 'get pet' })).toBe('getPetKey')
+  })
+
   it('supports top-level helpers like typeName', () => {
     type TypeResolver = Resolver & { typeName(name: string): string }
     type TypeFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: TypeResolver }

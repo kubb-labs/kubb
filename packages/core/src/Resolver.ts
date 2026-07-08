@@ -230,10 +230,14 @@ export type ResolverBuildOptions = {
 
 /**
  * Partial resolver fields accepted by `Resolver.merge` and `setResolver`. Parameterize with a
- * concrete resolver type (e.g. `ResolverPatch<ResolverTs>`) to type-check namespace overrides
- * and bind `this` to the full resolver. The bare form accepts any resolver's fields.
+ * concrete resolver type (e.g. `ResolverPatch<ResolverTs>`) to type-check overrides and bind
+ * `this` to the full resolver. Namespaces are partial, so a patch may override a single method
+ * (`query.name`) and the rest keep the plugin defaults. Overriding a whole resolver is not the
+ * job of this patch, that is what a custom plugin is for.
  */
-export type ResolverPatch<T extends Resolver = Resolver> = Partial<Omit<T, keyof Resolver>> & {
+export type ResolverPatch<T extends Resolver = Resolver> = {
+  [K in keyof Omit<T, keyof Resolver>]?: T[K] extends (...args: Array<never>) => unknown ? T[K] : Partial<T[K]>
+} & {
   name?: T['name']
   file?: ResolverFile
 } & ThisType<T>
@@ -319,12 +323,19 @@ export class Resolver {
   }
 
   /**
-   * Merges `override` over `base` and returns a new resolver with helpers re-bound.
-   * Each key is replaced wholesale. Used when applying `setResolver` partial overrides.
+   * Merges `override` over `base` and returns a new resolver with helpers re-bound. Top-level
+   * keys replace, and a namespace (or `file`) merges per method, so overriding `query.name`
+   * keeps the base `query.keyName`. Used when applying `setResolver` partial overrides.
    */
   static merge<T extends Resolver>(base: T, override: ResolverPatch<T> | Resolver): T {
     const patch = override instanceof Resolver ? override.#options : override
-    return new Resolver({ ...base.#options, ...patch }) as T
+    const merged: Record<string, unknown> = { ...base.#options }
+    for (const [key, value] of Object.entries(patch)) {
+      if (value === undefined) continue
+      const current = merged[key]
+      merged[key] = isNamespace(value) && isNamespace(current) ? { ...current, ...value } : value
+    }
+    return new Resolver(merged as ResolverBuildOptions) as T
   }
 
   /**
