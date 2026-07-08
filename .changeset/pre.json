@@ -244,6 +244,7 @@
     "requestbody-content-array",
     "resolver-core-namespace",
     "resolver-file-name-shorthand",
+    "resolver-merge-realm-safe",
     "resolver-partial-namespace-merge",
     "resolver-patch-generic-type",
     "rich-zebras-end",
