@@ -79,7 +79,7 @@ export type Config<TInput = Input> = {
    * set of file extensions, and a fallback parser handles anything else.
    *
    * Already resolved on the `Config` instance (see `UserConfig` for the
-   * optional form that defaults to `[parserTs, parserTsx, parserMd]`).
+   * optional form that defaults to `[parserTs(), parserTsx(), parserMd()]`).
    *
    * @example
    * ```ts
@@ -87,7 +87,7 @@ export type Config<TInput = Input> = {
    * import { parserTs, parserTsx } from '@kubb/parser-ts'
    *
    * export default defineConfig({
-   *   parsers: [parserTs, parserTsx],
+   *   parsers: [parserTs(), parserTsx()],
    * })
    * ```
    */
@@ -163,18 +163,6 @@ export type Config<TInput = Input> = {
      * ```
      */
     lint?: 'auto' | 'eslint' | 'biome' | 'oxlint' | false
-    /**
-     * Rewrite import extensions in generated files, e.g. emit `.js` imports from `.ts` sources for
-     * ESM dual packages. Keys are the source extension, values the output, and `''` drops it.
-     *
-     * @default { '.ts': '.ts' }
-     * @example
-     * ```ts
-     * extension: { '.ts': '.js' }      // generates import './api.js' instead of './api.ts'
-     * extension: { '.ts': '', '.tsx': '.jsx' }
-     * ```
-     */
-    extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
     /**
      * Banner prepended to every generated file. `'simple'` is the basic Kubb notice, `'full'` adds
      * source, title, description, and API version, and `false` omits it.
@@ -298,7 +286,7 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
   root?: string
   /**
    * Custom parsers that convert generated AST nodes to strings (TypeScript, JSON, markdown, etc.).
-   * @default [parserTs, parserTsx, parserMd]  // applied by `defineConfig` from the `kubb` package
+   * @default [parserTs(), parserTsx(), parserMd()]  // applied by `defineConfig` from the `kubb` package
    */
   parsers?: Array<Parser>
   /**

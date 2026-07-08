@@ -1,9 +1,5 @@
 import type { FileNode } from '@kubb/ast'
 
-type PrintOptions = {
-  extname?: FileNode['extname']
-}
-
 /**
  * Converts a resolved {@link FileNode} into the final source string that gets
  * written to disk. Kubb ships with TypeScript and TSX parsers. Add your own
@@ -26,7 +22,7 @@ export type Parser<TMeta extends object = object, TNode = unknown> = {
   /**
    * Serialize the file's AST into source code.
    */
-  parse(file: FileNode<TMeta>, options?: PrintOptions): string
+  parse(file: FileNode<TMeta>): string
   /**
    * Render compiler AST nodes for this parser's language into source text.
    * Plugins call this to format the nodes they assemble before handing them

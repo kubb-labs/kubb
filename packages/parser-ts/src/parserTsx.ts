@@ -1,11 +1,12 @@
 import { defineParser } from '@kubb/core'
 import type * as ts from 'typescript'
-import { parserTs } from './parserTs.ts'
+import { parserTs, type ParserTsOptions } from './parserTs.ts'
 import { print } from './utils.ts'
 
 /**
  * Kubb parser for `.tsx` and `.jsx` files. Delegates to `parserTs` because the
- * TypeScript compiler handles JSX natively via `ScriptKind.TSX`.
+ * TypeScript compiler handles JSX natively via `ScriptKind.TSX`, so it shares the
+ * same `extension` option.
  *
  * Add to the `parsers` array on `defineConfig` when generating components for
  * React (or any framework that emits JSX).
@@ -20,18 +21,22 @@ import { print } from './utils.ts'
  *   input: { path: './petStore.yaml' },
  *   output: { path: './src/gen' },
  *   adapter: adapterOas(),
- *   parsers: [parserTsx],
+ *   parsers: [parserTsx()],
  *   plugins: [],
  * })
  * ```
  */
-export const parserTsx = defineParser({
-  name: 'tsx',
-  extNames: ['.tsx', '.jsx'],
-  print(...nodes: Array<ts.Node>) {
-    return print(...nodes)
-  },
-  parse(file, options = { extname: '.tsx' }) {
-    return parserTs.parse(file, options)
-  },
-})
+export function parserTsx(options: ParserTsOptions = {}) {
+  const parser = parserTs(options)
+
+  return defineParser({
+    name: 'tsx',
+    extNames: ['.tsx', '.jsx'],
+    print(...nodes: Array<ts.Node>) {
+      return print(...nodes)
+    },
+    parse(file) {
+      return parser.parse(file)
+    },
+  })
+}

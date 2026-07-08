@@ -46,16 +46,16 @@ import { parserTs } from '@kubb/parser-ts'
 export default defineConfig({
   input: { path: './petstore.yaml' },
   output: { path: './src/gen' },
-  parsers: [parserTs, parserMd],
+  parsers: [parserTs(), parserMd()],
 })
 ```
 
-To convert a metadata object into a YAML frontmatter envelope from inside a plugin, call `print` on the parser instance:
+To convert a metadata object into a YAML frontmatter envelope from inside a plugin, call `print` on a parser instance:
 
 ```typescript
 import { parserMd } from '@kubb/parser-md'
 
-const source = parserMd.print({ title: 'Pets', layout: 'doc' })
+const source = parserMd().print({ title: 'Pets', layout: 'doc' })
 // → ---
 //   title: Pets
 //   layout: doc
@@ -64,12 +64,11 @@ const source = parserMd.print({ title: 'Pets', layout: 'doc' })
 
 ## API
 
-### `parserMd`
+### `parserMd()`
 
-Parser instance for `.md` and `.markdown` files. Pass to `defineConfig({ parsers: [...] })` to emit Markdown source files.
+Factory returning a parser instance for `.md` and `.markdown` files. Pass to `defineConfig({ parsers: [...] })` to emit Markdown source files.
 
-- `parserMd.parse(file)` — serialize a `FileNode` to Markdown source. When `file.meta.frontmatter` is set, the parser prepends the corresponding YAML envelope.
-- `parserMd.print(...parts)` — join markdown fragments separated by blank lines. Plain objects are serialized as YAML frontmatter; strings pass through unchanged.
+The returned instance exposes `parse(file)` to serialize a `FileNode` to Markdown source (prepending the YAML envelope when `file.meta.frontmatter` is set) and `print(...parts)` to join markdown fragments separated by blank lines, serializing plain objects as YAML frontmatter and passing strings through unchanged.
 
 ## Supporting Kubb
 
