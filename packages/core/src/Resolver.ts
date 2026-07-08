@@ -247,6 +247,14 @@ function isNamespace(value: unknown): value is Record<string, unknown> {
 }
 
 /**
+ * Shared brand for reaching a resolver's build options. `Resolver.merge` reads this instead of
+ * relying on `instanceof`, which fails when a CommonJS config and the ESM CLI each load their own
+ * copy of `@kubb/core`. `Symbol.for` resolves to one key across those copies, so the options stay
+ * reachable and a `file` override is never dropped.
+ */
+const resolverOptions: unique symbol = Symbol.for('@kubb/core/resolver/options')
+
+/**
  * Built-in `file.baseName`: casts the identifier with `toFilePath` and appends the extension.
  */
 function toBaseName({ name, extname }: Pick<ResolverFileParams, 'name' | 'extname'>): FileNode['baseName'] {
@@ -299,6 +307,11 @@ export class Resolver {
     this.#apply(options)
   }
 
+  /** Exposes the raw build options so `Resolver.merge` can read them across `@kubb/core` copies. */
+  get [resolverOptions](): ResolverBuildOptions {
+    return this.#options
+  }
+
   /**
    * The built-in resolution machinery. Always reaches the untouched defaults, even when a
    * plugin overrides the top-level `name` or `file`.
@@ -325,11 +338,13 @@ export class Resolver {
   /**
    * Merges `override` over `base` and returns a new resolver with helpers re-bound. Top-level
    * keys replace, and a namespace (or `file`) merges per method, so overriding `query.name`
-   * keeps the base `query.keyName`. Used when applying `setResolver` partial overrides.
+   * keeps the base `query.keyName`. Used when applying `setResolver` partial overrides. Reads a
+   * resolver's options through the shared brand rather than `instanceof`, so a `file` override
+   * survives even when `base` and `override` come from different `@kubb/core` copies.
    */
   static merge<T extends Resolver>(base: T, override: ResolverPatch<T> | Resolver): T {
-    const patch = override instanceof Resolver ? override.#options : override
-    const merged: Record<string, unknown> = { ...base.#options }
+    const patch = resolverOptions in override ? override[resolverOptions] : override
+    const merged: Record<string, unknown> = { ...base[resolverOptions] }
     for (const [key, value] of Object.entries(patch)) {
       if (value === undefined) continue
       const current = merged[key]
