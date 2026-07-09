@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@8508e66e6014b9ca1416591bc20791027b6ccf5c # main
+        uses: kubb-labs/config/.github/setup@d2daeb58eb7dc8c19d595c926b4788b7f682fb51 # main
         with:
           node-version: '22.22.3'
 
