@@ -1,5 +1,5 @@
 import { EventEmitter as NodeEventEmitter } from 'node:events'
-import { toError } from '../../../internals/utils/src/errors.ts'
+import { toError } from '@internals/utils'
 
 /**
  * A function that can be registered as a hook listener, synchronous or async. Any return value is

@@ -1,5 +1,5 @@
 import { type Diagnostic, Diagnostics } from '@kubb/core'
-import { isReference } from './guards.ts'
+import { isReference } from './oas.ts'
 import type { Document } from './types.ts'
 
 const _refCache = new WeakMap<Document, Map<string, unknown>>()

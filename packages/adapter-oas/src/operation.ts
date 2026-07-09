@@ -1,6 +1,5 @@
 import { SUPPORTED_METHODS } from './constants.ts'
-import { isReference } from './guards.ts'
-import { isJsonMimeType } from './mime.ts'
+import { isJsonMimeType, isReference } from './oas.ts'
 import { resolveRef } from './refs.ts'
 import type { Document, MediaTypeObject, OperationObject, PathItemObject, ReferenceObject, RequestBodyObject, ResponseObject } from './types.ts'
 
