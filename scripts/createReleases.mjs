@@ -34,7 +34,20 @@ export function extractPackageNotes({ changelog, name, version }) {
   return packageBlock.trim() || null
 }
 
+function releaseExists(tag) {
+  return spawnSync('gh', ['release', 'view', tag], { encoding: 'utf8' }).status === 0
+}
+
+// A re-run of `promote` (e.g. a manual `promote: true` dispatch against a
+// version that was already tagged and released) would otherwise fail here:
+// `gh release create` errors on a tag that already has a release. Skipping
+// cleanly makes promote safe to re-run instead of going red on a re-dispatch.
 function createRelease({ tag, title, notes }) {
+  if (releaseExists(tag)) {
+    console.log(`Release ${tag} already exists, skipping.`)
+    return
+  }
+
   const result = spawnSync('gh', ['release', 'create', tag, '--title', title, '--notes', notes], { stdio: 'inherit' })
   if (result.status !== 0) process.exit(result.status ?? 1)
 }
@@ -71,7 +84,9 @@ function createCombinedRelease({ staged, changelog, repo }) {
   const flagship = staged.find((pkg) => pkg.name === 'kubb') ?? staged[0]
   if (!flagship) return
 
-  const notes = extractVersionNotes({ changelog, version: flagship.version }) ?? `Dependency update only, no direct changes for this package. See [CHANGELOG.md](https://github.com/${repo}/blob/main/CHANGELOG.md) for the full release notes.`
+  const notes =
+    extractVersionNotes({ changelog, version: flagship.version }) ??
+    `Dependency update only, no direct changes for this package. See [CHANGELOG.md](https://github.com/${repo}/blob/main/CHANGELOG.md) for the full release notes.`
   createRelease({ tag: `${flagship.name}@${flagship.version}`, title: `v${flagship.version}`, notes })
 }
 
