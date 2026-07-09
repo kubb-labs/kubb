@@ -352,7 +352,6 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
   }
 
   if (!updates) return node
-
   const merged = { ...node, ...updates }
   return merged as Node
 }

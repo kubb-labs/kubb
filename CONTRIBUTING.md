@@ -59,17 +59,17 @@ kubb/
 
 ## Tech stack
 
-| Tool | Purpose |
-|---|---|
-| [TypeScript](https://www.typescriptlang.org/) | Primary language (strict, ESM only) |
-| [pnpm](https://pnpm.io/) | Package manager with workspaces |
-| [Turborepo](https://turbo.build/) | Monorepo task runner |
-| [tsdown](https://github.com/sxzz/tsdown) | Bundler and `.d.ts` generation |
-| [Vitest](https://vitest.dev/) | Testing |
-| [oxlint](https://oxc.rs/docs/guide/usage/linter.html) | Linter |
-| [oxfmt](https://github.com/oxc-project/oxfmt) | Formatter |
-| [Changesets](https://github.com/changesets/changesets) | Versioning and changelogs |
-| [GitHub Actions](https://github.com/features/actions) | CI/CD |
+| Tool                                                   | Purpose                             |
+| ------------------------------------------------------ | ----------------------------------- |
+| [TypeScript](https://www.typescriptlang.org/)          | Primary language (strict, ESM only) |
+| [pnpm](https://pnpm.io/)                               | Package manager with workspaces     |
+| [Turborepo](https://turbo.build/)                      | Monorepo task runner                |
+| [tsdown](https://github.com/sxzz/tsdown)               | Bundler and `.d.ts` generation      |
+| [Vitest](https://vitest.dev/)                          | Testing                             |
+| [oxlint](https://oxc.rs/docs/guide/usage/linter.html)  | Linter                              |
+| [oxfmt](https://github.com/oxc-project/oxfmt)          | Formatter                           |
+| [Changesets](https://github.com/changesets/changesets) | Versioning and changelogs           |
+| [GitHub Actions](https://github.com/features/actions)  | CI/CD                               |
 
 ## Commands
 

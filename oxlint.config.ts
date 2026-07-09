@@ -39,19 +39,19 @@ export default defineConfig({
   },
   overrides: [
     {
-      // Test fixtures build partial mock objects (`{ ... } as GeneratorContext`) that a
-      // type annotation or `satisfies` cannot express, so the assertion is intentional there.
+      // Test fixtures build partial or intentionally-invalid mock objects (`{ ... } as GeneratorContext`,
+      // `undefined as any`) that a type annotation or `satisfies` cannot express, so assertions and
+      // `any` are intentional there. The source rules stay strict.
       files: ['**/*.test.ts', '**/*.test.tsx'],
       rules: {
         'typescript/consistent-type-assertions': 'off',
+        'typescript/no-explicit-any': 'off',
       },
     },
     {
-      // `JSX.ElementType`'s function-component branch needs `any`, matching React's own
-      // `JSXElementConstructor<P = any>`: `(props: never) => ...` type-checks for simple
-      // assignment but breaks TypeScript's JSX prop-inference machinery for components,
-      // which relies on `any`'s special variance here.
-      files: ['**/jsx-namespace.d.ts'],
+      // Declaration files describe structural contracts (e.g. the JSX namespace) where `any`
+      // is the idiomatic bound for heterogeneous component props.
+      files: ['**/*.d.ts'],
       rules: {
         'typescript/no-explicit-any': 'off',
       },

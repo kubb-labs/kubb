@@ -235,23 +235,11 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
 
       for (const key of missingRequired) {
         for (const resolved of resolvedMembers) {
-          if (resolved.properties?.[key]) {
-            // `SchemaObject` is a discriminated union across JSON Schema drafts and OAS versions;
-            // a synthetic `properties`/`required`-only schema can't be checked against every member.
-            const partialSchema = {
-              properties: { [key]: resolved.properties[key] },
-              required: [key],
-            }
-            const missingRequiredSchema = partialSchema as SchemaObject
-            allOfMembers.push(
-              parse(
-                {
-                  schema: missingRequiredSchema,
-                  name,
-                },
-                rawOptions,
-              ),
-            )
+          const prop = resolved.properties?.[key]
+          if (prop) {
+            const raw = { properties: { [key]: prop }, required: [key] }
+            const memberSchema = raw as SchemaObject
+            allOfMembers.push(parse({ schema: memberSchema, name }, rawOptions))
             break
           }
         }
@@ -728,10 +716,8 @@ export function convertMultiType({ schema, name, nullable, defaultValue, rawOpti
   return ast.factory.createSchema({
     type: 'union',
     members: nonNullTypes.map((t) => {
-      // `type` narrows `schema`'s discriminated union to a specific member's literal `type`,
-      // which can't be expressed by spreading a plain `string` into the annotated shape.
-      const partialMember = { ...schema, type: t }
-      const memberSchema = partialMember as SchemaObject
+      const raw = { ...schema, type: t }
+      const memberSchema = raw as SchemaObject
       return parse({ schema: memberSchema, name }, rawOptions)
     }),
     ...buildSchemaNode(schema, name, arrayNullable, defaultValue),
