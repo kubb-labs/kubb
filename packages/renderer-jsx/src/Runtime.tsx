@@ -244,8 +244,10 @@ function* walkFiles(element: unknown): Generator<FileNode> {
     if (typeof type === 'string') {
       if (type === KUBB_FILE && props['baseName'] !== undefined && props['path'] !== undefined) {
         const { sources, exports, imports } = collectFileChildren(props['children'])
-        // `walkFiles` yields the `<kubb-file>` props as-is; `id`, `name`, `extname`, and `kind`
-        // are only computed once the file reaches `FileManager` (via `ast.factory.createFile`).
+        // `walkFiles` yields the `<kubb-file>` props as-is; `id`, `name`, `extname`, and `kind`,
+        // plus unused-import pruning, are only computed once the file reaches `FileManager` (via
+        // `ast.factory.createFile`) — calling it here would prune imports before `FileManager`
+        // merges same-path fragments from separate `render()` calls into their final source text.
         const file: UserFileNode = {
           baseName: props['baseName'] as FileNode['baseName'],
           path: props['path'] as string,
