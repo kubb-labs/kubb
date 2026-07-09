@@ -244,7 +244,7 @@ function* walkFiles(element: unknown): Generator<FileNode> {
           sources,
           exports,
           imports,
-        } as FileNode
+        } as unknown as FileNode
       } else {
         yield* walkFiles(props['children'])
       }

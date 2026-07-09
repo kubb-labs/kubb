@@ -5,7 +5,7 @@ import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import { parserMd } from '@kubb/parser-md'
 
-type AnyConfigResult = UserConfig<any> | Array<UserConfig<any>>
+type AnyConfigResult = UserConfig<unknown> | Array<UserConfig<unknown>>
 type ConfigInput = AnyConfigResult | Promise<AnyConfigResult> | ((cli: CLIOptions) => PossiblePromise<AnyConfigResult>)
 type NormalizeConfig<TConfig> =
   TConfig extends Array<UserConfig<infer TInput>> ? Array<UserConfig<TInput>> : TConfig extends UserConfig<infer TInput> ? UserConfig<TInput> : never

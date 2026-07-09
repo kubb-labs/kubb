@@ -91,13 +91,14 @@ export class KubbDriver {
   async setup() {
     const normalized = this.#sortPlugins(
       this.config.plugins.map((rawPlugin) => {
-        return {
+        const plugin = {
           name: rawPlugin.name,
           dependencies: rawPlugin.dependencies,
           enforce: rawPlugin.enforce,
           hooks: rawPlugin.hooks,
           options: rawPlugin.options ?? { output: { path: '.', mode: 'directory' }, exclude: [], override: [] },
-        } as NormalizedPlugin
+        }
+        return plugin as NormalizedPlugin
       }),
     )
 

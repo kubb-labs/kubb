@@ -87,7 +87,8 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
   }
   const { enum: _enum, ...schemaWithoutEnum } = schema
 
-  return { ...schemaWithoutEnum, items: normalizedItems } as SchemaObject
+  const normalized = { ...schemaWithoutEnum, items: normalizedItems }
+  return normalized as SchemaObject
 }
 
 /**
@@ -232,19 +233,11 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
 
       for (const key of missingRequired) {
         for (const resolved of resolvedMembers) {
-          if (resolved.properties?.[key]) {
-            allOfMembers.push(
-              parse(
-                {
-                  schema: {
-                    properties: { [key]: resolved.properties[key] },
-                    required: [key],
-                  } as SchemaObject,
-                  name,
-                },
-                rawOptions,
-              ),
-            )
+          const prop = resolved.properties?.[key]
+          if (prop) {
+            const raw = { properties: { [key]: prop }, required: [key] }
+            const memberSchema = raw as SchemaObject
+            allOfMembers.push(parse({ schema: memberSchema, name }, rawOptions))
             break
           }
         }
@@ -720,7 +713,11 @@ export function convertMultiType({ schema, name, nullable, defaultValue, rawOpti
   const arrayNullable = types.includes('null') || nullable || undefined
   return ast.factory.createSchema({
     type: 'union',
-    members: nonNullTypes.map((t) => parse({ schema: { ...schema, type: t } as SchemaObject, name }, rawOptions)),
+    members: nonNullTypes.map((t) => {
+      const raw = { ...schema, type: t }
+      const memberSchema = raw as SchemaObject
+      return parse({ schema: memberSchema, name }, rawOptions)
+    }),
     ...buildSchemaNode(schema, name, arrayNullable, defaultValue),
   })
 }

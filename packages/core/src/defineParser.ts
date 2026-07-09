@@ -61,5 +61,5 @@ export type Parser<TMeta extends object = object, TNode = unknown> = {
 export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(
   factory: (options: TOptions) => Parser<TMeta, TNode>,
 ): (options?: TOptions) => Parser<TMeta, TNode> {
-  return (options) => factory(options ?? ({} as TOptions))
+  return (options) => factory((options ?? {}) as TOptions)
 }

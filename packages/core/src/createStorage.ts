@@ -74,5 +74,5 @@ export type Storage = {
  * ```
  */
 export function createStorage<TOptions = Record<string, never>>(build: (options: TOptions) => Storage): (options?: TOptions) => Storage {
-  return (options) => build(options ?? ({} as TOptions))
+  return (options) => build((options ?? {}) as TOptions)
 }

@@ -115,5 +115,5 @@ type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) =
  * ```
  */
 export function createAdapter<T extends AdapterFactoryOptions = AdapterFactoryOptions>(build: AdapterBuilder<T>): (options?: T['options']) => Adapter<T> {
-  return (options) => build(options ?? ({} as T['options']))
+  return (options) => build((options ?? {}) as T['options'])
 }
