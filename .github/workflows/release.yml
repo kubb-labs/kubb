@@ -87,7 +87,7 @@ jobs:
     if: ${{ needs.release.outputs.staged == 'true' }}
     environment:
       name: npm-release-approval
-    timeout-minutes: 20
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     permissions:
       contents: write # gh release create
@@ -116,7 +116,7 @@ jobs:
           STAGED_PACKAGES: ${{ needs.release.outputs.staged_packages }}
           # How often to re-poll npm while waiting for a staged version to
           # propagate, and how many times to try before giving up.
-          VERIFY_INTERVAL_SECONDS: '60'
+          VERIFY_INTERVAL_SECONDS: '300' # in seconds
           VERIFY_RETRY_ATTEMPTS: '10'
 
       # Tags are created here, not at stage time, so a rejected or expired
