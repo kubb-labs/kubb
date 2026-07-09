@@ -1,5 +1,30 @@
 # Changelog
 
+## v5.0.0-beta.93 — Jul 9, 2026
+
+### @kubb/core
+
+#### Breaking Changes
+
+- Replace the top-level `hooks` option with `output.postGenerate`.
+  
+  The post-generate command runner moved from `hooks.done` to `output.postGenerate`, next to `output.format` and `output.lint`. It now takes a labeled array, so each step can carry a `name` that shows in the CLI output. Pass a command string, or `{ name, command }`.
+  
+  ```ts
+  output: {
+    path: './src/gen',
+    postGenerate: [{ name: 'types', command: 'npm run typecheck' }, 'biome check --write ./src/gen'],
+  }
+  ```
+  
+  The top-level `hooks` option is removed. Move any `hooks.done` commands to `output.postGenerate`. The related diagnostic code is renamed from `KUBB_HOOK_FAILED` to `KUBB_POST_GENERATE_FAILED`. ([#3745](https://github.com/kubb-labs/kubb/pull/3745), [`d102f33`](https://github.com/kubb-labs/kubb/commit/d102f333e9516135d61bd0796d9479ebc695444c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.92 — Jul 9, 2026
 
 ### @kubb/parser-ts
