@@ -144,5 +144,3 @@ If a staged version turns out to be wrong, reject it with `npm stage reject` ins
 Reviewers for the `promote` job's environment are managed on GitHub, under the repository's Settings > Environments > `npm-release-approval` (this is separate from npm's own settings on npmjs.com).
 
 Canary releases are the one exception to this flow. Every push to `main` publishes a `0.0.0-canary-<timestamp>` version under the `canary` dist-tag directly, without staging, so that canary installs stay immediate and automatic. See the comment above the `Publish canary` step in `release.yml` for why this is safe to leave unstaged.
-
-If a workflow run stages packages on npm but is interrupted before `promote` runs, there is no automated way to resume it: `npm stage list`, `view`, `approve`, and `reject` all require interactive 2FA and cannot authenticate via OIDC in CI (npm's trusted publishing only covers `npm publish` and `npm stage publish`). A maintainer must run `npm stage list` locally, or check npmjs.com, and either reject the stale staged version or re-run the release manually against a new changeset.
