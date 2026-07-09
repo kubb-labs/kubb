@@ -1,5 +1,29 @@
 # Changelog
 
+## v5.0.0-beta.91 — Jul 9, 2026
+
+### @kubb/core
+
+#### Breaking Changes
+
+- Merge `input.path` and `input.data` into a single `input`.
+  
+  Pass `input` a file path, a URL, an inline spec (JSON or YAML string), or a parsed object, and Kubb picks the right one. The `{ path }` and `{ data }` object forms are gone.
+  
+  ```diff
+  export default defineConfig({
+  -  input: { path: './petStore.yaml' },
+  +  input: './petStore.yaml',
+    output: { path: './src/gen' },
+  })
+  ``` ([#3739](https://github.com/kubb-labs/kubb/pull/3739), [`c754376`](https://github.com/kubb-labs/kubb/commit/c75437692b7ad53f4a0123ea837fef86b04865d9))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.90 — Jul 9, 2026
 
 ### @kubb/parser-ts
