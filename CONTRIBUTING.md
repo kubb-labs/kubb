@@ -59,17 +59,17 @@ kubb/
 
 ## Tech stack
 
-| Tool | Purpose |
-|---|---|
-| [TypeScript](https://www.typescriptlang.org/) | Primary language (strict, ESM only) |
-| [pnpm](https://pnpm.io/) | Package manager with workspaces |
-| [Turborepo](https://turbo.build/) | Monorepo task runner |
-| [tsdown](https://github.com/sxzz/tsdown) | Bundler and `.d.ts` generation |
-| [Vitest](https://vitest.dev/) | Testing |
-| [oxlint](https://oxc.rs/docs/guide/usage/linter.html) | Linter |
-| [oxfmt](https://github.com/oxc-project/oxfmt) | Formatter |
-| [Changesets](https://github.com/changesets/changesets) | Versioning and changelogs |
-| [GitHub Actions](https://github.com/features/actions) | CI/CD |
+| Tool                                                   | Purpose                             |
+| ------------------------------------------------------ | ----------------------------------- |
+| [TypeScript](https://www.typescriptlang.org/)          | Primary language (strict, ESM only) |
+| [pnpm](https://pnpm.io/)                               | Package manager with workspaces     |
+| [Turborepo](https://turbo.build/)                      | Monorepo task runner                |
+| [tsdown](https://github.com/sxzz/tsdown)               | Bundler and `.d.ts` generation      |
+| [Vitest](https://vitest.dev/)                          | Testing                             |
+| [oxlint](https://oxc.rs/docs/guide/usage/linter.html)  | Linter                              |
+| [oxfmt](https://github.com/oxc-project/oxfmt)          | Formatter                           |
+| [Changesets](https://github.com/changesets/changesets) | Versioning and changelogs           |
+| [GitHub Actions](https://github.com/features/actions)  | CI/CD                               |
 
 ## Commands
 
@@ -144,3 +144,9 @@ If a staged version turns out to be wrong, reject it with `npm stage reject` ins
 Reviewers for the `promote` job's environment are managed on GitHub, under the repository's Settings > Environments > `npm-release-approval` (this is separate from npm's own settings on npmjs.com).
 
 Canary releases are the one exception to this flow. Every push to `main` publishes a `0.0.0-canary-<timestamp>` version under the `canary` dist-tag directly, without staging, so that canary installs stay immediate and automatic. See the comment above the `Publish canary` step in `release.yml` for why this is safe to leave unstaged.
+
+### Resuming an interrupted staging run
+
+If a workflow run stages packages on npm but is interrupted before `promote` runs, re-run the release workflow manually with the `promote` input set to `true`. This skips staging and goes straight to verifying and releasing what npm already has.
+
+`promote` needs to know what's staged, and it can't find out on its own: `npm stage list` requires interactive 2FA and cannot authenticate via OIDC in CI (npm's trusted publishing only covers `npm publish` and `npm stage publish`). Run `npm stage list` locally, or check the pending versions on npmjs.com, then paste the JSON into the `staged_packages` input, for example `[{"name":"kubb","version":"4.2.0"}]`.
