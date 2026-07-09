@@ -1,0 +1,34 @@
+packages/adapter-oas/src/adapter.ts
+  s_79df632b4743a9::t_19a0b8be156985 239
+  s_79df632b4743a9::t_0f9aa2d8e0f1af 94,98-101
+  s_79df632b4743a9::t_fcbb15448ef234 77
+packages/adapter-oas/src/guards.ts
+  s_79df632b4743a9::t_24c1dfdf69e968 53-65
+packages/adapter-oas/src/resolvers.ts
+  s_79df632b4743a9::t_f7b71098c45eeb 139,152-153,155
+  s_79df632b4743a9::t_f5e104de2c5f63 190
+packages/adapter-oas/src/parser.ts
+  s_79df632b4743a9::t_ff86278f19b41b 184,207,280-282,286,310-312,387,400,406,421,424,430,631,685,817,822,863,950,1038
+  s_79df632b4743a9::t_ceff6d9bbd9ca8 152
+  s_79df632b4743a9::t_c22d9e181c4009 15-16
+  s_79df632b4743a9::t_d591d8bb453106 549,555
+  s_79df632b4743a9::t_561db21a27d55d 584
+packages/adapter-oas/src/parser.test.ts
+  s_79df632b4743a9::t_aaa380e149642c 4455,4458-4459,4462-4463
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "32eb291d9dc66517a890c8de023f22502f7e4a7a",
+  "prompts": {},
+  "sessions": {
+    "s_79df632b4743a9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7be179bf-9921-41cb-a624-61f0f53c90a8",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
