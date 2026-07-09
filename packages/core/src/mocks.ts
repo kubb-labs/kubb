@@ -61,7 +61,7 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
     options: (options.resolvedOptions ?? {}) as TOptions['resolvedOptions'],
     parse: options.parse ?? (async () => ({ kind: 'Input' as const, schemas: [], operations: [] })),
     getImports: options.getImports ?? ((_node: SchemaNode, _resolve: (schemaName: string) => { name: string; path: string }) => []),
-  } as Adapter<TOptions>
+  } as unknown as Adapter<TOptions>
 }
 
 /**
@@ -111,7 +111,7 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     meta: opts.meta ?? { circularNames: [], enumNames: [] },
     addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),
     upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
-    hooks: opts.driver.hooks ?? ({} as never),
+    hooks: (opts.driver.hooks ?? {}) as never,
     warn: (msg: string) => console.warn(msg),
     error: (msg: string) => console.error(msg),
     info: (msg: string) => console.info(msg),

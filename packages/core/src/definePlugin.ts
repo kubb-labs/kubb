@@ -433,5 +433,5 @@ export type KubbPluginEndContext = {
 export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(
   factory: (options: TFactory['options']) => Plugin<TFactory>,
 ): (options?: TFactory['options']) => Plugin<TFactory> {
-  return (options) => factory(options ?? ({} as TFactory['options']))
+  return (options) => factory((options ?? {}) as TFactory['options'])
 }
