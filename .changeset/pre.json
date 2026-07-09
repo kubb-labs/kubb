@@ -217,6 +217,7 @@
     "perf-renderer-jsx-legacyroot-sync",
     "perf-signature-weakmap-cache",
     "preserve-union-kind-semantics",
+    "reduce-any-and-object-literal-casts",
     "reduce-kubb-install-size",
     "reduce-memory-fs-caching",
     "reduce-memory-snapshot-cache",

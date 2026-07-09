@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.94 — Jul 9, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Replace `any` and unchecked object-literal `as Type` assertions with real types and type annotations, satisfying the new `typescript/no-explicit-any` and `typescript/consistent-type-assertions` oxlint rules. `createMockedAdapter` now returns a fully-shaped `Adapter` (including `document` and `validate`) instead of force-casting a partial object, `KubbDriver` builds each plugin's default resolver inline instead of casting past the missing field, and the Astro integration in `unplugin-kubb` returns a typed `AstroIntegration` object instead of `any`. ([#3759](https://github.com/kubb-labs/kubb/pull/3759), [`08b209c`](https://github.com/kubb-labs/kubb/commit/08b209c3de4588d46737926ba7a9f17ee21f7ff1))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.93 — Jul 9, 2026
 
 ### @kubb/core
