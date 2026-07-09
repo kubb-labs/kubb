@@ -45,17 +45,27 @@ import { parserTs, parserTsx } from '@kubb/parser-ts'
 export default defineConfig({
   input: { path: './petstore.yaml' },
   output: { path: './src/gen' },
-  parsers: [parserTs, parserTsx],
+  parsers: [parserTs(), parserTsx()],
 })
 ```
 
-To render compiler AST nodes to source text from inside a plugin, call `print` on the parser instance:
+Pass an `extension` map to rewrite the extensions emitted in `import`/`export` statements. Keys are the source extension, values the output, and an empty string drops it. Use `{ '.ts': '.js' }` for ESM when the consumer transpiles to JavaScript:
+
+```typescript
+export default defineConfig({
+  input: { path: './petstore.yaml' },
+  output: { path: './src/gen' },
+  parsers: [parserTs({ extension: { '.ts': '.js' } }), parserTsx()],
+})
+```
+
+To render compiler AST nodes to source text from inside a plugin, call `print` on a parser instance:
 
 ```typescript
 import { parserTs } from '@kubb/parser-ts'
 import ts from 'typescript'
 
-const source = parserTs.print(
+const source = parserTs().print(
   ts.factory.createVariableStatement(
     [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
     ts.factory.createVariableDeclarationList(
@@ -69,16 +79,15 @@ const source = parserTs.print(
 
 ## API
 
-### `parserTs`
+### `parserTs(options?)`
 
-Parser instance for `.ts` and `.js` files. Pass to `defineConfig({ parsers: [...] })` to emit TypeScript source files.
+Factory returning a parser instance for `.ts` and `.js` files. Pass to `defineConfig({ parsers: [...] })` to emit TypeScript source files. The optional `extension` map rewrites the extensions written in `import`/`export` statements and defaults to `{ '.ts': '.ts' }`.
 
-- `parserTs.parse(file, options?)` — serialize a `FileNode` to TypeScript source.
-- `parserTs.print(...nodes)` — convert TypeScript compiler `Node` instances to a formatted source string.
+The returned instance exposes `parse(file)` to serialize a `FileNode` to TypeScript source and `print(...nodes)` to convert TypeScript compiler `Node` instances to a formatted source string.
 
-### `parserTsx`
+### `parserTsx(options?)`
 
-Parser instance for `.tsx` and `.jsx` files. Same API as `parserTs` with JSX support.
+Factory returning a parser instance for `.tsx` and `.jsx` files. Same API and `extension` option as `parserTs`, with JSX support.
 
 ## Supporting Kubb
 
