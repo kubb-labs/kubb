@@ -145,8 +145,4 @@ Reviewers for the `promote` job's environment are managed on GitHub, under the r
 
 Canary releases are the one exception to this flow. Every push to `main` publishes a `0.0.0-canary-<timestamp>` version under the `canary` dist-tag directly, without staging, so that canary installs stay immediate and automatic. See the comment above the `Publish canary` step in `release.yml` for why this is safe to leave unstaged.
 
-### Resuming an interrupted staging run
-
-If a workflow run stages packages on npm but is interrupted before `promote` runs, re-run the release workflow manually with the `promote` input set to `true`. This skips staging and goes straight to verifying and releasing what npm already has.
-
-`promote` needs to know what's staged, and it can't find out on its own: `npm stage list` requires interactive 2FA and cannot authenticate via OIDC in CI (npm's trusted publishing only covers `npm publish` and `npm stage publish`). Run `npm stage list` locally, or check the pending versions on npmjs.com, then paste the JSON into the `staged_packages` input, for example `[{"name":"kubb","version":"4.2.0"}]`.
+If a workflow run stages packages on npm but is interrupted before `promote` runs, there is no automated way to resume it: `npm stage list`, `view`, `approve`, and `reject` all require interactive 2FA and cannot authenticate via OIDC in CI (npm's trusted publishing only covers `npm publish` and `npm stage publish`). A maintainer must run `npm stage list` locally, or check npmjs.com, and either reject the stale staged version or re-run the release manually against a new changeset.

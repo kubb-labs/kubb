@@ -1,15 +1,6 @@
 name: Release
 on:
   workflow_dispatch:
-    inputs:
-      promote:
-        description: 'Skip staging. Verify and release whatever is already staged on npm (use when a staging run was interrupted before promote could run)'
-        type: boolean
-        default: false
-      staged_packages:
-        description: 'Only used with promote. JSON array of the packages already staged on npm, e.g. [{"name":"kubb","version":"4.2.0"}]. `npm stage list` needs interactive 2FA and cannot run unattended in CI (OIDC trusted publishing only covers `npm publish` and `npm stage publish`), so run it yourself locally, or read the pending versions off npmjs.com, and paste the result here.'
-        type: string
-        default: ''
   push:
     branches: ['main', 'alpha', 'beta', 'rc']
     paths:
@@ -37,8 +28,8 @@ jobs:
       pull-requests: write
       issues: write
     outputs:
-      staged: ${{ inputs.promote && steps.parse_staged.outputs.staged || steps.changesets.outputs.staged }}
-      staged_packages: ${{ inputs.promote && steps.parse_staged.outputs.staged_packages || steps.changesets.outputs.staged_packages }}
+      staged: ${{ steps.changesets.outputs.staged }}
+      staged_packages: ${{ steps.changesets.outputs.staged_packages }}
     steps:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -52,17 +43,13 @@ jobs:
           cache: 'false'
           force-install: 'true'
 
-      # Skipped entirely for a promote manual dispatch: that mode never
-      # stages a fresh build, so there is nothing to build here.
       - name: Build
-        if: ${{ !inputs.promote }}
         run: pnpm run build
 
       # createGithubReleases stays off: a staged version isn't public until
       # `promote` confirms npm approval, so nothing should announce it yet.
       - name: Release
         id: changesets
-        if: ${{ !inputs.promote }}
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
         with:
           version: pnpm exec changeset version
@@ -75,24 +62,11 @@ jobs:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # For a promote-only dispatch there is nothing new to stage (a prior run
-      # already sent it to npm but never got to promote). `npm stage list`
-      # would normally read back what's sitting there, but that subcommand
-      # requires interactive 2FA and cannot authenticate via OIDC in CI, so a
-      # maintainer supplies the staged packages themselves through the
-      # `staged_packages` input instead.
-      - name: Parse staged packages input
-        id: parse_staged
-        if: ${{ inputs.promote }}
-        run: node scripts/listStaged.mjs
-        env:
-          STAGED_PACKAGES_INPUT: ${{ inputs.staged_packages }}
-
       # Canary skips staging on purpose, so it stays automatic on every push.
       # If the npm Trusted Publisher for these packages is ever locked to
       # stage-only, this step will need its own non-stage-restricted entry.
       - name: Publish canary
-        if: ${{ !inputs.promote && steps.changesets.outputs.staged != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ steps.changesets.outputs.staged != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         continue-on-error: true
         shell: bash
         env:
