@@ -332,7 +332,7 @@ Run \`npm install -g @kubb/cli\` to update`,
     onStep('kubb:lint:start', 'Linting')
     onStep('kubb:hooks:start', 'Running hooks')
 
-    context.hook('kubb:hook:start', ({ id, command, args }) => {
+    context.hook('kubb:hook:start', ({ id, command, name, args }) => {
       if (logLevel <= logLevelMap.silent || !id) {
         return
       }
@@ -340,7 +340,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       stopSpinner()
 
       const commandWithArgs = formatCommandWithArgs(command, args)
-      const title = getMessage(`Running ${styleText('dim', commandWithArgs)}`)
+      const title = getMessage(`Running ${styleText('dim', name ?? commandWithArgs)}`)
       const taskLog = clack.taskLog({ title })
 
       state.activeHookLogs.set(id, { taskLog, hrStart: process.hrtime() })
@@ -355,7 +355,7 @@ Run \`npm install -g @kubb/cli\` to update`,
       })
     }
 
-    context.hook('kubb:hook:end', ({ id, command, args, success, error, stdout, stderr }) => {
+    context.hook('kubb:hook:end', ({ id, command, name, args, success, error, stdout, stderr }) => {
       if (!id) {
         return
       }
@@ -379,12 +379,12 @@ Run \`npm install -g @kubb/cli\` to update`,
       const duration = formatMsWithColor(getElapsedMs(active.hrStart))
 
       if (success) {
-        active.taskLog.success(getMessage(`${styleText('dim', commandWithArgs)} completed in ${duration}`))
+        active.taskLog.success(getMessage(`${styleText('dim', name ?? commandWithArgs)} completed in ${duration}`))
       } else {
         // The hook's output already reached the taskLog live via `kubb:hook:line`, so `showLog`
         // replays it here. `kubb:hook:end` carries no captured output on the streaming path.
         const reason = error?.message ? ` (${error.message})` : ''
-        active.taskLog.error(getMessage(`${styleText('dim', commandWithArgs)} failed${reason}`), { showLog: true })
+        active.taskLog.error(getMessage(`${styleText('dim', name ?? commandWithArgs)} failed${reason}`), { showLog: true })
       }
     })
 

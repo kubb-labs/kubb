@@ -159,7 +159,7 @@ export const plainLogger = {
     onStep('kubb:hooks:start', 'Hooks started')
     onStep('kubb:hooks:end', 'Hooks completed')
 
-    context.hook('kubb:hook:start', ({ id, command, args }) => {
+    context.hook('kubb:hook:start', ({ id, command, name, args }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -169,10 +169,10 @@ export const plainLogger = {
       }
 
       const commandWithArgs = formatCommandWithArgs(command, args)
-      console.log(getMessage(`Hook ${commandWithArgs} started`))
+      console.log(getMessage(`Hook ${name ?? commandWithArgs} started`))
     })
 
-    context.hook('kubb:hook:end', ({ id, command, args, success, error, stdout, stderr }) => {
+    context.hook('kubb:hook:end', ({ id, command, name, args, success, error, stdout, stderr }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -183,12 +183,12 @@ export const plainLogger = {
       const commandWithArgs = formatCommandWithArgs(command, args)
 
       if (success) {
-        console.log(getMessage(`✓ Hook ${commandWithArgs} completed${durationStr}`))
+        console.log(getMessage(`✓ Hook ${name ?? commandWithArgs} completed${durationStr}`))
       } else {
         if (stdout) console.log(stdout)
         if (stderr) console.error(stderr)
         const reason = error?.message ? ` (${error.message})` : ''
-        console.log(getMessage(`✗ Hook ${commandWithArgs} failed${durationStr}${reason}`))
+        console.log(getMessage(`✗ Hook ${name ?? commandWithArgs} failed${durationStr}${reason}`))
       }
     })
   },

@@ -4,7 +4,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { createModuleLoader } from '@internals/shared'
 import { createSerialRunner, toError } from '@internals/utils'
-import type { CLIOptions, Config, KubbHooks, PossibleConfig, Hookable } from '@kubb/core'
+import type { CLIOptions, Config, KubbHooks, PossibleConfig, PostGenerateCommand, Hookable } from '@kubb/core'
 import { NonZeroExitError, x } from 'tinyexec'
 import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
 import { WATCHER_DEBOUNCE_MS, WATCHER_IGNORED_PATHS } from '../../constants.ts'
@@ -83,8 +83,8 @@ export async function getConfigs({ configPath, input, watch, logLevel }: GetConf
   }
 }
 
-type ExecuteHooksOptions = {
-  configHooks: NonNullable<Config['hooks']>
+type RunPostGenerateOptions = {
+  commands: Array<PostGenerateCommand>
   hooks: Hookable<KubbHooks>
 }
 
@@ -147,22 +147,22 @@ function tokenize(command: string): Array<string> {
 }
 
 /**
- * Runs the `done` hooks defined in a Kubb config in sequence and returns each hook's outcome,
- * so the caller can turn failures into diagnostics.
+ * Runs the `output.postGenerate` commands of a Kubb config in sequence and returns each command's
+ * outcome, so the caller can turn failures into diagnostics.
  */
-export async function executeHooks({ configHooks, hooks }: ExecuteHooksOptions): Promise<Array<HookResult>> {
-  const commands = Array.isArray(configHooks.done) ? configHooks.done : [configHooks.done].filter(Boolean)
+export async function runPostGenerate({ commands, hooks }: RunPostGenerateOptions): Promise<Array<HookResult>> {
   const results: Array<HookResult> = []
 
-  for (const command of commands) {
+  for (const entry of commands) {
+    const { command, name } = typeof entry === 'string' ? { command: entry, name: undefined } : entry
     const [cmd, ...args] = tokenize(command)
     if (!cmd) continue
 
     const hookId = randomUUID()
     const commandWithArgs = [cmd, ...args].join(' ')
 
-    await hooks.callHook('kubb:hook:start', { id: hookId, command: cmd, args })
-    results.push(await runHook({ id: hookId, command: cmd, args, commandWithArgs, hooks }))
+    await hooks.callHook('kubb:hook:start', { id: hookId, command: cmd, name, args })
+    results.push(await runHook({ id: hookId, command: cmd, name, args, commandWithArgs, hooks }))
   }
 
   return results
@@ -171,6 +171,7 @@ export async function executeHooks({ configHooks, hooks }: ExecuteHooksOptions):
 type RunHookOptions = {
   id: string
   command: string
+  name?: string
   args?: ReadonlyArray<string>
   commandWithArgs: string
   hooks: Hookable<KubbHooks>
@@ -182,9 +183,9 @@ type RunHookOptions = {
  * it into a diagnostic. Other spawn errors do the same. Output is streamed through `kubb:hook:line`
  * only while a listener is attached.
  */
-export async function runHook({ id, command, args, commandWithArgs, hooks }: RunHookOptions): Promise<HookResult> {
+export async function runHook({ id, command, name, args, commandWithArgs, hooks }: RunHookOptions): Promise<HookResult> {
   const emitEnd = async (result: HookResult): Promise<HookResult> => {
-    await hooks.callHook('kubb:hook:end', { command, args, id, ...result })
+    await hooks.callHook('kubb:hook:end', { command, name, args, id, ...result })
     return result
   }
 
@@ -205,7 +206,7 @@ export async function runHook({ id, command, args, commandWithArgs, hooks }: Run
     }
 
     await proc
-    await hooks.callHook('kubb:success', { message: `${styleText('dim', commandWithArgs)} successfully executed` })
+    await hooks.callHook('kubb:success', { message: `${styleText('dim', name ?? commandWithArgs)} successfully executed` })
     return emitEnd({ success: true, error: null })
   } catch (err) {
     if (!(err instanceof NonZeroExitError)) {

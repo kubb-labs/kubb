@@ -89,9 +89,9 @@ export const diagnosticCode = {
    */
   invalidPluginOptions: 'KUBB_INVALID_PLUGIN_OPTIONS',
   /**
-   * A post-generate shell hook (`hooks.done`) exited with a failure.
+   * A post-generate command (`output.postGenerate`) exited with a failure.
    */
-  hookFailed: 'KUBB_HOOK_FAILED',
+  postGenerateFailed: 'KUBB_POST_GENERATE_FAILED',
   /**
    * The formatter pass over the generated files failed.
    */

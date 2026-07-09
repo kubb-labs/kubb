@@ -280,20 +280,21 @@ describe('defineConfig', () => {
     expect(typedDataConfig.input!.data).toStrictEqual({ openapi: '3.1.0' })
   })
 
-  test('accepts named configs with hooks', () => {
+  test('accepts named configs with output.postGenerate', () => {
     const namedConfig = defineConfig({
       name: 'gen',
       root: '.',
       input: { path: 'spec.yaml' },
-      output: { path: './gen' },
-      hooks: {
-        done: ['npm run typecheck'],
+      output: {
+        path: './gen',
+        postGenerate: [{ name: 'types', command: 'npm run typecheck' }, 'biome check --write ./gen'],
       },
       plugins: [],
     })
     const typedNamedConfig: UserConfig<{ path: string }> = namedConfig
 
     expect(typedNamedConfig.name).toBe('gen')
+    expect(typedNamedConfig.output.postGenerate).toStrictEqual([{ name: 'types', command: 'npm run typecheck' }, 'biome check --write ./gen'])
   })
 
   test('preserves inferred input types for array results', () => {

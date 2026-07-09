@@ -325,9 +325,9 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
     cause: "A plugin was configured with options that cannot be honored, for example `output.mode: 'file'` paired with a `group` option.",
     fix: "Fix the plugin options. A single-file output has nothing to group, so remove the `group` option or use `output.mode: 'directory'`.",
   },
-  [diagnosticCode.hookFailed]: {
-    title: 'Hook failed',
-    cause: 'A post-generate shell hook (`hooks.done`) exited with a non-zero status.',
+  [diagnosticCode.postGenerateFailed]: {
+    title: 'Post-generate command failed',
+    cause: 'A post-generate command (`output.postGenerate`) exited with a non-zero status.',
     fix: 'Check the command is installed and correct, and run it manually to see the error.',
   },
   [diagnosticCode.formatFailed]: {

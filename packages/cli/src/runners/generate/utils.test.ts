@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import process from 'node:process'
 import { Hookable, type KubbHooks } from '@kubb/core'
 import { afterEach, describe, expect, it } from 'vitest'
-import { getConfigs, isNewerVersion, runHook } from './utils.ts'
+import { getConfigs, isNewerVersion, runHook, runPostGenerate } from './utils.ts'
 
 const node = process.execPath
 
@@ -118,6 +118,47 @@ describe('runHook', () => {
     expect(result.error?.message).toContain('Hook execute failed')
     expect(result.stdout).toContain('out')
     expect(result.stderr).toContain('boom')
+  })
+})
+
+describe('runPostGenerate', () => {
+  it('runs string and labeled commands in sequence and reports each outcome', async () => {
+    const hooks = new Hookable<KubbHooks>()
+
+    const results = await runPostGenerate({
+      commands: [`"${node}" -e "process.exit(0)"`, { name: 'types', command: `"${node}" -e "process.exit(0)"` }],
+      hooks,
+    })
+
+    expect(results).toHaveLength(2)
+    expect(results.every((result) => result.success)).toBe(true)
+  })
+
+  it('emits kubb:hook:start with the step name for a labeled command', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const names: Array<string | undefined> = []
+    hooks.hook('kubb:hook:start', ({ name }) => {
+      names.push(name)
+    })
+
+    await runPostGenerate({
+      commands: [{ name: 'types', command: `"${node}" -e "process.exit(0)"` }],
+      hooks,
+    })
+
+    expect(names).toStrictEqual(['types'])
+  })
+
+  it('reports success=false when a command exits non-zero', async () => {
+    const hooks = new Hookable<KubbHooks>()
+
+    const results = await runPostGenerate({
+      commands: [`"${node}" -e "process.exit(1)"`],
+      hooks,
+    })
+
+    expect(results).toHaveLength(1)
+    expect(results[0]?.success).toBe(false)
   })
 })
 

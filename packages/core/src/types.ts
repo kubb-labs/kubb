@@ -51,6 +51,12 @@ export type InputData = {
 type Input = InputPath | InputData
 
 /**
+ * A post-generate step: a shell command string, or an object that pairs the command with a `name`
+ * shown in the CLI output. Steps run in sequence after the generated files are formatted and linted.
+ */
+export type PostGenerateCommand = string | { name?: string; command: string }
+
+/**
  * Resolved build configuration for a Kubb run: what to generate from (adapter, input), where to
  * write it (output), how (plugins), and the runtime pieces (parsers, storage). See
  * `UserConfig` for the relaxed form with defaults applied.
@@ -164,6 +170,18 @@ export type Config<TInput = Input> = {
      */
     lint?: 'auto' | 'eslint' | 'biome' | 'oxlint' | false
     /**
+     * Shell commands to run after the generated files are formatted and linted, for post-processing
+     * such as a type check or a custom script. Steps run in sequence from the `root` directory. Pass
+     * a plain command string, or `{ name, command }` to label the step in the CLI output.
+     *
+     * @example
+     * ```ts
+     * postGenerate: ['npm run typecheck']
+     * postGenerate: [{ name: 'types', command: 'npm run typecheck' }, 'biome check --write ./src/gen']
+     * ```
+     */
+    postGenerate?: Array<PostGenerateCommand>
+    /**
      * Rewrite import extensions in generated files, e.g. emit `.js` imports from `.ts` sources for
      * ESM dual packages. Keys are the source extension, values the output, and `''` drops it.
      *
@@ -225,35 +243,6 @@ export type Config<TInput = Input> = {
    * ```
    */
   plugins: Array<Plugin>
-  /**
-   * Lifecycle hooks that run external tools (prettier, eslint, a custom script) at points in the build.
-   *
-   * Currently supports the `done` hook, which fires after all plugins complete.
-   *
-   * @example
-   * ```ts
-   * hooks: {
-   *   done: 'prettier --write "./src/gen"',      // auto-format generated files
-   *   // or multiple commands:
-   *   done: ['prettier --write "./src/gen"', 'eslint --fix "./src/gen"']
-   * }
-   * ```
-   */
-  hooks?: {
-    /**
-     * Command(s) to run after all plugins finish generating, for post-processing the output.
-     *
-     * Pass a single command string, or an array to run them in sequence.
-     * Commands run relative to the `root` directory.
-     *
-     * @example
-     * ```ts
-     * done: 'prettier --write "./src/gen"'
-     * done: ['prettier --write "./src/gen"', 'eslint --fix "./src/gen"']
-     * ```
-     */
-    done?: string | Array<string>
-  }
   /**
    * The reporters available to the run, registered as instances. The host
    * (the CLI via `--reporter`) selects which ones to trigger by `name` with {@link selectReporters}.
@@ -659,6 +648,10 @@ export type KubbHookStartContext = {
    */
   command: string
   /**
+   * Optional label for the command, shown in the CLI output when set.
+   */
+  name?: string
+  /**
    * Parsed argument list, when available.
    */
   args?: ReadonlyArray<string>
@@ -688,6 +681,10 @@ export type KubbHookEndContext = {
    * The shell command that ran.
    */
   command: string
+  /**
+   * Optional label for the command, shown in the CLI output when set.
+   */
+  name?: string
   /**
    * Parsed argument list, when available.
    */
