@@ -1,5 +1,40 @@
 # Changelog
 
+## v5.0.0-beta.92 — Jul 9, 2026
+
+### @kubb/parser-ts
+
+#### Breaking Changes
+
+- Drop the source extension from generated `import`/`export` statements by default.
+  
+  `parserTs` and `parserTsx` kept the source extension (`{ '.ts': '.ts' }`) by default since the beta.91 release. That matches Node16/NodeNext module resolution, but breaks bundler-based consumers that never expect an extension on a relative import. The default is now `{ '.ts': '' }`, so `import './client'` replaces `import './client.ts'` unless you set `extension` yourself.
+  
+  ```ts
+  // before (default)
+  export default defineConfig({
+    parsers: [parserTs(), parserTsx()],
+  })
+  // import './client.ts'
+  
+  // after (default)
+  export default defineConfig({
+    parsers: [parserTs(), parserTsx()],
+  })
+  // import './client'
+  
+  // keep the extension (Node16/NodeNext resolution)
+  export default defineConfig({
+    parsers: [parserTs({ extension: { '.ts': '.ts' } }), parserTsx({ extension: { '.ts': '.ts' } })],
+  })
+  ``` ([#3743](https://github.com/kubb-labs/kubb/pull/3743), [`54ad965`](https://github.com/kubb-labs/kubb/commit/54ad9657932f6a2f3dba263adb51d98f52777c93))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.91 — Jul 9, 2026
 
 ### @kubb/core

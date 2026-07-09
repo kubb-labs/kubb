@@ -1,6 +1,6 @@
 {
   "name": "unplugin-kubb",
-  "version": "5.0.0-beta.91",
+  "version": "5.0.0-beta.92",
   "description": "Integration of Kubb for Vite, Webpack, Rollup, esbuild, Rspack, Nuxt, and Astro.",
   "keywords": [
     "astro",
