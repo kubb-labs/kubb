@@ -5,13 +5,6 @@ import type { DiscriminatorObject, ReferenceObject, SchemaObject } from './types
  *
  * Recognizes all nullable signals across OAS versions: `nullable: true` (OAS 3.0),
  * `x-nullable: true` (vendor extension), `type: 'null'`, and `type: ['null', ...]` (OAS 3.1).
- *
- * @example
- * ```ts
- * isNullable({ type: 'string', nullable: true }) // true
- * isNullable({ type: ['string', 'null'] })       // true
- * isNullable({ type: 'string' })                 // false
- * ```
  */
 export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): boolean {
   const explicitNullable = schema?.nullable ?? schema?.['x-nullable']
@@ -26,25 +19,14 @@ export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): 
 
 /**
  * Returns `true` when `obj` is an OpenAPI `$ref` pointer object.
- *
- * @example
- * ```ts
- * isReference({ $ref: '#/components/schemas/Pet' }) // true
- * isReference({ type: 'string' })                   // false
- * ```
  */
 export function isReference(obj?: unknown): obj is ReferenceObject {
   return !!obj && typeof obj === 'object' && '$ref' in obj
 }
 
 /**
- * Returns `true` when `obj` is a schema with a structured OAS 3.x `discriminator` object.
- *
- * @example
- * ```ts
- * isDiscriminator({ discriminator: { propertyName: 'type', mapping: {} } }) // true
- * isDiscriminator({ discriminator: 'type' })                                 // false (Swagger 2 string form)
- * ```
+ * Returns `true` when `obj` is a schema with a structured OAS 3.x `discriminator` object,
+ * excluding the Swagger 2 string form.
  */
 export function isDiscriminator(obj?: unknown): obj is SchemaObject & { discriminator: DiscriminatorObject } {
   const record = obj as Record<string, unknown>
@@ -53,12 +35,6 @@ export function isDiscriminator(obj?: unknown): obj is SchemaObject & { discrimi
 
 /**
  * Returns `true` when a schema is a binary payload: an octet-stream string body.
- *
- * @example
- * ```ts
- * isBinary({ type: 'string', contentMediaType: 'application/octet-stream' }) // true
- * isBinary({ type: 'string' })                                               // false
- * ```
  */
 export function isBinary(schema: SchemaObject): boolean {
   return schema.type === 'string' && schema.contentMediaType === 'application/octet-stream'
