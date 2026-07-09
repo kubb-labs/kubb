@@ -192,6 +192,7 @@
     "merge-file-processor-into-file-manager",
     "migrate-mcp-to-tmcp",
     "modernize-node-22-natives",
+    "move-extension-onto-parser",
     "move-plugins-to-own-repo",
     "move-telemetry-definelogger-to-cli",
     "multi-content-type-response",
