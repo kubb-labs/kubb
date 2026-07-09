@@ -2,10 +2,6 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      version_pr:
-        description: 'Only open or update the Version Packages PR. Skip staging entirely'
-        type: boolean
-        default: false
       promote:
         description: 'Skip staging. Verify and release whatever is already staged on npm (use when a staging run was interrupted before promote could run)'
         type: boolean
@@ -52,10 +48,10 @@ jobs:
           cache: 'false'
           force-install: 'true'
 
-      # Skipped entirely for a version_pr or promote manual dispatch: those
-      # modes never stage a fresh build, so there is nothing to build here.
+      # Skipped entirely for a promote manual dispatch: that mode never
+      # stages a fresh build, so there is nothing to build here.
       - name: Build
-        if: ${{ !inputs.version_pr && !inputs.promote }}
+        if: ${{ !inputs.promote }}
         run: pnpm run build
 
       # createGithubReleases stays off: a staged version isn't public until
@@ -66,7 +62,7 @@ jobs:
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
         with:
           version: pnpm exec changeset version
-          publish: ${{ !inputs.version_pr && 'node scripts/release.mjs' || '' }}
+          publish: 'node scripts/release.mjs'
           commit: 'ci(changesets): version packages'
           title: 'ci(changesets): version packages'
           setupGitUser: false
