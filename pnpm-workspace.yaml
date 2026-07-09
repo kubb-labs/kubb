@@ -11,7 +11,7 @@ catalog:
   "@types/node": ^22.20.0
   "@vitest/coverage-v8": ^4.1.10
   "@vitest/ui": ^4.1.10
-  oxfmt: ^0.56.0
+  oxfmt: ^0.57.0
   oxlint: ^1.72.0
   "tinyexec": ^1.2.4
   tsdown: ^0.22.3
