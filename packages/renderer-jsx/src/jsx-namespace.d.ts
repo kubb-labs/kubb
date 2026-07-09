@@ -10,7 +10,7 @@ import type { ArrowFunctionNode, ConstNode, ExportNode, FunctionNode, ImportNode
  * the HTML element and class-component machinery from `@types/react` is not needed.
  */
 export namespace JSX {
-  type ElementType = string | ((props: any) => KubbReactNode)
+  type ElementType = string | ((props: never) => KubbReactNode)
   type Element = KubbReactElement
 
   interface ElementClass {

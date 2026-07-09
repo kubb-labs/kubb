@@ -1,4 +1,14 @@
-import { ast, type ArrowFunctionNode, type CodeNode, type ExportNode, type FileNode, type ImportNode, type JSDocNode, type SourceNode } from '@kubb/ast'
+import {
+  ast,
+  type ArrowFunctionNode,
+  type CodeNode,
+  type ExportNode,
+  type FileNode,
+  type ImportNode,
+  type JSDocNode,
+  type SourceNode,
+  type UserFileNode,
+} from '@kubb/ast'
 import { KUBB_ARROW_FUNCTION, KUBB_CONST, KUBB_EXPORT, KUBB_FILE, KUBB_FUNCTION, KUBB_IMPORT, KUBB_JSX, KUBB_SOURCE, KUBB_TYPE } from './constants.ts'
 import { Fragment } from './jsx-runtime.ts'
 import type { KubbReactElement } from './types.ts'
@@ -234,17 +244,20 @@ function* walkFiles(element: unknown): Generator<FileNode> {
     if (typeof type === 'string') {
       if (type === KUBB_FILE && props['baseName'] !== undefined && props['path'] !== undefined) {
         const { sources, exports, imports } = collectFileChildren(props['children'])
-        yield {
-          baseName: props['baseName'],
-          path: props['path'],
-          meta: props['meta'] || {},
-          footer: props['footer'],
-          banner: props['banner'],
-          copy: props['copy'],
+        // `walkFiles` yields the `<kubb-file>` props as-is; `id`, `name`, `extname`, and `kind`
+        // are only computed once the file reaches `FileManager` (via `ast.factory.createFile`).
+        const file: UserFileNode = {
+          baseName: props['baseName'] as FileNode['baseName'],
+          path: props['path'] as string,
+          meta: (props['meta'] as FileNode['meta']) || {},
+          footer: props['footer'] as FileNode['footer'],
+          banner: props['banner'] as FileNode['banner'],
+          copy: props['copy'] as FileNode['copy'],
           sources,
           exports,
           imports,
-        } as FileNode
+        }
+        yield file as unknown as FileNode
       } else {
         yield* walkFiles(props['children'])
       }

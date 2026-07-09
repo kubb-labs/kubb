@@ -67,7 +67,7 @@ describe('getBarrelFiles', () => {
 
 describe('getPluginOutputPrefix', () => {
   it('returns a POSIX path ending with a trailing slash', () => {
-    const plugin = createMockedPlugin({ name: 'plugin-ts', options: { output: { path: 'types' } } as any })
+    const plugin = createMockedPlugin({ name: 'plugin-ts', options: { output: { path: 'types' } } })
     const prefix = getPluginOutputPrefix(plugin, makeConfig())
 
     expect(prefix).toBe('/workspace/src/gen/types/')

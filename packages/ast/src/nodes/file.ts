@@ -397,6 +397,6 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
     imports: resolvedImports,
     exports: resolvedExports,
     sources: resolvedSources,
-    meta: input.meta ?? ({} as TMeta),
+    meta: (input.meta ?? {}) as TMeta,
   }
 }

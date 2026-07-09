@@ -79,7 +79,10 @@ export async function getConfigs({ configPath, input, watch, logLevel }: GetConf
 
   return {
     configPath: filepath,
-    configs: userConfigs.map((item) => ({ ...item, plugins: item.plugins ?? [] }) as Config),
+    configs: userConfigs.map((item) => {
+      const config: Config = { ...item, plugins: item.plugins ?? [] }
+      return config
+    }),
   }
 }
 

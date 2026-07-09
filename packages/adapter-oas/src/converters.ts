@@ -86,8 +86,11 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
     enum: schema.enum,
   }
   const { enum: _enum, ...schemaWithoutEnum } = schema
+  // `SchemaObject` is a discriminated union; the spread can't be verified against every member
+  // structurally, so the merge result is asserted rather than annotated.
+  const merged = { ...schemaWithoutEnum, items: normalizedItems }
 
-  return { ...schemaWithoutEnum, items: normalizedItems } as SchemaObject
+  return merged as SchemaObject
 }
 
 /**
@@ -233,13 +236,17 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
       for (const key of missingRequired) {
         for (const resolved of resolvedMembers) {
           if (resolved.properties?.[key]) {
+            // `SchemaObject` is a discriminated union across JSON Schema drafts and OAS versions;
+            // a synthetic `properties`/`required`-only schema can't be checked against every member.
+            const partialSchema = {
+              properties: { [key]: resolved.properties[key] },
+              required: [key],
+            }
+            const missingRequiredSchema = partialSchema as SchemaObject
             allOfMembers.push(
               parse(
                 {
-                  schema: {
-                    properties: { [key]: resolved.properties[key] },
-                    required: [key],
-                  } as SchemaObject,
+                  schema: missingRequiredSchema,
                   name,
                 },
                 rawOptions,
@@ -720,7 +727,13 @@ export function convertMultiType({ schema, name, nullable, defaultValue, rawOpti
   const arrayNullable = types.includes('null') || nullable || undefined
   return ast.factory.createSchema({
     type: 'union',
-    members: nonNullTypes.map((t) => parse({ schema: { ...schema, type: t } as SchemaObject, name }, rawOptions)),
+    members: nonNullTypes.map((t) => {
+      // `type` narrows `schema`'s discriminated union to a specific member's literal `type`,
+      // which can't be expressed by spreading a plain `string` into the annotated shape.
+      const partialMember = { ...schema, type: t }
+      const memberSchema = partialMember as SchemaObject
+      return parse({ schema: memberSchema, name }, rawOptions)
+    }),
     ...buildSchemaNode(schema, name, arrayNullable, defaultValue),
   })
 }

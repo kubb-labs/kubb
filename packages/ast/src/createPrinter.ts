@@ -205,7 +205,7 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
  */
 export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOptions>(build: PrinterBuilder<T>): (options?: T['options']) => Printer<T> {
   return (options) => {
-    const { name, options: resolvedOptions, nodes, overrides, print: printOverride } = build(options ?? ({} as T['options']))
+    const { name, options: resolvedOptions, nodes, overrides, print: printOverride } = build((options ?? {}) as T['options'])
     const merged = overrides ? { ...nodes, ...overrides } : nodes
 
     const context = {

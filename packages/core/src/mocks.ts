@@ -1,12 +1,23 @@
 import path, { resolve } from 'node:path'
 import { camelCase } from '@internals/utils'
 import type { FileNode, InputMeta, Macro, OperationNode, SchemaNode } from '@kubb/ast'
-import { applyMacros } from '@kubb/ast'
+import { applyMacros, ast } from '@kubb/ast'
 import { expect } from 'vitest'
 import type { Parser } from './defineParser.ts'
 import { FileManager } from './FileManager.ts'
+import { Hookable } from './Hookable.ts'
 import type { KubbDriver } from './KubbDriver.ts'
-import type { Adapter, AdapterFactoryOptions, Config, Generator, GeneratorContext, NormalizedPlugin, PluginFactoryOptions, RendererFactory } from './types.ts'
+import type {
+  Adapter,
+  AdapterFactoryOptions,
+  Config,
+  Generator,
+  GeneratorContext,
+  KubbHooks,
+  NormalizedPlugin,
+  PluginFactoryOptions,
+  RendererFactory,
+} from './types.ts'
 
 /**
  * Creates a minimal `KubbDriver` mock for unit tests.
@@ -56,12 +67,15 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
     getImports?: Adapter<TOptions>['getImports']
   } = {},
 ): Adapter<TOptions> {
-  return {
+  const adapter: Adapter<TOptions> = {
     name: (options.name ?? 'oas') as TOptions['name'],
     options: (options.resolvedOptions ?? {}) as TOptions['resolvedOptions'],
-    parse: options.parse ?? (async () => ({ kind: 'Input' as const, schemas: [], operations: [] })),
+    document: null,
+    parse: options.parse ?? (async () => ast.factory.createInput()),
     getImports: options.getImports ?? ((_node: SchemaNode, _resolve: (schemaName: string) => { name: string; path: string }) => []),
-  } as Adapter<TOptions>
+    validate: async () => {},
+  }
+  return adapter
 }
 
 /**
@@ -111,7 +125,7 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     meta: opts.meta ?? { circularNames: [], enumNames: [] },
     addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),
     upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
-    hooks: opts.driver.hooks ?? ({} as never),
+    hooks: opts.driver.hooks ?? new Hookable<KubbHooks>(),
     warn: (msg: string) => console.warn(msg),
     error: (msg: string) => console.error(msg),
     info: (msg: string) => console.info(msg),

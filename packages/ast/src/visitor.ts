@@ -351,7 +351,10 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
     }
   }
 
-  return updates ? ({ ...node, ...updates } as Node) : node
+  if (!updates) return node
+
+  const merged = { ...node, ...updates }
+  return merged as Node
 }
 /**
  * Lazy depth-first collection pass. Yields every non-null value returned by

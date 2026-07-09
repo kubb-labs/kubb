@@ -100,7 +100,8 @@ export function defineNode<TNode extends BaseNode, TInput = Omit<TNode, 'kind'>,
     // constantly; a trailing-only `kind` floats its offset with each node's field count and turns
     // those reads megamorphic. The post-spread reassignment keeps `kind` authoritative when an input
     // carries a (wrong) `kind`: it overwrites the offset-0 slot in place without reshaping the node.
-    const node = { kind, ...defaults, ...(base as object) } as TNode
+    const merged = { kind, ...defaults, ...(base as object) }
+    const node = merged as TNode
     node.kind = kind
     return node
   }
