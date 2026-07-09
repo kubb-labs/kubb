@@ -16,7 +16,6 @@ function resolveConfig(userConfig: UserConfig): Config {
     output: {
       format: false,
       lint: false,
-      extension: { '.ts': '.ts' },
       defaultBanner: 'simple',
       ...userConfig.output,
     },

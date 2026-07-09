@@ -89,7 +89,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     const config = {
       ...options.config,
       adapter,
-      parsers: options.config.parsers?.length ? options.config.parsers : [parserTs, parserTsx],
+      parsers: options.config.parsers?.length ? options.config.parsers : [parserTs(), parserTsx()],
       plugins,
       output,
     }

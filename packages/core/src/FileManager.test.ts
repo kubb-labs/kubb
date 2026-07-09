@@ -191,7 +191,7 @@ describe('FileManager', () => {
       const parsers = new Map([['.ts' as const, parser]])
       const manager = new FileManager()
       const result = await manager.parse(file, { parsers })
-      expect(mockParse).toHaveBeenCalledWith(file, { extname: undefined })
+      expect(mockParse).toHaveBeenCalledWith(file)
       expect(result).toBe('// formatted\nconst a = 1')
     })
 
