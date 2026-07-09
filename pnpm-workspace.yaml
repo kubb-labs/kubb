@@ -8,15 +8,15 @@ allowBuilds:
   esbuild: true
   msw: true
 catalog:
-  "@types/node": ^22.20.1
-  "@vitest/coverage-v8": ^4.1.9
-  "@vitest/ui": ^4.1.9
+  "@types/node": ^22.20.0
+  "@vitest/coverage-v8": ^4.1.10
+  "@vitest/ui": ^4.1.10
   oxfmt: ^0.56.0
   oxlint: ^1.72.0
   "tinyexec": ^1.2.4
   tsdown: ^0.22.3
   typescript: ^6.0.3
-  vitest: ^4.1.9
+  vitest: ^4.1.10
   yaml: ^2.9.0
 minimumReleaseAge: 4320 # 72 hours, matches .npmrc min-package-age
 # Native platform bindings are always co-published with their parent package in the same release.
