@@ -91,14 +91,17 @@ export class KubbDriver {
   async setup() {
     const normalized = this.#sortPlugins(
       this.config.plugins.map((rawPlugin) => {
-        const plugin = {
+        const normalizedPlugin: NormalizedPlugin = {
           name: rawPlugin.name,
           dependencies: rawPlugin.dependencies,
           enforce: rawPlugin.enforce,
           hooks: rawPlugin.hooks,
-          options: rawPlugin.options ?? { output: { path: '.', mode: 'directory' }, exclude: [], override: [] },
+          // `rawPlugin.options` is the user-supplied shape, not yet the normalized `output`/`exclude`/`override`
+          // bag every `NormalizedPlugin` carries; plugins fill it in via `setOptions` during `kubb:plugin:setup`.
+          options: (rawPlugin.options ?? { output: { path: '.', mode: 'directory' }, exclude: [], override: [] }) as NormalizedPlugin['options'],
+          resolver: this.#getDefaultResolver(rawPlugin.name),
         }
-        return plugin as NormalizedPlugin
+        return normalizedPlugin
       }),
     )
 

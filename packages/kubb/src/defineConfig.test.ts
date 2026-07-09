@@ -1,4 +1,4 @@
-import type { CLIOptions, UserConfig } from '@kubb/core'
+import type { CLIOptions, Parser, Reporter, UserConfig } from '@kubb/core'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { describe, expect, test } from 'vitest'
@@ -7,7 +7,7 @@ import { defineConfig } from './defineConfig.ts'
 describe('defineConfig', () => {
   const plugin = createMockedPlugin({
     name: 'plugin',
-    options: undefined as any,
+    options: {},
   })
 
   const baseConfig: UserConfig = {
@@ -81,7 +81,7 @@ describe('defineConfig', () => {
   })
 
   test('preserves existing reporters when non-empty', () => {
-    const reporters = [{ name: 'custom' } as any]
+    const reporters = [{ name: 'custom' } as Reporter]
     const config = defineConfig({
       root: '.',
       input: 'spec.yaml',
@@ -145,7 +145,7 @@ describe('defineConfig', () => {
   })
 
   test('appends pluginBarrel and defaults barrel when plugins omit it', () => {
-    const customPlugin = createMockedPlugin({ name: 'custom', options: undefined as any })
+    const customPlugin = createMockedPlugin({ name: 'custom', options: {} })
     const config = defineConfig({
       root: '.',
       input: 'spec.yaml',
@@ -172,7 +172,7 @@ describe('defineConfig', () => {
   })
 
   test('preserves existing parsers when non-empty', () => {
-    const parsers = [{ name: 'custom' } as any]
+    const parsers = [{ name: 'custom' } as Parser]
     const config = defineConfig({
       root: '.',
       input: 'spec.yaml',

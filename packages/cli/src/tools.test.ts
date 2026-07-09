@@ -6,11 +6,11 @@ vi.mock('node:child_process', () => ({
   spawn: vi.fn(),
 }))
 
+import type { ChildProcess } from 'node:child_process'
 import { spawn } from 'node:child_process'
 
-function makeChild(exitCode: number | null) {
-  const child = new EventEmitter() as any
-  child.stdio = 'ignore'
+function makeChild(exitCode: number | null): ChildProcess {
+  const child = new EventEmitter() as unknown as ChildProcess
   setTimeout(() => {
     if (exitCode !== null) child.emit('close', exitCode)
     else child.emit('error', new Error('not found'))

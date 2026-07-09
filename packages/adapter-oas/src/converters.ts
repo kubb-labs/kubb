@@ -86,9 +86,11 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
     enum: schema.enum,
   }
   const { enum: _enum, ...schemaWithoutEnum } = schema
+  // `SchemaObject` is a discriminated union; the spread can't be verified against every member
+  // structurally, so the merge result is asserted rather than annotated.
+  const merged = { ...schemaWithoutEnum, items: normalizedItems }
 
-  const normalized = { ...schemaWithoutEnum, items: normalizedItems }
-  return normalized as SchemaObject
+  return merged as SchemaObject
 }
 
 /**
