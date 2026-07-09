@@ -206,6 +206,7 @@
     "parser-md-default-jsdoc",
     "parser-normalize-helpers",
     "parser-ts-dedent-output",
+    "parser-ts-drop-extension-by-default",
     "parser-ts-extract-utils",
     "parser-ts-import-builders",
     "parser-ts-print-on-parser",
