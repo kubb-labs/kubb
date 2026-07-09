@@ -23,7 +23,7 @@ import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import setupReporters, { selectReporters } from '../../loggers/utils.ts'
-import { executeHooks, getConfigs, isNewerVersion, runHook, startWatcher } from './utils.ts'
+import { getConfigs, isNewerVersion, runHook, runPostGenerate, startWatcher } from './utils.ts'
 import { detectTool, formatters, linters } from '../../tools.ts'
 
 type GenerateProps = {
@@ -215,12 +215,12 @@ async function generate(options: GenerateProps): Promise<boolean> {
     if (error) await reportOutputFailure(Diagnostics.code.lintFailed, 'linter', error)
   }
 
-  if (config.hooks) {
+  if (config.output.postGenerate?.length) {
     await hooks.callHook('kubb:hooks:start')
-    const hookResults = await executeHooks({ configHooks: config.hooks, hooks })
+    const hookResults = await runPostGenerate({ commands: config.output.postGenerate, hooks })
     for (const result of hookResults) {
       if (result.success) continue
-      await reportOutputFailure(Diagnostics.code.hookFailed, 'Post-generate hook', result.error ?? new Error('Post-generate hook failed'))
+      await reportOutputFailure(Diagnostics.code.postGenerateFailed, 'Post-generate command', result.error ?? new Error('Post-generate command failed'))
     }
     await hooks.callHook('kubb:hooks:end')
   }
