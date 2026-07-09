@@ -103,6 +103,7 @@
     "cli-runners-per-folder-refactor",
     "cli-unconfig-module-configs",
     "coded-errors-and-mcp-diagnostics",
+    "consolidate-input",
     "cool-jokes-pump",
     "core-ast-readme-internal-library",
     "core-compiler-phases",
