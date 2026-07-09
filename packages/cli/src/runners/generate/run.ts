@@ -154,9 +154,8 @@ async function generate(options: GenerateProps): Promise<boolean> {
     if (!Diagnostics.isProblem(diagnostic)) {
       continue
     }
-    const unknown = Diagnostics.narrow(diagnostic, Diagnostics.code.unknown)
-    if (unknown) {
-      await hooks.callHook('kubb:error', { error: unknown.cause ?? new Error(unknown.message) })
+    if (diagnostic.code === Diagnostics.code.unknown) {
+      await hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
     } else {
       await Diagnostics.emit(hooks, diagnostic)
     }
