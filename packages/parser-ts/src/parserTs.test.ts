@@ -66,9 +66,9 @@ describe('parserTs', () => {
       })
     }
 
-    it('keeps the source extension by default', async () => {
+    it('drops the source extension by default', async () => {
       const result = await parserTs().parse(createFileWithImport())
-      expect(result).toContain("import { Pet } from './models/pet.ts'")
+      expect(result).toContain("import { Pet } from './models/pet'")
     })
 
     it('rewrites the import extension to the mapped value', async () => {
@@ -76,9 +76,9 @@ describe('parserTs', () => {
       expect(result).toContain("import { Pet } from './models/pet.js'")
     })
 
-    it('drops the extension when the mapped value is an empty string', async () => {
-      const result = await parserTs({ extension: { '.ts': '' } }).parse(createFileWithImport())
-      expect(result).toContain("import { Pet } from './models/pet'")
+    it('keeps the source extension when explicitly mapped', async () => {
+      const result = await parserTs({ extension: { '.ts': '.ts' } }).parse(createFileWithImport())
+      expect(result).toContain("import { Pet } from './models/pet.ts'")
     })
   })
 })

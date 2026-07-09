@@ -3,7 +3,7 @@ import { defineParser } from '@kubb/core'
 import type * as ts from 'typescript'
 import { getRelativePath, print, printExport, printImport, printSource, resolveOutputPath } from './utils.ts'
 
-const DEFAULT_EXTENSION: Record<FileNode['extname'], FileNode['extname'] | ''> = { '.ts': '.ts' }
+const DEFAULT_EXTENSION: Record<FileNode['extname'], FileNode['extname'] | ''> = { '.ts': '' }
 
 /**
  * Options accepted by `parserTs` and `parserTsx`.
@@ -11,14 +11,15 @@ const DEFAULT_EXTENSION: Record<FileNode['extname'], FileNode['extname'] | ''> =
 export type ParserTsOptions = {
   /**
    * Rewrite the extensions emitted in `import`/`export` statements, e.g. emit `.js` imports from
-   * `.ts` sources for ESM dual packages. Keys are the source extension, values the output, and `''`
-   * drops it. Only the module-specifier string changes, never the on-disk filename.
+   * `.ts` sources for ESM dual packages, or keep the source extension for Node16/NodeNext
+   * resolution. Keys are the source extension, values the output, and `''` drops it. Only the
+   * module-specifier string changes, never the on-disk filename.
    *
-   * @default { '.ts': '.ts' }
+   * @default { '.ts': '' }
    * @example
    * ```ts
-   * parserTs({ extension: { '.ts': '.js' } })         // import './api.js' instead of './api.ts'
-   * parserTs({ extension: { '.ts': '', '.tsx': '.jsx' } })
+   * parserTs({ extension: { '.ts': '.js' } })         // import './api.js' instead of './api'
+   * parserTs({ extension: { '.ts': '.ts' } })          // import './api.ts' instead of './api'
    * ```
    */
   extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
