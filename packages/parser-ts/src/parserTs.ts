@@ -48,8 +48,8 @@ export type ParserTsOptions = {
  * })
  * ```
  */
-export function parserTs({ extension = DEFAULT_EXTENSION }: ParserTsOptions = {}) {
-  return defineParser({
+export const parserTs = defineParser(({ extension = DEFAULT_EXTENSION }: ParserTsOptions = {}) => {
+  return {
     name: 'typescript',
     extNames: ['.ts', '.js'],
     print(...nodes: Array<ts.Node>) {
@@ -98,5 +98,5 @@ export function parserTs({ extension = DEFAULT_EXTENSION }: ParserTsOptions = {}
 
       return parts.join('\n\n')
     },
-  })
-}
+  }
+})

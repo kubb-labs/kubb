@@ -37,8 +37,8 @@ export type MdMeta = {
  * })
  * ```
  */
-export function parserMd() {
-  return defineParser({
+export const parserMd = defineParser(() => {
+  return {
     name: 'markdown',
     extNames: ['.md', '.markdown'],
     print(...parts: Array<PrintInput>) {
@@ -59,5 +59,5 @@ export function parserMd() {
 
       return parts.join('\n\n')
     },
-  })
-}
+  }
+})

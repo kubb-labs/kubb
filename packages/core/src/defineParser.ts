@@ -32,28 +32,34 @@ export type Parser<TMeta extends object = object, TNode = unknown> = {
 }
 
 /**
- * Defines a parser with type-safe `this`. Used to register handlers for new
- * file extensions or to plug a non-TypeScript output into the build.
+ * Wraps a parser factory and returns a function that accepts user options and
+ * yields a typed {@link Parser}. Mirrors {@link definePlugin}: the factory
+ * receives the caller's options, and calling the returned function without
+ * options passes an empty object.
+ *
+ * Register the result in the `parsers` array on `defineConfig`, calling it to
+ * apply options (`parserTs({ extension: { '.ts': '.js' } })`).
  *
  * @example
  * ```ts
  * import { defineParser } from '@kubb/core'
  * import { extractStringsFromNodes } from '@kubb/ast'
  *
- * export const jsonParser = defineParser({
+ * export const parserJson = defineParser((options: { pretty?: boolean } = {}) => ({
  *   name: 'json',
  *   extNames: ['.json'],
  *   parse(file) {
- *     return file.sources
- *       .map((source) => extractStringsFromNodes(source.nodes ?? []))
- *       .join('\n')
+ *     const source = file.sources.map((source) => extractStringsFromNodes(source.nodes ?? [])).join('\n')
+ *     return options.pretty ? JSON.stringify(JSON.parse(source), null, 2) : source
  *   },
  *   print(...nodes) {
  *     return nodes.map(String).join('\n')
  *   },
- * })
+ * }))
  * ```
  */
-export function defineParser<T extends Parser>(parser: T): T {
-  return parser
+export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(
+  factory: (options: TOptions) => Parser<TMeta, TNode>,
+): (options?: TOptions) => Parser<TMeta, TNode> {
+  return (options) => factory(options ?? ({} as TOptions))
 }

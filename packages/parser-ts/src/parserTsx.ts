@@ -26,10 +26,10 @@ import { print } from './utils.ts'
  * })
  * ```
  */
-export function parserTsx(options: ParserTsOptions = {}) {
+export const parserTsx = defineParser((options: ParserTsOptions = {}) => {
   const parser = parserTs(options)
 
-  return defineParser({
+  return {
     name: 'tsx',
     extNames: ['.tsx', '.jsx'],
     print(...nodes: Array<ts.Node>) {
@@ -38,5 +38,5 @@ export function parserTsx(options: ParserTsOptions = {}) {
     parse(file) {
       return parser.parse(file)
     },
-  })
-}
+  }
+})

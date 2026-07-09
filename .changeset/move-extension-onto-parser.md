@@ -24,4 +24,14 @@ export default defineConfig({
 })
 ```
 
-Custom parsers built with `defineParser` now implement `parse(file)` without the second `options` argument.
+`defineParser` now wraps a factory the same way `definePlugin` does, so custom parsers take options too:
+
+```ts
+// before
+export const parserText = defineParser({ name: 'parser-text', extNames: ['.txt'], parse, print })
+
+// after
+export const parserText = defineParser((options) => ({ name: 'parser-text', extNames: ['.txt'], parse, print }))
+```
+
+`parse(file)` also drops its second `options` argument, since the parser resolves options from its factory instead.
