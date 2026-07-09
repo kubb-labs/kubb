@@ -202,6 +202,7 @@
     "objectkey-singlequote-blanklines",
     "optional-cli-validate-adapter-peer",
     "output-mode-explicit",
+    "output-post-generate",
     "parameter-style-explode",
     "parser-md-default-jsdoc",
     "parser-normalize-helpers",
