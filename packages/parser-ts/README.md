@@ -49,11 +49,11 @@ export default defineConfig({
 })
 ```
 
-Pass an `extension` map to rewrite the extensions emitted in `import`/`export` statements. Keys are the source extension, values the output, and an empty string drops it. Use `{ '.ts': '.js' }` for ESM when the consumer transpiles to JavaScript:
+Pass an `extension` map to rewrite the extensions emitted in `import`/`export` statements. Keys are the source extension, values the output, and an empty string drops it. Parsers drop the extension by default. Use `{ '.ts': '.js' }` for ESM when the consumer transpiles to JavaScript, or `{ '.ts': '.ts' }` to keep it for Node16/NodeNext resolution:
 
 ```typescript
 export default defineConfig({
-  input: { path: './petstore.yaml' },
+  input: './petstore.yaml',
   output: { path: './src/gen' },
   parsers: [parserTs({ extension: { '.ts': '.js' } }), parserTsx()],
 })
@@ -81,7 +81,7 @@ const source = parserTs().print(
 
 ### `parserTs(options?)`
 
-Factory returning a parser instance for `.ts` and `.js` files. Pass to `defineConfig({ parsers: [...] })` to emit TypeScript source files. The optional `extension` map rewrites the extensions written in `import`/`export` statements and defaults to `{ '.ts': '.ts' }`.
+Factory returning a parser instance for `.ts` and `.js` files. Pass to `defineConfig({ parsers: [...] })` to emit TypeScript source files. The optional `extension` map rewrites the extensions written in `import`/`export` statements and defaults to `{ '.ts': '' }`.
 
 The returned instance exposes `parse(file)` to serialize a `FileNode` to TypeScript source and `print(...nodes)` to convert TypeScript compiler `Node` instances to a formatted source string.
 
