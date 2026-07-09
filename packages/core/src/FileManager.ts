@@ -15,7 +15,6 @@ export type FileManagerHooks = {
 
 type ParseOptions = {
   parsers?: Map<FileNode['extname'], Parser>
-  extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
 }
 
 type WriteOptions = ParseOptions & {
@@ -157,12 +156,10 @@ export class FileManager {
   /**
    * Converts a file's AST sources (or its `copy` source) into the final on-disk string.
    */
-  async parse(file: FileNode, { parsers, extension }: ParseOptions = {}): Promise<string> {
+  async parse(file: FileNode, { parsers }: ParseOptions = {}): Promise<string> {
     if (file.copy) {
       return parseCopy(file)
     }
-
-    const parseExtName = extension?.[file.extname] || undefined
 
     if (!parsers || !file.extname) {
       return joinSources(file)
@@ -174,14 +171,14 @@ export class FileManager {
       return joinSources(file)
     }
 
-    return parser.parse(file, { extname: parseExtName })
+    return parser.parse(file)
   }
 
   /**
    * Converts and writes every file at once, letting `storage.setItem` decide how much of
    * that runs concurrently.
    */
-  async write(files: Array<FileNode>, { storage, parsers, extension }: WriteOptions): Promise<void> {
+  async write(files: Array<FileNode>, { storage, parsers }: WriteOptions): Promise<void> {
     if (files.length === 0) return
 
     await this.hooks.callHook('start', files)
@@ -190,7 +187,7 @@ export class FileManager {
     let processed = 0
     await Promise.all(
       files.map(async (file) => {
-        const source = await this.parse(file, { parsers, extension })
+        const source = await this.parse(file, { parsers })
         processed++
         await this.hooks.callHook('update', { file, source, processed, total, percentage: (processed / total) * 100 })
         if (source) await storage.setItem(file.path, source)

@@ -20,7 +20,7 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
  *
  * - `root` defaults to `process.cwd()`
  * - `adapter` defaults to `adapterOas()`
- * - `parsers` defaults to `[parserTs, parserTsx, parserMd]`
+ * - `parsers` defaults to `[parserTs(), parserTsx(), parserMd()]`
  * - `reporters` defaults to `[cliReporter, jsonReporter, fileReporter]`
  * - `plugins` gets `pluginBarrel()` appended when none is already present
  * - `output.barrel` defaults to `{ type: 'named' }` when not set (`pluginBarrel` is always present after the step above)
@@ -39,7 +39,7 @@ function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
     ...config,
     root: config.root || process.cwd(),
     adapter,
-    parsers: config.parsers?.length ? config.parsers : [parserTs, parserTsx, parserMd],
+    parsers: config.parsers?.length ? config.parsers : [parserTs(), parserTsx(), parserMd()],
     reporters: config.reporters?.length ? config.reporters : [cliReporter, jsonReporter, fileReporter],
     plugins,
     output,
@@ -59,7 +59,7 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  *
  * Defaults applied when omitted:
  * - `adapter` → `adapterOas()` (OpenAPI 2.0/3.0/3.1).
- * - `parsers` → `[parserTs, parserTsx, parserMd]`.
+ * - `parsers` → `[parserTs(), parserTsx(), parserMd()]`.
  * - `reporters` → `[cliReporter, jsonReporter, fileReporter]`.
  * - `plugins` → `pluginBarrel()` is appended when not already present.
  * - `output.barrel` → `{ type: 'named' }` when not set.
@@ -75,7 +75,7 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  * import { pluginTs } from '@kubb/plugin-ts'
  *
  * export default defineConfig({
- *   input: { path: './petStore.yaml' },
+ *   input: './petStore.yaml',
  *   output: { path: './src/gen' },
  *   plugins: [pluginTs()],
  * })
@@ -86,7 +86,7 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  * import { defineConfig } from 'kubb'
  *
  * export default defineConfig(({ input }) => ({
- *   input: { path: input ?? './petStore.yaml' },
+ *   input: input ?? './petStore.yaml',
  *   output: { path: './src/gen' },
  *   plugins: [],
  * }))

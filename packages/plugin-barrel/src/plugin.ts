@@ -86,7 +86,7 @@ export const pluginBarrelName = 'plugin-barrel' satisfies Plugin['name']
  * import { pluginZod } from '@kubb/plugin-zod'
  *
  * export default defineConfig({
- *   input: { path: './petStore.yaml' },
+ *   input: './petStore.yaml',
  *   output: { path: 'src/gen', barrel: { type: 'named' } },
  *   plugins: [
  *     pluginTs({ output: { path: 'types', barrel: { type: 'all' } } }),

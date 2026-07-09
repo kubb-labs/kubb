@@ -86,7 +86,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
   function makeConfig(plugins: Config['plugins']): Config {
     return {
       root: '.',
-      input: { path: './petStore.yaml' },
+      input: './petStore.yaml',
       output: { path: './src/gen', clean: true },
       parsers: [],
       reporters: [],
@@ -371,7 +371,7 @@ describe('PluginDriver — generator hook dispatch', () => {
   function makeConfig(plugins: Config['plugins']): Config {
     return {
       root: '.',
-      input: { path: './petStore.yaml' },
+      input: './petStore.yaml',
       output: { path: './src/gen', clean: true },
       parsers: [],
       reporters: [],
@@ -625,7 +625,7 @@ describe('enforce: post — plugin ordering', () => {
   function makeConfig(overrides: Partial<Config> = {}): Config {
     return {
       root: '.',
-      input: { path: './petStore.yaml' },
+      input: './petStore.yaml',
       output: { path: './src/gen', clean: true },
       parsers: [],
       reporters: [],

@@ -13,6 +13,7 @@ import {
   createKubb,
   type Diagnostic,
   Diagnostics,
+  getInputKind,
   type KubbHooks,
   logLevel as logLevelMap,
   type ProblemDiagnostic,
@@ -122,11 +123,11 @@ async function generate(options: GenerateProps): Promise<boolean> {
   const { input, hooks, logLevel } = options
 
   const hrStart = process.hrtime()
-  const inputPath = input ?? (options.config.input && 'path' in options.config.input ? options.config.input.path : undefined)
+  const inputPath = input ?? (typeof options.config.input === 'string' ? options.config.input : undefined)
 
   const config: Config = {
     ...options.config,
-    input: inputPath ? { ...options.config.input, path: inputPath } : options.config.input,
+    input: input ?? options.config.input,
   }
 
   const kubb = createKubb(config, { hooks })
@@ -327,8 +328,10 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
     let anyFailed = false
     for (const config of configs) {
-      if (config.input && 'path' in config.input && watch) {
-        const watchedPaths = [input || config.input.path]
+      const effectiveInput = input ?? config.input
+      const watchPath = typeof effectiveInput === 'string' && getInputKind(effectiveInput) === 'file' ? effectiveInput : undefined
+      if (watchPath && watch) {
+        const watchedPaths = [watchPath]
         // Don't removeAll() between builds, that would also drop logger and lifecycle
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
         // in its finally block, so re-running generate() on the same hooks emitter is safe.

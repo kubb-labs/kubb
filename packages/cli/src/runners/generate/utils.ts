@@ -26,7 +26,7 @@ type GetConfigsOptions = {
    */
   configPath?: string
   /**
-   * Optional OpenAPI input path that overrides `config.input.path` for this run.
+   * Optional OpenAPI input path or URL that overrides `config.input` for this run.
    */
   input?: string
   /**

@@ -27,7 +27,7 @@ describe('defineConfig', () => {
 
   test('defaults root to process.cwd() when not set', () => {
     const config = defineConfig({
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: { path: './gen' },
     } as UserConfig)
     const resolved = config as UserConfig
@@ -38,7 +38,7 @@ describe('defineConfig', () => {
   test('preserves an explicit root', () => {
     const config = defineConfig({
       root: '/custom/root',
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: { path: './gen' },
     } as UserConfig)
     const resolved = config as UserConfig
@@ -49,7 +49,7 @@ describe('defineConfig', () => {
   test('applies default adapter when not set', () => {
     const config = defineConfig({
       root: '.',
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: { path: './gen' },
     } as UserConfig)
     const resolved = config as UserConfig
@@ -61,7 +61,7 @@ describe('defineConfig', () => {
   test('applies default parsers when not set', () => {
     const config = defineConfig({
       root: '.',
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: { path: './gen' },
     } as UserConfig)
     const resolved = config as UserConfig
@@ -72,7 +72,7 @@ describe('defineConfig', () => {
   test('registers the built-in reporters when not set', () => {
     const config = defineConfig({
       root: '.',
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: { path: './gen' },
     } as UserConfig)
     const resolved = config as UserConfig
@@ -84,7 +84,7 @@ describe('defineConfig', () => {
     const reporters = [{ name: 'custom' } as any]
     const config = defineConfig({
       root: '.',
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: { path: './gen' },
       reporters,
     } as UserConfig)
@@ -96,7 +96,7 @@ describe('defineConfig', () => {
   test('appends pluginBarrel to plugins when not already present', () => {
     const config = defineConfig({
       root: '.',
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: { path: './gen' },
     } as UserConfig)
     const resolved = config as UserConfig
@@ -107,7 +107,7 @@ describe('defineConfig', () => {
   test("defaults output.barrel to { type: 'named' } when not set", () => {
     const config = defineConfig({
       root: '.',
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: { path: './gen' },
     } as UserConfig)
     const resolved = config as UserConfig
@@ -118,12 +118,12 @@ describe('defineConfig', () => {
   test('preserves explicit output.barrel (including false)', () => {
     const named = defineConfig({
       root: '.',
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: { path: './gen', barrel: { type: 'all' } },
     } as UserConfig) as UserConfig
     const disabled = defineConfig({
       root: '.',
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: { path: './gen', barrel: false },
     } as UserConfig) as UserConfig
 
@@ -134,7 +134,7 @@ describe('defineConfig', () => {
   test('does not append pluginBarrel when already in plugins list', () => {
     const config = defineConfig({
       root: '.',
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: { path: './gen' },
       plugins: [pluginBarrel()],
     } as UserConfig)
@@ -148,7 +148,7 @@ describe('defineConfig', () => {
     const customPlugin = createMockedPlugin({ name: 'custom', options: undefined as any })
     const config = defineConfig({
       root: '.',
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: { path: './gen' },
       plugins: [customPlugin],
     } as UserConfig)
@@ -162,7 +162,7 @@ describe('defineConfig', () => {
     const adapter = createMockedAdapter()
     const config = defineConfig({
       root: '.',
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: { path: './gen' },
       adapter,
     } as UserConfig)
@@ -175,7 +175,7 @@ describe('defineConfig', () => {
     const parsers = [{ name: 'custom' } as any]
     const config = defineConfig({
       root: '.',
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: { path: './gen' },
       parsers,
     } as UserConfig)
@@ -235,11 +235,11 @@ describe('defineConfig', () => {
   test('handles promise config', async () => {
     const config = defineConfig(
       Promise.resolve({
-        input: { path: 'spec.yaml' },
+        input: 'spec.yaml',
         output: { path: './gen' },
       }),
     )
-    const typedConfig: Promise<UserConfig<{ path: string }>> = config
+    const typedConfig: Promise<UserConfig<string>> = config
 
     const result = await config
 
@@ -251,12 +251,12 @@ describe('defineConfig', () => {
     const config = defineConfig(
       Promise.resolve([
         {
-          input: { path: 'spec.yaml' },
+          input: 'spec.yaml',
           output: { path: './gen' },
         },
       ]),
     )
-    const typedConfig: Promise<Array<UserConfig<{ path: string }>>> = config
+    const typedConfig: Promise<Array<UserConfig<string>>> = config
 
     const result = await config
 
@@ -266,32 +266,32 @@ describe('defineConfig', () => {
 
   test('preserves inferred input types', () => {
     const pathConfig = defineConfig({
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: { path: './gen' },
     })
     const dataConfig = defineConfig({
-      input: { data: { openapi: '3.1.0' } },
+      input: { openapi: '3.1.0' },
       output: { path: './gen' },
     })
-    const typedPathConfig: UserConfig<{ path: string }> = pathConfig
-    const typedDataConfig: UserConfig<{ data: { openapi: string } }> = dataConfig
+    const typedPathConfig: UserConfig<string> = pathConfig
+    const typedDataConfig: UserConfig<{ openapi: string }> = dataConfig
 
-    expect(typedPathConfig.input!.path).toBe('spec.yaml')
-    expect(typedDataConfig.input!.data).toStrictEqual({ openapi: '3.1.0' })
+    expect(typedPathConfig.input).toBe('spec.yaml')
+    expect(typedDataConfig.input).toStrictEqual({ openapi: '3.1.0' })
   })
 
   test('accepts named configs with output.postGenerate', () => {
     const namedConfig = defineConfig({
       name: 'gen',
       root: '.',
-      input: { path: 'spec.yaml' },
+      input: 'spec.yaml',
       output: {
         path: './gen',
         postGenerate: [{ name: 'types', command: 'npm run typecheck' }, 'biome check --write ./gen'],
       },
       plugins: [],
     })
-    const typedNamedConfig: UserConfig<{ path: string }> = namedConfig
+    const typedNamedConfig: UserConfig<string> = namedConfig
 
     expect(typedNamedConfig.name).toBe('gen')
     expect(typedNamedConfig.output.postGenerate).toStrictEqual([{ name: 'types', command: 'npm run typecheck' }, 'biome check --write ./gen'])
@@ -300,11 +300,11 @@ describe('defineConfig', () => {
   test('preserves inferred input types for array results', () => {
     const arrayConfig = defineConfig([
       {
-        input: { path: 'spec.yaml' },
+        input: 'spec.yaml',
         output: { path: './gen' },
       },
     ])
-    const typedArrayConfig: Array<UserConfig<{ path: string }>> = arrayConfig
+    const typedArrayConfig: Array<UserConfig<string>> = arrayConfig
 
     expect(typedArrayConfig).toHaveLength(1)
   })

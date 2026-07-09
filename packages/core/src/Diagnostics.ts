@@ -262,13 +262,13 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   },
   [diagnosticCode.inputNotFound]: {
     title: 'Input not found',
-    cause: 'The file or URL set in `input.path` (or passed as `kubb generate PATH`) could not be read.',
-    fix: 'Check that the path or URL exists and is readable, then set it in `input.path` or pass it on the CLI.',
+    cause: 'The file or URL set as `input` (or passed as `kubb generate PATH`) could not be read.',
+    fix: 'Check that the path or URL exists and is readable, then set it as `input` or pass it on the CLI.',
   },
   [diagnosticCode.inputRequired]: {
     title: 'Input required',
     cause: 'An adapter is configured but no `input` was provided.',
-    fix: 'Set `input.path` (a file or URL) or `input.data` (an inline spec) in your Kubb config.',
+    fix: 'Set `input` to a file path, a URL, an inline spec (JSON/YAML string), or a parsed object in your Kubb config.',
   },
   [diagnosticCode.refNotFound]: {
     title: 'Reference not found',

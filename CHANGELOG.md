@@ -1,5 +1,71 @@
 # Changelog
 
+## v5.0.0-beta.91 — Jul 9, 2026
+
+### @kubb/core
+
+#### Breaking Changes
+
+- Merge `input.path` and `input.data` into a single `input`.
+  
+  Pass `input` a file path, a URL, an inline spec (JSON or YAML string), or a parsed object, and Kubb picks the right one. The `{ path }` and `{ data }` object forms are gone.
+  
+  ```diff
+  export default defineConfig({
+  -  input: { path: './petStore.yaml' },
+  +  input: './petStore.yaml',
+    output: { path: './src/gen' },
+  })
+  ``` ([#3739](https://github.com/kubb-labs/kubb/pull/3739), [`c754376`](https://github.com/kubb-labs/kubb/commit/c75437692b7ad53f4a0123ea837fef86b04865d9))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.0-beta.90 — Jul 9, 2026
+
+### @kubb/parser-ts
+
+#### Breaking Changes
+
+- Move import and export extension rewriting from `output.extension` onto the parser, and turn the built-in parsers into factories.
+  
+  `output.extension` only ever rewrote the extensions inside `import`/`export` statements, so it now lives on `parserTs`, the parser that does the work. `parserTs`, `parserTsx`, and `parserMd` are now factory functions you call, matching the plugin convention (`pluginTs()`), and `parserTs`/`parserTsx` accept an `extension` map. The `output.extension` option and the `extname` argument to `Parser.parse` are removed.
+  
+  ```ts
+  // before
+  export default defineConfig({
+    output: { path: './src/gen', extension: { '.ts': '.js' } },
+    parsers: [parserTs, parserTsx, parserMd],
+  })
+  
+  // after
+  export default defineConfig({
+    output: { path: './src/gen' },
+    parsers: [parserTs({ extension: { '.ts': '.js' } }), parserTsx(), parserMd()],
+  })
+  ```
+  
+  `defineParser` now wraps a factory the same way `definePlugin` does, so custom parsers take options too:
+  
+  ```ts
+  // before
+  export const parserText = defineParser({ name: 'parser-text', extNames: ['.txt'], parse, print })
+  
+  // after
+  export const parserText = defineParser((options) => ({ name: 'parser-text', extNames: ['.txt'], parse, print }))
+  ```
+  
+  `parse(file)` also drops its second `options` argument, since the parser resolves options from its factory instead. ([#3740](https://github.com/kubb-labs/kubb/pull/3740), [`e9c8588`](https://github.com/kubb-labs/kubb/commit/e9c858875b5ddc7715ead3c613b10ea600bf400c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.89 — Jul 8, 2026
 
 ### @kubb/core

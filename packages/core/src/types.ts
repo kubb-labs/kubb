@@ -15,40 +15,22 @@ import type { KubbDriver } from './KubbDriver.ts'
 type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
 
 /**
- * Path to an input file to generate from, absolute or relative to the config file. The adapter
- * parses it (e.g. an OpenAPI YAML or JSON spec) into the universal AST.
+ * Source to generate from. Kubb detects what it was given:
+ *
+ * - A string that is a local file path (absolute or relative to the config file) or a URL is
+ *   read and parsed by the adapter (e.g. an OpenAPI YAML or JSON spec).
+ * - A string that is inline OpenAPI content (JSON or YAML) is parsed directly.
+ * - A parsed object is used as-is, without touching the filesystem.
+ *
+ * @example
+ * ```ts
+ * './petstore.yaml'                       // local path
+ * 'https://example.com/openapi.json'      // URL
+ * '{ "openapi": "3.1.0", "info": {...} }' // inline JSON
+ * { openapi: '3.1.0', info: { ... } }     // parsed object
+ * ```
  */
-export type InputPath = {
-  /**
-   * Path to your Swagger/OpenAPI file, absolute or relative to the config file location.
-   *
-   * @example
-   * ```ts
-   * { path: './petstore.yaml' }
-   * { path: '/absolute/path/to/openapi.json' }
-   * ```
-   */
-  path: string
-}
-
-/**
- * Inline spec to generate from, passed directly instead of read from a file. A string
- * (YAML/JSON) or a parsed object.
- */
-export type InputData = {
-  /**
-   * Swagger/OpenAPI data as a string (YAML/JSON) or a parsed object.
-   *
-   * @example
-   * ```ts
-   * { data: fs.readFileSync('./openapi.yaml', 'utf8') }
-   * { data: { openapi: '3.1.0', info: { ... } } }
-   * ```
-   */
-  data: string | unknown
-}
-
-type Input = InputPath | InputData
+export type Input = string | Record<string, unknown>
 
 /**
  * A post-generate step: a shell command string, or an object that pairs the command with a `name`
@@ -85,7 +67,7 @@ export type Config<TInput = Input> = {
    * set of file extensions, and a fallback parser handles anything else.
    *
    * Already resolved on the `Config` instance (see `UserConfig` for the
-   * optional form that defaults to `[parserTs, parserTsx, parserMd]`).
+   * optional form that defaults to `[parserTs(), parserTsx(), parserMd()]`).
    *
    * @example
    * ```ts
@@ -93,7 +75,7 @@ export type Config<TInput = Input> = {
    * import { parserTs, parserTsx } from '@kubb/parser-ts'
    *
    * export default defineConfig({
-   *   parsers: [parserTs, parserTsx],
+   *   parsers: [parserTs(), parserTsx()],
    * })
    * ```
    */
@@ -111,14 +93,14 @@ export type Config<TInput = Input> = {
    * import { adapterOas } from '@kubb/adapter-oas'
    * export default defineConfig({
    *   adapter: adapterOas(),
-   *   input: { path: './petstore.yaml' },
+   *   input: './petstore.yaml',
    * })
    * ```
    */
   adapter?: Adapter
   /**
-   * Source file or data to generate code from.
-   * Use `input.path` for a file path or `input.data` for inline data.
+   * Source to generate code from: a local file path, a URL, inline OpenAPI content
+   * (JSON or YAML string), or a parsed spec object. Kubb detects which one it was given.
    * Required when an adapter is configured. Omit it when running in plugin-only mode.
    */
   input?: TInput
@@ -181,18 +163,6 @@ export type Config<TInput = Input> = {
      * ```
      */
     postGenerate?: Array<PostGenerateCommand>
-    /**
-     * Rewrite import extensions in generated files, e.g. emit `.js` imports from `.ts` sources for
-     * ESM dual packages. Keys are the source extension, values the output, and `''` drops it.
-     *
-     * @default { '.ts': '.ts' }
-     * @example
-     * ```ts
-     * extension: { '.ts': '.js' }      // generates import './api.js' instead of './api.ts'
-     * extension: { '.ts': '', '.tsx': '.jsx' }
-     * ```
-     */
-    extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
     /**
      * Banner prepended to every generated file. `'simple'` is the basic Kubb notice, `'full'` adds
      * source, title, description, and API version, and `false` omits it.
@@ -273,7 +243,7 @@ export type Config<TInput = Input> = {
  * @example
  * ```ts
  * export default defineConfig({
- *   input: { path: './petstore.yaml' },
+ *   input: './petstore.yaml',
  *   output: { path: './src/gen' },
  *   plugins: [pluginTs(), pluginZod()],
  * })
@@ -287,7 +257,7 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
   root?: string
   /**
    * Custom parsers that convert generated AST nodes to strings (TypeScript, JSON, markdown, etc.).
-   * @default [parserTs, parserTsx, parserMd]  // applied by `defineConfig` from the `kubb` package
+   * @default [parserTs(), parserTsx(), parserMd()]  // applied by `defineConfig` from the `kubb` package
    */
   parsers?: Array<Parser>
   /**
@@ -716,8 +686,8 @@ export type CLIOptions = {
    */
   config?: string
   /**
-   * OpenAPI input path passed as the positional argument to `kubb generate`.
-   * Overrides `config.input.path` when set.
+   * OpenAPI input path or URL passed as the positional argument to `kubb generate`.
+   * Overrides `config.input` when set.
    */
   input?: string
   /**

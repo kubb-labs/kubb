@@ -16,7 +16,6 @@ function resolveConfig(userConfig: UserConfig): Config {
     output: {
       format: false,
       lint: false,
-      extension: { '.ts': '.ts' },
       defaultBanner: 'simple',
       ...userConfig.output,
     },
@@ -141,7 +140,7 @@ export class Kubb {
  * import { pluginTs } from '@kubb/plugin-ts'
  *
  * const kubb = createKubb({
- *   input: { path: './petStore.yaml' },
+ *   input: './petStore.yaml',
  *   output: { path: './src/gen' },
  *   adapter: adapterOas(),
  *   plugins: [pluginTs()],

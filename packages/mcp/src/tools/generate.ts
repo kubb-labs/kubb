@@ -92,17 +92,10 @@ export const generateTool = defineTool(
         return tool.error(errorMessage)
       }
 
-      const inputPath = input ?? (userConfig.input && 'path' in userConfig.input ? userConfig.input.path : undefined)
-
       const config: Config = {
         ...userConfig,
         root: resolveCwd(userConfig, cwd),
-        input: inputPath
-          ? {
-              ...userConfig.input,
-              path: inputPath,
-            }
-          : userConfig.input,
+        input: input ?? userConfig.input,
         output: output
           ? {
               ...userConfig.output,
