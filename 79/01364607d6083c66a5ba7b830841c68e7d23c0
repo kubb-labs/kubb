@@ -1,0 +1,52 @@
+packages/adapter-oas/src/resolvers.ts
+  s_f5c2d86ba9efab::t_5d89b12fea4138 5
+packages/adapter-oas/src/refs.ts
+  s_f5c2d86ba9efab::t_d0fd8112a595b4 2
+packages/adapter-oas/src/operation.ts
+  s_f5c2d86ba9efab::t_6bc0110907a936 2
+packages/adapter-oas/src/parser.ts
+  s_f5c2d86ba9efab::t_f95fa99f1ae3f0 2-4,9,82-84,86-87,89-96,98-99,101,104,128,136-139,143-144
+  s_f5c2d86ba9efab::t_35995d5b36baba 5
+  s_f5c2d86ba9efab::t_603a60436ac33d 33,35-38
+  s_f5c2d86ba9efab::t_a3095508f4b23e 8
+packages/adapter-oas/src/oas.test.ts
+  s_f5c2d86ba9efab::t_14acbc3cdb1f7e 2
+packages/adapter-oas/src/factory.test.ts
+  s_f5c2d86ba9efab::t_e1dca18e8a3f4c 3-4
+  s_f5c2d86ba9efab::t_7fd8b773aafcde 158-290
+packages/adapter-oas/src/factory.ts
+  s_f5c2d86ba9efab::t_ca5c358994641c 2,7,11-76
+  s_f5c2d86ba9efab::t_c202bf868f492d 77
+packages/adapter-oas/src/converters.ts
+  s_f5c2d86ba9efab::t_95022b0190b629 36-37
+  s_f5c2d86ba9efab::t_bff1961a67953a 1-35,38-53,55-762
+  s_f5c2d86ba9efab::t_35072c937f310c 54
+packages/adapter-oas/src/oas.ts
+  s_f5c2d86ba9efab::t_216c1261c7cc4b 1-63
+packages/core/src/Hookable.ts
+  s_a805eb63fc26b1::t_21c88c02a87b3b 2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "7901364607d6083c66a5ba7b830841c68e7d23c0",
+  "prompts": {},
+  "sessions": {
+    "s_a805eb63fc26b1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "a53c94dd-9754-4f7e-affd-2374d0979e5e",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    },
+    "s_f5c2d86ba9efab": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ed2887c7-e80b-4376-b29e-a1fbc8172921",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
