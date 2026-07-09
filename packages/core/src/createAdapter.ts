@@ -44,7 +44,7 @@ export type AdapterFactoryOptions<
  * import { pluginTs } from '@kubb/plugin-ts'
  *
  * export default defineConfig({
- *   input: { path: './petStore.yaml' },
+ *   input: './petStore.yaml',
  *   output: { path: './src/gen' },
  *   adapter: adapterOas(),
  *   plugins: [pluginTs()],

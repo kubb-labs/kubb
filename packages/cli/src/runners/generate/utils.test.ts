@@ -153,7 +153,7 @@ describe('getConfigs', () => {
   it('loads an explicit ESM config path and defaults plugins to an empty array', async () => {
     dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
     const configPath = join(dir, 'kubb.config.mjs')
-    await writeFile(configPath, `export default { root: '.', input: { path: './pets.yaml' }, output: { path: './gen' } }\n`)
+    await writeFile(configPath, `export default { root: '.', input: './pets.yaml', output: { path: './gen' } }\n`)
 
     const { configPath: resolved, configs } = await getConfigs({ configPath })
 
@@ -165,11 +165,11 @@ describe('getConfigs', () => {
   it('calls a config function with the CLI options', async () => {
     dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
     const configPath = join(dir, 'kubb.config.mjs')
-    await writeFile(configPath, `export default ({ input }) => ({ root: '.', input: { path: input }, output: { path: './gen' } })\n`)
+    await writeFile(configPath, `export default ({ input }) => ({ root: '.', input, output: { path: './gen' } })\n`)
 
     const { configs } = await getConfigs({ configPath, input: './from-cli.yaml' })
 
-    expect(configs[0]).toMatchObject({ input: { path: './from-cli.yaml' } })
+    expect(configs[0]).toMatchObject({ input: './from-cli.yaml' })
   })
 
   it('throws a clear error when no config is found', async () => {

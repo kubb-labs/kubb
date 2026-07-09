@@ -43,7 +43,7 @@ import { defineConfig } from 'kubb'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 
 export default defineConfig({
-  input: { path: './petstore.yaml' },
+  input: './petstore.yaml',
   output: { path: './src/gen' },
   parsers: [parserTs(), parserTsx()],
 })

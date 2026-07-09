@@ -33,7 +33,7 @@ export const diagnosticCode = {
    */
   unknown: 'KUBB_UNKNOWN',
   /**
-   * The `input.path` file or URL could not be read.
+   * The file or URL set as `input` could not be read.
    */
   inputNotFound: 'KUBB_INPUT_NOT_FOUND',
   /**

@@ -75,7 +75,7 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  * import { pluginTs } from '@kubb/plugin-ts'
  *
  * export default defineConfig({
- *   input: { path: './petStore.yaml' },
+ *   input: './petStore.yaml',
  *   output: { path: './src/gen' },
  *   plugins: [pluginTs()],
  * })
@@ -86,7 +86,7 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  * import { defineConfig } from 'kubb'
  *
  * export default defineConfig(({ input }) => ({
- *   input: { path: input ?? './petStore.yaml' },
+ *   input: input ?? './petStore.yaml',
  *   output: { path: './src/gen' },
  *   plugins: [],
  * }))

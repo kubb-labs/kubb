@@ -14,6 +14,8 @@ export { definePlugin } from './definePlugin.ts'
 export { createResolver } from './createResolver.ts'
 export { Resolver } from './Resolver.ts'
 export { KubbDriver } from './KubbDriver.ts'
+export { getInputKind } from './input.ts'
+export type { InputKind } from './input.ts'
 export { fsStorage } from './storages/fsStorage.ts'
 export { memoryStorage } from './storages/memoryStorage.ts'
 

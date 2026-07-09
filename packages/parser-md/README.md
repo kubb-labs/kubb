@@ -44,7 +44,7 @@ import { parserMd } from '@kubb/parser-md'
 import { parserTs } from '@kubb/parser-ts'
 
 export default defineConfig({
-  input: { path: './petstore.yaml' },
+  input: './petstore.yaml',
   output: { path: './src/gen' },
   parsers: [parserTs(), parserMd()],
 })

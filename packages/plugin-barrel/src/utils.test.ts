@@ -7,7 +7,7 @@ import { buildTree, getBarrelFiles, getPluginOutputPrefix, isExcludedPath } from
 function makeConfig(): Config {
   return {
     root: '/workspace',
-    input: { path: './petstore.yaml' },
+    input: './petstore.yaml',
     output: { path: 'src/gen', clean: true },
     parsers: [],
     adapter: createMockedAdapter(),

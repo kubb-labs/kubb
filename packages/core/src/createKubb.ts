@@ -140,7 +140,7 @@ export class Kubb {
  * import { pluginTs } from '@kubb/plugin-ts'
  *
  * const kubb = createKubb({
- *   input: { path: './petStore.yaml' },
+ *   input: './petStore.yaml',
  *   output: { path: './src/gen' },
  *   adapter: adapterOas(),
  *   plugins: [pluginTs()],

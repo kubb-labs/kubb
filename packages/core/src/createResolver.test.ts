@@ -487,7 +487,7 @@ describe('default.file', () => {
 })
 
 const mockConfig = {
-  input: { path: 'petStore.yaml' },
+  input: 'petStore.yaml',
   output: { path: 'src/generated', defaultBanner: true },
 } as unknown as Config
 

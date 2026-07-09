@@ -28,7 +28,7 @@ describe('generate tool', () => {
       `import { adapterOas } from '@kubb/adapter-oas'
 export default {
   root: '.',
-  input: { path: './does-not-exist.yaml' },
+  input: './does-not-exist.yaml',
   output: { path: './gen' },
   adapter: adapterOas({ validate: false }),
   plugins: [],

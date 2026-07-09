@@ -55,7 +55,7 @@ function createLimiter(concurrency: number) {
  * import { defineConfig } from 'kubb'
  *
  * export default defineConfig({
- *   input:  { path: './petStore.yaml' },
+ *   input:  './petStore.yaml',
  *   output: { path: './src/gen' },
  *   storage: fsStorage(),
  * })

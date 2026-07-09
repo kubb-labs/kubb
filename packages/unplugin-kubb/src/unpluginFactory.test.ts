@@ -100,7 +100,7 @@ describe('unpluginFactory', () => {
       },
     }))()
     const config = {
-      input: { path: 'https://example.com/openapi.json' },
+      input: 'https://example.com/openapi.json',
       output: { path: './gen' },
       adapter: createMockedAdapter(),
       plugins: [plugin],
@@ -118,7 +118,7 @@ describe('unpluginFactory', () => {
     const { clear, storage } = createMemoryStorage()
     const config = {
       root,
-      input: { path: 'https://example.com/openapi.json' },
+      input: 'https://example.com/openapi.json',
       output: { path: './gen', clean: true },
       adapter: createMockedAdapter(),
       storage,
@@ -140,7 +140,7 @@ describe('unpluginFactory', () => {
       },
     }))()
     const config = {
-      input: { path: 'https://example.com/openapi.json' },
+      input: 'https://example.com/openapi.json',
       output: { path: './gen' },
       adapter: createMockedAdapter(),
       plugins: [plugin],
