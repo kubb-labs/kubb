@@ -46,5 +46,15 @@ export default defineConfig({
         'typescript/consistent-type-assertions': 'off',
       },
     },
+    {
+      // `JSX.ElementType`'s function-component branch needs `any`, matching React's own
+      // `JSXElementConstructor<P = any>`: `(props: never) => ...` type-checks for simple
+      // assignment but breaks TypeScript's JSX prop-inference machinery for components,
+      // which relies on `any`'s special variance here.
+      files: ['**/jsx-namespace.d.ts'],
+      rules: {
+        'typescript/no-explicit-any': 'off',
+      },
+    },
   ],
 })
