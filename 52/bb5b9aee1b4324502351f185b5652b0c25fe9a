@@ -1,0 +1,23 @@
+packages/mcp/src/index.ts
+  s_79df632b4743a9::t_d82f611da0b6c9 6,8
+packages/cli/src/runners/generate/run.ts
+  s_79df632b4743a9::t_f1f80aa1ab6f4f 157-158
+packages/cli/src/loggers/defineLogger.ts
+  s_79df632b4743a9::t_b725e785b128bf 25,34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "52bb5b9aee1b4324502351f185b5652b0c25fe9a",
+  "prompts": {},
+  "sessions": {
+    "s_79df632b4743a9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "7be179bf-9921-41cb-a624-61f0f53c90a8",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
