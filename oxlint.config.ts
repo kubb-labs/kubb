@@ -29,10 +29,22 @@ export default defineConfig({
     'default-param-last': 'error',
     'prefer-exponentiation-operator': 'error',
     'typescript/array-type': ['error', { default: 'generic' }],
+    'typescript/consistent-type-assertions': ['error', { assertionStyle: 'as', objectLiteralTypeAssertions: 'allow-as-parameter' }],
     'typescript/consistent-type-imports': ['error', { disallowTypeAnnotations: false }],
+    'typescript/no-explicit-any': 'error',
     'typescript/no-inferrable-types': 'error',
     'typescript/prefer-function-type': 'error',
     'react/self-closing-comp': 'error',
     'react/no-array-index-key': 'warn',
   },
+  overrides: [
+    {
+      // Test fixtures build partial mock objects (`{ ... } as GeneratorContext`) that a
+      // type annotation or `satisfies` cannot express, so the assertion is intentional there.
+      files: ['**/*.test.ts', '**/*.test.tsx'],
+      rules: {
+        'typescript/consistent-type-assertions': 'off',
+      },
+    },
+  ],
 })
