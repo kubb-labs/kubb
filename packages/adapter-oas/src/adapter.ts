@@ -74,7 +74,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   // parses each config's spec instead of replaying the first one. The document-derived caches key
   // off the resulting document, so distinct configs (distinct documents) stay isolated.
   const documentCache = new WeakMap<AdapterSource, Promise<Document>>()
-  const schemasCache = new WeakMap<Document, Promise<ReturnType<typeof getSchemas>['schemas']>>()
+  const schemasCache = new WeakMap<Document, ReturnType<typeof getSchemas>['schemas']>()
   const schemaParserCache = new WeakMap<Document, ReturnType<typeof createSchemaParser>>()
 
   function ensureDocument(source: AdapterSource): Promise<Document> {
@@ -91,17 +91,14 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     return promise
   }
 
-  function ensureSchemas(document: Document): Promise<ReturnType<typeof getSchemas>['schemas']> {
+  function ensureSchemas(document: Document): ReturnType<typeof getSchemas>['schemas'] {
     const cached = schemasCache.get(document)
     if (cached) return cached
 
-    const promise = Promise.resolve().then(() => {
-      const result = getSchemas(document, { contentType })
-      nameMapping = result.nameMapping
-      return result.schemas
-    })
-    schemasCache.set(document, promise)
-    return promise
+    const result = getSchemas(document, { contentType })
+    nameMapping = result.nameMapping
+    schemasCache.set(document, result.schemas)
+    return result.schemas
   }
 
   function ensureSchemaParser(document: Document): ReturnType<typeof createSchemaParser> {
@@ -239,7 +236,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     },
     async parse(source) {
       const document = await ensureDocument(source)
-      const schemas = await ensureSchemas(document)
+      const schemas = ensureSchemas(document)
       const parser = ensureSchemaParser(document)
 
       return parseInput({ document, schemas, parser })

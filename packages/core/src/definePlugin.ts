@@ -385,13 +385,6 @@ export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFacto
   resolver: TOptions['resolver']
   macros?: Array<Macro>
   generators?: Array<Generator>
-  /**
-   * Set by the driver when the plugin registers a generator via `addGenerator()` in
-   * `kubb:plugin:setup`. Drives whether the build walks the AST for this plugin.
-   */
-  hasHookGenerators?: boolean
-  apply?: (config: Config) => boolean
-  version?: string
 }
 
 export type KubbPluginStartContext = {

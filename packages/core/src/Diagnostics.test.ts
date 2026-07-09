@@ -111,22 +111,6 @@ describe('Diagnostics.count', () => {
   })
 })
 
-describe('Diagnostics.narrow', () => {
-  it('returns the variant for a matching code and null otherwise', () => {
-    const update = Diagnostics.update({ currentVersion: '5.0.0', latestVersion: '5.1.0' })
-
-    expect(Diagnostics.narrow(update, Diagnostics.code.updateAvailable)).toBe(update)
-    expect(Diagnostics.narrow(update, Diagnostics.code.refNotFound)).toBeNull()
-  })
-
-  it('narrows a problem by its specific code', () => {
-    const diagnostic = problem()
-
-    expect(Diagnostics.narrow(diagnostic, Diagnostics.code.refNotFound)).toBe(diagnostic)
-    expect(Diagnostics.narrow(diagnostic, Diagnostics.code.performance)).toBeNull()
-  })
-})
-
 describe('diagnostic kind guards', () => {
   it('narrows by kind, treating a missing kind as a problem', () => {
     const performance = Diagnostics.performance({ plugin: 'a', duration: 5 })

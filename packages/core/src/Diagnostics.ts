@@ -157,30 +157,6 @@ export type UpdateDiagnostic = {
 export type Diagnostic = ProblemDiagnostic | PerformanceDiagnostic | UpdateDiagnostic
 
 /**
- * Maps each {@link DiagnosticCode} to the variant it selects, for {@link narrow}.
- * Every {@link ProblemCode} selects a {@link ProblemDiagnostic}, and the two bookkeeping codes
- * select their own variant.
- */
-export type DiagnosticByCode = Record<ProblemCode, ProblemDiagnostic> &
-  Record<typeof diagnosticCode.performance, PerformanceDiagnostic> &
-  Record<typeof diagnosticCode.updateAvailable, UpdateDiagnostic>
-
-/**
- * Narrows a {@link Diagnostic} to the variant for `code`, or `null` when it does not match.
- *
- * @example
- * ```ts
- * const update = narrow(diagnostic, diagnosticCode.updateAvailable)
- * if (update) {
- *   console.log(update.latestVersion)
- * }
- * ```
- */
-function narrow<C extends DiagnosticCode>(diagnostic: Diagnostic, code: C): DiagnosticByCode[C] | null {
-  return diagnostic.code === code ? (diagnostic as DiagnosticByCode[C]) : null
-}
-
-/**
  * Builds a type guard that narrows a {@link Diagnostic} to the variant for `kind`. A diagnostic
  * with no `kind` is treated as a `problem`.
  */
@@ -383,11 +359,6 @@ export class Diagnostics {
    * Type guard for a per-plugin {@link PerformanceDiagnostic}.
    */
   static isPerformance = isPerformance
-
-  /**
-   * Narrows a {@link Diagnostic} to the variant for `code`, or `null` when it does not match.
-   */
-  static narrow = narrow
 
   /**
    * An `Error` that carries a {@link Diagnostic}, so structured problems can flow

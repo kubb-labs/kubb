@@ -136,7 +136,7 @@ export function getParameters(document: Document, operation: Operation): Array<P
   return Array.from(paramMap.values())
 }
 
-function getResponseBody(responseBody: boolean | ResponseObject, contentType?: string): MediaTypeObject | false | [string, MediaTypeObject, ...Array<string>] {
+function getResponseBody(responseBody: boolean | ResponseObject, contentType?: string): MediaTypeObject | false {
   if (!responseBody) return false
   if (isReference(responseBody)) return false
 
@@ -148,24 +148,11 @@ function getResponseBody(responseBody: boolean | ResponseObject, contentType?: s
     return body.content[contentType]!
   }
 
-  let availableContentType: string | undefined
   const contentTypes = Object.keys(body.content)
-  for (const mt of contentTypes) {
-    if (isJsonMimeType(mt)) {
-      availableContentType = mt
-      break
-    }
-  }
+  const availableContentType = contentTypes.find(isJsonMimeType) ?? contentTypes[0]
+  if (!availableContentType) return false
 
-  if (!availableContentType) {
-    availableContentType = contentTypes[0]
-  }
-
-  if (availableContentType) {
-    return [availableContentType, body.content[availableContentType]!, ...(body.description ? [body.description] : [])]
-  }
-
-  return false
+  return body.content[availableContentType]!
 }
 
 /**
@@ -200,7 +187,7 @@ export function getResponseSchema(document: Document, operation: Operation, stat
     return {}
   }
 
-  const schema = Array.isArray(responseBody) ? responseBody[1].schema : responseBody.schema
+  const schema = responseBody.schema
 
   if (!schema) {
     return {}

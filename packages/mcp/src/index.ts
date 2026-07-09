@@ -3,9 +3,8 @@ import { startServer } from './server.ts'
 export { createMcpServer } from './server.ts'
 
 /**
- * Entry point that starts the MCP server over stdio. The argument is accepted
- * for CLI parity but ignored.
+ * Entry point that starts the MCP server over stdio.
  */
-export async function run(_argv?: Array<string>): Promise<void> {
+export async function run(): Promise<void> {
   await startServer()
 }

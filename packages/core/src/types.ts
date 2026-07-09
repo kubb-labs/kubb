@@ -749,7 +749,6 @@ export type BuildOutput = {
 export type { Adapter, AdapterFactoryOptions, AdapterSource } from './createAdapter.ts'
 export type {
   Diagnostic,
-  DiagnosticByCode,
   DiagnosticDoc,
   DiagnosticKind,
   DiagnosticLocation,

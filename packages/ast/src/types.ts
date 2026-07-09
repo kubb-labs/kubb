@@ -1,4 +1,3 @@
-export type { Dialect, SchemaDialect } from './defineDialect.ts'
 export type { DistributiveOmit, NodeDef } from './defineNode.ts'
 export type { InferSchemaNode, ParserOptions } from './infer.ts'
 export type * from './nodes/index.ts'

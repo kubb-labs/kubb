@@ -2,13 +2,6 @@ import type { ast } from '@kubb/ast'
 
 /**
  * Default parser options applied when no explicit options are provided.
- *
- * @example
- * ```ts
- * import { DEFAULT_PARSER_OPTIONS, parseOas } from '@kubb/adapter-oas'
- *
- * const { root } = parseOas(document, { ...DEFAULT_PARSER_OPTIONS, dateType: 'date' })
- * ```
  */
 export const DEFAULT_PARSER_OPTIONS = {
   dateType: 'string',
@@ -41,14 +34,6 @@ export const SUPPORTED_METHODS: ReadonlySet<string> = new Set(['get', 'put', 'po
  *
  * A fragment that contains any of these keys carries structural meaning of its own and must stay as a separate
  * intersection member rather than being merged into the parent.
- *
- * @example
- * ```ts
- * import { structuralKeys } from '@kubb/adapter-oas'
- *
- * const isStructural = Object.keys(fragment).some((key) => structuralKeys.has(key))
- * // true when fragment has e.g. 'properties' or 'oneOf'
- * ```
  */
 export const structuralKeys = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'] as const)
 
@@ -67,15 +52,6 @@ export const specialCasedFormats: ReadonlySet<string> = new Set(['int64', 'date-
  * Formats that depend on runtime options (`int64`, `date-time`, `date`, `time`) are handled
  * separately in the parser. `ipv4` and `ipv6` map to their own dedicated schema types. `hostname`
  * and `idn-hostname` map to `'url'` as the closest generic string-format type.
- *
- * @example
- * ```ts
- * import { formatMap } from '@kubb/adapter-oas'
- *
- * formatMap['uuid']   // 'uuid'
- * formatMap['binary'] // 'blob'
- * formatMap['float']  // 'number'
- * ```
  */
 export const formatMap = {
   uuid: 'uuid',
@@ -99,24 +75,10 @@ export const formatMap = {
 
 /**
  * Vendor extension keys that attach human-readable labels to enum values, checked in priority order.
- *
- * @example
- * ```ts
- * import { enumExtensionKeys } from '@kubb/adapter-oas'
- *
- * const key = enumExtensionKeys.find((k) => k in schema) // 'x-enumNames' | 'x-enum-varnames' | undefined
- * ```
  */
 export const enumExtensionKeys = ['x-enumNames', 'x-enum-varnames'] as const
 
 /**
  * Vendor extension keys that attach human-readable descriptions to enum values, checked in priority order.
- *
- * @example
- * ```ts
- * import { enumDescriptionKeys } from '@kubb/adapter-oas'
- *
- * const key = enumDescriptionKeys.find((k) => k in schema) // 'x-enumDescriptions' | 'x-enum-descriptions' | undefined
- * ```
  */
 export const enumDescriptionKeys = ['x-enumDescriptions', 'x-enum-descriptions'] as const

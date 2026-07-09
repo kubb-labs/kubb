@@ -22,7 +22,7 @@ export type LoggerContext = Hookable<KubbHooks>
  * to whichever lifecycle hooks it wants to forward to its destination
  * (console, file, remote service).
  */
-export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
+export type Logger = {
   /**
    * Display name used in diagnostics.
    */
@@ -31,5 +31,5 @@ export type Logger<TOptions extends LoggerOptions = LoggerOptions> = {
    * Called once per build with the shared hook emitter. Subscribe to the
    * lifecycle hooks the logger wants to forward to its destination.
    */
-  install: (context: LoggerContext, options?: TOptions) => void | Promise<void>
+  install: (context: LoggerContext, options?: LoggerOptions) => void | Promise<void>
 }
