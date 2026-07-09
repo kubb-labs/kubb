@@ -26,7 +26,7 @@ import { print } from './utils.ts'
  * })
  * ```
  */
-export const parserTsx = defineParser((options: ParserTsOptions = {}) => {
+export const parserTsx = defineParser<ParserTsOptions>((options = {}) => {
   const parser = parserTs(options)
 
   return {

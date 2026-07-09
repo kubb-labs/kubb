@@ -48,7 +48,7 @@ export type ParserTsOptions = {
  * })
  * ```
  */
-export const parserTs = defineParser(({ extension = DEFAULT_EXTENSION }: ParserTsOptions = {}) => {
+export const parserTs = defineParser<ParserTsOptions>(({ extension = DEFAULT_EXTENSION } = {}) => {
   return {
     name: 'typescript',
     extNames: ['.ts', '.js'],
