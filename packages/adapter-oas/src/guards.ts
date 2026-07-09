@@ -50,3 +50,16 @@ export function isDiscriminator(obj?: unknown): obj is SchemaObject & { discrimi
   const record = obj as Record<string, unknown>
   return !!obj && !!record['discriminator'] && typeof record['discriminator'] !== 'string'
 }
+
+/**
+ * Returns `true` when a schema is a binary payload: an octet-stream string body.
+ *
+ * @example
+ * ```ts
+ * isBinary({ type: 'string', contentMediaType: 'application/octet-stream' }) // true
+ * isBinary({ type: 'string' })                                               // false
+ * ```
+ */
+export function isBinary(schema: SchemaObject): boolean {
+  return schema.type === 'string' && schema.contentMediaType === 'application/octet-stream'
+}

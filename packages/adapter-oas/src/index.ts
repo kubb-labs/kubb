@@ -6,7 +6,6 @@ export type {
   ContentType,
   DiscriminatorObject,
   Document,
-  HttpMethod,
   MediaTypeObject,
   Operation,
   ReferenceObject,

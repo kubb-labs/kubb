@@ -11,8 +11,9 @@ import {
   type StatusCode,
 } from '@kubb/ast'
 import { DEFAULT_PARSER_OPTIONS, enumDescriptionKeys, enumExtensionKeys, SCHEMA_REF_PREFIX } from './constants.ts'
-import { oasDialect, type OasDialect } from './dialect.ts'
 import { createDiscriminantNode, findDiscriminator } from './discriminator.ts'
+import { isBinary, isDiscriminator, isNullable, isReference } from './guards.ts'
+import { resolveRef } from './refs.ts'
 import { getOperationId, getRequestContentType, getResponseByStatusCode, getResponseStatusCodes } from './operation.ts'
 import {
   buildSchemaNode,
@@ -148,7 +149,7 @@ function nameEnums(node: ast.SchemaNode, options: { parentName: string | null | 
  *
  * @internal
  */
-export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = oasDialect) {
+export function createSchemaParser(ctx: OasParserContext) {
   const document = ctx.document
 
   // Branch handlers, each converts one OAS schema pattern to a SchemaNode.
@@ -180,7 +181,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     if (!refExistence.has(refPath)) {
       let exists = false
       try {
-        exists = !!dialect.schema.resolveRef(document, refPath)
+        exists = !!resolveRef(document, refPath)
       } catch {
         exists = false
       }
@@ -203,7 +204,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     if (refPath && !resolvingRefs.has(refPath)) {
       if (!resolvedRefCache.has(refPath)) {
         try {
-          const referenced = dialect.schema.resolveRef<SchemaObject>(document, refPath)
+          const referenced = resolveRef<SchemaObject>(document, refPath)
           if (referenced) {
             resolvingRefs.add(refPath)
             resolvedSchema = parseSchema({ schema: referenced }, rawOptions)
@@ -276,13 +277,13 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     }> = []
     const allOfMembers: Array<ast.SchemaNode> = (schema.allOf as Array<SchemaObject | ReferenceObject>)
       .filter((item) => {
-        if (!dialect.schema.isReference(item) || !name) return true
-        const deref = dialect.schema.resolveRef<SchemaObject>(document, item.$ref)
-        if (!deref || !dialect.schema.isDiscriminator(deref)) return true
+        if (!isReference(item) || !name) return true
+        const deref = resolveRef<SchemaObject>(document, item.$ref)
+        if (!deref || !isDiscriminator(deref)) return true
         const parentUnion = deref.oneOf ?? deref.anyOf
         if (!parentUnion) return true
         const childRef = `${SCHEMA_REF_PREFIX}${name}`
-        const inOneOf = parentUnion.some((oneOfItem) => dialect.schema.isReference(oneOfItem) && oneOfItem.$ref === childRef)
+        const inOneOf = parentUnion.some((oneOfItem) => isReference(oneOfItem) && oneOfItem.$ref === childRef)
         const inMapping = Object.values(deref.discriminator.mapping ?? {}).some((v) => v === childRef)
         if (inOneOf || inMapping) {
           const discriminatorValue = findDiscriminator(deref.discriminator.mapping, childRef)
@@ -306,9 +307,9 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
 
       if (missingRequired.length) {
         const resolvedMembers = (schema.allOf as Array<SchemaObject | ReferenceObject>).flatMap((item) => {
-          if (!dialect.schema.isReference(item)) return [item as SchemaObject]
-          const deref = dialect.schema.resolveRef<SchemaObject>(document, item.$ref)
-          return deref && !dialect.schema.isReference(deref) ? [deref] : []
+          if (!isReference(item)) return [item as SchemaObject]
+          const deref = resolveRef<SchemaObject>(document, item.$ref)
+          return deref && !isReference(deref) ? [deref] : []
         })
 
         for (const key of missingRequired) {
@@ -383,7 +384,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     }
 
     function implicitDiscriminantValue(member: unknown): string | null {
-      if (!discriminator || discriminator.mapping || !dialect.schema.isReference(member)) return null
+      if (!discriminator || discriminator.mapping || !isReference(member)) return null
       const value = extractRefName(member.$ref)
       if (!value) return null
       const variant = resolveRefSilent(member.$ref)
@@ -396,13 +397,13 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
 
       function constrains(v: SchemaObject): boolean {
         const prop = v.properties?.[propertyName]
-        const resolved = prop && dialect.schema.isReference(prop) ? resolveRefSilent(prop.$ref) : (prop as SchemaObject | undefined)
+        const resolved = prop && isReference(prop) ? resolveRefSilent(prop.$ref) : (prop as SchemaObject | undefined)
         if (resolved && (Array.isArray(resolved.enum) || resolved.const !== undefined)) return true
         const composition = v.allOf ?? v.oneOf ?? v.anyOf
         if (!composition) return false
 
         return composition.some((m) => {
-          if (!dialect.schema.isReference(m)) return constrains(m as SchemaObject)
+          if (!isReference(m)) return constrains(m as SchemaObject)
           if (seen.has(m.$ref)) return false
           seen.add(m.$ref)
           const r = resolveRefSilent(m.$ref)
@@ -417,16 +418,16 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     const strategy: 'one' | 'any' = schema.oneOf ? 'one' : 'any'
     const unionBase = {
       ...buildSchemaNode(schema, name, nullable, defaultValue),
-      discriminatorPropertyName: dialect.schema.isDiscriminator(schema) ? schema.discriminator.propertyName : undefined,
+      discriminatorPropertyName: isDiscriminator(schema) ? schema.discriminator.propertyName : undefined,
       strategy,
     }
-    const discriminator = dialect.schema.isDiscriminator(schema) ? schema.discriminator : undefined
+    const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
     const { oneOf: _o, anyOf: _a, discriminator: _d, ...memberBaseSchema } = schema
     const sharedPropertiesNode = schema.properties ? parseSchema({ schema: memberBaseSchema as SchemaObject, name }, rawOptions) : undefined
 
     if (sharedPropertiesNode || discriminator) {
       const members = unionMembers.map((s) => {
-        const ref = dialect.schema.isReference(s) ? s.$ref : undefined
+        const ref = isReference(s) ? s.$ref : undefined
         const discriminatorValue = findDiscriminator(discriminator?.mapping, ref) ?? implicitDiscriminantValue(s)
         const memberNode = parseSchema({ schema: s as SchemaObject, name }, rawOptions)
 
@@ -545,51 +546,13 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     if (!specialType) return null
 
     const specialPrimitive: ast.PrimitiveSchemaType = specialType === 'number' || specialType === 'integer' || specialType === 'bigint' ? specialType : 'string'
-
-    if (specialType === 'number' || specialType === 'integer' || specialType === 'bigint') {
-      return ast.factory.createSchema({
-        ...base,
-        primitive: specialPrimitive,
-        type: specialType,
-      })
-    }
-    if (specialType === 'url') {
-      return ast.factory.createSchema({
-        ...base,
-        primitive: 'string' as const,
-        type: 'url',
-        min: schema.minLength,
-        max: schema.maxLength,
-      })
-    }
-    if (specialType === 'ipv4') {
-      return ast.factory.createSchema({
-        ...base,
-        primitive: 'string' as const,
-        type: 'ipv4',
-      })
-    }
-    if (specialType === 'ipv6') {
-      return ast.factory.createSchema({
-        ...base,
-        primitive: 'string' as const,
-        type: 'ipv6',
-      })
-    }
-    if (specialType === 'uuid' || specialType === 'email') {
-      return ast.factory.createSchema({
-        ...base,
-        primitive: 'string' as const,
-        type: specialType,
-        min: schema.minLength,
-        max: schema.maxLength,
-      })
-    }
+    const hasLength = specialType === 'url' || specialType === 'uuid' || specialType === 'email'
 
     return ast.factory.createSchema({
       ...base,
       primitive: specialPrimitive,
       type: specialType as ast.ScalarSchemaType,
+      ...(hasLength ? { min: schema.minLength, max: schema.maxLength } : {}),
     })
   }
 
@@ -618,16 +581,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     const enumBase = {
       type: 'enum' as const,
       primitive: enumPrimitive,
-      name,
-      title: schema.title,
-      description: schema.description,
-      deprecated: schema.deprecated,
-      nullable: enumNullable,
-      readOnly: schema.readOnly,
-      writeOnly: schema.writeOnly,
-      default: enumDefault,
-      examples: extractExamples(schema),
-      format: schema.format,
+      ...buildSchemaNode(schema, name, enumNullable as true | undefined, enumDefault),
     }
 
     const extensionKey = enumExtensionKeys.find((key) => key in schema)
@@ -674,7 +628,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       ? Object.entries(schema.properties).map(([propName, propSchema]) => {
           const required = Array.isArray(schema.required) ? schema.required.includes(propName) : !!schema.required
           const resolvedPropSchema = propSchema as SchemaObject
-          const propNullable = dialect.schema.isNullable(resolvedPropSchema)
+          const propNullable = isNullable(resolvedPropSchema)
 
           const resolvedChildName = childName(name, propName)
           const propNode = parseSchema({ schema: resolvedPropSchema, name: resolvedChildName }, rawOptions)
@@ -728,7 +682,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       ...buildSchemaNode(schema, name, nullable, defaultValue),
     })
 
-    if (dialect.schema.isDiscriminator(schema) && schema.discriminator.mapping) {
+    if (isDiscriminator(schema) && schema.discriminator.mapping) {
       const discPropName = schema.discriminator.propertyName
       const values = Object.keys(schema.discriminator.mapping)
       const enumName = name ? enumPropName(name, discPropName, options.enumSuffix) : undefined
@@ -860,12 +814,12 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
    * match/convert/fall-through contract.
    */
   const schemaRules: Array<SchemaRule> = [
-    { match: ({ schema }) => dialect.schema.isReference(schema), convert: convertRef },
+    { match: ({ schema }) => isReference(schema), convert: convertRef },
     { match: ({ schema }) => !!schema.allOf?.length, convert: convertAllOf },
     { match: ({ schema }) => !!(schema.oneOf?.length || schema.anyOf?.length), convert: convertUnion },
     { match: ({ schema }) => 'const' in schema && schema.const !== undefined, convert: convertConst },
     { match: ({ schema }) => !!schema.format, convert: convertFormat },
-    { match: ({ schema }) => dialect.schema.isBinary(schema), convert: convertBlob },
+    { match: ({ schema }) => isBinary(schema), convert: convertBlob },
     { match: ({ schema }) => Array.isArray(schema.type) && schema.type.length > 1, convert: convertMultiType },
     {
       match: ({ schema, type }) => !type && (schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined),
@@ -906,7 +860,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
       return parseSchema({ schema: flattenedSchema, name }, rawOptions)
     }
 
-    const nullable = dialect.schema.isNullable(schema) || undefined
+    const nullable = isNullable(schema) || undefined
     const defaultValue = schema.default === null && nullable ? undefined : schema.default
     const type = Array.isArray(schema.type) ? schema.type[0] : schema.type
 
@@ -993,7 +947,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     const keys: Array<string> = []
     for (const key in schema.properties) {
       const prop = schema.properties[key]
-      if (prop && !dialect.schema.isReference(prop) && (prop as Record<string, unknown>)[flag]) {
+      if (prop && !isReference(prop) && (prop as Record<string, unknown>)[flag]) {
         keys.push(key)
       }
     }
@@ -1081,7 +1035,7 @@ export function createSchemaParser(ctx: OasParserContext, dialect: OasDialect = 
     })
 
     const pathItem = document.paths?.[operation.path]
-    const pathItemDoc = pathItem && !dialect.schema.isReference(pathItem) ? (pathItem as { summary?: unknown; description?: unknown }) : undefined
+    const pathItemDoc = pathItem && !isReference(pathItem) ? (pathItem as { summary?: unknown; description?: unknown }) : undefined
     const pickDoc = (key: 'summary' | 'description'): string | undefined => {
       const own = operation.schema[key]
       if (typeof own === 'string') return own

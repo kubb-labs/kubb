@@ -76,11 +76,6 @@ export type SchemaObject = {
 } & (OpenAPIV3_1.SchemaObject | JSONSchema4 | JSONSchema6 | JSONSchema7)
 
 /**
- * HTTP method in the lowercase form an OpenAPI path item uses for its keys.
- */
-export type HttpMethod = Lowercase<ast.HttpMethod>
-
-/**
  * Normalized OpenAPI document after parsing.
  */
 export type Document = OpenAPIV3_1.Document & Record<string, unknown>

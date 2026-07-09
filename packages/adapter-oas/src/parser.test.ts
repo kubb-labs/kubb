@@ -2,7 +2,6 @@ import { ast, syncSchemaRef } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { oasDialect, type OasDialect } from './dialect.ts'
 import { parseDocument } from './factory.ts'
 import { getOperations } from './operation.ts'
 import { createSchemaParser, type OasParserContext } from './parser.ts'
@@ -4453,30 +4452,14 @@ describe('enum naming', () => {
   })
 })
 
-describe('SchemaDialect seam', () => {
+describe('nullable and binary handling', () => {
   const ctx = { document: emptyDocument }
 
-  it('routes nullability through the dialect', () => {
-    const schema: SchemaObject = { type: 'string', nullable: true }
-
-    // The default OAS dialect honors `nullable: true`.
-    expect(parseSchema(ctx, { schema }).nullable).toBe(true)
-
-    // A dialect that never treats schemas as nullable drops the flag.
-    const nonNullable: OasDialect = { ...oasDialect, name: 'test', schema: { ...oasDialect.schema, isNullable: () => false } }
-    const node = createSchemaParser(ctx, nonNullable).parseSchema({ schema })
-    expect(node.nullable).toBeUndefined()
+  it('honors nullable: true', () => {
+    expect(parseSchema(ctx, { schema: { type: 'string', nullable: true } }).nullable).toBe(true)
   })
 
-  it('routes binary detection through the dialect', () => {
-    const schema: SchemaObject = { type: 'string', contentMediaType: 'application/octet-stream' }
-
-    // The default OAS dialect maps octet-stream strings to `blob`.
-    expect(parseSchema(ctx, { schema }).type).toBe('blob')
-
-    // A dialect that reports nothing as binary falls through to `string`.
-    const noBinary: OasDialect = { ...oasDialect, name: 'test', schema: { ...oasDialect.schema, isBinary: () => false } }
-    const node = createSchemaParser(ctx, noBinary).parseSchema({ schema })
-    expect(node.type).toBe('string')
+  it('maps octet-stream strings to blob', () => {
+    expect(parseSchema(ctx, { schema: { type: 'string', contentMediaType: 'application/octet-stream' } }).type).toBe('blob')
   })
 })
