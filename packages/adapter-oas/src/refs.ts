@@ -1,5 +1,5 @@
 import { type Diagnostic, Diagnostics } from '@kubb/core'
-import { isReference } from './guards.ts'
+import { isReference } from './oas.ts'
 import type { Document } from './types.ts'
 
 const _refCache = new WeakMap<Document, Map<string, unknown>>()
@@ -83,4 +83,33 @@ export function dereferenceWithRef<T = unknown>(document: Document, schema?: T):
   }
 
   return schema as T
+}
+
+/**
+ * Resolves a `$ref` slot in place: when `container[key]` holds a `$ref`, replaces it with the
+ * resolved value and returns that value. Returns `null` when the slot is empty, cannot be resolved,
+ * or is still a `$ref` after resolving. A non-`$ref` value is returned untouched, without writing.
+ *
+ * @example
+ * ```ts
+ * derefInPlace<ResponseObject>({ document, container: operation.schema.responses, key: '200' })
+ * ```
+ */
+export function derefInPlace<T = unknown>({
+  document,
+  container,
+  key,
+}: {
+  document: Document
+  container: Record<string, unknown>
+  key: string | number
+}): T | null {
+  const value = container[key]
+  if (!isReference(value)) {
+    return value ? (value as T) : null
+  }
+
+  const resolved = resolveRef<T>(document, value.$ref)
+  container[key] = resolved
+  return resolved && !isReference(resolved) ? resolved : null
 }

@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { isDiscriminator, isNullable, isReference } from './guards.ts'
+import { isDiscriminator, isNullable, isReference } from './oas.ts'
 import type { ReferenceObject, SchemaObject } from './types.ts'
 
 describe('isNullable', () => {

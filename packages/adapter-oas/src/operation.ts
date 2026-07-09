@@ -1,7 +1,6 @@
 import { SUPPORTED_METHODS } from './constants.ts'
-import { isReference } from './guards.ts'
-import { isJsonMimeType } from './mime.ts'
-import { resolveRef } from './refs.ts'
+import { isJsonMimeType, isReference } from './oas.ts'
+import { derefInPlace } from './refs.ts'
 import type { Document, MediaTypeObject, OperationObject, PathItemObject, ReferenceObject, RequestBodyObject, ResponseObject } from './types.ts'
 
 /**
@@ -66,19 +65,7 @@ export function getResponseByStatusCode({ document, operation, statusCode }: Ope
   if (!responses || isReference(responses)) {
     return false
   }
-  const response = responses[statusCode]
-  if (!response) {
-    return false
-  }
-  if (isReference(response)) {
-    const resolved = resolveRef<ResponseObject>(document, response.$ref)
-    responses[statusCode] = resolved as ResponseObject
-    if (!resolved || isReference(resolved)) {
-      return false
-    }
-    return resolved
-  }
-  return response
+  return derefInPlace<ResponseObject>({ document, container: responses, key: statusCode }) ?? false
 }
 
 /**
@@ -86,20 +73,8 @@ export function getResponseByStatusCode({ document, operation, statusCode }: Ope
  * `undefined` when the operation has no request body.
  */
 function getRequestBodyContent({ document, operation }: OperationContext): Record<string, MediaTypeObject> | undefined {
-  const { schema } = operation
-  let requestBody = schema.requestBody as RequestBodyObject | ReferenceObject | undefined
-  if (!requestBody) {
-    return undefined
-  }
-  if (isReference(requestBody)) {
-    const resolved = resolveRef<RequestBodyObject>(document, requestBody.$ref)
-    ;(schema as { requestBody?: unknown }).requestBody = resolved
-    if (!resolved || isReference(resolved)) {
-      return undefined
-    }
-    requestBody = resolved
-  }
-  return requestBody.content
+  const requestBody = derefInPlace<RequestBodyObject>({ document, container: operation.schema as unknown as Record<string, unknown>, key: 'requestBody' })
+  return requestBody?.content
 }
 
 /**
@@ -164,20 +139,12 @@ export function getOperations(document: Document): Array<Operation> {
       continue
     }
 
-    let pathItem = paths[path] as PathItemObject | ReferenceObject | undefined
+    const pathItem = derefInPlace<PathItemObject>({ document, container: paths as Record<string, unknown>, key: path })
     if (!pathItem) {
       continue
     }
-    if (isReference(pathItem)) {
-      const resolved = resolveRef<PathItemObject>(document, pathItem.$ref)
-      ;(paths as Record<string, unknown>)[path] = resolved
-      if (!resolved || isReference(resolved)) {
-        continue
-      }
-      pathItem = resolved
-    }
 
-    const item = pathItem as Record<string, unknown>
+    const item = pathItem as unknown as Record<string, unknown>
     for (const method of Object.keys(item)) {
       if (!SUPPORTED_METHODS.has(method)) {
         continue

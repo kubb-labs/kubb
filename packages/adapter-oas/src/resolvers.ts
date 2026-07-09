@@ -2,10 +2,9 @@ import { pascalCase } from '@internals/utils'
 import type { ast } from '@kubb/ast'
 import { Diagnostics } from '@kubb/core'
 import { formatMap, SCHEMA_REF_PREFIX, specialCasedFormats, structuralKeys } from './constants.ts'
-import { isReference } from './guards.ts'
-import { isJsonMimeType } from './mime.ts'
+import { isJsonMimeType, isReference } from './oas.ts'
 import { getRequestContent, getResponseByStatusCode } from './operation.ts'
-import { dereferenceWithRef, resolveRef } from './refs.ts'
+import { dereferenceWithRef, derefInPlace, resolveRef } from './refs.ts'
 import type { ContentType, Document, MediaTypeObject, Operation, ParameterObject, ResponseObject, SchemaObject, ServerObject, ServerOptions } from './types.ts'
 
 /**
@@ -155,6 +154,15 @@ function getResponseBody(responseBody: boolean | ResponseObject, contentType?: s
   return body.content[availableContentType]!
 }
 
+// Dereference every response `$ref` in place so callers can read response bodies directly.
+function resolveResponseRefs(document: Document, operation: Operation): void {
+  const responses = operation.schema.responses as Record<string, unknown> | undefined
+  if (!responses) return
+  for (const key in responses) {
+    derefInPlace({ document, container: responses, key })
+  }
+}
+
 /**
  * Returns the response schema for a given operation and HTTP status code.
  *
@@ -166,18 +174,6 @@ function getResponseBody(responseBody: boolean | ResponseObject, contentType?: s
  * getResponseSchema(document, operation, '4XX')       // {}
  * ```
  */
-// Dereference every response `$ref` in place so callers can read response bodies directly.
-function resolveResponseRefs(document: Document, operation: Operation): void {
-  const responses = operation.schema.responses
-  if (!responses) return
-  for (const key in responses) {
-    const schema = responses[key]
-    if (schema && isReference(schema)) {
-      responses[key] = resolveRef<any>(document, schema.$ref)
-    }
-  }
-}
-
 export function getResponseSchema(document: Document, operation: Operation, statusCode: string | number, options: OperationsOptions = {}): SchemaObject {
   resolveResponseRefs(document, operation)
 
@@ -261,6 +257,19 @@ export type GetSchemasResult = {
 }
 
 /**
+ * Returns `true` when `fragment` carries any JSON Schema keyword that makes it
+ * structurally significant on its own (see `structuralKeys`).
+ *
+ * A fragment with a structural keyword can't be safely merged into a parent schema.
+ */
+function hasStructuralKeywords(fragment: SchemaObject): boolean {
+  for (const key in fragment) {
+    if (structuralKeys.has(key as 'properties')) return true
+  }
+  return false
+}
+
+/**
  * Flattens a keyword-only `allOf` into its parent schema.
  *
  * Only flattens when every member is a plain fragment, with no `$ref` and no structural keywords
@@ -279,19 +288,6 @@ export type GetSchemasResult = {
  * // returned unchanged, contains a $ref
  * ```
  */
-/**
- * Returns `true` when `fragment` carries any JSON Schema keyword that makes it
- * structurally significant on its own (see `structuralKeys`).
- *
- * A fragment with a structural keyword can't be safely merged into a parent schema.
- */
-function hasStructuralKeywords(fragment: SchemaObject): boolean {
-  for (const key in fragment) {
-    if (structuralKeys.has(key as 'properties')) return true
-  }
-  return false
-}
-
 export function flattenSchema(schema: SchemaObject | null): SchemaObject | null {
   if (!schema?.allOf || schema.allOf.length === 0) return schema ?? null
 
