@@ -1,5 +1,31 @@
 # Changelog
 
+## v5.0.0-beta.95 — Jul 10, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb init` now scaffolds a working v5 project. The generated `kubb.config.ts` uses the v5 shape (`defineConfig` from `kubb/config` with a string `input` and no `root`), and the installed packages are pinned to the dist-tag of the running CLI, so a beta CLI installs `kubb@beta` and beta plugins instead of the older stable majors. ([#3765](https://github.com/kubb-labs/kubb/pull/3765), [`8a5e740`](https://github.com/kubb-labs/kubb/commit/8a5e7403cce7f267a5811bc5faa7a2915ea269f6))
+
+### @kubb/core
+
+#### Features
+
+- [`7e87548`](https://github.com/kubb-labs/kubb/commit/7e875484ea3eafc7e9d2854d13b4969c5f404975) - Type plugin lookups by name through `Kubb.PluginRegistry`.
+  
+  `getPlugin`, `requirePlugin`, and `getResolver` (on the generator context, `KubbBuildStartContext`, and `KubbDriver`) now take a single signature keyed on the plugin name: a name registered in `Kubb.PluginRegistry` resolves to that plugin's exact factory options, any other string falls back to the generic `Plugin`. Registered names autocomplete, and the `dependencies` field on a plugin autocompletes them too. Two helpers back this and are exported from `@kubb/core`: `PluginName` (the accepted name type) and `ResolvePluginOptions<TName>` (name to factory options).
+  
+  `Reporter.name` and `UserReporter.name` accept `LiteralUnion<ReporterName>`, so the built-in `cli`/`json`/`file` names autocomplete while custom reporter names still assign.
+  
+  Breaking: the explicit type-argument form `getPlugin<MyOptions>(name)` is gone, since the type parameter is now the plugin name rather than the options type. Register the plugin in `Kubb.PluginRegistry` and call it by name with no type argument to get the typed result. ([`7e87548`](https://github.com/kubb-labs/kubb/commit/7e875484ea3eafc7e9d2854d13b4969c5f404975))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.94 — Jul 10, 2026
 
 ### @kubb/adapter-oas
