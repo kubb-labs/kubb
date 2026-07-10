@@ -91,7 +91,7 @@ export function isDisabled(): boolean {
  * Build an anonymous telemetry payload from a completed generation run.
  */
 export function buildTelemetryEvent(options: {
-  command: 'generate' | 'mcp' | 'validate' | 'agent'
+  command: 'generate' | 'mcp' | 'validate'
   kubbVersion: string
   plugins?: Array<TelemetryPlugin>
   hrStart: [number, number]

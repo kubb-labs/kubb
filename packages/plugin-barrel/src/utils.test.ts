@@ -57,6 +57,17 @@ describe('getBarrelFiles', () => {
     expect(barrels.map((b) => b.path)).toStrictEqual(expect.arrayContaining([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/users/index.ts`]))
   })
 
+  it('emits named exports for leaf files when nested and barrelType named', () => {
+    const files = [makeFile(`${ROOT}/pets/listPets.ts`, ['listPets']), makeFile(`${ROOT}/users/getUser.ts`, ['getUser'])]
+    const barrels = [...getBarrelFiles({ outputPath: ROOT, files, barrelType: 'named', nested: true })]
+
+    const petsBarrel = barrels.find((b) => b.path === `${ROOT}/pets/index.ts`)!
+    expect(petsBarrel.exports[0]?.name).toStrictEqual(['listPets'])
+
+    const rootBarrel = barrels.find((b) => b.path === `${ROOT}/index.ts`)!
+    expect(rootBarrel.exports.map((e) => e.path)).toStrictEqual(expect.arrayContaining(['./pets/index.ts', './users/index.ts']))
+  })
+
   it('generates per-subdirectory barrels when recursive is true', () => {
     const files = [makeFile(`${ROOT}/pets/listPets.ts`), makeFile(`${ROOT}/users/getUser.ts`)]
     const barrels = [...getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all', recursive: true })]

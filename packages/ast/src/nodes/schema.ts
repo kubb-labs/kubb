@@ -94,6 +94,8 @@ export type ScalarSchemaType = Exclude<
   | 'url'
   | 'uuid'
   | 'email'
+  | 'ipv4'
+  | 'ipv6'
 >
 
 /**

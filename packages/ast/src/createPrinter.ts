@@ -10,6 +10,7 @@ import type { SchemaNode, SchemaNodeByType, SchemaType } from './nodes/index.ts'
  * const context: PrinterHandlerContext<string, {}> = {
  *   options: {},
  *   transform: () => 'value',
+ *   base: () => 'value',
  * }
  * ```
  */

@@ -88,7 +88,6 @@ export const generateTool = defineTool(
         })
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
-        await notify('CONFIG_ERROR', errorMessage)
         return tool.error(errorMessage)
       }
 

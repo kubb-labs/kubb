@@ -84,7 +84,7 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
   }
 
   const cwd = process.cwd()
-  const configFileNames = ['kubb.config.ts', 'kubb.config.mts', 'kubb.config.cts', 'kubb.config.js', 'kubb.config.cjs']
+  const configFileNames = ['kubb.config.ts', 'kubb.config.mts', 'kubb.config.cts', 'kubb.config.js', 'kubb.config.mjs', 'kubb.config.cjs']
 
   for (const configFileName of configFileNames) {
     const configFilePath = path.resolve(process.cwd(), configFileName)

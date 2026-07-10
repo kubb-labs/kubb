@@ -21,6 +21,15 @@ function parseReporters(value: string): Array<ReporterName> {
   return names as Array<ReporterName>
 }
 
+/**
+ * Resolves the effective log level, letting the `--verbose` and `--silent` flags win over `--logLevel`.
+ */
+function resolveLogLevel({ verbose, silent, logLevel }: { verbose: boolean; silent: boolean; logLevel: string }): string {
+  if (verbose) return 'verbose'
+  if (silent) return 'silent'
+  return logLevel
+}
+
 export const command = define({
   name: 'generate',
   description:
@@ -69,7 +78,7 @@ export const command = define({
     },
   },
   async run({ values }) {
-    const logLevel = values.verbose ? 'verbose' : values.silent ? 'silent' : values.logLevel
+    const logLevel = resolveLogLevel(values)
     const { run } = await import('../runners/generate/run.ts')
 
     await run({
