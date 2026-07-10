@@ -1,0 +1,33 @@
+packages/unplugin-kubb/src/unpluginFactory.ts
+  s_a84c7301ead9f6::t_c36fa9c8fa6828 71-72
+  s_a84c7301ead9f6::t_d50dd3f702635e 118,120,122
+packages/ast/src/nodes/code.ts
+  s_a84c7301ead9f6::t_c6acc2f132ab91 104
+  s_a84c7301ead9f6::t_e1d95cd0803418 166
+packages/ast/src/utils/refs.ts
+  s_a84c7301ead9f6::t_47576fa19a7d97 88
+  s_a84c7301ead9f6::t_e2d6afe27dbf85 29
+packages/core/src/createReporter.ts
+  s_a84c7301ead9f6::t_7ca9afd72daeaa 92-95
+  s_a84c7301ead9f6::t_6f72be49d8c797 113,119,122-123,126
+packages/mcp/src/utils.ts
+  s_a84c7301ead9f6::t_262802315cbc60 87
+packages/cli/src/runners/mcp/run.ts
+  s_a84c7301ead9f6::t_e88477a2acb76a 32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.11",
+  "base_commit_sha": "3d798f97f37cfcc56788d0f0764c1344251828fa",
+  "prompts": {},
+  "sessions": {
+    "s_a84c7301ead9f6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e3a0b772-febc-4b9a-83fe-642841fbf164",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
