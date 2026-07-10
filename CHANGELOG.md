@@ -1,5 +1,75 @@
 # Changelog
 
+## v5.0.0-beta.94 — Jul 10, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Replace `any` and unchecked object-literal `as Type` assertions with real types and type annotations, satisfying the new `typescript/no-explicit-any` and `typescript/consistent-type-assertions` oxlint rules. `createMockedAdapter` now returns a fully-shaped `Adapter` (including `document` and `validate`) instead of force-casting a partial object, `KubbDriver` builds each plugin's default resolver inline instead of casting past the missing field, and the Astro integration in `unplugin-kubb` returns a typed `AstroIntegration` object instead of `any`. ([#3759](https://github.com/kubb-labs/kubb/pull/3759), [`08b209c`](https://github.com/kubb-labs/kubb/commit/08b209c3de4588d46737926ba7a9f17ee21f7ff1))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Align the `Node` and scalar schema types with the runtime and fix related docs.
+  
+  `Node` now includes `TextNode`, `BreakNode`, and `JsxNode` so the union matches `NodeKind` and the `isNode` runtime check that already treats them as nodes. `ScalarSchemaType` no longer includes `ipv4` and `ipv6`, which have their own `Ipv4SchemaNode` and `Ipv6SchemaNode`, so `ScalarSchemaNode` stops overlapping those members. The `VisitorDepth` doc now states that shallow traversal stops at schema subtrees rather than the immediate node, and the `PrinterHandlerContext` example includes its required `base` field. ([#3761](https://github.com/kubb-labs/kubb/pull/3761), [`07c3125`](https://github.com/kubb-labs/kubb/commit/07c3125662862b5552bfc1b5700495816d682787))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Tidy up a few CLI correctness details.
+  
+  The clack logger's plugin-end guard now compares with `<= silent` like every other log-level guard, rather than a lone equality check that only worked because `silent` is negative infinity. The telemetry event type drops the `agent` command that no caller ever sends. The `generate` command resolves its log level through a small helper instead of a nested ternary. ([#3761](https://github.com/kubb-labs/kubb/pull/3761), [`07c3125`](https://github.com/kubb-labs/kubb/commit/07c3125662862b5552bfc1b5700495816d682787))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Collect reporter results in an ordered array and only buffer them when a `drain` exists.
+  
+  A reporter whose `report` returned `void` (the default) or any repeated value collapsed to one entry in the backing `Set`, so `drain` received a single item for a run that generated several configs. Reporters without a `drain` also kept every result in memory for the life of the run. Results now keep their order and count, and a reporter with no `drain` buffers nothing. ([#3761](https://github.com/kubb-labs/kubb/pull/3761), [`07c3125`](https://github.com/kubb-labs/kubb/commit/07c3125662862b5552bfc1b5700495816d682787))
+
+### @kubb/mcp
+
+#### Bug Fixes
+
+- Discover `kubb.config.mjs` during config auto-discovery and report each config error once.
+  
+  The `generate` tool searched every allowed config extension except `.mjs`, so a project whose only config was `kubb.config.mjs` was told no config existed unless it passed an explicit path. The tool also emitted `CONFIG_ERROR` a second time from its catch block after `loadUserConfig` had already reported it. Auto-discovery now includes `kubb.config.mjs` and each config error surfaces a single time. ([#3761](https://github.com/kubb-labs/kubb/pull/3761), [`07c3125`](https://github.com/kubb-labs/kubb/commit/07c3125662862b5552bfc1b5700495816d682787))
+
+### @kubb/parser-ts
+
+#### Bug Fixes
+
+- Render a single string export name as a named re-export.
+  
+  `printExport` warned to the console and fell back to a wildcard when `name` was a string without `asAlias`, silently dropping the name. It now emits `export { Name } from './path'`, which matches the single-export form documented on `ExportNode`, and no longer writes to the console from a string builder. ([#3761](https://github.com/kubb-labs/kubb/pull/3761), [`07c3125`](https://github.com/kubb-labs/kubb/commit/07c3125662862b5552bfc1b5700495816d682787))
+
+### @kubb/plugin-barrel
+
+#### Bug Fixes
+
+- Honor `barrelType: 'named'` when generating nested barrels.
+  
+  With `{ type: 'named', nested: true }` the nested walk emitted a wildcard `export *` for every file, so leaf modules were re-exported by wildcard instead of by their named symbols. Nested barrels now apply the named strategy to leaf files and only chain a sub-directory barrel that actually produced output, so an empty sub-directory no longer leaves a dangling `export * from './sub'`. ([#3761](https://github.com/kubb-labs/kubb/pull/3761), [`07c3125`](https://github.com/kubb-labs/kubb/commit/07c3125662862b5552bfc1b5700495816d682787))
+
+### @kubb/renderer-jsx
+
+#### Bug Fixes
+
+- Prefix the stray-text error with `[jsx]` instead of `[react]`.
+  
+  The error raised when raw text sits directly under `<File>` was tagged `[react]`, but this renderer has no React runtime, so the prefix pointed at the wrong thing. ([#3761](https://github.com/kubb-labs/kubb/pull/3761), [`07c3125`](https://github.com/kubb-labs/kubb/commit/07c3125662862b5552bfc1b5700495816d682787))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.93 — Jul 9, 2026
 
 ### @kubb/core
