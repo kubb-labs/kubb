@@ -222,6 +222,7 @@
     "perf-renderer-jsx-legacyroot-sync",
     "perf-signature-weakmap-cache",
     "plugin-barrel-named-nested-exports",
+    "plugin-registry-lookup-types",
     "preserve-union-kind-semantics",
     "reduce-any-and-object-literal-casts",
     "reduce-kubb-install-size",
