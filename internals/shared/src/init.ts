@@ -30,14 +30,11 @@ export function generateConfigFile({
 
   const pluginConfigs = selectedPlugins.map((plugin) => `    ${plugin.importName}(),`).join('\n')
 
-  return `import { defineConfig } from 'kubb'
+  return `import { defineConfig } from 'kubb/config'
 ${imports}
 
 export default defineConfig({
-  root: '.',
-  input: {
-    path: '${inputPath}',
-  },
+  input: '${inputPath}',
   output: {
     path: '${outputPath}',
     clean: true,
@@ -47,4 +44,14 @@ ${pluginConfigs}
   ],
 })
 `
+}
+
+/**
+ * Appends the dist-tag matching the running CLI version to each package name,
+ * so a beta CLI scaffolds beta packages instead of the older stable majors.
+ */
+export function withDistTag({ packages, version }: { packages: Array<string>; version: string }): Array<string> {
+  const prerelease = version.match(/-([a-z]+)/)?.[1]
+  const tag = prerelease ?? 'latest'
+  return packages.map((name) => `${name}@${tag}`)
 }
