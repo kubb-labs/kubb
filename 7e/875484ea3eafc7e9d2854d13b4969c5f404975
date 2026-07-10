@@ -1,0 +1,19 @@
+.changeset/plugin-registry-lookup-types.md
+  s_9cbc4281a4bd25::t_0289b630f5d9dc 1-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.11",
+  "base_commit_sha": "7e875484ea3eafc7e9d2854d13b4969c5f404975",
+  "prompts": {},
+  "sessions": {
+    "s_9cbc4281a4bd25": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "65349f44-d9f6-4c49-bb23-ca88d8e92d3d",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
