@@ -68,8 +68,8 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     console.log(
       status === 'success'
-        ? `Kubb Summary: ✓ ${`${successCount} successful`}, ${pluginsCount} total`
-        : `Kubb Summary: ✓ ${`${successCount} successful`}, ✗ ${`${failedCount} failed`}, ${pluginsCount} total`,
+        ? `Kubb Summary: ✓ ${successCount} successful, ${pluginsCount} total`
+        : `Kubb Summary: ✓ ${successCount} successful, ✗ ${failedCount} failed, ${pluginsCount} total`,
     )
   })
 
@@ -115,11 +115,11 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
         continue
       }
       if (diagnostic.severity === 'error') {
-        hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+        await hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
       } else if (diagnostic.severity === 'warning') {
-        hooks.callHook('kubb:warn', { message: diagnostic.message })
+        await hooks.callHook('kubb:warn', { message: diagnostic.message })
       } else {
-        hooks.callHook('kubb:info', { message: diagnostic.message })
+        await hooks.callHook('kubb:info', { message: diagnostic.message })
       }
     }
 

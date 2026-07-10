@@ -101,7 +101,7 @@ export type TypeNode = BaseNode & {
  *
  * @example
  * ```ts
- * createFunctionDeclaration({ name: 'getPet', export: true, async: true, returnType: 'Pet' })
+ * createFunction({ name: 'getPet', export: true, async: true, returnType: 'Pet' })
  * // export async function getPet(): Promise<Pet> { ... }
  * ```
  */
@@ -163,7 +163,7 @@ export type FunctionNode = BaseNode & {
  *
  * @example
  * ```ts
- * createArrowFunctionDeclaration({ name: 'getPet', export: true, singleLine: true })
+ * createArrowFunction({ name: 'getPet', export: true, singleLine: true })
  * // export const getPet = () => ...
  * ```
  */

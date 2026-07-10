@@ -89,10 +89,10 @@ export type UserReporter<T = void> = {
 }
 
 /**
- * Defines a reporter. When the definition has a `drain`, the returned reporter buffers each value
- * `report` returns and hands the array to `drain` once, then clears it. Without a `drain`, nothing
- * is buffered. Wiring the reporter onto the run's hooks is the host's job, so the reporter only
- * ever deals with a {@link GenerationResult}.
+ * Defines a reporter. The returned reporter buffers each value `report` returns in order and, when
+ * the definition has a `drain`, hands the array to `drain` once and then clears it. Wiring the
+ * reporter onto the run's hooks is the host's job, so the reporter only ever deals with a
+ * {@link GenerationResult}.
  *
  * @example
  * ```ts
@@ -110,20 +110,20 @@ export type UserReporter<T = void> = {
  * ```
  */
 export function createReporter<T = void>(reporter: UserReporter<T>): Reporter {
-  const reports = new Set<T>()
+  const reports: Array<T> = []
 
   return {
     name: reporter.name,
     async report(result, context) {
       const report = await reporter.report(result, context)
-      reports.add(report)
+      reports.push(report)
     },
     async drain(context) {
-      await reporter.drain?.(context, Array.from(reports))
-      reports.clear()
+      await reporter.drain?.(context, reports)
+      reports.length = 0
     },
     [Symbol.dispose]() {
-      reports.clear()
+      reports.length = 0
     },
   }
 }

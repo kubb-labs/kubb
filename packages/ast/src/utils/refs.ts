@@ -26,7 +26,7 @@ export function extractRefName(ref: string): string {
  */
 export function resolveRefName(node: SchemaNode | undefined): string | null {
   if (!node || node.type !== 'ref') return null
-  if (node.ref) return extractRefName(node.ref) ?? node.name ?? node.schema?.name ?? null
+  if (node.ref) return extractRefName(node.ref)
 
   return node.name ?? node.schema?.name ?? null
 }
@@ -85,7 +85,7 @@ export function syncSchemaRef(node: SchemaNode): SchemaNode {
 }
 
 /**
- * Type guard that returns `true` when a schema emits as a plain `string` type.
+ * Returns `true` when a schema emits as a plain `string` type.
  *
  * Covers `string`, `uuid`, `email`, `url`, and `datetime` types. For `date` and `time`
  * types, returns `true` only when `representation` is `'string'` rather than `'date'`.

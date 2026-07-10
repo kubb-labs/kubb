@@ -29,5 +29,6 @@ export async function run({ version }: McpOptions): Promise<void> {
   } catch (error) {
     await report('failed')
     console.error(toError(error).message)
+    process.exitCode = 1
   }
 }
