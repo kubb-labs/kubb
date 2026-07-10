@@ -226,7 +226,6 @@ export type ResolverBuildOptions = {
   pluginName: string
   name?: (name: string) => string
   file?: ResolverFile
-  [key: string]: unknown
 }
 
 /**

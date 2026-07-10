@@ -5,7 +5,7 @@ import { createKubb } from './createKubb.ts'
 import { definePlugin, normalizeOutput } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
-import type { Config, GeneratorContext, KubbHooks, KubbPluginSetupContext, Output, Plugin, PluginFactoryOptions } from './types.ts'
+import type { Config, GeneratorContext, KubbHooks, KubbPluginSetupContext, Output, Plugin, PluginFactoryOptions, ResolvePluginOptions } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { Hookable } from './Hookable.ts'
 
@@ -31,6 +31,13 @@ declare global {
          */
         _testPluginField?: number
       }
+    }
+    interface PluginRegistry {
+      /**
+       * Test-only entry: verifies that registered names drive `getPlugin`,
+       * `requirePlugin`, `getResolver`, and `dependencies` typing.
+       */
+      'plugin-registered': TestPluginOptions
     }
   }
 }
@@ -691,5 +698,26 @@ describe('declare global augmentation', () => {
     const pluginOutput = { path: './src/gen', _testPluginField: 42 } satisfies Output
 
     expect(pluginOutput._testPluginField).toBe(42)
+  })
+
+  it('PluginRegistry: registered names type getPlugin/requirePlugin/getResolver return values', () => {
+    // Uncalled: tsc validates the assertions, the body never runs.
+    function _returns(ctx: GeneratorContext) {
+      expectTypeOf(ctx.getPlugin('plugin-registered')).toEqualTypeOf<Plugin<TestPluginOptions> | undefined>()
+      expectTypeOf(ctx.requirePlugin('plugin-registered')).toEqualTypeOf<Plugin<TestPluginOptions>>()
+      // An unregistered name still resolves, falling back to the generic options.
+      expectTypeOf(ctx.getPlugin('not-registered')).toEqualTypeOf<Plugin<PluginFactoryOptions> | undefined>()
+      expectTypeOf(ctx.getResolver('plugin-registered')).toEqualTypeOf<ResolvePluginOptions<'plugin-registered'>['resolver']>()
+    }
+
+    expect(_returns).toBeTypeOf('function')
+  })
+
+  it('PluginRegistry: dependencies autocomplete registered names and still accept any string', () => {
+    const registered = { name: 'plugin-consumer', dependencies: ['plugin-registered'], hooks: {} } satisfies Plugin
+    const arbitrary = { name: 'plugin-consumer', dependencies: ['some-unregistered-plugin'], hooks: {} } satisfies Plugin
+
+    expect(registered.dependencies).toStrictEqual(['plugin-registered'])
+    expect(arbitrary.dependencies).toStrictEqual(['some-unregistered-plugin'])
   })
 })

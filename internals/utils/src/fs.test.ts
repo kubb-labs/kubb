@@ -3,7 +3,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
 import { camelCase, pascalCase } from './casing.ts'
-import { clean, exists, getRelativePath, read, toFilePath, toPosixPath, trimExtName, write } from './fs.ts'
+import { clean, exists, read, toFilePath, toPosixPath, trimExtName, write } from './fs.ts'
 
 const existsTestDir = path.join(os.tmpdir(), 'kubb-test-exists')
 const existsTestFile = path.join(existsTestDir, 'test.txt')
@@ -89,44 +89,6 @@ describe('clean', () => {
 
   it('does not throw when path does not exist', async () => {
     await expect(clean(path.join(os.tmpdir(), 'kubb-does-not-exist'))).resolves.not.toThrow()
-  })
-})
-
-describe('getRelativePath', () => {
-  const relTestDir = path.join(os.tmpdir(), 'kubb-test-rel')
-  const folderPath = path.join(relTestDir, 'folder')
-
-  beforeAll(async () => {
-    await mkdir(relTestDir, { recursive: true })
-  })
-
-  afterAll(async () => {
-    await rm(relTestDir, { recursive: true, force: true })
-  })
-
-  test('returns correct relative path (POSIX)', async () => {
-    const testFile = path.join(folderPath, 'test.js')
-    await write(testFile, 'test')
-
-    expect(getRelativePath(relTestDir, testFile)).toBe('./folder/test.js')
-    expect(getRelativePath(folderPath, relTestDir)).toBe('./..')
-
-    await clean(testFile)
-  })
-
-  test('returns correct relative path for Windows-style paths', () => {
-    const winMocks = 'C:\\Users\\user\\project\\mocks'
-    const winFolder = 'C:\\Users\\user\\project\\mocks\\folder'
-    const winFile = 'C:\\Users\\user\\project\\mocks\\folder\\test.js'
-
-    expect(getRelativePath(winMocks, winFile)).toBe('./folder/test.js')
-    expect(getRelativePath(winFolder, winMocks)).toBe('./..')
-    expect(getRelativePath(winMocks, winFolder)).toBe('./folder')
-    expect(getRelativePath('C:/Users/user/project/mocks', 'C:\\Users\\user\\project\\mocks\\folder\\test.js')).toBe('./folder/test.js')
-  })
-
-  test('throws when arguments are missing', () => {
-    expect(() => getRelativePath(null, null)).toThrow()
   })
 })
 

@@ -6,7 +6,7 @@ import type { Storage } from './createStorage.ts'
 import type { Diagnostic, ProblemDiagnostic, UpdateDiagnostic } from './Diagnostics.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
-import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, Plugin } from './definePlugin.ts'
+import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, Plugin, PluginName, ResolvePluginOptions } from './definePlugin.ts'
 import type { KubbDriver } from './KubbDriver.ts'
 
 /**
@@ -413,8 +413,7 @@ export type KubbBuildStartContext = {
   /**
    * Looks up a registered plugin by name, typed by the plugin registry.
    */
-  getPlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
-  getPlugin(name: string): Plugin | undefined
+  getPlugin<TName extends PluginName>(name: TName): Plugin<ResolvePluginOptions<TName>> | undefined
   /**
    * Snapshot of all files accumulated so far.
    */
@@ -764,7 +763,16 @@ export type { FileManagerHooks } from './FileManager.ts'
 export type { Generator, GeneratorContext } from './defineGenerator.ts'
 export type { Parser } from './defineParser.ts'
 export type { Exclude, Filter, Group, Include, Output, OutputMode, OutputOptions, Override } from './definePlugin.ts'
-export type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, NormalizedPlugin, Plugin, PluginFactoryOptions } from './definePlugin.ts'
+export type {
+  KubbPluginEndContext,
+  KubbPluginSetupContext,
+  KubbPluginStartContext,
+  NormalizedPlugin,
+  Plugin,
+  PluginFactoryOptions,
+  PluginName,
+  ResolvePluginOptions,
+} from './definePlugin.ts'
 export type {
   BannerMeta,
   ResolveBannerContext,

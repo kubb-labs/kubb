@@ -6,7 +6,7 @@ import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnost
 import type { RendererFactory } from './createRenderer.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
-import type { Plugin } from './definePlugin.ts'
+import type { Plugin, PluginName, ResolvePluginOptions } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { createResolver } from './createResolver.ts'
 import { Resolver, type ResolverPatch } from './Resolver.ts'
@@ -642,8 +642,7 @@ export class KubbDriver {
    * Resolution order: resolver set via `setPluginResolver` → lazily created default
    * resolver (identity name, no path transforms).
    */
-  getResolver<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Kubb.PluginRegistry[TName]['resolver']
-  getResolver<TResolver extends Resolver = Resolver>(pluginName: string): TResolver
+  getResolver<TName extends PluginName>(pluginName: TName): ResolvePluginOptions<TName>['resolver']
   getResolver(pluginName: string): Resolver {
     return this.#resolvers.get(pluginName) ?? this.#getDefaultResolver(pluginName)
   }
@@ -700,8 +699,7 @@ export class KubbDriver {
     }
   }
 
-  getPlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
-  getPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string): Plugin<TOptions> | undefined
+  getPlugin<TName extends PluginName>(pluginName: TName): Plugin<ResolvePluginOptions<TName>> | undefined
   getPlugin(pluginName: string): Plugin | undefined {
     return this.plugins.get(pluginName)
   }
@@ -709,8 +707,7 @@ export class KubbDriver {
   /**
    * Like `getPlugin` but throws a descriptive error when the plugin is not found.
    */
-  requirePlugin<TName extends keyof Kubb.PluginRegistry>(pluginName: TName, context?: RequirePluginContext): Plugin<Kubb.PluginRegistry[TName]>
-  requirePlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(pluginName: string, context?: RequirePluginContext): Plugin<TOptions>
+  requirePlugin<TName extends PluginName>(pluginName: TName, context?: RequirePluginContext): Plugin<ResolvePluginOptions<TName>>
   requirePlugin(pluginName: string, context?: RequirePluginContext): Plugin {
     const plugin = this.getPlugin(pluginName)
     if (plugin) return plugin

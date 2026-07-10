@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { isIdentifier, isValidVarName, transformReservedWord } from './reserved.ts'
+import { isIdentifier, isValidVarName } from './reserved.ts'
 
 describe('isIdentifier', () => {
   test('accepts identifier syntax including reserved words and globals', () => {
@@ -12,15 +12,6 @@ describe('isIdentifier', () => {
     expect(isIdentifier('x-total')).toBe(false)
     expect(isIdentifier('200')).toBe(false)
     expect(isIdentifier('with space')).toBe(false)
-  })
-})
-
-describe('transformReservedWord', () => {
-  test('template rendering', () => {
-    expect(transformReservedWord('delete')).toBe('_delete')
-    expect(transformReservedWord('this')).toBe('_this')
-    expect(transformReservedWord('var')).toBe('_var')
-    expect(transformReservedWord('1test')).toBe('_1test')
   })
 })
 

@@ -87,24 +87,6 @@ const reservedWords = new Set([
 ] as const)
 
 /**
- * Prefixes `word` with `_` when it is a reserved JavaScript/Java identifier or starts with a digit.
- *
- * @example
- * ```ts
- * transformReservedWord('class')  // '_class'
- * transformReservedWord('42foo')  // '_42foo'
- * transformReservedWord('status') // 'status'
- * ```
- */
-export function transformReservedWord(word: string): string {
-  const firstChar = word.charCodeAt(0)
-  if (word && (reservedWords.has(word as 'valueOf') || (firstChar >= 48 && firstChar <= 57))) {
-    return `_${word}`
-  }
-  return word
-}
-
-/**
  * Returns `true` when `name` is a syntactically valid JavaScript variable name.
  *
  * @example

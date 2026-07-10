@@ -1,59 +1,7 @@
-import { existsSync } from 'node:fs'
 import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
-import { dirname, join, posix, resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 import { camelCase } from './casing.ts'
 import { runtime } from './runtime.ts'
-
-/**
- * Walks up the directory tree from `cwd` (defaults to `process.cwd()`) and
- * returns the absolute path of the nearest `package.json`, or `null` when none
- * is found before reaching the filesystem root.
- *
- * @example
- * ```ts
- * const pkgPath = findPackageJSON('/home/user/project/src') // '/home/user/project/package.json'
- * ```
- */
-export function findPackageJSON(cwd?: string): string | null {
-  let dir = cwd ? resolve(cwd) : process.cwd()
-  while (true) {
-    const pkgPath = join(dir, 'package.json')
-    if (existsSync(pkgPath)) return pkgPath
-    const parent = dirname(dir)
-    if (parent === dir) return null
-    dir = parent
-  }
-}
-
-/**
- * Converts all backslashes to forward slashes.
- * Extended-length Windows paths (`\\?\...`) are left unchanged.
- */
-function toSlash(p: string): string {
-  if (p.startsWith('\\\\?\\')) return p
-
-  return p.replaceAll('\\', '/')
-}
-
-/**
- * Returns the relative path from `rootDir` to `filePath`, always using forward slashes
- * and prefixed with `./` when not already traversing upward.
- *
- * @example
- * ```ts
- * getRelativePath('/src/components', '/src/components/Button.tsx') // './Button.tsx'
- * getRelativePath('/src/components', '/src/utils/helpers.ts')      // '../utils/helpers.ts'
- * ```
- */
-export function getRelativePath(rootDir?: string | null, filePath?: string | null): string {
-  if (!rootDir || !filePath) {
-    throw new Error(`Root and file should be filled in when retrieving the relativePath, ${rootDir || ''} ${filePath || ''}`)
-  }
-
-  const relativePath = posix.relative(toSlash(rootDir), toSlash(filePath))
-
-  return relativePath.startsWith('../') ? relativePath : `./${relativePath}`
-}
 
 /**
  * Resolves to `true` when the file or directory at `path` exists.

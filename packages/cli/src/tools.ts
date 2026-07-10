@@ -1,6 +1,15 @@
 import { spawn } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import type { Config } from '@kubb/core'
+
+/**
+ * The configurable formatter names, mirrored from `Config['output'].format`. Excludes `'auto'`
+ * (detection, not a tool) and `false` (skip). The `formatters`/`linters` tables below are pinned to
+ * these so adding a tool to the config union without a descriptor fails to compile.
+ */
+type FormatterName = Exclude<NonNullable<Config['output']['format']>, 'auto' | false>
+type LinterName = Exclude<NonNullable<Config['output']['lint']>, 'auto' | false>
 
 /**
  * CLI command descriptors for each supported code formatter.
@@ -25,7 +34,7 @@ export const formatters = {
     args: (outputPath: string) => [outputPath],
     errorMessage: 'Oxfmt not found',
   },
-} as const
+} as const satisfies Record<FormatterName, unknown>
 
 /**
  * CLI command descriptors for each supported linter.
@@ -51,7 +60,7 @@ export const linters = {
     args: (outputPath: string) => ['--fix', '--no-ignore', outputPath],
     errorMessage: 'Oxlint not found',
   },
-} as const
+} as const satisfies Record<LinterName, unknown>
 
 /**
  * Resolves to `true` when running `tool --version` exits with code 0.

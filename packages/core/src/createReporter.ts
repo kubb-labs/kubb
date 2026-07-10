@@ -1,3 +1,4 @@
+import type { LiteralUnion } from '@internals/utils'
 import type { Config } from './types.ts'
 import type { Diagnostic } from './Diagnostics.ts'
 
@@ -64,7 +65,7 @@ export type Reporter = {
   /**
    * Display name, matching a {@link ReporterName} for the built-ins.
    */
-  name: string
+  name: LiteralUnion<ReporterName>
   /**
    * Called once per config with that config's result and the render context.
    */
@@ -83,7 +84,7 @@ export type Reporter = {
  * emit as one document. `T` is inferred from `report`'s return type.
  */
 export type UserReporter<T = void> = {
-  name: string
+  name: LiteralUnion<ReporterName>
   report: (result: GenerationResult, context: ReporterContext) => T | Promise<T>
   drain?: (context: ReporterContext, reports: Array<T>) => void | Promise<void>
 }

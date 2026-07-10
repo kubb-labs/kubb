@@ -4,8 +4,7 @@ import type { Adapter } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { KubbHooks } from './types.ts'
 import type { KubbDriver } from './KubbDriver.ts'
-import type { Plugin, PluginFactoryOptions } from './definePlugin.ts'
-import type { Resolver } from './Resolver.ts'
+import type { Plugin, PluginFactoryOptions, PluginName, ResolvePluginOptions } from './definePlugin.ts'
 import type { Config } from './types.ts'
 import type { Hookable } from './Hookable.ts'
 
@@ -34,18 +33,15 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
   /**
    * Get a plugin by name, typed via `Kubb.PluginRegistry` when registered.
    */
-  getPlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]> | undefined
-  getPlugin(name: string): Plugin | undefined
+  getPlugin<TName extends PluginName>(name: TName): Plugin<ResolvePluginOptions<TName>> | undefined
   /**
    * Get a plugin by name, throws an error if not found.
    */
-  requirePlugin<TName extends keyof Kubb.PluginRegistry>(name: TName): Plugin<Kubb.PluginRegistry[TName]>
-  requirePlugin(name: string): Plugin
+  requirePlugin<TName extends PluginName>(name: TName): Plugin<ResolvePluginOptions<TName>>
   /**
    * Get a resolver by plugin name, typed via `Kubb.PluginRegistry` when registered.
    */
-  getResolver<TName extends keyof Kubb.PluginRegistry>(name: TName): Kubb.PluginRegistry[TName]['resolver']
-  getResolver(name: string): Resolver
+  getResolver<TName extends PluginName>(name: TName): ResolvePluginOptions<TName>['resolver']
   /**
    * Add files only if they don't exist.
    */

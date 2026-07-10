@@ -1,3 +1,4 @@
+import type { LiteralUnion } from '@internals/utils'
 import type { Enforce, FileNode, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import { diagnosticCode } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -6,6 +7,18 @@ import { Diagnostics } from './Diagnostics.ts'
 import type { Config, KubbHooks } from './types.ts'
 
 type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
+
+/**
+ * A plugin name as accepted by `getPlugin`/`requirePlugin`/`getResolver`. Registered names from
+ * `Kubb.PluginRegistry` autocomplete, and any other string is still allowed.
+ */
+export type PluginName = LiteralUnion<keyof Kubb.PluginRegistry>
+
+/**
+ * Resolves a plugin name to its `PluginFactoryOptions`. A name registered in `Kubb.PluginRegistry`
+ * maps to its exact factory options, any other string falls back to the generic options.
+ */
+export type ResolvePluginOptions<TName> = TName extends keyof Kubb.PluginRegistry ? Kubb.PluginRegistry[TName] : PluginFactoryOptions
 
 /**
  * How a plugin consolidates its generated code into files.
@@ -343,7 +356,7 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    * Plugins that must be registered before this plugin executes.
    * An error is thrown at startup when any listed dependency is missing.
    */
-  dependencies?: Array<string>
+  dependencies?: Array<PluginName>
   /**
    * Controls the execution order of this plugin relative to others.
    *

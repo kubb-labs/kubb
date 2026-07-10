@@ -131,7 +131,7 @@ export type ResolveUserConfigOptions = {
   /**
    * Log level passed through to the config function.
    */
-  logLevel?: string
+  logLevel?: CLIOptions['logLevel']
 }
 
 /**
@@ -141,7 +141,7 @@ export type ResolveUserConfigOptions = {
  * picks the first entry when it resolves to an array.
  */
 export async function resolveUserConfig(config: PossibleConfig<CLIOptions>, options: ResolveUserConfigOptions): Promise<Config> {
-  const result = typeof config === 'function' ? config({ logLevel: options.logLevel as CLIOptions['logLevel'], config: options.configPath }) : config
+  const result = typeof config === 'function' ? config({ logLevel: options.logLevel, config: options.configPath }) : config
   const resolved = isPromise(result) ? await result : result
 
   return (Array.isArray(resolved) ? resolved[0] : resolved) as Config
