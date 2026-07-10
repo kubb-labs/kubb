@@ -1,0 +1,61 @@
+internals/utils/src/index.ts
+  s_9cbc4281a4bd25::t_418ecd08902135 5,8
+  s_9cbc4281a4bd25::t_782fc0a46940c4 9
+packages/core/src/definePlugin.test.ts
+  s_9cbc4281a4bd25::t_0b8c0d988ba0a1 702-722
+  s_9cbc4281a4bd25::t_04b45ee4cb3218 35-41
+  s_9cbc4281a4bd25::t_c63edc90a3270b 8
+internals/utils/src/fs.test.ts
+  s_9cbc4281a4bd25::t_06c1cba0e57cc5 6
+internals/utils/src/fs.ts
+  s_9cbc4281a4bd25::t_4ee7fd92795e92 2
+packages/core/src/definePlugin.ts
+  s_9cbc4281a4bd25::t_591b1dcebac13f 1
+  s_9cbc4281a4bd25::t_4f56665bd8f78b 11-22
+  s_9cbc4281a4bd25::t_797197902f82bc 359
+packages/core/src/KubbDriver.ts
+  s_9cbc4281a4bd25::t_b17bf5144a62af 702
+  s_9cbc4281a4bd25::t_7448ea752595e5 645
+  s_9cbc4281a4bd25::t_3fc464cfcea13a 9
+  s_9cbc4281a4bd25::t_7bdfc025a02e43 710
+packages/core/src/defineGenerator.ts
+  s_9cbc4281a4bd25::t_8b1591c2e352ba 7
+  s_9cbc4281a4bd25::t_122e067d852e15 36,40,44
+packages/core/src/types.ts
+  s_9cbc4281a4bd25::t_080e71feac64ce 766-775
+  s_9cbc4281a4bd25::t_db54b4ec1548c1 9
+  s_9cbc4281a4bd25::t_c102c9aec500b2 416
+internals/utils/src/reserved.test.ts
+  s_9cbc4281a4bd25::t_9bb89b1145dc0e 2
+.changeset/objectkey-singlequote-blanklines.md
+  s_9cbc4281a4bd25::t_3a42b401c5b686 6
+packages/mcp/src/utils.ts
+  s_9cbc4281a4bd25::t_783b0312e62b94 134
+  s_9cbc4281a4bd25::t_47eaef9c4556c5 144
+packages/cli/src/tools.ts
+  s_9cbc4281a4bd25::t_1005b46ec42986 63
+  s_9cbc4281a4bd25::t_56bd35842ed935 4-12
+  s_9cbc4281a4bd25::t_a307531bc12f52 37
+internals/utils/src/types.ts
+  s_9cbc4281a4bd25::t_7af4c296cc1108 1-12
+packages/core/src/createReporter.ts
+  s_9cbc4281a4bd25::t_e153923f4e04d0 87
+  s_9cbc4281a4bd25::t_b8dafabdb07dcd 1
+  s_9cbc4281a4bd25::t_2f80264b8f7e34 68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.11",
+  "base_commit_sha": "27f815692d28ddb637335e43e174bc02884e7792",
+  "prompts": {},
+  "sessions": {
+    "s_9cbc4281a4bd25": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "65349f44-d9f6-4c49-bb23-ca88d8e92d3d",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
