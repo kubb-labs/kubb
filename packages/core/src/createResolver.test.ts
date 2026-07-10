@@ -247,6 +247,26 @@ describe('createResolver', () => {
     expect(merged.schema.label('pets')).toBe('base:PETS')
   })
 
+  it('Resolver.merge() keeps the preset name as default.name across merges', () => {
+    const preset = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      name(name) {
+        return name.toUpperCase()
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+    const customized = Resolver.merge(preset, {
+      name(name) {
+        return this.default.name(name)
+      },
+    })
+    const registered = Resolver.merge(new Resolver({ pluginName: 'test' }), customized)
+
+    expect(customized.name('Pet')).toBe('PET')
+    expect(registered.name('Pet')).toBe('PET')
+  })
+
   it('Resolver.merge() overrides one namespace method and keeps the siblings', () => {
     type QueryResolver = Resolver & {
       query: {
