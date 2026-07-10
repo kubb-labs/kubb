@@ -3,7 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { availablePlugins, generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, type PluginOption, resolvePlugins } from '@internals/shared'
+import { availablePlugins, generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, type PluginOption, resolvePlugins, withDistTag } from '@internals/shared'
 import { hasPackageJson, initPackageJson, installPackages } from './utils.ts'
 import { detectPackageManager } from '../../tools.ts'
 
@@ -141,8 +141,8 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
       return availablePlugins.filter((p) => (values as Array<string>).includes(p.value))
     })()
 
-    // Install packages
-    const packagesToInstall = ['kubb', ...selectedPlugins.map((p) => p.packageName)]
+    // Install packages, pinned to the dist-tag of the running CLI version
+    const packagesToInstall = withDistTag({ packages: ['kubb', ...selectedPlugins.map((p) => p.packageName)], version })
 
     const spinner = clack.spinner()
     spinner.start(`Installing ${packagesToInstall.length} packages with ${packageManager.name}`)
