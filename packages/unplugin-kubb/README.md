@@ -40,11 +40,7 @@ npm install -D unplugin-kubb @kubb/core
 import kubb from 'unplugin-kubb/vite'
 
 export default defineConfig({
-  plugins: [
-    kubb({
-      /* options */
-    }),
-  ],
+  plugins: [kubb({/* options */})],
 })
 ```
 
@@ -52,35 +48,20 @@ export default defineConfig({
 import kubb from 'unplugin-kubb/rollup'
 
 export default {
-  plugins: [
-    kubb({
-      /* options */
-    }),
-  ],
+  plugins: [kubb({/* options */})],
 }
 ```
 
 ```typescript
 module.exports = {
   /* ... */
-  plugins: [
-    require('unplugin-kubb/webpack')({
-      /* options */
-    }),
-  ],
+  plugins: [require('unplugin-kubb/webpack')({/* options */})],
 }
 ```
 
 ```typescript
 export default defineNuxtConfig({
-  modules: [
-    [
-      'unplugin-kubb/nuxt',
-      {
-        /* options */
-      },
-    ],
-  ],
+  modules: [['unplugin-kubb/nuxt', {/* options */}]],
 })
 ```
 
