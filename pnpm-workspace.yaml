@@ -8,11 +8,11 @@ allowBuilds:
   esbuild: true
   msw: true
 catalog:
-  "@types/node": ^22.20.0
+  "@types/node": ^22.20.1
   "@vitest/coverage-v8": ^4.1.10
   "@vitest/ui": ^4.1.10
   oxfmt: ^0.57.0
-  oxlint: ^1.72.0
+  oxlint: ^1.73.0
   "tinyexec": ^1.2.4
   tsdown: ^0.22.3
   typescript: ^6.0.3
