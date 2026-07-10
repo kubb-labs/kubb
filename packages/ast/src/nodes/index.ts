@@ -1,4 +1,4 @@
-import type { ArrowFunctionNode, ConstNode, FunctionNode, TypeNode } from './code.ts'
+import type { ArrowFunctionNode, BreakNode, ConstNode, FunctionNode, JsxNode, TextNode, TypeNode } from './code.ts'
 import type { ContentNode } from './content.ts'
 import type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
 import type { InputNode } from './input.ts'
@@ -79,3 +79,6 @@ export type Node =
   | TypeNode
   | FunctionNode
   | ArrowFunctionNode
+  | TextNode
+  | BreakNode
+  | JsxNode

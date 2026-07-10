@@ -53,7 +53,7 @@ export const parserMd = defineParser(() => {
       const body = sourceParts.join('\n\n')
 
       const meta = file.meta as MdMeta | undefined
-      const frontmatter = print(meta?.frontmatter ?? undefined)
+      const frontmatter = print(meta?.frontmatter)
 
       const parts = [file.banner, frontmatter, body, file.footer].filter((segment): segment is string => Boolean(segment)).map((segment) => segment.trimEnd())
 

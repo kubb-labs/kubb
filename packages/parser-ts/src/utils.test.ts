@@ -658,4 +658,8 @@ describe('printExport', () => {
   it('renders a type-only named re-export', () => {
     expect(printExport({ name: ['Pet'], path: './Pet.ts', isTypeOnly: true })).toMatchInlineSnapshot(`"export type { Pet } from './Pet.ts'"`)
   })
+
+  it('renders a single string name as a named re-export', () => {
+    expect(printExport({ name: 'Pet', path: './Pet.ts' })).toMatchInlineSnapshot(`"export { Pet } from './Pet.ts'"`)
+  })
 })

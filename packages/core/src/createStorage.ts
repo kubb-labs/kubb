@@ -30,7 +30,11 @@ export type Storage = {
    */
   getKeys(base?: string): Promise<Array<string>>
   /**
-   * Removes every entry. Pass `base` to scope the wipe to a key prefix.
+   * Removes stored entries. Pass `base` to scope the wipe to a key prefix.
+   *
+   * Omitting `base` is implementation-defined: in-memory stores wipe every
+   * entry, while filesystem-backed stores treat a missing `base` as a no-op so
+   * a bare `clear()` can never delete outside a known output directory.
    */
   clear(base?: string): Promise<void>
 }

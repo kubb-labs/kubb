@@ -478,7 +478,7 @@ export function printExport({
   }
 
   if (name) {
-    console.warn(`When using name as string, asAlias should be true: ${name}`)
+    return `export ${typePrefix}{ ${name} } from ${from}`
   }
 
   return `export ${typePrefix}* from ${from}`

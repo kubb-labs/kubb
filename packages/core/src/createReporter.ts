@@ -110,20 +110,22 @@ export type UserReporter<T = void> = {
  * ```
  */
 export function createReporter<T = void>(reporter: UserReporter<T>): Reporter {
-  const reports = new Set<T>()
+  const reports: Array<T> = []
 
   return {
     name: reporter.name,
     async report(result, context) {
       const report = await reporter.report(result, context)
-      reports.add(report)
+      if (reporter.drain) {
+        reports.push(report)
+      }
     },
     async drain(context) {
-      await reporter.drain?.(context, Array.from(reports))
-      reports.clear()
+      await reporter.drain?.(context, [...reports])
+      reports.length = 0
     },
     [Symbol.dispose]() {
-      reports.clear()
+      reports.length = 0
     },
   }
 }

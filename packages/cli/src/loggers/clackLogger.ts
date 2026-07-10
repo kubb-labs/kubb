@@ -246,7 +246,7 @@ Run \`npm install -g @kubb/cli\` to update`,
 
       const active = state.activeProgress.get('plugins')
 
-      if (!active || logLevel === logLevelMap.silent) {
+      if (!active || logLevel <= logLevelMap.silent) {
         return
       }
 
