@@ -216,27 +216,41 @@ function* walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolea
   return subtreeLeaves
 }
 
+type NestedWalkParams = {
+  sourceFiles: ReadonlyMap<string, FileNode>
+  strategy: LeafStrategy
+}
+
 /**
  * Recursive walk that yields one barrel per directory, re-exporting files and sub-barrels.
- * Used when nested: true.
+ * Used when nested: true. Leaf files honor the barrel `strategy`, so `named` emits explicit
+ * named exports instead of wildcards. Sub-directory barrels are chained with a wildcard
+ * re-export, which forwards the names the child barrel already curated. Returns whether this
+ * node yielded a barrel, so a parent never re-exports a sub-directory that produced nothing.
  */
-function* walkNested(node: BuildTree): Generator<FileNode> {
+function* walkNested(node: BuildTree, params: NestedWalkParams): Generator<FileNode, boolean> {
   const exports: Array<ExportNode> = []
 
   for (const child of node.children) {
     if (child.isFile) {
       if (isBarrelPath(child.path)) continue
-      exports.push(ast.factory.createExport({ path: toRelativeModulePath(node.path, child.path) }))
+      const sourceFile = params.sourceFiles.get(child.path) ?? null
+      exports.push(...params.strategy({ dirPath: node.path, leafPath: child.path, sourceFile }))
       continue
     }
 
-    yield* walkNested(child)
-    exports.push(ast.factory.createExport({ path: toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`) }))
+    const childYieldedBarrel = yield* walkNested(child, params)
+    if (childYieldedBarrel) {
+      exports.push(ast.factory.createExport({ path: toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`) }))
+    }
   }
 
   if (exports.length > 0) {
     yield makeBarrel(node.path, exports)
+    return true
   }
+
+  return false
 }
 
 type IndexedFiles = {
@@ -308,13 +322,13 @@ export function* getBarrelFiles({ outputPath, files, barrelType, nested = false,
 
   const tree = buildTree(outputPath, paths)
 
-  if (nested) {
-    yield* walkNested(tree)
-    return
-  }
-
   const strategy = LEAF_STRATEGIES.get(barrelType)
   if (!strategy) return
+
+  if (nested) {
+    yield* walkNested(tree, { sourceFiles, strategy })
+    return
+  }
 
   yield* walkAllOrNamed(tree, { sourceFiles, strategy, recursive }, true)
 }

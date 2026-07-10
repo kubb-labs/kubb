@@ -44,6 +44,7 @@ kubb/
 │   ├── ast/                 # Spec-agnostic AST layer (nodes, visitors, factories)
 │   ├── adapter-oas/         # OpenAPI/Swagger adapter (OAS to AST)
 │   ├── parser-ts/           # TypeScript parser for AST manipulation
+│   ├── parser-md/           # Markdown parser (AST to .md source, YAML frontmatter)
 │   ├── renderer-jsx/        # JSX renderer for component-based output
 │   ├── plugin-barrel/       # Barrel export generation (enforce: 'post' plugin)
 │   ├── unplugin-kubb/       # Bundler integration (Vite, Nuxt, Astro, webpack)
@@ -51,9 +52,8 @@ kubb/
 │   ├── mcp/                 # Model Context Protocol server for AI assistants
 │   └── kubb/                # Main package, re-exports the public APIs
 ├── internals/               # Non-published helpers (changelog, shared logic, utils)
-├── schemas/                 # JSON/YAML schemas for configuration
 ├── configs/                 # Shared build and test configuration
-├── docs/                    # Architecture notes and guides
+├── scripts/                 # Release and maintenance scripts
 └── .agents/skills/          # Cross-provider agent skills
 ```
 

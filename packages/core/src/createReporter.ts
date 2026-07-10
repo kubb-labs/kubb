@@ -116,10 +116,12 @@ export function createReporter<T = void>(reporter: UserReporter<T>): Reporter {
     name: reporter.name,
     async report(result, context) {
       const report = await reporter.report(result, context)
-      reports.push(report)
+      if (reporter.drain) {
+        reports.push(report)
+      }
     },
     async drain(context) {
-      await reporter.drain?.(context, reports)
+      await reporter.drain?.(context, [...reports])
       reports.length = 0
     },
     [Symbol.dispose]() {
