@@ -1,5 +1,44 @@
 # Changelog
 
+## v5.0.0-beta.95 — Jul 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Make the per-schema converter functions in `converters.ts` module-private. They were exported but only consumed inside the file through the `schemaRules` table, so nothing outside the module could see them anyway. ([#3769](https://github.com/kubb-labs/kubb/pull/3769), [`ae6ab96`](https://github.com/kubb-labs/kubb/commit/ae6ab966888ef8a84b7c0a8585bf8027be150509))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb init` now scaffolds a working v5 project. The generated `kubb.config.ts` uses the v5 shape (`defineConfig` from `kubb/config` with a string `input` and no `root`), and the installed packages are pinned to the dist-tag of the running CLI, so a beta CLI installs `kubb@beta` and beta plugins instead of the older stable majors. ([#3765](https://github.com/kubb-labs/kubb/pull/3765), [`8a5e740`](https://github.com/kubb-labs/kubb/commit/8a5e7403cce7f267a5811bc5faa7a2915ea269f6))
+
+### @kubb/core
+
+#### Features
+
+- Move import resolution from the adapter to the resolver: `resolver.imports` replaces `adapter.getImports`, and ref nodes carry their target's emitted name.
+  
+  `resolver.imports({ node, root, output, group })` builds one import entry per `$ref` in a schema tree, resolving names and paths through the resolver's own `name` and `file` conventions. A per-call `name` callback overrides the imported identifier, for example to point enum refs at a suffixed type name.
+  
+  `RefSchemaNode` gains `targetName`: the emitted name of the referenced schema when it differs from the pointer's last segment. The adapter stamps it during parsing for collision-renamed schemas, and `resolveRefName` prefers it, so refs resolve without a side-channel map. `adapter.getImports` and the `nameMapping` side channels (`adapter.options.nameMapping`, `meta.nameMapping`) are gone, and custom adapters only implement `parse` and `validate`.
+  
+  The new `macroRenameSchema({ from, to })` macro renames a schema consistently: the declaration and every ref pointing at it change together, so imports stay in sync. ([#3768](https://github.com/kubb-labs/kubb/pull/3768), [`68ac0dd`](https://github.com/kubb-labs/kubb/commit/68ac0dd20c8fbac2f730eb4ebfc0fb1d6c341f5c))
+- [`7e87548`](https://github.com/kubb-labs/kubb/commit/7e875484ea3eafc7e9d2854d13b4969c5f404975) - Type plugin lookups by name through `Kubb.PluginRegistry`.
+  
+  `getPlugin`, `requirePlugin`, and `getResolver` (on the generator context, `KubbBuildStartContext`, and `KubbDriver`) now take a single signature keyed on the plugin name: a name registered in `Kubb.PluginRegistry` resolves to that plugin's exact factory options, any other string falls back to the generic `Plugin`. Registered names autocomplete, and the `dependencies` field on a plugin autocompletes them too. Two helpers back this and are exported from `@kubb/core`: `PluginName` (the accepted name type) and `ResolvePluginOptions<TName>` (name to factory options).
+  
+  `Reporter.name` and `UserReporter.name` accept `LiteralUnion<ReporterName>`, so the built-in `cli`/`json`/`file` names autocomplete while custom reporter names still assign.
+  
+  Breaking: the explicit type-argument form `getPlugin<MyOptions>(name)` is gone, since the type parameter is now the plugin name rather than the options type. Register the plugin in `Kubb.PluginRegistry` and call it by name with no type argument to get the typed result. ([`7e87548`](https://github.com/kubb-labs/kubb/commit/7e875484ea3eafc7e9d2854d13b4969c5f404975))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.94 — Jul 10, 2026
 
 ### @kubb/adapter-oas
