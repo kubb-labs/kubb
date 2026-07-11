@@ -1,4 +1,4 @@
-import { ast, findCircularSchemas, narrowSchema } from '@kubb/ast'
+import { ast, extractRefName, findCircularSchemas, narrowSchema } from '@kubb/ast'
 import { createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
@@ -184,6 +184,10 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
     const operations = promotedEnums ? operationNodes.map((node) => refPromotedEnums(node, promotedEnums!)) : operationNodes
 
+    // Only renames matter downstream: `resolver.imports` falls back to the pointer's last
+    // segment, so identity entries would be dead weight in every document's meta.
+    const nameMapping = Object.fromEntries([...refNameMapping].filter(([pointer, name]) => extractRefName(pointer) !== name))
+
     return ast.factory.createInput({
       schemas: schemaNodes,
       operations,
@@ -194,7 +198,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         baseURL: resolveBaseUrl({ document, server }),
         circularNames,
         enumNames,
-        nameMapping: Object.fromEntries(refNameMapping),
+        nameMapping,
       },
     })
   }

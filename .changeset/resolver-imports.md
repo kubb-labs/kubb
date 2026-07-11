@@ -9,4 +9,4 @@ Move import resolution from the adapter to the resolver: `adapter.getImports` is
 
 `resolver.imports({ node, meta, root, output, group })` builds one import entry per `$ref` in a schema tree, resolving names and paths through the resolver's own `name` and `file` conventions. A per-call `name` callback overrides the imported identifier, for example to point enum refs at a suffixed type name.
 
-The adapter now records its collision renames in `meta.nameMapping` (raw ref pointer to emitted schema name) instead of exposing a `getImports` hook, so custom adapters only implement `parse` and `validate`.
+The adapter now records its collision renames in `meta.nameMapping` (renamed ref pointer to emitted schema name, empty when nothing is renamed) instead of exposing a `getImports` hook, so custom adapters only implement `parse` and `validate`. Refs that keep their pointer's last segment need no entry, since `resolver.imports` falls back to it.

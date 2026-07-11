@@ -67,9 +67,10 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
   /**
    * Parse the source into a universal `InputNode`.
    *
-   * An adapter that renames schemas (e.g. collision handling) must record each raw ref
-   * pointer to renamed-name entry in `meta.nameMapping`, so `resolver.imports` resolves
-   * a `$ref` to the file that is actually generated.
+   * An adapter that renames schemas (e.g. collision handling) must record each renamed
+   * ref pointer and its emitted name in `meta.nameMapping`, so `resolver.imports`
+   * resolves a `$ref` to the file that is actually generated. Refs that keep their
+   * pointer's last segment need no entry.
    */
   parse: (source: AdapterSource) => PossiblePromise<InputNode>
   /**

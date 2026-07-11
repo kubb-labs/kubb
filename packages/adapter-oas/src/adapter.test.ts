@@ -80,7 +80,7 @@ describe('adapterOas.parse', () => {
 })
 
 describe('adapterOas meta.nameMapping', () => {
-  it('maps each component pointer to its emitted schema name', async () => {
+  it('stays empty when no schema is renamed', async () => {
     const adapter = adapterOas()
 
     const node = await adapter.parse({
@@ -102,7 +102,7 @@ describe('adapterOas meta.nameMapping', () => {
       },
     })
 
-    expect(node.meta.nameMapping).toStrictEqual({ '#/components/schemas/Pet': 'Pet' })
+    expect(node.meta.nameMapping).toStrictEqual({})
   })
 
   it('maps a collision-renamed schema ref to the renamed name', async () => {
