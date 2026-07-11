@@ -13,9 +13,7 @@ type Props = {
  * sync. Renaming only one side by hand produces imports for files that are never generated.
  *
  * @example
- * ```ts
- * const macro = macroRenameSchema({ from: 'Order', to: 'StoreOrder' })
- * ```
+ * `const macro = macroRenameSchema({ from: 'Order', to: 'StoreOrder' })`
  */
 export function macroRenameSchema({ from, to }: Props) {
   return defineMacro({
