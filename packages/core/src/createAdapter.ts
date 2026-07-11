@@ -1,5 +1,5 @@
 import type { PossiblePromise } from '@internals/utils'
-import type { ImportNode, InputNode, SchemaNode } from '@kubb/ast'
+import type { InputNode } from '@kubb/ast'
 
 /**
  * Source data handed to an adapter's `parse` function. Mirrors the config
@@ -66,16 +66,12 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
   document: TOptions['document'] | null
   /**
    * Parse the source into a universal `InputNode`.
+   *
+   * An adapter that renames schemas (e.g. collision handling) must record each raw ref
+   * pointer to renamed-name entry in `meta.nameMapping`, so `resolver.imports` resolves
+   * a `$ref` to the file that is actually generated.
    */
   parse: (source: AdapterSource) => PossiblePromise<InputNode>
-  /**
-   * Extract `ImportNode` entries for a schema tree.
-   * Returns an empty array before the first `parse()` call.
-   *
-   * The `resolve` callback receives the collision-corrected schema name and must
-   * return `{ name, path }` for the import, or `undefined` to skip it.
-   */
-  getImports: (node: SchemaNode, resolve: (schemaName: string) => { name: string; path: string }) => Array<ImportNode>
   /**
    * Validate the document at the given path or URL.
    */
@@ -107,7 +103,6 @@ type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) =
  *     // Convert the source (path or inline data) into an InputNode.
  *     return ast.factory.createInput()
  *   },
- *   getImports: () => [],
  *   async validate() {
  *     // Throw here when the spec is invalid.
  *   },

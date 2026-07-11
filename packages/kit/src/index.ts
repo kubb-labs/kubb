@@ -34,6 +34,7 @@ export type {
   Renderer,
   RendererFactory,
   ResolveFileOptions,
+  ResolveImportsOptions,
   ResolvePathOptions,
   ResolverFile,
   ResolverFileParams,

@@ -486,6 +486,76 @@ describe('default.file', () => {
   })
 })
 
+describe('resolver.imports', () => {
+  const refNode = ast.factory.createSchema({
+    type: 'object',
+    properties: [
+      ast.factory.createProperty({ name: 'pet', schema: ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Pet', name: 'Pet' }) }),
+      ast.factory.createProperty({ name: 'order', schema: ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Order', name: 'Order' }) }),
+    ],
+  })
+
+  it('builds one import per ref with the resolver name and file path', () => {
+    const imports = baseResolver.imports({ node: refNode, meta: {}, ...context })
+
+    expect(imports).toMatchObject([
+      { kind: 'Import', name: ['pet'], path: '/root/types/pet.ts' },
+      { kind: 'Import', name: ['order'], path: '/root/types/order.ts' },
+    ])
+  })
+
+  it('resolves a collision-renamed ref through meta.nameMapping', () => {
+    const meta = { nameMapping: { '#/components/schemas/Order': 'OrderSchema' } }
+
+    const imports = baseResolver.imports({ node: refNode, meta, ...context })
+
+    expect(imports).toMatchObject([
+      { kind: 'Import', name: ['pet'], path: '/root/types/pet.ts' },
+      { kind: 'Import', name: ['orderSchema'], path: '/root/types/orderSchema.ts' },
+    ])
+  })
+
+  it('a per-call name override wins over the resolver name', () => {
+    const imports = baseResolver.imports({
+      node: refNode,
+      meta: {},
+      ...context,
+      name: (schemaName) => `${schemaName}Type`,
+    })
+
+    expect(imports.map((imp) => imp.name)).toStrictEqual([['PetType'], ['OrderType']])
+  })
+
+  it('uses the plugin name and file conventions for the import entries', () => {
+    const resolver = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      name(name) {
+        return `${this.default.name(name)}Schema`
+      },
+      file: {
+        baseName({ name, extname }) {
+          return `${this.name(name)}.gen${extname}`
+        },
+      },
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+
+    const imports = resolver.imports({ node: refNode, meta: {}, ...context })
+
+    expect(imports).toMatchObject([
+      { name: ['petSchema'], path: '/root/types/petSchema.gen.ts' },
+      { name: ['orderSchema'], path: '/root/types/orderSchema.gen.ts' },
+    ])
+  })
+
+  it('returns an empty array for a schema without refs', () => {
+    const node = ast.factory.createSchema({ type: 'string' })
+
+    expect(baseResolver.imports({ node, meta: {}, ...context })).toStrictEqual([])
+  })
+})
+
 const mockConfig = {
   input: 'petStore.yaml',
   output: { path: 'src/generated', defaultBanner: true },

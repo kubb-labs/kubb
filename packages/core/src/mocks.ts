@@ -57,14 +57,12 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
 /**
  * Creates a minimal `Adapter` mock for unit tests.
  * `parse` returns an empty `InputNode` by default. Override via `options.parse`.
- * `getImports` returns `[]` by default.
  */
 export function createMockedAdapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptions>(
   options: {
     name?: TOptions['name']
     resolvedOptions?: TOptions['resolvedOptions']
     parse?: Adapter<TOptions>['parse']
-    getImports?: Adapter<TOptions>['getImports']
   } = {},
 ): Adapter<TOptions> {
   const adapter: Adapter<TOptions> = {
@@ -72,7 +70,6 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
     options: (options.resolvedOptions ?? {}) as TOptions['resolvedOptions'],
     document: null,
     parse: options.parse ?? (async () => ast.factory.createInput()),
-    getImports: options.getImports ?? ((_node: SchemaNode, _resolve: (schemaName: string) => { name: string; path: string }) => []),
     validate: async () => {},
   }
   return adapter

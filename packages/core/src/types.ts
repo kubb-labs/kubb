@@ -778,6 +778,7 @@ export type {
   ResolveBannerContext,
   ResolveBannerFile,
   ResolveFileOptions,
+  ResolveImportsOptions,
   ResolveOptionsContext,
   ResolvePathOptions,
   Resolver,

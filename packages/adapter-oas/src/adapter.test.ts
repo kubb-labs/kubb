@@ -1,4 +1,5 @@
 import { ast } from '@kubb/ast'
+import { Resolver } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { adapterOas } from './adapter.ts'
 
@@ -78,11 +79,11 @@ describe('adapterOas.parse', () => {
   })
 })
 
-describe('adapterOas.getImports', () => {
-  it('returns named imports as string arrays', async () => {
+describe('adapterOas meta.nameMapping', () => {
+  it('maps each component pointer to its emitted schema name', async () => {
     const adapter = adapterOas()
 
-    await adapter.parse({
+    const node = await adapter.parse({
       type: 'data',
       data: {
         openapi: '3.0.0',
@@ -101,27 +102,15 @@ describe('adapterOas.getImports', () => {
       },
     })
 
-    const imports = adapter.getImports(
-      ast.factory.createSchema({
-        type: 'ref',
-        ref: '#/components/schemas/Pet',
-        name: 'Pet',
-      }),
-      () => ({
-        name: 'PetType',
-        path: './pet.ts',
-      }),
-    )
-
-    expect(imports).toMatchObject([{ kind: 'Import', name: ['PetType'], path: './pet.ts' }])
+    expect(node.meta.nameMapping).toStrictEqual({ '#/components/schemas/Pet': 'Pet' })
   })
 
-  it('resolves a collision-renamed schema ref to the renamed name', async () => {
+  it('maps a collision-renamed schema ref to the renamed name', async () => {
     const adapter = adapterOas()
 
     // `Order` exists in both `schemas` and `requestBodies`, so the schema is renamed to `OrderSchema`.
-    // A `$ref` to it must import `OrderSchema`, not the bare `Order` (whose file is never emitted).
-    await adapter.parse({
+    // A `$ref` to it must resolve to `OrderSchema`, not the bare `Order` (whose file is never emitted).
+    const node = await adapter.parse({
       type: 'data',
       data: {
         openapi: '3.0.0',
@@ -138,18 +127,19 @@ describe('adapterOas.getImports', () => {
       },
     })
 
-    const imports = adapter.getImports(
-      ast.factory.createSchema({
-        type: 'ref',
-        ref: '#/components/schemas/Order',
-        name: 'Order',
-      }),
-      (schemaName) => ({
-        name: schemaName,
-        path: `./${schemaName}.ts`,
-      }),
-    )
+    expect(node.meta.nameMapping).toStrictEqual({
+      '#/components/schemas/Order': 'OrderSchema',
+      '#/components/requestBodies/Order': 'OrderRequest',
+    })
 
-    expect(imports).toMatchObject([{ kind: 'Import', name: ['OrderSchema'], path: './OrderSchema.ts' }])
+    const resolver = new Resolver({ pluginName: 'test' })
+    const imports = resolver.imports({
+      node: ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Order', name: 'Order' }),
+      meta: node.meta,
+      root: '/root',
+      output: { path: 'types' },
+    })
+
+    expect(imports).toMatchObject([{ kind: 'Import', name: ['orderSchema'], path: '/root/types/orderSchema.ts' }])
   })
 })
