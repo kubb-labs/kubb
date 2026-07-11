@@ -105,7 +105,7 @@ function aggregate(entries) {
   return { byPackage, contributors: [...contributors].sort() }
 }
 
-export function flush() {
+function flush() {
   if (!pending.length) return
 
   const { rootChangelog, versionPackage, typeOrder, typeHeaders } = {
