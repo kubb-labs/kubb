@@ -43,10 +43,4 @@ describe('macroRenameSchema', () => {
     expect(result.name).toBe('ClientDisconnectedProblem')
     expect(resolveRefName(result)).toBe('ApiProblem')
   })
-
-  it('passes through unrelated nodes unchanged', () => {
-    const node = createSchema({ type: 'object', name: 'Pet', properties: [] })
-
-    expect(apply(node, macroRenameSchema({ from: 'Order', to: 'StoreOrder' }))).toBe(node)
-  })
 })

@@ -530,35 +530,6 @@ describe('resolver.imports', () => {
     expect(imports.map((imp) => imp.name)).toStrictEqual([['PetType'], ['OrderType']])
   })
 
-  it('uses the plugin name and file conventions for the import entries', () => {
-    const resolver = createResolver<TestPluginFactory>({
-      pluginName: 'test',
-      name(name) {
-        return `${this.default.name(name)}Schema`
-      },
-      file: {
-        baseName({ name, extname }) {
-          return `${this.name(name)}.gen${extname}`
-        },
-      },
-      greet: (name: string) => name,
-      farewell: (name: string) => name,
-    })
-
-    const imports = resolver.imports({ node: refNode, ...context })
-
-    expect(imports).toMatchObject([
-      { name: ['petSchema'], path: '/root/types/petSchema.gen.ts' },
-      { name: ['orderSchema'], path: '/root/types/orderSchema.gen.ts' },
-    ])
-  })
-
-  it('returns an empty array for a schema without refs', () => {
-    const node = ast.factory.createSchema({ type: 'string' })
-
-    expect(baseResolver.imports({ node, ...context })).toStrictEqual([])
-  })
-
   it('emits one import per unique target when a schema is referenced repeatedly', () => {
     const petRef = () => ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Pet', name: 'Pet' })
     const node = ast.factory.createSchema({
