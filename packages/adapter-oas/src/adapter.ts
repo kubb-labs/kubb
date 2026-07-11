@@ -1,4 +1,4 @@
-import { ast, findCircularSchemas, narrowSchema, transform } from '@kubb/ast'
+import { ast, findCircularSchemas, narrowSchema } from '@kubb/ast'
 import { createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
@@ -99,11 +99,11 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     return result
   }
 
-  function ensureSchemaParser(document: Document): ReturnType<typeof createSchemaParser> {
+  function ensureSchemaParser(document: Document, renames: Map<string, string>): ReturnType<typeof createSchemaParser> {
     const cached = schemaParserCache.get(document)
     if (cached) return cached
 
-    const parser = createSchemaParser({ document, contentType })
+    const parser = createSchemaParser({ document, contentType, renames })
     schemaParserCache.set(document, parser)
     return parser
   }
@@ -113,30 +113,13 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   function parseInput({
     document,
     schemas,
-    renames,
     parser,
   }: {
     document: Document
     schemas: Record<string, SchemaObject>
-    renames: Map<string, string>
     parser: ReturnType<typeof ensureSchemaParser>
   }): ast.InputNode {
     const { parseSchema, parseOperation } = parser
-
-    // Refs whose target was collision-renamed carry the emitted name on the node itself
-    // (`targetName`), so `resolveRefName` works without a side-channel map. Stamped before
-    // circular-ref detection, so the schema graph also sees the corrected edges.
-    const stampTargetNames = <T extends ast.SchemaNode | ast.OperationNode>(node: T): T => {
-      if (renames.size === 0) return node
-      return transform(node, {
-        schema(child) {
-          const refNode = narrowSchema(child, 'ref')
-          if (!refNode?.ref) return undefined
-          const targetName = renames.get(refNode.ref)
-          return targetName ? { ...refNode, targetName } : undefined
-        },
-      }) as T
-    }
 
     const parsedByName = new Map<string, ast.SchemaNode>()
     const refAliasMap = new Map<string, ast.SchemaNode>()
@@ -144,7 +127,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     const discriminatorParentNodes: Array<ast.SchemaNode> = []
 
     for (const [name, schema] of Object.entries(schemas)) {
-      const node = stampTargetNames(parseSchema({ schema, name }, parserOptions))
+      const node = parseSchema({ schema, name }, parserOptions)
       parsedByName.set(name, node)
       reportSchemaDiagnostics({ node, name })
       if (node.type === 'ref' && node.name && node.name !== name) {
@@ -165,7 +148,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     const operationNodes: Array<ast.OperationNode> = []
     for (const operation of getOperations(document)) {
       const operationNode = parseOperation(parserOptions, operation)
-      if (operationNode) operationNodes.push(stampTargetNames(operationNode))
+      if (operationNode) operationNodes.push(operationNode)
     }
 
     let promotedEnums: Map<string, ast.SchemaNode> | null = null
@@ -233,9 +216,9 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     async parse(source) {
       const document = await ensureDocument(source)
       const { schemas, renames } = ensureSchemas(document)
-      const parser = ensureSchemaParser(document)
+      const parser = ensureSchemaParser(document, renames)
 
-      return parseInput({ document, schemas, renames, parser })
+      return parseInput({ document, schemas, parser })
     },
   }
 })

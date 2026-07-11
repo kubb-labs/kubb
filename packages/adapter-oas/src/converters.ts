@@ -48,6 +48,11 @@ export type ConverterDeps = {
    * Returns `true` when a `$ref` path resolves to a component the document actually defines.
    */
   refExists: (refPath: string) => boolean
+  /**
+   * Collision renames keyed by the original component pointer, used to stamp `targetName`
+   * on ref nodes whose target the adapter renamed.
+   */
+  renames?: ReadonlyMap<string, string>
 }
 
 /**
@@ -135,7 +140,7 @@ function nameEnums(node: ast.SchemaNode, options: { parentName: string | null | 
  * Use `syncSchemaRef(node)` in printers to get a merged view of both.
  * Circular refs are detected in `resolveRefNode` and leave `schema` as `null`.
  */
-export function convertRef({ schema, name, nullable, defaultValue, rawOptions, document, resolveRefNode, refExists }: ConvertContext): ast.SchemaNode {
+export function convertRef({ schema, name, nullable, defaultValue, rawOptions, document, resolveRefNode, refExists, renames }: ConvertContext): ast.SchemaNode {
   const refPath = schema.$ref
   const resolvedSchema = refPath ? resolveRefNode(refPath, rawOptions) : null
 
@@ -151,11 +156,14 @@ export function convertRef({ schema, name, nullable, defaultValue, rawOptions, d
     })
   }
 
+  const targetName = renames?.get(schema.$ref!)
+
   return ast.factory.createSchema({
     ...buildSchemaNode(schema, name, nullable, defaultValue),
     type: 'ref',
     name: extractRefName(schema.$ref!),
     ref: schema.$ref,
+    ...(targetName ? { targetName } : {}),
     schema: resolvedSchema,
   })
 }
