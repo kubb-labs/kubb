@@ -1,4 +1,4 @@
-import { ast, extractRefName, findCircularSchemas, narrowSchema, transform } from '@kubb/ast'
+import { ast, findCircularSchemas, narrowSchema, transform } from '@kubb/ast'
 import { createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
@@ -113,12 +113,12 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   function parseInput({
     document,
     schemas,
-    refNameMapping,
+    renames,
     parser,
   }: {
     document: Document
     schemas: Record<string, SchemaObject>
-    refNameMapping: Map<string, string>
+    renames: Map<string, string>
     parser: ReturnType<typeof ensureSchemaParser>
   }): ast.InputNode {
     const { parseSchema, parseOperation } = parser
@@ -126,7 +126,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     // Refs whose target was collision-renamed carry the emitted name on the node itself
     // (`targetName`), so `resolveRefName` works without a side-channel map. Stamped before
     // circular-ref detection, so the schema graph also sees the corrected edges.
-    const renames = new Map([...refNameMapping].filter(([pointer, name]) => extractRefName(pointer) !== name))
     const stampTargetNames = <T extends ast.SchemaNode | ast.OperationNode>(node: T): T => {
       if (renames.size === 0) return node
       return transform(node, {
@@ -233,10 +232,10 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     },
     async parse(source) {
       const document = await ensureDocument(source)
-      const { schemas, nameMapping: refNameMapping } = ensureSchemas(document)
+      const { schemas, renames } = ensureSchemas(document)
       const parser = ensureSchemaParser(document)
 
-      return parseInput({ document, schemas, refNameMapping, parser })
+      return parseInput({ document, schemas, renames, parser })
     },
   }
 })

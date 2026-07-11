@@ -26,17 +26,14 @@ function parseSchema(ctx: OasParserContext, { schema, name }: { schema: SchemaOb
  * Parses a full OpenAPI document into Kubb's universal `InputNode` AST, mirroring
  * `parseInput()` in `adapter.ts` for whole-spec test cases.
  */
-function parseOas(
-  document: Document,
-  options: Partial<ast.ParserOptions> & { contentType?: ContentType } = {},
-): { root: ast.InputNode; nameMapping: Map<string, string> } {
+function parseOas(document: Document, options: Partial<ast.ParserOptions> & { contentType?: ContentType } = {}): { root: ast.InputNode } {
   const { contentType, ...parserOptions } = options
   const mergedOptions: ast.ParserOptions = {
     ...DEFAULT_PARSER_OPTIONS,
     ...parserOptions,
   }
 
-  const { schemas: schemaObjects, nameMapping } = getSchemas(document, { contentType })
+  const { schemas: schemaObjects } = getSchemas(document, { contentType })
   const { parseSchema: _parseSchema, parseOperation: _parseOperation } = createSchemaParser({ document, contentType })
 
   const schemas: Array<ast.SchemaNode> = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, mergedOptions))
@@ -47,7 +44,7 @@ function parseOas(
 
   const root = ast.factory.createInput({ schemas, operations })
 
-  return { root, nameMapping }
+  return { root }
 }
 
 describe('buildAst', () => {
