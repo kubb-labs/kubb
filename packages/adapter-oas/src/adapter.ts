@@ -99,7 +99,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     return result
   }
 
-  function ensureSchemaParser(document: Document, renames: Map<string, string>): ReturnType<typeof createSchemaParser> {
+  function ensureSchemaParser({ document, renames }: { document: Document; renames: Map<string, string> }): ReturnType<typeof createSchemaParser> {
     const cached = schemaParserCache.get(document)
     if (cached) return cached
 
@@ -216,7 +216,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     async parse(source) {
       const document = await ensureDocument(source)
       const { schemas, renames } = ensureSchemas(document)
-      const parser = ensureSchemaParser(document, renames)
+      const parser = ensureSchemaParser({ document, renames })
 
       return parseInput({ document, schemas, parser })
     },
