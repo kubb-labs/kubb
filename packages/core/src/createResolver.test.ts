@@ -558,6 +558,16 @@ describe('resolver.imports', () => {
 
     expect(baseResolver.imports({ node, ...context })).toStrictEqual([])
   })
+
+  it('emits one import per unique target when a schema is referenced repeatedly', () => {
+    const petRef = () => ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Pet', name: 'Pet' })
+    const node = ast.factory.createSchema({
+      type: 'object',
+      properties: [ast.factory.createProperty({ name: 'first', schema: petRef() }), ast.factory.createProperty({ name: 'second', schema: petRef() })],
+    })
+
+    expect(baseResolver.imports({ node, ...context })).toMatchObject([{ name: ['pet'], path: '/root/types/pet.ts' }])
+  })
 })
 
 const mockConfig = {

@@ -381,23 +381,25 @@ export class Resolver {
   }
 
   /**
-   * Builds one `ImportNode` per `$ref` occurrence in the schema tree. Each ref's target
-   * resolves through `resolveRefName`, so collision- or macro-renamed schemas (`targetName`)
-   * import the emitted name. Names and paths go through the top-level `name` and `file`, so
-   * import entries follow the plugin's conventions, and a per-call `name` override wins over
-   * both.
+   * Builds one `ImportNode` per unique schema referenced in the tree, in first-occurrence
+   * order. Each ref's target resolves through `resolveRefName`, so collision- or macro-renamed
+   * schemas (`targetName`) import the emitted name. Names and paths go through the top-level
+   * `name` and `file`, so import entries follow the plugin's conventions, and a per-call
+   * `name` override wins over both.
    */
   imports(options: ResolveImportsOptions): Array<ImportNode> {
     const { node, root, output, group, extname = '.ts', name } = options
     const resolveName = name ?? ((schemaName: string) => this.name(schemaName))
 
+    const seen = new Set<string>()
     return collect(node, {
       schema: (schemaNode) => {
         const schemaRef = narrowSchema(schemaNode, 'ref')
         if (!schemaRef?.ref) return null
 
         const schemaName = resolveRefName(schemaRef)
-        if (!schemaName) return null
+        if (!schemaName || seen.has(schemaName)) return null
+        seen.add(schemaName)
 
         return ast.factory.createImport({
           name: [resolveName(schemaName)],

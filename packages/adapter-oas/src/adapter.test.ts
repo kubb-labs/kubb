@@ -1,5 +1,4 @@
 import { narrowSchema, resolveRefName } from '@kubb/ast'
-import { Resolver } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { adapterOas } from './adapter.ts'
 
@@ -106,7 +105,7 @@ describe('adapterOas ref targetName', () => {
     expect(ref?.targetName).toBeUndefined()
   })
 
-  it('stamps refs to a collision-renamed schema with the renamed name', async () => {
+  it('stamps schema and operation refs to a collision-renamed schema with the renamed name', async () => {
     const adapter = adapterOas()
 
     // `Order` exists in both `schemas` and `requestBodies`, so the schema is renamed to `OrderSchema`.
@@ -116,7 +115,19 @@ describe('adapterOas ref targetName', () => {
       data: {
         openapi: '3.0.0',
         info: { title: 'test', version: '1.0.0' },
-        paths: {},
+        paths: {
+          '/orders/{orderId}': {
+            get: {
+              operationId: 'getOrder',
+              responses: {
+                '200': {
+                  description: 'ok',
+                  content: { 'application/json': { schema: { $ref: '#/components/schemas/Order' } } },
+                },
+              },
+            },
+          },
+        },
         components: {
           schemas: {
             Order: { type: 'object', properties: { id: { type: 'string' } } },
@@ -133,14 +144,14 @@ describe('adapterOas ref targetName', () => {
 
     const orderList = node.schemas.find((schema) => schema.name === 'OrderList')
     const items = narrowSchema(orderList!, 'array')?.items ?? []
-    const ref = narrowSchema(items[0]!, 'ref')
+    const schemaRef = narrowSchema(items[0]!, 'ref')
 
-    expect(ref?.targetName).toBe('OrderSchema')
-    expect(resolveRefName(ref)).toBe('OrderSchema')
+    expect(schemaRef?.targetName).toBe('OrderSchema')
+    expect(resolveRefName(schemaRef)).toBe('OrderSchema')
 
-    const resolver = new Resolver({ pluginName: 'test' })
-    const imports = resolver.imports({ node: orderList!, root: '/root', output: { path: 'types' } })
+    const responseRef = narrowSchema(node.operations[0]!.responses[0]!.content![0]!.schema!, 'ref')
 
-    expect(imports).toMatchObject([{ kind: 'Import', name: ['orderSchema'], path: '/root/types/orderSchema.ts' }])
+    expect(responseRef?.targetName).toBe('OrderSchema')
+    expect(resolveRefName(responseRef)).toBe('OrderSchema')
   })
 })
