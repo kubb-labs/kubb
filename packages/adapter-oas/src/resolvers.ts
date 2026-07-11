@@ -250,10 +250,12 @@ export type GetSchemasOptions = {
 export type GetSchemasResult = {
   schemas: Record<string, SchemaObject>
   /**
-   * Maps each original component pointer (`#/components/<source>/<name>`) to the
-   * collision-resolved unique name used as the key in `schemas`.
+   * Maps a renamed component pointer (`#/components/<source>/<name>`) to the
+   * collision-resolved unique name used as the key in `schemas`. Components that keep
+   * their original name are not recorded, so the map stays empty for documents
+   * without collisions.
    */
-  nameMapping: Map<string, string>
+  renames: Map<string, string>
 }
 
 /**
@@ -423,7 +425,7 @@ function resolveSchemaRef(document: Document, schema: SchemaObject): SchemaObjec
  *
  * @example
  * ```ts
- * const { schemas, nameMapping } = getSchemas(document, { contentType: 'application/json' })
+ * const { schemas, renames } = getSchemas(document, { contentType: 'application/json' })
  * ```
  */
 export function getSchemas(document: Document, { contentType }: GetSchemasOptions): GetSchemasResult {
@@ -460,7 +462,7 @@ export function getSchemas(document: Document, { contentType }: GetSchemasOption
   }
 
   const schemas: Record<string, SchemaObject> = {}
-  const nameMapping = new Map<string, string>()
+  const renames = new Map<string, string>()
 
   for (const [, items] of normalizedNames) {
     const isSingle = items.length === 1
@@ -479,11 +481,11 @@ export function getSchemas(document: Document, { contentType }: GetSchemasOption
       const suffix = isSingle ? '' : hasMultipleSources ? semanticSuffixes[item.source] : index === 0 ? '' : String(index + 1)
       const uniqueName = item.originalName + suffix
       schemas[uniqueName] = item.schema
-      nameMapping.set(`#/components/${item.source}/${item.originalName}`, uniqueName)
+      if (suffix) renames.set(`#/components/${item.source}/${item.originalName}`, uniqueName)
     })
   }
 
-  return { schemas: sortSchemas(schemas), nameMapping }
+  return { schemas: sortSchemas(schemas), renames }
 }
 
 /**

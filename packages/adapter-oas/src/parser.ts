@@ -17,6 +17,12 @@ import type { ContentType, Document, Operation, SchemaObject } from './types.ts'
 export type OasParserContext = {
   document: Document
   contentType?: ContentType
+  /**
+   * Collision renames from `getSchemas`, keyed by the original component pointer. `convertRef`
+   * stamps `targetName` from it at ref creation, so refs to renamed schemas resolve to the
+   * emitted name without a post-parse pass.
+   */
+  renames?: ReadonlyMap<string, string>
 }
 
 /**
@@ -137,6 +143,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       document,
       resolveRefNode,
       refExists,
+      renames: ctx.renames,
     }
 
     for (const rule of schemaRules) {

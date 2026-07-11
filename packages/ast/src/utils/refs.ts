@@ -16,16 +16,21 @@ export function extractRefName(ref: string): string {
 }
 
 /**
- * Resolves the schema name of a ref node. Uses the last segment of `ref` when set, otherwise falls
- * back to `name` then nested `schema.name`.
+ * Resolves the emitted name of the schema a ref node points at. Prefers `targetName` (set when
+ * the referenced schema was renamed, e.g. to break a collision), then the last segment of `ref`,
+ * then `name`, then the nested `schema.name`.
  *
  * Returns `null` for non-ref nodes or when no name resolves.
  *
  * @example
  * `resolveRefName({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Pet' }) // 'Pet'`
+ *
+ * @example Collision-renamed target
+ * `resolveRefName({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Order', targetName: 'OrderSchema' }) // 'OrderSchema'`
  */
-export function resolveRefName(node: SchemaNode | undefined): string | null {
+export function resolveRefName(node: SchemaNode | null | undefined): string | null {
   if (!node || node.type !== 'ref') return null
+  if (node.targetName) return node.targetName
   if (node.ref) return extractRefName(node.ref)
 
   return node.name ?? node.schema?.name ?? null

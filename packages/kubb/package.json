@@ -136,7 +136,7 @@
     "@nuxt/kit": "^4.4.8",
     "@nuxt/schema": "^4.4.8",
     "esbuild": "^0.28.1",
-    "rolldown": "^1.1.4",
+    "rolldown": "^1.1.5",
     "rollup": "^4.62.2",
     "typescript": "catalog:",
     "vite": "^8.1.3",
