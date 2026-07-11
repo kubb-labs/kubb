@@ -1,8 +1,8 @@
 import { relative } from 'node:path'
 import { formatMs } from '@internals/utils'
-import { Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { Diagnostics, logLevel as logLevelMap } from '@kubb/core'
 import type { Logger } from './defineLogger.ts'
-import { createHookTimer, formatCommandWithArgs, formatErrorFrames, formatMessage } from './utils.ts'
+import { createHookTimer, createLogHelpers, formatCommandWithArgs, formatErrorFrames } from './utils.ts'
 
 /**
  * Plain console adapter for non-TTY environments, built on `console.log`.
@@ -12,20 +12,7 @@ export const plainLogger = {
   install(context, options) {
     const logLevel = options?.logLevel ?? logLevelMap.info
     const hookTimer = createHookTimer()
-
-    function getMessage(message: string): string {
-      return formatMessage(message, logLevel)
-    }
-
-    // Registers a handler that logs a fixed message, skipped at silent level.
-    function onStep<E extends keyof KubbHooks>(hook: E, message: string): void {
-      context.hook(hook, () => {
-        if (logLevel <= logLevelMap.silent) {
-          return
-        }
-        console.log(getMessage(message))
-      })
-    }
+    const { getMessage, onStep } = createLogHelpers({ context, logLevel, print: (text) => console.log(text) })
 
     context.hook('kubb:info', ({ message, info }) => {
       if (logLevel <= logLevelMap.silent) {

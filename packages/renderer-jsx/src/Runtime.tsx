@@ -16,23 +16,27 @@ import type { KubbReactElement } from './types.ts'
 type OnText = (text: string) => void
 type OnHost = (type: string, props: Record<string, unknown>) => void
 
+type ResolvedElement =
+  | { kind: 'none' }
+  | { kind: 'text'; value: string }
+  | { kind: 'children'; children: Array<unknown> }
+  | { kind: 'host'; type: string; props: Record<string, unknown> }
+
 /**
- * Walks `element`, resolving arrays, Fragments, and function components, then
- * calls `onText` for primitive values and `onHost` for each host element.
- * Function components are called synchronously. Hooks and class components are
- * not supported.
+ * Classifies one element for the tree walkers: primitives become text, arrays, Fragments, and
+ * function components become children to recurse into, and string-typed elements become host
+ * elements. Anything else (null, booleans, unknown objects) resolves to `none`. Function
+ * components are called synchronously.
  */
-function walkElement(element: unknown, onText: OnText, onHost: OnHost): void {
-  if (element == null || typeof element === 'boolean') return
+function resolveElement(element: unknown): ResolvedElement {
+  if (element == null || typeof element === 'boolean') return { kind: 'none' }
 
   if (typeof element === 'string' || typeof element === 'number' || typeof element === 'bigint') {
-    onText(String(element))
-    return
+    return { kind: 'text', value: String(element) }
   }
 
   if (Array.isArray(element)) {
-    for (const child of element) walkElement(child, onText, onHost)
-    return
+    return { kind: 'children', children: element }
   }
 
   if (typeof element === 'object' && '$$typeof' in element) {
@@ -41,16 +45,38 @@ function walkElement(element: unknown, onText: OnText, onHost: OnHost): void {
     const props = el.props as Record<string, unknown>
 
     if (type === Fragment) {
-      walkElement(props['children'], onText, onHost)
-      return
+      return { kind: 'children', children: [props['children']] }
     }
     if (typeof type === 'function') {
-      walkElement((type as (p: unknown) => unknown)(props), onText, onHost)
-      return
+      return { kind: 'children', children: [(type as (p: unknown) => unknown)(props)] }
     }
     if (typeof type === 'string') {
-      onHost(type, props)
+      return { kind: 'host', type, props }
     }
+  }
+
+  return { kind: 'none' }
+}
+
+/**
+ * Walks `element`, resolving arrays, Fragments, and function components, then
+ * calls `onText` for primitive values and `onHost` for each host element.
+ * Function components are called synchronously. Hooks and class components are
+ * not supported.
+ */
+function walkElement(element: unknown, onText: OnText, onHost: OnHost): void {
+  const resolved = resolveElement(element)
+
+  if (resolved.kind === 'text') {
+    onText(resolved.value)
+    return
+  }
+  if (resolved.kind === 'children') {
+    for (const child of resolved.children) walkElement(child, onText, onHost)
+    return
+  }
+  if (resolved.kind === 'host') {
+    onHost(resolved.type, resolved.props)
   }
 }
 
@@ -216,54 +242,37 @@ function collectFileChildren(element: unknown): FileChildren {
 }
 
 function* walkFiles(element: unknown): Generator<FileNode> {
-  if (element == null || typeof element === 'boolean') return
+  const resolved = resolveElement(element)
 
-  if (typeof element === 'string' || typeof element === 'number' || typeof element === 'bigint') return
-
-  if (Array.isArray(element)) {
-    for (const child of element) yield* walkFiles(child)
-
+  if (resolved.kind === 'children') {
+    for (const child of resolved.children) yield* walkFiles(child)
     return
   }
 
-  if (typeof element === 'object' && '$$typeof' in element) {
-    const el = element as unknown as KubbReactElement
-    const { type } = el
-    const props = el.props as Record<string, unknown>
+  if (resolved.kind !== 'host') return
 
-    if (type === Fragment) {
-      yield* walkFiles(props['children'])
-      return
-    }
+  const { type, props } = resolved
 
-    if (typeof type === 'function') {
-      yield* walkFiles((type as (p: unknown) => unknown)(props))
-      return
+  if (type === KUBB_FILE && props['baseName'] !== undefined && props['path'] !== undefined) {
+    const { sources, exports, imports } = collectFileChildren(props['children'])
+    // `walkFiles` yields the `<kubb-file>` props as-is; `id`, `name`, `extname`, and `kind`,
+    // plus unused-import pruning, are only computed once the file reaches `FileManager` (via
+    // `ast.factory.createFile`) — calling it here would prune imports before `FileManager`
+    // merges same-path fragments from separate `render()` calls into their final source text.
+    const file: UserFileNode = {
+      baseName: props['baseName'] as FileNode['baseName'],
+      path: props['path'] as string,
+      meta: (props['meta'] as FileNode['meta']) || {},
+      footer: props['footer'] as FileNode['footer'],
+      banner: props['banner'] as FileNode['banner'],
+      copy: props['copy'] as FileNode['copy'],
+      sources,
+      exports,
+      imports,
     }
-
-    if (typeof type === 'string') {
-      if (type === KUBB_FILE && props['baseName'] !== undefined && props['path'] !== undefined) {
-        const { sources, exports, imports } = collectFileChildren(props['children'])
-        // `walkFiles` yields the `<kubb-file>` props as-is; `id`, `name`, `extname`, and `kind`,
-        // plus unused-import pruning, are only computed once the file reaches `FileManager` (via
-        // `ast.factory.createFile`) — calling it here would prune imports before `FileManager`
-        // merges same-path fragments from separate `render()` calls into their final source text.
-        const file: UserFileNode = {
-          baseName: props['baseName'] as FileNode['baseName'],
-          path: props['path'] as string,
-          meta: (props['meta'] as FileNode['meta']) || {},
-          footer: props['footer'] as FileNode['footer'],
-          banner: props['banner'] as FileNode['banner'],
-          copy: props['copy'] as FileNode['copy'],
-          sources,
-          exports,
-          imports,
-        }
-        yield file as unknown as FileNode
-      } else {
-        yield* walkFiles(props['children'])
-      }
-    }
+    yield file as unknown as FileNode
+  } else {
+    yield* walkFiles(props['children'])
   }
 }
 

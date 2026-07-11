@@ -3,14 +3,14 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { formatMsWithColor, getElapsedMs, getIntro } from '@internals/utils'
-import { Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { Diagnostics, logLevel as logLevelMap } from '@kubb/core'
 import type { Logger } from './defineLogger.ts'
 import {
   buildProgressLine,
+  createLogHelpers,
   createProgressCounters,
   formatCommandWithArgs,
   formatErrorFrames,
-  formatMessage,
   recordPluginResult,
   resetProgressCounters,
 } from './utils.ts'
@@ -22,6 +22,7 @@ export const clackLogger = {
   name: 'clack',
   install(context, options) {
     const logLevel = options?.logLevel ?? logLevelMap.info
+    const { getMessage, onStep } = createLogHelpers({ context, logLevel, print: (text) => clack.log.step(text) })
     const state = {
       ...createProgressCounters(),
       spinner: clack.spinner(),
@@ -67,20 +68,6 @@ export const clackLogger = {
       if (line) {
         clack.log.step(getMessage(line))
       }
-    }
-
-    function getMessage(message: string): string {
-      return formatMessage(message, logLevel)
-    }
-
-    // Registers a handler that prints a fixed step message, skipped at silent level.
-    function onStep<E extends keyof KubbHooks>(hook: E, message: string): void {
-      context.hook(hook, () => {
-        if (logLevel <= logLevelMap.silent) {
-          return
-        }
-        clack.log.step(getMessage(message))
-      })
     }
 
     function stopSpinner(text?: string) {

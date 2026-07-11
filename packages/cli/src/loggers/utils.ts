@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { canUseTTY, formatMs, getElapsedMs, toCause } from '@internals/utils'
-import type { Reporter, ReporterContext } from '@kubb/core'
+import type { KubbHooks, Reporter, ReporterContext } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
 import type { LoggerContext, LoggerOptions } from './defineLogger.ts'
 import { clackLogger } from './clackLogger.ts'
@@ -22,6 +22,38 @@ export function formatMessage(message: string, logLevel: number): string {
     return `${styleText('dim', `[${timestamp}]`)} ${message}`
   }
   return message
+}
+
+type LogHelpers = {
+  /**
+   * Applies {@link formatMessage} with the adapter's log level.
+   */
+  getMessage: (message: string) => string
+  /**
+   * Registers a handler that prints a fixed step message through `print`, skipped at silent level.
+   */
+  onStep: <E extends keyof KubbHooks>(hook: E, message: string) => void
+}
+
+/**
+ * Creates the `getMessage` and `onStep` helpers shared by the logger adapters. `print` is the
+ * adapter's line output, `clack.log.step` for the clack logger and `console.log` for the plain one.
+ */
+export function createLogHelpers({ context, logLevel, print }: { context: LoggerContext; logLevel: number; print: (text: string) => void }): LogHelpers {
+  function getMessage(message: string): string {
+    return formatMessage(message, logLevel)
+  }
+
+  function onStep<E extends keyof KubbHooks>(hook: E, message: string): void {
+    context.hook(hook, () => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+      print(getMessage(message))
+    })
+  }
+
+  return { getMessage, onStep }
 }
 
 /**
