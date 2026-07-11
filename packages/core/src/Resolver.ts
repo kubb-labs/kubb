@@ -3,9 +3,9 @@ import { camelCase, toFilePath } from '@internals/utils'
 import {
   ast,
   collect,
-  extractRefName,
   narrowSchema,
   operationDef,
+  resolveRefName,
   schemaDef,
   type FileNode,
   type ImportNode,
@@ -123,14 +123,13 @@ export type ResolveFileOptions = ResolverFileParams & {
 }
 
 /**
- * Options for `resolver.imports`: the schema tree to scan (`node`), the document metadata
- * carrying the adapter's `nameMapping` (`meta`), and where the generated files live (`root`,
- * `output`, `group`). Pass `name` to override how a referenced schema name becomes the
- * imported identifier; it defaults to the resolver's top-level `name`.
+ * Options for `resolver.imports`: the schema tree to scan (`node`) and where the generated
+ * files live (`root`, `output`, `group`). Pass `name` to override how a referenced schema
+ * name becomes the imported identifier; it defaults to the resolver's top-level `name`.
  *
  * @example
  * ```ts
- * resolver.imports({ node, meta: ctx.meta, root, output, group })
+ * resolver.imports({ node, root, output, group })
  * // → [{ kind: 'Import', name: ['pet'], path: '/src/types/pet.ts' }]
  * ```
  */
@@ -139,12 +138,6 @@ export type ResolveImportsOptions = {
    * Schema tree scanned for `$ref` occurrences. Each ref contributes one import entry.
    */
   node: SchemaNode
-  /**
-   * Document metadata from `ctx.meta`. Its `nameMapping` resolves a raw `$ref` to the
-   * collision-corrected schema name, so imports stay in sync with the files the adapter
-   * actually names.
-   */
-  meta: Pick<InputMeta, 'nameMapping'>
   root: string
   output: Output
   group?: Group
@@ -388,13 +381,14 @@ export class Resolver {
   }
 
   /**
-   * Builds one `ImportNode` per `$ref` occurrence in the schema tree. The raw `$ref` resolves
-   * through `meta.nameMapping` (collision-renamed schemas) and falls back to the last pointer
-   * segment. Names and paths go through the top-level `name` and `file`, so import entries
-   * follow the plugin's conventions, and a per-call `name` override wins over both.
+   * Builds one `ImportNode` per `$ref` occurrence in the schema tree. Each ref's target
+   * resolves through `resolveRefName`, so collision- or macro-renamed schemas (`targetName`)
+   * import the emitted name. Names and paths go through the top-level `name` and `file`, so
+   * import entries follow the plugin's conventions, and a per-call `name` override wins over
+   * both.
    */
   imports(options: ResolveImportsOptions): Array<ImportNode> {
-    const { node, meta, root, output, group, extname = '.ts', name } = options
+    const { node, root, output, group, extname = '.ts', name } = options
     const resolveName = name ?? ((schemaName: string) => this.name(schemaName))
 
     return collect(node, {
@@ -402,7 +396,8 @@ export class Resolver {
         const schemaRef = narrowSchema(schemaNode, 'ref')
         if (!schemaRef?.ref) return null
 
-        const schemaName = meta.nameMapping?.[schemaRef.ref] ?? extractRefName(schemaRef.ref)
+        const schemaName = resolveRefName(schemaRef)
+        if (!schemaName) return null
 
         return ast.factory.createImport({
           name: [resolveName(schemaName)],

@@ -5,8 +5,10 @@
 "@kubb/kit": minor
 ---
 
-Move import resolution from the adapter to the resolver: `adapter.getImports` is replaced by `resolver.imports`.
+Move import resolution from the adapter to the resolver: `adapter.getImports` is replaced by `resolver.imports`, and ref nodes carry their target's emitted name.
 
-`resolver.imports({ node, meta, root, output, group })` builds one import entry per `$ref` in a schema tree, resolving names and paths through the resolver's own `name` and `file` conventions. A per-call `name` callback overrides the imported identifier, for example to point enum refs at a suffixed type name.
+`resolver.imports({ node, root, output, group })` builds one import entry per `$ref` in a schema tree, resolving names and paths through the resolver's own `name` and `file` conventions. A per-call `name` callback overrides the imported identifier, for example to point enum refs at a suffixed type name.
 
-The adapter now records its collision renames in `meta.nameMapping` (renamed ref pointer to emitted schema name, empty when nothing is renamed) instead of exposing a `getImports` hook, so custom adapters only implement `parse` and `validate`. Refs that keep their pointer's last segment need no entry, since `resolver.imports` falls back to it.
+`RefSchemaNode` gains `targetName`: the emitted name of the referenced schema when it differs from the pointer's last segment. The adapter stamps it during parsing for collision-renamed schemas, and `resolveRefName` prefers it, so refs resolve without a side-channel map. `adapter.getImports` and the `nameMapping` surfaces (`adapter.options.nameMapping`, `meta.nameMapping`) are removed, and custom adapters only implement `parse` and `validate`.
+
+The new `macroRenameSchema({ from, to })` macro renames a schema consistently: the declaration and every ref pointing at it change together, so imports stay in sync.

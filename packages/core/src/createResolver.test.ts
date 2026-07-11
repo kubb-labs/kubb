@@ -496,7 +496,7 @@ describe('resolver.imports', () => {
   })
 
   it('builds one import per ref with the resolver name and file path', () => {
-    const imports = baseResolver.imports({ node: refNode, meta: {}, ...context })
+    const imports = baseResolver.imports({ node: refNode, ...context })
 
     expect(imports).toMatchObject([
       { kind: 'Import', name: ['pet'], path: '/root/types/pet.ts' },
@@ -504,21 +504,25 @@ describe('resolver.imports', () => {
     ])
   })
 
-  it('resolves a collision-renamed ref through meta.nameMapping', () => {
-    const meta = { nameMapping: { '#/components/schemas/Order': 'OrderSchema' } }
+  it('resolves a collision-renamed ref through targetName', () => {
+    const node = ast.factory.createSchema({
+      type: 'object',
+      properties: [
+        ast.factory.createProperty({
+          name: 'order',
+          schema: ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Order', name: 'Order', targetName: 'OrderSchema' }),
+        }),
+      ],
+    })
 
-    const imports = baseResolver.imports({ node: refNode, meta, ...context })
+    const imports = baseResolver.imports({ node, ...context })
 
-    expect(imports).toMatchObject([
-      { kind: 'Import', name: ['pet'], path: '/root/types/pet.ts' },
-      { kind: 'Import', name: ['orderSchema'], path: '/root/types/orderSchema.ts' },
-    ])
+    expect(imports).toMatchObject([{ kind: 'Import', name: ['orderSchema'], path: '/root/types/orderSchema.ts' }])
   })
 
   it('a per-call name override wins over the resolver name', () => {
     const imports = baseResolver.imports({
       node: refNode,
-      meta: {},
       ...context,
       name: (schemaName) => `${schemaName}Type`,
     })
@@ -541,7 +545,7 @@ describe('resolver.imports', () => {
       farewell: (name: string) => name,
     })
 
-    const imports = resolver.imports({ node: refNode, meta: {}, ...context })
+    const imports = resolver.imports({ node: refNode, ...context })
 
     expect(imports).toMatchObject([
       { name: ['petSchema'], path: '/root/types/petSchema.gen.ts' },
@@ -552,7 +556,7 @@ describe('resolver.imports', () => {
   it('returns an empty array for a schema without refs', () => {
     const node = ast.factory.createSchema({ type: 'string' })
 
-    expect(baseResolver.imports({ node, meta: {}, ...context })).toStrictEqual([])
+    expect(baseResolver.imports({ node, ...context })).toStrictEqual([])
   })
 })
 

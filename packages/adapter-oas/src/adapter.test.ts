@@ -1,4 +1,4 @@
-import { ast } from '@kubb/ast'
+import { narrowSchema, resolveRefName } from '@kubb/ast'
 import { Resolver } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { adapterOas } from './adapter.ts'
@@ -79,8 +79,8 @@ describe('adapterOas.parse', () => {
   })
 })
 
-describe('adapterOas meta.nameMapping', () => {
-  it('stays empty when no schema is renamed', async () => {
+describe('adapterOas ref targetName', () => {
+  it('leaves refs unstamped when no schema is renamed', async () => {
     const adapter = adapterOas()
 
     const node = await adapter.parse({
@@ -91,21 +91,22 @@ describe('adapterOas meta.nameMapping', () => {
         paths: {},
         components: {
           schemas: {
-            Pet: {
-              type: 'object',
-              properties: {
-                id: { type: 'string' },
-              },
-            },
+            Pet: { type: 'object', properties: { id: { type: 'string' } } },
+            PetList: { type: 'array', items: { $ref: '#/components/schemas/Pet' } },
           },
         },
       },
     })
 
-    expect(node.meta.nameMapping).toStrictEqual({})
+    const petList = node.schemas.find((schema) => schema.name === 'PetList')
+    const items = narrowSchema(petList!, 'array')?.items ?? []
+    const ref = narrowSchema(items[0]!, 'ref')
+
+    expect(ref?.ref).toBe('#/components/schemas/Pet')
+    expect(ref?.targetName).toBeUndefined()
   })
 
-  it('maps a collision-renamed schema ref to the renamed name', async () => {
+  it('stamps refs to a collision-renamed schema with the renamed name', async () => {
     const adapter = adapterOas()
 
     // `Order` exists in both `schemas` and `requestBodies`, so the schema is renamed to `OrderSchema`.
@@ -119,6 +120,7 @@ describe('adapterOas meta.nameMapping', () => {
         components: {
           schemas: {
             Order: { type: 'object', properties: { id: { type: 'string' } } },
+            OrderList: { type: 'array', items: { $ref: '#/components/schemas/Order' } },
           },
           requestBodies: {
             Order: { content: { 'application/json': { schema: { type: 'object', properties: { userId: { type: 'string' } } } } } },
@@ -127,18 +129,17 @@ describe('adapterOas meta.nameMapping', () => {
       },
     })
 
-    expect(node.meta.nameMapping).toStrictEqual({
-      '#/components/schemas/Order': 'OrderSchema',
-      '#/components/requestBodies/Order': 'OrderRequest',
-    })
+    expect(node.schemas.map((schema) => schema.name)).toContain('OrderSchema')
+
+    const orderList = node.schemas.find((schema) => schema.name === 'OrderList')
+    const items = narrowSchema(orderList!, 'array')?.items ?? []
+    const ref = narrowSchema(items[0]!, 'ref')
+
+    expect(ref?.targetName).toBe('OrderSchema')
+    expect(resolveRefName(ref)).toBe('OrderSchema')
 
     const resolver = new Resolver({ pluginName: 'test' })
-    const imports = resolver.imports({
-      node: ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Order', name: 'Order' }),
-      meta: node.meta,
-      root: '/root',
-      output: { path: 'types' },
-    })
+    const imports = resolver.imports({ node: orderList!, root: '/root', output: { path: 'types' } })
 
     expect(imports).toMatchObject([{ kind: 'Import', name: ['orderSchema'], path: '/root/types/orderSchema.ts' }])
   })

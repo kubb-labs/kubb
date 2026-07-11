@@ -1,4 +1,4 @@
-import { ast, extractRefName, findCircularSchemas, narrowSchema } from '@kubb/ast'
+import { ast, extractRefName, findCircularSchemas, narrowSchema, transform } from '@kubb/ast'
 import { createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
@@ -67,7 +67,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     enumSuffix,
   }
 
-  let nameMapping = new Map<string, string>()
   let parsedDocument: Document | null = null
 
   // Cache per source and per document so one adapter instance reused across a `defineConfig` array
@@ -92,16 +91,10 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   }
 
   function ensureSchemas(document: Document): ReturnType<typeof getSchemas> {
-    // Re-assign `nameMapping` on cache hits too, so `options.nameMapping` tracks the document
-    // last parsed instead of the document last computed.
     const cached = schemasCache.get(document)
-    if (cached) {
-      nameMapping = cached.nameMapping
-      return cached
-    }
+    if (cached) return cached
 
     const result = getSchemas(document, { contentType })
-    nameMapping = result.nameMapping
     schemasCache.set(document, result)
     return result
   }
@@ -130,13 +123,29 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
   }): ast.InputNode {
     const { parseSchema, parseOperation } = parser
 
+    // Refs whose target was collision-renamed carry the emitted name on the node itself
+    // (`targetName`), so `resolveRefName` works without a side-channel map. Stamped before
+    // circular-ref detection, so the schema graph also sees the corrected edges.
+    const renames = new Map([...refNameMapping].filter(([pointer, name]) => extractRefName(pointer) !== name))
+    const stampTargetNames = <T extends ast.SchemaNode | ast.OperationNode>(node: T): T => {
+      if (renames.size === 0) return node
+      return transform(node, {
+        schema(child) {
+          const refNode = narrowSchema(child, 'ref')
+          if (!refNode?.ref) return undefined
+          const targetName = renames.get(refNode.ref)
+          return targetName ? { ...refNode, targetName } : undefined
+        },
+      }) as T
+    }
+
     const parsedByName = new Map<string, ast.SchemaNode>()
     const refAliasMap = new Map<string, ast.SchemaNode>()
     const enumNames: Array<string> = []
     const discriminatorParentNodes: Array<ast.SchemaNode> = []
 
     for (const [name, schema] of Object.entries(schemas)) {
-      const node = parseSchema({ schema, name }, parserOptions)
+      const node = stampTargetNames(parseSchema({ schema, name }, parserOptions))
       parsedByName.set(name, node)
       reportSchemaDiagnostics({ node, name })
       if (node.type === 'ref' && node.name && node.name !== name) {
@@ -157,7 +166,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     const operationNodes: Array<ast.OperationNode> = []
     for (const operation of getOperations(document)) {
       const operationNode = parseOperation(parserOptions, operation)
-      if (operationNode) operationNodes.push(operationNode)
+      if (operationNode) operationNodes.push(stampTargetNames(operationNode))
     }
 
     let promotedEnums: Map<string, ast.SchemaNode> | null = null
@@ -184,10 +193,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
     const operations = promotedEnums ? operationNodes.map((node) => refPromotedEnums(node, promotedEnums!)) : operationNodes
 
-    // Only renames matter downstream: `resolver.imports` falls back to the pointer's last
-    // segment, so identity entries would be dead weight in every document's meta.
-    const nameMapping = Object.fromEntries([...refNameMapping].filter(([pointer, name]) => extractRefName(pointer) !== name))
-
     return ast.factory.createInput({
       schemas: schemaNodes,
       operations,
@@ -198,7 +203,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         baseURL: resolveBaseUrl({ document, server }),
         circularNames,
         enumNames,
-        nameMapping,
       },
     })
   }
@@ -217,7 +221,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         unknownType,
         emptySchemaType,
         enumSuffix,
-        nameMapping,
       }
     },
     get document() {

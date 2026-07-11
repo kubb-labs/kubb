@@ -60,15 +60,6 @@ export type InputMeta = {
    * `const isEnum = enums.has(schemaName)`
    */
   enumNames: ReadonlyArray<string>
-  /**
-   * Maps a renamed component pointer (e.g. `#/components/schemas/Order`) to the
-   * collision-corrected schema name the adapter emits (e.g. `OrderSchema`).
-   * Populated by the adapter during parsing, so `resolver.imports` can resolve a raw
-   * `$ref` to the name of the file that is actually generated. Refs that keep their
-   * pointer's last segment as their name are not recorded, so the record stays empty
-   * (or absent) for documents without renames.
-   */
-  nameMapping?: Readonly<Record<string, string>>
 }
 
 /**

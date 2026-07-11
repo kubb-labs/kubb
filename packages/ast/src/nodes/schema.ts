@@ -388,6 +388,13 @@ export type RefSchemaNode = SchemaNodeBase & {
    */
   ref?: string
   /**
+   * Emitted name of the referenced schema when it differs from the pointer's last segment,
+   * for example after a collision rename (`Order` becomes `OrderSchema`) or a macro rename.
+   * Resolve display and import names through `resolveRefName`, which prefers this field and
+   * falls back to the pointer segment, then `name`.
+   */
+  targetName?: string
+  /**
    * Pattern copied from a sibling `pattern` field.
    */
   pattern?: string
