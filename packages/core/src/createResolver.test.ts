@@ -298,6 +298,126 @@ describe('createResolver', () => {
     expect(merged.file({ name: 'pet', extname: '.ts', root: '/root', output: { path: 'mocks' }, group: undefined }).baseName).toBe('petFaker.ts')
   })
 
+  it('Resolver.merge() folds multiple overrides left to right, last wins per key', () => {
+    type NameResolver = Resolver & { greet(name: string): string }
+    type NameFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: NameResolver }
+
+    const base = createResolver<NameFactory>({
+      pluginName: 'test',
+      greet(name) {
+        return `base:${name}`
+      },
+    })
+
+    const merged = Resolver.merge(
+      base,
+      {
+        greet(name) {
+          return `first:${name}`
+        },
+      },
+      {
+        greet(name) {
+          return `second:${name}`
+        },
+      },
+    )
+
+    expect(merged.greet('pet')).toBe('second:pet')
+  })
+
+  it('Resolver.merge() merges a namespace per method across several overrides', () => {
+    type MutationResolver = Resolver & {
+      mutation: {
+        name(node: { operationId: string }): string
+        keyName(node: { operationId: string }): string
+        typeName(node: { operationId: string }): string
+      }
+    }
+    type MutationFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: MutationResolver }
+
+    const base = createResolver<MutationFactory>({
+      pluginName: 'test',
+      mutation: {
+        name(node) {
+          return this.name(node.operationId)
+        },
+        keyName(node) {
+          return `${this.name(node.operationId)}MutationKey`
+        },
+        typeName(node) {
+          return this.name(node.operationId)
+        },
+      },
+    })
+
+    const merged = Resolver.merge(
+      base,
+      {
+        mutation: {
+          name(node) {
+            return `use_${this.name(node.operationId)}`
+          },
+        },
+      },
+      {
+        mutation: {
+          typeName(node) {
+            return `${this.name(node.operationId)}Type`
+          },
+        },
+      },
+    )
+
+    expect(merged.mutation.name({ operationId: 'update pet' })).toBe('use_updatePet')
+    expect(merged.mutation.keyName({ operationId: 'update pet' })).toBe('updatePetMutationKey')
+    expect(merged.mutation.typeName({ operationId: 'update pet' })).toBe('updatePetType')
+  })
+
+  it('Resolver.merge() with a single override matches the pre-variadic behavior', () => {
+    type SchemaResolver = Resolver & { schema: { label(name: string): string } }
+    type SchemaFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: SchemaResolver }
+
+    const base = createResolver<SchemaFactory>({
+      pluginName: 'test',
+      schema: {
+        label(name) {
+          return `base:${this.name(name)}`
+        },
+      },
+    })
+
+    const merged = Resolver.merge(base, {
+      name(name) {
+        return name.toUpperCase()
+      },
+    })
+
+    expect(merged.name('hello')).toBe('HELLO')
+    expect(merged.schema.label('pets')).toBe('base:PETS')
+  })
+
+  it('Resolver.merge() honors the shared brand for an override in the middle of the fold', () => {
+    type TestFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: Resolver }
+    const base = createResolver<TestFactory>({ pluginName: 'test' })
+
+    const foreign = {
+      [Symbol.for('@kubb/core/resolver/options')]: {
+        pluginName: 'test',
+        file: { baseName: ({ name, extname }: { name: string; extname: string }) => `${name}Faker${extname}` },
+      },
+    } as unknown as Resolver
+
+    const merged = Resolver.merge(base, foreign, {
+      name(name) {
+        return name.toUpperCase()
+      },
+    })
+
+    expect(merged.name('pet')).toBe('PET')
+    expect(merged.file({ name: 'pet', extname: '.ts', ...context }).baseName).toBe('petFaker.ts')
+  })
+
   it('supports top-level helpers like typeName', () => {
     type TypeResolver = Resolver & { typeName(name: string): string }
     type TypeFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: TypeResolver }

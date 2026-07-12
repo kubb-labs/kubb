@@ -336,20 +336,32 @@ export class Resolver {
   }
 
   /**
-   * Merges `override` over `base` and returns a new resolver with helpers re-bound. Top-level
-   * keys replace, and a namespace (or `file`) merges per method, so overriding `query.name`
-   * keeps the base `query.keyName`. Used when applying `setResolver` partial overrides. Reads a
-   * resolver's options through the shared brand rather than `instanceof`, so a `file` override
-   * survives even when `base` and `override` come from different `@kubb/core` copies.
+   * Folds each `override` over `base`, left to right, and returns a new resolver with helpers
+   * re-bound. Top-level keys replace, and a namespace (or `file`) merges per method, so overriding
+   * `query.name` keeps the base `query.keyName`. The last override wins per key. Used when applying
+   * `setResolver` partial overrides, and to compose shared resolver fragments without spreading each
+   * namespace by hand. Reads a resolver's options through the shared brand rather than `instanceof`,
+   * so a `file` override survives even when `base` and `override` come from different `@kubb/core`
+   * copies.
+   *
+   * @example Fold several partial overrides onto a resolver
+   * ```ts
+   * const resolver = Resolver.merge(defaultResolver, sharedNamingPatch, { name: (name) => name.toUpperCase() })
+   * ```
    */
-  static merge<T extends Resolver>(base: T, override: ResolverPatch<T> | Resolver): T {
-    const patch = resolverOptions in override ? override[resolverOptions] : override
-    const merged: Record<string, unknown> = { ...base[resolverOptions] }
-    for (const [key, value] of Object.entries(patch)) {
-      if (value === undefined) continue
-      const current = merged[key]
-      merged[key] = isNamespace(value) && isNamespace(current) ? { ...current, ...value } : value
-    }
+  static merge<T extends Resolver>(base: T, ...overrides: Array<ResolverPatch<T> | Resolver>): T {
+    const merged = overrides.reduce<Record<string, unknown>>(
+      (acc, override) => {
+        const patch = resolverOptions in override ? override[resolverOptions] : override
+        for (const [key, value] of Object.entries(patch)) {
+          if (value === undefined) continue
+          const current = acc[key]
+          acc[key] = isNamespace(value) && isNamespace(current) ? { ...current, ...value } : value
+        }
+        return acc
+      },
+      { ...base[resolverOptions] },
+    )
     return new Resolver(merged as ResolverBuildOptions) as T
   }
 
