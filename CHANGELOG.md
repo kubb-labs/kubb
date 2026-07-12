@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.96 — Jul 12, 2026
+
+### @kubb/core
+
+#### Features
+
+- `Resolver.merge` now takes any number of overrides and folds them onto the base left to right, with the last override winning per key. Top-level keys replace and namespaces merge per method, the same as before, so you can layer several partial resolver patches in one call instead of chaining `merge` or spreading each namespace by hand. A two-argument call behaves exactly as it did. ([#3777](https://github.com/kubb-labs/kubb/pull/3777), [`632350d`](https://github.com/kubb-labs/kubb/commit/632350d15b52b9513d256ce6d2498f2ec6225821))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.95 — Jul 11, 2026
 
 ### @kubb/adapter-oas

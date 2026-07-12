@@ -259,6 +259,7 @@
     "resolver-file-name-shorthand",
     "resolver-imports",
     "resolver-merge-realm-safe",
+    "resolver-merge-variadic",
     "resolver-partial-namespace-merge",
     "resolver-patch-generic-type",
     "rich-zebras-end",
