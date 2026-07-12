@@ -23,6 +23,12 @@ describe('resolveRefName', () => {
     expect(resolveRefName(ref)).toBe('Pet')
   })
 
+  it('prefers targetName over the pointer segment', () => {
+    const ref = createSchema({ type: 'ref', name: 'Order', ref: '#/components/schemas/Order', targetName: 'OrderSchema' })
+
+    expect(resolveRefName(ref)).toBe('OrderSchema')
+  })
+
   it('falls back to node.name when ref is missing', () => {
     const ref = createSchema({ type: 'ref', name: 'Pet' })
 

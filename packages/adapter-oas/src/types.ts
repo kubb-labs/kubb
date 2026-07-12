@@ -207,7 +207,7 @@ export type AdapterOasOptions = {
 } & Partial<ast.ParserOptions>
 
 /**
- * Adapter options after defaults have been applied and schema name collisions resolved.
+ * Adapter options after defaults have been applied.
  */
 export type AdapterOasResolvedOptions = {
   validate: boolean
@@ -220,17 +220,6 @@ export type AdapterOasResolvedOptions = {
   unknownType: NonNullable<AdapterOasOptions['unknownType']>
   emptySchemaType: NonNullable<AdapterOasOptions['emptySchemaType']>
   enumSuffix: AdapterOasOptions['enumSuffix']
-  /**
-   * Map from original `$ref` paths to their collision-resolved schema names.
-   * Populated once the adapter resolves a spec's schemas, on the first `parse()`.
-   *
-   * @example
-   * ```ts
-   * nameMapping.get('#/components/schemas/Order') // 'Order'
-   * nameMapping.get('#/components/responses/Order') // 'OrderResponse'
-   * ```
-   */
-  nameMapping: Map<string, string>
 }
 
 /**

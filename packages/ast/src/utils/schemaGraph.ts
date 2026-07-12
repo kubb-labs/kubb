@@ -45,13 +45,6 @@ export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: 
   return out
 }
 
-/**
- * Memoized two-level cache keyed first on the operations array, then on the schemas array.
- */
-const collectUsedSchemaNamesMemo = memoize(new WeakMap<ReadonlyArray<OperationNode>, (schemas: ReadonlyArray<SchemaNode>) => Set<string>>(), (ops) =>
-  memoize(new WeakMap<ReadonlyArray<SchemaNode>, Set<string>>(), (schemas) => computeUsedSchemaNames(ops, schemas)),
-)
-
 function computeUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schemas: ReadonlyArray<SchemaNode>): Set<string> {
   const schemaMap = new Map<string, SchemaNode>()
   for (const schema of schemas) {
@@ -101,7 +94,7 @@ function computeUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schema
  * ```
  */
 export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schemas: ReadonlyArray<SchemaNode>): Set<string> {
-  return collectUsedSchemaNamesMemo(operations)(schemas)
+  return computeUsedSchemaNames(operations, schemas)
 }
 
 const EMPTY_CIRCULAR_SET = new Set<string>()

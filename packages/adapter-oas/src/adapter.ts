@@ -1,4 +1,4 @@
-import { ast, collect, extractRefName, findCircularSchemas, narrowSchema } from '@kubb/ast'
+import { ast, findCircularSchemas, narrowSchema } from '@kubb/ast'
 import { createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
@@ -67,14 +67,13 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     enumSuffix,
   }
 
-  let nameMapping = new Map<string, string>()
   let parsedDocument: Document | null = null
 
   // Cache per source and per document so one adapter instance reused across a `defineConfig` array
   // parses each config's spec instead of replaying the first one. The document-derived caches key
   // off the resulting document, so distinct configs (distinct documents) stay isolated.
   const documentCache = new WeakMap<AdapterSource, Promise<Document>>()
-  const schemasCache = new WeakMap<Document, ReturnType<typeof getSchemas>['schemas']>()
+  const schemasCache = new WeakMap<Document, ReturnType<typeof getSchemas>>()
   const schemaParserCache = new WeakMap<Document, ReturnType<typeof createSchemaParser>>()
 
   function ensureDocument(source: AdapterSource): Promise<Document> {
@@ -91,21 +90,20 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     return promise
   }
 
-  function ensureSchemas(document: Document): ReturnType<typeof getSchemas>['schemas'] {
+  function ensureSchemas(document: Document): ReturnType<typeof getSchemas> {
     const cached = schemasCache.get(document)
     if (cached) return cached
 
     const result = getSchemas(document, { contentType })
-    nameMapping = result.nameMapping
-    schemasCache.set(document, result.schemas)
-    return result.schemas
+    schemasCache.set(document, result)
+    return result
   }
 
-  function ensureSchemaParser(document: Document): ReturnType<typeof createSchemaParser> {
+  function ensureSchemaParser({ document, renames }: { document: Document; renames: Map<string, string> }): ReturnType<typeof createSchemaParser> {
     const cached = schemaParserCache.get(document)
     if (cached) return cached
 
-    const parser = createSchemaParser({ document, contentType })
+    const parser = createSchemaParser({ document, contentType, renames })
     schemaParserCache.set(document, parser)
     return parser
   }
@@ -205,7 +203,6 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         unknownType,
         emptySchemaType,
         enumSuffix,
-        nameMapping,
       }
     },
     get document() {
@@ -216,28 +213,10 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       const document = await parseDocument(input)
       await validateDocument(document, options)
     },
-    getImports(node, resolve) {
-      return collect(node, {
-        schema(schemaNode) {
-          const schemaRef = narrowSchema(schemaNode, 'ref')
-          if (!schemaRef?.ref) return null
-
-          // `nameMapping` is keyed by the full component pointer (e.g. `#/components/schemas/Order`),
-          // so look it up with the raw `$ref`. Collision-renamed schemas (`Order` -> `OrderSchema`)
-          // only resolve through this map; falling back to the bare segment would import a file that
-          // the writer never emitted.
-          const schemaName = nameMapping.get(schemaRef.ref) ?? extractRefName(schemaRef.ref)
-          const result = resolve(schemaName)
-          if (!result) return null
-
-          return ast.factory.createImport({ name: [result.name], path: result.path })
-        },
-      })
-    },
     async parse(source) {
       const document = await ensureDocument(source)
-      const schemas = ensureSchemas(document)
-      const parser = ensureSchemaParser(document)
+      const { schemas, renames } = ensureSchemas(document)
+      const parser = ensureSchemaParser({ document, renames })
 
       return parseInput({ document, schemas, parser })
     },
