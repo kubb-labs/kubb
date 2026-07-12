@@ -1,6 +1,6 @@
 {
   "name": "@kubb/adapter-oas",
-  "version": "5.0.0-beta.95",
+  "version": "5.0.0-beta.96",
   "description": "OpenAPI and Swagger adapter for Kubb. Parses and validates OAS 2.0/3.x specifications into a @kubb/ast RootNode for downstream code generation plugins.",
   "keywords": [
     "adapter",
