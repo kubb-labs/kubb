@@ -3,7 +3,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
 import { camelCase, pascalCase } from './casing.ts'
-import { clean, exists, read, toFilePath, toPosixPath, trimExtName, write } from './fs.ts'
+import { clean, exists, isPathInside, read, toFilePath, toPosixPath, trimExtName, write } from './fs.ts'
 
 const existsTestDir = path.join(os.tmpdir(), 'kubb-test-exists')
 const existsTestFile = path.join(existsTestDir, 'test.txt')
@@ -89,6 +89,33 @@ describe('clean', () => {
 
   it('does not throw when path does not exist', async () => {
     await expect(clean(path.join(os.tmpdir(), 'kubb-does-not-exist'))).resolves.not.toThrow()
+  })
+})
+
+describe('isPathInside', () => {
+  it('returns true for a nested path', () => {
+    expect(isPathInside('/repo/src/gen', '/repo')).toBe(true)
+  })
+
+  it('returns true when both paths are the same', () => {
+    expect(isPathInside('/repo', '/repo')).toBe(true)
+  })
+
+  it('returns false when the parent is nested inside the path', () => {
+    expect(isPathInside('/repo', '/repo/src/gen')).toBe(false)
+  })
+
+  it('returns false for a sibling path', () => {
+    expect(isPathInside('/repo/other', '/repo/gen')).toBe(false)
+  })
+
+  it('returns false when the path escapes the parent', () => {
+    expect(isPathInside('../other', '.')).toBe(false)
+  })
+
+  it('resolves relative and dot inputs before comparing', () => {
+    expect(isPathInside('./src/gen', '.')).toBe(true)
+    expect(isPathInside('.', './src/gen')).toBe(false)
   })
 })
 

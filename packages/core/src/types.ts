@@ -121,6 +121,9 @@ export type Config<TInput = Input> = {
      * Remove every file in the output directory before the build, so stale output isn't mixed
      * with new files. Leave `false` to preserve manual edits in the output directory.
      *
+     * clean only removes generated code. When `path` resolves to the project root or an ancestor
+     * of it, the build throws instead of wiping `kubb.config` and your source files.
+     *
      * @example
      * ```ts
      * clean: true  // wipes ./src/gen/* before generating

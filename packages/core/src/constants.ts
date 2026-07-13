@@ -85,6 +85,11 @@ export const diagnosticCode = {
    */
   pathTraversal: 'KUBB_PATH_TRAVERSAL',
   /**
+   * `output.clean` is enabled but `output.path` resolves to the project root or a parent of it,
+   * so cleaning would delete kubb.config and every source file.
+   */
+  cleanRoot: 'KUBB_CLEAN_ROOT',
+  /**
    * A plugin's options are invalid, for example `output.mode: 'file'` paired with a `group` option.
    */
   invalidPluginOptions: 'KUBB_INVALID_PLUGIN_OPTIONS',

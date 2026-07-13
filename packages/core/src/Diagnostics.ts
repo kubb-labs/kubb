@@ -296,6 +296,12 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
     cause: 'A resolved output path escaped the output directory, which can stem from a path traversal in the spec or a misconfigured `group.name`.',
     fix: 'Keep generated paths within the output directory. Review the `group.name` function and the names coming from the spec.',
   },
+  [diagnosticCode.cleanRoot]: {
+    title: 'Clean targets the project root',
+    cause:
+      '`output.clean` is enabled and `output.path` resolves to the project root or a parent of it, so cleaning would delete `kubb.config` and every source file.',
+    fix: 'Point `output.path` at a subdirectory such as `./src/gen` so clean only removes generated code, or disable `output.clean`.',
+  },
   [diagnosticCode.invalidPluginOptions]: {
     title: 'Invalid plugin options',
     cause: "A plugin was configured with options that cannot be honored, for example `output.mode: 'file'` paired with a `group` option.",
