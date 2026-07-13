@@ -1,5 +1,5 @@
 import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
+import { dirname, isAbsolute, relative, resolve } from 'node:path'
 import { camelCase } from './casing.ts'
 import { runtime } from './runtime.ts'
 
@@ -106,6 +106,28 @@ export async function write(path: string, data: string, options: WriteOptions = 
  */
 export async function clean(path: string): Promise<void> {
   return rm(path, { recursive: true, force: true })
+}
+
+/**
+ * Resolves to `true` when `path` is `parent` itself or nested inside it. Both sides are resolved
+ * to absolute paths first, so relative and `..`-containing inputs compare correctly.
+ *
+ * Guards destructive operations: before wiping an output directory, check that it does not contain
+ * the project root, otherwise a `clean` would delete `kubb.config` and every source file.
+ *
+ * @example
+ * isPathInside('./src/gen', '.')   // true  — nested inside the root
+ * isPathInside('.', '.')           // true  — the same directory counts as inside
+ * isPathInside('.', './src/gen')   // false — the root is not inside its own output
+ * isPathInside('../other', '.')    // false — escapes the root
+ */
+export function isPathInside(path: string, parent: string): boolean {
+  const resolvedPath = resolve(path)
+  const resolvedParent = resolve(parent)
+  if (resolvedPath === resolvedParent) return true
+
+  const rel = relative(resolvedParent, resolvedPath)
+  return rel !== '' && !rel.startsWith('..') && !isAbsolute(rel)
 }
 
 /**
