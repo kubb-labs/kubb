@@ -89,7 +89,7 @@ describe('createKubb', () => {
     expect(kubb.config.parsers).toStrictEqual([])
   })
 
-  test('output.clean refuses to delete the project root', async () => {
+  test('output.clean raises a KUBB_CLEAN_ROOT diagnostic when the output is the project root', async () => {
     // A nonexistent temp dir as root, so a regression in the guard can only touch a throwaway path.
     const root = path.join(os.tmpdir(), 'kubb-clean-guard')
     const kubb = createKubb(
@@ -101,10 +101,13 @@ describe('createKubb', () => {
       { hooks: new Hookable<KubbHooks>() },
     )
 
-    await expect(kubb.setup()).rejects.toThrow(/output\.clean refuses to delete/)
+    await expect(kubb.setup()).rejects.toMatchObject({
+      name: 'DiagnosticError',
+      diagnostic: { code: Diagnostics.code.cleanRoot, severity: 'error', location: { kind: 'config' } },
+    })
   })
 
-  test('output.clean refuses to delete a parent of the project root', async () => {
+  test('output.clean raises a KUBB_CLEAN_ROOT diagnostic when the output is a parent of the project root', async () => {
     const root = path.join(os.tmpdir(), 'kubb-clean-guard', 'nested')
     const kubb = createKubb(
       {
@@ -115,7 +118,10 @@ describe('createKubb', () => {
       { hooks: new Hookable<KubbHooks>() },
     )
 
-    await expect(kubb.setup()).rejects.toThrow(/output\.clean refuses to delete/)
+    await expect(kubb.setup()).rejects.toMatchObject({
+      name: 'DiagnosticError',
+      diagnostic: { code: Diagnostics.code.cleanRoot },
+    })
   })
 
   test('if build with one plugin is running the different hooks in the correct order', async () => {

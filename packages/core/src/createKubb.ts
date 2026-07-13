@@ -85,9 +85,13 @@ export class Kubb {
       // clean only removes generated code. Refuse when the output resolves to the project root or
       // an ancestor of it, otherwise the wipe would delete kubb.config and every source file.
       if (isPathInside(config.root, cleanPath)) {
-        throw new Error(
-          `[kubb] output.clean refuses to delete "${cleanPath}" because it is the project root or a parent of it, which would remove kubb.config and your source files. Point output.path at a subdirectory such as "./src/gen" so clean only removes generated code.`,
-        )
+        throw new Diagnostics.Error({
+          code: Diagnostics.code.cleanRoot,
+          severity: 'error',
+          message: `output.clean cannot delete "${cleanPath}" because it is the project root or a parent of it.`,
+          help: 'Point `output.path` at a subdirectory such as `./src/gen` so clean only removes generated code.',
+          location: { kind: 'config' },
+        })
       }
 
       await config.storage.clear(cleanPath)
