@@ -298,7 +298,8 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   },
   [diagnosticCode.cleanRoot]: {
     title: 'Clean targets the project root',
-    cause: '`output.clean` is enabled and `output.path` resolves to the project root or a parent of it, so cleaning would delete `kubb.config` and every source file.',
+    cause:
+      '`output.clean` is enabled and `output.path` resolves to the project root or a parent of it, so cleaning would delete `kubb.config` and every source file.',
     fix: 'Point `output.path` at a subdirectory such as `./src/gen` so clean only removes generated code, or disable `output.clean`.',
   },
   [diagnosticCode.invalidPluginOptions]: {
