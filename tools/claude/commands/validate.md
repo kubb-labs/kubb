@@ -9,7 +9,7 @@ terminal (ask for the path or URL if empty).
 1. Run validation:
 
    ```shell
-   npx kubb validate --input <spec>
+   npx kubb validate <spec>
    ```
 
    The input accepts a local path or a URL.

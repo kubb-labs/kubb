@@ -101,7 +101,7 @@ Common combinations:
 
 The commands wrap the `kubb` CLI, so the same steps work from a terminal.
 
-1. Validate the spec with `kubb validate --input <spec>` before anything else.
+1. Validate the spec with `kubb validate <spec>` before anything else.
 2. Scaffold and install with `kubb init`. Pass `--input`, `--output` and `--plugins` to skip the
    prompts, or write `kubb.config.ts` by hand using the shape above.
 3. Generate with `kubb generate`. Pass `--verbose` when diagnosing why a file is missing or
