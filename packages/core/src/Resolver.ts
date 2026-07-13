@@ -1,6 +1,19 @@
 import path from 'node:path'
 import { camelCase, toFilePath } from '@internals/utils'
-import { ast, operationDef, schemaDef, type FileNode, type InputMeta, type Node, type OperationNode, type SchemaNode } from '@kubb/ast'
+import {
+  ast,
+  collect,
+  narrowSchema,
+  operationDef,
+  resolveRefName,
+  schemaDef,
+  type FileNode,
+  type ImportNode,
+  type InputMeta,
+  type Node,
+  type OperationNode,
+  type SchemaNode,
+} from '@kubb/ast'
 import { Diagnostics } from './Diagnostics.ts'
 import { getInputKind } from './input.ts'
 import type { Filter, Override } from './definePlugin.ts'
@@ -107,6 +120,38 @@ export type ResolveFileOptions = ResolverFileParams & {
   root: string
   output: Output
   group?: Group
+}
+
+/**
+ * Options for `resolver.imports`: the schema tree to scan (`node`) and where the generated
+ * files live (`root`, `output`, `group`). Pass `name` to override how a referenced schema
+ * name becomes the imported identifier; it defaults to the resolver's top-level `name`.
+ *
+ * @example
+ * ```ts
+ * resolver.imports({ node, root, output, group })
+ * // → [{ kind: 'Import', name: ['pet'], path: '/src/types/pet.ts' }]
+ * ```
+ */
+export type ResolveImportsOptions = {
+  /**
+   * Schema tree scanned for `$ref` occurrences. Each ref contributes one import entry.
+   */
+  node: SchemaNode
+  root: string
+  output: Output
+  group?: Group
+  /**
+   * Extension of the generated files the imports point at.
+   *
+   * @default '.ts'
+   */
+  extname?: FileNode['extname']
+  /**
+   * Overrides how a referenced schema name becomes the imported identifier, for example to
+   * point enum refs at a suffixed type name. Defaults to the resolver's top-level `name`.
+   */
+  name?: (schemaName: string) => string
 }
 
 /**
@@ -264,9 +309,9 @@ function toBaseName({ name, extname }: Pick<ResolverFileParams, 'name' | 'extnam
 /**
  * Base constraint for all plugin resolver objects.
  *
- * The built-in machinery lives under `default`. Generators call the top-level `name` and
- * `file`, and a plugin overrides them to set its conventions. Extend with top-level helpers
- * (`typeName`, …) and/or grouped namespaces (`query`, `schema`, …).
+ * The built-in machinery lives under `default`. Generators call the top-level `name`, `file`,
+ * and `imports`, and a plugin overrides `name` and `file` to set its conventions. Extend with
+ * top-level helpers (`typeName`, …) and/or grouped namespaces (`query`, `schema`, …).
  *
  * @example Top-level helper
  * ```ts
@@ -336,20 +381,61 @@ export class Resolver {
   }
 
   /**
-   * Merges `override` over `base` and returns a new resolver with helpers re-bound. Top-level
-   * keys replace, and a namespace (or `file`) merges per method, so overriding `query.name`
-   * keeps the base `query.keyName`. Used when applying `setResolver` partial overrides. Reads a
-   * resolver's options through the shared brand rather than `instanceof`, so a `file` override
-   * survives even when `base` and `override` come from different `@kubb/core` copies.
+   * Builds one `ImportNode` per unique schema referenced in the tree, in first-occurrence
+   * order. Each ref's target resolves through `resolveRefName`, so collision- or macro-renamed
+   * schemas (`targetName`) import the emitted name. Names and paths go through the top-level
+   * `name` and `file`, so import entries follow the plugin's conventions, and a per-call
+   * `name` override wins over both.
    */
-  static merge<T extends Resolver>(base: T, override: ResolverPatch<T> | Resolver): T {
-    const patch = resolverOptions in override ? override[resolverOptions] : override
-    const merged: Record<string, unknown> = { ...base[resolverOptions] }
-    for (const [key, value] of Object.entries(patch)) {
-      if (value === undefined) continue
-      const current = merged[key]
-      merged[key] = isNamespace(value) && isNamespace(current) ? { ...current, ...value } : value
-    }
+  imports(options: ResolveImportsOptions): Array<ImportNode> {
+    const { node, root, output, group, extname = '.ts', name } = options
+    const resolveName = name ?? ((schemaName: string) => this.name(schemaName))
+
+    const seen = new Set<string>()
+    return collect(node, {
+      schema: (schemaNode) => {
+        const schemaRef = narrowSchema(schemaNode, 'ref')
+        if (!schemaRef?.ref) return null
+
+        const schemaName = resolveRefName(schemaRef)
+        if (!schemaName || seen.has(schemaName)) return null
+        seen.add(schemaName)
+
+        return ast.factory.createImport({
+          name: [resolveName(schemaName)],
+          path: this.file({ name: schemaName, extname, root, output, group }).path,
+        })
+      },
+    })
+  }
+
+  /**
+   * Folds each `override` over `base`, left to right, and returns a new resolver with helpers
+   * re-bound. Top-level keys replace, and a namespace (or `file`) merges per method, so overriding
+   * `query.name` keeps the base `query.keyName`. The last override wins per key. Used when applying
+   * `setResolver` partial overrides, and to compose shared resolver fragments without spreading each
+   * namespace by hand. Reads a resolver's options through the shared brand rather than `instanceof`,
+   * so a `file` override survives even when `base` and `override` come from different `@kubb/core`
+   * copies.
+   *
+   * @example Fold several partial overrides onto a resolver
+   * ```ts
+   * const resolver = Resolver.merge(defaultResolver, sharedNamingPatch, { name: (name) => name.toUpperCase() })
+   * ```
+   */
+  static merge<T extends Resolver>(base: T, ...overrides: Array<ResolverPatch<T> | Resolver>): T {
+    const merged = overrides.reduce<Record<string, unknown>>(
+      (acc, override) => {
+        const patch = resolverOptions in override ? override[resolverOptions] : override
+        for (const [key, value] of Object.entries(patch)) {
+          if (value === undefined) continue
+          const current = acc[key]
+          acc[key] = isNamespace(value) && isNamespace(current) ? { ...current, ...value } : value
+        }
+        return acc
+      },
+      { ...base[resolverOptions] },
+    )
     return new Resolver(merged as ResolverBuildOptions) as T
   }
 

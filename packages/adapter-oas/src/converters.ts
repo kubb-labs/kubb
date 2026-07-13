@@ -48,6 +48,11 @@ export type ConverterDeps = {
    * Returns `true` when a `$ref` path resolves to a component the document actually defines.
    */
   refExists: (refPath: string) => boolean
+  /**
+   * Collision renames keyed by the original component pointer, used to stamp `targetName`
+   * on ref nodes whose target the adapter renamed.
+   */
+  renames?: ReadonlyMap<string, string>
 }
 
 /**
@@ -135,7 +140,7 @@ function nameEnums(node: ast.SchemaNode, options: { parentName: string | null | 
  * Use `syncSchemaRef(node)` in printers to get a merged view of both.
  * Circular refs are detected in `resolveRefNode` and leave `schema` as `null`.
  */
-export function convertRef({ schema, name, nullable, defaultValue, rawOptions, document, resolveRefNode, refExists }: ConvertContext): ast.SchemaNode {
+function convertRef({ schema, name, nullable, defaultValue, rawOptions, document, resolveRefNode, refExists, renames }: ConvertContext): ast.SchemaNode {
   const refPath = schema.$ref
   const resolvedSchema = refPath ? resolveRefNode(refPath, rawOptions) : null
 
@@ -151,11 +156,14 @@ export function convertRef({ schema, name, nullable, defaultValue, rawOptions, d
     })
   }
 
+  const targetName = renames?.get(schema.$ref!)
+
   return ast.factory.createSchema({
     ...buildSchemaNode(schema, name, nullable, defaultValue),
     type: 'ref',
     name: extractRefName(schema.$ref!),
     ref: schema.$ref,
+    ...(targetName ? { targetName } : {}),
     schema: resolvedSchema,
   })
 }
@@ -163,7 +171,7 @@ export function convertRef({ schema, name, nullable, defaultValue, rawOptions, d
 /**
  * Converts an `allOf` schema into a flattened node or an `IntersectionSchemaNode`.
  */
-export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions, parse, document }: ConvertContext): ast.SchemaNode {
+function convertAllOf({ schema, name, nullable, defaultValue, rawOptions, parse, document }: ConvertContext): ast.SchemaNode {
   if (
     schema.allOf!.length === 1 &&
     !schema.properties &&
@@ -269,7 +277,7 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
 /**
  * Converts a `oneOf` / `anyOf` schema into a `UnionSchemaNode`.
  */
-export function convertUnion({ schema, name, nullable, defaultValue, rawOptions, parse, document }: ConvertContext): ast.SchemaNode {
+function convertUnion({ schema, name, nullable, defaultValue, rawOptions, parse, document }: ConvertContext): ast.SchemaNode {
   function pickDiscriminatorPropertyNode(node: ast.SchemaNode, propertyName: string): ast.SchemaNode | null {
     const objectNode = ast.narrowSchema(node, 'object')
     const discriminatorProperty = objectNode?.properties?.find((property) => property.name === propertyName)
@@ -399,7 +407,7 @@ export function convertUnion({ schema, name, nullable, defaultValue, rawOptions,
 /**
  * Converts an OAS 3.1 `const` schema into a null scalar or a single-value `EnumSchemaNode`.
  */
-export function convertConst({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
+function convertConst({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
   const constValue = schema.const
 
   if (constValue === null) {
@@ -419,7 +427,7 @@ export function convertConst({ schema, name, nullable, defaultValue }: ConvertCo
  * Converts a format-annotated schema into a special-type `SchemaNode`.
  * Returns `null` when the format should fall through to string handling (`dateType: false`).
  */
-export function convertFormat({ schema, name, nullable, defaultValue, options }: ConvertContext): ast.SchemaNode | null {
+function convertFormat({ schema, name, nullable, defaultValue, options }: ConvertContext): ast.SchemaNode | null {
   const base = buildSchemaNode(schema, name, nullable, defaultValue)
 
   if (schema.format === 'int64') {
@@ -472,7 +480,7 @@ export function convertFormat({ schema, name, nullable, defaultValue, options }:
 /**
  * Converts an `enum` schema into an `EnumSchemaNode`.
  */
-export function convertEnum({ schema, name, nullable, type, rawOptions, parse }: ConvertContext): ast.SchemaNode {
+function convertEnum({ schema, name, nullable, type, rawOptions, parse }: ConvertContext): ast.SchemaNode {
   if (type === 'array') {
     return parse({ schema: normalizeArrayEnum(schema), name }, rawOptions)
   }
@@ -536,7 +544,7 @@ export function convertEnum({ schema, name, nullable, type, rawOptions, parse }:
 /**
  * Converts an object-like schema into an `ObjectSchemaNode`.
  */
-export function convertObject({ schema, name, nullable, defaultValue, rawOptions, options, parse }: ConvertContext): ast.SchemaNode {
+function convertObject({ schema, name, nullable, defaultValue, rawOptions, options, parse }: ConvertContext): ast.SchemaNode {
   const properties: Array<ast.PropertyNode> = schema.properties
     ? Object.entries(schema.properties).map(([propName, propSchema]) => {
         const required = Array.isArray(schema.required) ? schema.required.includes(propName) : !!schema.required
@@ -608,7 +616,7 @@ export function convertObject({ schema, name, nullable, defaultValue, rawOptions
 /**
  * Converts an OAS 3.1 `prefixItems` tuple into a `TupleSchemaNode`.
  */
-export function convertTuple({ schema, name, nullable, defaultValue, rawOptions, parse }: ConvertContext): ast.SchemaNode {
+function convertTuple({ schema, name, nullable, defaultValue, rawOptions, parse }: ConvertContext): ast.SchemaNode {
   const tupleItems = (schema.prefixItems ?? []).map((item) => parse({ schema: item as SchemaObject }, rawOptions))
   // items: false closes the tuple; absent/true widens the tail to any.
   const rest =
@@ -632,7 +640,7 @@ export function convertTuple({ schema, name, nullable, defaultValue, rawOptions,
 /**
  * Converts a `type: 'array'` schema into an `ArraySchemaNode`.
  */
-export function convertArray({ schema, name, nullable, defaultValue, rawOptions, options, parse }: ConvertContext): ast.SchemaNode {
+function convertArray({ schema, name, nullable, defaultValue, rawOptions, options, parse }: ConvertContext): ast.SchemaNode {
   const rawItems = schema.items as SchemaObject | undefined
   const itemName = rawItems?.enum?.length && name ? enumPropName(null, name, options.enumSuffix) : name
   const items = rawItems ? [parse({ schema: rawItems, name: itemName }, rawOptions)] : []
@@ -651,7 +659,7 @@ export function convertArray({ schema, name, nullable, defaultValue, rawOptions,
 /**
  * Converts a `type: 'string'` schema into a `StringSchemaNode`.
  */
-export function convertString({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
+function convertString({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
   return ast.factory.createSchema({
     type: 'string',
     primitive: 'string',
@@ -665,7 +673,7 @@ export function convertString({ schema, name, nullable, defaultValue }: ConvertC
 /**
  * Converts a `type: 'number'` or `type: 'integer'` schema.
  */
-export function convertNumeric({ schema, name, nullable, defaultValue }: ConvertContext, type: 'number' | 'integer'): ast.SchemaNode {
+function convertNumeric({ schema, name, nullable, defaultValue }: ConvertContext, type: 'number' | 'integer'): ast.SchemaNode {
   return ast.factory.createSchema({
     type,
     primitive: type,
@@ -681,7 +689,7 @@ export function convertNumeric({ schema, name, nullable, defaultValue }: Convert
 /**
  * Converts a `type: 'boolean'` schema.
  */
-export function convertBoolean({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
+function convertBoolean({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
   return ast.factory.createSchema({
     type: 'boolean',
     primitive: 'boolean',
@@ -693,7 +701,7 @@ export function convertBoolean({ schema, name, nullable, defaultValue }: Convert
  * Converts a binary string schema (`type: 'string'`, `contentMediaType: 'application/octet-stream'`)
  * into a `blob` node.
  */
-export function convertBinary({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
+function convertBinary({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
   return ast.factory.createSchema({
     type: 'blob',
     primitive: 'string',
@@ -707,7 +715,7 @@ export function convertBinary({ schema, name, nullable, defaultValue }: ConvertC
  * Returns `null` when only one non-`null` type remains (e.g. `['string', 'null']`), so `parse`
  * falls through and handles it as that single type with nullability already folded in.
  */
-export function convertMultiType({ schema, name, nullable, defaultValue, rawOptions, parse }: ConvertContext): ast.SchemaNode | null {
+function convertMultiType({ schema, name, nullable, defaultValue, rawOptions, parse }: ConvertContext): ast.SchemaNode | null {
   const types = schema.type as Array<string>
   const nonNullTypes = types.filter((t) => t !== 'null')
   if (nonNullTypes.length <= 1) return null

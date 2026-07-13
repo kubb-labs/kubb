@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { BuildError } from '@internals/utils'
+import { BuildError, isPathInside } from '@internals/utils'
 import { HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
@@ -80,7 +80,21 @@ export class Kubb {
     this.hooks.setMaxListeners(Math.max(10, config.plugins.length * HOOK_LISTENERS_PER_PLUGIN))
 
     if (config.output.clean) {
-      await config.storage.clear(resolve(config.root, config.output.path))
+      const cleanPath = resolve(config.root, config.output.path)
+
+      // clean only removes generated code. Refuse when the output resolves to the project root or
+      // an ancestor of it, otherwise the wipe would delete kubb.config and every source file.
+      if (isPathInside(config.root, cleanPath)) {
+        throw new Diagnostics.Error({
+          code: Diagnostics.code.cleanRoot,
+          severity: 'error',
+          message: `output.clean cannot delete "${cleanPath}" because it is the project root or a parent of it.`,
+          help: 'Point `output.path` at a subdirectory such as `./src/gen` so clean only removes generated code.',
+          location: { kind: 'config' },
+        })
+      }
+
+      await config.storage.clear(cleanPath)
     }
 
     await driver.setup()

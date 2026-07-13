@@ -1,6 +1,6 @@
 export { combineExports, combineImports, combineSources } from './combineFileMembers.ts'
 export { extractStringsFromNodes } from './extractStringsFromNodes.ts'
 export { mergeAdjacentObjectsLazy } from './mergeAdjacentSchemas.ts'
-export { childName, enumPropName, extractRefName, isStringType, syncSchemaRef } from './refs.ts'
+export { childName, enumPropName, extractRefName, isStringType, resolveRefName, syncSchemaRef } from './refs.ts'
 export { collectUsedSchemaNames, containsCircularRef, findCircularSchemas } from './schemaGraph.ts'
 export { mapSchemaItems, mapSchemaMembers, mapSchemaProperties } from './schemaTraversal.ts'

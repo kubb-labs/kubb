@@ -141,23 +141,23 @@ npx kubb generate --reporter cli,json
 Parse and validate an OpenAPI/Swagger file for structural correctness. Reports schema errors, missing required fields, and malformed references. Use this before running `generate` to catch spec issues early.
 
 ```bash
-npx kubb validate --input <path-or-url>
+npx kubb validate <path-or-url>
 ```
 
-#### Options
+#### Arguments
 
-| Flag             | Short | Type   | Required | Description                                         |
-| ---------------- | ----- | ------ | -------- | --------------------------------------------------- |
-| `--input <path>` | `-i`  | string | ✅       | Path or URL to the OpenAPI/Swagger file to validate |
+| Argument  | Required | Description                                         |
+| --------- | -------- | --------------------------------------------------- |
+| `<input>` | ✅       | Path or URL to the OpenAPI/Swagger file to validate |
 
 #### Examples
 
 ```bash
 # Validate a local file
-npx kubb validate --input ./openapi.yaml
+npx kubb validate ./openapi.yaml
 
 # Validate a remote spec
-npx kubb validate --input https://petstore3.swagger.io/api/v3/openapi.json
+npx kubb validate https://petstore3.swagger.io/api/v3/openapi.json
 ```
 
 ---

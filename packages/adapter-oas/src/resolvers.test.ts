@@ -425,9 +425,9 @@ describe('getSchemas', () => {
   } as Document
 
   it('returns empty schemas when components is absent', () => {
-    const { schemas, nameMapping } = getSchemas(base, {})
+    const { schemas, renames } = getSchemas(base, {})
     expect(schemas).toStrictEqual({})
-    expect(nameMapping.size).toBe(0)
+    expect(renames.size).toBe(0)
   })
 
   it('returns component schemas', () => {
@@ -440,14 +440,14 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, nameMapping } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {})
     expect(schemas).toMatchObject({
       Pet: {
         type: 'object',
         properties: { name: { type: 'string' } },
       },
     })
-    expect(nameMapping.get('#/components/schemas/Pet')).toBe('Pet')
+    expect(renames.has('#/components/schemas/Pet')).toBe(false)
   })
 
   it('includes response schemas', () => {
@@ -470,14 +470,14 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, nameMapping } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {})
     expect(schemas).toMatchObject({
       PetResponse: {
         type: 'object',
         properties: { id: { type: 'integer' } },
       },
     })
-    expect(nameMapping.get('#/components/responses/PetResponse')).toBe('PetResponse')
+    expect(renames.has('#/components/responses/PetResponse')).toBe(false)
   })
 
   it('includes requestBody schemas', () => {
@@ -499,14 +499,14 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, nameMapping } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {})
     expect(schemas).toMatchObject({
       CreatePet: {
         type: 'object',
         properties: { name: { type: 'string' } },
       },
     })
-    expect(nameMapping.get('#/components/requestBodies/CreatePet')).toBe('CreatePet')
+    expect(renames.has('#/components/requestBodies/CreatePet')).toBe(false)
   })
 
   it('resolves same-source collisions with numeric suffixes', () => {
@@ -520,12 +520,12 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, nameMapping } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {})
 
     // first entry keeps original name, second gets numeric suffix
     expect(Object.keys(schemas).sort()).toStrictEqual(['Pet2', 'pet'])
-    expect(nameMapping.get('#/components/schemas/pet')).toBe('pet')
-    expect(nameMapping.get('#/components/schemas/Pet')).toBe('Pet2')
+    expect(renames.has('#/components/schemas/pet')).toBe(false)
+    expect(renames.get('#/components/schemas/Pet')).toBe('Pet2')
   })
 
   it('resolves name collisions across sources with semantic suffixes (Schema, Response)', () => {
@@ -551,11 +551,11 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, nameMapping } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {})
 
     expect(Object.keys(schemas).sort()).toStrictEqual(['PetResponse', 'PetSchema'])
-    expect(nameMapping.get('#/components/schemas/Pet')).toBe('PetSchema')
-    expect(nameMapping.get('#/components/responses/Pet')).toBe('PetResponse')
+    expect(renames.get('#/components/schemas/Pet')).toBe('PetSchema')
+    expect(renames.get('#/components/responses/Pet')).toBe('PetResponse')
   })
 
   it('resolves three-way collision across all sources with semantic suffixes', () => {
@@ -593,12 +593,12 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, nameMapping } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {})
 
     expect(Object.keys(schemas).sort()).toStrictEqual(['PetRequest', 'PetResponse', 'PetSchema'])
-    expect(nameMapping.get('#/components/schemas/Pet')).toBe('PetSchema')
-    expect(nameMapping.get('#/components/responses/Pet')).toBe('PetResponse')
-    expect(nameMapping.get('#/components/requestBodies/Pet')).toBe('PetRequest')
+    expect(renames.get('#/components/schemas/Pet')).toBe('PetSchema')
+    expect(renames.get('#/components/responses/Pet')).toBe('PetResponse')
+    expect(renames.get('#/components/requestBodies/Pet')).toBe('PetRequest')
   })
 
   it('detects collisions from different casing that normalizes to the same PascalCase', () => {
@@ -624,11 +624,11 @@ describe('getSchemas', () => {
       },
     }
 
-    const { nameMapping } = getSchemas(document, {})
+    const { renames } = getSchemas(document, {})
 
     // both normalize to PetList → semantic suffixes applied
-    expect(nameMapping.get('#/components/schemas/pet_list')).toBe('pet_listSchema')
-    expect(nameMapping.get('#/components/responses/PetList')).toBe('PetListResponse')
+    expect(renames.get('#/components/schemas/pet_list')).toBe('pet_listSchema')
+    expect(renames.get('#/components/responses/PetList')).toBe('PetListResponse')
   })
 
   it('collects enum schemas correctly', () => {
@@ -641,8 +641,8 @@ describe('getSchemas', () => {
       },
     }
 
-    const { nameMapping } = getSchemas(document, {})
-    expect(nameMapping.get('#/components/schemas/Status')).toBe('Status')
+    const { renames } = getSchemas(document, {})
+    expect(renames.has('#/components/schemas/Status')).toBe(false)
   })
 
   it('resolves collision between enum schema and response with semantic suffixes', () => {
@@ -668,9 +668,9 @@ describe('getSchemas', () => {
       },
     }
 
-    const { nameMapping } = getSchemas(document, {})
-    expect(nameMapping.get('#/components/schemas/Status')).toBe('StatusSchema')
-    expect(nameMapping.get('#/components/responses/Status')).toBe('StatusResponse')
+    const { renames } = getSchemas(document, {})
+    expect(renames.get('#/components/schemas/Status')).toBe('StatusSchema')
+    expect(renames.get('#/components/responses/Status')).toBe('StatusResponse')
   })
 
   it('sorts schemas by $ref dependency (referenced schema appears first)', () => {
