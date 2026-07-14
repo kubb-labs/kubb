@@ -36,23 +36,21 @@ describe('Url.toPath', () => {
   })
 })
 
-describe('Url.toSafeTemplate', () => {
-  test('rewrites param names while keeping braces', () => {
-    expect(Url.toSafeTemplate('/user/{monetary-account-id}')).toBe('/user/{monetaryAccountId}')
-  })
-
-  test('preserves a colon-suffix custom method (e.g. :search)', () => {
-    expect(Url.toSafeTemplate('/pet/{petId}:search')).toBe('/pet/{petId}:search')
-  })
-})
-
 describe('Url.toGroupedTemplateString', () => {
-  test('reads each param off a grouped path object', () => {
+  test('reads each param off a grouped path object through dot access when the name is a valid identifier', () => {
     expect(Url.toGroupedTemplateString('/pet/{petId}')).toBe('`/pet/${path.petId}`')
+  })
+
+  test('falls back to bracket access for a non-identifier param name, unchanged', () => {
+    expect(Url.toGroupedTemplateString('/user/{monetary-account-id}')).toBe('`/user/${path["monetary-account-id"]}`')
   })
 
   test('prepends the prefix inside the literal', () => {
     expect(Url.toGroupedTemplateString('/pet/{petId}', { prefix: 'https://api' })).toBe('`https://api/pet/${path.petId}`')
+  })
+
+  test('preserves a colon-suffix custom method (e.g. :search)', () => {
+    expect(Url.toGroupedTemplateString('/pet/{petId}:search')).toBe('`/pet/${path.petId}:search`')
   })
 })
 

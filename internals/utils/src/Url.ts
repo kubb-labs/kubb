@@ -111,26 +111,25 @@ export class Url {
   }
 
   /**
-   * Rewrites OpenAPI placeholder names while keeping the `{...}` braces, so the generated `url`
-   * literal aligns with a grouped `path` request option that a runtime client interpolates by key.
-   *
-   * @example
-   * Url.toSafeTemplate('/user/{monetary-account-id}') // '/user/{monetaryAccountId}'
-   */
-  static toSafeTemplate(path: string, casing?: PathCasing): string {
-    return path.replace(/\{([^}]+)\}/g, (_, name: string) => `{${transformParam(name, casing)}}`)
-  }
-
-  /**
    * Converts an OpenAPI/Swagger path to a template literal that reads each parameter off a
    * grouped `path` request option, e.g. `/pet/{petId}` becomes `` `/pet/${path.petId}` ``.
+   * Parameter names are kept exactly as they appear in the OpenAPI path; a name falls back to
+   * bracket access (`` path['pet-id'] ``) only when it isn't a valid JS identifier.
    * `prefix` is prepended inside the literal. Shared by generators that pass a grouped `path` object.
    *
    * @example
    * Url.toGroupedTemplateString('/pet/{petId}') // '`/pet/${path.petId}`'
+   *
+   * @example
+   * Url.toGroupedTemplateString('/user/{monetary-account-id}') // '`/user/${path["monetary-account-id"]}`'
    */
   static toGroupedTemplateString(path: string, { prefix }: { prefix?: string | null } = {}): string {
-    return Url.toTemplateString(path, { prefix, replacer: (name) => `path.${name}` })
+    const parts = path.split(/\{([^}]+)\}/)
+    const result = parts
+      .map((part, i) => (i % 2 === 0 ? part : `\${path${isValidVarName(part) ? `.${part}` : `[${JSON.stringify(part)}]`}}`))
+      .join('')
+
+    return `\`${prefix ?? ''}${result}\``
   }
 
   /**
