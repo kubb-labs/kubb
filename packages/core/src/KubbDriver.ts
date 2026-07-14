@@ -285,6 +285,7 @@ export class KubbDriver {
   async run(): Promise<{ diagnostics: Array<Diagnostic> }> {
     const { hooks, config, fileManager } = this
     const diagnostics: Array<Diagnostic> = []
+    const updateBuffer: Array<{ file: FileNode; source?: string; processed: number; total: number; percentage: number }> = []
     const parsersMap = new Map<FileNode['extname'], Parser>()
 
     for (const parser of config.parsers) {
@@ -293,24 +294,21 @@ export class KubbDriver {
       }
     }
 
-    // Bridge the write batch's lifecycle to the user-facing kubb hooks so existing listeners
-    // on kubb:files:processing:* keep firing. Tracked locally (not via #hook) since
-    // these must come off at the end of this run, not just at driver disposal.
-    const onWriteStart = async (files: Array<FileNode>) => {
-      await hooks.callHook('kubb:files:processing:start', { files })
-    }
-    const updateBuffer: Array<{ file: FileNode; source?: string; processed: number; total: number; percentage: number }> = []
-    const onWriteUpdate = (item: (typeof updateBuffer)[number]) => {
-      updateBuffer.push(item)
-    }
-    const onWriteEnd = async (files: Array<FileNode>) => {
-      await hooks.callHook('kubb:files:processing:update', {
-        files: updateBuffer.map((item) => ({ ...item, config })),
-      })
-      updateBuffer.length = 0
-      await hooks.callHook('kubb:files:processing:end', { files })
-    }
-    const unhookWrites = fileManager.hooks.addHooks({ start: onWriteStart, update: onWriteUpdate, end: onWriteEnd })
+    const unhookWrites = fileManager.hooks.addHooks({
+      start: async (files) => {
+        await hooks.callHook('kubb:files:processing:start', { files })
+      },
+      update: (item) => {
+        updateBuffer.push(item)
+      },
+      end: async (files: Array<FileNode>) => {
+        await hooks.callHook('kubb:files:processing:update', {
+          files: updateBuffer.map((item) => ({ ...item, config })),
+        })
+        updateBuffer.length = 0
+        await hooks.callHook('kubb:files:processing:end', { files })
+      },
+    })
 
     // Make `diagnostics` the active sink so deep code (adapter parse, generators) can
     // report into this run via `Diagnostics.report`.
@@ -631,6 +629,7 @@ export class KubbDriver {
     const merged = Resolver.merge(defaultResolver, partial)
     this.#resolvers.set(pluginName, merged)
     const plugin = this.plugins.get(pluginName)
+
     if (plugin) {
       plugin.resolver = merged
     }
