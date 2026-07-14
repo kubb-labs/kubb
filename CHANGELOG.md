@@ -1,5 +1,27 @@
 # Changelog
 
+## v5.0.0-beta.97 — Jul 13, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Accept the spec as a positional argument on `kubb validate`, matching `kubb generate`.
+  
+  `kubb validate` took the spec through the `--input`/`-i` flag, while `kubb generate` already read it as a positional argument. The two commands now share the same shape, so `kubb validate ./openapi.yaml` replaces `kubb validate --input ./openapi.yaml`. The argument stays required, and both local paths and URLs still work. ([#3782](https://github.com/kubb-labs/kubb/pull/3782), [`5f8350c`](https://github.com/kubb-labs/kubb/commit/5f8350c5061be7148f762fdd5bf5f320a4708fd0))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Stop `output.clean` from deleting the project root. When `output.path` resolved to the root directory or a parent of it (for example `path: '.'`), a build with `clean: true` wiped `kubb.config` and every source file. The build now fails with a `KUBB_CLEAN_ROOT` diagnostic before cleaning, so clean only removes generated code. ([#3784](https://github.com/kubb-labs/kubb/pull/3784), [`5850a25`](https://github.com/kubb-labs/kubb/commit/5850a252e4394073050d5056dfadd6d459b02b5c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.96 — Jul 12, 2026
 
 ### @kubb/core
