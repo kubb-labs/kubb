@@ -125,9 +125,7 @@ export class Url {
    */
   static toGroupedTemplateString(path: string, { prefix }: { prefix?: string | null } = {}): string {
     const parts = path.split(/\{([^}]+)\}/)
-    const result = parts
-      .map((part, i) => (i % 2 === 0 ? part : `\${path${isValidVarName(part) ? `.${part}` : `[${JSON.stringify(part)}]`}}`))
-      .join('')
+    const result = parts.map((part, i) => (i % 2 === 0 ? part : `\${path${isValidVarName(part) ? `.${part}` : `[${JSON.stringify(part)}]`}}`)).join('')
 
     return `\`${prefix ?? ''}${result}\``
   }
