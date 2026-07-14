@@ -1,5 +1,23 @@
 # Changelog
 
+## v5.0.0-beta.98 — Jul 14, 2026
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Add `Url.toGroupedTemplateString` to the `Url` helper exposed through `kubb/kit`.
+  
+  It renders a template literal that reads each path parameter off a grouped `path` request option, e.g. `` `/pet/${path.petId}` ``, keeping the parameter name exactly as it appears in the OpenAPI path. A name falls back to bracket access (`` path['pet-id'] ``) only when it isn't a valid JS identifier.
+  
+  Also drops the unused `casing` option from `Url.toTemplateString`/`Url.toObject`, since nothing ever passed it. ([#3788](https://github.com/kubb-labs/kubb/pull/3788), [`d897c13`](https://github.com/kubb-labs/kubb/commit/d897c13923961aeb86cfb17f05c30c94ea1fa7ee))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.97 — Jul 13, 2026
 
 ### @kubb/cli
