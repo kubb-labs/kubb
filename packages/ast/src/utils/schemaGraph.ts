@@ -139,6 +139,7 @@ const findCircularSchemasMemo = memoize(new WeakMap<ReadonlyArray<SchemaNode>, S
  */
 export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<string> {
   if (schemas.length === 0) return EMPTY_CIRCULAR_SET
+
   return findCircularSchemasMemo(schemas)
 }
 

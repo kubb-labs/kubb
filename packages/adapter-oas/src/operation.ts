@@ -43,6 +43,7 @@ export function getOperationId({ path, method, schema }: Operation): string {
   if (typeof operationId === 'string' && operationId.length > 0) {
     return operationId
   }
+
   return `${method}_${slugify(path).toLowerCase()}`
 }
 
@@ -54,6 +55,7 @@ export function getResponseStatusCodes({ schema }: Operation): Array<string> {
   if (!responses || isReference(responses)) {
     return []
   }
+
   return Object.keys(responses).filter((key) => !key.startsWith('x-') && !!responses[key] && typeof responses[key] === 'object')
 }
 
@@ -65,6 +67,7 @@ export function getResponseByStatusCode({ document, operation, statusCode }: Ope
   if (!responses || isReference(responses)) {
     return false
   }
+
   return derefInPlace<ResponseObject>({ document, container: responses, key: statusCode }) ?? false
 }
 
@@ -74,6 +77,7 @@ export function getResponseByStatusCode({ document, operation, statusCode }: Ope
  */
 function getRequestBodyContent({ document, operation }: OperationContext): Record<string, MediaTypeObject> | undefined {
   const requestBody = derefInPlace<RequestBodyObject>({ document, container: operation.schema as unknown as Record<string, unknown>, key: 'requestBody' })
+
   return requestBody?.content
 }
 
@@ -88,14 +92,18 @@ export function getRequestContent({
   mediaType,
 }: OperationContext & { mediaType?: string }): MediaTypeObject | false | [string, MediaTypeObject] {
   const content = getRequestBodyContent({ document, operation })
+
   if (!content) {
     return false
   }
+
   if (mediaType) {
     return mediaType in content ? content[mediaType]! : false
   }
+
   const mediaTypes = Object.keys(content)
   const available = mediaTypes.find((mt) => isJsonMimeType(mt)) ?? mediaTypes[0]
+
   return available ? [available, content[available]!] : false
 }
 
@@ -113,6 +121,7 @@ export function getRequestContentType({ document, operation }: OperationContext)
       result = mt
     }
   }
+
   return result
 }
 

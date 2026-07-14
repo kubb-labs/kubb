@@ -26,16 +26,6 @@ export type OasParserContext = {
 }
 
 /**
- * The object returned by {@link createSchemaParser}.
- * Contains parser functions bound to a specific document.
- */
-export type SchemaParser = {
-  parseSchema: (entry: { schema: SchemaObject; name?: string | null }, options?: Partial<ast.ParserOptions>) => ast.SchemaNode
-  parseOperation: (options: ast.ParserOptions, operation: Operation) => ast.OperationNode
-  parseParameter: (options: ast.ParserOptions, param: Record<string, unknown>) => ast.ParameterNode
-}
-
-/**
  * Creates the schema and operation converters bound to one OpenAPI document.
  *
  * Owns the per-instance `$ref` state (cycle detection, resolved-node cache, existence cache) and
