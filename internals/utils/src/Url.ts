@@ -12,11 +12,6 @@ type URLObject = {
   params: Record<string, string> | null
 }
 
-/**
- * Supported identifier casing strategies for path parameters.
- */
-type PathCasing = 'camelcase'
-
 type TemplateOptions = {
   /**
    * Literal text prepended inside the template literal, e.g. a base URL.
@@ -26,10 +21,6 @@ type TemplateOptions = {
    * Transform applied to each extracted parameter name before interpolation.
    */
   replacer?: (pathParam: string) => string
-  /**
-   * Casing strategy applied to path parameter names.
-   */
-  casing?: PathCasing
 }
 
 type ObjectOptions = {
@@ -46,25 +37,25 @@ type ObjectOptions = {
    * When `true`, the result is serialized to a string expression instead of a plain object.
    */
   stringify?: boolean
-  /**
-   * Casing strategy applied to path parameter names.
-   */
-  casing?: PathCasing
 }
 
-function transformParam(raw: string, casing?: PathCasing): string {
-  const param = isValidVarName(raw) ? raw : camelCase(raw)
-  return casing === 'camelcase' ? camelCase(param) : param
+function transformParam(raw: string): string {
+  return isValidVarName(raw) ? raw : camelCase(raw)
 }
 
-function toParamsObject(
-  path: string,
-  { replacer, casing }: { replacer?: (pathParam: string) => string; casing?: PathCasing } = {},
-): Record<string, string> | null {
+/**
+ * Renders how a grouped `path` object's member is accessed: dot access for a valid
+ * identifier, bracket access with the raw name otherwise.
+ */
+function groupedAccessor(name: string): string {
+  return isValidVarName(name) ? `.${name}` : `[${JSON.stringify(name)}]`
+}
+
+function toParamsObject(path: string, { replacer }: { replacer?: (pathParam: string) => string } = {}): Record<string, string> | null {
   const params: Record<string, string> = {}
 
   for (const match of path.matchAll(/\{([^}]+)\}/g)) {
-    const param = transformParam(match[1]!, casing)
+    const param = transformParam(match[1]!)
     const key = replacer ? replacer(param) : param
     params[key] = key
   }
@@ -88,8 +79,7 @@ export class Url {
 
   /**
    * Converts an OpenAPI/Swagger path to a TypeScript template literal string.
-   * `prefix` is prepended inside the literal, `replacer` transforms each parameter name,
-   * and `casing` controls parameter identifier casing.
+   * `prefix` is prepended inside the literal, and `replacer` transforms each parameter name.
    *
    * @example
    * Url.toTemplateString('/pet/{petId}') // '`/pet/${petId}`'
@@ -97,12 +87,12 @@ export class Url {
    * @example
    * Url.toTemplateString('/pet/{petId}', { prefix: 'https://api' }) // '`https://api/pet/${petId}`'
    */
-  static toTemplateString(path: string, { prefix, replacer, casing }: TemplateOptions = {}): string {
+  static toTemplateString(path: string, { prefix, replacer }: TemplateOptions = {}): string {
     const parts = path.split(/\{([^}]+)\}/)
     const result = parts
       .map((part, i) => {
         if (i % 2 === 0) return part
-        const param = transformParam(part, casing)
+        const param = transformParam(part)
         return `\${${replacer ? replacer(param) : param}}`
       })
       .join('')
@@ -125,7 +115,7 @@ export class Url {
    */
   static toGroupedTemplateString(path: string, { prefix }: { prefix?: string | null } = {}): string {
     const parts = path.split(/\{([^}]+)\}/)
-    const result = parts.map((part, i) => (i % 2 === 0 ? part : `\${path${isValidVarName(part) ? `.${part}` : `[${JSON.stringify(part)}]`}}`)).join('')
+    const result = parts.map((part, i) => (i % 2 === 0 ? part : `\${path${groupedAccessor(part)}}`)).join('')
 
     return `\`${prefix ?? ''}${result}\``
   }
@@ -138,10 +128,10 @@ export class Url {
    * Url.toObject('/pet/{petId}')
    * // { url: '/pet/:petId', params: { petId: 'petId' } }
    */
-  static toObject(path: string, { type = 'path', replacer, stringify, casing }: ObjectOptions = {}): URLObject | string {
+  static toObject(path: string, { type = 'path', replacer, stringify }: ObjectOptions = {}): URLObject | string {
     const object: URLObject = {
-      url: type === 'path' ? Url.toPath(path) : Url.toTemplateString(path, { replacer, casing }),
-      params: toParamsObject(path, { replacer, casing }),
+      url: type === 'path' ? Url.toPath(path) : Url.toTemplateString(path, { replacer }),
+      params: toParamsObject(path, { replacer }),
     }
 
     if (stringify) {
