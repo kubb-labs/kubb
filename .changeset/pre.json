@@ -186,6 +186,7 @@
     "kit-core-type-reexports",
     "kit-drop-factory-export",
     "kit-new-package",
+    "kit-url-safe-template",
     "knip-remove-dead-code",
     "knip-trim-unused-exports",
     "kubb-bun-native-runtime",
