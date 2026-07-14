@@ -36,6 +36,26 @@ describe('Url.toPath', () => {
   })
 })
 
+describe('Url.toSafeTemplate', () => {
+  test('rewrites param names while keeping braces', () => {
+    expect(Url.toSafeTemplate('/user/{monetary-account-id}')).toBe('/user/{monetaryAccountId}')
+  })
+
+  test('preserves a colon-suffix custom method (e.g. :search)', () => {
+    expect(Url.toSafeTemplate('/pet/{petId}:search')).toBe('/pet/{petId}:search')
+  })
+})
+
+describe('Url.toGroupedTemplateString', () => {
+  test('reads each param off a grouped path object', () => {
+    expect(Url.toGroupedTemplateString('/pet/{petId}')).toBe('`/pet/${path.petId}`')
+  })
+
+  test('prepends the prefix inside the literal', () => {
+    expect(Url.toGroupedTemplateString('/pet/{petId}', { prefix: 'https://api' })).toBe('`https://api/pet/${path.petId}`')
+  })
+})
+
 describe('Url.toObject', () => {
   test('returns url and params for an Express path', () => {
     expect(Url.toObject('/user/{userID}')).toStrictEqual({
