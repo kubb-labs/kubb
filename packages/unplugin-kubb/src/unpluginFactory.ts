@@ -83,7 +83,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       defaultAdapter: adapterOas(),
       barrelPlugin: pluginBarrel(),
       barrelPluginName: pluginBarrelName,
-      defaultOutput: { barrel: { type: 'named' }, format: false, lint: false },
+      defaultOutput: { barrel: false, format: false, lint: false },
     })
 
     const config = {

@@ -35,12 +35,13 @@ declare global {
       output: {
         /**
          * Barrel configuration for this plugin's output.
-         * Set to `false` to disable barrel generation for this plugin entirely. Doing so also
+         * Set to `{ type: 'named' | 'all' }` to opt this plugin into a barrel. Set to `false`
+         * (the default) to disable barrel generation for this plugin entirely, which also
          * excludes the plugin's files from the root barrel.
          *
          * Falls back to `config.output.barrel` when omitted.
          *
-         * @default { type: 'named' }
+         * @default false
          */
         barrel?: PluginBarrelConfig | false
       }
@@ -49,10 +50,10 @@ declare global {
       output: {
         /**
          * Barrel configuration for the root barrel file at `config.output.path/index.ts`.
-         * Set to `false` to disable root barrel generation. Individual plugins can override
-         * this via their own `output.barrel`.
+         * Set to `{ type: 'named' | 'all' }` to opt into a root barrel. Individual plugins can
+         * override this via their own `output.barrel`.
          *
-         * @default { type: 'named' }
+         * @default false
          */
         barrel?: BarrelConfig | false
       }
@@ -69,11 +70,14 @@ export const pluginBarrelName = 'plugin-barrel' satisfies Plugin['name']
 /**
  * Generates an `index.ts` for every plugin output directory and one root
  * barrel at `config.output.path/index.ts` after the build completes. Ships
- * with Kubb and is registered by default in `defineConfig`.
+ * with Kubb and is registered by default in `defineConfig`, but generates
+ * nothing until a barrel is configured.
  *
  * Each plugin inherits `output.barrel` from `config.output.barrel` (which
- * defaults to `{ type: 'named' }`). Set `barrel: false` on a plugin to skip
- * its barrel and also exclude its files from the root barrel.
+ * defaults to `false`, no barrel). Set `barrel: { type: 'named' | 'all' }` on
+ * the root config, a plugin, or both to opt in; a plugin-level `false`
+ * overrides an enabled root barrel and also excludes that plugin's files
+ * from the root barrel.
  *
  * A plugin with `output.mode: 'file'` gets no per-plugin barrel, since its output
  * is a single file. The root barrel re-exports that file directly.
@@ -109,13 +113,12 @@ export const pluginBarrel = definePlugin(() => {
 
         const pluginBarrelOpt = plugin.options.output?.barrel
         const configBarrel = config.output.barrel
-        const defaultBarrel = { type: 'named' } as const
 
         // Root config barrel doesn't have nested, so we add it
         const barrelConfig: PluginBarrelConfig | false = (() => {
           if (pluginBarrelOpt !== undefined) return pluginBarrelOpt
           if (configBarrel !== undefined) return configBarrel === false ? false : { ...configBarrel, nested: false }
-          return defaultBarrel
+          return false
         })()
 
         if (barrelConfig === false) {
@@ -143,7 +146,7 @@ export const pluginBarrel = definePlugin(() => {
         }
       },
       'kubb:plugins:end'({ files, config, upsertFile }) {
-        const barrelConfig = config.output.barrel ?? { type: 'named' }
+        const barrelConfig = config.output.barrel ?? false
 
         const filteredFiles = excludedPrefixes.size === 0 ? files : files.filter((f) => !isExcludedPath(f.path, excludedPrefixes))
         excludedPrefixes.clear()
