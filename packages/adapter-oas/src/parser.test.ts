@@ -1,4 +1,5 @@
-import { ast, syncSchemaRef } from '@kubb/ast'
+import { ast } from '@kubb/ast'
+import { syncSchemaRef } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
@@ -3056,7 +3057,7 @@ describe('parseSchema array', () => {
     })
     const intersection = ast.narrowSchema(node, 'intersection') ?? ast.narrowSchema(node, 'object')
     // Find any deeply-nested status enum to verify its name
-    const enums = ast.collect(node, {
+    const enums = ast.collectSync(node, {
       schema(n) {
         return ast.narrowSchema(n, 'enum') ?? undefined
       },
@@ -3131,7 +3132,7 @@ describe('parseSchema array', () => {
     const collectEnumNames = (node: ast.SchemaNode | null | undefined): Array<string> =>
       node
         ? ast
-            .collect(node, {
+            .collectSync(node, {
               schema(n) {
                 return ast.narrowSchema(n, 'enum') ?? undefined
               },

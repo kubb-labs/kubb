@@ -1,6 +1,6 @@
 import { memoize } from '@internals/utils'
 import type { OperationNode, SchemaNode } from '../nodes/index.ts'
-import { collect, collectLazy } from '../visitor.ts'
+import { collect, collectSync } from '../visitor.ts'
 import { resolveRefName } from './refs.ts'
 
 /**
@@ -8,7 +8,7 @@ import { resolveRefName } from './refs.ts'
  */
 const collectSchemaRefs = memoize(new WeakMap<SchemaNode, ReadonlySet<string>>(), (node: SchemaNode): ReadonlySet<string> => {
   const refs = new Set<string>()
-  collect<void>(node, {
+  collectSync<void>(node, {
     schema(child) {
       if (child.type === 'ref') {
         const name = resolveRefName(child)
@@ -65,7 +65,7 @@ function computeUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schema
   }
 
   for (const op of operations) {
-    for (const schema of collectLazy<SchemaNode>(op, { depth: 'shallow', schema: (node) => node })) {
+    for (const schema of collect<SchemaNode>(op, { depth: 'shallow', schema: (node) => node })) {
       visitSchema(schema)
     }
   }
@@ -141,31 +141,4 @@ export function findCircularSchemas(schemas: ReadonlyArray<SchemaNode>): Set<str
   if (schemas.length === 0) return EMPTY_CIRCULAR_SET
 
   return findCircularSchemasMemo(schemas)
-}
-
-/**
- * Returns `true` when a schema, or anything nested inside it, references a circular schema.
- *
- * Pass `excludeName` to skip refs to a specific schema, which helps when self-references are handled
- * on their own. Pair it with `findCircularSchemas()` to decide where lazy wrappers go.
- *
- * @note Stops at the first matching circular ref.
- */
-export function containsCircularRef(
-  node: SchemaNode | undefined,
-  { circularSchemas, excludeName }: { circularSchemas: ReadonlySet<string>; excludeName?: string },
-): boolean {
-  if (!node || circularSchemas.size === 0) return false
-
-  for (const _ of collectLazy<true>(node, {
-    schema(child) {
-      if (child.type !== 'ref') return null
-      const name = resolveRefName(child)
-      return name && name !== excludeName && circularSchemas.has(name) ? true : null
-    },
-  })) {
-    return true
-  }
-
-  return false
 }

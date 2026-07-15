@@ -1,14 +1,4 @@
-import {
-  ast,
-  type ArrowFunctionNode,
-  type CodeNode,
-  type ExportNode,
-  type FileNode,
-  type ImportNode,
-  type JSDocNode,
-  type SourceNode,
-  type UserFileNode,
-} from '@kubb/ast'
+import { ast } from '@kubb/kit'
 import { KUBB_ARROW_FUNCTION, KUBB_CONST, KUBB_EXPORT, KUBB_FILE, KUBB_FUNCTION, KUBB_IMPORT, KUBB_JSX, KUBB_SOURCE, KUBB_TYPE } from './constants.ts'
 import { Fragment } from './jsx-runtime.ts'
 import type { KubbReactElement } from './types.ts'
@@ -54,14 +44,14 @@ function walkElement(element: unknown, onText: OnText, onHost: OnHost): void {
   }
 }
 
-function collectCodeNodes(props: Record<string, unknown>): Array<CodeNode> {
-  const nodes: Array<CodeNode> = []
+function collectCodeNodes(props: Record<string, unknown>): Array<ast.CodeNode> {
+  const nodes: Array<ast.CodeNode> = []
   collectCode(props['children'], nodes)
 
   return nodes
 }
 
-function collectCode(element: unknown, nodes: Array<CodeNode>): void {
+function collectCode(element: unknown, nodes: Array<ast.CodeNode>): void {
   walkElement(
     element,
     (text) => {
@@ -71,7 +61,7 @@ function collectCode(element: unknown, nodes: Array<CodeNode>): void {
   )
 }
 
-function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Array<CodeNode>): void {
+function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Array<ast.CodeNode>): void {
   if (type === 'br') {
     nodes.push(ast.factory.createBreak())
     return
@@ -100,7 +90,7 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Ar
         async: props['async'] as boolean | null | undefined,
         generics: props['generics'] as string | Array<string> | null | undefined,
         returnType: props['returnType'] as string | null | undefined,
-        JSDoc: props['JSDoc'] as JSDocNode | null | undefined,
+        JSDoc: props['JSDoc'] as ast.JSDocNode | null | undefined,
         nodes: collectCodeNodes(props),
       }),
     )
@@ -118,9 +108,9 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Ar
         generics: props['generics'] as string | Array<string> | null | undefined,
         returnType: props['returnType'] as string | null | undefined,
         singleLine: props['singleLine'] as boolean | null | undefined,
-        JSDoc: props['JSDoc'] as JSDocNode | null | undefined,
+        JSDoc: props['JSDoc'] as ast.JSDocNode | null | undefined,
         nodes: collectCodeNodes(props),
-      } as Omit<ArrowFunctionNode, 'kind'>),
+      } as Omit<ast.ArrowFunctionNode, 'kind'>),
     )
     return
   }
@@ -132,7 +122,7 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Ar
         type: props['type'] as string | null | undefined,
         export: props['export'] as boolean | null | undefined,
         asConst: props['asConst'] as boolean | null | undefined,
-        JSDoc: props['JSDoc'] as JSDocNode | null | undefined,
+        JSDoc: props['JSDoc'] as ast.JSDocNode | null | undefined,
         nodes: collectCodeNodes(props),
       }),
     )
@@ -144,7 +134,7 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Ar
       ast.factory.createType({
         name: props['name'] as string,
         export: props['export'] as boolean | null | undefined,
-        JSDoc: props['JSDoc'] as JSDocNode | null | undefined,
+        JSDoc: props['JSDoc'] as ast.JSDocNode | null | undefined,
         nodes: collectCodeNodes(props),
       }),
     )
@@ -152,12 +142,12 @@ function resolveCodeNode(type: string, props: Record<string, unknown>, nodes: Ar
   }
 }
 
-type FileChildren = { sources: Array<SourceNode>; exports: Array<ExportNode>; imports: Array<ImportNode> }
+type FileChildren = { sources: Array<ast.SourceNode>; exports: Array<ast.ExportNode>; imports: Array<ast.ImportNode> }
 
 function collectFileChildren(element: unknown): FileChildren {
-  const sources: Array<SourceNode> = []
-  const exports: Array<ExportNode> = []
-  const imports: Array<ImportNode> = []
+  const sources: Array<ast.SourceNode> = []
+  const exports: Array<ast.ExportNode> = []
+  const imports: Array<ast.ImportNode> = []
 
   walkElement(
     element,
@@ -183,7 +173,7 @@ function collectFileChildren(element: unknown): FileChildren {
       if (type === KUBB_EXPORT) {
         exports.push(
           ast.factory.createExport({
-            name: props['name'] as ExportNode['name'],
+            name: props['name'] as ast.ExportNode['name'],
             path: props['path'] as string,
             isTypeOnly: !!props['isTypeOnly'],
             asAlias: !!props['asAlias'],
@@ -195,7 +185,7 @@ function collectFileChildren(element: unknown): FileChildren {
       if (type === KUBB_IMPORT) {
         imports.push(
           ast.factory.createImport({
-            name: props['name'] as ImportNode['name'],
+            name: props['name'] as ast.ImportNode['name'],
             path: props['path'] as string,
             root: props['root'] as string | null | undefined,
             isTypeOnly: !!props['isTypeOnly'],
@@ -215,7 +205,7 @@ function collectFileChildren(element: unknown): FileChildren {
   return { sources, exports, imports }
 }
 
-function* walkFiles(element: unknown): Generator<FileNode> {
+function* walkFiles(element: unknown): Generator<ast.FileNode> {
   if (element == null || typeof element === 'boolean') return
 
   if (typeof element === 'string' || typeof element === 'number' || typeof element === 'bigint') return
@@ -248,18 +238,18 @@ function* walkFiles(element: unknown): Generator<FileNode> {
         // plus unused-import pruning, are only computed once the file reaches `FileManager` (via
         // `ast.factory.createFile`) — calling it here would prune imports before `FileManager`
         // merges same-path fragments from separate `render()` calls into their final source text.
-        const file: UserFileNode = {
-          baseName: props['baseName'] as FileNode['baseName'],
+        const file: ast.UserFileNode = {
+          baseName: props['baseName'] as ast.FileNode['baseName'],
           path: props['path'] as string,
-          meta: (props['meta'] as FileNode['meta']) || {},
-          footer: props['footer'] as FileNode['footer'],
-          banner: props['banner'] as FileNode['banner'],
-          copy: props['copy'] as FileNode['copy'],
+          meta: (props['meta'] as ast.FileNode['meta']) || {},
+          footer: props['footer'] as ast.FileNode['footer'],
+          banner: props['banner'] as ast.FileNode['banner'],
+          copy: props['copy'] as ast.FileNode['copy'],
           sources,
           exports,
           imports,
         }
-        yield file as unknown as FileNode
+        yield file as unknown as ast.FileNode
       } else {
         yield* walkFiles(props['children'])
       }
@@ -269,7 +259,7 @@ function* walkFiles(element: unknown): Generator<FileNode> {
 
 /**
  * Synchronous JSX renderer that walks the element tree in a single pass,
- * producing {@link FileNode} objects directly without an intermediate virtual
+ * producing {@link ast.FileNode} objects directly without an intermediate virtual
  * DOM. No React fiber, scheduler, or work loop is involved.
  *
  * All components must be pure functions. Hooks and class components are not
@@ -277,13 +267,13 @@ function* walkFiles(element: unknown): Generator<FileNode> {
  */
 export class Runtime {
   /**
-   * Accumulated {@link FileNode} results from every {@link render} call.
+   * Accumulated {@link ast.FileNode} results from every {@link render} call.
    */
-  nodes: Array<FileNode> = []
+  nodes: Array<ast.FileNode> = []
 
   /**
    * Walks `element` synchronously, converts every `<kubb-file>` subtree into
-   * a {@link FileNode} with no intermediate virtual DOM, and appends the results
+   * a {@link ast.FileNode} with no intermediate virtual DOM, and appends the results
    * to {@link nodes}.
    */
   render(element: KubbReactElement): void {

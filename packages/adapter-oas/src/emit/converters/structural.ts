@@ -1,4 +1,5 @@
-import { ast, childName, enumPropName, macroDiscriminatorEnum, macroEnumName } from '@kubb/ast'
+import { ast } from '@kubb/ast'
+import { childName, enumPropName, macroDiscriminatorEnum, macroEnumName } from '@kubb/kit'
 import { isDiscriminator, isNullable } from '../../oas.ts'
 import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'

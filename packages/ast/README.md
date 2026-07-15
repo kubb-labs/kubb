@@ -30,14 +30,12 @@ Defines the node tree, visitor pattern, factory functions, and type guards used 
 
 | Path                            | Contents                                                                                                          |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `@kubb/ast`                     | Runtime: node definitions, guards, visitor, macro engine, string and ref helpers, constants                       |
+| `@kubb/ast`                     | Runtime: node definitions, guards, visitor, macro engine, constants                                               |
 | `ast.factory` (via `@kubb/ast`) | Node constructors (`createSchema`, `createFile`, and friends), the `ts.factory` analogue                          |
 | `@kubb/ast/types`               | Types only: all node interfaces, type aliases, visitor types                                                      |
 | `kubb/kit`                      | Re-exports the `ast` and `factory` namespaces, the way most Kubb code reaches the AST without a direct dependency |
 
 `@kubb/ast` is an internal library. Inside the Kubb ecosystem the whole surface travels on the `ast` namespace from `kubb/kit`, so plugins and generators reach it there instead of depending on this package directly. The examples below import from `@kubb/ast` for clarity; through `kubb/kit` the same calls read as `ast.walk`, `ast.factory.createSchema`, and so on.
-
-The macro presets (`macroDiscriminatorEnum`, `macroSimplifyUnion`, `macroEnumName`) and the string, identifier, and ref helpers live on the root `@kubb/ast` export. They no longer ship as separate `@kubb/ast/macros` and `@kubb/ast/utils` subpaths.
 
 ## Node tree
 
@@ -94,14 +92,7 @@ const root = createInput({
 ### Visitor
 
 ```ts
-import { walk, transform, collect } from '@kubb/ast'
-
-// Side effects
-await walk(root, {
-  schema(node) {
-    console.log(node.type)
-  },
-})
+import { collectSync, transform } from '@kubb/ast'
 
 // Immutable transformation
 const updated = transform(root, {
@@ -111,7 +102,7 @@ const updated = transform(root, {
 })
 
 // Extraction
-const types = collect<string>(root, {
+const types = collectSync<string>(root, {
   schema(node) {
     return node.type
   },
@@ -135,9 +126,9 @@ function process(node: Node) {
 ### Refs
 
 ```ts
-import { extractRefName } from '@kubb/ast'
+import { resolveRefName } from '@kubb/ast'
 
-extractRefName('#/components/schemas/Pet') // 'Pet'
+resolveRefName({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Pet' }) // 'Pet'
 ```
 
 ## Adding a node
