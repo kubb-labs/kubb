@@ -1,7 +1,8 @@
 // The heading grammar shared by the changelog writer (index.mjs) and anything
-// that reads CHANGELOG.md back out (scripts/createReleases.mjs). Kept in one
-// place so the two can't drift into two independently-escaped, independently
-// anchored regexes for the same headings.
+// that reads CHANGELOG.md back out (createReleases.mjs, bundled with the
+// kubb-labs/config `promote` action). Kept in one place so the two can't
+// drift into two independently-escaped, independently anchored regexes for
+// the same headings.
 
 function escapeForRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
