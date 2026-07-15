@@ -77,6 +77,30 @@ export type SchemaRule = {
 }
 
 /**
+ * The `schema`/`name`/`nullable`/`defaultValue` slice of a context, the only part
+ * {@link createNode} needs to fill in a node's shared base fields.
+ */
+type NodeBaseContext = Pick<SchemaContext, 'schema' | 'name' | 'nullable' | 'defaultValue'>
+
+/**
+ * Input shape accepted by `ast.factory.createSchema`, recovered from its own signature so
+ * {@link createNode} stays in sync with the AST layer without redeclaring the union.
+ */
+type CreateSchemaProps = Parameters<typeof ast.factory.createSchema>[0]
+
+/**
+ * Builds a schema node from a converter's base context plus its type-specific fields. Every
+ * converter ends with the same `...buildSchemaNode(schema, name, nullable, defaultValue)` spread;
+ * this folds that into one call so converters only supply what makes their node distinct.
+ */
+function createNode({ schema, name, nullable, defaultValue }: NodeBaseContext, extras: CreateSchemaProps): ast.SchemaNode {
+  return ast.factory.createSchema({
+    ...buildSchemaNode(schema, name, nullable, defaultValue),
+    ...extras,
+  })
+}
+
+/**
  * Normalizes malformed `{ type: 'array', enum: [...] }` schemas by moving enum values into items.
  *
  * This pattern violates the OpenAPI spec but appears in real specs. The fix moves enum values
@@ -143,6 +167,7 @@ function nameEnums(node: ast.SchemaNode, options: { parentName: string | null | 
 function convertRef({ schema, name, nullable, defaultValue, rawOptions, document, resolveRefNode, refExists, renames }: ConvertContext): ast.SchemaNode {
   const refPath = schema.$ref
   const resolvedSchema = refPath ? resolveRefNode(refPath, rawOptions) : null
+  const ctx = { schema, name, nullable, defaultValue }
 
   // A `$ref` to a component the document never defines (a malformed spec) would otherwise emit an
   // import to a module that is never generated, leaving the output uncompilable. Fall back to
@@ -150,16 +175,12 @@ function convertRef({ schema, name, nullable, defaultValue, rawOptions, document
   // component registry — a registry-less fragment (e.g. a minimal `parse` call) parses refs
   // leniently, since the target is expected to live outside the fragment.
   if (refPath && document.components && !refExists(refPath)) {
-    return ast.factory.createSchema({
-      ...buildSchemaNode(schema, name, nullable, defaultValue),
-      type: 'unknown',
-    })
+    return createNode(ctx, { type: 'unknown' })
   }
 
   const targetName = renames?.get(schema.$ref!)
 
-  return ast.factory.createSchema({
-    ...buildSchemaNode(schema, name, nullable, defaultValue),
+  return createNode(ctx, {
     type: 'ref',
     name: extractRefName(schema.$ref!),
     ref: schema.$ref,
@@ -267,11 +288,13 @@ function convertAllOf({ schema, name, nullable, defaultValue, rawOptions, parse,
     allOfMembers.push(createDiscriminantNode({ propertyName, value }))
   }
 
-  return ast.factory.createSchema({
-    type: 'intersection',
-    members: [...mergeAdjacentObjectsLazy(allOfMembers.slice(0, syntheticStart)), ...mergeAdjacentObjectsLazy(allOfMembers.slice(syntheticStart))],
-    ...buildSchemaNode(schema, name, nullable, defaultValue),
-  })
+  return createNode(
+    { schema, name, nullable, defaultValue },
+    {
+      type: 'intersection',
+      members: [...mergeAdjacentObjectsLazy(allOfMembers.slice(0, syntheticStart)), ...mergeAdjacentObjectsLazy(allOfMembers.slice(syntheticStart))],
+    },
+  )
 }
 
 /**
@@ -335,10 +358,10 @@ function convertUnion({ schema, name, nullable, defaultValue, rawOptions, parse,
     return constrains(variant) ? null : value
   }
 
+  const ctx = { schema, name, nullable, defaultValue }
   const unionMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
   const strategy: 'one' | 'any' = schema.oneOf ? 'one' : 'any'
-  const unionBase = {
-    ...buildSchemaNode(schema, name, nullable, defaultValue),
+  const unionExtras = {
     discriminatorPropertyName: isDiscriminator(schema) ? schema.discriminator.propertyName : undefined,
     strategy,
   }
@@ -378,26 +401,18 @@ function convertUnion({ schema, name, nullable, defaultValue, rawOptions, parse,
       })
     })
 
-    const unionNode = ast.factory.createSchema({
-      type: 'union',
-      ...unionBase,
-      members,
-    })
+    const unionNode = createNode(ctx, { type: 'union', ...unionExtras, members })
 
     if (!sharedPropertiesNode) {
       return unionNode
     }
 
-    return ast.factory.createSchema({
-      type: 'intersection',
-      ...buildSchemaNode(schema, name, nullable, defaultValue),
-      members: [unionNode, sharedPropertiesNode],
-    })
+    return createNode(ctx, { type: 'intersection', members: [unionNode, sharedPropertiesNode] })
   }
 
-  const unionNode = ast.factory.createSchema({
+  const unionNode = createNode(ctx, {
     type: 'union',
-    ...unionBase,
+    ...unionExtras,
     members: unionMembers.map((s) => parse({ schema: s as SchemaObject, name }, rawOptions)),
   })
 
@@ -415,12 +430,14 @@ function convertConst({ schema, name, nullable, defaultValue }: ConvertContext):
   }
 
   const constPrimitive = getPrimitiveType(typeof constValue === 'number' ? 'number' : typeof constValue === 'boolean' ? 'boolean' : 'string')
-  return ast.factory.createSchema({
-    type: 'enum',
-    primitive: constPrimitive,
-    enumValues: [constValue as string | number | boolean],
-    ...buildSchemaNode(schema, name, nullable, defaultValue),
-  })
+  return createNode(
+    { schema, name, nullable, defaultValue },
+    {
+      type: 'enum',
+      primitive: constPrimitive,
+      enumValues: [constValue as string | number | boolean],
+    },
+  )
 }
 
 /**
@@ -428,13 +445,12 @@ function convertConst({ schema, name, nullable, defaultValue }: ConvertContext):
  * Returns `null` when the format should fall through to string handling (`dateType: false`).
  */
 function convertFormat({ schema, name, nullable, defaultValue, options }: ConvertContext): ast.SchemaNode | null {
-  const base = buildSchemaNode(schema, name, nullable, defaultValue)
+  const ctx = { schema, name, nullable, defaultValue }
 
   if (schema.format === 'int64') {
-    return ast.factory.createSchema({
+    return createNode(ctx, {
       type: options.integerType === 'bigint' ? 'bigint' : 'integer',
       primitive: 'integer',
-      ...base,
       min: schema.minimum,
       max: schema.maximum,
       exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
@@ -447,16 +463,14 @@ function convertFormat({ schema, name, nullable, defaultValue, options }: Conver
     if (!dateType) return null
 
     if (dateType.type === 'datetime') {
-      return ast.factory.createSchema({
-        ...base,
+      return createNode(ctx, {
         primitive: 'string' as const,
         type: 'datetime',
         offset: dateType.offset,
         local: dateType.local,
       })
     }
-    return ast.factory.createSchema({
-      ...base,
+    return createNode(ctx, {
       primitive: 'string' as const,
       type: dateType.type,
       representation: dateType.representation,
@@ -469,8 +483,7 @@ function convertFormat({ schema, name, nullable, defaultValue, options }: Conver
   const specialPrimitive: ast.PrimitiveSchemaType = specialType === 'number' || specialType === 'integer' || specialType === 'bigint' ? specialType : 'string'
   const hasLength = specialType === 'url' || specialType === 'uuid' || specialType === 'email'
 
-  return ast.factory.createSchema({
-    ...base,
+  return createNode(ctx, {
     primitive: specialPrimitive,
     type: specialType as ast.ScalarSchemaType,
     ...(hasLength ? { min: schema.minLength, max: schema.maxLength } : {}),
@@ -499,10 +512,10 @@ function convertEnum({ schema, name, nullable, type, rawOptions, parse }: Conver
   const enumDefault = schema.default === null && enumNullable ? undefined : schema.default
   const enumPrimitive = getPrimitiveType(type)
 
-  const enumBase = {
+  const ctx = { schema, name, nullable: enumNullable as true | undefined, defaultValue: enumDefault }
+  const enumExtras = {
     type: 'enum' as const,
     primitive: enumPrimitive,
-    ...buildSchemaNode(schema, name, enumNullable as true | undefined, enumDefault),
   }
 
   const extensionKey = enumExtensionKeys.find((key) => key in schema)
@@ -517,8 +530,8 @@ function convertEnum({ schema, name, nullable, type, rawOptions, parse }: Conver
     const uniqueValues = [...new Set(filteredValues)]
     const seenNames = new Set<string>()
 
-    return ast.factory.createSchema({
-      ...enumBase,
+    return createNode(ctx, {
+      ...enumExtras,
       primitive: enumPrimitiveType,
       namedEnumValues: uniqueValues
         .map((value, index) => ({
@@ -535,8 +548,8 @@ function convertEnum({ schema, name, nullable, type, rawOptions, parse }: Conver
     })
   }
 
-  return ast.factory.createSchema({
-    ...enumBase,
+  return createNode(ctx, {
+    ...enumExtras,
     enumValues: [...new Set(filteredValues)],
   })
 }
@@ -592,16 +605,18 @@ function convertObject({ schema, name, nullable, defaultValue, rawOptions, optio
       )
     : undefined
 
-  const objectNode: ast.SchemaNode = ast.factory.createSchema({
-    type: 'object',
-    primitive: 'object',
-    properties,
-    additionalProperties: additionalPropertiesNode,
-    patternProperties,
-    minProperties: schema.minProperties,
-    maxProperties: schema.maxProperties,
-    ...buildSchemaNode(schema, name, nullable, defaultValue),
-  })
+  const objectNode: ast.SchemaNode = createNode(
+    { schema, name, nullable, defaultValue },
+    {
+      type: 'object',
+      primitive: 'object',
+      properties,
+      additionalProperties: additionalPropertiesNode,
+      patternProperties,
+      minProperties: schema.minProperties,
+      maxProperties: schema.maxProperties,
+    },
+  )
 
   if (isDiscriminator(schema) && schema.discriminator.mapping) {
     const discPropName = schema.discriminator.propertyName
@@ -626,15 +641,17 @@ function convertTuple({ schema, name, nullable, defaultValue, rawOptions, parse 
         ? ast.factory.createSchema({ type: 'any' })
         : parse({ schema: schema.items as SchemaObject }, rawOptions)
 
-  return ast.factory.createSchema({
-    type: 'tuple',
-    primitive: 'array',
-    items: tupleItems,
-    rest,
-    min: schema.minItems,
-    max: schema.maxItems,
-    ...buildSchemaNode(schema, name, nullable, defaultValue),
-  })
+  return createNode(
+    { schema, name, nullable, defaultValue },
+    {
+      type: 'tuple',
+      primitive: 'array',
+      items: tupleItems,
+      rest,
+      min: schema.minItems,
+      max: schema.maxItems,
+    },
+  )
 }
 
 /**
@@ -645,56 +662,58 @@ function convertArray({ schema, name, nullable, defaultValue, rawOptions, option
   const itemName = rawItems?.enum?.length && name ? enumPropName(null, name, options.enumSuffix) : name
   const items = rawItems ? [parse({ schema: rawItems, name: itemName }, rawOptions)] : []
 
-  return ast.factory.createSchema({
-    type: 'array',
-    primitive: 'array',
-    items,
-    min: schema.minItems,
-    max: schema.maxItems,
-    unique: schema.uniqueItems ?? undefined,
-    ...buildSchemaNode(schema, name, nullable, defaultValue),
-  })
+  return createNode(
+    { schema, name, nullable, defaultValue },
+    {
+      type: 'array',
+      primitive: 'array',
+      items,
+      min: schema.minItems,
+      max: schema.maxItems,
+      unique: schema.uniqueItems ?? undefined,
+    },
+  )
 }
 
 /**
  * Converts a `type: 'string'` schema into a `StringSchemaNode`.
  */
 function convertString({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
-  return ast.factory.createSchema({
-    type: 'string',
-    primitive: 'string',
-    min: schema.minLength,
-    max: schema.maxLength,
-    pattern: schema.pattern,
-    ...buildSchemaNode(schema, name, nullable, defaultValue),
-  })
+  return createNode(
+    { schema, name, nullable, defaultValue },
+    {
+      type: 'string',
+      primitive: 'string',
+      min: schema.minLength,
+      max: schema.maxLength,
+      pattern: schema.pattern,
+    },
+  )
 }
 
 /**
  * Converts a `type: 'number'` or `type: 'integer'` schema.
  */
 function convertNumeric({ schema, name, nullable, defaultValue }: ConvertContext, type: 'number' | 'integer'): ast.SchemaNode {
-  return ast.factory.createSchema({
-    type,
-    primitive: type,
-    min: schema.minimum,
-    max: schema.maximum,
-    exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
-    exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
-    multipleOf: schema.multipleOf,
-    ...buildSchemaNode(schema, name, nullable, defaultValue),
-  })
+  return createNode(
+    { schema, name, nullable, defaultValue },
+    {
+      type,
+      primitive: type,
+      min: schema.minimum,
+      max: schema.maximum,
+      exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
+      exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
+      multipleOf: schema.multipleOf,
+    },
+  )
 }
 
 /**
  * Converts a `type: 'boolean'` schema.
  */
 function convertBoolean({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
-  return ast.factory.createSchema({
-    type: 'boolean',
-    primitive: 'boolean',
-    ...buildSchemaNode(schema, name, nullable, defaultValue),
-  })
+  return createNode({ schema, name, nullable, defaultValue }, { type: 'boolean', primitive: 'boolean' })
 }
 
 /**
@@ -702,11 +721,7 @@ function convertBoolean({ schema, name, nullable, defaultValue }: ConvertContext
  * into a `blob` node.
  */
 function convertBinary({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
-  return ast.factory.createSchema({
-    type: 'blob',
-    primitive: 'string',
-    ...buildSchemaNode(schema, name, nullable, defaultValue),
-  })
+  return createNode({ schema, name, nullable, defaultValue }, { type: 'blob', primitive: 'string' })
 }
 
 /**
@@ -721,15 +736,17 @@ function convertMultiType({ schema, name, nullable, defaultValue, rawOptions, pa
   if (nonNullTypes.length <= 1) return null
 
   const arrayNullable = types.includes('null') || nullable || undefined
-  return ast.factory.createSchema({
-    type: 'union',
-    members: nonNullTypes.map((t) => {
-      const raw = { ...schema, type: t }
-      const memberSchema = raw as SchemaObject
-      return parse({ schema: memberSchema, name }, rawOptions)
-    }),
-    ...buildSchemaNode(schema, name, arrayNullable, defaultValue),
-  })
+  return createNode(
+    { schema, name, nullable: arrayNullable, defaultValue },
+    {
+      type: 'union',
+      members: nonNullTypes.map((t) => {
+        const raw = { ...schema, type: t }
+        const memberSchema = raw as SchemaObject
+        return parse({ schema: memberSchema, name }, rawOptions)
+      }),
+    },
+  )
 }
 
 /**
