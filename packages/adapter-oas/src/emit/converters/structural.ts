@@ -6,6 +6,22 @@ import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 
 /**
+ * Resolves a `true` or empty-object map schema (`additionalProperties`/`patternProperties`) to
+ * `options.unknownType`, otherwise parses it as a regular schema.
+ */
+function resolveMapSchema(
+  mapSchema: unknown,
+  options: ConvertContext['options'],
+  parse: ConvertContext['parse'],
+  rawOptions: ConvertContext['rawOptions'],
+): ast.SchemaNode {
+  if (mapSchema === true || (typeof mapSchema === 'object' && Object.keys(mapSchema as object).length === 0)) {
+    return ast.factory.createSchema({ type: options.unknownType })
+  }
+  return parse({ schema: mapSchema as SchemaObject }, rawOptions)
+}
+
+/**
  * Names the inline enums on a property's schema, and on each item when the property is a tuple, from
  * the parent and property name. Wraps `macroEnumName` at the property construction site.
  */
@@ -48,28 +64,16 @@ export function convertObject({ schema, name, nullable, defaultValue, rawOptions
     : []
 
   const additionalProperties = schema.additionalProperties
-  const additionalPropertiesNode: ast.SchemaNode | boolean | undefined = (() => {
-    if (additionalProperties === true) return true
-    if (additionalProperties === false) return false
-    if (additionalProperties && Object.keys(additionalProperties).length > 0) {
-      return parse({ schema: additionalProperties as SchemaObject }, rawOptions)
-    }
-    if (additionalProperties) return ast.factory.createSchema({ type: options.unknownType })
-    return undefined
-  })()
+  let additionalPropertiesNode: ast.SchemaNode | boolean | undefined
+  if (additionalProperties === true) additionalPropertiesNode = true
+  else if (additionalProperties) additionalPropertiesNode = resolveMapSchema(additionalProperties, options, parse, rawOptions)
+  else additionalPropertiesNode = additionalProperties
 
   const rawPatternProperties = 'patternProperties' in schema ? schema.patternProperties : undefined
 
   const patternProperties = rawPatternProperties
     ? Object.fromEntries(
-        Object.entries(rawPatternProperties).map(([pattern, patternSchema]) => [
-          pattern,
-          patternSchema === true || (typeof patternSchema === 'object' && Object.keys(patternSchema).length === 0)
-            ? ast.factory.createSchema({
-                type: options.unknownType,
-              })
-            : parse({ schema: patternSchema as SchemaObject }, rawOptions),
-        ]),
+        Object.entries(rawPatternProperties).map(([pattern, patternSchema]) => [pattern, resolveMapSchema(patternSchema, options, parse, rawOptions)]),
       )
     : undefined
 

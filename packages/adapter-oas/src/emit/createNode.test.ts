@@ -1,7 +1,7 @@
-import { describe, expect, expectTypeOf, it } from 'vitest'
-import { buildSchemaNode } from './createNode.ts'
+import { describe, expect, it } from 'vitest'
+import { createNode } from './createNode.ts'
 
-describe('buildSchemaNode', () => {
+describe('createNode', () => {
   it('builds a node with all metadata fields', () => {
     const schema = {
       title: 'My Schema',
@@ -12,7 +12,7 @@ describe('buildSchemaNode', () => {
       examples: [42],
       format: 'email',
     }
-    const node = buildSchemaNode(schema, 'myName', true, 'defaultVal')
+    const node = createNode({ schema, name: 'myName', nullable: true, defaultValue: 'defaultVal' }, { type: 'string', primitive: 'string' })
 
     expect(node).toMatchObject({
       default: 'defaultVal',
@@ -29,19 +29,12 @@ describe('buildSchemaNode', () => {
   })
 
   it('passes through undefined fields as undefined', () => {
-    const node = buildSchemaNode({}, undefined, undefined, undefined)
+    const node = createNode({ schema: {}, name: undefined, nullable: undefined, defaultValue: undefined }, { type: 'string', primitive: 'string' })
 
     expect(node.name).toBeUndefined()
     expect(node.nullable).toBeUndefined()
     expect(node.title).toBeUndefined()
     expect(node.default).toBeUndefined()
     expect(node.format).toBeUndefined()
-  })
-
-  it('return type has name and nullable fields', () => {
-    const node = buildSchemaNode({}, 'x', undefined, null)
-
-    expectTypeOf(node.name).toEqualTypeOf<string | null | undefined>()
-    expectTypeOf(node.nullable).toEqualTypeOf<true | undefined>()
   })
 })

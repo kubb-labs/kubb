@@ -207,16 +207,7 @@ export function getSchemas(document: Document, { contentType }: ContentTypeOptio
 
   for (const [, items] of normalizedNames) {
     const isSingle = items.length === 1
-    let hasMultipleSources = false
-    if (!isSingle) {
-      const firstSource = items[0]!.source
-      for (const item of items) {
-        if (item.source !== firstSource) {
-          hasMultipleSources = true
-          break
-        }
-      }
-    }
+    const hasMultipleSources = !isSingle && new Set(items.map((item) => item.source)).size > 1
 
     items.forEach((item, index) => {
       const suffix = collisionSuffix({ isSingle, hasMultipleSources, source: item.source, index })

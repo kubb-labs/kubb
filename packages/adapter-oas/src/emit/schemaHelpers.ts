@@ -100,10 +100,7 @@ export function extractExamples(schema: SchemaObject): Array<unknown> | undefine
  * A fragment with a structural keyword can't be safely merged into a parent schema.
  */
 function hasStructuralKeywords(fragment: SchemaObject): boolean {
-  for (const key in fragment) {
-    if (structuralKeys.has(key as 'properties')) return true
-  }
-  return false
+  return Object.keys(fragment).some((key) => structuralKeys.has(key as 'properties'))
 }
 
 /**

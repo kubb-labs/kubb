@@ -1,7 +1,6 @@
 import { ast } from '@kubb/ast'
 import { extractExamples } from './schemaHelpers.ts'
 import type { SchemaContext } from './parseSchema.ts'
-import type { SchemaObject } from '../types.ts'
 
 /**
  * The `schema`/`name`/`nullable`/`defaultValue` slice of a context, the only part
@@ -16,10 +15,12 @@ type NodeBaseContext = Pick<SchemaContext, 'schema' | 'name' | 'nullable' | 'def
 type CreateSchemaProps = Parameters<typeof ast.factory.createSchema>[0]
 
 /**
- * Collects the shared metadata fields passed to every `createSchema` call.
+ * Builds a schema node from a converter's base context plus its type-specific fields. Every
+ * converter needs the same metadata fields (`title`, `description`, `examples`, ...) alongside
+ * whatever makes its node distinct; this folds both into one call.
  */
-export function buildSchemaNode(schema: SchemaObject, name: string | null | undefined, nullable: true | undefined, defaultValue: unknown) {
-  return {
+export function createNode({ schema, name, nullable, defaultValue }: NodeBaseContext, extras: CreateSchemaProps): ast.SchemaNode {
+  return ast.factory.createSchema({
     name,
     nullable,
     title: schema.title,
@@ -30,17 +31,6 @@ export function buildSchemaNode(schema: SchemaObject, name: string | null | unde
     default: defaultValue,
     examples: extractExamples(schema),
     format: schema.format,
-  } as const
-}
-
-/**
- * Builds a schema node from a converter's base context plus its type-specific fields. Every
- * converter ends with the same `...buildSchemaNode(schema, name, nullable, defaultValue)` spread;
- * this folds that into one call so converters only supply what makes their node distinct.
- */
-export function createNode({ schema, name, nullable, defaultValue }: NodeBaseContext, extras: CreateSchemaProps): ast.SchemaNode {
-  return ast.factory.createSchema({
-    ...buildSchemaNode(schema, name, nullable, defaultValue),
     ...extras,
   })
 }
