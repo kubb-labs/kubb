@@ -210,6 +210,8 @@
     "null-undefined-standardization",
     "objectkey-singlequote-blanklines",
     "optional-cli-validate-adapter-peer",
+    "output-mode-default-file-barrel",
+    "output-mode-default-file",
     "output-mode-explicit",
     "output-post-generate",
     "parameter-style-explode",
