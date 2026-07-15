@@ -11,9 +11,9 @@ export type BarrelType = 'all' | 'named'
  *
  * @example
  * ```ts
- * barrel: { type: 'named' }  // default
+ * barrel: { type: 'named' }
  * barrel: { type: 'all' }
- * barrel: false  // disable barrel generation
+ * barrel: false  // no barrel generated (default)
  * ```
  */
 export type BarrelConfig = {
@@ -34,7 +34,7 @@ export type BarrelConfig = {
  * barrel: { type: 'named' }  // single barrel with named exports
  * barrel: { type: 'all', nested: true }  // hierarchical barrels with wildcard exports
  * barrel: { type: 'named', nested: true }  // hierarchical barrels with named exports
- * barrel: false  // disable barrel generation
+ * barrel: false  // no barrel generated (default)
  * ```
  */
 export type PluginBarrelConfig = {

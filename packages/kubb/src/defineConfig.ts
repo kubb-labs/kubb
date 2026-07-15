@@ -23,7 +23,7 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
  * - `parsers` defaults to `[parserTs(), parserTsx(), parserMd()]`
  * - `reporters` defaults to `[cliReporter, jsonReporter, fileReporter]`
  * - `plugins` gets `pluginBarrel()` appended when none is already present
- * - `output.barrel` defaults to `{ type: 'named' }` when not set (`pluginBarrel` is always present after the step above)
+ * - `output.barrel` defaults to `false` when not set (`pluginBarrel` is always present after the step above, but generates nothing until configured)
  * - `output.format` defaults to `false`
  * - `output.lint` defaults to `false`
  */
@@ -32,7 +32,7 @@ function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
     defaultAdapter: adapterOas(),
     barrelPlugin: pluginBarrel(),
     barrelPluginName: pluginBarrelName,
-    defaultOutput: { barrel: { type: 'named' }, format: false, lint: false },
+    defaultOutput: { barrel: false, format: false, lint: false },
   })
 
   return {
@@ -62,7 +62,7 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  * - `parsers` → `[parserTs(), parserTsx(), parserMd()]`.
  * - `reporters` → `[cliReporter, jsonReporter, fileReporter]`.
  * - `plugins` → `pluginBarrel()` is appended when not already present.
- * - `output.barrel` → `{ type: 'named' }` when not set.
+ * - `output.barrel` → `false` when not set.
  * - `output.format` and `output.lint` → `false`.
  *
  * Accepts a config object, an array of configs, a Promise resolving to one,
