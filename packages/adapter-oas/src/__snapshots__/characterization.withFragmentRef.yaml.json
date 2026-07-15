@@ -1,0 +1,72 @@
+{
+  "kind": "Input",
+  "schemas": [
+    {
+      "kind": "Schema",
+      "properties": [
+        {
+          "kind": "Property",
+          "name": "name",
+          "schema": {
+            "kind": "Schema",
+            "primitive": "string",
+            "type": "string",
+            "name": "CatName",
+            "optional": true
+          },
+          "required": false
+        }
+      ],
+      "primitive": "object",
+      "type": "object",
+      "name": "Cat"
+    },
+    {
+      "kind": "Schema",
+      "properties": [
+        {
+          "kind": "Property",
+          "name": "cat",
+          "schema": {
+            "kind": "Schema",
+            "name": "Cat",
+            "type": "ref",
+            "ref": "#/components/schemas/Cat",
+            "schema": {
+              "kind": "Schema",
+              "properties": [
+                {
+                  "kind": "Property",
+                  "name": "name",
+                  "schema": {
+                    "kind": "Schema",
+                    "primitive": "string",
+                    "type": "string",
+                    "name": null,
+                    "optional": true
+                  },
+                  "required": false
+                }
+              ],
+              "primitive": "object",
+              "type": "object"
+            },
+            "optional": true
+          },
+          "required": false
+        }
+      ],
+      "primitive": "object",
+      "type": "object",
+      "name": "Household"
+    }
+  ],
+  "operations": [],
+  "meta": {
+    "title": "Fragment Ref API",
+    "version": "1.0.0",
+    "baseURL": null,
+    "circularNames": [],
+    "enumNames": []
+  }
+}
