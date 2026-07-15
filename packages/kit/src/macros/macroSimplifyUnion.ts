@@ -1,6 +1,5 @@
-import { defineMacro } from '../defineMacro.ts'
-import { narrowSchema } from '../guards.ts'
-import type { SchemaNode } from '../nodes/schema.ts'
+import { ast } from '@kubb/ast'
+import type { SchemaNode } from '@kubb/ast'
 
 type ScalarPrimitive = 'string' | 'number' | 'integer' | 'bigint' | 'boolean'
 
@@ -21,7 +20,7 @@ function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNode> {
   if (!scalarPrimitives.size) return members
 
   return members.filter((member) => {
-    const enumNode = narrowSchema(member, 'enum')
+    const enumNode = ast.narrowSchema(member, 'enum')
     if (!enumNode) return true
 
     const primitive = enumNode.primitive
@@ -46,10 +45,10 @@ function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNode> {
  * const next = applyMacros(unionSchema, [macroSimplifyUnion], { depth: 'shallow' })
  * ```
  */
-export const macroSimplifyUnion = defineMacro({
+export const macroSimplifyUnion = ast.defineMacro({
   name: 'simplify-union',
   schema(node) {
-    const unionNode = narrowSchema(node, 'union')
+    const unionNode = ast.narrowSchema(node, 'union')
     if (!unionNode?.members?.length) return undefined
 
     const simplified = simplifyUnionMembers(unionNode.members)

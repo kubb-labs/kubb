@@ -1,6 +1,4 @@
-import { defineMacro } from '../defineMacro.ts'
-import { narrowSchema } from '../guards.ts'
-import { resolveRefName } from '../utils/refs.ts'
+import { ast } from '@kubb/ast'
 
 type Props = {
   from: string
@@ -16,17 +14,17 @@ type Props = {
  * `const macro = macroRenameSchema({ from: 'Order', to: 'StoreOrder' })`
  */
 export function macroRenameSchema({ from, to }: Props) {
-  return defineMacro({
+  return ast.defineMacro({
     name: 'rename-schema',
     schema(node) {
-      const refNode = narrowSchema(node, 'ref')
+      const refNode = ast.narrowSchema(node, 'ref')
 
       if (!refNode) {
         return node.name === from ? { ...node, name: to } : undefined
       }
 
       const renamesDeclaration = refNode.name === from
-      const renamesTarget = resolveRefName(refNode) === from
+      const renamesTarget = ast.resolveRefName(refNode) === from
       if (!renamesDeclaration && !renamesTarget) return undefined
 
       return {

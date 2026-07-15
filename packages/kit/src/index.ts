@@ -1,5 +1,6 @@
 export { ast } from '@kubb/ast'
 export { Url } from '@internals/utils'
+export { macroDiscriminatorEnum, macroEnumName, macroRenameSchema, macroSimplifyUnion } from './macros/index.ts'
 export { createAdapter } from '@kubb/core'
 export { createRenderer } from '@kubb/core'
 export { createStorage } from '@kubb/core'

@@ -104,6 +104,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/kit':
+        specifier: workspace:*
+        version: link:../kit
       '@readme/openapi-parser':
         specifier: ^6.2.1
         version: 6.2.1(openapi-types@12.1.3)

@@ -1,6 +1,4 @@
-import { defineMacro } from '../defineMacro.ts'
-import { narrowSchema } from '../guards.ts'
-import { enumPropName } from '../utils/refs.ts'
+import { ast } from '@kubb/ast'
 
 type Props = {
   parentName: string | null | undefined
@@ -19,13 +17,13 @@ type Props = {
  * ```
  */
 export function macroEnumName({ parentName, propName, enumSuffix }: Props) {
-  return defineMacro({
+  return ast.defineMacro({
     name: 'enum-name',
     schema(node) {
-      const enumNode = narrowSchema(node, 'enum')
+      const enumNode = ast.narrowSchema(node, 'enum')
 
       if (enumNode?.primitive === 'boolean') return { ...node, name: null }
-      if (enumNode) return { ...node, name: enumPropName(parentName, propName, enumSuffix) }
+      if (enumNode) return { ...node, name: ast.enumPropName(parentName, propName, enumSuffix) }
 
       return undefined
     },
