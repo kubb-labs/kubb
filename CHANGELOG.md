@@ -1,5 +1,33 @@
 # Changelog
 
+## v5.0.0-beta.99 — Jul 15, 2026
+
+### @kubb/core
+
+#### Breaking Changes
+
+- Flip the default `output.mode` from `'directory'` to `'file'`. A plugin that omits `output.mode` now writes a single file instead of one file per operation or schema, cutting generated file count and output size.
+  
+  `output.mode: 'directory'` is unchanged and still writes one file per operation or schema. Set it explicitly to keep today's output shape, and pair it with `group` to organize files into per-tag or per-path subdirectories, since `group` now requires `mode: 'directory'` at the type level.
+  
+  **Breaking change:** any plugin relying on the implicit `'directory'` default now needs `output.mode: 'directory'` set explicitly to avoid consolidating into a single file. A plugin combining an implicit `output.mode` with a `group` option must also add `mode: 'directory'`, since `mode: 'file'` and `group` remain mutually exclusive and fail the build with `KUBB_INVALID_PLUGIN_OPTIONS`. ([#3791](https://github.com/kubb-labs/kubb/pull/3791), [`be82ee4`](https://github.com/kubb-labs/kubb/commit/be82ee4295b2ccdebdd195bba6465c47c765c258))
+
+### @kubb/plugin-barrel
+
+#### Breaking Changes
+
+- Adjust for `@kubb/core`'s `output.mode` default flipping from `'directory'` to `'file'`.
+  
+  A plugin that omits `output.mode` now writes a single file, so `plugin-barrel` skips the per-plugin nested barrel for it (there is no directory to barrel) and re-exports that file straight from the root barrel instead. Plugins that set `output.mode: 'directory'` explicitly keep getting a nested barrel as before.
+  
+  **Breaking change:** projects that relied on the implicit `'directory'` default to get per-plugin barrel files now need `output.mode: 'directory'` set on that plugin to keep them. ([#3791](https://github.com/kubb-labs/kubb/pull/3791), [`be82ee4`](https://github.com/kubb-labs/kubb/commit/be82ee4295b2ccdebdd195bba6465c47c765c258))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.98 — Jul 14, 2026
 
 ### @kubb/kit
