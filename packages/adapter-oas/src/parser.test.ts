@@ -4553,4 +4553,45 @@ describe('$ref path-item and requestBody resolution', () => {
     expect(op!.requestBody?.required).toBe(true)
     expect(op!.requestBody?.content?.some((c) => c.contentType === 'application/json')).toBe(true)
   })
+
+  it('resolves a $ref requestBody description and required even with a global contentType option', () => {
+    // Regression test: getRequestBodyMeta used to read operation.schema.requestBody directly,
+    // relying on getRequestBodyContentTypes having mutated it first. That mutation was skipped
+    // whenever a global `contentType` option was set (`ctx.contentType ? [ctx.contentType] :
+    // getRequestBodyContentTypes(...)`), so a $ref'd requestBody's description/required were
+    // silently dropped in that combination. refs.deref() resolves independently of that skip.
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/things': {
+          post: {
+            operationId: 'createThingWithContentType',
+            requestBody: { $ref: '#/components/requestBodies/CreateThingBody' },
+            responses: { '200': { description: 'ok' } },
+          },
+        },
+      },
+      components: {
+        requestBodies: {
+          CreateThingBody: {
+            description: 'Create a thing',
+            required: true,
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { name: { type: 'string' } } },
+              },
+            },
+          },
+        },
+      },
+    } as unknown as Document
+
+    const root = parseOas(document, { contentType: 'application/json' })
+    const op = root.operations.find((o) => o.operationId === 'createThingWithContentType')
+
+    expect(op).toBeDefined()
+    expect(op!.requestBody?.description).toBe('Create a thing')
+    expect(op!.requestBody?.required).toBe(true)
+  })
 })
