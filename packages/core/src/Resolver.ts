@@ -545,12 +545,12 @@ export class Resolver {
   }
 
   /**
-   * `mode: 'file'` resolves directly to `output.path`. `mode: 'directory'` (default) resolves
+   * `mode: 'file'` (default) resolves directly to `output.path`. `mode: 'directory'` resolves
    * to `output.path/{baseName}`, or into a subdirectory when `group` and a `tag`/`path` value
    * are provided.
    */
   #resolvePath({ baseName, tag, path: groupPath, root, output, group }: ResolvePathOptions): string {
-    if (output.mode === 'file') {
+    if (output.mode !== 'directory') {
       return path.resolve(root, output.path)
     }
 
