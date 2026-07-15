@@ -1,104 +1,104 @@
 {
   "kind": "Input",
-  "schemas": [
-    {
-      "kind": "Schema",
-      "properties": [
-        {
-          "kind": "Property",
-          "name": "name",
-          "schema": {
-            "kind": "Schema",
-            "primitive": "string",
-            "type": "string",
-            "name": "PetName"
-          },
-          "required": true
-        },
-        {
-          "kind": "Property",
-          "name": "tag",
-          "schema": {
-            "kind": "Schema",
-            "primitive": "string",
-            "type": "string",
-            "name": "PetTag",
-            "optional": true
-          },
-          "required": false
-        }
-      ],
-      "primitive": "object",
-      "type": "object",
-      "name": "Pet"
-    }
-  ],
+  "meta": {
+    "baseURL": null,
+    "circularNames": [],
+    "enumNames": [],
+    "title": "External Ref API",
+    "version": "1.0.0"
+  },
   "operations": [
     {
       "kind": "Operation",
-      "tags": [],
+      "method": "GET",
+      "operationId": "listPets",
       "parameters": [],
+      "path": "/pets",
+      "protocol": "http",
       "responses": [
         {
-          "kind": "Response",
-          "statusCode": "200",
-          "description": "A list of pets",
           "content": [
             {
-              "kind": "Content",
               "contentType": "application/json",
+              "keysToOmit": null,
+              "kind": "Content",
               "schema": {
                 "kind": "Schema",
                 "name": "Pet",
-                "type": "ref",
                 "ref": "#/components/schemas/Pet",
                 "schema": {
                   "kind": "Schema",
+                  "primitive": "object",
                   "properties": [
                     {
                       "kind": "Property",
                       "name": "name",
+                      "required": true,
                       "schema": {
                         "kind": "Schema",
+                        "name": null,
                         "primitive": "string",
-                        "type": "string",
-                        "name": null
-                      },
-                      "required": true
+                        "type": "string"
+                      }
                     },
                     {
                       "kind": "Property",
                       "name": "tag",
+                      "required": false,
                       "schema": {
                         "kind": "Schema",
-                        "primitive": "string",
-                        "type": "string",
                         "name": null,
-                        "optional": true
-                      },
-                      "required": false
+                        "optional": true,
+                        "primitive": "string",
+                        "type": "string"
+                      }
                     }
                   ],
-                  "primitive": "object",
                   "type": "object"
-                }
-              },
-              "keysToOmit": null
+                },
+                "type": "ref"
+              }
             }
-          ]
+          ],
+          "description": "A list of pets",
+          "kind": "Response",
+          "statusCode": "200"
         }
       ],
-      "operationId": "listPets",
-      "protocol": "http",
-      "method": "GET",
-      "path": "/pets"
+      "tags": []
     }
   ],
-  "meta": {
-    "title": "External Ref API",
-    "version": "1.0.0",
-    "baseURL": null,
-    "circularNames": [],
-    "enumNames": []
-  }
+  "schemas": [
+    {
+      "kind": "Schema",
+      "name": "Pet",
+      "primitive": "object",
+      "properties": [
+        {
+          "kind": "Property",
+          "name": "name",
+          "required": true,
+          "schema": {
+            "kind": "Schema",
+            "name": "PetName",
+            "primitive": "string",
+            "type": "string"
+          }
+        },
+        {
+          "kind": "Property",
+          "name": "tag",
+          "required": false,
+          "schema": {
+            "kind": "Schema",
+            "name": "PetTag",
+            "optional": true,
+            "primitive": "string",
+            "type": "string"
+          }
+        }
+      ],
+      "type": "object"
+    }
+  ]
 }
