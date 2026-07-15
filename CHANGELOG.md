@@ -1,5 +1,31 @@
 # Changelog
 
+## v5.0.0-beta.101 — Jul 15, 2026
+
+### @kubb/plugin-barrel
+
+#### Breaking Changes
+
+- Adjust for `output.barrel` defaulting to `false` instead of `{ type: 'named' }`. `pluginBarrel` still ships with `kubb` and `unplugin-kubb` by default, but now generates nothing until a barrel is configured on the root config, a plugin, or both.
+  
+  **Breaking change:** a config that never set `output.barrel` and relied on the implicit `{ type: 'named' }` default now needs it set explicitly to keep generating barrel files. ([#3797](https://github.com/kubb-labs/kubb/pull/3797), [`81bf741`](https://github.com/kubb-labs/kubb/commit/81bf741109256d1c002d24238397d461e0d36ebf))
+
+### kubb
+
+#### Breaking Changes
+
+- Flip the default `output.barrel` from `{ type: 'named' }` to `false`. A config that omits `output.barrel` (root or per-plugin) no longer generates a barrel `index.ts` file.
+  
+  Set `output.barrel: { type: 'named' | 'all' }` explicitly to keep generating a barrel.
+  
+  **Breaking change:** any project relying on the implicit `{ type: 'named' }` default to get a barrel now needs `output.barrel` set explicitly, or imports that go through the barrel (`import { Pet } from './gen'`) stop resolving. ([#3797](https://github.com/kubb-labs/kubb/pull/3797), [`81bf741`](https://github.com/kubb-labs/kubb/commit/81bf741109256d1c002d24238397d461e0d36ebf))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.100 — Jul 15, 2026
 
 ### @kubb/ast
