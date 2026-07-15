@@ -53,7 +53,6 @@ kubb/
 │   └── kubb/                # Main package, re-exports the public APIs
 ├── internals/               # Non-published helpers (changelog, shared logic, utils)
 ├── configs/                 # Shared build and test configuration
-├── scripts/                 # Release and maintenance scripts
 └── .agents/skills/          # Cross-provider agent skills
 ```
 
@@ -137,7 +136,7 @@ To approve a release:
 
 To reject a bad version instead, run `npm stage reject`. Nothing downstream fires.
 
-Every package here shares one version (the `fixed` group in `.changeset/config.json`), so a release is one combined GitHub Release tagged with `kubb`'s own tag. [kubb-labs/plugins](https://github.com/kubb-labs/plugins) versions independently and releases per package instead, using the same `scripts/createReleases.mjs`, switched by the `RELEASE_MODE` env var.
+Every package here shares one version (the `fixed` group in `.changeset/config.json`), so a release is one combined GitHub Release tagged with `kubb`'s own tag. The `release` and `promote` steps come from the shared [kubb-labs/config](https://github.com/kubb-labs/config) actions (`.github/actions/release` and `.github/actions/promote`). [kubb-labs/plugins](https://github.com/kubb-labs/plugins) uses the same `promote` action but versions independently and releases per package instead, switched by the `release-mode` input.
 
 Manage `promote`'s environment reviewers under the repo's Settings > Environments > `npm-release-approval` on GitHub, separate from npm's own settings.
 
