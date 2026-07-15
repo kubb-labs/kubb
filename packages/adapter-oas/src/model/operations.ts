@@ -4,8 +4,6 @@ import { dereferenceWithRef } from '../refs.ts'
 import type { Refs } from '../refs.ts'
 import type { ContentTypeOptions, Document, MediaTypeObject, Operation, ParameterObject, ResponseObject, SchemaObject } from '../types.ts'
 
-export type OperationsOptions = ContentTypeOptions
-
 /**
  * Returns all parameters for an operation, merging path-level and operation-level entries.
  * Operation-level parameters override path-level ones with the same `in:name` key.
@@ -76,7 +74,7 @@ export function getResponseSchema({
   operation: Operation
   refs: Refs
   statusCode: string | number
-  options?: OperationsOptions
+  options?: ContentTypeOptions
 }): SchemaObject {
   const responseBody = getResponseBody(getResponseByStatusCode({ operation, refs, statusCode }), options.contentType)
 
@@ -110,7 +108,7 @@ export function getRequestSchema({
   document: Document
   operation: Operation
   refs: Refs
-  options?: OperationsOptions
+  options?: ContentTypeOptions
 }): SchemaObject | null {
   const requestBody = getRequestContent({ operation, refs, mediaType: options.contentType })
 

@@ -19,8 +19,6 @@ type SchemaWithMetadata = {
   originalName: string
 }
 
-export type GetSchemasOptions = ContentTypeOptions
-
 export type GetSchemasResult = {
   schemas: Record<string, SchemaObject>
   /**
@@ -165,7 +163,7 @@ function collisionSuffix({
  * const { schemas, renames } = getSchemas(document, { contentType: 'application/json' }, refs)
  * ```
  */
-export function getSchemas(document: Document, { contentType }: GetSchemasOptions, refs: Refs): GetSchemasResult {
+export function getSchemas(document: Document, { contentType }: ContentTypeOptions, refs: Refs): GetSchemasResult {
   const components = document.components
 
   function resolveSchemaRef(schema: SchemaObject): SchemaObject {
