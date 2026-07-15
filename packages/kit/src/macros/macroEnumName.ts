@@ -1,4 +1,5 @@
 import { ast } from '@kubb/ast'
+import { enumPropName } from '../utils/refs.ts'
 
 type Props = {
   parentName: string | null | undefined
@@ -23,7 +24,7 @@ export function macroEnumName({ parentName, propName, enumSuffix }: Props) {
       const enumNode = ast.narrowSchema(node, 'enum')
 
       if (enumNode?.primitive === 'boolean') return { ...node, name: null }
-      if (enumNode) return { ...node, name: ast.enumPropName(parentName, propName, enumSuffix) }
+      if (enumNode) return { ...node, name: enumPropName(parentName, propName, enumSuffix) }
 
       return undefined
     },

@@ -1,6 +1,6 @@
+import { ast } from '@kubb/ast'
+import type { SchemaNode } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
-import { createProperty } from '../nodes/property.ts'
-import { createSchema, type SchemaNode } from '../nodes/schema.ts'
 import { mergeAdjacentObjectsLazy } from './mergeAdjacentSchemas.ts'
 
 function mergeAdjacentObjects(members: Array<SchemaNode>): Array<SchemaNode> {
@@ -8,10 +8,10 @@ function mergeAdjacentObjects(members: Array<SchemaNode>): Array<SchemaNode> {
 }
 
 function makeObject(props: Array<string>, name?: string): SchemaNode {
-  return createSchema({
+  return ast.factory.createSchema({
     type: 'object',
     name,
-    properties: props.map((prop) => createProperty({ name: prop, schema: createSchema({ type: 'string' }) })),
+    properties: props.map((prop) => ast.factory.createProperty({ name: prop, schema: ast.factory.createSchema({ type: 'string' }) })),
   })
 }
 
@@ -40,7 +40,7 @@ describe('mergeAdjacentObjects', () => {
 
   it('does not merge ref nodes with anonymous objects', () => {
     const result = mergeAdjacentObjects([
-      createSchema({ type: 'ref', ref: '#/components/schemas/Address', name: 'Address' }),
+      ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Address', name: 'Address' }),
       makeObject(['streetNumber']),
       makeObject(['streetName']),
     ])

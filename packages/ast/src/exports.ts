@@ -4,7 +4,7 @@ export { applyMacros, composeMacros, defineMacro } from './defineMacro.ts'
 export { defineNode } from './defineNode.ts'
 export { optionality } from './optionality.ts'
 export { createPrinter } from './createPrinter.ts'
-export { collect, transform } from './visitor.ts'
+export { collect, collectSync, transform } from './visitor.ts'
 export * from './utils/index.ts'
 
 export * as factory from './factory.ts'

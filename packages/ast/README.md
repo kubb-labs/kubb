@@ -30,14 +30,14 @@ Defines the node tree, visitor pattern, factory functions, and type guards used 
 
 | Path                            | Contents                                                                                                          |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `@kubb/ast`                     | Runtime: node definitions, guards, visitor, macro engine, string and ref helpers, constants                       |
+| `@kubb/ast`                     | Runtime: node definitions, guards, visitor, macro engine, constants                                               |
 | `ast.factory` (via `@kubb/ast`) | Node constructors (`createSchema`, `createFile`, and friends), the `ts.factory` analogue                          |
 | `@kubb/ast/types`               | Types only: all node interfaces, type aliases, visitor types                                                      |
 | `kubb/kit`                      | Re-exports the `ast` and `factory` namespaces, the way most Kubb code reaches the AST without a direct dependency |
 
 `@kubb/ast` is an internal library. Inside the Kubb ecosystem the whole surface travels on the `ast` namespace from `kubb/kit`, so plugins and generators reach it there instead of depending on this package directly. The examples below import from `@kubb/ast` for clarity; through `kubb/kit` the same calls read as `ast.walk`, `ast.factory.createSchema`, and so on.
 
-The macro engine (`defineMacro`, `composeMacros`, `applyMacros`, the `Macro` type) and the string, identifier, and ref helpers live on the root `@kubb/ast` export. They no longer ship as separate `@kubb/ast/macros` and `@kubb/ast/utils` subpaths. The macro presets (`macroDiscriminatorEnum`, `macroEnumName`, `macroRenameSchema`, `macroSimplifyUnion`) live in `@kubb/kit`, reached through `kubb/kit`, so `@kubb/ast` stays limited to the AST primitives and the transform engine that runs macros.
+The macro engine (`defineMacro`, `composeMacros`, `applyMacros`, the `Macro` type) lives on the root `@kubb/ast` export, alongside the handful of ref and schema-graph helpers that ast's own node builders depend on (`resolveRefName`, `findCircularSchemas`, `collectUsedSchemaNames`). They no longer ship as separate `@kubb/ast/macros` and `@kubb/ast/utils` subpaths. Everything else that only external code used — the macro presets (`macroDiscriminatorEnum`, `macroEnumName`, `macroRenameSchema`, `macroSimplifyUnion`) and the remaining string, identifier, and ref helpers (`childName`, `enumPropName`, `extractRefName`, `isStringType`, `mergeAdjacentObjectsLazy`, `syncSchemaRef`, `containsCircularRef`) — lives in `@kubb/kit`, reached through `kubb/kit`. `@kubb/ast` stays limited to the AST primitives, the transform engine that runs macros, and the helpers its own node builders need.
 
 ## Node tree
 
@@ -94,14 +94,7 @@ const root = createInput({
 ### Visitor
 
 ```ts
-import { walk, transform, collect } from '@kubb/ast'
-
-// Side effects
-await walk(root, {
-  schema(node) {
-    console.log(node.type)
-  },
-})
+import { collectSync, transform } from '@kubb/ast'
 
 // Immutable transformation
 const updated = transform(root, {
@@ -111,7 +104,7 @@ const updated = transform(root, {
 })
 
 // Extraction
-const types = collect<string>(root, {
+const types = collectSync<string>(root, {
   schema(node) {
     return node.type
   },
@@ -135,9 +128,9 @@ function process(node: Node) {
 ### Refs
 
 ```ts
-import { extractRefName } from '@kubb/ast'
+import { resolveRefName } from '@kubb/ast'
 
-extractRefName('#/components/schemas/Pet') // 'Pet'
+resolveRefName({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Pet' }) // 'Pet'
 ```
 
 ## Adding a node
