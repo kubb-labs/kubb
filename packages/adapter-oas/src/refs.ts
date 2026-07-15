@@ -1,6 +1,7 @@
+import type { ast } from '@kubb/ast'
 import { type Diagnostic, Diagnostics } from '@kubb/core'
 import { isReference } from './oas.ts'
-import type { Document } from './types.ts'
+import type { Document, SchemaObject } from './types.ts'
 
 const _refCache = new WeakMap<Document, Map<string, unknown>>()
 
@@ -112,4 +113,106 @@ export function derefInPlace<T = unknown>({
   const resolved = resolveRef<T>(document, value.$ref)
   container[key] = resolved
   return resolved && !isReference(resolved) ? resolved : null
+}
+
+/**
+ * Parses a schema for a resolved `$ref` target. Passed in at call time (rather than imported)
+ * so `refs.ts` stays independent of the parser/converter layer.
+ */
+type RefNodeParser = (entry: { schema: SchemaObject; name?: string | null }, rawOptions?: Partial<ast.ParserOptions>) => ast.SchemaNode
+
+/**
+ * The `$ref` service bound to one document: pointer resolution, existence checks, and
+ * resolved-node parsing, each with its own instance-scoped memoization.
+ */
+export type Refs = ReturnType<typeof createRefs>
+
+/**
+ * Creates the `$ref` resolution service for one document.
+ *
+ * Replaces what used to be six overlapping resolvers (a reporting walk, a silent walk, an
+ * existence check, and a resolve-then-parse-into-a-node step, each with its own cache) with one
+ * pointer walk and one explicit `report` contract for a missing ref: `report: true` (the default)
+ * reports a `refNotFound` diagnostic (or throws outside a build), `report: false` resolves to
+ * `null` silently for a speculative lookup.
+ *
+ * @example
+ * ```ts
+ * const refs = createRefs(document)
+ * refs.resolve<SchemaObject>('#/components/schemas/Pet')
+ * refs.resolve<SchemaObject>('#/components/schemas/Pet', { report: false })
+ * refs.exists('#/components/schemas/Pet')
+ * refs.resolveNode('#/components/schemas/Pet', parseSchema)
+ * ```
+ */
+export function createRefs(document: Document) {
+  const resolvedNodeCache = new Map<string, ast.SchemaNode | null>()
+  const existenceCache = new Map<string, boolean>()
+  const resolvingRefs = new Set<string>()
+
+  /**
+   * Resolves a local `#/...` JSON pointer. Returns `null` for an empty or non-local ref.
+   * `report: true` (default) reports a `refNotFound` diagnostic into the active build (or throws
+   * outside one) when the pointer cannot be resolved. `report: false` resolves to `null` silently,
+   * for a speculative lookup where a missing ref is not an error.
+   */
+  function resolve<T = unknown>(refPath: string, options?: { report?: boolean }): T | null {
+    if (options?.report === false) {
+      if (!refPath.startsWith('#')) return null
+      const target = decodeURIComponent(refPath.substring(1))
+        .split('/')
+        .filter(Boolean)
+        .reduce<unknown>((obj, key) => (obj as Record<string, unknown> | undefined)?.[key], document)
+
+      return (target as T | undefined) ?? null
+    }
+
+    return resolveRef<T>(document, refPath)
+  }
+
+  /**
+   * Returns `true` when a `$ref` path resolves to a component the document actually defines.
+   * A circular ref still resolves to an existing target, so this stays `true` for cycles and only
+   * goes `false` for a `$ref` that points at a component the spec never declares. Memoized.
+   */
+  function exists(refPath: string): boolean {
+    if (!existenceCache.has(refPath)) {
+      let found = false
+      try {
+        found = !!resolve(refPath)
+      } catch {
+        found = false
+      }
+      existenceCache.set(refPath, found)
+    }
+    return existenceCache.get(refPath) ?? false
+  }
+
+  /**
+   * Resolves a `$ref` to its parsed node via `parse`, guarding against cycles and memoizing per
+   * instance. Returns `null` when the ref is currently being resolved (a cycle) or cannot be
+   * resolved (e.g. a minimal document in a unit test).
+   */
+  function resolveNode(refPath: string, parse: RefNodeParser, rawOptions?: Partial<ast.ParserOptions>): ast.SchemaNode | null {
+    if (resolvingRefs.has(refPath)) return null
+
+    if (!resolvedNodeCache.has(refPath)) {
+      let resolved: ast.SchemaNode | null = null
+      try {
+        const referenced = resolve<SchemaObject>(refPath)
+        if (referenced) {
+          resolvingRefs.add(refPath)
+          resolved = parse({ schema: referenced }, rawOptions)
+          resolvingRefs.delete(refPath)
+        }
+      } catch {
+        // Ref cannot be resolved in this document (e.g. unit tests with minimal documents).
+      }
+      resolvedNodeCache.set(refPath, resolved)
+    }
+
+    return resolvedNodeCache.get(refPath) ?? null
+  }
+
+  return { resolve, exists, resolveNode }
 }

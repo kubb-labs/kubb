@@ -1,5 +1,6 @@
 import type { ast } from '@kubb/ast'
 import { isBinary, isReference } from '../oas.ts'
+import type { Refs } from '../refs.ts'
 import { isHandledFormat } from '../resolvers.ts'
 import type { Document, SchemaObject } from '../types.ts'
 import { convertAllOf, convertMultiType, convertRef, convertUnion } from './converters/composition.ts'
@@ -34,20 +35,12 @@ export type ParseFn = (entry: { schema: SchemaObject; name?: string | null }, ra
 
 /**
  * What a converter needs from the parser instance beyond the schema: how to recurse, the source
- * document, and the two `$ref` helpers whose caches live on the instance.
+ * document, and the `$ref` service bound to it.
  */
 export type ConverterDeps = {
   parse: ParseFn
   document: Document
-  /**
-   * Resolves a `$ref` to its parsed node, with cycle detection and per-instance memoization.
-   * Returns `null` for a cycle or an unresolvable target.
-   */
-  resolveRefNode: (refPath: string, rawOptions?: Partial<ast.ParserOptions>) => ast.SchemaNode | null
-  /**
-   * Returns `true` when a `$ref` path resolves to a component the document actually defines.
-   */
-  refExists: (refPath: string) => boolean
+  refs: Refs
   /**
    * Collision renames keyed by the original component pointer, used to stamp `targetName`
    * on ref nodes whose target the adapter renamed.

@@ -2,7 +2,6 @@ import { ast, extractRefName, macroDiscriminatorEnum, macroSimplifyUnion, mergeA
 import { SCHEMA_REF_PREFIX } from '../../constants.ts'
 import { createDiscriminantNode, findDiscriminator } from '../../discriminator.ts'
 import { isDiscriminator, isReference } from '../../oas.ts'
-import { resolveRef } from '../../refs.ts'
 import { extractExamples } from '../../resolvers.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
@@ -14,11 +13,11 @@ import type { ConvertContext } from '../parseSchema.ts'
  * The resolved schema is stored in `node.schema`. Usage-site sibling fields
  * (description, readOnly, nullable, etc.) are stored directly on the ref node.
  * Use `syncSchemaRef(node)` in printers to get a merged view of both.
- * Circular refs are detected in `resolveRefNode` and leave `schema` as `null`.
+ * Circular refs are detected in `refs.resolveNode` and leave `schema` as `null`.
  */
-export function convertRef({ schema, name, nullable, defaultValue, rawOptions, document, resolveRefNode, refExists, renames }: ConvertContext): ast.SchemaNode {
+export function convertRef({ schema, name, nullable, defaultValue, rawOptions, document, parse, refs, renames }: ConvertContext): ast.SchemaNode {
   const refPath = schema.$ref
-  const resolvedSchema = refPath ? resolveRefNode(refPath, rawOptions) : null
+  const resolvedSchema = refPath ? refs.resolveNode(refPath, parse, rawOptions) : null
   const ctx = { schema, name, nullable, defaultValue }
 
   // A `$ref` to a component the document never defines (a malformed spec) would otherwise emit an
@@ -26,7 +25,7 @@ export function convertRef({ schema, name, nullable, defaultValue, rawOptions, d
   // `unknown` so the rest of the schema still resolves. Only do this for a document that declares a
   // component registry — a registry-less fragment (e.g. a minimal `parse` call) parses refs
   // leniently, since the target is expected to live outside the fragment.
-  if (refPath && document.components && !refExists(refPath)) {
+  if (refPath && document.components && !refs.exists(refPath)) {
     return createNode(ctx, { type: 'unknown' })
   }
 
@@ -44,7 +43,7 @@ export function convertRef({ schema, name, nullable, defaultValue, rawOptions, d
 /**
  * Converts an `allOf` schema into a flattened node or an `IntersectionSchemaNode`.
  */
-export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions, parse, document }: ConvertContext): ast.SchemaNode {
+export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions, parse, refs }: ConvertContext): ast.SchemaNode {
   if (
     schema.allOf!.length === 1 &&
     !schema.properties &&
@@ -80,7 +79,7 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
   const allOfMembers: Array<ast.SchemaNode> = (schema.allOf as Array<SchemaObject | ReferenceObject>)
     .filter((item) => {
       if (!isReference(item) || !name) return true
-      const deref = resolveRef<SchemaObject>(document, item.$ref)
+      const deref = refs.resolve<SchemaObject>(item.$ref)
       if (!deref || !isDiscriminator(deref)) return true
       const parentUnion = deref.oneOf ?? deref.anyOf
       if (!parentUnion) return true
@@ -110,7 +109,7 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
     if (missingRequired.length) {
       const resolvedMembers = (schema.allOf as Array<SchemaObject | ReferenceObject>).flatMap((item) => {
         if (!isReference(item)) return [item as SchemaObject]
-        const deref = resolveRef<SchemaObject>(document, item.$ref)
+        const deref = refs.resolve<SchemaObject>(item.$ref)
         return deref && !isReference(deref) ? [deref] : []
       })
 
@@ -152,7 +151,7 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
 /**
  * Converts a `oneOf` / `anyOf` schema into a `UnionSchemaNode`.
  */
-export function convertUnion({ schema, name, nullable, defaultValue, rawOptions, parse, document }: ConvertContext): ast.SchemaNode {
+export function convertUnion({ schema, name, nullable, defaultValue, rawOptions, parse, refs }: ConvertContext): ast.SchemaNode {
   function pickDiscriminatorPropertyNode(node: ast.SchemaNode, propertyName: string): ast.SchemaNode | null {
     const objectNode = ast.narrowSchema(node, 'object')
     const discriminatorProperty = objectNode?.properties?.find((property) => property.name === propertyName)
@@ -168,15 +167,9 @@ export function convertUnion({ schema, name, nullable, defaultValue, rawOptions,
     })
   }
 
-  // Silent walk — reporting resolver would flag missing refs as errors during speculative lookup.
+  // Silent walk — the reporting resolve() would flag missing refs as errors during speculative lookup.
   function resolveRefSilent($ref: string): SchemaObject | null {
-    if (!$ref.startsWith('#')) return null
-    const target = decodeURIComponent($ref.substring(1))
-      .split('/')
-      .filter(Boolean)
-      .reduce<unknown>((obj, key) => (obj as Record<string, unknown> | undefined)?.[key], document)
-
-    return (target as SchemaObject | undefined) ?? null
+    return refs.resolve<SchemaObject>($ref, { report: false })
   }
 
   function implicitDiscriminantValue(member: unknown): string | null {

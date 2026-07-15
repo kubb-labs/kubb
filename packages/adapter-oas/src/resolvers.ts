@@ -4,7 +4,7 @@ import { Diagnostics } from '@kubb/core'
 import { formatMap, SCHEMA_REF_PREFIX, specialCasedFormats, structuralKeys } from './constants.ts'
 import { isJsonMimeType, isReference } from './oas.ts'
 import { getRequestContent, getResponseByStatusCode } from './operation.ts'
-import { dereferenceWithRef, derefInPlace, resolveRef } from './refs.ts'
+import { createRefs, dereferenceWithRef, derefInPlace } from './refs.ts'
 import type { ContentType, Document, MediaTypeObject, Operation, ParameterObject, ResponseObject, SchemaObject, ServerObject, ServerOptions } from './types.ts'
 
 /**
@@ -407,12 +407,6 @@ const semanticSuffixes: Record<SchemaSourceMode, string> = {
   requestBodies: 'Request',
 }
 
-function resolveSchemaRef(document: Document, schema: SchemaObject): SchemaObject {
-  if (!isReference(schema)) return schema
-  const resolved = resolveRef<SchemaObject>(document, schema.$ref)
-  return resolved && !isReference(resolved) ? resolved : schema
-}
-
 /**
  * Collects component schemas from one or more sources and resolves name collisions.
  *
@@ -430,10 +424,17 @@ function resolveSchemaRef(document: Document, schema: SchemaObject): SchemaObjec
  */
 export function getSchemas(document: Document, { contentType }: GetSchemasOptions): GetSchemasResult {
   const components = document.components
+  const refs = createRefs(document)
+
+  function resolveSchemaRef(schema: SchemaObject): SchemaObject {
+    if (!isReference(schema)) return schema
+    const resolved = refs.resolve<SchemaObject>(schema.$ref)
+    return resolved && !isReference(resolved) ? resolved : schema
+  }
 
   const candidates: Array<SchemaWithMetadata> = [
     ...Object.entries((components?.schemas as Record<string, SchemaObject>) ?? {}).map(([name, schema]) => ({
-      schema: resolveSchemaRef(document, schema),
+      schema: resolveSchemaRef(schema),
       source: 'schemas' as const,
       originalName: name,
     })),
@@ -443,7 +444,7 @@ export function getSchemas(document: Document, { contentType }: GetSchemasOption
         return schema
           ? [
               {
-                schema: resolveSchemaRef(document, schema),
+                schema: resolveSchemaRef(schema),
                 source,
                 originalName: name,
               },

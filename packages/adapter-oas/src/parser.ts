@@ -3,7 +3,7 @@ import { ast, type StatusCode } from '@kubb/ast'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { type ConvertContext, schemaRules } from './emit/parseSchema.ts'
 import { isNullable, isReference } from './oas.ts'
-import { resolveRef } from './refs.ts'
+import { createRefs } from './refs.ts'
 import { getOperationId, getRequestContentType, getResponseByStatusCode, getResponseStatusCodes } from './operation.ts'
 import { flattenSchema, getParameters, getRequestBodyContentTypes, getRequestSchema, getResponseBodyContentTypes, getResponseSchema } from './resolvers.ts'
 import type { ContentType, Document, Operation, SchemaObject } from './types.ts'
@@ -28,77 +28,16 @@ export type OasParserContext = {
 /**
  * Creates the schema and operation converters bound to one OpenAPI document.
  *
- * Owns the per-instance `$ref` state (cycle detection, resolved-node cache, existence cache) and
- * the `parseSchema` recursion seam, then dispatches each schema through the ordered `schemaRules`
- * table from `converters.ts`. Every converter is a standalone function that recurses through the
- * `parse` function passed to it, so this file only wires state to the converters.
+ * Owns the `$ref` service for this instance and the `parseSchema` recursion seam, then dispatches
+ * each schema through the ordered `schemaRules` table from `emit/parseSchema.ts`. Every converter
+ * is a standalone function that recurses through the `parse` function passed to it, so this file
+ * only wires state to the converters.
  *
  * @internal
  */
 export function createSchemaParser(ctx: OasParserContext) {
   const document = ctx.document
-
-  /**
-   * Tracks `$ref` paths that are currently being resolved to prevent infinite
-   * recursion when schemas contain circular references (e.g. `Pet → parent → Pet`).
-   */
-  const resolvingRefs = new Set<string>()
-
-  /**
-   * Cache of `$ref` schemas already resolved in this parser instance, keyed by ref path.
-   *
-   * Without it, a shared schema (e.g. `customer`) is re-expanded for every `$ref` that points at
-   * it. In cross-referenced specs like Stripe (~1400 schemas) that becomes exponential blowup,
-   * since one schema can be referenced from dozens of parents, each re-walking its whole subtree.
-   * Memoizing by ref path drops the work from O(2^depth) to O(N) unique schema names.
-   */
-  const resolvedRefCache = new Map<string, ast.SchemaNode | null>()
-
-  /**
-   * Memoized record of whether a `$ref` path resolves to a node the document actually defines.
-   * A circular ref still resolves to an existing target, so this stays `true` for cycles and only
-   * goes `false` for a `$ref` that points at a component the spec never declares.
-   */
-  const refExistence = new Map<string, boolean>()
-
-  function refExists(refPath: string): boolean {
-    if (!refExistence.has(refPath)) {
-      let exists = false
-      try {
-        exists = !!resolveRef(document, refPath)
-      } catch {
-        exists = false
-      }
-      refExistence.set(refPath, exists)
-    }
-    return refExistence.get(refPath) ?? false
-  }
-
-  /**
-   * Resolves a `$ref` to its parsed node, guarding against cycles and memoizing per instance.
-   * Returns `null` when the ref is currently being resolved (a cycle) or cannot be resolved
-   * (e.g. a minimal document in a unit test).
-   */
-  function resolveRefNode(refPath: string, rawOptions?: Partial<ast.ParserOptions>): ast.SchemaNode | null {
-    if (resolvingRefs.has(refPath)) return null
-
-    if (!resolvedRefCache.has(refPath)) {
-      let resolved: ast.SchemaNode | null = null
-      try {
-        const referenced = resolveRef<SchemaObject>(document, refPath)
-        if (referenced) {
-          resolvingRefs.add(refPath)
-          resolved = parseSchema({ schema: referenced }, rawOptions)
-          resolvingRefs.delete(refPath)
-        }
-      } catch {
-        // Ref cannot be resolved in this document (e.g. unit tests with minimal documents).
-      }
-      resolvedRefCache.set(refPath, resolved)
-    }
-
-    return resolvedRefCache.get(refPath) ?? null
-  }
+  const refs = createRefs(document)
 
   /**
    * Converts an OAS `SchemaObject` into a `SchemaNode`.
@@ -131,8 +70,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       options,
       parse: parseSchema,
       document,
-      resolveRefNode,
-      refExists,
+      refs,
       renames: ctx.renames,
     }
 
