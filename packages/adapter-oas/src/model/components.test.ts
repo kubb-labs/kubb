@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { createRefs } from '../refs.ts'
 import type { Document } from '../types.ts'
 import { extractSchemaFromContent, getSchemas, sortSchemas } from './components.ts'
 
@@ -105,7 +106,7 @@ describe('getSchemas', () => {
   } as Document
 
   it('returns empty schemas when components is absent', () => {
-    const { schemas, renames } = getSchemas(base, {})
+    const { schemas, renames } = getSchemas(base, {}, createRefs(base))
     expect(schemas).toStrictEqual({})
     expect(renames.size).toBe(0)
   })
@@ -120,7 +121,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, renames } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
     expect(schemas).toMatchObject({
       Pet: {
         type: 'object',
@@ -150,7 +151,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, renames } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
     expect(schemas).toMatchObject({
       PetResponse: {
         type: 'object',
@@ -179,7 +180,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, renames } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
     expect(schemas).toMatchObject({
       CreatePet: {
         type: 'object',
@@ -200,7 +201,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, renames } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
 
     // first entry keeps original name, second gets numeric suffix
     expect(Object.keys(schemas).sort()).toStrictEqual(['Pet2', 'pet'])
@@ -231,7 +232,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, renames } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
 
     expect(Object.keys(schemas).sort()).toStrictEqual(['PetResponse', 'PetSchema'])
     expect(renames.get('#/components/schemas/Pet')).toBe('PetSchema')
@@ -273,7 +274,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, renames } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
 
     expect(Object.keys(schemas).sort()).toStrictEqual(['PetRequest', 'PetResponse', 'PetSchema'])
     expect(renames.get('#/components/schemas/Pet')).toBe('PetSchema')
@@ -304,7 +305,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { renames } = getSchemas(document, {})
+    const { renames } = getSchemas(document, {}, createRefs(document))
 
     // both normalize to PetList → semantic suffixes applied
     expect(renames.get('#/components/schemas/pet_list')).toBe('pet_listSchema')
@@ -321,7 +322,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { renames } = getSchemas(document, {})
+    const { renames } = getSchemas(document, {}, createRefs(document))
     expect(renames.has('#/components/schemas/Status')).toBe(false)
   })
 
@@ -348,7 +349,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { renames } = getSchemas(document, {})
+    const { renames } = getSchemas(document, {}, createRefs(document))
     expect(renames.get('#/components/schemas/Status')).toBe('StatusSchema')
     expect(renames.get('#/components/responses/Status')).toBe('StatusResponse')
   })
@@ -367,7 +368,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas } = getSchemas(document, {})
+    const { schemas } = getSchemas(document, {}, createRefs(document))
     const keys = Object.keys(schemas)
     expect(keys.indexOf('Pet')).toBeLessThan(keys.indexOf('Order'))
   })
@@ -398,9 +399,13 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas } = getSchemas(document, {
-      contentType: 'application/xml',
-    })
+    const { schemas } = getSchemas(
+      document,
+      {
+        contentType: 'application/xml',
+      },
+      createRefs(document),
+    )
     expect(schemas).toMatchObject({
       PetResponse: {
         type: 'object',

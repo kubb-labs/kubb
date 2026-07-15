@@ -1,7 +1,7 @@
 import { pascalCase } from '@internals/utils'
 import { SCHEMA_REF_PREFIX } from '../constants.ts'
 import { isReference } from '../oas.ts'
-import { createRefs } from '../refs.ts'
+import type { Refs } from '../refs.ts'
 import type { ContentType, Document, SchemaObject } from '../types.ts'
 
 /**
@@ -142,12 +142,11 @@ const semanticSuffixes: Record<SchemaSourceMode, string> = {
  *
  * @example
  * ```ts
- * const { schemas, renames } = getSchemas(document, { contentType: 'application/json' })
+ * const { schemas, renames } = getSchemas(document, { contentType: 'application/json' }, refs)
  * ```
  */
-export function getSchemas(document: Document, { contentType }: GetSchemasOptions): GetSchemasResult {
+export function getSchemas(document: Document, { contentType }: GetSchemasOptions, refs: Refs): GetSchemasResult {
   const components = document.components
-  const refs = createRefs(document)
 
   function resolveSchemaRef(schema: SchemaObject): SchemaObject {
     if (!isReference(schema)) return schema

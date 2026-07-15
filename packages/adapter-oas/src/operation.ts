@@ -1,13 +1,13 @@
 import { SUPPORTED_METHODS } from './constants.ts'
 import { isJsonMimeType, isReference } from './oas.ts'
-import { derefInPlace } from './refs.ts'
+import type { Refs } from './refs.ts'
 import type { Document, MediaTypeObject, OperationObject, PathItemObject, ReferenceObject, RequestBodyObject, ResponseObject } from './types.ts'
 
 /**
  * A single OpenAPI operation: its URL path, HTTP method, and the raw operation object.
  *
- * `schema` is a live reference into the document, so any in-place `$ref` resolution the resolvers
- * perform is visible here too.
+ * `schema` is a live reference into the document. Unlike earlier versions of this adapter, nothing
+ * resolves a `$ref` in place here anymore — every accessor below resolves through `refs` instead.
  */
 export type Operation = {
   path: string
@@ -16,12 +16,11 @@ export type Operation = {
 }
 
 /**
- * The document plus the operation being read. Shared by the request/response accessors so they can
- * resolve `$ref`s against the document.
+ * The operation being read plus the `$ref` service to resolve against.
  */
 type OperationContext = {
-  document: Document
   operation: Operation
+  refs: Refs
 }
 
 /**
@@ -60,23 +59,23 @@ export function getResponseStatusCodes({ schema }: Operation): Array<string> {
 }
 
 /**
- * Returns the response object for a status code, resolving a `$ref` in place. `false` when absent.
+ * Returns the response object for a status code, resolving a `$ref` through `refs`. `false` when absent.
  */
-export function getResponseByStatusCode({ document, operation, statusCode }: OperationContext & { statusCode: string | number }): ResponseObject | false {
+export function getResponseByStatusCode({ operation, refs, statusCode }: OperationContext & { statusCode: string | number }): ResponseObject | false {
   const responses = operation.schema.responses as Record<string, ResponseObject | ReferenceObject> | undefined
   if (!responses || isReference(responses)) {
     return false
   }
 
-  return derefInPlace<ResponseObject>({ document, container: responses, key: statusCode }) ?? false
+  return refs.deref<ResponseObject>(responses[statusCode]) ?? false
 }
 
 /**
- * Resolves the request body (dereferencing a `$ref` in place) and returns its content map, or
+ * Resolves the request body (a `$ref` through `refs`) and returns its content map, or
  * `undefined` when the operation has no request body.
  */
-function getRequestBodyContent({ document, operation }: OperationContext): Record<string, MediaTypeObject> | undefined {
-  const requestBody = derefInPlace<RequestBodyObject>({ document, container: operation.schema as unknown as Record<string, unknown>, key: 'requestBody' })
+function getRequestBodyContent({ operation, refs }: OperationContext): Record<string, MediaTypeObject> | undefined {
+  const requestBody = refs.deref<RequestBodyObject>(operation.schema.requestBody)
 
   return requestBody?.content
 }
@@ -86,12 +85,8 @@ function getRequestBodyContent({ document, operation }: OperationContext): Recor
  * Otherwise picks the first JSON-like media type, then the first declared one, as a
  * `[mediaType, object]` tuple.
  */
-export function getRequestContent({
-  document,
-  operation,
-  mediaType,
-}: OperationContext & { mediaType?: string }): MediaTypeObject | false | [string, MediaTypeObject] {
-  const content = getRequestBodyContent({ document, operation })
+export function getRequestContent({ operation, refs, mediaType }: OperationContext & { mediaType?: string }): MediaTypeObject | false | [string, MediaTypeObject] {
+  const content = getRequestBodyContent({ operation, refs })
 
   if (!content) {
     return false
@@ -111,8 +106,8 @@ export function getRequestContent({
  * Returns the primary request content type. Prefers a JSON-like media type (the last one wins
  * when several are declared), then the first declared one, defaulting to `'application/json'`.
  */
-export function getRequestContentType({ document, operation }: OperationContext): string {
-  const content = getRequestBodyContent({ document, operation })
+export function getRequestContentType({ operation, refs }: OperationContext): string {
+  const content = getRequestBodyContent({ operation, refs })
   const mediaTypes = content ? Object.keys(content) : []
 
   let result = mediaTypes[0] ?? 'application/json'
@@ -131,12 +126,12 @@ export function getRequestContentType({ document, operation }: OperationContext)
  *
  * @example
  * ```ts
- * for (const operation of getOperations(document)) {
+ * for (const operation of getOperations(document, refs)) {
  *   parseOperation(options, operation)
  * }
  * ```
  */
-export function getOperations(document: Document): Array<Operation> {
+export function getOperations(document: Document, refs: Refs): Array<Operation> {
   const operations: Array<Operation> = []
   const paths = document.paths
   if (!paths) {
@@ -148,7 +143,7 @@ export function getOperations(document: Document): Array<Operation> {
       continue
     }
 
-    const pathItem = derefInPlace<PathItemObject>({ document, container: paths as Record<string, unknown>, key: path })
+    const pathItem = refs.deref<PathItemObject>(paths[path])
     if (!pathItem) {
       continue
     }

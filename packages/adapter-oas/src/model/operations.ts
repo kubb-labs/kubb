@@ -1,6 +1,7 @@
 import { isJsonMimeType, isReference } from '../oas.ts'
 import { getRequestContent, getResponseByStatusCode } from '../operation.ts'
-import { dereferenceWithRef, derefInPlace } from '../refs.ts'
+import { dereferenceWithRef } from '../refs.ts'
+import type { Refs } from '../refs.ts'
 import type { ContentType, Document, MediaTypeObject, Operation, ParameterObject, ResponseObject, SchemaObject } from '../types.ts'
 
 export type OperationsOptions = {
@@ -14,17 +15,17 @@ export type OperationsOptions = {
  *
  * @example
  * ```ts
- * getParameters(document, operation)
+ * getParameters(document, operation, refs)
  * // [{ name: 'petId', in: 'path', required: true, schema: { type: 'integer' } }]
  * ```
  */
-export function getParameters(document: Document, operation: Operation): Array<ParameterObject> {
+export function getParameters(document: Document, operation: Operation, refs: Refs): Array<ParameterObject> {
   const resolveParams = (params: Array<unknown>): Array<ParameterObject> =>
     params.map((p) => dereferenceWithRef(document, p)).filter((p): p is ParameterObject => !!p && typeof p === 'object' && 'in' in p && 'name' in p)
 
   const operationParams = resolveParams(operation.schema?.parameters || [])
-  const pathItem = document.paths?.[operation.path]
-  const pathLevelParams = resolveParams(pathItem && !isReference(pathItem) && pathItem.parameters ? pathItem.parameters : [])
+  const pathItem = refs.deref<{ parameters?: Array<unknown> }>(document.paths?.[operation.path])
+  const pathLevelParams = resolveParams(pathItem?.parameters ?? [])
 
   const paramMap = new Map<string, ParameterObject>()
   for (const p of pathLevelParams) {
@@ -60,15 +61,6 @@ function getResponseBody(responseBody: boolean | ResponseObject, contentType?: s
   return body.content[availableContentType]!
 }
 
-// Dereference every response `$ref` in place so callers can read response bodies directly.
-function resolveResponseRefs(document: Document, operation: Operation): void {
-  const responses = operation.schema.responses as Record<string, unknown> | undefined
-  if (!responses) return
-  for (const key in responses) {
-    derefInPlace({ document, container: responses, key })
-  }
-}
-
 /**
  * Returns the response schema for a given operation and HTTP status code.
  *
@@ -76,14 +68,18 @@ function resolveResponseRefs(document: Document, operation: Operation): void {
  *
  * @example
  * ```ts
- * getResponseSchema(document, operation, 200)         // SchemaObject
- * getResponseSchema(document, operation, '4XX')       // {}
+ * getResponseSchema(document, operation, refs, 200)         // SchemaObject
+ * getResponseSchema(document, operation, refs, '4XX')       // {}
  * ```
  */
-export function getResponseSchema(document: Document, operation: Operation, statusCode: string | number, options: OperationsOptions = {}): SchemaObject {
-  resolveResponseRefs(document, operation)
-
-  const responseBody = getResponseBody(getResponseByStatusCode({ document, operation, statusCode }), options.contentType)
+export function getResponseSchema(
+  document: Document,
+  operation: Operation,
+  refs: Refs,
+  statusCode: string | number,
+  options: OperationsOptions = {},
+): SchemaObject {
+  const responseBody = getResponseBody(getResponseByStatusCode({ operation, refs, statusCode }), options.contentType)
 
   if (responseBody === false) {
     return {}
@@ -103,15 +99,11 @@ export function getResponseSchema(document: Document, operation: Operation, stat
  *
  * @example
  * ```ts
- * getRequestSchema(document, operation) // SchemaObject | null
+ * getRequestSchema(document, operation, refs) // SchemaObject | null
  * ```
  */
-export function getRequestSchema(document: Document, operation: Operation, options: OperationsOptions = {}): SchemaObject | null {
-  if (operation.schema.requestBody) {
-    operation.schema.requestBody = dereferenceWithRef(document, operation.schema.requestBody)
-  }
-
-  const requestBody = getRequestContent({ document, operation, mediaType: options.contentType })
+export function getRequestSchema(document: Document, operation: Operation, refs: Refs, options: OperationsOptions = {}): SchemaObject | null {
+  const requestBody = getRequestContent({ operation, refs, mediaType: options.contentType })
 
   if (requestBody === false) {
     return null
@@ -135,47 +127,34 @@ export function getRequestSchema(document: Document, operation: Operation, optio
 }
 
 /**
- * Returns all request body content type keys for an operation.
- *
- * The requestBody is dereferenced in place when it is a `$ref` (the same mutation that
- * `getRequestSchema` already performs), so the returned list accurately reflects the
- * available content types even for referenced bodies.
+ * Returns all request body content type keys for an operation, resolving a `$ref` requestBody
+ * through `refs`.
  *
  * @example
  * ```ts
- * getRequestBodyContentTypes(document, operation)
+ * getRequestBodyContentTypes(operation, refs)
  * // ['application/json', 'multipart/form-data']
  * ```
  */
-export function getRequestBodyContentTypes(document: Document, operation: Operation): Array<string> {
-  if (operation.schema.requestBody) {
-    operation.schema.requestBody = dereferenceWithRef(document, operation.schema.requestBody)
-  }
-
-  const body = operation.schema.requestBody as { content?: Record<string, unknown> } | undefined
+export function getRequestBodyContentTypes(operation: Operation, refs: Refs): Array<string> {
+  const body = refs.deref<{ content?: Record<string, unknown> }>(operation.schema.requestBody)
   if (!body) return []
 
-  // dereferenceWithRef keeps $ref but spreads all resolved fields (including `content`).
-  // Do not bail out on isReference, the content is already present on the merged object.
   return body.content ? Object.keys(body.content) : []
 }
 
 /**
- * Returns all response content type keys for an operation at a given status code.
- *
- * Response `$ref`s are resolved in place first (the same mutation `getResponseSchema` performs),
- * so the returned list reflects the available content types even for referenced responses.
+ * Returns all response content type keys for an operation at a given status code, resolving the
+ * response `$ref` through `refs`.
  *
  * @example
  * ```ts
- * getResponseBodyContentTypes(document, operation, 200)
+ * getResponseBodyContentTypes(operation, refs, 200)
  * // ['application/json', 'application/xml']
  * ```
  */
-export function getResponseBodyContentTypes(document: Document, operation: Operation, statusCode: string | number): Array<string> {
-  resolveResponseRefs(document, operation)
-
-  const responseObj = getResponseByStatusCode({ document, operation, statusCode })
+export function getResponseBodyContentTypes(operation: Operation, refs: Refs, statusCode: string | number): Array<string> {
+  const responseObj = getResponseByStatusCode({ operation, refs, statusCode })
   if (!responseObj || typeof responseObj !== 'object' || isReference(responseObj)) return []
 
   const body = responseObj as { content?: Record<string, unknown> }
