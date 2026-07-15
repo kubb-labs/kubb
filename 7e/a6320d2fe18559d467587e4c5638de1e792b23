@@ -1,0 +1,35 @@
+packages/adapter-oas/src/model/components.ts
+  s_1bfa4206a1f79b::t_c2e3156f26d7e9 210
+packages/adapter-oas/src/emit/converters/scalar.ts
+  s_1bfa4206a1f79b::t_45b04c0f3d9d7c 147-149
+packages/adapter-oas/src/emit/converters/structural.ts
+  s_1bfa4206a1f79b::t_b31b79133b0ee6 13,18
+  s_1bfa4206a1f79b::t_70918b97b5311b 9-12,15-17,19-23
+  s_1bfa4206a1f79b::t_1094e158848fa6 67-70
+  s_1bfa4206a1f79b::t_a1e76a3488949c 76
+  s_1bfa4206a1f79b::t_0bafd9cf7ab9bc 14
+  s_1bfa4206a1f79b::t_6ff8fbb97967b4 8
+packages/adapter-oas/src/emit/schemaHelpers.ts
+  s_1bfa4206a1f79b::t_ac6006fa0f7a1a 103
+packages/adapter-oas/src/emit/createNode.ts
+  s_1bfa4206a1f79b::t_a225c89380f90e 18-20,22-23
+packages/adapter-oas/src/emit/createNode.test.ts
+  s_1bfa4206a1f79b::t_ee73c329868f4f 2,4,15,32
+  s_1bfa4206a1f79b::t_28666787eec81d 1
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "7ea6320d2fe18559d467587e4c5638de1e792b23",
+  "prompts": {},
+  "sessions": {
+    "s_1bfa4206a1f79b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b4096afd-5be7-477c-b819-5a30bc2d18a2",
+        "model": "claude-sonnet-5"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
