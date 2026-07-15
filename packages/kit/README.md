@@ -63,6 +63,10 @@ export const pluginExample = definePlugin(() => {
 
 `ast` and `factory` are the node builders a generator calls to construct the file, schema, and operation nodes it returns. `Diagnostics` is the structured error a plugin throws to report a problem with a location and a fix suggestion, and `memoryStorage` and `fsStorage` are the built-in storage backends, useful in tests and custom configs.
 
+`macroDiscriminatorEnum`, `macroEnumName`, `macroRenameSchema`, and `macroSimplifyUnion` are the built-in macro presets, ready to pass to `ast.applyMacros` or a plugin's `setMacros`. Build a custom macro with `ast.defineMacro` instead.
+
+`childName`, `enumPropName`, `extractRefName`, `isStringType`, `mergeAdjacentObjectsLazy`, `syncSchemaRef`, and `containsCircularRef` are schema-name and schema-graph helpers a generator or macro calls while shaping output, complementing the ref and graph helpers (`resolveRefName`, `findCircularSchemas`, `collectUsedSchemaNames`) that stay on `ast`.
+
 Rounding out the package are the option and hook types every plugin, generator, adapter, resolver, and renderer author references, among them `PluginFactoryOptions`, `GeneratorContext`, `ResolveFileOptions`, `AdapterFactoryOptions`, `RendererFactory`, and `KubbHooks`.
 
 ## Testing helpers

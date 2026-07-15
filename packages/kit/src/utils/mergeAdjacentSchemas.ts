@@ -1,5 +1,5 @@
-import { narrowSchema } from '../guards.ts'
-import { createSchema, type SchemaNode } from '../nodes/schema.ts'
+import { ast } from '@kubb/ast'
+import type { SchemaNode } from '@kubb/ast'
 
 /**
  * Merges a run of adjacent anonymous object members into one. Named or non-object members break the
@@ -15,11 +15,11 @@ export function* mergeAdjacentObjectsLazy(members: Iterable<SchemaNode>): Genera
   let acc: SchemaNode | undefined
 
   for (const member of members) {
-    const objectMember = narrowSchema(member, 'object')
+    const objectMember = ast.narrowSchema(member, 'object')
     if (objectMember && !objectMember.name && acc !== undefined) {
-      const accObject = narrowSchema(acc, 'object')
+      const accObject = ast.narrowSchema(acc, 'object')
       if (accObject && !accObject.name) {
-        acc = createSchema({
+        acc = ast.factory.createSchema({
           ...accObject,
           properties: [...(accObject.properties ?? []), ...(objectMember.properties ?? [])],
         })

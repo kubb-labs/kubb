@@ -1,9 +1,9 @@
-import type { FileNode, SourceNode } from '@kubb/ast'
-import { defineParser } from '@kubb/core'
+import { defineParser } from '@kubb/kit'
+import type { ast } from '@kubb/kit'
 import type * as ts from 'typescript'
 import { getRelativePath, print, printExport, printImport, printSource, resolveOutputPath } from './utils.ts'
 
-const DEFAULT_EXTENSION: Record<FileNode['extname'], FileNode['extname'] | ''> = { '.ts': '' }
+const DEFAULT_EXTENSION: Record<ast.FileNode['extname'], ast.FileNode['extname'] | ''> = { '.ts': '' }
 
 /**
  * Options accepted by `parserTs` and `parserTsx`.
@@ -22,7 +22,7 @@ export type ParserTsOptions = {
    * parserTs({ extension: { '.ts': '.ts' } })          // import './api.ts' instead of './api'
    * ```
    */
-  extension?: Record<FileNode['extname'], FileNode['extname'] | ''>
+  extension?: Record<ast.FileNode['extname'], ast.FileNode['extname'] | ''>
 }
 
 /**
@@ -61,7 +61,7 @@ export const parserTs = defineParser<ParserTsOptions>(({ extension = DEFAULT_EXT
 
       const sourceParts: Array<string> = []
       for (const item of file.sources) {
-        const sourceStr = printSource(item as SourceNode)
+        const sourceStr = printSource(item as ast.SourceNode)
         if (sourceStr) {
           sourceParts.push(sourceStr.trimEnd())
         }
@@ -69,7 +69,7 @@ export const parserTs = defineParser<ParserTsOptions>(({ extension = DEFAULT_EXT
       const source = sourceParts.join('\n\n')
 
       const importLines: Array<string> = []
-      for (const item of (file as FileNode).imports) {
+      for (const item of (file as ast.FileNode).imports) {
         const importPath = item.root ? getRelativePath(item.root, item.path) : item.path
         importLines.push(
           printImport({
@@ -82,7 +82,7 @@ export const parserTs = defineParser<ParserTsOptions>(({ extension = DEFAULT_EXT
       }
 
       const exportLines: Array<string> = []
-      for (const item of (file as FileNode).exports) {
+      for (const item of (file as ast.FileNode).exports) {
         exportLines.push(
           printExport({
             name: item.name as string | Array<ts.Identifier | string> | null | undefined,

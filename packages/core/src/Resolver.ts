@@ -2,7 +2,7 @@ import path from 'node:path'
 import { camelCase, toFilePath } from '@internals/utils'
 import {
   ast,
-  collect,
+  collectSync,
   narrowSchema,
   operationDef,
   resolveRefName,
@@ -392,7 +392,7 @@ export class Resolver {
     const resolveName = name ?? ((schemaName: string) => this.name(schemaName))
 
     const seen = new Set<string>()
-    return collect(node, {
+    return collectSync(node, {
       schema: (schemaNode) => {
         const schemaRef = narrowSchema(schemaNode, 'ref')
         if (!schemaRef?.ref) return null

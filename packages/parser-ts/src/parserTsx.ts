@@ -1,4 +1,4 @@
-import { defineParser } from '@kubb/core'
+import { defineParser } from '@kubb/kit'
 import type * as ts from 'typescript'
 import { parserTs, type ParserTsOptions } from './parserTs.ts'
 import { print } from './utils.ts'

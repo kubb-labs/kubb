@@ -1,7 +1,4 @@
-import { defineMacro } from '../defineMacro.ts'
-import { narrowSchema } from '../guards.ts'
-import { createProperty } from '../nodes/property.ts'
-import { createSchema } from '../nodes/schema.ts'
+import { ast } from '@kubb/ast'
 
 type Props = {
   propertyName: string
@@ -20,21 +17,21 @@ type Props = {
  * ```
  */
 export function macroDiscriminatorEnum({ propertyName, values, enumName }: Props) {
-  return defineMacro({
+  return ast.defineMacro({
     name: 'discriminator-enum',
     schema(node) {
-      const objectNode = narrowSchema(node, 'object')
+      const objectNode = ast.narrowSchema(node, 'object')
       if (!objectNode?.properties?.length) return undefined
       if (!objectNode.properties.some((prop) => prop.name === propertyName)) return undefined
 
-      return createSchema({
+      return ast.factory.createSchema({
         ...objectNode,
         properties: objectNode.properties.map((prop) => {
           if (prop.name !== propertyName) return prop
 
-          return createProperty({
+          return ast.factory.createProperty({
             ...prop,
-            schema: createSchema({
+            schema: ast.factory.createSchema({
               type: 'enum',
               primitive: 'string',
               enumValues: values,

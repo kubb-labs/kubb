@@ -1,4 +1,5 @@
-import { ast, childName, enumPropName, extractRefName, macroDiscriminatorEnum, macroEnumName, macroSimplifyUnion, mergeAdjacentObjectsLazy } from '@kubb/ast'
+import { ast } from '@kubb/ast'
+import { childName, enumPropName, extractRefName, macroDiscriminatorEnum, macroEnumName, macroSimplifyUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
 import { enumDescriptionKeys, enumExtensionKeys, SCHEMA_REF_PREFIX } from './constants.ts'
 import { createDiscriminantNode, findDiscriminator } from './discriminator.ts'
 import { isBinary, isDiscriminator, isNullable, isReference } from './oas.ts'

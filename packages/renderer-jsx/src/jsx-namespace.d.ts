@@ -1,6 +1,6 @@
 import type { KubbReactElement, KubbReactNode, Key } from './types'
 
-import type { ArrowFunctionNode, ConstNode, ExportNode, FunctionNode, ImportNode, SourceNode, TypeNode } from '@kubb/ast'
+import type { ast } from '@kubb/kit'
 
 /**
  * JSX contract for `@kubb/renderer-jsx`, resolved through `jsxImportSource`.
@@ -46,21 +46,21 @@ export namespace JSX {
       copy?: string | null
       meta?: FileNode['meta'] | null
     }
-    ['kubb-source']: Omit<SourceNode, 'kind'> & {
+    ['kubb-source']: Omit<ast.SourceNode, 'kind'> & {
       children?: KubbReactNode
     }
-    ['kubb-import']: Omit<ImportNode, 'kind'> & {}
-    ['kubb-export']: Omit<ExportNode, 'kind'> & {}
-    ['kubb-function']: Omit<FunctionNode, 'kind'> & {
+    ['kubb-import']: Omit<ast.ImportNode, 'kind'> & {}
+    ['kubb-export']: Omit<ast.ExportNode, 'kind'> & {}
+    ['kubb-function']: Omit<ast.FunctionNode, 'kind'> & {
       children?: KubbReactNode
     }
-    ['kubb-arrow-function']: Omit<ArrowFunctionNode, 'kind'> & {
+    ['kubb-arrow-function']: Omit<ast.ArrowFunctionNode, 'kind'> & {
       children?: KubbReactNode
     }
-    ['kubb-const']: Omit<ConstNode, 'kind'> & {
+    ['kubb-const']: Omit<ast.ConstNode, 'kind'> & {
       children?: KubbReactNode
     }
-    ['kubb-type']: Omit<TypeNode, 'kind'> & {
+    ['kubb-type']: Omit<ast.TypeNode, 'kind'> & {
       children?: KubbReactNode
     }
     br: {}
