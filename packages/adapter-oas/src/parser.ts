@@ -1,7 +1,7 @@
 import { pascalCase } from '@internals/utils'
 import { ast, type StatusCode } from '@kubb/ast'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { type ConvertContext, schemaRules } from './converters.ts'
+import { type ConvertContext, schemaRules } from './emit/parseSchema.ts'
 import { isNullable, isReference } from './oas.ts'
 import { resolveRef } from './refs.ts'
 import { getOperationId, getRequestContentType, getResponseByStatusCode, getResponseStatusCodes } from './operation.ts'
