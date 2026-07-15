@@ -1,4 +1,4 @@
-import { ast } from '@kubb/ast'
+import { ast } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { parserTs } from './parserTs.ts'
 

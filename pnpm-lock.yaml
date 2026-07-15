@@ -308,9 +308,9 @@ importers:
 
   packages/parser-ts:
     dependencies:
-      '@kubb/core':
+      '@kubb/kit':
         specifier: workspace:*
-        version: link:../core
+        version: link:../kit
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -318,9 +318,6 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
 
   packages/plugin-barrel:
     dependencies:
@@ -337,9 +334,9 @@ importers:
 
   packages/renderer-jsx:
     dependencies:
-      '@kubb/ast':
+      '@kubb/kit':
         specifier: workspace:*
-        version: link:../ast
+        version: link:../kit
       yaml:
         specifier: 'catalog:'
         version: 2.9.0
