@@ -181,7 +181,7 @@ Closes finding 1. Collapse the read-only resolvers into a single service. Leave
 the in-place mutation (`derefInPlace`) alone for now, it is removed in slice 07.
 
 1. Add `createRefs(document)` in `refs.ts` returning `{ resolve, resolveNode,
-   exists, refName }`. Fold `resolveRef`, `dereferenceWithRef`, `resolveRefNode`,
+exists, refName }`. Fold `resolveRef`, `dereferenceWithRef`, `resolveRefNode`,
    `refExists`, `resolveRefSilent`, and `resolveSchemaRef` into it, with the ref
    memo and cycle guard living inside the service.
 2. Give it one explicit contract for a missing ref, and a `report` flag so the
