@@ -2,10 +2,11 @@ import { pascalCase } from '@internals/utils'
 import { ast, type StatusCode } from '@kubb/ast'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { type ConvertContext, schemaRules } from './emit/parseSchema.ts'
+import { flattenSchema } from './emit/schemaHelpers.ts'
+import { getParameters, getRequestBodyContentTypes, getRequestSchema, getResponseBodyContentTypes, getResponseSchema } from './model/operations.ts'
 import { isNullable, isReference } from './oas.ts'
-import { createRefs } from './refs.ts'
 import { getOperationId, getRequestContentType, getResponseByStatusCode, getResponseStatusCodes } from './operation.ts'
-import { flattenSchema, getParameters, getRequestBodyContentTypes, getRequestSchema, getResponseBodyContentTypes, getResponseSchema } from './resolvers.ts'
+import { createRefs } from './refs.ts'
 import type { ContentType, Document, Operation, SchemaObject } from './types.ts'
 
 /**

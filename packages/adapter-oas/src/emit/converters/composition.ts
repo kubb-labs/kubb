@@ -1,10 +1,10 @@
 import { ast, extractRefName, macroSimplifyUnion, mergeAdjacentObjectsLazy } from '@kubb/ast'
 import { isDiscriminator, isReference } from '../../oas.ts'
-import { extractExamples } from '../../resolvers.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import { createDiscriminantNode, extractDiscriminatedAllOfMembers, narrowUnionMembers } from '../discriminator/index.ts'
 import type { ConvertContext } from '../parseSchema.ts'
+import { extractExamples } from '../schemaHelpers.ts'
 
 /**
  * Converts a `$ref` schema into a `RefSchemaNode`.

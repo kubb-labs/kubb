@@ -1,9 +1,9 @@
 import { ast } from '@kubb/ast'
 import { enumDescriptionKeys, enumExtensionKeys } from '../../constants.ts'
-import { getDateType, getPrimitiveType, getSchemaType } from '../../resolvers.ts'
 import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
+import { getDateType, getPrimitiveType, getSchemaType } from '../schemaHelpers.ts'
 
 /**
  * Normalizes malformed `{ type: 'array', enum: [...] }` schemas by moving enum values into items.

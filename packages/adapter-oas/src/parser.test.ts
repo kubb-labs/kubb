@@ -2,10 +2,10 @@ import { ast, syncSchemaRef } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { parseDocument } from './factory.ts'
+import { parseDocument } from './load/index.ts'
+import { getSchemas } from './model/components.ts'
 import { getOperations } from './operation.ts'
 import { createSchemaParser, type OasParserContext } from './parser.ts'
-import { getSchemas } from './resolvers.ts'
 import type { ContentType, Document, SchemaObject } from './types.ts'
 
 const emptyDocument: Document = {

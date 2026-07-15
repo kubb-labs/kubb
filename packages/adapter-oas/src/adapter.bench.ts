@@ -1,10 +1,10 @@
 import path from 'node:path'
 import { bench, describe } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { parseDocument } from './factory.ts'
+import { parseDocument } from './load/index.ts'
+import { getSchemas } from './model/components.ts'
 import { getOperations } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
-import { getSchemas } from './resolvers.ts'
 import type { Document } from './types.ts'
 
 const petStorePath = path.resolve(import.meta.dirname, '../mocks/petStore.yaml')

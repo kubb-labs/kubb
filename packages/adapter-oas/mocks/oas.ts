@@ -1,4 +1,4 @@
-import { parseDocument } from '../src/factory.ts'
+import { parseDocument } from '../src/load/index.ts'
 import type { Document } from '../src/types.ts'
 
 export async function buildMinimalOas() {
