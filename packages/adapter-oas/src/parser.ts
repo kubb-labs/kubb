@@ -5,9 +5,9 @@ import { type ConvertContext, schemaRules } from './emit/parseSchema.ts'
 import { flattenSchema } from './emit/schemaHelpers.ts'
 import { getParameters, getRequestBodyContentTypes, getRequestSchema, getResponseBodyContentTypes, getResponseSchema } from './model/operations.ts'
 import { isNullable, isReference } from './oas.ts'
-import { getOperationId, getRequestContentType, getResponseByStatusCode, getResponseStatusCodes } from './operation.ts'
+import { getOperationId, getRequestBody, getRequestContentType, getResponseByStatusCode, getResponseStatusCodes } from './operation.ts'
 import type { Refs } from './refs.ts'
-import type { ContentType, Document, Operation, SchemaObject } from './types.ts'
+import type { ContentTypeOptions, Document, Operation, SchemaObject } from './types.ts'
 
 /**
  * Parser context holding the raw OpenAPI document and optional content-type override.
@@ -15,10 +15,9 @@ import type { ContentType, Document, Operation, SchemaObject } from './types.ts'
  * Passed to schema and operation converters to access the full specification
  * and handle content negotiation when multiple media types are available.
  */
-export type OasParserContext = {
+export type OasParserContext = ContentTypeOptions & {
   document: Document
   refs: Refs
-  contentType?: ContentType
   /**
    * Collision renames from `getSchemas`, keyed by the original component pointer. `convertRef`
    * stamps `targetName` from it at ref creation, so refs to renamed schemas resolve to the
@@ -128,7 +127,7 @@ export function createSchemaParser(ctx: OasParserContext) {
     description?: string
     required: boolean
   } {
-    const body = refs.deref<{ description?: string; required?: boolean }>(operation.schema.requestBody)
+    const body = getRequestBody({ operation, refs })
     if (!body) return { required: false }
 
     return {
@@ -160,7 +159,7 @@ export function createSchemaParser(ctx: OasParserContext) {
   function parseOperation(options: ast.ParserOptions, operation: Operation): ast.OperationNode {
     const operationId = getOperationId(operation)
     const operationName = operationId ? pascalCase(operationId) : undefined
-    const parameters: Array<ast.ParameterNode> = getParameters(document, operation, refs).map((param) =>
+    const parameters: Array<ast.ParameterNode> = getParameters({ document, operation }).map((param) =>
       parseParameter(options, param as unknown as Record<string, unknown>, operationName),
     )
 
@@ -173,7 +172,7 @@ export function createSchemaParser(ctx: OasParserContext) {
     const requestBodyName = operationName ? `${operationName}Request` : undefined
 
     const content = allContentTypes.flatMap((ct) => {
-      const schema = getRequestSchema(document, operation, refs, { contentType: ct })
+      const schema = getRequestSchema({ document, operation, refs, options: { contentType: ct } })
       if (!schema) return []
       return [
         ast.factory.createContent({
@@ -203,7 +202,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       const description = typeof responseObj === 'object' && responseObj !== null ? (responseObj as { description?: string }).description : undefined
 
       const parseEntrySchema = (contentType?: string) => {
-        const raw = getResponseSchema(document, operation, refs, statusCode, { contentType })
+        const raw = getResponseSchema({ document, operation, refs, statusCode, options: { contentType } })
         const node =
           raw && Object.keys(raw).length > 0
             ? parseSchema({ schema: raw, name: responseName }, options)
@@ -234,13 +233,10 @@ export function createSchemaParser(ctx: OasParserContext) {
       })
     })
 
-    const rawPathItem = document.paths?.[operation.path]
-    const pathItem = refs.deref<{ summary?: unknown; description?: unknown }>(rawPathItem)
-    const pathItemDoc = pathItem ?? undefined
     const pickDoc = (key: 'summary' | 'description'): string | undefined => {
       const own = operation.schema[key]
       if (typeof own === 'string') return own
-      const fallback = pathItemDoc?.[key]
+      const fallback = (operation.pathItem as Record<string, unknown>)[key]
       return typeof fallback === 'string' ? fallback : undefined
     }
 

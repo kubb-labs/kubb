@@ -6,6 +6,41 @@ import type { Document, SchemaObject } from './types.ts'
 const _refCache = new WeakMap<Document, Map<string, unknown>>()
 
 /**
+ * Walks a local `#/...` JSON pointer against `document`, memoized per document. `applicable` is
+ * `false` for an empty or non-local ref (the caller should not treat that as a failed lookup).
+ * Shared by `resolveRef`'s reporting walk and `createRefs().resolve`'s silent walk, so both use
+ * the same trimming and caching instead of two separate implementations.
+ */
+function walkPointer<T>(document: Document, $ref: string): { applicable: boolean; value: T | null } {
+  const trimmed = $ref.trim()
+  if (trimmed === '' || !trimmed.startsWith('#')) {
+    return { applicable: false, value: null }
+  }
+  const pointer = globalThis.decodeURIComponent(trimmed.substring(1))
+
+  let docCache = _refCache.get(document)
+  if (!docCache) {
+    docCache = new Map()
+    _refCache.set(document, docCache)
+  }
+
+  if (docCache.has(pointer)) {
+    return { applicable: true, value: docCache.get(pointer) as T }
+  }
+
+  const current = pointer
+    .split('/')
+    .filter(Boolean)
+    .reduce((obj: unknown, key: string) => (obj as Record<string, unknown>)?.[key], document as unknown)
+
+  if (current) {
+    docCache.set(pointer, current)
+  }
+
+  return { applicable: true, value: (current as T) ?? null }
+}
+
+/**
  * Resolves a local JSON pointer reference from a document.
  *
  * Accepts `#/...` refs. Returns `null` for an empty or non-local ref. When the pointer cannot be
@@ -18,48 +53,24 @@ const _refCache = new WeakMap<Document, Map<string, unknown>>()
  * ```
  */
 export function resolveRef<T = unknown>(document: Document, $ref: string): T | null {
-  const origRef = $ref
-  $ref = $ref.trim()
-  if ($ref === '') {
-    return null
+  const { applicable, value } = walkPointer<T>(document, $ref)
+  if (!applicable) return null
+  if (value) return value
+
+  const diagnostic: Diagnostic = {
+    code: Diagnostics.code.refNotFound,
+    severity: 'error',
+    message: `Could not find a definition for ${$ref}.`,
+    help: 'Add the schema under `components.schemas`, or fix the `$ref`. Run `kubb validate` to check the spec.',
+    location: { kind: 'schema', pointer: $ref, ref: $ref },
   }
-  if (!$ref.startsWith('#')) return null
-  $ref = globalThis.decodeURIComponent($ref.substring(1))
-
-  let docCache = _refCache.get(document)
-  if (!docCache) {
-    docCache = new Map()
-    _refCache.set(document, docCache)
+  // Report the unresolved ref into the active build and resolve to null, like any
+  // other unresolvable ref. The build collects it and keeps going. Outside a build there is no
+  // sink, so throw rather than silently returning null.
+  if (!Diagnostics.report(diagnostic)) {
+    throw new Diagnostics.Error(diagnostic)
   }
-
-  if (docCache.has($ref)) {
-    return docCache.get($ref) as T
-  }
-
-  const current = $ref
-    .split('/')
-    .filter(Boolean)
-    .reduce((obj: unknown, key: string) => (obj as Record<string, unknown>)?.[key], document as unknown)
-
-  if (!current) {
-    const diagnostic: Diagnostic = {
-      code: Diagnostics.code.refNotFound,
-      severity: 'error',
-      message: `Could not find a definition for ${origRef}.`,
-      help: 'Add the schema under `components.schemas`, or fix the `$ref`. Run `kubb validate` to check the spec.',
-      location: { kind: 'schema', pointer: origRef, ref: origRef },
-    }
-    // Report the unresolved ref into the active build and resolve to null, like any
-    // other unresolvable ref. The build collects it and keeps going. Outside a build there is no
-    // sink, so throw rather than silently returning null.
-    if (!Diagnostics.report(diagnostic)) {
-      throw new Diagnostics.Error(diagnostic)
-    }
-    return null
-  }
-
-  docCache.set($ref, current)
-  return current as T
+  return null
 }
 
 /**
@@ -130,13 +141,8 @@ export function createRefs(document: Document) {
    */
   function resolve<T = unknown>(refPath: string, options?: { report?: boolean }): T | null {
     if (options?.report === false) {
-      if (!refPath.startsWith('#')) return null
-      const target = decodeURIComponent(refPath.substring(1))
-        .split('/')
-        .filter(Boolean)
-        .reduce<unknown>((obj, key) => (obj as Record<string, unknown> | undefined)?.[key], document)
-
-      return (target as T | undefined) ?? null
+      const { applicable, value } = walkPointer<T>(document, refPath)
+      return applicable ? value : null
     }
 
     return resolveRef<T>(document, refPath)
@@ -149,13 +155,7 @@ export function createRefs(document: Document) {
    */
   function exists(refPath: string): boolean {
     if (!existenceCache.has(refPath)) {
-      let found = false
-      try {
-        found = !!resolve(refPath)
-      } catch {
-        found = false
-      }
-      existenceCache.set(refPath, found)
+      existenceCache.set(refPath, !!resolve(refPath, { report: false }))
     }
     return existenceCache.get(refPath) ?? false
   }

@@ -17,6 +17,13 @@ export type { Operation }
 export type ContentType = 'application/json' | (string & {})
 
 /**
+ * Preferred media type to select when an operation or component declares more than one.
+ */
+export type ContentTypeOptions = {
+  contentType?: ContentType
+}
+
+/**
  * Extended OpenAPI 3.0 schema object that includes OpenAPI 3.1 and JSON Schema fields.
  * The parser uses these additional fields to handle newer spec versions.
  *

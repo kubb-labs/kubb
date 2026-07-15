@@ -3,7 +3,7 @@ import { enumDescriptionKeys, enumExtensionKeys } from '../../constants.ts'
 import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
-import { getDateType, getPrimitiveType, getSchemaType } from '../schemaHelpers.ts'
+import { getDateType, getExclusiveBounds, getPrimitiveType, getSchemaType } from '../schemaHelpers.ts'
 
 /**
  * Normalizes malformed `{ type: 'array', enum: [...] }` schemas by moving enum values into items.
@@ -79,8 +79,7 @@ export function convertFormat({ schema, name, nullable, defaultValue, options }:
       primitive: 'integer',
       min: schema.minimum,
       max: schema.maximum,
-      exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
-      exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
+      ...getExclusiveBounds(schema),
     })
   }
 
@@ -205,8 +204,7 @@ export function convertNumeric({ schema, name, nullable, defaultValue }: Convert
       primitive: type,
       min: schema.minimum,
       max: schema.maximum,
-      exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
-      exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
+      ...getExclusiveBounds(schema),
       multipleOf: schema.multipleOf,
     },
   )

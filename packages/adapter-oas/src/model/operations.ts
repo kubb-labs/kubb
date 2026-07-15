@@ -1,12 +1,10 @@
-import { isJsonMimeType, isReference } from '../oas.ts'
-import { getRequestContent, getResponseByStatusCode } from '../operation.ts'
+import { isReference, pickContentEntry } from '../oas.ts'
+import { getRequestBody, getRequestContent, getResponseByStatusCode } from '../operation.ts'
 import { dereferenceWithRef } from '../refs.ts'
 import type { Refs } from '../refs.ts'
-import type { ContentType, Document, MediaTypeObject, Operation, ParameterObject, ResponseObject, SchemaObject } from '../types.ts'
+import type { ContentTypeOptions, Document, MediaTypeObject, Operation, ParameterObject, ResponseObject, SchemaObject } from '../types.ts'
 
-export type OperationsOptions = {
-  contentType?: ContentType
-}
+export type OperationsOptions = ContentTypeOptions
 
 /**
  * Returns all parameters for an operation, merging path-level and operation-level entries.
@@ -15,17 +13,16 @@ export type OperationsOptions = {
  *
  * @example
  * ```ts
- * getParameters(document, operation, refs)
+ * getParameters({ document, operation })
  * // [{ name: 'petId', in: 'path', required: true, schema: { type: 'integer' } }]
  * ```
  */
-export function getParameters(document: Document, operation: Operation, refs: Refs): Array<ParameterObject> {
+export function getParameters({ document, operation }: { document: Document; operation: Operation }): Array<ParameterObject> {
   const resolveParams = (params: Array<unknown>): Array<ParameterObject> =>
     params.map((p) => dereferenceWithRef(document, p)).filter((p): p is ParameterObject => !!p && typeof p === 'object' && 'in' in p && 'name' in p)
 
   const operationParams = resolveParams(operation.schema?.parameters || [])
-  const pathItem = refs.deref<{ parameters?: Array<unknown> }>(document.paths?.[operation.path])
-  const pathLevelParams = resolveParams(pathItem?.parameters ?? [])
+  const pathLevelParams = resolveParams((operation.pathItem as { parameters?: Array<unknown> }).parameters ?? [])
 
   const paramMap = new Map<string, ParameterObject>()
   for (const p of pathLevelParams) {
@@ -50,15 +47,11 @@ function getResponseBody(responseBody: boolean | ResponseObject, contentType?: s
   if (!body.content) return false
 
   if (contentType) {
-    if (!(contentType in body.content)) return false
-    return body.content[contentType]!
+    return contentType in body.content ? body.content[contentType]! : false
   }
 
-  const contentTypes = Object.keys(body.content)
-  const availableContentType = contentTypes.find(isJsonMimeType) ?? contentTypes[0]
-  if (!availableContentType) return false
-
-  return body.content[availableContentType]!
+  const picked = pickContentEntry(body.content)
+  return picked ? picked[1] : false
 }
 
 /**
@@ -68,17 +61,23 @@ function getResponseBody(responseBody: boolean | ResponseObject, contentType?: s
  *
  * @example
  * ```ts
- * getResponseSchema(document, operation, refs, 200)         // SchemaObject
- * getResponseSchema(document, operation, refs, '4XX')       // {}
+ * getResponseSchema({ document, operation, refs, statusCode: 200 })   // SchemaObject
+ * getResponseSchema({ document, operation, refs, statusCode: '4XX' }) // {}
  * ```
  */
-export function getResponseSchema(
-  document: Document,
-  operation: Operation,
-  refs: Refs,
-  statusCode: string | number,
-  options: OperationsOptions = {},
-): SchemaObject {
+export function getResponseSchema({
+  document,
+  operation,
+  refs,
+  statusCode,
+  options = {},
+}: {
+  document: Document
+  operation: Operation
+  refs: Refs
+  statusCode: string | number
+  options?: OperationsOptions
+}): SchemaObject {
   const responseBody = getResponseBody(getResponseByStatusCode({ operation, refs, statusCode }), options.contentType)
 
   if (responseBody === false) {
@@ -99,10 +98,20 @@ export function getResponseSchema(
  *
  * @example
  * ```ts
- * getRequestSchema(document, operation, refs) // SchemaObject | null
+ * getRequestSchema({ document, operation, refs }) // SchemaObject | null
  * ```
  */
-export function getRequestSchema(document: Document, operation: Operation, refs: Refs, options: OperationsOptions = {}): SchemaObject | null {
+export function getRequestSchema({
+  document,
+  operation,
+  refs,
+  options = {},
+}: {
+  document: Document
+  operation: Operation
+  refs: Refs
+  options?: OperationsOptions
+}): SchemaObject | null {
   const requestBody = getRequestContent({ operation, refs, mediaType: options.contentType })
 
   if (requestBody === false) {
@@ -137,10 +146,9 @@ export function getRequestSchema(document: Document, operation: Operation, refs:
  * ```
  */
 export function getRequestBodyContentTypes(operation: Operation, refs: Refs): Array<string> {
-  const body = refs.deref<{ content?: Record<string, unknown> }>(operation.schema.requestBody)
-  if (!body) return []
+  const body = getRequestBody({ operation, refs })
 
-  return body.content ? Object.keys(body.content) : []
+  return body?.content ? Object.keys(body.content) : []
 }
 
 /**

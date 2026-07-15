@@ -2,7 +2,7 @@ import { pascalCase } from '@internals/utils'
 import { SCHEMA_REF_PREFIX } from '../constants.ts'
 import { isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
-import type { ContentType, Document, SchemaObject } from '../types.ts'
+import type { ContentType, ContentTypeOptions, Document, SchemaObject } from '../types.ts'
 
 /**
  * The three component sections Kubb reads schemas from.
@@ -19,9 +19,7 @@ type SchemaWithMetadata = {
   originalName: string
 }
 
-export type GetSchemasOptions = {
-  contentType?: ContentType
-}
+export type GetSchemasOptions = ContentTypeOptions
 
 export type GetSchemasResult = {
   schemas: Record<string, SchemaObject>
@@ -54,7 +52,7 @@ export function extractSchemaFromContent(content: Record<string, unknown> | unde
   const contentSchema = content[targetContentType] as { schema?: SchemaObject } | undefined
   const schema = contentSchema?.schema
 
-  if (schema && '$ref' in schema) return null
+  if (isReference(schema)) return null
   return schema ?? null
 }
 
@@ -131,6 +129,28 @@ const semanticSuffixes: Record<SchemaSourceMode, string> = {
 }
 
 /**
+ * Picks the collision suffix for one name-colliding schema: none when the name is unique,
+ * a semantic suffix (`Schema`, `Response`, `Request`) when the collision spans sources, otherwise
+ * a numeric suffix (`2`, `3`, …) for same-source collisions.
+ */
+function collisionSuffix({
+  isSingle,
+  hasMultipleSources,
+  source,
+  index,
+}: {
+  isSingle: boolean
+  hasMultipleSources: boolean
+  source: SchemaSourceMode
+  index: number
+}): string {
+  if (isSingle) return ''
+  if (hasMultipleSources) return semanticSuffixes[source]
+  if (index === 0) return ''
+  return String(index + 1)
+}
+
+/**
  * Collects component schemas from one or more sources and resolves name collisions.
  *
  * Sources default to `['schemas', 'requestBodies', 'responses']`. Returned schemas are
@@ -201,7 +221,7 @@ export function getSchemas(document: Document, { contentType }: GetSchemasOption
     }
 
     items.forEach((item, index) => {
-      const suffix = isSingle ? '' : hasMultipleSources ? semanticSuffixes[item.source] : index === 0 ? '' : String(index + 1)
+      const suffix = collisionSuffix({ isSingle, hasMultipleSources, source: item.source, index })
       const uniqueName = item.originalName + suffix
       schemas[uniqueName] = item.schema
       if (suffix) renames.set(`#/components/${item.source}/${item.originalName}`, uniqueName)

@@ -1,5 +1,5 @@
 import { SUPPORTED_METHODS } from './constants.ts'
-import { isJsonMimeType, isReference } from './oas.ts'
+import { isJsonMimeType, isReference, pickContentEntry } from './oas.ts'
 import type { Refs } from './refs.ts'
 import type { Document, MediaTypeObject, OperationObject, PathItemObject, ReferenceObject, RequestBodyObject, ResponseObject } from './types.ts'
 
@@ -8,11 +8,14 @@ import type { Document, MediaTypeObject, OperationObject, PathItemObject, Refere
  *
  * `schema` is a live reference into the document. Unlike earlier versions of this adapter, nothing
  * resolves a `$ref` in place here anymore — every accessor below resolves through `refs` instead.
+ * `pathItem` is the already-resolved path item this operation was read from, so a caller that
+ * also needs path-level data (parameters, summary, description) doesn't re-resolve it.
  */
 export type Operation = {
   path: string
   method: string
   schema: OperationObject
+  pathItem: PathItemObject
 }
 
 /**
@@ -71,13 +74,19 @@ export function getResponseByStatusCode({ operation, refs, statusCode }: Operati
 }
 
 /**
+ * Resolves the operation's request body, dereferencing a `$ref` through `refs`. Returns `null`
+ * when the operation has no request body or it cannot be resolved.
+ */
+export function getRequestBody({ operation, refs }: OperationContext): RequestBodyObject | null {
+  return refs.deref<RequestBodyObject>(operation.schema.requestBody)
+}
+
+/**
  * Resolves the request body (a `$ref` through `refs`) and returns its content map, or
  * `undefined` when the operation has no request body.
  */
 function getRequestBodyContent({ operation, refs }: OperationContext): Record<string, MediaTypeObject> | undefined {
-  const requestBody = refs.deref<RequestBodyObject>(operation.schema.requestBody)
-
-  return requestBody?.content
+  return getRequestBody({ operation, refs })?.content
 }
 
 /**
@@ -100,10 +109,7 @@ export function getRequestContent({
     return mediaType in content ? content[mediaType]! : false
   }
 
-  const mediaTypes = Object.keys(content)
-  const available = mediaTypes.find((mt) => isJsonMimeType(mt)) ?? mediaTypes[0]
-
-  return available ? [available, content[available]!] : false
+  return pickContentEntry(content)
 }
 
 /**
@@ -161,7 +167,7 @@ export function getOperations(document: Document, refs: Refs): Array<Operation> 
       if (!schema || typeof schema !== 'object') {
         continue
       }
-      operations.push({ path, method, schema: schema as OperationObject })
+      operations.push({ path, method, schema: schema as OperationObject, pathItem })
     }
   }
 

@@ -72,6 +72,18 @@ export function getDateType(
 }
 
 /**
+ * Reads a schema's numeric `exclusiveMinimum`/`exclusiveMaximum` bounds (the OAS 3.1 numeric
+ * form). Either key is `undefined` when absent or, for the legacy OAS 3.0 boolean form, not a
+ * number.
+ */
+export function getExclusiveBounds(schema: SchemaObject): { exclusiveMinimum: number | undefined; exclusiveMaximum: number | undefined } {
+  return {
+    exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
+    exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
+  }
+}
+
+/**
  * Reads schema examples as an array. OAS 3.1 uses an `examples` array, but specs (including ones
  * labeled 3.1) still use the singular OAS 3.0 `example`, which the upgrader only converts on the
  * 3.0 -> 3.1 hop. Normalize both into one array so the AST node exposes only `examples`.
