@@ -1,5 +1,6 @@
 import type { ast } from '@kubb/ast'
 import { isBinary, isReference } from '../oas.ts'
+import { isHandledFormat } from '../resolvers.ts'
 import type { Document, SchemaObject } from '../types.ts'
 import { convertAllOf, convertMultiType, convertRef, convertUnion } from './converters/composition.ts'
 import { convertBinary, convertBoolean, convertConst, convertEnum, convertFormat, convertNumeric, convertString, createNullNode } from './converters/scalar.ts'
@@ -60,9 +61,8 @@ export type ConverterDeps = {
 export type ConvertContext = SchemaContext & ConverterDeps
 
 /**
- * One entry in the ordered schema rule table: a predicate paired with a converter. A rule whose
- * `match` returns `true` may still `convert` to `null` to defer to the next rule (e.g. a `format`
- * that is not convertible falls through to plain `type` handling).
+ * One entry in the ordered schema rule table: a predicate paired with a converter. `match`
+ * fully decides whether this rule owns the context, so `convert` always produces a node.
  */
 export type SchemaRule = {
   /**
@@ -70,9 +70,9 @@ export type SchemaRule = {
    */
   match: (context: ConvertContext) => boolean
   /**
-   * Produces a node for the context, or `null` to fall through to the next rule.
+   * Produces a node for the context.
    */
-  convert: (context: ConvertContext) => ast.SchemaNode | null
+  convert: (context: ConvertContext) => ast.SchemaNode
 }
 
 /**
@@ -86,9 +86,16 @@ export const schemaRules: Array<SchemaRule> = [
   { match: ({ schema }) => !!schema.allOf?.length, convert: convertAllOf },
   { match: ({ schema }) => !!(schema.oneOf?.length || schema.anyOf?.length), convert: convertUnion },
   { match: ({ schema }) => 'const' in schema && schema.const !== undefined, convert: convertConst },
-  { match: ({ schema }) => !!schema.format, convert: convertFormat },
+  {
+    match: ({ schema, options }) => {
+      if (!schema.format) return false
+      if (schema.format === 'date-time' || schema.format === 'date' || schema.format === 'time') return options.dateType !== false
+      return isHandledFormat(schema.format)
+    },
+    convert: convertFormat,
+  },
   { match: ({ schema }) => isBinary(schema), convert: convertBinary },
-  { match: ({ schema }) => Array.isArray(schema.type) && schema.type.length > 1, convert: convertMultiType },
+  { match: ({ schema }) => Array.isArray(schema.type) && schema.type.filter((t) => t !== 'null').length > 1, convert: convertMultiType },
   {
     match: ({ schema, type }) => !type && (schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined),
     convert: convertString,

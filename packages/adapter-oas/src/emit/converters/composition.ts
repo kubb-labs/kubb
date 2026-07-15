@@ -273,14 +273,13 @@ export function convertUnion({ schema, name, nullable, defaultValue, rawOptions,
 
 /**
  * Converts an OAS 3.1 multi-type array (e.g. `type: ['string', 'number']`) into a `UnionSchemaNode`.
- *
- * Returns `null` when only one non-`null` type remains (e.g. `['string', 'null']`), so `parse`
- * falls through and handles it as that single type with nullability already folded in.
+ * Only called once the multi-type rule's `match` has confirmed more than one non-`null` type
+ * remains; a single remaining type (e.g. `['string', 'null']`) is handled as that type instead,
+ * with nullability already folded in.
  */
-export function convertMultiType({ schema, name, nullable, defaultValue, rawOptions, parse }: ConvertContext): ast.SchemaNode | null {
+export function convertMultiType({ schema, name, nullable, defaultValue, rawOptions, parse }: ConvertContext): ast.SchemaNode {
   const types = schema.type as Array<string>
   const nonNullTypes = types.filter((t) => t !== 'null')
-  if (nonNullTypes.length <= 1) return null
 
   const arrayNullable = types.includes('null') || nullable || undefined
   return createNode(

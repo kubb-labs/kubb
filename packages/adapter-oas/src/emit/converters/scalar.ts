@@ -66,10 +66,11 @@ export function convertConst({ schema, name, nullable, defaultValue }: ConvertCo
 }
 
 /**
- * Converts a format-annotated schema into a special-type `SchemaNode`.
- * Returns `null` when the format should fall through to string handling (`dateType: false`).
+ * Converts a format-annotated schema into a special-type `SchemaNode`. Only called once the
+ * `format` rule's `match` has confirmed the format is handled (see `isHandledFormat`) and, for
+ * a date-ish format, that `dateType` is not `false`.
  */
-export function convertFormat({ schema, name, nullable, defaultValue, options }: ConvertContext): ast.SchemaNode | null {
+export function convertFormat({ schema, name, nullable, defaultValue, options }: ConvertContext): ast.SchemaNode {
   const ctx = { schema, name, nullable, defaultValue }
 
   if (schema.format === 'int64') {
@@ -84,8 +85,7 @@ export function convertFormat({ schema, name, nullable, defaultValue, options }:
   }
 
   if (schema.format === 'date-time' || schema.format === 'date' || schema.format === 'time') {
-    const dateType = getDateType(options, schema.format)
-    if (!dateType) return null
+    const dateType = getDateType(options, schema.format)!
 
     if (dateType.type === 'datetime') {
       return createNode(ctx, {
@@ -102,8 +102,7 @@ export function convertFormat({ schema, name, nullable, defaultValue, options }:
     })
   }
 
-  const specialType = getSchemaType(schema.format!)
-  if (!specialType) return null
+  const specialType = getSchemaType(schema.format!)!
 
   const specialPrimitive: ast.PrimitiveSchemaType = specialType === 'number' || specialType === 'integer' || specialType === 'bigint' ? specialType : 'string'
   const hasLength = specialType === 'url' || specialType === 'uuid' || specialType === 'email'

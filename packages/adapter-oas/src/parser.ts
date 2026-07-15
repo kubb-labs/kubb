@@ -137,9 +137,7 @@ export function createSchemaParser(ctx: OasParserContext) {
     }
 
     for (const rule of schemaRules) {
-      if (!rule.match(context)) continue
-      const node = rule.convert(context)
-      if (node) return node
+      if (rule.match(context)) return rule.convert(context)
     }
 
     const emptyType = options.emptySchemaType
