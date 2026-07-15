@@ -299,12 +299,9 @@ importers:
 
   packages/parser-md:
     dependencies:
-      '@kubb/ast':
+      '@kubb/kit':
         specifier: workspace:*
-        version: link:../ast
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../core
+        version: link:../kit
       yaml:
         specifier: 'catalog:'
         version: 2.9.0
