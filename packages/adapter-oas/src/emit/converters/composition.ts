@@ -1,10 +1,9 @@
-import { ast, extractRefName, macroDiscriminatorEnum, macroSimplifyUnion, mergeAdjacentObjectsLazy } from '@kubb/ast'
-import { SCHEMA_REF_PREFIX } from '../../constants.ts'
-import { createDiscriminantNode, findDiscriminator } from '../../discriminator.ts'
+import { ast, extractRefName, macroSimplifyUnion, mergeAdjacentObjectsLazy } from '@kubb/ast'
 import { isDiscriminator, isReference } from '../../oas.ts'
 import { extractExamples } from '../../resolvers.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
+import { createDiscriminantNode, extractDiscriminatedAllOfMembers, narrowUnionMembers } from '../discriminator/index.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 
 /**
@@ -72,33 +71,12 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
     } as ast.DistributiveOmit<ast.SchemaNode, 'kind'>)
   }
 
-  const filteredDiscriminantValues: Array<{
-    propertyName: string
-    value: string
-  }> = []
-  const allOfMembers: Array<ast.SchemaNode> = (schema.allOf as Array<SchemaObject | ReferenceObject>)
-    .filter((item) => {
-      if (!isReference(item) || !name) return true
-      const deref = refs.resolve<SchemaObject>(item.$ref)
-      if (!deref || !isDiscriminator(deref)) return true
-      const parentUnion = deref.oneOf ?? deref.anyOf
-      if (!parentUnion) return true
-      const childRef = `${SCHEMA_REF_PREFIX}${name}`
-      const inOneOf = parentUnion.some((oneOfItem) => isReference(oneOfItem) && oneOfItem.$ref === childRef)
-      const inMapping = Object.values(deref.discriminator.mapping ?? {}).some((v) => v === childRef)
-      if (inOneOf || inMapping) {
-        const discriminatorValue = findDiscriminator(deref.discriminator.mapping, childRef)
-        if (discriminatorValue) {
-          filteredDiscriminantValues.push({
-            propertyName: deref.discriminator.propertyName,
-            value: discriminatorValue,
-          })
-        }
-        return false
-      }
-      return true
-    })
-    .map((s) => parse({ schema: s as SchemaObject, name }, rawOptions))
+  const { members: discriminatedAllOf, discriminantValues } = extractDiscriminatedAllOfMembers({
+    allOfMembers: schema.allOf as Array<SchemaObject | ReferenceObject>,
+    name,
+    refs,
+  })
+  const allOfMembers: Array<ast.SchemaNode> = discriminatedAllOf.map((s) => parse({ schema: s as SchemaObject, name }, rawOptions))
 
   const syntheticStart = allOfMembers.length
 
@@ -135,7 +113,7 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
     allOfMembers.push(parse({ schema: schemaWithoutAllOf }, rawOptions))
   }
 
-  for (const { propertyName, value } of filteredDiscriminantValues) {
+  for (const { propertyName, value } of discriminantValues) {
     allOfMembers.push(createDiscriminantNode({ propertyName, value }))
   }
 
@@ -152,57 +130,6 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
  * Converts a `oneOf` / `anyOf` schema into a `UnionSchemaNode`.
  */
 export function convertUnion({ schema, name, nullable, defaultValue, rawOptions, parse, refs }: ConvertContext): ast.SchemaNode {
-  function pickDiscriminatorPropertyNode(node: ast.SchemaNode, propertyName: string): ast.SchemaNode | null {
-    const objectNode = ast.narrowSchema(node, 'object')
-    const discriminatorProperty = objectNode?.properties?.find((property) => property.name === propertyName)
-
-    if (!discriminatorProperty) {
-      return null
-    }
-
-    return ast.factory.createSchema({
-      type: 'object',
-      primitive: 'object',
-      properties: [discriminatorProperty],
-    })
-  }
-
-  // Silent walk — the reporting resolve() would flag missing refs as errors during speculative lookup.
-  function resolveRefSilent($ref: string): SchemaObject | null {
-    return refs.resolve<SchemaObject>($ref, { report: false })
-  }
-
-  function implicitDiscriminantValue(member: unknown): string | null {
-    if (!discriminator || discriminator.mapping || !isReference(member)) return null
-    const value = extractRefName(member.$ref)
-    if (!value) return null
-    const variant = resolveRefSilent(member.$ref)
-    if (!variant) return null
-
-    const propertyName = discriminator.propertyName
-    // Intersecting two different literals on the same property collapses it to `never`,
-    // so skip folding the implicit name when the variant already pins the discriminator.
-    const seen = new Set([member.$ref])
-
-    function constrains(v: SchemaObject): boolean {
-      const prop = v.properties?.[propertyName]
-      const resolved = prop && isReference(prop) ? resolveRefSilent(prop.$ref) : (prop as SchemaObject | undefined)
-      if (resolved && (Array.isArray(resolved.enum) || resolved.const !== undefined)) return true
-      const composition = v.allOf ?? v.oneOf ?? v.anyOf
-      if (!composition) return false
-
-      return composition.some((m) => {
-        if (!isReference(m)) return constrains(m as SchemaObject)
-        if (seen.has(m.$ref)) return false
-        seen.add(m.$ref)
-        const r = resolveRefSilent(m.$ref)
-        return r ? constrains(r) : false
-      })
-    }
-
-    return constrains(variant) ? null : value
-  }
-
   const ctx = { schema, name, nullable, defaultValue }
   const unionMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
   const strategy: 'one' | 'any' = schema.oneOf ? 'one' : 'any'
@@ -215,37 +142,7 @@ export function convertUnion({ schema, name, nullable, defaultValue, rawOptions,
   const sharedPropertiesNode = schema.properties ? parse({ schema: memberBaseSchema as SchemaObject, name }, rawOptions) : undefined
 
   if (sharedPropertiesNode || discriminator) {
-    const members = unionMembers.map((s) => {
-      const ref = isReference(s) ? s.$ref : undefined
-      const discriminatorValue = findDiscriminator(discriminator?.mapping, ref) ?? implicitDiscriminantValue(s)
-      const memberNode = parse({ schema: s as SchemaObject, name }, rawOptions)
-
-      if (!discriminatorValue || !discriminator) {
-        return memberNode
-      }
-
-      const narrowedDiscriminatorNode = sharedPropertiesNode
-        ? pickDiscriminatorPropertyNode(
-            ast.applyMacros(sharedPropertiesNode, [macroDiscriminatorEnum({ propertyName: discriminator.propertyName, values: [discriminatorValue] })], {
-              depth: 'shallow',
-            }),
-            discriminator.propertyName,
-          )
-        : undefined
-
-      return ast.factory.createSchema({
-        type: 'intersection',
-        members: [
-          memberNode,
-          narrowedDiscriminatorNode ??
-            createDiscriminantNode({
-              propertyName: discriminator.propertyName,
-              value: discriminatorValue,
-            }),
-        ],
-      })
-    })
-
+    const members = narrowUnionMembers({ unionMembers, discriminator, sharedPropertiesNode, parse, rawOptions, name, refs })
     const unionNode = createNode(ctx, { type: 'union', ...unionExtras, members })
 
     if (!sharedPropertiesNode) {
