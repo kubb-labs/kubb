@@ -279,7 +279,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       resolver.default.path({
         baseName: 'pets.ts',
         root: '/tmp/root',
-        output: { path: 'gen' },
+        output: { path: 'gen', mode: 'directory' },
       }),
     ).toBe('/tmp/root/gen/pets.ts')
   })
@@ -351,7 +351,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const opts = plugin.options as Record<string, unknown>
     expect(opts.enumType).toBe('asConst')
     expect(opts.syntaxType).toBe('type')
-    expect(opts.output).toStrictEqual({ path: 'types', mode: 'directory' })
+    expect(opts.output).toStrictEqual({ path: 'types', mode: 'file' })
   })
 
   it('external listeners receive kubb:plugin:setup context', async () => {
@@ -585,10 +585,10 @@ describe('PluginDriver — generator hook dispatch', () => {
 })
 
 describe('normalizeOutput', () => {
-  it('defaults mode to directory', () => {
+  it('defaults mode to file', () => {
     const result = normalizeOutput({ output: { path: 'types' }, pluginName: 'plugin-ts' })
 
-    expect(result).toStrictEqual({ path: 'types', mode: 'directory' })
+    expect(result).toStrictEqual({ path: 'types', mode: 'file' })
   })
 
   it('keeps an explicit directory mode', () => {

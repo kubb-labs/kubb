@@ -22,8 +22,8 @@ export type ResolvePluginOptions<TName> = TName extends keyof Kubb.PluginRegistr
 
 /**
  * How a plugin consolidates its generated code into files.
- * - `'directory'` writes one file per operation or schema under `path`.
  * - `'file'` writes everything into a single file.
+ * - `'directory'` writes one file per operation or schema under `path`.
  */
 export type OutputMode = 'directory' | 'file'
 
@@ -40,10 +40,10 @@ export type Output = {
   path: string
   /**
    * How generated code is consolidated into files.
-   * - `'directory'` writes one file per operation or schema under `path`.
    * - `'file'` writes everything into a single file. The `path` must include the file extension.
+   * - `'directory'` writes one file per operation or schema under `path`.
    *
-   * @default 'directory'
+   * @default 'file'
    */
   mode?: OutputMode
   /**
@@ -86,9 +86,9 @@ export type Group = {
 
 /**
  * Couples `output.mode` with the plugin's `group` option at the type level.
- * - `mode: 'file'` forbids `group` (a single file has nothing to group).
- * - `mode: 'directory'` (or no mode) allows an optional `group` to organize
- *   files into per-group subdirectories.
+ * - `mode: 'file'` (or no mode) forbids `group` (a single file has nothing to group).
+ * - `mode: 'directory'` allows an optional `group` to organize files into
+ *   per-group subdirectories.
  *
  * Intersect into a plugin's `Options` type instead of declaring `output` and
  * `group` directly, since `mode` lives inside `output` while `group` is its sibling.
@@ -103,12 +103,12 @@ export type Group = {
  */
 export type OutputOptions<TOutput extends Output = Output> =
   | {
-      output?: TOutput & { mode?: 'directory' }
-      group?: Group
+      output?: TOutput & { mode?: 'file' }
+      group?: never
     }
   | {
-      output: TOutput & { mode: 'file' }
-      group?: never
+      output: TOutput & { mode: 'directory' }
+      group?: Group
     }
 
 /**
@@ -117,7 +117,7 @@ export type OutputOptions<TOutput extends Output = Output> =
  * since a single-file output has nothing to group.
  */
 export function normalizeOutput({ output, group, pluginName }: { output: Output; group?: Group | null; pluginName: string }): Output {
-  const mode = output.mode ?? 'directory'
+  const mode = output.mode ?? 'file'
 
   if (mode === 'file' && group) {
     throw new Diagnostics.Error({
