@@ -1,5 +1,5 @@
 import { adapterOas } from '@kubb/adapter-oas'
-import { applyConfigDefaults, type Config, Diagnostics, type KubbHooks, Hookable, runGeneration } from '@kubb/core'
+import { applyConfigDefaults, type Config, createKubb, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import type { UnpluginFactory } from 'unplugin'
@@ -97,8 +97,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     await hooks.callHook('kubb:lifecycle:start', { version: unpluginVersion })
 
     // Unplugin has no diagnostic renderer, so route problems by severity to the channels it logs on.
-    const result = await runGeneration(userConfig, {
-      hooks,
+    const result = await createKubb(userConfig, { hooks }).generate({
       renderDiagnostic: async ({ diagnostic, hooks }) => {
         if (!Diagnostics.isProblem(diagnostic)) return
         if (diagnostic.severity === 'error') {

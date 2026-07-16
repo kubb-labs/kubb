@@ -1,7 +1,8 @@
 import { resolve } from 'node:path'
 import { BuildError, isPathInside } from '@internals/utils'
+import type { FileNode } from '@kubb/ast'
 import { HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
-import { Diagnostics } from './Diagnostics.ts'
+import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -27,6 +28,92 @@ function resolveConfig(userConfig: UserConfig): Config {
 
 export type CreateKubbOptions = {
   hooks?: Hookable<KubbHooks>
+}
+
+/**
+ * A step in the generation lifecycle a host narrates. `Kubb.generate` calls `onPhase` at each one
+ * so a host emits its own progress without the runner knowing about presentation.
+ *
+ * - `'setup'` fires before `setup()`.
+ * - `'build'` fires before `safeBuild()`.
+ * - `'summary'` fires once the build has produced its files and diagnostics.
+ */
+export type GenerationPhase = 'setup' | 'build' | 'summary'
+
+/**
+ * Host hooks for a single {@link Kubb.generate} call. Everything is optional: a host that only
+ * wants the build and its diagnostics passes nothing, while the CLI wires up the output passes,
+ * phase narration, and success message.
+ */
+export type GenerateOptions = {
+  /**
+   * Called before each lifecycle {@link GenerationPhase} so the host can narrate progress.
+   */
+  onPhase?: (phase: GenerationPhase) => void | Promise<void>
+  /**
+   * Runs the post-build output passes (format, lint, `postGenerate`) and returns the diagnostics
+   * they produced, already emitted. Only the CLI provides it. It runs after a build with no
+   * error-level diagnostics.
+   */
+  runOutputPasses?: (context: { config: Config; outputPath: string; hooks: Hookable<KubbHooks> }) => Promise<Array<Diagnostic>>
+  /**
+   * Called after a successful run, before `kubb:generation:end`, so the host emits its success
+   * message where the CLI always has.
+   */
+  onSuccess?: () => void | Promise<void>
+  /**
+   * Surfaces one build diagnostic. Defaults to the CLI behavior: an unstructured error goes out as
+   * `kubb:error` and everything else through `kubb:diagnostic`. A host that renders differently (the
+   * bundler plugin routes by severity to its own channels) passes its own.
+   */
+  renderDiagnostic?: (context: { diagnostic: Diagnostic; hooks: Hookable<KubbHooks> }) => void | Promise<void>
+}
+
+/**
+ * Everything a {@link Kubb.generate} call produced, for the host to map onto its own result shape
+ * (an exit code, a bundler error, an MCP tool payload).
+ */
+export type GenerationResult = {
+  /**
+   * `true` when the build and every output pass completed without an error-level diagnostic.
+   */
+  success: boolean
+  /**
+   * All files generated during the build.
+   */
+  files: Array<FileNode>
+  /**
+   * Build diagnostics plus any collected from the output passes.
+   */
+  diagnostics: Array<Diagnostic>
+  /**
+   * The driver that ran the build, for reading plugin metadata (telemetry) or the file manager.
+   */
+  driver: KubbDriver
+  /**
+   * The storage backend the build wrote to.
+   */
+  storage: Storage
+  /**
+   * The start time used for this run, so a host computes elapsed time against the same origin.
+   */
+  hrStart: [number, number]
+}
+
+/**
+ * Surfaces one build diagnostic the CLI way: an unstructured `unknown` error goes out as
+ * `kubb:error`, everything else through `kubb:diagnostic`. `performance` diagnostics feed the
+ * summary, not the log, so they are skipped. {@link GenerateOptions.renderDiagnostic} overrides it.
+ */
+async function renderDiagnostic({ diagnostic, hooks }: { diagnostic: Diagnostic; hooks: Hookable<KubbHooks> }): Promise<void> {
+  if (!Diagnostics.isProblem(diagnostic)) return
+
+  if (diagnostic.code === Diagnostics.code.unknown) {
+    await hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+    return
+  }
+
+  await Diagnostics.emit(hooks, diagnostic)
 }
 
 /**
@@ -132,6 +219,66 @@ export class Kubb {
     const { diagnostics } = await driver.run()
 
     return { diagnostics, files: driver.fileManager.files, driver, storage }
+  }
+
+  /**
+   * Runs one build and its output passes end to end, emitting the surrounding `kubb:generation:*`
+   * hooks. This is the sequence every host shares: emit `kubb:generation:start`, set up, build,
+   * render diagnostics, run the host's output passes, then emit `kubb:generation:end`. It never
+   * throws on a build error, returning the outcome in {@link GenerationResult} so the host decides
+   * how failures surface. Tool execution, telemetry, and progress narration stay with the host and
+   * arrive through {@link GenerateOptions}.
+   *
+   * @example
+   * ```ts
+   * const result = await createKubb(config, { hooks }).generate()
+   * if (!result.success) process.exitCode = 1
+   * ```
+   */
+  async generate(options: GenerateOptions = {}): Promise<GenerationResult> {
+    const { hooks, config } = this
+    const hrStart = process.hrtime()
+
+    await hooks.callHook('kubb:generation:start', { config })
+
+    await options.onPhase?.('setup')
+    await this.setup()
+
+    await options.onPhase?.('build')
+    const { files, diagnostics, driver, storage } = await this.safeBuild()
+
+    await options.onPhase?.('summary')
+
+    const render = options.renderDiagnostic ?? renderDiagnostic
+    for (const diagnostic of diagnostics) {
+      await render({ diagnostic, hooks })
+    }
+
+    if (Diagnostics.hasError(diagnostics)) {
+      await hooks.callHook('kubb:generation:end', { config, storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
+      return { success: false, files, diagnostics, driver, storage, hrStart }
+    }
+
+    const outputPath = resolve(config.root, config.output.path)
+    const outputDiagnostics = options.runOutputPasses ? await options.runOutputPasses({ config, outputPath, hooks }) : []
+
+    const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
+    const failed = Diagnostics.hasError(outputDiagnostics)
+
+    if (!failed) {
+      await options.onSuccess?.()
+    }
+
+    await hooks.callHook('kubb:generation:end', {
+      config,
+      storage,
+      diagnostics: finalDiagnostics,
+      filesCreated: files.length,
+      status: failed ? 'failed' : 'success',
+      hrStart,
+    })
+
+    return { success: !failed, files, diagnostics: finalDiagnostics, driver, storage, hrStart }
   }
 
   dispose(): void {

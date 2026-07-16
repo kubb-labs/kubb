@@ -10,6 +10,7 @@ import {
   type CLIOptions,
   cliReporter,
   type Config,
+  createKubb,
   type Diagnostic,
   Diagnostics,
   getInputKind,
@@ -17,7 +18,6 @@ import {
   logLevel as logLevelMap,
   type ProblemDiagnostic,
   type ReporterName,
-  runGeneration,
 } from '@kubb/core'
 import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.ts'
@@ -122,7 +122,6 @@ async function runToolPass({
 async function generate(options: GenerateProps): Promise<boolean> {
   const { input, hooks, logLevel } = options
 
-  const hrStart = process.hrtime()
   const inputPath = input ?? (typeof options.config.input === 'string' ? options.config.input : undefined)
 
   const config: Config = {
@@ -198,9 +197,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
     return outputDiagnostics
   }
 
-  const result = await runGeneration(config, {
-    hooks,
-    hrStart,
+  const result = await createKubb(config, { hooks }).generate({
     onPhase: async (phase) => {
       switch (phase) {
         case 'setup':

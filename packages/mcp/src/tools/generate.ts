@@ -1,4 +1,4 @@
-import { type Config, type Diagnostic, Diagnostics, type KubbHooks, Hookable, runGeneration } from '@kubb/core'
+import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import type * as v from 'valibot'
@@ -105,8 +105,7 @@ export const generateTool = defineTool(
 
       await notify('CONFIG_READY', 'Configuration ready')
 
-      const result = await runGeneration(config, {
-        hooks,
+      const result = await createKubb(config, { hooks }).generate({
         onPhase: async (phase) => {
           if (phase === 'setup') {
             await notify('SETUP_START', 'Setting up Kubb')

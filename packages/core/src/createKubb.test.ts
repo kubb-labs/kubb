@@ -4,9 +4,10 @@ import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
-import { Diagnostics } from './Diagnostics.ts'
+import type { GenerationPhase } from './createKubb.ts'
+import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { definePlugin } from './definePlugin.ts'
-import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
+import type { Adapter, Config, KubbHooks, Plugin, UserConfig } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
@@ -644,5 +645,93 @@ describe('createKubb', () => {
       expect(writtenPaths).toHaveLength(fileCount)
       expect(new Set(writtenPaths).size).toBe(fileCount)
     })
+  })
+})
+
+describe('Kubb#generate', () => {
+  const makeConfig = (overrides: Partial<Config> = {}): Config => ({
+    root: '.',
+    input: { path: './petStore.yaml' },
+    output: { path: './gen' },
+    parsers: [],
+    reporters: [],
+    adapter: createMockedAdapter(),
+    plugins: [],
+    storage: memoryStorage(),
+    ...overrides,
+  })
+
+  const failingAdapter = (): Adapter =>
+    createMockedAdapter({
+      parse: async () => {
+        throw new Error('boom')
+      },
+    })
+
+  let hooks: Hookable<KubbHooks>
+  afterEach(() => hooks?.removeAllHooks())
+
+  it('runs the setup, build and summary phases in order and ends with success', async () => {
+    hooks = new Hookable<KubbHooks>()
+    const phases: Array<GenerationPhase> = []
+    let endStatus: string | undefined
+    hooks.hook('kubb:generation:end', ({ status }) => {
+      endStatus = status
+    })
+
+    const result = await createKubb(makeConfig(), { hooks }).generate({
+      onPhase: (phase) => {
+        phases.push(phase)
+      },
+    })
+
+    expect(phases).toStrictEqual(['setup', 'build', 'summary'])
+    expect(endStatus).toBe('success')
+    expect(result.success).toBe(true)
+  })
+
+  it('reports failure and keeps the diagnostics an output pass returns', async () => {
+    hooks = new Hookable<KubbHooks>()
+    const diagnostic: Diagnostic = { code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } }
+
+    const result = await createKubb(makeConfig(), { hooks }).generate({
+      runOutputPasses: async () => [diagnostic],
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.diagnostics).toContain(diagnostic)
+  })
+
+  it('stops after a build error without running the output passes or onSuccess', async () => {
+    hooks = new Hookable<KubbHooks>()
+    let ranOutputPasses = false
+    let ranOnSuccess = false
+
+    const result = await createKubb(makeConfig({ adapter: failingAdapter() }), { hooks }).generate({
+      runOutputPasses: async () => {
+        ranOutputPasses = true
+        return []
+      },
+      onSuccess: () => {
+        ranOnSuccess = true
+      },
+    })
+
+    expect(result.success).toBe(false)
+    expect(ranOutputPasses).toBe(false)
+    expect(ranOnSuccess).toBe(false)
+  })
+
+  it('sends build diagnostics to a custom renderDiagnostic', async () => {
+    hooks = new Hookable<KubbHooks>()
+    const messages: Array<string> = []
+
+    await createKubb(makeConfig({ adapter: failingAdapter() }), { hooks }).generate({
+      renderDiagnostic: ({ diagnostic }) => {
+        messages.push(diagnostic.message)
+      },
+    })
+
+    expect(messages.length).toBeGreaterThan(0)
   })
 })
