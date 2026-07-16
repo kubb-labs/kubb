@@ -1,5 +1,41 @@
 # Changelog
 
+## v5.0.0-beta.101 — Jul 16, 2026
+
+### @kubb/core
+
+#### Features
+
+- Add a `generate` method to the `Kubb` instance returned by `createKubb`. It runs one build and its output passes end to end and emits the surrounding `kubb:generation:*` lifecycle hooks, so a host no longer repeats that sequence. It also emits `kubb:setup:start` and `kubb:setup:end` around setup, so hosts can narrate that step from the emitter. Build problems go out on the `kubb:error` and `kubb:diagnostic` hooks, so each host renders and routes them from its own listeners. The CLI, the bundler plugin, and the MCP tool now call `generate`, the CLI passing its format and lint passes through the `processOutput` option, and read progress from the lifecycle hooks. Generated output is unchanged. ([#3803](https://github.com/kubb-labs/kubb/pull/3803), [`1adf507`](https://github.com/kubb-labs/kubb/commit/1adf507e6097dc386716d85946ffc3f8f573eadb))
+
+#### Bug Fixes
+
+- Plugin generators now run straight from the generate loop instead of riding the `Hookable` bus as name-guarded listeners, so dispatch no longer fans out across every plugin on every node. Each operation is resolved once rather than twice. The `kubb:generate:*` hooks still fire for external listeners and the generated output is identical. ([#3801](https://github.com/kubb-labs/kubb/pull/3801), [`68d4d93`](https://github.com/kubb-labs/kubb/commit/68d4d931aad83c249ddfdfef1433a6fe52f254bc))
+
+### @kubb/plugin-barrel
+
+#### Breaking Changes
+
+- Adjust for `output.barrel` defaulting to `false` instead of `{ type: 'named' }`. `pluginBarrel` still ships with `kubb` and `unplugin-kubb` by default, but now generates nothing until a barrel is configured on the root config, a plugin, or both.
+  
+  **Breaking change:** a config that never set `output.barrel` and relied on the implicit `{ type: 'named' }` default now needs it set explicitly to keep generating barrel files. ([#3797](https://github.com/kubb-labs/kubb/pull/3797), [`81bf741`](https://github.com/kubb-labs/kubb/commit/81bf741109256d1c002d24238397d461e0d36ebf))
+
+### kubb
+
+#### Breaking Changes
+
+- Flip the default `output.barrel` from `{ type: 'named' }` to `false`. A config that omits `output.barrel` (root or per-plugin) no longer generates a barrel `index.ts` file.
+  
+  Set `output.barrel: { type: 'named' | 'all' }` explicitly to keep generating a barrel.
+  
+  **Breaking change:** any project relying on the implicit `{ type: 'named' }` default to get a barrel now needs `output.barrel` set explicitly, or imports that go through the barrel (`import { Pet } from './gen'`) stop resolving. ([#3797](https://github.com/kubb-labs/kubb/pull/3797), [`81bf741`](https://github.com/kubb-labs/kubb/commit/81bf741109256d1c002d24238397d461e0d36ebf))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.100 — Jul 15, 2026
 
 ### @kubb/ast
