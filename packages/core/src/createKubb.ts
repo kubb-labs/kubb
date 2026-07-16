@@ -31,47 +31,37 @@ export type CreateKubbOptions = {
 }
 
 /**
- * A step in the generation lifecycle a host narrates. `Kubb.generate` calls `onPhase` at each one
- * so a host emits its own progress without the runner knowing about presentation.
- *
- * - `'setup'` fires before `setup()`.
- * - `'build'` fires before `safeBuild()`.
- * - `'summary'` fires once the build has produced its files and diagnostics.
+ * Lifecycle step `Kubb.generate` reports through `onPhase`. `'setup'` fires before `setup()`,
+ * `'build'` before `safeBuild()`, `'summary'` once the build has produced files and diagnostics.
  */
 export type GenerationPhase = 'setup' | 'build' | 'summary'
 
 /**
- * Host hooks for a single {@link Kubb.generate} call. Everything is optional: a host that only
- * wants the build and its diagnostics passes nothing, while the CLI wires up the output passes,
- * phase narration, and success message.
+ * Host hooks for a single {@link Kubb.generate} call. All optional.
  */
 export type GenerateOptions = {
   /**
-   * Called before each lifecycle {@link GenerationPhase} so the host can narrate progress.
+   * Narrate progress before each lifecycle {@link GenerationPhase}.
    */
   onPhase?: (phase: GenerationPhase) => void | Promise<void>
   /**
-   * Runs the post-build output passes (format, lint, `postGenerate`) and returns the diagnostics
-   * they produced, already emitted. Only the CLI provides it. It runs after a build with no
-   * error-level diagnostics.
+   * Run the post-build passes (format, lint, `postGenerate`) after an error-free build and return
+   * the diagnostics they emitted. CLI-only.
    */
   runOutputPasses?: (context: { config: Config; outputPath: string; hooks: Hookable<KubbHooks> }) => Promise<Array<Diagnostic>>
   /**
-   * Called after a successful run, before `kubb:generation:end`, so the host emits its success
-   * message where the CLI always has.
+   * Called after a successful run, before `kubb:generation:end`.
    */
   onSuccess?: () => void | Promise<void>
   /**
-   * Surfaces one build diagnostic. Defaults to the CLI behavior: an unstructured error goes out as
-   * `kubb:error` and everything else through `kubb:diagnostic`. A host that renders differently (the
-   * bundler plugin routes by severity to its own channels) passes its own.
+   * Surface one build diagnostic. Defaults to {@link defaultRenderDiagnostic}; pass your own to
+   * route by severity (the bundler plugin does).
    */
   renderDiagnostic?: (context: { diagnostic: Diagnostic; hooks: Hookable<KubbHooks> }) => void | Promise<void>
 }
 
 /**
- * Everything a {@link Kubb.generate} call produced, for the host to map onto its own result shape
- * (an exit code, a bundler error, an MCP tool payload).
+ * What a {@link Kubb.generate} call produced, for the host to map onto its own result shape.
  */
 export type GenerationResult = {
   /**
@@ -90,14 +80,6 @@ export type GenerationResult = {
    * The driver that ran the build, for reading plugin metadata (telemetry) or the file manager.
    */
   driver: KubbDriver
-  /**
-   * The storage backend the build wrote to.
-   */
-  storage: Storage
-  /**
-   * The start time used for this run, so a host computes elapsed time against the same origin.
-   */
-  hrStart: [number, number]
 }
 
 /**
@@ -222,12 +204,10 @@ export class Kubb {
   }
 
   /**
-   * Runs one build and its output passes end to end, emitting the surrounding `kubb:generation:*`
-   * hooks. This is the sequence every host shares: emit `kubb:generation:start`, set up, build,
-   * render diagnostics, run the host's output passes, then emit `kubb:generation:end`. It never
-   * throws on a build error, returning the outcome in {@link GenerationResult} so the host decides
-   * how failures surface. Tool execution, telemetry, and progress narration stay with the host and
-   * arrive through {@link GenerateOptions}.
+   * Run one build and its output passes end to end, emitting the surrounding `kubb:generation:*`
+   * hooks. Never throws on a build error: the outcome comes back in {@link GenerationResult} so the
+   * host decides how failures surface. Telemetry and progress narration stay with the host through
+   * {@link GenerateOptions}.
    *
    * @example
    * ```ts
@@ -256,7 +236,7 @@ export class Kubb {
 
     if (Diagnostics.hasError(diagnostics)) {
       await hooks.callHook('kubb:generation:end', { config, storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
-      return { success: false, files, diagnostics, driver, storage, hrStart }
+      return { success: false, files, diagnostics, driver }
     }
 
     const outputDiagnostics = options.runOutputPasses
@@ -279,7 +259,7 @@ export class Kubb {
       hrStart,
     })
 
-    return { success: !failed, files, diagnostics: finalDiagnostics, driver, storage, hrStart }
+    return { success: !failed, files, diagnostics: finalDiagnostics, driver }
   }
 
   dispose(): void {

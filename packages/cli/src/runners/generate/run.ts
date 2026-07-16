@@ -122,6 +122,7 @@ async function runToolPass({
 async function generate(options: GenerateProps): Promise<boolean> {
   const { input, hooks, logLevel } = options
 
+  const hrStart = process.hrtime()
   const inputPath = input ?? (typeof options.config.input === 'string' ? options.config.input : undefined)
 
   const config: Config = {
@@ -226,7 +227,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
       command: 'generate',
       kubbVersion: version,
       plugins: telemetryPlugins,
-      hrStart: result.hrStart,
+      hrStart,
       filesCreated: result.files.length,
       status: result.success ? 'success' : 'failed',
     }),
