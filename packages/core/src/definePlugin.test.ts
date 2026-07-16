@@ -167,12 +167,12 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks })
     await driver.setup()
 
-    // Before setup hooks — no generators yet
+    // Before setup hooks run, no generators exist yet.
     expect(driver.hasHookGenerators('hook-plugin')).toBe(false)
 
     await driver.setupHooks()
 
-    // After setup hooks — the generator lives on its plugin, ready for the generate loop to call.
+    // After setup hooks run, the generator lives on its plugin, ready for the generate loop to call.
     expect(driver.hasHookGenerators('hook-plugin')).toBe(true)
     expect(driver.plugins.get('hook-plugin')?.generators).toStrictEqual([generator])
   })
