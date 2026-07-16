@@ -105,7 +105,7 @@ export type GenerationResult = {
  * `kubb:error`, everything else through `kubb:diagnostic`. `performance` diagnostics feed the
  * summary, not the log, so they are skipped. {@link GenerateOptions.renderDiagnostic} overrides it.
  */
-async function renderDiagnostic({ diagnostic, hooks }: { diagnostic: Diagnostic; hooks: Hookable<KubbHooks> }): Promise<void> {
+async function defaultRenderDiagnostic({ diagnostic, hooks }: { diagnostic: Diagnostic; hooks: Hookable<KubbHooks> }): Promise<void> {
   if (!Diagnostics.isProblem(diagnostic)) return
 
   if (diagnostic.code === Diagnostics.code.unknown) {
@@ -249,7 +249,7 @@ export class Kubb {
 
     await options.onPhase?.('summary')
 
-    const render = options.renderDiagnostic ?? renderDiagnostic
+    const render = options.renderDiagnostic ?? defaultRenderDiagnostic
     for (const diagnostic of diagnostics) {
       await render({ diagnostic, hooks })
     }
@@ -259,8 +259,9 @@ export class Kubb {
       return { success: false, files, diagnostics, driver, storage, hrStart }
     }
 
-    const outputPath = resolve(config.root, config.output.path)
-    const outputDiagnostics = options.runOutputPasses ? await options.runOutputPasses({ config, outputPath, hooks }) : []
+    const outputDiagnostics = options.runOutputPasses
+      ? await options.runOutputPasses({ config, outputPath: resolve(config.root, config.output.path), hooks })
+      : []
 
     const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
     const failed = Diagnostics.hasError(outputDiagnostics)

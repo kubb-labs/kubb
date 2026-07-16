@@ -690,16 +690,26 @@ describe('Kubb#generate', () => {
     expect(result.success).toBe(true)
   })
 
-  it('reports failure and keeps the diagnostics an output pass returns', async () => {
+  it('reports failure, skips onSuccess and ends failed when an output pass returns an error', async () => {
     hooks = new Hookable<KubbHooks>()
     const diagnostic: Diagnostic = { code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } }
+    let ranOnSuccess = false
+    let endStatus: string | undefined
+    hooks.hook('kubb:generation:end', ({ status }) => {
+      endStatus = status
+    })
 
     const result = await createKubb(makeConfig(), { hooks }).generate({
       runOutputPasses: async () => [diagnostic],
+      onSuccess: () => {
+        ranOnSuccess = true
+      },
     })
 
     expect(result.success).toBe(false)
     expect(result.diagnostics).toContain(diagnostic)
+    expect(ranOnSuccess).toBe(false)
+    expect(endStatus).toBe('failed')
   })
 
   it('stops after a build error without running the output passes or onSuccess', async () => {
