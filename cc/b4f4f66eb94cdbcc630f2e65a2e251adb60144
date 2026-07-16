@@ -1,0 +1,63 @@
+packages/core/src/types.ts
+  s_4d51f5f32fd07d::t_791c170796a50e 374-375
+  s_4d51f5f32fd07d::t_ef97365fb9e127 763
+.changeset/core-kubb-generate.md
+  s_4d51f5f32fd07d::t_3a582f56c56e7d 8
+packages/cli/src/loggers/utils.ts
+  s_4d51f5f32fd07d::t_bcd36af096a6c7 4
+  s_4d51f5f32fd07d::t_dca5b9adeee32a 11-16,18-19
+  s_4d51f5f32fd07d::t_c5d3fa47f0354f 17
+  s_4d51f5f32fd07d::t_c8d4fa7b18b6c1 10
+packages/core/src/createKubb.ts
+  s_4d51f5f32fd07d::t_602c909576b75c 171-172
+  s_4d51f5f32fd07d::t_38a060204cb645 190
+  s_4d51f5f32fd07d::t_b52ccf0a94ab0f 192-194,196-201
+  s_4d51f5f32fd07d::t_e76e7e699ad341 206
+  s_4d51f5f32fd07d::t_e388788c08835c 39-40,42
+  s_4d51f5f32fd07d::t_c9872010f0780d 209
+  s_4d51f5f32fd07d::t_26625ceaa3afdf 223
+  s_4d51f5f32fd07d::t_3a29cdb6818005 186,188
+  s_4d51f5f32fd07d::t_e90970c03a3934 34-35
+packages/core/src/createKubb.test.ts
+  s_4d51f5f32fd07d::t_296ad952a3e791 692,701
+  s_4d51f5f32fd07d::t_44ddfa10999eb8 673,675,677-679,681,685,687
+  s_4d51f5f32fd07d::t_50057ca6b86255 709,711,714-715,721
+  s_4d51f5f32fd07d::t_55a18818f66b80 724,727-728,731-733
+packages/cli/src/loggers/plainLogger.ts
+  s_4d51f5f32fd07d::t_6742c28a78d4b1 93-94
+  s_4d51f5f32fd07d::t_2e8e449f85f115 5
+packages/cli/src/loggers/clackLogger.ts
+  s_4d51f5f32fd07d::t_fafbd8edc93551 14
+  s_4d51f5f32fd07d::t_11532cbdc8b287 212-214
+packages/unplugin-kubb/src/unpluginFactory.ts
+  s_4d51f5f32fd07d::t_64041d2124256c 43-49
+  s_4d51f5f32fd07d::t_85c90887046559 106
+  s_4d51f5f32fd07d::t_1698a0d3bcf02b 107
+packages/cli/src/runners/generate/run.ts
+  s_4d51f5f32fd07d::t_a26ad388ba2e90 197,201
+  s_4d51f5f32fd07d::t_a315e878ee1742 198
+  s_4d51f5f32fd07d::t_201e370bba435a 204
+  s_4d51f5f32fd07d::t_d899559ab890f0 131
+  s_4d51f5f32fd07d::t_575993fb0ef2cd 129
+  s_4d51f5f32fd07d::t_248575b066c5ae 202
+  s_4d51f5f32fd07d::t_80f9f2c83213a3 203
+packages/mcp/src/tools/generate.ts
+  s_4d51f5f32fd07d::t_44981f70ff2988 117-118
+  s_4d51f5f32fd07d::t_9b8230c98c4d4a 69-77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "ccb4f4f66eb94cdbcc630f2e65a2e251adb60144",
+  "prompts": {},
+  "sessions": {
+    "s_4d51f5f32fd07d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c74c2e8f-999d-4889-bd45-89de71c80707",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
