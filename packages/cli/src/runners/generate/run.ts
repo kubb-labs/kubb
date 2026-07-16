@@ -126,9 +126,9 @@ async function generate(options: GenerateProps): Promise<boolean> {
     input: input ?? options.config.input,
   }
 
-  // The formatter, linter, and post-generate passes run after a successful build. Collect their
+  // The formatter, linter, and post-generate commands run after a successful build. Collect their
   // failures as coded diagnostics so they reach the summary, the json report, and the exit code.
-  const runOutputPasses = async ({ config: resolvedConfig, outputPath }: { config: Config; outputPath: string }): Promise<Array<Diagnostic>> => {
+  const processOutput = async ({ config: resolvedConfig, outputPath }: { config: Config; outputPath: string }): Promise<Array<Diagnostic>> => {
     const outputDiagnostics: Array<Diagnostic> = []
     const reportOutputFailure = async (code: ProblemDiagnostic['code'], label: string, error: Error) => {
       const diagnostic = outputDiagnostic(code, label, error)
@@ -194,30 +194,14 @@ async function generate(options: GenerateProps): Promise<boolean> {
     return outputDiagnostics
   }
 
-  const result = await createKubb(config, { hooks }).generate({
-    onPhase: async (phase) => {
-      switch (phase) {
-        case 'setup':
-          await hooks.callHook('kubb:info', {
-            message: config.name ? `Setup generation ${styleText('bold', config.name)}` : 'Setup generation',
-            info: inputPath,
-          })
-          return
-        case 'build':
-          await hooks.callHook('kubb:info', {
-            message: config.name ? `Build generation ${styleText('bold', config.name)}` : 'Build generation',
-            info: inputPath,
-          })
-          return
-        case 'summary':
-          await hooks.callHook('kubb:info', { message: 'Load summary' })
-      }
-    },
-    onSuccess: () => hooks.callHook('kubb:success', { message: 'Generation succeeded', info: inputPath }),
-    runOutputPasses,
+  hooks.hook('kubb:generation:end', ({ status }) => {
+    if (status === 'success') return hooks.callHook('kubb:success', { message: 'Generation succeeded', info: inputPath })
   })
 
-  const telemetryPlugins = Array.from(result.driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> }))
+  const kubb = createKubb(config, { hooks })
+  const result = await kubb.generate({ processOutput })
+
+  const telemetryPlugins = Array.from(kubb.driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> }))
   await sendTelemetry(
     buildTelemetryEvent({
       command: 'generate',

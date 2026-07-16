@@ -4,7 +4,6 @@ import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
-import type { GenerationPhase } from './createKubb.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Adapter, Config, KubbHooks, Plugin, UserConfig } from './types.ts'
@@ -671,77 +670,66 @@ describe('Kubb#generate', () => {
   let hooks: Hookable<KubbHooks>
   afterEach(() => hooks?.removeAllHooks())
 
-  it('runs the setup, build and summary phases in order and ends with success', async () => {
+  it('emits generation:start before generation:end and ends with success', async () => {
     hooks = new Hookable<KubbHooks>()
-    const phases: Array<GenerationPhase> = []
+    const events: Array<string> = []
     let endStatus: string | undefined
+    hooks.hook('kubb:generation:start', () => {
+      events.push('start')
+    })
     hooks.hook('kubb:generation:end', ({ status }) => {
+      events.push('end')
       endStatus = status
     })
 
-    const result = await createKubb(makeConfig(), { hooks }).generate({
-      onPhase: (phase) => {
-        phases.push(phase)
-      },
-    })
+    const result = await createKubb(makeConfig(), { hooks }).generate()
 
-    expect(phases).toStrictEqual(['setup', 'build', 'summary'])
+    expect(events).toStrictEqual(['start', 'end'])
     expect(endStatus).toBe('success')
     expect(result.success).toBe(true)
   })
 
-  it('reports failure, skips onSuccess and ends failed when an output pass returns an error', async () => {
+  it('reports failure and ends failed when processOutput returns an error', async () => {
     hooks = new Hookable<KubbHooks>()
     const diagnostic: Diagnostic = { code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } }
-    let ranOnSuccess = false
     let endStatus: string | undefined
     hooks.hook('kubb:generation:end', ({ status }) => {
       endStatus = status
     })
 
     const result = await createKubb(makeConfig(), { hooks }).generate({
-      runOutputPasses: async () => [diagnostic],
-      onSuccess: () => {
-        ranOnSuccess = true
-      },
+      processOutput: async () => [diagnostic],
     })
 
     expect(result.success).toBe(false)
     expect(result.diagnostics).toContain(diagnostic)
-    expect(ranOnSuccess).toBe(false)
     expect(endStatus).toBe('failed')
   })
 
-  it('stops after a build error without running the output passes or onSuccess', async () => {
+  it('stops after a build error without running processOutput', async () => {
     hooks = new Hookable<KubbHooks>()
-    let ranOutputPasses = false
-    let ranOnSuccess = false
+    let ranProcessOutput = false
 
     const result = await createKubb(makeConfig({ adapter: failingAdapter() }), { hooks }).generate({
-      runOutputPasses: async () => {
-        ranOutputPasses = true
+      processOutput: async () => {
+        ranProcessOutput = true
         return []
-      },
-      onSuccess: () => {
-        ranOnSuccess = true
       },
     })
 
     expect(result.success).toBe(false)
-    expect(ranOutputPasses).toBe(false)
-    expect(ranOnSuccess).toBe(false)
+    expect(ranProcessOutput).toBe(false)
   })
 
-  it('sends build diagnostics to a custom renderDiagnostic', async () => {
+  it('routes an unknown-code build error to the kubb:error hook', async () => {
     hooks = new Hookable<KubbHooks>()
     const messages: Array<string> = []
-
-    await createKubb(makeConfig({ adapter: failingAdapter() }), { hooks }).generate({
-      renderDiagnostic: ({ diagnostic }) => {
-        messages.push(diagnostic.message)
-      },
+    hooks.hook('kubb:error', ({ error }) => {
+      messages.push(error.message)
     })
 
-    expect(messages.length).toBeGreaterThan(0)
+    await createKubb(makeConfig({ adapter: failingAdapter() }), { hooks }).generate()
+
+    expect(messages).toContain('boom')
   })
 })

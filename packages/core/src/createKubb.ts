@@ -31,33 +31,15 @@ export type CreateKubbOptions = {
 }
 
 /**
- * Lifecycle step `Kubb.generate` reports through `onPhase`. `'setup'` fires before `setup()`,
- * `'build'` before `safeBuild()`, `'summary'` once the build has produced files and diagnostics.
- */
-export type GenerationPhase = 'setup' | 'build' | 'summary'
-
-/**
- * Host hooks for a single {@link Kubb.generate} call. All optional.
+ * Host hooks for a single {@link Kubb.generate} call. All optional. Progress narration rides the
+ * `kubb:*` lifecycle hooks on `.hooks`, so hosts subscribe there rather than pass a callback.
  */
 export type GenerateOptions = {
   /**
-   * Narrate progress before each lifecycle {@link GenerationPhase}.
+   * Format, lint, and run `postGenerate` over the generated output after an error-free build, and
+   * return the diagnostics they emitted. CLI-only.
    */
-  onPhase?: (phase: GenerationPhase) => void | Promise<void>
-  /**
-   * Run the post-build passes (format, lint, `postGenerate`) after an error-free build and return
-   * the diagnostics they emitted. CLI-only.
-   */
-  runOutputPasses?: (context: { config: Config; outputPath: string; hooks: Hookable<KubbHooks> }) => Promise<Array<Diagnostic>>
-  /**
-   * Called after a successful run, before `kubb:generation:end`.
-   */
-  onSuccess?: () => void | Promise<void>
-  /**
-   * Surface one build diagnostic. Defaults to {@link defaultRenderDiagnostic}; pass your own to
-   * route by severity (the bundler plugin does).
-   */
-  renderDiagnostic?: (context: { diagnostic: Diagnostic; hooks: Hookable<KubbHooks> }) => void | Promise<void>
+  processOutput?: (context: { config: Config; outputPath: string }) => Promise<Array<Diagnostic>>
 }
 
 /**
@@ -76,26 +58,6 @@ export type GenerateResult = {
    * Build diagnostics plus any collected from the output passes.
    */
   diagnostics: Array<Diagnostic>
-  /**
-   * The driver that ran the build, for reading plugin metadata (telemetry) or the file manager.
-   */
-  driver: KubbDriver
-}
-
-/**
- * Surfaces one build diagnostic the CLI way: an unstructured `unknown` error goes out as
- * `kubb:error`, everything else through `kubb:diagnostic`. `performance` diagnostics feed the
- * summary, not the log, so they are skipped. {@link GenerateOptions.renderDiagnostic} overrides it.
- */
-async function defaultRenderDiagnostic({ diagnostic, hooks }: { diagnostic: Diagnostic; hooks: Hookable<KubbHooks> }): Promise<void> {
-  if (!Diagnostics.isProblem(diagnostic)) return
-
-  if (diagnostic.code === Diagnostics.code.unknown) {
-    await hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
-    return
-  }
-
-  await Diagnostics.emit(hooks, diagnostic)
 }
 
 /**
@@ -206,8 +168,8 @@ export class Kubb {
   /**
    * Run one build and its output passes end to end, emitting the surrounding `kubb:generation:*`
    * hooks. Never throws on a build error: the outcome comes back in {@link GenerateResult} so the
-   * host decides how failures surface. Telemetry and progress narration stay with the host through
-   * {@link GenerateOptions}.
+   * host decides how failures surface. Telemetry and progress narration stay with the host, which
+   * reads the result and subscribes to the `kubb:*` hooks.
    *
    * @example
    * ```ts
@@ -221,34 +183,33 @@ export class Kubb {
 
     await hooks.callHook('kubb:generation:start', { config })
 
-    await options.onPhase?.('setup')
+    await hooks.callHook('kubb:setup:start')
     await this.setup()
+    await hooks.callHook('kubb:setup:end')
 
-    await options.onPhase?.('build')
-    const { files, diagnostics, driver, storage } = await this.safeBuild()
+    const { files, diagnostics, storage } = await this.safeBuild()
 
-    await options.onPhase?.('summary')
-
-    const render = options.renderDiagnostic ?? defaultRenderDiagnostic
+    // Surface every problem on the diagnostic hooks. An unstructured `unknown` error goes out as
+    // `kubb:error` so its stack survives, everything else as `kubb:diagnostic`. Hosts route from
+    // there. `performance` diagnostics feed the summary, not the log, so they are skipped.
     for (const diagnostic of diagnostics) {
-      await render({ diagnostic, hooks })
+      if (!Diagnostics.isProblem(diagnostic)) continue
+      if (diagnostic.code === Diagnostics.code.unknown) {
+        await hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+        continue
+      }
+      await Diagnostics.emit(hooks, diagnostic)
     }
 
     if (Diagnostics.hasError(diagnostics)) {
       await hooks.callHook('kubb:generation:end', { config, storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
-      return { success: false, files, diagnostics, driver }
+      return { success: false, files, diagnostics }
     }
 
-    const outputDiagnostics = options.runOutputPasses
-      ? await options.runOutputPasses({ config, outputPath: resolve(config.root, config.output.path), hooks })
-      : []
+    const outputDiagnostics = options.processOutput ? await options.processOutput({ config, outputPath: resolve(config.root, config.output.path) }) : []
 
     const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
     const failed = Diagnostics.hasError(outputDiagnostics)
-
-    if (!failed) {
-      await options.onSuccess?.()
-    }
 
     await hooks.callHook('kubb:generation:end', {
       config,
@@ -259,7 +220,7 @@ export class Kubb {
       hrStart,
     })
 
-    return { success: !failed, files, diagnostics: finalDiagnostics, driver }
+    return { success: !failed, files, diagnostics: finalDiagnostics }
   }
 
   dispose(): void {

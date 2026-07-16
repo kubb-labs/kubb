@@ -1,11 +1,21 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { canUseTTY, formatMs, getElapsedMs, toCause } from '@internals/utils'
-import type { Reporter, ReporterContext } from '@kubb/core'
+import type { Config, Reporter, ReporterContext } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
 import type { LoggerContext, LoggerOptions } from './defineLogger.ts'
 import { clackLogger } from './clackLogger.ts'
 import { plainLogger } from './plainLogger.ts'
+
+/**
+ * Display path for a config's input: the string form, or its `path` field when the input is an
+ * object. Loggers show it alongside `Generation started`.
+ */
+export function getInputPath(config: Config): string | undefined {
+  const { input } = config
+  if (typeof input === 'string') return input
+  return typeof input?.path === 'string' ? input.path : undefined
+}
 
 /**
  * Optionally prefix a message with a [HH:MM:SS] timestamp when logLevel >= verbose.

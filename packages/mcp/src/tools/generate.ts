@@ -66,6 +66,15 @@ export const generateTool = defineTool(
         await notify('GENERATION_START', 'Generation started')
       })
 
+      hooks.hook('kubb:setup:start', async () => {
+        await notify('SETUP_START', 'Setting up Kubb')
+      })
+
+      hooks.hook('kubb:setup:end', async () => {
+        await notify('SETUP_END', 'Kubb setup complete')
+        await notify('BUILD_START', 'Starting build')
+      })
+
       hooks.hook('kubb:generation:end', async () => {
         await notify('GENERATION_END', 'Generation ended')
       })
@@ -105,18 +114,8 @@ export const generateTool = defineTool(
 
       await notify('CONFIG_READY', 'Configuration ready')
 
-      const result = await createKubb(config, { hooks }).generate({
-        onPhase: async (phase) => {
-          if (phase === 'setup') {
-            await notify('SETUP_START', 'Setting up Kubb')
-            return
-          }
-          if (phase === 'build') {
-            await notify('SETUP_END', 'Kubb setup complete')
-            await notify('BUILD_START', 'Starting build')
-          }
-        },
-      })
+      const kubb = createKubb(config, { hooks })
+      const result = await kubb.generate()
       await notify('BUILD_END', `Build complete - Generated ${result.files.length} files`)
 
       const problems = result.diagnostics.filter(Diagnostics.isProblem)

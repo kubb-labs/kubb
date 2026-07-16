@@ -40,6 +40,13 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     console.info(`ℹ ${message}`)
   })
 
+  // Unplugin has no diagnostic renderer, so route each problem by severity to a channel it logs on.
+  hooks.hook('kubb:diagnostic', ({ diagnostic }) => {
+    if (diagnostic.severity === 'error') return hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+    if (diagnostic.severity === 'warning') return hooks.callHook('kubb:warn', { message: diagnostic.message })
+    return hooks.callHook('kubb:info', { message: diagnostic.message })
+  })
+
   hooks.hook('kubb:success', ({ message }) => {
     console.log(`✓ ${message}`)
   })
@@ -96,21 +103,8 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
     await hooks.callHook('kubb:lifecycle:start', { version: unpluginVersion })
 
-    // Unplugin has no diagnostic renderer, so route problems by severity to the channels it logs on.
-    const result = await createKubb(userConfig, { hooks }).generate({
-      renderDiagnostic: async ({ diagnostic, hooks }) => {
-        if (!Diagnostics.isProblem(diagnostic)) return
-        if (diagnostic.severity === 'error') {
-          await hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
-          return
-        }
-        if (diagnostic.severity === 'warning') {
-          await hooks.callHook('kubb:warn', { message: diagnostic.message })
-          return
-        }
-        await hooks.callHook('kubb:info', { message: diagnostic.message })
-      },
-    })
+    const kubb = createKubb(userConfig, { hooks })
+    const result = await kubb.generate()
 
     await hooks.callHook('kubb:lifecycle:end')
 
