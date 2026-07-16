@@ -1,8 +1,8 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
-import { bundleDocument, parseDocument, parseFromConfig, validateDocument } from './factory.ts'
-import type { Document } from './types.ts'
+import { bundleDocument, parseDocument, parseFromConfig, validateDocument } from './normalize.ts'
+import type { Document } from '../types.ts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -38,7 +38,7 @@ describe('parseDocument', () => {
   })
 
   it('resolves external file $refs when given a file path', async () => {
-    const docPath = path.resolve(__dirname, '../mocks/withExternalFileRef.yaml')
+    const docPath = path.resolve(__dirname, '../../mocks/withExternalFileRef.yaml')
     const doc = await parseDocument(docPath)
 
     expect(doc.openapi).toMatch(/^3\./)
@@ -48,7 +48,7 @@ describe('parseDocument', () => {
   })
 
   it('hoists external file schemas into named components.schemas entries', async () => {
-    const docPath = path.resolve(__dirname, '../mocks/phantom/main.yaml')
+    const docPath = path.resolve(__dirname, '../../mocks/phantom/main.yaml')
     const doc = await parseDocument(docPath)
 
     expect(doc.components?.schemas?.['User']).toMatchObject({
@@ -70,7 +70,7 @@ describe('parseDocument', () => {
   })
 
   it('rewrites operation refs to the same named schema as components.schemas', async () => {
-    const docPath = path.resolve(__dirname, '../mocks/phantom/main.yaml')
+    const docPath = path.resolve(__dirname, '../../mocks/phantom/main.yaml')
     const doc = await parseDocument(docPath)
 
     const mePath = doc.paths?.['/me'] as Record<string, Record<string, unknown>>
@@ -92,7 +92,7 @@ describe('parseDocument', () => {
   })
 
   it('throws when the input file does not exist', async () => {
-    const docPath = path.resolve(__dirname, '../mocks/doesNotExist.yaml')
+    const docPath = path.resolve(__dirname, '../../mocks/doesNotExist.yaml')
 
     await expect(parseDocument(docPath)).rejects.toThrow()
   })
@@ -192,7 +192,7 @@ function mockFetch(input: string | URL | Request): Promise<Response> {
 
 describe('bundleDocument', () => {
   it('hoists ./ file refs into named components.schemas entries', async () => {
-    const doc = await bundleDocument(path.resolve(__dirname, '../mocks/phantom/main.yaml'))
+    const doc = await bundleDocument(path.resolve(__dirname, '../../mocks/phantom/main.yaml'))
 
     expect(doc.components?.schemas?.['User']).toMatchObject({ type: 'object' })
     expect(doc.components?.schemas?.['Employer']).toMatchObject({ type: 'object' })
@@ -206,7 +206,7 @@ describe('bundleDocument', () => {
   })
 
   it('resolves ../ refs from nested files to the same named schema', async () => {
-    const doc = await bundleDocument(path.resolve(__dirname, '../mocks/phantom/main.yaml'))
+    const doc = await bundleDocument(path.resolve(__dirname, '../../mocks/phantom/main.yaml'))
 
     const mePath = doc.paths?.['/me'] as Record<string, Record<string, unknown>>
     expect(mePath?.['get']?.['responses']).toMatchObject({
@@ -217,7 +217,7 @@ describe('bundleDocument', () => {
   })
 
   it('keeps internal #/ refs untouched', async () => {
-    const doc = await bundleDocument(path.resolve(__dirname, '../mocks/withExternalFileRef.yaml'))
+    const doc = await bundleDocument(path.resolve(__dirname, '../../mocks/withExternalFileRef.yaml'))
 
     const petsPath = doc.paths?.['/pets'] as Record<string, Record<string, unknown>>
     expect(petsPath?.['get']?.['responses']).toMatchObject({
@@ -232,7 +232,7 @@ describe('bundleDocument', () => {
   })
 
   it('hoists fragment refs into external files under the pointer name', async () => {
-    const doc = await bundleDocument(path.resolve(__dirname, '../mocks/withFragmentRef.yaml'))
+    const doc = await bundleDocument(path.resolve(__dirname, '../../mocks/withFragmentRef.yaml'))
 
     expect(doc.components?.schemas?.['Cat']).toStrictEqual({
       type: 'object',
@@ -248,7 +248,7 @@ describe('bundleDocument', () => {
   it('resolves https refs found in a local document', async () => {
     using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(mockFetch)
 
-    const doc = await bundleDocument(path.resolve(__dirname, '../mocks/withUrlRef.yaml'))
+    const doc = await bundleDocument(path.resolve(__dirname, '../../mocks/withUrlRef.yaml'))
 
     expect(doc.components?.schemas?.['Pet']).toStrictEqual({
       type: 'object',
@@ -285,6 +285,6 @@ describe('bundleDocument', () => {
   })
 
   it('throws when the input file does not exist', async () => {
-    await expect(bundleDocument(path.resolve(__dirname, '../mocks/doesNotExist.yaml'))).rejects.toThrow()
+    await expect(bundleDocument(path.resolve(__dirname, '../../mocks/doesNotExist.yaml'))).rejects.toThrow()
   })
 })

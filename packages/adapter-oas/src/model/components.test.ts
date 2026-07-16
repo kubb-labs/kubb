@@ -1,266 +1,7 @@
-import { describe, expect, expectTypeOf, it } from 'vitest'
-import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { parseFromConfig } from './factory.ts'
-import {
-  buildSchemaNode,
-  extractSchemaFromContent,
-  flattenSchema,
-  getDateType,
-  getPrimitiveType,
-  getSchemas,
-  getSchemaType,
-  resolveBaseUrl,
-  resolveServerUrl,
-  sortSchemas,
-} from './resolvers.ts'
-import type { Document } from './types.ts'
-
-const minimalSpec: Document = {
-  openapi: '3.0.0',
-  info: { title: 'Test API', version: '1.0.0' },
-  servers: [{ url: 'https://api.example.com/v1' }],
-  paths: {
-    '/pets': {
-      get: {
-        operationId: 'listPets',
-        responses: { '200': { description: 'ok' } },
-      },
-    },
-  },
-  components: {
-    schemas: {
-      Pet: {
-        type: 'object',
-        properties: { id: { type: 'string' }, name: { type: 'string' } },
-        required: ['id'],
-      },
-    },
-  },
-}
-
-describe('resolveBaseUrl', () => {
-  it('returns the server URL at the given index', async () => {
-    const document = await parseFromConfig({ type: 'data', data: minimalSpec })
-    const url = resolveBaseUrl({ document, server: { index: 0 } })
-    expect(url).toBe('https://api.example.com/v1')
-  })
-
-  it('returns null when no server index is provided', async () => {
-    const document = await parseFromConfig({ type: 'data', data: minimalSpec })
-    const url = resolveBaseUrl({ document, server: {} })
-    expect(url).toBeNull()
-  })
-
-  it('returns null when no server is provided', async () => {
-    const document = await parseFromConfig({ type: 'data', data: minimalSpec })
-    const url = resolveBaseUrl({ document })
-    expect(url).toBeNull()
-  })
-
-  it('returns null when the server index is out of range', async () => {
-    const document = await parseFromConfig({ type: 'data', data: minimalSpec })
-    const url = resolveBaseUrl({ document, server: { index: 99 } })
-    expect(url).toBeNull()
-  })
-
-  it('substitutes server variables into the resolved URL', async () => {
-    const document = await parseFromConfig({
-      type: 'data',
-      data: {
-        ...minimalSpec,
-        servers: [{ url: 'https://api.{env}.example.com', variables: { env: { default: 'dev' } } }],
-      },
-    })
-    const url = resolveBaseUrl({ document, server: { index: 0, variables: { env: 'prod' } } })
-    expect(url).toBe('https://api.prod.example.com')
-  })
-})
-
-describe('getSchemaType', () => {
-  it('returns the SchemaType for a known format', () => {
-    expect(getSchemaType('uuid')).toBe('uuid')
-    expect(getSchemaType('uri')).toBe('url')
-    expect(getSchemaType('email')).toBe('email')
-  })
-
-  it('returns null for an unknown format', () => {
-    expect(getSchemaType('int64')).toBeNull()
-    expect(getSchemaType('date-time')).toBeNull()
-    expect(getSchemaType('not-a-format')).toBeNull()
-  })
-})
-
-describe('getPrimitiveType', () => {
-  it('returns numeric types unchanged', () => {
-    expect(getPrimitiveType('number')).toBe('number')
-    expect(getPrimitiveType('integer')).toBe('integer')
-    expect(getPrimitiveType('bigint')).toBe('bigint')
-  })
-
-  it('maps boolean to boolean', () => {
-    expect(getPrimitiveType('boolean')).toBe('boolean')
-  })
-
-  it('defaults everything else to string', () => {
-    expect(getPrimitiveType('string')).toBe('string')
-    expect(getPrimitiveType('object')).toBe('string')
-    expect(getPrimitiveType(undefined)).toBe('string')
-  })
-})
-
-describe('getDateType', () => {
-  const base = DEFAULT_PARSER_OPTIONS
-
-  it('returns null when dateType is false', () => {
-    expect(getDateType({ ...base, dateType: false }, 'date-time')).toBeNull()
-  })
-
-  it('resolves date-time with dateType string to datetime without offset', () => {
-    expect(getDateType({ ...base, dateType: 'string' }, 'date-time')).toStrictEqual({
-      type: 'datetime',
-      offset: false,
-    })
-  })
-
-  it('resolves date-time with dateType date', () => {
-    expect(getDateType({ ...base, dateType: 'date' }, 'date-time')).toStrictEqual({
-      type: 'date',
-      representation: 'date',
-    })
-  })
-
-  it('resolves date-time with dateType stringOffset', () => {
-    expect(getDateType({ ...base, dateType: 'stringOffset' }, 'date-time')).toStrictEqual({ type: 'datetime', offset: true })
-  })
-
-  it('resolves date-time with dateType stringLocal', () => {
-    expect(getDateType({ ...base, dateType: 'stringLocal' }, 'date-time')).toStrictEqual({ type: 'datetime', local: true })
-  })
-
-  it('resolves date format', () => {
-    expect(getDateType({ ...base, dateType: 'string' }, 'date')).toStrictEqual({
-      type: 'date',
-      representation: 'string',
-    })
-    expect(getDateType({ ...base, dateType: 'date' }, 'date')).toStrictEqual({
-      type: 'date',
-      representation: 'date',
-    })
-  })
-
-  it('resolves time format', () => {
-    expect(getDateType({ ...base, dateType: 'string' }, 'time')).toStrictEqual({
-      type: 'time',
-      representation: 'string',
-    })
-    expect(getDateType({ ...base, dateType: 'date' }, 'time')).toStrictEqual({
-      type: 'time',
-      representation: 'date',
-    })
-  })
-})
-
-describe('buildSchemaNode', () => {
-  it('builds a node with all metadata fields', () => {
-    const schema = {
-      title: 'My Schema',
-      description: 'A description',
-      deprecated: true,
-      readOnly: true,
-      writeOnly: false,
-      examples: [42],
-      format: 'email',
-    }
-    const node = buildSchemaNode(schema, 'myName', true, 'defaultVal')
-
-    expect(node).toMatchObject({
-      default: 'defaultVal',
-      deprecated: true,
-      description: 'A description',
-      examples: [42],
-      format: 'email',
-      name: 'myName',
-      nullable: true,
-      readOnly: true,
-      title: 'My Schema',
-      writeOnly: false,
-    })
-  })
-
-  it('passes through undefined fields as undefined', () => {
-    const node = buildSchemaNode({}, undefined, undefined, undefined)
-
-    expect(node.name).toBeUndefined()
-    expect(node.nullable).toBeUndefined()
-    expect(node.title).toBeUndefined()
-    expect(node.default).toBeUndefined()
-    expect(node.format).toBeUndefined()
-  })
-
-  it('return type has name and nullable fields', () => {
-    const node = buildSchemaNode({}, 'x', undefined, null)
-
-    expectTypeOf(node.name).toEqualTypeOf<string | null | undefined>()
-    expectTypeOf(node.nullable).toEqualTypeOf<true | undefined>()
-  })
-})
-
-describe('flattenSchema', () => {
-  it('returns null for null input', () => {
-    expect(flattenSchema(null)).toBeNull()
-  })
-
-  it('returns schema unchanged when there is no allOf', () => {
-    const schema = { type: 'string' as const }
-
-    expect(flattenSchema(schema)).toBe(schema)
-  })
-
-  it('returns schema unchanged when allOf is empty', () => {
-    const schema = { allOf: [] }
-
-    expect(flattenSchema(schema)).toBe(schema)
-  })
-
-  it('returns schema unchanged when allOf contains a $ref', () => {
-    const schema = { allOf: [{ $ref: '#/components/schemas/Pet' }] }
-
-    expect(flattenSchema(schema)).toBe(schema)
-  })
-
-  it('returns schema unchanged when allOf contains structural keys', () => {
-    const schema = {
-      allOf: [{ properties: { id: { type: 'integer' as const } } }],
-    }
-
-    expect(flattenSchema(schema)).toBe(schema)
-  })
-
-  it('merges plain allOf fragments into the parent schema', () => {
-    const schema = {
-      type: 'object' as const,
-      allOf: [{ description: 'A pet' }, { example: 'Fido' }],
-    }
-    const result = flattenSchema(schema)
-
-    expect(result).not.toHaveProperty('allOf')
-    expect(result).toMatchObject({
-      type: 'object',
-      description: 'A pet',
-      example: 'Fido',
-    })
-  })
-
-  it('does not overwrite existing keys during merge', () => {
-    const schema = {
-      description: 'existing',
-      allOf: [{ description: 'from allOf' }],
-    }
-    const result = flattenSchema(schema)
-
-    expect(result?.description).toBe('existing')
-  })
-})
+import { describe, expect, it } from 'vitest'
+import { createRefs } from '../refs.ts'
+import type { Document } from '../types.ts'
+import { extractSchemaFromContent, getSchemas, sortSchemas } from './components.ts'
 
 describe('extractSchemaFromContent', () => {
   it('returns null when content is undefined', () => {
@@ -357,66 +98,6 @@ describe('sortSchemas', () => {
   })
 })
 
-describe('resolveServerUrl', () => {
-  it('returns the url unchanged when there are no variables', () => {
-    expect(resolveServerUrl({ url: 'https://api.example.com' })).toBe('https://api.example.com')
-  })
-
-  it('replaces a variable with the provided override', () => {
-    expect(
-      resolveServerUrl(
-        {
-          url: 'https://{env}.api.example.com',
-          variables: { env: { default: 'dev', enum: ['dev', 'prod'] } },
-        },
-        { env: 'prod' },
-      ),
-    ).toBe('https://prod.api.example.com')
-  })
-
-  it('falls back to the variable default when no override is given', () => {
-    expect(
-      resolveServerUrl({
-        url: 'https://{env}.api.example.com',
-        variables: { env: { default: 'dev' } },
-      }),
-    ).toBe('https://dev.api.example.com')
-  })
-
-  it('leaves the placeholder unreplaced when no override and no default', () => {
-    expect(
-      resolveServerUrl({
-        url: 'https://{env}.api.example.com',
-        variables: { env: { default: '' } },
-      }),
-    ).toBe('https://.api.example.com')
-  })
-
-  it('replaces multiple variables', () => {
-    expect(
-      resolveServerUrl(
-        {
-          url: 'https://{env}.api.example.com/{version}',
-          variables: { env: { default: 'dev' }, version: { default: 'v1' } },
-        },
-        { env: 'prod', version: 'v2' },
-      ),
-    ).toBe('https://prod.api.example.com/v2')
-  })
-
-  it('throws when an override value is not in the allowed enum list', () => {
-    expect(() =>
-      resolveServerUrl(
-        {
-          url: 'https://{env}.api.example.com',
-          variables: { env: { default: 'dev', enum: ['dev', 'prod'] } },
-        },
-        { env: 'staging' },
-      ),
-    ).toThrow("Invalid server variable value 'staging' for 'env'")
-  })
-})
-
 describe('getSchemas', () => {
   const base: Document = {
     openapi: '3.0.3',
@@ -425,7 +106,7 @@ describe('getSchemas', () => {
   } as Document
 
   it('returns empty schemas when components is absent', () => {
-    const { schemas, renames } = getSchemas(base, {})
+    const { schemas, renames } = getSchemas(base, {}, createRefs(base))
     expect(schemas).toStrictEqual({})
     expect(renames.size).toBe(0)
   })
@@ -440,7 +121,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, renames } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
     expect(schemas).toMatchObject({
       Pet: {
         type: 'object',
@@ -470,7 +151,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, renames } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
     expect(schemas).toMatchObject({
       PetResponse: {
         type: 'object',
@@ -499,7 +180,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, renames } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
     expect(schemas).toMatchObject({
       CreatePet: {
         type: 'object',
@@ -520,7 +201,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, renames } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
 
     // first entry keeps original name, second gets numeric suffix
     expect(Object.keys(schemas).sort()).toStrictEqual(['Pet2', 'pet'])
@@ -551,7 +232,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, renames } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
 
     expect(Object.keys(schemas).sort()).toStrictEqual(['PetResponse', 'PetSchema'])
     expect(renames.get('#/components/schemas/Pet')).toBe('PetSchema')
@@ -593,7 +274,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas, renames } = getSchemas(document, {})
+    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
 
     expect(Object.keys(schemas).sort()).toStrictEqual(['PetRequest', 'PetResponse', 'PetSchema'])
     expect(renames.get('#/components/schemas/Pet')).toBe('PetSchema')
@@ -624,7 +305,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { renames } = getSchemas(document, {})
+    const { renames } = getSchemas(document, {}, createRefs(document))
 
     // both normalize to PetList → semantic suffixes applied
     expect(renames.get('#/components/schemas/pet_list')).toBe('pet_listSchema')
@@ -641,7 +322,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { renames } = getSchemas(document, {})
+    const { renames } = getSchemas(document, {}, createRefs(document))
     expect(renames.has('#/components/schemas/Status')).toBe(false)
   })
 
@@ -668,7 +349,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { renames } = getSchemas(document, {})
+    const { renames } = getSchemas(document, {}, createRefs(document))
     expect(renames.get('#/components/schemas/Status')).toBe('StatusSchema')
     expect(renames.get('#/components/responses/Status')).toBe('StatusResponse')
   })
@@ -687,7 +368,7 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas } = getSchemas(document, {})
+    const { schemas } = getSchemas(document, {}, createRefs(document))
     const keys = Object.keys(schemas)
     expect(keys.indexOf('Pet')).toBeLessThan(keys.indexOf('Order'))
   })
@@ -718,9 +399,13 @@ describe('getSchemas', () => {
       },
     }
 
-    const { schemas } = getSchemas(document, {
-      contentType: 'application/xml',
-    })
+    const { schemas } = getSchemas(
+      document,
+      {
+        contentType: 'application/xml',
+      },
+      createRefs(document),
+    )
     expect(schemas).toMatchObject({
       PetResponse: {
         type: 'object',

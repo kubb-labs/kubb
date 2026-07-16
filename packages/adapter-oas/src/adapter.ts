@@ -2,13 +2,16 @@ import { ast, findCircularSchemas, narrowSchema } from '@kubb/ast'
 import { createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './discriminator.ts'
-import type { DiscriminatorTarget } from './discriminator.ts'
-import { assertInputExists, parseDocument, parseFromConfig, validateDocument } from './factory.ts'
+import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './emit/discriminator/propagate.ts'
+import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
+import { assertInputExists } from './load/source.ts'
+import { parseDocument, parseFromConfig, validateDocument } from './load/normalize.ts'
+import { getSchemas } from './model/components.ts'
+import { resolveBaseUrl } from './model/server.ts'
 import { getOperations } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
-import { getSchemas, resolveBaseUrl } from './resolvers.ts'
+import { createRefs } from './refs.ts'
 import { reportSchemaDiagnostics } from './schemaDiagnostics.ts'
 import type { AdapterOas, Document, SchemaObject } from './types.ts'
 
@@ -69,55 +72,24 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
   let parsedDocument: Document | null = null
 
-  // Cache per source and per document so one adapter instance reused across a `defineConfig` array
-  // parses each config's spec instead of replaying the first one. The document-derived caches key
-  // off the resulting document, so distinct configs (distinct documents) stay isolated.
-  const documentCache = new WeakMap<AdapterSource, Promise<Document>>()
-  const schemasCache = new WeakMap<Document, ReturnType<typeof getSchemas>>()
-  const schemaParserCache = new WeakMap<Document, ReturnType<typeof createSchemaParser>>()
-
-  function ensureDocument(source: AdapterSource): Promise<Document> {
-    const cached = documentCache.get(source)
-    if (cached) return cached
-
-    const promise = (async () => {
-      const fresh = await parseFromConfig(source)
-      if (validate) await validateDocument(fresh)
-      parsedDocument = fresh
-      return fresh
-    })()
-    documentCache.set(source, promise)
-    return promise
-  }
-
-  function ensureSchemas(document: Document): ReturnType<typeof getSchemas> {
-    const cached = schemasCache.get(document)
-    if (cached) return cached
-
-    const result = getSchemas(document, { contentType })
-    schemasCache.set(document, result)
-    return result
-  }
-
-  function ensureSchemaParser({ document, renames }: { document: Document; renames: Map<string, string> }): ReturnType<typeof createSchemaParser> {
-    const cached = schemaParserCache.get(document)
-    if (cached) return cached
-
-    const parser = createSchemaParser({ document, contentType, renames })
-    schemaParserCache.set(document, parser)
-    return parser
-  }
+  // One cache per source: reusing one adapter instance across a `defineConfig` array must parse
+  // each config's spec instead of replaying the first one, and a repeat `.parse()` call for the
+  // same source must not redo the work. The `$ref` memo lives inside the `Refs` instance created
+  // fresh for each document, scoped to this one pass.
+  const inputCache = new WeakMap<AdapterSource, Promise<ast.InputNode>>()
 
   // Parses every schema and operation once. Ref aliases and discriminator children are
   // resolved from the schemas already parsed in this same pass rather than re-parsed.
   function parseInput({
     document,
+    refs,
     schemas,
     parser,
   }: {
     document: Document
+    refs: ReturnType<typeof createRefs>
     schemas: Record<string, SchemaObject>
-    parser: ReturnType<typeof ensureSchemaParser>
+    parser: ReturnType<typeof createSchemaParser>
   }): ast.InputNode {
     const { parseSchema, parseOperation } = parser
 
@@ -146,7 +118,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 
     const operationNodes: Array<ast.OperationNode> = []
-    for (const operation of getOperations(document)) {
+    for (const operation of getOperations(document, refs)) {
       const operationNode = parseOperation(parserOptions, operation)
       if (operationNode) operationNodes.push(operationNode)
     }
@@ -214,11 +186,22 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       await validateDocument(document, options)
     },
     async parse(source) {
-      const document = await ensureDocument(source)
-      const { schemas, renames } = ensureSchemas(document)
-      const parser = ensureSchemaParser({ document, renames })
+      const cached = inputCache.get(source)
+      if (cached) return cached
 
-      return parseInput({ document, schemas, parser })
+      const promise = (async () => {
+        const document = await parseFromConfig(source)
+        if (validate) await validateDocument(document)
+        parsedDocument = document
+
+        const refs = createRefs(document)
+        const { schemas, renames } = getSchemas(document, { contentType }, refs)
+        const parser = createSchemaParser({ document, refs, contentType, renames })
+
+        return parseInput({ document, refs, schemas, parser })
+      })()
+      inputCache.set(source, promise)
+      return promise
     },
   }
 })
