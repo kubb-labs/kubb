@@ -1,6 +1,6 @@
 {
   "name": "@kubb/parser-md",
-  "version": "5.0.0-beta.100",
+  "version": "5.0.0-beta.101",
   "description": "Markdown source file parser for Kubb. Converts the universal AST to `.md` source and renders YAML frontmatter via the `print` helper.",
   "keywords": [
     "codegen",
