@@ -21,6 +21,12 @@ type WriteOptions = ParseOptions & {
   storage: Storage
 }
 
+// Cap how many files are parsed and written at once. A small spec runs all its files in parallel;
+// a spec with thousands of files keeps at most this many parsed sources in memory instead of every
+// source at once, while each file's write still overlaps the next file's parse. Disk writes are
+// throttled separately inside `fsStorage`.
+const WRITE_CONCURRENCY = 50
+
 function joinSources(file: FileNode): string {
   return file.sources
     .map((source) => extractStringsFromNodes(source.nodes as Array<CodeNode>))
@@ -175,8 +181,11 @@ export class FileManager {
   }
 
   /**
-   * Converts and writes every file at once, letting `storage.setItem` decide how much of
-   * that runs concurrently.
+   * Parses and writes every file through a bounded pool of workers. A small spec runs all its files
+   * at once; a spec with thousands of files keeps at most `WRITE_CONCURRENCY` parsed sources in
+   * memory rather than holding every source, while still overlapping each file's write with the
+   * next file's parse. Each `update` carries the file's input position, so a consumer can present
+   * the files in generation order even though they finish in whatever order they parse.
    */
   async write(files: Array<FileNode>, { storage, parsers }: WriteOptions): Promise<void> {
     if (files.length === 0) return
@@ -184,15 +193,18 @@ export class FileManager {
     await this.hooks.callHook('start', files)
 
     const total = files.length
-    let processed = 0
-    await Promise.all(
-      files.map(async (file) => {
+    // Workers share one iterator, so each `next()` hands the next file to whichever worker is free.
+    const entries = files.entries()
+
+    const worker = async (): Promise<void> => {
+      for (const [index, file] of entries) {
         const source = await this.parse(file, { parsers })
-        processed++
-        await this.hooks.callHook('update', { file, source, processed, total, percentage: (processed / total) * 100 })
+        await this.hooks.callHook('update', { file, source, processed: index + 1, total, percentage: ((index + 1) / total) * 100 })
         if (source) await storage.setItem(file.path, source)
-      }),
-    )
+      }
+    }
+
+    await Promise.all(Array.from({ length: Math.min(WRITE_CONCURRENCY, total) }, () => worker()))
 
     await this.hooks.callHook('end', files)
   }

@@ -336,6 +336,27 @@ describe('FileManager', () => {
       await writing
     })
 
+    it('bounds how many files are in flight for a large spec', async () => {
+      // Blocks every write for the duration of the test so the in-flight count can be observed.
+      const block = new Promise<void>(() => {})
+      const storage = memoryStorage()
+      const started: Array<string> = []
+      storage.setItem = async (itemPath: string) => {
+        started.push(itemPath)
+        await block
+      }
+      const manager = new FileManager()
+      const files = Array.from({ length: 200 }, (_, index) => makeFileWithSources(`f${index}.ts`, [`/* ${index} */`]))
+
+      manager.write(files, { storage }).catch(() => {})
+      await new Promise((resolve) => setTimeout(resolve, 20))
+
+      // Unbounded `Promise.all(files.map(...))` would have started all 200 writes. The pool keeps
+      // at most WRITE_CONCURRENCY (50) parsed sources in flight at once.
+      expect(started.length).toBeLessThan(files.length)
+      expect(started.length).toBe(50)
+    })
+
     it('waits for every write to finish before resolving', async () => {
       const { promise: blocker, resolve: unblock } = Promise.withResolvers<void>()
       const storage = memoryStorage()

@@ -295,15 +295,12 @@ export class KubbDriver {
         updateBuffer.push(item)
       },
       end: async (files: Array<FileNode>) => {
-        // The write pass runs files through `Promise.all`, so `updateBuffer` fills in
-        // I/O-completion order, which differs from run to run. Re-sort into generation order and
-        // renumber so the streamed rows read as a stable `1..N` sequence for a human.
-        const orderByPath = new Map(files.map((file, index) => [file.path, index]))
-        updateBuffer.sort((a, b) => (orderByPath.get(a.file.path) ?? 0) - (orderByPath.get(b.file.path) ?? 0))
+        // Files parse concurrently, so the buffer arrives in completion order. `processed` is each
+        // file's input position, so sorting by it restores generation order for the streamed rows.
+        updateBuffer.sort((a, b) => a.processed - b.processed)
 
-        const total = files.length
         await hooks.callHook('kubb:files:processing:update', {
-          files: updateBuffer.map((item, index) => ({ ...item, processed: index + 1, total, percentage: ((index + 1) / total) * 100, config })),
+          files: updateBuffer.map((item) => ({ ...item, config })),
         })
         updateBuffer.length = 0
         await hooks.callHook('kubb:files:processing:end', { files })
