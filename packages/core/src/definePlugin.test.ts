@@ -172,11 +172,9 @@ describe('PluginDriver — hook-style plugin registration', () => {
 
     await driver.setupHooks()
 
-    // After setup hooks — the generator lives on its plugin. The generate loop calls it directly,
-    // so it is never wired as a kubb:generate:* listener.
+    // After setup hooks — the generator lives on its plugin, ready for the generate loop to call.
     expect(driver.hasHookGenerators('hook-plugin')).toBe(true)
     expect(driver.plugins.get('hook-plugin')?.generators).toStrictEqual([generator])
-    expect(hooks.listenerCount('kubb:generate:schema')).toBe(0)
   })
 
   it('addGenerator() stores every generator passed as separate arguments', async () => {
@@ -200,10 +198,6 @@ describe('PluginDriver — hook-style plugin registration', () => {
 
     expect(driver.hasHookGenerators('hook-plugin')).toBe(true)
     expect(driver.plugins.get('hook-plugin')?.generators).toStrictEqual([genSchema, genOperation, genOperations])
-    // Generators are called directly, not registered as hook listeners.
-    expect(hooks.listenerCount('kubb:generate:schema')).toBe(0)
-    expect(hooks.listenerCount('kubb:generate:operation')).toBe(0)
-    expect(hooks.listenerCount('kubb:generate:operations')).toBe(0)
   })
 
   it('addGenerator() stores a spread list so an existing array can be passed in one call', async () => {

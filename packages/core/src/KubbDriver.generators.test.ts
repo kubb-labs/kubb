@@ -187,4 +187,33 @@ describe('KubbDriver generator dispatch', () => {
     expect(diagnostics.some((diagnostic) => 'plugin' in diagnostic && diagnostic.plugin === 'boom')).toBe(true)
     hooks.removeAllHooks()
   })
+
+  it('normalizes plugin options after setup even when setOptions is never called', async () => {
+    const localHooks = new Hookable<KubbHooks>()
+    const plugin = {
+      name: 'opts-plugin',
+      options: { output: { path: 'types' }, enumType: 'asConst' },
+      hooks: {},
+    } as unknown as Plugin
+    const config = {
+      root: '.',
+      input: { path: './petStore.yaml' },
+      output: { path: './gen' },
+      parsers: [],
+      reporters: [],
+      adapter: inputAdapter(),
+      plugins: [plugin],
+      storage: memoryStorage(),
+    } satisfies Config
+    const optsDriver = new KubbDriver(config, { hooks: localHooks })
+    await optsDriver.setup()
+    await optsDriver.run()
+
+    const normalized = optsDriver.plugins.get('opts-plugin')!.options
+    expect(normalized.output).toStrictEqual({ path: 'types', mode: 'file' })
+    expect(normalized.exclude).toStrictEqual([])
+    expect(normalized.override).toStrictEqual([])
+    expect((normalized as Record<string, unknown>).enumType).toBe('asConst')
+    localHooks.removeAllHooks()
+  })
 })

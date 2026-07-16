@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { getElapsedMs, memoize, toError } from '@internals/utils'
+import { getElapsedMs, toError } from '@internals/utils'
 import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { OPERATION_FILTER_TYPES } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
@@ -33,6 +33,27 @@ const ENFORCE_ORDER = { pre: -1, post: 1 } satisfies Record<Enforce, number>
 
 const enforceWeight = (plugin: NormalizedPlugin): number => (plugin.enforce ? ENFORCE_ORDER[plugin.enforce] : 0)
 
+/**
+ * The options bag a `NormalizedPlugin` starts with before a plugin refines it: a directory output
+ * at the plugin root and empty filter lists.
+ */
+function defaultPluginOptions(): NormalizedPlugin['options'] {
+  const options: NormalizedPlugin['options'] = { output: { path: '.', mode: 'directory' }, exclude: [], override: [] }
+  return options
+}
+
+/**
+ * Fills in the `output`, `exclude`, and `override` a `NormalizedPlugin` needs from a plugin's raw
+ * options, running `output` through `normalizeOutput`. Idempotent, so the driver can apply it after
+ * `setOptions` has already run without disturbing an already-normalized bag.
+ */
+function normalizePluginOptions(rawOptions: Plugin['options'], pluginName: string): NormalizedPlugin['options'] {
+  const options: NormalizedPlugin['options'] = { ...defaultPluginOptions(), ...(rawOptions ?? {}) }
+  const group = 'group' in options ? (options.group as Group | null | undefined) : undefined
+  options.output = normalizeOutput({ output: options.output, group, pluginName })
+  return options
+}
+
 export class KubbDriver {
   readonly config: Config
   readonly options: Options
@@ -55,9 +76,6 @@ export class KubbDriver {
    */
   readonly fileManager = new FileManager()
   readonly plugins = new Map<string, NormalizedPlugin>()
-
-  readonly #resolvers = new Map<string, Resolver>()
-  readonly #defaultResolvers = new Map<string, Resolver>()
 
   /**
    * Removers for every listener the driver added (plugin, generator) so `dispose()` can detach
@@ -91,10 +109,10 @@ export class KubbDriver {
           dependencies: rawPlugin.dependencies,
           enforce: rawPlugin.enforce,
           hooks: rawPlugin.hooks,
-          // `rawPlugin.options` is the user-supplied shape, not yet the normalized `output`/`exclude`/`override`
-          // bag every `NormalizedPlugin` carries; plugins fill it in via `setOptions` during `kubb:plugin:setup`.
-          options: (rawPlugin.options ?? { output: { path: '.', mode: 'directory' }, exclude: [], override: [] }) as NormalizedPlugin['options'],
-          resolver: this.#getDefaultResolver(rawPlugin.name),
+          // `rawPlugin.options` is the user-supplied shape. The normalized `output`/`exclude`/`override`
+          // bag is filled in by the post-setup `normalizePluginOptions` pass, after `setOptions` runs.
+          options: (rawPlugin.options ?? defaultPluginOptions()) as NormalizedPlugin['options'],
+          resolver: createResolver<PluginFactoryOptions>({ pluginName: rawPlugin.name }),
         }
         return normalizedPlugin
       }),
@@ -300,11 +318,15 @@ export class KubbDriver {
           // `transforms.applyTo`.
           await this.setupHooks()
 
+          // Normalize each plugin's options once setup hooks have run, so the generate loop always
+          // sees a filled-in bag whether or not the plugin called `setOptions`.
+          for (const plugin of this.plugins.values()) {
+            plugin.options = normalizePluginOptions(plugin.options, plugin.name)
+          }
+
           if (this.adapter && this.inputNode) {
-            await hooks.callHook(
-              'kubb:build:start',
-              Object.assign({ config, adapter: this.adapter, meta: this.inputNode.meta, getPlugin: this.getPlugin.bind(this) }, this.#filesPayload()),
-            )
+            const buildStartContext = this.#withFiles({ config, adapter: this.adapter, meta: this.inputNode.meta, getPlugin: this.getPlugin.bind(this) })
+            await hooks.callHook('kubb:build:start', buildStartContext)
           }
 
           const generatorPlugins: Array<{ plugin: NormalizedPlugin; context: Omit<GeneratorContext, 'options'>; hrStart: ReturnType<typeof process.hrtime> }> =
@@ -342,7 +364,7 @@ export class KubbDriver {
           // Run every node through the transform registry and into each plugin's generators.
           diagnostics.push(...(await this.#runGenerators(generatorPlugins)))
 
-          await hooks.callHook('kubb:plugins:end', Object.assign({ config }, this.#filesPayload()))
+          await hooks.callHook('kubb:plugins:end', this.#withFiles({ config }))
 
           // Write every generated file once, after post-processing (barrel etc.) has had its
           // chance to add more. Writing mid-generation measured no faster in practice, so a
@@ -362,25 +384,21 @@ export class KubbDriver {
     )
   }
 
-  // Returns a fresh object with a lazy `files` getter and a bound `upsertFile`.
-  // Caller must use `Object.assign(extra, this.#filesPayload())`, not object spread.
-  // Spread would eagerly invoke the getter and freeze a stale snapshot into the payload.
-  #filesPayload(): { readonly files: Array<FileNode>; upsertFile: (...files: Array<FileNode>) => Array<FileNode> } {
-    const driver = this
-
+  /**
+   * Widens `extra` with the files present at emit time and a bound `upsertFile`, the shape every
+   * file-carrying hook context shares. Building it here in one place keeps the `files` and
+   * `upsertFile` keys from being dropped by a stray spread at the call site.
+   */
+  #withFiles<T extends object>(extra: T): T & { files: Array<FileNode>; upsertFile: (...files: Array<FileNode>) => Array<FileNode> } {
     return {
-      get files() {
-        return driver.fileManager.files
-      },
-      upsertFile: (...files: Array<FileNode>) => driver.fileManager.upsert(...files),
+      ...extra,
+      files: this.fileManager.files,
+      upsertFile: (...files: Array<FileNode>) => this.fileManager.upsert(...files),
     }
   }
 
   #emitPluginEnd({ plugin, duration, success, error }: { plugin: NormalizedPlugin; duration: number; success: boolean; error?: Error }): Promise<void> | void {
-    return this.hooks.callHook(
-      'kubb:plugin:end',
-      Object.assign({ plugin, duration, success, ...(error ? { error } : {}), config: this.config }, this.#filesPayload()),
-    )
+    return this.hooks.callHook('kubb:plugin:end', this.#withFiles({ plugin, duration, success, ...(error ? { error } : {}), config: this.config }))
   }
 
   /**
@@ -587,10 +605,6 @@ export class KubbDriver {
     for (const unhook of this.#unhooks) unhook()
     this.#unhooks.length = 0
     this.#transforms.dispose()
-    // Release resolver closures. The driver is rebuilt for each build() call
-    // so there is no value in retaining these maps after disposal.
-    this.#resolvers.clear()
-    this.#defaultResolvers.clear()
     // Release the FileNode cache and parsed adapter graph so memory is reclaimed
     // between builds. The returned `BuildOutput.files` array still references any
     // FileNodes the caller needs to inspect.
@@ -603,33 +617,25 @@ export class KubbDriver {
     this.dispose()
   }
 
-  #getDefaultResolver = memoize(this.#defaultResolvers, (pluginName: string): Resolver => createResolver<PluginFactoryOptions>({ pluginName }))
-
   /**
-   * Merges `partial` with the plugin's default resolver and stores the result.
-   * Also mirrors it onto `plugin.resolver` so callers using `getPlugin(name).resolver`
-   * get the up-to-date resolver without going through `getResolver()`.
+   * Merges `partial` onto a fresh default resolver and stores the result on `plugin.resolver`,
+   * which is the single source `getResolver` and `getPlugin(name).resolver` both read.
    */
   setPluginResolver(pluginName: string, partial: ResolverPatch | Resolver): void {
-    const defaultResolver = this.#getDefaultResolver(pluginName)
-    const merged = Resolver.merge(defaultResolver, partial)
-    this.#resolvers.set(pluginName, merged)
     const plugin = this.plugins.get(pluginName)
+    if (!plugin) return
 
-    if (plugin) {
-      plugin.resolver = merged
-    }
+    plugin.resolver = Resolver.merge(createResolver<PluginFactoryOptions>({ pluginName }), partial)
   }
 
   /**
-   * Returns the resolver for the given plugin.
-   *
-   * Resolution order: resolver set via `setPluginResolver` → lazily created default
-   * resolver (identity name, no path transforms).
+   * Returns the resolver for the given plugin. It reads `plugin.resolver` (seeded with the default
+   * at registration and replaced by `setPluginResolver`), falling back to a fresh default for a
+   * name that is not a registered plugin.
    */
   getResolver<TName extends PluginName>(pluginName: TName): ResolvePluginOptions<TName>['resolver']
   getResolver(pluginName: string): Resolver {
-    return this.#resolvers.get(pluginName) ?? this.#getDefaultResolver(pluginName)
+    return this.plugins.get(pluginName)?.resolver ?? createResolver<PluginFactoryOptions>({ pluginName })
   }
 
   getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
