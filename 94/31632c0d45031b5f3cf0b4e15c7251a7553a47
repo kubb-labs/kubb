@@ -1,0 +1,25 @@
+packages/cli/src/runners/generate/run.ts
+  s_bc27e56884a518::t_c8bd9e1533aea6 125
+  s_bc27e56884a518::t_c7a6d7d3b8961c 230
+packages/core/src/createKubb.ts
+  s_bc27e56884a518::t_ec80851c5a0f99 207-210
+  s_bc27e56884a518::t_9ef4ef4ef443bf 262
+  s_bc27e56884a518::t_1ba1d5fa48ee27 34-35,40,44,48-49,53,57-58,64
+  s_bc27e56884a518::t_a7cd79f89cabe3 239
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "9431632c0d45031b5f3cf0b4e15c7251a7553a47",
+  "prompts": {},
+  "sessions": {
+    "s_bc27e56884a518": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "602b6981-0253-4f59-975e-8aabcc34d665",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Stijn Van Hulle <stijn.vanhulle@robovision.eu>"
+    }
+  }
+}
