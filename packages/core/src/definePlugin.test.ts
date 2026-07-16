@@ -1,3 +1,4 @@
+import { ast } from '@kubb/ast'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
@@ -7,6 +8,7 @@ import { Diagnostics } from './Diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, GeneratorContext, KubbHooks, KubbPluginSetupContext, Output, Plugin, PluginFactoryOptions, ResolvePluginOptions } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
+import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
 
 // ---------------------------------------------------------------------------
@@ -150,7 +152,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     expect(setupHandler).toHaveBeenCalledOnce()
   })
 
-  it('addGenerator() registers generators via the hook-based path (not on plugin.generators)', async () => {
+  it('addGenerator() stores generators on the plugin for direct dispatch', async () => {
     const generator = { name: 'my-gen', schema: vi.fn() }
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
@@ -165,28 +167,27 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks })
     await driver.setup()
 
-    // Before emit — no generators yet
+    // Before setup hooks — no generators yet
     expect(driver.hasHookGenerators('hook-plugin')).toBe(false)
 
     await driver.setupHooks()
 
-    // After emit — generator is registered via the hook-based path
+    // After setup hooks — the generator lives on its plugin. The generate loop calls it directly,
+    // so it is never wired as a kubb:generate:* listener.
     expect(driver.hasHookGenerators('hook-plugin')).toBe(true)
-    // Generators registered via addGenerator() do NOT populate plugin.generators —
-    // they are wired as listeners on kubb:generate:* hooks instead.
-    expect(driver.plugins.get('hook-plugin')?.generators ?? []).toHaveLength(0)
+    expect(driver.plugins.get('hook-plugin')?.generators).toStrictEqual([generator])
+    expect(hooks.listenerCount('kubb:generate:schema')).toBe(0)
   })
 
-  it('addGenerator() registers every generator passed as separate arguments', async () => {
+  it('addGenerator() stores every generator passed as separate arguments', async () => {
+    const genSchema = { name: 'gen-schema', schema: vi.fn() }
+    const genOperation = { name: 'gen-operation', operation: vi.fn() }
+    const genOperations = { name: 'gen-operations', operations: vi.fn() }
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
       hooks: {
         'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator(
-            { name: 'gen-schema', schema: vi.fn() },
-            { name: 'gen-operation', operation: vi.fn() },
-            { name: 'gen-operations', operations: vi.fn() },
-          )
+          ctx.addGenerator(genSchema, genOperation, genOperations)
         },
       },
     }))()
@@ -198,13 +199,14 @@ describe('PluginDriver — hook-style plugin registration', () => {
     await driver.setupHooks()
 
     expect(driver.hasHookGenerators('hook-plugin')).toBe(true)
-    // Each generator wires up the listener for the hook it implements.
-    expect(hooks.listenerCount('kubb:generate:schema')).toBe(1)
-    expect(hooks.listenerCount('kubb:generate:operation')).toBe(1)
-    expect(hooks.listenerCount('kubb:generate:operations')).toBe(1)
+    expect(driver.plugins.get('hook-plugin')?.generators).toStrictEqual([genSchema, genOperation, genOperations])
+    // Generators are called directly, not registered as hook listeners.
+    expect(hooks.listenerCount('kubb:generate:schema')).toBe(0)
+    expect(hooks.listenerCount('kubb:generate:operation')).toBe(0)
+    expect(hooks.listenerCount('kubb:generate:operations')).toBe(0)
   })
 
-  it('addGenerator() registers a spread list so an existing array can be passed in one call', async () => {
+  it('addGenerator() stores a spread list so an existing array can be passed in one call', async () => {
     const generators = [
       { name: 'gen-schema', schema: vi.fn() },
       { name: 'gen-operation', operation: vi.fn() },
@@ -225,8 +227,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     await driver.setupHooks()
 
     expect(driver.hasHookGenerators('hook-plugin')).toBe(true)
-    expect(hooks.listenerCount('kubb:generate:schema')).toBe(1)
-    expect(hooks.listenerCount('kubb:generate:operation')).toBe(1)
+    expect(driver.plugins.get('hook-plugin')?.generators).toStrictEqual(generators)
   })
 
   it('options passed to definePlugin are forwarded via ctx.options', async () => {
@@ -374,7 +375,17 @@ describe('PluginDriver — hook-style plugin registration', () => {
   })
 })
 
-describe('PluginDriver — generator hook dispatch', () => {
+describe('PluginDriver — generator dispatch', () => {
+  function populatedAdapter() {
+    return createMockedAdapter({
+      parse: async () =>
+        ast.factory.createInput({
+          schemas: [ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [] })],
+          operations: [ast.factory.createOperation({ operationId: 'getPet', method: 'GET', path: '/pet' })],
+        }),
+    })
+  }
+
   function makeConfig(plugins: Config['plugins']): Config {
     return {
       root: '.',
@@ -382,13 +393,13 @@ describe('PluginDriver — generator hook dispatch', () => {
       output: { path: './src/gen', clean: true },
       parsers: [],
       reporters: [],
-      storage: fsStorage(),
-      adapter: createMockedAdapter(),
+      storage: memoryStorage(),
+      adapter: populatedAdapter(),
       plugins,
     }
   }
 
-  it('registerGenerator() registers kubb:generate:schema listener scoped to plugin', async () => {
+  it('calls a plugin schema generator for each schema node during run()', async () => {
     const schemaMock = vi.fn().mockResolvedValue(undefined)
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
@@ -399,58 +410,38 @@ describe('PluginDriver — generator hook dispatch', () => {
       },
     }))()
 
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), {
-      hooks,
-    })
+    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks: new Hookable<KubbHooks>() })
     await driver.setup()
-    await driver.setupHooks()
+    await driver.run()
 
-    const fakePlugin = driver.plugins.get('hook-plugin')!
-    const fakeCtx = {
-      plugin: fakePlugin,
-      adapter: {},
-    } as unknown as GeneratorContext
-    const fakeNode = { kind: 'Schema', name: 'Pet' } as unknown as SchemaNode
-
-    await hooks.callHook('kubb:generate:schema', fakeNode, {
-      ...fakeCtx,
-      options: {},
-    })
     expect(schemaMock).toHaveBeenCalledOnce()
+    const [node, ctx] = schemaMock.mock.calls[0] as [SchemaNode, GeneratorContext]
+    expect(node.name).toBe('Pet')
+    expect(ctx.plugin.name).toBe('hook-plugin')
   })
 
-  it('registerGenerator() does NOT fire for a different plugin context', async () => {
-    const schemaMock = vi.fn().mockResolvedValue(undefined)
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator({ name: 'test-gen', schema: schemaMock })
-        },
-      },
+  it('only calls a plugin generator with its own plugin context (no cross-fire)', async () => {
+    const schemaA = vi.fn().mockResolvedValue(undefined)
+    const schemaB = vi.fn().mockResolvedValue(undefined)
+    const pluginA = definePlugin(() => ({
+      name: 'plugin-a',
+      hooks: { 'kubb:plugin:setup'(ctx) { ctx.addGenerator({ name: 'gen-a', schema: schemaA }) } },
+    }))()
+    const pluginB = definePlugin(() => ({
+      name: 'plugin-b',
+      hooks: { 'kubb:plugin:setup'(ctx) { ctx.addGenerator({ name: 'gen-b', schema: schemaB }) } },
     }))()
 
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), {
-      hooks,
-    })
+    const driver = new KubbDriver(makeConfig([pluginA, pluginB]), { hooks: new Hookable<KubbHooks>() })
     await driver.setup()
-    await driver.setupHooks()
+    await driver.run()
 
-    // Emit with a DIFFERENT plugin name in the context — should NOT trigger the listener
-    const otherPlugin = { name: 'other-plugin' } as unknown as Plugin
-    const fakeCtx = {
-      plugin: otherPlugin,
-      adapter: {},
-    } as unknown as GeneratorContext
-    const fakeNode = { kind: 'Schema', name: 'Pet' } as unknown as SchemaNode
-
-    await hooks.callHook('kubb:generate:schema', fakeNode, {
-      ...fakeCtx,
-      options: {},
-    })
-    expect(schemaMock).not.toHaveBeenCalled()
+    expect(schemaA).toHaveBeenCalledOnce()
+    expect(schemaB).toHaveBeenCalledOnce()
+    const [, ctxA] = schemaA.mock.calls[0] as [SchemaNode, GeneratorContext]
+    const [, ctxB] = schemaB.mock.calls[0] as [SchemaNode, GeneratorContext]
+    expect(ctxA.plugin.name).toBe('plugin-a')
+    expect(ctxB.plugin.name).toBe('plugin-b')
   })
 
   it('hasHookGenerators() returns false before setup and true after', async () => {
@@ -463,10 +454,7 @@ describe('PluginDriver — generator hook dispatch', () => {
       },
     }))()
 
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), {
-      hooks,
-    })
+    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks: new Hookable<KubbHooks>() })
     await driver.setup()
 
     expect(driver.hasHookGenerators('hook-plugin')).toBe(false)
@@ -474,7 +462,7 @@ describe('PluginDriver — generator hook dispatch', () => {
     expect(driver.hasHookGenerators('hook-plugin')).toBe(true)
   })
 
-  it('registerGenerator() registers kubb:generate:operation listener', async () => {
+  it('calls a plugin operation generator for each operation node during run()', async () => {
     const operationMock = vi.fn().mockResolvedValue(undefined)
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
@@ -485,31 +473,16 @@ describe('PluginDriver — generator hook dispatch', () => {
       },
     }))()
 
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), {
-      hooks,
-    })
+    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks: new Hookable<KubbHooks>() })
     await driver.setup()
-    await driver.setupHooks()
+    await driver.run()
 
-    const fakePlugin = driver.plugins.get('hook-plugin')!
-    const fakeCtx = {
-      plugin: fakePlugin,
-      adapter: {},
-    } as unknown as GeneratorContext
-    const fakeNode = {
-      kind: 'Operation',
-      operationId: 'getPet',
-    } as unknown as OperationNode
-
-    await hooks.callHook('kubb:generate:operation', fakeNode, {
-      ...fakeCtx,
-      options: {},
-    })
     expect(operationMock).toHaveBeenCalledOnce()
+    const [operationNode] = operationMock.mock.calls[0] as [OperationNode, GeneratorContext]
+    expect(operationNode.operationId).toBe('getPet')
   })
 
-  it('registerGenerator() registers kubb:generate:operations listener', async () => {
+  it('calls a plugin operations generator once with the collected operations', async () => {
     const operationsMock = vi.fn().mockResolvedValue(undefined)
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
@@ -520,26 +493,16 @@ describe('PluginDriver — generator hook dispatch', () => {
       },
     }))()
 
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), {
-      hooks,
-    })
+    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks: new Hookable<KubbHooks>() })
     await driver.setup()
-    await driver.setupHooks()
+    await driver.run()
 
-    const fakePlugin = driver.plugins.get('hook-plugin')!
-    const fakeCtx = {
-      plugin: fakePlugin,
-      adapter: {},
-      options: {},
-    } as unknown as GeneratorContext
-    const fakeNodes = [{ kind: 'Operation', operationId: 'getPet' }] as unknown as Array<OperationNode>
-
-    await hooks.callHook('kubb:generate:operations', fakeNodes, fakeCtx)
     expect(operationsMock).toHaveBeenCalledOnce()
+    const [nodes] = operationsMock.mock.calls[0] as [Array<OperationNode>, GeneratorContext]
+    expect(nodes.map((node) => node.operationId)).toStrictEqual(['getPet'])
   })
 
-  it('registerGenerator() receives the resolved resolver on ctx.resolver', async () => {
+  it('passes the resolved resolver on ctx.resolver to a generator', async () => {
     const capturedResolverResult = vi.fn()
     const schemaMock = vi.fn(function (_node: SchemaNode, ctx: GeneratorContext) {
       capturedResolverResult(ctx.resolver.name('pet schema'))
@@ -560,24 +523,9 @@ describe('PluginDriver — generator hook dispatch', () => {
       },
     }))()
 
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), {
-      hooks,
-    })
+    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks: new Hookable<KubbHooks>() })
     await driver.setup()
-    await driver.setupHooks()
-
-    const fakePlugin = driver.plugins.get('hook-plugin')!
-    const fakeCtx = {
-      ...driver.getContext(fakePlugin),
-      adapter: {},
-    } as unknown as GeneratorContext
-    const fakeNode = { kind: 'Schema', name: 'Pet' } as unknown as SchemaNode
-
-    await hooks.callHook('kubb:generate:schema', fakeNode, {
-      ...fakeCtx,
-      options: {} as unknown as GeneratorContext['options'],
-    })
+    await driver.run()
 
     expect(schemaMock).toHaveBeenCalledOnce()
     expect(capturedResolverResult).toHaveBeenCalledWith('ResolvedFromSetup')

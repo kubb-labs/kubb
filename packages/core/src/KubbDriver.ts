@@ -56,11 +56,6 @@ export class KubbDriver {
   readonly fileManager = new FileManager()
   readonly plugins = new Map<string, NormalizedPlugin>()
 
-  /**
-   * Tracks which plugins have generators registered via `addGenerator()` (hook-based path).
-   * Used by the build loop to decide whether to emit generator hooks for a given plugin.
-   */
-  readonly #hookGeneratorPlugins = new Set<string>()
   readonly #resolvers = new Map<string, Resolver>()
   readonly #defaultResolvers = new Map<string, Resolver>()
 
@@ -228,52 +223,32 @@ export class KubbDriver {
   }
 
   /**
-   * Registers a generator for the given plugin on the shared hook emitter.
+   * Appends a generator to its owning plugin so the generate loop can call it directly.
    *
-   * The generator's `schema`, `operation`, and `operations` methods are registered as
-   * listeners on `kubb:generate:schema`, `kubb:generate:operation`, and `kubb:generate:operations`
-   * respectively. Each listener is scoped to the owning plugin via a `ctx.plugin.name` check
-   * so that generators from different plugins do not cross-fire.
-   *
-   * The renderer comes from `generator.renderer`. Set `generator.renderer = null` (or leave it
-   * unset) to opt out of rendering.
+   * The generator's `schema`, `operation`, and `operations` methods run per node during the AST
+   * walk in `#runGenerators`, and their result is routed through `dispatch`. Because a generator is
+   * bound to a plugin, generators from different plugins never cross-fire without a name check. The
+   * renderer comes from `generator.renderer`; set it to `null` (or leave it unset) to opt out of
+   * rendering.
    *
    * Call this method inside `addGenerator()` (in `kubb:plugin:setup`) to wire up a generator.
    */
   registerGenerator(pluginName: string, generator: Generator): void {
-    // Scope each generator method to its owning plugin and route its result through `dispatch`.
-    // Returns `undefined` for an absent method so `addHooks` skips that hook.
-    const wrap = <TNode>(method: ((node: TNode, ctx: GeneratorContext) => unknown) | undefined) => {
-      if (!method) return undefined
+    const plugin = this.plugins.get(pluginName)
+    if (!plugin) return
 
-      return async (node: TNode, ctx: GeneratorContext): Promise<void> => {
-        if (ctx.plugin.name !== pluginName) return
-        const result = await method(node, ctx)
-
-        await this.dispatch({ result, renderer: generator.renderer })
-      }
-    }
-
-    this.#unhooks.push(
-      this.hooks.addHooks({
-        'kubb:generate:schema': wrap(generator.schema),
-        'kubb:generate:operation': wrap(generator.operation),
-        'kubb:generate:operations': wrap(generator.operations),
-      }),
-    )
-
-    this.#hookGeneratorPlugins.add(pluginName)
+    plugin.generators = plugin.generators ? [...plugin.generators, generator] : [generator]
   }
 
   /**
    * Returns `true` when at least one generator was registered for the given plugin
    * via `addGenerator()` in `kubb:plugin:setup`.
    *
-   * Used by the build loop to decide whether to walk the AST and emit generator hooks
+   * Used by the build loop to decide whether to walk the AST and run the generators
    * for a plugin.
    */
   hasHookGenerators(pluginName: string): boolean {
-    return this.#hookGeneratorPlugins.has(pluginName)
+    return (this.plugins.get(pluginName)?.generators?.length ?? 0) > 0
   }
 
   /**
@@ -442,10 +417,6 @@ export class KubbDriver {
     const transforms = this.#transforms
     const { schemas, operations } = this.inputNode
 
-    const emitsSchemaHook = this.hooks.listenerCount('kubb:generate:schema') > 0
-    const emitsOperationHook = this.hooks.listenerCount('kubb:generate:operation') > 0
-    const emitsOperationsHook = this.hooks.listenerCount('kubb:generate:operations') > 0
-
     // Pre-scan: plugins with operation-based includes (but no schemaName include) need
     // the reachable schema set, keyed by plugin name. This requires the full schema graph
     // in memory at once, since transitive reachability can't be derived from a single node.
@@ -469,11 +440,16 @@ export class KubbDriver {
       const optionsAreStatic = !exclude?.length && !include?.length && !override?.length
       const allowedSchemaNames = allowedSchemaNamesByPlugin.get(plugin.name) ?? null
 
+      const generators = plugin.generators ?? []
+      const schemaGenerators = generators.filter((generator) => generator.schema)
+      const operationGenerators = generators.filter((generator) => generator.operation)
+      const operationsGenerators = generators.filter((generator) => generator.operations)
+
       let error: Error | null = null
 
       // Applies the plugin's macros, then resolves options (skipping the resolver when
       // optionsAreStatic). Returns null when include/exclude/override rules out the node.
-      // The per-node dispatch and the collected-operations tail both go through this so
+      // The per-node dispatch and the collected-operations batch both go through this so
       // they agree on what the plugin sees.
       const resolveForPlugin = <TNode extends SchemaNode | OperationNode>(
         node: TNode,
@@ -492,10 +468,10 @@ export class KubbDriver {
         return { transformedNode, options }
       }
 
-      // Schemas before operations, in adapter order, so file output stays deterministic. A
-      // caught error stops this plugin but not the others, so its remaining nodes are
-      // skipped rather than retried.
-      if (emitsSchemaHook) {
+      // Schemas before operations, in adapter order, so file output stays deterministic. A caught
+      // error stops this plugin but not the others, so its remaining nodes are skipped rather than
+      // retried. Generators run directly; `kubb:generate:*` still fires for external observers.
+      if (schemaGenerators.length) {
         for (const node of schemas) {
           if (error) break
           try {
@@ -505,37 +481,48 @@ export class KubbDriver {
             const { transformedNode, options } = resolved
             if (allowedSchemaNames !== null && transformedNode.name && !allowedSchemaNames.has(transformedNode.name)) continue
 
-            await this.hooks.callHook('kubb:generate:schema', transformedNode, { ...generatorContext, options })
+            const ctx = { ...generatorContext, options }
+            for (const generator of schemaGenerators) {
+              await this.dispatch({ result: await generator.schema!(transformedNode, ctx), renderer: generator.renderer })
+            }
+            await this.hooks.callHook('kubb:generate:schema', transformedNode, ctx)
           } catch (caughtError) {
             error = toError(caughtError)
           }
         }
       }
 
-      if (emitsOperationHook) {
+      // One pass over operations feeds both the per-operation generators and the batch handed to
+      // `operations`, so each node is transformed and filtered exactly once.
+      const pluginOperations: Array<OperationNode> = []
+      if (operationGenerators.length || operationsGenerators.length) {
         for (const node of operations) {
           if (error) break
           try {
             const resolved = resolveForPlugin(node)
             if (!resolved) continue
 
-            await this.hooks.callHook('kubb:generate:operation', resolved.transformedNode, { ...generatorContext, options: resolved.options })
+            pluginOperations.push(resolved.transformedNode)
+
+            if (operationGenerators.length) {
+              const ctx = { ...generatorContext, options: resolved.options }
+              for (const generator of operationGenerators) {
+                await this.dispatch({ result: await generator.operation!(resolved.transformedNode, ctx), renderer: generator.renderer })
+              }
+              await this.hooks.callHook('kubb:generate:operation', resolved.transformedNode, ctx)
+            }
           } catch (caughtError) {
             error = toError(caughtError)
           }
         }
       }
 
-      if (!error && emitsOperationsHook) {
+      if (!error && operationsGenerators.length) {
         try {
           const ctx = { ...generatorContext, options: plugin.options }
-          // Match what the per-node dispatch emitted on kubb:generate:operation: each operation
-          // transformed and filtered by this plugin's excludes/includes/overrides.
-          const pluginOperations = operations.reduce<Array<OperationNode>>((acc, node) => {
-            const resolved = resolveForPlugin(node)
-            if (resolved) acc.push(resolved.transformedNode)
-            return acc
-          }, [])
+          for (const generator of operationsGenerators) {
+            await this.dispatch({ result: await generator.operations!(pluginOperations, ctx), renderer: generator.renderer })
+          }
           await this.hooks.callHook('kubb:generate:operations', pluginOperations, ctx)
         } catch (caughtError) {
           error = toError(caughtError)
@@ -599,7 +586,6 @@ export class KubbDriver {
   dispose(): void {
     for (const unhook of this.#unhooks) unhook()
     this.#unhooks.length = 0
-    this.#hookGeneratorPlugins.clear()
     this.#transforms.dispose()
     // Release resolver closures. The driver is rebuilt for each build() call
     // so there is no value in retaining these maps after disposal.
