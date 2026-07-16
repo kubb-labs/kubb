@@ -63,7 +63,7 @@ export type GenerateOptions = {
 /**
  * What a {@link Kubb.generate} call produced, for the host to map onto its own result shape.
  */
-export type GenerationResult = {
+export type GenerateResult = {
   /**
    * `true` when the build and every output pass completed without an error-level diagnostic.
    */
@@ -205,7 +205,7 @@ export class Kubb {
 
   /**
    * Run one build and its output passes end to end, emitting the surrounding `kubb:generation:*`
-   * hooks. Never throws on a build error: the outcome comes back in {@link GenerationResult} so the
+   * hooks. Never throws on a build error: the outcome comes back in {@link GenerateResult} so the
    * host decides how failures surface. Telemetry and progress narration stay with the host through
    * {@link GenerateOptions}.
    *
@@ -215,7 +215,7 @@ export class Kubb {
    * if (!result.success) process.exitCode = 1
    * ```
    */
-  async generate(options: GenerateOptions = {}): Promise<GenerationResult> {
+  async generate(options: GenerateOptions = {}): Promise<GenerateResult> {
     const { hooks, config } = this
     const hrStart = process.hrtime()
 

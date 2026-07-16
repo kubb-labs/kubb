@@ -35,13 +35,21 @@ type GenerateProps = {
 
 type ToolMap = typeof formatters | typeof linters
 
-type RunToolPassOptions = {
-  toolValue: string
+/**
+ * Static description of one output tool: its command table, the label and messages the pass logs,
+ * and how to auto-detect it. Format and lint differ only in these values.
+ */
+type Tool = {
+  label: string
+  map: ToolMap
   detect: () => Promise<string | null>
-  toolMap: ToolMap
-  toolLabel: string
   successPrefix: string
   noToolMessage: string
+}
+
+type RunToolPassOptions = {
+  toolValue: string
+  tool: Tool
   outputPath: string
   logLevel: number
   hooks: Hookable<KubbHooks>
@@ -54,29 +62,17 @@ type RunToolPassOptions = {
  * throwing, so the caller can turn it into a coded diagnostic. Failures never render here:
  * the caller emits them through `Diagnostics.emit`, like every other diagnostic.
  */
-async function runToolPass({
-  toolValue,
-  detect,
-  toolMap,
-  toolLabel,
-  successPrefix,
-  noToolMessage,
-  outputPath,
-  logLevel,
-  hooks,
-  onStart,
-  onEnd,
-}: RunToolPassOptions): Promise<Error | null> {
+async function runToolPass({ toolValue, tool, outputPath, logLevel, hooks, onStart, onEnd }: RunToolPassOptions): Promise<Error | null> {
   await onStart()
 
   let resolvedTool = toolValue
   if (resolvedTool === 'auto') {
-    const detected = await detect()
+    const detected = await tool.detect()
     if (!detected) {
-      await hooks.callHook('kubb:warn', { message: noToolMessage })
+      await hooks.callHook('kubb:warn', { message: tool.noToolMessage })
     } else {
       resolvedTool = detected
-      await hooks.callHook('kubb:info', { message: `Auto-detected ${toolLabel}: ${styleText('dim', resolvedTool)}` })
+      await hooks.callHook('kubb:info', { message: `Auto-detected ${tool.label}: ${styleText('dim', resolvedTool)}` })
     }
   }
 
@@ -84,11 +80,11 @@ async function runToolPass({
 
   // Nothing to lint or format when the output dir was never written. Skip so the tool
   // (e.g. oxlint with --no-ignore) doesn't fail with "No files found to lint".
-  if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in toolMap && existsSync(outputPath)) {
-    const toolConfig = toolMap[resolvedTool as keyof ToolMap]
+  if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in tool.map && existsSync(outputPath)) {
+    const toolConfig = tool.map[resolvedTool as keyof ToolMap]
 
     const successMessage = [
-      `${successPrefix} with ${styleText('dim', resolvedTool)}`,
+      `${tool.successPrefix} with ${styleText('dim', resolvedTool)}`,
       logLevel >= logLevelMap.info ? `on ${styleText('dim', outputPath)}` : undefined,
       'successfully',
     ]
@@ -145,23 +141,27 @@ async function generate(options: GenerateProps): Promise<boolean> {
     const toolPasses = [
       {
         value: resolvedConfig.output.format,
-        detect: () => detectTool(['oxfmt', 'biome', 'prettier'] as const),
-        toolMap: formatters,
-        toolLabel: 'formatter',
-        successPrefix: 'Formatting',
-        noToolMessage: 'No formatter found (oxfmt, biome, or prettier). Skipping formatting.',
         code: Diagnostics.code.formatFailed,
+        tool: {
+          label: 'formatter',
+          map: formatters,
+          detect: () => detectTool(['oxfmt', 'biome', 'prettier'] as const),
+          successPrefix: 'Formatting',
+          noToolMessage: 'No formatter found (oxfmt, biome, or prettier). Skipping formatting.',
+        },
         onStart: () => hooks.callHook('kubb:format:start'),
         onEnd: () => hooks.callHook('kubb:format:end'),
       },
       {
         value: resolvedConfig.output.lint,
-        detect: () => detectTool(['oxlint', 'biome', 'eslint'] as const),
-        toolMap: linters,
-        toolLabel: 'linter',
-        successPrefix: 'Linting',
-        noToolMessage: 'No linter found (oxlint, biome, or eslint). Skipping linting.',
         code: Diagnostics.code.lintFailed,
+        tool: {
+          label: 'linter',
+          map: linters,
+          detect: () => detectTool(['oxlint', 'biome', 'eslint'] as const),
+          successPrefix: 'Linting',
+          noToolMessage: 'No linter found (oxlint, biome, or eslint). Skipping linting.',
+        },
         onStart: () => hooks.callHook('kubb:lint:start'),
         onEnd: () => hooks.callHook('kubb:lint:end'),
       },
@@ -171,18 +171,14 @@ async function generate(options: GenerateProps): Promise<boolean> {
       if (!pass.value) continue
       const error = await runToolPass({
         toolValue: pass.value,
-        detect: pass.detect,
-        toolMap: pass.toolMap,
-        toolLabel: pass.toolLabel,
-        successPrefix: pass.successPrefix,
-        noToolMessage: pass.noToolMessage,
+        tool: pass.tool,
         onStart: pass.onStart,
         onEnd: pass.onEnd,
         outputPath,
         logLevel,
         hooks,
       })
-      if (error) await reportOutputFailure(pass.code, pass.toolLabel, error)
+      if (error) await reportOutputFailure(pass.code, pass.tool.label, error)
     }
 
     if (resolvedConfig.output.postGenerate?.length) {
