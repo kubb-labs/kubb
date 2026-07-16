@@ -3,9 +3,9 @@ import { extractRefName, macroSimplifyUnion, mergeAdjacentObjectsLazy } from '@k
 import { isDiscriminator, isReference } from '../../oas.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
-import { createDiscriminantNode, extractDiscriminatedAllOfMembers, narrowUnionMembers } from '../discriminator/index.ts'
+import { createDiscriminantNode, extractDiscriminatedAllOfMembers, narrowUnionMembers } from '../discriminator/preserve.ts'
 import type { ConvertContext } from '../parseSchema.ts'
-import { extractExamples } from '../schemaHelpers.ts'
+import { extractExamples } from '../schemaShape.ts'
 
 /**
  * Converts a `$ref` schema into a `RefSchemaNode`.

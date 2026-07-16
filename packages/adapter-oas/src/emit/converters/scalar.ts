@@ -3,7 +3,7 @@ import { enumDescriptionKeys, enumExtensionKeys } from '../../constants.ts'
 import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
-import { getDateType, getExclusiveBounds, getPrimitiveType, getSchemaType } from '../schemaHelpers.ts'
+import { getDateType, getExclusiveBounds, getPrimitiveType, getSchemaType } from '../schemaShape.ts'
 
 /**
  * Normalizes malformed `{ type: 'array', enum: [...] }` schemas by moving enum values into items.

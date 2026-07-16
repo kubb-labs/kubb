@@ -5,7 +5,7 @@ import type { Document, SchemaObject } from '../types.ts'
 import { convertAllOf, convertMultiType, convertRef, convertUnion } from './converters/composition.ts'
 import { convertBinary, convertBoolean, convertConst, convertEnum, convertFormat, convertNumeric, convertString, createNullNode } from './converters/scalar.ts'
 import { convertArray, convertObject, convertTuple } from './converters/structural.ts'
-import { isHandledFormat } from './schemaHelpers.ts'
+import { isHandledFormat } from './schemaShape.ts'
 
 /**
  * Pre-computed per-schema context passed to every schema converter.

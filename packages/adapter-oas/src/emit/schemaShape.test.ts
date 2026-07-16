@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from '../constants.ts'
-import { flattenSchema, getDateType, getPrimitiveType, getSchemaType } from './schemaHelpers.ts'
+import { flattenSchema, getDateType, getPrimitiveType, getSchemaType } from './schemaShape.ts'
 
 describe('getSchemaType', () => {
   it('returns the SchemaType for a known format', () => {

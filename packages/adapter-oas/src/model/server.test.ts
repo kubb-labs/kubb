@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseFromConfig } from '../load/index.ts'
+import { parseFromConfig } from '../load/normalize.ts'
 import type { Document } from '../types.ts'
 import { resolveBaseUrl, resolveServerUrl } from './server.ts'
 

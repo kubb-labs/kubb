@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { bench, describe } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { parseDocument } from './load/index.ts'
+import { parseDocument } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
 import { getOperations } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
