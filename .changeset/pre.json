@@ -25,6 +25,7 @@
     "adapter-oas-faithful-schemas",
     "adapter-oas-integer-type-bigint-default",
     "adapter-oas-lazy-load-heavy-deps",
+    "adapter-oas-leaner-shape",
     "adapter-oas-octet-stream-request-body",
     "adapter-oas-promote-inline-enums",
     "adapter-oas-scalar-upgrader",
