@@ -35,13 +35,21 @@ type GenerateProps = {
 
 type ToolMap = typeof formatters | typeof linters
 
-type RunToolPassOptions = {
-  toolValue: string
+/**
+ * Static description of one output tool: its command table, the label and messages the pass logs,
+ * and how to auto-detect it. Format and lint differ only in these values.
+ */
+type Tool = {
+  label: string
+  map: ToolMap
   detect: () => Promise<string | null>
-  toolMap: ToolMap
-  toolLabel: string
   successPrefix: string
   noToolMessage: string
+}
+
+type RunToolPassOptions = {
+  toolValue: string
+  tool: Tool
   outputPath: string
   logLevel: number
   hooks: Hookable<KubbHooks>
@@ -54,29 +62,17 @@ type RunToolPassOptions = {
  * throwing, so the caller can turn it into a coded diagnostic. Failures never render here:
  * the caller emits them through `Diagnostics.emit`, like every other diagnostic.
  */
-async function runToolPass({
-  toolValue,
-  detect,
-  toolMap,
-  toolLabel,
-  successPrefix,
-  noToolMessage,
-  outputPath,
-  logLevel,
-  hooks,
-  onStart,
-  onEnd,
-}: RunToolPassOptions): Promise<Error | null> {
+async function runToolPass({ toolValue, tool, outputPath, logLevel, hooks, onStart, onEnd }: RunToolPassOptions): Promise<Error | null> {
   await onStart()
 
   let resolvedTool = toolValue
   if (resolvedTool === 'auto') {
-    const detected = await detect()
+    const detected = await tool.detect()
     if (!detected) {
-      await hooks.callHook('kubb:warn', { message: noToolMessage })
+      await hooks.callHook('kubb:warn', { message: tool.noToolMessage })
     } else {
       resolvedTool = detected
-      await hooks.callHook('kubb:info', { message: `Auto-detected ${toolLabel}: ${styleText('dim', resolvedTool)}` })
+      await hooks.callHook('kubb:info', { message: `Auto-detected ${tool.label}: ${styleText('dim', resolvedTool)}` })
     }
   }
 
@@ -84,11 +80,11 @@ async function runToolPass({
 
   // Nothing to lint or format when the output dir was never written. Skip so the tool
   // (e.g. oxlint with --no-ignore) doesn't fail with "No files found to lint".
-  if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in toolMap && existsSync(outputPath)) {
-    const toolConfig = toolMap[resolvedTool as keyof ToolMap]
+  if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in tool.map && existsSync(outputPath)) {
+    const toolConfig = tool.map[resolvedTool as keyof ToolMap]
 
     const successMessage = [
-      `${successPrefix} with ${styleText('dim', resolvedTool)}`,
+      `${tool.successPrefix} with ${styleText('dim', resolvedTool)}`,
       logLevel >= logLevelMap.info ? `on ${styleText('dim', outputPath)}` : undefined,
       'successfully',
     ]
@@ -130,119 +126,94 @@ async function generate(options: GenerateProps): Promise<boolean> {
     input: input ?? options.config.input,
   }
 
-  const kubb = createKubb(config, { hooks })
-
-  await hooks.callHook('kubb:generation:start', { config })
-  await hooks.callHook('kubb:info', { message: config.name ? `Setup generation ${styleText('bold', config.name)}` : 'Setup generation', info: inputPath })
-
-  await kubb.setup()
-
-  await hooks.callHook('kubb:info', { message: config.name ? `Build generation ${styleText('bold', config.name)}` : 'Build generation', info: inputPath })
-
-  const { files, diagnostics, driver } = await kubb.safeBuild()
-
-  await hooks.callHook('kubb:info', { message: 'Load summary' })
-
-  const telemetryPlugins = Array.from(driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> }))
-
-  const reportTelemetry = (status: 'success' | 'failed') =>
-    sendTelemetry(buildTelemetryEvent({ command: 'generate', kubbVersion: version, plugins: telemetryPlugins, hrStart, filesCreated: files.length, status }))
-
-  // Render every problem, not just on failure, so warnings and info surface too.
-  // `performance` diagnostics feed the summary, not the log.
-  for (const diagnostic of diagnostics) {
-    if (!Diagnostics.isProblem(diagnostic)) {
-      continue
-    }
-    if (diagnostic.code === Diagnostics.code.unknown) {
-      await hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
-    } else {
+  // The formatter, linter, and post-generate commands run after a successful build. Collect their
+  // failures as coded diagnostics so they reach the summary, the json report, and the exit code.
+  const processOutput = async ({ config: resolvedConfig, outputPath }: { config: Config; outputPath: string }): Promise<Array<Diagnostic>> => {
+    const outputDiagnostics: Array<Diagnostic> = []
+    const reportOutputFailure = async (code: ProblemDiagnostic['code'], label: string, error: Error) => {
+      const diagnostic = outputDiagnostic(code, label, error)
+      outputDiagnostics.push(diagnostic)
       await Diagnostics.emit(hooks, diagnostic)
     }
-  }
 
-  // Only an error-severity diagnostic fails the run. Warnings and info do not.
-  if (Diagnostics.hasError(diagnostics)) {
-    await hooks.callHook('kubb:generation:end', { config, storage: kubb.storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
+    // Format and lint are the same pass over the output directory, differing only in the tool
+    // table and the hooks they announce themselves with, so run them from one descriptor list.
+    const toolPasses = [
+      {
+        value: resolvedConfig.output.format,
+        code: Diagnostics.code.formatFailed,
+        tool: {
+          label: 'formatter',
+          map: formatters,
+          detect: () => detectTool(['oxfmt', 'biome', 'prettier'] as const),
+          successPrefix: 'Formatting',
+          noToolMessage: 'No formatter found (oxfmt, biome, or prettier). Skipping formatting.',
+        },
+        onStart: () => hooks.callHook('kubb:format:start'),
+        onEnd: () => hooks.callHook('kubb:format:end'),
+      },
+      {
+        value: resolvedConfig.output.lint,
+        code: Diagnostics.code.lintFailed,
+        tool: {
+          label: 'linter',
+          map: linters,
+          detect: () => detectTool(['oxlint', 'biome', 'eslint'] as const),
+          successPrefix: 'Linting',
+          noToolMessage: 'No linter found (oxlint, biome, or eslint). Skipping linting.',
+        },
+        onStart: () => hooks.callHook('kubb:lint:start'),
+        onEnd: () => hooks.callHook('kubb:lint:end'),
+      },
+    ]
 
-    await reportTelemetry('failed')
-    return false
-  }
-
-  const outputPath = path.resolve(config.root, config.output.path)
-
-  // The build succeeded. The formatter, linter, and post-generate hooks run after it. Their
-  // failures used to only emit `kubb:error`, so they never reached the summary, the json report,
-  // or the exit code. Collect them as coded diagnostics here.
-  const outputDiagnostics: Array<Diagnostic> = []
-  const reportOutputFailure = async (code: ProblemDiagnostic['code'], label: string, error: Error) => {
-    const diagnostic = outputDiagnostic(code, label, error)
-    outputDiagnostics.push(diagnostic)
-    await Diagnostics.emit(hooks, diagnostic)
-  }
-
-  if (config.output.format) {
-    const error = await runToolPass({
-      toolValue: config.output.format,
-      detect: () => detectTool(['oxfmt', 'biome', 'prettier'] as const),
-      toolMap: formatters,
-      toolLabel: 'formatter',
-      successPrefix: 'Formatting',
-      noToolMessage: 'No formatter found (oxfmt, biome, or prettier). Skipping formatting.',
-      onStart: () => hooks.callHook('kubb:format:start'),
-      onEnd: () => hooks.callHook('kubb:format:end'),
-      outputPath,
-      logLevel,
-      hooks,
-    })
-    if (error) await reportOutputFailure(Diagnostics.code.formatFailed, 'formatter', error)
-  }
-
-  if (config.output.lint) {
-    const error = await runToolPass({
-      toolValue: config.output.lint,
-      detect: () => detectTool(['oxlint', 'biome', 'eslint'] as const),
-      toolMap: linters,
-      toolLabel: 'linter',
-      successPrefix: 'Linting',
-      noToolMessage: 'No linter found (oxlint, biome, or eslint). Skipping linting.',
-      onStart: () => hooks.callHook('kubb:lint:start'),
-      onEnd: () => hooks.callHook('kubb:lint:end'),
-      outputPath,
-      logLevel,
-      hooks,
-    })
-    if (error) await reportOutputFailure(Diagnostics.code.lintFailed, 'linter', error)
-  }
-
-  if (config.output.postGenerate?.length) {
-    await hooks.callHook('kubb:hooks:start')
-    const hookResults = await runPostGenerate({ commands: config.output.postGenerate, hooks })
-    for (const result of hookResults) {
-      if (result.success) continue
-      await reportOutputFailure(Diagnostics.code.postGenerateFailed, 'Post-generate command', result.error ?? new Error('Post-generate command failed'))
+    for (const pass of toolPasses) {
+      if (!pass.value) continue
+      const error = await runToolPass({
+        toolValue: pass.value,
+        tool: pass.tool,
+        onStart: pass.onStart,
+        onEnd: pass.onEnd,
+        outputPath,
+        logLevel,
+        hooks,
+      })
+      if (error) await reportOutputFailure(pass.code, pass.tool.label, error)
     }
-    await hooks.callHook('kubb:hooks:end')
+
+    if (resolvedConfig.output.postGenerate?.length) {
+      await hooks.callHook('kubb:hooks:start')
+      const hookResults = await runPostGenerate({ commands: resolvedConfig.output.postGenerate, hooks })
+      for (const hookResult of hookResults) {
+        if (hookResult.success) continue
+        await reportOutputFailure(Diagnostics.code.postGenerateFailed, 'Post-generate command', hookResult.error ?? new Error('Post-generate command failed'))
+      }
+      await hooks.callHook('kubb:hooks:end')
+    }
+
+    return outputDiagnostics
   }
 
-  const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
-  const failed = Diagnostics.hasError(outputDiagnostics)
-
-  if (!failed) {
-    await hooks.callHook('kubb:success', { message: 'Generation succeeded', info: inputPath })
-  }
-
-  await hooks.callHook('kubb:generation:end', {
-    config,
-    storage: kubb.storage,
-    diagnostics: finalDiagnostics,
-    filesCreated: files.length,
-    status: failed ? 'failed' : 'success',
-    hrStart,
+  hooks.hook('kubb:generation:end', ({ status }) => {
+    if (status === 'success') return hooks.callHook('kubb:success', { message: 'Generation succeeded', info: inputPath })
   })
 
-  await reportTelemetry(failed ? 'failed' : 'success')
-  return !failed
+  const kubb = createKubb(config, { hooks })
+  const result = await kubb.generate({ processOutput })
+
+  const telemetryPlugins = Array.from(kubb.driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> }))
+  await sendTelemetry(
+    buildTelemetryEvent({
+      command: 'generate',
+      kubbVersion: version,
+      plugins: telemetryPlugins,
+      hrStart,
+      filesCreated: result.files.length,
+      status: result.success ? 'success' : 'failed',
+    }),
+  )
+
+  return result.success
 }
 
 /**

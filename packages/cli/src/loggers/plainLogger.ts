@@ -2,7 +2,7 @@ import { relative } from 'node:path'
 import { formatMs } from '@internals/utils'
 import { Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import type { Logger } from './defineLogger.ts'
-import { createHookTimer, formatCommandWithArgs, formatErrorFrames, formatMessage } from './utils.ts'
+import { createHookTimer, formatCommandWithArgs, formatErrorFrames, formatMessage, getInputPath } from './utils.ts'
 
 /**
  * Plain console adapter for non-TTY environments, built on `console.log`.
@@ -90,8 +90,8 @@ export const plainLogger = {
       console.log(`Kubb CLI v${version}`)
     })
 
-    context.hook('kubb:generation:start', () => {
-      const text = getMessage('Generation started')
+    context.hook('kubb:generation:start', ({ config }) => {
+      const text = getMessage(['Generation started', getInputPath(config)].filter(Boolean).join(' '))
 
       console.log(text)
     })

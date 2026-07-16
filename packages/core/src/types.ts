@@ -371,6 +371,8 @@ export interface KubbHooks {
   'kubb:lifecycle:end': []
   'kubb:generation:start': [ctx: KubbGenerationStartContext]
   'kubb:generation:end': [ctx: KubbGenerationEndContext]
+  'kubb:setup:start': []
+  'kubb:setup:end': []
   'kubb:format:start': []
   'kubb:format:end': []
   'kubb:lint:start': []
@@ -758,7 +760,7 @@ export type {
   SerializedDiagnostic,
   UpdateDiagnostic,
 } from './Diagnostics.ts'
-export type { CreateKubbOptions, Kubb } from './createKubb.ts'
+export type { CreateKubbOptions, GenerateOptions, GenerateResult, Kubb } from './createKubb.ts'
 export type { GenerationResult, Reporter, ReporterContext, ReporterName, UserReporter } from './createReporter.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'
 export type { Storage } from './createStorage.ts'
