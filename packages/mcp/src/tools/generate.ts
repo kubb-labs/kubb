@@ -1,4 +1,4 @@
-import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
+import { type Config, type Diagnostic, Diagnostics, type KubbHooks, Hookable, runGeneration } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import type * as v from 'valibot'
@@ -104,17 +104,23 @@ export const generateTool = defineTool(
       }
 
       await notify('CONFIG_READY', 'Configuration ready')
-      await notify('SETUP_START', 'Setting up Kubb')
 
-      const kubb = createKubb(config, { hooks })
-      await kubb.setup()
-      await notify('SETUP_END', 'Kubb setup complete')
+      const result = await runGeneration(config, {
+        hooks,
+        onPhase: async (phase) => {
+          if (phase === 'setup') {
+            await notify('SETUP_START', 'Setting up Kubb')
+            return
+          }
+          if (phase === 'build') {
+            await notify('SETUP_END', 'Kubb setup complete')
+            await notify('BUILD_START', 'Starting build')
+          }
+        },
+      })
+      await notify('BUILD_END', `Build complete - Generated ${result.files.length} files`)
 
-      await notify('BUILD_START', 'Starting build')
-      const { files, diagnostics } = await kubb.safeBuild()
-      await notify('BUILD_END', `Build complete - Generated ${files.length} files`)
-
-      const problems = diagnostics.filter(Diagnostics.isProblem)
+      const problems = result.diagnostics.filter(Diagnostics.isProblem)
       const errors = problems.filter((diagnostic) => diagnostic.severity === 'error')
       if (errors.length > 0) {
         await notify('BUILD_FAILED', `Build failed with ${errors.length} diagnostic(s)`)
@@ -123,9 +129,9 @@ export const generateTool = defineTool(
         return tool.error(`Build failed:\n${formatDiagnostics(serialized)}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\``)
       }
 
-      await notify('BUILD_SUCCESS', `Build completed successfully - Generated ${files.length} files`)
+      await notify('BUILD_SUCCESS', `Build completed successfully - Generated ${result.files.length} files`)
 
-      return tool.text(`Build completed successfully!\n\nGenerated ${files.length} files\n\n${messages.join('\n')}`)
+      return tool.text(`Build completed successfully!\n\nGenerated ${result.files.length} files\n\n${messages.join('\n')}`)
     } catch (caughtError) {
       const serialized = Diagnostics.serialize(Diagnostics.from(caughtError))
       return tool.error(`Build error:\n${formatDiagnostics([serialized])}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\``)

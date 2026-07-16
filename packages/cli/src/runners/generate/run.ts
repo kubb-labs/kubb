@@ -140,38 +140,49 @@ async function generate(options: GenerateProps): Promise<boolean> {
       await Diagnostics.emit(hooks, diagnostic)
     }
 
-    if (resolvedConfig.output.format) {
-      const error = await runToolPass({
-        toolValue: resolvedConfig.output.format,
+    // Format and lint are the same pass over the output directory, differing only in the tool
+    // table and the hooks they announce themselves with, so run them from one descriptor list.
+    const toolPasses = [
+      {
+        value: resolvedConfig.output.format,
         detect: () => detectTool(['oxfmt', 'biome', 'prettier'] as const),
         toolMap: formatters,
         toolLabel: 'formatter',
         successPrefix: 'Formatting',
         noToolMessage: 'No formatter found (oxfmt, biome, or prettier). Skipping formatting.',
+        code: Diagnostics.code.formatFailed,
         onStart: () => hooks.callHook('kubb:format:start'),
         onEnd: () => hooks.callHook('kubb:format:end'),
-        outputPath,
-        logLevel,
-        hooks,
-      })
-      if (error) await reportOutputFailure(Diagnostics.code.formatFailed, 'formatter', error)
-    }
-
-    if (resolvedConfig.output.lint) {
-      const error = await runToolPass({
-        toolValue: resolvedConfig.output.lint,
+      },
+      {
+        value: resolvedConfig.output.lint,
         detect: () => detectTool(['oxlint', 'biome', 'eslint'] as const),
         toolMap: linters,
         toolLabel: 'linter',
         successPrefix: 'Linting',
         noToolMessage: 'No linter found (oxlint, biome, or eslint). Skipping linting.',
+        code: Diagnostics.code.lintFailed,
         onStart: () => hooks.callHook('kubb:lint:start'),
         onEnd: () => hooks.callHook('kubb:lint:end'),
+      },
+    ]
+
+    for (const pass of toolPasses) {
+      if (!pass.value) continue
+      const error = await runToolPass({
+        toolValue: pass.value,
+        detect: pass.detect,
+        toolMap: pass.toolMap,
+        toolLabel: pass.toolLabel,
+        successPrefix: pass.successPrefix,
+        noToolMessage: pass.noToolMessage,
+        onStart: pass.onStart,
+        onEnd: pass.onEnd,
         outputPath,
         logLevel,
         hooks,
       })
-      if (error) await reportOutputFailure(Diagnostics.code.lintFailed, 'linter', error)
+      if (error) await reportOutputFailure(pass.code, pass.toolLabel, error)
     }
 
     if (resolvedConfig.output.postGenerate?.length) {

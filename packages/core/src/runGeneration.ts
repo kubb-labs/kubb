@@ -52,6 +52,12 @@ export type RunGenerationOptions = {
    * message in the same spot the CLI always has.
    */
   onSuccess?: () => void | Promise<void>
+  /**
+   * Surfaces one build diagnostic. Defaults to the CLI behavior: an unstructured error goes out as
+   * `kubb:error` and everything else through `kubb:diagnostic`. A host that renders differently (the
+   * bundler plugin routes by severity to its own channels) passes its own.
+   */
+  renderDiagnostic?: (context: { diagnostic: Diagnostic; hooks: Hookable<KubbHooks> }) => void | Promise<void>
 }
 
 /**
@@ -90,7 +96,7 @@ export type GenerationResult = {
  * unstructured `unknown` error goes out as `kubb:error`, everything else through `Diagnostics.emit`.
  * `performance` diagnostics feed the summary, not the log, so they are skipped here.
  */
-async function renderDiagnostic(hooks: Hookable<KubbHooks>, diagnostic: Diagnostic): Promise<void> {
+async function renderDiagnostic({ diagnostic, hooks }: { diagnostic: Diagnostic; hooks: Hookable<KubbHooks> }): Promise<void> {
   if (!Diagnostics.isProblem(diagnostic)) return
 
   if (diagnostic.code === Diagnostics.code.unknown) {
@@ -133,8 +139,9 @@ export async function runGeneration(config: Config, options: RunGenerationOption
 
   await onPhase?.('summary')
 
+  const render = options.renderDiagnostic ?? renderDiagnostic
   for (const diagnostic of diagnostics) {
-    await renderDiagnostic(hooks, diagnostic)
+    await render({ diagnostic, hooks })
   }
 
   if (Diagnostics.hasError(diagnostics)) {
