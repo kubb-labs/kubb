@@ -11,6 +11,7 @@ import {
   formatCommandWithArgs,
   formatErrorFrames,
   formatMessage,
+  getInputPath,
   recordPluginResult,
   resetProgressCounters,
 } from './utils.ts'
@@ -208,7 +209,9 @@ Run \`npm install -g @kubb/cli\` to update`,
         return
       }
 
-      const text = getMessage(['Generation started', config.name ? `for ${styleText('dim', config.name)}` : undefined].filter(Boolean).join(' '))
+      const text = getMessage(
+        ['Generation started', config.name ? `for ${styleText('dim', config.name)}` : undefined, getInputPath(config)].filter(Boolean).join(' '),
+      )
 
       clack.intro(text)
     })

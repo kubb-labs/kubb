@@ -1,7 +1,8 @@
 import { resolve } from 'node:path'
 import { BuildError, isPathInside } from '@internals/utils'
+import type { FileNode } from '@kubb/ast'
 import { HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
-import { Diagnostics } from './Diagnostics.ts'
+import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -27,6 +28,36 @@ function resolveConfig(userConfig: UserConfig): Config {
 
 export type CreateKubbOptions = {
   hooks?: Hookable<KubbHooks>
+}
+
+/**
+ * Host hooks for a single {@link Kubb.generate} call. All optional. Progress narration rides the
+ * `kubb:*` lifecycle hooks on `.hooks`, so hosts subscribe there rather than pass a callback.
+ */
+export type GenerateOptions = {
+  /**
+   * Format, lint, and run `postGenerate` over the generated output after an error-free build, and
+   * return the diagnostics they emitted. CLI-only.
+   */
+  processOutput?: (context: { config: Config; outputPath: string }) => Promise<Array<Diagnostic>>
+}
+
+/**
+ * What a {@link Kubb.generate} call produced, for the host to map onto its own result shape.
+ */
+export type GenerateResult = {
+  /**
+   * `true` when the build and every output pass completed without an error-level diagnostic.
+   */
+  success: boolean
+  /**
+   * All files generated during the build.
+   */
+  files: Array<FileNode>
+  /**
+   * Build diagnostics plus any collected from the output passes.
+   */
+  diagnostics: Array<Diagnostic>
 }
 
 /**
@@ -132,6 +163,64 @@ export class Kubb {
     const { diagnostics } = await driver.run()
 
     return { diagnostics, files: driver.fileManager.files, driver, storage }
+  }
+
+  /**
+   * Run one build and its output passes end to end, emitting the surrounding `kubb:generation:*`
+   * hooks. Never throws on a build error: the outcome comes back in {@link GenerateResult} so the
+   * host decides how failures surface. Telemetry and progress narration stay with the host, which
+   * reads the result and subscribes to the `kubb:*` hooks.
+   *
+   * @example
+   * ```ts
+   * const result = await createKubb(config, { hooks }).generate()
+   * if (!result.success) process.exitCode = 1
+   * ```
+   */
+  async generate(options: GenerateOptions = {}): Promise<GenerateResult> {
+    const { hooks, config } = this
+    const hrStart = process.hrtime()
+
+    await hooks.callHook('kubb:generation:start', { config })
+
+    await hooks.callHook('kubb:setup:start')
+    await this.setup()
+    await hooks.callHook('kubb:setup:end')
+
+    const { files, diagnostics, storage } = await this.safeBuild()
+
+    // Surface every problem on the diagnostic hooks. An unstructured `unknown` error goes out as
+    // `kubb:error` so its stack survives, everything else as `kubb:diagnostic`. Hosts route from
+    // there. `performance` diagnostics feed the summary, not the log, so they are skipped.
+    for (const diagnostic of diagnostics) {
+      if (!Diagnostics.isProblem(diagnostic)) continue
+      if (diagnostic.code === Diagnostics.code.unknown) {
+        await hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+        continue
+      }
+      await Diagnostics.emit(hooks, diagnostic)
+    }
+
+    if (Diagnostics.hasError(diagnostics)) {
+      await hooks.callHook('kubb:generation:end', { config, storage, diagnostics, filesCreated: files.length, status: 'failed', hrStart })
+      return { success: false, files, diagnostics }
+    }
+
+    const outputDiagnostics = options.processOutput ? await options.processOutput({ config, outputPath: resolve(config.root, config.output.path) }) : []
+
+    const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
+    const failed = Diagnostics.hasError(outputDiagnostics)
+
+    await hooks.callHook('kubb:generation:end', {
+      config,
+      storage,
+      diagnostics: finalDiagnostics,
+      filesCreated: files.length,
+      status: failed ? 'failed' : 'success',
+      hrStart,
+    })
+
+    return { success: !failed, files, diagnostics: finalDiagnostics }
   }
 
   dispose(): void {
