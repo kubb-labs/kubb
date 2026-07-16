@@ -425,11 +425,19 @@ describe('PluginDriver — generator dispatch', () => {
     const schemaB = vi.fn().mockResolvedValue(undefined)
     const pluginA = definePlugin(() => ({
       name: 'plugin-a',
-      hooks: { 'kubb:plugin:setup'(ctx) { ctx.addGenerator({ name: 'gen-a', schema: schemaA }) } },
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.addGenerator({ name: 'gen-a', schema: schemaA })
+        },
+      },
     }))()
     const pluginB = definePlugin(() => ({
       name: 'plugin-b',
-      hooks: { 'kubb:plugin:setup'(ctx) { ctx.addGenerator({ name: 'gen-b', schema: schemaB }) } },
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.addGenerator({ name: 'gen-b', schema: schemaB })
+        },
+      },
     }))()
 
     const driver = new KubbDriver(makeConfig([pluginA, pluginB]), { hooks: new Hookable<KubbHooks>() })
