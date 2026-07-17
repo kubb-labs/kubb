@@ -116,6 +116,7 @@
     "core-clean-cannot-delete-root",
     "core-compiler-phases",
     "core-direct-generator-dispatch",
+    "core-file-processing-generation-order",
     "core-getmode-static-cleanup",
     "core-hot-path-perf",
     "core-kubb-generate",
