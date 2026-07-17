@@ -21,7 +21,7 @@ const baseResolver = new Resolver({ pluginName: 'test' })
 
 const context = {
   root: '/root',
-  output: { path: 'types' as const },
+  output: { path: 'types' as const, mode: 'directory' as const },
   group: undefined,
 }
 
@@ -315,7 +315,9 @@ describe('createResolver', () => {
 
     const merged = Resolver.merge(base, foreign)
 
-    expect(merged.file({ name: 'pet', extname: '.ts', root: '/root', output: { path: 'mocks' }, group: undefined }).baseName).toBe('petFaker.ts')
+    expect(merged.file({ name: 'pet', extname: '.ts', root: '/root', output: { path: 'mocks', mode: 'directory' }, group: undefined }).baseName).toBe(
+      'petFaker.ts',
+    )
   })
 
   it('Resolver.merge() folds multiple overrides left to right, last wins per key', () => {
@@ -455,7 +457,7 @@ describe('createResolver', () => {
 
 describe('default.path', () => {
   it('resolves flat path (directory mode)', () => {
-    const result = baseResolver.default.path({ baseName: 'petTypes.ts', root: '/root', output: { path: 'types' }, group: undefined })
+    const result = baseResolver.default.path({ baseName: 'petTypes.ts', root: '/root', output: { path: 'types', mode: 'directory' }, group: undefined })
 
     expect(result).toBe('/root/types/petTypes.ts')
   })
@@ -471,7 +473,7 @@ describe('default.path', () => {
       baseName: 'petTypes.ts',
       tag: 'pet store',
       root: '/root',
-      output: { path: 'types' },
+      output: { path: 'types', mode: 'directory' },
       group: { type: 'tag' },
     })
 
@@ -483,7 +485,7 @@ describe('default.path', () => {
       baseName: 'petTypes.ts',
       path: '/pets/list',
       root: '/root',
-      output: { path: 'types' },
+      output: { path: 'types', mode: 'directory' },
       group: {
         type: 'path',
         name: (ctx: { group: string }) => {
@@ -500,7 +502,7 @@ describe('default.path', () => {
       baseName: 'petTypes.ts',
       tag: 'pets',
       root: '/root',
-      output: { path: 'types' },
+      output: { path: 'types', mode: 'directory' },
       group: { type: 'tag', name: ({ group }) => `custom_${group}` },
     })
 
@@ -512,7 +514,7 @@ describe('default.path', () => {
       baseName: 'petTypes.ts',
       tag: 'pets',
       root: '/root',
-      output: { path: 'types' },
+      output: { path: 'types', mode: 'directory' },
       group: {
         type: 'tag',
         name: (ctx: { group: string }) => {
@@ -529,7 +531,7 @@ describe('default.path', () => {
       baseName: 'petTypes.ts',
       path: '../../etc/passwd',
       root: '/root',
-      output: { path: 'types' },
+      output: { path: 'types', mode: 'directory' },
       group: { type: 'path' },
     })
 
@@ -546,16 +548,16 @@ describe('default.path', () => {
         baseName: 'petTypes.ts',
         path: '/pets',
         root: '/root',
-        output: { path: 'types' },
+        output: { path: 'types', mode: 'directory' },
         group: { type: 'path', name: () => '../../secrets' },
       }),
     ).toThrow('outside the output directory')
   })
 
   it('throws when baseName contains a traversal sequence', () => {
-    expect(() => baseResolver.default.path({ baseName: '../../etc/passwd', root: '/root', output: { path: 'types' }, group: undefined })).toThrow(
-      'outside the output directory',
-    )
+    expect(() =>
+      baseResolver.default.path({ baseName: '../../etc/passwd', root: '/root', output: { path: 'types', mode: 'directory' }, group: undefined }),
+    ).toThrow('outside the output directory')
   })
 })
 
@@ -618,7 +620,7 @@ describe('default.file', () => {
       extname: '.ts',
       tag: 'pets',
       root: '/root',
-      output: { path: 'types' },
+      output: { path: 'types', mode: 'directory' },
       group: { type: 'tag' },
     })
 

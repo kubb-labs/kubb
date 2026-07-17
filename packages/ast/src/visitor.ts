@@ -248,9 +248,9 @@ function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undef
  * context. The result is a replacement node, a collected value, or `undefined`
  * when no callback is registered for the kind.
  *
- * Shared by `transform` and `collectLazy` so node-kind dispatch lives in one place.
+ * Shared by `transform` and `collect` so node-kind dispatch lives in one place.
  * `TResult` is the caller's expected return: the same node type for `transform`,
- * the collected value type for `collectLazy`.
+ * the collected value type for `collect`.
  */
 function applyVisitor<TResult>(node: Node, visitor: Visitor | CollectVisitor<unknown>, parent: Node | undefined): TResult | null | undefined {
   const key = VISITOR_KEY_BY_KIND[node.kind]
@@ -357,12 +357,12 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
 }
 /**
  * Lazy depth-first collection pass. Yields every non-null value returned by
- * the visitor callbacks. Use `collect` for the eager array form.
+ * the visitor callbacks. Use `collectSync` for the eager array form.
  *
  * @example Collect every operationId
  * ```ts
  * const ids: string[] = []
- * for (const id of collectLazy<string>(root, {
+ * for (const id of collect<string>(root, {
  *   operation(node) {
  *     return node.operationId
  *   },
@@ -371,7 +371,7 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
  * }
  * ```
  */
-export function* collectLazy<T>(node: Node, options: CollectOptions<T>): Generator<T, void, undefined> {
+export function* collect<T>(node: Node, options: CollectOptions<T>): Generator<T, void, undefined> {
   const { depth, parent, ...visitor } = options
   const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
 
@@ -395,13 +395,13 @@ function* collectNode<T>(node: Node, visitor: CollectVisitor<T>, recurse: boolea
  *
  * @example Collect every operationId
  * ```ts
- * const ids = collect<string>(root, {
+ * const ids = collectSync<string>(root, {
  *   operation(node) {
  *     return node.operationId
  *   },
  * })
  * ```
  */
-export function collect<T>(node: Node, options: CollectOptions<T>): Array<T> {
-  return Array.from(collectLazy(node, options))
+export function collectSync<T>(node: Node, options: CollectOptions<T>): Array<T> {
+  return Array.from(collect(node, options))
 }

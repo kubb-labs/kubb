@@ -61,3 +61,19 @@ const jsonMimeFragments = ['application/json', 'application/x-json', 'text/json'
 export function isJsonMimeType(mimeType: string): boolean {
   return jsonMimeFragments.some((fragment) => mimeType.includes(fragment))
 }
+
+/**
+ * Picks a media-type entry from a `content` map: the first JSON-like media type, falling back to
+ * the first declared one. Returns `false` when `content` has no entries.
+ *
+ * @example
+ * ```ts
+ * pickContentEntry({ 'application/xml': xmlEntry, 'application/json': jsonEntry })
+ * // ['application/json', jsonEntry]
+ * ```
+ */
+export function pickContentEntry<T>(content: Record<string, T>): [string, T] | false {
+  const mediaTypes = Object.keys(content)
+  const available = mediaTypes.find(isJsonMimeType) ?? mediaTypes[0]
+  return available ? [available, content[available]!] : false
+}

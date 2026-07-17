@@ -1,5 +1,183 @@
 # Changelog
 
+## v5.0.0-beta.102 — Jul 16, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Reshape the internal parsing pipeline into three phases: `load` (read, bundle, upgrade, validate), `model` (collect schemas and operations), and `emit` (convert to the universal AST). Six overlapping `$ref` resolvers collapse into one `Refs` service, discriminator handling moves behind `preserve`/`propagate` strategies, and nothing mutates the parsed OpenAPI document in place anymore.
+  
+  Generated output is unchanged, with one fix: a `requestBody` declared as a `$ref` now keeps its `description` and `required` fields when the adapter's `contentType` option is set. Previously that combination silently dropped both. ([#3795](https://github.com/kubb-labs/kubb/pull/3795), [`998d9ba`](https://github.com/kubb-labs/kubb/commit/998d9ba124c11d238c72da9801ae143c3516d979))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.0-beta.101 — Jul 16, 2026
+
+### @kubb/core
+
+#### Features
+
+- Add a `generate` method to the `Kubb` instance returned by `createKubb`. It runs one build and its output passes end to end and emits the surrounding `kubb:generation:*` lifecycle hooks, so a host no longer repeats that sequence. It also emits `kubb:setup:start` and `kubb:setup:end` around setup, so hosts can narrate that step from the emitter. Build problems go out on the `kubb:error` and `kubb:diagnostic` hooks, so each host renders and routes them from its own listeners. The CLI, the bundler plugin, and the MCP tool now call `generate`, the CLI passing its format and lint passes through the `processOutput` option, and read progress from the lifecycle hooks. Generated output is unchanged. ([#3803](https://github.com/kubb-labs/kubb/pull/3803), [`1adf507`](https://github.com/kubb-labs/kubb/commit/1adf507e6097dc386716d85946ffc3f8f573eadb))
+
+#### Bug Fixes
+
+- Plugin generators now run straight from the generate loop instead of riding the `Hookable` bus as name-guarded listeners, so dispatch no longer fans out across every plugin on every node. Each operation is resolved once rather than twice. The `kubb:generate:*` hooks still fire for external listeners and the generated output is identical. ([#3801](https://github.com/kubb-labs/kubb/pull/3801), [`68d4d93`](https://github.com/kubb-labs/kubb/commit/68d4d931aad83c249ddfdfef1433a6fe52f254bc))
+
+### @kubb/plugin-barrel
+
+#### Breaking Changes
+
+- Adjust for `output.barrel` defaulting to `false` instead of `{ type: 'named' }`. `pluginBarrel` still ships with `kubb` and `unplugin-kubb` by default, but now generates nothing until a barrel is configured on the root config, a plugin, or both.
+  
+  **Breaking change:** a config that never set `output.barrel` and relied on the implicit `{ type: 'named' }` default now needs it set explicitly to keep generating barrel files. ([#3797](https://github.com/kubb-labs/kubb/pull/3797), [`81bf741`](https://github.com/kubb-labs/kubb/commit/81bf741109256d1c002d24238397d461e0d36ebf))
+
+### kubb
+
+#### Breaking Changes
+
+- Flip the default `output.barrel` from `{ type: 'named' }` to `false`. A config that omits `output.barrel` (root or per-plugin) no longer generates a barrel `index.ts` file.
+  
+  Set `output.barrel: { type: 'named' | 'all' }` explicitly to keep generating a barrel.
+  
+  **Breaking change:** any project relying on the implicit `{ type: 'named' }` default to get a barrel now needs `output.barrel` set explicitly, or imports that go through the barrel (`import { Pet } from './gen'`) stop resolving. ([#3797](https://github.com/kubb-labs/kubb/pull/3797), [`81bf741`](https://github.com/kubb-labs/kubb/commit/81bf741109256d1c002d24238397d461e0d36ebf))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.0-beta.100 — Jul 15, 2026
+
+### @kubb/ast
+
+#### Breaking Changes
+
+- Move the schema-name and schema-graph helpers `@kubb/ast` doesn't use internally to `@kubb/kit`.
+  
+  `childName`, `enumPropName`, `extractRefName`, `isStringType`, `mergeAdjacentObjectsLazy`, `syncSchemaRef`, and `containsCircularRef` move to `@kubb/kit`, reached through `kubb/kit` like the macro presets. `resolveRefName`, `findCircularSchemas`, and `collectUsedSchemaNames` stay on `@kubb/ast` since its own node builders depend on them. `@kubb/ast` also now exports `collectLazy`'s replacement `collect` (see the companion changeset) so `containsCircularRef` can keep its early-exit behavior from `@kubb/kit`.
+  
+  ```diff
+  - import { childName, enumPropName, extractRefName, isStringType, syncSchemaRef, mergeAdjacentObjectsLazy, containsCircularRef } from '@kubb/ast'
+  + import { childName, enumPropName, extractRefName, isStringType, syncSchemaRef, mergeAdjacentObjectsLazy, containsCircularRef } from '@kubb/kit'
+  ``` ([#3794](https://github.com/kubb-labs/kubb/pull/3794), [`9fa6fba`](https://github.com/kubb-labs/kubb/commit/9fa6fba5e21bb2a3e22d8cb1162a4c6cb27aed0d))
+- Rename `@kubb/ast`'s collection passes: the lazy generator `collectLazy` is now `collect`, and the eager array form (previously `collect`) is now `collectSync`.
+  
+  ```diff
+  - import { collect } from '@kubb/ast'
+  - const types = collect<string>(root, { schema: (n) => n.type })
+  + import { collectSync } from '@kubb/ast'
+  + const types = collectSync<string>(root, { schema: (n) => n.type })
+  
+  - import { collectLazy } from '@kubb/ast'
+  - for (const id of collectLazy<string>(root, { operation: (n) => n.operationId })) { ... }
+  + import { collect } from '@kubb/ast'
+  + for (const id of collect<string>(root, { operation: (n) => n.operationId })) { ... }
+  ``` ([#3794](https://github.com/kubb-labs/kubb/pull/3794), [`9fa6fba`](https://github.com/kubb-labs/kubb/commit/9fa6fba5e21bb2a3e22d8cb1162a4c6cb27aed0d))
+- Move the macro presets from `@kubb/ast` to `@kubb/kit`, keeping the macro engine on `@kubb/ast`.
+  
+  `defineMacro`, `composeMacros`, `applyMacros`, and the `Macro` type stay on the `@kubb/ast` root export. `macroDiscriminatorEnum`, `macroEnumName`, `macroRenameSchema`, and `macroSimplifyUnion` move to `@kubb/kit`, reached through `kubb/kit` like the rest of the plugin and adapter authoring surface. `@kubb/adapter-oas` now depends on `@kubb/kit` for these presets instead of `@kubb/ast`.
+  
+  ```diff
+  - import { macroSimplifyUnion } from '@kubb/ast'
+  + import { macroSimplifyUnion } from '@kubb/kit'
+  ``` ([#3794](https://github.com/kubb-labs/kubb/pull/3794), [`9fa6fba`](https://github.com/kubb-labs/kubb/commit/9fa6fba5e21bb2a3e22d8cb1162a4c6cb27aed0d))
+
+### @kubb/parser-md
+
+#### Bug Fixes
+
+- Depend on `@kubb/kit` instead of `@kubb/ast` and `@kubb/core` directly.
+  
+  `parserMd` only ever needed `defineParser` and the `ast` namespace (for `extractStringsFromNodes` and the `CodeNode` type), both already reachable through `@kubb/kit`. No behavior change. ([#3794](https://github.com/kubb-labs/kubb/pull/3794), [`9fa6fba`](https://github.com/kubb-labs/kubb/commit/9fa6fba5e21bb2a3e22d8cb1162a4c6cb27aed0d))
+
+### @kubb/parser-ts
+
+#### Bug Fixes
+
+- Depend on `@kubb/kit` instead of `@kubb/ast` and `@kubb/core` directly.
+  
+  Both packages only ever used `defineParser` and AST node types, all reachable through `@kubb/kit`'s existing re-export surface, so no new kit exports were needed. No behavior change. ([#3794](https://github.com/kubb-labs/kubb/pull/3794), [`9fa6fba`](https://github.com/kubb-labs/kubb/commit/9fa6fba5e21bb2a3e22d8cb1162a4c6cb27aed0d))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.0-beta.99 — Jul 15, 2026
+
+### @kubb/core
+
+#### Breaking Changes
+
+- Flip the default `output.mode` from `'directory'` to `'file'`. A plugin that omits `output.mode` now writes a single file instead of one file per operation or schema, cutting generated file count and output size.
+  
+  `output.mode: 'directory'` is unchanged and still writes one file per operation or schema. Set it explicitly to keep today's output shape, and pair it with `group` to organize files into per-tag or per-path subdirectories, since `group` now requires `mode: 'directory'` at the type level.
+  
+  **Breaking change:** any plugin relying on the implicit `'directory'` default now needs `output.mode: 'directory'` set explicitly to avoid consolidating into a single file. A plugin combining an implicit `output.mode` with a `group` option must also add `mode: 'directory'`, since `mode: 'file'` and `group` remain mutually exclusive and fail the build with `KUBB_INVALID_PLUGIN_OPTIONS`. ([#3791](https://github.com/kubb-labs/kubb/pull/3791), [`be82ee4`](https://github.com/kubb-labs/kubb/commit/be82ee4295b2ccdebdd195bba6465c47c765c258))
+
+### @kubb/plugin-barrel
+
+#### Breaking Changes
+
+- Adjust for `@kubb/core`'s `output.mode` default flipping from `'directory'` to `'file'`.
+  
+  A plugin that omits `output.mode` now writes a single file, so `plugin-barrel` skips the per-plugin nested barrel for it (there is no directory to barrel) and re-exports that file straight from the root barrel instead. Plugins that set `output.mode: 'directory'` explicitly keep getting a nested barrel as before.
+  
+  **Breaking change:** projects that relied on the implicit `'directory'` default to get per-plugin barrel files now need `output.mode: 'directory'` set on that plugin to keep them. ([#3791](https://github.com/kubb-labs/kubb/pull/3791), [`be82ee4`](https://github.com/kubb-labs/kubb/commit/be82ee4295b2ccdebdd195bba6465c47c765c258))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.0-beta.98 — Jul 14, 2026
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Add `Url.toGroupedTemplateString` to the `Url` helper exposed through `kubb/kit`.
+  
+  It renders a template literal that reads each path parameter off a grouped `path` request option, e.g. `` `/pet/${path.petId}` ``, keeping the parameter name exactly as it appears in the OpenAPI path. A name falls back to bracket access (`` path['pet-id'] ``) only when it isn't a valid JS identifier.
+  
+  Also drops the unused `casing` option from `Url.toTemplateString`/`Url.toObject`, since nothing ever passed it. ([#3788](https://github.com/kubb-labs/kubb/pull/3788), [`d897c13`](https://github.com/kubb-labs/kubb/commit/d897c13923961aeb86cfb17f05c30c94ea1fa7ee))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.0-beta.97 — Jul 13, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Accept the spec as a positional argument on `kubb validate`, matching `kubb generate`.
+  
+  `kubb validate` took the spec through the `--input`/`-i` flag, while `kubb generate` already read it as a positional argument. The two commands now share the same shape, so `kubb validate ./openapi.yaml` replaces `kubb validate --input ./openapi.yaml`. The argument stays required, and both local paths and URLs still work. ([#3782](https://github.com/kubb-labs/kubb/pull/3782), [`5f8350c`](https://github.com/kubb-labs/kubb/commit/5f8350c5061be7148f762fdd5bf5f320a4708fd0))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Stop `output.clean` from deleting the project root. When `output.path` resolved to the root directory or a parent of it (for example `path: '.'`), a build with `clean: true` wiped `kubb.config` and every source file. The build now fails with a `KUBB_CLEAN_ROOT` diagnostic before cleaning, so clean only removes generated code. ([#3784](https://github.com/kubb-labs/kubb/pull/3784), [`5850a25`](https://github.com/kubb-labs/kubb/commit/5850a252e4394073050d5056dfadd6d459b02b5c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.96 — Jul 12, 2026
 
 ### @kubb/core

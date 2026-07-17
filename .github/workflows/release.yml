@@ -28,8 +28,8 @@ jobs:
       pull-requests: write
       issues: write
     outputs:
-      staged: ${{ steps.changesets.outputs.staged }}
-      staged_packages: ${{ steps.changesets.outputs.staged_packages }}
+      staged: ${{ steps.release.outputs.staged }}
+      staged_packages: ${{ steps.release.outputs.staged_packages }}
     steps:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -37,7 +37,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@d2daeb58eb7dc8c19d595c926b4788b7f682fb51 # main
+        uses: kubb-labs/config/.github/setup@b673ab918489eb77823cac38fc17d67f325177b8 # main
         with:
           node-version: '22.22.3'
           cache: 'false'
@@ -46,27 +46,17 @@ jobs:
       - name: Build
         run: pnpm run build
 
-      # createGithubReleases stays off: a staged version isn't public until
-      # `promote` confirms npm approval, so nothing should announce it yet.
       - name: Release
-        id: changesets
-        uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
+        id: release
+        uses: kubb-labs/config/.github/actions/release@b673ab918489eb77823cac38fc17d67f325177b8 # main
         with:
-          version: pnpm exec changeset version
-          publish: 'node scripts/release.mjs'
-          commit: 'ci(changesets): version packages'
-          title: 'ci(changesets): version packages'
-          setupGitUser: false
-          createGithubReleases: false
-        env:
-          NPM_CONFIG_PROVENANCE: true
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # Canary skips staging on purpose, so it stays automatic on every push.
       # If the npm Trusted Publisher for these packages is ever locked to
       # stage-only, this step will need its own non-stage-restricted entry.
       - name: Publish canary
-        if: ${{ steps.changesets.outputs.staged != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        if: ${{ steps.release.outputs.staged != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         continue-on-error: true
         shell: bash
         env:
@@ -92,7 +82,7 @@ jobs:
     permissions:
       contents: write # gh release create
     outputs:
-      approved: ${{ steps.verify.outputs.approved }}
+      approved: ${{ steps.promote.outputs.approved }}
     steps:
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -100,46 +90,25 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@d2daeb58eb7dc8c19d595c926b4788b7f682fb51 # main
+        uses: kubb-labs/config/.github/setup@b673ab918489eb77823cac38fc17d67f325177b8 # main
         with:
           node-version: '22.22.3'
           cache: 'false'
 
-      # A green environment review only means a maintainer clicked approve,
-      # not that they actually ran `npm stage approve`. This confirms the
-      # staged versions are really live on the registry before anything
-      # public fires.
-      - name: Verify staged versions are live on npm
-        id: verify
-        run: node scripts/verifyRegistry.mjs
-        env:
-          STAGED_PACKAGES: ${{ needs.release.outputs.staged_packages }}
-          # How often to re-poll npm while waiting for a staged version to
-          # propagate, and how many times to try before giving up.
-          VERIFY_INTERVAL_SECONDS: '300' # in seconds
-          VERIFY_RETRY_ATTEMPTS: '10'
-
-      # Tags are created here, not at stage time, so a rejected or expired
-      # staged package never leaves a dangling tag behind (see
-      # changesets/changesets#2025). The versions are already confirmed live
-      # above, so tagging now always points at something real.
-      - name: Tag released versions
-        run: |
-          pnpm exec changeset tag
-          git push --tags
-
       # One combined release for the whole version, not one per package: every
       # published package here sits in one fixed version group (see
       # .changeset/config.json), so per-package releases would just repeat
-      # the same version number across a dozen separate pages. createReleases.mjs
-      # also supports per-package mode (RELEASE_MODE unset or 'per-package'),
-      # for a repo like kubb-labs/plugins where packages version independently.
-      - name: Create GitHub Releases
-        run: node scripts/createReleases.mjs
-        env:
-          STAGED_PACKAGES: ${{ needs.release.outputs.staged_packages }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_MODE: combined
+      # the same version number across a dozen separate pages. The promote
+      # action also supports per-package mode (release-mode unset or
+      # 'per-package'), for a repo like kubb-labs/plugins where packages
+      # version independently.
+      - name: Promote
+        id: promote
+        uses: kubb-labs/config/.github/actions/promote@b673ab918489eb77823cac38fc17d67f325177b8 # main
+        with:
+          staged-packages: ${{ needs.release.outputs.staged_packages }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          release-mode: combined
 
   notify:
     name: Send Discord Notification

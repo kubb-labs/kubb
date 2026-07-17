@@ -1,11 +1,13 @@
-import { ast, syncSchemaRef } from '@kubb/ast'
+import { ast } from '@kubb/ast'
+import { syncSchemaRef } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { parseDocument } from './factory.ts'
+import { parseDocument } from './load/normalize.ts'
+import { getSchemas } from './model/components.ts'
 import { getOperations } from './operation.ts'
 import { createSchemaParser, type OasParserContext } from './parser.ts'
-import { getSchemas } from './resolvers.ts'
+import { createRefs } from './refs.ts'
 import type { ContentType, Document, SchemaObject } from './types.ts'
 
 const emptyDocument: Document = {
@@ -33,12 +35,13 @@ function parseOas(document: Document, options: Partial<ast.ParserOptions> & { co
     ...parserOptions,
   }
 
-  const { schemas: schemaObjects } = getSchemas(document, { contentType })
-  const { parseSchema: _parseSchema, parseOperation: _parseOperation } = createSchemaParser({ document, contentType })
+  const refs = createRefs(document)
+  const { schemas: schemaObjects } = getSchemas(document, { contentType }, refs)
+  const { parseSchema: _parseSchema, parseOperation: _parseOperation } = createSchemaParser({ document, refs, contentType })
 
   const schemas: Array<ast.SchemaNode> = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, mergedOptions))
 
-  const operations: Array<ast.OperationNode> = getOperations(document)
+  const operations: Array<ast.OperationNode> = getOperations(document, refs)
     .map((operation) => _parseOperation(mergedOptions, operation))
     .filter((op): op is ast.OperationNode => op !== null)
 
@@ -222,13 +225,13 @@ describe('buildAst', () => {
     } as Document
 
     it('resolves a $ref to a defined component as a ref node', () => {
-      const node = parseSchema({ document }, { schema: { $ref: '#/components/schemas/Pet' } })
+      const node = parseSchema({ document, refs: createRefs(document) }, { schema: { $ref: '#/components/schemas/Pet' } })
 
       expect(node.type).toBe('ref')
     })
 
     it('falls back to unknown for a $ref to a component the document never defines', () => {
-      const node = parseSchema({ document }, { schema: { $ref: '#/components/schemas/Missing' } })
+      const node = parseSchema({ document, refs: createRefs(document) }, { schema: { $ref: '#/components/schemas/Missing' } })
 
       expect(node.type).toBe('unknown')
     })
@@ -644,7 +647,7 @@ describe('buildAst', () => {
 })
 
 describe('parseSchema examples', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('reads the OAS 3.1 examples array', () => {
     const node = parseSchema(ctx, { schema: { type: 'string', examples: ['a', 'b'] } })
@@ -660,7 +663,7 @@ describe('parseSchema examples', () => {
 })
 
 describe('parseSchema uuid', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps format uuid to uuid', () => {
     const node = parseSchema(ctx, {
@@ -700,7 +703,7 @@ describe('parseSchema uuid', () => {
 })
 
 describe('parseSchema email', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps format email to email', () => {
     const node = parseSchema(ctx, {
@@ -735,7 +738,7 @@ describe('parseSchema email', () => {
 })
 
 describe('parseSchema url', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps format ipv4 to ipv4', () => {
     const node = parseSchema(ctx, { schema: { format: 'ipv4' } })
@@ -772,7 +775,7 @@ describe('parseSchema url', () => {
 })
 
 describe('parseSchema binary', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps string with format binary to blob', () => {
     const node = parseSchema(ctx, {
@@ -798,7 +801,7 @@ describe('parseSchema binary', () => {
 })
 
 describe('parseSchema contentMediaType (OAS 3.1)', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps string with contentMediaType application/octet-stream to blob', () => {
     const node = parseSchema(ctx, {
@@ -818,7 +821,7 @@ describe('parseSchema contentMediaType (OAS 3.1)', () => {
 })
 
 describe('parseSchema format preservation', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('preserves known format on uuid schema', () => {
     const node = parseSchema(ctx, {
@@ -901,7 +904,7 @@ describe('parseSchema format preservation', () => {
 })
 
 describe('parseSchema allOf', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('flattens single-member allOf to the member type', () => {
     const node = parseSchema(ctx, {
@@ -1124,7 +1127,7 @@ describe('parseSchema allOf', () => {
 })
 
 describe('parseSchema oneOf / anyOf', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps oneOf to a union node', () => {
     const node = parseSchema(ctx, {
@@ -1284,7 +1287,7 @@ describe('parseSchema oneOf / anyOf', () => {
 })
 
 describe('parseSchema const (OAS 3.1)', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps const string to a single-value enum', () => {
     const node = parseSchema(ctx, { schema: { const: 'active' } })
@@ -1368,7 +1371,7 @@ describe('parseSchema const (OAS 3.1)', () => {
 })
 
 describe('parseSchema readOnly / writeOnly', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('sets readOnly: true when marked', () => {
     const node = parseSchema(ctx, {
@@ -1465,7 +1468,7 @@ describe('parseSchema readOnly / writeOnly', () => {
 })
 
 describe('parseSchema deprecated', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('sets deprecated: true when marked', () => {
     const node = parseSchema(ctx, {
@@ -1515,7 +1518,7 @@ describe('parseSchema deprecated', () => {
 })
 
 describe('parseSchema default', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('passes through a normal default value', () => {
     const node = parseSchema(ctx, {
@@ -1577,7 +1580,7 @@ describe('parseSchema default', () => {
 })
 
 describe('parseSchema object properties', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('required + not nullable → required: true, optional/nullish undefined', () => {
     const node = parseSchema(ctx, {
@@ -1664,7 +1667,7 @@ describe('parseSchema object properties', () => {
 })
 
 describe('parseSchema object additionalProperties', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('additionalProperties: true → additionalProperties is true', () => {
     const node = parseSchema(ctx, {
@@ -1744,7 +1747,7 @@ describe('parseSchema object additionalProperties', () => {
   })
 
   it('respects unknownType option for empty additionalProperties', () => {
-    const ctx = { document: emptyDocument }
+    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
     const node = parseSchema(
       ctx,
       {
@@ -1778,7 +1781,7 @@ describe('parseSchema object additionalProperties', () => {
 })
 
 describe('parseSchema object patternProperties', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps patternProperties patterns to converted SchemaNodes', () => {
     const node = parseSchema(ctx, {
@@ -1858,7 +1861,7 @@ describe('parseSchema object patternProperties', () => {
 })
 
 describe('parseSchema object discriminator', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('overrides discriminator property with enum of mapping keys', () => {
     const node = parseSchema(ctx, {
@@ -1925,7 +1928,7 @@ describe('parseSchema object discriminator', () => {
 
 describe('parseSchema object inline enum naming', () => {
   it('enum name accumulates full parent path (OrderParamsStatusEnum)', () => {
-    const ctx = { document: emptyDocument }
+    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
     const node = parseSchema(
       ctx,
       {
@@ -1954,7 +1957,7 @@ describe('parseSchema object inline enum naming', () => {
 })
 
 describe('parseSchema prefixItems (tuple)', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps type to tuple', () => {
     const node = parseSchema(ctx, {
@@ -2098,7 +2101,7 @@ describe('parseSchema prefixItems (tuple)', () => {
 
 describe('parseSchema tuple enum naming', () => {
   it('names enum elements inside a tuple property using parent + propName', () => {
-    const ctx = { document: emptyDocument }
+    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
     const node = parseSchema(
       ctx,
       {
@@ -2124,7 +2127,7 @@ describe('parseSchema tuple enum naming', () => {
   })
 
   it('uses full path for enum in tuple', () => {
-    const ctx = { document: emptyDocument }
+    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
     const node = parseSchema(
       ctx,
       {
@@ -2150,7 +2153,7 @@ describe('parseSchema tuple enum naming', () => {
   })
 
   it('non-enum tuple elements are unaffected by enum naming', () => {
-    const ctx = { document: emptyDocument }
+    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
     const node = parseSchema(
       ctx,
       {
@@ -2177,7 +2180,7 @@ describe('parseSchema tuple enum naming', () => {
 })
 
 describe('parseSchema nullable', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('sets nullable via nullable: true (OAS 3.0)', () => {
     const node = parseSchema(ctx, {
@@ -2246,7 +2249,7 @@ describe('parseSchema nullable', () => {
 })
 
 describe('parseSchema string', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps type string to string node', () => {
     const node = parseSchema(ctx, { schema: { type: 'string' } })
@@ -2281,7 +2284,7 @@ describe('parseSchema string', () => {
 })
 
 describe('parseSchema boolean', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps type boolean to boolean node', () => {
     const node = parseSchema(ctx, { schema: { type: 'boolean' } })
@@ -2308,7 +2311,7 @@ describe('parseSchema boolean', () => {
 })
 
 describe('parseSchema enum', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps type to enum', () => {
     const node = parseSchema(ctx, { schema: { enum: ['a', 'b'] } })
@@ -2631,7 +2634,7 @@ describe('parseSchema enum', () => {
 })
 
 describe('parseSchema null', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps type null to null node', () => {
     const node = parseSchema(ctx, { schema: { type: 'null' } })
@@ -2667,7 +2670,7 @@ describe('parseSchema null', () => {
 })
 
 describe('parseSchema OAS 3.1 type array', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('produces a union node for two non-null types', () => {
     const node = parseSchema(ctx, { schema: { type: ['string', 'integer'] } })
@@ -2739,7 +2742,7 @@ describe('parseSchema OAS 3.1 type array', () => {
 })
 
 describe('parseSchema integer', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps type integer to integer node', () => {
     const node = parseSchema(ctx, { schema: { type: 'integer' } })
@@ -2780,7 +2783,7 @@ describe('parseSchema integer', () => {
 })
 
 describe('parseSchema number', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps type number to number node', () => {
     const node = parseSchema(ctx, { schema: { type: 'number' } })
@@ -2821,7 +2824,7 @@ describe('parseSchema number', () => {
 })
 
 describe('parseSchema pattern', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps pattern on a string type to a string node with pattern', () => {
     const node = parseSchema(ctx, {
@@ -2880,7 +2883,7 @@ describe('parseSchema pattern', () => {
 })
 
 describe('parseSchema array', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('maps type array to array node', () => {
     const node = parseSchema(ctx, { schema: { type: 'array' } })
@@ -3054,7 +3057,7 @@ describe('parseSchema array', () => {
     })
     const intersection = ast.narrowSchema(node, 'intersection') ?? ast.narrowSchema(node, 'object')
     // Find any deeply-nested status enum to verify its name
-    const enums = ast.collect(node, {
+    const enums = ast.collectSync(node, {
       schema(n) {
         return ast.narrowSchema(n, 'enum') ?? undefined
       },
@@ -3129,7 +3132,7 @@ describe('parseSchema array', () => {
     const collectEnumNames = (node: ast.SchemaNode | null | undefined): Array<string> =>
       node
         ? ast
-            .collect(node, {
+            .collectSync(node, {
               schema(n) {
                 return ast.narrowSchema(n, 'enum') ?? undefined
               },
@@ -3191,7 +3194,7 @@ describe('parseSchema array', () => {
 })
 
 describe('parseSchema type inference (no explicit type)', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('infers string from minLength alone', () => {
     const node = parseSchema(ctx, { schema: { minLength: 1 } })
@@ -3251,7 +3254,7 @@ describe('parseSchema type inference (no explicit type)', () => {
 })
 
 describe('parseSchema constraints', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   describe('array: minItems / maxItems', () => {
     it('maps minItems to min', () => {
@@ -3458,35 +3461,35 @@ describe('parseSchema constraints', () => {
 describe('parser options', () => {
   describe('emptySchemaType', () => {
     it('defaults to any for a schema with no type information', () => {
-      const ctx = { document: emptyDocument }
+      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
       const node = parseSchema(ctx, { schema: {} })
 
       expect(node.type).toBe('any')
     })
 
     it('emptySchemaType: any returns any for an empty schema', () => {
-      const ctx = { document: emptyDocument }
+      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
       const node = parseSchema(ctx, { schema: {} }, { emptySchemaType: 'any' })
 
       expect(node.type).toBe('any')
     })
 
     it('emptySchemaType: void returns void for an empty schema', () => {
-      const ctx = { document: emptyDocument }
+      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
       const node = parseSchema(ctx, { schema: {} }, { emptySchemaType: 'void' })
 
       expect(node.type).toBe('void')
     })
 
     it('emptySchemaType: unknown returns unknown for an empty schema', () => {
-      const ctx = { document: emptyDocument }
+      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
       const node = parseSchema(ctx, { schema: {} }, { emptySchemaType: 'unknown' })
 
       expect(node.type).toBe('unknown')
     })
 
     it('emptySchemaType does not affect typed schemas', () => {
-      const ctx = { document: emptyDocument }
+      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
       const node = parseSchema(ctx, { schema: { type: 'string' } }, { emptySchemaType: 'any' })
 
       expect(node.type).toBe('string')
@@ -3495,7 +3498,7 @@ describe('parser options', () => {
 
   describe('integerType', () => {
     it('defaults to bigint for int64 when integerType is not set', () => {
-      const ctx = { document: emptyDocument }
+      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
       const node = parseSchema(ctx, {
         schema: { type: 'integer', format: 'int64' },
       })
@@ -3504,28 +3507,28 @@ describe('parser options', () => {
     })
 
     it('integerType: number keeps int64 as integer', () => {
-      const ctx = { document: emptyDocument }
+      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
       const node = parseSchema(ctx, { schema: { type: 'integer', format: 'int64' } }, { integerType: 'number' })
 
       expect(node.type).toBe('integer')
     })
 
     it('integerType: bigint maps int64 to bigint', () => {
-      const ctx = { document: emptyDocument }
+      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
       const node = parseSchema(ctx, { schema: { type: 'integer', format: 'int64' } }, { integerType: 'bigint' })
 
       expect(node.type).toBe('bigint')
     })
 
     it('integerType: bigint does not affect int32', () => {
-      const ctx = { document: emptyDocument }
+      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
       const node = parseSchema(ctx, { schema: { type: 'integer', format: 'int32' } }, { integerType: 'bigint' })
 
       expect(node.type).toBe('integer')
     })
 
     it('integerType does not affect non-integer types', () => {
-      const ctx = { document: emptyDocument }
+      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
       const node = parseSchema(ctx, { schema: { type: 'number', format: 'float' } }, { integerType: 'bigint' })
 
       expect(node.type).toBe('number')
@@ -3535,7 +3538,7 @@ describe('parser options', () => {
   describe('dateType', () => {
     describe('format date-time', () => {
       it('defaults to datetime', () => {
-        const ctx = { document: emptyDocument }
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
         const node = parseSchema(ctx, {
           schema: { type: 'string', format: 'date-time' },
         })
@@ -3546,7 +3549,7 @@ describe('parser options', () => {
       })
 
       it('dateType: string returns datetime with offset: false', () => {
-        const ctx = { document: emptyDocument }
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: 'string' })
         const narrowed = ast.narrowSchema(node, 'datetime')
 
@@ -3555,7 +3558,7 @@ describe('parser options', () => {
       })
 
       it('dateType: stringOffset returns datetime with offset: true', () => {
-        const ctx = { document: emptyDocument }
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: 'stringOffset' })
         const narrowed = ast.narrowSchema(node, 'datetime')
 
@@ -3564,7 +3567,7 @@ describe('parser options', () => {
       })
 
       it('dateType: stringLocal returns datetime with local: true', () => {
-        const ctx = { document: emptyDocument }
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: 'stringLocal' })
         const narrowed = ast.narrowSchema(node, 'datetime')
 
@@ -3573,7 +3576,7 @@ describe('parser options', () => {
       })
 
       it('dateType: date returns date with representation: date', () => {
-        const ctx = { document: emptyDocument }
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: 'date' })
         const narrowed = ast.narrowSchema(node, 'date')
 
@@ -3582,7 +3585,7 @@ describe('parser options', () => {
       })
 
       it('dateType: false falls through to string', () => {
-        const ctx = { document: emptyDocument }
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: false })
 
         expect(node.type).toBe('string')
@@ -3591,7 +3594,7 @@ describe('parser options', () => {
 
     describe('format date', () => {
       it('defaults to date with representation: string', () => {
-        const ctx = { document: emptyDocument }
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
         const node = parseSchema(ctx, {
           schema: { type: 'string', format: 'date' },
         })
@@ -3602,7 +3605,7 @@ describe('parser options', () => {
       })
 
       it('dateType: date returns date with representation: date', () => {
-        const ctx = { document: emptyDocument }
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date' } }, { dateType: 'date' })
         const narrowed = ast.narrowSchema(node, 'date')
 
@@ -3611,7 +3614,7 @@ describe('parser options', () => {
       })
 
       it('dateType: string returns date with representation: string', () => {
-        const ctx = { document: emptyDocument }
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date' } }, { dateType: 'string' })
         const narrowed = ast.narrowSchema(node, 'date')
 
@@ -3620,7 +3623,7 @@ describe('parser options', () => {
       })
 
       it('dateType: false falls through to string', () => {
-        const ctx = { document: emptyDocument }
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'date' } }, { dateType: false })
 
         expect(node.type).toBe('string')
@@ -3629,7 +3632,7 @@ describe('parser options', () => {
 
     describe('format time', () => {
       it('defaults to time with representation: string', () => {
-        const ctx = { document: emptyDocument }
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
         const node = parseSchema(ctx, {
           schema: { type: 'string', format: 'time' },
         })
@@ -3640,7 +3643,7 @@ describe('parser options', () => {
       })
 
       it('dateType: date returns time with representation: date', () => {
-        const ctx = { document: emptyDocument }
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'time' } }, { dateType: 'date' })
         const narrowed = ast.narrowSchema(node, 'time')
 
@@ -3649,7 +3652,7 @@ describe('parser options', () => {
       })
 
       it('dateType: string returns time with representation: string', () => {
-        const ctx = { document: emptyDocument }
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'time' } }, { dateType: 'string' })
         const narrowed = ast.narrowSchema(node, 'time')
 
@@ -3658,7 +3661,7 @@ describe('parser options', () => {
       })
 
       it('dateType: false falls through to string', () => {
-        const ctx = { document: emptyDocument }
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
         const node = parseSchema(ctx, { schema: { type: 'string', format: 'time' } }, { dateType: false })
 
         expect(node.type).toBe('string')
@@ -3668,7 +3671,7 @@ describe('parser options', () => {
 })
 
 describe('parseSchema not keyword', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('falls through to the emptySchemaType (any by default) since "not" is not supported', () => {
     // JSON Schema `not` has no direct equivalent in most code generators.
@@ -3690,7 +3693,7 @@ describe('parseSchema not keyword', () => {
 })
 
 describe('parseSchema discriminator on union (oneOf/anyOf)', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('sets discriminatorPropertyName on union node from oneOf discriminator', () => {
     const node = parseSchema(ctx, {
@@ -3804,7 +3807,7 @@ describe('parseSchema discriminator on union (oneOf/anyOf)', () => {
 })
 
 describe('parseSchema discriminator on union without sibling properties', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('embeds the discriminant value into each union member as an intersection when mapping is present', () => {
     const node = parseSchema(ctx, {
@@ -4248,7 +4251,7 @@ describe('buildAst – parameter description propagation', async () => {
 })
 
 describe('unknownType / emptySchemaType → SchemaNode type', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('empty schema produces type: any by default', () => {
     const node = parseSchema(ctx, { schema: {} as SchemaObject })
@@ -4334,7 +4337,7 @@ describe('parameter enum naming', () => {
 
 describe('enum naming', () => {
   it('enum name accumulates full parent path without collision suffix', () => {
-    const ctx = { document: emptyDocument }
+    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
     const orderNode = parseSchema(
       ctx,
@@ -4392,7 +4395,7 @@ describe('enum naming', () => {
   })
 
   it('oneOf shared property enums include schema name', () => {
-    const ctx = { document: emptyDocument }
+    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
     const node = parseSchema(
       ctx,
@@ -4421,7 +4424,7 @@ describe('enum naming', () => {
   })
 
   it('array items enum includes the parent schema name', () => {
-    const ctx = { document: emptyDocument }
+    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
     const node = parseSchema(
       ctx,
@@ -4450,7 +4453,7 @@ describe('enum naming', () => {
 })
 
 describe('nullable and binary handling', () => {
-  const ctx = { document: emptyDocument }
+  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
   it('honors nullable: true', () => {
     expect(parseSchema(ctx, { schema: { type: 'string', nullable: true } }).nullable).toBe(true)
@@ -4458,5 +4461,138 @@ describe('nullable and binary handling', () => {
 
   it('maps octet-stream strings to blob', () => {
     expect(parseSchema(ctx, { schema: { type: 'string', contentMediaType: 'application/octet-stream' } }).type).toBe('blob')
+  })
+})
+
+describe('$ref path-item and requestBody resolution', () => {
+  it('merges parameters from a $ref path-item into the operation', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/things': { $ref: '#/components/pathItems/SharedPath' },
+      },
+      components: {
+        pathItems: {
+          SharedPath: {
+            parameters: [{ $ref: '#/components/parameters/LimitParam' }],
+            get: { operationId: 'listThings', responses: { '200': { description: 'ok' } } },
+          },
+        },
+        parameters: {
+          LimitParam: { name: 'limit', in: 'query', schema: { type: 'integer' } },
+        },
+      },
+    } as unknown as Document
+
+    const root = parseOas(document)
+    const op = root.operations.find((o) => o.operationId === 'listThings')
+
+    expect(op).toBeDefined()
+    expect(op!.parameters.some((p) => p.name === 'limit' && p.in === 'query')).toBe(true)
+  })
+
+  it('falls back to the $ref path-item summary and description', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/things': { $ref: '#/components/pathItems/SharedPath' },
+      },
+      components: {
+        pathItems: {
+          SharedPath: {
+            summary: 'Shared summary',
+            description: 'Shared description',
+            get: { operationId: 'listThingsWithDoc', responses: { '200': { description: 'ok' } } },
+          },
+        },
+      },
+    } as unknown as Document
+
+    const root = parseOas(document)
+    const op = root.operations.find((o) => o.operationId === 'listThingsWithDoc')
+
+    expect(op).toBeDefined()
+    expect(op!.summary).toBe('Shared summary')
+    expect(op!.description).toBe('Shared description')
+  })
+
+  it('resolves description, required, and content from a $ref requestBody', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/things': {
+          post: {
+            operationId: 'createThing',
+            requestBody: { $ref: '#/components/requestBodies/CreateThingBody' },
+            responses: { '200': { description: 'ok' } },
+          },
+        },
+      },
+      components: {
+        requestBodies: {
+          CreateThingBody: {
+            description: 'Create a thing',
+            required: true,
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { name: { type: 'string' } } },
+              },
+            },
+          },
+        },
+      },
+    } as unknown as Document
+
+    const root = parseOas(document)
+    const op = root.operations.find((o) => o.operationId === 'createThing')
+
+    expect(op).toBeDefined()
+    expect(op!.requestBody?.description).toBe('Create a thing')
+    expect(op!.requestBody?.required).toBe(true)
+    expect(op!.requestBody?.content?.some((c) => c.contentType === 'application/json')).toBe(true)
+  })
+
+  it('resolves a $ref requestBody description and required even with a global contentType option', () => {
+    // Regression test: getRequestBodyMeta used to read operation.schema.requestBody directly,
+    // relying on getRequestBodyContentTypes having mutated it first. That mutation was skipped
+    // whenever a global `contentType` option was set (`ctx.contentType ? [ctx.contentType] :
+    // getRequestBodyContentTypes(...)`), so a $ref'd requestBody's description/required were
+    // silently dropped in that combination. refs.deref() resolves independently of that skip.
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/things': {
+          post: {
+            operationId: 'createThingWithContentType',
+            requestBody: { $ref: '#/components/requestBodies/CreateThingBody' },
+            responses: { '200': { description: 'ok' } },
+          },
+        },
+      },
+      components: {
+        requestBodies: {
+          CreateThingBody: {
+            description: 'Create a thing',
+            required: true,
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { name: { type: 'string' } } },
+              },
+            },
+          },
+        },
+      },
+    } as unknown as Document
+
+    const root = parseOas(document, { contentType: 'application/json' })
+    const op = root.operations.find((o) => o.operationId === 'createThingWithContentType')
+
+    expect(op).toBeDefined()
+    expect(op!.requestBody?.description).toBe('Create a thing')
+    expect(op!.requestBody?.required).toBe(true)
   })
 })

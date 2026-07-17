@@ -104,7 +104,7 @@ describe('defineConfig', () => {
     expect(resolved.plugins?.some((p) => p.name === pluginBarrelName)).toBe(true)
   })
 
-  test("defaults output.barrel to { type: 'named' } when not set", () => {
+  test('defaults output.barrel to false when not set', () => {
     const config = defineConfig({
       root: '.',
       input: 'spec.yaml',
@@ -112,7 +112,7 @@ describe('defineConfig', () => {
     } as UserConfig)
     const resolved = config as UserConfig
 
-    expect(resolved.output.barrel).toStrictEqual({ type: 'named' })
+    expect(resolved.output.barrel).toBe(false)
   })
 
   test('preserves explicit output.barrel (including false)', () => {
@@ -155,7 +155,7 @@ describe('defineConfig', () => {
     const resolved = config as UserConfig
 
     expect(resolved.plugins?.some((p) => p.name === pluginBarrelName)).toBe(true)
-    expect(resolved.output.barrel).toStrictEqual({ type: 'named' })
+    expect(resolved.output.barrel).toBe(false)
   })
 
   test('preserves existing adapter', () => {

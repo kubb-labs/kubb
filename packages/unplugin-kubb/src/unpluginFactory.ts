@@ -1,4 +1,3 @@
-import process from 'node:process'
 import { adapterOas } from '@kubb/adapter-oas'
 import { applyConfigDefaults, type Config, createKubb, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
@@ -39,6 +38,13 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
 
   hooks.hook('kubb:info', ({ message }) => {
     console.info(`ℹ ${message}`)
+  })
+
+  // Unplugin has no diagnostic renderer, so route each problem by severity to a channel it logs on.
+  hooks.hook('kubb:diagnostic', ({ diagnostic }) => {
+    if (diagnostic.severity === 'error') return hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+    if (diagnostic.severity === 'warning') return hooks.callHook('kubb:warn', { message: diagnostic.message })
+    return hooks.callHook('kubb:info', { message: diagnostic.message })
   })
 
   hooks.hook('kubb:success', ({ message }) => {
@@ -83,7 +89,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       defaultAdapter: adapterOas(),
       barrelPlugin: pluginBarrel(),
       barrelPluginName: pluginBarrelName,
-      defaultOutput: { barrel: { type: 'named' }, format: false, lint: false },
+      defaultOutput: { barrel: false, format: false, lint: false },
     })
 
     const config = {
@@ -93,50 +99,18 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       plugins,
       output,
     }
-    const hrStart = process.hrtime()
+    const userConfig = config as Config
 
     await hooks.callHook('kubb:lifecycle:start', { version: unpluginVersion })
 
-    const userConfig = config as Config
-
     const kubb = createKubb(userConfig, { hooks })
-    await kubb.setup()
-
-    await hooks.callHook('kubb:generation:start', { config: kubb.config })
-
-    const { diagnostics, files, storage } = await kubb.safeBuild()
-
-    const hasFailures = Diagnostics.hasError(diagnostics)
-
-    // Surface every problem by severity. Unplugin has no diagnostic renderer, so route
-    // errors/warnings/info to the channels it does listen on. Non-problem diagnostics are skipped.
-    for (const diagnostic of diagnostics) {
-      if (!Diagnostics.isProblem(diagnostic)) {
-        continue
-      }
-      if (diagnostic.severity === 'error') {
-        await hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
-      } else if (diagnostic.severity === 'warning') {
-        await hooks.callHook('kubb:warn', { message: diagnostic.message })
-      } else {
-        await hooks.callHook('kubb:info', { message: diagnostic.message })
-      }
-    }
-
-    await hooks.callHook('kubb:generation:end', {
-      config: kubb.config,
-      storage,
-      diagnostics,
-      filesCreated: files.length,
-      status: hasFailures ? 'failed' : 'success',
-      hrStart,
-    })
+    const result = await kubb.generate()
 
     await hooks.callHook('kubb:lifecycle:end')
 
-    if (hasFailures) {
-      const failedCount = Diagnostics.failedPlugins(diagnostics).length
-      const firstError = diagnostics.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
+    if (!result.success) {
+      const failedCount = Diagnostics.failedPlugins(result.diagnostics).length
+      const firstError = result.diagnostics.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
       const message = failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed')
       if (ctx.error) {
         ctx.error(`[${name}] ${message}`)

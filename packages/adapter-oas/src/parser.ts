@@ -1,12 +1,13 @@
 import { pascalCase } from '@internals/utils'
 import { ast, type StatusCode } from '@kubb/ast'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { type ConvertContext, schemaRules } from './converters.ts'
+import { type ConvertContext, schemaRules } from './emit/parseSchema.ts'
+import { flattenSchema } from './emit/schemaShape.ts'
+import { getParameters, getRequestBodyContentTypes, getRequestSchema, getResponseBodyContentTypes, getResponseSchema } from './model/operations.ts'
 import { isNullable, isReference } from './oas.ts'
-import { resolveRef } from './refs.ts'
-import { getOperationId, getRequestContentType, getResponseByStatusCode, getResponseStatusCodes } from './operation.ts'
-import { flattenSchema, getParameters, getRequestBodyContentTypes, getRequestSchema, getResponseBodyContentTypes, getResponseSchema } from './resolvers.ts'
-import type { ContentType, Document, Operation, SchemaObject } from './types.ts'
+import { getOperationId, getRequestBody, getRequestContentType, getResponseByStatusCode, getResponseStatusCodes } from './operation.ts'
+import type { Refs } from './refs.ts'
+import type { ContentTypeOptions, Document, Operation, SchemaObject } from './types.ts'
 
 /**
  * Parser context holding the raw OpenAPI document and optional content-type override.
@@ -14,9 +15,9 @@ import type { ContentType, Document, Operation, SchemaObject } from './types.ts'
  * Passed to schema and operation converters to access the full specification
  * and handle content negotiation when multiple media types are available.
  */
-export type OasParserContext = {
+export type OasParserContext = ContentTypeOptions & {
   document: Document
-  contentType?: ContentType
+  refs: Refs
   /**
    * Collision renames from `getSchemas`, keyed by the original component pointer. `convertRef`
    * stamps `targetName` from it at ref creation, so refs to renamed schemas resolve to the
@@ -26,89 +27,19 @@ export type OasParserContext = {
 }
 
 /**
- * The object returned by {@link createSchemaParser}.
- * Contains parser functions bound to a specific document.
- */
-export type SchemaParser = {
-  parseSchema: (entry: { schema: SchemaObject; name?: string | null }, options?: Partial<ast.ParserOptions>) => ast.SchemaNode
-  parseOperation: (options: ast.ParserOptions, operation: Operation) => ast.OperationNode
-  parseParameter: (options: ast.ParserOptions, param: Record<string, unknown>) => ast.ParameterNode
-}
-
-/**
  * Creates the schema and operation converters bound to one OpenAPI document.
  *
- * Owns the per-instance `$ref` state (cycle detection, resolved-node cache, existence cache) and
- * the `parseSchema` recursion seam, then dispatches each schema through the ordered `schemaRules`
- * table from `converters.ts`. Every converter is a standalone function that recurses through the
- * `parse` function passed to it, so this file only wires state to the converters.
+ * Takes the `$ref` service for this document (shared with the rest of the pipeline, see
+ * `adapter.ts`) and owns the `parseSchema` recursion seam, then dispatches each schema through
+ * the ordered `schemaRules` table from `emit/parseSchema.ts`. Every converter is a standalone
+ * function that recurses through the `parse` function passed to it, so this file only wires
+ * state to the converters.
  *
  * @internal
  */
 export function createSchemaParser(ctx: OasParserContext) {
   const document = ctx.document
-
-  /**
-   * Tracks `$ref` paths that are currently being resolved to prevent infinite
-   * recursion when schemas contain circular references (e.g. `Pet → parent → Pet`).
-   */
-  const resolvingRefs = new Set<string>()
-
-  /**
-   * Cache of `$ref` schemas already resolved in this parser instance, keyed by ref path.
-   *
-   * Without it, a shared schema (e.g. `customer`) is re-expanded for every `$ref` that points at
-   * it. In cross-referenced specs like Stripe (~1400 schemas) that becomes exponential blowup,
-   * since one schema can be referenced from dozens of parents, each re-walking its whole subtree.
-   * Memoizing by ref path drops the work from O(2^depth) to O(N) unique schema names.
-   */
-  const resolvedRefCache = new Map<string, ast.SchemaNode | null>()
-
-  /**
-   * Memoized record of whether a `$ref` path resolves to a node the document actually defines.
-   * A circular ref still resolves to an existing target, so this stays `true` for cycles and only
-   * goes `false` for a `$ref` that points at a component the spec never declares.
-   */
-  const refExistence = new Map<string, boolean>()
-
-  function refExists(refPath: string): boolean {
-    if (!refExistence.has(refPath)) {
-      let exists = false
-      try {
-        exists = !!resolveRef(document, refPath)
-      } catch {
-        exists = false
-      }
-      refExistence.set(refPath, exists)
-    }
-    return refExistence.get(refPath) ?? false
-  }
-
-  /**
-   * Resolves a `$ref` to its parsed node, guarding against cycles and memoizing per instance.
-   * Returns `null` when the ref is currently being resolved (a cycle) or cannot be resolved
-   * (e.g. a minimal document in a unit test).
-   */
-  function resolveRefNode(refPath: string, rawOptions?: Partial<ast.ParserOptions>): ast.SchemaNode | null {
-    if (resolvingRefs.has(refPath)) return null
-
-    if (!resolvedRefCache.has(refPath)) {
-      let resolved: ast.SchemaNode | null = null
-      try {
-        const referenced = resolveRef<SchemaObject>(document, refPath)
-        if (referenced) {
-          resolvingRefs.add(refPath)
-          resolved = parseSchema({ schema: referenced }, rawOptions)
-          resolvingRefs.delete(refPath)
-        }
-      } catch {
-        // Ref cannot be resolved in this document (e.g. unit tests with minimal documents).
-      }
-      resolvedRefCache.set(refPath, resolved)
-    }
-
-    return resolvedRefCache.get(refPath) ?? null
-  }
+  const refs = ctx.refs
 
   /**
    * Converts an OAS `SchemaObject` into a `SchemaNode`.
@@ -141,15 +72,12 @@ export function createSchemaParser(ctx: OasParserContext) {
       options,
       parse: parseSchema,
       document,
-      resolveRefNode,
-      refExists,
+      refs,
       renames: ctx.renames,
     }
 
     for (const rule of schemaRules) {
-      if (!rule.match(context)) continue
-      const node = rule.convert(context)
-      if (node) return node
+      if (rule.match(context)) return rule.convert(context)
     }
 
     const emptyType = options.emptySchemaType
@@ -192,17 +120,16 @@ export function createSchemaParser(ctx: OasParserContext) {
 
   /**
    * Reads the inline `requestBody` metadata (description / required) that OAS exposes
-   * outside the schema itself. Returns an empty object when the request body is missing or a `$ref`.
+   * outside the schema itself, resolving a `$ref` requestBody through `refs`. Returns an
+   * empty object when the request body is missing or cannot be resolved.
    */
   function getRequestBodyMeta(operation: Operation): {
     description?: string
     required: boolean
   } {
-    const body = operation.schema.requestBody as { description?: string; required?: boolean } | undefined
+    const body = getRequestBody({ operation, refs })
     if (!body) return { required: false }
 
-    // After getRequestBodyContentTypes has run, body may still carry $ref but the
-    // resolved fields (description, required, content) are already spread onto it.
     return {
       description: body.description,
       required: body.required === true,
@@ -232,20 +159,20 @@ export function createSchemaParser(ctx: OasParserContext) {
   function parseOperation(options: ast.ParserOptions, operation: Operation): ast.OperationNode {
     const operationId = getOperationId(operation)
     const operationName = operationId ? pascalCase(operationId) : undefined
-    const parameters: Array<ast.ParameterNode> = getParameters(document, operation).map((param) =>
+    const parameters: Array<ast.ParameterNode> = getParameters({ document, operation }).map((param) =>
       parseParameter(options, param as unknown as Record<string, unknown>, operationName),
     )
 
     // Determine which content types to include in requestBody.content.
     // When a global contentType is configured, restrict to that single type.
     // Otherwise include every content type declared in the spec.
-    const allContentTypes = ctx.contentType ? [ctx.contentType] : getRequestBodyContentTypes(document, operation)
+    const allContentTypes = ctx.contentType ? [ctx.contentType] : getRequestBodyContentTypes(operation, refs)
 
     const requestBodyMeta = getRequestBodyMeta(operation)
     const requestBodyName = operationName ? `${operationName}Request` : undefined
 
     const content = allContentTypes.flatMap((ct) => {
-      const schema = getRequestSchema(document, operation, { contentType: ct })
+      const schema = getRequestSchema({ document, operation, refs, options: { contentType: ct } })
       if (!schema) return []
       return [
         ast.factory.createContent({
@@ -266,7 +193,7 @@ export function createSchemaParser(ctx: OasParserContext) {
         : undefined
 
     const responses: Array<ast.ResponseNode> = getResponseStatusCodes(operation).map((statusCode) => {
-      const responseObj = getResponseByStatusCode({ document, operation, statusCode })
+      const responseObj = getResponseByStatusCode({ operation, refs, statusCode })
 
       // Use `Status<code>` (matching plugin-ts's resolveResponseStatusName convention) so the
       // qualified names for nested enums don't collide with top-level component schemas that
@@ -275,7 +202,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       const description = typeof responseObj === 'object' && responseObj !== null ? (responseObj as { description?: string }).description : undefined
 
       const parseEntrySchema = (contentType?: string) => {
-        const raw = getResponseSchema(document, operation, statusCode, { contentType })
+        const raw = getResponseSchema({ document, operation, refs, statusCode, options: { contentType } })
         const node =
           raw && Object.keys(raw).length > 0
             ? parseSchema({ schema: raw, name: responseName }, options)
@@ -285,7 +212,7 @@ export function createSchemaParser(ctx: OasParserContext) {
 
       // Build one entry per declared response content type so plugins can union the variants.
       // When a global contentType is configured, restrict to that single type (mirrors requestBody).
-      const responseContentTypes = ctx.contentType ? [ctx.contentType] : getResponseBodyContentTypes(document, operation, statusCode)
+      const responseContentTypes = ctx.contentType ? [ctx.contentType] : getResponseBodyContentTypes(operation, refs, statusCode)
       const content = responseContentTypes.map((contentType) => ast.factory.createContent({ contentType, ...parseEntrySchema(contentType) }))
 
       // Body-less responses keep a single fallback entry so the response still resolves to a
@@ -293,7 +220,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       if (content.length === 0) {
         content.push(
           ast.factory.createContent({
-            contentType: getRequestContentType({ document, operation }) || 'application/json',
+            contentType: getRequestContentType({ operation, refs }) || 'application/json',
             ...parseEntrySchema(ctx.contentType),
           }),
         )
@@ -306,12 +233,10 @@ export function createSchemaParser(ctx: OasParserContext) {
       })
     })
 
-    const pathItem = document.paths?.[operation.path]
-    const pathItemDoc = pathItem && !isReference(pathItem) ? (pathItem as { summary?: unknown; description?: unknown }) : undefined
     const pickDoc = (key: 'summary' | 'description'): string | undefined => {
       const own = operation.schema[key]
       if (typeof own === 'string') return own
-      const fallback = pathItemDoc?.[key]
+      const fallback = (operation.pathItem as Record<string, unknown>)[key]
       return typeof fallback === 'string' ? fallback : undefined
     }
 

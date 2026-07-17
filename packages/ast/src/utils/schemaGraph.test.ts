@@ -5,7 +5,7 @@ import { createParameter } from '../nodes/parameter.ts'
 import { createProperty } from '../nodes/property.ts'
 import { createResponse } from '../nodes/response.ts'
 import { createSchema } from '../nodes/schema.ts'
-import { collectReferencedSchemaNames, collectUsedSchemaNames, containsCircularRef, findCircularSchemas } from './schemaGraph.ts'
+import { collectReferencedSchemaNames, collectUsedSchemaNames, findCircularSchemas } from './schemaGraph.ts'
 
 describe('findCircularSchemas', () => {
   it('returns empty set for acyclic schemas', () => {
@@ -125,40 +125,6 @@ describe('collectReferencedSchemaNames', () => {
 
   it('returns an empty set for schemas without refs', () => {
     expect(collectReferencedSchemaNames(createSchema({ type: 'string' }))).toStrictEqual(new Set())
-  })
-})
-
-describe('containsCircularRef', () => {
-  it('returns true when a nested ref points to a circular schema', () => {
-    const schema = createSchema({
-      type: 'object',
-      name: 'Cat',
-      properties: [createProperty({ name: 'archEnemy', required: false, schema: createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' }) })],
-    })
-
-    expect(containsCircularRef(schema, { circularSchemas: new Set(['Pet']) })).toBe(true)
-  })
-
-  it('returns false when excludeName matches the only circular ref', () => {
-    const schema = createSchema({
-      type: 'object',
-      name: 'TreeNode',
-      properties: [
-        createProperty({ name: 'left', required: false, schema: createSchema({ type: 'ref', name: 'TreeNode', ref: '#/components/schemas/TreeNode' }) }),
-      ],
-    })
-
-    expect(containsCircularRef(schema, { circularSchemas: new Set(['TreeNode']), excludeName: 'TreeNode' })).toBe(false)
-  })
-
-  it('returns false when there are no refs', () => {
-    expect(containsCircularRef(createSchema({ type: 'string' }), { circularSchemas: new Set(['Pet']) })).toBe(false)
-  })
-
-  it('short-circuits when the circular set is empty', () => {
-    const schema = createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' })
-
-    expect(containsCircularRef(schema, { circularSchemas: new Set() })).toBe(false)
   })
 })
 

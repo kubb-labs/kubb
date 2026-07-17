@@ -13,7 +13,7 @@ import type { PropertyNode } from './nodes/property.ts'
 import type { ResponseNode } from './nodes/response.ts'
 import type { SchemaNode } from './nodes/schema.ts'
 import type { ParentOf, VisitorContext } from './visitor.ts'
-import { collect, transform } from './visitor.ts'
+import { collectSync, transform } from './visitor.ts'
 
 /**
  * Builds a minimal sample AST with one `Pet` schema and one `getPetById` operation.
@@ -319,7 +319,7 @@ describe('ParentOf — type inference', () => {
   })
 
   it('collect callbacks receive narrowed context', () => {
-    collect<string>(buildSampleTree(), {
+    collectSync<string>(buildSampleTree(), {
       property(_prop, context) {
         expectTypeOf(context.parent).toEqualTypeOf<SchemaNode | undefined>()
         return 'test'
@@ -332,10 +332,10 @@ describe('ParentOf — type inference', () => {
   })
 })
 
-describe('collect', () => {
+describe('collectSync', () => {
   it('collects all schema types with default depth traversal', () => {
     const root = buildSampleTree()
-    const types = collect<string>(root, {
+    const types = collectSync<string>(root, {
       schema(n) {
         return n.type
       },
@@ -348,7 +348,7 @@ describe('collect', () => {
 
   it('collects only top-level schemas (not object properties) when depth: shallow', () => {
     const root = buildSampleTree()
-    const types = collect<string>(root, {
+    const types = collectSync<string>(root, {
       depth: 'shallow',
       schema(n) {
         return n.type

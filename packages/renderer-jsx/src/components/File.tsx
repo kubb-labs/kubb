@@ -1,4 +1,4 @@
-import type { ExportNode, ImportNode, SourceNode } from '@kubb/ast'
+import type { ast } from '@kubb/kit'
 import type { Key, KubbReactElement, KubbReactNode } from '../types.ts'
 
 type BasePropsWithBaseName = {
@@ -89,7 +89,7 @@ export function File<TMeta extends object = object>({ children, ...props }: Prop
 
 File.displayName = 'File'
 
-type FileSourceProps = Omit<SourceNode, 'kind' | 'value'> & {
+type FileSourceProps = Omit<ast.SourceNode, 'kind' | 'value'> & {
   key?: Key
   /**
    * Child nodes rendered as the source content of this block.
@@ -129,7 +129,7 @@ function FileSource({ children, ...props }: FileSourceProps): KubbReactElement {
 
 FileSource.displayName = 'FileSource'
 
-type FileExportProps = Omit<ExportNode, 'kind'> & { key?: Key }
+type FileExportProps = Omit<ast.ExportNode, 'kind'> & { key?: Key }
 
 /**
  * Declares an export entry for the enclosing {@link File}.
@@ -156,7 +156,7 @@ function FileExport(props: FileExportProps): KubbReactElement {
 
 FileExport.displayName = 'FileExport'
 
-type FileImportProps = Omit<ImportNode, 'kind'> & { key?: Key }
+type FileImportProps = Omit<ast.ImportNode, 'kind'> & { key?: Key }
 
 /**
  * Declares an import entry for the enclosing {@link File}.

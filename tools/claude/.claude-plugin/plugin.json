@@ -12,6 +12,5 @@
   "repository": "https://github.com/kubb-labs/kubb",
   "license": "MIT",
   "keywords": ["kubb", "openapi", "swagger", "codegen", "typescript", "mcp"],
-  "mcpServers": "./.mcp.json",
-  "hooks": "./hooks/hooks.json"
+  "mcpServers": "./.mcp.json"
 }

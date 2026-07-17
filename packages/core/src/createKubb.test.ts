@@ -4,9 +4,9 @@ import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
-import { Diagnostics } from './Diagnostics.ts'
+import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { definePlugin } from './definePlugin.ts'
-import type { Config, KubbHooks, Plugin, UserConfig } from './types.ts'
+import type { Adapter, Config, KubbHooks, Plugin, UserConfig } from './types.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
@@ -315,6 +315,67 @@ describe('createKubb', () => {
     expect(batches).toStrictEqual([2])
     expect(endOrder).toStrictEqual(['plugin-one', 'plugin-two'])
     expect(files.map((file) => file.path)).toStrictEqual(['/workspace/src/gen/one.ts', '/workspace/src/gen/two.ts'])
+  })
+
+  it('streams file-processing updates in generation order with a sequential counter', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const updateRows: Array<{ path: string; processed: number; total: number }> = []
+    hooks.hook('kubb:files:processing:update', ({ files }) => {
+      for (const row of files) {
+        updateRows.push({ path: row.file.path, processed: row.processed, total: row.total })
+      }
+    })
+
+    const makePlugin = (name: string, filePath: string) =>
+      definePlugin(() => ({
+        name,
+        hooks: {
+          'kubb:plugin:setup'(ctx) {
+            ctx.addGenerator({
+              name: `${name}-generator`,
+              schema() {
+                return [
+                  ast.factory.createFile({
+                    path: filePath,
+                    baseName: filePath.split('/').pop() as `${string}.${string}`,
+                    sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`export const ${name.replaceAll('-', '_')} = null`)] })],
+                    imports: [],
+                    exports: [],
+                  }),
+                ]
+              },
+            })
+          },
+        },
+      }))()
+
+    const streamingConfig = {
+      ...config,
+      storage: memoryStorage(),
+      adapter: createMockedAdapter({
+        parse: async () => ({
+          kind: 'Input' as const,
+          meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
+          schemas: [ast.factory.createSchema({ name: 'Pet', type: 'string' })],
+          operations: [],
+        }),
+      }),
+      plugins: [
+        makePlugin('plugin-one', '/workspace/src/gen/one.ts'),
+        makePlugin('plugin-two', '/workspace/src/gen/two.ts'),
+        makePlugin('plugin-three', '/workspace/src/gen/three.ts'),
+      ] as unknown as Array<Plugin>,
+    } satisfies Config
+
+    await createKubb(streamingConfig, { hooks }).build()
+
+    // Order matches the generated files, and the counter is a clean 1..N, regardless of the
+    // order the concurrent write pass finished each file in.
+    expect(updateRows).toStrictEqual([
+      { path: '/workspace/src/gen/one.ts', processed: 1, total: 3 },
+      { path: '/workspace/src/gen/two.ts', processed: 2, total: 3 },
+      { path: '/workspace/src/gen/three.ts', processed: 3, total: 3 },
+    ])
   })
 
   it('cleans up hook-style plugin listeners between builds on shared hooks', async () => {
@@ -644,5 +705,92 @@ describe('createKubb', () => {
       expect(writtenPaths).toHaveLength(fileCount)
       expect(new Set(writtenPaths).size).toBe(fileCount)
     })
+  })
+})
+
+describe('Kubb#generate', () => {
+  const makeConfig = (overrides: Partial<Config> = {}): Config => ({
+    root: '.',
+    input: { path: './petStore.yaml' },
+    output: { path: './gen' },
+    parsers: [],
+    reporters: [],
+    adapter: createMockedAdapter(),
+    plugins: [],
+    storage: memoryStorage(),
+    ...overrides,
+  })
+
+  const failingAdapter = (): Adapter =>
+    createMockedAdapter({
+      parse: async () => {
+        throw new Error('boom')
+      },
+    })
+
+  let hooks: Hookable<KubbHooks>
+  afterEach(() => hooks?.removeAllHooks())
+
+  it('emits generation:start before generation:end and ends with success', async () => {
+    hooks = new Hookable<KubbHooks>()
+    const events: Array<string> = []
+    let endStatus: string | undefined
+    hooks.hook('kubb:generation:start', () => {
+      events.push('start')
+    })
+    hooks.hook('kubb:generation:end', ({ status }) => {
+      events.push('end')
+      endStatus = status
+    })
+
+    const result = await createKubb(makeConfig(), { hooks }).generate()
+
+    expect(events).toStrictEqual(['start', 'end'])
+    expect(endStatus).toBe('success')
+    expect(result.success).toBe(true)
+  })
+
+  it('reports failure and ends failed when processOutput returns an error', async () => {
+    hooks = new Hookable<KubbHooks>()
+    const diagnostic: Diagnostic = { code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } }
+    let endStatus: string | undefined
+    hooks.hook('kubb:generation:end', ({ status }) => {
+      endStatus = status
+    })
+
+    const result = await createKubb(makeConfig(), { hooks }).generate({
+      processOutput: async () => [diagnostic],
+    })
+
+    expect(result.success).toBe(false)
+    expect(result.diagnostics).toContain(diagnostic)
+    expect(endStatus).toBe('failed')
+  })
+
+  it('stops after a build error without running processOutput', async () => {
+    hooks = new Hookable<KubbHooks>()
+    let ranProcessOutput = false
+
+    const result = await createKubb(makeConfig({ adapter: failingAdapter() }), { hooks }).generate({
+      processOutput: async () => {
+        ranProcessOutput = true
+        return []
+      },
+    })
+
+    expect(result.success).toBe(false)
+    expect(ranProcessOutput).toBe(false)
+  })
+
+  it('routes an unknown-code build error to the kubb:error hook', async () => {
+    hooks = new Hookable<KubbHooks>()
+    const messages: Array<string> = []
+    hooks.hook('kubb:error', ({ error }) => {
+      messages.push(error.message)
+    })
+
+    await createKubb(makeConfig({ adapter: failingAdapter() }), { hooks }).generate()
+
+    expect(messages).toContain('boom')
   })
 })

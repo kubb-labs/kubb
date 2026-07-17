@@ -1,6 +1,6 @@
 import type { ast } from '@kubb/ast'
 import { Diagnostics } from '@kubb/core'
-import { isHandledFormat } from './resolvers.ts'
+import { isHandledFormat } from './emit/schemaShape.ts'
 
 /**
  * Reports the advisory diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`) for one

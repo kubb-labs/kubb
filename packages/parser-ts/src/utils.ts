@@ -1,6 +1,6 @@
 import { normalize, relative } from 'node:path'
 import { trimExtName } from '@internals/utils'
-import type { ArrowFunctionNode, CodeNode, ConstNode, FunctionNode, JSDocNode, JsxNode, SourceNode, TextNode, TypeNode } from '@kubb/ast'
+import type { ast } from '@kubb/kit'
 import ts from 'typescript'
 import {
   CARRIAGE_RETURN_PATTERN,
@@ -46,7 +46,7 @@ export function resolveOutputPath(path: string, options: { extname?: string } | 
  * statements. Consecutive breaks, and breaks at the very start or end, are folded into the
  * separator, so a double `<br/>` never emits more than one blank line.
  */
-export function printNodes(nodes: Array<CodeNode> | undefined): string {
+export function printNodes(nodes: Array<ast.CodeNode> | undefined): string {
   if (!nodes || nodes.length === 0) return ''
 
   let result = ''
@@ -117,7 +117,7 @@ export function dedent(text: string): string {
  * Renders the generic clause (`<T, U>`) shared by function and arrow-function nodes.
  * Accepts either a raw string (rendered verbatim) or an array of type-parameter names.
  */
-export function formatGenerics(generics: FunctionNode['generics'] | ArrowFunctionNode['generics']): string {
+export function formatGenerics(generics: ast.FunctionNode['generics'] | ast.ArrowFunctionNode['generics']): string {
   if (!generics) return ''
   return `<${Array.isArray(generics) ? generics.join(', ') : generics}>`
 }
@@ -166,7 +166,7 @@ export function print(...elements: Array<ts.Node>): string {
 }
 
 /**
- * Converts a {@link JSDocNode} to a JSDoc comment block string.
+ * Converts a {@link ast.JSDocNode} to a JSDoc comment block string.
  *
  * @example
  * ```ts
@@ -177,7 +177,7 @@ export function print(...elements: Array<ts.Node>): string {
  * //  *\/
  * ```
  */
-export function printJSDoc(jsDoc: JSDocNode): string {
+export function printJSDoc(jsDoc: ast.JSDocNode): string {
   const comments = (jsDoc.comments ?? []).filter((c) => c != null)
   if (comments.length === 0) return ''
 
@@ -192,7 +192,7 @@ export function printJSDoc(jsDoc: JSDocNode): string {
 }
 
 /**
- * Converts a {@link ConstNode} to a TypeScript `const` declaration string.
+ * Converts a {@link ast.ConstNode} to a TypeScript `const` declaration string.
  *
  * Mirrors the `Const` component from `@kubb/renderer-jsx`.
  *
@@ -208,7 +208,7 @@ export function printJSDoc(jsDoc: JSDocNode): string {
  * // 'export const pets: Pet[] = [] as const'
  * ```
  */
-export function printConst(node: ConstNode): string {
+export function printConst(node: ast.ConstNode): string {
   const { name, export: canExport, type, JSDoc, asConst, nodes } = node
 
   const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
@@ -230,7 +230,7 @@ export function printConst(node: ConstNode): string {
 }
 
 /**
- * Converts a {@link TypeNode} to a TypeScript `type` alias declaration string.
+ * Converts a {@link ast.TypeNode} to a TypeScript `type` alias declaration string.
  *
  * Mirrors the `Type` component from `@kubb/renderer-jsx`.
  *
@@ -240,7 +240,7 @@ export function printConst(node: ConstNode): string {
  * // 'export type Pet = { id: number }'
  * ```
  */
-export function printType(node: TypeNode): string {
+export function printType(node: ast.TypeNode): string {
   const { name, export: canExport, JSDoc, nodes } = node
 
   const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
@@ -258,7 +258,7 @@ export function printType(node: TypeNode): string {
 }
 
 /**
- * Converts a {@link FunctionNode} to a TypeScript `function` declaration string.
+ * Converts a {@link ast.FunctionNode} to a TypeScript `function` declaration string.
  *
  * Mirrors the `Function` component from `@kubb/renderer-jsx`.
  *
@@ -274,7 +274,7 @@ export function printType(node: TypeNode): string {
  * // 'export async function fetchPet<T>(id: string): Promise<T> {\n}'
  * ```
  */
-export function printFunction(node: FunctionNode): string {
+export function printFunction(node: ast.FunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes } = node
 
   const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
@@ -301,7 +301,7 @@ export function printFunction(node: FunctionNode): string {
 }
 
 /**
- * Converts an {@link ArrowFunctionNode} to a TypeScript arrow function declaration string.
+ * Converts an {@link ast.ArrowFunctionNode} to a TypeScript arrow function declaration string.
  *
  * Mirrors the `Function.Arrow` component from `@kubb/renderer-jsx`.
  *
@@ -317,7 +317,7 @@ export function printFunction(node: FunctionNode): string {
  * // 'const double = (n: number) => n * 2'
  * ```
  */
-export function printArrowFunction(node: ArrowFunctionNode): string {
+export function printArrowFunction(node: ast.ArrowFunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes, singleLine } = node
 
   const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
@@ -341,7 +341,7 @@ export function printArrowFunction(node: ArrowFunctionNode): string {
 }
 
 /**
- * Converts a {@link CodeNode} to its TypeScript string representation.
+ * Converts a {@link ast.CodeNode} to its TypeScript string representation.
  *
  * Dispatches to the appropriate printer based on the node's `kind`.
  *
@@ -351,10 +351,10 @@ export function printArrowFunction(node: ArrowFunctionNode): string {
  * // 'const x = 1'
  * ```
  */
-export function printCodeNode(node: CodeNode): string {
+export function printCodeNode(node: ast.CodeNode): string {
   if (node.kind === 'Break') return ''
-  if (node.kind === 'Text') return dedent((node as TextNode).value)
-  if (node.kind === 'Jsx') return dedent((node as JsxNode).value)
+  if (node.kind === 'Text') return dedent((node as ast.TextNode).value)
+  if (node.kind === 'Jsx') return dedent((node as ast.JsxNode).value)
   if (node.kind === 'Const') return printConst(node)
   if (node.kind === 'Type') return printType(node)
   if (node.kind === 'Function') return printFunction(node)
@@ -363,9 +363,9 @@ export function printCodeNode(node: CodeNode): string {
 }
 
 /**
- * Converts a {@link SourceNode} to its TypeScript string representation.
+ * Converts a {@link ast.SourceNode} to its TypeScript string representation.
  *
- * Iterates `nodes` in DOM order, rendering each {@link CodeNode} via
+ * Iterates `nodes` in DOM order, rendering each {@link ast.CodeNode} via
  * {@link printCodeNode}.
  *
  * Top-level declarations are separated by a blank line so the source reads
@@ -377,7 +377,7 @@ export function printCodeNode(node: CodeNode): string {
  * // 'const x = 1\n\nx.toString()'
  * ```
  */
-export function printSource(node: SourceNode): string {
+export function printSource(node: ast.SourceNode): string {
   const nodes = node.nodes
 
   if (!nodes || nodes.length === 0) return ''
@@ -386,7 +386,7 @@ export function printSource(node: SourceNode): string {
   // this runs once per source fragment during printing, so it surfaced in the deopt churn trace.
   let result = ''
   for (const child of nodes) {
-    const text = printCodeNode(child as CodeNode)
+    const text = printCodeNode(child as ast.CodeNode)
     if (!text) continue
     result = result ? `${result}\n\n${text}` : text
   }
