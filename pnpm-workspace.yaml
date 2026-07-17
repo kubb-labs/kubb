@@ -12,7 +12,7 @@ catalog:
   "@vitest/coverage-v8": ^4.1.10
   "@vitest/ui": ^4.1.10
   oxfmt: ^0.58.0
-  oxlint: ^1.73.0
+  oxlint: ^1.74.0
   "tinyexec": ^1.2.4
   tsdown: ^0.22.7
   typescript: ^6.0.3
