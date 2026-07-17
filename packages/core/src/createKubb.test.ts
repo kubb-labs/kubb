@@ -317,6 +317,67 @@ describe('createKubb', () => {
     expect(files.map((file) => file.path)).toStrictEqual(['/workspace/src/gen/one.ts', '/workspace/src/gen/two.ts'])
   })
 
+  it('streams file-processing updates in generation order with a sequential counter', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const updateRows: Array<{ path: string; processed: number; total: number }> = []
+    hooks.hook('kubb:files:processing:update', ({ files }) => {
+      for (const row of files) {
+        updateRows.push({ path: row.file.path, processed: row.processed, total: row.total })
+      }
+    })
+
+    const makePlugin = (name: string, filePath: string) =>
+      definePlugin(() => ({
+        name,
+        hooks: {
+          'kubb:plugin:setup'(ctx) {
+            ctx.addGenerator({
+              name: `${name}-generator`,
+              schema() {
+                return [
+                  ast.factory.createFile({
+                    path: filePath,
+                    baseName: filePath.split('/').pop() as `${string}.${string}`,
+                    sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`export const ${name.replaceAll('-', '_')} = null`)] })],
+                    imports: [],
+                    exports: [],
+                  }),
+                ]
+              },
+            })
+          },
+        },
+      }))()
+
+    const streamingConfig = {
+      ...config,
+      storage: memoryStorage(),
+      adapter: createMockedAdapter({
+        parse: async () => ({
+          kind: 'Input' as const,
+          meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
+          schemas: [ast.factory.createSchema({ name: 'Pet', type: 'string' })],
+          operations: [],
+        }),
+      }),
+      plugins: [
+        makePlugin('plugin-one', '/workspace/src/gen/one.ts'),
+        makePlugin('plugin-two', '/workspace/src/gen/two.ts'),
+        makePlugin('plugin-three', '/workspace/src/gen/three.ts'),
+      ] as unknown as Array<Plugin>,
+    } satisfies Config
+
+    await createKubb(streamingConfig, { hooks }).build()
+
+    // Order matches the generated files, and the counter is a clean 1..N, regardless of the
+    // order the concurrent write pass finished each file in.
+    expect(updateRows).toStrictEqual([
+      { path: '/workspace/src/gen/one.ts', processed: 1, total: 3 },
+      { path: '/workspace/src/gen/two.ts', processed: 2, total: 3 },
+      { path: '/workspace/src/gen/three.ts', processed: 3, total: 3 },
+    ])
+  })
+
   it('cleans up hook-style plugin listeners between builds on shared hooks', async () => {
     const hooks = new Hookable<KubbHooks>()
     const hookPlugin = definePlugin(() => ({

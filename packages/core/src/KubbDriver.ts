@@ -295,6 +295,10 @@ export class KubbDriver {
         updateBuffer.push(item)
       },
       end: async (files: Array<FileNode>) => {
+        // Files parse concurrently, so the buffer arrives in completion order. `processed` is each
+        // file's input position, so sorting by it restores generation order for the streamed rows.
+        updateBuffer.sort((a, b) => a.processed - b.processed)
+
         await hooks.callHook('kubb:files:processing:update', {
           files: updateBuffer.map((item) => ({ ...item, config })),
         })
