@@ -5,14 +5,14 @@ describe('createNodeCache', () => {
   it('returns undefined for a key that was never set', () => {
     const cache = createNodeCache()
 
-    expect(cache.get('missing')).toBeUndefined()
+    expect(cache.getItem('missing')).toBeUndefined()
   })
 
-  it('stores a value and returns it from set and get', () => {
+  it('stores a value and returns it from setItem and getItem', () => {
     const cache = createNodeCache()
 
-    expect(cache.set('name', 'pet')).toBe('pet')
-    expect(cache.get<string>('name')).toBe('pet')
+    expect(cache.setItem('name', 'pet')).toBe('pet')
+    expect(cache.getItem<string>('name')).toBe('pet')
   })
 
   it('computes with the factory on the first getOrSet and reuses it afterwards', () => {

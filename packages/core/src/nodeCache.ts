@@ -17,11 +17,11 @@ export type NodeCache = {
   /**
    * Returns the value stored under `key`, or `undefined` when nothing is stored yet.
    */
-  get<TValue>(key: string): TValue | undefined
+  getItem<TValue>(key: string): TValue | undefined
   /**
    * Stores `value` under `key`, overwriting any previous value, and returns it.
    */
-  set<TValue>(key: string, value: TValue): TValue
+  setItem<TValue>(key: string, value: TValue): TValue
   /**
    * Returns the value stored under `key`, computing and storing it with `factory` on the first
    * call. Later calls with the same key return the stored value without running `factory` again.
@@ -37,10 +37,10 @@ export function createNodeCache(): NodeCache {
   const store = new Map<string, unknown>()
 
   return {
-    get<TValue>(key: string): TValue | undefined {
+    getItem<TValue>(key: string): TValue | undefined {
       return store.get(key) as TValue | undefined
     },
-    set<TValue>(key: string, value: TValue): TValue {
+    setItem<TValue>(key: string, value: TValue): TValue {
       store.set(key, value)
       return value
     },
