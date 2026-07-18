@@ -80,6 +80,27 @@ function compareFiles(a: FileNode, b: FileNode): number {
   return 0
 }
 
+// A path already in `sorted` keeps its slot (its sort key is its path, which never changes), so
+// only its value is replaced. A path seen for the first time is, by definition, the most
+// recently added among any ties it has, so binary-searching it into the tail of its tie group
+// reproduces the same order a full re-sort would have produced.
+function insertSorted(sorted: Array<FileNode>, file: FileNode): void {
+  const index = sorted.findIndex((existing) => existing.path === file.path)
+  if (index !== -1) {
+    sorted[index] = file
+    return
+  }
+
+  let low = 0
+  let high = sorted.length
+  while (low < high) {
+    const mid = (low + high) >>> 1
+    if (compareFiles(sorted[mid]!, file) > 0) high = mid
+    else low = mid + 1
+  }
+  sorted.splice(low, 0, file)
+}
+
 /**
  * In-memory file store for generated files, and the writer that turns them into source
  * strings on `storage`. Files sharing a `path` are merged (sources/imports/exports
@@ -97,10 +118,12 @@ function compareFiles(a: FileNode, b: FileNode): number {
 export class FileManager {
   readonly hooks = new Hookable<FileManagerHooks>()
   readonly #cache = new Map<string, FileNode>()
-  // Cached sorted view. Null means stale and rebuilt lazily on next `files` read.
-  // Nulled (not mutated) on every write so callers holding a prior reference keep
-  // their snapshot. `dispose()` must not silently empty an array the consumer
-  // already holds.
+  // Files added/upserted since `#sorted` was last computed, merged in on the next `files` read
+  // instead of forcing a full re-sort of every stored file.
+  readonly #pending = new Map<string, FileNode>()
+  // Cached sorted view, null until first computed. Every recompute produces a new array (never
+  // mutated in place) so callers holding a prior reference keep their snapshot. `dispose()` must
+  // not silently empty an array the consumer already holds.
   #sorted: Array<FileNode> | null = null
 
   add(...files: Array<FileNode>): Array<FileNode> {
@@ -119,10 +142,10 @@ export class FileManager {
       const existing = this.#cache.get(file.path)
       const merged = existing && mergeExisting ? ast.factory.createFile(mergeFile(existing, file)) : ast.factory.createFile(file)
       this.#cache.set(merged.path, merged)
+      this.#pending.set(merged.path, merged)
       resolved.push(merged)
     }
 
-    if (resolved.length > 0) this.#sorted = null
     return resolved
   }
 
@@ -139,6 +162,7 @@ export class FileManager {
 
   clear(): void {
     this.#cache.clear()
+    this.#pending.clear()
     this.#sorted = null
   }
 
@@ -156,7 +180,20 @@ export class FileManager {
    * last within a length bucket). Returns a cached view, do not mutate.
    */
   get files(): Array<FileNode> {
-    return (this.#sorted ??= [...this.#cache.values()].sort(compareFiles))
+    if (this.#sorted === null) {
+      this.#sorted = [...this.#cache.values()].sort(compareFiles)
+      this.#pending.clear()
+      return this.#sorted
+    }
+
+    if (this.#pending.size === 0) return this.#sorted
+
+    const next = [...this.#sorted]
+    for (const file of this.#pending.values()) insertSorted(next, file)
+    this.#sorted = next
+    this.#pending.clear()
+
+    return this.#sorted
   }
 
   /**

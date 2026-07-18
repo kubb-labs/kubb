@@ -150,6 +150,74 @@ describe('FileManager', () => {
       expect(paths[0]).toBe('/src/types.ts')
       expect(paths[1]).toBe('/src/index.ts')
     })
+
+    it('keeps a stable order for same-length ties across incremental inserts', () => {
+      const manager = new FileManager()
+      manager.add(makeFile('/src/aaa.ts'))
+      void manager.files
+      manager.add(makeFile('/src/bbb.ts'))
+      void manager.files
+      manager.add(makeFile('/src/ccc.ts'))
+
+      expect(manager.files.map((f) => f.path)).toStrictEqual(['/src/aaa.ts', '/src/bbb.ts', '/src/ccc.ts'])
+    })
+
+    it('inserts a new file into its sorted slot without reordering unrelated files', () => {
+      const manager = new FileManager()
+      manager.add(makeFile('/src/components/button/index.ts'), makeFile('/src/a.ts'), makeFile('/src/components/b.ts'))
+      void manager.files
+      manager.add(makeFile('/src/components/c.ts'))
+
+      expect(manager.files.map((f) => f.path)).toStrictEqual(['/src/a.ts', '/src/components/b.ts', '/src/components/c.ts', '/src/components/button/index.ts'])
+    })
+
+    it('does not change a file position when it is later updated', () => {
+      const manager = new FileManager()
+      manager.add(makeFile('/src/aaa.ts'), makeFile('/src/bbb.ts'))
+      void manager.files
+      manager.upsert(makeFile('/src/aaa.ts', 'const x = 1'))
+
+      const paths = manager.files.map((f) => f.path)
+      expect(paths).toStrictEqual(['/src/aaa.ts', '/src/bbb.ts'])
+      expect(manager.files[0]?.sources).toHaveLength(1)
+    })
+
+    it('returns a fresh array on each recompute so a prior snapshot is unaffected', () => {
+      const manager = new FileManager()
+      manager.add(makeFile('/src/a.ts'))
+      const snapshot = manager.files
+      manager.add(makeFile('/src/b.ts'))
+
+      expect(snapshot.map((f) => f.path)).toStrictEqual(['/src/a.ts'])
+      expect(manager.files.map((f) => f.path)).toStrictEqual(['/src/a.ts', '/src/b.ts'])
+    })
+
+    it('matches a plain full re-sort after many interleaved inserts and updates', () => {
+      const manager = new FileManager()
+      const paths = Array.from({ length: 40 }, (_, i) => `/src/f${i % 5}/file${i}.ts`)
+      const firstSeenOrder = new Map<string, number>()
+      for (const filePath of paths) {
+        if (!firstSeenOrder.has(filePath)) firstSeenOrder.set(filePath, firstSeenOrder.size)
+      }
+
+      for (const [i, filePath] of paths.entries()) {
+        manager.upsert(makeFile(filePath, `v${i}`))
+        if (i % 3 === 0) void manager.files
+      }
+      const incremental = manager.files.map((f) => f.path)
+
+      const isIndex = (p: string) => p.endsWith('/index.ts') || p === 'index.ts'
+      const expected = [...firstSeenOrder.keys()].sort((a, b) => {
+        const lenDiff = a.length - b.length
+        if (lenDiff !== 0) return lenDiff
+        const aIsIndex = isIndex(a)
+        const bIsIndex = isIndex(b)
+        if (aIsIndex !== bIsIndex) return aIsIndex ? 1 : -1
+        return firstSeenOrder.get(a)! - firstSeenOrder.get(b)!
+      })
+
+      expect(incremental).toStrictEqual(expected)
+    })
   })
 
   describe('dispose', () => {
