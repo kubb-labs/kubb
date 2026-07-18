@@ -1,0 +1,14 @@
+{
+  "name": "benchmark-v4",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "dependencies": {
+    "@kubb/core": "4.39.2",
+    "@kubb/plugin-oas": "4.39.2",
+    "@kubb/plugin-ts": "4.39.2",
+    "@kubb/plugin-client": "4.39.2",
+    "@kubb/plugin-zod": "4.39.2",
+    "@kubb/plugin-faker": "4.39.2"
+  }
+}

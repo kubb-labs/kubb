@@ -1,0 +1,10 @@
+{
+  "name": "benchmark-v4-vs-v5",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "description": "Benchmark harness comparing Kubb v4 vs v5 code-generation speed and memory usage.",
+  "scripts": {
+    "bench": "node run.mjs"
+  }
+}
