@@ -1,5 +1,56 @@
 # Changelog
 
+## v5.0.0-beta.104 — Jul 18, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Fold schema diagnostics and circular detection into a single convert walk.
+  
+  The adapter walked every freshly parsed schema twice: once to report the advisory diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`), then again inside `findCircularSchemas` to collect the names each schema references. The diagnostics walk now gathers those names in the same pass, and circular detection reads that graph instead of sweeping the nodes again.
+  
+  `@kubb/ast` gains `findCircularSchemasFromGraph`, which runs cycle detection over a pre-built name-to-refs graph. `findCircularSchemas` builds the graph and hands off to it, so both share one implementation. Generated output does not change. ([#3825](https://github.com/kubb-labs/kubb/pull/3825), [`6933125`](https://github.com/kubb-labs/kubb/commit/693312560a105ec3adc23fee54c1ae29320df4f1))
+
+### @kubb/ast
+
+#### Features
+
+- Walk a schema's `$ref` subtree once and share it across plugins.
+  
+  `resolver.imports` scanned a node's whole subtree for `$ref`s on every call, so the ts, zod, and faker plugins each re-walked the same schema and operation. The scan now runs through a new `collectImportedRefNames` helper in `@kubb/ast` that memoizes the ordered ref set by node identity, so a schema shared across plugins is walked once and every plugin's resolver reads the same result.
+  
+  Import output is unchanged. Only refs carrying a `$ref` pointer are counted, in first-occurrence order and de-duplicated. `collectImportedRefNames` is the ordered, import-facing counterpart to `collectReferencedSchemaNames`, which stays the unordered set used for graph analysis. ([#3824](https://github.com/kubb-labs/kubb/pull/3824), [`75c5add`](https://github.com/kubb-labs/kubb/commit/75c5adde430baad0a33f675141dfed69702fbf5e))
+
+### @kubb/core
+
+#### Features
+
+- Add an optional `match` predicate to `Generator`. When `match(node, ctx)` returns `false`, the driver skips that node's `schema`/`operation` call entirely, instead of invoking the generator and letting it return early itself. Omit `match` to keep running for every node, so this is purely additive.
+  
+  This lets a generator declare its own scope instead of a plugin hand-rolling a dispatcher when several generators target the same node type but only one should run per node. ([#3828](https://github.com/kubb-labs/kubb/pull/3828), [`293ddf1`](https://github.com/kubb-labs/kubb/commit/293ddf11e5c936df0fc45e2d6dd219f615e1fcea))
+- Walk each schema and operation once instead of once per plugin.
+  
+  `#runGenerators` was plugin-outer, so it re-walked the shared `schemas` and `operations` arrays once for every plugin. It is now node-outer: each schema and each operation is visited once, then fanned out to the matching generators of every plugin in dependency order.
+  
+  Each node also carries a `NodeCache`, shared by every plugin that generates from it and exposed to generators as `ctx.cache`, so node-derived work can be computed once and reused. The type is exported from `@kubb/core` and `@kubb/kit`.
+  
+  The generated files are unchanged. ([#3829](https://github.com/kubb-labs/kubb/pull/3829), [`4f03d56`](https://github.com/kubb-labs/kubb/commit/4f03d566a4adae8febf0b364cf8dbf874ef930c2))
+
+### @kubb/plugin-barrel
+
+#### Bug Fixes
+
+- Build the barrel directory tree once per generation run instead of once per barrelled plugin plus once more for the root.
+  
+  `kubb:plugin:end` now only records each plugin's barrel target and strategy. `kubb:plugins:end` indexes the output directory once and derives every plugin barrel and the root barrel from that shared tree, instead of re-scanning the whole file set for each one. ([#3821](https://github.com/kubb-labs/kubb/pull/3821), [`947abc3`](https://github.com/kubb-labs/kubb/commit/947abc3730c317a2baf7546ee67f6ad0d0190d11))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.103 — Jul 17, 2026
 
 ### @kubb/core
