@@ -150,6 +150,47 @@ describe('FileManager', () => {
       expect(paths[0]).toBe('/src/types.ts')
       expect(paths[1]).toBe('/src/index.ts')
     })
+
+    it('keeps a stable order for same-length ties across incremental inserts', () => {
+      const manager = new FileManager()
+      manager.add(makeFile('/src/aaa.ts'))
+      void manager.files
+      manager.add(makeFile('/src/bbb.ts'))
+      void manager.files
+      manager.add(makeFile('/src/ccc.ts'))
+
+      expect(manager.files.map((f) => f.path)).toStrictEqual(['/src/aaa.ts', '/src/bbb.ts', '/src/ccc.ts'])
+    })
+
+    it('inserts a new file into its sorted slot without reordering unrelated files', () => {
+      const manager = new FileManager()
+      manager.add(makeFile('/src/components/button/index.ts'), makeFile('/src/a.ts'), makeFile('/src/components/b.ts'))
+      void manager.files
+      manager.add(makeFile('/src/components/c.ts'))
+
+      expect(manager.files.map((f) => f.path)).toStrictEqual(['/src/a.ts', '/src/components/b.ts', '/src/components/c.ts', '/src/components/button/index.ts'])
+    })
+
+    it('does not change a file position when it is later updated', () => {
+      const manager = new FileManager()
+      manager.add(makeFile('/src/aaa.ts'), makeFile('/src/bbb.ts'))
+      void manager.files
+      manager.upsert(makeFile('/src/aaa.ts', 'const x = 1'))
+
+      const paths = manager.files.map((f) => f.path)
+      expect(paths).toStrictEqual(['/src/aaa.ts', '/src/bbb.ts'])
+      expect(manager.files[0]?.sources).toHaveLength(1)
+    })
+
+    it('returns a fresh array on each recompute so a prior snapshot is unaffected', () => {
+      const manager = new FileManager()
+      manager.add(makeFile('/src/a.ts'))
+      const snapshot = manager.files
+      manager.add(makeFile('/src/b.ts'))
+
+      expect(snapshot.map((f) => f.path)).toStrictEqual(['/src/a.ts'])
+      expect(manager.files.map((f) => f.path)).toStrictEqual(['/src/a.ts', '/src/b.ts'])
+    })
   })
 
   describe('dispose', () => {
