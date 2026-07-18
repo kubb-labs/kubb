@@ -276,16 +276,53 @@ function indexRelevantFiles(files: ReadonlyArray<FileNode>, outputPath: string):
   return { sourceFiles, paths }
 }
 
+/**
+ * A directory tree plus the source-file lookup it was built from, scoped to a single output root.
+ * Build it once with {@link buildBarrelIndex} and derive every barrel (per-plugin and root) from
+ * it via {@link getBarrelFiles}, instead of re-scanning the full file set once per barrel.
+ */
+export type BarrelIndex = {
+  tree: BuildTree
+  sourceFiles: ReadonlyMap<string, FileNode>
+}
+
+/**
+ * Indexes `files` once for the directory rooted at `outputPath`: filters to indexable source
+ * files under that path and builds their directory tree. Reuse the result across every barrel
+ * derived from the same root rather than re-filtering and re-building per barrel.
+ */
+export function buildBarrelIndex(outputPath: string, files: ReadonlyArray<FileNode>): BarrelIndex {
+  const { sourceFiles, paths } = indexRelevantFiles(files, outputPath)
+  return { tree: buildTree(outputPath, paths), sourceFiles }
+}
+
+/**
+ * Locates the node for `targetPath` within an index tree, walking down through directory nodes
+ * only. Returns `undefined` when no file exists at or under `targetPath` (nothing to barrel).
+ */
+function findNode(node: BuildTree, targetPath: string): BuildTree | undefined {
+  if (node.path === targetPath) return node
+  if (node.isFile || !targetPath.startsWith(`${node.path}/`)) return undefined
+
+  for (const child of node.children) {
+    if (!child.isFile && (child.path === targetPath || targetPath.startsWith(`${child.path}/`))) {
+      return findNode(child, targetPath)
+    }
+  }
+
+  return undefined
+}
+
 type GetBarrelFilesParams = {
   /**
-   * Absolute directory the barrel(s) should be rooted at.
-   * Only files living under this path are considered.
+   * Index built once via {@link buildBarrelIndex} for the shared output root.
    */
-  outputPath: string
+  index: BarrelIndex
   /**
-   * Pool of generated files to scan for indexable sources.
+   * Absolute directory the barrel(s) should be rooted at, a subtree of the index root.
+   * Defaults to the index root.
    */
-  files: ReadonlyArray<FileNode>
+  targetPath?: string
   /**
    * Export strategy used when emitting each barrel.
    * - `'all'` re-exports the whole module (`export * from './x'`)
@@ -305,32 +342,31 @@ type GetBarrelFilesParams = {
 }
 
 /**
- * Yields barrel `FileNode`s for the directory rooted at `outputPath`.
+ * Yields barrel `FileNode`s for `targetPath` (or the index root), derived from a shared index.
+ * Locating the subtree is a bounded walk down from the root, so deriving many barrels (one per
+ * plugin, plus the root) from one index avoids re-scanning the full file set for each.
  *
  * @example
  * ```ts
- * for (const file of getBarrelFiles({ outputPath, files, barrelType })) {
+ * const index = buildBarrelIndex(outputPath, files)
+ * for (const file of getBarrelFiles({ index, targetPath, barrelType })) {
  *   upsertFile(file)
  * }
- * // or collect into an array
- * const barrels = [...getBarrelFiles({ outputPath, files, barrelType })]
  * ```
  */
-export function* getBarrelFiles({ outputPath, files, barrelType, nested = false, recursive = false }: GetBarrelFilesParams): Generator<FileNode> {
-  const { sourceFiles, paths } = indexRelevantFiles(files, outputPath)
-  if (paths.length === 0) return
-
-  const tree = buildTree(outputPath, paths)
+export function* getBarrelFiles({ index, targetPath, barrelType, nested = false, recursive = false }: GetBarrelFilesParams): Generator<FileNode> {
+  const node = targetPath ? findNode(index.tree, toPosixPath(targetPath)) : index.tree
+  if (!node) return
 
   const strategy = LEAF_STRATEGIES.get(barrelType)
   if (!strategy) return
 
   if (nested) {
-    yield* walkNested(tree, { sourceFiles, strategy })
+    yield* walkNested(node, { sourceFiles: index.sourceFiles, strategy })
     return
   }
 
-  yield* walkAllOrNamed(tree, { sourceFiles, strategy, recursive }, true)
+  yield* walkAllOrNamed(node, { sourceFiles: index.sourceFiles, strategy, recursive }, true)
 }
 
 /**
