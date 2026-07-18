@@ -3,7 +3,7 @@ import type { FileNode } from '@kubb/ast'
 import { definePlugin } from '@kubb/core'
 import type { Config, NormalizedPlugin, Plugin } from '@kubb/core'
 import type { BarrelConfig, BarrelType, PluginBarrelConfig } from './types.ts'
-import { buildBarrelIndex, getBarrelFilesFromIndex, getPluginOutputPrefix, pruneExcludedTree } from './utils.ts'
+import { buildBarrelIndex, getBarrelFiles, getPluginOutputPrefix, isExcludedPath } from './utils.ts'
 
 /**
  * Applies a plugin's configured `output.banner`/`footer` to a barrel file, flagged as `isBarrel`.
@@ -155,28 +155,24 @@ export const pluginBarrel = definePlugin(() => {
       'kubb:plugins:end'({ files, config, upsertFile }) {
         const rootBarrelConfig = config.output.barrel ?? false
         const outputPath = path.resolve(config.root, config.output.path)
-        const index = buildBarrelIndex(outputPath, files)
+
+        // A `barrel: false` plugin gets no barrel and stays out of the root, so drop its files
+        // once here. Every barrel below then derives from a single index of what remains.
+        const relevantFiles = excludedPrefixes.size === 0 ? files : files.filter((f) => !isExcludedPath(f.path, excludedPrefixes))
+        excludedPrefixes.clear()
+
+        const index = buildBarrelIndex(outputPath, relevantFiles)
 
         for (const { plugin, target, barrelType, nested } of pendingBarrels) {
-          for (const file of getBarrelFilesFromIndex({ index, targetPath: target, barrelType, nested, recursive: true })) {
+          for (const file of getBarrelFiles({ index, targetPath: target, barrelType, nested, recursive: true })) {
             upsertFile(withBarrelBannerFooter({ file, plugin, config }))
           }
         }
         pendingBarrels.length = 0
 
-        if (rootBarrelConfig === false) {
-          excludedPrefixes.clear()
-          return
-        }
+        if (rootBarrelConfig === false) return
 
-        const rootTree = pruneExcludedTree(index.tree, excludedPrefixes)
-        excludedPrefixes.clear()
-
-        for (const file of getBarrelFilesFromIndex({
-          index: { tree: rootTree, sourceFiles: index.sourceFiles },
-          targetPath: outputPath,
-          barrelType: rootBarrelConfig.type,
-        })) {
+        for (const file of getBarrelFiles({ index, barrelType: rootBarrelConfig.type })) {
           upsertFile(file)
         }
       },

@@ -2,7 +2,7 @@ import { ast } from '@kubb/ast'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import type { Config } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { buildTree, getBarrelFiles, getPluginOutputPrefix, isExcludedPath } from './utils.ts'
+import { buildBarrelIndex, buildTree, getBarrelFiles, getPluginOutputPrefix, isExcludedPath } from './utils.ts'
 
 function makeConfig(): Config {
   return {
@@ -29,13 +29,13 @@ const ROOT = '/workspace/src/gen/types'
 
 describe('getBarrelFiles', () => {
   it('returns an empty array when there are no files under outputPath', () => {
-    const result = [...getBarrelFiles({ outputPath: ROOT, files: [], barrelType: 'all' })]
+    const result = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, []), barrelType: 'all' })]
     expect(result).toHaveLength(0)
   })
 
   it('generates a single wildcard barrel for flat files with barrelType all', () => {
     const files = [makeFile(`${ROOT}/pet.ts`), makeFile(`${ROOT}/user.ts`)]
-    const barrels = [...getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all' })]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'all' })]
 
     expect(barrels).toHaveLength(1)
     expect(barrels[0]!.path).toBe(`${ROOT}/index.ts`)
@@ -44,7 +44,7 @@ describe('getBarrelFiles', () => {
 
   it('generates named exports with barrelType named', () => {
     const files = [makeFile(`${ROOT}/pet.ts`, ['Pet', 'createPet'])]
-    const barrels = [...getBarrelFiles({ outputPath: ROOT, files, barrelType: 'named' })]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'named' })]
 
     expect(barrels).toHaveLength(1)
     expect(barrels[0]!.exports[0]?.name).toStrictEqual(expect.arrayContaining(['Pet', 'createPet']))
@@ -52,14 +52,14 @@ describe('getBarrelFiles', () => {
 
   it('generates hierarchical barrels when nested is true', () => {
     const files = [makeFile(`${ROOT}/pets/listPets.ts`), makeFile(`${ROOT}/users/getUser.ts`)]
-    const barrels = [...getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all', nested: true })]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'all', nested: true })]
 
     expect(barrels.map((b) => b.path)).toStrictEqual(expect.arrayContaining([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/users/index.ts`]))
   })
 
   it('emits named exports for leaf files when nested and barrelType named', () => {
     const files = [makeFile(`${ROOT}/pets/listPets.ts`, ['listPets']), makeFile(`${ROOT}/users/getUser.ts`, ['getUser'])]
-    const barrels = [...getBarrelFiles({ outputPath: ROOT, files, barrelType: 'named', nested: true })]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'named', nested: true })]
 
     const petsBarrel = barrels.find((b) => b.path === `${ROOT}/pets/index.ts`)!
     expect(petsBarrel.exports[0]?.name).toStrictEqual(['listPets'])
@@ -70,9 +70,19 @@ describe('getBarrelFiles', () => {
 
   it('generates per-subdirectory barrels when recursive is true', () => {
     const files = [makeFile(`${ROOT}/pets/listPets.ts`), makeFile(`${ROOT}/users/getUser.ts`)]
-    const barrels = [...getBarrelFiles({ outputPath: ROOT, files, barrelType: 'all', recursive: true })]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'all', recursive: true })]
 
     expect(barrels.map((b) => b.path)).toStrictEqual(expect.arrayContaining([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/users/index.ts`]))
+  })
+
+  it('derives a subtree barrel from a shared index via targetPath', () => {
+    const files = [makeFile(`${ROOT}/pets/listPets.ts`, ['listPets']), makeFile(`${ROOT}/users/getUser.ts`, ['getUser'])]
+    const index = buildBarrelIndex(ROOT, files)
+    const barrels = [...getBarrelFiles({ index, targetPath: `${ROOT}/pets`, barrelType: 'named' })]
+
+    expect(barrels).toHaveLength(1)
+    expect(barrels[0]!.path).toBe(`${ROOT}/pets/index.ts`)
+    expect(barrels[0]!.exports[0]?.name).toStrictEqual(['listPets'])
   })
 })
 
