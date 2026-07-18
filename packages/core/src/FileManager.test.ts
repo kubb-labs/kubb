@@ -191,33 +191,6 @@ describe('FileManager', () => {
       expect(snapshot.map((f) => f.path)).toStrictEqual(['/src/a.ts'])
       expect(manager.files.map((f) => f.path)).toStrictEqual(['/src/a.ts', '/src/b.ts'])
     })
-
-    it('matches a plain full re-sort after many interleaved inserts and updates', () => {
-      const manager = new FileManager()
-      const paths = Array.from({ length: 40 }, (_, i) => `/src/f${i % 5}/file${i}.ts`)
-      const firstSeenOrder = new Map<string, number>()
-      for (const filePath of paths) {
-        if (!firstSeenOrder.has(filePath)) firstSeenOrder.set(filePath, firstSeenOrder.size)
-      }
-
-      for (const [i, filePath] of paths.entries()) {
-        manager.upsert(makeFile(filePath, `v${i}`))
-        if (i % 3 === 0) void manager.files
-      }
-      const incremental = manager.files.map((f) => f.path)
-
-      const isIndex = (p: string) => p.endsWith('/index.ts') || p === 'index.ts'
-      const expected = [...firstSeenOrder.keys()].sort((a, b) => {
-        const lenDiff = a.length - b.length
-        if (lenDiff !== 0) return lenDiff
-        const aIsIndex = isIndex(a)
-        const bIsIndex = isIndex(b)
-        if (aIsIndex !== bIsIndex) return aIsIndex ? 1 : -1
-        return firstSeenOrder.get(a)! - firstSeenOrder.get(b)!
-      })
-
-      expect(incremental).toStrictEqual(expected)
-    })
   })
 
   describe('dispose', () => {

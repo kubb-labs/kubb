@@ -80,25 +80,20 @@ function compareFiles(a: FileNode, b: FileNode): number {
   return 0
 }
 
-// A path already in `sorted` keeps its slot (its sort key is its path, which never changes), so
-// only its value is replaced. A path seen for the first time is, by definition, the most
-// recently added among any ties it has, so binary-searching it into the tail of its tie group
-// reproduces the same order a full re-sort would have produced.
+// An existing path replaces its slot in place; a new path lands at the tail of its tie group,
+// where a stable full re-sort would put it.
 function insertSorted(sorted: Array<FileNode>, file: FileNode): void {
-  const index = sorted.findIndex((existing) => existing.path === file.path)
-  if (index !== -1) {
-    sorted[index] = file
-    return
+  for (let i = 0; i < sorted.length; i++) {
+    if (sorted[i]!.path === file.path) {
+      sorted[i] = file
+      return
+    }
+    if (compareFiles(sorted[i]!, file) > 0) {
+      sorted.splice(i, 0, file)
+      return
+    }
   }
-
-  let low = 0
-  let high = sorted.length
-  while (low < high) {
-    const mid = (low + high) >>> 1
-    if (compareFiles(sorted[mid]!, file) > 0) high = mid
-    else low = mid + 1
-  }
-  sorted.splice(low, 0, file)
+  sorted.push(file)
 }
 
 /**
@@ -118,12 +113,10 @@ function insertSorted(sorted: Array<FileNode>, file: FileNode): void {
 export class FileManager {
   readonly hooks = new Hookable<FileManagerHooks>()
   readonly #cache = new Map<string, FileNode>()
-  // Files added/upserted since `#sorted` was last computed, merged in on the next `files` read
-  // instead of forcing a full re-sort of every stored file.
+  // Files written since `#sorted` was last computed, merged in on the next `files` read.
   readonly #pending = new Map<string, FileNode>()
-  // Cached sorted view, null until first computed. Every recompute produces a new array (never
-  // mutated in place) so callers holding a prior reference keep their snapshot. `dispose()` must
-  // not silently empty an array the consumer already holds.
+  // Cached sorted view. Each recompute is a new array, never mutated in place, so a caller
+  // holding a prior reference keeps its snapshot.
   #sorted: Array<FileNode> | null = null
 
   add(...files: Array<FileNode>): Array<FileNode> {
