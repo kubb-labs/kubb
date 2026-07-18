@@ -528,7 +528,7 @@ describe('KubbDriver generator dispatch', () => {
     localHooks.removeAllHooks()
   })
 
-  it("skips a generator's schema and operation calls for a node its match resolves false for, and still calls them when true", async () => {
+  it("skips a generator's schema and operation calls for a node its match predicate resolves false for, and still calls them when true", async () => {
     rec = { schema: [], operation: [], operations: [] }
     hooks = new Hookable<KubbHooks>()
     const petOnly: Generator = {

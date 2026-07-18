@@ -154,10 +154,11 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    */
   renderer?: RendererFactory<TElement> | null
   /**
-   * Optional predicate checked before `schema` or `operation` runs for a node. Returning `false`
-   * skips the call for that node entirely, with no context work beyond what the driver already
-   * builds per node and no render call, instead of the generator itself being invoked and
-   * returning early. Omit it to run for every node, the default when unset.
+   * Predicate checked before `schema` or `operation` runs for a node, mirroring `Macro['match']`
+   * in `@kubb/ast`. Returning `false` skips the call for that node entirely, with no context work
+   * beyond what the driver already builds per node and no render call, instead of the generator
+   * itself being invoked and returning early. Omit it to run for every node, the default when
+   * unset.
    *
    * Does not gate `operations`, which already runs once per plugin on the full batch rather than
    * per node.

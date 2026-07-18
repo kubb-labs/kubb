@@ -506,7 +506,8 @@ export class KubbDriver {
 
             const ctx = { ...generatorContext, options }
             for (const generator of schemaGenerators) {
-              if (generator.match && !(await generator.match(transformedNode, ctx))) continue
+              const matches = generator.match ? await generator.match(transformedNode, ctx) : true
+              if (!matches) continue
               await this.dispatch({ result: await generator.schema!(transformedNode, ctx), renderer: generator.renderer })
             }
             await this.hooks.callHook('kubb:generate:schema', transformedNode, ctx)
@@ -531,7 +532,8 @@ export class KubbDriver {
             if (operationGenerators.length) {
               const ctx = { ...generatorContext, options: resolved.options }
               for (const generator of operationGenerators) {
-                if (generator.match && !(await generator.match(resolved.transformedNode, ctx))) continue
+                const matches = generator.match ? await generator.match(resolved.transformedNode, ctx) : true
+                if (!matches) continue
                 await this.dispatch({ result: await generator.operation!(resolved.transformedNode, ctx), renderer: generator.renderer })
               }
               await this.hooks.callHook('kubb:generate:operation', resolved.transformedNode, ctx)

@@ -32,11 +32,11 @@ describe('composeMacros', () => {
     expect(order).toEqual(['pre', 'plain', 'post'])
   })
 
-  it('skips a macro when its `when` gate returns false', () => {
+  it('skips a macro when its `match` predicate returns false', () => {
     const root = createSchema({ type: 'integer' })
     const macro = defineMacro({
       name: 'only-string',
-      when: (node) => 'type' in node && node.type === 'string',
+      match: (node) => 'type' in node && node.type === 'string',
       schema: (node) => ({ ...node, description: 'touched' }),
     })
 
