@@ -276,16 +276,7 @@ function indexRelevantFiles(files: ReadonlyArray<FileNode>, outputPath: string):
   return { sourceFiles, paths }
 }
 
-type GetBarrelFilesParams = {
-  /**
-   * Absolute directory the barrel(s) should be rooted at.
-   * Only files living under this path are considered.
-   */
-  outputPath: string
-  /**
-   * Pool of generated files to scan for indexable sources.
-   */
-  files: ReadonlyArray<FileNode>
+type BarrelWalkOptions = {
   /**
    * Export strategy used when emitting each barrel.
    * - `'all'` re-exports the whole module (`export * from './x'`)
@@ -304,6 +295,101 @@ type GetBarrelFilesParams = {
   recursive?: boolean
 }
 
+function* walkBarrelTree({
+  tree,
+  sourceFiles,
+  barrelType,
+  nested = false,
+  recursive = false,
+}: BarrelWalkOptions & { tree: BuildTree; sourceFiles: ReadonlyMap<string, FileNode> }): Generator<FileNode> {
+  const strategy = LEAF_STRATEGIES.get(barrelType)
+  if (!strategy) return
+
+  if (nested) {
+    yield* walkNested(tree, { sourceFiles, strategy })
+    return
+  }
+
+  yield* walkAllOrNamed(tree, { sourceFiles, strategy, recursive }, true)
+}
+
+/**
+ * A directory tree plus the source-file lookup it was built from, scoped to a single
+ * `outputPath`. Build once with {@link buildBarrelIndex} and derive every barrel (per-plugin
+ * and root) from it via {@link getBarrelFilesFromIndex}, instead of re-scanning the full file
+ * set once per barrel.
+ */
+export type BarrelIndex = {
+  tree: BuildTree
+  sourceFiles: ReadonlyMap<string, FileNode>
+}
+
+/**
+ * Indexes `files` once for the directory rooted at `outputPath`: filters to indexable source
+ * files under that path and builds their directory tree. Reuse the result across every barrel
+ * derived from the same `outputPath` rather than re-filtering and re-building per barrel.
+ */
+export function buildBarrelIndex(outputPath: string, files: ReadonlyArray<FileNode>): BarrelIndex {
+  const { sourceFiles, paths } = indexRelevantFiles(files, outputPath)
+  return { tree: buildTree(outputPath, paths), sourceFiles }
+}
+
+/**
+ * Locates the node for `targetPath` within a tree built by {@link buildBarrelIndex}, walking
+ * down through directory nodes only. Returns `undefined` when no file exists at or under
+ * `targetPath` (nothing to barrel there).
+ */
+function findBarrelNode(node: BuildTree, targetPath: string): BuildTree | undefined {
+  if (node.path === targetPath) return node
+  if (node.isFile) return undefined
+
+  const prefix = `${node.path}/`
+  if (!targetPath.startsWith(prefix)) return undefined
+
+  for (const child of node.children) {
+    if (child.isFile) continue
+    if (child.path === targetPath || targetPath.startsWith(`${child.path}/`)) {
+      return findBarrelNode(child, targetPath)
+    }
+  }
+
+  return undefined
+}
+
+/**
+ * Removes nodes under any excluded prefix from a tree built by {@link buildBarrelIndex}.
+ * Returns `tree` unchanged when nothing is pruned, so a no-op prune is a cheap identity check.
+ */
+export function pruneExcludedTree(tree: BuildTree, prefixes: ReadonlySet<string>): BuildTree {
+  if (prefixes.size === 0 || tree.children.length === 0) return tree
+
+  let changed = false
+  const children: Array<BuildTree> = []
+  for (const child of tree.children) {
+    if (isExcludedPath(child.isFile ? child.path : `${child.path}/`, prefixes)) {
+      changed = true
+      continue
+    }
+    const prunedChild = child.isFile ? child : pruneExcludedTree(child, prefixes)
+    if (prunedChild !== child) changed = true
+    children.push(prunedChild)
+  }
+
+  return changed ? { ...tree, children } : tree
+}
+
+type GetBarrelFilesParams = BarrelWalkOptions & {
+  /**
+   * Absolute directory the barrel(s) should be rooted at.
+   * Only files living under this path are considered.
+   */
+  outputPath: string
+  /**
+   * Pool of generated files to scan for indexable sources.
+   */
+  files: ReadonlyArray<FileNode>
+}
+
 /**
  * Yields barrel `FileNode`s for the directory rooted at `outputPath`.
  *
@@ -317,20 +403,49 @@ type GetBarrelFilesParams = {
  * ```
  */
 export function* getBarrelFiles({ outputPath, files, barrelType, nested = false, recursive = false }: GetBarrelFilesParams): Generator<FileNode> {
-  const { sourceFiles, paths } = indexRelevantFiles(files, outputPath)
-  if (paths.length === 0) return
+  const { tree, sourceFiles } = buildBarrelIndex(outputPath, files)
+  if (tree.children.length === 0) return
 
-  const tree = buildTree(outputPath, paths)
+  yield* walkBarrelTree({ tree, sourceFiles, barrelType, nested, recursive })
+}
 
-  const strategy = LEAF_STRATEGIES.get(barrelType)
-  if (!strategy) return
+type GetBarrelFilesFromIndexParams = BarrelWalkOptions & {
+  /**
+   * Index built once (via {@link buildBarrelIndex}) for the shared output root that
+   * `targetPath` lives under.
+   */
+  index: BarrelIndex
+  /**
+   * Absolute directory the barrel(s) should be rooted at, a subtree of `index.tree`.
+   */
+  targetPath: string
+}
 
-  if (nested) {
-    yield* walkNested(tree, { sourceFiles, strategy })
-    return
-  }
+/**
+ * Yields barrel `FileNode`s for `targetPath`, derived from an index already built by
+ * {@link buildBarrelIndex}. Locating the subtree is a bounded walk down from the index root, so
+ * deriving many barrels (one per plugin, plus the root) from one index avoids re-scanning the
+ * full file set for each one.
+ *
+ * @example
+ * ```ts
+ * const index = buildBarrelIndex(outputPath, files)
+ * for (const file of getBarrelFilesFromIndex({ index, targetPath: pluginTarget, barrelType })) {
+ *   upsertFile(file)
+ * }
+ * ```
+ */
+export function* getBarrelFilesFromIndex({
+  index,
+  targetPath,
+  barrelType,
+  nested = false,
+  recursive = false,
+}: GetBarrelFilesFromIndexParams): Generator<FileNode> {
+  const node = findBarrelNode(index.tree, toPosixPath(targetPath))
+  if (!node) return
 
-  yield* walkAllOrNamed(tree, { sourceFiles, strategy, recursive }, true)
+  yield* walkBarrelTree({ tree: node, sourceFiles: index.sourceFiles, barrelType, nested, recursive })
 }
 
 /**

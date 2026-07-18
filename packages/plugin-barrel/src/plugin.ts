@@ -2,8 +2,8 @@ import path from 'node:path'
 import type { FileNode } from '@kubb/ast'
 import { definePlugin } from '@kubb/core'
 import type { Config, NormalizedPlugin, Plugin } from '@kubb/core'
-import type { BarrelConfig, PluginBarrelConfig } from './types.ts'
-import { getBarrelFiles, getPluginOutputPrefix, isExcludedPath } from './utils.ts'
+import type { BarrelConfig, BarrelType, PluginBarrelConfig } from './types.ts'
+import { buildBarrelIndex, getBarrelFilesFromIndex, getPluginOutputPrefix, pruneExcludedTree } from './utils.ts'
 
 /**
  * Applies a plugin's configured `output.banner`/`footer` to a barrel file, flagged as `isBarrel`.
@@ -67,6 +67,13 @@ declare global {
  */
 export const pluginBarrelName = 'plugin-barrel' satisfies Plugin['name']
 
+type PendingBarrel = {
+  plugin: NormalizedPlugin
+  target: string
+  barrelType: BarrelType
+  nested: boolean
+}
+
 /**
  * Generates an `index.ts` for every plugin output directory and one root
  * barrel at `config.output.path/index.ts` after the build completes. Ships
@@ -102,12 +109,13 @@ export const pluginBarrelName = 'plugin-barrel' satisfies Plugin['name']
  */
 export const pluginBarrel = definePlugin(() => {
   const excludedPrefixes = new Set<string>()
+  const pendingBarrels: Array<PendingBarrel> = []
 
   return {
     name: pluginBarrelName,
     enforce: 'post' as const,
     hooks: {
-      'kubb:plugin:end'({ plugin, config, files, upsertFile }) {
+      'kubb:plugin:end'({ plugin, config }) {
         // Skip reactions to the barrel plugin's own lifecycle hook
         if (plugin.name === pluginBarrelName) return
 
@@ -132,30 +140,43 @@ export const pluginBarrel = definePlugin(() => {
           return
         }
 
-        const barrelType = barrelConfig.type
-        const nested = barrelConfig.nested ?? false
-
         const base = path.resolve(config.root, config.output.path)
         const target = path.resolve(base, plugin.options.output.path)
         const relative = path.relative(base, target)
         if (relative.startsWith('..') || path.isAbsolute(relative)) {
           throw new Error('Invalid output path')
         }
-        for (const file of getBarrelFiles({ outputPath: target, files, barrelType, nested, recursive: true })) {
-          upsertFile(withBarrelBannerFooter({ file, plugin, config }))
-        }
+
+        // Only the target directory and barrel strategy are recorded here. The actual file-set
+        // scan and directory-tree build happen once, in `kubb:plugins:end`, and are shared by
+        // every plugin barrel plus the root barrel instead of repeating per plugin.
+        pendingBarrels.push({ plugin, target, barrelType: barrelConfig.type, nested: barrelConfig.nested ?? false })
       },
       'kubb:plugins:end'({ files, config, upsertFile }) {
-        const barrelConfig = config.output.barrel ?? false
+        const rootBarrelConfig = config.output.barrel ?? false
+        const outputPath = path.resolve(config.root, config.output.path)
+        const index = buildBarrelIndex(outputPath, files)
 
-        const filteredFiles = excludedPrefixes.size === 0 ? files : files.filter((f) => !isExcludedPath(f.path, excludedPrefixes))
+        for (const { plugin, target, barrelType, nested } of pendingBarrels) {
+          for (const file of getBarrelFilesFromIndex({ index, targetPath: target, barrelType, nested, recursive: true })) {
+            upsertFile(withBarrelBannerFooter({ file, plugin, config }))
+          }
+        }
+        pendingBarrels.length = 0
+
+        if (rootBarrelConfig === false) {
+          excludedPrefixes.clear()
+          return
+        }
+
+        const rootTree = pruneExcludedTree(index.tree, excludedPrefixes)
         excludedPrefixes.clear()
 
-        if (barrelConfig === false) return
-
-        const barrelType = barrelConfig.type
-
-        for (const file of getBarrelFiles({ outputPath: path.resolve(config.root, config.output.path), files: filteredFiles, barrelType })) {
+        for (const file of getBarrelFilesFromIndex({
+          index: { tree: rootTree, sourceFiles: index.sourceFiles },
+          targetPath: outputPath,
+          barrelType: rootBarrelConfig.type,
+        })) {
           upsertFile(file)
         }
       },
