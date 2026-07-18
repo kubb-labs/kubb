@@ -1,4 +1,4 @@
-import { ast, findCircularSchemas, narrowSchema } from '@kubb/ast'
+import { ast, findCircularSchemasFromGraph, narrowSchema } from '@kubb/ast'
 import { createAdapter } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
@@ -12,7 +12,7 @@ import { getOperations } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
 import { createRefs } from './refs.ts'
-import { reportSchemaDiagnostics } from './schemaDiagnostics.ts'
+import { scanSchema } from './schemaDiagnostics.ts'
 import type { AdapterOas, Document, SchemaObject } from './types.ts'
 
 /**
@@ -97,11 +97,15 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     const refAliasMap = new Map<string, ast.SchemaNode>()
     const enumNames: Array<string> = []
     const discriminatorParentNodes: Array<ast.SchemaNode> = []
+    // Built from the same walk that reports diagnostics: each schema maps to the names it references,
+    // so circular detection reads this graph instead of sweeping the nodes again.
+    const refGraph = new Map<string, Set<string>>()
 
     for (const [name, schema] of Object.entries(schemas)) {
       const node = parseSchema({ schema, name }, parserOptions)
       parsedByName.set(name, node)
-      reportSchemaDiagnostics({ node, name })
+      const refs = scanSchema({ node, name })
+      if (node.name) refGraph.set(node.name, refs)
       if (node.type === 'ref' && node.name && node.name !== name) {
         refAliasMap.set(name, node)
       }
@@ -113,7 +117,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       }
     }
 
-    const circularNames = [...findCircularSchemas([...parsedByName.values()])]
+    const circularNames = [...findCircularSchemasFromGraph(refGraph)]
     const discriminatorChildMap: Map<string, DiscriminatorTarget> | null =
       discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 

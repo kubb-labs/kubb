@@ -5,7 +5,13 @@ import { createParameter } from '../nodes/parameter.ts'
 import { createProperty } from '../nodes/property.ts'
 import { createResponse } from '../nodes/response.ts'
 import { createSchema } from '../nodes/schema.ts'
-import { collectImportedRefNames, collectReferencedSchemaNames, collectUsedSchemaNames, findCircularSchemas } from './schemaGraph.ts'
+import {
+  collectImportedRefNames,
+  collectReferencedSchemaNames,
+  collectUsedSchemaNames,
+  findCircularSchemas,
+  findCircularSchemasFromGraph,
+} from './schemaGraph.ts'
 
 describe('findCircularSchemas', () => {
   it('returns empty set for acyclic schemas', () => {
@@ -94,6 +100,52 @@ describe('findCircularSchemas', () => {
   it('skips unnamed schemas', () => {
     const anon = createSchema({ type: 'object' })
     expect(findCircularSchemas([anon])).toStrictEqual(new Set())
+  })
+})
+
+describe('findCircularSchemasFromGraph', () => {
+  it('returns an empty set for an acyclic graph', () => {
+    const graph = new Map([
+      ['Pet', new Set(['Category'])],
+      ['Category', new Set<string>()],
+    ])
+
+    expect(findCircularSchemasFromGraph(graph)).toStrictEqual(new Set())
+  })
+
+  it('detects a direct self-loop', () => {
+    const graph = new Map([['TreeNode', new Set(['TreeNode'])]])
+
+    expect(findCircularSchemasFromGraph(graph)).toStrictEqual(new Set(['TreeNode']))
+  })
+
+  it('detects an indirect cycle and leaves non-participants out', () => {
+    const graph = new Map([
+      ['Pet', new Set(['Cat'])],
+      ['Cat', new Set(['Pet'])],
+      ['Owner', new Set(['Pet'])],
+    ])
+    const result = findCircularSchemasFromGraph(graph)
+
+    expect(result).toStrictEqual(new Set(['Pet', 'Cat']))
+    expect(result.has('Owner')).toBe(false)
+  })
+
+  it('matches findCircularSchemas when fed a graph collected from the same schemas', () => {
+    const A = createSchema({
+      type: 'object',
+      name: 'A',
+      properties: [createProperty({ name: 'self', required: false, schema: createSchema({ type: 'ref', name: 'A', ref: '#/components/schemas/A' }) })],
+    })
+    const B = createSchema({
+      type: 'object',
+      name: 'B',
+      properties: [createProperty({ name: 'a', required: false, schema: createSchema({ type: 'ref', name: 'A', ref: '#/components/schemas/A' }) })],
+    })
+
+    const graph = new Map([A, B].map((schema) => [schema.name!, collectReferencedSchemaNames(schema)] as const))
+
+    expect(findCircularSchemasFromGraph(graph)).toStrictEqual(findCircularSchemas([A, B]))
   })
 })
 

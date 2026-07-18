@@ -132,14 +132,24 @@ export function collectUsedSchemaNames(operations: ReadonlyArray<OperationNode>,
 
 const EMPTY_CIRCULAR_SET = new Set<string>()
 
-const findCircularSchemasMemo = memoize(new WeakMap<ReadonlyArray<SchemaNode>, Set<string>>(), (schemas: ReadonlyArray<SchemaNode>): Set<string> => {
-  const graph = new Map<string, Set<string>>()
-
-  for (const schema of schemas) {
-    if (!schema.name) continue
-    graph.set(schema.name, collectReferencedSchemaNames(schema))
-  }
-
+/**
+ * Finds every schema that takes part in a circular dependency chain in a schema dependency graph
+ * that maps each schema name to the names it references directly.
+ *
+ * Use this when the graph was already collected during another pass (e.g. the adapter's convert
+ * walk), so the schema nodes are not swept a second time. `findCircularSchemas` builds the graph
+ * from schema nodes and delegates here.
+ *
+ * @example
+ * ```ts
+ * const graph = new Map([
+ *   ['Pet', new Set(['Category'])],
+ *   ['Category', new Set(['Pet'])],
+ * ])
+ * findCircularSchemasFromGraph(graph) // Set { 'Pet', 'Category' }
+ * ```
+ */
+export function findCircularSchemasFromGraph(graph: ReadonlyMap<string, ReadonlySet<string>>): Set<string> {
   const circular = new Set<string>()
   for (const start of graph.keys()) {
     const visited = new Set<string>()
@@ -159,6 +169,17 @@ const findCircularSchemasMemo = memoize(new WeakMap<ReadonlyArray<SchemaNode>, S
   }
 
   return circular
+}
+
+const findCircularSchemasMemo = memoize(new WeakMap<ReadonlyArray<SchemaNode>, Set<string>>(), (schemas: ReadonlyArray<SchemaNode>): Set<string> => {
+  const graph = new Map<string, Set<string>>()
+
+  for (const schema of schemas) {
+    if (!schema.name) continue
+    graph.set(schema.name, collectReferencedSchemaNames(schema))
+  }
+
+  return findCircularSchemasFromGraph(graph)
 })
 
 /**
