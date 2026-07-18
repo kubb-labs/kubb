@@ -1,0 +1,10 @@
+{
+  "name": "bench-heyapi",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@hey-api/openapi-ts": "0.99.0",
+    "typescript": "^5.9.0",
+    "zod": "^3"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "benchmark-v5",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "dependencies": {
+    "@kubb/core": "5.0.0-beta.104",
+    "@kubb/adapter-oas": "5.0.0-beta.104",
+    "@kubb/plugin-ts": "5.0.0-beta.103",
+    "@kubb/plugin-axios": "5.0.0-beta.103",
+    "@kubb/plugin-zod": "5.0.0-beta.103",
+    "@kubb/plugin-faker": "5.0.0-beta.103"
+  }
+}

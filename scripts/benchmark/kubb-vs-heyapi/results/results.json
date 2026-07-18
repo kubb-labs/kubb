@@ -1,0 +1,251 @@
+{
+  "generatedAt": "2026-07-18T16:57:05.583Z",
+  "node": "v22.22.2",
+  "platform": "linux",
+  "arch": "x64",
+  "iterationsPerCombo": 3,
+  "totalWallTimeMs": 32227.194029000002,
+  "tools": {
+    "kubb": "5.0.0-beta.104 (core) / beta.103 (plugins), plugin-ts + plugin-axios + plugin-zod",
+    "hey-api": "@hey-api/openapi-ts@0.99.0, @hey-api/typescript + @hey-api/client-axios + @hey-api/sdk + zod"
+  },
+  "fixtures": [
+    "twitter.json",
+    "openai.yaml"
+  ],
+  "excludedFixtures": {
+    "petStore.yaml": "hey-api crashes on this fixture's `tag.Tag` component name (dotted schema key)"
+  },
+  "summary": [
+    {
+      "tool": "kubb",
+      "fixture": "twitter.json",
+      "iterations": 3,
+      "successfulRuns": 3,
+      "filesGenerated": 715,
+      "outputBytes": 736079,
+      "medianDurationMs": 1079.892676,
+      "medianDeltaRssMb": 62.83984375,
+      "medianPeakRssMb": 203.1328125,
+      "errors": []
+    },
+    {
+      "tool": "hey-api",
+      "fixture": "twitter.json",
+      "iterations": 3,
+      "successfulRuns": 3,
+      "filesGenerated": 17,
+      "outputBytes": 485598,
+      "medianDurationMs": 682.90863,
+      "medianDeltaRssMb": 73.16796875,
+      "medianPeakRssMb": 210.18359375,
+      "errors": []
+    },
+    {
+      "tool": "kubb",
+      "fixture": "openai.yaml",
+      "iterations": 3,
+      "successfulRuns": 3,
+      "filesGenerated": 3590,
+      "outputBytes": 2651007,
+      "medianDurationMs": 4006.640006,
+      "medianDeltaRssMb": 145.82421875,
+      "medianPeakRssMb": 289.2890625,
+      "errors": []
+    },
+    {
+      "tool": "hey-api",
+      "fixture": "openai.yaml",
+      "iterations": 3,
+      "successfulRuns": 3,
+      "filesGenerated": 17,
+      "outputBytes": 2082312,
+      "medianDurationMs": 2391.9363989999997,
+      "medianDeltaRssMb": 196.59375,
+      "medianPeakRssMb": 338.8515625,
+      "errors": []
+    }
+  ],
+  "rawRuns": [
+    {
+      "iteration": 1,
+      "tool": "kubb",
+      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
+      "fixture": "twitter.json",
+      "durationMs": 1030.205945,
+      "filesGenerated": 715,
+      "outputBytes": 736079,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 62.75,
+        "peakRssMb": 203.1328125
+      }
+    },
+    {
+      "iteration": 2,
+      "tool": "kubb",
+      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
+      "fixture": "twitter.json",
+      "durationMs": 1262.90238,
+      "filesGenerated": 715,
+      "outputBytes": 736079,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 65.28125,
+        "peakRssMb": 203.59375
+      }
+    },
+    {
+      "iteration": 3,
+      "tool": "kubb",
+      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
+      "fixture": "twitter.json",
+      "durationMs": 1079.892676,
+      "filesGenerated": 715,
+      "outputBytes": 736079,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 62.83984375,
+        "peakRssMb": 202.73046875
+      }
+    },
+    {
+      "iteration": 1,
+      "tool": "hey-api",
+      "version": "@hey-api/openapi-ts@0.99.0",
+      "fixture": "twitter.json",
+      "durationMs": 682.90863,
+      "filesGenerated": 17,
+      "outputBytes": 485598,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 74.828125,
+        "peakRssMb": 208.1796875
+      }
+    },
+    {
+      "iteration": 2,
+      "tool": "hey-api",
+      "version": "@hey-api/openapi-ts@0.99.0",
+      "fixture": "twitter.json",
+      "durationMs": 732.9902259999999,
+      "filesGenerated": 17,
+      "outputBytes": 485598,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 73.16796875,
+        "peakRssMb": 210.18359375
+      }
+    },
+    {
+      "iteration": 3,
+      "tool": "hey-api",
+      "version": "@hey-api/openapi-ts@0.99.0",
+      "fixture": "twitter.json",
+      "durationMs": 647.7118539999999,
+      "filesGenerated": 17,
+      "outputBytes": 485598,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 72.80859375,
+        "peakRssMb": 210.46875
+      }
+    },
+    {
+      "iteration": 1,
+      "tool": "kubb",
+      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
+      "fixture": "openai.yaml",
+      "durationMs": 3674.5315140000002,
+      "filesGenerated": 3590,
+      "outputBytes": 2651007,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 146.97265625,
+        "peakRssMb": 289.33203125
+      }
+    },
+    {
+      "iteration": 2,
+      "tool": "kubb",
+      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
+      "fixture": "openai.yaml",
+      "durationMs": 4006.640006,
+      "filesGenerated": 3590,
+      "outputBytes": 2651007,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 145.36328125,
+        "peakRssMb": 288.609375
+      }
+    },
+    {
+      "iteration": 3,
+      "tool": "kubb",
+      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
+      "fixture": "openai.yaml",
+      "durationMs": 4294.931182,
+      "filesGenerated": 3590,
+      "outputBytes": 2651007,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 145.82421875,
+        "peakRssMb": 289.2890625
+      }
+    },
+    {
+      "iteration": 1,
+      "tool": "hey-api",
+      "version": "@hey-api/openapi-ts@0.99.0",
+      "fixture": "openai.yaml",
+      "durationMs": 2423.532558,
+      "filesGenerated": 17,
+      "outputBytes": 2082312,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 194.734375,
+        "peakRssMb": 338.8515625
+      }
+    },
+    {
+      "iteration": 2,
+      "tool": "hey-api",
+      "version": "@hey-api/openapi-ts@0.99.0",
+      "fixture": "openai.yaml",
+      "durationMs": 2391.9363989999997,
+      "filesGenerated": 17,
+      "outputBytes": 2082312,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 196.59375,
+        "peakRssMb": 341.6796875
+      }
+    },
+    {
+      "iteration": 3,
+      "tool": "hey-api",
+      "version": "@hey-api/openapi-ts@0.99.0",
+      "fixture": "openai.yaml",
+      "durationMs": 2268.30239,
+      "filesGenerated": 17,
+      "outputBytes": 2082312,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 198.27734375,
+        "peakRssMb": 336.32421875
+      }
+    }
+  ]
+}
