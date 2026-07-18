@@ -69,3 +69,18 @@ generated file count and total byte size.
   no single config that emits both an axios client and standalone Zod schemas (`client: 'zod'` is
   its own generation mode, distinct from `client: 'axios'`). This mirrors how a real project
   configures orval (two named workspaces in `orval.config.ts`).
+
+## Kubb v5: file mode vs directory mode
+
+`kubb-v5/run-one-directory.mjs` is a standalone variant of `kubb-v5/run-one.mjs`: same fixtures,
+same plugins (`plugin-ts` + `plugin-axios` + `plugin-zod`), but `mode: 'directory'` on every
+plugin's output instead of kubb's file-mode default. It exists to isolate the output-mode variable
+from the `../v4-vs-v5` harness, which benchmarks directory mode plus `plugin-faker` and reports a
+larger v4-vs-v5 speedup than this harness's file-mode, no-Faker numbers. Run it the same way:
+
+```bash
+node --expose-gc kubb-v5/run-one-directory.mjs small.yaml
+```
+
+It writes to `kubb-v5/.out-directory/` (gitignored) and prints the same JSON shape as the other
+runners, with `tool: 'kubb-v5-directory'`.
