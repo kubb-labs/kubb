@@ -70,17 +70,24 @@ generated file count and total byte size.
   its own generation mode, distinct from `client: 'axios'`). This mirrors how a real project
   configures orval (two named workspaces in `orval.config.ts`).
 
-## Kubb v5: file mode vs directory mode
+## Kubb v4 vs v5: file mode vs directory mode
 
-`kubb-v5/run-one-directory.mjs` is a standalone variant of `kubb-v5/run-one.mjs`: same fixtures,
-same plugins (`plugin-ts` + `plugin-axios` + `plugin-zod`), but `mode: 'directory'` on every
-plugin's output instead of kubb's file-mode default. It exists to isolate the output-mode variable
-from the `../v4-vs-v5` harness, which benchmarks directory mode plus `plugin-faker` and reports a
-larger v4-vs-v5 speedup than this harness's file-mode, no-Faker numbers. Run it the same way:
+`kubb-v4/run-one-directory.mjs` and `kubb-v5/run-one-directory.mjs` are standalone variants of the
+main runners: same fixtures, same plugins (`plugin-ts` + an axios client plugin + `plugin-zod`),
+but `mode: 'directory'` on every plugin's output (one file per schema/operation) instead of file
+mode. They exist to isolate the output-mode variable from the `../v4-vs-v5` harness, which
+benchmarks directory mode plus `plugin-faker` and reports a larger v4-vs-v5 speedup than this
+harness's file-mode, no-Faker numbers.
+
+Median-of-3 results on this machine (see `../v4-vs-v5`'s README for machine specs): directory mode
+alone takes the v4-vs-v5 speedup from ~1.8x-2.8x (file mode, roughly flat across sizes) to
+2.4x/3.3x/4.9x on small/medium/big (directory mode, growing with size), which is most of the gap to
+the migration guide's directory-mode-plus-Faker number of ~5.3x on the big spec.
 
 ```bash
+node --expose-gc kubb-v4/run-one-directory.mjs small.yaml
 node --expose-gc kubb-v5/run-one-directory.mjs small.yaml
 ```
 
-It writes to `kubb-v5/.out-directory/` (gitignored) and prints the same JSON shape as the other
-runners, with `tool: 'kubb-v5-directory'`.
+Each writes to its own `.out-directory/` (gitignored) and prints the same JSON shape as the other
+runners, with `tool: 'kubb-v4-directory'` / `'kubb-v5-directory'`.
