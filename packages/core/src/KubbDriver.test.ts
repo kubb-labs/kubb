@@ -527,4 +527,88 @@ describe('KubbDriver generator dispatch', () => {
     expect((normalized as Record<string, unknown>).enumType).toBe('asConst')
     localHooks.removeAllHooks()
   })
+
+  it("skips a generator's schema and operation calls for a node its match resolves false for, and still calls them when true", async () => {
+    rec = { schema: [], operation: [], operations: [] }
+    hooks = new Hookable<KubbHooks>()
+    const petOnly: Generator = {
+      ...recordingGenerator('petOnly', rec),
+      match: (node) => ('operationId' in node ? node.operationId === 'getPet' : node.name === 'Pet'),
+    }
+    const plugin = {
+      name: 'petOnlyPlugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx: KubbPluginSetupContext) {
+          ctx.addGenerator(petOnly)
+        },
+      },
+    } as unknown as Plugin
+    const config = {
+      root: '.',
+      input: { path: './petStore.yaml' },
+      output: { path: './gen' },
+      parsers: [],
+      reporters: [],
+      adapter: inputAdapter(),
+      plugins: [plugin],
+      storage: memoryStorage(),
+    } satisfies Config
+    const matchDriver = new KubbDriver(config, { hooks })
+    await matchDriver.setup()
+    await matchDriver.run()
+
+    expect(rec.schema).toStrictEqual([{ plugin: 'petOnlyPlugin', name: 'Pet' }])
+    expect(rec.operation).toStrictEqual([{ plugin: 'petOnlyPlugin', id: 'getPet' }])
+    hooks.removeAllHooks()
+  })
+
+  it('filters per generator, not per plugin, when a matched and an unmatched generator share a plugin', async () => {
+    rec = { schema: [], operation: [], operations: [] }
+    hooks = new Hookable<KubbHooks>()
+    // Operation-only generators (no `schema`/`operations`) so the emitted file set below only
+    // reflects the operation loop's match filtering, with no schema/batch noise to account for.
+    const matched: Generator = {
+      name: 'matched-gen',
+      match: (node) => ('operationId' in node ? node.operationId === 'getPet' : true),
+      operation(node: OperationNode, ctx: GeneratorContext) {
+        rec.operation.push({ plugin: ctx.plugin.name, id: node.operationId })
+        return [fileNode(`matched/op-${node.operationId}.ts`)]
+      },
+    }
+    const unmatched: Generator = {
+      name: 'unmatched-gen',
+      operation(node: OperationNode, ctx: GeneratorContext) {
+        rec.operation.push({ plugin: ctx.plugin.name, id: node.operationId })
+        return [fileNode(`unmatched/op-${node.operationId}.ts`)]
+      },
+    }
+    const plugin = {
+      name: 'mixedPlugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx: KubbPluginSetupContext) {
+          ctx.addGenerator(matched, unmatched)
+        },
+      },
+    } as unknown as Plugin
+    const config = {
+      root: '.',
+      input: { path: './petStore.yaml' },
+      output: { path: './gen' },
+      parsers: [],
+      reporters: [],
+      adapter: inputAdapter(),
+      plugins: [plugin],
+      storage: memoryStorage(),
+    } satisfies Config
+    const mixedDriver = new KubbDriver(config, { hooks })
+    await mixedDriver.setup()
+    await mixedDriver.run()
+
+    expect(mixedDriver.fileManager.files.map((file) => file.path).sort()).toStrictEqual([
+      'matched/op-getPet.ts',
+      'unmatched/op-getPet.ts',
+      'unmatched/op-listPets.ts',
+    ])
+    hooks.removeAllHooks()
+  })
 })

@@ -146,10 +146,9 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
   if (!generator.schema) return
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.macros?.length ? applyMacros(node, opts.plugin.macros) : node
-  const result = await generator.schema(transformedNode, {
-    ...context,
-    options: opts.options,
-  })
+  const ctx = { ...context, options: opts.options }
+  if (generator.match && !(await generator.match(transformedNode, ctx))) return
+  const result = await generator.schema(transformedNode, ctx)
   await opts.driver.dispatch({ result, renderer: generator.renderer })
 }
 
@@ -170,10 +169,9 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
   if (!generator.operation) return
   const context = createMockedPluginContext(opts)
   const transformedNode = opts.plugin.macros?.length ? applyMacros(node, opts.plugin.macros) : node
-  const result = await generator.operation(transformedNode, {
-    ...context,
-    options: opts.options,
-  })
+  const ctx = { ...context, options: opts.options }
+  if (generator.match && !(await generator.match(transformedNode, ctx))) return
+  const result = await generator.operation(transformedNode, ctx)
   await opts.driver.dispatch({ result, renderer: generator.renderer })
 }
 

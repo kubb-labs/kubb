@@ -409,7 +409,8 @@ export class KubbDriver {
    * Runs schemas and operations through every plugin's generators. Each node is run
    * through the plugin's macros (from `this.#transforms`) before the generator sees it,
    * so plugins stay isolated and the hot path stays per-node. Schemas run before operations
-   * so file output stays deterministic across runs.
+   * so file output stays deterministic across runs. A generator with a `match` predicate that
+   * resolves `false` for a node is skipped for that node, without calling `schema`/`operation`.
    * A failing plugin contributes an error diagnostic so the rest of the build continues.
    * Every plugin also contributes a `timing` diagnostic.
    *
@@ -505,6 +506,7 @@ export class KubbDriver {
 
             const ctx = { ...generatorContext, options }
             for (const generator of schemaGenerators) {
+              if (generator.match && !(await generator.match(transformedNode, ctx))) continue
               await this.dispatch({ result: await generator.schema!(transformedNode, ctx), renderer: generator.renderer })
             }
             await this.hooks.callHook('kubb:generate:schema', transformedNode, ctx)
@@ -529,6 +531,7 @@ export class KubbDriver {
             if (operationGenerators.length) {
               const ctx = { ...generatorContext, options: resolved.options }
               for (const generator of operationGenerators) {
+                if (generator.match && !(await generator.match(resolved.transformedNode, ctx))) continue
                 await this.dispatch({ result: await generator.operation!(resolved.transformedNode, ctx), renderer: generator.renderer })
               }
               await this.hooks.callHook('kubb:generate:operation', resolved.transformedNode, ctx)
