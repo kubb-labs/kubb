@@ -1,6 +1,6 @@
 {
   "name": "kubb",
-  "version": "5.0.0-beta.103",
+  "version": "5.0.0-beta.104",
   "description": "The meta framework for code generation. Point Kubb at a schema and it generates types, clients, hooks, validators, mocks, and more.",
   "keywords": [
     "api-client",
