@@ -1,250 +1,790 @@
 {
-  "generatedAt": "2026-07-18T16:57:05.583Z",
-  "node": "v22.22.2",
-  "platform": "linux",
-  "arch": "x64",
+  "generatedAt": "2026-07-18T17:15:50.344Z",
+  "machine": {
+    "os": "Linux 6.18.5",
+    "platform": "linux",
+    "arch": "x64",
+    "cpuModel": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "cpuCores": 4,
+    "totalMemoryGb": 15.7,
+    "nodeVersion": "v22.22.2"
+  },
   "iterationsPerCombo": 3,
-  "totalWallTimeMs": 32227.194029000002,
+  "totalWallTimeMs": 198321.41426700001,
   "tools": {
-    "kubb": "5.0.0-beta.104 (core) / beta.103 (plugins), plugin-ts + plugin-axios + plugin-zod",
-    "hey-api": "@hey-api/openapi-ts@0.99.0, @hey-api/typescript + @hey-api/client-axios + @hey-api/sdk + zod"
+    "kubb-v4": "@kubb/core@4.39.2, plugin-oas + plugin-ts + plugin-client(axios) + plugin-zod, file mode (default)",
+    "kubb-v5": "@kubb/core@5.0.0-beta.104 (plugins beta.103), adapter-oas + plugin-ts + plugin-axios + plugin-zod, file mode (default)",
+    "hey-api": "@hey-api/openapi-ts@0.99.0, @hey-api/typescript + @hey-api/client-axios + @hey-api/sdk + zod",
+    "orval": "orval@8.22.0, two generate() calls into one output tree: client:\"axios\" (types+client) and client:\"zod\" (schemas)"
   },
   "fixtures": [
-    "twitter.json",
-    "openai.yaml"
+    {
+      "key": "small",
+      "file": "small.yaml",
+      "label": "small.yaml",
+      "operations": 19
+    },
+    {
+      "key": "medium",
+      "file": "twitter.json",
+      "label": "twitter.json",
+      "operations": 80
+    },
+    {
+      "key": "big",
+      "file": "openai.yaml",
+      "label": "openai.yaml",
+      "operations": 281
+    }
   ],
   "excludedFixtures": {
-    "petStore.yaml": "hey-api crashes on this fixture's `tag.Tag` component name (dotted schema key)"
+    "petStore.yaml": "hey-api crashes on this fixture's `tag.Tag` component name (dotted schema key); small.yaml (public Swagger Petstore) stands in as the small fixture instead"
   },
   "summary": [
     {
-      "tool": "kubb",
-      "fixture": "twitter.json",
+      "tool": "kubb-v4",
+      "fixtureKey": "small",
+      "fixture": "small.yaml",
+      "operations": 19,
       "iterations": 3,
       "successfulRuns": 3,
-      "filesGenerated": 715,
-      "outputBytes": 736079,
-      "medianDurationMs": 1079.892676,
-      "medianDeltaRssMb": 62.83984375,
-      "medianPeakRssMb": 203.1328125,
+      "filesGenerated": 12,
+      "outputBytes": 53598,
+      "medianDurationMs": 549.380247,
+      "medianDeltaRssMb": 14.625,
+      "medianPeakRssMb": 202.15234375,
+      "errors": []
+    },
+    {
+      "tool": "kubb-v5",
+      "fixtureKey": "small",
+      "fixture": "small.yaml",
+      "operations": 19,
+      "iterations": 3,
+      "successfulRuns": 3,
+      "filesGenerated": 6,
+      "outputBytes": 87827,
+      "medianDurationMs": 300.8304519999999,
+      "medianDeltaRssMb": 24.5,
+      "medianPeakRssMb": 163.94921875,
       "errors": []
     },
     {
       "tool": "hey-api",
+      "fixtureKey": "small",
+      "fixture": "small.yaml",
+      "operations": 19,
+      "iterations": 3,
+      "successfulRuns": 3,
+      "filesGenerated": 17,
+      "outputBytes": 79481,
+      "medianDurationMs": 214.54815900000006,
+      "medianDeltaRssMb": 27.65234375,
+      "medianPeakRssMb": 163.49609375,
+      "errors": []
+    },
+    {
+      "tool": "orval",
+      "fixtureKey": "small",
+      "fixture": "small.yaml",
+      "operations": 19,
+      "iterations": 3,
+      "successfulRuns": 3,
+      "filesGenerated": 20,
+      "outputBytes": 39634,
+      "medianDurationMs": 328.432241,
+      "medianDeltaRssMb": 30.453125,
+      "medianPeakRssMb": 126.2890625,
+      "errors": []
+    },
+    {
+      "tool": "kubb-v4",
+      "fixtureKey": "medium",
       "fixture": "twitter.json",
+      "operations": 80,
+      "iterations": 3,
+      "successfulRuns": 3,
+      "filesGenerated": 241,
+      "outputBytes": 7552604,
+      "medianDurationMs": 3324.4089870000003,
+      "medianDeltaRssMb": 147.85546875,
+      "medianPeakRssMb": 361.24609375,
+      "errors": []
+    },
+    {
+      "tool": "kubb-v5",
+      "fixtureKey": "medium",
+      "fixture": "twitter.json",
+      "operations": 80,
+      "iterations": 3,
+      "successfulRuns": 3,
+      "filesGenerated": 6,
+      "outputBytes": 737812,
+      "medianDurationMs": 1200.693767,
+      "medianDeltaRssMb": 61.72265625,
+      "medianPeakRssMb": 204.01171875,
+      "errors": []
+    },
+    {
+      "tool": "hey-api",
+      "fixtureKey": "medium",
+      "fixture": "twitter.json",
+      "operations": 80,
       "iterations": 3,
       "successfulRuns": 3,
       "filesGenerated": 17,
       "outputBytes": 485598,
-      "medianDurationMs": 682.90863,
-      "medianDeltaRssMb": 73.16796875,
-      "medianPeakRssMb": 210.18359375,
+      "medianDurationMs": 724.1376480000001,
+      "medianDeltaRssMb": 73.02734375,
+      "medianPeakRssMb": 209.69140625,
       "errors": []
     },
     {
-      "tool": "kubb",
-      "fixture": "openai.yaml",
+      "tool": "orval",
+      "fixtureKey": "medium",
+      "fixture": "twitter.json",
+      "operations": 80,
       "iterations": 3,
       "successfulRuns": 3,
-      "filesGenerated": 3590,
-      "outputBytes": 2651007,
-      "medianDurationMs": 4006.640006,
-      "medianDeltaRssMb": 145.82421875,
-      "medianPeakRssMb": 289.2890625,
+      "filesGenerated": 474,
+      "outputBytes": 3059004,
+      "medianDurationMs": 1134.409955,
+      "medianDeltaRssMb": 76.23828125,
+      "medianPeakRssMb": 174.875,
+      "errors": []
+    },
+    {
+      "tool": "kubb-v4",
+      "fixtureKey": "big",
+      "fixture": "openai.yaml",
+      "operations": 281,
+      "iterations": 3,
+      "successfulRuns": 3,
+      "filesGenerated": 1379,
+      "outputBytes": 33203111,
+      "medianDurationMs": 27004.866192999998,
+      "medianDeltaRssMb": 787.1640625,
+      "medianPeakRssMb": 1281.6484375,
+      "errors": []
+    },
+    {
+      "tool": "kubb-v5",
+      "fixtureKey": "big",
+      "fixture": "openai.yaml",
+      "operations": 281,
+      "iterations": 3,
+      "successfulRuns": 3,
+      "filesGenerated": 6,
+      "outputBytes": 2657285,
+      "medianDurationMs": 10515.870168000001,
+      "medianDeltaRssMb": 147.1796875,
+      "medianPeakRssMb": 296.6953125,
       "errors": []
     },
     {
       "tool": "hey-api",
+      "fixtureKey": "big",
       "fixture": "openai.yaml",
+      "operations": 281,
       "iterations": 3,
       "successfulRuns": 3,
       "filesGenerated": 17,
       "outputBytes": 2082312,
-      "medianDurationMs": 2391.9363989999997,
-      "medianDeltaRssMb": 196.59375,
-      "medianPeakRssMb": 338.8515625,
+      "medianDurationMs": 2708.4990700000003,
+      "medianDeltaRssMb": 195.62109375,
+      "medianPeakRssMb": 340.859375,
+      "errors": []
+    },
+    {
+      "tool": "orval",
+      "fixtureKey": "big",
+      "fixture": "openai.yaml",
+      "operations": 281,
+      "iterations": 3,
+      "successfulRuns": 3,
+      "filesGenerated": 3081,
+      "outputBytes": 9786339,
+      "medianDurationMs": 9603.852112,
+      "medianDeltaRssMb": 211.6328125,
+      "medianPeakRssMb": 380.3359375,
       "errors": []
     }
   ],
   "rawRuns": [
     {
       "iteration": 1,
-      "tool": "kubb",
-      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
-      "fixture": "twitter.json",
-      "durationMs": 1030.205945,
-      "filesGenerated": 715,
-      "outputBytes": 736079,
+      "fixtureKey": "small",
+      "tool": "kubb-v4",
+      "version": "4.39.2",
+      "fixture": "small.yaml",
+      "durationMs": 781.3669189999998,
+      "filesGenerated": 12,
+      "outputBytes": 53598,
       "success": true,
       "error": null,
       "memory": {
-        "deltaRssMb": 62.75,
-        "peakRssMb": 203.1328125
+        "deltaRssMb": 19.39453125,
+        "peakRssMb": 200.44921875
       }
     },
     {
       "iteration": 2,
-      "tool": "kubb",
-      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
-      "fixture": "twitter.json",
-      "durationMs": 1262.90238,
-      "filesGenerated": 715,
-      "outputBytes": 736079,
+      "fixtureKey": "small",
+      "tool": "kubb-v4",
+      "version": "4.39.2",
+      "fixture": "small.yaml",
+      "durationMs": 549.380247,
+      "filesGenerated": 12,
+      "outputBytes": 53598,
       "success": true,
       "error": null,
       "memory": {
-        "deltaRssMb": 65.28125,
-        "peakRssMb": 203.59375
+        "deltaRssMb": 12.625,
+        "peakRssMb": 202.15234375
       }
     },
     {
       "iteration": 3,
-      "tool": "kubb",
-      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
-      "fixture": "twitter.json",
-      "durationMs": 1079.892676,
-      "filesGenerated": 715,
-      "outputBytes": 736079,
+      "fixtureKey": "small",
+      "tool": "kubb-v4",
+      "version": "4.39.2",
+      "fixture": "small.yaml",
+      "durationMs": 542.9402259999999,
+      "filesGenerated": 12,
+      "outputBytes": 53598,
       "success": true,
       "error": null,
       "memory": {
-        "deltaRssMb": 62.83984375,
-        "peakRssMb": 202.73046875
+        "deltaRssMb": 14.625,
+        "peakRssMb": 202.75
       }
     },
     {
       "iteration": 1,
+      "fixtureKey": "small",
+      "tool": "kubb-v5",
+      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
+      "fixture": "small.yaml",
+      "durationMs": 304.845909,
+      "filesGenerated": 6,
+      "outputBytes": 87827,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 25.25,
+        "peakRssMb": 160.1171875
+      }
+    },
+    {
+      "iteration": 2,
+      "fixtureKey": "small",
+      "tool": "kubb-v5",
+      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
+      "fixture": "small.yaml",
+      "durationMs": 258.74538900000005,
+      "filesGenerated": 6,
+      "outputBytes": 87827,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 24.25,
+        "peakRssMb": 163.94921875
+      }
+    },
+    {
+      "iteration": 3,
+      "fixtureKey": "small",
+      "tool": "kubb-v5",
+      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
+      "fixture": "small.yaml",
+      "durationMs": 300.8304519999999,
+      "filesGenerated": 6,
+      "outputBytes": 87827,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 24.5,
+        "peakRssMb": 164.01171875
+      }
+    },
+    {
+      "iteration": 1,
+      "fixtureKey": "small",
+      "tool": "hey-api",
+      "version": "@hey-api/openapi-ts@0.99.0",
+      "fixture": "small.yaml",
+      "durationMs": 205.85674600000004,
+      "filesGenerated": 17,
+      "outputBytes": 79481,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 26.625,
+        "peakRssMb": 162.890625
+      }
+    },
+    {
+      "iteration": 2,
+      "fixtureKey": "small",
+      "tool": "hey-api",
+      "version": "@hey-api/openapi-ts@0.99.0",
+      "fixture": "small.yaml",
+      "durationMs": 240.184122,
+      "filesGenerated": 17,
+      "outputBytes": 79481,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 27.65234375,
+        "peakRssMb": 163.6875
+      }
+    },
+    {
+      "iteration": 3,
+      "fixtureKey": "small",
+      "tool": "hey-api",
+      "version": "@hey-api/openapi-ts@0.99.0",
+      "fixture": "small.yaml",
+      "durationMs": 214.54815900000006,
+      "filesGenerated": 17,
+      "outputBytes": 79481,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 27.90234375,
+        "peakRssMb": 163.49609375
+      }
+    },
+    {
+      "iteration": 1,
+      "fixtureKey": "small",
+      "tool": "orval",
+      "version": "orval@8.22.0",
+      "fixture": "small.yaml",
+      "durationMs": 326.12835500000006,
+      "filesGenerated": 20,
+      "outputBytes": 39634,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 30.33984375,
+        "peakRssMb": 126.9609375
+      }
+    },
+    {
+      "iteration": 2,
+      "fixtureKey": "small",
+      "tool": "orval",
+      "version": "orval@8.22.0",
+      "fixture": "small.yaml",
+      "durationMs": 328.432241,
+      "filesGenerated": 20,
+      "outputBytes": 39634,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 30.70703125,
+        "peakRssMb": 126.2890625
+      }
+    },
+    {
+      "iteration": 3,
+      "fixtureKey": "small",
+      "tool": "orval",
+      "version": "orval@8.22.0",
+      "fixture": "small.yaml",
+      "durationMs": 463.19371400000006,
+      "filesGenerated": 20,
+      "outputBytes": 39634,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 30.453125,
+        "peakRssMb": 116.8828125
+      }
+    },
+    {
+      "iteration": 1,
+      "fixtureKey": "medium",
+      "tool": "kubb-v4",
+      "version": "4.39.2",
+      "fixture": "twitter.json",
+      "durationMs": 3711.1335730000005,
+      "filesGenerated": 241,
+      "outputBytes": 7552604,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 143.66796875,
+        "peakRssMb": 358.30078125
+      }
+    },
+    {
+      "iteration": 2,
+      "fixtureKey": "medium",
+      "tool": "kubb-v4",
+      "version": "4.39.2",
+      "fixture": "twitter.json",
+      "durationMs": 3324.4089870000003,
+      "filesGenerated": 241,
+      "outputBytes": 7552604,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 150.85546875,
+        "peakRssMb": 361.24609375
+      }
+    },
+    {
+      "iteration": 3,
+      "fixtureKey": "medium",
+      "tool": "kubb-v4",
+      "version": "4.39.2",
+      "fixture": "twitter.json",
+      "durationMs": 3195.8786339999997,
+      "filesGenerated": 241,
+      "outputBytes": 7552604,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 147.85546875,
+        "peakRssMb": 363.3515625
+      }
+    },
+    {
+      "iteration": 1,
+      "fixtureKey": "medium",
+      "tool": "kubb-v5",
+      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
+      "fixture": "twitter.json",
+      "durationMs": 1299.407246,
+      "filesGenerated": 6,
+      "outputBytes": 737812,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 64.25390625,
+        "peakRssMb": 202.7578125
+      }
+    },
+    {
+      "iteration": 2,
+      "fixtureKey": "medium",
+      "tool": "kubb-v5",
+      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
+      "fixture": "twitter.json",
+      "durationMs": 1200.693767,
+      "filesGenerated": 6,
+      "outputBytes": 737812,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 61.72265625,
+        "peakRssMb": 204.01171875
+      }
+    },
+    {
+      "iteration": 3,
+      "fixtureKey": "medium",
+      "tool": "kubb-v5",
+      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
+      "fixture": "twitter.json",
+      "durationMs": 1152.5084709999999,
+      "filesGenerated": 6,
+      "outputBytes": 737812,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 61.24609375,
+        "peakRssMb": 204.47265625
+      }
+    },
+    {
+      "iteration": 1,
+      "fixtureKey": "medium",
       "tool": "hey-api",
       "version": "@hey-api/openapi-ts@0.99.0",
       "fixture": "twitter.json",
-      "durationMs": 682.90863,
+      "durationMs": 748.082113,
       "filesGenerated": 17,
       "outputBytes": 485598,
       "success": true,
       "error": null,
       "memory": {
-        "deltaRssMb": 74.828125,
-        "peakRssMb": 208.1796875
+        "deltaRssMb": 74.91796875,
+        "peakRssMb": 207.6796875
       }
     },
     {
       "iteration": 2,
+      "fixtureKey": "medium",
       "tool": "hey-api",
       "version": "@hey-api/openapi-ts@0.99.0",
       "fixture": "twitter.json",
-      "durationMs": 732.9902259999999,
+      "durationMs": 700.5776089999999,
       "filesGenerated": 17,
       "outputBytes": 485598,
       "success": true,
       "error": null,
       "memory": {
-        "deltaRssMb": 73.16796875,
-        "peakRssMb": 210.18359375
+        "deltaRssMb": 72.6953125,
+        "peakRssMb": 209.69140625
       }
     },
     {
       "iteration": 3,
+      "fixtureKey": "medium",
       "tool": "hey-api",
       "version": "@hey-api/openapi-ts@0.99.0",
       "fixture": "twitter.json",
-      "durationMs": 647.7118539999999,
+      "durationMs": 724.1376480000001,
       "filesGenerated": 17,
       "outputBytes": 485598,
       "success": true,
       "error": null,
       "memory": {
-        "deltaRssMb": 72.80859375,
-        "peakRssMb": 210.46875
+        "deltaRssMb": 73.02734375,
+        "peakRssMb": 210.109375
       }
     },
     {
       "iteration": 1,
-      "tool": "kubb",
-      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
-      "fixture": "openai.yaml",
-      "durationMs": 3674.5315140000002,
-      "filesGenerated": 3590,
-      "outputBytes": 2651007,
+      "fixtureKey": "medium",
+      "tool": "orval",
+      "version": "orval@8.22.0",
+      "fixture": "twitter.json",
+      "durationMs": 1134.409955,
+      "filesGenerated": 474,
+      "outputBytes": 3059004,
       "success": true,
       "error": null,
       "memory": {
-        "deltaRssMb": 146.97265625,
-        "peakRssMb": 289.33203125
+        "deltaRssMb": 81.12109375,
+        "peakRssMb": 179.6640625
       }
     },
     {
       "iteration": 2,
-      "tool": "kubb",
-      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
-      "fixture": "openai.yaml",
-      "durationMs": 4006.640006,
-      "filesGenerated": 3590,
-      "outputBytes": 2651007,
+      "fixtureKey": "medium",
+      "tool": "orval",
+      "version": "orval@8.22.0",
+      "fixture": "twitter.json",
+      "durationMs": 1206.5626889999999,
+      "filesGenerated": 474,
+      "outputBytes": 3059004,
       "success": true,
       "error": null,
       "memory": {
-        "deltaRssMb": 145.36328125,
-        "peakRssMb": 288.609375
+        "deltaRssMb": 72.84765625,
+        "peakRssMb": 173.19921875
       }
     },
     {
       "iteration": 3,
-      "tool": "kubb",
-      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
-      "fixture": "openai.yaml",
-      "durationMs": 4294.931182,
-      "filesGenerated": 3590,
-      "outputBytes": 2651007,
+      "fixtureKey": "medium",
+      "tool": "orval",
+      "version": "orval@8.22.0",
+      "fixture": "twitter.json",
+      "durationMs": 1132.73918,
+      "filesGenerated": 474,
+      "outputBytes": 3059004,
       "success": true,
       "error": null,
       "memory": {
-        "deltaRssMb": 145.82421875,
-        "peakRssMb": 289.2890625
+        "deltaRssMb": 76.23828125,
+        "peakRssMb": 174.875
       }
     },
     {
       "iteration": 1,
-      "tool": "hey-api",
-      "version": "@hey-api/openapi-ts@0.99.0",
+      "fixtureKey": "big",
+      "tool": "kubb-v4",
+      "version": "4.39.2",
       "fixture": "openai.yaml",
-      "durationMs": 2423.532558,
-      "filesGenerated": 17,
-      "outputBytes": 2082312,
+      "durationMs": 27105.999026,
+      "filesGenerated": 1379,
+      "outputBytes": 33203111,
       "success": true,
       "error": null,
       "memory": {
-        "deltaRssMb": 194.734375,
-        "peakRssMb": 338.8515625
+        "deltaRssMb": 388.97265625,
+        "peakRssMb": 641.43359375
       }
     },
     {
       "iteration": 2,
-      "tool": "hey-api",
-      "version": "@hey-api/openapi-ts@0.99.0",
+      "fixtureKey": "big",
+      "tool": "kubb-v4",
+      "version": "4.39.2",
       "fixture": "openai.yaml",
-      "durationMs": 2391.9363989999997,
-      "filesGenerated": 17,
-      "outputBytes": 2082312,
+      "durationMs": 27004.866192999998,
+      "filesGenerated": 1379,
+      "outputBytes": 33203111,
       "success": true,
       "error": null,
       "memory": {
-        "deltaRssMb": 196.59375,
-        "peakRssMb": 341.6796875
+        "deltaRssMb": 806.11328125,
+        "peakRssMb": 1304.4609375
       }
     },
     {
       "iteration": 3,
+      "fixtureKey": "big",
+      "tool": "kubb-v4",
+      "version": "4.39.2",
+      "fixture": "openai.yaml",
+      "durationMs": 24133.245269,
+      "filesGenerated": 1379,
+      "outputBytes": 33203111,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 787.1640625,
+        "peakRssMb": 1281.6484375
+      }
+    },
+    {
+      "iteration": 1,
+      "fixtureKey": "big",
+      "tool": "kubb-v5",
+      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
+      "fixture": "openai.yaml",
+      "durationMs": 10853.364553,
+      "filesGenerated": 6,
+      "outputBytes": 2657285,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 147.1796875,
+        "peakRssMb": 296.68359375
+      }
+    },
+    {
+      "iteration": 2,
+      "fixtureKey": "big",
+      "tool": "kubb-v5",
+      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
+      "fixture": "openai.yaml",
+      "durationMs": 10230.674005,
+      "filesGenerated": 6,
+      "outputBytes": 2657285,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 147.2265625,
+        "peakRssMb": 297.87109375
+      }
+    },
+    {
+      "iteration": 3,
+      "fixtureKey": "big",
+      "tool": "kubb-v5",
+      "version": "5.0.0-beta.104 (core) / beta.103 (plugins)",
+      "fixture": "openai.yaml",
+      "durationMs": 10515.870168000001,
+      "filesGenerated": 6,
+      "outputBytes": 2657285,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 146.53125,
+        "peakRssMb": 296.6953125
+      }
+    },
+    {
+      "iteration": 1,
+      "fixtureKey": "big",
       "tool": "hey-api",
       "version": "@hey-api/openapi-ts@0.99.0",
       "fixture": "openai.yaml",
-      "durationMs": 2268.30239,
+      "durationMs": 2523.238328,
       "filesGenerated": 17,
       "outputBytes": 2082312,
       "success": true,
       "error": null,
       "memory": {
-        "deltaRssMb": 198.27734375,
-        "peakRssMb": 336.32421875
+        "deltaRssMb": 200.046875,
+        "peakRssMb": 341.203125
+      }
+    },
+    {
+      "iteration": 2,
+      "fixtureKey": "big",
+      "tool": "hey-api",
+      "version": "@hey-api/openapi-ts@0.99.0",
+      "fixture": "openai.yaml",
+      "durationMs": 2708.4990700000003,
+      "filesGenerated": 17,
+      "outputBytes": 2082312,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 195.62109375,
+        "peakRssMb": 340.859375
+      }
+    },
+    {
+      "iteration": 3,
+      "fixtureKey": "big",
+      "tool": "hey-api",
+      "version": "@hey-api/openapi-ts@0.99.0",
+      "fixture": "openai.yaml",
+      "durationMs": 2841.01211,
+      "filesGenerated": 17,
+      "outputBytes": 2082312,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 194.56640625,
+        "peakRssMb": 338.91796875
+      }
+    },
+    {
+      "iteration": 1,
+      "fixtureKey": "big",
+      "tool": "orval",
+      "version": "orval@8.22.0",
+      "fixture": "openai.yaml",
+      "durationMs": 9603.852112,
+      "filesGenerated": 3081,
+      "outputBytes": 9786339,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 211.6328125,
+        "peakRssMb": 380.2890625
+      }
+    },
+    {
+      "iteration": 2,
+      "fixtureKey": "big",
+      "tool": "orval",
+      "version": "orval@8.22.0",
+      "fixture": "openai.yaml",
+      "durationMs": 9562.224337,
+      "filesGenerated": 3081,
+      "outputBytes": 9786339,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 221.08984375,
+        "peakRssMb": 386.46875
+      }
+    },
+    {
+      "iteration": 3,
+      "fixtureKey": "big",
+      "tool": "orval",
+      "version": "orval@8.22.0",
+      "fixture": "openai.yaml",
+      "durationMs": 10656.444454,
+      "filesGenerated": 3081,
+      "outputBytes": 9786339,
+      "success": true,
+      "error": null,
+      "memory": {
+        "deltaRssMb": 209.52734375,
+        "peakRssMb": 380.3359375
       }
     }
   ]

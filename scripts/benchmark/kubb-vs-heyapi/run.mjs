@@ -2,21 +2,27 @@
 // isolated `node --expose-gc` child process N times and records time, memory, and output size.
 import { spawn } from 'node:child_process'
 import { writeFileSync, mkdirSync } from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// petStore.yaml is excluded: @hey-api/openapi-ts 0.99.0 crashes on it ("Symbol finalName has
-// not been resolved yet") because of the `tag.Tag` component name (a dot in the schema key),
-// confirmed via bisection to be the trigger. Kubb handles it fine. Filed nowhere yet — this is
-// a real hey-api limitation on this specific fixture, not a benchmark bug.
-const FIXTURES = ['twitter.json', 'openai.yaml']
-const TOOLS = ['kubb', 'hey-api']
+// petStore.yaml (kubb's own fixture) is excluded from the "small" slot: @hey-api/openapi-ts
+// 0.99.0 crashes on it ("Symbol finalName has not been resolved yet"), bisected to the
+// `tag.Tag` component name (a dot in the schema key). `small.yaml` (the public Swagger
+// Petstore, similar size/shape) stands in instead and all four tools handle it fine.
+const FIXTURES = [
+  { key: 'small', file: 'small.yaml', label: 'small.yaml', operations: 19 },
+  { key: 'medium', file: 'twitter.json', label: 'twitter.json', operations: 80 },
+  { key: 'big', file: 'openai.yaml', label: 'openai.yaml', operations: 281 },
+]
+const TOOLS = ['kubb-v4', 'kubb-v5', 'hey-api', 'orval']
+const TOOL_DIRS = { 'kubb-v4': 'kubb-v4', 'kubb-v5': 'kubb-v5', 'hey-api': 'heyapi', orval: 'orval' }
 const ITERATIONS = 3
 
 function runOnce(tool, fixture) {
-  const dir = tool === 'kubb' ? 'kubb' : 'heyapi'
+  const dir = TOOL_DIRS[tool]
   return new Promise((resolve) => {
     const scriptPath = path.join(__dirname, dir, 'run-one.mjs')
     const child = spawn(process.execPath, ['--expose-gc', scriptPath, fixture], {
@@ -64,9 +70,9 @@ for (const fixture of FIXTURES) {
   for (const tool of TOOLS) {
     const runs = []
     for (let i = 0; i < ITERATIONS; i++) {
-      const result = await runOnce(tool, fixture)
+      const result = await runOnce(tool, fixture.file)
       runs.push(result)
-      allRuns.push({ iteration: i + 1, ...result })
+      allRuns.push({ iteration: i + 1, fixtureKey: fixture.key, ...result })
     }
     done++
     const okRuns = runs.filter((r) => r.success)
@@ -76,7 +82,9 @@ for (const fixture of FIXTURES) {
 
     const summaryEntry = {
       tool,
-      fixture,
+      fixtureKey: fixture.key,
+      fixture: fixture.file,
+      operations: fixture.operations,
       iterations: ITERATIONS,
       successfulRuns: okRuns.length,
       filesGenerated: okRuns[0]?.filesGenerated ?? null,
@@ -89,27 +97,39 @@ for (const fixture of FIXTURES) {
     summary.push(summaryEntry)
 
     console.error(
-      `[${done}/${totalCombos}] ${tool} ${fixture}: median=${summaryEntry.medianDurationMs?.toFixed(1)}ms files=${summaryEntry.filesGenerated} bytes=${summaryEntry.outputBytes} peakRss=${summaryEntry.medianPeakRssMb?.toFixed(1)}MB ok=${okRuns.length}/${ITERATIONS}`,
+      `[${done}/${totalCombos}] ${tool} ${fixture.key}/${fixture.file}: median=${summaryEntry.medianDurationMs?.toFixed(1)}ms files=${summaryEntry.filesGenerated} bytes=${summaryEntry.outputBytes} peakRss=${summaryEntry.medianPeakRssMb?.toFixed(1)}MB ok=${okRuns.length}/${ITERATIONS}`,
     )
   }
 }
 
 const overallEnd = performance.now()
 
-const output = {
-  generatedAt: new Date().toISOString(),
-  node: process.version,
+const cpus = os.cpus()
+
+const machine = {
+  os: `${os.type()} ${os.release()}`,
   platform: process.platform,
   arch: process.arch,
+  cpuModel: cpus[0]?.model ?? 'unknown',
+  cpuCores: cpus.length,
+  totalMemoryGb: Math.round((os.totalmem() / 1024 ** 3) * 10) / 10,
+  nodeVersion: process.version,
+}
+
+const output = {
+  generatedAt: new Date().toISOString(),
+  machine,
   iterationsPerCombo: ITERATIONS,
   totalWallTimeMs: overallEnd - overallStart,
   tools: {
-    kubb: '5.0.0-beta.104 (core) / beta.103 (plugins), plugin-ts + plugin-axios + plugin-zod',
+    'kubb-v4': '@kubb/core@4.39.2, plugin-oas + plugin-ts + plugin-client(axios) + plugin-zod, file mode (default)',
+    'kubb-v5': '@kubb/core@5.0.0-beta.104 (plugins beta.103), adapter-oas + plugin-ts + plugin-axios + plugin-zod, file mode (default)',
     'hey-api': '@hey-api/openapi-ts@0.99.0, @hey-api/typescript + @hey-api/client-axios + @hey-api/sdk + zod',
+    orval: 'orval@8.22.0, two generate() calls into one output tree: client:"axios" (types+client) and client:"zod" (schemas)',
   },
   fixtures: FIXTURES,
   excludedFixtures: {
-    'petStore.yaml': "hey-api crashes on this fixture's `tag.Tag` component name (dotted schema key)",
+    'petStore.yaml': "hey-api crashes on this fixture's `tag.Tag` component name (dotted schema key); small.yaml (public Swagger Petstore) stands in as the small fixture instead",
   },
   summary,
   rawRuns: allRuns,

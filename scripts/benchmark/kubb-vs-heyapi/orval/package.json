@@ -1,0 +1,8 @@
+{
+  "name": "bench-orval",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "orval": "8.22.0"
+  }
+}

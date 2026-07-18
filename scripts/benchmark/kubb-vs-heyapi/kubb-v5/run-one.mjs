@@ -46,9 +46,9 @@ const kubb = createKubb({
   output: { path: outDir, clean: true, format: false, lint: false },
   adapter: adapterOas({ unknownType: 'unknown' }),
   plugins: [
-    pluginTs({ output: { path: 'models', mode: 'directory' } }),
-    pluginZod({ output: { path: 'zod', mode: 'directory' } }),
-    pluginAxios({ output: { path: 'clients', mode: 'directory' } }),
+    pluginTs({ output: { path: 'models.ts' } }),
+    pluginZod({ output: { path: 'zod.ts' } }),
+    pluginAxios({ output: { path: 'clients.ts' } }),
   ],
 })
 
@@ -63,7 +63,7 @@ const errorDiagnostics = (result.diagnostics ?? []).filter((d) => d.severity ===
 const stats = dirStats(outDir)
 
 const output = {
-  tool: 'kubb',
+  tool: 'kubb-v5',
   version: '5.0.0-beta.104 (core) / beta.103 (plugins)',
   fixture: fixtureName,
   durationMs: t1 - t0,
