@@ -5,7 +5,13 @@ import { createParameter } from '../nodes/parameter.ts'
 import { createProperty } from '../nodes/property.ts'
 import { createResponse } from '../nodes/response.ts'
 import { createSchema } from '../nodes/schema.ts'
-import { collectReferencedSchemaNames, collectUsedSchemaNames, findCircularSchemas, findCircularSchemasFromGraph } from './schemaGraph.ts'
+import {
+  collectImportedRefNames,
+  collectReferencedSchemaNames,
+  collectUsedSchemaNames,
+  findCircularSchemas,
+  findCircularSchemasFromGraph,
+} from './schemaGraph.ts'
 
 describe('findCircularSchemas', () => {
   it('returns empty set for acyclic schemas', () => {
@@ -171,6 +177,67 @@ describe('collectReferencedSchemaNames', () => {
 
   it('returns an empty set for schemas without refs', () => {
     expect(collectReferencedSchemaNames(createSchema({ type: 'string' }))).toStrictEqual(new Set())
+  })
+})
+
+describe('collectImportedRefNames', () => {
+  it('collects pointer-carrying ref names in first-occurrence order, de-duplicated', () => {
+    const schema = createSchema({
+      type: 'object',
+      name: 'Pet',
+      properties: [
+        createProperty({ name: 'category', required: false, schema: createSchema({ type: 'ref', name: 'Category', ref: '#/components/schemas/Category' }) }),
+        createProperty({
+          name: 'tags',
+          required: false,
+          schema: createSchema({ type: 'array', items: [createSchema({ type: 'ref', name: 'Tag', ref: '#/components/schemas/Tag' })] }),
+        }),
+        createProperty({ name: 'primary', required: false, schema: createSchema({ type: 'ref', name: 'Category', ref: '#/components/schemas/Category' }) }),
+      ],
+    })
+
+    expect(collectImportedRefNames(schema)).toStrictEqual(['Category', 'Tag'])
+  })
+
+  it('prefers targetName for collision-renamed refs', () => {
+    const schema = createSchema({
+      type: 'object',
+      name: 'Order',
+      properties: [
+        createProperty({
+          name: 'order',
+          required: false,
+          schema: createSchema({ type: 'ref', name: 'Order', ref: '#/components/schemas/Order', targetName: 'OrderSchema' }),
+        }),
+      ],
+    })
+
+    expect(collectImportedRefNames(schema)).toStrictEqual(['OrderSchema'])
+  })
+
+  it('skips refs without a $ref pointer, such as union members pointing at a sibling', () => {
+    const schema = createSchema({
+      type: 'union',
+      members: [createSchema({ type: 'ref', name: 'PetApplicationJson' }), createSchema({ type: 'ref', name: 'PetTextPlain' })],
+    })
+
+    expect(collectImportedRefNames(schema)).toStrictEqual([])
+  })
+
+  it('returns an empty array for schemas without refs', () => {
+    expect(collectImportedRefNames(createSchema({ type: 'string' }))).toStrictEqual([])
+  })
+
+  it('memoizes by node identity so the same node yields the same array reference', () => {
+    const schema = createSchema({
+      type: 'object',
+      name: 'Pet',
+      properties: [
+        createProperty({ name: 'category', required: false, schema: createSchema({ type: 'ref', name: 'Category', ref: '#/components/schemas/Category' }) }),
+      ],
+    })
+
+    expect(collectImportedRefNames(schema)).toBe(collectImportedRefNames(schema))
   })
 })
 
