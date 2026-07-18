@@ -766,6 +766,7 @@ export type { Renderer, RendererFactory } from './createRenderer.ts'
 export type { Storage } from './createStorage.ts'
 export type { FileManagerHooks } from './FileManager.ts'
 export type { Generator, GeneratorContext } from './defineGenerator.ts'
+export type { NodeCache } from './nodeCache.ts'
 export type { Parser } from './defineParser.ts'
 export type { Exclude, Filter, Group, Include, Output, OutputMode, OutputOptions, Override } from './definePlugin.ts'
 export type {

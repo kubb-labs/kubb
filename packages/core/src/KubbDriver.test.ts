@@ -396,21 +396,23 @@ describe('KubbDriver generator dispatch', () => {
   beforeEach(build)
   afterEach(() => hooks.removeAllHooks())
 
-  it('runs each plugin generator once per node, scoped to its own plugin', async () => {
+  it('walks each node once and fans it out to every plugin in dependency order', async () => {
     await driver.run()
 
+    // Node-outer: each schema is visited once, both plugins run before the next schema.
     expect(rec.schema).toStrictEqual([
       { plugin: 'pluginA', name: 'Pet' },
-      { plugin: 'pluginA', name: 'Store' },
       { plugin: 'pluginB', name: 'Pet' },
+      { plugin: 'pluginA', name: 'Store' },
       { plugin: 'pluginB', name: 'Store' },
     ])
     expect(rec.operation).toStrictEqual([
       { plugin: 'pluginA', id: 'getPet' },
-      { plugin: 'pluginA', id: 'listPets' },
       { plugin: 'pluginB', id: 'getPet' },
+      { plugin: 'pluginA', id: 'listPets' },
       { plugin: 'pluginB', id: 'listPets' },
     ])
+    // The batch still fires once per plugin, in plugin order, after the operation walk.
     expect(rec.operations).toStrictEqual([
       { plugin: 'pluginA', count: 2 },
       { plugin: 'pluginB', count: 2 },
@@ -497,6 +499,51 @@ describe('KubbDriver generator dispatch', () => {
     expect(rec.schema.map((entry) => entry.name)).toStrictEqual(['Pet', 'Store'])
     expect(diagnostics.some((diagnostic) => 'plugin' in diagnostic && diagnostic.plugin === 'boom')).toBe(true)
     hooks.removeAllHooks()
+  })
+
+  it('shares one cache per node across plugins and gives each node a fresh one', async () => {
+    const seen: Array<{ plugin: string; node: string; token: number }> = []
+    let counter = 0
+    const cachePlugin = (name: string): Plugin =>
+      ({
+        name,
+        hooks: {
+          'kubb:plugin:setup'(ctx: KubbPluginSetupContext) {
+            ctx.addGenerator({
+              name: `${name}-cache`,
+              schema(node: SchemaNode, gctx: GeneratorContext) {
+                // The first plugin to reach a node fills the token, and the rest read the same value.
+                const token = gctx.cache.getOrSet('token', () => ++counter)
+                seen.push({ plugin: gctx.plugin.name, node: node.name!, token })
+                return null
+              },
+            })
+          },
+        },
+      }) as unknown as Plugin
+
+    const localHooks = new Hookable<KubbHooks>()
+    const cfg = {
+      root: '.',
+      input: { path: './petStore.yaml' },
+      output: { path: './gen' },
+      parsers: [],
+      reporters: [],
+      adapter: inputAdapter(),
+      plugins: [cachePlugin('one'), cachePlugin('two')],
+      storage: memoryStorage(),
+    } satisfies Config
+    const cacheDriver = new KubbDriver(cfg, { hooks: localHooks })
+    await cacheDriver.setup()
+    await cacheDriver.run()
+
+    expect(seen).toStrictEqual([
+      { plugin: 'one', node: 'Pet', token: 1 },
+      { plugin: 'two', node: 'Pet', token: 1 },
+      { plugin: 'one', node: 'Store', token: 2 },
+      { plugin: 'two', node: 'Store', token: 2 },
+    ])
+    localHooks.removeAllHooks()
   })
 
   it('normalizes plugin options after setup even when setOptions is never called', async () => {

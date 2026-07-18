@@ -5,6 +5,7 @@ import type { RendererFactory } from './createRenderer.ts'
 import type { KubbHooks } from './types.ts'
 import type { KubbDriver } from './KubbDriver.ts'
 import type { Plugin, PluginFactoryOptions, PluginName, ResolvePluginOptions } from './definePlugin.ts'
+import type { NodeCache } from './nodeCache.ts'
 import type { Config } from './types.ts'
 import type { Hookable } from './Hookable.ts'
 
@@ -101,6 +102,13 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
    * Resolved options after exclude/include/override filtering.
    */
   options: TOptions['resolvedOptions']
+  /**
+   * Cache scoped to the node being generated, shared by every plugin that generates from that
+   * same node in the current pass. Use it to compute node-derived work (resolved names, imports,
+   * parameters) once and let the other plugins reuse it. For the `operations` batch call, where
+   * there is no single node, the cache is a fresh scratch scope for that call.
+   */
+  cache: NodeCache
 }
 
 /**

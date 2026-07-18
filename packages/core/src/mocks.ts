@@ -6,6 +6,7 @@ import { expect } from 'vitest'
 import type { Parser } from './defineParser.ts'
 import { FileManager } from './FileManager.ts'
 import { Hookable } from './Hookable.ts'
+import { createNodeCache } from './nodeCache.ts'
 import type { KubbDriver } from './KubbDriver.ts'
 import type {
   Adapter,
@@ -120,6 +121,7 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     driver: opts.driver,
     getResolver: (name: string) => opts.driver.getResolver(name),
     meta: opts.meta ?? { circularNames: [], enumNames: [] },
+    cache: createNodeCache(),
     addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),
     upsertFile: async (...files: Array<FileNode>) => opts.driver.fileManager.upsert(...files),
     hooks: opts.driver.hooks ?? new Hookable<KubbHooks>(),
