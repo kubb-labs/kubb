@@ -45,6 +45,39 @@ export function collectReferencedSchemaNames(node: SchemaNode | undefined, out: 
   return out
 }
 
+/**
+ * Collects the de-duplicated target names of every pointer-carrying ref in a node's subtree, in
+ * first-occurrence order. The walk is memoized by node identity, so the subtree is scanned once and
+ * `resolver.imports` reads the same result across the ts, zod, and faker plugins instead of
+ * re-scanning the same schema per plugin.
+ *
+ * Only refs that carry a `$ref` pointer count, so a synthesized ref pointing at a sibling in the
+ * same file (a union member created by name) is left out. That leaves exactly the set
+ * `resolver.imports` emits. This is the ordered, import-facing counterpart to
+ * {@link collectReferencedSchemaNames}, which returns an unordered set for graph analysis.
+ *
+ * @example
+ * ```ts
+ * collectImportedRefNames(petSchema)
+ * // ['Category', 'Tag']
+ * ```
+ */
+export const collectImportedRefNames = memoize(new WeakMap<SchemaNode, ReadonlyArray<string>>(), (node: SchemaNode): ReadonlyArray<string> => {
+  const seen = new Set<string>()
+  const names: Array<string> = []
+  collectSync<void>(node, {
+    schema(child) {
+      if (child.type !== 'ref' || !child.ref) return
+      const name = resolveRefName(child)
+      if (name && !seen.has(name)) {
+        seen.add(name)
+        names.push(name)
+      }
+    },
+  })
+  return names
+})
+
 function computeUsedSchemaNames(operations: ReadonlyArray<OperationNode>, schemas: ReadonlyArray<SchemaNode>): Set<string> {
   const schemaMap = new Map<string, SchemaNode>()
   for (const schema of schemas) {

@@ -2,10 +2,8 @@ import path from 'node:path'
 import { camelCase, toFilePath } from '@internals/utils'
 import {
   ast,
-  collectSync,
-  narrowSchema,
+  collectImportedRefNames,
   operationDef,
-  resolveRefName,
   schemaDef,
   type FileNode,
   type ImportNode,
@@ -386,27 +384,21 @@ export class Resolver {
    * schemas (`targetName`) import the emitted name. Names and paths go through the top-level
    * `name` and `file`, so import entries follow the plugin's conventions, and a per-call
    * `name` override wins over both.
+   *
+   * The subtree scan runs through `collectImportedRefNames`, which memoizes by node identity, so a
+   * schema shared across the ts, zod, and faker plugins is walked once and every plugin's resolver
+   * reads the same ref set instead of re-scanning it per plugin.
    */
   imports(options: ResolveImportsOptions): Array<ImportNode> {
     const { node, root, output, group, extname = '.ts', name } = options
     const resolveName = name ?? ((schemaName: string) => this.name(schemaName))
 
-    const seen = new Set<string>()
-    return collectSync(node, {
-      schema: (schemaNode) => {
-        const schemaRef = narrowSchema(schemaNode, 'ref')
-        if (!schemaRef?.ref) return null
-
-        const schemaName = resolveRefName(schemaRef)
-        if (!schemaName || seen.has(schemaName)) return null
-        seen.add(schemaName)
-
-        return ast.factory.createImport({
-          name: [resolveName(schemaName)],
-          path: this.file({ name: schemaName, extname, root, output, group }).path,
-        })
-      },
-    })
+    return collectImportedRefNames(node).map((schemaName) =>
+      ast.factory.createImport({
+        name: [resolveName(schemaName)],
+        path: this.file({ name: schemaName, extname, root, output, group }).path,
+      }),
+    )
   }
 
   /**
