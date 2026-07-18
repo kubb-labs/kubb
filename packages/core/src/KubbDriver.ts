@@ -463,9 +463,8 @@ export class KubbDriver {
       allowedSchemaNamesByPlugin.set(plugin.name, collectUsedSchemaNames(includedOps, schemas))
     }
 
-    // Freeze each plugin's per-run state once so the node-outer walk stays cheap: the split
-    // generator lists, its filters, its accumulated operations, and its error slot. `error` drops
-    // the plugin from every remaining node without touching the others.
+    // Freeze each plugin's per-run state once so the node-outer walk stays cheap. A plugin's
+    // `error` drops it from every remaining node without touching the others.
     const states = entries.map(({ plugin, context, hrStart }) => {
       const generatorContext = { ...context, resolver: this.getResolver(plugin.name) }
       const { exclude, include, override } = plugin.options
