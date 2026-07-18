@@ -5,6 +5,6 @@
 
 Fold schema diagnostics and circular detection into a single convert walk.
 
-The adapter used to sweep every freshly parsed schema three times: once to report the advisory diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`), again to collect referenced names for `findCircularSchemas`, and the graph build itself. The diagnostics walk now also collects each schema's outbound refs, so circular detection reads the collected graph instead of walking the same nodes again.
+The adapter walked every freshly parsed schema twice: once to report the advisory diagnostics (`KUBB_UNSUPPORTED_FORMAT`, `KUBB_DEPRECATED`), then again inside `findCircularSchemas` to collect the names each schema references. The diagnostics walk now gathers those names in the same pass, and circular detection reads that graph instead of sweeping the nodes again.
 
-Add `findCircularSchemasFromGraph` to `@kubb/ast`, which runs cycle detection over a pre-built name-to-refs graph. `findCircularSchemas` now builds the graph and delegates to it, so both share one implementation. Generated output is unchanged.
+`@kubb/ast` gains `findCircularSchemasFromGraph`, which runs cycle detection over a pre-built name-to-refs graph. `findCircularSchemas` builds the graph and hands off to it, so both share one implementation. Generated output does not change.
