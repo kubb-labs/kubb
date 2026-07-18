@@ -80,21 +80,6 @@ function compareFiles(a: FileNode, b: FileNode): number {
   return 0
 }
 
-// An existing path replaces its slot in place; a new path lands at the tail of its tie group,
-// where a stable full re-sort would put it.
-function insertSorted(sorted: Array<FileNode>, file: FileNode): void {
-  const index = sorted.findIndex((existing) => existing.path === file.path || compareFiles(existing, file) > 0)
-  if (index === -1) {
-    sorted.push(file)
-    return
-  }
-  if (sorted[index]!.path === file.path) {
-    sorted[index] = file
-    return
-  }
-  sorted.splice(index, 0, file)
-}
-
 /**
  * In-memory file store for generated files, and the writer that turns them into source
  * strings on `storage`. Files sharing a `path` are merged (sources/imports/exports
@@ -112,10 +97,10 @@ function insertSorted(sorted: Array<FileNode>, file: FileNode): void {
 export class FileManager {
   readonly hooks = new Hookable<FileManagerHooks>()
   readonly #cache = new Map<string, FileNode>()
-  // Files written since `#sorted` was last computed, merged in on the next `files` read.
-  readonly #pending = new Map<string, FileNode>()
-  // Cached sorted view. Each recompute is a new array, never mutated in place, so a caller
-  // holding a prior reference keeps its snapshot.
+  // Cached sorted view. Null means stale and rebuilt lazily on next `files` read.
+  // Nulled (not mutated) on every write so callers holding a prior reference keep
+  // their snapshot. `dispose()` must not silently empty an array the consumer
+  // already holds.
   #sorted: Array<FileNode> | null = null
 
   add(...files: Array<FileNode>): Array<FileNode> {
@@ -134,10 +119,10 @@ export class FileManager {
       const existing = this.#cache.get(file.path)
       const merged = existing && mergeExisting ? ast.factory.createFile(mergeFile(existing, file)) : ast.factory.createFile(file)
       this.#cache.set(merged.path, merged)
-      this.#pending.set(merged.path, merged)
       resolved.push(merged)
     }
 
+    if (resolved.length > 0) this.#sorted = null
     return resolved
   }
 
@@ -154,7 +139,6 @@ export class FileManager {
 
   clear(): void {
     this.#cache.clear()
-    this.#pending.clear()
     this.#sorted = null
   }
 
@@ -172,20 +156,7 @@ export class FileManager {
    * last within a length bucket). Returns a cached view, do not mutate.
    */
   get files(): Array<FileNode> {
-    if (this.#sorted === null) {
-      this.#sorted = [...this.#cache.values()].sort(compareFiles)
-      this.#pending.clear()
-      return this.#sorted
-    }
-
-    if (this.#pending.size === 0) return this.#sorted
-
-    const next = [...this.#sorted]
-    for (const file of this.#pending.values()) insertSorted(next, file)
-    this.#sorted = next
-    this.#pending.clear()
-
-    return this.#sorted
+    return (this.#sorted ??= [...this.#cache.values()].sort(compareFiles))
   }
 
   /**
