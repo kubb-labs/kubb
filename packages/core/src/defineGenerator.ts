@@ -162,6 +162,24 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
    */
   renderer?: RendererFactory<TElement> | null
   /**
+   * Predicate checked before `schema` or `operation` runs for a node, mirroring `Macro['match']`
+   * in `@kubb/ast`. Returning `false` skips the call for that node entirely, with no context work
+   * beyond what the driver already builds per node and no render call, instead of the generator
+   * itself being invoked and returning early. Omit it to run for every node, the default when
+   * unset.
+   *
+   * Does not gate `operations`, which already runs once per plugin on the full batch rather than
+   * per node.
+   *
+   * @example Only match GET operations
+   * ```ts
+   * match(node, ctx) {
+   *   return ast.isHttpOperationNode(node) && node.method.toLowerCase() === 'get'
+   * }
+   * ```
+   */
+  match?: (node: SchemaNode | OperationNode, ctx: GeneratorContext<TOptions>) => PossiblePromise<boolean>
+  /**
    * Called for each schema node in the AST walk.
    * `ctx` carries the plugin context with `adapter` and `meta` (document metadata),
    * plus `ctx.options` with the per-node resolved options (after exclude/include/override).

@@ -24,8 +24,8 @@ function enforceWeight(enforce?: Enforce): number {
 /**
  * A named, composable transform over the Kubb AST. It carries the same per-kind callbacks as a
  * {@link Visitor} (`schema`, `operation`, …), plus a `name`, an optional `enforce` order, and an
- * optional `when` gate. Macros run on the shared AST, so the same macro works across every adapter
- * and output target. Exports follow the `macro<Name>` convention, mirroring plugins (`pluginTs`).
+ * optional `match` predicate. Macros run on the shared AST, so the same macro works across every
+ * adapter and output target. Exports follow the `macro<Name>` convention, mirroring plugins (`pluginTs`).
  */
 export type Macro = Visitor & {
   /**
@@ -38,10 +38,10 @@ export type Macro = Visitor & {
    */
   enforce?: Enforce
   /**
-   * Gate checked against the current node before any callback runs. When it returns `false`
-   * the macro is skipped for that node.
+   * Predicate checked against the current node before any callback runs. Returning `false`
+   * skips the macro for that node.
    */
-  when?: (node: Node) => boolean
+  match?: (node: Node) => boolean
 }
 
 /**
@@ -82,7 +82,7 @@ function chain({ macros, key, node, context }: ChainProps): Node | undefined {
   for (const macro of macros) {
     const callback = macro[key] as MacroCallback | undefined
     if (!callback) continue
-    if (macro.when && !macro.when(current)) continue
+    if (macro.match && !macro.match(current)) continue
 
     const next = callback(current, context)
     if (next != null) current = next

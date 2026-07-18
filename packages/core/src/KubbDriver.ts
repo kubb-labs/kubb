@@ -417,7 +417,8 @@ export class KubbDriver {
    * and reused instead of recomputed per plugin. Each node still runs through the plugin's macros
    * (from `this.#transforms`) and its exclude/include/override filters before that plugin's
    * generator sees it, so plugins stay isolated. Schemas run before operations so file output
-   * stays deterministic across runs.
+   * stays deterministic across runs. A generator with a `match` predicate that resolves `false`
+   * for a node is skipped for that node, without calling `schema`/`operation`.
    *
    * A failing plugin is dropped from the remaining walk, contributes an error diagnostic, and no
    * longer aborts the other plugins. `kubb:plugin:end` and each plugin's `timing` diagnostic fire
@@ -527,6 +528,8 @@ export class KubbDriver {
 
           const ctx = { ...state.generatorContext, options, cache }
           for (const generator of state.schemaGenerators) {
+            const matches = generator.match ? await generator.match(transformedNode, ctx) : true
+            if (!matches) continue
             await this.dispatch({ result: await generator.schema!(transformedNode, ctx), renderer: generator.renderer })
           }
           await this.hooks.callHook('kubb:generate:schema', transformedNode, ctx)
@@ -552,6 +555,8 @@ export class KubbDriver {
           if (state.operationGenerators.length) {
             const ctx = { ...state.generatorContext, options: resolved.options, cache }
             for (const generator of state.operationGenerators) {
+              const matches = generator.match ? await generator.match(resolved.transformedNode, ctx) : true
+              if (!matches) continue
               await this.dispatch({ result: await generator.operation!(resolved.transformedNode, ctx), renderer: generator.renderer })
             }
             await this.hooks.callHook('kubb:generate:operation', resolved.transformedNode, ctx)
