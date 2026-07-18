@@ -83,17 +83,16 @@ function compareFiles(a: FileNode, b: FileNode): number {
 // An existing path replaces its slot in place; a new path lands at the tail of its tie group,
 // where a stable full re-sort would put it.
 function insertSorted(sorted: Array<FileNode>, file: FileNode): void {
-  for (let i = 0; i < sorted.length; i++) {
-    if (sorted[i]!.path === file.path) {
-      sorted[i] = file
-      return
-    }
-    if (compareFiles(sorted[i]!, file) > 0) {
-      sorted.splice(i, 0, file)
-      return
-    }
+  const index = sorted.findIndex((existing) => existing.path === file.path || compareFiles(existing, file) > 0)
+  if (index === -1) {
+    sorted.push(file)
+    return
   }
-  sorted.push(file)
+  if (sorted[index]!.path === file.path) {
+    sorted[index] = file
+    return
+  }
+  sorted.splice(index, 0, file)
 }
 
 /**
