@@ -39,11 +39,11 @@ export const structuralKeys = new Set(['properties', 'items', 'additionalPropert
 
 /**
  * Formats `convertFormat` maps to a dedicated type without going through `formatMap`:
- * `int64` and the date/time family. Keep this in sync with the `convertFormat`
+ * `int64`, `uint64` and the date/time family. Keep this in sync with the `convertFormat`
  * special-cases in `parser.ts`. `isHandledFormat` reads it so the
  * `KUBB_UNSUPPORTED_FORMAT` diagnostic and the parser agree on what is handled.
  */
-export const specialCasedFormats: ReadonlySet<string> = new Set(['int64', 'date-time', 'date', 'time'])
+export const specialCasedFormats: ReadonlySet<string> = new Set(['int64', 'uint64', 'date-time', 'date', 'time'])
 
 /**
  * Static map from OAS `format` strings to Kubb `SchemaType` values.

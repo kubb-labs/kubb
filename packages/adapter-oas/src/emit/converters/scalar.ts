@@ -73,7 +73,7 @@ export function convertConst({ schema, name, nullable, defaultValue }: ConvertCo
 export function convertFormat({ schema, name, nullable, defaultValue, options }: ConvertContext): ast.SchemaNode {
   const ctx = { schema, name, nullable, defaultValue }
 
-  if (schema.format === 'int64') {
+  if (schema.format === 'int64' || schema.format === 'uint64') {
     return createNode(ctx, {
       type: options.integerType === 'bigint' ? 'bigint' : 'integer',
       primitive: 'integer',
