@@ -893,6 +893,15 @@ describe('parseSchema format preservation', () => {
     expect(node.format).toBe('int64')
   })
 
+  it('preserves format on uint64 schema (default integerType bigint)', () => {
+    const node = parseSchema(ctx, {
+      schema: { type: 'integer', format: 'uint64' },
+    })
+
+    expect(node.type).toBe('bigint')
+    expect(node.format).toBe('uint64')
+  })
+
   it('preserves format on enum schema', () => {
     const node = parseSchema(ctx, {
       schema: { type: 'string', format: 'custom-enum', enum: ['a', 'b'] },
@@ -2766,8 +2775,22 @@ describe('parseSchema integer', () => {
     expect(node.type).toBe('bigint')
   })
 
+  it('maps integer uint64 to bigint when integerType is bigint (default)', () => {
+    const node = parseSchema(ctx, {
+      schema: { type: 'integer', format: 'uint64' },
+    })
+
+    expect(node.type).toBe('bigint')
+  })
+
   it('maps format int64 without type to bigint (format overrides type)', () => {
     const node = parseSchema(ctx, { schema: { format: 'int64' } })
+
+    expect(node.type).toBe('bigint')
+  })
+
+  it('maps format uint64 without type to bigint (format overrides type)', () => {
+    const node = parseSchema(ctx, { schema: { format: 'uint64' } })
 
     expect(node.type).toBe('bigint')
   })
@@ -3516,6 +3539,20 @@ describe('parser options', () => {
     it('integerType: bigint maps int64 to bigint', () => {
       const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
       const node = parseSchema(ctx, { schema: { type: 'integer', format: 'int64' } }, { integerType: 'bigint' })
+
+      expect(node.type).toBe('bigint')
+    })
+
+    it('integerType: number keeps uint64 as integer', () => {
+      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
+      const node = parseSchema(ctx, { schema: { type: 'integer', format: 'uint64' } }, { integerType: 'number' })
+
+      expect(node.type).toBe('integer')
+    })
+
+    it('integerType: bigint maps uint64 to bigint', () => {
+      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
+      const node = parseSchema(ctx, { schema: { type: 'integer', format: 'uint64' } }, { integerType: 'bigint' })
 
       expect(node.type).toBe('bigint')
     })
