@@ -5,7 +5,7 @@ import type { SchemaObject } from '../types.ts'
 
 /**
  * Returns the Kubb `SchemaType` for a given OAS `format` string, or `null` if not found.
- * Formats not in `formatMap` (e.g., `int64`, `date-time`) are handled separately by parser options.
+ * Formats not in `formatMap` (e.g., `int64`, `uint64`, `date-time`) are handled separately by parser options.
  */
 export function getSchemaType(format: string): ast.SchemaType | null {
   return formatMap[format as keyof typeof formatMap] ?? null
@@ -13,7 +13,7 @@ export function getSchemaType(format: string): ast.SchemaType | null {
 
 /**
  * Whether the parser maps `format` to a dedicated type. True for any `formatMap` entry, plus the
- * `specialCasedFormats` that `convertFormat` handles directly. False means the format falls back to
+ * `specialCasedFormats` that `convertFormat` handles directly (int64, uint64, date-time, date, time). False means the format falls back to
  * the base type, which is what `KUBB_UNSUPPORTED_FORMAT` flags. Reading both sources keeps the
  * diagnostic in step with the parser as `formatMap` grows.
  */
