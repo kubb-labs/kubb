@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.105 — Jul 28, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Add support for `uint64` format alongside existing `int64` handling.
+  
+  `uint64` is now recognized as a handled format like `int64`. When `integerType: "bigint"` (the default), `uint64` maps to `bigint`; when `integerType: "number"`, it maps to `integer`. ([#3835](https://github.com/kubb-labs/kubb/pull/3835), [`4bf2da8`](https://github.com/kubb-labs/kubb/commit/4bf2da884a94ed10bb13fadedfaefda5a4e87f80))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@chuuddo](https://github.com/chuuddo)
+
 ## v5.0.0-beta.104 — Jul 18, 2026
 
 ### @kubb/adapter-oas
