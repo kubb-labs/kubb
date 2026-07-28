@@ -33,6 +33,7 @@
     "adapter-oas-server-object-discriminator-rename",
     "adapter-oas-single-convert-scan",
     "adapter-oas-target-openapi-31",
+    "adapter-oas-uint64-format",
     "adapter-oas-unresolvable-ref-fallback",
     "add-adapter-document-field",
     "add-ast-dispatch-helper",
