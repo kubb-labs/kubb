@@ -2795,6 +2795,58 @@ describe('parseSchema integer', () => {
     expect(node.type).toBe('bigint')
   })
 
+  it('keeps string int64 as a string node carrying the format', () => {
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'int64' },
+    })
+
+    expect(node.type).toBe('string')
+    expect(node.format).toBe('int64')
+  })
+
+  it('keeps string uint64 as a string node carrying the format', () => {
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'uint64' },
+    })
+
+    expect(node.type).toBe('string')
+    expect(node.format).toBe('uint64')
+  })
+
+  it('keeps string int64 as a string node when integerType is number', () => {
+    const node = parseSchema(ctx, { schema: { type: 'string', format: 'int64' } }, { integerType: 'number' })
+
+    expect(node.type).toBe('string')
+  })
+
+  it('keeps string int32, float and double as string nodes', () => {
+    for (const format of ['int32', 'float', 'double']) {
+      const node = parseSchema(ctx, { schema: { type: 'string', format } })
+
+      expect(node.type).toBe('string')
+      expect(node.format).toBe(format)
+    }
+  })
+
+  it('keeps the string length constraints on a string int64', () => {
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', format: 'int64', minLength: 1, maxLength: 20 },
+    })
+    const narrowed = ast.narrowSchema(node, 'string')
+
+    expect(narrowed?.min).toBe(1)
+    expect(narrowed?.max).toBe(20)
+  })
+
+  it('keeps nullable string int64 as a nullable string node', () => {
+    const node = parseSchema(ctx, {
+      schema: { type: ['string', 'null'], format: 'int64' },
+    })
+
+    expect(node.type).toBe('string')
+    expect(node.nullable).toBe(true)
+  })
+
   it('preserves nullable on integer', () => {
     const node = parseSchema(ctx, {
       schema: { type: 'integer', nullable: true },
