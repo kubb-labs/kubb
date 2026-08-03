@@ -1,4 +1,4 @@
-import { availablePlugins } from './constants.ts'
+import { availablePlugins, KUBB_PACKAGE_NAME } from './constants.ts'
 import type { PluginOption } from './types.ts'
 
 /**
@@ -47,11 +47,16 @@ ${pluginConfigs}
 }
 
 /**
- * Appends the dist-tag matching the running CLI version to each package name,
- * so a beta CLI scaffolds beta packages instead of the older stable majors.
+ * Turns package names into install specifiers for the wizard.
+ *
+ * `kubb` is pinned to the exact version of the running CLI, since both ship from the same release
+ * and resolving `kubb@beta` separately can land on a different version than the CLI doing the
+ * scaffolding. Plugins release from their own repo on their own cadence, so they follow the
+ * release channel of the CLI through its dist-tag.
  */
-export function withDistTag({ packages, version }: { packages: Array<string>; version: string }): Array<string> {
+export function resolveInstallVersions({ packages, version }: { packages: Array<string>; version: string }): Array<string> {
   const prerelease = version.match(/-([a-z]+)/)?.[1]
   const tag = prerelease ?? 'latest'
-  return packages.map((name) => `${name}@${tag}`)
+
+  return packages.map((name) => (name === KUBB_PACKAGE_NAME ? `${name}@${version}` : `${name}@${tag}`))
 }
