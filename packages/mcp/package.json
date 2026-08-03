@@ -74,5 +74,8 @@
   },
   "engines": {
     "node": ">=22"
+  },
+  "inlinedDependencies": {
+    "jiti": "2.7.0"
   }
 }
