@@ -1,5 +1,14 @@
 # @kubb/core
 
+## 4.39.3
+
+### Patch Changes
+
+- [#3844](https://github.com/kubb-labs/kubb/pull/3844) [`6b601f5`](https://github.com/kubb-labs/kubb/commit/6b601f5820aece5d4268e09d76934914408e3885) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Bump `@kubb/fabric-core` and `@kubb/react-fabric` to 0.16.1, which fixes two high severity `ws` vulnerabilities (uninitialized memory disclosure and memory exhaustion DoS).
+
+- Updated dependencies []:
+  - @kubb/ast@4.39.3
+
 ## 4.39.2
 
 ### Patch Changes
