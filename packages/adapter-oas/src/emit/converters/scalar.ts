@@ -1,5 +1,5 @@
 import { ast } from '@kubb/ast'
-import { enumDescriptionKeys, enumExtensionKeys } from '../../constants.ts'
+import { enumDescriptionKeys, enumExtensionKeys, numericFormats } from '../../constants.ts'
 import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
@@ -70,8 +70,16 @@ export function convertConst({ schema, name, nullable, defaultValue }: ConvertCo
  * `format` rule's `match` has confirmed the format is handled (see `isHandledFormat`) and, for
  * a date-ish format, that `dateType` is not `false`.
  */
-export function convertFormat({ schema, name, nullable, defaultValue, options }: ConvertContext): ast.SchemaNode {
+export function convertFormat(context: ConvertContext): ast.SchemaNode {
+  const { schema, name, nullable, defaultValue, options, type } = context
   const ctx = { schema, name, nullable, defaultValue }
+
+  // A numeric format on a `type: 'string'` schema describes how the number is spelled, not that
+  // the value is a number, so the declared type wins. The format stays on the node for plugins
+  // that want to validate the digits.
+  if (type === 'string' && numericFormats.has(schema.format!)) {
+    return convertString(context)
+  }
 
   if (schema.format === 'int64' || schema.format === 'uint64') {
     return createNode(ctx, {
