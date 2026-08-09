@@ -46,6 +46,15 @@ export const structuralKeys = new Set(['properties', 'items', 'additionalPropert
 export const specialCasedFormats: ReadonlySet<string> = new Set(['int64', 'uint64', 'date-time', 'date', 'time'])
 
 /**
+ * Formats that describe a number, whether they resolve through `formatMap` or through the
+ * `convertFormat` special cases. On a `type: 'string'` schema these do not make the value a
+ * number: gRPC-gateway and other ProtoJSON producers send 64-bit integers as JSON strings.
+ *
+ * @see https://protobuf.dev/programming-guides/json/#int64-strings
+ */
+export const numericFormats: ReadonlySet<string> = new Set(['int32', 'int64', 'uint64', 'float', 'double'])
+
+/**
  * Static map from OAS `format` strings to Kubb `SchemaType` values.
  *
  * Only formats whose AST type differs from the OAS `type` field appear here.
