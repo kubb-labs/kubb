@@ -19,6 +19,7 @@
   },
   "changesets": [
     "adapter-oas-bundle-named-components",
+    "adapter-oas-deps-refresh",
     "adapter-oas-discriminator-implicit-mapping",
     "adapter-oas-drf-null-enum",
     "adapter-oas-drop-oas-packages",
@@ -191,6 +192,7 @@
     "icy-lilies-invent",
     "improve-kubb-driver",
     "init-axios-fetch-plugins",
+    "init-pin-kubb-to-cli-version",
     "input-meta-circular-enum-names",
     "itchy-wombats-change",
     "jsdoc-accuracy-pass",

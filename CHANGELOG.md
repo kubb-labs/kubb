@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.0.0-beta.106 — Aug 9, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Bump `@readme/openapi-parser` and `@scalar/openapi-upgrader` to their latest patch releases. ([#3843](https://github.com/kubb-labs/kubb/pull/3843), [`693852d`](https://github.com/kubb-labs/kubb/commit/693852dec69d21ada946d40c37997cc151153f30))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb init` now installs `kubb` at the exact version of the CLI running the wizard instead of resolving the `kubb@beta` dist-tag again. Plugins keep following the dist-tag of that release channel, since they ship from their own repo. ([#3841](https://github.com/kubb-labs/kubb/pull/3841), [`d2785ba`](https://github.com/kubb-labs/kubb/commit/d2785ba224572e29fc9f73c61b4f74e1c0b2aa45))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.105 — Jul 28, 2026
 
 ### @kubb/adapter-oas
