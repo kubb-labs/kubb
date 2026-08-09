@@ -60,7 +60,8 @@
     "gunshi": "^0.37.1",
     "jiti": "^2.7.0",
     "tinyexec": "catalog:",
-    "unconfig": "^7.5.0"
+    "unconfig": "^7.5.0",
+    "verkit": "^0.3.2"
   },
   "devDependencies": {
     "@internals/shared": "workspace:*",
