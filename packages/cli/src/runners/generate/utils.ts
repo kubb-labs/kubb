@@ -7,6 +7,7 @@ import { createSerialRunner, toError } from '@internals/utils'
 import type { CLIOptions, Config, KubbHooks, PossibleConfig, PostGenerateCommand, Hookable } from '@kubb/core'
 import { NonZeroExitError, x } from 'tinyexec'
 import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
+import { isGreater, isValid, truncate } from 'verkit'
 import { WATCHER_DEBOUNCE_MS, WATCHER_IGNORED_PATHS } from '../../constants.ts'
 
 const loader = createModuleLoader()
@@ -126,14 +127,9 @@ export type HookResult = {
  * `isNewerVersion('5.10.0', '5.9.0') // false`
  */
 export function isNewerVersion(current: string, latest: string): boolean {
-  const release = (value: string) => value.split('-')[0] ?? ''
-  const isNumeric = (value: string) => /^\d+(\.\d+)*$/.test(value)
+  if (!isValid(current) || !isValid(latest)) return false
 
-  const currentRelease = release(current)
-  const latestRelease = release(latest)
-  if (!isNumeric(currentRelease) || !isNumeric(latestRelease)) return false
-
-  return currentRelease.localeCompare(latestRelease, undefined, { numeric: true }) < 0
+  return isGreater(truncate(latest, 'patch') as string, truncate(current, 'patch') as string)
 }
 
 /**
