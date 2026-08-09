@@ -112,6 +112,7 @@
     "cli-runners-per-folder-refactor",
     "cli-unconfig-module-configs",
     "cli-validate-positional-input",
+    "cli-verkit-version-compare",
     "coded-errors-and-mcp-diagnostics",
     "collect-collectsync-rename",
     "consolidate-input",

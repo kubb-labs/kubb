@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.0-beta.107 — Aug 9, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Replace the hand-rolled semver comparison in the update check with `verkit`, a zero-dependency semver library. ([#3847](https://github.com/kubb-labs/kubb/pull/3847), [`d58e971`](https://github.com/kubb-labs/kubb/commit/d58e9716d544c7802e8ef357da8c37af24f8ead8))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.106 — Aug 9, 2026
 
 ### @kubb/adapter-oas
