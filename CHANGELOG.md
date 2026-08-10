@@ -1,5 +1,48 @@
 # Changelog
 
+## v5.0.0-beta.107 — Aug 10, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Fail with `KUBB_INVALID_DOCUMENT` when `input` resolves to something that is not an OpenAPI or Swagger document.
+  
+  `validateDocument` keeps spec violations non-fatal so imperfect but usable documents still generate. That leniency also swallowed input that was not a document at all, so a wrong file or a wrapper object produced an empty build with a success exit code. A document that declares neither `openapi` nor `swagger` is now a hard error regardless of the `validate` option, while every other validation failure stays non-fatal. ([#3851](https://github.com/kubb-labs/kubb/pull/3851), [`3488427`](https://github.com/kubb-labs/kubb/commit/3488427f5fa7229364cc3f2ef254926f6efcdac4))
+- Fix the config examples in the package READMEs.
+  
+  `input` took an object (`input: { path: './openapi.yaml' }`) in the examples. Kubb reads a non-string `input` as an
+  already-parsed spec, so that form silently produced an empty document instead of reading the file. The examples now pass
+  the path as a string.
+  
+  The `@kubb/adapter-oas` README passed the adapter as `adapters: [adapterOas()]`, but the config key is the singular
+  `adapter`. It also documented `mergeDocuments`, which is no longer exported, and listed `HttpMethod` among the
+  re-exported types, which this package does not export. The API section now matches `src/index.ts` and documents
+  `adapterOasName`.
+  
+  The `@kubb/mcp` README imported `pluginOas` from `@kubb/plugin-oas`, a package that no longer exists. The example now
+  uses `adapterOas` from `@kubb/adapter-oas`. ([#3850](https://github.com/kubb-labs/kubb/pull/3850), [`f58b8cf`](https://github.com/kubb-labs/kubb/commit/f58b8cf2d59d3ef6b03f47c2cfea992b90021df2))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Replace the hand-rolled semver comparison in the update check with `verkit`, a zero-dependency semver library. ([#3847](https://github.com/kubb-labs/kubb/pull/3847), [`d58e971`](https://github.com/kubb-labs/kubb/commit/d58e9716d544c7802e8ef357da8c37af24f8ead8))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Reject the v4 `input: { path }` / `input: { data }` wrapper with a `KUBB_LEGACY_INPUT` error.
+  
+  v5 takes the `input` value directly, so the v4 wrapper matched the "already-parsed document" branch and Kubb read `{ path: './petStore.yaml' }` as the spec itself. The run then generated nothing but still reported success and exited `0`, which let a stale config pass CI with an empty client. The wrapper now fails with a message pointing at the unwrapped form. ([#3851](https://github.com/kubb-labs/kubb/pull/3851), [`3488427`](https://github.com/kubb-labs/kubb/commit/3488427f5fa7229364cc3f2ef254926f6efcdac4))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.106 — Aug 9, 2026
 
 ### @kubb/adapter-oas
