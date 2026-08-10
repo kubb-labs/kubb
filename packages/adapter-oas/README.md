@@ -45,29 +45,31 @@ import { defineConfig } from 'kubb'
 import { adapterOas } from '@kubb/adapter-oas'
 
 export default defineConfig({
-  input: {
-    path: './openapi.yaml',
-  },
+  input: './openapi.yaml',
   output: {
     path: './src/gen',
   },
-  adapters: [adapterOas()],
+  adapter: adapterOas(),
 })
 ```
+
+`input` accepts a file path, a URL, an inline JSON or YAML string, or a parsed spec object.
 
 ## API
 
 ### `adapterOas(options?)`
 
-Creates the OAS adapter instance. Pass it in the `adapters` array of `defineConfig`.
+Creates the OAS adapter instance. Pass it as `adapter` in `defineConfig`.
 
-### `mergeDocuments(documents)`
+### `adapterOasName`
 
-Merges multiple OpenAPI documents into a single document before parsing.
+The adapter's name, `'oas'`. Use it to identify this adapter in a Kubb config.
 
 ### Types
 
-All OpenAPI types (`Document`, `Operation`, `SchemaObject`, `HttpMethod`, etc.) are re-exported from this package.
+The package re-exports the OpenAPI types it works with: `ContentType`, `DiscriminatorObject`, `Document`,
+`MediaTypeObject`, `Operation`, `ReferenceObject`, `ResponseObject`, and `SchemaObject`. Its own option types are
+`AdapterOas`, `AdapterOasOptions`, and `AdapterOasResolvedOptions`.
 
 ## Supporting Kubb
 

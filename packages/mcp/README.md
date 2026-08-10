@@ -155,18 +155,17 @@ Example `kubb.config.ts`:
 
 ```typescript
 import { defineConfig } from 'kubb'
-import { pluginOas } from '@kubb/plugin-oas'
+import { adapterOas } from '@kubb/adapter-oas'
 import { pluginTs } from '@kubb/plugin-ts'
 import { pluginAxios } from '@kubb/plugin-axios'
 
 export default defineConfig({
-  input: {
-    path: './petstore.yaml',
-  },
+  input: './petstore.yaml',
   output: {
     path: './src/generated',
   },
-  plugins: [pluginOas(), pluginTs(), pluginAxios()],
+  adapter: adapterOas(),
+  plugins: [pluginTs(), pluginAxios()],
 })
 ```
 
