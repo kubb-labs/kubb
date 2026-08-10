@@ -4,8 +4,7 @@
  * interface to write somewhere else, such as S3 or a database.
  *
  * Method names follow Node's filesystem vocabulary, so `readItem` reads like
- * `readFile`, `writeItem` like `writeFile`, and `ensureItem` like fs-extra's
- * `ensureFile`.
+ * `readFile` and `writeItem` like `writeFile`.
  */
 export type Storage = {
   /**
@@ -26,16 +25,6 @@ export type Storage = {
    */
   writeItem(key: string, value: string): Promise<void>
   /**
-   * Returns the string stored under `key`, writing the result of `factory`
-   * first when the key is missing. A stored empty string counts as present, so
-   * `factory` runs only when nothing is there at all.
-   *
-   * `createStorage` supplies this method when a backend omits it. Implement it
-   * yourself when the backend can do the read and the conditional write in one
-   * atomic operation.
-   */
-  ensureItem(key: string, factory: () => string | Promise<string>): Promise<string>
-  /**
    * Deletes the entry for `key`. No-op when the key does not exist.
    */
   removeItem(key: string): Promise<void>
@@ -54,15 +43,8 @@ export type Storage = {
 }
 
 /**
- * What a `createStorage` builder returns. Same shape as {@link Storage} except
- * `ensureItem` is optional, since `createStorage` derives one from `readItem`
- * and `writeItem` when the backend leaves it out.
- */
-export type StorageDefinition = Omit<Storage, 'ensureItem'> & Partial<Pick<Storage, 'ensureItem'>>
-
-/**
  * Defines a custom storage backend. The builder receives user options and
- * returns a `StorageDefinition`. Kubb ships with filesystem and in-memory
+ * returns a `Storage` implementation. Kubb ships with filesystem and in-memory
  * storages. A custom backend writes generated files elsewhere, such as cloud
  * storage or a database.
  *
@@ -98,22 +80,6 @@ export type StorageDefinition = Omit<Storage, 'ensureItem'> & Partial<Pick<Stora
  * })
  * ```
  */
-export function createStorage<TOptions = Record<string, never>>(build: (options: TOptions) => StorageDefinition): (options?: TOptions) => Storage {
-  return (options) => {
-    const storage = build((options ?? {}) as TOptions)
-
-    if (storage.ensureItem) return storage as Storage
-
-    return {
-      ...storage,
-      async ensureItem(key: string, factory: () => string | Promise<string>): Promise<string> {
-        const stored = await storage.readItem(key)
-        if (stored !== null) return stored
-
-        const value = await factory()
-        await storage.writeItem(key, value)
-        return value
-      },
-    }
-  }
+export function createStorage<TOptions = Record<string, never>>(build: (options: TOptions) => Storage): (options?: TOptions) => Storage {
+  return (options) => build((options ?? {}) as TOptions)
 }

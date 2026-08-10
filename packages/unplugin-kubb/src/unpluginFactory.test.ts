@@ -60,14 +60,6 @@ function createMemoryStorage() {
     async removeItem(key) {
       store.delete(key)
     },
-    async ensureItem(key, factory) {
-      const stored = store.get(key)
-      if (stored !== undefined) return stored
-
-      const value = await factory()
-      store.set(key, value)
-      return value
-    },
     async readKeys(base) {
       const keys = [...store.keys()]
       return base ? keys.filter((key) => key.startsWith(base)) : keys

@@ -763,7 +763,7 @@ export type {
 export type { CreateKubbOptions, GenerateOptions, GenerateResult, Kubb } from './createKubb.ts'
 export type { GenerationResult, Reporter, ReporterContext, ReporterName, UserReporter } from './createReporter.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'
-export type { Storage, StorageDefinition } from './createStorage.ts'
+export type { Storage } from './createStorage.ts'
 export type { FileManagerHooks } from './FileManager.ts'
 export type { Generator, GeneratorContext } from './defineGenerator.ts'
 export type { NodeCache } from './nodeCache.ts'

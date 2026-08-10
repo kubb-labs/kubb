@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { createStorage } from './createStorage.ts'
 
 function createMapStorage(map: Map<string, string>) {
@@ -63,50 +63,5 @@ describe('createStorage', () => {
 
     await storage.empty()
     expect(await storage.readKeys()).toStrictEqual([])
-  })
-
-  it('writes the factory result when ensureItem is called on a missing key', async () => {
-    const map = new Map<string, string>()
-    const storage = createStorage((_options: Record<string, never>) => createMapStorage(map))()
-
-    expect(await storage.ensureItem('a', () => 'computed')).toBe('computed')
-    expect(map.get('a')).toBe('computed')
-  })
-
-  it('returns the stored value from ensureItem without running the factory', async () => {
-    const map = new Map<string, string>([['a', 'stored']])
-    const storage = createStorage((_options: Record<string, never>) => createMapStorage(map))()
-    const factory = vi.fn(() => 'computed')
-
-    expect(await storage.ensureItem('a', factory)).toBe('stored')
-    expect(factory).not.toHaveBeenCalled()
-  })
-
-  it('treats a stored empty string as present, so ensureItem does not overwrite it', async () => {
-    const map = new Map<string, string>([['a', '']])
-    const storage = createStorage((_options: Record<string, never>) => createMapStorage(map))()
-    const factory = vi.fn(() => 'computed')
-
-    expect(await storage.ensureItem('a', factory)).toBe('')
-    expect(factory).not.toHaveBeenCalled()
-  })
-
-  it('awaits an async factory before writing', async () => {
-    const map = new Map<string, string>()
-    const storage = createStorage((_options: Record<string, never>) => createMapStorage(map))()
-
-    expect(await storage.ensureItem('a', async () => 'computed')).toBe('computed')
-    expect(map.get('a')).toBe('computed')
-  })
-
-  it('keeps an ensureItem supplied by the builder', async () => {
-    const ensureItem = vi.fn(async () => 'native')
-    const storage = createStorage((_options: Record<string, never>) => ({
-      ...createMapStorage(new Map()),
-      ensureItem,
-    }))()
-
-    expect(await storage.ensureItem('a', () => 'computed')).toBe('native')
-    expect(ensureItem).toHaveBeenCalledOnce()
   })
 })

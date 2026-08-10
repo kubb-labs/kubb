@@ -45,5 +45,4 @@ export type {
   ResolverFilePathParams,
   ResolverPatch,
   Storage,
-  StorageDefinition,
 } from '@kubb/core'
