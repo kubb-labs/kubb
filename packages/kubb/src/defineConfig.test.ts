@@ -12,9 +12,7 @@ describe('defineConfig', () => {
 
   const baseConfig: UserConfig = {
     root: '.',
-    input: {
-      path: 'https://petstore3.swagger.io/api/v3/openapi.json',
-    },
+    input: 'https://petstore3.swagger.io/api/v3/openapi.json',
     output: {
       path: './src/gen',
       clean: true,

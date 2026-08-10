@@ -1,7 +1,8 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
-import { bundleDocument, parseDocument, parseFromConfig, validateDocument } from './normalize.ts'
+import { Diagnostics } from '@kubb/core'
+import { assertDocument, bundleDocument, parseDocument, parseFromConfig, validateDocument } from './normalize.ts'
 import type { Document } from '../types.ts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -286,5 +287,28 @@ describe('bundleDocument', () => {
 
   it('throws when the input file does not exist', async () => {
     await expect(bundleDocument(path.resolve(__dirname, '../../mocks/doesNotExist.yaml'))).rejects.toThrow()
+  })
+})
+
+describe('assertDocument', () => {
+  it('accepts an OpenAPI document', () => {
+    expect(() => assertDocument({ openapi: '3.1.0' } as Document)).not.toThrow()
+  })
+
+  it('accepts a Swagger document', () => {
+    expect(() => assertDocument({ swagger: '2.0' } as unknown as Document)).not.toThrow()
+  })
+
+  it.each([
+    ['a v4 path wrapper read as data', { path: './petStore.yaml' }],
+    ['an empty object', {}],
+    ['a document with no version field', { info: { title: 'Pets', version: '1.0.0' } }],
+  ])('throws an invalid-document diagnostic for %s', (_name, document) => {
+    try {
+      assertDocument(document as Document)
+      expect.unreachable('expected assertDocument to throw')
+    } catch (error) {
+      expect(Diagnostics.isError(error) && error.diagnostic.code).toBe(Diagnostics.code.invalidDocument)
+    }
   })
 })

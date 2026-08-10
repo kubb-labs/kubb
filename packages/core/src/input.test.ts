@@ -84,4 +84,23 @@ describe('inputToAdapterSource', () => {
       expect(Diagnostics.isError(error) && error.diagnostic.code).toBe(Diagnostics.code.inputRequired)
     }
   })
+
+  it.each([
+    ['a v4 path wrapper', { path: './petStore.yaml' }],
+    ['a v4 data wrapper', { data: { openapi: '3.1.0' } }],
+    ['a v4 wrapper carrying both keys', { path: './petStore.yaml', data: { openapi: '3.1.0' } }],
+    ['a v4 array of path wrappers', [{ path: './petStore.yaml' }]],
+  ])('throws a legacy diagnostic for %s', (_name, input) => {
+    try {
+      inputToAdapterSource(createConfig(input as Config['input']))
+      expect.unreachable('expected inputToAdapterSource to throw')
+    } catch (error) {
+      expect(Diagnostics.isError(error) && error.diagnostic.code).toBe(Diagnostics.code.legacyInput)
+    }
+  })
+
+  it('passes a parsed spec that happens to carry a path property', () => {
+    const data = { openapi: '3.1.0', path: './petStore.yaml' }
+    expect(inputToAdapterSource(createConfig(data))).toStrictEqual({ type: 'data', data })
+  })
 })
