@@ -6,8 +6,8 @@ import type { ast } from '@kubb/ast'
 export const DEFAULT_PARSER_OPTIONS = {
   dateType: 'string',
   integerType: 'bigint',
-  unknownType: 'any',
-  emptySchemaType: 'any',
+  unknownType: 'unknown',
+  emptySchemaType: 'unknown',
   enumSuffix: 'enum',
 } as const satisfies ast.ParserOptions
 
