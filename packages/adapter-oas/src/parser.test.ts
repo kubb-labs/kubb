@@ -1752,7 +1752,7 @@ describe('parseSchema object additionalProperties', () => {
     const narrowed = ast.narrowSchema(node, 'object')
 
     expect(node.type).toBe('object')
-    expect(narrowed?.additionalProperties).toMatchObject({ type: 'any' })
+    expect(narrowed?.additionalProperties).toMatchObject({ type: 'unknown' })
   })
 
   it('respects unknownType option for empty additionalProperties', () => {
@@ -1825,7 +1825,7 @@ describe('parseSchema object patternProperties', () => {
     })
     const narrowed = ast.narrowSchema(node, 'object')
 
-    expect(narrowed?.patternProperties?.['^x-']).toMatchObject({ type: 'any' })
+    expect(narrowed?.patternProperties?.['^x-']).toMatchObject({ type: 'unknown' })
   })
 
   it('pattern schema true falls back to unknownType', () => {
@@ -1839,7 +1839,7 @@ describe('parseSchema object patternProperties', () => {
     })
     const narrowed = ast.narrowSchema(node, 'object')
 
-    expect(narrowed?.patternProperties?.['^x-']).toMatchObject({ type: 'any' })
+    expect(narrowed?.patternProperties?.['^x-']).toMatchObject({ type: 'unknown' })
   })
 
   it('patternProperties triggers object even without type or properties', () => {
@@ -2002,13 +2002,13 @@ describe('parseSchema prefixItems (tuple)', () => {
     expect(narrowed?.rest?.type).toBe('number')
   })
 
-  it('defaults rest to any when items is absent', () => {
+  it('defaults rest to unknownType when items is absent', () => {
     const node = parseSchema(ctx, {
       schema: { prefixItems: [{ type: 'string' }] },
     })
     const narrowed = ast.narrowSchema(node, 'tuple')
 
-    expect(narrowed?.rest?.type).toBe('any')
+    expect(narrowed?.rest?.type).toBe('unknown')
   })
 
   it('omits rest when items is false — closed tuple', () => {
@@ -2021,13 +2021,13 @@ describe('parseSchema prefixItems (tuple)', () => {
     expect(narrowed?.rest).toBeUndefined()
   })
 
-  it('defaults rest to any when items is true', () => {
+  it('defaults rest to unknownType when items is true', () => {
     const node = parseSchema(ctx, {
       schema: { prefixItems: [{ type: 'string' }], items: true },
     })
     const narrowed = ast.narrowSchema(node, 'tuple')
 
-    expect(narrowed?.rest?.type).toBe('any')
+    expect(narrowed?.rest?.type).toBe('unknown')
   })
 
   it('converts a $ref prefixItem to a ref node', () => {
@@ -3535,11 +3535,11 @@ describe('parseSchema constraints', () => {
 
 describe('parser options', () => {
   describe('emptySchemaType', () => {
-    it('defaults to any for a schema with no type information', () => {
+    it('defaults to unknown for a schema with no type information', () => {
       const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
       const node = parseSchema(ctx, { schema: {} })
 
-      expect(node.type).toBe('any')
+      expect(node.type).toBe('unknown')
     })
 
     it('emptySchemaType: any returns any for an empty schema', () => {
@@ -3762,7 +3762,7 @@ describe('parser options', () => {
 describe('parseSchema not keyword', () => {
   const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
-  it('falls through to the emptySchemaType (any by default) since "not" is not supported', () => {
+  it('falls through to the emptySchemaType (unknown by default) since "not" is not supported', () => {
     // JSON Schema `not` has no direct equivalent in most code generators.
     // The parser intentionally does not handle it and falls through to the configured emptySchemaType.
     // Cast required: `not` is valid JSON Schema / OAS 3.1 but not in the TS SchemaObject type.
@@ -3770,7 +3770,7 @@ describe('parseSchema not keyword', () => {
       schema: { not: { type: 'string' } } as SchemaObject,
     })
 
-    expect(node.type).toBe('any')
+    expect(node.type).toBe('unknown')
   })
 
   it('respects emptySchemaType option when falling through for not keyword', () => {
@@ -4342,10 +4342,10 @@ describe('buildAst – parameter description propagation', async () => {
 describe('unknownType / emptySchemaType → SchemaNode type', () => {
   const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
-  it('empty schema produces type: any by default', () => {
+  it('empty schema produces type: unknown by default', () => {
     const node = parseSchema(ctx, { schema: {} as SchemaObject })
 
-    expect(node.type).toBe('any')
+    expect(node.type).toBe('unknown')
   })
 
   it('empty schema produces type: unknown when emptySchemaType is unknown', () => {
@@ -4360,7 +4360,7 @@ describe('unknownType / emptySchemaType → SchemaNode type', () => {
     expect(node.type).toBe('void')
   })
 
-  it('unannotated additionalProperties produce type: any by default', () => {
+  it('unannotated additionalProperties produce type: unknown by default', () => {
     const node = ast.narrowSchema(
       parseSchema(ctx, {
         schema: { type: 'object', additionalProperties: {} } as SchemaObject,
@@ -4368,7 +4368,7 @@ describe('unknownType / emptySchemaType → SchemaNode type', () => {
       'object',
     )
 
-    expect(node?.additionalProperties).toMatchObject({ type: 'any' })
+    expect(node?.additionalProperties).toMatchObject({ type: 'unknown' })
   })
 
   it('unannotated additionalProperties produce type: unknown when unknownType is unknown', () => {

@@ -103,14 +103,14 @@ export function convertObject({ schema, name, nullable, defaultValue, rawOptions
 /**
  * Converts an OAS 3.1 `prefixItems` tuple into a `TupleSchemaNode`.
  */
-export function convertTuple({ schema, name, nullable, defaultValue, rawOptions, parse }: ConvertContext): ast.SchemaNode {
+export function convertTuple({ schema, name, nullable, defaultValue, rawOptions, options, parse }: ConvertContext): ast.SchemaNode {
   const tupleItems = (schema.prefixItems ?? []).map((item) => parse({ schema: item as SchemaObject }, rawOptions))
-  // items: false closes the tuple; absent/true widens the tail to any.
+  // items: false closes the tuple; absent/true widens the tail to unknownType.
   const rest =
     schema.items === false
       ? undefined
       : !schema.items || schema.items === true
-        ? ast.factory.createSchema({ type: 'any' })
+        ? ast.factory.createSchema({ type: options.unknownType })
         : parse({ schema: schema.items as SchemaObject }, rawOptions)
 
   return createNode(
