@@ -483,12 +483,12 @@ export type KubbGenerationEndContext = {
    * Reads go directly to `config.storage`, nothing extra is held in memory.
    *
    * @example Read a generated file
-   * `const code = await storage.getItem('/src/gen/pet.ts')`
+   * `const code = await storage.readItem('/src/gen/pet.ts')`
    *
    * @example Walk every generated file
    * ```ts
-   * for (const path of await storage.getKeys()) {
-   *   const code = await storage.getItem(path)
+   * for (const path of await storage.readKeys()) {
+   *   const code = await storage.readItem(path)
    * }
    * ```
    */
@@ -742,7 +742,7 @@ export type BuildOutput = {
    * Use `files` to list what this build produced.
    *
    * @example Read a generated file
-   * `const code = await buildOutput.storage.getItem('/src/gen/pet.ts')`
+   * `const code = await buildOutput.storage.readItem('/src/gen/pet.ts')`
    */
   storage: Storage
 }

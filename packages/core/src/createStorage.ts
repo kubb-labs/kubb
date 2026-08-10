@@ -2,6 +2,9 @@
  * Backend that persists generated files. Kubb ships with `fsStorage` (writes
  * to disk) and `memoryStorage` (keeps everything in RAM). Implement this
  * interface to write somewhere else, such as S3 or a database.
+ *
+ * Method names follow Node's filesystem vocabulary, so `readItem` reads like
+ * `readFile` and `writeItem` like `writeFile`.
  */
 export type Storage = {
   /**
@@ -11,16 +14,16 @@ export type Storage = {
   /**
    * Returns `true` when an entry for `key` exists.
    */
-  hasItem(key: string): Promise<boolean>
+  existsItem(key: string): Promise<boolean>
   /**
    * Reads the stored string. Returns `null` when the key is missing.
    */
-  getItem(key: string): Promise<string | null>
+  readItem(key: string): Promise<string | null>
   /**
    * Stores `value` under `key`, creating any required structure (directories,
    * buckets, ...).
    */
-  setItem(key: string, value: string): Promise<void>
+  writeItem(key: string, value: string): Promise<void>
   /**
    * Deletes the entry for `key`. No-op when the key does not exist.
    */
@@ -28,15 +31,15 @@ export type Storage = {
   /**
    * Returns every key. Pass `base` to filter to keys starting with that prefix.
    */
-  getKeys(base?: string): Promise<Array<string>>
+  readKeys(base?: string): Promise<Array<string>>
   /**
    * Removes stored entries. Pass `base` to scope the wipe to a key prefix.
    *
    * Omitting `base` is implementation-defined: in-memory stores wipe every
    * entry, while filesystem-backed stores treat a missing `base` as a no-op so
-   * a bare `clear()` can never delete outside a known output directory.
+   * a bare `empty()` can never delete outside a known output directory.
    */
-  clear(base?: string): Promise<void>
+  empty(base?: string): Promise<void>
 }
 
 /**
@@ -54,23 +57,23 @@ export type Storage = {
  *
  *   return {
  *     name: 'memory',
- *     async hasItem(key) {
+ *     async existsItem(key) {
  *       return store.has(key)
  *     },
- *     async getItem(key) {
+ *     async readItem(key) {
  *       return store.get(key) ?? null
  *     },
- *     async setItem(key, value) {
+ *     async writeItem(key, value) {
  *       store.set(key, value)
  *     },
  *     async removeItem(key) {
  *       store.delete(key)
  *     },
- *     async getKeys(base) {
+ *     async readKeys(base) {
  *       const keys = [...store.keys()]
  *       return base ? keys.filter((k) => k.startsWith(base)) : keys
  *     },
- *     async clear(base) {
+ *     async empty(base) {
  *       if (!base) store.clear()
  *     },
  *   }

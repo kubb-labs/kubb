@@ -46,7 +46,7 @@ function createLimiter(concurrency: number) {
  * - the write is skipped when the file content is already identical
  * - missing parent directories are created automatically
  * - Bun's native file API is used when running under Bun
- * - concurrent `setItem` calls are capped at {@link WRITE_CONCURRENCY} in flight, so a caller
+ * - concurrent `writeItem` calls are capped at {@link WRITE_CONCURRENCY} in flight, so a caller
  *   can fire every file's write without pacing itself
  *
  * @example
@@ -66,7 +66,7 @@ export const fsStorage = createStorage(() => {
 
   return {
     name: 'fs',
-    async hasItem(key: string) {
+    async existsItem(key: string) {
       try {
         await access(resolve(key))
         return true
@@ -74,20 +74,20 @@ export const fsStorage = createStorage(() => {
         return false
       }
     },
-    async getItem(key: string) {
+    async readItem(key: string) {
       try {
         return await readFile(resolve(key), 'utf8')
       } catch (_error) {
         return null
       }
     },
-    async setItem(key: string, value: string) {
+    async writeItem(key: string, value: string) {
       await limit(() => write(resolve(key), value, { sanity: false }))
     },
     async removeItem(key: string) {
       await rm(resolve(key), { force: true })
     },
-    async getKeys(base?: string) {
+    async readKeys(base?: string) {
       const resolvedBase = resolve(base ?? process.cwd())
       const keys: Array<string> = []
 
@@ -103,7 +103,7 @@ export const fsStorage = createStorage(() => {
 
       return keys
     },
-    async clear(base?: string) {
+    async empty(base?: string) {
       if (!base) {
         return
       }

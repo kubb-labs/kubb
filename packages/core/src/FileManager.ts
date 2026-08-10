@@ -200,7 +200,7 @@ export class FileManager {
       for (const [index, file] of entries) {
         const source = await this.parse(file, { parsers })
         await this.hooks.callHook('update', { file, source, processed: index + 1, total, percentage: ((index + 1) / total) * 100 })
-        if (source) await storage.setItem(file.path, source)
+        if (source) await storage.writeItem(file.path, source)
       }
     }
 
