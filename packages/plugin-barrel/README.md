@@ -45,9 +45,7 @@ import { defineConfig } from 'kubb'
 import { pluginBarrel } from '@kubb/plugin-barrel'
 
 export default defineConfig({
-  input: {
-    path: './openapi.yaml',
-  },
+  input: './openapi.yaml',
   output: {
     path: './src/gen',
   },
