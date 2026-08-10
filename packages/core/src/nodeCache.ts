@@ -10,23 +10,23 @@
  *
  * @example Fill on first read, reuse afterwards
  * ```ts
- * const imports = ctx.cache.getOrSet('plugin-ts:imports', () => ctx.resolver.imports({ node, root, output }))
+ * const imports = ctx.cache.ensureItem('plugin-ts:imports', () => ctx.resolver.imports({ node, root, output }))
  * ```
  */
 export type NodeCache = {
   /**
    * Returns the value stored under `key`, or `undefined` when nothing is stored yet.
    */
-  getItem<TValue>(key: string): TValue | undefined
+  readItem<TValue>(key: string): TValue | undefined
   /**
    * Stores `value` under `key`, overwriting any previous value, and returns it.
    */
-  setItem<TValue>(key: string, value: TValue): TValue
+  writeItem<TValue>(key: string, value: TValue): TValue
   /**
    * Returns the value stored under `key`, computing and storing it with `factory` on the first
    * call. Later calls with the same key return the stored value without running `factory` again.
    */
-  getOrSet<TValue>(key: string, factory: () => TValue): TValue
+  ensureItem<TValue>(key: string, factory: () => TValue): TValue
 }
 
 /**
@@ -37,14 +37,14 @@ export function createNodeCache(): NodeCache {
   const store = new Map<string, unknown>()
 
   return {
-    getItem<TValue>(key: string): TValue | undefined {
+    readItem<TValue>(key: string): TValue | undefined {
       return store.get(key) as TValue | undefined
     },
-    setItem<TValue>(key: string, value: TValue): TValue {
+    writeItem<TValue>(key: string, value: TValue): TValue {
       store.set(key, value)
       return value
     },
-    getOrSet<TValue>(key: string, factory: () => TValue): TValue {
+    ensureItem<TValue>(key: string, factory: () => TValue): TValue {
       if (store.has(key)) return store.get(key) as TValue
 
       const value = factory()

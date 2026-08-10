@@ -125,7 +125,7 @@ export class Kubb {
         })
       }
 
-      await config.storage.clear(cleanPath)
+      await config.storage.empty(cleanPath)
     }
 
     await driver.setup()

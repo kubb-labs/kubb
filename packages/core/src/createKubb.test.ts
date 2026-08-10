@@ -666,10 +666,10 @@ describe('createKubb', () => {
       const fileCount = 105
       const writtenPaths: Array<string> = []
       const storage = memoryStorage()
-      const originalSetItem = storage.setItem.bind(storage)
-      storage.setItem = async (key, value) => {
+      const originalWriteItem = storage.writeItem.bind(storage)
+      storage.writeItem = async (key, value) => {
         writtenPaths.push(key)
-        return originalSetItem(key, value)
+        return originalWriteItem(key, value)
       }
 
       const plugin = definePlugin(() => ({

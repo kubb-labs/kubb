@@ -10,83 +10,83 @@ describe('memoryStorage', () => {
     const a = memoryStorage()
     const b = memoryStorage()
 
-    await a.setItem('key', 'value-a')
+    await a.writeItem('key', 'value-a')
 
-    expect(await b.hasItem('key')).toBe(false)
+    expect(await b.existsItem('key')).toBe(false)
   })
 
-  it('setItem and getItem round-trip', async () => {
+  it('writeItem and readItem round-trip', async () => {
     const storage = memoryStorage()
 
-    await storage.setItem('src/gen/api.ts', 'export const x = 1')
+    await storage.writeItem('src/gen/api.ts', 'export const x = 1')
 
-    expect(await storage.getItem('src/gen/api.ts')).toBe('export const x = 1')
+    expect(await storage.readItem('src/gen/api.ts')).toBe('export const x = 1')
   })
 
-  it('getItem returns null for a missing key', async () => {
-    expect(await memoryStorage().getItem('missing')).toBeNull()
+  it('readItem returns null for a missing key', async () => {
+    expect(await memoryStorage().readItem('missing')).toBeNull()
   })
 
-  it('hasItem returns false before write and true after', async () => {
+  it('existsItem returns false before write and true after', async () => {
     const storage = memoryStorage()
 
-    expect(await storage.hasItem('a')).toBe(false)
-    await storage.setItem('a', '1')
-    expect(await storage.hasItem('a')).toBe(true)
+    expect(await storage.existsItem('a')).toBe(false)
+    await storage.writeItem('a', '1')
+    expect(await storage.existsItem('a')).toBe(true)
   })
 
   it('removeItem deletes an existing key', async () => {
     const storage = memoryStorage()
 
-    await storage.setItem('a', '1')
+    await storage.writeItem('a', '1')
     await storage.removeItem('a')
 
-    expect(await storage.hasItem('a')).toBe(false)
+    expect(await storage.existsItem('a')).toBe(false)
   })
 
   it('removeItem does nothing for a missing key', async () => {
     await expect(memoryStorage().removeItem('ghost')).resolves.toBeUndefined()
   })
 
-  it('getKeys returns all keys when no base is given', async () => {
+  it('readKeys returns all keys when no base is given', async () => {
     const storage = memoryStorage()
 
-    await storage.setItem('src/gen/a.ts', '1')
-    await storage.setItem('src/gen/b.ts', '2')
-    await storage.setItem('other/c.ts', '3')
+    await storage.writeItem('src/gen/a.ts', '1')
+    await storage.writeItem('src/gen/b.ts', '2')
+    await storage.writeItem('other/c.ts', '3')
 
-    expect((await storage.getKeys()).sort()).toStrictEqual(['other/c.ts', 'src/gen/a.ts', 'src/gen/b.ts'])
+    expect((await storage.readKeys()).sort()).toStrictEqual(['other/c.ts', 'src/gen/a.ts', 'src/gen/b.ts'])
   })
 
-  it('getKeys filters by base prefix', async () => {
+  it('readKeys filters by base prefix', async () => {
     const storage = memoryStorage()
 
-    await storage.setItem('src/gen/a.ts', '1')
-    await storage.setItem('src/gen/b.ts', '2')
-    await storage.setItem('other/c.ts', '3')
+    await storage.writeItem('src/gen/a.ts', '1')
+    await storage.writeItem('src/gen/b.ts', '2')
+    await storage.writeItem('other/c.ts', '3')
 
-    expect((await storage.getKeys('src/gen')).sort()).toStrictEqual(['src/gen/a.ts', 'src/gen/b.ts'])
+    expect((await storage.readKeys('src/gen')).sort()).toStrictEqual(['src/gen/a.ts', 'src/gen/b.ts'])
   })
 
   it('clear with no base removes all keys', async () => {
     const storage = memoryStorage()
 
-    await storage.setItem('a', '1')
-    await storage.setItem('b', '2')
-    await storage.clear()
+    await storage.writeItem('a', '1')
+    await storage.writeItem('b', '2')
+    await storage.empty()
 
-    expect(await storage.getKeys()).toStrictEqual([])
+    expect(await storage.readKeys()).toStrictEqual([])
   })
 
   it('clear with base removes only matching keys', async () => {
     const storage = memoryStorage()
 
-    await storage.setItem('src/gen/a.ts', '1')
-    await storage.setItem('src/gen/b.ts', '2')
-    await storage.setItem('other/c.ts', '3')
+    await storage.writeItem('src/gen/a.ts', '1')
+    await storage.writeItem('src/gen/b.ts', '2')
+    await storage.writeItem('other/c.ts', '3')
 
-    await storage.clear('src/gen')
+    await storage.empty('src/gen')
 
-    expect(await storage.getKeys()).toStrictEqual(['other/c.ts'])
+    expect(await storage.readKeys()).toStrictEqual(['other/c.ts'])
   })
 })

@@ -33,7 +33,7 @@ function createBuildContext(): UnpluginBuildContext {
 
 function createMemoryStorage() {
   const store = new Map<string, string>()
-  const clear = vi.fn<Storage['clear']>(async (base) => {
+  const empty = vi.fn<Storage['empty']>(async (base) => {
     if (!base) {
       store.clear()
       return
@@ -48,26 +48,34 @@ function createMemoryStorage() {
 
   const storage: Storage = {
     name: 'memory',
-    async hasItem(key) {
+    async existsItem(key) {
       return store.has(key)
     },
-    async getItem(key) {
+    async readItem(key) {
       return store.get(key) ?? null
     },
-    async setItem(key, value) {
+    async writeItem(key, value) {
       store.set(key, value)
     },
     async removeItem(key) {
       store.delete(key)
     },
-    async getKeys(base) {
+    async ensureItem(key, factory) {
+      const stored = store.get(key)
+      if (stored !== undefined) return stored
+
+      const value = await factory()
+      store.set(key, value)
+      return value
+    },
+    async readKeys(base) {
       const keys = [...store.keys()]
       return base ? keys.filter((key) => key.startsWith(base)) : keys
     },
-    clear,
+    empty,
   }
 
-  return { clear, storage, store }
+  return { empty, storage, store }
 }
 
 describe('unpluginFactory', () => {
@@ -115,7 +123,7 @@ describe('unpluginFactory', () => {
 
   test('preserves the configured root during generation', async () => {
     const root = path.resolve(process.cwd(), 'custom-root')
-    const { clear, storage } = createMemoryStorage()
+    const { empty, storage } = createMemoryStorage()
     const config = {
       root,
       input: 'https://example.com/openapi.json',
@@ -127,7 +135,7 @@ describe('unpluginFactory', () => {
 
     await pluginOptions.buildStart?.call(createBuildContext())
 
-    expect(clear).toHaveBeenCalledWith(path.resolve(root, './gen'))
+    expect(empty).toHaveBeenCalledWith(path.resolve(root, './gen'))
   })
 
   test('fails the host build when generation fails', async () => {

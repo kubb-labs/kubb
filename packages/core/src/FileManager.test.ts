@@ -285,12 +285,12 @@ describe('FileManager', () => {
   describe('write', () => {
     it('is a no-op for an empty batch', async () => {
       const storage = memoryStorage()
-      const setItem = vi.spyOn(storage, 'setItem')
+      const writeItem = vi.spyOn(storage, 'writeItem')
       const manager = new FileManager()
 
       await manager.write([], { storage })
 
-      expect(setItem).not.toHaveBeenCalled()
+      expect(writeItem).not.toHaveBeenCalled()
     })
 
     it('writes every file in the batch', async () => {
@@ -299,18 +299,18 @@ describe('FileManager', () => {
 
       await manager.write([makeFileWithSources('a.ts', ['/* a.ts */']), makeFileWithSources('b.ts', ['/* b.ts */'])], { storage })
 
-      expect(await storage.getItem('a.ts')).toContain('/* a.ts */')
-      expect(await storage.getItem('b.ts')).toContain('/* b.ts */')
+      expect(await storage.readItem('a.ts')).toContain('/* a.ts */')
+      expect(await storage.readItem('b.ts')).toContain('/* b.ts */')
     })
 
     it('parses each file before writing it', async () => {
       const parsed: Array<string> = []
       const written: Array<string> = []
       const storage = memoryStorage()
-      const realSetItem = storage.setItem.bind(storage)
-      storage.setItem = async (itemPath: string, source: string) => {
+      const realWriteItem = storage.writeItem.bind(storage)
+      storage.writeItem = async (itemPath: string, source: string) => {
         written.push(itemPath)
-        await realSetItem(itemPath, source)
+        await realWriteItem(itemPath, source)
       }
       const parser = {
         name: 'ts',
@@ -358,12 +358,12 @@ describe('FileManager', () => {
     it('runs writes concurrently instead of pacing itself between files', async () => {
       const { promise: blockA, resolve: unblockA } = Promise.withResolvers<void>()
       const storage = memoryStorage()
-      const realSetItem = storage.setItem.bind(storage)
+      const realWriteItem = storage.writeItem.bind(storage)
       const started: Array<string> = []
-      storage.setItem = async (itemPath: string, source: string) => {
+      storage.writeItem = async (itemPath: string, source: string) => {
         started.push(itemPath)
         if (itemPath === 'a.ts') await blockA
-        await realSetItem(itemPath, source)
+        await realWriteItem(itemPath, source)
       }
       const manager = new FileManager()
 
@@ -382,7 +382,7 @@ describe('FileManager', () => {
       const block = new Promise<void>(() => {})
       const storage = memoryStorage()
       const started: Array<string> = []
-      storage.setItem = async (itemPath: string) => {
+      storage.writeItem = async (itemPath: string) => {
         started.push(itemPath)
         await block
       }
@@ -401,11 +401,11 @@ describe('FileManager', () => {
     it('waits for every write to finish before resolving', async () => {
       const { promise: blocker, resolve: unblock } = Promise.withResolvers<void>()
       const storage = memoryStorage()
-      const realSetItem = storage.setItem.bind(storage)
+      const realWriteItem = storage.writeItem.bind(storage)
       let settled = false
-      storage.setItem = async (itemPath: string, source: string) => {
+      storage.writeItem = async (itemPath: string, source: string) => {
         await blocker
-        await realSetItem(itemPath, source)
+        await realWriteItem(itemPath, source)
       }
       const manager = new FileManager()
 
@@ -419,12 +419,12 @@ describe('FileManager', () => {
       await writing
 
       expect(settled).toBe(true)
-      expect(await storage.getItem('a.ts')).toContain('/* a */')
+      expect(await storage.readItem('a.ts')).toContain('/* a */')
     })
 
     it('rejects when a write fails', async () => {
       const storage = memoryStorage()
-      storage.setItem = async () => {
+      storage.writeItem = async () => {
         throw new Error('disk full')
       }
       const manager = new FileManager()

@@ -513,7 +513,7 @@ describe('KubbDriver generator dispatch', () => {
               name: `${name}-cache`,
               schema(node: SchemaNode, gctx: GeneratorContext) {
                 // The first plugin to reach a node fills the token, and the rest read the same value.
-                const token = gctx.cache.getOrSet('token', () => ++counter)
+                const token = gctx.cache.ensureItem('token', () => ++counter)
                 seen.push({ plugin: gctx.plugin.name, node: node.name!, token })
                 return null
               },

@@ -24,23 +24,23 @@ export const memoryStorage = createStorage(() => {
 
   return {
     name: 'memory',
-    async hasItem(key: string) {
+    async existsItem(key: string) {
       return store.has(key)
     },
-    async getItem(key: string) {
+    async readItem(key: string) {
       return store.get(key) ?? null
     },
-    async setItem(key: string, value: string) {
+    async writeItem(key: string, value: string) {
       store.set(key, value)
     },
     async removeItem(key: string) {
       store.delete(key)
     },
-    async getKeys(base?: string) {
+    async readKeys(base?: string) {
       const keys = [...store.keys()]
       return base ? keys.filter((k) => k.startsWith(base)) : keys
     },
-    async clear(base?: string) {
+    async empty(base?: string) {
       if (!base) {
         store.clear()
         return
