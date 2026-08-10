@@ -32,6 +32,30 @@ export function getInputKind(input: NonNullable<Input>): InputKind {
 }
 
 /**
+ * The v4 `input` wrapper keys. v4 typed `input` as `{ path }` or `{ data }`; v5 takes the value
+ * directly, so the wrapper now matches the "already-parsed document" branch and silently yields
+ * an empty build.
+ */
+const legacyInputKeys = ['path', 'data']
+
+/**
+ * Detects the v4 `{ path }` / `{ data }` wrapper so it fails loudly instead of being read as a
+ * document. A real spec always carries more than these keys, so an object whose keys are drawn
+ * only from them is the old shape rather than a document that happens to have a `path` property.
+ */
+function isLegacyInput(input: unknown): boolean {
+  if (Array.isArray(input)) {
+    return input.some(isLegacyInput)
+  }
+
+  if (typeof input !== 'object' || input === null) return false
+
+  const keys = Object.keys(input)
+
+  return keys.length > 0 && keys.every((key) => legacyInputKeys.includes(key))
+}
+
+/**
  * Normalizes `config.input` into an `AdapterSource` the adapter can parse.
  *
  * A parsed object and inline content become `{ type: 'data' }`; a URL is kept verbatim and a
@@ -39,6 +63,16 @@ export function getInputKind(input: NonNullable<Input>): InputKind {
  */
 export function inputToAdapterSource(config: Config): AdapterSource {
   const input = config.input
+
+  if (input && isLegacyInput(input)) {
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.legacyInput,
+      severity: 'error',
+      message: 'The `input` option uses the v4 `{ path }` / `{ data }` wrapper.',
+      help: 'Unwrap it: `input: { path: "./petStore.yaml" }` becomes `input: "./petStore.yaml"`, and `input: { data: spec }` becomes `input: spec`.',
+      location: { kind: 'config' },
+    })
+  }
 
   if (!input) {
     throw new Diagnostics.Error({

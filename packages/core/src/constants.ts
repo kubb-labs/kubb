@@ -41,6 +41,16 @@ export const diagnosticCode = {
    */
   inputRequired: 'KUBB_INPUT_REQUIRED',
   /**
+   * `input` uses the v4 `{ path }` / `{ data }` wrapper, which v5 reads as a parsed
+   * document instead of a pointer to one.
+   */
+  legacyInput: 'KUBB_LEGACY_INPUT',
+  /**
+   * The parsed `input` carries no `openapi` or `swagger` version, so it is not a
+   * document the adapter can read.
+   */
+  invalidDocument: 'KUBB_INVALID_DOCUMENT',
+  /**
    * A `$ref` (or equivalent reference) could not be resolved in the source document.
    */
   refNotFound: 'KUBB_REF_NOT_FOUND',

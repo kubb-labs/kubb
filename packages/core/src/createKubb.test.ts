@@ -36,9 +36,7 @@ describe('createKubb', () => {
 
   const config = {
     root: '.',
-    input: {
-      path: 'https://petstore3.swagger.io/api/v3/openapi.json',
-    },
+    input: 'https://petstore3.swagger.io/api/v3/openapi.json',
     output: {
       path: './src/gen',
       clean: true,
@@ -71,9 +69,7 @@ describe('createKubb', () => {
 
   test('resolves config defaults in the constructor, before setup', () => {
     const userConfig = {
-      input: {
-        path: 'https://petstore3.swagger.io/api/v3/openapi.json',
-      },
+      input: 'https://petstore3.swagger.io/api/v3/openapi.json',
       output: {
         path: './src/gen',
       },
@@ -409,9 +405,7 @@ describe('createKubb', () => {
   it('does not throw when userConfig.plugins is undefined', async () => {
     const userConfig: UserConfig = {
       root: '.',
-      input: {
-        path: 'https://petstore3.swagger.io/api/v3/openapi.json',
-      },
+      input: 'https://petstore3.swagger.io/api/v3/openapi.json',
       output: {
         path: './src/gen',
       },
@@ -711,7 +705,7 @@ describe('createKubb', () => {
 describe('Kubb#generate', () => {
   const makeConfig = (overrides: Partial<Config> = {}): Config => ({
     root: '.',
-    input: { path: './petStore.yaml' },
+    input: './petStore.yaml',
     output: { path: './gen' },
     parsers: [],
     reporters: [],

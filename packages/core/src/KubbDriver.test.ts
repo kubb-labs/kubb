@@ -27,9 +27,7 @@ describe('PluginDriver', () => {
 
   const config = {
     root: '.',
-    input: {
-      path: './petStore.yaml',
-    },
+    input: './petStore.yaml',
     output: {
       path: './src/gen',
       clean: true,
@@ -381,7 +379,7 @@ describe('KubbDriver generator dispatch', () => {
     hooks = new Hookable<KubbHooks>()
     const config = {
       root: '.',
-      input: { path: './petStore.yaml' },
+      input: './petStore.yaml',
       output: { path: './gen' },
       parsers: [],
       reporters: [],
@@ -482,7 +480,7 @@ describe('KubbDriver generator dispatch', () => {
     } as unknown as Plugin
     const config = {
       root: '.',
-      input: { path: './petStore.yaml' },
+      input: './petStore.yaml',
       output: { path: './gen' },
       parsers: [],
       reporters: [],
@@ -525,7 +523,7 @@ describe('KubbDriver generator dispatch', () => {
     const localHooks = new Hookable<KubbHooks>()
     const cfg = {
       root: '.',
-      input: { path: './petStore.yaml' },
+      input: './petStore.yaml',
       output: { path: './gen' },
       parsers: [],
       reporters: [],
@@ -555,7 +553,7 @@ describe('KubbDriver generator dispatch', () => {
     } as unknown as Plugin
     const config = {
       root: '.',
-      input: { path: './petStore.yaml' },
+      input: './petStore.yaml',
       output: { path: './gen' },
       parsers: [],
       reporters: [],
@@ -592,7 +590,7 @@ describe('KubbDriver generator dispatch', () => {
     } as unknown as Plugin
     const config = {
       root: '.',
-      input: { path: './petStore.yaml' },
+      input: './petStore.yaml',
       output: { path: './gen' },
       parsers: [],
       reporters: [],
@@ -639,7 +637,7 @@ describe('KubbDriver generator dispatch', () => {
     } as unknown as Plugin
     const config = {
       root: '.',
-      input: { path: './petStore.yaml' },
+      input: './petStore.yaml',
       output: { path: './gen' },
       parsers: [],
       reporters: [],

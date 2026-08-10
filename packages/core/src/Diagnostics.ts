@@ -246,6 +246,16 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
     cause: 'An adapter is configured but no `input` was provided.',
     fix: 'Set `input` to a file path, a URL, an inline spec (JSON/YAML string), or a parsed object in your Kubb config.',
   },
+  [diagnosticCode.legacyInput]: {
+    title: 'Legacy input shape',
+    cause: '`input` is a `{ path }` or `{ data }` wrapper, which v4 used to point at a document and v5 reads as the document itself.',
+    fix: 'Unwrap it: `input: { path: "./petStore.yaml" }` becomes `input: "./petStore.yaml"`, and `input: { data: spec }` becomes `input: spec`.',
+  },
+  [diagnosticCode.invalidDocument]: {
+    title: 'Invalid document',
+    cause: 'The parsed `input` has no `openapi` or `swagger` version field, so it is not an OpenAPI or Swagger document.',
+    fix: 'Point `input` at a document that declares `openapi` or `swagger`, and check that a passed object is the spec itself rather than a wrapper around it.',
+  },
   [diagnosticCode.refNotFound]: {
     title: 'Reference not found',
     cause: 'A `$ref` could not be resolved in the source document.',

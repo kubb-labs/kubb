@@ -5,7 +5,7 @@ import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './emit/discriminator/propagate.ts'
 import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
 import { assertInputExists } from './load/source.ts'
-import { parseDocument, parseFromConfig, validateDocument } from './load/normalize.ts'
+import { assertDocument, parseDocument, parseFromConfig, validateDocument } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
 import { resolveBaseUrl } from './model/server.ts'
 import { getOperations } from './operation.ts'
@@ -187,6 +187,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     async validate(input, options) {
       await assertInputExists(input)
       const document = await parseDocument(input)
+      assertDocument(document)
       await validateDocument(document, options)
     },
     async parse(source) {
@@ -195,6 +196,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
       const promise = (async () => {
         const document = await parseFromConfig(source)
+        assertDocument(document)
         if (validate) await validateDocument(document)
         parsedDocument = document
 

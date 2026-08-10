@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { Diagnostics } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { compileErrors, validate } from '@readme/openapi-parser'
 import { upgrade } from '@scalar/openapi-upgrader'
@@ -98,6 +99,26 @@ export async function parseFromConfig(source: AdapterSource): Promise<Document> 
   const resolved = path.resolve(path.dirname(source.path), source.path)
   await assertInputExists(resolved)
   return parseDocument(resolved)
+}
+
+/**
+ * Asserts the parsed input is an OpenAPI or Swagger document.
+ *
+ * {@link validateDocument} keeps spec violations non-fatal so imperfect but usable documents still
+ * generate. That leniency also swallowed input that is not a document at all, which then produced
+ * an empty build with a success exit code. A missing version field is the one failure that cannot
+ * be a usable document, so it is fatal regardless of the `validate` option.
+ */
+export function assertDocument(document: Document): void {
+  if (document && ('openapi' in document || 'swagger' in document)) return
+
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.invalidDocument,
+    severity: 'error',
+    message: 'The resolved `input` is not an OpenAPI or Swagger document: it declares no `openapi` or `swagger` version.',
+    help: 'Point `input` at a document that declares `openapi` or `swagger`. If you pass an object, pass the spec itself rather than a wrapper such as `{ path }` or `{ data }`.',
+    location: { kind: 'config' },
+  })
 }
 
 /**
