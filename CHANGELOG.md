@@ -1,5 +1,71 @@
 # Changelog
 
+## v5.0.0-beta.107 — Aug 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Fail with `KUBB_INVALID_DOCUMENT` when `input` resolves to something that is not an OpenAPI or Swagger document.
+  
+  `validateDocument` keeps spec violations non-fatal so imperfect but usable documents still generate. That leniency also swallowed input that was not a document at all, so a wrong file or a wrapper object produced an empty build with a success exit code. A document that declares neither `openapi` nor `swagger` is now a hard error regardless of the `validate` option, while every other validation failure stays non-fatal. ([#3851](https://github.com/kubb-labs/kubb/pull/3851), [`3488427`](https://github.com/kubb-labs/kubb/commit/3488427f5fa7229364cc3f2ef254926f6efcdac4))
+- Default `unknownType` and `emptySchemaType` to `'unknown'` instead of `'any'`.
+  
+  Schemas the parser can't pin down a type for now generate `unknown` by default instead of `any`: `additionalProperties: {}`, `patternProperties` with an empty or `true` value, a tuple's open tail (`items: true` or absent), a completely empty schema (`{}`), and a `not` schema. This matches what the `unknownType: 'unknown'` override already did for users who set it, and keeps generated output clean under `no-explicit-any` lint rules without any config. Pass `unknownType: 'any'` (and/or `emptySchemaType: 'any'`) to restore the previous behavior. ([#3855](https://github.com/kubb-labs/kubb/pull/3855), [`1ae09e6`](https://github.com/kubb-labs/kubb/commit/1ae09e6d22a10eba4443a60702a6449d00d21299))
+- Fix the config examples in the package READMEs.
+  
+  `input` took an object (`input: { path: './openapi.yaml' }`) in the examples. Kubb reads a non-string `input` as an
+  already-parsed spec, so that form silently produced an empty document instead of reading the file. The examples now pass
+  the path as a string.
+  
+  The `@kubb/adapter-oas` README passed the adapter as `adapters: [adapterOas()]`, but the config key is the singular
+  `adapter`. It also documented `mergeDocuments`, which is no longer exported, and listed `HttpMethod` among the
+  re-exported types, which this package does not export. The API section now matches `src/index.ts` and documents
+  `adapterOasName`.
+  
+  The `@kubb/mcp` README imported `pluginOas` from `@kubb/plugin-oas`, a package that no longer exists. The example now
+  uses `adapterOas` from `@kubb/adapter-oas`. ([#3850](https://github.com/kubb-labs/kubb/pull/3850), [`f58b8cf`](https://github.com/kubb-labs/kubb/commit/f58b8cf2d59d3ef6b03f47c2cfea992b90021df2))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Replace the hand-rolled semver comparison in the update check with `verkit`, a zero-dependency semver library. ([#3847](https://github.com/kubb-labs/kubb/pull/3847), [`d58e971`](https://github.com/kubb-labs/kubb/commit/d58e9716d544c7802e8ef357da8c37af24f8ead8))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Reject the v4 `input: { path }` / `input: { data }` wrapper with a `KUBB_LEGACY_INPUT` error.
+  
+  v5 takes the `input` value directly, so the v4 wrapper matched the "already-parsed document" branch and Kubb read `{ path: './petStore.yaml' }` as the spec itself. The run then generated nothing but still reported success and exited `0`, which let a stale config pass CI with an empty client. The wrapper now fails with a message pointing at the unwrapped form. ([#3851](https://github.com/kubb-labs/kubb/pull/3851), [`3488427`](https://github.com/kubb-labs/kubb/commit/3488427f5fa7229364cc3f2ef254926f6efcdac4))
+- Rename the `Storage` and `NodeCache` methods to Node's filesystem vocabulary, and rename `getOrSet` to `ensureItem`.
+  
+  `getOrSet` on `NodeCache` named its implementation rather than what a caller wants. It is now `ensureItem`, after fs-extra's `ensureFile` and `ensureDir`: return what is stored under the key, computing and storing it first when nothing is there. The rest of the surface moves to matching fs verbs.
+  
+  | Before                 | After        |
+  | ---------------------- | ------------ |
+  | `hasItem`              | `existsItem` |
+  | `getItem`              | `readItem`   |
+  | `setItem`              | `writeItem`  |
+  | `getKeys`              | `readKeys`   |
+  | `clear`                | `empty`      |
+  | `getOrSet` (NodeCache) | `ensureItem` |
+  
+  `removeItem` keeps its name, since it already matches `fs.rm`.
+  
+  ```ts
+  const imports = ctx.cache.ensureItem('plugin-ts:imports', () => ctx.resolver.imports({ node, root, output }))
+  ```
+  
+  `ensureItem` lands on `NodeCache` only. `Storage` does not get one: read-through makes sense for a per-node memo, but on a code generator's output it would mean an already-written file is never regenerated, which is the opposite of what a generate pass should do. `fsStorage` already skips a write when the content on disk is identical, so the cost `ensureItem` would save is not there to begin with. ([#3852](https://github.com/kubb-labs/kubb/pull/3852), [`88119a7`](https://github.com/kubb-labs/kubb/commit/88119a7f5905b9aab8b50d41503f9ad82400f6aa))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.106 — Aug 9, 2026
 
 ### @kubb/adapter-oas
