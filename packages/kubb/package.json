@@ -139,7 +139,7 @@
     "rolldown": "^1.2.3",
     "rollup": "^4.62.4",
     "typescript": "catalog:",
-    "vite": "^8.2.0",
+    "vite": "^8.2.1",
     "webpack": "^5.109.2"
   },
   "preferGlobal": true,
