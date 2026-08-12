@@ -1,18 +1,81 @@
-import { exists, read } from '@internals/utils'
+import { exists, getErrorMessage, read } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import { parse } from 'yaml'
 
 const urlRegExp = /^https?:\/+/i
+
+/**
+ * Digs the specific reason out of a `fetch` rejection. Node reports every connection failure as
+ * `TypeError: fetch failed` and keeps the useful part (`connect ECONNREFUSED 127.0.0.1:8000`)
+ * on `cause`, one level deeper again when a host resolves to several addresses and the attempts
+ * are collected into an `AggregateError`.
+ */
+function describeFetchFailure(error: unknown): string {
+  if (error instanceof AggregateError && error.errors.length > 0) {
+    return describeFetchFailure(error.errors[0])
+  }
+  if (error instanceof Error && error.cause instanceof Error) {
+    return describeFetchFailure(error.cause) || error.message
+  }
+
+  return getErrorMessage(error)
+}
+
+/**
+ * The fix for a failed request, tuned to the status class so an authentication wall does not read
+ * like a typo in the URL.
+ */
+function helpForStatus(status: number): string {
+  if (status === 401 || status === 403) {
+    return 'The server refused the request. Kubb sends no credentials, so serve the document without authentication or download it and set `input` to the local file.'
+  }
+  if (status === 404) {
+    return 'Check the URL. Open it in a browser or with `curl` to confirm it serves the OpenAPI document.'
+  }
+  if (status >= 500) {
+    return 'The server failed while serving the document. Check that it is healthy, then run Kubb again.'
+  }
+
+  return 'Open the URL in a browser or with `curl` to see what the server returns, then point `input` at a URL that serves the OpenAPI document.'
+}
+
+/**
+ * Fetches a source URL, reporting a failure to reach the host as a coded `KUBB_INPUT_UNREACHABLE`
+ * diagnostic. Node's `fetch` rejection carries an empty message, so the reason is dug out of the
+ * cause chain and put in the message.
+ */
+async function fetchSource(url: URL): Promise<Response> {
+  try {
+    return await fetch(url)
+  } catch (error) {
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.inputUnreachable,
+      severity: 'error',
+      message: `Cannot reach ${url.href}: ${describeFetchFailure(error)}`,
+      help: 'Check that the host is running and reachable from this machine. For a local server, start it and confirm the port matches the one in `input`.',
+      location: { kind: 'config' },
+      cause: error instanceof Error ? error : undefined,
+    })
+  }
+}
 
 async function readSource(sourcePath: string): Promise<string> {
   if (urlRegExp.test(sourcePath)) {
     // api-ref-bundler joins relative refs with posix normalization, collapsing `https://` to
     // `https:/`. The WHATWG URL parser restores the double slash.
     const url = new URL(sourcePath)
-    const response = await fetch(url)
+    const response = await fetchSource(url)
 
     if (!response.ok) {
-      throw new Error(`Cannot fetch the OAS document at ${url.href} (HTTP ${response.status})`)
+      const status = response.statusText ? `${response.status} ${response.statusText}` : String(response.status)
+
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.inputRequestFailed,
+        severity: 'error',
+        message: `The server at ${url.href} answered with HTTP ${status} instead of the OpenAPI document.`,
+        help: helpForStatus(response.status),
+        location: { kind: 'config' },
+      })
     }
 
     return response.text()
@@ -37,7 +100,8 @@ export async function resolveSource(sourcePath: string): Promise<object | string
 
 /**
  * Throws a coded `KUBB_INPUT_NOT_FOUND` diagnostic when a local input path does not exist.
- * URLs are skipped, and a malformed but readable file is left for `parseDocument` to surface
+ * URLs are skipped: a remote input reports `KUBB_INPUT_REQUEST_FAILED` or `KUBB_INPUT_UNREACHABLE`
+ * from the request itself. A malformed but readable file is left for `parseDocument` to surface
  * its parse error instead.
  */
 export async function assertInputExists(input: string): Promise<void> {

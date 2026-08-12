@@ -279,10 +279,16 @@ describe('bundleDocument', () => {
     expect(requestedUrls).toStrictEqual(['https://specs.example.com/main.yaml', 'https://specs.example.com/schemas/Pet.yaml'])
   })
 
-  it('throws when the input URL cannot be fetched', async () => {
+  it('throws an input-request-failed diagnostic when the input URL answers with an error status', async () => {
     using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(mockFetch)
 
-    await expect(bundleDocument('https://specs.example.com/missing.yaml')).rejects.toThrow('HTTP 404')
+    try {
+      await bundleDocument('https://specs.example.com/missing.yaml')
+      expect.unreachable('expected bundleDocument to throw')
+    } catch (error) {
+      expect(Diagnostics.isError(error) && error.diagnostic.code).toBe(Diagnostics.code.inputRequestFailed)
+      expect(Diagnostics.isError(error) && error.diagnostic.message).toContain('HTTP 404')
+    }
   })
 
   it('throws when the input file does not exist', async () => {

@@ -238,8 +238,20 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   },
   [diagnosticCode.inputNotFound]: {
     title: 'Input not found',
-    cause: 'The file or URL set as `input` (or passed as `kubb generate PATH`) could not be read.',
-    fix: 'Check that the path or URL exists and is readable, then set it as `input` or pass it on the CLI.',
+    cause:
+      'The file set as `input` (or passed as `kubb generate PATH`) could not be read. A URL reports `KUBB_INPUT_REQUEST_FAILED` or `KUBB_INPUT_UNREACHABLE` instead.',
+    fix: 'Check that the path exists and is readable, then set it as `input` or pass it on the CLI.',
+  },
+  [diagnosticCode.inputRequestFailed]: {
+    title: 'Input request failed',
+    cause: 'A URL set as `input` (or reached through a `$ref`) answered with a 4xx or 5xx status instead of the document.',
+    fix: 'Open the URL to see what the server returns. A 401 or 403 needs credentials Kubb does not send, so download the document and point `input` at the local file. A 404 means the path is wrong, and a 5xx means the server itself failed.',
+  },
+  [diagnosticCode.inputUnreachable]: {
+    title: 'Input unreachable',
+    cause:
+      'A URL set as `input` (or reached through a `$ref`) never answered, so the request failed before a status came back. A refused connection, an unknown host, an expired certificate, and a timeout all land here.',
+    fix: 'Check that the host is running and reachable from this machine. For a local server, start it and confirm the port matches the one in `input`.',
   },
   [diagnosticCode.inputRequired]: {
     title: 'Input required',
