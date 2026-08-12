@@ -172,14 +172,14 @@ describe('buildAst', () => {
       const root = parseOas(oas)
       const nullableRef = ast.narrowSchema(
         root.schemas.find((s) => s.name === 'NullableRef'),
-        'ref',
+        'union',
       )
 
-      // Should be flattened to a ref — not an intersection
-      expect(nullableRef?.type).toBe('ref')
-      expect(nullableRef?.ref).toBe('#/components/schemas/Pet')
-      // nullable from the allOf member sibling is propagated to the ref node via buildSchemaNode.
-      expect(nullableRef?.nullable).toBe(true)
+      // The 3.1 upgrade rewrites `{ $ref, nullable: true }` into `anyOf: [$ref, null]`, so the
+      // single-member allOf flattens to that union instead of a ref carrying `nullable`.
+      expect(nullableRef?.type).toBe('union')
+      expect(nullableRef?.members?.map((member) => member.type)).toStrictEqual(['ref', 'null'])
+      expect(ast.narrowSchema(nullableRef?.members?.[0], 'ref')?.ref).toBe('#/components/schemas/Pet')
     })
 
     it('maps format date-time to datetime SchemaType', async () => {

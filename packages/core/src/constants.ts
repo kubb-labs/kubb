@@ -37,6 +37,16 @@ export const diagnosticCode = {
    */
   inputNotFound: 'KUBB_INPUT_NOT_FOUND',
   /**
+   * A URL set as `input` (or referenced by a `$ref`) answered with a 4xx or 5xx status
+   * instead of the document.
+   */
+  inputRequestFailed: 'KUBB_INPUT_REQUEST_FAILED',
+  /**
+   * A URL set as `input` (or referenced by a `$ref`) never answered, so the request failed
+   * before a status was returned.
+   */
+  inputUnreachable: 'KUBB_INPUT_UNREACHABLE',
+  /**
    * An adapter was configured without an `input`.
    */
   inputRequired: 'KUBB_INPUT_REQUIRED',
