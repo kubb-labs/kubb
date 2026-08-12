@@ -5,10 +5,9 @@ import { parse } from 'yaml'
 const urlRegExp = /^https?:\/+/i
 
 /**
- * Digs the specific reason out of a `fetch` rejection. Node reports every connection failure as
- * `TypeError: fetch failed` and keeps the useful part (`connect ECONNREFUSED 127.0.0.1:8000`)
- * on `cause`, one level deeper again when a host resolves to several addresses and the attempts
- * are collected into an `AggregateError`.
+ * Node reports every connection failure as `TypeError: fetch failed` and keeps the useful part
+ * (`connect ECONNREFUSED 127.0.0.1:8000`) on `cause`, one level deeper again when a host resolves
+ * to several addresses and the attempts collect into an `AggregateError`.
  */
 function describeFetchFailure(error: unknown): string {
   if (error instanceof AggregateError && error.errors.length > 0) {
@@ -21,10 +20,6 @@ function describeFetchFailure(error: unknown): string {
   return getErrorMessage(error)
 }
 
-/**
- * The fix for a failed request, tuned to the status class so an authentication wall does not read
- * like a typo in the URL.
- */
 function helpForStatus(status: number): string {
   if (status === 401 || status === 403) {
     return 'The server refused the request. Kubb sends no credentials, so serve the document without authentication or download it and set `input` to the local file.'
@@ -39,11 +34,6 @@ function helpForStatus(status: number): string {
   return 'Open the URL in a browser or with `curl` to see what the server returns, then point `input` at a URL that serves the OpenAPI document.'
 }
 
-/**
- * Fetches a source URL, reporting a failure to reach the host as a coded `KUBB_INPUT_UNREACHABLE`
- * diagnostic. Node's `fetch` rejection carries an empty message, so the reason is dug out of the
- * cause chain and put in the message.
- */
 async function fetchSource(url: URL): Promise<Response> {
   try {
     return await fetch(url)
