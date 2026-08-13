@@ -5,7 +5,8 @@ import { HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
-import { createOutputManifest, type OutputManifest, resolveOutputManifestPath } from './outputManifest.ts'
+import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
+import { cacheStorage } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { BuildOutput, Config, KubbHooks, UserConfig } from './types.ts'
 import { Hookable } from './Hookable.ts'
@@ -113,7 +114,9 @@ export class Kubb {
    */
   async setup(): Promise<void> {
     const config = this.config
-    const manifest = hasOutputPasses(config.output) ? await createOutputManifest({ path: resolveOutputManifestPath(config.root) }) : undefined
+    const manifest = hasOutputPasses(config.output)
+      ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) })
+      : undefined
     const driver = new KubbDriver(config, { hooks: this.hooks, manifest })
 
     // Each generator a plugin registers adds a listener to the shared hooks emitter, so size the
@@ -222,7 +225,7 @@ export class Kubb {
 
     // The formatter and linter have had their turn, so what sits on disk now is what the next run
     // has to recognize as unchanged.
-    await this.#manifest?.commit({ read: (key) => config.storage.readItem(key), exists: (key) => config.storage.existsItem(key) })
+    await this.#manifest?.commit()
 
     const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
     const failed = Diagnostics.hasError(outputDiagnostics)

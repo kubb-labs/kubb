@@ -1,6 +1,5 @@
 import { createHash } from 'node:crypto'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
+import type { Storage } from './createStorage.ts'
 
 /**
  * Bumped whenever the stored shape changes, so an older cache is discarded instead of misread.
@@ -16,7 +15,7 @@ export type OutputManifestEntry = {
    */
   source: string
   /**
-   * Hash of what sat on disk once the formatter, linter, and `postGenerate` were done with it.
+   * Hash of what the storage held once the formatter, linter, and `postGenerate` were done with it.
    */
   output: string
 }
@@ -28,16 +27,16 @@ type ManifestData = {
 
 /**
  * Remembers what the output passes did to each generated file, so the next run can tell
- * "the formatter already turned this exact source into what is on disk" apart from a real change.
+ * "the formatter already turned this exact source into what is stored" apart from a real change.
  *
  * The storage skips a write when the content it is about to write already matches the file. That
- * check can never match on its own once a formatter has run, because the bytes on disk are the
+ * check can never match on its own once a formatter has run, because the stored bytes are the
  * formatter's, not Kubb's, and the whole output tree is rewritten on every build.
  */
 export type OutputManifest = {
   /**
    * `true` when `source` is known to come out of the output passes as exactly the content already
-   * on disk, meaning the write can be skipped.
+   * stored, meaning the write can be skipped.
    */
   isUpToDate(options: { key: string; source: string; disk: string }): boolean
   /**
@@ -50,7 +49,7 @@ export type OutputManifest = {
    * generating into the same root does not evict the first one's, and deleted files do not
    * accumulate.
    */
-  commit(options: { read: (key: string) => Promise<string | null>; exists: (key: string) => Promise<boolean> }): Promise<void>
+  commit(): Promise<void>
 }
 
 function hash(value: string): string {
@@ -58,34 +57,34 @@ function hash(value: string): string {
 }
 
 /**
- * Where the cache for a project root lives. It sits under `node_modules/.cache`, the convention
- * babel and eslint already use, so it stays out of version control and out of reach of
- * `output.clean`.
+ * Key the manifest is stored under inside the cache storage.
  */
-export function resolveOutputManifestPath(root: string): string {
-  return join(root, 'node_modules', '.cache', 'kubb', 'output-manifest.json')
-}
+const MANIFEST_KEY = 'output-manifest.json'
 
-async function loadEntries(path: string): Promise<Record<string, OutputManifestEntry>> {
+async function loadEntries({ cache }: { cache: Storage }): Promise<Record<string, OutputManifestEntry>> {
+  const stored = await cache.readItem(MANIFEST_KEY)
+  if (stored === null) return {}
+
   try {
-    const data = JSON.parse(await readFile(path, { encoding: 'utf-8' })) as ManifestData
-    return data.version === VERSION ? data.entries : {}
+    const data = JSON.parse(stored) as ManifestData
+    return data.version === VERSION && data.entries ? data.entries : {}
   } catch {
     return {}
   }
 }
 
 /**
- * Loads the cache at `path`, or starts empty when it is missing, unreadable, or written by an
- * older version of Kubb.
+ * Loads the stored manifest, or starts empty when it is missing, unreadable, or written by an
+ * older version of Kubb. `storage` holds the generated files the manifest describes, `cache` is
+ * where the manifest itself lives.
  *
  * @example
  * ```ts
- * const manifest = await createOutputManifest({ path: resolveOutputManifestPath(config.root) })
+ * const manifest = await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) })
  * ```
  */
-export async function createOutputManifest({ path }: { path: string }): Promise<OutputManifest> {
-  const entries = await loadEntries(path)
+export async function createOutputManifest({ storage, cache }: { storage: Storage; cache: Storage }): Promise<OutputManifest> {
+  const entries = await loadEntries({ cache })
   const tracked = new Map<string, string>()
 
   return {
@@ -98,26 +97,25 @@ export async function createOutputManifest({ path }: { path: string }): Promise<
     track({ key, source }) {
       tracked.set(key, hash(source))
     },
-    async commit({ read, exists }) {
+    async commit() {
       const next: Record<string, OutputManifestEntry> = {}
 
       for (const [key, entry] of Object.entries(entries)) {
         if (tracked.has(key)) continue
-        if (await exists(key)) next[key] = entry
+        if (await storage.existsItem(key)) next[key] = entry
       }
 
       for (const [key, source] of tracked) {
-        const disk = await read(key)
-        if (disk === null) continue
+        const stored = await storage.readItem(key)
+        if (stored === null) continue
 
-        next[key] = { source, output: hash(disk) }
+        next[key] = { source, output: hash(stored) }
       }
 
       try {
-        await mkdir(dirname(path), { recursive: true })
-        await writeFile(path, JSON.stringify({ version: VERSION, entries: next } satisfies ManifestData), { encoding: 'utf-8' })
+        await cache.writeItem(MANIFEST_KEY, JSON.stringify({ version: VERSION, entries: next } satisfies ManifestData))
       } catch {
-        /* a missing or read-only node_modules costs the optimization, not the build */
+        /* a read-only cache location costs the optimization, not the build */
       }
     },
   }

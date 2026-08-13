@@ -7,8 +7,8 @@ import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { definePlugin } from './definePlugin.ts'
-import { resolveOutputManifestPath } from './outputManifest.ts'
 import type { Adapter, Config, KubbHooks, Plugin, UserConfig } from './types.ts'
+import { resolveCacheDir } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
@@ -820,7 +820,8 @@ describe('Kubb#generate', () => {
     const writeItem = vi.spyOn(storage, 'writeItem')
     await createKubb(config, { hooks: new Hookable<KubbHooks>() }).generate({ processOutput })
 
-    expect(writeItem).not.toHaveBeenCalled()
+    // The manifest itself still goes through the storage, so scope this to the generated file.
+    expect(writeItem).not.toHaveBeenCalledWith(filePath, expect.anything())
     expect(fs.statSync(filePath).mtimeMs).toBe(afterFirst)
     expect(fs.readFileSync(filePath, { encoding: 'utf-8' })).toBe(formatted)
 
@@ -870,10 +871,11 @@ describe('Kubb#generate', () => {
   it('keeps no manifest when nothing runs over the output', async () => {
     hooks = new Hookable<KubbHooks>()
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-generate-no-manifest-'))
+    const plugins = [injectFileAt(path.join(root, 'gen', 'world.ts'))] as unknown as Array<Plugin>
 
-    await createKubb(makeConfig({ root }), { hooks }).generate()
+    await createKubb(makeConfig({ root, storage: fsStorage(), plugins }), { hooks }).generate()
 
-    expect(fs.existsSync(resolveOutputManifestPath(root))).toBe(false)
+    expect(fs.existsSync(path.join(resolveCacheDir(root), 'output-manifest.json'))).toBe(false)
 
     fs.rmSync(root, { recursive: true, force: true })
   })

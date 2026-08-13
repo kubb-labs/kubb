@@ -365,20 +365,20 @@ describe('FileManager', () => {
 
     it('leaves the output alone on a rebuild after a formatter reflowed it', async () => {
       const dir = mkdtempSync(path.join(tmpdir(), 'kubb-rebuild-'))
-      const manifestPath = path.join(dir, 'manifest.json')
       const filePath = path.join(dir, 'a.ts')
       const storage = fsStorage()
+      const cache = memoryStorage()
       const files = [makeFileWithSources(filePath, [`export const a = 'b'`])]
 
-      const first = await createOutputManifest({ path: manifestPath })
+      const first = await createOutputManifest({ storage, cache })
       await new FileManager().write(files, { storage, manifest: first })
 
       // What prettier or biome leaves behind on a default config: reflowed quotes, a semicolon,
       // and a trailing newline, none of which match the bytes Kubb wrote.
       writeFileSync(filePath, 'export const a = "b";\n', { encoding: 'utf-8' })
-      await first.commit({ read: (key) => storage.readItem(key), exists: (key) => storage.existsItem(key) })
+      await first.commit()
 
-      const second = await createOutputManifest({ path: manifestPath })
+      const second = await createOutputManifest({ storage, cache })
       const writeItem = vi.spyOn(storage, 'writeItem')
       await new FileManager().write(files, { storage, manifest: second })
 
