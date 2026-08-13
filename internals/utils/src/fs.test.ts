@@ -85,6 +85,16 @@ describe('read / write', () => {
     expect(result).toBeNull()
   })
 
+  test('write creates a missing directory, and recreates one that disappeared', async () => {
+    const nested = path.join(rwTestDir, 'nested', 'deep', 'file.ts')
+    await write(nested, 'const a = 1')
+    await rm(path.join(rwTestDir, 'nested'), { recursive: true, force: true })
+
+    await write(nested, 'const a = 1')
+
+    expect(await read(nested)).toBe('const a = 1\n')
+  })
+
   it('write returns undefined for empty/whitespace data', async () => {
     expect(await write(rwFilePath, '   ')).toBeNull()
   })

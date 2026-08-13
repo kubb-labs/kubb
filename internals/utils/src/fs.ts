@@ -93,8 +93,17 @@ export async function write(path: string, data: string, options: WriteOptions = 
     /* file doesn't exist yet */
   }
 
-  await mkdir(dirname(resolved), { recursive: true })
-  await writeFile(resolved, content, { encoding: 'utf-8' })
+  // Creating the directory up front costs a syscall per file, and every file after the first in a
+  // directory pays it for nothing. Write first and only fall back when the directory is missing,
+  // which also stays correct when something removed it mid-run.
+  try {
+    await writeFile(resolved, content, { encoding: 'utf-8' })
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+
+    await mkdir(dirname(resolved), { recursive: true })
+    await writeFile(resolved, content, { encoding: 'utf-8' })
+  }
 
   if (options.sanity) {
     const savedData = await readFile(resolved, { encoding: 'utf-8' })
