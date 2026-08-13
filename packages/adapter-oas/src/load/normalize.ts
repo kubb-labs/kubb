@@ -1,7 +1,6 @@
 import path from 'node:path'
 import { Diagnostics } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
-import { compileErrors, validate } from '@readme/openapi-parser'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { bundle } from 'api-ref-bundler'
 import { parse } from 'yaml'
@@ -130,6 +129,12 @@ export function assertDocument(document: Document): void {
  * ```
  */
 export async function validateDocument(document: Document, { throwOnError = false }: { throwOnError?: boolean } = {}): Promise<void> {
+  // Imported here rather than at the top of the file. It is the heaviest dependency in the package
+  // by a wide margin, and importing `@kubb/adapter-oas` at all, which every config does, would
+  // otherwise pay for it even when `validate` is off and this function never runs. Kept outside the
+  // try so a module that fails to load still surfaces instead of being read as a spec violation.
+  const { compileErrors, validate } = await import('@readme/openapi-parser')
+
   try {
     // `validate` dereferences its input in place, so clone to keep the cached document intact.
     const result = await validate(structuredClone(document), {
