@@ -5,8 +5,6 @@ import { HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
-import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
-import { cacheStorage } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { BuildOutput, Config, KubbHooks, UserConfig } from './types.ts'
 import { Hookable } from './Hookable.ts'
@@ -26,14 +24,6 @@ function resolveConfig(userConfig: UserConfig): Config {
     reporters: userConfig.reporters ?? [],
     plugins: userConfig.plugins ?? [],
   }
-}
-
-/**
- * Whether anything runs over the output directory after the files are written. Only then can the
- * bytes on disk stop matching what Kubb wrote, which is what the manifest exists to track.
- */
-function hasOutputPasses(output: Config['output']): boolean {
-  return Boolean(output.format || output.lint || output.postGenerate?.length)
 }
 
 export type CreateKubbOptions = {
@@ -92,7 +82,6 @@ export class Kubb {
   readonly config: Config
   #driver: KubbDriver | null = null
   #storage: Storage | null = null
-  #manifest: OutputManifest | null = null
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
     this.config = resolveConfig(userConfig)
@@ -114,10 +103,7 @@ export class Kubb {
    */
   async setup(): Promise<void> {
     const config = this.config
-    const manifest = hasOutputPasses(config.output)
-      ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) })
-      : undefined
-    const driver = new KubbDriver(config, { hooks: this.hooks, manifest })
+    const driver = new KubbDriver(config, { hooks: this.hooks })
 
     // Each generator a plugin registers adds a listener to the shared hooks emitter, so size the
     // ceiling to the plugin count. Without this, a multi-generator plugin set trips Node's
@@ -146,7 +132,6 @@ export class Kubb {
 
     this.#driver = driver
     this.#storage = config.storage
-    this.#manifest = manifest ?? null
   }
 
   /**
@@ -222,10 +207,6 @@ export class Kubb {
     }
 
     const outputDiagnostics = options.processOutput ? await options.processOutput({ config, outputPath: resolve(config.root, config.output.path) }) : []
-
-    // The formatter and linter have had their turn, so what sits on disk now is what the next run
-    // has to recognize as unchanged.
-    await this.#manifest?.commit()
 
     const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
     const failed = Diagnostics.hasError(outputDiagnostics)

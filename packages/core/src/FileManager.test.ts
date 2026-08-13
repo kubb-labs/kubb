@@ -1,11 +1,9 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { ast, type FileNode } from '@kubb/ast'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { FileManager } from './FileManager.ts'
-import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
-import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
 function makeFile(filePath: string, sourceValue?: string, extra?: Partial<Parameters<typeof ast.factory.createFile>[0]>) {
@@ -17,21 +15,6 @@ function makeFile(filePath: string, sourceValue?: string, extra?: Partial<Parame
     exports: [],
     ...extra,
   })
-}
-
-function stubManifest({ upToDate }: { upToDate: boolean }): OutputManifest & { tracked: Array<string> } {
-  const tracked: Array<string> = []
-
-  return {
-    tracked,
-    isUpToDate() {
-      return upToDate
-    },
-    track({ key }) {
-      tracked.push(key)
-    },
-    async commit() {},
-  }
 }
 
 function makeFileWithSources(filePath: string, sources: Array<string> = []) {
@@ -318,74 +301,6 @@ describe('FileManager', () => {
 
       expect(await storage.readItem('a.ts')).toContain('/* a.ts */')
       expect(await storage.readItem('b.ts')).toContain('/* b.ts */')
-    })
-
-    it('skips a file the output passes already turned into what is on disk', async () => {
-      const storage = memoryStorage()
-      await storage.writeItem('a.ts', '/* a.ts */;\n')
-      const writeItem = vi.spyOn(storage, 'writeItem')
-      const manager = new FileManager()
-
-      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest: stubManifest({ upToDate: true }) })
-
-      expect(writeItem).not.toHaveBeenCalled()
-    })
-
-    it('writes a file the manifest does not vouch for', async () => {
-      const storage = memoryStorage()
-      await storage.writeItem('a.ts', '/* stale */')
-      const writeItem = vi.spyOn(storage, 'writeItem')
-      const manager = new FileManager()
-
-      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest: stubManifest({ upToDate: false }) })
-
-      expect(writeItem).toHaveBeenCalledTimes(1)
-    })
-
-    it('writes a file that is not on disk yet, whatever the manifest says', async () => {
-      const storage = memoryStorage()
-      const writeItem = vi.spyOn(storage, 'writeItem')
-      const manager = new FileManager()
-
-      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest: stubManifest({ upToDate: true }) })
-
-      expect(writeItem).toHaveBeenCalledTimes(1)
-    })
-
-    it('tracks every generated file so the manifest survives a skipped write', async () => {
-      const storage = memoryStorage()
-      await storage.writeItem('a.ts', '/* a.ts */;\n')
-      const manifest = stubManifest({ upToDate: true })
-      const manager = new FileManager()
-
-      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest })
-
-      expect(manifest.tracked).toStrictEqual(['a.ts'])
-    })
-
-    it('leaves the output alone on a rebuild after a formatter reflowed it', async () => {
-      const dir = mkdtempSync(path.join(tmpdir(), 'kubb-rebuild-'))
-      const filePath = path.join(dir, 'a.ts')
-      const storage = fsStorage()
-      const cache = memoryStorage()
-      const files = [makeFileWithSources(filePath, [`export const a = 'b'`])]
-
-      const first = await createOutputManifest({ storage, cache })
-      await new FileManager().write(files, { storage, manifest: first })
-
-      // What prettier or biome leaves behind on a default config: reflowed quotes, a semicolon,
-      // and a trailing newline, none of which match the bytes Kubb wrote.
-      writeFileSync(filePath, 'export const a = "b";\n', { encoding: 'utf-8' })
-      await first.commit()
-
-      const second = await createOutputManifest({ storage, cache })
-      const writeItem = vi.spyOn(storage, 'writeItem')
-      await new FileManager().write(files, { storage, manifest: second })
-
-      expect(writeItem).not.toHaveBeenCalled()
-      expect(readFileSync(filePath, { encoding: 'utf-8' })).toBe('export const a = "b";\n')
-
-      rmSync(dir, { recursive: true, force: true })
     })
 
     it('parses each file before writing it', async () => {
