@@ -7,6 +7,33 @@
 import type { ExportNode, ImportNode, SourceNode } from '../nodes/index.ts'
 import { extractStringsFromNodes } from './extractStringsFromNodes.ts'
 
+const IDENTIFIER_RUN = /[\w$]+/g
+const IDENTIFIER_ONLY = /^[\w$]+$/
+
+/**
+ * Every unbroken run of identifier characters in the source. An import name is built from those
+ * characters alone, so an occurrence of it sits inside exactly one run and never straddles two.
+ */
+function collectIdentifiers(source: string): Set<string> {
+  return new Set(source.match(IDENTIFIER_RUN))
+}
+
+/**
+ * Whether `name` occurs anywhere in the source, answered from the identifier runs instead of by
+ * scanning the text again. A name is normally an identifier, so the set settles it. The rest covers
+ * a name that only shows up inside a longer identifier, which has always counted as used, and a
+ * name holding a character no run can contain, which the set cannot speak for.
+ */
+function occursInSource({ identifiers, source, name }: { identifiers: Set<string>; source: string; name: string }): boolean {
+  if (identifiers.has(name)) return true
+  if (!IDENTIFIER_ONLY.test(name)) return source.includes(name)
+
+  for (const identifier of identifiers) {
+    if (identifier.length > name.length && identifier.includes(name)) return true
+  }
+  return false
+}
+
 function sourceKey(source: SourceNode): string {
   const nameKey = source.name ?? extractStringsFromNodes(source.nodes)
   return `${nameKey}:${source.isExportable ?? false}:${source.isTypeOnly ?? false}`
@@ -115,7 +142,23 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
 export function combineImports(imports: Array<ImportNode>, exports: Array<ExportNode>, source?: string): Array<ImportNode> {
   // Build a lookup of all exported names to retain imports that are re-exported
   const exportedNames = new Set(exports.flatMap((e) => (Array.isArray(e.name) ? e.name : e.name ? [e.name] : [])))
-  const isUsed = (importName: string): boolean => !source || source.includes(importName) || exportedNames.has(importName)
+
+  // Scanning the whole file per import name is quadratic, and `createFile` re-runs on every merge
+  // into a file, so a file assembled from many fragments pays it again for every fragment.
+  // Collecting the runs once and answering from the set costs one pass instead.
+  const identifiers = source ? collectIdentifiers(source) : null
+  const usage = new Map<string, boolean>()
+
+  const isUsed = (importName: string): boolean => {
+    if (!identifiers || !source) return true
+
+    const known = usage.get(importName)
+    if (known !== undefined) return known
+
+    const used = occursInSource({ identifiers, source, name: importName }) || exportedNames.has(importName)
+    usage.set(importName, used)
+    return used
+  }
 
   // Memoize object import names so the same logical (propertyName, name) pair always
   // reuses the same object reference. Set-based deduplication then works correctly.

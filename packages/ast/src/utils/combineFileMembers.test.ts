@@ -312,4 +312,33 @@ describe('combineImports', () => {
 
     expect(result).toHaveLength(0)
   })
+
+  it('keeps an import whose name only occurs inside a longer identifier', () => {
+    const imp = createImport({ name: ['Pet'], path: './pet.ts' })
+    const result = combineImports([imp], [], 'export type PetStore = { id: number }')
+
+    expect(result).toHaveLength(1)
+  })
+
+  it('keeps an import whose name occurs only inside a string literal or a comment', () => {
+    const inString = createImport({ name: ['Pet'], path: './pet.ts' })
+    const inComment = createImport({ name: ['Order'], path: './order.ts' })
+    const result = combineImports([inString, inComment], [], `// Order matters\nexport const kind = 'Pet'`)
+
+    expect(result).toHaveLength(2)
+  })
+
+  it('keeps an import used only in a generic position', () => {
+    const imp = createImport({ name: ['Pet'], path: './pet.ts' })
+    const result = combineImports([imp], [], 'const pets: Array<Pet> = []')
+
+    expect(result).toHaveLength(1)
+  })
+
+  it('drops an import when the source only holds a name it is a prefix of nothing in', () => {
+    const imp = createImport({ name: ['Pet'], path: './pet.ts' })
+    const result = combineImports([imp], [], 'export type Order = { id: number }')
+
+    expect(result).toHaveLength(0)
+  })
 })
