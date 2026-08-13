@@ -116,6 +116,7 @@
     "cli-validate-positional-input",
     "cli-verkit-version-compare",
     "coded-errors-and-mcp-diagnostics",
+    "coded-url-input-failures",
     "collect-collectsync-rename",
     "consolidate-input",
     "cool-jokes-pump",

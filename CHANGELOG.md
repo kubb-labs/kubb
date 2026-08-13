@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.0.0-beta.108 — Aug 12, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Give a failing URL `input` its own diagnostic code instead of `KUBB_UNKNOWN`.
+  
+  `KUBB_INPUT_REQUEST_FAILED` covers a 4xx or 5xx response and carries the status. `KUBB_INPUT_UNREACHABLE` covers a URL that never answers, with the reason (`connect ECONNREFUSED 127.0.0.1:8000`) pulled out of the cause chain Node hides behind an empty `fetch failed`. Both also apply to URLs reached through a `$ref`. ([#3857](https://github.com/kubb-labs/kubb/pull/3857), [`54ebf02`](https://github.com/kubb-labs/kubb/commit/54ebf0259aa22de714047bb7be2f0e8e09488dac))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.107 — Aug 11, 2026
 
 ### @kubb/adapter-oas
