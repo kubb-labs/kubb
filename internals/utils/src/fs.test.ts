@@ -1,4 +1,4 @@
-import { mkdir, rm } from 'node:fs/promises'
+import { mkdir, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
@@ -47,7 +47,34 @@ describe('read / write', () => {
     const text = `export const hallo = 'world'`
     await write(rwFilePath, text)
 
-    expect(await read(rwFilePath)).toBe(text)
+    expect(await read(rwFilePath)).toBe(`${text}\n`)
+  })
+
+  test('write ends the file with a single newline, like prettier and oxfmt do', async () => {
+    await write(rwFilePath, `export const hallo = 'world'\n\n`)
+
+    expect(await read(rwFilePath)).toBe(`export const hallo = 'world'\n`)
+  })
+
+  test('write does not rewrite a file a formatter already ended with a newline', async () => {
+    const text = `export const hallo = 'world'`
+    await writeFile(rwFilePath, `${text}\n`, { encoding: 'utf-8' })
+
+    expect(await write(rwFilePath, text)).toBeNull()
+    expect(await read(rwFilePath)).toBe(`${text}\n`)
+  })
+
+  test('write does not rewrite a file left without a trailing newline', async () => {
+    const text = `export const hallo = 'world'`
+    await writeFile(rwFilePath, text, { encoding: 'utf-8' })
+
+    expect(await write(rwFilePath, text)).toBeNull()
+  })
+
+  test('write rewrites when the content changed, not just its trailing whitespace', async () => {
+    await writeFile(rwFilePath, `export const hallo = 'world'\n`, { encoding: 'utf-8' })
+
+    expect(await write(rwFilePath, `export const hallo = 'moon'`)).toBe(`export const hallo = 'moon'\n`)
   })
 
   test('write does not rewrite when content is identical', async () => {
@@ -65,14 +92,14 @@ describe('read / write', () => {
   it('write performs sanity check when enabled', async () => {
     const text = `export const hallo = 'world with sanity'`
 
-    expect(await write(rwFilePath, text, { sanity: true })).toBe(text)
+    expect(await write(rwFilePath, text, { sanity: true })).toBe(`${text}\n`)
   })
 
   it('write trims data before saving', async () => {
     const text = `  export const hallo = 'world'  `
     await write(rwFilePath, text)
 
-    expect(await read(rwFilePath)).toBe(text.trim())
+    expect(await read(rwFilePath)).toBe(`${text.trim()}\n`)
   })
 })
 

@@ -1,5 +1,5 @@
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
-import { mkdir, stat } from 'node:fs/promises'
+import { mkdir, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
@@ -27,7 +27,7 @@ describe('fsStorage', () => {
     await storage.writeItem(key, 'export const x = 1')
     const result = await storage.readItem(key)
 
-    expect(result).toBe('export const x = 1')
+    expect(result).toBe('export const x = 1\n')
   })
 
   it('writeItem creates missing parent directories', async () => {
@@ -36,7 +36,7 @@ describe('fsStorage', () => {
 
     await storage.writeItem(key, 'const y = 2')
 
-    expect(await storage.readItem(key)).toBe('const y = 2')
+    expect(await storage.readItem(key)).toBe('const y = 2\n')
   })
 
   it('writeItem skips write when content is unchanged', async () => {
@@ -50,6 +50,19 @@ describe('fsStorage', () => {
     const mtime2 = (await stat(key)).mtimeMs
 
     expect(mtime1).toBe(mtime2)
+  })
+
+  it('writeItem skips write when a formatter has been over the file', async () => {
+    const storage = fsStorage()
+    const key = join(dir, 'formatted.ts')
+
+    await storage.writeItem(key, 'const z = 3')
+    await writeFile(key, 'const z = 3\n\n', { encoding: 'utf-8' })
+    const mtime1 = (await stat(key)).mtimeMs
+
+    await storage.writeItem(key, 'const z = 3')
+
+    expect((await stat(key)).mtimeMs).toBe(mtime1)
   })
 
   it('readItem returns null for a missing key', async () => {
