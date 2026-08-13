@@ -2,6 +2,7 @@ import { read } from '@internals/utils'
 import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
 import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'
+import type { OutputManifest } from './outputManifest.ts'
 import { Hookable } from './Hookable.ts'
 
 /**
@@ -19,6 +20,11 @@ type ParseOptions = {
 
 type WriteOptions = ParseOptions & {
   storage: Storage
+  /**
+   * Consulted before each write so a file the output passes already normalized is recognized as
+   * unchanged. Omitted when no formatter, linter, or `postGenerate` step is configured.
+   */
+  manifest?: OutputManifest
 }
 
 // Cap how many files are parsed and written at once. A small spec runs all its files in parallel;
@@ -187,7 +193,7 @@ export class FileManager {
    * next file's parse. Each `update` carries the file's input position, so a consumer can present
    * the files in generation order even though they finish in whatever order they parse.
    */
-  async write(files: Array<FileNode>, { storage, parsers }: WriteOptions): Promise<void> {
+  async write(files: Array<FileNode>, { storage, parsers, manifest }: WriteOptions): Promise<void> {
     if (files.length === 0) return
 
     await this.hooks.callHook('start', files)
@@ -200,7 +206,15 @@ export class FileManager {
       for (const [index, file] of entries) {
         const source = await this.parse(file, { parsers })
         await this.hooks.callHook('update', { file, source, processed: index + 1, total, percentage: ((index + 1) / total) * 100 })
-        if (source) await storage.writeItem(file.path, source)
+        if (!source) continue
+
+        if (manifest) {
+          manifest.track({ key: file.path, source })
+          const disk = await storage.readItem(file.path)
+          if (disk !== null && manifest.isUpToDate({ key: file.path, source, disk })) continue
+        }
+
+        await storage.writeItem(file.path, source)
       }
     }
 

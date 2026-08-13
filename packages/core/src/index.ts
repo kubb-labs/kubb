@@ -16,6 +16,7 @@ export { Resolver } from './Resolver.ts'
 export { KubbDriver } from './KubbDriver.ts'
 export { getInputKind } from './input.ts'
 export type { InputKind } from './input.ts'
+export { cacheStorage } from './storages/cacheStorage.ts'
 export { fsStorage } from './storages/fsStorage.ts'
 export { memoryStorage } from './storages/memoryStorage.ts'
 

@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
@@ -7,6 +8,7 @@ import { createKubb } from './createKubb.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Adapter, Config, KubbHooks, Plugin, UserConfig } from './types.ts'
+import { resolveCacheDir } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
@@ -774,6 +776,108 @@ describe('Kubb#generate', () => {
 
     expect(result.success).toBe(false)
     expect(ranProcessOutput).toBe(false)
+  })
+
+  const injectFileAt = (filePath: string) =>
+    definePlugin(() => ({
+      name: 'plugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.injectFile(
+            ast.factory.createFile({
+              path: filePath,
+              baseName: 'world.ts',
+              sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`export const hello = 'world'`)] })],
+              imports: [],
+              exports: [],
+            }),
+          )
+        },
+      },
+    }))()
+
+  it('does not rewrite the output on a rebuild after the formatter reflowed it', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-generate-manifest-'))
+    const filePath = path.join(root, 'gen', 'world.ts')
+    const storage = fsStorage()
+    const plugins = [injectFileAt(filePath)] as unknown as Array<Plugin>
+    const config = makeConfig({ root, output: { path: './gen', format: 'oxfmt' }, storage, plugins })
+
+    // Stands in for the formatter pass: reflows what Kubb wrote, exactly as prettier or biome
+    // would on a config that disagrees with Kubb's emitted style, and like them leaves a file it
+    // has nothing to change alone.
+    const formatted = 'export const hello = "world";\n'
+    const processOutput = async () => {
+      if (fs.readFileSync(filePath, { encoding: 'utf-8' }) !== formatted) fs.writeFileSync(filePath, formatted, { encoding: 'utf-8' })
+      return []
+    }
+
+    await createKubb(config, { hooks: new Hookable<KubbHooks>() }).generate({ processOutput })
+    const afterFirst = fs.statSync(filePath).mtimeMs
+
+    // Long enough that a rewrite would move mtime, which is what the issue reports watchers seeing.
+    await new Promise((done) => setTimeout(done, 10))
+    const writeItem = vi.spyOn(storage, 'writeItem')
+    await createKubb(config, { hooks: new Hookable<KubbHooks>() }).generate({ processOutput })
+
+    // The manifest itself still goes through the storage, so scope this to the generated file.
+    expect(writeItem).not.toHaveBeenCalledWith(filePath, expect.anything())
+    expect(fs.statSync(filePath).mtimeMs).toBe(afterFirst)
+    expect(fs.readFileSync(filePath, { encoding: 'utf-8' })).toBe(formatted)
+
+    fs.rmSync(root, { recursive: true, force: true })
+  })
+
+  it('rewrites the output when the generated source actually changed', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-generate-changed-'))
+    const filePath = path.join(root, 'gen', 'world.ts')
+    const storage = fsStorage()
+    const processOutput = async () => []
+
+    const first = makeConfig({
+      root,
+      output: { path: './gen', format: 'oxfmt' },
+      storage,
+      plugins: [injectFileAt(filePath)] as unknown as Array<Plugin>,
+    })
+    await createKubb(first, { hooks: new Hookable<KubbHooks>() }).generate({ processOutput })
+
+    const changed = definePlugin(() => ({
+      name: 'plugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.injectFile(
+            ast.factory.createFile({
+              path: filePath,
+              baseName: 'world.ts',
+              sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`export const hello = 'moon'`)] })],
+              imports: [],
+              exports: [],
+            }),
+          )
+        },
+      },
+    }))()
+
+    await createKubb(makeConfig({ root, output: { path: './gen', format: 'oxfmt' }, storage, plugins: [changed] as unknown as Array<Plugin> }), {
+      hooks: new Hookable<KubbHooks>(),
+    }).generate({ processOutput })
+
+    expect(fs.readFileSync(filePath, { encoding: 'utf-8' })).toBe(`export const hello = 'moon'\n`)
+
+    fs.rmSync(root, { recursive: true, force: true })
+  })
+
+  it('keeps no manifest when nothing runs over the output', async () => {
+    hooks = new Hookable<KubbHooks>()
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-generate-no-manifest-'))
+    const plugins = [injectFileAt(path.join(root, 'gen', 'world.ts'))] as unknown as Array<Plugin>
+
+    await createKubb(makeConfig({ root, storage: fsStorage(), plugins }), { hooks }).generate()
+
+    expect(fs.existsSync(path.join(resolveCacheDir(root), 'output-manifest.json'))).toBe(false)
+
+    fs.rmSync(root, { recursive: true, force: true })
   })
 
   it('routes an unknown-code build error to the kubb:error hook', async () => {
