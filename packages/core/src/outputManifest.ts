@@ -1,4 +1,6 @@
 import { createHash } from 'node:crypto'
+import { inParallel } from '@internals/utils'
+import { FILE_CONCURRENCY } from './constants.ts'
 import type { Storage } from './createStorage.ts'
 
 /**
@@ -61,10 +63,6 @@ function hash(value: string): string {
 
 const MANIFEST_KEY = 'output-manifest.json'
 
-// Matches `FileManager`'s write concurrency, so the commit reads the tree back at the same rate it
-// was written rather than one file at a time.
-const READ_CONCURRENCY = 50
-
 async function loadEntries({ cache }: { cache: Storage }): Promise<Record<string, OutputManifestEntry>> {
   try {
     const stored = await cache.readItem(MANIFEST_KEY)
@@ -109,20 +107,18 @@ export async function createOutputManifest({ storage, cache }: { storage: Storag
     async commit() {
       try {
         const next = { ...entries }
-        const written = [...tracked]
 
-        // Reading a whole output tree one file at a time is the slowest thing this can do, so keep
-        // the same number of reads in flight that `FileManager` allows writes.
-        for (let index = 0; index < written.length; index += READ_CONCURRENCY) {
-          await Promise.all(
-            written.slice(index, index + READ_CONCURRENCY).map(async ([key, source]) => {
-              const stored = await storage.readItem(key)
-              if (stored === null) return
+        // Reads the tree back through the same pool that wrote it, rather than one file at a time.
+        await inParallel({
+          items: [...tracked],
+          limit: FILE_CONCURRENCY,
+          run: async ([key, source]) => {
+            const stored = await storage.readItem(key)
+            if (stored === null) return
 
-              next[key] = { source, output: hash(stored) }
-            }),
-          )
-        }
+            next[key] = { source, output: hash(stored) }
+          },
+        })
 
         await cache.writeItem(MANIFEST_KEY, JSON.stringify({ version: VERSION, entries: next } satisfies ManifestData))
       } catch {
