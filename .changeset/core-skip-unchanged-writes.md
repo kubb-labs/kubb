@@ -4,8 +4,8 @@
 
 Skip writing a file the storage already holds, for every storage driver instead of only `fsStorage`.
 
-`FileManager` handed every generated file to `storage.writeItem` on each build and left it to the driver to notice the content had not changed. `fsStorage` does that check internally, so builds onto the filesystem already left untouched files alone, but a custom storage backed by S3, a database, or an in-memory bundler VFS received a write per file per build regardless of content, and anything watching the other end treated each one as a change.
+`FileManager` handed every generated file to `storage.writeItem` on each build and left it to the driver to notice the content had not changed. `fsStorage` does that check internally, so builds onto the filesystem already left untouched files alone. A custom storage backed by S3 or a database got a write per file per build regardless of content, and anything watching the far end read every one of them as a change.
 
-The check now runs in the write pipeline, before the driver is called. A rebuild that generates identical output performs no writes at all, whatever the storage. `fsStorage` keeps its own check as a safety net for direct callers, so the read count for an unchanged file is unchanged: the pipeline reads it instead of the driver.
+The check now runs in the write pipeline, before any driver is called. A rebuild that generates identical output writes nothing, whatever the storage.
 
-Barrel files go through this path like any other generated file, so an unchanged `index.ts` is no longer rewritten either.
+`fsStorage` keeps its own check for direct callers. An unchanged file still costs a single read, because the pipeline now does the read the driver used to do.

@@ -81,6 +81,15 @@ function compareFiles(a: FileNode, b: FileNode): number {
   return 0
 }
 
+// A file is unchanged either because the storage already holds this content, or because the
+// manifest knows the output passes turn this exact source into what the storage holds.
+function isUnchanged({ stored, source, key, manifest }: { stored: string | null; source: string; key: string; manifest?: OutputManifest }): boolean {
+  if (stored === null) return false
+  if (matchesStored({ stored, source })) return true
+
+  return manifest?.isUpToDate({ key, source, disk: stored }) ?? false
+}
+
 /**
  * In-memory file store for generated files, and the writer that turns them into source
  * strings on `storage`. Files sharing a `path` are merged (sources/imports/exports
@@ -206,12 +215,10 @@ export class FileManager {
         await this.hooks.callHook('update', { file, source, processed: index + 1, total, percentage: ((index + 1) / total) * 100 })
         if (!source) return
 
-        // Skipping happens here rather than inside a driver, so a storage writing to S3 or a
-        // database gets the same "unchanged content is not rewritten" guarantee `fsStorage` has.
-        // The manifest covers the second way a file can be unchanged: the output passes are known
-        // to turn this exact source into what is stored.
+        // Checking here rather than inside a driver gives a storage writing to S3 or a database
+        // the same guarantee `fsStorage` has, that unchanged content is never rewritten.
         const stored = await storage.readItem(file.path)
-        if (stored !== null && (matchesStored({ stored, source }) || manifest?.isUpToDate({ key: file.path, source, disk: stored }))) return
+        if (isUnchanged({ stored, source, key: file.path, manifest })) return
 
         await storage.writeItem(file.path, source)
 

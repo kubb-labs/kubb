@@ -54,7 +54,7 @@ type WriteOptions = {
  * reason to rewrite the file.
  *
  * The write pipeline applies this before handing a file to any storage driver, so the rule holds
- * for a custom backend and not just for the filesystem.
+ * for a custom backend too.
  */
 export function matchesStored({ stored, source }: { stored: string; source: string }): boolean {
   return stored.trimEnd() === source.trim()
