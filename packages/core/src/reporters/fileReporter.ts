@@ -96,7 +96,7 @@ export const fileReporter = createReporter({
     const baseName = `${['kubb', config.name, Date.now()].filter(Boolean).join('-')}.log`
     const pathName = resolve(process.cwd(), '.kubb', baseName)
 
-    await write(pathName, content)
+    await write(pathName, `${content}\n`)
     console.error(`Debug log written to ${relative(process.cwd(), pathName)}`)
   },
 })

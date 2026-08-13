@@ -49,14 +49,24 @@ type WriteOptions = {
 }
 
 /**
- * Writes `data` to `path`, trimming surrounding whitespace and ending the file with a single newline.
- * Skips the write when the content is empty or identical to what is already on disk.
+ * Whether the file already holds this content, comparing on the trimmed text rather than the exact
+ * bytes. Trailing whitespace is what a formatter adds and what editors strip, and neither is a
+ * reason to rewrite the file.
+ */
+function matchesOnDisk({ disk, content }: { disk: string; content: string }): boolean {
+  return disk.trimEnd() === content
+}
+
+/**
+ * Writes `data` to `path`, trimming surrounding whitespace and ending the file with a single newline
+ * the way prettier, biome, and oxfmt all do.
+ * Skips the write when the trimmed content is empty, or when the file already holds that content.
  * Creates any missing parent directories automatically.
  * When `sanity` is `true`, re-reads the file after writing and throws if the content does not match.
  *
  * @example
  * ```ts
- * await write('./src/Pet.ts', source)         // writes and returns the normalized content
+ * await write('./src/Pet.ts', source)         // writes and returns the trimmed content plus a newline
  * await write('./src/Pet.ts', source)         // null — file unchanged
  * await write('./src/Pet.ts', '  ')           // null — empty content skipped
  * ```
@@ -65,23 +75,20 @@ export async function write(path: string, data: string, options: WriteOptions = 
   const trimmed = data.trim()
   if (trimmed === '') return null
 
-  // Prettier, biome, and oxfmt all end a file with a newline. Writing one here too keeps the
-  // comparison below meaningful once a formatter has been over the file, instead of missing on
-  // that single byte and rewriting the whole output tree every run.
   const content = `${trimmed}\n`
   const resolved = resolve(path)
 
   if (runtime.isBun) {
     const file = Bun.file(resolved)
-    const oldContent = (await file.exists()) ? await file.text() : null
-    if (oldContent === content) return null
+    const oldContent = (await file.exists()) ? await file.text() : ''
+    if (matchesOnDisk({ disk: oldContent, content: trimmed })) return null
     await Bun.write(resolved, content)
     return content
   }
 
   try {
     const oldContent = await readFile(resolved, { encoding: 'utf-8' })
-    if (oldContent === content) return null
+    if (matchesOnDisk({ disk: oldContent, content: trimmed })) return null
   } catch {
     /* file doesn't exist yet */
   }

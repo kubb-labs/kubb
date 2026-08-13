@@ -50,7 +50,7 @@ describe('read / write', () => {
     expect(await read(rwFilePath)).toBe(`${text}\n`)
   })
 
-  test('write ends the file with a single newline', async () => {
+  test('write ends the file with a single newline, like prettier and oxfmt do', async () => {
     await write(rwFilePath, `export const hallo = 'world'\n\n`)
 
     expect(await read(rwFilePath)).toBe(`export const hallo = 'world'\n`)
@@ -61,6 +61,20 @@ describe('read / write', () => {
     await writeFile(rwFilePath, `${text}\n`, { encoding: 'utf-8' })
 
     expect(await write(rwFilePath, text)).toBeNull()
+    expect(await read(rwFilePath)).toBe(`${text}\n`)
+  })
+
+  test('write does not rewrite a file left without a trailing newline', async () => {
+    const text = `export const hallo = 'world'`
+    await writeFile(rwFilePath, text, { encoding: 'utf-8' })
+
+    expect(await write(rwFilePath, text)).toBeNull()
+  })
+
+  test('write rewrites when the content changed, not just its trailing whitespace', async () => {
+    await writeFile(rwFilePath, `export const hallo = 'world'\n`, { encoding: 'utf-8' })
+
+    expect(await write(rwFilePath, `export const hallo = 'moon'`)).toBe(`export const hallo = 'moon'\n`)
   })
 
   test('write does not rewrite when content is identical', async () => {
