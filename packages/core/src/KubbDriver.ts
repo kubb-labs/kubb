@@ -16,7 +16,17 @@ import { createNodeCache } from './nodeCache.ts'
 import type { OutputManifest } from './outputManifest.ts'
 import { inputToAdapterSource } from './input.ts'
 
-import type { Adapter, AdapterSource, Config, GeneratorContext, Group, KubbHooks, NormalizedPlugin, PluginFactoryOptions } from './types.ts'
+import type {
+  Adapter,
+  AdapterSource,
+  Config,
+  GeneratorContext,
+  Group,
+  KubbFileProcessingUpdate,
+  KubbHooks,
+  NormalizedPlugin,
+  PluginFactoryOptions,
+} from './types.ts'
 import type { Hookable } from './Hookable.ts'
 
 type Options = {
@@ -284,7 +294,6 @@ export class KubbDriver {
   async run(): Promise<{ diagnostics: Array<Diagnostic> }> {
     const { hooks, config, fileManager } = this
     const diagnostics: Array<Diagnostic> = []
-    const updateBuffer: Array<{ file: FileNode; source?: string; processed: number; total: number; percentage: number }> = []
     const parsersMap = new Map<FileNode['extname'], Parser>()
 
     for (const parser of config.parsers) {
@@ -293,22 +302,53 @@ export class KubbDriver {
       }
     }
 
+    // Files parse concurrently, so rows arrive in completion order while `processed` carries each
+    // file's input position. A row waits here only until every earlier one has gone out, which is
+    // what keeps generation order. Holding them all until the batch ends would instead pin every
+    // parsed source in memory for the whole write pass, undoing the bound `fileManager.write` puts
+    // on how many sources exist at once.
+    const pending = new Map<number, KubbFileProcessingUpdate>()
+    let nextToSend = 1
+    // Chunks are handed to the hook one at a time, so a listener that awaits cannot let a later
+    // chunk overtake an earlier one.
+    let sending: Promise<void> = Promise.resolve()
+
+    const send = (rows: Array<KubbFileProcessingUpdate>): Promise<void> => {
+      sending = sending.then(() => hooks.callHook('kubb:files:processing:update', { files: rows }))
+      return sending
+    }
+
+    const takeReady = (): Array<KubbFileProcessingUpdate> => {
+      const rows: Array<KubbFileProcessingUpdate> = []
+      for (let row = pending.get(nextToSend); row; row = pending.get(nextToSend)) {
+        rows.push(row)
+        pending.delete(nextToSend)
+        nextToSend++
+      }
+      return rows
+    }
+
     const unhookWrites = fileManager.hooks.addHooks({
       start: async (files) => {
         await hooks.callHook('kubb:files:processing:start', { files })
       },
       update: (item) => {
-        updateBuffer.push(item)
+        pending.set(item.processed, { ...item, config })
+
+        // Queued, not awaited. Returning the promise here would make each file wait for every
+        // earlier one to be delivered, which turns the concurrent write pass back into a serial
+        // one. A listener that rejects surfaces at `end`, where the chain is awaited.
+        const rows = takeReady()
+        if (rows.length) void send(rows)
       },
       end: async (files: Array<FileNode>) => {
-        // Files parse concurrently, so the buffer arrives in completion order. `processed` is each
-        // file's input position, so sorting by it restores generation order for the streamed rows.
-        updateBuffer.sort((a, b) => a.processed - b.processed)
+        // Every file reports, so the run above always drains. Release anything left in input order
+        // regardless, so a future caller that skips a position cannot strand the rows behind it.
+        const rows = [...pending.values()].sort((a, b) => a.processed - b.processed)
+        pending.clear()
+        if (rows.length) await send(rows)
 
-        await hooks.callHook('kubb:files:processing:update', {
-          files: updateBuffer.map((item) => ({ ...item, config })),
-        })
-        updateBuffer.length = 0
+        await sending
         await hooks.callHook('kubb:files:processing:end', { files })
       },
     })

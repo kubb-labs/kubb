@@ -376,6 +376,41 @@ describe('createKubb', () => {
     ])
   })
 
+  it('releases each file-processing row as it completes instead of holding the batch', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const chunks: Array<Array<number>> = []
+    hooks.hook('kubb:files:processing:update', ({ files }) => {
+      chunks.push(files.map((row) => row.processed))
+    })
+
+    const filePlugin = definePlugin(() => ({
+      name: 'streaming-plugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          for (const index of [1, 2, 3, 4]) {
+            ctx.injectFile(
+              ast.factory.createFile({
+                path: `/workspace/src/gen/file${index}.ts`,
+                baseName: `file${index}.ts`,
+                sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`export const file${index} = ${index}`)] })],
+                imports: [],
+                exports: [],
+              }),
+            )
+          }
+        },
+      },
+    }))()
+
+    await createKubb({ ...config, storage: memoryStorage(), plugins: [filePlugin as unknown as Plugin] }, { hooks }).build()
+
+    // Rows go out as the write pass finishes them, so the sources they carry are not pinned in
+    // memory until the last file lands. Chunk boundaries follow completion timing, so only the
+    // flattened order is fixed.
+    expect(chunks.length).toBeGreaterThan(1)
+    expect(chunks.flat()).toStrictEqual([1, 2, 3, 4])
+  })
+
   it('cleans up hook-style plugin listeners between builds on shared hooks', async () => {
     const hooks = new Hookable<KubbHooks>()
     const hookPlugin = definePlugin(() => ({
