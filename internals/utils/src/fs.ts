@@ -49,14 +49,14 @@ type WriteOptions = {
 }
 
 /**
- * Writes `data` to `path`, trimming leading/trailing whitespace before saving.
- * Skips the write when the trimmed content is empty or identical to what is already on disk.
+ * Writes `data` to `path`, trimming surrounding whitespace and ending the file with a single newline.
+ * Skips the write when the content is empty or identical to what is already on disk.
  * Creates any missing parent directories automatically.
  * When `sanity` is `true`, re-reads the file after writing and throws if the content does not match.
  *
  * @example
  * ```ts
- * await write('./src/Pet.ts', source)         // writes and returns trimmed content
+ * await write('./src/Pet.ts', source)         // writes and returns the normalized content
  * await write('./src/Pet.ts', source)         // null — file unchanged
  * await write('./src/Pet.ts', '  ')           // null — empty content skipped
  * ```
@@ -65,35 +65,39 @@ export async function write(path: string, data: string, options: WriteOptions = 
   const trimmed = data.trim()
   if (trimmed === '') return null
 
+  // Prettier, biome, and oxfmt all end a file with a newline. Writing one here too keeps the
+  // comparison below meaningful once a formatter has been over the file, instead of missing on
+  // that single byte and rewriting the whole output tree every run.
+  const content = `${trimmed}\n`
   const resolved = resolve(path)
 
   if (runtime.isBun) {
     const file = Bun.file(resolved)
     const oldContent = (await file.exists()) ? await file.text() : null
-    if (oldContent === trimmed) return null
-    await Bun.write(resolved, trimmed)
-    return trimmed
+    if (oldContent === content) return null
+    await Bun.write(resolved, content)
+    return content
   }
 
   try {
     const oldContent = await readFile(resolved, { encoding: 'utf-8' })
-    if (oldContent === trimmed) return null
+    if (oldContent === content) return null
   } catch {
     /* file doesn't exist yet */
   }
 
   await mkdir(dirname(resolved), { recursive: true })
-  await writeFile(resolved, trimmed, { encoding: 'utf-8' })
+  await writeFile(resolved, content, { encoding: 'utf-8' })
 
   if (options.sanity) {
     const savedData = await readFile(resolved, { encoding: 'utf-8' })
-    if (savedData !== trimmed) {
+    if (savedData !== content) {
       throw new Error(`Sanity check failed for ${path}\n\nData[${data.length}]:\n${data}\n\nSaved[${savedData.length}]:\n${savedData}\n`)
     }
     return savedData
   }
 
-  return trimmed
+  return content
 }
 
 /**

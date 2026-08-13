@@ -42,7 +42,7 @@ function createLimiter(concurrency: number) {
  * `src/gen/api/getPets.ts` are written to the correct location without extra configuration.
  *
  * Writes are deduplicated and directory-safe:
- * - leading and trailing whitespace is trimmed before writing
+ * - surrounding whitespace is trimmed and the file ends with a single newline
  * - the write is skipped when the file content is already identical
  * - missing parent directories are created automatically
  * - Bun's native file API is used when running under Bun

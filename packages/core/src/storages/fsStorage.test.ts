@@ -27,7 +27,7 @@ describe('fsStorage', () => {
     await storage.writeItem(key, 'export const x = 1')
     const result = await storage.readItem(key)
 
-    expect(result).toBe('export const x = 1')
+    expect(result).toBe('export const x = 1\n')
   })
 
   it('writeItem creates missing parent directories', async () => {
@@ -36,7 +36,7 @@ describe('fsStorage', () => {
 
     await storage.writeItem(key, 'const y = 2')
 
-    expect(await storage.readItem(key)).toBe('const y = 2')
+    expect(await storage.readItem(key)).toBe('const y = 2\n')
   })
 
   it('writeItem skips write when content is unchanged', async () => {

@@ -13,6 +13,7 @@ import { Resolver, type ResolverPatch } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import { Transform } from './Transform.ts'
 import { createNodeCache } from './nodeCache.ts'
+import type { OutputManifest } from './outputManifest.ts'
 import { inputToAdapterSource } from './input.ts'
 
 import type { Adapter, AdapterSource, Config, GeneratorContext, Group, KubbHooks, NormalizedPlugin, PluginFactoryOptions } from './types.ts'
@@ -20,6 +21,10 @@ import type { Hookable } from './Hookable.ts'
 
 type Options = {
   hooks: Hookable<KubbHooks>
+  /**
+   * Passed to `fileManager.write` so files the output passes already normalized are left alone.
+   */
+  manifest?: OutputManifest
 }
 
 type RequirePluginContext = {
@@ -377,7 +382,7 @@ export class KubbDriver {
           // Write every generated file once, after post-processing (barrel etc.) has had its
           // chance to add more. Writing mid-generation measured no faster in practice, so a
           // single pass keeps the pipeline simpler.
-          await fileManager.write(fileManager.files, { storage: config.storage, parsers: parsersMap })
+          await fileManager.write(fileManager.files, { storage: config.storage, parsers: parsersMap, manifest: this.options.manifest })
 
           await hooks.callHook('kubb:build:end', { files: this.fileManager.files, config, outputDir: outputRoot })
 
