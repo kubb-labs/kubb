@@ -208,17 +208,17 @@ export class FileManager {
         await this.hooks.callHook('update', { file, source, processed: index + 1, total, percentage: ((index + 1) / total) * 100 })
         if (!source) continue
 
-        if (manifest) {
-          manifest.track({ key: file.path, source })
-
-          // Reading the file only pays off when there is something recorded to compare it against.
-          if (manifest.has({ key: file.path })) {
-            const disk = await storage.readItem(file.path)
-            if (disk !== null && manifest.isUpToDate({ key: file.path, source, disk })) continue
-          }
+        // Reading the file only pays off when there is a record to compare it against, and a file
+        // that still matches its record needs neither the write nor a re-read at commit time.
+        if (manifest?.has({ key: file.path })) {
+          const disk = await storage.readItem(file.path)
+          if (disk !== null && manifest.isUpToDate({ key: file.path, source, disk })) continue
         }
 
         await storage.writeItem(file.path, source)
+
+        // Only a file that was written can have been changed by the output passes.
+        manifest?.track({ key: file.path, source })
       }
     }
 

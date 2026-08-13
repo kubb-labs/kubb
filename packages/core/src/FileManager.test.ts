@@ -361,7 +361,17 @@ describe('FileManager', () => {
       expect(writeItem).toHaveBeenCalledTimes(1)
     })
 
-    it('tracks every generated file so the manifest survives a skipped write', async () => {
+    it('tracks a file it wrote, so the commit knows to re-read it', async () => {
+      const storage = memoryStorage()
+      const manifest = stubManifest({ upToDate: false })
+      const manager = new FileManager()
+
+      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest })
+
+      expect(manifest.tracked).toStrictEqual(['a.ts'])
+    })
+
+    it('does not track a file it skipped, whose record already stands', async () => {
       const storage = memoryStorage()
       await storage.writeItem('a.ts', '/* a.ts */;\n')
       const manifest = stubManifest({ upToDate: true })
@@ -369,7 +379,7 @@ describe('FileManager', () => {
 
       await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest })
 
-      expect(manifest.tracked).toStrictEqual(['a.ts'])
+      expect(manifest.tracked).toStrictEqual([])
     })
 
     it('leaves the output alone on a rebuild after a formatter reflowed it', async () => {

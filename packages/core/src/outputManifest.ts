@@ -43,13 +43,14 @@ export type OutputManifest = {
    */
   isUpToDate(options: { key: string; source: string; disk: string }): boolean
   /**
-   * Records the source Kubb produced for `key` this run, whether or not it was written.
+   * Records the source Kubb wrote for `key`, marking it as the only kind of file the output passes
+   * can have changed and so the only kind `commit` has to re-read.
    */
   track(options: { key: string; source: string }): void
   /**
-   * Re-reads every tracked file and persists the source/output pairs on top of what is stored.
-   * Nothing is pruned: a run generating a different set of files, or writing to a different storage
-   * in the same root, must not evict what another run recorded.
+   * Re-reads the files written this run and persists their source/output pairs on top of what is
+   * stored. Nothing is pruned: a run generating a different set of files, or writing to a different
+   * storage in the same root, must not evict what another run recorded.
    */
   commit(): Promise<void>
 }
@@ -59,6 +60,10 @@ function hash(value: string): string {
 }
 
 const MANIFEST_KEY = 'output-manifest.json'
+
+// Matches `FileManager`'s write concurrency, so the commit reads the tree back at the same rate it
+// was written rather than one file at a time.
+const READ_CONCURRENCY = 50
 
 async function loadEntries({ cache }: { cache: Storage }): Promise<Record<string, OutputManifestEntry>> {
   try {
@@ -104,12 +109,19 @@ export async function createOutputManifest({ storage, cache }: { storage: Storag
     async commit() {
       try {
         const next = { ...entries }
+        const written = [...tracked]
 
-        for (const [key, source] of tracked) {
-          const stored = await storage.readItem(key)
-          if (stored === null) continue
+        // Reading a whole output tree one file at a time is the slowest thing this can do, so keep
+        // the same number of reads in flight that `FileManager` allows writes.
+        for (let index = 0; index < written.length; index += READ_CONCURRENCY) {
+          await Promise.all(
+            written.slice(index, index + READ_CONCURRENCY).map(async ([key, source]) => {
+              const stored = await storage.readItem(key)
+              if (stored === null) return
 
-          next[key] = { source, output: hash(stored) }
+              next[key] = { source, output: hash(stored) }
+            }),
+          )
         }
 
         await cache.writeItem(MANIFEST_KEY, JSON.stringify({ version: VERSION, entries: next } satisfies ManifestData))
