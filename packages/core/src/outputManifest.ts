@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import type { Storage } from './createStorage.ts'
 
 /**
- * Bumped whenever the stored shape changes, so an older cache is discarded instead of misread.
+ * Bumped when the stored shape changes, so an older cache is discarded instead of misread.
  */
 const VERSION = 1
 
@@ -15,7 +15,7 @@ export type OutputManifestEntry = {
    */
   source: string
   /**
-   * Hash of what the storage held once the formatter, linter, and `postGenerate` were done with it.
+   * Hash of what the storage held once the output passes were done with it.
    */
   output: string
 }
@@ -26,22 +26,20 @@ type ManifestData = {
 }
 
 /**
- * Remembers what the output passes did to each generated file, so the next run can tell
- * "the formatter already turned this exact source into what is stored" apart from a real change.
- *
- * The storage skips a write when the content it is about to write already matches the file. That
- * check can never match on its own once a formatter has run, because the stored bytes are the
- * formatter's, not Kubb's, and the whole output tree is rewritten on every build.
+ * Remembers what the output passes did to each generated file, so the next run can tell "the
+ * formatter already turned this exact source into what is stored" apart from a real change.
+ * Without it the storage compares Kubb's bytes against the formatter's, never matches, and
+ * rewrites the whole output tree on every build.
  */
 export type OutputManifest = {
   /**
-   * Whether anything was recorded for `key` on an earlier run. A caller that would have to read the
-   * file to call {@link OutputManifest.isUpToDate} can skip that read when this is `false`.
+   * Whether anything was recorded for `key`, so a caller can skip reading the file when there is
+   * nothing to compare it against.
    */
   has(options: { key: string }): boolean
   /**
-   * `true` when `source` is known to come out of the output passes as exactly the content already
-   * stored, meaning the write can be skipped.
+   * `true` when `source` is known to come out of the output passes as exactly the content stored,
+   * meaning the write can be skipped.
    */
   isUpToDate(options: { key: string; source: string; disk: string }): boolean
   /**
@@ -49,9 +47,9 @@ export type OutputManifest = {
    */
   track(options: { key: string; source: string }): void
   /**
-   * Re-reads every tracked file after the output passes and persists the source/output pairs on top
-   * of the entries already stored. Nothing is pruned: a run that generates a different set of files,
-   * or writes to a different storage in the same root, must not evict what another run recorded.
+   * Re-reads every tracked file and persists the source/output pairs on top of what is stored.
+   * Nothing is pruned: a run generating a different set of files, or writing to a different storage
+   * in the same root, must not evict what another run recorded.
    */
   commit(): Promise<void>
 }
@@ -60,9 +58,6 @@ function hash(value: string): string {
   return createHash('sha256').update(value).digest('hex')
 }
 
-/**
- * Key the manifest is stored under inside the cache storage.
- */
 const MANIFEST_KEY = 'output-manifest.json'
 
 async function loadEntries({ cache }: { cache: Storage }): Promise<Record<string, OutputManifestEntry>> {
@@ -81,9 +76,8 @@ async function loadEntries({ cache }: { cache: Storage }): Promise<Record<string
 }
 
 /**
- * Loads the stored manifest, or starts empty when it is missing, unreadable, or written by an
- * older version of Kubb. `storage` holds the generated files the manifest describes, `cache` is
- * where the manifest itself lives.
+ * Loads the stored manifest, starting empty when it is missing, unreadable, or from an older
+ * version. `storage` holds the generated files, `cache` holds the manifest itself.
  *
  * @example
  * ```ts
