@@ -1,4 +1,4 @@
-import type { Key, KubbReactElement, KubbReactNode } from './types.ts'
+import type { Key, KubbReactElement } from './types.ts'
 
 const KUBB_ELEMENT = Symbol.for('kubb.element')
 
@@ -23,6 +23,3 @@ export const jsxs = createElement
 export const jsxDEV = createElement
 
 export type * from './jsx-namespace.d.ts'
-
-export type JSXElement = KubbReactElement
-export type ReactNode = KubbReactNode
