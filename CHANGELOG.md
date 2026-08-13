@@ -1,5 +1,27 @@
 # Changelog
 
+## v5.0.0-beta.109 — Aug 13, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Stop rewriting every generated file on each build when `output.format` or `output.lint` is set.
+  
+  The formatter runs over the output directory after the files are written and ends each one with a newline. The unchanged-content check compared the exact bytes against what Kubb was about to write, so it missed on that single byte for every file, on every run. In watch mode that made downstream file watchers re-run over hundreds of unchanged modules.
+  
+  The check now compares the trimmed text, so trailing whitespace is no longer a reason to rewrite a file, and generated files end with a newline the way prettier, biome, and oxfmt all write them.
+  
+  A formatter configured in a style Kubb does not emit (different quotes, semicolons, or print width) still reflows every file, and those rewrites remain.
+  
+  Closes [#3859](https://github.com/kubb-labs/kubb/issues/3859) ([#3860](https://github.com/kubb-labs/kubb/pull/3860), [`891f1bd`](https://github.com/kubb-labs/kubb/commit/891f1bd3152f9d012306070bc859b0459d7d43c8))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.108 — Aug 12, 2026
 
 ### @kubb/adapter-oas

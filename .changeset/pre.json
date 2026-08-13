@@ -136,6 +136,7 @@
     "core-renderer-contract-trim",
     "core-reporter-buffer",
     "core-resolve-options-weak-map-guard",
+    "core-skip-rewrite-after-format",
     "core-split-createkubb-types",
     "core-topological-plugin-sort",
     "core-type-safety-escape-hatches",
