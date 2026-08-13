@@ -1,5 +1,53 @@
 # Changelog
 
+## v5.0.0-beta.109 — Aug 13, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Stop rewriting generated files that the formatter reflows.
+  
+  Comparing the trimmed text covers a formatter that only adds a trailing newline. One configured in a style Kubb does not emit rewrites the code itself, so the text never matches and every file is rewritten on every build.
+  
+  Kubb now remembers what each source became after the formatter, linter, and `postGenerate` ran, and checks that before writing. It compares both the source and the file on disk, so a changed source or a hand-edited file is still rewritten, and a missing or outdated record costs one extra write pass.
+  
+  A new `cacheStorage` keeps that record in `node_modules/.cache/kubb`, or in the OS temp directory when the project has no `node_modules`. ([#3861](https://github.com/kubb-labs/kubb/pull/3861), [`26c4690`](https://github.com/kubb-labs/kubb/commit/26c469086208727c093a47e2f7681e00f8a2853c))
+- Stop rewriting every generated file on each build when `output.format` or `output.lint` is set.
+  
+  The formatter runs over the output directory after the files are written and ends each one with a newline. The unchanged-content check compared the exact bytes against what Kubb was about to write, so it missed on that single byte for every file, on every run. In watch mode that made downstream file watchers re-run over hundreds of unchanged modules.
+  
+  The check now compares the trimmed text, so trailing whitespace is no longer a reason to rewrite a file, and generated files end with a newline the way prettier, biome, and oxfmt all write them.
+  
+  A formatter configured in a style Kubb does not emit (different quotes, semicolons, or print width) still reflows every file, and those rewrites remain.
+  
+  Closes [#3859](https://github.com/kubb-labs/kubb/issues/3859) ([#3860](https://github.com/kubb-labs/kubb/pull/3860), [`891f1bd`](https://github.com/kubb-labs/kubb/commit/891f1bd3152f9d012306070bc859b0459d7d43c8))
+- Write generated files without a `mkdir` syscall each.
+  
+  Every write created its parent directory first, so a spec writing 2000 files into one directory made 2000 of those calls, 1999 of which did nothing. Kubb now writes the file and only creates the directory when the write reports it is missing, which also recovers when something removed the directory mid-run.
+  
+  Measured on 2000 generated files, medians of five runs alternating between the two builds: a cold build drops from 492ms to 427ms. A rebuild that writes nothing is unchanged. ([#3866](https://github.com/kubb-labs/kubb/pull/3866), [`8676656`](https://github.com/kubb-labs/kubb/commit/8676656b7a9f40a7d4016e4798391c806c31a041))
+
+### @kubb/renderer-jsx
+
+#### Features
+
+- Trim exported symbols that no consumer uses, found by a knip audit of every package's public surface.
+  
+  Unlike the previous two knip passes, this one narrows published API. Every symbol below was checked for usage across this repo, the plugins repo, the platform repo, and the docs site, including namespace member access (`ast.x`, `ast.factory.x`) and documentation code fences.
+  
+  - `@kubb/renderer-jsx`: drop the `JSXElement` and `ReactNode` aliases from `jsx-runtime` and `jsx-dev-runtime`. They aliased `KubbReactElement`/`KubbReactNode`, which are the names plugins actually import, and no consumer referenced them. The JSX runtime contract itself (`jsx`, `jsxs`, `jsxDEV`, `Fragment`, and the `JSX` namespace) is unchanged.
+  - `@kubb/ast`: stop re-exporting `combineExports`, `combineImports`, and `combineSources` from the package barrel. The functions stay, and `createFile` still calls them through a direct module import.
+  - `kubb`: drop the unused `@kubb/ast` dependency. Nothing in the package imported it, and there is no `kubb/ast` subpath.
+  
+  `@internals/utils` also stops re-exporting `isIdentifier` and `isValidVarName` from its barrel; both are still used through direct module imports. That package is private, so it carries no version bump. ([#3865](https://github.com/kubb-labs/kubb/pull/3865), [`5476c8e`](https://github.com/kubb-labs/kubb/commit/5476c8ec4cf161bffa9724958c70fa95b03b7f5f))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.108 — Aug 12, 2026
 
 ### @kubb/adapter-oas
