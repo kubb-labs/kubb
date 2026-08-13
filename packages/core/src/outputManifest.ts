@@ -35,11 +35,6 @@ type ManifestData = {
  */
 export type OutputManifest = {
   /**
-   * Whether anything was recorded for `key`, so a caller can skip reading the file when there is
-   * nothing to compare it against.
-   */
-  has(options: { key: string }): boolean
-  /**
    * `true` when `source` is known to come out of the output passes as exactly the content stored,
    * meaning the write can be skipped.
    */
@@ -92,9 +87,6 @@ export async function createOutputManifest({ storage, cache }: { storage: Storag
   const tracked = new Map<string, string>()
 
   return {
-    has({ key }) {
-      return entries[key] !== undefined
-    },
     isUpToDate({ key, source, disk }) {
       const entry = entries[key]
       if (!entry) return false

@@ -49,12 +49,15 @@ type WriteOptions = {
 }
 
 /**
- * Whether the file already holds this content, comparing on the trimmed text rather than the exact
+ * Whether `stored` already holds `source`, comparing on the trimmed text rather than the exact
  * bytes. Trailing whitespace is what a formatter adds and what editors strip, and neither is a
  * reason to rewrite the file.
+ *
+ * The write pipeline applies this before handing a file to any storage driver, so the rule holds
+ * for a custom backend and not just for the filesystem.
  */
-function matchesOnDisk({ disk, content }: { disk: string; content: string }): boolean {
-  return disk.trimEnd() === content
+export function matchesStored({ stored, source }: { stored: string; source: string }): boolean {
+  return stored.trimEnd() === source.trim()
 }
 
 /**
@@ -81,14 +84,14 @@ export async function write(path: string, data: string, options: WriteOptions = 
   if (runtime.isBun) {
     const file = Bun.file(resolved)
     const oldContent = (await file.exists()) ? await file.text() : ''
-    if (matchesOnDisk({ disk: oldContent, content: trimmed })) return null
+    if (matchesStored({ stored: oldContent, source: data })) return null
     await Bun.write(resolved, content)
     return content
   }
 
   try {
     const oldContent = await readFile(resolved, { encoding: 'utf-8' })
-    if (matchesOnDisk({ disk: oldContent, content: trimmed })) return null
+    if (matchesStored({ stored: oldContent, source: data })) return null
   } catch {
     /* file doesn't exist yet */
   }
