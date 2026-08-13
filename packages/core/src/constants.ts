@@ -16,6 +16,13 @@ export const SUMMARY_TIME_SCALE_DIVISOR = 100 as const
 export const HOOK_LISTENERS_PER_PLUGIN = 4
 
 /**
+ * How many files Kubb keeps in flight at once, both writing the output and reading it back to
+ * record what the output passes produced. Caps parsed sources held in memory and open file
+ * descriptors alike.
+ */
+export const FILE_CONCURRENCY = 50
+
+/**
  * Plugin `include` filter types that select operations directly. When one of these is set
  * without a `schemaName` include, the generate phase pre-scans operations to compute the set
  * of schemas they reach, so unreachable schemas can be pruned for that plugin.

@@ -1,7 +1,9 @@
-import { read } from '@internals/utils'
+import { inParallel, read } from '@internals/utils'
 import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
+import { FILE_CONCURRENCY } from './constants.ts'
 import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'
+import type { OutputManifest } from './outputManifest.ts'
 import { Hookable } from './Hookable.ts'
 
 /**
@@ -19,13 +21,12 @@ type ParseOptions = {
 
 type WriteOptions = ParseOptions & {
   storage: Storage
+  /**
+   * Consulted before each write so a file the output passes already normalized is recognized as
+   * unchanged. Omitted when no formatter, linter, or `postGenerate` step is configured.
+   */
+  manifest?: OutputManifest
 }
-
-// Cap how many files are parsed and written at once. A small spec runs all its files in parallel;
-// a spec with thousands of files keeps at most this many parsed sources in memory instead of every
-// source at once, while each file's write still overlaps the next file's parse. Disk writes are
-// throttled separately inside `fsStorage`.
-const WRITE_CONCURRENCY = 50
 
 function joinSources(file: FileNode): string {
   return file.sources
@@ -182,29 +183,39 @@ export class FileManager {
 
   /**
    * Parses and writes every file through a bounded pool of workers. A small spec runs all its files
-   * at once; a spec with thousands of files keeps at most `WRITE_CONCURRENCY` parsed sources in
+   * at once; a spec with thousands of files keeps at most {@link FILE_CONCURRENCY} parsed sources in
    * memory rather than holding every source, while still overlapping each file's write with the
    * next file's parse. Each `update` carries the file's input position, so a consumer can present
    * the files in generation order even though they finish in whatever order they parse.
    */
-  async write(files: Array<FileNode>, { storage, parsers }: WriteOptions): Promise<void> {
+  async write(files: Array<FileNode>, { storage, parsers, manifest }: WriteOptions): Promise<void> {
     if (files.length === 0) return
 
     await this.hooks.callHook('start', files)
 
     const total = files.length
-    // Workers share one iterator, so each `next()` hands the next file to whichever worker is free.
-    const entries = files.entries()
 
-    const worker = async (): Promise<void> => {
-      for (const [index, file] of entries) {
+    await inParallel({
+      items: files,
+      limit: FILE_CONCURRENCY,
+      run: async (file, index) => {
         const source = await this.parse(file, { parsers })
         await this.hooks.callHook('update', { file, source, processed: index + 1, total, percentage: ((index + 1) / total) * 100 })
-        if (source) await storage.writeItem(file.path, source)
-      }
-    }
+        if (!source) return
 
-    await Promise.all(Array.from({ length: Math.min(WRITE_CONCURRENCY, total) }, () => worker()))
+        // Reading the file only pays off when there is a record to compare it against, and a file
+        // that still matches its record needs neither the write nor a re-read at commit time.
+        if (manifest?.has({ key: file.path })) {
+          const disk = await storage.readItem(file.path)
+          if (disk !== null && manifest.isUpToDate({ key: file.path, source, disk })) return
+        }
+
+        await storage.writeItem(file.path, source)
+
+        // Only a file that was written can have been changed by the output passes.
+        manifest?.track({ key: file.path, source })
+      },
+    })
 
     await this.hooks.callHook('end', files)
   }

@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
@@ -7,6 +8,7 @@ import { createKubb } from './createKubb.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { definePlugin } from './definePlugin.ts'
 import type { Adapter, Config, KubbHooks, Plugin, UserConfig } from './types.ts'
+import { resolveCacheDir } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
@@ -702,7 +704,22 @@ describe('createKubb', () => {
   })
 })
 
+type ProjectBuild = {
+  source?: string
+  processOutput?: () => Promise<Array<Diagnostic>>
+}
+
 describe('Kubb#generate', () => {
+  const roots: Array<string> = []
+
+  // Each root also seeds a cache directory outside it, so both have to be removed.
+  afterEach(() => {
+    for (const root of roots.splice(0)) {
+      fs.rmSync(root, { recursive: true, force: true })
+      fs.rmSync(resolveCacheDir(root), { recursive: true, force: true })
+    }
+  })
+
   const makeConfig = (overrides: Partial<Config> = {}): Config => ({
     root: '.',
     input: './petStore.yaml',
@@ -774,6 +791,104 @@ describe('Kubb#generate', () => {
 
     expect(result.success).toBe(false)
     expect(ranProcessOutput).toBe(false)
+  })
+
+  /**
+   * A throwaway project with one generated file, so the manifest tests can regenerate it with a
+   * different source or a different output pass without repeating the setup.
+   */
+  const createProject = ({ format = 'oxfmt' as Config['output']['format'] } = {}) => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-generate-'))
+    roots.push(root)
+
+    const filePath = path.join(root, 'gen', 'world.ts')
+    const storage = fsStorage()
+
+    const generate = ({ source = `export const hello = 'world'`, processOutput = async () => [] }: ProjectBuild = {}) => {
+      const plugin = definePlugin(() => ({
+        name: 'plugin',
+        hooks: {
+          'kubb:plugin:setup'(ctx) {
+            ctx.injectFile(
+              ast.factory.createFile({
+                path: filePath,
+                baseName: 'world.ts',
+                sources: [ast.factory.createSource({ nodes: [ast.factory.createText(source)] })],
+                imports: [],
+                exports: [],
+              }),
+            )
+          },
+        },
+      }))()
+
+      const config = makeConfig({ root, output: { path: './gen', format }, storage, plugins: [plugin] as unknown as Array<Plugin> })
+      return createKubb(config, { hooks: new Hookable<KubbHooks>() }).generate({ processOutput })
+    }
+
+    return {
+      filePath,
+      storage,
+      generate,
+      read: () => fs.readFileSync(filePath, { encoding: 'utf-8' }),
+      mtime: () => fs.statSync(filePath).mtimeMs,
+      hasManifest: () => fs.existsSync(path.join(resolveCacheDir(root), 'output-manifest.json')),
+    }
+  }
+
+  it('does not rewrite the output on a rebuild after the formatter reflowed it', async () => {
+    const project = createProject()
+
+    // Stands in for the formatter: reflows what Kubb wrote, exactly as prettier or biome would on a
+    // config that disagrees with Kubb's style, and like them leaves an already-formatted file alone.
+    const formatted = 'export const hello = "world";\n'
+    const processOutput = async () => {
+      if (project.read() !== formatted) fs.writeFileSync(project.filePath, formatted, { encoding: 'utf-8' })
+      return []
+    }
+
+    await project.generate({ processOutput })
+    const afterFirst = project.mtime()
+
+    // Long enough that a rewrite would move mtime, which is what the issue reports watchers seeing.
+    await new Promise((done) => setTimeout(done, 10))
+    const writeItem = vi.spyOn(project.storage, 'writeItem')
+    await project.generate({ processOutput })
+
+    // The manifest itself still goes through the storage, so scope this to the generated file.
+    expect(writeItem).not.toHaveBeenCalledWith(project.filePath, expect.anything())
+    expect(project.mtime()).toBe(afterFirst)
+    expect(project.read()).toBe(formatted)
+  })
+
+  it('rewrites the output when the generated source actually changed', async () => {
+    const project = createProject()
+    await project.generate()
+
+    await project.generate({ source: `export const hello = 'moon'` })
+
+    expect(project.read()).toBe(`export const hello = 'moon'\n`)
+  })
+
+  it('records nothing when an output pass failed', async () => {
+    const project = createProject()
+
+    await project.generate({
+      processOutput: async () => {
+        fs.writeFileSync(project.filePath, 'half written', { encoding: 'utf-8' })
+        return [{ code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } }]
+      },
+    })
+
+    expect(project.hasManifest()).toBe(false)
+  })
+
+  it('keeps no manifest when nothing runs over the output', async () => {
+    const project = createProject({ format: false })
+
+    await project.generate()
+
+    expect(project.hasManifest()).toBe(false)
   })
 
   it('routes an unknown-code build error to the kubb:error hook', async () => {
