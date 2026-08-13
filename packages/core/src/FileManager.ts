@@ -210,8 +210,12 @@ export class FileManager {
 
         if (manifest) {
           manifest.track({ key: file.path, source })
-          const disk = await storage.readItem(file.path)
-          if (disk !== null && manifest.isUpToDate({ key: file.path, source, disk })) continue
+
+          // Reading the file only pays off when there is something recorded to compare it against.
+          if (manifest.has({ key: file.path })) {
+            const disk = await storage.readItem(file.path)
+            if (disk !== null && manifest.isUpToDate({ key: file.path, source, disk })) continue
+          }
         }
 
         await storage.writeItem(file.path, source)

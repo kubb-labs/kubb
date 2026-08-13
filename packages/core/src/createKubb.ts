@@ -223,12 +223,13 @@ export class Kubb {
 
     const outputDiagnostics = options.processOutput ? await options.processOutput({ config, outputPath: resolve(config.root, config.output.path) }) : []
 
-    // The formatter and linter have had their turn, so what sits on disk now is what the next run
-    // has to recognize as unchanged.
-    await this.#manifest?.commit()
-
     const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
     const failed = Diagnostics.hasError(outputDiagnostics)
+
+    // The formatter and linter have had their turn, so what sits on disk now is what the next run
+    // has to recognize as unchanged. Only record it when they finished: a pass that failed halfway
+    // leaves files Kubb has to stay free to regenerate.
+    if (!failed) await this.#manifest?.commit()
 
     await hooks.callHook('kubb:generation:end', {
       config,

@@ -71,7 +71,10 @@ export const cacheStorage = createStorage(({ root = process.cwd() }: CacheStorag
       return storage.readKeys(base ? toPath(base) : dir)
     },
     async empty(base?: string) {
-      return storage.empty(base ? toPath(base) : dir)
+      // Same rule as `fsStorage`: a bare `empty()` deletes nothing, so storage-generic code cannot
+      // wipe the cache directory by accident.
+      if (!base) return
+      return storage.empty(toPath(base))
     },
   }
 })

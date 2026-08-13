@@ -5,9 +5,13 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { cacheStorage, resolveCacheDir } from './cacheStorage.ts'
 
 let dir: string
+const dirs: Array<string> = []
 
 afterEach(() => {
-  if (dir) rmSync(dir, { recursive: true, force: true })
+  for (const created of [dir, ...dirs]) {
+    if (created) rmSync(created, { recursive: true, force: true })
+  }
+  dirs.length = 0
 })
 
 describe('resolveCacheDir', () => {
@@ -21,16 +25,15 @@ describe('resolveCacheDir', () => {
   it('falls back to the OS temp directory without a node_modules', () => {
     dir = mkdtempSync(join(tmpdir(), 'kubb-cache-'))
 
-    expect(resolveCacheDir(dir)).toMatch(new RegExp(`^${join(tmpdir(), 'kubb')}`))
+    expect(resolveCacheDir(dir).startsWith(join(tmpdir(), 'kubb'))).toBe(true)
   })
 
   it('gives two roots sharing the temp directory their own cache', () => {
     dir = mkdtempSync(join(tmpdir(), 'kubb-cache-'))
     const other = mkdtempSync(join(tmpdir(), 'kubb-cache-'))
+    dirs.push(other)
 
     expect(resolveCacheDir(dir)).not.toBe(resolveCacheDir(other))
-
-    rmSync(other, { recursive: true, force: true })
   })
 })
 

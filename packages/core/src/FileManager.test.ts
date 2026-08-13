@@ -8,6 +8,12 @@ import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 
+const tempDirs: Array<string> = []
+
+afterEach(() => {
+  for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true })
+})
+
 function makeFile(filePath: string, sourceValue?: string, extra?: Partial<Parameters<typeof ast.factory.createFile>[0]>) {
   return ast.factory.createFile({
     path: filePath,
@@ -24,6 +30,9 @@ function stubManifest({ upToDate }: { upToDate: boolean }): OutputManifest & { t
 
   return {
     tracked,
+    has() {
+      return true
+    },
     isUpToDate() {
       return upToDate
     },
@@ -365,6 +374,7 @@ describe('FileManager', () => {
 
     it('leaves the output alone on a rebuild after a formatter reflowed it', async () => {
       const dir = mkdtempSync(path.join(tmpdir(), 'kubb-rebuild-'))
+      tempDirs.push(dir)
       const filePath = path.join(dir, 'a.ts')
       const storage = fsStorage()
       const cache = memoryStorage()
@@ -384,8 +394,6 @@ describe('FileManager', () => {
 
       expect(writeItem).not.toHaveBeenCalled()
       expect(readFileSync(filePath, { encoding: 'utf-8' })).toBe('export const a = "b";\n')
-
-      rmSync(dir, { recursive: true, force: true })
     })
 
     it('parses each file before writing it', async () => {

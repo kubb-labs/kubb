@@ -705,6 +705,21 @@ describe('createKubb', () => {
 })
 
 describe('Kubb#generate', () => {
+  const roots: Array<string> = []
+
+  // Each root also seeds a cache directory outside it, so both have to be removed.
+  const trackRoot = (root: string): string => {
+    roots.push(root)
+    return root
+  }
+
+  afterEach(() => {
+    for (const root of roots.splice(0)) {
+      fs.rmSync(root, { recursive: true, force: true })
+      fs.rmSync(resolveCacheDir(root), { recursive: true, force: true })
+    }
+  })
+
   const makeConfig = (overrides: Partial<Config> = {}): Config => ({
     root: '.',
     input: './petStore.yaml',
@@ -797,7 +812,7 @@ describe('Kubb#generate', () => {
     }))()
 
   it('does not rewrite the output on a rebuild after the formatter reflowed it', async () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-generate-manifest-'))
+    const root = trackRoot(fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-generate-manifest-')))
     const filePath = path.join(root, 'gen', 'world.ts')
     const storage = fsStorage()
     const plugins = [injectFileAt(filePath)] as unknown as Array<Plugin>
@@ -824,12 +839,10 @@ describe('Kubb#generate', () => {
     expect(writeItem).not.toHaveBeenCalledWith(filePath, expect.anything())
     expect(fs.statSync(filePath).mtimeMs).toBe(afterFirst)
     expect(fs.readFileSync(filePath, { encoding: 'utf-8' })).toBe(formatted)
-
-    fs.rmSync(root, { recursive: true, force: true })
   })
 
   it('rewrites the output when the generated source actually changed', async () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-generate-changed-'))
+    const root = trackRoot(fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-generate-changed-')))
     const filePath = path.join(root, 'gen', 'world.ts')
     const storage = fsStorage()
     const processOutput = async () => []
@@ -864,20 +877,34 @@ describe('Kubb#generate', () => {
     }).generate({ processOutput })
 
     expect(fs.readFileSync(filePath, { encoding: 'utf-8' })).toBe(`export const hello = 'moon'\n`)
+  })
 
-    fs.rmSync(root, { recursive: true, force: true })
+  it('records nothing when an output pass failed', async () => {
+    const root = trackRoot(fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-generate-failed-')))
+    const filePath = path.join(root, 'gen', 'world.ts')
+    const plugins = [injectFileAt(filePath)] as unknown as Array<Plugin>
+    const diagnostic: Diagnostic = { code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } }
+
+    await createKubb(makeConfig({ root, output: { path: './gen', format: 'oxfmt' }, storage: fsStorage(), plugins }), {
+      hooks: new Hookable<KubbHooks>(),
+    }).generate({
+      processOutput: async () => {
+        fs.writeFileSync(filePath, 'half written', { encoding: 'utf-8' })
+        return [diagnostic]
+      },
+    })
+
+    expect(fs.existsSync(path.join(resolveCacheDir(root), 'output-manifest.json'))).toBe(false)
   })
 
   it('keeps no manifest when nothing runs over the output', async () => {
     hooks = new Hookable<KubbHooks>()
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-generate-no-manifest-'))
+    const root = trackRoot(fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-generate-no-manifest-')))
     const plugins = [injectFileAt(path.join(root, 'gen', 'world.ts'))] as unknown as Array<Plugin>
 
     await createKubb(makeConfig({ root, storage: fsStorage(), plugins }), { hooks }).generate()
 
     expect(fs.existsSync(path.join(resolveCacheDir(root), 'output-manifest.json'))).toBe(false)
-
-    fs.rmSync(root, { recursive: true, force: true })
   })
 
   it('routes an unknown-code build error to the kubb:error hook', async () => {

@@ -35,6 +35,11 @@ type ManifestData = {
  */
 export type OutputManifest = {
   /**
+   * Whether anything was recorded for `key` on an earlier run. A caller that would have to read the
+   * file to call {@link OutputManifest.isUpToDate} can skip that read when this is `false`.
+   */
+  has(options: { key: string }): boolean
+  /**
    * `true` when `source` is known to come out of the output passes as exactly the content already
    * stored, meaning the write can be skipped.
    */
@@ -44,10 +49,9 @@ export type OutputManifest = {
    */
   track(options: { key: string; source: string }): void
   /**
-   * Re-reads every tracked file after the output passes and persists the source/output pairs.
-   * Entries from earlier runs are kept while their file is still there, so a second config
-   * generating into the same root does not evict the first one's, and deleted files do not
-   * accumulate.
+   * Re-reads every tracked file after the output passes and persists the source/output pairs on top
+   * of the entries already stored. Nothing is pruned: a run that generates a different set of files,
+   * or writes to a different storage in the same root, must not evict what another run recorded.
    */
   commit(): Promise<void>
 }
@@ -62,12 +66,15 @@ function hash(value: string): string {
 const MANIFEST_KEY = 'output-manifest.json'
 
 async function loadEntries({ cache }: { cache: Storage }): Promise<Record<string, OutputManifestEntry>> {
-  const stored = await cache.readItem(MANIFEST_KEY)
-  if (stored === null) return {}
-
   try {
+    const stored = await cache.readItem(MANIFEST_KEY)
+    if (stored === null) return {}
+
     const data = JSON.parse(stored) as ManifestData
-    return data.version === VERSION && data.entries ? data.entries : {}
+    if (data.version !== VERSION) return {}
+    if (typeof data.entries !== 'object' || data.entries === null || Array.isArray(data.entries)) return {}
+
+    return data.entries
   } catch {
     return {}
   }
@@ -88,6 +95,9 @@ export async function createOutputManifest({ storage, cache }: { storage: Storag
   const tracked = new Map<string, string>()
 
   return {
+    has({ key }) {
+      return entries[key] !== undefined
+    },
     isUpToDate({ key, source, disk }) {
       const entry = entries[key]
       if (!entry) return false
@@ -98,24 +108,19 @@ export async function createOutputManifest({ storage, cache }: { storage: Storag
       tracked.set(key, hash(source))
     },
     async commit() {
-      const next: Record<string, OutputManifestEntry> = {}
-
-      for (const [key, entry] of Object.entries(entries)) {
-        if (tracked.has(key)) continue
-        if (await storage.existsItem(key)) next[key] = entry
-      }
-
-      for (const [key, source] of tracked) {
-        const stored = await storage.readItem(key)
-        if (stored === null) continue
-
-        next[key] = { source, output: hash(stored) }
-      }
-
       try {
+        const next = { ...entries }
+
+        for (const [key, source] of tracked) {
+          const stored = await storage.readItem(key)
+          if (stored === null) continue
+
+          next[key] = { source, output: hash(stored) }
+        }
+
         await cache.writeItem(MANIFEST_KEY, JSON.stringify({ version: VERSION, entries: next } satisfies ManifestData))
       } catch {
-        /* a read-only cache location costs the optimization, not the build */
+        /* the record is an optimization, so a storage failure here must not fail a finished build */
       }
     },
   }
