@@ -228,6 +228,7 @@
     "mcp-stdio-only",
     "merge-file-processor-into-file-manager",
     "migrate-mcp-to-tmcp",
+    "mode-follows-output-path",
     "modernize-node-22-natives",
     "move-extension-onto-parser",
     "move-plugins-to-own-repo",
