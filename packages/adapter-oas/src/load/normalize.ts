@@ -10,26 +10,21 @@ import { assertInputExists, resolveSource, urlRegExp } from './source.ts'
 /**
  * True when `node` contains a `$ref` pointing outside the current document (a relative path,
  * absolute path, or URL). An internal `#/...` fragment does not count.
+ *
+ * `Object.values` reads array elements and object property values alike, so the same recursion
+ * walks both without a separate array branch.
  */
 export function hasExternalRef(node: unknown): boolean {
-  if (Array.isArray(node)) {
-    return node.some(hasExternalRef)
-  }
-
   if (!node || typeof node !== 'object') {
     return false
   }
 
-  for (const [key, value] of Object.entries(node)) {
-    if (key === '$ref' && typeof value === 'string' && !value.startsWith('#')) {
-      return true
-    }
-    if (hasExternalRef(value)) {
-      return true
-    }
+  const ref = (node as { $ref?: unknown }).$ref
+  if (typeof ref === 'string' && !ref.startsWith('#')) {
+    return true
   }
 
-  return false
+  return Object.values(node).some(hasExternalRef)
 }
 
 /**
