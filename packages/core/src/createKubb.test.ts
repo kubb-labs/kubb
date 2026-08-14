@@ -376,15 +376,15 @@ describe('createKubb', () => {
     ])
   })
 
-  it('releases each file-processing row as it completes instead of holding the batch', async () => {
+  it('reports processed files without carrying their source', async () => {
     const hooks = new Hookable<KubbHooks>()
-    const chunks: Array<Array<number>> = []
+    const rows: Array<Record<string, unknown>> = []
     hooks.hook('kubb:files:processing:update', ({ files }) => {
-      chunks.push(files.map((row) => row.processed))
+      for (const row of files) rows.push(row)
     })
 
     const filePlugin = definePlugin(() => ({
-      name: 'streaming-plugin',
+      name: 'reporting-plugin',
       hooks: {
         'kubb:plugin:setup'(ctx) {
           for (const index of [1, 2, 3, 4]) {
@@ -404,11 +404,10 @@ describe('createKubb', () => {
 
     await createKubb({ ...config, storage: memoryStorage(), plugins: [filePlugin as unknown as Plugin] }, { hooks }).build()
 
-    // Rows go out as the write pass finishes them, so the sources they carry are not pinned in
-    // memory until the last file lands. Chunk boundaries follow completion timing, so only the
-    // flattened order is fixed.
-    expect(chunks.length).toBeGreaterThan(1)
-    expect(chunks.flat()).toStrictEqual([1, 2, 3, 4])
+    // Every file is reported, in generation order, and no row holds the file's parsed source.
+    // Buffering the sources is what used to keep the whole output tree in memory for the batch.
+    expect(rows.map((row) => row.processed)).toStrictEqual([1, 2, 3, 4])
+    expect(rows.every((row) => !('source' in row))).toBe(true)
   })
 
   it('cleans up hook-style plugin listeners between builds on shared hooks', async () => {

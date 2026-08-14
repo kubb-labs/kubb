@@ -302,53 +302,28 @@ export class KubbDriver {
       }
     }
 
-    // Files parse concurrently, so rows arrive in completion order while `processed` carries each
-    // file's input position. A row waits here only until every earlier one has gone out, which is
-    // what keeps generation order. Holding them all until the batch ends would instead pin every
-    // parsed source in memory for the whole write pass, undoing the bound `fileManager.write` puts
-    // on how many sources exist at once.
-    const pending = new Map<number, KubbFileProcessingUpdate>()
-    let nextToSend = 1
-    // Chunks are handed to the hook one at a time, so a listener that awaits cannot let a later
-    // chunk overtake an earlier one.
-    let sending: Promise<void> = Promise.resolve()
-
-    const send = (rows: Array<KubbFileProcessingUpdate>): Promise<void> => {
-      sending = sending.then(() => hooks.callHook('kubb:files:processing:update', { files: rows }))
-      return sending
-    }
-
-    const takeReady = (): Array<KubbFileProcessingUpdate> => {
-      const rows: Array<KubbFileProcessingUpdate> = []
-      for (let row = pending.get(nextToSend); row; row = pending.get(nextToSend)) {
-        rows.push(row)
-        pending.delete(nextToSend)
-        nextToSend++
-      }
-      return rows
-    }
+    const updateBuffer: Array<KubbFileProcessingUpdate> = []
 
     const unhookWrites = fileManager.hooks.addHooks({
       start: async (files) => {
         await hooks.callHook('kubb:files:processing:start', { files })
       },
-      update: (item) => {
-        pending.set(item.processed, { ...item, config })
+      update: ({ file, processed, total, percentage }) => {
+        // Nobody is listening, so there is nothing to buffer for.
+        if (hooks.listenerCount('kubb:files:processing:update') === 0) return
 
-        // Queued, not awaited. Returning the promise here would make each file wait for every
-        // earlier one to be delivered, which turns the concurrent write pass back into a serial
-        // one. A listener that rejects surfaces at `end`, where the chain is awaited.
-        const rows = takeReady()
-        if (rows.length) void send(rows)
+        // The parsed source is deliberately dropped here. It is the only heavy field on a row, and
+        // keeping it would hold every generated file in memory until the batch ends, undoing the
+        // bound `fileManager.write` puts on how many sources exist at once.
+        updateBuffer.push({ file, processed, total, percentage, config })
       },
       end: async (files: Array<FileNode>) => {
-        // Every file reports, so the run above always drains. Release anything left in input order
-        // regardless, so a future caller that skips a position cannot strand the rows behind it.
-        const rows = [...pending.values()].sort((a, b) => a.processed - b.processed)
-        pending.clear()
-        if (rows.length) await send(rows)
+        // Files parse concurrently, so the buffer arrives in completion order. `processed` is each
+        // file's input position, so sorting by it restores generation order for the streamed rows.
+        updateBuffer.sort((a, b) => a.processed - b.processed)
 
-        await sending
+        await hooks.callHook('kubb:files:processing:update', { files: updateBuffer })
+        updateBuffer.length = 0
         await hooks.callHook('kubb:files:processing:end', { files })
       },
     })

@@ -585,10 +585,6 @@ export type KubbFileProcessingUpdate = {
    */
   percentage: number
   /**
-   * Serialized file content, or `undefined` when the file produced no output.
-   */
-  source?: string
-  /**
    * The file that was just processed.
    */
   file: FileNode
