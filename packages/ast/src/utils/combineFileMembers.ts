@@ -8,30 +8,21 @@ import type { ExportNode, ImportNode, SourceNode } from '../nodes/index.ts'
 import { extractStringsFromNodes } from './extractStringsFromNodes.ts'
 
 const IDENTIFIER_RUN = /[\w$]+/g
-const IDENTIFIER_ONLY = /^[\w$]+$/
 
 /**
- * Every unbroken run of identifier characters in the source. An import name is built from those
- * characters alone, so an occurrence of it sits inside exactly one run and never straddles two.
+ * How many names one file has to ask about before indexing the source beats scanning it per name.
+ * Indexing costs a pass plus a string per run, so a file with a handful of imports never earns it.
+ */
+const INDEX_AFTER_LOOKUPS = 32
+
+/**
+ * Every unbroken run of identifier characters in the source. A name found here is used, without
+ * scanning the text for it. A name absent here still might be, so the caller falls back.
  */
 function collectIdentifiers(source: string): Set<string> {
-  return new Set(source.match(IDENTIFIER_RUN))
-}
-
-/**
- * Whether `name` occurs anywhere in the source, answered from the identifier runs instead of by
- * scanning the text again. A name is normally an identifier, so the set settles it. The rest covers
- * a name that only shows up inside a longer identifier, which has always counted as used, and a
- * name holding a character no run can contain, which the set cannot speak for.
- */
-function occursInSource({ identifiers, source, name }: { identifiers: Set<string>; source: string; name: string }): boolean {
-  if (identifiers.has(name)) return true
-  if (!IDENTIFIER_ONLY.test(name)) return source.includes(name)
-
-  for (const identifier of identifiers) {
-    if (identifier.length > name.length && identifier.includes(name)) return true
-  }
-  return false
+  const identifiers = new Set<string>()
+  for (const [run] of source.matchAll(IDENTIFIER_RUN)) identifiers.add(run)
+  return identifiers
 }
 
 function sourceKey(source: SourceNode): string {
@@ -142,20 +133,26 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
 export function combineImports(imports: Array<ImportNode>, exports: Array<ExportNode>, source?: string): Array<ImportNode> {
   // Build a lookup of all exported names to retain imports that are re-exported
   const exportedNames = new Set(exports.flatMap((e) => (Array.isArray(e.name) ? e.name : e.name ? [e.name] : [])))
-
   // Scanning the whole file per import name is quadratic, and `createFile` re-runs on every merge
-  // into a file, so a file assembled from many fragments pays it again for every fragment.
-  // Collecting the runs once and answering from the set costs one pass instead.
-  const identifiers = source ? collectIdentifiers(source) : null
+  // into a file, so a file built from many fragments pays it again for each fragment it already
+  // holds. Indexing the source answers those in one pass, but it is not free, so a file only earns
+  // the index once it has asked about enough names.
   const usage = new Map<string, boolean>()
+  let identifiers: Set<string> | null = null
+  let lookups = 0
 
   const isUsed = (importName: string): boolean => {
-    if (!identifiers || !source) return true
+    if (!source) return true
 
     const known = usage.get(importName)
     if (known !== undefined) return known
 
-    const used = occursInSource({ identifiers, source, name: importName }) || exportedNames.has(importName)
+    lookups++
+    if (!identifiers && lookups > INDEX_AFTER_LOOKUPS) identifiers = collectIdentifiers(source)
+
+    // The index settles a name that stands alone as an identifier. Everything else falls through to
+    // the substring test, which is what keeps `Pet` when the file only mentions `PetStore`.
+    const used = identifiers?.has(importName) || source.includes(importName) || exportedNames.has(importName)
     usage.set(importName, used)
     return used
   }

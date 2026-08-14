@@ -320,25 +320,46 @@ describe('combineImports', () => {
     expect(result).toHaveLength(1)
   })
 
-  it('keeps an import whose name occurs only inside a string literal or a comment', () => {
-    const inString = createImport({ name: ['Pet'], path: './pet.ts' })
-    const inComment = createImport({ name: ['Order'], path: './order.ts' })
-    const result = combineImports([inString, inComment], [], `// Order matters\nexport const kind = 'Pet'`)
-
-    expect(result).toHaveLength(2)
-  })
-
-  it('keeps an import used only in a generic position', () => {
+  it('keeps an import whose name occurs only inside a string literal', () => {
     const imp = createImport({ name: ['Pet'], path: './pet.ts' })
-    const result = combineImports([imp], [], 'const pets: Array<Pet> = []')
+    const result = combineImports([imp], [], `export const kind = 'Pet'`)
 
     expect(result).toHaveLength(1)
   })
 
-  it('drops an import when the source only holds a name it is a prefix of nothing in', () => {
-    const imp = createImport({ name: ['Pet'], path: './pet.ts' })
-    const result = combineImports([imp], [], 'export type Order = { id: number }')
+  it('keeps an import whose name occurs only inside a comment', () => {
+    const imp = createImport({ name: ['Order'], path: './order.ts' })
+    const result = combineImports([imp], [], '// Order matters\nconst x = 1')
 
-    expect(result).toHaveLength(0)
+    expect(result).toHaveLength(1)
+  })
+
+  it('keeps an import whose name holds a character no identifier can contain', () => {
+    const imp = createImport({ name: ['Pet.Nested'], path: './pet.ts' })
+    const result = combineImports([imp], [], 'const value: Pet.Nested = load()')
+
+    expect(result).toHaveLength(1)
+  })
+
+  it('keeps every used import once the source has been indexed', () => {
+    // More names than the index threshold, so the identifier index is built and has to answer the
+    // same way the per-name scan does.
+    const names = Array.from({ length: 40 }, (_, index) => `Model${index}`)
+    const imp = createImport({ name: names, path: './models.ts' })
+    const source = names.map((name) => `export type Use${name} = ${name}`).join('\n')
+
+    const result = combineImports([imp], [], source)
+
+    expect(result[0]!.name).toHaveLength(40)
+  })
+
+  it('drops an indexed import the source never mentions', () => {
+    const names = Array.from({ length: 40 }, (_, index) => `Model${index}`)
+    const imp = createImport({ name: [...names, 'Absent'], path: './models.ts' })
+    const source = names.map((name) => `export type Use${name} = ${name}`).join('\n')
+
+    const result = combineImports([imp], [], source)
+
+    expect(result[0]!.name).not.toContain('Absent')
   })
 })
