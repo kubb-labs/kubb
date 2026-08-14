@@ -1,4 +1,4 @@
-import { inParallel, read } from '@internals/utils'
+import { inParallel, matchesStored, read } from '@internals/utils'
 import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
 import { FILE_CONCURRENCY } from './constants.ts'
 import type { Storage } from './createStorage.ts'
@@ -79,6 +79,15 @@ function compareFiles(a: FileNode, b: FileNode): number {
   if (!aIsIndex && bIsIndex) return -1
 
   return 0
+}
+
+// A file is unchanged either because the storage already holds this content, or because the
+// manifest knows the output passes turn this exact source into what the storage holds.
+function isUnchanged({ stored, source, key, manifest }: { stored: string | null; source: string; key: string; manifest?: OutputManifest }): boolean {
+  if (stored === null) return false
+  if (matchesStored({ stored, source })) return true
+
+  return manifest?.isUpToDate({ key, source, disk: stored }) ?? false
 }
 
 /**
@@ -187,6 +196,9 @@ export class FileManager {
    * memory rather than holding every source, while still overlapping each file's write with the
    * next file's parse. Each `update` carries the file's input position, so a consumer can present
    * the files in generation order even though they finish in whatever order they parse.
+   *
+   * A file the storage already holds is skipped, so a rebuild that generates identical output
+   * writes nothing and leaves every mtime where it was.
    */
   async write(files: Array<FileNode>, { storage, parsers, manifest }: WriteOptions): Promise<void> {
     if (files.length === 0) return
@@ -203,12 +215,10 @@ export class FileManager {
         await this.hooks.callHook('update', { file, source, processed: index + 1, total, percentage: ((index + 1) / total) * 100 })
         if (!source) return
 
-        // Reading the file only pays off when there is a record to compare it against, and a file
-        // that still matches its record needs neither the write nor a re-read at commit time.
-        if (manifest?.has({ key: file.path })) {
-          const disk = await storage.readItem(file.path)
-          if (disk !== null && manifest.isUpToDate({ key: file.path, source, disk })) return
-        }
+        // Checking here rather than inside a driver gives a storage writing to S3 or a database
+        // the same guarantee `fsStorage` has, that unchanged content is never rewritten.
+        const stored = await storage.readItem(file.path)
+        if (isUnchanged({ stored, source, key: file.path, manifest })) return
 
         await storage.writeItem(file.path, source)
 

@@ -94,7 +94,7 @@ describe('createOutputManifest', () => {
     expect(next.isUpToDate({ key: 'a.ts', source: 'const a = 1', disk: formatted })).toBe(true)
   })
 
-  it('reports whether a key was recorded at all', async () => {
+  it('vouches only for the keys it recorded', async () => {
     const storage = memoryStorage()
     const cache = memoryStorage()
     await storage.writeItem('a.ts', formatted)
@@ -104,8 +104,8 @@ describe('createOutputManifest', () => {
 
     const next = await createOutputManifest({ storage, cache })
 
-    expect(next.has({ key: 'a.ts' })).toBe(true)
-    expect(next.has({ key: 'unknown.ts' })).toBe(false)
+    expect(next.isUpToDate({ key: 'a.ts', source: 'const a = 1', disk: formatted })).toBe(true)
+    expect(next.isUpToDate({ key: 'unknown.ts', source: 'const a = 1', disk: formatted })).toBe(false)
   })
 
   it('ignores a cache whose entries are not a record', async () => {
@@ -115,7 +115,7 @@ describe('createOutputManifest', () => {
     const manifest = await createOutputManifest({ storage, cache })
 
     await expect(manifest.commit()).resolves.toBeUndefined()
-    expect(manifest.has({ key: 'a.ts' })).toBe(false)
+    expect(manifest.isUpToDate({ key: 'a.ts', source: 'const a = 1', disk: formatted })).toBe(false)
   })
 
   it('skips a file that disappeared before the commit', async () => {

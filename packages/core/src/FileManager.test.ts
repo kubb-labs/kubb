@@ -30,9 +30,6 @@ function stubManifest({ upToDate }: { upToDate: boolean }): OutputManifest & { t
 
   return {
     tracked,
-    has() {
-      return true
-    },
     isUpToDate() {
       return upToDate
     },
@@ -327,6 +324,53 @@ describe('FileManager', () => {
 
       expect(await storage.readItem('a.ts')).toContain('/* a.ts */')
       expect(await storage.readItem('b.ts')).toContain('/* b.ts */')
+    })
+
+    it('skips a file the storage already holds, with no manifest in play', async () => {
+      const storage = memoryStorage()
+      const manager = new FileManager()
+      const files = [makeFileWithSources('a.ts', ['/* a.ts */'])]
+
+      await manager.write(files, { storage })
+      const writeItem = vi.spyOn(storage, 'writeItem')
+      await manager.write(files, { storage })
+
+      expect(writeItem).not.toHaveBeenCalled()
+    })
+
+    it('skips a file the storage holds down to a trailing newline', async () => {
+      const storage = memoryStorage()
+      await storage.writeItem('a.ts', '/* a.ts */\n')
+      const writeItem = vi.spyOn(storage, 'writeItem')
+      const manager = new FileManager()
+
+      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage })
+
+      expect(writeItem).not.toHaveBeenCalled()
+    })
+
+    // A storage keeping bytes verbatim stores the leading whitespace back, so comparing it against
+    // a trimmed source would never match and would rewrite the file on every build.
+    it('skips a source with leading whitespace on a storage that keeps bytes verbatim', async () => {
+      const storage = memoryStorage()
+      const manager = new FileManager()
+      const files = [makeFileWithSources('a.ts', ['\n/* a.ts */'])]
+
+      await manager.write(files, { storage })
+      const writeItem = vi.spyOn(storage, 'writeItem')
+      await manager.write(files, { storage })
+
+      expect(writeItem).not.toHaveBeenCalled()
+    })
+
+    it('writes a file whose content changed since the last run', async () => {
+      const storage = memoryStorage()
+      const manager = new FileManager()
+
+      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage })
+      await manager.write([makeFileWithSources('a.ts', ['/* changed */'])], { storage })
+
+      expect(await storage.readItem('a.ts')).toContain('/* changed */')
     })
 
     it('skips a file the output passes already turned into what is on disk', async () => {
