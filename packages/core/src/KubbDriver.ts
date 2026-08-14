@@ -309,12 +309,9 @@ export class KubbDriver {
         await hooks.callHook('kubb:files:processing:start', { files })
       },
       update: ({ file, processed, total, percentage }) => {
-        // Nobody is listening, so there is nothing to buffer for.
-        if (hooks.listenerCount('kubb:files:processing:update') === 0) return
-
-        // The parsed source is deliberately dropped here. It is the only heavy field on a row, and
-        // keeping it would hold every generated file in memory until the batch ends, undoing the
-        // bound `fileManager.write` puts on how many sources exist at once.
+        // The row deliberately leaves `source` behind. It is the only heavy field, and buffering it
+        // holds every generated file in memory until the batch ends, undoing the bound
+        // `fileManager.write` puts on how many sources exist at once.
         updateBuffer.push({ file, processed, total, percentage, config })
       },
       end: async (files: Array<FileNode>) => {
