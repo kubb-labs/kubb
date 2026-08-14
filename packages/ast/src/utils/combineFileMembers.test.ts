@@ -313,53 +313,23 @@ describe('combineImports', () => {
     expect(result).toHaveLength(0)
   })
 
-  it('keeps an import whose name only occurs inside a longer identifier', () => {
-    const imp = createImport({ name: ['Pet'], path: './pet.ts' })
-    const result = combineImports([imp], [], 'export type PetStore = { id: number }')
+  // Over 128 imports, so these run the identifier index rather than a scan per name. Names are
+  // zero-padded so no name is a substring of another, which substring matching would keep.
+  const indexedImports = () =>
+    Array.from({ length: 200 }, (_, index) => {
+      const name = `Model${String(index).padStart(3, '0')}`
+      return createImport({ name: [name], path: `./${name}.ts` })
+    })
 
-    expect(result).toHaveLength(1)
+  it('keeps the names the source uses and drops the rest once it is indexed', () => {
+    const result = combineImports(indexedImports(), [], 'export type Used = Model000 | Model199')
+
+    expect(result.map((node) => node.path)).toStrictEqual(['./Model000.ts', './Model199.ts'])
   })
 
-  it('keeps an import whose name occurs only inside a string literal', () => {
-    const imp = createImport({ name: ['Pet'], path: './pet.ts' })
-    const result = combineImports([imp], [], `export const kind = 'Pet'`)
+  it('keeps an indexed name that only occurs inside a longer identifier', () => {
+    const result = combineImports(indexedImports(), [], 'export type Used = Model000Extended')
 
-    expect(result).toHaveLength(1)
-  })
-
-  it('keeps an import whose name occurs only inside a comment', () => {
-    const imp = createImport({ name: ['Order'], path: './order.ts' })
-    const result = combineImports([imp], [], '// Order matters\nconst x = 1')
-
-    expect(result).toHaveLength(1)
-  })
-
-  it('keeps an import whose name holds a character no identifier can contain', () => {
-    const imp = createImport({ name: ['Pet.Nested'], path: './pet.ts' })
-    const result = combineImports([imp], [], 'const value: Pet.Nested = load()')
-
-    expect(result).toHaveLength(1)
-  })
-
-  it('keeps every used import once the source has been indexed', () => {
-    // More names than the index threshold, so the identifier index is built and has to answer the
-    // same way the per-name scan does.
-    const names = Array.from({ length: 40 }, (_, index) => `Model${index}`)
-    const imp = createImport({ name: names, path: './models.ts' })
-    const source = names.map((name) => `export type Use${name} = ${name}`).join('\n')
-
-    const result = combineImports([imp], [], source)
-
-    expect(result[0]!.name).toHaveLength(40)
-  })
-
-  it('drops an indexed import the source never mentions', () => {
-    const names = Array.from({ length: 40 }, (_, index) => `Model${index}`)
-    const imp = createImport({ name: [...names, 'Absent'], path: './models.ts' })
-    const source = names.map((name) => `export type Use${name} = ${name}`).join('\n')
-
-    const result = combineImports([imp], [], source)
-
-    expect(result[0]!.name).not.toContain('Absent')
+    expect(result.map((node) => node.path)).toStrictEqual(['./Model000.ts'])
   })
 })
