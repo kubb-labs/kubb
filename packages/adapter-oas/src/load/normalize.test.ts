@@ -2,7 +2,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
 import { Diagnostics } from '@kubb/core'
-import { assertDocument, bundleDocument, parseDocument, parseFromConfig, validateDocument } from './normalize.ts'
+import { assertDocument, bundleDocument, hasExternalRef, parseDocument, parseFromConfig, validateDocument } from './normalize.ts'
 import type { Document } from '../types.ts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -293,6 +293,44 @@ describe('bundleDocument', () => {
 
   it('throws when the input file does not exist', async () => {
     await expect(bundleDocument(path.resolve(__dirname, '../../mocks/doesNotExist.yaml'))).rejects.toThrow()
+  })
+
+  it('returns a document with only internal refs unchanged, via the api-ref-bundler skip', async () => {
+    const doc = await bundleDocument(path.resolve(__dirname, '../../mocks/petStore.yaml'))
+
+    expect(doc.paths?.['/pet']).toBeDefined()
+    expect(doc.components?.schemas?.['Pet']).toBeDefined()
+  })
+})
+
+describe('hasExternalRef', () => {
+  it('returns false for a document with no $ref at all', () => {
+    expect(hasExternalRef({ openapi: '3.1.0', paths: {} })).toBe(false)
+  })
+
+  it('returns false for an internal #/ ref, at any depth', () => {
+    expect(
+      hasExternalRef({
+        paths: { '/pets': { get: { responses: { '200': { schema: { $ref: '#/components/schemas/Pet' } } } } } },
+      }),
+    ).toBe(false)
+  })
+
+  it('returns true for a relative file ref', () => {
+    expect(hasExternalRef({ components: { schemas: { Pet: { $ref: './schemas/Pet.yaml' } } } })).toBe(true)
+  })
+
+  it('returns true for a URL ref', () => {
+    expect(hasExternalRef({ components: { schemas: { Pet: { $ref: 'https://example.com/pet.yaml' } } } })).toBe(true)
+  })
+
+  it('finds an external ref nested inside an array', () => {
+    expect(hasExternalRef({ allOf: [{ $ref: '#/components/schemas/Base' }, { $ref: './extra.yaml' }] })).toBe(true)
+  })
+
+  it('returns false for non-object input', () => {
+    expect(hasExternalRef(null)).toBe(false)
+    expect(hasExternalRef('a string')).toBe(false)
   })
 })
 

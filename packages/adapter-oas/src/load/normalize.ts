@@ -8,12 +8,42 @@ import type { Document } from '../types.ts'
 import { assertInputExists, resolveSource, urlRegExp } from './source.ts'
 
 /**
+ * True when `node` contains a `$ref` pointing outside the current document (a relative path,
+ * absolute path, or URL). An internal `#/...` fragment does not count.
+ */
+export function hasExternalRef(node: unknown): boolean {
+  if (Array.isArray(node)) {
+    return node.some(hasExternalRef)
+  }
+
+  if (!node || typeof node !== 'object') {
+    return false
+  }
+
+  for (const [key, value] of Object.entries(node)) {
+    if (key === '$ref' && typeof value === 'string' && !value.startsWith('#')) {
+      return true
+    }
+    if (hasExternalRef(value)) {
+      return true
+    }
+  }
+
+  return false
+}
+
+/**
  * Bundles a multi-file OpenAPI document into a single document via `api-ref-bundler`.
  *
  * External file schemas are hoisted into named `components.schemas` entries, so a property
  * pointing at `./schemas/User.yaml` ends up referencing `#/components/schemas/User`. Generators
  * can then emit a named type with an import instead of inlining the shape. Sources are read with
  * the Bun-aware `read` util for local YAML and JSON files, and with `fetch` for HTTP(S) URLs.
+ *
+ * A document with no `$ref` outside itself has nothing to bundle, so it skips `api-ref-bundler`
+ * and returns as parsed. `bundle` only rewrites external refs into internal ones; on an
+ * all-internal document it is a no-op that still walks the whole tree to confirm that, which
+ * costs real time on a large spec.
  *
  * @example Local file
  * `const document = await bundleDocument('./openapi.yaml')`
@@ -40,7 +70,11 @@ export async function bundleDocument(pathOrUrl: string): Promise<Document> {
 
   // api-ref-bundler swallows resolver errors and leaves refs unresolved, so surface an
   // unreadable input document as a hard error before bundling.
-  await resolver(pathOrUrl)
+  const root = await resolver(pathOrUrl)
+
+  if (typeof root === 'object' && root !== null && !hasExternalRef(root)) {
+    return root as Document
+  }
 
   return (await bundle(pathOrUrl, resolver)) as Document
 }
