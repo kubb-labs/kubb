@@ -10,10 +10,11 @@ import { extractStringsFromNodes } from './extractStringsFromNodes.ts'
 const IDENTIFIER_RUN = /[\w$]+/g
 
 /**
- * How many names one file has to ask about before indexing the source beats scanning it per name.
- * Indexing costs a pass plus a string per run, so a file with a handful of imports never earns it.
+ * How many import names a file has to carry before indexing the source beats scanning it per name.
+ * Indexing allocates a string per run in the whole file, which measured more expensive than a few
+ * hundred scans, so only a file consolidating a large number of imports earns it.
  */
-const INDEX_AFTER_LOOKUPS = 32
+const INDEX_ABOVE_NAMES = 256
 
 /**
  * Every unbroken run of identifier characters in the source. A name found here is used, without
@@ -135,25 +136,26 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   const exportedNames = new Set(exports.flatMap((e) => (Array.isArray(e.name) ? e.name : e.name ? [e.name] : [])))
   // Scanning the whole file per import name is quadratic, and `createFile` re-runs on every merge
   // into a file, so a file built from many fragments pays it again for each fragment it already
-  // holds. Indexing the source answers those in one pass, but it is not free, so a file only earns
-  // the index once it has asked about enough names.
-  const usage = new Map<string, boolean>()
-  let identifiers: Set<string> | null = null
-  let lookups = 0
+  // holds. Indexing the source answers those in one pass, but it allocates a string per run, which
+  // costs more than the scans it saves until a file carries a large number of imports.
+  let names = 0
+  for (const node of imports) names += Array.isArray(node.name) ? node.name.length : 1
+
+  const identifiers = source && names > INDEX_ABOVE_NAMES ? collectIdentifiers(source) : null
+  // Only worth its own allocation on the files that got an index. Below that a name is looked at
+  // twice at most, once by the pre-pass and once by the filter.
+  const usage = identifiers ? new Map<string, boolean>() : null
 
   const isUsed = (importName: string): boolean => {
     if (!source) return true
 
-    const known = usage.get(importName)
+    const known = usage?.get(importName)
     if (known !== undefined) return known
-
-    lookups++
-    if (!identifiers && lookups > INDEX_AFTER_LOOKUPS) identifiers = collectIdentifiers(source)
 
     // The index settles a name that stands alone as an identifier. Everything else falls through to
     // the substring test, which is what keeps `Pet` when the file only mentions `PetStore`.
     const used = identifiers?.has(importName) || source.includes(importName) || exportedNames.has(importName)
-    usage.set(importName, used)
+    usage?.set(importName, used)
     return used
   }
 
