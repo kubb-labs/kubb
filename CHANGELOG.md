@@ -1,5 +1,81 @@
 # Changelog
 
+## v5.0.0-beta.109 — Aug 14, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Load the OpenAPI validator only when validation runs.
+  
+  `@readme/openapi-parser` is used by `validateDocument` alone, but it was imported at the top of the file, so every config importing `@kubb/adapter-oas` paid for it even with `validate: false`.
+  
+  Importing the adapter drops from 144ms to 88ms. With validation on, the cost moves into the parse step rather than going away. ([#3871](https://github.com/kubb-labs/kubb/pull/3871), [`05b536a`](https://github.com/kubb-labs/kubb/commit/05b536a4ddfe5a0fd44d480476258cbb49d7418b))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Cut the cost of assembling one file out of many fragments.
+  
+  `createFile` runs again on every merge into a file, and its import filter scanned the whole accumulated source once per import name. A file built from many fragments paid that scan again for every fragment it had already absorbed.
+  
+  A file with more than 128 imports now indexes the source once and answers from the index, which gives the same result. Smaller files stay on the plain scan, so the default one file per operation is untouched. Assembling 800 fragments drops from 2.5s to 1.2s, and 1600 from 32.9s to 5.4s. ([#3870](https://github.com/kubb-labs/kubb/pull/3870), [`e571b12`](https://github.com/kubb-labs/kubb/commit/e571b124601feb4029ad4ce810e24ffdf4b816bc))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Stop rewriting generated files that the formatter reflows.
+  
+  Comparing the trimmed text covers a formatter that only adds a trailing newline. One configured in a style Kubb does not emit rewrites the code itself, so the text never matches and every file is rewritten on every build.
+  
+  Kubb now remembers what each source became after the formatter, linter, and `postGenerate` ran, and checks that before writing. It compares both the source and the file on disk, so a changed source or a hand-edited file is still rewritten, and a missing or outdated record costs one extra write pass.
+  
+  A new `cacheStorage` keeps that record in `node_modules/.cache/kubb`, or in the OS temp directory when the project has no `node_modules`. ([#3861](https://github.com/kubb-labs/kubb/pull/3861), [`26c4690`](https://github.com/kubb-labs/kubb/commit/26c469086208727c093a47e2f7681e00f8a2853c))
+- Stop rewriting every generated file on each build when `output.format` or `output.lint` is set.
+  
+  The formatter runs over the output directory after the files are written and ends each one with a newline. The unchanged-content check compared the exact bytes against what Kubb was about to write, so it missed on that single byte for every file, on every run. In watch mode that made downstream file watchers re-run over hundreds of unchanged modules.
+  
+  The check now compares the trimmed text, so trailing whitespace is no longer a reason to rewrite a file, and generated files end with a newline the way prettier, biome, and oxfmt all write them.
+  
+  A formatter configured in a style Kubb does not emit (different quotes, semicolons, or print width) still reflows every file, and those rewrites remain.
+  
+  Closes [#3859](https://github.com/kubb-labs/kubb/issues/3859) ([#3860](https://github.com/kubb-labs/kubb/pull/3860), [`891f1bd`](https://github.com/kubb-labs/kubb/commit/891f1bd3152f9d012306070bc859b0459d7d43c8))
+- Skip writing a file the storage already holds, for every storage driver instead of only `fsStorage`.
+  
+  `FileManager` handed every generated file to `storage.writeItem` and left it to the driver to notice the content had not changed. `fsStorage` does that check internally, so filesystem builds were already fine, but a custom storage backed by S3 or a database got a write per file per build regardless of content. The check now runs in the write pipeline, before any driver is called, so a rebuild that generates identical output writes nothing whatever the storage. ([#3869](https://github.com/kubb-labs/kubb/pull/3869), [`332de56`](https://github.com/kubb-labs/kubb/commit/332de56eaeadb314090b0b15670352b9ae2baa23))
+- Stop holding every generated source in memory during the write pass.
+  
+  `kubb:files:processing:update` rows carried the file's parsed source, and the driver buffered every row until the last file had been written, so the whole output tree stayed live for the batch. Nothing read that field: the CLI loggers, the MCP tool, and the Studio agent all use `file`, `processed`, `total`, and `percentage`.
+  
+  `source` is gone from `KubbFileProcessingUpdate`, and rows are skipped altogether when no listener is registered. Batching, ordering, and the single flush at the end of the pass are unchanged. On 5000 files of about 8KB, peak heap drops from 102MB to 68MB and peak RSS from 179MB to 141MB. ([#3868](https://github.com/kubb-labs/kubb/pull/3868), [`8263df8`](https://github.com/kubb-labs/kubb/commit/8263df8d2c83ac2730401a3e771f5d717edbe305))
+- Write generated files without a `mkdir` syscall each.
+  
+  Every write created its parent directory first, so a spec writing 2000 files into one directory made 2000 of those calls, 1999 of which did nothing. Kubb now writes the file and only creates the directory when the write reports it is missing, which also recovers when something removed the directory mid-run.
+  
+  Measured on 2000 generated files, medians of five runs alternating between the two builds: a cold build drops from 492ms to 427ms. A rebuild that writes nothing is unchanged. ([#3866](https://github.com/kubb-labs/kubb/pull/3866), [`8676656`](https://github.com/kubb-labs/kubb/commit/8676656b7a9f40a7d4016e4798391c806c31a041))
+
+### @kubb/renderer-jsx
+
+#### Features
+
+- Trim exported symbols that no consumer uses, found by a knip audit of every package's public surface.
+  
+  Unlike the previous two knip passes, this one narrows published API. Every symbol below was checked for usage across this repo, the plugins repo, the platform repo, and the docs site, including namespace member access (`ast.x`, `ast.factory.x`) and documentation code fences.
+  
+  - `@kubb/renderer-jsx`: drop the `JSXElement` and `ReactNode` aliases from `jsx-runtime` and `jsx-dev-runtime`. They aliased `KubbReactElement`/`KubbReactNode`, which are the names plugins actually import, and no consumer referenced them. The JSX runtime contract itself (`jsx`, `jsxs`, `jsxDEV`, `Fragment`, and the `JSX` namespace) is unchanged.
+  - `@kubb/ast`: stop re-exporting `combineExports`, `combineImports`, and `combineSources` from the package barrel. The functions stay, and `createFile` still calls them through a direct module import.
+  - `kubb`: drop the unused `@kubb/ast` dependency. Nothing in the package imported it, and there is no `kubb/ast` subpath.
+  
+  `@internals/utils` also stops re-exporting `isIdentifier` and `isValidVarName` from its barrel; both are still used through direct module imports. That package is private, so it carries no version bump. ([#3865](https://github.com/kubb-labs/kubb/pull/3865), [`5476c8e`](https://github.com/kubb-labs/kubb/commit/5476c8ec4cf161bffa9724958c70fa95b03b7f5f))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.108 — Aug 12, 2026
 
 ### @kubb/adapter-oas
