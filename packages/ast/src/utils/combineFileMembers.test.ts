@@ -312,4 +312,24 @@ describe('combineImports', () => {
 
     expect(result).toHaveLength(0)
   })
+
+  // Over 128 imports, so these run the identifier index rather than a scan per name. Names are
+  // zero-padded so no name is a substring of another, which substring matching would keep.
+  const indexedImports = () =>
+    Array.from({ length: 200 }, (_, index) => {
+      const name = `Model${String(index).padStart(3, '0')}`
+      return createImport({ name: [name], path: `./${name}.ts` })
+    })
+
+  it('keeps the names the source uses and drops the rest once it is indexed', () => {
+    const result = combineImports(indexedImports(), [], 'export type Used = Model000 | Model199')
+
+    expect(result.map((node) => node.path)).toStrictEqual(['./Model000.ts', './Model199.ts'])
+  })
+
+  it('keeps an indexed name that only occurs inside a longer identifier', () => {
+    const result = combineImports(indexedImports(), [], 'export type Used = Model000Extended')
+
+    expect(result.map((node) => node.path)).toStrictEqual(['./Model000.ts'])
+  })
 })

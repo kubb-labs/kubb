@@ -7,6 +7,20 @@
 import type { ExportNode, ImportNode, SourceNode } from '../nodes/index.ts'
 import { extractStringsFromNodes } from './extractStringsFromNodes.ts'
 
+const IDENTIFIER_RUN = /[\w$]+/g
+
+/**
+ * How many imports a file needs before indexing the source beats scanning it once per name.
+ */
+const INDEX_ABOVE_IMPORTS = 128
+
+/**
+ * Every unbroken run of identifier characters in the source.
+ */
+function collectIdentifiers(source: string): Set<string> {
+  return new Set(source.match(IDENTIFIER_RUN))
+}
+
 function sourceKey(source: SourceNode): string {
   const nameKey = source.name ?? extractStringsFromNodes(source.nodes)
   return `${nameKey}:${source.isExportable ?? false}:${source.isTypeOnly ?? false}`
@@ -115,7 +129,14 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
 export function combineImports(imports: Array<ImportNode>, exports: Array<ExportNode>, source?: string): Array<ImportNode> {
   // Build a lookup of all exported names to retain imports that are re-exported
   const exportedNames = new Set(exports.flatMap((e) => (Array.isArray(e.name) ? e.name : e.name ? [e.name] : [])))
-  const isUsed = (importName: string): boolean => !source || source.includes(importName) || exportedNames.has(importName)
+  // `createFile` re-runs on every merge into a file, so scanning the source once per import name
+  // costs a heavily merged file that scan again for every fragment it already holds. Indexing pays
+  // for itself there, and costs more than it saves on the small files the default output produces.
+  const identifiers = source && imports.length > INDEX_ABOVE_IMPORTS ? collectIdentifiers(source) : null
+
+  // A name in the index is used. One that is not still might be, inside a longer identifier, so the
+  // substring test stays behind it.
+  const isUsed = (importName: string): boolean => !source || identifiers?.has(importName) || source.includes(importName) || exportedNames.has(importName)
 
   // Memoize object import names so the same logical (propertyName, name) pair always
   // reuses the same object reference. Set-based deduplication then works correctly.
