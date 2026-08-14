@@ -1,3 +1,4 @@
+import path from 'node:path'
 import type { LiteralUnion } from '@internals/utils'
 import type { Enforce, FileNode, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import { diagnosticCode } from './constants.ts'
@@ -43,7 +44,7 @@ export type Output = {
    * - `'file'` writes everything into a single file. The `path` must include the file extension.
    * - `'directory'` writes one file per operation or schema under `path`.
    *
-   * @default 'file'
+   * Defaults to `'file'` when `path` carries an extension and `'directory'` when it does not.
    */
   mode?: OutputMode
   /**
@@ -86,9 +87,13 @@ export type Group = {
 
 /**
  * Couples `output.mode` with the plugin's `group` option at the type level.
- * - `mode: 'file'` (or no mode) forbids `group` (a single file has nothing to group).
- * - `mode: 'directory'` allows an optional `group` to organize files into
- *   per-group subdirectories.
+ * - An explicit `mode: 'file'` forbids `group` (a single file has nothing to group).
+ * - Omitting `mode`, or setting it to `'directory'`, allows an optional `group`.
+ *
+ * `mode` is normally inferred from `output.path` (an extension means `'file'`, anything
+ * else `'directory'`), so `group` rarely needs `mode` spelled out alongside it. Set
+ * `mode: 'directory'` explicitly only to override that inference, such as a directory
+ * name that carries a dot (`path: 'clients.v2'`).
  *
  * Intersect into a plugin's `Options` type instead of declaring `output` and
  * `group` directly, since `mode` lives inside `output` while `group` is its sibling.
@@ -103,28 +108,32 @@ export type Group = {
  */
 export type OutputOptions<TOutput extends Output = Output> =
   | {
-      output?: TOutput & { mode?: 'file' }
-      group?: never
+      output?: TOutput & { mode?: 'directory' }
+      group?: Group
     }
   | {
-      output: TOutput & { mode: 'directory' }
-      group?: Group
+      output?: TOutput & { mode: 'file' }
+      group?: never
     }
 
 /**
  * Merges the `output.mode` default into the output config and validates the combination.
  * Throws `KUBB_INVALID_PLUGIN_OPTIONS` when `mode: 'file'` is paired with a `group` option,
  * since a single-file output has nothing to group.
+ *
+ * An omitted `mode` follows the shape of `path`: an extension means a single file, anything
+ * else is a directory. Plugin defaults such as `path: 'types'` name a directory, so they
+ * generate without the caller spelling out `mode`.
  */
 export function normalizeOutput({ output, group, pluginName }: { output: Output; group?: Group | null; pluginName: string }): Output {
-  const mode = output.mode ?? 'file'
+  const mode = output.mode ?? (path.extname(output.path) ? 'file' : 'directory')
 
   if (mode === 'file' && group) {
     throw new Diagnostics.Error({
       code: diagnosticCode.invalidPluginOptions,
       severity: 'error',
-      message: `Plugin "${pluginName}" sets \`output.mode: 'file'\` but also configures a \`group\` option.`,
-      help: "A single-file output has nothing to group. Remove the `group` option, or use `output.mode: 'directory'` to organize files into subdirectories.",
+      message: `Plugin "${pluginName}" resolves \`output.mode\` to 'file' but also configures a \`group\` option.`,
+      help: "A single-file output has nothing to group. Remove the `group` option, give `output.path` an extensionless directory name, or set `output.mode: 'directory'` explicitly.",
       location: { kind: 'config' },
       plugin: pluginName,
     })
