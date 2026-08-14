@@ -87,9 +87,13 @@ export type Group = {
 
 /**
  * Couples `output.mode` with the plugin's `group` option at the type level.
- * - `mode: 'file'` (or no mode) forbids `group` (a single file has nothing to group).
- * - `mode: 'directory'` allows an optional `group` to organize files into
- *   per-group subdirectories.
+ * - An explicit `mode: 'file'` forbids `group` (a single file has nothing to group).
+ * - Omitting `mode`, or setting it to `'directory'`, allows an optional `group`.
+ *
+ * `mode` is normally inferred from `output.path` (an extension means `'file'`, anything
+ * else `'directory'`), so `group` rarely needs `mode` spelled out alongside it. Set
+ * `mode: 'directory'` explicitly only to override that inference, such as a directory
+ * name that carries a dot (`path: 'clients.v2'`).
  *
  * Intersect into a plugin's `Options` type instead of declaring `output` and
  * `group` directly, since `mode` lives inside `output` while `group` is its sibling.
@@ -104,12 +108,12 @@ export type Group = {
  */
 export type OutputOptions<TOutput extends Output = Output> =
   | {
-      output?: TOutput & { mode?: 'file' }
-      group?: never
+      output?: TOutput & { mode?: 'directory' }
+      group?: Group
     }
   | {
-      output: TOutput & { mode: 'directory' }
-      group?: Group
+      output?: TOutput & { mode: 'file' }
+      group?: never
     }
 
 /**
@@ -128,8 +132,8 @@ export function normalizeOutput({ output, group, pluginName }: { output: Output;
     throw new Diagnostics.Error({
       code: diagnosticCode.invalidPluginOptions,
       severity: 'error',
-      message: `Plugin "${pluginName}" sets \`output.mode: 'file'\` but also configures a \`group\` option.`,
-      help: "A single-file output has nothing to group. Remove the `group` option, or use `output.mode: 'directory'` to organize files into subdirectories.",
+      message: `Plugin "${pluginName}" resolves \`output.mode\` to 'file' but also configures a \`group\` option.`,
+      help: "A single-file output has nothing to group. Remove the `group` option, give `output.path` an extensionless directory name, or set `output.mode: 'directory'` explicitly.",
       location: { kind: 'config' },
       plugin: pluginName,
     })

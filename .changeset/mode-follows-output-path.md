@@ -11,5 +11,9 @@ plugin with no options at all failed the run with `No extname found for types`, 
 `pluginAxios()`, `pluginZod()`, and `pluginFaker()` could not generate until every one of them was
 given an explicit `output.mode: 'directory'`.
 
-Setting `mode` still overrides the inference, and pairing `group` with `mode: 'file'` still reports
+Setting `mode` still overrides the inference. `group` no longer needs `mode: 'directory'` spelled
+out alongside it either, the types now accept `group` whenever `mode` is omitted or `'directory'`,
+and only reject an explicit `mode: 'file'`. Set `mode: 'directory'` yourself when the inference
+would guess wrong, such as a directory name that carries a dot (`path: 'clients.v2'`). Pairing
+`group` with a `mode` that resolves to `'file'`, explicit or inferred, still reports
 `KUBB_INVALID_PLUGIN_OPTIONS`.

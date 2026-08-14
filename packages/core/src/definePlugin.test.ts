@@ -4,6 +4,7 @@ import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { definePlugin, normalizeOutput } from './definePlugin.ts'
+import type { OutputOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, GeneratorContext, KubbHooks, KubbPluginSetupContext, Output, Plugin, PluginFactoryOptions, ResolvePluginOptions } from './types.ts'
@@ -571,9 +572,27 @@ describe('normalizeOutput', () => {
     expect(result).toStrictEqual({ path: 'clients', mode: 'directory' })
   })
 
-  it('throws KUBB_INVALID_PLUGIN_OPTIONS for file mode paired with a group', () => {
+  it('infers directory mode for a group when mode is left unset', () => {
+    const result = normalizeOutput({ output: { path: 'clients' }, group: { type: 'tag' }, pluginName: 'plugin-axios' })
+
+    expect(result).toStrictEqual({ path: 'clients', mode: 'directory' })
+  })
+
+  it('lets an explicit directory mode override a path that looks like a file, for a group', () => {
+    const result = normalizeOutput({ output: { path: 'clients.v2', mode: 'directory' }, group: { type: 'tag' }, pluginName: 'plugin-axios' })
+
+    expect(result).toStrictEqual({ path: 'clients.v2', mode: 'directory' })
+  })
+
+  it('throws KUBB_INVALID_PLUGIN_OPTIONS for an explicit file mode paired with a group', () => {
     expect(() => normalizeOutput({ output: { path: 'models.ts', mode: 'file' }, group: { type: 'tag' }, pluginName: 'plugin-ts' })).toThrowError(
-      /output\.mode: 'file'/,
+      /output\.mode. to 'file'/,
+    )
+  })
+
+  it('throws KUBB_INVALID_PLUGIN_OPTIONS for a path that infers file mode, paired with a group', () => {
+    expect(() => normalizeOutput({ output: { path: 'clients.v2' }, group: { type: 'tag' }, pluginName: 'plugin-axios' })).toThrowError(
+      /output\.mode. to 'file'/,
     )
   })
 
@@ -587,6 +606,18 @@ describe('normalizeOutput', () => {
 
     expect(Diagnostics.isError(thrown)).toBe(true)
     expect((thrown as InstanceType<typeof Diagnostics.Error>).diagnostic.code).toBe('KUBB_INVALID_PLUGIN_OPTIONS')
+  })
+
+  it('accepts group at the type level without spelling out mode', () => {
+    expectTypeOf<{ output?: { path: string }; group?: { type: 'tag' } }>().toExtend<OutputOptions>()
+  })
+
+  it('accepts group at the type level with an explicit directory mode', () => {
+    expectTypeOf<{ output: { path: string; mode: 'directory' }; group?: { type: 'tag' } }>().toExtend<OutputOptions>()
+  })
+
+  it('rejects group at the type level when mode is explicitly file', () => {
+    expectTypeOf<{ output: { path: string; mode: 'file' }; group: { type: 'tag' } }>().not.toExtend<OutputOptions>()
   })
 })
 
