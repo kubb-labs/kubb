@@ -10,20 +10,15 @@ import { extractStringsFromNodes } from './extractStringsFromNodes.ts'
 const IDENTIFIER_RUN = /[\w$]+/g
 
 /**
- * How many import names a file has to carry before indexing the source beats scanning it per name.
- * Indexing allocates a string per run in the whole file, which measured more expensive than a few
- * hundred scans, so only a file consolidating a large number of imports earns it.
+ * How many imports a file needs before indexing the source beats scanning it once per name.
  */
-const INDEX_ABOVE_NAMES = 256
+const INDEX_ABOVE_IMPORTS = 128
 
 /**
- * Every unbroken run of identifier characters in the source. A name found here is used, without
- * scanning the text for it. A name absent here still might be, so the caller falls back.
+ * Every unbroken run of identifier characters in the source.
  */
 function collectIdentifiers(source: string): Set<string> {
-  const identifiers = new Set<string>()
-  for (const [run] of source.matchAll(IDENTIFIER_RUN)) identifiers.add(run)
-  return identifiers
+  return new Set(source.match(IDENTIFIER_RUN))
 }
 
 function sourceKey(source: SourceNode): string {
@@ -134,30 +129,15 @@ export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
 export function combineImports(imports: Array<ImportNode>, exports: Array<ExportNode>, source?: string): Array<ImportNode> {
   // Build a lookup of all exported names to retain imports that are re-exported
   const exportedNames = new Set(exports.flatMap((e) => (Array.isArray(e.name) ? e.name : e.name ? [e.name] : [])))
-  // Scanning the whole file per import name is quadratic, and `createFile` re-runs on every merge
-  // into a file, so a file built from many fragments pays it again for each fragment it already
-  // holds. Indexing the source answers those in one pass, but it allocates a string per run, which
-  // costs more than the scans it saves until a file carries a large number of imports.
-  let names = 0
-  for (const node of imports) names += Array.isArray(node.name) ? node.name.length : 1
+  // `createFile` re-runs on every merge into a file, so scanning the source once per import name
+  // costs a heavily merged file that scan again for every fragment it already holds. Indexing pays
+  // for itself there, and costs more than it saves on the small files the default output produces.
+  const identifiers = source && imports.length > INDEX_ABOVE_IMPORTS ? collectIdentifiers(source) : null
 
-  const identifiers = source && names > INDEX_ABOVE_NAMES ? collectIdentifiers(source) : null
-  // Only worth its own allocation on the files that got an index. Below that a name is looked at
-  // twice at most, once by the pre-pass and once by the filter.
-  const usage = identifiers ? new Map<string, boolean>() : null
-
-  const isUsed = (importName: string): boolean => {
-    if (!source) return true
-
-    const known = usage?.get(importName)
-    if (known !== undefined) return known
-
-    // The index settles a name that stands alone as an identifier. Everything else falls through to
-    // the substring test, which is what keeps `Pet` when the file only mentions `PetStore`.
-    const used = identifiers?.has(importName) || source.includes(importName) || exportedNames.has(importName)
-    usage?.set(importName, used)
-    return used
-  }
+  // A name in the index is used. One that is not still might be, inside a longer identifier, so the
+  // substring test stays behind it.
+  const isUsed = (importName: string): boolean =>
+    !source || identifiers?.has(importName) || source.includes(importName) || exportedNames.has(importName)
 
   // Memoize object import names so the same logical (propertyName, name) pair always
   // reuses the same object reference. Set-based deduplication then works correctly.
