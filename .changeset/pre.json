@@ -27,6 +27,7 @@
     "adapter-oas-faithful-schemas",
     "adapter-oas-integer-type-bigint-default",
     "adapter-oas-lazy-load-heavy-deps",
+    "adapter-oas-lazy-validator",
     "adapter-oas-leaner-shape",
     "adapter-oas-octet-stream-request-body",
     "adapter-oas-promote-inline-enums",
@@ -130,12 +131,14 @@
     "core-hot-path-perf",
     "core-kubb-generate",
     "core-node-outer-generate-loop",
+    "core-output-manifest",
     "core-reject-legacy-input-shape",
     "core-remove-ast-reexport",
     "core-remove-middleware",
     "core-renderer-contract-trim",
     "core-reporter-buffer",
     "core-resolve-options-weak-map-guard",
+    "core-skip-rewrite-after-format",
     "core-split-createkubb-types",
     "core-topological-plugin-sort",
     "core-type-safety-escape-hatches",
@@ -206,6 +209,7 @@
     "kit-drop-factory-export",
     "kit-new-package",
     "kit-url-safe-template",
+    "knip-audit-unused-exports",
     "knip-remove-dead-code",
     "knip-trim-unused-exports",
     "kubb-bun-native-runtime",
@@ -310,6 +314,7 @@
     "typed-hook-protocol",
     "typescript-6-upgrade",
     "update-react-fabric-dependency",
+    "utils-write-fewer-syscalls",
     "vast-insects-type"
   ]
 }
