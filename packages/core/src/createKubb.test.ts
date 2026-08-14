@@ -376,6 +376,20 @@ describe('createKubb', () => {
     ])
   })
 
+  it('reports a processed file without its parsed source', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const rows: Array<unknown> = []
+    hooks.hook('kubb:files:processing:update', ({ files }) => {
+      rows.push(...files)
+    })
+
+    await createKubb({ ...config, storage: memoryStorage() }, { hooks }).build()
+
+    // Buffering the source is what used to hold the whole output tree in memory for the batch.
+    expect(rows).toHaveLength(1)
+    expect(rows[0]).not.toHaveProperty('source')
+  })
+
   it('cleans up hook-style plugin listeners between builds on shared hooks', async () => {
     const hooks = new Hookable<KubbHooks>()
     const hookPlugin = definePlugin(() => ({

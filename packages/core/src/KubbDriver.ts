@@ -16,7 +16,17 @@ import { createNodeCache } from './nodeCache.ts'
 import type { OutputManifest } from './outputManifest.ts'
 import { inputToAdapterSource } from './input.ts'
 
-import type { Adapter, AdapterSource, Config, GeneratorContext, Group, KubbHooks, NormalizedPlugin, PluginFactoryOptions } from './types.ts'
+import type {
+  Adapter,
+  AdapterSource,
+  Config,
+  GeneratorContext,
+  Group,
+  KubbFileProcessingUpdate,
+  KubbHooks,
+  NormalizedPlugin,
+  PluginFactoryOptions,
+} from './types.ts'
 import type { Hookable } from './Hookable.ts'
 
 type Options = {
@@ -284,7 +294,6 @@ export class KubbDriver {
   async run(): Promise<{ diagnostics: Array<Diagnostic> }> {
     const { hooks, config, fileManager } = this
     const diagnostics: Array<Diagnostic> = []
-    const updateBuffer: Array<{ file: FileNode; source?: string; processed: number; total: number; percentage: number }> = []
     const parsersMap = new Map<FileNode['extname'], Parser>()
 
     for (const parser of config.parsers) {
@@ -293,21 +302,24 @@ export class KubbDriver {
       }
     }
 
+    const updateBuffer: Array<KubbFileProcessingUpdate> = []
+
     const unhookWrites = fileManager.hooks.addHooks({
       start: async (files) => {
         await hooks.callHook('kubb:files:processing:start', { files })
       },
-      update: (item) => {
-        updateBuffer.push(item)
+      update: ({ file, processed, total, percentage }) => {
+        // The row deliberately leaves `source` behind. It is the only heavy field, and buffering it
+        // holds every generated file in memory until the batch ends, undoing the bound
+        // `fileManager.write` puts on how many sources exist at once.
+        updateBuffer.push({ file, processed, total, percentage, config })
       },
       end: async (files: Array<FileNode>) => {
         // Files parse concurrently, so the buffer arrives in completion order. `processed` is each
         // file's input position, so sorting by it restores generation order for the streamed rows.
         updateBuffer.sort((a, b) => a.processed - b.processed)
 
-        await hooks.callHook('kubb:files:processing:update', {
-          files: updateBuffer.map((item) => ({ ...item, config })),
-        })
+        await hooks.callHook('kubb:files:processing:update', { files: updateBuffer })
         updateBuffer.length = 0
         await hooks.callHook('kubb:files:processing:end', { files })
       },
