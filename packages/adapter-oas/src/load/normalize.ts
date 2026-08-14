@@ -129,10 +129,8 @@ export function assertDocument(document: Document): void {
  * ```
  */
 export async function validateDocument(document: Document, { throwOnError = false }: { throwOnError?: boolean } = {}): Promise<void> {
-  // Imported here rather than at the top of the file. It is the heaviest dependency in the package
-  // by a wide margin, and importing `@kubb/adapter-oas` at all, which every config does, would
-  // otherwise pay for it even when `validate` is off and this function never runs. Kept outside the
-  // try so a module that fails to load still surfaces instead of being read as a spec violation.
+  // The heaviest dependency in the package, and every config importing `@kubb/adapter-oas` would
+  // pay for it even with `validate` off.
   const { compileErrors, validate } = await import('@readme/openapi-parser')
 
   try {
