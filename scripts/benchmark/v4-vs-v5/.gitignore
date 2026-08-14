@@ -1,0 +1,14 @@
+# Downloaded on first run
+.specs/
+
+# Generated per case and removed when the run finishes
+.bench/
+
+# A v5 install built from local workspaces, see README.md
+v5.local/
+
+# Per-machine measurements, written on every run
+results.json
+
+# The pinned versions in package.json are the lockfile here
+package-lock.json

@@ -566,7 +566,7 @@ describe('KubbDriver generator dispatch', () => {
     await optsDriver.run()
 
     const normalized = optsDriver.plugins.get('opts-plugin')!.options
-    expect(normalized.output).toStrictEqual({ path: 'types', mode: 'file' })
+    expect(normalized.output).toStrictEqual({ path: 'types', mode: 'directory' })
     expect(normalized.exclude).toStrictEqual([])
     expect(normalized.override).toStrictEqual([])
     expect((normalized as Record<string, unknown>).enumType).toBe('asConst')

@@ -346,7 +346,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
     const opts = plugin.options as Record<string, unknown>
     expect(opts.enumType).toBe('asConst')
     expect(opts.syntaxType).toBe('type')
-    expect(opts.output).toStrictEqual({ path: 'types', mode: 'file' })
+    expect(opts.output).toStrictEqual({ path: 'types', mode: 'directory' })
   })
 
   it('external listeners receive kubb:plugin:setup context', async () => {
@@ -535,10 +535,22 @@ describe('PluginDriver — generator dispatch', () => {
 })
 
 describe('normalizeOutput', () => {
-  it('defaults mode to file', () => {
+  it('defaults an extensionless path to directory mode', () => {
     const result = normalizeOutput({ output: { path: 'types' }, pluginName: 'plugin-ts' })
 
-    expect(result).toStrictEqual({ path: 'types', mode: 'file' })
+    expect(result).toStrictEqual({ path: 'types', mode: 'directory' })
+  })
+
+  it('defaults a path with an extension to file mode', () => {
+    const result = normalizeOutput({ output: { path: 'models.ts' }, pluginName: 'plugin-ts' })
+
+    expect(result).toStrictEqual({ path: 'models.ts', mode: 'file' })
+  })
+
+  it('defaults a nested extensionless path to directory mode', () => {
+    const result = normalizeOutput({ output: { path: 'ts/models' }, pluginName: 'plugin-ts' })
+
+    expect(result).toStrictEqual({ path: 'ts/models', mode: 'directory' })
   })
 
   it('keeps an explicit directory mode', () => {

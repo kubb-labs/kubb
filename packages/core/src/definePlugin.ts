@@ -1,3 +1,4 @@
+import path from 'node:path'
 import type { LiteralUnion } from '@internals/utils'
 import type { Enforce, FileNode, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import { diagnosticCode } from './constants.ts'
@@ -43,7 +44,7 @@ export type Output = {
    * - `'file'` writes everything into a single file. The `path` must include the file extension.
    * - `'directory'` writes one file per operation or schema under `path`.
    *
-   * @default 'file'
+   * Defaults to `'file'` when `path` carries an extension and `'directory'` when it does not.
    */
   mode?: OutputMode
   /**
@@ -115,9 +116,13 @@ export type OutputOptions<TOutput extends Output = Output> =
  * Merges the `output.mode` default into the output config and validates the combination.
  * Throws `KUBB_INVALID_PLUGIN_OPTIONS` when `mode: 'file'` is paired with a `group` option,
  * since a single-file output has nothing to group.
+ *
+ * An omitted `mode` follows the shape of `path`: an extension means a single file, anything
+ * else is a directory. Plugin defaults such as `path: 'types'` name a directory, so they
+ * generate without the caller spelling out `mode`.
  */
 export function normalizeOutput({ output, group, pluginName }: { output: Output; group?: Group | null; pluginName: string }): Output {
-  const mode = output.mode ?? 'file'
+  const mode = output.mode ?? (path.extname(output.path) ? 'file' : 'directory')
 
   if (mode === 'file' && group) {
     throw new Diagnostics.Error({
