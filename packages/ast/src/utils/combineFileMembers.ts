@@ -136,8 +136,7 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
 
   // A name in the index is used. One that is not still might be, inside a longer identifier, so the
   // substring test stays behind it.
-  const isUsed = (importName: string): boolean =>
-    !source || identifiers?.has(importName) || source.includes(importName) || exportedNames.has(importName)
+  const isUsed = (importName: string): boolean => !source || identifiers?.has(importName) || source.includes(importName) || exportedNames.has(importName)
 
   // Memoize object import names so the same logical (propertyName, name) pair always
   // reuses the same object reference. Set-based deduplication then works correctly.
