@@ -1,7 +1,6 @@
 import path from 'node:path'
 import { Diagnostics } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
-import { compileErrors, validate } from '@readme/openapi-parser'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { bundle } from 'api-ref-bundler'
 import { parse } from 'yaml'
@@ -130,6 +129,10 @@ export function assertDocument(document: Document): void {
  * ```
  */
 export async function validateDocument(document: Document, { throwOnError = false }: { throwOnError?: boolean } = {}): Promise<void> {
+  // The heaviest dependency in the package, and every config importing `@kubb/adapter-oas` would
+  // pay for it even with `validate` off.
+  const { compileErrors, validate } = await import('@readme/openapi-parser')
+
   try {
     // `validate` dereferences its input in place, so clone to keep the cached document intact.
     const result = await validate(structuredClone(document), {
