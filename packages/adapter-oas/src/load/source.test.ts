@@ -51,4 +51,24 @@ describe('resolveSource', () => {
 
     await expect(resolveSource('https://specs.example.com/openapi.yaml')).resolves.toStrictEqual({ openapi: '3.1.0' })
   })
+
+  it('parses a JSON document via the JSON.parse fast path', async () => {
+    using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ openapi: '3.1.0', paths: {} }), { status: 200 }))
+
+    await expect(resolveSource('https://specs.example.com/openapi.json')).resolves.toStrictEqual({ openapi: '3.1.0', paths: {} })
+  })
+
+  it('falls back to the YAML parser for a document JSON.parse rejects', async () => {
+    using _fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(
+        `
+openapi: '3.1.0'
+paths: {}
+`,
+        { status: 200 },
+      ),
+    )
+
+    await expect(resolveSource('https://specs.example.com/openapi.yaml')).resolves.toStrictEqual({ openapi: '3.1.0', paths: {} })
+  })
 })

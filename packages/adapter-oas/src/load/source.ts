@@ -77,6 +77,11 @@ async function readSource(sourcePath: string): Promise<string> {
 /**
  * Reads and parses one source file or URL referenced during bundling: YAML/JSON is parsed into an
  * object, Markdown is returned as-is (bundled inline rather than dereferenced).
+ *
+ * JSON is valid YAML, so `yaml`'s `parse` handles both, but its general-purpose parser (comments,
+ * anchors, block scalars, multi-document streams) does much more work than `JSON.parse` needs to.
+ * `JSON.parse` runs first and fails fast on the first non-JSON character, so a real YAML document
+ * falls through to `parse` at negligible cost.
  */
 export async function resolveSource(sourcePath: string): Promise<object | string> {
   const data = await readSource(sourcePath)
@@ -85,7 +90,11 @@ export async function resolveSource(sourcePath: string): Promise<object | string
     return data
   }
 
-  return parse(data) as object
+  try {
+    return JSON.parse(data) as object
+  } catch {
+    return parse(data) as object
+  }
 }
 
 /**
