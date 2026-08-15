@@ -3,10 +3,10 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { readFile, stat } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { fsStorage } from '@kubb/core'
-import type { DefineStorage } from '@kubb/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { DefineStorage } from '../defineStorage.ts'
 import { formatCacheStorage } from './formatCacheStorage.ts'
+import { fsStorage } from './fsStorage.ts'
 
 const prettierBin = resolve(import.meta.dirname, '../../../../node_modules/.bin/prettier')
 
@@ -101,11 +101,46 @@ describe('formatCacheStorage', () => {
     expect(setItemSpy).toHaveBeenCalledTimes(1)
   })
 
+  it('writes through again when the manifest hash matches but the file is missing from the underlying storage', async () => {
+    const base = memoryStorage()
+    const setItemSpy = vi.spyOn(base, 'setItem')
+    const storage = formatCacheStorage({ storage: base, manifestPath })
+
+    await storage.setItem('Pet.ts', 'export type Pet = { id: number }')
+    expect(setItemSpy).toHaveBeenCalledTimes(1)
+
+    // The file was deleted by hand (or a `git checkout` / partial cleanup) after the previous
+    // build, but the manifest still remembers its hash.
+    base.store.delete('Pet.ts')
+
+    await storage.setItem('Pet.ts', 'export type Pet = { id: number }')
+
+    expect(setItemSpy).toHaveBeenCalledTimes(2)
+    expect(base.store.get('Pet.ts')).toBe('export type Pet = { id: number }')
+  })
+
+  it('does not persist the manifest to disk until dispose() is called', async () => {
+    const base = memoryStorage()
+    const storage = formatCacheStorage({ storage: base, manifestPath })
+
+    await storage.setItem('Pet.ts', 'export type Pet = { id: number }')
+    await storage.setItem('Owner.ts', 'export type Owner = { id: number }')
+
+    await expect(readFile(manifestPath, 'utf-8')).rejects.toThrow()
+
+    await storage.dispose?.()
+
+    const manifest = JSON.parse(await readFile(manifestPath, 'utf-8'))
+    expect(manifest['Pet.ts']).toBeTypeOf('string')
+    expect(manifest['Owner.ts']).toBeTypeOf('string')
+  })
+
   it('persists the manifest so a fresh instance (a later CLI process) still recognizes unchanged content', async () => {
     const base = memoryStorage()
 
     const first = formatCacheStorage({ storage: base, manifestPath })
     await first.setItem('Pet.ts', 'export type Pet = { id: number }')
+    await first.dispose?.()
 
     const manifest = JSON.parse(await readFile(manifestPath, 'utf-8'))
     expect(manifest['Pet.ts']).toBeTypeOf('string')
@@ -119,9 +154,10 @@ describe('formatCacheStorage', () => {
     expect(setItemSpy).not.toHaveBeenCalled()
   })
 
-  it('delegates every other method to the underlying storage', async () => {
+  it('delegates every other method, including dispose(), to the underlying storage', async () => {
     const base = memoryStorage()
-    const storage = formatCacheStorage({ storage: base, manifestPath })
+    const disposeSpy = vi.fn().mockResolvedValue(undefined)
+    const storage = formatCacheStorage({ storage: { ...base, dispose: disposeSpy }, manifestPath })
 
     expect(storage.name).toBe('memory')
 
@@ -133,6 +169,9 @@ describe('formatCacheStorage', () => {
 
     await storage.removeItem('Pet.ts')
     expect(await storage.hasItem('Pet.ts')).toBe(false)
+
+    await storage.dispose?.()
+    expect(disposeSpy).toHaveBeenCalledTimes(1)
   })
 })
 
@@ -154,13 +193,17 @@ describe('formatCacheStorage with fsStorage and a real formatter', () => {
     const unformatted = 'export type Pet = { id: number }'
 
     // Build 1: write, then format (mirroring generate.ts writing files and then running output.format).
-    await formatCacheStorage({ storage: fsStorage(), manifestPath }).setItem(key, unformatted)
+    const build1 = formatCacheStorage({ storage: fsStorage(), manifestPath })
+    await build1.setItem(key, unformatted)
+    await build1.dispose?.()
     execFileSync(prettierBin, ['--write', key])
     const mtimeAfterBuild1 = (await stat(key)).mtimeMs
 
     // Build 2: the input hasn't changed, so Kubb regenerates the exact same unformatted content.
     await new Promise((r) => setTimeout(r, 20))
-    await formatCacheStorage({ storage: fsStorage(), manifestPath }).setItem(key, unformatted)
+    const build2 = formatCacheStorage({ storage: fsStorage(), manifestPath })
+    await build2.setItem(key, unformatted)
+    await build2.dispose?.()
     execFileSync(prettierBin, ['--write', key])
     const mtimeAfterBuild2 = (await stat(key)).mtimeMs
 

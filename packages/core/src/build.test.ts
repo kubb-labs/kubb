@@ -377,7 +377,7 @@ describe('build - unchanged rebuilds (#3867)', () => {
     const plugin = definePlugin(() => {
       return {
         name: 'plugin',
-        options: { output: {} } as any,
+        options: { output: {} },
         context: undefined as never,
         key: ['plugin'],
         async install() {

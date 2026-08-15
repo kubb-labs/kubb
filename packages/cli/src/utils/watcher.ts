@@ -7,13 +7,34 @@ export async function startWatcher(path: string[], cb: (path: string[]) => Promi
     ignorePermissionErrors: true,
     ignored: WATCHER_IGNORED_PATHS,
   })
-  watcher.on('all', async (type, file) => {
+
+  // Filesystem events can fire in quick succession (e.g. an editor writing a file twice on save),
+  // and `cb` is async, so without serializing runs, two overlapping `cb` calls could both build
+  // against the same output directory at once. Queue at most one extra run instead of overlapping.
+  let isRunning = false
+  let hasQueuedRun = false
+
+  async function run(): Promise<void> {
+    if (isRunning) {
+      hasQueuedRun = true
+      return
+    }
+
+    isRunning = true
+    do {
+      hasQueuedRun = false
+      try {
+        await cb(path)
+      } catch (_e) {
+        console.log(styleText('red', 'Watcher failed'))
+      }
+    } while (hasQueuedRun)
+    isRunning = false
+  }
+
+  watcher.on('all', (type, file) => {
     console.log(styleText('yellow', styleText('bold', `Change detected: ${type} ${file}`)))
 
-    try {
-      await cb(path)
-    } catch (_e) {
-      console.log(styleText('red', 'Watcher failed'))
-    }
+    void run()
   })
 }
