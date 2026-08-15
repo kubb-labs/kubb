@@ -119,27 +119,13 @@ describe('formatCacheStorage', () => {
     expect(base.store.get('Pet.ts')).toBe('export type Pet = { id: number }')
   })
 
-  it('does not persist the manifest to disk until dispose() is called', async () => {
-    const base = memoryStorage()
-    const storage = formatCacheStorage({ storage: base, manifestPath })
-
-    await storage.setItem('Pet.ts', 'export type Pet = { id: number }')
-    await storage.setItem('Owner.ts', 'export type Owner = { id: number }')
-
-    await expect(readFile(manifestPath, 'utf-8')).rejects.toThrow()
-
-    await storage.dispose?.()
-
-    const manifest = JSON.parse(await readFile(manifestPath, 'utf-8'))
-    expect(manifest['Pet.ts']).toBeTypeOf('string')
-    expect(manifest['Owner.ts']).toBeTypeOf('string')
-  })
-
-  it('persists the manifest so a fresh instance (a later CLI process) still recognizes unchanged content', async () => {
+  it('persists the manifest only once dispose() is called, so a fresh instance (a later CLI process) recognizes unchanged content', async () => {
     const base = memoryStorage()
 
     const first = formatCacheStorage({ storage: base, manifestPath })
     await first.setItem('Pet.ts', 'export type Pet = { id: number }')
+    await expect(readFile(manifestPath, 'utf-8')).rejects.toThrow()
+
     await first.dispose?.()
 
     const manifest = JSON.parse(await readFile(manifestPath, 'utf-8'))
