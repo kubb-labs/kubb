@@ -10,7 +10,6 @@ import {
   type Config,
   detectFormatter,
   detectLinter,
-  formatCacheStorage,
   formatters,
   fsStorage,
   getConfigs,
@@ -26,6 +25,7 @@ import { version } from '../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../constants.ts'
 import { setupLogger } from '../loggers/utils.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
+import { formatCacheStorage } from '../utils/formatCacheStorage.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 import { startWatcher } from '../utils/watcher.ts'
@@ -189,6 +189,10 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
     },
     { pluginManager, fabric, events, sources },
   )
+
+  // Flush the format-cache manifest now that every `storage.setItem` call for this build has
+  // happened, instead of writing it on every single call.
+  await config.output.storage?.dispose?.()
 
   await events.emit('info', 'Load summary')
 

@@ -148,7 +148,6 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   })
 
   fabric.context.on('files:processing:end', async (files) => {
-    await storage?.dispose?.()
     await events.emit('files:processing:end', files)
     await events.emit('debug', {
       date: new Date(),

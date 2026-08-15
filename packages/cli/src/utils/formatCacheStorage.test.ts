@@ -3,10 +3,10 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { readFile, stat } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
+import type { DefineStorage } from '@kubb/core'
+import { fsStorage } from '@kubb/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { DefineStorage } from '../defineStorage.ts'
 import { formatCacheStorage } from './formatCacheStorage.ts'
-import { fsStorage } from './fsStorage.ts'
 
 const prettierBin = resolve(import.meta.dirname, '../../../../node_modules/.bin/prettier')
 

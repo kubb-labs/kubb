@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
-import type { DefineStorage } from '../defineStorage.ts'
+import type { DefineStorage } from '@kubb/core'
 
 type FormatCacheStorageOptions = {
   /**
