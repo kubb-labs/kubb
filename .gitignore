@@ -61,6 +61,7 @@ packages/ui/static/**
 .nx
 **/mocks/helloWorld.js
 **/src/gen/mocks/excluded.ts
+**/.kubb/format-cache.json
 
 ## Nitro
 .output

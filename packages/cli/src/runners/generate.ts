@@ -11,6 +11,7 @@ import {
   detectFormatter,
   detectLinter,
   formatters,
+  fsStorage,
   getConfigs,
   isInputPath,
   type KubbEvents,
@@ -24,6 +25,7 @@ import { version } from '../../package.json'
 import { KUBB_NPM_PACKAGE_URL } from '../constants.ts'
 import { setupLogger } from '../loggers/utils.ts'
 import { executeHooks } from '../utils/executeHooks.ts'
+import { formatCacheStorage } from '../utils/formatCacheStorage.ts'
 import { getCosmiConfig } from '../utils/getCosmiConfig.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../utils/telemetry.ts'
 import { startWatcher } from '../utils/watcher.ts'
@@ -155,6 +157,20 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
     },
   }
 
+  const outputPath = path.resolve(config.root, config.output.path)
+
+  // `output.format` reformats the whole output directory after every write, so the storage's own
+  // unchanged-content check compares the freshly generated text against the previous run's
+  // formatted bytes and never matches. Wrap the storage with a manifest of the pre-format hash
+  // last written per path, so a file the formatter already normalized is still recognized as
+  // unchanged instead of being rewritten (and reformatted) on every build.
+  if (config.output.format && config.output.write !== false && !userConfig.output?.storage) {
+    config.output.storage = formatCacheStorage({
+      storage: fsStorage(),
+      manifestPath: path.join(outputPath, '.kubb', 'format-cache.json'),
+    })
+  }
+
   await events.emit('generation:start', config)
 
   await events.emit('info', config.name ? `Setup generation ${styleText('bold', config.name)}` : 'Setup generation', inputPath)
@@ -218,8 +234,6 @@ async function generate({ input, config: userConfig, events, logLevel }: Generat
 
   await events.emit('success', 'Generation successfully', inputPath)
   await events.emit('generation:end', config, files, sources)
-
-  const outputPath = path.resolve(config.root, config.output.path)
 
   if (config.output.format) {
     await runToolPass({
