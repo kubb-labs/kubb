@@ -1,9 +1,10 @@
 import { mkdtempSync, rmSync } from 'node:fs'
+import { readFile, stat } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { AsyncEventEmitter, isPromise } from '@internals/utils'
 import type { KubbFile } from '@kubb/fabric-core/types'
-import { afterEach, describe, expect, it, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest'
 import { build, safeBuild } from './build.ts'
 import { defineConfig } from './config.ts'
 import { definePlugin } from './definePlugin.ts'
@@ -358,5 +359,78 @@ describe('build', () => {
     } finally {
       rmSync(tmpDir, { recursive: true, force: true })
     }
+  })
+})
+
+describe('build - unchanged rebuilds (#3867)', () => {
+  let dir: string
+
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'kubb-unchanged-rebuild-'))
+  })
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('does not rewrite the root barrel or its generated files on an unchanged second build', async () => {
+    const plugin = definePlugin(() => {
+      return {
+        name: 'plugin',
+        options: { output: {} } as any,
+        context: undefined as never,
+        key: ['plugin'],
+        async install() {
+          const files: Array<KubbFile.File> = [
+            {
+              path: join(dir, 'types', 'Pet.ts'),
+              baseName: 'Pet.ts',
+              sources: [{ value: 'export type Pet = { id: number }', name: 'Pet', isExportable: true, isIndexable: true }],
+              imports: [],
+              exports: [],
+              meta: { pluginKey: this.plugin.key },
+            },
+            {
+              path: join(dir, 'types', 'Owner.ts'),
+              baseName: 'Owner.ts',
+              sources: [{ value: 'export type Owner = { id: number }', name: 'Owner', isExportable: true, isIndexable: true }],
+              imports: [],
+              exports: [],
+              meta: { pluginKey: this.plugin.key },
+            },
+          ]
+          for (const file of files) {
+            await this.addFile(file)
+          }
+        },
+      }
+    })
+
+    const unchangedConfig = {
+      root: '.',
+      input: { path: 'https://petstore3.swagger.io/api/v3/openapi.json' },
+      output: { path: dir, clean: false, barrelType: 'named' as const },
+      plugins: [plugin({})] as Plugin[],
+    }
+
+    const paths = [join(dir, 'index.ts'), join(dir, 'types', 'Pet.ts'), join(dir, 'types', 'Owner.ts')]
+
+    await build({ config: unchangedConfig, events: new AsyncEventEmitter<KubbEvents>() })
+    const before = await Promise.all(paths.map((path) => stat(path)))
+
+    // mtime resolution can be coarser than the time a fast rebuild takes, so make sure the
+    // clock has actually moved before rebuilding.
+    await new Promise((resolve) => setTimeout(resolve, 20))
+
+    await build({ config: unchangedConfig, events: new AsyncEventEmitter<KubbEvents>() })
+    const after = await Promise.all(paths.map((path) => stat(path)))
+
+    before.forEach((stats, index) => {
+      expect(after[index]?.mtimeMs).toBe(stats.mtimeMs)
+    })
+
+    const barrelContent = await readFile(join(dir, 'index.ts'), 'utf-8')
+    expect(barrelContent).toContain(`export { Pet } from "./types/Pet.ts"`)
+    expect(barrelContent).toContain(`export { Owner } from "./types/Owner.ts"`)
   })
 })

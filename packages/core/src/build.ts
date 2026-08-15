@@ -3,7 +3,6 @@ import { AsyncEventEmitter, exists, formatMs, getElapsedMs, getRelativePath, URL
 import type { KubbFile } from '@kubb/fabric-core/types'
 import { createFabric } from '@kubb/react-fabric'
 import { typescriptParser } from '@kubb/react-fabric/parsers'
-import { fsPlugin } from '@kubb/react-fabric/plugins'
 import type { Fabric } from '@kubb/react-fabric/types'
 import { isInputPath } from './config.ts'
 import { BARREL_FILENAME, DEFAULT_BANNER, DEFAULT_CONCURRENCY, DEFAULT_EXTENSION, DEFAULT_STUDIO_URL } from './constants.ts'
@@ -122,7 +121,6 @@ export async function setup(options: BuildOptions): Promise<SetupResult> {
   }
 
   const fabric = createFabric()
-  fabric.use(fsPlugin)
   fabric.use(typescriptParser)
 
   fabric.context.on('files:processing:start', (files) => {
@@ -331,7 +329,17 @@ export async function safeBuild(options: BuildOptions, overrides?: SetupResult):
 
     const files = [...fabric.files]
 
-    await fabric.write({ extension: config.output.extension })
+    // Drive the FileManager directly instead of `fabric.use(fsPlugin)` + `fabric.write()`. fsPlugin
+    // registers its own raw 'file:processing:update' listener that writes straight to disk, bypassing
+    // `storage` (so a custom `output.storage` or `output.write: false` would be ignored) and duplicating
+    // the write the listener above already does through `storage.setItem`. Its own unchanged-content
+    // check also compares the untrimmed generated text against the trimmed content already on disk, so
+    // it always "changes" for files with no sources (barrel files) and rewrites them on every build.
+    await fabric.context.fileManager.write({
+      mode: fabric.context.config.mode,
+      extension: config.output.extension,
+      parsers: fabric.context.installedParsers,
+    })
 
     return {
       failedPlugins,
