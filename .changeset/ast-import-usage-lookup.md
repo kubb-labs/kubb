@@ -1,9 +1,0 @@
----
-'@kubb/ast': patch
----
-
-Cut the cost of assembling one file out of many fragments.
-
-`createFile` runs again on every merge into a file, and its import filter scanned the whole accumulated source once per import name. A file built from many fragments paid that scan again for every fragment it had already absorbed.
-
-A file with more than 128 imports now indexes the source once and answers from the index, which gives the same result. Smaller files stay on the plain scan, so the default one file per operation is untouched. Assembling 800 fragments drops from 2.5s to 1.2s, and 1600 from 32.9s to 5.4s.

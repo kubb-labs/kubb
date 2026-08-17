@@ -9,7 +9,18 @@ The stringly-typed `default(name, type?: 'file' | 'function' | 'type' | 'const')
 Generators call the two top-level entries, each of which defaults to its `default` counterpart:
 
 - `resolver.name(name)` — the plugin's identifier casing. Override it to set a convention (PascalCase, a suffix, …).
-- `resolver.file(params, context)` — builds a `FileNode`. Override it for custom file-name casing, threading a caser through `params.resolveName` (default `toFilePath`).
+- `resolver.file({ name, extname, tag, path, root, output, group })` — resolves generated file names and paths, split into `file.baseName` (the base name including its extension) and `file.path` (the full path, resolved against the project root). Override `file.baseName` for custom file-name casing:
+
+  ```ts
+  createResolver({
+    pluginName: 'plugin-faker',
+    file: {
+      baseName({ name, extname }) {
+        return `${camelCase(name, { prefix: 'create' })}${extname}`
+      },
+    },
+  })
+  ```
 
 `resolver.default` is the built-in machinery and is not overridable — plugins delegate to it via `this.default.*` rather than replace it.
 

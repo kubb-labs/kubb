@@ -1,5 +1,5 @@
 ---
-'@kubb/adapter-oas': minor
+'@kubb/adapter-oas': major
 ---
 
 Change the default value of `integerType` from `'number'` to `'bigint'`.

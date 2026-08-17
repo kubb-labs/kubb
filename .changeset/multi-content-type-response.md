@@ -1,16 +1,23 @@
 ---
 '@kubb/ast': minor
 '@kubb/adapter-oas': minor
+'@kubb/core': minor
 ---
 
-Add multiple response content type support to the AST and OpenAPI parser.
+Support multiple content types on both request bodies and responses.
 
-`ResponseNode` now mirrors `requestBody`: the response body schemas live exclusively inside a
-`content` array (one entry per content type), instead of a single root-level `schema`/`mediaType`.
-This removes the duplicated schema that previously sat both on the node root and inside `content`.
-The OpenAPI parser populates every content type declared for a status code. Body-less responses
-keep a single `content` entry whose schema is the empty/`void` placeholder. When the adapter
-`contentType` option is set, only that content type is kept.
+`OperationNode.requestBody` and `ResponseNode` now share the same shape: every content type declared in the spec gets its own entry in a `content` array, instead of a single root-level `schema`/`mediaType`/`contentType`. A request body or response that declares `application/json` and `multipart/form-data` produces one typed entry per content type instead of collapsing to whichever one the parser saw first.
 
-For convenience `createResponse` still accepts a single `schema` (with optional `mediaType`),
-normalizing it into one `content` entry, so existing callers keep working.
+```ts
+// before
+operation.requestBody?.schema
+operation.requestBody?.contentType
+operation.requestBody?.keysToOmit
+
+// after
+operation.requestBody?.content?.[0]?.schema
+operation.requestBody?.content?.[0]?.contentType
+operation.requestBody?.content?.[0]?.keysToOmit
+```
+
+The OpenAPI parser populates every content type declared for a request body or status code. A body-less response keeps a single `content` entry whose schema is the empty/`void` placeholder, and setting the adapter's `contentType` option keeps only that one content type. For convenience, `createResponse` still accepts a single `schema` (with an optional `mediaType`) and normalizes it into one `content` entry, so existing callers keep working. See `migration/requestBody-content.md` for the full migration guide.

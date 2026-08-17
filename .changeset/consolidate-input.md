@@ -17,3 +17,15 @@ export default defineConfig({
   output: { path: './src/gen' },
 })
 ```
+
+`adapter` and `parsers` are also optional now. `defineConfig` applies `adapterOas()` and `[parserTs]` automatically when you omit them, so a minimal config only needs `input`, `output`, and `plugins`.
+
+```diff
+export default defineConfig({
+  input: './petStore.yaml',
+  output: { path: './src/gen' },
+-  adapter: adapterOas(),
+-  parsers: [parserTs],
+  plugins: [],
+})
+```
