@@ -7,4 +7,4 @@ Flip the default `output.barrel` from `{ type: 'named' }` to `false`. A config t
 
 Set `output.barrel: { type: 'named' | 'all' }` explicitly to keep generating a barrel.
 
-**Breaking change:** any project relying on the implicit `{ type: 'named' }` default to get a barrel now needs `output.barrel` set explicitly, or imports that go through the barrel (`import { Pet } from './gen'`) stop resolving.
+Breaking change: any project relying on the implicit `{ type: 'named' }` default to get a barrel now needs `output.barrel` set explicitly, or imports that go through the barrel (`import { Pet } from './gen'`) stop resolving.
