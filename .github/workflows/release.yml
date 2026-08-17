@@ -67,7 +67,7 @@ jobs:
         run: |
           canary_version="0.0.0-canary-$(date -u +%Y%m%d%H%M%S)"
           echo "Canary version: ${canary_version}"
-          pnpm -r exec bash -c "npm --no-git-tag-version version '${canary_version}' || true"
+          pnpm -r exec pnpm version "${canary_version}" --no-git-tag-version --allow-same-version
           pnpm run build
           pnpm exec changeset publish --tag canary
 
