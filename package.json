@@ -42,7 +42,7 @@
     "oxlint": "catalog:",
     "taze": "^20.0.2",
     "tsdown": "catalog:",
-    "turbo": "^2.10.9",
+    "turbo": "^2.10.10",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
