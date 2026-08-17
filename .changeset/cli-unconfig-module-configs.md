@@ -1,5 +1,5 @@
 ---
-'@kubb/cli': patch
+'@kubb/cli': minor
 ---
 
 Load the Kubb config with `unconfig` and accept only JavaScript and TypeScript module configs.

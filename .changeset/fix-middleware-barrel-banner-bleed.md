@@ -1,9 +1,0 @@
----
-"@kubb/core": patch
----
-
-Fix `banner`/`footer` bleeding into generated barrel files.
-
-When a plugin wrote a file (e.g. `index.ts`) with `output.banner` set (e.g. `'use server'`), `FileManager.mergeFile` was keeping the existing file's banner/footer instead of using the incoming file's values. This caused the barrel file generated at the same path to inherit the plugin's banner.
-
-`FileManager.mergeFile` now lets the incoming file (`b`) take precedence for `banner` and `footer` ("latest write wins"), so barrel files stay clean regardless of merge order.

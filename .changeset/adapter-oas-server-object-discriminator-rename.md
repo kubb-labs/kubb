@@ -1,5 +1,5 @@
 ---
-'@kubb/adapter-oas': minor
+'@kubb/adapter-oas': major
 ---
 
 Group the server options and rename the discriminator modes.
