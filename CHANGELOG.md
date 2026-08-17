@@ -1,5 +1,62 @@
 # Changelog
 
+## v5.0.0-beta.110 — Aug 17, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Parse a JSON input with `JSON.parse` instead of always routing it through the `yaml` package.
+  
+  `resolveSource` called `yaml`'s `parse` on every source, JSON included, since JSON is valid YAML.
+  A general-purpose YAML parser (comments, anchors, block scalars, multi-document streams) does far
+  more work than `JSON.parse` needs for something that is already JSON.
+  
+  `resolveSource` now tries `JSON.parse` first and falls back to the YAML parser on failure. A real
+  YAML document fails `JSON.parse` on or near its first character, so the fallback costs
+  essentially nothing on non-JSON input. Measured on a 288-operation spec read from a `.json` file
+  (`plugin-ts` + `plugin-axios` + `plugin-zod` + `plugin-faker`): median wall-clock time for that
+  case drops from ~5,845ms to ~3,960ms. ([#3881](https://github.com/kubb-labs/kubb/pull/3881), [`755abd4`](https://github.com/kubb-labs/kubb/commit/755abd48c583506832d6c0332cfb77212efa3742))
+- Skip `api-ref-bundler` when the document has no `$ref` outside itself.
+  
+  `bundleDocument` called `api-ref-bundler`'s `bundle()` on every input to hoist external file
+  `$ref`s into named `components.schemas` entries. `bundle` only rewrites external refs, so on a
+  document where every `$ref` is already an internal `#/...` fragment, the call is a no-op that
+  still walks the entire document to confirm that. Most real-world specs are a single file with no
+  external refs, and that walk is not free: profiling a 288-operation spec showed it accounting for
+  roughly 9% of total CPU time, and skipping it cut wall-clock time on that same case by about 30%.
+  
+  `bundleDocument` now checks the parsed root for any `$ref` value that does not start with `#`
+  before calling `bundle`, and returns the parsed document directly when there is none. A document
+  that mixes internal and external refs, or has external refs anywhere, still bundles exactly as
+  before. ([#3880](https://github.com/kubb-labs/kubb/pull/3880), [`8305289`](https://github.com/kubb-labs/kubb/commit/8305289911fd52c1ec72f7f394ab36e0f66f7bc8))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Infer `output.mode` from `output.path` when a plugin does not set it. An extension means a single
+  file, anything else a directory.
+  
+  Every plugin ships an extensionless output default (`'types'`, `'clients'`, `'zod'`, `'mocks'`),
+  which the old `mode` default of `'file'` then resolved to a file with no extension. Calling a
+  plugin with no options at all failed the run with `No extname found for types`, so `pluginTs()`,
+  `pluginAxios()`, `pluginZod()`, and `pluginFaker()` could not generate until every one of them was
+  given an explicit `output.mode: 'directory'`.
+  
+  Setting `mode` still overrides the inference. `group` no longer needs `mode: 'directory'` spelled
+  out alongside it either, the types now accept `group` whenever `mode` is omitted or `'directory'`,
+  and only reject an explicit `mode: 'file'`. Set `mode: 'directory'` yourself when the inference
+  would guess wrong, such as a directory name that carries a dot (`path: 'clients.v2'`). Pairing
+  `group` with a `mode` that resolves to `'file'`, explicit or inferred, still reports
+  `KUBB_INVALID_PLUGIN_OPTIONS`. ([#3878](https://github.com/kubb-labs/kubb/pull/3878), [`a32bcc1`](https://github.com/kubb-labs/kubb/commit/a32bcc189d5f92e07573f0673fcc42491f2ec6ce))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.0-beta.109 — Aug 14, 2026
 
 ### @kubb/adapter-oas
