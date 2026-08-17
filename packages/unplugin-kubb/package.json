@@ -120,7 +120,7 @@
     "@nuxt/kit": "^4.5.2",
     "@nuxt/schema": "^4.5.2",
     "esbuild": "^0.28.2",
-    "rolldown": "^1.2.3",
+    "rolldown": "^1.2.4",
     "rollup": "^4.62.4",
     "vite": "^8.2.1",
     "webpack": "^5.109.2"
