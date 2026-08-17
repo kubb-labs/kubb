@@ -1,6 +1,6 @@
 {
   "name": "@internals/shared",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "description": "Internal shared business logic for Kubb's CLI, MCP server, and agent. Not intended for public use.",
   "keywords": [

@@ -1,6 +1,6 @@
 {
   "name": "@internals/utils",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "description": "Domain-agnostic utility helpers shared across all Kubb workspace packages. Not intended for public use.",
   "keywords": [
