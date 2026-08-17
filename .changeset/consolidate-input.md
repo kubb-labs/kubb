@@ -18,14 +18,14 @@ export default defineConfig({
 })
 ```
 
-`adapter` and `parsers` are also optional now. `defineConfig` applies `adapterOas()` and `[parserTs]` automatically when you omit them, so a minimal config only needs `input`, `output`, and `plugins`.
+`adapter` and `parsers` are also optional now. `defineConfig` applies `adapterOas()` and `[parserTs(), parserTsx(), parserMd()]` automatically when you omit them, so a minimal config only needs `input`, `output`, and `plugins`.
 
 ```diff
 export default defineConfig({
   input: './petStore.yaml',
   output: { path: './src/gen' },
 -  adapter: adapterOas(),
--  parsers: [parserTs],
+-  parsers: [parserTs()],
   plugins: [],
 })
 ```
