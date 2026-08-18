@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 import type { Client, RequestConfig, ResponseErrorConfig } from './test/.kubb/fetch'
-import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from 'custom-query'
+import type { UndefinedInitialQueryOptions, DataTag, QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from 'custom-query'
 import type { MaybeRefOrGetter } from 'vue'
 import { fetch } from './test/.kubb/fetch'
 import { queryOptions, useQuery } from 'custom-query'
@@ -50,7 +50,12 @@ export function updatePetWithFormQueryOptions(
     params?: MaybeRefOrGetter<UpdatePetWithFormQueryParams>
   },
   config: Partial<RequestConfig<UpdatePetWithFormMutationRequest>> & { client?: Client } = {},
-) {
+): UndefinedInitialQueryOptions<
+  UpdatePetWithFormMutationResponse,
+  ResponseErrorConfig<UpdatePetWithForm405>,
+  UpdatePetWithFormMutationResponse,
+  UpdatePetWithFormQueryKey
+> & { queryKey: DataTag<UpdatePetWithFormQueryKey, UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>> } {
   const queryKey = updatePetWithFormQueryKey({ petId }, data, params)
   return queryOptions<UpdatePetWithFormMutationResponse, ResponseErrorConfig<UpdatePetWithForm405>, UpdatePetWithFormMutationResponse, typeof queryKey>({
     enabled: () => !!toValue(petId),

@@ -3,7 +3,7 @@
  * Do not edit manually.
  */
 import type { Client, RequestConfig, ResponseErrorConfig, ResponseConfig } from './test/.kubb/fetch'
-import type { QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from '@tanstack/react-query'
+import type { UndefinedInitialQueryOptions, DataTag, QueryKey, QueryClient, UseQueryOptions, UseQueryReturnType } from '@tanstack/react-query'
 import type { MaybeRefOrGetter } from 'vue'
 import { fetch } from './test/.kubb/fetch'
 import { queryOptions, useQuery } from '@tanstack/react-query'
@@ -40,7 +40,12 @@ export function findPetsByTagsQueryOptions(
   headers: MaybeRefOrGetter<FindPetsByTagsQueryParams>,
   params?: MaybeRefOrGetter<FindPetsByTagsQueryParams>,
   config: Partial<RequestConfig> & { client?: Client } = {},
-) {
+): UndefinedInitialQueryOptions<
+  ResponseConfig<FindPetsByTagsQueryResponse>,
+  ResponseErrorConfig<FindPetsByTags400>,
+  ResponseConfig<FindPetsByTagsQueryResponse>,
+  FindPetsByTagsQueryKey
+> & { queryKey: DataTag<FindPetsByTagsQueryKey, ResponseConfig<FindPetsByTagsQueryResponse>, ResponseErrorConfig<FindPetsByTags400>> } {
   const queryKey = findPetsByTagsQueryKey(params)
   return queryOptions<
     ResponseConfig<FindPetsByTagsQueryResponse>,
