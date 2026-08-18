@@ -14,7 +14,7 @@ export function getGetOrganizationByIdUrl(organizationId: GetOrganizationByIdPat
 /**
  * @description Retrieves detailed information about an organization by ID.
  * @summary /organizations/{organization-id}
- * {@link /organizations/:organization-id}
+ * {@link /organizations/:organizationId}
  */
 export async function getOrganizationById(
   organizationId: GetOrganizationByIdPathParams['organizationId'],

@@ -7,7 +7,7 @@ import type { QueryKey, QueryClient, QueryObserverOptions, UseQueryResult } from
 import { fetch } from './test/.kubb/fetch'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId'] | undefined) => [{ url: '/pet/:pet_id', params: { petId: petId } }] as const
+export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId'] | undefined) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 
