@@ -30,9 +30,15 @@ describe('Url.toTemplateString', () => {
 describe('Url.toPath', () => {
   test('converts path params to Express-style colon syntax', () => {
     expect(Url.toPath('/user/{userID}/monetary-account/{monetary-accountID}/whitelist-sdd/{itemId}')).toBe(
-      '/user/:userID/monetary-account/:monetary-accountID/whitelist-sdd/:itemId',
+      '/user/:userID/monetary-account/:monetaryAccountID/whitelist-sdd/:itemId',
     )
     expect(Url.toPath('/pet/{petId}:search')).toBe('/pet/:petId:search')
+  })
+
+  test('camelCases a hyphenated param name so path-to-regexp accepts it', () => {
+    // path-to-regexp (used by MSW/Express) treats a hyphen as terminating the param name,
+    // so `:point-id` parses as param `point` followed by literal `-id`
+    expect(Url.toPath('/point/{point-id}')).toBe('/point/:pointId')
   })
 })
 
