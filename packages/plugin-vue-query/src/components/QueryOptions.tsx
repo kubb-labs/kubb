@@ -11,6 +11,7 @@ type Props = {
   name: string
   clientName: string
   queryKeyName: string
+  queryKeyTypeName: string
   typeSchemas: OperationSchemas
   paramsCasing: PluginVueQuery['resolvedOptions']['paramsCasing']
   paramsType: PluginVueQuery['resolvedOptions']['paramsType']
@@ -127,9 +128,12 @@ export function QueryOptions({
   paramsType,
   pathParamsType,
   queryKeyName,
+  queryKeyTypeName,
 }: Props): FabricReactNode {
   const TData = dataReturnType === 'data' ? typeSchemas.response.name : `ResponseConfig<${typeSchemas.response.name}>`
   const TError = `ResponseErrorConfig<${typeSchemas.errors?.map((item) => item.name).join(' | ') || 'Error'}>`
+  // Explicit return type so declaration emit does not depend on @tanstack/vue-query's non-exported unique symbols (TS2527/TS2883)
+  const returnType = `UndefinedInitialQueryOptions<${TData}, ${TError}, ${TData}, ${queryKeyTypeName}> & { queryKey: DataTag<${queryKeyTypeName}, ${TData}, ${TError}> }`
 
   const params = getParams({ paramsType, paramsCasing, pathParamsType, typeSchemas })
   const clientParams = Client.getParams({
@@ -159,7 +163,7 @@ export function QueryOptions({
 
   return (
     <File.Source name={name} isExportable isIndexable>
-      <Function name={name} export params={params.toConstructor()}>
+      <Function name={name} export params={params.toConstructor()} returnType={returnType}>
         {`
       const queryKey = ${queryKeyName}(${queryKeyParams.toCall()})
       return queryOptions<${TData}, ${TError}, ${TData}, typeof queryKey>({

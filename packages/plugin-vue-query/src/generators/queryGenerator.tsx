@@ -157,10 +157,12 @@ export const queryGenerator = createReactGenerator<PluginVueQuery>({
           />
         )}
         <File.Import name={['queryOptions']} path={importPath} />
+        <File.Import name={['UndefinedInitialQueryOptions', 'DataTag']} path={importPath} isTypeOnly />
         <QueryOptions
           name={queryOptions.name}
           clientName={client.name}
           queryKeyName={queryKey.name}
+          queryKeyTypeName={queryKey.typeName}
           paramsCasing={options.paramsCasing}
           typeSchemas={type.schemas}
           paramsType={options.paramsType}

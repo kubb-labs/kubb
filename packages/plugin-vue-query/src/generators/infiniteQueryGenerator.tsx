@@ -172,10 +172,12 @@ export const infiniteQueryGenerator = createReactGenerator<PluginVueQuery>({
           <>
             <File.Import name={['InfiniteData']} isTypeOnly path={importPath} />
             <File.Import name={['infiniteQueryOptions']} path={importPath} />
+            <File.Import name={['UndefinedInitialDataInfiniteOptions', 'DataTag']} path={importPath} isTypeOnly />
             <InfiniteQueryOptions
               name={queryOptions.name}
               clientName={client.name}
               queryKeyName={queryKey.name}
+              queryKeyTypeName={queryKey.typeName}
               typeSchemas={type.schemas}
               paramsType={options.paramsType}
               paramsCasing={options.paramsCasing}
