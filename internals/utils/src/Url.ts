@@ -72,9 +72,12 @@ export class Url {
    *
    * @example
    * Url.toPath('/pet/{petId}') // '/pet/:petId'
+   *
+   * @example
+   * Url.toPath('/point/{point-id}') // '/point/:pointId'
    */
   static toPath(path: string): string {
-    return path.replace(/\{([^}]+)\}/g, ':$1')
+    return path.replace(/\{([^}]+)\}/g, (_match, param: string) => `:${transformParam(param)}`)
   }
 
   /**
