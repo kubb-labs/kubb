@@ -10,9 +10,9 @@
     "plugin",
     "typescript"
   ],
+  "homepage": "https://kubb.dev/plugins/plugin-barrel",
   "license": "MIT",
   "author": "stijnvanhulle",
-  "homepage": "https://kubb.dev/plugins/plugin-barrel",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",

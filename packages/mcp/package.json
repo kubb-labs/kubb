@@ -12,9 +12,9 @@
     "model-context-protocol",
     "typescript"
   ],
+  "homepage": "https://kubb.dev",
   "license": "MIT",
   "author": "stijnvanhulle",
-  "homepage": "https://kubb.dev",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",

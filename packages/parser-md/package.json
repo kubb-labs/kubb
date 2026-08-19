@@ -11,9 +11,9 @@
     "parser",
     "yaml"
   ],
+  "homepage": "https://kubb.dev/parsers/parser-md",
   "license": "MIT",
   "author": "stijnvanhulle",
-  "homepage": "https://kubb.dev/parsers/parser-md",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",

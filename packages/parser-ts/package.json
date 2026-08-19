@@ -10,9 +10,9 @@
     "tsx",
     "typescript"
   ],
+  "homepage": "https://kubb.dev/parsers/parser-ts",
   "license": "MIT",
   "author": "stijnvanhulle",
-  "homepage": "https://kubb.dev/parsers/parser-ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
