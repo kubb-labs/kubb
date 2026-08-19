@@ -8,6 +8,12 @@ outline: deep
 
 # Best Practices
 
+# thus is a draft 
+
+Write openapi yaml by hand in a central repo. Have ui and api teams both review and approve. Publish the kubb generated code as an npm package. 
+
+.... 
+
 This guide covers recommended practices for using Kubb effectively in your projects, from small APIs to large-scale applications.
 
 ::: tip
