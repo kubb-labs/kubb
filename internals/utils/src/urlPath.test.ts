@@ -18,7 +18,13 @@ describe('URLPath', () => {
   })
 
   test('if URL path returns the correct format', () => {
-    expect(path.URL).toBe('/user/:userID/monetary-account/:monetary-accountID/whitelist-sdd/:itemId')
+    expect(path.URL).toBe('/user/:userID/monetary-account/:monetaryAccountID/whitelist-sdd/:itemId')
+  })
+
+  test('camelCases a hyphenated param name so path-to-regexp accepts it', () => {
+    // path-to-regexp (used by MSW/Express) treats a hyphen as terminating the param name,
+    // so `:point-id` parses as param `point` followed by literal `-id`
+    expect(new URLPath('/point/{point-id}').URL).toBe('/point/:pointId')
   })
 
   test('if params is getting returned', () => {
