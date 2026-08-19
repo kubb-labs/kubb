@@ -11,6 +11,7 @@
   "linked": [],
   "access": "restricted",
   "baseBranch": "main",
+  "format": "oxfmt",
   "updateInternalDependencies": "patch",
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
     "onlyUpdatePeerDependentsWhenOutOfRange": true
