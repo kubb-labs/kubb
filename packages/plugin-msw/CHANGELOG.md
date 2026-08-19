@@ -1,5 +1,18 @@
 # @kubb/plugin-msw
 
+## 4.39.4
+
+### Patch Changes
+
+- [#3896](https://github.com/kubb-labs/kubb/pull/3896) [`4131f0d`](https://github.com/kubb-labs/kubb/commit/4131f0d2d5ac132dd36838815689f20f1b5de296) Thanks [@stijnvanhulle](https://github.com/stijnvanhulle)! - Fix `URLPath#URL` producing an invalid Express-style route for a hyphenated path parameter (e.g. `{point-id}` became `:point-id`). `path-to-regexp` treats a hyphen as ending the parameter name, so the generated MSW handler matched `:point` followed by a literal `-id` and rejected valid values. `toURLPath` now camelCases the parameter name the same way `toTemplateString` already does, so `{point-id}` becomes `:pointId`.
+
+- Updated dependencies []:
+  - @kubb/core@4.39.4
+  - @kubb/oas@4.39.4
+  - @kubb/plugin-faker@4.39.4
+  - @kubb/plugin-oas@4.39.4
+  - @kubb/plugin-ts@4.39.4
+
 ## 4.39.3
 
 ### Patch Changes

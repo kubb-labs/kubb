@@ -1,5 +1,13 @@
 # @kubb/oas
 
+## 4.39.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @kubb/ast@4.39.4
+  - @kubb/core@4.39.4
+
 ## 4.39.3
 
 ### Patch Changes
