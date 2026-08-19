@@ -17,13 +17,24 @@
     "vite",
     "webpack"
   ],
+  "homepage": "https://kubb.dev",
   "license": "MIT",
   "author": "stijnvanhulle",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/unplugin"
+    "directory": "packages/unplugin-kubb"
   },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/stijnvanhulle"
+    },
+    {
+      "type": "opencollective",
+      "url": "https://opencollective.com/kubb"
+    }
+  ],
   "files": [
     "dist",
     "!/**/**.test.**",

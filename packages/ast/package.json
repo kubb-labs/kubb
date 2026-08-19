@@ -9,6 +9,7 @@
     "meta-framework",
     "typescript"
   ],
+  "homepage": "https://kubb.dev",
   "license": "MIT",
   "author": "stijnvanhulle",
   "repository": {
@@ -16,6 +17,16 @@
     "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/ast"
   },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/stijnvanhulle"
+    },
+    {
+      "type": "opencollective",
+      "url": "https://opencollective.com/kubb"
+    }
+  ],
   "files": [
     "dist",
     "!/**/**.test.**",

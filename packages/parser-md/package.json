@@ -11,6 +11,7 @@
     "parser",
     "yaml"
   ],
+  "homepage": "https://kubb.dev/parsers/parser-md",
   "license": "MIT",
   "author": "stijnvanhulle",
   "repository": {
@@ -18,6 +19,16 @@
     "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/parser-md"
   },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/stijnvanhulle"
+    },
+    {
+      "type": "opencollective",
+      "url": "https://opencollective.com/kubb"
+    }
+  ],
   "files": [
     "dist",
     "!/**/**.test.**",
