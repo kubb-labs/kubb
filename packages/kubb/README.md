@@ -187,15 +187,15 @@ See [LICENSE](./LICENSE) for details.
 <!-- Badges -->
 
 [npm-version-src]: https://shieldcn.dev/npm/v/@kubb/core.svg?variant=secondary&size=xs&theme=zinc&mode=dark
-[npm-version-href]: https://npmx.dev/package/kubb
+[npm-version-href]: https://npmx.dev/package/@kubb/core
 [npm-downloads-src]: https://shieldcn.dev/npm/dm/@kubb/core.svg?variant=secondary&size=xs&theme=zinc&mode=dark
-[npm-downloads-href]: https://npmx.dev/package/kubb
+[npm-downloads-href]: https://npmx.dev/package/@kubb/core
 [stars-src]: https://shieldcn.dev/github/stars/kubb-labs/kubb.svg?variant=secondary&size=xs&theme=zinc&mode=dark
 [stars-href]: https://github.com/kubb-labs/kubb
 [license-src]: https://shieldcn.dev/npm/license/kubb.svg?variant=secondary&size=xs&theme=zinc
 [license-href]: https://github.com/kubb-labs/kubb/blob/main/LICENSE
 [node-src]: https://shieldcn.dev/npm/node/kubb.svg?variant=secondary&size=xs&theme=zinc&mode=dark
-[node-href]: https://npmx.dev/package/kubb
+[node-href]: https://npmx.dev/package/@kubb/core
 [contributors-src]: https://shieldcn.dev/github/contributors/kubb-labs/kubb.svg?variant=secondary&size=xs&theme=zinc&mode=dark
 [contributors-href]: #contributors-
 [coverage-src]: https://shieldcn.dev/codecov/github/kubb-labs/kubb.svg?variant=secondary&size=xs&theme=zinc&mode=dark
