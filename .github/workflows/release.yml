@@ -37,7 +37,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@909a85919614def70d99dff599c943f1c5755975 # main
+        uses: kubb-labs/config/.github/setup@3f4c08f50e67174c9e0ba09290bc79199f50ddfb # main
         with:
           node-version: '22.22.3'
           cache: 'false'
@@ -48,26 +48,24 @@ jobs:
 
       - name: Release
         id: release
-        uses: kubb-labs/config/.github/actions/release@909a85919614def70d99dff599c943f1c5755975 # main
+        uses: kubb-labs/config/.github/actions/release@3f4c08f50e67174c9e0ba09290bc79199f50ddfb # main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # Canary skips staging on purpose, so it stays automatic on every push.
-      # If the npm Trusted Publisher for these packages is ever locked to
-      # stage-only, this step will need its own non-stage-restricted entry.
       - name: Publish canary
         if: ${{ steps.release.outputs.staged != 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         continue-on-error: true
         shell: bash
         env:
           NPM_CONFIG_PROVENANCE: true
-        # Every main push publishes 0.0.0-canary-<UTC timestamp> under the
-        # `canary` dist-tag. The 0.0.0 base guarantees canaries sort below any
-        # real release and never collide with the `latest` tag.
+        # The 0.0.0 base guarantees canaries sort below any real release.
+        # --no-git-checks: the first bump dirties the tree, which would make
+        # pnpm version refuse for every package after it.
         run: |
           canary_version="0.0.0-canary-$(date -u +%Y%m%d%H%M%S)"
           echo "Canary version: ${canary_version}"
-          pnpm -r exec pnpm version "${canary_version}" --no-git-tag-version --allow-same-version
+          pnpm -r exec pnpm version "${canary_version}" --no-git-tag-version --allow-same-version --no-git-checks
           pnpm run build
           pnpm exec changeset publish --tag canary
 
@@ -90,7 +88,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@909a85919614def70d99dff599c943f1c5755975 # main
+        uses: kubb-labs/config/.github/setup@3f4c08f50e67174c9e0ba09290bc79199f50ddfb # main
         with:
           node-version: '22.22.3'
           cache: 'false'
@@ -104,7 +102,7 @@ jobs:
       # version independently.
       - name: Promote
         id: promote
-        uses: kubb-labs/config/.github/actions/promote@909a85919614def70d99dff599c943f1c5755975 # main
+        uses: kubb-labs/config/.github/actions/promote@3f4c08f50e67174c9e0ba09290bc79199f50ddfb # main
         with:
           staged-packages: ${{ needs.release.outputs.staged_packages }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
