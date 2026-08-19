@@ -14,6 +14,7 @@
   ],
   "license": "MIT",
   "author": "stijnvanhulle",
+  "homepage": "https://kubb.dev/adapters/adapter-oas",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
