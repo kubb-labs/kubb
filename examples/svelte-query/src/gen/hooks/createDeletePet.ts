@@ -20,7 +20,7 @@ import type { Client, RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.
 import { fetch } from '../.kubb/fetch.ts'
 import type { DeletePet400, DeletePetHeaderParams, DeletePetMutationResponse, DeletePetPathParams } from '../models/DeletePet.ts'
 
-export const deletePetMutationKey = () => [{ url: '/pet/:pet_id' }] as const
+export const deletePetMutationKey = () => [{ url: '/pet/:petId' }] as const
 
 export type DeletePetMutationKey = ReturnType<typeof deletePetMutationKey>
 

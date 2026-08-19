@@ -26,7 +26,7 @@ import type {
 } from '../models/UpdatePetWithForm.ts'
 
 export const updatePetWithFormQueryKey = (petId: UpdatePetWithFormPathParams['petId'] | undefined, params?: UpdatePetWithFormQueryParams) =>
-  [{ url: '/pet/:pet_id', params: { petId: petId } }, ...(params ? [params] : [])] as const
+  [{ url: '/pet/:petId', params: { petId: petId } }, ...(params ? [params] : [])] as const
 
 export type UpdatePetWithFormQueryKey = ReturnType<typeof updatePetWithFormQueryKey>
 

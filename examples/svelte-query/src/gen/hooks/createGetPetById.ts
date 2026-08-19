@@ -20,7 +20,7 @@ import type { Client, RequestConfig, ResponseErrorConfig } from '../.kubb/fetch.
 import { fetch } from '../.kubb/fetch.ts'
 import type { GetPetById400, GetPetById404, GetPetByIdPathParams, GetPetByIdQueryResponse } from '../models/GetPetById.ts'
 
-export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId'] | undefined) => [{ url: '/pet/:pet_id', params: { petId: petId } }] as const
+export const getPetByIdQueryKey = (petId: GetPetByIdPathParams['petId'] | undefined) => [{ url: '/pet/:petId', params: { petId: petId } }] as const
 
 export type GetPetByIdQueryKey = ReturnType<typeof getPetByIdQueryKey>
 
