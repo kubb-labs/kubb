@@ -23,6 +23,16 @@
     "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/kubb"
   },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/stijnvanhulle"
+    },
+    {
+      "type": "opencollective",
+      "url": "https://opencollective.com/kubb"
+    }
+  ],
   "bin": {
     "kubb": "bin/kubb.js"
   },

@@ -25,6 +25,16 @@
     "url": "git+https://github.com/kubb-labs/kubb.git",
     "directory": "packages/unplugin-kubb"
   },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/stijnvanhulle"
+    },
+    {
+      "type": "opencollective",
+      "url": "https://opencollective.com/kubb"
+    }
+  ],
   "files": [
     "dist",
     "!/**/**.test.**",
