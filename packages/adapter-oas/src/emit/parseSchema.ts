@@ -20,7 +20,8 @@ export type SchemaContext = {
   nullable: true | undefined
   defaultValue: unknown
   /**
-   * Normalized single type string (first element when OAS 3.1 multi-type array).
+   * Normalized single type string (first non-`null` element when OAS 3.1 multi-type array, so
+   * `['null', 'string']` and `['string', 'null']` both normalize to `string` with `nullable` set).
    */
   type: string | undefined
   rawOptions: Partial<ast.ParserOptions> | undefined
