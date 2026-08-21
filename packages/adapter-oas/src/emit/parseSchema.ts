@@ -71,8 +71,13 @@ export type SchemaRule = {
 
 /**
  * Ordered schema rule table. Order is significant: composition keywords (`$ref`, `allOf`,
- * `oneOf`/`anyOf`) take precedence over `const`/`format`, which take precedence over the plain
- * `type`. The first matching rule that produces a node wins. See {@link SchemaRule} for the
+ * `oneOf`/`anyOf`) take precedence over `const`, which takes precedence over a genuine OAS 3.1
+ * multi-type array (more than one non-`null` type), which takes precedence over `format`/`type`.
+ * A multi-type array must split into its per-type members before `format` runs, otherwise
+ * `format` collapses the whole schema to one type (e.g. `type: ['null', 'integer', 'string'],
+ * format: 'int32'` would drop `string` and emit just `integer`); each split-off member still
+ * carries the original `format` and re-enters this table, so `format` still applies per member.
+ * The first matching rule that produces a node wins. See {@link SchemaRule} for the
  * match/convert/fall-through contract.
  */
 export const schemaRules: Array<SchemaRule> = [
@@ -80,6 +85,7 @@ export const schemaRules: Array<SchemaRule> = [
   { match: ({ schema }) => !!schema.allOf?.length, convert: convertAllOf },
   { match: ({ schema }) => !!(schema.oneOf?.length || schema.anyOf?.length), convert: convertUnion },
   { match: ({ schema }) => 'const' in schema && schema.const !== undefined, convert: convertConst },
+  { match: ({ schema }) => Array.isArray(schema.type) && schema.type.filter((t) => t !== 'null').length > 1, convert: convertMultiType },
   {
     match: ({ schema, options }) => {
       if (!schema.format) return false
@@ -89,7 +95,6 @@ export const schemaRules: Array<SchemaRule> = [
     convert: convertFormat,
   },
   { match: ({ schema }) => isBinary(schema), convert: convertBinary },
-  { match: ({ schema }) => Array.isArray(schema.type) && schema.type.filter((t) => t !== 'null').length > 1, convert: convertMultiType },
   {
     match: ({ schema, type }) => !type && (schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined),
     convert: convertString,
