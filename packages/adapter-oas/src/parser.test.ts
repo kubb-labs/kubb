@@ -2719,6 +2719,28 @@ describe('parseSchema OAS 3.1 type array', () => {
     expect(node.nullable).toBe(true)
   })
 
+  it('sets nullable when null leads a single-non-null type array', () => {
+    const node = parseSchema(ctx, { schema: { type: ['null', 'string'] } })
+
+    expect(node.type).toBe('string')
+    expect(node.nullable).toBe(true)
+  })
+
+  it('sets nullable when null leads multiple types', () => {
+    const node = parseSchema(ctx, { schema: { type: ['null', 'string', 'integer'] } })
+    const narrowed = ast.narrowSchema(node, 'union')
+
+    expect(node.type).toBe('union')
+    expect(node.nullable).toBe(true)
+    expect(narrowed?.members).toHaveLength(2)
+  })
+
+  it('keeps a null-only type array as a null node', () => {
+    const node = parseSchema(ctx, { schema: { type: ['null'] } })
+
+    expect(node.type).toBe('null')
+  })
+
   it('handles type array with a single non-null entry', () => {
     const node = parseSchema(ctx, { schema: { type: ['integer'] } })
 
