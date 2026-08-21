@@ -1,15 +1,4 @@
 {
   "url": "https://context7.com/kubb-labs/kubb",
-  "public_key": "pk_E3UkJR9X5FvhME9wB1sCS",
-  "projectTitle": "Kubb Core",
-  "description": "The meta framework for code generation. Point Kubb at a schema and it generates types, clients, hooks, validators and mocks. This repository holds the core engine, CLI, authoring kit, OpenAPI adapter, parsers and renderers. The documentation is at https://kubb.dev, indexed on Context7 as /kubb-labs/docs.",
-  "folders": ["packages"],
-  "excludeFiles": ["AGENTS.md", "CLAUDE.md", "GEMINI.md", "CHANGELOG.md", "CODE_OF_CONDUCT.md", "SECURITY.md"],
-  "rules": [
-    "This repository holds the core packages, not the documentation. Guides, the configuration reference and plugin options are on https://kubb.dev, indexed on Context7 as /kubb-labs/docs.",
-    "Import `defineConfig` from `kubb/config`, not from `kubb`.",
-    "Kubb v5 has no `pluginOas()`. The OpenAPI adapter is a top-level `adapter` key that defaults to `adapterOas()` from `@kubb/adapter-oas`, which ships with `kubb`. Set it only when you need to pass options.",
-    "Each output format is its own `@kubb/plugin-*` package, listed in `plugins: []`. They are maintained in kubb-labs/plugins, not here.",
-    "`@kubb/plugin-client` was removed in v5. Register `pluginAxios` or `pluginFetch` instead, then point the query and MCP plugins at it with `client: 'axios' | 'fetch'`."
-  ]
+  "public_key": "pk_E3UkJR9X5FvhME9wB1sCS"
 }
