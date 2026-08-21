@@ -2770,6 +2770,19 @@ describe('parseSchema OAS 3.1 type array', () => {
     const members = narrowed?.members ?? []
     expect(members.every((m) => m.readOnly === true)).toBe(true)
   })
+
+  it('splits a multi-type array before a numeric format collapses it', () => {
+    const node = parseSchema(ctx, {
+      schema: { type: ['null', 'integer', 'string'], format: 'int32' },
+    })
+    const narrowed = ast.narrowSchema(node, 'union')
+
+    expect(node.type).toBe('union')
+    expect(node.nullable).toBe(true)
+    expect(narrowed?.members).toHaveLength(2)
+    expect(narrowed?.members?.[0]?.type).toBe('integer')
+    expect(narrowed?.members?.[1]?.type).toBe('string')
+  })
 })
 
 describe('parseSchema integer', () => {
