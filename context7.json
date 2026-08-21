@@ -1,14 +1,16 @@
 {
   "$schema": "https://context7.com/schema/context7.json",
+  "url": "https://context7.com/kubb-labs/kubb",
+  "public_key": "pk_E3UkJR9X5FvhME9wB1sCS",
   "projectTitle": "Kubb Core",
-  "description": "Core engine, CLI, authoring kit, OpenAPI adapter, parsers and renderers behind Kubb. The full Kubb documentation lives at https://kubb.dev and is indexed as /kubb-labs/docs.",
+  "description": "Core engine, CLI, authoring kit, OpenAPI adapter, parsers and renderers behind Kubb. The documentation is at https://kubb.dev, indexed on Context7 as /kubb-labs/docs.",
   "folders": ["packages"],
   "excludeFiles": ["AGENTS.md", "CLAUDE.md", "GEMINI.md", "CHANGELOG.md", "CODE_OF_CONDUCT.md", "SECURITY.md"],
   "rules": [
-    "This repository holds the core packages only. For guides, configuration reference and plugin options, use https://kubb.dev or the /kubb-labs/docs library.",
+    "This repository holds the core packages, not the documentation. Guides, the configuration reference and plugin options are on https://kubb.dev, indexed on Context7 as /kubb-labs/docs.",
     "Import `defineConfig` from `kubb/config`, not from `kubb`.",
-    "Kubb v5 has no `pluginOas()`. The OpenAPI adapter is the top-level `adapter` key and defaults to `adapterOas()` from `@kubb/adapter-oas`, which ships with `kubb`. Set `adapter` only to pass options.",
-    "Each output format is its own `@kubb/plugin-*` package, listed in `plugins: []` and maintained in kubb-labs/plugins.",
-    "`@kubb/plugin-client` was removed in v5. Register `pluginAxios` or `pluginFetch` and point query and MCP plugins at it with `client: 'axios' | 'fetch'`."
+    "Kubb v5 has no `pluginOas()`. The OpenAPI adapter is a top-level `adapter` key that defaults to `adapterOas()` from `@kubb/adapter-oas`, which ships with `kubb`. Set it only when you need to pass options.",
+    "Each output format is its own `@kubb/plugin-*` package, listed in `plugins: []`. They are maintained in kubb-labs/plugins, not here.",
+    "`@kubb/plugin-client` was removed in v5. Register `pluginAxios` or `pluginFetch` instead, then point the query and MCP plugins at it with `client: 'axios' | 'fetch'`."
   ]
 }
