@@ -40,6 +40,17 @@ describe('Url.toPath', () => {
     // so `:point-id` parses as param `point` followed by literal `-id`
     expect(Url.toPath('/point/{point-id}')).toBe('/point/:pointId')
   })
+
+  test('strips a leading `$` so path-to-regexp accepts the param name', () => {
+    expect(Url.toPath('/things/{$id}')).toBe('/things/:Id')
+  })
+
+  test('deduplicates param names that normalize to the same identifier', () => {
+    // `group-id` and `group.id` both camelCase to `groupId`; the second occurrence gets a
+    // counter suffix so path-to-regexp never sees two identically named captures, and the
+    // literal `.json` suffix is preserved
+    expect(Url.toPath('/groups/{group-id}/{group.id}.json')).toBe('/groups/:groupId/:groupId2.json')
+  })
 })
 
 describe('Url.toGroupedTemplateString', () => {
