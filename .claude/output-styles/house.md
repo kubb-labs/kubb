@@ -14,6 +14,4 @@ Everything you write for a person, not just markdown files, follows
 - Sentence-case headings, no emoji, no marketing words such as powerful, seamless, or robust. Be
   specific instead.
 - Cut filler and AI vocabulary: "in order to", "it is worth noting", utilize, leverage.
-- Everyday words, one idea per sentence, active voice. Keep file paths, commands, and
-  identifiers exact.
 - After a change, state what changed and the command to verify it.
