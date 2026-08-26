@@ -200,7 +200,11 @@ async function generate(options: GenerateProps): Promise<boolean> {
     return outputDiagnostics
   }
 
-  hooks.hook('kubb:generation:end', ({ status }) => {
+  // `hooks` is shared across every watch rebuild (`generate()` runs again on the same
+  // emitter), so this listener must be removed after each run. Left registered, a second
+  // rebuild would leave two live listeners and print "Generation succeeded" twice, a third
+  // three times, and so on.
+  const unhookGenerationEnd = hooks.hook('kubb:generation:end', ({ status }) => {
     if (status === 'success') return hooks.callHook('kubb:success', { message: 'Generation succeeded', info: inputPath })
   })
 
@@ -222,6 +226,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
     result = await kubb.generate({ processOutput })
   } finally {
     unhookDevtools?.()
+    unhookGenerationEnd()
   }
 
   const telemetryPlugins = Array.from(kubb.driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> }))
