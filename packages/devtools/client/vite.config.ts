@@ -1,4 +1,3 @@
-import ui from '@nuxt/ui/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 
@@ -6,7 +5,7 @@ import { defineConfig } from 'vite'
 // script, so a hardcoded mount path breaks every host but the standalone one.
 export default defineConfig({
   base: './',
-  plugins: [vue(), ui()],
+  plugins: [vue()],
   build: {
     outDir: 'dist',
     emptyOutDir: true,

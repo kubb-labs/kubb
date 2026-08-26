@@ -1,42 +1,18 @@
 @import './tokens.css';
-@import 'tailwindcss';
-@import '@nuxt/ui';
-
-@source '../**/*.vue';
-
-@theme {
-  --font-sans: var(--kubb-font-sans);
-  --font-mono: var(--kubb-font-mono);
-}
 
 /*
- * Maps the Kubb tokens onto Nuxt UI's own variables, mirroring
- * kubb-labs/platform: packages/ui/src/root.css. Local wiring rather than a
- * second copied file.
+ * The panels are styled entirely from the Kubb tokens above, so there is no
+ * component library or utility framework here. `--ui-header-height` is the one
+ * layout value the tokens do not carry.
  */
 :root {
-  --color-primary-50: var(--kubb-brand-lightest);
-  --color-primary-100: var(--kubb-brand-lightest);
-  --color-primary-200: var(--kubb-brand-lightest);
-  --color-primary-300: var(--kubb-brand-lighter);
-  --color-primary-400: var(--kubb-brand-light);
-  --color-primary-500: var(--kubb-brand);
-  --color-primary-600: var(--kubb-brand);
-  --color-primary-700: var(--kubb-brand);
-  --color-primary-800: var(--kubb-brand-dark);
-  --color-primary-900: var(--kubb-brand-darker);
-  --color-primary-950: var(--kubb-brand-darker);
-
-  --ui-bg: var(--kubb-bg);
-  --ui-bg-muted: var(--kubb-bg-soft);
-  --ui-radius: var(--kubb-radius-md);
-  --ui-border-color: var(--kubb-line);
+  --ui-header-height: 3rem;
 }
 
-.dark {
-  --ui-bg: var(--kubb-bg);
-  --ui-bg-muted: var(--kubb-color-bg-subtle);
-  --ui-border-color: var(--kubb-line);
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 html,
@@ -56,4 +32,9 @@ button,
 [role='button'],
 a[href] {
   cursor: pointer;
+}
+
+input,
+button {
+  font-family: inherit;
 }
