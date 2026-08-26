@@ -1,19 +1,15 @@
 import path from 'node:path'
-import type { Document, Operation } from '@kubb/adapter-oas'
+import type { Operation } from '@kubb/adapter-oas'
 import { createRefs, createSchemaParser, getOperationId, getOperations, getSchemas, parseDocument } from '@kubb/adapter-oas/internal'
-import type { Refs } from '@kubb/adapter-oas/internal'
 import { Diagnostics } from '@kubb/core'
 import type { ArazzoDocument, SourceDescriptionObject } from '../types.ts'
 
 /**
- * One `sourceDescriptions` entry after its document has been loaded: the parsed OpenAPI document,
- * the `$ref` service and schema parser bound to it, and its operations indexed by `operationId`.
+ * One `sourceDescriptions` entry after its document has been loaded: the schema parser bound to
+ * that document, and its operations indexed by `operationId`.
  */
 export type LoadedSource = {
   name: string
-  url: string
-  document: Document
-  refs: Refs
   parser: ReturnType<typeof createSchemaParser>
   operations: Map<string, Operation>
 }
@@ -101,7 +97,7 @@ async function loadSource({
     operations.set(getOperationId(operation), operation)
   }
 
-  return { name: source.name, url, document, refs, parser, operations }
+  return { name: source.name, parser, operations }
 }
 
 /**

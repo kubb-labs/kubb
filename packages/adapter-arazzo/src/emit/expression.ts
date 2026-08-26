@@ -1,6 +1,7 @@
 import { ast, narrowSchema } from '@kubb/ast'
 import { STEP_OUTPUT_EXPRESSION } from '../constants.ts'
 import type { LoadedSource } from '../model/sources.ts'
+import { unescapePointerToken } from '../model/workflows.ts'
 import type { ResolvedStep, RuntimeExpression, SelectorObject } from '../types.ts'
 
 /**
@@ -13,11 +14,6 @@ export type ExpressionContext = {
   sources: Map<string, LoadedSource>
   inputs: ast.SchemaNode | null
   options: ast.ParserOptions
-  /**
-   * Parsed response schema per `stepId`, filled on first use. Parsing a target operation is the
-   * expensive part of resolving an expression and several outputs usually read the same step.
-   */
-  responseCache: Map<string, ast.SchemaNode | null>
 }
 
 /**
@@ -64,7 +60,7 @@ function walkPointer({ node, pointer }: { node: ast.SchemaNode; pointer: string 
   return pointer
     .split('/')
     .filter(Boolean)
-    .map((token) => token.replace(/~1/g, '/').replace(/~0/g, '~'))
+    .map(unescapePointerToken)
     .reduce<ast.SchemaNode | null>((current, token) => (current ? propertyOf({ node: current, name: token }) : null), node)
 }
 
@@ -75,14 +71,7 @@ function walkPointer({ node, pointer }: { node: ast.SchemaNode; pointer: string 
  * the one `@kubb/adapter-oas` would emit for that operation.
  */
 function responseSchemaOf({ resolved, context }: { resolved: ResolvedStep; context: ExpressionContext }): ast.SchemaNode | null {
-  const { stepId } = resolved.step
-  if (context.responseCache.has(stepId)) {
-    return context.responseCache.get(stepId) ?? null
-  }
-
-  context.responseCache.set(stepId, null)
-
-  const target = resolved.target
+  const { target } = resolved
   const source = target?.kind === 'operation' ? context.sources.get(target.sourceName) : undefined
   const operation = target?.kind === 'operation' ? source?.operations.get(target.operationId) : undefined
 
@@ -91,11 +80,9 @@ function responseSchemaOf({ resolved, context }: { resolved: ResolvedStep; conte
   }
 
   const node = source.parser.parseOperation(context.options, operation)
-  const success = node.responses.find((response) => response.statusCode.toString().startsWith('2'))
-  const schema = success?.content?.[0]?.schema ?? null
+  const success = node.responses.find((response) => response.statusCode.startsWith('2'))
 
-  context.responseCache.set(stepId, schema)
-  return schema
+  return success?.content?.[0]?.schema ?? null
 }
 
 /**

@@ -6,9 +6,10 @@ import type { ArazzoDocument, FailureActionObject, ParameterObject, ResolvedStep
 import type { LoadedSource } from './sources.ts'
 
 /**
- * Unescapes one RFC 6901 pointer token (`~1` to `/`, `~0` to `~`).
+ * Unescapes one RFC 6901 pointer token (`~1` to `/`, `~0` to `~`). Both an `operationPath` and the
+ * pointer half of a runtime expression are made of them.
  */
-function unescapePointerToken(token: string): string {
+export function unescapePointerToken(token: string): string {
   return token.replace(/~1/g, '/').replace(/~0/g, '~')
 }
 

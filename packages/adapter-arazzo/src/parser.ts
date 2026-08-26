@@ -11,14 +11,14 @@ import type { ArazzoDocument, ArazzoOperationNode, ParameterObject, ResolvedStep
 /**
  * Name of the schema holding a workflow's `inputs`, for example `LoginUserInputs`.
  */
-export function inputsName(workflowId: string): string {
+function inputsName(workflowId: string): string {
   return `${pascalCase(workflowId)}Inputs`
 }
 
 /**
  * Name of the schema holding a workflow's `outputs`, for example `LoginUserOutputs`.
  */
-export function outputsName(workflowId: string): string {
+function outputsName(workflowId: string): string {
   return `${pascalCase(workflowId)}Outputs`
 }
 
@@ -161,7 +161,6 @@ export function createWorkflowParser({
       sources,
       inputs,
       options,
-      responseCache: new Map(),
     }
 
     const outputs = parseOutputs({ workflow, context })
@@ -209,5 +208,5 @@ export function createWorkflowParser({
     return { schemas, operation }
   }
 
-  return { parseComponentInputs, parseWorkflow, parseSchema }
+  return { parseComponentInputs, parseWorkflow }
 }

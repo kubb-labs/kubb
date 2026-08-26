@@ -53,13 +53,11 @@ export function assertDocument(document: ArazzoDocument): void {
 }
 
 /**
- * Names the field a step uses to say what it invokes, or `null` when it names none or several.
- * Arazzo makes these four mutually exclusive and requires exactly one.
+ * Whether a step names exactly one of the four fields that say what it invokes. Arazzo makes them
+ * mutually exclusive and requires one.
  */
-function stepTargetField(step: StepObject): 'operationId' | 'operationPath' | 'channelPath' | 'workflowId' | null {
-  const fields = (['operationId', 'operationPath', 'channelPath', 'workflowId'] as const).filter((field) => step[field] !== undefined)
-
-  return fields.length === 1 ? fields[0]! : null
+function hasOneTarget(step: StepObject): boolean {
+  return (['operationId', 'operationPath', 'channelPath', 'workflowId'] as const).filter((field) => step[field] !== undefined).length === 1
 }
 
 /**
@@ -70,16 +68,18 @@ function stepTargetField(step: StepObject): 'operationId' | 'operationPath' | 'c
  * `throwOnError`, the first problem throws instead.
  */
 export function validateDocument(document: ArazzoDocument, { throwOnError = false }: { throwOnError?: boolean } = {}): void {
-  const problems: Array<ProblemDiagnostic> = []
-
   const report = (message: string, help: string, pointer: string) => {
-    problems.push({
+    const problem: ProblemDiagnostic = {
       code: Diagnostics.code.invalidDocument,
       severity: 'error',
       message,
       help,
       location: { kind: 'document', pointer },
-    })
+    }
+
+    if (throwOnError || !Diagnostics.report(problem)) {
+      throw new Diagnostics.Error(problem)
+    }
   }
 
   if (!Array.isArray(document.workflows) || document.workflows.length === 0) {
@@ -118,19 +118,13 @@ export function validateDocument(document: ArazzoDocument, { throwOnError = fals
       }
       seenSteps.add(step.stepId)
 
-      if (!stepTargetField(step)) {
+      if (!hasOneTarget(step)) {
         report(
           `Step \`${step.stepId}\` does not name exactly one of \`operationId\`, \`operationPath\`, \`channelPath\`, or \`workflowId\`.`,
           'Set exactly one of them so the step says what it invokes.',
           pointer,
         )
       }
-    }
-  }
-
-  for (const problem of problems) {
-    if (throwOnError || !Diagnostics.report(problem)) {
-      throw new Diagnostics.Error(problem)
     }
   }
 }
