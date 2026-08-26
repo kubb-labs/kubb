@@ -335,6 +335,15 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     clack.log.step(styleText('cyan', `Kubb DevTools running on ${devtools.origin}`))
     if (!watch) {
       clack.log.warn('DevTools close when the build finishes. Pass --watch to keep them running.')
+    } else {
+      // Its listening socket is a handle `startWatcher`'s own SIGINT/SIGTERM handler
+      // (scoped to the file watcher) doesn't know about and would otherwise leave open,
+      // hanging the process past a Ctrl+C.
+      const closeDevtools = () => {
+        void devtools.close()
+      }
+      process.once('SIGINT', closeDevtools)
+      process.once('SIGTERM', closeDevtools)
     }
   }
 

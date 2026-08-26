@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { basename, dirname, resolve } from 'node:path'
 import process from 'node:process'
+import readline from 'node:readline'
 import { styleText } from 'node:util'
 import { createModuleLoader } from '@internals/shared'
 import { createSerialRunner, toError } from '@internals/utils'
@@ -229,10 +230,46 @@ type WatcherLog = {
 }
 
 /**
+ * Listens for a raw-mode `r` keypress and calls `onRestart`, mirroring the "press r to restart"
+ * convention of Vite and webpack-dev-server. Returns `null` (nothing to tear down) outside an
+ * interactive TTY, where there is no keyboard to read from (CI, piped input).
+ *
+ * Gated on `stdin` alone, not `canUseTTY()` (which reads `stdout`'s size to decide whether to
+ * draw the clack UI) — piping stdout to a file or logger shouldn't disable a keyboard shortcut
+ * that only needs a readable stdin.
+ *
+ * Raw mode disables the terminal's own signal handling, so Ctrl+C no longer raises `SIGINT` on
+ * its own; this re-raises it manually to keep that shortcut working.
+ */
+function watchRestartKey(onRestart: () => void): (() => void) | null {
+  if (!process.stdin.isTTY) return null
+
+  readline.emitKeypressEvents(process.stdin)
+  process.stdin.setRawMode(true)
+
+  const onKeypress = (str: string, key: { ctrl?: boolean; name?: string } | undefined) => {
+    if (key?.ctrl && key.name === 'c') {
+      process.emit('SIGINT')
+      return
+    }
+    if (str === 'r') onRestart()
+  }
+
+  process.stdin.on('keypress', onKeypress)
+  process.stdin.resume()
+
+  return () => {
+    process.stdin.off('keypress', onKeypress)
+    process.stdin.setRawMode(false)
+    process.stdin.pause()
+  }
+}
+
+/**
  * Starts a file watcher on the given paths and calls `cb` on any change.
  * Ignores `.git` and `node_modules` directories. Event bursts (an editor save emits several)
  * are debounced into one build, and builds never overlap: changes during a build queue exactly
- * one rebuild.
+ * one rebuild. In an interactive terminal, pressing `r` triggers the same rebuild on demand.
  */
 export async function startWatcher(
   path: Array<string>,
@@ -244,19 +281,26 @@ export async function startWatcher(
   // would otherwise rebuild right after the initial run.
   const watcher = watch(path, { ignorePermissionErrors: true, ignored: WATCHER_IGNORED_PATHS, ignoreInitial: true })
 
-  process.once('SIGINT', () => {
-    watcher.close()
-  })
-  process.once('SIGTERM', () => {
-    watcher.close()
-  })
-
-  // Bursts never overlap builds on the shared hooks emitter: a change during a build
+  // Bursts never overlap builds on the shared hooks emitter: a change (or a manual restart)
   // queues exactly one rerun.
   const runBuild = createSerialRunner({
     run: () => cb(path),
     onError: () => log.error(styleText('red', 'Watcher failed')),
   })
+
+  const stopRestartKey = watchRestartKey(() => {
+    log.info(styleText('cyan', 'Restarting...'))
+    void runBuild()
+  })
+
+  const stop = () => {
+    watcher.close()
+    stopRestartKey?.()
+  }
+
+  process.once('SIGINT', stop)
+  process.once('SIGTERM', stop)
+
   let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
   watcher.on('all', (type, file) => {
@@ -267,4 +311,8 @@ export async function startWatcher(
       void runBuild()
     }, WATCHER_DEBOUNCE_MS)
   })
+
+  if (stopRestartKey) {
+    log.info(styleText('dim', 'Press r to restart'))
+  }
 }

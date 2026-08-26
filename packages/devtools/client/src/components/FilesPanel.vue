@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { type FileEntry, fetchFiles, readGeneratedFile, run } from '../devtools'
+import { highlight } from '../highlight'
 
 const files = ref<Array<FileEntry>>([])
 const selected = ref<FileEntry | null>(null)
 const content = ref<string | null>(null)
+const highlighted = ref('')
 const loading = ref(false)
 
 watch(
@@ -26,8 +28,13 @@ watch(
 async function select(file: FileEntry) {
   selected.value = file
   loading.value = true
+  highlighted.value = ''
   content.value = await readGeneratedFile(file.id)
   loading.value = false
+
+  if (content.value !== null) {
+    highlighted.value = await highlight(content.value, file.baseName)
+  }
 }
 </script>
 
@@ -45,7 +52,7 @@ async function select(file: FileEntry) {
       <p v-if="!selected" class="empty">Select a file to read what Kubb wrote.</p>
       <p v-else-if="loading" class="empty">Reading…</p>
       <p v-else-if="content === null" class="empty">Could not read this file from disk. It may not have been flushed yet.</p>
-      <pre v-else>{{ content }}</pre>
+      <div v-else class="code" v-html="highlighted" />
     </div>
   </div>
 </template>
@@ -105,15 +112,27 @@ async function select(file: FileEntry) {
   border: 1px solid var(--kubb-line);
   border-radius: var(--kubb-radius-lg, 0.5rem);
   background: var(--kubb-bg-soft);
+}
+
+.preview > .empty {
   padding: 0.75rem;
 }
 
-.preview pre {
+.preview :deep(pre.shiki) {
   margin: 0;
+  padding: 0.75rem;
+  background: transparent !important;
   font-family: var(--kubb-font-mono);
   font-size: 0.78rem;
   line-height: 1.5;
   white-space: pre;
+}
+
+/* tokens.css deliberately has no prefers-color-scheme block, so this only fires once the
+   app sets .dark on the root itself — see App.vue's theme toggle. */
+.dark .preview :deep(.shiki),
+.dark .preview :deep(.shiki span) {
+  color: var(--shiki-dark) !important;
 }
 
 .empty {

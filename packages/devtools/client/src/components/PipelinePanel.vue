@@ -2,6 +2,13 @@
 import { computed, ref, watch } from 'vue'
 import { type AstSnapshot, fetchAst, fetchPluginView, run } from '../devtools'
 
+type NodeKind = 'schema' | 'operation'
+
+type Entry = {
+  name: string
+  kind: NodeKind
+}
+
 const selected = ref<string | null>(null)
 const ast = ref<AstSnapshot | null>(null)
 const view = ref<AstSnapshot | null>(null)
@@ -12,6 +19,19 @@ function nameOf(node: Record<string, unknown>): string {
   if (typeof node.name === 'string') return node.name
   if (typeof node.operationId === 'string') return node.operationId
   return 'unnamed'
+}
+
+function entryKey(entry: Entry): string {
+  return `${entry.kind}:${entry.name}`
+}
+
+function toEntries(nodes: Array<Record<string, unknown>>, kind: NodeKind): Array<Entry> {
+  return nodes.map((node) => ({ name: nameOf(node), kind }))
+}
+
+function entriesOf(snapshot: AstSnapshot | null): Array<Entry> {
+  if (!snapshot) return []
+  return [...toEntries(snapshot.schemas, 'schema'), ...toEntries(snapshot.operations, 'operation')]
 }
 
 watch(
@@ -26,15 +46,14 @@ watch(selected, async (name) => {
   view.value = name ? await fetchPluginView(name) : null
 })
 
-// The whole point of the panel: the canonical schemas a plugin never received,
+const received = computed(() => entriesOf(view.value))
+
+// The whole point of the panel: the canonical schemas and operations a plugin never received,
 // because its `include` / `exclude` filtered them out.
 const skipped = computed(() => {
-  if (!ast.value || !view.value) return []
-  const seen = new Set(view.value.schemas.map(nameOf))
-  return ast.value.schemas.map(nameOf).filter((name) => !seen.has(name))
+  const seen = new Set(received.value.map(entryKey))
+  return entriesOf(ast.value).filter((entry) => !seen.has(entryKey(entry)))
 })
-
-const received = computed(() => (view.value ? view.value.schemas.map(nameOf) : []))
 
 function durationLabel(ms: number | null): string {
   if (ms === null) return '…'
@@ -69,8 +88,8 @@ const maxDuration = computed(() => Math.max(1, ...plugins.value.map((plugin) => 
     <div v-if="selected" class="detail">
       <h3>{{ selected }}</h3>
       <p class="hint">
-        What this plugin received during the walk, against the canonical AST. A skipped schema was filtered out by the plugin's <code>include</code> /
-        <code>exclude</code> / <code>override</code>.
+        What this plugin received during the walk, against the canonical AST — schemas and operations both. A skipped node was filtered out by the plugin's
+        <code>include</code> / <code>exclude</code> / <code>override</code>.
       </p>
 
       <div class="columns">
@@ -79,7 +98,10 @@ const maxDuration = computed(() => Math.max(1, ...plugins.value.map((plugin) => 
             Received <span class="count">{{ received.length }}</span>
           </h4>
           <ul>
-            <li v-for="name in received" :key="name">{{ name }}</li>
+            <li v-for="entry in received" :key="entryKey(entry)">
+              <span class="kind-badge" :data-kind="entry.kind" :title="entry.kind">{{ entry.kind === 'schema' ? 'S' : 'O' }}</span>
+              {{ entry.name }}
+            </li>
           </ul>
         </section>
         <section>
@@ -87,7 +109,10 @@ const maxDuration = computed(() => Math.max(1, ...plugins.value.map((plugin) => 
             Skipped <span class="count">{{ skipped.length }}</span>
           </h4>
           <ul class="skipped">
-            <li v-for="name in skipped" :key="name">{{ name }}</li>
+            <li v-for="entry in skipped" :key="entryKey(entry)">
+              <span class="kind-badge" :data-kind="entry.kind" :title="entry.kind">{{ entry.kind === 'schema' ? 'S' : 'O' }}</span>
+              {{ entry.name }}
+            </li>
           </ul>
         </section>
       </div>
@@ -245,6 +270,26 @@ const maxDuration = computed(() => Math.max(1, ...plugins.value.map((plugin) => 
 .skipped li {
   color: var(--kubb-text-3);
   text-decoration: line-through;
+}
+
+.kind-badge {
+  display: inline-block;
+  width: 1.1rem;
+  margin-right: 0.35rem;
+  border-radius: 3px;
+  color: var(--kubb-bg);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.kind-badge[data-kind='schema'] {
+  background: var(--kubb-viz-indigo);
+}
+
+.kind-badge[data-kind='operation'] {
+  background: var(--kubb-viz-teal);
 }
 
 .diagnostics ul {
