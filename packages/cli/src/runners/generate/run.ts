@@ -267,17 +267,15 @@ type GenerateCommandOptions = {
  *
  * `@kubb/devtools` is a proof of concept and a devDependency, so it is absent from a published
  * install. The import is dynamic and the failure non-fatal: nothing about a normal run should
- * depend on it.
+ * depend on it. Reported through clack rather than a `kubb:warn` hook so it surfaces at the
+ * same point as the success line beside it, before any config starts building.
  */
 async function startDevtoolsServer(hooks: Hookable<KubbHooks>): Promise<DevtoolsServer | undefined> {
   try {
     const { startDevtools } = await import('@kubb/devtools')
     return await startDevtools({ hooks })
   } catch (caughtError) {
-    await hooks.callHook('kubb:warn', {
-      message: 'KUBB_DEVTOOLS is set but the devtools did not start',
-      info: toError(caughtError).message,
-    })
+    clack.log.warn(styleText('yellow', `KUBB_DEVTOOLS is set but the devtools did not start: ${toError(caughtError).message}`))
     return undefined
   }
 }

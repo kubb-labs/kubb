@@ -15,7 +15,8 @@
         "dist/**",
         "*.d.ts",
         "*.d.cts",
-        ".output/**"
+        ".output/**",
+        "client/dist/**"
       ],
       "inputs": [
         "src/**/*.ts",
@@ -24,7 +25,10 @@
         "tsdown.config.ts",
         "nitro.config.ts",
         "package.json",
-        "tsconfig.json"
+        "tsconfig.json",
+        "client/src/**",
+        "client/index.html",
+        "client/vite.config.ts"
       ]
     },
     "clean": {

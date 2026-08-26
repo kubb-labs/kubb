@@ -18,9 +18,8 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "tsdown",
-    "build:client": "vite build client",
-    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
+    "build": "tsdown && vite build client",
+    "clean": "node -e \"const {rmSync}=require('node:fs'); rmSync('./dist',{recursive:true,force:true}); rmSync('./client/dist',{recursive:true,force:true})\"",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
     "start": "tsdown --watch",

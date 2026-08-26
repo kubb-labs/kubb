@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { defineDevframe, type DevframeDefinition } from 'devframe'
 import { registerRpcFunctions } from './rpc.ts'
@@ -24,6 +25,12 @@ const clientAssets = fileURLToPath(new URL('../client/dist', import.meta.url))
  * ```
  */
 export function createKubbDevframe({ store }: { store: DevtoolsStore }): DevframeDefinition {
+  // The SPA is a build artifact and gitignored, so a package built without it would
+  // serve a bare 404 with nothing to explain why. Fail with the command to run instead.
+  if (!existsSync(clientAssets)) {
+    throw new Error(`[kubb] devtools client is not built, expected it at ${clientAssets}. Run \`pnpm --filter @kubb/devtools build\`.`)
+  }
+
   return defineDevframe({
     id: 'kubb',
     name: 'Kubb DevTools',
