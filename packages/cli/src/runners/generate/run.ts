@@ -19,6 +19,7 @@ import {
   type ProblemDiagnostic,
   type ReporterName,
 } from '@kubb/core'
+import type { DevtoolsServer } from '@kubb/devtools'
 import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
@@ -31,6 +32,11 @@ type GenerateProps = {
   config: Config
   hooks: Hookable<KubbHooks>
   logLevel: number
+  /**
+   * Running devtools server, when `KUBB_DEVTOOLS` is set. Its store needs the parsed AST,
+   * which no lifecycle hook carries.
+   */
+  devtools?: DevtoolsServer
 }
 
 type ToolMap = typeof formatters | typeof linters
@@ -116,7 +122,7 @@ async function runToolPass({ toolValue, tool, outputPath, logLevel, hooks, onSta
 }
 
 async function generate(options: GenerateProps): Promise<boolean> {
-  const { input, hooks, logLevel } = options
+  const { input, hooks, logLevel, devtools } = options
 
   const hrStart = process.hrtime()
   const inputPath = input ?? (typeof options.config.input === 'string' ? options.config.input : undefined)
@@ -199,7 +205,24 @@ async function generate(options: GenerateProps): Promise<boolean> {
   })
 
   const kubb = createKubb(config, { hooks })
-  const result = await kubb.generate({ processOutput })
+
+  // `driver.dispose()` nulls `inputNode` at the end of every build, so the devtools store
+  // gets its copy while the build is still running. Unhooked straight after, since each
+  // config builds through its own `kubb` instance on the shared emitter.
+  const unhookDevtools = devtools
+    ? hooks.hook('kubb:build:start', () => {
+        const { inputNode } = kubb.driver
+        if (!inputNode) return
+        devtools.store.setAst({ schemas: inputNode.schemas, operations: inputNode.operations, meta: inputNode.meta })
+      })
+    : null
+
+  let result: Awaited<ReturnType<typeof kubb.generate>>
+  try {
+    result = await kubb.generate({ processOutput })
+  } finally {
+    unhookDevtools?.()
+  }
 
   const telemetryPlugins = Array.from(kubb.driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> }))
   await sendTelemetry(
@@ -288,6 +311,16 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
   await hooks.callHook('kubb:lifecycle:start', { version })
 
+  // Proof-of-concept entry point. A real `--devtools` flag belongs on the command itself.
+  // Imported lazily so devframe never loads for the runs that don't ask for it.
+  const devtools = process.env.KUBB_DEVTOOLS === '1' ? await (await import('@kubb/devtools')).startDevtools({ hooks }) : undefined
+  if (devtools) {
+    clack.log.step(styleText('cyan', `Kubb DevTools running on ${devtools.origin}`))
+    if (!watch) {
+      clack.log.warn('DevTools close when the build finishes. Pass --watch to keep them running.')
+    }
+  }
+
   await checkForUpdate(hooks)
 
   try {
@@ -306,7 +339,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async (paths: Array<string>) => {
-          await generate({ input, config, logLevel, hooks })
+          await generate({ input, config, logLevel, hooks, devtools })
           clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
         }
 
@@ -321,7 +354,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         await startWatcher(watchedPaths, build, { info: (msg) => clack.log.info(msg), error: (msg) => clack.log.error(msg) })
       } else {
         try {
-          const succeeded = await generate({ input, config, logLevel, hooks })
+          const succeeded = await generate({ input, config, logLevel, hooks, devtools })
           if (!succeeded) anyFailed = true
         } catch (configError) {
           await hooks.callHook('kubb:error', { error: toError(configError) })
@@ -331,6 +364,12 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     }
 
     await hooks.callHook('kubb:lifecycle:end')
+
+    // `startWatcher` returns as soon as the watcher is registered, so this line is reached
+    // under --watch too. Closing there would kill the server the watcher exists to feed.
+    if (!watch) {
+      await devtools?.close()
+    }
 
     if (anyFailed) {
       process.exit(1)

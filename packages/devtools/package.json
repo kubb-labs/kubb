@@ -1,0 +1,46 @@
+{
+  "name": "@kubb/devtools",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Proof of concept devtools for Kubb, built on devframe. Inspects the parsed AST, the per-plugin pipeline, and the generated files.",
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/devtools"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "build:client": "vite build client",
+    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "start": "tsdown --watch",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/ast": "workspace:*",
+    "@kubb/core": "workspace:*",
+    "devframe": "0.9.5"
+  },
+  "devDependencies": {
+    "@nuxt/ui": "^4.11.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.2.2",
+    "vue": "^3.5.24",
+    "vue-router": "^4.6.4"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

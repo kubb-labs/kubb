@@ -1,0 +1,59 @@
+@import './tokens.css';
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+@source '../**/*.vue';
+
+@theme {
+  --font-sans: var(--kubb-font-sans);
+  --font-mono: var(--kubb-font-mono);
+}
+
+/*
+ * Maps the Kubb tokens onto Nuxt UI's own variables, mirroring
+ * kubb-labs/platform: packages/ui/src/root.css. Local wiring rather than a
+ * second copied file.
+ */
+:root {
+  --color-primary-50: var(--kubb-brand-lightest);
+  --color-primary-100: var(--kubb-brand-lightest);
+  --color-primary-200: var(--kubb-brand-lightest);
+  --color-primary-300: var(--kubb-brand-lighter);
+  --color-primary-400: var(--kubb-brand-light);
+  --color-primary-500: var(--kubb-brand);
+  --color-primary-600: var(--kubb-brand);
+  --color-primary-700: var(--kubb-brand);
+  --color-primary-800: var(--kubb-brand-dark);
+  --color-primary-900: var(--kubb-brand-darker);
+  --color-primary-950: var(--kubb-brand-darker);
+
+  --ui-bg: var(--kubb-bg);
+  --ui-bg-muted: var(--kubb-bg-soft);
+  --ui-radius: var(--kubb-radius-md);
+  --ui-border-color: var(--kubb-line);
+}
+
+.dark {
+  --ui-bg: var(--kubb-bg);
+  --ui-bg-muted: var(--kubb-color-bg-subtle);
+  --ui-border-color: var(--kubb-line);
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--kubb-bg);
+  color: var(--kubb-text);
+  font-family: var(--kubb-font-sans);
+}
+
+button,
+[role='button'],
+a[href] {
+  cursor: pointer;
+}

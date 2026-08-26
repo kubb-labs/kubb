@@ -7,6 +7,7 @@ allowBuilds:
   es5-ext: true
   esbuild: true
   msw: true
+  vue-demi: true
 catalog:
   "@types/node": ^22.20.1
   "@vitest/coverage-v8": ^4.1.11
