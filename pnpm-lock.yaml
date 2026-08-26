@@ -147,9 +147,6 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@kubb/devtools':
-        specifier: workspace:*
-        version: link:../devtools
       '@kubb/mcp':
         specifier: workspace:*
         version: link:../mcp
@@ -181,6 +178,9 @@ importers:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../adapter-oas
+      '@kubb/devtools':
+        specifier: workspace:*
+        version: link:../devtools
 
   packages/core:
     dependencies:

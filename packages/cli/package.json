@@ -67,7 +67,6 @@
   "dependencies": {
     "@clack/prompts": "^1.7.0",
     "@kubb/core": "workspace:*",
-    "@kubb/devtools": "workspace:*",
     "chokidar": "^5.0.0",
     "gunshi": "^0.37.1",
     "jiti": "^2.7.0",
@@ -78,7 +77,8 @@
   "devDependencies": {
     "@internals/shared": "workspace:*",
     "@internals/utils": "workspace:*",
-    "@kubb/adapter-oas": "workspace:*"
+    "@kubb/adapter-oas": "workspace:*",
+    "@kubb/devtools": "workspace:*"
   },
   "peerDependencies": {
     "@kubb/adapter-oas": "workspace:*",

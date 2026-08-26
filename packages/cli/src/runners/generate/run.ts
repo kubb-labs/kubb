@@ -262,6 +262,26 @@ type GenerateCommandOptions = {
   reporters?: Array<ReporterName>
 }
 
+/**
+ * Starts the devtools server, or reports why it could not start and lets the build continue.
+ *
+ * `@kubb/devtools` is a proof of concept and a devDependency, so it is absent from a published
+ * install. The import is dynamic and the failure non-fatal: nothing about a normal run should
+ * depend on it.
+ */
+async function startDevtoolsServer(hooks: Hookable<KubbHooks>): Promise<DevtoolsServer | undefined> {
+  try {
+    const { startDevtools } = await import('@kubb/devtools')
+    return await startDevtools({ hooks })
+  } catch (caughtError) {
+    await hooks.callHook('kubb:warn', {
+      message: 'KUBB_DEVTOOLS is set but the devtools did not start',
+      info: toError(caughtError).message,
+    })
+    return undefined
+  }
+}
+
 async function checkForUpdate(hooks: Hookable<KubbHooks>): Promise<void> {
   try {
     const res = await fetch(KUBB_NPM_PACKAGE_URL, { signal: AbortSignal.timeout(UPDATE_CHECK_TIMEOUT_MS) })
@@ -312,8 +332,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   await hooks.callHook('kubb:lifecycle:start', { version })
 
   // Proof-of-concept entry point. A real `--devtools` flag belongs on the command itself.
-  // Imported lazily so devframe never loads for the runs that don't ask for it.
-  const devtools = process.env.KUBB_DEVTOOLS === '1' ? await (await import('@kubb/devtools')).startDevtools({ hooks }) : undefined
+  const devtools = process.env.KUBB_DEVTOOLS === '1' ? await startDevtoolsServer(hooks) : undefined
   if (devtools) {
     clack.log.step(styleText('cyan', `Kubb DevTools running on ${devtools.origin}`))
     if (!watch) {
