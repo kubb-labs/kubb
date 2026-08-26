@@ -96,6 +96,28 @@ importers:
         specifier: 'catalog:'
         version: 22.20.1
 
+  packages/adapter-arazzo:
+    dependencies:
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../adapter-oas
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
+      '@kubb/kit':
+        specifier: workspace:*
+        version: link:../kit
+      yaml:
+        specifier: 'catalog:'
+        version: 2.9.0
+    devDependencies:
+      '@internals/utils':
+        specifier: workspace:*
+        version: link:../../internals/utils
+
   packages/adapter-oas:
     dependencies:
       '@kubb/ast':

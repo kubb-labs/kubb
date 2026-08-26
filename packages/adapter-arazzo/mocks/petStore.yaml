@@ -1,0 +1,77 @@
+openapi: 3.1.0
+info:
+  title: Pet Store
+  version: 1.0.0
+servers:
+  - url: https://petstore.example.com/v1
+paths:
+  /user/login:
+    get:
+      operationId: loginUser
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Logged in
+          headers:
+            X-Expires-After:
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+  /pet/{petId}:
+    get:
+      operationId: getPetById
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A pet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+components:
+  schemas:
+    Session:
+      type: object
+      required:
+        - token
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    Pet:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        status:
+          type: string
+          enum:
+            - available
+            - pending
+            - sold

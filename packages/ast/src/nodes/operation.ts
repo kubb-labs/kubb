@@ -12,7 +12,7 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 
 /**
  * Transport an operation belongs to.
  */
-type OperationProtocol = 'http'
+type OperationProtocol = 'http' | 'arazzo'
 
 /**
  * Fields shared by every operation, regardless of transport.

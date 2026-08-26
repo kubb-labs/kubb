@@ -2,7 +2,6 @@ import { defineConfig, type UserConfig } from 'tsdown'
 
 const entry = {
   index: 'src/index.ts',
-  internal: 'src/internal.ts',
 }
 
 const shared: Partial<UserConfig> = {

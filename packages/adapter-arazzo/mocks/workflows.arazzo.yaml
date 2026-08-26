@@ -1,0 +1,89 @@
+arazzo: 1.1.0
+info:
+  title: Pet Store workflows
+  version: 1.0.0
+  description: Log in, then read a pet.
+sourceDescriptions:
+  - name: petStore
+    url: ./petStore.yaml
+    type: openapi
+workflows:
+  - workflowId: loginAndReadPet
+    summary: Log in and read one pet
+    parameters:
+      - name: X-Trace
+        in: header
+        value: kubb
+      - name: username
+        in: query
+        value: workflow-default
+    failureActions:
+      - name: giveUp
+        type: end
+    inputs:
+      type: object
+      required:
+        - username
+      properties:
+        username:
+          type: string
+        petId:
+          type: integer
+    steps:
+      - stepId: login
+        operationId: $sourceDescriptions.petStore.loginUser
+        parameters:
+          - name: username
+            in: query
+            value: $inputs.username
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: giveUp
+            type: retry
+            retryLimit: 3
+          - reference: $components.failureActions.notFound
+        onSuccess:
+          - name: next
+            type: goto
+            stepId: readPet
+        timeout: 5000
+        dependsOn: []
+        outputs:
+          token: $response.body#/token
+          expires: $response.header.X-Expires-After
+      - stepId: readPet
+        operationPath: '{$sourceDescriptions.petStore.url}#/paths/~1pet~1{petId}/get'
+        parameters:
+          - name: petId
+            in: path
+            value: $inputs.petId
+        outputs:
+          pet: $response.body
+    outputs:
+      token: $steps.login.outputs.token
+      pet: $steps.readPet.outputs.pet
+      status: $steps.readPet.outputs.pet#/status
+  - workflowId: readPetOnly
+    dependsOn:
+      - loginAndReadPet
+    steps:
+      - stepId: readPet
+        operationId: getPetById
+        outputs:
+          petId: $response.body#/id
+    outputs:
+      petId: $steps.readPet.outputs.petId
+components:
+  failureActions:
+    notFound:
+      name: notFound
+      type: end
+  inputs:
+    Credentials:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string

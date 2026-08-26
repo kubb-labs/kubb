@@ -1,0 +1,26 @@
+arazzo: 1.1.0
+info:
+  title: Unknown step
+  version: 1.0.0
+sourceDescriptions:
+  - name: petStore
+    url: ./petStore.yaml
+    type: openapi
+workflows:
+  - workflowId: readMissing
+    steps:
+      - stepId: missing
+        operationId: doesNotExist
+      - stepId: reusable
+        operationId: getPetById
+        parameters:
+          - reference: $components.parameters.petId
+            value: 42
+    outputs:
+      nothing: $steps.missing.outputs.whatever
+components:
+  parameters:
+    petId:
+      name: petId
+      in: path
+      value: $inputs.petId
