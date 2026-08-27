@@ -106,60 +106,11 @@ function isBarrelPath(path: string): boolean {
   return path.endsWith(BARREL_SUFFIX)
 }
 
-/**
- * Drops a named export the barrel already re-exports from another module.
- *
- * Two files under one directory are free to declare the same name, but a barrel re-exporting both
- * produces a duplicate binding, which is a parse error rather than a type error. The bundler that
- * eventually reads the barrel reports it against the generated file, far from the two sources that
- * caused it, so the collision is reported here with both paths instead.
- *
- * A wildcard export carries no names to compare, so `type: 'all'` barrels pass through untouched.
- */
-function withoutDuplicateExports(dirPath: string, exports: Array<ExportNode>): Array<ExportNode> {
-  const valueOwners = new Map<string, string>()
-  const typeOwners = new Map<string, string>()
-  const collisions: Array<{ name: string; first: string; second: string }> = []
-
-  const deduplicated = exports.map((node) => {
-    if (!node.name) return node
-
-    const owners = node.isTypeOnly ? typeOwners : valueOwners
-    const names = Array.isArray(node.name) ? node.name : [node.name]
-    const kept = names.filter((name) => {
-      const owner = owners.get(name)
-      if (owner === undefined) {
-        owners.set(name, node.path)
-        return true
-      }
-
-      if (owner !== node.path) {
-        collisions.push({ name, first: owner, second: node.path })
-      }
-      return false
-    })
-
-    return kept.length === names.length ? node : { ...node, name: kept }
-  })
-
-  for (const { name, first, second } of collisions) {
-    Diagnostics.report({
-      code: Diagnostics.code.barrelDuplicateExport,
-      severity: 'error',
-      message: `"${name}" is exported by both "${first}" and "${second}", so "${dirPath}${BARREL_SUFFIX}" cannot re-export both.`,
-      help: 'Rename one of the colliding declarations, or resolve the collision through the plugin resolver that names them.',
-      location: { kind: 'config' },
-    })
-  }
-
-  return deduplicated.filter((node) => node.name === undefined || node.name === null || !Array.isArray(node.name) || node.name.length > 0)
-}
-
 function makeBarrel(dirPath: string, exports: Array<ExportNode>): FileNode {
   return ast.factory.createFile({
     baseName: 'index.ts',
     path: `${dirPath}${BARREL_SUFFIX}`,
-    exports: withoutDuplicateExports(dirPath, exports),
+    exports,
     sources: [],
     imports: [],
     // Default to no banner/footer. The barrel plugin resolves a configured plugin
@@ -170,13 +121,31 @@ function makeBarrel(dirPath: string, exports: Array<ExportNode>): FileNode {
   })
 }
 
-type LeafContext = {
-  dirPath: string
-  leafPath: string
-  sourceFile: FileNode | null
+type NamedScope = {
+  valueOwners: Map<string, string>
+  typeOwners: Map<string, string>
+  collisions: Array<{ name: string; first: string; second: string }>
 }
 
-type LeafStrategy = (ctx: LeafContext) => Array<ExportNode>
+function createNamedScope(): NamedScope {
+  return {
+    valueOwners: new Map(),
+    typeOwners: new Map(),
+    collisions: [],
+  }
+}
+
+function reportCollisions(dirPath: string, collisions: ReadonlyArray<{ name: string; first: string; second: string }>): void {
+  for (const { name, first, second } of collisions) {
+    Diagnostics.report({
+      code: Diagnostics.code.barrelDuplicateExport,
+      severity: 'error',
+      message: `"${name}" is exported by both "${first}" and "${second}", so "${dirPath}${BARREL_SUFFIX}" cannot re-export both.`,
+      help: 'Rename one of the colliding declarations, or resolve the collision through the plugin resolver that names them.',
+      location: { kind: 'config' },
+    })
+  }
+}
 
 function hasOnlyNonIndexableSources(sources: ReadonlyArray<SourceNode>): boolean {
   if (sources.length === 0) return false
@@ -198,12 +167,12 @@ function partitionIndexableNames(sources: ReadonlyArray<SourceNode>): Map<boolea
   return byTypeOnly
 }
 
-const allStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
+function collectAllLeafExports(dirPath: string, leafPath: string, sourceFile: FileNode | null): Array<ExportNode> {
   if (sourceFile && hasOnlyNonIndexableSources(sourceFile.sources)) return []
   return [ast.factory.createExport({ path: toRelativeModulePath(dirPath, leafPath) })]
 }
 
-const namedStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
+function collectNamedLeafExports(dirPath: string, leafPath: string, sourceFile: FileNode | null, scope: NamedScope): Array<ExportNode> {
   const modulePath = toRelativeModulePath(dirPath, leafPath)
 
   if (!sourceFile) return [ast.factory.createExport({ path: modulePath })]
@@ -217,24 +186,41 @@ const namedStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
     return [ast.factory.createExport({ path: modulePath })]
   }
 
-  const exports: Array<ExportNode> = []
-  if (valueNames.size > 0) {
-    exports.push(ast.factory.createExport({ name: [...valueNames].sort(), path: modulePath }))
+  const keptValues: Array<string> = []
+  for (const name of valueNames) {
+    const owner = scope.valueOwners.get(name)
+    if (owner === undefined) {
+      scope.valueOwners.set(name, modulePath)
+      keptValues.push(name)
+    } else if (owner !== modulePath) {
+      scope.collisions.push({ name, first: owner, second: modulePath })
+    }
   }
-  if (typeNames.size > 0) {
-    exports.push(ast.factory.createExport({ name: [...typeNames].sort(), path: modulePath, isTypeOnly: true }))
+
+  const keptTypes: Array<string> = []
+  for (const name of typeNames) {
+    const owner = scope.typeOwners.get(name)
+    if (owner === undefined) {
+      scope.typeOwners.set(name, modulePath)
+      keptTypes.push(name)
+    } else if (owner !== modulePath) {
+      scope.collisions.push({ name, first: owner, second: modulePath })
+    }
+  }
+
+  const exports: Array<ExportNode> = []
+  if (keptValues.length > 0) {
+    exports.push(ast.factory.createExport({ name: keptValues.sort(), path: modulePath }))
+  }
+  if (keptTypes.length > 0) {
+    exports.push(ast.factory.createExport({ name: keptTypes.sort(), path: modulePath, isTypeOnly: true }))
   }
   return exports
 }
 
-const LEAF_STRATEGIES: ReadonlyMap<BarrelType, LeafStrategy> = new Map([
-  ['all', allStrategy],
-  ['named', namedStrategy],
-])
-
 type LeafWalkParams = {
   sourceFiles: ReadonlyMap<string, FileNode>
-  strategy: LeafStrategy
+  barrelType: BarrelType
   recursive: boolean
 }
 
@@ -257,7 +243,16 @@ function* walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolea
 
   if (!isRoot && !params.recursive) return subtreeLeaves
 
-  const exports = subtreeLeaves.flatMap((leafPath) => params.strategy({ dirPath: node.path, leafPath, sourceFile: params.sourceFiles.get(leafPath) ?? null }))
+  let exports: Array<ExportNode>
+  if (params.barrelType === 'named') {
+    const scope = createNamedScope()
+    exports = subtreeLeaves.flatMap((leafPath) => collectNamedLeafExports(node.path, leafPath, params.sourceFiles.get(leafPath) ?? null, scope))
+    if (scope.collisions.length > 0) {
+      reportCollisions(node.path, scope.collisions)
+    }
+  } else {
+    exports = subtreeLeaves.flatMap((leafPath) => collectAllLeafExports(node.path, leafPath, params.sourceFiles.get(leafPath) ?? null))
+  }
 
   if (exports.length > 0) {
     yield makeBarrel(node.path, exports)
@@ -268,7 +263,7 @@ function* walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolea
 
 type NestedWalkParams = {
   sourceFiles: ReadonlyMap<string, FileNode>
-  strategy: LeafStrategy
+  barrelType: BarrelType
 }
 
 /**
@@ -280,12 +275,17 @@ type NestedWalkParams = {
  */
 function* walkNested(node: BuildTree, params: NestedWalkParams): Generator<FileNode, boolean> {
   const exports: Array<ExportNode> = []
+  const namedScope = params.barrelType === 'named' ? createNamedScope() : null
 
   for (const child of node.children) {
     if (child.isFile) {
       if (isBarrelPath(child.path)) continue
       const sourceFile = params.sourceFiles.get(child.path) ?? null
-      exports.push(...params.strategy({ dirPath: node.path, leafPath: child.path, sourceFile }))
+      if (namedScope) {
+        exports.push(...collectNamedLeafExports(node.path, child.path, sourceFile, namedScope))
+      } else {
+        exports.push(...collectAllLeafExports(node.path, child.path, sourceFile))
+      }
       continue
     }
 
@@ -293,6 +293,10 @@ function* walkNested(node: BuildTree, params: NestedWalkParams): Generator<FileN
     if (childYieldedBarrel) {
       exports.push(ast.factory.createExport({ path: toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`) }))
     }
+  }
+
+  if (namedScope && namedScope.collisions.length > 0) {
+    reportCollisions(node.path, namedScope.collisions)
   }
 
   if (exports.length > 0) {
@@ -408,15 +412,12 @@ export function* getBarrelFiles({ index, targetPath, barrelType, nested = false,
   const node = targetPath ? findNode(index.tree, toPosixPath(targetPath)) : index.tree
   if (!node) return
 
-  const strategy = LEAF_STRATEGIES.get(barrelType)
-  if (!strategy) return
-
   if (nested) {
-    yield* walkNested(node, { sourceFiles: index.sourceFiles, strategy })
+    yield* walkNested(node, { sourceFiles: index.sourceFiles, barrelType })
     return
   }
 
-  yield* walkAllOrNamed(node, { sourceFiles: index.sourceFiles, strategy, recursive }, true)
+  yield* walkAllOrNamed(node, { sourceFiles: index.sourceFiles, barrelType, recursive }, true)
 }
 
 /**
