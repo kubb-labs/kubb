@@ -11,11 +11,11 @@ import type { ParseFn } from '../parseSchema.ts'
  *
  * @example
  * ```ts
- * createDiscriminantNode({ propertyName: 'type', value: 'dog' })
+ * createDiscriminantNode({ propertyName: 'type', values: ['dog'] })
  * // -> { type: 'object', properties: [{ name: 'type', required: true, schema: enum('dog') }] }
  * ```
  */
-export function createDiscriminantNode({ propertyName, value }: { propertyName: string; value: string }): ast.SchemaNode {
+export function createDiscriminantNode({ propertyName, values }: { propertyName: string; values: Array<string> }): ast.SchemaNode {
   return ast.factory.createSchema({
     type: 'object',
     primitive: 'object',
@@ -25,7 +25,7 @@ export function createDiscriminantNode({ propertyName, value }: { propertyName: 
         schema: ast.factory.createSchema({
           type: 'enum',
           primitive: 'string',
-          enumValues: [value],
+          enumValues: values,
         }),
         required: true,
       }),
@@ -34,16 +34,21 @@ export function createDiscriminantNode({ propertyName, value }: { propertyName: 
 }
 
 /**
- * Returns the discriminator key whose mapping value matches `ref`, or `null` when there is no match.
+ * Returns every discriminator key whose mapping value matches `ref`, in mapping order.
+ *
+ * A mapping may point several keys at the same schema, in which case the member has to be
+ * narrowed to all of them — keeping only the first would drop the rest from the union.
  *
  * @example
  * ```ts
- * findDiscriminator({ dog: '#/components/schemas/Dog' }, '#/components/schemas/Dog') // 'dog'
+ * findDiscriminators({ dog: '#/components/schemas/Dog', hound: '#/components/schemas/Dog' }, '#/components/schemas/Dog') // ['dog', 'hound']
  * ```
  */
-export function findDiscriminator(mapping: Record<string, string> | undefined, ref: string | undefined): string | null {
-  if (!mapping || !ref) return null
-  return Object.entries(mapping).find(([, value]) => value === ref)?.[0] ?? null
+export function findDiscriminators(mapping: Record<string, string> | undefined, ref: string | undefined): Array<string> {
+  if (!mapping || !ref) return []
+  return Object.entries(mapping)
+    .filter(([, value]) => value === ref)
+    .map(([key]) => key)
 }
 
 /**
@@ -119,16 +124,18 @@ export function narrowUnionMembers({
 
   return unionMembers.map((s) => {
     const ref = isReference(s) ? s.$ref : undefined
-    const discriminatorValue = findDiscriminator(discriminator?.mapping, ref) ?? implicitDiscriminantValue(s)
+    const mappedValues = findDiscriminators(discriminator?.mapping, ref)
+    const implicitValue = mappedValues.length ? null : implicitDiscriminantValue(s)
+    const discriminatorValues = mappedValues.length ? mappedValues : implicitValue ? [implicitValue] : []
     const memberNode = parse({ schema: s as SchemaObject, name }, rawOptions)
 
-    if (!discriminatorValue || !discriminator) {
+    if (!discriminatorValues.length || !discriminator) {
       return memberNode
     }
 
     const narrowedDiscriminatorNode = sharedPropertiesNode
       ? pickDiscriminatorPropertyNode(
-          ast.applyMacros(sharedPropertiesNode, [macroDiscriminatorEnum({ propertyName: discriminator.propertyName, values: [discriminatorValue] })], {
+          ast.applyMacros(sharedPropertiesNode, [macroDiscriminatorEnum({ propertyName: discriminator.propertyName, values: discriminatorValues })], {
             depth: 'shallow',
           }),
           discriminator.propertyName,
@@ -142,7 +149,7 @@ export function narrowUnionMembers({
         narrowedDiscriminatorNode ??
           createDiscriminantNode({
             propertyName: discriminator.propertyName,
-            value: discriminatorValue,
+            values: discriminatorValues,
           }),
       ],
     })
@@ -166,9 +173,9 @@ export function extractDiscriminatedAllOfMembers({
   refs: Refs
 }): {
   members: Array<SchemaObject | ReferenceObject>
-  discriminantValues: Array<{ propertyName: string; value: string }>
+  discriminantValues: Array<{ propertyName: string; values: Array<string> }>
 } {
-  const discriminantValues: Array<{ propertyName: string; value: string }> = []
+  const discriminantValues: Array<{ propertyName: string; values: Array<string> }> = []
 
   const members = allOfMembers.filter((item) => {
     if (!isReference(item) || !name) return true
@@ -180,11 +187,11 @@ export function extractDiscriminatedAllOfMembers({
     const inOneOf = parentUnion.some((oneOfItem) => isReference(oneOfItem) && oneOfItem.$ref === childRef)
     const inMapping = Object.values(deref.discriminator.mapping ?? {}).some((v) => v === childRef)
     if (inOneOf || inMapping) {
-      const discriminatorValue = findDiscriminator(deref.discriminator.mapping, childRef)
-      if (discriminatorValue) {
+      const values = findDiscriminators(deref.discriminator.mapping, childRef)
+      if (values.length) {
         discriminantValues.push({
           propertyName: deref.discriminator.propertyName,
-          value: discriminatorValue,
+          values,
         })
       }
       return false

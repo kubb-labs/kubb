@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.0.3 — Aug 27, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Keep every discriminator mapping key that targets the same schema, and apply the discriminant to children declared with `allOf` ([#3929](https://github.com/kubb-labs/kubb/pull/3929), [`58d9625`](https://github.com/kubb-labs/kubb/commit/58d96255713042eadefe352103aa517661025297))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@xeoneux](https://github.com/xeoneux)
+
 ## v5.0.2 — Aug 24, 2026
 
 ### @kubb/kit

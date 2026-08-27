@@ -114,8 +114,8 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
     allOfMembers.push(parse({ schema: schemaWithoutAllOf }, rawOptions))
   }
 
-  for (const { propertyName, value } of discriminantValues) {
-    allOfMembers.push(createDiscriminantNode({ propertyName, value }))
+  for (const { propertyName, values } of discriminantValues) {
+    allOfMembers.push(createDiscriminantNode({ propertyName, values }))
   }
 
   return createNode(
