@@ -1,15 +1,15 @@
 {
-  "name": "@kubb/cli",
+  "name": "@kubb/studio",
   "version": "5.0.3",
-  "description": "Official CLI for Kubb. Run kubb generate, kubb init, kubb validate, kubb studio, and kubb mcp to manage the full code generation lifecycle.",
+  "description": "Kubb Studio client runtime. Connects a Kubb project to Kubb Studio over WebSocket and streams code generation events, shared by the `kubb studio` CLI command and the Docker agent.",
   "keywords": [
-    "cli",
-    "code-generator",
+    "agent",
     "codegen",
     "kubb",
-    "meta-framework",
-    "sdk-generator",
-    "typescript"
+    "openapi",
+    "studio",
+    "typescript",
+    "websocket"
   ],
   "homepage": "https://kubb.dev",
   "license": "MIT",
@@ -17,7 +17,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kubb-labs/kubb.git",
-    "directory": "packages/cli"
+    "directory": "packages/studio"
   },
   "funding": [
     {
@@ -29,12 +29,8 @@
       "url": "https://opencollective.com/kubb"
     }
   ],
-  "bin": {
-    "kubb": "bin/kubb.js"
-  },
   "files": [
     "dist",
-    "bin",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
@@ -48,6 +44,10 @@
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./protocol": {
+      "import": "./dist/protocol.js",
+      "require": "./dist/protocol.cjs"
     },
     "./package.json": "./package.json"
   },
@@ -65,38 +65,18 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@clack/prompts": "^1.7.0",
     "@kubb/core": "workspace:*",
-    "chokidar": "^5.0.0",
-    "gunshi": "^0.37.1",
-    "jiti": "^2.7.0",
+    "kubb": "workspace:*",
+    "ofetch": "^1.5.1",
+    "remeda": "^2.42.0",
     "tinyexec": "catalog:",
-    "unconfig": "^7.5.0",
-    "verkit": "^0.4.0"
+    "unstorage": "^1.17.5",
+    "ws": "^8.21.3"
   },
   "devDependencies": {
-    "@internals/shared": "workspace:*",
     "@internals/utils": "workspace:*",
-    "@kubb/adapter-oas": "workspace:*",
-    "@kubb/studio": "workspace:*"
+    "@types/ws": "^8.18.1"
   },
-  "peerDependencies": {
-    "@kubb/adapter-oas": "workspace:*",
-    "@kubb/mcp": "workspace:*",
-    "@kubb/studio": "workspace:*"
-  },
-  "peerDependenciesMeta": {
-    "@kubb/adapter-oas": {
-      "optional": true
-    },
-    "@kubb/mcp": {
-      "optional": true
-    },
-    "@kubb/studio": {
-      "optional": true
-    }
-  },
-  "preferGlobal": true,
   "engines": {
     "node": ">=22"
   }
