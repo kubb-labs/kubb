@@ -61,10 +61,10 @@ export function buildDiscriminatorChildMap(schemas: Array<ast.SchemaNode>): Map<
 
       const existing = childMap.get(refNode.name)
       if (!existing) {
-        childMap.set(refNode.name, { propertyName: discriminatorPropertyName, enumValues: [...enumValues] })
+        childMap.set(refNode.name, { propertyName: discriminatorPropertyName, enumValues: [...new Set(enumValues)] })
         continue
       }
-      existing.enumValues.push(...enumValues)
+      existing.enumValues = [...new Set([...existing.enumValues, ...enumValues])]
     }
   }
 
@@ -74,17 +74,33 @@ export function buildDiscriminatorChildMap(schemas: Array<ast.SchemaNode>): Map<
 /**
  * Patches a single top-level `SchemaNode` with its discriminator entry (adds or replaces
  * the discriminant property).
+ *
+ * A child declared with `allOf` parses to an intersection rather than an object, so the
+ * discriminant is intersected on as an extra member instead.
  */
 export function patchDiscriminatorNode(node: ast.SchemaNode, entry: { propertyName: string; enumValues: Array<string | number | boolean> }): ast.SchemaNode {
-  const objectNode = ast.narrowSchema(node, 'object')
-  if (!objectNode) return node
-
   const { propertyName, enumValues } = entry
   const enumSchema = ast.factory.createSchema({ type: 'enum', enumValues })
   const newProp = ast.factory.createProperty({ name: propertyName, required: true, schema: enumSchema })
 
-  const existingIdx = objectNode.properties.findIndex((p) => p.name === propertyName)
-  const newProperties = existingIdx >= 0 ? objectNode.properties.map((p, i) => (i === existingIdx ? newProp : p)) : [...objectNode.properties, newProp]
+  const objectNode = ast.narrowSchema(node, 'object')
+  if (objectNode) {
+    const existingIdx = objectNode.properties.findIndex((p) => p.name === propertyName)
+    const newProperties = existingIdx >= 0 ? objectNode.properties.map((p, i) => (i === existingIdx ? newProp : p)) : [...objectNode.properties, newProp]
 
-  return { ...objectNode, properties: newProperties }
+    return { ...objectNode, properties: newProperties }
+  }
+
+  const intersectionNode = ast.narrowSchema(node, 'intersection')
+  if (!intersectionNode?.members) return node
+
+  const discriminantNode = ast.factory.createSchema({ type: 'object', primitive: 'object', properties: [newProp] })
+  const patchedIdx = intersectionNode.members.findIndex((member) => ast.narrowSchema(member, 'object')?.properties.some((p) => p.name === propertyName))
+
+  const newMembers =
+    patchedIdx >= 0
+      ? intersectionNode.members.map((member, i) => (i === patchedIdx ? patchDiscriminatorNode(member, entry) : member))
+      : [...intersectionNode.members, discriminantNode]
+
+  return { ...intersectionNode, members: newMembers }
 }
