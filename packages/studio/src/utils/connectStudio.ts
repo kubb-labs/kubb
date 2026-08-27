@@ -175,7 +175,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     async function readStoredConfig() {
       if (!persistConfig) return null
-      return getStorage().getItem<JSONKubbConfig>(STUDIO_CONFIG_KEY).catch(() => null)
+      return getStorage()
+        .getItem<JSONKubbConfig>(STUDIO_CONFIG_KEY)
+        .catch(() => null)
     }
 
     async function sendConnectedPayload() {
@@ -350,9 +352,11 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               // Save the studio config so it survives reconnects and restarts. Caching writes nothing
               // to the user's project, so write permission is not required. Drop the spec when input is off.
               if (data.payload && persistConfig) {
-                await getStorage().setItem(STUDIO_CONFIG_KEY, allowInput ? data.payload : { ...data.payload, input: undefined }).catch((err) => {
-                  logger.warn(tag, 'Failed to save studio config', { error: err?.message })
-                })
+                await getStorage()
+                  .setItem(STUDIO_CONFIG_KEY, allowInput ? data.payload : { ...data.payload, input: undefined })
+                  .catch((err) => {
+                    logger.warn(tag, 'Failed to save studio config', { error: err?.message })
+                  })
               }
 
               const generationHooks = new Hookable<AgentHooks>()

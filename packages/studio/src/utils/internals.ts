@@ -94,5 +94,3 @@ export const linters = {
     errorMessage: 'Oxlint not found',
   },
 } as const
-
-

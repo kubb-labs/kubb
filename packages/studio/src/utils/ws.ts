@@ -193,7 +193,16 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
   })
 
   // Bracketing events carry no context, so they forward identically.
-  for (const type of ['kubb:lifecycle:start', 'kubb:lifecycle:end', 'kubb:format:start', 'kubb:format:end', 'kubb:lint:start', 'kubb:lint:end', 'kubb:hooks:start', 'kubb:hooks:end'] as const) {
+  for (const type of [
+    'kubb:lifecycle:start',
+    'kubb:lifecycle:end',
+    'kubb:format:start',
+    'kubb:format:end',
+    'kubb:lint:start',
+    'kubb:lint:end',
+    'kubb:hooks:start',
+    'kubb:hooks:end',
+  ] as const) {
     hooks.hook(type, () => {
       sendDataMessage({ type, data: [], timestamp: Date.now() })
     })
