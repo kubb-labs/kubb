@@ -1,6 +1,7 @@
 import { ast } from '@kubb/ast'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
-import type { Config } from '@kubb/core'
+import { Diagnostics } from '@kubb/core'
+import type { Config, Diagnostic } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { buildBarrelIndex, buildTree, getBarrelFiles, getPluginOutputPrefix, isExcludedPath } from './utils.ts'
 
@@ -48,6 +49,97 @@ describe('getBarrelFiles', () => {
 
     expect(barrels).toHaveLength(1)
     expect(barrels[0]!.exports[0]?.name).toStrictEqual(expect.arrayContaining(['Pet', 'createPet']))
+  })
+
+  it('reports a diagnostic and emits each name once when two files export the same name', () => {
+    // A barrel re-exporting both would be a duplicate binding, which is a parse error rather than
+    // a type error, so the bundler reports it against the generated file instead of these two.
+    const files = [makeFile(`${ROOT}/createPet.ts`, ['createPetResponse']), makeFile(`${ROOT}/createPetResponse.ts`, ['createPetResponse'])]
+
+    const diagnostics: Array<Diagnostic> = []
+    const barrels = Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'named' })],
+    )
+
+    const exported = barrels.flatMap((barrel) => barrel.exports.flatMap((node) => (Array.isArray(node.name) ? node.name : [])))
+    expect(exported.filter((name) => name === 'createPetResponse')).toHaveLength(1)
+
+    const collision = diagnostics.find((diagnostic) => diagnostic.code === Diagnostics.code.barrelDuplicateExport)
+    expect(collision?.message).toContain('createPetResponse')
+    expect(collision?.message).toContain('createPet.ts')
+    expect(collision?.message).toContain('createPetResponse.ts')
+  })
+
+  it('allows a value export and a type export with the same name without collision', () => {
+    const file = ast.factory.createFile({
+      path: `${ROOT}/pet.ts`,
+      baseName: 'pet.ts',
+      sources: [
+        ast.factory.createSource({ name: 'Pet', isIndexable: true, isTypeOnly: false, nodes: [ast.factory.createText('export const Pet = {}')] }),
+        ast.factory.createSource({ name: 'Pet', isIndexable: true, isTypeOnly: true, nodes: [ast.factory.createText('export type Pet = {}')] }),
+      ],
+      imports: [],
+      exports: [],
+    })
+
+    const diagnostics: Array<Diagnostic> = []
+    const barrels = Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => [...getBarrelFiles({ index: buildBarrelIndex(ROOT, [file]), barrelType: 'named' })],
+    )
+
+    expect(diagnostics).toHaveLength(0)
+    expect(barrels[0]?.exports).toHaveLength(2)
+    expect(barrels[0]?.exports).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: ['Pet'], path: './pet.ts' }),
+        expect.objectContaining({ name: ['Pet'], path: './pet.ts', isTypeOnly: true }),
+      ]),
+    )
+  })
+
+  it('reports a diagnostic and drops duplicate when two files export the same type name', () => {
+    const fileA = ast.factory.createFile({
+      path: `${ROOT}/petA.ts`,
+      baseName: 'petA.ts',
+      sources: [ast.factory.createSource({ name: 'Pet', isIndexable: true, isTypeOnly: true, nodes: [ast.factory.createText('export type Pet = {}')] })],
+      imports: [],
+      exports: [],
+    })
+    const fileB = ast.factory.createFile({
+      path: `${ROOT}/petB.ts`,
+      baseName: 'petB.ts',
+      sources: [ast.factory.createSource({ name: 'Pet', isIndexable: true, isTypeOnly: true, nodes: [ast.factory.createText('export type Pet = {}')] })],
+      imports: [],
+      exports: [],
+    })
+
+    const diagnostics: Array<Diagnostic> = []
+    const barrels = Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => [...getBarrelFiles({ index: buildBarrelIndex(ROOT, [fileA, fileB]), barrelType: 'named' })],
+    )
+
+    expect(diagnostics).toHaveLength(1)
+    expect(diagnostics[0]?.code).toBe(Diagnostics.code.barrelDuplicateExport)
+    expect(diagnostics[0]?.message).toContain('Pet')
+    expect(barrels[0]?.exports).toHaveLength(1)
+  })
+
+  it('drops only colliding names and retains non-colliding names from the same module', () => {
+    const fileA = makeFile(`${ROOT}/a.ts`, ['foo', 'bar'])
+    const fileB = makeFile(`${ROOT}/b.ts`, ['bar', 'baz'])
+
+    const diagnostics: Array<Diagnostic> = []
+    const barrels = Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => [...getBarrelFiles({ index: buildBarrelIndex(ROOT, [fileA, fileB]), barrelType: 'named' })],
+    )
+
+    expect(diagnostics).toHaveLength(1)
+    const bExport = barrels[0]?.exports.find((e) => e.path === './b.ts')
+    expect(bExport?.name).toStrictEqual(['baz'])
   })
 
   it('generates hierarchical barrels when nested is true', () => {

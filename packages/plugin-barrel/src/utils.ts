@@ -1,5 +1,6 @@
 import { extname, resolve } from 'node:path'
 import { ast, type ExportNode, type FileNode, type SourceNode } from '@kubb/ast'
+import { Diagnostics } from '@kubb/core'
 import type { Config, NormalizedPlugin } from '@kubb/core'
 import { toPosixPath } from '@internals/utils'
 import type { BarrelType } from './types.ts'
@@ -105,11 +106,60 @@ function isBarrelPath(path: string): boolean {
   return path.endsWith(BARREL_SUFFIX)
 }
 
+/**
+ * Drops a named export the barrel already re-exports from another module.
+ *
+ * Two files under one directory are free to declare the same name, but a barrel re-exporting both
+ * produces a duplicate binding, which is a parse error rather than a type error. The bundler that
+ * eventually reads the barrel reports it against the generated file, far from the two sources that
+ * caused it, so the collision is reported here with both paths instead.
+ *
+ * A wildcard export carries no names to compare, so `type: 'all'` barrels pass through untouched.
+ */
+function withoutDuplicateExports(dirPath: string, exports: Array<ExportNode>): Array<ExportNode> {
+  const valueOwners = new Map<string, string>()
+  const typeOwners = new Map<string, string>()
+  const collisions: Array<{ name: string; first: string; second: string }> = []
+
+  const deduplicated = exports.map((node) => {
+    if (!node.name) return node
+
+    const owners = node.isTypeOnly ? typeOwners : valueOwners
+    const names = Array.isArray(node.name) ? node.name : [node.name]
+    const kept = names.filter((name) => {
+      const owner = owners.get(name)
+      if (owner === undefined) {
+        owners.set(name, node.path)
+        return true
+      }
+
+      if (owner !== node.path) {
+        collisions.push({ name, first: owner, second: node.path })
+      }
+      return false
+    })
+
+    return kept.length === names.length ? node : { ...node, name: kept }
+  })
+
+  for (const { name, first, second } of collisions) {
+    Diagnostics.report({
+      code: Diagnostics.code.barrelDuplicateExport,
+      severity: 'error',
+      message: `"${name}" is exported by both "${first}" and "${second}", so "${dirPath}${BARREL_SUFFIX}" cannot re-export both.`,
+      help: 'Rename one of the colliding declarations, or resolve the collision through the plugin resolver that names them.',
+      location: { kind: 'config' },
+    })
+  }
+
+  return deduplicated.filter((node) => node.name === undefined || node.name === null || !Array.isArray(node.name) || node.name.length > 0)
+}
+
 function makeBarrel(dirPath: string, exports: Array<ExportNode>): FileNode {
   return ast.factory.createFile({
     baseName: 'index.ts',
     path: `${dirPath}${BARREL_SUFFIX}`,
-    exports,
+    exports: withoutDuplicateExports(dirPath, exports),
     sources: [],
     imports: [],
     // Default to no banner/footer. The barrel plugin resolves a configured plugin
