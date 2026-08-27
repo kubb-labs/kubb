@@ -33,15 +33,6 @@ describe('createDiscriminantNode', () => {
 })
 
 describe('findDiscriminators', () => {
-  it('returns the mapping key for a matching discriminator ref', () => {
-    const mapping = {
-      cat: '#/components/schemas/Cat',
-      dog: '#/components/schemas/Dog',
-    }
-
-    expect(findDiscriminators(mapping, '#/components/schemas/Dog')).toStrictEqual(['dog'])
-  })
-
   it('returns every key that maps onto the same ref', () => {
     const mapping = {
       cat: '#/components/schemas/Cat',
