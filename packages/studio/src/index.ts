@@ -1,4 +1,4 @@
-import { version as kubbVersion } from 'kubb/package.json'
+import { version as kubbVersion } from '@kubb/core/package.json'
 import type { Storage } from 'unstorage'
 import { agentDefaults } from './constants.ts'
 import { registerAgent } from './api.ts'

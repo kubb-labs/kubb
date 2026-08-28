@@ -3,9 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { spawn } from 'node:child_process'
-import { createKubb } from 'kubb'
-import { type Config, Diagnostics, type Hookable } from 'kubb/kit'
-import type { Diagnostic } from '@kubb/core'
+import { type Config, createKubb, type Diagnostic, Diagnostics, type Hookable } from '@kubb/core'
 import { type AgentHooks, waitForHookEnd } from './hooks.ts'
 
 /**

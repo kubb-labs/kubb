@@ -1,6 +1,5 @@
 import process from 'node:process'
-import type { Hookable } from 'kubb/kit'
-import { Diagnostics } from 'kubb/kit'
+import { Diagnostics, type Hookable } from '@kubb/core'
 import WebSocket from 'ws'
 import type { AgentMessage, DataMessagePayload } from './protocol/index.ts'
 import type { AgentHooks } from './hooks.ts'

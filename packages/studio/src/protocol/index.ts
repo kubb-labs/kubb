@@ -7,7 +7,7 @@
  * - Either direction: ErrorMessage
  */
 
-import type { Config } from 'kubb/kit'
+import type { Config } from '@kubb/core'
 
 /**
  * JSON-serializable Kubb config exchanged over the WebSocket. A live `kubb/kit` config holds

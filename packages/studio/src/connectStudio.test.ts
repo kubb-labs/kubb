@@ -30,7 +30,7 @@ vi.mock('./ws.ts', () => ({
   setupEventsStream: vi.fn(),
 }))
 
-vi.mock('kubb/package.json', () => ({
+vi.mock('@kubb/core/package.json', () => ({
   default: { version: '5.0.0-test' },
   version: '5.0.0-test',
 }))

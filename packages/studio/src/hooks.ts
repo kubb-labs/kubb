@@ -1,4 +1,4 @@
-import type { Hookable, KubbHooks } from 'kubb/kit'
+import type { Hookable, KubbHooks } from '@kubb/core'
 import { x } from 'tinyexec'
 
 /**

@@ -349,9 +349,6 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      kubb:
-        specifier: workspace:*
-        version: link:../kubb
       ofetch:
         specifier: ^1.5.1
         version: 1.5.1

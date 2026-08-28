@@ -1,4 +1,4 @@
-import type { Adapter, Plugin } from 'kubb/kit'
+import type { Adapter, Plugin } from '@kubb/core'
 import { mergeDeep } from 'remeda'
 import type { JSONKubbConfig } from './protocol/index.ts'
 

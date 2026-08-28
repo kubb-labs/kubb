@@ -1,4 +1,4 @@
-import type { Plugin } from 'kubb/kit'
+import type { Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { JSONKubbConfig } from './protocol/index.ts'
 import { assertAllowedPlugins, mergeAdapter, mergePlugins, resolvePlugins } from './resolveConfig.ts'

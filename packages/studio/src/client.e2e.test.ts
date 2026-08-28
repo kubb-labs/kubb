@@ -1,7 +1,6 @@
 import { createServer, type Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
-import type { Config } from 'kubb/kit'
-import { memoryStorage } from 'kubb/kit'
+import { type Config, memoryStorage } from '@kubb/core'
 import { adapterOas } from '@kubb/adapter-oas'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { WebSocketServer, type WebSocket } from 'ws'
