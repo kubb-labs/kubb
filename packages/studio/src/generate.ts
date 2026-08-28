@@ -2,20 +2,116 @@ import { hash } from 'node:crypto'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { detectExecutable, formatters, linters, tokenize } from './internals.ts'
+import { spawn } from 'node:child_process'
 import { createKubb } from 'kubb'
 import { type Config, Diagnostics, type Hookable } from 'kubb/kit'
 import type { Diagnostic } from '@kubb/core'
-import type { AgentHooks } from '../types.ts'
-import { waitForHookEnd } from './waitForHookEnd.ts'
+import { type AgentHooks, waitForHookEnd } from './hooks.ts'
+
+/**
+ * Tokenizes a shell command string, respecting single and double quotes.
+ *
+ * @example
+ * tokenize('git commit -m "initial commit"')
+ * // → ['git', 'commit', '-m', 'initial commit']
+ */
+export function tokenize(command: string): Array<string> {
+  return (command.match(/[^\s"']+|"([^"]*)"|'([^']*)'/g) ?? []).map((token) => token.replace(/^["']|["']$/g, ''))
+}
+
+/**
+ * What is installed cannot change while the process runs, and the formatter and linter candidate
+ * lists overlap, so each executable is probed once per process.
+ */
+const probes = new Map<string, Promise<boolean>>()
+
+function isExecutableAvailable(name: string): Promise<boolean> {
+  const probe =
+    probes.get(name) ??
+    new Promise<boolean>((resolve) => {
+      const child = spawn(name, ['--version'], { stdio: 'ignore' })
+      child.on('close', (code) => resolve(code === 0))
+      child.on('error', () => resolve(false))
+    })
+
+  probes.set(name, probe)
+
+  return probe
+}
+
+/**
+ * Returns the first executable from `names` found on the current system, or `null` when none are found.
+ */
+export async function detectExecutable<TName extends string>(names: ReadonlyArray<TName>): Promise<TName | null> {
+  for (const name of names) {
+    if (await isExecutableAvailable(name)) {
+      return name
+    }
+  }
+
+  return null
+}
+
+/**
+ * CLI command descriptors for each supported code formatter.
+ *
+ * Each entry contains the executable `command`, an `args` factory that maps an
+ * output path to the correct argument list, and an `errorMessage` shown when
+ * the formatter is not found.
+ */
+export const formatters = {
+  prettier: {
+    command: 'prettier',
+    args: (outputPath: string) => ['--ignore-unknown', '--write', outputPath],
+    errorMessage: 'Prettier not found',
+  },
+  biome: {
+    command: 'biome',
+    args: (outputPath: string) => ['format', '--write', outputPath],
+    errorMessage: 'Biome not found',
+  },
+  oxfmt: {
+    command: 'oxfmt',
+    args: (outputPath: string) => [outputPath],
+    errorMessage: 'Oxfmt not found',
+  },
+} as const
+
+/**
+ * CLI command descriptors for each supported linter.
+ *
+ * Each entry contains the executable `command`, an `args` factory that maps an
+ * output path to the correct argument list, and an `errorMessage` shown when
+ * the linter is not found.
+ */
+export const linters = {
+  eslint: {
+    command: 'eslint',
+    args: (outputPath: string) => [outputPath, '--fix'],
+    errorMessage: 'Eslint not found',
+  },
+  biome: {
+    command: 'biome',
+    args: (outputPath: string) => ['lint', '--fix', outputPath],
+    errorMessage: 'Biome not found',
+  },
+  oxlint: {
+    command: 'oxlint',
+    // --no-ignore so oxlint lints the folder even when it's gitignored (generated output dirs usually are).
+    args: (outputPath: string) => ['--fix', '--no-ignore', outputPath],
+    errorMessage: 'Oxlint not found',
+  },
+} as const
 
 /**
  * The two post-build tool steps. Formatting and linting differ only in which tools they look for,
  * so they run through one loop rather than two near-identical blocks.
  */
 const STEPS = [
-  { kind: 'format', tools: formatters },
-  { kind: 'lint', tools: linters },
+  // `detect` is the preference order for `auto`, most-preferred first. Spelled out rather than
+  // taken from the table's key order, which is arbitrary and silently changes what `auto` picks.
+  { kind: 'format', tools: formatters, detect: ['oxfmt', 'biome', 'prettier'] },
+  { kind: 'lint', tools: linters, detect: ['oxlint', 'biome', 'eslint'] },
 ] as const
 
 /**
@@ -140,10 +236,10 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
     // `auto` means "whatever is installed", so the tool is detected now rather than at config time.
     let tool = setting
     if (tool === 'auto') {
-      const detected = await detectExecutable(Object.keys(step.tools) as Array<keyof typeof step.tools>)
+      const detected = await detectExecutable(step.detect)
 
       if (!detected) {
-        await hooks.callHook('kubb:warn', { message: `No ${step.kind}ter found (${Object.keys(step.tools).join(', ')}). Skipping ${step.kind}ting.` })
+        await hooks.callHook('kubb:warn', { message: `No ${step.kind}ter found (${step.detect.join(', ')}). Skipping ${step.kind}ting.` })
       } else {
         tool = detected
         await hooks.callHook('kubb:info', { message: `Auto-detected ${step.kind}ter: ${styleText('dim', tool)}` })

@@ -371,6 +371,9 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+      '@kubb/adapter-oas':
+        specifier: workspace:*
+        version: link:../adapter-oas
       '@types/ws':
         specifier: ^8.18.1
         version: 8.18.1

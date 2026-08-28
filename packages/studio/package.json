@@ -75,6 +75,7 @@
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
+    "@kubb/adapter-oas": "workspace:*",
     "@types/ws": "^8.18.1"
   },
   "engines": {

@@ -2,16 +2,14 @@ import process from 'node:process'
 import type { Config } from 'kubb/kit'
 import { fsStorage, Hookable, memoryStorage } from 'kubb/kit'
 import { version as kubbVersion } from 'kubb/package.json'
-import type { AgentHooks } from '../types.ts'
-import { type AgentMessage, type ClientInfo, type JSONKubbConfig, isCommandMessage, isDisconnectMessage, isPongMessage } from '../protocol/index.ts'
-import { getStorage } from './storage.ts'
+import { type AgentHooks, setupHookListener } from './hooks.ts'
+import { type AgentMessage, type ClientInfo, type JSONKubbConfig, isCommandMessage, isDisconnectMessage, isPongMessage } from './protocol/index.ts'
+import { getStorage } from './machine.ts'
 import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
-import { agentDefaults } from '../constants.ts'
+import { agentDefaults, maxHeartbeatIntervalMs } from './constants.ts'
 import { logger } from './logger.ts'
-import { mergeAdapter } from './resolveAdapter.ts'
-import { assertAllowedPlugins, mergePlugins } from './mergePlugins.ts'
-import { setupHookListener } from './setupHookListener.ts'
+import { assertAllowedPlugins, mergeAdapter, mergePlugins } from './resolveConfig.ts'
 import type WebSocket from 'ws'
 import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
 
@@ -96,9 +94,14 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     poolSize = agentDefaults.poolSize,
     root = process.cwd(),
     retryInterval = agentDefaults.retryIntervalMs,
-    heartbeatInterval = agentDefaults.heartbeatIntervalMs,
+    heartbeatInterval: requestedHeartbeatInterval = agentDefaults.heartbeatIntervalMs,
     signal,
   } = options
+
+  // Studio counts an agent offline once its last ping is older than its liveness window, so a
+  // slower cadence would make a healthy agent invisible. Clamped here rather than in a host's env
+  // parsing, so every host is held to the contract.
+  const heartbeatInterval = Math.min(requestedHeartbeatInterval, maxHeartbeatIntervalMs)
 
   // Each connection gets its own isolated event emitter so generation events
   // from one session do not bleed into another session's WebSocket stream.
@@ -115,7 +118,12 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     // connectToStudio rejects when it can't reach Studio (e.g. a 502), and that
     // rejection is never awaited here, so it must be caught or it surfaces as an
     // unhandledRejection that kills the retry loop instead of trying again.
+    const cancel = () => clearTimeout(timer)
     const timer = setTimeout(() => {
+      // Removed here rather than left to `{ once: true }`: the signal only aborts at shutdown, so
+      // one listener per retry would accumulate for the whole life of a down-Studio retry loop.
+      signal?.removeEventListener('abort', cancel)
+
       if (signal?.aborted) {
         return
       }
@@ -126,7 +134,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       })
     }, retryInterval)
 
-    signal?.addEventListener('abort', () => clearTimeout(timer), { once: true })
+    signal?.addEventListener('abort', cancel, { once: true })
   }
 
   try {
@@ -158,10 +166,16 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     // be terminated so the reconnect loop can establish a fresh session.
     let lastPongAt = Date.now()
 
+    const onAbort = () => void teardown({ reason: 'shutdown', retry: false })
+
     async function cleanup(reason = 'cleanup') {
       try {
         clearInterval(heartbeatTimer)
         heartbeatTimer = undefined
+
+        // This connection is over, so its shutdown listener must go with it. Otherwise every
+        // reconnect leaves one behind on a signal that only fires at process exit.
+        signal?.removeEventListener('abort', onAbort)
 
         hooks.removeAllHooks()
 
@@ -259,7 +273,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     ws.addEventListener('error', onError)
     // The socket's own close event fires after this, and `teardown` is idempotent, so the shutdown
     // path cannot be turned into a reconnect by the close that follows it.
-    signal?.addEventListener('abort', () => void teardown({ reason: 'shutdown', retry: false }), { once: true })
+    signal?.addEventListener('abort', onAbort, { once: true })
 
     heartbeatTimer = setInterval(() => {
       // Two consecutive missed pongs mean the socket is dead even though no close event
@@ -395,7 +409,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
         logger.warn(tag, 'Unknown message type from Kubb Studio', { message: String(message.data) })
       } catch (error) {
-        logger.exception(tag, error, { event: 'unhandledRejection' })
+        logger.exception(tag, error)
 
         // Errors thrown before `generate()` runs (e.g. config loading, plugin resolution)
         // never reach `generate()`'s own `kubb:error` emission, so without this the Studio
@@ -406,8 +420,11 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     }
     ws.addEventListener('message', onMessage)
   } catch (error) {
-    throw new Error(`[unhandledRejection] ${getErrorMessage(error)}`, {
-      cause: error,
-    })
+    // Reaching here means the session was never created (Studio down, a 502 mid-deploy), so no
+    // socket exists and none of the socket-driven reconnect paths can fire. Retry from here or the
+    // slot is dropped for the lifetime of the process.
+    logger.error(`Failed to open a Kubb Studio session: ${getErrorMessage(error)}`)
+
+    await reconnect()
   }
 }

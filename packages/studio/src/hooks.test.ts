@@ -1,7 +1,7 @@
 import { Hookable } from 'kubb/kit'
-import type { AgentHooks } from '../types.ts'
+import type { AgentHooks } from './hooks.ts'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { setupHookListener } from './setupHookListener.ts'
+import { setupHookListener } from './hooks.ts'
 
 vi.mock('tinyexec', () => ({
   x: vi.fn(),

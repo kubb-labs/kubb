@@ -1,7 +1,8 @@
 import process from 'node:process'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { spyOnConsole } from './console.mock.ts'
 import { MockWebSocket } from './websocket.mock.ts'
-import type { AgentConnectResponse } from '../protocol/index.ts'
+import type { AgentConnectResponse } from './protocol/index.ts'
 import type { ConnectToStudioOptions } from './connectStudio.ts'
 import { connectToStudio } from './connectStudio.ts'
 
@@ -14,25 +15,14 @@ vi.mock('./generate.ts', () => ({
   generate: vi.fn().mockResolvedValue(undefined),
 }))
 
-vi.mock('./setupHookListener.ts', () => ({
-  setupHookListener: vi.fn(),
-}))
+// Config resolution runs for real. It reaches outside the process in two ways — `import()`-ing a
+// plugin package and `import()`-ing the adapter package — so those packages are what gets stubbed.
+vi.mock('@kubb/plugin-ts', () => ({ pluginTs: (options: unknown) => ({ name: 'plugin-ts', options }) }))
+vi.mock('@kubb/plugin-oas', () => ({ pluginOas: (options: unknown) => ({ name: 'plugin-oas', options }) }))
+vi.mock('@kubb/adapter-oas', () => ({ adapterOas: (options: unknown) => ({ name: 'oas', options, parse: vi.fn() }) }))
 
-vi.mock('./resolvePlugins.ts', () => ({
-  resolvePlugins: vi.fn().mockReturnValue([]),
-  toExportName: vi.fn((name: string) => name),
-  toPluginName: vi.fn((name: string) => name),
-}))
-
-vi.mock('./resolveAdapter.ts', () => ({
-  mergeAdapter: vi.fn(async (diskAdapter: unknown, studioOptions: unknown) =>
-    studioOptions ? { ...(diskAdapter as object), ...(studioOptions as object) } : diskAdapter,
-  ),
-}))
-
-vi.mock('./logger.ts', () => ({
-  logger: { info: vi.fn(), success: vi.fn(), warn: vi.fn(), error: vi.fn(), exception: vi.fn() },
-}))
+// `setupHookListener` spawns the formatter, the linter, and postGenerate commands through tinyexec.
+vi.mock('tinyexec', () => ({ x: vi.fn(() => Object.assign(Promise.resolve({ exitCode: 0 }), { [Symbol.asyncIterator]: async function* () {} })) }))
 
 vi.mock('./ws.ts', () => ({
   createWebsocket: vi.fn(),
@@ -46,16 +36,15 @@ vi.mock('kubb/package.json', () => ({
 }))
 
 import type { Storage } from 'unstorage'
-import { setStorage } from './storage.ts'
+import { setStorage } from './machine.ts'
 import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
-import { logger } from './logger.ts'
-import { mergeAdapter } from './resolveAdapter.ts'
-import { resolvePlugins } from './resolvePlugins.ts'
-import { setupHookListener } from './setupHookListener.ts'
+
 import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
 
 // Shared test helpers
+
+const consoleSpy = spyOnConsole()
 
 const loadConfig = vi.fn()
 
@@ -85,9 +74,11 @@ const makeConfig = (overrides = {}) => ({
 describe('connectToStudio', () => {
   let mockWs: MockWebSocket
   let options: ConnectToStudioOptions
+  let controller: AbortController
 
   beforeEach(() => {
     mockWs = new MockWebSocket()
+    controller = new AbortController()
 
     getLatestStudioConfigFromStorage.mockResolvedValue(null)
     saveStudioConfigToStorage.mockResolvedValue(undefined)
@@ -106,6 +97,7 @@ describe('connectToStudio', () => {
       configPath: 'kubb.config.ts',
       loadConfig,
       version: '1.0.0',
+      signal: controller.signal,
       allowWrite: false,
       allowInput: false,
       root: '/project',
@@ -114,8 +106,15 @@ describe('connectToStudio', () => {
   })
 
   afterEach(() => {
+    // `connectToStudio` retries forever until its signal aborts, so a test that leaves a failed
+    // connection behind would keep reconnecting into the next one.
+    controller.abort()
     vi.clearAllMocks()
     vi.useRealTimers()
+  })
+
+  afterAll(() => {
+    Object.values(consoleSpy).forEach((spy) => spy.mockRestore())
   })
 
   // Session creation
@@ -137,10 +136,46 @@ describe('connectToStudio', () => {
     })
   })
 
-  it('throws when createAgentSession rejects', async () => {
+  // Studio being unreachable at startup is temporary (a 502 mid-deploy), and no socket exists yet,
+  // so none of the socket-driven reconnect paths can fire. Giving up here would drop the pool slot
+  // for the lifetime of the process.
+  it('retries instead of giving up when the session cannot be created', async () => {
+    vi.useFakeTimers()
     vi.mocked(createAgentSession).mockRejectedValueOnce(new Error('Network error'))
 
-    await expect(connectToStudio(options)).rejects.toThrow('Network error')
+    await connectToStudio(options)
+
+    expect(consoleSpy.error).toHaveBeenCalledWith(expect.stringContaining('Network error'))
+
+    await vi.advanceTimersByTimeAsync(options.retryInterval!)
+
+    expect(createAgentSession).toHaveBeenCalledTimes(2)
+  })
+
+  // Studio counts an agent offline once its ping is older than its liveness window, so the clamp
+  // is a protocol contract. It lives here because every host goes through this function.
+  it('clamps a heartbeat interval above the ceiling Studio allows', async () => {
+    vi.useFakeTimers()
+
+    await connectToStudio({ ...options, heartbeatInterval: 10 * 60_000 })
+    await mockWs.trigger('open')
+    vi.mocked(sendAgentMessage).mockClear()
+
+    await vi.advanceTimersByTimeAsync(30_000)
+
+    expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, { type: 'ping' })
+  })
+
+  it('stops retrying once the signal aborts', async () => {
+    vi.useFakeTimers()
+    vi.mocked(createAgentSession).mockRejectedValueOnce(new Error('Network error'))
+
+    await connectToStudio(options)
+    controller.abort()
+
+    await vi.advanceTimersByTimeAsync(options.retryInterval! * 3)
+
+    expect(createAgentSession).toHaveBeenCalledTimes(1)
   })
 
   // WebSocket messages
@@ -150,7 +185,7 @@ describe('connectToStudio', () => {
 
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'pong' }) })
 
-    expect(logger.info).toHaveBeenCalledWith('brave-otter', expect.stringContaining('Received "pong" from Studio'))
+    expect(consoleSpy.info).toHaveBeenCalledWith(expect.stringContaining('Received "pong" from Studio'))
   })
 
   it('logs a warning for unknown message types', async () => {
@@ -160,7 +195,7 @@ describe('connectToStudio', () => {
       data: JSON.stringify({ type: 'unknown' }),
     })
 
-    expect(logger.warn).toHaveBeenCalledWith('brave-otter', expect.stringContaining('Unknown message type'), expect.anything())
+    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('Unknown message type'))
   })
 
   // Handshake and liveness
@@ -180,7 +215,7 @@ describe('connectToStudio', () => {
 
     await mockWs.trigger('open')
 
-    expect(logger.success).toHaveBeenCalledWith('brave-otter', 'Connected to Kubb Studio', { slug: 'brave-otter' })
+    expect(consoleSpy.log).toHaveBeenCalledWith('[brave-otter] Connected to Kubb Studio')
   })
 
   it('logs the slug when the WebSocket errors', async () => {
@@ -188,7 +223,7 @@ describe('connectToStudio', () => {
 
     await mockWs.trigger('error')
 
-    expect(logger.error).toHaveBeenCalledWith('brave-otter', 'Failed to connect to Kubb Studio', { slug: 'brave-otter' })
+    expect(consoleSpy.error).toHaveBeenCalledWith('[brave-otter] Failed to connect to Kubb Studio')
   })
 
   it('terminates the connection when no pong arrives within two heartbeat intervals', async () => {
@@ -234,7 +269,7 @@ describe('connectToStudio', () => {
     )
   })
 
-  it('calls resolvePlugins with payload plugins when the generate command includes a payload', async () => {
+  it('generates with the plugins the payload names', async () => {
     const payload = { plugins: [{ name: '@kubb/plugin-ts', options: {} }] }
 
     await connectToStudio(options)
@@ -243,7 +278,9 @@ describe('connectToStudio', () => {
       data: JSON.stringify({ type: 'command', command: 'generate', payload }),
     })
 
-    expect(resolvePlugins).toHaveBeenCalledWith(payload.plugins)
+    expect(generate).toHaveBeenCalledWith(
+      expect.objectContaining({ config: expect.objectContaining({ plugins: [expect.objectContaining({ name: 'plugin-ts' })] }) }),
+    )
   })
 
   it('disables write in sandbox mode even when allowWrite is true', async () => {
@@ -302,7 +339,7 @@ describe('connectToStudio', () => {
         config: expect.objectContaining({ input: 'spec.yaml' }),
       }),
     )
-    expect(logger.warn).toHaveBeenCalledWith('brave-otter', expect.stringContaining('KUBB_AGENT_ALLOW_INPUT'))
+    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('KUBB_AGENT_ALLOW_INPUT'))
   })
 
   it('uses inline input from payload for a local agent when allowInput is enabled', async () => {
@@ -361,11 +398,9 @@ describe('connectToStudio', () => {
     })
 
     expect(generate).not.toHaveBeenCalled()
-    expect(logger.exception).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({ message: expect.stringContaining('evil-module') }),
-      expect.anything(),
-    )
+    // `logger.exception` hands the Error to console.error rather than flattening it, so the cause
+    // chain stays inspectable.
+    expect(consoleSpy.error).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ message: expect.stringContaining('evil-module') }))
   })
 
   it('persists the payload to storage regardless of write permission', async () => {
@@ -468,7 +503,9 @@ describe('connectToStudio', () => {
     })
 
     expect(getLatestStudioConfigFromStorage).toHaveBeenCalled()
-    expect(resolvePlugins).toHaveBeenCalledWith(storedConfig.plugins)
+    expect(generate).toHaveBeenCalledWith(
+      expect.objectContaining({ config: expect.objectContaining({ plugins: [expect.objectContaining({ name: 'plugin-ts' })] }) }),
+    )
   })
 
   it('uses the payload plugins over the stored studio config when both are present', async () => {
@@ -485,11 +522,17 @@ describe('connectToStudio', () => {
       data: JSON.stringify({ type: 'command', command: 'generate', payload }),
     })
 
-    // resolvePlugins is called with the payload plugins (not the stored ones)
-    expect(resolvePlugins).toHaveBeenCalledWith(payload.plugins)
+    // The payload's plugin wins over the stored one
+    expect(generate).toHaveBeenCalledWith(
+      expect.objectContaining({ config: expect.objectContaining({ plugins: [expect.objectContaining({ name: 'plugin-oas' })] }) }),
+    )
   })
 
-  it('merges adapter options from payload via mergeAdapter instead of forwarding them as-is', async () => {
+  // An adapter instance carries closures that cannot survive JSON, so the payload is an options
+  // patch: the adapter factory is re-invoked with the merged options rather than replaced by the
+  // plain object Studio sent.
+  it('re-invokes the adapter factory with the payload options merged in', async () => {
+    loadConfig.mockResolvedValueOnce(makeConfig({ adapter: { name: 'oas', options: { validate: true } } }) as any)
     const payload = { adapter: { server: { index: 1 } }, plugins: [] }
 
     await connectToStudio(options)
@@ -498,12 +541,10 @@ describe('connectToStudio', () => {
       data: JSON.stringify({ type: 'command', command: 'generate', payload }),
     })
 
-    expect(mergeAdapter).toHaveBeenCalledWith(undefined, payload.adapter)
-    expect(generate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        config: expect.objectContaining({ adapter: { server: { index: 1 } } }),
-      }),
-    )
+    const adapter = vi.mocked(generate).mock.calls[0]?.[0].config.adapter
+
+    expect(adapter?.options).toStrictEqual({ validate: true, server: { index: 1 } })
+    expect(adapter).toHaveProperty('parse')
   })
 
   it('preserves the disk config adapter when payload has no adapter', async () => {
@@ -517,7 +558,6 @@ describe('connectToStudio', () => {
       data: JSON.stringify({ type: 'command', command: 'generate', payload }),
     })
 
-    expect(mergeAdapter).toHaveBeenCalledWith(diskAdapter, undefined)
     const call = vi.mocked(generate).mock.calls[0]?.[0]
     expect(call?.config).toHaveProperty('adapter', diskAdapter)
   })
@@ -550,7 +590,7 @@ describe('connectToStudio', () => {
     await Promise.all([first, second])
 
     expect(generate).toHaveBeenCalledTimes(1)
-    expect(logger.warn).toHaveBeenCalledWith('brave-otter', expect.stringContaining('already in progress'))
+    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('already in progress'))
   })
 
   it('allows a new generate command once the previous one has finished', async () => {
@@ -580,7 +620,6 @@ describe('connectToStudio', () => {
     expect(generationHooks).toBeDefined()
     expect(generationHooks).not.toBe(connectionHooks)
     expect(generateHooks).toBe(generationHooks)
-    expect(setupHookListener).toHaveBeenCalledWith(generationHooks, options.root)
   })
 
   // connect command
@@ -767,12 +806,12 @@ describe('connectToStudio', () => {
       data: JSON.stringify({ type: 'disconnect', reason: 'revoked' }),
     })
 
-    expect(logger.warn).toHaveBeenCalledWith('brave-otter', expect.stringContaining('disconnected by Studio'), expect.objectContaining({ reason: 'revoked' }))
+    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('disconnected by Studio'))
     expect(mockWs.closed).toBe(true)
     // disconnect API must NOT be called — server already knows about the closure
     expect(disconnect).not.toHaveBeenCalled()
     // revoked sessions must NOT trigger a reconnect
-    expect(logger.info).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
+    expect(consoleSpy.info).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
   })
 
   it('cleans up and reconnects when a disconnect message with reason "expired" is received', async () => {
@@ -784,11 +823,11 @@ describe('connectToStudio', () => {
       data: JSON.stringify({ type: 'disconnect', reason: 'expired' }),
     })
 
-    expect(logger.warn).toHaveBeenCalledWith('brave-otter', expect.stringContaining('disconnected by Studio'), expect.objectContaining({ reason: 'expired' }))
+    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('disconnected by Studio'))
     expect(mockWs.closed).toBe(true)
     expect(disconnect).not.toHaveBeenCalled()
     // expired sessions trigger a reconnect (unlike revoked)
-    expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
+    expect(consoleSpy.info).toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
   })
 
   it('reconnects on WS error', async () => {
@@ -798,7 +837,7 @@ describe('connectToStudio', () => {
 
     await mockWs.trigger('error')
 
-    expect(logger.error).toHaveBeenCalled()
+    expect(consoleSpy.error).toHaveBeenCalled()
   })
 
   it('logs and retries instead of crashing when a reconnect attempt fails to reach Studio', async () => {
@@ -821,7 +860,7 @@ describe('connectToStudio', () => {
       await vi.advanceTimersByTimeAsync(options.retryInterval!)
       await vi.advanceTimersByTimeAsync(0)
 
-      expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('502 Bad Gateway'))
+      expect(consoleSpy.error).toHaveBeenCalledWith(expect.stringContaining('502 Bad Gateway'))
       // the failed attempt schedules another reconnect rather than giving up
       await vi.advanceTimersByTimeAsync(options.retryInterval!)
       expect(createAgentSession).toHaveBeenCalledTimes(3)

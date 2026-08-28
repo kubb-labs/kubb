@@ -2,8 +2,8 @@ import process from 'node:process'
 import type { Hookable } from 'kubb/kit'
 import { Diagnostics } from 'kubb/kit'
 import WebSocket from 'ws'
-import type { AgentMessage, DataMessagePayload } from '../protocol/index.ts'
-import type { AgentHooks } from '../types.ts'
+import type { AgentMessage, DataMessagePayload } from './protocol/index.ts'
+import type { AgentHooks } from './hooks.ts'
 
 type WebSocketOptions = WebSocket.ClientOptions
 
@@ -31,14 +31,14 @@ function nextEventSeq(ws: WebSocket): number {
 /**
  * Opens a Studio WebSocket connection and closes it when the initial handshake exceeds the configured timeout.
  */
-export function createWebsocket(url: string, options: WebSocketOptions, timeoutMs = CONNECT_TIMEOUT_MS): WebSocket {
+export function createWebsocket(url: string, options: WebSocketOptions): WebSocket {
   const ws = new WebSocket(url, options)
 
   setTimeout(() => {
     if (ws.readyState === WebSocket.CONNECTING) {
       ws.close(3008, 'Connection timeout')
     }
-  }, timeoutMs)
+  }, CONNECT_TIMEOUT_MS)
 
   return ws
 }

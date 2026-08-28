@@ -2,9 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { hash } from 'node:crypto'
 import type { Storage } from 'unstorage'
 
-vi.mock('./logger.ts', () => ({
-  logger: { info: vi.fn(), success: vi.fn(), warn: vi.fn(), error: vi.fn() },
-}))
+// `logger` writes to the console; silenced so a deliberate warning path does not pollute output.
+vi.spyOn(console, 'warn').mockImplementation(() => {})
 
 const store = new Map<string, unknown>()
 const mockStorage = {
@@ -17,10 +16,10 @@ const mockStorage = {
 // `token.ts` caches the fallback secret per module instance, so a "restart" means resetting
 // modules. The storage module resets with it, hence re-installing the mock on every fresh import.
 async function importFreshToken() {
-  const { setStorage } = await import('./storage.ts')
+  const { setStorage } = await import('./machine.ts')
   setStorage(mockStorage as unknown as Storage)
 
-  const module = await import('./token.ts')
+  const module = await import('./machine.ts')
   return module.getMachineToken
 }
 

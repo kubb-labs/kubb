@@ -1,10 +1,10 @@
 import { version as kubbVersion } from 'kubb/package.json'
 import type { Storage } from 'unstorage'
 import { agentDefaults } from './constants.ts'
-import { registerAgent } from './utils/api.ts'
-import { type ConnectToStudioOptions, connectToStudio } from './utils/connectStudio.ts'
-import { logger } from './utils/logger.ts'
-import { setStorage } from './utils/storage.ts'
+import { registerAgent } from './api.ts'
+import { type ConnectToStudioOptions, connectToStudio } from './connectStudio.ts'
+import { logger } from './logger.ts'
+import { setStorage } from './machine.ts'
 
 export type ClientOptions = Omit<ConnectToStudioOptions, 'signal'> & {
   /**
@@ -67,8 +67,5 @@ export function createClient({ storage, ...options }: ClientOptions): Client {
   }
 }
 
-export { agentDefaults, maxHeartbeatIntervalMs } from './constants.ts'
-export { logger } from './utils/logger.ts'
-export { maskString } from './utils/internals.ts'
-export { createFileStorage, setStorage } from './utils/storage.ts'
+export { createFileStorage, setStorage } from './machine.ts'
 export { pollForPairingToken, startPairing, type PairingResult, type PairingSession } from './pair.ts'

@@ -1,12 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { spyOnConsole } from './console.mock.ts'
 import { createAgentSession, disconnect, registerAgent } from './api.ts'
-import { logger } from './logger.ts'
 
-vi.mock('./logger.ts', () => ({
-  logger: { info: vi.fn(), success: vi.fn(), warn: vi.fn(), error: vi.fn() },
-}))
+const consoleSpy = spyOnConsole()
 
-vi.mock('./token.ts', () => ({
+// Partial: `api.ts` only wants the machine token stubbed, and a full factory would also replace
+// the storage accessors that the rest of the package shares.
+vi.mock('./machine.ts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./machine.ts')>()),
   getMachineToken: vi.fn(async () => 'machine-token-hash'),
 }))
 
@@ -47,7 +48,10 @@ describe('registerAgent', () => {
 
     await expect(promise).resolves.toBe(true)
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    expect(fetchMock).toHaveBeenCalledWith('http://studio/api/agent/connect', expect.objectContaining({ method: 'POST' }))
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://studio/api/agent/connect',
+      expect.objectContaining({ method: 'POST', body: expect.objectContaining({ machineToken: 'machine-token-hash' }) }),
+    )
   })
 
   it('retries with backoff and returns true once an attempt succeeds', async () => {
@@ -117,7 +121,7 @@ describe('disconnect', () => {
 
     await disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', slug: 'brave-otter' })
 
-    expect(logger.success).toHaveBeenCalledWith('brave-otter', 'Disconnected from Studio', { slug: 'brave-otter' })
+    expect(consoleSpy.log).toHaveBeenCalledWith('[brave-otter] Disconnected from Studio')
   })
 
   it('falls back to a generic tag when no slug is known', async () => {
@@ -125,6 +129,6 @@ describe('disconnect', () => {
 
     await disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio' })
 
-    expect(logger.success).toHaveBeenCalledWith('agent', 'Disconnected from Studio', { slug: undefined })
+    expect(consoleSpy.log).toHaveBeenCalledWith('[agent] Disconnected from Studio')
   })
 })

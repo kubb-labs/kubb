@@ -1,6 +1,6 @@
 import { ofetch } from 'ofetch'
 import { agentDefaults } from './constants.ts'
-import { getMachineToken } from './utils/token.ts'
+import { getMachineToken } from './machine.ts'
 
 /**
  * Pairing is an RFC 8628 device authorization grant, served by Studio's auth layer. The CLI asks
@@ -47,22 +47,6 @@ export type PairingResult = {
 }
 
 /**
- * Why pairing stopped, using the RFC 8628 error codes so the CLI can render each case itself.
- */
-export type PairingErrorCode = 'expired_token' | 'access_denied' | 'unreachable'
-
-export class PairingError extends Error {
-  constructor(
-    readonly code: PairingErrorCode,
-    message: string,
-    options?: ErrorOptions,
-  ) {
-    super(message, options)
-    this.name = 'PairingError'
-  }
-}
-
-/**
  * Identifies the CLI to Studio's device authorization endpoint. A label, not a secret: what
  * authorizes a pairing is a signed-in person approving the code in the browser.
  */
@@ -97,23 +81,12 @@ export async function startPairing({ studioUrl = agentDefaults.studioUrl, name, 
 type PollOptions = {
   studioUrl?: string
   session: PairingSession
-  signal?: AbortSignal
 }
 
 type PollResponse = PairingResult | { error: 'authorization_pending' | 'slow_down' | 'expired_token' | 'access_denied' | 'invalid_grant' }
 
-function sleep(ms: number, signal?: AbortSignal): Promise<void> {
-  return new Promise((resolve) => {
-    const timer = setTimeout(resolve, ms)
-    signal?.addEventListener(
-      'abort',
-      () => {
-        clearTimeout(timer)
-        resolve()
-      },
-      { once: true },
-    )
-  })
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 /**
@@ -122,18 +95,14 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
  * Studio's own endpoint is used rather than the auth layer's `/device/token`, because an approved
  * Kubb pairing is worth an agent bearer token, not a user session.
  *
- * @throws {PairingError} when the code expires, the user denies, or the poll is aborted.
+ * @throws when the code expires or the user denies it.
  */
-export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl, session, signal }: PollOptions): Promise<PairingResult> {
+export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl, session }: PollOptions): Promise<PairingResult> {
   const deadline = Date.now() + session.expires_in * 1000
   let intervalMs = session.interval * 1000
 
   while (Date.now() < deadline) {
-    await sleep(intervalMs, signal)
-
-    if (signal?.aborted) {
-      throw new PairingError('access_denied', 'Pairing canceled')
-    }
+    await sleep(intervalMs)
 
     const response = await ofetch<PollResponse>(`${studioUrl}/api/agent/pair/token`, {
       method: 'POST',
@@ -142,7 +111,7 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
       // read, so let every response through and switch on `error` instead of catching.
       ignoreResponseError: true,
     }).catch((error: unknown) => {
-      throw new PairingError('unreachable', 'Could not reach Kubb Studio while waiting for approval', { cause: error })
+      throw new Error('Could not reach Kubb Studio while waiting for approval', { cause: error })
     })
 
     if (!('error' in response)) {
@@ -150,11 +119,11 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
     }
 
     if (response.error === 'access_denied') {
-      throw new PairingError('access_denied', 'Pairing was denied in the browser')
+      throw new Error('Pairing was denied in the browser')
     }
 
     if (response.error === 'expired_token' || response.error === 'invalid_grant') {
-      throw new PairingError('expired_token', 'The pairing code expired, run `kubb studio login` again')
+      throw new Error('The pairing code expired, run `kubb studio login` again')
     }
 
     if (response.error === 'slow_down') {
@@ -162,5 +131,5 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
     }
   }
 
-  throw new PairingError('expired_token', 'The pairing code expired, run `kubb studio login` again')
+  throw new Error('The pairing code expired, run `kubb studio login` again')
 }

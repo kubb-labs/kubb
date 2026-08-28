@@ -1,24 +1,26 @@
 import type { Plugin } from 'kubb/kit'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { JSONKubbConfig } from '../protocol/index.ts'
-import { assertAllowedPlugins, mergePlugins } from './mergePlugins.ts'
+import type { JSONKubbConfig } from './protocol/index.ts'
+import { assertAllowedPlugins, mergeAdapter, mergePlugins, resolvePlugins } from './resolveConfig.ts'
 
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
 
-// Mock resolvePlugins so mergePlugins doesn't need real plugin packages
-vi.mock('./resolvePlugins.ts', () => ({
-  resolvePlugins: vi.fn(async (entries: Array<{ name: string; options: unknown }>) =>
-    entries.map(({ name, options }) => {
-      // Simulate the real behavior: strip '@kubb/' prefix and camelCase → short name used by plugins
-      const shortName = name.replace('@kubb/', '')
-      return makePlugin(shortName, options as Record<string, unknown>)
-    }),
-  ),
-  toPluginName: (packageName: string) => packageName.split('/').pop() ?? packageName,
-}))
+const mockPluginTs = vi.fn((options: unknown) => ({ name: 'plugin-ts', options }))
+const mockPluginZod = vi.fn((options: unknown) => ({ name: 'plugin-zod', options }))
+
+// `mergePlugins` resolves through a real `import()`, so the packages it names are stubbed rather
+// than the resolver: after the merge they are the same module.
+vi.mock('@kubb/plugin-oas', () => ({ pluginOas: (options: unknown) => ({ name: 'plugin-oas', options }) }))
+vi.mock('@kubb/plugin-barrel', () => ({ pluginBarrel: (options: unknown) => ({ name: 'plugin-barrel', options }) }))
+vi.mock('@kubb/plugin-react-query', () => ({ pluginReactQuery: (options: unknown) => ({ name: 'plugin-react-query', options }) }))
+vi.mock('@kubb/plugin-ts', () => ({ pluginTs: (options: unknown) => ({ name: 'plugin-ts', options }) }))
 
 beforeEach(() => {
-  vi.clearAllMocks()
+  // `vi.doMock` registrations live in the module registry, so without this they leak into every
+  // later test in the file.
+  vi.resetModules()
+  mockPluginTs.mockClear()
+  mockPluginZod.mockClear()
 })
 
 describe('mergePlugins', () => {
@@ -186,6 +188,26 @@ describe('mergePlugins', () => {
 })
 
 describe('assertAllowedPlugins', () => {
+  // The allow-list holds unscoped disk plugin names, so matching has to accept the package they
+  // came from without accepting a different package that happens to end the same way.
+  it('accepts the @kubb package an unscoped entry stands for', () => {
+    expect(() => assertAllowedPlugins([{ name: '@kubb/plugin-ts' }], ['plugin-ts'])).not.toThrow()
+  })
+
+  it('rejects a different scope that ends in an allowed name', () => {
+    expect(() => assertAllowedPlugins([{ name: '@evil/plugin-ts' }], ['plugin-ts'])).toThrow(/does not import/)
+  })
+
+  it.each(['../../../etc/plugin-ts', '/tmp/evil', './local-plugin', 'a/b/c'])('rejects %s, which is not a package name', (name) => {
+    expect(() => assertAllowedPlugins([{ name }], ['plugin-ts'])).toThrow(/not a package name/)
+  })
+
+  // The Docker agent runs without an allow-list: the image bounds which packages exist, but that
+  // says nothing about which paths are reachable inside the container.
+  it('rejects a path even when no allow-list is set', () => {
+    expect(() => assertAllowedPlugins([{ name: '../../../etc/passwd' }], undefined)).toThrow(/not a package name/)
+  })
+
   it('accepts anything when no allow-list is given', () => {
     expect(() => assertAllowedPlugins([{ name: 'anything-at-all' }], undefined)).not.toThrow()
   })
@@ -200,5 +222,139 @@ describe('assertAllowedPlugins', () => {
 
   it('names every rejected plugin', () => {
     expect(() => assertAllowedPlugins([{ name: 'a' }, { name: '@kubb/plugin-ts' }, { name: 'b' }], ['@kubb/plugin-ts'])).toThrow(/"a", "b"/)
+  })
+})
+
+describe('resolvePlugins', () => {
+  it('throws when the plugin package cannot be imported', async () => {
+    await expect(resolvePlugins([{ name: '@kubb/plugin-missing', options: {} }])).rejects.toThrow('Plugin "@kubb/plugin-missing" could not be loaded')
+  })
+
+  it('resolves a @kubb plugin by its camelCase named export', async () => {
+    vi.doMock('@kubb/plugin-ts', () => ({ pluginTs: mockPluginTs }))
+    const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
+
+    const result = await resolve([{ name: '@kubb/plugin-ts', options: { output: { path: './types' } } }])
+
+    expect(result).toHaveLength(1)
+    expect(mockPluginTs).toHaveBeenCalledWith({ output: { path: './types' } })
+  })
+
+  it('resolves a plugin with undefined options using empty object', async () => {
+    vi.doMock('@kubb/plugin-zod', () => ({ pluginZod: mockPluginZod }))
+    const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
+
+    const result = await resolve([{ name: '@kubb/plugin-zod' }])
+
+    expect(result).toHaveLength(1)
+    expect(mockPluginZod).toHaveBeenCalledWith({})
+  })
+
+  it('resolves multiple plugins', async () => {
+    vi.doMock('@kubb/plugin-ts', () => ({ pluginTs: mockPluginTs }))
+    vi.doMock('@kubb/plugin-zod', () => ({ pluginZod: mockPluginZod }))
+    const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
+
+    const result = await resolve([
+      { name: '@kubb/plugin-ts', options: {} },
+      { name: '@kubb/plugin-zod', options: {} },
+    ])
+
+    expect(result).toHaveLength(2)
+  })
+
+  it('falls back to default export when named export is missing', async () => {
+    const mockDefault = vi.fn((options: unknown) => ({
+      name: 'plugin-default-only',
+      options,
+    }))
+    vi.doMock('@my-org/plugin-default-only', () => ({
+      pluginDefaultOnly: undefined,
+      default: mockDefault,
+    }))
+    const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
+
+    const result = await resolve([{ name: '@my-org/plugin-default-only', options: {} }])
+
+    expect(result).toHaveLength(1)
+    expect(mockDefault).toHaveBeenCalledWith({})
+  })
+
+  it('resolves a non-kubb scoped package by its camelCase named export', async () => {
+    const mockFactory = vi.fn((options: unknown) => ({
+      name: 'my-plugin',
+      options,
+    }))
+    vi.doMock('@my-org/my-plugin', () => ({ myPlugin: mockFactory }))
+    const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
+
+    const result = await resolve([{ name: '@my-org/my-plugin', options: {} }])
+
+    expect(result).toHaveLength(1)
+    expect(mockFactory).toHaveBeenCalledWith({})
+  })
+
+  it('resolves an unscoped package by its camelCase named export', async () => {
+    const mockFactory = vi.fn((options: unknown) => ({
+      name: 'my-custom-plugin',
+      options,
+    }))
+    vi.doMock('my-custom-plugin', () => ({ myCustomPlugin: mockFactory }))
+    const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
+
+    const result = await resolve([{ name: 'my-custom-plugin', options: {} }])
+
+    expect(result).toHaveLength(1)
+    expect(mockFactory).toHaveBeenCalledWith({})
+  })
+
+  it('throws when the module exists but exports no callable factory', async () => {
+    vi.doMock('@kubb/plugin-broken', () => ({
+      pluginBroken: 'not-a-function',
+      default: 42,
+    }))
+    const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
+
+    await expect(resolve([{ name: '@kubb/plugin-broken', options: {} }])).rejects.toThrow('does not export a callable factory')
+  })
+})
+
+describe('mergeAdapter', () => {
+  it('returns the disk adapter unchanged when there are no studio options', async () => {
+    const diskAdapter = { name: 'oas', options: { validate: true }, parse: vi.fn() } as any
+
+    const result = await mergeAdapter(diskAdapter, undefined)
+
+    expect(result).toBe(diskAdapter)
+  })
+
+  it('returns undefined when there is no disk adapter, even with studio options', async () => {
+    const result = await mergeAdapter(undefined, { validate: false })
+
+    expect(result).toBeUndefined()
+  })
+
+  it('re-invokes the same @kubb/adapter-<name> factory with merged options', async () => {
+    const mockAdapterOas = vi.fn((options: unknown) => ({ name: 'oas', options, parse: vi.fn() }))
+    vi.doMock('@kubb/adapter-oas', () => ({ adapterOas: mockAdapterOas }))
+    const { mergeAdapter: merge } = await import('./resolveConfig.ts')
+
+    const diskAdapter = { name: 'oas', options: { validate: true, server: { index: 0 } }, parse: vi.fn() } as any
+
+    const result = await merge(diskAdapter, { server: { index: 1 } })
+
+    expect(mockAdapterOas).toHaveBeenCalledWith({ validate: true, server: { index: 1 } })
+    expect(result).toStrictEqual({ name: 'oas', options: { validate: true, server: { index: 1 } }, parse: expect.any(Function) })
+  })
+
+  it('returns the disk adapter unchanged when the resolved package exports no callable factory', async () => {
+    vi.doMock('@kubb/adapter-broken', () => ({ adapterBroken: 'not-a-function' }))
+    const { mergeAdapter: merge } = await import('./resolveConfig.ts')
+
+    const diskAdapter = { name: 'broken', options: {}, parse: vi.fn() } as any
+
+    const result = await merge(diskAdapter, { foo: 'bar' })
+
+    expect(result).toBe(diskAdapter)
   })
 })
