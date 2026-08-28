@@ -34,7 +34,14 @@ export const command = define({
   name: 'generate',
   description:
     'Generate TypeScript types, API clients, React Query hooks, Zod schemas, and more from an OpenAPI specification. Reads kubb.config.ts by default. Pass an OpenAPI file path as the first argument to override the input without editing the config.',
-  examples: ['kubb generate', 'kubb generate ./openapi.yaml', 'kubb generate --config kubb.config.ts', 'kubb generate --watch'].join('\n'),
+  examples: [
+    'kubb generate                     # generate from kubb.config.ts',
+    'kubb generate ./openapi.yaml      # generate from this spec instead of the config input',
+    'kubb generate --watch             # regenerate whenever the spec changes',
+    'kubb studio                       # connect this project to Kubb Studio and generate from the browser',
+    'kubb studio --allowWrite          # let Studio write the generated files to disk',
+    'kubb studio login                 # pair this machine with Studio without connecting',
+  ].join('\n'),
   args: {
     input: {
       type: 'positional',

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { spyOnConsole } from './console.mock.ts'
-import { createAgentSession, disconnect, registerAgent } from './api.ts'
+import { createAgentSession, disconnect, InvalidAgentTokenError, registerAgent } from './api.ts'
 
 const consoleSpy = spyOnConsole()
 
@@ -30,6 +30,10 @@ function forbiddenError(): Error {
   return Object.assign(new Error('Forbidden'), { statusCode: 403 })
 }
 
+function unauthorizedError(): Error {
+  return Object.assign(new Error('invalid_agent_token'), { statusCode: 401 })
+}
+
 beforeEach(() => {
   fetchMock.mockReset()
   vi.useFakeTimers()
@@ -40,6 +44,13 @@ afterEach(() => {
 })
 
 describe('registerAgent', () => {
+  it('throws instead of retrying when Studio rejects the token, so a deleted agent stops the loop', async () => {
+    fetchMock.mockRejectedValue(unauthorizedError())
+
+    await expect(registerAgent({ token: 'agent-token', studioUrl: 'http://localhost:3000' })).rejects.toBeInstanceOf(InvalidAgentTokenError)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
   it('returns true when registration succeeds on the first attempt', async () => {
     fetchMock.mockResolvedValueOnce({})
 

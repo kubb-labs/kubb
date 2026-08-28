@@ -40,7 +40,9 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
     await cli(stripExecArgs(argv), generateCommand, {
       name: 'kubb',
       version,
-      description: generateCommand.description,
+      // Not `generateCommand.description`: gunshi prints this on every subcommand's help too, so
+      // `kubb studio --help` would open with a paragraph about generating types.
+      description: 'Generate code from an OpenAPI specification, or connect the project to Kubb Studio.',
       subCommands: {
         generate: generateCommand,
         init: initCommand,

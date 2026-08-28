@@ -5,7 +5,7 @@ import { version as kubbVersion } from '@kubb/core/package.json'
 import { type AgentHooks, setupHookListener } from './hooks.ts'
 import { type AgentMessage, type ClientInfo, type JSONKubbConfig, isCommandMessage, isDisconnectMessage, isPongMessage } from './protocol/index.ts'
 import { getStorage } from './machine.ts'
-import { createAgentSession, disconnect } from './api.ts'
+import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { generate } from './generate.ts'
 import { agentDefaults, maxHeartbeatIntervalMs } from './constants.ts'
 import { logger } from './logger.ts'
@@ -101,6 +101,12 @@ function reconnect(options: ConnectToStudioOptions): void {
     // unhandledRejection that kills the retry loop instead of trying again.
     connectToStudio(options).catch((error: unknown) => {
       logger.error(`Reconnect attempt to Kubb Studio failed: ${getErrorMessage(error)}`)
+
+      // A rejected token stays rejected, so retrying only spams 401s until the process is killed.
+      if (error instanceof InvalidAgentTokenError) {
+        return
+      }
+
       reconnect(options)
     })
   }, retryInterval)
@@ -425,6 +431,10 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     // socket exists and none of the socket-driven reconnect paths can fire. Retry from here or the
     // slot is dropped for the lifetime of the process.
     logger.error(`Failed to open a Kubb Studio session: ${getErrorMessage(error)}`)
+
+    if (error instanceof InvalidAgentTokenError) {
+      throw error
+    }
 
     reconnect(options)
   }

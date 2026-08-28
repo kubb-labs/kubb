@@ -7,7 +7,8 @@ import type { AgentConnectResponse } from './protocol/index.ts'
 import type { ConnectToStudioOptions } from './connectStudio.ts'
 import { connectToStudio } from './connectStudio.ts'
 
-vi.mock('./api.ts', () => ({
+vi.mock('./api.ts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./api.ts')>()),
   createAgentSession: vi.fn(),
   disconnect: vi.fn().mockResolvedValue(undefined),
 }))
@@ -248,7 +249,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
     await mockWs.trigger('open')
 
-    for (let i = 0; i < 5; i++) {
+    for (const _ of Array.from({ length: 5 })) {
       await vi.advanceTimersByTimeAsync(1_000)
       await mockWs.trigger('message', { data: JSON.stringify({ type: 'pong' }) })
     }

@@ -19,6 +19,22 @@ type ConnectProps = {
 }
 
 /**
+ * Thrown when Studio rejects the agent token itself (401). Retrying cannot help: the token was
+ * revoked, or the agent it belonged to was deleted in the Studio UI. Hosts catch this to forget
+ * the stored credential and pair again.
+ */
+export class InvalidAgentTokenError extends Error {
+  constructor(studioUrl: string, options?: ErrorOptions) {
+    super(`Kubb Studio rejected this agent's token. It was revoked or the agent was deleted in ${studioUrl}.`, options)
+    this.name = 'InvalidAgentTokenError'
+  }
+}
+
+function isTokenRejection(error: unknown): boolean {
+  return (error as { statusCode?: number })?.statusCode === 401
+}
+
+/**
  * Detects a 403 response from the session create endpoint, which means the machine
  * token stored in Studio no longer matches this agent (missing or mismatched).
  */
@@ -66,6 +82,10 @@ export async function createAgentSession({ token, studioUrl }: ConnectProps): Pr
 
     return data
   } catch (error: unknown) {
+    if (isTokenRejection(error)) {
+      throw new InvalidAgentTokenError(studioUrl, { cause: error })
+    }
+
     if (!isMachineTokenRejection(error) || !(await registerAgent({ token, studioUrl }))) {
       throw sessionError(error)
     }
@@ -128,6 +148,10 @@ async function runRegistration({ token, studioUrl, poolSize }: RegisterProps): P
 
       return true
     } catch (error) {
+      if (isTokenRejection(error)) {
+        throw new InvalidAgentTokenError(studioUrl, { cause: error })
+      }
+
       const { message, cause } = (error ?? {}) as { message?: string; cause?: { message?: string } }
       logger.warn('Failed to register agent with Studio, retrying...', cause?.message ?? message ?? String(error))
     }

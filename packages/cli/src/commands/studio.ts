@@ -9,12 +9,13 @@ export const definition = define({
   description:
     'Connect this project to Kubb Studio and generate from the browser. The first run pairs the machine: the CLI shows a code, you approve it in Studio, and the token is stored in ~/.kubb. The connection is read-only unless you grant more with --allowWrite, --allowInput or --allowExec.',
   examples: [
-    'kubb studio',
-    'kubb studio --allowWrite',
-    'kubb studio login',
-    'kubb studio status',
-    'kubb studio logout',
-    'kubb studio --url http://localhost:3000',
+    'kubb studio                              # connect this project, asking what Studio may do',
+    'kubb studio --allowWrite                 # grant writing generated files, no question asked',
+    'kubb studio --allowWrite --allowExec     # also run the formatter, the linter, and postGenerate',
+    'kubb studio login                        # pair this machine without connecting',
+    'kubb studio status                       # show what this machine is paired as',
+    'kubb studio logout                       # forget the stored token',
+    'kubb studio --url http://localhost:3000  # use a self-hosted Studio',
   ].join('\n'),
   args: {
     action: {

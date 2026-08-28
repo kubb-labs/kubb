@@ -5,7 +5,7 @@ import { styleText } from 'node:util'
 import * as prompts from '@clack/prompts'
 import { canUseTTY, isCIEnvironment, toError } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
-import { createFileStorage, createClient, defaultStudioUrl, pollForPairingToken, setStorage, startPairing } from '@kubb/studio'
+import { createFileStorage, createClient, defaultStudioUrl, InvalidAgentTokenError, pollForPairingToken, setStorage, startPairing } from '@kubb/studio'
 import { x } from 'tinyexec'
 import type { CommandRunner } from 'gunshi'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
@@ -87,44 +87,58 @@ async function login({ studioUrl, open }: StudioOptions): Promise<Credentials> {
   }
 }
 
+type Permission = 'allowWrite' | 'allowInput' | 'allowExec'
+
 /**
- * Resolves the write permission for this project.
- *
- * `--allowWrite` grants it outright. Otherwise the CLI asks once per project and remembers the
- * answer, and in CI it stays off, since there is nobody to ask.
- *
- * ponytail: asks at connect rather than at the first write, so the permission is fixed for the
- * session and never has to change mid-connection. Move it to the first write if the up-front
- * question turns out to annoy people who only ever preview.
+ * What each permission is asked as, in the order the questions appear.
  */
-async function resolveAllowWrite(options: StudioOptions, credentials: Credentials): Promise<boolean> {
-  if (options.allowWrite) {
-    return true
-  }
+const PERMISSIONS: ReadonlyArray<{ key: Permission; question: (project: string) => string }> = [
+  { key: 'allowWrite', question: (project) => `Let Kubb Studio write generated files into ${project}?` },
+  { key: 'allowInput', question: () => 'Let Kubb Studio generate from an OpenAPI spec it sends, instead of the one on disk?' },
+  { key: 'allowExec', question: () => 'Let Kubb Studio run the formatter, the linter, and output.postGenerate?' },
+]
 
+/**
+ * Resolves every permission for this project.
+ *
+ * A `--allow*` flag grants that one outright. The rest are asked once per project and the answers
+ * are remembered, and in CI they stay off, since there is nobody to ask.
+ *
+ * ponytail: asks at connect rather than at the first write or exec, so the permissions are fixed
+ * for the session and never have to change mid-connection. Move them to first use if the up-front
+ * questions turn out to annoy people who only ever preview.
+ */
+export async function resolvePermissions(options: StudioOptions, credentials: Credentials): Promise<Record<Permission, boolean>> {
   const project = process.cwd()
-  const remembered = credentials.projects?.[project]?.allowWrite
+  const remembered = credentials.projects?.[project]
+  const granted: Record<Permission, boolean> = { allowWrite: false, allowInput: false, allowExec: false }
+  const answers: Partial<Record<Permission, boolean>> = {}
 
-  if (typeof remembered === 'boolean') {
-    return remembered
+  for (const { key, question } of PERMISSIONS) {
+    if (options[key] || typeof remembered?.[key] === 'boolean') {
+      granted[key] = options[key] || remembered?.[key] === true
+      continue
+    }
+
+    if (isCIEnvironment() || !canUseTTY()) {
+      granted[key] = false
+      continue
+    }
+
+    granted[key] = (await prompts.confirm({ message: question(project), initialValue: false })) === true
+    answers[key] = granted[key]
   }
 
-  if (isCIEnvironment() || !canUseTTY()) {
-    return false
+  // Only the answers are stored: a flag grants for one run, so persisting it would silently keep
+  // the permission on every later run without the flag.
+  if (Object.keys(answers).length) {
+    await writeCredentials({
+      ...credentials,
+      projects: { ...credentials.projects, [project]: { ...remembered, ...answers } },
+    })
   }
 
-  const answer = await prompts.confirm({
-    message: `Let Kubb Studio write generated files into ${project}?`,
-    initialValue: false,
-  })
-  const allowWrite = answer === true
-
-  await writeCredentials({
-    ...credentials,
-    projects: { ...credentials.projects, [project]: { allowWrite } },
-  })
-
-  return allowWrite
+  return granted
 }
 
 /**
@@ -145,7 +159,7 @@ async function loadFirstConfig(options: StudioOptions): Promise<{ configPath: st
 /**
  * Connects this project to Studio and streams generation events until the process is stopped.
  */
-async function connect(options: StudioOptions): Promise<void> {
+async function connect(options: StudioOptions, retryAfterPairing = true): Promise<void> {
   const envToken = process.env.KUBB_AGENT_TOKEN
   const stored = envToken ? null : await readCredentials()
   // A credential is only reused for the Studio it was issued by, so switching `--url` re-pairs
@@ -165,10 +179,10 @@ async function connect(options: StudioOptions): Promise<void> {
   }
 
   const { configPath, config } = await loadFirstConfig(options)
-  const allowWrite = await resolveAllowWrite(options, credentials)
+  const { allowWrite, allowInput, allowExec } = await resolvePermissions(options, credentials)
 
-  if (!isCIEnvironment() && !options.allowExec && options.logLevel !== 'silent') {
-    console.log(styleText('dim', 'Read-only run. Pass --allowExec to run the formatter, the linter, and postGenerate.'))
+  if (!allowWrite && !allowExec && options.logLevel !== 'silent') {
+    console.log(styleText('dim', 'Read-only run. Nothing is written to disk and no command is run.'))
   }
 
   const client = createClient({
@@ -186,15 +200,37 @@ async function connect(options: StudioOptions): Promise<void> {
     },
     root: process.cwd(),
     allowWrite,
-    allowInput: options.allowInput,
-    allowExec: options.allowExec,
+    allowInput,
+    allowExec,
     // The local config bounds what Studio may import. Without this a `generate` payload could name
     // any module in the project's node_modules and the runtime would import it.
     allowedPlugins: config.plugins.map((plugin) => plugin.name),
     logLevel: options.logLevel,
   })
 
-  await client.connect()
+  try {
+    await client.connect()
+  } catch (error) {
+    if (!(error instanceof InvalidAgentTokenError)) {
+      throw error
+    }
+
+    // The token is dead: the agent was deleted in Studio, or the token was revoked. Keeping it
+    // only produces 401s on every run, so forget it and pair again.
+    if (envToken) {
+      throw new Error(`${error.message} Pair again and update KUBB_AGENT_TOKEN.`)
+    }
+
+    await clearCredentials()
+
+    if (isCIEnvironment() || !retryAfterPairing) {
+      throw new Error(`${error.message} Run \`kubb studio login\` to pair again.`)
+    }
+
+    console.log(styleText('yellow', `${error.message} Pairing again...`))
+
+    return connect(options, false)
+  }
 
   if (options.logLevel !== 'silent') {
     console.log(styleText('dim', 'Connected. Press Ctrl+C to disconnect.'))
