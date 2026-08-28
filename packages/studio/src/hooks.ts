@@ -18,7 +18,7 @@ export type AgentHooks = KubbHooks & {
 export function setupHookListener(hooks: Hookable<AgentHooks>, root: string): void {
   hooks.hook('kubb:hook:start', async (ctx) => {
     const { id, command, args } = ctx
-    // Skip hook execution if no id is provided (e.g., during benchmarks or tests)
+    // No id means nothing is waiting on the result (benchmarks, tests).
     if (!id) {
       return
     }

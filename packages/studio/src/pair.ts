@@ -1,5 +1,6 @@
 import { ofetch } from 'ofetch'
 import { agentDefaults } from './constants.ts'
+import { sleep } from './logger.ts'
 import { getMachineToken } from './machine.ts'
 
 /**
@@ -84,10 +85,6 @@ type PollOptions = {
 }
 
 type PollResponse = PairingResult | { error: 'authorization_pending' | 'slow_down' | 'expired_token' | 'access_denied' | 'invalid_grant' }
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
 
 /**
  * Polls until the user approves or denies, honoring the server's `slow_down` back-off.

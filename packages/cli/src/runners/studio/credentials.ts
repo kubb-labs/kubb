@@ -57,7 +57,9 @@ export async function writeCredentials(credentials: Credentials): Promise<void> 
   const file = credentialsPath()
 
   await mkdir(path.dirname(file), { recursive: true, mode: 0o700 })
-  await writeFile(file, `${JSON.stringify(credentials, null, 2)}\n`, { mode: 0o600 })
+  await writeFile(file, `${JSON.stringify(credentials, null, 2)}\n`)
+  // Not `writeFile`'s `mode`, which only applies when the file is created: an existing credential
+  // file keeps whatever mode it had.
   await chmod(file, 0o600)
 }
 

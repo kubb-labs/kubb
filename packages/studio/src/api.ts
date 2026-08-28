@@ -1,19 +1,7 @@
 import { ofetch as $fetch } from 'ofetch'
 import type { AgentConnectResponse } from './protocol/index.ts'
 import { getMachineToken } from './machine.ts'
-import { logger } from './logger.ts'
-
-/**
- * Returns a masked version of a string, showing only the first and last few characters.
- * Useful for logging sensitive values (tokens, keys) without exposing the full value.
- *
- * @example
- * maskString('KUBB_STUDIO-abc123-xyz789') // 'KUBB_STUDIO-…789'
- */
-export function maskString(value: string, start = 8, end = 4): string {
-  if (value.length <= start + end) return value
-  return `${value.slice(0, start)}…${value.slice(-end)}`
-}
+import { logger, maskString, sleep } from './logger.ts'
 
 /**
  * Delay before each registration attempt; the first attempt runs immediately.
@@ -24,14 +12,6 @@ const REGISTER_RETRY_DELAYS_MS = [0, 2_000, 4_000, 8_000]
  * Shared in-flight registration so concurrent pool sessions trigger one purge, not N.
  */
 let registrationInFlight: Promise<boolean> | null = null
-
-/**
- * Waits using the global timer so fake-timer test setups stay in control —
- * `node:timers/promises` is not affected by them.
- */
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
 
 type ConnectProps = {
   studioUrl: string

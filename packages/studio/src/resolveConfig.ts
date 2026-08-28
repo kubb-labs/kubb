@@ -1,4 +1,5 @@
 import type { Adapter, Plugin } from '@kubb/core'
+import { camelCase } from '@internals/utils'
 import { mergeDeep } from 'remeda'
 import type { JSONKubbConfig } from './protocol/index.ts'
 
@@ -40,8 +41,7 @@ function toPluginName(packageName: string): string {
  * ```
  */
 function toExportName(packageName: string): string {
-  // camelCase: 'plugin-react-query' → 'pluginReactQuery'
-  return toPluginName(packageName).replace(/-([a-z])/g, (_, char: string) => char.toUpperCase())
+  return camelCase(toPluginName(packageName))
 }
 
 /**
@@ -69,10 +69,8 @@ async function loadPluginFactory(packageName: string): Promise<Factory> {
 
   const exportName = toExportName(packageName)
 
-  // 1. camelCase named export (e.g. pluginTs, pluginReactQuery, myPlugin)
   if (typeof mod[exportName] === 'function') return mod[exportName] as Factory
 
-  // 2. default export
   if (typeof mod['default'] === 'function') return mod['default'] as Factory
 
   throw new Error(`Plugin "${packageName}" does not export a callable factory. Tried the named export "${exportName}" and "default".`)
@@ -192,14 +190,8 @@ export async function mergePlugins(
 
   if (!activeDiskPlugins) return resolvedStudio
 
-  // Map from resolved plugin name → original studio entry (needed to re-instantiate with merged options)
-  const studioEntryByResolvedName = new Map<string, NonNullable<JSONKubbConfig['plugins']>[0]>()
-  resolvedStudio.forEach((resolved, i) => {
-    const entry = studioPlugins[i]
-    if (entry) {
-      studioEntryByResolvedName.set(resolved.name, entry)
-    }
-  })
+  // Resolved name → the studio entry it came from, needed to re-instantiate with merged options.
+  const studioEntryByResolvedName = new Map(resolvedStudio.map((resolved, index) => [resolved.name, studioPlugins[index]!] as const))
 
   const diskNames = new Set(activeDiskPlugins.map((p) => p.name))
 

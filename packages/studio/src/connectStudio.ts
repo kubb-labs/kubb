@@ -1,4 +1,5 @@
 import process from 'node:process'
+import { getErrorMessage } from '@internals/utils'
 import { type Config, fsStorage, Hookable, memoryStorage } from '@kubb/core'
 import { version as kubbVersion } from '@kubb/core/package.json'
 import { type AgentHooks, setupHookListener } from './hooks.ts'
@@ -10,20 +11,13 @@ import { agentDefaults, maxHeartbeatIntervalMs } from './constants.ts'
 import { logger } from './logger.ts'
 import { assertAllowedPlugins, mergeAdapter, mergePlugins } from './resolveConfig.ts'
 import type WebSocket from 'ws'
-import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
+import { createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream } from './ws.ts'
 
 /**
  * One agent process serves one config file, so one stable key is enough. The saved Studio config
  * survives reconnects, which mint a fresh session id each time, and restarts.
  */
 const STUDIO_CONFIG_KEY = 'studio-config'
-
-/**
- * Normalizes an unknown thrown value into a message string.
- */
-function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error)
-}
 
 export type ConnectToStudioOptions = {
   token: string
@@ -167,23 +161,24 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     const onAbort = () => void teardown({ reason: 'shutdown', retry: false })
 
-    async function cleanup(reason = 'cleanup') {
+    function cleanup(reason = 'cleanup') {
+      clearInterval(heartbeatTimer)
+      heartbeatTimer = undefined
+
+      // This connection is over, so its shutdown listener must go with it. Otherwise every
+      // reconnect leaves one behind on a signal that only fires at process exit.
+      signal?.removeEventListener('abort', onAbort)
+
+      hooks.removeAllHooks()
+
       try {
-        clearInterval(heartbeatTimer)
-        heartbeatTimer = undefined
-
-        // This connection is over, so its shutdown listener must go with it. Otherwise every
-        // reconnect leaves one behind on a signal that only fires at process exit.
-        signal?.removeEventListener('abort', onAbort)
-
-        hooks.removeAllHooks()
-
         ws.close(1000, reason)
-        ws.removeEventListener('open', onOpen)
-        ws.removeEventListener('close', onClose)
-        ws.removeEventListener('error', onError)
-        ws.removeEventListener('message', onMessage)
       } catch {}
+
+      ws.removeEventListener('open', onOpen)
+      ws.removeEventListener('close', onClose)
+      ws.removeEventListener('error', onError)
+      ws.removeEventListener('message', onMessage)
     }
 
     async function readStoredConfig() {
@@ -230,7 +225,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     const onOpen = () => {
       lastPongAt = Date.now()
-      logger.success(tag, 'Connected to Kubb Studio', { slug })
+      logger.success(tag, 'Connected to Kubb Studio')
 
       // Announce readiness without waiting for a `connect` command. The command from the
       // Studio UI is lost when it is sent while the agent is not attached to the session
@@ -250,7 +245,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       }
       serverDisconnected = true
 
-      await cleanup(reason)
+      cleanup(reason)
       // Already tearing down, so a failed disconnect changes nothing.
       await disconnect({ sessionId, studioUrl, token, slug }).catch(() => {})
 
@@ -262,9 +257,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     const onClose = () => teardown({ retry: true })
 
     const onError = () => {
-      logger.error(tag, 'Failed to connect to Kubb Studio', { slug })
+      logger.error(tag, 'Failed to connect to Kubb Studio')
 
-      return teardown({ retry: true })
+      return onClose()
     }
 
     ws.addEventListener('open', onOpen)
@@ -292,7 +287,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       sendAgentMessage(ws, { type: 'ping' })
     }, heartbeatInterval)
 
-    setupEventsStream(ws, hooks)
+    // Only `kubb:error` is ever fired on the connection emitter — every generation event goes
+    // through its own emitter below — so it gets that one listener rather than the full stream.
+    hooks.hook('kubb:error', ({ error }) => sendErrorMessage(ws, error))
 
     const onMessage = async (message: WebSocket.MessageEvent) => {
       try {
@@ -307,16 +304,15 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         }
 
         if (isDisconnectMessage(data)) {
-          logger.warn(tag, 'Agent session disconnected by Studio', { reason: data.reason })
+          logger.warn(tag, `Agent session disconnected by Studio (${data.reason})`)
 
           if (data.reason === 'revoked') {
-            await cleanup(`session_${data.reason}`)
+            cleanup(`session_${data.reason}`)
             return
           }
 
           if (data.reason === 'expired') {
-            // first cleanup the event listeners and then connect again
-            await cleanup()
+            cleanup()
             await reconnect()
 
             return

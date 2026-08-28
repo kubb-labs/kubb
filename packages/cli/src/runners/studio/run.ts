@@ -3,9 +3,9 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as prompts from '@clack/prompts'
-import { canUseTTY, toError } from '@internals/utils'
-import type { CLIOptions } from '@kubb/core'
-import { createFileStorage, createClient, pollForPairingToken, setStorage, startPairing } from '@kubb/studio'
+import { canUseTTY, isCIEnvironment, toError } from '@internals/utils'
+import type { CLIOptions, Config } from '@kubb/core'
+import { createFileStorage, createClient, defaultStudioUrl, pollForPairingToken, setStorage, startPairing } from '@kubb/studio'
 import { x } from 'tinyexec'
 import type { CommandRunner } from 'gunshi'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
@@ -26,7 +26,8 @@ export type StudioOptions = {
   version: string
   configPath?: string
   /**
-   * Base URL of the Studio instance, for a self-hosted deployment.
+   * Base URL of the Studio instance, for a self-hosted deployment. Resolved before it reaches here,
+   * since stored credentials are bound to it.
    */
   studioUrl: string
   allowWrite: boolean
@@ -37,10 +38,6 @@ export type StudioOptions = {
    */
   open: boolean
   logLevel?: CLIOptions['logLevel']
-}
-
-function isCI(): boolean {
-  return Boolean(process.env.CI)
 }
 
 /**
@@ -63,10 +60,6 @@ async function openInBrowser(url: string): Promise<void> {
  * server log, or a `Referer` header.
  */
 async function login({ studioUrl, open }: StudioOptions): Promise<Credentials> {
-  // The machine secret lives here, and pairing binds it, so storage is installed before the first
-  // `getMachineToken()` rather than at `createClient` time.
-  setStorage(createFileStorage(path.join(getKubbHome(), 'cache')))
-
   const session = await startPairing({ studioUrl, name: path.basename(process.cwd()), hostname: hostname() })
 
   console.log(`\nOpen ${styleText('cyan', session.verification_uri)} and approve the code ${styleText('bold', session.user_code)}`)
@@ -116,7 +109,7 @@ async function resolveAllowWrite(options: StudioOptions, credentials: Credential
     return remembered
   }
 
-  if (isCI() || !canUseTTY()) {
+  if (isCIEnvironment() || !canUseTTY()) {
     return false
   }
 
@@ -135,11 +128,26 @@ async function resolveAllowWrite(options: StudioOptions, credentials: Credential
 }
 
 /**
+ * Resolves the project's Kubb config the same way `kubb generate` does, and returns its first
+ * entry. Studio drives one config at a time.
+ */
+async function loadFirstConfig(options: StudioOptions): Promise<{ configPath: string; config: Config }> {
+  const { configPath, configs } = await getConfigs({ configPath: options.configPath, logLevel: options.logLevel })
+  const [config] = configs
+
+  if (!config) {
+    throw new Error('Config not defined, create a kubb.config.ts or pass it with --config')
+  }
+
+  return { configPath, config }
+}
+
+/**
  * Connects this project to Studio and streams generation events until the process is stopped.
  */
 async function connect(options: StudioOptions): Promise<void> {
   const envToken = process.env.KUBB_AGENT_TOKEN
-  const stored = await readCredentials()
+  const stored = envToken ? null : await readCredentials()
   // A credential is only reused for the Studio it was issued by, so switching `--url` re-pairs
   // instead of sending one instance's token to another.
   let credentials: Credentials | null = envToken
@@ -149,41 +157,27 @@ async function connect(options: StudioOptions): Promise<void> {
       : null
 
   if (!credentials) {
-    if (isCI()) {
+    if (isCIEnvironment()) {
       throw new Error(`Not paired with ${options.studioUrl}. Set KUBB_AGENT_TOKEN, or run \`kubb studio login\` on a machine with a browser.`)
     }
 
     credentials = await login(options)
   }
 
-  const { configPath, configs } = await getConfigs({ configPath: options.configPath, logLevel: options.logLevel })
-  const [config] = configs
-
-  if (!config) {
-    throw new Error('Config not defined, create a kubb.config.ts or pass it with --config')
-  }
-
+  const { configPath, config } = await loadFirstConfig(options)
   const allowWrite = await resolveAllowWrite(options, credentials)
 
-  if (!isCI() && !options.allowExec) {
+  if (!isCIEnvironment() && !options.allowExec) {
     console.log(styleText('dim', 'Read-only run. Pass --allow-exec to run the formatter, the linter, and postGenerate.'))
   }
 
   const client = createClient({
     token: credentials.token,
-    storage: createFileStorage(path.join(getKubbHome(), 'cache')),
     studioUrl: options.studioUrl,
     configPath,
     version: options.version,
     // Reloaded on every generate, so an edit to kubb.config.ts is picked up without reconnecting.
-    loadConfig: async () => {
-      const { configs: fresh } = await getConfigs({ configPath: options.configPath, logLevel: options.logLevel })
-      const [first] = fresh
-      if (!first) {
-        throw new Error('Config not defined, create a kubb.config.ts or pass it with --config')
-      }
-      return first
-    },
+    loadConfig: async () => (await loadFirstConfig(options)).config,
     client: {
       kind: 'cli',
       version: options.version,
@@ -237,6 +231,10 @@ async function status(options: StudioOptions): Promise<void> {
  * Runs a `kubb studio` action and reports the outcome to telemetry.
  */
 export async function run(options: StudioOptions): Promise<void> {
+  // The machine secret lives here and pairing binds it, so storage is installed before anything
+  // reads `getMachineToken()` — which `startPairing` does, before any client exists.
+  setStorage(createFileStorage(path.join(getKubbHome(), 'cache')))
+
   const hrStart = process.hrtime()
   const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'studio', kubbVersion: options.version, hrStart, status }))
 
@@ -275,7 +273,7 @@ export const runner: CommandRunner<{ args: typeof definition.args; extensions: {
     action: (values.action ?? 'connect') as StudioAction,
     version,
     configPath: values.config,
-    studioUrl: values.url,
+    studioUrl: values.url ?? defaultStudioUrl,
     allowWrite: values.allowWrite,
     allowInput: values.allowInput,
     allowExec: values.allowExec,

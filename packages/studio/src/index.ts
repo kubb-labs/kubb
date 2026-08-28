@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@internals/utils'
 import { version as kubbVersion } from '@kubb/core/package.json'
 import type { Storage } from 'unstorage'
 import { agentDefaults } from './constants.ts'
@@ -57,7 +58,7 @@ export function createClient({ storage, ...options }: ClientOptions): Client {
       // startup. `connectToStudio` owns the retry loop for the lifetime of the slot.
       for (let index = 0; index < poolSize; index++) {
         void connectToStudio({ ...options, signal: controller.signal }).catch((error: unknown) => {
-          logger.warn(`Session ${index + 1}/${poolSize} failed to connect`, error instanceof Error ? error.message : String(error))
+          logger.warn(`Session ${index + 1}/${poolSize} failed to connect`, getErrorMessage(error))
         })
       }
     },
@@ -67,5 +68,7 @@ export function createClient({ storage, ...options }: ClientOptions): Client {
   }
 }
 
+export { defaultStudioUrl } from './constants.ts'
+export { maskString } from './logger.ts'
 export { createFileStorage, setStorage } from './machine.ts'
 export { pollForPairingToken, startPairing, type PairingResult, type PairingSession } from './pair.ts'

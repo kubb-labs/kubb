@@ -30,7 +30,6 @@ export const definition = define({
     url: {
       type: 'string',
       description: 'Base URL of the Kubb Studio instance',
-      default: 'https://kubb.studio',
     },
     allowWrite: {
       type: 'boolean',

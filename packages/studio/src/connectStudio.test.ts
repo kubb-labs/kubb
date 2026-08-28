@@ -606,6 +606,8 @@ describe('connectToStudio', () => {
     expect(generate).toHaveBeenCalledTimes(2)
   })
 
+  // The event stream is wired to the generation emitter only. The connection emitter carries just
+  // `kubb:error`, so two generations can never interleave their events on one socket.
   it('uses an isolated hooks emitter for each generate command', async () => {
     await connectToStudio(options)
 
@@ -613,12 +615,10 @@ describe('connectToStudio', () => {
       data: JSON.stringify({ type: 'command', command: 'generate', payload: { plugins: [] } }),
     })
 
-    const connectionHooks = vi.mocked(setupEventsStream).mock.calls[0]?.[1]
-    const generationHooks = vi.mocked(setupEventsStream).mock.calls[1]?.[1]
+    const generationHooks = vi.mocked(setupEventsStream).mock.calls[0]?.[1]
     const generateHooks = vi.mocked(generate).mock.calls[0]?.[0].hooks
 
-    expect(generationHooks).toBeDefined()
-    expect(generationHooks).not.toBe(connectionHooks)
+    expect(setupEventsStream).toHaveBeenCalledTimes(1)
     expect(generateHooks).toBe(generationHooks)
   })
 
@@ -806,7 +806,7 @@ describe('connectToStudio', () => {
       data: JSON.stringify({ type: 'disconnect', reason: 'revoked' }),
     })
 
-    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('disconnected by Studio'))
+    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('disconnected by Studio (revoked)'))
     expect(mockWs.closed).toBe(true)
     // disconnect API must NOT be called — server already knows about the closure
     expect(disconnect).not.toHaveBeenCalled()
@@ -823,7 +823,7 @@ describe('connectToStudio', () => {
       data: JSON.stringify({ type: 'disconnect', reason: 'expired' }),
     })
 
-    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('disconnected by Studio'))
+    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('disconnected by Studio (expired)'))
     expect(mockWs.closed).toBe(true)
     expect(disconnect).not.toHaveBeenCalled()
     // expired sessions trigger a reconnect (unlike revoked)

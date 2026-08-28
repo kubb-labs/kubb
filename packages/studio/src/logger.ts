@@ -27,3 +27,18 @@ export const logger = {
   // through rather than flattened by hand.
   exception: (tag: string, error: unknown) => console.error(`[${tag}]`, error),
 }
+
+/**
+ * Masks a secret for logs, keeping only enough of it to tell two values apart.
+ */
+export function maskString(value: string): string {
+  return value.length <= 12 ? value : `${value.slice(0, 8)}…${value.slice(-4)}`
+}
+
+/**
+ * Waits using the global timer so fake-timer test setups stay in control — `node:timers/promises`
+ * is not affected by them.
+ */
+export function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}

@@ -1,4 +1,4 @@
-import process from 'node:process'
+import { getElapsedMs } from '@internals/utils'
 import { Diagnostics, type Hookable } from '@kubb/core'
 import WebSocket from 'ws'
 import type { AgentMessage, DataMessagePayload } from './protocol/index.ts'
@@ -58,13 +58,24 @@ export function sendAgentMessage(ws: WebSocket, message: AgentMessage): void {
 }
 
 /**
+ * Sends a single `kubb:error` to Studio, stamped from the same per-socket counter the event stream
+ * uses so Studio can still order it against the generation events around it.
+ */
+export function sendErrorMessage(ws: WebSocket, error: Error): void {
+  sendAgentMessage(ws, {
+    type: 'data',
+    payload: { type: 'kubb:error', data: [{ message: error.message, stack: error.stack }], timestamp: Date.now(), seq: nextEventSeq(ws) },
+  })
+}
+
+/**
  * Forwards selected Kubb lifecycle events to Studio as data messages for the active session.
  */
 export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): void {
-  function sendDataMessage(payload: Omit<DataMessagePayload, 'seq'>) {
+  function sendDataMessage(payload: Omit<DataMessagePayload, 'seq' | 'timestamp'>) {
     sendAgentMessage(ws, {
       type: 'data',
-      payload: { ...payload, seq: nextEventSeq(ws) },
+      payload: { ...payload, timestamp: Date.now(), seq: nextEventSeq(ws) },
     })
   }
 
@@ -72,7 +83,6 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
     sendDataMessage({
       type: 'kubb:plugin:start',
       data: [{ plugin: ctx.plugin }],
-      timestamp: Date.now(),
     })
   })
 
@@ -80,7 +90,6 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
     sendDataMessage({
       type: 'kubb:plugin:end',
       data: [{ plugin: ctx.plugin, duration: ctx.duration, success: ctx.success }],
-      timestamp: Date.now(),
     })
   })
 
@@ -88,7 +97,6 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
     sendDataMessage({
       type: 'kubb:build:start',
       data: [{ config: { name: config.name }, adapter: { name: adapter.name } }],
-      timestamp: Date.now(),
     })
   })
 
@@ -96,7 +104,6 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
     sendDataMessage({
       type: 'kubb:build:end',
       data: [{ files: files.map((file) => ({ path: file.path, name: file.name })), outputDir }],
-      timestamp: Date.now(),
     })
   })
 
@@ -104,7 +111,6 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
     sendDataMessage({
       type: 'kubb:files:processing:start',
       data: [{ total: files.length }],
-      timestamp: Date.now(),
     })
   })
 
@@ -121,7 +127,6 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
           })),
         },
       ],
-      timestamp: Date.now(),
     })
   })
 
@@ -129,14 +134,13 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
     sendDataMessage({
       type: 'kubb:files:processing:end',
       data: [{ total: files.length }],
-      timestamp: Date.now(),
     })
   })
 
   // The three log levels differ only in their event name.
   for (const type of ['kubb:info', 'kubb:success', 'kubb:warn'] as const) {
     hooks.hook(type, ({ message, info }) => {
-      sendDataMessage({ type, data: [{ message, info }], timestamp: Date.now() })
+      sendDataMessage({ type, data: [{ message, info }] })
     })
   }
 
@@ -149,7 +153,6 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
           plugins: config.plugins.length,
         },
       ],
-      timestamp: Date.now(),
     })
   })
 
@@ -161,20 +164,17 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
     sendDataMessage({
       type: 'kubb:generation:end',
       data: [{ config, storage: files }],
-      timestamp: Date.now(),
     })
 
     if (!hrStart) {
       return
     }
 
-    const [seconds, nanoseconds] = process.hrtime(hrStart)
-    const duration = Math.round(seconds * 1000 + nanoseconds / 1_000_000)
+    const duration = Math.round(getElapsedMs(hrStart))
 
     sendDataMessage({
       type: 'kubb:generation:summary',
       data: [{ duration, fileCount: filesCreated ?? 0, failedPlugins: Diagnostics.failedPlugins(diagnostics).length, status: status ?? 'success' }],
-      timestamp: Date.now(),
     })
   })
 
@@ -187,7 +187,6 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
           stack: error.stack,
         },
       ],
-      timestamp: Date.now(),
     })
   })
 
@@ -203,7 +202,7 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
     'kubb:hooks:end',
   ] as const) {
     hooks.hook(type, () => {
-      sendDataMessage({ type, data: [], timestamp: Date.now() })
+      sendDataMessage({ type, data: [] })
     })
   }
 
@@ -211,7 +210,6 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
     sendDataMessage({
       type: 'kubb:hook:start',
       data: [{ id, command, args: args ? [...args] : undefined }],
-      timestamp: Date.now(),
     })
   })
 
@@ -219,7 +217,6 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
     sendDataMessage({
       type: 'kubb:hook:line',
       data: [{ id, line }],
-      timestamp: Date.now(),
     })
   })
 
@@ -235,7 +232,6 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
           error: error ? { message: error.message, stack: error.stack } : undefined,
         },
       ],
-      timestamp: Date.now(),
     })
   })
 }

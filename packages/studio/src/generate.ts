@@ -24,17 +24,18 @@ export function tokenize(command: string): Array<string> {
 const probes = new Map<string, Promise<boolean>>()
 
 function isExecutableAvailable(name: string): Promise<boolean> {
-  const probe =
-    probes.get(name) ??
-    new Promise<boolean>((resolve) => {
-      const child = spawn(name, ['--version'], { stdio: 'ignore' })
-      child.on('close', (code) => resolve(code === 0))
-      child.on('error', () => resolve(false))
-    })
+  if (!probes.has(name)) {
+    probes.set(
+      name,
+      new Promise<boolean>((resolve) => {
+        const child = spawn(name, ['--version'], { stdio: 'ignore' })
+        child.on('close', (code) => resolve(code === 0))
+        child.on('error', () => resolve(false))
+      }),
+    )
+  }
 
-  probes.set(name, probe)
-
-  return probe
+  return probes.get(name)!
 }
 
 /**
@@ -48,6 +49,16 @@ export async function detectExecutable<TName extends string>(names: ReadonlyArra
   }
 
   return null
+}
+
+/**
+ * How one formatter or linter is invoked: the executable, the argv it takes for an output
+ * directory, and what to report when it is not installed.
+ */
+type ToolCommand = {
+  command: string
+  args: (outputPath: string) => Array<string>
+  errorMessage: string
 }
 
 /**
@@ -73,7 +84,7 @@ export const formatters = {
     args: (outputPath: string) => [outputPath],
     errorMessage: 'Oxfmt not found',
   },
-} as const
+} satisfies Record<string, ToolCommand>
 
 /**
  * CLI command descriptors for each supported linter.
@@ -99,18 +110,18 @@ export const linters = {
     args: (outputPath: string) => ['--fix', '--no-ignore', outputPath],
     errorMessage: 'Oxlint not found',
   },
-} as const
+} satisfies Record<string, ToolCommand>
 
 /**
  * The two post-build tool steps. Formatting and linting differ only in which tools they look for,
  * so they run through one loop rather than two near-identical blocks.
  */
-const STEPS = [
+const STEPS: ReadonlyArray<{ kind: 'format' | 'lint'; tools: Record<string, ToolCommand>; detect: ReadonlyArray<string> }> = [
   // `detect` is the preference order for `auto`, most-preferred first. Spelled out rather than
   // taken from the table's key order, which is arbitrary and silently changes what `auto` picks.
   { kind: 'format', tools: formatters, detect: ['oxfmt', 'biome', 'prettier'] },
   { kind: 'lint', tools: linters, detect: ['oxlint', 'biome', 'eslint'] },
-] as const
+]
 
 /**
  * Absolute path of the directory the formatter and linter are pointed at.
@@ -162,14 +173,15 @@ function isProblemErrorDiagnostic(diagnostic: Diagnostic): diagnostic is Diagnos
  * and message, when known) into the message so downstream logging shows *what* failed.
  */
 export function formatGenerationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error {
-  const errors = diagnostics.filter(isProblemErrorDiagnostic)
-  const reasons = errors.map((diagnostic) => (diagnostic.plugin ? `${diagnostic.plugin}: ${diagnostic.message}` : diagnostic.message))
+  const reasons = diagnostics
+    .filter(isProblemErrorDiagnostic)
+    .map((diagnostic) => (diagnostic.plugin ? `${diagnostic.plugin}: ${diagnostic.message}` : diagnostic.message))
 
-  const count = errors.length
-  const summary = count > 0 ? `: ${count} error${count === 1 ? '' : 's'}` : ''
-  const detail = reasons.length ? ` — ${reasons.join('; ')}` : ''
+  if (!reasons.length) {
+    return new Error('Generation failed')
+  }
 
-  return new Error(`Generation failed${summary}${detail}`)
+  return new Error(`Generation failed: ${reasons.length} error${reasons.length === 1 ? '' : 's'} — ${reasons.join('; ')}`)
 }
 
 /**
@@ -232,19 +244,15 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
     await hooks.callHook(`kubb:${step.kind}:start`)
 
     // `auto` means "whatever is installed", so the tool is detected now rather than at config time.
-    let tool = setting
-    if (tool === 'auto') {
-      const detected = await detectExecutable(step.detect)
+    const tool = setting === 'auto' ? await detectExecutable(step.detect) : setting
 
-      if (!detected) {
-        await hooks.callHook('kubb:warn', { message: `No ${step.kind}ter found (${step.detect.join(', ')}). Skipping ${step.kind}ting.` })
-      } else {
-        tool = detected
-        await hooks.callHook('kubb:info', { message: `Auto-detected ${step.kind}ter: ${styleText('dim', tool)}` })
-      }
+    if (!tool) {
+      await hooks.callHook('kubb:warn', { message: `No ${step.kind}ter found (${step.detect.join(', ')}). Skipping ${step.kind}ting.` })
+    } else if (setting === 'auto') {
+      await hooks.callHook('kubb:info', { message: `Auto-detected ${step.kind}ter: ${styleText('dim', tool)}` })
     }
 
-    const command = tool !== 'auto' ? step.tools[tool as keyof typeof step.tools] : undefined
+    const command = tool ? step.tools[tool] : undefined
 
     if (command) {
       try {
