@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs'
+import { createRequire } from 'node:module'
+import { pathToFileURL } from 'node:url'
 import type { Adapter, Plugin } from '@kubb/core'
 import { camelCase } from '@internals/utils'
 import { mergeDeep } from 'remeda'
@@ -13,6 +16,27 @@ import type { JSONKubbConfig } from './protocol/index.ts'
  */
 
 type Factory = (options: unknown) => Plugin
+
+/**
+ * Imports a package, falling back to how the user's project would resolve it.
+ *
+ * `import()` resolves from this file, so a linked or globally installed Studio (`pnpm link`,
+ * `npm i -g`) only sees its own `node_modules` and misses the plugins installed next to the user's
+ * config. The retry resolves from `process.cwd()` instead.
+ */
+async function importFromProject(packageName: string): Promise<Record<string, unknown>> {
+  try {
+    return await import(packageName)
+  } catch {
+    const require = createRequire(pathToFileURL(`${process.cwd()}/`))
+    // `require.resolve` picks the package's `require` condition, so prefer the ESM build sitting
+    // next to it. Loading the CJS copy would pull in a second `@kubb/core` instance.
+    const resolved = require.resolve(packageName)
+    const esm = resolved.replace(/\.cjs$/, '.js')
+
+    return await import(pathToFileURL(esm !== resolved && existsSync(esm) ? esm : resolved).href)
+  }
+}
 
 /**
  * Strips the scope and any leading path segments from a plugin package name,
@@ -62,9 +86,9 @@ async function loadPluginFactory(packageName: string): Promise<Factory> {
 
   let mod: Record<string, unknown>
   try {
-    mod = await import(packageName)
-  } catch {
-    throw new Error(`Plugin "${packageName}" could not be loaded. Make sure it is installed: \`npm install ${packageName}\``)
+    mod = await importFromProject(packageName)
+  } catch (cause) {
+    throw new Error(`Plugin "${packageName}" could not be loaded. Make sure it is installed: \`npm install ${packageName}\``, { cause })
   }
 
   const exportName = toExportName(packageName)
@@ -230,7 +254,7 @@ export async function mergeAdapter(diskAdapter: Adapter | undefined, studioOptio
   }
 
   const packageName = `@kubb/adapter-${diskAdapter.name}`
-  const mod = (await import(packageName)) as Record<string, unknown>
+  const mod = await importFromProject(packageName)
   const factory = mod[toExportName(packageName)]
 
   if (typeof factory !== 'function') {
