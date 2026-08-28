@@ -4,7 +4,7 @@ import type { Storage } from 'unstorage'
 import { agentDefaults } from './constants.ts'
 import { registerAgent } from './api.ts'
 import { type ConnectToStudioOptions, connectToStudio } from './connectStudio.ts'
-import { logger } from './logger.ts'
+import { logger, setLogLevel } from './logger.ts'
 import { setStorage } from './machine.ts'
 
 export type ClientOptions = Omit<ConnectToStudioOptions, 'signal'> & {
@@ -13,6 +13,11 @@ export type ClientOptions = Omit<ConnectToStudioOptions, 'signal'> & {
    * which gives up a stable machine identity across restarts.
    */
   storage?: Storage
+  /**
+   * How much the client prints. `silent` keeps errors only, `verbose` adds the per-message protocol
+   * chatter. A level, not a logger: a host chooses how loud, not where the output goes.
+   */
+  logLevel?: 'silent' | 'info' | 'verbose'
 }
 
 export type Client = {
@@ -39,7 +44,9 @@ export type Client = {
  * await studio.connect()
  * ```
  */
-export function createClient({ storage, ...options }: ClientOptions): Client {
+export function createClient({ storage, logLevel, ...options }: ClientOptions): Client {
+  setLogLevel(logLevel)
+
   if (storage) {
     setStorage(storage)
   }

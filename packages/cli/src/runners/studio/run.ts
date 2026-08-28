@@ -167,7 +167,7 @@ async function connect(options: StudioOptions): Promise<void> {
   const { configPath, config } = await loadFirstConfig(options)
   const allowWrite = await resolveAllowWrite(options, credentials)
 
-  if (!isCIEnvironment() && !options.allowExec) {
+  if (!isCIEnvironment() && !options.allowExec && options.logLevel !== 'silent') {
     console.log(styleText('dim', 'Read-only run. Pass --allow-exec to run the formatter, the linter, and postGenerate.'))
   }
 
@@ -191,11 +191,14 @@ async function connect(options: StudioOptions): Promise<void> {
     // The local config bounds what Studio may import. Without this a `generate` payload could name
     // any module in the project's node_modules and the runtime would import it.
     allowedPlugins: config.plugins.map((plugin) => plugin.name),
+    logLevel: options.logLevel,
   })
 
   await client.connect()
 
-  console.log(styleText('dim', 'Connected. Press Ctrl+C to disconnect.'))
+  if (options.logLevel !== 'silent') {
+    console.log(styleText('dim', 'Connected. Press Ctrl+C to disconnect.'))
+  }
 
   await new Promise<void>((resolve) => {
     const stop = () => {
@@ -239,7 +242,9 @@ export async function run(options: StudioOptions): Promise<void> {
   const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'studio', kubbVersion: options.version, hrStart, status }))
 
   try {
-    console.warn(styleText('yellow', 'This feature is still under development, use with caution'))
+    if (options.logLevel !== 'silent') {
+      console.warn(styleText('yellow', 'This feature is still under development, use with caution'))
+    }
 
     if (!ACTIONS.includes(options.action)) {
       throw new Error(`Unknown action "${options.action}", expected one of ${ACTIONS.join(', ')}`)

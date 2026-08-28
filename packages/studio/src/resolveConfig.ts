@@ -185,34 +185,34 @@ export async function mergePlugins(
   if (!activeDiskPlugins && !studioPlugins) return undefined
   if (!studioPlugins) return activeDiskPlugins
 
-  // Resolve studio JSON entries into Plugin objects so names are consistent (e.g. 'plugin-oas')
-  const resolvedStudio = await resolvePlugins(studioPlugins)
+  if (!activeDiskPlugins) return resolvePlugins(studioPlugins)
 
-  if (!activeDiskPlugins) return resolvedStudio
+  // Matched on the package's base name rather than by instantiating first. Every Kubb plugin
+  // factory returns exactly that (`@kubb/plugin-ts` → `plugin-ts`), enforced by the `satisfies` on
+  // each factory's name, and the line above already trusts it for `disabledPlugins`.
+  const studioEntryByName = new Map(studioPlugins.map((entry) => [toPluginName(entry.name), entry] as const))
+  const diskNames = new Set(activeDiskPlugins.map((plugin) => plugin.name))
 
-  // Resolved name → the studio entry it came from, needed to re-instantiate with merged options.
-  const studioEntryByResolvedName = new Map(resolvedStudio.map((resolved, index) => [resolved.name, studioPlugins[index]!] as const))
-
-  const diskNames = new Set(activeDiskPlugins.map((p) => p.name))
-
-  const mergedDisk = await Promise.all(
+  // Each plugin is instantiated once, with its final options. Resolving the whole payload first
+  // just to read the names would build every overlapping plugin twice and discard the first.
+  const merged = await Promise.all(
     activeDiskPlugins.map(async (diskPlugin) => {
-      const studioEntry = studioEntryByResolvedName.get(diskPlugin.name)
+      const studioEntry = studioEntryByName.get(diskPlugin.name)
       if (!studioEntry) return diskPlugin
 
-      // Merge options (disk as base, studio overrides), then re-instantiate the plugin
-      // so that all internal closures reference the correctly merged options. A plugin
-      // that never sets `options` on its returned object (e.g. `@kubb/plugin-barrel`)
-      // leaves `diskPlugin.options` undefined, which `mergeDeep` can't accept.
-      const mergedOptions = mergeDeep((diskPlugin.options as Record<string, unknown>) ?? {}, (studioEntry.options as Record<string, unknown>) ?? {})
-      const resolved = await resolvePlugins([{ name: studioEntry.name, options: mergedOptions }])
-      return resolved[0] ?? diskPlugin
+      // Disk as base, studio overrides, then re-instantiate so the plugin's closures reference the
+      // merged values. A plugin that never sets `options` (e.g. `@kubb/plugin-barrel`) leaves
+      // `diskPlugin.options` undefined, which `mergeDeep` can't accept.
+      const options = mergeDeep((diskPlugin.options as Record<string, unknown>) ?? {}, (studioEntry.options as Record<string, unknown>) ?? {})
+      const [resolved] = await resolvePlugins([{ name: studioEntry.name, options }])
+
+      return resolved ?? diskPlugin
     }),
   )
 
-  const studioOnly = resolvedStudio.filter((p) => !diskNames.has(p.name))
+  const studioOnly = studioPlugins.filter((entry) => !diskNames.has(toPluginName(entry.name)))
 
-  return [...mergedDisk, ...studioOnly]
+  return [...merged, ...(await resolvePlugins(studioOnly))]
 }
 
 /**

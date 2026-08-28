@@ -24,6 +24,7 @@ import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.t
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import setupReporters, { selectReporters } from '../../loggers/utils.ts'
 import { getConfigs, isNewerVersion, runHook, runPostGenerate, startWatcher } from './utils.ts'
+import { FORMATTER_PREFERENCE, LINTER_PREFERENCE } from '@internals/utils'
 import { detectTool, formatters, linters } from '../../tools.ts'
 
 type GenerateProps = {
@@ -145,7 +146,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
         tool: {
           label: 'formatter',
           map: formatters,
-          detect: () => detectTool(['oxfmt', 'biome', 'prettier'] as const),
+          detect: () => detectTool(FORMATTER_PREFERENCE),
           successPrefix: 'Formatting',
           noToolMessage: 'No formatter found (oxfmt, biome, or prettier). Skipping formatting.',
         },
@@ -158,7 +159,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
         tool: {
           label: 'linter',
           map: linters,
-          detect: () => detectTool(['oxlint', 'biome', 'eslint'] as const),
+          detect: () => detectTool(LINTER_PREFERENCE),
           successPrefix: 'Linting',
           noToolMessage: 'No linter found (oxlint, biome, or eslint). Skipping linting.',
         },

@@ -71,6 +71,43 @@ export type ConnectToStudioOptions = {
  * Opens a WebSocket connection to Kubb Studio and handles incoming commands.
  * Automatically reconnects after `retryInterval` ms on close or error.
  */
+/**
+ * Schedules another connection attempt.
+ *
+ * Hoisted out of `connectToStudio` on purpose: a pending retry timer reaches its whole enclosing
+ * scope, so keeping it inside would pin the closed socket, the hook emitter, and the session id
+ * alive for the length of every retry interval.
+ */
+function reconnect(options: ConnectToStudioOptions): void {
+  const { signal, retryInterval = agentDefaults.retryIntervalMs } = options
+
+  if (signal?.aborted) {
+    return
+  }
+
+  logger.info(`Retrying connection in ${retryInterval}ms to Kubb Studio ...`)
+
+  const cancel = () => clearTimeout(timer)
+  const timer = setTimeout(() => {
+    // Removed here rather than left to `{ once: true }`: the signal only aborts at shutdown, so one
+    // listener per retry would accumulate for the whole life of a down-Studio retry loop.
+    signal?.removeEventListener('abort', cancel)
+
+    if (signal?.aborted) {
+      return
+    }
+
+    // The rejection is never awaited, so it has to be caught here or it surfaces as an
+    // unhandledRejection that kills the retry loop instead of trying again.
+    connectToStudio(options).catch((error: unknown) => {
+      logger.error(`Reconnect attempt to Kubb Studio failed: ${getErrorMessage(error)}`)
+      reconnect(options)
+    })
+  }, retryInterval)
+
+  signal?.addEventListener('abort', cancel, { once: true })
+}
+
 export async function connectToStudio(options: ConnectToStudioOptions): Promise<void> {
   const {
     token,
@@ -86,7 +123,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     allowedPlugins,
     poolSize = agentDefaults.poolSize,
     root = process.cwd(),
-    retryInterval = agentDefaults.retryIntervalMs,
     heartbeatInterval: requestedHeartbeatInterval = agentDefaults.heartbeatIntervalMs,
     signal,
   } = options
@@ -99,36 +135,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   // Each connection gets its own isolated event emitter so generation events
   // from one session do not bleed into another session's WebSocket stream.
   const hooks = new Hookable<AgentHooks>()
-
-  async function reconnect() {
-    if (signal?.aborted) {
-      return
-    }
-
-    logger.info(`Retrying connection in ${retryInterval}ms to Kubb Studio ...`)
-
-    // On reconnect, don't reuse the initial session, always create a fresh one.
-    // connectToStudio rejects when it can't reach Studio (e.g. a 502), and that
-    // rejection is never awaited here, so it must be caught or it surfaces as an
-    // unhandledRejection that kills the retry loop instead of trying again.
-    const cancel = () => clearTimeout(timer)
-    const timer = setTimeout(() => {
-      // Removed here rather than left to `{ once: true }`: the signal only aborts at shutdown, so
-      // one listener per retry would accumulate for the whole life of a down-Studio retry loop.
-      signal?.removeEventListener('abort', cancel)
-
-      if (signal?.aborted) {
-        return
-      }
-
-      connectToStudio(options).catch((error: unknown) => {
-        logger.error(`Reconnect attempt to Kubb Studio failed: ${getErrorMessage(error)}`)
-        reconnect()
-      })
-    }, retryInterval)
-
-    signal?.addEventListener('abort', cancel, { once: true })
-  }
 
   try {
     const { sessionId, slug, wsUrl, isSandbox } = await createAgentSession({ token, studioUrl })
@@ -250,7 +256,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       await disconnect({ sessionId, studioUrl, token, slug }).catch(() => {})
 
       if (retry) {
-        await reconnect()
+        reconnect(options)
       }
     }
 
@@ -295,7 +301,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       try {
         const data = JSON.parse(message.data as string) as AgentMessage
 
-        logger.info(tag, `Received "${data.type}" from Studio`)
+        logger.debug(tag, `Received "${data.type}" from Studio`)
 
         if (isPongMessage(data)) {
           lastPongAt = Date.now()
@@ -313,7 +319,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
           if (data.reason === 'expired') {
             cleanup()
-            await reconnect()
+            reconnect(options)
 
             return
           }
@@ -420,6 +426,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     // slot is dropped for the lifetime of the process.
     logger.error(`Failed to open a Kubb Studio session: ${getErrorMessage(error)}`)
 
-    await reconnect()
+    reconnect(options)
   }
 }

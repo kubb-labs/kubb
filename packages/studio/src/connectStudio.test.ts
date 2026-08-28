@@ -1,5 +1,6 @@
 import process from 'node:process'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { setLogLevel } from './logger.ts'
 import { spyOnConsole } from './console.mock.ts'
 import { MockWebSocket } from './websocket.mock.ts'
 import type { AgentConnectResponse } from './protocol/index.ts'
@@ -79,6 +80,8 @@ describe('connectToStudio', () => {
   beforeEach(() => {
     mockWs = new MockWebSocket()
     controller = new AbortController()
+    // These drive `connectToStudio` directly, so nothing calls `createClient` to set the level.
+    setLogLevel('verbose')
 
     getLatestStudioConfigFromStorage.mockResolvedValue(null)
     saveStudioConfigToStorage.mockResolvedValue(undefined)
@@ -185,7 +188,7 @@ describe('connectToStudio', () => {
 
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'pong' }) })
 
-    expect(consoleSpy.info).toHaveBeenCalledWith(expect.stringContaining('Received "pong" from Studio'))
+    expect(consoleSpy.debug).toHaveBeenCalledWith(expect.stringContaining('Received "pong" from Studio'))
   })
 
   it('logs a warning for unknown message types', async () => {

@@ -3,7 +3,7 @@ import { basename, dirname, resolve } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { createModuleLoader } from '@internals/shared'
-import { createSerialRunner, toError } from '@internals/utils'
+import { createSerialRunner, toError, tokenize } from '@internals/utils'
 import type { CLIOptions, Config, KubbHooks, PossibleConfig, PostGenerateCommand, Hookable } from '@kubb/core'
 import { NonZeroExitError, x } from 'tinyexec'
 import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
@@ -130,19 +130,6 @@ export function isNewerVersion(current: string, latest: string): boolean {
   if (!isValid(current) || !isValid(latest)) return false
 
   return isGreater(truncate(latest, 'patch') as string, truncate(current, 'patch') as string)
-}
-
-/**
- * Tokenizes a shell command string, respecting single and double quotes.
- *
- * @example
- * ```ts
- * tokenize('git commit -m "initial commit"')
- * // → ['git', 'commit', '-m', 'initial commit']
- * ```
- */
-function tokenize(command: string): Array<string> {
-  return (command.match(/[^\s"']+|"([^"]*)"|'([^']*)'/g) ?? []).map((token) => token.replace(/^["']|["']$/g, ''))
 }
 
 /**

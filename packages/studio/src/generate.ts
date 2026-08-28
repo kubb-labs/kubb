@@ -2,115 +2,25 @@ import { hash } from 'node:crypto'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { spawn } from 'node:child_process'
 import { type Config, createKubb, type Diagnostic, Diagnostics, type Hookable } from '@kubb/core'
+import {
+  FORMATTER_PREFERENCE,
+  LINTER_PREFERENCE,
+  formatters,
+  linters,
+  memoize,
+  tokenize,
+  type ToolCommand,
+  detectTool as detectUncachedTool,
+} from '@internals/utils'
 import { type AgentHooks, waitForHookEnd } from './hooks.ts'
 
 /**
- * Tokenizes a shell command string, respecting single and double quotes.
- *
- * @example
- * tokenize('git commit -m "initial commit"')
- * // → ['git', 'commit', '-m', 'initial commit']
+ * `isToolAvailable` spawns a process, and a long-lived connection generates repeatedly, so each
+ * executable is probed once per process. The CLI deliberately does not memoize: a `--watch` build
+ * should keep noticing a tool installed mid-session.
  */
-export function tokenize(command: string): Array<string> {
-  return (command.match(/[^\s"']+|"([^"]*)"|'([^']*)'/g) ?? []).map((token) => token.replace(/^["']|["']$/g, ''))
-}
-
-/**
- * What is installed cannot change while the process runs, and the formatter and linter candidate
- * lists overlap, so each executable is probed once per process.
- */
-const probes = new Map<string, Promise<boolean>>()
-
-function isExecutableAvailable(name: string): Promise<boolean> {
-  if (!probes.has(name)) {
-    probes.set(
-      name,
-      new Promise<boolean>((resolve) => {
-        const child = spawn(name, ['--version'], { stdio: 'ignore' })
-        child.on('close', (code) => resolve(code === 0))
-        child.on('error', () => resolve(false))
-      }),
-    )
-  }
-
-  return probes.get(name)!
-}
-
-/**
- * Returns the first executable from `names` found on the current system, or `null` when none are found.
- */
-export async function detectExecutable<TName extends string>(names: ReadonlyArray<TName>): Promise<TName | null> {
-  for (const name of names) {
-    if (await isExecutableAvailable(name)) {
-      return name
-    }
-  }
-
-  return null
-}
-
-/**
- * How one formatter or linter is invoked: the executable, the argv it takes for an output
- * directory, and what to report when it is not installed.
- */
-type ToolCommand = {
-  command: string
-  args: (outputPath: string) => Array<string>
-  errorMessage: string
-}
-
-/**
- * CLI command descriptors for each supported code formatter.
- *
- * Each entry contains the executable `command`, an `args` factory that maps an
- * output path to the correct argument list, and an `errorMessage` shown when
- * the formatter is not found.
- */
-export const formatters = {
-  prettier: {
-    command: 'prettier',
-    args: (outputPath: string) => ['--ignore-unknown', '--write', outputPath],
-    errorMessage: 'Prettier not found',
-  },
-  biome: {
-    command: 'biome',
-    args: (outputPath: string) => ['format', '--write', outputPath],
-    errorMessage: 'Biome not found',
-  },
-  oxfmt: {
-    command: 'oxfmt',
-    args: (outputPath: string) => [outputPath],
-    errorMessage: 'Oxfmt not found',
-  },
-} satisfies Record<string, ToolCommand>
-
-/**
- * CLI command descriptors for each supported linter.
- *
- * Each entry contains the executable `command`, an `args` factory that maps an
- * output path to the correct argument list, and an `errorMessage` shown when
- * the linter is not found.
- */
-export const linters = {
-  eslint: {
-    command: 'eslint',
-    args: (outputPath: string) => [outputPath, '--fix'],
-    errorMessage: 'Eslint not found',
-  },
-  biome: {
-    command: 'biome',
-    args: (outputPath: string) => ['lint', '--fix', outputPath],
-    errorMessage: 'Biome not found',
-  },
-  oxlint: {
-    command: 'oxlint',
-    // --no-ignore so oxlint lints the folder even when it's gitignored (generated output dirs usually are).
-    args: (outputPath: string) => ['--fix', '--no-ignore', outputPath],
-    errorMessage: 'Oxlint not found',
-  },
-} satisfies Record<string, ToolCommand>
+const detectTool = memoize(new Map<ReadonlyArray<string>, Promise<string | null>>(), detectUncachedTool)
 
 /**
  * The two post-build tool steps. Formatting and linting differ only in which tools they look for,
@@ -119,8 +29,8 @@ export const linters = {
 const STEPS: ReadonlyArray<{ kind: 'format' | 'lint'; tools: Record<string, ToolCommand>; detect: ReadonlyArray<string> }> = [
   // `detect` is the preference order for `auto`, most-preferred first. Spelled out rather than
   // taken from the table's key order, which is arbitrary and silently changes what `auto` picks.
-  { kind: 'format', tools: formatters, detect: ['oxfmt', 'biome', 'prettier'] },
-  { kind: 'lint', tools: linters, detect: ['oxlint', 'biome', 'eslint'] },
+  { kind: 'format', tools: formatters, detect: FORMATTER_PREFERENCE },
+  { kind: 'lint', tools: linters, detect: LINTER_PREFERENCE },
 ]
 
 /**
@@ -244,7 +154,7 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
     await hooks.callHook(`kubb:${step.kind}:start`)
 
     // `auto` means "whatever is installed", so the tool is detected now rather than at config time.
-    const tool = setting === 'auto' ? await detectExecutable(step.detect) : setting
+    const tool = setting === 'auto' ? await detectTool(step.detect) : setting
 
     if (!tool) {
       await hooks.callHook('kubb:warn', { message: `No ${step.kind}ter found (${step.detect.join(', ')}). Skipping ${step.kind}ting.` })

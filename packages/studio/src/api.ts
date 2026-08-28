@@ -57,12 +57,12 @@ async function requestAgentSession({ token, studioUrl }: ConnectProps): Promise<
  * and retries once, so a single failed registration can't permanently block session creation.
  */
 export async function createAgentSession({ token, studioUrl }: ConnectProps): Promise<AgentConnectResponse> {
-  logger.info('Creating agent session with Studio...')
+  logger.debug('Creating agent session with Studio...')
 
   try {
     const data = await requestAgentSession({ token, studioUrl })
 
-    logger.info('Created agent session with Studio')
+    logger.debug('Created agent session with Studio')
 
     return data
   } catch (error: unknown) {
@@ -109,7 +109,7 @@ async function runRegistration({ token, studioUrl, poolSize }: RegisterProps): P
   const url = `${studioUrl}/api/agent/connect`
   const machineToken = await getMachineToken()
 
-  logger.info('Registering agent with Studio...')
+  logger.debug('Registering agent with Studio...')
 
   for (const delayMs of REGISTER_RETRY_DELAYS_MS) {
     if (delayMs > 0) {
@@ -154,7 +154,7 @@ export async function disconnect({ sessionId, token, studioUrl, slug }: Disconne
   const tag = slug ?? 'agent'
 
   try {
-    logger.info(tag, 'Disconnecting from Studio...', { slug })
+    logger.debug(tag, 'Disconnecting from Studio...', { slug })
 
     await $fetch(url, {
       method: 'POST',

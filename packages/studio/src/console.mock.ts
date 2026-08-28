@@ -7,6 +7,7 @@ import { vi } from 'vitest'
  */
 export function spyOnConsole() {
   return {
+    debug: vi.spyOn(console, 'debug').mockImplementation(() => {}),
     info: vi.spyOn(console, 'info').mockImplementation(() => {}),
     log: vi.spyOn(console, 'log').mockImplementation(() => {}),
     warn: vi.spyOn(console, 'warn').mockImplementation(() => {}),
