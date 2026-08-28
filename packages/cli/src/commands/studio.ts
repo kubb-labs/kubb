@@ -7,10 +7,10 @@ import { define } from 'gunshi'
 export const definition = define({
   name: 'studio',
   description:
-    'Connect this project to Kubb Studio and generate from the browser. The first run pairs the machine: the CLI shows a code, you approve it in Studio, and the token is stored in ~/.kubb. The connection is read-only unless you grant more with the --allow flags.',
+    'Connect this project to Kubb Studio and generate from the browser. The first run pairs the machine: the CLI shows a code, you approve it in Studio, and the token is stored in ~/.kubb. The connection is read-only unless you grant more with --allowWrite, --allowInput or --allowExec.',
   examples: [
     'kubb studio',
-    'kubb studio --allow-write',
+    'kubb studio --allowWrite',
     'kubb studio login',
     'kubb studio status',
     'kubb studio logout',

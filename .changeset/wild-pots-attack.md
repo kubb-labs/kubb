@@ -11,8 +11,8 @@ authorization grant), then streams generation events over the same WebSocket rel
 agent uses. It runs against the project's own config and its own installed plugins, so no
 container and no pinned plugin set are involved.
 
-Everything is read-only by default: `--allow-write` writes generated files, `--allow-input`
-accepts a spec from Studio, and `--allow-exec` runs the formatter, the linter, and
+Everything is read-only by default: `--allowWrite` writes generated files, `--allowInput`
+accepts a spec from Studio, and `--allowExec` runs the formatter, the linter, and
 `output.postGenerate`. Studio can only configure plugins the local config already imports.
 
 `kubb studio login`, `kubb studio logout`, and `kubb studio status` manage the pairing.

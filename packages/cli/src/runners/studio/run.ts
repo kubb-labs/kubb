@@ -90,7 +90,7 @@ async function login({ studioUrl, open }: StudioOptions): Promise<Credentials> {
 /**
  * Resolves the write permission for this project.
  *
- * `--allow-write` grants it outright. Otherwise the CLI asks once per project and remembers the
+ * `--allowWrite` grants it outright. Otherwise the CLI asks once per project and remembers the
  * answer, and in CI it stays off, since there is nobody to ask.
  *
  * ponytail: asks at connect rather than at the first write, so the permission is fixed for the
@@ -168,7 +168,7 @@ async function connect(options: StudioOptions): Promise<void> {
   const allowWrite = await resolveAllowWrite(options, credentials)
 
   if (!isCIEnvironment() && !options.allowExec && options.logLevel !== 'silent') {
-    console.log(styleText('dim', 'Read-only run. Pass --allow-exec to run the formatter, the linter, and postGenerate.'))
+    console.log(styleText('dim', 'Read-only run. Pass --allowExec to run the formatter, the linter, and postGenerate.'))
   }
 
   const client = createClient({
