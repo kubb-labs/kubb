@@ -19,7 +19,7 @@ vi.mock('./generate.ts', () => ({
 // Config resolution runs for real. It reaches outside the process in two ways — `import()`-ing a
 // plugin package and `import()`-ing the adapter package — so those packages are what gets stubbed.
 vi.mock('@kubb/plugin-ts', () => ({ pluginTs: (options: unknown) => ({ name: 'plugin-ts', options }) }))
-vi.mock('@kubb/plugin-oas', () => ({ pluginOas: (options: unknown) => ({ name: 'plugin-oas', options }) }))
+vi.mock('@kubb/plugin-zod', () => ({ pluginZod: (options: unknown) => ({ name: 'plugin-zod', options }) }))
 vi.mock('@kubb/adapter-oas', () => ({ adapterOas: (options: unknown) => ({ name: 'oas', options, parse: vi.fn() }) }))
 
 // `setupHookListener` spawns the formatter, the linter, and postGenerate commands through tinyexec.
@@ -517,7 +517,7 @@ describe('connectToStudio', () => {
     }
     getLatestStudioConfigFromStorage.mockResolvedValueOnce(storedConfig)
 
-    const payload = { plugins: [{ name: '@kubb/plugin-oas', options: {} }] }
+    const payload = { plugins: [{ name: '@kubb/plugin-zod', options: {} }] }
 
     await connectToStudio(options)
 
@@ -527,7 +527,7 @@ describe('connectToStudio', () => {
 
     // The payload's plugin wins over the stored one
     expect(generate).toHaveBeenCalledWith(
-      expect.objectContaining({ config: expect.objectContaining({ plugins: [expect.objectContaining({ name: 'plugin-oas' })] }) }),
+      expect.objectContaining({ config: expect.objectContaining({ plugins: [expect.objectContaining({ name: 'plugin-zod' })] }) }),
     )
   })
 
