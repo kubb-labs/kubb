@@ -41,6 +41,7 @@ npm install -D @kubb/cli
 
 - [`kubb init`](#kubb-init) — scaffold a new project
 - [`kubb generate`](#kubb-generate) — run code generation
+- [`kubb studio`](#kubb-studio) — connect this project to Kubb Studio
 - [`kubb validate`](#kubb-validate) — validate an OpenAPI spec
 - [`kubb mcp`](#kubb-mcp) — start the MCP server for AI assistants
 
@@ -133,6 +134,67 @@ npx kubb generate --verbose
 # Write a JSON run report alongside the CLI output
 npx kubb generate --reporter cli,json
 ```
+
+---
+
+### `kubb studio`
+
+Connect this project to [Kubb Studio](https://kubb.studio) and generate from the browser. Kubb runs
+on your machine, reads your config and spec from disk, and streams progress and files back to
+Studio over a WebSocket.
+
+```bash
+npx kubb studio
+```
+
+The first run pairs the machine. The CLI prints a short code, you approve it in Studio, and the CLI
+stores the agent token in `~/.kubb/credentials.json` at mode `0600`. Later runs reuse it.
+
+The connection is read-only by default: generated files stay in memory and stream to Studio without
+touching your disk, no spec from Studio can replace the one on disk, and no subprocess runs. Each
+`--allow*` flag opens exactly one of those.
+
+#### Arguments
+
+| Argument   | Required | Description                                        |
+| ---------- | -------- | -------------------------------------------------- |
+| `[action]` | No       | `connect` (default), `login`, `logout` or `status` |
+
+#### Options
+
+| Flag                 | Short | Type    | Default               | Description                                                            |
+| -------------------- | ----- | ------- | --------------------- | ---------------------------------------------------------------------- |
+| `--config <path>`    | `-c`  | string  |                       | Path to the Kubb config file                                           |
+| `--url <url>`        |       | string  | `https://kubb.studio` | Base URL of the Kubb Studio instance                                   |
+| `--allowWrite`       |       | boolean | `false`               | Write generated files to disk. Asked for once per project when omitted |
+| `--allowInput`       |       | boolean | `false`               | Generate from a spec sent by Studio instead of the one on disk         |
+| `--allowExec`        |       | boolean | `false`               | Run the formatter, the linter, and `output.postGenerate` after a run   |
+| `--no-open`          |       | boolean |                       | Do not open the approval page in a browser while pairing               |
+| `--logLevel <level>` | `-l`  | string  | `info`                | Log level: `silent`, `info`, or `verbose`                              |
+
+#### Examples
+
+```bash
+# Pair on first run, then connect read-only
+npx kubb studio
+
+# Let Studio write generated files to disk
+npx kubb studio --allowWrite
+
+# Pair without connecting
+npx kubb studio login
+
+# Show which machine is paired, and with which Studio
+npx kubb studio status
+
+# Forget the stored token
+npx kubb studio logout
+
+# Point at a self-hosted Studio
+npx kubb studio --url http://localhost:3000
+```
+
+Flags are camelCase. `--allow-write` is not recognized and is silently ignored.
 
 ---
 

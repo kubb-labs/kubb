@@ -38,7 +38,7 @@ function createFakeStudio({ rejectMachineToken = 0 }: FakeStudioOptions = {}) {
         return res.end(JSON.stringify({ success: true }))
       }
 
-      if (req.url === '/api/agent/session/create') {
+      if (req.url === '/api/agent/sessions') {
         if (rejectionsLeft > 0) {
           rejectionsLeft--
           res.statusCode = 403
@@ -52,7 +52,7 @@ function createFakeStudio({ rejectMachineToken = 0 }: FakeStudioOptions = {}) {
           JSON.stringify({
             sessionId: 'session-1',
             slug: 'brave-otter',
-            wsUrl: `ws://127.0.0.1:${port}/api/ws/session/session-1`,
+            wsUrl: `ws://127.0.0.1:${port}/api/agent/sessions/session-1/socket`,
             expiresAt: new Date(Date.now() + 3_600_000).toISOString(),
             revokedAt: null,
             isSandbox: false,
@@ -171,7 +171,7 @@ describe('createClient against a Studio instance', () => {
 
     expect(connected.payload.configPath).toBe('kubb.config.ts')
     expect(connected.payload.versions?.agent).toBe('0.0.0-test')
-    expect(studio.calls).toStrictEqual(['/api/agent/connect', '/api/agent/session/create'])
+    expect(studio.calls).toStrictEqual(['/api/agent/connect', '/api/agent/sessions'])
   })
 
   // Studio answers 403 when its stored machine token no longer matches, which happens whenever a
@@ -182,7 +182,7 @@ describe('createClient against a Studio instance', () => {
 
     await connect()
 
-    expect(studio.calls).toStrictEqual(['/api/agent/connect', '/api/agent/session/create', '/api/agent/connect', '/api/agent/session/create'])
+    expect(studio.calls).toStrictEqual(['/api/agent/connect', '/api/agent/sessions', '/api/agent/connect', '/api/agent/sessions'])
   })
 
   it('is read-only until a host grants otherwise', async () => {

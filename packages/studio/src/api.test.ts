@@ -20,7 +20,7 @@ vi.mock('ofetch', () => ({
 const session = {
   sessionId: 'session-abc',
   slug: 'brave-otter',
-  wsUrl: 'ws://localhost:3000/api/ws/session/session-abc',
+  wsUrl: 'ws://localhost:3000/api/agent/sessions/session-abc/socket',
   expiresAt: new Date().toISOString(),
   revokedAt: null,
   isSandbox: false,

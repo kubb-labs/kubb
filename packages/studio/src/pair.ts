@@ -101,7 +101,7 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
   while (Date.now() < deadline) {
     await sleep(intervalMs)
 
-    const response = await ofetch<PollResponse>(`${studioUrl}/api/agent/pair/token`, {
+    const response = await ofetch<PollResponse>(`${studioUrl}/api/agent/token`, {
       method: 'POST',
       body: { device_code: session.device_code },
       // A denial, an expiry, and "not yet" all come back as 4xx with a body the caller needs to

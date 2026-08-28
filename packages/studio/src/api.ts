@@ -34,7 +34,7 @@ function sessionError(cause: unknown): Error {
  * Performs the raw session create request against Studio.
  */
 async function requestAgentSession({ token, studioUrl }: ConnectProps): Promise<AgentConnectResponse> {
-  const url = `${studioUrl}/api/agent/session/create`
+  const url = `${studioUrl}/api/agent/sessions`
 
   const data = await $fetch<AgentConnectResponse>(url, {
     method: 'POST',
@@ -150,7 +150,7 @@ type DisconnectProps = {
  * Called on process termination or server close.
  */
 export async function disconnect({ sessionId, token, studioUrl, slug }: DisconnectProps): Promise<void> {
-  const url = `${studioUrl}/api/agent/session/${sessionId}/disconnect`
+  const url = `${studioUrl}/api/agent/sessions/${sessionId}/disconnect`
   const tag = slug ?? 'agent'
 
   try {

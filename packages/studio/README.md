@@ -72,6 +72,33 @@ Every permission is off by default, and each covers one trust boundary:
 plugins are resolved by `import(name)`, so an unrestricted payload can load any module the project
 can reach.
 
+## Connection flow
+
+Both hosts follow the same steps and send the agent's bearer token with every call. `/api/agent` is
+the machine-facing surface, singular because the caller is describing itself. The plural
+`/api/agents` is the collection a signed-in user manages in the browser, and the runtime never
+touches it.
+
+| Step       | Call                                              | What it does                                                                       |
+| ---------- | ------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Register   | `POST /api/agent/connect`                         | Binds the token to this machine with a `machineToken`. A failure here is not fatal |
+| Session    | `POST /api/agent/sessions`                        | Returns `{ wsUrl, sessionId, expiresAt }`                                          |
+| Connect    | `WS` on the returned `wsUrl`                      | Streams generation events until the session expires or is revoked                  |
+| Disconnect | `POST /api/agent/sessions/{sessionId}/disconnect` | Closes the session on a clean shutdown                                             |
+
+The runtime reconnects on its own when a session drops, and keeps retrying while Studio is
+unreachable.
+
+### Pairing
+
+`kubb studio` has no token to start with, so it pairs over
+[RFC 8628](https://www.rfc-editor.org/rfc/rfc8628.html) device authorization: it asks
+`POST /api/auth/device/code` for a `device_code` and a short `user_code`, shows the code, and polls
+`POST /api/agent/token` until the user approves in the browser. Studio mints the token once and stores only its hash, so
+nothing can read it back.
+
+The Docker agent skips this. It is given a token up front through `KUBB_AGENT_TOKEN`.
+
 ## Protocol
 
 `@kubb/studio/protocol` holds the WebSocket message types shared by both ends, so the agent and

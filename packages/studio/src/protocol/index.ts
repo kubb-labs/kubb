@@ -280,7 +280,7 @@ export type DataMessage<T extends KubbHook = KubbHook> = {
 }
 
 /**
- * Response returned by the Studio `/api/agent/session/create` endpoint.
+ * Response returned by the Studio `/api/agent/sessions` endpoint.
  */
 export type AgentConnectResponse = {
   /**
