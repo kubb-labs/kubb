@@ -77,7 +77,13 @@ type StartPairingOptions = {
  * the code, so approval knows which machine it is pairing: the same machine pairing twice rotates
  * one agent's token instead of creating a second agent.
  */
-export async function startPairing({ studioUrl = agentDefaults.studioUrl, name, hostname, clientId = CLIENT_ID, agentKind }: StartPairingOptions): Promise<PairingSession> {
+export async function startPairing({
+  studioUrl = agentDefaults.studioUrl,
+  name,
+  hostname,
+  clientId = CLIENT_ID,
+  agentKind,
+}: StartPairingOptions): Promise<PairingSession> {
   return ofetch<PairingSession>(`${studioUrl}/api/auth/device/code`, {
     method: 'POST',
     body: {
