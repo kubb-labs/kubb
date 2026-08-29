@@ -91,13 +91,15 @@ unreachable.
 
 ### Pairing
 
-`kubb studio` has no token to start with, so it pairs over
+No host starts with a token, so each one pairs over
 [RFC 8628](https://www.rfc-editor.org/rfc/rfc8628.html) device authorization: it asks
 `POST /api/auth/device/code` for a `device_code` and a short `user_code`, shows the code, and polls
-`POST /api/agent/token` until the user approves in the browser. Studio mints the token once and stores only its hash, so
+`POST /api/agent/token` until someone approves in the browser. Studio mints the token once and stores only its hash, so
 nothing can read it back.
 
-The Docker agent skips this. It is given a token up front through `KUBB_AGENT_TOKEN`.
+`startPairing` defaults to the `kubb-cli` client, which `kubb studio login` uses and any signed-in
+member can approve. A host that pairs a shared or tier-limited agent passes `clientId: 'kubb-agent'`
+and an `agentKind`, whose codes only an admin can approve.
 
 ## Protocol
 

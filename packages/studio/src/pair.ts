@@ -60,6 +60,20 @@ type StartPairingOptions = {
    */
   name: string
   hostname: string
+  /**
+   * Which client is pairing. Defaults to the CLI, where any signed-in member may approve their own
+   * machine. The Docker image passes `kubb-agent`, whose codes only an admin can approve.
+   */
+  clientId?: string
+  /**
+   * What a `kubb-agent` pairing asks to be registered as. Studio rejects the request without it,
+   * and ignores it for the CLI.
+   */
+  agentKind?: 'user' | 'sandbox'
+  /**
+   * Concurrent sessions a sandbox agent serves. Only read for `sandbox`.
+   */
+  poolSize?: number
 }
 
 /**
@@ -67,14 +81,23 @@ type StartPairingOptions = {
  * the code, so approval knows which machine it is pairing: the same machine pairing twice rotates
  * one agent's token instead of creating a second agent.
  */
-export async function startPairing({ studioUrl = agentDefaults.studioUrl, name, hostname }: StartPairingOptions): Promise<PairingSession> {
+export async function startPairing({
+  studioUrl = agentDefaults.studioUrl,
+  name,
+  hostname,
+  clientId = CLIENT_ID,
+  agentKind,
+  poolSize,
+}: StartPairingOptions): Promise<PairingSession> {
   return ofetch<PairingSession>(`${studioUrl}/api/auth/device/code`, {
     method: 'POST',
     body: {
-      client_id: CLIENT_ID,
+      client_id: clientId,
       name,
       hostname,
       machine_token: await getMachineToken(),
+      ...(agentKind ? { agent_kind: agentKind } : {}),
+      ...(poolSize ? { pool_size: poolSize } : {}),
     },
   })
 }
@@ -84,7 +107,16 @@ type PollOptions = {
   session: PairingSession
 }
 
-type PollResponse = PairingResult | { error: 'authorization_pending' | 'slow_down' | 'expired_token' | 'access_denied' | 'invalid_grant' }
+type PollResponse =
+  | PairingResult
+  | {
+      error: 'authorization_pending' | 'slow_down' | 'expired_token' | 'access_denied' | 'invalid_grant'
+      /**
+       * Why, when Studio has something more useful to say than the RFC code. An approval that hits
+       * the organization's agent limit comes back as `access_denied` with the limit spelled out.
+       */
+      error_description?: string
+    }
 
 /**
  * Polls until the user approves or denies, honoring the server's `slow_down` back-off.
@@ -116,11 +148,11 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
     }
 
     if (response.error === 'access_denied') {
-      throw new Error('Pairing was denied in the browser')
+      throw new Error(response.error_description ?? 'Pairing was denied in the browser')
     }
 
     if (response.error === 'expired_token' || response.error === 'invalid_grant') {
-      throw new Error('The pairing code expired, run `kubb studio login` again')
+      throw new Error(response.error_description ?? 'The pairing code expired, pair again')
     }
 
     if (response.error === 'slow_down') {
@@ -128,5 +160,5 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
     }
   }
 
-  throw new Error('The pairing code expired, run `kubb studio login` again')
+  throw new Error('The pairing code expired, pair again')
 }
