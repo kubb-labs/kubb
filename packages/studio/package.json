@@ -70,12 +70,14 @@
     "remeda": "^2.42.0",
     "tinyexec": "catalog:",
     "unstorage": "^1.17.5",
-    "ws": "^8.21.3"
+    "ws": "^8.21.3",
+    "ts-morph": "^28.0.0"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@kubb/adapter-oas": "workspace:*",
-    "@types/ws": "^8.18.1"
+    "@types/ws": "^8.18.1",
+    "@internals/shared": "workspace:*"
   },
   "engines": {
     "node": ">=22"

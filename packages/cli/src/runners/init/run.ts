@@ -9,6 +9,7 @@ import {
   initDefaults,
   KUBB_CONFIG_FILENAME,
   KUBB_PACKAGE_NAME,
+  mergePluginsIntoConfig,
   type PluginOption,
   resolveInstallVersions,
   resolvePlugins,
@@ -168,29 +169,55 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     const configSpinner = clack.spinner()
     configSpinner.start(`Creating ${KUBB_CONFIG_FILENAME}`)
 
-    const configContent = generateConfigFile({ selectedPlugins, inputPath, outputPath })
     const configPath = path.join(cwd, KUBB_CONFIG_FILENAME)
 
-    if (fs.existsSync(configPath)) {
+    if (!fs.existsSync(configPath)) {
+      await fs.promises.writeFile(configPath, generateConfigFile({ selectedPlugins, inputPath, outputPath }), 'utf-8')
+
+      configSpinner.stop(`Created ${KUBB_CONFIG_FILENAME}`)
+    } else {
       configSpinner.stop(`${KUBB_CONFIG_FILENAME} already exists`)
 
-      if (!yes) {
-        const shouldOverwrite = await clack.confirm({
-          message: `${KUBB_CONFIG_FILENAME} already exists. Overwrite?`,
-          initialValue: false,
-        })
+      // Merging keeps the user's own input, output, and hand-written code, and only adds the
+      // plugins they picked. Overwriting is still offered, since a scaffold-from-scratch is a
+      // reasonable thing to want, but it is no longer the only choice.
+      const action = yes
+        ? 'merge'
+        : await clack.select({
+            message: `What should happen to ${KUBB_CONFIG_FILENAME}?`,
+            initialValue: 'merge' as const,
+            options: [
+              { value: 'merge' as const, label: 'Add the selected plugins to it', hint: 'keeps everything else' },
+              { value: 'overwrite' as const, label: 'Replace it with a fresh config', hint: 'discards the current file' },
+              { value: 'skip' as const, label: 'Leave it alone' },
+            ],
+          })
 
-        if (clack.isCancel(shouldOverwrite) || !shouldOverwrite) {
-          cancelAndExit('Keeping existing configuration. Packages have been installed.')
-        }
+      if (clack.isCancel(action) || action === 'skip') {
+        cancelAndExit('Keeping existing configuration. Packages have been installed.')
       }
 
-      configSpinner.start(`Overwriting ${KUBB_CONFIG_FILENAME}`)
+      if (action === 'overwrite') {
+        configSpinner.start(`Overwriting ${KUBB_CONFIG_FILENAME}`)
+        await fs.promises.writeFile(configPath, generateConfigFile({ selectedPlugins, inputPath, outputPath }), 'utf-8')
+        configSpinner.stop(`Created ${KUBB_CONFIG_FILENAME}`)
+      } else {
+        configSpinner.start(`Updating ${KUBB_CONFIG_FILENAME}`)
+
+        const existing = await fs.promises.readFile(configPath, 'utf-8')
+        const merged = mergePluginsIntoConfig({ source: existing, selectedPlugins })
+
+        if (merged.changed) {
+          await fs.promises.writeFile(configPath, merged.source, 'utf-8')
+        }
+
+        configSpinner.stop(merged.added.length ? `Added ${merged.added.join(', ')} to ${KUBB_CONFIG_FILENAME}` : `${KUBB_CONFIG_FILENAME} was left unchanged`)
+
+        for (const { plugin, reason } of merged.skipped) {
+          clack.log.warn(`${plugin}: ${reason}`)
+        }
+      }
     }
-
-    await fs.promises.writeFile(configPath, configContent, 'utf-8')
-
-    configSpinner.stop(`Created ${KUBB_CONFIG_FILENAME}`)
 
     clack.outro(
       styleText('green', '✓ All set!') +

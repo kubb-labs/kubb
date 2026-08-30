@@ -1,3 +1,6 @@
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import process from 'node:process'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setLogLevel } from './logger.ts'
@@ -255,6 +258,126 @@ describe('connectToStudio', () => {
     }
 
     expect(mockWs.terminated).toBe(false)
+  })
+
+  // write-config command
+
+  describe('write-config', () => {
+    const original = [
+      `import { defineConfig } from 'kubb/config'`,
+      `import { pluginTs } from '@kubb/plugin-ts'`,
+      ``,
+      `// Keep the enum shape stable for consumers.`,
+      `export default defineConfig({`,
+      `  input: './openapi.yaml',`,
+      `  plugins: [pluginTs({ enum: { type: 'asConst' }, group: { type: 'tag', name: ({ group }) => group } })],`,
+      `})`,
+      ``,
+    ].join('\n')
+
+    let projectRoot: string
+    let configFile: string
+
+    /** The `config-written` reply the agent sent, if any. */
+    const reply = () =>
+      vi
+        .mocked(sendAgentMessage)
+        .mock.calls.map(([, message]) => message)
+        .find((message) => message.type === 'config-written')
+
+    beforeEach(() => {
+      projectRoot = mkdtempSync(path.join(tmpdir(), 'kubb-studio-'))
+      configFile = path.join(projectRoot, 'kubb.config.ts')
+      writeFileSync(configFile, original, 'utf-8')
+      options = { ...options, root: projectRoot }
+    })
+
+    afterEach(() => {
+      rmSync(projectRoot, { recursive: true, force: true })
+    })
+
+    const write = async (edits: Array<unknown>) => mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'write-config', edits }) })
+
+    it('writes a literal option and leaves the rest of the file alone', async () => {
+      await connectToStudio({ ...options, allowConfigEdit: true })
+
+      await write([{ op: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
+
+      expect(readFileSync(configFile, 'utf-8')).toBe(original.replace("'asConst'", "'enum'"))
+      expect(reply()).toMatchObject({ payload: { changed: true, outcomes: [{ applied: true }] } })
+    })
+
+    it('refuses every edit when editing the config was not granted', async () => {
+      await connectToStudio({ ...options, allowConfigEdit: false })
+
+      await write([{ op: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
+
+      expect(readFileSync(configFile, 'utf-8')).toBe(original)
+      expect(reply()?.payload).toMatchObject({ changed: false, outcomes: [{ applied: false }] })
+    })
+
+    it('refuses in sandbox mode even when the host granted it', async () => {
+      vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
+
+      await connectToStudio({ ...options, allowConfigEdit: true })
+
+      await write([{ op: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
+
+      expect(readFileSync(configFile, 'utf-8')).toBe(original)
+    })
+
+    it('leaves an option customized in code untouched', async () => {
+      await connectToStudio({ ...options, allowConfigEdit: true })
+
+      await write([{ op: 'set', plugin: '@kubb/plugin-ts', path: ['group', 'name'], value: 'x' }])
+
+      expect(readFileSync(configFile, 'utf-8')).toBe(original)
+      expect(reply()?.payload.outcomes[0]?.reason).toMatchInlineSnapshot(`"group.name is customized in code"`)
+    })
+
+    // Studio only sees the file as it was on connect. Reading it again right before the patch is
+    // what keeps an edit the user made in their editor in the meantime.
+    it('patches the file as it is on disk, not as it was on connect', async () => {
+      await connectToStudio({ ...options, allowConfigEdit: true })
+
+      const editedByHand = original.replace("'./openapi.yaml'", "'./petstore.yaml'")
+      writeFileSync(configFile, editedByHand, 'utf-8')
+
+      await write([{ op: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
+
+      expect(readFileSync(configFile, 'utf-8')).toBe(editedByHand.replace("'asConst'", "'enum'"))
+    })
+
+    it('reports what the file holds on connect so Studio can disable the right controls', async () => {
+      await connectToStudio({ ...options, allowConfigEdit: true })
+
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'connect' }) })
+
+      const connected = vi
+        .mocked(sendAgentMessage)
+        .mock.calls.map(([, message]) => message)
+        .find((message) => message.type === 'connected')
+
+      expect(connected?.type === 'connected' && connected.payload.configFile).toMatchInlineSnapshot(`
+        {
+          "managed": true,
+          "plugins": [
+            {
+              "importName": "pluginTs",
+              "options": {
+                "enum": {
+                  "literal": true,
+                },
+                "group": {
+                  "literal": false,
+                },
+              },
+              "packageName": "@kubb/plugin-ts",
+            },
+          ],
+        }
+      `)
+    })
   })
 
   // generate command
@@ -664,6 +787,7 @@ describe('connectToStudio', () => {
         payload: expect.objectContaining({
           permissions: {
             allowWrite: true,
+            allowConfigEdit: false,
             allowInput: false,
             allowExec: false,
           },
@@ -685,6 +809,7 @@ describe('connectToStudio', () => {
         payload: expect.objectContaining({
           permissions: {
             allowWrite: false,
+            allowConfigEdit: false,
             allowInput: true,
             allowExec: false,
           },
@@ -710,6 +835,7 @@ describe('connectToStudio', () => {
         payload: expect.objectContaining({
           permissions: {
             allowWrite: false,
+            allowConfigEdit: false,
             allowInput: true,
             allowExec: false,
           },

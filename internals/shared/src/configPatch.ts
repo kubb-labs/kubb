@@ -1,297 +1,464 @@
-import ts from 'typescript'
+import {
+  type ArrayLiteralExpression,
+  type CallExpression,
+  IndentationText,
+  Node,
+  type ObjectLiteralExpression,
+  Project,
+  type PropertyAssignment,
+  QuoteKind,
+  type SourceFile,
+} from 'ts-morph'
+import { availablePlugins } from './constants.ts'
 
+/** A value Studio can round-trip through JSON and print back as a config literal. */
 export type OptionValue = string | number | boolean | null | Array<OptionValue> | { [key: string]: OptionValue }
 
-/** A plugin call Studio found in the `plugins` array of a `defineConfig(...)`. */
+/** A plugin factory call found in the `plugins` array of a `defineConfig(...)`. */
 export type ManagedPlugin = {
-  /** Local identifier of the factory, e.g. `pluginTs`. */
+  /** Local identifier of the factory in the file, e.g. `pluginTs`. */
   importName: string
   /** Module the factory is imported from, e.g. `@kubb/plugin-ts`. */
   packageName: string
-  /** Top-level option keys, each flagged as literal (editable) or not (read-only in the UI). */
+  /**
+   * Top-level option keys and whether Studio may write them. A key that holds a function, a spread,
+   * or a reference to an outside variable is reported with `literal: false`, which Studio renders as
+   * a disabled control rather than hiding.
+   */
   options: Record<string, { literal: boolean }>
 }
 
-export type ConfigView = { managed: true; plugins: Array<ManagedPlugin> } | { managed: false; reason: string }
+export type ConfigView =
+  | { managed: true; plugins: Array<ManagedPlugin> }
+  /** The file's shape is outside what Studio edits. `reason` is shown in the UI. */
+  | { managed: false; reason: string }
 
-function unwrap(node: ts.Expression): ts.Expression {
-  if (ts.isParenthesizedExpression(node)) {
-    return unwrap(node.expression)
+/**
+ * One change Studio or `kubb init` wants written. `plugin` is always the package name
+ * (`@kubb/plugin-ts`), matching how plugins are named over the agent protocol.
+ */
+export type ConfigEdit =
+  /**
+   * Write a literal option value. `path` walks nested objects, so `['enum', 'type']` is `enum: { type }`.
+   *
+   * `value` is `unknown` because an edit can arrive over the agent WebSocket. It is checked with
+   * {@link isOptionValue} before anything is printed into the user's file.
+   */
+  | { op: 'set'; plugin: string; path: Array<string>; value: unknown }
+  /** Drop an option so the plugin falls back to its default. */
+  | { op: 'remove'; plugin: string; path: Array<string> }
+  /** Add a plugin factory call and its import. `options` is validated the same way as `set`. */
+  | { op: 'add-plugin'; plugin: string; importName?: string; options?: Record<string, unknown> }
+
+export type EditOutcome = { edit: ConfigEdit; applied: boolean; reason?: string }
+
+export type ApplyResult = {
+  /** The file's text after every applicable edit. Equal to the input when nothing applied. */
+  source: string
+  outcomes: Array<EditOutcome>
+  changed: boolean
+}
+
+const KNOWN_IMPORT_NAMES = new Map(availablePlugins.map((plugin) => [plugin.packageName, plugin.importName]))
+
+/**
+ * `@kubb/plugin-react-query` becomes `pluginReactQuery`, the naming every Kubb plugin follows.
+ * Known packages resolve from the registry first, so a third-party plugin still gets a usable name.
+ */
+export function toImportName(packageName: string): string {
+  const known = KNOWN_IMPORT_NAMES.get(packageName)
+  if (known) {
+    return known
   }
-  if (ts.isArrowFunction(node) && !ts.isBlock(node.body)) {
-    return unwrap(node.body)
+  const bare = packageName.replace(/^@[^/]+\//, '')
+  return bare.replace(/-(\w)/g, (_, character: string) => character.toUpperCase())
+}
+
+function createProject(source: string): SourceFile {
+  const project = new Project({
+    useInMemoryFileSystem: true,
+    manipulationSettings: { quoteKind: QuoteKind.Single, indentationText: IndentationText.TwoSpaces, useTrailingCommas: true },
+  })
+  return project.createSourceFile('kubb.config.ts', source)
+}
+
+/** Steps through parentheses and a `() => ...` / `(cli) => ...` wrapper to the expression underneath. */
+function unwrap(node: Node): Node {
+  if (Node.isParenthesizedExpression(node)) {
+    return unwrap(node.getExpression())
+  }
+  if (Node.isArrowFunction(node)) {
+    const body = node.getBody()
+    return Node.isBlock(body) ? node : unwrap(body)
   }
   return node
 }
 
-function parse(source: string): ts.SourceFile {
-  return ts.createSourceFile('kubb.config.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
-}
-
-/** Finds the config object literal inside `export default defineConfig(...)`, or the reason it is unmanaged. */
-function findConfigObject(file: ts.SourceFile): { object: ts.ObjectLiteralExpression } | { reason: string } {
-  const exported = file.statements.find(ts.isExportAssignment)
+/** The config object inside `export default defineConfig(...)`, or why the file is unmanaged. */
+function findConfigObject(file: SourceFile): { object: ObjectLiteralExpression } | { reason: string } {
+  const exported = file.getExportAssignment((assignment) => !assignment.isExportEquals())
   if (!exported) {
     return { reason: 'no default export found' }
   }
 
-  const call = unwrap(exported.expression)
-  if (!ts.isCallExpression(call) || !ts.isIdentifier(call.expression) || call.expression.text !== 'defineConfig') {
+  const call = unwrap(exported.getExpression())
+  if (!Node.isCallExpression(call) || call.getExpression().getText() !== 'defineConfig') {
     return { reason: 'default export is not a defineConfig(...) call' }
   }
 
-  const argument = call.arguments[0]
+  const [argument] = call.getArguments()
   if (!argument) {
     return { reason: 'defineConfig(...) was called without a config' }
   }
 
   const config = unwrap(argument)
-  if (!ts.isObjectLiteralExpression(config)) {
-    return { reason: 'config is not a single object literal (array configs are not supported)' }
+  if (!Node.isObjectLiteralExpression(config)) {
+    return { reason: 'config is not a single object literal, array configs are not supported' }
   }
   return { object: config }
 }
 
-function getProperty(object: ts.ObjectLiteralExpression, key: string): ts.PropertyAssignment | undefined {
-  return object.properties.find((property): property is ts.PropertyAssignment => {
-    return ts.isPropertyAssignment(property) && (ts.isIdentifier(property.name) || ts.isStringLiteral(property.name)) && property.name.text === key
-  })
+function getPropertyAssignment(object: ObjectLiteralExpression, key: string): PropertyAssignment | undefined {
+  const property = object.getProperty(key)
+  return property && Node.isPropertyAssignment(property) ? property : undefined
 }
 
-/** A value Studio can round-trip: a primitive, or an object/array built only from those. */
-function isLiteral(node: ts.Expression): boolean {
-  if (ts.isStringLiteral(node) || ts.isNumericLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
+function getPluginsArray(file: SourceFile): { array: ArrayLiteralExpression } | { reason: string } {
+  const config = findConfigObject(file)
+  if ('reason' in config) {
+    return config
+  }
+  const plugins = getPropertyAssignment(config.object, 'plugins')
+  const initializer = plugins?.getInitializer()
+  if (!initializer || !Node.isArrayLiteralExpression(initializer)) {
+    return { reason: 'plugins is not an array literal' }
+  }
+  return { array: initializer }
+}
+
+/** True for a primitive, or an object/array built only from primitives. */
+function isLiteral(node: Node): boolean {
+  if (Node.isStringLiteral(node) || Node.isNumericLiteral(node) || Node.isNoSubstitutionTemplateLiteral(node)) {
     return true
   }
-  if (node.kind === ts.SyntaxKind.TrueKeyword || node.kind === ts.SyntaxKind.FalseKeyword || node.kind === ts.SyntaxKind.NullKeyword) {
+  if (Node.isTrueLiteral(node) || Node.isFalseLiteral(node) || node.getText() === 'null') {
     return true
   }
-  if (ts.isPrefixUnaryExpression(node) && node.operator === ts.SyntaxKind.MinusToken) {
-    return isLiteral(node.operand)
+  if (Node.isPrefixUnaryExpression(node)) {
+    return isLiteral(node.getOperand())
   }
-  if (ts.isArrayLiteralExpression(node)) {
-    return node.elements.every(isLiteral)
+  if (Node.isArrayLiteralExpression(node)) {
+    return node.getElements().every(isLiteral)
   }
-  if (ts.isObjectLiteralExpression(node)) {
-    return node.properties.every((property) => ts.isPropertyAssignment(property) && isLiteral(property.initializer))
+  if (Node.isObjectLiteralExpression(node)) {
+    return node.getProperties().every((property) => Node.isPropertyAssignment(property) && isLiteral(property.getInitializerOrThrow()))
   }
   return false
 }
 
-/** Maps a factory identifier back to the module it was imported from. */
-function resolveImports(file: ts.SourceFile): Map<string, string> {
+/** Maps a factory identifier in the file back to the module it was imported from. */
+function importedFrom(file: SourceFile): Map<string, string> {
   const byName = new Map<string, string>()
-  for (const statement of file.statements) {
-    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) {
-      continue
-    }
-    const bindings = statement.importClause?.namedBindings
-    if (!bindings || !ts.isNamedImports(bindings)) {
-      continue
-    }
-    for (const element of bindings.elements) {
-      byName.set(element.name.text, statement.moduleSpecifier.text)
+  for (const declaration of file.getImportDeclarations()) {
+    for (const named of declaration.getNamedImports()) {
+      byName.set(named.getName(), declaration.getModuleSpecifierValue())
     }
   }
   return byName
 }
 
-function findPluginCall(file: ts.SourceFile, importName: string): ts.CallExpression | undefined {
-  const config = findConfigObject(file)
-  if ('reason' in config) {
-    return undefined
-  }
-  const plugins = getProperty(config.object, 'plugins')
-  if (!plugins || !ts.isArrayLiteralExpression(plugins.initializer)) {
-    return undefined
-  }
-  return plugins.initializer.elements.find((element): element is ts.CallExpression => {
-    return ts.isCallExpression(element) && ts.isIdentifier(element.expression) && element.expression.text === importName
-  })
-}
+/** Every `pluginX(...)` element of the plugins array that resolves to an import. */
+function resolvePluginCalls(file: SourceFile, array: ArrayLiteralExpression): Array<{ call: CallExpression; importName: string; packageName: string }> {
+  const imports = importedFrom(file)
+  const resolved: Array<{ call: CallExpression; importName: string; packageName: string }> = []
 
-/** Reads which plugins are present and which of their options Studio may edit. */
-export function readConfig(source: string): ConfigView {
-  const file = parse(source)
-  const config = findConfigObject(file)
-  if ('reason' in config) {
-    return { managed: false, reason: config.reason }
-  }
-
-  const plugins = getProperty(config.object, 'plugins')
-  if (!plugins || !ts.isArrayLiteralExpression(plugins.initializer)) {
-    return { managed: false, reason: 'plugins is not an array literal' }
-  }
-
-  const imports = resolveImports(file)
-  const found: Array<ManagedPlugin> = []
-
-  for (const element of plugins.initializer.elements) {
-    if (!ts.isCallExpression(element) || !ts.isIdentifier(element.expression)) {
+  for (const element of array.getElements()) {
+    if (!Node.isCallExpression(element)) {
       continue
     }
-    const importName = element.expression.text
+    const callee = element.getExpression()
+    if (!Node.isIdentifier(callee)) {
+      continue
+    }
+    const importName = callee.getText()
     const packageName = imports.get(importName)
-    if (!packageName) {
-      continue
+    if (packageName) {
+      resolved.push({ call: element, importName, packageName })
     }
-
-    const options: ManagedPlugin['options'] = {}
-    const argument = element.arguments[0]
-    if (argument && ts.isObjectLiteralExpression(argument)) {
-      for (const property of argument.properties) {
-        if (!ts.isPropertyAssignment(property) || (!ts.isIdentifier(property.name) && !ts.isStringLiteral(property.name))) {
-          continue
-        }
-        options[property.name.text] = { literal: isLiteral(property.initializer) }
-      }
-    }
-    found.push({ importName, packageName, options })
   }
-
-  return { managed: true, plugins: found }
+  return resolved
 }
 
-/** Prints a value the way the repo writes config literals: single quotes, no trailing commas. */
-function print(value: OptionValue): string {
-  if (typeof value === 'string') {
-    return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
+/**
+ * Reads which plugins the file declares and which of their options Studio may write.
+ *
+ * @example
+ * ```ts
+ * const view = readConfig(await readFile('kubb.config.ts', 'utf8'))
+ * if (view.managed) {
+ *   view.plugins.forEach((plugin) => console.log(plugin.packageName, plugin.options))
+ * }
+ * ```
+ */
+export function readConfig(source: string): ConfigView {
+  const file = createProject(source)
+  const plugins = getPluginsArray(file)
+  if ('reason' in plugins) {
+    return { managed: false, reason: plugins.reason }
+  }
+
+  return {
+    managed: true,
+    plugins: resolvePluginCalls(file, plugins.array).map(({ call, importName, packageName }) => {
+      const options: ManagedPlugin['options'] = {}
+      const [argument] = call.getArguments()
+
+      if (argument && Node.isObjectLiteralExpression(argument)) {
+        for (const property of argument.getProperties()) {
+          if (Node.isPropertyAssignment(property)) {
+            options[property.getName().replace(/^['"]|['"]$/g, '')] = { literal: isLiteral(property.getInitializerOrThrow()) }
+          }
+        }
+      }
+      return { importName, packageName, options }
+    }),
+  }
+}
+
+/** An object literal key that would change the prototype rather than add a property. */
+const UNSAFE_KEY = '__proto__'
+
+/**
+ * Whether a value can be written into a config file as a literal.
+ *
+ * This is the trust boundary for edits that arrive over the agent WebSocket: anything else, a
+ * function, `undefined`, a non-finite number, or an object carrying a `__proto__` key, is refused
+ * rather than printed into the user's source.
+ */
+export function isOptionValue(value: unknown): value is OptionValue {
+  if (value === null) {
+    return true
+  }
+  if (typeof value === 'string' || typeof value === 'boolean') {
+    return true
+  }
+  if (typeof value === 'number') {
+    return Number.isFinite(value)
   }
   if (Array.isArray(value)) {
-    return `[${value.map(print).join(', ')}]`
+    return value.every(isOptionValue)
+  }
+  if (typeof value === 'object') {
+    return Object.entries(value).every(([key, entry]) => key !== UNSAFE_KEY && isOptionValue(entry))
+  }
+  return false
+}
+
+/**
+ * Prints a string as a single-quoted literal. `JSON.stringify` does the escaping, so a newline, a
+ * backslash, or a control character cannot break out of the literal and into the surrounding file.
+ */
+function printString(value: string): string {
+  const escaped = JSON.stringify(value).slice(1, -1).replace(/\\"/g, '"').replace(/'/g, "\\'")
+  return `'${escaped}'`
+}
+
+/** Prints a value the way Kubb configs are written: single quotes, spaced braces. */
+export function printValue(value: OptionValue): string {
+  if (typeof value === 'string') {
+    return printString(value)
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map(printValue).join(', ')}]`
   }
   if (value !== null && typeof value === 'object') {
-    return `{ ${Object.entries(value)
-      .map(([key, entry]) => `${/^[A-Za-z_$][\w$]*$/.test(key) ? key : `'${key}'`}: ${print(entry)}`)
-      .join(', ')} }`
+    const entries = Object.entries(value).map(([key, entry]) => `${/^[A-Za-z_$][\w$]*$/.test(key) ? key : printString(key)}: ${printValue(entry)}`)
+    return entries.length ? `{ ${entries.join(', ')} }` : '{}'
   }
   return String(value)
 }
 
-export type PatchResult = { patched: true; source: string } | { patched: false; reason: string }
+/** The options object of a plugin call, creating an empty one when the plugin was called bare. */
+function optionsObjectOf(call: CallExpression): ObjectLiteralExpression | undefined {
+  const [argument] = call.getArguments()
+  if (argument) {
+    return Node.isObjectLiteralExpression(argument) ? argument : undefined
+  }
+  return call.addArgument('{}') as ObjectLiteralExpression
+}
 
-/**
- * Replaces one literal option value in place, leaving every other byte of the file untouched.
- *
- * `path` walks nested object literals, so `['enum', 'type']` targets `pluginTs({ enum: { type } })`.
- */
-export function patchOption(source: string, { importName, path, value }: { importName: string; path: Array<string>; value: OptionValue }): PatchResult {
-  const file = parse(source)
-  const call = findPluginCall(file, importName)
-  if (!call) {
-    return { patched: false, reason: `no ${importName}(...) call in the plugins array` }
+function applySet(call: CallExpression, path: Array<string>, value: unknown): string | undefined {
+  if (!isOptionValue(value)) {
+    return 'the value is not a literal that can be written to a config file'
   }
 
-  const argument = call.arguments[0]
-  if (argument && !ts.isObjectLiteralExpression(argument)) {
-    return { patched: false, reason: `${importName}(...) was not called with an object literal` }
+  const options = optionsObjectOf(call)
+  if (!options) {
+    return 'the plugin was not called with an object literal'
   }
 
-  // No options object yet: `pluginTs()` becomes `pluginTs({ key: value })`.
-  if (!argument) {
-    if (path.length !== 1) {
-      return { patched: false, reason: `cannot create a nested option on an empty ${importName}()` }
-    }
-    const insertAt = call.end - 1
-    return { patched: true, source: `${source.slice(0, insertAt)}{ ${path[0]}: ${print(value)} }${source.slice(insertAt)}` }
-  }
-
-  let object = argument
+  let object = options
   for (const [index, key] of path.entries()) {
-    const property = getProperty(object, key)
     const last = index === path.length - 1
+    const property = getPropertyAssignment(object, key)
 
     if (!property) {
-      if (!last) {
-        return { patched: false, reason: `cannot create the nested path ${path.join('.')}` }
+      object.addPropertyAssignment({ name: key, initializer: printValue(last ? value : {}) })
+      if (last) {
+        return undefined
       }
-      return { patched: true, source: insertProperty(source, object, key, print(value)) }
+      object = getPropertyAssignment(object, key)!.getInitializerOrThrow() as ObjectLiteralExpression
+      continue
     }
+
+    const initializer = property.getInitializerOrThrow()
 
     if (last) {
-      if (!isLiteral(property.initializer)) {
-        return { patched: false, reason: `${path.join('.')} is customized in code` }
+      if (!isLiteral(initializer)) {
+        return `${path.join('.')} is customized in code`
       }
-      return { patched: true, source: source.slice(0, property.initializer.getStart(file)) + print(value) + source.slice(property.initializer.end) }
+      property.setInitializer(printValue(value))
+      return undefined
     }
 
-    if (!ts.isObjectLiteralExpression(property.initializer)) {
-      return { patched: false, reason: `${key} is not an object, cannot reach ${path.join('.')}` }
+    if (!Node.isObjectLiteralExpression(initializer)) {
+      return `${key} is not an object, so ${path.join('.')} cannot be reached`
     }
-    object = property.initializer
+    object = initializer
   }
-
-  return { patched: false, reason: 'empty path' }
+  return 'no option path given'
 }
 
-/** Indentation of the line the node starts on. */
-function indentOf(source: string, offset: number): string {
-  const lineStart = source.lastIndexOf('\n', offset - 1) + 1
-  return source.slice(lineStart, offset).match(/^\s*/)?.[0] ?? ''
+/** Re-adds the trailing comma `remove()` strips off the new last property of a multi-line object. */
+function restoreTrailingComma(object: ObjectLiteralExpression): void {
+  const last = object.getProperties().at(-1)
+  if (!last || !object.getText().includes('\n')) {
+    return
+  }
+  const between = object.getSourceFile().getFullText().slice(last.getEnd(), object.getEnd())
+  if (!between.trimStart().startsWith(',')) {
+    object.getSourceFile().insertText(last.getEnd(), ',')
+  }
 }
 
-function insertProperty(source: string, object: ts.ObjectLiteralExpression, key: string, printed: string): string {
-  const last = object.properties[object.properties.length - 1]
-  if (!last) {
-    const insertAt = object.end - 1
-    return `${source.slice(0, insertAt)} ${key}: ${printed} ${source.slice(insertAt)}`
+function applyRemove(call: CallExpression, path: Array<string>): string | undefined {
+  const [argument] = call.getArguments()
+  if (!argument || !Node.isObjectLiteralExpression(argument)) {
+    return 'the plugin has no options to remove'
   }
-  // Multi-line objects get their own line; single-line ones stay on one line.
-  if (source.slice(last.end, object.end).includes('\n')) {
-    return `${source.slice(0, last.end)},\n${indentOf(source, last.getStart(object.getSourceFile()))}${key}: ${printed}${source.slice(last.end)}`
+
+  let object: ObjectLiteralExpression = argument
+  for (const [index, key] of path.entries()) {
+    const property = getPropertyAssignment(object, key)
+    if (!property) {
+      return `${path.join('.')} is not set`
+    }
+    const initializer = property.getInitializerOrThrow()
+
+    if (index === path.length - 1) {
+      if (!isLiteral(initializer)) {
+        return `${path.join('.')} is customized in code`
+      }
+      const wasLast = object.getProperties().at(-1) === property
+      const owner = object
+      property.remove()
+      // Removing the final property takes the comma of the one before it with it, which would
+      // leave the object's last line inconsistent with every other line in the file.
+      if (wasLast) {
+        restoreTrailingComma(owner)
+      }
+      return undefined
+    }
+
+    if (!Node.isObjectLiteralExpression(initializer)) {
+      return `${key} is not an object, so ${path.join('.')} cannot be reached`
+    }
+    object = initializer
   }
-  return `${source.slice(0, last.end)}, ${key}: ${printed}${source.slice(last.end)}`
+  return 'no option path given'
+}
+
+function applyAddPlugin(file: SourceFile, array: ArrayLiteralExpression, edit: Extract<ConfigEdit, { op: 'add-plugin' }>): string | undefined {
+  const importName = edit.importName ?? toImportName(edit.plugin)
+
+  if (resolvePluginCalls(file, array).some((plugin) => plugin.packageName === edit.plugin)) {
+    return `${edit.plugin} is already in the plugins array`
+  }
+
+  const taken = importedFrom(file).get(importName)
+  if (taken && taken !== edit.plugin) {
+    return `${importName} is already imported from ${taken}`
+  }
+
+  const options = edit.options ?? {}
+  if (!isOptionValue(options)) {
+    return 'the options are not literals that can be written to a config file'
+  }
+
+  array.addElement(`${importName}(${Object.keys(options).length ? printValue(options) : ''})`)
+
+  if (!taken) {
+    // Placed with the other imports rather than appended, which is where `addImportDeclaration` puts it.
+    file.insertImportDeclaration(file.getImportDeclarations().length, { namedImports: [importName], moduleSpecifier: edit.plugin })
+  }
+  return undefined
 }
 
 /**
- * Adds a plugin factory call to the `plugins` array and its import, when neither is there yet.
- * Existing array elements and imports are not reprinted.
+ * ts-morph always terminates a statement it writes with a semicolon. Kubb configs are usually
+ * written without them, so a inserted import is brought in line with what the file already does.
  */
-export function insertPlugin(
-  source: string,
-  { importName, packageName, options = {} }: { importName: string; packageName: string; options?: Record<string, OptionValue> },
-): PatchResult {
-  const file = parse(source)
-  if (findPluginCall(file, importName)) {
-    return { patched: false, reason: `${importName}(...) is already in the plugins array` }
+function matchImportStyle(source: string, next: string): string {
+  const existing = source.match(/^import .*$/gm) ?? []
+  if (!existing.length || existing.some((line) => line.trimEnd().endsWith(';'))) {
+    return next
+  }
+  return next.replace(/^(import .*[^;]);$/gm, '$1')
+}
+
+/**
+ * Applies edits to a `kubb.config.ts` in place. Every node the edits do not touch keeps its
+ * original text, so comments, formatting, and hand-written code around the config survive.
+ *
+ * Edits are independent: one that cannot be applied is reported in `outcomes` and the rest still run.
+ *
+ * @example
+ * ```ts
+ * const { source, outcomes } = applyConfigEdits(current, [
+ *   { op: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' },
+ * ])
+ * ```
+ */
+export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): ApplyResult {
+  const file = createProject(source)
+  const unmanaged = 'reason' in getPluginsArray(file) ? (getPluginsArray(file) as { reason: string }).reason : undefined
+
+  if (unmanaged) {
+    return { source, outcomes: edits.map((edit) => ({ edit, applied: false, reason: unmanaged })), changed: false }
   }
 
-  const config = findConfigObject(file)
-  if ('reason' in config) {
-    return { patched: false, reason: config.reason }
-  }
-  const plugins = getProperty(config.object, 'plugins')
-  if (!plugins || !ts.isArrayLiteralExpression(plugins.initializer)) {
-    return { patched: false, reason: 'plugins is not an array literal' }
-  }
-
-  const printed = Object.keys(options).length ? print(options as OptionValue) : ''
-  const array = plugins.initializer
-  const lastElement = array.elements[array.elements.length - 1]
-  const indent = lastElement ? indentOf(source, lastElement.getStart(file)) : `${indentOf(source, plugins.getStart(file))}  `
-
-  // Insert after the last element (and past its trailing comma, if it has one) so nothing existing
-  // is rewritten. An empty array gets its first entry right after the opening bracket.
-  let insertAt = lastElement ? lastElement.end : array.getStart(file) + 1
-  let separator = ''
-  if (lastElement) {
-    const comma = source.slice(insertAt, array.end - 1).match(/^\s*,/)
-    if (comma) {
-      insertAt += comma[0].length
-    } else {
-      separator = ','
+  const outcomes = edits.map((edit): EditOutcome => {
+    // Re-derived every edit: `insertText` forgets nodes taken before it, so a captured array node
+    // would go stale as soon as one edit repairs a trailing comma.
+    const plugins = getPluginsArray(file)
+    if ('reason' in plugins) {
+      return { edit, applied: false, reason: plugins.reason }
     }
-  }
-  const closing = lastElement ? '' : `\n${indentOf(source, plugins.getStart(file))}`
-  let next = `${source.slice(0, insertAt)}${separator}\n${indent}${importName}(${printed}),${closing}${source.slice(insertAt)}`
 
-  // The array insert shifted every later offset, so the import goes in against a fresh parse.
-  if (!resolveImports(parse(next)).has(importName)) {
-    const imports = parse(next).statements.filter(ts.isImportDeclaration)
-    const anchor = imports[imports.length - 1]
-    const at = anchor ? anchor.end : 0
-    next = `${next.slice(0, at)}${anchor ? '\n' : ''}import { ${importName} } from '${packageName}'${anchor ? '' : '\n'}${next.slice(at)}`
-  }
+    if (edit.op === 'add-plugin') {
+      const reason = applyAddPlugin(file, plugins.array, edit)
+      return { edit, applied: !reason, reason }
+    }
 
-  return { patched: true, source: next }
+    const target = resolvePluginCalls(file, plugins.array).find((plugin) => plugin.packageName === edit.plugin)
+    if (!target) {
+      return { edit, applied: false, reason: `${edit.plugin} is not in the plugins array` }
+    }
+
+    const reason = edit.op === 'set' ? applySet(target.call, edit.path, edit.value) : applyRemove(target.call, edit.path)
+    return { edit, applied: !reason, reason }
+  })
+
+  const next = matchImportStyle(source, file.getFullText())
+  return { source: next, outcomes, changed: next !== source }
 }

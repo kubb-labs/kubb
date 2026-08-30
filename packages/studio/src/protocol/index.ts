@@ -43,6 +43,69 @@ export type JSONKubbConfig = {
 }
 
 /**
+ * One change to a plugin's options in the user's `kubb.config.ts`.
+ *
+ * `plugin` is the package name (`@kubb/plugin-ts`), the same identity used in {@link JSONKubbConfig}.
+ * The agent applies these to the file with an AST patch, so only the targeted values are rewritten.
+ *
+ * Structurally identical to `ConfigEdit` in `@internals/shared`, which the agent passes it to. It is
+ * restated here so the protocol entry point stays free of the patcher and its dependencies.
+ */
+export type ConfigEdit =
+  /**
+   * Write a literal option value. `path` walks nested objects, so `['enum', 'type']` targets
+   * `pluginTs({ enum: { type } })`.
+   */
+  | { op: 'set'; plugin: string; path: Array<string>; value: unknown }
+  /**
+   * Drop an option so the plugin falls back to its default.
+   */
+  | { op: 'remove'; plugin: string; path: Array<string> }
+  /**
+   * Add a plugin factory call and its import to the `plugins` array.
+   */
+  | { op: 'add-plugin'; plugin: string; importName?: string; options?: Record<string, unknown> }
+
+/**
+ * What the agent found in the user's config file, so Studio knows which controls it may offer.
+ * Absent when the agent could not read the file at all.
+ */
+export type ConfigFileView =
+  | {
+      managed: true
+      /**
+       * Each plugin call in the file, with its top-level option keys. An option marked
+       * `literal: false` holds a function or a reference the agent will not overwrite: Studio shows
+       * the control disabled rather than hiding it.
+       */
+      plugins: Array<{
+        importName: string
+        packageName: string
+        options: Record<string, { literal: boolean }>
+      }>
+    }
+  | {
+      managed: false
+      /**
+       * Why the file is outside what the agent edits, for example an array config. Studio shows this
+       * and offers no property-level controls.
+       */
+      reason: string
+    }
+
+/**
+ * Outcome of a single {@link ConfigEdit}, returned in a {@link ConfigWrittenMessage}.
+ */
+export type ConfigEditOutcome = {
+  edit: ConfigEdit
+  applied: boolean
+  /**
+   * Why the edit was not applied, absent when it was.
+   */
+  reason?: string
+}
+
+/**
  * Typed events sent by the Kubb agent to Studio over WebSocket.
  * Mirrors the single-context-object tuple style of {@link KubbHooks} in `kubb/kit`,
  * using JSON-serializable shapes (e.g. `sources` as a `Record` instead of `Map`,
@@ -115,6 +178,11 @@ export type CommandMessage =
         allowWrite: boolean
       }
     }
+  /**
+   * Change plugin options in the user's `kubb.config.ts`. Applied only when the agent was granted
+   * `allowConfigEdit`; otherwise every edit comes back refused.
+   */
+  | { type: 'command'; command: 'write-config'; edits: Array<ConfigEdit> }
 
 /**
  * Identifies the host running the Kubb runtime, so Studio can badge the connection and show the
@@ -191,7 +259,19 @@ export type ConnectMessagePayload = {
      * can run. The CLI runs in the user's own project and defaults it off.
      */
     allowExec?: boolean
+    /**
+     * Whether the agent may change plugin options in the user's `kubb.config.ts`. Separate from
+     * `allowWrite`, which covers generated output: this one edits a hand-authored source file, so
+     * it is granted on its own. Optional, so an older agent that omits it is treated as not
+     * granting it.
+     */
+    allowConfigEdit?: boolean
   }
+  /**
+   * What the agent read from the config file on disk, so Studio can render the plugin editor
+   * against the real file. Absent when the agent could not read it.
+   */
+  configFile?: ConfigFileView
   /**
    * Identifies the host, absent for an older agent that predates the field.
    */
@@ -211,6 +291,29 @@ export type ConnectMessagePayload = {
 export type ConnectedMessage = {
   type: 'connected'
   payload: ConnectMessagePayload
+}
+
+/**
+ * Reply to a `write-config` command: what the agent did to the file on disk.
+ */
+export type ConfigWrittenMessage = {
+  type: 'config-written'
+  payload: {
+    /**
+     * Per-edit result, in the order the edits were sent.
+     */
+    outcomes: Array<ConfigEditOutcome>
+    /**
+     * Whether the file on disk changed. False when every edit was refused, and when the applied
+     * edits produced the text the file already had.
+     */
+    changed: boolean
+    /**
+     * The config file as it now stands, so Studio can re-render without a round trip. Absent when
+     * nothing was written.
+     */
+    configFile?: ConfigFileView
+  }
 }
 
 /**
@@ -313,7 +416,7 @@ export type AgentConnectResponse = {
  * Every message that can cross the agent WebSocket, in either direction. Narrow it with the
  * `is*Message` guards below before reading a variant's fields.
  */
-export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ErrorMessage | PingMessage | PongMessage | DisconnectMessage
+export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ConfigWrittenMessage | ErrorMessage | PingMessage | PongMessage | DisconnectMessage
 
 // Helper type guards
 export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
@@ -345,4 +448,8 @@ export function isDisconnectMessage(msg: AgentMessage): msg is DisconnectMessage
 
 export function isConnectedMessage(msg: AgentMessage): msg is ConnectedMessage {
   return msg.type === 'connected'
+}
+
+export function isConfigWrittenMessage(msg: AgentMessage): msg is ConfigWrittenMessage {
+  return msg.type === 'config-written'
 }

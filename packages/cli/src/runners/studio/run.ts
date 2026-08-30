@@ -31,6 +31,10 @@ export type StudioOptions = {
    */
   studioUrl: string
   allowWrite: boolean
+  /**
+   * Whether Studio may change plugin options in the project's `kubb.config.ts`.
+   */
+  allowConfigEdit: boolean
   allowInput: boolean
   allowExec: boolean
   /**
@@ -87,13 +91,14 @@ async function login({ studioUrl, open }: StudioOptions): Promise<Credentials> {
   }
 }
 
-type Permission = 'allowWrite' | 'allowInput' | 'allowExec'
+type Permission = 'allowWrite' | 'allowConfigEdit' | 'allowInput' | 'allowExec'
 
 /**
  * What each permission is asked as, in the order the questions appear.
  */
 const PERMISSIONS: ReadonlyArray<{ key: Permission; question: (project: string) => string }> = [
   { key: 'allowWrite', question: (project) => `Let Kubb Studio write generated files into ${project}?` },
+  { key: 'allowConfigEdit', question: () => 'Let Kubb Studio change plugin options in your kubb.config.ts?' },
   { key: 'allowInput', question: () => 'Let Kubb Studio generate from an OpenAPI spec it sends, instead of the one on disk?' },
   { key: 'allowExec', question: () => 'Let Kubb Studio run the formatter, the linter, and output.postGenerate?' },
 ]
@@ -111,7 +116,7 @@ const PERMISSIONS: ReadonlyArray<{ key: Permission; question: (project: string) 
 export async function resolvePermissions(options: StudioOptions, credentials: Credentials): Promise<Record<Permission, boolean>> {
   const project = process.cwd()
   const remembered = credentials.projects?.[project]
-  const granted: Record<Permission, boolean> = { allowWrite: false, allowInput: false, allowExec: false }
+  const granted: Record<Permission, boolean> = { allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false }
   const answers: Partial<Record<Permission, boolean>> = {}
 
   for (const { key, question } of PERMISSIONS) {
@@ -179,9 +184,9 @@ async function connect(options: StudioOptions, retryAfterPairing = true): Promis
   }
 
   const { configPath, config } = await loadFirstConfig(options)
-  const { allowWrite, allowInput, allowExec } = await resolvePermissions(options, credentials)
+  const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, credentials)
 
-  if (!allowWrite && !allowExec && options.logLevel !== 'silent') {
+  if (!allowWrite && !allowConfigEdit && !allowExec && options.logLevel !== 'silent') {
     console.log(styleText('dim', 'Read-only run. Nothing is written to disk and no command is run.'))
   }
 
@@ -200,6 +205,7 @@ async function connect(options: StudioOptions, retryAfterPairing = true): Promis
     },
     root: process.cwd(),
     allowWrite,
+    allowConfigEdit,
     allowInput,
     allowExec,
     // The local config bounds what Studio may import. Without this a `generate` payload could name
@@ -316,6 +322,7 @@ export const runner: CommandRunner<{ args: typeof definition.args; extensions: {
     configPath: values.config,
     studioUrl: values.url ?? defaultStudioUrl,
     allowWrite: values.allowWrite,
+    allowConfigEdit: values.allowConfigEdit,
     allowInput: values.allowInput,
     allowExec: values.allowExec,
     open: values.open,
