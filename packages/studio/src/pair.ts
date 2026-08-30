@@ -1,5 +1,5 @@
 import { agentDefaults } from './constants.ts'
-import { postJson } from './http.ts'
+import { postJson } from './api.ts'
 import { sleep } from './logger.ts'
 import { getMachineToken } from './machine.ts'
 
