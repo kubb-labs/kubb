@@ -2,8 +2,9 @@
 '@kubb/cli': minor
 ---
 
-`kubb studio` gains `--allowConfigEdit`, which lets Studio change plugin options in your
-`kubb.config.ts`. It is asked for once per project like the other permissions, and stays off in CI.
+`kubb studio` gains `--allowConfigEdit`, letting Studio change plugin options in your
+`kubb.config.ts`. The CLI asks for it once per project, the same as the other permissions, and
+leaves it off in CI.
 
-This is separate from `--allowWrite`, which covers generated output: editing the config changes a
+It is separate from `--allowWrite`, which covers generated output. Editing the config changes a
 file you wrote by hand, so it is granted on its own.

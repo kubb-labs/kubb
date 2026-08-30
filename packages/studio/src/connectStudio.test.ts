@@ -278,7 +278,9 @@ describe('connectToStudio', () => {
     let projectRoot: string
     let configFile: string
 
-    /** The `config-written` reply the agent sent, if any. */
+    /**
+     * The `config-written` reply the agent sent, if any.
+     */
     const reply = () =>
       vi
         .mocked(sendAgentMessage)
@@ -335,8 +337,8 @@ describe('connectToStudio', () => {
       expect(reply()?.payload.outcomes[0]?.reason).toMatchInlineSnapshot(`"group.name is customized in code"`)
     })
 
-    // Studio only sees the file as it was on connect. Reading it again right before the patch is
-    // what keeps an edit the user made in their editor in the meantime.
+    // Studio only ever saw the file as it was on connect. Re-reading it right before the patch is
+    // what saves an edit the user made in their editor since then.
     it('patches the file as it is on disk, not as it was on connect', async () => {
       await connectToStudio({ ...options, allowConfigEdit: true })
 

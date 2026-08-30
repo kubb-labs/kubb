@@ -215,9 +215,10 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     }
 
     /**
-     * Reads the config file from disk and reports what Studio may edit in it. Read on every call
-     * rather than cached: the user can edit `kubb.config.ts` between two Studio actions, and a
-     * stale view would let Studio overwrite that edit.
+     * Reads the config file from disk and reports what Studio may edit in it.
+     *
+     * Nothing here is cached. A user can open `kubb.config.ts` between two Studio actions, and a
+     * view from before that edit would let Studio overwrite it.
      */
     async function readConfigFileView(source?: string): Promise<ConfigFileView | undefined> {
       try {
@@ -467,16 +468,16 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             }
 
             // A generation reloads the config while it runs, so rewriting the file underneath it
-            // would have the run pick up half of the change.
+            // would leave that run working from half the change.
             if (isGenerating) {
               refuse('a generation is in progress')
 
               return
             }
 
-            // Read straight before the patch rather than reusing what was sent on connect: the user
-            // may have edited the file in the meantime, and every untouched node keeps its own text,
-            // so their edit survives instead of being overwritten.
+            // Read straight before the patch rather than reusing what went out on connect. The user
+            // may have edited the file since, and since every untouched node keeps its own text,
+            // patching what is on disk right now preserves that edit.
             const current = await readFile(configFilePath, 'utf-8')
             const { source: patched, outcomes, changed } = applyConfigEdits(current, data.edits)
 

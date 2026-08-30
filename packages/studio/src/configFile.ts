@@ -10,14 +10,22 @@ import {
   type SourceFile,
 } from 'ts-morph'
 
-/** A value Studio can round-trip through JSON and print back as a config literal. */
+/**
+ * A value Studio can round-trip through JSON and print back as a config literal.
+ */
 export type OptionValue = string | number | boolean | null | Array<OptionValue> | { [key: string]: OptionValue }
 
-/** A plugin factory call found in the `plugins` array of a `defineConfig(...)`. */
+/**
+ * A plugin factory call found in the `plugins` array of a `defineConfig(...)`.
+ */
 export type ManagedPlugin = {
-  /** Local identifier of the factory in the file, e.g. `pluginTs`. */
+  /**
+   * Local identifier of the factory in the file, e.g. `pluginTs`.
+   */
   importName: string
-  /** Module the factory is imported from, e.g. `@kubb/plugin-ts`. */
+  /**
+   * Module the factory is imported from, e.g. `@kubb/plugin-ts`.
+   */
   packageName: string
   /**
    * Top-level option keys and whether Studio may write them. A key that holds a function, a spread,
@@ -27,43 +35,71 @@ export type ManagedPlugin = {
   options: Record<string, { literal: boolean }>
 }
 
+/**
+ * What the patcher found in a config file.
+ * - `managed: true` carries every plugin call it can address
+ * - `managed: false` carries the reason it will not touch the file
+ */
 export type ConfigView =
   | { managed: true; plugins: Array<ManagedPlugin> }
-  /** The file's shape is outside what Studio edits. `reason` is shown in the UI. */
-  | { managed: false; reason: string }
+  | {
+      managed: false
+      /**
+       * Why the file's shape is outside what the patcher edits, shown in the Studio UI.
+       */
+      reason: string
+    }
 
 /**
- * One change Studio or `kubb init` wants written. `plugin` is always the package name
+ * One change to write into a config file. `plugin` is always the package name
  * (`@kubb/plugin-ts`), matching how plugins are named over the agent protocol.
  */
 export type ConfigEdit =
   /**
-   * Write a literal option value. `path` walks nested objects, so `['enum', 'type']` is `enum: { type }`.
+   * Write a literal option value. `path` walks nested objects, so `['enum', 'type']` targets
+   * `pluginTs({ enum: { type } })`.
    *
-   * `value` is `unknown` because an edit can arrive over the agent WebSocket. It is checked with
-   * {@link isOptionValue} before anything is printed into the user's file.
+   * `value` is `unknown` because an edit can arrive over the agent WebSocket. It goes through
+   * {@link isOptionValue} before anything reaches the user's file.
    */
   | { operation: 'set'; plugin: string; path: Array<string>; value: unknown }
-  /** Drop an option so the plugin falls back to its default. */
+  /**
+   * Drop an option so the plugin falls back to its default.
+   */
   | { operation: 'remove'; plugin: string; path: Array<string> }
-  /** Add a plugin factory call and its import. `options` is validated the same way as `set`. */
+  /**
+   * Add a plugin factory call and its import. `options` is checked the same way as `set`.
+   */
   | { operation: 'add-plugin'; plugin: string; importName?: string; options?: Record<string, unknown> }
 
-export type EditOutcome = { edit: ConfigEdit; applied: boolean; reason?: string }
+/**
+ * What happened to one edit. An edit that could not be applied never stops the others, so a batch
+ * reports per-edit rather than failing whole.
+ */
+export type EditOutcome = {
+  edit: ConfigEdit
+  applied: boolean
+  /**
+   * Why the edit was refused, absent when it was applied.
+   */
+  reason?: string
+}
 
 export type ApplyResult = {
-  /** The file's text after every applicable edit. Equal to the input when nothing applied. */
+  /**
+   * The file's text after every applicable edit, unchanged from the input when none applied.
+   */
   source: string
+  /**
+   * One entry per edit, in the order they were given.
+   */
   outcomes: Array<EditOutcome>
+  /**
+   * Whether `source` differs from the input.
+   */
   changed: boolean
 }
 
-/**
- * `@kubb/plugin-react-query` becomes `pluginReactQuery`, the naming every Kubb plugin follows.
- *
- * A plugin that breaks the convention is still reachable: `add-plugin` takes an explicit
- * `importName`, which Studio sends when it knows better than this.
- */
 export function toImportName(packageName: string): string {
   const bare = packageName.replace(/^@[^/]+\//, '')
   return bare.replace(/-(\w)/g, (_, character: string) => character.toUpperCase())
@@ -77,7 +113,9 @@ function createProject(source: string): SourceFile {
   return project.createSourceFile('kubb.config.ts', source)
 }
 
-/** Steps through parentheses and a `() => ...` / `(cli) => ...` wrapper to the expression underneath. */
+/**
+ * Steps through parentheses and a `() => ...` / `(cli) => ...` wrapper to the expression underneath.
+ */
 function unwrap(node: Node): Node {
   if (Node.isParenthesizedExpression(node)) {
     return unwrap(node.getExpression())
@@ -89,7 +127,9 @@ function unwrap(node: Node): Node {
   return node
 }
 
-/** The config object inside `export default defineConfig(...)`, or why the file is unmanaged. */
+/**
+ * The config object inside `export default defineConfig(...)`, or why the file is unmanaged.
+ */
 function findConfigObject(file: SourceFile): { object: ObjectLiteralExpression } | { reason: string } {
   const exported = file.getExportAssignment((assignment) => !assignment.isExportEquals())
   if (!exported) {
@@ -131,7 +171,9 @@ function getPluginsArray(file: SourceFile): { array: ArrayLiteralExpression } | 
   return { array: initializer }
 }
 
-/** True for a primitive, or an object/array built only from primitives. */
+/**
+ * True for a primitive, or an object/array built only from primitives.
+ */
 function isLiteral(node: Node): boolean {
   if (Node.isStringLiteral(node) || Node.isNumericLiteral(node) || Node.isNoSubstitutionTemplateLiteral(node)) {
     return true
@@ -151,7 +193,9 @@ function isLiteral(node: Node): boolean {
   return false
 }
 
-/** Maps a factory identifier in the file back to the module it was imported from. */
+/**
+ * Maps a factory identifier in the file back to the module it was imported from.
+ */
 function importedFrom(file: SourceFile): Map<string, string> {
   const byName = new Map<string, string>()
   for (const declaration of file.getImportDeclarations()) {
@@ -162,7 +206,9 @@ function importedFrom(file: SourceFile): Map<string, string> {
   return byName
 }
 
-/** Every `pluginX(...)` element of the plugins array that resolves to an import. */
+/**
+ * Every `pluginX(...)` element of the plugins array that resolves to an import.
+ */
 function resolvePluginCalls(file: SourceFile, array: ArrayLiteralExpression): Array<{ call: CallExpression; importName: string; packageName: string }> {
   const imports = importedFrom(file)
   const resolved: Array<{ call: CallExpression; importName: string; packageName: string }> = []
@@ -220,7 +266,9 @@ export function readConfig(source: string): ConfigView {
   }
 }
 
-/** An object literal key that would change the prototype rather than add a property. */
+/**
+ * An object literal key that would change the prototype rather than add a property.
+ */
 const UNSAFE_KEY = '__proto__'
 
 /**
@@ -258,7 +306,9 @@ function printString(value: string): string {
   return `'${escaped}'`
 }
 
-/** Prints a value the way Kubb configs are written: single quotes, spaced braces. */
+/**
+ * Prints a value the way Kubb configs are written: single quotes, spaced braces.
+ */
 export function printValue(value: OptionValue): string {
   if (typeof value === 'string') {
     return printString(value)
@@ -273,7 +323,9 @@ export function printValue(value: OptionValue): string {
   return String(value)
 }
 
-/** The options object of a plugin call, creating an empty one when the plugin was called bare. */
+/**
+ * The options object of a plugin call, creating an empty one when the plugin was called bare.
+ */
 function optionsObjectOf(call: CallExpression): ObjectLiteralExpression | undefined {
   const [argument] = call.getArguments()
   if (argument) {
@@ -324,7 +376,9 @@ function applySet(call: CallExpression, path: Array<string>, value: unknown): st
   return 'no option path given'
 }
 
-/** Re-adds the trailing comma `remove()` strips off the new last property of a multi-line object. */
+/**
+ * Re-adds the trailing comma `remove()` strips off the new last property of a multi-line object.
+ */
 function restoreTrailingComma(object: ObjectLiteralExpression): void {
   const last = object.getProperties().at(-1)
   if (!last || !object.getText().includes('\n')) {

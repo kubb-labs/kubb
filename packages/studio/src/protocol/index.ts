@@ -48,8 +48,9 @@ export type JSONKubbConfig = {
  * `plugin` is the package name (`@kubb/plugin-ts`), the same identity used in {@link JSONKubbConfig}.
  * The agent applies these to the file with an AST patch, so only the targeted values are rewritten.
  *
- * Structurally identical to `ConfigEdit` in `@internals/shared`, which the agent passes it to. It is
- * restated here so the protocol entry point stays free of the patcher and its dependencies.
+ * Restated here rather than imported from the patcher in `configFile.ts`, so this entry point stays
+ * free of `ts-morph`. The two shapes have to match: the agent hands these straight to the patcher,
+ * so any drift between them is a type error at that call.
  */
 export type ConfigEdit =
   /**
@@ -79,8 +80,17 @@ export type ConfigFileView =
        * the control disabled rather than hiding it.
        */
       plugins: Array<{
+        /**
+         * Local identifier of the factory in the file, e.g. `pluginTs`.
+         */
         importName: string
+        /**
+         * Module the factory is imported from, e.g. `@kubb/plugin-ts`.
+         */
         packageName: string
+        /**
+         * Top-level option keys, each flagged with whether the agent may write it.
+         */
         options: Record<string, { literal: boolean }>
       }>
     }
@@ -100,7 +110,7 @@ export type ConfigEditOutcome = {
   edit: ConfigEdit
   applied: boolean
   /**
-   * Why the edit was not applied, absent when it was.
+   * Why the edit was refused, absent when it was applied.
    */
   reason?: string
 }

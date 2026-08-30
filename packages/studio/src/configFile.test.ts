@@ -5,7 +5,9 @@ import { applyConfigEdits, type ConfigEdit, isOptionValue, printValue, readConfi
 
 const advanced = readFileSync(join(import.meta.dirname, '../mocks/advanced.config.txt'), 'utf8')
 
-/** The single span that differs between two texts, for asserting one edit touched one place. */
+/**
+ * The single span that differs between two texts, for asserting one edit touched one place.
+ */
 function changedSpan(before: string, after: string): string {
   let start = 0
   while (start < before.length && start < after.length && before[start] === after[start]) {

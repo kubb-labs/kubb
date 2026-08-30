@@ -4,16 +4,17 @@
 
 Let Studio change plugin options in a project's `kubb.config.ts`.
 
-A new `write-config` command carries a list of edits, each an `operation` of `set`, `remove`, or
-`add-plugin`. The agent applies them to the file as an AST patch, so only the targeted values are
-rewritten. Comments, formatting, and hand-written code around the config keep their own text.
+A new `write-config` command carries a list of edits, each one a `set`, `remove`, or `add-plugin`
+`operation`. The agent patches the file's AST rather than regenerating it, so only the values an
+edit names get rewritten. Comments, formatting, and the code you wrote around the config keep their
+own text.
 
-The agent applies an edit only when the host grants `allowConfigEdit`. This is separate from
-`allowWrite`, which covers generated output: editing the config changes a file the user wrote by
-hand, so it is granted on its own and never in a sandbox.
+The agent writes nothing unless the host granted `allowConfigEdit`. That permission is separate
+from `allowWrite`, which covers generated output. This one changes a file you wrote by hand, so it
+is granted on its own and never in a sandbox.
 
-The `connected` payload gains `configFile`, reporting each plugin call in the file and whether each
-of its options is a literal. An option holding a function or a reference is reported as not
-literal, and the agent refuses to overwrite it, so Studio can show the control disabled instead of
-hiding it. A config shape the patcher does not manage, an array config for one, comes back
-`managed: false` with the reason.
+The `connected` payload gains `configFile`, which lists every plugin call in the file and flags
+each option as a literal or not. Options holding a function or a reference come back
+`literal: false`, and the agent refuses to overwrite them, so Studio can disable those controls
+instead of hiding them. A config the patcher cannot address, an array config for instance, comes
+back `managed: false` and says why.
