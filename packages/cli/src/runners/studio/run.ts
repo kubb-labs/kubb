@@ -97,12 +97,38 @@ type Permission = 'allowWrite' | 'allowConfigEdit' | 'allowInput' | 'allowExec'
 /**
  * What each permission is asked as, in the order the questions appear.
  */
-const PERMISSIONS: ReadonlyArray<{ key: Permission; question: (project: string, configPath: string) => string }> = [
-  { key: 'allowWrite', question: (project) => `Let Kubb Studio write generated files into ${project}?` },
-  { key: 'allowConfigEdit', question: (_project, configPath) => `Let Kubb Studio change plugin options in ${configPath}?` },
-  { key: 'allowInput', question: () => 'Let Kubb Studio generate from an OpenAPI spec it sends, instead of the one on disk?' },
-  { key: 'allowExec', question: () => 'Let Kubb Studio run the formatter, the linter, and output.postGenerate?' },
+const PERMISSIONS: ReadonlyArray<{
+  key: Permission
+  /**
+   * Short label for status output and the connect summary.
+   */
+  label: string
+  question: (project: string, configPath: string) => string
+}> = [
+  { key: 'allowWrite', label: 'write generated files', question: (project) => `Let Kubb Studio write generated files into ${project}?` },
+  {
+    key: 'allowConfigEdit',
+    label: 'edit kubb.config.ts',
+    question: (_project, configPath) => `Let Kubb Studio change plugin options in ${configPath}?`,
+  },
+  {
+    key: 'allowInput',
+    label: 'use a Studio spec',
+    question: () => 'Let Kubb Studio generate from an OpenAPI spec it sends, instead of the one on disk?',
+  },
+  {
+    key: 'allowExec',
+    label: 'run formatter, linter, postGenerate',
+    question: () => 'Let Kubb Studio run the formatter, the linter, and output.postGenerate?',
+  },
 ]
+
+/**
+ * One-line summary of what this session granted, for the connect banner and `kubb studio status`.
+ */
+export function formatPermissionSummary(granted: Record<Permission, boolean>): string {
+  return PERMISSIONS.map(({ key, label }) => `${label}: ${granted[key] ? 'yes' : 'no'}`).join(', ')
+}
 
 /**
  * Resolves every permission for this project.
@@ -190,9 +216,10 @@ async function connect(options: StudioOptions, retryAfterPairing = true): Promis
 
   const { configPath, config } = await loadFirstConfig(options)
   const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, credentials, configPath)
+  const granted = { allowWrite, allowConfigEdit, allowInput, allowExec }
 
-  if (!allowWrite && !allowConfigEdit && !allowExec && options.logLevel !== 'silent') {
-    console.log(styleText('dim', 'Read-only run. Nothing is written to disk and no command is run.'))
+  if (options.logLevel !== 'silent') {
+    console.log(styleText('dim', formatPermissionSummary(granted)))
   }
 
   const client = createClient({
@@ -259,7 +286,7 @@ async function connect(options: StudioOptions, retryAfterPairing = true): Promis
 }
 
 /**
- * Reports what this machine is paired as.
+ * Reports what this machine is paired as and which permissions were saved for this project.
  */
 async function status(options: StudioOptions): Promise<void> {
   const credentials = await readCredentials()
@@ -275,6 +302,26 @@ async function status(options: StudioOptions): Promise<void> {
   if (credentials.studioUrl !== options.studioUrl) {
     console.log(styleText('yellow', `Connecting to ${options.studioUrl} needs pairing again.`))
   }
+
+  const remembered = credentials.projects?.[process.cwd()]
+
+  if (!remembered) {
+    console.log(styleText('dim', 'No saved permissions for this project. Run `kubb studio` to connect and choose.'))
+
+    return
+  }
+
+  console.log(
+    styleText(
+      'dim',
+      `Saved permissions — ${formatPermissionSummary({
+        allowWrite: remembered.allowWrite === true,
+        allowConfigEdit: remembered.allowConfigEdit === true,
+        allowInput: remembered.allowInput === true,
+        allowExec: remembered.allowExec === true,
+      })}`,
+    ),
+  )
 }
 
 /**

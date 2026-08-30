@@ -45,7 +45,7 @@ export const definition = define({
     },
     allowInput: {
       type: 'boolean',
-      description: 'Generate from an OpenAPI spec sent by Studio instead of the one on disk',
+      description: 'Generate from an OpenAPI spec sent by Studio instead of the one on disk. Asked for once per project when omitted',
       default: false,
     },
     allowExec: {

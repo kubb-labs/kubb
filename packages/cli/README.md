@@ -150,9 +150,10 @@ npx kubb studio
 The first run pairs the machine. The CLI prints a short code, you approve it in Studio, and the CLI
 stores the agent token in `~/.kubb/credentials.json` at mode `0600`. Later runs reuse it.
 
-The connection is read-only by default: generated files stay in memory and stream to Studio without
-touching your disk, no spec from Studio can replace the one on disk, and no subprocess runs. Each
-`--allow*` flag opens exactly one of those.
+The connection is read-only by default. On the first connect to a project the CLI asks yes/no
+for each permission separately: writing generated files, editing `kubb.config.ts`, accepting a
+spec from Studio, and running the formatter, linter, or `postGenerate`. Each `--allow*` flag
+skips the question for that one permission.
 
 #### Arguments
 
@@ -162,15 +163,16 @@ touching your disk, no spec from Studio can replace the one on disk, and no subp
 
 #### Options
 
-| Flag                 | Short | Type    | Default               | Description                                                            |
-| -------------------- | ----- | ------- | --------------------- | ---------------------------------------------------------------------- |
-| `--config <path>`    | `-c`  | string  |                       | Path to the Kubb config file                                           |
-| `--url <url>`        |       | string  | `https://kubb.studio` | Base URL of the Kubb Studio instance                                   |
-| `--allowWrite`       |       | boolean | `false`               | Write generated files to disk. Asked for once per project when omitted |
-| `--allowInput`       |       | boolean | `false`               | Generate from a spec sent by Studio instead of the one on disk         |
-| `--allowExec`        |       | boolean | `false`               | Run the formatter, the linter, and `output.postGenerate` after a run   |
-| `--no-open`          |       | boolean |                       | Do not open the approval page in a browser while pairing               |
-| `--logLevel <level>` | `-l`  | string  | `info`                | Log level: `silent`, `info`, or `verbose`                              |
+| Flag                 | Short | Type    | Default               | Description                                                                                   |
+| -------------------- | ----- | ------- | --------------------- | --------------------------------------------------------------------------------------------- |
+| `--config <path>`    | `-c`  | string  |                       | Path to the Kubb config file                                                                  |
+| `--url <url>`        |       | string  | `https://kubb.studio` | Base URL of the Kubb Studio instance                                                          |
+| `--allowWrite`       |       | boolean | `false`               | Write generated files to disk. Asked for once per project when omitted                        |
+| `--allowConfigEdit`  |       | boolean | `false`               | Edit plugin options in `kubb.config.ts`. Asked for once per project when omitted              |
+| `--allowInput`       |       | boolean | `false`               | Generate from a spec sent by Studio. Asked for once per project when omitted                  |
+| `--allowExec`        |       | boolean | `false`               | Run the formatter, the linter, and `output.postGenerate`. Asked once per project when omitted |
+| `--no-open`          |       | boolean |                       | Do not open the approval page in a browser while pairing                                      |
+| `--logLevel <level>` | `-l`  | string  | `info`                | Log level: `silent`, `info`, or `verbose`                                                     |
 
 #### Examples
 

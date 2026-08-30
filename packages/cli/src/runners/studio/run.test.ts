@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
 import type { Credentials } from './credentials.ts'
-import { resolvePermissions, type StudioOptions } from './run.ts'
+import { formatPermissionSummary, resolvePermissions, type StudioOptions } from './run.ts'
 
 vi.mock('@clack/prompts', () => ({ confirm: vi.fn() }))
 vi.mock('@internals/utils', async (importOriginal) => ({
@@ -84,5 +84,22 @@ describe('resolvePermissions', () => {
     await expect(resolvePermissions({ ...options, allowExec: true }, stored)).resolves.toEqual({ ...remembered, allowExec: true })
     expect(confirm).not.toHaveBeenCalled()
     expect(writeCredentials).not.toHaveBeenCalled()
+  })
+
+  it('still asks for the other three when one permission is granted by flag', async () => {
+    confirm.mockResolvedValue(false)
+
+    await resolvePermissions({ ...options, allowConfigEdit: true }, credentials)
+
+    expect(confirm).toHaveBeenCalledTimes(3)
+    expect(confirm.mock.calls.some(([call]) => call?.message?.includes('plugin options'))).toBe(false)
+  })
+})
+
+describe('formatPermissionSummary', () => {
+  it('lists every permission', () => {
+    expect(formatPermissionSummary({ allowWrite: true, allowConfigEdit: false, allowInput: true, allowExec: false })).toMatchInlineSnapshot(
+      `"write generated files: yes, edit kubb.config.ts: no, use a Studio spec: yes, run formatter, linter, postGenerate: no"`,
+    )
   })
 })

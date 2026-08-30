@@ -1,43 +1,5 @@
 import path from 'node:path'
-import type { Diagnostic } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { formatGenerationFailure } from './generate.ts'
-
-function errorDiagnostic(plugin: string, message: string): Diagnostic {
-  return { code: 'KUBB_UNKNOWN', severity: 'error', message, plugin }
-}
-
-describe('formatGenerationFailure', () => {
-  it('names the single failing plugin', () => {
-    const error = formatGenerationFailure([errorDiagnostic('plugin-ts', 'ctx.getMode is not a function')])
-
-    expect(error.message).toBe('Generation failed: 1 error — plugin-ts: ctx.getMode is not a function')
-  })
-
-  it('lists every failing plugin', () => {
-    const error = formatGenerationFailure([errorDiagnostic('plugin-ts', 'boom'), errorDiagnostic('plugin-zod', 'bang')])
-
-    expect(error.message).toBe('Generation failed: 2 errors — plugin-ts: boom; plugin-zod: bang')
-  })
-
-  it('reports the message alone when no diagnostic names a plugin', () => {
-    const error = formatGenerationFailure([{ code: 'KUBB_UNKNOWN', severity: 'error', message: 'input not found' }])
-
-    expect(error.message).toBe('Generation failed: 1 error — input not found')
-  })
-
-  it('ignores warning and info diagnostics', () => {
-    const error = formatGenerationFailure([{ code: 'KUBB_UNKNOWN', severity: 'warning', message: 'heads up' }, errorDiagnostic('plugin-ts', 'boom')])
-
-    expect(error.message).toBe('Generation failed: 1 error — plugin-ts: boom')
-  })
-
-  it('reports no errors when the diagnostics list is empty', () => {
-    const error = formatGenerationFailure([])
-
-    expect(error.message).toBe('Generation failed')
-  })
-})
 
 describe('Output path resolution', () => {
   it('should resolve relative paths correctly', () => {

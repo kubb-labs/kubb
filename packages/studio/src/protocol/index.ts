@@ -1,10 +1,9 @@
 /**
- * WebSocket message types for the agent communication protocol.
+ * WebSocket message types for the agent ↔ Studio protocol.
  *
- * Messages flow bidirectionally between the Studio backend and CLI agents:
- * - Studio → Agent: CommandMessage (generate, connect), PongMessage, DisconnectMessage
- * - Agent → Studio: ConnectedMessage, DataMessage, PingMessage
- * - Either direction: ErrorMessage
+ * - Studio → agent: `command` (generate, connect, write-config), `pong`, `disconnect`
+ * - Agent → Studio: `connected`, `data`, `ping`, `config-written`
+ * - Either way: `kubb:error`
  */
 
 import type { Config } from '@kubb/core'
@@ -177,8 +176,7 @@ export type KubbHooks = {
 export type KubbHook = keyof KubbHooks
 
 /**
- * Command sent from Studio to Agent: either a `generate` run with a full Kubb config,
- * or a `connect` handshake carrying the write permissions granted for this session.
+ * Command sent from Studio to Agent: `generate`, `connect`, or `write-config`.
  */
 export type CommandMessage =
   /**
@@ -186,15 +184,10 @@ export type CommandMessage =
    */
   | { type: 'command'; command: 'generate'; payload: JSONKubbConfig }
   /**
-   * Open a session. `permissions.allowWrite` is the write access granted for this connection.
+   * Ask the agent to send a fresh `connected` payload. Permissions are fixed when the host starts
+   * the agent; this message only triggers another read of disk config and saved Studio state.
    */
-  | {
-      type: 'command'
-      command: 'connect'
-      permissions: {
-        allowWrite: boolean
-      }
-    }
+  | { type: 'command'; command: 'connect' }
   /**
    * Change plugin options in the user's `kubb.config.ts`. Applied only when the agent was granted
    * `allowConfigEdit`; otherwise every edit comes back refused.
@@ -302,8 +295,8 @@ export type ConnectMessagePayload = {
 }
 
 /**
- * Handshake reply sent from Agent to Studio after a `connect` command, carrying the agent's
- * resolved config, granted permissions, and reported versions.
+ * Agent → Studio handshake. Sent when the WebSocket opens and again after a `connect` command.
+ * Carries the on-disk config baseline, granted permissions, and paths Studio needs to render the editor.
  */
 export type ConnectedMessage = {
   type: 'connected'
@@ -461,12 +454,4 @@ export function isPongMessage(msg: AgentMessage): msg is PongMessage {
 
 export function isDisconnectMessage(msg: AgentMessage): msg is DisconnectMessage {
   return msg.type === 'disconnect'
-}
-
-export function isConnectedMessage(msg: AgentMessage): msg is ConnectedMessage {
-  return msg.type === 'connected'
-}
-
-export function isConfigWrittenMessage(msg: AgentMessage): msg is ConfigWrittenMessage {
-  return msg.type === 'config-written'
 }

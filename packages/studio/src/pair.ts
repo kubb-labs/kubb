@@ -4,45 +4,35 @@ import { sleep } from './logger.ts'
 import { getMachineToken } from './machine.ts'
 
 /**
- * Pairing is an RFC 8628 device authorization grant, served by Studio's auth layer. The CLI asks
- * for a code, shows it, and polls while the user approves it in a browser that is already signed
- * in. "Device" is the RFC's word for the grant; the thing being paired is a `cli` agent.
+ * RFC 8628 device-authorization response from Studio's `/api/auth/device/code` endpoint.
+ * Field names match the RFC; the CLI polls with `device_code` and shows `user_code` to the user.
  */
 export type PairingSession = {
-  /**
-   * Opaque handle the CLI polls with. Never shown to the user.
-   */
   device_code: string
-  /**
-   * The short code the user checks against the one on the approval page.
-   */
   user_code: string
-  /**
-   * Where the user approves, without the code filled in.
-   */
   verification_uri: string
-  /**
-   * Same page with the code prefilled, so `--open` needs nothing typed.
-   */
   verification_uri_complete: string
-  /**
-   * Seconds until `user_code` expires.
-   */
   expires_in: number
-  /**
-   * Seconds to wait between polls.
-   */
   interval: number
 }
 
 export type PairingResult = {
   /**
-   * Bearer token for this machine. Store it with mode 0600 and never log it.
+   * Bearer token for this machine. Write credentials with mode 0600 and never log the value.
    */
   token: string
   agent: {
+    /**
+     * Stable agent id in Studio.
+     */
     id: string
+    /**
+     * Short slug used in logs and the UI (for example `brave-otter`).
+     */
     slug: string
+    /**
+     * Display name chosen at pairing time.
+     */
     name: string
   }
 }

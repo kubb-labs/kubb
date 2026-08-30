@@ -17,7 +17,7 @@ import {
 import { getStorage } from './machine.ts'
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { generate } from './generate.ts'
-import { agentDefaults, maxHeartbeatIntervalMs } from './constants.ts'
+import { agentDefaults } from './constants.ts'
 import { logger } from './logger.ts'
 import { assertAllowedPlugins, mergeAdapter, mergePlugins } from './resolveConfig.ts'
 import type WebSocket from 'ws'
@@ -28,18 +28,6 @@ import { createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream 
  * survives reconnects, which mint a fresh session id each time, and restarts.
  */
 const STUDIO_CONFIG_KEY = 'studio-config'
-
-/**
- * Loads the config patcher on demand.
- *
- * `ts-morph` costs roughly 130ms and 100MB of RSS to import, and an agent that was not granted
- * `allowConfigEdit` never calls into it. Keeping the import dynamic keeps that weight out of every
- * read-only agent and every sandbox, which is most of them, and out of the long-lived Docker agent
- * that would otherwise carry it for its whole life.
- */
-function loadConfigPatcher() {
-  return import('./configFile.ts')
-}
 
 export type ConnectToStudioOptions = {
   token: string
@@ -94,10 +82,6 @@ export type ConnectToStudioOptions = {
   signal?: AbortSignal
 }
 
-/**
- * Opens a WebSocket connection to Kubb Studio and handles incoming commands.
- * Automatically reconnects after `retryInterval` ms on close or error.
- */
 /**
  * Schedules another connection attempt.
  *
@@ -164,7 +148,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   // Studio counts an agent offline once its last ping is older than its liveness window, so a
   // slower cadence would make a healthy agent invisible. Clamped here rather than in a host's env
   // parsing, so every host is held to the contract.
-  const heartbeatInterval = Math.min(requestedHeartbeatInterval, maxHeartbeatIntervalMs)
+  const heartbeatInterval = Math.min(requestedHeartbeatInterval, agentDefaults.heartbeatIntervalMs)
 
   // Each connection gets its own isolated event emitter so generation events
   // from one session do not bleed into another session's WebSocket stream.
@@ -227,14 +211,12 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     }
 
     /**
-     * Reads the config file from disk and reports what Studio may edit in it.
+     * Reads `kubb.config.ts` and reports which plugin options Studio may edit.
      *
-     * Only built when the agent may actually edit the file. The per-option `literal` flags exist so
-     * Studio can disable the controls it cannot write, which is moot when it can write none of them,
-     * and skipping it keeps `ts-morph` out of the process.
+     * Skipped when the host did not grant `allowConfigEdit`. The patcher pulls in `ts-morph`
+     * (~130ms, ~100MB RSS), so read-only agents never import it.
      *
-     * Nothing here is cached. A user can open `kubb.config.ts` between two Studio actions, and a
-     * view from before that edit would let Studio overwrite it.
+     * Not cached — the user can edit the file between two Studio actions.
      */
     async function readConfigFileView(source?: string): Promise<ConfigFileView | undefined> {
       if (!effectiveConfigEdit) {
@@ -242,7 +224,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       }
 
       try {
-        const { readConfig } = await loadConfigPatcher()
+        const { readConfig } = await import('./configFile.ts')
 
         return readConfig(source ?? (await readFile(configFilePath, 'utf-8')))
       } catch (error) {
@@ -252,16 +234,13 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       }
     }
 
-    async function readStoredConfig() {
-      if (!persistConfig) return null
-      return getStorage()
-        .getItem<JSONKubbConfig>(STUDIO_CONFIG_KEY)
-        .catch(() => null)
-    }
-
     async function sendConnectedPayload() {
       const config = await loadConfig()
-      const storedConfig = await readStoredConfig()
+      const storedConfig = persistConfig
+        ? await getStorage()
+            .getItem<JSONKubbConfig>(STUDIO_CONFIG_KEY)
+            .catch(() => null)
+        : null
 
       // Replay the last-saved Studio config so the UI prefills with the user's previous choices.
       // The spec is only surfaced when input is allowed, matching what the agent would actually use.
@@ -412,7 +391,12 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               const config = await loadConfig()
 
               // Message payload takes priority over the saved studio config.
-              const storedConfig = data.payload ? null : await readStoredConfig()
+              const storedConfig =
+                data.payload || !persistConfig
+                  ? null
+                  : await getStorage()
+                      .getItem<JSONKubbConfig>(STUDIO_CONFIG_KEY)
+                      .catch(() => null)
               const patch = data.payload ?? storedConfig ?? undefined
               assertAllowedPlugins(patch?.plugins, allowedPlugins)
 
@@ -478,13 +462,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             // Studio waits on a `config-written` for every `write-config`, so every path out of this
             // branch sends one. `edits` is checked before it is walked: the message crosses the same
             // trust boundary as the values inside it.
-            const edits = Array.isArray(data.edits) ? data.edits : []
-            const refuse = (reason: string) =>
-              sendAgentMessage(ws, {
-                type: 'config-written',
-                payload: { outcomes: edits.map((edit) => ({ edit, applied: false, reason })), changed: false },
-              })
-
             if (!Array.isArray(data.edits)) {
               logger.warn(tag, 'Ignored "write-config" from Studio: the message carried no edits')
 
@@ -492,6 +469,13 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
               return
             }
+
+            const edits = data.edits
+            const refuse = (reason: string) =>
+              sendAgentMessage(ws, {
+                type: 'config-written',
+                payload: { outcomes: edits.map((edit) => ({ edit, applied: false, reason })), changed: false },
+              })
 
             if (!effectiveConfigEdit) {
               logger.warn(tag, 'Ignored "write-config" from Studio: editing kubb.config.ts was not granted')
@@ -513,7 +497,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               // Read straight before the patch rather than reusing what went out on connect. The user
               // may have edited the file since, and since every untouched node keeps its own text,
               // patching what is on disk right now preserves that edit.
-              const { applyConfigEdits } = await loadConfigPatcher()
+              const { applyConfigEdits } = await import('./configFile.ts')
               const current = await readFile(configFilePath, 'utf-8')
               const { source: patched, outcomes, changed } = applyConfigEdits(current, edits)
 
