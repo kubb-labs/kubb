@@ -4,7 +4,7 @@
 
 Let Studio change plugin options in a project's `kubb.config.ts`.
 
-A new `write-config` command carries a list of edits, each one a `set`, `remove`, or `add-plugin`
+A new `save` command carries a list of edits, each one a `set`, `remove`, or `add-plugin`
 `operation`. The agent patches the file's AST rather than regenerating it, so only the values an
 edit names get rewritten. Comments, formatting, and the code you wrote around the config keep their
 own text.
