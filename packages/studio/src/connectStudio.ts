@@ -4,7 +4,6 @@ import process from 'node:process'
 import { getErrorMessage } from '@internals/utils'
 import { type Config, fsStorage, Hookable, memoryStorage } from '@kubb/core'
 import { version as kubbVersion } from '@kubb/core/package.json'
-import { applyConfigEdits, readConfig } from './configFile.ts'
 import { type AgentHooks, setupHookListener } from './hooks.ts'
 import {
   type AgentMessage,
@@ -29,6 +28,18 @@ import { createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream 
  * survives reconnects, which mint a fresh session id each time, and restarts.
  */
 const STUDIO_CONFIG_KEY = 'studio-config'
+
+/**
+ * Loads the config patcher on demand.
+ *
+ * `ts-morph` costs roughly 130ms and 100MB of RSS to import, and an agent that was not granted
+ * `allowConfigEdit` never calls into it. Keeping the import dynamic keeps that weight out of every
+ * read-only agent and every sandbox, which is most of them, and out of the long-lived Docker agent
+ * that would otherwise carry it for its whole life.
+ */
+function loadConfigPatcher() {
+  return import('./configFile.ts')
+}
 
 export type ConnectToStudioOptions = {
   token: string
@@ -172,8 +183,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     const effectiveWrite = isSandbox ? false : allowWrite
     // A sandbox has no user project to edit, so a config edit is never granted there.
     const effectiveConfigEdit = isSandbox ? false : allowConfigEdit
-    // `configPath` is relative to the agent's root unless it is already absolute.
-    const configFilePath = path.isAbsolute(configPath) ? configPath : path.join(root, configPath)
+    // `configPath` is relative to the agent's root unless it is already absolute, which is what
+    // `resolve` does on its own.
+    const configFilePath = path.resolve(root, configPath)
     // A sandbox agent always generates from the spec Studio supplies; a local agent only when opted in.
     const effectiveAllowInput = isSandbox || allowInput
     // The saved studio config is shared by every pool session, so only persist and replay it for a
@@ -217,11 +229,21 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     /**
      * Reads the config file from disk and reports what Studio may edit in it.
      *
+     * Only built when the agent may actually edit the file. The per-option `literal` flags exist so
+     * Studio can disable the controls it cannot write, which is moot when it can write none of them,
+     * and skipping it keeps `ts-morph` out of the process.
+     *
      * Nothing here is cached. A user can open `kubb.config.ts` between two Studio actions, and a
      * view from before that edit would let Studio overwrite it.
      */
     async function readConfigFileView(source?: string): Promise<ConfigFileView | undefined> {
+      if (!effectiveConfigEdit) {
+        return undefined
+      }
+
       try {
+        const { readConfig } = await loadConfigPatcher()
+
         return readConfig(source ?? (await readFile(configFilePath, 'utf-8')))
       } catch (error) {
         logger.debug(tag, `Could not read ${configFilePath}: ${getErrorMessage(error)}`)
@@ -453,11 +475,23 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
           }
 
           if (data.command === 'write-config') {
+            // Studio waits on a `config-written` for every `write-config`, so every path out of this
+            // branch sends one. `edits` is checked before it is walked: the message crosses the same
+            // trust boundary as the values inside it.
+            const edits = Array.isArray(data.edits) ? data.edits : []
             const refuse = (reason: string) =>
               sendAgentMessage(ws, {
                 type: 'config-written',
-                payload: { outcomes: data.edits.map((edit) => ({ edit, applied: false, reason })), changed: false },
+                payload: { outcomes: edits.map((edit) => ({ edit, applied: false, reason })), changed: false },
               })
+
+            if (!Array.isArray(data.edits)) {
+              logger.warn(tag, 'Ignored "write-config" from Studio: the message carried no edits')
+
+              sendAgentMessage(ws, { type: 'config-written', payload: { outcomes: [], changed: false } })
+
+              return
+            }
 
             if (!effectiveConfigEdit) {
               logger.warn(tag, 'Ignored "write-config" from Studio: editing kubb.config.ts was not granted')
@@ -475,23 +509,32 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               return
             }
 
-            // Read straight before the patch rather than reusing what went out on connect. The user
-            // may have edited the file since, and since every untouched node keeps its own text,
-            // patching what is on disk right now preserves that edit.
-            const current = await readFile(configFilePath, 'utf-8')
-            const { source: patched, outcomes, changed } = applyConfigEdits(current, data.edits)
+            try {
+              // Read straight before the patch rather than reusing what went out on connect. The user
+              // may have edited the file since, and since every untouched node keeps its own text,
+              // patching what is on disk right now preserves that edit.
+              const { applyConfigEdits } = await loadConfigPatcher()
+              const current = await readFile(configFilePath, 'utf-8')
+              const { source: patched, outcomes, changed } = applyConfigEdits(current, edits)
 
-            if (changed) {
-              await writeFile(configFilePath, patched, 'utf-8')
+              if (changed) {
+                await writeFile(configFilePath, patched, 'utf-8')
+              }
+
+              sendAgentMessage(ws, {
+                type: 'config-written',
+                payload: { outcomes, changed, configFile: changed ? await readConfigFileView(patched) : undefined },
+              })
+
+              const applied = outcomes.filter((outcome) => outcome.applied).length
+              logger.success(tag, `Completed "${data.type}" from Studio, applied ${applied}/${outcomes.length} edits to ${configPath}`)
+            } catch (error) {
+              // An unreadable config, a read-only filesystem. Reported as a refusal of every edit so
+              // Studio hears back rather than waiting on a reply that never comes.
+              logger.exception(tag, error)
+
+              refuse(getErrorMessage(error))
             }
-
-            sendAgentMessage(ws, {
-              type: 'config-written',
-              payload: { outcomes, changed, configFile: changed ? await readConfigFileView(patched) : undefined },
-            })
-
-            const applied = outcomes.filter((outcome) => outcome.applied).length
-            logger.success(tag, `Completed "${data.type}" from Studio, applied ${applied}/${outcomes.length} edits to ${configPath}`)
 
             return
           }

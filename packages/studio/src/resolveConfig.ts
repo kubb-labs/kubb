@@ -64,7 +64,7 @@ function toPluginName(packageName: string): string {
  * toExportName('my-custom-plugin')         // 'myCustomPlugin'
  * ```
  */
-function toExportName(packageName: string): string {
+export function toExportName(packageName: string): string {
   return camelCase(toPluginName(packageName))
 }
 

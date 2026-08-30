@@ -60,11 +60,19 @@ describe('resolvePermissions', () => {
     expect(questions).toMatchInlineSnapshot(`
       [
         "Let Kubb Studio write generated files into <project>?",
-        "Let Kubb Studio change plugin options in your kubb.config.ts?",
+        "Let Kubb Studio change plugin options in kubb.config.ts?",
         "Let Kubb Studio generate from an OpenAPI spec it sends, instead of the one on disk?",
         "Let Kubb Studio run the formatter, the linter, and output.postGenerate?",
       ]
     `)
+  })
+
+  it('names the config the project actually has, not the default', async () => {
+    confirm.mockResolvedValue(false)
+
+    await resolvePermissions(options, credentials, 'configs/kubb.config.mjs')
+
+    expect(confirm.mock.calls.map(([call]) => call?.message).find((message) => message?.includes('plugin options'))).toMatchInlineSnapshot(`"Let Kubb Studio change plugin options in configs/kubb.config.mjs?"`)
   })
 
   it('asks nothing again once the project answered, and never stores a flag-granted permission', async () => {

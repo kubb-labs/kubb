@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { applyConfigEdits, type ConfigEdit, isOptionValue, printValue, readConfig, toImportName } from './configFile.ts'
+import { applyConfigEdits, isOptionValue, printValue, readConfig } from './configFile.ts'
+import type { ConfigEdit } from './protocol/index.ts'
 
 const advanced = readFileSync(join(import.meta.dirname, '../mocks/advanced.config.txt'), 'utf8')
 
@@ -33,52 +34,6 @@ function changedLines(before: string, after: string): Array<string> {
 function apply(source: string, ...edits: Array<ConfigEdit>) {
   return applyConfigEdits(source, edits)
 }
-
-describe('toImportName', () => {
-  // Every plugin published from kubb-labs/plugins, so a package that breaks the convention shows up
-  // here rather than as a wrong import written into someone's config.
-  it('derives the factory name every Kubb plugin exports', () => {
-    const packages = [
-      '@kubb/plugin-axios',
-      '@kubb/plugin-cypress',
-      '@kubb/plugin-faker',
-      '@kubb/plugin-fetch',
-      '@kubb/plugin-mcp',
-      '@kubb/plugin-msw',
-      '@kubb/plugin-react-query',
-      '@kubb/plugin-redoc',
-      '@kubb/plugin-swr',
-      '@kubb/plugin-ts',
-      '@kubb/plugin-vue-query',
-      '@kubb/plugin-zod',
-    ]
-    expect(Object.fromEntries(packages.map((name) => [name, toImportName(name)]))).toMatchInlineSnapshot(`
-      {
-        "@kubb/plugin-axios": "pluginAxios",
-        "@kubb/plugin-cypress": "pluginCypress",
-        "@kubb/plugin-faker": "pluginFaker",
-        "@kubb/plugin-fetch": "pluginFetch",
-        "@kubb/plugin-mcp": "pluginMcp",
-        "@kubb/plugin-msw": "pluginMsw",
-        "@kubb/plugin-react-query": "pluginReactQuery",
-        "@kubb/plugin-redoc": "pluginRedoc",
-        "@kubb/plugin-swr": "pluginSwr",
-        "@kubb/plugin-ts": "pluginTs",
-        "@kubb/plugin-vue-query": "pluginVueQuery",
-        "@kubb/plugin-zod": "pluginZod",
-      }
-    `)
-  })
-
-  it('derives a name for a plugin outside the @kubb scope', () => {
-    expect(['@acme/plugin-solid-query', 'kubb-plugin-custom'].map(toImportName)).toMatchInlineSnapshot(`
-      [
-        "pluginSolidQuery",
-        "kubbPluginCustom",
-      ]
-    `)
-  })
-})
 
 describe('printValue', () => {
   it('prints config literals in the repo style', () => {
@@ -361,6 +316,82 @@ describe('applyConfigEdits: add-plugin', () => {
         input: './api.yaml',
         plugins: [pluginTs(), pluginZod({ inferred: true })],
       })
+      "
+    `)
+  })
+})
+
+describe('reading a config that does not look like the examples', () => {
+  it('finds a plugin imported under an alias', () => {
+    const source = `import { pluginTs as tsPlugin } from '@kubb/plugin-ts'\n\nexport default defineConfig({ plugins: [tsPlugin({ arrayType: 'generic' })] })\n`
+    const view = readConfig(source)
+    expect(view.managed && view.plugins).toMatchInlineSnapshot(`
+      [
+        {
+          "importName": "tsPlugin",
+          "options": {
+            "arrayType": {
+              "literal": true,
+            },
+          },
+          "packageName": "@kubb/plugin-ts",
+        },
+      ]
+    `)
+  })
+
+  it('edits a plugin imported under an alias', () => {
+    const source = `import { pluginTs as tsPlugin } from '@kubb/plugin-ts'\n\nexport default defineConfig({ plugins: [tsPlugin({ arrayType: 'generic' })] })\n`
+    const result = applyConfigEdits(source, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: 'array' }])
+    expect(changedSpan(source, result.source)).toMatchInlineSnapshot(`""generic" -> "array""`)
+  })
+
+  // A string that happens to hold an import line used to convince the old whole-file cleanup pass
+  // that this config was written with semicolons.
+  it('ignores an import line that is really just string content', () => {
+    const source = [
+      `import { pluginTs } from '@kubb/plugin-ts'`,
+      ``,
+      "const banner = `import type { Foo } from './foo';`",
+      ``,
+      `export default defineConfig({ plugins: [pluginTs({ banner })] })`,
+      ``,
+    ].join('\n')
+    const result = applyConfigEdits(source, [{ operation: 'add-plugin', plugin: '@kubb/plugin-zod' }])
+    expect(result.source.split('\n').filter((line) => line.startsWith('import'))).toMatchInlineSnapshot(`
+      [
+        "import { pluginTs } from '@kubb/plugin-ts'",
+        "import { pluginZod } from '@kubb/plugin-zod'",
+      ]
+    `)
+  })
+
+  it('follows a config that does write semicolons', () => {
+    const source = [`import { pluginTs } from '@kubb/plugin-ts';`, ``, `export default defineConfig({ plugins: [pluginTs()] });`, ``].join('\n')
+    const result = applyConfigEdits(source, [{ operation: 'add-plugin', plugin: '@kubb/plugin-zod' }])
+    expect(result.source.split('\n').filter((line) => line.startsWith('import'))).toMatchInlineSnapshot(`
+      [
+        "import { pluginTs } from '@kubb/plugin-ts';",
+        "import { pluginZod } from '@kubb/plugin-zod';",
+      ]
+    `)
+  })
+
+  it('puts a new import after the existing ones when a statement comes first', () => {
+    const source = [
+      `const strict = process.env.STRICT === 'true'`,
+      `import { pluginTs } from '@kubb/plugin-ts'`,
+      ``,
+      `export default defineConfig({ plugins: [pluginTs()] })`,
+      ``,
+    ].join('\n')
+    const result = applyConfigEdits(source, [{ operation: 'add-plugin', plugin: '@kubb/plugin-zod' }])
+    expect(result.source).toMatchInlineSnapshot(`
+      "const strict = process.env.STRICT === 'true'
+      import { pluginTs } from '@kubb/plugin-ts'
+      import { pluginZod } from '@kubb/plugin-zod'
+
+      export default defineConfig({ plugins: [pluginTs(), pluginZod()] })
       "
     `)
   })

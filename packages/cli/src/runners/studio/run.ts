@@ -3,6 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as prompts from '@clack/prompts'
+import { KUBB_CONFIG_FILENAME } from '@internals/shared'
 import { canUseTTY, isCIEnvironment, toError } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
 import { createFileStorage, createClient, defaultStudioUrl, InvalidAgentTokenError, pollForPairingToken, setStorage, startPairing } from '@kubb/studio'
@@ -96,9 +97,9 @@ type Permission = 'allowWrite' | 'allowConfigEdit' | 'allowInput' | 'allowExec'
 /**
  * What each permission is asked as, in the order the questions appear.
  */
-const PERMISSIONS: ReadonlyArray<{ key: Permission; question: (project: string) => string }> = [
+const PERMISSIONS: ReadonlyArray<{ key: Permission; question: (project: string, configPath: string) => string }> = [
   { key: 'allowWrite', question: (project) => `Let Kubb Studio write generated files into ${project}?` },
-  { key: 'allowConfigEdit', question: () => 'Let Kubb Studio change plugin options in your kubb.config.ts?' },
+  { key: 'allowConfigEdit', question: (_project, configPath) => `Let Kubb Studio change plugin options in ${configPath}?` },
   { key: 'allowInput', question: () => 'Let Kubb Studio generate from an OpenAPI spec it sends, instead of the one on disk?' },
   { key: 'allowExec', question: () => 'Let Kubb Studio run the formatter, the linter, and output.postGenerate?' },
 ]
@@ -113,7 +114,11 @@ const PERMISSIONS: ReadonlyArray<{ key: Permission; question: (project: string) 
  * for the session and never have to change mid-connection. Move them to first use if the up-front
  * questions turn out to annoy people who only ever preview.
  */
-export async function resolvePermissions(options: StudioOptions, credentials: Credentials): Promise<Record<Permission, boolean>> {
+export async function resolvePermissions(
+  options: StudioOptions,
+  credentials: Credentials,
+  configPath: string = KUBB_CONFIG_FILENAME,
+): Promise<Record<Permission, boolean>> {
   const project = process.cwd()
   const remembered = credentials.projects?.[project]
   const granted: Record<Permission, boolean> = { allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false }
@@ -130,7 +135,7 @@ export async function resolvePermissions(options: StudioOptions, credentials: Cr
       continue
     }
 
-    granted[key] = (await prompts.confirm({ message: question(project), initialValue: false })) === true
+    granted[key] = (await prompts.confirm({ message: question(project, configPath), initialValue: false })) === true
     answers[key] = granted[key]
   }
 
@@ -184,7 +189,7 @@ async function connect(options: StudioOptions, retryAfterPairing = true): Promis
   }
 
   const { configPath, config } = await loadFirstConfig(options)
-  const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, credentials)
+  const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, credentials, configPath)
 
   if (!allowWrite && !allowConfigEdit && !allowExec && options.logLevel !== 'silent') {
     console.log(styleText('dim', 'Read-only run. Nothing is written to disk and no command is run.'))

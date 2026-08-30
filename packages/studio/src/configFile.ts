@@ -9,81 +9,13 @@ import {
   QuoteKind,
   type SourceFile,
 } from 'ts-morph'
+import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ManagedPlugin } from './protocol/index.ts'
+import { toExportName } from './resolveConfig.ts'
 
 /**
  * A value Studio can round-trip through JSON and print back as a config literal.
  */
 export type OptionValue = string | number | boolean | null | Array<OptionValue> | { [key: string]: OptionValue }
-
-/**
- * A plugin factory call found in the `plugins` array of a `defineConfig(...)`.
- */
-export type ManagedPlugin = {
-  /**
-   * Local identifier of the factory in the file, e.g. `pluginTs`.
-   */
-  importName: string
-  /**
-   * Module the factory is imported from, e.g. `@kubb/plugin-ts`.
-   */
-  packageName: string
-  /**
-   * Top-level option keys and whether Studio may write them. A key that holds a function, a spread,
-   * or a reference to an outside variable is reported with `literal: false`, which Studio renders as
-   * a disabled control rather than hiding.
-   */
-  options: Record<string, { literal: boolean }>
-}
-
-/**
- * What the patcher found in a config file.
- * - `managed: true` carries every plugin call it can address
- * - `managed: false` carries the reason it will not touch the file
- */
-export type ConfigView =
-  | { managed: true; plugins: Array<ManagedPlugin> }
-  | {
-      managed: false
-      /**
-       * Why the file's shape is outside what the patcher edits, shown in the Studio UI.
-       */
-      reason: string
-    }
-
-/**
- * One change to write into a config file. `plugin` is always the package name
- * (`@kubb/plugin-ts`), matching how plugins are named over the agent protocol.
- */
-export type ConfigEdit =
-  /**
-   * Write a literal option value. `path` walks nested objects, so `['enum', 'type']` targets
-   * `pluginTs({ enum: { type } })`.
-   *
-   * `value` is `unknown` because an edit can arrive over the agent WebSocket. It goes through
-   * {@link isOptionValue} before anything reaches the user's file.
-   */
-  | { operation: 'set'; plugin: string; path: Array<string>; value: unknown }
-  /**
-   * Drop an option so the plugin falls back to its default.
-   */
-  | { operation: 'remove'; plugin: string; path: Array<string> }
-  /**
-   * Add a plugin factory call and its import. `options` is checked the same way as `set`.
-   */
-  | { operation: 'add-plugin'; plugin: string; importName?: string; options?: Record<string, unknown> }
-
-/**
- * What happened to one edit. An edit that could not be applied never stops the others, so a batch
- * reports per-edit rather than failing whole.
- */
-export type EditOutcome = {
-  edit: ConfigEdit
-  applied: boolean
-  /**
-   * Why the edit was refused, absent when it was applied.
-   */
-  reason?: string
-}
 
 export type ApplyResult = {
   /**
@@ -93,16 +25,11 @@ export type ApplyResult = {
   /**
    * One entry per edit, in the order they were given.
    */
-  outcomes: Array<EditOutcome>
+  outcomes: Array<ConfigEditOutcome>
   /**
    * Whether `source` differs from the input.
    */
   changed: boolean
-}
-
-export function toImportName(packageName: string): string {
-  const bare = packageName.replace(/^@[^/]+\//, '')
-  return bare.replace(/-(\w)/g, (_, character: string) => character.toUpperCase())
 }
 
 function createProject(source: string): SourceFile {
@@ -178,7 +105,7 @@ function isLiteral(node: Node): boolean {
   if (Node.isStringLiteral(node) || Node.isNumericLiteral(node) || Node.isNoSubstitutionTemplateLiteral(node)) {
     return true
   }
-  if (Node.isTrueLiteral(node) || Node.isFalseLiteral(node) || node.getText() === 'null') {
+  if (Node.isTrueLiteral(node) || Node.isFalseLiteral(node) || Node.isNullLiteral(node)) {
     return true
   }
   if (Node.isPrefixUnaryExpression(node)) {
@@ -200,7 +127,8 @@ function importedFrom(file: SourceFile): Map<string, string> {
   const byName = new Map<string, string>()
   for (const declaration of file.getImportDeclarations()) {
     for (const named of declaration.getNamedImports()) {
-      byName.set(named.getName(), declaration.getModuleSpecifierValue())
+      // Keyed by the local binding: that is what a plugin call in the file actually names.
+      byName.set(named.getAliasNode()?.getText() ?? named.getName(), declaration.getModuleSpecifierValue())
     }
   }
   return byName
@@ -241,7 +169,7 @@ function resolvePluginCalls(file: SourceFile, array: ArrayLiteralExpression): Ar
  * }
  * ```
  */
-export function readConfig(source: string): ConfigView {
+export function readConfig(source: string): ConfigFileView {
   const file = createProject(source)
   const plugins = getPluginsArray(file)
   if ('reason' in plugins) {
@@ -428,7 +356,7 @@ function applyRemove(call: CallExpression, path: Array<string>): string | undefi
 }
 
 function applyAddPlugin(file: SourceFile, array: ArrayLiteralExpression, edit: Extract<ConfigEdit, { operation: 'add-plugin' }>): string | undefined {
-  const importName = edit.importName ?? toImportName(edit.plugin)
+  const importName = edit.importName ?? toExportName(edit.plugin)
 
   if (resolvePluginCalls(file, array).some((plugin) => plugin.packageName === edit.plugin)) {
     return `${edit.plugin} is already in the plugins array`
@@ -447,22 +375,27 @@ function applyAddPlugin(file: SourceFile, array: ArrayLiteralExpression, edit: E
   array.addElement(`${importName}(${Object.keys(options).length ? printValue(options) : ''})`)
 
   if (!taken) {
-    // Placed with the other imports rather than appended, which is where `addImportDeclaration` puts it.
-    file.insertImportDeclaration(file.getImportDeclarations().length, { namedImports: [importName], moduleSpecifier: edit.plugin })
+    insertImport(file, importName, edit.plugin)
   }
   return undefined
 }
 
 /**
- * ts-morph always terminates a statement it writes with a semicolon. Kubb configs are usually
- * written without them, so a inserted import is brought in line with what the file already does.
+ * Writes an import after the last one already in the file.
+ *
+ * The text is written directly rather than through `addImportDeclaration`, which hardcodes a
+ * terminating semicolon that no manipulation setting turns off. Kubb configs are written without
+ * them, and printing the line here keeps the patcher from having to walk the whole file afterwards
+ * undoing it.
  */
-function matchImportStyle(source: string, next: string): string {
-  const existing = source.match(/^import .*$/gm) ?? []
-  if (!existing.length || existing.some((line) => line.trimEnd().endsWith(';'))) {
-    return next
-  }
-  return next.replace(/^(import .*[^;]);$/gm, '$1')
+function insertImport(file: SourceFile, importName: string, moduleSpecifier: string): void {
+  const imports = file.getImportDeclarations()
+  const last = imports.at(-1)
+  const quote = last?.getModuleSpecifier().getText().startsWith('"') ? '"' : "'"
+  const semicolon = last?.getText().trimEnd().endsWith(';') ? ';' : ''
+  const line = `import { ${importName} } from ${quote}${moduleSpecifier}${quote}${semicolon}`
+
+  file.insertText(last ? last.getEnd() : 0, last ? `\n${line}` : `${line}\n`)
 }
 
 /**
@@ -480,15 +413,11 @@ function matchImportStyle(source: string, next: string): string {
  */
 export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): ApplyResult {
   const file = createProject(source)
-  const unmanaged = 'reason' in getPluginsArray(file) ? (getPluginsArray(file) as { reason: string }).reason : undefined
 
-  if (unmanaged) {
-    return { source, outcomes: edits.map((edit) => ({ edit, applied: false, reason: unmanaged })), changed: false }
-  }
-
-  const outcomes = edits.map((edit): EditOutcome => {
-    // Re-derived every edit: `insertText` forgets nodes taken before it, so a captured array node
-    // would go stale as soon as one edit repairs a trailing comma.
+  const outcomes = edits.map((edit): ConfigEditOutcome => {
+    // Re-derived every edit. Of the mutations used here only `sourceFile.insertText` forgets nodes
+    // taken before it, and only `restoreTrailingComma` reaches for it, but one such edit anywhere in
+    // the batch would leave a captured array node stale for every edit after it.
     const plugins = getPluginsArray(file)
     if ('reason' in plugins) {
       return { edit, applied: false, reason: plugins.reason }
@@ -508,6 +437,6 @@ export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): Appl
     return { edit, applied: !reason, reason }
   })
 
-  const next = matchImportStyle(source, file.getFullText())
+  const next = file.getFullText()
   return { source: next, outcomes, changed: next !== source }
 }

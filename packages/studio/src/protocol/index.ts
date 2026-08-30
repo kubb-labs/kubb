@@ -48,9 +48,8 @@ export type JSONKubbConfig = {
  * `plugin` is the package name (`@kubb/plugin-ts`), the same identity used in {@link JSONKubbConfig}.
  * The agent applies these to the file with an AST patch, so only the targeted values are rewritten.
  *
- * Restated here rather than imported from the patcher in `configFile.ts`, so this entry point stays
- * free of `ts-morph`. The two shapes have to match: the agent hands these straight to the patcher,
- * so any drift between them is a type error at that call.
+ * Declared here rather than in `configFile.ts` because this is the wire contract, and the patcher
+ * imports it from here. Type-only, so nothing pulls `ts-morph` into this entry point.
  */
 export type ConfigEdit =
   /**
@@ -68,6 +67,27 @@ export type ConfigEdit =
   | { operation: 'add-plugin'; plugin: string; importName?: string; options?: Record<string, unknown> }
 
 /**
+ * A plugin factory call the agent found in the `plugins` array of a `defineConfig(...)`.
+ */
+export type ManagedPlugin = {
+  /**
+   * Local identifier of the factory in the file, e.g. `pluginTs`. This is the alias when the plugin
+   * was imported under one.
+   */
+  importName: string
+  /**
+   * Module the factory is imported from, e.g. `@kubb/plugin-ts`.
+   */
+  packageName: string
+  /**
+   * Top-level option keys, each flagged with whether the agent may write it. An option marked
+   * `literal: false` holds a function or a reference the agent will not overwrite, so Studio shows
+   * the control disabled rather than hiding it.
+   */
+  options: Record<string, { literal: boolean }>
+}
+
+/**
  * What the agent found in the user's config file, so Studio knows which controls it may offer.
  * Absent when the agent could not read the file at all.
  */
@@ -79,20 +99,7 @@ export type ConfigFileView =
        * `literal: false` holds a function or a reference the agent will not overwrite: Studio shows
        * the control disabled rather than hiding it.
        */
-      plugins: Array<{
-        /**
-         * Local identifier of the factory in the file, e.g. `pluginTs`.
-         */
-        importName: string
-        /**
-         * Module the factory is imported from, e.g. `@kubb/plugin-ts`.
-         */
-        packageName: string
-        /**
-         * Top-level option keys, each flagged with whether the agent may write it.
-         */
-        options: Record<string, { literal: boolean }>
-      }>
+      plugins: Array<ManagedPlugin>
     }
   | {
       managed: false

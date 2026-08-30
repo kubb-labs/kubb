@@ -350,6 +350,24 @@ describe('connectToStudio', () => {
       expect(readFileSync(configFile, 'utf-8')).toBe(editedByHand.replace("'asConst'", "'enum'"))
     })
 
+    // Studio waits on the reply, so a failure that produced none would hang its UI.
+    it('still replies when the config file cannot be read', async () => {
+      await connectToStudio({ ...options, allowConfigEdit: true })
+
+      rmSync(configFile)
+      await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
+
+      expect(reply()?.payload).toMatchObject({ changed: false, outcomes: [{ applied: false }] })
+    })
+
+    it('still replies when the message carries no edits', async () => {
+      await connectToStudio({ ...options, allowConfigEdit: true })
+
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'write-config' }) })
+
+      expect(reply()?.payload).toMatchObject({ changed: false, outcomes: [] })
+    })
+
     it('reports what the file holds on connect so Studio can disable the right controls', async () => {
       await connectToStudio({ ...options, allowConfigEdit: true })
 
