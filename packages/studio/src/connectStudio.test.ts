@@ -246,9 +246,9 @@ describe('connectToStudio', () => {
     expect(mockWs.terminated).toBe(false)
   })
 
-  // write-config command
+  // save command
 
-  describe('write-config', () => {
+  describe('save', () => {
     const original = [
       `import { defineConfig } from 'kubb/config'`,
       `import { pluginTs } from '@kubb/plugin-ts'`,
@@ -265,13 +265,13 @@ describe('connectToStudio', () => {
     let configFile: string
 
     /**
-     * The `config-written` reply the agent sent, if any.
+     * The `config-saved` reply the agent sent, if any.
      */
     const reply = () =>
       vi
         .mocked(sendAgentMessage)
         .mock.calls.map(([, message]) => message)
-        .find((message) => message.type === 'config-written')
+        .find((message) => message.type === 'config-saved')
 
     beforeEach(() => {
       projectRoot = mkdtempSync(path.join(tmpdir(), 'kubb-studio-'))
@@ -284,7 +284,7 @@ describe('connectToStudio', () => {
       rmSync(projectRoot, { recursive: true, force: true })
     })
 
-    const write = async (edits: Array<unknown>) => mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'write-config', edits }) })
+    const write = async (edits: Array<unknown>) => mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'save', edits }) })
 
     it('writes a literal option and leaves the rest of the file alone', async () => {
       await connectToStudio({ ...options, allowConfigEdit: true })
@@ -349,7 +349,7 @@ describe('connectToStudio', () => {
     it('still replies when the message carries no edits', async () => {
       await connectToStudio({ ...options, allowConfigEdit: true })
 
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'write-config' }) })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'save' }) })
 
       expect(reply()?.payload).toMatchObject({ changed: false, outcomes: [] })
     })

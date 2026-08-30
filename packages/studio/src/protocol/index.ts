@@ -1,8 +1,8 @@
 /**
  * WebSocket message types for the agent ↔ Studio protocol.
  *
- * - Studio → agent: `command` (generate, connect, write-config), `pong`, `disconnect`
- * - Agent → Studio: `connected`, `data`, `ping`, `config-written`
+ * - Studio → agent: `command` (generate, connect, save), `pong`, `disconnect`
+ * - Agent → Studio: `connected`, `data`, `ping`, `config-saved`
  * - Either way: `kubb:error`
  */
 
@@ -176,7 +176,7 @@ export type KubbHooks = {
 export type KubbHook = keyof KubbHooks
 
 /**
- * Command sent from Studio to Agent: `generate`, `connect`, or `write-config`.
+ * Command sent from Studio to Agent: `generate`, `connect`, or `save`.
  */
 export type CommandMessage =
   /**
@@ -192,7 +192,7 @@ export type CommandMessage =
    * Change plugin options in the user's `kubb.config.ts`. Applied only when the agent was granted
    * `allowConfigEdit`; otherwise every edit comes back refused.
    */
-  | { type: 'command'; command: 'write-config'; edits: Array<ConfigEdit> }
+  | { type: 'command'; command: 'save'; edits: Array<ConfigEdit> }
 
 /**
  * Identifies the host running the Kubb runtime, so Studio can badge the connection and show the
@@ -297,10 +297,10 @@ export type ConnectedMessage = {
 }
 
 /**
- * Reply to a `write-config` command: what the agent did to the file on disk.
+ * Reply to a `save` command: what the agent did to the file on disk.
  */
-export type ConfigWrittenMessage = {
-  type: 'config-written'
+export type ConfigSavedMessage = {
+  type: 'config-saved'
   payload: {
     /**
      * Per-edit result, in the order the edits were sent.
@@ -419,7 +419,7 @@ export type AgentConnectResponse = {
  * Every message that can cross the agent WebSocket, in either direction. Narrow it with the
  * `is*Message` guards below before reading a variant's fields.
  */
-export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ConfigWrittenMessage | ErrorMessage | PingMessage | PongMessage | DisconnectMessage
+export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ConfigSavedMessage | ErrorMessage | PingMessage | PongMessage | DisconnectMessage
 
 // Helper type guards
 export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {

@@ -410,14 +410,14 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             return
           }
 
-          if (data.command === 'write-config') {
-            // Studio waits on a `config-written` for every `write-config`, so every path out of this
+          if (data.command === 'save') {
+            // Studio waits on a `config-saved` for every `save`, so every path out of this
             // branch sends one. `edits` is checked before it is walked: the message crosses the same
             // trust boundary as the values inside it.
             if (!Array.isArray(data.edits)) {
-              logger.warn(tag, 'Ignored "write-config" from Studio: the message carried no edits')
+              logger.warn(tag, 'Ignored "save" from Studio: the message carried no edits')
 
-              sendAgentMessage(ws, { type: 'config-written', payload: { outcomes: [], changed: false } })
+              sendAgentMessage(ws, { type: 'config-saved', payload: { outcomes: [], changed: false } })
 
               return
             }
@@ -425,12 +425,12 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             const edits = data.edits
             const refuse = (reason: string) =>
               sendAgentMessage(ws, {
-                type: 'config-written',
+                type: 'config-saved',
                 payload: { outcomes: edits.map((edit) => ({ edit, applied: false, reason })), changed: false },
               })
 
             if (!effectiveConfigEdit) {
-              logger.warn(tag, 'Ignored "write-config" from Studio: editing kubb.config.ts was not granted')
+              logger.warn(tag, 'Ignored "save" from Studio: editing kubb.config.ts was not granted')
 
               refuse('the agent was not granted permission to edit kubb.config.ts')
 
@@ -458,7 +458,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               }
 
               sendAgentMessage(ws, {
-                type: 'config-written',
+                type: 'config-saved',
                 payload: { outcomes, changed, configFile: changed ? await readConfigFileView(patched) : undefined },
               })
 
