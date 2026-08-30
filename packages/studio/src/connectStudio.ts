@@ -5,16 +5,7 @@ import { getErrorMessage } from '@internals/utils'
 import { type Config, fsStorage, Hookable, memoryStorage } from '@kubb/core'
 import { version as kubbVersion } from '@kubb/core/package.json'
 import { type AgentHooks, setupHookListener } from './hooks.ts'
-import {
-  type AgentMessage,
-  type ClientInfo,
-  type ConfigFileView,
-  type JSONKubbConfig,
-  isCommandMessage,
-  isDisconnectMessage,
-  isPongMessage,
-} from './protocol/index.ts'
-import { getStorage } from './machine.ts'
+import { type AgentMessage, type ClientInfo, type ConfigFileView, isCommandMessage, isDisconnectMessage, isPongMessage } from './protocol/index.ts'
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { generate } from './generate.ts'
 import { agentDefaults } from './constants.ts'
@@ -22,12 +13,6 @@ import { logger } from './logger.ts'
 import { assertAllowedPlugins, mergeAdapter, mergePlugins } from './resolveConfig.ts'
 import type WebSocket from 'ws'
 import { createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream } from './ws.ts'
-
-/**
- * One agent process serves one config file, so one stable key is enough. The saved Studio config
- * survives reconnects, which mint a fresh session id each time, and restarts.
- */
-const STUDIO_CONFIG_KEY = 'studio-config'
 
 export type ConnectToStudioOptions = {
   token: string
@@ -139,7 +124,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     allowInput = false,
     allowExec = false,
     allowedPlugins,
-    poolSize = agentDefaults.poolSize,
     root = process.cwd(),
     heartbeatInterval: requestedHeartbeatInterval = agentDefaults.heartbeatIntervalMs,
     signal,
@@ -172,10 +156,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     const configFilePath = path.resolve(root, configPath)
     // A sandbox agent always generates from the spec Studio supplies; a local agent only when opted in.
     const effectiveAllowInput = isSandbox || allowInput
-    // The saved studio config is shared by every pool session, so only persist and replay it for a
-    // single-session agent. Otherwise one user's options and spec would leak to another.
-    const persistConfig = !isSandbox && poolSize <= 1
-
     // Tracks whether the studio server explicitly disconnected us (no reconnect needed)
     let serverDisconnected = false
     // Guards against a second `generate` command starting while one is already running.
@@ -236,15 +216,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     async function sendConnectedPayload() {
       const config = await loadConfig()
-      const storedConfig = persistConfig
-        ? await getStorage()
-            .getItem<JSONKubbConfig>(STUDIO_CONFIG_KEY)
-            .catch(() => null)
-        : null
-
-      // Replay the last-saved Studio config so the UI prefills with the user's previous choices.
-      // The spec is only surfaced when input is allowed, matching what the agent would actually use.
-      const studioConfig = storedConfig ? { ...storedConfig, input: effectiveAllowInput ? storedConfig.input : undefined } : undefined
 
       sendAgentMessage(ws, {
         type: 'connected',
@@ -270,7 +241,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               options: plugin.options ?? {},
             })),
           },
-          studioConfig,
         },
       })
     }
@@ -389,15 +359,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
             try {
               const config = await loadConfig()
-
-              // Message payload takes priority over the saved studio config.
-              const storedConfig =
-                data.payload || !persistConfig
-                  ? null
-                  : await getStorage()
-                      .getItem<JSONKubbConfig>(STUDIO_CONFIG_KEY)
-                      .catch(() => null)
-              const patch = data.payload ?? storedConfig ?? undefined
+              const patch = data.payload
               assertAllowedPlugins(patch?.plugins, allowedPlugins)
 
               const plugins = await mergePlugins(config.plugins, patch?.plugins, patch?.disabledPlugins)
@@ -413,16 +375,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
               if (patch?.input && !effectiveAllowInput) {
                 logger.warn(tag, 'Input from Studio is ignored; set KUBB_AGENT_ALLOW_INPUT=true to generate from the spec sent by Studio')
-              }
-
-              // Save the studio config so it survives reconnects and restarts. Caching writes nothing
-              // to the user's project, so write permission is not required. Drop the spec when input is off.
-              if (data.payload && persistConfig) {
-                await getStorage()
-                  .setItem(STUDIO_CONFIG_KEY, allowInput ? data.payload : { ...data.payload, input: undefined })
-                  .catch((err) => {
-                    logger.warn(tag, 'Failed to save studio config', { error: err?.message })
-                  })
               }
 
               const generationHooks = new Hookable<AgentHooks>()

@@ -40,8 +40,6 @@ vi.mock('@kubb/core/package.json', () => ({
   version: '5.0.0-test',
 }))
 
-import type { Storage } from 'unstorage'
-import { setStorage } from './machine.ts'
 import { createAgentSession, disconnect } from './api.ts'
 import { generate } from './generate.ts'
 
@@ -52,11 +50,6 @@ import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
 const consoleSpy = spyOnConsole()
 
 const loadConfig = vi.fn()
-
-// The saved Studio config goes through the real storage port rather than a mocked module, so these
-// spies assert what actually reaches disk.
-const getLatestStudioConfigFromStorage = vi.fn().mockResolvedValue(null)
-const saveStudioConfigToStorage = vi.fn().mockResolvedValue(undefined)
 
 const makeSession = (overrides: Partial<AgentConnectResponse> = {}): AgentConnectResponse => ({
   sessionId: 'session-abc',
@@ -86,13 +79,6 @@ describe('connectToStudio', () => {
     controller = new AbortController()
     // These drive `connectToStudio` directly, so nothing calls `createClient` to set the level.
     setLogLevel('verbose')
-
-    getLatestStudioConfigFromStorage.mockResolvedValue(null)
-    saveStudioConfigToStorage.mockResolvedValue(undefined)
-    setStorage({
-      getItem: () => getLatestStudioConfigFromStorage(),
-      setItem: (_key: string, value: unknown) => saveStudioConfigToStorage(value),
-    } as unknown as Storage)
 
     vi.mocked(createWebsocket).mockReturnValue(mockWs as any)
     vi.mocked(createAgentSession).mockResolvedValue(makeSession())
@@ -550,131 +536,6 @@ describe('connectToStudio', () => {
     expect(consoleSpy.error).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ message: expect.stringContaining('evil-module') }))
   })
 
-  it('persists the payload to storage regardless of write permission', async () => {
-    const payload = { plugins: [] }
-
-    await connectToStudio(options) // allowWrite: false
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
-    })
-
-    expect(saveStudioConfigToStorage).toHaveBeenCalledWith(expect.objectContaining({ plugins: [] }))
-  })
-
-  it('persists the OpenAPI input when the agent opts in', async () => {
-    const payload = { plugins: [], input: 'openapi: "3.0.0"' }
-
-    await connectToStudio({ ...options, allowInput: true })
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
-    })
-
-    expect(saveStudioConfigToStorage).toHaveBeenCalledWith(expect.objectContaining({ input: 'openapi: "3.0.0"' }))
-  })
-
-  it('drops the OpenAPI input from the persisted config when the agent has not opted in', async () => {
-    const payload = { plugins: [], input: 'openapi: "3.0.0"' }
-
-    await connectToStudio(options) // allowInput: false
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
-    })
-
-    const [saved] = saveStudioConfigToStorage.mock.calls[0] ?? []
-    expect(saved?.input).toBeUndefined()
-  })
-
-  it('does not persist studioConfig when there is no payload', async () => {
-    await connectToStudio(options)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate' }),
-    })
-
-    expect(saveStudioConfigToStorage).not.toHaveBeenCalled()
-  })
-
-  it('does not persist studioConfig in sandbox mode', async () => {
-    vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
-    const sandboxWs = new MockWebSocket()
-    vi.mocked(createWebsocket).mockReturnValue(sandboxWs as any)
-    const payload = { plugins: [] }
-
-    await connectToStudio(options)
-
-    await sandboxWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
-    })
-
-    expect(saveStudioConfigToStorage).not.toHaveBeenCalled()
-  })
-
-  it('does not persist studioConfig for a multi-session pool', async () => {
-    const payload = { plugins: [] }
-
-    await connectToStudio({ ...options, poolSize: 2 })
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
-    })
-
-    // The config-path key is shared across pool sessions, so persisting would leak one user's config to another
-    expect(saveStudioConfigToStorage).not.toHaveBeenCalled()
-  })
-
-  it('does not read the stored studio config for a multi-session pool', async () => {
-    getLatestStudioConfigFromStorage.mockResolvedValue({ plugins: [{ name: '@kubb/plugin-ts', options: {} }] })
-
-    await connectToStudio({ ...options, poolSize: 2 })
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate' }),
-    })
-
-    expect(getLatestStudioConfigFromStorage).not.toHaveBeenCalled()
-  })
-
-  it('falls back to stored studio config when generate command has no payload', async () => {
-    const storedConfig = {
-      plugins: [{ name: '@kubb/plugin-ts', options: { enumType: 'asConst' } }],
-    }
-    getLatestStudioConfigFromStorage.mockResolvedValueOnce(storedConfig)
-
-    await connectToStudio(options)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate' }),
-    })
-
-    expect(getLatestStudioConfigFromStorage).toHaveBeenCalled()
-    expect(generate).toHaveBeenCalledWith(
-      expect.objectContaining({ config: expect.objectContaining({ plugins: [expect.objectContaining({ name: 'plugin-ts' })] }) }),
-    )
-  })
-
-  it('uses the payload plugins over the stored studio config when both are present', async () => {
-    const storedConfig = {
-      plugins: [{ name: '@kubb/plugin-ts', options: { enumType: 'asConst' } }],
-    }
-    getLatestStudioConfigFromStorage.mockResolvedValueOnce(storedConfig)
-
-    const payload = { plugins: [{ name: '@kubb/plugin-zod', options: {} }] }
-
-    await connectToStudio(options)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
-    })
-
-    // The payload's plugin wins over the stored one
-    expect(generate).toHaveBeenCalledWith(
-      expect.objectContaining({ config: expect.objectContaining({ plugins: [expect.objectContaining({ name: 'plugin-zod' })] }) }),
-    )
-  })
-
   // An adapter instance carries closures that cannot survive JSON, so the payload is an options
   // patch: the adapter factory is re-invoked with the merged options rather than replaced by the
   // plain object Studio sent.
@@ -862,72 +723,6 @@ describe('connectToStudio', () => {
         }),
       }),
     )
-  })
-
-  it('replays the saved studio config as studioConfig in the connected payload', async () => {
-    const stored = { plugins: [{ name: '@kubb/plugin-ts', options: { enum: { type: 'asConst' } } }], input: 'openapi: "3.0.0"' }
-    getLatestStudioConfigFromStorage.mockResolvedValue(stored)
-
-    await connectToStudio({ ...options, allowInput: true })
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'connect' }),
-    })
-
-    expect(sendAgentMessage).toHaveBeenCalledWith(
-      mockWs,
-      expect.objectContaining({
-        type: 'connected',
-        payload: expect.objectContaining({ studioConfig: stored }),
-      }),
-    )
-  })
-
-  it('omits the saved input from studioConfig when input is not allowed', async () => {
-    const stored = { plugins: [], input: 'openapi: "3.0.0"' }
-    getLatestStudioConfigFromStorage.mockResolvedValue(stored)
-
-    await connectToStudio(options) // allowInput: false
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'connect' }),
-    })
-
-    expect(sendAgentMessage).toHaveBeenCalledWith(
-      mockWs,
-      expect.objectContaining({
-        payload: expect.objectContaining({ studioConfig: { plugins: [] } }),
-      }),
-    )
-  })
-
-  it('does not replay studioConfig in the connected payload for a multi-session pool', async () => {
-    getLatestStudioConfigFromStorage.mockResolvedValue({ plugins: [{ name: '@kubb/plugin-ts', options: {} }] })
-
-    await connectToStudio({ ...options, poolSize: 2, allowInput: true })
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'connect' }),
-    })
-
-    const message = vi.mocked(sendAgentMessage).mock.calls.at(-1)?.[1]
-    const connected = message?.type === 'connected' ? message : undefined
-    expect(connected?.payload.studioConfig).toBeUndefined()
-    expect(getLatestStudioConfigFromStorage).not.toHaveBeenCalled()
-  })
-
-  it('leaves studioConfig undefined when nothing has been saved', async () => {
-    getLatestStudioConfigFromStorage.mockResolvedValue(null)
-
-    await connectToStudio(options)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'connect' }),
-    })
-
-    const message = vi.mocked(sendAgentMessage).mock.calls.at(-1)?.[1]
-    const connected = message?.type === 'connected' ? message : undefined
-    expect(connected?.payload.studioConfig).toBeUndefined()
   })
 
   // Reconnect on close / error

@@ -246,8 +246,7 @@ export type ConnectMessagePayload = {
    */
   root: string
   /**
-   * The agent's on-disk config, the baseline every generation starts from. `studioConfig` layers the
-   * user's last Studio choices on top of it.
+   * The agent's on-disk config, the baseline every generation starts from.
    */
   config: JSONKubbConfig
   permissions: {
@@ -286,12 +285,6 @@ export type ConnectMessagePayload = {
    * Identifies the host, absent for an older agent that predates the field.
    */
   client?: ClientInfo
-  /**
-   * The most recent config a user picked in Studio, replayed on connect so Studio can prefill its UI
-   * with the last-used options and spec. Absent when nothing has been saved. Layered on top of
-   * `config` above, which stays the on-disk baseline.
-   */
-  studioConfig?: JSONKubbConfig
 }
 
 /**
