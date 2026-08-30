@@ -155,7 +155,9 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
 
     if (!tool) {
       await hooks.callHook('kubb:warn', { message: `No ${step.kind}ter found (${step.detect.join(', ')}). Skipping ${step.kind}ting.` })
-    } else if (setting === 'auto') {
+    }
+
+    if (tool && setting === 'auto') {
       await hooks.callHook('kubb:info', { message: `Auto-detected ${step.kind}ter: ${styleText('dim', tool)}` })
     }
 
