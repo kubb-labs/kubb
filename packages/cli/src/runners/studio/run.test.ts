@@ -72,7 +72,9 @@ describe('resolvePermissions', () => {
 
     await resolvePermissions(options, credentials, 'configs/kubb.config.mjs')
 
-    expect(confirm.mock.calls.map(([call]) => call?.message).find((message) => message?.includes('plugin options'))).toMatchInlineSnapshot(`"Let Kubb Studio change plugin options in configs/kubb.config.mjs?"`)
+    expect(confirm.mock.calls.map(([call]) => call?.message).find((message) => message?.includes('plugin options'))).toMatchInlineSnapshot(
+      `"Let Kubb Studio change plugin options in configs/kubb.config.mjs?"`,
+    )
   })
 
   it('asks nothing again once the project answered, and never stores a flag-granted permission', async () => {
