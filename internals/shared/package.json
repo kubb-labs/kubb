@@ -55,5 +55,8 @@
   },
   "engines": {
     "node": ">=22"
+  },
+  "dependencies": {
+    "typescript": "catalog:"
   }
 }

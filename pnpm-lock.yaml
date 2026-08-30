@@ -82,6 +82,10 @@ importers:
         version: 4.1.11(@types/node@22.20.1)(@vitest/coverage-v8@4.1.11)(@vitest/ui@4.1.11)(vite@8.2.2(@types/node@22.20.1)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0))
 
   internals/shared:
+    dependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
