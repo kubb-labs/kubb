@@ -1,5 +1,5 @@
-import { ofetch } from 'ofetch'
 import { agentDefaults } from './constants.ts'
+import { postJson } from './http.ts'
 import { sleep } from './logger.ts'
 import { getMachineToken } from './machine.ts'
 
@@ -84,8 +84,7 @@ export async function startPairing({
   clientId = CLIENT_ID,
   agentKind,
 }: StartPairingOptions): Promise<PairingSession> {
-  return ofetch<PairingSession>(`${studioUrl}/api/auth/device/code`, {
-    method: 'POST',
+  return postJson<PairingSession>(`${studioUrl}/api/auth/device/code`, {
     body: {
       client_id: clientId,
       name,
@@ -127,8 +126,7 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
   while (Date.now() < deadline) {
     await sleep(intervalMs)
 
-    const response = await ofetch<PollResponse>(`${studioUrl}/api/agent/token`, {
-      method: 'POST',
+    const response = await postJson<PollResponse>(`${studioUrl}/api/agent/token`, {
       body: { device_code: session.device_code },
       // A denial, an expiry, and "not yet" all come back as 4xx with a body the caller needs to
       // read, so let every response through and switch on `error` instead of catching.

@@ -1,5 +1,5 @@
-import { ofetch as $fetch } from 'ofetch'
 import type { AgentConnectResponse } from './protocol/index.ts'
+import { postJson } from './http.ts'
 import { getMachineToken } from './machine.ts'
 import { logger, maskString, sleep } from './logger.ts'
 
@@ -52,8 +52,7 @@ function sessionError(cause: unknown): Error {
 async function requestAgentSession({ token, studioUrl }: ConnectProps): Promise<AgentConnectResponse> {
   const url = `${studioUrl}/api/agent/sessions`
 
-  const data = await $fetch<AgentConnectResponse>(url, {
-    method: 'POST',
+  const data = await postJson<AgentConnectResponse>(url, {
     headers: { Authorization: `Bearer ${token}` },
     body: { machineToken: await getMachineToken() },
   })
@@ -137,8 +136,7 @@ async function runRegistration({ token, studioUrl, poolSize }: RegisterProps): P
     }
 
     try {
-      await $fetch(url, {
-        method: 'POST',
+      await postJson(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -180,8 +178,7 @@ export async function disconnect({ sessionId, token, studioUrl, slug }: Disconne
   try {
     logger.debug(tag, 'Disconnecting from Studio...', { slug })
 
-    await $fetch(url, {
-      method: 'POST',
+    await postJson(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

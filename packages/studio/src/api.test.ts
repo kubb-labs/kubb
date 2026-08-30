@@ -13,8 +13,8 @@ vi.mock('./machine.ts', async (importOriginal) => ({
 
 const fetchMock = vi.fn()
 
-vi.mock('ofetch', () => ({
-  ofetch: (...args: Array<unknown>) => fetchMock(...args),
+vi.mock('./http.ts', () => ({
+  postJson: (...args: Array<unknown>) => fetchMock(...args),
 }))
 
 const session = {
@@ -61,7 +61,7 @@ describe('registerAgent', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(fetchMock).toHaveBeenCalledWith(
       'http://studio/api/agent/connect',
-      expect.objectContaining({ method: 'POST', body: expect.objectContaining({ machineToken: 'machine-token-hash' }) }),
+      expect.objectContaining({ body: expect.objectContaining({ machineToken: 'machine-token-hash' }) }),
     )
   })
 
