@@ -9,7 +9,6 @@ import {
   QuoteKind,
   type SourceFile,
 } from 'ts-morph'
-import { availablePlugins } from './constants.ts'
 
 /** A value Studio can round-trip through JSON and print back as a config literal. */
 export type OptionValue = string | number | boolean | null | Array<OptionValue> | { [key: string]: OptionValue }
@@ -44,11 +43,11 @@ export type ConfigEdit =
    * `value` is `unknown` because an edit can arrive over the agent WebSocket. It is checked with
    * {@link isOptionValue} before anything is printed into the user's file.
    */
-  | { op: 'set'; plugin: string; path: Array<string>; value: unknown }
+  | { operation: 'set'; plugin: string; path: Array<string>; value: unknown }
   /** Drop an option so the plugin falls back to its default. */
-  | { op: 'remove'; plugin: string; path: Array<string> }
+  | { operation: 'remove'; plugin: string; path: Array<string> }
   /** Add a plugin factory call and its import. `options` is validated the same way as `set`. */
-  | { op: 'add-plugin'; plugin: string; importName?: string; options?: Record<string, unknown> }
+  | { operation: 'add-plugin'; plugin: string; importName?: string; options?: Record<string, unknown> }
 
 export type EditOutcome = { edit: ConfigEdit; applied: boolean; reason?: string }
 
@@ -59,17 +58,13 @@ export type ApplyResult = {
   changed: boolean
 }
 
-const KNOWN_IMPORT_NAMES = new Map(availablePlugins.map((plugin) => [plugin.packageName, plugin.importName]))
-
 /**
  * `@kubb/plugin-react-query` becomes `pluginReactQuery`, the naming every Kubb plugin follows.
- * Known packages resolve from the registry first, so a third-party plugin still gets a usable name.
+ *
+ * A plugin that breaks the convention is still reachable: `add-plugin` takes an explicit
+ * `importName`, which Studio sends when it knows better than this.
  */
 export function toImportName(packageName: string): string {
-  const known = KNOWN_IMPORT_NAMES.get(packageName)
-  if (known) {
-    return known
-  }
   const bare = packageName.replace(/^@[^/]+\//, '')
   return bare.replace(/-(\w)/g, (_, character: string) => character.toUpperCase())
 }
@@ -378,7 +373,7 @@ function applyRemove(call: CallExpression, path: Array<string>): string | undefi
   return 'no option path given'
 }
 
-function applyAddPlugin(file: SourceFile, array: ArrayLiteralExpression, edit: Extract<ConfigEdit, { op: 'add-plugin' }>): string | undefined {
+function applyAddPlugin(file: SourceFile, array: ArrayLiteralExpression, edit: Extract<ConfigEdit, { operation: 'add-plugin' }>): string | undefined {
   const importName = edit.importName ?? toImportName(edit.plugin)
 
   if (resolvePluginCalls(file, array).some((plugin) => plugin.packageName === edit.plugin)) {
@@ -425,7 +420,7 @@ function matchImportStyle(source: string, next: string): string {
  * @example
  * ```ts
  * const { source, outcomes } = applyConfigEdits(current, [
- *   { op: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' },
+ *   { operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' },
  * ])
  * ```
  */
@@ -445,7 +440,7 @@ export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): Appl
       return { edit, applied: false, reason: plugins.reason }
     }
 
-    if (edit.op === 'add-plugin') {
+    if (edit.operation === 'add-plugin') {
       const reason = applyAddPlugin(file, plugins.array, edit)
       return { edit, applied: !reason, reason }
     }
@@ -455,7 +450,7 @@ export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): Appl
       return { edit, applied: false, reason: `${edit.plugin} is not in the plugins array` }
     }
 
-    const reason = edit.op === 'set' ? applySet(target.call, edit.path, edit.value) : applyRemove(target.call, edit.path)
+    const reason = edit.operation === 'set' ? applySet(target.call, edit.path, edit.value) : applyRemove(target.call, edit.path)
     return { edit, applied: !reason, reason }
   })
 

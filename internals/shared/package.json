@@ -46,10 +46,6 @@
     "test": "vitest --passWithNoTests",
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
-  "dependencies": {
-    "ts-morph": "^28.0.0",
-    "typescript": "catalog:"
-  },
   "devDependencies": {
     "@types/node": "catalog:",
     "jiti": "^2.7.0"

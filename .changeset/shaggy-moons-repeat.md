@@ -4,9 +4,9 @@
 
 Let Studio change plugin options in a project's `kubb.config.ts`.
 
-A new `write-config` command carries a list of edits (`set`, `remove`, `add-plugin`) that the agent
-applies to the file as an AST patch, so only the targeted values are rewritten. Comments,
-formatting, and hand-written code around the config keep their own text.
+A new `write-config` command carries a list of edits, each an `operation` of `set`, `remove`, or
+`add-plugin`. The agent applies them to the file as an AST patch, so only the targeted values are
+rewritten. Comments, formatting, and hand-written code around the config keep their own text.
 
 The agent applies an edit only when the host grants `allowConfigEdit`. This is separate from
 `allowWrite`, which covers generated output: editing the config changes a file the user wrote by

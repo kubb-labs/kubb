@@ -301,7 +301,7 @@ describe('connectToStudio', () => {
     it('writes a literal option and leaves the rest of the file alone', async () => {
       await connectToStudio({ ...options, allowConfigEdit: true })
 
-      await write([{ op: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
+      await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
 
       expect(readFileSync(configFile, 'utf-8')).toBe(original.replace("'asConst'", "'enum'"))
       expect(reply()).toMatchObject({ payload: { changed: true, outcomes: [{ applied: true }] } })
@@ -310,7 +310,7 @@ describe('connectToStudio', () => {
     it('refuses every edit when editing the config was not granted', async () => {
       await connectToStudio({ ...options, allowConfigEdit: false })
 
-      await write([{ op: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
+      await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
 
       expect(readFileSync(configFile, 'utf-8')).toBe(original)
       expect(reply()?.payload).toMatchObject({ changed: false, outcomes: [{ applied: false }] })
@@ -321,7 +321,7 @@ describe('connectToStudio', () => {
 
       await connectToStudio({ ...options, allowConfigEdit: true })
 
-      await write([{ op: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
+      await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
 
       expect(readFileSync(configFile, 'utf-8')).toBe(original)
     })
@@ -329,7 +329,7 @@ describe('connectToStudio', () => {
     it('leaves an option customized in code untouched', async () => {
       await connectToStudio({ ...options, allowConfigEdit: true })
 
-      await write([{ op: 'set', plugin: '@kubb/plugin-ts', path: ['group', 'name'], value: 'x' }])
+      await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['group', 'name'], value: 'x' }])
 
       expect(readFileSync(configFile, 'utf-8')).toBe(original)
       expect(reply()?.payload.outcomes[0]?.reason).toMatchInlineSnapshot(`"group.name is customized in code"`)
@@ -343,7 +343,7 @@ describe('connectToStudio', () => {
       const editedByHand = original.replace("'./openapi.yaml'", "'./petstore.yaml'")
       writeFileSync(configFile, editedByHand, 'utf-8')
 
-      await write([{ op: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
+      await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
 
       expect(readFileSync(configFile, 'utf-8')).toBe(editedByHand.replace("'asConst'", "'enum'"))
     })

@@ -1,10 +1,10 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
-import { applyConfigEdits, readConfig } from '@internals/shared'
 import { getErrorMessage } from '@internals/utils'
 import { type Config, fsStorage, Hookable, memoryStorage } from '@kubb/core'
 import { version as kubbVersion } from '@kubb/core/package.json'
+import { applyConfigEdits, readConfig } from './configFile.ts'
 import { type AgentHooks, setupHookListener } from './hooks.ts'
 import {
   type AgentMessage,

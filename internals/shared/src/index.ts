@@ -1,6 +1,4 @@
 export type * from './types.ts'
 export { KUBB_CONFIG_FILENAME, KUBB_PACKAGE_NAME, initDefaults, availablePlugins } from './constants.ts'
-export { applyConfigEdits, isOptionValue, printValue, readConfig, toImportName } from './configPatch.ts'
-export type { ApplyResult, ConfigEdit, ConfigView, EditOutcome, ManagedPlugin, OptionValue } from './configPatch.ts'
-export { generateConfigFile, mergePluginsIntoConfig, resolveInstallVersions, resolvePlugins } from './init.ts'
+export { generateConfigFile, resolveInstallVersions, resolvePlugins } from './init.ts'
 export { createModuleLoader } from './loader.ts'

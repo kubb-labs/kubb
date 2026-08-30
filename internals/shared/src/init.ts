@@ -1,4 +1,3 @@
-import { applyConfigEdits } from './configPatch.ts'
 import { availablePlugins, KUBB_PACKAGE_NAME } from './constants.ts'
 import type { PluginOption } from './types.ts'
 
@@ -60,30 +59,4 @@ export function resolveInstallVersions({ packages, version }: { packages: Array<
   const tag = prerelease ?? 'latest'
 
   return packages.map((name) => (name === KUBB_PACKAGE_NAME ? `${name}@${version}` : `${name}@${tag}`))
-}
-
-/**
- * Adds the selected plugins to an existing `kubb.config.ts` instead of replacing it, so a
- * hand-edited config survives `kubb init --plugins ...`.
- *
- * A plugin already in the file is reported as skipped rather than added twice, and a config shape
- * the patcher does not manage (an array config, for one) comes back unchanged with the reason.
- */
-export function mergePluginsIntoConfig({ source, selectedPlugins }: { source: string; selectedPlugins: Array<PluginOption> }): {
-  source: string
-  added: Array<string>
-  skipped: Array<{ plugin: string; reason: string }>
-  changed: boolean
-} {
-  const result = applyConfigEdits(
-    source,
-    selectedPlugins.map((plugin) => ({ op: 'add-plugin', plugin: plugin.packageName, importName: plugin.importName }) as const),
-  )
-
-  return {
-    source: result.source,
-    changed: result.changed,
-    added: result.outcomes.filter((outcome) => outcome.applied).map((outcome) => outcome.edit.plugin),
-    skipped: result.outcomes.filter((outcome) => !outcome.applied).map((outcome) => ({ plugin: outcome.edit.plugin, reason: outcome.reason ?? 'unknown' })),
-  }
 }

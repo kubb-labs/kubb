@@ -56,15 +56,15 @@ export type ConfigEdit =
    * Write a literal option value. `path` walks nested objects, so `['enum', 'type']` targets
    * `pluginTs({ enum: { type } })`.
    */
-  | { op: 'set'; plugin: string; path: Array<string>; value: unknown }
+  | { operation: 'set'; plugin: string; path: Array<string>; value: unknown }
   /**
    * Drop an option so the plugin falls back to its default.
    */
-  | { op: 'remove'; plugin: string; path: Array<string> }
+  | { operation: 'remove'; plugin: string; path: Array<string> }
   /**
    * Add a plugin factory call and its import to the `plugins` array.
    */
-  | { op: 'add-plugin'; plugin: string; importName?: string; options?: Record<string, unknown> }
+  | { operation: 'add-plugin'; plugin: string; importName?: string; options?: Record<string, unknown> }
 
 /**
  * What the agent found in the user's config file, so Studio knows which controls it may offer.

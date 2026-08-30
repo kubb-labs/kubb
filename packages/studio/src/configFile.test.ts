@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { applyConfigEdits, type ConfigEdit, isOptionValue, printValue, readConfig, toImportName } from './configPatch.ts'
+import { applyConfigEdits, type ConfigEdit, isOptionValue, printValue, readConfig, toImportName } from './configFile.ts'
 
 const advanced = readFileSync(join(import.meta.dirname, '../mocks/advanced.config.txt'), 'utf8')
 
@@ -33,11 +33,44 @@ function apply(source: string, ...edits: Array<ConfigEdit>) {
 }
 
 describe('toImportName', () => {
-  it('resolves known plugins and derives unknown ones', () => {
-    expect(['@kubb/plugin-ts', '@kubb/plugin-react-query', '@kubb/plugin-solid-query', 'kubb-plugin-custom'].map(toImportName)).toMatchInlineSnapshot(`
+  // Every plugin published from kubb-labs/plugins, so a package that breaks the convention shows up
+  // here rather than as a wrong import written into someone's config.
+  it('derives the factory name every Kubb plugin exports', () => {
+    const packages = [
+      '@kubb/plugin-axios',
+      '@kubb/plugin-cypress',
+      '@kubb/plugin-faker',
+      '@kubb/plugin-fetch',
+      '@kubb/plugin-mcp',
+      '@kubb/plugin-msw',
+      '@kubb/plugin-react-query',
+      '@kubb/plugin-redoc',
+      '@kubb/plugin-swr',
+      '@kubb/plugin-ts',
+      '@kubb/plugin-vue-query',
+      '@kubb/plugin-zod',
+    ]
+    expect(Object.fromEntries(packages.map((name) => [name, toImportName(name)]))).toMatchInlineSnapshot(`
+      {
+        "@kubb/plugin-axios": "pluginAxios",
+        "@kubb/plugin-cypress": "pluginCypress",
+        "@kubb/plugin-faker": "pluginFaker",
+        "@kubb/plugin-fetch": "pluginFetch",
+        "@kubb/plugin-mcp": "pluginMcp",
+        "@kubb/plugin-msw": "pluginMsw",
+        "@kubb/plugin-react-query": "pluginReactQuery",
+        "@kubb/plugin-redoc": "pluginRedoc",
+        "@kubb/plugin-swr": "pluginSwr",
+        "@kubb/plugin-ts": "pluginTs",
+        "@kubb/plugin-vue-query": "pluginVueQuery",
+        "@kubb/plugin-zod": "pluginZod",
+      }
+    `)
+  })
+
+  it('derives a name for a plugin outside the @kubb scope', () => {
+    expect(['@acme/plugin-solid-query', 'kubb-plugin-custom'].map(toImportName)).toMatchInlineSnapshot(`
       [
-        "pluginTs",
-        "pluginReactQuery",
         "pluginSolidQuery",
         "kubbPluginCustom",
       ]
@@ -158,22 +191,22 @@ describe('readConfig', () => {
 
 describe('applyConfigEdits: set', () => {
   it('changes only the targeted value and leaves every other byte alone', () => {
-    const result = apply(advanced, { op: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' })
+    const result = apply(advanced, { operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' })
     expect(changedSpan(advanced, result.source)).toMatchInlineSnapshot(`""asConst" -> "enum""`)
   })
 
   it('adds a missing key to an existing options object', () => {
-    const result = apply(advanced, { op: 'set', plugin: '@kubb/plugin-zod', path: ['typedSchema'], value: true })
+    const result = apply(advanced, { operation: 'set', plugin: '@kubb/plugin-zod', path: ['typedSchema'], value: true })
     expect(changedSpan(advanced, result.source)).toMatchInlineSnapshot(`""" -> "  typedSchema: true,\\n    ""`)
   })
 
   it('creates the options object for a plugin called bare', () => {
-    const result = apply(advanced, { op: 'set', plugin: '@kubb/plugin-redoc', path: ['output', 'path'], value: './docs' })
+    const result = apply(advanced, { operation: 'set', plugin: '@kubb/plugin-redoc', path: ['output', 'path'], value: './docs' })
     expect(changedSpan(advanced, result.source)).toMatchInlineSnapshot(`""" -> "{\\n      output: {\\n        path: './docs',\\n      },\\n    }""`)
   })
 
   it('refuses to overwrite an option customized in code', () => {
-    const result = apply(advanced, { op: 'set', plugin: '@kubb/plugin-axios', path: ['group', 'name'], value: 'x' })
+    const result = apply(advanced, { operation: 'set', plugin: '@kubb/plugin-axios', path: ['group', 'name'], value: 'x' })
     expect({ changed: result.changed, outcomes: result.outcomes.map((outcome) => outcome.reason) }).toMatchInlineSnapshot(`
       {
         "changed": false,
@@ -185,7 +218,7 @@ describe('applyConfigEdits: set', () => {
   })
 
   it('refuses a plugin that is not in the file', () => {
-    const result = apply(advanced, { op: 'set', plugin: '@kubb/plugin-swr', path: ['hooks'], value: true })
+    const result = apply(advanced, { operation: 'set', plugin: '@kubb/plugin-swr', path: ['hooks'], value: true })
     expect({ changed: result.changed, outcomes: result.outcomes.map((outcome) => outcome.reason) }).toMatchInlineSnapshot(`
       {
         "changed": false,
@@ -199,9 +232,9 @@ describe('applyConfigEdits: set', () => {
   it('applies the good edits in a batch and reports the bad ones', () => {
     const result = apply(
       advanced,
-      { op: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: 'array' },
-      { op: 'set', plugin: '@kubb/plugin-axios', path: ['group'], value: { type: 'path' } },
-      { op: 'set', plugin: '@kubb/plugin-msw', path: ['handlers'], value: false },
+      { operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: 'array' },
+      { operation: 'set', plugin: '@kubb/plugin-axios', path: ['group'], value: { type: 'path' } },
+      { operation: 'set', plugin: '@kubb/plugin-msw', path: ['handlers'], value: false },
     )
     expect({
       applied: result.outcomes.filter((outcome) => outcome.applied).length,
@@ -224,12 +257,12 @@ describe('applyConfigEdits: set', () => {
 
 describe('applyConfigEdits: remove', () => {
   it('drops a literal option so the plugin falls back to its default', () => {
-    const result = apply(advanced, { op: 'remove', plugin: '@kubb/plugin-zod', path: ['inferred'] })
+    const result = apply(advanced, { operation: 'remove', plugin: '@kubb/plugin-zod', path: ['inferred'] })
     expect(changedSpan(advanced, result.source)).toMatchInlineSnapshot(`""  inferred: true,\\n    " -> """`)
   })
 
   it('refuses to remove an option customized in code', () => {
-    const result = apply(advanced, { op: 'remove', plugin: '@kubb/plugin-faker', path: ['macros'] })
+    const result = apply(advanced, { operation: 'remove', plugin: '@kubb/plugin-faker', path: ['macros'] })
     expect({ changed: result.changed, reason: result.outcomes[0]?.reason }).toMatchInlineSnapshot(`
       {
         "changed": false,
@@ -239,7 +272,7 @@ describe('applyConfigEdits: remove', () => {
   })
 
   it('reports an option that was never set', () => {
-    const result = apply(advanced, { op: 'remove', plugin: '@kubb/plugin-zod', path: ['unset'] })
+    const result = apply(advanced, { operation: 'remove', plugin: '@kubb/plugin-zod', path: ['unset'] })
     expect({ changed: result.changed, reason: result.outcomes[0]?.reason }).toMatchInlineSnapshot(`
       {
         "changed": false,
@@ -251,7 +284,7 @@ describe('applyConfigEdits: remove', () => {
 
 describe('applyConfigEdits: add-plugin', () => {
   it('adds the call and the import without rewriting any other line', () => {
-    const result = apply(advanced, { op: 'add-plugin', plugin: '@kubb/plugin-swr', options: { group: { type: 'tag' } } })
+    const result = apply(advanced, { operation: 'add-plugin', plugin: '@kubb/plugin-swr', options: { group: { type: 'tag' } } })
     const lines = result.source.split('\n')
     expect(lines.filter((line) => !line.includes('pluginSwr'))).toEqual(advanced.split('\n'))
     expect(lines.filter((line) => line.includes('pluginSwr'))).toMatchInlineSnapshot(`
@@ -263,7 +296,7 @@ describe('applyConfigEdits: add-plugin', () => {
   })
 
   it('leaves the result parseable, with the new plugin readable', () => {
-    const result = apply(advanced, { op: 'add-plugin', plugin: '@kubb/plugin-swr' })
+    const result = apply(advanced, { operation: 'add-plugin', plugin: '@kubb/plugin-swr' })
     const view = readConfig(result.source)
     expect(view.managed && view.plugins.at(-1)).toMatchInlineSnapshot(`
       {
@@ -275,7 +308,7 @@ describe('applyConfigEdits: add-plugin', () => {
   })
 
   it('refuses a plugin that is already there', () => {
-    const result = apply(advanced, { op: 'add-plugin', plugin: '@kubb/plugin-ts' })
+    const result = apply(advanced, { operation: 'add-plugin', plugin: '@kubb/plugin-ts' })
     expect({ changed: result.changed, reason: result.outcomes[0]?.reason }).toMatchInlineSnapshot(`
       {
         "changed": false,
@@ -286,7 +319,7 @@ describe('applyConfigEdits: add-plugin', () => {
 
   it('refuses when the import name is taken by another package', () => {
     const source = `import { pluginTs } from './my-own-plugin-ts.ts'\n\nexport default defineConfig({ plugins: [pluginTs()] })\n`
-    const result = apply(source, { op: 'add-plugin', plugin: '@kubb/plugin-ts' })
+    const result = apply(source, { operation: 'add-plugin', plugin: '@kubb/plugin-ts' })
     expect({ changed: result.changed, reason: result.outcomes[0]?.reason }).toMatchInlineSnapshot(`
       {
         "changed": false,
@@ -297,7 +330,7 @@ describe('applyConfigEdits: add-plugin', () => {
 
   it('fills an empty plugins array', () => {
     const source = `import { defineConfig } from 'kubb/config'\n\nexport default defineConfig({\n  input: './api.yaml',\n  plugins: [],\n})\n`
-    const result = apply(source, { op: 'add-plugin', plugin: '@kubb/plugin-ts' })
+    const result = apply(source, { operation: 'add-plugin', plugin: '@kubb/plugin-ts' })
     expect(result.source).toMatchInlineSnapshot(`
       "import { defineConfig } from 'kubb/config'
       import { pluginTs } from '@kubb/plugin-ts'
@@ -312,7 +345,11 @@ describe('applyConfigEdits: add-plugin', () => {
 
   it('adds several plugins in one pass', () => {
     const source = `import { defineConfig } from 'kubb/config'\n\nexport default defineConfig({\n  input: './api.yaml',\n  plugins: [],\n})\n`
-    const result = apply(source, { op: 'add-plugin', plugin: '@kubb/plugin-ts' }, { op: 'add-plugin', plugin: '@kubb/plugin-zod', options: { inferred: true } })
+    const result = apply(
+      source,
+      { operation: 'add-plugin', plugin: '@kubb/plugin-ts' },
+      { operation: 'add-plugin', plugin: '@kubb/plugin-zod', options: { inferred: true } },
+    )
     expect(result.source).toMatchInlineSnapshot(`
       "import { defineConfig } from 'kubb/config'
       import { pluginTs } from '@kubb/plugin-ts'
@@ -330,7 +367,7 @@ describe('applyConfigEdits: add-plugin', () => {
 describe('applyConfigEdits: unmanaged files', () => {
   it('applies nothing to an array config and says why', () => {
     const source = `export default defineConfig([{ name: 'a', plugins: [] }])\n`
-    const result = apply(source, { op: 'add-plugin', plugin: '@kubb/plugin-ts' })
+    const result = apply(source, { operation: 'add-plugin', plugin: '@kubb/plugin-ts' })
     expect({ changed: result.changed, source: result.source, reason: result.outcomes[0]?.reason }).toMatchInlineSnapshot(`
       {
         "changed": false,
@@ -362,7 +399,7 @@ describe('applyConfigEdits: unmanaged files', () => {
       `})`,
       ``,
     ].join('\n')
-    const result = apply(source, { op: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' })
+    const result = apply(source, { operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' })
     expect(result.source).toMatchInlineSnapshot(`
       "import { defineConfig } from 'kubb/config'
       import { pluginTs } from '@kubb/plugin-ts'
@@ -405,7 +442,7 @@ describe('applyConfigEdits: values arriving from outside', () => {
   const base = `import { pluginTs } from '@kubb/plugin-ts'\n\nexport default defineConfig({\n  plugins: [pluginTs({ arrayType: 'generic' })],\n})\n`
 
   it('refuses a value that is not a literal', () => {
-    const result = applyConfigEdits(base, [{ op: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: () => 'array' }])
+    const result = applyConfigEdits(base, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: () => 'array' }])
     expect({ changed: result.changed, reason: result.outcomes[0]?.reason }).toMatchInlineSnapshot(`
       {
         "changed": false,
@@ -416,7 +453,7 @@ describe('applyConfigEdits: values arriving from outside', () => {
 
   it('refuses a __proto__ key instead of writing it into the file', () => {
     const value = JSON.parse('{"__proto__": {"polluted": true}}') as unknown
-    const result = applyConfigEdits(base, [{ op: 'set', plugin: '@kubb/plugin-ts', path: ['group'], value }])
+    const result = applyConfigEdits(base, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['group'], value }])
     expect({ changed: result.changed, reason: result.outcomes[0]?.reason }).toMatchInlineSnapshot(`
       {
         "changed": false,
@@ -427,7 +464,7 @@ describe('applyConfigEdits: values arriving from outside', () => {
 
   it('escapes a string that would otherwise break out of the literal', () => {
     const value = "generic',\n      dangerous: true,\n      x: '"
-    const result = applyConfigEdits(base, [{ op: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value }])
+    const result = applyConfigEdits(base, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value }])
     expect(result.source).toMatchInlineSnapshot(`
       "import { pluginTs } from '@kubb/plugin-ts'
 
@@ -446,7 +483,7 @@ describe('applyConfigEdits: values arriving from outside', () => {
   })
 
   it('keeps a value with real newlines and quotes readable', () => {
-    const result = applyConfigEdits(base, [{ op: 'set', plugin: '@kubb/plugin-ts', path: ['banner'], value: "line one\nit's \\ two" }])
+    const result = applyConfigEdits(base, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['banner'], value: "line one\nit's \\ two" }])
     expect(result.source).toMatchInlineSnapshot(`
       "import { pluginTs } from '@kubb/plugin-ts'
 
