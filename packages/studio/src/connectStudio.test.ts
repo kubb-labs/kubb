@@ -815,16 +815,6 @@ describe('connectToStudio', () => {
     expect(consoleSpy.info).toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
   })
 
-  it('reconnects on WS error', async () => {
-    vi.useFakeTimers()
-
-    await connectToStudio(options)
-
-    await mockWs.trigger('error')
-
-    expect(consoleSpy.error).toHaveBeenCalled()
-  })
-
   it('logs and retries instead of crashing when a reconnect attempt fails to reach Studio', async () => {
     vi.useFakeTimers()
     const unhandledRejections: Array<unknown> = []

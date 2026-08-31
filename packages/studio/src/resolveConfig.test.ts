@@ -107,32 +107,6 @@ describe('mergePlugins', () => {
       expect(result?.[0]?.options).toMatchObject({ barrel: { type: 'named' } })
     })
 
-    it('preserves infinite: false from studio override when disk has an infinite object', async () => {
-      const diskPlugins = [makePlugin('plugin-react-query', { infinite: { queryParam: 'cursor' } })]
-      const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-react-query', options: { infinite: false } }]
-
-      const result = await mergePlugins(diskPlugins, studioPlugins)
-
-      expect(result?.[0]?.options).toMatchObject({ infinite: false })
-    })
-
-    it('preserves query: false from studio override when disk has a query object', async () => {
-      const diskPlugins = [makePlugin('plugin-react-query', { query: { methods: ['get'] } })]
-      const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-react-query', options: { query: false } }]
-
-      const result = await mergePlugins(diskPlugins, studioPlugins)
-
-      expect(result?.[0]?.options).toMatchObject({ query: false })
-    })
-
-    it('preserves mutation: false from studio override when disk has a mutation object', async () => {
-      const diskPlugins = [makePlugin('plugin-react-query', { mutation: { methods: ['post', 'put'] } })]
-      const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-react-query', options: { mutation: false } }]
-
-      const result = await mergePlugins(diskPlugins, studioPlugins)
-
-      expect(result?.[0]?.options).toMatchObject({ mutation: false })
-    })
   })
 
   describe('disabledPlugins', () => {

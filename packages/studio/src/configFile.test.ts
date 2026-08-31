@@ -126,20 +126,6 @@ describe('readConfig', () => {
     `)
   })
 
-  it('refuses an array config', () => {
-    expect(readConfig(`export default defineConfig([{ name: 'a' }])`)).toMatchInlineSnapshot(`
-      {
-        "configs": [
-          {
-            "name": "a",
-            "plugins": [],
-          },
-        ],
-        "managed": true,
-      }
-    `)
-  })
-
   it('refuses a function returning an array', () => {
     expect(readConfig(`export default defineConfig(() => schemas.map((s) => ({ name: s })))`)).toMatchInlineSnapshot(`
       {

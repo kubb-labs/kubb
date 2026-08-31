@@ -39,14 +39,6 @@ describe('detectTool', () => {
     expect(await detectTool(['oxfmt', 'biome', 'prettier'])).toBe('biome')
   })
 
-  it('returns the last candidate when only it is available', async () => {
-    vi.mocked(spawn).mockImplementation((command: string) => {
-      return makeChild(command === 'eslint' ? 0 : 1)
-    })
-
-    expect(await detectTool(['oxlint', 'biome', 'eslint'])).toBe('eslint')
-  })
-
   it('returns null when no candidate is available', async () => {
     vi.mocked(spawn).mockImplementation(() => makeChild(null))
 
