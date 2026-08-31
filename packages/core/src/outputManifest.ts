@@ -11,7 +11,7 @@ const VERSION = 1
 /**
  * How one generated file looked on either side of the output passes.
  */
-export type OutputManifestEntry = {
+type OutputManifestEntry = {
   /**
    * Hash of the content Kubb handed to the storage.
    */

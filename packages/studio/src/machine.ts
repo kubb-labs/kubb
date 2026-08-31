@@ -23,7 +23,7 @@ export function setStorage(next: Storage): void {
   hasInstalledStorage = true
 }
 
-export function getStorage(): Storage {
+function getStorage(): Storage {
   return storage
 }
 

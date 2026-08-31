@@ -19,7 +19,7 @@ import { Hookable } from './Hookable.ts'
  * throw new BuildError('Build failed', { errors: [err1, err2] })
  * ```
  */
-export class BuildError extends Error {
+class BuildError extends Error {
   errors: Array<Error>
 
   constructor(message: string, options: { cause?: Error; errors: Array<Error> }) {

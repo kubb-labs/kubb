@@ -168,7 +168,7 @@ export function recordPluginResult(state: ProgressState, success: boolean): void
  * Tracks per-hook start times so a logger can report a hook's elapsed duration.
  * Used by the plain logger, which keys timing by hook `id`.
  */
-export type HookTimer = {
+type HookTimer = {
   start(id: string): void
   /**
    * Returns the elapsed milliseconds since `start(id)`, or `undefined` when no start was recorded.

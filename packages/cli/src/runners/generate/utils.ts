@@ -96,7 +96,7 @@ type RunPostGenerateOptions = {
  * Outcome of a single hook subprocess, returned by `runHook` alongside the
  * `kubb:hook:end` hook it emits for the loggers.
  */
-export type HookResult = {
+type HookResult = {
   /**
    * `true` when the command exited with code `0`.
    */

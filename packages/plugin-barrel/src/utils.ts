@@ -281,7 +281,7 @@ function indexRelevantFiles(files: ReadonlyArray<FileNode>, outputPath: string):
  * Build it once with {@link buildBarrelIndex} and derive every barrel (per-plugin and root) from
  * it via {@link getBarrelFiles}, instead of re-scanning the full file set once per barrel.
  */
-export type BarrelIndex = {
+type BarrelIndex = {
   tree: BuildTree
   sourceFiles: ReadonlyMap<string, FileNode>
 }

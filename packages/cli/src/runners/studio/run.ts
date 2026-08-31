@@ -331,7 +331,7 @@ async function status(options: StudioOptions): Promise<void> {
 /**
  * Runs a `kubb studio` action and reports the outcome to telemetry.
  */
-export async function run(options: StudioOptions): Promise<void> {
+async function run(options: StudioOptions): Promise<void> {
   // The machine secret lives here and pairing binds it, so storage is installed before anything
   // reads `getMachineToken()` — which `startPairing` does, before any client exists.
   setStorage(createFileStorage(path.join(getKubbHome(), 'cache')))

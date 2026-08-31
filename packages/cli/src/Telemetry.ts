@@ -53,7 +53,7 @@ export type TelemetryPlugin = {
 /**
  * Anonymous snapshot of a single Kubb run, built by {@link buildTelemetryEvent} and sent by {@link sendTelemetry}.
  */
-export type TelemetryEvent = {
+type TelemetryEvent = {
   command: string
   kubbVersion: string
   /**
