@@ -33,20 +33,21 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
   const { command: mcpCommand } = await import('./commands/mcp.ts')
   const { command: initCommand } = await import('./commands/init.ts')
 
-  try {
-    await cli(stripExecArgs(argv), generateCommand, {
-      name: 'kubb',
-      version,
-      description: generateCommand.description,
-      subCommands: {
-        generate: generateCommand,
-        init: initCommand,
-        validate: validateCommand,
-        mcp: mcpCommand,
-      },
-      fallbackToEntry: true,
-    })
-  } catch {
-    process.exit(1)
-  }
+  await cli(stripExecArgs(argv), generateCommand, {
+    name: 'kubb',
+    version,
+    description: generateCommand.description,
+    subCommands: {
+      generate: generateCommand,
+      init: initCommand,
+      validate: validateCommand,
+      mcp: mcpCommand,
+    },
+    fallbackToEntry: true,
+    strict: true,
+    onErrorCommand: async (_ctx, error) => {
+      process.exitCode = 1
+      console.error(error)
+    },
+  })
 }
