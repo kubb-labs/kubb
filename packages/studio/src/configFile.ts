@@ -144,33 +144,9 @@ function property(node: ASTNode, key: string): ASTNode | undefined {
 }
 
 /**
- * True for a primitive, or an object/array built only from primitives.
- */
-function isLiteral(node: ASTNode | undefined): boolean {
-  if (!node) {
-    return false
-  }
-  if (node.type === 'StringLiteral' || node.type === 'NumericLiteral' || node.type === 'BooleanLiteral' || node.type === 'NullLiteral') {
-    return true
-  }
-  if (node.type === 'TemplateLiteral') {
-    return node.expressions.length === 0
-  }
-  if (node.type === 'UnaryExpression') {
-    return isLiteral(node.argument)
-  }
-  if (node.type === 'ArrayExpression') {
-    return node.elements.every((element) => element !== null && isLiteral(element))
-  }
-  if (node.type === 'ObjectExpression') {
-    return node.properties.every((entry) => entry.type === 'ObjectProperty' && isLiteral(entry.value))
-  }
-  return false
-}
-
-/**
- * Reads a literal node's value, mirroring the node types {@link isLiteral} accepts. Returns
- * `undefined` for anything `isLiteral` would refuse, so a caller can use one guard for both.
+ * Reads a literal node's value: a primitive, or an object/array built only from primitives.
+ * `undefined` for anything else, so a caller can use this both to read a value and to check
+ * whether a node is a literal at all.
  */
 function readLiteral(node: ASTNode | undefined): OptionValue | undefined {
   if (!node) {
@@ -453,7 +429,7 @@ function applySet(call: CallProxy, path: Array<string>, value: unknown): string 
   }
 
   const current = property(target.object.$ast, target.key)
-  if (current !== undefined && !isLiteral(current)) {
+  if (current !== undefined && readLiteral(current) === undefined) {
     return `${path.join('.')} is customized in code`
   }
 
@@ -481,7 +457,7 @@ function applyRemove(call: CallProxy, path: Array<string>): string | undefined {
   if (current === undefined) {
     return `${path.join('.')} is not set`
   }
-  if (!isLiteral(current)) {
+  if (readLiteral(current) === undefined) {
     return `${path.join('.')} is customized in code`
   }
 
