@@ -1,6 +1,7 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+import { setTimeout as delay } from 'node:timers/promises'
 import { ast, type FileNode } from '@kubb/ast'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { FileManager } from './FileManager.ts'
@@ -515,7 +516,7 @@ describe('FileManager', () => {
       const manager = new FileManager()
 
       const writing = manager.write([makeFileWithSources('a.ts', ['/* a */']), makeFileWithSources('b.ts', ['/* b */'])], { storage })
-      await new Promise((resolve) => setTimeout(resolve, 5))
+      await delay(5)
 
       // b.ts's write started without waiting for a.ts's still-blocked write to finish.
       expect(started.toSorted()).toStrictEqual(['a.ts', 'b.ts'])
@@ -537,7 +538,7 @@ describe('FileManager', () => {
       const files = Array.from({ length: 200 }, (_, index) => makeFileWithSources(`f${index}.ts`, [`/* ${index} */`]))
 
       manager.write(files, { storage }).catch(() => {})
-      await new Promise((resolve) => setTimeout(resolve, 20))
+      await delay(20)
 
       // Unbounded `Promise.all(files.map(...))` would have started all 200 writes. The pool keeps
       // at most WRITE_CONCURRENCY (50) parsed sources in flight at once.
@@ -559,7 +560,7 @@ describe('FileManager', () => {
       const writing = manager.write([makeFileWithSources('a.ts', ['/* a */'])], { storage }).then(() => {
         settled = true
       })
-      await new Promise((resolve) => setTimeout(resolve, 5))
+      await delay(5)
       expect(settled).toBe(false)
 
       unblock()

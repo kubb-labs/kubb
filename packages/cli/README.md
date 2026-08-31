@@ -232,27 +232,10 @@ npx kubb validate https://petstore3.swagger.io/api/v3/openapi.json
 
 Start a Model Context Protocol (MCP) server that exposes Kubb code generation as a tool for AI assistants. Once running, configure your AI client (Claude, Cursor, Windsurf, etc.) to connect — the assistant can then call `kubb generate` directly without leaving the chat.
 
-Runs over **stdio** by default (compatible with all MCP clients). Pass `--port` to expose an HTTP server instead.
+Runs over **stdio**, which is compatible with local MCP clients such as Claude Desktop and Cursor.
 
 ```bash
 npx kubb mcp
-```
-
-#### Options
-
-| Flag                | Short | Type   | Default     | Description                               |
-| ------------------- | ----- | ------ | ----------- | ----------------------------------------- |
-| `--port <number>`   | `-p`  | string |             | Port for HTTP MCP server (omit for stdio) |
-| `--host <hostname>` |       | string | `localhost` | Hostname to bind to (HTTP mode only)      |
-
-#### Examples
-
-```bash
-# stdio mode (recommended for Claude Desktop, Cursor, etc.)
-npx kubb mcp
-
-# HTTP mode
-npx kubb mcp --port 3001
 ```
 
 #### MCP client configuration

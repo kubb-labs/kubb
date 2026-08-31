@@ -1,5 +1,24 @@
 # Changelog
 
+## v5.0.4 — Aug 28, 2026
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- Move `unplugin-kubb` past its squatted npm version range.
+
+  Versions 5.0.1 through 5.0.30 were already published on npm from `unplugin-kubb`'s
+  pre-monorepo history and depend on kubb v4, so the package's version was set directly to
+  5.0.31 to clear that range. This changeset picks up from that 5.0.31 baseline and puts
+  `unplugin-kubb` back through the normal release process, independent of `kubb` and `@kubb/*`. ([#3940](https://github.com/kubb-labs/kubb/pull/3940), [`b45071e`](https://github.com/kubb-labs/kubb/commit/b45071e996d6607c62eaa31c88cc47ab2b5243c5))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.3 — Aug 27, 2026
 
 ### @kubb/adapter-oas

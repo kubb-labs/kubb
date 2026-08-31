@@ -82,8 +82,8 @@ export const fsStorage = createStorage(() => {
         return null
       }
     },
-    async writeItem(key: string, value: string) {
-      await limit(() => write(resolve(key), value, { sanity: false }))
+    async writeItem(key: string, value: string, options?: { stored?: string | null }) {
+      await limit(() => write(resolve(key), value, { sanity: false, stored: options?.stored }))
     },
     async removeItem(key: string) {
       await rm(resolve(key), { force: true })

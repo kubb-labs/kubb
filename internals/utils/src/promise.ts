@@ -1,3 +1,5 @@
+import { toError } from './errors.ts'
+
 /** A value that may already be resolved or still pending.
  *
  * @example
@@ -64,4 +66,47 @@ export function memoize<TKey, TValue>(store: Store<TKey, TValue>, factory: (key:
     store.set(key, value)
     return value
   }
+}
+
+type SerialRunnerOptions = {
+  run(): Promise<void>
+  onError(error: Error): void
+}
+
+export function createSerialRunner({ run, onError }: SerialRunnerOptions): () => Promise<void> {
+  let running = false
+  let dirty = false
+
+  return async (): Promise<void> => {
+    if (running) {
+      dirty = true
+      return
+    }
+    running = true
+    do {
+      dirty = false
+      try {
+        await run()
+      } catch (error) {
+        onError(toError(error))
+      }
+    } while (dirty)
+    running = false
+  }
+}
+
+type ParallelOptions<TItem> = {
+  items: ReadonlyArray<TItem>
+  limit: number
+  run(item: TItem, index: number): Promise<void>
+}
+
+export async function inParallel<TItem>({ items, limit, run }: ParallelOptions<TItem>): Promise<void> {
+  const queue = items.entries()
+
+  const worker = async (): Promise<void> => {
+    for (const [index, item] of queue) await run(item, index)
+  }
+
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, () => worker()))
 }

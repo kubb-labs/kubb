@@ -39,23 +39,24 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
   const { definition: studioDefinition } = await import('./commands/studio.ts')
   const studioCommand = lazy(async () => (await import('./runners/studio/run.ts')).runner, studioDefinition)
 
-  try {
-    await cli(stripExecArgs(argv), generateCommand, {
-      name: 'kubb',
-      version,
-      // Not `generateCommand.description`: gunshi prints this on every subcommand's help too, so
-      // `kubb studio --help` would open with a paragraph about generating types.
-      description: 'Generate code from an OpenAPI specification, or connect the project to Kubb Studio.',
-      subCommands: {
-        generate: generateCommand,
-        init: initCommand,
-        validate: validateCommand,
-        mcp: mcpCommand,
-        studio: studioCommand,
-      },
-      fallbackToEntry: true,
-    })
-  } catch {
-    process.exit(1)
-  }
+  await cli(stripExecArgs(argv), generateCommand, {
+    name: 'kubb',
+    version,
+    // Not `generateCommand.description`: gunshi prints this on every subcommand's help too, so
+    // `kubb studio --help` would open with a paragraph about generating types.
+    description: 'Generate code from an OpenAPI specification, or connect the project to Kubb Studio.',
+    subCommands: {
+      generate: generateCommand,
+      init: initCommand,
+      validate: validateCommand,
+      mcp: mcpCommand,
+      studio: studioCommand,
+    },
+    fallbackToEntry: true,
+    strict: true,
+    onErrorCommand: async (_ctx, error) => {
+      process.exitCode = 1
+      console.error(error)
+    },
+  })
 }

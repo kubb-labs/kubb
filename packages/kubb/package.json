@@ -1,6 +1,6 @@
 {
   "name": "kubb",
-  "version": "5.0.3",
+  "version": "5.0.4",
   "description": "The meta framework for code generation. Point Kubb at a schema and it generates types, clients, hooks, validators, mocks, and more.",
   "keywords": [
     "api-client",
@@ -146,11 +146,11 @@
     "@nuxt/kit": "^4.5.2",
     "@nuxt/schema": "^4.5.2",
     "esbuild": "^0.28.2",
-    "rolldown": "^1.2.5",
-    "rollup": "^4.62.5",
+    "rolldown": "^1.2.6",
+    "rollup": "^4.63.1",
     "typescript": "catalog:",
     "vite": "^8.2.2",
-    "webpack": "^5.109.2"
+    "webpack": "^5.110.1"
   },
   "preferGlobal": true,
   "engines": {

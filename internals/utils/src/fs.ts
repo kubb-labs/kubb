@@ -41,6 +41,11 @@ export async function read(path: string): Promise<string> {
 
 type WriteOptions = {
   /**
+   * Previously read content, or `null` when the file does not exist.
+   * Omitting this value reads the file before writing.
+   */
+  stored?: string | null
+  /**
    * When `true`, re-reads the file immediately after writing and throws if the
    * content does not match — useful for catching write failures on unreliable file systems.
    */
@@ -81,20 +86,26 @@ export async function write(path: string, data: string, options: WriteOptions = 
 
   const content = `${trimmed}\n`
   const resolved = resolve(path)
+  let stored = options.stored
+
+  if (stored === undefined) {
+    if (runtime.isBun) {
+      const file = Bun.file(resolved)
+      stored = (await file.exists()) ? await file.text() : null
+    } else {
+      try {
+        stored = await readFile(resolved, { encoding: 'utf-8' })
+      } catch {
+        /* file doesn't exist yet */
+        stored = null
+      }
+    }
+  }
+  if (matchesStored({ stored: stored ?? '', source: trimmed })) return null
 
   if (runtime.isBun) {
-    const file = Bun.file(resolved)
-    const oldContent = (await file.exists()) ? await file.text() : ''
-    if (matchesStored({ stored: oldContent, source: trimmed })) return null
     await Bun.write(resolved, content)
     return content
-  }
-
-  try {
-    const oldContent = await readFile(resolved, { encoding: 'utf-8' })
-    if (matchesStored({ stored: oldContent, source: trimmed })) return null
-  } catch {
-    /* file doesn't exist yet */
   }
 
   // Creating the directory up front costs a syscall per file, and every file after the first in a

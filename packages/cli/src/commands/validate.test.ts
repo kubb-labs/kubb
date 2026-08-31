@@ -13,6 +13,7 @@ describe('validate command', () => {
     vi.unstubAllEnvs()
     vi.restoreAllMocks()
     runValidate.mockClear()
+    process.exitCode = undefined
   })
 
   it('forwards the positional input to the validate runner', async () => {
@@ -28,15 +29,24 @@ describe('validate command', () => {
   it('exits with a non-zero code when the input is missing', async () => {
     using _log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
     using _error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    using _exit = vi.spyOn(process, 'exit').mockImplementation((() => {
-      throw new Error('process.exit')
-    }) as never)
     vi.stubEnv('KUBB_DISABLE_TELEMETRY', '1')
 
     const { run } = await import('../index.ts')
-    await expect(run(['/usr/bin/node', '/usr/local/bin/kubb', 'validate'])).rejects.toThrow('process.exit')
+    await expect(run(['/usr/bin/node', '/usr/local/bin/kubb', 'validate'])).rejects.toThrow()
 
     expect(runValidate).not.toHaveBeenCalled()
-    expect(_exit).toHaveBeenCalledWith(1)
+    expect(process.exitCode).toBe(1)
+  })
+
+  it('rejects unknown options before running the command', async () => {
+    using _log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    using _error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    vi.stubEnv('KUBB_DISABLE_TELEMETRY', '1')
+
+    const { run } = await import('../index.ts')
+    await expect(run(['/usr/bin/node', '/usr/local/bin/kubb', 'validate', './spec.yaml', '--typo'])).rejects.toThrow()
+
+    expect(runValidate).not.toHaveBeenCalled()
+    expect(process.exitCode).toBe(1)
   })
 })
