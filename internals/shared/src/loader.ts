@@ -12,7 +12,7 @@ const JITI_OPTIONS = {
 /**
  * Per-call options for {@link ModuleLoader.load}.
  */
-export type LoadModuleOptions = {
+type LoadModuleOptions = {
   /**
    * Return the module's default export instead of the full namespace.
    */
@@ -22,7 +22,7 @@ export type LoadModuleOptions = {
 /**
  * Loads `.ts`/`.js` modules via jiti.
  */
-export type ModuleLoader = {
+type ModuleLoader = {
   load<T = unknown>(filePath: string, options?: LoadModuleOptions): Promise<T>
 }
 

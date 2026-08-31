@@ -3,7 +3,7 @@ import { basename, dirname, resolve } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { createModuleLoader } from '@internals/shared'
-import { createSerialRunner, toError, tokenize } from '@internals/utils'
+import { toError, tokenize } from '@internals/utils'
 import type { CLIOptions, Config, KubbHooks, PossibleConfig, PostGenerateCommand, Hookable } from '@kubb/core'
 import { NonZeroExitError, x } from 'tinyexec'
 import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
@@ -96,7 +96,7 @@ type RunPostGenerateOptions = {
  * Outcome of a single hook subprocess, returned by `runHook` alongside the
  * `kubb:hook:end` hook it emits for the loggers.
  */
-export type HookResult = {
+type HookResult = {
   /**
    * `true` when the command exited with code `0`.
    */
@@ -207,6 +207,54 @@ export async function runHook({ id, command, name, args, commandWithArgs, hooks 
     // the logger can render it. The caller turns this into a coded diagnostic and emits that
     // through `Diagnostics.emit`, so emitting `kubb:error` here would render it twice.
     return emitEnd({ success: false, error, stdout, stderr })
+  }
+}
+
+type SerialRunnerOptions = {
+  /**
+   * The async work to serialize.
+   */
+  run(): Promise<void>
+  /**
+   * Receives errors thrown by `run`, so a failure never rejects the returned trigger.
+   */
+  onError(error: Error): void
+}
+
+/**
+ * Wraps `run` so invocations never overlap: a trigger that lands while a run is in flight
+ * marks it dirty and runs once more after it finishes, no matter how many triggers arrived.
+ * Useful for event-driven reruns (a file watcher, a queue drain) where bursts should
+ * coalesce into a single trailing run.
+ *
+ * @example
+ * ```ts
+ * const rebuild = createSerialRunner({
+ *   run: () => build(),
+ *   onError: (error) => log.error(error.message),
+ * })
+ * watcher.on('change', () => void rebuild())
+ * ```
+ */
+export function createSerialRunner({ run, onError }: SerialRunnerOptions): () => Promise<void> {
+  let running = false
+  let dirty = false
+
+  return async (): Promise<void> => {
+    if (running) {
+      dirty = true
+      return
+    }
+    running = true
+    do {
+      dirty = false
+      try {
+        await run()
+      } catch (error) {
+        onError(toError(error))
+      }
+    } while (dirty)
+    running = false
   }
 }
 

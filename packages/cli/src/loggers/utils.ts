@@ -1,8 +1,9 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { canUseTTY, formatMs, getElapsedMs, toCause } from '@internals/utils'
+import { formatMs, getElapsedMs } from '@internals/utils'
 import type { Config, Reporter, ReporterContext } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
+import { canUseTTY } from '../utils/env.ts'
 import type { LoggerContext, LoggerOptions } from './defineLogger.ts'
 import { clackLogger } from './clackLogger.ts'
 import { plainLogger } from './plainLogger.ts'
@@ -32,6 +33,13 @@ export function formatMessage(message: string, logLevel: number): string {
     return `${styleText('dim', `[${timestamp}]`)} ${message}`
   }
   return message
+}
+
+/**
+ * Extracts the `.cause` of an `Error` as an `Error`, or `undefined` when absent or not an `Error`.
+ */
+function toCause(error: Error): Error | undefined {
+  return error.cause instanceof Error ? error.cause : undefined
 }
 
 /**
@@ -160,7 +168,7 @@ export function recordPluginResult(state: ProgressState, success: boolean): void
  * Tracks per-hook start times so a logger can report a hook's elapsed duration.
  * Used by the plain logger, which keys timing by hook `id`.
  */
-export type HookTimer = {
+type HookTimer = {
   start(id: string): void
   /**
    * Returns the elapsed milliseconds since `start(id)`, or `undefined` when no start was recorded.

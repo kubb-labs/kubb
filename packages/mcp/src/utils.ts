@@ -123,7 +123,7 @@ export function resolveCwd(userConfig: Config, cwd: string): string {
 /**
  * Inputs forwarded to a config when it is defined as a function.
  */
-export type ResolveUserConfigOptions = {
+type ResolveUserConfigOptions = {
   /**
    * Path of the loaded config, passed through to the config function as `config`.
    */

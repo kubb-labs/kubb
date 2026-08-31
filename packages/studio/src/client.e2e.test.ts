@@ -98,14 +98,17 @@ function createFakeStudio({ rejectMachineToken = 0 }: FakeStudioOptions = {}) {
      * rather than on a timer.
      */
     waitFor<T extends AgentMessage>(predicate: (message: AgentMessage) => message is T): Promise<T> {
-      return vi.waitFor(() => {
-        const match = received.find(predicate)
-        if (!match) {
-          throw new Error(`No message from the agent matched. Received: ${received.map((message) => message.type).join(', ') || 'nothing'}`)
-        }
+      return vi.waitFor(
+        () => {
+          const match = received.find(predicate)
+          if (!match) {
+            throw new Error(`No message from the agent matched. Received: ${received.map((message) => message.type).join(', ') || 'nothing'}`)
+          }
 
-        return match
-      })
+          return match
+        },
+        { timeout: 5000 },
+      )
     },
   }
 }

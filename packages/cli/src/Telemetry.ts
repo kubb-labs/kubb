@@ -1,8 +1,9 @@
 import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
-import { isCIEnvironment, runtime } from '@internals/utils'
+import { runtime } from '@internals/utils'
 import { OTLP_ENDPOINT } from './constants.ts'
+import { isCIEnvironment } from './utils/env.ts'
 
 type OtlpKeyValue = {
   key: string
@@ -52,7 +53,7 @@ export type TelemetryPlugin = {
 /**
  * Anonymous snapshot of a single Kubb run, built by {@link buildTelemetryEvent} and sent by {@link sendTelemetry}.
  */
-export type TelemetryEvent = {
+type TelemetryEvent = {
   command: string
   kubbVersion: string
   /**

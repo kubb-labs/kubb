@@ -4,7 +4,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as prompts from '@clack/prompts'
 import { KUBB_CONFIG_FILENAME } from '@internals/shared'
-import { canUseTTY, isCIEnvironment, toError } from '@internals/utils'
+import { toError } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
 import { createFileStorage, createClient, defaultStudioUrl, InvalidAgentTokenError, pollForPairingToken, setStorage, startPairing } from '@kubb/studio'
 import { x } from 'tinyexec'
@@ -12,6 +12,7 @@ import type { CommandRunner } from 'gunshi'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import { version } from '../../../package.json'
 import type { definition } from '../../commands/studio.ts'
+import { canUseTTY, isCIEnvironment } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
 import { clearCredentials, type Credentials, getKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 
@@ -330,7 +331,7 @@ async function status(options: StudioOptions): Promise<void> {
 /**
  * Runs a `kubb studio` action and reports the outcome to telemetry.
  */
-export async function run(options: StudioOptions): Promise<void> {
+async function run(options: StudioOptions): Promise<void> {
   // The machine secret lives here and pairing binds it, so storage is installed before anything
   // reads `getMachineToken()` — which `startPairing` does, before any client exists.
   setStorage(createFileStorage(path.join(getKubbHome(), 'cache')))

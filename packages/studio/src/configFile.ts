@@ -22,12 +22,12 @@ type AnyProxy = ProxyBase & { $type: string; $callee?: string; $args?: Proxified
 /**
  * A value Studio can round-trip through JSON and print back as a config literal.
  */
-export type OptionValue = string | number | boolean | null | Array<OptionValue> | { [key: string]: OptionValue }
+type OptionValue = string | number | boolean | null | Array<OptionValue> | { [key: string]: OptionValue }
 
 /**
  * What `applyConfigEdits` did to a config file.
  */
-export type ApplyResult = {
+type ApplyResult = {
   /**
    * The file's text after every applicable edit, unchanged from the input when none applied.
    */

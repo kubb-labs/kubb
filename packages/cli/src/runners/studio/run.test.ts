@@ -4,8 +4,8 @@ import type { Credentials } from './credentials.ts'
 import { formatPermissionSummary, resolvePermissions, type StudioOptions } from './run.ts'
 
 vi.mock('@clack/prompts', () => ({ confirm: vi.fn() }))
-vi.mock('@internals/utils', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@internals/utils')>()),
+vi.mock('../../utils/env.ts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../utils/env.ts')>()),
   isCIEnvironment: () => false,
   canUseTTY: () => true,
 }))
