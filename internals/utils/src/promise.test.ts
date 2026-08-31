@@ -1,3 +1,4 @@
+import { setTimeout as delay } from 'node:timers/promises'
 import { describe, expect, it, vi } from 'vitest'
 import { createSerialRunner, inParallel, isPromise, memoize } from './promise.ts'
 
@@ -142,7 +143,7 @@ describe('inParallel', () => {
       run: async () => {
         inFlight++
         peak = Math.max(peak, inFlight)
-        await new Promise((done) => setTimeout(done, 1))
+        await delay(1)
         inFlight--
       },
     })
@@ -157,9 +158,9 @@ describe('inParallel', () => {
     await inParallel({
       items: [20, 1, 1],
       limit: 2,
-      run: async (delay) => {
-        await new Promise((done) => setTimeout(done, delay))
-        order.push(delay)
+      run: async (duration) => {
+        await delay(duration)
+        order.push(duration)
       },
     })
 

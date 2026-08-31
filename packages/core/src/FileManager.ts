@@ -220,7 +220,7 @@ export class FileManager {
         const stored = await storage.readItem(file.path)
         if (isUnchanged({ stored, source, key: file.path, manifest })) return
 
-        await storage.writeItem(file.path, source)
+        await storage.writeItem(file.path, source, { stored })
 
         // Only a file that was written can have been changed by the output passes.
         manifest?.track({ key: file.path, source })

@@ -22,8 +22,11 @@ export type Storage = {
   /**
    * Stores `value` under `key`, creating any required structure (directories,
    * buckets, ...).
+   *
+   * Pass `stored` when the caller already read the previous value to avoid
+   * reading it again in storage implementations that support the optimization.
    */
-  writeItem(key: string, value: string): Promise<void>
+  writeItem(key: string, value: string, options?: { stored?: string | null }): Promise<void>
   /**
    * Deletes the entry for `key`. No-op when the key does not exist.
    */
