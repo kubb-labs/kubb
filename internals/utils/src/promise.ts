@@ -65,4 +65,3 @@ export function memoize<TKey, TValue>(store: Store<TKey, TValue>, factory: (key:
     return value
   }
 }
-

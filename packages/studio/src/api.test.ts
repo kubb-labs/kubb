@@ -11,7 +11,7 @@ vi.mock('./machine.ts', async (importOriginal) => ({
   getMachineToken: vi.fn(async () => 'machine-token-hash'),
 }))
 
-const createMockResponse = (data: unknown, ok: boolean = true, status: number = 200) => ({
+const createMockResponse = (data: unknown, ok = true, status = 200) => ({
   ok,
   status,
   json: vi.fn(async () => data),
@@ -39,7 +39,7 @@ function unauthorizedError(): Error {
 beforeEach(() => {
   fetchMock.mockReset()
   vi.useFakeTimers()
-  global.fetch = fetchMock
+  vi.stubGlobal('fetch', fetchMock)
 })
 
 afterEach(() => {
