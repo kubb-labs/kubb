@@ -169,6 +169,58 @@ function isLiteral(node: ASTNode | undefined): boolean {
 }
 
 /**
+ * Reads a literal node's value, mirroring the node types {@link isLiteral} accepts. Returns
+ * `undefined` for anything `isLiteral` would refuse, so a caller can use one guard for both.
+ */
+function readLiteral(node: ASTNode | undefined): OptionValue | undefined {
+  if (!node) {
+    return undefined
+  }
+  if (node.type === 'StringLiteral' || node.type === 'NumericLiteral' || node.type === 'BooleanLiteral') {
+    return node.value
+  }
+  if (node.type === 'NullLiteral') {
+    return null
+  }
+  if (node.type === 'TemplateLiteral') {
+    return node.expressions.length === 0 ? (node.quasis[0]?.value.cooked ?? '') : undefined
+  }
+  if (node.type === 'UnaryExpression') {
+    const value = readLiteral(node.argument)
+    if (typeof value !== 'number') {
+      return undefined
+    }
+    if (node.operator === '-') {
+      return -value
+    }
+    if (node.operator === '+') {
+      return value
+    }
+    return undefined
+  }
+  if (node.type === 'ArrayExpression') {
+    const values = node.elements.map((element) => (element ? readLiteral(element) : undefined))
+    return values.every((value) => value !== undefined) ? values : undefined
+  }
+  if (node.type === 'ObjectExpression') {
+    const entries: Record<string, OptionValue> = {}
+    for (const property of node.properties) {
+      if (property.type !== 'ObjectProperty') {
+        return undefined
+      }
+      const key = property.key.type === 'Identifier' ? property.key.name : property.key.type === 'StringLiteral' ? property.key.value : undefined
+      const value = readLiteral(property.value)
+      if (key === undefined || value === undefined) {
+        return undefined
+      }
+      entries[key] = value
+    }
+    return entries
+  }
+  return undefined
+}
+
+/**
  * Maps a factory identifier in the file back to the module it was imported from.
  */
 function importedFrom(mod: ProxifiedModule): Map<string, string> {
@@ -255,7 +307,8 @@ export function readConfig(source: string): ConfigFileView {
             }
             const key = entry.key.type === 'Identifier' ? entry.key.name : entry.key.type === 'StringLiteral' ? entry.key.value : undefined
             if (key !== undefined) {
-              entries[key] = { literal: isLiteral(entry.value) }
+              const value = readLiteral(entry.value)
+              entries[key] = value === undefined ? { literal: false } : { literal: true, value }
             }
           }
         }

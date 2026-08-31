@@ -88,12 +88,16 @@ describe('readConfig', () => {
       {
         "axios.baseURL": {
           "literal": true,
+          "value": "https://petstore3.swagger.io/api/v3",
         },
         "axios.group": {
           "literal": false,
         },
         "faker.group": {
           "literal": true,
+          "value": {
+            "type": "tag",
+          },
         },
         "faker.macros": {
           "literal": false,
@@ -103,6 +107,20 @@ describe('readConfig', () => {
         },
         "ts.override": {
           "literal": true,
+          "value": [
+            {
+              "options": {
+                "enum": {
+                  "constCasing": "camelCase",
+                  "keyCasing": "none",
+                  "type": "enum",
+                  "typeSuffix": "Key",
+                },
+              },
+              "pattern": "findPetsByStatus",
+              "type": "operationId",
+            },
+          ],
         },
       }
     `)
@@ -144,6 +162,7 @@ describe('readConfig', () => {
                 "options": {
                   "arrayType": {
                     "literal": true,
+                    "value": "generic",
                   },
                 },
                 "packageName": "@kubb/plugin-ts",
@@ -353,6 +372,7 @@ describe('reading a config that does not look like the examples', () => {
           "options": {
             "arrayType": {
               "literal": true,
+              "value": "generic",
             },
           },
           "packageName": "@kubb/plugin-ts",
@@ -600,9 +620,11 @@ describe('readConfig: values magicast cannot proxy', () => {
       {
         "banner": {
           "literal": true,
+          "value": "static",
         },
         "n": {
           "literal": true,
+          "value": -1,
         },
       }
     `)

@@ -407,6 +407,9 @@ describe('connectToStudio', () => {
                   "options": {
                     "enum": {
                       "literal": true,
+                      "value": {
+                        "type": "asConst",
+                      },
                     },
                     "group": {
                       "literal": false,

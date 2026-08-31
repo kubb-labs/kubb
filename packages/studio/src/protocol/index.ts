@@ -50,6 +50,13 @@ export type JSONKubbConfig = {
 export type ConfigSelector = string | number
 
 /**
+ * A value the agent can read out of a plugin option in `kubb.config.ts` and round-trip through
+ * JSON. Kept independent of `configFile.ts`'s equivalent `OptionValue`, so this file, the wire
+ * contract, stays free of a circular type reference back to the patcher.
+ */
+export type ManagedOptionValue = string | number | boolean | null | Array<ManagedOptionValue> | { [key: string]: ManagedOptionValue }
+
+/**
  * One change to a plugin's options in the user's `kubb.config.ts`.
  *
  * `plugin` is the package name (`@kubb/plugin-ts`), the same identity used in {@link JSONKubbConfig}.
@@ -95,11 +102,12 @@ export type ManagedPlugin = {
    */
   packageName: string
   /**
-   * Top-level option keys, each flagged with whether the agent may write it. An option marked
-   * `literal: false` holds a function or a reference the agent will not overwrite, so Studio shows
-   * the control disabled rather than hiding it.
+   * Top-level option keys, each flagged with whether the agent may write it and, when it can, the
+   * value found in the file. An option marked `literal: false` holds a function or a reference the
+   * agent will not overwrite, so Studio shows the control disabled rather than hiding it, and
+   * `value` is absent since there is nothing safe to display as the current value.
    */
-  options: Record<string, { literal: boolean }>
+  options: Record<string, { literal: boolean; value?: ManagedOptionValue }>
   /**
    * Set when the plugin call is commented out in the file. Its options stay on disk but are not
    * readable, so `options` is empty until it is enabled again.
