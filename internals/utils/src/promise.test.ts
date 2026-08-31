@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createSerialRunner, inParallel, isPromise, memoize } from './promise.ts'
+import { isPromise, memoize } from './promise.ts'
 
 describe('promise utilities', () => {
   describe('isPromise', () => {
@@ -70,106 +70,5 @@ describe('memoize', () => {
 
     expect(outerFactory).toHaveBeenCalledTimes(1)
     expect(innerFactory).toHaveBeenCalledTimes(2)
-  })
-})
-
-describe('createSerialRunner', () => {
-  it('collapses triggers that land during a run into one rerun', async () => {
-    let calls = 0
-    const gates: Array<() => void> = []
-    const runner = createSerialRunner({
-      run: () =>
-        new Promise<void>((resolve) => {
-          calls += 1
-          gates.push(resolve)
-        }),
-      onError: () => {},
-    })
-
-    const first = runner()
-    void runner()
-    void runner()
-    void runner()
-    expect(calls).toBe(1)
-
-    gates[0]?.()
-    await vi.waitFor(() => expect(calls).toBe(2))
-
-    gates[1]?.()
-    await first
-    expect(calls).toBe(2)
-  })
-
-  it('reports a run error through onError and keeps accepting triggers', async () => {
-    const errors: Array<string> = []
-    let shouldFail = true
-    const runner = createSerialRunner({
-      run: async () => {
-        if (shouldFail) throw new Error('run exploded')
-      },
-      onError: (error) => errors.push(error.message),
-    })
-
-    await runner()
-    expect(errors).toStrictEqual(['run exploded'])
-
-    shouldFail = false
-    await runner()
-    expect(errors).toStrictEqual(['run exploded'])
-  })
-})
-
-describe('inParallel', () => {
-  it('runs every item once, with its index', async () => {
-    const seen: Array<[string, number]> = []
-
-    await inParallel({ items: ['a', 'b', 'c'], limit: 2, run: async (item, index) => void seen.push([item, index]) })
-
-    expect(seen.toSorted()).toStrictEqual([
-      ['a', 0],
-      ['b', 1],
-      ['c', 2],
-    ])
-  })
-
-  it('keeps at most `limit` items in flight', async () => {
-    let inFlight = 0
-    let peak = 0
-
-    await inParallel({
-      items: Array.from({ length: 20 }, (_, i) => i),
-      limit: 3,
-      run: async () => {
-        inFlight++
-        peak = Math.max(peak, inFlight)
-        await new Promise((done) => setTimeout(done, 1))
-        inFlight--
-      },
-    })
-
-    expect(peak).toBe(3)
-  })
-
-  it('hands the next item to whichever worker frees up first', async () => {
-    const order: Array<number> = []
-
-    // The first item is slow, so a single-file-at-a-time loop would finish in input order.
-    await inParallel({
-      items: [20, 1, 1],
-      limit: 2,
-      run: async (delay) => {
-        await new Promise((done) => setTimeout(done, delay))
-        order.push(delay)
-      },
-    })
-
-    expect(order).toStrictEqual([1, 1, 20])
-  })
-
-  it('does nothing for an empty list', async () => {
-    const run = vi.fn()
-
-    await expect(inParallel({ items: [], limit: 5, run })).resolves.toBeUndefined()
-    expect(run).not.toHaveBeenCalled()
   })
 })

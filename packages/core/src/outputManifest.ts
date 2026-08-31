@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { inParallel } from '@internals/utils'
+import { inParallel } from './concurrency.ts'
 import { FILE_CONCURRENCY } from './constants.ts'
 import type { Storage } from './createStorage.ts'
 

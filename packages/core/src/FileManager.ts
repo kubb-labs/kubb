@@ -1,5 +1,6 @@
-import { inParallel, matchesStored, read } from '@internals/utils'
+import { matchesStored, read } from '@internals/utils'
 import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
+import { inParallel } from './concurrency.ts'
 import { FILE_CONCURRENCY } from './constants.ts'
 import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'
