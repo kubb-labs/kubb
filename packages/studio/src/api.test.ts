@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { spyOnConsole } from './console.mock.ts'
-import { createAgentSession, disconnect, InvalidAgentTokenError, registerAgent } from './api.ts'
+import { createAgentSession, disconnect, HttpError, InvalidAgentTokenError, registerAgent } from './api.ts'
 
 const consoleSpy = spyOnConsole()
 
@@ -32,12 +32,8 @@ const session = {
   isSandbox: false,
 }
 
-function forbiddenError(): Error {
-  return Object.assign(new Error('Forbidden'), { statusCode: 403 })
-}
-
 function unauthorizedError(): Error {
-  return Object.assign(new Error('invalid_agent_token'), { statusCode: 401 })
+  return new HttpError('invalid_agent_token', 401)
 }
 
 beforeEach(() => {
@@ -105,15 +101,18 @@ describe('createAgentSession', () => {
   })
 
   it('throws on a non-403 error without re-registering', async () => {
-    fetchMock.mockRejectedValueOnce(Object.assign(new Error('Bad Gateway'), { statusCode: 502 }))
+    fetchMock.mockResolvedValueOnce(createMockResponse({ message: 'Bad Gateway' }, false, 502))
 
-    await expect(createAgentSession({ token: 'tok', studioUrl: 'http://studio' })).rejects.toThrow('Failed to get agent session from Kubb Studio')
+    await expect(createAgentSession({ token: 'tok', studioUrl: 'http://studio' })).rejects.toThrow('Failed to get agent session from Kubb Studio: Bad Gateway')
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
   it('re-registers and retries once when Studio rejects the machine token', async () => {
     // 1: session create → 403, 2: register → ok, 3: session create retry → ok
-    fetchMock.mockRejectedValueOnce(forbiddenError()).mockResolvedValueOnce(createMockResponse({})).mockResolvedValueOnce(createMockResponse(session))
+    fetchMock
+      .mockResolvedValueOnce(createMockResponse({ message: 'machine token mismatch' }, false, 403))
+      .mockResolvedValueOnce(createMockResponse({}))
+      .mockResolvedValueOnce(createMockResponse(session))
 
     const promise = createAgentSession({ token: 'tok', studioUrl: 'http://studio' })
     await vi.runAllTimersAsync()
@@ -124,15 +123,28 @@ describe('createAgentSession', () => {
   })
 
   it('throws when re-registration fails after a machine token rejection', async () => {
-    fetchMock.mockRejectedValue(forbiddenError())
+    fetchMock.mockResolvedValue(createMockResponse({ message: 'Forbidden' }, false, 403))
 
     const promise = createAgentSession({ token: 'tok', studioUrl: 'http://studio' })
     promise.catch(() => {})
     await vi.runAllTimersAsync()
 
-    await expect(promise).rejects.toThrow('Failed to get agent session from Kubb Studio')
+    await expect(promise).rejects.toThrow('Failed to get agent session from Kubb Studio: Forbidden')
     // 1 session create + 4 register attempts
     expect(fetchMock).toHaveBeenCalledTimes(5)
+  })
+
+  it('throws InvalidAgentTokenError when the retry after re-register still gets a 401', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createMockResponse({ message: 'machine token mismatch' }, false, 403))
+      .mockResolvedValueOnce(createMockResponse({}))
+      .mockResolvedValueOnce(createMockResponse({ message: 'revoked' }, false, 401))
+
+    const promise = createAgentSession({ token: 'tok', studioUrl: 'http://studio' })
+    promise.catch(() => {})
+    await vi.runAllTimersAsync()
+
+    await expect(promise).rejects.toBeInstanceOf(InvalidAgentTokenError)
   })
 })
 
@@ -151,5 +163,13 @@ describe('disconnect', () => {
     await disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio' })
 
     expect(consoleSpy.log).toHaveBeenCalledWith('[agent] Disconnected from Studio')
+  })
+
+  it('warns instead of throwing when Studio cannot be notified', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ message: 'gone' }, false, 500))
+
+    await expect(disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', slug: 'brave-otter' })).resolves.toBeUndefined()
+
+    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('[brave-otter] Failed to notify Studio of disconnection'))
   })
 })

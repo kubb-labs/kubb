@@ -90,10 +90,12 @@ type PollOptions = {
   session: PairingSession
 }
 
+type PollError = 'authorization_pending' | 'slow_down' | 'expired_token' | 'access_denied' | 'invalid_grant'
+
 type PollResponse =
   | PairingResult
   | {
-      error: 'authorization_pending' | 'slow_down' | 'expired_token' | 'access_denied' | 'invalid_grant'
+      error: PollError | string
       /**
        * Why, when Studio has something more useful to say than the RFC code. An approval that hits
        * the organization's agent limit comes back as `access_denied` with the limit spelled out.
@@ -101,13 +103,17 @@ type PollResponse =
       error_description?: string
     }
 
+function isPairingResult(response: PollResponse | undefined): response is PairingResult {
+  return !!response && typeof response === 'object' && 'token' in response && typeof response.token === 'string'
+}
+
 /**
  * Polls until the user approves or denies, honoring the server's `slow_down` back-off.
  *
  * Studio's own endpoint is used rather than the auth layer's `/device/token`, because an approved
  * Kubb pairing is worth an agent bearer token, not a user session.
  *
- * @throws when the code expires or the user denies it.
+ * @throws when the code expires, the user denies it, or Studio returns an unexpected error.
  */
 export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl, session }: PollOptions): Promise<PairingResult> {
   const deadline = Date.now() + session.expires_in * 1000
@@ -116,7 +122,7 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
   while (Date.now() < deadline) {
     await delay(intervalMs)
 
-    const response = await postJson<PollResponse>(`${studioUrl}/api/agent/token`, {
+    const response = await postJson<PollResponse | undefined>(`${studioUrl}/api/agent/token`, {
       body: { device_code: session.device_code },
       // A denial, an expiry, and "not yet" all come back as 4xx with a body the caller needs to
       // read, so let every response through and switch on `error` instead of catching.
@@ -125,8 +131,21 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
       throw new Error('Could not reach Kubb Studio while waiting for approval', { cause: error })
     })
 
-    if (!('error' in response)) {
+    if (isPairingResult(response)) {
       return response
+    }
+
+    if (!response || typeof response !== 'object' || !('error' in response) || typeof response.error !== 'string') {
+      throw new Error('Kubb Studio returned an empty pairing response, pair again')
+    }
+
+    if (response.error === 'authorization_pending') {
+      continue
+    }
+
+    if (response.error === 'slow_down') {
+      intervalMs += 5_000
+      continue
     }
 
     if (response.error === 'access_denied') {
@@ -137,9 +156,7 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
       throw new Error(response.error_description ?? 'The pairing code expired, pair again')
     }
 
-    if (response.error === 'slow_down') {
-      intervalMs += 5_000
-    }
+    throw new Error(response.error_description ?? `Pairing failed (${response.error})`)
   }
 
   throw new Error('The pairing code expired, pair again')

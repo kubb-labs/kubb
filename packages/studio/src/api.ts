@@ -1,7 +1,8 @@
 import { setTimeout as delay } from 'node:timers/promises'
+import { styleText } from 'node:util'
+import { getErrorMessage } from '@internals/utils'
 import type { AgentConnectResponse } from './protocol/index.ts'
 import { getMachineToken } from './machine.ts'
-import { styleText } from 'node:util'
 
 type PostJsonOptions = {
   headers?: Record<string, string>
@@ -15,8 +16,40 @@ type PostJsonOptions = {
 }
 
 /**
- * Posts JSON to Studio and parses the JSON response. Throws on a non-2xx status with a
- * `statusCode` property, unless `allowErrorResponse` is set.
+ * An HTTP failure from Studio. Carries `statusCode` so callers can branch on 401 vs 403 without
+ * duck-typing a plain `Error`.
+ */
+export class HttpError extends Error {
+  statusCode: number
+
+  constructor(message: string, statusCode: number, options?: ErrorOptions) {
+    super(message, options)
+    this.name = 'HttpError'
+    this.statusCode = statusCode
+  }
+}
+
+/**
+ * Reads a human-readable message from a Studio JSON error body, when it has one.
+ */
+function responseMessage(data: unknown): string | undefined {
+  if (!data || typeof data !== 'object') {
+    return undefined
+  }
+
+  const body = data as { error_description?: unknown; message?: unknown; error?: unknown }
+  for (const value of [body.error_description, body.message, body.error]) {
+    if (typeof value === 'string' && value) {
+      return value
+    }
+  }
+
+  return undefined
+}
+
+/**
+ * Posts JSON to Studio and parses the JSON response. Throws {@link HttpError} on a non-2xx status,
+ * unless `allowErrorResponse` is set.
  */
 export async function postJson<T>(url: string, { headers, body, allowErrorResponse }: PostJsonOptions = {}): Promise<T> {
   const response = await fetch(url, {
@@ -28,7 +61,8 @@ export async function postJson<T>(url: string, { headers, body, allowErrorRespon
   const data = (await response.json().catch(() => undefined)) as T
 
   if (!response.ok && !allowErrorResponse) {
-    throw Object.assign(new Error(`Request to ${url} failed with status ${response.status}`), { statusCode: response.status })
+    const detail = responseMessage(data)
+    throw new HttpError(detail ?? `Request to ${url} failed with status ${response.status}`, response.status)
   }
 
   return data
@@ -62,7 +96,7 @@ export class InvalidAgentTokenError extends Error {
 }
 
 function isTokenRejection(error: unknown): boolean {
-  return (error as { statusCode?: number })?.statusCode === 401
+  return error instanceof HttpError ? error.statusCode === 401 : (error as { statusCode?: number })?.statusCode === 401
 }
 
 /**
@@ -70,11 +104,12 @@ function isTokenRejection(error: unknown): boolean {
  * token stored in Studio no longer matches this agent (missing or mismatched).
  */
 function isMachineTokenRejection(error: unknown): boolean {
-  return (error as { statusCode?: number })?.statusCode === 403
+  return error instanceof HttpError ? error.statusCode === 403 : (error as { statusCode?: number })?.statusCode === 403
 }
 
 function sessionError(cause: unknown): Error {
-  return new Error('Failed to get agent session from Kubb Studio', { cause })
+  const detail = getErrorMessage(cause)
+  return new Error(detail ? `Failed to get agent session from Kubb Studio: ${detail}` : 'Failed to get agent session from Kubb Studio', { cause })
 }
 
 /**
@@ -104,9 +139,7 @@ async function requestAgentSession({ token, studioUrl }: ConnectProps): Promise<
  */
 export async function createAgentSession({ token, studioUrl }: ConnectProps): Promise<AgentConnectResponse> {
   try {
-    const data = await requestAgentSession({ token, studioUrl })
-
-    return data
+    return await requestAgentSession({ token, studioUrl })
   } catch (error: unknown) {
     if (isTokenRejection(error)) {
       throw new InvalidAgentTokenError(studioUrl, { cause: error })
@@ -116,11 +149,15 @@ export async function createAgentSession({ token, studioUrl }: ConnectProps): Pr
       throw sessionError(error)
     }
 
-    const data = await requestAgentSession({ token, studioUrl }).catch((retryError: unknown) => {
-      throw sessionError(retryError)
-    })
+    try {
+      return await requestAgentSession({ token, studioUrl })
+    } catch (retryError: unknown) {
+      if (isTokenRejection(retryError)) {
+        throw new InvalidAgentTokenError(studioUrl, { cause: retryError })
+      }
 
-    return data
+      throw sessionError(retryError)
+    }
   }
 }
 
@@ -171,8 +208,7 @@ async function runRegistration({ token, studioUrl, poolSize }: RegisterProps): P
         throw new InvalidAgentTokenError(studioUrl, { cause: error })
       }
 
-      const { message, cause } = (error ?? {}) as { message?: string; cause?: { message?: string } }
-      console.warn(styleText('yellow', `Failed to register agent with Studio, retrying: ${cause?.message ?? message ?? String(error)}`))
+      console.warn(styleText('yellow', `Failed to register agent with Studio, retrying: ${getErrorMessage(error)}`))
     }
   }
 
@@ -190,7 +226,8 @@ type DisconnectProps = {
 
 /**
  * Notify Kubb Studio that this agent is disconnecting.
- * Called on process termination or server close.
+ * Called on process termination or server close. A failed notify is logged and swallowed: the
+ * local socket is already gone, and failing teardown must not block shutdown or reconnect.
  */
 export async function disconnect({ sessionId, token, studioUrl, slug }: DisconnectProps): Promise<void> {
   const url = `${studioUrl}/api/agent/sessions/${sessionId}/disconnect`
@@ -204,8 +241,6 @@ export async function disconnect({ sessionId, token, studioUrl, slug }: Disconne
     })
     console.log(styleText('green', `[${tag}] Disconnected from Studio`))
   } catch (error) {
-    throw new Error('Failed to notify Studio of disconnection on exit', {
-      cause: error,
-    })
+    console.warn(styleText('yellow', `[${tag}] Failed to notify Studio of disconnection: ${getErrorMessage(error)}`))
   }
 }

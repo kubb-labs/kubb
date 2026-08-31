@@ -317,8 +317,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       try {
         const data = JSON.parse(message.data as string) as AgentMessage
 
-        console.debug(styleText('dim', `[${tag}] Received "${data.type}" from Studio`))
-
         if (isPongMessage(data)) {
           lastPongAt = Date.now()
 
@@ -344,9 +342,11 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         }
 
         if (isCommandMessage(data)) {
+          console.info(styleText('dim', `[${tag}] Received ${data.command} from Studio`))
+
           if (data.command === 'generate') {
             if (isGenerating) {
-              console.warn(styleText('yellow', `[${tag}] Ignored "generate" command from Studio: a generation is already in progress`))
+              console.warn(styleText('yellow', `[${tag}] Ignored generate from Studio: a generation is already in progress`))
 
               await Promise.resolve(
                 hooks.callHook('kubb:error', { error: new Error('A generation is already in progress, please wait for it to finish') }),
@@ -383,6 +383,14 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               setupHookListener(generationHooks, root)
               setupEventsStream(ws, generationHooks)
 
+              const resolvedPlugins = plugins ?? config.plugins
+              console.info(
+                styleText(
+                  'dim',
+                  `[${tag}] Generating with ${resolvedPlugins.length} plugin${resolvedPlugins.length === 1 ? '' : 's'} (${canWrite ? 'write' : 'memory'}${inputOverride !== undefined ? ', studio input' : ''})`,
+                ),
+              )
+
               await generate({
                 config: {
                   ...config,
@@ -390,13 +398,13 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                   input: inputOverride ?? config.input,
                   storage: canWrite ? fsStorage() : memoryStorage(),
                   output: allowExec ? { ...config.output } : { ...config.output, format: false, lint: false, postGenerate: [] },
-                  plugins: plugins ?? config.plugins,
+                  plugins: resolvedPlugins,
                   adapter,
                 },
                 hooks: generationHooks,
               })
 
-              console.log(styleText('green', `[${tag}] Completed "${data.type}" from Studio`))
+              console.log(styleText('green', `[${tag}] Completed generate`))
             } finally {
               isGenerating = false
             }
@@ -407,7 +415,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
           if (data.command === 'connect') {
             await sendConnectedPayload()
 
-            console.log(styleText('green', `[${tag}] Completed "${data.type}" from Studio`))
+            console.log(styleText('green', `[${tag}] Completed connect`))
 
             return
           }
@@ -417,7 +425,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             // branch sends one. `edits` is checked before it is walked: the message crosses the same
             // trust boundary as the values inside it.
             if (!Array.isArray(data.edits)) {
-              console.warn(styleText('yellow', `[${tag}] Ignored "save" from Studio: the message carried no edits`))
+              console.warn(styleText('yellow', `[${tag}] Ignored save from Studio: the message carried no edits`))
 
               sendAgentMessage(ws, { type: 'config-saved', payload: { outcomes: [], changed: false } })
 
@@ -432,7 +440,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               })
 
             if (!canEditConfig) {
-              console.warn(styleText('yellow', `[${tag}] Ignored "save" from Studio: editing kubb.config.ts was not granted`))
+              console.warn(styleText('yellow', `[${tag}] Ignored save from Studio: editing kubb.config.ts was not granted`))
 
               refuse('the agent was not granted permission to edit kubb.config.ts')
 
@@ -465,7 +473,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               })
 
               const applied = outcomes.filter((outcome) => outcome.applied).length
-              console.log(styleText('green', `[${tag}] Completed "${data.type}" from Studio, applied ${applied}/${outcomes.length} edits to ${configPath}`))
+              console.log(styleText('green', `[${tag}] Completed save, applied ${applied}/${outcomes.length} edits to ${configPath}`))
             } catch (error) {
               // An unreadable config, a read-only filesystem. Reported as a refusal of every edit so
               // Studio hears back rather than waiting on a reply that never comes.
@@ -476,7 +484,11 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
             return
           }
+
+          return
         }
+
+        console.debug(styleText('dim', `[${tag}] Received ${data.type} from Studio`))
 
         console.warn(styleText('yellow', `[${tag}] Unknown message type from Kubb Studio: ${String(message.data)}`))
       } catch (error) {

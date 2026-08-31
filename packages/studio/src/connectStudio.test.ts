@@ -168,12 +168,12 @@ describe('connectToStudio', () => {
 
   // WebSocket messages
 
-  it('logs info when a pong message is received', async () => {
+  it('accepts a pong without treating it as an unknown message', async () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'pong' }) })
 
-    expect(consoleSpy.debug).toHaveBeenCalledWith(expect.stringContaining('Received "pong" from Studio'))
+    expect(consoleSpy.warn).not.toHaveBeenCalledWith(expect.stringContaining('Unknown message type'))
   })
 
   it('logs a warning for unknown message types', async () => {
