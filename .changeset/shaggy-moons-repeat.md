@@ -16,5 +16,5 @@ is granted on its own and never in a sandbox.
 The `connected` payload gains `configFile`, which lists every plugin call in the file and flags
 each option as a literal or not. Options holding a function or a reference come back
 `literal: false`, and the agent refuses to overwrite them, so Studio can disable those controls
-instead of hiding them. A config the patcher cannot address, an array config for instance, comes
-back `managed: false` and says why.
+instead of hiding them. A config the patcher cannot address, for instance a default export that
+isn't a `defineConfig(...)` call, comes back `managed: false` and says why.

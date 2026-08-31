@@ -4,7 +4,7 @@
 
 Let a host pair as something other than the CLI.
 
-`startPairing` takes an optional `clientId`, `agentKind`, and `poolSize`. It still defaults to
+`startPairing` takes an optional `clientId` and `agentKind`. It still defaults to
 `kubb-cli`, which `kubb studio login` uses and any signed-in member can approve. A host that pairs
 shared or tier-limited infrastructure, such as the `kubblabs/kubb-agent` image, passes
 `clientId: 'kubb-agent'` and the kind it wants to register as, whose codes only an admin can
