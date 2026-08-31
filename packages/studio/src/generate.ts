@@ -26,7 +26,7 @@ const detectTool = memoize(new Map<ReadonlyArray<string>, Promise<string | null>
  * The two post-build tool steps. Formatting and linting differ only in which tools they look for,
  * so they run through one loop rather than two near-identical blocks.
  */
-const STEPS: ReadonlyArray<{ kind: 'format' | 'lint'; tools: Record<string, ToolCommand>; detect: ReadonlyArray<string> }> = [
+const TOOL_STEPS: ReadonlyArray<{ kind: 'format' | 'lint'; tools: Record<string, ToolCommand>; detect: ReadonlyArray<string> }> = [
   // `detect` is the preference order for `auto`, most-preferred first. Spelled out rather than
   // taken from the table's key order, which is arbitrary and silently changes what `auto` picks.
   { kind: 'format', tools: formatters, detect: FORMATTER_PREFERENCE },
@@ -142,7 +142,7 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
 
   await hooks.callHook('kubb:success', { message: 'Generation successfully' })
 
-  for (const step of STEPS) {
+  for (const step of TOOL_STEPS) {
     const setting = config.output[step.kind]
     if (!setting) {
       continue

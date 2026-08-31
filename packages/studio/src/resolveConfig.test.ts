@@ -106,7 +106,6 @@ describe('mergePlugins', () => {
 
       expect(result?.[0]?.options).toMatchObject({ barrel: { type: 'named' } })
     })
-
   })
 
   describe('disabledPlugins', () => {

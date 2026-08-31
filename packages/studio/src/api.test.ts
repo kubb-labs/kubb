@@ -4,6 +4,10 @@ import { createAgentSession, disconnect, InvalidAgentTokenError, registerAgent }
 
 const consoleSpy = spyOnConsole()
 
+vi.mock('node:timers/promises', () => ({
+  setTimeout: vi.fn(async () => {}),
+}))
+
 // Partial: `api.ts` only wants the machine token stubbed, and a full factory would also replace
 // the storage accessors that the rest of the package shares.
 vi.mock('./machine.ts', async (importOriginal) => ({

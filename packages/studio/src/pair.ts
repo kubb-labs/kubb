@@ -1,6 +1,6 @@
+import { setTimeout as delay } from 'node:timers/promises'
 import { agentDefaults } from './constants.ts'
 import { postJson } from './api.ts'
-import { sleep } from './logger.ts'
 import { getMachineToken } from './machine.ts'
 
 /**
@@ -114,13 +114,13 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
   let intervalMs = session.interval * 1000
 
   while (Date.now() < deadline) {
-    await sleep(intervalMs)
+    await delay(intervalMs)
 
     const response = await postJson<PollResponse>(`${studioUrl}/api/agent/token`, {
       body: { device_code: session.device_code },
       // A denial, an expiry, and "not yet" all come back as 4xx with a body the caller needs to
       // read, so let every response through and switch on `error` instead of catching.
-      ignoreResponseError: true,
+      allowErrorResponse: true,
     }).catch((error: unknown) => {
       throw new Error('Could not reach Kubb Studio while waiting for approval', { cause: error })
     })

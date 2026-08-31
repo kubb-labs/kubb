@@ -1,6 +1,6 @@
 import { builders, detectCodeFormat, generateCode, parseModule } from 'magicast'
 import type { ASTNode, ProxifiedArray, ProxifiedModule, ProxifiedObject, ProxyBase } from 'magicast'
-import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigSelector, ManagedConfig, ManagedPlugin } from './protocol/index.ts'
+import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigRef, ConfigView, OptionValue, PluginView } from './protocol/index.ts'
 import { toExportName } from './resolveConfig.ts'
 
 /**
@@ -18,11 +18,6 @@ type CallProxy = ProxyBase & { $args: ProxifiedArray<Array<unknown>> }
  * Any proxified node, narrowed only to the `$type` discriminant the read path switches on.
  */
 type AnyProxy = ProxyBase & { $type: string; $callee?: string; $args?: ProxifiedArray<Array<unknown>>; $body?: unknown; [key: string]: unknown }
-
-/**
- * A value Studio can round-trip through JSON and print back as a config literal.
- */
-type OptionValue = string | number | boolean | null | Array<OptionValue> | { [key: string]: OptionValue }
 
 /**
  * What `applyConfigEdits` did to a config file.
@@ -106,17 +101,17 @@ function findConfigs(mod: ProxifiedModule): { configs: Array<ObjectProxy> } | { 
 /**
  * The config entry an edit names, defaulting to the first when it names none.
  */
-function selectConfig(configs: Array<ObjectProxy>, selector: ConfigSelector | undefined): ObjectProxy | undefined {
-  if (selector === undefined) {
+function selectConfig(configs: Array<ObjectProxy>, ref: ConfigRef | undefined): ObjectProxy | undefined {
+  if (ref === undefined) {
     return configs[0]
   }
-  if (typeof selector === 'number') {
-    return configs[selector]
+  if (typeof ref === 'number') {
+    return configs[ref]
   }
-  return configs.find((config) => nameOf(config) === selector)
+  return configs.find((config) => configName(config) === ref)
 }
 
-function nameOf(config: ObjectProxy): string | undefined {
+function configName(config: ObjectProxy): string | undefined {
   const name = property(config.$ast, 'name')
   return name?.type === 'StringLiteral' ? name.value : undefined
 }
@@ -206,7 +201,7 @@ function importedFrom(mod: ProxifiedModule): Map<string, string> {
 /**
  * Every `pluginX(...)` element of a config's plugins array that resolves to an import.
  */
-function resolvePluginCalls(
+function pluginCalls(
   mod: ProxifiedModule,
   config: ObjectProxy,
 ): Array<{ index: number; importName: string; packageName: string; options: ASTNode | undefined }> {
@@ -236,7 +231,7 @@ function resolvePluginCalls(
  *
  * Read from the marker lines rather than the AST, since a commented-out call is no longer a node.
  */
-function disabledPlugins(source: string): Array<{ packageName: string; line: number }> {
+function disabledMarkers(source: string): Array<{ packageName: string; line: number }> {
   return source.split('\n').flatMap((line, index) => {
     const packageName = parseMarker(line)
     return packageName ? [{ packageName, line: index + 1 }] : []
@@ -268,13 +263,13 @@ export function readConfig(source: string): ConfigFileView {
   }
 
   const imports = importedFrom(mod)
-  const disabled = disabledPlugins(source)
+  const disabled = disabledMarkers(source)
 
   return {
     managed: true,
-    configs: found.configs.map((config): ManagedConfig => {
-      const plugins = resolvePluginCalls(mod, config).map(({ importName, packageName, options }): ManagedPlugin => {
-        const entries: ManagedPlugin['options'] = {}
+    configs: found.configs.map((config): ConfigView => {
+      const plugins = pluginCalls(mod, config).map(({ importName, packageName, options }): PluginView => {
+        const entries: PluginView['options'] = {}
 
         if (options?.type === 'ObjectExpression') {
           for (const entry of options.properties) {
@@ -303,7 +298,7 @@ export function readConfig(source: string): ConfigFileView {
         })
       }
 
-      return { name: nameOf(config), plugins }
+      return { name: configName(config), plugins }
     }),
   }
 }
@@ -368,7 +363,7 @@ export function printValue(value: OptionValue): string {
 /**
  * The options object of a plugin call, when it was called with one.
  */
-function existingOptionsOf(call: CallProxy): ObjectProxy | undefined {
+function getOptions(call: CallProxy): ObjectProxy | undefined {
   const options = call.$args[0] as ObjectProxy | undefined
   return options?.$type === 'object' ? options : undefined
 }
@@ -376,17 +371,17 @@ function existingOptionsOf(call: CallProxy): ObjectProxy | undefined {
 /**
  * The options object of a plugin call, creating an empty one when the plugin was called bare.
  */
-function optionsObjectOf(call: CallProxy): ObjectProxy | undefined {
+function ensureOptions(call: CallProxy): ObjectProxy | undefined {
   if (call.$args.length === 0) {
     call.$args.push({})
   }
-  return existingOptionsOf(call)
+  return getOptions(call)
 }
 
 /**
  * Walks `path` down to the object holding its last key, descending only through object literals.
  */
-function descend(options: ObjectProxy, path: Array<string>): { object: ObjectProxy; key: string } | { reason: string } {
+function optionParent(options: ObjectProxy, path: Array<string>): { object: ObjectProxy; key: string } | { reason: string } {
   let object = options
 
   for (const [index, key] of path.entries()) {
@@ -418,12 +413,12 @@ function applySet(call: CallProxy, path: Array<string>, value: unknown): string 
     return 'the value is not a literal that can be written to a config file'
   }
 
-  const options = optionsObjectOf(call)
+  const options = ensureOptions(call)
   if (!options) {
     return 'the plugin was not called with an object literal'
   }
 
-  const target = descend(options, path)
+  const target = optionParent(options, path)
   if ('reason' in target) {
     return target.reason
   }
@@ -443,12 +438,12 @@ function applySet(call: CallProxy, path: Array<string>, value: unknown): string 
  * `applySet` does.
  */
 function applyRemove(call: CallProxy, path: Array<string>): string | undefined {
-  const options = existingOptionsOf(call)
+  const options = getOptions(call)
   if (!options) {
     return 'the plugin has no options to remove'
   }
 
-  const target = descend(options, path)
+  const target = optionParent(options, path)
   if ('reason' in target) {
     return target.reason
   }
@@ -478,7 +473,7 @@ type AddPluginResult = { reason: string } | { addImport?: { importName: string; 
 function applyAddPlugin(mod: ProxifiedModule, config: ObjectProxy, edit: Extract<ConfigEdit, { operation: 'add-plugin' }>): AddPluginResult {
   const importName = edit.importName ?? toExportName(edit.plugin)
 
-  if (resolvePluginCalls(mod, config).some((plugin) => plugin.packageName === edit.plugin)) {
+  if (pluginCalls(mod, config).some((plugin) => plugin.packageName === edit.plugin)) {
     return { reason: `${edit.plugin} is already in the plugins array` }
   }
 
@@ -509,7 +504,7 @@ function applyAddPlugin(mod: ProxifiedModule, config: ObjectProxy, edit: Extract
  * never actually changes.
  */
 function disablePlugin(source: string, mod: ProxifiedModule, config: ObjectProxy, plugin: string): { source: string } | { reason: string } {
-  const target = resolvePluginCalls(mod, config).find((entry) => entry.packageName === plugin)
+  const target = pluginCalls(mod, config).find((entry) => entry.packageName === plugin)
   if (!target) {
     return { reason: `${plugin} is not in the plugins array` }
   }
@@ -567,7 +562,7 @@ function enablePlugin(source: string, plugin: string): { source: string } | { re
  * than sharing one module across the batch, since the disable/enable edits rewrite `source` as
  * text and would otherwise leave the others working from a stale tree.
  */
-function parseTarget(source: string, selector: ConfigSelector | undefined): { mod: ProxifiedModule; config: ObjectProxy } | { reason: string } {
+function parseTarget(source: string, ref: ConfigRef | undefined): { mod: ProxifiedModule; config: ObjectProxy } | { reason: string } {
   let mod: ProxifiedModule
   try {
     mod = parseModule(source)
@@ -580,9 +575,9 @@ function parseTarget(source: string, selector: ConfigSelector | undefined): { mo
     return { reason: found.reason }
   }
 
-  const config = selectConfig(found.configs, selector)
+  const config = selectConfig(found.configs, ref)
   if (!config) {
-    return { reason: `no config entry found for ${JSON.stringify(selector)}` }
+    return { reason: `no config entry found for ${JSON.stringify(ref)}` }
   }
 
   return { mod, config }
@@ -640,7 +635,7 @@ export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): Appl
       return { edit, applied: true }
     }
 
-    const pluginCall = resolvePluginCalls(mod, config).find((plugin) => plugin.packageName === edit.plugin)
+    const pluginCall = pluginCalls(mod, config).find((plugin) => plugin.packageName === edit.plugin)
     if (!pluginCall) {
       return { edit, applied: false, reason: `${edit.plugin} is not in the plugins array` }
     }

@@ -1,15 +1,15 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
+import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
 import { type Config, fsStorage, Hookable, memoryStorage } from '@kubb/core'
-import { version as kubbVersion } from '@kubb/core/package.json'
+import { version as studioVersion } from '../package.json'
 import { type AgentHooks, setupHookListener } from './hooks.ts'
 import { type AgentMessage, type ClientInfo, type ConfigFileView, isCommandMessage, isDisconnectMessage, isPongMessage } from './protocol/index.ts'
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { generate } from './generate.ts'
 import { agentDefaults } from './constants.ts'
-import { logger } from './logger.ts'
 import { assertAllowedPlugins, mergeAdapter, mergePlugins } from './resolveConfig.ts'
 import type WebSocket from 'ws'
 import { createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream } from './ws.ts'
@@ -81,7 +81,7 @@ function reconnect(options: ConnectToStudioOptions): void {
     return
   }
 
-  logger.info(`Retrying connection in ${retryInterval}ms to Kubb Studio ...`)
+  console.info(styleText('dim', `Retrying connection in ${retryInterval}ms to Kubb Studio ...`))
 
   const cancel = () => clearTimeout(timer)
   const timer = setTimeout(() => {
@@ -96,7 +96,7 @@ function reconnect(options: ConnectToStudioOptions): void {
     // The rejection is never awaited, so it has to be caught here or it surfaces as an
     // unhandledRejection that kills the retry loop instead of trying again.
     connectToStudio(options).catch((error: unknown) => {
-      logger.error(`Reconnect attempt to Kubb Studio failed: ${getErrorMessage(error)}`)
+      console.error(styleText('red', `Reconnect attempt to Kubb Studio failed: ${getErrorMessage(error)}`))
 
       // A rejected token stays rejected, so retrying only spams 401s until the process is killed.
       if (error instanceof InvalidAgentTokenError) {
@@ -148,14 +148,14 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     const tag = slug ?? 'agent'
 
     // Effective permissions: always disabled in sandbox mode
-    const effectiveWrite = isSandbox ? false : allowWrite
+    const canWrite = isSandbox ? false : allowWrite
     // A sandbox has no user project to edit, so a config edit is never granted there.
-    const effectiveConfigEdit = isSandbox ? false : allowConfigEdit
+    const canEditConfig = isSandbox ? false : allowConfigEdit
     // `configPath` is relative to the agent's root unless it is already absolute, which is what
     // `resolve` does on its own.
     const configFilePath = path.resolve(root, configPath)
     // A sandbox agent always generates from the spec Studio supplies; a local agent only when opted in.
-    const effectiveAllowInput = isSandbox || allowInput
+    const canUseInput = isSandbox || allowInput
     // Tracks whether the studio server explicitly disconnected us (no reconnect needed)
     let serverDisconnected = false
     // Guards against a second `generate` command starting while one is already running.
@@ -199,7 +199,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
      * Not cached: the user can edit the file between two Studio actions.
      */
     async function readConfigFileView(source?: string): Promise<ConfigFileView | undefined> {
-      if (!effectiveConfigEdit) {
+      if (!canEditConfig) {
         return undefined
       }
 
@@ -208,7 +208,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
         return readConfig(source ?? (await readFile(configFilePath, 'utf-8')))
       } catch (error) {
-        logger.debug(tag, `Could not read ${configFilePath}: ${getErrorMessage(error)}`)
+        console.debug(styleText('dim', `[${tag}] Could not read ${configFilePath}: ${getErrorMessage(error)}`))
 
         return undefined
       }
@@ -221,17 +221,17 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         type: 'connected',
         payload: {
           versions: {
-            kubb: kubbVersion,
+            kubb: studioVersion,
             agent: version,
           },
           configPath,
           root,
           client,
           permissions: {
-            allowWrite: effectiveWrite,
-            allowInput: effectiveAllowInput,
+            allowWrite: canWrite,
+            allowInput: canUseInput,
             allowExec,
-            allowConfigEdit: effectiveConfigEdit,
+            allowConfigEdit: canEditConfig,
           },
           configFile: await readConfigFileView(),
           config: {
@@ -247,13 +247,13 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     const onOpen = () => {
       lastPongAt = Date.now()
-      logger.success(tag, 'Connected to Kubb Studio')
+      console.log(styleText('green', `[${tag}] Connected to Kubb Studio`))
 
       // Announce readiness without waiting for a `connect` command. The command from the
       // Studio UI is lost when it is sent while the agent is not attached to the session
       // (e.g. reconnecting after a deploy), so the agent introduces itself on every open.
       sendConnectedPayload().catch((error: unknown) => {
-        logger.warn(tag, 'Failed to send connected payload on open', { error: getErrorMessage(error) })
+        console.warn(styleText('yellow', `[${tag}] Failed to send connected payload on open: ${getErrorMessage(error)}`))
       })
     }
 
@@ -279,7 +279,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     const onClose = () => teardown({ retry: true })
 
     const onError = () => {
-      logger.error(tag, 'Failed to connect to Kubb Studio')
+      console.error(styleText('red', `[${tag}] Failed to connect to Kubb Studio`))
 
       return onClose()
     }
@@ -296,7 +296,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       // arrived. Terminate (not close) so a half-open TCP connection can't linger. The
       // resulting close event triggers cleanup and the reconnect loop.
       if (Date.now() - lastPongAt > heartbeatInterval * 2) {
-        logger.warn(tag, 'No pong received from Kubb Studio, terminating stale connection')
+        console.warn(styleText('yellow', `[${tag}] No pong received from Kubb Studio, terminating stale connection`))
         // Stop the timer here rather than waiting for cleanup(), since the close event can lag,
         // and until it runs this interval would re-terminate and re-log every tick.
         clearInterval(heartbeatTimer)
@@ -317,7 +317,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       try {
         const data = JSON.parse(message.data as string) as AgentMessage
 
-        logger.debug(tag, `Received "${data.type}" from Studio`)
+        console.debug(styleText('dim', `[${tag}] Received "${data.type}" from Studio`))
 
         if (isPongMessage(data)) {
           lastPongAt = Date.now()
@@ -326,7 +326,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         }
 
         if (isDisconnectMessage(data)) {
-          logger.warn(tag, `Agent session disconnected by Studio (${data.reason})`)
+          console.warn(styleText('yellow', `[${tag}] Agent session disconnected by Studio (${data.reason})`))
 
           if (data.reason === 'revoked') {
             cleanup(`session_${data.reason}`)
@@ -346,7 +346,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         if (isCommandMessage(data)) {
           if (data.command === 'generate') {
             if (isGenerating) {
-              logger.warn(tag, 'Ignored "generate" command from Studio: a generation is already in progress')
+              console.warn(styleText('yellow', `[${tag}] Ignored "generate" command from Studio: a generation is already in progress`))
 
               await Promise.resolve(
                 hooks.callHook('kubb:error', { error: new Error('A generation is already in progress, please wait for it to finish') }),
@@ -370,11 +370,13 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               const inputOverride = isSandbox ? (patch?.input ?? '') : (allowInput && patch?.input) || undefined
 
               if (allowWrite && isSandbox) {
-                logger.warn(tag, 'Agent is running in a sandbox environment, write will be disabled')
+                console.warn(styleText('yellow', `[${tag}] Agent is running in a sandbox environment, write will be disabled`))
               }
 
-              if (patch?.input && !effectiveAllowInput) {
-                logger.warn(tag, 'Input from Studio is ignored; set KUBB_AGENT_ALLOW_INPUT=true to generate from the spec sent by Studio')
+              if (patch?.input && !canUseInput) {
+                console.warn(
+                  styleText('yellow', `[${tag}] Input from Studio is ignored; set KUBB_AGENT_ALLOW_INPUT=true to generate from the spec sent by Studio`),
+                )
               }
 
               const generationHooks = new Hookable<AgentHooks>()
@@ -386,7 +388,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                   ...config,
                   root,
                   input: inputOverride ?? config.input,
-                  storage: effectiveWrite ? fsStorage() : memoryStorage(),
+                  storage: canWrite ? fsStorage() : memoryStorage(),
                   output: allowExec ? { ...config.output } : { ...config.output, format: false, lint: false, postGenerate: [] },
                   plugins: plugins ?? config.plugins,
                   adapter,
@@ -394,7 +396,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 hooks: generationHooks,
               })
 
-              logger.success(tag, `Completed "${data.type}" from Studio`)
+              console.log(styleText('green', `[${tag}] Completed "${data.type}" from Studio`))
             } finally {
               isGenerating = false
             }
@@ -405,7 +407,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
           if (data.command === 'connect') {
             await sendConnectedPayload()
 
-            logger.success(tag, `Completed "${data.type}" from Studio`)
+            console.log(styleText('green', `[${tag}] Completed "${data.type}" from Studio`))
 
             return
           }
@@ -415,7 +417,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             // branch sends one. `edits` is checked before it is walked: the message crosses the same
             // trust boundary as the values inside it.
             if (!Array.isArray(data.edits)) {
-              logger.warn(tag, 'Ignored "save" from Studio: the message carried no edits')
+              console.warn(styleText('yellow', `[${tag}] Ignored "save" from Studio: the message carried no edits`))
 
               sendAgentMessage(ws, { type: 'config-saved', payload: { outcomes: [], changed: false } })
 
@@ -429,8 +431,8 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 payload: { outcomes: edits.map((edit) => ({ edit, applied: false, reason })), changed: false },
               })
 
-            if (!effectiveConfigEdit) {
-              logger.warn(tag, 'Ignored "save" from Studio: editing kubb.config.ts was not granted')
+            if (!canEditConfig) {
+              console.warn(styleText('yellow', `[${tag}] Ignored "save" from Studio: editing kubb.config.ts was not granted`))
 
               refuse('the agent was not granted permission to edit kubb.config.ts')
 
@@ -463,11 +465,11 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               })
 
               const applied = outcomes.filter((outcome) => outcome.applied).length
-              logger.success(tag, `Completed "${data.type}" from Studio, applied ${applied}/${outcomes.length} edits to ${configPath}`)
+              console.log(styleText('green', `[${tag}] Completed "${data.type}" from Studio, applied ${applied}/${outcomes.length} edits to ${configPath}`))
             } catch (error) {
               // An unreadable config, a read-only filesystem. Reported as a refusal of every edit so
               // Studio hears back rather than waiting on a reply that never comes.
-              logger.exception(tag, error)
+              console.error(styleText('red', `[${tag}]`), error)
 
               refuse(getErrorMessage(error))
             }
@@ -476,9 +478,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
           }
         }
 
-        logger.warn(tag, 'Unknown message type from Kubb Studio', { message: String(message.data) })
+        console.warn(styleText('yellow', `[${tag}] Unknown message type from Kubb Studio: ${String(message.data)}`))
       } catch (error) {
-        logger.exception(tag, error)
+        console.error(styleText('red', `[${tag}]`), error)
 
         // Errors thrown before `generate()` runs (e.g. config loading, plugin resolution)
         // never reach `generate()`'s own `kubb:error` emission, so without this the Studio
@@ -492,7 +494,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     // Reaching here means the session was never created (Studio down, a 502 mid-deploy), so no
     // socket exists and none of the socket-driven reconnect paths can fire. Retry from here or the
     // slot is dropped for the lifetime of the process.
-    logger.error(`Failed to open a Kubb Studio session: ${getErrorMessage(error)}`)
+    console.error(styleText('red', `Failed to open a Kubb Studio session: ${getErrorMessage(error)}`))
 
     if (error instanceof InvalidAgentTokenError) {
       throw error

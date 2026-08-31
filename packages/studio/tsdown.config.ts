@@ -11,10 +11,8 @@ const shared: Partial<UserConfig> = {
   shims: true,
   exports: true,
   deps: {
-    // '@kubb/core/package.json' must be inlined: an externalized bare JSON import needs a
-    // `with { type: 'json' }` attribute the emitted code does not carry, and Node refuses it.
     neverBundle: [/^@kubb\/(?!core\/package)/],
-    alwaysBundle: [/@internals/, /^@kubb\/core\/package\.json$/],
+    alwaysBundle: [/@internals/],
   },
   fixedExtension: false,
   outputOptions: {

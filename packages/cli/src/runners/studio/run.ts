@@ -184,7 +184,7 @@ export async function resolvePermissions(
  * edits the file through the whole array, so callers that bound what Studio may import need every
  * entry's plugins, not just the one it generates from.
  */
-async function loadFirstConfig(options: StudioOptions): Promise<{ configPath: string; config: Config; configs: Array<Config> }> {
+async function loadConfigs(options: StudioOptions): Promise<{ configPath: string; config: Config; configs: Array<Config> }> {
   const { configPath, configs } = await getConfigs({ configPath: options.configPath, logLevel: options.logLevel })
   const [config] = configs
 
@@ -198,7 +198,7 @@ async function loadFirstConfig(options: StudioOptions): Promise<{ configPath: st
 /**
  * Connects this project to Studio and streams generation events until the process is stopped.
  */
-async function connect(options: StudioOptions, retryAfterPairing = true): Promise<void> {
+async function connect(options: StudioOptions, retryPairing = true): Promise<void> {
   const envToken = process.env.KUBB_AGENT_TOKEN
   const stored = envToken ? null : await readCredentials()
   // A credential is only reused for the Studio it was issued by, so switching `--url` re-pairs
@@ -217,7 +217,7 @@ async function connect(options: StudioOptions, retryAfterPairing = true): Promis
     credentials = await login(options)
   }
 
-  const { configPath, configs } = await loadFirstConfig(options)
+  const { configPath, configs } = await loadConfigs(options)
   const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, credentials, configPath)
   const granted = { allowWrite, allowConfigEdit, allowInput, allowExec }
 
@@ -231,7 +231,7 @@ async function connect(options: StudioOptions, retryAfterPairing = true): Promis
     configPath,
     version: options.version,
     // Reloaded on every generate, so an edit to kubb.config.ts is picked up without reconnecting.
-    loadConfig: async () => (await loadFirstConfig(options)).config,
+    loadConfig: async () => (await loadConfigs(options)).config,
     client: {
       kind: 'cli',
       version: options.version,
@@ -247,7 +247,6 @@ async function connect(options: StudioOptions, retryAfterPairing = true): Promis
     // any module in the project's node_modules and the runtime would import it. Union of every
     // config entry's plugins, since Studio edits any entry, not only the one it generates from.
     allowedPlugins: [...new Set(configs.flatMap((entry) => entry.plugins.map((plugin) => plugin.name)))],
-    logLevel: options.logLevel,
   })
 
   try {
@@ -265,7 +264,7 @@ async function connect(options: StudioOptions, retryAfterPairing = true): Promis
 
     await clearCredentials()
 
-    if (isCIEnvironment() || !retryAfterPairing) {
+    if (isCIEnvironment() || !retryPairing) {
       throw new Error(`${error.message} Run \`kubb studio login\` to pair again.`)
     }
 

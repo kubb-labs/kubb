@@ -1,6 +1,5 @@
 export { createClient, type Client, type ClientOptions } from './client.ts'
 export { InvalidAgentTokenError } from './api.ts'
 export { defaultStudioUrl } from './constants.ts'
-export { maskString } from './logger.ts'
 export { createFileStorage, setStorage } from './machine.ts'
 export { pollForPairingToken, startPairing, type PairingResult, type PairingSession } from './pair.ts'

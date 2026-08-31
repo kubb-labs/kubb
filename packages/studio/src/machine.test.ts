@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { hash } from 'node:crypto'
 import type { Storage } from 'unstorage'
 
-// `logger` writes to the console; silenced so a deliberate warning path does not pollute output.
+// Silence the deliberate warning path so it does not pollute test output.
 vi.spyOn(console, 'warn').mockImplementation(() => {})
 
 const store = new Map<string, unknown>()

@@ -3,7 +3,6 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { setLogLevel } from './logger.ts'
 import { spyOnConsole } from './console.mock.ts'
 import { MockWebSocket } from './websocket.mock.ts'
 import type { AgentConnectResponse } from './protocol/index.ts'
@@ -25,6 +24,10 @@ vi.mock('./generate.ts', () => ({
 vi.mock('@kubb/plugin-ts', () => ({ pluginTs: (options: unknown) => ({ name: 'plugin-ts', options }) }))
 vi.mock('@kubb/plugin-zod', () => ({ pluginZod: (options: unknown) => ({ name: 'plugin-zod', options }) }))
 vi.mock('@kubb/adapter-oas', () => ({ adapterOas: (options: unknown) => ({ name: 'oas', options, parse: vi.fn() }) }))
+vi.mock('../package.json', () => ({
+  default: { version: '5.0.0-test' },
+  version: '5.0.0-test',
+}))
 
 // `setupHookListener` spawns the formatter, the linter, and postGenerate commands through tinyexec.
 vi.mock('tinyexec', () => ({ x: vi.fn(() => Object.assign(Promise.resolve({ exitCode: 0 }), { [Symbol.asyncIterator]: async function* () {} })) }))
@@ -33,11 +36,6 @@ vi.mock('./ws.ts', () => ({
   createWebsocket: vi.fn(),
   sendAgentMessage: vi.fn(),
   setupEventsStream: vi.fn(),
-}))
-
-vi.mock('@kubb/core/package.json', () => ({
-  default: { version: '5.0.0-test' },
-  version: '5.0.0-test',
 }))
 
 import { createAgentSession, disconnect } from './api.ts'
@@ -77,9 +75,6 @@ describe('connectToStudio', () => {
   beforeEach(() => {
     mockWs = new MockWebSocket()
     controller = new AbortController()
-    // These drive `connectToStudio` directly, so nothing calls `createClient` to set the level.
-    setLogLevel('verbose')
-
     vi.mocked(createWebsocket).mockReturnValue(mockWs as any)
     vi.mocked(createAgentSession).mockResolvedValue(makeSession())
     loadConfig.mockResolvedValue(makeConfig() as any)
@@ -571,8 +566,6 @@ describe('connectToStudio', () => {
     })
 
     expect(generate).not.toHaveBeenCalled()
-    // `logger.exception` hands the Error to console.error rather than flattening it, so the cause
-    // chain stays inspectable.
     expect(consoleSpy.error).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ message: expect.stringContaining('evil-module') }))
   })
 

@@ -1,10 +1,9 @@
 import { getErrorMessage } from '@internals/utils'
-import { version as kubbVersion } from '@kubb/core/package.json'
+import { styleText } from 'node:util'
 import type { Storage } from 'unstorage'
 import { agentDefaults } from './constants.ts'
 import { registerAgent } from './api.ts'
 import { type ConnectToStudioOptions, connectToStudio } from './connectStudio.ts'
-import { logger, setLogLevel } from './logger.ts'
 import { setStorage } from './machine.ts'
 
 export type ClientOptions = Omit<ConnectToStudioOptions, 'signal'> & {
@@ -13,11 +12,6 @@ export type ClientOptions = Omit<ConnectToStudioOptions, 'signal'> & {
    * which gives up a stable machine identity across restarts.
    */
   storage?: Storage
-  /**
-   * How much the client prints. `silent` keeps errors only, `verbose` adds the per-message protocol
-   * chatter. A level, not a logger: a host chooses how loud, not where the output goes.
-   */
-  logLevel?: 'silent' | 'info' | 'verbose'
 }
 
 export type Client = {
@@ -44,9 +38,7 @@ export type Client = {
  * await studio.connect()
  * ```
  */
-export function createClient({ storage, logLevel, ...options }: ClientOptions): Client {
-  setLogLevel(logLevel)
-
+export function createClient({ storage, ...options }: ClientOptions): Client {
   if (storage) {
     setStorage(storage)
   }
@@ -56,16 +48,16 @@ export function createClient({ storage, logLevel, ...options }: ClientOptions): 
 
   return {
     async connect() {
-      logger.info(`Kubb Studio client v${options.version} (kubb v${kubbVersion})`)
+      console.info(styleText('dim', `Kubb Studio client v${options.version}`))
 
       await registerAgent({ token: options.token, studioUrl: options.studioUrl ?? agentDefaults.studioUrl, poolSize })
 
-      // Each slot is its own session, so one Studio user never sees another's generation events.
-      // Not awaited: a slot retrying against a down Studio must not block the others, or the host's
-      // startup. `connectToStudio` owns the retry loop for the lifetime of the slot.
       for (const slot of Array.from({ length: poolSize }, (_, index) => index + 1)) {
+        // Each slot is its own session, so one Studio user never sees another's generation events.
+        // Not awaited: a slot retrying against a down Studio must not block the others, or the host's
+        // startup. `connectToStudio` owns the retry loop for the lifetime of the slot.
         void connectToStudio({ ...options, signal: controller.signal }).catch((error: unknown) => {
-          logger.warn(`Session ${slot}/${poolSize} failed to connect`, getErrorMessage(error))
+          console.warn(styleText('yellow', `Session ${slot}/${poolSize} failed to connect: ${getErrorMessage(error)}`))
         })
       }
     },

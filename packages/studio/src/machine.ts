@@ -1,8 +1,8 @@
 import { hash, randomBytes } from 'node:crypto'
 import process from 'node:process'
+import { styleText } from 'node:util'
 import { createStorage, type Storage } from 'unstorage'
 import fsDriver from 'unstorage/drivers/fs'
-import { logger } from './logger.ts'
 
 /**
  * Key-value storage the runtime uses for its machine secret and the last Studio config.
@@ -49,8 +49,8 @@ async function loadOrCreateFallbackSecret(): Promise<string> {
   // surfaces that: the write succeeds, and the identity silently changes on every restart, which
   // Studio rejects with a 403 on the next session create.
   if (!hasInstalledStorage) {
-    logger.warn(
-      'Deriving the machine token before a storage driver was installed',
+    console.warn(
+      styleText('yellow', 'Deriving the machine token before a storage driver was installed'),
       'call setStorage() first, or set KUBB_AGENT_SECRET, to keep a stable machine identity across restarts',
     )
   }
@@ -65,7 +65,10 @@ async function loadOrCreateFallbackSecret(): Promise<string> {
   const secret = randomBytes(32).toString('hex')
 
   await storage.setItem('machine-secret', secret).catch(() => {
-    logger.warn('Could not persist the generated machine secret', 'set KUBB_AGENT_SECRET to keep a stable machine identity across restarts')
+    console.warn(
+      styleText('yellow', 'Could not persist the generated machine secret'),
+      'set KUBB_AGENT_SECRET to keep a stable machine identity across restarts',
+    )
   })
 
   return secret

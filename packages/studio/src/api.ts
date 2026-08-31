@@ -1,23 +1,24 @@
+import { setTimeout as delay } from 'node:timers/promises'
 import type { AgentConnectResponse } from './protocol/index.ts'
 import { getMachineToken } from './machine.ts'
-import { logger, maskString, sleep } from './logger.ts'
+import { styleText } from 'node:util'
 
 type PostJsonOptions = {
   headers?: Record<string, string>
   body?: unknown
   /**
    * Studio's device-token polling endpoint returns a body worth reading on 4xx too
-   * (`authorization_pending`, `slow_down`, `access_denied`, ...), so set this to read the response
-   * instead of throwing.
+   * (`authorization_pending`, `slow_down`, `access_denied`, ...), so set `allowErrorResponse` to
+   * read the response instead of throwing.
    */
-  ignoreResponseError?: boolean
+  allowErrorResponse?: boolean
 }
 
 /**
  * Posts JSON to Studio and parses the JSON response. Throws on a non-2xx status with a
- * `statusCode` property, unless `ignoreResponseError` is set.
+ * `statusCode` property, unless `allowErrorResponse` is set.
  */
-export async function postJson<T>(url: string, { headers, body, ignoreResponseError }: PostJsonOptions = {}): Promise<T> {
+export async function postJson<T>(url: string, { headers, body, allowErrorResponse }: PostJsonOptions = {}): Promise<T> {
   const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...headers },
@@ -26,7 +27,7 @@ export async function postJson<T>(url: string, { headers, body, ignoreResponseEr
 
   const data = (await response.json().catch(() => undefined)) as T
 
-  if (!response.ok && !ignoreResponseError) {
+  if (!response.ok && !allowErrorResponse) {
     throw Object.assign(new Error(`Request to ${url} failed with status ${response.status}`), { statusCode: response.status })
   }
 
@@ -102,12 +103,8 @@ async function requestAgentSession({ token, studioUrl }: ConnectProps): Promise<
  * and retries once, so a single failed registration can't permanently block session creation.
  */
 export async function createAgentSession({ token, studioUrl }: ConnectProps): Promise<AgentConnectResponse> {
-  logger.debug('Creating agent session with Studio...')
-
   try {
     const data = await requestAgentSession({ token, studioUrl })
-
-    logger.debug('Created agent session with Studio')
 
     return data
   } catch (error: unknown) {
@@ -122,8 +119,6 @@ export async function createAgentSession({ token, studioUrl }: ConnectProps): Pr
     const data = await requestAgentSession({ token, studioUrl }).catch((retryError: unknown) => {
       throw sessionError(retryError)
     })
-
-    logger.info('Created agent session with Studio after re-registering')
 
     return data
   }
@@ -158,11 +153,9 @@ async function runRegistration({ token, studioUrl, poolSize }: RegisterProps): P
   const url = `${studioUrl}/api/agent/connect`
   const machineToken = await getMachineToken()
 
-  logger.debug('Registering agent with Studio...')
-
   for (const delayMs of REGISTER_RETRY_DELAYS_MS) {
     if (delayMs > 0) {
-      await sleep(delayMs)
+      await delay(delayMs)
     }
 
     try {
@@ -172,8 +165,6 @@ async function runRegistration({ token, studioUrl, poolSize }: RegisterProps): P
         },
         body: { machineToken, poolSize },
       })
-      logger.success(`Agent registered with Studio with token ${maskString(token)}`)
-
       return true
     } catch (error) {
       if (isTokenRejection(error)) {
@@ -181,11 +172,11 @@ async function runRegistration({ token, studioUrl, poolSize }: RegisterProps): P
       }
 
       const { message, cause } = (error ?? {}) as { message?: string; cause?: { message?: string } }
-      logger.warn('Failed to register agent with Studio, retrying...', cause?.message ?? message ?? String(error))
+      console.warn(styleText('yellow', `Failed to register agent with Studio, retrying: ${cause?.message ?? message ?? String(error)}`))
     }
   }
 
-  logger.error(`Failed to register agent with Studio after ${REGISTER_RETRY_DELAYS_MS.length} attempts`)
+  console.error(styleText('red', `Failed to register agent with Studio after ${REGISTER_RETRY_DELAYS_MS.length} attempts`))
 
   return false
 }
@@ -206,14 +197,12 @@ export async function disconnect({ sessionId, token, studioUrl, slug }: Disconne
   const tag = slug ?? 'agent'
 
   try {
-    logger.debug(tag, 'Disconnecting from Studio...', { slug })
-
     await postJson(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-    logger.success(tag, 'Disconnected from Studio', { slug })
+    console.log(styleText('green', `[${tag}] Disconnected from Studio`))
   } catch (error) {
     throw new Error('Failed to notify Studio of disconnection on exit', {
       cause: error,

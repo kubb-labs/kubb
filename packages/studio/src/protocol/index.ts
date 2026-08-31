@@ -47,14 +47,12 @@ export type JSONKubbConfig = {
  * A number selects by position, a string matches the entry's `name`. Omitted targets the only
  * entry, or the first one when the file exports an array.
  */
-export type ConfigSelector = string | number
+export type ConfigRef = string | number
 
 /**
- * A value the agent can read out of a plugin option in `kubb.config.ts` and round-trip through
- * JSON. Kept independent of `configFile.ts`'s equivalent `OptionValue`, so this file, the wire
- * contract, stays free of a circular type reference back to the patcher.
+ * A value the agent can read out of a plugin option in `kubb.config.ts` and round-trip through JSON.
  */
-export type ManagedOptionValue = string | number | boolean | null | Array<ManagedOptionValue> | { [key: string]: ManagedOptionValue }
+export type OptionValue = string | number | boolean | null | Array<OptionValue> | { [key: string]: OptionValue }
 
 /**
  * One change to a plugin's options in the user's `kubb.config.ts`.
@@ -70,28 +68,28 @@ export type ConfigEdit =
    * Write a literal option value. `path` walks nested objects, so `['enum', 'type']` targets
    * `pluginTs({ enum: { type } })`.
    */
-  | { operation: 'set'; config?: ConfigSelector; plugin: string; path: Array<string>; value: unknown }
+  | { operation: 'set'; config?: ConfigRef; plugin: string; path: Array<string>; value: unknown }
   /**
    * Drop an option so the plugin falls back to its default.
    */
-  | { operation: 'remove'; config?: ConfigSelector; plugin: string; path: Array<string> }
+  | { operation: 'remove'; config?: ConfigRef; plugin: string; path: Array<string> }
   /**
    * Add a plugin factory call and its import to the `plugins` array.
    */
-  | { operation: 'add-plugin'; config?: ConfigSelector; plugin: string; importName?: string; options?: Record<string, unknown> }
+  | { operation: 'add-plugin'; config?: ConfigRef; plugin: string; importName?: string; options?: Record<string, unknown> }
   /**
    * Comment the plugin call out, keeping its options in the file so enabling it again restores them.
    */
-  | { operation: 'disable-plugin'; config?: ConfigSelector; plugin: string }
+  | { operation: 'disable-plugin'; config?: ConfigRef; plugin: string }
   /**
    * Uncomment a plugin call a previous `disable-plugin` commented out.
    */
-  | { operation: 'enable-plugin'; config?: ConfigSelector; plugin: string }
+  | { operation: 'enable-plugin'; config?: ConfigRef; plugin: string }
 
 /**
  * A plugin factory call the agent found in the `plugins` array of a `defineConfig(...)`.
  */
-export type ManagedPlugin = {
+export type PluginView = {
   /**
    * Local identifier of the factory in the file, e.g. `pluginTs`. This is the alias when the plugin
    * was imported under one.
@@ -107,7 +105,7 @@ export type ManagedPlugin = {
    * agent will not overwrite, so Studio shows the control disabled rather than hiding it, and
    * `value` is absent since there is nothing safe to display as the current value.
    */
-  options: Record<string, { literal: boolean; value?: ManagedOptionValue }>
+  options: Record<string, { literal: boolean; value?: OptionValue }>
   /**
    * Set when the plugin call is commented out in the file. Its options stay on disk but are not
    * readable, so `options` is empty until it is enabled again.
@@ -118,7 +116,7 @@ export type ManagedPlugin = {
 /**
  * One `defineConfig(...)` entry. A config file that exports a single object has exactly one.
  */
-export type ManagedConfig = {
+export type ConfigView = {
   /**
    * The entry's `name`, when it sets one. Studio labels the config picker with it.
    */
@@ -126,7 +124,7 @@ export type ManagedConfig = {
   /**
    * Each plugin call in the entry, with its top-level option keys.
    */
-  plugins: Array<ManagedPlugin>
+  plugins: Array<PluginView>
 }
 
 /**
@@ -140,7 +138,7 @@ export type ConfigFileView =
        * One entry per config the file exports, in source order. Every {@link ConfigEdit} names
        * which of these it targets through its `config` field.
        */
-      configs: Array<ManagedConfig>
+      configs: Array<ConfigView>
     }
   | {
       managed: false
