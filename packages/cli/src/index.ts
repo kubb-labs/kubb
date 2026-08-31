@@ -29,12 +29,15 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
   }
 
   const { command: generateCommand } = await import('./commands/generate.ts')
-  const { command: validateCommand } = await import('./commands/validate.ts')
-  const { command: mcpCommand } = await import('./commands/mcp.ts')
-  const { definition: studioDefinition } = await import('./commands/studio.ts')
-  // The runner pulls in @kubb/studio, an optional peer, so it loads only when `kubb studio` runs.
-  const studioCommand = lazy(async () => (await import('./runners/studio/run.ts')).runner, studioDefinition)
   const { command: initCommand } = await import('./commands/init.ts')
+  // Each runner pulls in an optional peer (@kubb/adapter-oas, @kubb/mcp, @kubb/studio), so it
+  // loads only when its command runs.
+  const { definition: validateDefinition } = await import('./commands/validate.ts')
+  const validateCommand = lazy(async () => (await import('./runners/validate/run.ts')).runner, validateDefinition)
+  const { definition: mcpDefinition } = await import('./commands/mcp.ts')
+  const mcpCommand = lazy(async () => (await import('./runners/mcp/run.ts')).runner, mcpDefinition)
+  const { definition: studioDefinition } = await import('./commands/studio.ts')
+  const studioCommand = lazy(async () => (await import('./runners/studio/run.ts')).runner, studioDefinition)
 
   try {
     await cli(stripExecArgs(argv), generateCommand, {
