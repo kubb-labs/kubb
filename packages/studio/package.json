@@ -66,9 +66,9 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
+    "magicast": "^0.5.3",
     "remeda": "^2.42.0",
     "tinyexec": "catalog:",
-    "ts-morph": "^28.0.0",
     "unstorage": "^1.17.5",
     "ws": "^8.21.3"
   },

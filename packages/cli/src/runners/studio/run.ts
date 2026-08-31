@@ -179,9 +179,11 @@ export async function resolvePermissions(
 
 /**
  * Resolves the project's Kubb config the same way `kubb generate` does, and returns its first
- * entry. Studio drives one config at a time.
+ * entry alongside every entry the file defines. Studio generates from the first entry only, but
+ * edits the file through the whole array, so callers that bound what Studio may import need every
+ * entry's plugins, not just the one it generates from.
  */
-async function loadFirstConfig(options: StudioOptions): Promise<{ configPath: string; config: Config }> {
+async function loadFirstConfig(options: StudioOptions): Promise<{ configPath: string; config: Config; configs: Array<Config> }> {
   const { configPath, configs } = await getConfigs({ configPath: options.configPath, logLevel: options.logLevel })
   const [config] = configs
 
@@ -189,7 +191,7 @@ async function loadFirstConfig(options: StudioOptions): Promise<{ configPath: st
     throw new Error('Config not defined, create a kubb.config.ts or pass it with --config')
   }
 
-  return { configPath, config }
+  return { configPath, config, configs }
 }
 
 /**
@@ -214,7 +216,7 @@ async function connect(options: StudioOptions, retryAfterPairing = true): Promis
     credentials = await login(options)
   }
 
-  const { configPath, config } = await loadFirstConfig(options)
+  const { configPath, configs } = await loadFirstConfig(options)
   const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, credentials, configPath)
   const granted = { allowWrite, allowConfigEdit, allowInput, allowExec }
 
@@ -241,8 +243,9 @@ async function connect(options: StudioOptions, retryAfterPairing = true): Promis
     allowInput,
     allowExec,
     // The local config bounds what Studio may import. Without this a `generate` payload could name
-    // any module in the project's node_modules and the runtime would import it.
-    allowedPlugins: config.plugins.map((plugin) => plugin.name),
+    // any module in the project's node_modules and the runtime would import it. Union of every
+    // config entry's plugins, since Studio edits any entry, not only the one it generates from.
+    allowedPlugins: [...new Set(configs.flatMap((entry) => entry.plugins.map((plugin) => plugin.name)))],
     logLevel: options.logLevel,
   })
 

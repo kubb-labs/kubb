@@ -66,7 +66,7 @@ describe('registerAgent', () => {
       'http://studio/api/agent/connect',
       expect.objectContaining({
         method: 'POST',
-        headers: expect.objectContaining({ 'Authorization': 'Bearer tok' }),
+        headers: expect.objectContaining({ Authorization: 'Bearer tok' }),
       }),
     )
   })

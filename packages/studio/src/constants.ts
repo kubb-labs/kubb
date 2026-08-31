@@ -6,7 +6,7 @@ export const defaultStudioUrl = 'https://kubb.studio'
 
 /**
  * Defaults the Studio client uses when a host passes nothing.
- * Config path is left out on purpose — each host discovers that itself.
+ * Config path is left out on purpose: each host discovers that itself.
  */
 export const agentDefaults = {
   studioUrl: defaultStudioUrl,

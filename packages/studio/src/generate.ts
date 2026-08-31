@@ -88,7 +88,7 @@ function formatGenerationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error 
     return new Error('Generation failed')
   }
 
-  return new Error(`Generation failed: ${reasons.length} error${reasons.length === 1 ? '' : 's'} — ${reasons.join('; ')}`)
+  return new Error(`Generation failed: ${reasons.length} error${reasons.length === 1 ? '' : 's'}: ${reasons.join('; ')}`)
 }
 
 /**

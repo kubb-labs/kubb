@@ -47,7 +47,7 @@ export type ConnectToStudioOptions = {
   allowExec?: boolean
   /**
    * Module specifiers Studio may name in a `generate` payload. When set, a payload naming anything
-   * else is rejected instead of imported — `resolvePlugins` does a bare `await import(name)`, so
+   * else is rejected instead of imported. `resolvePlugins` does a bare `await import(name)`, so
    * without this Studio can execute any module reachable from the project's `node_modules`.
    * Unset means no restriction, matching the Docker image where the plugin set is fixed at build time.
    */
@@ -193,10 +193,10 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     /**
      * Reads `kubb.config.ts` and reports which plugin options Studio may edit.
      *
-     * Skipped when the host did not grant `allowConfigEdit`. The patcher pulls in `ts-morph`
-     * (~130ms, ~100MB RSS), so read-only agents never import it.
+     * Skipped when the host did not grant `allowConfigEdit`. The patcher pulls in `magicast`
+     * (~25ms, ~55MB RSS), so read-only agents never import it.
      *
-     * Not cached — the user can edit the file between two Studio actions.
+     * Not cached: the user can edit the file between two Studio actions.
      */
     async function readConfigFileView(source?: string): Promise<ConfigFileView | undefined> {
       if (!effectiveConfigEdit) {
@@ -293,11 +293,11 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     heartbeatTimer = setInterval(() => {
       // Two consecutive missed pongs mean the socket is dead even though no close event
-      // arrived. Terminate (not close) so a half-open TCP connection can't linger — the
+      // arrived. Terminate (not close) so a half-open TCP connection can't linger. The
       // resulting close event triggers cleanup and the reconnect loop.
       if (Date.now() - lastPongAt > heartbeatInterval * 2) {
         logger.warn(tag, 'No pong received from Kubb Studio, terminating stale connection')
-        // Stop the timer here rather than waiting for cleanup() — the close event can lag,
+        // Stop the timer here rather than waiting for cleanup(), since the close event can lag,
         // and until it runs this interval would re-terminate and re-log every tick.
         clearInterval(heartbeatTimer)
         heartbeatTimer = undefined
@@ -309,8 +309,8 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       sendAgentMessage(ws, { type: 'ping' })
     }, heartbeatInterval)
 
-    // Only `kubb:error` is ever fired on the connection emitter — every generation event goes
-    // through its own emitter below — so it gets that one listener rather than the full stream.
+    // Only `kubb:error` is ever fired on the connection emitter. Every generation event goes
+    // through its own emitter below, so it gets that one listener rather than the full stream.
     hooks.hook('kubb:error', ({ error }) => sendErrorMessage(ws, error))
 
     const onMessage = async (message: WebSocket.MessageEvent) => {

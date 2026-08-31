@@ -3,8 +3,8 @@ import type { AgentMessage } from './index.ts'
 import { isCommandMessage, isDataMessage, isDisconnectMessage } from './index.ts'
 
 describe('agent protocol', () => {
-  describe('Message Type Guards', () => {
-    it('should identify command messages correctly', () => {
+  describe('message type guards', () => {
+    it('identifies command messages', () => {
       const message: AgentMessage = {
         type: 'command',
         command: 'generate',
@@ -15,7 +15,7 @@ describe('agent protocol', () => {
       expect(isDataMessage(message)).toBe(false)
     })
 
-    it('should identify data messages correctly', () => {
+    it('identifies data messages', () => {
       const message: AgentMessage = {
         type: 'data',
         payload: {
@@ -33,7 +33,7 @@ describe('agent protocol', () => {
       expect(event?.payload.type).toStrictEqual('kubb:info')
     })
 
-    it('should identify disconnect message with reason "expired"', () => {
+    it('identifies a disconnect message with reason "expired"', () => {
       const message: AgentMessage = { type: 'disconnect', reason: 'expired' }
 
       expect(isDisconnectMessage(message)).toBe(true)
@@ -41,7 +41,7 @@ describe('agent protocol', () => {
       expect(isDataMessage(message)).toBe(false)
     })
 
-    it('should identify disconnect message with reason "revoked"', () => {
+    it('identifies a disconnect message with reason "revoked"', () => {
       const message: AgentMessage = { type: 'disconnect', reason: 'revoked' }
 
       expect(isDisconnectMessage(message)).toBe(true)
@@ -51,8 +51,8 @@ describe('agent protocol', () => {
     })
   })
 
-  describe('WebSocket Message Serialization', () => {
-    it('should serialize ping message', () => {
+  describe('websocket message serialization', () => {
+    it('serializes a ping message', () => {
       const message: AgentMessage = {
         type: 'ping',
       }
@@ -61,7 +61,7 @@ describe('agent protocol', () => {
       expect(serialized).toContain('"type":"ping"')
     })
 
-    it('should serialize disconnect message with reason', () => {
+    it('serializes a disconnect message with reason', () => {
       const expired: AgentMessage = { type: 'disconnect', reason: 'expired' }
       const revoked: AgentMessage = { type: 'disconnect', reason: 'revoked' }
 
@@ -75,7 +75,7 @@ describe('agent protocol', () => {
       })
     })
 
-    it('should serialize connected message with info response', () => {
+    it('serializes a connected message with an info response', () => {
       const message: AgentMessage = {
         type: 'connected',
         payload: {
@@ -100,7 +100,7 @@ describe('agent protocol', () => {
       expect(serialized).toContain('"kubb":"4.24.0"')
     })
 
-    it('should serialize data message with event', () => {
+    it('serializes a data message with an event', () => {
       const message: AgentMessage = {
         type: 'data',
         payload: {
@@ -117,8 +117,8 @@ describe('agent protocol', () => {
     })
   })
 
-  describe('Config Validation', () => {
-    it('should validate config has required fields', () => {
+  describe('config validation', () => {
+    it('validates that a config has required fields', () => {
       const config = {
         name: 'test',
         root: './src',
@@ -138,7 +138,7 @@ describe('agent protocol', () => {
       expect(config.output.path).toBeDefined()
     })
 
-    it('should handle a string input', () => {
+    it('handles a string input', () => {
       const config = {
         name: 'test',
         root: './src',
@@ -155,7 +155,7 @@ describe('agent protocol', () => {
       expect(typeof config.input).toBe('string')
     })
 
-    it('should serialize plugin options from config', () => {
+    it('serializes plugin options from a config', () => {
       const plugins = [
         {
           name: 'ts',

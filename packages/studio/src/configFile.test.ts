@@ -5,6 +5,7 @@ import { applyConfigEdits, isOptionValue, printValue, readConfig } from './confi
 import type { ConfigEdit } from './protocol/index.ts'
 
 const advanced = readFileSync(join(import.meta.dirname, '../mocks/advanced.config.txt'), 'utf8')
+const arrayConfig = readFileSync(join(import.meta.dirname, '../mocks/array.config.txt'), 'utf8')
 
 /**
  * The single span that differs between two texts, for asserting one edit touched one place.
@@ -58,7 +59,7 @@ describe('printValue', () => {
 describe('readConfig', () => {
   it('lists every plugin in the advanced example with its package', () => {
     const view = readConfig(advanced)
-    expect(view.managed && view.plugins.map((plugin) => `${plugin.importName} <- ${plugin.packageName}`)).toMatchInlineSnapshot(`
+    expect(view.managed && view.configs[0]!.plugins.map((plugin) => `${plugin.importName} <- ${plugin.packageName}`)).toMatchInlineSnapshot(`
       [
         "pluginRedoc <- @kubb/plugin-redoc",
         "pluginTs <- @kubb/plugin-ts",
@@ -75,7 +76,7 @@ describe('readConfig', () => {
 
   it('marks function-valued options as not literal', () => {
     const view = readConfig(advanced)
-    const byName = view.managed ? Object.fromEntries(view.plugins.map((plugin) => [plugin.importName, plugin.options])) : {}
+    const byName = view.managed ? Object.fromEntries(view.configs[0]!.plugins.map((plugin) => [plugin.importName, plugin.options])) : {}
     expect({
       'axios.group': byName.pluginAxios?.group,
       'axios.baseURL': byName.pluginAxios?.baseURL,
@@ -110,8 +111,13 @@ describe('readConfig', () => {
   it('refuses an array config', () => {
     expect(readConfig(`export default defineConfig([{ name: 'a' }])`)).toMatchInlineSnapshot(`
       {
-        "managed": false,
-        "reason": "config is not a single object literal, array configs are not supported",
+        "configs": [
+          {
+            "name": "a",
+            "plugins": [],
+          },
+        ],
+        "managed": true,
       }
     `)
   })
@@ -120,7 +126,7 @@ describe('readConfig', () => {
     expect(readConfig(`export default defineConfig(() => schemas.map((s) => ({ name: s })))`)).toMatchInlineSnapshot(`
       {
         "managed": false,
-        "reason": "config is not a single object literal, array configs are not supported",
+        "reason": "config is not an object literal",
       }
     `)
   })
@@ -129,18 +135,23 @@ describe('readConfig', () => {
     const source = `import { pluginTs } from '@kubb/plugin-ts'\nexport default defineConfig((cli) => ({ plugins: [pluginTs({ arrayType: 'generic' })] }))`
     expect(readConfig(source)).toMatchInlineSnapshot(`
       {
-        "managed": true,
-        "plugins": [
+        "configs": [
           {
-            "importName": "pluginTs",
-            "options": {
-              "arrayType": {
-                "literal": true,
+            "name": undefined,
+            "plugins": [
+              {
+                "importName": "pluginTs",
+                "options": {
+                  "arrayType": {
+                    "literal": true,
+                  },
+                },
+                "packageName": "@kubb/plugin-ts",
               },
-            },
-            "packageName": "@kubb/plugin-ts",
+            ],
           },
         ],
+        "managed": true,
       }
     `)
   })
@@ -154,7 +165,9 @@ describe('applyConfigEdits: set', () => {
 
   it('adds a missing key to an existing options object', () => {
     const result = apply(advanced, { operation: 'set', plugin: '@kubb/plugin-zod', path: ['typedSchema'], value: true })
-    expect(changedSpan(advanced, result.source)).toMatchInlineSnapshot(`""" -> "  typedSchema: true,\\n    ""`)
+    expect(changedSpan(advanced, result.source)).toMatchInlineSnapshot(
+      `""      exclude: [\\n        {\\n          type: 'tag',\\n          pattern: 'store',\\n        },\\n      ],\\n      group: { type: 'tag' },\\n      inferred" -> "\\n      exclude: [\\n        {\\n          type: 'tag',\\n          pattern: 'store',\\n        },\\n      ],\\n\\n      group: { type: 'tag' },\\n      inferred: true,\\n      typedSchema""`,
+    )
   })
 
   it('creates the options object for a plugin called bare', () => {
@@ -215,7 +228,9 @@ describe('applyConfigEdits: set', () => {
 describe('applyConfigEdits: remove', () => {
   it('drops a literal option so the plugin falls back to its default', () => {
     const result = apply(advanced, { operation: 'remove', plugin: '@kubb/plugin-zod', path: ['inferred'] })
-    expect(changedSpan(advanced, result.source)).toMatchInlineSnapshot(`""  inferred: true,\\n    " -> """`)
+    expect(changedSpan(advanced, result.source)).toMatchInlineSnapshot(
+      `""      exclude: [\\n        {\\n          type: 'tag',\\n          pattern: 'store',\\n        },\\n      ],\\n      group: { type: 'tag' },\\n      inferred: true" -> "\\n      exclude: [\\n        {\\n          type: 'tag',\\n          pattern: 'store',\\n        },\\n      ],\\n\\n      group: { type: 'tag' }""`,
+    )
   })
 
   it('refuses to remove an option customized in code', () => {
@@ -240,22 +255,26 @@ describe('applyConfigEdits: remove', () => {
 })
 
 describe('applyConfigEdits: add-plugin', () => {
-  it('adds the call and the import without rewriting any other line', () => {
+  it('adds the call and the import, leaving every import line but the new one untouched', () => {
     const result = apply(advanced, { operation: 'add-plugin', plugin: '@kubb/plugin-swr', options: { group: { type: 'tag' } } })
-    const lines = result.source.split('\n')
-    expect(lines.filter((line) => !line.includes('pluginSwr'))).toEqual(advanced.split('\n'))
-    expect(lines.filter((line) => line.includes('pluginSwr'))).toMatchInlineSnapshot(`
-      [
-        "import { pluginSwr } from '@kubb/plugin-swr'",
-        "    pluginSwr({ group: { type: 'tag' } }),",
-      ]
-    `)
+    const importLines = result.source.split('\n').filter((line) => line.startsWith('import'))
+    expect(importLines.filter((line) => !line.includes('pluginSwr'))).toEqual(advanced.split('\n').filter((line) => line.startsWith('import')))
+    expect(importLines).toContain(`import { pluginSwr } from '@kubb/plugin-swr'`)
+    expect(result.source).toContain('pluginSwr({')
+  })
+
+  it('reflows the whole plugins array, since one more element changes its structure', () => {
+    // A known magicast/recast limitation: any array whose element count changes is reprinted in
+    // full, unlike ts-morph's surgical `addElement`. The array collapses onto fewer lines; every
+    // plugin call keeps its own options untouched.
+    const result = apply(advanced, { operation: 'add-plugin', plugin: '@kubb/plugin-swr', options: { group: { type: 'tag' } } })
+    expect(result.source).toContain('pluginRedoc(), pluginTs({')
   })
 
   it('leaves the result parseable, with the new plugin readable', () => {
     const result = apply(advanced, { operation: 'add-plugin', plugin: '@kubb/plugin-swr' })
     const view = readConfig(result.source)
-    expect(view.managed && view.plugins.at(-1)).toMatchInlineSnapshot(`
+    expect(view.managed && view.configs[0]!.plugins.at(-1)).toMatchInlineSnapshot(`
       {
         "importName": "pluginSwr",
         "options": {},
@@ -314,7 +333,9 @@ describe('applyConfigEdits: add-plugin', () => {
 
       export default defineConfig({
         input: './api.yaml',
-        plugins: [pluginTs(), pluginZod({ inferred: true })],
+        plugins: [pluginTs(), pluginZod({
+          inferred: true,
+        })],
       })
       "
     `)
@@ -325,7 +346,7 @@ describe('reading a config that does not look like the examples', () => {
   it('finds a plugin imported under an alias', () => {
     const source = `import { pluginTs as tsPlugin } from '@kubb/plugin-ts'\n\nexport default defineConfig({ plugins: [tsPlugin({ arrayType: 'generic' })] })\n`
     const view = readConfig(source)
-    expect(view.managed && view.plugins).toMatchInlineSnapshot(`
+    expect(view.managed && view.configs[0]!.plugins).toMatchInlineSnapshot(`
       [
         {
           "importName": "tsPlugin",
@@ -397,20 +418,198 @@ describe('reading a config that does not look like the examples', () => {
   })
 })
 
-describe('applyConfigEdits: unmanaged files', () => {
-  it('applies nothing to an array config and says why', () => {
-    const source = `export default defineConfig([{ name: 'a', plugins: [] }])\n`
-    const result = apply(source, { operation: 'add-plugin', plugin: '@kubb/plugin-ts' })
-    expect({ changed: result.changed, source: result.source, reason: result.outcomes[0]?.reason }).toMatchInlineSnapshot(`
+describe('applyConfigEdits: array configs', () => {
+  const arraySource = [
+    `import { pluginTs } from '@kubb/plugin-ts'`,
+    `import { pluginZod } from '@kubb/plugin-zod'`,
+    ``,
+    `export default defineConfig([`,
+    `  { name: 'public', plugins: [pluginTs({ arrayType: 'generic' })] },`,
+    `  { name: 'internal', plugins: [pluginZod()] },`,
+    `])`,
+    ``,
+  ].join('\n')
+
+  it('reads one entry per element, in source order', () => {
+    const view = readConfig(arraySource)
+    expect(view.managed && view.configs.map((config) => [config.name, config.plugins.map((plugin) => plugin.importName)])).toMatchInlineSnapshot(`
+      [
+        [
+          "public",
+          [
+            "pluginTs",
+          ],
+        ],
+        [
+          "internal",
+          [
+            "pluginZod",
+          ],
+        ],
+      ]
+    `)
+  })
+
+  it('targets an entry by index', () => {
+    const result = applyConfigEdits(arraySource, [{ operation: 'set', config: 1, plugin: '@kubb/plugin-zod', path: ['inferred'], value: true }])
+    expect(changedSpan(arraySource, result.source)).toMatchInlineSnapshot(`""" -> "{\\n    inferred: true,\\n  }""`)
+  })
+
+  it('targets an entry by name', () => {
+    const result = applyConfigEdits(arraySource, [{ operation: 'set', config: 'public', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: 'array' }])
+    expect(changedSpan(arraySource, result.source)).toMatchInlineSnapshot(`""generic" -> "array""`)
+  })
+
+  it('defaults to the first entry when an edit names none', () => {
+    const result = applyConfigEdits(arraySource, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: 'array' }])
+    expect(changedSpan(arraySource, result.source)).toMatchInlineSnapshot(`""generic" -> "array""`)
+  })
+
+  it('refuses an edit naming a config entry that does not exist', () => {
+    const result = applyConfigEdits(arraySource, [{ operation: 'set', config: 'missing', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: 'array' }])
+    expect({ changed: result.changed, reason: result.outcomes[0]?.reason }).toMatchInlineSnapshot(`
       {
         "changed": false,
-        "reason": "config is not a single object literal, array configs are not supported",
-        "source": "export default defineConfig([{ name: 'a', plugins: [] }])
-      ",
+        "reason": "no config entry found for "missing"",
       }
     `)
   })
 
+  it('adds a plugin to one entry without touching the other', () => {
+    const result = applyConfigEdits(arraySource, [{ operation: 'add-plugin', config: 'internal', plugin: '@kubb/plugin-msw' }])
+    expect(result.source).toContain(`{ name: 'public', plugins: [pluginTs({ arrayType: 'generic' })] }`)
+    expect(result.source).toContain('pluginMsw()')
+  })
+
+  it('reads every entry of a realistic multi-output array config', () => {
+    const view = readConfig(arrayConfig)
+    expect(view.managed && view.configs.map((config) => [config.name, config.plugins.map((plugin) => plugin.importName)])).toMatchInlineSnapshot(`
+      [
+        [
+          "public",
+          [
+            "pluginTs",
+          ],
+        ],
+        [
+          "internal",
+          [
+            "pluginTs",
+            "pluginZod",
+          ],
+        ],
+      ]
+    `)
+  })
+
+  it('disables a plugin in one entry of the real fixture, leaving the other entry alone', () => {
+    const result = applyConfigEdits(arrayConfig, [{ operation: 'disable-plugin', config: 'internal', plugin: '@kubb/plugin-zod' }])
+    expect(result.source).toContain('// kubb:disabled @kubb/plugin-zod')
+    const view = readConfig(result.source)
+    expect(view.managed && view.configs[0]!.plugins.every((plugin) => !plugin.disabled)).toBe(true)
+  })
+})
+
+describe('applyConfigEdits: disable-plugin and enable-plugin', () => {
+  const source = `import { pluginTs } from '@kubb/plugin-ts'\nimport { pluginZod } from '@kubb/plugin-zod'\n\nexport default defineConfig({\n  plugins: [\n    pluginTs({ arrayType: 'generic' }),\n    pluginZod({\n      // keep me\n      inferred: true,\n    }),\n  ],\n})\n`
+
+  it('comments the plugin call out, keeping its options', () => {
+    const result = applyConfigEdits(source, [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }])
+    expect(result.source).toMatchInlineSnapshot(`
+      "import { pluginTs } from '@kubb/plugin-ts'
+      import { pluginZod } from '@kubb/plugin-zod'
+
+      export default defineConfig({
+        plugins: [
+          pluginTs({ arrayType: 'generic' }),
+          // kubb:disabled @kubb/plugin-zod
+          // pluginZod({
+          //   // keep me
+          //   inferred: true,
+          // }),
+        ],
+      })
+      "
+    `)
+  })
+
+  it('reports the plugin as disabled with no options', () => {
+    const disabled = applyConfigEdits(source, [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }]).source
+    const view = readConfig(disabled)
+    expect(view.managed && view.configs[0]!.plugins.find((plugin) => plugin.packageName === '@kubb/plugin-zod')).toMatchInlineSnapshot(`
+      {
+        "disabled": true,
+        "importName": "pluginZod",
+        "options": {},
+        "packageName": "@kubb/plugin-zod",
+      }
+    `)
+  })
+
+  it('leaves a set on a sibling plugin untouched while one is disabled', () => {
+    const disabled = applyConfigEdits(source, [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }]).source
+    const result = applyConfigEdits(disabled, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: 'array' }])
+    expect(result.source).toContain('// kubb:disabled @kubb/plugin-zod')
+    expect(result.source).toContain('//   inferred: true,')
+    expect(changedSpan(disabled, result.source)).toMatchInlineSnapshot(`""generic" -> "array""`)
+  })
+
+  it('enabling returns the source byte-for-byte', () => {
+    const disabled = applyConfigEdits(source, [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }]).source
+    const enabled = applyConfigEdits(disabled, [{ operation: 'enable-plugin', plugin: '@kubb/plugin-zod' }]).source
+    expect(enabled).toBe(source)
+  })
+
+  it('refuses to disable a plugin that shares its line with other code', () => {
+    const inline = `import { pluginTs } from '@kubb/plugin-ts'\n\nexport default defineConfig({ plugins: [pluginTs({ arrayType: 'generic' })] })\n`
+    const result = applyConfigEdits(inline, [{ operation: 'disable-plugin', plugin: '@kubb/plugin-ts' }])
+    expect({ changed: result.changed, reason: result.outcomes[0]?.reason }).toMatchInlineSnapshot(`
+      {
+        "changed": false,
+        "reason": "@kubb/plugin-ts shares a line with other code, so it cannot be commented out safely",
+      }
+    `)
+  })
+
+  it('refuses to disable a plugin that is not in the file', () => {
+    const result = applyConfigEdits(source, [{ operation: 'disable-plugin', plugin: '@kubb/plugin-msw' }])
+    expect({ changed: result.changed, reason: result.outcomes[0]?.reason }).toMatchInlineSnapshot(`
+      {
+        "changed": false,
+        "reason": "@kubb/plugin-msw is not in the plugins array",
+      }
+    `)
+  })
+
+  it('refuses to enable a plugin that is not disabled', () => {
+    const result = applyConfigEdits(source, [{ operation: 'enable-plugin', plugin: '@kubb/plugin-zod' }])
+    expect({ changed: result.changed, reason: result.outcomes[0]?.reason }).toMatchInlineSnapshot(`
+      {
+        "changed": false,
+        "reason": "@kubb/plugin-zod is not disabled",
+      }
+    `)
+  })
+})
+
+describe('readConfig: values magicast cannot proxy', () => {
+  it('classifies a negative number and a template literal as literal without throwing', () => {
+    const source = `import { pluginTs } from '@kubb/plugin-ts'\n\nexport default defineConfig({ plugins: [pluginTs({ n: -1, banner: \`static\` })] })\n`
+    const view = readConfig(source)
+    expect(view.managed && view.configs[0]!.plugins[0]!.options).toMatchInlineSnapshot(`
+      {
+        "banner": {
+          "literal": true,
+        },
+        "n": {
+          "literal": true,
+        },
+      }
+    `)
+  })
+})
+
+describe('applyConfigEdits: unmanaged files', () => {
   it('preserves comments and code around the config', () => {
     const source = [
       `import { defineConfig } from 'kubb/config'`,
@@ -508,7 +707,7 @@ describe('applyConfigEdits: values arriving from outside', () => {
     `)
     // The injected text must be inert: the plugin still has exactly the one option.
     const view = readConfig(result.source)
-    expect(view.managed && Object.keys(view.plugins[0]!.options)).toMatchInlineSnapshot(`
+    expect(view.managed && Object.keys(view.configs[0]!.plugins[0]!.options)).toMatchInlineSnapshot(`
       [
         "arrayType",
       ]
@@ -521,7 +720,8 @@ describe('applyConfigEdits: values arriving from outside', () => {
       "import { pluginTs } from '@kubb/plugin-ts'
 
       export default defineConfig({
-        plugins: [pluginTs({ arrayType: 'generic',
+        plugins: [pluginTs({
+          arrayType: 'generic',
           banner: 'line one\\nit\\'s \\\\ two',
         })],
       })

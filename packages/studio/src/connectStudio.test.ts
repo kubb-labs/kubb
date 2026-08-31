@@ -295,6 +295,38 @@ describe('connectToStudio', () => {
       expect(reply()).toMatchObject({ payload: { changed: true, outcomes: [{ applied: true }] } })
     })
 
+    it('comments a plugin out on disable and restores it on enable, keeping every other line', async () => {
+      // A plugin needs its own line to be commented out safely, unlike `original` above where a
+      // single call shares its line with `plugins: [`.
+      const multiline = [
+        `import { defineConfig } from 'kubb/config'`,
+        `import { pluginTs } from '@kubb/plugin-ts'`,
+        `import { pluginZod } from '@kubb/plugin-zod'`,
+        ``,
+        `export default defineConfig({`,
+        `  plugins: [`,
+        `    pluginTs({ enum: { type: 'asConst' } }),`,
+        `    pluginZod({`,
+        `      inferred: true,`,
+        `    }),`,
+        `  ],`,
+        `})`,
+        ``,
+      ].join('\n')
+      writeFileSync(configFile, multiline, 'utf-8')
+
+      await connectToStudio({ ...options, allowConfigEdit: true })
+
+      await write([{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }])
+      const disabled = readFileSync(configFile, 'utf-8')
+      expect(disabled).toContain('// kubb:disabled @kubb/plugin-zod')
+      expect(disabled).toContain('//   inferred: true,')
+      expect(disabled).toContain("pluginTs({ enum: { type: 'asConst' } }),")
+
+      await write([{ operation: 'enable-plugin', plugin: '@kubb/plugin-zod' }])
+      expect(readFileSync(configFile, 'utf-8')).toBe(multiline)
+    })
+
     it('refuses every edit when editing the config was not granted', async () => {
       await connectToStudio({ ...options, allowConfigEdit: false })
 
@@ -366,21 +398,26 @@ describe('connectToStudio', () => {
 
       expect(connected?.type === 'connected' && connected.payload.configFile).toMatchInlineSnapshot(`
         {
-          "managed": true,
-          "plugins": [
+          "configs": [
             {
-              "importName": "pluginTs",
-              "options": {
-                "enum": {
-                  "literal": true,
+              "name": undefined,
+              "plugins": [
+                {
+                  "importName": "pluginTs",
+                  "options": {
+                    "enum": {
+                      "literal": true,
+                    },
+                    "group": {
+                      "literal": false,
+                    },
+                  },
+                  "packageName": "@kubb/plugin-ts",
                 },
-                "group": {
-                  "literal": false,
-                },
-              },
-              "packageName": "@kubb/plugin-ts",
+              ],
             },
           ],
+          "managed": true,
         }
       `)
     })

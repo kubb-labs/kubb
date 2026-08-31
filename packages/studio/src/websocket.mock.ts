@@ -5,10 +5,14 @@
 export class MockWebSocket {
   private listeners = new Map<string, Array<(...args: Array<unknown>) => unknown>>()
 
-  /** Simulates the OPEN ready state so sendAgentMessage does not bail early. */
+  /**
+   * Simulates the OPEN ready state so sendAgentMessage does not bail early.
+   */
   public readyState = 1
 
-  /** Tracks whether close() has been called */
+  /**
+   * Tracks whether close() has been called.
+   */
   public closed = false
 
   /**
@@ -29,7 +33,9 @@ export class MockWebSocket {
     }
   }
 
-  /** Simulate the WebSocket being closed from the client side. */
+  /**
+   * Simulate the WebSocket being closed from the client side.
+   */
   close(_code?: number, _reason?: string): void {
     this.closed = true
   }
@@ -41,7 +47,9 @@ export class MockWebSocket {
     this.terminated = true
   }
 
-  /** Trigger all listeners for an event and await their completion in order. */
+  /**
+   * Trigger all listeners for an event and await their completion in order.
+   */
   async trigger(event: string, data?: unknown): Promise<void> {
     for (const cb of this.listeners.get(event) ?? []) {
       await cb(data)

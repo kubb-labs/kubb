@@ -97,8 +97,8 @@ async function requestAgentSession({ token, studioUrl }: ConnectProps): Promise<
 /**
  * Obtain an agent session token from Kubb Studio via HTTP.
  *
- * When Studio rejects the machine token (403) — for example after the agent restarted
- * with a new identity while the startup registration call failed — the agent re-registers
+ * When Studio rejects the machine token (403), for example after the agent restarted
+ * with a new identity while the startup registration call failed, the agent re-registers
  * and retries once, so a single failed registration can't permanently block session creation.
  */
 export async function createAgentSession({ token, studioUrl }: ConnectProps): Promise<AgentConnectResponse> {

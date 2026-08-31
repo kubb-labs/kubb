@@ -42,28 +42,44 @@ export type JSONKubbConfig = {
 }
 
 /**
+ * Which `defineConfig(...)` entry an edit targets, for a config file that exports an array.
+ *
+ * A number selects by position, a string matches the entry's `name`. Omitted targets the only
+ * entry, or the first one when the file exports an array.
+ */
+export type ConfigSelector = string | number
+
+/**
  * One change to a plugin's options in the user's `kubb.config.ts`.
  *
  * `plugin` is the package name (`@kubb/plugin-ts`), the same identity used in {@link JSONKubbConfig}.
  * The agent applies these to the file with an AST patch, so only the targeted values are rewritten.
  *
  * Declared here rather than in `configFile.ts` because this is the wire contract, and the patcher
- * imports it from here. Type-only, so nothing pulls `ts-morph` into this entry point.
+ * imports it from here. Type-only, so nothing pulls `magicast` into this entry point.
  */
 export type ConfigEdit =
   /**
    * Write a literal option value. `path` walks nested objects, so `['enum', 'type']` targets
    * `pluginTs({ enum: { type } })`.
    */
-  | { operation: 'set'; plugin: string; path: Array<string>; value: unknown }
+  | { operation: 'set'; config?: ConfigSelector; plugin: string; path: Array<string>; value: unknown }
   /**
    * Drop an option so the plugin falls back to its default.
    */
-  | { operation: 'remove'; plugin: string; path: Array<string> }
+  | { operation: 'remove'; config?: ConfigSelector; plugin: string; path: Array<string> }
   /**
    * Add a plugin factory call and its import to the `plugins` array.
    */
-  | { operation: 'add-plugin'; plugin: string; importName?: string; options?: Record<string, unknown> }
+  | { operation: 'add-plugin'; config?: ConfigSelector; plugin: string; importName?: string; options?: Record<string, unknown> }
+  /**
+   * Comment the plugin call out, keeping its options in the file so enabling it again restores them.
+   */
+  | { operation: 'disable-plugin'; config?: ConfigSelector; plugin: string }
+  /**
+   * Uncomment a plugin call a previous `disable-plugin` commented out.
+   */
+  | { operation: 'enable-plugin'; config?: ConfigSelector; plugin: string }
 
 /**
  * A plugin factory call the agent found in the `plugins` array of a `defineConfig(...)`.
@@ -84,6 +100,25 @@ export type ManagedPlugin = {
    * the control disabled rather than hiding it.
    */
   options: Record<string, { literal: boolean }>
+  /**
+   * Set when the plugin call is commented out in the file. Its options stay on disk but are not
+   * readable, so `options` is empty until it is enabled again.
+   */
+  disabled?: true
+}
+
+/**
+ * One `defineConfig(...)` entry. A config file that exports a single object has exactly one.
+ */
+export type ManagedConfig = {
+  /**
+   * The entry's `name`, when it sets one. Studio labels the config picker with it.
+   */
+  name?: string
+  /**
+   * Each plugin call in the entry, with its top-level option keys.
+   */
+  plugins: Array<ManagedPlugin>
 }
 
 /**
@@ -94,23 +129,22 @@ export type ConfigFileView =
   | {
       managed: true
       /**
-       * Each plugin call in the file, with its top-level option keys. An option marked
-       * `literal: false` holds a function or a reference the agent will not overwrite: Studio shows
-       * the control disabled rather than hiding it.
+       * One entry per config the file exports, in source order. Every {@link ConfigEdit} names
+       * which of these it targets through its `config` field.
        */
-      plugins: Array<ManagedPlugin>
+      configs: Array<ManagedConfig>
     }
   | {
       managed: false
       /**
-       * Why the file is outside what the agent edits, for example an array config. Studio shows this
-       * and offers no property-level controls.
+       * Why the file is outside what the agent edits, for example a default export that is not a
+       * `defineConfig(...)` call. Studio shows this and offers no property-level controls.
        */
       reason: string
     }
 
 /**
- * Outcome of a single {@link ConfigEdit}, returned in a {@link ConfigWrittenMessage}.
+ * Outcome of a single {@link ConfigEdit}, returned in a {@link ConfigSavedMessage}.
  */
 export type ConfigEditOutcome = {
   edit: ConfigEdit
