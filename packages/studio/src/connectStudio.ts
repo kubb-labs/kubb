@@ -1,23 +1,18 @@
+import { readFile, writeFile } from 'node:fs/promises'
+import path from 'node:path'
 import process from 'node:process'
 import { getErrorMessage } from '@internals/utils'
 import { type Config, fsStorage, Hookable, memoryStorage } from '@kubb/core'
 import { version as kubbVersion } from '@kubb/core/package.json'
 import { type AgentHooks, setupHookListener } from './hooks.ts'
-import { type AgentMessage, type ClientInfo, type JSONKubbConfig, isCommandMessage, isDisconnectMessage, isPongMessage } from './protocol/index.ts'
-import { getStorage } from './machine.ts'
+import { type AgentMessage, type ClientInfo, type ConfigFileView, isCommandMessage, isDisconnectMessage, isPongMessage } from './protocol/index.ts'
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { generate } from './generate.ts'
-import { agentDefaults, maxHeartbeatIntervalMs } from './constants.ts'
+import { agentDefaults } from './constants.ts'
 import { logger } from './logger.ts'
 import { assertAllowedPlugins, mergeAdapter, mergePlugins } from './resolveConfig.ts'
 import type WebSocket from 'ws'
 import { createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream } from './ws.ts'
-
-/**
- * One agent process serves one config file, so one stable key is enough. The saved Studio config
- * survives reconnects, which mint a fresh session id each time, and restarts.
- */
-const STUDIO_CONFIG_KEY = 'studio-config'
 
 export type ConnectToStudioOptions = {
   token: string
@@ -38,6 +33,11 @@ export type ConnectToStudioOptions = {
    */
   client?: ClientInfo
   allowWrite?: boolean
+  /**
+   * Whether Studio may edit the project's `kubb.config.ts`. Granted separately from `allowWrite`,
+   * which only covers generated output: this rewrites a file the user wrote by hand.
+   */
+  allowConfigEdit?: boolean
   allowInput?: boolean
   /**
    * Whether the formatter, the linter, and `output.postGenerate` may run as child processes.
@@ -47,7 +47,7 @@ export type ConnectToStudioOptions = {
   allowExec?: boolean
   /**
    * Module specifiers Studio may name in a `generate` payload. When set, a payload naming anything
-   * else is rejected instead of imported — `resolvePlugins` does a bare `await import(name)`, so
+   * else is rejected instead of imported. `resolvePlugins` does a bare `await import(name)`, so
    * without this Studio can execute any module reachable from the project's `node_modules`.
    * Unset means no restriction, matching the Docker image where the plugin set is fixed at build time.
    */
@@ -67,10 +67,6 @@ export type ConnectToStudioOptions = {
   signal?: AbortSignal
 }
 
-/**
- * Opens a WebSocket connection to Kubb Studio and handles incoming commands.
- * Automatically reconnects after `retryInterval` ms on close or error.
- */
 /**
  * Schedules another connection attempt.
  *
@@ -124,10 +120,10 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     client,
     // Every permission is off unless the host grants it.
     allowWrite = false,
+    allowConfigEdit = false,
     allowInput = false,
     allowExec = false,
     allowedPlugins,
-    poolSize = agentDefaults.poolSize,
     root = process.cwd(),
     heartbeatInterval: requestedHeartbeatInterval = agentDefaults.heartbeatIntervalMs,
     signal,
@@ -136,7 +132,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   // Studio counts an agent offline once its last ping is older than its liveness window, so a
   // slower cadence would make a healthy agent invisible. Clamped here rather than in a host's env
   // parsing, so every host is held to the contract.
-  const heartbeatInterval = Math.min(requestedHeartbeatInterval, maxHeartbeatIntervalMs)
+  const heartbeatInterval = Math.min(requestedHeartbeatInterval, agentDefaults.heartbeatIntervalMs)
 
   // Each connection gets its own isolated event emitter so generation events
   // from one session do not bleed into another session's WebSocket stream.
@@ -153,12 +149,13 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     // Effective permissions: always disabled in sandbox mode
     const effectiveWrite = isSandbox ? false : allowWrite
+    // A sandbox has no user project to edit, so a config edit is never granted there.
+    const effectiveConfigEdit = isSandbox ? false : allowConfigEdit
+    // `configPath` is relative to the agent's root unless it is already absolute, which is what
+    // `resolve` does on its own.
+    const configFilePath = path.resolve(root, configPath)
     // A sandbox agent always generates from the spec Studio supplies; a local agent only when opted in.
     const effectiveAllowInput = isSandbox || allowInput
-    // The saved studio config is shared by every pool session, so only persist and replay it for a
-    // single-session agent. Otherwise one user's options and spec would leak to another.
-    const persistConfig = !isSandbox && poolSize <= 1
-
     // Tracks whether the studio server explicitly disconnected us (no reconnect needed)
     let serverDisconnected = false
     // Guards against a second `generate` command starting while one is already running.
@@ -193,20 +190,32 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       ws.removeEventListener('message', onMessage)
     }
 
-    async function readStoredConfig() {
-      if (!persistConfig) return null
-      return getStorage()
-        .getItem<JSONKubbConfig>(STUDIO_CONFIG_KEY)
-        .catch(() => null)
+    /**
+     * Reads `kubb.config.ts` and reports which plugin options Studio may edit.
+     *
+     * Skipped when the host did not grant `allowConfigEdit`. The patcher pulls in `magicast`
+     * (~25ms, ~55MB RSS), so read-only agents never import it.
+     *
+     * Not cached: the user can edit the file between two Studio actions.
+     */
+    async function readConfigFileView(source?: string): Promise<ConfigFileView | undefined> {
+      if (!effectiveConfigEdit) {
+        return undefined
+      }
+
+      try {
+        const { readConfig } = await import('./configFile.ts')
+
+        return readConfig(source ?? (await readFile(configFilePath, 'utf-8')))
+      } catch (error) {
+        logger.debug(tag, `Could not read ${configFilePath}: ${getErrorMessage(error)}`)
+
+        return undefined
+      }
     }
 
     async function sendConnectedPayload() {
       const config = await loadConfig()
-      const storedConfig = await readStoredConfig()
-
-      // Replay the last-saved Studio config so the UI prefills with the user's previous choices.
-      // The spec is only surfaced when input is allowed, matching what the agent would actually use.
-      const studioConfig = storedConfig ? { ...storedConfig, input: effectiveAllowInput ? storedConfig.input : undefined } : undefined
 
       sendAgentMessage(ws, {
         type: 'connected',
@@ -222,7 +231,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             allowWrite: effectiveWrite,
             allowInput: effectiveAllowInput,
             allowExec,
+            allowConfigEdit: effectiveConfigEdit,
           },
+          configFile: await readConfigFileView(),
           config: {
             plugins: config.plugins.map((plugin) => ({
               name: `@kubb/${plugin.name}`,
@@ -230,7 +241,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               options: plugin.options ?? {},
             })),
           },
-          studioConfig,
         },
       })
     }
@@ -283,11 +293,11 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     heartbeatTimer = setInterval(() => {
       // Two consecutive missed pongs mean the socket is dead even though no close event
-      // arrived. Terminate (not close) so a half-open TCP connection can't linger — the
+      // arrived. Terminate (not close) so a half-open TCP connection can't linger. The
       // resulting close event triggers cleanup and the reconnect loop.
       if (Date.now() - lastPongAt > heartbeatInterval * 2) {
         logger.warn(tag, 'No pong received from Kubb Studio, terminating stale connection')
-        // Stop the timer here rather than waiting for cleanup() — the close event can lag,
+        // Stop the timer here rather than waiting for cleanup(), since the close event can lag,
         // and until it runs this interval would re-terminate and re-log every tick.
         clearInterval(heartbeatTimer)
         heartbeatTimer = undefined
@@ -299,8 +309,8 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       sendAgentMessage(ws, { type: 'ping' })
     }, heartbeatInterval)
 
-    // Only `kubb:error` is ever fired on the connection emitter — every generation event goes
-    // through its own emitter below — so it gets that one listener rather than the full stream.
+    // Only `kubb:error` is ever fired on the connection emitter. Every generation event goes
+    // through its own emitter below, so it gets that one listener rather than the full stream.
     hooks.hook('kubb:error', ({ error }) => sendErrorMessage(ws, error))
 
     const onMessage = async (message: WebSocket.MessageEvent) => {
@@ -349,10 +359,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
             try {
               const config = await loadConfig()
-
-              // Message payload takes priority over the saved studio config.
-              const storedConfig = data.payload ? null : await readStoredConfig()
-              const patch = data.payload ?? storedConfig ?? undefined
+              const patch = data.payload
               assertAllowedPlugins(patch?.plugins, allowedPlugins)
 
               const plugins = await mergePlugins(config.plugins, patch?.plugins, patch?.disabledPlugins)
@@ -368,16 +375,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
               if (patch?.input && !effectiveAllowInput) {
                 logger.warn(tag, 'Input from Studio is ignored; set KUBB_AGENT_ALLOW_INPUT=true to generate from the spec sent by Studio')
-              }
-
-              // Save the studio config so it survives reconnects and restarts. Caching writes nothing
-              // to the user's project, so write permission is not required. Drop the spec when input is off.
-              if (data.payload && persistConfig) {
-                await getStorage()
-                  .setItem(STUDIO_CONFIG_KEY, allowInput ? data.payload : { ...data.payload, input: undefined })
-                  .catch((err) => {
-                    logger.warn(tag, 'Failed to save studio config', { error: err?.message })
-                  })
               }
 
               const generationHooks = new Hookable<AgentHooks>()
@@ -409,6 +406,71 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             await sendConnectedPayload()
 
             logger.success(tag, `Completed "${data.type}" from Studio`)
+
+            return
+          }
+
+          if (data.command === 'save') {
+            // Studio waits on a `config-saved` for every `save`, so every path out of this
+            // branch sends one. `edits` is checked before it is walked: the message crosses the same
+            // trust boundary as the values inside it.
+            if (!Array.isArray(data.edits)) {
+              logger.warn(tag, 'Ignored "save" from Studio: the message carried no edits')
+
+              sendAgentMessage(ws, { type: 'config-saved', payload: { outcomes: [], changed: false } })
+
+              return
+            }
+
+            const edits = data.edits
+            const refuse = (reason: string) =>
+              sendAgentMessage(ws, {
+                type: 'config-saved',
+                payload: { outcomes: edits.map((edit) => ({ edit, applied: false, reason })), changed: false },
+              })
+
+            if (!effectiveConfigEdit) {
+              logger.warn(tag, 'Ignored "save" from Studio: editing kubb.config.ts was not granted')
+
+              refuse('the agent was not granted permission to edit kubb.config.ts')
+
+              return
+            }
+
+            // A generation reloads the config while it runs, so rewriting the file underneath it
+            // would leave that run working from half the change.
+            if (isGenerating) {
+              refuse('a generation is in progress')
+
+              return
+            }
+
+            try {
+              // Read straight before the patch rather than reusing what went out on connect. The user
+              // may have edited the file since, and since every untouched node keeps its own text,
+              // patching what is on disk right now preserves that edit.
+              const { applyConfigEdits } = await import('./configFile.ts')
+              const current = await readFile(configFilePath, 'utf-8')
+              const { source: patched, outcomes, changed } = applyConfigEdits(current, edits)
+
+              if (changed) {
+                await writeFile(configFilePath, patched, 'utf-8')
+              }
+
+              sendAgentMessage(ws, {
+                type: 'config-saved',
+                payload: { outcomes, changed, configFile: changed ? await readConfigFileView(patched) : undefined },
+              })
+
+              const applied = outcomes.filter((outcome) => outcome.applied).length
+              logger.success(tag, `Completed "${data.type}" from Studio, applied ${applied}/${outcomes.length} edits to ${configPath}`)
+            } catch (error) {
+              // An unreadable config, a read-only filesystem. Reported as a refusal of every edit so
+              // Studio hears back rather than waiting on a reply that never comes.
+              logger.exception(tag, error)
+
+              refuse(getErrorMessage(error))
+            }
 
             return
           }

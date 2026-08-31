@@ -1,7 +1,7 @@
 import type { Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { JSONKubbConfig } from './protocol/index.ts'
-import { assertAllowedPlugins, mergeAdapter, mergePlugins, resolvePlugins } from './resolveConfig.ts'
+import { assertAllowedPlugins, mergeAdapter, mergePlugins, resolvePlugins, toExportName } from './resolveConfig.ts'
 
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
 
@@ -356,5 +356,52 @@ describe('mergeAdapter', () => {
     const result = await merge(diskAdapter, { foo: 'bar' })
 
     expect(result).toBe(diskAdapter)
+  })
+})
+
+describe('toExportName', () => {
+  // Every plugin published from kubb-labs/plugins. Both `resolvePlugins`, which imports this name,
+  // and the config patcher, which writes it into the user's file, go through here, so a package
+  // that breaks the convention has to show up as a failure rather than as a config Studio cannot load.
+  it('derives the factory name every Kubb plugin exports', () => {
+    const packages = [
+      '@kubb/plugin-axios',
+      '@kubb/plugin-cypress',
+      '@kubb/plugin-faker',
+      '@kubb/plugin-fetch',
+      '@kubb/plugin-mcp',
+      '@kubb/plugin-msw',
+      '@kubb/plugin-react-query',
+      '@kubb/plugin-redoc',
+      '@kubb/plugin-swr',
+      '@kubb/plugin-ts',
+      '@kubb/plugin-vue-query',
+      '@kubb/plugin-zod',
+    ]
+    expect(Object.fromEntries(packages.map((name) => [name, toExportName(name)]))).toMatchInlineSnapshot(`
+      {
+        "@kubb/plugin-axios": "pluginAxios",
+        "@kubb/plugin-cypress": "pluginCypress",
+        "@kubb/plugin-faker": "pluginFaker",
+        "@kubb/plugin-fetch": "pluginFetch",
+        "@kubb/plugin-mcp": "pluginMcp",
+        "@kubb/plugin-msw": "pluginMsw",
+        "@kubb/plugin-react-query": "pluginReactQuery",
+        "@kubb/plugin-redoc": "pluginRedoc",
+        "@kubb/plugin-swr": "pluginSwr",
+        "@kubb/plugin-ts": "pluginTs",
+        "@kubb/plugin-vue-query": "pluginVueQuery",
+        "@kubb/plugin-zod": "pluginZod",
+      }
+    `)
+  })
+
+  it('derives a name for a plugin outside the @kubb scope', () => {
+    expect(['@acme/plugin-solid-query', 'kubb-plugin-custom'].map(toExportName)).toMatchInlineSnapshot(`
+      [
+        "pluginSolidQuery",
+        "kubbPluginCustom",
+      ]
+    `)
   })
 })

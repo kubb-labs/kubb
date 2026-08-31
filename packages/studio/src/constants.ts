@@ -1,24 +1,20 @@
 /**
- * Stable defaults the Studio client falls back to when a host passes nothing. Where a config lives
- * is deliberately absent: each host resolves that its own way.
- */
-/**
- * The hosted Kubb Studio. Exported because a host that stores credentials has to bind them to a
- * resolved URL, so it cannot leave the default to the client.
+ * Hosted Kubb Studio URL. Exported so credential stores can bind tokens to the resolved instance,
+ * not whatever default the client would pick on its own.
  */
 export const defaultStudioUrl = 'https://kubb.studio'
 
+/**
+ * Defaults the Studio client uses when a host passes nothing.
+ * Config path is left out on purpose: each host discovers that itself.
+ */
 export const agentDefaults = {
   studioUrl: defaultStudioUrl,
   retryIntervalMs: 30_000,
+  /**
+   * Maximum heartbeat interval. Studio drops agents from the active list after ~90s without a ping,
+   * so a slower override would make a healthy agent look dead.
+   */
   heartbeatIntervalMs: 30_000,
   poolSize: 1,
 } as const
-
-/**
- * Upper bound for the heartbeat interval, including the `KUBB_AGENT_HEARTBEAT_INTERVAL` override.
- * Studio counts an agent as offline when its last ping is older than 90 seconds
- * (`AGENT_PING_STALE_MS` in kubb.studio), so a slower cadence would make a healthy
- * agent invisible in the active-agents list. The two values are one contract.
- */
-export const maxHeartbeatIntervalMs = agentDefaults.heartbeatIntervalMs

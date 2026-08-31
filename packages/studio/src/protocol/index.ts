@@ -1,10 +1,9 @@
 /**
- * WebSocket message types for the agent communication protocol.
+ * WebSocket message types for the agent ↔ Studio protocol.
  *
- * Messages flow bidirectionally between the Studio backend and CLI agents:
- * - Studio → Agent: CommandMessage (generate, connect), PongMessage, DisconnectMessage
- * - Agent → Studio: ConnectedMessage, DataMessage, PingMessage
- * - Either direction: ErrorMessage
+ * - Studio → agent: `command` (generate, connect, save), `pong`, `disconnect`
+ * - Agent → Studio: `connected`, `data`, `ping`, `config-saved`
+ * - Either way: `kubb:error`
  */
 
 import type { Config } from '@kubb/core'
@@ -40,6 +39,120 @@ export type JSONKubbConfig = {
    * (`parse`, `getImports`, ...) can't survive JSON serialization over the WebSocket.
    */
   adapter?: object
+}
+
+/**
+ * Which `defineConfig(...)` entry an edit targets, for a config file that exports an array.
+ *
+ * A number selects by position, a string matches the entry's `name`. Omitted targets the only
+ * entry, or the first one when the file exports an array.
+ */
+export type ConfigSelector = string | number
+
+/**
+ * One change to a plugin's options in the user's `kubb.config.ts`.
+ *
+ * `plugin` is the package name (`@kubb/plugin-ts`), the same identity used in {@link JSONKubbConfig}.
+ * The agent applies these to the file with an AST patch, so only the targeted values are rewritten.
+ *
+ * Declared here rather than in `configFile.ts` because this is the wire contract, and the patcher
+ * imports it from here. Type-only, so nothing pulls `magicast` into this entry point.
+ */
+export type ConfigEdit =
+  /**
+   * Write a literal option value. `path` walks nested objects, so `['enum', 'type']` targets
+   * `pluginTs({ enum: { type } })`.
+   */
+  | { operation: 'set'; config?: ConfigSelector; plugin: string; path: Array<string>; value: unknown }
+  /**
+   * Drop an option so the plugin falls back to its default.
+   */
+  | { operation: 'remove'; config?: ConfigSelector; plugin: string; path: Array<string> }
+  /**
+   * Add a plugin factory call and its import to the `plugins` array.
+   */
+  | { operation: 'add-plugin'; config?: ConfigSelector; plugin: string; importName?: string; options?: Record<string, unknown> }
+  /**
+   * Comment the plugin call out, keeping its options in the file so enabling it again restores them.
+   */
+  | { operation: 'disable-plugin'; config?: ConfigSelector; plugin: string }
+  /**
+   * Uncomment a plugin call a previous `disable-plugin` commented out.
+   */
+  | { operation: 'enable-plugin'; config?: ConfigSelector; plugin: string }
+
+/**
+ * A plugin factory call the agent found in the `plugins` array of a `defineConfig(...)`.
+ */
+export type ManagedPlugin = {
+  /**
+   * Local identifier of the factory in the file, e.g. `pluginTs`. This is the alias when the plugin
+   * was imported under one.
+   */
+  importName: string
+  /**
+   * Module the factory is imported from, e.g. `@kubb/plugin-ts`.
+   */
+  packageName: string
+  /**
+   * Top-level option keys, each flagged with whether the agent may write it. An option marked
+   * `literal: false` holds a function or a reference the agent will not overwrite, so Studio shows
+   * the control disabled rather than hiding it.
+   */
+  options: Record<string, { literal: boolean }>
+  /**
+   * Set when the plugin call is commented out in the file. Its options stay on disk but are not
+   * readable, so `options` is empty until it is enabled again.
+   */
+  disabled?: true
+}
+
+/**
+ * One `defineConfig(...)` entry. A config file that exports a single object has exactly one.
+ */
+export type ManagedConfig = {
+  /**
+   * The entry's `name`, when it sets one. Studio labels the config picker with it.
+   */
+  name?: string
+  /**
+   * Each plugin call in the entry, with its top-level option keys.
+   */
+  plugins: Array<ManagedPlugin>
+}
+
+/**
+ * What the agent found in the user's config file, so Studio knows which controls it may offer.
+ * Absent when the agent could not read the file at all.
+ */
+export type ConfigFileView =
+  | {
+      managed: true
+      /**
+       * One entry per config the file exports, in source order. Every {@link ConfigEdit} names
+       * which of these it targets through its `config` field.
+       */
+      configs: Array<ManagedConfig>
+    }
+  | {
+      managed: false
+      /**
+       * Why the file is outside what the agent edits, for example a default export that is not a
+       * `defineConfig(...)` call. Studio shows this and offers no property-level controls.
+       */
+      reason: string
+    }
+
+/**
+ * Outcome of a single {@link ConfigEdit}, returned in a {@link ConfigSavedMessage}.
+ */
+export type ConfigEditOutcome = {
+  edit: ConfigEdit
+  applied: boolean
+  /**
+   * Why the edit was refused, absent when it was applied.
+   */
+  reason?: string
 }
 
 /**
@@ -97,8 +210,7 @@ export type KubbHooks = {
 export type KubbHook = keyof KubbHooks
 
 /**
- * Command sent from Studio to Agent: either a `generate` run with a full Kubb config,
- * or a `connect` handshake carrying the write permissions granted for this session.
+ * Command sent from Studio to Agent: `generate`, `connect`, or `save`.
  */
 export type CommandMessage =
   /**
@@ -106,15 +218,15 @@ export type CommandMessage =
    */
   | { type: 'command'; command: 'generate'; payload: JSONKubbConfig }
   /**
-   * Open a session. `permissions.allowWrite` is the write access granted for this connection.
+   * Ask the agent to send a fresh `connected` payload. Permissions are fixed when the host starts
+   * the agent; this message only triggers another read of disk config and saved Studio state.
    */
-  | {
-      type: 'command'
-      command: 'connect'
-      permissions: {
-        allowWrite: boolean
-      }
-    }
+  | { type: 'command'; command: 'connect' }
+  /**
+   * Change plugin options in the user's `kubb.config.ts`. Applied only when the agent was granted
+   * `allowConfigEdit`; otherwise every edit comes back refused.
+   */
+  | { type: 'command'; command: 'save'; edits: Array<ConfigEdit> }
 
 /**
  * Identifies the host running the Kubb runtime, so Studio can badge the connection and show the
@@ -168,8 +280,7 @@ export type ConnectMessagePayload = {
    */
   root: string
   /**
-   * The agent's on-disk config, the baseline every generation starts from. `studioConfig` layers the
-   * user's last Studio choices on top of it.
+   * The agent's on-disk config, the baseline every generation starts from.
    */
   config: JSONKubbConfig
   permissions: {
@@ -191,26 +302,55 @@ export type ConnectMessagePayload = {
      * can run. The CLI runs in the user's own project and defaults it off.
      */
     allowExec?: boolean
+    /**
+     * Whether the agent may change plugin options in the user's `kubb.config.ts`. Separate from
+     * `allowWrite`, which covers generated output: this one edits a hand-authored source file, so
+     * it is granted on its own. Optional, so an older agent that omits it is treated as not
+     * granting it.
+     */
+    allowConfigEdit?: boolean
   }
+  /**
+   * What the agent read from the config file on disk, so Studio can render the plugin editor
+   * against the real file. Absent when the agent could not read it.
+   */
+  configFile?: ConfigFileView
   /**
    * Identifies the host, absent for an older agent that predates the field.
    */
   client?: ClientInfo
-  /**
-   * The most recent config a user picked in Studio, replayed on connect so Studio can prefill its UI
-   * with the last-used options and spec. Absent when nothing has been saved. Layered on top of
-   * `config` above, which stays the on-disk baseline.
-   */
-  studioConfig?: JSONKubbConfig
 }
 
 /**
- * Handshake reply sent from Agent to Studio after a `connect` command, carrying the agent's
- * resolved config, granted permissions, and reported versions.
+ * Agent → Studio handshake. Sent when the WebSocket opens and again after a `connect` command.
+ * Carries the on-disk config baseline, granted permissions, and paths Studio needs to render the editor.
  */
 export type ConnectedMessage = {
   type: 'connected'
   payload: ConnectMessagePayload
+}
+
+/**
+ * Reply to a `save` command: what the agent did to the file on disk.
+ */
+export type ConfigSavedMessage = {
+  type: 'config-saved'
+  payload: {
+    /**
+     * Per-edit result, in the order the edits were sent.
+     */
+    outcomes: Array<ConfigEditOutcome>
+    /**
+     * Whether the file on disk changed. False when every edit was refused, and when the applied
+     * edits produced the text the file already had.
+     */
+    changed: boolean
+    /**
+     * The config file as it now stands, so Studio can re-render without a round trip. Absent when
+     * nothing was written.
+     */
+    configFile?: ConfigFileView
+  }
 }
 
 /**
@@ -313,7 +453,7 @@ export type AgentConnectResponse = {
  * Every message that can cross the agent WebSocket, in either direction. Narrow it with the
  * `is*Message` guards below before reading a variant's fields.
  */
-export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ErrorMessage | PingMessage | PongMessage | DisconnectMessage
+export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ConfigSavedMessage | ErrorMessage | PingMessage | PongMessage | DisconnectMessage
 
 // Helper type guards
 export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
@@ -341,8 +481,4 @@ export function isPongMessage(msg: AgentMessage): msg is PongMessage {
 
 export function isDisconnectMessage(msg: AgentMessage): msg is DisconnectMessage {
   return msg.type === 'disconnect'
-}
-
-export function isConnectedMessage(msg: AgentMessage): msg is ConnectedMessage {
-  return msg.type === 'connected'
 }

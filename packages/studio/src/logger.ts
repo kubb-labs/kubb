@@ -69,8 +69,8 @@ export function maskString(value: string): string {
 }
 
 /**
- * Waits using the global timer so fake-timer test setups stay in control — `node:timers/promises`
- * is not affected by them.
+ * Waits using the global timer so fake-timer test setups stay in control, since
+ * `node:timers/promises` is not affected by them.
  */
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))

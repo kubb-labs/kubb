@@ -11,11 +11,13 @@ vi.mock('./machine.ts', async (importOriginal) => ({
   getMachineToken: vi.fn(async () => 'machine-token-hash'),
 }))
 
-const fetchMock = vi.fn()
+const createMockResponse = (data: unknown, ok: boolean = true, status: number = 200) => ({
+  ok,
+  status,
+  json: vi.fn(async () => data),
+})
 
-vi.mock('ofetch', () => ({
-  ofetch: (...args: Array<unknown>) => fetchMock(...args),
-}))
+const fetchMock = vi.fn()
 
 const session = {
   sessionId: 'session-abc',
@@ -37,6 +39,7 @@ function unauthorizedError(): Error {
 beforeEach(() => {
   fetchMock.mockReset()
   vi.useFakeTimers()
+  global.fetch = fetchMock
 })
 
 afterEach(() => {
@@ -52,7 +55,7 @@ describe('registerAgent', () => {
   })
 
   it('returns true when registration succeeds on the first attempt', async () => {
-    fetchMock.mockResolvedValueOnce({})
+    fetchMock.mockResolvedValueOnce(createMockResponse({}))
 
     const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio' })
     await vi.runAllTimersAsync()
@@ -61,12 +64,15 @@ describe('registerAgent', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(fetchMock).toHaveBeenCalledWith(
       'http://studio/api/agent/connect',
-      expect.objectContaining({ method: 'POST', body: expect.objectContaining({ machineToken: 'machine-token-hash' }) }),
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({ Authorization: 'Bearer tok' }),
+      }),
     )
   })
 
   it('retries with backoff and returns true once an attempt succeeds', async () => {
-    fetchMock.mockRejectedValueOnce(new Error('502')).mockRejectedValueOnce(new Error('502')).mockResolvedValueOnce({})
+    fetchMock.mockRejectedValueOnce(new Error('502')).mockRejectedValueOnce(new Error('502')).mockResolvedValueOnce(createMockResponse({}))
 
     const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio' })
     await vi.runAllTimersAsync()
@@ -88,7 +94,7 @@ describe('registerAgent', () => {
 
 describe('createAgentSession', () => {
   it('returns the session on success', async () => {
-    fetchMock.mockResolvedValueOnce(session)
+    fetchMock.mockResolvedValueOnce(createMockResponse(session))
 
     await expect(createAgentSession({ token: 'tok', studioUrl: 'http://studio' })).resolves.toEqual(session)
     expect(fetchMock).toHaveBeenCalledTimes(1)
@@ -103,7 +109,7 @@ describe('createAgentSession', () => {
 
   it('re-registers and retries once when Studio rejects the machine token', async () => {
     // 1: session create → 403, 2: register → ok, 3: session create retry → ok
-    fetchMock.mockRejectedValueOnce(forbiddenError()).mockResolvedValueOnce({}).mockResolvedValueOnce(session)
+    fetchMock.mockRejectedValueOnce(forbiddenError()).mockResolvedValueOnce(createMockResponse({})).mockResolvedValueOnce(createMockResponse(session))
 
     const promise = createAgentSession({ token: 'tok', studioUrl: 'http://studio' })
     await vi.runAllTimersAsync()
@@ -128,7 +134,7 @@ describe('createAgentSession', () => {
 
 describe('disconnect', () => {
   it('logs the slug when one is known', async () => {
-    fetchMock.mockResolvedValueOnce({})
+    fetchMock.mockResolvedValueOnce(createMockResponse({}))
 
     await disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', slug: 'brave-otter' })
 
@@ -136,7 +142,7 @@ describe('disconnect', () => {
   })
 
   it('falls back to a generic tag when no slug is known', async () => {
-    fetchMock.mockResolvedValueOnce({})
+    fetchMock.mockResolvedValueOnce(createMockResponse({}))
 
     await disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio' })
 

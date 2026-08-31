@@ -77,12 +77,9 @@ function isProblemErrorDiagnostic(diagnostic: Diagnostic): diagnostic is Diagnos
 }
 
 /**
- * Build a descriptive error for a failed generation so logs name *what* failed.
- *
- * A bare `Generation failed` hides the cause; this folds every error diagnostic (with its plugin
- * and message, when known) into the message so downstream logging shows *what* failed.
+ * Folds error-severity diagnostics into one thrown error so logs name the failing plugin.
  */
-export function formatGenerationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error {
+function formatGenerationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error {
   const reasons = diagnostics
     .filter(isProblemErrorDiagnostic)
     .map((diagnostic) => (diagnostic.plugin ? `${diagnostic.plugin}: ${diagnostic.message}` : diagnostic.message))
@@ -91,7 +88,7 @@ export function formatGenerationFailure(diagnostics: ReadonlyArray<Diagnostic>):
     return new Error('Generation failed')
   }
 
-  return new Error(`Generation failed: ${reasons.length} error${reasons.length === 1 ? '' : 's'} — ${reasons.join('; ')}`)
+  return new Error(`Generation failed: ${reasons.length} error${reasons.length === 1 ? '' : 's'}: ${reasons.join('; ')}`)
 }
 
 /**
@@ -158,7 +155,9 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
 
     if (!tool) {
       await hooks.callHook('kubb:warn', { message: `No ${step.kind}ter found (${step.detect.join(', ')}). Skipping ${step.kind}ting.` })
-    } else if (setting === 'auto') {
+    }
+
+    if (tool && setting === 'auto') {
       await hooks.callHook('kubb:info', { message: `Auto-detected ${step.kind}ter: ${styleText('dim', tool)}` })
     }
 

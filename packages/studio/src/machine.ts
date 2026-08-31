@@ -40,7 +40,7 @@ let fallbackSecretPromise: Promise<string> | null = null
 /**
  * Loads the fallback machine secret from the runtime storage.
  * On first use it generates a secret and persists it, so the machine identity stays
- * stable across restarts — an identity that changes on every boot breaks session
+ * stable across restarts. An identity that changes on every boot breaks session
  * creation with Studio whenever the startup registration call fails.
  */
 async function loadOrCreateFallbackSecret(): Promise<string> {

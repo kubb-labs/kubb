@@ -1,7 +1,37 @@
-import { ofetch as $fetch } from 'ofetch'
 import type { AgentConnectResponse } from './protocol/index.ts'
 import { getMachineToken } from './machine.ts'
 import { logger, maskString, sleep } from './logger.ts'
+
+type PostJsonOptions = {
+  headers?: Record<string, string>
+  body?: unknown
+  /**
+   * Studio's device-token polling endpoint returns a body worth reading on 4xx too
+   * (`authorization_pending`, `slow_down`, `access_denied`, ...), so set this to read the response
+   * instead of throwing.
+   */
+  ignoreResponseError?: boolean
+}
+
+/**
+ * Posts JSON to Studio and parses the JSON response. Throws on a non-2xx status with a
+ * `statusCode` property, unless `ignoreResponseError` is set.
+ */
+export async function postJson<T>(url: string, { headers, body, ignoreResponseError }: PostJsonOptions = {}): Promise<T> {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...headers },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  })
+
+  const data = (await response.json().catch(() => undefined)) as T
+
+  if (!response.ok && !ignoreResponseError) {
+    throw Object.assign(new Error(`Request to ${url} failed with status ${response.status}`), { statusCode: response.status })
+  }
+
+  return data
+}
 
 /**
  * Delay before each registration attempt; the first attempt runs immediately.
@@ -52,8 +82,7 @@ function sessionError(cause: unknown): Error {
 async function requestAgentSession({ token, studioUrl }: ConnectProps): Promise<AgentConnectResponse> {
   const url = `${studioUrl}/api/agent/sessions`
 
-  const data = await $fetch<AgentConnectResponse>(url, {
-    method: 'POST',
+  const data = await postJson<AgentConnectResponse>(url, {
     headers: { Authorization: `Bearer ${token}` },
     body: { machineToken: await getMachineToken() },
   })
@@ -68,8 +97,8 @@ async function requestAgentSession({ token, studioUrl }: ConnectProps): Promise<
 /**
  * Obtain an agent session token from Kubb Studio via HTTP.
  *
- * When Studio rejects the machine token (403) — for example after the agent restarted
- * with a new identity while the startup registration call failed — the agent re-registers
+ * When Studio rejects the machine token (403), for example after the agent restarted
+ * with a new identity while the startup registration call failed, the agent re-registers
  * and retries once, so a single failed registration can't permanently block session creation.
  */
 export async function createAgentSession({ token, studioUrl }: ConnectProps): Promise<AgentConnectResponse> {
@@ -137,8 +166,7 @@ async function runRegistration({ token, studioUrl, poolSize }: RegisterProps): P
     }
 
     try {
-      await $fetch(url, {
-        method: 'POST',
+      await postJson(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -180,8 +208,7 @@ export async function disconnect({ sessionId, token, studioUrl, slug }: Disconne
   try {
     logger.debug(tag, 'Disconnecting from Studio...', { slug })
 
-    await $fetch(url, {
-      method: 'POST',
+    await postJson(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
