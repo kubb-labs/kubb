@@ -40,13 +40,9 @@ export const command = defineWithTypes<{
   name: 'generate',
   description:
     'Generate TypeScript types, API clients, React Query hooks, Zod schemas, and more from an OpenAPI specification. Reads kubb.config.ts by default. Pass an OpenAPI file path as the first argument to override the input without editing the config.',
-  examples: [
-    'kubb generate',
-    'kubb generate ./openapi.yaml',
-    'kubb generate --config kubb.config.ts',
-    'kubb generate --watch',
-    'kubb generate --dryRun',
-  ].join('\n'),
+  examples: ['kubb generate', 'kubb generate ./openapi.yaml', 'kubb generate --config kubb.config.ts', 'kubb generate --watch', 'kubb generate --dryRun'].join(
+    '\n',
+  ),
   args: {
     input: {
       type: 'positional',
