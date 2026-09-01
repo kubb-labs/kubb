@@ -1,13 +1,9 @@
-import { pluginId as dryRunId } from '@gunshi/plugin-dryrun'
-import type { DryRunExtension } from '@gunshi/plugin-dryrun'
 import { defineWithTypes } from 'gunshi'
+import { dryRunId } from '../gunshiDryRun.ts'
+import type { DryRunExtensions } from '../gunshiDryRun.ts'
 import { version } from '../../package.json'
 
-export const command = defineWithTypes<{
-  extensions: {
-    [dryRunId]: DryRunExtension
-  }
-}>()({
+export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
   name: 'init',
   description:
     'Scaffold a kubb.config.ts and install plugins for code generation from an OpenAPI spec. Run without flags for interactive setup, or pass --input, --output, and --plugins to skip the prompts.',

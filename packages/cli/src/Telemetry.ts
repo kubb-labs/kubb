@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
 import { isCIEnvironment, runtime } from '@internals/utils'
-import { getAgentProfile } from 'gunshi/agent'
+import { getAgentName } from './agent.ts'
 import { OTLP_ENDPOINT } from './constants.ts'
 
 type OtlpKeyValue = {
@@ -106,7 +106,6 @@ export function buildTelemetryEvent(options: {
 }): TelemetryEvent {
   const [seconds, nanoseconds] = process.hrtime(options.hrStart)
   const duration = Math.round(seconds * 1000 + nanoseconds / 1e6)
-  const agentProfile = getAgentProfile()
 
   return {
     command: options.command,
@@ -116,7 +115,7 @@ export function buildTelemetryEvent(options: {
     runtimeVersion: runtime.version.split('.')[0] as string,
     platform: os.platform(),
     ci: isCIEnvironment(),
-    agent: agentProfile.isAgent ? agentProfile.name : undefined,
+    agent: getAgentName(),
     plugins: options.plugins ?? [],
     duration,
     filesCreated: options.filesCreated ?? 0,

@@ -1,7 +1,7 @@
-import { pluginId as dryRunId } from '@gunshi/plugin-dryrun'
-import type { DryRunExtension } from '@gunshi/plugin-dryrun'
 import { defineWithTypes } from 'gunshi'
 import type { ReporterName } from '@kubb/core'
+import { dryRunId } from '../gunshiDryRun.ts'
+import type { DryRunExtensions } from '../gunshiDryRun.ts'
 
 const REPORTER_NAMES: Array<ReporterName> = ['cli', 'json', 'file']
 
@@ -32,11 +32,7 @@ function resolveLogLevel({ verbose, silent, logLevel }: { verbose: boolean; sile
   return logLevel
 }
 
-export const command = defineWithTypes<{
-  extensions: {
-    [dryRunId]: DryRunExtension
-  }
-}>()({
+export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
   name: 'generate',
   description:
     'Generate TypeScript types, API clients, React Query hooks, Zod schemas, and more from an OpenAPI specification. Reads kubb.config.ts by default. Pass an OpenAPI file path as the first argument to override the input without editing the config.',

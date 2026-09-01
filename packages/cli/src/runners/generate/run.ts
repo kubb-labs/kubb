@@ -137,6 +137,8 @@ async function generate(options: GenerateProps): Promise<boolean> {
   // The formatter, linter, and post-generate commands run after a successful build. Collect their
   // failures as coded diagnostics so they reach the summary, the json report, and the exit code.
   const processOutput = async ({ config: resolvedConfig, outputPath }: { config: Config; outputPath: string }): Promise<Array<Diagnostic>> => {
+    if (dryRun) return []
+
     const outputDiagnostics: Array<Diagnostic> = []
     const reportOutputFailure = async (code: ProblemDiagnostic['code'], label: string, error: Error) => {
       const diagnostic = outputDiagnostic(code, label, error)
@@ -176,7 +178,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
     ]
 
     for (const pass of toolPasses) {
-      if (!pass.value || dryRun) continue
+      if (!pass.value) continue
       const error = await runToolPass({
         toolValue: pass.value,
         tool: pass.tool,
@@ -189,7 +191,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
       if (error) await reportOutputFailure(pass.code, pass.tool.label, error)
     }
 
-    if (resolvedConfig.output.postGenerate?.length && !dryRun) {
+    if (resolvedConfig.output.postGenerate?.length) {
       await hooks.callHook('kubb:hooks:start')
       const hookResults = await runPostGenerate({ commands: resolvedConfig.output.postGenerate, hooks })
       for (const hookResult of hookResults) {
