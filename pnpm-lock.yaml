@@ -387,6 +387,8 @@ importers:
         specifier: ^5.110.1
         version: 5.110.1(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.26)
 
+  tools/claude: {}
+
 packages:
 
   '@antfu/ni@30.5.0':

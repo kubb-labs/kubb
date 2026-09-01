@@ -6,6 +6,7 @@ on:
     paths:
       - '.changeset/**'
       - 'packages/**'
+      - 'tools/claude/**'
       - '.github/workflows/release.yml'
 
 permissions: {}
@@ -51,6 +52,9 @@ jobs:
         uses: kubb-labs/config/.github/actions/release@3f4c08f50e67174c9e0ba09290bc79199f50ddfb # main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Keeps tools/claude/.claude-plugin/plugin.json's version in step with the
+          # @kubb/claude-plugin package.json that Changesets bumps.
+          version-script: pnpm exec changeset version && pnpm run sync:plugin-version
 
       # Canary skips staging on purpose, so it stays automatic on every push.
       - name: Publish canary
