@@ -1,4 +1,5 @@
 import { styleText } from 'node:util'
+import dryrun from '@gunshi/plugin-dryrun'
 import { cli } from 'gunshi'
 import { isDisabled as isTelemetryDisabled } from './Telemetry.ts'
 import { version } from '../package.json'
@@ -45,6 +46,7 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
     },
     fallbackToEntry: true,
     strict: true,
+    plugins: [dryrun()],
     onErrorCommand: async (_ctx, error) => {
       process.exitCode = 1
       console.error(error)

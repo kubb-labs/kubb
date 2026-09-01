@@ -16,6 +16,7 @@ import {
   getInputKind,
   type KubbHooks,
   logLevel as logLevelMap,
+  memoryStorage,
   type ProblemDiagnostic,
   type ReporterName,
 } from '@kubb/core'
@@ -31,6 +32,11 @@ type GenerateProps = {
   config: Config
   hooks: Hookable<KubbHooks>
   logLevel: number
+  /**
+   * When `true`, generates in memory instead of writing to disk, and skips formatting, linting,
+   * and post-generate commands.
+   */
+  dryRun?: boolean
 }
 
 type ToolMap = typeof formatters | typeof linters
@@ -116,7 +122,7 @@ async function runToolPass({ toolValue, tool, outputPath, logLevel, hooks, onSta
 }
 
 async function generate(options: GenerateProps): Promise<boolean> {
-  const { input, hooks, logLevel } = options
+  const { input, hooks, logLevel, dryRun = false } = options
 
   const hrStart = process.hrtime()
   const inputPath = input ?? (typeof options.config.input === 'string' ? options.config.input : undefined)
@@ -124,6 +130,8 @@ async function generate(options: GenerateProps): Promise<boolean> {
   const config: Config = {
     ...options.config,
     input: input ?? options.config.input,
+    // Dry-run never touches disk, regardless of the config's own storage driver.
+    storage: dryRun ? memoryStorage() : options.config.storage,
   }
 
   // The formatter, linter, and post-generate commands run after a successful build. Collect their
@@ -168,7 +176,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
     ]
 
     for (const pass of toolPasses) {
-      if (!pass.value) continue
+      if (!pass.value || dryRun) continue
       const error = await runToolPass({
         toolValue: pass.value,
         tool: pass.tool,
@@ -181,7 +189,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
       if (error) await reportOutputFailure(pass.code, pass.tool.label, error)
     }
 
-    if (resolvedConfig.output.postGenerate?.length) {
+    if (resolvedConfig.output.postGenerate?.length && !dryRun) {
       await hooks.callHook('kubb:hooks:start')
       const hookResults = await runPostGenerate({ commands: resolvedConfig.output.postGenerate, hooks })
       for (const hookResult of hookResults) {
@@ -200,6 +208,10 @@ async function generate(options: GenerateProps): Promise<boolean> {
 
   const kubb = createKubb(config, { hooks })
   const result = await kubb.generate({ processOutput })
+
+  if (dryRun) {
+    await hooks.callHook('kubb:info', { message: 'Dry run: no files were written', info: `${result.files.length} file(s) would be generated` })
+  }
 
   const telemetryPlugins = Array.from(kubb.driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> }))
   await sendTelemetry(
@@ -237,6 +249,7 @@ type GenerateCommandOptions = {
   logLevel: string
   watch: boolean
   reporters?: Array<ReporterName>
+  dryRun?: boolean
 }
 
 async function checkForUpdate(hooks: Hookable<KubbHooks>): Promise<void> {
@@ -256,7 +269,7 @@ async function checkForUpdate(hooks: Hookable<KubbHooks>): Promise<void> {
  * Loads configs, sets up the reporters (CLI `--reporter` picks which of `config.reporters` to trigger),
  * checks for a newer version, and calls `generate` for each config entry.
  */
-export async function run({ input, configPath, logLevel: logLevelKey, watch, reporters: cliReporters }: GenerateCommandOptions): Promise<void> {
+export async function run({ input, configPath, logLevel: logLevelKey, watch, reporters: cliReporters, dryRun }: GenerateCommandOptions): Promise<void> {
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new Hookable<KubbHooks>()
 
@@ -306,7 +319,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async (paths: Array<string>) => {
-          await generate({ input, config, logLevel, hooks })
+          await generate({ input, config, logLevel, hooks, dryRun })
           clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
         }
 
@@ -321,7 +334,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         await startWatcher(watchedPaths, build, { info: (msg) => clack.log.info(msg), error: (msg) => clack.log.error(msg) })
       } else {
         try {
-          const succeeded = await generate({ input, config, logLevel, hooks })
+          const succeeded = await generate({ input, config, logLevel, hooks, dryRun })
           if (!succeeded) anyFailed = true
         } catch (configError) {
           await hooks.callHook('kubb:error', { error: toError(configError) })

@@ -144,6 +144,9 @@ importers:
       '@clack/prompts':
         specifier: ^1.7.0
         version: 1.7.0
+      '@gunshi/plugin-dryrun':
+        specifier: ^0.37.1
+        version: 0.37.1
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -800,6 +803,14 @@ packages:
 
   '@farmfe/utils@0.1.0':
     resolution: {integrity: sha512-neNJQGqV7XL4XifG1uHOBFSFLy2yx1/DVZNRA7nfeEAXEksVZTwWA+fZrYEaI0w7Sw6K/9NYn9Jgpn+NAT0mcg==}
+
+  '@gunshi/plugin-dryrun@0.37.1':
+    resolution: {integrity: sha512-9Up4UJdO2/zP8pjvDv4JHgJaT1lLCxqE6rUdOeurfSlKZzrbhEyTdX+s4G5akAAFhO41E4q51PfsFf3a0WV9YA==}
+    engines: {node: '>= 22'}
+
+  '@gunshi/plugin@0.37.1':
+    resolution: {integrity: sha512-ljjBaL15jCwX6tEtWRdmAQ/y/svGcMZa5mVhMPgXFeQFQ++srK/x5dx8uchQFrE2MTqaFhMMjNK9AQowCyRv9A==}
+    engines: {node: '>= 22'}
 
   '@henrygd/queue@1.2.0':
     resolution: {integrity: sha512-jW/BLSTpcvExDhqJGxtIPgGr2O0IFF8XUNDwEbfCfhrXT8a4xztQ9Lv6U/vbYzYC0xVWn+3zv6YnLUh3bEFUKA==}
@@ -4332,6 +4343,12 @@ snapshots:
   '@farmfe/utils@0.0.1': {}
 
   '@farmfe/utils@0.1.0': {}
+
+  '@gunshi/plugin-dryrun@0.37.1':
+    dependencies:
+      '@gunshi/plugin': 0.37.1
+
+  '@gunshi/plugin@0.37.1': {}
 
   '@henrygd/queue@1.2.0': {}
 
