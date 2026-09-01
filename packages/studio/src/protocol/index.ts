@@ -15,18 +15,15 @@ import type { Config } from '@kubb/core'
  */
 export type JSONKubbConfig = {
   /**
-   * Enabled plugins with their serialized options. `name` is the package name (e.g. `@kubb/plugin-ts`)
-   * and `options` is an opaque blob the agent forwards unchanged to the plugin factory.
+   * Plugins with their serialized options. `name` is the package name (e.g. `@kubb/plugin-ts`)
+   * and `options` is an opaque blob the agent forwards unchanged to the plugin factory. An entry
+   * with `disabled: true` is dropped even when the disk config's `plugins` array still lists it.
    */
   plugins?: Array<{
     name: string
     options?: object
+    disabled?: boolean
   }>
-  /**
-   * Package names of plugins Studio explicitly turned off. Takes priority over the disk
-   * config's `plugins` array, so a plugin listed here is dropped even when present on disk.
-   */
-  disabledPlugins?: Array<string>
   /**
    * Raw OpenAPI / Swagger spec content (YAML or JSON string).
    * Always honored for a 'sandbox' agent. For a non-sandbox agent it is honored only when the

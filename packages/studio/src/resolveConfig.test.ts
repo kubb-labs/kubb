@@ -108,11 +108,12 @@ describe('mergePlugins', () => {
     })
   })
 
-  describe('disabledPlugins', () => {
+  describe('disabled plugin entries', () => {
     it('drops a disk plugin that studio explicitly disabled', async () => {
       const diskPlugins = [makePlugin('plugin-zod', { validate: true }), makePlugin('plugin-ts', { enumType: 'asConst' })]
+      const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-ts', disabled: true }]
 
-      const result = await mergePlugins(diskPlugins, undefined, ['@kubb/plugin-ts'])
+      const result = await mergePlugins(diskPlugins, studioPlugins)
 
       expect(result).toHaveLength(1)
       expect(result?.[0]?.name).toBe('plugin-zod')
@@ -120,27 +121,31 @@ describe('mergePlugins', () => {
 
     it('drops a disabled disk plugin even when studio also sends other plugin overrides', async () => {
       const diskPlugins = [makePlugin('plugin-zod', { validate: true }), makePlugin('plugin-ts', { enumType: 'asConst' })]
-      const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-zod', options: { validate: false } }]
+      const studioPlugins: JSONKubbConfig['plugins'] = [
+        { name: '@kubb/plugin-zod', options: { validate: false } },
+        { name: '@kubb/plugin-ts', disabled: true },
+      ]
 
-      const result = await mergePlugins(diskPlugins, studioPlugins, ['@kubb/plugin-ts'])
+      const result = await mergePlugins(diskPlugins, studioPlugins)
 
       expect(result).toHaveLength(1)
       expect(result?.[0]?.name).toBe('plugin-zod')
       expect(result?.[0]?.options).toMatchObject({ validate: false })
     })
 
-    it('returns an empty array when disabling removes the only disk plugin and studio sends nothing', async () => {
+    it('returns an empty array when disabling removes the only disk plugin and studio sends nothing else', async () => {
       const diskPlugins = [makePlugin('plugin-ts', { enumType: 'asConst' })]
+      const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-ts', disabled: true }]
 
-      const result = await mergePlugins(diskPlugins, undefined, ['@kubb/plugin-ts'])
+      const result = await mergePlugins(diskPlugins, studioPlugins)
 
       expect(result).toEqual([])
     })
 
-    it('is a no-op when disabledPlugins is empty', async () => {
+    it('is a no-op when studio disables nothing', async () => {
       const diskPlugins = [makePlugin('plugin-zod', { validate: true })]
 
-      const result = await mergePlugins(diskPlugins, undefined, [])
+      const result = await mergePlugins(diskPlugins, [])
 
       expect(result).toBe(diskPlugins)
     })

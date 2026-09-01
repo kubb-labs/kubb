@@ -21,11 +21,8 @@ const options: StudioOptions = {
   action: 'connect',
   version: '0.0.0',
   studioUrl: 'http://localhost:3000',
-  allowWrite: false,
-  allowConfigEdit: false,
-  allowInput: false,
-  allowExec: false,
-  open: false,
+  permission: { allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false },
+  autoOpen: false,
 }
 
 const credentials: Credentials = { studioUrl: options.studioUrl, token: 'token', agentId: 'id', agentSlug: 'slug' }
@@ -81,7 +78,10 @@ describe('resolvePermissions', () => {
     const remembered = { allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false }
     const stored: Credentials = { ...credentials, projects: { [process.cwd()]: remembered } }
 
-    await expect(resolvePermissions({ ...options, allowExec: true }, stored)).resolves.toEqual({ ...remembered, allowExec: true })
+    await expect(resolvePermissions({ ...options, permission: { ...options.permission, allowExec: true } }, stored)).resolves.toEqual({
+      ...remembered,
+      allowExec: true,
+    })
     expect(confirm).not.toHaveBeenCalled()
     expect(writeCredentials).not.toHaveBeenCalled()
   })
@@ -89,7 +89,7 @@ describe('resolvePermissions', () => {
   it('still asks for the other three when one permission is granted by flag', async () => {
     confirm.mockResolvedValue(false)
 
-    await resolvePermissions({ ...options, allowConfigEdit: true }, credentials)
+    await resolvePermissions({ ...options, permission: { ...options.permission, allowConfigEdit: true } }, credentials)
 
     expect(confirm).toHaveBeenCalledTimes(3)
     expect(confirm.mock.calls.some(([call]) => call?.message?.includes('plugin options'))).toBe(false)

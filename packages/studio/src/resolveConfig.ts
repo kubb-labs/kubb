@@ -201,20 +201,20 @@ export function assertAllowedPlugins(studioPlugins: JSONKubbConfig['plugins'] | 
 export async function mergePlugins(
   diskPlugins: Array<Plugin> | undefined,
   studioPlugins: JSONKubbConfig['plugins'] | undefined,
-  disabledPlugins?: JSONKubbConfig['disabledPlugins'],
 ): Promise<Array<Plugin> | undefined> {
-  const disabledNames = new Set((disabledPlugins ?? []).map(toPluginName))
-  const activeDiskPlugins = disabledNames.size ? diskPlugins?.filter((plugin) => !disabledNames.has(plugin.name)) : diskPlugins
-
-  if (!activeDiskPlugins && !studioPlugins) return undefined
-  if (!studioPlugins) return activeDiskPlugins
-
-  if (!activeDiskPlugins) return resolvePlugins(studioPlugins)
-
   // Matched on the package's base name rather than by instantiating first. Every Kubb plugin
   // factory returns exactly that (`@kubb/plugin-ts` → `plugin-ts`), enforced by the `satisfies` on
-  // each factory's name, and the line above already trusts it for `disabledPlugins`.
-  const studioEntryByName = new Map(studioPlugins.map((entry) => [toPluginName(entry.name), entry] as const))
+  // each factory's name.
+  const disabledNames = new Set((studioPlugins ?? []).filter((entry) => entry.disabled).map((entry) => toPluginName(entry.name)))
+  const activeDiskPlugins = disabledNames.size ? diskPlugins?.filter((plugin) => !disabledNames.has(plugin.name)) : diskPlugins
+  const activeStudioPlugins = studioPlugins?.filter((entry) => !entry.disabled)
+
+  if (!activeDiskPlugins && !activeStudioPlugins?.length) return undefined
+  if (!activeStudioPlugins?.length) return activeDiskPlugins
+
+  if (!activeDiskPlugins) return resolvePlugins(activeStudioPlugins)
+
+  const studioEntryByName = new Map(activeStudioPlugins.map((entry) => [toPluginName(entry.name), entry] as const))
   const diskNames = new Set(activeDiskPlugins.map((plugin) => plugin.name))
 
   // Each plugin is instantiated once, with its final options. Resolving the whole payload first
@@ -234,7 +234,7 @@ export async function mergePlugins(
     }),
   )
 
-  const studioOnly = studioPlugins.filter((entry) => !diskNames.has(toPluginName(entry.name)))
+  const studioOnly = activeStudioPlugins.filter((entry) => !diskNames.has(toPluginName(entry.name)))
 
   return [...merged, ...(await resolvePlugins(studioOnly))]
 }

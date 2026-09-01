@@ -362,7 +362,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               const patch = data.payload
               assertAllowedPlugins(patch?.plugins, allowedPlugins)
 
-              const plugins = await mergePlugins(config.plugins, patch?.plugins, patch?.disabledPlugins)
+              const plugins = await mergePlugins(config.plugins, patch?.plugins)
               const adapter = await mergeAdapter(config.adapter, patch?.adapter)
 
               // A sandbox agent always uses the inline spec (empty string included, since it has no disk

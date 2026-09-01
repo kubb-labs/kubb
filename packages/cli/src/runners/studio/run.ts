@@ -20,6 +20,8 @@ const ACTIONS = ['connect', 'login', 'logout', 'status'] as const
 
 export type StudioAction = (typeof ACTIONS)[number]
 
+type Permission = 'allowWrite' | 'allowConfigEdit' | 'allowInput' | 'allowExec'
+
 export type StudioOptions = {
   action: StudioAction
   /**
@@ -32,17 +34,15 @@ export type StudioOptions = {
    * since stored credentials are bound to it.
    */
   studioUrl: string
-  allowWrite: boolean
   /**
-   * Whether Studio may change plugin options in the project's `kubb.config.ts`.
+   * What Studio may do in this project. Each flag grants outright; the rest are asked once per
+   * project through {@link resolvePermissions}.
    */
-  allowConfigEdit: boolean
-  allowInput: boolean
-  allowExec: boolean
+  permission: Record<Permission, boolean>
   /**
    * Whether to open the approval page in a browser during pairing.
    */
-  open: boolean
+  autoOpen: boolean
   logLevel?: CLIOptions['logLevel']
 }
 
@@ -65,12 +65,12 @@ async function openInBrowser(url: string): Promise<void> {
  * the UI. The token comes back over the CLI's own HTTPS POST, so it never lands in a URL, a
  * server log, or a `Referer` header.
  */
-async function login({ studioUrl, open }: StudioOptions): Promise<Credentials> {
+async function login({ studioUrl, autoOpen }: StudioOptions): Promise<Credentials> {
   const session = await startPairing({ studioUrl, name: path.basename(process.cwd()), hostname: hostname() })
 
   console.log(`\nOpen ${styleText('cyan', session.verification_uri)} and approve the code ${styleText('bold', session.user_code)}`)
 
-  if (open) {
+  if (autoOpen) {
     await openInBrowser(session.verification_uri_complete)
   }
 
@@ -92,8 +92,6 @@ async function login({ studioUrl, open }: StudioOptions): Promise<Credentials> {
     throw error
   }
 }
-
-type Permission = 'allowWrite' | 'allowConfigEdit' | 'allowInput' | 'allowExec'
 
 /**
  * What each permission is asked as, in the order the questions appear.
@@ -152,8 +150,8 @@ export async function resolvePermissions(
   const answers: Partial<Record<Permission, boolean>> = {}
 
   for (const { key, question } of PERMISSIONS) {
-    if (options[key] || typeof remembered?.[key] === 'boolean') {
-      granted[key] = options[key] || remembered?.[key] === true
+    if (options.permission[key] || typeof remembered?.[key] === 'boolean') {
+      granted[key] = options.permission[key] || remembered?.[key] === true
       continue
     }
 
@@ -201,21 +199,26 @@ async function loadConfigs(options: StudioOptions): Promise<{ configPath: string
 async function connect(options: StudioOptions, retryPairing = true): Promise<void> {
   const envToken = process.env.KUBB_AGENT_TOKEN
   const stored = envToken ? null : await readCredentials()
-  // A credential is only reused for the Studio it was issued by, so switching `--url` re-pairs
-  // instead of sending one instance's token to another.
-  let credentials: Credentials | null = envToken
-    ? { studioUrl: options.studioUrl, token: envToken, agentId: '', agentSlug: '' }
-    : stored?.studioUrl === options.studioUrl
-      ? stored
-      : null
 
-  if (!credentials) {
+  const credentials: Credentials = await (async () => {
+    // A credential is only reused for the Studio it was issued by, so switching `--url` re-pairs
+    // instead of sending one instance's token to another.
+    const resolved = envToken
+      ? { studioUrl: options.studioUrl, token: envToken, agentId: '', agentSlug: '' }
+      : stored?.studioUrl === options.studioUrl
+        ? stored
+        : null
+
+    if (resolved) {
+      return resolved
+    }
+
     if (isCIEnvironment()) {
       throw new Error(`Not paired with ${options.studioUrl}. Set KUBB_AGENT_TOKEN, or run \`kubb studio login\` on a machine with a browser.`)
     }
 
-    credentials = await login(options)
-  }
+    return login(options)
+  })()
 
   const { configPath, configs } = await loadConfigs(options)
   const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, credentials, configPath)
@@ -376,11 +379,13 @@ export const runner: CommandRunner<{ args: typeof definition.args; extensions: {
     version,
     configPath: values.config,
     studioUrl: values.url ?? defaultStudioUrl,
-    allowWrite: values.allowWrite,
-    allowConfigEdit: values.allowConfigEdit,
-    allowInput: values.allowInput,
-    allowExec: values.allowExec,
-    open: values.open,
+    permission: {
+      allowWrite: values.allowWrite,
+      allowConfigEdit: values.allowConfigEdit,
+      allowInput: values.allowInput,
+      allowExec: values.allowExec,
+    },
+    autoOpen: values.open,
     logLevel: values.logLevel,
   })
 }

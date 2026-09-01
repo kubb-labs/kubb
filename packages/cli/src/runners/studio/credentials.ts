@@ -1,7 +1,8 @@
-import { chmod, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { chmod, mkdir } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
+import { clean, read, write } from '@internals/utils'
 
 /**
  * Root for everything the CLI persists between runs: the paired credential, the machine secret,
@@ -37,7 +38,7 @@ export type Credentials = {
  * overwrite it rather than the CLI dying on it.
  */
 export async function readCredentials(): Promise<Credentials | null> {
-  const raw = await readFile(credentialsPath(), 'utf8').catch(() => null)
+  const raw = await read(credentialsPath()).catch(() => null)
   if (!raw) {
     return null
   }
@@ -57,9 +58,9 @@ export async function writeCredentials(credentials: Credentials): Promise<void> 
   const file = credentialsPath()
 
   await mkdir(path.dirname(file), { recursive: true, mode: 0o700 })
-  await writeFile(file, `${JSON.stringify(credentials, null, 2)}\n`)
-  // Not `writeFile`'s `mode`, which only applies when the file is created: an existing credential
-  // file keeps whatever mode it had.
+  await write(file, JSON.stringify(credentials, null, 2))
+  // Not `write`'s own permissions, which only apply when the file is created: an existing
+  // credential file keeps whatever mode it had.
   await chmod(file, 0o600)
 }
 
@@ -67,5 +68,5 @@ export async function writeCredentials(credentials: Credentials): Promise<void> 
  * Forgets the stored credential. Succeeds when there was nothing to forget.
  */
 export async function clearCredentials(): Promise<void> {
-  await rm(credentialsPath(), { force: true })
+  await clean(credentialsPath())
 }
