@@ -1,5 +1,13 @@
 # Changelog
 
+## v5.0.5 — Aug 31, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- [`2869e6d`](https://github.com/kubb-labs/kubb/commit/2869e6d390265835436e9bd5702852f7c8bb8209) - Avoids duplicate filesystem reads during generated file writes and uses native Node.js promise timers in asynchronous tests. ([`2869e6d`](https://github.com/kubb-labs/kubb/commit/2869e6d390265835436e9bd5702852f7c8bb8209))
+
 ## v5.0.4 — Aug 28, 2026
 
 ### unplugin-kubb
