@@ -1,6 +1,10 @@
+import * as internalsUtils from '@internals/utils'
 import { Hookable, cliReporter, type Config, fileReporter, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import setupReporters, { installReporter } from './utils.ts'
+
+const { getAgentProfile } = vi.hoisted(() => ({ getAgentProfile: vi.fn((): { isAgent: boolean; name?: string } => ({ isAgent: false })) }))
+vi.mock('gunshi/agent', () => ({ getAgentProfile }))
 
 describe('jsonReporter', () => {
   it('writes one JSON array for every config on lifecycle end', async () => {
@@ -101,5 +105,26 @@ describe('setupReporters', () => {
     await setupReporters(context, { logLevel: logLevel.info, reporters: [fileReporter] })
 
     expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
+  })
+
+  it('installs the plain logger instead of the interactive one when an AI agent is detected', async () => {
+    using _tty = vi.spyOn(internalsUtils, 'canUseTTY').mockReturnValue(true)
+    getAgentProfile.mockReturnValue({ isAgent: true, name: 'claude' })
+    const context = new Hookable<KubbHooks>()
+
+    await setupReporters(context, { logLevel: logLevel.info, reporters: [cliReporter] })
+
+    // Only the clack logger streams hook output through `kubb:hook:line`.
+    expect(context.listenerCount('kubb:hook:line')).toBe(0)
+  })
+
+  it('installs the interactive logger when no AI agent is detected and a TTY is available', async () => {
+    using _tty = vi.spyOn(internalsUtils, 'canUseTTY').mockReturnValue(true)
+    getAgentProfile.mockReturnValue({ isAgent: false })
+    const context = new Hookable<KubbHooks>()
+
+    await setupReporters(context, { logLevel: logLevel.info, reporters: [cliReporter] })
+
+    expect(context.listenerCount('kubb:hook:line')).toBeGreaterThan(0)
   })
 })
