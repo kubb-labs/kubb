@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
 import { isCIEnvironment, runtime } from '@internals/utils'
+import { getAgentName } from './agent.ts'
 import { OTLP_ENDPOINT } from './constants.ts'
 
 type OtlpKeyValue = {
@@ -69,6 +70,11 @@ export type TelemetryEvent = {
   runtimeVersion: string
   platform: string
   ci: boolean
+  /**
+   * Name of the detected AI coding agent (e.g. `'claude'`, `'cursor'`), when the CLI is invoked
+   * by one. `undefined` when run by a human or an unrecognized caller.
+   */
+  agent?: string
   plugins: Array<TelemetryPlugin>
   duration: number
   filesCreated: number
@@ -109,6 +115,7 @@ export function buildTelemetryEvent(options: {
     runtimeVersion: runtime.version.split('.')[0] as string,
     platform: os.platform(),
     ci: isCIEnvironment(),
+    agent: getAgentName(),
     plugins: options.plugins ?? [],
     duration,
     filesCreated: options.filesCreated ?? 0,
@@ -135,6 +142,7 @@ export function buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceR
     { key: 'kubb.runtime_version', value: { stringValue: event.runtimeVersion } },
     { key: 'kubb.platform', value: { stringValue: event.platform } },
     { key: 'kubb.ci', value: { boolValue: event.ci } },
+    ...(event.agent ? [{ key: 'kubb.agent', value: { stringValue: event.agent } }] : []),
     { key: 'kubb.files_created', value: { intValue: event.filesCreated } },
     { key: 'kubb.status', value: { stringValue: event.status } },
     {

@@ -1,5 +1,7 @@
-import { define } from 'gunshi'
+import { defineWithTypes } from 'gunshi'
 import type { ReporterName } from '@kubb/core'
+import { dryRunId } from '../gunshiDryRun.ts'
+import type { DryRunExtensions } from '../gunshiDryRun.ts'
 
 const REPORTER_NAMES: Array<ReporterName> = ['cli', 'json', 'file']
 
@@ -30,11 +32,13 @@ function resolveLogLevel({ verbose, silent, logLevel }: { verbose: boolean; sile
   return logLevel
 }
 
-export const command = define({
+export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
   name: 'generate',
   description:
     'Generate TypeScript types, API clients, React Query hooks, Zod schemas, and more from an OpenAPI specification. Reads kubb.config.ts by default. Pass an OpenAPI file path as the first argument to override the input without editing the config.',
-  examples: ['kubb generate', 'kubb generate ./openapi.yaml', 'kubb generate --config kubb.config.ts', 'kubb generate --watch'].join('\n'),
+  examples: ['kubb generate', 'kubb generate ./openapi.yaml', 'kubb generate --config kubb.config.ts', 'kubb generate --watch', 'kubb generate --dryRun'].join(
+    '\n',
+  ),
   args: {
     input: {
       type: 'positional',
@@ -77,7 +81,8 @@ export const command = define({
       parse: parseReporters,
     },
   },
-  async run({ values }) {
+  async run(ctx) {
+    const { values } = ctx
     const logLevel = resolveLogLevel(values)
     const { run } = await import('../runners/generate/run.ts')
 
@@ -87,6 +92,7 @@ export const command = define({
       logLevel,
       watch: values.watch,
       reporters: values.reporter,
+      dryRun: ctx.extensions[dryRunId].enabled,
     })
   },
 })

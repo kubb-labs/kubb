@@ -3,6 +3,7 @@ import { styleText } from 'node:util'
 import { canUseTTY, formatMs, getElapsedMs, toCause } from '@internals/utils'
 import type { Config, Reporter, ReporterContext } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
+import { getAgentName } from '../agent.ts'
 import type { LoggerContext, LoggerOptions } from './defineLogger.ts'
 import { clackLogger } from './clackLogger.ts'
 import { plainLogger } from './plainLogger.ts'
@@ -233,7 +234,8 @@ async function setupReporters(context: LoggerContext, { logLevel, reporters }: L
       if (hasJson) {
         continue
       }
-      const logger = canUseTTY() ? clackLogger : plainLogger
+      // Spinners and cursor-movement escapes are hard for an AI coding agent to parse, even over a pseudo-TTY.
+      const logger = canUseTTY() && !getAgentName() ? clackLogger : plainLogger
       await logger.install(context, { logLevel })
     }
 
