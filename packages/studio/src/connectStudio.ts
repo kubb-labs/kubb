@@ -247,6 +247,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     const onOpen = () => {
       lastPongAt = Date.now()
+      console.log()
       console.log(styleText('green', `[${tag}] Connected to Kubb Studio`))
 
       // Announce readiness without waiting for a `connect` command. The command from the
@@ -342,6 +343,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         }
 
         if (isCommandMessage(data)) {
+          console.log()
           console.info(styleText('dim', `[${tag}] Received ${data.command} from Studio`))
 
           if (data.command === 'generate') {

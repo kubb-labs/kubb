@@ -277,6 +277,7 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
   }
 
   if (options.logLevel !== 'silent') {
+    console.log()
     console.log(styleText('dim', 'Connected. Press Ctrl+C to disconnect.'))
   }
 
@@ -344,6 +345,7 @@ async function run(options: StudioOptions): Promise<void> {
   try {
     if (options.logLevel !== 'silent') {
       console.warn(styleText('yellow', 'This feature is still under development, use with caution'))
+      console.log()
     }
 
     if (!ACTIONS.includes(options.action)) {
