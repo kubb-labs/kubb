@@ -3,6 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
+import type { DryRunExtension } from '@gunshi/plugin-dryrun'
 import {
   availablePlugins,
   generateConfigFile,
@@ -42,6 +43,11 @@ type InitOptions = {
    * Comma-separated plugin list from `--plugins`, e.g. `'plugin-ts,plugin-zod'`. When provided, skips the plugin selection prompt.
    */
   plugins?: string
+  /**
+   * Dry-run extension from `@gunshi/plugin-dryrun`. When enabled, package installation and the
+   * config file write are skipped.
+   */
+  dryRun: DryRunExtension
 }
 
 /**
@@ -49,7 +55,7 @@ type InitOptions = {
  * Detects the package manager, prompts for input/output paths and plugins, installs packages, and writes `kubb.config.ts`.
  * Pass `yes: true` to skip all prompts and use defaults.
  */
-export async function run({ yes, version, input: inputFlag, output: outputFlag, plugins: pluginsFlag }: InitOptions): Promise<void> {
+export async function run({ yes, version, input: inputFlag, output: outputFlag, plugins: pluginsFlag, dryRun }: InitOptions): Promise<void> {
   const cwd = process.cwd()
 
   clack.intro(styleText('bgCyan', styleText('black', ' Kubb Init ')))
@@ -157,7 +163,9 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     spinner.start(`Installing ${packagesToInstall.length} packages with ${packageManager.name}`)
 
     try {
-      await installPackages(packagesToInstall, packageManager, cwd)
+      await dryRun.run(() => installPackages(packagesToInstall, packageManager, cwd), {
+        message: `install ${packagesToInstall.length} packages with ${packageManager.name}`,
+      })
       spinner.stop(`Installed ${packagesToInstall.length} packages`)
     } catch (error) {
       spinner.stop('Installation failed')
@@ -188,7 +196,7 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
       configSpinner.start(`Overwriting ${KUBB_CONFIG_FILENAME}`)
     }
 
-    await fs.promises.writeFile(configPath, configContent, 'utf-8')
+    await dryRun.run(() => fs.promises.writeFile(configPath, configContent, 'utf-8'), { message: `write ${KUBB_CONFIG_FILENAME}` })
 
     configSpinner.stop(`Created ${KUBB_CONFIG_FILENAME}`)
 
