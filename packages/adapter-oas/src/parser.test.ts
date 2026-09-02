@@ -3791,6 +3791,29 @@ describe('parser options', () => {
         expect(node.type).toBe('string')
       })
     })
+
+    describe('object form', () => {
+      it('represents date-time as Date while date and time stay strings', () => {
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
+        const dateTimeNode = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: { dateTime: 'date' } })
+        const dateNode = parseSchema(ctx, { schema: { type: 'string', format: 'date' } }, { dateType: { dateTime: 'date' } })
+        const timeNode = parseSchema(ctx, { schema: { type: 'string', format: 'time' } }, { dateType: { dateTime: 'date' } })
+
+        expect(dateTimeNode.type).toBe('date')
+        expect(ast.narrowSchema(dateTimeNode, 'date')?.representation).toBe('date')
+        expect(dateNode.type).toBe('date')
+        expect(ast.narrowSchema(dateNode, 'date')?.representation).toBe('string')
+        expect(timeNode.type).toBe('time')
+        expect(ast.narrowSchema(timeNode, 'time')?.representation).toBe('string')
+      })
+
+      it('falls through to string when a format is set to false in the object form', () => {
+        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
+        const node = parseSchema(ctx, { schema: { type: 'string', format: 'date' } }, { dateType: { date: false, dateTime: 'date' } })
+
+        expect(node.type).toBe('string')
+      })
+    })
   })
 })
 
