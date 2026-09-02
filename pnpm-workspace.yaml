@@ -1,6 +1,7 @@
 packages:
   - packages/*
   - internals/*
+  - tools/*
 allowBuilds:
   "@parcel/watcher": true
   core-js: true

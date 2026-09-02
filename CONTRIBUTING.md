@@ -124,6 +124,12 @@ pnpm changeset
 
 Pick the packages you changed, choose the bump (patch for fixes, minor for features, major for breaking changes), and write a short summary aimed at users. Commit the generated file under `.changeset/`. Docs-only or internal changes that touch no published package do not need one.
 
+The Claude Code plugin under `tools/claude/` (commands, agents, skills, hooks) is versioned the
+same way as `"@kubb/claude-plugin"`, a private workspace package that sits in the same `fixed`
+group as every other `@kubb/*` package. Add a changeset when you change its content; release
+syncs the bumped version into `tools/claude/.claude-plugin/plugin.json` automatically, so never
+edit that file's `version` field by hand.
+
 ## Releasing
 
 Maintainers only, once a changeset merges. Merging a changeset queues or updates the automatic "Version Packages" PR. Merging that PR runs the release job, which stages every changed package with `pnpm stage publish` (npm's staged publishing). Nothing is installable until a maintainer approves it.
