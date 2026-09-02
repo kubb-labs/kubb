@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "5.0.5",
+  "version": "5.0.6",
   "description": "Official CLI for Kubb. Run kubb generate, kubb init, kubb validate, kubb studio, and kubb mcp to manage the full code generation lifecycle.",
   "keywords": [
     "cli",
@@ -66,6 +66,7 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.7.0",
+    "@gunshi/plugin-dryrun": "^0.37.1",
     "@kubb/core": "workspace:*",
     "chokidar": "^5.0.0",
     "gunshi": "^0.37.1",
