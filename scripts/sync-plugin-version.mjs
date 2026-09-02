@@ -1,9 +1,10 @@
 import { readFileSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
-const packageJsonPath = `${root}tools/claude/package.json`
-const pluginJsonPath = `${root}tools/claude/.claude-plugin/plugin.json`
+const packageJsonPath = join(root, 'tools/claude/package.json')
+const pluginJsonPath = join(root, 'tools/claude/.claude-plugin/plugin.json')
 
 const { version } = JSON.parse(readFileSync(packageJsonPath, 'utf-8'))
 const pluginJsonText = readFileSync(pluginJsonPath, 'utf-8')
