@@ -135,24 +135,16 @@ export function formatPermissionSummary(granted: Record<Permission, boolean>): s
 }
 
 /**
- * Resolves every permission for this project.
- *
- * A `--allow*` flag grants that one outright. The rest are asked once per project and the answers
- * are remembered, and in CI they stay off, since there is nobody to ask.
- *
- * ponytail: asks at connect rather than at the first write or exec, so the permissions are fixed
- * for the session and never have to change mid-connection. Move them to first use if the up-front
- * questions turn out to annoy people who only ever preview.
+ * Resolves Studio permissions for the current project.
+ * Flags win, saved answers are reused, and new answers are stored unless `persist` is false.
  */
 export async function resolvePermissions(
   options: StudioOptions,
   credentials: Credentials,
   configPath: string = KUBB_CONFIG_FILENAME,
   /**
-   * Whether an answer may be written to `~/.kubb/credentials.json`. `connect` passes `false` for a
-   * `KUBB_AGENT_TOKEN` session, where `credentials` is a throwaway object built around the env
-   * token, not the real stored pairing. Persisting it would write that token to disk and overwrite
-   * the real agent identity with an empty one.
+   * Stores new answers in `~/.kubb/credentials.json`.
+   * Pass `false` for `KUBB_AGENT_TOKEN` sessions so a temporary token is not written back to disk.
    */
   persist = true,
 ): Promise<Record<Permission, boolean>> {
@@ -176,8 +168,6 @@ export async function resolvePermissions(
     answers[key] = granted[key]
   }
 
-  // Only the answers are stored: a flag grants for one run, so persisting it would silently keep
-  // the permission on every later run without the flag.
   if (persist && Object.keys(answers).length) {
     await writeCredentials({
       ...credentials,
@@ -189,10 +179,8 @@ export async function resolvePermissions(
 }
 
 /**
- * Resolves the project's Kubb config the same way `kubb generate` does, and returns its first
- * entry alongside every entry the file defines. Studio generates from the first entry only, but
- * edits the file through the whole array, so callers that bound what Studio may import need every
- * entry's plugins, not just the one it generates from.
+ * Loads the project's Kubb config the same way `kubb generate` does.
+ * Returns the first config and the full config array.
  */
 async function loadConfigs(options: StudioOptions): Promise<{ configPath: string; config: Config; configs: Array<Config> }> {
   const { configPath, configs } = await getConfigs({ configPath: options.configPath, logLevel: options.logLevel })
@@ -305,7 +293,7 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
 }
 
 /**
- * Reports what this machine is paired as and which permissions were saved for this project.
+ * Reports the paired agent and any saved permissions for the current project.
  */
 async function status(options: StudioOptions): Promise<void> {
   const credentials = await readCredentials()

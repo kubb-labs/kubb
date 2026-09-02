@@ -13,9 +13,8 @@ vi.mock('./credentials.ts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./credentials.ts')>()),
   writeCredentials: vi.fn().mockResolvedValue(undefined),
 }))
-
-const { writeCredentials } = await import('./credentials.ts')
 const confirm = vi.mocked(prompts.confirm)
+const { writeCredentials } = await import('./credentials.ts')
 
 const options: StudioOptions = {
   action: 'connect',
