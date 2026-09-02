@@ -46,8 +46,6 @@ describe('detectTool', () => {
   })
 })
 
-// The tables are data, so what is worth locking is that every candidate the preference orders name
-// has a descriptor — the pairing that silently skips a step when it breaks.
 describe('tool tables', () => {
   it.each([...FORMATTER_PREFERENCE])('has a descriptor for the %s formatter', (name) => {
     expect(formatters[name].command).toBe(name)

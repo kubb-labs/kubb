@@ -284,8 +284,6 @@ export function readConfig(source: string): ConfigFileView {
     return { managed: false, reason: found.reason }
   }
 
-  // Keyed by package rather than by local name, which is the direction the disabled plugins below
-  // look it up in.
   const importNames = new Map([...importedFrom(mod)].map(([local, from]) => [from, local]))
   const disabled = disabledMarkers(source)
 
@@ -638,8 +636,6 @@ export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): Appl
       if ('reason' in result) {
         return { edit, applied: false, reason: result.reason }
       }
-      // Read before `generateCode`, though an `add-plugin` only reflows the plugins array below
-      // the imports, so their lines survive it either way.
       const afterLine = lastImportEndLine(mod)
       let next = generateCode(mod, { format }).code
       if (result.addImport) {
@@ -702,8 +698,6 @@ function insertImportLine({
   const semicolon = lastImportLine?.trimEnd().endsWith(';') ? ';' : ''
   const line = `import { ${importName} } from ${quote}${moduleSpecifier}${quote}${semicolon}`
 
-  // A file with no imports gets a blank line after the one being added, so it does not run into
-  // whatever was on the first line.
   lines.splice(afterLine, 0, ...(afterLine > 0 ? [line] : [line, '']))
 
   return lines.join('\n')

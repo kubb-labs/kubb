@@ -458,7 +458,6 @@ export type AgentConnectResponse = {
  */
 export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ConfigSavedMessage | ErrorMessage | PingMessage | PongMessage | DisconnectMessage
 
-// Helper type guards
 export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
   return msg.type === 'command'
 }
