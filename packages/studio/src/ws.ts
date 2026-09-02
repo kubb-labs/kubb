@@ -1,5 +1,5 @@
-import { getElapsedMs } from '@internals/utils'
-import { Diagnostics, type Hookable, type Storage } from '@kubb/core'
+import { getElapsedMs, inParallel } from '@internals/utils'
+import { Diagnostics, type Hookable } from '@kubb/core'
 import WebSocket from 'ws'
 import type { AgentMessage, DataMessagePayload } from './protocol/index.ts'
 import type { AgentHooks } from './hooks.ts'
@@ -12,26 +12,6 @@ type WebSocketOptions = WebSocket.ClientOptions
  * `storage.readItem` per file simultaneously.
  */
 const FILE_READ_CONCURRENCY = 50
-
-/**
- * Reads every one of `paths` from `storage`, at most {@link FILE_READ_CONCURRENCY} in flight,
- * keyed by path and skipping any that resolved to `null`.
- */
-async function readFiles(storage: Storage, paths: ReadonlyArray<string>): Promise<Record<string, string>> {
-  const files: Record<string, string> = {}
-  const queue = paths.entries()
-
-  const worker = async (): Promise<void> => {
-    for (const [, path] of queue) {
-      const content = await storage.readItem(path)
-      if (content !== null) files[path] = content
-    }
-  }
-
-  await Promise.all(Array.from({ length: Math.min(FILE_READ_CONCURRENCY, paths.length) }, () => worker()))
-
-  return files
-}
 
 /**
  * How long the initial handshake may take before the socket is closed and the reconnect loop
@@ -190,7 +170,15 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): v
 
   hooks.hook('kubb:generation:end', async ({ config, storage, diagnostics = [], status, hrStart, filesCreated }) => {
     const paths = await storage.readKeys()
-    const files = await readFiles(storage, paths)
+    const files: Record<string, string> = {}
+    await inParallel({
+      items: paths,
+      limit: FILE_READ_CONCURRENCY,
+      run: async (path) => {
+        const content = await storage.readItem(path)
+        if (content !== null) files[path] = content
+      },
+    })
 
     sendDataMessage({
       type: 'kubb:generation:end',

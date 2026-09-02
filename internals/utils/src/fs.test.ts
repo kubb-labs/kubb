@@ -2,7 +2,7 @@ import { mkdir, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
-import { clean, exists, read, toPosixPath, trimExtName, write } from './fs.ts'
+import { clean, exists, isPathInside, read, toPosixPath, trimExtName, write } from './fs.ts'
 
 const existsTestDir = path.join(os.tmpdir(), 'kubb-test-exists')
 const existsTestFile = path.join(existsTestDir, 'test.txt')
@@ -169,5 +169,31 @@ describe('trimExtName', () => {
 
   test('strips double extension (.d.ts)', () => {
     expect(trimExtName('types.d.ts')).toBe('types.d')
+  })
+})
+describe('isPathInside', () => {
+  it('returns true for a nested path', () => {
+    expect(isPathInside('/repo/src/gen', '/repo')).toBe(true)
+  })
+
+  it('returns true when both paths are the same', () => {
+    expect(isPathInside('/repo', '/repo')).toBe(true)
+  })
+
+  it('returns false when the parent is nested inside the path', () => {
+    expect(isPathInside('/repo', '/repo/src/gen')).toBe(false)
+  })
+
+  it('returns false for a sibling path', () => {
+    expect(isPathInside('/repo/other', '/repo/gen')).toBe(false)
+  })
+
+  it('returns false when the path escapes the parent', () => {
+    expect(isPathInside('../other', '.')).toBe(false)
+  })
+
+  it('resolves relative and dot inputs before comparing', () => {
+    expect(isPathInside('./src/gen', '.')).toBe(true)
+    expect(isPathInside('.', './src/gen')).toBe(false)
   })
 })

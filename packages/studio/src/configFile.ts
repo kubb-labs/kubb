@@ -554,18 +554,23 @@ function disablePlugin(source: string, mod: ProxifiedModule, config: ObjectProxy
  */
 function enablePlugin(source: string, plugin: string): { source: string } | { reason: string } {
   const lines = source.split('\n')
-  const markerIndex = lines.findIndex((line) => parseMarker(line)?.plugin === plugin)
-  if (markerIndex < 0) {
-    return { reason: `${plugin} is not disabled` }
+
+  for (const [index, line] of lines.entries()) {
+    const marker = parseMarker(line)
+    if (marker?.plugin !== plugin) {
+      continue
+    }
+
+    // Bounded by the marker's own line count rather than scanning for trailing `//` lines, so a
+    // comment or another disabled block right after this one is left untouched.
+    const end = index + 1 + marker.lineCount
+    const restored = lines.slice(index + 1, end).map((commented) => commented.replace(/^(\s*)\/\/ ?/, '$1'))
+    lines.splice(index, end - index, ...restored)
+
+    return { source: lines.join('\n') }
   }
 
-  // Bounded by the marker's own line count rather than scanning for trailing `//` lines, so a
-  // comment or another disabled block right after this one is left untouched.
-  const end = markerIndex + 1 + parseMarker(lines[markerIndex]!)!.lineCount
-  const restored = lines.slice(markerIndex + 1, end).map((line) => line.replace(/^(\s*)\/\/ ?/, '$1'))
-  lines.splice(markerIndex, end - markerIndex, ...restored)
-
-  return { source: lines.join('\n') }
+  return { reason: `${plugin} is not disabled` }
 }
 
 /**
@@ -633,9 +638,12 @@ export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): Appl
       if ('reason' in result) {
         return { edit, applied: false, reason: result.reason }
       }
+      // Read before `generateCode`, though an `add-plugin` only reflows the plugins array below
+      // the imports, so their lines survive it either way.
+      const afterLine = lastImportEndLine(mod)
       let next = generateCode(mod, { format }).code
       if (result.addImport) {
-        next = insertImportLine(next, result.addImport.importName, result.addImport.moduleSpecifier)
+        next = insertImportLine({ source: next, afterLine, ...result.addImport })
       }
       current = withTrailingNewline(next, endsWithNewline)
       return { edit, applied: true }
@@ -658,55 +666,46 @@ export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): Appl
 }
 
 /**
- * The line index where the last import declaration in `lines` ends, or `-1` when there is none.
- *
- * Walks past a multi-line `import {\n  x,\n} from '...'` instead of stopping at its opening line,
- * by scanning forward from every `import` keyword to the line that actually closes it.
+ * The 1-based line where the file's last import declaration ends, or `0` when it has none. Read
+ * off the parsed module, so a multi-line `import {\n  x,\n} from '...'` reports its closing line
+ * rather than the `import` keyword.
  */
-function lastImportEndIndex(lines: ReadonlyArray<string>): number {
-  let lastEnd = -1
-  let index = 0
+function lastImportEndLine(mod: ProxifiedModule): number {
+  const body = mod.$ast.type === 'Program' ? mod.$ast.body : []
 
-  while (index < lines.length) {
-    if (!/^import\b/.test(lines[index] ?? '')) {
-      index++
-      continue
-    }
-
-    let end = index
-    while (end < lines.length && !/\bfrom\s+['"][^'"]+['"];?\s*$/.test(lines[end] ?? '')) {
-      end++
-    }
-
-    lastEnd = Math.min(end, lines.length - 1)
-    index = end + 1
-  }
-
-  return lastEnd
+  return body.filter((node) => node.type === 'ImportDeclaration').at(-1)?.loc?.end.line ?? 0
 }
 
 /**
  * Writes an import after the last one already in the file, matching its quote style and whether it
- * ends in a semicolon.
+ * ends in a semicolon. `afterLine` is where that last import ends, `0` for a file with none.
  *
  * Written as plain text rather than through magicast's import builder, which prints a brand-new
  * import declaration with its own default spacing and a semicolon regardless of `format`, since
  * that formatting only governs nodes recast can diff against the original source.
  */
-function insertImportLine(source: string, importName: string, moduleSpecifier: string): string {
+function insertImportLine({
+  source,
+  importName,
+  moduleSpecifier,
+  afterLine,
+}: {
+  source: string
+  importName: string
+  moduleSpecifier: string
+  afterLine: number
+}): string {
   const lines = source.split('\n')
-  const lastImportIndex = lastImportEndIndex(lines)
 
-  const lastImportLine = lastImportIndex >= 0 ? lines[lastImportIndex] : undefined
+  const lastImportLine = afterLine > 0 ? lines[afterLine - 1] : undefined
   const quote = lastImportLine?.includes(`"`) ? `"` : `'`
   const semicolon = lastImportLine?.trimEnd().endsWith(';') ? ';' : ''
   const line = `import { ${importName} } from ${quote}${moduleSpecifier}${quote}${semicolon}`
 
-  if (lastImportIndex < 0) {
-    lines.splice(0, 0, line, '')
-  } else {
-    lines.splice(lastImportIndex + 1, 0, line)
-  }
+  // A file with no imports gets a blank line after the one being added, so it does not run into
+  // whatever was on the first line.
+  lines.splice(afterLine, 0, ...(afterLine > 0 ? [line] : [line, '']))
+
   return lines.join('\n')
 }
 

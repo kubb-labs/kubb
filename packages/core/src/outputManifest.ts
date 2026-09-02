@@ -1,5 +1,5 @@
-import { createHash } from 'node:crypto'
-import { inParallel } from './concurrency.ts'
+import { hash } from 'node:crypto'
+import { inParallel } from '@internals/utils'
 import { FILE_CONCURRENCY } from './constants.ts'
 import type { Storage } from './createStorage.ts'
 
@@ -52,10 +52,6 @@ export type OutputManifest = {
   commit(): Promise<void>
 }
 
-function hash(value: string): string {
-  return createHash('sha256').update(value).digest('hex')
-}
-
 const MANIFEST_KEY = 'output-manifest.json'
 
 async function loadEntries({ cache }: { cache: Storage }): Promise<Record<string, OutputManifestEntry>> {
@@ -91,10 +87,10 @@ export async function createOutputManifest({ storage, cache }: { storage: Storag
       const entry = entries[key]
       if (!entry) return false
 
-      return entry.source === hash(source) && entry.output === hash(disk)
+      return entry.source === hash('sha256', source) && entry.output === hash('sha256', disk)
     },
     track({ key, source }) {
-      tracked.set(key, hash(source))
+      tracked.set(key, hash('sha256', source))
     },
     async commit() {
       try {
@@ -108,7 +104,7 @@ export async function createOutputManifest({ storage, cache }: { storage: Storag
             const stored = await storage.readItem(key)
             if (stored === null) return
 
-            next[key] = { source, output: hash(stored) }
+            next[key] = { source, output: hash('sha256', stored) }
           },
         })
 

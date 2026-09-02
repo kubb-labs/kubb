@@ -1,4 +1,5 @@
-import { isAbsolute, relative, resolve } from 'node:path'
+import { resolve } from 'node:path'
+import { isPathInside } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'
 import { HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
@@ -9,28 +10,6 @@ import { cacheStorage } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { BuildOutput, Config, KubbHooks, UserConfig } from './types.ts'
 import { Hookable } from './Hookable.ts'
-
-/**
- * Resolves to `true` when `path` is `parent` itself or nested inside it. Both sides are resolved
- * to absolute paths first, so relative and `..`-containing inputs compare correctly.
- *
- * Guards destructive operations: before wiping an output directory, check that it does not contain
- * the project root, otherwise a `clean` would delete `kubb.config` and every source file.
- *
- * @example
- * isPathInside('./src/gen', '.')   // true  — nested inside the root
- * isPathInside('.', '.')           // true  — the same directory counts as inside
- * isPathInside('.', './src/gen')   // false — the root is not inside its own output
- * isPathInside('../other', '.')    // false — escapes the root
- */
-function isPathInside(path: string, parent: string): boolean {
-  const resolvedPath = resolve(path)
-  const resolvedParent = resolve(parent)
-  if (resolvedPath === resolvedParent) return true
-
-  const rel = relative(resolvedParent, resolvedPath)
-  return rel !== '' && !rel.startsWith('..') && !isAbsolute(rel)
-}
 
 function resolveConfig(userConfig: UserConfig): Config {
   return {

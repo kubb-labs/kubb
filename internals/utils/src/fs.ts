@@ -1,5 +1,5 @@
 import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
+import { dirname, isAbsolute, relative, resolve } from 'node:path'
 import { runtime } from './runtime.ts'
 
 /**
@@ -177,4 +177,30 @@ export function trimExtName(text: string): string {
     return text.slice(0, dotIndex)
   }
   return text
+}
+
+/**
+ * Resolves to `true` when `path` is `parent` itself or nested inside it. Both sides are resolved
+ * to absolute paths first, so relative and `..`-containing inputs compare correctly.
+ *
+ * Guards a destructive or an out-of-tree operation: before wiping an output directory, check that
+ * it does not contain the project root, and before loading a path a caller supplied, check that it
+ * did not escape the directory it is allowed to read from.
+ *
+ * @example
+ * isPathInside('./src/gen', '.')   // true  — nested inside the root
+ * isPathInside('.', '.')           // true  — the same directory counts as inside
+ * isPathInside('.', './src/gen')   // false — the root is not inside its own output
+ * isPathInside('../other', '.')    // false — escapes the root
+ */
+export function isPathInside(path: string, parent: string): boolean {
+  const resolvedPath = resolve(path)
+  const resolvedParent = resolve(parent)
+  if (resolvedPath === resolvedParent) {
+    return true
+  }
+
+  const rel = relative(resolvedParent, resolvedPath)
+
+  return rel !== '' && !rel.startsWith('..') && !isAbsolute(rel)
 }
