@@ -28,6 +28,10 @@ vi.mock('../package.json', () => ({
   default: { version: '5.0.0-test' },
   version: '5.0.0-test',
 }))
+vi.mock('@kubb/core/package.json', () => ({
+  default: { version: '5.1.0-core-test' },
+  version: '5.1.0-core-test',
+}))
 
 // `setupHookListener` spawns the formatter, the linter, and postGenerate commands through tinyexec.
 vi.mock('tinyexec', () => ({ x: vi.fn(() => Object.assign(Promise.resolve({ exitCode: 0 }), { [Symbol.asyncIterator]: async function* () {} })) }))
@@ -510,6 +514,19 @@ describe('connectToStudio', () => {
     expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('KUBB_AGENT_ALLOW_INPUT'))
   })
 
+  it('tells a CLI host to use --allowInput instead of the Docker-only env var', async () => {
+    const payload = { input: 'openapi: "3.0.0"', plugins: [] }
+
+    await connectToStudio({ ...options, client: { kind: 'cli', version: '1.0.0', cwd: '/project', projectName: 'project' } }) // allowInput: false
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
+    })
+
+    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('--allowInput'))
+    expect(consoleSpy.warn).not.toHaveBeenCalledWith(expect.stringContaining('KUBB_AGENT_ALLOW_INPUT'))
+  })
+
   it('uses inline input from payload for a local agent when allowInput is enabled', async () => {
     const payload = { input: 'openapi: "3.0.0"', plugins: [] }
 
@@ -678,7 +695,7 @@ describe('connectToStudio', () => {
         type: 'connected',
         payload: expect.objectContaining({
           versions: {
-            kubb: '5.0.0-test',
+            kubb: '5.1.0-core-test',
             agent: '1.0.0',
           },
           configPath: 'kubb.config.ts',

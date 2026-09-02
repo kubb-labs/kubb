@@ -208,6 +208,26 @@ describe('applyConfigEdits: set', () => {
       }
     `)
   })
+
+  it('refuses a __proto__ path segment instead of throwing and taking the rest of the batch down', () => {
+    const result = apply(
+      advanced,
+      { operation: 'set', plugin: '@kubb/plugin-ts', path: ['__proto__', 'polluted'], value: 'yes' },
+      { operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: 'array' },
+    )
+    expect({
+      applied: result.outcomes.filter((outcome) => outcome.applied).length,
+      reasons: result.outcomes.map((outcome) => outcome.reason),
+    }).toMatchInlineSnapshot(`
+      {
+        "applied": 1,
+        "reasons": [
+          "__proto__.polluted is not a valid option path",
+          undefined,
+        ],
+      }
+    `)
+  })
 })
 
 describe('applyConfigEdits: remove', () => {
@@ -299,6 +319,43 @@ describe('applyConfigEdits: add-plugin', () => {
       export default defineConfig({
         input: './api.yaml',
         plugins: [pluginTs()],
+      })
+      "
+    `)
+  })
+
+  it('refuses a plugin name that is not a package specifier, instead of printing it into the file', () => {
+    const source = `import { defineConfig } from 'kubb/config'\n\nexport default defineConfig({\n  input: './api.yaml',\n  plugins: [],\n})\n`
+    const result = apply(source, {
+      operation: 'add-plugin',
+      plugin: `evil'\nawait import('node:child_process').then((m) => m.execSync('touch pwned'))\nimport { x } from 'y`,
+      importName: 'evilPlugin',
+    })
+    expect(result.changed).toBe(false)
+    expect(result.outcomes[0]?.applied).toBe(false)
+    expect(result.source).not.toContain('child_process')
+  })
+
+  it('refuses an import name that is not a valid identifier', () => {
+    const source = `import { defineConfig } from 'kubb/config'\n\nexport default defineConfig({\n  input: './api.yaml',\n  plugins: [],\n})\n`
+    const result = apply(source, { operation: 'add-plugin', plugin: '@kubb/plugin-ts', importName: `x } from 'evil'; //` })
+    expect(result.changed).toBe(false)
+    expect(result.source).not.toContain('evil')
+  })
+
+  it('inserts the new import after a multi-line import instead of inside it', () => {
+    const source = `import { defineConfig } from 'kubb/config'\nimport {\n  pluginTs,\n} from '@kubb/plugin-ts'\n\nexport default defineConfig({\n  input: './api.yaml',\n  plugins: [pluginTs()],\n})\n`
+    const result = apply(source, { operation: 'add-plugin', plugin: '@kubb/plugin-zod' })
+    expect(result.source).toMatchInlineSnapshot(`
+      "import { defineConfig } from 'kubb/config'
+      import {
+        pluginTs,
+      } from '@kubb/plugin-ts'
+      import { pluginZod } from '@kubb/plugin-zod'
+
+      export default defineConfig({
+        input: './api.yaml',
+        plugins: [pluginTs(), pluginZod()],
       })
       "
     `)
@@ -508,7 +565,7 @@ describe('applyConfigEdits: disable-plugin and enable-plugin', () => {
       export default defineConfig({
         plugins: [
           pluginTs({ arrayType: 'generic' }),
-          // kubb:disabled @kubb/plugin-zod
+          // kubb:disabled @kubb/plugin-zod 4
           // pluginZod({
           //   // keep me
           //   inferred: true,
@@ -544,6 +601,19 @@ describe('applyConfigEdits: disable-plugin and enable-plugin', () => {
     const disabled = applyConfigEdits(source, [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }]).source
     const enabled = applyConfigEdits(disabled, [{ operation: 'enable-plugin', plugin: '@kubb/plugin-zod' }]).source
     expect(enabled).toBe(source)
+  })
+
+  it('enabling one plugin leaves a second disabled block, and any comment after it, untouched', () => {
+    const bothDisabled = [
+      { operation: 'disable-plugin', plugin: '@kubb/plugin-ts' },
+      { operation: 'disable-plugin', plugin: '@kubb/plugin-zod' },
+    ].reduce((current, edit) => applyConfigEdits(current, [edit as ConfigEdit]).source, `${source.replace('  ],\n', '    // keep me too\n  ],\n')}`)
+
+    const result = applyConfigEdits(bothDisabled, [{ operation: 'enable-plugin', plugin: '@kubb/plugin-ts' }])
+
+    expect(result.source).toContain("pluginTs({ arrayType: 'generic' }),")
+    expect(result.source).toContain('// kubb:disabled @kubb/plugin-zod')
+    expect(result.source).toContain('// keep me too')
   })
 
   it('refuses to disable a plugin that shares its line with other code', () => {

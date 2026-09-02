@@ -1,7 +1,13 @@
 import { builders, detectCodeFormat, generateCode, parseModule } from 'magicast'
 import type { ASTNode, ProxifiedArray, ProxifiedModule, ProxifiedObject, ProxyBase } from 'magicast'
 import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigRef, ConfigView, OptionValue, PluginView } from './protocol/index.ts'
-import { toExportName } from './resolveConfig.ts'
+import { isBareSpecifier, toExportName } from './resolveConfig.ts'
+
+/**
+ * A valid JavaScript identifier, so an import name can only ever print as `import { name } from`,
+ * never as source that breaks out of the import statement.
+ */
+const IDENTIFIER = /^[A-Za-z_$][\w$]*$/
 
 /**
  * A config or options object proxy, indexed by a key only known at runtime.
@@ -39,23 +45,29 @@ type ApplyResult = {
 
 /**
  * Marks the comment block a `disable-plugin` leaves behind, so `enable-plugin` can find its way
- * back to the exact lines it commented out.
+ * back to the exact lines it commented out. Carries the block's line count, so `enable-plugin`
+ * restores exactly those lines instead of scanning forward through whatever comments follow.
  */
 const DISABLED_MARKER = 'kubb:disabled'
 
 /**
  * The one line `disable-plugin` writes above the comment block it produces for `plugin`.
  */
-function formatMarker(plugin: string, indent = ''): string {
-  return `${indent}// ${DISABLED_MARKER} ${plugin}`
+function formatMarker(plugin: string, lineCount: number, indent = ''): string {
+  return `${indent}// ${DISABLED_MARKER} ${plugin} ${lineCount}`
 }
 
 /**
- * The plugin a marker line names, when `line` is one.
+ * The plugin and comment-block length a marker line names, when `line` is one.
  */
-function parseMarker(line: string): string | undefined {
+function parseMarker(line: string): { plugin: string; lineCount: number } | undefined {
   const trimmed = line.trim()
-  return trimmed.startsWith(`// ${DISABLED_MARKER} `) ? trimmed.slice(`// ${DISABLED_MARKER} `.length).trim() : undefined
+  if (!trimmed.startsWith(`// ${DISABLED_MARKER} `)) {
+    return undefined
+  }
+
+  const match = trimmed.slice(`// ${DISABLED_MARKER} `.length).match(/^(.+)\s+(\d+)$/)
+  return match ? { plugin: match[1]!, lineCount: Number(match[2]) } : undefined
 }
 
 /**
@@ -117,6 +129,20 @@ function configName(config: ObjectProxy): string | undefined {
 }
 
 /**
+ * The name of an object literal property, for the two key shapes a config uses: `key: value` and
+ * `'key': value`. `undefined` for a computed key, which the patcher never touches.
+ */
+function propertyKey(property: Extract<ASTNode, { type: 'ObjectProperty' }>): string | undefined {
+  if (property.key.type === 'Identifier') {
+    return property.key.name
+  }
+  if (property.key.type === 'StringLiteral') {
+    return property.key.value
+  }
+  return undefined
+}
+
+/**
  * The value node of an object literal's own property, read off the AST rather than the proxy.
  *
  * Magicast throws on reading a property whose value is a node it cannot cast, `-1` among them, so
@@ -127,11 +153,7 @@ function property(node: ASTNode, key: string): ASTNode | undefined {
     return undefined
   }
   for (const entry of node.properties) {
-    if (entry.type !== 'ObjectProperty') {
-      continue
-    }
-    const name = entry.key.type === 'Identifier' ? entry.key.name : entry.key.type === 'StringLiteral' ? entry.key.value : undefined
-    if (name === key) {
+    if (entry.type === 'ObjectProperty' && propertyKey(entry) === key) {
       return entry.value
     }
   }
@@ -175,12 +197,12 @@ function readLiteral(node: ASTNode | undefined): OptionValue | undefined {
   }
   if (node.type === 'ObjectExpression') {
     const entries: Record<string, OptionValue> = {}
-    for (const property of node.properties) {
-      if (property.type !== 'ObjectProperty') {
+    for (const entry of node.properties) {
+      if (entry.type !== 'ObjectProperty') {
         return undefined
       }
-      const key = property.key.type === 'Identifier' ? property.key.name : property.key.type === 'StringLiteral' ? property.key.value : undefined
-      const value = readLiteral(property.value)
+      const key = propertyKey(entry)
+      const value = readLiteral(entry.value)
       if (key === undefined || value === undefined) {
         return undefined
       }
@@ -233,8 +255,8 @@ function pluginCalls(
  */
 function disabledMarkers(source: string): Array<{ packageName: string; line: number }> {
   return source.split('\n').flatMap((line, index) => {
-    const packageName = parseMarker(line)
-    return packageName ? [{ packageName, line: index + 1 }] : []
+    const marker = parseMarker(line)
+    return marker ? [{ packageName: marker.plugin, line: index + 1 }] : []
   })
 }
 
@@ -262,7 +284,9 @@ export function readConfig(source: string): ConfigFileView {
     return { managed: false, reason: found.reason }
   }
 
-  const imports = importedFrom(mod)
+  // Keyed by package rather than by local name, which is the direction the disabled plugins below
+  // look it up in.
+  const importNames = new Map([...importedFrom(mod)].map(([local, from]) => [from, local]))
   const disabled = disabledMarkers(source)
 
   return {
@@ -276,11 +300,12 @@ export function readConfig(source: string): ConfigFileView {
             if (entry.type !== 'ObjectProperty') {
               continue
             }
-            const key = entry.key.type === 'Identifier' ? entry.key.name : entry.key.type === 'StringLiteral' ? entry.key.value : undefined
-            if (key !== undefined) {
-              const value = readLiteral(entry.value)
-              entries[key] = value === undefined ? { literal: false } : { literal: true, value }
+            const key = propertyKey(entry)
+            if (key === undefined) {
+              continue
             }
+            const value = readLiteral(entry.value)
+            entries[key] = value === undefined ? { literal: false } : { literal: true, value }
           }
         }
         return { importName, packageName, options: entries }
@@ -291,7 +316,7 @@ export function readConfig(source: string): ConfigFileView {
 
       for (const { packageName } of disabled.filter((entry) => entry.line >= start && entry.line <= end)) {
         plugins.push({
-          importName: [...imports.entries()].find(([, from]) => from === packageName)?.[0] ?? toExportName(packageName),
+          importName: importNames.get(packageName) ?? toExportName(packageName),
           packageName,
           options: {},
           disabled: true,
@@ -359,6 +384,13 @@ function optionParent(options: ObjectProxy, path: Array<string>): { object: Obje
   let object = options
 
   for (const [index, key] of path.entries()) {
+    // `object[key] = {}` for `__proto__` reassigns the object's prototype instead of creating an
+    // own property, which breaks every read after it. Refused here rather than left to throw, so
+    // one bad edit in a batch cannot take the rest down with it.
+    if (key === UNSAFE_KEY) {
+      return { reason: `${path.join('.')} is not a valid option path` }
+    }
+
     if (index === path.length - 1) {
       return { object, key }
     }
@@ -445,7 +477,14 @@ type AddPluginResult = { reason: string } | { addImport?: { importName: string; 
  * present, or when its import name collides with an unrelated existing import.
  */
 function applyAddPlugin(mod: ProxifiedModule, config: ObjectProxy, edit: Extract<ConfigEdit, { operation: 'add-plugin' }>): AddPluginResult {
+  if (!isBareSpecifier(edit.plugin)) {
+    return { reason: `"${edit.plugin}" is not a package name` }
+  }
+
   const importName = edit.importName ?? toExportName(edit.plugin)
+  if (!IDENTIFIER.test(importName)) {
+    return { reason: `"${importName}" is not a valid import name` }
+  }
 
   if (pluginCalls(mod, config).some((plugin) => plugin.packageName === edit.plugin)) {
     return { reason: `${edit.plugin} is already in the plugins array` }
@@ -505,7 +544,7 @@ function disablePlugin(source: string, mod: ProxifiedModule, config: ObjectProxy
 
   const indent = firstLine.match(/^\s*/)?.[0] ?? ''
   const commented = lines.slice(from, to + 1).map((line) => (line.trim() ? `${indent}// ${line.slice(indent.length)}` : indent ? `${indent}//` : '//'))
-  lines.splice(from, to - from + 1, formatMarker(plugin, indent), ...commented)
+  lines.splice(from, to - from + 1, formatMarker(plugin, commented.length, indent), ...commented)
 
   return { source: lines.join('\n') }
 }
@@ -515,16 +554,14 @@ function disablePlugin(source: string, mod: ProxifiedModule, config: ObjectProxy
  */
 function enablePlugin(source: string, plugin: string): { source: string } | { reason: string } {
   const lines = source.split('\n')
-  const markerIndex = lines.findIndex((line) => parseMarker(line) === plugin)
+  const markerIndex = lines.findIndex((line) => parseMarker(line)?.plugin === plugin)
   if (markerIndex < 0) {
     return { reason: `${plugin} is not disabled` }
   }
 
-  let end = markerIndex + 1
-  while (end < lines.length && lines[end]?.trim().startsWith('//')) {
-    end++
-  }
-
+  // Bounded by the marker's own line count rather than scanning for trailing `//` lines, so a
+  // comment or another disabled block right after this one is left untouched.
+  const end = markerIndex + 1 + parseMarker(lines[markerIndex]!)!.lineCount
   const restored = lines.slice(markerIndex + 1, end).map((line) => line.replace(/^(\s*)\/\/ ?/, '$1'))
   lines.splice(markerIndex, end - markerIndex, ...restored)
 
@@ -576,25 +613,20 @@ export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): Appl
   const endsWithNewline = source.endsWith('\n')
 
   const outcomes = edits.map((edit): ConfigEditOutcome => {
-    if (edit.operation === 'disable-plugin' || edit.operation === 'enable-plugin') {
-      const target = parseTarget(current, edit.config)
-      if ('reason' in target) {
-        return { edit, applied: false, reason: target.reason }
-      }
+    const target = parseTarget(current, edit.config)
+    if ('reason' in target) {
+      return { edit, applied: false, reason: target.reason }
+    }
+    const { mod, config } = target
 
-      const result = edit.operation === 'disable-plugin' ? disablePlugin(current, target.mod, target.config, edit.plugin) : enablePlugin(current, edit.plugin)
+    if (edit.operation === 'disable-plugin' || edit.operation === 'enable-plugin') {
+      const result = edit.operation === 'disable-plugin' ? disablePlugin(current, mod, config, edit.plugin) : enablePlugin(current, edit.plugin)
       if ('reason' in result) {
         return { edit, applied: false, reason: result.reason }
       }
       current = result.source
       return { edit, applied: true }
     }
-
-    const target = parseTarget(current, edit.config)
-    if ('reason' in target) {
-      return { edit, applied: false, reason: target.reason }
-    }
-    const { mod, config } = target
 
     if (edit.operation === 'add-plugin') {
       const result = applyAddPlugin(mod, config, edit)
@@ -626,6 +658,34 @@ export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): Appl
 }
 
 /**
+ * The line index where the last import declaration in `lines` ends, or `-1` when there is none.
+ *
+ * Walks past a multi-line `import {\n  x,\n} from '...'` instead of stopping at its opening line,
+ * by scanning forward from every `import` keyword to the line that actually closes it.
+ */
+function lastImportEndIndex(lines: ReadonlyArray<string>): number {
+  let lastEnd = -1
+  let index = 0
+
+  while (index < lines.length) {
+    if (!/^import\b/.test(lines[index] ?? '')) {
+      index++
+      continue
+    }
+
+    let end = index
+    while (end < lines.length && !/\bfrom\s+['"][^'"]+['"];?\s*$/.test(lines[end] ?? '')) {
+      end++
+    }
+
+    lastEnd = Math.min(end, lines.length - 1)
+    index = end + 1
+  }
+
+  return lastEnd
+}
+
+/**
  * Writes an import after the last one already in the file, matching its quote style and whether it
  * ends in a semicolon.
  *
@@ -635,12 +695,7 @@ export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): Appl
  */
 function insertImportLine(source: string, importName: string, moduleSpecifier: string): string {
   const lines = source.split('\n')
-  let lastImportIndex = -1
-  for (const [index, line] of lines.entries()) {
-    if (/^import\b/.test(line)) {
-      lastImportIndex = index
-    }
-  }
+  const lastImportIndex = lastImportEndIndex(lines)
 
   const lastImportLine = lastImportIndex >= 0 ? lines[lastImportIndex] : undefined
   const quote = lastImportLine?.includes(`"`) ? `"` : `'`

@@ -94,6 +94,16 @@ describe('resolvePermissions', () => {
     expect(confirm).toHaveBeenCalledTimes(3)
     expect(confirm.mock.calls.some(([call]) => call?.message?.includes('plugin options'))).toBe(false)
   })
+
+  it('still answers the questions but never writes to disk when persist is false', async () => {
+    confirm.mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(false).mockResolvedValueOnce(true)
+
+    const answers = { allowWrite: true, allowConfigEdit: false, allowInput: false, allowExec: true }
+
+    await expect(resolvePermissions(options, credentials, undefined, false)).resolves.toEqual(answers)
+    expect(confirm).toHaveBeenCalledTimes(4)
+    expect(writeCredentials).not.toHaveBeenCalled()
+  })
 })
 
 describe('formatPermissionSummary', () => {

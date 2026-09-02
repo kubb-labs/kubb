@@ -335,6 +335,19 @@ describe('mergeAdapter', () => {
 
     expect(result).toBe(diskAdapter)
   })
+
+  it('merges studio options into an adapter that was constructed with none', async () => {
+    const mockAdapterOas = vi.fn((options: unknown) => ({ name: 'oas', options, parse: vi.fn() }))
+    vi.doMock('@kubb/adapter-oas', () => ({ adapterOas: mockAdapterOas }))
+    const { mergeAdapter: merge } = await import('./resolveConfig.ts')
+
+    const diskAdapter = { name: 'oas', options: undefined, parse: vi.fn() } as any
+
+    const result = await merge(diskAdapter, { validate: false })
+
+    expect(mockAdapterOas).toHaveBeenCalledWith({ validate: false })
+    expect(result).toStrictEqual({ name: 'oas', options: { validate: false }, parse: expect.any(Function) })
+  })
 })
 
 describe('toExportName', () => {

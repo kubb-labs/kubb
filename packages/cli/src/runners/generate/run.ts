@@ -133,13 +133,13 @@ async function generate(options: GenerateProps): Promise<boolean> {
     input: input ?? options.config.input,
     // Dry-run never touches disk, regardless of the config's own storage driver.
     storage: dryRun ? memoryStorage() : options.config.storage,
+    // Also keeps core's `hasOutputPasses` false, so dry-run skips the output manifest write too.
+    output: dryRun ? { ...options.config.output, format: false, lint: false, postGenerate: [] } : options.config.output,
   }
 
   // The formatter, linter, and post-generate commands run after a successful build. Collect their
   // failures as coded diagnostics so they reach the summary, the json report, and the exit code.
   const processOutput = async ({ config: resolvedConfig, outputPath }: { config: Config; outputPath: string }): Promise<Array<Diagnostic>> => {
-    if (dryRun) return []
-
     const outputDiagnostics: Array<Diagnostic> = []
     const reportOutputFailure = async (code: ProblemDiagnostic['code'], label: string, error: Error) => {
       const diagnostic = outputDiagnostic(code, label, error)

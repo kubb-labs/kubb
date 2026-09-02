@@ -1,4 +1,6 @@
 import { setTimeout as delay } from 'node:timers/promises'
+import { styleText } from 'node:util'
+import { getErrorMessage } from '@internals/utils'
 import { agentDefaults } from './constants.ts'
 import { postJson } from './api.ts'
 import { getMachineToken } from './machine.ts'
@@ -108,7 +110,8 @@ function isPairingResult(response: PollResponse | undefined): response is Pairin
 }
 
 /**
- * Polls until the user approves or denies, honoring the server's `slow_down` back-off.
+ * Polls until the user approves or denies, honoring the server's `slow_down` back-off. A poll that
+ * cannot reach Studio is warned about and retried, since the code stays valid either way.
  *
  * Studio's own endpoint is used rather than the auth layer's `/device/token`, because an approved
  * Kubb pairing is worth an agent bearer token, not a user session.
@@ -116,20 +119,30 @@ function isPairingResult(response: PollResponse | undefined): response is Pairin
  * @throws when the code expires, the user denies it, or Studio returns an unexpected error.
  */
 export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl, session }: PollOptions): Promise<PairingResult> {
-  const deadline = Date.now() + session.expires_in * 1000
-  let intervalMs = session.interval * 1000
+  // Both fields cross the network, so neither is trusted as-is: a missing or zero `interval` would
+  // spin the poll loop, and a missing or zero `expires_in` would expire the code before the first
+  // poll. `> 0` is also false for `NaN` and for a missing field, so it doubles as the type guard.
+  const deadline = Date.now() + (session.expires_in > 0 ? session.expires_in : 600) * 1000
+  let intervalMs = (session.interval > 0 ? session.interval : 5) * 1000
 
   while (Date.now() < deadline) {
     await delay(intervalMs)
 
-    const response = await postJson<PollResponse | undefined>(`${studioUrl}/api/agent/token`, {
-      body: { device_code: session.device_code },
-      // A denial, an expiry, and "not yet" all come back as 4xx with a body the caller needs to
-      // read, so let every response through and switch on `error` instead of catching.
-      allowErrorResponse: true,
-    }).catch((error: unknown) => {
-      throw new Error('Could not reach Kubb Studio while waiting for approval', { cause: error })
-    })
+    let response: PollResponse | undefined
+    try {
+      response = await postJson<PollResponse | undefined>(`${studioUrl}/api/agent/token`, {
+        body: { device_code: session.device_code },
+        // A denial, an expiry, and "not yet" all come back as 4xx with a body the caller needs to
+        // read, so let every response through and switch on `error` instead of catching.
+        allowErrorResponse: true,
+      })
+    } catch (error) {
+      // Studio can go briefly unreachable (a deploy, a dropped connection) during the minutes the
+      // user has to approve in the browser. One failed poll should not end a pairing whose code is
+      // still valid, so warn and try again on the next tick, the way `registerAgent` retries.
+      console.warn(styleText('yellow', `Could not reach Kubb Studio while waiting for approval, retrying: ${getErrorMessage(error)}`))
+      continue
+    }
 
     if (isPairingResult(response)) {
       return response

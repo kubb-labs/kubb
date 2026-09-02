@@ -49,12 +49,17 @@ export type StudioOptions = {
 /**
  * Opens a URL in the user's browser. Best effort: a failure just means the user follows the
  * printed link instead.
+ *
+ * `start` is a `cmd.exe` builtin, not an executable on PATH, so Windows runs it through `cmd`.
+ * The empty string is the window-title argument `start` expects before the URL.
  */
 async function openInBrowser(url: string): Promise<void> {
-  const command = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open'
-
   try {
-    await x(command, [url])
+    if (process.platform === 'win32') {
+      await x('cmd', ['/c', 'start', '', url])
+    } else {
+      await x(process.platform === 'darwin' ? 'open' : 'xdg-open', [url])
+    }
   } catch {}
 }
 
@@ -143,6 +148,13 @@ export async function resolvePermissions(
   options: StudioOptions,
   credentials: Credentials,
   configPath: string = KUBB_CONFIG_FILENAME,
+  /**
+   * Whether an answer may be written to `~/.kubb/credentials.json`. `connect` passes `false` for a
+   * `KUBB_AGENT_TOKEN` session, where `credentials` is a throwaway object built around the env
+   * token, not the real stored pairing. Persisting it would write that token to disk and overwrite
+   * the real agent identity with an empty one.
+   */
+  persist = true,
 ): Promise<Record<Permission, boolean>> {
   const project = process.cwd()
   const remembered = credentials.projects?.[project]
@@ -166,7 +178,7 @@ export async function resolvePermissions(
 
   // Only the answers are stored: a flag grants for one run, so persisting it would silently keep
   // the permission on every later run without the flag.
-  if (Object.keys(answers).length) {
+  if (persist && Object.keys(answers).length) {
     await writeCredentials({
       ...credentials,
       projects: { ...credentials.projects, [project]: { ...remembered, ...answers } },
@@ -221,7 +233,7 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
   })()
 
   const { configPath, configs } = await loadConfigs(options)
-  const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, credentials, configPath)
+  const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, credentials, configPath, !envToken)
   const granted = { allowWrite, allowConfigEdit, allowInput, allowExec }
 
   if (options.logLevel !== 'silent') {
@@ -348,19 +360,22 @@ async function run(options: StudioOptions): Promise<void> {
       console.log()
     }
 
-    if (!ACTIONS.includes(options.action)) {
-      throw new Error(`Unknown action "${options.action}", expected one of ${ACTIONS.join(', ')}`)
-    }
-
-    if (options.action === 'login') {
-      await login(options)
-    } else if (options.action === 'logout') {
-      await clearCredentials()
-      console.log('Signed out of Kubb Studio.')
-    } else if (options.action === 'status') {
-      await status(options)
-    } else {
-      await connect(options)
+    switch (options.action) {
+      case 'login':
+        await login(options)
+        break
+      case 'logout':
+        await clearCredentials()
+        console.log('Signed out of Kubb Studio.')
+        break
+      case 'status':
+        await status(options)
+        break
+      case 'connect':
+        await connect(options)
+        break
+      default:
+        throw new Error(`Unknown action "${options.action}", expected one of ${ACTIONS.join(', ')}`)
     }
 
     await report('success')

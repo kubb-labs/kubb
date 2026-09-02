@@ -1,9 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { setTimeout as delay } from 'node:timers/promises'
 import { pollForPairingToken, type PairingSession } from './pair.ts'
 
 vi.mock('node:timers/promises', () => ({
   setTimeout: vi.fn(async () => {}),
 }))
+
+const delayMock = vi.mocked(delay)
 
 vi.mock('./machine.ts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./machine.ts')>()),
@@ -79,5 +82,38 @@ describe('pollForPairingToken', () => {
     await vi.runAllTimersAsync()
 
     await expect(promise).rejects.toThrow('empty pairing response')
+  })
+
+  it('falls back to a 5s interval instead of spinning when Studio omits it', async () => {
+    const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
+    fetchMock.mockResolvedValueOnce(createMockResponse(result))
+
+    const promise = pollForPairingToken({ studioUrl: 'http://studio', session: { ...session, interval: 0 } })
+    await vi.runAllTimersAsync()
+    await promise
+
+    expect(delayMock).toHaveBeenCalledWith(5_000)
+  })
+
+  it('falls back to a 600s expiry instead of expiring before the first poll when Studio omits it', async () => {
+    const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
+    fetchMock.mockResolvedValueOnce(createMockResponse(result))
+
+    const promise = pollForPairingToken({ studioUrl: 'http://studio', session: { ...session, expires_in: 0 } })
+    await vi.runAllTimersAsync()
+
+    await expect(promise).resolves.toEqual(result)
+  })
+
+  it('keeps polling when Studio is briefly unreachable', async () => {
+    using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
+    fetchMock.mockRejectedValueOnce(new Error('socket hang up')).mockResolvedValueOnce(createMockResponse(result))
+
+    const promise = pollForPairingToken({ studioUrl: 'http://studio', session })
+    await vi.runAllTimersAsync()
+
+    await expect(promise).resolves.toEqual(result)
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('socket hang up'))
   })
 })

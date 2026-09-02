@@ -133,6 +133,14 @@ export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugin
 const BARE_SPECIFIER = /^(?:@[a-z0-9][\w.-]*\/)?[a-z0-9][\w.-]*$/i
 
 /**
+ * Whether `name` is a bare package specifier. Exported so `configFile.ts` can refuse the same
+ * shape before printing a Studio-supplied plugin name into the config file's source text.
+ */
+export function isBareSpecifier(name: string): boolean {
+  return BARE_SPECIFIER.test(name)
+}
+
+/**
  * Rejects anything that is not a bare package specifier before it reaches `import()`.
  *
  * This holds even with no allow-list, which is the Docker agent's configuration: the image bounds
@@ -140,7 +148,7 @@ const BARE_SPECIFIER = /^(?:@[a-z0-9][\w.-]*\/)?[a-z0-9][\w.-]*$/i
  * arbitrary file inside the container.
  */
 function assertBareSpecifier(name: string): void {
-  if (!BARE_SPECIFIER.test(name)) {
+  if (!isBareSpecifier(name)) {
     throw new Error(`Plugin "${name}" is not a package name. Kubb Studio may only name installed packages, not file paths.`)
   }
 }
@@ -261,7 +269,7 @@ export async function mergeAdapter(diskAdapter: Adapter | undefined, studioOptio
     return diskAdapter
   }
 
-  const mergedOptions = mergeDeep(diskAdapter.options as Record<string, unknown>, studioOptions as Record<string, unknown>)
+  const mergedOptions = mergeDeep((diskAdapter.options as Record<string, unknown>) ?? {}, studioOptions as Record<string, unknown>)
 
   return factory(mergedOptions) as Adapter
 }

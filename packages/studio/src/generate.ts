@@ -25,13 +25,18 @@ const detectTool = memoize(new Map<ReadonlyArray<string>, Promise<string | null>
 /**
  * The two post-build tool steps. Formatting and linting differ only in which tools they look for,
  * so they run through one loop rather than two near-identical blocks.
+ *
+ * `noun` and `verbing` are spelled out instead of built from `kind`. Concatenating `` `${kind}ter` ``
+ * and `` `${kind}ting` `` works for `format`, but doubles the `t` in `lint`, giving "lintter" and
+ * "lintting" instead of "linter" and "linting".
  */
-const TOOL_STEPS: ReadonlyArray<{ kind: 'format' | 'lint'; tools: Record<string, ToolCommand>; detect: ReadonlyArray<string> }> = [
-  // `detect` is the preference order for `auto`, most-preferred first. Spelled out rather than
-  // taken from the table's key order, which is arbitrary and silently changes what `auto` picks.
-  { kind: 'format', tools: formatters, detect: FORMATTER_PREFERENCE },
-  { kind: 'lint', tools: linters, detect: LINTER_PREFERENCE },
-]
+const TOOL_STEPS: ReadonlyArray<{ kind: 'format' | 'lint'; noun: string; verbing: string; tools: Record<string, ToolCommand>; detect: ReadonlyArray<string> }> =
+  [
+    // `detect` is the preference order for `auto`, most-preferred first. Spelled out rather than
+    // taken from the table's key order, which is arbitrary and silently changes what `auto` picks.
+    { kind: 'format', noun: 'formatter', verbing: 'Formatting', tools: formatters, detect: FORMATTER_PREFERENCE },
+    { kind: 'lint', noun: 'linter', verbing: 'Linting', tools: linters, detect: LINTER_PREFERENCE },
+  ]
 
 /**
  * Absolute path of the directory the formatter and linter are pointed at.
@@ -154,11 +159,11 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
     const tool = setting === 'auto' ? await detectTool(step.detect) : setting
 
     if (!tool) {
-      await hooks.callHook('kubb:warn', { message: `No ${step.kind}ter found (${step.detect.join(', ')}). Skipping ${step.kind}ting.` })
+      await hooks.callHook('kubb:warn', { message: `No ${step.noun} found (${step.detect.join(', ')}). Skipping ${step.verbing.toLowerCase()}.` })
     }
 
     if (tool && setting === 'auto') {
-      await hooks.callHook('kubb:info', { message: `Auto-detected ${step.kind}ter: ${styleText('dim', tool)}` })
+      await hooks.callHook('kubb:info', { message: `Auto-detected ${step.noun}: ${styleText('dim', tool)}` })
     }
 
     const command = tool ? step.tools[tool] : undefined
@@ -167,9 +172,7 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
       try {
         await runHook({ hooks, id: [config.name, tool].filter(Boolean).join('-'), command: command.command, args: command.args(outputPath(config)) })
 
-        if (step.kind === 'format') {
-          await hooks.callHook('kubb:success', { message: `Formatting with ${tool} successfully` })
-        }
+        await hooks.callHook('kubb:success', { message: `${step.verbing} with ${tool} successfully` })
       } catch (caughtError) {
         await hooks.callHook('kubb:error', { error: new Error(command.errorMessage, { cause: caughtError }) })
       }

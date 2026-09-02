@@ -4,7 +4,8 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
 import { type Config, fsStorage, Hookable, memoryStorage } from '@kubb/core'
-import { version as studioVersion } from '../package.json'
+// The `@kubb/core` version `generate.ts` actually runs, not `@kubb/studio`'s own package version.
+import { version as kubbVersion } from '@kubb/core/package.json'
 import { type AgentHooks, setupHookListener } from './hooks.ts'
 import { type AgentMessage, type ClientInfo, type ConfigFileView, isCommandMessage, isDisconnectMessage, isPongMessage } from './protocol/index.ts'
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
@@ -221,7 +222,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         type: 'connected',
         payload: {
           versions: {
-            kubb: studioVersion,
+            kubb: kubbVersion,
             agent: version,
           },
           configPath,
@@ -376,9 +377,10 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               }
 
               if (patch?.input && !canUseInput) {
-                console.warn(
-                  styleText('yellow', `[${tag}] Input from Studio is ignored; set KUBB_AGENT_ALLOW_INPUT=true to generate from the spec sent by Studio`),
-                )
+                // The Docker agent reads `allowInput` from `KUBB_AGENT_ALLOW_INPUT`. The CLI grants it
+                // through `--allowInput` or the per-project prompt instead, so each host gets its own remedy.
+                const remedy = client?.kind === 'cli' ? '--allowInput, or answer yes when kubb studio asks,' : 'KUBB_AGENT_ALLOW_INPUT=true'
+                console.warn(styleText('yellow', `[${tag}] Input from Studio is ignored; set ${remedy} to generate from the spec sent by Studio`))
               }
 
               const generationHooks = new Hookable<AgentHooks>()
