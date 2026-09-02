@@ -11,25 +11,6 @@ import type { BuildOutput, Config, KubbHooks, UserConfig } from './types.ts'
 import { Hookable } from './Hookable.ts'
 
 /**
- * Thrown when one or more errors occur during a Kubb build.
- * Carries the full list of underlying errors on `errors`.
- *
- * @example
- * ```ts
- * throw new BuildError('Build failed', { errors: [err1, err2] })
- * ```
- */
-class BuildError extends Error {
-  errors: Array<Error>
-
-  constructor(message: string, options: { cause?: Error; errors: Array<Error> }) {
-    super(message, { cause: options.cause })
-    this.name = 'BuildError'
-    this.errors = options.errors
-  }
-}
-
-/**
  * Resolves to `true` when `path` is `parent` itself or nested inside it. Both sides are resolved
  * to absolute paths first, so relative and `..`-containing inputs compare correctly.
  *
@@ -200,7 +181,7 @@ export class Kubb {
         .filter(Diagnostics.isProblem)
         .filter((diagnostic) => diagnostic.severity === 'error')
         .map((diagnostic) => diagnostic.cause ?? new Diagnostics.Error(diagnostic))
-      throw new BuildError(`Build failed with ${errors.length} ${errors.length === 1 ? 'error' : 'errors'}`, { errors })
+      throw new AggregateError(errors, `Build failed with ${errors.length} ${errors.length === 1 ? 'error' : 'errors'}`)
     }
     return out
   }

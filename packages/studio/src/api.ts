@@ -95,16 +95,15 @@ export class InvalidAgentTokenError extends Error {
   }
 }
 
-function isTokenRejection(error: unknown): boolean {
-  return error instanceof HttpError ? error.statusCode === 401 : (error as { statusCode?: number })?.statusCode === 401
-}
-
 /**
- * Detects a 403 response from the session create endpoint, which means the machine
- * token stored in Studio no longer matches this agent (missing or mismatched).
+ * Whether a thrown value carries `statusCode`. Not narrowed to {@link HttpError}: a `fetch` layer
+ * or a host wrapper can throw its own error shape with the same field.
+ *
+ * A 401 means the agent token itself was rejected. A 403 from the session create endpoint means
+ * the machine token stored in Studio no longer matches this agent (missing or mismatched).
  */
-function isMachineTokenRejection(error: unknown): boolean {
-  return error instanceof HttpError ? error.statusCode === 403 : (error as { statusCode?: number })?.statusCode === 403
+function rejectedWith(error: unknown, statusCode: number): boolean {
+  return (error as { statusCode?: number } | undefined)?.statusCode === statusCode
 }
 
 function sessionError(cause: unknown): Error {
@@ -141,18 +140,18 @@ export async function createAgentSession({ token, studioUrl }: ConnectProps): Pr
   try {
     return await requestAgentSession({ token, studioUrl })
   } catch (error: unknown) {
-    if (isTokenRejection(error)) {
+    if (rejectedWith(error, 401)) {
       throw new InvalidAgentTokenError(studioUrl, { cause: error })
     }
 
-    if (!isMachineTokenRejection(error) || !(await registerAgent({ token, studioUrl }))) {
+    if (!rejectedWith(error, 403) || !(await registerAgent({ token, studioUrl }))) {
       throw sessionError(error)
     }
 
     try {
       return await requestAgentSession({ token, studioUrl })
     } catch (retryError: unknown) {
-      if (isTokenRejection(retryError)) {
+      if (rejectedWith(retryError, 401)) {
         throw new InvalidAgentTokenError(studioUrl, { cause: retryError })
       }
 
@@ -204,7 +203,7 @@ async function runRegistration({ token, studioUrl, poolSize }: RegisterProps): P
       })
       return true
     } catch (error) {
-      if (isTokenRejection(error)) {
+      if (rejectedWith(error, 401)) {
         throw new InvalidAgentTokenError(studioUrl, { cause: error })
       }
 

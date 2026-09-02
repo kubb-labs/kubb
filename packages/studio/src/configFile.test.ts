@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { applyConfigEdits, isOptionValue, printValue, readConfig } from './configFile.ts'
+import { applyConfigEdits, isOptionValue, readConfig } from './configFile.ts'
 import type { ConfigEdit } from './protocol/index.ts'
 
 const advanced = readFileSync(join(import.meta.dirname, '../mocks/advanced.config.txt'), 'utf8')
@@ -35,26 +35,6 @@ function changedLines(before: string, after: string): Array<string> {
 function apply(source: string, ...edits: Array<ConfigEdit>) {
   return applyConfigEdits(source, edits)
 }
-
-describe('printValue', () => {
-  it('prints config literals in the repo style', () => {
-    expect([printValue('a-b'), printValue(true), printValue(3), printValue(null), printValue(['x']), printValue({ type: 'tag', 'odd key': 1 })])
-      .toMatchInlineSnapshot(`
-        [
-          "'a-b'",
-          "true",
-          "3",
-          "null",
-          "['x']",
-          "{ type: 'tag', 'odd key': 1 }",
-        ]
-      `)
-  })
-
-  it('escapes quotes and backslashes in strings', () => {
-    expect(printValue("it's \\ here")).toMatchInlineSnapshot(`"'it\\'s \\\\ here'"`)
-  })
-})
 
 describe('readConfig', () => {
   it('lists every plugin in the advanced example with its package', () => {

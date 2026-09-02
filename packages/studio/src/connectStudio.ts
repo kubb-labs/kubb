@@ -56,8 +56,8 @@ export type ConnectToStudioOptions = {
   retryInterval?: number
   heartbeatInterval?: number
   /**
-   * Number of pool sessions this agent serves. The saved studio config is shared by all of them,
-   * so it is only persisted and replayed when this is 1.
+   * Number of pool sessions this agent serves. Read by `createClient`, which opens one
+   * `connectToStudio` per slot, and reported to Studio at registration.
    */
   poolSize?: number
   /**

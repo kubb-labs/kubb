@@ -463,7 +463,7 @@ export class Diagnostics {
    * keeps its structured data, and anything else becomes a `KUBB_UNKNOWN` error.
    */
   static from(error: unknown): ProblemDiagnostic {
-    // The hook emitter and BuildError wrap the original, so walk the cause chain to
+    // The hook emitter and the build's AggregateError wrap the original, so walk the cause chain to
     // recover a Diagnostics.Error thrown deeper down. `root` tracks the deepest error so
     // the unknown diagnostic reports the original message and stack, not the wrapper's.
     const seen = new Set<unknown>()

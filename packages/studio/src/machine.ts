@@ -23,10 +23,6 @@ export function setStorage(next: Storage): void {
   hasInstalledStorage = true
 }
 
-function getStorage(): Storage {
-  return storage
-}
-
 /**
  * A storage backed by files under `base`, so the machine secret and the last Studio config
  * survive a restart. Repeated pairings of one machine depend on that secret staying put.
@@ -55,7 +51,6 @@ async function loadOrCreateFallbackSecret(): Promise<string> {
     )
   }
 
-  const storage = getStorage()
   const stored = await storage.getItem('machine-secret').catch(() => null)
 
   if (typeof stored === 'string' && stored) {

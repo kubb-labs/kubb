@@ -335,32 +335,6 @@ export function isOptionValue(value: unknown): value is OptionValue {
 }
 
 /**
- * Prints a string as a single-quoted literal. `JSON.stringify` does the escaping, so a newline, a
- * backslash, or a control character cannot break out of the literal and into the surrounding file.
- */
-function printString(value: string): string {
-  const escaped = JSON.stringify(value).slice(1, -1).replace(/\\"/g, '"').replace(/'/g, "\\'")
-  return `'${escaped}'`
-}
-
-/**
- * Prints a value the way Kubb configs are written: single quotes, spaced braces.
- */
-export function printValue(value: OptionValue): string {
-  if (typeof value === 'string') {
-    return printString(value)
-  }
-  if (Array.isArray(value)) {
-    return `[${value.map(printValue).join(', ')}]`
-  }
-  if (value !== null && typeof value === 'object') {
-    const entries = Object.entries(value).map(([key, entry]) => `${/^[A-Za-z_$][\w$]*$/.test(key) ? key : printString(key)}: ${printValue(entry)}`)
-    return entries.length ? `{ ${entries.join(', ')} }` : '{}'
-  }
-  return String(value)
-}
-
-/**
  * The options object of a plugin call, when it was called with one.
  */
 function getOptions(call: CallProxy): ObjectProxy | undefined {
