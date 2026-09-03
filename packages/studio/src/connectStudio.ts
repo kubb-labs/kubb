@@ -66,9 +66,8 @@ export type ConnectToStudioOptions = {
    */
   signal?: AbortSignal
   /**
-   * Installs listeners on an event emitter. Called once for the session emitter and once per
-   * generation, so one function covers both. Left out, the runtime prints nothing at all, which is
-   * what a library should default to: the `kubb studio` CLI passes its own renderer.
+   * Installs listeners on an event emitter, once for the session and once per generation. Left out,
+   * the runtime prints nothing, which is what a library should default to.
    */
   installLogger?: (hooks: Hookable<AgentHooks>) => void | Promise<void>
 }
@@ -146,7 +145,14 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   const hooks = new Hookable<AgentHooks>()
   await installLogger?.(hooks)
 
+  // What Studio last reported about itself, so a mismatch shows up in the host's own output.
+  let studioVersion: string | undefined
+
   try {
+    // Before the session exists, so a host can cover the wait: `createAgentSession` is a round
+    // trip and the socket after it opens without being awaited.
+    await hooks.callHook('studio:connecting', { url: studioUrl })
+
     const { sessionId, slug, wsUrl, isSandbox } = await createAgentSession({ token, studioUrl })
     const ws = createWebsocket(wsUrl, {
       headers: { Authorization: `Bearer ${token}` },
@@ -225,10 +231,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       sendAgentMessage(ws, {
         type: 'agent:connect',
         payload: {
-          versions: {
-            kubb: kubbVersion,
-            agent: version,
-          },
+          versions: { kubb: kubbVersion, agent: version },
           root,
           config: {
             path: configPath,
@@ -251,7 +254,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     const onOpen = async () => {
       lastPongAt = Date.now()
-      await hooks.callHook('studio:connected', { studioUrl })
+      await hooks.callHook('studio:connected', { url: studioUrl, versions: { studio: studioVersion, kubb: kubbVersion, agent: version } })
 
       // Announce readiness without waiting for a `studio:connect` command. The command from the
       // Studio UI is lost when it is sent while the agent is not attached to the session
@@ -428,6 +431,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
           }
 
           if (data.type === 'studio:connect') {
+            studioVersion = data.version ?? studioVersion
             await sendConnectedPayload()
 
             await hooks.callHook('studio:command:end', { command })

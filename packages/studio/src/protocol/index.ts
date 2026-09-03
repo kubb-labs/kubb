@@ -231,6 +231,11 @@ export type StudioGenerateMessage = {
  */
 export type StudioConnectMessage = {
   type: 'studio:connect'
+  /**
+   * Version of the Studio instance asking. The agent reports it back on `studio:connected`, so a
+   * mismatch shows up in the terminal too.
+   */
+  version?: string
 }
 
 /**
@@ -249,8 +254,7 @@ export type StudioSaveMessage = {
 export type CommandMessage = StudioGenerateMessage | StudioConnectMessage | StudioSaveMessage
 
 /**
- * The command names, in the order a handler is likely to branch on them. Exported so a host can
- * label a command without re-deriving the list from the union.
+ * The command names, for a host that needs the list rather than the union.
  */
 export const commandTypes = ['studio:generate', 'studio:connect', 'studio:save'] as const
 
@@ -267,26 +271,23 @@ export type ClientInfo = {
 }
 
 /**
- * Payload of the `agent:connect` handshake, sent when the agent attaches to a session.
- *
- * Only what Studio actually renders: the versions it badges the connection with, the workspace the
- * generation runs in, everything about the config in one object, and the permissions that decide
- * which controls the UI enables.
+ * Payload of the `agent:connect` handshake, sent when the agent attaches to a session. Carries only
+ * what Studio renders, with everything about the config under one key.
  */
 export type ConnectMessagePayload = {
   /**
-   * The versions the agent reports on connect.
+   * Always sent, so a mismatch is visible on both sides: Studio badges the connection with these
+   * and the host prints them.
    */
-  versions?: {
+  versions: {
     /**
-     * The version of Kubb (the `kubb` package) the agent generates with.
+     * The version of the `@kubb/studio` runtime the agent runs.
      */
     kubb: string
     /**
      * The version of the host itself (the `kubb.agent` package or the `kubb` CLI).
-     * Optional so a payload from an agent that predates the field still parses.
      */
-    agent?: string
+    agent: string
   }
   /**
    * The agent's project root (`KUBB_AGENT_ROOT`, or the working directory when unset). This is the
@@ -294,8 +295,7 @@ export type ConnectMessagePayload = {
    */
   root: string
   /**
-   * Everything about the agent's config, as one object rather than spread across the payload.
-   * This is the baseline every generation starts from.
+   * The baseline every generation starts from.
    */
   config: {
     /**
@@ -375,10 +375,9 @@ export type AgentSaveMessage = {
 }
 
 /**
- * Failure notice from Studio, for something that breaks outside a generation: a malformed command,
- * or an agent too old to speak this protocol. The agent's own failures travel the other way as an
- * `agent:data` message carrying a `kubb:error` payload, so they stay ordered against the generation
- * events around them.
+ * Failure notice from Studio for something that breaks outside a generation, such as a malformed
+ * command. The agent's own failures travel as an `agent:data` message carrying a `kubb:error`
+ * payload, which keeps them ordered against the generation events around them.
  */
 export type StudioErrorMessage = {
   type: 'studio:error'
@@ -409,11 +408,11 @@ export type StudioDisconnectMessage = {
 }
 
 /**
- * The agent announcing that it is going away, so Studio can mark the session offline at once rather
- * than waiting out the heartbeat window. The mirror of {@link StudioDisconnectMessage}.
+ * The agent going away, so Studio marks the session offline instead of waiting out the heartbeat
+ * window. The mirror of {@link StudioDisconnectMessage}.
  *
- * Only sent for a shutdown (`SIGINT`/`SIGTERM`, or the host aborting its signal). An expired or
- * revoked session is Studio's own decision, so echoing it back would say nothing new.
+ * Only sent for a shutdown. An expired or revoked session was Studio's own decision, so echoing it
+ * back says nothing new.
  */
 export type AgentDisconnectMessage = {
   type: 'agent:disconnect'

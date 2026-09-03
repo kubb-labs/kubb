@@ -7,7 +7,8 @@ import { spyOnConsole } from './console.mock.ts'
 import { MockWebSocket } from './websocket.mock.ts'
 import type { AgentConnectResponse } from './protocol/index.ts'
 import type { Hookable } from '@kubb/core'
-import type { AgentHooks, StudioHooks } from './hooks.ts'
+import type { StudioHooks } from '@kubb/core'
+import type { AgentHooks } from './hooks.ts'
 import type { ConnectToStudioOptions } from './connectStudio.ts'
 import { connectToStudio } from './connectStudio.ts'
 
@@ -63,7 +64,7 @@ function recordSessionEvents() {
   return {
     events,
     installLogger(hooks: Hookable<AgentHooks>) {
-      for (const name of ['studio:connected', 'studio:disconnected', 'studio:command:start', 'studio:command:end', 'studio:warn', 'studio:error'] as const) {
+      for (const name of ['studio:connecting', 'studio:connected', 'studio:disconnected', 'studio:command:start', 'studio:command:end', 'studio:warn', 'studio:error'] as const) {
         hooks.hook(name, (ctx) => {
           events.push({ name, ctx: ctx as unknown as Record<string, unknown> })
         })
@@ -260,7 +261,9 @@ describe('connectToStudio', () => {
 
     await mockWs.trigger('open')
 
-    expect(session.named('studio:connected')).toStrictEqual([{ name: 'studio:connected', ctx: { studioUrl: 'https://kubb.studio' } }])
+    expect(session.named('studio:connected')).toStrictEqual([
+      { name: 'studio:connected', ctx: { url: 'https://kubb.studio', versions: { studio: undefined, kubb: '5.0.0-test', agent: '1.0.0' } } },
+    ])
   })
 
   it('logs the slug when the WebSocket errors', async () => {
@@ -772,6 +775,18 @@ describe('connectToStudio', () => {
     await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:disconnect', reason: 'revoked' }) })
 
     expect(sendAgentMessage).not.toHaveBeenCalledWith(mockWs, expect.objectContaining({ type: 'agent:disconnect' }))
+  })
+
+  it('reports the version Studio sent back through studio:connected', async () => {
+    await connectToStudio(options)
+
+    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:connect', version: '9.9.9' }) })
+    await mockWs.trigger('open')
+
+    expect(session.named('studio:connected').at(-1)?.ctx).toStrictEqual({
+      url: 'https://kubb.studio',
+      versions: { studio: '9.9.9', kubb: '5.0.0-test', agent: '1.0.0' },
+    })
   })
 
   it('reflects allowWrite in permissions on connect command', async () => {

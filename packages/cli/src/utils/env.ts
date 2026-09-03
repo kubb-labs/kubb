@@ -48,14 +48,9 @@ export function canUseTTY(): boolean {
 }
 
 /**
- * Returns `true` when output can carry spinners and clack's gutter: an interactive TTY that is not
- * being read by an AI coding agent. Cursor-movement escapes are hard for an agent to parse, even
- * over a pseudo-TTY, so it gets the plain writer.
- *
- * @example
- * ```ts
- * isRichOutput() ? prompts.log.info(text) : console.log(text)
- * ```
+ * Returns `true` when output can carry spinners and clack's gutter: an interactive TTY that no AI
+ * coding agent is reading. Cursor-movement escapes are hard for an agent to parse even over a
+ * pseudo-TTY, so it gets the plain writer.
  */
 export function isRichOutput(): boolean {
   return canUseTTY() && !getAgentName()

@@ -401,6 +401,94 @@ export interface KubbHooks {
   'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
 }
 
+/**
+ * Events a host emits about its Kubb Studio session, as opposed to a generation. `kubb:` stays
+ * reserved for generation lifecycle.
+ *
+ * Declared next to {@link KubbHooks} so the CLI's loggers render both from one emitter without
+ * depending on `@kubb/studio`, which is an optional peer.
+ */
+export type StudioHooks = {
+  'studio:connecting': [ctx: StudioConnectingContext]
+  'studio:connected': [ctx: StudioConnectedContext]
+  'studio:disconnected': [ctx: StudioDisconnectedContext]
+  'studio:command:start': [ctx: StudioCommandStartContext]
+  'studio:command:end': [ctx: StudioCommandEndContext]
+  'studio:warn': [ctx: StudioWarnContext]
+  'studio:error': [ctx: StudioErrorContext]
+}
+
+export type StudioConnectingContext = {
+  /**
+   * The Studio instance this session is opening against.
+   */
+  url: string
+}
+
+export type StudioConnectedContext = {
+  /**
+   * The Studio instance this session attached to.
+   */
+  url: string
+  /**
+   * Both sides of the connection, so a host can print them and make a mismatch visible.
+   */
+  versions: {
+    /**
+     * The Studio instance's own version, when it sent one.
+     */
+    studio?: string
+    /**
+     * The version of the runtime that connected.
+     */
+    kubb: string
+    /**
+     * The version of the host itself, such as the `kubb` CLI or the agent image.
+     */
+    agent: string
+  }
+}
+
+export type StudioDisconnectedContext = {
+  /**
+   * Why Studio ended the session.
+   */
+  reason: string
+}
+
+export type StudioCommandStartContext = {
+  /**
+   * The command Studio sent, without its `studio:` prefix: `generate`, `connect` or `save`.
+   */
+  command: string
+}
+
+export type StudioCommandEndContext = {
+  /**
+   * The command that finished, without its `studio:` prefix.
+   */
+  command: string
+  /**
+   * What the command did, when there is something to report: `applied 2/3 edits to kubb.config.ts`.
+   */
+  info?: string
+}
+
+export type StudioWarnContext = {
+  /**
+   * What was refused or ignored, and what would change it.
+   */
+  message: string
+}
+
+export type StudioErrorContext = {
+  /**
+   * The failure, for the host's own output. One Studio needs to hear about goes over the socket
+   * through the `kubb:error` generation hook instead.
+   */
+  error: Error
+}
+
 export type KubbBuildStartContext = {
   /**
    * Resolved configuration for this build.

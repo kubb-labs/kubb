@@ -16,7 +16,6 @@ import type { definition } from '../../commands/studio.ts'
 import setupReporters from '../../loggers/utils.ts'
 import { canUseTTY, isCIEnvironment, isRichOutput } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
-import { installStudioLogger, writeLine } from './logger.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 
 const ACTIONS = ['connect', 'login', 'logout', 'status'] as const
@@ -132,7 +131,7 @@ const PERMISSIONS: ReadonlyArray<{
 
 /**
  * One row per permission, for the connect banner and `kubb studio status`. A list rather than a
- * joined line: four labels of this length read as one run-on sentence side by side.
+ * joined line: four labels this long read as one run-on sentence side by side.
  */
 export function formatPermissionRows(granted: Record<Permission, boolean>): Array<string> {
   return PERMISSIONS.map(({ key, label }) => `${granted[key] ? styleText('green', '✔') : styleText('red', '✘')} ${label}`)
@@ -245,11 +244,6 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
     ])
   }
 
-  // Sessions connect without being awaited, so the spinner is what reports the wait. The logger
-  // stops it on `studio:connected`, which is why the Ctrl+C hint below can finally be honest.
-  const spinner = isRich && options.logLevel !== 'silent' ? prompts.spinner() : undefined
-  spinner?.start('Connecting to Kubb Studio')
-
   const client = createClient({
     token: credentials.token,
     studioUrl: options.studioUrl,
@@ -263,12 +257,9 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
     allowConfigEdit,
     allowInput,
     allowExec,
-    // One function for both emitters: the session events go to the studio logger, and a
-    // generation's `kubb:*` events go to the same clack/plain loggers `kubb generate` installs.
-    installLogger: async (hooks) => {
-      installStudioLogger(hooks, { logLevel, spinner })
-      await setupReporters(hooks, { logLevel, reporters: [cliReporter] })
-    },
+    // The loggers `kubb generate` installs, on both emitters: one place renders the session
+    // events and a generation's.
+    installLogger: (hooks) => setupReporters(hooks, { logLevel, reporters: [cliReporter] }),
     // The local config bounds what Studio may import. Without this a `generate` payload could name
     // any module in the project's node_modules and the runtime would import it. Union of every
     // config entry's plugins, since Studio edits any entry, not only the one it generates from.
@@ -303,12 +294,13 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
     say(styleText('dim', 'Press Ctrl+C to disconnect'))
   }
 
+
   await new Promise<void>((resolve) => {
     const stop = () => {
       client.disconnect()
 
       if (options.logLevel !== 'silent') {
-        // `outro` closes the block clack's `intro` opened, so it is not the same as a written line.
+        // `outro` closes the block `intro` opened, so it is not a written line.
         if (isRich) {
           prompts.outro('Disconnected')
         } else {
@@ -375,11 +367,17 @@ async function run(options: StudioOptions): Promise<void> {
 
   try {
     if (options.logLevel !== 'silent') {
-      if (isRichOutput() && options.action === 'connect') {
-        prompts.intro(`Kubb Studio  ${styleText('dim', `v${options.version}`)}`)
-      }
+      const banner = `Kubb Studio  ${styleText('dim', `v${options.version}`)}`
+      const caution = styleText('yellow', 'This feature is still under development, use with caution')
 
-      writeLine('warn', styleText('yellow', 'This feature is still under development, use with caution'))
+      if (isRichOutput() && options.action === 'connect') {
+        prompts.intro(banner)
+        prompts.log.warn(caution)
+      } else {
+        console.log(banner)
+        console.warn(caution)
+        console.log()
+      }
     }
 
     switch (options.action) {
