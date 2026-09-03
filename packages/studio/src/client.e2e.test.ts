@@ -9,8 +9,8 @@ import type { AgentMessage, AgentConnectMessage, DataMessage } from './protocol/
 
 /**
  * A Kubb Studio small enough to run in a test: the two REST calls an agent makes on startup, and
- * the session socket it then talks over. Everything the client does is real — the HTTP requests,
- * the WebSocket frames, the generation.
+ * the session socket it then talks over. Everything the client does is real, including the HTTP
+ * requests, the WebSocket frames, and the generation.
  */
 type FakeStudioOptions = {
   /**

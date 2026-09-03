@@ -22,7 +22,7 @@
 
 # @kubb/studio
 
-### Kubb Studio client runtime
+Kubb Studio client runtime.
 
 Connects a Kubb project to [Kubb Studio](https://kubb.studio) over a WebSocket relay and streams
 code generation events as they happen. It backs both front ends: the `kubb studio` CLI command and

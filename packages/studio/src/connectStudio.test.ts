@@ -21,8 +21,8 @@ vi.mock('./generate.ts', () => ({
   generate: vi.fn().mockResolvedValue(undefined),
 }))
 
-// Config resolution runs for real. It reaches outside the process in two ways — `import()`-ing a
-// plugin package and `import()`-ing the adapter package — so those packages are what gets stubbed.
+// Config resolution runs for real. It reaches outside the process in two ways, `import()`-ing a
+// plugin package and `import()`-ing the adapter package, so those packages are what gets stubbed.
 vi.mock('@kubb/plugin-ts', () => ({ pluginTs: (options: unknown) => ({ name: 'plugin-ts', options }) }))
 vi.mock('@kubb/plugin-zod', () => ({ pluginZod: (options: unknown) => ({ name: 'plugin-zod', options }) }))
 vi.mock('@kubb/adapter-oas', () => ({ adapterOas: (options: unknown) => ({ name: 'oas', options, parse: vi.fn() }) }))
@@ -929,9 +929,9 @@ describe('connectToStudio', () => {
 
     expect(session.named('studio:disconnected')).toStrictEqual([{ name: 'studio:disconnected', ctx: { reason: 'revoked' } }])
     expect(mockWs.closed).toBe(true)
-    // disconnect API must NOT be called — server already knows about the closure
+    // The server already knows about the closure, so the disconnect API is not called.
     expect(disconnect).not.toHaveBeenCalled()
-    // revoked sessions must NOT trigger a reconnect
+    // A revoked session does not trigger a reconnect.
     expect(consoleSpy.info).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
   })
 
@@ -947,7 +947,7 @@ describe('connectToStudio', () => {
     expect(session.named('studio:disconnected')).toStrictEqual([{ name: 'studio:disconnected', ctx: { reason: 'expired' } }])
     expect(mockWs.closed).toBe(true)
     expect(disconnect).not.toHaveBeenCalled()
-    // expired sessions trigger a reconnect (unlike revoked)
+    // Unlike a revoked session, an expired one triggers a reconnect.
     expect(consoleSpy.info).toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
   })
 
@@ -972,7 +972,7 @@ describe('connectToStudio', () => {
       await vi.advanceTimersByTimeAsync(0)
 
       expect(session.errors().map((error) => error.message)).toContainEqual(expect.stringContaining('502 Bad Gateway'))
-      // the failed attempt schedules another reconnect rather than giving up
+      // The failed attempt schedules another reconnect rather than giving up.
       await vi.advanceTimersByTimeAsync(options.retryInterval!)
       expect(createAgentSession).toHaveBeenCalledTimes(3)
       expect(unhandledRejections).toStrictEqual([])
