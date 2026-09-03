@@ -1,7 +1,7 @@
 import type { Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { JSONKubbConfig } from './protocol/index.ts'
-import { assertAllowedPlugins, mergeAdapter, mergePlugins, resolvePlugins, toExportName } from './resolveConfig.ts'
+import { mergeAdapter, mergePlugins, resolvePlugins, toExportName } from './resolveConfig.ts'
 
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
 
@@ -156,44 +156,6 @@ describe('mergePlugins', () => {
   })
 })
 
-describe('assertAllowedPlugins', () => {
-  // The allow-list holds unscoped disk plugin names, so matching has to accept the package they
-  // came from without accepting a different package that happens to end the same way.
-  it('accepts the @kubb package an unscoped entry stands for', () => {
-    expect(() => assertAllowedPlugins([{ name: '@kubb/plugin-ts' }], ['plugin-ts'])).not.toThrow()
-  })
-
-  it('rejects a different scope that ends in an allowed name', () => {
-    expect(() => assertAllowedPlugins([{ name: '@evil/plugin-ts' }], ['plugin-ts'])).toThrow(/does not import/)
-  })
-
-  it.each(['../../../etc/plugin-ts', '/tmp/evil', './local-plugin', 'a/b/c'])('rejects %s, which is not a package name', (name) => {
-    expect(() => assertAllowedPlugins([{ name }], ['plugin-ts'])).toThrow(/not a package name/)
-  })
-
-  // The Docker agent runs without an allow-list: the image bounds which packages exist, but that
-  // says nothing about which paths are reachable inside the container.
-  it('rejects a path even when no allow-list is set', () => {
-    expect(() => assertAllowedPlugins([{ name: '../../../etc/passwd' }], undefined)).toThrow(/not a package name/)
-  })
-
-  it('accepts anything when no allow-list is given', () => {
-    expect(() => assertAllowedPlugins([{ name: 'anything-at-all' }], undefined)).not.toThrow()
-  })
-
-  it('accepts a plugin the local config imports, matched on the package base name', () => {
-    expect(() => assertAllowedPlugins([{ name: '@kubb/plugin-ts' }], ['@kubb/plugin-ts'])).not.toThrow()
-  })
-
-  it('rejects a plugin the local config does not import', () => {
-    expect(() => assertAllowedPlugins([{ name: 'evil-module' }], ['@kubb/plugin-ts'])).toThrow(/"evil-module"/)
-  })
-
-  it('names every rejected plugin', () => {
-    expect(() => assertAllowedPlugins([{ name: 'a' }, { name: '@kubb/plugin-ts' }, { name: 'b' }], ['@kubb/plugin-ts'])).toThrow(/"a", "b"/)
-  })
-})
-
 describe('resolvePlugins', () => {
   it('throws when the plugin package cannot be imported', async () => {
     await expect(resolvePlugins([{ name: '@kubb/plugin-missing', options: {} }])).rejects.toThrow('Plugin "@kubb/plugin-missing" could not be loaded')
@@ -237,44 +199,20 @@ describe('resolvePlugins', () => {
       name: 'plugin-default-only',
       options,
     }))
-    vi.doMock('@my-org/plugin-default-only', () => ({
+    vi.doMock('@kubb/plugin-default-only', () => ({
       pluginDefaultOnly: undefined,
       default: mockDefault,
     }))
     const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
 
-    const result = await resolve([{ name: '@my-org/plugin-default-only', options: {} }])
+    const result = await resolve([{ name: '@kubb/plugin-default-only', options: {} }])
 
     expect(result).toHaveLength(1)
     expect(mockDefault).toHaveBeenCalledWith({})
   })
 
-  it('resolves a non-kubb scoped package by its camelCase named export', async () => {
-    const mockFactory = vi.fn((options: unknown) => ({
-      name: 'my-plugin',
-      options,
-    }))
-    vi.doMock('@my-org/my-plugin', () => ({ myPlugin: mockFactory }))
-    const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
-
-    const result = await resolve([{ name: '@my-org/my-plugin', options: {} }])
-
-    expect(result).toHaveLength(1)
-    expect(mockFactory).toHaveBeenCalledWith({})
-  })
-
-  it('resolves an unscoped package by its camelCase named export', async () => {
-    const mockFactory = vi.fn((options: unknown) => ({
-      name: 'my-custom-plugin',
-      options,
-    }))
-    vi.doMock('my-custom-plugin', () => ({ myCustomPlugin: mockFactory }))
-    const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
-
-    const result = await resolve([{ name: 'my-custom-plugin', options: {} }])
-
-    expect(result).toHaveLength(1)
-    expect(mockFactory).toHaveBeenCalledWith({})
+  it('refuses a plugin name that is not a @kubb/plugin-* package', async () => {
+    await expect(resolvePlugins([{ name: 'my-custom-plugin', options: {} }])).rejects.toThrow('is not a @kubb/plugin-* package')
   })
 
   it('throws when the module exists but exports no callable factory', async () => {
@@ -374,9 +312,5 @@ describe('toExportName', () => {
       '@kubb/plugin-vue-query': 'pluginVueQuery',
       '@kubb/plugin-zod': 'pluginZod',
     })
-  })
-
-  it('derives a name for a plugin outside the @kubb scope', () => {
-    expect(['@acme/plugin-solid-query', 'kubb-plugin-custom'].map(toExportName)).toStrictEqual(['pluginSolidQuery', 'kubbPluginCustom'])
   })
 })

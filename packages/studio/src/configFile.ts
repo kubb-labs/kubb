@@ -1,7 +1,7 @@
 import { builders, detectCodeFormat, generateCode, parseModule } from 'magicast'
 import type { ASTNode, ProxifiedModule } from 'magicast'
 import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigRef, ConfigView, OptionValue, PluginView } from './protocol/index.ts'
-import { isBareSpecifier, toExportName } from './resolveConfig.ts'
+import { isKubbPluginSpecifier, toExportName } from './resolveConfig.ts'
 
 /**
  * A valid JavaScript identifier, so an import name can only ever print as `import { name } from`,
@@ -166,12 +166,12 @@ function configName(config: ObjectNode): string | undefined {
  * The name of an object literal property, for the two key shapes a config uses: `key: value` and
  * `'key': value`. `undefined` for a computed key, which the patcher never touches.
  */
-function propertyKey(property: Extract<ASTNode, { type: 'ObjectProperty' }>): string | undefined {
-  if (property.key.type === 'Identifier') {
-    return property.key.name
+function propertyKey(entry: Extract<ASTNode, { type: 'ObjectProperty' }>): string | undefined {
+  if (entry.key.type === 'Identifier') {
+    return entry.key.name
   }
-  if (property.key.type === 'StringLiteral') {
-    return property.key.value
+  if (entry.key.type === 'StringLiteral') {
+    return entry.key.value
   }
   return undefined
 }
@@ -288,19 +288,14 @@ function pluginCalls(mod: ProxifiedModule, config: ObjectNode): Array<{ importNa
   }
 
   const imports = importedFrom(mod)
-  const resolved = []
 
-  for (const element of plugins.elements) {
+  return plugins.elements.flatMap((element) => {
     if (element?.type !== 'CallExpression' || element.callee.type !== 'Identifier') {
-      continue
+      return []
     }
-    const importName = element.callee.name
-    const packageName = imports.get(importName)
-    if (packageName) {
-      resolved.push({ importName, packageName, call: element })
-    }
-  }
-  return resolved
+    const packageName = imports.get(element.callee.name)
+    return packageName ? [{ importName: element.callee.name, packageName, call: element }] : []
+  })
 }
 
 /**
@@ -383,16 +378,10 @@ export function readConfig(source: string): ConfigFileView {
 }
 
 /**
- * An object literal key that would change the prototype rather than add a property.
- */
-const UNSAFE_KEY = '__proto__'
-
-/**
  * Whether a value can be written into a config file as a literal.
  *
- * This is the trust boundary for edits that arrive over the agent WebSocket: anything else, a
- * function, `undefined`, a non-finite number, or an object carrying a `__proto__` key, is refused
- * rather than printed into the user's source.
+ * This is the trust boundary for edits that arrive over the agent WebSocket: a function, `undefined`,
+ * or a non-finite number is refused rather than printed into the user's source.
  */
 export function isOptionValue(value: unknown): value is OptionValue {
   if (value === null) {
@@ -408,7 +397,7 @@ export function isOptionValue(value: unknown): value is OptionValue {
     return value.every(isOptionValue)
   }
   if (typeof value === 'object') {
-    return Object.entries(value).every(([key, entry]) => key !== UNSAFE_KEY && isOptionValue(entry))
+    return Object.values(value).every(isOptionValue)
   }
   return false
 }
@@ -438,12 +427,6 @@ function optionParent(options: ObjectNode, path: Array<string>): { object: Objec
   let object = options
 
   for (const [index, key] of path.entries()) {
-    // `__proto__` printed into the config reassigns its prototype on import instead of creating a
-    // property. Refused here so one bad edit can't take the rest of the batch down.
-    if (key === UNSAFE_KEY) {
-      return { reason: `${path.join('.')} is not a valid option path` }
-    }
-
     if (index === path.length - 1) {
       return { object, key }
     }
@@ -529,8 +512,8 @@ type AddPluginResult = { reason: string } | { addImport?: { importName: string; 
  * present, or when its import name collides with an unrelated existing import.
  */
 function applyAddPlugin(mod: ProxifiedModule, config: ObjectNode, edit: Extract<ConfigEdit, { operation: 'add-plugin' }>): AddPluginResult {
-  if (!isBareSpecifier(edit.plugin)) {
-    return { reason: `"${edit.plugin}" is not a package name` }
+  if (!isKubbPluginSpecifier(edit.plugin)) {
+    return { reason: `"${edit.plugin}" is not a @kubb/plugin-* package` }
   }
 
   const importName = edit.importName ?? toExportName(edit.plugin)
