@@ -1,6 +1,6 @@
 {
   "name": "@kubb/core",
-  "version": "5.0.6",
+  "version": "5.1.0",
   "description": "Core engine for Kubb. Provides the plugin driver, file manager and build orchestration used by every Kubb plugin.",
   "keywords": [
     "code-generator",
@@ -52,10 +52,12 @@
   },
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
     "./mocks": {
+      "types": "./dist/mocks.d.ts",
       "import": "./dist/mocks.js",
       "require": "./dist/mocks.cjs"
     },

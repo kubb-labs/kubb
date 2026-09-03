@@ -1,6 +1,6 @@
 {
   "name": "unplugin-kubb",
-  "version": "5.0.34",
+  "version": "5.0.35",
   "description": "Integration of Kubb for Vite, Webpack, Rollup, esbuild, Rspack, Nuxt, and Astro.",
   "keywords": [
     "astro",
@@ -56,50 +56,62 @@
   },
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
     "./astro": {
+      "types": "./dist/astro.d.ts",
       "import": "./dist/astro.js",
       "require": "./dist/astro.cjs"
     },
     "./esbuild": {
+      "types": "./dist/esbuild.d.ts",
       "import": "./dist/esbuild.js",
       "require": "./dist/esbuild.cjs"
     },
     "./farm": {
+      "types": "./dist/farm.d.ts",
       "import": "./dist/farm.js",
       "require": "./dist/farm.cjs"
     },
     "./nuxt": {
+      "types": "./dist/nuxt.d.ts",
       "import": "./dist/nuxt.js",
       "require": "./dist/nuxt.cjs"
     },
     "./rolldown": {
+      "types": "./dist/rolldown.d.ts",
       "import": "./dist/rolldown.js",
       "require": "./dist/rolldown.cjs"
     },
     "./rollup": {
+      "types": "./dist/rollup.d.ts",
       "import": "./dist/rollup.js",
       "require": "./dist/rollup.cjs"
     },
     "./rspack": {
+      "types": "./dist/rspack.d.ts",
       "import": "./dist/rspack.js",
       "require": "./dist/rspack.cjs"
     },
     "./types": {
+      "types": "./dist/types.d.ts",
       "import": "./dist/types.js",
       "require": "./dist/types.cjs"
     },
     "./unpluginFactory": {
+      "types": "./dist/unpluginFactory.d.ts",
       "import": "./dist/unpluginFactory.js",
       "require": "./dist/unpluginFactory.cjs"
     },
     "./vite": {
+      "types": "./dist/vite.d.ts",
       "import": "./dist/vite.js",
       "require": "./dist/vite.cjs"
     },
     "./webpack": {
+      "types": "./dist/webpack.d.ts",
       "import": "./dist/webpack.js",
       "require": "./dist/webpack.cjs"
     },

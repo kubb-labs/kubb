@@ -1,6 +1,6 @@
 {
   "name": "kubb",
-  "version": "5.0.6",
+  "version": "5.1.0",
   "description": "The meta framework for code generation. Point Kubb at a schema and it generates types, clients, hooks, validators, mocks, and more.",
   "keywords": [
     "api-client",
@@ -50,66 +50,82 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
     "./astro": {
+      "types": "./dist/astro.d.ts",
       "import": "./dist/astro.js",
       "require": "./dist/astro.cjs"
     },
     "./config": {
+      "types": "./dist/config.d.ts",
       "import": "./dist/config.js",
       "require": "./dist/config.cjs"
     },
     "./esbuild": {
+      "types": "./dist/esbuild.d.ts",
       "import": "./dist/esbuild.js",
       "require": "./dist/esbuild.cjs"
     },
     "./farm": {
+      "types": "./dist/farm.d.ts",
       "import": "./dist/farm.js",
       "require": "./dist/farm.cjs"
     },
     "./jsx": {
+      "types": "./dist/jsx.d.ts",
       "import": "./dist/jsx.js",
       "require": "./dist/jsx.cjs"
     },
     "./jsx/jsx-dev-runtime": {
+      "types": "./dist/jsx/jsx-dev-runtime.d.ts",
       "import": "./dist/jsx/jsx-dev-runtime.js",
       "require": "./dist/jsx/jsx-dev-runtime.cjs"
     },
     "./jsx/jsx-runtime": {
+      "types": "./dist/jsx/jsx-runtime.d.ts",
       "import": "./dist/jsx/jsx-runtime.js",
       "require": "./dist/jsx/jsx-runtime.cjs"
     },
     "./kit": {
+      "types": "./dist/kit.d.ts",
       "import": "./dist/kit.js",
       "require": "./dist/kit.cjs"
     },
     "./kit/testing": {
+      "types": "./dist/kit/testing.d.ts",
       "import": "./dist/kit/testing.js",
       "require": "./dist/kit/testing.cjs"
     },
     "./nuxt": {
+      "types": "./dist/nuxt.d.ts",
       "import": "./dist/nuxt.js",
       "require": "./dist/nuxt.cjs"
     },
     "./rolldown": {
+      "types": "./dist/rolldown.d.ts",
       "import": "./dist/rolldown.js",
       "require": "./dist/rolldown.cjs"
     },
     "./rollup": {
+      "types": "./dist/rollup.d.ts",
       "import": "./dist/rollup.js",
       "require": "./dist/rollup.cjs"
     },
     "./rspack": {
+      "types": "./dist/rspack.d.ts",
       "import": "./dist/rspack.js",
       "require": "./dist/rspack.cjs"
     },
     "./vite": {
+      "types": "./dist/vite.d.ts",
       "import": "./dist/vite.js",
       "require": "./dist/vite.cjs"
     },
     "./webpack": {
+      "types": "./dist/webpack.d.ts",
       "import": "./dist/webpack.js",
       "require": "./dist/webpack.cjs"
     },

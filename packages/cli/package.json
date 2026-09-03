@@ -1,6 +1,6 @@
 {
   "name": "@kubb/cli",
-  "version": "5.0.6",
+  "version": "5.1.0",
   "description": "Official CLI for Kubb. Run kubb generate, kubb init, kubb validate, kubb studio, and kubb mcp to manage the full code generation lifecycle.",
   "keywords": [
     "cli",
@@ -46,6 +46,7 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },

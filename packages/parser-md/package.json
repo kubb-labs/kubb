@@ -1,6 +1,6 @@
 {
   "name": "@kubb/parser-md",
-  "version": "5.0.6",
+  "version": "5.1.0",
   "description": "Markdown source file parser for Kubb. Converts the universal AST to `.md` source and renders YAML frontmatter via the `print` helper.",
   "keywords": [
     "codegen",
@@ -42,6 +42,7 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },

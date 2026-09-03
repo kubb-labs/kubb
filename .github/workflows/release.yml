@@ -54,7 +54,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           # Keeps tools/claude/.claude-plugin/plugin.json's version in step with the
           # @kubb/claude-plugin package.json that Changesets bumps.
-          version-script: pnpm exec changeset version && pnpm run sync:plugin-version
+          # changesets/action runs this without a shell, so `&&` can't chain
+          # commands here — pnpm run does its own shell chaining instead.
+          version-script: pnpm run release:version
 
       # Canary skips staging on purpose, so it stays automatic on every push.
       - name: Publish canary
