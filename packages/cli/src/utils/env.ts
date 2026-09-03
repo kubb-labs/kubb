@@ -1,3 +1,5 @@
+import { getAgentName } from '../agent.ts'
+
 /**
  * Returns `true` when the process is running in a CI environment.
  * Covers GitHub Actions, GitLab CI, CircleCI, Travis CI, Jenkins, Bitbucket,
@@ -31,8 +33,8 @@ export function isCIEnvironment(): boolean {
  *
  * Some IDE-embedded terminals report `isTTY = true` but set `columns` to `0`,
  * which breaks clack's box-drawing helpers (they call `String.prototype.repeat`
- * with a negative count and throw a `RangeError`).  We therefore require a
- * positive column count before declaring the TTY usable.
+ * with a negative count and throw a `RangeError`). A positive column count is
+ * required before the TTY counts as usable.
  *
  * @example
  * ```ts
@@ -43,4 +45,13 @@ export function isCIEnvironment(): boolean {
  */
 export function canUseTTY(): boolean {
   return process.stdout.isTTY && (process.stdout.columns ?? 0) > 0 && !isCIEnvironment()
+}
+
+/**
+ * Returns `true` when output can carry spinners and clack's gutter: an interactive TTY that no AI
+ * coding agent is reading. Cursor-movement escapes are hard for an agent to parse even over a
+ * pseudo-TTY, so it gets the plain writer.
+ */
+export function isRichOutput(): boolean {
+  return canUseTTY() && !getAgentName()
 }

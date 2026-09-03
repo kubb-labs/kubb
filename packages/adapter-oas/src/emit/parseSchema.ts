@@ -58,7 +58,7 @@ export type ConvertContext = SchemaContext & ConverterDeps
  * One entry in the ordered schema rule table: a predicate paired with a converter. `match`
  * fully decides whether this rule owns the context, so `convert` always produces a node.
  */
-export type SchemaRule = {
+type SchemaRule = {
   /**
    * Returns `true` when this rule is responsible for the given context.
    */

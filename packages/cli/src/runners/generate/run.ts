@@ -25,6 +25,7 @@ import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.t
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import setupReporters, { selectReporters } from '../../loggers/utils.ts'
 import { getConfigs, isNewerVersion, runHook, runPostGenerate, startWatcher } from './utils.ts'
+import { FORMATTER_PREFERENCE, LINTER_PREFERENCE } from '@internals/utils'
 import { detectTool, formatters, linters } from '../../tools.ts'
 
 type GenerateProps = {
@@ -132,6 +133,8 @@ async function generate(options: GenerateProps): Promise<boolean> {
     input: input ?? options.config.input,
     // Dry-run never touches disk, regardless of the config's own storage driver.
     storage: dryRun ? memoryStorage() : options.config.storage,
+    // Also keeps core's `hasOutputPasses` false, so dry-run skips the output manifest write too.
+    output: dryRun ? { ...options.config.output, format: false, lint: false, postGenerate: [] } : options.config.output,
   }
 
   // The formatter, linter, and post-generate commands run after a successful build. Collect their
@@ -155,9 +158,9 @@ async function generate(options: GenerateProps): Promise<boolean> {
         tool: {
           label: 'formatter',
           map: formatters,
-          detect: () => detectTool(['oxfmt', 'biome', 'prettier'] as const),
+          detect: () => detectTool(FORMATTER_PREFERENCE),
           successPrefix: 'Formatting',
-          noToolMessage: 'No formatter found (oxfmt, biome, or prettier). Skipping formatting.',
+          noToolMessage: `No formatter found (${FORMATTER_PREFERENCE.join(', ')}). Skipping formatting.`,
         },
         onStart: () => hooks.callHook('kubb:format:start'),
         onEnd: () => hooks.callHook('kubb:format:end'),
@@ -168,9 +171,9 @@ async function generate(options: GenerateProps): Promise<boolean> {
         tool: {
           label: 'linter',
           map: linters,
-          detect: () => detectTool(['oxlint', 'biome', 'eslint'] as const),
+          detect: () => detectTool(LINTER_PREFERENCE),
           successPrefix: 'Linting',
-          noToolMessage: 'No linter found (oxlint, biome, or eslint). Skipping linting.',
+          noToolMessage: `No linter found (${LINTER_PREFERENCE.join(', ')}). Skipping linting.`,
         },
         onStart: () => hooks.callHook('kubb:lint:start'),
         onEnd: () => hooks.callHook('kubb:lint:end'),

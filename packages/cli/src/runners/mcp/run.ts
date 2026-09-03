@@ -1,8 +1,11 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { toError } from '@internals/utils'
-import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import type * as McpModule from '@kubb/mcp'
+import type { CommandRunner } from 'gunshi'
+import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
+import { version } from '../../../package.json'
+import type { definition } from '../../commands/mcp.ts'
 
 type McpOptions = {
   /**
@@ -31,4 +34,11 @@ export async function run({ version }: McpOptions): Promise<void> {
     console.error(toError(error).message)
     process.exitCode = 1
   }
+}
+
+/**
+ * Loaded on demand by `index.ts`, so `@kubb/mcp` stays out of the process for every other command.
+ */
+export const runner: CommandRunner<{ args: typeof definition.args; extensions: {} }> = async () => {
+  await run({ version })
 }

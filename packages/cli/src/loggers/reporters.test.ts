@@ -1,7 +1,7 @@
-import * as internalsUtils from '@internals/utils'
 import { Hookable, cliReporter, type Config, fileReporter, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import * as agent from '../agent.ts'
+import * as env from '../utils/env.ts'
 import setupReporters, { installReporter } from './utils.ts'
 
 describe('jsonReporter', () => {
@@ -106,7 +106,7 @@ describe('setupReporters', () => {
   })
 
   it('installs the plain logger instead of the interactive one when an AI agent is detected', async () => {
-    using _tty = vi.spyOn(internalsUtils, 'canUseTTY').mockReturnValue(true)
+    using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(true)
     using _agent = vi.spyOn(agent, 'getAgentName').mockReturnValue('claude')
     const context = new Hookable<KubbHooks>()
 
@@ -117,7 +117,7 @@ describe('setupReporters', () => {
   })
 
   it('installs the interactive logger when no AI agent is detected and a TTY is available', async () => {
-    using _tty = vi.spyOn(internalsUtils, 'canUseTTY').mockReturnValue(true)
+    using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(true)
     using _agent = vi.spyOn(agent, 'getAgentName').mockReturnValue(undefined)
     const context = new Hookable<KubbHooks>()
 

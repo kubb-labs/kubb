@@ -2,8 +2,9 @@ import { relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
-import { formatMsWithColor, getElapsedMs, getIntro } from '@internals/utils'
+import { getElapsedMs } from '@internals/utils'
 import { Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { formatMsWithColor, getIntro } from './banner.ts'
 import type { Logger } from './defineLogger.ts'
 import {
   buildProgressLine,

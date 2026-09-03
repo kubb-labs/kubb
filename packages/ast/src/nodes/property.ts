@@ -35,7 +35,7 @@ export type PropertyNode = BaseNode & {
 /**
  * Loosely-typed property accepted by `createProperty`, with `required` optional.
  */
-export type UserPropertyNode = Pick<PropertyNode, 'name' | 'schema'> & Partial<Omit<PropertyNode, 'kind' | 'name' | 'schema'>>
+type UserPropertyNode = Pick<PropertyNode, 'name' | 'schema'> & Partial<Omit<PropertyNode, 'kind' | 'name' | 'schema'>>
 
 /**
  * Definition for the {@link PropertyNode}. `required` defaults to `false`, and the schema's

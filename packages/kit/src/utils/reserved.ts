@@ -1,6 +1,6 @@
 /**
  * JavaScript and Java reserved words.
- * @link https://github.com/jonschlinkert/reserved/blob/master/index.js
+ * @see https://github.com/jonschlinkert/reserved/blob/master/index.js
  */
 const reservedWords = new Set([
   'abstract',

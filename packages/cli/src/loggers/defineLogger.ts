@@ -12,8 +12,9 @@ export type LoggerOptions = {
 }
 
 /**
- * Hook emitter handed to `Logger.install`. Use `.hook('kubb:info', ...)` to
- * subscribe to build hooks.
+ * Hook emitter handed to `Logger.install`. Use `.hook('kubb:info', ...)` to subscribe to build
+ * hooks. `@kubb/studio` extends `KubbHooks` with `studio:*` session events, so once a package
+ * pulls it in, the same emitter carries those too.
  */
 export type LoggerContext = Hookable<KubbHooks>
 

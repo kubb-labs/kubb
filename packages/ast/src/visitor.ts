@@ -174,7 +174,7 @@ type CollectVisitor<T> = {
  * const options: TransformOptions = { depth: 'shallow', schema: (node) => node }
  * ```
  */
-export type TransformOptions = Visitor & {
+type TransformOptions = Visitor & {
   /**
    * Traversal depth.
    * @default 'deep'
@@ -194,7 +194,7 @@ export type TransformOptions = Visitor & {
  * const options: CollectOptions<string> = { depth: 'shallow', schema: () => undefined }
  * ```
  */
-export type CollectOptions<T> = CollectVisitor<T> & {
+type CollectOptions<T> = CollectVisitor<T> & {
   /**
    * Traversal depth.
    * @default 'deep'
