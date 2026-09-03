@@ -70,12 +70,12 @@ export function sendAgentMessage(ws: WebSocket, message: AgentMessage): void {
 }
 
 /**
- * Sends a single `kubb:error` to Studio, stamped from the same per-socket counter the event stream
+ * Sends a single `kubb:error` payload to Studio, stamped from the same per-socket counter the event stream
  * uses so Studio can still order it against the generation events around it.
  */
 export function sendErrorMessage(ws: WebSocket, error: Error): void {
   sendAgentMessage(ws, {
-    type: 'kubb:data',
+    type: 'agent:data',
     payload: { type: 'kubb:error', data: [{ message: error.message, stack: error.stack }], timestamp: Date.now(), seq: nextEventSeq(ws) },
   })
 }
@@ -86,7 +86,7 @@ export function sendErrorMessage(ws: WebSocket, error: Error): void {
 export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): void {
   function sendDataMessage(payload: Omit<DataMessagePayload, 'seq' | 'timestamp'>) {
     sendAgentMessage(ws, {
-      type: 'kubb:data',
+      type: 'agent:data',
       payload: { ...payload, timestamp: Date.now(), seq: nextEventSeq(ws) },
     })
   }

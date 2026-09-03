@@ -6,13 +6,15 @@ import * as prompts from '@clack/prompts'
 import { KUBB_CONFIG_FILENAME } from '@internals/shared'
 import { toError } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
+import { cliReporter, logLevel as logLevelMap } from '@kubb/core'
 import { createFileStorage, createClient, defaultStudioUrl, InvalidAgentTokenError, pollForPairingToken, setStorage, startPairing } from '@kubb/studio'
 import { x } from 'tinyexec'
 import type { CommandRunner } from 'gunshi'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import { version } from '../../../package.json'
 import type { definition } from '../../commands/studio.ts'
-import { canUseTTY, isCIEnvironment } from '../../utils/env.ts'
+import setupReporters from '../../loggers/utils.ts'
+import { canUseTTY, isCIEnvironment, isRichOutput } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 
@@ -128,10 +130,11 @@ const PERMISSIONS: ReadonlyArray<{
 ]
 
 /**
- * One-line summary of what this session granted, for the connect banner and `kubb studio status`.
+ * One row per permission, for the connect banner and `kubb studio status`. A list rather than a
+ * joined line: four labels this long read as one run-on sentence side by side.
  */
-export function formatPermissionSummary(granted: Record<Permission, boolean>): string {
-  return PERMISSIONS.map(({ key, label }) => `${label}: ${granted[key] ? 'yes' : 'no'}`).join(', ')
+export function formatPermissionRows(granted: Record<Permission, boolean>): Array<string> {
+  return PERMISSIONS.map(({ key, label }) => `${granted[key] ? styleText('green', '✔') : styleText('red', '✘')} ${label}`)
 }
 
 /**
@@ -224,8 +227,22 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
   const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, credentials, configPath, !envToken)
   const granted = { allowWrite, allowConfigEdit, allowInput, allowExec }
 
+  const logLevel = logLevelMap[options.logLevel ?? 'info']
+  const isRich = isRichOutput()
+  // One clack gutter block, or the same lines plainly.
+  const say = (lines: string | Array<string>) => (isRich ? prompts.log.message(lines) : console.log([lines].flat().join('\n')))
+  const detail = (label: string, value: string) => `${styleText('dim', label.padEnd(7))}  ${value}`
+  let hinted = false
+
   if (options.logLevel !== 'silent') {
-    console.log(styleText('dim', formatPermissionSummary(granted)))
+    say([
+      detail('Studio', styleText('cyan', options.studioUrl)),
+      detail('Project', path.basename(process.cwd())),
+      detail('Config', path.relative(process.cwd(), configPath) || configPath),
+      '',
+      styleText('dim', 'Permissions'),
+      ...formatPermissionRows(granted),
+    ])
   }
 
   const client = createClient({
@@ -235,17 +252,29 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
     version: options.version,
     // Reloaded on every generate, so an edit to kubb.config.ts is picked up without reconnecting.
     loadConfig: async () => (await loadConfigs(options)).config,
-    client: {
-      kind: 'cli',
-      version: options.version,
-      cwd: process.cwd(),
-      projectName: path.basename(process.cwd()),
-    },
+    client: { kind: 'cli' },
     root: process.cwd(),
     allowWrite,
     allowConfigEdit,
     allowInput,
     allowExec,
+    // The loggers `kubb generate` installs, on both emitters, so one place renders the session
+    // events and the generations it drives.
+    installLogger: async (hooks) => {
+      await setupReporters(hooks, { logLevel, reporters: [cliReporter] })
+
+      // `client.connect()` resolves once the agent is registered, not once a session is open, so
+      // this is the only point that knows the connection is live. Registered after the loggers so
+      // it lands under their "Connected to ..." line, and once, since every reconnect fires again.
+      hooks.hook('studio:connected', () => {
+        if (hinted || options.logLevel === 'silent') {
+          return
+        }
+        hinted = true
+
+        say(styleText('dim', 'Press Ctrl+C to disconnect'))
+      })
+    },
     // The local config bounds what Studio may import. Without this a `generate` payload could name
     // any module in the project's node_modules and the runtime would import it. Union of every
     // config entry's plugins, since Studio edits any entry, not only the one it generates from.
@@ -276,14 +305,19 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
     return connect(options, false)
   }
 
-  if (options.logLevel !== 'silent') {
-    console.log()
-    console.log(styleText('dim', 'Connected. Press Ctrl+C to disconnect.'))
-  }
-
   await new Promise<void>((resolve) => {
     const stop = () => {
       client.disconnect()
+
+      if (options.logLevel !== 'silent') {
+        // `outro` closes the block `intro` opened, so it is not a written line.
+        if (isRich) {
+          prompts.outro('Disconnected')
+        } else {
+          console.log('Disconnected')
+        }
+      }
+
       resolve()
     }
 
@@ -318,17 +352,16 @@ async function status(options: StudioOptions): Promise<void> {
     return
   }
 
-  console.log(
-    styleText(
-      'dim',
-      `Saved permissions — ${formatPermissionSummary({
-        allowWrite: remembered.allowWrite === true,
-        allowConfigEdit: remembered.allowConfigEdit === true,
-        allowInput: remembered.allowInput === true,
-        allowExec: remembered.allowExec === true,
-      })}`,
-    ),
-  )
+  console.log(styleText('dim', 'Saved permissions'))
+
+  for (const row of formatPermissionRows({
+    allowWrite: remembered.allowWrite === true,
+    allowConfigEdit: remembered.allowConfigEdit === true,
+    allowInput: remembered.allowInput === true,
+    allowExec: remembered.allowExec === true,
+  })) {
+    console.log(row)
+  }
 }
 
 /**
@@ -344,8 +377,17 @@ async function run(options: StudioOptions): Promise<void> {
 
   try {
     if (options.logLevel !== 'silent') {
-      console.warn(styleText('yellow', 'This feature is still under development, use with caution'))
-      console.log()
+      const banner = `Kubb Studio  ${styleText('dim', `v${options.version}`)}`
+      const caution = styleText('yellow', 'This feature is still under development, use with caution')
+
+      if (isRichOutput() && options.action === 'connect') {
+        prompts.intro(banner)
+        prompts.log.warn(caution)
+      } else {
+        console.log(banner)
+        console.warn(caution)
+        console.log()
+      }
     }
 
     switch (options.action) {

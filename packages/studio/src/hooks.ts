@@ -1,14 +1,11 @@
-import type { Hookable, KubbHooks } from '@kubb/core'
+import type { Hookable, KubbHooks, StudioHooks } from '@kubb/core'
 import { x } from 'tinyexec'
 
 /**
- * Event bus shared with `createKubb`. Core emits its lifecycle events here, and the runtime overlays
- * the synthetic `kubb:hook:line` event it produces while streaming output from spawned hook commands
- * (formatter, linter, user `done` hooks). Core itself does not emit this event.
+ * Event bus shared with `createKubb`. Core emits its generation lifecycle events here, and the
+ * `studio:*` session events ride alongside them, so one logger renders the whole connection.
  */
-export type AgentHooks = KubbHooks & {
-  'kubb:hook:line': [ctx: { id?: string; line: string }]
-}
+export type AgentHooks = KubbHooks & StudioHooks
 
 /**
  * Register a `kubb:hook:start` listener that spawns the requested command via tinyexec,

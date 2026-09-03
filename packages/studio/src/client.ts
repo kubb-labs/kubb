@@ -48,8 +48,6 @@ export function createClient({ storage, ...options }: ClientOptions): Client {
 
   return {
     async connect() {
-      console.info(styleText('dim', `Kubb Studio client v${options.version}`))
-
       await registerAgent({ token: options.token, studioUrl: options.studioUrl ?? agentDefaults.studioUrl, poolSize })
 
       for (const slot of Array.from({ length: poolSize }, (_, index) => index + 1)) {

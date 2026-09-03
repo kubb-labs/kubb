@@ -12,6 +12,7 @@ import {
   formatCommandWithArgs,
   formatErrorFrames,
   formatMessage,
+  formatVersions,
   getInputPath,
   recordPluginResult,
   resetProgressCounters,
@@ -192,6 +193,76 @@ Run \`npm install -g @kubb/cli\` to update`,
       // gutter and bar (`symbol`/`secondarySymbol`) and let the block stand on its own.
       const { headline, details } = Diagnostics.format(diagnostic)
       clack.log.message([headline, ...details], { symbol: '', secondarySymbol: '' })
+    })
+
+    // A `kubb studio` session emits these on the same emitter as its generations, so one logger
+    // renders the whole command. The socket opens without being awaited, hence the spinner.
+    context.hook('studio:connecting', ({ url }) => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
+      state.spinner = clack.spinner()
+      state.spinner.start(getMessage(`Connecting to ${styleText('cyan', url)}`))
+      state.isSpinning = true
+    })
+
+    context.hook('studio:connected', ({ url, versions }) => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
+      const text = getMessage(`Connected to ${styleText('cyan', url)} ${styleText('dim', `(${formatVersions(versions)})`)}`)
+
+      if (state.isSpinning) {
+        stopSpinner(text)
+        return
+      }
+      clack.log.success(text)
+    })
+
+    context.hook('studio:disconnected', ({ reason }) => {
+      if (logLevel < logLevelMap.warn) {
+        return
+      }
+
+      stopSpinner()
+      clack.log.warn(getMessage(`Kubb Studio ended the session (${reason})`))
+    })
+
+    context.hook('studio:command:start', ({ command }) => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
+      clack.log.info(getMessage(`Kubb Studio asked to ${styleText('bold', command)}`))
+    })
+
+    context.hook('studio:command:end', ({ command, info }) => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
+      clack.log.success(getMessage(`Finished ${command}${info ? ` ${styleText('dim', `(${info})`)}` : ''}`))
+    })
+
+    context.hook('studio:warn', ({ message }) => {
+      if (logLevel < logLevelMap.warn) {
+        return
+      }
+
+      clack.log.warn(getMessage(message))
+    })
+
+    // Unguarded, like `kubb:error`: a failure stays visible even at silent.
+    context.hook('studio:error', ({ error }) => {
+      const text = getMessage([styleText('red', '✗'), error.message].join(' '))
+
+      if (state.isSpinning) {
+        stopSpinner(text)
+        return
+      }
+      clack.log.error(text)
     })
 
     context.hook('kubb:lifecycle:start', async ({ version }) => {

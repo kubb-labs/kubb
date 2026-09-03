@@ -1,13 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import type { AgentMessage } from './index.ts'
-import { isCommandMessage, isDataMessage, isDisconnectMessage } from './index.ts'
+import { commandTypes, isCommandMessage, isDataMessage, isDisconnectMessage, isStudioPingMessage } from './index.ts'
 
 describe('agent protocol', () => {
   describe('message type guards', () => {
     it('identifies command messages', () => {
       const message: AgentMessage = {
-        type: 'kubb:command',
-        command: 'generate',
+        type: 'studio:generate',
         payload: {},
       }
 
@@ -15,9 +14,20 @@ describe('agent protocol', () => {
       expect(isDataMessage(message)).toBe(false)
     })
 
+    it('identifies every command type', () => {
+      for (const type of commandTypes) {
+        expect(isCommandMessage({ type } as AgentMessage)).toBe(true)
+      }
+    })
+
+    it('tells the two sides of the heartbeat apart', () => {
+      expect(isStudioPingMessage({ type: 'studio:ping' })).toBe(true)
+      expect(isStudioPingMessage({ type: 'agent:ping' })).toBe(false)
+    })
+
     it('identifies data messages', () => {
       const message: AgentMessage = {
-        type: 'kubb:data',
+        type: 'agent:data',
         payload: {
           type: 'kubb:info',
           data: [{ message: 'message' }],
@@ -34,7 +44,7 @@ describe('agent protocol', () => {
     })
 
     it('identifies a disconnect message and carries its reason', () => {
-      const message: AgentMessage = { type: 'kubb:disconnect', reason: 'revoked' }
+      const message: AgentMessage = { type: 'studio:disconnect', reason: 'revoked' }
 
       expect(isDisconnectMessage(message)).toBe(true)
       expect(isCommandMessage(message)).toBe(false)
