@@ -570,7 +570,7 @@ describe('connectToStudio', () => {
   it('tells a CLI host to use --allowInput instead of the Docker-only env var', async () => {
     const payload = { input: 'openapi: "3.0.0"', plugins: [] }
 
-    await connectToStudio({ ...options, client: { kind: 'cli', version: '1.0.0', cwd: '/project', projectName: 'project' } }) // allowInput: false
+    await connectToStudio({ ...options, client: { kind: 'cli' } }) // allowInput: false
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'studio:generate', payload }),
@@ -751,11 +751,27 @@ describe('connectToStudio', () => {
             kubb: '5.1.0-core-test',
             agent: '1.0.0',
           },
-          configPath: 'kubb.config.ts',
           root: '/project',
+          config: expect.objectContaining({ path: 'kubb.config.ts' }),
         }),
       }),
     )
+  })
+
+  it('announces a shutdown so Studio does not wait out the heartbeat window', async () => {
+    await connectToStudio(options)
+
+    controller.abort()
+    await vi.waitFor(() => expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, { type: 'agent:disconnect', reason: 'shutdown' }))
+  })
+
+  it('stays quiet when Studio is the one ending the session', async () => {
+    await connectToStudio(options)
+
+    // Studio decided this, so echoing it back would say nothing new.
+    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:disconnect', reason: 'revoked' }) })
+
+    expect(sendAgentMessage).not.toHaveBeenCalledWith(mockWs, expect.objectContaining({ type: 'agent:disconnect' }))
   })
 
   it('reflects allowWrite in permissions on connect command', async () => {

@@ -255,31 +255,23 @@ export type CommandMessage = StudioGenerateMessage | StudioConnectMessage | Stud
 export const commandTypes = ['studio:generate', 'studio:connect', 'studio:save'] as const
 
 /**
- * Identifies the host running the Kubb runtime, so Studio can badge the connection and show the
- * real project instead of a container path. Optional: an older agent does not send it.
+ * Identifies the host running the Kubb runtime. Local to the runtime rather than part of the wire:
+ * it picks which remedy a refused-input warning suggests, since the Docker agent and the CLI grant
+ * `allowInput` different ways.
  */
 export type ClientInfo = {
   /**
    * `cli` for a `kubb studio` connection from a developer's machine, `docker` for the agent image.
    */
   kind: 'cli' | 'docker'
-  /**
-   * Version of the host package (`@kubb/cli` or `kubb.agent`).
-   */
-  version: string
-  /**
-   * Absolute path of the project the host generates in.
-   */
-  cwd: string
-  /**
-   * Display name for the project, usually its directory name.
-   */
-  projectName?: string
 }
 
 /**
- * Payload of the `kubb:connected` handshake the agent sends when it attaches to a session. Carries the
- * agent's on-disk config baseline, granted permissions, reported versions, and workspace paths.
+ * Payload of the `agent:connect` handshake, sent when the agent attaches to a session.
+ *
+ * Only what Studio actually renders: the versions it badges the connection with, the workspace the
+ * generation runs in, everything about the config in one object, and the permissions that decide
+ * which controls the UI enables.
  */
 export type ConnectMessagePayload = {
   /**
@@ -297,23 +289,32 @@ export type ConnectMessagePayload = {
     agent?: string
   }
   /**
-   * The Kubb config path as configured (`KUBB_AGENT_CONFIG`), relative to `root` unless absolute.
-   */
-  configPath: string
-  /**
    * The agent's project root (`KUBB_AGENT_ROOT`, or the working directory when unset). This is the
    * workspace that generation runs against.
    */
   root: string
   /**
-   * The agent's on-disk config, the baseline every generation starts from.
+   * Everything about the agent's config, as one object rather than spread across the payload.
+   * This is the baseline every generation starts from.
    */
-  config: JSONKubbConfig & {
+  config: {
+    /**
+     * The config path as configured (`KUBB_AGENT_CONFIG`), relative to `root` unless absolute.
+     */
+    path: string
     /**
      * What the agent read out of the config file itself, so Studio can render the plugin editor
-     * against the real file. Absent when the agent could not read it.
+     * against the real file. Absent when the agent could not read it, or was not granted
+     * `allowConfigEdit`.
      */
     file?: ConfigFileView
+    /**
+     * Plugins the config registers, with their serialized options.
+     */
+    plugins?: Array<{
+      name: string
+      options?: object
+    }>
   }
   permissions: {
     /**
@@ -324,28 +325,21 @@ export type ConnectMessagePayload = {
     /**
      * Whether the agent will accept and generate from an OpenAPI spec supplied by Studio.
      * Always true for a sandbox agent; otherwise it mirrors the agent's own opt-in. Studio reads
-     * this to decide whether to send `input`. Optional, so an older agent that omits it is treated
-     * as not accepting a Studio-supplied spec.
+     * this to decide whether to send `input`.
      */
-    allowInput?: boolean
+    allowInput: boolean
     /**
      * Whether the agent runs the formatter, the linter, and `output.postGenerate` as child
      * processes after a generation. Always true for the Docker agent, where the image bounds what
      * can run. The CLI runs in the user's own project and defaults it off.
      */
-    allowExec?: boolean
+    allowExec: boolean
     /**
      * Whether the agent may change plugin options in the user's `kubb.config.ts`. Separate from
-     * `allowWrite`, which covers generated output: this one edits a hand-authored source file, so
-     * it is granted on its own. Optional, so an older agent that omits it is treated as not
-     * granting it.
+     * `allowWrite`, which covers generated output: this one edits a hand-authored source file.
      */
-    allowConfigEdit?: boolean
+    allowConfigEdit: boolean
   }
-  /**
-   * Identifies the host, absent for an older agent that predates the field.
-   */
-  client?: ClientInfo
 }
 
 /**
@@ -374,9 +368,9 @@ export type AgentSaveMessage = {
     changed: boolean
     /**
      * The config file as it now stands, so Studio can re-render without a round trip. Absent when
-     * nothing was written.
+     * nothing was written. Named to match `config.file` in the connect payload.
      */
-    configFile?: ConfigFileView
+    file?: ConfigFileView
   }
 }
 
@@ -412,6 +406,18 @@ export type StudioPingMessage = {
 export type StudioDisconnectMessage = {
   type: 'studio:disconnect'
   reason: 'expired' | 'revoked'
+}
+
+/**
+ * The agent announcing that it is going away, so Studio can mark the session offline at once rather
+ * than waiting out the heartbeat window. The mirror of {@link StudioDisconnectMessage}.
+ *
+ * Only sent for a shutdown (`SIGINT`/`SIGTERM`, or the host aborting its signal). An expired or
+ * revoked session is Studio's own decision, so echoing it back would say nothing new.
+ */
+export type AgentDisconnectMessage = {
+  type: 'agent:disconnect'
+  reason: 'shutdown'
 }
 
 /**
@@ -488,6 +494,7 @@ export type AgentMessage =
   | AgentConnectMessage
   | AgentSaveMessage
   | AgentPingMessage
+  | AgentDisconnectMessage
   | StudioErrorMessage
   | StudioPingMessage
   | StudioDisconnectMessage

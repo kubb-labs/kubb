@@ -274,12 +274,7 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
     version: options.version,
     // Reloaded on every generate, so an edit to kubb.config.ts is picked up without reconnecting.
     loadConfig: async () => (await loadConfigs(options)).config,
-    client: {
-      kind: 'cli',
-      version: options.version,
-      cwd: process.cwd(),
-      projectName: path.basename(process.cwd()),
-    },
+    client: { kind: 'cli' },
     root: process.cwd(),
     allowWrite,
     allowConfigEdit,

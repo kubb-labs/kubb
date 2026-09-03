@@ -233,22 +233,21 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             kubb: kubbVersion,
             agent: version,
           },
-          configPath,
           root,
-          client,
-          permissions: {
-            allowWrite: canWrite,
-            allowInput: canUseInput,
-            allowExec,
-            allowConfigEdit: canEditConfig,
-          },
           config: {
+            path: configPath,
             file: await readConfigFileView(),
             plugins: config.plugins.map((plugin) => ({
               name: `@kubb/${plugin.name}`,
               // Functions and symbols in plugin options are dropped by `JSON.stringify` on the way out.
               options: plugin.options ?? {},
             })),
+          },
+          permissions: {
+            allowWrite: canWrite,
+            allowInput: canUseInput,
+            allowExec,
+            allowConfigEdit: canEditConfig,
           },
         },
       })
@@ -277,6 +276,13 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         return
       }
       serverDisconnected = true
+
+      // Announce the shutdown while the socket is still open, so Studio marks the session offline
+      // now instead of waiting out the heartbeat window. `sendAgentMessage` is a no-op on a socket
+      // that has already closed, which is every other way we get here.
+      if (reason === 'shutdown') {
+        sendAgentMessage(ws, { type: 'agent:disconnect', reason: 'shutdown' })
+      }
 
       cleanup(reason)
       // Already tearing down, so a failed disconnect changes nothing.
@@ -483,7 +489,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
               sendAgentMessage(ws, {
                 type: 'agent:save',
-                payload: { outcomes, changed, configFile: changed ? await readConfigFileView(patched) : undefined },
+                payload: { outcomes, changed, file: changed ? await readConfigFileView(patched) : undefined },
               })
 
               const applied = outcomes.filter((outcome) => outcome.applied).length

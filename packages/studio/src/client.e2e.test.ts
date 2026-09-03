@@ -172,7 +172,7 @@ describe('createClient against a Studio instance', () => {
   it('registers, opens a session, and introduces itself with the local config', async () => {
     const connected = await connect()
 
-    expect(connected.payload.configPath).toBe('kubb.config.ts')
+    expect(connected.payload.config.path).toBe('kubb.config.ts')
     expect(connected.payload.versions?.agent).toBe('0.0.0-test')
     expect(studio.calls).toStrictEqual(['/api/agent/connect', '/api/agent/sessions'])
   })
