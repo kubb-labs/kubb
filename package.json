@@ -24,6 +24,7 @@
     "graph": "npx nx graph ",
     "lint": "oxlint -c oxlint.config.ts ./packages",
     "lint:fix": "oxlint -c oxlint.config.ts --fix ./packages",
+    "release:version": "changeset version && pnpm run sync:plugin-version",
     "start": "turbo run start --filter=./packages/*",
     "sync:plugin-version": "node scripts/sync-plugin-version.mjs",
     "test": "vitest run --config ./configs/vitest.config.ts",
