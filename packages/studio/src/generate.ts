@@ -2,7 +2,7 @@ import { hash } from 'node:crypto'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { type Config, createKubb, type Diagnostic, Diagnostics, type Hookable } from '@kubb/core'
+import { type Config, createKubb, type Diagnostic, Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
 import {
   FORMATTER_PREFERENCE,
   LINTER_PREFERENCE,
@@ -13,7 +13,7 @@ import {
   type ToolCommand,
   detectTool as detectUncachedTool,
 } from '@internals/utils'
-import { type AgentHooks, waitForHookEnd } from './hooks.ts'
+import { waitForHookEnd } from './hooks.ts'
 
 /**
  * `isToolAvailable` spawns a process, and a long-lived connection generates repeatedly, so each
@@ -46,7 +46,7 @@ function outputPath(config: Config): string {
 }
 
 type RunHookProps = {
-  hooks: Hookable<AgentHooks>
+  hooks: Hookable<KubbHooks>
   /**
    * Stable identity for the command, hashed so the `kubb:hook:*` events for concurrent commands
    * can be told apart.
@@ -74,7 +74,7 @@ async function runHook({ hooks, id, command, args }: RunHookProps): Promise<void
 
 type GenerateProps = {
   config: Config
-  hooks: Hookable<AgentHooks>
+  hooks: Hookable<KubbHooks>
 }
 
 function isProblemErrorDiagnostic(diagnostic: Diagnostic): diagnostic is Diagnostic & { plugin?: string; message: string } {

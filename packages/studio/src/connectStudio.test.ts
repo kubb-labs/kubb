@@ -6,8 +6,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vites
 import { spyOnConsole } from './console.mock.ts'
 import { MockWebSocket } from './websocket.mock.ts'
 import type { AgentConnectResponse } from './protocol/index.ts'
-import type { Hookable } from '@kubb/core'
-import type { AgentHooks } from './hooks.ts'
+import type { Hookable, KubbHooks } from '@kubb/core'
 import type { ConnectToStudioOptions } from './connectStudio.ts'
 import { connectToStudio } from './connectStudio.ts'
 
@@ -67,11 +66,11 @@ type StudioEventName =
   | 'studio:error'
 
 function recordSessionEvents() {
-  type Recorded = { [K in StudioEventName]: { name: K; ctx: AgentHooks[K][0] } }[StudioEventName]
+  type Recorded = { [K in StudioEventName]: { name: K; ctx: KubbHooks[K][0] } }[StudioEventName]
   const events: Array<Recorded> = []
 
   return {
-    installLogger(hooks: Hookable<AgentHooks>) {
+    installLogger(hooks: Hookable<KubbHooks>) {
       for (const name of [
         'studio:connecting',
         'studio:connected',
@@ -169,7 +168,7 @@ describe('connectToStudio', () => {
   })
 
   it('installs the host renderer on the session emitter and on every generation', async () => {
-    const emitters: Array<Hookable<AgentHooks>> = []
+    const emitters: Array<Hookable<KubbHooks>> = []
 
     await connectToStudio({ ...options, installLogger: (hooks) => void emitters.push(hooks) })
 

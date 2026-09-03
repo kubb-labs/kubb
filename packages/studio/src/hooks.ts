@@ -91,18 +91,11 @@ declare global {
 }
 
 /**
- * Event bus shared with `createKubb`. Core emits its generation lifecycle events here, and the
- * `studio:*` session events this package adds to {@link KubbHooks} ride alongside them, so one
- * logger renders the whole connection.
- */
-export type AgentHooks = KubbHooks
-
-/**
  * Register a `kubb:hook:start` listener that spawns the requested command via tinyexec,
  * streams each stdout line as a `kubb:hook:line` event, and calls `kubb:hook:end` with the result.
  * Streaming the output lets Kubb Studio render live hook progress over the WebSocket connection.
  */
-export function setupHookListener(hooks: Hookable<AgentHooks>, root: string): void {
+export function setupHookListener(hooks: Hookable<KubbHooks>, root: string): void {
   hooks.hook('kubb:hook:start', async (ctx) => {
     const { id, command, args } = ctx
     // No id means nothing is waiting on the result (benchmarks, tests).
@@ -148,7 +141,7 @@ export function setupHookListener(hooks: Hookable<AgentHooks>, root: string): vo
  * `callHook` awaits its listeners, and {@link setupHookListener} calls `kubb:hook:end` from inside
  * that same listener, so a handler added afterward would already have missed it.
  */
-export function waitForHookEnd(hooks: Hookable<AgentHooks>, hookId: string): Promise<void> {
+export function waitForHookEnd(hooks: Hookable<KubbHooks>, hookId: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const handleHookEnd = (ctx: { id?: string; success: boolean; error?: Error | null }) => {
       if (ctx.id !== hookId) return

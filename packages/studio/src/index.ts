@@ -1,6 +1,5 @@
 export { createClient, type Client, type ClientOptions } from './client.ts'
 export type {
-  AgentHooks,
   StudioCommandEndContext,
   StudioCommandStartContext,
   StudioConnectedContext,

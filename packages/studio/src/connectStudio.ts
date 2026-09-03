@@ -3,9 +3,9 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { getErrorMessage, toError } from '@internals/utils'
-import { type Config, fsStorage, Hookable, memoryStorage } from '@kubb/core'
+import { type Config, fsStorage, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { version as kubbVersion } from '../package.json'
-import { type AgentHooks, setupHookListener } from './hooks.ts'
+import { setupHookListener } from './hooks.ts'
 import { type AgentMessage, type ClientInfo, type ConfigFileView, isCommandMessage, isDisconnectMessage, isStudioPingMessage } from './protocol/index.ts'
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { generate } from './generate.ts'
@@ -69,7 +69,7 @@ export type ConnectToStudioOptions = {
    * Installs listeners on an event emitter, once for the session and once per generation. Left out,
    * the runtime prints nothing, which is what a library should default to.
    */
-  installLogger?: (hooks: Hookable<AgentHooks>) => void | Promise<void>
+  installLogger?: (hooks: Hookable<KubbHooks>) => void | Promise<void>
 }
 
 /**
@@ -142,7 +142,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
   // Each connection gets its own isolated event emitter so generation events
   // from one session do not bleed into another session's WebSocket stream.
-  const hooks = new Hookable<AgentHooks>()
+  const hooks = new Hookable<KubbHooks>()
   await installLogger?.(hooks)
 
   try {
@@ -405,7 +405,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
                 await hooks.callHook('studio:warn', { message: `Ignored the spec from Studio; set ${remedy} to generate from it` })
               }
 
-              const generationHooks = new Hookable<AgentHooks>()
+              const generationHooks = new Hookable<KubbHooks>()
               await installLogger?.(generationHooks)
               setupHookListener(generationHooks, root)
               setupEventsStream(ws, generationHooks)
