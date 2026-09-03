@@ -11,11 +11,11 @@ import type { JSONKubbConfig } from './protocol/index.ts'
  *
  * A plugin or adapter instance carries closures (`parse`, `getImports`, ...) that cannot survive
  * JSON, so both sides pass options over the wire and the factory is re-invoked here with the merged
- * result. That re-invocation is why {@link assertAllowedPlugins} exists: resolving a plugin means
- * `import()`-ing whatever module the payload names.
+ * result. Only `@kubb/plugin-*` packages are resolved this way, so the reinstantiated factory is
+ * always one Kubb ships, never an arbitrary module the payload names.
  */
 
-type Factory = (options: unknown) => Plugin
+type PluginFactory = (options: unknown) => Plugin
 
 /**
  * Imports a package, falling back to how the user's project would resolve it.
@@ -39,13 +39,12 @@ async function importFromProject(packageName: string): Promise<Record<string, un
 }
 
 /**
- * Strips the scope and any leading path segments from a plugin package name,
- * matching the `name` convention Kubb plugin factories use internally.
+ * Strips the `@kubb/` scope from a plugin package name, matching the `name` convention Kubb
+ * plugin factories use internally.
  *
  * @example
  * ```ts
  * toPluginName('@kubb/plugin-ts') // 'plugin-ts'
- * toPluginName('my-custom-plugin') // 'my-custom-plugin'
  * ```
  */
 function toPluginName(packageName: string): string {
@@ -53,15 +52,12 @@ function toPluginName(packageName: string): string {
 }
 
 /**
- * Derives the conventional named export for a plugin package from its package name.
- * Works for any scoped or unscoped package, not just `@kubb/*`.
+ * Derives the conventional named export for a `@kubb/*` plugin package from its package name.
  *
  * @example
  * ```ts
  * toExportName('@kubb/plugin-react-query') // 'pluginReactQuery'
  * toExportName('@kubb/plugin-ts')          // 'pluginTs'
- * toExportName('@my-org/my-plugin')        // 'myPlugin'
- * toExportName('my-custom-plugin')         // 'myCustomPlugin'
  * ```
  */
 export function toExportName(packageName: string): string {
@@ -69,20 +65,35 @@ export function toExportName(packageName: string): string {
 }
 
 /**
- * Dynamically imports a plugin package and returns its factory function.
+ * A `@kubb/plugin-*` package specifier. Nothing else may reach `import()`: only Kubb's own
+ * plugins are supported, so a payload naming anything else, a third-party package or a path, is
+ * refused before it can execute.
+ */
+const KUBB_PLUGIN_SPECIFIER = /^@kubb\/plugin-[\w.-]+$/
+
+/**
+ * Whether `name` is a `@kubb/plugin-*` specifier. Exported so `configFile.ts` can refuse the same
+ * shape before printing a Studio-supplied plugin name into the config file's source text.
+ */
+export function isKubbPluginSpecifier(name: string): boolean {
+  return KUBB_PLUGIN_SPECIFIER.test(name)
+}
+
+/**
+ * Dynamically imports a `@kubb/plugin-*` package and returns its factory function.
  *
  * Packages must be pre-installed in the Docker image at build time via the `KUBB_PACKAGES`
- * build ARG, no runtime installation is possible in the distroless container. Both
- * `@kubb/*` scoped and third-party packages are supported as long as they are included in
- * the image.
+ * build ARG, no runtime installation is possible in the distroless container.
  *
  * Resolution order: the camelCase named export the package name implies (e.g. `pluginTs`), then
  * the default export.
  *
  * @throws if the package cannot be imported or exports no callable factory.
  */
-async function loadPluginFactory(packageName: string): Promise<Factory> {
-  assertBareSpecifier(packageName)
+async function loadPluginFactory(packageName: string): Promise<PluginFactory> {
+  if (!isKubbPluginSpecifier(packageName)) {
+    throw new Error(`Plugin "${packageName}" is not a @kubb/plugin-* package. Kubb Studio only supports Kubb's own plugins.`)
+  }
 
   let mod: Record<string, unknown>
   try {
@@ -93,26 +104,24 @@ async function loadPluginFactory(packageName: string): Promise<Factory> {
 
   const exportName = toExportName(packageName)
 
-  if (typeof mod[exportName] === 'function') return mod[exportName] as Factory
+  if (typeof mod[exportName] === 'function') return mod[exportName] as PluginFactory
 
-  if (typeof mod['default'] === 'function') return mod['default'] as Factory
+  if (typeof mod['default'] === 'function') return mod['default'] as PluginFactory
 
   throw new Error(`Plugin "${packageName}" does not export a callable factory. Tried the named export "${exportName}" and "default".`)
 }
 
 /**
- * Resolves each plugin entry by dynamically importing the plugin package and
+ * Resolves each plugin entry by dynamically importing the `@kubb/plugin-*` package and
  * calling its factory with the provided options.
  *
- * Both `@kubb/*` scoped and third-party packages are supported. Packages must be
- * pre-installed in the Docker image at build time, use the `KUBB_PACKAGES` build ARG
- * to control which ones are available at runtime.
+ * Packages must be pre-installed in the Docker image at build time, use the `KUBB_PACKAGES`
+ * build ARG to control which ones are available at runtime.
  *
  * @example
  * ```ts
  * { name: '@kubb/plugin-react-query', options: { output: { path: './hooks' } } }
  * { name: '@kubb/plugin-ts', options: { output: { path: './types' } } }
- * { name: 'my-custom-plugin', options: { output: { path: './custom' } } }
  * ```
  */
 export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugins']>): Promise<Array<Plugin>> {
@@ -122,79 +131,6 @@ export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugin
       return factory(options ?? {}) as Plugin
     }),
   )
-}
-
-/**
- * A bare npm specifier: `plugin-ts`, `@kubb/plugin-ts`. Nothing else may reach `import()`.
- *
- * Anchored, and the scope is a single segment, so a payload cannot smuggle a path through the
- * package position: `../../../etc/plugin-ts` and `/tmp/evil` both fail to match.
- */
-const BARE_SPECIFIER = /^(?:@[a-z0-9][\w.-]*\/)?[a-z0-9][\w.-]*$/i
-
-/**
- * Whether `name` is a bare package specifier. Exported so `configFile.ts` can refuse the same
- * shape before printing a Studio-supplied plugin name into the config file's source text.
- */
-export function isBareSpecifier(name: string): boolean {
-  return BARE_SPECIFIER.test(name)
-}
-
-/**
- * Rejects anything that is not a bare package specifier before it reaches `import()`.
- *
- * This holds even with no allow-list, which is the Docker agent's configuration: the image bounds
- * *which packages exist*, but nothing stopped a payload naming a relative path from importing an
- * arbitrary file inside the container.
- */
-function assertBareSpecifier(name: string): void {
-  if (!isBareSpecifier(name)) {
-    throw new Error(`Plugin "${name}" is not a package name. Kubb Studio may only name installed packages, not file paths.`)
-  }
-}
-
-/**
- * The specifiers an allow-list entry stands for.
- *
- * A disk plugin's `name` is the unscoped base (`plugin-ts`), while a payload names the package it
- * came from (`@kubb/plugin-ts`), so an unscoped entry accepts both. Matching is exact: normalizing
- * the *payload* down to a base name instead would let `@evil/plugin-ts` pass as `plugin-ts`.
- */
-function toAllowedSpecifiers(entry: string): Array<string> {
-  return entry.includes('/') ? [entry] : [entry, `@kubb/${entry}`]
-}
-
-/**
- * Rejects a Studio payload naming a module specifier outside `allowed`.
- *
- * `resolvePlugins` resolves a plugin by `await import(name)`, so an unrestricted payload can
- * execute any module reachable from the project. The Docker image bounds this by shipping a fixed
- * plugin set; a host running in the user's own project passes the specifiers its disk config
- * already imports instead. An `undefined` allow-list means no restriction beyond
- * {@link assertBareSpecifier}.
- */
-export function assertAllowedPlugins(studioPlugins: JSONKubbConfig['plugins'] | undefined, allowed: ReadonlyArray<string> | undefined): void {
-  if (!studioPlugins?.length) {
-    return
-  }
-
-  for (const plugin of studioPlugins) {
-    assertBareSpecifier(plugin.name)
-  }
-
-  if (!allowed) {
-    return
-  }
-
-  const allowedSpecifiers = new Set(allowed.flatMap(toAllowedSpecifiers))
-  const rejected = studioPlugins.map((plugin) => plugin.name).filter((name) => !allowedSpecifiers.has(name))
-
-  if (rejected.length) {
-    throw new Error(
-      `Kubb Studio asked to load ${rejected.map((name) => `"${name}"`).join(', ')}, which the local Kubb config does not import. ` +
-        'Add the plugin to your config and reconnect.',
-    )
-  }
 }
 
 /**
