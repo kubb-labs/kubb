@@ -140,6 +140,8 @@ async function generate(options: GenerateProps): Promise<boolean> {
   // The formatter, linter, and post-generate commands run after a successful build. Collect their
   // failures as coded diagnostics so they reach the summary, the json report, and the exit code.
   const processOutput = async ({ config: resolvedConfig, outputPath }: { config: Config; outputPath: string }): Promise<Array<Diagnostic>> => {
+    if (dryRun) return []
+
     const outputDiagnostics: Array<Diagnostic> = []
     const reportOutputFailure = async (code: ProblemDiagnostic['code'], label: string, error: Error) => {
       const diagnostic = outputDiagnostic(code, label, error)
