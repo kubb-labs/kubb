@@ -1,3 +1,4 @@
+export { createClient, type Client, type ClientOptions } from './client.ts'
 export type {
   AgentHooks,
   StudioCommandEndContext,
@@ -8,7 +9,7 @@ export type {
   StudioErrorContext,
   StudioWarnContext,
 } from './hooks.ts'
+export { InvalidAgentTokenError } from './api.ts'
 export { defaultStudioUrl } from './constants.ts'
 export { createFileStorage, setStorage } from './machine.ts'
-export { InvalidAgentTokenError } from './api.ts'
 export { pollForPairingToken, startPairing } from './pair.ts'
