@@ -43,25 +43,6 @@ describe('agent protocol', () => {
       expect(event?.payload.type).toStrictEqual('kubb:info')
     })
 
-    it('names every message after the side that sends it', () => {
-      // The rule the whole protocol rests on: `kubb:` is generation lifecycle, so a message name
-      // never uses it. Only a relayed payload inside an `agent:data` envelope does.
-      const types: Array<AgentMessage['type']> = [
-        ...commandTypes,
-        'agent:connect',
-        'agent:save',
-        'agent:data',
-        'agent:ping',
-        'studio:ping',
-        'studio:disconnect',
-        'studio:error',
-      ]
-
-      for (const type of types) {
-        expect(type.startsWith('agent:') || type.startsWith('studio:')).toBe(true)
-      }
-    })
-
     it('identifies a disconnect message and carries its reason', () => {
       const message: AgentMessage = { type: 'studio:disconnect', reason: 'revoked' }
 

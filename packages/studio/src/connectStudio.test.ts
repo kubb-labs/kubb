@@ -6,8 +6,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vites
 import { spyOnConsole } from './console.mock.ts'
 import { MockWebSocket } from './websocket.mock.ts'
 import type { AgentConnectResponse } from './protocol/index.ts'
-import type { Hookable } from '@kubb/core'
-import type { StudioHooks } from '@kubb/core'
+import type { Hookable, StudioHooks } from '@kubb/core'
 import type { AgentHooks } from './hooks.ts'
 import type { ConnectToStudioOptions } from './connectStudio.ts'
 import { connectToStudio } from './connectStudio.ts'
@@ -59,10 +58,10 @@ const consoleSpy = spyOnConsole()
  * test asserts the event and its context rather than a formatted console string.
  */
 function recordSessionEvents() {
-  const events: Array<{ name: keyof StudioHooks; ctx: Record<string, unknown> }> = []
+  type Recorded = { [K in keyof StudioHooks]: { name: K; ctx: StudioHooks[K][0] } }[keyof StudioHooks]
+  const events: Array<Recorded> = []
 
   return {
-    events,
     installLogger(hooks: Hookable<AgentHooks>) {
       for (const name of [
         'studio:connecting',
@@ -73,19 +72,14 @@ function recordSessionEvents() {
         'studio:warn',
         'studio:error',
       ] as const) {
-        hooks.hook(name, (ctx) => {
-          events.push({ name, ctx: ctx as unknown as Record<string, unknown> })
-        })
+        hooks.hook(name, (ctx) => events.push({ name, ctx } as Recorded))
       }
     },
-    /**
-     * The `message` of every recorded `studio:warn`, for a `stringContaining` style assertion.
-     */
     warnings(): Array<string> {
-      return events.filter((event) => event.name === 'studio:warn').map((event) => String(event.ctx.message))
+      return events.flatMap((event) => (event.name === 'studio:warn' ? [event.ctx.message] : []))
     },
     errors(): Array<Error> {
-      return events.filter((event) => event.name === 'studio:error').map((event) => event.ctx.error as Error)
+      return events.flatMap((event) => (event.name === 'studio:error' ? [event.ctx.error] : []))
     },
     named(name: keyof StudioHooks) {
       return events.filter((event) => event.name === name)

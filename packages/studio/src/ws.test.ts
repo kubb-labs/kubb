@@ -1,4 +1,4 @@
-import { Hookable } from '@kubb/core'
+import { Hookable, type KubbPluginStartContext } from '@kubb/core'
 import type WebSocket from 'ws'
 import { describe, expect, it, vi } from 'vitest'
 import type { AgentHooks } from './hooks.ts'
@@ -27,7 +27,7 @@ describe('setupEventsStream', () => {
     const hooks = new Hookable<AgentHooks>()
     setupEventsStream(socket.ws, hooks)
 
-    await hooks.callHook('kubb:plugin:start', { plugin: { name: 'plugin-ts' } as never })
+    await hooks.callHook('kubb:plugin:start', { plugin: { name: 'plugin-ts' } as unknown as KubbPluginStartContext['plugin'] })
 
     expect(socket.sent()).toStrictEqual([
       {

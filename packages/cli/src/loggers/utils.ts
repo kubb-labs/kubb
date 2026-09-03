@@ -37,8 +37,8 @@ export function formatMessage(message: string, logLevel: number): string {
 }
 
 /**
- * Renders the versions from a `studio:connected` event as one parenthetical, listing only what the
- * connection actually reported.
+ * Renders the versions from a `studio:connected` event as one parenthetical. The runtime is listed
+ * only when it differs from the host, and Studio's only when it sent one.
  */
 export function formatVersions({ studio, kubb, agent }: StudioConnectedContext['versions']): string {
   return [`v${agent}`, kubb !== agent ? `runtime v${kubb}` : undefined, studio ? `Studio v${studio}` : undefined].filter(Boolean).join(', ')

@@ -133,7 +133,7 @@ describe('studio session events', () => {
    * loggers `kubb generate` installs render the whole command. Non-TTY here, so `plainLogger`
    * answers and the output is plain text.
    */
-  async function render(emit: (context: Hookable<KubbHooks & StudioHooks>) => Promise<void>, level: number = logLevel.info) {
+  async function render(emit: (context: Hookable<KubbHooks & StudioHooks>) => Promise<void> | void, level: number = logLevel.info) {
     using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(false)
     const context = new Hookable<KubbHooks & StudioHooks>()
     const lines: Array<string> = []
@@ -147,7 +147,7 @@ describe('studio session events', () => {
 
   it('names both sides on connect, so a version mismatch is visible', async () => {
     const lines = await render((context) =>
-      Promise.resolve(context.callHook('studio:connected', { url: 'http://localhost:3000', versions: { studio: '5.1.0', kubb: '5.0.6', agent: '5.0.6' } })),
+      context.callHook('studio:connected', { url: 'http://localhost:3000', versions: { studio: '5.1.0', kubb: '5.0.6', agent: '5.0.6' } }),
     )
 
     expect(lines).toStrictEqual(['✓ Connected to http://localhost:3000 (v5.0.6, Studio v5.1.0)'])

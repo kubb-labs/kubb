@@ -227,7 +227,7 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
   const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, credentials, configPath, !envToken)
   const granted = { allowWrite, allowConfigEdit, allowInput, allowExec }
 
-  const logLevel = logLevelMap[(options.logLevel ?? 'info') as keyof typeof logLevelMap]
+  const logLevel = logLevelMap[options.logLevel ?? 'info']
   const isRich = isRichOutput()
   // One clack gutter block, or the same lines plainly.
   const say = (lines: string | Array<string>) => (isRich ? prompts.log.message(lines) : console.log([lines].flat().join('\n')))
@@ -257,8 +257,8 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
     allowConfigEdit,
     allowInput,
     allowExec,
-    // The loggers `kubb generate` installs, on both emitters: one place renders the session
-    // events and a generation's.
+    // The loggers `kubb generate` installs, on both emitters, so one place renders the session
+    // events and the generations it drives.
     installLogger: (hooks) => setupReporters(hooks, { logLevel, reporters: [cliReporter] }),
     // The local config bounds what Studio may import. Without this a `generate` payload could name
     // any module in the project's node_modules and the runtime would import it. Union of every
