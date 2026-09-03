@@ -33,8 +33,8 @@ export function isCIEnvironment(): boolean {
  *
  * Some IDE-embedded terminals report `isTTY = true` but set `columns` to `0`,
  * which breaks clack's box-drawing helpers (they call `String.prototype.repeat`
- * with a negative count and throw a `RangeError`).  We therefore require a
- * positive column count before declaring the TTY usable.
+ * with a negative count and throw a `RangeError`). A positive column count is
+ * required before the TTY counts as usable.
  *
  * @example
  * ```ts
