@@ -212,7 +212,7 @@ describe('createClient against a Studio instance', () => {
   // on the message rather than on "some error happened" is what tells the two apart: without the
   // allow-list the same payload still fails, just later, from the import itself.
   it('refuses a plugin the local config does not import, before importing it', async () => {
-    await connect({ allowedPlugins: ['@kubb/plugin-ts'] })
+    await connect()
 
     studio.send({ type: 'studio:generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } })
 

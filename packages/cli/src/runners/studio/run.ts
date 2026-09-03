@@ -183,9 +183,9 @@ export async function resolvePermissions(
 
 /**
  * Loads the project's Kubb config the same way `kubb generate` does.
- * Returns the first config and the full config array.
+ * Returns the first config.
  */
-async function loadConfigs(options: StudioOptions): Promise<{ configPath: string; config: Config; configs: Array<Config> }> {
+async function loadConfigs(options: StudioOptions): Promise<{ configPath: string; config: Config }> {
   const { configPath, configs } = await getConfigs({ configPath: options.configPath, logLevel: options.logLevel })
   const [config] = configs
 
@@ -196,7 +196,7 @@ async function loadConfigs(options: StudioOptions): Promise<{ configPath: string
   // `getConfigs` resolves this to an absolute path. Relativized here, once, so the permission
   // prompt and the path Studio receives over the wire both show the project-relative form instead
   // of leaking the local filesystem layout.
-  return { configPath: path.relative(process.cwd(), configPath) || configPath, config, configs }
+  return { configPath: path.relative(process.cwd(), configPath) || configPath, config }
 }
 
 /**
@@ -226,7 +226,7 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
     return login(options)
   })()
 
-  const { configPath, configs } = await loadConfigs(options)
+  const { configPath } = await loadConfigs(options)
   const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, credentials, configPath, !envToken)
   const granted = { allowWrite, allowConfigEdit, allowInput, allowExec }
 
@@ -278,10 +278,6 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
         say(styleText('dim', 'Press Ctrl+C to disconnect'))
       })
     },
-    // The local config bounds what Studio may import. Without this a `generate` payload could name
-    // any module in the project's node_modules and the runtime would import it. Union of every
-    // config entry's plugins, since Studio edits any entry, not only the one it generates from.
-    allowedPlugins: [...new Set(configs.flatMap((entry) => entry.plugins.map((plugin) => plugin.name)))],
   })
 
   try {

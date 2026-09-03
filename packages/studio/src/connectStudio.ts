@@ -10,7 +10,7 @@ import { type AgentMessage, type ClientInfo, type ConfigFileView, isCommandMessa
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { generate } from './generate.ts'
 import { agentDefaults } from './constants.ts'
-import { assertAllowedPlugins, mergeAdapter, mergePlugins } from './resolveConfig.ts'
+import { mergeAdapter, mergePlugins } from './resolveConfig.ts'
 import type WebSocket from 'ws'
 import { createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream } from './ws.ts'
 
@@ -45,13 +45,6 @@ export type ConnectToStudioOptions = {
    * own project, so it defaults this off and asks before granting it.
    */
   allowExec?: boolean
-  /**
-   * Module specifiers Studio may name in a `generate` payload. When set, a payload naming anything
-   * else is rejected instead of imported. `resolvePlugins` does a bare `await import(name)`, so
-   * without this Studio can execute any module reachable from the project's `node_modules`.
-   * Unset means no restriction, matching the Docker image where the plugin set is fixed at build time.
-   */
-  allowedPlugins?: ReadonlyArray<string>
   root?: string
   retryInterval?: number
   heartbeatInterval?: number
@@ -128,7 +121,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     allowConfigEdit = false,
     allowInput = false,
     allowExec = false,
-    allowedPlugins,
     root = process.cwd(),
     heartbeatInterval: requestedHeartbeatInterval = agentDefaults.heartbeatIntervalMs,
     signal,
@@ -385,8 +377,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             try {
               const config = await loadConfig()
               const patch = data.payload
-              assertAllowedPlugins(patch?.plugins, allowedPlugins)
-
               const plugins = await mergePlugins(config.plugins, patch?.plugins)
               const adapter = await mergeAdapter(config.adapter, patch?.adapter)
 

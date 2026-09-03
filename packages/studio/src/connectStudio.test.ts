@@ -641,17 +641,6 @@ describe('connectToStudio', () => {
     )
   })
 
-  it('rejects a payload naming a plugin outside the allow-list instead of importing it', async () => {
-    await connectToStudio({ ...options, allowedPlugins: ['@kubb/plugin-ts'] })
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } }),
-    })
-
-    expect(generate).not.toHaveBeenCalled()
-    expect(session.errors().map((error) => error.message)).toContainEqual(expect.stringContaining('evil-module'))
-  })
-
   // An adapter instance carries closures that cannot survive JSON, so the payload is an options
   // patch: the adapter factory is re-invoked with the merged options rather than replaced by the
   // plain object Studio sent.

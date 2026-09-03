@@ -61,16 +61,11 @@ container running a fixed plugin set.
 
 Every permission is off by default, and each covers one trust boundary:
 
-| Option           | What it grants                                                                                 |
-| ---------------- | ---------------------------------------------------------------------------------------------- |
-| `allowWrite`     | Generated files are written to disk. Off means they exist only in memory and stream to Studio. |
-| `allowInput`     | An OpenAPI spec sent by Studio replaces the one on disk.                                       |
-| `allowExec`      | The formatter, the linter, and `output.postGenerate` run as child processes.                   |
-| `allowedPlugins` | Module specifiers Studio may name in a generate payload. Unset means no restriction.           |
-
-`allowedPlugins` is the one worth setting whenever the host does not control what is installed:
-plugins are resolved by `import(name)`, so an unrestricted payload can load any module the project
-can reach.
+| Option       | What it grants                                                                                 |
+| ------------ | ---------------------------------------------------------------------------------------------- |
+| `allowWrite` | Generated files are written to disk. Off means they exist only in memory and stream to Studio. |
+| `allowInput` | An OpenAPI spec sent by Studio replaces the one on disk.                                       |
+| `allowExec`  | The formatter, the linter, and `output.postGenerate` run as child processes.                   |
 
 ## Connection flow
 
