@@ -294,7 +294,6 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
     say(styleText('dim', 'Press Ctrl+C to disconnect'))
   }
 
-
   await new Promise<void>((resolve) => {
     const stop = () => {
       client.disconnect()

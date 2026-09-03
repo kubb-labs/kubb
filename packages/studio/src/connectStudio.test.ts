@@ -64,7 +64,15 @@ function recordSessionEvents() {
   return {
     events,
     installLogger(hooks: Hookable<AgentHooks>) {
-      for (const name of ['studio:connecting', 'studio:connected', 'studio:disconnected', 'studio:command:start', 'studio:command:end', 'studio:warn', 'studio:error'] as const) {
+      for (const name of [
+        'studio:connecting',
+        'studio:connected',
+        'studio:disconnected',
+        'studio:command:start',
+        'studio:command:end',
+        'studio:warn',
+        'studio:error',
+      ] as const) {
         hooks.hook(name, (ctx) => {
           events.push({ name, ctx: ctx as unknown as Record<string, unknown> })
         })
