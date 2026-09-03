@@ -52,10 +52,12 @@
   },
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
     "./mocks": {
+      "types": "./dist/mocks.d.ts",
       "import": "./dist/mocks.js",
       "require": "./dist/mocks.cjs"
     },
