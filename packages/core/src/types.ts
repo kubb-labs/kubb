@@ -348,12 +348,67 @@ declare global {
      * ```
      */
     interface PluginOptionsRegistry {}
+
+    /**
+     * Registry of hook names to their listener argument tuples.
+     * Augment this interface to add hook events without touching core types.
+     *
+     * @example
+     * ```ts
+     * // packages/studio/src/hooks.ts
+     * declare global {
+     *   namespace Kubb {
+     *     interface KubbHooksRegistry {
+     *       'studio:connecting': [ctx: StudioConnectingContext]
+     *     }
+     *   }
+     * }
+     * ```
+     */
+    interface KubbHooksRegistry {
+      'kubb:lifecycle:start': [ctx: KubbLifecycleStartContext]
+      'kubb:lifecycle:end': []
+      'kubb:generation:start': [ctx: KubbGenerationStartContext]
+      'kubb:generation:end': [ctx: KubbGenerationEndContext]
+      'kubb:setup:start': []
+      'kubb:setup:end': []
+      'kubb:format:start': []
+      'kubb:format:end': []
+      'kubb:lint:start': []
+      'kubb:lint:end': []
+      'kubb:hooks:start': []
+      'kubb:hooks:end': []
+      'kubb:hook:start': [ctx: KubbHookStartContext]
+      'kubb:hook:line': [ctx: KubbHookLineContext]
+      'kubb:hook:end': [ctx: KubbHookEndContext]
+      'kubb:info': [ctx: KubbInfoContext]
+      'kubb:error': [ctx: KubbErrorContext]
+      'kubb:success': [ctx: KubbSuccessContext]
+      'kubb:warn': [ctx: KubbWarnContext]
+      'kubb:diagnostic': [ctx: KubbDiagnosticContext]
+      'kubb:files:processing:start': [ctx: KubbFilesProcessingStartContext]
+      'kubb:files:processing:update': [ctx: KubbFilesProcessingUpdateContext]
+      'kubb:files:processing:end': [ctx: KubbFilesProcessingEndContext]
+      'kubb:plugin:start': [ctx: KubbPluginStartContext]
+      'kubb:plugin:end': [ctx: KubbPluginEndContext]
+      'kubb:plugin:setup': [ctx: KubbPluginSetupContext]
+      'kubb:build:start': [ctx: KubbBuildStartContext]
+      'kubb:plugins:end': [ctx: KubbPluginsEndContext]
+      'kubb:build:end': [ctx: KubbBuildEndContext]
+      'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext]
+      'kubb:generate:operation': [node: OperationNode, ctx: GeneratorContext]
+      'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
+    }
   }
 }
 
 /**
  * Lifecycle hooks emitted during Kubb code generation.
  * Attach listeners before calling `setup()` or `build()` to observe and react to build progress.
+ *
+ * A package can add its own hook names to this type by augmenting
+ * {@link Kubb.KubbHooksRegistry} instead of exporting a second, separate hook type — `@kubb/studio`
+ * does this for its `studio:*` session events, so a host only ever needs to know `KubbHooks`.
  *
  * @example
  * ```ts
@@ -366,128 +421,7 @@ declare global {
  * })
  * ```
  */
-export interface KubbHooks {
-  'kubb:lifecycle:start': [ctx: KubbLifecycleStartContext]
-  'kubb:lifecycle:end': []
-  'kubb:generation:start': [ctx: KubbGenerationStartContext]
-  'kubb:generation:end': [ctx: KubbGenerationEndContext]
-  'kubb:setup:start': []
-  'kubb:setup:end': []
-  'kubb:format:start': []
-  'kubb:format:end': []
-  'kubb:lint:start': []
-  'kubb:lint:end': []
-  'kubb:hooks:start': []
-  'kubb:hooks:end': []
-  'kubb:hook:start': [ctx: KubbHookStartContext]
-  'kubb:hook:line': [ctx: KubbHookLineContext]
-  'kubb:hook:end': [ctx: KubbHookEndContext]
-  'kubb:info': [ctx: KubbInfoContext]
-  'kubb:error': [ctx: KubbErrorContext]
-  'kubb:success': [ctx: KubbSuccessContext]
-  'kubb:warn': [ctx: KubbWarnContext]
-  'kubb:diagnostic': [ctx: KubbDiagnosticContext]
-  'kubb:files:processing:start': [ctx: KubbFilesProcessingStartContext]
-  'kubb:files:processing:update': [ctx: KubbFilesProcessingUpdateContext]
-  'kubb:files:processing:end': [ctx: KubbFilesProcessingEndContext]
-  'kubb:plugin:start': [ctx: KubbPluginStartContext]
-  'kubb:plugin:end': [ctx: KubbPluginEndContext]
-  'kubb:plugin:setup': [ctx: KubbPluginSetupContext]
-  'kubb:build:start': [ctx: KubbBuildStartContext]
-  'kubb:plugins:end': [ctx: KubbPluginsEndContext]
-  'kubb:build:end': [ctx: KubbBuildEndContext]
-  'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext]
-  'kubb:generate:operation': [node: OperationNode, ctx: GeneratorContext]
-  'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
-}
-
-/**
- * Events a host emits about its Kubb Studio session, as opposed to a generation. `kubb:` stays
- * reserved for generation lifecycle.
- *
- * Declared next to {@link KubbHooks} so the CLI's loggers render both from one emitter without
- * depending on `@kubb/studio`, which is an optional peer.
- */
-export type StudioHooks = {
-  'studio:connecting': [ctx: StudioConnectingContext]
-  'studio:connected': [ctx: StudioConnectedContext]
-  'studio:disconnected': [ctx: StudioDisconnectedContext]
-  'studio:command:start': [ctx: StudioCommandStartContext]
-  'studio:command:end': [ctx: StudioCommandEndContext]
-  'studio:warn': [ctx: StudioWarnContext]
-  'studio:error': [ctx: StudioErrorContext]
-}
-
-export type StudioConnectingContext = {
-  /**
-   * The Studio instance this session is opening against.
-   */
-  url: string
-}
-
-export type StudioConnectedContext = {
-  /**
-   * The Studio instance this session attached to.
-   */
-  url: string
-  /**
-   * Both sides of the connection, so a host can print them and make a mismatch visible.
-   */
-  versions: {
-    /**
-     * The Studio instance's own version, when it sent one.
-     */
-    studio?: string
-    /**
-     * The version of the runtime that connected.
-     */
-    kubb: string
-    /**
-     * The version of the host itself, such as the `kubb` CLI or the agent image.
-     */
-    agent: string
-  }
-}
-
-export type StudioDisconnectedContext = {
-  /**
-   * Why Studio ended the session.
-   */
-  reason: string
-}
-
-export type StudioCommandStartContext = {
-  /**
-   * The command Studio sent, without its `studio:` prefix: `generate`, `connect` or `save`.
-   */
-  command: string
-}
-
-export type StudioCommandEndContext = {
-  /**
-   * The command that finished, without its `studio:` prefix.
-   */
-  command: string
-  /**
-   * What the command did, when there is something to report: `applied 2/3 edits to kubb.config.ts`.
-   */
-  info?: string
-}
-
-export type StudioWarnContext = {
-  /**
-   * What was refused or ignored, and what would change it.
-   */
-  message: string
-}
-
-export type StudioErrorContext = {
-  /**
-   * The failure, for the host's own output. One Studio needs to hear about goes over the socket
-   * through the `kubb:error` generation hook instead.
-   */
-  error: Error
-}
+export type KubbHooks = Kubb.KubbHooksRegistry
 
 export type KubbBuildStartContext = {
   /**

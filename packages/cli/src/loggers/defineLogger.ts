@@ -1,4 +1,4 @@
-import type { KubbHooks, Hookable, StudioHooks } from '@kubb/core'
+import type { KubbHooks, Hookable } from '@kubb/core'
 
 /**
  * Options accepted by a logger's `install` callback.
@@ -13,10 +13,10 @@ export type LoggerOptions = {
 
 /**
  * Hook emitter handed to `Logger.install`. Use `.hook('kubb:info', ...)` to subscribe to build
- * hooks, or `.hook('studio:connected', ...)` for the Studio session events a `kubb studio`
- * connection emits on the same emitter.
+ * hooks. `@kubb/studio` extends `KubbHooks` with `studio:*` session events, so once a package
+ * pulls it in, the same emitter carries those too.
  */
-export type LoggerContext = Hookable<KubbHooks & StudioHooks>
+export type LoggerContext = Hookable<KubbHooks>
 
 /**
  * Logger contract. A logger receives the build's hook emitter and subscribes
