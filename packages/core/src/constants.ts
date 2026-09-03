@@ -133,6 +133,11 @@ export const diagnosticCode = {
    */
   lintFailed: 'KUBB_LINT_FAILED',
   /**
+   * Two files under one barrel directory export the same name, so the barrel cannot re-export
+   * both.
+   */
+  barrelDuplicateExport: 'KUBB_BARREL_DUPLICATE_EXPORT',
+  /**
    * Not a failure. Carries a plugin's elapsed time, summed into the run total.
    */
   performance: 'KUBB_PERFORMANCE',
