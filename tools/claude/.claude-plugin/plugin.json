@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "kubb",
   "displayName": "Kubb",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "Kubb is a meta framework for code generation. Generate TypeScript types, Zod schemas, Axios and fetch clients, React Query and Vue Query hooks, Faker mocks and more from an OpenAPI spec. The commands run the Kubb CLI, and a bundled MCP server adds conversational generation.",
   "author": {
     "name": "stijnvanhulle",

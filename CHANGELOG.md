@@ -1,5 +1,31 @@
 # Changelog
 
+## v5.1.1 — Sep 3, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb mcp` and `kubb validate` now load `@kubb/mcp` and `@kubb/adapter-oas` only when that
+  command runs, the same as `kubb studio` already did for `@kubb/studio`. Every other command,
+  including `kubb --help`, no longer touches either optional peer.
+  
+  Also documents `KUBB_HOME`, the env var `kubb studio` already read to relocate its stored
+  credential, machine secret, and session cache away from `~/.kubb`. ([#3968](https://github.com/kubb-labs/kubb/pull/3968), [`0e4dc40`](https://github.com/kubb-labs/kubb/commit/0e4dc4073c10ae53d98b5619cd2b4fa9e2622d9f))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Moved shared-utility logic used by only one package out of `@internals/utils` and into that
+  package (`@kubb/core`, `@kubb/cli`, `@kubb/kit`). No public API or behavior changed. ([#3968](https://github.com/kubb-labs/kubb/pull/3968), [`0e4dc40`](https://github.com/kubb-labs/kubb/commit/0e4dc4073c10ae53d98b5619cd2b4fa9e2622d9f))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.1.0 — Sep 3, 2026
 
 ### @kubb/adapter-oas
