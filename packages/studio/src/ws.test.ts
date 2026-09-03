@@ -1,0 +1,56 @@
+import { Hookable } from '@kubb/core'
+import type WebSocket from 'ws'
+import { describe, expect, it, vi } from 'vitest'
+import type { AgentHooks } from './hooks.ts'
+import type { AgentMessage } from './protocol/index.ts'
+import { setupEventsStream } from './ws.ts'
+
+/**
+ * `sendAgentMessage` only needs a socket that reports OPEN and records what it was handed, so the
+ * fake stays smaller than `MockWebSocket` (which has no `send`).
+ */
+function fakeSocket() {
+  const send = vi.fn()
+
+  return {
+    send,
+    ws: { readyState: 1, send } as unknown as WebSocket,
+    sent(): Array<AgentMessage> {
+      return send.mock.calls.map(([frame]) => JSON.parse(frame as string) as AgentMessage)
+    },
+  }
+}
+
+describe('setupEventsStream', () => {
+  it('forwards a generation event as an agent:data envelope around its kubb: payload', async () => {
+    const socket = fakeSocket()
+    const hooks = new Hookable<AgentHooks>()
+    setupEventsStream(socket.ws, hooks)
+
+    await hooks.callHook('kubb:plugin:start', { plugin: { name: 'plugin-ts' } as never })
+
+    expect(socket.sent()).toStrictEqual([
+      {
+        type: 'agent:data',
+        payload: { type: 'kubb:plugin:start', data: [{ plugin: { name: 'plugin-ts' } }], timestamp: expect.any(Number), seq: 0 },
+      },
+    ])
+  })
+
+  it('keeps session events off the wire', async () => {
+    const socket = fakeSocket()
+    const hooks = new Hookable<AgentHooks>()
+    setupEventsStream(socket.ws, hooks)
+
+    // `studio:*` narrates the connection for whoever is running the agent. Studio has its own view
+    // of the session, so forwarding these would duplicate it and leak local paths and remedies.
+    await hooks.callHook('studio:connected', { tag: 'brave-otter', studioUrl: 'https://kubb.studio' })
+    await hooks.callHook('studio:warn', { tag: 'brave-otter', message: 'Ignored save: editing kubb.config.ts was not granted' })
+    await hooks.callHook('studio:error', { tag: 'brave-otter', error: new Error('boom') })
+    await hooks.callHook('studio:command:start', { tag: 'brave-otter', command: 'generate' })
+    await hooks.callHook('studio:command:end', { tag: 'brave-otter', command: 'generate' })
+    await hooks.callHook('studio:disconnected', { tag: 'brave-otter', reason: 'revoked' })
+
+    expect(socket.send).not.toHaveBeenCalled()
+  })
+})

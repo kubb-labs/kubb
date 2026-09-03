@@ -2,13 +2,81 @@ import type { Hookable, KubbHooks } from '@kubb/core'
 import { x } from 'tinyexec'
 
 /**
- * Event bus shared with `createKubb`. Core emits its lifecycle events here, and the runtime overlays
- * the synthetic `kubb:hook:line` event it produces while streaming output from spawned hook commands
- * (formatter, linter, user `done` hooks). Core itself does not emit this event.
+ * Events about this runtime's Kubb Studio session, as opposed to a generation. A host subscribes to
+ * these to narrate the connection without also subscribing to a build, which is what keeps the
+ * generation loggers reusable as they are.
  */
-export type AgentHooks = KubbHooks & {
-  'kubb:hook:line': [ctx: { id?: string; line: string }]
+export type StudioHooks = {
+  'studio:connected': [ctx: StudioConnectedContext]
+  'studio:disconnected': [ctx: StudioDisconnectedContext]
+  'studio:command:start': [ctx: StudioCommandStartContext]
+  'studio:command:end': [ctx: StudioCommandEndContext]
+  'studio:warn': [ctx: StudioWarnContext]
+  'studio:error': [ctx: StudioErrorContext]
 }
+
+/**
+ * Readable identifier Studio issued for this connection, carried by every session event. A host
+ * with a single session leaves it out of its output; one serving a pool shows it to tell them apart.
+ */
+type StudioSessionContext = {
+  tag: string
+}
+
+export type StudioConnectedContext = StudioSessionContext & {
+  /**
+   * The Studio instance this session attached to.
+   */
+  studioUrl: string
+}
+
+export type StudioDisconnectedContext = StudioSessionContext & {
+  /**
+   * Why Studio ended the session.
+   */
+  reason: string
+}
+
+export type StudioCommandStartContext = StudioSessionContext & {
+  /**
+   * The command Studio sent, without its `studio:` prefix — `generate`, `connect` or `save`.
+   */
+  command: string
+}
+
+export type StudioCommandEndContext = StudioSessionContext & {
+  /**
+   * The command that finished, without its `studio:` prefix.
+   */
+  command: string
+  /**
+   * What the command did, when there is something worth reporting, such as
+   * `applied 2/3 edits to kubb.config.ts`.
+   */
+  info?: string
+}
+
+export type StudioWarnContext = StudioSessionContext & {
+  /**
+   * What was refused or ignored, and what would change it.
+   */
+  message: string
+}
+
+export type StudioErrorContext = StudioSessionContext & {
+  /**
+   * The failure. Local to the host: a failure Studio needs to hear about is sent over the socket
+   * instead, through the `kubb:error` generation hook.
+   */
+  error: Error
+}
+
+/**
+ * Event bus shared with `createKubb`. Core emits its generation lifecycle events here (including
+ * `kubb:hook:line`, which the runtime fires while streaming output from spawned hook commands), and
+ * the session events above ride alongside them.
+ */
+export type AgentHooks = KubbHooks & StudioHooks
 
 /**
  * Register a `kubb:hook:start` listener that spawns the requested command via tinyexec,

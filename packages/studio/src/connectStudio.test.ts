@@ -6,6 +6,8 @@ import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vites
 import { spyOnConsole } from './console.mock.ts'
 import { MockWebSocket } from './websocket.mock.ts'
 import type { AgentConnectResponse } from './protocol/index.ts'
+import type { Hookable } from '@kubb/core'
+import type { AgentHooks, StudioHooks } from './hooks.ts'
 import type { ConnectToStudioOptions } from './connectStudio.ts'
 import { connectToStudio } from './connectStudio.ts'
 
@@ -51,6 +53,37 @@ import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
 
 const consoleSpy = spyOnConsole()
 
+/**
+ * Records the `studio:*` session events through the same `installLogger` hook a host uses, so a
+ * test asserts the event and its context rather than a formatted console string.
+ */
+function recordSessionEvents() {
+  const events: Array<{ name: keyof StudioHooks; ctx: Record<string, unknown> }> = []
+
+  return {
+    events,
+    installLogger(hooks: Hookable<AgentHooks>) {
+      for (const name of ['studio:connected', 'studio:disconnected', 'studio:command:start', 'studio:command:end', 'studio:warn', 'studio:error'] as const) {
+        hooks.hook(name, (ctx) => {
+          events.push({ name, ctx: ctx as unknown as Record<string, unknown> })
+        })
+      }
+    },
+    /**
+     * The `message` of every recorded `studio:warn`, for a `stringContaining` style assertion.
+     */
+    warnings(): Array<string> {
+      return events.filter((event) => event.name === 'studio:warn').map((event) => String(event.ctx.message))
+    },
+    errors(): Array<Error> {
+      return events.filter((event) => event.name === 'studio:error').map((event) => event.ctx.error as Error)
+    },
+    named(name: keyof StudioHooks) {
+      return events.filter((event) => event.name === name)
+    },
+  }
+}
+
 const loadConfig = vi.fn()
 
 const makeSession = (overrides: Partial<AgentConnectResponse> = {}): AgentConnectResponse => ({
@@ -75,9 +108,11 @@ describe('connectToStudio', () => {
   let mockWs: MockWebSocket
   let options: ConnectToStudioOptions
   let controller: AbortController
+  let session: ReturnType<typeof recordSessionEvents>
 
   beforeEach(() => {
     mockWs = new MockWebSocket()
+    session = recordSessionEvents()
     controller = new AbortController()
     vi.mocked(createWebsocket).mockReturnValue(mockWs as any)
     vi.mocked(createAgentSession).mockResolvedValue(makeSession())
@@ -94,6 +129,7 @@ describe('connectToStudio', () => {
       allowInput: false,
       root: '/project',
       retryInterval: 100,
+      installLogger: session.installLogger,
     }
   })
 
@@ -120,6 +156,23 @@ describe('connectToStudio', () => {
     })
   })
 
+  it('installs the host renderer on the session emitter and on every generation', async () => {
+    const emitters: Array<Hookable<AgentHooks>> = []
+
+    await connectToStudio({ ...options, installLogger: (hooks) => void emitters.push(hooks) })
+
+    // The session emitter, installed before the socket exists so a failed connect still reports.
+    expect(emitters).toHaveLength(1)
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'studio:generate', payload: { plugins: [] } }),
+    })
+
+    // The generation gets its own emitter, so its events cannot bleed into another session's.
+    expect(emitters).toHaveLength(2)
+    expect(emitters[0]).not.toBe(emitters[1])
+  })
+
   it('creates a WebSocket with the session wsUrl and Bearer auth header', async () => {
     await connectToStudio(options)
 
@@ -137,7 +190,7 @@ describe('connectToStudio', () => {
 
     await connectToStudio(options)
 
-    expect(consoleSpy.error).toHaveBeenCalledWith(expect.stringContaining('Network error'))
+    expect(session.errors().map((error) => error.message)).toContainEqual(expect.stringContaining('Network error'))
 
     await vi.advanceTimersByTimeAsync(options.retryInterval!)
 
@@ -155,7 +208,7 @@ describe('connectToStudio', () => {
 
     await vi.advanceTimersByTimeAsync(30_000)
 
-    expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, { type: 'kubb:ping' })
+    expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, { type: 'agent:ping' })
   })
 
   it('stops retrying once the signal aborts', async () => {
@@ -175,9 +228,9 @@ describe('connectToStudio', () => {
   it('accepts a pong without treating it as an unknown message', async () => {
     await connectToStudio(options)
 
-    await mockWs.trigger('message', { data: JSON.stringify({ type: 'kubb:pong' }) })
+    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:ping' }) })
 
-    expect(consoleSpy.warn).not.toHaveBeenCalledWith(expect.stringContaining('Unknown message type'))
+    expect(session.warnings()).not.toContainEqual(expect.stringContaining('unknown message'))
   })
 
   it('logs a warning for unknown message types', async () => {
@@ -187,7 +240,7 @@ describe('connectToStudio', () => {
       data: JSON.stringify({ type: 'unknown' }),
     })
 
-    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('Unknown message type'))
+    expect(session.warnings()).toContainEqual(expect.stringContaining('unknown message'))
   })
 
   // Handshake and liveness
@@ -199,7 +252,7 @@ describe('connectToStudio', () => {
 
     // onOpen sends the connected payload without awaiting it, and it now reads storage first,
     // so let the fire-and-forget send settle before asserting.
-    await vi.waitFor(() => expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, expect.objectContaining({ type: 'kubb:connected' })))
+    await vi.waitFor(() => expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, expect.objectContaining({ type: 'agent:connect' })))
   })
 
   it('logs the slug when the WebSocket opens', async () => {
@@ -207,7 +260,7 @@ describe('connectToStudio', () => {
 
     await mockWs.trigger('open')
 
-    expect(consoleSpy.log).toHaveBeenCalledWith('[brave-otter] Connected to Kubb Studio')
+    expect(session.named('studio:connected')).toStrictEqual([{ name: 'studio:connected', ctx: { tag: 'brave-otter', studioUrl: 'https://kubb.studio' } }])
   })
 
   it('logs the slug when the WebSocket errors', async () => {
@@ -215,7 +268,9 @@ describe('connectToStudio', () => {
 
     await mockWs.trigger('error')
 
-    expect(consoleSpy.error).toHaveBeenCalledWith('[brave-otter] Failed to connect to Kubb Studio')
+    expect(session.named('studio:error')).toStrictEqual([
+      { name: 'studio:error', ctx: { tag: 'brave-otter', error: expect.objectContaining({ message: 'Failed to connect to Kubb Studio' }) } },
+    ])
   })
 
   it('terminates the connection when no pong arrives within two heartbeat intervals', async () => {
@@ -239,7 +294,7 @@ describe('connectToStudio', () => {
 
     for (const _ of Array.from({ length: 5 })) {
       await vi.advanceTimersByTimeAsync(1_000)
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'kubb:pong' }) })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:ping' }) })
     }
 
     expect(mockWs.terminated).toBe(false)
@@ -270,7 +325,7 @@ describe('connectToStudio', () => {
       vi
         .mocked(sendAgentMessage)
         .mock.calls.map(([, message]) => message)
-        .find((message) => message.type === 'kubb:config-saved')
+        .find((message) => message.type === 'agent:save')
 
     beforeEach(() => {
       projectRoot = mkdtempSync(path.join(tmpdir(), 'kubb-studio-'))
@@ -283,7 +338,7 @@ describe('connectToStudio', () => {
       rmSync(projectRoot, { recursive: true, force: true })
     })
 
-    const write = async (edits: Array<unknown>) => mockWs.trigger('message', { data: JSON.stringify({ type: 'kubb:command', command: 'save', edits }) })
+    const write = async (edits: Array<unknown>) => mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:save', edits }) })
 
     it('writes a literal option and leaves the rest of the file alone', async () => {
       await connectToStudio({ ...options, allowConfigEdit: true })
@@ -380,7 +435,7 @@ describe('connectToStudio', () => {
     it('still replies when the message carries no edits', async () => {
       await connectToStudio({ ...options, allowConfigEdit: true })
 
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'kubb:command', command: 'save' }) })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:save' }) })
 
       expect(reply()?.payload).toMatchObject({ changed: false, outcomes: [] })
     })
@@ -388,14 +443,14 @@ describe('connectToStudio', () => {
     it('reports what the file holds on connect so Studio can disable the right controls', async () => {
       await connectToStudio({ ...options, allowConfigEdit: true })
 
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'kubb:command', command: 'connect' }) })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:connect' }) })
 
       const connected = vi
         .mocked(sendAgentMessage)
         .mock.calls.map(([, message]) => message)
-        .find((message) => message.type === 'kubb:connected')
+        .find((message) => message.type === 'agent:connect')
 
-      expect(connected?.type === 'kubb:connected' && connected.payload.config.file).toStrictEqual({
+      expect(connected?.type === 'agent:connect' && connected.payload.config.file).toStrictEqual({
         configs: [
           {
             name: undefined,
@@ -429,7 +484,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate' }),
+      data: JSON.stringify({ type: 'studio:generate' }),
     })
 
     expect(generate).toHaveBeenCalledWith(
@@ -445,7 +500,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'studio:generate', payload }),
     })
 
     expect(generate).toHaveBeenCalledWith(
@@ -459,7 +514,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowWrite: true })
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate' }),
+      data: JSON.stringify({ type: 'studio:generate' }),
     })
 
     expect(generate).toHaveBeenCalledWith(
@@ -482,7 +537,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await sandboxWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'studio:generate', payload }),
     })
 
     expect(generate).toHaveBeenCalledWith(
@@ -500,7 +555,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options) // allowInput: false
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'studio:generate', payload }),
     })
 
     // Without allowInput the spec stays the on-disk config.input
@@ -509,7 +564,7 @@ describe('connectToStudio', () => {
         config: expect.objectContaining({ input: 'spec.yaml' }),
       }),
     )
-    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('KUBB_AGENT_ALLOW_INPUT'))
+    expect(session.warnings()).toContainEqual(expect.stringContaining('KUBB_AGENT_ALLOW_INPUT'))
   })
 
   it('tells a CLI host to use --allowInput instead of the Docker-only env var', async () => {
@@ -518,11 +573,11 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, client: { kind: 'cli', version: '1.0.0', cwd: '/project', projectName: 'project' } }) // allowInput: false
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'studio:generate', payload }),
     })
 
-    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('--allowInput'))
-    expect(consoleSpy.warn).not.toHaveBeenCalledWith(expect.stringContaining('KUBB_AGENT_ALLOW_INPUT'))
+    expect(session.warnings()).toContainEqual(expect.stringContaining('--allowInput'))
+    expect(session.warnings()).not.toContainEqual(expect.stringContaining('KUBB_AGENT_ALLOW_INPUT'))
   })
 
   it('uses inline input from payload for a local agent when allowInput is enabled', async () => {
@@ -531,7 +586,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowInput: true })
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'studio:generate', payload }),
     })
 
     expect(generate).toHaveBeenCalledWith(
@@ -547,7 +602,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowInput: true })
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'studio:generate', payload }),
     })
 
     expect(generate).toHaveBeenCalledWith(
@@ -563,7 +618,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowExec: false })
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload: { plugins: [] } }),
+      data: JSON.stringify({ type: 'studio:generate', payload: { plugins: [] } }),
     })
 
     expect(generate).toHaveBeenCalledWith(
@@ -577,11 +632,11 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowedPlugins: ['@kubb/plugin-ts'] })
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } }),
+      data: JSON.stringify({ type: 'studio:generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } }),
     })
 
     expect(generate).not.toHaveBeenCalled()
-    expect(consoleSpy.error).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ message: expect.stringContaining('evil-module') }))
+    expect(session.errors().map((error) => error.message)).toContainEqual(expect.stringContaining('evil-module'))
   })
 
   // An adapter instance carries closures that cannot survive JSON, so the payload is an options
@@ -594,7 +649,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'studio:generate', payload }),
     })
 
     const adapter = vi.mocked(generate).mock.calls[0]?.[0].config.adapter
@@ -611,7 +666,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'studio:generate', payload }),
     })
 
     const call = vi.mocked(generate).mock.calls[0]?.[0]
@@ -630,7 +685,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     const first = mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate' }),
+      data: JSON.stringify({ type: 'studio:generate' }),
     })
 
     // Wait until `generate()` is actually in flight (loadConfig/mergePlugins/etc. resolve
@@ -639,24 +694,24 @@ describe('connectToStudio', () => {
     await vi.waitFor(() => expect(generate).toHaveBeenCalledTimes(1))
 
     const second = mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate' }),
+      data: JSON.stringify({ type: 'studio:generate' }),
     })
 
     resolveGenerate()
     await Promise.all([first, second])
 
     expect(generate).toHaveBeenCalledTimes(1)
-    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('already in progress'))
+    expect(session.warnings()).toContainEqual(expect.stringContaining('already in progress'))
   })
 
   it('allows a new generate command once the previous one has finished', async () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate' }),
+      data: JSON.stringify({ type: 'studio:generate' }),
     })
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate' }),
+      data: JSON.stringify({ type: 'studio:generate' }),
     })
 
     expect(generate).toHaveBeenCalledTimes(2)
@@ -668,7 +723,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload: { plugins: [] } }),
+      data: JSON.stringify({ type: 'studio:generate', payload: { plugins: [] } }),
     })
 
     const generationHooks = vi.mocked(setupEventsStream).mock.calls[0]?.[1]
@@ -684,13 +739,13 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'connect' }),
+      data: JSON.stringify({ type: 'studio:connect' }),
     })
 
     expect(sendAgentMessage).toHaveBeenCalledWith(
       mockWs,
       expect.objectContaining({
-        type: 'kubb:connected',
+        type: 'agent:connect',
         payload: expect.objectContaining({
           versions: {
             kubb: '5.1.0-core-test',
@@ -707,7 +762,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowWrite: true })
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'connect' }),
+      data: JSON.stringify({ type: 'studio:connect' }),
     })
 
     expect(sendAgentMessage).toHaveBeenCalledWith(
@@ -729,7 +784,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowInput: true })
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'connect' }),
+      data: JSON.stringify({ type: 'studio:connect' }),
     })
 
     expect(sendAgentMessage).toHaveBeenCalledWith(
@@ -755,7 +810,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowWrite: true })
 
     await sandboxWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:command', command: 'connect' }),
+      data: JSON.stringify({ type: 'studio:connect' }),
     })
 
     expect(sendAgentMessage).toHaveBeenCalledWith(
@@ -796,10 +851,10 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:disconnect', reason: 'revoked' }),
+      data: JSON.stringify({ type: 'studio:disconnect', reason: 'revoked' }),
     })
 
-    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('disconnected by Studio (revoked)'))
+    expect(session.named('studio:disconnected')).toStrictEqual([{ name: 'studio:disconnected', ctx: { tag: 'brave-otter', reason: 'revoked' } }])
     expect(mockWs.closed).toBe(true)
     // disconnect API must NOT be called — server already knows about the closure
     expect(disconnect).not.toHaveBeenCalled()
@@ -813,10 +868,10 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'kubb:disconnect', reason: 'expired' }),
+      data: JSON.stringify({ type: 'studio:disconnect', reason: 'expired' }),
     })
 
-    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('disconnected by Studio (expired)'))
+    expect(session.named('studio:disconnected')).toStrictEqual([{ name: 'studio:disconnected', ctx: { tag: 'brave-otter', reason: 'expired' } }])
     expect(mockWs.closed).toBe(true)
     expect(disconnect).not.toHaveBeenCalled()
     // expired sessions trigger a reconnect (unlike revoked)
@@ -843,7 +898,7 @@ describe('connectToStudio', () => {
       await vi.advanceTimersByTimeAsync(options.retryInterval!)
       await vi.advanceTimersByTimeAsync(0)
 
-      expect(consoleSpy.error).toHaveBeenCalledWith(expect.stringContaining('502 Bad Gateway'))
+      expect(session.errors().map((error) => error.message)).toContainEqual(expect.stringContaining('502 Bad Gateway'))
       // the failed attempt schedules another reconnect rather than giving up
       await vi.advanceTimersByTimeAsync(options.retryInterval!)
       expect(createAgentSession).toHaveBeenCalledTimes(3)

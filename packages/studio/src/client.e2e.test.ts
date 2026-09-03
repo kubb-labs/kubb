@@ -5,7 +5,7 @@ import { adapterOas } from '@kubb/adapter-oas'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { WebSocketServer, type WebSocket } from 'ws'
 import { createClient } from './index.ts'
-import type { AgentMessage, ConnectedMessage, DataMessage } from './protocol/index.ts'
+import type { AgentMessage, AgentConnectMessage, DataMessage } from './protocol/index.ts'
 
 /**
  * A Kubb Studio small enough to run in a test: the two REST calls an agent makes on startup, and
@@ -134,9 +134,9 @@ function projectConfig(): Config {
   } as unknown as Config
 }
 
-const isConnected = (message: AgentMessage): message is ConnectedMessage => message.type === 'kubb:connected'
-const isEnd = (message: AgentMessage): message is DataMessage => message.type === 'kubb:data' && message.payload.type === 'kubb:generation:end'
-const isError = (message: AgentMessage): message is DataMessage => message.type === 'kubb:data' && message.payload.type === 'kubb:error'
+const isConnected = (message: AgentMessage): message is AgentConnectMessage => message.type === 'agent:connect'
+const isEnd = (message: AgentMessage): message is DataMessage => message.type === 'agent:data' && message.payload.type === 'kubb:generation:end'
+const isError = (message: AgentMessage): message is DataMessage => message.type === 'agent:data' && message.payload.type === 'kubb:error'
 
 describe('createClient against a Studio instance', () => {
   let studio: ReturnType<typeof createFakeStudio>
@@ -197,11 +197,11 @@ describe('createClient against a Studio instance', () => {
   it('runs a generation and streams it back to Studio', async () => {
     await connect()
 
-    studio.send({ type: 'kubb:command', command: 'generate', payload: { plugins: [] } })
+    studio.send({ type: 'studio:generate', payload: { plugins: [] } })
 
     await studio.waitFor(isEnd)
 
-    const types = studio.received.filter((message) => message.type === 'kubb:data').map((message) => (message as DataMessage).payload.type)
+    const types = studio.received.filter((message) => message.type === 'agent:data').map((message) => (message as DataMessage).payload.type)
 
     expect(types).toContain('kubb:generation:start')
     expect(types).toContain('kubb:build:start')
@@ -214,7 +214,7 @@ describe('createClient against a Studio instance', () => {
   it('refuses a plugin the local config does not import, before importing it', async () => {
     await connect({ allowedPlugins: ['@kubb/plugin-ts'] })
 
-    studio.send({ type: 'kubb:command', command: 'generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } })
+    studio.send({ type: 'studio:generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } })
 
     const error = await studio.waitFor(isError)
 
@@ -224,7 +224,7 @@ describe('createClient against a Studio instance', () => {
   it('reaches the import, and fails there, when no allow-list is set', async () => {
     await connect()
 
-    studio.send({ type: 'kubb:command', command: 'generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } })
+    studio.send({ type: 'studio:generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } })
 
     const error = await studio.waitFor(isError)
 

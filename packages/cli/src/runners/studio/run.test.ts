@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
 import type { Credentials } from './credentials.ts'
-import { formatPermissionSummary, resolvePermissions, type StudioOptions } from './run.ts'
+import { formatPermissionRows, resolvePermissions, type StudioOptions } from './run.ts'
 
 vi.mock('@clack/prompts', () => ({ confirm: vi.fn() }))
 vi.mock('../../utils/env.ts', async (importOriginal) => ({
@@ -103,10 +103,13 @@ describe('resolvePermissions', () => {
   })
 })
 
-describe('formatPermissionSummary', () => {
-  it('lists every permission', () => {
-    expect(formatPermissionSummary({ allowWrite: true, allowConfigEdit: false, allowInput: true, allowExec: false })).toBe(
-      'write generated files: yes, edit kubb.config.ts: no, use a Studio spec: yes, run formatter, linter, postGenerate: no',
-    )
+describe('formatPermissionRows', () => {
+  it('marks every permission with whether it was granted', () => {
+    expect(formatPermissionRows({ allowWrite: true, allowConfigEdit: false, allowInput: true, allowExec: false })).toStrictEqual([
+      '✔ write generated files',
+      '✘ edit kubb.config.ts',
+      '✔ use a Studio spec',
+      '✘ run formatter, linter, postGenerate',
+    ])
   })
 })
