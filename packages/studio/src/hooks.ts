@@ -1,11 +1,101 @@
-import type { Hookable, KubbHooks, StudioHooks } from '@kubb/core'
+import type { Hookable, KubbHooks } from '@kubb/core'
 import { x } from 'tinyexec'
 
 /**
- * Event bus shared with `createKubb`. Core emits its generation lifecycle events here, and the
- * `studio:*` session events ride alongside them, so one logger renders the whole connection.
+ * Events a host emits about its Kubb Studio session, as opposed to a generation. `kubb:` stays
+ * reserved for generation lifecycle.
  */
-export type AgentHooks = KubbHooks & StudioHooks
+export type StudioConnectingContext = {
+  /**
+   * The Studio instance this session is opening against.
+   */
+  url: string
+}
+
+export type StudioConnectedContext = {
+  /**
+   * The Studio instance this session attached to.
+   */
+  url: string
+  /**
+   * Both sides of the connection, so a host can print them and make a mismatch visible.
+   */
+  versions: {
+    /**
+     * The Studio instance's own version, when it sent one.
+     */
+    studio?: string
+    /**
+     * The version of the runtime that connected.
+     */
+    kubb: string
+    /**
+     * The version of the host itself, such as the `kubb` CLI or the agent image.
+     */
+    agent: string
+  }
+}
+
+export type StudioDisconnectedContext = {
+  /**
+   * Why Studio ended the session.
+   */
+  reason: string
+}
+
+export type StudioCommandStartContext = {
+  /**
+   * The command Studio sent, without its `studio:` prefix: `generate`, `connect` or `save`.
+   */
+  command: string
+}
+
+export type StudioCommandEndContext = {
+  /**
+   * The command that finished, without its `studio:` prefix.
+   */
+  command: string
+  /**
+   * What the command did, when there is something to report: `applied 2/3 edits to kubb.config.ts`.
+   */
+  info?: string
+}
+
+export type StudioWarnContext = {
+  /**
+   * What was refused or ignored, and what would change it.
+   */
+  message: string
+}
+
+export type StudioErrorContext = {
+  /**
+   * The failure, for the host's own output. One Studio needs to hear about goes over the socket
+   * through the `kubb:error` generation hook instead.
+   */
+  error: Error
+}
+
+declare global {
+  namespace Kubb {
+    interface KubbHooksRegistry {
+      'studio:connecting': [ctx: StudioConnectingContext]
+      'studio:connected': [ctx: StudioConnectedContext]
+      'studio:disconnected': [ctx: StudioDisconnectedContext]
+      'studio:command:start': [ctx: StudioCommandStartContext]
+      'studio:command:end': [ctx: StudioCommandEndContext]
+      'studio:warn': [ctx: StudioWarnContext]
+      'studio:error': [ctx: StudioErrorContext]
+    }
+  }
+}
+
+/**
+ * Event bus shared with `createKubb`. Core emits its generation lifecycle events here, and the
+ * `studio:*` session events this package adds to {@link KubbHooks} ride alongside them, so one
+ * logger renders the whole connection.
+ */
+export type AgentHooks = KubbHooks
 
 /**
  * Register a `kubb:hook:start` listener that spawns the requested command via tinyexec,
