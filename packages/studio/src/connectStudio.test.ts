@@ -6,7 +6,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vites
 import { spyOnConsole } from './console.mock.ts'
 import { MockWebSocket } from './websocket.mock.ts'
 import type { AgentConnectResponse } from './protocol/index.ts'
-import type { Hookable, StudioHooks } from '@kubb/core'
+import type { Hookable } from '@kubb/core'
 import type { AgentHooks } from './hooks.ts'
 import type { ConnectToStudioOptions } from './connectStudio.ts'
 import { connectToStudio } from './connectStudio.ts'
@@ -57,8 +57,17 @@ const consoleSpy = spyOnConsole()
  * Records the `studio:*` session events through the same `installLogger` hook a host uses, so a
  * test asserts the event and its context rather than a formatted console string.
  */
+type StudioEventName =
+  | 'studio:connecting'
+  | 'studio:connected'
+  | 'studio:disconnected'
+  | 'studio:command:start'
+  | 'studio:command:end'
+  | 'studio:warn'
+  | 'studio:error'
+
 function recordSessionEvents() {
-  type Recorded = { [K in keyof StudioHooks]: { name: K; ctx: StudioHooks[K][0] } }[keyof StudioHooks]
+  type Recorded = { [K in StudioEventName]: { name: K; ctx: AgentHooks[K][0] } }[StudioEventName]
   const events: Array<Recorded> = []
 
   return {
@@ -81,7 +90,7 @@ function recordSessionEvents() {
     errors(): Array<Error> {
       return events.flatMap((event) => (event.name === 'studio:error' ? [event.ctx.error] : []))
     },
-    named<K extends keyof StudioHooks>(name: K) {
+    named<K extends StudioEventName>(name: K) {
       return events.filter((event): event is Extract<Recorded, { name: K }> => event.name === name)
     },
   }

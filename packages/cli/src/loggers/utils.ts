@@ -3,6 +3,7 @@ import { styleText } from 'node:util'
 import { formatMs, getElapsedMs } from '@internals/utils'
 import type { Config, Reporter, ReporterContext } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
+import type { StudioConnectedContext } from '@kubb/studio'
 import { getAgentName } from '../agent.ts'
 import { canUseTTY } from '../utils/env.ts'
 import type { LoggerContext, LoggerOptions } from './defineLogger.ts'
@@ -34,6 +35,14 @@ export function formatMessage(message: string, logLevel: number): string {
     return `${styleText('dim', `[${timestamp}]`)} ${message}`
   }
   return message
+}
+
+/**
+ * Renders the versions from a `studio:connected` event as one parenthetical. The runtime is listed
+ * only when it differs from the host, and Studio's only when it sent one.
+ */
+export function formatVersions({ studio, kubb, agent }: StudioConnectedContext['versions']): string {
+  return [`v${agent}`, kubb !== agent ? `runtime v${kubb}` : undefined, studio ? `Studio v${studio}` : undefined].filter(Boolean).join(', ')
 }
 
 /**
