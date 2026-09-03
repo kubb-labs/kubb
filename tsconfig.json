@@ -13,6 +13,8 @@
       "@kubb/kit": ["./packages/kit/src/index.ts"],
       "@kubb/kit/testing": ["./packages/kit/src/testing.ts"],
       "@kubb/mcp": ["./packages/mcp/src/index.ts"],
+      "@kubb/studio": ["./packages/studio/src/index.ts"],
+      "@kubb/studio/protocol": ["./packages/studio/src/protocol/index.ts"],
       "@kubb/renderer-jsx": ["./packages/renderer-jsx/src/index.ts"],
       "@kubb/renderer-jsx/jsx-runtime": ["./packages/renderer-jsx/src/jsx-runtime.ts"],
       "@kubb/renderer-jsx/jsx-dev-runtime": ["./packages/renderer-jsx/src/jsx-runtime.ts"],

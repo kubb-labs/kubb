@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { BuildError, isPathInside } from '@internals/utils'
+import { isPathInside } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'
 import { HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
@@ -160,7 +160,7 @@ export class Kubb {
         .filter(Diagnostics.isProblem)
         .filter((diagnostic) => diagnostic.severity === 'error')
         .map((diagnostic) => diagnostic.cause ?? new Diagnostics.Error(diagnostic))
-      throw new BuildError(`Build failed with ${errors.length} ${errors.length === 1 ? 'error' : 'errors'}`, { errors })
+      throw new AggregateError(errors, `Build failed with ${errors.length} ${errors.length === 1 ? 'error' : 'errors'}`)
     }
     return out
   }

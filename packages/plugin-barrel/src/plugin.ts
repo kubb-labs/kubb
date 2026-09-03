@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { isPathInside } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'
 import { definePlugin } from '@kubb/core'
 import type { Config, NormalizedPlugin, Plugin } from '@kubb/core'
@@ -142,8 +143,7 @@ export const pluginBarrel = definePlugin(() => {
 
         const base = path.resolve(config.root, config.output.path)
         const target = path.resolve(base, plugin.options.output.path)
-        const relative = path.relative(base, target)
-        if (relative.startsWith('..') || path.isAbsolute(relative)) {
+        if (!isPathInside(target, base)) {
           throw new Error('Invalid output path')
         }
 

@@ -3,8 +3,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import process from 'node:process'
 import { Hookable, type KubbHooks } from '@kubb/core'
-import { afterEach, describe, expect, it } from 'vitest'
-import { getConfigs, isNewerVersion, runHook, runPostGenerate } from './utils.ts'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createSerialRunner, getConfigs, isNewerVersion, runHook, runPostGenerate } from './utils.ts'
 
 const node = process.execPath
 
@@ -216,5 +216,51 @@ describe('getConfigs', () => {
   it('throws a clear error when no config is found', async () => {
     dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
     await expect(getConfigs({ configPath: join(dir, 'missing.config.ts') })).rejects.toThrow(/Config/)
+  })
+})
+
+describe('createSerialRunner', () => {
+  it('collapses triggers that land during a run into one rerun', async () => {
+    let calls = 0
+    const gates: Array<() => void> = []
+    const runner = createSerialRunner({
+      run: () =>
+        new Promise<void>((resolve) => {
+          calls += 1
+          gates.push(resolve)
+        }),
+      onError: () => {},
+    })
+
+    const first = runner()
+    void runner()
+    void runner()
+    void runner()
+    expect(calls).toBe(1)
+
+    gates[0]?.()
+    await vi.waitFor(() => expect(calls).toBe(2))
+
+    gates[1]?.()
+    await first
+    expect(calls).toBe(2)
+  })
+
+  it('reports a run error through onError and keeps accepting triggers', async () => {
+    const errors: Array<string> = []
+    let shouldFail = true
+    const runner = createSerialRunner({
+      run: async () => {
+        if (shouldFail) throw new Error('run exploded')
+      },
+      onError: (error) => errors.push(error.message),
+    })
+
+    await runner()
+    expect(errors).toStrictEqual(['run exploded'])
+
+    shouldFail = false
+    await runner()
+    expect(errors).toStrictEqual(['run exploded'])
   })
 })

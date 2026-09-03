@@ -1,6 +1,6 @@
 import { styleText } from 'node:util'
 import dryrun from '@gunshi/plugin-dryrun'
-import { cli } from 'gunshi'
+import { cli, lazy } from 'gunshi'
 import { isDisabled as isTelemetryDisabled } from './Telemetry.ts'
 import { version } from '../package.json'
 import { QUIET_FLAGS } from './constants.ts'
@@ -30,9 +30,13 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
   }
 
   const { command: generateCommand } = await import('./commands/generate.ts')
-  const { command: validateCommand } = await import('./commands/validate.ts')
-  const { command: mcpCommand } = await import('./commands/mcp.ts')
   const { command: initCommand } = await import('./commands/init.ts')
+  // Each runner pulls in an optional peer (@kubb/adapter-oas, @kubb/mcp), so it loads only when
+  // its command runs.
+  const { definition: validateDefinition } = await import('./commands/validate.ts')
+  const validateCommand = lazy(async () => (await import('./runners/validate/run.ts')).runner, validateDefinition)
+  const { definition: mcpDefinition } = await import('./commands/mcp.ts')
+  const mcpCommand = lazy(async () => (await import('./runners/mcp/run.ts')).runner, mcpDefinition)
 
   await cli(stripExecArgs(argv), generateCommand, {
     name: 'kubb',

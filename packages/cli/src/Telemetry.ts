@@ -1,9 +1,10 @@
 import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
-import { isCIEnvironment, runtime } from '@internals/utils'
+import { runtime } from '@internals/utils'
 import { getAgentName } from './agent.ts'
 import { OTLP_ENDPOINT } from './constants.ts'
+import { isCIEnvironment } from './utils/env.ts'
 
 type OtlpKeyValue = {
   key: string
@@ -53,7 +54,7 @@ export type TelemetryPlugin = {
 /**
  * Anonymous snapshot of a single Kubb run, built by {@link buildTelemetryEvent} and sent by {@link sendTelemetry}.
  */
-export type TelemetryEvent = {
+type TelemetryEvent = {
   command: string
   kubbVersion: string
   /**
@@ -97,7 +98,7 @@ export function isDisabled(): boolean {
  * Build an anonymous telemetry payload from a completed generation run.
  */
 export function buildTelemetryEvent(options: {
-  command: 'generate' | 'mcp' | 'validate'
+  command: 'generate' | 'mcp' | 'studio' | 'validate'
   kubbVersion: string
   plugins?: Array<TelemetryPlugin>
   hrStart: [number, number]
