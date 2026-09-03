@@ -12,7 +12,14 @@ export function getKubbHome(): string {
   return process.env.KUBB_HOME ?? path.join(homedir(), '.kubb')
 }
 
-const credentialsPath = () => path.join(getKubbHome(), 'credentials.json')
+const CREDENTIALS_FILENAME = 'credentials.json'
+
+/**
+ * Absolute path of the stored credential, so callers can name it in output without rebuilding it.
+ */
+export function getCredentialsPath(): string {
+  return path.join(getKubbHome(), CREDENTIALS_FILENAME)
+}
 
 export type Credentials = {
   /**
@@ -38,7 +45,7 @@ export type Credentials = {
  * overwrite it rather than the CLI dying on it.
  */
 export async function readCredentials(): Promise<Credentials | null> {
-  const raw = await read(credentialsPath()).catch(() => null)
+  const raw = await read(getCredentialsPath()).catch(() => null)
   if (!raw) {
     return null
   }
@@ -55,7 +62,7 @@ export async function readCredentials(): Promise<Credentials | null> {
  * is set explicitly rather than left to the process umask.
  */
 export async function writeCredentials(credentials: Credentials): Promise<void> {
-  const file = credentialsPath()
+  const file = getCredentialsPath()
 
   await mkdir(path.dirname(file), { recursive: true, mode: 0o700 })
   await write(file, JSON.stringify(credentials, null, 2))
@@ -68,5 +75,5 @@ export async function writeCredentials(credentials: Credentials): Promise<void> 
  * Forgets the stored credential. Succeeds when there was nothing to forget.
  */
 export async function clearCredentials(): Promise<void> {
-  await clean(credentialsPath())
+  await clean(getCredentialsPath())
 }

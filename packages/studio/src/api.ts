@@ -1,12 +1,11 @@
-import { setTimeout as delay } from 'node:timers/promises'
 import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
+import { FetchError, ofetch, type FetchOptions } from 'ofetch'
 import type { AgentConnectResponse } from './protocol/index.ts'
 import { getMachineToken } from './machine.ts'
 
-type PostJsonOptions = {
+type PostJsonOptions = Pick<FetchOptions, 'retry' | 'retryDelay' | 'body'> & {
   headers?: Record<string, string>
-  body?: unknown
   /**
    * Studio's device-token polling endpoint returns a body worth reading on 4xx too
    * (`authorization_pending`, `slow_down`, `access_denied`, ...), so set `allowErrorResponse` to
@@ -16,21 +15,9 @@ type PostJsonOptions = {
 }
 
 /**
- * An HTTP failure from Studio. Carries `statusCode` so callers can branch on 401 vs 403 without
- * duck-typing a plain `Error`.
- */
-export class HttpError extends Error {
-  statusCode: number
-
-  constructor(message: string, statusCode: number, options?: ErrorOptions) {
-    super(message, options)
-    this.name = 'HttpError'
-    this.statusCode = statusCode
-  }
-}
-
-/**
- * Reads a human-readable message from a Studio JSON error body, when it has one.
+ * Reads a human-readable message from a Studio JSON error body, when it has one. `FetchError`'s own
+ * message stops at the status line, so the detail Studio sends with a failure (an agent limit, a
+ * revoked token) would otherwise never reach the user.
  */
 function responseMessage(data: unknown): string | undefined {
   if (!data || typeof data !== 'object') {
@@ -48,30 +35,17 @@ function responseMessage(data: unknown): string | undefined {
 }
 
 /**
- * Posts JSON to Studio and parses the JSON response. Throws {@link HttpError} on a non-2xx status,
- * unless `allowErrorResponse` is set.
+ * Posts JSON to Studio and parses the JSON response. Throws ofetch's `FetchError` on a non-2xx
+ * status, unless `allowErrorResponse` is set.
  */
-export async function postJson<T>(url: string, { headers, body, allowErrorResponse }: PostJsonOptions = {}): Promise<T> {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...headers },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
-
-  const data = (await response.json().catch(() => undefined)) as T
-
-  if (!response.ok && !allowErrorResponse) {
-    const detail = responseMessage(data)
-    throw new HttpError(detail ?? `Request to ${url} failed with status ${response.status}`, response.status)
-  }
-
-  return data
+export function postJson<T>(url: string, { headers, body, allowErrorResponse, retry, retryDelay }: PostJsonOptions = {}): Promise<T> {
+  return ofetch<T>(url, { method: 'POST', headers, body, ignoreResponseError: allowErrorResponse, retry, retryDelay })
 }
 
 /**
- * Delay before each registration attempt; the first attempt runs immediately.
+ * Retries after the first registration attempt, each backing off twice as far as the last.
  */
-const REGISTER_RETRY_DELAYS_MS = [0, 2_000, 4_000, 8_000]
+const REGISTER_RETRIES = 3
 
 /**
  * Shared in-flight registration so concurrent pool sessions trigger one purge, not N.
@@ -96,8 +70,8 @@ export class InvalidAgentTokenError extends Error {
 }
 
 /**
- * Whether a thrown value carries `statusCode`. Not narrowed to {@link HttpError}: a `fetch` layer
- * or a host wrapper can throw its own error shape with the same field.
+ * Whether a thrown value carries `statusCode`. Not narrowed to `FetchError`: a host wrapper can
+ * throw its own error shape with the same field.
  *
  * A 401 means the agent token itself was rejected. A 403 from the session create endpoint means
  * the machine token stored in Studio no longer matches this agent (missing or mismatched).
@@ -107,7 +81,7 @@ function rejectedWith(error: unknown, statusCode: number): boolean {
 }
 
 function sessionError(cause: unknown): Error {
-  const detail = getErrorMessage(cause)
+  const detail = (cause instanceof FetchError ? responseMessage(cause.data) : undefined) ?? getErrorMessage(cause)
   return new Error(detail ? `Failed to get agent session from Kubb Studio: ${detail}` : 'Failed to get agent session from Kubb Studio', { cause })
 }
 
@@ -186,34 +160,29 @@ export function registerAgent(props: RegisterProps): Promise<boolean> {
 }
 
 async function runRegistration({ token, studioUrl, poolSize }: RegisterProps): Promise<boolean> {
-  const url = `${studioUrl}/api/agent/connect`
   const machineToken = await getMachineToken()
 
-  for (const delayMs of REGISTER_RETRY_DELAYS_MS) {
-    if (delayMs > 0) {
-      await delay(delayMs)
+  try {
+    await postJson(`${studioUrl}/api/agent/connect`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: { machineToken, poolSize },
+      retry: REGISTER_RETRIES,
+      // 2s, 4s, then 8s. `retry` counts down, so the first retry is the one with the most left.
+      retryDelay: ({ options }) => 2_000 * 2 ** (REGISTER_RETRIES - Number(options.retry)),
+    })
+
+    return true
+  } catch (error) {
+    if (rejectedWith(error, 401)) {
+      throw new InvalidAgentTokenError(studioUrl, { cause: error })
     }
 
-    try {
-      await postJson(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: { machineToken, poolSize },
-      })
-      return true
-    } catch (error) {
-      if (rejectedWith(error, 401)) {
-        throw new InvalidAgentTokenError(studioUrl, { cause: error })
-      }
+    console.error(styleText('red', `Failed to register agent with Studio after ${REGISTER_RETRIES + 1} attempts`))
 
-      console.warn(styleText('yellow', `Failed to register agent with Studio, retrying: ${getErrorMessage(error)}`))
-    }
+    return false
   }
-
-  console.error(styleText('red', `Failed to register agent with Studio after ${REGISTER_RETRY_DELAYS_MS.length} attempts`))
-
-  return false
 }
 
 type DisconnectProps = {

@@ -219,7 +219,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       const config = await loadConfig()
 
       sendAgentMessage(ws, {
-        type: 'connected',
+        type: 'kubb:connected',
         payload: {
           versions: {
             kubb: kubbVersion,
@@ -308,7 +308,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         return
       }
 
-      sendAgentMessage(ws, { type: 'ping' })
+      sendAgentMessage(ws, { type: 'kubb:ping' })
     }, heartbeatInterval)
 
     // Only `kubb:error` is ever fired on the connection emitter. Every generation event goes
@@ -425,13 +425,13 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
           }
 
           if (data.command === 'save') {
-            // Studio waits on a `config-saved` for every `save`, so every path out of this
+            // Studio waits on a `kubb:config-saved` for every `save`, so every path out of this
             // branch sends one. `edits` is checked before it is walked: the message crosses the same
             // trust boundary as the values inside it.
             if (!Array.isArray(data.edits)) {
               console.warn(styleText('yellow', `[${tag}] Ignored save from Studio: the message carried no edits`))
 
-              sendAgentMessage(ws, { type: 'config-saved', payload: { outcomes: [], changed: false } })
+              sendAgentMessage(ws, { type: 'kubb:config-saved', payload: { outcomes: [], changed: false } })
 
               return
             }
@@ -439,7 +439,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             const edits = data.edits
             const refuse = (reason: string) =>
               sendAgentMessage(ws, {
-                type: 'config-saved',
+                type: 'kubb:config-saved',
                 payload: { outcomes: edits.map((edit) => ({ edit, applied: false, reason })), changed: false },
               })
 
@@ -472,7 +472,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               }
 
               sendAgentMessage(ws, {
-                type: 'config-saved',
+                type: 'kubb:config-saved',
                 payload: { outcomes, changed, configFile: changed ? await readConfigFileView(patched) : undefined },
               })
 

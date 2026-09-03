@@ -1,8 +1,9 @@
 /**
- * WebSocket message types for the agent ↔ Studio protocol.
+ * WebSocket message types for the agent ↔ Studio protocol. Every message name is `kubb:`-prefixed,
+ * matching the generation hooks in {@link KubbHooks}, so one namespace covers the whole wire.
  *
- * - Studio → agent: `command` (generate, connect, save), `pong`, `disconnect`
- * - Agent → Studio: `connected`, `data`, `ping`, `config-saved`
+ * - Studio → agent: `kubb:command` (generate, connect, save), `kubb:pong`, `kubb:disconnect`
+ * - Agent → Studio: `kubb:connected`, `kubb:data`, `kubb:ping`, `kubb:config-saved`
  * - Either way: `kubb:error`
  */
 
@@ -219,17 +220,17 @@ export type CommandMessage =
   /**
    * Run a generation with the given config. `payload` is the merged config Studio wants generated.
    */
-  | { type: 'command'; command: 'generate'; payload: JSONKubbConfig }
+  | { type: 'kubb:command'; command: 'generate'; payload: JSONKubbConfig }
   /**
-   * Ask the agent to send a fresh `connected` payload. Permissions are fixed when the host starts
+   * Ask the agent to send a fresh `kubb:connected` payload. Permissions are fixed when the host starts
    * the agent; this message only triggers another read of disk config and saved Studio state.
    */
-  | { type: 'command'; command: 'connect' }
+  | { type: 'kubb:command'; command: 'connect' }
   /**
    * Change plugin options in the user's `kubb.config.ts`. Applied only when the agent was granted
    * `allowConfigEdit`; otherwise every edit comes back refused.
    */
-  | { type: 'command'; command: 'save'; edits: Array<ConfigEdit> }
+  | { type: 'kubb:command'; command: 'save'; edits: Array<ConfigEdit> }
 
 /**
  * Identifies the host running the Kubb runtime, so Studio can badge the connection and show the
@@ -255,7 +256,7 @@ export type ClientInfo = {
 }
 
 /**
- * Payload of the `connected` handshake the agent sends when it attaches to a session. Carries the
+ * Payload of the `kubb:connected` handshake the agent sends when it attaches to a session. Carries the
  * agent's on-disk config baseline, granted permissions, reported versions, and workspace paths.
  */
 export type ConnectMessagePayload = {
@@ -329,7 +330,7 @@ export type ConnectMessagePayload = {
  * Carries the on-disk config baseline, granted permissions, and paths Studio needs to render the editor.
  */
 export type ConnectedMessage = {
-  type: 'connected'
+  type: 'kubb:connected'
   payload: ConnectMessagePayload
 }
 
@@ -337,7 +338,7 @@ export type ConnectedMessage = {
  * Reply to a `save` command: what the agent did to the file on disk.
  */
 export type ConfigSavedMessage = {
-  type: 'config-saved'
+  type: 'kubb:config-saved'
   payload: {
     /**
      * Per-edit result, in the order the edits were sent.
@@ -369,14 +370,14 @@ export type ErrorMessage = {
  * Heartbeat sent by the Agent to Studio so the connection is not treated as idle.
  */
 export type PingMessage = {
-  type: 'ping'
+  type: 'kubb:ping'
 }
 
 /**
- * Studio's reply to a `ping`, confirming the connection is still alive.
+ * Studio's reply to a `kubb:ping`, confirming the connection is still alive.
  */
 export type PongMessage = {
-  type: 'pong'
+  type: 'kubb:pong'
 }
 
 /**
@@ -384,12 +385,12 @@ export type PongMessage = {
  * The agent should close the connection without reconnecting.
  */
 export type DisconnectMessage = {
-  type: 'disconnect'
+  type: 'kubb:disconnect'
   reason: 'expired' | 'revoked'
 }
 
 /**
- * Payload of a `data` message: a single Kubb generation event forwarded to Studio in real time.
+ * Payload of a `kubb:data` message: a single Kubb generation event forwarded to Studio in real time.
  * Generic over the hook name so `data` is typed to that hook's context tuple.
  */
 export type DataMessagePayload<T extends KubbHook = KubbHook> = {
@@ -415,10 +416,10 @@ export type DataMessagePayload<T extends KubbHook = KubbHook> = {
 
 /**
  * Envelope for a single generation event streamed from Agent to Studio. Wraps a
- * {@link DataMessagePayload} so both sides can switch on `type: 'data'`.
+ * {@link DataMessagePayload} so both sides can switch on `type: 'kubb:data'`.
  */
 export type DataMessage<T extends KubbHook = KubbHook> = {
-  type: 'data'
+  type: 'kubb:data'
   payload: DataMessagePayload<T>
 }
 
@@ -459,7 +460,7 @@ export type AgentConnectResponse = {
 export type AgentMessage = CommandMessage | DataMessage | ConnectedMessage | ConfigSavedMessage | ErrorMessage | PingMessage | PongMessage | DisconnectMessage
 
 export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
-  return msg.type === 'command'
+  return msg.type === 'kubb:command'
 }
 
 /**
@@ -474,13 +475,13 @@ export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
  * ```
  */
 export function isDataMessage<T extends KubbHook>(msg: AgentMessage, type?: T): msg is DataMessage<T> {
-  return msg.type === 'data' && (type ? msg.payload.type === type : true)
+  return msg.type === 'kubb:data' && (type ? msg.payload.type === type : true)
 }
 
 export function isPongMessage(msg: AgentMessage): msg is PongMessage {
-  return msg.type === 'pong'
+  return msg.type === 'kubb:pong'
 }
 
 export function isDisconnectMessage(msg: AgentMessage): msg is DisconnectMessage {
-  return msg.type === 'disconnect'
+  return msg.type === 'kubb:disconnect'
 }

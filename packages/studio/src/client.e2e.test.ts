@@ -134,9 +134,9 @@ function projectConfig(): Config {
   } as unknown as Config
 }
 
-const isConnected = (message: AgentMessage): message is ConnectedMessage => message.type === 'connected'
-const isEnd = (message: AgentMessage): message is DataMessage => message.type === 'data' && message.payload.type === 'kubb:generation:end'
-const isError = (message: AgentMessage): message is DataMessage => message.type === 'data' && message.payload.type === 'kubb:error'
+const isConnected = (message: AgentMessage): message is ConnectedMessage => message.type === 'kubb:connected'
+const isEnd = (message: AgentMessage): message is DataMessage => message.type === 'kubb:data' && message.payload.type === 'kubb:generation:end'
+const isError = (message: AgentMessage): message is DataMessage => message.type === 'kubb:data' && message.payload.type === 'kubb:error'
 
 describe('createClient against a Studio instance', () => {
   let studio: ReturnType<typeof createFakeStudio>
@@ -197,11 +197,11 @@ describe('createClient against a Studio instance', () => {
   it('runs a generation and streams it back to Studio', async () => {
     await connect()
 
-    studio.send({ type: 'command', command: 'generate', payload: { plugins: [] } })
+    studio.send({ type: 'kubb:command', command: 'generate', payload: { plugins: [] } })
 
     await studio.waitFor(isEnd)
 
-    const types = studio.received.filter((message) => message.type === 'data').map((message) => (message as DataMessage).payload.type)
+    const types = studio.received.filter((message) => message.type === 'kubb:data').map((message) => (message as DataMessage).payload.type)
 
     expect(types).toContain('kubb:generation:start')
     expect(types).toContain('kubb:build:start')
@@ -214,7 +214,7 @@ describe('createClient against a Studio instance', () => {
   it('refuses a plugin the local config does not import, before importing it', async () => {
     await connect({ allowedPlugins: ['@kubb/plugin-ts'] })
 
-    studio.send({ type: 'command', command: 'generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } })
+    studio.send({ type: 'kubb:command', command: 'generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } })
 
     const error = await studio.waitFor(isError)
 
@@ -224,7 +224,7 @@ describe('createClient against a Studio instance', () => {
   it('reaches the import, and fails there, when no allow-list is set', async () => {
     await connect()
 
-    studio.send({ type: 'command', command: 'generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } })
+    studio.send({ type: 'kubb:command', command: 'generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } })
 
     const error = await studio.waitFor(isError)
 

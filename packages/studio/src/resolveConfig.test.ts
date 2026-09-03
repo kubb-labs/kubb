@@ -369,30 +369,23 @@ describe('toExportName', () => {
       '@kubb/plugin-vue-query',
       '@kubb/plugin-zod',
     ]
-    expect(Object.fromEntries(packages.map((name) => [name, toExportName(name)]))).toMatchInlineSnapshot(`
-      {
-        "@kubb/plugin-axios": "pluginAxios",
-        "@kubb/plugin-cypress": "pluginCypress",
-        "@kubb/plugin-faker": "pluginFaker",
-        "@kubb/plugin-fetch": "pluginFetch",
-        "@kubb/plugin-mcp": "pluginMcp",
-        "@kubb/plugin-msw": "pluginMsw",
-        "@kubb/plugin-react-query": "pluginReactQuery",
-        "@kubb/plugin-redoc": "pluginRedoc",
-        "@kubb/plugin-swr": "pluginSwr",
-        "@kubb/plugin-ts": "pluginTs",
-        "@kubb/plugin-vue-query": "pluginVueQuery",
-        "@kubb/plugin-zod": "pluginZod",
-      }
-    `)
+    expect(Object.fromEntries(packages.map((name) => [name, toExportName(name)]))).toStrictEqual({
+      '@kubb/plugin-axios': 'pluginAxios',
+      '@kubb/plugin-cypress': 'pluginCypress',
+      '@kubb/plugin-faker': 'pluginFaker',
+      '@kubb/plugin-fetch': 'pluginFetch',
+      '@kubb/plugin-mcp': 'pluginMcp',
+      '@kubb/plugin-msw': 'pluginMsw',
+      '@kubb/plugin-react-query': 'pluginReactQuery',
+      '@kubb/plugin-redoc': 'pluginRedoc',
+      '@kubb/plugin-swr': 'pluginSwr',
+      '@kubb/plugin-ts': 'pluginTs',
+      '@kubb/plugin-vue-query': 'pluginVueQuery',
+      '@kubb/plugin-zod': 'pluginZod',
+    })
   })
 
   it('derives a name for a plugin outside the @kubb scope', () => {
-    expect(['@acme/plugin-solid-query', 'kubb-plugin-custom'].map(toExportName)).toMatchInlineSnapshot(`
-      [
-        "pluginSolidQuery",
-        "kubbPluginCustom",
-      ]
-    `)
+    expect(['@acme/plugin-solid-query', 'kubb-plugin-custom'].map(toExportName)).toStrictEqual(['pluginSolidQuery', 'kubbPluginCustom'])
   })
 })

@@ -53,14 +53,12 @@ describe('resolvePermissions', () => {
 
     // The project path is machine-specific, so it is stood in for rather than snapshotted.
     const questions = confirm.mock.calls.map(([call]) => call?.message?.replace(process.cwd(), '<project>'))
-    expect(questions).toMatchInlineSnapshot(`
-      [
-        "Let Kubb Studio write generated files into <project>?",
-        "Let Kubb Studio change plugin options in kubb.config.ts?",
-        "Let Kubb Studio generate from an OpenAPI spec it sends, instead of the one on disk?",
-        "Let Kubb Studio run the formatter, the linter, and output.postGenerate?",
-      ]
-    `)
+    expect(questions).toStrictEqual([
+      'Let Kubb Studio write generated files into <project>?',
+      'Let Kubb Studio change plugin options in kubb.config.ts?',
+      'Let Kubb Studio generate from an OpenAPI spec it sends, instead of the one on disk?',
+      'Let Kubb Studio run the formatter, the linter, and output.postGenerate?',
+    ])
   })
 
   it('names the config the project actually has, not the default', async () => {
@@ -68,8 +66,8 @@ describe('resolvePermissions', () => {
 
     await resolvePermissions(options, credentials, 'configs/kubb.config.mjs')
 
-    expect(confirm.mock.calls.map(([call]) => call?.message).find((message) => message?.includes('plugin options'))).toMatchInlineSnapshot(
-      `"Let Kubb Studio change plugin options in configs/kubb.config.mjs?"`,
+    expect(confirm.mock.calls.map(([call]) => call?.message).find((message) => message?.includes('plugin options'))).toBe(
+      'Let Kubb Studio change plugin options in configs/kubb.config.mjs?',
     )
   })
 
@@ -107,8 +105,8 @@ describe('resolvePermissions', () => {
 
 describe('formatPermissionSummary', () => {
   it('lists every permission', () => {
-    expect(formatPermissionSummary({ allowWrite: true, allowConfigEdit: false, allowInput: true, allowExec: false })).toMatchInlineSnapshot(
-      `"write generated files: yes, edit kubb.config.ts: no, use a Studio spec: yes, run formatter, linter, postGenerate: no"`,
+    expect(formatPermissionSummary({ allowWrite: true, allowConfigEdit: false, allowInput: true, allowExec: false })).toBe(
+      'write generated files: yes, edit kubb.config.ts: no, use a Studio spec: yes, run formatter, linter, postGenerate: no',
     )
   })
 })
