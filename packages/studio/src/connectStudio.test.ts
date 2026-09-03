@@ -748,7 +748,7 @@ describe('connectToStudio', () => {
         type: 'agent:connect',
         payload: expect.objectContaining({
           versions: {
-            kubb: '5.1.0-core-test',
+            kubb: '5.0.0-test',
             agent: '1.0.0',
           },
           root: '/project',
