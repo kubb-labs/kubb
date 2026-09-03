@@ -39,6 +39,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
   examples: [
     'kubb generate                     # generate from kubb.config.ts',
     'kubb generate ./openapi.yaml      # generate from this spec instead of the config input',
+    'kubb generate --config kubb.config.ts',
     'kubb generate --watch             # regenerate whenever the spec changes',
     'kubb generate --dryRun            # preview the run without writing files',
     'kubb studio                       # connect this project to Kubb Studio and generate from the browser',

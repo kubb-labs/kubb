@@ -5,7 +5,7 @@ import type { Document, SchemaObject } from '../types.ts'
 import { convertAllOf, convertMultiType, convertRef, convertUnion } from './converters/composition.ts'
 import { convertBinary, convertBoolean, convertConst, convertEnum, convertFormat, convertNumeric, convertString, createNullNode } from './converters/scalar.ts'
 import { convertArray, convertObject, convertTuple } from './converters/structural.ts'
-import { isHandledFormat } from './schemaShape.ts'
+import { isHandledFormat, resolveDateTypeValue } from './schemaShape.ts'
 
 /**
  * Pre-computed per-schema context passed to every schema converter.
@@ -89,7 +89,8 @@ export const schemaRules: Array<SchemaRule> = [
   {
     match: ({ schema, options }) => {
       if (!schema.format) return false
-      if (schema.format === 'date-time' || schema.format === 'date' || schema.format === 'time') return options.dateType !== false
+      if (schema.format === 'date-time' || schema.format === 'date' || schema.format === 'time')
+        return resolveDateTypeValue(options.dateType, schema.format) !== false
       return isHandledFormat(schema.format)
     },
     convert: convertFormat,
