@@ -14,7 +14,7 @@ import { version } from '../../../package.json'
 import type { definition } from '../../commands/studio.ts'
 import { canUseTTY, isCIEnvironment } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
-import { clearCredentials, type Credentials, getKubbHome, readCredentials, writeCredentials } from './credentials.ts'
+import { clearCredentials, type Credentials, getCredentialsPath, getKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 
 const ACTIONS = ['connect', 'login', 'logout', 'status'] as const
 
@@ -89,7 +89,7 @@ async function login({ studioUrl, autoOpen }: StudioOptions): Promise<Credential
     const credentials: Credentials = { studioUrl, token, agentId: agent.id, agentSlug: agent.slug }
     await writeCredentials(credentials)
 
-    console.log(`Credentials stored in ${path.join(getKubbHome(), 'credentials.json')}`)
+    console.log(`Credentials stored in ${getCredentialsPath()}`)
 
     return credentials
   } catch (error) {

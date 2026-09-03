@@ -355,6 +355,9 @@ importers:
       magicast:
         specifier: ^0.5.3
         version: 0.5.3
+      ofetch:
+        specifier: ^1.5.1
+        version: 1.5.1
       remeda:
         specifier: ^2.42.0
         version: 2.45.0

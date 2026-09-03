@@ -6,7 +6,7 @@ describe('agent protocol', () => {
   describe('message type guards', () => {
     it('identifies command messages', () => {
       const message: AgentMessage = {
-        type: 'command',
+        type: 'kubb:command',
         command: 'generate',
         payload: {},
       }
@@ -17,7 +17,7 @@ describe('agent protocol', () => {
 
     it('identifies data messages', () => {
       const message: AgentMessage = {
-        type: 'data',
+        type: 'kubb:data',
         payload: {
           type: 'kubb:info',
           data: [{ message: 'message' }],
@@ -34,7 +34,7 @@ describe('agent protocol', () => {
     })
 
     it('identifies a disconnect message and carries its reason', () => {
-      const message: AgentMessage = { type: 'disconnect', reason: 'revoked' }
+      const message: AgentMessage = { type: 'kubb:disconnect', reason: 'revoked' }
 
       expect(isDisconnectMessage(message)).toBe(true)
       expect(isCommandMessage(message)).toBe(false)

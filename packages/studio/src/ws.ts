@@ -75,7 +75,7 @@ export function sendAgentMessage(ws: WebSocket, message: AgentMessage): void {
  */
 export function sendErrorMessage(ws: WebSocket, error: Error): void {
   sendAgentMessage(ws, {
-    type: 'data',
+    type: 'kubb:data',
     payload: { type: 'kubb:error', data: [{ message: error.message, stack: error.stack }], timestamp: Date.now(), seq: nextEventSeq(ws) },
   })
 }
@@ -86,7 +86,7 @@ export function sendErrorMessage(ws: WebSocket, error: Error): void {
 export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): void {
   function sendDataMessage(payload: Omit<DataMessagePayload, 'seq' | 'timestamp'>) {
     sendAgentMessage(ws, {
-      type: 'data',
+      type: 'kubb:data',
       payload: { ...payload, timestamp: Date.now(), seq: nextEventSeq(ws) },
     })
   }

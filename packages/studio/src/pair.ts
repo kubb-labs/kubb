@@ -1,8 +1,8 @@
 import { setTimeout as delay } from 'node:timers/promises'
 import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
+import { ofetch } from 'ofetch'
 import { agentDefaults } from './constants.ts'
-import { postJson } from './api.ts'
 import { getMachineToken } from './machine.ts'
 
 /**
@@ -76,7 +76,8 @@ export async function startPairing({
   clientId = CLIENT_ID,
   agentKind,
 }: StartPairingOptions): Promise<PairingSession> {
-  return postJson<PairingSession>(`${studioUrl}/api/auth/device/code`, {
+  return ofetch<PairingSession>(`${studioUrl}/api/auth/device/code`, {
+    method: 'POST',
     body: {
       client_id: clientId,
       name,
@@ -130,11 +131,12 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
 
     let response: PollResponse | undefined
     try {
-      response = await postJson<PollResponse | undefined>(`${studioUrl}/api/agent/token`, {
+      response = await ofetch<PollResponse | undefined>(`${studioUrl}/api/agent/token`, {
+        method: 'POST',
         body: { device_code: session.device_code },
         // A denial, an expiry, and "not yet" all come back as 4xx with a body the caller needs to
         // read, so let every response through and switch on `error` instead of catching.
-        allowErrorResponse: true,
+        ignoreResponseError: true,
       })
     } catch (error) {
       // Studio can go briefly unreachable (a deploy, a dropped connection) during the minutes the

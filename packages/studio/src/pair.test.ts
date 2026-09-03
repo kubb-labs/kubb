@@ -24,11 +24,8 @@ const session: PairingSession = {
   interval: 1,
 }
 
-const createMockResponse = (data: unknown, ok = true, status = 200) => ({
-  ok,
-  status,
-  json: vi.fn(async () => data),
-})
+const createMockResponse = (data: unknown, status = 200) =>
+  new Response(data === undefined ? null : JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } })
 
 beforeEach(() => {
   fetchMock.mockReset()
@@ -46,7 +43,7 @@ describe('pollForPairingToken', () => {
       token: 'agent-token',
       agent: { id: '1', slug: 'brave-otter', name: 'demo' },
     }
-    fetchMock.mockResolvedValueOnce(createMockResponse({ error: 'authorization_pending' }, false, 400)).mockResolvedValueOnce(createMockResponse(result))
+    fetchMock.mockResolvedValueOnce(createMockResponse({ error: 'authorization_pending' }, 400)).mockResolvedValueOnce(createMockResponse(result))
 
     const promise = pollForPairingToken({ studioUrl: 'http://studio', session })
     await vi.runAllTimersAsync()
@@ -55,7 +52,7 @@ describe('pollForPairingToken', () => {
   })
 
   it("surfaces Studio's error_description on access_denied", async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse({ error: 'access_denied', error_description: 'agent limit reached' }, false, 403))
+    fetchMock.mockResolvedValueOnce(createMockResponse({ error: 'access_denied', error_description: 'agent limit reached' }, 403))
 
     const promise = pollForPairingToken({ studioUrl: 'http://studio', session })
     promise.catch(() => {})
@@ -65,7 +62,7 @@ describe('pollForPairingToken', () => {
   })
 
   it('throws on an unexpected pairing error instead of spinning until expiry', async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse({ error: 'server_error', error_description: 'pairing store unavailable' }, false, 500))
+    fetchMock.mockResolvedValueOnce(createMockResponse({ error: 'server_error', error_description: 'pairing store unavailable' }, 500))
 
     const promise = pollForPairingToken({ studioUrl: 'http://studio', session })
     promise.catch(() => {})
@@ -75,7 +72,7 @@ describe('pollForPairingToken', () => {
   })
 
   it('throws when Studio returns an empty body', async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse(undefined, false, 500))
+    fetchMock.mockResolvedValueOnce(createMockResponse(undefined, 500))
 
     const promise = pollForPairingToken({ studioUrl: 'http://studio', session })
     promise.catch(() => {})

@@ -155,7 +155,7 @@ describe('connectToStudio', () => {
 
     await vi.advanceTimersByTimeAsync(30_000)
 
-    expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, { type: 'ping' })
+    expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, { type: 'kubb:ping' })
   })
 
   it('stops retrying once the signal aborts', async () => {
@@ -175,7 +175,7 @@ describe('connectToStudio', () => {
   it('accepts a pong without treating it as an unknown message', async () => {
     await connectToStudio(options)
 
-    await mockWs.trigger('message', { data: JSON.stringify({ type: 'pong' }) })
+    await mockWs.trigger('message', { data: JSON.stringify({ type: 'kubb:pong' }) })
 
     expect(consoleSpy.warn).not.toHaveBeenCalledWith(expect.stringContaining('Unknown message type'))
   })
@@ -199,7 +199,7 @@ describe('connectToStudio', () => {
 
     // onOpen sends the connected payload without awaiting it, and it now reads storage first,
     // so let the fire-and-forget send settle before asserting.
-    await vi.waitFor(() => expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, expect.objectContaining({ type: 'connected' })))
+    await vi.waitFor(() => expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, expect.objectContaining({ type: 'kubb:connected' })))
   })
 
   it('logs the slug when the WebSocket opens', async () => {
@@ -239,7 +239,7 @@ describe('connectToStudio', () => {
 
     for (const _ of Array.from({ length: 5 })) {
       await vi.advanceTimersByTimeAsync(1_000)
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'pong' }) })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'kubb:pong' }) })
     }
 
     expect(mockWs.terminated).toBe(false)
@@ -264,13 +264,13 @@ describe('connectToStudio', () => {
     let configFile: string
 
     /**
-     * The `config-saved` reply the agent sent, if any.
+     * The `kubb:config-saved` reply the agent sent, if any.
      */
     const reply = () =>
       vi
         .mocked(sendAgentMessage)
         .mock.calls.map(([, message]) => message)
-        .find((message) => message.type === 'config-saved')
+        .find((message) => message.type === 'kubb:config-saved')
 
     beforeEach(() => {
       projectRoot = mkdtempSync(path.join(tmpdir(), 'kubb-studio-'))
@@ -283,7 +283,7 @@ describe('connectToStudio', () => {
       rmSync(projectRoot, { recursive: true, force: true })
     })
 
-    const write = async (edits: Array<unknown>) => mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'save', edits }) })
+    const write = async (edits: Array<unknown>) => mockWs.trigger('message', { data: JSON.stringify({ type: 'kubb:command', command: 'save', edits }) })
 
     it('writes a literal option and leaves the rest of the file alone', async () => {
       await connectToStudio({ ...options, allowConfigEdit: true })
@@ -351,7 +351,7 @@ describe('connectToStudio', () => {
       await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['group', 'name'], value: 'x' }])
 
       expect(readFileSync(configFile, 'utf-8')).toBe(original)
-      expect(reply()?.payload.outcomes[0]?.reason).toMatchInlineSnapshot(`"group.name is customized in code"`)
+      expect(reply()?.payload.outcomes[0]?.reason).toBe('group.name is customized in code')
     })
 
     // Studio only ever saw the file as it was on connect. Re-reading it right before the patch is
@@ -380,7 +380,7 @@ describe('connectToStudio', () => {
     it('still replies when the message carries no edits', async () => {
       await connectToStudio({ ...options, allowConfigEdit: true })
 
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'save' }) })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'kubb:command', command: 'save' }) })
 
       expect(reply()?.payload).toMatchObject({ changed: false, outcomes: [] })
     })
@@ -388,40 +388,38 @@ describe('connectToStudio', () => {
     it('reports what the file holds on connect so Studio can disable the right controls', async () => {
       await connectToStudio({ ...options, allowConfigEdit: true })
 
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'command', command: 'connect' }) })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'kubb:command', command: 'connect' }) })
 
       const connected = vi
         .mocked(sendAgentMessage)
         .mock.calls.map(([, message]) => message)
-        .find((message) => message.type === 'connected')
+        .find((message) => message.type === 'kubb:connected')
 
-      expect(connected?.type === 'connected' && connected.payload.configFile).toMatchInlineSnapshot(`
-        {
-          "configs": [
-            {
-              "name": undefined,
-              "plugins": [
-                {
-                  "importName": "pluginTs",
-                  "options": {
-                    "enum": {
-                      "literal": true,
-                      "value": {
-                        "type": "asConst",
-                      },
-                    },
-                    "group": {
-                      "literal": false,
+      expect(connected?.type === 'kubb:connected' && connected.payload.configFile).toStrictEqual({
+        configs: [
+          {
+            name: undefined,
+            plugins: [
+              {
+                importName: 'pluginTs',
+                options: {
+                  enum: {
+                    literal: true,
+                    value: {
+                      type: 'asConst',
                     },
                   },
-                  "packageName": "@kubb/plugin-ts",
+                  group: {
+                    literal: false,
+                  },
                 },
-              ],
-            },
-          ],
-          "managed": true,
-        }
-      `)
+                packageName: '@kubb/plugin-ts',
+              },
+            ],
+          },
+        ],
+        managed: true,
+      })
     })
   })
 
@@ -431,7 +429,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate' }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate' }),
     })
 
     expect(generate).toHaveBeenCalledWith(
@@ -447,7 +445,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
     })
 
     expect(generate).toHaveBeenCalledWith(
@@ -461,7 +459,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowWrite: true })
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate' }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate' }),
     })
 
     expect(generate).toHaveBeenCalledWith(
@@ -484,7 +482,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await sandboxWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
     })
 
     expect(generate).toHaveBeenCalledWith(
@@ -502,7 +500,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options) // allowInput: false
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
     })
 
     // Without allowInput the spec stays the on-disk config.input
@@ -520,7 +518,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, client: { kind: 'cli', version: '1.0.0', cwd: '/project', projectName: 'project' } }) // allowInput: false
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
     })
 
     expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('--allowInput'))
@@ -533,7 +531,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowInput: true })
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
     })
 
     expect(generate).toHaveBeenCalledWith(
@@ -549,7 +547,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowInput: true })
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
     })
 
     expect(generate).toHaveBeenCalledWith(
@@ -565,7 +563,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowExec: false })
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload: { plugins: [] } }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload: { plugins: [] } }),
     })
 
     expect(generate).toHaveBeenCalledWith(
@@ -579,7 +577,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowedPlugins: ['@kubb/plugin-ts'] })
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } }),
     })
 
     expect(generate).not.toHaveBeenCalled()
@@ -596,7 +594,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
     })
 
     const adapter = vi.mocked(generate).mock.calls[0]?.[0].config.adapter
@@ -613,7 +611,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload }),
     })
 
     const call = vi.mocked(generate).mock.calls[0]?.[0]
@@ -632,7 +630,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     const first = mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate' }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate' }),
     })
 
     // Wait until `generate()` is actually in flight (loadConfig/mergePlugins/etc. resolve
@@ -641,7 +639,7 @@ describe('connectToStudio', () => {
     await vi.waitFor(() => expect(generate).toHaveBeenCalledTimes(1))
 
     const second = mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate' }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate' }),
     })
 
     resolveGenerate()
@@ -655,10 +653,10 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate' }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate' }),
     })
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate' }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate' }),
     })
 
     expect(generate).toHaveBeenCalledTimes(2)
@@ -670,7 +668,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'generate', payload: { plugins: [] } }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'generate', payload: { plugins: [] } }),
     })
 
     const generationHooks = vi.mocked(setupEventsStream).mock.calls[0]?.[1]
@@ -686,13 +684,13 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'connect' }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'connect' }),
     })
 
     expect(sendAgentMessage).toHaveBeenCalledWith(
       mockWs,
       expect.objectContaining({
-        type: 'connected',
+        type: 'kubb:connected',
         payload: expect.objectContaining({
           versions: {
             kubb: '5.1.0-core-test',
@@ -709,7 +707,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowWrite: true })
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'connect' }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'connect' }),
     })
 
     expect(sendAgentMessage).toHaveBeenCalledWith(
@@ -731,7 +729,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowInput: true })
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'connect' }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'connect' }),
     })
 
     expect(sendAgentMessage).toHaveBeenCalledWith(
@@ -757,7 +755,7 @@ describe('connectToStudio', () => {
     await connectToStudio({ ...options, allowWrite: true })
 
     await sandboxWs.trigger('message', {
-      data: JSON.stringify({ type: 'command', command: 'connect' }),
+      data: JSON.stringify({ type: 'kubb:command', command: 'connect' }),
     })
 
     expect(sendAgentMessage).toHaveBeenCalledWith(
@@ -798,7 +796,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'disconnect', reason: 'revoked' }),
+      data: JSON.stringify({ type: 'kubb:disconnect', reason: 'revoked' }),
     })
 
     expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('disconnected by Studio (revoked)'))
@@ -815,7 +813,7 @@ describe('connectToStudio', () => {
     await connectToStudio(options)
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'disconnect', reason: 'expired' }),
+      data: JSON.stringify({ type: 'kubb:disconnect', reason: 'expired' }),
     })
 
     expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('disconnected by Studio (expired)'))
