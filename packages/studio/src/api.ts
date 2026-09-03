@@ -1,18 +1,8 @@
 import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
-import { FetchError, ofetch, type FetchOptions } from 'ofetch'
+import { FetchError, ofetch } from 'ofetch'
 import type { AgentConnectResponse } from './protocol/index.ts'
 import { getMachineToken } from './machine.ts'
-
-type PostJsonOptions = Pick<FetchOptions, 'retry' | 'retryDelay' | 'body'> & {
-  headers?: Record<string, string>
-  /**
-   * Studio's device-token polling endpoint returns a body worth reading on 4xx too
-   * (`authorization_pending`, `slow_down`, `access_denied`, ...), so set `allowErrorResponse` to
-   * read the response instead of throwing.
-   */
-  allowErrorResponse?: boolean
-}
 
 /**
  * Reads a human-readable message from a Studio JSON error body, when it has one. `FetchError`'s own
@@ -32,14 +22,6 @@ function responseMessage(data: unknown): string | undefined {
   }
 
   return undefined
-}
-
-/**
- * Posts JSON to Studio and parses the JSON response. Throws ofetch's `FetchError` on a non-2xx
- * status, unless `allowErrorResponse` is set.
- */
-export function postJson<T>(url: string, { headers, body, allowErrorResponse, retry, retryDelay }: PostJsonOptions = {}): Promise<T> {
-  return ofetch<T>(url, { method: 'POST', headers, body, ignoreResponseError: allowErrorResponse, retry, retryDelay })
 }
 
 /**
@@ -91,7 +73,8 @@ function sessionError(cause: unknown): Error {
 async function requestAgentSession({ token, studioUrl }: ConnectProps): Promise<AgentConnectResponse> {
   const url = `${studioUrl}/api/agent/sessions`
 
-  const data = await postJson<AgentConnectResponse>(url, {
+  const data = await ofetch<AgentConnectResponse>(url, {
+    method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
     body: { machineToken: await getMachineToken() },
   })
@@ -163,7 +146,8 @@ async function runRegistration({ token, studioUrl, poolSize }: RegisterProps): P
   const machineToken = await getMachineToken()
 
   try {
-    await postJson(`${studioUrl}/api/agent/connect`, {
+    await ofetch(`${studioUrl}/api/agent/connect`, {
+      method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -202,7 +186,8 @@ export async function disconnect({ sessionId, token, studioUrl, slug }: Disconne
   const tag = slug ?? 'agent'
 
   try {
-    await postJson(url, {
+    await ofetch(url, {
+      method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
       },
