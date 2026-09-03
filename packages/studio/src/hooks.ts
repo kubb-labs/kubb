@@ -1,0 +1,76 @@
+import type { Hookable, KubbHooks, StudioHooks } from '@kubb/core'
+import { x } from 'tinyexec'
+
+/**
+ * Event bus shared with `createKubb`. Core emits its generation lifecycle events here, and the
+ * `studio:*` session events ride alongside them, so one logger renders the whole connection.
+ */
+export type AgentHooks = KubbHooks & StudioHooks
+
+/**
+ * Register a `kubb:hook:start` listener that spawns the requested command via tinyexec,
+ * streams each stdout line as a `kubb:hook:line` event, and calls `kubb:hook:end` with the result.
+ * Streaming the output lets Kubb Studio render live hook progress over the WebSocket connection.
+ */
+export function setupHookListener(hooks: Hookable<AgentHooks>, root: string): void {
+  hooks.hook('kubb:hook:start', async (ctx) => {
+    const { id, command, args } = ctx
+    // No id means nothing is waiting on the result (benchmarks, tests).
+    if (!id) {
+      return
+    }
+
+    const commandWithArgs = args?.length ? `${command} ${args.join(' ')}` : command
+
+    try {
+      const proc = x(command, [...(args ?? [])], {
+        nodeOptions: { cwd: root, detached: true },
+      })
+
+      for await (const line of proc) {
+        await hooks.callHook('kubb:hook:line', { id, line })
+      }
+
+      const { exitCode } = await proc
+
+      if (exitCode !== 0) {
+        const error = new Error(`Hook execute failed: ${commandWithArgs}`)
+
+        await hooks.callHook('kubb:hook:end', { id, command, args, success: false, error })
+        await hooks.callHook('kubb:error', { error })
+
+        return
+      }
+
+      await hooks.callHook('kubb:hook:end', { id, command, args, success: true, error: null })
+    } catch (caughtError) {
+      const error = new Error(`Hook execute failed: ${commandWithArgs}`)
+      error.cause = caughtError
+
+      await hooks.callHook('kubb:hook:end', { id, command, args, success: false, error })
+      await hooks.callHook('kubb:error', { error })
+    }
+  })
+}
+
+/**
+ * Waits for the `kubb:hook:end` matching `hookId`. Register this before calling `kubb:hook:start`:
+ * `callHook` awaits its listeners, and {@link setupHookListener} calls `kubb:hook:end` from inside
+ * that same listener, so a handler added afterward would already have missed it.
+ */
+export function waitForHookEnd(hooks: Hookable<AgentHooks>, hookId: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const handleHookEnd = (ctx: { id?: string; success: boolean; error?: Error | null }) => {
+      if (ctx.id !== hookId) return
+      hooks.removeHook('kubb:hook:end', handleHookEnd)
+
+      if (ctx.success) {
+        resolve()
+      } else {
+        reject(ctx.error)
+      }
+    }
+
+    hooks.hook('kubb:hook:end', handleHookEnd)
+  })
+}

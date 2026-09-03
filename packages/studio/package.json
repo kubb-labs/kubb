@@ -1,0 +1,84 @@
+{
+  "name": "@kubb/studio",
+  "version": "5.0.3",
+  "description": "Kubb Studio client runtime. Connects a Kubb project to Kubb Studio over WebSocket and streams code generation events, shared by the `kubb studio` CLI command and the Docker agent.",
+  "keywords": [
+    "agent",
+    "codegen",
+    "kubb",
+    "openapi",
+    "studio",
+    "typescript",
+    "websocket"
+  ],
+  "homepage": "https://kubb.dev",
+  "license": "MIT",
+  "author": "stijnvanhulle",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kubb-labs/kubb.git",
+    "directory": "packages/studio"
+  },
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/stijnvanhulle"
+    },
+    {
+      "type": "opencollective",
+      "url": "https://opencollective.com/kubb"
+    }
+  ],
+  "files": [
+    "dist",
+    "!/**/**.test.**",
+    "!/**/__tests__/**",
+    "!/**/__snapshots__/**"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./protocol": {
+      "import": "./dist/protocol.js",
+      "require": "./dist/protocol.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "start": "tsdown --watch",
+    "test": "vitest --passWithNoTests",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+  },
+  "dependencies": {
+    "@kubb/core": "workspace:*",
+    "magicast": "^0.5.4",
+    "ofetch": "^1.5.1",
+    "remeda": "^2.45.0",
+    "tinyexec": "catalog:",
+    "unstorage": "^1.17.5",
+    "ws": "^8.21.3"
+  },
+  "devDependencies": {
+    "@internals/utils": "workspace:*",
+    "@kubb/adapter-oas": "workspace:*",
+    "@types/ws": "^8.18.1"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
