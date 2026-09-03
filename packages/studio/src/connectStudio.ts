@@ -521,7 +521,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         // never reach `generate()`'s own `kubb:error` emission, so without this the Studio
         // UI shows nothing while the agent silently fails. Forward them on the connection-level
         // `hooks` emitter, already wired to this socket via `setupEventsStream`.
-        await Promise.resolve(hooks.callHook('kubb:error', { error: error instanceof Error ? error : new Error(String(error)) })).catch(() => {})
+        await Promise.resolve(hooks.callHook('kubb:error', { error: toError(error) })).catch(() => {})
       }
     }
     ws.addEventListener('message', onMessage)

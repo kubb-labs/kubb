@@ -81,7 +81,7 @@ async function login({ studioUrl, autoOpen }: StudioOptions): Promise<Credential
     await openInBrowser(session.verification_uri_complete)
   }
 
-  const spinner = canUseTTY() ? prompts.spinner() : null
+  const spinner = isRichOutput() ? prompts.spinner() : null
   spinner?.start('Waiting for approval')
 
   try {
@@ -193,7 +193,10 @@ async function loadConfigs(options: StudioOptions): Promise<{ configPath: string
     throw new Error('Config not defined, create a kubb.config.ts or pass it with --config')
   }
 
-  return { configPath, config, configs }
+  // `getConfigs` resolves this to an absolute path. Relativized here, once, so the permission
+  // prompt and the path Studio receives over the wire both show the project-relative form instead
+  // of leaking the local filesystem layout.
+  return { configPath: path.relative(process.cwd(), configPath) || configPath, config, configs }
 }
 
 /**

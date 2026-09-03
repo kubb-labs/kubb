@@ -1,5 +1,3 @@
-import { getErrorMessage } from '@internals/utils'
-import { styleText } from 'node:util'
 import type { Storage } from 'unstorage'
 import { agentDefaults } from './constants.ts'
 import { registerAgent } from './api.ts'
@@ -50,14 +48,11 @@ export function createClient({ storage, ...options }: ClientOptions): Client {
     async connect() {
       await registerAgent({ token: options.token, studioUrl: options.studioUrl ?? agentDefaults.studioUrl, poolSize })
 
-      for (const slot of Array.from({ length: poolSize }, (_, index) => index + 1)) {
-        // Each slot is its own session, so one Studio user never sees another's generation events.
-        // Not awaited: a slot retrying against a down Studio must not block the others, or the host's
-        // startup. `connectToStudio` owns the retry loop for the lifetime of the slot.
-        void connectToStudio({ ...options, signal: controller.signal }).catch((error: unknown) => {
-          console.warn(styleText('yellow', `Session ${slot}/${poolSize} failed to connect: ${getErrorMessage(error)}`))
-        })
-      }
+      // Each slot is its own session, so one Studio user never sees another's generation events.
+      // Awaited: `connectToStudio` only ever rejects with `InvalidAgentTokenError` (every other
+      // failure is retried internally through its own reconnect loop and resolves normally), so
+      // awaiting here surfaces a dead token to the caller without blocking on a down Studio.
+      await Promise.all(Array.from({ length: poolSize }, () => connectToStudio({ ...options, signal: controller.signal })))
     },
     disconnect() {
       controller.abort()
