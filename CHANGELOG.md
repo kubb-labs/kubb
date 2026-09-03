@@ -1,5 +1,37 @@
 # Changelog
 
+## v5.1.0 — Sep 3, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Let `dateType` set `date-time`, `date`, and `time` independently, instead of one value driving all three
+  
+  Pass an object to represent timestamps as a JS `Date` while keeping date-only and time-only fields as strings, since `Date` cannot round-trip those without inventing a timezone.
+  
+  ```ts
+  adapterOas({
+    dateType: {
+      dateTime: 'date',
+      date: 'string',
+      time: 'string',
+    },
+  })
+  ```
+  
+  The scalar form (`dateType: 'date'`) still applies one value to all three formats. ([#3957](https://github.com/kubb-labs/kubb/pull/3957), [`9fca8e9`](https://github.com/kubb-labs/kubb/commit/9fca8e9ba16f05f29c852123c8696f7b6036c4a9))
+
+#### Bug Fixes
+
+- Explicit `types` fields for each package.json `exports` entry, so that it works with tsconfig.json `moduleResolution: 'bundler'` ([#3964](https://github.com/kubb-labs/kubb/pull/3964), [`be4cd17`](https://github.com/kubb-labs/kubb/commit/be4cd1770a34f547d1f1f60bd165c4228fef5053))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.6 — Sep 2, 2026
 
 ### @kubb/cli
