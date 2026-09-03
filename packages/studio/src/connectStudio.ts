@@ -151,9 +151,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     const ws = createWebsocket(wsUrl, {
       headers: { Authorization: `Bearer ${token}` },
     })
-    // Slug is the readable connection identifier shared with Studio; fall back to a
-    // generic tag (not a masked session id) when an older Studio didn't return one.
-    const tag = slug ?? 'agent'
 
     // Effective permissions: always disabled in sandbox mode
     const canWrite = isSandbox ? false : allowWrite
@@ -216,7 +213,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
         return readConfig(source ?? (await readFile(configFilePath, 'utf-8')))
       } catch (error) {
-        await hooks.callHook('studio:warn', { tag, message: `Could not read ${configFilePath}: ${getErrorMessage(error)}` })
+        await hooks.callHook('studio:warn', { message: `Could not read ${configFilePath}: ${getErrorMessage(error)}` })
 
         return undefined
       }
@@ -254,7 +251,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
 
     const onOpen = async () => {
       lastPongAt = Date.now()
-      await hooks.callHook('studio:connected', { tag, studioUrl })
+      await hooks.callHook('studio:connected', { studioUrl })
 
       // Announce readiness without waiting for a `studio:connect` command. The command from the
       // Studio UI is lost when it is sent while the agent is not attached to the session
@@ -262,7 +259,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       try {
         await sendConnectedPayload()
       } catch (error) {
-        await hooks.callHook('studio:warn', { tag, message: `Failed to send the connect payload: ${getErrorMessage(error)}` })
+        await hooks.callHook('studio:warn', { message: `Failed to send the connect payload: ${getErrorMessage(error)}` })
       }
     }
 
@@ -295,7 +292,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     const onClose = () => teardown({ retry: true })
 
     const onError = () => {
-      void hooks.callHook('studio:error', { tag, error: new Error('Failed to connect to Kubb Studio') })
+      void hooks.callHook('studio:error', { error: new Error('Failed to connect to Kubb Studio') })
 
       return onClose()
     }
@@ -312,7 +309,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       // arrived. Terminate (not close) so a half-open TCP connection can't linger. The
       // resulting close event triggers cleanup and the reconnect loop.
       if (Date.now() - lastPongAt > heartbeatInterval * 2) {
-        void hooks.callHook('studio:warn', { tag, message: 'No reply from Kubb Studio, terminating the stale connection' })
+        void hooks.callHook('studio:warn', { message: 'No reply from Kubb Studio, terminating the stale connection' })
         // Stop the timer here rather than waiting for cleanup(), since the close event can lag,
         // and until it runs this interval would re-terminate and re-log every tick.
         clearInterval(heartbeatTimer)
@@ -340,7 +337,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         }
 
         if (isDisconnectMessage(data)) {
-          await hooks.callHook('studio:disconnected', { tag, reason: data.reason })
+          await hooks.callHook('studio:disconnected', { reason: data.reason })
 
           if (data.reason === 'revoked') {
             cleanup(`session_${data.reason}`)
@@ -361,11 +358,11 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
           // Every command type is `studio:<verb>`, so the verb alone is what a host wants to show.
           const command = data.type.slice('studio:'.length)
 
-          await hooks.callHook('studio:command:start', { tag, command })
+          await hooks.callHook('studio:command:start', { command })
 
           if (data.type === 'studio:generate') {
             if (isGenerating) {
-              await hooks.callHook('studio:warn', { tag, message: 'Ignored generate: a generation is already in progress' })
+              await hooks.callHook('studio:warn', { message: 'Ignored generate: a generation is already in progress' })
 
               await Promise.resolve(
                 hooks.callHook('kubb:error', { error: new Error('A generation is already in progress, please wait for it to finish') }),
@@ -389,14 +386,14 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               const inputOverride = isSandbox ? (patch?.input ?? '') : (allowInput && patch?.input) || undefined
 
               if (allowWrite && isSandbox) {
-                await hooks.callHook('studio:warn', { tag, message: 'Running in a sandbox, so writing files is disabled' })
+                await hooks.callHook('studio:warn', { message: 'Running in a sandbox, so writing files is disabled' })
               }
 
               if (patch?.input && !canUseInput) {
                 // The Docker agent reads `allowInput` from `KUBB_AGENT_ALLOW_INPUT`. The CLI grants it
                 // through `--allowInput` or the per-project prompt instead, so each host gets its own remedy.
                 const remedy = client?.kind === 'cli' ? '--allowInput, or answer yes when kubb studio asks,' : 'KUBB_AGENT_ALLOW_INPUT=true'
-                await hooks.callHook('studio:warn', { tag, message: `Ignored the spec from Studio; set ${remedy} to generate from it` })
+                await hooks.callHook('studio:warn', { message: `Ignored the spec from Studio; set ${remedy} to generate from it` })
               }
 
               const generationHooks = new Hookable<AgentHooks>()
@@ -420,7 +417,6 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               })
 
               await hooks.callHook('studio:command:end', {
-                tag,
                 command,
                 info: `${resolvedPlugins.length} plugin${resolvedPlugins.length === 1 ? '' : 's'}, ${canWrite ? 'written to disk' : 'in memory'}${inputOverride !== undefined ? ', from a Studio spec' : ''}`,
               })
@@ -434,7 +430,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
           if (data.type === 'studio:connect') {
             await sendConnectedPayload()
 
-            await hooks.callHook('studio:command:end', { tag, command })
+            await hooks.callHook('studio:command:end', { command })
 
             return
           }
@@ -444,7 +440,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             // branch sends one. `edits` is checked before it is walked: the message crosses the same
             // trust boundary as the values inside it.
             if (!Array.isArray(data.edits)) {
-              await hooks.callHook('studio:warn', { tag, message: 'Ignored save: the message carried no edits' })
+              await hooks.callHook('studio:warn', { message: 'Ignored save: the message carried no edits' })
 
               sendAgentMessage(ws, { type: 'agent:save', payload: { outcomes: [], changed: false } })
 
@@ -459,7 +455,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               })
 
             if (!canEditConfig) {
-              await hooks.callHook('studio:warn', { tag, message: 'Ignored save: editing kubb.config.ts was not granted' })
+              await hooks.callHook('studio:warn', { message: 'Ignored save: editing kubb.config.ts was not granted' })
 
               refuse('the agent was not granted permission to edit kubb.config.ts')
 
@@ -492,11 +488,11 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
               })
 
               const applied = outcomes.filter((outcome) => outcome.applied).length
-              await hooks.callHook('studio:command:end', { tag, command, info: `applied ${applied}/${outcomes.length} edits to ${configPath}` })
+              await hooks.callHook('studio:command:end', { command, info: `applied ${applied}/${outcomes.length} edits to ${configPath}` })
             } catch (error) {
               // An unreadable config, a read-only filesystem. Reported as a refusal of every edit so
               // Studio hears back rather than waiting on a reply that never comes.
-              await hooks.callHook('studio:error', { tag, error: toError(error) })
+              await hooks.callHook('studio:error', { error: toError(error) })
 
               refuse(getErrorMessage(error))
             }
@@ -507,9 +503,9 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
           return
         }
 
-        await hooks.callHook('studio:warn', { tag, message: `Ignored an unknown message from Kubb Studio: ${data.type}` })
+        await hooks.callHook('studio:warn', { message: `Ignored an unknown message from Kubb Studio: ${data.type}` })
       } catch (error) {
-        await hooks.callHook('studio:error', { tag, error: toError(error) })
+        await hooks.callHook('studio:error', { error: toError(error) })
 
         // Errors thrown before `generate()` runs (e.g. config loading, plugin resolution)
         // never reach `generate()`'s own `kubb:error` emission, so without this the Studio
@@ -523,7 +519,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
     // Reaching here means the session was never created (Studio down, a 502 mid-deploy), so no
     // socket exists and none of the socket-driven reconnect paths can fire. Retry from here or the
     // slot is dropped for the lifetime of the process.
-    await hooks.callHook('studio:error', { tag: 'agent', error: toError(error) })
+    await hooks.callHook('studio:error', { error: toError(error) })
 
     if (error instanceof InvalidAgentTokenError) {
       throw error

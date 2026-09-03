@@ -14,10 +14,9 @@ import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import { version } from '../../../package.json'
 import type { definition } from '../../commands/studio.ts'
 import setupReporters from '../../loggers/utils.ts'
-import { getAgentName } from '../../agent.ts'
-import { canUseTTY, isCIEnvironment } from '../../utils/env.ts'
+import { canUseTTY, isCIEnvironment, isRichOutput } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
-import { installStudioLogger } from './logger.ts'
+import { installStudioLogger, writeLine } from './logger.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 
 const ACTIONS = ['connect', 'login', 'logout', 'status'] as const
@@ -140,15 +139,6 @@ export function formatPermissionRows(granted: Record<Permission, boolean>): Arra
 }
 
 /**
- * Left-aligned label/value rows, the same shape `cliReporter` builds its summary from.
- */
-function formatDetailRows(rows: ReadonlyArray<[label: string, value: string]>): Array<string> {
-  const width = Math.max(...rows.map(([label]) => label.length))
-
-  return rows.map(([label, value]) => `${styleText('dim', label.padEnd(width))}  ${value}`)
-}
-
-/**
  * Resolves Studio permissions for the current project.
  * Flags win, saved answers are reused, and new answers are stored unless `persist` is false.
  */
@@ -238,33 +228,26 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
   const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, credentials, configPath, !envToken)
   const granted = { allowWrite, allowConfigEdit, allowInput, allowExec }
 
-  const logLevel = logLevelMap[(options.logLevel ?? 'info') as keyof typeof logLevelMap] ?? logLevelMap.info
-  const isRich = canUseTTY() && !getAgentName()
+  const logLevel = logLevelMap[(options.logLevel ?? 'info') as keyof typeof logLevelMap]
+  const isRich = isRichOutput()
+  // One clack gutter block, or the same lines plainly.
+  const say = (lines: string | Array<string>) => (isRich ? prompts.log.message(lines) : console.log([lines].flat().join('\n')))
+  const detail = (label: string, value: string) => `${styleText('dim', label.padEnd(7))}  ${value}`
 
   if (options.logLevel !== 'silent') {
-    const lines = [
-      ...formatDetailRows([
-        ['Studio', styleText('cyan', options.studioUrl)],
-        ['Project', path.basename(process.cwd())],
-        ['Config', path.relative(process.cwd(), configPath) || configPath],
-      ]),
+    say([
+      detail('Studio', styleText('cyan', options.studioUrl)),
+      detail('Project', path.basename(process.cwd())),
+      detail('Config', path.relative(process.cwd(), configPath) || configPath),
       '',
       styleText('dim', 'Permissions'),
       ...formatPermissionRows(granted),
-    ]
-
-    if (isRich) {
-      prompts.log.message(lines)
-    } else {
-      for (const line of lines) {
-        console.log(line)
-      }
-    }
+    ])
   }
 
   // Sessions connect without being awaited, so the spinner is what reports the wait. The logger
   // stops it on `studio:connected`, which is why the Ctrl+C hint below can finally be honest.
-  const spinner = isRich && options.logLevel !== 'silent' ? prompts.spinner() : null
+  const spinner = isRich && options.logLevel !== 'silent' ? prompts.spinner() : undefined
   spinner?.start('Connecting to Kubb Studio')
 
   const client = createClient({
@@ -283,7 +266,7 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
     // One function for both emitters: the session events go to the studio logger, and a
     // generation's `kubb:*` events go to the same clack/plain loggers `kubb generate` installs.
     installLogger: async (hooks) => {
-      installStudioLogger(hooks, { logLevel, poolSize: 1, spinner })
+      installStudioLogger(hooks, { logLevel, spinner })
       await setupReporters(hooks, { logLevel, reporters: [cliReporter] })
     },
     // The local config bounds what Studio may import. Without this a `generate` payload could name
@@ -317,13 +300,7 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
   }
 
   if (options.logLevel !== 'silent') {
-    const hint = 'Press Ctrl+C to disconnect'
-
-    if (isRich) {
-      prompts.log.message(styleText('dim', hint))
-    } else {
-      console.log(styleText('dim', hint))
-    }
+    say(styleText('dim', 'Press Ctrl+C to disconnect'))
   }
 
   await new Promise<void>((resolve) => {
@@ -331,6 +308,7 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
       client.disconnect()
 
       if (options.logLevel !== 'silent') {
+        // `outro` closes the block clack's `intro` opened, so it is not the same as a written line.
         if (isRich) {
           prompts.outro('Disconnected')
         } else {
@@ -397,15 +375,11 @@ async function run(options: StudioOptions): Promise<void> {
 
   try {
     if (options.logLevel !== 'silent') {
-      const isRich = canUseTTY() && !getAgentName()
-
-      if (isRich && options.action === 'connect') {
+      if (isRichOutput() && options.action === 'connect') {
         prompts.intro(`Kubb Studio  ${styleText('dim', `v${options.version}`)}`)
-        prompts.log.warn(styleText('yellow', 'This feature is still under development, use with caution'))
-      } else {
-        console.warn(styleText('yellow', 'This feature is still under development, use with caution'))
-        console.log()
       }
+
+      writeLine('warn', styleText('yellow', 'This feature is still under development, use with caution'))
     }
 
     switch (options.action) {

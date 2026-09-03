@@ -15,36 +15,28 @@ export type StudioHooks = {
   'studio:error': [ctx: StudioErrorContext]
 }
 
-/**
- * Readable identifier Studio issued for this connection, carried by every session event. A host
- * with a single session leaves it out of its output; one serving a pool shows it to tell them apart.
- */
-type StudioSessionContext = {
-  tag: string
-}
-
-export type StudioConnectedContext = StudioSessionContext & {
+export type StudioConnectedContext = {
   /**
    * The Studio instance this session attached to.
    */
   studioUrl: string
 }
 
-export type StudioDisconnectedContext = StudioSessionContext & {
+export type StudioDisconnectedContext = {
   /**
    * Why Studio ended the session.
    */
   reason: string
 }
 
-export type StudioCommandStartContext = StudioSessionContext & {
+export type StudioCommandStartContext = {
   /**
    * The command Studio sent, without its `studio:` prefix — `generate`, `connect` or `save`.
    */
   command: string
 }
 
-export type StudioCommandEndContext = StudioSessionContext & {
+export type StudioCommandEndContext = {
   /**
    * The command that finished, without its `studio:` prefix.
    */
@@ -56,14 +48,14 @@ export type StudioCommandEndContext = StudioSessionContext & {
   info?: string
 }
 
-export type StudioWarnContext = StudioSessionContext & {
+export type StudioWarnContext = {
   /**
    * What was refused or ignored, and what would change it.
    */
   message: string
 }
 
-export type StudioErrorContext = StudioSessionContext & {
+export type StudioErrorContext = {
   /**
    * The failure. Local to the host: a failure Studio needs to hear about is sent over the socket
    * instead, through the `kubb:error` generation hook.

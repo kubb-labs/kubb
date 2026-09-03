@@ -260,7 +260,7 @@ describe('connectToStudio', () => {
 
     await mockWs.trigger('open')
 
-    expect(session.named('studio:connected')).toStrictEqual([{ name: 'studio:connected', ctx: { tag: 'brave-otter', studioUrl: 'https://kubb.studio' } }])
+    expect(session.named('studio:connected')).toStrictEqual([{ name: 'studio:connected', ctx: { studioUrl: 'https://kubb.studio' } }])
   })
 
   it('logs the slug when the WebSocket errors', async () => {
@@ -269,7 +269,7 @@ describe('connectToStudio', () => {
     await mockWs.trigger('error')
 
     expect(session.named('studio:error')).toStrictEqual([
-      { name: 'studio:error', ctx: { tag: 'brave-otter', error: expect.objectContaining({ message: 'Failed to connect to Kubb Studio' }) } },
+      { name: 'studio:error', ctx: { error: expect.objectContaining({ message: 'Failed to connect to Kubb Studio' }) } },
     ])
   })
 
@@ -870,7 +870,7 @@ describe('connectToStudio', () => {
       data: JSON.stringify({ type: 'studio:disconnect', reason: 'revoked' }),
     })
 
-    expect(session.named('studio:disconnected')).toStrictEqual([{ name: 'studio:disconnected', ctx: { tag: 'brave-otter', reason: 'revoked' } }])
+    expect(session.named('studio:disconnected')).toStrictEqual([{ name: 'studio:disconnected', ctx: { reason: 'revoked' } }])
     expect(mockWs.closed).toBe(true)
     // disconnect API must NOT be called — server already knows about the closure
     expect(disconnect).not.toHaveBeenCalled()
@@ -887,7 +887,7 @@ describe('connectToStudio', () => {
       data: JSON.stringify({ type: 'studio:disconnect', reason: 'expired' }),
     })
 
-    expect(session.named('studio:disconnected')).toStrictEqual([{ name: 'studio:disconnected', ctx: { tag: 'brave-otter', reason: 'expired' } }])
+    expect(session.named('studio:disconnected')).toStrictEqual([{ name: 'studio:disconnected', ctx: { reason: 'expired' } }])
     expect(mockWs.closed).toBe(true)
     expect(disconnect).not.toHaveBeenCalled()
     // expired sessions trigger a reconnect (unlike revoked)

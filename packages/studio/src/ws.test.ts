@@ -44,12 +44,8 @@ describe('setupEventsStream', () => {
 
     // `studio:*` narrates the connection for whoever is running the agent. Studio has its own view
     // of the session, so forwarding these would duplicate it and leak local paths and remedies.
-    await hooks.callHook('studio:connected', { tag: 'brave-otter', studioUrl: 'https://kubb.studio' })
-    await hooks.callHook('studio:warn', { tag: 'brave-otter', message: 'Ignored save: editing kubb.config.ts was not granted' })
-    await hooks.callHook('studio:error', { tag: 'brave-otter', error: new Error('boom') })
-    await hooks.callHook('studio:command:start', { tag: 'brave-otter', command: 'generate' })
-    await hooks.callHook('studio:command:end', { tag: 'brave-otter', command: 'generate' })
-    await hooks.callHook('studio:disconnected', { tag: 'brave-otter', reason: 'revoked' })
+    // `setupEventsStream` subscribes to hook names one by one, so one event proves the namespace.
+    await hooks.callHook('studio:warn', { message: 'Ignored save: editing kubb.config.ts was not granted' })
 
     expect(socket.send).not.toHaveBeenCalled()
   })

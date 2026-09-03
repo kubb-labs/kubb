@@ -5,22 +5,18 @@ import { installStudioLogger } from './logger.ts'
 
 /**
  * Non-TTY is what these assert, so the logger takes its `console` writer and the output is plain
- * text with no clack gutter and no color. `canUseTTY()` reads `CI` from the environment, so the
+ * text with no clack gutter and no color. `isRichOutput()` reads `CI` from the environment, so the
  * environment is what gets stubbed rather than the module.
  */
 function capture() {
   const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-  const error = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-  return {
-    lines: () => log.mock.calls.map(([line]) => String(line)),
-    errors: () => error.mock.calls.map(([line]) => String(line)),
-  }
+  return () => log.mock.calls.map(([line]) => String(line))
 }
 
-function install({ poolSize = 1, logLevel = logLevelMap.info }: { poolSize?: number; logLevel?: number } = {}) {
+function install({ logLevel = logLevelMap.info, spinner }: { logLevel?: number; spinner?: never } = {}) {
   const hooks = new Hookable<AgentHooks>()
-  installStudioLogger(hooks, { logLevel, poolSize })
+  installStudioLogger(hooks, { logLevel, spinner })
 
   return hooks
 }
@@ -35,65 +31,47 @@ afterEach(() => {
 })
 
 describe('installStudioLogger', () => {
-  it('leaves out the session tag when the agent serves a single session', async () => {
-    const output = capture()
-    const hooks = install({ poolSize: 1 })
-
-    await hooks.callHook('studio:connected', { tag: 'brave-otter', studioUrl: 'http://localhost:3000' })
-
-    expect(output.lines()).toStrictEqual(['Connected to http://localhost:3000'])
-  })
-
-  it('shows the session tag once there is more than one to tell apart', async () => {
-    const output = capture()
-    const hooks = install({ poolSize: 3 })
-
-    await hooks.callHook('studio:connected', { tag: 'brave-otter', studioUrl: 'http://localhost:3000' })
-
-    expect(output.lines()).toStrictEqual(['[brave-otter] Connected to http://localhost:3000'])
-  })
-
   it('reports a command and what it did', async () => {
-    const output = capture()
+    const lines = capture()
     const hooks = install()
 
-    await hooks.callHook('studio:command:start', { tag: 'brave-otter', command: 'save' })
-    await hooks.callHook('studio:command:end', { tag: 'brave-otter', command: 'save', info: 'applied 2/3 edits to kubb.config.ts' })
+    await hooks.callHook('studio:command:start', { command: 'save' })
+    await hooks.callHook('studio:command:end', { command: 'save', info: 'applied 2/3 edits to kubb.config.ts' })
 
-    expect(output.lines()).toStrictEqual(['Kubb Studio asked to save', 'Finished save (applied 2/3 edits to kubb.config.ts)'])
+    expect(lines()).toStrictEqual(['Kubb Studio asked to save', 'Finished save (applied 2/3 edits to kubb.config.ts)'])
   })
 
   it('drops everything but errors at silent', async () => {
-    const output = capture()
+    const lines = capture()
     const hooks = install({ logLevel: logLevelMap.silent })
 
-    await hooks.callHook('studio:connected', { tag: 'brave-otter', studioUrl: 'http://localhost:3000' })
-    await hooks.callHook('studio:command:start', { tag: 'brave-otter', command: 'generate' })
-    await hooks.callHook('studio:warn', { tag: 'brave-otter', message: 'Ignored save' })
+    await hooks.callHook('studio:connected', { studioUrl: 'http://localhost:3000' })
+    await hooks.callHook('studio:command:start', { command: 'generate' })
+    await hooks.callHook('studio:warn', { message: 'Ignored save' })
 
-    expect(output.lines()).toStrictEqual([])
+    expect(lines()).toStrictEqual([])
 
     // A failure stays visible, or the command exits without saying why.
-    await hooks.callHook('studio:error', { tag: 'brave-otter', error: new Error('token revoked') })
+    await hooks.callHook('studio:error', { error: new Error('token revoked') })
 
-    expect(output.errors()).toStrictEqual(['token revoked'])
+    expect(lines()).toStrictEqual(['token revoked'])
   })
 
   it('stops the spinner on the first connect and writes the line on a reconnect', async () => {
-    const output = capture()
+    const lines = capture()
     const spinner = { start: vi.fn(), stop: vi.fn(), message: vi.fn() }
     const hooks = new Hookable<AgentHooks>()
-    installStudioLogger(hooks, { logLevel: logLevelMap.info, poolSize: 1, spinner: spinner as never })
+    installStudioLogger(hooks, { logLevel: logLevelMap.info, spinner: spinner as never })
 
-    await hooks.callHook('studio:connected', { tag: 'brave-otter', studioUrl: 'http://localhost:3000' })
+    await hooks.callHook('studio:connected', { studioUrl: 'http://localhost:3000' })
 
     expect(spinner.stop).toHaveBeenCalledWith('Connected to http://localhost:3000')
-    expect(output.lines()).toStrictEqual([])
+    expect(lines()).toStrictEqual([])
 
     // The spinner is spent, so a reconnect has to report itself in writing.
-    await hooks.callHook('studio:connected', { tag: 'brave-otter', studioUrl: 'http://localhost:3000' })
+    await hooks.callHook('studio:connected', { studioUrl: 'http://localhost:3000' })
 
     expect(spinner.stop).toHaveBeenCalledTimes(1)
-    expect(output.lines()).toStrictEqual(['Connected to http://localhost:3000'])
+    expect(lines()).toStrictEqual(['Connected to http://localhost:3000'])
   })
 })
