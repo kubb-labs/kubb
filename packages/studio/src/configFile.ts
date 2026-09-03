@@ -656,16 +656,16 @@ function parseTarget(source: string, ref: ConfigRef | undefined): { mod: Proxifi
  *
  * Edits are independent: one that cannot be applied is reported in `outcomes` and the rest still run.
  *
- * ponytail: recast always reprints a semicolon on a reprinted statement, so editing a block-body
- * `defineConfig` in a semicolon-free file adds one to the `return` line. Strip it when
- * `detectCodeFormat` says `useSemi: false`, if it bites.
- *
  * @example
  * ```ts
  * const { source, outcomes } = applyConfigEdits(current, [
  *   { operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' },
  * ])
  * ```
+ *
+ * @note recast always reprints a semicolon on a reprinted statement, so editing a block-body
+ * `defineConfig` in a semicolon-free file adds one to the `return` line. This is a known gap.
+ * Strip it when `detectCodeFormat` reports `useSemi: false`, if it turns out to matter in practice.
  */
 export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): ApplyResult {
   let current = source

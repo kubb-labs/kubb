@@ -97,13 +97,11 @@ function formatGenerationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error 
 }
 
 /**
- * Run a full Kubb code-generation cycle for the given config.
+ * Runs a full Kubb code-generation cycle for the given config.
  *
  * Emits lifecycle events on the provided `hooks` emitter so callers (e.g. the WebSocket stream)
- * can forward progress to connected clients.
- * After a successful build, auto-formatting and linting are applied when configured,
- * followed by any user-defined `hooks.done` commands.
- *
+ * can forward progress to connected clients. After a successful build, auto-formatting and
+ * linting are applied when configured, followed by any user-defined `hooks.done` commands.
  */
 export async function generate({ config, hooks }: GenerateProps): Promise<void> {
   const hrStart = process.hrtime()
