@@ -145,15 +145,16 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
   const hooks = new Hookable<AgentHooks>()
   await installLogger?.(hooks)
 
-  // What Studio last reported about itself, so a mismatch shows up in the host's own output.
-  let studioVersion: string | undefined
-
   try {
     // Before the session exists, so a host can cover the wait: `createAgentSession` is a round
     // trip and the socket after it opens without being awaited.
     await hooks.callHook('studio:connecting', { url: studioUrl })
 
-    const { sessionId, slug, wsUrl, isSandbox } = await createAgentSession({ token, studioUrl })
+    const { sessionId, slug, wsUrl, isSandbox, version: sessionStudioVersion } = await createAgentSession({ token, studioUrl })
+
+    // Known before the agent announces itself, and refreshed by a later `studio:connect`, so both
+    // sides can be named from the first connect on.
+    let studioVersion = sessionStudioVersion
     const ws = createWebsocket(wsUrl, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -252,7 +253,7 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
       })
     }
 
-    const onOpen = async () => {
+    async function handleOpen() {
       lastPongAt = Date.now()
       await hooks.callHook('studio:connected', { url: studioUrl, versions: { studio: studioVersion, kubb: kubbVersion, agent: version } })
 
@@ -265,6 +266,11 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
         await hooks.callHook('studio:warn', { message: `Failed to send the connect payload: ${getErrorMessage(error)}` })
       }
     }
+
+    // `addEventListener` drops the returned promise, so a host whose logger throws would take the
+    // process down with an unhandled rejection instead of just losing a line of output. Nothing is
+    // left to report it with at that point, which is why this swallows.
+    const onOpen = () => void handleOpen().catch(() => {})
 
     /**
      * Drops the socket and tells Studio the session is over. `serverDisconnected` guards against

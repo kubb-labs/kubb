@@ -232,8 +232,8 @@ export type StudioGenerateMessage = {
 export type StudioConnectMessage = {
   type: 'studio:connect'
   /**
-   * Version of the Studio instance asking. The agent reports it back on `studio:connected`, so a
-   * mismatch shows up in the terminal too.
+   * Version of the Studio instance asking, which refreshes what the agent picked up when the
+   * session was created. Absent when Studio predates the field.
    */
   version?: string
 }
@@ -481,6 +481,12 @@ export type AgentConnectResponse = {
    * Whether this session belongs to a shared sandbox agent rather than an owned one.
    */
   isSandbox: boolean
+  /**
+   * The Studio instance's own version. Reported here rather than only on `studio:connect`, so the
+   * agent knows it before it announces itself and can name both sides from the first connect.
+   * Absent when Studio predates the field.
+   */
+  version?: string
 }
 
 /**

@@ -81,8 +81,8 @@ function recordSessionEvents() {
     errors(): Array<Error> {
       return events.flatMap((event) => (event.name === 'studio:error' ? [event.ctx.error] : []))
     },
-    named(name: keyof StudioHooks) {
-      return events.filter((event) => event.name === name)
+    named<K extends keyof StudioHooks>(name: K) {
+      return events.filter((event): event is Extract<Recorded, { name: K }> => event.name === name)
     },
   }
 }
@@ -779,16 +779,56 @@ describe('connectToStudio', () => {
     expect(sendAgentMessage).not.toHaveBeenCalledWith(mockWs, expect.objectContaining({ type: 'agent:disconnect' }))
   })
 
-  it('reports the version Studio sent back through studio:connected', async () => {
-    await connectToStudio(options)
+  // Studio's UI only sends `studio:connect` from its own socket's `open`, so it always lands after
+  // the agent has already announced itself. The version has to come off the session response, or
+  // the connect line can never name both sides.
+  it('names Studio from the session response, before any command arrives', async () => {
+    vi.mocked(createAgentSession).mockResolvedValue(makeSession({ version: '9.9.9' }))
 
-    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:connect', version: '9.9.9' }) })
+    await connectToStudio(options)
     await mockWs.trigger('open')
 
     expect(session.named('studio:connected').at(-1)?.ctx).toStrictEqual({
       url: 'https://kubb.studio',
       versions: { studio: '9.9.9', kubb: '5.0.0-test', agent: '1.0.0' },
     })
+  })
+
+  // `addEventListener` drops the promise its listener returns, so a throwing logger used to reach
+  // the process as an unhandled rejection.
+  it('survives a logger that throws while announcing the connection', async () => {
+    const rejections: Array<unknown> = []
+    const onUnhandled = (reason: unknown) => rejections.push(reason)
+    const processEvents = process as unknown as NodeJS.EventEmitter
+    processEvents.on('unhandledRejection', onUnhandled)
+
+    try {
+      await connectToStudio({
+        ...options,
+        installLogger: (hooks) => {
+          hooks.hook('studio:connected', () => {
+            throw new Error('broken logger')
+          })
+        },
+      })
+
+      await mockWs.trigger('open')
+      await new Promise((resolve) => setImmediate(resolve))
+
+      expect(rejections).toStrictEqual([])
+    } finally {
+      processEvents.off('unhandledRejection', onUnhandled)
+    }
+  })
+
+  it('refreshes the Studio version from a later studio:connect', async () => {
+    vi.mocked(createAgentSession).mockResolvedValue(makeSession({ version: '9.9.9' }))
+
+    await connectToStudio(options)
+    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:connect', version: '10.0.0' }) })
+    await mockWs.trigger('open')
+
+    expect(session.named('studio:connected').at(-1)?.ctx.versions).toStrictEqual({ studio: '10.0.0', kubb: '5.0.0-test', agent: '1.0.0' })
   })
 
   it('reflects allowWrite in permissions on connect command', async () => {

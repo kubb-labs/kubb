@@ -232,6 +232,7 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
   // One clack gutter block, or the same lines plainly.
   const say = (lines: string | Array<string>) => (isRich ? prompts.log.message(lines) : console.log([lines].flat().join('\n')))
   const detail = (label: string, value: string) => `${styleText('dim', label.padEnd(7))}  ${value}`
+  let hinted = false
 
   if (options.logLevel !== 'silent') {
     say([
@@ -259,7 +260,21 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
     allowExec,
     // The loggers `kubb generate` installs, on both emitters, so one place renders the session
     // events and the generations it drives.
-    installLogger: (hooks) => setupReporters(hooks, { logLevel, reporters: [cliReporter] }),
+    installLogger: async (hooks) => {
+      await setupReporters(hooks, { logLevel, reporters: [cliReporter] })
+
+      // `client.connect()` resolves once the agent is registered, not once a session is open, so
+      // this is the only point that knows the connection is live. Registered after the loggers so
+      // it lands under their "Connected to ..." line, and once, since every reconnect fires again.
+      hooks.hook('studio:connected', () => {
+        if (hinted || options.logLevel === 'silent') {
+          return
+        }
+        hinted = true
+
+        say(styleText('dim', 'Press Ctrl+C to disconnect'))
+      })
+    },
     // The local config bounds what Studio may import. Without this a `generate` payload could name
     // any module in the project's node_modules and the runtime would import it. Union of every
     // config entry's plugins, since Studio edits any entry, not only the one it generates from.
@@ -288,10 +303,6 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
     console.log(styleText('yellow', `${error.message} Pairing again...`))
 
     return connect(options, false)
-  }
-
-  if (options.logLevel !== 'silent') {
-    say(styleText('dim', 'Press Ctrl+C to disconnect'))
   }
 
   await new Promise<void>((resolve) => {
