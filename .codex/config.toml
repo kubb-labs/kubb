@@ -1,0 +1,2 @@
+model_verbosity = "low"
+model_reasoning_summary = "concise"

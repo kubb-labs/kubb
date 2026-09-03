@@ -1,7 +1,6 @@
-import { Hookable, type KubbPluginStartContext } from '@kubb/core'
+import { Hookable, type KubbHooks, type KubbPluginStartContext } from '@kubb/core'
 import type WebSocket from 'ws'
 import { describe, expect, it, vi } from 'vitest'
-import type { AgentHooks } from './hooks.ts'
 import type { AgentMessage } from './protocol/index.ts'
 import { setupEventsStream } from './ws.ts'
 
@@ -24,7 +23,7 @@ function fakeSocket() {
 describe('setupEventsStream', () => {
   it('forwards a generation event as an agent:data envelope around its kubb: payload', async () => {
     const socket = fakeSocket()
-    const hooks = new Hookable<AgentHooks>()
+    const hooks = new Hookable<KubbHooks>()
     setupEventsStream(socket.ws, hooks)
 
     await hooks.callHook('kubb:plugin:start', { plugin: { name: 'plugin-ts' } as unknown as KubbPluginStartContext['plugin'] })
@@ -39,7 +38,7 @@ describe('setupEventsStream', () => {
 
   it('keeps session events off the wire', async () => {
     const socket = fakeSocket()
-    const hooks = new Hookable<AgentHooks>()
+    const hooks = new Hookable<KubbHooks>()
     setupEventsStream(socket.ws, hooks)
 
     // `studio:*` narrates the connection for whoever is running the agent. Studio has its own view

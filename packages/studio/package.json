@@ -42,10 +42,12 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
     "./protocol": {
+      "types": "./dist/protocol.d.ts",
       "import": "./dist/protocol.js",
       "require": "./dist/protocol.cjs"
     },

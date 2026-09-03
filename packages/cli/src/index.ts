@@ -17,7 +17,7 @@ function stripExecArgs(argv: Array<string>): Array<string> {
 
 /**
  * Entry point for the `kubb` CLI. Prints the telemetry notice unless telemetry is disabled or a
- * quiet flag is passed, then runs the generate, validate, mcp, and init commands. Defaults to
+ * quiet flag is passed, then runs the generate, validate, mcp, studio, and init commands. Defaults to
  * `generate` when no command is given.
  */
 export async function run(argv: Array<string> = process.argv): Promise<void> {
@@ -31,22 +31,27 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
 
   const { command: generateCommand } = await import('./commands/generate.ts')
   const { command: initCommand } = await import('./commands/init.ts')
-  // Each runner pulls in an optional peer (@kubb/adapter-oas, @kubb/mcp), so it loads only when
-  // its command runs.
+  // Each runner pulls in an optional peer (@kubb/adapter-oas, @kubb/mcp, @kubb/studio), so it
+  // loads only when its command runs.
   const { definition: validateDefinition } = await import('./commands/validate.ts')
   const validateCommand = lazy(async () => (await import('./runners/validate/run.ts')).runner, validateDefinition)
   const { definition: mcpDefinition } = await import('./commands/mcp.ts')
   const mcpCommand = lazy(async () => (await import('./runners/mcp/run.ts')).runner, mcpDefinition)
+  const { definition: studioDefinition } = await import('./commands/studio.ts')
+  const studioCommand = lazy(async () => (await import('./runners/studio/run.ts')).runner, studioDefinition)
 
   await cli(stripExecArgs(argv), generateCommand, {
     name: 'kubb',
     version,
-    description: generateCommand.description,
+    // Not `generateCommand.description`: gunshi prints this on every subcommand's help too, so
+    // `kubb studio --help` would open with a paragraph about generating types.
+    description: 'Generate code from an OpenAPI specification, or connect the project to Kubb Studio.',
     subCommands: {
       generate: generateCommand,
       init: initCommand,
       validate: validateCommand,
       mcp: mcpCommand,
+      studio: studioCommand,
     },
     fallbackToEntry: true,
     strict: true,

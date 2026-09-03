@@ -1,5 +1,4 @@
-import { Hookable } from '@kubb/core'
-import type { AgentHooks } from './hooks.ts'
+import { Hookable, type KubbHooks } from '@kubb/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setupHookListener } from './hooks.ts'
 
@@ -34,10 +33,10 @@ function fakeProc({ lines = [], exitCode = 0, stdout = '', stderr = '' }: FakePr
 }
 
 describe('setupHookListener', () => {
-  let hooks: Hookable<AgentHooks>
+  let hooks: Hookable<KubbHooks>
 
   beforeEach(() => {
-    hooks = new Hookable<AgentHooks>()
+    hooks = new Hookable<KubbHooks>()
     vi.clearAllMocks()
   })
 

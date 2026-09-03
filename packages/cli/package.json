@@ -1,7 +1,7 @@
 {
   "name": "@kubb/cli",
   "version": "5.1.0",
-  "description": "Official CLI for Kubb. Run kubb generate, kubb init, kubb validate, and kubb mcp to manage the full code generation lifecycle.",
+  "description": "Official CLI for Kubb. Run kubb generate, kubb init, kubb validate, kubb studio, and kubb mcp to manage the full code generation lifecycle.",
   "keywords": [
     "cli",
     "code-generator",
@@ -79,17 +79,22 @@
   "devDependencies": {
     "@internals/shared": "workspace:*",
     "@internals/utils": "workspace:*",
-    "@kubb/adapter-oas": "workspace:*"
+    "@kubb/adapter-oas": "workspace:*",
+    "@kubb/studio": "workspace:*"
   },
   "peerDependencies": {
     "@kubb/adapter-oas": "workspace:*",
-    "@kubb/mcp": "workspace:*"
+    "@kubb/mcp": "workspace:*",
+    "@kubb/studio": "workspace:*"
   },
   "peerDependenciesMeta": {
     "@kubb/adapter-oas": {
       "optional": true
     },
     "@kubb/mcp": {
+      "optional": true
+    },
+    "@kubb/studio": {
       "optional": true
     }
   },

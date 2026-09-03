@@ -1,8 +1,7 @@
 import { getElapsedMs, inParallel } from '@internals/utils'
-import { Diagnostics, type Hookable } from '@kubb/core'
+import { Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
 import WebSocket from 'ws'
 import type { AgentMessage, DataMessagePayload } from './protocol/index.ts'
-import type { AgentHooks } from './hooks.ts'
 
 type WebSocketOptions = WebSocket.ClientOptions
 
@@ -83,7 +82,7 @@ export function sendErrorMessage(ws: WebSocket, error: Error): void {
 /**
  * Forwards selected Kubb lifecycle events to Studio as data messages for the active session.
  */
-export function setupEventsStream(ws: WebSocket, hooks: Hookable<AgentHooks>): void {
+export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>): void {
   function sendDataMessage(payload: Omit<DataMessagePayload, 'seq' | 'timestamp'>) {
     sendAgentMessage(ws, {
       type: 'agent:data',

@@ -2,7 +2,7 @@ import { relative } from 'node:path'
 import { formatMs } from '@internals/utils'
 import { Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import type { Logger } from './defineLogger.ts'
-import { createHookTimer, formatCommandWithArgs, formatErrorFrames, formatMessage, getInputPath } from './utils.ts'
+import { createHookTimer, formatCommandWithArgs, formatErrorFrames, formatMessage, formatVersions, getInputPath } from './utils.ts'
 
 /**
  * Plain console adapter for non-TTY environments, built on `console.log`.
@@ -84,6 +84,55 @@ export const plainLogger = {
         return
       }
       console.log(getMessage(Diagnostics.formatLines(diagnostic).join('\n')))
+    })
+
+    // A `kubb studio` session emits these on the same emitter as its generations, so one logger
+    // renders the whole command. Nothing to animate here, so no spinner.
+    context.hook('studio:connecting', ({ url }) => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+      console.log(getMessage(`Connecting to ${url}`))
+    })
+
+    context.hook('studio:connected', ({ url, versions }) => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+      console.log(getMessage(`✓ Connected to ${url} (${formatVersions(versions)})`))
+    })
+
+    context.hook('studio:disconnected', ({ reason }) => {
+      if (logLevel < logLevelMap.warn) {
+        return
+      }
+      console.log(getMessage(`⚠ Kubb Studio ended the session (${reason})`))
+    })
+
+    context.hook('studio:command:start', ({ command }) => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+      console.log(getMessage(`Kubb Studio asked to ${command}`))
+    })
+
+    context.hook('studio:command:end', ({ command, info }) => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+      console.log(getMessage(`✓ Finished ${command}${info ? ` (${info})` : ''}`))
+    })
+
+    context.hook('studio:warn', ({ message }) => {
+      if (logLevel < logLevelMap.warn) {
+        return
+      }
+      console.log(getMessage(`⚠ ${message}`))
+    })
+
+    // Unguarded, like `kubb:error`: a failure stays visible even at silent.
+    context.hook('studio:error', ({ error }) => {
+      console.log(getMessage(`✗ ${error.message}`))
     })
 
     context.hook('kubb:lifecycle:start', ({ version }) => {

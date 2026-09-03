@@ -166,7 +166,7 @@
     "rollup": "^4.63.1",
     "typescript": "catalog:",
     "vite": "^8.2.2",
-    "webpack": "^5.110.1"
+    "webpack": "^5.110.2"
   },
   "preferGlobal": true,
   "engines": {
