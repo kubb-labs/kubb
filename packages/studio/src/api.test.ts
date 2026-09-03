@@ -1,0 +1,162 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { spyOnConsole } from './console.mock.ts'
+import { createAgentSession, disconnect, InvalidAgentTokenError, registerAgent } from './api.ts'
+
+const consoleSpy = spyOnConsole()
+
+// Partial: `api.ts` only wants the machine token stubbed, and a full factory would also replace
+// the storage accessors that the rest of the package shares.
+vi.mock('./machine.ts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./machine.ts')>()),
+  getMachineToken: vi.fn(async () => 'machine-token-hash'),
+}))
+
+const createMockResponse = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } })
+
+const fetchMock = vi.fn()
+
+const session = {
+  sessionId: 'session-abc',
+  slug: 'brave-otter',
+  wsUrl: 'ws://localhost:3000/api/agent/sessions/session-abc/socket',
+  expiresAt: new Date().toISOString(),
+  revokedAt: null,
+  isSandbox: false,
+}
+
+beforeEach(() => {
+  fetchMock.mockReset()
+  vi.useFakeTimers()
+  vi.stubGlobal('fetch', fetchMock)
+})
+
+afterEach(() => {
+  vi.useRealTimers()
+})
+
+describe('registerAgent', () => {
+  it('throws instead of retrying when Studio rejects the token, so a deleted agent stops the loop', async () => {
+    fetchMock.mockResolvedValue(createMockResponse({ message: 'invalid_agent_token' }, 401))
+
+    await expect(registerAgent({ token: 'agent-token', studioUrl: 'http://localhost:3000' })).rejects.toBeInstanceOf(InvalidAgentTokenError)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('returns true when registration succeeds on the first attempt', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({}))
+
+    const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio' })
+    await vi.runAllTimersAsync()
+
+    await expect(promise).resolves.toBe(true)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe('http://studio/api/agent/connect')
+    expect(init.method).toBe('POST')
+    expect(new Headers(init.headers).get('Authorization')).toBe('Bearer tok')
+  })
+
+  it('retries with backoff and returns true once an attempt succeeds', async () => {
+    fetchMock.mockRejectedValueOnce(new Error('502')).mockRejectedValueOnce(new Error('502')).mockResolvedValueOnce(createMockResponse({}))
+
+    const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio' })
+    await vi.runAllTimersAsync()
+
+    await expect(promise).resolves.toBe(true)
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+  })
+
+  it('returns false when every attempt fails', async () => {
+    fetchMock.mockRejectedValue(new Error('502'))
+
+    const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio' })
+    await vi.runAllTimersAsync()
+
+    await expect(promise).resolves.toBe(false)
+    expect(fetchMock).toHaveBeenCalledTimes(4)
+  })
+})
+
+describe('createAgentSession', () => {
+  it('returns the session on success', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse(session))
+
+    await expect(createAgentSession({ token: 'tok', studioUrl: 'http://studio' })).resolves.toEqual(session)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('throws on a non-403 error without re-registering', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ message: 'Bad Gateway' }, 502))
+
+    await expect(createAgentSession({ token: 'tok', studioUrl: 'http://studio' })).rejects.toThrow('Failed to get agent session from Kubb Studio: Bad Gateway')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('re-registers and retries once when Studio rejects the machine token', async () => {
+    // 1: session create → 403, 2: register → ok, 3: session create retry → ok
+    fetchMock
+      .mockResolvedValueOnce(createMockResponse({ message: 'machine token mismatch' }, 403))
+      .mockResolvedValueOnce(createMockResponse({}))
+      .mockResolvedValueOnce(createMockResponse(session))
+
+    const promise = createAgentSession({ token: 'tok', studioUrl: 'http://studio' })
+    await vi.runAllTimersAsync()
+
+    await expect(promise).resolves.toEqual(session)
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(fetchMock.mock.calls[1]![0]).toBe('http://studio/api/agent/connect')
+  })
+
+  it('throws when re-registration fails after a machine token rejection', async () => {
+    fetchMock.mockResolvedValue(createMockResponse({ message: 'Forbidden' }, 403))
+
+    const promise = createAgentSession({ token: 'tok', studioUrl: 'http://studio' })
+    promise.catch(() => {})
+    await vi.runAllTimersAsync()
+
+    await expect(promise).rejects.toThrow('Failed to get agent session from Kubb Studio: Forbidden')
+    // 1 session create + 1 register. A 403 is not retried: the machine token was refused, and
+    // asking again with the same one cannot change that.
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('throws InvalidAgentTokenError when the retry after re-register still gets a 401', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createMockResponse({ message: 'machine token mismatch' }, 403))
+      .mockResolvedValueOnce(createMockResponse({}))
+      .mockResolvedValueOnce(createMockResponse({ message: 'revoked' }, 401))
+
+    const promise = createAgentSession({ token: 'tok', studioUrl: 'http://studio' })
+    promise.catch(() => {})
+    await vi.runAllTimersAsync()
+
+    await expect(promise).rejects.toBeInstanceOf(InvalidAgentTokenError)
+  })
+})
+
+describe('disconnect', () => {
+  it('logs the slug when one is known', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({}))
+
+    await disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', slug: 'brave-otter' })
+
+    expect(consoleSpy.log).toHaveBeenCalledWith('[brave-otter] Disconnected from Studio')
+  })
+
+  it('falls back to a generic tag when no slug is known', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({}))
+
+    await disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio' })
+
+    expect(consoleSpy.log).toHaveBeenCalledWith('[agent] Disconnected from Studio')
+  })
+
+  it('warns instead of throwing when Studio cannot be notified', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ message: 'gone' }, 500))
+
+    await expect(disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', slug: 'brave-otter' })).resolves.toBeUndefined()
+
+    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('[brave-otter] Failed to notify Studio of disconnection'))
+  })
+})

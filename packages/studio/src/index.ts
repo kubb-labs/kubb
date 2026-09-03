@@ -10,3 +10,5 @@ export type {
 } from './hooks.ts'
 export { defaultStudioUrl } from './constants.ts'
 export { createFileStorage, setStorage } from './machine.ts'
+export { InvalidAgentTokenError } from './api.ts'
+export { pollForPairingToken, startPairing } from './pair.ts'
