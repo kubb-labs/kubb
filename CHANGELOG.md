@@ -1,5 +1,151 @@
 # Changelog
 
+## v5.2.0 — Sep 3, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb mcp` and `kubb validate` now load `@kubb/mcp` and `@kubb/adapter-oas` only when that
+  command runs, the same as `kubb studio` already did for `@kubb/studio`. Every other command,
+  including `kubb --help`, no longer touches either optional peer.
+  
+  Also documents `KUBB_HOME`, the env var `kubb studio` already read to relocate its stored
+  credential, machine secret, and session cache away from `~/.kubb`. ([#3968](https://github.com/kubb-labs/kubb/pull/3968), [`0e4dc40`](https://github.com/kubb-labs/kubb/commit/0e4dc4073c10ae53d98b5619cd2b4fa9e2622d9f))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Moved shared-utility logic used by only one package out of `@internals/utils` and into that
+  package (`@kubb/core`, `@kubb/cli`, `@kubb/kit`). No public API or behavior changed. ([#3968](https://github.com/kubb-labs/kubb/pull/3968), [`0e4dc40`](https://github.com/kubb-labs/kubb/commit/0e4dc4073c10ae53d98b5619cd2b4fa9e2622d9f))
+
+### @kubb/studio
+
+#### Features
+
+- Let a host pair as something other than the CLI.
+  
+  `startPairing` takes an optional `clientId` and `agentKind`. It still defaults to
+  `kubb-cli`, which `kubb studio login` uses and any signed-in member can approve. A host that pairs
+  shared or tier-limited infrastructure, such as the `kubblabs/kubb-agent` image, passes
+  `clientId: 'kubb-agent'` and the kind it wants to register as, whose codes only an admin can
+  approve.
+  
+  `pollForPairingToken` now surfaces the server's `error_description` when it has one, so a pairing
+  refused for a reason of Studio's own, such as the organization already being at its agent limit,
+  says why instead of reporting a generic expiry. ([#3970](https://github.com/kubb-labs/kubb/pull/3970), [`8d0ea41`](https://github.com/kubb-labs/kubb/commit/8d0ea41a820787cf5d1e7ac31a3904cc9a36127d))
+- Let Studio change plugin options in a project's `kubb.config.ts`.
+  
+  A new `save` command carries a list of edits, each one a `set`, `remove`, or `add-plugin`
+  `operation`. The agent patches the file's AST rather than regenerating it, so only the values an
+  edit names get rewritten. Comments, formatting, and the code you wrote around the config keep their
+  own text.
+  
+  The agent writes nothing unless the host granted `allowConfigEdit`. That permission is separate
+  from `allowWrite`, which covers generated output. This one changes a file you wrote by hand, so it
+  is granted on its own and never in a sandbox.
+  
+  The `connected` payload gains `configFile`, which lists every plugin call in the file and flags
+  each option as a literal or not. Options holding a function or a reference come back
+  `literal: false`, and the agent refuses to overwrite them, so Studio can disable those controls
+  instead of hiding them. A config the patcher cannot address, for instance a default export that
+  isn't a `defineConfig(...)` call, comes back `managed: false` and says why. ([#3971](https://github.com/kubb-labs/kubb/pull/3971), [`a1467bf`](https://github.com/kubb-labs/kubb/commit/a1467bf3351a82a76999ff6a4c5a7fc1e0b26896))
+- Name every Studio WebSocket message after the side that sends it
+  
+  The protocol had grown three ways to encode direction in a verb: `connect` was answered by
+  `connected`, `save` by `config-saved`, and `ping` by `pong`. Now the name carries the sender, so the
+  verb only carries the topic.
+  
+  | Before | After |
+  | --- | --- |
+  | `kubb:command` + `command: 'generate' \| 'connect' \| 'save'` | `studio:generate`, `studio:connect`, `studio:save` |
+  | `kubb:connected` | `agent:connect` |
+  | `kubb:config-saved` | `agent:save` |
+  | `kubb:data` | `agent:data` |
+  | `kubb:ping` | `agent:ping` |
+  | `kubb:pong` | `studio:ping` |
+  | `kubb:disconnect` | `studio:disconnect` |
+  | `kubb:error` (envelope) | `studio:error` |
+  
+  `kubb:` now means one thing, generation lifecycle. The events relayed inside an `agent:data` payload
+  keep their own names, so the envelope says who sent it and the payload says what happened.
+  
+  The three commands are their own message types, so a handler switches once instead of reading a
+  `type` and then a nested `command` field. `isCommandMessage` still gates the whole branch.
+  
+  `agent:disconnect` is new, the mirror of `studio:disconnect`. The agent announces a shutdown so
+  Studio drops the session instead of waiting out the heartbeat window. Only a shutdown sends it,
+  since an expired or revoked session was Studio's own decision.
+  
+  Both sides now report a version. `studio:connect` carries Studio's, `agent:connect` always carries
+  the runtime's and the host's, and the host prints both, so a mismatch is visible in the terminal
+  rather than only in the UI.
+  
+  The connect payload is smaller. Everything about the config sits under one `config` key (`path`,
+  `file`, `plugins`), and `client` is off the wire, which also stops sending the host's absolute
+  working directory. `ClientInfo` stays as a local option that picks which remedy a refused-input
+  warning suggests.
+  
+  For anyone embedding `@kubb/studio` rather than using the CLI, the runtime no longer writes to the
+  console. Pass `installLogger` to `createClient` to render the session. It is called once for the
+  session emitter and once per generation, so one function covers both. Session events arrive on the
+  `studio:*` hooks now declared in `@kubb/core`, and never reach the wire.
+  
+  Two packaging fixes came out of this. `@kubb/studio` and `@kubb/core` had no `types` condition in
+  their `exports` maps, so under `node16` or `nodenext` resolution a consumer got
+  "Could not find a declaration file" for both the root entry and `@kubb/studio/protocol`.
+  
+  A Studio instance has to speak the new names, so update both sides together. There is no
+  compatibility path for the old ones. ([#3969](https://github.com/kubb-labs/kubb/pull/3969), [`086f633`](https://github.com/kubb-labs/kubb/commit/086f633ad36637c706b439e392b124a4a30181da))
+- Let Studio edit an array `defineConfig(...)` and comment a plugin out instead of deleting it.
+  
+  `ConfigEdit` gains a `config` field that names which entry of an array config it targets, by index
+  or by the entry's `name`. Omitted, it targets the only entry, or the first one in an array. The
+  `configFile` view now lists every entry as `configs`, each with its own plugins, in place of the
+  single flat `plugins` list.
+  
+  Two new operations, `disable-plugin` and `enable-plugin`, comment a plugin call out and back in.
+  The plugin's options stay on disk in the comment, so turning it back on restores them exactly, and
+  an `add-plugin` right after does not have to reconstruct them.
+  
+  `kubb studio`'s `allowedPlugins` now unions the plugins of every config entry, not just the one it
+  generates from, so adding a plugin to an entry Studio isn't generating from no longer gets refused
+  on the next `generate`. ([#3971](https://github.com/kubb-labs/kubb/pull/3971), [`a1467bf`](https://github.com/kubb-labs/kubb/commit/a1467bf3351a82a76999ff6a4c5a7fc1e0b26896))
+
+#### Bug Fixes
+
+- Studio's HTTP calls now go through `ofetch`. It handles JSON encoding and parsing, throws on a
+  non-2xx status, and retries agent registration on its own, which replaces the package's own
+  `HttpError` class and its hand-written retry loop.
+  
+  Registration now retries only what is worth retrying: a network failure or a 5xx, and no longer a
+  403, which cannot succeed on a second try with the same machine token. ([#3970](https://github.com/kubb-labs/kubb/pull/3970), [`8d0ea41`](https://github.com/kubb-labs/kubb/commit/8d0ea41a820787cf5d1e7ac31a3904cc9a36127d))
+- `ManagedPlugin.options` now carries each writable option's actual value, read straight off the
+  `kubb.config.ts` AST, not just whether it's a literal. Studio had nothing to show for a
+  `defineConfig(...)` entry it doesn't generate from, since only the entry Studio runs sent real
+  option values before this. ([#3971](https://github.com/kubb-labs/kubb/pull/3971), [`a1467bf`](https://github.com/kubb-labs/kubb/commit/a1467bf3351a82a76999ff6a4c5a7fc1e0b26896))
+- Fixes saving a config written as a factory with a block body:
+  
+  ```ts
+  export default defineConfig(() => {
+    return { plugins: [pluginTs()] }
+  })
+  ```
+  
+  This used to fail with `config is not an object literal`. The patcher now reads and writes the
+  parsed AST instead of magicast's proxies, which also fixes configs magicast can't proxy at all
+  (`defineConfig(isCI ? a : b)`, a template literal) throwing instead of returning a reason.
+  
+  The `connected` payload now carries the config file at `config.file` instead of a separate
+  top-level `configFile`. ([#3971](https://github.com/kubb-labs/kubb/pull/3971), [`a1467bf`](https://github.com/kubb-labs/kubb/commit/a1467bf3351a82a76999ff6a4c5a7fc1e0b26896))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.1.0 — Sep 3, 2026
 
 ### @kubb/adapter-oas
