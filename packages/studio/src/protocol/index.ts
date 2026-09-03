@@ -286,7 +286,13 @@ export type ConnectMessagePayload = {
   /**
    * The agent's on-disk config, the baseline every generation starts from.
    */
-  config: JSONKubbConfig
+  config: JSONKubbConfig & {
+    /**
+     * What the agent read out of the config file itself, so Studio can render the plugin editor
+     * against the real file. Absent when the agent could not read it.
+     */
+    file?: ConfigFileView
+  }
   permissions: {
     /**
      * Whether the agent writes generated files to disk. False for a sandbox agent. For a local
@@ -314,11 +320,6 @@ export type ConnectMessagePayload = {
      */
     allowConfigEdit?: boolean
   }
-  /**
-   * What the agent read from the config file on disk, so Studio can render the plugin editor
-   * against the real file. Absent when the agent could not read it.
-   */
-  configFile?: ConfigFileView
   /**
    * Identifies the host, absent for an older agent that predates the field.
    */

@@ -1,5 +1,5 @@
 import { builders, detectCodeFormat, generateCode, parseModule } from 'magicast'
-import type { ASTNode, ProxifiedArray, ProxifiedModule, ProxifiedObject, ProxyBase } from 'magicast'
+import type { ASTNode, ProxifiedModule } from 'magicast'
 import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigRef, ConfigView, OptionValue, PluginView } from './protocol/index.ts'
 import { isBareSpecifier, toExportName } from './resolveConfig.ts'
 
@@ -10,20 +10,30 @@ import { isBareSpecifier, toExportName } from './resolveConfig.ts'
 const IDENTIFIER = /^[A-Za-z_$][\w$]*$/
 
 /**
- * A config or options object proxy, indexed by a key only known at runtime.
+ * A config or plugin options object literal in the file.
  */
-type ObjectProxy = ProxifiedObject<Record<string, unknown>> & { plugins: ProxifiedArray }
+type ObjectNode = Extract<ASTNode, { type: 'ObjectExpression' }>
 
 /**
- * A `pluginX(...)` call proxy, narrowed to the one property the patcher reads or writes: its
- * argument list.
+ * A `pluginX(...)` call in a config's `plugins` array.
  */
-type CallProxy = ProxyBase & { $args: ProxifiedArray<Array<unknown>> }
+type CallNode = Extract<ASTNode, { type: 'CallExpression' }>
 
 /**
- * Any proxified node, narrowed only to the `$type` discriminant the read path switches on.
+ * A `key: value` entry of an object literal.
  */
-type AnyProxy = ProxyBase & { $type: string; $callee?: string; $args?: ProxifiedArray<Array<unknown>>; $body?: unknown; [key: string]: unknown }
+type ObjectPropertyNode = Extract<ASTNode, { type: 'ObjectProperty' }>
+
+/**
+ * `key: value` as an object literal property, in the file's quote and key style.
+ *
+ * Uses magicast's literal builder for the key/value nodes, then wraps them as a Babel
+ * `ObjectProperty`, the type the rest of this file reads.
+ */
+function literalProperty({ key, value }: { key: string; value: OptionValue }): ObjectPropertyNode {
+  const built = (builders.literal({ [key]: value }) as unknown as ObjectNode).properties[0] as unknown as ObjectPropertyNode
+  return { type: 'ObjectProperty', key: built.key, value: built.value, computed: false, shorthand: false }
+}
 
 /**
  * What `applyConfigEdits` did to a config file.
@@ -71,49 +81,73 @@ function parseMarker(line: string): { plugin: string; lineCount: number } | unde
 }
 
 /**
- * Steps through a `() => ...` / `(cli) => ...` wrapper to the expression underneath.
- *
- * Babel drops parentheses, so unlike a TypeScript AST there is no wrapper node to walk past here.
+ * Steps through a config's wrappers to the object literal underneath: a `satisfies`/`as`
+ * assertion, a `() => ...` factory, or a factory whose block body returns the config.
  */
-function unwrap(node: AnyProxy | undefined): AnyProxy | undefined {
-  if (node?.$type === 'arrow-function-expression' && (node.$body as AnyProxy | undefined)?.$type !== 'blockStatement') {
-    return unwrap(node.$body as AnyProxy | undefined)
+function unwrap(node: ASTNode | null | undefined): ASTNode | undefined {
+  if (!node) {
+    return undefined
   }
-  return node
+  if (node.type === 'TSAsExpression' || node.type === 'TSSatisfiesExpression') {
+    return unwrap(node.expression)
+  }
+  if (node.type !== 'ArrowFunctionExpression' && node.type !== 'FunctionExpression') {
+    return node
+  }
+  if (node.body.type !== 'BlockStatement') {
+    return unwrap(node.body)
+  }
+
+  const returned = node.body.body.find((statement): statement is Extract<ASTNode, { type: 'ReturnStatement' }> => statement.type === 'ReturnStatement')
+  return unwrap(returned?.argument)
 }
 
 /**
  * Every config object in `export default defineConfig(...)`, or why the file is unmanaged.
  *
- * A file exporting an array gets one entry per element, in source order.
+ * An array export gets one entry per element, matching {@link ConfigRef}'s numeric index.
+ *
+ * Walks the parsed AST rather than magicast's proxies, which throw on node types they cannot
+ * cast, most of what an unmanaged config file is made of.
  */
-function findConfigs(mod: ProxifiedModule): { configs: Array<ObjectProxy> } | { reason: string } {
-  const exported = unwrap(mod.exports.default as AnyProxy | undefined)
+function findConfigs(mod: ProxifiedModule): { configs: Array<ObjectNode> } | { reason: string } {
+  const body = mod.$ast.type === 'Program' ? mod.$ast.body : []
+  const declaration = body.find((node): node is Extract<ASTNode, { type: 'ExportDefaultDeclaration' }> => node.type === 'ExportDefaultDeclaration')
+
+  const exported = unwrap(declaration?.declaration)
   if (!exported) {
     return { reason: 'no default export found' }
   }
-  if (exported.$type !== 'function-call' || exported.$callee !== 'defineConfig') {
+  if (exported.type !== 'CallExpression' || exported.callee.type !== 'Identifier' || exported.callee.name !== 'defineConfig') {
     return { reason: 'default export is not a defineConfig(...) call' }
   }
 
-  const argument = unwrap(exported.$args?.[0] as AnyProxy | undefined)
+  const argument = unwrap(exported.arguments[0])
   if (!argument) {
     return { reason: 'defineConfig(...) was called without a config' }
   }
-  if (argument.$type === 'array') {
-    const entries = [...(argument as unknown as ProxifiedArray)] as Array<AnyProxy>
-    return { configs: entries.map((entry) => unwrap(entry) as unknown as ObjectProxy) }
+  if (argument.type === 'ArrayExpression') {
+    const configs: Array<ObjectNode> = []
+
+    for (const element of argument.elements) {
+      const entry = unwrap(element)
+      if (entry?.type !== 'ObjectExpression') {
+        return { reason: 'config is not an object literal' }
+      }
+      configs.push(entry)
+    }
+    return { configs }
   }
-  if (argument.$type !== 'object') {
+  if (argument.type !== 'ObjectExpression') {
     return { reason: 'config is not an object literal' }
   }
-  return { configs: [argument as unknown as ObjectProxy] }
+  return { configs: [argument] }
 }
 
 /**
  * The config entry an edit names, defaulting to the first when it names none.
  */
-function selectConfig(configs: Array<ObjectProxy>, ref: ConfigRef | undefined): ObjectProxy | undefined {
+function selectConfig(configs: Array<ObjectNode>, ref: ConfigRef | undefined): ObjectNode | undefined {
   if (ref === undefined) {
     return configs[0]
   }
@@ -123,8 +157,8 @@ function selectConfig(configs: Array<ObjectProxy>, ref: ConfigRef | undefined): 
   return configs.find((config) => configName(config) === ref)
 }
 
-function configName(config: ObjectProxy): string | undefined {
-  const name = property(config.$ast, 'name')
+function configName(config: ObjectNode): string | undefined {
+  const name = property(config, 'name')
   return name?.type === 'StringLiteral' ? name.value : undefined
 }
 
@@ -143,21 +177,45 @@ function propertyKey(property: Extract<ASTNode, { type: 'ObjectProperty' }>): st
 }
 
 /**
- * The value node of an object literal's own property, read off the AST rather than the proxy.
- *
- * Magicast throws on reading a property whose value is a node it cannot cast, `-1` among them, so
- * everything that only inspects the file goes through the AST instead.
+ * The index of an object literal's own property named `key`, `-1` when it has none.
  */
-function property(node: ASTNode, key: string): ASTNode | undefined {
-  if (node.type !== 'ObjectExpression') {
-    return undefined
+function entryIndex({ node, key }: { node: ObjectNode; key: string }): number {
+  return node.properties.findIndex((entry) => entry.type === 'ObjectProperty' && propertyKey(entry) === key)
+}
+
+/**
+ * The value node of an object literal's own property.
+ */
+function property(node: ObjectNode, key: string): ASTNode | undefined {
+  const index = entryIndex({ node, key })
+  return index === -1 ? undefined : (node.properties[index] as ObjectPropertyNode).value
+}
+
+/**
+ * Writes `key: value` on an object literal, replacing the value when the property is already there.
+ *
+ * An existing property has its value swapped in place rather than being replaced whole, so recast
+ * reprints only that value and leaves the object's own layout alone.
+ */
+function setProperty({ node, key, value }: { node: ObjectNode; key: string; value: OptionValue }): void {
+  const entry = literalProperty({ key, value })
+  const index = entryIndex({ node, key })
+
+  if (index === -1) {
+    node.properties.push(entry)
+    return
   }
-  for (const entry of node.properties) {
-    if (entry.type === 'ObjectProperty' && propertyKey(entry) === key) {
-      return entry.value
-    }
+  ;(node.properties[index] as ObjectPropertyNode).value = entry.value
+}
+
+/**
+ * Drops `key` from an object literal.
+ */
+function removeProperty({ node, key }: { node: ObjectNode; key: string }): void {
+  const index = entryIndex({ node, key })
+  if (index !== -1) {
+    node.properties.splice(index, 1)
   }
-  return undefined
 }
 
 /**
@@ -223,11 +281,8 @@ function importedFrom(mod: ProxifiedModule): Map<string, string> {
 /**
  * Every `pluginX(...)` element of a config's plugins array that resolves to an import.
  */
-function pluginCalls(
-  mod: ProxifiedModule,
-  config: ObjectProxy,
-): Array<{ index: number; importName: string; packageName: string; options: ASTNode | undefined }> {
-  const plugins = property(config.$ast, 'plugins')
+function pluginCalls(mod: ProxifiedModule, config: ObjectNode): Array<{ importName: string; packageName: string; call: CallNode }> {
+  const plugins = property(config, 'plugins')
   if (plugins?.type !== 'ArrayExpression') {
     return []
   }
@@ -235,14 +290,14 @@ function pluginCalls(
   const imports = importedFrom(mod)
   const resolved = []
 
-  for (const [index, element] of plugins.elements.entries()) {
+  for (const element of plugins.elements) {
     if (element?.type !== 'CallExpression' || element.callee.type !== 'Identifier') {
       continue
     }
     const importName = element.callee.name
     const packageName = imports.get(importName)
     if (packageName) {
-      resolved.push({ index, importName, packageName, options: element.arguments[0] })
+      resolved.push({ importName, packageName, call: element })
     }
   }
   return resolved
@@ -290,8 +345,9 @@ export function readConfig(source: string): ConfigFileView {
   return {
     managed: true,
     configs: found.configs.map((config): ConfigView => {
-      const plugins = pluginCalls(mod, config).map(({ importName, packageName, options }): PluginView => {
+      const plugins = pluginCalls(mod, config).map(({ importName, packageName, call }): PluginView => {
         const entries: PluginView['options'] = {}
+        const options = call.arguments[0]
 
         if (options?.type === 'ObjectExpression') {
           for (const entry of options.properties) {
@@ -309,8 +365,8 @@ export function readConfig(source: string): ConfigFileView {
         return { importName, packageName, options: entries }
       })
 
-      const start = config.$ast.loc?.start.line ?? 0
-      const end = config.$ast.loc?.end.line ?? Number.POSITIVE_INFINITY
+      const start = config.loc?.start.line ?? 0
+      const end = config.loc?.end.line ?? Number.POSITIVE_INFINITY
 
       for (const { packageName } of disabled.filter((entry) => entry.line >= start && entry.line <= end)) {
         plugins.push({
@@ -360,17 +416,17 @@ export function isOptionValue(value: unknown): value is OptionValue {
 /**
  * The options object of a plugin call, when it was called with one.
  */
-function getOptions(call: CallProxy): ObjectProxy | undefined {
-  const options = call.$args[0] as ObjectProxy | undefined
-  return options?.$type === 'object' ? options : undefined
+function getOptions(call: CallNode): ObjectNode | undefined {
+  const options = call.arguments[0]
+  return options?.type === 'ObjectExpression' ? options : undefined
 }
 
 /**
  * The options object of a plugin call, creating an empty one when the plugin was called bare.
  */
-function ensureOptions(call: CallProxy): ObjectProxy | undefined {
-  if (call.$args.length === 0) {
-    call.$args.push({})
+function ensureOptions(call: CallNode): ObjectNode | undefined {
+  if (call.arguments.length === 0) {
+    call.arguments.push({ type: 'ObjectExpression', properties: [] })
   }
   return getOptions(call)
 }
@@ -378,13 +434,12 @@ function ensureOptions(call: CallProxy): ObjectProxy | undefined {
 /**
  * Walks `path` down to the object holding its last key, descending only through object literals.
  */
-function optionParent(options: ObjectProxy, path: Array<string>): { object: ObjectProxy; key: string } | { reason: string } {
+function optionParent(options: ObjectNode, path: Array<string>): { object: ObjectNode; key: string } | { reason: string } {
   let object = options
 
   for (const [index, key] of path.entries()) {
-    // `object[key] = {}` for `__proto__` reassigns the object's prototype instead of creating an
-    // own property, which breaks every read after it. Refused here rather than left to throw, so
-    // one bad edit in a batch cannot take the rest down with it.
+    // `__proto__` printed into the config reassigns its prototype on import instead of creating a
+    // property. Refused here so one bad edit can't take the rest of the batch down.
     if (key === UNSAFE_KEY) {
       return { reason: `${path.join('.')} is not a valid option path` }
     }
@@ -393,16 +448,15 @@ function optionParent(options: ObjectProxy, path: Array<string>): { object: Obje
       return { object, key }
     }
 
-    const next = property(object.$ast, key)
-    if (next === undefined) {
-      object[key] = {}
-      object = object[key] as ObjectProxy
-      continue
+    if (property(object, key) === undefined) {
+      setProperty({ node: object, key, value: {} })
     }
-    if (next.type !== 'ObjectExpression') {
+
+    const next = property(object, key)
+    if (next?.type !== 'ObjectExpression') {
       return { reason: `${key} is not an object, so ${path.join('.')} cannot be reached` }
     }
-    object = object[key] as ObjectProxy
+    object = next
   }
   return { reason: 'no option path given' }
 }
@@ -412,7 +466,7 @@ function optionParent(options: ObjectProxy, path: Array<string>): { object: Obje
  * intermediate object along the path as needed. Refuses when the current value at `path` is
  * something other than a literal, so an option customized in code is never overwritten.
  */
-function applySet(call: CallProxy, path: Array<string>, value: unknown): string | undefined {
+function applySet(call: CallNode, path: Array<string>, value: unknown): string | undefined {
   if (!isOptionValue(value)) {
     return 'the value is not a literal that can be written to a config file'
   }
@@ -427,12 +481,12 @@ function applySet(call: CallProxy, path: Array<string>, value: unknown): string 
     return target.reason
   }
 
-  const current = property(target.object.$ast, target.key)
+  const current = property(target.object, target.key)
   if (current !== undefined && readLiteral(current) === undefined) {
     return `${path.join('.')} is customized in code`
   }
 
-  target.object[target.key] = value
+  setProperty({ node: target.object, key: target.key, value })
   return undefined
 }
 
@@ -441,7 +495,7 @@ function applySet(call: CallProxy, path: Array<string>, value: unknown): string 
  * default for that option. Refuses when the value at `path` is not a literal, for the same reason
  * `applySet` does.
  */
-function applyRemove(call: CallProxy, path: Array<string>): string | undefined {
+function applyRemove(call: CallNode, path: Array<string>): string | undefined {
   const options = getOptions(call)
   if (!options) {
     return 'the plugin has no options to remove'
@@ -452,7 +506,7 @@ function applyRemove(call: CallProxy, path: Array<string>): string | undefined {
     return target.reason
   }
 
-  const current = property(target.object.$ast, target.key)
+  const current = property(target.object, target.key)
   if (current === undefined) {
     return `${path.join('.')} is not set`
   }
@@ -460,7 +514,7 @@ function applyRemove(call: CallProxy, path: Array<string>): string | undefined {
     return `${path.join('.')} is customized in code`
   }
 
-  delete target.object[target.key]
+  removeProperty({ node: target.object, key: target.key })
   return undefined
 }
 
@@ -474,7 +528,7 @@ type AddPluginResult = { reason: string } | { addImport?: { importName: string; 
  * Adds a `pluginX(...)` call to a config's plugins array. Refuses when the plugin is already
  * present, or when its import name collides with an unrelated existing import.
  */
-function applyAddPlugin(mod: ProxifiedModule, config: ObjectProxy, edit: Extract<ConfigEdit, { operation: 'add-plugin' }>): AddPluginResult {
+function applyAddPlugin(mod: ProxifiedModule, config: ObjectNode, edit: Extract<ConfigEdit, { operation: 'add-plugin' }>): AddPluginResult {
   if (!isBareSpecifier(edit.plugin)) {
     return { reason: `"${edit.plugin}" is not a package name` }
   }
@@ -498,12 +552,13 @@ function applyAddPlugin(mod: ProxifiedModule, config: ObjectProxy, edit: Extract
     return { reason: 'the options are not literals that can be written to a config file' }
   }
 
-  const plugins = property(config.$ast, 'plugins')
+  const plugins = property(config, 'plugins')
   if (plugins?.type !== 'ArrayExpression') {
     return { reason: 'plugins is not an array literal' }
   }
 
-  config.plugins.push(Object.keys(options).length ? builders.functionCall(importName, options) : builders.functionCall(importName))
+  const call = Object.keys(options).length ? builders.functionCall(importName, options) : builders.functionCall(importName)
+  plugins.elements.push(call.$ast as CallNode)
 
   return taken ? {} : { addImport: { importName, moduleSpecifier: edit.plugin } }
 }
@@ -514,15 +569,13 @@ function applyAddPlugin(mod: ProxifiedModule, config: ObjectProxy, edit: Extract
  * node magicast can address, and the surrounding array must not reflow when its element count
  * never actually changes.
  */
-function disablePlugin(source: string, mod: ProxifiedModule, config: ObjectProxy, plugin: string): { source: string } | { reason: string } {
+function disablePlugin(source: string, mod: ProxifiedModule, config: ObjectNode, plugin: string): { source: string } | { reason: string } {
   const target = pluginCalls(mod, config).find((entry) => entry.packageName === plugin)
   if (!target) {
     return { reason: `${plugin} is not in the plugins array` }
   }
 
-  const pluginsNode = property(config.$ast, 'plugins')
-  const element = pluginsNode?.type === 'ArrayExpression' ? pluginsNode.elements[target.index] : undefined
-  const loc = element?.loc
+  const loc = target.call.loc
   if (!loc?.start || !loc.end) {
     return { reason: `${plugin} has no source location to comment out` }
   }
@@ -576,7 +629,7 @@ function enablePlugin(source: string, plugin: string): { source: string } | { re
  * than sharing one module across the batch, since the disable/enable edits rewrite `source` as
  * text and would otherwise leave the others working from a stale tree.
  */
-function parseTarget(source: string, ref: ConfigRef | undefined): { mod: ProxifiedModule; config: ObjectProxy } | { reason: string } {
+function parseTarget(source: string, ref: ConfigRef | undefined): { mod: ProxifiedModule; config: ObjectNode } | { reason: string } {
   let mod: ProxifiedModule
   try {
     mod = parseModule(source)
@@ -602,6 +655,10 @@ function parseTarget(source: string, ref: ConfigRef | undefined): { mod: Proxifi
  * original text, so comments, formatting, and hand-written code around the config survive.
  *
  * Edits are independent: one that cannot be applied is reported in `outcomes` and the rest still run.
+ *
+ * ponytail: recast always reprints a semicolon on a reprinted statement, so editing a block-body
+ * `defineConfig` in a semicolon-free file adds one to the `return` line. Strip it when
+ * `detectCodeFormat` says `useSemi: false`, if it bites.
  *
  * @example
  * ```ts
@@ -650,8 +707,7 @@ export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): Appl
       return { edit, applied: false, reason: `${edit.plugin} is not in the plugins array` }
     }
 
-    const call = config.plugins[pluginCall.index] as CallProxy
-    const reason = edit.operation === 'set' ? applySet(call, edit.path, edit.value) : applyRemove(call, edit.path)
+    const reason = edit.operation === 'set' ? applySet(pluginCall.call, edit.path, edit.value) : applyRemove(pluginCall.call, edit.path)
     if (!reason) {
       current = withTrailingNewline(generateCode(mod, { format }).code, endsWithNewline)
     }

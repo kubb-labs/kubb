@@ -395,7 +395,7 @@ describe('connectToStudio', () => {
         .mock.calls.map(([, message]) => message)
         .find((message) => message.type === 'kubb:connected')
 
-      expect(connected?.type === 'kubb:connected' && connected.payload.configFile).toStrictEqual({
+      expect(connected?.type === 'kubb:connected' && connected.payload.config.file).toStrictEqual({
         configs: [
           {
             name: undefined,

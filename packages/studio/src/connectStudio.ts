@@ -233,8 +233,8 @@ export async function connectToStudio(options: ConnectToStudioOptions): Promise<
             allowExec,
             allowConfigEdit: canEditConfig,
           },
-          configFile: await readConfigFileView(),
           config: {
+            file: await readConfigFileView(),
             plugins: config.plugins.map((plugin) => ({
               name: `@kubb/${plugin.name}`,
               // Functions and symbols in plugin options are dropped by `JSON.stringify` on the way out.
