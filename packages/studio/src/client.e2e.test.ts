@@ -208,23 +208,20 @@ describe('createClient against a Studio instance', () => {
     expect(types).toContain('kubb:generation:end')
   })
 
-  // The allow-list has to reject the payload *before* resolution reaches `import(name)`. Asserting
-  // on the message rather than on "some error happened" is what tells the two apart: without the
-  // allow-list the same payload still fails, just later, from the import itself.
-  it('refuses a plugin the local config does not import, before importing it', async () => {
+  it('refuses a non-Kubb plugin before importing it', async () => {
     await connect()
 
     studio.send({ type: 'studio:generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } })
 
     const error = await studio.waitFor(isError)
 
-    expect((error.payload.data[0] as { message: string }).message).toContain('the local Kubb config does not import')
+    expect((error.payload.data[0] as { message: string }).message).toContain('is not a @kubb/plugin-* package')
   })
 
-  it('reaches the import, and fails there, when no allow-list is set', async () => {
+  it('reaches the import for a missing Kubb plugin', async () => {
     await connect()
 
-    studio.send({ type: 'studio:generate', payload: { plugins: [{ name: 'evil-module', options: {} }] } })
+    studio.send({ type: 'studio:generate', payload: { plugins: [{ name: '@kubb/plugin-missing', options: {} }] } })
 
     const error = await studio.waitFor(isError)
 
