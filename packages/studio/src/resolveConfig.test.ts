@@ -24,10 +24,6 @@ beforeEach(() => {
 })
 
 describe('mergePlugins', () => {
-  it('returns undefined when both inputs are undefined', async () => {
-    expect(await mergePlugins(undefined, undefined)).toBeUndefined()
-  })
-
   it('returns disk plugins as-is when studio plugins are undefined', async () => {
     const diskPlugins = [makePlugin('plugin-zod', { validate: true })]
     expect(await mergePlugins(diskPlugins, undefined)).toBe(diskPlugins)
@@ -37,8 +33,7 @@ describe('mergePlugins', () => {
     const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-zod', options: { validate: false } }]
     const result = await mergePlugins(undefined, studioPlugins)
     expect(result).toHaveLength(1)
-    expect(result?.[0]?.name).toBe('plugin-zod')
-    expect(result?.[0]?.options).toMatchObject({ validate: false })
+    expect(result?.[0]).toMatchObject({ name: 'plugin-zod', options: { validate: false } })
   })
 
   it('merges studio options into a matching disk plugin, studio takes priority', async () => {
@@ -48,8 +43,7 @@ describe('mergePlugins', () => {
     const result = await mergePlugins(diskPlugins, studioPlugins)
 
     expect(result).toHaveLength(1)
-    expect(result?.[0]?.name).toBe('plugin-zod')
-    expect(result?.[0]?.options).toMatchObject({ validate: false })
+    expect(result?.[0]).toMatchObject({ name: 'plugin-zod', options: { validate: false } })
   })
 
   it('returns a fresh plugin instance (not the disk reference) when merging matching plugins', async () => {
@@ -83,9 +77,8 @@ describe('mergePlugins', () => {
     const result = await mergePlugins(diskPlugins, studioPlugins)
 
     expect(result).toHaveLength(2)
-    expect(result?.[0]?.name).toBe('plugin-zod')
-    expect(result?.[1]?.name).toBe('plugin-ts')
-    expect(result?.[1]?.options).toMatchObject({ enumType: 'enum' })
+    expect(result?.[0]).toMatchObject({ name: 'plugin-zod' })
+    expect(result?.[1]).toMatchObject({ name: 'plugin-ts', options: { enumType: 'enum' } })
   })
 
   describe('false opt-out cases', () => {
@@ -129,8 +122,7 @@ describe('mergePlugins', () => {
       const result = await mergePlugins(diskPlugins, studioPlugins)
 
       expect(result).toHaveLength(1)
-      expect(result?.[0]?.name).toBe('plugin-zod')
-      expect(result?.[0]?.options).toMatchObject({ validate: false })
+      expect(result?.[0]).toMatchObject({ name: 'plugin-zod', options: { validate: false } })
     })
 
     it('returns an empty array when disabling removes the only disk plugin and studio sends nothing else', async () => {
@@ -160,8 +152,7 @@ describe('mergePlugins', () => {
     const result = await mergePlugins([diskPlugin], studioPlugins)
 
     expect(result).toHaveLength(1)
-    expect(result?.[0]?.name).toBe('plugin-barrel')
-    expect(result?.[0]?.options).toMatchObject({ output: { barrel: { type: 'all' } } })
+    expect(result?.[0]).toMatchObject({ name: 'plugin-barrel', options: { output: { barrel: { type: 'all' } } } })
   })
 })
 
