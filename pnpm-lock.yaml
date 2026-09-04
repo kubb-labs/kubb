@@ -108,8 +108,8 @@ importers:
         specifier: workspace:*
         version: link:../kit
       '@readme/openapi-parser':
-        specifier: ^7.0.1
-        version: 7.0.1(openapi-types@12.1.3)
+        specifier: ^8.0.1
+        version: 8.0.1(openapi-types@12.1.3)
       '@scalar/openapi-upgrader':
         specifier: ^0.2.15
         version: 0.2.15
@@ -1195,8 +1195,8 @@ packages:
     peerDependencies:
       ajv: 4.11.8 - 8
 
-  '@readme/openapi-parser@7.0.1':
-    resolution: {integrity: sha512-FW+qN1TGlCVKK4xE6pKCS6QdR0EBaC95LC2pnmY3+oVK0tDJ1iAIOmK1SYiDAayId7WInnYyemwBImpvmBV2xQ==}
+  '@readme/openapi-parser@8.0.1':
+    resolution: {integrity: sha512-dskvU052suSqh71Yp+43q2aIdJanGXDPOSbSTPCnDrRhRmLClF08Im/yqP1JXJkjh12Y3uY+RVwTGvjrOSDJUA==}
     engines: {node: '>=20'}
     peerDependencies:
       openapi-types: '>=7'
@@ -4470,7 +4470,7 @@ snapshots:
       leven: 3.1.0
       picocolors: 1.1.1
 
-  '@readme/openapi-parser@7.0.1(openapi-types@12.1.3)':
+  '@readme/openapi-parser@8.0.1(openapi-types@12.1.3)':
     dependencies:
       '@apidevtools/json-schema-ref-parser': 15.5.1(@types/json-schema@7.0.15)
       '@readme/better-ajv-errors': 2.4.0(ajv@8.20.0)

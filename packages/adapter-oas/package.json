@@ -67,7 +67,7 @@
     "@kubb/ast": "workspace:*",
     "@kubb/core": "workspace:*",
     "@kubb/kit": "workspace:*",
-    "@readme/openapi-parser": "^7.0.1",
+    "@readme/openapi-parser": "^8.0.1",
     "@scalar/openapi-upgrader": "^0.2.15",
     "api-ref-bundler": "0.5.1",
     "yaml": "catalog:"
