@@ -153,9 +153,6 @@ importers:
       '@kubb/mcp':
         specifier: workspace:*
         version: link:../mcp
-      '@kubb/studio':
-        specifier: workspace:*
-        version: link:../studio
       chokidar:
         specifier: ^5.0.0
         version: 5.0.0
@@ -184,6 +181,9 @@ importers:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../adapter-oas
+      '@kubb/studio':
+        specifier: workspace:*
+        version: link:../studio
 
   packages/core:
     dependencies:
