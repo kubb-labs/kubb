@@ -31,8 +31,8 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
 
   const { command: generateCommand } = await import('./commands/generate.ts')
   const { command: initCommand } = await import('./commands/init.ts')
-  // Each runner pulls in an optional peer (@kubb/adapter-oas, @kubb/mcp, @kubb/studio), so it
-  // loads only when its command runs.
+  // Each runner pulls in a package the other commands never touch (@kubb/adapter-oas, @kubb/mcp,
+  // @kubb/studio), so it loads only when its command runs.
   const { definition: validateDefinition } = await import('./commands/validate.ts')
   const validateCommand = lazy(async () => (await import('./runners/validate/run.ts')).runner, validateDefinition)
   const { definition: mcpDefinition } = await import('./commands/mcp.ts')

@@ -69,6 +69,7 @@
     "@clack/prompts": "^1.7.0",
     "@gunshi/plugin-dryrun": "^0.37.1",
     "@kubb/core": "workspace:*",
+    "@kubb/studio": "workspace:*",
     "chokidar": "^5.0.0",
     "gunshi": "^0.37.1",
     "jiti": "^2.7.0",
@@ -79,22 +80,17 @@
   "devDependencies": {
     "@internals/shared": "workspace:*",
     "@internals/utils": "workspace:*",
-    "@kubb/adapter-oas": "workspace:*",
-    "@kubb/studio": "workspace:*"
+    "@kubb/adapter-oas": "workspace:*"
   },
   "peerDependencies": {
     "@kubb/adapter-oas": "workspace:*",
-    "@kubb/mcp": "workspace:*",
-    "@kubb/studio": "workspace:*"
+    "@kubb/mcp": "workspace:*"
   },
   "peerDependenciesMeta": {
     "@kubb/adapter-oas": {
       "optional": true
     },
     "@kubb/mcp": {
-      "optional": true
-    },
-    "@kubb/studio": {
       "optional": true
     }
   },

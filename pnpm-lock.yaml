@@ -153,6 +153,9 @@ importers:
       '@kubb/mcp':
         specifier: workspace:*
         version: link:../mcp
+      '@kubb/studio':
+        specifier: workspace:*
+        version: link:../studio
       chokidar:
         specifier: ^5.0.0
         version: 5.0.0
@@ -181,9 +184,6 @@ importers:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../adapter-oas
-      '@kubb/studio':
-        specifier: workspace:*
-        version: link:../studio
 
   packages/core:
     dependencies:
@@ -237,6 +237,9 @@ importers:
       '@kubb/renderer-jsx':
         specifier: workspace:*
         version: link:../renderer-jsx
+      '@kubb/studio':
+        specifier: workspace:*
+        version: link:../studio
       unplugin-kubb:
         specifier: workspace:*
         version: link:../unplugin-kubb
