@@ -203,6 +203,10 @@ async function loadConfigs(options: StudioOptions): Promise<{ configPath: string
  * Connects this project to Studio and streams generation events until the process is stopped.
  */
 async function connect(options: StudioOptions, retryPairing = true): Promise<void> {
+  // Resolved before any network call to Studio (pairing included), so a project with no config
+  // fails fast instead of starting a device-authorization flow it can never use.
+  const { configPath } = await loadConfigs(options)
+
   const envToken = process.env.KUBB_AGENT_TOKEN
   const stored = envToken ? null : await readCredentials()
 
@@ -225,8 +229,6 @@ async function connect(options: StudioOptions, retryPairing = true): Promise<voi
 
     return login(options)
   })()
-
-  const { configPath } = await loadConfigs(options)
   const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, credentials, configPath, !envToken)
   const granted = { allowWrite, allowConfigEdit, allowInput, allowExec }
 
