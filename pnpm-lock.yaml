@@ -237,6 +237,9 @@ importers:
       '@kubb/renderer-jsx':
         specifier: workspace:*
         version: link:../renderer-jsx
+      '@kubb/studio':
+        specifier: workspace:*
+        version: link:../studio
       unplugin-kubb:
         specifier: workspace:*
         version: link:../unplugin-kubb

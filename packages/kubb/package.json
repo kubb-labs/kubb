@@ -154,6 +154,7 @@
     "@kubb/parser-ts": "workspace:*",
     "@kubb/plugin-barrel": "workspace:*",
     "@kubb/renderer-jsx": "workspace:*",
+    "@kubb/studio": "workspace:*",
     "unplugin-kubb": "workspace:*"
   },
   "devDependencies": {
