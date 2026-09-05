@@ -398,6 +398,15 @@ class StudioConnection {
    * the run is over.
    */
   async #connectAndWait(): Promise<boolean> {
+    // A shutdown can land outside the race below: while the permission prompts are open, or
+    // between a browser approval and this next attempt. Registering one more agent with Studio
+    // only to drop it again is not what the operator asked for.
+    if (this.#shutdown.signal.aborted) {
+      this.#reportDisconnected()
+
+      return true
+    }
+
     const { promise: authRequired, resolve: notifyAuthRequired } = Promise.withResolvers<InvalidAgentTokenError>()
 
     const client = createClient({
@@ -550,6 +559,11 @@ class StudioConnection {
     }
 
     this.#hasReauthenticated = true
+
+    // The approved agent may be a different identity, whose saved permissions did not carry
+    // forward. Resolving again asks for whatever this credential does not already hold, instead
+    // of handing the new agent what the previous one was granted.
+    this.#granted = await resolvePermissions(this.#options, this.#credentials, this.#configPath, !this.#usingEnvToken)
 
     return true
   }

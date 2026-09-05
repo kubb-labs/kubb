@@ -1,7 +1,8 @@
+import { writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { getErrorMessage, read, toError, write } from '@internals/utils'
+import { getErrorMessage, read, toError } from '@internals/utils'
 import { type Config, fsStorage, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { version as kubbVersion } from '../package.json'
 import { setupHookListener } from './hooks.ts'
@@ -665,7 +666,9 @@ class StudioSession {
       const { source: patched, outcomes, changed } = applyConfigEdits(current, edits)
 
       if (changed) {
-        await write(configFile, patched)
+        // `writeFile` rather than the `write` helper: that one trims and re-terminates what it
+        // writes, which is right for generated output and wrong for a file the user wrote by hand.
+        await writeFile(configFile, patched, 'utf-8')
       }
 
       sendAgentMessage(ws, {
