@@ -24,7 +24,7 @@ import { mergeAdapter, mergePlugins } from './resolveConfig.ts'
 import type WebSocket from 'ws'
 import { createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream } from './ws.ts'
 
-export type ConnectToStudioOptions = {
+export type StudioSessionOptions = {
   token: string
   studioUrl?: string
   configPath: string
@@ -53,7 +53,7 @@ export type ConnectToStudioOptions = {
   heartbeatInterval?: number
   /**
    * Number of pool sessions this agent serves. Read by `createClient`, which opens one
-   * `connectToStudio` per slot, and reported to Studio at registration.
+   * session per slot, and reported to Studio at registration.
    */
   poolSize?: number
   /**
@@ -78,7 +78,7 @@ export type ConnectToStudioOptions = {
 /**
  * A session's options with every default filled in, so nothing downstream repeats a fallback.
  */
-type ResolvedOptions = ConnectToStudioOptions & {
+type ResolvedOptions = StudioSessionOptions & {
   studioUrl: string
   root: string
   permissions: AgentPermissions
@@ -96,7 +96,7 @@ type ResolvedOptions = ConnectToStudioOptions & {
  * permission off unless granted. Idempotent, so a reconnect can pass an already-resolved bag
  * back in.
  */
-function applyStudioDefaults(options: ConnectToStudioOptions): ResolvedOptions {
+function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
   const root = options.root ?? process.cwd()
 
   return {
@@ -143,7 +143,7 @@ function reconnect(options: ResolvedOptions): void {
 
     // The rejection is never awaited, so it has to be caught here or it surfaces as an
     // unhandledRejection that kills the retry loop instead of trying again.
-    connectToStudio(options).catch((error: unknown) => {
+    new StudioSession(options).connect().catch((error: unknown) => {
       console.error(styleText('red', `Reconnect attempt to Kubb Studio failed: ${getErrorMessage(error)}`))
 
       // A rejected token stays rejected, so retrying only spams 401s until the process is killed.
@@ -164,9 +164,9 @@ function reconnect(options: ResolvedOptions): void {
 
 /**
  * One WebSocket session with Studio: opening it, keeping it alive, and running the commands it
- * sends. Reached through `connectToStudio`, the module's only export.
+ * sends. `createClient` opens one per pool slot and is the only caller.
  */
-class StudioSession {
+export class StudioSession {
   readonly #options: ResolvedOptions
   // Each session gets its own isolated event emitter so generation events from one session do not
   // bleed into another session's WebSocket stream.
@@ -200,7 +200,7 @@ class StudioSession {
   // reconnect loop can establish a fresh session.
   #lastPongAt = Date.now()
 
-  constructor(options: ConnectToStudioOptions) {
+  constructor(options: StudioSessionOptions) {
     this.#options = applyStudioDefaults(options)
   }
 
@@ -664,8 +664,4 @@ class StudioSession {
       refuse(getErrorMessage(error))
     }
   }
-}
-
-export async function connectToStudio(options: ConnectToStudioOptions): Promise<void> {
-  await new StudioSession(options).connect()
 }
