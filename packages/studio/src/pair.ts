@@ -168,10 +168,6 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
       throw new PairingCanceledError()
     }
 
-    if (signal?.aborted) {
-      throw new PairingCanceledError()
-    }
-
     let response: PollResponse | undefined
     try {
       response = await ofetch<PollResponse | undefined>(`${studioUrl}/api/agent/token`, {
