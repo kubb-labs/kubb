@@ -948,11 +948,11 @@ describe('connectToStudio', () => {
     expect(consoleSpy.info).toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
   })
 
-  it('calls onAuthRequired and stops retrying when a background reconnect is rejected with an invalid token', async () => {
+  it('calls onTokenRejected and stops retrying when a background reconnect is rejected with an invalid token', async () => {
     vi.useFakeTimers()
-    const onAuthRequired = vi.fn()
+    const onTokenRejected = vi.fn()
 
-    await connectToStudio({ ...options, onAuthRequired })
+    await connectToStudio({ ...options, onTokenRejected })
 
     await mockWs.trigger('close')
 
@@ -961,18 +961,18 @@ describe('connectToStudio', () => {
 
     await vi.advanceTimersByTimeAsync(options.retryInterval!)
 
-    expect(onAuthRequired).toHaveBeenCalledWith(error)
+    expect(onTokenRejected).toHaveBeenCalledWith(error)
 
     // A rejected token stays rejected, so no further reconnect attempt should follow.
     await vi.advanceTimersByTimeAsync(options.retryInterval! * 3)
     expect(createAgentSession).toHaveBeenCalledTimes(2)
   })
 
-  it('keeps retrying an ordinary network failure without calling onAuthRequired', async () => {
+  it('keeps retrying an ordinary network failure without calling onTokenRejected', async () => {
     vi.useFakeTimers()
-    const onAuthRequired = vi.fn()
+    const onTokenRejected = vi.fn()
 
-    await connectToStudio({ ...options, onAuthRequired })
+    await connectToStudio({ ...options, onTokenRejected })
 
     await mockWs.trigger('close')
 
@@ -982,7 +982,7 @@ describe('connectToStudio', () => {
     await vi.advanceTimersByTimeAsync(options.retryInterval!)
     await vi.advanceTimersByTimeAsync(0)
 
-    expect(onAuthRequired).not.toHaveBeenCalled()
+    expect(onTokenRejected).not.toHaveBeenCalled()
     expect(createAgentSession).toHaveBeenCalledTimes(2)
   })
 

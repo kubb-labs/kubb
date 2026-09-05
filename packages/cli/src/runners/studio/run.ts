@@ -235,7 +235,7 @@ async function loadConfigs(options: StudioOptions): Promise<{ configPath: string
  * browser is available to re-pair with, or the token this run already re-paired for was rejected
  * again.
  */
-type RejectedTokenReason = 'envToken' | 'nonInteractive' | 'exhausted'
+type RejectedTokenReason = 'envToken' | 'nonInteractive' | 'reauthExhausted'
 
 /**
  * Explains a rejected token to the operator. Never touches stored or environment credentials
@@ -246,7 +246,7 @@ function explainRejectedToken(error: InvalidAgentTokenError, reason: RejectedTok
     return new Error(`${error.message} Pair again and update KUBB_AGENT_TOKEN.`)
   }
 
-  if (reason === 'exhausted') {
+  if (reason === 'reauthExhausted') {
     return new Error(`${error.message} Studio rejected the newly approved token too. Run \`kubb studio login\` and try again.`)
   }
 
@@ -401,7 +401,7 @@ export async function connect(options: StudioOptions): Promise<void> {
         await clearCredentials()
 
         if (state.hasReauthenticated) {
-          throw explainRejectedToken(error, 'exhausted')
+          throw explainRejectedToken(error, 'reauthExhausted')
         }
 
         if (isCIEnvironment() || !canUseTTY()) {
@@ -453,7 +453,7 @@ export async function connect(options: StudioOptions): Promise<void> {
       }
 
       if (state.hasReauthenticated) {
-        throw explainRejectedToken(error, 'exhausted')
+        throw explainRejectedToken(error, 'reauthExhausted')
       }
 
       if (isCIEnvironment() || !canUseTTY()) {

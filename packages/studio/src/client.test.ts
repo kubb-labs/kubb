@@ -55,9 +55,9 @@ describe('createClient', () => {
     const error = new InvalidAgentTokenError('https://kubb.studio')
 
     // Two pool sessions reject the same dead token at once.
-    capturedOptions[0]?.onAuthRequired?.(error)
-    capturedOptions[1]?.onAuthRequired?.(error)
-    capturedOptions[2]?.onAuthRequired?.(error)
+    capturedOptions[0]?.onTokenRejected?.(error)
+    capturedOptions[1]?.onTokenRejected?.(error)
+    capturedOptions[2]?.onTokenRejected?.(error)
 
     expect(onAuthRequired).toHaveBeenCalledTimes(1)
     expect(onAuthRequired).toHaveBeenCalledWith(error)
@@ -78,7 +78,7 @@ describe('createClient', () => {
     const client = createClient({ ...options, poolSize: 1, onAuthRequired })
     await client.connect()
 
-    vi.mocked(connectToStudio).mock.calls[0]?.[0].onAuthRequired?.(new InvalidAgentTokenError('https://kubb.studio'))
+    vi.mocked(connectToStudio).mock.calls[0]?.[0].onTokenRejected?.(new InvalidAgentTokenError('https://kubb.studio'))
 
     expect(calls).toStrictEqual(['abort', 'onAuthRequired'])
     expect(capturedSignal?.aborted).toBe(true)

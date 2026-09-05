@@ -64,11 +64,12 @@ export type ConnectToStudioOptions = {
    */
   installLogger?: (hooks: Hookable<KubbHooks>) => void | Promise<void>
   /**
-   * Called when a background reconnect is rejected with an invalid token. Wired in by
-   * `createClient`, which wraps it to fire once per pool and stop every session; not meant to be
-   * set directly by a host.
+   * Called when this session's background reconnect is rejected with an invalid token. Unlike
+   * `ClientOptions.onAuthRequired`, this fires once per session rather than once per pool:
+   * `createClient` wraps it into that deduped, pool-stopping callback. Not meant to be set
+   * directly by a host.
    */
-  onAuthRequired?: (error: InvalidAgentTokenError) => void
+  onTokenRejected?: (error: InvalidAgentTokenError) => void
 }
 
 /**
@@ -79,7 +80,7 @@ export type ConnectToStudioOptions = {
  * alive for the length of every retry interval.
  */
 function reconnect(options: ConnectToStudioOptions): void {
-  const { signal, retryInterval = agentDefaults.retryIntervalMs, onAuthRequired } = options
+  const { signal, retryInterval = agentDefaults.retryIntervalMs, onTokenRejected } = options
 
   if (signal?.aborted) {
     return
@@ -106,7 +107,7 @@ function reconnect(options: ConnectToStudioOptions): void {
       // The host learns about it here instead: the startup path already reports its own rejection
       // by throwing, so only the background path needs the callback.
       if (error instanceof InvalidAgentTokenError) {
-        onAuthRequired?.(error)
+        onTokenRejected?.(error)
 
         return
       }
