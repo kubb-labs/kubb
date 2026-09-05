@@ -260,8 +260,6 @@ function explainRejectedToken(error: InvalidAgentTokenError, reason: RejectedTok
 class StudioConnection {
   readonly #options: StudioOptions
   readonly #configPath: string
-  readonly #logLevel: number
-  readonly #isRich: boolean
   readonly #shutdown = new AbortController()
   readonly #requestShutdown = (): void => this.#shutdown.abort()
   // `bun-types` narrows `process.on`/`process.off` to its own event union, which omits Node's
@@ -282,13 +280,11 @@ class StudioConnection {
   constructor(options: StudioOptions, configPath: string) {
     this.#options = options
     this.#configPath = configPath
-    this.#logLevel = logLevelMap[options.logLevel ?? 'info']
-    this.#isRich = isRichOutput()
   }
 
   // One clack gutter block, or the same lines plainly.
   #say(lines: string | Array<string>): void {
-    if (this.#isRich) {
+    if (isRichOutput()) {
       prompts.log.message(lines)
     } else {
       console.log([lines].flat().join('\n'))
@@ -300,7 +296,7 @@ class StudioConnection {
       return
     }
     // `outro` closes the block `intro` opened, so it is not a written line.
-    if (this.#isRich) {
+    if (isRichOutput()) {
       prompts.outro('Disconnected')
     } else {
       console.log('Disconnected')
@@ -416,7 +412,7 @@ class StudioConnection {
       // The loggers `kubb generate` installs, on both emitters, so one place renders the session
       // events and the generations it drives.
       installLogger: async (hooks) => {
-        await setupReporters(hooks, { logLevel: this.#logLevel, reporters: [cliReporter] })
+        await setupReporters(hooks, { logLevel: logLevelMap[this.#options.logLevel ?? 'info'], reporters: [cliReporter] })
 
         // `client.connect()` resolves once the agent is registered, not once a session is open, so
         // this is the only point that knows the connection is live. Registered after the loggers so
