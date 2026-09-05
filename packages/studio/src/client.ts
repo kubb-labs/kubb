@@ -14,7 +14,7 @@ export type ClientOptions = Omit<ConnectToStudioOptions, 'signal' | 'onTokenReje
   /**
    * Called once when a live pool's token is rejected during background reconnect (401: revoked, or
    * the agent was deleted). The whole pool is already stopped by the time this fires, so a host
-   * only needs to obtain a replacement token and start a new client.
+   * only needs to get a replacement token and start a new client.
    *
    * Never fires for a startup rejection, which `connect()` reports by throwing, nor for an ordinary
    * session expiry or revocation, both of which reconnect on their own.
@@ -54,8 +54,8 @@ export function createClient({ storage, onAuthRequired, ...options }: ClientOpti
   const controller = new AbortController()
   const poolSize = options.poolSize ?? agentDefaults.poolSize
   function notifyAuthRequired(error: InvalidAgentTokenError) {
-    // Several pool sessions can reject the same token at once, and a host can have stopped the pool
-    // itself, so an already-aborted controller is what says the callback is spent.
+    // Several pool sessions can reject the same token at once, and a host can stop the pool
+    // itself, so an aborted controller is what says this callback is spent.
     if (controller.signal.aborted) {
       return
     }

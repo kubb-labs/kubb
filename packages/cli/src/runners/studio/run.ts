@@ -238,8 +238,8 @@ async function loadConfigs(options: StudioOptions): Promise<{ configPath: string
 type RejectedTokenReason = 'envToken' | 'nonInteractive' | 'reauthExhausted'
 
 /**
- * Explains a rejected token to the operator. Never touches stored or environment credentials
- * itself, since a message-only path must not have side effects the caller did not ask for.
+ * Explains a rejected token to the operator. Builds the error and nothing else, so each caller
+ * decides what happens to the credentials.
  */
 function explainRejectedToken(error: InvalidAgentTokenError, reason: RejectedTokenReason): Error {
   if (reason === 'envToken') {
@@ -254,12 +254,8 @@ function explainRejectedToken(error: InvalidAgentTokenError, reason: RejectedTok
 }
 
 /**
- * One `kubb studio` connect run: pairing if needed, connecting, and reconnecting with a fresh
- * pairing whenever Studio rejects the token. `connect()` is the module's only entry point; this
- * class exists so the run's mutable state (credentials, whether the Ctrl+C hint already printed,
- * whether it already re-paired once) lives as fields instead of one closed-over `state` object
- * threaded through a `while (true)` loop, the same reasoning behind `@kubb/studio`'s
- * `StudioSession`.
+ * One `kubb studio` connect run: pairing if needed, connecting, and pairing again whenever Studio
+ * rejects the token. Reached through `connect()`, which is what the command runs.
  */
 class StudioConnection {
   readonly #options: StudioOptions
@@ -279,10 +275,9 @@ class StudioConnection {
   readonly #usingEnvToken = !!process.env.KUBB_AGENT_TOKEN
   // Whether the "Press Ctrl+C" hint already printed, so a reconnect never repeats it.
   #hinted = false
-  // A rejection right after a fresh login means the newly approved token was no good either, so
-  // one automatic re-pair is all this ever attempts, whether the rejection lands at startup or
-  // once the session is already live. A second one is treated as a hard failure instead of pairing
-  // forever.
+  // One automatic re-pair per run, whether the rejection lands at startup or once the session is
+  // live. A token rejected right after a fresh login is a hard failure, not a reason to keep
+  // pairing.
   #hasReauthenticated = false
   // Resolved by `run()` from the flags and the project's saved answers, before anything reads it.
   #granted!: Record<Permission, boolean>
@@ -320,8 +315,8 @@ class StudioConnection {
    * token.
    *
    * One `AbortController` covers the whole run: it cancels an in-flight pairing poll on Ctrl+C and
-   * lets a live token rejection race a shutdown signal, armed once and torn down in `finally` so a
-   * retried pairing never leaves behind a duplicate `SIGINT`/`SIGTERM` listener.
+   * ends the wait in `#connectAndWait`. Its signal listeners are armed once here, so a retried
+   * pairing cannot leave a duplicate behind.
    */
   async run(): Promise<void> {
     this.#processEvents.once('SIGINT', this.#requestShutdown)
@@ -392,10 +387,9 @@ class StudioConnection {
   }
 
   /**
-   * Opens one client and waits for whichever comes first: a shutdown signal, or Studio rejecting
-   * the token, whether that rejection surfaces from `client.connect()` itself (a startup rejection)
-   * or later through `onAuthRequired` (a rejection during background reconnect). Returns whether
-   * the run is over.
+   * Opens one client and waits for whichever comes first: a shutdown, or Studio rejecting the
+   * token. A rejection arrives either from `client.connect()` itself, at startup, or later through
+   * `onAuthRequired`, during a background reconnect. Returns whether the run is over.
    */
   async #connectAndWait(): Promise<boolean> {
     // A shutdown can land outside the race below: while the permission prompts are open, or
@@ -453,9 +447,9 @@ class StudioConnection {
       return this.#handleStartupRejection(error)
     }
 
-    // `{ once: true }` only removes the listener once the abort event fires, not once this race is
-    // settled by the other side, so `settled` drops it either way. Without that, a token rejection
-    // that gets reauthenticated leaves one behind on `#shutdown.signal` for every reconnect.
+    // `{ once: true }` drops the listener when the abort fires, not when the other side settles
+    // the race, so `settled` covers that half. Without it a reauthenticated rejection leaves one
+    // behind on `#shutdown.signal` for every reconnect.
     const settled = new AbortController()
     // Resolves with nothing, so the race reports a shutdown as the absence of a rejection.
     const shutdownWait = new Promise<undefined>((resolve) => {
@@ -483,7 +477,7 @@ class StudioConnection {
 
   /**
    * Throws when a rejected token cannot be replaced by pairing again: this run already paired once
-   * and was rejected anyway, or there is no browser to approve a new pairing with.
+   * and was rejected anyway, or there is no browser to approve a new pairing.
    */
   #assertCanReauthenticate(error: InvalidAgentTokenError): void {
     if (this.#hasReauthenticated) {

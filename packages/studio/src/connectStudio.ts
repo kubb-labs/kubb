@@ -93,17 +93,16 @@ type ResolvedOptions = ConnectToStudioOptions & {
   retryInterval: number
   heartbeatInterval: number
   /**
-   * Absolute path to the config file, for reading and patching it. `configPath` stays as the host
-   * gave it, since that is the project-relative form Studio shows.
+   * Absolute path to the config file, for reading and patching it. `configPath` keeps the form the
+   * host gave, which is what Studio shows.
    */
   configFile: string
 }
 
 /**
- * Fills in the defaults a session needs from a host's options: the hosted Studio URL, the current
- * working directory, and every permission off unless granted.
- *
- * Idempotent, so a reconnect can hand an already-resolved bag straight back in.
+ * Fills in a host's options: the hosted Studio URL, the current working directory, and every
+ * permission off unless granted. Idempotent, so a reconnect can pass an already-resolved bag
+ * back in.
  */
 function applyStudioDefaults(options: ConnectToStudioOptions): ResolvedOptions {
   const root = options.root ?? process.cwd()
@@ -175,11 +174,8 @@ function reconnect(options: ResolvedOptions): void {
 }
 
 /**
- * One WebSocket session with Studio: opening it, keeping it alive, and running whatever Studio
- * sends over it. `connectToStudio` is the module's only public entry point; this class exists so
- * that session's several pieces of mutable state (the socket, the heartbeat timer, whether a
- * generation is running) live as fields instead of a pile of closed-over `let`s, matching how
- * `KubbDriver` holds a single build's state in `@kubb/core`.
+ * One WebSocket session with Studio: opening it, keeping it alive, and running the commands it
+ * sends. Reached through `connectToStudio`, the module's only export.
  */
 class StudioSession {
   readonly #options: ResolvedOptions
@@ -193,8 +189,8 @@ class StudioSession {
   readonly #unhooks: Array<() => void> = []
 
   /**
-   * What Studio handed back. Set once `createAgentSession` resolves, and the marker for whether a
-   * session exists at all: until then there is nothing to disconnect and no sandbox flag to read.
+   * What `createAgentSession` handed back, and the marker for whether a session exists at all.
+   * Before it resolves there is nothing to disconnect and no sandbox flag to read.
    */
   #session: AgentConnectResponse | undefined
   #ws: WebSocket | undefined
@@ -220,8 +216,7 @@ class StudioSession {
   }
 
   /**
-   * A sandbox agent runs on Studio's own infrastructure, so it has no user project: it never
-   * writes to disk and never edits a config file that is not there.
+   * A sandbox agent runs on Studio's own infrastructure, so it has no user project to touch.
    */
   get #isSandbox(): boolean {
     return this.#session?.isSandbox === true
@@ -236,7 +231,8 @@ class StudioSession {
   }
 
   /**
-   * A sandbox agent always generates from the spec Studio supplies; a local agent only when opted in.
+   * A sandbox agent always generates from the spec Studio supplies. A local agent only when the
+   * host opted in.
    */
   get #canUseInput(): boolean {
     return this.#isSandbox || this.#options.allowInput
@@ -265,10 +261,9 @@ class StudioSession {
       this.#listen(ws, 'error', this.#onError)
       this.#listen(ws, 'message', this.#onMessage)
 
-      // The socket's own close event fires after this, and `#end` is idempotent, so the shutdown
-      // path cannot be turned into a reconnect by the close that follows it. Tracked like every
-      // other listener: the signal itself only fires at process exit, so a reconnect that left one
-      // behind would pile them up for the life of the process.
+      // `#end` is idempotent, so the close event that follows a shutdown cannot turn it into a
+      // reconnect. Tracked like the socket's own listeners: the signal fires once at process exit,
+      // so one left behind per reconnect would pile up.
       signal?.addEventListener('abort', this.#onAbort, { once: true })
       this.#unhooks.push(() => signal?.removeEventListener('abort', this.#onAbort))
 
@@ -308,8 +303,8 @@ class StudioSession {
   }
 
   /**
-   * Forwards a failure to Studio over the connection emitter, which `setupEventsStream` has
-   * already wired to this socket. Swallows a listener's own failure: this is already the error path.
+   * Forwards a failure to Studio over the connection emitter, which `connect` wired to this
+   * socket. Swallows a listener's own failure, since this is already the error path.
    */
   #emitError(error: Error): Promise<void> {
     return Promise.resolve(this.#hooks.callHook('kubb:error', { error })).catch(() => {})
@@ -426,7 +421,7 @@ class StudioSession {
 
   /**
    * Drops the socket and detaches every listener and timer this session added. Idempotent, and
-   * safe to call before `connect` ever opened anything.
+   * safe before `connect` opened anything.
    *
    * @internal
    */
@@ -445,9 +440,8 @@ class StudioSession {
   }
 
   /**
-   * Ends the session: tells Studio it is over, disposes of the socket, and optionally schedules a
-   * reconnect. `#disposed` guards against the close event running this a second time, and against
-   * a shutdown reconnecting.
+   * Ends the session: tells Studio it is over, drops the socket, and optionally reconnects.
+   * `#disposed` keeps the close event from running this twice, and a shutdown from reconnecting.
    */
   async #end({ reason, retry }: { reason?: string; retry: boolean }): Promise<void> {
     const { studioUrl, token } = this.#options
