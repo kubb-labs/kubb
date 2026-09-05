@@ -23,7 +23,8 @@ import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import { version } from '../../../package.json'
 import type { definition } from '../../commands/studio.ts'
 import setupReporters from '../../loggers/utils.ts'
-import { canUseTTY, isCIEnvironment, isRichOutput } from '../../utils/env.ts'
+import { createSpinner, logBlock, logIntro, logOutro } from '../../loggers/output.ts'
+import { canUseTTY, isCIEnvironment } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 
@@ -105,7 +106,7 @@ async function login({ studioUrl, autoOpen }: StudioOptions, { signal, previousC
     await openInBrowser(session.verification_uri_complete)
   }
 
-  const spinner = isRichOutput() ? prompts.spinner() : null
+  const spinner = createSpinner()
   spinner?.start('Waiting for approval')
 
   try {
@@ -282,25 +283,12 @@ class StudioConnection {
     this.#configPath = configPath
   }
 
-  // One clack gutter block, or the same lines plainly.
-  #log(lines: string | Array<string>): void {
-    if (isRichOutput()) {
-      prompts.log.message(lines)
-    } else {
-      console.log([lines].flat().join('\n'))
-    }
-  }
-
   #reportDisconnected(): void {
     if (this.#options.logLevel === 'silent') {
       return
     }
-    // `outro` closes the block `intro` opened, so it is not a written line.
-    if (isRichOutput()) {
-      prompts.outro('Disconnected')
-    } else {
-      console.log('Disconnected')
-    }
+
+    logOutro('Disconnected')
   }
 
   /**
@@ -369,7 +357,7 @@ class StudioConnection {
 
     const detail = (label: string, value: string) => `${styleText('dim', label.padEnd(7))}  ${value}`
 
-    this.#log([
+    logBlock([
       detail('Studio', styleText('cyan', this.#options.studioUrl)),
       detail('Project', path.basename(process.cwd())),
       detail('Config', path.relative(process.cwd(), this.#configPath) || this.#configPath),
@@ -423,7 +411,7 @@ class StudioConnection {
           }
           this.#hinted = true
 
-          this.#log(styleText('dim', 'Press Ctrl+C to disconnect'))
+          logBlock(styleText('dim', 'Press Ctrl+C to disconnect'))
         })
       },
     })
@@ -620,17 +608,12 @@ async function run(options: StudioOptions): Promise<void> {
 
   try {
     if (options.logLevel !== 'silent') {
-      const banner = `Kubb Studio  ${styleText('dim', `v${options.version}`)}`
-      const caution = styleText('yellow', 'This feature is still under development, use with caution')
-
-      if (isRichOutput() && options.action === 'connect') {
-        prompts.intro(banner)
-        prompts.log.warn(caution)
-      } else {
-        console.log(banner)
-        console.warn(caution)
-        console.log()
-      }
+      logIntro({
+        title: `Kubb Studio  ${styleText('dim', `v${options.version}`)}`,
+        warning: styleText('yellow', 'This feature is still under development, use with caution'),
+        // Only `connect` stays open long enough to close the block again with `logOutro`.
+        block: options.action === 'connect',
+      })
     }
 
     switch (options.action) {

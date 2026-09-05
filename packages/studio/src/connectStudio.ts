@@ -16,6 +16,7 @@ import {
   isStudioPingMessage,
 } from './protocol/index.ts'
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
+import { applyConfigEdits, readConfig } from './configFile.ts'
 import { generate } from './generate.ts'
 import { agentDefaults } from './constants.ts'
 import { mergeAdapter, mergePlugins } from './resolveConfig.ts'
@@ -333,10 +334,8 @@ class StudioSession {
   /**
    * Reads `kubb.config.ts` and reports which plugin options Studio may edit.
    *
-   * Skipped when the host did not grant `allowConfigEdit`. The patcher pulls in `magicast`
-   * (~25ms, ~55MB RSS), so read-only agents never import it.
-   *
-   * Not cached: the user can edit the file between two Studio actions.
+   * Skipped when the host did not grant `allowConfigEdit`. Not cached: the user can edit the file
+   * between two Studio actions.
    */
   async #readConfigFileView(source?: string): Promise<ConfigFileView | undefined> {
     if (!this.#canEditConfig) {
@@ -344,8 +343,6 @@ class StudioSession {
     }
 
     try {
-      const { readConfig } = await import('./configFile.ts')
-
       return readConfig(source ?? (await read(this.#options.configFile)))
     } catch (error) {
       await this.#warn(`Could not read ${this.#options.configFile}: ${getErrorMessage(error)}`)
@@ -655,7 +652,6 @@ class StudioSession {
       // Read straight before the patch rather than reusing what went out on connect. The user may
       // have edited the file since, and since every untouched node keeps its own text, patching
       // what is on disk right now preserves that edit.
-      const { applyConfigEdits } = await import('./configFile.ts')
       const current = await read(configFile)
       const { source: patched, outcomes, changed } = applyConfigEdits(current, edits)
 
