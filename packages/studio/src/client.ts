@@ -1,5 +1,6 @@
 import type { Storage } from 'unstorage'
 import { agentDefaults } from './constants.ts'
+import type { InvalidAgentTokenError } from './api.ts'
 import { registerAgent } from './api.ts'
 import { type ConnectToStudioOptions, connectToStudio } from './connectStudio.ts'
 import { setStorage } from './machine.ts'
@@ -10,6 +11,17 @@ export type ClientOptions = Omit<ConnectToStudioOptions, 'signal'> & {
    * which gives up a stable machine identity across restarts.
    */
   storage?: Storage
+  /**
+   * Called once a live pool rejects its token: Studio answered a background reconnect with 401,
+   * meaning the token was revoked or the agent was deleted. Every session in the pool is already
+   * stopped by the time this fires, so a host only needs to obtain a replacement token and start a
+   * new client with it.
+   *
+   * Never fires for a token rejected at startup, which `connect()`'s own rejection already
+   * reports, nor for an ordinary session expiry or a revoked session, both of which reconnect on
+   * their own.
+   */
+  onAuthRequired?: (error: InvalidAgentTokenError) => void
 }
 
 export type Client = {
@@ -36,13 +48,29 @@ export type Client = {
  * await studio.connect()
  * ```
  */
-export function createClient({ storage, ...options }: ClientOptions): Client {
+export function createClient({ storage, onAuthRequired, ...options }: ClientOptions): Client {
   if (storage) {
     setStorage(storage)
   }
 
   const controller = new AbortController()
   const poolSize = options.poolSize ?? agentDefaults.poolSize
+  // Several pool sessions can reject the same token at once, so this instance fires the callback
+  // at most once instead of once per session.
+  let authRequiredFired = false
+
+  function notifyAuthRequired(error: InvalidAgentTokenError) {
+    if (authRequiredFired) {
+      return
+    }
+    authRequiredFired = true
+
+    // Stop the whole pool first: every session's socket closes and every pending retry timer is
+    // canceled through the `signal` each one already listens on, so the caller starts its next
+    // client from a clean slate.
+    controller.abort()
+    onAuthRequired?.(error)
+  }
 
   return {
     async connect() {
@@ -52,7 +80,7 @@ export function createClient({ storage, ...options }: ClientOptions): Client {
       // Awaited: `connectToStudio` only ever rejects with `InvalidAgentTokenError` (every other
       // failure is retried internally through its own reconnect loop and resolves normally), so
       // awaiting here surfaces a dead token to the caller without blocking on a down Studio.
-      await Promise.all(Array.from({ length: poolSize }, () => connectToStudio({ ...options, signal: controller.signal })))
+      await Promise.all(Array.from({ length: poolSize }, () => connectToStudio({ ...options, signal: controller.signal, onAuthRequired: notifyAuthRequired })))
     },
     disconnect() {
       controller.abort()

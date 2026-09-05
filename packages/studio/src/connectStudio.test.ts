@@ -43,7 +43,7 @@ vi.mock('./ws.ts', () => ({
   setupEventsStream: vi.fn(),
 }))
 
-import { createAgentSession, disconnect } from './api.ts'
+import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { generate } from './generate.ts'
 
 import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
@@ -946,6 +946,44 @@ describe('connectToStudio', () => {
     expect(disconnect).not.toHaveBeenCalled()
     // Unlike a revoked session, an expired one triggers a reconnect.
     expect(consoleSpy.info).toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
+  })
+
+  it('calls onAuthRequired and stops retrying when a background reconnect is rejected with an invalid token', async () => {
+    vi.useFakeTimers()
+    const onAuthRequired = vi.fn()
+
+    await connectToStudio({ ...options, onAuthRequired })
+
+    await mockWs.trigger('close')
+
+    const error = new InvalidAgentTokenError('https://kubb.studio')
+    vi.mocked(createAgentSession).mockRejectedValueOnce(error)
+
+    await vi.advanceTimersByTimeAsync(options.retryInterval!)
+
+    expect(onAuthRequired).toHaveBeenCalledWith(error)
+
+    // A rejected token stays rejected, so no further reconnect attempt should follow.
+    await vi.advanceTimersByTimeAsync(options.retryInterval! * 3)
+    expect(createAgentSession).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps retrying an ordinary network failure without calling onAuthRequired', async () => {
+    vi.useFakeTimers()
+    const onAuthRequired = vi.fn()
+
+    await connectToStudio({ ...options, onAuthRequired })
+
+    await mockWs.trigger('close')
+
+    vi.mocked(createAgentSession).mockRejectedValueOnce(new Error('502 Bad Gateway'))
+    vi.mocked(createAgentSession).mockResolvedValueOnce(makeSession())
+
+    await vi.advanceTimersByTimeAsync(options.retryInterval!)
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(onAuthRequired).not.toHaveBeenCalled()
+    expect(createAgentSession).toHaveBeenCalledTimes(2)
   })
 
   it('logs and retries instead of crashing when a reconnect attempt fails to reach Studio', async () => {

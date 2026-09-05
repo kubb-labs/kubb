@@ -1,20 +1,46 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
+import { InvalidAgentTokenError, PairingCanceledError } from '@kubb/studio'
 import type { Credentials } from './credentials.ts'
-import { formatPermissionRows, resolvePermissions, type StudioOptions } from './run.ts'
+import { connect, formatPermissionRows, resolvePermissions, type StudioOptions } from './run.ts'
 
-vi.mock('@clack/prompts', () => ({ confirm: vi.fn() }))
+vi.mock('@clack/prompts', () => ({
+  confirm: vi.fn(),
+  spinner: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
+  log: { message: vi.fn() },
+  intro: vi.fn(),
+  outro: vi.fn(),
+}))
 vi.mock('../../utils/env.ts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../utils/env.ts')>()),
-  isCIEnvironment: () => false,
-  canUseTTY: () => true,
+  isCIEnvironment: vi.fn(() => false),
+  canUseTTY: vi.fn(() => true),
 }))
 vi.mock('./credentials.ts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./credentials.ts')>()),
+  readCredentials: vi.fn().mockResolvedValue(null),
   writeCredentials: vi.fn().mockResolvedValue(undefined),
+  clearCredentials: vi.fn().mockResolvedValue(undefined),
 }))
+vi.mock('../generate/utils.ts', () => ({
+  getConfigs: vi.fn().mockResolvedValue({
+    configPath: '/project/kubb.config.ts',
+    configs: [{ name: 'test', input: 'spec.yaml', output: { path: './gen' }, plugins: [] }],
+  }),
+}))
+vi.mock('@kubb/studio', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@kubb/studio')>()),
+  createClient: vi.fn(),
+  startPairing: vi.fn(),
+  pollForPairingToken: vi.fn(),
+  setStorage: vi.fn(),
+  createFileStorage: vi.fn(),
+}))
+
 const confirm = vi.mocked(prompts.confirm)
-const { writeCredentials } = await import('./credentials.ts')
+const { readCredentials, writeCredentials, clearCredentials } = await import('./credentials.ts')
+const { createClient, startPairing, pollForPairingToken } = await import('@kubb/studio')
+const { isCIEnvironment, canUseTTY } = await import('../../utils/env.ts')
 
 const options: StudioOptions = {
   action: 'connect',
@@ -29,11 +55,41 @@ const credentials: Credentials = { studioUrl: options.studioUrl, token: 'token',
 beforeEach(() => {
   confirm.mockReset()
   vi.mocked(writeCredentials).mockClear()
+  vi.mocked(readCredentials).mockReset().mockResolvedValue(null)
+  vi.mocked(clearCredentials).mockReset().mockResolvedValue(undefined)
+  vi.mocked(createClient).mockReset()
+  vi.mocked(startPairing).mockReset()
+  vi.mocked(pollForPairingToken).mockReset()
+  vi.mocked(isCIEnvironment).mockReset().mockReturnValue(false)
+  vi.mocked(canUseTTY).mockReset().mockReturnValue(true)
+  delete process.env.KUBB_AGENT_TOKEN
 })
 
 afterEach(() => {
   vi.restoreAllMocks()
 })
+
+/**
+ * A `createClient` stand-in whose `connect()` and `disconnect()` behavior each test controls, and
+ * that records the options every call was created with so a test can trigger `onAuthRequired` the
+ * way a live background rejection would.
+ */
+function mockClient(connectImpl: () => Promise<void>) {
+  const disconnect = vi.fn()
+  let onAuthRequired: ((error: InvalidAgentTokenError) => void) | undefined
+
+  vi.mocked(createClient).mockImplementationOnce((clientOptions) => {
+    onAuthRequired = clientOptions.onAuthRequired
+    return { connect: connectImpl, disconnect }
+  })
+
+  return {
+    disconnect,
+    triggerAuthRequired(error: InvalidAgentTokenError) {
+      onAuthRequired?.(error)
+    },
+  }
+}
 
 describe('resolvePermissions', () => {
   it('asks for every permission and stores the answers', async () => {
@@ -111,5 +167,157 @@ describe('formatPermissionRows', () => {
       '✔ use a Studio spec',
       '✘ run formatter, linter, postGenerate',
     ])
+  })
+})
+
+describe('connect', () => {
+  it('tells the operator to update KUBB_AGENT_TOKEN when a live rejection hits an env-sourced token, without touching stored credentials', async () => {
+    process.env.KUBB_AGENT_TOKEN = 'env-token'
+    const client = mockClient(() => Promise.resolve())
+
+    const promise = connect(options)
+    await vi.waitFor(() => expect(createClient).toHaveBeenCalledTimes(1))
+    client.triggerAuthRequired(new InvalidAgentTokenError(options.studioUrl))
+
+    await expect(promise).rejects.toThrow(/update KUBB_AGENT_TOKEN/)
+    expect(clearCredentials).not.toHaveBeenCalled()
+    expect(writeCredentials).not.toHaveBeenCalled()
+    expect(client.disconnect).toHaveBeenCalled()
+  })
+
+  it('tells the operator to run kubb studio login when a live rejection hits a CI run, without touching stored credentials', async () => {
+    vi.mocked(readCredentials).mockResolvedValue(credentials)
+    vi.mocked(isCIEnvironment).mockReturnValue(true)
+    const client = mockClient(() => Promise.resolve())
+
+    const promise = connect(options)
+    await vi.waitFor(() => expect(createClient).toHaveBeenCalledTimes(1))
+    client.triggerAuthRequired(new InvalidAgentTokenError(options.studioUrl))
+
+    await expect(promise).rejects.toThrow(/kubb studio login/)
+    expect(clearCredentials).not.toHaveBeenCalled()
+    expect(writeCredentials).not.toHaveBeenCalled()
+  })
+
+  it('reauthenticates interactively on a live rejection and carries saved permissions forward for the same agent identity', async () => {
+    vi.mocked(readCredentials).mockResolvedValue({ ...credentials, projects: { [process.cwd()]: { allowWrite: true } } })
+    vi.mocked(startPairing).mockResolvedValue({
+      device_code: 'device',
+      user_code: 'ABCD-EFGH',
+      verification_uri: 'https://studio/pair',
+      verification_uri_complete: 'https://studio/pair?user_code=ABCD-EFGH',
+      expires_in: 60,
+      interval: 1,
+    })
+    // Same agentId as the stored credential, so the reauth keeps the identity.
+    vi.mocked(pollForPairingToken).mockResolvedValue({ token: 'new-token', agent: { id: credentials.agentId, slug: 'slug', name: 'demo' } })
+
+    const first = mockClient(() => Promise.resolve())
+    mockClient(() => Promise.resolve())
+
+    const promise = connect(options)
+    await vi.waitFor(() => expect(createClient).toHaveBeenCalledTimes(1))
+    first.triggerAuthRequired(new InvalidAgentTokenError(options.studioUrl))
+
+    await vi.waitFor(() => expect(createClient).toHaveBeenCalledTimes(2))
+    // Second client is live: end the run the same way Ctrl+C would.
+    process.emit('SIGINT' as never)
+
+    await promise
+
+    expect(writeCredentials).toHaveBeenCalledWith(expect.objectContaining({ token: 'new-token', projects: { [process.cwd()]: { allowWrite: true } } }))
+  })
+
+  it('does not carry saved permissions forward when the reauthenticated agent identity differs', async () => {
+    vi.mocked(readCredentials).mockResolvedValue({ ...credentials, projects: { [process.cwd()]: { allowWrite: true } } })
+    vi.mocked(startPairing).mockResolvedValue({
+      device_code: 'device',
+      user_code: 'ABCD-EFGH',
+      verification_uri: 'https://studio/pair',
+      verification_uri_complete: 'https://studio/pair?user_code=ABCD-EFGH',
+      expires_in: 60,
+      interval: 1,
+    })
+    // A different agentId than the stored credential.
+    vi.mocked(pollForPairingToken).mockResolvedValue({ token: 'new-token', agent: { id: 'a-different-agent', slug: 'slug', name: 'demo' } })
+
+    const first = mockClient(() => Promise.resolve())
+    mockClient(() => Promise.resolve())
+
+    const promise = connect(options)
+    await vi.waitFor(() => expect(createClient).toHaveBeenCalledTimes(1))
+    first.triggerAuthRequired(new InvalidAgentTokenError(options.studioUrl))
+
+    await vi.waitFor(() => expect(createClient).toHaveBeenCalledTimes(2))
+    process.emit('SIGINT' as never)
+
+    await promise
+
+    const written = vi
+      .mocked(writeCredentials)
+      .mock.calls.map(([call]) => call)
+      .find((call) => call.token === 'new-token')
+    expect(written?.projects).toBeUndefined()
+  })
+
+  it('exits cleanly instead of throwing when the user cancels pairing during a live reauth', async () => {
+    vi.mocked(readCredentials).mockResolvedValue(credentials)
+    vi.mocked(startPairing).mockImplementation(
+      ({ signal }) =>
+        new Promise((_resolve, reject) => {
+          signal?.addEventListener('abort', () => reject(new PairingCanceledError()))
+        }),
+    )
+
+    const client = mockClient(() => Promise.resolve())
+
+    const promise = connect(options)
+    await vi.waitFor(() => expect(createClient).toHaveBeenCalledTimes(1))
+    client.triggerAuthRequired(new InvalidAgentTokenError(options.studioUrl))
+
+    await vi.waitFor(() => expect(startPairing).toHaveBeenCalledTimes(1))
+    process.emit('SIGINT' as never)
+
+    await expect(promise).resolves.toBeUndefined()
+    // Only one client was ever created: cancellation during the reauth stops before a new one connects.
+    expect(createClient).toHaveBeenCalledTimes(1)
+  })
+
+  it('stops after one automatic reauth instead of pairing forever when the newly approved token is rejected again', async () => {
+    vi.mocked(readCredentials).mockResolvedValue(credentials)
+    vi.mocked(startPairing).mockResolvedValue({
+      device_code: 'device',
+      user_code: 'ABCD-EFGH',
+      verification_uri: 'https://studio/pair',
+      verification_uri_complete: 'https://studio/pair?user_code=ABCD-EFGH',
+      expires_in: 60,
+      interval: 1,
+    })
+    vi.mocked(pollForPairingToken).mockResolvedValue({ token: 'new-token', agent: { id: credentials.agentId, slug: 'slug', name: 'demo' } })
+
+    const first = mockClient(() => Promise.resolve())
+    const second = mockClient(() => Promise.resolve())
+
+    const promise = connect(options)
+    await vi.waitFor(() => expect(createClient).toHaveBeenCalledTimes(1))
+    first.triggerAuthRequired(new InvalidAgentTokenError(options.studioUrl))
+
+    await vi.waitFor(() => expect(createClient).toHaveBeenCalledTimes(2))
+    // The freshly approved token is rejected again immediately.
+    second.triggerAuthRequired(new InvalidAgentTokenError(options.studioUrl))
+
+    await expect(promise).rejects.toThrow(/rejected the newly approved token/)
+    // No third client: one automatic reauth is all this ever attempts.
+    expect(createClient).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps retrying an ordinary network failure without reauthenticating, since only an InvalidAgentTokenError triggers pairing', async () => {
+    vi.mocked(readCredentials).mockResolvedValue(credentials)
+    // A plain connection failure at startup is not InvalidAgentTokenError, so it should surface as-is.
+    mockClient(() => Promise.reject(new Error('ECONNREFUSED')))
+
+    await expect(connect(options)).rejects.toThrow('ECONNREFUSED')
+    expect(startPairing).not.toHaveBeenCalled()
+    expect(clearCredentials).not.toHaveBeenCalled()
   })
 })

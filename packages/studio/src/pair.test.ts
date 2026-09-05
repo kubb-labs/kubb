@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setTimeout as delay } from 'node:timers/promises'
-import { pollForPairingToken, type PairingSession } from './pair.ts'
+import { PairingCanceledError, pollForPairingToken, startPairing, type PairingSession } from './pair.ts'
 
 vi.mock('node:timers/promises', () => ({
   setTimeout: vi.fn(async () => {}),
@@ -89,7 +89,7 @@ describe('pollForPairingToken', () => {
     await vi.runAllTimersAsync()
     await promise
 
-    expect(delayMock).toHaveBeenCalledWith(5_000)
+    expect(delayMock).toHaveBeenCalledWith(5_000, undefined, { signal: undefined })
   })
 
   it('falls back to a 600s expiry instead of expiring before the first poll when Studio omits it', async () => {
@@ -112,5 +112,62 @@ describe('pollForPairingToken', () => {
 
     await expect(promise).resolves.toEqual(result)
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('socket hang up'))
+  })
+
+  it('rejects with PairingCanceledError when the signal aborts during the wait between polls', async () => {
+    const controller = new AbortController()
+    delayMock.mockImplementationOnce(() => {
+      controller.abort()
+      return Promise.reject(new Error('The operation was aborted'))
+    })
+
+    const promise = pollForPairingToken({ studioUrl: 'http://studio', session, signal: controller.signal })
+    promise.catch(() => {})
+    await vi.runAllTimersAsync()
+
+    await expect(promise).rejects.toBeInstanceOf(PairingCanceledError)
+  })
+
+  it('rejects with PairingCanceledError when the signal is already aborted before polling starts', async () => {
+    const controller = new AbortController()
+    controller.abort()
+
+    const promise = pollForPairingToken({ studioUrl: 'http://studio', session, signal: controller.signal })
+
+    await expect(promise).rejects.toBeInstanceOf(PairingCanceledError)
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('rejects with PairingCanceledError when the signal aborts mid-request', async () => {
+    const controller = new AbortController()
+    fetchMock.mockImplementationOnce(() => {
+      controller.abort()
+      return Promise.reject(new Error('The operation was aborted'))
+    })
+
+    const promise = pollForPairingToken({ studioUrl: 'http://studio', session, signal: controller.signal })
+    promise.catch(() => {})
+    await vi.runAllTimersAsync()
+
+    await expect(promise).rejects.toBeInstanceOf(PairingCanceledError)
+  })
+})
+
+describe('startPairing', () => {
+  it('requests a pairing session from Studio', async () => {
+    const session = { device_code: 'device', user_code: 'ABCD-EFGH', verification_uri: 'https://kubb.studio/pair' }
+    fetchMock.mockResolvedValueOnce(createMockResponse(session))
+
+    await expect(startPairing({ studioUrl: 'http://studio', name: 'my-project', hostname: 'my-host' })).resolves.toMatchObject(session)
+  })
+
+  it('rejects with PairingCanceledError when the signal is already aborted', async () => {
+    const controller = new AbortController()
+    controller.abort()
+    fetchMock.mockRejectedValueOnce(new DOMException('The operation was aborted', 'AbortError'))
+
+    await expect(startPairing({ studioUrl: 'http://studio', name: 'my-project', hostname: 'my-host', signal: controller.signal })).rejects.toBeInstanceOf(
+      PairingCanceledError,
+    )
   })
 })
