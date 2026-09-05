@@ -1,12 +1,19 @@
-import { readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { getErrorMessage, toError } from '@internals/utils'
+import { getErrorMessage, read, toError, write } from '@internals/utils'
 import { type Config, fsStorage, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { version as kubbVersion } from '../package.json'
 import { setupHookListener } from './hooks.ts'
-import { type AgentMessage, type ClientInfo, type ConfigFileView, isCommandMessage, isDisconnectMessage, isStudioPingMessage } from './protocol/index.ts'
+import {
+  type AgentConnectResponse,
+  type AgentMessage,
+  type ClientInfo,
+  type ConfigFileView,
+  isCommandMessage,
+  isDisconnectMessage,
+  isStudioPingMessage,
+} from './protocol/index.ts'
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { generate } from './generate.ts'
 import { agentDefaults } from './constants.ts'
@@ -73,14 +80,61 @@ export type ConnectToStudioOptions = {
 }
 
 /**
+ * A session's options with every default filled in, so nothing downstream repeats a fallback.
+ */
+type ResolvedOptions = ConnectToStudioOptions & {
+  studioUrl: string
+  root: string
+  allowWrite: boolean
+  allowConfigEdit: boolean
+  allowInput: boolean
+  allowExec: boolean
+  retryInterval: number
+  heartbeatInterval: number
+  /**
+   * Absolute path to the config file, for reading and patching it. `configPath` stays as the host
+   * gave it, since that is the project-relative form Studio shows.
+   */
+  configFile: string
+}
+
+/**
+ * Fills in the defaults a session needs from a host's options: the hosted Studio URL, the current
+ * working directory, and every permission off unless granted.
+ *
+ * Idempotent, so a reconnect can hand an already-resolved bag straight back in.
+ */
+function applyStudioDefaults(options: ConnectToStudioOptions): ResolvedOptions {
+  const root = options.root ?? process.cwd()
+
+  return {
+    ...options,
+    studioUrl: options.studioUrl ?? agentDefaults.studioUrl,
+    root,
+    // `configPath` is relative to the agent's root unless it is already absolute, which is what
+    // `resolve` does on its own.
+    configFile: path.resolve(root, options.configPath),
+    allowWrite: options.allowWrite ?? false,
+    allowConfigEdit: options.allowConfigEdit ?? false,
+    allowInput: options.allowInput ?? false,
+    allowExec: options.allowExec ?? false,
+    retryInterval: options.retryInterval ?? agentDefaults.retryIntervalMs,
+    // Studio counts an agent offline once its last ping is older than its liveness window, so a
+    // slower cadence would make a healthy agent invisible. Clamped here rather than in a host's
+    // env parsing, so every host is held to the contract.
+    heartbeatInterval: Math.min(options.heartbeatInterval ?? agentDefaults.heartbeatIntervalMs, agentDefaults.heartbeatIntervalMs),
+  }
+}
+
+/**
  * Schedules another connection attempt.
  *
  * A free function rather than a method: a pending retry timer reaches whatever it closes over, so
  * closing only over `options` (not a `StudioSession`) keeps a queued retry from pinning a closed
  * socket, its hook emitter, or its session id alive for the length of the retry interval.
  */
-function reconnect(options: ConnectToStudioOptions): void {
-  const { signal, retryInterval = agentDefaults.retryIntervalMs, onTokenRejected } = options
+function reconnect(options: ResolvedOptions): void {
+  const { signal, retryInterval, onTokenRejected } = options
 
   if (signal?.aborted) {
     return
@@ -127,43 +181,29 @@ function reconnect(options: ConnectToStudioOptions): void {
  * `KubbDriver` holds a single build's state in `@kubb/core`.
  */
 class StudioSession {
-  readonly #options: ConnectToStudioOptions
-  readonly #token: string
-  readonly #studioUrl: string
-  readonly #configPath: string
-  readonly #loadConfig: () => Promise<Config>
-  readonly #version: string
-  readonly #client: ClientInfo | undefined
-  readonly #allowWrite: boolean
-  readonly #allowConfigEdit: boolean
-  readonly #allowInput: boolean
-  readonly #allowExec: boolean
-  readonly #root: string
-  readonly #heartbeatInterval: number
-  readonly #signal: AbortSignal | undefined
-  readonly #installLogger: ((hooks: Hookable<KubbHooks>) => void | Promise<void>) | undefined
+  readonly #options: ResolvedOptions
   // Each session gets its own isolated event emitter so generation events from one session do not
   // bleed into another session's WebSocket stream.
   readonly #hooks = new Hookable<KubbHooks>()
+  /**
+   * Removers for every listener this session added (socket, shutdown signal, hooks) so `dispose`
+   * detaches them in one pass. Listeners a host attached itself through `installLogger` survive.
+   */
+  readonly #unhooks: Array<() => void> = []
 
-  // Known once `createAgentSession` resolves.
-  #sessionId = ''
-  #slug: string | null | undefined
+  /**
+   * What Studio handed back. Set once `createAgentSession` resolves, and the marker for whether a
+   * session exists at all: until then there is nothing to disconnect and no sandbox flag to read.
+   */
+  #session: AgentConnectResponse | undefined
   #ws: WebSocket | undefined
   // Known before the agent announces itself, and refreshed by a later `studio:connect`, so both
   // sides can be named from the first connect on.
   #studioVersion: string | undefined
-  // Effective permissions: always disabled in sandbox mode.
-  #canWrite = false
-  // A sandbox has no user project to edit, so a config edit is never granted there.
-  #canEditConfig = false
-  #configFilePath = ''
-  // A sandbox agent always generates from the spec Studio supplies; a local agent only when opted in.
-  #canUseInput = false
-  #isSandbox = false
 
-  // Tracks whether the studio server explicitly disconnected us (no reconnect needed).
-  #serverDisconnected = false
+  // Whether the session is over: guards the close event from tearing down twice, and a shutdown
+  // from being turned into a reconnect.
+  #disposed = false
   // Guards against a second `generate` command starting while one is already running. Without
   // this, two concurrent `generate()` calls share this socket via `setupEventsStream`, and their
   // events interleave with no way for Studio to tell the two runs apart.
@@ -175,64 +215,67 @@ class StudioSession {
   #lastPongAt = Date.now()
 
   constructor(options: ConnectToStudioOptions) {
-    this.#options = options
-    this.#token = options.token
-    this.#studioUrl = options.studioUrl ?? agentDefaults.studioUrl
-    this.#configPath = options.configPath
-    this.#loadConfig = options.loadConfig
-    this.#version = options.version
-    this.#client = options.client
-    // Every permission is off unless the host grants it.
-    this.#allowWrite = options.allowWrite ?? false
-    this.#allowConfigEdit = options.allowConfigEdit ?? false
-    this.#allowInput = options.allowInput ?? false
-    this.#allowExec = options.allowExec ?? false
-    this.#root = options.root ?? process.cwd()
-    this.#signal = options.signal
-    this.#installLogger = options.installLogger
-    // Studio counts an agent offline once its last ping is older than its liveness window, so a
-    // slower cadence would make a healthy agent invisible. Clamped here rather than in a host's
-    // env parsing, so every host is held to the contract.
-    this.#heartbeatInterval = Math.min(options.heartbeatInterval ?? agentDefaults.heartbeatIntervalMs, agentDefaults.heartbeatIntervalMs)
+    this.#options = applyStudioDefaults(options)
+  }
+
+  /**
+   * A sandbox agent runs on Studio's own infrastructure, so it has no user project: it never
+   * writes to disk and never edits a config file that is not there.
+   */
+  get #isSandbox(): boolean {
+    return this.#session?.isSandbox === true
+  }
+
+  get #canWrite(): boolean {
+    return !this.#isSandbox && this.#options.allowWrite
+  }
+
+  get #canEditConfig(): boolean {
+    return !this.#isSandbox && this.#options.allowConfigEdit
+  }
+
+  /**
+   * A sandbox agent always generates from the spec Studio supplies; a local agent only when opted in.
+   */
+  get #canUseInput(): boolean {
+    return this.#isSandbox || this.#options.allowInput
   }
 
   async connect(): Promise<void> {
-    await this.#installLogger?.(this.#hooks)
+    const { token, studioUrl, signal, heartbeatInterval, installLogger } = this.#options
+
+    await installLogger?.(this.#hooks)
 
     try {
       // Before the session exists, so a host can cover the wait: `createAgentSession` is a round
       // trip and the socket after it opens without being awaited.
-      await this.#hooks.callHook('studio:connecting', { url: this.#studioUrl })
+      await this.#hooks.callHook('studio:connecting', { url: studioUrl })
 
-      const { sessionId, slug, wsUrl, isSandbox, version: sessionStudioVersion } = await createAgentSession({ token: this.#token, studioUrl: this.#studioUrl })
+      const session = await createAgentSession({ token, studioUrl })
 
-      this.#sessionId = sessionId
-      this.#slug = slug
-      this.#studioVersion = sessionStudioVersion
-      this.#isSandbox = isSandbox
-      this.#canWrite = isSandbox ? false : this.#allowWrite
-      this.#canEditConfig = isSandbox ? false : this.#allowConfigEdit
-      // `configPath` is relative to the agent's root unless it is already absolute, which is what
-      // `resolve` does on its own.
-      this.#configFilePath = path.resolve(this.#root, this.#configPath)
-      this.#canUseInput = isSandbox || this.#allowInput
+      this.#session = session
+      this.#studioVersion = session.version
 
-      const ws = createWebsocket(wsUrl, { headers: { Authorization: `Bearer ${this.#token}` } })
+      const ws = createWebsocket(session.wsUrl, { headers: { Authorization: `Bearer ${token}` } })
       this.#ws = ws
 
-      ws.addEventListener('open', this.#onOpen)
-      ws.addEventListener('close', this.#onClose)
-      ws.addEventListener('error', this.#onError)
-      ws.addEventListener('message', this.#onMessage)
-      // The socket's own close event fires after this, and `#teardown` is idempotent, so the
-      // shutdown path cannot be turned into a reconnect by the close that follows it.
-      this.#signal?.addEventListener('abort', this.#onAbort, { once: true })
+      this.#listen(ws, 'open', this.#onOpen)
+      this.#listen(ws, 'close', this.#onClose)
+      this.#listen(ws, 'error', this.#onError)
+      this.#listen(ws, 'message', this.#onMessage)
 
-      this.#heartbeatTimer = setInterval(() => this.#sendHeartbeat(), this.#heartbeatInterval)
+      // The socket's own close event fires after this, and `#end` is idempotent, so the shutdown
+      // path cannot be turned into a reconnect by the close that follows it. Tracked like every
+      // other listener: the signal itself only fires at process exit, so a reconnect that left one
+      // behind would pile them up for the life of the process.
+      signal?.addEventListener('abort', this.#onAbort, { once: true })
+      this.#unhooks.push(() => signal?.removeEventListener('abort', this.#onAbort))
+
+      this.#heartbeatTimer = setInterval(() => this.#sendHeartbeat(), heartbeatInterval)
 
       // Only `kubb:error` is ever fired on the connection emitter. Every generation event goes
       // through its own emitter below, so it gets that one listener rather than the full stream.
-      this.#hooks.hook('kubb:error', ({ error }) => sendErrorMessage(ws, error))
+      this.#unhooks.push(this.#hooks.hook('kubb:error', ({ error }) => sendErrorMessage(ws, error)))
     } catch (error) {
       // Reaching here means the session was never created (Studio down, a 502 mid-deploy), so no
       // socket exists and none of the socket-driven reconnect paths can fire. Retry from here or
@@ -247,13 +290,37 @@ class StudioSession {
     }
   }
 
+  /**
+   * Adds a socket listener and tracks its remover, so `dispose` detaches every listener at once.
+   */
+  #listen<TEvent extends keyof WebSocket.WebSocketEventMap>(
+    ws: WebSocket,
+    event: TEvent,
+    listener: (event: WebSocket.WebSocketEventMap[TEvent]) => void,
+  ): void {
+    ws.addEventListener(event, listener)
+    this.#unhooks.push(() => ws.removeEventListener(event, listener))
+  }
+
+  #warn(message: string): Promise<void> | void {
+    return this.#hooks.callHook('studio:warn', { message })
+  }
+
+  /**
+   * Forwards a failure to Studio over the connection emitter, which `setupEventsStream` has
+   * already wired to this socket. Swallows a listener's own failure: this is already the error path.
+   */
+  #emitError(error: Error): Promise<void> {
+    return Promise.resolve(this.#hooks.callHook('kubb:error', { error })).catch(() => {})
+  }
+
   #sendHeartbeat(): void {
     // Two consecutive missed pongs mean the socket is dead even though no close event arrived.
     // Terminate (not close) so a half-open TCP connection can't linger. The resulting close event
     // triggers cleanup and the reconnect loop.
-    if (Date.now() - this.#lastPongAt > this.#heartbeatInterval * 2) {
-      void this.#hooks.callHook('studio:warn', { message: 'No reply from Kubb Studio, terminating the stale connection' })
-      // Stop the timer here rather than waiting for `#cleanup`, since the close event can lag, and
+    if (Date.now() - this.#lastPongAt > this.#options.heartbeatInterval * 2) {
+      void this.#warn('No reply from Kubb Studio, terminating the stale connection')
+      // Stop the timer here rather than waiting for `dispose`, since the close event can lag, and
       // until it runs this interval would re-terminate and re-log every tick.
       clearInterval(this.#heartbeatTimer)
       this.#heartbeatTimer = undefined
@@ -283,28 +350,30 @@ class StudioSession {
     try {
       const { readConfig } = await import('./configFile.ts')
 
-      return readConfig(source ?? (await readFile(this.#configFilePath, 'utf-8')))
+      return readConfig(source ?? (await read(this.#options.configFile)))
     } catch (error) {
-      await this.#hooks.callHook('studio:warn', { message: `Could not read ${this.#configFilePath}: ${getErrorMessage(error)}` })
+      await this.#warn(`Could not read ${this.#options.configFile}: ${getErrorMessage(error)}`)
 
       return undefined
     }
   }
 
   async #sendConnectedPayload(): Promise<void> {
+    const { configPath, root, version, loadConfig, allowExec } = this.#options
+
     if (!this.#ws) {
       return
     }
 
-    const config = await this.#loadConfig()
+    const config = await loadConfig()
 
     sendAgentMessage(this.#ws, {
       type: 'agent:connect',
       payload: {
-        versions: { kubb: kubbVersion, agent: this.#version },
-        root: this.#root,
+        versions: { kubb: kubbVersion, agent: version },
+        root,
         config: {
-          path: this.#configPath,
+          path: configPath,
           file: await this.#readConfigFileView(),
           plugins: config.plugins.map((plugin) => ({
             name: `@kubb/${plugin.name}`,
@@ -315,7 +384,7 @@ class StudioSession {
         permissions: {
           allowWrite: this.#canWrite,
           allowInput: this.#canUseInput,
-          allowExec: this.#allowExec,
+          allowExec,
           allowConfigEdit: this.#canEditConfig,
         },
       },
@@ -325,8 +394,8 @@ class StudioSession {
   async #handleOpen(): Promise<void> {
     this.#lastPongAt = Date.now()
     await this.#hooks.callHook('studio:connected', {
-      url: this.#studioUrl,
-      versions: { studio: this.#studioVersion, kubb: kubbVersion, agent: this.#version },
+      url: this.#options.studioUrl,
+      versions: { studio: this.#studioVersion, kubb: kubbVersion, agent: this.#options.version },
     })
 
     // Announce readiness without waiting for a `studio:connect` command. The command from the
@@ -335,7 +404,7 @@ class StudioSession {
     try {
       await this.#sendConnectedPayload()
     } catch (error) {
-      await this.#hooks.callHook('studio:warn', { message: `Failed to send the connect payload: ${getErrorMessage(error)}` })
+      await this.#warn(`Failed to send the connect payload: ${getErrorMessage(error)}`)
     }
   }
 
@@ -344,42 +413,48 @@ class StudioSession {
   // left to report it with at that point, which is why this swallows.
   #onOpen = (): void => void this.#handleOpen().catch(() => {})
 
-  #onAbort = (): void => void this.#teardown({ reason: 'shutdown', retry: false })
+  #onAbort = (): void => void this.#end({ reason: 'shutdown', retry: false })
 
-  #cleanup(reason = 'cleanup'): void {
-    clearInterval(this.#heartbeatTimer)
-    this.#heartbeatTimer = undefined
+  #onClose = (): void => void this.#end({ retry: true })
 
-    // This connection is over, so its shutdown listener must go with it. Otherwise every
-    // reconnect leaves one behind on a signal that only fires at process exit.
-    this.#signal?.removeEventListener('abort', this.#onAbort)
+  #onError = (): void => {
+    void this.#hooks.callHook('studio:error', { error: new Error('Failed to connect to Kubb Studio') })
 
-    this.#hooks.removeAllHooks()
-
-    const ws = this.#ws
-    if (!ws) {
-      return
-    }
-
-    try {
-      ws.close(1000, reason)
-    } catch {}
-
-    ws.removeEventListener('open', this.#onOpen)
-    ws.removeEventListener('close', this.#onClose)
-    ws.removeEventListener('error', this.#onError)
-    ws.removeEventListener('message', this.#onMessage)
+    this.#onClose()
   }
 
   /**
-   * Drops the socket and tells Studio the session is over. `#serverDisconnected` guards against
-   * the close event running this a second time, and against a shutdown reconnecting.
+   * Drops the socket and detaches every listener and timer this session added. Idempotent, and
+   * safe to call before `connect` ever opened anything.
+   *
+   * @internal
    */
-  async #teardown({ reason, retry }: { reason?: string; retry: boolean }): Promise<void> {
-    if (this.#serverDisconnected) {
+  dispose(reason = 'cleanup'): void {
+    clearInterval(this.#heartbeatTimer)
+    this.#heartbeatTimer = undefined
+
+    try {
+      // Closed before the listeners go, so the close event this triggers arrives after they are
+      // already detached and cannot re-enter `#end`.
+      this.#ws?.close(1000, reason)
+    } catch {}
+
+    for (const unhook of this.#unhooks) unhook()
+    this.#unhooks.length = 0
+  }
+
+  /**
+   * Ends the session: tells Studio it is over, disposes of the socket, and optionally schedules a
+   * reconnect. `#disposed` guards against the close event running this a second time, and against
+   * a shutdown reconnecting.
+   */
+  async #end({ reason, retry }: { reason?: string; retry: boolean }): Promise<void> {
+    const { studioUrl, token } = this.#options
+
+    if (this.#disposed) {
       return
     }
-    this.#serverDisconnected = true
+    this.#disposed = true
 
     // Announce the shutdown while the socket is still open, so Studio marks the session offline
     // now instead of waiting out the heartbeat window. `sendAgentMessage` is a no-op on a socket
@@ -388,21 +463,17 @@ class StudioSession {
       sendAgentMessage(this.#ws, { type: 'agent:disconnect', reason: 'shutdown' })
     }
 
-    this.#cleanup(reason)
-    // Already tearing down, so a failed disconnect changes nothing.
-    await disconnect({ sessionId: this.#sessionId, studioUrl: this.#studioUrl, token: this.#token, slug: this.#slug }).catch(() => {})
+    this.dispose(reason)
+
+    // Nothing to tell Studio about when the session never opened.
+    if (this.#session) {
+      // Already tearing down, so a failed disconnect changes nothing.
+      await disconnect({ sessionId: this.#session.sessionId, studioUrl, token, slug: this.#session.slug }).catch(() => {})
+    }
 
     if (retry) {
       reconnect(this.#options)
     }
-  }
-
-  #onClose = (): void => void this.#teardown({ retry: true })
-
-  #onError = (): void => {
-    void this.#hooks.callHook('studio:error', { error: new Error('Failed to connect to Kubb Studio') })
-
-    this.#onClose()
   }
 
   #onMessage = async (message: WebSocket.MessageEvent): Promise<void> => {
@@ -416,24 +487,7 @@ class StudioSession {
       }
 
       if (isDisconnectMessage(data)) {
-        await this.#hooks.callHook('studio:disconnected', { reason: data.reason })
-
-        if (data.reason === 'revoked') {
-          // `#cleanup` already unhooks the socket's own `close` listener before returning, which is
-          // what actually keeps a real `close` event from re-entering `#teardown`. Set regardless,
-          // so this path stays safe against `#teardown` being reached some other way later.
-          this.#serverDisconnected = true
-          this.#cleanup(`session_${data.reason}`)
-          return
-        }
-
-        if (data.reason === 'expired') {
-          this.#serverDisconnected = true
-          this.#cleanup()
-          reconnect(this.#options)
-
-          return
-        }
+        await this.#handleDisconnect(data.reason)
 
         return
       }
@@ -444,15 +498,36 @@ class StudioSession {
         return
       }
 
-      await this.#hooks.callHook('studio:warn', { message: `Ignored an unknown message from Kubb Studio: ${data.type}` })
+      await this.#warn(`Ignored an unknown message from Kubb Studio: ${data.type}`)
     } catch (error) {
       await this.#hooks.callHook('studio:error', { error: toError(error) })
 
       // Errors thrown before `generate()` runs (e.g. config loading, plugin resolution) never
       // reach `generate()`'s own `kubb:error` emission, so without this the Studio UI shows
-      // nothing while the agent silently fails. Forward them on the connection-level `#hooks`
-      // emitter, already wired to this socket via `setupEventsStream`.
-      await Promise.resolve(this.#hooks.callHook('kubb:error', { error: toError(error) })).catch(() => {})
+      // nothing while the agent silently fails.
+      await this.#emitError(toError(error))
+    }
+  }
+
+  /**
+   * Studio ended the session itself. A revoked one stays ended, an expired one gets a fresh
+   * session, and anything else is left to the socket's own close event.
+   */
+  async #handleDisconnect(reason: string): Promise<void> {
+    await this.#hooks.callHook('studio:disconnected', { reason })
+
+    if (reason !== 'revoked' && reason !== 'expired') {
+      return
+    }
+
+    // `dispose` unhooks the socket's own `close` listener before returning, which is what actually
+    // keeps a real `close` event from re-entering `#end`. `#disposed` is set regardless, so this
+    // path stays safe against `#end` being reached some other way later.
+    this.#disposed = true
+    this.dispose(`session_${reason}`)
+
+    if (reason === 'expired') {
+      reconnect(this.#options)
     }
   }
 
@@ -467,33 +542,27 @@ class StudioSession {
 
     await this.#hooks.callHook('studio:command:start', { command })
 
-    if (data.type === 'studio:generate') {
-      await this.#handleGenerate(ws, data, command)
-
-      return
-    }
-
-    if (data.type === 'studio:connect') {
-      this.#studioVersion = data.version ?? this.#studioVersion
-      await this.#sendConnectedPayload()
-
-      await this.#hooks.callHook('studio:command:end', { command })
-
-      return
-    }
-
-    if (data.type === 'studio:save') {
-      await this.#handleSave(ws, data, command)
+    switch (data.type) {
+      case 'studio:generate':
+        await this.#handleGenerate(ws, data, command)
+        return
+      case 'studio:connect':
+        this.#studioVersion = data.version ?? this.#studioVersion
+        await this.#sendConnectedPayload()
+        await this.#hooks.callHook('studio:command:end', { command })
+        return
+      case 'studio:save':
+        await this.#handleSave(ws, data, command)
+        return
     }
   }
 
   async #handleGenerate(ws: WebSocket, data: Extract<AgentMessage, { type: 'studio:generate' }>, command: string): Promise<void> {
-    if (this.#isGenerating) {
-      await this.#hooks.callHook('studio:warn', { message: 'Ignored generate: a generation is already in progress' })
+    const { root, loadConfig, allowInput, allowWrite, allowExec, client, installLogger } = this.#options
 
-      await Promise.resolve(
-        this.#hooks.callHook('kubb:error', { error: new Error('A generation is already in progress, please wait for it to finish') }),
-      ).catch(() => {})
+    if (this.#isGenerating) {
+      await this.#warn('Ignored generate: a generation is already in progress')
+      await this.#emitError(new Error('A generation is already in progress, please wait for it to finish'))
 
       return
     }
@@ -501,29 +570,29 @@ class StudioSession {
     this.#isGenerating = true
 
     try {
-      const config = await this.#loadConfig()
+      const config = await loadConfig()
       const patch = data.payload
       const plugins = await mergePlugins(config.plugins, patch?.plugins)
       const adapter = await mergeAdapter(config.adapter, patch?.adapter)
 
       // A sandbox agent always uses the inline spec (empty string included, since it has no disk
       // file); a local agent only when opted in, and an empty or absent spec falls back to disk.
-      const inputOverride = this.#isSandbox ? (patch?.input ?? '') : (this.#allowInput && patch?.input) || undefined
+      const inputOverride = this.#isSandbox ? (patch?.input ?? '') : (allowInput && patch?.input) || undefined
 
-      if (this.#allowWrite && this.#isSandbox) {
-        await this.#hooks.callHook('studio:warn', { message: 'Running in a sandbox, so writing files is disabled' })
+      if (allowWrite && this.#isSandbox) {
+        await this.#warn('Running in a sandbox, so writing files is disabled')
       }
 
       if (patch?.input && !this.#canUseInput) {
         // The Docker agent reads `allowInput` from `KUBB_AGENT_ALLOW_INPUT`. The CLI grants it
         // through `--allowInput` or the per-project prompt instead, so each host gets its own remedy.
-        const remedy = this.#client?.kind === 'cli' ? '--allowInput, or answer yes when kubb studio asks,' : 'KUBB_AGENT_ALLOW_INPUT=true'
-        await this.#hooks.callHook('studio:warn', { message: `Ignored the spec from Studio; set ${remedy} to generate from it` })
+        const remedy = client?.kind === 'cli' ? '--allowInput, or answer yes when kubb studio asks,' : 'KUBB_AGENT_ALLOW_INPUT=true'
+        await this.#warn(`Ignored the spec from Studio; set ${remedy} to generate from it`)
       }
 
       const generationHooks = new Hookable<KubbHooks>()
-      await this.#installLogger?.(generationHooks)
-      setupHookListener(generationHooks, this.#root)
+      await installLogger?.(generationHooks)
+      setupHookListener(generationHooks, root)
       setupEventsStream(ws, generationHooks)
 
       const resolvedPlugins = plugins ?? config.plugins
@@ -531,10 +600,10 @@ class StudioSession {
       await generate({
         config: {
           ...config,
-          root: this.#root,
+          root,
           input: inputOverride ?? config.input,
           storage: this.#canWrite ? fsStorage() : memoryStorage(),
-          output: this.#allowExec ? { ...config.output } : { ...config.output, format: false, lint: false, postGenerate: [] },
+          output: allowExec ? { ...config.output } : { ...config.output, format: false, lint: false, postGenerate: [] },
           plugins: resolvedPlugins,
           adapter,
         },
@@ -551,11 +620,13 @@ class StudioSession {
   }
 
   async #handleSave(ws: WebSocket, data: Extract<AgentMessage, { type: 'studio:save' }>, command: string): Promise<void> {
+    const { configPath, configFile } = this.#options
+
     // Studio waits on an `agent:save` for every `studio:save`, so every path out of this function
     // sends one. `edits` is checked before it is walked: the message crosses the same trust
     // boundary as the values inside it.
     if (!Array.isArray(data.edits)) {
-      await this.#hooks.callHook('studio:warn', { message: 'Ignored save: the message carried no edits' })
+      await this.#warn('Ignored save: the message carried no edits')
 
       sendAgentMessage(ws, { type: 'agent:save', payload: { outcomes: [], changed: false } })
 
@@ -570,7 +641,7 @@ class StudioSession {
       })
 
     if (!this.#canEditConfig) {
-      await this.#hooks.callHook('studio:warn', { message: 'Ignored save: editing kubb.config.ts was not granted' })
+      await this.#warn('Ignored save: editing kubb.config.ts was not granted')
 
       refuse('the agent was not granted permission to edit kubb.config.ts')
 
@@ -590,11 +661,11 @@ class StudioSession {
       // have edited the file since, and since every untouched node keeps its own text, patching
       // what is on disk right now preserves that edit.
       const { applyConfigEdits } = await import('./configFile.ts')
-      const current = await readFile(this.#configFilePath, 'utf-8')
+      const current = await read(configFile)
       const { source: patched, outcomes, changed } = applyConfigEdits(current, edits)
 
       if (changed) {
-        await writeFile(this.#configFilePath, patched, 'utf-8')
+        await write(configFile, patched)
       }
 
       sendAgentMessage(ws, {
@@ -603,7 +674,7 @@ class StudioSession {
       })
 
       const applied = outcomes.filter((outcome) => outcome.applied).length
-      await this.#hooks.callHook('studio:command:end', { command, info: `applied ${applied}/${outcomes.length} edits to ${this.#configPath}` })
+      await this.#hooks.callHook('studio:command:end', { command, info: `applied ${applied}/${outcomes.length} edits to ${configPath}` })
     } catch (error) {
       // An unreadable config, a read-only filesystem. Reported as a refusal of every edit so
       // Studio hears back rather than waiting on a reply that never comes.

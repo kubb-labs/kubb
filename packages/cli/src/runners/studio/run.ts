@@ -284,7 +284,8 @@ class StudioConnection {
   // once the session is already live. A second one is treated as a hard failure instead of pairing
   // forever.
   #hasReauthenticated = false
-  #granted: Record<Permission, boolean> = { allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false }
+  // Resolved by `run()` from the flags and the project's saved answers, before anything reads it.
+  #granted!: Record<Permission, boolean>
 
   constructor(options: StudioOptions, configPath: string) {
     this.#options = options
@@ -329,13 +330,7 @@ class StudioConnection {
     try {
       this.#credentials = await this.#resolveInitialCredentials()
 
-      const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(
-        this.#options,
-        this.#credentials,
-        this.#configPath,
-        !this.#usingEnvToken,
-      )
-      this.#granted = { allowWrite, allowConfigEdit, allowInput, allowExec }
+      this.#granted = await resolvePermissions(this.#options, this.#credentials, this.#configPath, !this.#usingEnvToken)
 
       this.#printBanner()
 
@@ -403,10 +398,7 @@ class StudioConnection {
    * the run is over.
    */
   async #connectAndWait(): Promise<boolean> {
-    let notifyAuthRequired: (error: InvalidAgentTokenError) => void = () => {}
-    const authRequired = new Promise<InvalidAgentTokenError>((resolve) => {
-      notifyAuthRequired = resolve
-    })
+    const { promise: authRequired, resolve: notifyAuthRequired } = Promise.withResolvers<InvalidAgentTokenError>()
 
     const client = createClient({
       token: this.#credentials.token,
@@ -453,24 +445,21 @@ class StudioConnection {
     }
 
     // `{ once: true }` only removes the listener once the abort event fires, not once this race is
-    // settled by the other side, so a token rejection that gets reauthenticated would otherwise
-    // leave one behind on `#shutdown.signal` for every reconnect the run makes.
-    let onAbort: (() => void) | undefined
+    // settled by the other side, so `settled` drops it either way. Without that, a token rejection
+    // that gets reauthenticated leaves one behind on `#shutdown.signal` for every reconnect.
+    const settled = new AbortController()
     const shutdownWait = new Promise<{ kind: 'shutdown' }>((resolve) => {
       if (this.#shutdown.signal.aborted) {
         resolve({ kind: 'shutdown' })
         return
       }
-      onAbort = () => resolve({ kind: 'shutdown' })
-      this.#shutdown.signal.addEventListener('abort', onAbort, { once: true })
+      this.#shutdown.signal.addEventListener('abort', () => resolve({ kind: 'shutdown' }), { once: true, signal: settled.signal })
     })
     const authRequiredWait = authRequired.then((error) => ({ kind: 'authRequired' as const, error }))
 
     const outcome = await Promise.race([shutdownWait, authRequiredWait])
 
-    if (onAbort) {
-      this.#shutdown.signal.removeEventListener('abort', onAbort)
-    }
+    settled.abort()
 
     client.disconnect()
 
@@ -481,6 +470,20 @@ class StudioConnection {
     }
 
     return this.#handleLiveRejection(outcome.error)
+  }
+
+  /**
+   * Throws when a rejected token cannot be replaced by pairing again: this run already paired once
+   * and was rejected anyway, or there is no browser to approve a new pairing with.
+   */
+  #assertCanReauthenticate(error: InvalidAgentTokenError): void {
+    if (this.#hasReauthenticated) {
+      throw explainRejectedToken(error, 'reauthExhausted')
+    }
+
+    if (isCIEnvironment() || !canUseTTY()) {
+      throw explainRejectedToken(error, 'nonInteractive')
+    }
   }
 
   /**
@@ -495,13 +498,7 @@ class StudioConnection {
 
     await clearCredentials()
 
-    if (this.#hasReauthenticated) {
-      throw explainRejectedToken(error, 'reauthExhausted')
-    }
-
-    if (isCIEnvironment() || !canUseTTY()) {
-      throw explainRejectedToken(error, 'nonInteractive')
-    }
+    this.#assertCanReauthenticate(error)
 
     console.log(styleText('yellow', `${error.message} Pairing again...`))
 
@@ -523,13 +520,7 @@ class StudioConnection {
       throw explainRejectedToken(error, 'envToken')
     }
 
-    if (this.#hasReauthenticated) {
-      throw explainRejectedToken(error, 'reauthExhausted')
-    }
-
-    if (isCIEnvironment() || !canUseTTY()) {
-      throw explainRejectedToken(error, 'nonInteractive')
-    }
+    this.#assertCanReauthenticate(error)
 
     console.log(styleText('yellow', `${error.message} Studio needs you to approve access again.`))
 
