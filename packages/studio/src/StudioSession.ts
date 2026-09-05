@@ -9,6 +9,7 @@ import { setupHookListener } from './hooks.ts'
 import {
   type AgentConnectResponse,
   type AgentMessage,
+  type AgentPermissions,
   type ClientInfo,
   type ConfigFileView,
   isCommandMessage,
@@ -23,7 +24,7 @@ import { mergeAdapter, mergePlugins } from './resolveConfig.ts'
 import type WebSocket from 'ws'
 import { createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream } from './ws.ts'
 
-export type ConnectToStudioOptions = {
+export type StudioSessionOptions = {
   token: string
   studioUrl?: string
   configPath: string
@@ -41,25 +42,18 @@ export type ConnectToStudioOptions = {
    * Identifies the host to Studio, so the UI can badge a CLI connection and show the real project.
    */
   client?: ClientInfo
-  allowWrite?: boolean
   /**
-   * Whether Studio may edit the project's `kubb.config.ts`. Granted separately from `allowWrite`,
-   * which only covers generated output: this rewrites a file the user wrote by hand.
+   * What Studio may do in this project, off unless the host grants it. A sandbox session narrows
+   * them further: it never writes to disk and never edits a config file, and it always generates
+   * from the spec Studio sends.
    */
-  allowConfigEdit?: boolean
-  allowInput?: boolean
-  /**
-   * Whether the formatter, the linter, and `output.postGenerate` may run as child processes.
-   * Defaults to true, which is what the Docker agent has always done. The CLI runs in the user's
-   * own project, so it defaults this off and asks before granting it.
-   */
-  allowExec?: boolean
+  permissions?: Partial<AgentPermissions>
   root?: string
   retryInterval?: number
   heartbeatInterval?: number
   /**
    * Number of pool sessions this agent serves. Read by `createClient`, which opens one
-   * `connectToStudio` per slot, and reported to Studio at registration.
+   * session per slot, and reported to Studio at registration.
    */
   poolSize?: number
   /**
@@ -68,8 +62,9 @@ export type ConnectToStudioOptions = {
    */
   signal?: AbortSignal
   /**
-   * Installs listeners on an event emitter, once for the session and once per generation. Left out,
-   * the runtime prints nothing, which is what a library should default to.
+   * Installs listeners on the session's event emitter, which carries both the session events and
+   * the generations it runs. Left out, the runtime prints nothing, which is what a library should
+   * default to.
    */
   installLogger?: (hooks: Hookable<KubbHooks>) => void | Promise<void>
   /**
@@ -84,13 +79,10 @@ export type ConnectToStudioOptions = {
 /**
  * A session's options with every default filled in, so nothing downstream repeats a fallback.
  */
-type ResolvedOptions = ConnectToStudioOptions & {
+type ResolvedOptions = StudioSessionOptions & {
   studioUrl: string
   root: string
-  allowWrite: boolean
-  allowConfigEdit: boolean
-  allowInput: boolean
-  allowExec: boolean
+  permissions: AgentPermissions
   retryInterval: number
   heartbeatInterval: number
   /**
@@ -105,7 +97,7 @@ type ResolvedOptions = ConnectToStudioOptions & {
  * permission off unless granted. Idempotent, so a reconnect can pass an already-resolved bag
  * back in.
  */
-function applyStudioDefaults(options: ConnectToStudioOptions): ResolvedOptions {
+function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
   const root = options.root ?? process.cwd()
 
   return {
@@ -115,10 +107,7 @@ function applyStudioDefaults(options: ConnectToStudioOptions): ResolvedOptions {
     // `configPath` is relative to the agent's root unless it is already absolute, which is what
     // `resolve` does on its own.
     configFile: path.resolve(root, options.configPath),
-    allowWrite: options.allowWrite ?? false,
-    allowConfigEdit: options.allowConfigEdit ?? false,
-    allowInput: options.allowInput ?? false,
-    allowExec: options.allowExec ?? false,
+    permissions: { allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false, ...options.permissions },
     retryInterval: options.retryInterval ?? agentDefaults.retryIntervalMs,
     // Studio counts an agent offline once its last ping is older than its liveness window, so a
     // slower cadence would make a healthy agent invisible. Clamped here rather than in a host's
@@ -155,7 +144,7 @@ function reconnect(options: ResolvedOptions): void {
 
     // The rejection is never awaited, so it has to be caught here or it surfaces as an
     // unhandledRejection that kills the retry loop instead of trying again.
-    connectToStudio(options).catch((error: unknown) => {
+    new StudioSession(options).connect().catch((error: unknown) => {
       console.error(styleText('red', `Reconnect attempt to Kubb Studio failed: ${getErrorMessage(error)}`))
 
       // A rejected token stays rejected, so retrying only spams 401s until the process is killed.
@@ -176,9 +165,9 @@ function reconnect(options: ResolvedOptions): void {
 
 /**
  * One WebSocket session with Studio: opening it, keeping it alive, and running the commands it
- * sends. Reached through `connectToStudio`, the module's only export.
+ * sends. `createClient` opens one per pool slot and is the only caller.
  */
-class StudioSession {
+export class StudioSession {
   readonly #options: ResolvedOptions
   // Each session gets its own isolated event emitter so generation events from one session do not
   // bleed into another session's WebSocket stream.
@@ -212,7 +201,7 @@ class StudioSession {
   // reconnect loop can establish a fresh session.
   #lastPongAt = Date.now()
 
-  constructor(options: ConnectToStudioOptions) {
+  constructor(options: StudioSessionOptions) {
     this.#options = applyStudioDefaults(options)
   }
 
@@ -224,11 +213,11 @@ class StudioSession {
   }
 
   get #canWrite(): boolean {
-    return !this.#isSandbox && this.#options.allowWrite
+    return !this.#isSandbox && this.#options.permissions.allowWrite
   }
 
   get #canEditConfig(): boolean {
-    return !this.#isSandbox && this.#options.allowConfigEdit
+    return !this.#isSandbox && this.#options.permissions.allowConfigEdit
   }
 
   /**
@@ -236,7 +225,7 @@ class StudioSession {
    * host opted in.
    */
   get #canUseInput(): boolean {
-    return this.#isSandbox || this.#options.allowInput
+    return this.#isSandbox || this.#options.permissions.allowInput
   }
 
   async connect(): Promise<void> {
@@ -270,8 +259,8 @@ class StudioSession {
 
       this.#heartbeatTimer = setInterval(() => this.#sendHeartbeat(), heartbeatInterval)
 
-      // Only `kubb:error` is ever fired on the connection emitter. Every generation event goes
-      // through its own emitter below, so it gets that one listener rather than the full stream.
+      // Standing listener for the whole session. A generation adds the rest of the stream for as
+      // long as it runs, so between runs this socket carries errors only.
       this.#unhooks.push(this.#hooks.hook('kubb:error', ({ error }) => sendErrorMessage(ws, error)))
     } catch (error) {
       // Reaching here means the session was never created (Studio down, a 502 mid-deploy), so no
@@ -352,7 +341,7 @@ class StudioSession {
   }
 
   async #sendConnectedPayload(): Promise<void> {
-    const { configPath, root, version, loadConfig, allowExec } = this.#options
+    const { configPath, root, version, loadConfig, permissions } = this.#options
 
     if (!this.#ws) {
       return
@@ -375,9 +364,9 @@ class StudioSession {
           })),
         },
         permissions: {
+          ...permissions,
           allowWrite: this.#canWrite,
           allowInput: this.#canUseInput,
-          allowExec,
           allowConfigEdit: this.#canEditConfig,
         },
       },
@@ -550,7 +539,7 @@ class StudioSession {
   }
 
   async #handleGenerate(ws: WebSocket, data: Extract<AgentMessage, { type: 'studio:generate' }>, command: string): Promise<void> {
-    const { root, loadConfig, allowInput, allowWrite, allowExec, client, installLogger } = this.#options
+    const { root, loadConfig, permissions, client } = this.#options
 
     if (this.#isGenerating) {
       await this.#warn('Ignored generate: a generation is already in progress')
@@ -569,9 +558,9 @@ class StudioSession {
 
       // A sandbox agent always uses the inline spec (empty string included, since it has no disk
       // file); a local agent only when opted in, and an empty or absent spec falls back to disk.
-      const inputOverride = this.#isSandbox ? (patch?.input ?? '') : (allowInput && patch?.input) || undefined
+      const inputOverride = this.#isSandbox ? (patch?.input ?? '') : (permissions.allowInput && patch?.input) || undefined
 
-      if (allowWrite && this.#isSandbox) {
+      if (permissions.allowWrite && this.#isSandbox) {
         await this.#warn('Running in a sandbox, so writing files is disabled')
       }
 
@@ -582,25 +571,28 @@ class StudioSession {
         await this.#warn(`Ignored the spec from Studio; set ${remedy} to generate from it`)
       }
 
-      const generationHooks = new Hookable<KubbHooks>()
-      await installLogger?.(generationHooks)
-      setupHookListener(generationHooks, root)
-      setupEventsStream(ws, generationHooks)
-
       const resolvedPlugins = plugins ?? config.plugins
 
-      await generate({
-        config: {
-          ...config,
-          root,
-          input: inputOverride ?? config.input,
-          storage: this.#canWrite ? fsStorage() : memoryStorage(),
-          output: allowExec ? { ...config.output } : { ...config.output, format: false, lint: false, postGenerate: [] },
-          plugins: resolvedPlugins,
-          adapter,
-        },
-        hooks: generationHooks,
-      })
+      // The session's own emitter carries the run: the host's logger is already on it from
+      // `connect`, and these two come off again below, so one run's listeners never see the next.
+      const detach = [setupHookListener(this.#hooks, root), setupEventsStream(ws, this.#hooks)]
+
+      try {
+        await generate({
+          config: {
+            ...config,
+            root,
+            input: inputOverride ?? config.input,
+            storage: this.#canWrite ? fsStorage() : memoryStorage(),
+            output: permissions.allowExec ? { ...config.output } : { ...config.output, format: false, lint: false, postGenerate: [] },
+            plugins: resolvedPlugins,
+            adapter,
+          },
+          hooks: this.#hooks,
+        })
+      } finally {
+        for (const remove of detach) remove()
+      }
 
       await this.#hooks.callHook('studio:command:end', {
         command,
@@ -676,8 +668,4 @@ class StudioSession {
       refuse(getErrorMessage(error))
     }
   }
-}
-
-export async function connectToStudio(options: ConnectToStudioOptions): Promise<void> {
-  await new StudioSession(options).connect()
 }

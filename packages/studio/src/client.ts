@@ -2,10 +2,10 @@ import type { Storage } from 'unstorage'
 import { agentDefaults } from './constants.ts'
 import type { InvalidAgentTokenError } from './api.ts'
 import { registerAgent } from './api.ts'
-import { type ConnectToStudioOptions, connectToStudio } from './connectStudio.ts'
+import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
 import { setStorage } from './machine.ts'
 
-export type ClientOptions = Omit<ConnectToStudioOptions, 'signal' | 'onTokenRejected'> & {
+export type ClientOptions = Omit<StudioSessionOptions, 'signal' | 'onTokenRejected'> & {
   /**
    * Where the machine secret and the last Studio config are persisted. Defaults to in-memory,
    * which gives up a stable machine identity across restarts.
@@ -72,10 +72,12 @@ export function createClient({ storage, onAuthRequired, ...options }: ClientOpti
       await registerAgent({ token: options.token, studioUrl: options.studioUrl ?? agentDefaults.studioUrl, poolSize })
 
       // Each slot is its own session, so one Studio user never sees another's generation events.
-      // Awaited: `connectToStudio` only ever rejects with `InvalidAgentTokenError` (every other
-      // failure is retried internally through its own reconnect loop and resolves normally), so
+      // Awaited: `connect()` only ever rejects with `InvalidAgentTokenError` (every other failure
+      // is retried internally through the session's own reconnect loop and resolves normally), so
       // awaiting here surfaces a dead token to the caller without blocking on a down Studio.
-      await Promise.all(Array.from({ length: poolSize }, () => connectToStudio({ ...options, signal: controller.signal, onTokenRejected: notifyAuthRequired })))
+      await Promise.all(
+        Array.from({ length: poolSize }, () => new StudioSession({ ...options, signal: controller.signal, onTokenRejected: notifyAuthRequired }).connect()),
+      )
     },
     disconnect() {
       controller.abort()

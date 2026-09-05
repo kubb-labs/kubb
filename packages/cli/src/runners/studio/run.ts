@@ -393,7 +393,7 @@ class StudioConnection {
       loadConfig: async () => (await loadConfigs(this.#options)).config,
       client: { kind: 'cli' },
       root: process.cwd(),
-      ...this.#granted,
+      permissions: this.#granted,
       // Fires once the pool is already stopped, only for a token rejected during background
       // reconnect. A startup rejection is handled below through `client.connect()` itself.
       onAuthRequired: notifyAuthRequired,

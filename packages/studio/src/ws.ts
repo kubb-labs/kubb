@@ -82,7 +82,17 @@ export function sendErrorMessage(ws: WebSocket, error: Error): void {
 /**
  * Forwards selected Kubb lifecycle events to Studio as data messages for the active session.
  */
-export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>): void {
+export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>): () => void {
+  const unhooks: Array<() => void> = []
+
+  /**
+   * Registers a listener and keeps its remover, so one generation's listeners come off the session
+   * emitter again when that generation ends.
+   */
+  function on<TName extends keyof KubbHooks & string>(name: TName, handler: (...args: KubbHooks[TName]) => unknown): void {
+    unhooks.push(hooks.hook(name, handler))
+  }
+
   function sendDataMessage(payload: Omit<DataMessagePayload, 'seq' | 'timestamp'>) {
     sendAgentMessage(ws, {
       type: 'agent:data',
@@ -90,42 +100,42 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>): vo
     })
   }
 
-  hooks.hook('kubb:plugin:start', (ctx) => {
+  on('kubb:plugin:start', (ctx) => {
     sendDataMessage({
       type: 'kubb:plugin:start',
       data: [{ plugin: ctx.plugin }],
     })
   })
 
-  hooks.hook('kubb:plugin:end', (ctx) => {
+  on('kubb:plugin:end', (ctx) => {
     sendDataMessage({
       type: 'kubb:plugin:end',
       data: [{ plugin: ctx.plugin, duration: ctx.duration, success: ctx.success }],
     })
   })
 
-  hooks.hook('kubb:build:start', ({ config, adapter }) => {
+  on('kubb:build:start', ({ config, adapter }) => {
     sendDataMessage({
       type: 'kubb:build:start',
       data: [{ config: { name: config.name }, adapter: { name: adapter.name } }],
     })
   })
 
-  hooks.hook('kubb:build:end', ({ files, outputDir }) => {
+  on('kubb:build:end', ({ files, outputDir }) => {
     sendDataMessage({
       type: 'kubb:build:end',
       data: [{ files: files.map((file) => ({ path: file.path, name: file.name })), outputDir }],
     })
   })
 
-  hooks.hook('kubb:files:processing:start', ({ files }) => {
+  on('kubb:files:processing:start', ({ files }) => {
     sendDataMessage({
       type: 'kubb:files:processing:start',
       data: [{ total: files.length }],
     })
   })
 
-  hooks.hook('kubb:files:processing:update', ({ files }) => {
+  on('kubb:files:processing:update', ({ files }) => {
     sendDataMessage({
       type: 'kubb:files:processing:update',
       data: [
@@ -141,7 +151,7 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>): vo
     })
   })
 
-  hooks.hook('kubb:files:processing:end', ({ files }) => {
+  on('kubb:files:processing:end', ({ files }) => {
     sendDataMessage({
       type: 'kubb:files:processing:end',
       data: [{ total: files.length }],
@@ -150,12 +160,12 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>): vo
 
   // The three log levels differ only in their event name.
   for (const type of ['kubb:info', 'kubb:success', 'kubb:warn'] as const) {
-    hooks.hook(type, ({ message, info }) => {
+    on(type, ({ message, info }) => {
       sendDataMessage({ type, data: [{ message, info }] })
     })
   }
 
-  hooks.hook('kubb:generation:start', ({ config }) => {
+  on('kubb:generation:start', ({ config }) => {
     sendDataMessage({
       type: 'kubb:generation:start',
       data: [
@@ -167,7 +177,7 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>): vo
     })
   })
 
-  hooks.hook('kubb:generation:end', async ({ config, storage, diagnostics = [], status, hrStart, filesCreated }) => {
+  on('kubb:generation:end', async ({ config, storage, diagnostics = [], status, hrStart, filesCreated }) => {
     const paths = await storage.readKeys()
     const files: Record<string, string> = {}
     await inParallel({
@@ -196,7 +206,7 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>): vo
     })
   })
 
-  hooks.hook('kubb:error', ({ error }) => {
+  on('kubb:error', ({ error }) => {
     sendDataMessage({
       type: 'kubb:error',
       data: [
@@ -219,26 +229,26 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>): vo
     'kubb:hooks:start',
     'kubb:hooks:end',
   ] as const) {
-    hooks.hook(type, () => {
+    on(type, () => {
       sendDataMessage({ type, data: [] })
     })
   }
 
-  hooks.hook('kubb:hook:start', ({ id, command, args }) => {
+  on('kubb:hook:start', ({ id, command, args }) => {
     sendDataMessage({
       type: 'kubb:hook:start',
       data: [{ id, command, args: args ? [...args] : undefined }],
     })
   })
 
-  hooks.hook('kubb:hook:line', ({ id, line }) => {
+  on('kubb:hook:line', ({ id, line }) => {
     sendDataMessage({
       type: 'kubb:hook:line',
       data: [{ id, line }],
     })
   })
 
-  hooks.hook('kubb:hook:end', ({ id, command, args, success, error }) => {
+  on('kubb:hook:end', ({ id, command, args, success, error }) => {
     sendDataMessage({
       type: 'kubb:hook:end',
       data: [
@@ -252,4 +262,8 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>): vo
       ],
     })
   })
+
+  return () => {
+    for (const unhook of unhooks) unhook()
+  }
 }
