@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import { InvalidAgentTokenError } from './api.ts'
 import { runConnection } from './runConnection.ts'
 
@@ -8,23 +8,35 @@ import { createClient } from './client.ts'
 
 const clientOptions = () => ({ studioUrl: 'https://kubb.studio', configPath: 'kubb.config.ts', version: '1.0.0', loadConfig: vi.fn() })
 
+type FakeClient = {
+  connect: Mock<() => Promise<void>>
+  disconnect: Mock<() => void>
+  /**
+   * What the pool would call for a token rejected during background reconnect, once it has stopped.
+   */
+  onAuthRequired?: (error: InvalidAgentTokenError) => void
+  token?: string
+}
+
 /**
  * Queues one client per attempt. `connect` decides how that attempt ends, and every client records
  * whether it was disconnected, which is what the run promises before it moves on.
  */
-function queueClients(...connects: Array<() => Promise<void>>) {
-  const clients = connects.map((connect) => ({ connect: vi.fn(connect), disconnect: vi.fn() }))
+function queueClients(...connects: Array<() => Promise<void>>): Array<FakeClient> {
+  const clients: Array<FakeClient> = connects.map((connect) => ({ connect: vi.fn(connect), disconnect: vi.fn() }))
   let attempt = 0
 
   vi.mocked(createClient).mockImplementation((options) => {
     const client = clients[attempt++]
     if (!client) throw new Error('createClient was called more times than the test queued')
-    // The pool fires this for a token rejected during background reconnect, once it has stopped.
-    Object.assign(client, { onAuthRequired: options.onAuthRequired, token: options.token })
+
+    client.onAuthRequired = options.onAuthRequired
+    client.token = options.token
+
     return client
   })
 
-  return clients as Array<(typeof clients)[number] & { onAuthRequired?: (error: InvalidAgentTokenError) => void; token?: string }>
+  return clients
 }
 
 const rejected = () => Promise.reject(new InvalidAgentTokenError('https://kubb.studio'))

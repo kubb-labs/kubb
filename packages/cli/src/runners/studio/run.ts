@@ -450,13 +450,9 @@ class StudioConnection {
 
     const credentials = await this.#reauthenticate()
 
-    if (!credentials) {
-      // Nothing was ever connected at startup, so there is no session to report the end of.
-      if (live) {
-        this.#reportDisconnected()
-      }
-
-      return null
+    // Nothing was ever connected at startup, so there is no session to report the end of.
+    if (!credentials && live) {
+      this.#reportDisconnected()
     }
 
     return credentials

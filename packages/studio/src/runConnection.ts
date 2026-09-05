@@ -53,7 +53,7 @@ export type ConnectionOptions<TCredentials extends { token: string }> = {
  * background reconnect. Resolves with the rejection, or nothing when the run is being shut down.
  */
 function waitForRejection(authRequired: Promise<InvalidAgentTokenError>, signal?: AbortSignal): Promise<InvalidAgentTokenError | undefined> {
-  // Nothing to race without a signal: that host ends the run some other way.
+  // Nothing to race without a signal: a host without one ends the run some other way.
   if (!signal) {
     return authRequired
   }
@@ -98,8 +98,6 @@ export async function runConnection<TCredentials extends { token: string }>({
 }: ConnectionOptions<TCredentials>): Promise<ConnectionOutcome> {
   let current = credentials
 
-  // Each pass is one connection attempt: it ends the run, or produces the credential the next
-  // attempt opens with.
   while (true) {
     // A shutdown can land outside the race below, while a host is pairing or prompting. Registering
     // one more agent with Studio only to drop it again is not what the operator asked for.
@@ -131,7 +129,6 @@ export async function runConnection<TCredentials extends { token: string }>({
 
       rejection = { error, credentials: current, live: false }
     } finally {
-      // Every way out of this attempt closes its client, the rethrow included.
       client.disconnect()
     }
 
