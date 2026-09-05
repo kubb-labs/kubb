@@ -23,7 +23,8 @@ import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import { version } from '../../../package.json'
 import type { definition } from '../../commands/studio.ts'
 import setupReporters from '../../loggers/utils.ts'
-import { canUseTTY, isCIEnvironment, isRichOutput } from '../../utils/env.ts'
+import { createSpinner, logBlock, logIntro, logOutro } from '../../loggers/output.ts'
+import { canUseTTY, isCIEnvironment } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 
@@ -105,12 +106,12 @@ async function login({ studioUrl, autoOpen }: StudioOptions, { signal, previousC
     await openInBrowser(session.verification_uri_complete)
   }
 
-  const spinner = isRichOutput() ? prompts.spinner() : null
-  spinner?.start('Waiting for approval')
+  const spinner = createSpinner()
+  spinner.start('Waiting for approval')
 
   try {
     const { token, agent } = await pollForPairingToken({ studioUrl, session, signal })
-    spinner?.stop(`Paired as ${agent.name}`)
+    spinner.stop(`Paired as ${agent.name}`)
 
     const keepsIdentity = previousCredentials?.studioUrl === studioUrl && previousCredentials.agentId === agent.id
     const credentials: Credentials = {
@@ -126,7 +127,7 @@ async function login({ studioUrl, autoOpen }: StudioOptions, { signal, previousC
 
     return credentials
   } catch (error) {
-    spinner?.stop(error instanceof PairingCanceledError ? 'Pairing canceled' : 'Pairing failed')
+    spinner.stop(error instanceof PairingCanceledError ? 'Pairing canceled' : 'Pairing failed')
     throw error
   }
 }
@@ -238,8 +239,8 @@ async function loadConfigs(options: StudioOptions): Promise<{ configPath: string
 type RejectedTokenReason = 'envToken' | 'nonInteractive' | 'reauthExhausted'
 
 /**
- * Explains a rejected token to the operator. Never touches stored or environment credentials
- * itself, since a message-only path must not have side effects the caller did not ask for.
+ * Explains a rejected token to the operator. Builds the error and nothing else, so each caller
+ * decides what happens to the credentials.
  */
 function explainRejectedToken(error: InvalidAgentTokenError, reason: RejectedTokenReason): Error {
   if (reason === 'envToken') {
@@ -254,244 +255,306 @@ function explainRejectedToken(error: InvalidAgentTokenError, reason: RejectedTok
 }
 
 /**
+ * One `kubb studio` connect run: pairing if needed, connecting, and pairing again whenever Studio
+ * rejects the token. Reached through `connect()`, which is what the command runs.
+ */
+class StudioConnection {
+  readonly #options: StudioOptions
+  readonly #configPath: string
+  readonly #shutdown = new AbortController()
+  readonly #requestShutdown = (): void => this.#shutdown.abort()
+  // `bun-types` narrows `process.on`/`process.off` to its own event union, which omits Node's
+  // process signal events, so the listener is installed and removed through the plain emitter API.
+  readonly #processEvents = process as unknown as NodeJS.EventEmitter
+
+  // Known once `run()` resolves the initial credentials, before anything else reads this field.
+  #credentials!: Credentials
+  // Whether the "Press Ctrl+C" hint already printed, so a reconnect never repeats it.
+  #hinted = false
+  // One automatic re-pair per run, whether the rejection lands at startup or once the session is
+  // live. A token rejected right after a fresh login is a hard failure, not a reason to keep
+  // pairing.
+  #hasReauthenticated = false
+  // Resolved by `run()` from the flags and the project's saved answers, before anything reads it.
+  #granted!: Record<Permission, boolean>
+
+  constructor(options: StudioOptions, configPath: string) {
+    this.#options = options
+    this.#configPath = configPath
+  }
+
+  #reportDisconnected(): void {
+    if (this.#options.logLevel === 'silent') {
+      return
+    }
+
+    logOutro('Disconnected')
+  }
+
+  /**
+   * Connects and streams generation events until the process is stopped or Studio rejects the
+   * token.
+   *
+   * One `AbortController` covers the whole run: it cancels an in-flight pairing poll on Ctrl+C and
+   * ends the wait in `#connectAndWait`. Its signal listeners are armed once here, so a retried
+   * pairing cannot leave a duplicate behind.
+   */
+  async run(): Promise<void> {
+    this.#processEvents.once('SIGINT', this.#requestShutdown)
+    this.#processEvents.once('SIGTERM', this.#requestShutdown)
+
+    try {
+      this.#credentials = await this.#resolveInitialCredentials()
+
+      this.#granted = await resolvePermissions(this.#options, this.#credentials, this.#configPath, !process.env.KUBB_AGENT_TOKEN)
+
+      this.#printBanner()
+
+      // Each iteration is one connection attempt. It returns once the run is over (a shutdown, or
+      // a canceled re-pair) or falls through to try again with whatever credentials are now current.
+      while (!(await this.#connectAndWait())) {}
+    } catch (error) {
+      // Canceling the very first pairing (before anything was ever connected) is Ctrl+C working as
+      // intended, not a failure to report.
+      if (error instanceof PairingCanceledError) {
+        return
+      }
+
+      throw error
+    } finally {
+      this.#processEvents.off('SIGINT', this.#requestShutdown)
+      this.#processEvents.off('SIGTERM', this.#requestShutdown)
+    }
+  }
+
+  async #resolveInitialCredentials(): Promise<Credentials> {
+    const envToken = process.env.KUBB_AGENT_TOKEN
+    const stored = envToken ? null : await readCredentials()
+
+    // A credential is only reused for the Studio it was issued by, so switching `--url` re-pairs
+    // instead of sending one instance's token to another.
+    const resolved = envToken
+      ? { studioUrl: this.#options.studioUrl, token: envToken, agentId: '', agentSlug: '' }
+      : stored?.studioUrl === this.#options.studioUrl
+        ? stored
+        : null
+
+    if (resolved) {
+      return resolved
+    }
+
+    if (isCIEnvironment()) {
+      throw new Error(`Not paired with ${this.#options.studioUrl}. Set KUBB_AGENT_TOKEN, or run \`kubb studio login\` on a machine with a browser.`)
+    }
+
+    return login(this.#options, { signal: this.#shutdown.signal })
+  }
+
+  #printBanner(): void {
+    if (this.#options.logLevel === 'silent') {
+      return
+    }
+
+    const detail = (label: string, value: string) => `${styleText('dim', label.padEnd(7))}  ${value}`
+
+    logBlock([
+      detail('Studio', styleText('cyan', this.#options.studioUrl)),
+      detail('Project', path.basename(process.cwd())),
+      detail('Config', path.relative(process.cwd(), this.#configPath) || this.#configPath),
+      '',
+      styleText('dim', 'Permissions'),
+      ...formatPermissionRows(this.#granted),
+    ])
+  }
+
+  /**
+   * Opens one client and waits for whichever comes first: a shutdown, or Studio rejecting the
+   * token. A rejection arrives either from `client.connect()` itself, at startup, or later through
+   * `onAuthRequired`, during a background reconnect. Returns whether the run is over.
+   */
+  async #connectAndWait(): Promise<boolean> {
+    // A shutdown can land outside the race below: while the permission prompts are open, or
+    // between a browser approval and this next attempt. Registering one more agent with Studio
+    // only to drop it again is not what the operator asked for.
+    if (this.#shutdown.signal.aborted) {
+      this.#reportDisconnected()
+
+      return true
+    }
+
+    const { promise: authRequired, resolve: notifyAuthRequired } = Promise.withResolvers<InvalidAgentTokenError>()
+
+    const client = createClient({
+      token: this.#credentials.token,
+      studioUrl: this.#options.studioUrl,
+      configPath: this.#configPath,
+      version: this.#options.version,
+      // Reloaded on every generate, so an edit to kubb.config.ts is picked up without reconnecting.
+      loadConfig: async () => (await loadConfigs(this.#options)).config,
+      client: { kind: 'cli' },
+      root: process.cwd(),
+      ...this.#granted,
+      // Fires once the pool is already stopped, only for a token rejected during background
+      // reconnect. A startup rejection is handled below through `client.connect()` itself.
+      onAuthRequired: notifyAuthRequired,
+      // The loggers `kubb generate` installs, on both emitters, so one place renders the session
+      // events and the generations it drives.
+      installLogger: async (hooks) => {
+        await setupReporters(hooks, { logLevel: logLevelMap[this.#options.logLevel ?? 'info'], reporters: [cliReporter] })
+
+        // `client.connect()` resolves once the agent is registered, not once a session is open, so
+        // this is the only point that knows the connection is live. Registered after the loggers so
+        // it lands under their "Connected to ..." line, and once, since every reconnect fires again.
+        hooks.hook('studio:connected', () => {
+          if (this.#hinted || this.#options.logLevel === 'silent') {
+            return
+          }
+          this.#hinted = true
+
+          logBlock(styleText('dim', 'Press Ctrl+C to disconnect'))
+        })
+      },
+    })
+
+    try {
+      await client.connect()
+    } catch (error) {
+      if (!(error instanceof InvalidAgentTokenError)) {
+        throw error
+      }
+
+      client.disconnect()
+
+      return this.#handleStartupRejection(error)
+    }
+
+    // `{ once: true }` drops the listener when the abort fires, not when the other side settles
+    // the race, so `settled` covers that half. Without it a reauthenticated rejection leaves one
+    // behind on `#shutdown.signal` for every reconnect.
+    const settled = new AbortController()
+    // Resolves with nothing, so the race reports a shutdown as the absence of a rejection.
+    const shutdownWait = new Promise<undefined>((resolve) => {
+      if (this.#shutdown.signal.aborted) {
+        resolve(undefined)
+        return
+      }
+      this.#shutdown.signal.addEventListener('abort', () => resolve(undefined), { once: true, signal: settled.signal })
+    })
+
+    const rejection = await Promise.race([shutdownWait, authRequired])
+
+    settled.abort()
+
+    client.disconnect()
+
+    if (!rejection) {
+      this.#reportDisconnected()
+
+      return true
+    }
+
+    return this.#handleLiveRejection(rejection)
+  }
+
+  /**
+   * Throws when a rejected token cannot be replaced by pairing again: this run already paired once
+   * and was rejected anyway, or there is no browser to approve a new pairing.
+   */
+  #assertCanReauthenticate(error: InvalidAgentTokenError): void {
+    if (this.#hasReauthenticated) {
+      throw explainRejectedToken(error, 'reauthExhausted')
+    }
+
+    if (isCIEnvironment() || !canUseTTY()) {
+      throw explainRejectedToken(error, 'nonInteractive')
+    }
+  }
+
+  /**
+   * The token was dead before a session ever opened: the agent was deleted in Studio, or the token
+   * was revoked. Keeping it only produces 401s on every run, so it is forgotten and paired again.
+   * Returns whether the run is over.
+   */
+  async #handleStartupRejection(error: InvalidAgentTokenError): Promise<boolean> {
+    // An operator-supplied token is never replaced automatically.
+    if (process.env.KUBB_AGENT_TOKEN) {
+      throw explainRejectedToken(error, 'envToken')
+    }
+
+    await clearCredentials()
+
+    this.#assertCanReauthenticate(error)
+
+    console.log(styleText('yellow', `${error.message} Pairing again...`))
+
+    if (!(await this.#reauthenticate())) {
+      return true
+    }
+
+    return false
+  }
+
+  /**
+   * Studio rejected the token in the background, well after the session was already live. Returns
+   * whether the run is over.
+   */
+  async #handleLiveRejection(error: InvalidAgentTokenError): Promise<boolean> {
+    if (process.env.KUBB_AGENT_TOKEN) {
+      throw explainRejectedToken(error, 'envToken')
+    }
+
+    this.#assertCanReauthenticate(error)
+
+    console.log(styleText('yellow', `${error.message} Studio needs you to approve access again.`))
+
+    // Forget the dead token before pairing again, the same as a rejection at startup: `login`
+    // overwrites the file regardless, but a failed re-pair should not leave a rejected token
+    // behind for the next run to try again.
+    await clearCredentials()
+
+    if (!(await this.#reauthenticate())) {
+      this.#reportDisconnected()
+
+      return true
+    }
+
+    return false
+  }
+
+  /**
+   * Re-pairs and stores the resulting credentials. Returns false when the operator canceled it.
+   */
+  async #reauthenticate(): Promise<boolean> {
+    try {
+      this.#credentials = await login(this.#options, { signal: this.#shutdown.signal, previousCredentials: this.#credentials })
+    } catch (loginError) {
+      if (loginError instanceof PairingCanceledError) {
+        return false
+      }
+      throw loginError
+    }
+
+    this.#hasReauthenticated = true
+
+    // The approved agent may be a different identity, whose saved permissions did not carry
+    // forward. Resolving again asks for whatever this credential does not already hold, instead
+    // of handing the new agent what the previous one was granted.
+    this.#granted = await resolvePermissions(this.#options, this.#credentials, this.#configPath, !process.env.KUBB_AGENT_TOKEN)
+
+    return true
+  }
+}
+
+/**
  * Connects this project to Studio and streams generation events until the process is stopped or
  * Studio rejects the token.
- *
- * One `AbortController` covers the whole call: it cancels an in-flight pairing poll on Ctrl+C and
- * lets a live token rejection race a shutdown signal, armed once and torn down in `finally` so a
- * retried pairing never leaves behind a duplicate `SIGINT`/`SIGTERM` listener.
  */
 export async function connect(options: StudioOptions): Promise<void> {
   // Resolved before any network call to Studio (pairing included), so a project with no config
   // fails fast instead of starting a device-authorization flow it can never use.
   const { configPath } = await loadConfigs(options)
 
-  const shutdown = new AbortController()
-  const requestShutdown = () => shutdown.abort()
-  // `bun-types` narrows `process.on`/`process.off` to its own event union, which omits Node's
-  // process signal events, so the listener is installed and removed through the plain emitter API.
-  const processEvents = process as unknown as NodeJS.EventEmitter
-  processEvents.once('SIGINT', requestShutdown)
-  processEvents.once('SIGTERM', requestShutdown)
-
-  const logLevel = logLevelMap[options.logLevel ?? 'info']
-  const isRich = isRichOutput()
-  // One clack gutter block, or the same lines plainly.
-  const say = (lines: string | Array<string>) => (isRich ? prompts.log.message(lines) : console.log([lines].flat().join('\n')))
-  const reportDisconnected = () => {
-    if (options.logLevel === 'silent') {
-      return
-    }
-    // `outro` closes the block `intro` opened, so it is not a written line.
-    if (isRich) {
-      prompts.outro('Disconnected')
-    } else {
-      console.log('Disconnected')
-    }
-  }
-
-  try {
-    const envToken = process.env.KUBB_AGENT_TOKEN
-    const stored = envToken ? null : await readCredentials()
-
-    const initialCredentials: Credentials = await (async () => {
-      // A credential is only reused for the Studio it was issued by, so switching `--url` re-pairs
-      // instead of sending one instance's token to another.
-      const resolved = envToken
-        ? { studioUrl: options.studioUrl, token: envToken, agentId: '', agentSlug: '' }
-        : stored?.studioUrl === options.studioUrl
-          ? stored
-          : null
-
-      if (resolved) {
-        return resolved
-      }
-
-      if (isCIEnvironment()) {
-        throw new Error(`Not paired with ${options.studioUrl}. Set KUBB_AGENT_TOKEN, or run \`kubb studio login\` on a machine with a browser.`)
-      }
-
-      return login(options, { signal: shutdown.signal })
-    })()
-
-    // Everything the reconnect loop below mutates, on one object instead of separate `let`s: state.
-    const state = {
-      credentials: initialCredentials,
-      // `envToken` itself never changes, but once a browser login has replaced the credentials,
-      // later rejections are no longer about the environment variable and need the paired-again message.
-      usingEnvToken: !!envToken,
-      // Whether the "Press Ctrl+C" hint already printed, so a reconnect never repeats it.
-      hinted: false,
-      // A rejection right after a fresh login means the newly approved token was no good either, so
-      // one automatic re-pair is all this ever attempts, whether the rejection lands at startup or
-      // once the session is already live. A second one is treated as a hard failure instead of
-      // pairing forever.
-      hasReauthenticated: false,
-    }
-
-    const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, state.credentials, configPath, !state.usingEnvToken)
-    const granted = { allowWrite, allowConfigEdit, allowInput, allowExec }
-
-    const detail = (label: string, value: string) => `${styleText('dim', label.padEnd(7))}  ${value}`
-
-    if (options.logLevel !== 'silent') {
-      say([
-        detail('Studio', styleText('cyan', options.studioUrl)),
-        detail('Project', path.basename(process.cwd())),
-        detail('Config', path.relative(process.cwd(), configPath) || configPath),
-        '',
-        styleText('dim', 'Permissions'),
-        ...formatPermissionRows(granted),
-      ])
-    }
-
-    while (true) {
-      let notifyAuthRequired: (error: InvalidAgentTokenError) => void = () => {}
-      const authRequired = new Promise<InvalidAgentTokenError>((resolve) => {
-        notifyAuthRequired = resolve
-      })
-
-      const client = createClient({
-        token: state.credentials.token,
-        studioUrl: options.studioUrl,
-        configPath,
-        version: options.version,
-        // Reloaded on every generate, so an edit to kubb.config.ts is picked up without reconnecting.
-        loadConfig: async () => (await loadConfigs(options)).config,
-        client: { kind: 'cli' },
-        root: process.cwd(),
-        ...granted,
-        // Fires once the pool is already stopped, only for a token rejected during background
-        // reconnect. A startup rejection is handled below through `client.connect()` itself.
-        onAuthRequired: notifyAuthRequired,
-        // The loggers `kubb generate` installs, on both emitters, so one place renders the session
-        // events and the generations it drives.
-        installLogger: async (hooks) => {
-          await setupReporters(hooks, { logLevel, reporters: [cliReporter] })
-
-          // `client.connect()` resolves once the agent is registered, not once a session is open, so
-          // this is the only point that knows the connection is live. Registered after the loggers so
-          // it lands under their "Connected to ..." line, and once, since every reconnect fires again.
-          hooks.hook('studio:connected', () => {
-            if (state.hinted || options.logLevel === 'silent') {
-              return
-            }
-            state.hinted = true
-
-            say(styleText('dim', 'Press Ctrl+C to disconnect'))
-          })
-        },
-      })
-
-      try {
-        await client.connect()
-      } catch (error) {
-        if (!(error instanceof InvalidAgentTokenError)) {
-          throw error
-        }
-
-        client.disconnect()
-
-        // The token is dead: the agent was deleted in Studio, or the token was revoked. Keeping it
-        // only produces 401s on every run, so forget it and pair again.
-        if (state.usingEnvToken) {
-          throw explainRejectedToken(error, 'envToken')
-        }
-
-        await clearCredentials()
-
-        if (state.hasReauthenticated) {
-          throw explainRejectedToken(error, 'reauthExhausted')
-        }
-
-        if (isCIEnvironment() || !canUseTTY()) {
-          throw explainRejectedToken(error, 'nonInteractive')
-        }
-
-        console.log(styleText('yellow', `${error.message} Pairing again...`))
-
-        try {
-          state.credentials = await login(options, { signal: shutdown.signal, previousCredentials: state.credentials })
-        } catch (loginError) {
-          if (loginError instanceof PairingCanceledError) {
-            return
-          }
-          throw loginError
-        }
-
-        state.usingEnvToken = false
-        state.hasReauthenticated = true
-
-        continue
-      }
-
-      // Connected. Whichever comes first wins: a shutdown signal, or Studio rejecting the token
-      // while reconnecting in the background, well after this session was already live.
-      const shutdownWait = new Promise<{ kind: 'shutdown' }>((resolve) => {
-        if (shutdown.signal.aborted) {
-          resolve({ kind: 'shutdown' })
-          return
-        }
-        shutdown.signal.addEventListener('abort', () => resolve({ kind: 'shutdown' }), { once: true })
-      })
-      const authRequiredWait = authRequired.then((error) => ({ kind: 'authRequired' as const, error }))
-
-      const outcome = await Promise.race([shutdownWait, authRequiredWait])
-
-      client.disconnect()
-
-      if (outcome.kind === 'shutdown') {
-        reportDisconnected()
-
-        return
-      }
-
-      const { error } = outcome
-
-      if (state.usingEnvToken) {
-        throw explainRejectedToken(error, 'envToken')
-      }
-
-      if (state.hasReauthenticated) {
-        throw explainRejectedToken(error, 'reauthExhausted')
-      }
-
-      if (isCIEnvironment() || !canUseTTY()) {
-        throw explainRejectedToken(error, 'nonInteractive')
-      }
-
-      console.log(styleText('yellow', `${error.message} Studio needs you to approve access again.`))
-
-      // Forget the dead token before pairing again, the same as a rejection at startup: `login`
-      // overwrites the file regardless, but a failed re-pair should not leave a rejected token
-      // behind for the next run to try again.
-      await clearCredentials()
-
-      try {
-        state.credentials = await login(options, { signal: shutdown.signal, previousCredentials: state.credentials })
-      } catch (loginError) {
-        if (loginError instanceof PairingCanceledError) {
-          reportDisconnected()
-
-          return
-        }
-        throw loginError
-      }
-
-      state.hasReauthenticated = true
-    }
-  } catch (error) {
-    // Canceling the very first pairing (before anything was ever connected) is Ctrl+C working as
-    // intended, not a failure to report.
-    if (error instanceof PairingCanceledError) {
-      return
-    }
-
-    throw error
-  } finally {
-    processEvents.off('SIGINT', requestShutdown)
-    processEvents.off('SIGTERM', requestShutdown)
-  }
+  await new StudioConnection(options, configPath).run()
 }
 
 /**
@@ -545,17 +608,12 @@ async function run(options: StudioOptions): Promise<void> {
 
   try {
     if (options.logLevel !== 'silent') {
-      const banner = `Kubb Studio  ${styleText('dim', `v${options.version}`)}`
-      const caution = styleText('yellow', 'This feature is still under development, use with caution')
-
-      if (isRichOutput() && options.action === 'connect') {
-        prompts.intro(banner)
-        prompts.log.warn(caution)
-      } else {
-        console.log(banner)
-        console.warn(caution)
-        console.log()
-      }
+      logIntro({
+        title: `Kubb Studio  ${styleText('dim', `v${options.version}`)}`,
+        warning: styleText('yellow', 'This feature is still under development, use with caution'),
+        // Only `connect` stays open long enough to close the block again with `logOutro`.
+        block: options.action === 'connect',
+      })
     }
 
     switch (options.action) {

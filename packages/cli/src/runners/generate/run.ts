@@ -3,7 +3,6 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import * as clack from '@clack/prompts'
 import { toError } from '@internals/utils'
 import {
   Hookable,
@@ -24,6 +23,7 @@ import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import setupReporters, { selectReporters } from '../../loggers/utils.ts'
+import { logError, logInfo, logStep } from '../../loggers/output.ts'
 import { getConfigs, isNewerVersion, runHook, runPostGenerate, startWatcher } from './utils.ts'
 import { FORMATTER_PREFERENCE, LINTER_PREFERENCE } from '@internals/utils'
 import { detectTool, formatters, linters } from '../../tools.ts'
@@ -325,7 +325,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async (paths: Array<string>) => {
           await generate({ input, config, logLevel, hooks, dryRun })
-          clack.log.step(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
+          logStep(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
         }
 
         // The watcher ignores chokidar's startup events, so run the first build here. A failing
@@ -336,7 +336,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
           await hooks.callHook('kubb:error', { error: toError(buildError) })
         }
 
-        await startWatcher(watchedPaths, build, { info: (msg) => clack.log.info(msg), error: (msg) => clack.log.error(msg) })
+        await startWatcher(watchedPaths, build, { info: logInfo, error: logError })
       } else {
         try {
           const succeeded = await generate({ input, config, logLevel, hooks, dryRun })
