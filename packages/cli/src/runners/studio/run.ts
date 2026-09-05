@@ -274,9 +274,9 @@ class StudioConnection {
 
   // Known once `run()` resolves the initial credentials, before anything else reads this field.
   #credentials!: Credentials
-  // `envToken` itself never changes, but once a browser login has replaced the credentials, later
-  // rejections are no longer about the environment variable and need the paired-again message.
-  #usingEnvToken = !!process.env.KUBB_AGENT_TOKEN
+  // An operator-supplied token is never replaced automatically, so every rejection of one is
+  // reported instead of paired again.
+  readonly #usingEnvToken = !!process.env.KUBB_AGENT_TOKEN
   // Whether the "Press Ctrl+C" hint already printed, so a reconnect never repeats it.
   #hinted = false
   // A rejection right after a fresh login means the newly approved token was no good either, so
@@ -448,28 +448,28 @@ class StudioConnection {
     // settled by the other side, so `settled` drops it either way. Without that, a token rejection
     // that gets reauthenticated leaves one behind on `#shutdown.signal` for every reconnect.
     const settled = new AbortController()
-    const shutdownWait = new Promise<{ kind: 'shutdown' }>((resolve) => {
+    // Resolves with nothing, so the race reports a shutdown as the absence of a rejection.
+    const shutdownWait = new Promise<undefined>((resolve) => {
       if (this.#shutdown.signal.aborted) {
-        resolve({ kind: 'shutdown' })
+        resolve(undefined)
         return
       }
-      this.#shutdown.signal.addEventListener('abort', () => resolve({ kind: 'shutdown' }), { once: true, signal: settled.signal })
+      this.#shutdown.signal.addEventListener('abort', () => resolve(undefined), { once: true, signal: settled.signal })
     })
-    const authRequiredWait = authRequired.then((error) => ({ kind: 'authRequired' as const, error }))
 
-    const outcome = await Promise.race([shutdownWait, authRequiredWait])
+    const rejection = await Promise.race([shutdownWait, authRequired])
 
     settled.abort()
 
     client.disconnect()
 
-    if (outcome.kind === 'shutdown') {
+    if (!rejection) {
       this.#reportDisconnected()
 
       return true
     }
 
-    return this.#handleLiveRejection(outcome.error)
+    return this.#handleLiveRejection(rejection)
   }
 
   /**
@@ -505,8 +505,6 @@ class StudioConnection {
     if (!(await this.#reauthenticate())) {
       return true
     }
-
-    this.#usingEnvToken = false
 
     return false
   }
