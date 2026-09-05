@@ -91,6 +91,22 @@ function mockClient(connectImpl: () => Promise<void>) {
   }
 }
 
+/**
+ * Mocks a browser pairing the user approves. `agentId` is what decides whether the reauthenticated
+ * agent keeps the stored credential's identity, and so its saved project permissions.
+ */
+function mockPairing(agentId: string = credentials.agentId) {
+  vi.mocked(startPairing).mockResolvedValue({
+    device_code: 'device',
+    user_code: 'ABCD-EFGH',
+    verification_uri: 'https://studio/pair',
+    verification_uri_complete: 'https://studio/pair?user_code=ABCD-EFGH',
+    expires_in: 60,
+    interval: 1,
+  })
+  vi.mocked(pollForPairingToken).mockResolvedValue({ token: 'new-token', agent: { id: agentId, slug: 'slug', name: 'demo' } })
+}
+
 describe('resolvePermissions', () => {
   it('asks for every permission and stores the answers', async () => {
     confirm.mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(false).mockResolvedValueOnce(true)
@@ -201,16 +217,8 @@ describe('connect', () => {
 
   it('reauthenticates interactively on a live rejection and carries saved permissions forward for the same agent identity', async () => {
     vi.mocked(readCredentials).mockResolvedValue({ ...credentials, projects: { [process.cwd()]: { allowWrite: true } } })
-    vi.mocked(startPairing).mockResolvedValue({
-      device_code: 'device',
-      user_code: 'ABCD-EFGH',
-      verification_uri: 'https://studio/pair',
-      verification_uri_complete: 'https://studio/pair?user_code=ABCD-EFGH',
-      expires_in: 60,
-      interval: 1,
-    })
-    // Same agentId as the stored credential, so the reauth keeps the identity.
-    vi.mocked(pollForPairingToken).mockResolvedValue({ token: 'new-token', agent: { id: credentials.agentId, slug: 'slug', name: 'demo' } })
+    // The same agentId as the stored credential, so the reauth keeps the identity.
+    mockPairing()
 
     const first = mockClient(() => Promise.resolve())
     mockClient(() => Promise.resolve())
@@ -230,16 +238,7 @@ describe('connect', () => {
 
   it('does not carry saved permissions forward when the reauthenticated agent identity differs', async () => {
     vi.mocked(readCredentials).mockResolvedValue({ ...credentials, projects: { [process.cwd()]: { allowWrite: true } } })
-    vi.mocked(startPairing).mockResolvedValue({
-      device_code: 'device',
-      user_code: 'ABCD-EFGH',
-      verification_uri: 'https://studio/pair',
-      verification_uri_complete: 'https://studio/pair?user_code=ABCD-EFGH',
-      expires_in: 60,
-      interval: 1,
-    })
-    // A different agentId than the stored credential.
-    vi.mocked(pollForPairingToken).mockResolvedValue({ token: 'new-token', agent: { id: 'a-different-agent', slug: 'slug', name: 'demo' } })
+    mockPairing('a-different-agent')
 
     const first = mockClient(() => Promise.resolve())
     mockClient(() => Promise.resolve())
@@ -285,15 +284,7 @@ describe('connect', () => {
 
   it('stops after one automatic reauth instead of pairing forever when the newly approved token is rejected again', async () => {
     vi.mocked(readCredentials).mockResolvedValue(credentials)
-    vi.mocked(startPairing).mockResolvedValue({
-      device_code: 'device',
-      user_code: 'ABCD-EFGH',
-      verification_uri: 'https://studio/pair',
-      verification_uri_complete: 'https://studio/pair?user_code=ABCD-EFGH',
-      expires_in: 60,
-      interval: 1,
-    })
-    vi.mocked(pollForPairingToken).mockResolvedValue({ token: 'new-token', agent: { id: credentials.agentId, slug: 'slug', name: 'demo' } })
+    mockPairing()
 
     const first = mockClient(() => Promise.resolve())
     const second = mockClient(() => Promise.resolve())

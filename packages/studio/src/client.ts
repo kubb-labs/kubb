@@ -53,15 +53,12 @@ export function createClient({ storage, onAuthRequired, ...options }: ClientOpti
 
   const controller = new AbortController()
   const poolSize = options.poolSize ?? agentDefaults.poolSize
-  // Several pool sessions can reject the same token at once, so this instance fires the callback
-  // at most once instead of once per session.
-  let authRequiredFired = false
-
   function notifyAuthRequired(error: InvalidAgentTokenError) {
-    if (authRequiredFired) {
+    // Several pool sessions can reject the same token at once, and a host can have stopped the pool
+    // itself, so an already-aborted controller is what says the callback is spent.
+    if (controller.signal.aborted) {
       return
     }
-    authRequiredFired = true
 
     // Stop the whole pool first: every session's socket closes and every pending retry timer is
     // canceled through the `signal` each one already listens on, so the caller starts its next
