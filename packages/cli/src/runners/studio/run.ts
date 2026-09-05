@@ -283,7 +283,7 @@ class StudioConnection {
   }
 
   // One clack gutter block, or the same lines plainly.
-  #say(lines: string | Array<string>): void {
+  #log(lines: string | Array<string>): void {
     if (isRichOutput()) {
       prompts.log.message(lines)
     } else {
@@ -369,7 +369,7 @@ class StudioConnection {
 
     const detail = (label: string, value: string) => `${styleText('dim', label.padEnd(7))}  ${value}`
 
-    this.#say([
+    this.#log([
       detail('Studio', styleText('cyan', this.#options.studioUrl)),
       detail('Project', path.basename(process.cwd())),
       detail('Config', path.relative(process.cwd(), this.#configPath) || this.#configPath),
@@ -423,7 +423,7 @@ class StudioConnection {
           }
           this.#hinted = true
 
-          this.#say(styleText('dim', 'Press Ctrl+C to disconnect'))
+          this.#log(styleText('dim', 'Press Ctrl+C to disconnect'))
         })
       },
     })
