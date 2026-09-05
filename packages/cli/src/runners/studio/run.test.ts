@@ -260,8 +260,8 @@ describe('connect', () => {
 
     // The permissions were granted to the previous agent, so the new one is asked again rather
     // than inheriting them.
-    expect(vi.mocked(createClient).mock.calls[0]?.[0]).toMatchObject({ allowWrite: true })
-    expect(vi.mocked(createClient).mock.calls[1]?.[0]).toMatchObject({ allowWrite: false })
+    expect(vi.mocked(createClient).mock.calls[0]?.[0]).toMatchObject({ permissions: { allowWrite: true } })
+    expect(vi.mocked(createClient).mock.calls[1]?.[0]).toMatchObject({ permissions: { allowWrite: false } })
   })
 
   it('exits cleanly instead of throwing when the user cancels pairing during a live reauth', async () => {

@@ -316,30 +316,36 @@ export type ConnectMessagePayload = {
       options?: object
     }>
   }
-  permissions: {
-    /**
-     * Whether the agent writes generated files to disk. False for a sandbox agent. For a local
-     * agent it mirrors the agent's `KUBB_AGENT_ALLOW_WRITE`.
-     */
-    allowWrite: boolean
-    /**
-     * Whether the agent will accept and generate from an OpenAPI spec supplied by Studio.
-     * Always true for a sandbox agent; otherwise it mirrors the agent's own opt-in. Studio reads
-     * this to decide whether to send `input`.
-     */
-    allowInput: boolean
-    /**
-     * Whether the agent runs the formatter, the linter, and `output.postGenerate` as child
-     * processes after a generation. Always true for the Docker agent, where the image bounds what
-     * can run. The CLI runs in the user's own project and defaults it off.
-     */
-    allowExec: boolean
-    /**
-     * Whether the agent may change plugin options in the user's `kubb.config.ts`. Separate from
-     * `allowWrite`, which covers generated output: this one edits a hand-authored source file.
-     */
-    allowConfigEdit: boolean
-  }
+  permissions: AgentPermissions
+}
+
+/**
+ * What an agent may do in the project it serves. Every one is off unless the host granted it, and
+ * a sandbox session narrows them further.
+ */
+export type AgentPermissions = {
+  /**
+   * Whether the agent writes generated files to disk. False for a sandbox agent. For a local
+   * agent it mirrors the agent's `KUBB_AGENT_ALLOW_WRITE`.
+   */
+  allowWrite: boolean
+  /**
+   * Whether the agent will accept and generate from an OpenAPI spec supplied by Studio.
+   * Always true for a sandbox agent, otherwise it mirrors the agent's own opt-in. Studio reads
+   * this to decide whether to send `input`.
+   */
+  allowInput: boolean
+  /**
+   * Whether the agent runs the formatter, the linter, and `output.postGenerate` as child
+   * processes after a generation. Always true for the Docker agent, where the image bounds what
+   * can run. The CLI runs in the user's own project and defaults it off.
+   */
+  allowExec: boolean
+  /**
+   * Whether the agent may change plugin options in the user's `kubb.config.ts`. Separate from
+   * `allowWrite`, which covers generated output: this one edits a hand-authored source file.
+   */
+  allowConfigEdit: boolean
 }
 
 /**

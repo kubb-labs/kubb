@@ -9,6 +9,7 @@ import { setupHookListener } from './hooks.ts'
 import {
   type AgentConnectResponse,
   type AgentMessage,
+  type AgentPermissions,
   type ClientInfo,
   type ConfigFileView,
   isCommandMessage,
@@ -41,19 +42,12 @@ export type ConnectToStudioOptions = {
    * Identifies the host to Studio, so the UI can badge a CLI connection and show the real project.
    */
   client?: ClientInfo
-  allowWrite?: boolean
   /**
-   * Whether Studio may edit the project's `kubb.config.ts`. Granted separately from `allowWrite`,
-   * which only covers generated output: this rewrites a file the user wrote by hand.
+   * What Studio may do in this project, off unless the host grants it. A sandbox session narrows
+   * them further: it never writes to disk and never edits a config file, and it always generates
+   * from the spec Studio sends.
    */
-  allowConfigEdit?: boolean
-  allowInput?: boolean
-  /**
-   * Whether the formatter, the linter, and `output.postGenerate` may run as child processes.
-   * Defaults to true, which is what the Docker agent has always done. The CLI runs in the user's
-   * own project, so it defaults this off and asks before granting it.
-   */
-  allowExec?: boolean
+  permissions?: Partial<AgentPermissions>
   root?: string
   retryInterval?: number
   heartbeatInterval?: number
@@ -87,10 +81,7 @@ export type ConnectToStudioOptions = {
 type ResolvedOptions = ConnectToStudioOptions & {
   studioUrl: string
   root: string
-  allowWrite: boolean
-  allowConfigEdit: boolean
-  allowInput: boolean
-  allowExec: boolean
+  permissions: AgentPermissions
   retryInterval: number
   heartbeatInterval: number
   /**
@@ -115,10 +106,7 @@ function applyStudioDefaults(options: ConnectToStudioOptions): ResolvedOptions {
     // `configPath` is relative to the agent's root unless it is already absolute, which is what
     // `resolve` does on its own.
     configFile: path.resolve(root, options.configPath),
-    allowWrite: options.allowWrite ?? false,
-    allowConfigEdit: options.allowConfigEdit ?? false,
-    allowInput: options.allowInput ?? false,
-    allowExec: options.allowExec ?? false,
+    permissions: { allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false, ...options.permissions },
     retryInterval: options.retryInterval ?? agentDefaults.retryIntervalMs,
     // Studio counts an agent offline once its last ping is older than its liveness window, so a
     // slower cadence would make a healthy agent invisible. Clamped here rather than in a host's
@@ -224,11 +212,11 @@ class StudioSession {
   }
 
   get #canWrite(): boolean {
-    return !this.#isSandbox && this.#options.allowWrite
+    return !this.#isSandbox && this.#options.permissions.allowWrite
   }
 
   get #canEditConfig(): boolean {
-    return !this.#isSandbox && this.#options.allowConfigEdit
+    return !this.#isSandbox && this.#options.permissions.allowConfigEdit
   }
 
   /**
@@ -236,7 +224,7 @@ class StudioSession {
    * host opted in.
    */
   get #canUseInput(): boolean {
-    return this.#isSandbox || this.#options.allowInput
+    return this.#isSandbox || this.#options.permissions.allowInput
   }
 
   async connect(): Promise<void> {
@@ -352,7 +340,7 @@ class StudioSession {
   }
 
   async #sendConnectedPayload(): Promise<void> {
-    const { configPath, root, version, loadConfig, allowExec } = this.#options
+    const { configPath, root, version, loadConfig, permissions } = this.#options
 
     if (!this.#ws) {
       return
@@ -375,9 +363,9 @@ class StudioSession {
           })),
         },
         permissions: {
+          ...permissions,
           allowWrite: this.#canWrite,
           allowInput: this.#canUseInput,
-          allowExec,
           allowConfigEdit: this.#canEditConfig,
         },
       },
@@ -550,7 +538,7 @@ class StudioSession {
   }
 
   async #handleGenerate(ws: WebSocket, data: Extract<AgentMessage, { type: 'studio:generate' }>, command: string): Promise<void> {
-    const { root, loadConfig, allowInput, allowWrite, allowExec, client, installLogger } = this.#options
+    const { root, loadConfig, permissions, client, installLogger } = this.#options
 
     if (this.#isGenerating) {
       await this.#warn('Ignored generate: a generation is already in progress')
@@ -569,9 +557,9 @@ class StudioSession {
 
       // A sandbox agent always uses the inline spec (empty string included, since it has no disk
       // file); a local agent only when opted in, and an empty or absent spec falls back to disk.
-      const inputOverride = this.#isSandbox ? (patch?.input ?? '') : (allowInput && patch?.input) || undefined
+      const inputOverride = this.#isSandbox ? (patch?.input ?? '') : (permissions.allowInput && patch?.input) || undefined
 
-      if (allowWrite && this.#isSandbox) {
+      if (permissions.allowWrite && this.#isSandbox) {
         await this.#warn('Running in a sandbox, so writing files is disabled')
       }
 
@@ -595,7 +583,7 @@ class StudioSession {
           root,
           input: inputOverride ?? config.input,
           storage: this.#canWrite ? fsStorage() : memoryStorage(),
-          output: allowExec ? { ...config.output } : { ...config.output, format: false, lint: false, postGenerate: [] },
+          output: permissions.allowExec ? { ...config.output } : { ...config.output, format: false, lint: false, postGenerate: [] },
           plugins: resolvedPlugins,
           adapter,
         },

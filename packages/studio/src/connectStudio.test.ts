@@ -136,8 +136,7 @@ describe('connectToStudio', () => {
       loadConfig,
       version: '1.0.0',
       signal: controller.signal,
-      allowWrite: false,
-      allowInput: false,
+      permissions: { allowWrite: false, allowInput: false },
       root: '/project',
       retryInterval: 100,
       installLogger: session.installLogger,
@@ -354,7 +353,7 @@ describe('connectToStudio', () => {
     const write = async (edits: Array<unknown>) => mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:save', edits }) })
 
     it('writes a literal option and leaves the rest of the file alone', async () => {
-      await connectToStudio({ ...options, allowConfigEdit: true })
+      await connectToStudio({ ...options, permissions: { allowConfigEdit: true } })
 
       await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
 
@@ -382,7 +381,7 @@ describe('connectToStudio', () => {
       ].join('\n')
       writeFileSync(configFile, multiline, 'utf-8')
 
-      await connectToStudio({ ...options, allowConfigEdit: true })
+      await connectToStudio({ ...options, permissions: { allowConfigEdit: true } })
 
       await write([{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }])
       const disabled = readFileSync(configFile, 'utf-8')
@@ -395,7 +394,7 @@ describe('connectToStudio', () => {
     })
 
     it('refuses every edit when editing the config was not granted', async () => {
-      await connectToStudio({ ...options, allowConfigEdit: false })
+      await connectToStudio({ ...options, permissions: { allowConfigEdit: false } })
 
       await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
 
@@ -406,7 +405,7 @@ describe('connectToStudio', () => {
     it('refuses in sandbox mode even when the host granted it', async () => {
       vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
 
-      await connectToStudio({ ...options, allowConfigEdit: true })
+      await connectToStudio({ ...options, permissions: { allowConfigEdit: true } })
 
       await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
 
@@ -414,7 +413,7 @@ describe('connectToStudio', () => {
     })
 
     it('leaves an option customized in code untouched', async () => {
-      await connectToStudio({ ...options, allowConfigEdit: true })
+      await connectToStudio({ ...options, permissions: { allowConfigEdit: true } })
 
       await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['group', 'name'], value: 'x' }])
 
@@ -425,7 +424,7 @@ describe('connectToStudio', () => {
     // Studio only ever saw the file as it was on connect. Re-reading it right before the patch is
     // what saves an edit the user made in their editor since then.
     it('patches the file as it is on disk, not as it was on connect', async () => {
-      await connectToStudio({ ...options, allowConfigEdit: true })
+      await connectToStudio({ ...options, permissions: { allowConfigEdit: true } })
 
       const editedByHand = original.replace("'./openapi.yaml'", "'./petstore.yaml'")
       writeFileSync(configFile, editedByHand, 'utf-8')
@@ -437,7 +436,7 @@ describe('connectToStudio', () => {
 
     // Studio waits on the reply, so a failure that produced none would hang its UI.
     it('still replies when the config file cannot be read', async () => {
-      await connectToStudio({ ...options, allowConfigEdit: true })
+      await connectToStudio({ ...options, permissions: { allowConfigEdit: true } })
 
       rmSync(configFile)
       await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
@@ -446,7 +445,7 @@ describe('connectToStudio', () => {
     })
 
     it('still replies when the message carries no edits', async () => {
-      await connectToStudio({ ...options, allowConfigEdit: true })
+      await connectToStudio({ ...options, permissions: { allowConfigEdit: true } })
 
       await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:save' }) })
 
@@ -454,7 +453,7 @@ describe('connectToStudio', () => {
     })
 
     it('reports what the file holds on connect so Studio can disable the right controls', async () => {
-      await connectToStudio({ ...options, allowConfigEdit: true })
+      await connectToStudio({ ...options, permissions: { allowConfigEdit: true } })
 
       await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:connect' }) })
 
@@ -524,7 +523,7 @@ describe('connectToStudio', () => {
   it('disables write in sandbox mode even when allowWrite is true', async () => {
     vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
 
-    await connectToStudio({ ...options, allowWrite: true })
+    await connectToStudio({ ...options, permissions: { allowWrite: true } })
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'studio:generate' }),
@@ -596,7 +595,7 @@ describe('connectToStudio', () => {
   it('uses inline input from payload for a local agent when allowInput is enabled', async () => {
     const payload = { input: 'openapi: "3.0.0"', plugins: [] }
 
-    await connectToStudio({ ...options, allowInput: true })
+    await connectToStudio({ ...options, permissions: { allowInput: true } })
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'studio:generate', payload }),
@@ -612,7 +611,7 @@ describe('connectToStudio', () => {
   it('falls back to the on-disk input for a local agent when allowInput is enabled but no spec is sent', async () => {
     const payload = { plugins: [] }
 
-    await connectToStudio({ ...options, allowInput: true })
+    await connectToStudio({ ...options, permissions: { allowInput: true } })
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'studio:generate', payload }),
@@ -628,7 +627,7 @@ describe('connectToStudio', () => {
   it('skips the formatter, the linter, and postGenerate when exec is not allowed', async () => {
     loadConfig.mockResolvedValue(makeConfig({ output: { path: './gen', format: 'auto', lint: 'auto', postGenerate: ['echo hi'] } }))
 
-    await connectToStudio({ ...options, allowExec: false })
+    await connectToStudio({ ...options, permissions: { allowExec: false } })
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'studio:generate', payload: { plugins: [] } }),
@@ -829,7 +828,7 @@ describe('connectToStudio', () => {
   })
 
   it('reflects allowWrite in permissions on connect command', async () => {
-    await connectToStudio({ ...options, allowWrite: true })
+    await connectToStudio({ ...options, permissions: { allowWrite: true } })
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'studio:connect' }),
@@ -851,7 +850,7 @@ describe('connectToStudio', () => {
   })
 
   it('advertises allowInput in permissions when the agent opts in', async () => {
-    await connectToStudio({ ...options, allowInput: true })
+    await connectToStudio({ ...options, permissions: { allowInput: true } })
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'studio:connect' }),
@@ -877,7 +876,7 @@ describe('connectToStudio', () => {
     const sandboxWs = new MockWebSocket()
     vi.mocked(createWebsocket).mockReturnValue(sandboxWs as any)
 
-    await connectToStudio({ ...options, allowWrite: true })
+    await connectToStudio({ ...options, permissions: { allowWrite: true } })
 
     await sandboxWs.trigger('message', {
       data: JSON.stringify({ type: 'studio:connect' }),
