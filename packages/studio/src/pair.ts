@@ -45,6 +45,18 @@ export type PairingResult = {
  */
 const CLIENT_ID = 'kubb-cli'
 
+/**
+ * Thrown when a caller aborts `startPairing` or `pollForPairingToken` through their `signal`, such
+ * as a `kubb studio` shutdown mid-pairing. Distinct from a denial or an expired code, so a host can
+ * exit quietly instead of reporting a pairing failure.
+ */
+export class PairingCanceledError extends Error {
+  constructor() {
+    super('Pairing was canceled')
+    this.name = 'PairingCanceledError'
+  }
+}
+
 type StartPairingOptions = {
   studioUrl?: string
   /**
@@ -62,6 +74,10 @@ type StartPairingOptions = {
    * and ignores it for the CLI.
    */
   agentKind?: 'user' | 'sandbox'
+  /**
+   * Aborting this cancels the request in flight and rejects with {@link PairingCanceledError}.
+   */
+  signal?: AbortSignal
 }
 
 /**
@@ -75,22 +91,37 @@ export async function startPairing({
   hostname,
   clientId = CLIENT_ID,
   agentKind,
+  signal,
 }: StartPairingOptions): Promise<PairingSession> {
-  return ofetch<PairingSession>(`${studioUrl}/api/auth/device/code`, {
-    method: 'POST',
-    body: {
-      client_id: clientId,
-      name,
-      hostname,
-      machine_token: await getMachineToken(),
-      agent_kind: agentKind,
-    },
-  })
+  try {
+    return await ofetch<PairingSession>(`${studioUrl}/api/auth/device/code`, {
+      method: 'POST',
+      body: {
+        client_id: clientId,
+        name,
+        hostname,
+        machine_token: await getMachineToken(),
+        agent_kind: agentKind,
+      },
+      signal,
+    })
+  } catch (error) {
+    if (signal?.aborted) {
+      throw new PairingCanceledError()
+    }
+
+    throw error
+  }
 }
 
 type PollOptions = {
   studioUrl?: string
   session: PairingSession
+  /**
+   * Aborting this stops polling and rejects with {@link PairingCanceledError}, whether the abort
+   * lands between polls or during the wait for the next one.
+   */
+  signal?: AbortSignal
 }
 
 type PollError = 'authorization_pending' | 'slow_down' | 'expired_token' | 'access_denied' | 'invalid_grant'
@@ -119,7 +150,7 @@ function isPairingResult(response: PollResponse | undefined): response is Pairin
  *
  * @throws when the code expires, the user denies it, or Studio returns an unexpected error.
  */
-export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl, session }: PollOptions): Promise<PairingResult> {
+export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl, session, signal }: PollOptions): Promise<PairingResult> {
   // Both fields cross the network, so neither is trusted as-is: a missing or zero `interval` would
   // spin the poll loop, and a missing or zero `expires_in` would expire the code before the first
   // poll. `> 0` is also false for `NaN` and for a missing field, so it doubles as the type guard.
@@ -127,7 +158,15 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
   let intervalMs = (session.interval > 0 ? session.interval : 5) * 1000
 
   while (Date.now() < deadline) {
-    await delay(intervalMs)
+    if (signal?.aborted) {
+      throw new PairingCanceledError()
+    }
+
+    try {
+      await delay(intervalMs, undefined, { signal })
+    } catch {
+      throw new PairingCanceledError()
+    }
 
     let response: PollResponse | undefined
     try {
@@ -137,8 +176,13 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
         // A denial, an expiry, and "not yet" all come back as 4xx with a body the caller needs to
         // read, so let every response through and switch on `error` instead of catching.
         ignoreResponseError: true,
+        signal,
       })
     } catch (error) {
+      if (signal?.aborted) {
+        throw new PairingCanceledError()
+      }
+
       // Studio can go briefly unreachable (a deploy, a dropped connection) during the minutes the
       // user has to approve in the browser. One failed poll should not end a pairing whose code is
       // still valid, so warn and try again on the next tick, the way `registerAgent` retries.

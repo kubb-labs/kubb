@@ -43,7 +43,7 @@ vi.mock('./ws.ts', () => ({
   setupEventsStream: vi.fn(),
 }))
 
-import { createAgentSession, disconnect } from './api.ts'
+import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { generate } from './generate.ts'
 
 import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
@@ -930,6 +930,13 @@ describe('connectToStudio', () => {
     expect(disconnect).not.toHaveBeenCalled()
     // A revoked session does not trigger a reconnect.
     expect(consoleSpy.info).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
+
+    // A real socket fires its own `close` event once `.close()` above settles. That must not run
+    // teardown a second time and reconnect a session Studio just revoked.
+    await mockWs.trigger('close')
+
+    expect(disconnect).not.toHaveBeenCalled()
+    expect(consoleSpy.info).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
   })
 
   it('cleans up and reconnects when a disconnect message with reason "expired" is received', async () => {
@@ -946,6 +953,54 @@ describe('connectToStudio', () => {
     expect(disconnect).not.toHaveBeenCalled()
     // Unlike a revoked session, an expired one triggers a reconnect.
     expect(consoleSpy.info).toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
+
+    const reconnectCount = vi.mocked(consoleSpy.info).mock.calls.filter((call) => String(call[0]).includes('Retrying connection')).length
+
+    // A real socket fires its own `close` event once `.close()` above settles. That must not run
+    // teardown a second time and queue a duplicate reconnect on top of the one already scheduled
+    // above.
+    await mockWs.trigger('close')
+
+    expect(disconnect).not.toHaveBeenCalled()
+    expect(vi.mocked(consoleSpy.info).mock.calls.filter((call) => String(call[0]).includes('Retrying connection'))).toHaveLength(reconnectCount)
+  })
+
+  it('calls onTokenRejected and stops retrying when a background reconnect is rejected with an invalid token', async () => {
+    vi.useFakeTimers()
+    const onTokenRejected = vi.fn()
+
+    await connectToStudio({ ...options, onTokenRejected })
+
+    await mockWs.trigger('close')
+
+    const error = new InvalidAgentTokenError('https://kubb.studio')
+    vi.mocked(createAgentSession).mockRejectedValueOnce(error)
+
+    await vi.advanceTimersByTimeAsync(options.retryInterval!)
+
+    expect(onTokenRejected).toHaveBeenCalledWith(error)
+
+    // A rejected token stays rejected, so no further reconnect attempt should follow.
+    await vi.advanceTimersByTimeAsync(options.retryInterval! * 3)
+    expect(createAgentSession).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps retrying an ordinary network failure without calling onTokenRejected', async () => {
+    vi.useFakeTimers()
+    const onTokenRejected = vi.fn()
+
+    await connectToStudio({ ...options, onTokenRejected })
+
+    await mockWs.trigger('close')
+
+    vi.mocked(createAgentSession).mockRejectedValueOnce(new Error('502 Bad Gateway'))
+    vi.mocked(createAgentSession).mockResolvedValueOnce(makeSession())
+
+    await vi.advanceTimersByTimeAsync(options.retryInterval!)
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(onTokenRejected).not.toHaveBeenCalled()
+    expect(createAgentSession).toHaveBeenCalledTimes(2)
   })
 
   it('logs and retries instead of crashing when a reconnect attempt fails to reach Studio', async () => {

@@ -11,4 +11,4 @@ export type {
 export { InvalidAgentTokenError } from './api.ts'
 export { defaultStudioUrl } from './constants.ts'
 export { createFileStorage, setStorage } from './machine.ts'
-export { pollForPairingToken, startPairing } from './pair.ts'
+export { PairingCanceledError, pollForPairingToken, startPairing } from './pair.ts'
