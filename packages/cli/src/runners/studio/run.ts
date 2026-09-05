@@ -309,7 +309,7 @@ export async function connect(options: StudioOptions): Promise<void> {
     const envToken = process.env.KUBB_AGENT_TOKEN
     const stored = envToken ? null : await readCredentials()
 
-    let credentials: Credentials = await (async () => {
+    const initialCredentials: Credentials = await (async () => {
       // A credential is only reused for the Studio it was issued by, so switching `--url` re-pairs
       // instead of sending one instance's token to another.
       const resolved = envToken
@@ -329,15 +329,25 @@ export async function connect(options: StudioOptions): Promise<void> {
       return login(options, { signal: shutdown.signal })
     })()
 
-    // `envToken` itself never changes, but once a browser login has replaced the credentials, later
-    // rejections are no longer about the environment variable and need the paired-again message.
-    let usingEnvToken = !!envToken
+    // Everything the reconnect loop below mutates, on one object instead of separate `let`s: state.
+    const state = {
+      credentials: initialCredentials,
+      // `envToken` itself never changes, but once a browser login has replaced the credentials,
+      // later rejections are no longer about the environment variable and need the paired-again message.
+      usingEnvToken: !!envToken,
+      // Whether the "Press Ctrl+C" hint already printed, so a reconnect never repeats it.
+      hinted: false,
+      // A rejection right after a fresh login means the newly approved token was no good either, so
+      // one automatic re-pair is all this ever attempts, whether the rejection lands at startup or
+      // once the session is already live. A second one is treated as a hard failure instead of
+      // pairing forever.
+      hasReauthenticated: false,
+    }
 
-    const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, credentials, configPath, !usingEnvToken)
+    const { allowWrite, allowConfigEdit, allowInput, allowExec } = await resolvePermissions(options, state.credentials, configPath, !state.usingEnvToken)
     const granted = { allowWrite, allowConfigEdit, allowInput, allowExec }
 
     const detail = (label: string, value: string) => `${styleText('dim', label.padEnd(7))}  ${value}`
-    let hinted = false
 
     if (options.logLevel !== 'silent') {
       say([
@@ -350,20 +360,14 @@ export async function connect(options: StudioOptions): Promise<void> {
       ])
     }
 
-    // A rejection right after a fresh login means the newly approved token was no good either, so
-    // one automatic re-pair is all this ever attempts, whether the rejection lands at startup or
-    // once the session is already live. A second one is treated as a hard failure instead of
-    // pairing forever.
-    let hasReauthenticated = false
-
-    for (;;) {
+    while (true) {
       let notifyAuthRequired: (error: InvalidAgentTokenError) => void = () => {}
       const authRequired = new Promise<InvalidAgentTokenError>((resolve) => {
         notifyAuthRequired = resolve
       })
 
       const client = createClient({
-        token: credentials.token,
+        token: state.credentials.token,
         studioUrl: options.studioUrl,
         configPath,
         version: options.version,
@@ -384,10 +388,10 @@ export async function connect(options: StudioOptions): Promise<void> {
           // this is the only point that knows the connection is live. Registered after the loggers so
           // it lands under their "Connected to ..." line, and once, since every reconnect fires again.
           hooks.hook('studio:connected', () => {
-            if (hinted || options.logLevel === 'silent') {
+            if (state.hinted || options.logLevel === 'silent') {
               return
             }
-            hinted = true
+            state.hinted = true
 
             say(styleText('dim', 'Press Ctrl+C to disconnect'))
           })
@@ -405,13 +409,13 @@ export async function connect(options: StudioOptions): Promise<void> {
 
         // The token is dead: the agent was deleted in Studio, or the token was revoked. Keeping it
         // only produces 401s on every run, so forget it and pair again.
-        if (usingEnvToken) {
+        if (state.usingEnvToken) {
           throw explainRejectedToken(error, 'envToken')
         }
 
         await clearCredentials()
 
-        if (hasReauthenticated) {
+        if (state.hasReauthenticated) {
           throw explainRejectedToken(error, 'exhausted')
         }
 
@@ -422,7 +426,7 @@ export async function connect(options: StudioOptions): Promise<void> {
         console.log(styleText('yellow', `${error.message} Pairing again...`))
 
         try {
-          credentials = await login(options, { signal: shutdown.signal, previousCredentials: credentials })
+          state.credentials = await login(options, { signal: shutdown.signal, previousCredentials: state.credentials })
         } catch (loginError) {
           if (loginError instanceof PairingCanceledError) {
             return
@@ -430,8 +434,8 @@ export async function connect(options: StudioOptions): Promise<void> {
           throw loginError
         }
 
-        usingEnvToken = false
-        hasReauthenticated = true
+        state.usingEnvToken = false
+        state.hasReauthenticated = true
 
         continue
       }
@@ -459,11 +463,11 @@ export async function connect(options: StudioOptions): Promise<void> {
 
       const { error } = outcome
 
-      if (usingEnvToken) {
+      if (state.usingEnvToken) {
         throw explainRejectedToken(error, 'envToken')
       }
 
-      if (hasReauthenticated) {
+      if (state.hasReauthenticated) {
         throw explainRejectedToken(error, 'exhausted')
       }
 
@@ -479,7 +483,7 @@ export async function connect(options: StudioOptions): Promise<void> {
       await clearCredentials()
 
       try {
-        credentials = await login(options, { signal: shutdown.signal, previousCredentials: credentials })
+        state.credentials = await login(options, { signal: shutdown.signal, previousCredentials: state.credentials })
       } catch (loginError) {
         if (loginError instanceof PairingCanceledError) {
           reportDisconnected()
@@ -489,7 +493,7 @@ export async function connect(options: StudioOptions): Promise<void> {
         throw loginError
       }
 
-      hasReauthenticated = true
+      state.hasReauthenticated = true
     }
   } catch (error) {
     // Canceling the very first pairing (before anything was ever connected) is Ctrl+C working as
