@@ -231,29 +231,15 @@ async function loadConfigs(options: StudioOptions): Promise<{ configPath: string
 }
 
 /**
- * Why a rejected token could not be recovered automatically, so {@link explainRejectedToken} can
- * pick the one instruction that actually applies.
+ * Why a rejected token could not be recovered automatically: it came from `KUBB_AGENT_TOKEN`, no
+ * browser is available to re-pair with, or the token this run already re-paired for was rejected
+ * again.
  */
-type RejectedTokenReason =
-  /**
-   * The dead token came from `KUBB_AGENT_TOKEN`. Never overwritten or replaced automatically: an
-   * operator-managed credential stays the operator's to manage.
-   */
-  | 'envToken'
-  /**
-   * CI or no TTY: there is no browser to approve a pairing code in.
-   */
-  | 'nonInteractive'
-  /**
-   * A token this run already re-paired for was rejected again, so another automatic attempt would
-   * just repeat the same failure.
-   */
-  | 'exhausted'
+type RejectedTokenReason = 'envToken' | 'nonInteractive' | 'exhausted'
 
 /**
- * Explains a rejected token to the operator and says what to do about it. Never touches stored or
- * environment credentials itself, since a message-only path must not have side effects the caller
- * did not ask for.
+ * Explains a rejected token to the operator. Never touches stored or environment credentials
+ * itself, since a message-only path must not have side effects the caller did not ask for.
  */
 function explainRejectedToken(error: InvalidAgentTokenError, reason: RejectedTokenReason): Error {
   if (reason === 'envToken') {
@@ -271,10 +257,9 @@ function explainRejectedToken(error: InvalidAgentTokenError, reason: RejectedTok
  * Connects this project to Studio and streams generation events until the process is stopped or
  * Studio rejects the token.
  *
- * One `AbortController` covers the whole call: it cancels an in-flight pairing poll on Ctrl+C, and
- * lets a live token rejection win a race against shutdown instead of waiting for the next signal.
- * It is armed once and torn down in `finally`, so retrying pairing in the loop below never leaves
- * behind a duplicate `SIGINT`/`SIGTERM` listener.
+ * One `AbortController` covers the whole call: it cancels an in-flight pairing poll on Ctrl+C and
+ * lets a live token rejection race a shutdown signal, armed once and torn down in `finally` so a
+ * retried pairing never leaves behind a duplicate `SIGINT`/`SIGTERM` listener.
  */
 export async function connect(options: StudioOptions): Promise<void> {
   // Resolved before any network call to Studio (pairing included), so a project with no config

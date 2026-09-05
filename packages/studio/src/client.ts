@@ -12,14 +12,12 @@ export type ClientOptions = Omit<ConnectToStudioOptions, 'signal'> & {
    */
   storage?: Storage
   /**
-   * Called once a live pool rejects its token: Studio answered a background reconnect with 401,
-   * meaning the token was revoked or the agent was deleted. Every session in the pool is already
-   * stopped by the time this fires, so a host only needs to obtain a replacement token and start a
-   * new client with it.
+   * Called once when a live pool's token is rejected during background reconnect (401: revoked, or
+   * the agent was deleted). The whole pool is already stopped by the time this fires, so a host
+   * only needs to obtain a replacement token and start a new client.
    *
-   * Never fires for a token rejected at startup, which `connect()`'s own rejection already
-   * reports, nor for an ordinary session expiry or a revoked session, both of which reconnect on
-   * their own.
+   * Never fires for a startup rejection, which `connect()` reports by throwing, nor for an ordinary
+   * session expiry or revocation, both of which reconnect on their own.
    */
   onAuthRequired?: (error: InvalidAgentTokenError) => void
 }
