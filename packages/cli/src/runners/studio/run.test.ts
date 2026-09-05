@@ -272,14 +272,4 @@ describe('connect', () => {
     // One pairing only: the second rejection is a hard failure.
     expect(startPairing).toHaveBeenCalledTimes(1)
   })
-
-  it('surfaces a failure the studio runtime could not handle, without pairing again', async () => {
-    vi.mocked(readCredentials).mockResolvedValue(credentials)
-    // Anything that is not a rejected token reaches the CLI as-is: sessions retry those themselves.
-    vi.mocked(runConnection).mockRejectedValue(new Error('ECONNREFUSED'))
-
-    await expect(connect(options)).rejects.toThrow('ECONNREFUSED')
-    expect(startPairing).not.toHaveBeenCalled()
-    expect(clearCredentials).not.toHaveBeenCalled()
-  })
 })

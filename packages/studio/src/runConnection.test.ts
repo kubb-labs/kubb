@@ -72,8 +72,9 @@ describe('runConnection', () => {
     const clients = queueClients(rejected, () => Promise.resolve())
     const controller = new AbortController()
     const onTokenRejected = vi.fn(async () => ({ token: 'b' }))
+    const options = vi.fn(clientOptions)
 
-    const outcome = runConnection({ credentials: { token: 'a' }, clientOptions, onTokenRejected, signal: controller.signal })
+    const outcome = runConnection({ credentials: { token: 'a' }, clientOptions: options, onTokenRejected, signal: controller.signal })
     await vi.waitFor(() => expect(createClient).toHaveBeenCalledTimes(2))
     controller.abort()
 
@@ -81,6 +82,8 @@ describe('runConnection', () => {
     expect(onTokenRejected).toHaveBeenCalledWith({ error: expect.any(InvalidAgentTokenError), credentials: { token: 'a' }, live: false })
     expect(clients[0]?.disconnect).toHaveBeenCalled()
     expect(clients[1]?.token).toBe('b')
+    // Options are rebuilt per attempt, so a host that re-derives them from the credential is heard.
+    expect(options.mock.calls).toEqual([[{ token: 'a' }], [{ token: 'b' }]])
   })
 
   it('reports a token rejected during a live session as live', async () => {
@@ -100,24 +103,6 @@ describe('runConnection', () => {
 
     await expect(outcome).resolves.toBe('shutdown')
     expect(onTokenRejected).toHaveBeenCalledWith({ error: expect.any(InvalidAgentTokenError), credentials: { token: 'a' }, live: true })
-  })
-
-  it('rebuilds the client options for every attempt', async () => {
-    queueClients(rejected, () => Promise.resolve())
-    const controller = new AbortController()
-    const options = vi.fn(clientOptions)
-
-    const outcome = runConnection({
-      credentials: { token: 'a' },
-      clientOptions: options,
-      onTokenRejected: async () => ({ token: 'b' }),
-      signal: controller.signal,
-    })
-    await vi.waitFor(() => expect(createClient).toHaveBeenCalledTimes(2))
-    controller.abort()
-
-    await outcome
-    expect(options.mock.calls).toEqual([[{ token: 'a' }], [{ token: 'b' }]])
   })
 
   it('ends the run when the host declines to replace the token', async () => {
