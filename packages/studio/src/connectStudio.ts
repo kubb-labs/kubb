@@ -135,6 +135,7 @@ class StudioSession {
   readonly #version: string
   readonly #client: ClientInfo | undefined
   readonly #allowWrite: boolean
+  readonly #allowConfigEdit: boolean
   readonly #allowInput: boolean
   readonly #allowExec: boolean
   readonly #root: string
@@ -183,6 +184,7 @@ class StudioSession {
     this.#client = options.client
     // Every permission is off unless the host grants it.
     this.#allowWrite = options.allowWrite ?? false
+    this.#allowConfigEdit = options.allowConfigEdit ?? false
     this.#allowInput = options.allowInput ?? false
     this.#allowExec = options.allowExec ?? false
     this.#root = options.root ?? process.cwd()
@@ -209,7 +211,7 @@ class StudioSession {
       this.#studioVersion = sessionStudioVersion
       this.#isSandbox = isSandbox
       this.#canWrite = isSandbox ? false : this.#allowWrite
-      this.#canEditConfig = isSandbox ? false : (this.#options.allowConfigEdit ?? false)
+      this.#canEditConfig = isSandbox ? false : this.#allowConfigEdit
       // `configPath` is relative to the agent's root unless it is already absolute, which is what
       // `resolve` does on its own.
       this.#configFilePath = path.resolve(this.#root, this.#configPath)
@@ -417,11 +419,16 @@ class StudioSession {
         await this.#hooks.callHook('studio:disconnected', { reason: data.reason })
 
         if (data.reason === 'revoked') {
+          // `#cleanup` already unhooks the socket's own `close` listener before returning, which is
+          // what actually keeps a real `close` event from re-entering `#teardown`. Set regardless,
+          // so this path stays safe against `#teardown` being reached some other way later.
+          this.#serverDisconnected = true
           this.#cleanup(`session_${data.reason}`)
           return
         }
 
         if (data.reason === 'expired') {
+          this.#serverDisconnected = true
           this.#cleanup()
           reconnect(this.#options)
 
@@ -461,7 +468,7 @@ class StudioSession {
     await this.#hooks.callHook('studio:command:start', { command })
 
     if (data.type === 'studio:generate') {
-      await this.#handleGenerate(data, command)
+      await this.#handleGenerate(ws, data, command)
 
       return
     }
@@ -476,11 +483,11 @@ class StudioSession {
     }
 
     if (data.type === 'studio:save') {
-      await this.#handleSave(data, command)
+      await this.#handleSave(ws, data, command)
     }
   }
 
-  async #handleGenerate(data: Extract<AgentMessage, { type: 'studio:generate' }>, command: string): Promise<void> {
+  async #handleGenerate(ws: WebSocket, data: Extract<AgentMessage, { type: 'studio:generate' }>, command: string): Promise<void> {
     if (this.#isGenerating) {
       await this.#hooks.callHook('studio:warn', { message: 'Ignored generate: a generation is already in progress' })
 
@@ -488,11 +495,6 @@ class StudioSession {
         this.#hooks.callHook('kubb:error', { error: new Error('A generation is already in progress, please wait for it to finish') }),
       ).catch(() => {})
 
-      return
-    }
-
-    const ws = this.#ws
-    if (!ws) {
       return
     }
 
@@ -548,12 +550,7 @@ class StudioSession {
     }
   }
 
-  async #handleSave(data: Extract<AgentMessage, { type: 'studio:save' }>, command: string): Promise<void> {
-    const ws = this.#ws
-    if (!ws) {
-      return
-    }
-
+  async #handleSave(ws: WebSocket, data: Extract<AgentMessage, { type: 'studio:save' }>, command: string): Promise<void> {
     // Studio waits on an `agent:save` for every `studio:save`, so every path out of this function
     // sends one. `edits` is checked before it is walked: the message crosses the same trust
     // boundary as the values inside it.

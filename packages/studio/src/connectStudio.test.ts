@@ -930,6 +930,13 @@ describe('connectToStudio', () => {
     expect(disconnect).not.toHaveBeenCalled()
     // A revoked session does not trigger a reconnect.
     expect(consoleSpy.info).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
+
+    // A real socket fires its own `close` event once `.close()` above settles. That must not run
+    // teardown a second time and reconnect a session Studio just revoked.
+    await mockWs.trigger('close')
+
+    expect(disconnect).not.toHaveBeenCalled()
+    expect(consoleSpy.info).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
   })
 
   it('cleans up and reconnects when a disconnect message with reason "expired" is received', async () => {
@@ -946,6 +953,16 @@ describe('connectToStudio', () => {
     expect(disconnect).not.toHaveBeenCalled()
     // Unlike a revoked session, an expired one triggers a reconnect.
     expect(consoleSpy.info).toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
+
+    const reconnectCount = vi.mocked(consoleSpy.info).mock.calls.filter((call) => String(call[0]).includes('Retrying connection')).length
+
+    // A real socket fires its own `close` event once `.close()` above settles. That must not run
+    // teardown a second time and queue a duplicate reconnect on top of the one already scheduled
+    // above.
+    await mockWs.trigger('close')
+
+    expect(disconnect).not.toHaveBeenCalled()
+    expect(vi.mocked(consoleSpy.info).mock.calls.filter((call) => String(call[0]).includes('Retrying connection'))).toHaveLength(reconnectCount)
   })
 
   it('calls onTokenRejected and stops retrying when a background reconnect is rejected with an invalid token', async () => {

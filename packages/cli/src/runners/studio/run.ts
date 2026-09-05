@@ -452,16 +452,25 @@ class StudioConnection {
       return this.#handleStartupRejection(error)
     }
 
+    // `{ once: true }` only removes the listener once the abort event fires, not once this race is
+    // settled by the other side, so a token rejection that gets reauthenticated would otherwise
+    // leave one behind on `#shutdown.signal` for every reconnect the run makes.
+    let onAbort: (() => void) | undefined
     const shutdownWait = new Promise<{ kind: 'shutdown' }>((resolve) => {
       if (this.#shutdown.signal.aborted) {
         resolve({ kind: 'shutdown' })
         return
       }
-      this.#shutdown.signal.addEventListener('abort', () => resolve({ kind: 'shutdown' }), { once: true })
+      onAbort = () => resolve({ kind: 'shutdown' })
+      this.#shutdown.signal.addEventListener('abort', onAbort, { once: true })
     })
     const authRequiredWait = authRequired.then((error) => ({ kind: 'authRequired' as const, error }))
 
     const outcome = await Promise.race([shutdownWait, authRequiredWait])
+
+    if (onAbort) {
+      this.#shutdown.signal.removeEventListener('abort', onAbort)
+    }
 
     client.disconnect()
 
