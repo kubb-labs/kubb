@@ -5,7 +5,7 @@ import { registerAgent } from './api.ts'
 import { type ConnectToStudioOptions, connectToStudio } from './connectStudio.ts'
 import { setStorage } from './machine.ts'
 
-export type ClientOptions = Omit<ConnectToStudioOptions, 'signal'> & {
+export type ClientOptions = Omit<ConnectToStudioOptions, 'signal' | 'onTokenRejected'> & {
   /**
    * Where the machine secret and the last Studio config are persisted. Defaults to in-memory,
    * which gives up a stable machine identity across restarts.
