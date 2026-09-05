@@ -270,9 +270,6 @@ class StudioConnection {
 
   // Known once `run()` resolves the initial credentials, before anything else reads this field.
   #credentials!: Credentials
-  // An operator-supplied token is never replaced automatically, so every rejection of one is
-  // reported instead of paired again.
-  readonly #usingEnvToken = !!process.env.KUBB_AGENT_TOKEN
   // Whether the "Press Ctrl+C" hint already printed, so a reconnect never repeats it.
   #hinted = false
   // One automatic re-pair per run, whether the rejection lands at startup or once the session is
@@ -325,7 +322,7 @@ class StudioConnection {
     try {
       this.#credentials = await this.#resolveInitialCredentials()
 
-      this.#granted = await resolvePermissions(this.#options, this.#credentials, this.#configPath, !this.#usingEnvToken)
+      this.#granted = await resolvePermissions(this.#options, this.#credentials, this.#configPath, !process.env.KUBB_AGENT_TOKEN)
 
       this.#printBanner()
 
@@ -495,7 +492,8 @@ class StudioConnection {
    * Returns whether the run is over.
    */
   async #handleStartupRejection(error: InvalidAgentTokenError): Promise<boolean> {
-    if (this.#usingEnvToken) {
+    // An operator-supplied token is never replaced automatically.
+    if (process.env.KUBB_AGENT_TOKEN) {
       throw explainRejectedToken(error, 'envToken')
     }
 
@@ -517,7 +515,7 @@ class StudioConnection {
    * whether the run is over.
    */
   async #handleLiveRejection(error: InvalidAgentTokenError): Promise<boolean> {
-    if (this.#usingEnvToken) {
+    if (process.env.KUBB_AGENT_TOKEN) {
       throw explainRejectedToken(error, 'envToken')
     }
 
@@ -557,7 +555,7 @@ class StudioConnection {
     // The approved agent may be a different identity, whose saved permissions did not carry
     // forward. Resolving again asks for whatever this credential does not already hold, instead
     // of handing the new agent what the previous one was granted.
-    this.#granted = await resolvePermissions(this.#options, this.#credentials, this.#configPath, !this.#usingEnvToken)
+    this.#granted = await resolvePermissions(this.#options, this.#credentials, this.#configPath, !process.env.KUBB_AGENT_TOKEN)
 
     return true
   }
