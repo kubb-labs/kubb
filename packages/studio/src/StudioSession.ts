@@ -62,8 +62,9 @@ export type StudioSessionOptions = {
    */
   signal?: AbortSignal
   /**
-   * Installs listeners on an event emitter, once for the session and once per generation. Left out,
-   * the runtime prints nothing, which is what a library should default to.
+   * Installs listeners on the session's event emitter, which carries both the session events and
+   * the generations it runs. Left out, the runtime prints nothing, which is what a library should
+   * default to.
    */
   installLogger?: (hooks: Hookable<KubbHooks>) => void | Promise<void>
   /**
@@ -258,8 +259,8 @@ export class StudioSession {
 
       this.#heartbeatTimer = setInterval(() => this.#sendHeartbeat(), heartbeatInterval)
 
-      // Only `kubb:error` is ever fired on the connection emitter. Every generation event goes
-      // through its own emitter below, so it gets that one listener rather than the full stream.
+      // Standing listener for the whole session. A generation adds the rest of the stream for as
+      // long as it runs, so between runs this socket carries errors only.
       this.#unhooks.push(this.#hooks.hook('kubb:error', ({ error }) => sendErrorMessage(ws, error)))
     } catch (error) {
       // Reaching here means the session was never created (Studio down, a 502 mid-deploy), so no
@@ -538,7 +539,7 @@ export class StudioSession {
   }
 
   async #handleGenerate(ws: WebSocket, data: Extract<AgentMessage, { type: 'studio:generate' }>, command: string): Promise<void> {
-    const { root, loadConfig, permissions, client, installLogger } = this.#options
+    const { root, loadConfig, permissions, client } = this.#options
 
     if (this.#isGenerating) {
       await this.#warn('Ignored generate: a generation is already in progress')
@@ -570,25 +571,28 @@ export class StudioSession {
         await this.#warn(`Ignored the spec from Studio; set ${remedy} to generate from it`)
       }
 
-      const generationHooks = new Hookable<KubbHooks>()
-      await installLogger?.(generationHooks)
-      setupHookListener(generationHooks, root)
-      setupEventsStream(ws, generationHooks)
-
       const resolvedPlugins = plugins ?? config.plugins
 
-      await generate({
-        config: {
-          ...config,
-          root,
-          input: inputOverride ?? config.input,
-          storage: this.#canWrite ? fsStorage() : memoryStorage(),
-          output: permissions.allowExec ? { ...config.output } : { ...config.output, format: false, lint: false, postGenerate: [] },
-          plugins: resolvedPlugins,
-          adapter,
-        },
-        hooks: generationHooks,
-      })
+      // The session's own emitter carries the run: the host's logger is already on it from
+      // `connect`, and these two come off again below, so one run's listeners never see the next.
+      const detach = [setupHookListener(this.#hooks, root), setupEventsStream(ws, this.#hooks)]
+
+      try {
+        await generate({
+          config: {
+            ...config,
+            root,
+            input: inputOverride ?? config.input,
+            storage: this.#canWrite ? fsStorage() : memoryStorage(),
+            output: permissions.allowExec ? { ...config.output } : { ...config.output, format: false, lint: false, postGenerate: [] },
+            plugins: resolvedPlugins,
+            adapter,
+          },
+          hooks: this.#hooks,
+        })
+      } finally {
+        for (const remove of detach) remove()
+      }
 
       await this.#hooks.callHook('studio:command:end', {
         command,

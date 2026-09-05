@@ -94,9 +94,12 @@ declare global {
  * Register a `kubb:hook:start` listener that spawns the requested command via tinyexec,
  * streams each stdout line as a `kubb:hook:line` event, and calls `kubb:hook:end` with the result.
  * Streaming the output lets Kubb Studio render live hook progress over the WebSocket connection.
+ *
+ * Returns a remover, so a session that runs one generation after another on the same emitter does
+ * not stack a listener per run.
  */
-export function setupHookListener(hooks: Hookable<KubbHooks>, root: string): void {
-  hooks.hook('kubb:hook:start', async (ctx) => {
+export function setupHookListener(hooks: Hookable<KubbHooks>, root: string): () => void {
+  return hooks.hook('kubb:hook:start', async (ctx) => {
     const { id, command, args } = ctx
     // No id means nothing is waiting on the result (benchmarks, tests).
     if (!id) {

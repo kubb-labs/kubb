@@ -40,7 +40,9 @@ vi.mock('tinyexec', () => ({ x: vi.fn(() => Object.assign(Promise.resolve({ exit
 vi.mock('./ws.ts', () => ({
   createWebsocket: vi.fn(),
   sendAgentMessage: vi.fn(),
-  setupEventsStream: vi.fn(),
+  // Returns the remover a real `setupEventsStream` hands back, which the session calls when the
+  // generation ends.
+  setupEventsStream: vi.fn(() => vi.fn()),
 }))
 
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
@@ -171,21 +173,20 @@ describe('StudioSession', () => {
     })
   })
 
-  it('installs the host renderer on the session emitter and on every generation', async () => {
+  it('installs the host renderer once, on the emitter that carries the session and its generations', async () => {
     const emitters: Array<Hookable<KubbHooks>> = []
 
     await connect({ ...options, installLogger: (hooks) => void emitters.push(hooks) })
 
-    // The session emitter, installed before the socket exists so a failed connect still reports.
+    // Installed before the socket exists, so a failed connect still reports.
     expect(emitters).toHaveLength(1)
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'studio:generate', payload: { plugins: [] } }),
     })
 
-    // The generation gets its own emitter, so its events cannot bleed into another session's.
-    expect(emitters).toHaveLength(2)
-    expect(emitters[0]).not.toBe(emitters[1])
+    expect(emitters).toHaveLength(1)
+    expect(vi.mocked(generate).mock.calls[0]?.[0].hooks).toBe(emitters[0])
   })
 
   it('creates a WebSocket with the session wsUrl and Bearer auth header', async () => {
@@ -723,20 +724,27 @@ describe('StudioSession', () => {
     expect(generate).toHaveBeenCalledTimes(2)
   })
 
-  // The event stream is wired to the generation emitter only. The connection emitter carries just
-  // `kubb:error`, so two generations can never interleave their events on one socket.
-  it('uses an isolated hooks emitter for each generate command', async () => {
+  // The stream is attached for the length of one generation and detached after, so two runs can
+  // never interleave their events on one socket.
+  it('detaches the event stream when a generate command finishes', async () => {
     await connect(options)
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'studio:generate', payload: { plugins: [] } }),
     })
 
-    const generationHooks = vi.mocked(setupEventsStream).mock.calls[0]?.[1]
-    const generateHooks = vi.mocked(generate).mock.calls[0]?.[0].hooks
+    const detach = vi.mocked(setupEventsStream).mock.results[0]?.value
+    const streamHooks = vi.mocked(setupEventsStream).mock.calls[0]?.[1]
 
-    expect(setupEventsStream).toHaveBeenCalledTimes(1)
-    expect(generateHooks).toBe(generationHooks)
+    expect(streamHooks).toBe(vi.mocked(generate).mock.calls[0]?.[0].hooks)
+    expect(detach).toHaveBeenCalledTimes(1)
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'studio:generate', payload: { plugins: [] } }),
+    })
+
+    expect(setupEventsStream).toHaveBeenCalledTimes(2)
+    expect(vi.mocked(setupEventsStream).mock.results[1]?.value).toHaveBeenCalledTimes(1)
   })
 
   // connect command
