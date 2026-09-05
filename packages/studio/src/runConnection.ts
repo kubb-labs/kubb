@@ -53,14 +53,16 @@ export type ConnectionOptions<TCredentials extends { token: string }> = {
  * background reconnect. Resolves with the rejection, or nothing when the run is being shut down.
  */
 function waitForRejection(authRequired: Promise<InvalidAgentTokenError>, signal?: AbortSignal): Promise<InvalidAgentTokenError | undefined> {
+  // Nothing to race without a signal: that host ends the run some other way.
+  if (!signal) {
+    return authRequired
+  }
+
   // `{ once: true }` drops the listener when the abort fires, not when the other side settles the
   // race, so `settled` covers that half. Without it a reconnected run leaves one behind on the
   // host's signal for every attempt it makes.
   const settled = new AbortController()
   const shutdown = new Promise<undefined>((resolve) => {
-    if (!signal) {
-      return
-    }
     if (signal.aborted) {
       resolve(undefined)
       return
@@ -115,8 +117,6 @@ export async function runConnection<TCredentials extends { token: string }>({
 
       const error = await waitForRejection(authRequired, signal)
 
-      client.disconnect()
-
       if (!error) {
         return 'shutdown'
       }
@@ -129,9 +129,10 @@ export async function runConnection<TCredentials extends { token: string }>({
         throw error
       }
 
-      client.disconnect()
-
       rejection = { error, credentials: current, live: false }
+    } finally {
+      // Every way out of this attempt closes its client, the rethrow included.
+      client.disconnect()
     }
 
     const next = await onTokenRejected(rejection)

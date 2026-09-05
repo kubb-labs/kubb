@@ -116,10 +116,12 @@ describe('runConnection', () => {
 
   it('rethrows anything that is not a rejected token, since sessions retry those themselves', async () => {
     const error = new Error('ECONNREFUSED')
-    queueClients(() => Promise.reject(error))
+    const clients = queueClients(() => Promise.reject(error))
     const onTokenRejected = vi.fn()
 
     await expect(runConnection({ credentials: { token: 'a' }, clientOptions, onTokenRejected })).rejects.toBe(error)
     expect(onTokenRejected).not.toHaveBeenCalled()
+    // The attempt still closes its client on the way out.
+    expect(clients[0]?.disconnect).toHaveBeenCalled()
   })
 })
