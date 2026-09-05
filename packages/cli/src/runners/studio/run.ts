@@ -107,11 +107,11 @@ async function login({ studioUrl, autoOpen }: StudioOptions, { signal, previousC
   }
 
   const spinner = createSpinner()
-  spinner?.start('Waiting for approval')
+  spinner.start('Waiting for approval')
 
   try {
     const { token, agent } = await pollForPairingToken({ studioUrl, session, signal })
-    spinner?.stop(`Paired as ${agent.name}`)
+    spinner.stop(`Paired as ${agent.name}`)
 
     const keepsIdentity = previousCredentials?.studioUrl === studioUrl && previousCredentials.agentId === agent.id
     const credentials: Credentials = {
@@ -127,7 +127,7 @@ async function login({ studioUrl, autoOpen }: StudioOptions, { signal, previousC
 
     return credentials
   } catch (error) {
-    spinner?.stop(error instanceof PairingCanceledError ? 'Pairing canceled' : 'Pairing failed')
+    spinner.stop(error instanceof PairingCanceledError ? 'Pairing canceled' : 'Pairing failed')
     throw error
   }
 }
