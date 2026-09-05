@@ -9,11 +9,12 @@ import type { CLIOptions, Config } from '@kubb/core'
 import { cliReporter, logLevel as logLevelMap } from '@kubb/core'
 import {
   createFileStorage,
-  createClient,
+  type ClientOptions,
   defaultStudioUrl,
-  InvalidAgentTokenError,
+  type InvalidAgentTokenError,
   PairingCanceledError,
   pollForPairingToken,
+  runConnection,
   setStorage,
   startPairing,
 } from '@kubb/studio'
@@ -310,9 +311,16 @@ class StudioConnection {
 
       this.#printBanner()
 
-      // Each iteration is one connection attempt. It returns once the run is over (a shutdown, or
-      // a canceled re-pair) or falls through to try again with whatever credentials are now current.
-      while (!(await this.#connectAndWait())) {}
+      const outcome = await runConnection({
+        credentials: this.#credentials,
+        signal: this.#shutdown.signal,
+        clientOptions: () => this.#clientOptions(),
+        onTokenRejected: ({ error, live }) => this.#handleRejection(error, live),
+      })
+
+      if (outcome === 'shutdown') {
+        this.#reportDisconnected()
+      }
     } catch (error) {
       // Canceling the very first pairing (before anything was ever connected) is Ctrl+C working as
       // intended, not a failure to report.
@@ -368,24 +376,11 @@ class StudioConnection {
   }
 
   /**
-   * Opens one client and waits for whichever comes first: a shutdown, or Studio rejecting the
-   * token. A rejection arrives either from `client.connect()` itself, at startup, or later through
-   * `onAuthRequired`, during a background reconnect. Returns whether the run is over.
+   * What every connection attempt opens with. Rebuilt per attempt, so a re-pair that changed the
+   * granted permissions takes effect on the next one.
    */
-  async #connectAndWait(): Promise<boolean> {
-    // A shutdown can land outside the race below: while the permission prompts are open, or
-    // between a browser approval and this next attempt. Registering one more agent with Studio
-    // only to drop it again is not what the operator asked for.
-    if (this.#shutdown.signal.aborted) {
-      this.#reportDisconnected()
-
-      return true
-    }
-
-    const { promise: authRequired, resolve: notifyAuthRequired } = Promise.withResolvers<InvalidAgentTokenError>()
-
-    const client = createClient({
-      token: this.#credentials.token,
+  #clientOptions(): Omit<ClientOptions, 'token' | 'onAuthRequired'> {
+    return {
       studioUrl: this.#options.studioUrl,
       configPath: this.#configPath,
       version: this.#options.version,
@@ -394,11 +389,8 @@ class StudioConnection {
       client: { kind: 'cli' },
       root: process.cwd(),
       permissions: this.#granted,
-      // Fires once the pool is already stopped, only for a token rejected during background
-      // reconnect. A startup rejection is handled below through `client.connect()` itself.
-      onAuthRequired: notifyAuthRequired,
-      // The loggers `kubb generate` installs, on both emitters, so one place renders the session
-      // events and the generations it drives.
+      // The loggers `kubb generate` installs, so one place renders the session events and the
+      // generations it drives.
       installLogger: async (hooks) => {
         await setupReporters(hooks, { logLevel: logLevelMap[this.#options.logLevel ?? 'info'], reporters: [cliReporter] })
 
@@ -414,46 +406,7 @@ class StudioConnection {
           logBlock(styleText('dim', 'Press Ctrl+C to disconnect'))
         })
       },
-    })
-
-    try {
-      await client.connect()
-    } catch (error) {
-      if (!(error instanceof InvalidAgentTokenError)) {
-        throw error
-      }
-
-      client.disconnect()
-
-      return this.#handleStartupRejection(error)
     }
-
-    // `{ once: true }` drops the listener when the abort fires, not when the other side settles
-    // the race, so `settled` covers that half. Without it a reauthenticated rejection leaves one
-    // behind on `#shutdown.signal` for every reconnect.
-    const settled = new AbortController()
-    // Resolves with nothing, so the race reports a shutdown as the absence of a rejection.
-    const shutdownWait = new Promise<undefined>((resolve) => {
-      if (this.#shutdown.signal.aborted) {
-        resolve(undefined)
-        return
-      }
-      this.#shutdown.signal.addEventListener('abort', () => resolve(undefined), { once: true, signal: settled.signal })
-    })
-
-    const rejection = await Promise.race([shutdownWait, authRequired])
-
-    settled.abort()
-
-    client.disconnect()
-
-    if (!rejection) {
-      this.#reportDisconnected()
-
-      return true
-    }
-
-    return this.#handleLiveRejection(rejection)
   }
 
   /**
@@ -471,65 +424,53 @@ class StudioConnection {
   }
 
   /**
-   * The token was dead before a session ever opened: the agent was deleted in Studio, or the token
-   * was revoked. Keeping it only produces 401s on every run, so it is forgotten and paired again.
-   * Returns whether the run is over.
+   * Studio rejected the token, either before a session ever opened or once one was already live.
+   * Keeping a rejected token only produces 401s on every run, so it is forgotten and paired again.
+   * Returns the credential to reconnect with, or null when the run is over.
    */
-  async #handleStartupRejection(error: InvalidAgentTokenError): Promise<boolean> {
+  async #handleRejection(error: InvalidAgentTokenError, live: boolean): Promise<Credentials | null> {
     // An operator-supplied token is never replaced automatically.
     if (process.env.KUBB_AGENT_TOKEN) {
       throw explainRejectedToken(error, 'envToken')
     }
 
-    await clearCredentials()
-
-    this.#assertCanReauthenticate(error)
-
-    console.log(styleText('yellow', `${error.message} Pairing again...`))
-
-    if (!(await this.#reauthenticate())) {
-      return true
-    }
-
-    return false
-  }
-
-  /**
-   * Studio rejected the token in the background, well after the session was already live. Returns
-   * whether the run is over.
-   */
-  async #handleLiveRejection(error: InvalidAgentTokenError): Promise<boolean> {
-    if (process.env.KUBB_AGENT_TOKEN) {
-      throw explainRejectedToken(error, 'envToken')
+    // A token dead at startup is forgotten either way. A live one is only forgotten once this run
+    // knows it can pair again, so a CI run keeps the credential it could not replace.
+    if (!live) {
+      await clearCredentials()
     }
 
     this.#assertCanReauthenticate(error)
 
-    console.log(styleText('yellow', `${error.message} Studio needs you to approve access again.`))
+    console.log(styleText('yellow', live ? `${error.message} Studio needs you to approve access again.` : `${error.message} Pairing again...`))
 
-    // Forget the dead token before pairing again, the same as a rejection at startup: `login`
-    // overwrites the file regardless, but a failed re-pair should not leave a rejected token
-    // behind for the next run to try again.
-    await clearCredentials()
-
-    if (!(await this.#reauthenticate())) {
-      this.#reportDisconnected()
-
-      return true
+    if (live) {
+      await clearCredentials()
     }
 
-    return false
+    const credentials = await this.#reauthenticate()
+
+    if (!credentials) {
+      // Nothing was ever connected at startup, so there is no session to report the end of.
+      if (live) {
+        this.#reportDisconnected()
+      }
+
+      return null
+    }
+
+    return credentials
   }
 
   /**
-   * Re-pairs and stores the resulting credentials. Returns false when the operator canceled it.
+   * Re-pairs and stores the resulting credentials. Returns null when the operator canceled it.
    */
-  async #reauthenticate(): Promise<boolean> {
+  async #reauthenticate(): Promise<Credentials | null> {
     try {
       this.#credentials = await login(this.#options, { signal: this.#shutdown.signal, previousCredentials: this.#credentials })
     } catch (loginError) {
       if (loginError instanceof PairingCanceledError) {
-        return false
+        return null
       }
       throw loginError
     }
@@ -541,7 +482,7 @@ class StudioConnection {
     // of handing the new agent what the previous one was granted.
     this.#granted = await resolvePermissions(this.#options, this.#credentials, this.#configPath, !process.env.KUBB_AGENT_TOKEN)
 
-    return true
+    return this.#credentials
   }
 }
 
