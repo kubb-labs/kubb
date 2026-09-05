@@ -75,9 +75,9 @@ export function createClient({ storage, onAuthRequired, ...options }: ClientOpti
       // Awaited: `connect()` only ever rejects with `InvalidAgentTokenError` (every other failure
       // is retried internally through the session's own reconnect loop and resolves normally), so
       // awaiting here surfaces a dead token to the caller without blocking on a down Studio.
-      const sessions = Array.from({ length: poolSize }, () => new StudioSession({ ...options, signal: controller.signal, onTokenRejected: notifyAuthRequired }))
-
-      await Promise.all(sessions.map((session) => session.connect()))
+      await Promise.all(
+        Array.from({ length: poolSize }, () => new StudioSession({ ...options, signal: controller.signal, onTokenRejected: notifyAuthRequired }).connect()),
+      )
     },
     disconnect() {
       controller.abort()

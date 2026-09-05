@@ -265,6 +265,5 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>): ()
 
   return () => {
     for (const unhook of unhooks) unhook()
-    unhooks.length = 0
   }
 }
