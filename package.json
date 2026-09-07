@@ -34,12 +34,12 @@
     "upgrade": "npx taze -r -w --exclude pnpm --maturity-period 3"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "^1.0.0",
-    "@changesets/cli": "^3.0.1",
+    "@changesets/changelog-github": "^1.0.1",
+    "@changesets/cli": "^3.0.2",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "bun-types": "^1.4.0",
+    "bun-types": "^1.4.1",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "taze": "^21.1.0",
