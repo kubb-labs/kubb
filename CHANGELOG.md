@@ -1,5 +1,51 @@
 # Changelog
 
+## v5.1.0 — Sep 3, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Let `dateType` set `date-time`, `date`, and `time` independently, instead of one value driving all three
+  
+  Pass an object to represent timestamps as a JS `Date` while keeping date-only and time-only fields as strings, since `Date` cannot round-trip those without inventing a timezone.
+  
+  ```ts
+  adapterOas({
+    dateType: {
+      dateTime: 'date',
+      date: 'string',
+      time: 'string',
+    },
+  })
+  ```
+  
+  The scalar form (`dateType: 'date'`) still applies one value to all three formats. ([#3957](https://github.com/kubb-labs/kubb/pull/3957), [`9fca8e9`](https://github.com/kubb-labs/kubb/commit/9fca8e9ba16f05f29c852123c8696f7b6036c4a9))
+
+#### Bug Fixes
+
+- Explicit `types` fields for each package.json `exports` entry, so that it works with tsconfig.json `moduleResolution: 'bundler'` ([#3964](https://github.com/kubb-labs/kubb/pull/3964), [`be4cd17`](https://github.com/kubb-labs/kubb/commit/be4cd1770a34f547d1f1f60bd165c4228fef5053))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.6 — Sep 2, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Adds `--dryRun` to `generate` and `init` to preview a run without writing files, installing packages, formatting, linting, or running post-generate commands. When an AI coding agent runs the CLI, `generate` now uses the plain logger instead of the interactive one, and anonymous telemetry records the agent's name. ([#3951](https://github.com/kubb-labs/kubb/pull/3951), [`9849de3`](https://github.com/kubb-labs/kubb/commit/9849de3387ccfdb4e29c92e42e1e0429f3325c83))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.5 — Aug 31, 2026
 
 ### @kubb/core
@@ -15,7 +61,7 @@
 #### Bug Fixes
 
 - Move `unplugin-kubb` past its squatted npm version range.
-  
+
   Versions 5.0.1 through 5.0.30 were already published on npm from `unplugin-kubb`'s
   pre-monorepo history and depend on kubb v4, so the package's version was set directly to
   5.0.31 to clear that range. This changeset picks up from that 5.0.31 baseline and puts

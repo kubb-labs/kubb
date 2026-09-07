@@ -33,25 +33,44 @@ export function getPrimitiveType(type: string | undefined): ast.PrimitiveSchemaT
 }
 
 /**
+ * Resolves the `dateType` option down to the value for one format. The scalar form of
+ * `dateType` applies to every format; the object form picks `dateTime`/`date`/`time`
+ * individually and defaults an omitted key to `'string'`.
+ */
+export function resolveDateTypeValue(
+  dateType: ast.ParserOptions['dateType'],
+  format: 'date-time' | 'date' | 'time',
+): ast.DateTimeTypeValue | ast.DateOnlyTypeValue {
+  if (typeof dateType !== 'object' || dateType === null) {
+    return dateType
+  }
+
+  const key = format === 'date-time' ? 'dateTime' : format
+  return dateType[key] ?? 'string'
+}
+
+/**
  * Resolves the AST type descriptor for a date/time format, honoring the `dateType` option.
- * Returns `null` when `dateType: false`, so the format falls through to `string`.
+ * Returns `null` when the resolved value is `false`, so the format falls through to `string`.
  */
 export function getDateType(
   options: ast.ParserOptions,
   format: 'date-time' | 'date' | 'time',
 ): { type: 'datetime'; offset?: boolean; local?: boolean } | { type: 'date' | 'time'; representation: 'date' | 'string' } | null {
-  if (!options.dateType) {
+  const value = resolveDateTypeValue(options.dateType, format)
+
+  if (!value) {
     return null
   }
 
   if (format === 'date-time') {
-    if (options.dateType === 'date') {
+    if (value === 'date') {
       return { type: 'date', representation: 'date' }
     }
-    if (options.dateType === 'stringOffset') {
+    if (value === 'stringOffset') {
       return { type: 'datetime', offset: true }
     }
-    if (options.dateType === 'stringLocal') {
+    if (value === 'stringLocal') {
       return { type: 'datetime', local: true }
     }
     return { type: 'datetime', offset: false }
@@ -60,14 +79,14 @@ export function getDateType(
   if (format === 'date') {
     return {
       type: 'date',
-      representation: options.dateType === 'date' ? 'date' : 'string',
+      representation: value === 'date' ? 'date' : 'string',
     }
   }
 
   // time
   return {
     type: 'time',
-    representation: options.dateType === 'date' ? 'date' : 'string',
+    representation: value === 'date' ? 'date' : 'string',
   }
 }
 

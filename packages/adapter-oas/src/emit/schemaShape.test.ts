@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from '../constants.ts'
-import { flattenSchema, getDateType, getPrimitiveType, getSchemaType } from './schemaShape.ts'
+import { flattenSchema, getDateType, getPrimitiveType, getSchemaType, resolveDateTypeValue } from './schemaShape.ts'
 
 describe('getSchemaType', () => {
   it('returns the SchemaType for a known format', () => {
@@ -83,6 +83,42 @@ describe('getDateType', () => {
       type: 'time',
       representation: 'date',
     })
+  })
+
+  it('resolves date-time and date independently through the object form', () => {
+    expect(getDateType({ ...base, dateType: { dateTime: 'date' } }, 'date-time')).toStrictEqual({
+      type: 'date',
+      representation: 'date',
+    })
+    expect(getDateType({ ...base, dateType: { dateTime: 'date' } }, 'date')).toStrictEqual({
+      type: 'date',
+      representation: 'string',
+    })
+    expect(getDateType({ ...base, dateType: { dateTime: 'date' } }, 'time')).toStrictEqual({
+      type: 'time',
+      representation: 'string',
+    })
+  })
+
+  it('returns null for a format the object form sets to false', () => {
+    expect(getDateType({ ...base, dateType: { date: false } }, 'date')).toBeNull()
+    expect(getDateType({ ...base, dateType: { date: false } }, 'date-time')).toStrictEqual({ type: 'datetime', offset: false })
+  })
+})
+
+describe('resolveDateTypeValue', () => {
+  it('applies a scalar dateType to every format', () => {
+    expect(resolveDateTypeValue('date', 'date-time')).toBe('date')
+    expect(resolveDateTypeValue('date', 'date')).toBe('date')
+    expect(resolveDateTypeValue('date', 'time')).toBe('date')
+    expect(resolveDateTypeValue(false, 'date-time')).toBe(false)
+  })
+
+  it('reads the matching key from the object form, defaulting an omitted key to string', () => {
+    expect(resolveDateTypeValue({ dateTime: 'date' }, 'date-time')).toBe('date')
+    expect(resolveDateTypeValue({ dateTime: 'date' }, 'date')).toBe('string')
+    expect(resolveDateTypeValue({ date: false, time: 'date' }, 'date')).toBe(false)
+    expect(resolveDateTypeValue({ date: false, time: 'date' }, 'time')).toBe('date')
   })
 })
 

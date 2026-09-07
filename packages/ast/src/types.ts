@@ -1,5 +1,5 @@
 export type { DistributiveOmit, NodeDef } from './defineNode.ts'
-export type { InferSchemaNode, ParserOptions } from './infer.ts'
+export type { DateOnlyTypeValue, DateTimeTypeValue, DateTypeOptions, InferSchemaNode, ParserOptions } from './infer.ts'
 export type * from './nodes/index.ts'
 export type { ParentOf, Visitor, VisitorContext } from './visitor.ts'
 export type { Printer, PrinterFactoryOptions, PrinterPartial } from './createPrinter.ts'

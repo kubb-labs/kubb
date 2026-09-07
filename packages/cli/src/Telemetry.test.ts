@@ -85,6 +85,47 @@ describe('buildTelemetryEvent', () => {
 })
 
 describe('buildOtlpPayload', () => {
+  it('should include the kubb.agent attribute when the event has an agent', () => {
+    const event: ReturnType<typeof buildTelemetryEvent> = {
+      command: 'generate',
+      kubbVersion: '4.0.0',
+      nodeVersion: '20',
+      runtime: 'node',
+      runtimeVersion: '20',
+      platform: 'linux',
+      ci: false,
+      agent: 'claude',
+      plugins: [],
+      duration: 1000,
+      filesCreated: 5,
+      status: 'success',
+    }
+
+    const payload = buildOtlpPayload(event)
+    const span = payload.resourceSpans[0]!.scopeSpans[0]!.spans[0]!
+    expect(span.attributes).toContainEqual({ key: 'kubb.agent', value: { stringValue: 'claude' } })
+  })
+
+  it('should omit the kubb.agent attribute when the event has no agent', () => {
+    const event: ReturnType<typeof buildTelemetryEvent> = {
+      command: 'generate',
+      kubbVersion: '4.0.0',
+      nodeVersion: '20',
+      runtime: 'node',
+      runtimeVersion: '20',
+      platform: 'linux',
+      ci: false,
+      plugins: [],
+      duration: 1000,
+      filesCreated: 5,
+      status: 'success',
+    }
+
+    const payload = buildOtlpPayload(event)
+    const span = payload.resourceSpans[0]!.scopeSpans[0]!.spans[0]!
+    expect(span.attributes.find((a) => a.key === 'kubb.agent')).toBeUndefined()
+  })
+
   it('should build a valid OTLP trace payload', () => {
     const event: ReturnType<typeof buildTelemetryEvent> = {
       command: 'generate',

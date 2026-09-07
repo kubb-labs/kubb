@@ -19,7 +19,7 @@ type SchemaWithMetadata = {
   originalName: string
 }
 
-export type GetSchemasResult = {
+type GetSchemasResult = {
   schemas: Record<string, SchemaObject>
   /**
    * Maps a renamed component pointer (`#/components/<source>/<name>`) to the

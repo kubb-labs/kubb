@@ -7,7 +7,7 @@
     }
   ],
   "commit": false,
-  "fixed": [["@kubb/*", "kubb"]],
+  "fixed": [["@kubb/*", "kubb", "unplugin-kubb"]],
   "linked": [],
   "access": "restricted",
   "baseBranch": "main",
@@ -16,5 +16,9 @@
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   },
-  "ignore": ["@internals/*"]
+  "ignore": ["@internals/*"],
+  "privatePackages": {
+    "version": true,
+    "tag": false
+  }
 }

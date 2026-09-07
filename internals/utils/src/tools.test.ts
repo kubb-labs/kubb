@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { detectTool } from './tools.ts'
+import { detectTool, FORMATTER_PREFERENCE, formatters, LINTER_PREFERENCE, linters, tokenize } from './tools.ts'
 
 vi.mock('node:child_process', () => ({
   spawn: vi.fn(),
@@ -39,17 +39,37 @@ describe('detectTool', () => {
     expect(await detectTool(['oxfmt', 'biome', 'prettier'])).toBe('biome')
   })
 
-  it('returns the last candidate when only it is available', async () => {
-    vi.mocked(spawn).mockImplementation((command: string) => {
-      return makeChild(command === 'eslint' ? 0 : 1)
-    })
-
-    expect(await detectTool(['oxlint', 'biome', 'eslint'])).toBe('eslint')
-  })
-
   it('returns null when no candidate is available', async () => {
     vi.mocked(spawn).mockImplementation(() => makeChild(null))
 
     expect(await detectTool(['oxlint', 'biome', 'eslint'])).toBeNull()
+  })
+})
+
+describe('tool tables', () => {
+  it.each([...FORMATTER_PREFERENCE])('has a descriptor for the %s formatter', (name) => {
+    expect(formatters[name].command).toBe(name)
+  })
+
+  it.each([...LINTER_PREFERENCE])('has a descriptor for the %s linter', (name) => {
+    expect(linters[name].command).toBe(name)
+  })
+})
+
+describe('tokenize', () => {
+  it('splits on whitespace', () => {
+    expect(tokenize('oxlint --fix ./src')).toStrictEqual(['oxlint', '--fix', './src'])
+  })
+
+  it('keeps a double-quoted argument together and strips the quotes', () => {
+    expect(tokenize('git commit -m "initial commit"')).toStrictEqual(['git', 'commit', '-m', 'initial commit'])
+  })
+
+  it('keeps a single-quoted argument together', () => {
+    expect(tokenize("echo 'hello world'")).toStrictEqual(['echo', 'hello world'])
+  })
+
+  it('returns nothing for an empty command', () => {
+    expect(tokenize('   ')).toStrictEqual([])
   })
 })

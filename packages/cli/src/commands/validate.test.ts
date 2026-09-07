@@ -1,9 +1,12 @@
 import process from 'node:process'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-const { runValidate } = vi.hoisted(() => ({ runValidate: vi.fn(async () => undefined) }))
+const { runValidate } = vi.hoisted(() => ({ runValidate: vi.fn(async (_options: { input: string; version: string }) => undefined) }))
 
-vi.mock('../runners/validate/run.ts', () => ({ run: runValidate }))
+vi.mock('../runners/validate/run.ts', () => ({
+  run: runValidate,
+  runner: async ({ values }: { values: { input: string } }) => runValidate({ input: values.input, version: '' }),
+}))
 
 describe('validate command', () => {
   afterEach(() => {

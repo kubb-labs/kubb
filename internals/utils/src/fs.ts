@@ -1,6 +1,5 @@
 import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, isAbsolute, relative, resolve } from 'node:path'
-import { camelCase } from './casing.ts'
 import { runtime } from './runtime.ts'
 
 /**
@@ -145,28 +144,6 @@ export async function clean(path: string): Promise<void> {
 }
 
 /**
- * Resolves to `true` when `path` is `parent` itself or nested inside it. Both sides are resolved
- * to absolute paths first, so relative and `..`-containing inputs compare correctly.
- *
- * Guards destructive operations: before wiping an output directory, check that it does not contain
- * the project root, otherwise a `clean` would delete `kubb.config` and every source file.
- *
- * @example
- * isPathInside('./src/gen', '.')   // true  — nested inside the root
- * isPathInside('.', '.')           // true  — the same directory counts as inside
- * isPathInside('.', './src/gen')   // false — the root is not inside its own output
- * isPathInside('../other', '.')    // false — escapes the root
- */
-export function isPathInside(path: string, parent: string): boolean {
-  const resolvedPath = resolve(path)
-  const resolvedParent = resolve(parent)
-  if (resolvedPath === resolvedParent) return true
-
-  const rel = relative(resolvedParent, resolvedPath)
-  return rel !== '' && !rel.startsWith('..') && !isAbsolute(rel)
-}
-
-/**
  * Converts a filesystem path to use POSIX (`/`) separators.
  *
  * Most of the codebase compares and composes paths as strings (prefix matching, joining for
@@ -203,28 +180,27 @@ export function trimExtName(text: string): string {
 }
 
 /**
- * Builds a nested file path from a dotted name. Splits on dots that precede a letter
- * (so version numbers embedded in operationIds like `v2025.0` stay intact), camelCases
- * every earlier segment, applies `caseLast` to the final segment, and joins with `/`.
+ * Resolves to `true` when `path` is `parent` itself or nested inside it. Both sides are resolved
+ * to absolute paths first, so relative and `..`-containing inputs compare correctly.
  *
- * Empty segments are dropped before joining. They arise when the name starts with a dot
- * followed by a letter (e.g. `..Schema` splits into `['..', 'Schema']` and `'..'` cases to
- * an empty string). Without this a leading `/` would form, which `path.resolve` reads as an
- * absolute path, letting generated files escape the configured output directory.
+ * Guards a destructive or an out-of-tree operation: before wiping an output directory, check that
+ * it does not contain the project root, and before loading a path a caller supplied, check that it
+ * did not escape the directory it is allowed to read from.
  *
- * @example Nested path from a dotted name
- * `toFilePath('pet.petId') // 'pet/petId'`
- *
- * @example PascalCase the final segment
- * `toFilePath('pet.Pet', pascalCase) // 'pet/Pet'`
- *
- * @example Suffix applied to the final segment only
- * `toFilePath('tag.tag', (part) => camelCase(part, { suffix: 'schema' })) // 'tag/tagSchema'`
+ * @example
+ * isPathInside('./src/gen', '.')   // true  — nested inside the root
+ * isPathInside('.', '.')           // true  — the same directory counts as inside
+ * isPathInside('.', './src/gen')   // false — the root is not inside its own output
+ * isPathInside('../other', '.')    // false — escapes the root
  */
-export function toFilePath(name: string, caseLast: (part: string) => string = camelCase): string {
-  const parts = name.split(/\.(?=[a-zA-Z])/)
-  return parts
-    .map((part, i) => (i === parts.length - 1 ? caseLast(part) : camelCase(part)))
-    .filter(Boolean)
-    .join('/')
+export function isPathInside(path: string, parent: string): boolean {
+  const resolvedPath = resolve(path)
+  const resolvedParent = resolve(parent)
+  if (resolvedPath === resolvedParent) {
+    return true
+  }
+
+  const rel = relative(resolvedParent, resolvedPath)
+
+  return rel !== '' && !rel.startsWith('..') && !isAbsolute(rel)
 }

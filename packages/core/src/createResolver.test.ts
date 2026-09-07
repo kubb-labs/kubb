@@ -1,8 +1,8 @@
-import { camelCase } from '@internals/utils'
+import { camelCase, pascalCase } from '@internals/utils'
 import { ast, type InputMeta } from '@kubb/ast'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 import { createResolver } from './createResolver.ts'
-import { Resolver } from './Resolver.ts'
+import { Resolver, toFilePath } from './Resolver.ts'
 import type { Config } from './types.ts'
 
 type TestResolver = Resolver & {
@@ -800,5 +800,34 @@ describe('default.footer', () => {
       file: { path: 'src/gen/index.ts', baseName: 'index.ts', isBarrel: true },
     })
     expect(result).toBe('// barrel')
+  })
+})
+
+describe('toFilePath', () => {
+  test.each([
+    // version numbers (dot before a digit) stay in one segment
+    ['get_enterprise_configurations_id_v2025.0', 'getEnterpriseConfigurationsIdV20250'],
+    ['some_operation_v3.14', 'someOperationV314'],
+    ['version.1.2.3', 'version123'],
+    // dots before a letter split into nested path segments
+    ['pet.petId', 'pet/petId'],
+    ['pet.Pet', 'pet/pet'],
+    ['api.v2', 'api/v2'],
+    // Security: leading dots must NOT produce a leading slash (path traversal guard)
+    ['..Schema', 'schema'],
+    ['...Schema', 'schema'],
+    ['.Internal', 'internal'],
+  ])('toFilePath(%s) -> %s (camelCase segments)', (input, expected) => {
+    expect(toFilePath(input)).toBe(expected)
+  })
+
+  test('cases the last segment with the provided caser', () => {
+    expect(toFilePath('pet.petId', pascalCase)).toBe('pet/PetId')
+    expect(toFilePath('pet.Pet', pascalCase)).toBe('pet/Pet')
+  })
+
+  test('applies prefix and suffix to the last segment only', () => {
+    expect(toFilePath('create tag.tag', (part) => camelCase(part, { prefix: 'create' }))).toBe('createTag/createTag')
+    expect(toFilePath('tag.tag', (part) => camelCase(part, { suffix: 'schema' }))).toBe('tag/tagSchema')
   })
 })

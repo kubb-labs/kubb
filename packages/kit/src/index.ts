@@ -1,5 +1,5 @@
 export { ast } from '@kubb/ast'
-export { Url } from '@internals/utils'
+export { Url } from './Url.ts'
 export { macroDiscriminatorEnum, macroEnumName, macroRenameSchema, macroSimplifyUnion } from './macros/index.ts'
 export { childName, containsCircularRef, enumPropName, extractRefName, isStringType, mergeAdjacentObjectsLazy, syncSchemaRef } from './utils/index.ts'
 export { createAdapter } from '@kubb/core'

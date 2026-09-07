@@ -1,6 +1,5 @@
-import { setTimeout as delay } from 'node:timers/promises'
 import { describe, expect, it, vi } from 'vitest'
-import { createSerialRunner, inParallel, isPromise, memoize } from './promise.ts'
+import { inParallel, isPromise, memoize } from './promise.ts'
 
 describe('promise utilities', () => {
   describe('isPromise', () => {
@@ -74,52 +73,6 @@ describe('memoize', () => {
   })
 })
 
-describe('createSerialRunner', () => {
-  it('collapses triggers that land during a run into one rerun', async () => {
-    let calls = 0
-    const gates: Array<() => void> = []
-    const runner = createSerialRunner({
-      run: () =>
-        new Promise<void>((resolve) => {
-          calls += 1
-          gates.push(resolve)
-        }),
-      onError: () => {},
-    })
-
-    const first = runner()
-    void runner()
-    void runner()
-    void runner()
-    expect(calls).toBe(1)
-
-    gates[0]?.()
-    await vi.waitFor(() => expect(calls).toBe(2))
-
-    gates[1]?.()
-    await first
-    expect(calls).toBe(2)
-  })
-
-  it('reports a run error through onError and keeps accepting triggers', async () => {
-    const errors: Array<string> = []
-    let shouldFail = true
-    const runner = createSerialRunner({
-      run: async () => {
-        if (shouldFail) throw new Error('run exploded')
-      },
-      onError: (error) => errors.push(error.message),
-    })
-
-    await runner()
-    expect(errors).toStrictEqual(['run exploded'])
-
-    shouldFail = false
-    await runner()
-    expect(errors).toStrictEqual(['run exploded'])
-  })
-})
-
 describe('inParallel', () => {
   it('runs every item once, with its index', async () => {
     const seen: Array<[string, number]> = []
@@ -143,7 +96,7 @@ describe('inParallel', () => {
       run: async () => {
         inFlight++
         peak = Math.max(peak, inFlight)
-        await delay(1)
+        await new Promise((done) => setTimeout(done, 1))
         inFlight--
       },
     })
@@ -158,9 +111,9 @@ describe('inParallel', () => {
     await inParallel({
       items: [20, 1, 1],
       limit: 2,
-      run: async (duration) => {
-        await delay(duration)
-        order.push(duration)
+      run: async (delay) => {
+        await new Promise((done) => setTimeout(done, delay))
+        order.push(delay)
       },
     })
 

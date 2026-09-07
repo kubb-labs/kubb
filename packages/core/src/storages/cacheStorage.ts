@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { hash } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -27,7 +27,7 @@ export function resolveCacheDir(root: string): string {
   const nodeModules = join(root, 'node_modules')
   if (existsSync(nodeModules)) return join(nodeModules, '.cache', 'kubb')
 
-  return join(tmpdir(), 'kubb', createHash('sha256').update(root).digest('hex').slice(0, 16))
+  return join(tmpdir(), 'kubb', hash('sha256', root).slice(0, 16))
 }
 
 /**
