@@ -50,6 +50,12 @@ export type StudioSessionOptions = {
   permissions?: Partial<AgentPermissions>
   root?: string
   retryInterval?: number
+  /**
+   * Milliseconds between keep-alive pings, clamped to `agentDefaults.maxHeartbeatIntervalMs`.
+   * Raise it to halve the traffic and database writes a long-lived agent costs, at the price of
+   * Studio taking that much longer to notice the agent has gone. Lower it in development to see
+   * connection state move immediately.
+   */
   heartbeatInterval?: number
   /**
    * Number of pool sessions this agent serves. Read by `createClient`, which opens one
@@ -112,7 +118,7 @@ function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
     // Studio counts an agent offline once its last ping is older than its liveness window, so a
     // slower cadence would make a healthy agent invisible. Clamped here rather than in a host's
     // env parsing, so every host is held to the contract.
-    heartbeatInterval: Math.min(options.heartbeatInterval ?? agentDefaults.heartbeatIntervalMs, agentDefaults.heartbeatIntervalMs),
+    heartbeatInterval: Math.min(options.heartbeatInterval ?? agentDefaults.heartbeatIntervalMs, agentDefaults.maxHeartbeatIntervalMs),
   }
 }
 

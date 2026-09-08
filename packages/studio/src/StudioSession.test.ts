@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { agentDefaults } from './constants.ts'
 import { spyOnConsole } from './console.mock.ts'
 import { MockWebSocket } from './websocket.mock.ts'
 import type { AgentConnectResponse } from './protocol/index.ts'
@@ -222,8 +223,22 @@ describe('StudioSession', () => {
     await mockWs.trigger('open')
     vi.mocked(sendAgentMessage).mockClear()
 
-    await vi.advanceTimersByTimeAsync(30_000)
+    await vi.advanceTimersByTimeAsync(agentDefaults.maxHeartbeatIntervalMs)
 
+    expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, { type: 'agent:ping' })
+  })
+
+  it('honors a slower heartbeat up to the ceiling, so a long-lived agent can cost less', async () => {
+    vi.useFakeTimers()
+
+    await connect({ ...options, heartbeatInterval: agentDefaults.maxHeartbeatIntervalMs })
+    await mockWs.trigger('open')
+    vi.mocked(sendAgentMessage).mockClear()
+
+    await vi.advanceTimersByTimeAsync(agentDefaults.heartbeatIntervalMs)
+    expect(sendAgentMessage).not.toHaveBeenCalledWith(mockWs, { type: 'agent:ping' })
+
+    await vi.advanceTimersByTimeAsync(agentDefaults.heartbeatIntervalMs)
     expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, { type: 'agent:ping' })
   })
 
