@@ -11,10 +11,12 @@ export const defaultStudioUrl = 'https://kubb.studio'
 export const agentDefaults = {
   studioUrl: defaultStudioUrl,
   retryIntervalMs: 30_000,
-  /**
-   * Maximum heartbeat interval. Studio drops agents from the active list after ~90s without a ping,
-   * so a slower override would make a healthy agent look dead.
-   */
   heartbeatIntervalMs: 30_000,
+  /**
+   * Slowest heartbeat a host may ask for. Studio drops an agent from the active list once its
+   * stored ping is older than its liveness window, and it stores a ping at most once a minute, so
+   * a slower cadence would make a healthy agent look dead after a single missed ping.
+   */
+  maxHeartbeatIntervalMs: 60_000,
   poolSize: 1,
 } as const
