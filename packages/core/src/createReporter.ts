@@ -22,7 +22,7 @@ export const logLevel = {
  * - `json` writes a machine-readable report to stdout, for CI.
  * - `file` writes a config's diagnostics to `.kubb/kubb-<name>-<timestamp>.log`.
  */
-export type ReporterName = 'cli' | 'json' | 'file'
+export type ReporterName = 'cli' | 'json' | 'file' | 'html'
 
 /**
  * One config's outcome within a run, as handed to a {@link Reporter}.

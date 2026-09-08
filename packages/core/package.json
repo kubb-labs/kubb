@@ -68,7 +68,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsdown",
+    "build": "pnpm --filter @kubb/devtools build && tsdown && node ../../scripts/copyHtmlReportAssets.mjs",
     "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",

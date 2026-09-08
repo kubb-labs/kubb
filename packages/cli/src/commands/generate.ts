@@ -3,12 +3,12 @@ import type { ReporterName } from '@kubb/core'
 import { dryRunId } from '../gunshiDryRun.ts'
 import type { DryRunExtensions } from '../gunshiDryRun.ts'
 
-const REPORTER_NAMES: Array<ReporterName> = ['cli', 'json', 'file']
+const REPORTER_NAMES: Array<ReporterName> = ['cli', 'json', 'file', 'html']
 
 /**
  * Splits and validates the comma-separated `--reporter` value against the known reporter names.
  */
-function parseReporters(value: string): Array<ReporterName> {
+export function parseReporters(value: string): Array<ReporterName> {
   const names = value
     .split(',')
     .map((name) => name.trim())
@@ -16,7 +16,7 @@ function parseReporters(value: string): Array<ReporterName> {
 
   for (const name of names) {
     if (!REPORTER_NAMES.includes(name as ReporterName)) {
-      throw new Error(`must be one of cli, json, file (got "${name}")`)
+      throw new Error(`must be one of cli, json, file, html (got "${name}")`)
     }
   }
 
@@ -84,7 +84,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
     reporter: {
       type: 'custom',
       description: 'Reporters that render the run, comma-separated. Overrides config.reporters',
-      metavar: 'cli|json|file',
+      metavar: 'cli|json|file|html',
       parse: parseReporters,
     },
   },

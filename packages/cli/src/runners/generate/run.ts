@@ -8,6 +8,7 @@ import {
   Hookable,
   type CLIOptions,
   cliReporter,
+  createHtmlReporter,
   type Config,
   createKubb,
   type Diagnostic,
@@ -38,6 +39,7 @@ type GenerateProps = {
    * and post-generate commands.
    */
   dryRun?: boolean
+  onKubbCreated?: (kubb: ReturnType<typeof createKubb>) => void
 }
 
 type ToolMap = typeof formatters | typeof linters
@@ -212,6 +214,7 @@ async function generate(options: GenerateProps): Promise<boolean> {
   })
 
   const kubb = createKubb(config, { hooks })
+  options.onKubbCreated?.(kubb)
   const result = await kubb.generate({ processOutput })
 
   if (dryRun) {
@@ -299,9 +302,28 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
   // CLI `--reporter` selects which reporters to trigger by name, defaulting to `cli`. The config
   // always carries the available reporters (defineConfig registers the built-ins).
-  const requestedNames: Array<ReporterName> = cliReporters?.length ? cliReporters : ['cli']
+  const requestedNames: Array<ReporterName> = cliReporters?.length ? [...cliReporters] : ['cli']
+  if (requestedNames.includes('html') && !requestedNames.includes('cli')) {
+    requestedNames.unshift('cli')
+  }
   const available = configs[0]?.reporters ?? []
-  const reporters = selectReporters(available, requestedNames)
+  let currentKubb: ReturnType<typeof createKubb> | undefined
+  const seenReporters = new Set<string>()
+  const reporters = requestedNames.flatMap((name) => {
+    if (seenReporters.has(name)) return []
+    seenReporters.add(name)
+
+    if (name === 'html') {
+      return [
+        createHtmlReporter({
+          hooks,
+          getInputNode: () => currentKubb?.driver.inputNode ?? null,
+        }),
+      ]
+    }
+
+    return selectReporters(available, [name])
+  })
   await setupReporters(hooks, { logLevel, reporters })
 
   await hooks.callHook('kubb:lifecycle:start', { version })
@@ -324,7 +346,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async (paths: Array<string>) => {
-          await generate({ input, config, logLevel, hooks, dryRun })
+          await generate({ input, config, logLevel, hooks, dryRun, onKubbCreated: (kubb) => (currentKubb = kubb) })
           logStep(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
         }
 
@@ -339,7 +361,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         await startWatcher(watchedPaths, build, { info: logInfo, error: logError })
       } else {
         try {
-          const succeeded = await generate({ input, config, logLevel, hooks, dryRun })
+          const succeeded = await generate({ input, config, logLevel, hooks, dryRun, onKubbCreated: (kubb) => (currentKubb = kubb) })
           if (!succeeded) anyFailed = true
         } catch (configError) {
           await hooks.callHook('kubb:error', { error: toError(configError) })

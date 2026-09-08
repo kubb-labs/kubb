@@ -1,4 +1,4 @@
-import { Hookable, cliReporter, type Config, fileReporter, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
+import { Hookable, cliReporter, createHtmlReporter, type Config, fileReporter, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import * as agent from '../agent.ts'
 import * as env from '../utils/env.ts'
@@ -88,6 +88,15 @@ describe('cliReporter', () => {
 })
 
 describe('setupReporters', () => {
+  it('keeps the CLI reporter active alongside html', async () => {
+    const context = new Hookable<KubbHooks>()
+    const html = createHtmlReporter({ hooks: context, getInputNode: () => null, assets: { script: '', style: '' } })
+
+    await setupReporters(context, { logLevel: logLevel.info, reporters: [cliReporter, html] })
+
+    expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(1)
+  })
+
   it('lets json own stdout without installing the live logger when json is selected', async () => {
     const context = new Hookable<KubbHooks>()
 
