@@ -1,0 +1,40 @@
+@import './tokens.css';
+
+/*
+ * The panels are styled entirely from the Kubb tokens above, so there is no
+ * component library or utility framework here. `--ui-header-height` is the one
+ * layout value the tokens do not carry.
+ */
+:root {
+  --ui-header-height: 3rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--kubb-bg);
+  color: var(--kubb-text);
+  font-family: var(--kubb-font-sans);
+}
+
+button,
+[role='button'],
+a[href] {
+  cursor: pointer;
+}
+
+input,
+button {
+  font-family: inherit;
+}

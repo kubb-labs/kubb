@@ -1,0 +1,512 @@
+/*
+ * Copied from kubb-labs/platform: packages/ui/src/tokens.css
+ * That file is the source of truth. Re-copy it rather than editing here.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
+
+/* =========================================================================
+ * Kubb Design System — CSS Variables
+ * v1.0 · 2026
+ *
+ * Drop this file into your site's <head> before any other stylesheet:
+ *   <link rel="stylesheet" href="/tokens.css" />
+ *
+ * All tokens are on :root so they inherit everywhere. Dark-mode overrides
+ * apply when the site puts `.dark` or data-theme="dark" on the root element.
+ * There is no `prefers-color-scheme` auto block on purpose: frameworks like
+ * VitePress signal light mode by *removing* `.dark` (never adding `.light`),
+ * so an OS-preference fallback would override an explicit light choice.
+ * Sites that want to follow the OS must resolve the preference themselves
+ * and set the class — VitePress and Nuxt color-mode already do.
+ * ========================================================================= */
+
+:root {
+  /* ---------------------------------------------------------------------
+   * BRAND — orange, the primary signal
+   * ------------------------------------------------------------------- */
+  --kubb-brand: #f58517;
+  --kubb-brand-light: #ff9940;
+  --kubb-brand-lighter: #ffb366;
+  --kubb-brand-lightest: #ffd9b3;
+  --kubb-brand-dark: #854811; /* use for brand-on-white text */
+  --kubb-brand-darker: #5c3208;
+  --kubb-brand-soft: #f3c796;
+  --kubb-brand-dim: rgba(245, 133, 23, 0.08);
+
+  /* Hero gradient partner */
+  --kubb-coral: #f7797d;
+
+  /* ---------------------------------------------------------------------
+   * ACCENT SPECTRUM — reserved for sponsor CTA, rainbow borders,
+   * landing-page moments. Not for body UI.
+   * ------------------------------------------------------------------- */
+  --kubb-accent-red: #ff6565;
+  --kubb-accent-pink: #ff64f9;
+  --kubb-accent-purple: #6b5fff;
+  --kubb-accent-blue: #4d8aff;
+  --kubb-accent-green: #5bff89;
+  --kubb-accent-yellow: #ffee55;
+  --kubb-accent-orange: #ff6d1b;
+
+  /* ---------------------------------------------------------------------
+   * NEUTRALS — light mode defaults
+   * ------------------------------------------------------------------- */
+  --kubb-bg: #ffffff;
+  --kubb-bg-soft: #f6f7f8;
+  --kubb-bg-mute: #eef0f2;
+  --kubb-text: #1a1b1e;
+  --kubb-text-2: #4b5563;
+  --kubb-text-3: #9ca3af;
+  --kubb-line: #e5e7eb;
+  --kubb-line-soft: #eef0f2;
+  --kubb-ink: #1a1b1e; /* deepest */
+  --kubb-surface: #161618; /* bg-alt dark tile */
+
+  /* Status */
+  --kubb-success: #10b981;
+  --kubb-warning: #f59e0b;
+  --kubb-danger: #ef4444;
+
+  /* ---------------------------------------------------------------------
+   * GRADIENTS
+   * ------------------------------------------------------------------- */
+  --kubb-gradient-hero: linear-gradient(120deg, #f58517 30%, #f7797d);
+  --kubb-gradient-hero-image: linear-gradient(-45deg, #f58517 50%, #e3c09d 50%);
+  --kubb-gradient-sponsor: linear-gradient(
+    90deg,
+    var(--kubb-accent-orange),
+    var(--kubb-accent-yellow),
+    var(--kubb-accent-green),
+    var(--kubb-accent-blue),
+    var(--kubb-accent-purple),
+    var(--kubb-accent-pink),
+    var(--kubb-accent-red)
+  );
+
+  /* ---------------------------------------------------------------------
+   * TYPOGRAPHY
+   * ------------------------------------------------------------------- */
+  --kubb-font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --kubb-font-mono: 'Fira Code', Menlo, Monaco, Consolas, 'Courier New', monospace;
+
+  /* Font sizes (Tailwind-aligned) */
+  --kubb-text-xs: 0.75rem; /* 12 */
+  --kubb-text-sm: 0.875rem; /* 14 */
+  --kubb-text-base: 1rem; /* 16 */
+  --kubb-text-lg: 1.125rem; /* 18 */
+  --kubb-text-xl: 1.25rem; /* 20 */
+  --kubb-text-2xl: 1.5rem; /* 24 */
+  --kubb-text-3xl: 1.875rem; /* 30 */
+  --kubb-text-4xl: 2.25rem; /* 36 */
+  --kubb-text-5xl: 3rem; /* 48 */
+  --kubb-text-6xl: 3.75rem; /* 60 */
+  --kubb-text-7xl: 4.5rem; /* 72 */
+  --kubb-text-8xl: 6rem; /* 96 */
+
+  /* Weights */
+  --kubb-weight-normal: 400;
+  --kubb-weight-medium: 500;
+  --kubb-weight-semibold: 600;
+  --kubb-weight-bold: 700;
+  --kubb-weight-extrabold: 800;
+
+  /* Line heights */
+  --kubb-leading-tight: 1.2;
+  --kubb-leading-snug: 1.35;
+  --kubb-leading-normal: 1.55;
+  --kubb-leading-relaxed: 1.7;
+  --kubb-leading-loose: 1.75;
+
+  /* Letter-spacing (display headings lean tight) */
+  --kubb-tracking-tightest: -0.035em;
+  --kubb-tracking-tighter: -0.03em;
+  --kubb-tracking-tight: -0.02em;
+  --kubb-tracking-snug: -0.01em;
+  --kubb-tracking-normal: 0;
+  --kubb-tracking-wide: 0.02em;
+  --kubb-tracking-wider: 0.05em;
+  --kubb-tracking-widest: 0.08em;
+
+  /* ---------------------------------------------------------------------
+   * SPACING — 4px base unit
+   * ------------------------------------------------------------------- */
+  --kubb-space-0: 0;
+  --kubb-space-px: 1px;
+  --kubb-space-0-5: 0.125rem; /* 2  */
+  --kubb-space-1: 0.25rem; /* 4  */
+  --kubb-space-1-5: 0.375rem; /* 6  */
+  --kubb-space-2: 0.5rem; /* 8  */
+  --kubb-space-3: 0.75rem; /* 12 */
+  --kubb-space-4: 1rem; /* 16 */
+  --kubb-space-5: 1.25rem; /* 20 */
+  --kubb-space-6: 1.5rem; /* 24 */
+  --kubb-space-8: 2rem; /* 32 */
+  --kubb-space-10: 2.5rem; /* 40 */
+  --kubb-space-12: 3rem; /* 48 */
+  --kubb-space-14: 3.5rem; /* 56 */
+  --kubb-space-16: 4rem; /* 64 */
+  --kubb-space-20: 5rem; /* 80 */
+  --kubb-space-24: 6rem; /* 96 */
+  --kubb-space-32: 8rem; /* 128 */
+
+  /* ---------------------------------------------------------------------
+   * RADIUS
+   * ------------------------------------------------------------------- */
+  --kubb-radius-none: 0;
+  --kubb-radius-sm: 2px;
+  --kubb-radius: 4px;
+  --kubb-radius-md: 6px;
+  --kubb-radius-lg: 8px; /* inputs, code blocks */
+  --kubb-radius-xl: 12px; /* buttons, cards */
+  --kubb-radius-2xl: 16px; /* feature tiles */
+  --kubb-radius-3xl: 24px; /* hero tiles */
+  --kubb-radius-full: 9999px;
+
+  /* ---------------------------------------------------------------------
+   * ELEVATION / SHADOW
+   * ------------------------------------------------------------------- */
+  --kubb-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --kubb-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --kubb-shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.1);
+  --kubb-shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.12);
+  --kubb-shadow-glow: 0 0 40px rgba(245, 133, 23, 0.35);
+  --kubb-shadow-glow-soft: 0 0 40px rgba(245, 133, 23, 0.2);
+
+  /* ---------------------------------------------------------------------
+   * LAYOUT
+   * ------------------------------------------------------------------- */
+  --kubb-max-layout: 1440px; /* outer page container  */
+  --kubb-max-content: 1200px; /* marketing / feature grid */
+  --kubb-max-doc: 680px; /* prose measure */
+  --kubb-gutter: 1.5rem; /* 24 */
+  --kubb-section-py: 5rem; /* 80 */
+
+  /* ---------------------------------------------------------------------
+   * MOTION
+   * ------------------------------------------------------------------- */
+  --kubb-duration-fast: 150ms;
+  --kubb-duration: 200ms;
+  --kubb-duration-slow: 300ms;
+  --kubb-duration-slower: 500ms;
+
+  --kubb-ease-out: cubic-bezier(0.4, 0, 0.2, 1); /* default UI */
+  --kubb-ease-in: cubic-bezier(0.4, 0, 1, 1); /* exits */
+  --kubb-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* hover */
+  --kubb-ease-linear: linear; /* decorative */
+
+  /* ---------------------------------------------------------------------
+   * Z-INDEX
+   * ------------------------------------------------------------------- */
+  --kubb-z-base: 0;
+  --kubb-z-raised: 10;
+  --kubb-z-sticky: 20;
+  --kubb-z-overlay: 30;
+  --kubb-z-modal: 40;
+  --kubb-z-toast: 50;
+
+  /* ---------------------------------------------------------------------
+   * SEMANTIC ALIASES — what most components should actually consume.
+   * Prefer these over the raw scales above.
+   * ------------------------------------------------------------------- */
+  --kubb-color-primary: var(--kubb-brand);
+  --kubb-color-primary-hover: var(--kubb-brand-dark);
+  --kubb-color-primary-subtle: var(--kubb-brand-dim);
+  --kubb-color-primary-contrast: #ffffff; /* text on brand */
+  --kubb-color-link: var(--kubb-brand-dark); /* brand on white = AA */
+
+  --kubb-color-bg: var(--kubb-bg);
+  --kubb-color-bg-elevated: var(--kubb-bg);
+  --kubb-color-bg-subtle: var(--kubb-bg-soft);
+  --kubb-color-border: var(--kubb-line);
+  --kubb-color-text: var(--kubb-text);
+  --kubb-color-text-muted: var(--kubb-text-2);
+  --kubb-color-text-subtle: var(--kubb-text-3);
+
+  --kubb-focus-ring: 0 0 0 3px rgba(245, 133, 23, 0.35);
+
+  /* ---------------------------------------------------------------------
+   * VISUALIZATION — accents for diagrams and animated docs components.
+   * Darkened for readable text/icons on light backgrounds; the dark
+   * overrides restore the bright hues the diagrams were designed with.
+   * Raw hex only where no kubb token passes AA on light backgrounds.
+   * ------------------------------------------------------------------- */
+  --kubb-viz-orange: #bc4c00; /* brand orange darkened to pass AA on white */
+  --kubb-viz-teal: #0f766e;
+  --kubb-viz-green: #047857;
+  --kubb-viz-blue: #2563eb;
+  --kubb-viz-indigo: #4f46e5;
+  --kubb-viz-violet: #7c3aed;
+  --kubb-viz-purple: #9333ea;
+
+  /* ---------------------------------------------------------------------
+   * TERMINAL — a real terminal window has one dark theme no matter what
+   * the surrounding page looks like, so the body/text palette below is
+   * fixed and not overridden in dark mode. The macOS-style title bar
+   * (--kubb-terminal-bar-*) follows the page's light/dark mode instead,
+   * like a native window's title bar would, as does the card's shadow
+   * (reusing --kubb-shadow-xl, subtle on light and stronger on dark) and
+   * its outer border, which stays off in light mode and only shows in
+   * dark mode so the card still reads against a dark page background.
+   * ------------------------------------------------------------------- */
+  --kubb-terminal-bg: #0d1117;
+  --kubb-terminal-shadow: var(--kubb-shadow-xl);
+  --kubb-terminal-text: #e6edf3;
+  --kubb-terminal-text-dim: rgba(255, 255, 255, 0.45);
+  --kubb-terminal-text-subtle: rgba(255, 255, 255, 0.35);
+  --kubb-terminal-accent: var(--kubb-brand);
+  --kubb-terminal-blue: #79c0ff;
+  --kubb-terminal-green: #3fb950;
+  --kubb-terminal-yellow: #f0a93b;
+  --kubb-terminal-red: #ff7b72;
+
+  --kubb-terminal-bar-bg: #e4e4e6;
+  --kubb-terminal-bar-border: rgba(0, 0, 0, 0.1);
+  --kubb-terminal-bar-text: rgba(0, 0, 0, 0.45);
+}
+
+/* =========================================================================
+ * DARK MODE — VitePress sets `.dark` on <html>; also support manual override
+ * via <html data-theme="dark">.
+ * ========================================================================= */
+.dark,
+[data-theme='dark'] {
+  --kubb-bg: #1a1b1e;
+  --kubb-bg-soft: #161618;
+  --kubb-bg-mute: rgba(68, 76, 91, 0.2);
+  --kubb-text: #f3f4f6;
+  --kubb-text-2: #9ca3af;
+  --kubb-text-3: #6b7280;
+  --kubb-line: rgba(255, 255, 255, 0.08);
+  --kubb-line-soft: rgba(255, 255, 255, 0.05);
+
+  --kubb-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --kubb-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --kubb-shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.35);
+  --kubb-shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.45);
+
+  /* Dark mode: use a lighter brand tone for brand-on-dark text links */
+  --kubb-color-link: var(--kubb-brand-lighter);
+  --kubb-color-bg-elevated: #222328;
+  --kubb-color-bg-subtle: #1f2024;
+  --kubb-color-border: rgba(255, 255, 255, 0.08);
+
+  --kubb-viz-orange: var(--kubb-brand);
+  --kubb-viz-teal: #14b8a6;
+  --kubb-viz-green: var(--kubb-success);
+  --kubb-viz-blue: var(--kubb-accent-blue);
+  --kubb-viz-indigo: #6366f1;
+  --kubb-viz-violet: #8b5cf6;
+  --kubb-viz-purple: #a855f7;
+
+  --kubb-terminal-bar-bg: #3a3a3c;
+  --kubb-terminal-bar-border: rgba(255, 255, 255, 0.08);
+  --kubb-terminal-bar-text: rgba(255, 255, 255, 0.4);
+}
+
+/* =========================================================================
+ * OPTIONAL — opinionated resets & utility classes.
+ * Remove this block if you only want the tokens.
+ * ========================================================================= */
+
+html {
+  font-family: var(--kubb-font-sans);
+  color: var(--kubb-color-text);
+  background: var(--kubb-color-bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--kubb-font-mono);
+}
+
+/* ---- Button ------------------------------------------------------------- */
+.kubb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--kubb-space-2);
+  padding: var(--kubb-space-3) var(--kubb-space-6);
+  font: var(--kubb-weight-semibold) var(--kubb-text-base) / 1.4 var(--kubb-font-sans);
+  border-radius: var(--kubb-radius-xl);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--kubb-duration) var(--kubb-ease-out);
+  white-space: nowrap;
+}
+.kubb-btn:focus-visible {
+  outline: 2px solid var(--kubb-brand);
+  outline-offset: 2px;
+}
+.kubb-btn--primary {
+  background: var(--kubb-brand);
+  color: var(--kubb-color-primary-contrast);
+  border-color: var(--kubb-brand);
+}
+.kubb-btn--primary:hover {
+  background: var(--kubb-brand-dark);
+  border-color: var(--kubb-brand-dark);
+}
+.kubb-btn--secondary {
+  background: var(--kubb-bg);
+  color: var(--kubb-brand);
+  border-color: var(--kubb-brand);
+}
+.kubb-btn--secondary:hover {
+  background: var(--kubb-brand-dim);
+}
+.kubb-btn--ghost {
+  background: transparent;
+  color: var(--kubb-color-text);
+  border-color: var(--kubb-line);
+}
+.kubb-btn--ghost:hover {
+  border-color: var(--kubb-brand);
+  color: var(--kubb-brand);
+  background: var(--kubb-brand-dim);
+}
+.kubb-btn--sm {
+  padding: var(--kubb-space-2) var(--kubb-space-4);
+  font-size: var(--kubb-text-sm);
+}
+.kubb-btn--lg {
+  padding: var(--kubb-space-4) var(--kubb-space-8);
+  font-size: var(--kubb-text-lg);
+}
+
+/* ---- Sponsor (rainbow border) ------------------------------------------- */
+.kubb-btn--sponsor {
+  border: 2px solid transparent;
+  border-radius: var(--kubb-radius-full);
+  padding: 0 var(--kubb-space-5);
+  line-height: 36px;
+  font-size: var(--kubb-text-sm);
+  font-weight: var(--kubb-weight-medium);
+  color: var(--kubb-color-text);
+  background: linear-gradient(var(--kubb-bg), var(--kubb-bg)), var(--kubb-gradient-sponsor);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: 200%;
+}
+.kubb-btn--sponsor:hover {
+  animation: kubb-spin 0.5s linear infinite;
+}
+
+/* ---- Gradient title helper --------------------------------------------- */
+.kubb-gradient-text {
+  background: var(--kubb-gradient-hero);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ---- Badges ------------------------------------------------------------- */
+.kubb-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--kubb-radius-full);
+  font-size: var(--kubb-text-xs);
+  font-weight: var(--kubb-weight-semibold);
+  line-height: 20px;
+}
+.kubb-badge--new {
+  background: #e0f7ea;
+  color: #1a8a4a;
+}
+.kubb-badge--beta {
+  background: #fff1d6;
+  color: #a06100;
+}
+.kubb-badge--core {
+  background: var(--kubb-brand-dim);
+  color: var(--kubb-brand-dark);
+}
+
+/* ---- Card / feature tile ----------------------------------------------- */
+.kubb-card {
+  background: var(--kubb-color-bg-elevated);
+  border: 1px solid var(--kubb-color-border);
+  border-radius: var(--kubb-radius-2xl);
+  padding: var(--kubb-space-6);
+  transition: all var(--kubb-duration-slow) var(--kubb-ease-out);
+}
+.kubb-card--hover:hover {
+  border-color: var(--kubb-brand);
+  transform: translateY(-4px);
+  box-shadow: var(--kubb-shadow-xl);
+}
+
+/* ---- Callout (tip) ------------------------------------------------------ */
+.kubb-callout {
+  border-left: 3px solid var(--kubb-brand);
+  background: var(--kubb-brand-dim);
+  color: var(--kubb-brand-darker);
+  padding: var(--kubb-space-4) var(--kubb-space-5);
+  border-radius: var(--kubb-radius-lg);
+  font-size: var(--kubb-text-sm);
+}
+
+/* ---- Form field -------------------------------------------------------- */
+.kubb-input,
+.kubb-select {
+  font: var(--kubb-text-sm) / 1.4 var(--kubb-font-sans);
+  padding: var(--kubb-space-3);
+  border: 1px solid var(--kubb-line);
+  border-radius: var(--kubb-radius-lg);
+  background: var(--kubb-bg);
+  color: var(--kubb-color-text);
+  outline: none;
+  transition:
+    border-color var(--kubb-duration-fast) var(--kubb-ease-out),
+    box-shadow var(--kubb-duration-fast) var(--kubb-ease-out);
+}
+.kubb-input:focus,
+.kubb-select:focus {
+  border-color: var(--kubb-brand);
+  box-shadow: var(--kubb-focus-ring);
+}
+
+/* ---- Animations -------------------------------------------------------- */
+@keyframes kubb-spin {
+  from {
+    background-position: 0;
+  }
+  to {
+    background-position: 200%;
+  }
+}
+@keyframes kubb-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+@keyframes kubb-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Respect reduced-motion users */
+@media (prefers-reduced-motion: reduce) {
+  .kubb-btn,
+  .kubb-card {
+    transition: none;
+  }
+  .kubb-btn--sponsor:hover {
+    animation: none;
+  }
+}
