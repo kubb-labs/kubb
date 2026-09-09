@@ -1,5 +1,5 @@
-import { camelCase } from './casing.ts'
-import { isValidVarName } from './reserved.ts'
+import { camelCase } from '@internals/utils'
+import { isValidVarName } from './utils/reserved.ts'
 
 type URLObject = {
   /**

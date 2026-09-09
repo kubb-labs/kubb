@@ -1,5 +1,123 @@
 # Changelog
 
+## v5.2.0 — Sep 9, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- [`5ccc52c`](https://github.com/kubb-labs/kubb/commit/5ccc52cad88cc7aa6943c96105f0ec6d6b2d4106) - Bump `@readme/openapi-parser` to v8. Spec validation behavior is unchanged. ([`5ccc52c`](https://github.com/kubb-labs/kubb/commit/5ccc52cad88cc7aa6943c96105f0ec6d6b2d4106))
+
+### @kubb/ast
+
+#### Features
+
+- Add utilities for resolving object properties through references and intersections and for reading
+  literal values from enum schemas. Plugin authors can use these utilities to handle discriminated
+  unions without implementing their own schema traversal. ([#3989](https://github.com/kubb-labs/kubb/pull/3989), [`a2b5924`](https://github.com/kubb-labs/kubb/commit/a2b59246e2d26b04da4e0152f92423994f37623c))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb init` and `kubb generate --watch` now print plain lines when the terminal cannot carry
+  clack's gutter, such as a piped run or CI. They wrote box-drawing and cursor escapes into the
+  output before. Spinner steps print as lines there instead of disappearing with the animation. ([#3983](https://github.com/kubb-labs/kubb/pull/3983), [`d1b123e`](https://github.com/kubb-labs/kubb/commit/d1b123e68c62cd7aac146aaa2079badfd1c4a234))
+- `kubb mcp` and `kubb validate` now load `@kubb/mcp` and `@kubb/adapter-oas` only when their
+  commands run. Every other command, including `kubb --help`, no longer touches either optional peer. ([#3968](https://github.com/kubb-labs/kubb/pull/3968), [`0e4dc40`](https://github.com/kubb-labs/kubb/commit/0e4dc4073c10ae53d98b5619cd2b4fa9e2622d9f))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Moved shared-utility logic used by only one package out of `@internals/utils` and into that
+  package (`@kubb/core`, `@kubb/cli`, `@kubb/kit`). No public API or behavior changed. ([#3968](https://github.com/kubb-labs/kubb/pull/3968), [`0e4dc40`](https://github.com/kubb-labs/kubb/commit/0e4dc4073c10ae53d98b5619cd2b4fa9e2622d9f))
+
+### @kubb/studio
+
+#### Features
+
+- Add the Kubb Studio CLI for connecting a local Kubb project to Kubb Studio. ([#3972](https://github.com/kubb-labs/kubb/pull/3972), [`0cd4c7b`](https://github.com/kubb-labs/kubb/commit/0cd4c7b5033833f9a0db2935fc25a575daecf058))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.1.0 — Sep 3, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Let `dateType` set `date-time`, `date`, and `time` independently, instead of one value driving all three
+  
+  Pass an object to represent timestamps as a JS `Date` while keeping date-only and time-only fields as strings, since `Date` cannot round-trip those without inventing a timezone.
+  
+  ```ts
+  adapterOas({
+    dateType: {
+      dateTime: 'date',
+      date: 'string',
+      time: 'string',
+    },
+  })
+  ```
+  
+  The scalar form (`dateType: 'date'`) still applies one value to all three formats. ([#3957](https://github.com/kubb-labs/kubb/pull/3957), [`9fca8e9`](https://github.com/kubb-labs/kubb/commit/9fca8e9ba16f05f29c852123c8696f7b6036c4a9))
+
+#### Bug Fixes
+
+- Explicit `types` fields for each package.json `exports` entry, so that it works with tsconfig.json `moduleResolution: 'bundler'` ([#3964](https://github.com/kubb-labs/kubb/pull/3964), [`be4cd17`](https://github.com/kubb-labs/kubb/commit/be4cd1770a34f547d1f1f60bd165c4228fef5053))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.6 — Sep 2, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Adds `--dryRun` to `generate` and `init` to preview a run without writing files, installing packages, formatting, linting, or running post-generate commands. When an AI coding agent runs the CLI, `generate` now uses the plain logger instead of the interactive one, and anonymous telemetry records the agent's name. ([#3951](https://github.com/kubb-labs/kubb/pull/3951), [`9849de3`](https://github.com/kubb-labs/kubb/commit/9849de3387ccfdb4e29c92e42e1e0429f3325c83))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
+## v5.0.5 — Aug 31, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- [`2869e6d`](https://github.com/kubb-labs/kubb/commit/2869e6d390265835436e9bd5702852f7c8bb8209) - Avoids duplicate filesystem reads during generated file writes and uses native Node.js promise timers in asynchronous tests. ([`2869e6d`](https://github.com/kubb-labs/kubb/commit/2869e6d390265835436e9bd5702852f7c8bb8209))
+
+## v5.0.4 — Aug 28, 2026
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- Move `unplugin-kubb` past its squatted npm version range.
+
+  Versions 5.0.1 through 5.0.30 were already published on npm from `unplugin-kubb`'s
+  pre-monorepo history and depend on kubb v4, so the package's version was set directly to
+  5.0.31 to clear that range. This changeset picks up from that 5.0.31 baseline and puts
+  `unplugin-kubb` back through the normal release process, independent of `kubb` and `@kubb/*`. ([#3940](https://github.com/kubb-labs/kubb/pull/3940), [`b45071e`](https://github.com/kubb-labs/kubb/commit/b45071e996d6607c62eaa31c88cc47ab2b5243c5))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.0.3 — Aug 27, 2026
 
 ### @kubb/adapter-oas

@@ -15,17 +15,16 @@ jobs:
     name: Lint and format
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     if: github.actor != 'github-actions[bot]' && github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 2
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@b6c32300e26286508cc3da47d55b0a7a4c8d5583 # main
+        uses: kubb-labs/config/.github/setup@b9065b9f512bfabcd1448bb1a723966c3b99cdbf # main
         with:
           node-version: '22.22.3'
 

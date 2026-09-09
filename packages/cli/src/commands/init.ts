@@ -1,7 +1,9 @@
-import { define } from 'gunshi'
+import { defineWithTypes } from 'gunshi'
+import { dryRunId } from '../gunshiDryRun.ts'
+import type { DryRunExtensions } from '../gunshiDryRun.ts'
 import { version } from '../../package.json'
 
-export const command = define({
+export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
   name: 'init',
   description:
     'Scaffold a kubb.config.ts and install plugins for code generation from an OpenAPI spec. Run without flags for interactive setup, or pass --input, --output, and --plugins to skip the prompts.',
@@ -10,6 +12,7 @@ export const command = define({
     'kubb init --yes',
     'kubb init --input ./openapi.yaml --output ./src/gen --plugins plugin-ts,plugin-zod',
     'kubb init --plugins plugin-ts,plugin-axios,plugin-react-query',
+    'kubb init --yes --dryRun',
   ].join('\n'),
   args: {
     yes: {
@@ -37,7 +40,8 @@ export const command = define({
       metavar: 'plugin-ts,plugin-zod,...',
     },
   },
-  async run({ values }) {
+  async run(ctx) {
+    const { values } = ctx
     const { run } = await import('../runners/init/run.ts')
 
     await run({
@@ -46,6 +50,7 @@ export const command = define({
       input: values.input,
       output: values.output,
       plugins: values.plugins,
+      dryRun: ctx.extensions[dryRunId],
     })
   },
 })

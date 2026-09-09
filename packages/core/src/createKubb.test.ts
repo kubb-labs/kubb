@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { setTimeout as delay } from 'node:timers/promises'
 import { ast, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
@@ -865,7 +866,7 @@ describe('Kubb#generate', () => {
     const afterFirst = project.mtime()
 
     // Long enough that a rewrite would move mtime, which is what the issue reports watchers seeing.
-    await new Promise((done) => setTimeout(done, 10))
+    await delay(10)
     const writeItem = vi.spyOn(project.storage, 'writeItem')
     await project.generate({ processOutput })
 

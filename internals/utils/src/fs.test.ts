@@ -2,8 +2,7 @@ import { mkdir, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
-import { camelCase, pascalCase } from './casing.ts'
-import { clean, exists, isPathInside, read, toFilePath, toPosixPath, trimExtName, write } from './fs.ts'
+import { clean, exists, isPathInside, read, toPosixPath, trimExtName, write } from './fs.ts'
 
 const existsTestDir = path.join(os.tmpdir(), 'kubb-test-exists')
 const existsTestFile = path.join(existsTestDir, 'test.txt')
@@ -129,33 +128,6 @@ describe('clean', () => {
   })
 })
 
-describe('isPathInside', () => {
-  it('returns true for a nested path', () => {
-    expect(isPathInside('/repo/src/gen', '/repo')).toBe(true)
-  })
-
-  it('returns true when both paths are the same', () => {
-    expect(isPathInside('/repo', '/repo')).toBe(true)
-  })
-
-  it('returns false when the parent is nested inside the path', () => {
-    expect(isPathInside('/repo', '/repo/src/gen')).toBe(false)
-  })
-
-  it('returns false for a sibling path', () => {
-    expect(isPathInside('/repo/other', '/repo/gen')).toBe(false)
-  })
-
-  it('returns false when the path escapes the parent', () => {
-    expect(isPathInside('../other', '.')).toBe(false)
-  })
-
-  it('resolves relative and dot inputs before comparing', () => {
-    expect(isPathInside('./src/gen', '.')).toBe(true)
-    expect(isPathInside('.', './src/gen')).toBe(false)
-  })
-})
-
 describe('toPosixPath', () => {
   it('returns POSIX paths unchanged', () => {
     expect(toPosixPath('/repo/src/gen/types/pet.ts')).toBe('/repo/src/gen/types/pet.ts')
@@ -199,32 +171,29 @@ describe('trimExtName', () => {
     expect(trimExtName('types.d.ts')).toBe('types.d')
   })
 })
-
-describe('toFilePath', () => {
-  test.each([
-    // version numbers (dot before a digit) stay in one segment
-    ['get_enterprise_configurations_id_v2025.0', 'getEnterpriseConfigurationsIdV20250'],
-    ['some_operation_v3.14', 'someOperationV314'],
-    ['version.1.2.3', 'version123'],
-    // dots before a letter split into nested path segments
-    ['pet.petId', 'pet/petId'],
-    ['pet.Pet', 'pet/pet'],
-    ['api.v2', 'api/v2'],
-    // Security: leading dots must NOT produce a leading slash (path traversal guard)
-    ['..Schema', 'schema'],
-    ['...Schema', 'schema'],
-    ['.Internal', 'internal'],
-  ])('toFilePath(%s) -> %s (camelCase segments)', (input, expected) => {
-    expect(toFilePath(input)).toBe(expected)
+describe('isPathInside', () => {
+  it('returns true for a nested path', () => {
+    expect(isPathInside('/repo/src/gen', '/repo')).toBe(true)
   })
 
-  test('cases the last segment with the provided caser', () => {
-    expect(toFilePath('pet.petId', pascalCase)).toBe('pet/PetId')
-    expect(toFilePath('pet.Pet', pascalCase)).toBe('pet/Pet')
+  it('returns true when both paths are the same', () => {
+    expect(isPathInside('/repo', '/repo')).toBe(true)
   })
 
-  test('applies prefix and suffix to the last segment only', () => {
-    expect(toFilePath('create tag.tag', (part) => camelCase(part, { prefix: 'create' }))).toBe('createTag/createTag')
-    expect(toFilePath('tag.tag', (part) => camelCase(part, { suffix: 'schema' }))).toBe('tag/tagSchema')
+  it('returns false when the parent is nested inside the path', () => {
+    expect(isPathInside('/repo', '/repo/src/gen')).toBe(false)
+  })
+
+  it('returns false for a sibling path', () => {
+    expect(isPathInside('/repo/other', '/repo/gen')).toBe(false)
+  })
+
+  it('returns false when the path escapes the parent', () => {
+    expect(isPathInside('../other', '.')).toBe(false)
+  })
+
+  it('resolves relative and dot inputs before comparing', () => {
+    expect(isPathInside('./src/gen', '.')).toBe(true)
+    expect(isPathInside('.', './src/gen')).toBe(false)
   })
 })

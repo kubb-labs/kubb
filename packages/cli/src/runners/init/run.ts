@@ -3,6 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
+import type { DryRunExtension } from '@gunshi/plugin-dryrun'
 import {
   availablePlugins,
   generateConfigFile,
@@ -13,6 +14,7 @@ import {
   resolveInstallVersions,
   resolvePlugins,
 } from '@internals/shared'
+import { createSpinner, logError, logInfo, logIntro, logOutro, logWarn } from '../../loggers/output.ts'
 import { hasPackageJson, initPackageJson, installPackages } from './utils.ts'
 import { detectPackageManager } from '../../tools.ts'
 
@@ -42,6 +44,11 @@ type InitOptions = {
    * Comma-separated plugin list from `--plugins`, e.g. `'plugin-ts,plugin-zod'`. When provided, skips the plugin selection prompt.
    */
   plugins?: string
+  /**
+   * Dry-run extension from `@gunshi/plugin-dryrun`. When enabled, package installation and the
+   * config file write are skipped.
+   */
+  dryRun: DryRunExtension
 }
 
 /**
@@ -49,10 +56,10 @@ type InitOptions = {
  * Detects the package manager, prompts for input/output paths and plugins, installs packages, and writes `kubb.config.ts`.
  * Pass `yes: true` to skip all prompts and use defaults.
  */
-export async function run({ yes, version, input: inputFlag, output: outputFlag, plugins: pluginsFlag }: InitOptions): Promise<void> {
+export async function run({ yes, version, input: inputFlag, output: outputFlag, plugins: pluginsFlag, dryRun }: InitOptions): Promise<void> {
   const cwd = process.cwd()
 
-  clack.intro(styleText('bgCyan', styleText('black', ' Kubb Init ')))
+  logIntro({ title: styleText('bgCyan', styleText('black', ' Kubb Init ')) })
 
   /**
    * Returns `flag` when provided, the `defaultValue` when `yes` is set,
@@ -60,11 +67,11 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
    */
   async function resolveOrPrompt<T>(flag: T | undefined, defaultValue: T, logLabel: string, prompt: () => Promise<T | symbol>): Promise<T> {
     if (flag !== undefined) {
-      clack.log.info(`${logLabel}: ${styleText('cyan', String(flag))}`)
+      logInfo(`${logLabel}: ${styleText('cyan', String(flag))}`)
       return flag
     }
     if (yes) {
-      clack.log.info(`${logLabel}: ${styleText('cyan', String(defaultValue))}`)
+      logInfo(`${logLabel}: ${styleText('cyan', String(defaultValue))}`)
       return defaultValue
     }
     const result = await prompt()
@@ -87,7 +94,7 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
       }
 
       const packageManager = detectPackageManager(cwd)
-      const spinner = clack.spinner()
+      const spinner = createSpinner()
       spinner.start(`Initializing package.json with ${packageManager.name}`)
       await initPackageJson(cwd, packageManager)
       spinner.stop(`Created package.json with ${packageManager.name}`)
@@ -95,7 +102,7 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
 
     const packageManager = detectPackageManager(cwd)
     if (hasPackageJson(cwd)) {
-      clack.log.info(`Detected package manager: ${styleText('cyan', packageManager.name)}`)
+      logInfo(`Detected package manager: ${styleText('cyan', packageManager.name)}`)
     }
 
     // Prompt for OpenAPI spec path
@@ -130,14 +137,14 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
       if (pluginsFlag) {
         const plugins = resolvePlugins(pluginsFlag)
         if (plugins.length === 0) {
-          clack.log.warn(`No valid plugins found in --plugins value; falling back to default: ${pluginLabel(defaultPlugins)}`)
+          logWarn(`No valid plugins found in --plugins value; falling back to default: ${pluginLabel(defaultPlugins)}`)
           return defaultPlugins
         }
-        clack.log.info(`Using plugins: ${pluginLabel(plugins)}`)
+        logInfo(`Using plugins: ${pluginLabel(plugins)}`)
         return plugins
       }
       if (yes) {
-        clack.log.info(`Using plugins: ${pluginLabel(defaultPlugins)}`)
+        logInfo(`Using plugins: ${pluginLabel(defaultPlugins)}`)
         return defaultPlugins
       }
       const values = await clack.multiselect({
@@ -153,11 +160,13 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     // Install packages, matching the release of the running CLI
     const packagesToInstall = resolveInstallVersions({ packages: [KUBB_PACKAGE_NAME, ...selectedPlugins.map((p) => p.packageName)], version })
 
-    const spinner = clack.spinner()
+    const spinner = createSpinner()
     spinner.start(`Installing ${packagesToInstall.length} packages with ${packageManager.name}`)
 
     try {
-      await installPackages(packagesToInstall, packageManager, cwd)
+      await dryRun.run(() => installPackages(packagesToInstall, packageManager, cwd), {
+        message: `install ${packagesToInstall.length} packages with ${packageManager.name}`,
+      })
       spinner.stop(`Installed ${packagesToInstall.length} packages`)
     } catch (error) {
       spinner.stop('Installation failed')
@@ -165,7 +174,7 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     }
 
     // Generate config file
-    const configSpinner = clack.spinner()
+    const configSpinner = createSpinner()
     configSpinner.start(`Creating ${KUBB_CONFIG_FILENAME}`)
 
     const configContent = generateConfigFile({ selectedPlugins, inputPath, outputPath })
@@ -188,11 +197,11 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
       configSpinner.start(`Overwriting ${KUBB_CONFIG_FILENAME}`)
     }
 
-    await fs.promises.writeFile(configPath, configContent, 'utf-8')
+    await dryRun.run(() => fs.promises.writeFile(configPath, configContent, 'utf-8'), { message: `write ${KUBB_CONFIG_FILENAME}` })
 
     configSpinner.stop(`Created ${KUBB_CONFIG_FILENAME}`)
 
-    clack.outro(
+    logOutro(
       styleText('green', '✓ All set!') +
         '\n\n' +
         styleText('dim', 'Next steps:') +
@@ -206,9 +215,9 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
         styleText('dim', `Using ${packageManager.name} • Kubb v${version}`),
     )
   } catch (error) {
-    clack.log.error(styleText('red', 'An error occurred during initialization'))
+    logError(styleText('red', 'An error occurred during initialization'))
     if (error instanceof Error) {
-      clack.log.error(error.message)
+      logError(error.message)
     }
     process.exit(1)
   }

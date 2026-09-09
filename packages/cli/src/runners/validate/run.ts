@@ -1,7 +1,10 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { toError } from '@internals/utils'
+import type { CommandRunner } from 'gunshi'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
+import { version } from '../../../package.json'
+import type { definition } from '../../commands/validate.ts'
 
 type ValidateOptions = {
   /**
@@ -50,4 +53,12 @@ export async function run({ input, version }: ValidateOptions): Promise<void> {
 
     process.exit(1)
   }
+}
+
+/**
+ * Loaded on demand by `index.ts`, so `@kubb/adapter-oas` stays out of the process for every other
+ * command.
+ */
+export const runner: CommandRunner<{ args: typeof definition.args; extensions: {} }> = async ({ values }) => {
+  await run({ input: values.input, version })
 }

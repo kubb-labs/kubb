@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { createModuleLoader } from '@internals/shared'
-import { isPromise } from '@internals/utils'
+import { isPathInside, isPromise } from '@internals/utils'
 import type { CLIOptions, Config, PossibleConfig, SerializedDiagnostic } from '@kubb/core'
 import { ALLOWED_CONFIG_EXTENSIONS } from './constants.ts'
 
@@ -65,8 +65,7 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
     }
     const base = path.resolve(process.cwd())
     const resolvedConfigPath = path.resolve(base, configPath)
-    const relative = path.relative(base, resolvedConfigPath)
-    if (relative.startsWith('..') || path.isAbsolute(relative)) {
+    if (!isPathInside(resolvedConfigPath, base)) {
       const msg = 'Invalid config file path: must be within the current working directory'
       await notify('CONFIG_ERROR', msg)
       throw new Error(msg)
@@ -123,7 +122,7 @@ export function resolveCwd(userConfig: Config, cwd: string): string {
 /**
  * Inputs forwarded to a config when it is defined as a function.
  */
-export type ResolveUserConfigOptions = {
+type ResolveUserConfigOptions = {
   /**
    * Path of the loaded config, passed through to the config function as `config`.
    */

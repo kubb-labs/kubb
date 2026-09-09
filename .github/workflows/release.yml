@@ -6,6 +6,7 @@ on:
     paths:
       - '.changeset/**'
       - 'packages/**'
+      - 'tools/claude/**'
       - '.github/workflows/release.yml'
 
 permissions: {}
@@ -32,12 +33,12 @@ jobs:
       staged_packages: ${{ steps.release.outputs.staged_packages }}
     steps:
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@b6c32300e26286508cc3da47d55b0a7a4c8d5583 # main
+        uses: kubb-labs/config/.github/setup@b9065b9f512bfabcd1448bb1a723966c3b99cdbf # main
         with:
           node-version: '22.22.3'
           cache: 'false'
@@ -48,9 +49,14 @@ jobs:
 
       - name: Release
         id: release
-        uses: kubb-labs/config/.github/actions/release@3f4c08f50e67174c9e0ba09290bc79199f50ddfb # main
+        uses: kubb-labs/config/.github/actions/release@b9065b9f512bfabcd1448bb1a723966c3b99cdbf # main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Keeps tools/claude/.claude-plugin/plugin.json's version in step with the
+          # @kubb/claude-plugin package.json that Changesets bumps.
+          # changesets/action runs this without a shell, so `&&` can't chain
+          # commands here — pnpm run does its own shell chaining instead.
+          version-script: pnpm run release:version
 
       # Canary skips staging on purpose, so it stays automatic on every push.
       - name: Publish canary
@@ -83,12 +89,12 @@ jobs:
       approved: ${{ steps.promote.outputs.approved }}
     steps:
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@b6c32300e26286508cc3da47d55b0a7a4c8d5583 # main
+        uses: kubb-labs/config/.github/setup@b9065b9f512bfabcd1448bb1a723966c3b99cdbf # main
         with:
           node-version: '22.22.3'
           cache: 'false'
@@ -102,7 +108,7 @@ jobs:
       # version independently.
       - name: Promote
         id: promote
-        uses: kubb-labs/config/.github/actions/promote@3f4c08f50e67174c9e0ba09290bc79199f50ddfb # main
+        uses: kubb-labs/config/.github/actions/promote@b9065b9f512bfabcd1448bb1a723966c3b99cdbf # main
         with:
           staged-packages: ${{ needs.release.outputs.staged_packages }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -116,7 +122,7 @@ jobs:
     permissions: {}
     steps:
       - name: Send a discord notification
-        uses: actions/github-script@373c709c69115d41ff229c7e5df9f8788daa9553 # v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         with:

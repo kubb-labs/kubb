@@ -348,12 +348,67 @@ declare global {
      * ```
      */
     interface PluginOptionsRegistry {}
+
+    /**
+     * Registry of hook names to their listener argument tuples.
+     * Augment this interface to add hook events without touching core types.
+     *
+     * @example
+     * ```ts
+     * // packages/studio/src/hooks.ts
+     * declare global {
+     *   namespace Kubb {
+     *     interface KubbHooksRegistry {
+     *       'studio:connecting': [ctx: StudioConnectingContext]
+     *     }
+     *   }
+     * }
+     * ```
+     */
+    interface KubbHooksRegistry {
+      'kubb:lifecycle:start': [ctx: KubbLifecycleStartContext]
+      'kubb:lifecycle:end': []
+      'kubb:generation:start': [ctx: KubbGenerationStartContext]
+      'kubb:generation:end': [ctx: KubbGenerationEndContext]
+      'kubb:setup:start': []
+      'kubb:setup:end': []
+      'kubb:format:start': []
+      'kubb:format:end': []
+      'kubb:lint:start': []
+      'kubb:lint:end': []
+      'kubb:hooks:start': []
+      'kubb:hooks:end': []
+      'kubb:hook:start': [ctx: KubbHookStartContext]
+      'kubb:hook:line': [ctx: KubbHookLineContext]
+      'kubb:hook:end': [ctx: KubbHookEndContext]
+      'kubb:info': [ctx: KubbInfoContext]
+      'kubb:error': [ctx: KubbErrorContext]
+      'kubb:success': [ctx: KubbSuccessContext]
+      'kubb:warn': [ctx: KubbWarnContext]
+      'kubb:diagnostic': [ctx: KubbDiagnosticContext]
+      'kubb:files:processing:start': [ctx: KubbFilesProcessingStartContext]
+      'kubb:files:processing:update': [ctx: KubbFilesProcessingUpdateContext]
+      'kubb:files:processing:end': [ctx: KubbFilesProcessingEndContext]
+      'kubb:plugin:start': [ctx: KubbPluginStartContext]
+      'kubb:plugin:end': [ctx: KubbPluginEndContext]
+      'kubb:plugin:setup': [ctx: KubbPluginSetupContext]
+      'kubb:build:start': [ctx: KubbBuildStartContext]
+      'kubb:plugins:end': [ctx: KubbPluginsEndContext]
+      'kubb:build:end': [ctx: KubbBuildEndContext]
+      'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext]
+      'kubb:generate:operation': [node: OperationNode, ctx: GeneratorContext]
+      'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
+    }
   }
 }
 
 /**
  * Lifecycle hooks emitted during Kubb code generation.
  * Attach listeners before calling `setup()` or `build()` to observe and react to build progress.
+ *
+ * A package can add its own hook names to this type by augmenting
+ * {@link Kubb.KubbHooksRegistry} instead of exporting a second, separate hook type — `@kubb/studio`
+ * does this for its `studio:*` session events, so a host only ever needs to know `KubbHooks`.
  *
  * @example
  * ```ts
@@ -366,40 +421,7 @@ declare global {
  * })
  * ```
  */
-export interface KubbHooks {
-  'kubb:lifecycle:start': [ctx: KubbLifecycleStartContext]
-  'kubb:lifecycle:end': []
-  'kubb:generation:start': [ctx: KubbGenerationStartContext]
-  'kubb:generation:end': [ctx: KubbGenerationEndContext]
-  'kubb:setup:start': []
-  'kubb:setup:end': []
-  'kubb:format:start': []
-  'kubb:format:end': []
-  'kubb:lint:start': []
-  'kubb:lint:end': []
-  'kubb:hooks:start': []
-  'kubb:hooks:end': []
-  'kubb:hook:start': [ctx: KubbHookStartContext]
-  'kubb:hook:line': [ctx: KubbHookLineContext]
-  'kubb:hook:end': [ctx: KubbHookEndContext]
-  'kubb:info': [ctx: KubbInfoContext]
-  'kubb:error': [ctx: KubbErrorContext]
-  'kubb:success': [ctx: KubbSuccessContext]
-  'kubb:warn': [ctx: KubbWarnContext]
-  'kubb:diagnostic': [ctx: KubbDiagnosticContext]
-  'kubb:files:processing:start': [ctx: KubbFilesProcessingStartContext]
-  'kubb:files:processing:update': [ctx: KubbFilesProcessingUpdateContext]
-  'kubb:files:processing:end': [ctx: KubbFilesProcessingEndContext]
-  'kubb:plugin:start': [ctx: KubbPluginStartContext]
-  'kubb:plugin:end': [ctx: KubbPluginEndContext]
-  'kubb:plugin:setup': [ctx: KubbPluginSetupContext]
-  'kubb:build:start': [ctx: KubbBuildStartContext]
-  'kubb:plugins:end': [ctx: KubbPluginsEndContext]
-  'kubb:build:end': [ctx: KubbBuildEndContext]
-  'kubb:generate:schema': [node: SchemaNode, ctx: GeneratorContext]
-  'kubb:generate:operation': [node: OperationNode, ctx: GeneratorContext]
-  'kubb:generate:operations': [nodes: Array<OperationNode>, ctx: GeneratorContext]
-}
+export type KubbHooks = Kubb.KubbHooksRegistry
 
 export type KubbBuildStartContext = {
   /**

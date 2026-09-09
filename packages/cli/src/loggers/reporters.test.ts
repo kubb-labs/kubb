@@ -1,5 +1,7 @@
 import { Hookable, cliReporter, type Config, fileReporter, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
+import * as agent from '../agent.ts'
+import * as env from '../utils/env.ts'
 import setupReporters, { installReporter } from './utils.ts'
 
 describe('jsonReporter', () => {
@@ -101,5 +103,73 @@ describe('setupReporters', () => {
     await setupReporters(context, { logLevel: logLevel.info, reporters: [fileReporter] })
 
     expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
+  })
+
+  it('installs the plain logger instead of the interactive one when an AI agent is detected', async () => {
+    using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(true)
+    using _agent = vi.spyOn(agent, 'getAgentName').mockReturnValue('claude')
+    const context = new Hookable<KubbHooks>()
+
+    await setupReporters(context, { logLevel: logLevel.info, reporters: [cliReporter] })
+
+    // Only the clack logger streams hook output through `kubb:hook:line`.
+    expect(context.listenerCount('kubb:hook:line')).toBe(0)
+  })
+
+  it('installs the interactive logger when no AI agent is detected and a TTY is available', async () => {
+    using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(true)
+    using _agent = vi.spyOn(agent, 'getAgentName').mockReturnValue(undefined)
+    const context = new Hookable<KubbHooks>()
+
+    await setupReporters(context, { logLevel: logLevel.info, reporters: [cliReporter] })
+
+    expect(context.listenerCount('kubb:hook:line')).toBeGreaterThan(0)
+  })
+})
+
+describe('studio session events', () => {
+  /**
+   * A `kubb studio` connection emits `studio:*` on the same emitter as its generations, so the
+   * loggers `kubb generate` installs render the whole command. Non-TTY here, so `plainLogger`
+   * answers and the output is plain text.
+   */
+  async function render(emit: (context: Hookable<KubbHooks>) => Promise<void> | void, level: number = logLevel.info) {
+    using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(false)
+    const context = new Hookable<KubbHooks>()
+    const lines: Array<string> = []
+    using _log = vi.spyOn(console, 'log').mockImplementation((line) => void lines.push(String(line)))
+
+    await setupReporters(context, { logLevel: level, reporters: [cliReporter] })
+    await emit(context)
+
+    return lines
+  }
+
+  it('names both sides on connect, so a version mismatch is visible', async () => {
+    const lines = await render((context) =>
+      context.callHook('studio:connected', { url: 'http://localhost:3000', versions: { studio: '5.1.0', kubb: '5.0.6', agent: '5.0.6' } }),
+    )
+
+    expect(lines).toStrictEqual(['✓ Connected to http://localhost:3000 (v5.0.6, Studio v5.1.0)'])
+  })
+
+  it('reports a command and what it did', async () => {
+    const lines = await render(async (context) => {
+      await context.callHook('studio:command:start', { command: 'save' })
+      await context.callHook('studio:command:end', { command: 'save', info: 'applied 2/3 edits to kubb.config.ts' })
+    })
+
+    expect(lines).toStrictEqual(['Kubb Studio asked to save', '✓ Finished save (applied 2/3 edits to kubb.config.ts)'])
+  })
+
+  it('drops everything but errors at silent', async () => {
+    const lines = await render(async (context) => {
+      await context.callHook('studio:connecting', { url: 'http://localhost:3000' })
+      await context.callHook('studio:warn', { message: 'Ignored save' })
+      // A failure stays visible, or the command exits without saying why.
+      await context.callHook('studio:error', { error: new Error('token revoked') })
+    }, logLevel.silent)
+
+    expect(lines).toStrictEqual(['✗ token revoked'])
   })
 })

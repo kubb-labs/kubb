@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { findCircularSchemasFromGraph } from '@kubb/ast'
-import { bench, describe } from 'vitest'
+import { test } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { parseDocument } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
@@ -39,13 +39,9 @@ function parseOas(document: Document): void {
   for (const operation of getOperations(document, refs)) parseOperation(DEFAULT_PARSER_OPTIONS, operation)
 }
 
-describe('parseOas() performance', () => {
-  bench(
-    'petStore spec',
-    async () => {
-      const doc = await getPetStoreDocument()
-      parseOas(doc)
-    },
-    { iterations: 5, warmupIterations: 1 },
-  )
+test('parseOas() performance / petStore spec', async ({ bench }) => {
+  await bench('petStore spec', async () => {
+    const doc = await getPetStoreDocument()
+    parseOas(doc)
+  }).run({ iterations: 5, warmupIterations: 1 })
 })

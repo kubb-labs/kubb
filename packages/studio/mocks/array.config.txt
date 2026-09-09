@@ -1,0 +1,41 @@
+import { pluginTs } from '@kubb/plugin-ts'
+import { pluginZod } from '@kubb/plugin-zod'
+
+import { defineConfig } from 'kubb/config'
+
+export default defineConfig([
+  {
+    name: 'public',
+    input: './public.yaml',
+    output: {
+      path: './src/gen/public',
+    },
+    plugins: [
+      pluginTs({
+        output: {
+          path: 'models',
+        },
+      }),
+    ],
+  },
+  {
+    name: 'internal',
+    input: './internal.yaml',
+    output: {
+      path: './src/gen/internal',
+    },
+    plugins: [
+      pluginTs({
+        output: {
+          path: 'models',
+        },
+      }),
+      pluginZod({
+        output: {
+          path: 'zod',
+        },
+        inferred: true,
+      }),
+    ],
+  },
+])
