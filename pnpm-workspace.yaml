@@ -22,7 +22,10 @@ catalog:
 minimumReleaseAge: 2880 # 48 hours, matches CI's SAFE_CHAIN_MINIMUM_PACKAGE_AGE_HOURS
 # Native platform bindings are always co-published with their parent package in the same release.
 # Excluding them avoids false-positive ERR_PNPM_NO_MATURE_MATCHING_VERSION errors.
+# @kubb/* and kubb are our own packages, published from this repo, so the age limit doesn't apply.
 minimumReleaseAgeExclude:
   - "@types/*"
+  - "@kubb/*"
+  - "kubb"
 pmOnFail: warn
 resolutionMode: highest
