@@ -114,11 +114,17 @@ restating the request back at the reader.
 
 ### How to test
 
-Write numbered steps a reviewer can follow from a clean checkout, ending in the result they
-should see. When someone handed you steps, fix them before you paste them in: add the missing
-prerequisite, put them in order, replace a vague instruction with the exact command or path, and
-state the expected result. When you have no steps and cannot derive them from the diff, ask for
-them rather than leaving the section empty.
+Fill it as a short list, one step per line, replacing the placeholders:
+
+- Step 1: [Clear reproduction step]
+- Step 2: [Next step]
+- Step 3: [Expected result]
+
+Start from a clean checkout, and use a real command or path, not a description of one. When
+someone handed you steps, fix them before you paste them in: add the missing prerequisite, put
+them in order, replace a vague instruction with the exact command or path, and state the expected
+result. When you have no steps and cannot derive them from the diff, ask for them rather than
+leaving the section empty.
 
 Add a screenshot for a visible change, and a before and after when you changed something that
 already existed.

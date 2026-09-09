@@ -9,7 +9,11 @@ Fill every section below, and tick a box only when you actually ran or verified 
 
 ## 🧪 How to test
 
-<!-- Numbered steps a reviewer can follow from a clean checkout, ending in the result they should see. Add a screenshot for a visible change. -->
+- Step 1: [Clear reproduction step]
+- Step 2: [Next step]
+- Step 3: [Expected result]
+
+<!-- Start from a clean checkout. Add a screenshot for a visible change. -->
 
 ## ✅ Checklist
 
