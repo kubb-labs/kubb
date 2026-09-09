@@ -39,7 +39,7 @@
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "bun-types": "^1.4.1",
+    "bun-types": "^1.4.2",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "taze": "^21.1.0",

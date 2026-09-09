@@ -67,10 +67,10 @@
   },
   "dependencies": {
     "@clack/prompts": "^1.7.0",
-    "@gunshi/plugin-dryrun": "^0.37.1",
+    "@gunshi/plugin-dryrun": "^0.37.2",
     "@kubb/core": "workspace:*",
     "chokidar": "^5.0.0",
-    "gunshi": "^0.37.1",
+    "gunshi": "^0.37.2",
     "jiti": "^2.7.0",
     "tinyexec": "catalog:",
     "unconfig": "^7.5.0",

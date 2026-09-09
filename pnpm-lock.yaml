@@ -158,7 +158,7 @@ importers:
         specifier: 'catalog:'
         version: 4.1.11(vitest@4.1.11)
       bun-types:
-        specifier: ^1.4.1
+        specifier: ^1.4.2
         version: 1.4.2
       oxfmt:
         specifier: 'catalog:'
@@ -246,8 +246,8 @@ importers:
         specifier: ^1.7.0
         version: 1.7.0
       '@gunshi/plugin-dryrun':
-        specifier: ^0.37.1
-        version: 0.37.1
+        specifier: ^0.37.2
+        version: 0.37.2
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -258,8 +258,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0
       gunshi:
-        specifier: ^0.37.1
-        version: 0.37.1
+        specifier: ^0.37.2
+        version: 0.37.2
       jiti:
         specifier: ^2.7.0
         version: 2.7.0
@@ -463,8 +463,8 @@ importers:
         specifier: ^1.5.1
         version: 1.5.1
       remeda:
-        specifier: ^2.45.0
-        version: 2.45.0
+        specifier: ^2.46.0
+        version: 2.47.0
       tinyexec:
         specifier: 'catalog:'
         version: 1.3.1
@@ -938,12 +938,12 @@ packages:
   '@farmfe/utils@0.1.0':
     resolution: {integrity: sha512-neNJQGqV7XL4XifG1uHOBFSFLy2yx1/DVZNRA7nfeEAXEksVZTwWA+fZrYEaI0w7Sw6K/9NYn9Jgpn+NAT0mcg==}
 
-  '@gunshi/plugin-dryrun@0.37.1':
-    resolution: {integrity: sha512-9Up4UJdO2/zP8pjvDv4JHgJaT1lLCxqE6rUdOeurfSlKZzrbhEyTdX+s4G5akAAFhO41E4q51PfsFf3a0WV9YA==}
+  '@gunshi/plugin-dryrun@0.37.2':
+    resolution: {integrity: sha512-SZnJanBW/wepOGgd72y/aHc0rAxjJ208Xj4e0uvcPEEtKdwIIs7Jrd3WG2ygoCFbB1mF4V87Jv1UsjSi8RaQyw==}
     engines: {node: '>= 22'}
 
-  '@gunshi/plugin@0.37.1':
-    resolution: {integrity: sha512-ljjBaL15jCwX6tEtWRdmAQ/y/svGcMZa5mVhMPgXFeQFQ++srK/x5dx8uchQFrE2MTqaFhMMjNK9AQowCyRv9A==}
+  '@gunshi/plugin@0.37.2':
+    resolution: {integrity: sha512-6fSWvSJ9mn104kJB2ej8OqKqK4ZZSuw51Y7Xpe79lyrvW7v5SkuIUc61Bdsen/gvixcNnkf4K7WUBOnA2MIfzQ==}
     engines: {node: '>= 22'}
 
   '@henrygd/queue@1.2.0':
@@ -2550,8 +2550,8 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
-  gunshi@0.37.1:
-    resolution: {integrity: sha512-C3t35z65PQpAHay/gzEu4J/7SNWXn2NhfC4RfZQPxyOqkPfDTizthxCPoSU48OazoVherCuCpFDKI1qcY425Gw==}
+  gunshi@0.37.2:
+    resolution: {integrity: sha512-pHsYEDSOxaNxSGIYiIYF11Lvc6OiEKw+IkfrLXRWj6bKzqI3noLX8QXOLqGTwPsM8amkpNoZG9tlpg8/4QG7MQ==}
     engines: {node: '>= 22'}
 
   h3@1.15.11:
@@ -3255,8 +3255,8 @@ packages:
     resolution: {integrity: sha512-9u/XQ1pvrQtYyMpZe7DXKv2p5CNvyVwzUB6uhLAnQwHMSgKMBR62lc7AHljaeteeHXn11XTAaLLUVZYVZyuRBQ==}
     engines: {node: '>= 20.19.0'}
 
-  remeda@2.45.0:
-    resolution: {integrity: sha512-CTftZ0GJSox3CH77OhJemj20sXXUScH/kpkExD6t2LP3IG+mPKASBMFkbvWtsvzhU+54gKcgH38WWVihfr7bCA==}
+  remeda@2.47.0:
+    resolution: {integrity: sha512-LPyRi+dI3IGGeoNBKdfsTbx0Q+3mLonMbPipGF75Ym+/zNm5cpnwsTXtLbS79yb0V04D0gMS7qNAiTOwb4IoVQ==}
     engines: {node: '>=18.0.0'}
 
   require-from-string@2.0.2:
@@ -4383,11 +4383,11 @@ snapshots:
 
   '@farmfe/utils@0.1.0': {}
 
-  '@gunshi/plugin-dryrun@0.37.1':
+  '@gunshi/plugin-dryrun@0.37.2':
     dependencies:
-      '@gunshi/plugin': 0.37.1
+      '@gunshi/plugin': 0.37.2
 
-  '@gunshi/plugin@0.37.1': {}
+  '@gunshi/plugin@0.37.2': {}
 
   '@henrygd/queue@1.2.0': {}
 
@@ -5732,7 +5732,7 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  gunshi@0.37.1: {}
+  gunshi@0.37.2: {}
 
   h3@1.15.11:
     dependencies:
@@ -6367,7 +6367,7 @@ snapshots:
 
   readdirp@5.0.0: {}
 
-  remeda@2.45.0: {}
+  remeda@2.47.0: {}
 
   require-from-string@2.0.2: {}
 
@@ -6780,7 +6780,7 @@ snapshots:
       lightningcss: 1.33.0
       picomatch: 4.0.5
       postcss: 8.5.26
-      rolldown: 1.2.6
+      rolldown: 1.2.7
       tinyglobby: 0.2.17
     optionalDependencies:
       '@types/node': 22.20.1
