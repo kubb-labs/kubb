@@ -1,6 +1,6 @@
 {
   "name": "@kubb/studio",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "description": "Kubb Studio client runtime. Connects a Kubb project to Kubb Studio over WebSocket and streams code generation events, shared by the `kubb studio` CLI command and the Docker agent.",
   "keywords": [
     "agent",
