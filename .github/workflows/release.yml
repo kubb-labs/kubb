@@ -49,7 +49,7 @@ jobs:
 
       - name: Release
         id: release
-        uses: kubb-labs/config/.github/actions/release@c285a5f640a8133ee6648bc4446cd953c32555df # main
+        uses: kubb-labs/config/.github/actions/release@1025da3611eb8e52736df9279bffa13de99f1d27 # main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           # Keeps tools/claude/.claude-plugin/plugin.json's version in step with the
@@ -108,7 +108,7 @@ jobs:
       # version independently.
       - name: Promote
         id: promote
-        uses: kubb-labs/config/.github/actions/promote@3f4c08f50e67174c9e0ba09290bc79199f50ddfb # main
+        uses: kubb-labs/config/.github/actions/promote@1025da3611eb8e52736df9279bffa13de99f1d27 # main
         with:
           staged-packages: ${{ needs.release.outputs.staged_packages }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -122,7 +122,7 @@ jobs:
     permissions: {}
     steps:
       - name: Send a discord notification
-        uses: actions/github-script@373c709c69115d41ff229c7e5df9f8788daa9553 # v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         with:

@@ -84,7 +84,7 @@ jobs:
 
       - name: Upload coverage reports to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
@@ -177,7 +177,7 @@ jobs:
           fetch-depth: 0
 
       - name: Analyze dependency changes
-        uses: e18e/action-dependency-diff@5d3c6ac2ad2de2eaca1dc120c5accfd9590764b6 # v1
+        uses: e18e/action-dependency-diff@9a7f09f5f2993256322e0db17ee4c8d9339dab77 # v1
         continue-on-error: true
         with:
           duplicate-threshold: 5
@@ -204,7 +204,7 @@ jobs:
           node-version: '22.22.3'
 
       - name: Report compressed bundle size
-        uses: preactjs/compressed-size-action@66325aad6443cb7cf89c4bfcd414aea2367cda94 # v2
+        uses: preactjs/compressed-size-action@f322c295dde06a1cb7ccaef105732dd8a726d1d9 # v2
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           build-script: 'build'
