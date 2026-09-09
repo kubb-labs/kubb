@@ -239,3 +239,25 @@ jobs:
 
       - name: Run the CLI under Bun
         run: bun packages/cli/bin/kubb.js --version
+
+  comment-ratio:
+    name: Comment ratio
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    if: github.actor != 'github-actions[bot]' && github.event_name == 'pull_request'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Check comment ratio
+        uses: IgnaceMaes/comment-ratio@8667d710c02c19dcca42be02f97d5f6824012932 # v1.0.0
+        with:
+          max-comment-ratio: 0.15
+          exclude: |
+            **/mocks/**
+            **/__snapshots__/**
