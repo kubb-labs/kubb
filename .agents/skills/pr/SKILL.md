@@ -14,6 +14,12 @@ order. When you cannot finish a step, say so in the PR body rather than skipping
 - Updating a pull request after a review comment or a failing CI run.
 - Answering whether a branch is ready to merge.
 
+## Keep every output short
+
+The title, the body, the commits, the review replies, and what you report back in chat all
+follow one rule: lead with what changed, keep what the reader has to act on, cut the rest. Aim
+for a PR body under 150 words. Run the `humanizer` skill over anything you write for a person.
+
 ## 1. Confirm the branch
 
 Never commit to `main`. Check where you are, and branch from an up-to-date `main` if you are
@@ -97,9 +103,9 @@ Put the issue number in the body with `Closes #123`, not in the title.
 ### Body
 
 Fill `.github/pull_request_template.md`. Keep its headings and their order, replace each HTML
-comment with real content, and delete no section.
+comment with real content, and delete no section. Write a body a reviewer gets in one read.
 
-Under **Changes**, write two to five sentences. Lead with what changed, then why. Name the
+Under **Changes**, write one to three sentences. Lead with what changed, then why. Name the
 package or file a reviewer should open first. Add `Closes #123` when the PR closes an issue.
 
 Under **Checklist**, tick a box only for something you actually did on this branch. An unticked
@@ -109,31 +115,30 @@ a reviewer their trust, so it is the one thing never to do here.
 Under **Release impact**, tick the changeset box when `.changeset/` gained a file in this branch,
 and the docs box when no published package changed.
 
-Keep the body in plain language: short sentences, active voice, exact paths and commands, no
-restating the request back at the reader.
+Run the `humanizer` skill over the body before you open the PR, and fix the tells it surfaces.
+The ones that show up most here: an opener that restates the title, a closing paragraph that
+repeats the opener, words such as `comprehensive` and `robust`, bold mid-sentence, and a dash
+joining two clauses. Cut background the reviewer already has, options you ruled out, and any
+sentence that names no file, command, or result.
 
 ### How to test
 
-Fill it as a short list, one step per line, replacing the placeholders:
+Three lines, replacing the placeholders:
 
 - Step 1: [Clear reproduction step]
 - Step 2: [Next step]
 - Step 3: [Expected result]
 
-Start from a clean checkout, and use a real command or path, not a description of one. When
-someone handed you steps, fix them before you paste them in: add the missing prerequisite, put
-them in order, replace a vague instruction with the exact command or path, and state the expected
-result. When you have no steps and cannot derive them from the diff, ask for them rather than
-leaving the section empty.
-
-Add a screenshot for a visible change, and a before and after when you changed something that
-already existed.
+Use a real command or path, starting from a clean checkout. Fix the steps someone hands you
+rather than pasting them as they are: add the missing prerequisite, put them in order, name the
+expected result. Ask for steps when you cannot derive them from the diff. Add a screenshot for a
+visible change, and a before and after when you changed something that already existed.
 
 ### Impact
 
-Say who this reaches: someone using the published package, someone consuming the generated
-output, or nobody outside this repo. Name the breaking change and the migration step when there
-is one.
+One line. Say who this reaches: someone using the published package, someone consuming the
+generated output, or nobody outside this repo. Name the migration step when the change breaks
+someone.
 
 ## 7. Push and open the PR
 
@@ -173,15 +178,16 @@ Read the failing job, reproduce the failure locally, fix the cause, and push aga
 job is only worth it when the failure never reached a test body, such as a checkout or install
 error, or when the same commit passed before.
 
-Answer every review comment. Push the fix for a small, local ask. For a larger ask, reply with
-what you propose and let the author decide. Say what you changed and how the reviewer can check
-it.
+Answer every review comment in a sentence or two: what you changed, and how the reviewer can
+check it. Push the fix for a small, local ask. For a larger ask, reply with what you propose and
+let the author decide.
 
 ## Guardrails
 
 - Keep the diff to what was asked. Drive-by refactors belong in their own PR.
 - Never force-push a branch someone else may have checked out.
-- Run the `humanizer` skill over any user-facing markdown in the diff, including the changeset.
+- Run the `humanizer` skill over the PR body, the changeset, and any user-facing markdown in
+  the diff.
 - Run the `deslop` skill over generated code before you push.
 - Use USA English in the title, body, commits, and changeset.
 
