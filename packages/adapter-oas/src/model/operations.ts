@@ -1,4 +1,4 @@
-import { isReference, pickContentEntry } from '../oas.ts'
+import { getBinaryFallbackSchema, isReference, pickContentEntry } from '../oas.ts'
 import { getRequestBody, getRequestContent, getResponseByStatusCode } from '../operation.ts'
 import { dereferenceWithRef } from '../refs.ts'
 import type { Refs } from '../refs.ts'
@@ -37,7 +37,7 @@ export function getParameters({ document, operation }: { document: Document; ope
   return Array.from(paramMap.values())
 }
 
-function getResponseBody(responseBody: boolean | ResponseObject, contentType?: string): MediaTypeObject | false {
+function getResponseBody(responseBody: boolean | ResponseObject, contentType?: string): [string, MediaTypeObject] | false {
   if (!responseBody) return false
   if (isReference(responseBody)) return false
 
@@ -45,11 +45,10 @@ function getResponseBody(responseBody: boolean | ResponseObject, contentType?: s
   if (!body.content) return false
 
   if (contentType) {
-    return contentType in body.content ? body.content[contentType]! : false
+    return contentType in body.content ? [contentType, body.content[contentType]!] : false
   }
 
-  const picked = pickContentEntry(body.content)
-  return picked ? picked[1] : false
+  return pickContentEntry(body.content)
 }
 
 /**
@@ -82,7 +81,13 @@ export function getResponseSchema({
     return {}
   }
 
-  const schema = responseBody.schema
+  const [mediaType, entry] = responseBody
+  const schema = entry.schema
+
+  const binary = getBinaryFallbackSchema(mediaType, schema)
+  if (binary) {
+    return binary
+  }
 
   if (!schema) {
     return {}
@@ -119,11 +124,9 @@ export function getRequestSchema({
   const mediaType = Array.isArray(requestBody) ? requestBody[0] : options.contentType
   const schema = Array.isArray(requestBody) ? requestBody[1].schema : requestBody.schema
 
-  // OAS 3.1 (and the 3.0 -> 3.1 upgrade) drops the schema for an `application/octet-stream` body,
-  // leaving an empty media type object. Synthesize the binary schema so generators still emit a
-  // request body type for the operation.
-  if (mediaType === 'application/octet-stream' && (!schema || Object.keys(schema).length === 0)) {
-    return { type: 'string', contentMediaType: 'application/octet-stream' }
+  const binary = getBinaryFallbackSchema(mediaType, schema)
+  if (binary) {
+    return binary
   }
 
   if (!schema) {

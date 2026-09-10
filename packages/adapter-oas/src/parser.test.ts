@@ -16,6 +16,36 @@ const emptyDocument: Document = {
   paths: {},
 } as Document
 
+// OAS 3.0 document whose binary bodies lose their schema on the upgrade to 3.1.
+const binaryResponseDocument = {
+  openapi: '3.0.2',
+  info: { title: 'Test', version: '1.0.0' },
+  paths: {
+    '/essay': {
+      get: {
+        operationId: 'downloadEssay',
+        responses: {
+          '200': {
+            description: 'Binary body',
+            content: { 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } },
+          },
+        },
+      },
+    },
+    '/pdf': {
+      get: {
+        operationId: 'downloadPdf',
+        responses: {
+          '200': {
+            description: 'PDF body',
+            content: { 'application/pdf': { schema: { type: 'string', format: 'binary' } } },
+          },
+        },
+      },
+    },
+  },
+} as Document
+
 /**
  * Parses a single OpenAPI `SchemaObject` into a `SchemaNode`, mirroring the
  * `createSchemaParser().parseSchema` helper for single-schema test cases.
@@ -565,6 +595,26 @@ describe('buildAst', () => {
       expect(uploadFile?.requestBody?.content).toHaveLength(1)
       expect(uploadFile?.requestBody?.content?.[0]?.contentType).toBe('application/octet-stream')
       expect(uploadFile?.requestBody?.content?.[0]?.schema?.type).toBe('blob')
+    })
+
+    it('keeps a binary response for an application/octet-stream body upgraded to 3.1', async () => {
+      const oas = await parseDocument(binaryResponseDocument)
+      const root = parseOas(oas)
+
+      const essay = root.operations.find((op) => op.operationId === 'downloadEssay')
+      const pdf = root.operations.find((op) => op.operationId === 'downloadPdf')
+
+      expect(essay?.responses[0]?.content?.[0]?.contentType).toBe('application/octet-stream')
+      expect(essay?.responses[0]?.content?.[0]?.schema?.type).toBe('blob')
+      expect(pdf?.responses[0]?.content?.[0]?.schema?.type).toBe('blob')
+    })
+
+    it('keeps a binary octet-stream response whatever emptySchemaType is configured', async () => {
+      const oas = await parseDocument(binaryResponseDocument)
+      const root = parseOas(oas, { emptySchemaType: 'void' })
+      const essay = root.operations.find((op) => op.operationId === 'downloadEssay')
+
+      expect(essay?.responses[0]?.content?.[0]?.schema?.type).toBe('blob')
     })
 
     it('populates response.content with a single entry when the response has one content type', async () => {
