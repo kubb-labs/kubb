@@ -2,7 +2,16 @@ name: PR
 
 on:
   workflow_dispatch:
+  # Skips the whole workflow. autofix.ci is unfiltered and still formats these.
   pull_request:
+    paths-ignore:
+      - '**/*.md'
+      - '.agents/**'
+      - '.claude/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/FUNDING.yml'
+      - 'assets/**'
+      - 'LICENSE'
 
 permissions: {}
 
@@ -11,6 +20,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect changes
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      packages: ${{ steps.filter.outputs.packages }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Filter paths
+        id: filter
+        uses: dorny/paths-filter@0e4a8c6effa4802afeda77dc8d303f8176d7dfad # v3.0.4
+        with:
+          filters: |
+            packages:
+              - 'packages/**'
+              - 'internals/**'
+              - 'configs/**'
+              - 'pnpm-lock.yaml'
+
   build:
     name: Build
     timeout-minutes: 15
@@ -99,7 +131,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@da8a350ddbedb4dd9cf54b05b7ef1a4298c4f0dc # main
@@ -118,8 +150,9 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    if: github.actor != 'github-actions[bot]' && github.event.pull_request.head.repo.full_name == github.repository
-    needs: build
+    # pkg-pr-new publishes preview packages, so gate it on a package changing.
+    if: github.actor != 'github-actions[bot]' && github.event.pull_request.head.repo.full_name == github.repository && needs.changes.outputs.packages == 'true'
+    needs: [build, changes]
     steps:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -149,7 +182,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@da8a350ddbedb4dd9cf54b05b7ef1a4298c4f0dc # main
@@ -222,7 +255,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Setup Tools
         uses: kubb-labs/config/.github/setup@da8a350ddbedb4dd9cf54b05b7ef1a4298c4f0dc # main
