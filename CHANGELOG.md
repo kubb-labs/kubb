@@ -1,5 +1,42 @@
 # Changelog
 
+## v5.2.1 — Sep 10, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Add a `kubb.dev/sponsors` entry to each published package's `funding` field, alongside the
+  existing GitHub Sponsors and Open Collective links. ([#4007](https://github.com/kubb-labs/kubb/pull/4007), [`b063738`](https://github.com/kubb-labs/kubb/commit/b06373881532b71c9316600eaf40f096484fdb51))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Trim `@kubb/studio`'s public API to what the `kubb studio` CLI command and the Docker agent
+  actually use.
+  
+  - Removed the unused hook context types `StudioCommandStartContext`, `StudioCommandEndContext`,
+    `StudioConnectingContext`, `StudioDisconnectedContext`, `StudioErrorContext`, and
+    `StudioWarnContext` from the package's root export. `StudioConnectedContext` stays exported.
+    Hook payloads for `studio:connecting`, `studio:command:start`, `studio:command:end`,
+    `studio:disconnected`, `studio:warn`, and `studio:error` still type-check through
+    `Hookable<KubbHooks>['hook']`, since the underlying types are still declared, just no longer
+    importable by name.
+  - Removed `ConnectionOutcome` and `TokenRejection` from the root export. Both stay inferable from
+    `runConnection`'s return value and `onTokenRejected` callback.
+  
+  Neither the CLI nor the Docker agent imports any of these by name, so this does not change their
+  behavior. A consumer that did import one of them by name gets the same type through inference at
+  the call site instead, such as `runConnection`'s return value or a `hooks.hook('studio:warn', ...)`
+  callback's parameter. ([#4012](https://github.com/kubb-labs/kubb/pull/4012), [`109abe8`](https://github.com/kubb-labs/kubb/commit/109abe8a05d43cca35e93571456de882acff61e6))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.2.0 — Sep 9, 2026
 
 ### @kubb/adapter-oas
