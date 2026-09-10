@@ -1,15 +1,7 @@
 export { createClient, type Client, type ClientOptions } from './client.ts'
-export type {
-  StudioCommandEndContext,
-  StudioCommandStartContext,
-  StudioConnectedContext,
-  StudioConnectingContext,
-  StudioDisconnectedContext,
-  StudioErrorContext,
-  StudioWarnContext,
-} from './hooks.ts'
+export type { StudioConnectedContext } from './hooks.ts'
 export { InvalidAgentTokenError } from './api.ts'
 export { defaultStudioUrl } from './constants.ts'
 export { createFileStorage, setStorage } from './machine.ts'
-export { runConnection, type ConnectionOptions, type ConnectionOutcome, type TokenRejection } from './runConnection.ts'
+export { runConnection, type ConnectionOptions } from './runConnection.ts'
 export { PairingCanceledError, pollForPairingToken, startPairing } from './pair.ts'
