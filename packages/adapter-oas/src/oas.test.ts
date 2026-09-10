@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { isDiscriminator, isNullable, isReference } from './oas.ts'
+import { getBinaryFallbackSchema, isDiscriminator, isNullable, isReference } from './oas.ts'
 import type { ReferenceObject, SchemaObject } from './types.ts'
 
 describe('isNullable', () => {
@@ -74,5 +74,29 @@ describe('isDiscriminator', () => {
   it('returns false for null / undefined', () => {
     expect(isDiscriminator(null)).toBe(false)
     expect(isDiscriminator(undefined)).toBe(false)
+  })
+})
+
+describe('getBinaryFallbackSchema', () => {
+  it('returns the binary schema for an octet-stream entry the 3.1 upgrade emptied out', () => {
+    expect(getBinaryFallbackSchema('application/octet-stream', undefined)).toEqual({
+      type: 'string',
+      contentMediaType: 'application/octet-stream',
+    })
+    expect(getBinaryFallbackSchema('application/octet-stream', {})).toEqual({
+      type: 'string',
+      contentMediaType: 'application/octet-stream',
+    })
+  })
+
+  it('returns undefined when the octet-stream entry carries a schema of its own', () => {
+    expect(getBinaryFallbackSchema('application/octet-stream', { type: 'object' })).toBeUndefined()
+    expect(getBinaryFallbackSchema('application/octet-stream', { $ref: '#/components/schemas/Pet' })).toBeUndefined()
+  })
+
+  it('returns undefined for any other media type', () => {
+    expect(getBinaryFallbackSchema('application/json', undefined)).toBeUndefined()
+    expect(getBinaryFallbackSchema('application/pdf', {})).toBeUndefined()
+    expect(getBinaryFallbackSchema(undefined, undefined)).toBeUndefined()
   })
 })
