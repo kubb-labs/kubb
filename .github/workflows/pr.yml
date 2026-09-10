@@ -2,9 +2,7 @@ name: PR
 
 on:
   workflow_dispatch:
-  # A pull request that touches only these paths cannot change what we build, so
-  # the whole workflow is skipped. autofix.ci has no filter and still formats and
-  # lints every pull request.
+  # Skips the whole workflow. autofix.ci is unfiltered and still formats these.
   pull_request:
     paths-ignore:
       - '**/*.md'
@@ -41,9 +39,7 @@ jobs:
         env:
           EVENT: ${{ github.event_name }}
         run: |
-          # On a pull_request the checkout is the merge commit, so HEAD^1 is the base
-          # branch tip and this diff is exactly the files the pull request touches. A
-          # manual run has no base to compare against, so nothing is filtered out.
+          # The checkout is the merge commit, so HEAD^1 is the base branch tip.
           if [ "$EVENT" != 'pull_request' ]; then
             echo 'packages=true' >> "$GITHUB_OUTPUT"
             exit 0
@@ -161,7 +157,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    # pkg-pr-new publishes real preview packages, so it only runs when a package changed.
+    # pkg-pr-new publishes preview packages, so gate it on a package changing.
     if: github.actor != 'github-actions[bot]' && github.event.pull_request.head.repo.full_name == github.repository && needs.changes.outputs.packages == 'true'
     needs: [build, changes]
     steps:
