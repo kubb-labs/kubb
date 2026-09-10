@@ -1,5 +1,5 @@
 ---
-'@kubb/studio': major
+'@kubb/studio': patch
 ---
 
 Trim `@kubb/studio`'s public API to what the `kubb studio` CLI command and the Docker agent
@@ -15,5 +15,7 @@ actually use.
 - Removed `ConnectionOutcome` and `TokenRejection` from the root export. Both stay inferable from
   `runConnection`'s return value and `onTokenRejected` callback.
 
-To upgrade, replace an import of any of these types with the inferred type at its call site
-instead of importing it by name.
+Neither the CLI nor the Docker agent imports any of these by name, so this does not change their
+behavior. A consumer that did import one of them by name gets the same type through inference at
+the call site instead, such as `runConnection`'s return value or a `hooks.hook('studio:warn', ...)`
+callback's parameter.
