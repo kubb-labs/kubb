@@ -1,0 +1,39 @@
+# Based on Bun's template
+
+name: Feature Request
+description: Suggest an idea or improvement for Kubb
+labels: [feature]
+type: Feature
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a feature. It helps make `Kubb` better.
+  - type: textarea
+    attributes:
+      label: What problem does this solve?
+      description: Describe the use case this feature would address.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What is your proposed solution?
+      description: Describe the feature, option, or API you have in mind.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: What alternatives have you considered?
+      description: Any workarounds or other approaches you have tried.
+  - type: textarea
+    attributes:
+      label: Additional information
+      description: Is there anything else you think we should know?
+  - type: checkboxes
+    attributes:
+      label: How can you help?
+      description: |
+        Votes show interest, but funding pays for the work. See [sponsorship tiers](https://kubb.dev/sponsors).
+      options:
+        - label: My team would fund this feature
+        - label: I intend to open a pull request for this
