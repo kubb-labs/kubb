@@ -22,7 +22,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Jobs that publish something read this instead of running for every change.
   changes:
     name: Detect changes
     timeout-minutes: 5
@@ -34,17 +33,26 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
 
       - name: Filter paths
         id: filter
-        uses: dorny/paths-filter@0e4a8c6effa4802afeda77dc8d303f8176d7dfad # v3.0.4
-        with:
-          filters: |
-            packages:
-              - 'packages/**'
-              - 'internals/**'
-              - 'configs/**'
-              - 'pnpm-lock.yaml'
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          # On a pull_request the checkout is the merge commit, so HEAD^1 is the base
+          # branch tip and this diff is exactly the files the pull request touches. A
+          # manual run has no base to compare against, so nothing is filtered out.
+          if [ "$EVENT" != 'pull_request' ]; then
+            echo 'packages=true' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git diff --name-only HEAD^1 HEAD | grep -qE '^(packages|internals|configs)/|^pnpm-lock\.yaml$'; then
+            echo 'packages=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'packages=false' >> "$GITHUB_OUTPUT"
+          fi
 
   build:
     name: Build
