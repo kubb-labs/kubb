@@ -16,11 +16,7 @@ const emptyDocument: Document = {
   paths: {},
 } as Document
 
-/**
- * OAS 3.0 document whose binary bodies lose their schema on the upgrade to 3.1: the converter
- * rewrites `format: 'binary'` to `contentMediaType` and drops it when it repeats the media type
- * key, leaving `'application/octet-stream': {}`.
- */
+// OAS 3.0 document whose binary bodies lose their schema on the upgrade to 3.1.
 const binaryResponseDocument = {
   openapi: '3.0.2',
   info: { title: 'Test', version: '1.0.0' },

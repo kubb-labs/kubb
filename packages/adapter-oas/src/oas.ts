@@ -41,20 +41,9 @@ export function isBinary(schema: SchemaObject): boolean {
 }
 
 /**
- * Returns the binary schema for a media type entry the OAS 3.1 upgrade emptied out, or `undefined`
- * when the entry carries a schema of its own.
- *
- * Converting a 3.0 document rewrites `format: 'binary'` into
- * `contentMediaType: '<media type>'`, then drops the schema when it only repeats the media type
- * key. An `application/octet-stream` body therefore arrives here as `{}`, and without this
- * fallback it resolves to the empty schema type instead of a blob.
- *
- * @example
- * ```ts
- * getBinaryFallbackSchema('application/octet-stream', undefined)
- * // { type: 'string', contentMediaType: 'application/octet-stream' }
- * getBinaryFallbackSchema('application/json', undefined) // undefined
- * ```
+ * Returns the binary schema for an `application/octet-stream` entry the OAS 3.1 upgrade emptied
+ * out, or `undefined` when the entry carries a schema of its own. Without the fallback such a
+ * body resolves to the empty schema type instead of a blob.
  */
 export function getBinaryFallbackSchema(mediaType: string | undefined, schema: SchemaObject | ReferenceObject | undefined): SchemaObject | undefined {
   if (mediaType !== 'application/octet-stream') return undefined
