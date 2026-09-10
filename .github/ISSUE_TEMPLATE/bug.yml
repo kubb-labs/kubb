@@ -66,3 +66,11 @@ body:
     attributes:
       label: Additional information
       description: Is there anything else you think we should know?
+  - type: checkboxes
+    attributes:
+      label: How can you help?
+      description: |
+        Votes show interest, but funding pays for the work. See [sponsorship tiers](https://kubb.dev/sponsors).
+      options:
+        - label: My team would fund a fix for this
+        - label: I intend to open a pull request fixing this
