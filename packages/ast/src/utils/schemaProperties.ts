@@ -97,10 +97,7 @@ export function getSchemaLiteralValues(node: SchemaNode): ReadonlyArray<string |
   return [...values]
 }
 
-/**
- * Names of every property an object, resolved reference, or intersection exposes. Mirrors the
- * traversal `resolveSchemaProperties` uses, minus the name filter.
- */
+// Names of every property an object, resolved reference, or intersection exposes.
 function collectPropertyNames(node: SchemaNode, visited: WeakSet<SchemaNode> = new WeakSet()): Set<string> {
   if (visited.has(node)) return new Set()
   visited.add(node)
@@ -120,14 +117,8 @@ function collectPropertyNames(node: SchemaNode, visited: WeakSet<SchemaNode> = n
 }
 
 /**
- * Infers an implicit discriminator for a `oneOf`/`anyOf` that never declares one: a property
- * every member exposes with a distinct single literal value, the same shape a declared OpenAPI
- * `discriminator` already narrows on.
- *
- * @example
- * ```ts
- * inferDiscriminatorPropertyName([dogSchema, catSchema]) // 'type'
- * ```
+ * Infers an implicit discriminator: a property every member exposes with a distinct single
+ * literal value, the same shape a declared OpenAPI `discriminator` already narrows on.
  */
 export function inferDiscriminatorPropertyName(members: ReadonlyArray<SchemaNode>): string | undefined {
   if (members.length < 2) return undefined
