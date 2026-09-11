@@ -131,8 +131,8 @@ export function inferDiscriminatorPropertyName(members: ReadonlyArray<SchemaNode
 
   for (const name of candidates ?? []) {
     const values = members.map((member) => {
-      const literals = resolveSchemaProperties({ node: member, propertyName: name }).flatMap((property) => getSchemaLiteralValues(property.schema))
-      return literals.length === 1 ? literals[0] : undefined
+      const literals = new Set(resolveSchemaProperties({ node: member, propertyName: name }).flatMap((property) => getSchemaLiteralValues(property.schema)))
+      return literals.size === 1 ? [...literals][0] : undefined
     })
 
     if (values.every((value) => value !== undefined) && new Set(values).size === members.length) {
