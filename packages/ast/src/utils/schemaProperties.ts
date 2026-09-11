@@ -96,3 +96,58 @@ export function getSchemaLiteralValues(node: SchemaNode): ReadonlyArray<string |
   visit(node)
   return [...values]
 }
+
+/**
+ * Names of every property an object, resolved reference, or intersection exposes. Mirrors the
+ * traversal `resolveSchemaProperties` uses, minus the name filter.
+ */
+function collectPropertyNames(node: SchemaNode, visited: WeakSet<SchemaNode> = new WeakSet()): Set<string> {
+  if (visited.has(node)) return new Set()
+  visited.add(node)
+
+  if (node.type === 'object') return new Set(node.properties.map((property) => property.name))
+  if (node.type === 'ref') return node.schema ? collectPropertyNames(node.schema, visited) : new Set()
+
+  if (node.type === 'intersection') {
+    const names = new Set<string>()
+    for (const member of node.members ?? []) {
+      for (const name of collectPropertyNames(member, visited)) names.add(name)
+    }
+    return names
+  }
+
+  return new Set()
+}
+
+/**
+ * Infers an implicit discriminator for a `oneOf`/`anyOf` that never declares one: a property
+ * every member exposes with a distinct single literal value, the same shape a declared OpenAPI
+ * `discriminator` already narrows on.
+ *
+ * @example
+ * ```ts
+ * inferDiscriminatorPropertyName([dogSchema, catSchema]) // 'type'
+ * ```
+ */
+export function inferDiscriminatorPropertyName(members: ReadonlyArray<SchemaNode>): string | undefined {
+  if (members.length < 2) return undefined
+
+  let candidates: Set<string> | undefined
+  for (const member of members) {
+    const names = collectPropertyNames(member)
+    candidates = candidates ? new Set([...candidates].filter((name) => names.has(name))) : names
+  }
+
+  for (const name of candidates ?? []) {
+    const values = members.map((member) => {
+      const literals = resolveSchemaProperties({ node: member, propertyName: name }).flatMap((property) => getSchemaLiteralValues(property.schema))
+      return literals.length === 1 ? literals[0] : undefined
+    })
+
+    if (values.every((value) => value !== undefined) && new Set(values).size === members.length) {
+      return name
+    }
+  }
+
+  return undefined
+}

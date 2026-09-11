@@ -134,17 +134,19 @@ export function convertUnion({ schema, name, nullable, defaultValue, rawOptions,
   const ctx = { schema, name, nullable, defaultValue }
   const unionMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
   const strategy: 'one' | 'any' = schema.oneOf ? 'one' : 'any'
-  const unionExtras = {
-    discriminatorPropertyName: isDiscriminator(schema) ? schema.discriminator.propertyName : undefined,
-    strategy,
-  }
+  const explicitDiscriminatorPropertyName = isDiscriminator(schema) ? schema.discriminator.propertyName : undefined
   const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
   const { oneOf: _o, anyOf: _a, discriminator: _d, ...memberBaseSchema } = schema
   const sharedPropertiesNode = schema.properties ? parse({ schema: memberBaseSchema as SchemaObject, name }, rawOptions) : undefined
 
   if (sharedPropertiesNode || discriminator) {
     const members = narrowUnionMembers({ unionMembers, discriminator, sharedPropertiesNode, parse, rawOptions, name, refs })
-    const unionNode = createNode(ctx, { type: 'union', ...unionExtras, members })
+    const unionNode = createNode(ctx, {
+      type: 'union',
+      strategy,
+      members,
+      discriminatorPropertyName: explicitDiscriminatorPropertyName ?? ast.inferDiscriminatorPropertyName(members),
+    })
 
     if (!sharedPropertiesNode) {
       return unionNode
@@ -153,10 +155,12 @@ export function convertUnion({ schema, name, nullable, defaultValue, rawOptions,
     return createNode(ctx, { type: 'intersection', members: [unionNode, sharedPropertiesNode] })
   }
 
+  const members = unionMembers.map((s) => parse({ schema: s as SchemaObject, name }, rawOptions))
   const unionNode = createNode(ctx, {
     type: 'union',
-    ...unionExtras,
-    members: unionMembers.map((s) => parse({ schema: s as SchemaObject, name }, rawOptions)),
+    strategy,
+    members,
+    discriminatorPropertyName: explicitDiscriminatorPropertyName ?? ast.inferDiscriminatorPropertyName(members),
   })
 
   return ast.applyMacros(unionNode, [macroSimplifyUnion], { depth: 'shallow' })

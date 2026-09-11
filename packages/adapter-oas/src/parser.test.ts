@@ -1294,6 +1294,34 @@ describe('parseSchema oneOf / anyOf', () => {
     expect(ast.narrowSchema(node, 'union')?.discriminatorPropertyName).toBeUndefined()
   })
 
+  it('infers discriminatorPropertyName when a property carries a distinct literal per branch', () => {
+    // No `discriminator` keyword, and the branches differ beyond that property too.
+    const node = parseSchema(ctx, {
+      schema: {
+        oneOf: [
+          { type: 'object', properties: { error: { type: 'string', enum: ['validation_failed'] }, field: { type: 'string' } } },
+          { type: 'object', properties: { error: { type: 'string', enum: ['rate_limited'] }, retryAfter: { type: 'integer' } } },
+        ],
+      },
+    })
+
+    expect(ast.narrowSchema(node, 'union')?.discriminatorPropertyName).toBe('error')
+  })
+
+  it('does not infer discriminatorPropertyName when no property has a single literal on every branch', () => {
+    // `state` is the only shared property, but each branch carries two literal values for it.
+    const node = parseSchema(ctx, {
+      schema: {
+        oneOf: [
+          { type: 'object', properties: { state: { type: 'string', enum: ['open', 'reopened'] } } },
+          { type: 'object', properties: { state: { type: 'string', enum: ['closed', 'archived'] } } },
+        ],
+      },
+    })
+
+    expect(ast.narrowSchema(node, 'union')?.discriminatorPropertyName).toBeUndefined()
+  })
+
   it('parses oneOf with object members without explicit discriminator', () => {
     // Test case from issue #14: oneOf should be preserved for validation
     const node = parseSchema(ctx, {
