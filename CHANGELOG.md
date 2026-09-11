@@ -1,5 +1,22 @@
 # Changelog
 
+## v5.2.2 — Sep 11, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- A `oneOf`/`anyOf` without a declared OpenAPI `discriminator` now infers one when a property
+  carries a distinct single literal value on every branch. `UnionSchemaNode.discriminatorPropertyName`
+  is set from that inference, so every printer that narrows on it (`plugin-zod`, `plugin-faker`)
+  picks it up without reimplementing the same scan. ([#4019](https://github.com/kubb-labs/kubb/pull/4019), [`c89f215`](https://github.com/kubb-labs/kubb/commit/c89f215e942a8b21294f7f35d83040cf10db951c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.2.1 — Sep 10, 2026
 
 ### @kubb/adapter-oas
