@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.3.0 — Sep 12, 2026
+
+### @kubb/studio
+
+#### Features
+
+- Report installed peer dependency versions and missing dependencies with each generation result. ([#4021](https://github.com/kubb-labs/kubb/pull/4021), [`6187109`](https://github.com/kubb-labs/kubb/commit/6187109c97bd00d4cf17234b7383a43e84d4b71e))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.2.2 — Sep 11, 2026
 
 ### @kubb/adapter-oas
