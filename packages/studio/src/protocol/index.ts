@@ -192,7 +192,14 @@ export type KubbHooks = {
   'kubb:error': [ctx: { message: string; stack?: string }]
   'kubb:debug': [ctx: { logs: Array<string>; fileName?: string }]
   'kubb:generation:start': [ctx: { name?: string; plugins: number }]
-  'kubb:generation:end': [ctx: { config: Config; storage: Record<string, string> }]
+  'kubb:generation:end': [
+    ctx: {
+      config: Config
+      storage: Record<string, string>
+      peerDependencies: Record<string, string>
+      missingDependencies: Array<string>
+    },
+  ]
   'kubb:generation:summary': [ctx: { duration: number; fileCount: number; failedPlugins: number; status: 'success' | 'failed' }]
   'kubb:lifecycle:start': []
   'kubb:lifecycle:end': []

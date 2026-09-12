@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import { getElapsedMs, inParallel } from '@internals/utils'
 import { Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
 import WebSocket from 'ws'
@@ -25,6 +27,43 @@ const CONNECT_TIMEOUT_MS = 5_000
  * automatically once the socket is collected.
  */
 const eventSeqCounters = new WeakMap<WebSocket, number>()
+const require = createRequire(import.meta.url)
+
+type PackageJSON = {
+  version?: string
+}
+
+async function resolvePeerDependencies(names: Array<string>): Promise<{
+  peerDependencies: Record<string, string>
+  missingDependencies: Array<string>
+}> {
+  const uniqueNames = [...new Set(names)]
+  const peerDependencies: Record<string, string> = {}
+  const missingDependencies: Array<string> = []
+
+  const versions = await Promise.all(
+    uniqueNames.map(async (name) => {
+      try {
+        const path = require.resolve(`${name}/package.json`)
+        const packageJSON = JSON.parse(await readFile(path, 'utf8')) as PackageJSON
+        return packageJSON.version
+      } catch {
+        return undefined
+      }
+    }),
+  )
+
+  for (const [index, name] of uniqueNames.entries()) {
+    const version = versions[index]
+    if (version) {
+      peerDependencies[name] = version
+    } else {
+      missingDependencies.push(name)
+    }
+  }
+
+  return { peerDependencies, missingDependencies }
+}
 
 function nextEventSeq(ws: WebSocket): number {
   const seq = eventSeqCounters.get(ws) ?? 0
@@ -178,6 +217,7 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>): ()
   })
 
   on('kubb:generation:end', async ({ config, storage, diagnostics = [], status, hrStart, filesCreated }) => {
+    const { peerDependencies, missingDependencies } = await resolvePeerDependencies(config.plugins.map(({ name }) => name))
     const paths = await storage.readKeys()
     const files: Record<string, string> = {}
     await inParallel({
@@ -191,7 +231,7 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>): ()
 
     sendDataMessage({
       type: 'kubb:generation:end',
-      data: [{ config, storage: files }],
+      data: [{ config, storage: files, peerDependencies, missingDependencies }],
     })
 
     if (!hrStart) {

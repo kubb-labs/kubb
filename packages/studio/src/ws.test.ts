@@ -1,4 +1,4 @@
-import { Hookable, type KubbHooks, type KubbPluginStartContext } from '@kubb/core'
+import { Hookable, memoryStorage, type Config, type KubbHooks, type KubbPluginStartContext } from '@kubb/core'
 import type WebSocket from 'ws'
 import { describe, expect, it, vi } from 'vitest'
 import type { AgentMessage } from './protocol/index.ts'
@@ -47,5 +47,38 @@ describe('setupEventsStream', () => {
     await hooks.callHook('studio:warn', { message: 'Ignored save: editing kubb.config.ts was not granted' })
 
     expect(socket.send).not.toHaveBeenCalled()
+  })
+
+  it('reports installed plugin versions and missing plugins when generation ends', async () => {
+    const socket = fakeSocket()
+    const hooks = new Hookable<KubbHooks>()
+    setupEventsStream(socket.ws, hooks)
+    const config = {
+      plugins: [{ name: '@kubb/core' }, { name: '@kubb/missing-plugin' }, { name: '@kubb/core' }],
+    } as Config
+
+    await hooks.callHook('kubb:generation:end', {
+      config,
+      storage: memoryStorage(),
+    })
+
+    expect(socket.sent()).toStrictEqual([
+      {
+        type: 'agent:data',
+        payload: {
+          type: 'kubb:generation:end',
+          data: [
+            {
+              config,
+              storage: {},
+              peerDependencies: { '@kubb/core': expect.any(String) },
+              missingDependencies: ['@kubb/missing-plugin'],
+            },
+          ],
+          timestamp: expect.any(Number),
+          seq: 0,
+        },
+      },
+    ])
   })
 })
