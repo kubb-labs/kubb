@@ -288,6 +288,11 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
     cause: 'A plugin threw while generating, or reported an error through `ctx.error`.',
     fix: 'Read the underlying error and check the plugin options and the schema or operation it failed on.',
   },
+  [diagnosticCode.barrelDuplicateExport]: {
+    title: 'Duplicate barrel export',
+    cause: 'Two files in the same barrel directory export the same name, so the barrel would re-export it twice and fail to parse.',
+    fix: 'Rename one of the colliding declarations, or resolve the collision through the plugin resolver that names them.',
+  },
   [diagnosticCode.pluginWarning]: {
     title: 'Plugin warning',
     cause: 'A plugin reported a non-fatal warning through `ctx.warn`.',
