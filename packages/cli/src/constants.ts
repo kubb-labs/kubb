@@ -20,6 +20,18 @@ export const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
 export const WATCHER_DEBOUNCE_MS = 100
 
 /**
+ * Interval in milliseconds between polls of a remote `input` URL in watch mode. A remote document
+ * emits no filesystem events, so watch mode falls back to fetching it and comparing bodies.
+ */
+export const URL_WATCHER_INTERVAL_MS = 2_000
+
+/**
+ * Upper bound in milliseconds for a single URL watcher request, covering both the response headers
+ * and the body read. A server that hangs mid-response would otherwise stall polling forever.
+ */
+export const URL_WATCHER_TIMEOUT_MS = 10_000
+
+/**
  * Upper bound in milliseconds for the npm update check, so a slow registry never stalls a run.
  */
 export const UPDATE_CHECK_TIMEOUT_MS = 3_000

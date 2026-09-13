@@ -24,7 +24,7 @@ import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.t
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import setupReporters, { selectReporters } from '../../loggers/utils.ts'
 import { logError, logInfo, logStep } from '../../loggers/output.ts'
-import { getConfigs, isNewerVersion, runHook, runPostGenerate, startWatcher } from './utils.ts'
+import { fetchUrlBody, getConfigs, isNewerVersion, runHook, runPostGenerate, startUrlWatcher, startWatcher } from './utils.ts'
 import { FORMATTER_PREFERENCE, LINTER_PREFERENCE } from '@internals/utils'
 import { detectTool, formatters, linters } from '../../tools.ts'
 
@@ -317,7 +317,8 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     let anyFailed = false
     for (const config of configs) {
       const effectiveInput = input ?? config.input
-      const watchPath = typeof effectiveInput === 'string' && getInputKind(effectiveInput) === 'file' ? effectiveInput : undefined
+      const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
+      const watchPath = inputKind === 'file' || inputKind === 'url' ? (effectiveInput as string) : undefined
       if (watchPath && watch) {
         const watchedPaths = [watchPath]
         // Don't removeAll() between builds, that would also drop logger and lifecycle
@@ -328,15 +329,26 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
           logStep(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
         }
 
-        // The watcher ignores chokidar's startup events, so run the first build here. A failing
-        // first build keeps watching, since the user can fix the input and save.
+        // For a URL input, capture the document before the build: it becomes the watcher's
+        // change-detection baseline, so an edit landing before the first poll still rebuilds.
+        // When the server is down the baseline stays undefined and the watcher rebuilds on its
+        // first successful poll, so recovery with an unchanged document still generates output.
+        const initialBody = inputKind === 'url' ? await fetchUrlBody(watchPath) : undefined
+
+        // The watchers ignore their startup state (chokidar's initial events, the baseline
+        // above), so run the first build here. A failing first build keeps watching, since
+        // the user can fix the input and save.
         try {
           await build(watchedPaths)
         } catch (buildError) {
           await hooks.callHook('kubb:error', { error: toError(buildError) })
         }
 
-        await startWatcher(watchedPaths, build, { info: logInfo, error: logError })
+        if (inputKind === 'url') {
+          startUrlWatcher(watchPath, build, { log: { info: logInfo, error: logError }, initialBody })
+        } else {
+          await startWatcher(watchedPaths, build, { info: logInfo, error: logError })
+        }
       } else {
         try {
           const succeeded = await generate({ input, config, logLevel, hooks, dryRun })

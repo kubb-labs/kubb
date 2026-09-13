@@ -66,7 +66,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
     },
     watch: {
       type: 'boolean',
-      description: 'Watch mode based on the input file',
+      description: 'Watch mode: watches an input file for changes, or polls an input URL',
       short: 'w',
       default: false,
     },

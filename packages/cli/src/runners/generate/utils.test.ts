@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import process from 'node:process'
 import { Hookable, type KubbHooks } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSerialRunner, getConfigs, isNewerVersion, runHook, runPostGenerate } from './utils.ts'
+import { createSerialRunner, fetchUrlBody, getConfigs, isNewerVersion, runHook, runPostGenerate, startUrlWatcher } from './utils.ts'
 
 const node = process.execPath
 
@@ -262,5 +262,213 @@ describe('createSerialRunner', () => {
     shouldFail = false
     await runner()
     expect(errors).toStrictEqual(['run exploded'])
+  })
+})
+
+describe('startUrlWatcher', () => {
+  const url = 'http://localhost:1234/openapi.json'
+  const stops: Array<() => void> = []
+  const quiet = { info: (_message: string) => {}, error: (_message: string) => {} }
+
+  /**
+   * Feeds the watcher one queued response per poll, repeating the last entry once the queue is
+   * drained. A string resolves as the response body; an Error rejects the fetch like an
+   * unreachable server does.
+   */
+  function stubFetchQueue(queue: Array<string | Error>) {
+    let polls = 0
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        const item = queue[Math.min(polls, queue.length - 1)]
+        polls += 1
+        if (item instanceof Error) throw item
+        return { ok: true, status: 200, text: async () => item }
+      }),
+    )
+    return () => polls
+  }
+
+  /**
+   * Stubs fetch with a request that never settles until its signal aborts, the shape of a server
+   * that accepts the connection but never finishes the response.
+   */
+  function stubHungFetch(onAbort?: () => void) {
+    const fetchMock = vi.fn(
+      (_input: unknown, init?: { signal?: AbortSignal }) =>
+        new Promise<never>((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => {
+            onAbort?.()
+            reject(new Error('aborted'))
+          })
+        }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    return fetchMock
+  }
+
+  function watch(cb: (path: Array<string>) => Promise<void>, options: { log?: typeof quiet; initialBody?: string; timeoutMs?: number } = {}) {
+    const stop = startUrlWatcher(url, cb, { log: quiet, intervalMs: 5, ...options })
+    stops.push(stop)
+    return stop
+  }
+
+  afterEach(() => {
+    for (const stop of stops.splice(0)) stop()
+    vi.unstubAllGlobals()
+  })
+
+  it('stays quiet while polls match the initial body', async () => {
+    const pollCount = stubFetchQueue(['{"openapi":"3.1.0"}'])
+    let builds = 0
+
+    watch(
+      async () => {
+        builds += 1
+      },
+      { initialBody: '{"openapi":"3.1.0"}' },
+    )
+
+    await vi.waitFor(() => expect(pollCount()).toBeGreaterThanOrEqual(3))
+    expect(builds).toBe(0)
+  })
+
+  it('rebuilds when the response body changes', async () => {
+    stubFetchQueue(['v1', 'v1', 'v2'])
+    const builtWith: Array<Array<string>> = []
+
+    watch(
+      async (paths) => {
+        builtWith.push(paths)
+      },
+      { initialBody: 'v1' },
+    )
+
+    await vi.waitFor(() => expect(builtWith).toStrictEqual([[url]]))
+  })
+
+  it('rebuilds when the document changed between the initial build and the first poll', async () => {
+    stubFetchQueue(['v2'])
+    let builds = 0
+
+    watch(
+      async () => {
+        builds += 1
+      },
+      { initialBody: 'v1' },
+    )
+
+    await vi.waitFor(() => expect(builds).toBe(1))
+  })
+
+  it('rebuilds on the first successful poll when no initial body was captured', async () => {
+    const down = new Error('fetch failed')
+    const pollCount = stubFetchQueue([down, down, 'v1', 'v1'])
+    let builds = 0
+
+    watch(async () => {
+      builds += 1
+    })
+
+    // The server was down at startup, so nothing was generated yet: recovery rebuilds even
+    // though the body never changed, and sets the baseline so later polls stay quiet.
+    await vi.waitFor(() => expect(builds).toBe(1))
+    await vi.waitFor(() => expect(pollCount()).toBeGreaterThanOrEqual(5))
+    expect(builds).toBe(1)
+  })
+
+  it('reports an outage once and rebuilds after recovery only when the body changed', async () => {
+    const down = new Error('fetch failed')
+    const pollCount = stubFetchQueue(['v1', down, down, 'v1', 'v2'])
+    const errors: Array<string> = []
+    let builds = 0
+
+    watch(
+      async () => {
+        builds += 1
+      },
+      {
+        initialBody: 'v1',
+        log: {
+          info: (_message: string) => {},
+          error: (message: string) => {
+            errors.push(message)
+          },
+        },
+      },
+    )
+
+    // Recovery with an unchanged body (poll 4) stays quiet; only the real change rebuilds.
+    await vi.waitFor(() => expect(builds).toBe(1))
+    expect(pollCount()).toBeGreaterThanOrEqual(5)
+    expect(errors).toHaveLength(1)
+  })
+
+  it('times out a request that never settles and keeps polling', async () => {
+    const fetchMock = stubHungFetch()
+
+    watch(async () => {}, { timeoutMs: 10 })
+
+    await vi.waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2))
+  })
+
+  it('aborts the in-flight request when stopped', async () => {
+    let aborted = false
+    const fetchMock = stubHungFetch(() => {
+      aborted = true
+    })
+
+    const stop = watch(async () => {}, { timeoutMs: 10_000 })
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled())
+    stop()
+
+    await vi.waitFor(() => expect(aborted).toBe(true))
+  })
+
+  it('stops polling once the returned stop function runs', async () => {
+    const pollCount = stubFetchQueue(['v1'])
+    const stop = watch(async () => {}, { initialBody: 'v1' })
+
+    await vi.waitFor(() => expect(pollCount()).toBeGreaterThanOrEqual(2))
+    stop()
+    const settled = pollCount()
+
+    await new Promise((resolve) => setTimeout(resolve, 30))
+    expect(pollCount()).toBeLessThanOrEqual(settled + 1)
+  })
+})
+
+describe('fetchUrlBody', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('returns the body for a 2xx response', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: true, status: 200, text: async () => '{"openapi":"3.1.0"}' })),
+    )
+
+    await expect(fetchUrlBody('http://localhost:1234/openapi.json')).resolves.toBe('{"openapi":"3.1.0"}')
+  })
+
+  it('returns undefined for a non-2xx response', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: false, status: 500, text: async () => 'nope' })),
+    )
+
+    await expect(fetchUrlBody('http://localhost:1234/openapi.json')).resolves.toBeUndefined()
+  })
+
+  it('returns undefined when the request fails', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw new Error('fetch failed')
+      }),
+    )
+
+    await expect(fetchUrlBody('http://localhost:1234/openapi.json')).resolves.toBeUndefined()
   })
 })
