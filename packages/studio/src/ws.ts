@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
+import { isAbsolute, relative, resolve } from 'node:path'
 import { getElapsedMs, inParallel } from '@internals/utils'
 import { Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
 import WebSocket from 'ws'
@@ -29,6 +30,10 @@ const CONNECT_TIMEOUT_MS = 5_000
  */
 const eventSeqCounters = new WeakMap<WebSocket, number>()
 const require = createRequire(import.meta.url)
+
+function relativeStoragePath(root: string, filePath: string): string {
+  return (isAbsolute(filePath) ? relative(resolve(root), filePath) : filePath).replaceAll('\\', '/')
+}
 
 type PackageJSON = {
   version?: string
@@ -226,7 +231,7 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>): ()
       limit: FILE_READ_CONCURRENCY,
       run: async (path) => {
         const content = await storage.readItem(path)
-        if (content !== null) files[path] = content
+        if (content !== null) files[relativeStoragePath(config.root, path)] = content
       },
     })
 

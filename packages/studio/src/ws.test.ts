@@ -81,4 +81,22 @@ describe('setupEventsStream', () => {
       },
     ])
   })
+
+  it('sends generated files relative to the project root', async () => {
+    const socket = fakeSocket()
+    const hooks = new Hookable<KubbHooks>()
+    setupEventsStream(socket.ws, hooks)
+
+    await hooks.callHook('kubb:generation:end', {
+      config: { root: '/home/runner/work/plugins/plugins/examples/advanced', plugins: [] } as Config,
+      storage: {
+        readKeys: async () => ['/home/runner/work/plugins/plugins/examples/advanced/src/gen/index.ts'],
+        readItem: async () => 'export {}',
+      } as never,
+    })
+
+    expect(socket.sent()[0]).toMatchObject({
+      payload: { data: [{ storage: { 'src/gen/index.ts': 'export {}' } }] },
+    })
+  })
 })
