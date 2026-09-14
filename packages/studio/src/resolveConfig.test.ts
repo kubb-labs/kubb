@@ -1,7 +1,7 @@
 import type { Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { JSONKubbConfig } from './protocol/index.ts'
-import { mergeAdapter, mergePlugins, resolvePlugins, toExportName } from './resolveConfig.ts'
+import { mergeAdapter, mergePlugins, resolvePlugins, toExportName, toPackageName } from './resolveConfig.ts'
 
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
 
@@ -311,6 +311,19 @@ describe('toExportName', () => {
       '@kubb/plugin-ts': 'pluginTs',
       '@kubb/plugin-vue-query': 'pluginVueQuery',
       '@kubb/plugin-zod': 'pluginZod',
+    })
+  })
+})
+
+describe('toPackageName', () => {
+  it('scopes a Kubb plugin name and leaves anything else alone', () => {
+    const names = ['plugin-ts', '@kubb/plugin-ts', '@acme/my-plugin', 'kubb']
+
+    expect(Object.fromEntries(names.map((name) => [name, toPackageName(name)]))).toStrictEqual({
+      'plugin-ts': '@kubb/plugin-ts',
+      '@kubb/plugin-ts': '@kubb/plugin-ts',
+      '@acme/my-plugin': '@acme/my-plugin',
+      kubb: 'kubb',
     })
   })
 })

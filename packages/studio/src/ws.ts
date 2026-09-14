@@ -4,6 +4,7 @@ import { getElapsedMs, inParallel } from '@internals/utils'
 import { Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
 import WebSocket from 'ws'
 import type { AgentMessage, DataMessagePayload } from './protocol/index.ts'
+import { toPackageName } from './resolveConfig.ts'
 
 type WebSocketOptions = WebSocket.ClientOptions
 
@@ -37,7 +38,7 @@ async function resolvePeerDependencies(names: Array<string>): Promise<{
   peerDependencies: Record<string, string>
   missingDependencies: Array<string>
 }> {
-  const uniqueNames = [...new Set(names.map((name) => (name.startsWith('plugin-') ? `@kubb/${name}` : name)))]
+  const uniqueNames = [...new Set(names.map(toPackageName))]
   const peerDependencies: Record<string, string> = {}
   const missingDependencies: Array<string> = []
 

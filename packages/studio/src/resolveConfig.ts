@@ -52,6 +52,21 @@ function toPluginName(packageName: string): string {
 }
 
 /**
+ * Adds the `@kubb/` scope a plugin's package carries but its `name` does not, the inverse of
+ * {@link toPluginName}. A name outside the `plugin-` convention is left alone, so a third-party
+ * plugin is not reported as one of Kubb's.
+ *
+ * @example
+ * ```ts
+ * toPackageName('plugin-ts')       // '@kubb/plugin-ts'
+ * toPackageName('@acme/my-plugin') // '@acme/my-plugin'
+ * ```
+ */
+export function toPackageName(name: string): string {
+  return name.startsWith('plugin-') ? `@kubb/${name}` : name
+}
+
+/**
  * Derives the conventional named export for a `@kubb/*` plugin package from its package name.
  *
  * @example
