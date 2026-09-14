@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.2.6 — Sep 14, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Add job ID correlation to Studio commands and streamed agent events. ([`0a1e553`](https://github.com/kubb-labs/kubb/commit/0a1e5537c5d1425af22081a04e51462e78baa947))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.2.5 — Sep 14, 2026
 
 ### @kubb/studio
