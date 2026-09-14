@@ -1,6 +1,6 @@
 ---
-"@kubb/studio": minor
-"@kubb/cli": minor
+"@kubb/studio": patch
+"@kubb/cli": patch
 ---
 
 Add a `studio:ready` acknowledgement so a host can tell "the socket is open" apart from "Studio has registered this connection and will dispatch jobs to it".
