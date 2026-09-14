@@ -20,7 +20,7 @@ import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts
 import { applyConfigEdits, readConfig } from './configFile.ts'
 import { generate } from './generate.ts'
 import { agentDefaults } from './constants.ts'
-import { mergeAdapter, mergePlugins } from './resolveConfig.ts'
+import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
 import type WebSocket from 'ws'
 import { createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream } from './ws.ts'
 
@@ -364,7 +364,7 @@ export class StudioSession {
           path: configPath,
           file: await this.#readConfigFileView(),
           plugins: config.plugins.map((plugin) => ({
-            name: `@kubb/${plugin.name}`,
+            name: toPackageName(plugin.name),
             // Functions and symbols in plugin options are dropped by `JSON.stringify` on the way out.
             options: plugin.options ?? {},
           })),
