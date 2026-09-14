@@ -159,4 +159,11 @@ describe('disconnect', () => {
 
     expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('[brave-otter] Failed to notify Studio of disconnection'))
   })
+
+  it.each([400, 401, 403, 404, 409])('ignores a %s response', async (status) => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({}, status))
+
+    await expect(disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio' })).resolves.toBeUndefined()
+    expect(consoleSpy.warn).not.toHaveBeenCalled()
+  })
 })

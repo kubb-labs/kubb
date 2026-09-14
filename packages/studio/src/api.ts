@@ -194,6 +194,9 @@ export async function disconnect({ sessionId, token, studioUrl, slug }: Disconne
     })
     console.log(styleText('green', `[${tag}] Disconnected from Studio`))
   } catch (error) {
+    const statusCode = (error as { statusCode?: number } | undefined)?.statusCode
+    if (statusCode !== undefined && statusCode >= 400 && statusCode < 500) return
+
     console.warn(styleText('yellow', `[${tag}] Failed to notify Studio of disconnection: ${getErrorMessage(error)}`))
   }
 }
