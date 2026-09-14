@@ -37,7 +37,7 @@ async function resolvePeerDependencies(names: Array<string>): Promise<{
   peerDependencies: Record<string, string>
   missingDependencies: Array<string>
 }> {
-  const uniqueNames = [...new Set(names)]
+  const uniqueNames = [...new Set(names.map((name) => (name.startsWith('plugin-') ? `@kubb/${name}` : name)))]
   const peerDependencies: Record<string, string> = {}
   const missingDependencies: Array<string> = []
 
