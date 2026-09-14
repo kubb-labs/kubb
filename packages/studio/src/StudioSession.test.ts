@@ -67,6 +67,7 @@ const connect = (options: StudioSessionOptions) => new StudioSession(options).co
 type StudioEventName =
   | 'studio:connecting'
   | 'studio:connected'
+  | 'studio:ready'
   | 'studio:disconnected'
   | 'studio:command:start'
   | 'studio:command:end'
@@ -82,6 +83,7 @@ function recordSessionEvents() {
       for (const name of [
         'studio:connecting',
         'studio:connected',
+        'studio:ready',
         'studio:disconnected',
         'studio:command:start',
         'studio:command:end',
@@ -162,6 +164,16 @@ describe('StudioSession', () => {
   afterAll(() => {
     Object.values(consoleSpy).forEach((spy) => spy.mockRestore())
   })
+
+  /**
+   * Connects, opens the socket, and waits for the connect payload to go out, the point every
+   * ready-handshake test starts from.
+   */
+  async function openAndHandshake(sessionOptions: StudioSessionOptions) {
+    await connect(sessionOptions)
+    await mockWs.trigger('open')
+    await vi.waitFor(() => expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, expect.objectContaining({ type: 'agent:connect' })))
+  }
 
   // Session creation
 
@@ -277,13 +289,56 @@ describe('StudioSession', () => {
   // Handshake and liveness
 
   it('sends the connected payload when the WebSocket opens', async () => {
-    await connect(options)
-
-    await mockWs.trigger('open')
-
     // onOpen sends the connected payload without awaiting it, and it now reads storage first,
-    // so let the fire-and-forget send settle before asserting.
+    // so openAndHandshake lets the fire-and-forget send settle before asserting.
+    await openAndHandshake(options)
+
+    expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, expect.objectContaining({ type: 'agent:connect' }))
+  })
+
+  it('fires studio:ready once Studio acknowledges the agent:connect handshake', async () => {
+    await openAndHandshake(options)
+
+    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:ready' }) })
+
+    expect(session.named('studio:ready')).toHaveLength(1)
+  })
+
+  it('warns when Studio does not confirm readiness in time', async () => {
+    vi.useFakeTimers()
+
+    await openAndHandshake(options)
+
+    await vi.advanceTimersByTimeAsync(10_000)
+
+    expect(session.warnings()).toContainEqual(expect.stringContaining('did not confirm the connection was ready'))
+  })
+
+  it('clears the ready timeout once Studio acknowledges, so it never warns late', async () => {
+    vi.useFakeTimers()
+
+    await openAndHandshake(options)
+    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:ready' }) })
+
+    await vi.advanceTimersByTimeAsync(10_000)
+
+    expect(session.warnings()).not.toContainEqual(expect.stringContaining('did not confirm the connection was ready'))
+  })
+
+  it('does not arm the ready timeout once the session is disposed while its config load is pending', async () => {
+    vi.useFakeTimers()
+    const { promise: configPromise, resolve: resolveConfig } = Promise.withResolvers<ReturnType<typeof makeConfig>>()
+    loadConfig.mockReturnValueOnce(configPromise)
+
+    await connect(options)
+    void mockWs.trigger('open')
+    controller.abort()
+    resolveConfig(makeConfig())
     await vi.waitFor(() => expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, expect.objectContaining({ type: 'agent:connect' })))
+
+    await vi.advanceTimersByTimeAsync(10_000)
+
+    expect(session.warnings()).not.toContainEqual(expect.stringContaining('did not confirm the connection was ready'))
   })
 
   it('logs the slug when the WebSocket opens', async () => {

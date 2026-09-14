@@ -36,6 +36,12 @@ export type StudioConnectedContext = {
   }
 }
 
+/**
+ * Fired once Studio confirms the `agent:connect` handshake was received and the session is fully
+ * registered. Distinct from `studio:connected`, which only means the socket is open.
+ */
+export type StudioReadyContext = Record<string, never>
+
 export type StudioDisconnectedContext = {
   /**
    * Why Studio ended the session.
@@ -81,6 +87,7 @@ declare global {
     interface KubbHooksRegistry {
       'studio:connecting': [ctx: StudioConnectingContext]
       'studio:connected': [ctx: StudioConnectedContext]
+      'studio:ready': [ctx: StudioReadyContext]
       'studio:disconnected': [ctx: StudioDisconnectedContext]
       'studio:command:start': [ctx: StudioCommandStartContext]
       'studio:command:end': [ctx: StudioCommandEndContext]
