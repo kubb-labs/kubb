@@ -325,6 +325,22 @@ describe('StudioSession', () => {
     expect(session.warnings()).not.toContainEqual(expect.stringContaining('did not confirm the connection was ready'))
   })
 
+  it('does not arm the ready timeout once the session is disposed while its config load is pending', async () => {
+    vi.useFakeTimers()
+    const { promise: configPromise, resolve: resolveConfig } = Promise.withResolvers<ReturnType<typeof makeConfig>>()
+    loadConfig.mockReturnValueOnce(configPromise)
+
+    await connect(options)
+    void mockWs.trigger('open')
+    controller.abort()
+    resolveConfig(makeConfig())
+    await vi.waitFor(() => expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, expect.objectContaining({ type: 'agent:connect' })))
+
+    await vi.advanceTimersByTimeAsync(10_000)
+
+    expect(session.warnings()).not.toContainEqual(expect.stringContaining('did not confirm the connection was ready'))
+  })
+
   it('logs the slug when the WebSocket opens', async () => {
     await connect(options)
 

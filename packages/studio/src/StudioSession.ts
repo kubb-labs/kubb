@@ -412,10 +412,19 @@ export class StudioSession {
    * so each reconnect needs its own fresh wait.
    */
   #waitForReady(): void {
+    // `#sendConnectedPayload` can still be awaiting `loadConfig()` when the session is disposed,
+    // so this runs after teardown too. Arming a timer at that point would hold the process open
+    // for `READY_TIMEOUT_MS` for a warning nothing is listening for anymore.
+    if (this.#disposed) {
+      return
+    }
+
     clearTimeout(this.#readyTimer)
     this.#readyTimer = setTimeout(() => {
       this.#readyTimer = undefined
-      void this.#warn(`Kubb Studio did not confirm the connection was ready within ${READY_TIMEOUT_MS}ms`)
+      // A rejecting `studio:warn` listener would otherwise become an unhandled rejection here,
+      // same as `#onOpen` swallows below for the same reason.
+      void Promise.resolve(this.#warn(`Kubb Studio did not confirm the connection was ready within ${READY_TIMEOUT_MS}ms`)).catch(() => {})
     }, READY_TIMEOUT_MS)
   }
 
