@@ -153,6 +153,12 @@ describe('studio session events', () => {
     expect(lines).toStrictEqual(['✓ Connected to http://localhost:3000 (v5.0.6, Studio v5.1.0)'])
   })
 
+  it('reports readiness once Studio confirms registration', async () => {
+    const lines = await render((context) => context.callHook('studio:ready', {}))
+
+    expect(lines).toStrictEqual(['✓ Ready to receive jobs'])
+  })
+
   it('reports a command and what it did', async () => {
     const lines = await render(async (context) => {
       await context.callHook('studio:command:start', { command: 'save' })

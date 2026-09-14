@@ -15,6 +15,7 @@ import {
   isCommandMessage,
   isDisconnectMessage,
   isStudioPingMessage,
+  isStudioReadyMessage,
 } from './protocol/index.ts'
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { applyConfigEdits, readConfig } from './configFile.ts'
@@ -97,6 +98,13 @@ type ResolvedOptions = StudioSessionOptions & {
    */
   configFile: string
 }
+
+/**
+ * How long the `agent:connect` handshake may go unacknowledged before `studio:ready` is given up
+ * on for this open. A Studio that predates the ack never sends one, so this only ever produces a
+ * warning, not a reconnect.
+ */
+const READY_TIMEOUT_MS = 10_000
 
 /**
  * Fills in a host's options: the hosted Studio URL, the current working directory, and every
@@ -202,6 +210,7 @@ export class StudioSession {
   // events interleave with no way for Studio to tell the two runs apart.
   #isGenerating = false
   #heartbeatTimer: ReturnType<typeof setInterval> | undefined
+  #readyTimer: ReturnType<typeof setTimeout> | undefined
   // Tracks socket liveness: Studio replies to every ping with a pong. When pongs stop arriving the
   // connection is half-open (e.g. dropped during a Studio deploy) and must be terminated so the
   // reconnect loop can establish a fresh session.
@@ -391,9 +400,23 @@ export class StudioSession {
     // reconnecting after a deploy), so the agent introduces itself on every open.
     try {
       await this.#sendConnectedPayload()
+      this.#waitForReady()
     } catch (error) {
       await this.#warn(`Failed to send the connect payload: ${getErrorMessage(error)}`)
     }
+  }
+
+  /**
+   * Arms the timeout for Studio's `studio:ready` acknowledgement. Re-armed on every open, since a
+   * command sent while the agent is not attached is lost either way (see `#sendConnectedPayload`),
+   * so each reconnect needs its own fresh wait.
+   */
+  #waitForReady(): void {
+    clearTimeout(this.#readyTimer)
+    this.#readyTimer = setTimeout(() => {
+      this.#readyTimer = undefined
+      void this.#warn(`Kubb Studio did not confirm the connection was ready within ${READY_TIMEOUT_MS}ms`)
+    }, READY_TIMEOUT_MS)
   }
 
   // `addEventListener` drops the returned promise, so a host whose logger throws would take the
@@ -420,6 +443,8 @@ export class StudioSession {
   dispose(reason = 'cleanup'): void {
     clearInterval(this.#heartbeatTimer)
     this.#heartbeatTimer = undefined
+    clearTimeout(this.#readyTimer)
+    this.#readyTimer = undefined
 
     try {
       // Closed before the listeners go, so the close event this triggers arrives after they are
@@ -469,6 +494,14 @@ export class StudioSession {
 
       if (isStudioPingMessage(data)) {
         this.#lastPongAt = Date.now()
+
+        return
+      }
+
+      if (isStudioReadyMessage(data)) {
+        clearTimeout(this.#readyTimer)
+        this.#readyTimer = undefined
+        await this.#hooks.callHook('studio:ready', {})
 
         return
       }

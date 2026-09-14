@@ -102,6 +102,13 @@ export const plainLogger = {
       console.log(getMessage(`✓ Connected to ${url} (${formatVersions(versions)})`))
     })
 
+    context.hook('studio:ready', () => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+      console.log(getMessage('✓ Ready to receive jobs'))
+    })
+
     context.hook('studio:disconnected', ({ reason }) => {
       if (logLevel < logLevelMap.warn) {
         return

@@ -272,9 +272,10 @@ export const commandTypes = ['studio:generate', 'studio:connect', 'studio:save']
  */
 export type ClientInfo = {
   /**
-   * `cli` for a `kubb studio` connection from a developer's machine, `docker` for the agent image.
+   * `cli` for a `kubb studio` connection from a developer's machine, `docker` for the agent image,
+   * `ci` for a client embedded directly in an automated pipeline (no `kubb studio` process).
    */
-  kind: 'cli' | 'docker'
+  kind: 'cli' | 'docker' | 'ci'
 }
 
 /**
@@ -412,6 +413,15 @@ export type StudioPingMessage = {
 }
 
 /**
+ * Studio's acknowledgement that an `agent:connect` handshake was received and the session is
+ * fully registered: the connection now counts as available for job dispatch. Distinct from the
+ * socket merely being open, which is not yet the same thing.
+ */
+export type StudioReadyMessage = {
+  type: 'studio:ready'
+}
+
+/**
  * Disconnect message sent from Studio to Agent when the session is expired or revoked.
  * The agent should close the connection without reconnecting.
  */
@@ -515,6 +525,7 @@ export type AgentMessage =
   | AgentDisconnectMessage
   | StudioErrorMessage
   | StudioPingMessage
+  | StudioReadyMessage
   | StudioDisconnectMessage
 
 export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
@@ -538,6 +549,10 @@ export function isDataMessage<T extends KubbHook>(msg: AgentMessage, type?: T): 
 
 export function isStudioPingMessage(msg: AgentMessage): msg is StudioPingMessage {
   return msg.type === 'studio:ping'
+}
+
+export function isStudioReadyMessage(msg: AgentMessage): msg is StudioReadyMessage {
+  return msg.type === 'studio:ready'
 }
 
 export function isDisconnectMessage(msg: AgentMessage): msg is StudioDisconnectMessage {

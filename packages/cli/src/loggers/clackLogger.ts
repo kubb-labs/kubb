@@ -221,6 +221,14 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.log.success(text)
     })
 
+    context.hook('studio:ready', () => {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
+      clack.log.success(getMessage('Ready to receive jobs'))
+    })
+
     context.hook('studio:disconnected', ({ reason }) => {
       if (logLevel < logLevelMap.warn) {
         return
