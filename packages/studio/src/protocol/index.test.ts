@@ -7,6 +7,7 @@ describe('agent protocol', () => {
     it('identifies command messages', () => {
       const message: AgentMessage = {
         type: 'studio:generate',
+        jobId: 'job-1',
         payload: {},
       }
 
@@ -35,6 +36,7 @@ describe('agent protocol', () => {
     it('identifies data messages', () => {
       const message: AgentMessage = {
         type: 'agent:data',
+        jobId: 'job-1',
         payload: {
           type: 'kubb:info',
           data: [{ message: 'message' }],

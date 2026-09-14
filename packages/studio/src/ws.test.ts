@@ -24,13 +24,14 @@ describe('setupEventsStream', () => {
   it('forwards a generation event as an agent:data envelope around its kubb: payload', async () => {
     const socket = fakeSocket()
     const hooks = new Hookable<KubbHooks>()
-    setupEventsStream(socket.ws, hooks)
+    setupEventsStream(socket.ws, hooks, 'job-1')
 
     await hooks.callHook('kubb:plugin:start', { plugin: { name: 'plugin-ts' } as unknown as KubbPluginStartContext['plugin'] })
 
     expect(socket.sent()).toStrictEqual([
       {
         type: 'agent:data',
+        jobId: 'job-1',
         payload: { type: 'kubb:plugin:start', data: [{ plugin: { name: 'plugin-ts' } }], timestamp: expect.any(Number), seq: 0 },
       },
     ])
@@ -39,7 +40,7 @@ describe('setupEventsStream', () => {
   it('keeps session events off the wire', async () => {
     const socket = fakeSocket()
     const hooks = new Hookable<KubbHooks>()
-    setupEventsStream(socket.ws, hooks)
+    setupEventsStream(socket.ws, hooks, 'job-1')
 
     // `studio:*` narrates the connection for whoever is running the agent. Studio has its own view
     // of the session, so forwarding these would duplicate it and leak local paths and remedies.
@@ -52,7 +53,7 @@ describe('setupEventsStream', () => {
   it('reports installed plugin versions and missing plugins when generation ends', async () => {
     const socket = fakeSocket()
     const hooks = new Hookable<KubbHooks>()
-    setupEventsStream(socket.ws, hooks)
+    setupEventsStream(socket.ws, hooks, 'job-1')
     const config = {
       plugins: [{ name: '@kubb/core' }, { name: '@kubb/missing-plugin' }, { name: '@kubb/core' }],
     } as Config
@@ -65,6 +66,7 @@ describe('setupEventsStream', () => {
     expect(socket.sent()).toStrictEqual([
       {
         type: 'agent:data',
+        jobId: 'job-1',
         payload: {
           type: 'kubb:generation:end',
           data: [
@@ -85,10 +87,10 @@ describe('setupEventsStream', () => {
   it('sends generated files relative to the project root', async () => {
     const socket = fakeSocket()
     const hooks = new Hookable<KubbHooks>()
-    setupEventsStream(socket.ws, hooks)
+    setupEventsStream(socket.ws, hooks, 'job-1')
 
     await hooks.callHook('kubb:generation:end', {
-      config: { root: '/home/runner/work/plugins/plugins/examples/advanced', plugins: [] } as Config,
+      config: { root: '/home/runner/work/plugins/plugins/examples/advanced', plugins: [] } as unknown as Config,
       storage: {
         readKeys: async () => ['/home/runner/work/plugins/plugins/examples/advanced/src/gen/index.ts'],
         readItem: async () => 'export {}',

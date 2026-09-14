@@ -72,7 +72,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
-    "magicast": "^0.5.4",
+    "magicast": "^0.5.5",
     "ofetch": "^1.5.1",
     "remeda": "^2.48.0",
     "tinyexec": "catalog:",

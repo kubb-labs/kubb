@@ -229,6 +229,7 @@ export type KubbHook = keyof KubbHooks
  */
 export type StudioGenerateMessage = {
   type: 'studio:generate'
+  jobId: string
   payload: JSONKubbConfig
 }
 
@@ -238,6 +239,7 @@ export type StudioGenerateMessage = {
  */
 export type StudioConnectMessage = {
   type: 'studio:connect'
+  jobId?: string
   /**
    * Version of the Studio instance asking, which refreshes what the agent picked up when the
    * session was created. Absent when Studio predates the field.
@@ -251,6 +253,7 @@ export type StudioConnectMessage = {
  */
 export type StudioSaveMessage = {
   type: 'studio:save'
+  jobId: string
   edits: Array<ConfigEdit>
 }
 
@@ -264,6 +267,10 @@ export type CommandMessage = StudioGenerateMessage | StudioConnectMessage | Stud
  * The command names, for a host that needs the list rather than the union.
  */
 export const commandTypes = ['studio:generate', 'studio:connect', 'studio:save'] as const
+
+export function createJobId(): string {
+  return crypto.randomUUID()
+}
 
 /**
  * Identifies the host running the Kubb runtime. Local to the runtime rather than part of the wire:
@@ -370,6 +377,7 @@ export type AgentConnectMessage = {
  */
 export type AgentSaveMessage = {
   type: 'agent:save'
+  jobId: string
   payload: {
     /**
      * Per-edit result, in the order the edits were sent.
@@ -473,6 +481,7 @@ export type DataMessagePayload<T extends KubbHook = KubbHook> = {
  */
 export type DataMessage<T extends KubbHook = KubbHook> = {
   type: 'agent:data'
+  jobId: string
   payload: DataMessagePayload<T>
 }
 

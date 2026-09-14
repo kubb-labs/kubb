@@ -201,6 +201,7 @@ export class StudioSession {
   // Known before the agent announces itself, and refreshed by a later `studio:connect`, so both
   // sides can be named from the first connect on.
   #studioVersion: string | undefined
+  #activeJobId: string | null = null
 
   // Whether the session is over: guards the close event from tearing down twice, and a shutdown
   // from being turned into a reconnect.
@@ -276,7 +277,7 @@ export class StudioSession {
 
       // Standing listener for the whole session. A generation adds the rest of the stream for as
       // long as it runs, so between runs this socket carries errors only.
-      this.#unhooks.push(this.#hooks.hook('kubb:error', ({ error }) => sendErrorMessage(ws, error)))
+      this.#unhooks.push(this.#hooks.hook('kubb:error', ({ error }) => sendErrorMessage(ws, error, this.#activeJobId ?? 'connection')))
     } catch (error) {
       // Reaching here means the session was never created (Studio down, a 502 mid-deploy), so no
       // socket exists and none of the socket-driven reconnect paths can fire. Retry from here or
@@ -597,6 +598,7 @@ export class StudioSession {
     }
 
     this.#isGenerating = true
+    this.#activeJobId = data.jobId
 
     try {
       const config = await loadConfig()
@@ -623,7 +625,7 @@ export class StudioSession {
 
       // The session's own emitter carries the run: the host's logger is already on it from
       // `connect`, and these two come off again below, so one run's listeners never see the next.
-      const detach = [setupHookListener(this.#hooks, root), setupEventsStream(ws, this.#hooks)]
+      const detach = [setupHookListener(this.#hooks, root), setupEventsStream(ws, this.#hooks, data.jobId)]
 
       try {
         await generate({
@@ -648,6 +650,7 @@ export class StudioSession {
       })
     } finally {
       this.#isGenerating = false
+      this.#activeJobId = null
     }
   }
 
@@ -660,7 +663,7 @@ export class StudioSession {
     if (!Array.isArray(data.edits)) {
       await this.#warn('Ignored save: the message carried no edits')
 
-      sendAgentMessage(ws, { type: 'agent:save', payload: { outcomes: [], changed: false } })
+      sendAgentMessage(ws, { type: 'agent:save', jobId: data.jobId, payload: { outcomes: [], changed: false } })
 
       return
     }
@@ -669,6 +672,7 @@ export class StudioSession {
     const refuse = (reason: string) =>
       sendAgentMessage(ws, {
         type: 'agent:save',
+        jobId: data.jobId,
         payload: { outcomes: edits.map((edit) => ({ edit, applied: false, reason })), changed: false },
       })
 
@@ -703,6 +707,7 @@ export class StudioSession {
 
       sendAgentMessage(ws, {
         type: 'agent:save',
+        jobId: data.jobId,
         payload: { outcomes, changed, file: changed ? await this.#readConfigFileView(patched) : undefined },
       })
 

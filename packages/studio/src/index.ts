@@ -1,5 +1,6 @@
 export { createClient, type Client, type ClientOptions } from './client.ts'
 export type { StudioConnectedContext } from './hooks.ts'
+export { createJobId } from './protocol/index.ts'
 export { InvalidAgentTokenError } from './api.ts'
 export { defaultStudioUrl } from './constants.ts'
 export { createFileStorage, setStorage } from './machine.ts'
