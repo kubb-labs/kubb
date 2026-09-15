@@ -200,3 +200,145 @@ export async function disconnect({ sessionId, token, studioUrl, slug }: Disconne
     console.warn(styleText('yellow', `[${tag}] Failed to notify Studio of disconnection: ${getErrorMessage(error)}`))
   }
 }
+
+/**
+ * Status values returned by Studio's jobs API.
+ */
+export type StudioJobStatus = 'queued' | 'running' | 'success' | 'failed'
+
+/**
+ * Package view returned on a successful snapshot job from Studio.
+ */
+export type StudioSnapshot = {
+  /**
+   * Immutable snapshot id.
+   */
+  id: string
+  /**
+   * npm package name, or `null` when Studio stored none.
+   */
+  name: string | null
+  /**
+   * npm package version, or `null` when Studio stored none.
+   */
+  version: string | null
+  /**
+   * Subresource integrity hash for the tarball, or `null` when unavailable.
+   */
+  integrity: string | null
+  /**
+   * Preferable download path, often the readable `/packages/{agentSlug}/{name}.tgz` form.
+   */
+  url: string
+  /**
+   * Stable download path keyed by snapshot id.
+   */
+  snapshotIdUrl: string
+  /**
+   * ISO timestamp after which Studio may delete the tarball.
+   */
+  expiresAt: string
+}
+
+/**
+ * Job record from `POST /api/jobs` and `GET /api/jobs/{id}`.
+ */
+export type StudioJob = {
+  /**
+   * Job id returned by Studio when the job was queued.
+   */
+  id: string
+  /**
+   * Current status. Poll until `success` or `failed`.
+   */
+  status: StudioJobStatus
+  /**
+   * Failure message when `status` is `failed`.
+   */
+  error?: string
+  /**
+   * Package view when a snapshot job finished successfully.
+   */
+  snapshot?: StudioSnapshot
+}
+
+/**
+ * Queues a generation or snapshot job on Studio (`POST /api/jobs`).
+ *
+ * Returns as soon as Studio accepts the job (`202`). Poll with {@link waitForJob} until it finishes.
+ * Authenticates with the organization CI API key via `x-api-key`.
+ *
+ * @example Snapshot job
+ * ```ts
+ * const job = await createJob({
+ *   studioUrl: 'https://kubb.studio',
+ *   token: process.env.KUBB_TOKEN!,
+ *   type: 'snapshot',
+ *   agentId: agent.id,
+ *   name: '@kubb/demo',
+ *   version: '1.0.0',
+ * })
+ * const finished = await waitForJob({ studioUrl, token, id: job.id })
+ * ```
+ */
+export async function createJob({
+  studioUrl,
+  token,
+  type,
+  agentId,
+  name,
+  version,
+  config,
+}: {
+  studioUrl: string
+  token: string
+  type: 'generation' | 'snapshot'
+  agentId: string
+  name?: string
+  version?: string
+  config?: Record<string, unknown>
+}): Promise<StudioJob> {
+  const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs`, {
+    method: 'POST',
+    headers: { 'x-api-key': token },
+    body: { type, agentId, name, version, config },
+  })
+
+  return job
+}
+
+/**
+ * Polls `GET /api/jobs/{id}` until the job reaches `success` or `failed`.
+ *
+ * A `failed` job resolves normally. Check `job.status` and `job.error`. Throws only when the
+ * deadline passes before Studio finishes.
+ */
+export async function waitForJob({
+  studioUrl,
+  token,
+  id,
+  timeoutMs = 60_000,
+}: {
+  studioUrl: string
+  token: string
+  id: string
+  /**
+   * How long to keep polling before throwing, in milliseconds.
+   *
+   * @default 60000
+   */
+  timeoutMs?: number
+}): Promise<StudioJob> {
+  const deadline = Date.now() + timeoutMs
+
+  for (;;) {
+    const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs/${id}`, {
+      headers: { 'x-api-key': token },
+    })
+
+    if (job.status === 'success' || job.status === 'failed') return job
+    if (Date.now() >= deadline) throw new Error('Timed out waiting for the Studio job')
+
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+  }
+}

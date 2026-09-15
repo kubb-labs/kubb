@@ -96,6 +96,38 @@ nothing can read it back.
 member can approve. A host that pairs a shared or tier-limited agent passes `clientId: 'kubb-agent'`
 and an `agentKind`, whose codes only an admin can approve.
 
+## Asynchronous jobs
+
+CI and automation queue work with `createJob` and poll with `waitForJob`. Both send the
+organization CI API key as `x-api-key`. They do not open a WebSocket.
+
+| Step   | Call                 | What it does                                                          |
+| ------ | -------------------- | --------------------------------------------------------------------- |
+| Queue  | `POST /api/jobs`     | Accepts a `generation` or `snapshot` job and returns `202` with an id |
+| Status | `GET /api/jobs/{id}` | Returns the job until `success` or `failed`                           |
+
+```typescript
+import { createJob, waitForJob } from '@kubb/studio'
+
+const job = await createJob({
+  studioUrl: 'https://kubb.studio',
+  token: process.env.KUBB_TOKEN!,
+  type: 'snapshot',
+  agentId: agent.id,
+  name: '@scope/package',
+  version: '1.0.0',
+})
+
+const finished = await waitForJob({
+  studioUrl: 'https://kubb.studio',
+  token: process.env.KUBB_TOKEN!,
+  id: job.id,
+})
+
+if (finished.status === 'failed') throw new Error(finished.error)
+const snapshot = finished.snapshot
+```
+
 ## Protocol
 
 `@kubb/studio/protocol` holds the WebSocket message types shared by both ends, so the agent and
