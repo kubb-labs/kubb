@@ -1,6 +1,6 @@
 {
   "name": "@kubb/claude-plugin",
-  "version": "5.3.1",
+  "version": "5.3.2",
   "private": true,
   "description": "Kubb Claude Code plugin (commands, agents, skills, hooks).",
   "license": "MIT"
