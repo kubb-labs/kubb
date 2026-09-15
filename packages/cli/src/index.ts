@@ -4,6 +4,7 @@ import { cli, lazy } from 'gunshi'
 import { isDisabled as isTelemetryDisabled } from './Telemetry.ts'
 import { version } from '../package.json'
 import { QUIET_FLAGS } from './constants.ts'
+import { resolveDeprecatedFlags } from './deprecatedFlags.ts'
 
 /**
  * Strips the leading executable + script entries when `process.argv` is passed directly.
@@ -30,7 +31,7 @@ function isSnapshotJson(args: Array<string>): boolean {
  * `generate` when no command is given.
  */
 export async function run(argv: Array<string> = process.argv): Promise<void> {
-  const args = stripExecArgs(argv)
+  const args = resolveDeprecatedFlags(stripExecArgs(argv))
   const isQuietFlag = args.some((arg) => QUIET_FLAGS.has(arg)) || isSnapshotJson(args)
 
   if (!isTelemetryDisabled() && !isQuietFlag) {
