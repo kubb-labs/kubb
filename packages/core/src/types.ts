@@ -219,12 +219,13 @@ export type Config<TInput = Input> = {
   /**
    * The reporters available to the run, registered as instances. The host
    * (the CLI via `--reporter`) selects which ones to trigger by `name` with {@link selectReporters}.
-   * `defineConfig` from the `kubb` package registers the built-in `cli`, `json`, and `file`
-   * reporters by default.
+   * `defineConfig` from the `kubb` package registers the built-in `cli`, `json`, `file`, and
+   * `html` reporters by default.
    *
    * - `cli` writes the end-of-run summary to the terminal.
    * - `json` writes a machine-readable report to stdout, for CI.
    * - `file` writes a debug log to `.kubb/<name>-<timestamp>.log`.
+   * - `html` writes a static HTML report; opt-in via `--reporter html`.
    *
    * @example
    * ```ts
@@ -279,9 +280,9 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
    */
   storage?: Storage
   /**
-   * Reporters available to the run. `defineConfig` registers the built-in `cli`, `json`, and
-   * `file` reporters when omitted.
-   * @default [cliReporter, jsonReporter, fileReporter]  // applied by `defineConfig` from the `kubb` package
+   * Reporters available to the run. `defineConfig` registers the built-in `cli`, `json`, `file`,
+   * and `html` reporters when omitted.
+   * @default [cliReporter, jsonReporter, fileReporter, htmlReporter]  // applied by `defineConfig` from the `kubb` package
    */
   reporters?: Array<Reporter>
 }
