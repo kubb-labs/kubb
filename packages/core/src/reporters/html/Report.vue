@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import type { ReporterPluginFiles } from '../../createReporter.ts'
 import type { Report } from '../report.ts'
 
@@ -19,14 +19,13 @@ const { generatedAt, report, pluginFiles } = data
 const theme = ref(document.documentElement.dataset.theme || (globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'))
 document.documentElement.dataset.theme = theme.value
 
-const pluginSummary = computed(() =>
+const pluginSummary =
   report.status === 'success'
     ? `${report.plugins.passed} passed (${report.plugins.total})`
-    : `${report.plugins.passed} passed | ${report.plugins.failed.length} failed (${report.plugins.total})`,
-)
-const fileCount = computed(() => pluginFiles.reduce((total, group) => total + group.files.length, 0))
-const slowestPlugin = computed(() => report.timings[0])
-const pluginActivity = computed(() => {
+    : `${report.plugins.passed} passed | ${report.plugins.failed.length} failed (${report.plugins.total})`
+const fileCount = pluginFiles.reduce((total, group) => total + group.files.length, 0)
+const slowestPlugin = report.timings[0]
+const pluginActivity = (() => {
   const plugins = new Map<string, { files: number; durationMs?: number; failed: boolean }>()
   for (const { plugin, files } of pluginFiles) plugins.set(plugin, { files: files.length, failed: report.plugins.failed.includes(plugin) })
   for (const { plugin, durationMs } of report.timings) {
@@ -35,7 +34,7 @@ const pluginActivity = computed(() => {
   }
   for (const plugin of report.plugins.failed) if (!plugins.has(plugin)) plugins.set(plugin, { files: 0, failed: true })
   return [...plugins].map(([plugin, details]) => ({ plugin, ...details }))
-})
+})()
 
 const formatMs = (value: number) => `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(value)}ms`
 const formatDate = (value: string) => new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'medium' }).format(new Date(value))
