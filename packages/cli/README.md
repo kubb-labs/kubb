@@ -157,24 +157,30 @@ for each permission separately: writing generated files, editing `kubb.config.ts
 spec from Studio, and running the formatter, linter, or `postGenerate`. Each `--allow*` flag
 skips the question for that one permission.
 
+Run `kubb generate` for ordinary CI generation. To create an installable CI package, set an
+organization `KUBB_TOKEN` and run `kubb studio snapshot`. It creates a short-lived CI agent and
+returns the snapshot URL. Set `KUBB_STUDIO_URL` to use a self-hosted Studio instance.
+
 #### Arguments
 
-| Argument   | Required | Description                                        |
-| ---------- | -------- | -------------------------------------------------- |
-| `[action]` | No       | `connect` (default), `login`, `logout` or `status` |
+| Argument   | Required | Description                                                    |
+| ---------- | -------- | -------------------------------------------------------------- |
+| `[action]` | No       | `connect` (default), `snapshot`, `login`, `logout` or `status` |
 
 #### Options
 
-| Flag                 | Short | Type    | Default               | Description                                                                                   |
-| -------------------- | ----- | ------- | --------------------- | --------------------------------------------------------------------------------------------- |
-| `--config <path>`    | `-c`  | string  |                       | Path to the Kubb config file                                                                  |
-| `--url <url>`        |       | string  | `https://kubb.studio` | Base URL of the Kubb Studio instance                                                          |
-| `--allowWrite`       |       | boolean | `false`               | Write generated files to disk. Asked for once per project when omitted                        |
-| `--allowConfigEdit`  |       | boolean | `false`               | Edit plugin options in `kubb.config.ts`. Asked for once per project when omitted              |
-| `--allowInput`       |       | boolean | `false`               | Generate from a spec sent by Studio. Asked for once per project when omitted                  |
-| `--allowExec`        |       | boolean | `false`               | Run the formatter, the linter, and `output.postGenerate`. Asked once per project when omitted |
-| `--no-open`          |       | boolean |                       | Do not open the approval page in a browser while pairing                                      |
-| `--logLevel <level>` | `-l`  | string  | `info`                | Log level: `silent`, `info`, or `verbose`                                                     |
+| Flag                  | Short | Type    | Default               | Description                                                                                   |
+| --------------------- | ----- | ------- | --------------------- | --------------------------------------------------------------------------------------------- |
+| `--config <path>`     | `-c`  | string  |                       | Path to the Kubb config file                                                                  |
+| `--url <url>`         |       | string  | `https://kubb.studio` | Base URL of the Kubb Studio instance                                                          |
+| `--name <name>`       |       | string  |                       | Package name for a CI snapshot                                                                |
+| `--version <version>` |       | string  |                       | Package version for a CI snapshot                                                             |
+| `--allowWrite`        |       | boolean | `false`               | Write generated files to disk. Asked for once per project when omitted                        |
+| `--allowConfigEdit`   |       | boolean | `false`               | Edit plugin options in `kubb.config.ts`. Asked for once per project when omitted              |
+| `--allowInput`        |       | boolean | `false`               | Generate from a spec sent by Studio. Asked for once per project when omitted                  |
+| `--allowExec`         |       | boolean | `false`               | Run the formatter, the linter, and `output.postGenerate`. Asked once per project when omitted |
+| `--no-open`           |       | boolean |                       | Do not open the approval page in a browser while pairing                                      |
+| `--logLevel <level>`  | `-l`  | string  | `info`                | Log level: `silent`, `info`, or `verbose`                                                     |
 
 #### Examples
 
@@ -184,6 +190,9 @@ npx kubb studio
 
 # Let Studio write generated files to disk
 npx kubb studio --allowWrite
+
+# Create a package snapshot in GitLab CI or another CI runner
+KUBB_TOKEN=kubb_ci_… npx kubb studio snapshot --name @kubb/demo --version 1.0.0
 
 # Pair without connecting
 npx kubb studio login

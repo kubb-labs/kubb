@@ -14,6 +14,7 @@ import {
   type InvalidAgentTokenError,
   PairingCanceledError,
   pollForPairingToken,
+  runSnapshotJob,
   runConnection,
   setStorage,
   startPairing,
@@ -29,7 +30,7 @@ import { canUseTTY, isCIEnvironment } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 
-const ACTIONS = ['connect', 'login', 'logout', 'status'] as const
+const ACTIONS = ['connect', 'snapshot', 'login', 'logout', 'status'] as const
 
 export type StudioAction = (typeof ACTIONS)[number]
 
@@ -42,6 +43,8 @@ export type StudioOptions = {
    */
   version: string
   configPath?: string
+  name?: string
+  snapshotVersion?: string
   /**
    * Base URL of the Studio instance, for a self-hosted deployment. Resolved before it reaches here,
    * since stored credentials are bound to it.
@@ -554,6 +557,27 @@ async function run(options: StudioOptions): Promise<void> {
     }
 
     switch (options.action) {
+      case 'snapshot': {
+        const token = process.env.KUBB_TOKEN
+        if (!token) {
+          throw new Error('KUBB_TOKEN is required for `kubb studio snapshot`')
+        }
+
+        const { configPath, config } = await loadConfigs(options)
+        const snapshot = await runSnapshotJob({
+          token,
+          studioUrl: options.studioUrl,
+          configPath,
+          version: options.version,
+          root: process.cwd(),
+          loadConfig: async () => config,
+          name: options.name,
+          snapshotVersion: options.snapshotVersion,
+          installLogger: (hooks) => setupReporters(hooks, { logLevel: logLevelMap[options.logLevel ?? 'info'], reporters: [cliReporter] }),
+        })
+        console.log(snapshot.url ?? snapshot.id)
+        break
+      }
       case 'login':
         await login(options)
         break
@@ -588,6 +612,8 @@ export const runner: CommandRunner<{ args: typeof definition.args; extensions: {
     action: (values.action ?? 'connect') as StudioAction,
     version,
     configPath: values.config,
+    name: values.name,
+    snapshotVersion: values.version,
     studioUrl: values.url ?? defaultStudioUrl,
     permission: {
       allowWrite: values.allowWrite,

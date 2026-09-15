@@ -101,4 +101,18 @@ describe('setupEventsStream', () => {
       payload: { data: [{ storage: { 'src/gen/index.ts': 'export {}' } }] },
     })
   })
+
+  it('includes a failed generation status', async () => {
+    const socket = fakeSocket()
+    const hooks = new Hookable<KubbHooks>()
+    setupEventsStream(socket.ws, hooks, 'job-1')
+
+    await hooks.callHook('kubb:generation:end', {
+      config: { plugins: [] } as unknown as Config,
+      storage: memoryStorage(),
+      status: 'failed',
+    })
+
+    expect(socket.sent()[0]).toMatchObject({ payload: { data: [{ status: 'failed' }] } })
+  })
 })

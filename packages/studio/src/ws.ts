@@ -239,7 +239,7 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>, job
 
     sendDataMessage({
       type: 'kubb:generation:end',
-      data: [{ config, storage: files, peerDependencies, missingDependencies }],
+      data: [{ config, storage: files, peerDependencies, missingDependencies, ...(status ? { status } : {}) }],
     })
 
     if (!hrStart) {

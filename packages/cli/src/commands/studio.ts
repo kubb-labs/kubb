@@ -12,6 +12,7 @@ export const definition = define({
     'kubb studio                              # connect this project, asking what Studio may do',
     'kubb studio --allowWrite                 # grant writing generated files, no question asked',
     'kubb studio --allowWrite --allowExec     # also run the formatter, the linter, and postGenerate',
+    'KUBB_TOKEN=kubb_ci_… kubb studio snapshot # create a package snapshot in CI',
     'kubb studio --allowConfigEdit            # let Studio change plugin options in kubb.config.ts',
     'kubb studio login                        # pair this machine without connecting',
     'kubb studio status                       # show what this machine is paired as',
@@ -22,7 +23,7 @@ export const definition = define({
     action: {
       type: 'positional',
       required: false,
-      description: 'connect (default), login, logout or status',
+      description: 'connect (default), snapshot, login, logout or status',
     },
     config: {
       type: 'string',
@@ -32,6 +33,14 @@ export const definition = define({
     url: {
       type: 'string',
       description: 'Base URL of the Kubb Studio instance',
+    },
+    name: {
+      type: 'string',
+      description: 'Package name for a CI snapshot',
+    },
+    version: {
+      type: 'string',
+      description: 'Package version for a CI snapshot',
     },
     allowWrite: {
       type: 'boolean',
