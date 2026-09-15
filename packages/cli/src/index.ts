@@ -65,7 +65,7 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
     },
     fallbackToEntry: true,
     strict: true,
-    plugins: [dryrun()],
+    plugins: [dryrun({ name: 'dry-run' })],
     // `snapshot --json` owns stdout: gunshi's default header would otherwise print ahead of it.
     ...(isSnapshotJson(args) ? { renderHeader: null } : {}),
     onErrorCommand: async (_ctx, error) => {

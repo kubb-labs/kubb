@@ -103,15 +103,15 @@ npx kubb generate
 
 #### Options
 
-| Flag                 | Short | Type    | Default | Description                                                                                         |
-| -------------------- | ----- | ------- | ------- | --------------------------------------------------------------------------------------------------- |
-| `[input]`            |       | string  |         | OpenAPI file path or URL that overrides `input` in the config                                       |
-| `--config <path>`    | `-c`  | string  |         | Path to the Kubb config file                                                                        |
-| `--logLevel <level>` | `-l`  | string  | `info`  | Log level: `silent`, `info`, or `verbose`                                                           |
-| `--watch`            | `-w`  | boolean | `false` | Re-generate whenever the input file changes                                                         |
-| `--verbose`          | `-v`  | boolean | `false` | Override log level to `verbose`                                                                     |
-| `--silent`           | `-s`  | boolean | `false` | Override log level to `silent`                                                                      |
-| `--reporter <names>` |       | string  | `cli`   | Reporters that render the run, comma-separated: `cli`, `json`, `file`. Overrides `config.reporters` |
+| Flag                   | Short | Type    | Default | Description                                                                                          |
+| ---------------------- | ----- | ------- | ------- | ----------------------------------------------------------------------------------------------------- |
+| `[input]`              |       | string  |         | OpenAPI file path or URL that overrides `input` in the config                                       |
+| `--config <path>`      | `-c`  | string  |         | Path to the Kubb config file                                                                        |
+| `--log-level <level>`  | `-l`  | string  | `info`  | Log level: `silent`, `info`, or `verbose`                                                           |
+| `--watch`              | `-w`  | boolean | `false` | Re-generate whenever the input file changes                                                         |
+| `--verbose`            | `-v`  | boolean | `false` | Override log level to `verbose`                                                                     |
+| `--silent`             | `-s`  | boolean | `false` | Override log level to `silent`                                                                      |
+| `--reporter <names>`   |       | string  | `cli`   | Reporters that render the run, comma-separated: `cli`, `json`, `file`. Overrides `config.reporters` |
 
 #### Examples
 
@@ -154,7 +154,7 @@ stores the agent token in `~/.kubb/credentials.json` at mode `0600`. Later runs 
 
 The connection is read-only by default. On the first connect to a project the CLI asks yes/no
 for each permission separately: writing generated files, editing `kubb.config.ts`, accepting a
-spec from Studio, and running the formatter, linter, or `postGenerate`. Each `--allow*` flag
+spec from Studio, and running the formatter, linter, or `postGenerate`. Each `--allow-*` flag
 skips the question for that one permission.
 
 #### Arguments
@@ -165,16 +165,16 @@ skips the question for that one permission.
 
 #### Options
 
-| Flag                 | Short | Type    | Default               | Description                                                                                   |
-| -------------------- | ----- | ------- | --------------------- | --------------------------------------------------------------------------------------------- |
+| Flag                  | Short | Type    | Default               | Description                                                                                   |
+| --------------------- | ----- | ------- | ---------------------- | --------------------------------------------------------------------------------------------- |
 | `--config <path>`    | `-c`  | string  |                       | Path to the Kubb config file                                                                  |
 | `--url <url>`        |       | string  | `https://kubb.studio` | Base URL of the Kubb Studio instance                                                          |
-| `--allowWrite`       |       | boolean | `false`               | Write generated files to disk. Asked for once per project when omitted                        |
-| `--allowConfigEdit`  |       | boolean | `false`               | Edit plugin options in `kubb.config.ts`. Asked for once per project when omitted              |
-| `--allowInput`       |       | boolean | `false`               | Generate from a spec sent by Studio. Asked for once per project when omitted                  |
-| `--allowExec`        |       | boolean | `false`               | Run the formatter, the linter, and `output.postGenerate`. Asked once per project when omitted |
-| `--no-open`          |       | boolean |                       | Do not open the approval page in a browser while pairing                                      |
-| `--logLevel <level>` | `-l`  | string  | `info`                | Log level: `silent`, `info`, or `verbose`                                                     |
+| `--allow-write`       |       | boolean | `false`               | Write generated files to disk. Asked for once per project when omitted                        |
+| `--allow-config-edit` |       | boolean | `false`               | Edit plugin options in `kubb.config.ts`. Asked for once per project when omitted              |
+| `--allow-input`       |       | boolean | `false`               | Generate from a spec sent by Studio. Asked for once per project when omitted                  |
+| `--allow-exec`        |       | boolean | `false`               | Run the formatter, the linter, and `output.postGenerate`. Asked once per project when omitted |
+| `--no-open`           |       | boolean |                       | Do not open the approval page in a browser while pairing                                      |
+| `--log-level <level>` | `-l`  | string  | `info`                | Log level: `silent`, `info`, or `verbose`                                                     |
 
 #### Examples
 
@@ -183,7 +183,7 @@ skips the question for that one permission.
 npx kubb studio
 
 # Let Studio write generated files to disk
-npx kubb studio --allowWrite
+npx kubb studio --allow-write
 
 # Pair without connecting
 npx kubb studio login
@@ -197,8 +197,6 @@ npx kubb studio logout
 # Point at a self-hosted Studio
 npx kubb studio --url http://localhost:3000
 ```
-
-Flags are camelCase. `--allow-write` is not recognized and is silently ignored.
 
 ---
 

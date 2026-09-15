@@ -12,8 +12,9 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
     'kubb init --yes',
     'kubb init --input ./openapi.yaml --output ./src/gen --plugins plugin-ts,plugin-zod',
     'kubb init --plugins plugin-ts,plugin-axios,plugin-react-query',
-    'kubb init --yes --dryRun',
+    'kubb init --yes --dry-run',
   ].join('\n'),
+  toKebab: true,
   args: {
     yes: {
       type: 'boolean',
