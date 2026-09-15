@@ -273,6 +273,58 @@ jobs:
       - name: Run the CLI under Bun
         run: bun packages/cli/bin/kubb.js --version
 
+  kubb-init:
+    name: Validate kubb init
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    if: github.actor != 'github-actions[bot]'
+    needs: build
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@ec40df0e3e54565e006f6d92a2fce16ff43b14d8 # main
+        with:
+          node-version: '22.22.3'
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Test kubb init with dry-run
+        run: |
+          cd /tmp
+          mkdir -p kubb-init-test
+          cd kubb-init-test
+          node "${{ github.workspace }}/packages/cli/bin/kubb.js" init --yes --dryRun
+
+      - name: Test kubb init with flags
+        run: |
+          cd /tmp
+          rm -rf kubb-init-test-flags
+          mkdir -p kubb-init-test-flags
+          cd kubb-init-test-flags
+          node "${{ github.workspace }}/packages/cli/bin/kubb.js" init --yes --input ./openapi.yaml --output ./src/gen --plugins plugin-ts,plugin-zod
+
+      - name: Verify kubb.config.ts was created
+        run: |
+          if [ -f /tmp/kubb-init-test-flags/kubb.config.ts ]; then
+            echo "✓ kubb.config.ts created successfully"
+            cat /tmp/kubb-init-test-flags/kubb.config.ts
+          else
+            echo "✗ kubb.config.ts not found"
+            exit 1
+          fi
+
+      - name: Verify config syntax
+        run: |
+          cd /tmp/kubb-init-test-flags
+          node --check kubb.config.ts
+
   comment-ratio:
     name: Comment ratio
     timeout-minutes: 10
