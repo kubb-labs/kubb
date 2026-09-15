@@ -1,6 +1,6 @@
 import { isPromise, type PossiblePromise } from '@internals/utils'
 import { adapterOas } from '@kubb/adapter-oas'
-import { applyConfigDefaults, cliReporter, type CLIOptions, fileReporter, jsonReporter, type UserConfig } from '@kubb/core'
+import { applyConfigDefaults, cliReporter, type CLIOptions, fileReporter, htmlReporter, jsonReporter, type UserConfig } from '@kubb/core'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import { parserMd } from '@kubb/parser-md'
@@ -21,7 +21,7 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
  * - `root` defaults to `process.cwd()`
  * - `adapter` defaults to `adapterOas()`
  * - `parsers` defaults to `[parserTs(), parserTsx(), parserMd()]`
- * - `reporters` defaults to `[cliReporter, jsonReporter, fileReporter]`
+ * - `reporters` defaults to `[cliReporter, jsonReporter, fileReporter, htmlReporter]`
  * - `plugins` gets `pluginBarrel()` appended when none is already present
  * - `output.barrel` defaults to `false` when not set (`pluginBarrel` is always present after the step above, but generates nothing until configured)
  * - `output.format` defaults to `false`
@@ -40,7 +40,7 @@ function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
     root: config.root || process.cwd(),
     adapter,
     parsers: config.parsers?.length ? config.parsers : [parserTs(), parserTsx(), parserMd()],
-    reporters: config.reporters?.length ? config.reporters : [cliReporter, jsonReporter, fileReporter],
+    reporters: config.reporters?.length ? config.reporters : [cliReporter, jsonReporter, fileReporter, htmlReporter],
     plugins,
     output,
   }
@@ -60,7 +60,7 @@ function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<T
  * Defaults applied when omitted:
  * - `adapter` → `adapterOas()` (OpenAPI 2.0/3.0/3.1).
  * - `parsers` → `[parserTs(), parserTsx(), parserMd()]`.
- * - `reporters` → `[cliReporter, jsonReporter, fileReporter]`.
+ * - `reporters` → `[cliReporter, jsonReporter, fileReporter, htmlReporter]`.
  * - `plugins` → `pluginBarrel()` is appended when not already present.
  * - `output.barrel` → `false` when not set.
  * - `output.format` and `output.lint` → `false`.
