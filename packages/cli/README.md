@@ -176,6 +176,9 @@ skips the question for that one permission.
 | `--no-open`           |       | boolean |                       | Do not open the approval page in a browser while pairing                                      |
 | `--log-level <level>` | `-l`  | string  | `info`                | Log level: `silent`, `info`, or `verbose`                                                     |
 
+The old camelCase spelling of a flag (`--allowWrite`, `--logLevel`, `--dryRun`) still works and
+prints a deprecation warning on stderr. Support for it will be removed in a future major version.
+
 #### Examples
 
 ```bash
