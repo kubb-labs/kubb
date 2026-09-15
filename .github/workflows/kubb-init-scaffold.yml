@@ -1,0 +1,75 @@
+name: Scaffold Kubb Init
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run daily to check if any repositories need kubb config scaffolded
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  scaffold-kubb-init:
+    name: Scaffold kubb.config.ts
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Setup Tools
+        uses: kubb-labs/config/.github/setup@ec40df0e3e54565e006f6d92a2fce16ff43b14d8 # main
+        with:
+          node-version: '22.22.3'
+
+      - name: Build CLI
+        run: pnpm run build --filter=@kubb/cli
+
+      - name: Check if kubb.config.ts exists
+        id: check-config
+        run: |
+          if [ -f kubb.config.ts ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run kubb init
+        if: steps.check-config.outputs.exists == 'false'
+        run: |
+          node packages/cli/bin/kubb.js init \
+            --yes \
+            --input ./openapi.json \
+            --output ./src/generated \
+            --plugins plugin-ts,plugin-zod
+
+      - name: Create pull request
+        if: steps.check-config.outputs.exists == 'false'
+        uses: actions/create-pull-request@c5a7e3c3b1e8f0b4f7c0e4b1c0e4b1c0e4b1c0e
+        with:
+          commit-message: 'chore: scaffold kubb.config.ts with kubb init'
+          title: 'chore: scaffold kubb.config.ts'
+          body: |
+            This PR scaffolds a new `kubb.config.ts` configuration file using `kubb init`.
+
+            Generated configuration includes:
+            - **Input**: `./openapi.json`
+            - **Output**: `./src/generated`
+            - **Plugins**: plugin-ts, plugin-zod
+
+            Please review and adjust the configuration as needed for your project.
+
+            ---
+            🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+            https://claude.ai/code/session_013CgAM3xJJYoPLNA9C8YAgZ
+          branch: 'chore/scaffold-kubb-config'
+          delete-branch: true
