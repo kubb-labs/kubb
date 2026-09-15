@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { spyOnConsole } from './console.mock.ts'
-import { createAgentSession, createJob, disconnect, InvalidAgentTokenError, registerAgent, waitForJob } from './api.ts'
+import { createAgent, createAgentSession, createJob, disconnect, InvalidAgentTokenError, registerAgent, waitForJob } from './api.ts'
 
 const consoleSpy = spyOnConsole()
 
@@ -165,6 +165,33 @@ describe('disconnect', () => {
 
     await expect(disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio' })).resolves.toBeUndefined()
     expect(consoleSpy.warn).not.toHaveBeenCalled()
+  })
+})
+
+describe('createAgent', () => {
+  it('creates or reuses a CI agent and returns its token', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ id: 'agent-1', slug: 'brave-otter', name: 'acme/api#42', token: 'agent-token' }))
+
+    await expect(createAgent({ studioUrl: 'http://studio', token: 'ci-token', name: 'acme/api#42', machineToken: 'machine-token-hash' })).resolves.toEqual({
+      id: 'agent-1',
+      slug: 'brave-otter',
+      name: 'acme/api#42',
+      token: 'agent-token',
+    })
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe('http://studio/api/agents')
+    expect(init.method).toBe('POST')
+    expect(new Headers(init.headers).get('x-api-key')).toBe('ci-token')
+    expect(JSON.parse(String(init.body))).toEqual({ name: 'acme/api#42', machineToken: 'machine-token-hash' })
+  })
+
+  it('surfaces the upgrade link when the organization is at its agent limit', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ message: 'Agent limit reached', data: { upgradeUrl: 'http://studio/settings/billing' } }, 402))
+
+    await expect(createAgent({ studioUrl: 'http://studio', token: 'ci-token', name: 'acme/api#42', machineToken: 'machine-token-hash' })).rejects.toThrow(
+      'Agent limit reached; upgrade at http://studio/settings/billing.',
+    )
   })
 })
 
