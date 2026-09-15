@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { formatMs, getElapsedMs } from '@internals/utils'
-import type { Config, Reporter, ReporterContext } from '@kubb/core'
+import type { Config, Reporter, ReporterContext, ReporterPluginFiles } from '@kubb/core'
 import { logLevel as logLevelMap } from '@kubb/core'
 import type { StudioConnectedContext } from '@kubb/studio'
 import { getAgentName } from '../agent.ts'
@@ -222,8 +222,27 @@ export function formatCommandWithArgs(command: string, args?: ReadonlyArray<stri
  * {@link GenerationResult} on `kubb:generation:end`. The reporter never touches the emitter.
  */
 export function installReporter(context: LoggerContext, reporter: Reporter, ctx: ReporterContext): void {
+  const pluginFiles = reporter.needsPluginFiles ? new Map<Config, Map<string, Set<string>>>() : undefined
+
+  if (pluginFiles) {
+    context.hook('kubb:plugin:end', ({ config, plugin, files }) => {
+      const filesByPlugin = pluginFiles.get(config) ?? new Map<string, Set<string>>()
+      const seen = new Set([...filesByPlugin.values()].flatMap((paths) => [...paths]))
+      const added = files.filter((file) => !seen.has(file.path)).map((file) => file.path)
+
+      if (added.length) filesByPlugin.set(plugin.name, new Set([...(filesByPlugin.get(plugin.name) ?? []), ...added]))
+
+      pluginFiles.set(config, filesByPlugin)
+    })
+  }
+
   context.hook('kubb:generation:end', async ({ config, diagnostics = [], filesCreated = 0, status = 'success', hrStart = process.hrtime() }) => {
-    await reporter.report({ config, diagnostics, filesCreated, status, hrStart }, ctx)
+    const files = pluginFiles?.get(config)
+    const grouped: ReporterPluginFiles | undefined = files && [...files].map(([plugin, paths]) => ({ plugin, files: [...paths] }))
+
+    await reporter.report({ config, diagnostics, filesCreated, status, hrStart, pluginFiles: grouped }, ctx)
+
+    pluginFiles?.delete(config)
   })
 
   if (reporter.drain) {

@@ -13,6 +13,7 @@ import {
   type Diagnostic,
   Diagnostics,
   getInputKind,
+  htmlReporter,
   type KubbHooks,
   logLevel as logLevelMap,
   memoryStorage,
@@ -300,8 +301,8 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   // CLI `--reporter` selects which reporters to trigger by name, defaulting to `cli`. The config
   // always carries the available reporters (defineConfig registers the built-ins).
   const requestedNames: Array<ReporterName> = cliReporters?.length ? cliReporters : ['cli']
-  const available = configs[0]?.reporters ?? []
-  const reporters = selectReporters(available, requestedNames)
+  const availableReporters = [...(configs[0]?.reporters ?? []), htmlReporter]
+  const reporters = selectReporters(availableReporters, requestedNames)
   await setupReporters(hooks, { logLevel, reporters })
 
   await hooks.callHook('kubb:lifecycle:start', { version })

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
+import * as utils from '@internals/utils'
 import { InvalidAgentTokenError, PairingCanceledError, type ConnectionOptions } from '@kubb/studio'
 import type { Credentials } from './credentials.ts'
 import { connect, formatPermissionRows, resolvePermissions, type StudioOptions } from './run.ts'
@@ -13,8 +14,11 @@ vi.mock('@clack/prompts', () => ({
 }))
 vi.mock('../../utils/env.ts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../utils/env.ts')>()),
-  isCIEnvironment: vi.fn(() => false),
   canUseTTY: vi.fn(() => true),
+}))
+vi.mock('@internals/utils', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@internals/utils')>()),
+  isCIEnvironment: vi.fn(() => false),
 }))
 vi.mock('./credentials.ts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./credentials.ts')>()),
@@ -40,7 +44,8 @@ vi.mock('@kubb/studio', async (importOriginal) => ({
 const confirm = vi.mocked(prompts.confirm)
 const { readCredentials, writeCredentials, clearCredentials } = await import('./credentials.ts')
 const { runConnection, startPairing, pollForPairingToken } = await import('@kubb/studio')
-const { isCIEnvironment, canUseTTY } = await import('../../utils/env.ts')
+const { isCIEnvironment } = utils
+const { canUseTTY } = await import('../../utils/env.ts')
 
 const options: StudioOptions = {
   action: 'connect',

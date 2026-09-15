@@ -34,4 +34,15 @@ export default defineConfig([
     dts: false,
     ...shared,
   },
+  {
+    entry: { 'html/ui': 'src/reporters/html/ui.ts' },
+    format: 'iife',
+    dts: false,
+    platform: 'browser',
+    sourcemap: false,
+    minify: true,
+    deps: {
+      alwaysBundle: [/^vue(?:\/|$)/],
+    },
+  },
 ])

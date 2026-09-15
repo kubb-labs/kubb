@@ -21,8 +21,19 @@ export const logLevel = {
  * - `cli` renders the per-config summary to the terminal (the default).
  * - `json` writes a machine-readable report to stdout, for CI.
  * - `file` writes a config's diagnostics to `.kubb/kubb-<name>-<timestamp>.log`.
+ * - `html` writes a browsable report directory to `.kubb/kubb-<name>-<timestamp>/`.
  */
-export type ReporterName = 'cli' | 'json' | 'file'
+export type ReporterName = 'cli' | 'json' | 'file' | 'html'
+
+/**
+ * Files attributed to the plugin that first added them.
+ */
+export type ReporterPluginFiles = Array<{
+  /** Plugin name. */
+  plugin: string
+  /** Generated file paths. */
+  files: Array<string>
+}>
 
 /**
  * One config's outcome within a run, as handed to a {@link Reporter}.
@@ -42,6 +53,10 @@ export type GenerationResult = {
    * `process.hrtime()` snapshot taken when this config started generating.
    */
   hrStart: [number, number]
+  /**
+   * Files attributed to the plugin that first added them, when requested by a reporter.
+   */
+  pluginFiles?: ReporterPluginFiles
 }
 
 /**
@@ -75,6 +90,10 @@ export type Reporter = {
    * `kubb:lifecycle:end`. {@link createReporter} closes it over the values that `report` returned.
    */
   drain: (context: ReporterContext) => void | Promise<void>
+  /**
+   * Whether the host should collect files from `kubb:plugin:end` hooks.
+   */
+  needsPluginFiles?: boolean
   [Symbol.dispose](): void
 }
 
@@ -85,6 +104,10 @@ export type Reporter = {
  */
 export type UserReporter<T = void> = {
   name: LiteralUnion<ReporterName>
+  /**
+   * Whether the host should collect files from `kubb:plugin:end` hooks.
+   */
+  needsPluginFiles?: boolean
   report: (result: GenerationResult, context: ReporterContext) => T | Promise<T>
   drain?: (context: ReporterContext, reports: Array<T>) => void | Promise<void>
 }
@@ -115,6 +138,7 @@ export function createReporter<T = void>(reporter: UserReporter<T>): Reporter {
 
   return {
     name: reporter.name,
+    needsPluginFiles: reporter.needsPluginFiles,
     async report(result, context) {
       const report = await reporter.report(result, context)
       if (reporter.drain) {

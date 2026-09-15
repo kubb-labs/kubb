@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { canUseTTY, isCIEnvironment } from './env.ts'
+import { isCIEnvironment } from '@internals/utils'
+import { canUseTTY } from './env.ts'
 
 const originalIsTTY = process.stdout.isTTY
 const originalColumns = process.stdout.columns

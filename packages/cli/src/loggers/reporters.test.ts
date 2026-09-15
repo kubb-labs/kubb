@@ -1,4 +1,4 @@
-import { Hookable, cliReporter, type Config, fileReporter, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
+import { Hookable, cliReporter, type Config, fileReporter, htmlReporter, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import * as agent from '../agent.ts'
 import * as env from '../utils/env.ts'
@@ -102,6 +102,15 @@ describe('setupReporters', () => {
 
     await setupReporters(context, { logLevel: logLevel.info, reporters: [fileReporter] })
 
+    expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
+  })
+
+  it('collects plugin files for the html reporter', async () => {
+    const context = new Hookable<KubbHooks>()
+
+    await setupReporters(context, { logLevel: logLevel.info, reporters: [htmlReporter] })
+
+    expect(context.listenerCount('kubb:plugin:end')).toBe(1)
     expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
   })
 

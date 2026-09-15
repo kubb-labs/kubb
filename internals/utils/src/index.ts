@@ -1,5 +1,6 @@
 export { camelCase, pascalCase } from './casing.ts'
 export { getErrorMessage, toError } from './errors.ts'
+export { isCIEnvironment } from './isCIEnvironment.ts'
 export { clean, exists, isPathInside, matchesStored, read, toPosixPath, trimExtName, write } from './fs.ts'
 export type { PossiblePromise } from './promise.ts'
 export { inParallel, isPromise, memoize } from './promise.ts'
