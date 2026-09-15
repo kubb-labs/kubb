@@ -103,15 +103,15 @@ npx kubb generate
 
 #### Options
 
-| Flag                   | Short | Type    | Default | Description                                                                                          |
-| ---------------------- | ----- | ------- | ------- | ----------------------------------------------------------------------------------------------------- |
-| `[input]`              |       | string  |         | OpenAPI file path or URL that overrides `input` in the config                                       |
-| `--config <path>`      | `-c`  | string  |         | Path to the Kubb config file                                                                        |
-| `--log-level <level>`  | `-l`  | string  | `info`  | Log level: `silent`, `info`, or `verbose`                                                           |
-| `--watch`              | `-w`  | boolean | `false` | Re-generate whenever the input file changes                                                         |
-| `--verbose`            | `-v`  | boolean | `false` | Override log level to `verbose`                                                                     |
-| `--silent`             | `-s`  | boolean | `false` | Override log level to `silent`                                                                      |
-| `--reporter <names>`   |       | string  | `cli`   | Reporters that render the run, comma-separated: `cli`, `json`, `file`. Overrides `config.reporters` |
+| Flag                  | Short | Type    | Default | Description                                                                                         |
+| --------------------- | ----- | ------- | ------- | --------------------------------------------------------------------------------------------------- |
+| `[input]`             |       | string  |         | OpenAPI file path or URL that overrides `input` in the config                                       |
+| `--config <path>`     | `-c`  | string  |         | Path to the Kubb config file                                                                        |
+| `--log-level <level>` | `-l`  | string  | `info`  | Log level: `silent`, `info`, or `verbose`                                                           |
+| `--watch`             | `-w`  | boolean | `false` | Re-generate whenever the input file changes                                                         |
+| `--verbose`           | `-v`  | boolean | `false` | Override log level to `verbose`                                                                     |
+| `--silent`            | `-s`  | boolean | `false` | Override log level to `silent`                                                                      |
+| `--reporter <names>`  |       | string  | `cli`   | Reporters that render the run, comma-separated: `cli`, `json`, `file`. Overrides `config.reporters` |
 
 #### Examples
 
@@ -166,9 +166,9 @@ skips the question for that one permission.
 #### Options
 
 | Flag                  | Short | Type    | Default               | Description                                                                                   |
-| --------------------- | ----- | ------- | ---------------------- | --------------------------------------------------------------------------------------------- |
-| `--config <path>`    | `-c`  | string  |                       | Path to the Kubb config file                                                                  |
-| `--url <url>`        |       | string  | `https://kubb.studio` | Base URL of the Kubb Studio instance                                                          |
+| --------------------- | ----- | ------- | --------------------- | --------------------------------------------------------------------------------------------- |
+| `--config <path>`     | `-c`  | string  |                       | Path to the Kubb config file                                                                  |
+| `--url <url>`         |       | string  | `https://kubb.studio` | Base URL of the Kubb Studio instance                                                          |
 | `--allow-write`       |       | boolean | `false`               | Write generated files to disk. Asked for once per project when omitted                        |
 | `--allow-config-edit` |       | boolean | `false`               | Edit plugin options in `kubb.config.ts`. Asked for once per project when omitted              |
 | `--allow-input`       |       | boolean | `false`               | Generate from a spec sent by Studio. Asked for once per project when omitted                  |
