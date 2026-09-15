@@ -1,7 +1,6 @@
-import { execFile } from 'node:child_process'
 import { relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { isCIEnvironment, read, write } from '@internals/utils'
+import { openInBrowser, read, write } from '@internals/utils'
 import { createReporter, type GenerationResult } from '../createReporter.ts'
 import { buildReport } from './report.ts'
 
@@ -11,16 +10,6 @@ function serializeReport(result: GenerationResult): string {
     .replace(/>/g, '\\u003e')
     .replace(/&/g, '\\u0026')
   return `globalThis.__KUBB_REPORT__ = ${data}\n`
-}
-
-function openReport(path: string): void {
-  if (isCIEnvironment()) return
-
-  if (process.platform === 'win32') {
-    execFile('cmd', ['/c', 'start', '', path], () => {})
-  } else {
-    execFile(process.platform === 'darwin' ? 'open' : 'xdg-open', [path], () => {})
-  }
 }
 
 /**
@@ -42,6 +31,6 @@ export const htmlReporter = createReporter({
     ])
     const reportPath = resolve(pathName, 'index.html')
     console.error(`HTML report written to ${relative(process.cwd(), reportPath)}`)
-    openReport(reportPath)
+    openInBrowser(reportPath)
   },
 })

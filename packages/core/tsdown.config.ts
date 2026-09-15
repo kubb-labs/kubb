@@ -1,4 +1,17 @@
 import { defineConfig, type UserConfig } from 'tsdown'
+import { compileScript, parse } from 'vue/compiler-sfc'
+
+const vueSfc = {
+  name: 'vue-sfc',
+  transform(source: string, id: string) {
+    if (!id.endsWith('.vue')) return
+
+    const { descriptor, errors } = parse(source, { filename: id })
+    if (errors.length) throw errors[0]
+
+    return { code: compileScript(descriptor, { id, inlineTemplate: true }).content, moduleType: 'ts' as const }
+  },
+}
 
 const entry = {
   index: 'src/index.ts',
@@ -39,6 +52,7 @@ export default defineConfig([
     format: 'iife',
     dts: false,
     platform: 'browser',
+    plugins: [vueSfc],
     sourcemap: false,
     minify: true,
     deps: {

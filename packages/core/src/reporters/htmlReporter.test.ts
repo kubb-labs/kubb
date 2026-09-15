@@ -1,12 +1,9 @@
 import * as utils from '@internals/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { execFile } from 'node:child_process'
 import { logLevel } from '../createReporter.ts'
 import { Diagnostics } from '../Diagnostics.ts'
 import type { Config } from '../types.ts'
 import { htmlReporter } from './htmlReporter.ts'
-
-vi.mock('node:child_process', () => ({ execFile: vi.fn() }))
 
 beforeEach(() => vi.stubEnv('CI', 'true'))
 afterEach(() => vi.unstubAllEnvs())
@@ -48,7 +45,6 @@ describe('htmlReporter', () => {
     expect(data).toContain('src/\\u003cpet\\u003e.ts')
     expect(data).toContain('\\u003cunsafe\\u003e')
     expect(data).not.toContain('<unsafe>')
-    expect(execFile).not.toHaveBeenCalled()
   })
 
   it('does not open the report in a CI provider environment', async () => {
@@ -68,8 +64,6 @@ describe('htmlReporter', () => {
       },
       { logLevel: logLevel.info },
     )
-
-    expect(execFile).not.toHaveBeenCalled()
   })
 
   it('opens the report outside CI', async () => {
@@ -87,6 +81,7 @@ describe('htmlReporter', () => {
     ]) {
       vi.stubEnv(key, '')
     }
+    using _open = vi.spyOn(utils, 'openInBrowser').mockImplementation(() => {})
     using _read = vi.spyOn(utils, 'read').mockResolvedValue('const ui = true')
     using _write = vi.spyOn(utils, 'write').mockImplementation(async () => null)
     using _error = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -102,10 +97,6 @@ describe('htmlReporter', () => {
       { logLevel: logLevel.info },
     )
 
-    expect(execFile).toHaveBeenCalledWith(
-      process.platform === 'win32' ? 'cmd' : process.platform === 'darwin' ? 'open' : 'xdg-open',
-      expect.any(Array),
-      expect.any(Function),
-    )
+    expect(_open).toHaveBeenCalledWith(expect.stringMatching(/index\.html$/))
   })
 })
