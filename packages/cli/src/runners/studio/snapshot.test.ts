@@ -13,7 +13,11 @@ vi.mock('./ci.ts', () => ({
 }))
 // No package.json anywhere: proves --name/--version overrides skip the filesystem lookup entirely,
 // and that omitting either still falls back to it.
-vi.mock('node:fs', () => ({ existsSync: vi.fn(() => false), readFileSync: vi.fn() }))
+vi.mock('@internals/utils', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@internals/utils')>()),
+  exists: vi.fn().mockResolvedValue(false),
+  read: vi.fn(),
+}))
 
 const connect = vi.fn().mockResolvedValue(undefined)
 const disconnect = vi.fn()

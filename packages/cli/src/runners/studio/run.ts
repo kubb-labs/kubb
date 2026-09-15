@@ -629,7 +629,7 @@ export const runner: CommandRunner<{ args: typeof definition.args; extensions: {
     token: values.token,
     id: values.id,
     name: values.name,
-    packageVersion: values.version,
+    packageVersion: values.packageVersion,
     timeout: values.timeout,
     json: values.json,
   })

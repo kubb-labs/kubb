@@ -81,7 +81,7 @@ export const definition = define({
       type: 'string',
       description: '`snapshot` only: package name for the generated tarball. Defaults to the name in package.json',
     },
-    version: {
+    packageVersion: {
       type: 'string',
       description: '`snapshot` only: package version for the generated tarball. Defaults to the version in package.json',
     },

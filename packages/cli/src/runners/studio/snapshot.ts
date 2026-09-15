@@ -1,7 +1,7 @@
-import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
+import { exists, read } from '@internals/utils'
 import { createAgent, createClient, createJob, machineTokenFrom, waitForJob, type StudioSnapshot } from '@kubb/studio'
 import { createSpinner, logBlock } from '../../loggers/output.ts'
 import { detectCi } from './ci.ts'
@@ -20,14 +20,14 @@ const MAX_TIMEOUT_SECONDS = 3600
 
 const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1'])
 
-function findPackageJson(startDirectory: string): { name: string; version: string } {
+async function findPackageJson(startDirectory: string): Promise<{ name: string; version: string }> {
   let directory = startDirectory
 
   for (;;) {
     const file = join(directory, 'package.json')
 
-    if (existsSync(file)) {
-      const packageJson = JSON.parse(readFileSync(file, 'utf8')) as Partial<{ name: string; version: string }>
+    if (await exists(file)) {
+      const packageJson = JSON.parse(await read(file)) as Partial<{ name: string; version: string }>
 
       if (packageJson.name && packageJson.version) {
         return { name: packageJson.name, version: packageJson.version }
@@ -47,12 +47,12 @@ function findPackageJson(startDirectory: string): { name: string; version: strin
 }
 
 /** Reads package.json only for whichever of name/version --name and --version did not supply. */
-function resolvePackageMetadata(options: StudioOptions): { name: string; version: string } {
+async function resolvePackageMetadata(options: StudioOptions): Promise<{ name: string; version: string }> {
   if (options.name && options.packageVersion) {
     return { name: options.name, version: options.packageVersion }
   }
 
-  const packageMetadata = findPackageJson(process.cwd())
+  const packageMetadata = await findPackageJson(process.cwd())
 
   return { name: options.name ?? packageMetadata.name, version: options.packageVersion ?? packageMetadata.version }
 }
@@ -149,7 +149,7 @@ export async function snapshot(options: StudioOptions): Promise<void> {
   assertSecureStudioUrl(options.studioUrl)
   const { configPath } = await loadConfigs(options)
   const ci = resolveCiIdentity(options)
-  const { name, version: packageVersion } = resolvePackageMetadata(options)
+  const { name, version: packageVersion } = await resolvePackageMetadata(options)
 
   // Set before the first `getMachineToken()` call (inside `client.connect()`), so the WebSocket
   // session registers under the same machine token `createAgent` just registered with Studio.
@@ -185,7 +185,7 @@ export async function snapshot(options: StudioOptions): Promise<void> {
     try {
       await Promise.race([
         ready,
-        new Promise<never>((_, reject) => {
+        new Promise<void>((_, reject) => {
           readyTimeoutHandle = setTimeout(() => reject(new Error('Timed out waiting for Kubb Studio to confirm the agent was ready')), READY_TIMEOUT_MS)
         }),
       ])
