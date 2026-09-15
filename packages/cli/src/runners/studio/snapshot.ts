@@ -68,11 +68,11 @@ function resolveToken(options: StudioOptions): string {
 }
 
 function resolveCiIdentity(options: StudioOptions): { id: string; name: string } {
-  if (options.id) {
-    return { id: options.id, name: options.id }
-  }
-
   const detected = detectCi()
+
+  if (options.id) {
+    return { id: options.id, name: detected?.name ?? options.id }
+  }
 
   if (!detected) {
     throw new Error('Could not detect a supported CI provider (GitHub Actions, GitLab CI, Bitbucket Pipelines, CircleCI). Pass --id.')
@@ -156,8 +156,20 @@ export async function snapshot(options: StudioOptions): Promise<void> {
   process.env.KUBB_AGENT_SECRET = ci.id
 
   const spinner = options.json ? null : createSpinner()
+  const log = (message: string) => {
+    if (options.json) {
+      console.error(message)
+      return
+    }
 
-  spinner?.start('Connecting to Kubb Studio')
+    spinner?.message(message)
+  }
+
+  if (options.json) {
+    log('Creating Kubb Studio agent')
+  } else {
+    spinner?.start('Creating Kubb Studio agent')
+  }
 
   const agent = await createAgent({ studioUrl: options.studioUrl, token, name: ci.name, machineToken: machineTokenFrom(ci.id) })
 
@@ -172,7 +184,13 @@ export async function snapshot(options: StudioOptions): Promise<void> {
     client: { kind: 'ci' },
     loadConfig: async () => (await loadConfigs(options)).config,
     installLogger: (hooks) => {
-      hooks.hook('studio:ready', () => markReady())
+      hooks.hook('studio:connecting', ({ url }) => log(`Connecting to Kubb Studio at ${url}`))
+      hooks.hook('studio:connected', ({ url }) => log(`Connected to Kubb Studio at ${url}`))
+      hooks.hook('studio:ready', () => {
+        log('Kubb Studio connection ready')
+        markReady()
+      })
+      hooks.hook('studio:warn', ({ message }) => log(`Kubb Studio warning: ${message}`))
       hooks.hook('studio:error', ({ error }) => markFailed(error))
     },
   })
@@ -193,9 +211,10 @@ export async function snapshot(options: StudioOptions): Promise<void> {
       clearTimeout(readyTimeoutHandle)
     }
 
-    spinner?.message('Generating and publishing the snapshot')
+    log('Creating snapshot job')
 
     const job = await createJob({ studioUrl: options.studioUrl, token, type: 'snapshot', agentId: agent.id, name, version: packageVersion })
+    log(`Snapshot job queued: ${job.id}`)
     const finished = await waitForJob({ studioUrl: options.studioUrl, token, id: job.id, timeoutMs })
 
     if (finished.status === 'failed') {
@@ -208,7 +227,11 @@ export async function snapshot(options: StudioOptions): Promise<void> {
 
     const result = toResult(options.studioUrl, finished.snapshot, agent.slug)
 
-    spinner?.stop('Snapshot published')
+    if (options.json) {
+      log('Snapshot published')
+    } else {
+      spinner?.stop('Snapshot published')
+    }
 
     if (options.json) {
       console.log(JSON.stringify(result))
@@ -216,9 +239,16 @@ export async function snapshot(options: StudioOptions): Promise<void> {
       printSummary(result)
     }
   } catch (error) {
-    spinner?.stop('Snapshot failed')
+    if (options.json) {
+      log('Snapshot failed')
+    } else {
+      spinner?.stop('Snapshot failed')
+    }
     throw error
   } finally {
+    if (options.json) {
+      log('Disconnecting from Kubb Studio')
+    }
     client.disconnect()
   }
 }
