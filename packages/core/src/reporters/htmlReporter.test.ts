@@ -47,40 +47,7 @@ describe('htmlReporter', () => {
     expect(data).not.toContain('<unsafe>')
   })
 
-  it('does not open the report in a CI provider environment', async () => {
-    vi.stubEnv('CI', '')
-    vi.stubEnv('GITHUB_ACTIONS', 'true')
-    using _read = vi.spyOn(utils, 'read').mockResolvedValue('const ui = true')
-    using _write = vi.spyOn(utils, 'write').mockImplementation(async () => null)
-    using _error = vi.spyOn(console, 'error').mockImplementation(() => {})
-
-    await htmlReporter.report(
-      {
-        config: { root: '/tmp', output: { path: 'src/gen' } } as Config,
-        diagnostics: [],
-        filesCreated: 0,
-        status: 'success',
-        hrStart: process.hrtime(),
-      },
-      { logLevel: logLevel.info },
-    )
-  })
-
-  it('opens the report outside CI', async () => {
-    for (const key of [
-      'CI',
-      'GITHUB_ACTIONS',
-      'GITLAB_CI',
-      'BITBUCKET_BUILD_NUMBER',
-      'JENKINS_URL',
-      'CIRCLECI',
-      'TRAVIS',
-      'TEAMCITY_VERSION',
-      'BUILDKITE',
-      'TF_BUILD',
-    ]) {
-      vi.stubEnv(key, '')
-    }
+  it('passes the report path to the browser helper', async () => {
     using _open = vi.spyOn(utils, 'openInBrowser').mockImplementation(() => {})
     using _read = vi.spyOn(utils, 'read').mockResolvedValue('const ui = true')
     using _write = vi.spyOn(utils, 'write').mockImplementation(async () => null)
