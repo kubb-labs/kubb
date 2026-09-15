@@ -21,6 +21,7 @@ export type SnapshotJobOptions = {
   name?: string
   snapshotVersion?: string
   installLogger?: (hooks: Hookable<KubbHooks>) => void | Promise<void>
+  agent?: CIAgent
 }
 
 export type SnapshotJobResult = Snapshot
@@ -76,12 +77,14 @@ export async function runSnapshotJob(options: SnapshotJobOptions): Promise<Snaps
   if (!context) throw new Error('Kubb Studio CI jobs require a CI environment')
 
   const studioUrl = (options.studioUrl ?? defaultStudioUrl).replace(/\/$/, '')
-  const agent = await createCIAgent({
-    studioUrl,
-    token: options.token,
-    name: context.repository ?? `${context.provider} CI`,
-    machineToken: machineToken(context),
-  })
+  const agent =
+    options.agent ??
+    (await createCIAgent({
+      studioUrl,
+      token: options.token,
+      name: context.repository ?? `${context.provider} CI`,
+      machineToken: machineToken(context),
+    }))
   const client = createClient({
     token: agent.token,
     studioUrl,
