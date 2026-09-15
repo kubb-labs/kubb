@@ -4,7 +4,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as prompts from '@clack/prompts'
 import { KUBB_CONFIG_FILENAME } from '@internals/shared'
-import { toError } from '@internals/utils'
+import { isCIEnvironment, openInBrowser, toError } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
 import { cliReporter, logLevel as logLevelMap } from '@kubb/core'
 import {
@@ -18,14 +18,13 @@ import {
   setStorage,
   startPairing,
 } from '@kubb/studio'
-import { x } from 'tinyexec'
 import type { CommandRunner } from 'gunshi'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import { version } from '../../../package.json'
 import type { definition } from '../../commands/studio.ts'
 import setupReporters from '../../loggers/utils.ts'
 import { createSpinner, logBlock, logIntro, logOutro } from '../../loggers/output.ts'
-import { canUseTTY, isCIEnvironment } from '../../utils/env.ts'
+import { canUseTTY } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 import { snapshot } from './snapshot.ts'
@@ -84,23 +83,6 @@ export type StudioOptions = {
   json?: boolean
 }
 
-/**
- * Opens a URL in the user's browser. Best effort: a failure just means the user follows the
- * printed link instead.
- *
- * `start` is a `cmd.exe` builtin, not an executable on PATH, so Windows runs it through `cmd`.
- * The empty string is the window-title argument `start` expects before the URL.
- */
-async function openInBrowser(url: string): Promise<void> {
-  try {
-    if (process.platform === 'win32') {
-      await x('cmd', ['/c', 'start', '', url])
-    } else {
-      await x(process.platform === 'darwin' ? 'open' : 'xdg-open', [url])
-    }
-  } catch {}
-}
-
 type LoginOptions = {
   /**
    * Aborting this cancels an in-flight pairing request or poll and rejects with
@@ -129,7 +111,7 @@ async function login({ studioUrl, autoOpen }: StudioOptions, { signal, previousC
   console.log(`\nOpen ${styleText('cyan', session.verification_uri)} and approve the code ${styleText('bold', session.user_code)}`)
 
   if (autoOpen) {
-    await openInBrowser(session.verification_uri_complete)
+    openInBrowser(session.verification_uri_complete)
   }
 
   const spinner = createSpinner()

@@ -72,7 +72,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && node scripts/copyHtmlReporterAssets.mjs",
     "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
     "lint": "oxlint .",
     "lint:fix": "oxlint --fix .",
@@ -84,7 +84,8 @@
     "@kubb/ast": "workspace:*"
   },
   "devDependencies": {
-    "@internals/utils": "workspace:*"
+    "@internals/utils": "workspace:*",
+    "vue": "^3.5.42"
   },
   "engines": {
     "node": ">=22"

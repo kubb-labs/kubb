@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Kubb report</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --brand: #f58517;
+        --brand-dark: #854811;
+        --brand-soft: #ffd9b3;
+        --ink: #1a1b1e;
+        --text-muted: #4b5563;
+        --line: #e5e7eb;
+        --surface: #fff;
+        --surface-muted: #f6f7f8;
+        --badge-background: var(--brand-soft);
+        --badge-color: var(--brand-dark);
+        --count-background: #fff1d6;
+        --count-color: #a06100;
+        --output-code-color: var(--brand-dark);
+        --file-code-color: var(--text-muted);
+        --success-background: #e0f7ea;
+        --success-color: #1a8a4a;
+        --failed-background: #ffe5e5;
+        --failed-color: #b42318;
+        --insight-background: #fff1d6;
+        --insight-color: #854811;
+        --insight-label-color: #a06100;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--surface-muted);
+        color: var(--ink);
+        font:
+          15px/1.6 ui-sans-serif,
+          system-ui,
+          sans-serif;
+      }
+      main {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 2rem 1rem 4rem;
+      }
+      .hero {
+        background: var(--brand);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 2.25rem 2rem;
+        box-shadow: 0 20px 45px #f5851740;
+      }
+      .hero h1 {
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
+        letter-spacing: -0.04em;
+        margin: 0.2rem 0 0;
+      }
+      .hero-heading {
+        align-items: start;
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+      }
+      .theme-toggle {
+        background: #fff;
+        border: 0;
+        border-radius: 999px;
+        color: #5c3208;
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.75rem;
+        font-weight: 750;
+        padding: 0.3rem 0.6rem;
+      }
+      .theme-toggle:focus-visible {
+        outline: 3px solid var(--ink);
+        outline-offset: 3px;
+      }
+      .report-date {
+        color: #fff7ed;
+        margin: 0.75rem 0 0;
+      }
+      .eyebrow {
+        color: var(--text-muted);
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        margin: 0;
+        text-transform: uppercase;
+      }
+      .hero .eyebrow {
+        color: #fff7ed;
+      }
+      .section-heading {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+      }
+      .section-heading h2 {
+        font-size: 1.15rem;
+        letter-spacing: -0.02em;
+        margin: 0.15rem 0 0;
+      }
+      section {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 0.85rem;
+        box-shadow: 0 8px 24px #1a1b1e0d;
+        margin: 1.25rem 0;
+        padding: 1.35rem;
+      }
+      .badge,
+      .count {
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 750;
+        padding: 0.2rem 0.65rem;
+      }
+      .badge {
+        background: var(--badge-background);
+        color: var(--badge-color);
+      }
+      .badge.success {
+        background: var(--success-background);
+        color: var(--success-color);
+      }
+      .badge.failed {
+        background: var(--failed-background);
+        color: var(--failed-color);
+      }
+      .count {
+        background: var(--count-background);
+        color: var(--count-color);
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+        gap: 0.75rem;
+        margin: 0;
+      }
+      .stats dt,
+      .stats dd {
+        margin: 0;
+      }
+      .stats dt,
+      .output span,
+      .muted,
+      small {
+        color: var(--text-muted);
+      }
+      .stats dt {
+        font-size: 0.78rem;
+      }
+      .stats dd {
+        font-size: 1.05rem;
+        font-weight: 750;
+        margin-top: 0.15rem;
+      }
+      .output {
+        border-top: 1px solid var(--line);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        justify-content: space-between;
+        margin-top: 1.25rem;
+        padding-top: 1rem;
+      }
+      .insight {
+        align-items: center;
+        background: var(--insight-background);
+        border-radius: 0.5rem;
+        color: var(--insight-color);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin-top: 1.25rem;
+        padding: 0.65rem 0.8rem;
+      }
+      .insight span:first-child {
+        color: var(--insight-label-color);
+      }
+      .output code {
+        color: var(--output-code-color);
+      }
+      .failure {
+        background: #fff0f0;
+        border: 1px solid #f7797d;
+        border-radius: 0.5rem;
+        color: #b42318;
+        padding: 0.65rem 0.8rem;
+      }
+      .file-list {
+        list-style: none;
+        margin: 0.75rem 0 0;
+        padding: 0;
+      }
+      .file-list li {
+        border-top: 1px solid var(--line);
+        padding: 0.55rem 0;
+      }
+      .file-list code {
+        color: var(--file-code-color);
+        font-size: 0.85rem;
+        word-break: break-all;
+      }
+      details {
+        border-top: 1px solid var(--line);
+        padding: 0.85rem 0;
+      }
+      details:first-of-type {
+        border-top: 0;
+      }
+      summary {
+        align-items: center;
+        cursor: pointer;
+        display: flex;
+        font-weight: 700;
+        justify-content: space-between;
+        list-style: none;
+      }
+      summary::-webkit-details-marker {
+        display: none;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        border-bottom: 1px solid var(--line);
+        padding: 0.7rem 0.5rem;
+        text-align: left;
+      }
+      th {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      td:last-child,
+      th:last-child {
+        text-align: right;
+      }
+      .plugin-table td:not(:first-child),
+      .plugin-table th:not(:first-child) {
+        text-align: right;
+      }
+      .status {
+        border-radius: 999px;
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.15rem 0.5rem;
+      }
+      .status.success {
+        background: var(--success-background);
+        color: var(--success-color);
+      }
+      .status.failed {
+        background: var(--failed-background);
+        color: var(--failed-color);
+      }
+      .problems {
+        display: grid;
+        gap: 0.75rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .problems li {
+        border-left: 3px solid var(--brand);
+        padding-left: 0.75rem;
+      }
+      .problems strong,
+      .problems small {
+        display: block;
+      }
+      .problems p {
+        margin: 0.35rem 0;
+      }
+      .problems a {
+        color: var(--brand-dark);
+        font-size: 0.85rem;
+        font-weight: 700;
+      }
+      @media (max-width: 600px) {
+        main {
+          padding: 1rem 0.75rem 2rem;
+        }
+        .hero {
+          padding: 1.5rem;
+        }
+        .output {
+          display: block;
+        }
+        .output code {
+          display: block;
+          margin-top: 0.35rem;
+        }
+        .plugin-table {
+          font-size: 0.85rem;
+        }
+      }
+      @media (min-width: 1280px) {
+        main {
+          max-width: 1280px;
+          padding: 3rem 2rem 5rem;
+        }
+        .hero {
+          padding: 2.75rem 3rem;
+        }
+        section {
+          padding: 1.75rem;
+        }
+        .stats {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+      :root[data-theme='dark'] {
+        --brand-dark: #ffd9b3;
+        --ink: #f3f4f6;
+        --text-muted: #9ca3af;
+        --line: #313238;
+        --surface: #24252b;
+        --surface-muted: #17181b;
+        --badge-background: #4a3219;
+        --badge-color: #ffd9b3;
+        --count-background: #3a2d1e;
+        --count-color: #ffd9b3;
+        --output-code-color: #e5e7eb;
+        --file-code-color: #e5e7eb;
+        --success-background: #173f2b;
+        --success-color: #79dca7;
+        --failed-background: #4a2424;
+        --failed-color: #ff9d9d;
+        --insight-background: #3a2d1e;
+        --insight-color: #ffd9b3;
+        --insight-label-color: #ffd9b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">Loading Kubb report…</div>
+    <script>
+      const showMissingReport = () => {
+        document.querySelector('#app').textContent = 'This HTML template needs a generated Kubb report.'
+      }
+    </script>
+    <script src="./data.js" onerror="showMissingReport()"></script>
+    <script src="./ui.iife.js" onerror="showMissingReport()"></script>
+  </body>
+</html>

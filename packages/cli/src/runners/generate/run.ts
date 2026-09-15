@@ -300,8 +300,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   // CLI `--reporter` selects which reporters to trigger by name, defaulting to `cli`. The config
   // always carries the available reporters (defineConfig registers the built-ins).
   const requestedNames: Array<ReporterName> = cliReporters?.length ? cliReporters : ['cli']
-  const available = configs[0]?.reporters ?? []
-  const reporters = selectReporters(available, requestedNames)
+  const reporters = selectReporters(configs[0]?.reporters ?? [], requestedNames)
   await setupReporters(hooks, { logLevel, reporters })
 
   await hooks.callHook('kubb:lifecycle:start', { version })

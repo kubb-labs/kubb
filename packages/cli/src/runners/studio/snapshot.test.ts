@@ -97,6 +97,7 @@ describe('snapshot', () => {
     await snapshot(baseOptions({ id: 'gh:123:42' }))
 
     expect(connectOrder).toEqual(['createAgent:gh:123:42', 'connect:gh:123:42'])
+    expect(vi.mocked(createAgent)).toHaveBeenCalledWith(expect.objectContaining({ name: 'acme/api#42' }))
   })
 
   it("reuses kubb-labs/action's GitHub identity through CI auto-detection when --id is omitted", async () => {
@@ -115,6 +116,29 @@ describe('snapshot', () => {
     const printed = JSON.parse(String(logSpy.mock.calls.at(-1)?.[0]))
     expect(printed.url).toBe('http://localhost:3000/packages/brave-otter/%40acme%2Fapi.tgz')
     logSpy.mockRestore()
+  })
+
+  it('logs Studio connection progress to stderr in JSON mode', async () => {
+    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    connect.mockImplementation(async () => {
+      await installLogger?.({
+        hook: (event, callback) => {
+          if (event === 'studio:connecting' || event === 'studio:connected') callback({ url: 'http://localhost:3000' })
+          if (event === 'studio:ready') callback()
+        },
+      })
+    })
+
+    await snapshot(baseOptions({ json: true }))
+
+    expect(error).toHaveBeenCalledWith('Creating Kubb Studio agent')
+    expect(error).toHaveBeenCalledWith('Connecting to Kubb Studio at http://localhost:3000')
+    expect(error).toHaveBeenCalledWith('Connected to Kubb Studio at http://localhost:3000')
+    expect(error).toHaveBeenCalledWith('Kubb Studio connection ready')
+    expect(error).toHaveBeenCalledWith('Creating snapshot job')
+    expect(error).toHaveBeenCalledWith('Snapshot job queued: job-1')
+    expect(error).toHaveBeenCalledWith('Snapshot published')
+    expect(error).toHaveBeenCalledWith('Disconnecting from Kubb Studio')
   })
 
   it('throws when the job fails', async () => {

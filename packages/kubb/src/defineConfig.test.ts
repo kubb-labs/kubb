@@ -75,7 +75,7 @@ describe('defineConfig', () => {
     } as UserConfig)
     const resolved = config as UserConfig
 
-    expect(resolved.reporters?.map((reporter) => reporter.name)).toStrictEqual(['cli', 'json', 'file'])
+    expect(resolved.reporters?.map((reporter) => reporter.name)).toStrictEqual(['cli', 'json', 'file', 'html'])
   })
 
   test('preserves existing reporters when non-empty', () => {
