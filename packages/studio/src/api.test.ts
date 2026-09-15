@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { spyOnConsole } from './console.mock.ts'
-import { createAgentSession, disconnect, InvalidAgentTokenError, registerAgent } from './api.ts'
+import { createAgentSession, createJob, disconnect, InvalidAgentTokenError, registerAgent, waitForJob } from './api.ts'
 
 const consoleSpy = spyOnConsole()
 
@@ -165,5 +165,34 @@ describe('disconnect', () => {
 
     await expect(disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio' })).resolves.toBeUndefined()
     expect(consoleSpy.warn).not.toHaveBeenCalled()
+  })
+})
+
+describe('createJob', () => {
+  it('posts a snapshot job and returns the queued job', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'queued' } }, 202))
+
+    await expect(
+      createJob({ studioUrl: 'http://studio', token: 'ci-token', type: 'snapshot', agentId: 'agent-1', name: '@kubb/demo', version: '1.0.0' }),
+    ).resolves.toEqual({ id: 'job-1', status: 'queued' })
+
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe('http://studio/api/jobs')
+    expect(init.method).toBe('POST')
+    expect(JSON.parse(String(init.body))).toEqual({ type: 'snapshot', agentId: 'agent-1', name: '@kubb/demo', version: '1.0.0' })
+  })
+})
+
+describe('waitForJob', () => {
+  it('polls until the job succeeds', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'running' } }))
+      .mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'success', snapshot: { id: 'snap-1' } } }))
+
+    const promise = waitForJob({ studioUrl: 'http://studio', token: 'ci-token', id: 'job-1', intervalMs: 1 })
+    await vi.runAllTimersAsync()
+
+    await expect(promise).resolves.toEqual({ id: 'job-1', status: 'success', snapshot: { id: 'snap-1' } })
+    expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 })

@@ -200,3 +200,77 @@ export async function disconnect({ sessionId, token, studioUrl, slug }: Disconne
     console.warn(styleText('yellow', `[${tag}] Failed to notify Studio of disconnection: ${getErrorMessage(error)}`))
   }
 }
+
+export type StudioJobStatus = 'queued' | 'running' | 'success' | 'failed'
+
+export type StudioSnapshot = {
+  id: string
+  name: string | null
+  version: string | null
+  integrity: string | null
+  url: string
+  snapshotIdUrl: string
+  expiresAt: string
+}
+
+export type StudioJob = {
+  id: string
+  status: StudioJobStatus
+  error?: string
+  snapshot?: StudioSnapshot
+}
+
+/**
+ * Queues a generation or snapshot job on Studio (`POST /api/jobs`). Returns as soon as the job is
+ * accepted; poll with {@link waitForJob} until it finishes.
+ */
+export async function createJob({
+  studioUrl,
+  token,
+  type,
+  agentId,
+  name,
+  version,
+  config,
+}: {
+  studioUrl: string
+  token: string
+  type: 'generation' | 'snapshot'
+  agentId: string
+  name?: string
+  version?: string
+  config?: Record<string, unknown>
+}): Promise<StudioJob> {
+  const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'x-api-key': token },
+    body: { type, agentId, name, version, config },
+  })
+
+  return job
+}
+
+/**
+ * Polls `GET /api/jobs/:id` until the job reaches `success` or `failed`.
+ */
+export async function waitForJob({
+  studioUrl,
+  token,
+  id,
+  intervalMs = 1000,
+}: {
+  studioUrl: string
+  token: string
+  id: string
+  intervalMs?: number
+}): Promise<StudioJob> {
+  for (;;) {
+    const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs/${id}`, {
+      headers: { Authorization: `Bearer ${token}`, 'x-api-key': token },
+    })
+
+    if (job.status === 'success' || job.status === 'failed') return job
+
+    await new Promise((resolve) => setTimeout(resolve, intervalMs))
+  }
+}
