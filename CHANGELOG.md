@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.3.1 — Sep 15, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Report duplicate barrel exports instead of emitting an invalid barrel. ([#4043](https://github.com/kubb-labs/kubb/pull/4043), [`2aad826`](https://github.com/kubb-labs/kubb/commit/2aad826b4f70cd7a82c30c8d6323c4fc7664848c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.0 — Sep 15, 2026
 
 ### @kubb/core
