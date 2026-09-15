@@ -9,12 +9,12 @@ import type { CLIOptions, Config } from '@kubb/core'
 import { cliReporter, logLevel as logLevelMap } from '@kubb/core'
 import {
   createFileStorage,
+  createStudioAgent,
   type ClientOptions,
   defaultStudioUrl,
   type InvalidAgentTokenError,
   PairingCanceledError,
   pollForPairingToken,
-  runSnapshotJob,
   runConnection,
   setStorage,
   startPairing,
@@ -564,7 +564,7 @@ async function run(options: StudioOptions): Promise<void> {
         }
 
         const { configPath, config } = await loadConfigs(options)
-        const snapshot = await runSnapshotJob({
+        const studioAgent = createStudioAgent({
           token,
           studioUrl: options.studioUrl,
           configPath,
@@ -575,7 +575,12 @@ async function run(options: StudioOptions): Promise<void> {
           snapshotVersion: options.snapshotVersion,
           installLogger: (hooks) => setupReporters(hooks, { logLevel: logLevelMap[options.logLevel ?? 'info'], reporters: [cliReporter] }),
         })
-        console.log(snapshot.url ?? snapshot.id)
+        try {
+          const snapshot = await studioAgent.snapshot()
+          console.log(snapshot.url ?? snapshot.id)
+        } finally {
+          studioAgent.disconnect()
+        }
         break
       }
       case 'login':

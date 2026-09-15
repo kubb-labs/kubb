@@ -50,7 +50,7 @@ describe('createClient', () => {
     await client.connect()
 
     expect(sessionConnect).toHaveBeenCalledTimes(3)
-    expect(registerAgent).toHaveBeenCalledWith({ token: 'my-token', studioUrl: 'https://kubb.studio', poolSize: 3 })
+    expect(registerAgent).toHaveBeenCalledWith({ token: 'my-token', studioUrl: 'https://kubb.studio', poolSize: 3, machineToken: expect.any(String) })
   })
 
   it('fires onAuthRequired once when several pool sessions reject the same token concurrently', async () => {

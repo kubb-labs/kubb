@@ -141,6 +141,7 @@ describe('StudioSession', () => {
 
     options = {
       token: 'my-token',
+      machineToken: 'machine-token',
       studioUrl: 'https://kubb.studio',
       configPath: 'kubb.config.ts',
       loadConfig,
@@ -183,6 +184,7 @@ describe('StudioSession', () => {
     expect(createAgentSession).toHaveBeenCalledWith({
       token: 'my-token',
       studioUrl: 'https://kubb.studio',
+      machineToken: 'machine-token',
     })
   })
 
@@ -804,7 +806,7 @@ describe('StudioSession', () => {
     })
 
     const detach = vi.mocked(setupEventsStream).mock.results[0]?.value
-    const streamHooks = vi.mocked(setupEventsStream).mock.calls[0]?.[1]
+    const streamHooks = vi.mocked(setupEventsStream).mock.calls[0]?.[0].hooks
 
     expect(streamHooks).toBe(vi.mocked(generate).mock.calls[0]?.[0].hooks)
     expect(detach).toHaveBeenCalledTimes(1)

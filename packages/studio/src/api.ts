@@ -2,7 +2,7 @@ import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
 import { FetchError, ofetch } from 'ofetch'
 import type { AgentConnectResponse } from './protocol/index.ts'
-import { getMachineToken } from './machine.ts'
+import type { CIContext } from './ci.ts'
 
 /**
  * Reads a human-readable message from a Studio JSON error body, when it has one. `FetchError`'s own
@@ -37,6 +37,122 @@ let registrationInFlight: Promise<boolean> | null = null
 type ConnectProps = {
   studioUrl: string
   token: string
+  machineToken: string
+}
+
+export type StudioAgentJobStatus = 'queued' | 'running' | 'success' | 'failed'
+
+export type StudioSnapshot = {
+  id: string
+  name: string | null
+  version: string | null
+  integrity: string | null
+  url: string
+  snapshotIdUrl: string
+  expiresAt: string
+}
+
+export type StudioAgentCredentials = {
+  id: string
+  slug: string
+  token: string
+}
+
+export type StudioAgentJob = {
+  id: string
+  status: StudioAgentJobStatus
+  error?: string
+  snapshot?: StudioSnapshot
+}
+
+type StudioRequestOptions = {
+  method?: 'GET' | 'POST'
+  body?: Record<string, unknown>
+}
+
+async function studioRequest<T>({
+  studioUrl,
+  token,
+  path,
+  options = {},
+}: {
+  studioUrl: string
+  token: string
+  path: string
+  options?: StudioRequestOptions
+}): Promise<T> {
+  try {
+    return await ofetch<T>(`${studioUrl}${path}`, {
+      method: options.method,
+      headers: { authorization: `Bearer ${token}`, 'x-api-key': token },
+      body: options.body,
+    })
+  } catch (error) {
+    const detail = error instanceof FetchError ? responseMessage(error.data) : undefined
+    throw new Error(detail ?? getErrorMessage(error), { cause: error })
+  }
+}
+
+export async function createAgent({
+  studioUrl,
+  token,
+  name,
+  machineToken,
+}: {
+  studioUrl: string
+  token: string
+  name: string
+  machineToken: string
+}): Promise<StudioAgentCredentials> {
+  return studioRequest<StudioAgentCredentials>({
+    studioUrl,
+    token,
+    path: '/api/agents',
+    options: {
+      method: 'POST',
+      body: { name, machineToken },
+    },
+  })
+}
+
+export async function createJob({
+  studioUrl,
+  token,
+  type,
+  agentId,
+  context,
+  name,
+  version,
+}: {
+  studioUrl: string
+  token: string
+  type: 'generation' | 'snapshot'
+  agentId: string
+  context: CIContext
+  name?: string
+  version?: string
+}): Promise<StudioAgentJob> {
+  const { job } = await studioRequest<{ job: StudioAgentJob }>({
+    studioUrl,
+    token,
+    path: '/api/jobs',
+    options: {
+      method: 'POST',
+      body: { type, agentId, context, name, version },
+    },
+  })
+
+  return job
+}
+
+export async function waitForJob({ studioUrl, token, id }: { studioUrl: string; token: string; id: string }): Promise<StudioAgentJob> {
+  for (;;) {
+    const { job } = await studioRequest<{ job: StudioAgentJob }>({ studioUrl, token, path: `/api/jobs/${id}` })
+
+    if (job.status === 'success' || job.status === 'failed') return job
+
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+  }
 }
 
 /**
@@ -70,13 +186,13 @@ function sessionError(cause: unknown): Error {
 /**
  * Performs the raw session create request against Studio.
  */
-async function requestAgentSession({ token, studioUrl }: ConnectProps): Promise<AgentConnectResponse> {
+async function requestAgentSession({ token, studioUrl, machineToken }: ConnectProps): Promise<AgentConnectResponse> {
   const url = `${studioUrl}/api/agent/sessions`
 
   const data = await ofetch<AgentConnectResponse>(url, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
-    body: { machineToken: await getMachineToken() },
+    body: { machineToken },
   })
 
   if (!data) {
@@ -93,20 +209,20 @@ async function requestAgentSession({ token, studioUrl }: ConnectProps): Promise<
  * with a new identity while the startup registration call failed, the agent re-registers
  * and retries once, so a single failed registration can't permanently block session creation.
  */
-export async function createAgentSession({ token, studioUrl }: ConnectProps): Promise<AgentConnectResponse> {
+export async function createAgentSession({ token, studioUrl, machineToken }: ConnectProps): Promise<AgentConnectResponse> {
   try {
-    return await requestAgentSession({ token, studioUrl })
+    return await requestAgentSession({ token, studioUrl, machineToken })
   } catch (error: unknown) {
     if (rejectedWith(error, 401)) {
       throw new InvalidAgentTokenError(studioUrl, { cause: error })
     }
 
-    if (!rejectedWith(error, 403) || !(await registerAgent({ token, studioUrl }))) {
+    if (!rejectedWith(error, 403) || !(await registerAgent({ token, studioUrl, machineToken }))) {
       throw sessionError(error)
     }
 
     try {
-      return await requestAgentSession({ token, studioUrl })
+      return await requestAgentSession({ token, studioUrl, machineToken })
     } catch (retryError: unknown) {
       if (rejectedWith(retryError, 401)) {
         throw new InvalidAgentTokenError(studioUrl, { cause: retryError })
@@ -121,6 +237,7 @@ type RegisterProps = {
   studioUrl: string
   token: string
   poolSize?: number
+  machineToken: string
 }
 
 /**
@@ -142,9 +259,7 @@ export function registerAgent(props: RegisterProps): Promise<boolean> {
   return registrationInFlight
 }
 
-async function runRegistration({ token, studioUrl, poolSize }: RegisterProps): Promise<boolean> {
-  const machineToken = await getMachineToken()
-
+async function runRegistration({ token, studioUrl, poolSize, machineToken }: RegisterProps): Promise<boolean> {
   try {
     await ofetch(`${studioUrl}/api/agent/connect`, {
       method: 'POST',

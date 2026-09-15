@@ -38,14 +38,16 @@ describe('registerAgent', () => {
   it('throws instead of retrying when Studio rejects the token, so a deleted agent stops the loop', async () => {
     fetchMock.mockResolvedValue(createMockResponse({ message: 'invalid_agent_token' }, 401))
 
-    await expect(registerAgent({ token: 'agent-token', studioUrl: 'http://localhost:3000' })).rejects.toBeInstanceOf(InvalidAgentTokenError)
+    await expect(registerAgent({ token: 'agent-token', studioUrl: 'http://localhost:3000', machineToken: 'machine-token' })).rejects.toBeInstanceOf(
+      InvalidAgentTokenError,
+    )
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
   it('returns true when registration succeeds on the first attempt', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse({}))
 
-    const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio' })
+    const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio', machineToken: 'machine-token' })
     await vi.runAllTimersAsync()
 
     await expect(promise).resolves.toBe(true)
@@ -60,7 +62,7 @@ describe('registerAgent', () => {
   it('retries with backoff and returns true once an attempt succeeds', async () => {
     fetchMock.mockRejectedValueOnce(new Error('502')).mockRejectedValueOnce(new Error('502')).mockResolvedValueOnce(createMockResponse({}))
 
-    const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio' })
+    const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio', machineToken: 'machine-token' })
     await vi.runAllTimersAsync()
 
     await expect(promise).resolves.toBe(true)
@@ -70,7 +72,7 @@ describe('registerAgent', () => {
   it('returns false when every attempt fails', async () => {
     fetchMock.mockRejectedValue(new Error('502'))
 
-    const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio' })
+    const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio', machineToken: 'machine-token' })
     await vi.runAllTimersAsync()
 
     await expect(promise).resolves.toBe(false)
@@ -82,14 +84,16 @@ describe('createAgentSession', () => {
   it('returns the session on success', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse(session))
 
-    await expect(createAgentSession({ token: 'tok', studioUrl: 'http://studio' })).resolves.toEqual(session)
+    await expect(createAgentSession({ token: 'tok', studioUrl: 'http://studio', machineToken: 'machine-token' })).resolves.toEqual(session)
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
   it('throws on a non-403 error without re-registering', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse({ message: 'Bad Gateway' }, 502))
 
-    await expect(createAgentSession({ token: 'tok', studioUrl: 'http://studio' })).rejects.toThrow('Failed to get agent session from Kubb Studio: Bad Gateway')
+    await expect(createAgentSession({ token: 'tok', studioUrl: 'http://studio', machineToken: 'machine-token' })).rejects.toThrow(
+      'Failed to get agent session from Kubb Studio: Bad Gateway',
+    )
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
@@ -100,7 +104,7 @@ describe('createAgentSession', () => {
       .mockResolvedValueOnce(createMockResponse({}))
       .mockResolvedValueOnce(createMockResponse(session))
 
-    const promise = createAgentSession({ token: 'tok', studioUrl: 'http://studio' })
+    const promise = createAgentSession({ token: 'tok', studioUrl: 'http://studio', machineToken: 'machine-token' })
     await vi.runAllTimersAsync()
 
     await expect(promise).resolves.toEqual(session)
@@ -111,7 +115,7 @@ describe('createAgentSession', () => {
   it('throws when re-registration fails after a machine token rejection', async () => {
     fetchMock.mockResolvedValue(createMockResponse({ message: 'Forbidden' }, 403))
 
-    const promise = createAgentSession({ token: 'tok', studioUrl: 'http://studio' })
+    const promise = createAgentSession({ token: 'tok', studioUrl: 'http://studio', machineToken: 'machine-token' })
     promise.catch(() => {})
     await vi.runAllTimersAsync()
 
@@ -127,7 +131,7 @@ describe('createAgentSession', () => {
       .mockResolvedValueOnce(createMockResponse({}))
       .mockResolvedValueOnce(createMockResponse({ message: 'revoked' }, 401))
 
-    const promise = createAgentSession({ token: 'tok', studioUrl: 'http://studio' })
+    const promise = createAgentSession({ token: 'tok', studioUrl: 'http://studio', machineToken: 'machine-token' })
     promise.catch(() => {})
     await vi.runAllTimersAsync()
 

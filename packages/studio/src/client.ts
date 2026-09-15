@@ -3,9 +3,14 @@ import { agentDefaults } from './constants.ts'
 import type { InvalidAgentTokenError } from './api.ts'
 import { registerAgent } from './api.ts'
 import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
-import { setStorage } from './machine.ts'
+import { getMachineToken, setStorage } from './machine.ts'
 
-export type ClientOptions = Omit<StudioSessionOptions, 'signal' | 'onTokenRejected'> & {
+export type ClientOptions = Omit<StudioSessionOptions, 'signal' | 'onTokenRejected' | 'machineToken'> & {
+  /**
+   * Stable machine token used when registering this agent with Studio. Defaults to the
+   * runtime's persisted machine identity.
+   */
+  machineToken?: string
   /**
    * Where the machine secret and the last Studio config are persisted. Defaults to in-memory,
    * which gives up a stable machine identity across restarts.
@@ -46,7 +51,7 @@ export type Client = {
  * await studio.connect()
  * ```
  */
-export function createClient({ storage, onAuthRequired, ...options }: ClientOptions): Client {
+export function createClient({ storage, onAuthRequired, machineToken, ...options }: ClientOptions): Client {
   if (storage) {
     setStorage(storage)
   }
@@ -69,14 +74,17 @@ export function createClient({ storage, onAuthRequired, ...options }: ClientOpti
 
   return {
     async connect() {
-      await registerAgent({ token: options.token, studioUrl: options.studioUrl ?? agentDefaults.studioUrl, poolSize })
+      const resolvedMachineToken = machineToken ?? (await getMachineToken())
+      await registerAgent({ token: options.token, studioUrl: options.studioUrl ?? agentDefaults.studioUrl, poolSize, machineToken: resolvedMachineToken })
 
       // Each slot is its own session, so one Studio user never sees another's generation events.
       // Awaited: `connect()` only ever rejects with `InvalidAgentTokenError` (every other failure
       // is retried internally through the session's own reconnect loop and resolves normally), so
       // awaiting here surfaces a dead token to the caller without blocking on a down Studio.
       await Promise.all(
-        Array.from({ length: poolSize }, () => new StudioSession({ ...options, signal: controller.signal, onTokenRejected: notifyAuthRequired }).connect()),
+        Array.from({ length: poolSize }, () =>
+          new StudioSession({ ...options, machineToken: resolvedMachineToken, signal: controller.signal, onTokenRejected: notifyAuthRequired }).connect(),
+        ),
       )
     },
     disconnect() {

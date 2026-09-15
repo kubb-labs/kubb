@@ -31,7 +31,7 @@ const CONNECT_TIMEOUT_MS = 5_000
 const eventSeqCounters = new WeakMap<WebSocket, number>()
 const require = createRequire(import.meta.url)
 
-function relativeStoragePath(root: string, filePath: string): string {
+function relativeStoragePath({ root, filePath }: { root: string; filePath: string }): string {
   return (isAbsolute(filePath) ? relative(resolve(root), filePath) : filePath).replaceAll('\\', '/')
 }
 
@@ -117,7 +117,7 @@ export function sendAgentMessage(ws: WebSocket, message: AgentMessage): void {
  * Sends a single `kubb:error` payload to Studio, stamped from the same per-socket counter the event stream
  * uses so Studio can still order it against the generation events around it.
  */
-export function sendErrorMessage(ws: WebSocket, error: Error, jobId: string): void {
+export function sendErrorMessage({ ws, error, jobId }: { ws: WebSocket; error: Error; jobId: string }): void {
   sendAgentMessage(ws, {
     type: 'agent:data',
     jobId,
@@ -128,7 +128,7 @@ export function sendErrorMessage(ws: WebSocket, error: Error, jobId: string): vo
 /**
  * Forwards selected Kubb lifecycle events to Studio as data messages for the active session.
  */
-export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>, jobId: string): () => void {
+export function setupEventsStream({ ws, hooks, jobId }: { ws: WebSocket; hooks: Hookable<KubbHooks>; jobId: string }): () => void {
   const unhooks: Array<() => void> = []
 
   /**
@@ -233,7 +233,7 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>, job
       limit: FILE_READ_CONCURRENCY,
       run: async (path) => {
         const content = await storage.readItem(path)
-        if (content !== null) files[relativeStoragePath(config.root, path)] = content
+        if (content !== null) files[relativeStoragePath({ root: config.root, filePath: path })] = content
       },
     })
 

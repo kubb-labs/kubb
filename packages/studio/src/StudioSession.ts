@@ -27,6 +27,7 @@ import { createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream 
 
 export type StudioSessionOptions = {
   token: string
+  machineToken: string
   studioUrl?: string
   configPath: string
   /**
@@ -254,7 +255,7 @@ export class StudioSession {
       // trip and the socket after it opens without being awaited.
       await this.#hooks.callHook('studio:connecting', { url: studioUrl })
 
-      const session = await createAgentSession({ token, studioUrl })
+      const session = await createAgentSession({ token, studioUrl, machineToken: this.#options.machineToken })
 
       this.#session = session
       this.#studioVersion = session.version
@@ -277,7 +278,7 @@ export class StudioSession {
 
       // Standing listener for the whole session. A generation adds the rest of the stream for as
       // long as it runs, so between runs this socket carries errors only.
-      this.#unhooks.push(this.#hooks.hook('kubb:error', ({ error }) => sendErrorMessage(ws, error, this.#activeJobId ?? 'connection')))
+      this.#unhooks.push(this.#hooks.hook('kubb:error', ({ error }) => sendErrorMessage({ ws, error, jobId: this.#activeJobId ?? 'connection' })))
     } catch (error) {
       // Reaching here means the session was never created (Studio down, a 502 mid-deploy), so no
       // socket exists and none of the socket-driven reconnect paths can fire. Retry from here or
@@ -625,7 +626,7 @@ export class StudioSession {
 
       // The session's own emitter carries the run: the host's logger is already on it from
       // `connect`, and these two come off again below, so one run's listeners never see the next.
-      const detach = [setupHookListener(this.#hooks, root), setupEventsStream(ws, this.#hooks, data.jobId)]
+      const detach = [setupHookListener(this.#hooks, root), setupEventsStream({ ws, hooks: this.#hooks, jobId: data.jobId })]
 
       try {
         await generate({

@@ -2,7 +2,7 @@ import { detectProvider, env, isCI } from 'std-env'
 
 export type CIProvider = 'github' | 'gitlab' | 'bitbucket' | 'circleci' | 'azure' | 'jenkins' | 'buildkite' | 'generic'
 
-export interface CIContext {
+export type CIContext = {
   provider: CIProvider
   repository?: string
   ref?: string
