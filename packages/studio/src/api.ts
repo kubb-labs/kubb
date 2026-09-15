@@ -342,3 +342,59 @@ export async function waitForJob({
     await new Promise((resolve) => setTimeout(resolve, 1000))
   }
 }
+
+/**
+ * CI agent returned by {@link createAgent}. The token is issued only once, at creation or reuse.
+ */
+export type StudioAgent = {
+  /**
+   * Agent id, passed to {@link createJob} as `agentId`.
+   */
+  id: string
+  /**
+   * Human-readable slug, used to build the readable snapshot URL and the agent's Studio page.
+   */
+  slug: string
+  /**
+   * Agent display name.
+   */
+  name: string
+  /**
+   * Bearer token for the WebSocket agent session. Mask it before logging.
+   */
+  token: string
+}
+
+/**
+ * Creates or reuses a CI agent (`POST /api/agents`), keyed by `(organization, machineToken)`.
+ * Authenticates via `x-api-key`. Reusing the same `machineToken` reuses the same agent instead of
+ * consuming a new one from the organization's agent limit.
+ */
+export async function createAgent({
+  studioUrl,
+  token,
+  name,
+  machineToken,
+}: {
+  studioUrl: string
+  token: string
+  name: string
+  machineToken: string
+}): Promise<StudioAgent> {
+  try {
+    return await ofetch<StudioAgent>(`${studioUrl}/api/agents`, {
+      method: 'POST',
+      headers: { 'x-api-key': token },
+      body: { name, machineToken },
+    })
+  } catch (error: unknown) {
+    if (error instanceof FetchError) {
+      const upgradeUrl = (error.data as { data?: { upgradeUrl?: string } } | undefined)?.data?.upgradeUrl
+      const detail = responseMessage(error.data) ?? getErrorMessage(error)
+      const hint = upgradeUrl ? ` Agent limit reached; upgrade at ${upgradeUrl}.` : ''
+      throw new Error(`Failed to create a Kubb Studio agent: ${detail}${hint}`, { cause: error })
+    }
+
+    throw error
+  }
+}

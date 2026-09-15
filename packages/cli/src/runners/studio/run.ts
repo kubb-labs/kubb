@@ -28,8 +28,9 @@ import { createSpinner, logBlock, logIntro, logOutro } from '../../loggers/outpu
 import { canUseTTY, isCIEnvironment } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
+import { snapshot } from './snapshot.ts'
 
-const ACTIONS = ['connect', 'login', 'logout', 'status'] as const
+const ACTIONS = ['connect', 'login', 'logout', 'status', 'snapshot'] as const
 
 export type StudioAction = (typeof ACTIONS)[number]
 
@@ -57,6 +58,30 @@ export type StudioOptions = {
    */
   autoOpen: boolean
   logLevel?: CLIOptions['logLevel']
+  /**
+   * `snapshot` only: organization CI API key. Falls back to `KUBB_TOKEN`.
+   */
+  token?: string
+  /**
+   * `snapshot` only: stable identity for the CI agent. Falls back to CI auto-detection.
+   */
+  id?: string
+  /**
+   * `snapshot` only: package name for the generated tarball. Falls back to the nearest package.json.
+   */
+  name?: string
+  /**
+   * `snapshot` only: package version for the generated tarball. Falls back to the nearest package.json.
+   */
+  packageVersion?: string
+  /**
+   * `snapshot` only: seconds to wait for the job to finish.
+   */
+  timeout?: number
+  /**
+   * `snapshot` only: print the result as one JSON object instead of a summary.
+   */
+  json?: boolean
 }
 
 /**
@@ -218,7 +243,7 @@ export async function resolvePermissions(
  * Loads the project's Kubb config the same way `kubb generate` does.
  * Returns the first config.
  */
-async function loadConfigs(options: StudioOptions): Promise<{ configPath: string; config: Config }> {
+export async function loadConfigs(options: StudioOptions): Promise<{ configPath: string; config: Config }> {
   const { configPath, configs } = await getConfigs({ configPath: options.configPath, logLevel: options.logLevel })
   const [config] = configs
 
@@ -544,7 +569,8 @@ async function run(options: StudioOptions): Promise<void> {
   const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'studio', kubbVersion: options.version, hrStart, status }))
 
   try {
-    if (options.logLevel !== 'silent') {
+    // `snapshot --json` prints exactly one JSON object on stdout, so nothing else may write there.
+    if (options.logLevel !== 'silent' && !(options.action === 'snapshot' && options.json)) {
       logIntro({
         title: `Kubb Studio  ${styleText('dim', `v${options.version}`)}`,
         warning: styleText('yellow', 'This feature is still under development, use with caution'),
@@ -566,6 +592,9 @@ async function run(options: StudioOptions): Promise<void> {
         break
       case 'connect':
         await connect(options)
+        break
+      case 'snapshot':
+        await snapshot(options)
         break
       default:
         throw new Error(`Unknown action "${options.action}", expected one of ${ACTIONS.join(', ')}`)
@@ -597,5 +626,11 @@ export const runner: CommandRunner<{ args: typeof definition.args; extensions: {
     },
     autoOpen: values.open,
     logLevel: values.logLevel,
+    token: values.token,
+    id: values.id,
+    name: values.name,
+    packageVersion: values.packageVersion,
+    timeout: values.timeout,
+    json: values.json,
   })
 }

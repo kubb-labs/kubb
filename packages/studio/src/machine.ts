@@ -70,16 +70,24 @@ async function loadOrCreateFallbackSecret(): Promise<string> {
 }
 
 /**
+ * Hashes a stable secret into the machine token Studio expects, so a host can derive one from its
+ * own identity without duplicating `getMachineToken`'s SHA-256 step.
+ */
+export function machineTokenFrom(secret: string): string {
+  return hash('sha256', secret)
+}
+
+/**
  * Returns the machine token derived from the `KUBB_AGENT_SECRET` environment variable.
  * Falls back to a generated secret persisted in the runtime storage if the env var is not set.
  * The token is hashed with SHA-256.
  */
 export async function getMachineToken(): Promise<string> {
   if (process.env.KUBB_AGENT_SECRET) {
-    return hash('sha256', process.env.KUBB_AGENT_SECRET)
+    return machineTokenFrom(process.env.KUBB_AGENT_SECRET)
   }
 
   fallbackSecretPromise ??= loadOrCreateFallbackSecret()
 
-  return hash('sha256', await fallbackSecretPromise)
+  return machineTokenFrom(await fallbackSecretPromise)
 }

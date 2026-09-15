@@ -7,7 +7,7 @@ import { define } from 'gunshi'
 export const definition = define({
   name: 'studio',
   description:
-    'Connect this project to Kubb Studio and generate from the browser. The first run pairs the machine: the CLI shows a code, you approve it in Studio, and the token is stored in ~/.kubb. The connection is read-only unless you grant more with --allowWrite, --allowConfigEdit, --allowInput or --allowExec.',
+    'Connect this project to Kubb Studio and generate from the browser, or run `snapshot` from CI to publish one from a script. The first run pairs the machine: the CLI shows a code, you approve it in Studio, and the token is stored in ~/.kubb. The connection is read-only unless you grant more with --allowWrite, --allowConfigEdit, --allowInput or --allowExec.',
   examples: [
     'kubb studio                              # connect this project, asking what Studio may do',
     'kubb studio --allowWrite                 # grant writing generated files, no question asked',
@@ -17,12 +17,14 @@ export const definition = define({
     'kubb studio status                       # show what this machine is paired as',
     'kubb studio logout                       # forget the stored token',
     'kubb studio --url http://localhost:3000  # use a self-hosted Studio',
+    'kubb studio snapshot                     # generate and publish a snapshot from CI',
+    'kubb studio snapshot --json              # print the snapshot as one JSON object',
   ].join('\n'),
   args: {
     action: {
       type: 'positional',
       required: false,
-      description: 'connect (default), login, logout or status',
+      description: 'connect (default), login, logout, status or snapshot',
     },
     config: {
       type: 'string',
@@ -65,6 +67,33 @@ export const definition = define({
       description: 'Info, silent or verbose',
       short: 'l',
       default: 'info',
+    },
+    token: {
+      type: 'string',
+      description: 'Organization CI API key for `snapshot`. Defaults to KUBB_TOKEN',
+    },
+    id: {
+      type: 'string',
+      description:
+        '`snapshot` only: stable identity for the CI agent, such as a pull request. Auto-detected on GitHub Actions, GitLab CI, Bitbucket Pipelines and CircleCI',
+    },
+    name: {
+      type: 'string',
+      description: '`snapshot` only: package name for the generated tarball. Defaults to the name in package.json',
+    },
+    packageVersion: {
+      type: 'string',
+      description: '`snapshot` only: package version for the generated tarball. Defaults to the version in package.json',
+    },
+    timeout: {
+      type: 'number',
+      description: '`snapshot` only: seconds to wait for the job to finish',
+      default: 600,
+    },
+    json: {
+      type: 'boolean',
+      description: '`snapshot` only: print the result as one JSON object instead of a summary',
+      default: false,
     },
   },
 })
