@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.2.7 — Sep 15, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Create a separate Kubb Studio agent connection for each project directory while reusing the same agent within that directory. ([`af87dbc`](https://github.com/kubb-labs/kubb/commit/af87dbcc8bd77daabfa1ceb57f17366c83aab9d1))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Add `createJob` and `waitForJob` for Studio's async `/api/jobs` endpoints. ([#4035](https://github.com/kubb-labs/kubb/pull/4035), [`5382ff0`](https://github.com/kubb-labs/kubb/commit/5382ff06d685beb03f805e1a5dce4bba37aecb7d))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.2.6 — Sep 14, 2026
 
 ### @kubb/studio
