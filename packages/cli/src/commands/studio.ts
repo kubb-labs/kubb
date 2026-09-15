@@ -7,12 +7,12 @@ import { define } from 'gunshi'
 export const definition = define({
   name: 'studio',
   description:
-    'Connect this project to Kubb Studio and generate from the browser, or run `snapshot` from CI to publish one from a script. The first run pairs the machine: the CLI shows a code, you approve it in Studio, and the token is stored in ~/.kubb. The connection is read-only unless you grant more with --allowWrite, --allowConfigEdit, --allowInput or --allowExec.',
+    'Connect this project to Kubb Studio and generate from the browser, or run `snapshot` from CI to publish one from a script. The first run pairs the machine: the CLI shows a code, you approve it in Studio, and the token is stored in ~/.kubb. The connection is read-only unless you grant more with --allow-write, --allow-config-edit, --allow-input or --allow-exec.',
   examples: [
     'kubb studio                              # connect this project, asking what Studio may do',
-    'kubb studio --allowWrite                 # grant writing generated files, no question asked',
-    'kubb studio --allowWrite --allowExec     # also run the formatter, the linter, and postGenerate',
-    'kubb studio --allowConfigEdit            # let Studio change plugin options in kubb.config.ts',
+    'kubb studio --allow-write                # grant writing generated files, no question asked',
+    'kubb studio --allow-write --allow-exec   # also run the formatter, the linter, and postGenerate',
+    'kubb studio --allow-config-edit          # let Studio change plugin options in kubb.config.ts',
     'kubb studio login                        # pair this machine without connecting',
     'kubb studio status                       # show what this machine is paired as',
     'kubb studio logout                       # forget the stored token',
@@ -20,6 +20,7 @@ export const definition = define({
     'kubb studio snapshot                     # generate and publish a snapshot from CI',
     'kubb studio snapshot --json              # print the snapshot as one JSON object',
   ].join('\n'),
+  toKebab: true,
   args: {
     action: {
       type: 'positional',

@@ -24,7 +24,7 @@ function parseReporters(value: string): Array<ReporterName> {
 }
 
 /**
- * Resolves the effective log level, letting the `--verbose` and `--silent` flags win over `--logLevel`.
+ * Resolves the effective log level, letting the `--verbose` and `--silent` flags win over `--log-level`.
  */
 function resolveLogLevel({ verbose, silent, logLevel }: { verbose: boolean; silent: boolean; logLevel: string }): string {
   if (verbose) return 'verbose'
@@ -41,11 +41,12 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
     'kubb generate ./openapi.yaml      # generate from this spec instead of the config input',
     'kubb generate --config kubb.config.ts',
     'kubb generate --watch             # regenerate whenever the spec changes',
-    'kubb generate --dryRun            # preview the run without writing files',
+    'kubb generate --dry-run           # preview the run without writing files',
     'kubb studio                       # connect this project to Kubb Studio and generate from the browser',
-    'kubb studio --allowWrite          # let Studio write the generated files to disk',
+    'kubb studio --allow-write         # let Studio write the generated files to disk',
     'kubb studio login                 # pair this machine with Studio without connecting',
   ].join('\n'),
+  toKebab: true,
   args: {
     input: {
       type: 'positional',
