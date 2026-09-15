@@ -1,5 +1,5 @@
 ---
-'@kubb/cli': major
+'@kubb/cli': patch
 ---
 
 CLI flags are now kebab-case, matching the convention used by most command-line tools.
