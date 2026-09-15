@@ -19,7 +19,8 @@ export const htmlReporter = createReporter({
   name: 'html',
   needsPluginFiles: true,
   async report(result) {
-    const baseName = ['kubb', result.config.name, Date.now()].filter(Boolean).join('-')
+    const name = result.config.name?.replace(/[^a-zA-Z0-9_-]+/g, '-').replace(/^-+|-+$/g, '')
+    const baseName = ['kubb', name, Date.now()].filter(Boolean).join('-')
     const pathName = resolve(process.cwd(), '.kubb', baseName)
     const assets = new URL('./html/', import.meta.url)
     const [html, ui] = await Promise.all([read(fileURLToPath(new URL('index.html', assets))), read(fileURLToPath(new URL('ui.iife.js', assets)))])

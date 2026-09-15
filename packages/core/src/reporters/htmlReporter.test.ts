@@ -22,7 +22,7 @@ describe('htmlReporter', () => {
 
     await htmlReporter.report(
       {
-        config: { name: '<petstore>', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}, {}] } as unknown as Config,
+        config: { name: '../petstore:client<>', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}, {}] } as unknown as Config,
         diagnostics: [{ code: 'KUBB_DEPRECATED', severity: 'info', message: '<unsafe>' }, Diagnostics.performance({ plugin: 'plugin-ts', duration: 145 })],
         filesCreated: 1,
         status: 'success',
@@ -34,7 +34,7 @@ describe('htmlReporter', () => {
 
     expect(_write).toHaveBeenCalledTimes(3)
     expect(_read).toHaveBeenCalledTimes(2)
-    expect([...written.keys()]).toContainEqual(expect.stringMatching(/\.kubb\/kubb-<petstore>-\d+\/index\.html$/))
+    expect([...written.keys()]).toContainEqual(expect.stringMatching(/\.kubb\/kubb-petstore-client-\d+\/index\.html$/))
     expect(_error).toHaveBeenCalledWith(expect.stringContaining('HTML report written to'))
     expect([...written.values()]).toContain('<script src="./data.js"></script>')
     expect([...written.values()]).toContain('const ui = true')
