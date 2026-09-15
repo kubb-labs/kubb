@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.3.0 — Sep 15, 2026
+
+### @kubb/core
+
+#### Features
+
+- Add an opt-in HTML report with generated files, plugin timings, and diagnostics. ([#4041](https://github.com/kubb-labs/kubb/pull/4041), [`be705de`](https://github.com/kubb-labs/kubb/commit/be705de4279b0fa691e1b1d5ef001ad515b4bafc))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.2.8 — Sep 15, 2026
 
 ### @kubb/cli
