@@ -1,5 +1,29 @@
 # Changelog
 
+## v5.2.8 — Sep 15, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Add `kubb studio snapshot` to generate and publish a Kubb Studio snapshot from any CI, not only GitHub Actions.
+  
+  - Registers or reuses a CI agent, connects it, queues a snapshot job, and polls until the tarball is ready.
+  - Reads the organization CI API key from `--token` or `KUBB_TOKEN`.
+  - Detects the calling CI (GitHub Actions, GitLab CI, Bitbucket Pipelines, CircleCI) to reuse one agent per pull or merge request, or takes an explicit `--id` on any other CI.
+  - Prints a summary, or one JSON object with `--json` for a script to read.
+  - `@kubb/studio` now also exports `createAgent` and `machineTokenFrom`, so a host can register a CI agent without hand-rolling the request.
+  
+  ```shell
+  KUBB_TOKEN=$KUBB_TOKEN kubb studio snapshot --json
+  ``` ([#4038](https://github.com/kubb-labs/kubb/pull/4038), [`4cd9f5e`](https://github.com/kubb-labs/kubb/commit/4cd9f5e311e5dc6edb14287c13db0a5466b4e892))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.2.7 — Sep 15, 2026
 
 ### @kubb/cli
