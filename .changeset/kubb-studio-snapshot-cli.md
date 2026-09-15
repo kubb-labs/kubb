@@ -1,6 +1,6 @@
 ---
-'@kubb/cli': minor
-'@kubb/studio': minor
+'@kubb/cli': patch
+'@kubb/studio': patch
 ---
 
 Add `kubb studio snapshot` to generate and publish a Kubb Studio snapshot from any CI, not only GitHub Actions.
