@@ -162,9 +162,10 @@ export const pluginBarrel = definePlugin(() => {
         excludedPrefixes.clear()
 
         const index = buildBarrelIndex(outputPath, relevantFiles)
+        const reportedCollisions = new Set<string>()
 
         for (const { plugin, target, barrelType, nested } of pendingBarrels) {
-          for (const file of getBarrelFiles({ index, targetPath: target, barrelType, nested, recursive: true })) {
+          for (const file of getBarrelFiles({ index, targetPath: target, barrelType, nested, recursive: true, reportedCollisions })) {
             upsertFile(withBarrelBannerFooter({ file, plugin, config }))
           }
         }
@@ -172,7 +173,7 @@ export const pluginBarrel = definePlugin(() => {
 
         if (rootBarrelConfig === false) return
 
-        for (const file of getBarrelFiles({ index, barrelType: rootBarrelConfig.type })) {
+        for (const file of getBarrelFiles({ index, barrelType: rootBarrelConfig.type, reportedCollisions })) {
           upsertFile(file)
         }
       },

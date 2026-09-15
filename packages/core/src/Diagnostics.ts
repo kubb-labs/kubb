@@ -344,6 +344,11 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
     cause: 'The linter pass over the generated files failed.',
     fix: 'Check the linter (oxlint, biome, or eslint) is installed and its config is valid, then run it manually on the output.',
   },
+  [diagnosticCode.barrelDuplicateExport]: {
+    title: 'Duplicate barrel export',
+    cause: 'Two generated modules export the same name, so the barrel cannot re-export both.',
+    fix: 'Rename one of the colliding declarations, or configure the plugin resolver to produce distinct names.',
+  },
   [diagnosticCode.performance]: {
     title: 'Performance',
     cause: 'Not a failure. Records a plugin’s elapsed time, summed into the run total.',

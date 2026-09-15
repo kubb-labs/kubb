@@ -1,5 +1,6 @@
 import { extname, resolve } from 'node:path'
 import { ast, type ExportNode, type FileNode, type SourceNode } from '@kubb/ast'
+import { Diagnostics } from '@kubb/core'
 import type { Config, NormalizedPlugin } from '@kubb/core'
 import { toPosixPath } from '@internals/utils'
 import type { BarrelType } from './types.ts'
@@ -105,11 +106,47 @@ function isBarrelPath(path: string): boolean {
   return path.endsWith(BARREL_SUFFIX)
 }
 
-function makeBarrel(dirPath: string, exports: Array<ExportNode>): FileNode {
+function makeBarrel(dirPath: string, exports: Array<ExportNode>, sourceFiles: ReadonlyMap<string, FileNode>, reportedCollisions: Set<string>): FileNode {
+  const names = new Map<string, string>()
+  const uniqueExports: Array<ExportNode> = []
+
+  for (const item of exports) {
+    const itemPath = toPosixPath(resolve(dirPath, item.path))
+    const itemNames = Array.isArray(item.name)
+      ? item.name
+      : item.name
+        ? [item.name]
+        : sourceFiles.get(itemPath)?.sources.flatMap((source) => (source.name ? [source.name] : []))
+    const uniqueNames: Array<string> = []
+
+    for (const name of itemNames ?? []) {
+      const first = names.get(name)
+      if (!first) {
+        names.set(name, item.path)
+        uniqueNames.push(name)
+        continue
+      }
+
+      const key = [name, toPosixPath(resolve(dirPath, first)), itemPath].join('\0')
+      if (reportedCollisions.has(key)) continue
+      reportedCollisions.add(key)
+      Diagnostics.report({
+        code: Diagnostics.code.barrelDuplicateExport,
+        severity: 'error',
+        message: `"${name}" is exported by both "${first}" and "${item.path}", so "${dirPath}${BARREL_SUFFIX}" cannot re-export both.`,
+        help: 'Rename one of the colliding declarations, or configure the plugin resolver to produce distinct names.',
+      })
+    }
+
+    if (!itemNames || item.name == null || uniqueNames.length > 0) {
+      uniqueExports.push(item.name == null ? item : ast.factory.createExport({ ...item, name: Array.isArray(item.name) ? uniqueNames : uniqueNames[0] }))
+    }
+  }
+
   return ast.factory.createFile({
     baseName: 'index.ts',
     path: `${dirPath}${BARREL_SUFFIX}`,
-    exports,
+    exports: uniqueExports,
     sources: [],
     imports: [],
     // Default to no banner/footer. The barrel plugin resolves a configured plugin
@@ -186,6 +223,7 @@ type LeafWalkParams = {
   sourceFiles: ReadonlyMap<string, FileNode>
   strategy: LeafStrategy
   recursive: boolean
+  reportedCollisions: Set<string>
 }
 
 /**
@@ -210,7 +248,7 @@ function* walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolea
   const exports = subtreeLeaves.flatMap((leafPath) => params.strategy({ dirPath: node.path, leafPath, sourceFile: params.sourceFiles.get(leafPath) ?? null }))
 
   if (exports.length > 0) {
-    yield makeBarrel(node.path, exports)
+    yield makeBarrel(node.path, exports, params.sourceFiles, params.reportedCollisions)
   }
 
   return subtreeLeaves
@@ -219,6 +257,7 @@ function* walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolea
 type NestedWalkParams = {
   sourceFiles: ReadonlyMap<string, FileNode>
   strategy: LeafStrategy
+  reportedCollisions: Set<string>
 }
 
 /**
@@ -246,7 +285,7 @@ function* walkNested(node: BuildTree, params: NestedWalkParams): Generator<FileN
   }
 
   if (exports.length > 0) {
-    yield makeBarrel(node.path, exports)
+    yield makeBarrel(node.path, exports, params.sourceFiles, params.reportedCollisions)
     return true
   }
 
@@ -339,6 +378,10 @@ type GetBarrelFilesParams = {
    * No effect when nested is true (always generates hierarchical structure).
    */
   recursive?: boolean
+  /**
+   * Collision identities reported by related barrel generations in the same build.
+   */
+  reportedCollisions?: Set<string>
 }
 
 /**
@@ -354,7 +397,14 @@ type GetBarrelFilesParams = {
  * }
  * ```
  */
-export function* getBarrelFiles({ index, targetPath, barrelType, nested = false, recursive = false }: GetBarrelFilesParams): Generator<FileNode> {
+export function* getBarrelFiles({
+  index,
+  targetPath,
+  barrelType,
+  nested = false,
+  recursive = false,
+  reportedCollisions = new Set(),
+}: GetBarrelFilesParams): Generator<FileNode> {
   const node = targetPath ? findNode(index.tree, toPosixPath(targetPath)) : index.tree
   if (!node) return
 
@@ -362,11 +412,11 @@ export function* getBarrelFiles({ index, targetPath, barrelType, nested = false,
   if (!strategy) return
 
   if (nested) {
-    yield* walkNested(node, { sourceFiles: index.sourceFiles, strategy })
+    yield* walkNested(node, { sourceFiles: index.sourceFiles, strategy, reportedCollisions })
     return
   }
 
-  yield* walkAllOrNamed(node, { sourceFiles: index.sourceFiles, strategy, recursive }, true)
+  yield* walkAllOrNamed(node, { sourceFiles: index.sourceFiles, strategy, recursive, reportedCollisions }, true)
 }
 
 /**

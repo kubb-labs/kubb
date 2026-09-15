@@ -1,6 +1,7 @@
 import { ast } from '@kubb/ast'
+import { Diagnostics } from '@kubb/core'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
-import type { Config } from '@kubb/core'
+import type { Config, Diagnostic } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { buildBarrelIndex, buildTree, getBarrelFiles, getPluginOutputPrefix, isExcludedPath } from './utils.ts'
 
@@ -48,6 +49,63 @@ describe('getBarrelFiles', () => {
 
     expect(barrels).toHaveLength(1)
     expect(barrels[0]!.exports[0]?.name).toStrictEqual(expect.arrayContaining(['Pet', 'createPet']))
+  })
+
+  it('reports duplicate named exports and keeps the first one', () => {
+    const diagnostics: Array<Diagnostic> = []
+    const barrels = Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => [...getBarrelFiles({ index: buildBarrelIndex(ROOT, [makeFile(`${ROOT}/a.ts`, ['Pet']), makeFile(`${ROOT}/b.ts`, ['Pet'])]), barrelType: 'named' })],
+    )
+
+    expect(barrels[0]?.exports).toHaveLength(1)
+    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.barrelDuplicateExport, severity: 'error' }])
+  })
+
+  it('reports a type and value export with the same name', () => {
+    const value = makeFile(`${ROOT}/value.ts`, ['Pet'])
+    const type = ast.factory.createFile({
+      path: `${ROOT}/type.ts`,
+      baseName: 'type.ts',
+      sources: [ast.factory.createSource({ name: 'Pet', isIndexable: true, isTypeOnly: true, nodes: [ast.factory.createText('export type Pet = {}')] })],
+      imports: [],
+      exports: [],
+    })
+    const diagnostics: Array<Diagnostic> = []
+    const barrels = Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => [...getBarrelFiles({ index: buildBarrelIndex(ROOT, [value, type]), barrelType: 'named' })],
+    )
+
+    expect(barrels[0]?.exports).toHaveLength(1)
+    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.barrelDuplicateExport, severity: 'error' }])
+  })
+
+  it('reports duplicate wildcard exports', () => {
+    const diagnostics: Array<Diagnostic> = []
+    Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => [...getBarrelFiles({ index: buildBarrelIndex(ROOT, [makeFile(`${ROOT}/a.ts`, ['Pet']), makeFile(`${ROOT}/b.ts`, ['Pet'])]), barrelType: 'all' })],
+    )
+
+    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.barrelDuplicateExport, severity: 'error' }])
+  })
+
+  it('reports a collision once across related barrels', () => {
+    const diagnostics: Array<Diagnostic> = []
+    const index = buildBarrelIndex(ROOT, [makeFile(`${ROOT}/pets/a.ts`, ['Pet']), makeFile(`${ROOT}/pets/b.ts`, ['Pet'])])
+    const reportedCollisions = new Set<string>()
+    Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => {
+        const pluginBarrels = [...getBarrelFiles({ index, targetPath: `${ROOT}/pets`, barrelType: 'named', reportedCollisions })]
+        const rootBarrels = [...getBarrelFiles({ index, barrelType: 'named', reportedCollisions })]
+        expect(pluginBarrels).toHaveLength(1)
+        expect(rootBarrels).toHaveLength(1)
+      },
+    )
+
+    expect(diagnostics).toHaveLength(1)
   })
 
   it('generates hierarchical barrels when nested is true', () => {
