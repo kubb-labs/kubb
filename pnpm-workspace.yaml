@@ -18,7 +18,7 @@ catalog:
   tsdown: ^0.23.0
   typescript: ^6.0.3
   vitest: ^5.0.0
-  yaml: ^2.9.0
+  yaml: ^2.9.1
 minimumReleaseAge: 2880 # 48 hours, matches CI's SAFE_CHAIN_MINIMUM_PACKAGE_AGE_HOURS
 # Native platform bindings are always co-published with their parent package in the same release.
 # Excluding them avoids false-positive ERR_PNPM_NO_MATURE_MATCHING_VERSION errors.
