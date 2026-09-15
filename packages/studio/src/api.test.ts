@@ -179,6 +179,7 @@ describe('createJob', () => {
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe('http://studio/api/jobs')
     expect(init.method).toBe('POST')
+    expect(new Headers(init.headers).get('x-api-key')).toBe('ci-token')
     expect(JSON.parse(String(init.body))).toEqual({ type: 'snapshot', agentId: 'agent-1', name: '@kubb/demo', version: '1.0.0' })
   })
 })
@@ -189,8 +190,8 @@ describe('waitForJob', () => {
       .mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'running' } }))
       .mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'success', snapshot: { id: 'snap-1' } } }))
 
-    const promise = waitForJob({ studioUrl: 'http://studio', token: 'ci-token', id: 'job-1', intervalMs: 1 })
-    await vi.runAllTimersAsync()
+    const promise = waitForJob({ studioUrl: 'http://studio', token: 'ci-token', id: 'job-1' })
+    await vi.advanceTimersByTimeAsync(1000)
 
     await expect(promise).resolves.toEqual({ id: 'job-1', status: 'success', snapshot: { id: 'snap-1' } })
     expect(fetchMock).toHaveBeenCalledTimes(2)
