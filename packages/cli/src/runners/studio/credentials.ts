@@ -1,3 +1,4 @@
+import { hash } from 'node:crypto'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import path from 'node:path'
@@ -12,13 +13,24 @@ export function getKubbHome(): string {
   return process.env.KUBB_HOME ?? path.join(homedir(), '.kubb')
 }
 
+/**
+ * Root for the credential and machine identity of the current project.
+ *
+ * Studio agents are project connections, so two projects on one machine must not share the same
+ * persisted token or machine secret.
+ */
+export function getProjectKubbHome(project = process.cwd()): string {
+  const projectId = hash('sha256', project)
+  return path.join(getKubbHome(), 'projects', projectId)
+}
+
 const CREDENTIALS_FILENAME = 'credentials.json'
 
 /**
  * Absolute path of the stored credential, so callers can name it in output without rebuilding it.
  */
 export function getCredentialsPath(): string {
-  return path.join(getKubbHome(), CREDENTIALS_FILENAME)
+  return path.join(getProjectKubbHome(), CREDENTIALS_FILENAME)
 }
 
 export type Credentials = {

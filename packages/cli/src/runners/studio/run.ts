@@ -27,7 +27,7 @@ import setupReporters from '../../loggers/utils.ts'
 import { createSpinner, logBlock, logIntro, logOutro } from '../../loggers/output.ts'
 import { canUseTTY, isCIEnvironment } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
-import { clearCredentials, type Credentials, getCredentialsPath, getKubbHome, readCredentials, writeCredentials } from './credentials.ts'
+import { clearCredentials, type Credentials, getCredentialsPath, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 
 const ACTIONS = ['connect', 'login', 'logout', 'status'] as const
 
@@ -538,7 +538,7 @@ async function status(options: StudioOptions): Promise<void> {
 async function run(options: StudioOptions): Promise<void> {
   // The machine secret lives here and pairing binds it, so storage is installed before anything
   // reads `getMachineToken()`, which `startPairing` does, before any client exists.
-  setStorage(createFileStorage(path.join(getKubbHome(), 'cache')))
+  setStorage(createFileStorage(getProjectKubbHome()))
 
   const hrStart = process.hrtime()
   const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'studio', kubbVersion: options.version, hrStart, status }))
