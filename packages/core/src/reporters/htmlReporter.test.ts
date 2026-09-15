@@ -73,7 +73,20 @@ describe('htmlReporter', () => {
   })
 
   it('opens the report outside CI', async () => {
-    vi.stubEnv('CI', '')
+    for (const key of [
+      'CI',
+      'GITHUB_ACTIONS',
+      'GITLAB_CI',
+      'BITBUCKET_BUILD_NUMBER',
+      'JENKINS_URL',
+      'CIRCLECI',
+      'TRAVIS',
+      'TEAMCITY_VERSION',
+      'BUILDKITE',
+      'TF_BUILD',
+    ]) {
+      vi.stubEnv(key, '')
+    }
     using _read = vi.spyOn(utils, 'read').mockResolvedValue('const ui = true')
     using _write = vi.spyOn(utils, 'write').mockImplementation(async () => null)
     using _error = vi.spyOn(console, 'error').mockImplementation(() => {})
