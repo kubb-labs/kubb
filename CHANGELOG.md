@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.2.7 — Sep 15, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Create a separate Kubb Studio agent connection for each project directory while reusing the same agent within that directory. ([`af87dbc`](https://github.com/kubb-labs/kubb/commit/af87dbcc8bd77daabfa1ceb57f17366c83aab9d1))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.2.6 — Sep 14, 2026
 
 ### @kubb/studio
