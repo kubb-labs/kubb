@@ -4,17 +4,17 @@
  *
  * | Direction        | Type                  | Purpose                                                      |
  * | ---------------- | --------------------- | -------------------------------------------------------------|
- * | Studio → agent    | `studio:generate`     | Run a generation. No dedicated reply; the result arrives as an `agent:data` message carrying `kubb:generation:end`, so it stays ordered against the rest of that run's event stream. `studio:save`/`studio:snapshot` reply directly instead, since neither needs that ordering. |
+ * | Studio → agent    | `studio:generate`     | Run a generation. No dedicated reply, the result arrives as an `agent:data` message carrying `kubb:generation:end`, so it stays ordered against the rest of that run's event stream. `studio:save`/`studio:snapshot` reply directly instead, since neither needs that ordering. |
  * | Studio → agent    | `studio:connect`      | Ask the agent to resend its `agent:connect` handshake payload. |
  * | Studio → agent    | `studio:save`         | Edit `kubb.config.ts`. Replied to with `agent:save`. |
  * | Studio → agent    | `studio:snapshot`     | Pack a prior generation's files into a tarball and upload it to a presigned URL. Replied to with `agent:snapshot`. |
  * | Studio → agent    | `studio:pong`         | Reply to an `agent:ping` heartbeat. |
- * | Studio → agent    | `studio:ready`        | Acknowledges `agent:connect`; the session now counts as available for job dispatch. |
- * | Studio → agent    | `studio:disconnect`   | The session expired or was revoked; the agent should not reconnect. |
+ * | Studio → agent    | `studio:ready`        | Acknowledges `agent:connect`, so the session now counts as available for job dispatch. |
+ * | Studio → agent    | `studio:disconnect`   | The session expired or was revoked, so the agent should not reconnect. |
  * | Studio → agent    | `studio:error`        | A failure outside a generation, e.g. a malformed command. |
  * | Agent → Studio    | `agent:connect`       | Handshake sent on open and after every `studio:connect`. |
  * | Agent → Studio    | `agent:save`          | Reply to `studio:save`. |
- * | Agent → Studio    | `agent:snapshot`      | Reply to `studio:snapshot`; the tarball itself already went out via direct upload, so this only carries the integrity hash or an error. |
+ * | Agent → Studio    | `agent:snapshot`      | Reply to `studio:snapshot`. The tarball itself already went out via direct upload, so this only carries the integrity hash or an error. |
  * | Agent → Studio    | `agent:data`          | One generation lifecycle event, `payload.type` a {@link KubbHook}. Carries `kubb:generation:end` (the closest thing `studio:generate` has to a reply) among many others. |
  * | Agent → Studio    | `agent:ping`          | Heartbeat, so the connection is not treated as idle. |
  * | Agent → Studio    | `agent:disconnect`    | The agent is shutting down. |
