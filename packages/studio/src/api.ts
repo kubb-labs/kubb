@@ -322,23 +322,20 @@ export async function createJob({
 }
 
 /**
- * Wait before the first poll. A job runs a full Kubb generation and packs a tarball, so it is
- * never finished the instant it is queued and an immediate poll only spends rate limit.
+ * A job runs a generation and packs a tarball, so it is never done the instant it is queued.
  */
 const INITIAL_POLL_DELAY_MS = 2_000
 
 /**
- * Slowest the poll backs off to. Studio's rate-limit counter only resets after a whole window
- * passes with no request, so a fixed one-second poll spends the budget and then locks itself out
- * for as long as it keeps polling. Total requests per run are roughly `timeoutMs` divided by this,
- * and every concurrent run on the same organization key draws on the same budget.
+ * Slowest the poll backs off to. Requests per run are roughly `timeoutMs` divided by this, and
+ * every concurrent run on the same organization key draws on one budget.
  */
 const MAX_POLL_INTERVAL_MS = 30_000
 
 /**
- * Polls `GET /api/jobs/{id}` until the job reaches `success` or `failed`. The first poll waits
- * {@link INITIAL_POLL_DELAY_MS} and the interval doubles from there up to
- * {@link MAX_POLL_INTERVAL_MS}, so a long job stays inside the API key's rate limit.
+ * Polls `GET /api/jobs/{id}` until the job reaches `success` or `failed`, waiting
+ * {@link INITIAL_POLL_DELAY_MS} first and doubling up to {@link MAX_POLL_INTERVAL_MS} so a long
+ * job stays inside the API key's rate limit.
  *
  * A `failed` job resolves normally. Check `job.status` and `job.error`. Throws only when the
  * deadline passes before Studio finishes.
@@ -383,7 +380,8 @@ export async function waitForJob({
 
       if (response?.status !== 429) throw error
 
-      interval = response._data?.data?.tryAgainIn ?? MAX_POLL_INTERVAL_MS
+      // Studio's wait may exceed the ceiling, and a refusal must never shorten the next poll.
+      interval = Math.max(interval, response._data?.data?.tryAgainIn ?? MAX_POLL_INTERVAL_MS)
     }
   }
 }

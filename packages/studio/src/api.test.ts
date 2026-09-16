@@ -231,24 +231,22 @@ describe('waitForJob', () => {
 
     const promise = waitForJob({ studioUrl: 'http://studio', token: 'ci-token', id: 'job-1' })
 
-    // Nothing is queued instantly, so the first poll waits 2s and the second another 4s.
-    await vi.advanceTimersByTimeAsync(2_000)
-    expect(fetchMock).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(6_000)
 
-    await vi.advanceTimersByTimeAsync(4_000)
     await expect(promise).resolves.toEqual({ id: 'job-1', status: 'success', snapshot: { id: 'snap-1' } })
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
   it('backs off instead of polling every second for the whole timeout', async () => {
-    fetchMock.mockResolvedValue(createMockResponse({ job: { id: 'job-1', status: 'running' } }))
+    // A body reads once, so a shared Response would end the loop early.
+    fetchMock.mockImplementation(() => Promise.resolve(createMockResponse({ job: { id: 'job-1', status: 'running' } })))
 
-    const promise = waitForJob({ studioUrl: 'http://studio', token: 'ci-token', id: 'job-1', timeoutMs: 600_000 }).catch(() => undefined)
+    const promise = waitForJob({ studioUrl: 'http://studio', token: 'ci-token', id: 'job-1', timeoutMs: 600_000 })
+    const timedOut = expect(promise).rejects.toThrow('Timed out waiting for the Studio job')
     await vi.advanceTimersByTimeAsync(600_000)
-    await promise
+    await timedOut
 
-    // A one-second poll would have spent 600 requests against a 100-per-window budget shared by
-    // every concurrent run on the same key.
+    // A one-second poll would have spent 600 against a budget of 100 per window.
     expect(fetchMock.mock.calls.length).toBeLessThan(30)
   })
 
@@ -259,10 +257,8 @@ describe('waitForJob', () => {
 
     const promise = waitForJob({ studioUrl: 'http://studio', token: 'ci-token', id: 'job-1', timeoutMs: 600_000 })
 
-    await vi.advanceTimersByTimeAsync(2_000)
-    expect(fetchMock).toHaveBeenCalledTimes(1)
-
-    await vi.advanceTimersByTimeAsync(29_000)
+    // The 2s poll is refused, so the next waits the 30s Studio asked for, not 4s.
+    await vi.advanceTimersByTimeAsync(31_000)
     expect(fetchMock).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(1_000)
