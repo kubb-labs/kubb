@@ -1,5 +1,35 @@
 # Changelog
 
+## v5.3.3 — Sep 16, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- The agent runtime now packs snapshot tarballs itself. A new `studio:snapshot` command builds the
+  npm-installable tarball from the session's most recent generation and uploads it to a Studio
+  endpoint, instead of Studio building the tarball on its own server. A snapshot request with no
+  prior generation is refused.
+  
+  A CI connection also keeps generated files off every `kubb:generation:end` reply, since it has no
+  UI to render them in. `kubb studio snapshot` and the Studio UI's "Create snapshot" button keep
+  working as before, now backed by this protocol message. ([#4052](https://github.com/kubb-labs/kubb/pull/4052), [`19e9c2c`](https://github.com/kubb-labs/kubb/commit/19e9c2c70687f6440cd2d3e74d153edb64491d8d))
+- The background reconnect loop's "Retrying connection" and "Reconnect attempt failed" lines, and
+  the teardown notice `disconnect()` prints on the way out, now go through `console.error` instead
+  of `console.info`/`console.log`, and only print when a host passes a `logLevel` above `silent` to
+  `StudioSession`. Previously they always printed unconditionally, which a CI runner that only
+  streams a child process's stderr live (such as `kubb-labs/action`) never surfaces, and which
+  contradicted `installLogger`'s own "prints nothing when left out" default.
+  
+  `kubb studio` and `kubb studio snapshot` now pass their `--log-level` flag through, so these lines
+  respect the same flag as the rest of the command's output. ([#4052](https://github.com/kubb-labs/kubb/pull/4052), [`19e9c2c`](https://github.com/kubb-labs/kubb/commit/19e9c2c70687f6440cd2d3e74d153edb64491d8d))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.2 — Sep 16, 2026
 
 ### @kubb/cli
