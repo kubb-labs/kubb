@@ -285,9 +285,8 @@ export type StudioSnapshotMessage = {
     version: string
     peerDependencies?: Record<string, string>
     /**
-     * Studio path the agent `PUT`s the finished tarball to, resolved against the agent's own
-     * `studioUrl`. Studio answers it with a redirect to storage, so the storage URL stays out of
-     * this message.
+     * Studio path the agent `PUT`s the finished tarball to. Studio answers with a redirect to
+     * storage, so the storage URL stays out of this message.
      */
     uploadPath: string
   }
@@ -433,8 +432,8 @@ export type AgentSaveMessage = {
 }
 
 /**
- * Reply to a `studio:snapshot` command. The tarball itself already went to storage through the
- * agent's own upload, so this only reports whether that upload succeeded.
+ * Reply to `studio:snapshot`. The tarball already went to storage, so this only reports whether
+ * the upload succeeded.
  */
 export type AgentSnapshotMessage = {
   type: 'agent:snapshot'
