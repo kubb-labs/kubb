@@ -1,5 +1,5 @@
 ---
-'@kubb/studio': minor
+'@kubb/studio': patch
 ---
 
 Renamed the `studio:ping` heartbeat reply to `studio:pong`, matching the ping/pong pattern
