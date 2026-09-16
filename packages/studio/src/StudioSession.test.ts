@@ -823,24 +823,80 @@ describe('StudioSession', () => {
     expect(vi.mocked(setupEventsStream).mock.results[1]?.value).toHaveBeenCalledTimes(1)
   })
 
-  it('skips storage on the event stream for a CI client, which has no UI to render the files in', async () => {
-    await connect({ ...options, client: { kind: 'ci' } })
+  // files command
 
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate' }),
+  describe('files command', () => {
+    function reply(type: 'agent:files') {
+      return vi
+        .mocked(sendAgentMessage)
+        .mock.calls.map(([, message]) => message)
+        .findLast((message) => message.type === type)
+    }
+
+    // `onGenerationEnd` has to fire while `generate()` is still pending, the same as a real
+    // `setupEventsStream` reacting to the `kubb:generation:end` hook mid-run, so `#handleFiles`
+    // has the cached result by the time a `studio:files` command arrives.
+    async function generateThenRequestFiles(paths: Array<string> = ['src/index.ts']) {
+      vi.mocked(generate).mockImplementationOnce(async () => {
+        vi.mocked(setupEventsStream)
+          .mock.calls.at(-1)?.[3]
+          ?.onGenerationEnd?.({ files: { 'src/index.ts': 'export {}' }, peerDependencies: {}, missingDependencies: [] })
+      })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:files', jobId: 'job-1', payload: { paths } }) })
+    }
+
+    it('refuses when the agent was not granted allowRead', async () => {
+      await connect(options) // allowRead: false
+
+      await generateThenRequestFiles()
+
+      expect(reply('agent:files')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('not granted') })
     })
 
-    expect(vi.mocked(setupEventsStream).mock.calls[0]?.[3]).toMatchObject({ skipStorage: true })
-  })
+    it('serves the requested file once allowRead is granted', async () => {
+      await connect({ ...options, permissions: { allowRead: true } })
 
-  it.each(['cli', 'docker'] as const)('sends storage on the event stream for a %s client', async (kind) => {
-    await connect({ ...options, client: { kind } })
+      await generateThenRequestFiles()
 
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate' }),
+      expect(reply('agent:files')?.payload).toStrictEqual({ status: 'ok', files: { 'src/index.ts': 'export {}' } })
     })
 
-    expect(vi.mocked(setupEventsStream).mock.calls[0]?.[3]).toMatchObject({ skipStorage: false })
+    it('serves files for a sandbox agent even when allowRead is false', async () => {
+      vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
+
+      await connect({ ...options, permissions: { allowRead: false } })
+
+      await generateThenRequestFiles()
+
+      expect(reply('agent:files')?.payload).toStrictEqual({ status: 'ok', files: { 'src/index.ts': 'export {}' } })
+    })
+
+    it('omits a path the last generation did not produce, rather than refusing the whole request', async () => {
+      await connect({ ...options, permissions: { allowRead: true } })
+
+      await generateThenRequestFiles(['src/index.ts', 'src/missing.ts'])
+
+      expect(reply('agent:files')?.payload).toStrictEqual({ status: 'ok', files: { 'src/index.ts': 'export {}' } })
+    })
+
+    it('refuses a request over the per-message path cap', async () => {
+      await connect({ ...options, permissions: { allowRead: true } })
+
+      await generateThenRequestFiles(Array.from({ length: 51 }, (_, index) => `src/file-${index}.ts`))
+
+      expect(reply('agent:files')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('50') })
+    })
+
+    it('refuses when no prior generation exists to read from', async () => {
+      await connect({ ...options, permissions: { allowRead: true } })
+
+      await mockWs.trigger('message', {
+        data: JSON.stringify({ type: 'studio:files', jobId: 'job-1', payload: { paths: ['src/index.ts'] } }),
+      })
+
+      expect(reply('agent:files')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('no prior generation') })
+    })
   })
 
   // snapshot command
@@ -855,10 +911,17 @@ describe('StudioSession', () => {
 
     // `onGenerationEnd` has to fire while `generate()` is still pending, the same as a real
     // `setupEventsStream` reacting to the `kubb:generation:end` hook mid-run, so `#handleGenerate`
-    // has the files by the time its `finally` block caches them.
-    async function generateThenSnapshot(payload: Record<string, unknown> = { name: 'pkg', version: '1.0.0', uploadPath: '/api/agent/snapshots/id/upload' }) {
+    // has the result by the time its callback caches it.
+    async function generateThenSnapshot(
+      payload: Record<string, unknown> = { name: 'pkg', version: '1.0.0', uploadPath: '/api/agent/snapshots/id/upload' },
+      generation: { files: Record<string, string>; peerDependencies: Record<string, string>; missingDependencies: Array<string> } = {
+        files: { 'src/index.ts': 'export {}' },
+        peerDependencies: { '@kubb/core': '5.0.0' },
+        missingDependencies: [],
+      },
+    ) {
       vi.mocked(generate).mockImplementationOnce(async () => {
-        vi.mocked(setupEventsStream).mock.calls.at(-1)?.[3]?.onGenerationEnd?.({ 'src/index.ts': 'export {}' })
+        vi.mocked(setupEventsStream).mock.calls.at(-1)?.[3]?.onGenerationEnd?.(generation)
       })
       await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
       await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:snapshot', jobId: 'job-1', payload }) })
@@ -907,19 +970,48 @@ describe('StudioSession', () => {
       expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('no prior generation') })
     })
 
-    it('packs the cached generation, asks Studio for a storage URL with no body, uploads to it, and replies with the integrity hash', async () => {
+    it('packs the cached generation, asks Studio for a storage URL with no body, uploads to it, and replies with the integrity hash and peer dependencies', async () => {
       await connect(options)
 
       await generateThenSnapshot()
 
-      expect(createSnapshotPackage).toHaveBeenCalledWith({ 'src/index.ts': 'export {}' }, expect.objectContaining({ name: 'pkg', version: '1.0.0' }))
+      expect(createSnapshotPackage).toHaveBeenCalledWith(
+        { 'src/index.ts': 'export {}' },
+        expect.objectContaining({ name: 'pkg', version: '1.0.0', peerDependencies: { '@kubb/core': '5.0.0' } }),
+      )
       expect(fetch).toHaveBeenNthCalledWith(1, new URL('/api/agent/snapshots/id/upload', 'https://kubb.studio'), {
         method: 'PUT',
         headers: { Authorization: 'Bearer my-token' },
         redirect: 'manual',
       })
       expect(fetch).toHaveBeenNthCalledWith(2, 'https://storage.example.com/upload', { method: 'PUT', body: new Uint8Array([1]) })
-      expect(reply('agent:snapshot')?.payload).toStrictEqual({ status: 'ok', integrity: 'sha512-abc' })
+      expect(reply('agent:snapshot')?.payload).toStrictEqual({ status: 'ok', integrity: 'sha512-abc', peerDependencies: { '@kubb/core': '5.0.0' } })
+    })
+
+    it('refuses before any upload when the generation has a missing dependency Studio does not bundle', async () => {
+      await connect(options)
+
+      await generateThenSnapshot(undefined, {
+        files: { 'src/index.ts': 'export {}' },
+        peerDependencies: {},
+        missingDependencies: ['@kubb/plugin-barrel'],
+      })
+
+      expect(fetch).not.toHaveBeenCalled()
+      expect(createSnapshotPackage).not.toHaveBeenCalled()
+      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('@kubb/plugin-barrel') })
+    })
+
+    it('packs anyway when the missing dependency is one Studio bundles', async () => {
+      await connect(options)
+
+      await generateThenSnapshot(
+        { name: 'pkg', version: '1.0.0', uploadPath: '/api/agent/snapshots/id/upload', bundledDependencies: ['@kubb/plugin-barrel'] },
+        { files: { 'src/index.ts': 'export {}' }, peerDependencies: {}, missingDependencies: ['@kubb/plugin-barrel'] },
+      )
+
+      expect(createSnapshotPackage).toHaveBeenCalled()
+      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'ok' })
     })
 
     it('refuses when Studio does not redirect to a storage URL', async () => {
@@ -944,7 +1036,9 @@ describe('StudioSession', () => {
       await connect(options)
 
       vi.mocked(generate).mockImplementationOnce(async () => {
-        vi.mocked(setupEventsStream).mock.calls.at(-1)?.[3]?.onGenerationEnd?.({ 'src/index.ts': 'export {}' })
+        vi.mocked(setupEventsStream)
+          .mock.calls.at(-1)?.[3]
+          ?.onGenerationEnd?.({ files: { 'src/index.ts': 'export {}' }, peerDependencies: {}, missingDependencies: [] })
       })
       await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
 
@@ -1069,6 +1163,7 @@ describe('StudioSession', () => {
       expect.objectContaining({
         payload: expect.objectContaining({
           permissions: {
+            allowRead: false,
             allowWrite: true,
             allowConfigEdit: false,
             allowInput: false,
@@ -1091,6 +1186,7 @@ describe('StudioSession', () => {
       expect.objectContaining({
         payload: expect.objectContaining({
           permissions: {
+            allowRead: false,
             allowWrite: false,
             allowConfigEdit: false,
             allowInput: true,
@@ -1101,7 +1197,7 @@ describe('StudioSession', () => {
     )
   })
 
-  it('disables write in sandbox mode but still accepts input', async () => {
+  it('disables write in sandbox mode but still accepts input and read', async () => {
     vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
     const sandboxWs = new MockWebSocket()
     vi.mocked(createWebsocket).mockReturnValue(sandboxWs as any)
@@ -1117,6 +1213,7 @@ describe('StudioSession', () => {
       expect.objectContaining({
         payload: expect.objectContaining({
           permissions: {
+            allowRead: true,
             allowWrite: false,
             allowConfigEdit: false,
             allowInput: true,

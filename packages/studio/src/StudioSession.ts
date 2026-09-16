@@ -16,6 +16,7 @@ import {
   isDisconnectMessage,
   isStudioPongMessage,
   isStudioReadyMessage,
+  MAX_FILES_PER_REQUEST,
 } from './protocol/index.ts'
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { applyConfigEdits, readConfig } from './configFile.ts'
@@ -129,7 +130,7 @@ function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
     // `configPath` is relative to the agent's root unless it is already absolute, which is what
     // `resolve` does on its own.
     configFile: path.resolve(root, options.configPath),
-    permissions: { allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false, ...options.permissions },
+    permissions: { allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false, allowRead: false, ...options.permissions },
     retryInterval: options.retryInterval ?? agentDefaults.retryIntervalMs,
     // Studio counts an agent offline once its last ping is older than its liveness window, so a
     // slower cadence would make a healthy agent invisible. Clamped here rather than in a host's
@@ -230,11 +231,11 @@ export class StudioSession {
   // connection is half-open (e.g. dropped during a Studio deploy) and must be terminated so the
   // reconnect loop can establish a fresh session.
   #lastPongAt = Date.now()
-  // The most recent generation's files, kept so `studio:snapshot` can pack them without Studio
-  // round tripping the file contents back out over the socket. Set after every generation attempt,
-  // undefined again if it failed before `kubb:generation:end` fired, so a snapshot never packs a
-  // stale run.
-  #lastGeneration: Record<string, string> | undefined
+  // The most recent generation's result, kept so `studio:files` and `studio:snapshot` can read it
+  // without Studio round tripping the file contents or dependency metadata back out over the
+  // socket. Set as soon as `kubb:generation:end` fires, undefined again if a run fails before that,
+  // so neither a file request nor a snapshot ever reads a stale run.
+  #lastGeneration: { files: Record<string, string>; peerDependencies: Record<string, string>; missingDependencies: Array<string> } | undefined
 
   constructor(options: StudioSessionOptions) {
     this.#options = applyStudioDefaults(options)
@@ -261,6 +262,14 @@ export class StudioSession {
    */
   get #canUseInput(): boolean {
     return this.#isSandbox || this.#options.permissions.allowInput
+  }
+
+  /**
+   * A sandbox agent's output is the only thing it has, so it always allows Studio to read it back.
+   * A local agent only when the host opted in.
+   */
+  get #canRead(): boolean {
+    return this.#isSandbox || this.#options.permissions.allowRead
   }
 
   async connect(): Promise<void> {
@@ -403,6 +412,7 @@ export class StudioSession {
           allowWrite: this.#canWrite,
           allowInput: this.#canUseInput,
           allowConfigEdit: this.#canEditConfig,
+          allowRead: this.#canRead,
         },
       },
     })
@@ -606,6 +616,9 @@ export class StudioSession {
       case 'studio:snapshot':
         await this.#handleSnapshot(ws, data, command)
         return
+      case 'studio:files':
+        await this.#handleFiles(ws, data, command)
+        return
     }
   }
 
@@ -647,15 +660,14 @@ export class StudioSession {
 
       // The session's own emitter carries the run: the host's logger is already on it from
       // `connect`, and these two come off again below, so one run's listeners never see the next.
-      // A CI client has no UI to render the files for, so it keeps them off the reply on its own
-      // rather than Studio asking for that on a per-request basis.
-      let generatedFiles: Record<string, string> | undefined
+      // Cleared up front and filled the moment `kubb:generation:end` fires, so a `studio:files` or
+      // `studio:snapshot` request never reads a stale or half-finished run.
+      this.#lastGeneration = undefined
       const detach = [
         setupHookListener(this.#hooks, root),
         setupEventsStream(ws, this.#hooks, data.jobId, {
-          skipStorage: client?.kind === 'ci',
-          onGenerationEnd: (files) => {
-            generatedFiles = files
+          onGenerationEnd: (result) => {
+            this.#lastGeneration = result
           },
         }),
       ]
@@ -675,7 +687,6 @@ export class StudioSession {
         })
       } finally {
         for (const remove of detach) remove()
-        this.#lastGeneration = generatedFiles
       }
 
       await this.#hooks.callHook('studio:command:end', {
@@ -766,7 +777,7 @@ export class StudioSession {
       return
     }
 
-    const { name, version, peerDependencies, uploadPath } = data.payload
+    const { name, version, bundledDependencies, uploadPath } = data.payload
 
     if (!name || !version || !uploadPath) {
       await this.#warn('Ignored snapshot: the message was missing required fields')
@@ -775,17 +786,27 @@ export class StudioSession {
       return
     }
 
-    const files = this.#lastGeneration
+    const generation = this.#lastGeneration
 
-    if (!files) {
+    if (!generation) {
       await this.#warn('Ignored snapshot: no prior generation to pack')
       refuse('no prior generation exists to pack, run a generation first')
 
       return
     }
 
+    const bundled = new Set(bundledDependencies ?? [])
+    const missing = generation.missingDependencies.filter((dependency) => !bundled.has(dependency))
+
+    if (missing.length) {
+      await this.#warn(`Ignored snapshot: missing dependencies: ${missing.join(', ')}`)
+      refuse(`missing dependencies: ${missing.join(', ')}`)
+
+      return
+    }
+
     try {
-      const { bytes, integrity } = await createSnapshotPackage(files, { name, version, peerDependencies: peerDependencies ?? {} })
+      const { bytes, integrity } = await createSnapshotPackage(generation.files, { name, version, peerDependencies: generation.peerDependencies })
 
       // The tarball can't go on this request: Studio's handler answers before reading the body,
       // so the connection drops mid-upload. Ask for the redirect with an empty body first, then
@@ -807,15 +828,73 @@ export class StudioSession {
         throw new Error(`Snapshot upload failed with status ${response.status}`)
       }
 
-      sendAgentMessage(ws, { type: 'agent:snapshot', jobId: data.jobId, payload: { status: 'ok', integrity } })
+      sendAgentMessage(ws, {
+        type: 'agent:snapshot',
+        jobId: data.jobId,
+        payload: { status: 'ok', integrity, peerDependencies: generation.peerDependencies },
+      })
       await this.#hooks.callHook('studio:command:end', {
         command,
-        info: `packed ${Object.keys(files).length} file${Object.keys(files).length === 1 ? '' : 's'}`,
+        info: `packed ${Object.keys(generation.files).length} file${Object.keys(generation.files).length === 1 ? '' : 's'}`,
       })
     } catch (error) {
       await this.#hooks.callHook('studio:error', { error: toError(error) })
 
       refuse(getErrorMessage(error))
     }
+  }
+
+  async #handleFiles(ws: WebSocket, data: Extract<AgentMessage, { type: 'studio:files' }>, command: string): Promise<void> {
+    const { client } = this.#options
+    const refuse = (message: string) => sendAgentMessage(ws, { type: 'agent:files', jobId: data.jobId, payload: { status: 'error', message } })
+
+    if (!this.#canRead) {
+      await this.#warn('Ignored files: reading generated files was not granted')
+
+      // The Docker agent reads `allowRead` from `KUBB_AGENT_ALLOW_READ`. The CLI grants it through
+      // `--allow-read` or the per-project prompt instead, so each host gets its own remedy.
+      const remedy = client?.kind === 'cli' ? '--allow-read, or answer yes when kubb studio asks,' : 'KUBB_AGENT_ALLOW_READ=true'
+      refuse(`the agent was not granted permission to read generated files; set ${remedy} to allow it`)
+
+      return
+    }
+
+    // `paths` crosses the same trust boundary as `studio:save`'s `edits`: checked before it is
+    // walked, since the message came off the wire.
+    if (!Array.isArray(data.payload?.paths)) {
+      await this.#warn('Ignored files: the message carried no paths')
+      refuse('the message carried no paths')
+
+      return
+    }
+
+    const { paths } = data.payload
+
+    if (paths.length > MAX_FILES_PER_REQUEST) {
+      await this.#warn(`Ignored files: requested ${paths.length} paths, more than the ${MAX_FILES_PER_REQUEST} allowed per request`)
+      refuse(`at most ${MAX_FILES_PER_REQUEST} paths may be requested at once`)
+
+      return
+    }
+
+    const generation = this.#lastGeneration
+
+    if (!generation) {
+      await this.#warn('Ignored files: no prior generation to read from')
+      refuse('no prior generation to read from, run a generation first')
+
+      return
+    }
+
+    // Served only out of the cached result of the last generation: this handler never touches the
+    // filesystem, so no path a caller sends can reach outside what that run produced. A path the
+    // run did not produce is left out rather than reported, so one stale path does not fail the rest.
+    const files = Object.fromEntries(paths.filter((path) => path in generation.files).map((path) => [path, generation.files[path]!]))
+
+    sendAgentMessage(ws, { type: 'agent:files', jobId: data.jobId, payload: { status: 'ok', files } })
+    await this.#hooks.callHook('studio:command:end', {
+      command,
+      info: `read ${Object.keys(files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}`,
+    })
   }
 }

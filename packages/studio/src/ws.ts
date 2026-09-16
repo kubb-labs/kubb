@@ -10,9 +10,9 @@ import { toPackageName } from './resolveConfig.ts'
 type WebSocketOptions = WebSocket.ClientOptions
 
 /**
- * How many generated files are read from storage at once when building the
- * `kubb:generation:end` payload. A spec producing thousands of files would otherwise fire one
- * `storage.readItem` per file simultaneously.
+ * How many generated files are read from storage at once when caching a run's output for
+ * `studio:files` and `studio:snapshot`. A spec producing thousands of files would otherwise fire
+ * one `storage.readItem` per file simultaneously.
  */
 const FILE_READ_CONCURRENCY = 50
 
@@ -134,16 +134,11 @@ export function setupEventsStream(
   jobId: string,
   options: {
     /**
-     * Send `storage: {}` on `kubb:generation:end` instead of the generated files. `onGenerationEnd`
-     * still receives the full files map either way, so a caller that needs them for something other
-     * than the wire (e.g. packing a snapshot) still gets them.
+     * Called with the flattened files map, resolved peer dependencies, and missing dependencies
+     * once a generation finishes. None of this rides the wire on `kubb:generation:end` anymore: the
+     * caller is expected to cache it for `studio:files` and `studio:snapshot` to read later.
      */
-    skipStorage?: boolean
-    /**
-     * Called with the flattened files map built for `kubb:generation:end`, whether or not
-     * `skipStorage` kept it off the wire.
-     */
-    onGenerationEnd?: (files: Record<string, string>) => void
+    onGenerationEnd?: (result: { files: Record<string, string>; peerDependencies: Record<string, string>; missingDependencies: Array<string> }) => void
   } = {},
 ): () => void {
   const unhooks: Array<() => void> = []
@@ -185,10 +180,10 @@ export function setupEventsStream(
     })
   })
 
-  on('kubb:build:end', ({ files, outputDir }) => {
+  on('kubb:build:end', ({ files, config, outputDir }) => {
     sendDataMessage({
       type: 'kubb:build:end',
-      data: [{ files: files.map((file) => ({ path: file.path, name: file.name })), outputDir }],
+      data: [{ files: files.map((file) => ({ path: relativeStoragePath(config.root, file.path), name: file.name })), outputDir }],
     })
   })
 
@@ -254,11 +249,11 @@ export function setupEventsStream(
       },
     })
 
-    options.onGenerationEnd?.(files)
+    options.onGenerationEnd?.({ files, peerDependencies, missingDependencies })
 
     sendDataMessage({
       type: 'kubb:generation:end',
-      data: [{ config, storage: options.skipStorage ? {} : files, peerDependencies, missingDependencies }],
+      data: [],
     })
 
     if (!hrStart) {

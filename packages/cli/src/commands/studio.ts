@@ -7,9 +7,10 @@ import { define } from 'gunshi'
 export const definition = define({
   name: 'studio',
   description:
-    'Connect this project to Kubb Studio and generate from the browser, or run `snapshot` from CI to publish one from a script. The first run pairs the machine: the CLI shows a code, you approve it in Studio, and the token is stored in ~/.kubb. The connection is read-only unless you grant more with --allow-write, --allow-config-edit, --allow-input or --allow-exec.',
+    'Connect this project to Kubb Studio and generate from the browser, or run `snapshot` from CI to publish one from a script. The first run pairs the machine: the CLI shows a code, you approve it in Studio, and the token is stored in ~/.kubb. The connection may only run a generation and report which files it produced unless you grant more with --allow-read, --allow-write, --allow-config-edit, --allow-input or --allow-exec.',
   examples: [
     'kubb studio                              # connect this project, asking what Studio may do',
+    'kubb studio --allow-read                 # show generated files in the browser',
     'kubb studio --allow-write                # grant writing generated files, no question asked',
     'kubb studio --allow-write --allow-exec   # also run the formatter, the linter, and postGenerate',
     'kubb studio --allow-config-edit          # let Studio change plugin options in kubb.config.ts',
@@ -35,6 +36,11 @@ export const definition = define({
     url: {
       type: 'string',
       description: 'Base URL of the Kubb Studio instance',
+    },
+    allowRead: {
+      type: 'boolean',
+      description: 'Read the source of files a generation produced. Asked for once per project when omitted',
+      default: false,
     },
     allowWrite: {
       type: 'boolean',

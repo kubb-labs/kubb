@@ -182,7 +182,7 @@ export async function snapshot(options: StudioOptions): Promise<void> {
     configPath,
     root: process.cwd(),
     version: options.version,
-    client: { kind: 'ci' },
+    client: { kind: 'cli' },
     logLevel: logLevelMap[options.logLevel ?? 'info'],
     loadConfig: async () => (await loadConfigs(options)).config,
     installLogger: (hooks) => {
