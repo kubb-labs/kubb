@@ -230,9 +230,52 @@ describe('waitForJob', () => {
       .mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'success', snapshot: { id: 'snap-1' } } }))
 
     const promise = waitForJob({ studioUrl: 'http://studio', token: 'ci-token', id: 'job-1' })
-    await vi.advanceTimersByTimeAsync(1000)
+
+    await vi.advanceTimersByTimeAsync(6_000)
 
     await expect(promise).resolves.toEqual({ id: 'job-1', status: 'success', snapshot: { id: 'snap-1' } })
     expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('backs off instead of polling every second for the whole timeout', async () => {
+    // A body reads once, so a shared Response would end the loop early.
+    fetchMock.mockImplementation(() => Promise.resolve(createMockResponse({ job: { id: 'job-1', status: 'running' } })))
+
+    const promise = waitForJob({ studioUrl: 'http://studio', token: 'ci-token', id: 'job-1', timeoutMs: 600_000 })
+    const timedOut = expect(promise).rejects.toThrow('Timed out waiting for the Studio job')
+    await vi.advanceTimersByTimeAsync(600_000)
+    await timedOut
+
+    // A one-second poll would have spent 600 against a budget of 100 per window.
+    expect(fetchMock.mock.calls.length).toBeLessThan(30)
+  })
+
+  it('waits the interval Studio asks for when it answers 429', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createMockResponse({ data: { tryAgainIn: 30_000 } }, 429))
+      .mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'success' } }))
+
+    const promise = waitForJob({ studioUrl: 'http://studio', token: 'ci-token', id: 'job-1', timeoutMs: 600_000 })
+
+    // The 2s poll is refused, so the next waits the 30s Studio asked for, not 4s.
+    await vi.advanceTimersByTimeAsync(31_000)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(1_000)
+    await expect(promise).resolves.toEqual({ id: 'job-1', status: 'success' })
+  })
+
+  it('falls back to the ceiling when a 429 carries an unusable tryAgainIn', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createMockResponse({ data: { tryAgainIn: 'soon' } }, 429))
+      .mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'success' } }))
+
+    const promise = waitForJob({ studioUrl: 'http://studio', token: 'ci-token', id: 'job-1', timeoutMs: 600_000 })
+
+    await vi.advanceTimersByTimeAsync(31_000)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(1_000)
+    await expect(promise).resolves.toEqual({ id: 'job-1', status: 'success' })
   })
 })

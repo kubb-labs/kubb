@@ -322,7 +322,20 @@ export async function createJob({
 }
 
 /**
- * Polls `GET /api/jobs/{id}` until the job reaches `success` or `failed`.
+ * A job runs a generation and packs a tarball, so it is never done the instant it is queued.
+ */
+const INITIAL_POLL_DELAY_MS = 2_000
+
+/**
+ * Slowest the poll backs off to. Requests per run are roughly `timeoutMs` divided by this, and
+ * every concurrent run on the same organization key draws on one budget.
+ */
+const MAX_POLL_INTERVAL_MS = 30_000
+
+/**
+ * Polls `GET /api/jobs/{id}` until the job reaches `success` or `failed`, waiting
+ * {@link INITIAL_POLL_DELAY_MS} first and doubling up to {@link MAX_POLL_INTERVAL_MS} so a long
+ * job stays inside the API key's rate limit.
  *
  * A `failed` job resolves normally. Check `job.status` and `job.error`. Throws only when the
  * deadline passes before Studio finishes.
@@ -344,16 +357,34 @@ export async function waitForJob({
   timeoutMs?: number
 }): Promise<StudioJob> {
   const deadline = Date.now() + timeoutMs
+  let interval = INITIAL_POLL_DELAY_MS
 
   for (;;) {
-    const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs/${id}`, {
-      headers: { 'x-api-key': token },
-    })
+    await new Promise((resolve) => setTimeout(resolve, Math.max(Math.min(interval, deadline - Date.now()), 0)))
 
-    if (job.status === 'success' || job.status === 'failed') return job
     if (Date.now() >= deadline) throw new Error('Timed out waiting for the Studio job')
 
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    interval = Math.min(interval * 2, MAX_POLL_INTERVAL_MS)
+
+    try {
+      // ofetch retries a 429 immediately, which spends the rate limit faster than not retrying.
+      const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs/${id}`, {
+        headers: { 'x-api-key': token },
+        retry: false,
+      })
+
+      if (job.status === 'success' || job.status === 'failed') return job
+    } catch (error) {
+      const response = (error as { response?: { status?: number; _data?: { data?: { tryAgainIn?: unknown } } } }).response
+
+      if (response?.status !== 429) throw error
+
+      const retryAfter = response._data?.data?.tryAgainIn
+      const usable = typeof retryAfter === 'number' && Number.isFinite(retryAfter) && retryAfter > 0
+
+      // Studio's wait may exceed the ceiling, and a refusal must never shorten the next poll.
+      interval = Math.max(interval, usable ? retryAfter : MAX_POLL_INTERVAL_MS)
+    }
   }
 }
 
