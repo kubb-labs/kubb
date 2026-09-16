@@ -4,7 +4,7 @@
  *
  * | Direction        | Type                  | Purpose                                                      |
  * | ---------------- | --------------------- | -------------------------------------------------------------|
- * | Studio → agent    | `studio:generate`     | Run a generation. No dedicated reply, the result arrives as an `agent:data` message carrying `kubb:generation:end`, so it stays ordered against the rest of that run's event stream. `studio:save`/`studio:snapshot` reply directly instead, since neither needs that ordering. `skipStorage` keeps the generated files off that reply, for a job Studio only wants packaged, never rendered. |
+ * | Studio → agent    | `studio:generate`     | Run a generation. No dedicated reply, the result arrives as an `agent:data` message carrying `kubb:generation:end`, so it stays ordered against the rest of that run's event stream. `studio:save`/`studio:snapshot` reply directly instead, since neither needs that ordering. A CI client omits `storage` from that reply on its own, since it has no UI to render the files for. |
  * | Studio → agent    | `studio:connect`      | Ask the agent to resend its `agent:connect` handshake payload. |
  * | Studio → agent    | `studio:save`         | Edit `kubb.config.ts`. Replied to with `agent:save`. |
  * | Studio → agent    | `studio:snapshot`     | Pack the session's most recent generation into a tarball and upload it to a presigned URL. Carries no file contents itself. Replied to with `agent:snapshot`. |
@@ -244,14 +244,6 @@ export type StudioGenerateMessage = {
   type: 'studio:generate'
   jobId: string
   payload: JSONKubbConfig
-  /**
-   * Skip the `storage` field on the resulting `kubb:generation:end`, and keep the generated files
-   * on the session instead so a following `studio:snapshot` can pack them without Studio round
-   * tripping the file contents back out over the socket. Studio sets this for a job it only wants
-   * packaged, never rendered, like a CI-triggered or UI-triggered snapshot. Left unset (or false)
-   * for a live generation the UI renders, which needs the file contents in the reply.
-   */
-  skipStorage?: boolean
 }
 
 /**

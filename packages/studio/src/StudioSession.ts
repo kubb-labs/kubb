@@ -634,11 +634,13 @@ export class StudioSession {
 
       // The session's own emitter carries the run: the host's logger is already on it from
       // `connect`, and these two come off again below, so one run's listeners never see the next.
+      // A CI client has no UI to render the files for, so it keeps them off the reply on its own
+      // rather than Studio asking for that on a per-request basis.
       let generatedFiles: Record<string, string> | undefined
       const detach = [
         setupHookListener(this.#hooks, root),
         setupEventsStream(ws, this.#hooks, data.jobId, {
-          skipStorage: data.skipStorage,
+          skipStorage: client?.kind === 'ci',
           onGenerationEnd: (files) => {
             generatedFiles = files
           },

@@ -822,14 +822,24 @@ describe('StudioSession', () => {
     expect(vi.mocked(setupEventsStream).mock.results[1]?.value).toHaveBeenCalledTimes(1)
   })
 
-  it('forwards skipStorage to the event stream, for a generation only meant to be packed', async () => {
-    await connect(options)
+  it('skips storage on the event stream for a CI client, which has no UI to render the files in', async () => {
+    await connect({ ...options, client: { kind: 'ci' } })
 
     await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate', skipStorage: true }),
+      data: JSON.stringify({ type: 'studio:generate' }),
     })
 
     expect(vi.mocked(setupEventsStream).mock.calls[0]?.[3]).toMatchObject({ skipStorage: true })
+  })
+
+  it.each(['cli', 'docker'] as const)('sends storage on the event stream for a %s client', async (kind) => {
+    await connect({ ...options, client: { kind } })
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'studio:generate' }),
+    })
+
+    expect(vi.mocked(setupEventsStream).mock.calls[0]?.[3]).toMatchObject({ skipStorage: false })
   })
 
   // snapshot command

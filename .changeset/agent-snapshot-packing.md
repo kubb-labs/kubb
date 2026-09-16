@@ -8,10 +8,10 @@ a prior generation's files and uploads it directly to the presigned URL Studio p
 of Studio building the tarball on its own server.
 
 `studio:snapshot` packs whatever the session's own most recent `studio:generate` produced, so it
-carries no file contents itself, only the package name, version, and upload URL. `studio:generate`
-gains a `skipStorage` flag Studio sets for a generation it only wants packaged, which keeps the
-generated files off the `kubb:generation:end` reply and caches them on the session instead. A
-snapshot request with no prior generation on the session is refused.
+carries no file contents itself, only the package name, version, and upload URL. A snapshot
+request with no prior generation on the session is refused. A CI connection (`client.kind: 'ci'`)
+also keeps the generated files off `kubb:generation:end` for every generation, not just a
+snapshot's, since it has no UI to render them in.
 
 A `kubb studio snapshot` command or the Studio UI's "Create snapshot" button keeps working exactly
 as before, now backed by this new protocol message under the hood.
