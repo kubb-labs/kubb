@@ -863,9 +863,11 @@ describe('StudioSession', () => {
       await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:snapshot', jobId: 'job-1', payload }) })
     }
 
+    const redirectResponse = { status: 307, headers: new Headers({ location: 'https://storage.example.com/upload' }) }
+
     beforeEach(() => {
       vi.mocked(createSnapshotPackage).mockResolvedValue({ bytes: Buffer.from([1]), integrity: 'sha512-abc' })
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }))
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(redirectResponse).mockResolvedValueOnce({ ok: true }))
     })
 
     afterEach(() => vi.unstubAllGlobals())
@@ -904,22 +906,32 @@ describe('StudioSession', () => {
       expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('no prior generation') })
     })
 
-    it('packs the cached generation, uploads it to the resolved Studio path with the agent bearer token, and replies with the integrity hash', async () => {
+    it('packs the cached generation, asks Studio for a storage URL with no body, uploads to it, and replies with the integrity hash', async () => {
       await connect(options)
 
       await generateThenSnapshot()
 
       expect(createSnapshotPackage).toHaveBeenCalledWith({ 'src/index.ts': 'export {}' }, expect.objectContaining({ name: 'pkg', version: '1.0.0' }))
-      expect(fetch).toHaveBeenCalledWith(new URL('/api/agent/snapshots/id/upload', 'https://kubb.studio'), {
+      expect(fetch).toHaveBeenNthCalledWith(1, new URL('/api/agent/snapshots/id/upload', 'https://kubb.studio'), {
         method: 'PUT',
         headers: { Authorization: 'Bearer my-token' },
-        body: new Uint8Array([1]),
+        redirect: 'manual',
       })
+      expect(fetch).toHaveBeenNthCalledWith(2, 'https://storage.example.com/upload', { method: 'PUT', body: new Uint8Array([1]) })
       expect(reply('agent:snapshot')?.payload).toStrictEqual({ status: 'ok', integrity: 'sha512-abc' })
     })
 
-    it('reports an error reply when the upload fails', async () => {
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500 }))
+    it('refuses when Studio does not redirect to a storage URL', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 401, headers: new Headers() }))
+      await connect(options)
+
+      await generateThenSnapshot()
+
+      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('401') })
+    })
+
+    it('reports an error reply when the storage upload fails', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(redirectResponse).mockResolvedValueOnce({ ok: false, status: 500 }))
       await connect(options)
 
       await generateThenSnapshot()
