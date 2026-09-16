@@ -84,7 +84,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
     },
     reporter: {
       type: 'custom',
-      description: 'Reporters that render the run, comma-separated. Overrides config.reporters',
+      description: 'Reporters that render the run: cli, json, file, html. Comma-separated. Overrides config.reporters',
       metavar: 'cli|json|file|html',
       parse: parseReporters,
     },

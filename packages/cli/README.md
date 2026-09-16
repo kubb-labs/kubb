@@ -111,7 +111,7 @@ npx kubb generate
 | `--watch`             | `-w`  | boolean | `false` | Re-generate whenever the input file changes                                                         |
 | `--verbose`           | `-v`  | boolean | `false` | Override log level to `verbose`                                                                     |
 | `--silent`            | `-s`  | boolean | `false` | Override log level to `silent`                                                                      |
-| `--reporter <names>`  |       | string  | `cli`   | Reporters that render the run, comma-separated: `cli`, `json`, `file`. Overrides `config.reporters` |
+| `--reporter <names>`  |       | string  | `cli`   | Reporters that render the run, comma-separated: `cli`, `json`, `file`, `html`. Overrides `config.reporters` |
 
 #### Examples
 
