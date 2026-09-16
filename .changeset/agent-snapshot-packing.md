@@ -1,5 +1,5 @@
 ---
-'@kubb/studio': minor
+'@kubb/studio': patch
 ---
 
 The agent runtime now packs snapshot tarballs itself. A new `studio:snapshot` command builds the
