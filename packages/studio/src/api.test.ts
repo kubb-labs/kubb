@@ -230,8 +230,12 @@ describe('waitForJob', () => {
       .mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'success', snapshot: { id: 'snap-1' } } }))
 
     const promise = waitForJob({ studioUrl: 'http://studio', token: 'ci-token', id: 'job-1' })
-    await vi.advanceTimersByTimeAsync(1000)
 
+    // Nothing is queued instantly, so the first poll waits 2s and the second another 4s.
+    await vi.advanceTimersByTimeAsync(2_000)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(4_000)
     await expect(promise).resolves.toEqual({ id: 'job-1', status: 'success', snapshot: { id: 'snap-1' } })
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
@@ -243,8 +247,9 @@ describe('waitForJob', () => {
     await vi.advanceTimersByTimeAsync(600_000)
     await promise
 
-    // A one-second poll would have spent 600 requests against a 100-per-window budget.
-    expect(fetchMock.mock.calls.length).toBeLessThan(60)
+    // A one-second poll would have spent 600 requests against a 100-per-window budget shared by
+    // every concurrent run on the same key.
+    expect(fetchMock.mock.calls.length).toBeLessThan(30)
   })
 
   it('waits the interval Studio asks for when it answers 429', async () => {
@@ -253,6 +258,9 @@ describe('waitForJob', () => {
       .mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'success' } }))
 
     const promise = waitForJob({ studioUrl: 'http://studio', token: 'ci-token', id: 'job-1', timeoutMs: 600_000 })
+
+    await vi.advanceTimersByTimeAsync(2_000)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
 
     await vi.advanceTimersByTimeAsync(29_000)
     expect(fetchMock).toHaveBeenCalledTimes(1)

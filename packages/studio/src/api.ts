@@ -322,16 +322,23 @@ export async function createJob({
 }
 
 /**
- * Slowest the poll backs off to. Studio's rate-limit counter only resets after a whole window
- * passes with no request, so a fixed one-second poll spends the budget and then locks itself out
- * for as long as it keeps polling.
+ * Wait before the first poll. A job runs a full Kubb generation and packs a tarball, so it is
+ * never finished the instant it is queued and an immediate poll only spends rate limit.
  */
-const MAX_POLL_INTERVAL_MS = 15_000
+const INITIAL_POLL_DELAY_MS = 2_000
 
 /**
- * Polls `GET /api/jobs/{id}` until the job reaches `success` or `failed`. The interval doubles
- * from one second up to {@link MAX_POLL_INTERVAL_MS}, so a long job stays inside the API key's
- * rate limit.
+ * Slowest the poll backs off to. Studio's rate-limit counter only resets after a whole window
+ * passes with no request, so a fixed one-second poll spends the budget and then locks itself out
+ * for as long as it keeps polling. Total requests per run are roughly `timeoutMs` divided by this,
+ * and every concurrent run on the same organization key draws on the same budget.
+ */
+const MAX_POLL_INTERVAL_MS = 30_000
+
+/**
+ * Polls `GET /api/jobs/{id}` until the job reaches `success` or `failed`. The first poll waits
+ * {@link INITIAL_POLL_DELAY_MS} and the interval doubles from there up to
+ * {@link MAX_POLL_INTERVAL_MS}, so a long job stays inside the API key's rate limit.
  *
  * A `failed` job resolves normally. Check `job.status` and `job.error`. Throws only when the
  * deadline passes before Studio finishes.
@@ -353,9 +360,16 @@ export async function waitForJob({
   timeoutMs?: number
 }): Promise<StudioJob> {
   const deadline = Date.now() + timeoutMs
-  let interval = 1_000
+  let interval = INITIAL_POLL_DELAY_MS
 
   for (;;) {
+    const remaining = deadline - Date.now()
+
+    if (remaining <= 0) throw new Error('Timed out waiting for the Studio job')
+
+    await new Promise((resolve) => setTimeout(resolve, Math.min(interval, remaining)))
+    interval = Math.min(interval * 2, MAX_POLL_INTERVAL_MS)
+
     try {
       // ofetch retries a 429 immediately, which spends the rate limit faster than not retrying.
       const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs/${id}`, {
@@ -371,11 +385,6 @@ export async function waitForJob({
 
       interval = response._data?.data?.tryAgainIn ?? MAX_POLL_INTERVAL_MS
     }
-
-    if (Date.now() >= deadline) throw new Error('Timed out waiting for the Studio job')
-
-    await new Promise((resolve) => setTimeout(resolve, Math.min(interval, deadline - Date.now())))
-    interval = Math.min(interval * 2, MAX_POLL_INTERVAL_MS)
   }
 }
 
