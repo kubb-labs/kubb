@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { glob, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, relative, sep } from 'node:path'
 import { promisify } from 'node:util'
 import { gzip } from 'node:zlib'
 import { build } from 'tsdown'
@@ -18,17 +18,41 @@ type SnapshotPackage = { name: string; version: string; peerDependencies: Record
  */
 function packagePath(filePath: string): string {
   const normalized = filePath.replaceAll('\\', '/')
-  const relative = normalized.match(/\/(?:src|dist)\/.*$/)?.[0].slice(1) ?? normalized.replace(/^\/+/, '')
-  const safe = relative
+  const relativePath = normalized.match(/\/(?:src|dist)\/.*$/)?.[0].slice(1) ?? normalized.replace(/^\/+/, '')
+  const safe = relativePath
     .split('/')
     .filter((part) => part && part !== '.' && part !== '..')
     .join('/')
   return `package/${safe}`
 }
 
-function header(name: string, size: number): Buffer {
+/**
+ * Splits a tarball entry path into the legacy 100-byte `name` field and, when the path does not
+ * fit, the 155-byte USTAR `prefix` field that extends it. Throws rather than silently truncating
+ * a path the format cannot address (max 256 bytes: 100 name + 1 separator + 155 prefix).
+ */
+function splitEntryPath(path: string): { name: string; prefix: string } {
+  if (Buffer.byteLength(path, 'utf8') <= 100) {
+    return { name: path, prefix: '' }
+  }
+
+  for (let i = path.length - 1; i >= 0; i--) {
+    if (path[i] !== '/') continue
+
+    const prefix = path.slice(0, i)
+    const name = path.slice(i + 1)
+    if (Buffer.byteLength(prefix, 'utf8') <= 155 && Buffer.byteLength(name, 'utf8') <= 100) {
+      return { name, prefix }
+    }
+  }
+
+  throw new Error(`Snapshot path is too long for a tar entry: ${path}`)
+}
+
+function header(path: string, size: number): Buffer {
+  const { name, prefix } = splitEntryPath(path)
   const value = Buffer.alloc(512)
-  value.write(name.slice(0, 100), 0, 'utf8')
+  value.write(name, 0, 'utf8')
   value.write('0000644\0', 100, 'ascii')
   value.write('0000000\0', 108, 'ascii')
   value.write('0000000\0', 116, 'ascii')
@@ -46,6 +70,7 @@ function header(name: string, size: number): Buffer {
   value.write('00', 263, 'ascii')
   value.write('0000000\0', 265, 'ascii')
   value.write('0000000\0', 297, 'ascii')
+  value.write(prefix, 345, 'utf8')
   const checksum = [...value].reduce((sum, byte) => sum + byte, 0)
   value.write(`${checksum.toString(8).padStart(6, '0')}\0 `, 148, 'ascii')
   return value
@@ -59,18 +84,29 @@ export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: S
   const root = await mkdtemp(join(tmpdir(), 'kubb-snapshot-'))
   const dist = join(root, 'dist')
 
+  // Resolved once so the sanitized target for each file is computed exactly one way, and any two
+  // generated files that collide after sanitizing (e.g. `a/../index.ts` and `a/index.ts`) are
+  // caught here instead of silently overwriting one another later.
+  const resolvedPaths = Object.entries(files).map(([name, content]) => ({ name, content, target: packagePath(name) }))
+  const targetOwners = new Map<string, string>()
+  for (const { name, target } of resolvedPaths) {
+    const owner = targetOwners.get(target)
+    if (owner) {
+      throw new Error(`Snapshot has two generated files that sanitize to the same path "${target}": "${owner}" and "${name}"`)
+    }
+    targetOwners.set(target, name)
+  }
+
   try {
     await mkdir(dist)
     await Promise.all(
-      Object.entries(files).map(async ([name, content]) => {
-        const target = join(root, packagePath(name).slice('package/'.length))
-        await mkdir(join(target, '..'), { recursive: true })
-        await writeFile(target, content)
+      resolvedPaths.map(async ({ content, target }) => {
+        const path = join(root, target.slice('package/'.length))
+        await mkdir(join(path, '..'), { recursive: true })
+        await writeFile(path, content)
       }),
     )
-    const sourceEntries = Object.keys(files)
-      .filter((name) => /\.(?:[cm]?[jt]sx?)$/.test(name))
-      .map((name) => join(root, packagePath(name).slice('package/'.length)))
+    const sourceEntries = resolvedPaths.filter(({ name }) => /\.(?:[cm]?[jt]sx?)$/.test(name)).map(({ target }) => join(root, target.slice('package/'.length)))
     if (sourceEntries.length)
       await build({
         entry: sourceEntries,
@@ -89,7 +125,14 @@ export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: S
     const builtEntries = await Promise.all(
       (await Array.fromAsync(glob('**/*', { cwd: dist, withFileTypes: true })))
         .filter((entry) => entry.isFile())
-        .map(async (entry) => [`package/dist/${entry.name}`, await readFile(join(entry.parentPath, entry.name), 'utf8')] as const),
+        .map(async (entry) => {
+          // `unbundle: true` preserves dist's own subdirectory structure, so the archive path must
+          // follow suit: `entry.name` alone is just the basename and would flatten (and collide)
+          // nested output files.
+          const filePath = join(entry.parentPath, entry.name)
+          const distRelativePath = relative(dist, filePath).split(sep).join('/')
+          return [`package/dist/${distRelativePath}`, await readFile(filePath, 'utf8')] as const
+        }),
     )
     const entries = {
       'package/package.json': JSON.stringify(
@@ -103,7 +146,7 @@ export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: S
         null,
         2,
       ),
-      ...Object.fromEntries(Object.entries(files).map(([name, content]) => [packagePath(name), content])),
+      ...Object.fromEntries(resolvedPaths.map(({ content, target }) => [target, content])),
       ...Object.fromEntries(builtEntries),
     }
     const chunks: Array<Buffer> = []

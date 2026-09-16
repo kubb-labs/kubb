@@ -2,6 +2,27 @@ import { gunzipSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
 import { createSnapshotPackage } from './snapshotPackage.ts'
 
+/** Reads back the path (USTAR `prefix` + `name`) and content of every entry in a tarball. */
+function readTarEntries(tar: Buffer): Array<{ path: string; content: string }> {
+  const entries: Array<{ path: string; content: string }> = []
+  let offset = 0
+
+  while (offset + 512 <= tar.length) {
+    const header = tar.subarray(offset, offset + 512)
+    if (header.every((byte) => byte === 0)) break
+
+    const name = header.subarray(0, 100).toString('utf8').replace(/\0.*$/s, '')
+    const prefix = header.subarray(345, 500).toString('utf8').replace(/\0.*$/s, '')
+    const size = Number.parseInt(header.subarray(124, 136).toString('ascii').replace(/\0.*$/s, '').trim(), 8)
+    offset += 512
+
+    entries.push({ path: prefix ? `${prefix}/${name}` : name, content: tar.subarray(offset, offset + size).toString('utf8') })
+    offset += Math.ceil(size / 512) * 512
+  }
+
+  return entries
+}
+
 describe('[util] snapshotPackage', () => {
   it('creates a gzip tarball with a package manifest and generated files', () => {
     const result = createSnapshotPackage(
@@ -36,5 +57,41 @@ describe('[util] snapshotPackage', () => {
     const tarball = gunzipSync(bytes).toString('utf8')
     expect(tarball).toContain('package/src/gen/index.ts')
     expect(tarball).not.toContain('package/home/runner')
+  })
+
+  it('rejects generated files that sanitize to the same path', async () => {
+    await expect(
+      createSnapshotPackage(
+        { 'a/index.ts': 'export const a = 1', 'a/../index.ts': 'export const a = 2' },
+        { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: {} },
+      ),
+    ).rejects.toThrow(/collide|same path/)
+  })
+
+  it('addresses a tar entry path over 100 bytes with the USTAR prefix field', async () => {
+    const longSegment = 'x'.repeat(90)
+    const { bytes } = await createSnapshotPackage(
+      { [`src/${longSegment}/index.ts`]: 'export {}' },
+      { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: {} },
+    )
+
+    const entries = readTarEntries(gunzipSync(bytes))
+    const entry = entries.find(({ path }) => path.endsWith('index.ts'))
+    expect(entry?.path).toBe(`package/src/${longSegment}/index.ts`)
+    expect(entry?.content).toBe('export {}')
+  })
+
+  it('preserves nested dist output paths from an unbundled multi-file build', async () => {
+    const { bytes } = await createSnapshotPackage(
+      {
+        'src/index.ts': "export { helper } from './nested/helper.ts'",
+        'src/nested/helper.ts': 'export const helper = 1',
+      },
+      { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: {} },
+    )
+
+    const paths = readTarEntries(gunzipSync(bytes)).map((entry) => entry.path)
+    expect(paths).toContain('package/dist/nested/helper.mjs')
+    expect(paths).toContain('package/dist/nested/helper.cjs')
   })
 })
