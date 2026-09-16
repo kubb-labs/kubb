@@ -490,7 +490,7 @@ export class StudioSession {
    * `#disposed` keeps the close event from running this twice, and a shutdown from reconnecting.
    */
   async #end({ reason, retry }: { reason?: string; retry: boolean }): Promise<void> {
-    const { studioUrl, token } = this.#options
+    const { studioUrl, token, logLevel } = this.#options
 
     if (this.#disposed) {
       return
@@ -509,7 +509,7 @@ export class StudioSession {
     // Nothing to tell Studio about when the session never opened.
     if (this.#session) {
       // Already tearing down, so a failed disconnect changes nothing.
-      await disconnect({ sessionId: this.#session.sessionId, studioUrl, token, slug: this.#session.slug }).catch(() => {})
+      await disconnect({ sessionId: this.#session.sessionId, studioUrl, token, slug: this.#session.slug, logLevel }).catch(() => {})
     }
 
     if (retry) {

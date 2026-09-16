@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { logLevel as logLevelMap } from '@kubb/core'
 import { spyOnConsole } from './console.mock.ts'
 import { createAgent, createAgentSession, createJob, disconnect, InvalidAgentTokenError, registerAgent, waitForJob } from './api.ts'
 
@@ -139,23 +140,26 @@ describe('disconnect', () => {
   it('logs the slug when one is known', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse({}))
 
-    await disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', slug: 'brave-otter' })
+    await disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', slug: 'brave-otter', logLevel: logLevelMap.info })
 
-    expect(consoleSpy.log).toHaveBeenCalledWith('[brave-otter] Disconnected from Studio')
+    // console.error, not console.log: a CI runner only forwards a child process's stderr live.
+    expect(consoleSpy.error).toHaveBeenCalledWith('[brave-otter] Disconnected from Studio')
   })
 
   it('falls back to a generic tag when no slug is known', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse({}))
 
-    await disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio' })
+    await disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', logLevel: logLevelMap.info })
 
-    expect(consoleSpy.log).toHaveBeenCalledWith('[agent] Disconnected from Studio')
+    expect(consoleSpy.error).toHaveBeenCalledWith('[agent] Disconnected from Studio')
   })
 
   it('warns instead of throwing when Studio cannot be notified', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse({ message: 'gone' }, 500))
 
-    await expect(disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', slug: 'brave-otter' })).resolves.toBeUndefined()
+    await expect(
+      disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', slug: 'brave-otter', logLevel: logLevelMap.info }),
+    ).resolves.toBeUndefined()
 
     expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('[brave-otter] Failed to notify Studio of disconnection'))
   })
@@ -163,8 +167,16 @@ describe('disconnect', () => {
   it.each([400, 401, 403, 404, 409])('ignores a %s response', async (status) => {
     fetchMock.mockResolvedValueOnce(createMockResponse({}, status))
 
-    await expect(disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio' })).resolves.toBeUndefined()
+    await expect(disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', logLevel: logLevelMap.info })).resolves.toBeUndefined()
     expect(consoleSpy.warn).not.toHaveBeenCalled()
+  })
+
+  it('never logs when no logLevel is given, the silent default a library should have', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({}))
+
+    await disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', slug: 'brave-otter' })
+
+    expect(consoleSpy.error).not.toHaveBeenCalled()
   })
 })
 
