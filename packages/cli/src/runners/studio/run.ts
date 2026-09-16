@@ -396,6 +396,7 @@ class StudioConnection {
       client: { kind: 'cli' },
       root: process.cwd(),
       permissions: this.#granted,
+      logLevel: logLevelMap[this.#options.logLevel ?? 'info'],
       // The loggers `kubb generate` installs, so one place renders the session events and the
       // generations it drives.
       installLogger: async (hooks) => {

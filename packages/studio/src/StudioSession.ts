@@ -3,7 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { getErrorMessage, read, toError } from '@internals/utils'
-import { type Config, fsStorage, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
+import { type Config, fsStorage, Hookable, type KubbHooks, logLevel as logLevelMap, memoryStorage } from '@kubb/core'
 import { version as kubbVersion } from '../package.json'
 import { setupHookListener } from './hooks.ts'
 import {
@@ -76,6 +76,13 @@ export type StudioSessionOptions = {
    */
   installLogger?: (hooks: Hookable<KubbHooks>) => void | Promise<void>
   /**
+   * Threshold for the reconnect loop's own `console.error` lines, using the numeric constants
+   * `@kubb/core` exports as `logLevel`. Left out, those lines never print, the same silent default
+   * as an unset `installLogger` — a reconnect happens outside any one session's hooks, so it has no
+   * other way to ask a host how loud to be.
+   */
+  logLevel?: number
+  /**
    * Called when this session's background reconnect is rejected with an invalid token. Unlike
    * `ClientOptions.onAuthRequired`, this fires once per session rather than once per pool:
    * `createClient` wraps it into that deduped, pool-stopping callback. Not meant to be set
@@ -139,13 +146,17 @@ function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
  * socket, its hook emitter, or its session id alive for the length of the retry interval.
  */
 function reconnect(options: ResolvedOptions): void {
-  const { signal, retryInterval, onTokenRejected } = options
+  const { signal, retryInterval, onTokenRejected, logLevel } = options
 
   if (signal?.aborted) {
     return
   }
 
-  console.info(styleText('dim', `Retrying connection in ${retryInterval}ms to Kubb Studio ...`))
+  // console.error, not console.info: a CI runner only forwards a child process's stderr live, so
+  // an info-level write here would be silently buffered away instead of reaching its log.
+  if (logLevel !== undefined && logLevel > logLevelMap.silent) {
+    console.error(styleText('dim', `Retrying connection in ${retryInterval}ms to Kubb Studio ...`))
+  }
 
   const cancel = () => clearTimeout(timer)
   const timer = setTimeout(() => {
@@ -160,7 +171,9 @@ function reconnect(options: ResolvedOptions): void {
     // The rejection is never awaited, so it has to be caught here or it surfaces as an
     // unhandledRejection that kills the retry loop instead of trying again.
     new StudioSession(options).connect().catch((error: unknown) => {
-      console.error(styleText('red', `Reconnect attempt to Kubb Studio failed: ${getErrorMessage(error)}`))
+      if (logLevel !== undefined && logLevel > logLevelMap.silent) {
+        console.error(styleText('red', `Reconnect attempt to Kubb Studio failed: ${getErrorMessage(error)}`))
+      }
 
       // A rejected token stays rejected, so retrying only spams 401s until the process is killed.
       // The host learns about it here instead: the startup path already reports its own rejection

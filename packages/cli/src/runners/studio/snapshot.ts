@@ -2,6 +2,7 @@ import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { exists, read } from '@internals/utils'
+import { logLevel as logLevelMap } from '@kubb/core'
 import { createAgent, createClient, createJob, machineTokenFrom, waitForJob, type StudioSnapshot } from '@kubb/studio'
 import { createSpinner, logBlock } from '../../loggers/output.ts'
 import { detectCi } from './ci.ts'
@@ -182,6 +183,7 @@ export async function snapshot(options: StudioOptions): Promise<void> {
     root: process.cwd(),
     version: options.version,
     client: { kind: 'ci' },
+    logLevel: logLevelMap[options.logLevel ?? 'info'],
     loadConfig: async () => (await loadConfigs(options)).config,
     installLogger: (hooks) => {
       hooks.hook('studio:connecting', ({ url }) => log(`Connecting to Kubb Studio at ${url}`))
