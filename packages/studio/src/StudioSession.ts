@@ -774,11 +774,10 @@ export class StudioSession {
     try {
       const { bytes, integrity } = await createSnapshotPackage(files, { name, version, peerDependencies: peerDependencies ?? {} })
 
-      // A redirect with the tarball already attached never reaches the storage URL: Studio's
-      // handler returns before reading the body, the connection drops mid-upload, and the fetch
-      // fails. So this asks for the redirect with no body first, then PUTs the bytes to wherever
-      // it points. That also keeps the bearer token off the storage request, since it's a fresh
-      // call rather than a followed redirect that happens to carry the original headers.
+      // The tarball can't go on this request: Studio's handler answers before reading the body,
+      // so the connection drops mid-upload. Ask for the redirect with an empty body first, then
+      // PUT the bytes to wherever it points. That also keeps the bearer token off the storage
+      // request, since it's a fresh call rather than a followed redirect.
       const { token, studioUrl } = this.#options
       const redirect = await fetch(new URL(uploadPath, studioUrl), {
         method: 'PUT',
