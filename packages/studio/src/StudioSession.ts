@@ -726,11 +726,6 @@ export class StudioSession {
     }
   }
 
-  /**
-   * Packs the files Studio sends into an npm-installable tarball and uploads it to the presigned
-   * URL Studio minted for this job. Refused for a sandbox agent, which holds no project of its own
-   * to build from.
-   */
   async #handleSnapshot(ws: WebSocket, data: Extract<AgentMessage, { type: 'studio:snapshot' }>, command: string): Promise<void> {
     const refuse = (message: string) => sendAgentMessage(ws, { type: 'agent:snapshot', jobId: data.jobId, payload: { status: 'error', message } })
 
