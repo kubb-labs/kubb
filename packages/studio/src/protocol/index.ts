@@ -2,9 +2,22 @@
  * WebSocket message types for the agent ↔ Studio protocol. Every message name carries the side that
  * sent it, so direction reads off the name instead of the verb's tense:
  *
- * - Studio → agent: `studio:generate`, `studio:connect`, `studio:save`, `studio:ping`,
- *   `studio:disconnect`, `studio:error`
- * - Agent → Studio: `agent:connect`, `agent:save`, `agent:data`, `agent:ping`
+ * | Direction        | Type                  | Purpose                                                      |
+ * | ---------------- | --------------------- | -------------------------------------------------------------|
+ * | Studio → agent    | `studio:generate`     | Run a generation. No dedicated reply; the result arrives as an `agent:data` message carrying `kubb:generation:end`, so it stays ordered against the rest of that run's event stream. `studio:save`/`studio:snapshot` reply directly instead, since neither needs that ordering. |
+ * | Studio → agent    | `studio:connect`      | Ask the agent to resend its `agent:connect` handshake payload. |
+ * | Studio → agent    | `studio:save`         | Edit `kubb.config.ts`. Replied to with `agent:save`. |
+ * | Studio → agent    | `studio:snapshot`     | Pack a prior generation's files into a tarball and upload it to a presigned URL. Replied to with `agent:snapshot`. |
+ * | Studio → agent    | `studio:pong`         | Reply to an `agent:ping` heartbeat. |
+ * | Studio → agent    | `studio:ready`        | Acknowledges `agent:connect`; the session now counts as available for job dispatch. |
+ * | Studio → agent    | `studio:disconnect`   | The session expired or was revoked; the agent should not reconnect. |
+ * | Studio → agent    | `studio:error`        | A failure outside a generation, e.g. a malformed command. |
+ * | Agent → Studio    | `agent:connect`       | Handshake sent on open and after every `studio:connect`. |
+ * | Agent → Studio    | `agent:save`          | Reply to `studio:save`. |
+ * | Agent → Studio    | `agent:snapshot`      | Reply to `studio:snapshot`; the tarball itself already went out via direct upload, so this only carries the integrity hash or an error. |
+ * | Agent → Studio    | `agent:data`          | One generation lifecycle event, `payload.type` a {@link KubbHook}. Carries `kubb:generation:end` (the closest thing `studio:generate` has to a reply) among many others. |
+ * | Agent → Studio    | `agent:ping`          | Heartbeat, so the connection is not treated as idle. |
+ * | Agent → Studio    | `agent:disconnect`    | The agent is shutting down. |
  *
  * `kubb:` stays reserved for generation lifecycle, so the {@link KubbHooks} events relayed inside an
  * `agent:data` payload keep their own names. The envelope says who sent it, the payload says what
@@ -416,8 +429,8 @@ export type AgentPingMessage = {
 /**
  * Studio's reply to an `agent:ping`, confirming the connection is still alive.
  */
-export type StudioPingMessage = {
-  type: 'studio:ping'
+export type StudioPongMessage = {
+  type: 'studio:pong'
 }
 
 /**
@@ -533,7 +546,7 @@ export type AgentMessage =
   | AgentPingMessage
   | AgentDisconnectMessage
   | StudioErrorMessage
-  | StudioPingMessage
+  | StudioPongMessage
   | StudioReadyMessage
   | StudioDisconnectMessage
 
@@ -556,8 +569,8 @@ export function isDataMessage<T extends KubbHook>(msg: AgentMessage, type?: T): 
   return msg.type === 'agent:data' && (type ? msg.payload.type === type : true)
 }
 
-export function isStudioPingMessage(msg: AgentMessage): msg is StudioPingMessage {
-  return msg.type === 'studio:ping'
+export function isStudioPongMessage(msg: AgentMessage): msg is StudioPongMessage {
+  return msg.type === 'studio:pong'
 }
 
 export function isStudioReadyMessage(msg: AgentMessage): msg is StudioReadyMessage {

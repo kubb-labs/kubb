@@ -14,7 +14,7 @@ import {
   type ConfigFileView,
   isCommandMessage,
   isDisconnectMessage,
-  isStudioPingMessage,
+  isStudioPongMessage,
   isStudioReadyMessage,
 } from './protocol/index.ts'
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
@@ -502,7 +502,7 @@ export class StudioSession {
     try {
       const data = JSON.parse(message.data as string) as AgentMessage
 
-      if (isStudioPingMessage(data)) {
+      if (isStudioPongMessage(data)) {
         this.#lastPongAt = Date.now()
 
         return

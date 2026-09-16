@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { AgentMessage } from './index.ts'
-import { commandTypes, isCommandMessage, isDataMessage, isDisconnectMessage, isStudioPingMessage, isStudioReadyMessage } from './index.ts'
+import { commandTypes, isCommandMessage, isDataMessage, isDisconnectMessage, isStudioPongMessage, isStudioReadyMessage } from './index.ts'
 
 describe('agent protocol', () => {
   describe('message type guards', () => {
@@ -22,8 +22,8 @@ describe('agent protocol', () => {
     })
 
     it('tells the two sides of the heartbeat apart', () => {
-      expect(isStudioPingMessage({ type: 'studio:ping' })).toBe(true)
-      expect(isStudioPingMessage({ type: 'agent:ping' })).toBe(false)
+      expect(isStudioPongMessage({ type: 'studio:pong' })).toBe(true)
+      expect(isStudioPongMessage({ type: 'agent:ping' })).toBe(false)
     })
 
     it('identifies the ready acknowledgement, and only that', () => {

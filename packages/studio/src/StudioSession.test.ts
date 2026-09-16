@@ -271,7 +271,7 @@ describe('StudioSession', () => {
   it('accepts a pong without treating it as an unknown message', async () => {
     await connect(options)
 
-    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:ping' }) })
+    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:pong' }) })
 
     expect(session.warnings()).not.toContainEqual(expect.stringContaining('unknown message'))
   })
@@ -382,7 +382,7 @@ describe('StudioSession', () => {
 
     for (const _ of Array.from({ length: 5 })) {
       await vi.advanceTimersByTimeAsync(1_000)
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:ping' }) })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:pong' }) })
     }
 
     expect(mockWs.terminated).toBe(false)
