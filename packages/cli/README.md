@@ -133,6 +133,9 @@ npx kubb generate --verbose
 
 # Write a JSON run report alongside the CLI output
 npx kubb generate --reporter cli,json
+
+# Write an HTML run report
+npx kubb generate --reporter html
 ```
 
 ---
