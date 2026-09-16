@@ -759,7 +759,10 @@ export class StudioSession {
       }
 
       sendAgentMessage(ws, { type: 'agent:snapshot', jobId: data.jobId, payload: { status: 'ok', integrity } })
-      await this.#hooks.callHook('studio:command:end', { command, info: `packed ${Object.keys(files).length} file${Object.keys(files).length === 1 ? '' : 's'}` })
+      await this.#hooks.callHook('studio:command:end', {
+        command,
+        info: `packed ${Object.keys(files).length} file${Object.keys(files).length === 1 ? '' : 's'}`,
+      })
     } catch (error) {
       await this.#hooks.callHook('studio:error', { error: toError(error) })
 
