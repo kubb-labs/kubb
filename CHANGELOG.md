@@ -1,5 +1,35 @@
 # Changelog
 
+## v5.3.2 — Sep 16, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- CLI flags are now kebab-case, matching the convention used by most command-line tools.
+  
+  - `kubb generate --log-level` and `kubb generate --dry-run` replace `--logLevel` and `--dryRun`.
+  - `kubb studio --allow-write`, `--allow-config-edit`, `--allow-input`, and `--allow-exec` replace
+    `--allowWrite`, `--allowConfigEdit`, `--allowInput`, and `--allowExec`.
+  - `kubb init --dry-run` replaces `--dryRun`.
+  
+  To upgrade, replace any camelCase flag in a script or CI job with its kebab-case name. The CLI
+  now rejects an unrecognized flag with an error instead of silently ignoring it.
+  
+  ```bash
+  # Before
+  kubb studio --allowWrite --allowExec
+  
+  # After
+  kubb studio --allow-write --allow-exec
+  ``` ([#4046](https://github.com/kubb-labs/kubb/pull/4046), [`e5ecdda`](https://github.com/kubb-labs/kubb/commit/e5ecdda06acbd3b99c2716384b2a8ac56eedfad8))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.1 — Sep 15, 2026
 
 ### @kubb/core
