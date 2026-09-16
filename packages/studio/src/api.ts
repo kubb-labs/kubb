@@ -322,7 +322,16 @@ export async function createJob({
 }
 
 /**
- * Polls `GET /api/jobs/{id}` until the job reaches `success` or `failed`.
+ * Slowest the poll backs off to. Studio's rate-limit counter only resets after a whole window
+ * passes with no request, so a fixed one-second poll spends the budget and then locks itself out
+ * for as long as it keeps polling.
+ */
+const MAX_POLL_INTERVAL_MS = 15_000
+
+/**
+ * Polls `GET /api/jobs/{id}` until the job reaches `success` or `failed`. The interval doubles
+ * from one second up to {@link MAX_POLL_INTERVAL_MS}, so a long job stays inside the API key's
+ * rate limit.
  *
  * A `failed` job resolves normally. Check `job.status` and `job.error`. Throws only when the
  * deadline passes before Studio finishes.
@@ -344,16 +353,29 @@ export async function waitForJob({
   timeoutMs?: number
 }): Promise<StudioJob> {
   const deadline = Date.now() + timeoutMs
+  let interval = 1_000
 
   for (;;) {
-    const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs/${id}`, {
-      headers: { 'x-api-key': token },
-    })
+    try {
+      // ofetch retries a 429 immediately, which spends the rate limit faster than not retrying.
+      const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs/${id}`, {
+        headers: { 'x-api-key': token },
+        retry: false,
+      })
 
-    if (job.status === 'success' || job.status === 'failed') return job
+      if (job.status === 'success' || job.status === 'failed') return job
+    } catch (error) {
+      const response = (error as { response?: { status?: number; _data?: { data?: { tryAgainIn?: number } } } }).response
+
+      if (response?.status !== 429) throw error
+
+      interval = response._data?.data?.tryAgainIn ?? MAX_POLL_INTERVAL_MS
+    }
+
     if (Date.now() >= deadline) throw new Error('Timed out waiting for the Studio job')
 
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, Math.min(interval, deadline - Date.now())))
+    interval = Math.min(interval * 2, MAX_POLL_INTERVAL_MS)
   }
 }
 
