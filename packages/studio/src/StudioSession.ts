@@ -2,8 +2,8 @@ import { writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { getErrorMessage, read, toError } from '@internals/utils'
-import { type Config, fsStorage, Hookable, type KubbHooks, logLevel as logLevelMap, memoryStorage } from '@kubb/core'
+import { getErrorMessage, inParallel, read, toError } from '@internals/utils'
+import { type Config, fsStorage, Hookable, type KubbHooks, logLevel as logLevelMap, memoryStorage, type Storage } from '@kubb/core'
 import { version as kubbVersion } from '../package.json'
 import { setupHookListener } from './hooks.ts'
 import {
@@ -25,7 +25,13 @@ import { agentDefaults } from './constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
 import { createSnapshotPackage } from './snapshotPackage.ts'
 import type WebSocket from 'ws'
-import { createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream } from './ws.ts'
+import { absoluteStoragePath, createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream } from './ws.ts'
+
+/**
+ * How many files are read from storage at once when serving `studio:files` or packing a
+ * `studio:snapshot`.
+ */
+const FILE_READ_CONCURRENCY = 50
 
 export type StudioSessionOptions = {
   token: string
@@ -231,10 +237,14 @@ export class StudioSession {
   // connection is half-open (e.g. dropped during a Studio deploy) and must be terminated so the
   // reconnect loop can establish a fresh session.
   #lastPongAt = Date.now()
-  // The most recent generation's result, kept so `studio:files` and `studio:snapshot` can read it
-  // without Studio round tripping it back over the socket. Set as soon as `kubb:generation:end`
-  // fires, undefined again if a run fails before that.
-  #lastGeneration: { files: Record<string, string>; peerDependencies: Record<string, string>; missingDependencies: Array<string> } | undefined
+  // The most recent generation's live storage, kept so `studio:files` and `studio:snapshot` can
+  // read file content on demand instead of Studio round tripping it back over the socket, and
+  // instead of this holding the whole run's output in memory. `paths` is the whitelist a request
+  // is checked against, so a caller can only ever read what this run actually produced. Set as
+  // soon as `kubb:generation:end` fires, undefined again if a run fails before that.
+  #lastGeneration:
+    | { storage: Storage; root: string; paths: Set<string>; peerDependencies: Record<string, string>; missingDependencies: Array<string> }
+    | undefined
 
   constructor(options: StudioSessionOptions) {
     this.#options = applyStudioDefaults(options)
@@ -803,7 +813,17 @@ export class StudioSession {
     }
 
     try {
-      const { bytes, integrity } = await createSnapshotPackage(generation.files, { name, version, peerDependencies: generation.peerDependencies })
+      const files: Record<string, string> = {}
+      await inParallel({
+        items: [...generation.paths],
+        limit: FILE_READ_CONCURRENCY,
+        run: async (relativePath) => {
+          const content = await generation.storage.readItem(absoluteStoragePath(generation.root, relativePath))
+          if (content !== null) files[relativePath] = content
+        },
+      })
+
+      const { bytes, integrity } = await createSnapshotPackage(files, { name, version, peerDependencies: generation.peerDependencies })
 
       // The tarball can't go on this request: Studio's handler answers before reading the body,
       // so the connection drops mid-upload. Ask for the redirect with an empty body first, then
@@ -832,7 +852,7 @@ export class StudioSession {
       })
       await this.#hooks.callHook('studio:command:end', {
         command,
-        info: `packed ${Object.keys(generation.files).length} file${Object.keys(generation.files).length === 1 ? '' : 's'}`,
+        info: `packed ${Object.keys(files).length} file${Object.keys(files).length === 1 ? '' : 's'}`,
       })
     } catch (error) {
       await this.#hooks.callHook('studio:error', { error: toError(error) })
@@ -881,8 +901,18 @@ export class StudioSession {
       return
     }
 
-    // Served only from the cached generation, so no path a caller sends reaches the filesystem.
-    const files = Object.fromEntries(paths.filter((path) => path in generation.files).map((path) => [path, generation.files[path]!]))
+    // Checked against the paths this run actually produced before touching storage, so a caller
+    // can only ever read what that run produced, never an arbitrary path on disk.
+    const requested = paths.filter((path) => generation.paths.has(path))
+    const files: Record<string, string> = {}
+    await inParallel({
+      items: requested,
+      limit: FILE_READ_CONCURRENCY,
+      run: async (path) => {
+        const content = await generation.storage.readItem(absoluteStoragePath(generation.root, path))
+        if (content !== null) files[path] = content
+      },
+    })
 
     sendAgentMessage(ws, { type: 'agent:files', jobId: data.jobId, payload: { status: 'ok', files } })
     await this.#hooks.callHook('studio:command:end', {

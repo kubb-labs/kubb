@@ -8,7 +8,7 @@ import { spyOnConsole } from './console.mock.ts'
 import { MockWebSocket } from './websocket.mock.ts'
 import type { AgentConnectResponse } from './protocol/index.ts'
 import type { Hookable, KubbHooks } from '@kubb/core'
-import { logLevel as logLevelMap } from '@kubb/core'
+import { logLevel as logLevelMap, memoryStorage } from '@kubb/core'
 import type { StudioSessionOptions } from './StudioSession.ts'
 import { StudioSession } from './StudioSession.ts'
 
@@ -39,7 +39,8 @@ vi.mock('@kubb/core/package.json', () => ({
 // `setupHookListener` spawns the formatter, the linter, and postGenerate commands through tinyexec.
 vi.mock('tinyexec', () => ({ x: vi.fn(() => Object.assign(Promise.resolve({ exitCode: 0 }), { [Symbol.asyncIterator]: async function* () {} })) }))
 
-vi.mock('./ws.ts', () => ({
+vi.mock('./ws.ts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./ws.ts')>()),
   createWebsocket: vi.fn(),
   sendAgentMessage: vi.fn(),
   // Returns the remover a real `setupEventsStream` hands back, which the session calls when the
@@ -54,7 +55,7 @@ vi.mock('./snapshotPackage.ts', () => ({
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { generate } from './generate.ts'
 
-import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
+import { absoluteStoragePath, createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
 import { createSnapshotPackage } from './snapshotPackage.ts'
 
 // Shared test helpers
@@ -65,6 +66,27 @@ const consoleSpy = spyOnConsole()
  * Opens one session, the way `createClient` does.
  */
 const connect = (options: StudioSessionOptions) => new StudioSession(options).connect()
+
+/**
+ * Builds the shape `onGenerationEnd` now receives: a real `memoryStorage()` pre-seeded with
+ * `files` (keyed by the path relative to `root`, matching what a caller requests), the resulting
+ * whitelist of relative paths, and the given dependency metadata.
+ */
+async function makeGeneration(files: Record<string, string>, extras: { peerDependencies?: Record<string, string>; missingDependencies?: Array<string> } = {}) {
+  const storage = memoryStorage()
+  const root = '/project'
+  for (const [relativePath, content] of Object.entries(files)) {
+    await storage.writeItem(absoluteStoragePath(root, relativePath), content)
+  }
+
+  return {
+    storage,
+    root,
+    paths: new Set(Object.keys(files)),
+    peerDependencies: extras.peerDependencies ?? {},
+    missingDependencies: extras.missingDependencies ?? [],
+  }
+}
 
 /**
  * Records the `studio:*` session events through the same `installLogger` hook a host uses, so a
@@ -837,10 +859,9 @@ describe('StudioSession', () => {
     // `setupEventsStream` reacting to the `kubb:generation:end` hook mid-run, so `#handleFiles`
     // has the cached result by the time a `studio:files` command arrives.
     async function generateThenRequestFiles(paths: Array<string> = ['src/index.ts']) {
+      const generation = await makeGeneration({ 'src/index.ts': 'export {}' })
       vi.mocked(generate).mockImplementationOnce(async () => {
-        vi.mocked(setupEventsStream)
-          .mock.calls.at(-1)?.[3]
-          ?.onGenerationEnd?.({ files: { 'src/index.ts': 'export {}' }, peerDependencies: {}, missingDependencies: [] })
+        vi.mocked(setupEventsStream).mock.calls.at(-1)?.[3]?.onGenerationEnd?.(generation)
       })
       await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
       await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:files', jobId: 'job-1', payload: { paths } }) })
@@ -914,14 +935,11 @@ describe('StudioSession', () => {
     // has the result by the time its callback caches it.
     async function generateThenSnapshot(
       payload: Record<string, unknown> = { name: 'pkg', version: '1.0.0', uploadPath: '/api/agent/snapshots/id/upload' },
-      generation: { files: Record<string, string>; peerDependencies: Record<string, string>; missingDependencies: Array<string> } = {
-        files: { 'src/index.ts': 'export {}' },
-        peerDependencies: { '@kubb/core': '5.0.0' },
-        missingDependencies: [],
-      },
+      generation?: Awaited<ReturnType<typeof makeGeneration>>,
     ) {
+      const resolvedGeneration = generation ?? (await makeGeneration({ 'src/index.ts': 'export {}' }, { peerDependencies: { '@kubb/core': '5.0.0' } }))
       vi.mocked(generate).mockImplementationOnce(async () => {
-        vi.mocked(setupEventsStream).mock.calls.at(-1)?.[3]?.onGenerationEnd?.(generation)
+        vi.mocked(setupEventsStream).mock.calls.at(-1)?.[3]?.onGenerationEnd?.(resolvedGeneration)
       })
       await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
       await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:snapshot', jobId: 'job-1', payload }) })
@@ -991,11 +1009,7 @@ describe('StudioSession', () => {
     it('refuses before any upload when the generation has a missing dependency Studio does not bundle', async () => {
       await connect(options)
 
-      await generateThenSnapshot(undefined, {
-        files: { 'src/index.ts': 'export {}' },
-        peerDependencies: {},
-        missingDependencies: ['@kubb/plugin-barrel'],
-      })
+      await generateThenSnapshot(undefined, await makeGeneration({ 'src/index.ts': 'export {}' }, { missingDependencies: ['@kubb/plugin-barrel'] }))
 
       expect(fetch).not.toHaveBeenCalled()
       expect(createSnapshotPackage).not.toHaveBeenCalled()
@@ -1007,7 +1021,7 @@ describe('StudioSession', () => {
 
       await generateThenSnapshot(
         { name: 'pkg', version: '1.0.0', uploadPath: '/api/agent/snapshots/id/upload', bundledDependencies: ['@kubb/plugin-barrel'] },
-        { files: { 'src/index.ts': 'export {}' }, peerDependencies: {}, missingDependencies: ['@kubb/plugin-barrel'] },
+        await makeGeneration({ 'src/index.ts': 'export {}' }, { missingDependencies: ['@kubb/plugin-barrel'] }),
       )
 
       expect(createSnapshotPackage).toHaveBeenCalled()
@@ -1035,10 +1049,9 @@ describe('StudioSession', () => {
     it('clears the cached generation once a following generate command fails, so a stale run is never packed', async () => {
       await connect(options)
 
+      const generation = await makeGeneration({ 'src/index.ts': 'export {}' })
       vi.mocked(generate).mockImplementationOnce(async () => {
-        vi.mocked(setupEventsStream)
-          .mock.calls.at(-1)?.[3]
-          ?.onGenerationEnd?.({ files: { 'src/index.ts': 'export {}' }, peerDependencies: {}, missingDependencies: [] })
+        vi.mocked(setupEventsStream).mock.calls.at(-1)?.[3]?.onGenerationEnd?.(generation)
       })
       await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
 

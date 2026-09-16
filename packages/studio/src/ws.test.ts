@@ -78,7 +78,22 @@ describe('setupEventsStream', () => {
     ])
   })
 
-  it('hands the generated files, peer dependencies and missing dependencies to onGenerationEnd instead of the wire', async () => {
+  it('never reads file content on kubb:generation:end, only keys', async () => {
+    const socket = fakeSocket()
+    const hooks = new Hookable<KubbHooks>()
+    const readItem = vi.fn(async () => 'export {}')
+    const config = { root: '/project', plugins: [] } as unknown as Config
+    setupEventsStream(socket.ws, hooks, 'job-1')
+
+    await hooks.callHook('kubb:generation:end', {
+      config,
+      storage: { readKeys: async () => ['/project/src/index.ts'], readItem } as never,
+    })
+
+    expect(readItem).not.toHaveBeenCalled()
+  })
+
+  it('hands the storage, its paths, peer dependencies and missing dependencies to onGenerationEnd instead of the wire', async () => {
     const socket = fakeSocket()
     const hooks = new Hookable<KubbHooks>()
     const onGenerationEnd = vi.fn()
@@ -87,17 +102,14 @@ describe('setupEventsStream', () => {
       root: '/project',
       plugins: [{ name: '@kubb/core' }, { name: '@kubb/missing-plugin' }, { name: '@kubb/core' }],
     } as Config
+    const storage = { readKeys: async () => ['/project/src/index.ts'], readItem: async () => 'export {}' } as never
 
-    await hooks.callHook('kubb:generation:end', {
-      config,
-      storage: {
-        readKeys: async () => ['/project/src/index.ts'],
-        readItem: async () => 'export {}',
-      } as never,
-    })
+    await hooks.callHook('kubb:generation:end', { config, storage })
 
     expect(onGenerationEnd).toHaveBeenCalledWith({
-      files: { 'src/index.ts': 'export {}' },
+      storage,
+      root: '/project',
+      paths: new Set(['src/index.ts']),
       peerDependencies: { '@kubb/core': expect.any(String) },
       missingDependencies: ['@kubb/missing-plugin'],
     })
@@ -142,6 +154,6 @@ describe('setupEventsStream', () => {
       } as never,
     })
 
-    expect(onGenerationEnd).toHaveBeenCalledWith(expect.objectContaining({ files: { [treePath as string]: 'export {}' } }))
+    expect(onGenerationEnd).toHaveBeenCalledWith(expect.objectContaining({ paths: new Set([treePath as string]) }))
   })
 })
