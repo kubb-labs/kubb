@@ -1,5 +1,30 @@
 # Changelog
 
+## v5.3.4 — Sep 16, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Back off while polling a Studio job, so a long snapshot stops exhausting the API key rate limit.
+  
+  `waitForJob` polled `GET /api/jobs/{id}` every second, starting the instant the job was queued. The
+  CLI's `kubb studio snapshot` waits up to 10 minutes by default, which is up to 600 requests against
+  a budget of 100 per window. The window only resets after a whole window with no request, so a
+  one-second poll could never escape the limit once it hit it, and every later call failed until the
+  run gave up. The budget belongs to the organization key, so concurrent CI runs share it.
+  
+  The first poll now waits two seconds, since a job runs a generation and packs a tarball before it
+  can possibly finish. From there the interval doubles to a 30 second ceiling, bringing a 10 minute
+  wait down from 600 requests to 22. A 429 pushes the next poll out by the `tryAgainIn` Studio
+  returns and never pulls it back in, and `retry: false` stops ofetch retrying a 429 with no delay. ([#4057](https://github.com/kubb-labs/kubb/pull/4057), [`52637b6`](https://github.com/kubb-labs/kubb/commit/52637b617207bd7e51e7f9d5c2220df9de0c4704))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.3 — Sep 16, 2026
 
 ### @kubb/studio
