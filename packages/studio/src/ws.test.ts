@@ -101,4 +101,39 @@ describe('setupEventsStream', () => {
       payload: { data: [{ storage: { 'src/gen/index.ts': 'export {}' } }] },
     })
   })
+
+  it('sends an empty storage when skipStorage is set, so the generated files never cross the socket', async () => {
+    const socket = fakeSocket()
+    const hooks = new Hookable<KubbHooks>()
+    setupEventsStream(socket.ws, hooks, 'job-1', { skipStorage: true })
+
+    await hooks.callHook('kubb:generation:end', {
+      config: { root: '/project', plugins: [] } as unknown as Config,
+      storage: {
+        readKeys: async () => ['/project/src/index.ts'],
+        readItem: async () => 'export {}',
+      } as never,
+    })
+
+    expect(socket.sent()[0]).toMatchObject({
+      payload: { data: [{ storage: {} }] },
+    })
+  })
+
+  it('still hands the generated files to onGenerationEnd when skipStorage keeps them off the wire', async () => {
+    const socket = fakeSocket()
+    const hooks = new Hookable<KubbHooks>()
+    const onGenerationEnd = vi.fn()
+    setupEventsStream(socket.ws, hooks, 'job-1', { skipStorage: true, onGenerationEnd })
+
+    await hooks.callHook('kubb:generation:end', {
+      config: { root: '/project', plugins: [] } as unknown as Config,
+      storage: {
+        readKeys: async () => ['/project/src/index.ts'],
+        readItem: async () => 'export {}',
+      } as never,
+    })
+
+    expect(onGenerationEnd).toHaveBeenCalledWith({ 'src/index.ts': 'export {}' })
+  })
 })

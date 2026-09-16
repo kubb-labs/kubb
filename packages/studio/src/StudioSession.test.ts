@@ -8,6 +8,7 @@ import { spyOnConsole } from './console.mock.ts'
 import { MockWebSocket } from './websocket.mock.ts'
 import type { AgentConnectResponse } from './protocol/index.ts'
 import type { Hookable, KubbHooks } from '@kubb/core'
+import { logLevel as logLevelMap } from '@kubb/core'
 import type { StudioSessionOptions } from './StudioSession.ts'
 import { StudioSession } from './StudioSession.ts'
 
@@ -46,10 +47,15 @@ vi.mock('./ws.ts', () => ({
   setupEventsStream: vi.fn(() => vi.fn()),
 }))
 
+vi.mock('./snapshotPackage.ts', () => ({
+  createSnapshotPackage: vi.fn(),
+}))
+
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { generate } from './generate.ts'
 
 import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
+import { createSnapshotPackage } from './snapshotPackage.ts'
 
 // Shared test helpers
 
@@ -817,6 +823,147 @@ describe('StudioSession', () => {
     expect(vi.mocked(setupEventsStream).mock.results[1]?.value).toHaveBeenCalledTimes(1)
   })
 
+  it('skips storage on the event stream for a CI client, which has no UI to render the files in', async () => {
+    await connect({ ...options, client: { kind: 'ci' } })
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'studio:generate' }),
+    })
+
+    expect(vi.mocked(setupEventsStream).mock.calls[0]?.[3]).toMatchObject({ skipStorage: true })
+  })
+
+  it.each(['cli', 'docker'] as const)('sends storage on the event stream for a %s client', async (kind) => {
+    await connect({ ...options, client: { kind } })
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'studio:generate' }),
+    })
+
+    expect(vi.mocked(setupEventsStream).mock.calls[0]?.[3]).toMatchObject({ skipStorage: false })
+  })
+
+  // snapshot command
+
+  describe('snapshot command', () => {
+    function reply(type: 'agent:snapshot') {
+      return vi
+        .mocked(sendAgentMessage)
+        .mock.calls.map(([, message]) => message)
+        .findLast((message) => message.type === type)
+    }
+
+    // `onGenerationEnd` has to fire while `generate()` is still pending, the same as a real
+    // `setupEventsStream` reacting to the `kubb:generation:end` hook mid-run, so `#handleGenerate`
+    // has the files by the time its `finally` block caches them.
+    async function generateThenSnapshot(payload: Record<string, unknown> = { name: 'pkg', version: '1.0.0', uploadPath: '/api/agent/snapshots/id/upload' }) {
+      vi.mocked(generate).mockImplementationOnce(async () => {
+        vi.mocked(setupEventsStream).mock.calls.at(-1)?.[3]?.onGenerationEnd?.({ 'src/index.ts': 'export {}' })
+      })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:snapshot', jobId: 'job-1', payload }) })
+    }
+
+    const redirectResponse = { status: 307, headers: new Headers({ location: 'https://storage.example.com/upload' }) }
+
+    beforeEach(() => {
+      vi.mocked(createSnapshotPackage).mockResolvedValue({ bytes: Buffer.from([1]), integrity: 'sha512-abc' })
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(redirectResponse).mockResolvedValueOnce({ ok: true }))
+    })
+
+    afterEach(() => vi.unstubAllGlobals())
+
+    it('refuses in sandbox mode, since a sandbox agent has no project to build a package from', async () => {
+      vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
+      await connect(options)
+
+      await generateThenSnapshot()
+
+      expect(createSnapshotPackage).not.toHaveBeenCalled()
+      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('sandbox') })
+    })
+
+    it('refuses when the message is missing required fields', async () => {
+      await connect(options)
+
+      await generateThenSnapshot({ name: 'pkg' })
+
+      expect(createSnapshotPackage).not.toHaveBeenCalled()
+      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('missing required fields') })
+    })
+
+    it('refuses when no prior generation exists to pack', async () => {
+      await connect(options)
+
+      await mockWs.trigger('message', {
+        data: JSON.stringify({
+          type: 'studio:snapshot',
+          jobId: 'job-1',
+          payload: { name: 'pkg', version: '1.0.0', uploadPath: '/api/agent/snapshots/id/upload' },
+        }),
+      })
+
+      expect(createSnapshotPackage).not.toHaveBeenCalled()
+      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('no prior generation') })
+    })
+
+    it('packs the cached generation, asks Studio for a storage URL with no body, uploads to it, and replies with the integrity hash', async () => {
+      await connect(options)
+
+      await generateThenSnapshot()
+
+      expect(createSnapshotPackage).toHaveBeenCalledWith({ 'src/index.ts': 'export {}' }, expect.objectContaining({ name: 'pkg', version: '1.0.0' }))
+      expect(fetch).toHaveBeenNthCalledWith(1, new URL('/api/agent/snapshots/id/upload', 'https://kubb.studio'), {
+        method: 'PUT',
+        headers: { Authorization: 'Bearer my-token' },
+        redirect: 'manual',
+      })
+      expect(fetch).toHaveBeenNthCalledWith(2, 'https://storage.example.com/upload', { method: 'PUT', body: new Uint8Array([1]) })
+      expect(reply('agent:snapshot')?.payload).toStrictEqual({ status: 'ok', integrity: 'sha512-abc' })
+    })
+
+    it('refuses when Studio does not redirect to a storage URL', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 401, headers: new Headers() }))
+      await connect(options)
+
+      await generateThenSnapshot()
+
+      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('401') })
+    })
+
+    it('reports an error reply when the storage upload fails', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(redirectResponse).mockResolvedValueOnce({ ok: false, status: 500 }))
+      await connect(options)
+
+      await generateThenSnapshot()
+
+      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('500') })
+    })
+
+    it('clears the cached generation once a following generate command fails, so a stale run is never packed', async () => {
+      await connect(options)
+
+      vi.mocked(generate).mockImplementationOnce(async () => {
+        vi.mocked(setupEventsStream).mock.calls.at(-1)?.[3]?.onGenerationEnd?.({ 'src/index.ts': 'export {}' })
+      })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
+
+      vi.mocked(generate).mockRejectedValueOnce(new Error('generation blew up'))
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
+
+      await mockWs.trigger('message', {
+        data: JSON.stringify({
+          type: 'studio:snapshot',
+          jobId: 'job-1',
+          payload: { name: 'pkg', version: '1.0.0', uploadPath: '/api/agent/snapshots/id/upload' },
+        }),
+      })
+
+      expect(createSnapshotPackage).not.toHaveBeenCalled()
+      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('no prior generation') })
+    })
+  })
+
   // connect command
 
   it('sends a connected message with agent info on a connect command', async () => {
@@ -1000,7 +1147,7 @@ describe('StudioSession', () => {
   it('closes the WebSocket without reconnecting when a disconnect message with reason "revoked" is received', async () => {
     vi.useFakeTimers()
 
-    await connect(options)
+    await connect({ ...options, logLevel: logLevelMap.info })
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'studio:disconnect', reason: 'revoked' }),
@@ -1011,20 +1158,20 @@ describe('StudioSession', () => {
     // The server already knows about the closure, so the disconnect API is not called.
     expect(disconnect).not.toHaveBeenCalled()
     // A revoked session does not trigger a reconnect.
-    expect(consoleSpy.info).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
+    expect(consoleSpy.error).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
 
     // A real socket fires its own `close` event once `.close()` above settles. That must not run
     // teardown a second time and reconnect a session Studio just revoked.
     await mockWs.trigger('close')
 
     expect(disconnect).not.toHaveBeenCalled()
-    expect(consoleSpy.info).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
+    expect(consoleSpy.error).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
   })
 
   it('cleans up and reconnects when a disconnect message with reason "expired" is received', async () => {
     vi.useFakeTimers()
 
-    await connect(options)
+    await connect({ ...options, logLevel: logLevelMap.info })
 
     await mockWs.trigger('message', {
       data: JSON.stringify({ type: 'studio:disconnect', reason: 'expired' }),
@@ -1034,9 +1181,9 @@ describe('StudioSession', () => {
     expect(mockWs.closed).toBe(true)
     expect(disconnect).not.toHaveBeenCalled()
     // Unlike a revoked session, an expired one triggers a reconnect.
-    expect(consoleSpy.info).toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
+    expect(consoleSpy.error).toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
 
-    const reconnectCount = vi.mocked(consoleSpy.info).mock.calls.filter((call) => String(call[0]).includes('Retrying connection')).length
+    const reconnectCount = vi.mocked(consoleSpy.error).mock.calls.filter((call) => String(call[0]).includes('Retrying connection')).length
 
     // A real socket fires its own `close` event once `.close()` above settles. That must not run
     // teardown a second time and queue a duplicate reconnect on top of the one already scheduled
@@ -1044,7 +1191,19 @@ describe('StudioSession', () => {
     await mockWs.trigger('close')
 
     expect(disconnect).not.toHaveBeenCalled()
-    expect(vi.mocked(consoleSpy.info).mock.calls.filter((call) => String(call[0]).includes('Retrying connection'))).toHaveLength(reconnectCount)
+    expect(vi.mocked(consoleSpy.error).mock.calls.filter((call) => String(call[0]).includes('Retrying connection'))).toHaveLength(reconnectCount)
+  })
+
+  it('never logs a retry when no logLevel is given, the silent default a library should have', async () => {
+    vi.useFakeTimers()
+
+    await connect(options)
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'studio:disconnect', reason: 'expired' }),
+    })
+
+    expect(consoleSpy.error).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
   })
 
   it('calls onTokenRejected and stops retrying when a background reconnect is rejected with an invalid token', async () => {

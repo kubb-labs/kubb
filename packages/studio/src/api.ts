@@ -1,5 +1,6 @@
 import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
+import { logLevel as logLevelMap } from '@kubb/core'
 import { FetchError, ofetch } from 'ofetch'
 import type { AgentConnectResponse } from './protocol/index.ts'
 import { getMachineToken } from './machine.ts'
@@ -174,6 +175,12 @@ type DisconnectProps = {
   token: string
   sessionId: string
   slug?: string | null
+  /**
+   * Threshold for this function's own console lines, using the numeric constants `@kubb/core`
+   * exports as `logLevel`. Left out, nothing prints, the same silent default `StudioSessionOptions`
+   * gives a host that never set one.
+   */
+  logLevel?: number
 }
 
 /**
@@ -181,9 +188,10 @@ type DisconnectProps = {
  * Called on process termination or server close. A failed notify is logged and swallowed: the
  * local socket is already gone, and failing teardown must not block shutdown or reconnect.
  */
-export async function disconnect({ sessionId, token, studioUrl, slug }: DisconnectProps): Promise<void> {
+export async function disconnect({ sessionId, token, studioUrl, slug, logLevel }: DisconnectProps): Promise<void> {
   const url = `${studioUrl}/api/agent/sessions/${sessionId}/disconnect`
   const tag = slug ?? 'agent'
+  const canLog = logLevel !== undefined && logLevel > logLevelMap.silent
 
   try {
     await ofetch(url, {
@@ -192,12 +200,18 @@ export async function disconnect({ sessionId, token, studioUrl, slug }: Disconne
         Authorization: `Bearer ${token}`,
       },
     })
-    console.log(styleText('green', `[${tag}] Disconnected from Studio`))
+    // console.error, not console.log: a CI runner only forwards a child process's stderr live, so
+    // a stdout write here would be silently buffered away instead of reaching its log.
+    if (canLog) {
+      console.error(styleText('green', `[${tag}] Disconnected from Studio`))
+    }
   } catch (error) {
     const statusCode = (error as { statusCode?: number } | undefined)?.statusCode
     if (statusCode !== undefined && statusCode >= 400 && statusCode < 500) return
 
-    console.warn(styleText('yellow', `[${tag}] Failed to notify Studio of disconnection: ${getErrorMessage(error)}`))
+    if (canLog) {
+      console.warn(styleText('yellow', `[${tag}] Failed to notify Studio of disconnection: ${getErrorMessage(error)}`))
+    }
   }
 }
 

@@ -3,7 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { getErrorMessage, read, toError } from '@internals/utils'
-import { type Config, fsStorage, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
+import { type Config, fsStorage, Hookable, type KubbHooks, logLevel as logLevelMap, memoryStorage } from '@kubb/core'
 import { version as kubbVersion } from '../package.json'
 import { setupHookListener } from './hooks.ts'
 import {
@@ -22,6 +22,7 @@ import { applyConfigEdits, readConfig } from './configFile.ts'
 import { generate } from './generate.ts'
 import { agentDefaults } from './constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
+import { createSnapshotPackage } from './snapshotPackage.ts'
 import type WebSocket from 'ws'
 import { createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream } from './ws.ts'
 
@@ -74,6 +75,13 @@ export type StudioSessionOptions = {
    * default to.
    */
   installLogger?: (hooks: Hookable<KubbHooks>) => void | Promise<void>
+  /**
+   * Threshold for the reconnect loop's own `console.error` lines, using the numeric constants
+   * `@kubb/core` exports as `logLevel`. Left out, those lines never print, the same silent default
+   * as an unset `installLogger` — a reconnect happens outside any one session's hooks, so it has no
+   * other way to ask a host how loud to be.
+   */
+  logLevel?: number
   /**
    * Called when this session's background reconnect is rejected with an invalid token. Unlike
    * `ClientOptions.onAuthRequired`, this fires once per session rather than once per pool:
@@ -138,13 +146,17 @@ function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
  * socket, its hook emitter, or its session id alive for the length of the retry interval.
  */
 function reconnect(options: ResolvedOptions): void {
-  const { signal, retryInterval, onTokenRejected } = options
+  const { signal, retryInterval, onTokenRejected, logLevel } = options
 
   if (signal?.aborted) {
     return
   }
 
-  console.info(styleText('dim', `Retrying connection in ${retryInterval}ms to Kubb Studio ...`))
+  // console.error, not console.info: a CI runner only forwards a child process's stderr live, so
+  // an info-level write here would be silently buffered away instead of reaching its log.
+  if (logLevel !== undefined && logLevel > logLevelMap.silent) {
+    console.error(styleText('dim', `Retrying connection in ${retryInterval}ms to Kubb Studio ...`))
+  }
 
   const cancel = () => clearTimeout(timer)
   const timer = setTimeout(() => {
@@ -159,7 +171,9 @@ function reconnect(options: ResolvedOptions): void {
     // The rejection is never awaited, so it has to be caught here or it surfaces as an
     // unhandledRejection that kills the retry loop instead of trying again.
     new StudioSession(options).connect().catch((error: unknown) => {
-      console.error(styleText('red', `Reconnect attempt to Kubb Studio failed: ${getErrorMessage(error)}`))
+      if (logLevel !== undefined && logLevel > logLevelMap.silent) {
+        console.error(styleText('red', `Reconnect attempt to Kubb Studio failed: ${getErrorMessage(error)}`))
+      }
 
       // A rejected token stays rejected, so retrying only spams 401s until the process is killed.
       // The host learns about it here instead: the startup path already reports its own rejection
@@ -216,6 +230,11 @@ export class StudioSession {
   // connection is half-open (e.g. dropped during a Studio deploy) and must be terminated so the
   // reconnect loop can establish a fresh session.
   #lastPongAt = Date.now()
+  // The most recent generation's files, kept so `studio:snapshot` can pack them without Studio
+  // round tripping the file contents back out over the socket. Set after every generation attempt,
+  // undefined again if it failed before `kubb:generation:end` fired, so a snapshot never packs a
+  // stale run.
+  #lastGeneration: Record<string, string> | undefined
 
   constructor(options: StudioSessionOptions) {
     this.#options = applyStudioDefaults(options)
@@ -471,7 +490,7 @@ export class StudioSession {
    * `#disposed` keeps the close event from running this twice, and a shutdown from reconnecting.
    */
   async #end({ reason, retry }: { reason?: string; retry: boolean }): Promise<void> {
-    const { studioUrl, token } = this.#options
+    const { studioUrl, token, logLevel } = this.#options
 
     if (this.#disposed) {
       return
@@ -490,7 +509,7 @@ export class StudioSession {
     // Nothing to tell Studio about when the session never opened.
     if (this.#session) {
       // Already tearing down, so a failed disconnect changes nothing.
-      await disconnect({ sessionId: this.#session.sessionId, studioUrl, token, slug: this.#session.slug }).catch(() => {})
+      await disconnect({ sessionId: this.#session.sessionId, studioUrl, token, slug: this.#session.slug, logLevel }).catch(() => {})
     }
 
     if (retry) {
@@ -584,6 +603,9 @@ export class StudioSession {
       case 'studio:save':
         await this.#handleSave(ws, data, command)
         return
+      case 'studio:snapshot':
+        await this.#handleSnapshot(ws, data, command)
+        return
     }
   }
 
@@ -625,7 +647,18 @@ export class StudioSession {
 
       // The session's own emitter carries the run: the host's logger is already on it from
       // `connect`, and these two come off again below, so one run's listeners never see the next.
-      const detach = [setupHookListener(this.#hooks, root), setupEventsStream(ws, this.#hooks, data.jobId)]
+      // A CI client has no UI to render the files for, so it keeps them off the reply on its own
+      // rather than Studio asking for that on a per-request basis.
+      let generatedFiles: Record<string, string> | undefined
+      const detach = [
+        setupHookListener(this.#hooks, root),
+        setupEventsStream(ws, this.#hooks, data.jobId, {
+          skipStorage: client?.kind === 'ci',
+          onGenerationEnd: (files) => {
+            generatedFiles = files
+          },
+        }),
+      ]
 
       try {
         await generate({
@@ -642,6 +675,7 @@ export class StudioSession {
         })
       } finally {
         for (const remove of detach) remove()
+        this.#lastGeneration = generatedFiles
       }
 
       await this.#hooks.callHook('studio:command:end', {
@@ -716,6 +750,69 @@ export class StudioSession {
     } catch (error) {
       // An unreadable config, a read-only filesystem. Reported as a refusal of every edit so
       // Studio hears back rather than waiting on a reply that never comes.
+      await this.#hooks.callHook('studio:error', { error: toError(error) })
+
+      refuse(getErrorMessage(error))
+    }
+  }
+
+  async #handleSnapshot(ws: WebSocket, data: Extract<AgentMessage, { type: 'studio:snapshot' }>, command: string): Promise<void> {
+    const refuse = (message: string) => sendAgentMessage(ws, { type: 'agent:snapshot', jobId: data.jobId, payload: { status: 'error', message } })
+
+    if (this.#isSandbox) {
+      await this.#warn('Ignored snapshot: a sandbox agent has no project to build a package from')
+      refuse('a sandbox agent has no project to build a package from')
+
+      return
+    }
+
+    const { name, version, peerDependencies, uploadPath } = data.payload
+
+    if (!name || !version || !uploadPath) {
+      await this.#warn('Ignored snapshot: the message was missing required fields')
+      refuse('the message was missing required fields')
+
+      return
+    }
+
+    const files = this.#lastGeneration
+
+    if (!files) {
+      await this.#warn('Ignored snapshot: no prior generation to pack')
+      refuse('no prior generation exists to pack, run a generation first')
+
+      return
+    }
+
+    try {
+      const { bytes, integrity } = await createSnapshotPackage(files, { name, version, peerDependencies: peerDependencies ?? {} })
+
+      // The tarball can't go on this request: Studio's handler answers before reading the body,
+      // so the connection drops mid-upload. Ask for the redirect with an empty body first, then
+      // PUT the bytes to wherever it points. That also keeps the bearer token off the storage
+      // request, since it's a fresh call rather than a followed redirect.
+      const { token, studioUrl } = this.#options
+      const redirect = await fetch(new URL(uploadPath, studioUrl), {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+        redirect: 'manual',
+      })
+      const storageUrl = redirect.headers.get('location')
+      if (redirect.status !== 307 || !storageUrl) {
+        throw new Error(`Studio did not provide a storage URL (status ${redirect.status})`)
+      }
+
+      const response = await fetch(storageUrl, { method: 'PUT', body: new Uint8Array(bytes) })
+      if (!response.ok) {
+        throw new Error(`Snapshot upload failed with status ${response.status}`)
+      }
+
+      sendAgentMessage(ws, { type: 'agent:snapshot', jobId: data.jobId, payload: { status: 'ok', integrity } })
+      await this.#hooks.callHook('studio:command:end', {
+        command,
+        info: `packed ${Object.keys(files).length} file${Object.keys(files).length === 1 ? '' : 's'}`,
+      })
+    } catch (error) {
       await this.#hooks.callHook('studio:error', { error: toError(error) })
 
       refuse(getErrorMessage(error))

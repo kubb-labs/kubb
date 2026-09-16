@@ -4,17 +4,17 @@
  *
  * | Direction        | Type                  | Purpose                                                      |
  * | ---------------- | --------------------- | -------------------------------------------------------------|
- * | Studio → agent    | `studio:generate`     | Run a generation. No dedicated reply, the result arrives as an `agent:data` message carrying `kubb:generation:end`, so it stays ordered against the rest of that run's event stream. `studio:save`/`studio:snapshot` reply directly instead, since neither needs that ordering. |
+ * | Studio → agent    | `studio:generate`     | Run a generation. No dedicated reply, the result arrives as an `agent:data` message carrying `kubb:generation:end`, so it stays ordered against the rest of that run's event stream. `studio:save`/`studio:snapshot` reply directly instead, since neither needs that ordering. A CI client omits `storage` from that reply on its own, since it has no UI to render the files for. |
  * | Studio → agent    | `studio:connect`      | Ask the agent to resend its `agent:connect` handshake payload. |
  * | Studio → agent    | `studio:save`         | Edit `kubb.config.ts`. Replied to with `agent:save`. |
- * | Studio → agent    | `studio:snapshot`     | Pack a prior generation's files into a tarball and upload it to a presigned URL. Replied to with `agent:snapshot`. |
+ * | Studio → agent    | `studio:snapshot`     | Pack the session's most recent generation into a tarball and upload it to a Studio path, which redirects to storage. Carries no file contents itself. Replied to with `agent:snapshot`. |
  * | Studio → agent    | `studio:pong`         | Reply to an `agent:ping` heartbeat. |
  * | Studio → agent    | `studio:ready`        | Acknowledges `agent:connect`, so the session now counts as available for job dispatch. |
  * | Studio → agent    | `studio:disconnect`   | The session expired or was revoked, so the agent should not reconnect. |
  * | Studio → agent    | `studio:error`        | A failure outside a generation, e.g. a malformed command. |
  * | Agent → Studio    | `agent:connect`       | Handshake sent on open and after every `studio:connect`. |
  * | Agent → Studio    | `agent:save`          | Reply to `studio:save`. |
- * | Agent → Studio    | `agent:snapshot`      | Reply to `studio:snapshot`. The tarball itself already went out via direct upload, so this only carries the integrity hash or an error. |
+ * | Agent → Studio    | `agent:snapshot`      | Reply to `studio:snapshot`. The tarball itself already went out to storage, so this only carries the integrity hash or an error. |
  * | Agent → Studio    | `agent:data`          | One generation lifecycle event, `payload.type` a {@link KubbHook}. Carries `kubb:generation:end` (the closest thing `studio:generate` has to a reply) among many others. |
  * | Agent → Studio    | `agent:ping`          | Heartbeat, so the connection is not treated as idle. |
  * | Agent → Studio    | `agent:disconnect`    | The agent is shutting down. |
@@ -271,15 +271,37 @@ export type StudioSaveMessage = {
 }
 
 /**
+ * Ask the agent to pack a previous generation's files into an npm-installable tarball and upload
+ * it to Studio directly, rather than returning the bytes over this socket. Packs the files the
+ * session's own most recent `studio:generate` produced, so it only works right after that
+ * generation and never carries file contents itself. Refused for a sandbox agent, since it holds
+ * no generated files worth packing, and refused when no prior generation exists to pack.
+ */
+export type StudioSnapshotMessage = {
+  type: 'studio:snapshot'
+  jobId: string
+  payload: {
+    name: string
+    version: string
+    peerDependencies?: Record<string, string>
+    /**
+     * Studio path the agent `PUT`s the finished tarball to. Studio answers with a redirect to
+     * storage, so the storage URL stays out of this message.
+     */
+    uploadPath: string
+  }
+}
+
+/**
  * Anything Studio asks the agent to do. Each command is its own `type`, so a handler switches once
  * instead of reading a `type` and then a nested `command` field.
  */
-export type CommandMessage = StudioGenerateMessage | StudioConnectMessage | StudioSaveMessage
+export type CommandMessage = StudioGenerateMessage | StudioConnectMessage | StudioSaveMessage | StudioSnapshotMessage
 
 /**
  * The command names, for a host that needs the list rather than the union.
  */
-export const commandTypes = ['studio:generate', 'studio:connect', 'studio:save'] as const
+export const commandTypes = ['studio:generate', 'studio:connect', 'studio:save', 'studio:snapshot'] as const
 
 export function createJobId(): string {
   return crypto.randomUUID()
@@ -407,6 +429,16 @@ export type AgentSaveMessage = {
      */
     file?: ConfigFileView
   }
+}
+
+/**
+ * Reply to `studio:snapshot`. The tarball already went to storage, so this only reports whether
+ * the upload succeeded.
+ */
+export type AgentSnapshotMessage = {
+  type: 'agent:snapshot'
+  jobId: string
+  payload: { status: 'ok'; integrity: string } | { status: 'error'; message: string }
 }
 
 /**
@@ -543,6 +575,7 @@ export type AgentMessage =
   | DataMessage
   | AgentConnectMessage
   | AgentSaveMessage
+  | AgentSnapshotMessage
   | AgentPingMessage
   | AgentDisconnectMessage
   | StudioErrorMessage

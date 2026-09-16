@@ -128,6 +128,10 @@ if (finished.status === 'failed') throw new Error(finished.error)
 const snapshot = finished.snapshot
 ```
 
+A snapshot job packs the tarball on the agent, not on Studio. The agent `PUT`s an empty request to
+a path Studio provides, gets back a redirect to a short-lived storage URL, and uploads the tarball
+there. The storage URL never crosses the WebSocket.
+
 ## Protocol
 
 `@kubb/studio/protocol` holds the WebSocket message types shared by both ends, so the agent and
