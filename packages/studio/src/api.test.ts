@@ -264,4 +264,18 @@ describe('waitForJob', () => {
     await vi.advanceTimersByTimeAsync(1_000)
     await expect(promise).resolves.toEqual({ id: 'job-1', status: 'success' })
   })
+
+  it('falls back to the ceiling when a 429 carries an unusable tryAgainIn', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createMockResponse({ data: { tryAgainIn: 'soon' } }, 429))
+      .mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'success' } }))
+
+    const promise = waitForJob({ studioUrl: 'http://studio', token: 'ci-token', id: 'job-1', timeoutMs: 600_000 })
+
+    await vi.advanceTimersByTimeAsync(31_000)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(1_000)
+    await expect(promise).resolves.toEqual({ id: 'job-1', status: 'success' })
+  })
 })

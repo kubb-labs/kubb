@@ -360,11 +360,10 @@ export async function waitForJob({
   let interval = INITIAL_POLL_DELAY_MS
 
   for (;;) {
-    const remaining = deadline - Date.now()
+    await new Promise((resolve) => setTimeout(resolve, Math.max(Math.min(interval, deadline - Date.now()), 0)))
 
-    if (remaining <= 0) throw new Error('Timed out waiting for the Studio job')
+    if (Date.now() >= deadline) throw new Error('Timed out waiting for the Studio job')
 
-    await new Promise((resolve) => setTimeout(resolve, Math.min(interval, remaining)))
     interval = Math.min(interval * 2, MAX_POLL_INTERVAL_MS)
 
     try {
@@ -376,12 +375,15 @@ export async function waitForJob({
 
       if (job.status === 'success' || job.status === 'failed') return job
     } catch (error) {
-      const response = (error as { response?: { status?: number; _data?: { data?: { tryAgainIn?: number } } } }).response
+      const response = (error as { response?: { status?: number; _data?: { data?: { tryAgainIn?: unknown } } } }).response
 
       if (response?.status !== 429) throw error
 
+      const retryAfter = response._data?.data?.tryAgainIn
+      const usable = typeof retryAfter === 'number' && Number.isFinite(retryAfter) && retryAfter > 0
+
       // Studio's wait may exceed the ceiling, and a refusal must never shorten the next poll.
-      interval = Math.max(interval, response._data?.data?.tryAgainIn ?? MAX_POLL_INTERVAL_MS)
+      interval = Math.max(interval, usable ? retryAfter : MAX_POLL_INTERVAL_MS)
     }
   }
 }

@@ -12,5 +12,5 @@ run gave up. The budget belongs to the organization key, so concurrent CI runs s
 
 The first poll now waits two seconds, since a job runs a generation and packs a tarball before it
 can possibly finish. From there the interval doubles to a 30 second ceiling, bringing a 10 minute
-wait down from 600 requests to 23. A 429 pushes the next poll out by the `tryAgainIn` Studio
+wait down from 600 requests to 22. A 429 pushes the next poll out by the `tryAgainIn` Studio
 returns and never pulls it back in, and `retry: false` stops ofetch retrying a 429 with no delay.
