@@ -855,7 +855,7 @@ describe('StudioSession', () => {
     // `onGenerationEnd` has to fire while `generate()` is still pending, the same as a real
     // `setupEventsStream` reacting to the `kubb:generation:end` hook mid-run, so `#handleGenerate`
     // has the files by the time its `finally` block caches them.
-    async function generateThenSnapshot(payload: Record<string, unknown> = { name: 'pkg', version: '1.0.0', uploadUrl: 'https://upload.example.com' }) {
+    async function generateThenSnapshot(payload: Record<string, unknown> = { name: 'pkg', version: '1.0.0', uploadPath: '/api/agent/snapshots/id/upload' }) {
       vi.mocked(generate).mockImplementationOnce(async () => {
         vi.mocked(setupEventsStream).mock.calls.at(-1)?.[3]?.onGenerationEnd?.({ 'src/index.ts': 'export {}' })
       })
@@ -893,20 +893,28 @@ describe('StudioSession', () => {
       await connect(options)
 
       await mockWs.trigger('message', {
-        data: JSON.stringify({ type: 'studio:snapshot', jobId: 'job-1', payload: { name: 'pkg', version: '1.0.0', uploadUrl: 'https://upload.example.com' } }),
+        data: JSON.stringify({
+          type: 'studio:snapshot',
+          jobId: 'job-1',
+          payload: { name: 'pkg', version: '1.0.0', uploadPath: '/api/agent/snapshots/id/upload' },
+        }),
       })
 
       expect(createSnapshotPackage).not.toHaveBeenCalled()
       expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('no prior generation') })
     })
 
-    it('packs the cached generation, uploads it to the presigned URL, and replies with the integrity hash', async () => {
+    it('packs the cached generation, uploads it to the resolved Studio path with the agent bearer token, and replies with the integrity hash', async () => {
       await connect(options)
 
       await generateThenSnapshot()
 
       expect(createSnapshotPackage).toHaveBeenCalledWith({ 'src/index.ts': 'export {}' }, expect.objectContaining({ name: 'pkg', version: '1.0.0' }))
-      expect(fetch).toHaveBeenCalledWith('https://upload.example.com', { method: 'PUT', body: new Uint8Array([1]) })
+      expect(fetch).toHaveBeenCalledWith(new URL('/api/agent/snapshots/id/upload', 'https://kubb.studio'), {
+        method: 'PUT',
+        headers: { Authorization: 'Bearer my-token' },
+        body: new Uint8Array([1]),
+      })
       expect(reply('agent:snapshot')?.payload).toStrictEqual({ status: 'ok', integrity: 'sha512-abc' })
     })
 
@@ -931,7 +939,11 @@ describe('StudioSession', () => {
       await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
 
       await mockWs.trigger('message', {
-        data: JSON.stringify({ type: 'studio:snapshot', jobId: 'job-1', payload: { name: 'pkg', version: '1.0.0', uploadUrl: 'https://upload.example.com' } }),
+        data: JSON.stringify({
+          type: 'studio:snapshot',
+          jobId: 'job-1',
+          payload: { name: 'pkg', version: '1.0.0', uploadPath: '/api/agent/snapshots/id/upload' },
+        }),
       })
 
       expect(createSnapshotPackage).not.toHaveBeenCalled()

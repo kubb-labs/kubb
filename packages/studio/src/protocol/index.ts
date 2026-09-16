@@ -7,7 +7,7 @@
  * | Studio → agent    | `studio:generate`     | Run a generation. No dedicated reply, the result arrives as an `agent:data` message carrying `kubb:generation:end`, so it stays ordered against the rest of that run's event stream. `studio:save`/`studio:snapshot` reply directly instead, since neither needs that ordering. A CI client omits `storage` from that reply on its own, since it has no UI to render the files for. |
  * | Studio → agent    | `studio:connect`      | Ask the agent to resend its `agent:connect` handshake payload. |
  * | Studio → agent    | `studio:save`         | Edit `kubb.config.ts`. Replied to with `agent:save`. |
- * | Studio → agent    | `studio:snapshot`     | Pack the session's most recent generation into a tarball and upload it to a presigned URL. Carries no file contents itself. Replied to with `agent:snapshot`. |
+ * | Studio → agent    | `studio:snapshot`     | Pack the session's most recent generation into a tarball and upload it to a Studio path, which redirects to storage. Carries no file contents itself. Replied to with `agent:snapshot`. |
  * | Studio → agent    | `studio:pong`         | Reply to an `agent:ping` heartbeat. |
  * | Studio → agent    | `studio:ready`        | Acknowledges `agent:connect`, so the session now counts as available for job dispatch. |
  * | Studio → agent    | `studio:disconnect`   | The session expired or was revoked, so the agent should not reconnect. |
@@ -285,10 +285,11 @@ export type StudioSnapshotMessage = {
     version: string
     peerDependencies?: Record<string, string>
     /**
-     * Presigned URL the agent `PUT`s the finished tarball to. Short-lived, minted by Studio for
-     * this job only.
+     * Studio path the agent `PUT`s the finished tarball to, resolved against the agent's own
+     * `studioUrl`. Studio answers it with a redirect to storage, so the storage URL stays out of
+     * this message.
      */
-    uploadUrl: string
+    uploadPath: string
   }
 }
 

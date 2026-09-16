@@ -753,9 +753,9 @@ export class StudioSession {
       return
     }
 
-    const { name, version, peerDependencies, uploadUrl } = data.payload
+    const { name, version, peerDependencies, uploadPath } = data.payload
 
-    if (!name || !version || !uploadUrl) {
+    if (!name || !version || !uploadPath) {
       await this.#warn('Ignored snapshot: the message was missing required fields')
       refuse('the message was missing required fields')
 
@@ -774,7 +774,12 @@ export class StudioSession {
     try {
       const { bytes, integrity } = await createSnapshotPackage(files, { name, version, peerDependencies: peerDependencies ?? {} })
 
-      const response = await fetch(uploadUrl, { method: 'PUT', body: new Uint8Array(bytes) })
+      const { token, studioUrl } = this.#options
+      const response = await fetch(new URL(uploadPath, studioUrl), {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+        body: new Uint8Array(bytes),
+      })
       if (!response.ok) {
         throw new Error(`Snapshot upload failed with status ${response.status}`)
       }
