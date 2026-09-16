@@ -14,7 +14,7 @@
  * | Studio → agent    | `studio:error`        | A failure outside a generation, e.g. a malformed command. |
  * | Agent → Studio    | `agent:connect`       | Handshake sent on open and after every `studio:connect`. |
  * | Agent → Studio    | `agent:save`          | Reply to `studio:save`. |
- * | Agent → Studio    | `agent:snapshot`      | Reply to `studio:snapshot`. The tarball itself already went out via direct upload, so this only carries the integrity hash or an error. |
+ * | Agent → Studio    | `agent:snapshot`      | Reply to `studio:snapshot`. The tarball itself already went out to storage, so this only carries the integrity hash or an error. |
  * | Agent → Studio    | `agent:data`          | One generation lifecycle event, `payload.type` a {@link KubbHook}. Carries `kubb:generation:end` (the closest thing `studio:generate` has to a reply) among many others. |
  * | Agent → Studio    | `agent:ping`          | Heartbeat, so the connection is not treated as idle. |
  * | Agent → Studio    | `agent:disconnect`    | The agent is shutting down. |
@@ -433,8 +433,8 @@ export type AgentSaveMessage = {
 }
 
 /**
- * Reply to a `studio:snapshot` command. The tarball itself already reached Studio through the
- * agent's direct upload, so this only reports whether that upload succeeded.
+ * Reply to a `studio:snapshot` command. The tarball itself already went to storage through the
+ * agent's own upload, so this only reports whether that upload succeeded.
  */
 export type AgentSnapshotMessage = {
   type: 'agent:snapshot'
