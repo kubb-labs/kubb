@@ -42,6 +42,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
     'kubb generate --config kubb.config.ts',
     'kubb generate --watch             # regenerate whenever the spec changes',
     'kubb generate --dry-run           # preview the run without writing files',
+    'kubb generate --reporter html     # write an HTML run report',
     'kubb studio                       # connect this project to Kubb Studio and generate from the browser',
     'kubb studio --allow-write         # let Studio write the generated files to disk',
     'kubb studio login                 # pair this machine with Studio without connecting',
@@ -84,7 +85,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
     },
     reporter: {
       type: 'custom',
-      description: 'Reporters that render the run, comma-separated. Overrides config.reporters',
+      description: 'Reporters that render the run: cli, json, file, html. Comma-separated. Overrides config.reporters',
       metavar: 'cli|json|file|html',
       parse: parseReporters,
     },

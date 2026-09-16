@@ -14,7 +14,7 @@ import {
   type ConfigFileView,
   isCommandMessage,
   isDisconnectMessage,
-  isStudioPingMessage,
+  isStudioPongMessage,
   isStudioReadyMessage,
 } from './protocol/index.ts'
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
@@ -217,6 +217,11 @@ export class StudioSession {
   // connection is half-open (e.g. dropped during a Studio deploy) and must be terminated so the
   // reconnect loop can establish a fresh session.
   #lastPongAt = Date.now()
+  // The most recent generation's files, kept so `studio:snapshot` can pack them without Studio
+  // round tripping the file contents back out over the socket. Set after every generation attempt,
+  // undefined again if it failed before `kubb:generation:end` fired, so a snapshot never packs a
+  // stale run.
+  #lastGeneration: Record<string, string> | undefined
 
   constructor(options: StudioSessionOptions) {
     this.#options = applyStudioDefaults(options)
@@ -503,7 +508,7 @@ export class StudioSession {
     try {
       const data = JSON.parse(message.data as string) as AgentMessage
 
-      if (isStudioPingMessage(data)) {
+      if (isStudioPongMessage(data)) {
         this.#lastPongAt = Date.now()
 
         return
@@ -629,7 +634,16 @@ export class StudioSession {
 
       // The session's own emitter carries the run: the host's logger is already on it from
       // `connect`, and these two come off again below, so one run's listeners never see the next.
-      const detach = [setupHookListener(this.#hooks, root), setupEventsStream(ws, this.#hooks, data.jobId)]
+      let generatedFiles: Record<string, string> | undefined
+      const detach = [
+        setupHookListener(this.#hooks, root),
+        setupEventsStream(ws, this.#hooks, data.jobId, {
+          skipStorage: data.skipStorage,
+          onGenerationEnd: (files) => {
+            generatedFiles = files
+          },
+        }),
+      ]
 
       try {
         await generate({
@@ -646,6 +660,7 @@ export class StudioSession {
         })
       } finally {
         for (const remove of detach) remove()
+        this.#lastGeneration = generatedFiles
       }
 
       await this.#hooks.callHook('studio:command:end', {
@@ -736,11 +751,20 @@ export class StudioSession {
       return
     }
 
-    const { files, name, version, peerDependencies, uploadUrl } = data.payload
+    const { name, version, peerDependencies, uploadUrl } = data.payload
 
-    if (!files || typeof files !== 'object' || !name || !version || !uploadUrl) {
+    if (!name || !version || !uploadUrl) {
       await this.#warn('Ignored snapshot: the message was missing required fields')
       refuse('the message was missing required fields')
+
+      return
+    }
+
+    const files = this.#lastGeneration
+
+    if (!files) {
+      await this.#warn('Ignored snapshot: no prior generation to pack')
+      refuse('no prior generation exists to pack, run a generation first')
 
       return
     }

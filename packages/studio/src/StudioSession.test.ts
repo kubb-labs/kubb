@@ -46,10 +46,15 @@ vi.mock('./ws.ts', () => ({
   setupEventsStream: vi.fn(() => vi.fn()),
 }))
 
+vi.mock('./snapshotPackage.ts', () => ({
+  createSnapshotPackage: vi.fn(),
+}))
+
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { generate } from './generate.ts'
 
 import { createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
+import { createSnapshotPackage } from './snapshotPackage.ts'
 
 // Shared test helpers
 
@@ -271,7 +276,7 @@ describe('StudioSession', () => {
   it('accepts a pong without treating it as an unknown message', async () => {
     await connect(options)
 
-    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:ping' }) })
+    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:pong' }) })
 
     expect(session.warnings()).not.toContainEqual(expect.stringContaining('unknown message'))
   })
@@ -382,7 +387,7 @@ describe('StudioSession', () => {
 
     for (const _ of Array.from({ length: 5 })) {
       await vi.advanceTimersByTimeAsync(1_000)
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:ping' }) })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:pong' }) })
     }
 
     expect(mockWs.terminated).toBe(false)
@@ -815,6 +820,113 @@ describe('StudioSession', () => {
 
     expect(setupEventsStream).toHaveBeenCalledTimes(2)
     expect(vi.mocked(setupEventsStream).mock.results[1]?.value).toHaveBeenCalledTimes(1)
+  })
+
+  it('forwards skipStorage to the event stream, for a generation only meant to be packed', async () => {
+    await connect(options)
+
+    await mockWs.trigger('message', {
+      data: JSON.stringify({ type: 'studio:generate', skipStorage: true }),
+    })
+
+    expect(vi.mocked(setupEventsStream).mock.calls[0]?.[3]).toMatchObject({ skipStorage: true })
+  })
+
+  // snapshot command
+
+  describe('snapshot command', () => {
+    function reply(type: 'agent:snapshot') {
+      return vi
+        .mocked(sendAgentMessage)
+        .mock.calls.map(([, message]) => message)
+        .findLast((message) => message.type === type)
+    }
+
+    // `onGenerationEnd` has to fire while `generate()` is still pending, the same as a real
+    // `setupEventsStream` reacting to the `kubb:generation:end` hook mid-run, so `#handleGenerate`
+    // has the files by the time its `finally` block caches them.
+    async function generateThenSnapshot(payload: Record<string, unknown> = { name: 'pkg', version: '1.0.0', uploadUrl: 'https://upload.example.com' }) {
+      vi.mocked(generate).mockImplementationOnce(async () => {
+        vi.mocked(setupEventsStream).mock.calls.at(-1)?.[3]?.onGenerationEnd?.({ 'src/index.ts': 'export {}' })
+      })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:snapshot', jobId: 'job-1', payload }) })
+    }
+
+    beforeEach(() => {
+      vi.mocked(createSnapshotPackage).mockResolvedValue({ bytes: Buffer.from([1]), integrity: 'sha512-abc' })
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true }))
+    })
+
+    afterEach(() => vi.unstubAllGlobals())
+
+    it('refuses in sandbox mode, since a sandbox agent has no project to build a package from', async () => {
+      vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
+      await connect(options)
+
+      await generateThenSnapshot()
+
+      expect(createSnapshotPackage).not.toHaveBeenCalled()
+      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('sandbox') })
+    })
+
+    it('refuses when the message is missing required fields', async () => {
+      await connect(options)
+
+      await generateThenSnapshot({ name: 'pkg' })
+
+      expect(createSnapshotPackage).not.toHaveBeenCalled()
+      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('missing required fields') })
+    })
+
+    it('refuses when no prior generation exists to pack', async () => {
+      await connect(options)
+
+      await mockWs.trigger('message', {
+        data: JSON.stringify({ type: 'studio:snapshot', jobId: 'job-1', payload: { name: 'pkg', version: '1.0.0', uploadUrl: 'https://upload.example.com' } }),
+      })
+
+      expect(createSnapshotPackage).not.toHaveBeenCalled()
+      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('no prior generation') })
+    })
+
+    it('packs the cached generation, uploads it to the presigned URL, and replies with the integrity hash', async () => {
+      await connect(options)
+
+      await generateThenSnapshot()
+
+      expect(createSnapshotPackage).toHaveBeenCalledWith({ 'src/index.ts': 'export {}' }, expect.objectContaining({ name: 'pkg', version: '1.0.0' }))
+      expect(fetch).toHaveBeenCalledWith('https://upload.example.com', { method: 'PUT', body: new Uint8Array([1]) })
+      expect(reply('agent:snapshot')?.payload).toStrictEqual({ status: 'ok', integrity: 'sha512-abc' })
+    })
+
+    it('reports an error reply when the upload fails', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 500 }))
+      await connect(options)
+
+      await generateThenSnapshot()
+
+      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('500') })
+    })
+
+    it('clears the cached generation once a following generate command fails, so a stale run is never packed', async () => {
+      await connect(options)
+
+      vi.mocked(generate).mockImplementationOnce(async () => {
+        vi.mocked(setupEventsStream).mock.calls.at(-1)?.[3]?.onGenerationEnd?.({ 'src/index.ts': 'export {}' })
+      })
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
+
+      vi.mocked(generate).mockRejectedValueOnce(new Error('generation blew up'))
+      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
+
+      await mockWs.trigger('message', {
+        data: JSON.stringify({ type: 'studio:snapshot', jobId: 'job-1', payload: { name: 'pkg', version: '1.0.0', uploadUrl: 'https://upload.example.com' } }),
+      })
+
+      expect(createSnapshotPackage).not.toHaveBeenCalled()
+      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('no prior generation') })
+    })
   })
 
   // connect command

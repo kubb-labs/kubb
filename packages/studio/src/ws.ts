@@ -128,7 +128,24 @@ export function sendErrorMessage(ws: WebSocket, error: Error, jobId: string): vo
 /**
  * Forwards selected Kubb lifecycle events to Studio as data messages for the active session.
  */
-export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>, jobId: string): () => void {
+export function setupEventsStream(
+  ws: WebSocket,
+  hooks: Hookable<KubbHooks>,
+  jobId: string,
+  options: {
+    /**
+     * Send `storage: {}` on `kubb:generation:end` instead of the generated files. `onGenerationEnd`
+     * still receives the full files map either way, so a caller that needs them for something other
+     * than the wire (e.g. packing a snapshot) still gets them.
+     */
+    skipStorage?: boolean
+    /**
+     * Called with the flattened files map built for `kubb:generation:end`, whether or not
+     * `skipStorage` kept it off the wire.
+     */
+    onGenerationEnd?: (files: Record<string, string>) => void
+  } = {},
+): () => void {
   const unhooks: Array<() => void> = []
 
   /**
@@ -237,9 +254,11 @@ export function setupEventsStream(ws: WebSocket, hooks: Hookable<KubbHooks>, job
       },
     })
 
+    options.onGenerationEnd?.(files)
+
     sendDataMessage({
       type: 'kubb:generation:end',
-      data: [{ config, storage: files, peerDependencies, missingDependencies }],
+      data: [{ config, storage: options.skipStorage ? {} : files, peerDependencies, missingDependencies }],
     })
 
     if (!hrStart) {
