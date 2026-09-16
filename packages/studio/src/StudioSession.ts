@@ -22,6 +22,7 @@ import { applyConfigEdits, readConfig } from './configFile.ts'
 import { generate } from './generate.ts'
 import { agentDefaults } from './constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
+import { createSnapshotPackage } from './snapshotPackage.ts'
 import type WebSocket from 'ws'
 import { createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream } from './ws.ts'
 
@@ -584,6 +585,9 @@ export class StudioSession {
       case 'studio:save':
         await this.#handleSave(ws, data, command)
         return
+      case 'studio:snapshot':
+        await this.#handleSnapshot(ws, data, command)
+        return
     }
   }
 
@@ -716,6 +720,47 @@ export class StudioSession {
     } catch (error) {
       // An unreadable config, a read-only filesystem. Reported as a refusal of every edit so
       // Studio hears back rather than waiting on a reply that never comes.
+      await this.#hooks.callHook('studio:error', { error: toError(error) })
+
+      refuse(getErrorMessage(error))
+    }
+  }
+
+  /**
+   * Packs the files Studio sends into an npm-installable tarball and uploads it to the presigned
+   * URL Studio minted for this job. Refused for a sandbox agent, which holds no project of its own
+   * to build from.
+   */
+  async #handleSnapshot(ws: WebSocket, data: Extract<AgentMessage, { type: 'studio:snapshot' }>, command: string): Promise<void> {
+    const refuse = (message: string) => sendAgentMessage(ws, { type: 'agent:snapshot', jobId: data.jobId, payload: { status: 'error', message } })
+
+    if (this.#isSandbox) {
+      await this.#warn('Ignored snapshot: a sandbox agent has no project to build a package from')
+      refuse('a sandbox agent has no project to build a package from')
+
+      return
+    }
+
+    const { files, name, version, peerDependencies, uploadUrl } = data.payload
+
+    if (!files || typeof files !== 'object' || !name || !version || !uploadUrl) {
+      await this.#warn('Ignored snapshot: the message was missing required fields')
+      refuse('the message was missing required fields')
+
+      return
+    }
+
+    try {
+      const { bytes, integrity } = await createSnapshotPackage(files, { name, version, peerDependencies: peerDependencies ?? {} })
+
+      const response = await fetch(uploadUrl, { method: 'PUT', body: new Uint8Array(bytes) })
+      if (!response.ok) {
+        throw new Error(`Snapshot upload failed with status ${response.status}`)
+      }
+
+      sendAgentMessage(ws, { type: 'agent:snapshot', jobId: data.jobId, payload: { status: 'ok', integrity } })
+      await this.#hooks.callHook('studio:command:end', { command, info: `packed ${Object.keys(files).length} file${Object.keys(files).length === 1 ? '' : 's'}` })
+    } catch (error) {
       await this.#hooks.callHook('studio:error', { error: toError(error) })
 
       refuse(getErrorMessage(error))

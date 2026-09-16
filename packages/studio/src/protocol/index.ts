@@ -2,9 +2,9 @@
  * WebSocket message types for the agent ↔ Studio protocol. Every message name carries the side that
  * sent it, so direction reads off the name instead of the verb's tense:
  *
- * - Studio → agent: `studio:generate`, `studio:connect`, `studio:save`, `studio:ping`,
- *   `studio:disconnect`, `studio:error`
- * - Agent → Studio: `agent:connect`, `agent:save`, `agent:data`, `agent:ping`
+ * - Studio → agent: `studio:generate`, `studio:connect`, `studio:save`, `studio:snapshot`,
+ *   `studio:ping`, `studio:disconnect`, `studio:error`
+ * - Agent → Studio: `agent:connect`, `agent:save`, `agent:snapshot`, `agent:data`, `agent:ping`
  *
  * `kubb:` stays reserved for generation lifecycle, so the {@link KubbHooks} events relayed inside an
  * `agent:data` payload keep their own names. The envelope says who sent it, the payload says what
@@ -258,15 +258,40 @@ export type StudioSaveMessage = {
 }
 
 /**
+ * Ask the agent to pack a previous generation's files into an npm-installable tarball and upload
+ * it to Studio directly, rather than returning the bytes over this socket. Refused for a sandbox
+ * agent, since it holds no generated files worth packing.
+ */
+export type StudioSnapshotMessage = {
+  type: 'studio:snapshot'
+  jobId: string
+  payload: {
+    /**
+     * The generated files to pack, keyed by their path relative to the project root. Normally the
+     * `storage` a prior `kubb:generation:end` for this session already reported.
+     */
+    files: Record<string, string>
+    name: string
+    version: string
+    peerDependencies?: Record<string, string>
+    /**
+     * Presigned URL the agent `PUT`s the finished tarball to. Short-lived, minted by Studio for
+     * this job only.
+     */
+    uploadUrl: string
+  }
+}
+
+/**
  * Anything Studio asks the agent to do. Each command is its own `type`, so a handler switches once
  * instead of reading a `type` and then a nested `command` field.
  */
-export type CommandMessage = StudioGenerateMessage | StudioConnectMessage | StudioSaveMessage
+export type CommandMessage = StudioGenerateMessage | StudioConnectMessage | StudioSaveMessage | StudioSnapshotMessage
 
 /**
  * The command names, for a host that needs the list rather than the union.
  */
-export const commandTypes = ['studio:generate', 'studio:connect', 'studio:save'] as const
+export const commandTypes = ['studio:generate', 'studio:connect', 'studio:save', 'studio:snapshot'] as const
 
 export function createJobId(): string {
   return crypto.randomUUID()
@@ -394,6 +419,16 @@ export type AgentSaveMessage = {
      */
     file?: ConfigFileView
   }
+}
+
+/**
+ * Reply to a `studio:snapshot` command. The tarball itself already reached Studio through the
+ * agent's direct upload, so this only reports whether that upload succeeded.
+ */
+export type AgentSnapshotMessage = {
+  type: 'agent:snapshot'
+  jobId: string
+  payload: { status: 'ok'; integrity: string } | { status: 'error'; message: string }
 }
 
 /**
@@ -530,6 +565,7 @@ export type AgentMessage =
   | DataMessage
   | AgentConnectMessage
   | AgentSaveMessage
+  | AgentSnapshotMessage
   | AgentPingMessage
   | AgentDisconnectMessage
   | StudioErrorMessage

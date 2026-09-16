@@ -76,6 +76,7 @@
     "ofetch": "^1.5.1",
     "remeda": "^2.48.0",
     "tinyexec": "catalog:",
+    "tsdown": "catalog:",
     "unstorage": "^1.17.5",
     "ws": "^8.21.3"
   },
