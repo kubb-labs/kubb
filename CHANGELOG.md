@@ -1,5 +1,50 @@
 # Changelog
 
+## v5.3.2 — Sep 16, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- CLI flags are now kebab-case, matching the convention used by most command-line tools.
+  
+  - `kubb generate --log-level` and `kubb generate --dry-run` replace `--logLevel` and `--dryRun`.
+  - `kubb studio --allow-write`, `--allow-config-edit`, `--allow-input`, and `--allow-exec` replace
+    `--allowWrite`, `--allowConfigEdit`, `--allowInput`, and `--allowExec`.
+  - `kubb init --dry-run` replaces `--dryRun`.
+  
+  To upgrade, replace any camelCase flag in a script or CI job with its kebab-case name. The CLI
+  now rejects an unrecognized flag with an error instead of silently ignoring it.
+  
+  ```bash
+  # Before
+  kubb studio --allowWrite --allowExec
+  
+  # After
+  kubb studio --allow-write --allow-exec
+  ``` ([#4046](https://github.com/kubb-labs/kubb/pull/4046), [`e5ecdda`](https://github.com/kubb-labs/kubb/commit/e5ecdda06acbd3b99c2716384b2a8ac56eedfad8))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Renamed the `studio:ping` heartbeat reply to `studio:pong`, matching the ping/pong pattern
+  `agent:ping` already implies (`StudioPingMessage` is now `StudioPongMessage`,
+  `isStudioPingMessage` is now `isStudioPongMessage`). This is a wire-protocol change: an agent
+  running an older `@kubb/studio` and a Studio running the new one won't recognize each other's
+  heartbeat reply. Update both sides together.
+  
+  Also documented the full `studio:`/`agent:` message table in `packages/studio/src/protocol/index.ts`,
+  including why `studio:generate` has no dedicated `agent:generate` reply (its result rides the
+  `agent:data`/`kubb:generation:end` event stream instead, unlike `studio:save`/`studio:snapshot`,
+  which reply directly). ([#4053](https://github.com/kubb-labs/kubb/pull/4053), [`76dd283`](https://github.com/kubb-labs/kubb/commit/76dd283169ac312c269c398bee64944eee6f5b05))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.1 — Sep 15, 2026
 
 ### @kubb/core
