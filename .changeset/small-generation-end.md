@@ -1,6 +1,6 @@
 ---
-'@kubb/studio': minor
-'@kubb/cli': minor
+'@kubb/studio': patch
+'@kubb/cli': patch
 ---
 
 Stop streaming generated source over the agent WebSocket by default. Reading it now needs
@@ -34,9 +34,10 @@ agent is always granted it, since its output is the only thing it has:
 kubb studio --allow-read   # show generated files in the browser
 ```
 
-An older Studio instance talking to this version of the agent (or the reverse) will not error: it
-will show an empty editor with no file contents, since the shapes on both ends changed. Point
-`--url` at a Studio build that matches this version.
+An older Studio instance talking to this version of the agent (or the reverse) can fail: a snapshot
+build errors because `bundledDependencies` and `peerDependencies` no longer line up between the two
+ends, and a plain session shows an empty editor with no file contents. Point `--url` at a Studio
+build that matches this version.
 
 The in-process `kubb:generation:end` hook (`kubb.hooks.hook('kubb:generation:end', ...)`, or a
 plugin's own listener) is unaffected. It still carries `config`, `storage`, `diagnostics`,

@@ -11,8 +11,7 @@ type WebSocketOptions = WebSocket.ClientOptions
 
 /**
  * How many generated files are read from storage at once when caching a run's output for
- * `studio:files` and `studio:snapshot`. A spec producing thousands of files would otherwise fire
- * one `storage.readItem` per file simultaneously.
+ * `studio:files` and `studio:snapshot`.
  */
 const FILE_READ_CONCURRENCY = 50
 
@@ -134,9 +133,8 @@ export function setupEventsStream(
   jobId: string,
   options: {
     /**
-     * Called with the flattened files map, resolved peer dependencies, and missing dependencies
-     * once a generation finishes. None of this rides the wire on `kubb:generation:end` anymore: the
-     * caller is expected to cache it for `studio:files` and `studio:snapshot` to read later.
+     * Called with a run's files, resolved peer dependencies, and missing dependencies once it
+     * finishes, for the caller to cache and serve to `studio:files` and `studio:snapshot`.
      */
     onGenerationEnd?: (result: { files: Record<string, string>; peerDependencies: Record<string, string>; missingDependencies: Array<string> }) => void
   } = {},

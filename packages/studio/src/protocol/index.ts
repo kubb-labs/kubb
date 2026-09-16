@@ -4,7 +4,7 @@
  *
  * | Direction        | Type                  | Purpose                                                      |
  * | ---------------- | --------------------- | -------------------------------------------------------------|
- * | Studio → agent    | `studio:generate`     | Run a generation. No dedicated reply, the result arrives as an `agent:data` message carrying `kubb:generation:end`, so it stays ordered against the rest of that run's event stream. `studio:save`/`studio:snapshot`/`studio:files` reply directly instead, since none of them need that ordering. The file list is on `kubb:build:end`, not this reply; file contents are fetched separately with `studio:files`. |
+ * | Studio → agent    | `studio:generate`     | Run a generation. No dedicated reply, the result arrives as an `agent:data` message carrying `kubb:generation:end`, so it stays ordered against the rest of that run's event stream. The file list is on `kubb:build:end`; contents are fetched separately with `studio:files`. |
  * | Studio → agent    | `studio:connect`      | Ask the agent to resend its `agent:connect` handshake payload. |
  * | Studio → agent    | `studio:save`         | Edit `kubb.config.ts`. Replied to with `agent:save`. |
  * | Studio → agent    | `studio:snapshot`     | Pack the session's most recent generation into a tarball and upload it to a Studio path, which redirects to storage. Carries no file contents itself. Replied to with `agent:snapshot`. |
@@ -17,7 +17,7 @@
  * | Agent → Studio    | `agent:save`          | Reply to `studio:save`. |
  * | Agent → Studio    | `agent:snapshot`      | Reply to `studio:snapshot`. The tarball itself already went out to storage, so this only carries the integrity hash, the resolved peer dependencies, or an error. |
  * | Agent → Studio    | `agent:files`         | Reply to `studio:files`, carrying only the source of the requested paths, or an error. |
- * | Agent → Studio    | `agent:data`          | One generation lifecycle event, `payload.type` a {@link KubbHook}. Carries `kubb:generation:end` (the closest thing `studio:generate` has to a reply, though it carries no data of its own) among many others. |
+ * | Agent → Studio    | `agent:data`          | One generation lifecycle event, `payload.type` a {@link KubbHook}. Carries `kubb:generation:end`, `studio:generate`'s closest thing to a reply, among many others. |
  * | Agent → Studio    | `agent:ping`          | Heartbeat, so the connection is not treated as idle. |
  * | Agent → Studio    | `agent:disconnect`    | The agent is shutting down. |
  *
@@ -206,9 +206,8 @@ export type KubbHooks = {
   'kubb:debug': [ctx: { logs: Array<string>; fileName?: string }]
   'kubb:generation:start': [ctx: { name?: string; plugins: number }]
   /**
-   * A run finished. Carries nothing: the file list is on `kubb:build:end`, the count is on
-   * `kubb:generation:summary`, contents are fetched with `studio:files`, and the dependency
-   * metadata travels with the `agent:snapshot` reply that needs it.
+   * A run finished. See `kubb:build:end` for files, `kubb:generation:summary` for the count, and
+   * `studio:files` for contents.
    */
   'kubb:generation:end': []
   'kubb:generation:summary': [ctx: { duration: number; fileCount: number; failedPlugins: number; status: 'success' | 'failed' }]
@@ -283,7 +282,6 @@ export type StudioSnapshotMessage = {
     version: string
     /**
      * Packages Studio already bundles, so a missing one is not a reason to refuse the snapshot.
-     * Studio owns this list; the agent applies it against its own resolved peer dependencies.
      */
     bundledDependencies?: Array<string>
     /**
@@ -295,16 +293,15 @@ export type StudioSnapshotMessage = {
 }
 
 /**
- * Ask the agent for the source of files the last generation produced. Studio sends this when it
- * opens a file, so a run's output never crosses the socket until someone looks at it. Refused
- * unless the agent was granted `allowRead`. Replied to with `agent:files`.
+ * Ask the agent for the source of files the last generation produced, by path. Refused unless the
+ * agent was granted `allowRead`. Replied to with `agent:files`.
  */
 export type StudioFilesMessage = {
   type: 'studio:files'
   jobId: string
   payload: {
     /**
-     * Paths as `kubb:build:end` listed them. At most `MAX_FILES_PER_REQUEST` per message.
+     * Paths as `kubb:build:end` listed them, at most `MAX_FILES_PER_REQUEST` of them.
      */
     paths: Array<string>
   }
@@ -322,8 +319,7 @@ export type CommandMessage = StudioGenerateMessage | StudioConnectMessage | Stud
 export const commandTypes = ['studio:generate', 'studio:connect', 'studio:save', 'studio:snapshot', 'studio:files'] as const
 
 /**
- * How many files a single `studio:files` request may ask for at once. A spec producing thousands
- * of files would otherwise let one message ask for all of them in one shot.
+ * How many files a single `studio:files` request may ask for at once.
  */
 export const MAX_FILES_PER_REQUEST = 50
 
@@ -332,10 +328,9 @@ export function createJobId(): string {
 }
 
 /**
- * Identifies the host running the Kubb runtime. Local to the runtime rather than part of the wire:
- * it picks which remedy a refused-permission warning names, since the Docker agent and the CLI
- * grant permissions different ways. Distinct from an agent's `type` (`user`, `cli`, `ci`,
- * `sandbox`, `global`), which is what Studio records the agent as at pairing.
+ * Identifies the host running the Kubb runtime. Local to the runtime, not part of the wire: it
+ * picks which remedy a refused-permission warning names. Distinct from an agent's `type` (`user`,
+ * `cli`, `ci`, `sandbox`, `global`), which is what Studio records the agent as at pairing.
  */
 export type ClientInfo = {
   /**
@@ -422,9 +417,8 @@ export type AgentPermissions = {
    */
   allowConfigEdit: boolean
   /**
-   * Whether the agent will hand back the source of files a generation produced, in response to
-   * `studio:files`. Always true for a sandbox agent, since its output is the only thing it has and
-   * there is no user project behind it. For a local agent it mirrors the agent's own opt-in.
+   * Whether the agent hands back file source in response to `studio:files`. Always true for a
+   * sandbox agent; for a local agent it mirrors the agent's own opt-in.
    */
   allowRead: boolean
 }

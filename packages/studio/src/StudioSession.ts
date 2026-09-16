@@ -232,9 +232,8 @@ export class StudioSession {
   // reconnect loop can establish a fresh session.
   #lastPongAt = Date.now()
   // The most recent generation's result, kept so `studio:files` and `studio:snapshot` can read it
-  // without Studio round tripping the file contents or dependency metadata back out over the
-  // socket. Set as soon as `kubb:generation:end` fires, undefined again if a run fails before that,
-  // so neither a file request nor a snapshot ever reads a stale run.
+  // without Studio round tripping it back over the socket. Set as soon as `kubb:generation:end`
+  // fires, undefined again if a run fails before that.
   #lastGeneration: { files: Record<string, string>; peerDependencies: Record<string, string>; missingDependencies: Array<string> } | undefined
 
   constructor(options: StudioSessionOptions) {
@@ -265,8 +264,7 @@ export class StudioSession {
   }
 
   /**
-   * A sandbox agent's output is the only thing it has, so it always allows Studio to read it back.
-   * A local agent only when the host opted in.
+   * A sandbox agent always allows reading its output back; a local agent only when opted in.
    */
   get #canRead(): boolean {
     return this.#isSandbox || this.#options.permissions.allowRead
@@ -660,8 +658,7 @@ export class StudioSession {
 
       // The session's own emitter carries the run: the host's logger is already on it from
       // `connect`, and these two come off again below, so one run's listeners never see the next.
-      // Cleared up front and filled the moment `kubb:generation:end` fires, so a `studio:files` or
-      // `studio:snapshot` request never reads a stale or half-finished run.
+      // Cleared up front, filled the moment `kubb:generation:end` fires.
       this.#lastGeneration = undefined
       const detach = [
         setupHookListener(this.#hooks, root),
@@ -851,16 +848,14 @@ export class StudioSession {
     if (!this.#canRead) {
       await this.#warn('Ignored files: reading generated files was not granted')
 
-      // The Docker agent reads `allowRead` from `KUBB_AGENT_ALLOW_READ`. The CLI grants it through
-      // `--allow-read` or the per-project prompt instead, so each host gets its own remedy.
+      // Each host grants it a different way.
       const remedy = client?.kind === 'cli' ? '--allow-read, or answer yes when kubb studio asks,' : 'KUBB_AGENT_ALLOW_READ=true'
       refuse(`the agent was not granted permission to read generated files; set ${remedy} to allow it`)
 
       return
     }
 
-    // `paths` crosses the same trust boundary as `studio:save`'s `edits`: checked before it is
-    // walked, since the message came off the wire.
+    // `paths` came off the wire, so check its shape before walking it.
     if (!Array.isArray(data.payload?.paths)) {
       await this.#warn('Ignored files: the message carried no paths')
       refuse('the message carried no paths')
@@ -886,9 +881,7 @@ export class StudioSession {
       return
     }
 
-    // Served only out of the cached result of the last generation: this handler never touches the
-    // filesystem, so no path a caller sends can reach outside what that run produced. A path the
-    // run did not produce is left out rather than reported, so one stale path does not fail the rest.
+    // Served only from the cached generation, so no path a caller sends reaches the filesystem.
     const files = Object.fromEntries(paths.filter((path) => path in generation.files).map((path) => [path, generation.files[path]!]))
 
     sendAgentMessage(ws, { type: 'agent:files', jobId: data.jobId, payload: { status: 'ok', files } })
