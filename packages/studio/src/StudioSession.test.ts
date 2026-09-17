@@ -48,4 +48,26 @@ describe('StudioSession RPC', () => {
     expect(local).toBe(session)
     await expect(local?.connect()).resolves.toMatchObject({ root: '/project', versions: { agent: '2.0.0' } })
   })
+
+  it('reports an RPC disconnect to lifecycle hooks', async () => {
+    let close: (() => void) | undefined
+    const disconnected = vi.fn()
+    const session = new StudioSession({
+      ...options(),
+      installLogger: (hooks) => {
+        hooks.hook('studio:disconnected', disconnected)
+      },
+      connector: async ({ local: api }) => {
+        local = api
+        const closed = new Promise<void>((resolve) => {
+          close = resolve
+        })
+        return { studio, closed, close: vi.fn() }
+      },
+    })
+
+    await session.start()
+    close?.()
+    await vi.waitFor(() => expect(disconnected).toHaveBeenCalledWith({ reason: 'connection closed' }))
+  })
 })

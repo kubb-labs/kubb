@@ -445,6 +445,8 @@ export class StudioSession implements AgentApi {
 
     this.dispose()
 
+    await this.#hooks.callHook('studio:disconnected', { reason: retry ? 'connection closed' : 'shutdown' })
+
     // Nothing to tell Studio about when the session never opened.
     if (this.#session) {
       // Already tearing down, so a failed disconnect changes nothing.
