@@ -16,6 +16,7 @@ import {
   type ConnectMessagePayload,
   type GenerateInput,
   type GenerateResult,
+  type GenerationEvent,
   type GenerationRun,
   MAX_FILES_PER_REQUEST,
   type SaveResult,
@@ -41,7 +42,7 @@ const FILE_READ_CONCURRENCY = 50
 
 class GenerationRunTarget extends RpcTarget implements GenerationRun {
   constructor(
-    private readonly generationStream: ReadableStream<import('./protocol/index.ts').GenerationEvent>,
+    private readonly generationStream: ReadableStream<GenerationEvent>,
     private readonly generationResult: Promise<GenerateResult>,
     private readonly cancelGeneration: () => Promise<void>,
   ) {
