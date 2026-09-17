@@ -1,5 +1,69 @@
 # Changelog
 
+## v5.3.5 — Sep 17, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Stop holding a whole generation's output in memory for the life of a Studio session.
+  
+  `studio:files` and `studio:snapshot` used to read every generated file into one `Record<string,
+  string>` the moment a run finished, and kept that map alive until the next generation. A run
+  producing gigabytes of source meant the agent process held gigabytes in RAM, whether or not anyone
+  ever opened a file or took a snapshot.
+  
+  The agent now keeps the live `Storage` a run wrote through, plus the list of paths it produced, and
+  reads a file's content back from `Storage` only when `studio:files` or `studio:snapshot` actually
+  asks for it. A path outside that list is refused before it reaches storage, so this changes nothing
+  about what a session can read, only when the read happens. ([#4059](https://github.com/kubb-labs/kubb/pull/4059), [`351e3c9`](https://github.com/kubb-labs/kubb/commit/351e3c9f9822cfb7ffc5ac7d07517394a449f58e))
+- Stop streaming generated source over the agent WebSocket by default. Reading it now needs
+  `--allow-read` (or `KUBB_AGENT_ALLOW_READ=true`), matching the other four Studio permissions.
+  
+  Every `kubb studio` session used to send the full text of every generated file on
+  `kubb:generation:end`, whether or not anyone in the browser opened one. A spec producing hundreds
+  of files could put megabytes of source on the wire per run, and nothing gated it: `allowWrite`,
+  `allowConfigEdit`, `allowInput`, and `allowExec` all cover what Studio may do _to_ a project, but
+  reading generated output back was never one of the four.
+  
+  `kubb:generation:end` now carries nothing. Everything it used to carry moved somewhere better:
+  
+  - The list of generated files is on `kubb:build:end`, which already carried every path and fires
+    earlier in a run. Its paths are now relative to the agent's root, matching every other path on
+    the wire, where they used to be absolute.
+  - The file count is on `kubb:generation:summary`, which already had it and was always the accurate
+    number (`kubb:generation:end`'s old count went to 0 for a CI connection).
+  - File contents are fetched on demand with a new `studio:files` command, which the browser sends
+    when someone opens a file. The agent replies with `agent:files`, refusing unless `allowRead` was
+    granted.
+  - Peer dependency metadata, previously sent on every generation and round-tripped straight back
+    into `studio:snapshot`, now travels with the `agent:snapshot` reply instead, since the CI
+    snapshot flow is its only consumer. `studio:snapshot` takes `bundledDependencies` in place of
+    `peerDependencies`.
+  
+  `--allow-read` is off by default everywhere, like every other permission. A sandbox or global
+  agent is always granted it, since its output is the only thing it has:
+  
+  ```shell
+  kubb studio --allow-read   # show generated files in the browser
+  ```
+  
+  An older Studio instance talking to this version of the agent (or the reverse) can fail: a snapshot
+  build errors because `bundledDependencies` and `peerDependencies` no longer line up between the two
+  ends, and a plain session shows an empty editor with no file contents. Point `--url` at a Studio
+  build that matches this version.
+  
+  The in-process `kubb:generation:end` hook (`kubb.hooks.hook('kubb:generation:end', ...)`, or a
+  plugin's own listener) is unaffected. It still carries `config`, `storage`, `diagnostics`,
+  `status`, `hrStart`, and `filesCreated`, exactly as before. Only the payload this event sends over
+  the Studio WebSocket changed. ([#4059](https://github.com/kubb-labs/kubb/pull/4059), [`351e3c9`](https://github.com/kubb-labs/kubb/commit/351e3c9f9822cfb7ffc5ac7d07517394a449f58e))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.4 — Sep 16, 2026
 
 ### @kubb/studio
