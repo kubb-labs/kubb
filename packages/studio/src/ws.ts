@@ -4,7 +4,7 @@ import { isAbsolute, relative, resolve } from 'node:path'
 import { getElapsedMs } from '@internals/utils'
 import { Diagnostics, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
 import WebSocket from 'ws'
-import type { JobEvent, StudioApi, StudioJobEvent, StudioJobEventType } from './protocol/index.ts'
+import type { GenerationEvent, GenerationEventPayloads, GenerationEventType } from './protocol/index.ts'
 import { toPackageName } from './resolveConfig.ts'
 
 type WebSocketOptions = WebSocket.ClientOptions
@@ -56,9 +56,9 @@ async function resolvePeerDependencies(names: Array<string>): Promise<{
     const version = versions[index]
     if (version) {
       peerDependencies[name] = version
-    } else {
-      missingDependencies.push(name)
+      continue
     }
+    missingDependencies.push(name)
   }
 
   return { peerDependencies, missingDependencies }
@@ -87,8 +87,7 @@ export function createWebsocket(url: string, options: WebSocketOptions): WebSock
 /**
  * Forwards selected Kubb lifecycle events to Studio for the active session.
  */
-export function setupEventsStream(
-  studio: StudioApi,
+export function createGenerationStream(
   hooks: Hookable<KubbHooks>,
   jobId: string,
   options: {
@@ -106,10 +105,13 @@ export function setupEventsStream(
       missingDependencies: Array<string>
     }) => void
   } = {},
-): () => void {
+): { stream: ReadableStream<GenerationEvent>; close: () => Promise<void>; dispose: () => void; fail: (error: unknown) => void } {
   const unhooks: Array<() => void> = []
-  let eventSeq = 0
   let root = ''
+  const transform = new TransformStream<GenerationEvent>()
+  const writer = transform.writable.getWriter()
+  let writes = Promise.resolve()
+  let closed = false
 
   /**
    * Registers a listener and keeps its remover, so one generation's listeners come off the session
@@ -119,12 +121,9 @@ export function setupEventsStream(
     unhooks.push(hooks.hook(name, handler))
   }
 
-  function emitEvent<Type extends StudioJobEventType>(type: Type, data: Extract<StudioJobEvent, { type: Type }>['data']): void {
-    const event = { jobId, type, data, version: 1 as const, timestamp: Date.now(), seq: eventSeq++ } as Extract<JobEvent, { type: Type }>
-    void studio
-      .event(event)
-      // Live progress is deliberately best-effort. The generation RPC result remains authoritative.
-      .catch(() => undefined)
+  function emitEvent<Type extends GenerationEventType>(type: Type, data: GenerationEventPayloads[Type]): void {
+    const event = { jobId, type, data, version: 1 as const, timestamp: Date.now() } as GenerationEvent
+    writes = writes.then(() => writer.write(event))
   }
 
   on('kubb:plugin:start', (ctx) => {
@@ -150,15 +149,15 @@ export function setupEventsStream(
 
   on('kubb:files:processing:update', ({ files }) => {
     emitEvent('kubb:files:processing:update', [
-        {
-          files: files.map(({ file, processed, total, percentage }) => ({
-            file: relativeStoragePath(root, file.path),
-            processed,
-            total,
-            percentage,
-          })),
-        },
-      ])
+      {
+        files: files.map(({ file, processed, total, percentage }) => ({
+          file: relativeStoragePath(root, file.path),
+          processed,
+          total,
+          percentage,
+        })),
+      },
+    ])
   })
 
   on('kubb:files:processing:end', ({ files }) => {
@@ -174,11 +173,11 @@ export function setupEventsStream(
 
   on('kubb:generation:start', ({ config }) => {
     emitEvent('kubb:generation:start', [
-        {
-          name: config.name,
-          plugins: config.plugins.length,
-        },
-      ])
+      {
+        name: config.name,
+        plugins: config.plugins.length,
+      },
+    ])
   })
 
   on('kubb:generation:end', async ({ config, storage, diagnostics = [], status, hrStart, filesCreated }) => {
@@ -196,16 +195,18 @@ export function setupEventsStream(
 
     const duration = Math.round(getElapsedMs(hrStart))
 
-    emitEvent('kubb:generation:summary', [{ duration, fileCount: filesCreated ?? 0, failedPlugins: Diagnostics.failedPlugins(diagnostics).length, status: status ?? 'success' }])
+    emitEvent('kubb:generation:summary', [
+      { duration, fileCount: filesCreated ?? 0, failedPlugins: Diagnostics.failedPlugins(diagnostics).length, status: status ?? 'success' },
+    ])
   })
 
   on('kubb:error', ({ error }) => {
     emitEvent('kubb:error', [
-        {
-          message: error.message,
-          stack: error.stack,
-        },
-      ])
+      {
+        message: error.message,
+        stack: error.stack,
+      },
+    ])
   })
 
   on('kubb:diagnostic', ({ diagnostic }) => {
@@ -249,17 +250,44 @@ export function setupEventsStream(
 
   on('kubb:hook:end', ({ id, command, args, success, error }) => {
     emitEvent('kubb:hook:end', [
-        {
-          id,
-          command,
-          args: args ? [...args] : undefined,
-          success,
-          error: error ? { message: error.message, stack: error.stack } : undefined,
-        },
-      ])
+      {
+        id,
+        command,
+        args: args ? [...args] : undefined,
+        success,
+        error: error ? { message: error.message, stack: error.stack } : undefined,
+      },
+    ])
   })
 
-  return () => {
+  async function close(): Promise<void> {
+    if (closed) {
+      return
+    }
+    closed = true
     for (const unhook of unhooks) unhook()
+    await writes
+    await writer.close()
   }
+
+  function dispose(): void {
+    for (const unhook of unhooks) unhook()
+    unhooks.length = 0
+    if (!closed) {
+      closed = true
+      void writer.abort()
+    }
+  }
+
+  function fail(error: unknown): void {
+    if (closed) {
+      return
+    }
+    closed = true
+    for (const unhook of unhooks) unhook()
+    unhooks.length = 0
+    void writer.abort(error)
+  }
+
+  return { stream: transform.readable, close, dispose, fail }
 }

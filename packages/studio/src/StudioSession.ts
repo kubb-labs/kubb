@@ -16,10 +16,13 @@ import {
   type ConnectMessagePayload,
   type GenerateInput,
   type GenerateResult,
+  type GenerationRun,
   MAX_FILES_PER_REQUEST,
   type SaveResult,
-  type SnapshotInput,
-  type SnapshotResult,
+  type PublishSnapshotInput,
+  type PublishSnapshotResult,
+  type RpcConnector,
+  type RpcConnection,
   type StudioApi,
 } from './protocol/index.ts'
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
@@ -28,8 +31,9 @@ import { generate } from './generate.ts'
 import { agentDefaults } from './constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
 import { createSnapshotPackage } from './snapshotPackage.ts'
-import type WebSocket from 'ws'
-import { absoluteStoragePath, createWebsocket, setupEventsStream } from './ws.ts'
+import { RpcTarget } from 'capnweb'
+import { absoluteStoragePath, createGenerationStream } from './ws.ts'
+import { connectWebSocketRpc } from './rpc.ts'
 
 /**
  * How many files are read from storage at once when serving `readFiles` or packing a snapshot.
@@ -38,10 +42,28 @@ const FILE_READ_CONCURRENCY = 50
 
 type GenerationState = { storage: Storage; root: string; paths: Set<string>; peerDependencies: Record<string, string>; missingDependencies: Array<string> }
 
-export type RpcAttach = (socket: WebSocket, local: AgentApi) => { remote: StudioApi; close: () => void }
+class GenerationRunTarget extends RpcTarget implements GenerationRun {
+  constructor(
+    private readonly generationStream: ReadableStream<import('./protocol/index.ts').GenerationEvent>,
+    private readonly generationResult: Promise<GenerateResult>,
+    private readonly cancelGeneration: () => Promise<void>,
+  ) {
+    super()
+  }
+
+  async events() {
+    return this.generationStream
+  }
+  result() {
+    return this.generationResult
+  }
+  cancel() {
+    return this.cancelGeneration()
+  }
+}
 
 export type StudioSessionOptions = {
-  attach: RpcAttach
+  connector?: RpcConnector
   token: string
   studioUrl?: string
   configPath: string
@@ -219,13 +241,10 @@ export class StudioSession implements AgentApi {
    * Before it resolves there is nothing to disconnect and no sandbox flag to read.
    */
   #session: AgentConnectResponse | undefined
-  #ws: WebSocket | undefined
+  #rpc: RpcConnection | undefined
   #studio: StudioApi | undefined
-  #closeRpc: (() => void) | undefined
   // Returned with the session, so both sides can be named from the first RPC connection.
   #studioVersion: string | undefined
-  #activeJobId: string | null = null
-  #activeGeneration: AbortController | undefined
 
   // Whether the session is over: guards the close event from tearing down twice, and a shutdown
   // from being turned into a reconnect.
@@ -291,20 +310,20 @@ export class StudioSession implements AgentApi {
       this.#session = session
       this.#studioVersion = session.version
 
-      const ws = createWebsocket(session.wsUrl, { headers: { Authorization: `Bearer ${token}` } })
-      this.#ws = ws
+      const rpc = await (this.#options.connector ?? connectWebSocketRpc)({ url: session.rpcUrl, token, local: this })
+      this.#rpc = rpc
+      this.#studio = rpc.studio
+      void rpc.closed.then(this.#onClose, this.#onError)
 
-      this.#listen(ws, 'open', this.#onOpen)
-      this.#listen(ws, 'close', this.#onClose)
-      this.#listen(ws, 'error', this.#onError)
-
-      // `#end` is idempotent, so the close event that follows a shutdown cannot turn it into a
-      // reconnect. Tracked like the socket's own listeners: the signal fires once at process exit,
-      // so one left behind per reconnect would pile up.
       signal?.addEventListener('abort', this.#onAbort, { once: true })
       this.#unhooks.push(() => signal?.removeEventListener('abort', this.#onAbort))
 
       this.#heartbeatTimer = setInterval(() => this.#sendHeartbeat(), heartbeatInterval)
+      await this.#hooks.callHook('studio:connected', {
+        url: studioUrl,
+        versions: { studio: this.#studioVersion, kubb: kubbVersion, agent: this.#options.version },
+      })
+      await this.#hooks.callHook('studio:ready', {})
     } catch (error) {
       // Reaching here means the session was never created (Studio down, a 502 mid-deploy), so no
       // socket exists and none of the socket-driven reconnect paths can fire. Retry from here or
@@ -319,24 +338,12 @@ export class StudioSession implements AgentApi {
     }
   }
 
-  /**
-   * Adds a socket listener and tracks its remover, so `dispose` detaches every listener at once.
-   */
-  #listen<TEvent extends keyof WebSocket.WebSocketEventMap>(
-    ws: WebSocket,
-    event: TEvent,
-    listener: (event: WebSocket.WebSocketEventMap[TEvent]) => void,
-  ): void {
-    ws.addEventListener(event, listener)
-    this.#unhooks.push(() => ws.removeEventListener(event, listener))
-  }
-
   #warn(message: string): Promise<void> | void {
     return this.#hooks.callHook('studio:warn', { message })
   }
 
   #sendHeartbeat(): void {
-    void this.#studio?.ping().catch(() => this.#ws?.terminate())
+    void this.#studio?.ping().catch(() => this.#rpc?.close())
   }
 
   /**
@@ -384,24 +391,6 @@ export class StudioSession implements AgentApi {
     }
   }
 
-  async #handleOpen(): Promise<void> {
-    if (!this.#ws) return
-
-    const rpc = this.#options.attach(this.#ws, this)
-    this.#studio = rpc.remote
-    this.#closeRpc = rpc.close
-    await this.#hooks.callHook('studio:connected', {
-      url: this.#options.studioUrl,
-      versions: { studio: this.#studioVersion, kubb: kubbVersion, agent: this.#options.version },
-    })
-    await this.#hooks.callHook('studio:ready', {})
-  }
-
-  // `addEventListener` drops the returned promise, so a host whose logger throws would take the
-  // process down with an unhandled rejection instead of just losing a line of output. Nothing is
-  // left to report it with at that point, which is why this swallows.
-  #onOpen = (): void => void this.#handleOpen().catch(() => {})
-
   #onAbort = (): void => void this.#end({ reason: 'shutdown', retry: false })
 
   #onClose = (): void => void this.#end({ retry: true })
@@ -418,18 +407,12 @@ export class StudioSession implements AgentApi {
    *
    * @internal
    */
-  dispose(reason = 'cleanup'): void {
+  dispose(_reason = 'cleanup'): void {
     clearInterval(this.#heartbeatTimer)
     this.#heartbeatTimer = undefined
-    this.#closeRpc?.()
-    this.#closeRpc = undefined
+    this.#rpc?.close()
+    this.#rpc = undefined
     this.#studio = undefined
-
-    try {
-      // Closed before the listeners go, so the close event this triggers arrives after they are
-      // already detached and cannot re-enter `#end`.
-      this.#ws?.close(1000, reason)
-    } catch {}
 
     for (const unhook of this.#unhooks) unhook()
     this.#unhooks.length = 0
@@ -460,7 +443,29 @@ export class StudioSession implements AgentApi {
     }
   }
 
-  async generate(data: GenerateInput): Promise<GenerateResult> {
+  startGeneration(data: GenerateInput): GenerationRun {
+    const generationStream = createGenerationStream(this.#hooks, data.jobId, {
+      onGenerationEnd: (result) => {
+        this.#lastGeneration = result
+      },
+    })
+    const controller = new AbortController()
+    const result = this.#runGeneration(data, controller)
+      .then(async (value) => {
+        await generationStream.close()
+        return value
+      })
+      .catch((error) => {
+        generationStream.fail(error)
+        throw error
+      })
+
+    return new GenerationRunTarget(generationStream.stream, result, async () => {
+      controller.abort(new Error('Generation canceled'))
+    })
+  }
+
+  async #runGeneration(data: GenerateInput, controller: AbortController): Promise<GenerateResult> {
     const command = 'generate'
     await this.#hooks.callHook('studio:command:start', { command })
     const { root, loadConfig, permissions, client } = this.#options
@@ -471,9 +476,6 @@ export class StudioSession implements AgentApi {
     }
 
     this.#isGenerating = true
-    this.#activeJobId = data.jobId
-    const controller = new AbortController()
-    this.#activeGeneration = controller
 
     try {
       const config = await loadConfig()
@@ -502,14 +504,7 @@ export class StudioSession implements AgentApi {
       // `connect`, and these two come off again below, so one run's listeners never see the next.
       // Cleared up front, filled the moment `kubb:generation:end` fires.
       this.#lastGeneration = undefined
-      const detach = [
-        setupHookListener(this.#hooks, root, controller.signal),
-        setupEventsStream(this.#studio!, this.#hooks, data.jobId, {
-          onGenerationEnd: (result) => {
-            this.#lastGeneration = result
-          },
-        }),
-      ]
+      const detach = [setupHookListener(this.#hooks, root, controller.signal)]
 
       try {
         await generate({
@@ -539,8 +534,6 @@ export class StudioSession implements AgentApi {
       return { status: 'success', files, fileCount: files.length }
     } finally {
       this.#isGenerating = false
-      this.#activeJobId = null
-      this.#activeGeneration = undefined
     }
   }
 
@@ -597,7 +590,7 @@ export class StudioSession implements AgentApi {
     }
   }
 
-  async snapshot(data: SnapshotInput): Promise<SnapshotResult> {
+  async publishSnapshot(data: PublishSnapshotInput): Promise<PublishSnapshotResult> {
     const command = 'snapshot'
     await this.#hooks.callHook('studio:command:start', { command })
 
@@ -635,7 +628,9 @@ export class StudioSession implements AgentApi {
         limit: FILE_READ_CONCURRENCY,
         run: async (relativePath) => {
           const content = await generation.storage.readItem(absoluteStoragePath(generation.root, relativePath))
-          if (content !== null) files[relativePath] = content
+          if (content !== null) {
+            files[relativePath] = content
+          }
         },
       })
 
@@ -654,9 +649,10 @@ export class StudioSession implements AgentApi {
       const storageUrl = redirect.headers.get('location')
       if (redirect.status !== 307 || !storageUrl) {
         throw new Error(`Studio did not provide a storage URL (status ${redirect.status})`)
-      } else {
-        const response = await fetch(storageUrl, { method: 'PUT', body: new Uint8Array(bytes) })
-        if (!response.ok) throw new Error(`Snapshot upload failed with status ${response.status}`)
+      }
+      const response = await fetch(storageUrl, { method: 'PUT', body: new Uint8Array(bytes) })
+      if (!response.ok) {
+        throw new Error(`Snapshot upload failed with status ${response.status}`)
       }
 
       await this.#hooks.callHook('studio:command:end', {
@@ -712,7 +708,9 @@ export class StudioSession implements AgentApi {
       limit: FILE_READ_CONCURRENCY,
       run: async (path) => {
         const content = await generation.storage.readItem(absoluteStoragePath(generation.root, path))
-        if (content !== null) files[path] = content
+        if (content !== null) {
+          files[path] = content
+        }
       },
     })
 
@@ -721,9 +719,5 @@ export class StudioSession implements AgentApi {
       info: `read ${Object.keys(files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}`,
     })
     return { files }
-  }
-
-  async cancel({ jobId }: { jobId: string }): Promise<void> {
-    if (jobId === this.#activeJobId) this.#activeGeneration?.abort(new Error('Generation canceled'))
   }
 }

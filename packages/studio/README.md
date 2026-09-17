@@ -77,25 +77,25 @@ touches it.
 | Step       | Call                                              | What it does                                                                       |
 | ---------- | ------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | Register   | `POST /api/agent/connect`                         | Binds the token to this machine with a `machineToken`. A failure here is not fatal |
-| Session    | `POST /api/agent/sessions`                        | Returns `{ sessionId, expiresAt }`                                                  |
-| Connect    | `WS /api/agent/sessions/{sessionId}/socket`       | Attaches the typed `AgentApi`/`StudioApi` RPC session                               |
+| Session    | `POST /api/agent/sessions`                        | Returns `{ rpcUrl, sessionId, expiresAt }`                                           |
+| Connect    | Configured RPC connector on `rpcUrl`              | Attaches the typed `AgentApi`/`StudioApi` RPC session                               |
 | Disconnect | `POST /api/agent/sessions/{sessionId}/disconnect` | Closes the session on a clean shutdown                                             |
 
 The runtime reconnects on its own when a session drops, and keeps retrying while Studio is
-unreachable. Generation progress uses best-effort `StudioApi.event` calls; durable job status is
-read through the HTTP job API.
+unreachable. Generation progress is a native Cap'n Web `ReadableStream` on the generation
+capability; durable job status is read through the HTTP job API.
 
 ## Studio job events
 
 `@kubb/studio` exposes a deliberately small public event API. Every live event uses the envelope
-`{ version: 1, jobId, type, data, timestamp, seq }`. `seq` orders messages that arrive during one
-connection; it is not a replay cursor. Job status and the terminal result remain authoritative after
-a reconnect.
+`{ version: 1, jobId, type, data, timestamp }`. The native stream preserves order and applies
+backpressure; it is not a replay cursor. Job status and the terminal result remain authoritative
+after a reconnect.
 
-The stable catalog is `studioJobEventTypes`: generation and build progress, file processing,
+The stable catalog is `generationEventTypes`: generation and build progress, file processing,
 plugin progress, log levels, diagnostics, command-hook output, and the terminal generation summary.
 Each `type` is a lifecycle name registered by `@kubb/core`, while `data` is the JSON-safe projection
-defined by `StudioJobEventPayloads`. AST traversal, live config and adapter objects, storage, and
+defined by `GenerationEventPayloads`. AST traversal, live config and adapter objects, storage, and
 plugin implementations never leave the agent. New core hooks stay private until Studio explicitly
 adds their name and serializer projection.
 
@@ -153,20 +153,20 @@ there. The storage URL never crosses the RPC socket.
 Studio itself compile against one definition rather than two hand-maintained copies.
 
 ```typescript
-import type { AgentApi, JobEvent, StudioApi } from '@kubb/studio'
+import type { AgentApi, GenerationEvent, GenerationRun, StudioApi } from '@kubb/studio'
 ```
 
-The same entry exports the dependency-free `AgentApi`, `StudioApi`, and `JobEvent` RPC contracts.
-Hosts bind those contracts with `RpcAttach`, which keeps the RPC library in the CLI, Docker agent,
-or Studio host rather than in this runtime.
+The same entry exports the dependency-free `AgentApi`, `GenerationRun`, `StudioApi`, and
+`GenerationEvent` RPC contracts. Hosts supply a `RpcConnector`, which keeps transport details in
+the CLI, Docker agent, or Studio host rather than in the generation runtime.
 
 ```typescript
-import type { AgentApi, RpcAttach, StudioApi } from '@kubb/studio'
+import type { AgentApi, RpcConnection, RpcConnector, StudioApi } from '@kubb/studio'
 ```
 
-Hosts connect the typed `AgentApi` and `StudioApi` contracts through Cap’n Web. A `cancel` call
-aborts the matching generation cooperatively, including configured formatter, linter, and
-`postGenerate` processes.
+Hosts connect the typed `AgentApi` and `StudioApi` contracts through Cap’n Web. A
+`GenerationRun.cancel()` call aborts the matching generation cooperatively, including configured
+formatter, linter, and `postGenerate` processes.
 
 ## Supporting Kubb
 

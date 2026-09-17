@@ -73,7 +73,6 @@
     "@clack/prompts": "^1.8.1",
     "@gunshi/plugin-dryrun": "^0.37.2",
     "@kubb/core": "workspace:*",
-    "capnweb": "^0.12.0",
     "chokidar": "^5.0.0",
     "gunshi": "^0.37.2",
     "jiti": "^2.7.0",

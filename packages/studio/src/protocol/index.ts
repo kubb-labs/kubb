@@ -157,7 +157,7 @@ export type ConfigEditOutcome = {
  * The public, JSON-safe subset of Kubb lifecycle hooks. The core registry remains extensible;
  * adding a core hook does not publish it to Studio until it is listed here and projected below.
  */
-export const studioJobEventTypes = [
+export const generationEventTypes = [
   'kubb:plugin:start',
   'kubb:plugin:end',
   'kubb:build:start',
@@ -186,9 +186,9 @@ export const studioJobEventTypes = [
   'kubb:hook:end',
 ] as const satisfies ReadonlyArray<keyof KubbHooks>
 
-export type StudioJobEventType = (typeof studioJobEventTypes)[number]
+export type GenerationEventType = (typeof generationEventTypes)[number]
 
-export type StudioJobEventPayloads = {
+export type GenerationEventPayloads = {
   'kubb:plugin:start': [ctx: { plugin: { name: string } }]
   'kubb:plugin:end': [ctx: { plugin: { name: string }; duration: number; success: boolean }]
   'kubb:build:start': [ctx: { config: { name?: string }; adapter: { name: string } }]
@@ -248,55 +248,59 @@ export type StudioJobEventPayloads = {
   ]
 }
 
-export type StudioJobEvent = {
-  [Type in StudioJobEventType]: { type: Type; data: StudioJobEventPayloads[Type] }
-}[StudioJobEventType]
-
-/**
- * Versioned public Studio event envelope. `seq` orders best-effort live delivery only; job state
- * and terminal results are fetched independently after reconnecting.
- */
-export type JobEvent = StudioJobEvent & {
+export type GenerationEvent = {
+  [Type in GenerationEventType]: { type: Type; data: GenerationEventPayloads[Type] }
+}[GenerationEventType] & {
   version: 1
   jobId: string
   timestamp: number
-  seq: number
 }
 
+/**
+ * Versioned public generation event envelope. Native Cap'n Web streams preserve event order.
+ */
 export type GenerateInput = { jobId: string; config: JSONKubbConfig }
 export type GenerateResult = { status: 'success' | 'failed'; files: Array<string>; fileCount: number }
 export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean; file?: ConfigFileView }
-export type SnapshotInput = { jobId: string; name: string; version: string; bundledDependencies?: Array<string>; uploadPath: string }
-export type SnapshotResult = { integrity: string; peerDependencies: Record<string, string> }
+export type PublishSnapshotInput = { name: string; version: string; bundledDependencies?: Array<string>; uploadPath: string }
+export type PublishSnapshotResult = { integrity: string; peerDependencies: Record<string, string> }
+
+export type GenerationRun = {
+  events: () => Promise<ReadableStream<GenerationEvent>>
+  result: () => Promise<GenerateResult>
+  cancel: () => Promise<void>
+}
 
 /**
  * Operations Studio can invoke on an agent through a host-provided RPC transport.
  */
 export type AgentApi = {
   connect: () => Promise<ConnectMessagePayload>
-  generate: (input: GenerateInput) => Promise<GenerateResult>
+  startGeneration: (input: GenerateInput) => GenerationRun
   saveConfig: (input: { edits: Array<ConfigEdit> }) => Promise<SaveResult>
-  snapshot: (input: SnapshotInput) => Promise<SnapshotResult>
+  publishSnapshot: (input: PublishSnapshotInput) => Promise<PublishSnapshotResult>
   readFiles: (input: { paths: Array<string> }) => Promise<{ files: Record<string, string> }>
-  cancel: (input: { jobId: string }) => Promise<void>
 }
 
 /**
  * Operations an agent can invoke on Studio through a host-provided RPC transport.
  */
 export type StudioApi = {
-  event: (input: JobEvent) => Promise<void>
   ping: () => Promise<void>
 }
+
+export type RpcConnection = {
+  studio: StudioApi
+  closed: Promise<void>
+  close: () => void
+}
+
+export type RpcConnector = (input: { url: string; token: string; local: AgentApi }) => Promise<RpcConnection>
 
 /**
  * How many files a single `readFiles` request may ask for at once.
  */
 export const MAX_FILES_PER_REQUEST = 50
-
-export function createJobId(): string {
-  return crypto.randomUUID()
-}
 
 /**
  * Identifies the host running the Kubb runtime. Local to the runtime, not part of the wire: it
@@ -401,9 +405,9 @@ export type AgentConnectResponse = {
   /**
    * URL the agent opens to reach the session, with the session token embedded.
    */
-  wsUrl: string
+  rpcUrl: string
   /**
-   * When the session expires and the wsUrl stops working (ISO 8601).
+   * When the session expires and the rpcUrl stops working (ISO 8601).
    */
   expiresAt: string
   /**
@@ -411,7 +415,7 @@ export type AgentConnectResponse = {
    */
   revokedAt: string | null
   /**
-   * Opaque session token, also embedded in `wsUrl`. Store it to revoke the session later.
+   * Opaque session token, also embedded in `rpcUrl`. Store it to revoke the session later.
    */
   sessionId: string
   /**

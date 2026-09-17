@@ -558,11 +558,13 @@ export class Diagnostics {
       }
       if (diagnostic.severity === 'error') {
         errors += 1
-      } else if (diagnostic.severity === 'warning') {
-        warnings += 1
-      } else {
-        infos += 1
+        continue
       }
+      if (diagnostic.severity === 'warning') {
+        warnings += 1
+        continue
+      }
+      infos += 1
     }
     return { errors, warnings, infos }
   }

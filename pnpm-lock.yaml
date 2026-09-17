@@ -254,9 +254,6 @@ importers:
       '@kubb/mcp':
         specifier: workspace:*
         version: link:../mcp
-      capnweb:
-        specifier: ^0.12.0
-        version: 0.12.0
       chokidar:
         specifier: ^5.0.0
         version: 5.0.0
@@ -462,6 +459,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      capnweb:
+        specifier: ^0.12.0
+        version: 0.12.0
       magicast:
         specifier: ^0.5.5
         version: 0.5.5

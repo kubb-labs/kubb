@@ -72,6 +72,7 @@
   },
   "dependencies": {
     "@kubb/core": "workspace:*",
+    "capnweb": "^0.12.0",
     "magicast": "^0.5.5",
     "ofetch": "^1.5.1",
     "remeda": "^2.49.0",

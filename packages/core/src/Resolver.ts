@@ -682,7 +682,8 @@ export class Resolver {
       let source = ''
       if (typeof input === 'string') {
         source = getInputKind(input) === 'inline' ? 'text content' : path.basename(input)
-      } else if (input) {
+      }
+      if (typeof input !== 'string' && input) {
         source = 'text content'
       }
 

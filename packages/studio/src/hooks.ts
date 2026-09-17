@@ -160,9 +160,9 @@ export function waitForHookEnd(hooks: Hookable<KubbHooks>, hookId: string): Prom
 
       if (ctx.success) {
         resolve()
-      } else {
-        reject(ctx.error)
+        return
       }
+      reject(ctx.error)
     }
 
     hooks.hook('kubb:hook:end', handleHookEnd)

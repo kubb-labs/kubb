@@ -9,6 +9,7 @@ import type { CLIOptions, Config } from '@kubb/core'
 import { cliReporter, logLevel as logLevelMap } from '@kubb/core'
 import {
   createFileStorage,
+  connectWebSocketRpc,
   type ClientOptions,
   defaultStudioUrl,
   type InvalidAgentTokenError,
@@ -28,7 +29,6 @@ import { canUseTTY } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 import { snapshot } from './snapshot.ts'
-import { attachRpc } from './rpc.ts'
 
 const ACTIONS = ['connect', 'login', 'logout', 'status', 'snapshot'] as const
 
@@ -394,7 +394,7 @@ class StudioConnection {
    */
   #clientOptions(): Omit<ClientOptions, 'token' | 'onAuthRequired'> {
     return {
-      attach: attachRpc,
+      connector: connectWebSocketRpc,
       studioUrl: this.#options.studioUrl,
       configPath: this.#configPath,
       version: this.#options.version,

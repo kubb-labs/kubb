@@ -237,7 +237,9 @@ function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undef
     const value = record[key]
     if (Array.isArray(value)) {
       for (const item of value) if (isNode(item)) yield item
-    } else if (isNode(value)) {
+      continue
+    }
+    if (isNode(value)) {
       yield value
     }
   }
@@ -345,7 +347,9 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
         if (next !== item) mapped = [...value.slice(0, i), next]
       }
       if (mapped) (updates ??= {})[key] = mapped
-    } else if (isNode(value)) {
+      continue
+    }
+    if (isNode(value)) {
       const next = transformNode(value, visitor, recurse, node)
       if (next !== value) (updates ??= {})[key] = next
     }

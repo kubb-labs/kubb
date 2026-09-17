@@ -3,11 +3,10 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { exists, read } from '@internals/utils'
 import { logLevel as logLevelMap } from '@kubb/core'
-import { createAgent, createClient, createJob, machineTokenFrom, waitForJob, type StudioSnapshot } from '@kubb/studio'
+import { connectWebSocketRpc, createAgent, createClient, createJob, machineTokenFrom, waitForJob, type StudioSnapshot } from '@kubb/studio'
 import { createSpinner, logBlock } from '../../loggers/output.ts'
 import { detectCi } from './ci.ts'
 import { loadConfigs, type StudioOptions } from './run.ts'
-import { attachRpc } from './rpc.ts'
 
 /**
  * How long to wait for Studio's `studio:ready` acknowledgement, above the client's own 10s
@@ -169,7 +168,8 @@ export async function snapshot(options: StudioOptions): Promise<void> {
 
   if (options.json) {
     log('Creating Kubb Studio agent')
-  } else {
+  }
+  if (!options.json) {
     spinner?.start('Creating Kubb Studio agent')
   }
 
@@ -178,7 +178,7 @@ export async function snapshot(options: StudioOptions): Promise<void> {
   const { promise: ready, reject: markFailed, resolve: markReady } = Promise.withResolvers<void>()
 
   const client = createClient({
-    attach: attachRpc,
+    connector: connectWebSocketRpc,
     studioUrl: options.studioUrl,
     token: agent.token,
     configPath,
@@ -233,19 +233,22 @@ export async function snapshot(options: StudioOptions): Promise<void> {
 
     if (options.json) {
       log('Snapshot published')
-    } else {
+    }
+    if (!options.json) {
       spinner?.stop('Snapshot published')
     }
 
     if (options.json) {
       console.log(JSON.stringify(result))
-    } else {
+    }
+    if (!options.json) {
       printSummary(result)
     }
   } catch (error) {
     if (options.json) {
       log('Snapshot failed')
-    } else {
+    }
+    if (!options.json) {
       spinner?.stop('Snapshot failed')
     }
     throw error
