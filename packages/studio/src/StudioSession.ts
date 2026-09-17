@@ -3,7 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { getErrorMessage, inParallel, read, toError } from '@internals/utils'
-import { type Config, fsStorage, Hookable, type KubbHooks, logLevel as logLevelMap, memoryStorage, type Storage } from '@kubb/core'
+import { type Config, fsStorage, Hookable, type KubbHooks, logLevel as logLevelMap, memoryStorage } from '@kubb/core'
 import { version as kubbVersion } from '../package.json'
 import { setupHookListener } from './hooks.ts'
 import {
@@ -23,7 +23,6 @@ import {
   type PublishSnapshotResult,
   type RpcConnector,
   type RpcConnection,
-  type StudioApi,
 } from './protocol/index.ts'
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { applyConfigEdits, readConfig } from './configFile.ts'
@@ -32,15 +31,13 @@ import { agentDefaults } from './constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
 import { createSnapshotPackage } from './snapshotPackage.ts'
 import { RpcTarget } from 'capnweb'
-import { absoluteStoragePath, createGenerationStream } from './ws.ts'
+import { absoluteStoragePath, createGenerationStream, type GenerationState } from './ws.ts'
 import { connectWebSocketRpc } from './rpc.ts'
 
 /**
  * How many files are read from storage at once when serving `readFiles` or packing a snapshot.
  */
 const FILE_READ_CONCURRENCY = 50
-
-type GenerationState = { storage: Storage; root: string; paths: Set<string>; peerDependencies: Record<string, string>; missingDependencies: Array<string> }
 
 class GenerationRunTarget extends RpcTarget implements GenerationRun {
   constructor(
@@ -242,7 +239,6 @@ export class StudioSession implements AgentApi {
    */
   #session: AgentConnectResponse | undefined
   #rpc: RpcConnection | undefined
-  #studio: StudioApi | undefined
   // Returned with the session, so both sides can be named from the first RPC connection.
   #studioVersion: string | undefined
 
@@ -253,7 +249,7 @@ export class StudioSession implements AgentApi {
   // this, two concurrent `generate()` calls share this socket via `setupEventsStream`, and their
   // events interleave with no way for Studio to tell the two runs apart.
   #isGenerating = false
-  #heartbeatTimer: ReturnType<typeof setInterval> | undefined
+  #heartbeatTimer: ReturnType<typeof setTimeout> | undefined
   // The most recent generation's live storage, kept so `readFiles` and `snapshot` can read file
   // content on demand instead of Studio round tripping it back over RPC, and
   // instead of this holding the whole run's output in memory. `paths` is the whitelist a request
@@ -312,22 +308,22 @@ export class StudioSession implements AgentApi {
 
       const rpc = await (this.#options.connector ?? connectWebSocketRpc)({ url: session.rpcUrl, token, local: this })
       this.#rpc = rpc
-      this.#studio = rpc.studio
       void rpc.closed.then(this.#onClose, this.#onError)
 
       signal?.addEventListener('abort', this.#onAbort, { once: true })
       this.#unhooks.push(() => signal?.removeEventListener('abort', this.#onAbort))
 
-      this.#heartbeatTimer = setInterval(() => this.#sendHeartbeat(), heartbeatInterval)
+      this.#scheduleHeartbeat(heartbeatInterval)
       await this.#hooks.callHook('studio:connected', {
         url: studioUrl,
         versions: { studio: this.#studioVersion, kubb: kubbVersion, agent: this.#options.version },
       })
       await this.#hooks.callHook('studio:ready', {})
     } catch (error) {
-      // Reaching here means the session was never created (Studio down, a 502 mid-deploy), so no
-      // socket exists and none of the socket-driven reconnect paths can fire. Retry from here or
-      // the slot is dropped for the lifetime of the process.
+      // A connector can fail after opening RPC and installing the heartbeat. Tear down every
+      // partial resource before retrying, otherwise each retry leaks a timer and a live session.
+      this.#disposed = true
+      this.dispose()
       await this.#hooks.callHook('studio:error', { error: toError(error) })
 
       if (error instanceof InvalidAgentTokenError) {
@@ -342,8 +338,25 @@ export class StudioSession implements AgentApi {
     return this.#hooks.callHook('studio:warn', { message })
   }
 
-  #sendHeartbeat(): void {
-    void this.#studio?.ping().catch(() => this.#rpc?.close())
+  #scheduleHeartbeat(interval: number): void {
+    const rpc = this.#rpc
+    if (!rpc) {
+      return
+    }
+    this.#heartbeatTimer = setTimeout(async () => {
+      try {
+        await rpc.studio.ping()
+      } catch {
+        if (this.#rpc === rpc) {
+          rpc.close()
+        }
+        return
+      }
+
+      if (this.#rpc === rpc) {
+        this.#scheduleHeartbeat(interval)
+      }
+    }, interval)
   }
 
   /**
@@ -391,7 +404,7 @@ export class StudioSession implements AgentApi {
     }
   }
 
-  #onAbort = (): void => void this.#end({ reason: 'shutdown', retry: false })
+  #onAbort = (): void => void this.#end({ retry: false })
 
   #onClose = (): void => void this.#end({ retry: true })
 
@@ -407,12 +420,11 @@ export class StudioSession implements AgentApi {
    *
    * @internal
    */
-  dispose(_reason = 'cleanup'): void {
-    clearInterval(this.#heartbeatTimer)
+  dispose(): void {
+    clearTimeout(this.#heartbeatTimer)
     this.#heartbeatTimer = undefined
     this.#rpc?.close()
     this.#rpc = undefined
-    this.#studio = undefined
 
     for (const unhook of this.#unhooks) unhook()
     this.#unhooks.length = 0
@@ -422,7 +434,7 @@ export class StudioSession implements AgentApi {
    * Ends the session: tells Studio it is over, drops the socket, and optionally reconnects.
    * `#disposed` keeps the close event from running this twice, and a shutdown from reconnecting.
    */
-  async #end({ reason, retry }: { reason?: string; retry: boolean }): Promise<void> {
+  async #end({ retry }: { retry: boolean }): Promise<void> {
     const { studioUrl, token, logLevel } = this.#options
 
     if (this.#disposed) {
@@ -430,7 +442,7 @@ export class StudioSession implements AgentApi {
     }
     this.#disposed = true
 
-    this.dispose(reason)
+    this.dispose()
 
     // Nothing to tell Studio about when the session never opened.
     if (this.#session) {

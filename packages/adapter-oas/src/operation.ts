@@ -120,14 +120,7 @@ export function getRequestContentType({ operation, refs }: OperationContext): st
   const content = getRequestBodyContent({ operation, refs })
   const mediaTypes = content ? Object.keys(content) : []
 
-  let result = mediaTypes[0] ?? 'application/json'
-  for (const mt of mediaTypes) {
-    if (isJsonMimeType(mt)) {
-      result = mt
-    }
-  }
-
-  return result
+  return mediaTypes.findLast(isJsonMimeType) ?? mediaTypes[0] ?? 'application/json'
 }
 
 /**

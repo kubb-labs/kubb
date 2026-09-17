@@ -679,13 +679,7 @@ export class Resolver {
 
     if (config.output.defaultBanner !== 'simple') {
       const input = config.input
-      let source = ''
-      if (typeof input === 'string') {
-        source = getInputKind(input) === 'inline' ? 'text content' : path.basename(input)
-      }
-      if (typeof input !== 'string' && input) {
-        source = 'text content'
-      }
+      const source = typeof input === 'string' ? (getInputKind(input) === 'inline' ? 'text content' : path.basename(input)) : input ? 'text content' : ''
 
       if (source) lines.push(`* Source: ${source}`)
       if (title) lines.push(`* Title: ${title}`)

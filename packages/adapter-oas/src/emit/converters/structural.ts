@@ -64,14 +64,11 @@ export function convertObject({ schema, name, nullable, defaultValue, rawOptions
     : []
 
   const additionalProperties = schema.additionalProperties
-  let additionalPropertiesNode: ast.SchemaNode | boolean | undefined
-  if (additionalProperties === true) additionalPropertiesNode = true
-  if (additionalProperties && additionalProperties !== true) {
-    additionalPropertiesNode = resolveMapSchema(additionalProperties, options, parse, rawOptions)
-  }
-  if (additionalProperties === false || additionalProperties === undefined) {
-    additionalPropertiesNode = additionalProperties
-  }
+  const additionalPropertiesNode = (() => {
+    if (additionalProperties === true) return true
+    if (additionalProperties) return resolveMapSchema(additionalProperties, options, parse, rawOptions)
+    return additionalProperties
+  })()
 
   const rawPatternProperties = 'patternProperties' in schema ? schema.patternProperties : undefined
 

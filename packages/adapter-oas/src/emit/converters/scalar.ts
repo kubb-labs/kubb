@@ -152,9 +152,8 @@ export function convertEnum({ schema, name, nullable, type, rawOptions, parse }:
   const extensionKey = enumExtensionKeys.find((key) => key in schema)
   const descriptionKey = enumDescriptionKeys.find((key) => key in schema)
   if (extensionKey || descriptionKey || enumPrimitive === 'number' || enumPrimitive === 'integer' || enumPrimitive === 'boolean') {
-    let enumPrimitiveType: 'number' | 'boolean' | 'string' = 'string'
-    if (enumPrimitive === 'number' || enumPrimitive === 'integer') enumPrimitiveType = 'number'
-    if (enumPrimitive === 'boolean') enumPrimitiveType = 'boolean'
+    const enumPrimitiveType: 'number' | 'boolean' | 'string' =
+      enumPrimitive === 'boolean' ? 'boolean' : enumPrimitive === 'number' || enumPrimitive === 'integer' ? 'number' : 'string'
     const rawEnumNames = extensionKey ? ((schema as Record<string, unknown>)[extensionKey] as Array<string | number>) : undefined
     const rawEnumDescriptions = descriptionKey ? ((schema as Record<string, unknown>)[descriptionKey] as Array<string>) : undefined
     const uniqueValues = [...new Set(filteredValues)]

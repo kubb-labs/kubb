@@ -84,27 +84,23 @@ export function createWebsocket(url: string, options: WebSocketOptions): WebSock
   return ws
 }
 
-/**
- * Forwards selected Kubb lifecycle events to Studio for the active session.
- */
+export type GenerationState = {
+  storage: Storage
+  root: string
+  paths: Set<string>
+  peerDependencies: Record<string, string>
+  missingDependencies: Array<string>
+}
+
+export type GenerationStreamOptions = {
+  onGenerationEnd?: (result: GenerationState) => void
+}
+
+/** Forwards selected Kubb lifecycle events to a native Cap'n Web stream. */
 export function createGenerationStream(
   hooks: Hookable<KubbHooks>,
   jobId: string,
-  options: {
-    /**
-     * Called once a run finishes, with the live `storage` it wrote through (not a copy of its
-     * contents), the relative paths it produced, and resolved dependency metadata. The caller reads
-     * file content back through `storage` on demand for `readFiles` and `snapshot`,
-     * rather than this holding the whole run's output in memory.
-     */
-    onGenerationEnd?: (result: {
-      storage: Storage
-      root: string
-      paths: Set<string>
-      peerDependencies: Record<string, string>
-      missingDependencies: Array<string>
-    }) => void
-  } = {},
+  options: GenerationStreamOptions = {},
 ): { stream: ReadableStream<GenerationEvent>; close: () => Promise<void>; dispose: () => void; fail: (error: unknown) => void } {
   const unhooks: Array<() => void> = []
   let root = ''
@@ -112,6 +108,7 @@ export function createGenerationStream(
   const writer = transform.writable.getWriter()
   let writes = Promise.resolve()
   let closed = false
+  let streamError: unknown
 
   /**
    * Registers a listener and keeps its remover, so one generation's listeners come off the session
@@ -123,7 +120,15 @@ export function createGenerationStream(
 
   function emitEvent<Type extends GenerationEventType>(type: Type, data: GenerationEventPayloads[Type]): void {
     const event = { jobId, type, data, version: 1 as const, timestamp: Date.now() } as GenerationEvent
-    writes = writes.then(() => writer.write(event))
+    writes = writes.then(
+      () => writer.write(event),
+      (error) => {
+        streamError = error
+      },
+    )
+    writes = writes.catch((error) => {
+      streamError = error
+    })
   }
 
   on('kubb:plugin:start', (ctx) => {
@@ -267,6 +272,10 @@ export function createGenerationStream(
     closed = true
     for (const unhook of unhooks) unhook()
     await writes
+    if (streamError) {
+      await writer.abort(streamError)
+      throw streamError
+    }
     await writer.close()
   }
 

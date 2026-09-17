@@ -127,9 +127,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       if (operationNode) operationNodes.push(operationNode)
     }
 
-    let promotedEnums: Map<string, ast.SchemaNode> | null = null
-    if (enums === 'root') {
-      promotedEnums = collectInlineEnums([...parsedByName.values(), ...operationNodes], new Set(Object.keys(schemas)))
+    const promotedEnums = enums === 'root' ? collectInlineEnums([...parsedByName.values(), ...operationNodes], new Set(Object.keys(schemas))) : null
+    if (promotedEnums) {
       for (const name of promotedEnums.keys()) enumNames.push(name)
     }
 
@@ -137,14 +136,14 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     for (const name of Object.keys(schemas)) {
       const alias = refAliasMap.get(name)
 
-      let node: ast.SchemaNode
-      if (alias?.name && parsedByName.has(alias.name)) {
-        node = { ...parsedByName.get(alias.name)!, name }
-      } else {
-        const parsed = parsedByName.get(name)!
-        const child = discriminatorChildMap?.get(name)
-        node = child ? patchDiscriminatorNode(parsed, child) : parsed
-      }
+      const node =
+        alias?.name && parsedByName.has(alias.name)
+          ? { ...parsedByName.get(alias.name)!, name }
+          : (() => {
+              const parsed = parsedByName.get(name)!
+              const child = discriminatorChildMap?.get(name)
+              return child ? patchDiscriminatorNode(parsed, child) : parsed
+            })()
 
       schemaNodes.push(promotedEnums ? refPromotedEnums(node, promotedEnums) : node)
     }
