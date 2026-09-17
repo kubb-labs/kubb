@@ -1,5 +1,27 @@
 # Changelog
 
+## v5.3.6 — Sep 17, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Replace the agent WebSocket command protocol with typed Cap'n Web RPC and remove the legacy JSON envelopes. Agents and Studio must upgrade together; mismatched versions cannot communicate. ([#4061](https://github.com/kubb-labs/kubb/pull/4061), [`f880342`](https://github.com/kubb-labs/kubb/commit/f880342c1dc80611cd4094ced72c7d53e7d46cb5))
+- Fix generation and heartbeat lifecycle bugs left over from the Cap'n Web RPC cutover:
+  
+  - A dropped Studio connection now cancels the in-flight generation instead of letting it finish
+    unwatched.
+  - Two `startGeneration` calls arriving in the same tick can no longer both start a run.
+  - A heartbeat ping that never settles (a half-open socket) now closes the session instead of
+    hanging it indefinitely.
+  - Removed an unreachable error path left over from the old JSON transport. ([#4061](https://github.com/kubb-labs/kubb/pull/4061), [`f880342`](https://github.com/kubb-labs/kubb/commit/f880342c1dc80611cd4094ced72c7d53e7d46cb5))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.5 — Sep 17, 2026
 
 ### @kubb/studio
