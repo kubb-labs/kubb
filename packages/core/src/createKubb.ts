@@ -53,10 +53,6 @@ export type CreateKubbOptions = {
  */
 export type GenerateOptions = {
   /**
-   * Stops post-build processing at the next safe checkpoint.
-   */
-  signal?: AbortSignal
-  /**
    * Format, lint, and run `postGenerate` over the generated output after an error-free build, and
    * return the diagnostics they emitted. CLI-only.
    */
@@ -125,8 +121,8 @@ export class Kubb {
   /**
    * Initializes the driver and storage. `build()` calls this automatically.
    */
-  async setup(options: { signal?: AbortSignal } = {}): Promise<void> {
-    const signal = options.signal ?? this.#signal
+  async setup(): Promise<void> {
+    const signal = this.#signal
     signal?.throwIfAborted()
     const config = this.config
     const manifest = hasOutputPasses(config.output)
@@ -185,10 +181,9 @@ export class Kubb {
    * Automatically calls `setup()` if needed. This is the canonical call: it never throws on
    * plugin errors, so callers stay in control of how failures surface.
    */
-  async safeBuild(options: { signal?: AbortSignal } = {}): Promise<BuildOutput> {
-    const signal = options.signal ?? this.#signal
-    signal?.throwIfAborted()
-    if (!this.#driver) await this.setup({ signal })
+  async safeBuild(): Promise<BuildOutput> {
+    this.#signal?.throwIfAborted()
+    if (!this.#driver) await this.setup()
     using self = this
     const driver = self.driver
     const storage = self.storage
@@ -210,7 +205,7 @@ export class Kubb {
    * ```
    */
   async generate(options: GenerateOptions = {}): Promise<GenerateResult> {
-    const signal = options.signal ?? this.#signal
+    const signal = this.#signal
     signal?.throwIfAborted()
     const { hooks, config } = this
     const hrStart = process.hrtime()
@@ -218,10 +213,10 @@ export class Kubb {
     await hooks.callHook('kubb:generation:start', { config })
 
     await hooks.callHook('kubb:setup:start')
-    await this.setup({ signal })
+    await this.setup()
     await hooks.callHook('kubb:setup:end')
 
-    const { files, diagnostics, storage } = await this.safeBuild({ signal })
+    const { files, diagnostics, storage } = await this.safeBuild()
     signal?.throwIfAborted()
 
     // Surface every problem on the diagnostic hooks. An unstructured `unknown` error goes out as

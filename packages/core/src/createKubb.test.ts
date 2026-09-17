@@ -95,7 +95,7 @@ describe('createKubb', () => {
     await expect(createKubb(config, { signal: controller.signal }).build()).rejects.toThrow('Canceled')
   })
 
-  test('stops mid-build when generate() receives a per-call aborted signal', async () => {
+  test('stops mid-build when its signal aborts during parsing', async () => {
     const controller = new AbortController()
     let releaseParse: (() => void) | undefined
     const parseStarted = new Promise<void>((resolve) => {
@@ -118,8 +118,8 @@ describe('createKubb', () => {
         output: { ...config.output, clean: false },
         storage: memoryStorage(),
       },
-      { hooks: new Hookable<KubbHooks>() },
-    ).generate({ signal: controller.signal })
+      { hooks: new Hookable<KubbHooks>(), signal: controller.signal },
+    ).generate()
 
     await parseStarted
     controller.abort(new Error('Canceled'))
