@@ -70,7 +70,7 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@clack/prompts": "^1.8.0",
+    "@clack/prompts": "^1.8.1",
     "@gunshi/plugin-dryrun": "^0.37.2",
     "@kubb/core": "workspace:*",
     "capnweb": "^0.12.0",
