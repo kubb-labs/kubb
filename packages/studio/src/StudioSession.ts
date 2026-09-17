@@ -11,7 +11,6 @@ import {
   type AgentConnectResponse,
   type AgentPermissions,
   type ClientInfo,
-  type ConfigEdit,
   type ConfigFileView,
   type ConnectMessagePayload,
   type GenerateInput,
@@ -19,6 +18,8 @@ import {
   type GenerationEvent,
   type GenerationRun,
   MAX_FILES_PER_REQUEST,
+  type ReadFilesInput,
+  type SaveConfigInput,
   type SaveResult,
   type PublishSnapshotInput,
   type PublishSnapshotResult,
@@ -348,6 +349,15 @@ export class StudioSession implements AgentApi {
     return this.#hooks.callHook('studio:warn', { message })
   }
 
+  /**
+   * Declines a request: logs why locally, then tells Studio. The two wordings differ on purpose,
+   * since the log names the request that was ignored and the error names what the caller can do.
+   */
+  async #refuse(reason: string, message: string): Promise<never> {
+    await this.#warn(reason)
+    throw new Error(message)
+  }
+
   #scheduleHeartbeat(interval: number): void {
     const rpc = this.#rpc
     if (!rpc) {
@@ -498,8 +508,7 @@ export class StudioSession implements AgentApi {
     const { root, loadConfig, permissions, client } = this.#options
 
     if (this.#isGenerating) {
-      await this.#warn('Ignored generate: a generation is already in progress')
-      throw new Error('A generation is already in progress, please wait for it to finish')
+      return this.#refuse('Ignored generate: a generation is already in progress', 'A generation is already in progress, please wait for it to finish')
     }
 
     this.#isGenerating = true
@@ -556,6 +565,8 @@ export class StudioSession implements AgentApi {
         info: `${resolvedPlugins.length} plugin${resolvedPlugins.length === 1 ? '' : 's'}, ${this.#canWrite ? 'written to disk' : 'in memory'}${inputOverride !== undefined ? ', from a Studio spec' : ''}`,
       })
 
+      // The generate call above reassigns the field, but control flow analysis still sees the
+      // `= undefined` from this method and narrows it to `never`.
       const generation = this.#lastGeneration as GenerationState | undefined
       const files = [...(generation?.paths ?? [])]
       return { status: 'success', files, fileCount: files.length }
@@ -564,7 +575,7 @@ export class StudioSession implements AgentApi {
     }
   }
 
-  async saveConfig(data: { edits: Array<ConfigEdit> }): Promise<SaveResult> {
+  async saveConfig(data: SaveConfigInput): Promise<SaveResult> {
     const command = 'saveConfig'
     await this.#hooks.callHook('studio:command:start', { command })
     const { configPath, configFile } = this.#options
@@ -622,30 +633,26 @@ export class StudioSession implements AgentApi {
     await this.#hooks.callHook('studio:command:start', { command })
 
     if (this.#isSandbox) {
-      await this.#warn('Ignored snapshot: a sandbox agent has no project to build a package from')
-      throw new Error('A sandbox agent has no project to build a package from')
+      return this.#refuse('Ignored snapshot: a sandbox agent has no project to build a package from', 'A sandbox agent has no project to build a package from')
     }
 
     const { name, version, bundledDependencies, uploadPath } = data
 
     if (!name || !version || !uploadPath) {
-      await this.#warn('Ignored snapshot: the message was missing required fields')
-      throw new Error('The request was missing required fields')
+      return this.#refuse('Ignored snapshot: the message was missing required fields', 'The request was missing required fields')
     }
 
     const generation = this.#lastGeneration
 
     if (!generation) {
-      await this.#warn('Ignored snapshot: no prior generation to pack')
-      throw new Error('No prior generation exists to pack, run a generation first')
+      return this.#refuse('Ignored snapshot: no prior generation to pack', 'No prior generation exists to pack, run a generation first')
     }
 
     const bundled = new Set(bundledDependencies ?? [])
     const missing = generation.missingDependencies.filter((dependency) => !bundled.has(dependency))
 
     if (missing.length) {
-      await this.#warn(`Ignored snapshot: missing dependencies: ${missing.join(', ')}`)
-      throw new Error(`Missing dependencies: ${missing.join(', ')}`)
+      return this.#refuse(`Ignored snapshot: missing dependencies: ${missing.join(', ')}`, `Missing dependencies: ${missing.join(', ')}`)
     }
 
     try {
@@ -701,7 +708,7 @@ export class StudioSession implements AgentApi {
     }
   }
 
-  async readFiles(data: { paths: Array<string> }): Promise<{ files: Record<string, string> }> {
+  async readFiles(data: ReadFilesInput): Promise<{ files: Record<string, string> }> {
     const command = 'readFiles'
     await this.#hooks.callHook('studio:command:start', { command })
     const { client } = this.#options
@@ -716,22 +723,22 @@ export class StudioSession implements AgentApi {
 
     // `paths` came off the wire, so check its shape before walking it.
     if (!Array.isArray(data.paths)) {
-      await this.#warn('Ignored files: the message carried no paths')
-      throw new Error('The request carried no paths')
+      return this.#refuse('Ignored files: the message carried no paths', 'The request carried no paths')
     }
 
     const { paths } = data
 
     if (paths.length > MAX_FILES_PER_REQUEST) {
-      await this.#warn(`Ignored files: requested ${paths.length} paths, more than the ${MAX_FILES_PER_REQUEST} allowed per request`)
-      throw new Error(`At most ${MAX_FILES_PER_REQUEST} paths may be requested at once`)
+      return this.#refuse(
+        `Ignored files: requested ${paths.length} paths, more than the ${MAX_FILES_PER_REQUEST} allowed per request`,
+        `At most ${MAX_FILES_PER_REQUEST} paths may be requested at once`,
+      )
     }
 
     const generation = this.#lastGeneration
 
     if (!generation) {
-      await this.#warn('Ignored files: no prior generation to read from')
-      throw new Error('No prior generation to read from, run a generation first')
+      return this.#refuse('Ignored files: no prior generation to read from', 'No prior generation to read from, run a generation first')
     }
 
     // Checked against the paths this run actually produced before touching storage, so a caller

@@ -121,15 +121,12 @@ export function createGenerationStream(
 
   function emitEvent<Type extends GenerationEventType>(type: Type, data: GenerationEventPayloads[Type]): void {
     const event = { jobId, type, data, version: 1 as const, timestamp: Date.now() } as GenerationEvent
-    writes = writes.then(
-      () => writer.write(event),
-      (error) => {
+    // A prior failure skips the write; either way the chain settles so the next event still runs.
+    writes = writes
+      .then(() => writer.write(event))
+      .catch((error) => {
         streamError = error
-      },
-    )
-    writes = writes.catch((error) => {
-      streamError = error
-    })
+      })
   }
 
   on('kubb:plugin:start', (ctx) => {
@@ -266,12 +263,20 @@ export function createGenerationStream(
     ])
   })
 
+  /**
+   * Takes this generation's listeners off the session emitter. Safe to call twice.
+   */
+  function detach(): void {
+    for (const unhook of unhooks) unhook()
+    unhooks.length = 0
+  }
+
   async function close(): Promise<void> {
     if (closed) {
       return
     }
     closed = true
-    for (const unhook of unhooks) unhook()
+    detach()
     await writes
     // Consumer cancel sets streamError; don't fail a successful generation over that.
     if (streamError) {
@@ -280,24 +285,14 @@ export function createGenerationStream(
     await writer.close().catch(() => undefined)
   }
 
-  function dispose(): void {
-    for (const unhook of unhooks) unhook()
-    unhooks.length = 0
-    if (!closed) {
-      closed = true
-      void writer.abort().catch(() => undefined)
-    }
-  }
-
-  function fail(error: unknown): void {
+  function fail(error?: unknown): void {
+    detach()
     if (closed) {
       return
     }
     closed = true
-    for (const unhook of unhooks) unhook()
-    unhooks.length = 0
     void writer.abort(error).catch(() => undefined)
   }
 
-  return { stream: transform.readable, close, dispose, fail }
+  return { stream: transform.readable, close, dispose: () => fail(), fail }
 }

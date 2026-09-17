@@ -9,7 +9,6 @@ import type { CLIOptions, Config } from '@kubb/core'
 import { cliReporter, logLevel as logLevelMap } from '@kubb/core'
 import {
   createFileStorage,
-  connectWebSocketRpc,
   type ClientOptions,
   defaultStudioUrl,
   type InvalidAgentTokenError,
@@ -394,7 +393,6 @@ class StudioConnection {
    */
   #clientOptions(): Omit<ClientOptions, 'token' | 'onAuthRequired'> {
     return {
-      connector: connectWebSocketRpc,
       studioUrl: this.#options.studioUrl,
       configPath: this.#configPath,
       version: this.#options.version,

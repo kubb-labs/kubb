@@ -24,7 +24,7 @@
 
 Kubb Studio client runtime.
 
-Connects a Kubb project to [Kubb Studio](https://kubb.studio) through typed Cap’n Web RPC over an
+Connects a Kubb project to [Kubb Studio](https://kubb.studio) through typed Cap'n Web RPC over an
 authenticated WebSocket. It backs both front ends: the `kubb studio` CLI command and the
 `kubblabs/kubb-agent` Docker image. Browser clients use Studio’s HTTP/SSE API, not this socket.
 
@@ -150,24 +150,17 @@ there. The storage URL never crosses the RPC socket.
 
 ## Protocol
 
-`@kubb/studio/protocol` holds the dependency-free RPC contracts shared by both ends, so the agent and
-Studio itself compile against one definition rather than two hand-maintained copies.
+`@kubb/studio/protocol` holds the RPC contracts both ends share, so the agent and Studio compile
+against one definition rather than two hand-maintained copies. Its only import is `KubbHooks` from
+`@kubb/core`, which the published event names are checked against.
 
 ```typescript
-import type { AgentApi, GenerationEvent, GenerationRun, StudioApi } from '@kubb/studio'
+import type { AgentApi, GenerationEvent, GenerationRun, RpcConnection, RpcConnector, StudioApi } from '@kubb/studio'
 ```
 
-The same entry exports the dependency-free `AgentApi`, `GenerationRun`, `StudioApi`, and
-`GenerationEvent` RPC contracts. Hosts supply a `RpcConnector`, which keeps transport details in
-the CLI, Docker agent, or Studio host rather than in the generation runtime.
-
-```typescript
-import type { AgentApi, RpcConnection, RpcConnector, StudioApi } from '@kubb/studio'
-```
-
-Hosts connect the typed `AgentApi` and `StudioApi` contracts through Cap’n Web. A
-`GenerationRun.cancel()` call aborts the matching generation cooperatively, including configured
-formatter, linter, and `postGenerate` processes.
+Hosts supply an `RpcConnector`, which keeps transport details in the CLI, Docker agent, or Studio
+host rather than in the generation runtime. A `GenerationRun.cancel()` call aborts the matching
+generation cooperatively, including configured formatter, linter, and `postGenerate` processes.
 
 ## Supporting Kubb
 

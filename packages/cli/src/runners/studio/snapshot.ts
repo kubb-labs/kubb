@@ -3,7 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { exists, read } from '@internals/utils'
 import { logLevel as logLevelMap } from '@kubb/core'
-import { connectWebSocketRpc, createAgent, createClient, createJob, machineTokenFrom, waitForJob, type StudioSnapshot } from '@kubb/studio'
+import { createAgent, createClient, createJob, machineTokenFrom, waitForJob, type StudioSnapshot } from '@kubb/studio'
 import { createSpinner, logBlock } from '../../loggers/output.ts'
 import { detectCi } from './ci.ts'
 import { loadConfigs, type StudioOptions } from './run.ts'
@@ -178,7 +178,6 @@ export async function snapshot(options: StudioOptions): Promise<void> {
   const { promise: ready, reject: markFailed, resolve: markReady } = Promise.withResolvers<void>()
 
   const client = createClient({
-    connector: connectWebSocketRpc,
     studioUrl: options.studioUrl,
     token: agent.token,
     configPath,

@@ -1,9 +1,6 @@
 import type { KubbHooks } from '@kubb/core'
 
 /**
- * Canonical Kubb lifecycle registry from `@kubb/core`.
- */
-/**
  * JSON-serializable Kubb config exchanged over RPC. A live `kubb/kit` config holds
  * functions and class instances that cannot survive JSON, so both sides pass this flattened shape
  * and rebuild the real config from it.
@@ -186,8 +183,15 @@ export const generationEventTypes = [
   'kubb:hook:end',
 ] as const satisfies ReadonlyArray<keyof KubbHooks>
 
+/**
+ * One of the lifecycle hooks {@link generationEventTypes} publishes.
+ */
 export type GenerationEventType = (typeof generationEventTypes)[number]
 
+/**
+ * The JSON-safe payload each published event carries. These are flattened on purpose: a core hook
+ * context holds live objects (a `Config`, a `Storage`) that cannot cross the wire.
+ */
 export type GenerationEventPayloads = {
   'kubb:plugin:start': [ctx: { plugin: { name: string } }]
   'kubb:plugin:end': [ctx: { plugin: { name: string }; duration: number; success: boolean }]
@@ -248,6 +252,10 @@ export type GenerationEventPayloads = {
   ]
 }
 
+/**
+ * Versioned envelope around one lifecycle event. Cap'n Web streams preserve the order the agent
+ * emitted them in, so the receiver replays a run by reading the stream straight through.
+ */
 export type GenerationEvent = {
   [Type in GenerationEventType]: { type: Type; data: GenerationEventPayloads[Type] }
 }[GenerationEventType] & {
@@ -257,14 +265,48 @@ export type GenerationEvent = {
 }
 
 /**
- * Versioned public generation event envelope. Native Cap'n Web streams preserve event order.
+ * Asks the agent to run one generation. `jobId` tags every event the run emits so a caller
+ * watching several runs can tell them apart.
  */
 export type GenerateInput = { jobId: string; config: JSONKubbConfig }
+
+/**
+ * What a finished run produced. `files` holds paths relative to the output directory.
+ */
 export type GenerateResult = { status: 'success' | 'failed'; files: Array<string>; fileCount: number }
+
+/**
+ * Asks the agent to apply a batch of edits to the config file on disk.
+ */
+export type SaveConfigInput = { edits: Array<ConfigEdit> }
+
+/**
+ * Per-edit outcomes plus the rewritten file. `changed` is false when every edit was a no-op, so a
+ * caller can skip reloading.
+ */
 export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean; file?: ConfigFileView }
+
+/**
+ * Asks the agent to read generated files back. Capped at {@link MAX_FILES_PER_REQUEST} paths, all
+ * of which must sit inside the output directory.
+ */
+export type ReadFilesInput = { paths: Array<string> }
+
+/**
+ * Describes the package to pack and where to PUT it. `uploadPath` is resolved against the Studio
+ * origin, so it cannot redirect the upload elsewhere.
+ */
 export type PublishSnapshotInput = { name: string; version: string; bundledDependencies?: Array<string>; uploadPath: string }
+
+/**
+ * Identifies the uploaded snapshot. `integrity` is the subresource hash Studio verifies against.
+ */
 export type PublishSnapshotResult = { integrity: string; peerDependencies: Record<string, string> }
 
+/**
+ * A generation in flight. Cap'n Web keeps the three calls pointed at the same run, so a caller can
+ * read `events()` while `result()` is still pending and `cancel()` stops it early.
+ */
 export type GenerationRun = {
   events: () => Promise<ReadableStream<GenerationEvent>>
   result: () => Promise<GenerateResult>
@@ -277,9 +319,9 @@ export type GenerationRun = {
 export type AgentApi = {
   connect: () => Promise<ConnectMessagePayload>
   startGeneration: (input: GenerateInput) => GenerationRun
-  saveConfig: (input: { edits: Array<ConfigEdit> }) => Promise<SaveResult>
+  saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
   publishSnapshot: (input: PublishSnapshotInput) => Promise<PublishSnapshotResult>
-  readFiles: (input: { paths: Array<string> }) => Promise<{ files: Record<string, string> }>
+  readFiles: (input: ReadFilesInput) => Promise<{ files: Record<string, string> }>
 }
 
 /**
@@ -289,12 +331,19 @@ export type StudioApi = {
   ping: () => Promise<void>
 }
 
+/**
+ * A live RPC session. `closed` settles when the transport drops, whichever side ended it.
+ */
 export type RpcConnection = {
   studio: StudioApi
   closed: Promise<void>
   close: () => void
 }
 
+/**
+ * Opens a transport and hands both sides their peer. Swapping this is how a test drives a session
+ * without a socket.
+ */
 export type RpcConnector = (input: { url: string; token: string; local: AgentApi }) => Promise<RpcConnection>
 
 /**
