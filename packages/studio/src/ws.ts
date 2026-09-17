@@ -120,7 +120,7 @@ export function createGenerationStream(
   }
 
   function emitEvent<Type extends GenerationEventType>(type: Type, data: GenerationEventPayloads[Type]): void {
-    const event = { jobId, type, data, version: 1 as const, timestamp: Date.now() } as GenerationEvent
+    const event = { jobId, type, data, version: 1 as const, timestamp: Date.now() } as unknown as GenerationEvent
     // A prior failure skips the write; either way the chain settles so the next event still runs.
     writes = writes
       .then(() => writer.write(event))
