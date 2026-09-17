@@ -356,11 +356,11 @@ declare global {
      *
      * @example
      * ```ts
-     * // packages/studio/src/hooks.ts
+     * // packages/my-plugin/src/hooks.ts
      * declare global {
      *   namespace Kubb {
      *     interface KubbHooksRegistry {
-     *       'studio:connecting': [ctx: StudioConnectingContext]
+     *       'my-plugin:ready': [ctx: { count: number }]
      *     }
      *   }
      * }
@@ -371,6 +371,7 @@ declare global {
       'kubb:lifecycle:end': []
       'kubb:generation:start': [ctx: KubbGenerationStartContext]
       'kubb:generation:end': [ctx: KubbGenerationEndContext]
+      'kubb:generation:summary': [ctx: KubbGenerationSummaryContext]
       'kubb:setup:start': []
       'kubb:setup:end': []
       'kubb:format:start': []
@@ -408,8 +409,8 @@ declare global {
  * Attach listeners before calling `setup()` or `build()` to observe and react to build progress.
  *
  * A package can add its own hook names to this type by augmenting
- * {@link Kubb.KubbHooksRegistry} instead of exporting a second, separate hook type — `@kubb/studio`
- * does this for its `studio:*` session events, so a host only ever needs to know `KubbHooks`.
+ * {@link Kubb.KubbHooksRegistry} instead of exporting a second, separate hook type. Studio's
+ * connection and RPC hooks intentionally use its separate `StudioHooks` registry.
  *
  * @example
  * ```ts
@@ -585,6 +586,14 @@ export type KubbDiagnosticContext = {
    * The structured diagnostic to render: a build problem or a version-update notice.
    */
   diagnostic: ProblemDiagnostic | UpdateDiagnostic
+}
+
+/** A terminal, transport-safe generation summary computed by a host. */
+export type KubbGenerationSummaryContext = {
+  duration: number
+  fileCount: number
+  failedPlugins: number
+  status: 'success' | 'failed'
 }
 
 export type KubbFilesProcessingStartContext = {

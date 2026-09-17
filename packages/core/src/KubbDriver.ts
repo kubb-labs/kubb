@@ -31,6 +31,7 @@ import type { Hookable } from './Hookable.ts'
 
 type Options = {
   hooks: Hookable<KubbHooks>
+  signal?: AbortSignal
   /**
    * Passed to `fileManager.write` so files the output passes already normalized are left alone.
    */
@@ -118,6 +119,7 @@ export class KubbDriver {
    * so `run` can parse it later.
    */
   async setup() {
+    this.options.signal?.throwIfAborted()
     const normalized = this.#sortPlugins(
       this.config.plugins.map((rawPlugin) => {
         const normalizedPlugin: NormalizedPlugin = {
@@ -193,7 +195,8 @@ export class KubbDriver {
   async #parseInput(): Promise<void> {
     if (this.inputNode || !this.adapter || !this.#adapterSource) return
 
-    this.inputNode = await this.adapter.parse(this.#adapterSource)
+    this.options.signal?.throwIfAborted()
+    this.inputNode = await this.adapter.parse(this.#adapterSource, { signal: this.options.signal })
   }
 
   /**
@@ -331,6 +334,7 @@ export class KubbDriver {
       (diagnostic) => diagnostics.push(diagnostic),
       async () => {
         try {
+          this.options.signal?.throwIfAborted()
           const outputRoot = resolve(config.root, config.output.path)
 
           // Parse the adapter source into `this.inputNode`.
@@ -343,6 +347,7 @@ export class KubbDriver {
           // Normalize each plugin's options once setup hooks have run, so the generate loop always
           // sees a filled-in bag whether or not the plugin called `setOptions`.
           for (const plugin of this.plugins.values()) {
+            this.options.signal?.throwIfAborted()
             plugin.options = normalizePluginOptions(plugin.options, plugin.name)
           }
 
@@ -394,7 +399,7 @@ export class KubbDriver {
           // Write every generated file once, after post-processing (barrel etc.) has had its
           // chance to add more. Writing mid-generation measured no faster in practice, so a
           // single pass keeps the pipeline simpler.
-          await fileManager.write(fileManager.files, { storage: config.storage, parsers: parsersMap, manifest: this.options.manifest })
+          await fileManager.write(fileManager.files, { storage: config.storage, parsers: parsersMap, manifest: this.options.manifest, signal: this.options.signal })
 
           await hooks.callHook('kubb:build:end', { files: this.fileManager.files, config, outputDir: outputRoot })
 
@@ -705,6 +710,7 @@ export class KubbDriver {
 
     return {
       config: driver.config,
+      signal: driver.options.signal,
       get root(): string {
         return resolve(driver.config.root, driver.config.output.path)
       },

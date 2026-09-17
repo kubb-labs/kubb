@@ -7,16 +7,20 @@ import { type Config, fsStorage, Hookable, type KubbHooks, logLevel as logLevelM
 import { version as kubbVersion } from '../package.json'
 import { setupHookListener } from './hooks.ts'
 import {
+  type AgentApi,
   type AgentConnectResponse,
-  type AgentMessage,
   type AgentPermissions,
   type ClientInfo,
+  type ConfigEdit,
   type ConfigFileView,
-  isCommandMessage,
-  isDisconnectMessage,
-  isStudioPongMessage,
-  isStudioReadyMessage,
+  type ConnectMessagePayload,
+  type GenerateInput,
+  type GenerateResult,
   MAX_FILES_PER_REQUEST,
+  type SaveResult,
+  type SnapshotInput,
+  type SnapshotResult,
+  type StudioApi,
 } from './protocol/index.ts'
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { applyConfigEdits, readConfig } from './configFile.ts'
@@ -25,7 +29,7 @@ import { agentDefaults } from './constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
 import { createSnapshotPackage } from './snapshotPackage.ts'
 import type WebSocket from 'ws'
-import { absoluteStoragePath, createWebsocket, sendAgentMessage, sendErrorMessage, setupEventsStream } from './ws.ts'
+import { absoluteStoragePath, createWebsocket, setupEventsStream } from './ws.ts'
 
 /**
  * How many files are read from storage at once when serving `studio:files` or packing a
@@ -33,7 +37,15 @@ import { absoluteStoragePath, createWebsocket, sendAgentMessage, sendErrorMessag
  */
 const FILE_READ_CONCURRENCY = 50
 
+type GenerationState = { storage: Storage; root: string; paths: Set<string>; peerDependencies: Record<string, string>; missingDependencies: Array<string> }
+
+export type RpcAttach = (socket: WebSocket, local: AgentApi) => { remote: StudioApi; close: () => void }
+
 export type StudioSessionOptions = {
+  /**
+   * Binds the authenticated socket to the host's RPC implementation.
+   */
+  attach: RpcAttach
   token: string
   studioUrl?: string
   configPath: string
@@ -119,8 +131,6 @@ type ResolvedOptions = StudioSessionOptions & {
  * on for this open. A Studio that predates the ack never sends one, so this only ever produces a
  * warning, not a reconnect.
  */
-const READY_TIMEOUT_MS = 10_000
-
 /**
  * Fills in a host's options: the hosted Studio URL, the current working directory, and every
  * permission off unless granted. Idempotent, so a reconnect can pass an already-resolved bag
@@ -177,7 +187,7 @@ function reconnect(options: ResolvedOptions): void {
 
     // The rejection is never awaited, so it has to be caught here or it surfaces as an
     // unhandledRejection that kills the retry loop instead of trying again.
-    new StudioSession(options).connect().catch((error: unknown) => {
+    new StudioSession(options).start().catch((error: unknown) => {
       if (logLevel !== undefined && logLevel > logLevelMap.silent) {
         console.error(styleText('red', `Reconnect attempt to Kubb Studio failed: ${getErrorMessage(error)}`))
       }
@@ -202,7 +212,7 @@ function reconnect(options: ResolvedOptions): void {
  * One WebSocket session with Studio: opening it, keeping it alive, and running the commands it
  * sends. `createClient` opens one per pool slot and is the only caller.
  */
-export class StudioSession {
+export class StudioSession implements AgentApi {
   readonly #options: ResolvedOptions
   // Each session gets its own isolated event emitter so generation events from one session do not
   // bleed into another session's WebSocket stream.
@@ -219,10 +229,13 @@ export class StudioSession {
    */
   #session: AgentConnectResponse | undefined
   #ws: WebSocket | undefined
+  #studio: StudioApi | undefined
+  #closeRpc: (() => void) | undefined
   // Known before the agent announces itself, and refreshed by a later `studio:connect`, so both
   // sides can be named from the first connect on.
   #studioVersion: string | undefined
   #activeJobId: string | null = null
+  #activeGeneration: AbortController | undefined
 
   // Whether the session is over: guards the close event from tearing down twice, and a shutdown
   // from being turned into a reconnect.
@@ -232,19 +245,12 @@ export class StudioSession {
   // events interleave with no way for Studio to tell the two runs apart.
   #isGenerating = false
   #heartbeatTimer: ReturnType<typeof setInterval> | undefined
-  #readyTimer: ReturnType<typeof setTimeout> | undefined
-  // Tracks socket liveness: Studio replies to every ping with a pong. When pongs stop arriving the
-  // connection is half-open (e.g. dropped during a Studio deploy) and must be terminated so the
-  // reconnect loop can establish a fresh session.
-  #lastPongAt = Date.now()
   // The most recent generation's live storage, kept so `studio:files` and `studio:snapshot` can
   // read file content on demand instead of Studio round tripping it back over the socket, and
   // instead of this holding the whole run's output in memory. `paths` is the whitelist a request
   // is checked against, so a caller can only ever read what this run actually produced. Set as
   // soon as `kubb:generation:end` fires, undefined again if a run fails before that.
-  #lastGeneration:
-    | { storage: Storage; root: string; paths: Set<string>; peerDependencies: Record<string, string>; missingDependencies: Array<string> }
-    | undefined
+  #lastGeneration: GenerationState | undefined
 
   constructor(options: StudioSessionOptions) {
     this.#options = applyStudioDefaults(options)
@@ -280,7 +286,7 @@ export class StudioSession {
     return this.#isSandbox || this.#options.permissions.allowRead
   }
 
-  async connect(): Promise<void> {
+  async start(): Promise<void> {
     const { token, studioUrl, signal, heartbeatInterval, installLogger } = this.#options
 
     await installLogger?.(this.#hooks)
@@ -301,7 +307,6 @@ export class StudioSession {
       this.#listen(ws, 'open', this.#onOpen)
       this.#listen(ws, 'close', this.#onClose)
       this.#listen(ws, 'error', this.#onError)
-      this.#listen(ws, 'message', this.#onMessage)
 
       // `#end` is idempotent, so the close event that follows a shutdown cannot turn it into a
       // reconnect. Tracked like the socket's own listeners: the signal fires once at process exit,
@@ -310,10 +315,6 @@ export class StudioSession {
       this.#unhooks.push(() => signal?.removeEventListener('abort', this.#onAbort))
 
       this.#heartbeatTimer = setInterval(() => this.#sendHeartbeat(), heartbeatInterval)
-
-      // Standing listener for the whole session. A generation adds the rest of the stream for as
-      // long as it runs, so between runs this socket carries errors only.
-      this.#unhooks.push(this.#hooks.hook('kubb:error', ({ error }) => sendErrorMessage(ws, error, this.#activeJobId ?? 'connection')))
     } catch (error) {
       // Reaching here means the session was never created (Studio down, a 502 mid-deploy), so no
       // socket exists and none of the socket-driven reconnect paths can fire. Retry from here or
@@ -344,32 +345,8 @@ export class StudioSession {
     return this.#hooks.callHook('studio:warn', { message })
   }
 
-  /**
-   * Forwards a failure to Studio over the connection emitter, which `connect` wired to this
-   * socket. Swallows a listener's own failure, since this is already the error path.
-   */
-  #emitError(error: Error): Promise<void> {
-    return Promise.resolve(this.#hooks.callHook('kubb:error', { error })).catch(() => {})
-  }
-
   #sendHeartbeat(): void {
-    // Two consecutive missed pongs mean the socket is dead even though no close event arrived.
-    // Terminate (not close) so a half-open TCP connection can't linger. The resulting close event
-    // triggers cleanup and the reconnect loop.
-    if (Date.now() - this.#lastPongAt > this.#options.heartbeatInterval * 2) {
-      void this.#warn('No reply from Kubb Studio, terminating the stale connection')
-      // Stop the timer here rather than waiting for `dispose`, since the close event can lag, and
-      // until it runs this interval would re-terminate and re-log every tick.
-      clearInterval(this.#heartbeatTimer)
-      this.#heartbeatTimer = undefined
-      this.#ws?.terminate()
-
-      return
-    }
-
-    if (this.#ws) {
-      sendAgentMessage(this.#ws, { type: 'agent:ping' })
-    }
+    void this.#studio?.ping().catch(() => this.#ws?.terminate())
   }
 
   /**
@@ -392,78 +369,42 @@ export class StudioSession {
     }
   }
 
-  async #sendConnectedPayload(): Promise<void> {
+  async connect(): Promise<ConnectMessagePayload> {
     const { configPath, root, version, loadConfig, permissions } = this.#options
-
-    if (!this.#ws) {
-      return
-    }
-
     const config = await loadConfig()
 
-    sendAgentMessage(this.#ws, {
-      type: 'agent:connect',
-      payload: {
-        versions: { kubb: kubbVersion, agent: version },
-        root,
-        config: {
-          path: configPath,
-          file: await this.#readConfigFileView(),
-          plugins: config.plugins.map((plugin) => ({
-            name: toPackageName(plugin.name),
-            // Functions and symbols in plugin options are dropped by `JSON.stringify` on the way out.
-            options: plugin.options ?? {},
-          })),
-        },
-        permissions: {
-          ...permissions,
-          allowWrite: this.#canWrite,
-          allowInput: this.#canUseInput,
-          allowConfigEdit: this.#canEditConfig,
-          allowRead: this.#canRead,
-        },
+    return {
+      versions: { kubb: kubbVersion, agent: version },
+      root,
+      config: {
+        path: configPath,
+        file: await this.#readConfigFileView(),
+        plugins: config.plugins.map((plugin) => ({
+          name: toPackageName(plugin.name),
+          options: plugin.options ?? {},
+        })),
       },
-    })
+      permissions: {
+        ...permissions,
+        allowWrite: this.#canWrite,
+        allowInput: this.#canUseInput,
+        allowConfigEdit: this.#canEditConfig,
+        allowRead: this.#canRead,
+      },
+    }
   }
 
   async #handleOpen(): Promise<void> {
-    this.#lastPongAt = Date.now()
+    if (!this.#ws) return
+
+    const rpc = this.#options.attach(this.#ws, this)
+    this.#studio = rpc.remote
+    this.#closeRpc = rpc.close
     await this.#hooks.callHook('studio:connected', {
       url: this.#options.studioUrl,
       versions: { studio: this.#studioVersion, kubb: kubbVersion, agent: this.#options.version },
     })
-
-    // Announce readiness without waiting for a `studio:connect` command. The command from the
-    // Studio UI is lost when it is sent while the agent is not attached to the session (e.g.
-    // reconnecting after a deploy), so the agent introduces itself on every open.
-    try {
-      await this.#sendConnectedPayload()
-      this.#waitForReady()
-    } catch (error) {
-      await this.#warn(`Failed to send the connect payload: ${getErrorMessage(error)}`)
-    }
-  }
-
-  /**
-   * Arms the timeout for Studio's `studio:ready` acknowledgement. Re-armed on every open, since a
-   * command sent while the agent is not attached is lost either way (see `#sendConnectedPayload`),
-   * so each reconnect needs its own fresh wait.
-   */
-  #waitForReady(): void {
-    // `#sendConnectedPayload` can still be awaiting `loadConfig()` when the session is disposed,
-    // so this runs after teardown too. Arming a timer at that point would hold the process open
-    // for `READY_TIMEOUT_MS` for a warning nothing is listening for anymore.
-    if (this.#disposed) {
-      return
-    }
-
-    clearTimeout(this.#readyTimer)
-    this.#readyTimer = setTimeout(() => {
-      this.#readyTimer = undefined
-      // A rejecting `studio:warn` listener would otherwise become an unhandled rejection here,
-      // same as `#onOpen` swallows below for the same reason.
-      void Promise.resolve(this.#warn(`Kubb Studio did not confirm the connection was ready within ${READY_TIMEOUT_MS}ms`)).catch(() => {})
-    }, READY_TIMEOUT_MS)
+    await this.#hooks.callHook('studio:ready', {})
   }
 
   // `addEventListener` drops the returned promise, so a host whose logger throws would take the
@@ -490,8 +431,9 @@ export class StudioSession {
   dispose(reason = 'cleanup'): void {
     clearInterval(this.#heartbeatTimer)
     this.#heartbeatTimer = undefined
-    clearTimeout(this.#readyTimer)
-    this.#readyTimer = undefined
+    this.#closeRpc?.()
+    this.#closeRpc = undefined
+    this.#studio = undefined
 
     try {
       // Closed before the listeners go, so the close event this triggers arrives after they are
@@ -515,13 +457,6 @@ export class StudioSession {
     }
     this.#disposed = true
 
-    // Announce the shutdown while the socket is still open, so Studio marks the session offline
-    // now instead of waiting out the heartbeat window. `sendAgentMessage` is a no-op on a socket
-    // that has already closed, which is every other way we get here.
-    if (reason === 'shutdown' && this.#ws) {
-      sendAgentMessage(this.#ws, { type: 'agent:disconnect', reason: 'shutdown' })
-    }
-
     this.dispose(reason)
 
     // Nothing to tell Studio about when the session never opened.
@@ -535,117 +470,24 @@ export class StudioSession {
     }
   }
 
-  #onMessage = async (message: WebSocket.MessageEvent): Promise<void> => {
-    try {
-      const data = JSON.parse(message.data as string) as AgentMessage
-
-      if (isStudioPongMessage(data)) {
-        this.#lastPongAt = Date.now()
-
-        return
-      }
-
-      if (isStudioReadyMessage(data)) {
-        clearTimeout(this.#readyTimer)
-        this.#readyTimer = undefined
-        await this.#hooks.callHook('studio:ready', {})
-
-        return
-      }
-
-      if (isDisconnectMessage(data)) {
-        await this.#handleDisconnect(data.reason)
-
-        return
-      }
-
-      if (isCommandMessage(data)) {
-        await this.#handleCommand(data)
-
-        return
-      }
-
-      await this.#warn(`Ignored an unknown message from Kubb Studio: ${data.type}`)
-    } catch (error) {
-      await this.#hooks.callHook('studio:error', { error: toError(error) })
-
-      // Errors thrown before `generate()` runs (e.g. config loading, plugin resolution) never
-      // reach `generate()`'s own `kubb:error` emission, so without this the Studio UI shows
-      // nothing while the agent silently fails.
-      await this.#emitError(toError(error))
-    }
-  }
-
-  /**
-   * Studio ended the session itself. A revoked one stays ended, an expired one gets a fresh
-   * session, and anything else is left to the socket's own close event.
-   */
-  async #handleDisconnect(reason: string): Promise<void> {
-    await this.#hooks.callHook('studio:disconnected', { reason })
-
-    if (reason !== 'revoked' && reason !== 'expired') {
-      return
-    }
-
-    // `dispose` unhooks the socket's own `close` listener before returning, which is what actually
-    // keeps a real `close` event from re-entering `#end`. `#disposed` is set regardless, so this
-    // path stays safe against `#end` being reached some other way later.
-    this.#disposed = true
-    this.dispose(`session_${reason}`)
-
-    if (reason === 'expired') {
-      reconnect(this.#options)
-    }
-  }
-
-  async #handleCommand(data: AgentMessage & { type: `studio:${string}` }): Promise<void> {
-    const ws = this.#ws
-    if (!ws) {
-      return
-    }
-
-    // Every command type is `studio:<verb>`, so the verb alone is what a host wants to show.
-    const command = data.type.slice('studio:'.length)
-
+  async generate(data: GenerateInput): Promise<GenerateResult> {
+    const command = 'generate'
     await this.#hooks.callHook('studio:command:start', { command })
-
-    switch (data.type) {
-      case 'studio:generate':
-        await this.#handleGenerate(ws, data, command)
-        return
-      case 'studio:connect':
-        this.#studioVersion = data.version ?? this.#studioVersion
-        await this.#sendConnectedPayload()
-        await this.#hooks.callHook('studio:command:end', { command })
-        return
-      case 'studio:save':
-        await this.#handleSave(ws, data, command)
-        return
-      case 'studio:snapshot':
-        await this.#handleSnapshot(ws, data, command)
-        return
-      case 'studio:files':
-        await this.#handleFiles(ws, data, command)
-        return
-    }
-  }
-
-  async #handleGenerate(ws: WebSocket, data: Extract<AgentMessage, { type: 'studio:generate' }>, command: string): Promise<void> {
     const { root, loadConfig, permissions, client } = this.#options
 
     if (this.#isGenerating) {
       await this.#warn('Ignored generate: a generation is already in progress')
-      await this.#emitError(new Error('A generation is already in progress, please wait for it to finish'))
-
-      return
+      throw new Error('A generation is already in progress, please wait for it to finish')
     }
 
     this.#isGenerating = true
     this.#activeJobId = data.jobId
+    const controller = new AbortController()
+    this.#activeGeneration = controller
 
     try {
       const config = await loadConfig()
-      const patch = data.payload
+      const patch = data.config
       const plugins = await mergePlugins(config.plugins, patch?.plugins)
       const adapter = await mergeAdapter(config.adapter, patch?.adapter)
 
@@ -671,8 +513,8 @@ export class StudioSession {
       // Cleared up front, filled the moment `kubb:generation:end` fires.
       this.#lastGeneration = undefined
       const detach = [
-        setupHookListener(this.#hooks, root),
-        setupEventsStream(ws, this.#hooks, data.jobId, {
+        setupHookListener(this.#hooks, root, controller.signal),
+        setupEventsStream(this.#studio!, this.#hooks, data.jobId, {
           onGenerationEnd: (result) => {
             this.#lastGeneration = result
           },
@@ -691,6 +533,7 @@ export class StudioSession {
             adapter,
           },
           hooks: this.#hooks,
+          signal: controller.signal,
         })
       } finally {
         for (const remove of detach) remove()
@@ -700,13 +543,20 @@ export class StudioSession {
         command,
         info: `${resolvedPlugins.length} plugin${resolvedPlugins.length === 1 ? '' : 's'}, ${this.#canWrite ? 'written to disk' : 'in memory'}${inputOverride !== undefined ? ', from a Studio spec' : ''}`,
       })
+
+      const generation = this.#lastGeneration as GenerationState | undefined
+      const files = [...(generation?.paths ?? [])]
+      return { status: 'success', files, fileCount: files.length }
     } finally {
       this.#isGenerating = false
       this.#activeJobId = null
+      this.#activeGeneration = undefined
     }
   }
 
-  async #handleSave(ws: WebSocket, data: Extract<AgentMessage, { type: 'studio:save' }>, command: string): Promise<void> {
+  async saveConfig(data: { edits: Array<ConfigEdit> }): Promise<SaveResult> {
+    const command = 'saveConfig'
+    await this.#hooks.callHook('studio:command:start', { command })
     const { configPath, configFile } = this.#options
 
     // Studio waits on an `agent:save` for every `studio:save`, so every path out of this function
@@ -715,33 +565,22 @@ export class StudioSession {
     if (!Array.isArray(data.edits)) {
       await this.#warn('Ignored save: the message carried no edits')
 
-      sendAgentMessage(ws, { type: 'agent:save', jobId: data.jobId, payload: { outcomes: [], changed: false } })
-
-      return
+      return { outcomes: [], changed: false }
     }
 
     const edits = data.edits
-    const refuse = (reason: string) =>
-      sendAgentMessage(ws, {
-        type: 'agent:save',
-        jobId: data.jobId,
-        payload: { outcomes: edits.map((edit) => ({ edit, applied: false, reason })), changed: false },
-      })
+    const refuse = (reason: string): SaveResult => ({ outcomes: edits.map((edit) => ({ edit, applied: false, reason })), changed: false })
 
     if (!this.#canEditConfig) {
       await this.#warn('Ignored save: editing kubb.config.ts was not granted')
 
-      refuse('the agent was not granted permission to edit kubb.config.ts')
-
-      return
+      return refuse('the agent was not granted permission to edit kubb.config.ts')
     }
 
     // A generation reloads the config while it runs, so rewriting the file underneath it would
     // leave that run working from half the change.
     if (this.#isGenerating) {
-      refuse('a generation is in progress')
-
-      return
+      return refuse('a generation is in progress')
     }
 
     try {
@@ -757,49 +596,39 @@ export class StudioSession {
         await writeFile(configFile, patched, 'utf-8')
       }
 
-      sendAgentMessage(ws, {
-        type: 'agent:save',
-        jobId: data.jobId,
-        payload: { outcomes, changed, file: changed ? await this.#readConfigFileView(patched) : undefined },
-      })
-
       const applied = outcomes.filter((outcome) => outcome.applied).length
       await this.#hooks.callHook('studio:command:end', { command, info: `applied ${applied}/${outcomes.length} edits to ${configPath}` })
+      return { outcomes, changed, file: changed ? await this.#readConfigFileView(patched) : undefined }
     } catch (error) {
       // An unreadable config, a read-only filesystem. Reported as a refusal of every edit so
       // Studio hears back rather than waiting on a reply that never comes.
       await this.#hooks.callHook('studio:error', { error: toError(error) })
 
-      refuse(getErrorMessage(error))
+      return refuse(getErrorMessage(error))
     }
   }
 
-  async #handleSnapshot(ws: WebSocket, data: Extract<AgentMessage, { type: 'studio:snapshot' }>, command: string): Promise<void> {
-    const refuse = (message: string) => sendAgentMessage(ws, { type: 'agent:snapshot', jobId: data.jobId, payload: { status: 'error', message } })
+  async snapshot(data: SnapshotInput): Promise<SnapshotResult> {
+    const command = 'snapshot'
+    await this.#hooks.callHook('studio:command:start', { command })
 
     if (this.#isSandbox) {
       await this.#warn('Ignored snapshot: a sandbox agent has no project to build a package from')
-      refuse('a sandbox agent has no project to build a package from')
-
-      return
+      throw new Error('A sandbox agent has no project to build a package from')
     }
 
-    const { name, version, bundledDependencies, uploadPath } = data.payload
+    const { name, version, bundledDependencies, uploadPath } = data
 
     if (!name || !version || !uploadPath) {
       await this.#warn('Ignored snapshot: the message was missing required fields')
-      refuse('the message was missing required fields')
-
-      return
+      throw new Error('The request was missing required fields')
     }
 
     const generation = this.#lastGeneration
 
     if (!generation) {
       await this.#warn('Ignored snapshot: no prior generation to pack')
-      refuse('no prior generation exists to pack, run a generation first')
-
-      return
+      throw new Error('No prior generation exists to pack, run a generation first')
     }
 
     const bundled = new Set(bundledDependencies ?? [])
@@ -807,9 +636,7 @@ export class StudioSession {
 
     if (missing.length) {
       await this.#warn(`Ignored snapshot: missing dependencies: ${missing.join(', ')}`)
-      refuse(`missing dependencies: ${missing.join(', ')}`)
-
-      return
+      throw new Error(`Missing dependencies: ${missing.join(', ')}`)
     }
 
     try {
@@ -845,60 +672,48 @@ export class StudioSession {
         throw new Error(`Snapshot upload failed with status ${response.status}`)
       }
 
-      sendAgentMessage(ws, {
-        type: 'agent:snapshot',
-        jobId: data.jobId,
-        payload: { status: 'ok', integrity, peerDependencies: generation.peerDependencies },
-      })
       await this.#hooks.callHook('studio:command:end', {
         command,
         info: `packed ${Object.keys(files).length} file${Object.keys(files).length === 1 ? '' : 's'}`,
       })
+      return { integrity, peerDependencies: generation.peerDependencies }
     } catch (error) {
       await this.#hooks.callHook('studio:error', { error: toError(error) })
-
-      refuse(getErrorMessage(error))
+      throw error
     }
   }
 
-  async #handleFiles(ws: WebSocket, data: Extract<AgentMessage, { type: 'studio:files' }>, command: string): Promise<void> {
+  async readFiles(data: { paths: Array<string> }): Promise<{ files: Record<string, string> }> {
+    const command = 'readFiles'
+    await this.#hooks.callHook('studio:command:start', { command })
     const { client } = this.#options
-    const refuse = (message: string) => sendAgentMessage(ws, { type: 'agent:files', jobId: data.jobId, payload: { status: 'error', message } })
 
     if (!this.#canRead) {
       await this.#warn('Ignored files: reading generated files was not granted')
 
       // Each host grants it a different way.
       const remedy = client?.kind === 'cli' ? '--allow-read, or answer yes when kubb studio asks,' : 'KUBB_AGENT_ALLOW_READ=true'
-      refuse(`the agent was not granted permission to read generated files; set ${remedy} to allow it`)
-
-      return
+      throw new Error(`The agent was not granted permission to read generated files; set ${remedy} to allow it`)
     }
 
     // `paths` came off the wire, so check its shape before walking it.
-    if (!Array.isArray(data.payload?.paths)) {
+    if (!Array.isArray(data.paths)) {
       await this.#warn('Ignored files: the message carried no paths')
-      refuse('the message carried no paths')
-
-      return
+      throw new Error('The request carried no paths')
     }
 
-    const { paths } = data.payload
+    const { paths } = data
 
     if (paths.length > MAX_FILES_PER_REQUEST) {
       await this.#warn(`Ignored files: requested ${paths.length} paths, more than the ${MAX_FILES_PER_REQUEST} allowed per request`)
-      refuse(`at most ${MAX_FILES_PER_REQUEST} paths may be requested at once`)
-
-      return
+      throw new Error(`At most ${MAX_FILES_PER_REQUEST} paths may be requested at once`)
     }
 
     const generation = this.#lastGeneration
 
     if (!generation) {
       await this.#warn('Ignored files: no prior generation to read from')
-      refuse('no prior generation to read from, run a generation first')
-
-      return
+      throw new Error('No prior generation to read from, run a generation first')
     }
 
     // Checked against the paths this run actually produced before touching storage, so a caller
@@ -914,10 +729,14 @@ export class StudioSession {
       },
     })
 
-    sendAgentMessage(ws, { type: 'agent:files', jobId: data.jobId, payload: { status: 'ok', files } })
     await this.#hooks.callHook('studio:command:end', {
       command,
       info: `read ${Object.keys(files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}`,
     })
+    return { files }
+  }
+
+  async cancel({ jobId }: { jobId: string }): Promise<void> {
+    if (jobId === this.#activeJobId) this.#activeGeneration?.abort(new Error('Generation canceled'))
   }
 }

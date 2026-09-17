@@ -218,7 +218,7 @@ export async function disconnect({ sessionId, token, studioUrl, slug, logLevel }
 /**
  * Status values returned by Studio's jobs API.
  */
-export type StudioJobStatus = 'queued' | 'running' | 'success' | 'failed'
+export type StudioJobStatus = 'queued' | 'running' | 'success' | 'failed' | 'canceled'
 
 /**
  * Package view returned on a successful snapshot job from Studio.
@@ -263,7 +263,7 @@ export type StudioJob = {
    */
   id: string
   /**
-   * Current status. Poll until `success` or `failed`.
+   * Current status. Poll until `success`, `failed`, or `canceled`.
    */
   status: StudioJobStatus
   /**
@@ -333,7 +333,7 @@ const INITIAL_POLL_DELAY_MS = 2_000
 const MAX_POLL_INTERVAL_MS = 30_000
 
 /**
- * Polls `GET /api/jobs/{id}` until the job reaches `success` or `failed`, waiting
+ * Polls `GET /api/jobs/{id}` until the job reaches a terminal status, waiting
  * {@link INITIAL_POLL_DELAY_MS} first and doubling up to {@link MAX_POLL_INTERVAL_MS} so a long
  * job stays inside the API key's rate limit.
  *
@@ -373,7 +373,7 @@ export async function waitForJob({
         retry: false,
       })
 
-      if (job.status === 'success' || job.status === 'failed') return job
+      if (job.status === 'success' || job.status === 'failed' || job.status === 'canceled') return job
     } catch (error) {
       const response = (error as { response?: { status?: number; _data?: { data?: { tryAgainIn?: unknown } } } }).response
 

@@ -7,6 +7,7 @@ import { createAgent, createClient, createJob, machineTokenFrom, waitForJob, typ
 import { createSpinner, logBlock } from '../../loggers/output.ts'
 import { detectCi } from './ci.ts'
 import { loadConfigs, type StudioOptions } from './run.ts'
+import { attachRpc } from './rpc.ts'
 
 /**
  * How long to wait for Studio's `studio:ready` acknowledgement, above the client's own 10s
@@ -177,6 +178,7 @@ export async function snapshot(options: StudioOptions): Promise<void> {
   const { promise: ready, reject: markFailed, resolve: markReady } = Promise.withResolvers<void>()
 
   const client = createClient({
+    attach: attachRpc,
     studioUrl: options.studioUrl,
     token: agent.token,
     configPath,

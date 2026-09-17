@@ -38,6 +38,12 @@ pnpm add @kubb/core
 npm install @kubb/core
 ```
 
+## Cancellation
+
+`createKubb` accepts an `AbortSignal`. The engine checks it before setup, while it parses input and
+normalizes plugins, and before each generated-file write. Plugin authors receive the same signal in
+their generator context when they need to stop their own asynchronous work.
+
 ## Supporting Kubb
 
 Kubb is an open source project, and its development is funded entirely by sponsors. If you would like to become a sponsor, please consider:

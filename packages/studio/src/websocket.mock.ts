@@ -6,7 +6,7 @@ export class MockWebSocket {
   private listeners = new Map<string, Array<(...args: Array<unknown>) => unknown>>()
 
   /**
-   * Simulates the OPEN ready state so sendAgentMessage does not bail early.
+   * Simulates the OPEN ready state for connection tests.
    */
   public readyState = 1
 

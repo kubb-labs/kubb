@@ -76,7 +76,7 @@ export function createClient({ storage, onAuthRequired, ...options }: ClientOpti
       // is retried internally through the session's own reconnect loop and resolves normally), so
       // awaiting here surfaces a dead token to the caller without blocking on a down Studio.
       await Promise.all(
-        Array.from({ length: poolSize }, () => new StudioSession({ ...options, signal: controller.signal, onTokenRejected: notifyAuthRequired }).connect()),
+        Array.from({ length: poolSize }, () => new StudioSession({ ...options, signal: controller.signal, onTokenRejected: notifyAuthRequired }).start()),
       )
     },
     disconnect() {

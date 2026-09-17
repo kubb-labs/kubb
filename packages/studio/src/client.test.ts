@@ -22,7 +22,7 @@ vi.mock('./StudioSession.ts', () => ({
       this.#options = options
     }
 
-    connect(): Promise<void> {
+    start(): Promise<void> {
       return sessionConnect(this.#options)
     }
   },
@@ -31,6 +31,7 @@ vi.mock('./StudioSession.ts', () => ({
 import { registerAgent } from './api.ts'
 
 const options = {
+  attach: vi.fn(),
   token: 'my-token',
   studioUrl: 'https://kubb.studio',
   configPath: 'kubb.config.ts',

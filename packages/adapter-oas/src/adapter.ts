@@ -190,12 +190,14 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       assertDocument(document)
       await validateDocument(document, options)
     },
-    async parse(source) {
+    async parse(source, { signal } = {}) {
+      signal?.throwIfAborted()
       const cached = inputCache.get(source)
       if (cached) return cached
 
       const promise = (async () => {
         const document = await parseFromConfig(source)
+        signal?.throwIfAborted()
         assertDocument(document)
         if (validate) await validateDocument(document)
         parsedDocument = document

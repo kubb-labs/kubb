@@ -88,6 +88,13 @@ describe('createKubb', () => {
     expect(kubb.config.parsers).toStrictEqual([])
   })
 
+  test('stops before setup when its signal is aborted', async () => {
+    const controller = new AbortController()
+    controller.abort(new Error('Canceled'))
+
+    await expect(createKubb(config, { signal: controller.signal }).build()).rejects.toThrow('Canceled')
+  })
+
   test('output.clean raises a KUBB_CLEAN_ROOT diagnostic when the output is the project root', async () => {
     // A nonexistent temp dir as root, so a regression in the guard can only touch a throwaway path.
     const root = path.join(os.tmpdir(), 'kubb-clean-guard')
