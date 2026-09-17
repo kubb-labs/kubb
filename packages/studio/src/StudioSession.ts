@@ -368,14 +368,14 @@ export class StudioSession implements AgentApi {
 
   async connect(): Promise<ConnectMessagePayload> {
     const { configPath, root, version, loadConfig, permissions } = this.#options
-    const config = await loadConfig()
+    const [config, file] = await Promise.all([loadConfig(), this.#readConfigFileView()])
 
     return {
       versions: { kubb: kubbVersion, agent: version },
       root,
       config: {
         path: configPath,
-        file: await this.#readConfigFileView(),
+        file,
         plugins: config.plugins.map((plugin) => ({
           name: toPackageName(plugin.name),
           options: plugin.options ?? {},
