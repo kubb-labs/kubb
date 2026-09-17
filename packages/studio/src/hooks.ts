@@ -105,7 +105,7 @@ declare global {
  * Returns a remover, so a session that runs one generation after another on the same emitter does
  * not stack a listener per run.
  */
-export function setupHookListener(hooks: Hookable<KubbHooks>, root: string): () => void {
+export function setupHookListener(hooks: Hookable<KubbHooks>, root: string, signal?: AbortSignal): () => void {
   return hooks.hook('kubb:hook:start', async (ctx) => {
     const { id, command, args } = ctx
     // No id means nothing is waiting on the result (benchmarks, tests).
@@ -117,6 +117,7 @@ export function setupHookListener(hooks: Hookable<KubbHooks>, root: string): () 
 
     try {
       const proc = x(command, [...(args ?? [])], {
+        signal,
         nodeOptions: { cwd: root, detached: true },
       })
 
@@ -159,9 +160,9 @@ export function waitForHookEnd(hooks: Hookable<KubbHooks>, hookId: string): Prom
 
       if (ctx.success) {
         resolve()
-      } else {
-        reject(ctx.error)
+        return
       }
+      reject(ctx.error)
     }
 
     hooks.hook('kubb:hook:end', handleHookEnd)

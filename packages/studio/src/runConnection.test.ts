@@ -6,7 +6,7 @@ vi.mock('./client.ts', () => ({ createClient: vi.fn() }))
 
 import { createClient } from './client.ts'
 
-const clientOptions = () => ({ studioUrl: 'https://kubb.studio', configPath: 'kubb.config.ts', version: '1.0.0', loadConfig: vi.fn() })
+const clientOptions = () => ({ attach: vi.fn(), studioUrl: 'https://kubb.studio', configPath: 'kubb.config.ts', version: '1.0.0', loadConfig: vi.fn() })
 
 type FakeClient = {
   connect: Mock<() => Promise<void>>

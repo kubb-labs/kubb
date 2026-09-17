@@ -65,7 +65,7 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
    * Returns `flag` when provided, the `defaultValue` when `yes` is set,
    * or calls `prompt()` for interactive input. Exits on cancellation.
    */
-  async function resolveOrPrompt<T>(flag: T | undefined, defaultValue: T, logLabel: string, prompt: () => Promise<T | symbol>): Promise<T> {
+  async function resolveOrPrompt<T>(flag: T | undefined, defaultValue: T, logLabel: string, prompt: () => Promise<NoInfer<T> | symbol>): Promise<T> {
     if (flag !== undefined) {
       logInfo(`${logLabel}: ${styleText('cyan', String(flag))}`)
       return flag

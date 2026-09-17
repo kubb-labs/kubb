@@ -24,9 +24,9 @@
 
 Kubb Studio client runtime.
 
-Connects a Kubb project to [Kubb Studio](https://kubb.studio) over a WebSocket relay and streams
-code generation events as they happen. It backs both front ends: the `kubb studio` CLI command and
-the `kubblabs/kubb-agent` Docker image.
+Connects a Kubb project to [Kubb Studio](https://kubb.studio) through typed Cap'n Web RPC over an
+authenticated WebSocket. It backs both front ends: the `kubb studio` CLI command and the
+`kubblabs/kubb-agent` Docker image. Browser clients use Studio’s HTTP/SSE API, not this socket.
 
 Most people never install this directly. Reach for `kubb studio` instead, which pairs your machine
 and runs this for you.
@@ -77,12 +77,27 @@ touches it.
 | Step       | Call                                              | What it does                                                                       |
 | ---------- | ------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | Register   | `POST /api/agent/connect`                         | Binds the token to this machine with a `machineToken`. A failure here is not fatal |
-| Session    | `POST /api/agent/sessions`                        | Returns `{ wsUrl, sessionId, expiresAt }`                                          |
-| Connect    | `WS` on the returned `wsUrl`                      | Streams generation events until the session expires or is revoked                  |
+| Session    | `POST /api/agent/sessions`                        | Returns `{ url, sessionId, expiresAt }`                                            |
+| Connect    | Configured RPC connector on `url`                 | Attaches the typed `AgentApi`/`StudioApi` RPC session                              |
 | Disconnect | `POST /api/agent/sessions/{sessionId}/disconnect` | Closes the session on a clean shutdown                                             |
 
 The runtime reconnects on its own when a session drops, and keeps retrying while Studio is
-unreachable.
+unreachable. Generation progress is a native Cap'n Web `ReadableStream` on the generation
+capability; durable job status is read through the HTTP job API.
+
+## Studio job events
+
+`@kubb/studio` exposes a deliberately small public event API. Every live event uses the envelope
+`{ version: 1, jobId, type, data, timestamp }`. The native stream preserves order and applies
+backpressure; it is not a replay cursor. Job status and the terminal result remain authoritative
+after a reconnect.
+
+The stable catalog is `generationEventTypes`: generation and build progress, file processing,
+plugin progress, log levels, diagnostics, command-hook output, and the terminal generation summary.
+Each `type` is a lifecycle name registered by `@kubb/core`, while `data` is the JSON-safe projection
+defined by `GenerationEventPayloads`. AST traversal, live config and adapter objects, storage, and
+plugin implementations never leave the agent. New core hooks stay private until Studio explicitly
+adds their name and serializer projection.
 
 ### Pairing
 
@@ -104,7 +119,7 @@ organization CI API key as `x-api-key`. They do not open a WebSocket.
 | Step   | Call                 | What it does                                                          |
 | ------ | -------------------- | --------------------------------------------------------------------- |
 | Queue  | `POST /api/jobs`     | Accepts a `generation` or `snapshot` job and returns `202` with an id |
-| Status | `GET /api/jobs/{id}` | Returns the job until `success` or `failed`                           |
+| Status | `GET /api/jobs/{id}` | Returns the job until `success`, `failed`, or `canceled`              |
 
 ```typescript
 import { createJob, waitForJob } from '@kubb/studio'
@@ -125,21 +140,27 @@ const finished = await waitForJob({
 })
 
 if (finished.status === 'failed') throw new Error(finished.error)
+if (finished.status === 'canceled') throw new Error('Studio job was canceled')
 const snapshot = finished.snapshot
 ```
 
 A snapshot job packs the tarball on the agent, not on Studio. The agent `PUT`s an empty request to
 a path Studio provides, gets back a redirect to a short-lived storage URL, and uploads the tarball
-there. The storage URL never crosses the WebSocket.
+there. The storage URL never crosses the RPC socket.
 
 ## Protocol
 
-`@kubb/studio/protocol` holds the WebSocket message types shared by both ends, so the agent and
-Studio itself compile against one definition rather than two hand-maintained copies.
+`@kubb/studio/protocol` holds the RPC contracts both ends share, so the agent and Studio compile
+against one definition rather than two hand-maintained copies. Its only import is `KubbHooks` from
+`@kubb/core`, which the published event names are checked against.
 
 ```typescript
-import { type AgentMessage, isDataMessage } from '@kubb/studio/protocol'
+import type { AgentApi, GenerationEvent, GenerationRun, RpcConnection, RpcConnector, StudioApi } from '@kubb/studio'
 ```
+
+Hosts supply an `RpcConnector`, which keeps transport details in the CLI, Docker agent, or Studio
+host rather than in the generation runtime. A `GenerationRun.cancel()` call aborts the matching
+generation cooperatively, including configured formatter, linter, and `postGenerate` processes.
 
 ## Supporting Kubb
 

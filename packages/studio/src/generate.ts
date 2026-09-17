@@ -75,6 +75,7 @@ async function runHook({ hooks, id, command, args }: RunHookProps): Promise<void
 type GenerateProps = {
   config: Config
   hooks: Hookable<KubbHooks>
+  signal?: AbortSignal
 }
 
 function isProblemErrorDiagnostic(diagnostic: Diagnostic): diagnostic is Diagnostic & { plugin?: string; message: string } {
@@ -103,19 +104,21 @@ function formatGenerationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error 
  * can forward progress to connected clients. After a successful build, auto-formatting and
  * linting are applied when configured, followed by any user-defined `hooks.done` commands.
  */
-export async function generate({ config, hooks }: GenerateProps): Promise<void> {
+export async function generate({ config, hooks, signal }: GenerateProps): Promise<void> {
+  signal?.throwIfAborted()
   const hrStart = process.hrtime()
 
   await hooks.callHook('kubb:generation:start', { config })
 
   await hooks.callHook('kubb:info', { message: config.name ? `Setup generation ${config.name}` : 'Setup generation' })
 
-  const kubb = createKubb(config, { hooks })
+  const kubb = createKubb(config, { hooks, signal })
   await kubb.setup()
 
   await hooks.callHook('kubb:info', { message: config.name ? `Build generation ${config.name}` : 'Build generation' })
 
   const { files, diagnostics, storage } = await kubb.safeBuild()
+  signal?.throwIfAborted()
 
   await hooks.callHook('kubb:info', { message: 'Load summary' })
 
@@ -173,6 +176,8 @@ export async function generate({ config, hooks }: GenerateProps): Promise<void> 
         await hooks.callHook('kubb:success', { message: `${step.verbing} with ${tool} successfully` })
       } catch (caughtError) {
         await hooks.callHook('kubb:error', { error: new Error(command.errorMessage, { cause: caughtError }) })
+        // Format/lint failures are non-fatal, but an abort during those commands must still reject.
+        signal?.throwIfAborted()
       }
     }
 

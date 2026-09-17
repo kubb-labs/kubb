@@ -9,7 +9,7 @@ import { clean, read } from '@internals/utils'
  * Root for everything the CLI persists between runs: the paired credential, the machine secret,
  * the last Studio config, and the live-session registry. `KUBB_HOME` relocates all of it.
  */
-export function getKubbHome(): string {
+function getKubbHome(): string {
   return process.env.KUBB_HOME ?? path.join(homedir(), '.kubb')
 }
 

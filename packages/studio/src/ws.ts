@@ -4,7 +4,7 @@ import { isAbsolute, relative, resolve } from 'node:path'
 import { getElapsedMs } from '@internals/utils'
 import { Diagnostics, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
 import WebSocket from 'ws'
-import type { AgentMessage, DataMessagePayload } from './protocol/index.ts'
+import type { GenerationEvent, GenerationEventPayloads, GenerationEventType } from './protocol/index.ts'
 import { toPackageName } from './resolveConfig.ts'
 
 type WebSocketOptions = WebSocket.ClientOptions
@@ -15,16 +15,9 @@ type WebSocketOptions = WebSocket.ClientOptions
  */
 const CONNECT_TIMEOUT_MS = 5_000
 
-/**
- * Per-socket event counter. Every data message carries the next value so Studio can restore the
- * agent's emission order even when the relay delivers frames out of order. Keyed by the socket so
- * the count stays monotonic across every generation run on one connection, and is dropped
- * automatically once the socket is collected.
- */
-const eventSeqCounters = new WeakMap<WebSocket, number>()
 const require = createRequire(import.meta.url)
 
-export function relativeStoragePath(root: string, filePath: string): string {
+function relativeStoragePath(root: string, filePath: string): string {
   return (isAbsolute(filePath) ? relative(resolve(root), filePath) : filePath).replaceAll('\\', '/')
 }
 
@@ -63,19 +56,12 @@ async function resolvePeerDependencies(names: Array<string>): Promise<{
     const version = versions[index]
     if (version) {
       peerDependencies[name] = version
-    } else {
-      missingDependencies.push(name)
+      continue
     }
+    missingDependencies.push(name)
   }
 
   return { peerDependencies, missingDependencies }
-}
-
-function nextEventSeq(ws: WebSocket): number {
-  const seq = eventSeqCounters.get(ws) ?? 0
-  eventSeqCounters.set(ws, seq + 1)
-
-  return seq
 }
 
 /**
@@ -98,57 +84,32 @@ export function createWebsocket(url: string, options: WebSocketOptions): WebSock
   return ws
 }
 
-/**
- * Sends a serialized agent message when the Studio socket is ready to accept frames.
- */
-export function sendAgentMessage(ws: WebSocket, message: AgentMessage): void {
-  try {
-    if (ws.readyState !== WebSocket.OPEN) {
-      return
-    }
-
-    ws.send(JSON.stringify(message))
-  } catch (error) {
-    throw new Error('Failed to send message to Kubb Studio', { cause: error })
-  }
+export type GenerationState = {
+  storage: Storage
+  root: string
+  paths: Set<string>
+  peerDependencies: Record<string, string>
+  missingDependencies: Array<string>
 }
 
-/**
- * Sends a single `kubb:error` payload to Studio, stamped from the same per-socket counter the event stream
- * uses so Studio can still order it against the generation events around it.
- */
-export function sendErrorMessage(ws: WebSocket, error: Error, jobId: string): void {
-  sendAgentMessage(ws, {
-    type: 'agent:data',
-    jobId,
-    payload: { type: 'kubb:error', data: [{ message: error.message, stack: error.stack }], timestamp: Date.now(), seq: nextEventSeq(ws) },
-  })
+export type GenerationStreamOptions = {
+  onGenerationEnd?: (result: GenerationState) => void
 }
 
-/**
- * Forwards selected Kubb lifecycle events to Studio as data messages for the active session.
- */
-export function setupEventsStream(
-  ws: WebSocket,
+/** Forwards selected Kubb lifecycle events to a native Cap'n Web stream. */
+export function createGenerationStream(
   hooks: Hookable<KubbHooks>,
   jobId: string,
-  options: {
-    /**
-     * Called once a run finishes, with the live `storage` it wrote through (not a copy of its
-     * contents), the relative paths it produced, and resolved dependency metadata. The caller reads
-     * file content back through `storage` on demand for `studio:files` and `studio:snapshot`,
-     * rather than this holding the whole run's output in memory.
-     */
-    onGenerationEnd?: (result: {
-      storage: Storage
-      root: string
-      paths: Set<string>
-      peerDependencies: Record<string, string>
-      missingDependencies: Array<string>
-    }) => void
-  } = {},
-): () => void {
+  options: GenerationStreamOptions = {},
+): { stream: ReadableStream<GenerationEvent>; close: () => Promise<void>; dispose: () => void; fail: (error: unknown) => void } {
   const unhooks: Array<() => void> = []
+  let root = ''
+  // Infinite HWM so unread events don't stall result()
+  const transform = new TransformStream<GenerationEvent>(undefined, undefined, { highWaterMark: Infinity })
+  const writer = transform.writable.getWriter()
+  let writes = Promise.resolve()
+  let closed = false
+  let streamError: unknown
 
   /**
    * Registers a listener and keeps its remover, so one generation's listeners come off the session
@@ -158,89 +119,68 @@ export function setupEventsStream(
     unhooks.push(hooks.hook(name, handler))
   }
 
-  function sendDataMessage(payload: Omit<DataMessagePayload, 'seq' | 'timestamp'>) {
-    sendAgentMessage(ws, {
-      type: 'agent:data',
-      jobId,
-      payload: { ...payload, timestamp: Date.now(), seq: nextEventSeq(ws) },
-    })
+  function emitEvent<Type extends GenerationEventType>(type: Type, data: GenerationEventPayloads[Type]): void {
+    const event = { jobId, type, data, version: 1 as const, timestamp: Date.now() } as unknown as GenerationEvent
+    // A prior failure skips the write; either way the chain settles so the next event still runs.
+    writes = writes
+      .then(() => writer.write(event))
+      .catch((error) => {
+        streamError = error
+      })
   }
 
   on('kubb:plugin:start', (ctx) => {
-    sendDataMessage({
-      type: 'kubb:plugin:start',
-      data: [{ plugin: ctx.plugin }],
-    })
+    emitEvent('kubb:plugin:start', [{ plugin: { name: ctx.plugin.name } }])
   })
 
   on('kubb:plugin:end', (ctx) => {
-    sendDataMessage({
-      type: 'kubb:plugin:end',
-      data: [{ plugin: ctx.plugin, duration: ctx.duration, success: ctx.success }],
-    })
+    emitEvent('kubb:plugin:end', [{ plugin: { name: ctx.plugin.name }, duration: ctx.duration, success: ctx.success }])
   })
 
   on('kubb:build:start', ({ config, adapter }) => {
-    sendDataMessage({
-      type: 'kubb:build:start',
-      data: [{ config: { name: config.name }, adapter: { name: adapter.name } }],
-    })
+    root = config.root
+    emitEvent('kubb:build:start', [{ config: { name: config.name }, adapter: { name: adapter.name } }])
   })
 
   on('kubb:build:end', ({ files, config, outputDir }) => {
-    sendDataMessage({
-      type: 'kubb:build:end',
-      data: [{ files: files.map((file) => ({ path: relativeStoragePath(config.root, file.path), name: file.name })), outputDir }],
-    })
+    emitEvent('kubb:build:end', [{ files: files.map((file) => ({ path: relativeStoragePath(config.root, file.path), name: file.name })), outputDir }])
   })
 
   on('kubb:files:processing:start', ({ files }) => {
-    sendDataMessage({
-      type: 'kubb:files:processing:start',
-      data: [{ total: files.length }],
-    })
+    emitEvent('kubb:files:processing:start', [{ total: files.length }])
   })
 
   on('kubb:files:processing:update', ({ files }) => {
-    sendDataMessage({
-      type: 'kubb:files:processing:update',
-      data: [
-        {
-          files: files.map(({ file, processed, total, percentage }) => ({
-            file: file.path,
-            processed,
-            total,
-            percentage,
-          })),
-        },
-      ],
-    })
+    emitEvent('kubb:files:processing:update', [
+      {
+        files: files.map(({ file, processed, total, percentage }) => ({
+          file: relativeStoragePath(root, file.path),
+          processed,
+          total,
+          percentage,
+        })),
+      },
+    ])
   })
 
   on('kubb:files:processing:end', ({ files }) => {
-    sendDataMessage({
-      type: 'kubb:files:processing:end',
-      data: [{ total: files.length }],
-    })
+    emitEvent('kubb:files:processing:end', [{ total: files.length }])
   })
 
   // The three log levels differ only in their event name.
   for (const type of ['kubb:info', 'kubb:success', 'kubb:warn'] as const) {
     on(type, ({ message, info }) => {
-      sendDataMessage({ type, data: [{ message, info }] })
+      emitEvent(type, [{ message, info }])
     })
   }
 
   on('kubb:generation:start', ({ config }) => {
-    sendDataMessage({
-      type: 'kubb:generation:start',
-      data: [
-        {
-          name: config.name,
-          plugins: config.plugins.length,
-        },
-      ],
-    })
+    emitEvent('kubb:generation:start', [
+      {
+        name: config.name,
+        plugins: config.plugins.length,
+      },
+    ])
   })
 
   on('kubb:generation:end', async ({ config, storage, diagnostics = [], status, hrStart, filesCreated }) => {
@@ -250,10 +190,7 @@ export function setupEventsStream(
 
     options.onGenerationEnd?.({ storage, root: config.root, paths, peerDependencies, missingDependencies })
 
-    sendDataMessage({
-      type: 'kubb:generation:end',
-      data: [],
-    })
+    emitEvent('kubb:generation:end', [])
 
     if (!hrStart) {
       return
@@ -261,22 +198,33 @@ export function setupEventsStream(
 
     const duration = Math.round(getElapsedMs(hrStart))
 
-    sendDataMessage({
-      type: 'kubb:generation:summary',
-      data: [{ duration, fileCount: filesCreated ?? 0, failedPlugins: Diagnostics.failedPlugins(diagnostics).length, status: status ?? 'success' }],
-    })
+    emitEvent('kubb:generation:summary', [
+      { duration, fileCount: filesCreated ?? 0, failedPlugins: Diagnostics.failedPlugins(diagnostics).length, status: status ?? 'success' },
+    ])
   })
 
   on('kubb:error', ({ error }) => {
-    sendDataMessage({
-      type: 'kubb:error',
-      data: [
-        {
-          message: error.message,
-          stack: error.stack,
-        },
-      ],
-    })
+    emitEvent('kubb:error', [
+      {
+        message: error.message,
+        stack: error.stack,
+      },
+    ])
+  })
+
+  on('kubb:diagnostic', ({ diagnostic }) => {
+    const cause = 'cause' in diagnostic ? diagnostic.cause : undefined
+    emitEvent('kubb:diagnostic', [
+      {
+        code: diagnostic.code,
+        message: diagnostic.message,
+        severity: diagnostic.severity,
+        location: 'location' in diagnostic ? diagnostic.location : undefined,
+        help: 'help' in diagnostic ? diagnostic.help : undefined,
+        plugin: 'plugin' in diagnostic ? diagnostic.plugin : undefined,
+        stack: cause?.stack,
+      },
+    ])
   })
 
   // Bracketing events carry no context, so they forward identically.
@@ -291,40 +239,60 @@ export function setupEventsStream(
     'kubb:hooks:end',
   ] as const) {
     on(type, () => {
-      sendDataMessage({ type, data: [] })
+      emitEvent(type, [])
     })
   }
 
   on('kubb:hook:start', ({ id, command, args }) => {
-    sendDataMessage({
-      type: 'kubb:hook:start',
-      data: [{ id, command, args: args ? [...args] : undefined }],
-    })
+    emitEvent('kubb:hook:start', [{ id, command, args: args ? [...args] : undefined }])
   })
 
   on('kubb:hook:line', ({ id, line }) => {
-    sendDataMessage({
-      type: 'kubb:hook:line',
-      data: [{ id, line }],
-    })
+    emitEvent('kubb:hook:line', [{ id, line }])
   })
 
   on('kubb:hook:end', ({ id, command, args, success, error }) => {
-    sendDataMessage({
-      type: 'kubb:hook:end',
-      data: [
-        {
-          id,
-          command,
-          args: args ? [...args] : undefined,
-          success,
-          error: error ? { message: error.message, stack: error.stack } : undefined,
-        },
-      ],
-    })
+    emitEvent('kubb:hook:end', [
+      {
+        id,
+        command,
+        args: args ? [...args] : undefined,
+        success,
+        error: error ? { message: error.message, stack: error.stack } : undefined,
+      },
+    ])
   })
 
-  return () => {
+  /**
+   * Takes this generation's listeners off the session emitter. Safe to call twice.
+   */
+  function detach(): void {
     for (const unhook of unhooks) unhook()
+    unhooks.length = 0
   }
+
+  async function close(): Promise<void> {
+    if (closed) {
+      return
+    }
+    closed = true
+    detach()
+    await writes
+    // Consumer cancel sets streamError; don't fail a successful generation over that.
+    if (streamError) {
+      return
+    }
+    await writer.close().catch(() => undefined)
+  }
+
+  function fail(error?: unknown): void {
+    detach()
+    if (closed) {
+      return
+    }
+    closed = true
+    void writer.abort(error).catch(() => undefined)
+  }
+
+  return { stream: transform.readable, close, dispose: () => fail(), fail }
 }

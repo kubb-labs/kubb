@@ -37,7 +37,14 @@ function hasOutputPasses(output: Config['output']): boolean {
 }
 
 export type CreateKubbOptions = {
+  /**
+   * Receives Kubb lifecycle hooks for the run.
+   */
   hooks?: Hookable<KubbHooks>
+  /**
+   * Stops the build at the next safe checkpoint.
+   */
+  signal?: AbortSignal
 }
 
 /**
@@ -93,10 +100,12 @@ export class Kubb {
   #driver: KubbDriver | null = null
   #storage: Storage | null = null
   #manifest: OutputManifest | null = null
+  readonly #signal: AbortSignal | undefined
 
   constructor(userConfig: UserConfig, options: CreateKubbOptions = {}) {
     this.config = resolveConfig(userConfig)
     this.hooks = options.hooks ?? new Hookable<KubbHooks>()
+    this.#signal = options.signal
   }
 
   get storage(): Storage {
@@ -113,11 +122,13 @@ export class Kubb {
    * Initializes the driver and storage. `build()` calls this automatically.
    */
   async setup(): Promise<void> {
+    const signal = this.#signal
+    signal?.throwIfAborted()
     const config = this.config
     const manifest = hasOutputPasses(config.output)
       ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) })
       : undefined
-    const driver = new KubbDriver(config, { hooks: this.hooks, manifest })
+    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal })
 
     // Each generator a plugin registers adds a listener to the shared hooks emitter, so size the
     // ceiling to the plugin count. Without this, a multi-generator plugin set trips Node's
@@ -171,6 +182,7 @@ export class Kubb {
    * plugin errors, so callers stay in control of how failures surface.
    */
   async safeBuild(): Promise<BuildOutput> {
+    this.#signal?.throwIfAborted()
     if (!this.#driver) await this.setup()
     using self = this
     const driver = self.driver
@@ -193,6 +205,8 @@ export class Kubb {
    * ```
    */
   async generate(options: GenerateOptions = {}): Promise<GenerateResult> {
+    const signal = this.#signal
+    signal?.throwIfAborted()
     const { hooks, config } = this
     const hrStart = process.hrtime()
 
@@ -203,6 +217,7 @@ export class Kubb {
     await hooks.callHook('kubb:setup:end')
 
     const { files, diagnostics, storage } = await this.safeBuild()
+    signal?.throwIfAborted()
 
     // Surface every problem on the diagnostic hooks. An unstructured `unknown` error goes out as
     // `kubb:error` so its stack survives, everything else as `kubb:diagnostic`. Hosts route from

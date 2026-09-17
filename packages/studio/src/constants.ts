@@ -18,5 +18,7 @@ export const agentDefaults = {
    * a slower cadence would make a healthy agent look dead after a single missed ping.
    */
   maxHeartbeatIntervalMs: 60_000,
+  /** How long a heartbeat ping may take before the session is treated as dead. */
+  heartbeatTimeoutMs: 10_000,
   poolSize: 1,
 } as const

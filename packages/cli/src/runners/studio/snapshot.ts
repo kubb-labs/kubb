@@ -168,7 +168,8 @@ export async function snapshot(options: StudioOptions): Promise<void> {
 
   if (options.json) {
     log('Creating Kubb Studio agent')
-  } else {
+  }
+  if (!options.json) {
     spinner?.start('Creating Kubb Studio agent')
   }
 
@@ -231,19 +232,22 @@ export async function snapshot(options: StudioOptions): Promise<void> {
 
     if (options.json) {
       log('Snapshot published')
-    } else {
+    }
+    if (!options.json) {
       spinner?.stop('Snapshot published')
     }
 
     if (options.json) {
       console.log(JSON.stringify(result))
-    } else {
+    }
+    if (!options.json) {
       printSummary(result)
     }
   } catch (error) {
     if (options.json) {
       log('Snapshot failed')
-    } else {
+    }
+    if (!options.json) {
       spinner?.stop('Snapshot failed')
     }
     throw error

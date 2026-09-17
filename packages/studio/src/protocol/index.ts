@@ -1,33 +1,7 @@
-/**
- * WebSocket message types for the agent ↔ Studio protocol. Every message name carries the side that
- * sent it, so direction reads off the name instead of the verb's tense:
- *
- * | Direction        | Type                  | Purpose                                                      |
- * | ---------------- | --------------------- | -------------------------------------------------------------|
- * | Studio → agent    | `studio:generate`     | Run a generation. No dedicated reply, the result arrives as an `agent:data` message carrying `kubb:generation:end`, so it stays ordered against the rest of that run's event stream. The file list is on `kubb:build:end`; contents are fetched separately with `studio:files`. |
- * | Studio → agent    | `studio:connect`      | Ask the agent to resend its `agent:connect` handshake payload. |
- * | Studio → agent    | `studio:save`         | Edit `kubb.config.ts`. Replied to with `agent:save`. |
- * | Studio → agent    | `studio:snapshot`     | Pack the session's most recent generation into a tarball and upload it to a Studio path, which redirects to storage. Carries no file contents itself. Replied to with `agent:snapshot`. |
- * | Studio → agent    | `studio:files`        | Ask for the source of files the last generation produced, by path. Refused unless the agent was granted `allowRead`. Replied to with `agent:files`. |
- * | Studio → agent    | `studio:pong`         | Reply to an `agent:ping` heartbeat. |
- * | Studio → agent    | `studio:ready`        | Acknowledges `agent:connect`, so the session now counts as available for job dispatch. |
- * | Studio → agent    | `studio:disconnect`   | The session expired or was revoked, so the agent should not reconnect. |
- * | Studio → agent    | `studio:error`        | A failure outside a generation, e.g. a malformed command. |
- * | Agent → Studio    | `agent:connect`       | Handshake sent on open and after every `studio:connect`. |
- * | Agent → Studio    | `agent:save`          | Reply to `studio:save`. |
- * | Agent → Studio    | `agent:snapshot`      | Reply to `studio:snapshot`. The tarball itself already went out to storage, so this only carries the integrity hash, the resolved peer dependencies, or an error. |
- * | Agent → Studio    | `agent:files`         | Reply to `studio:files`, carrying only the source of the requested paths, or an error. |
- * | Agent → Studio    | `agent:data`          | One generation lifecycle event, `payload.type` a {@link KubbHook}. Carries `kubb:generation:end`, `studio:generate`'s closest thing to a reply, among many others. |
- * | Agent → Studio    | `agent:ping`          | Heartbeat, so the connection is not treated as idle. |
- * | Agent → Studio    | `agent:disconnect`    | The agent is shutting down. |
- *
- * `kubb:` stays reserved for generation lifecycle, so the {@link KubbHooks} events relayed inside an
- * `agent:data` payload keep their own names. The envelope says who sent it, the payload says what
- * happened.
- */
+import type { KubbHooks } from '@kubb/core'
 
 /**
- * JSON-serializable Kubb config exchanged over the WebSocket. A live `kubb/kit` config holds
+ * JSON-serializable Kubb config exchanged over RPC. A live `kubb/kit` config holds
  * functions and class instances that cannot survive JSON, so both sides pass this flattened shape
  * and rebuild the real config from it.
  */
@@ -177,12 +151,48 @@ export type ConfigEditOutcome = {
 }
 
 /**
- * Typed events sent by the Kubb agent to Studio over WebSocket.
- * Mirrors the single-context-object tuple style of {@link KubbHooks} in `kubb/kit`,
- * using JSON-serializable shapes (e.g. `sources` as a `Record` instead of `Map`,
- * `error` as `{ message; stack? }` instead of `Error`).
+ * The public, JSON-safe subset of Kubb lifecycle hooks. The core registry remains extensible;
+ * adding a core hook does not publish it to Studio until it is listed here and projected below.
  */
-export type KubbHooks = {
+export const generationEventTypes = [
+  'kubb:plugin:start',
+  'kubb:plugin:end',
+  'kubb:build:start',
+  'kubb:build:end',
+  'kubb:files:processing:start',
+  'kubb:files:processing:update',
+  'kubb:files:processing:end',
+  'kubb:info',
+  'kubb:success',
+  'kubb:warn',
+  'kubb:error',
+  'kubb:diagnostic',
+  'kubb:generation:start',
+  'kubb:generation:end',
+  'kubb:generation:summary',
+  'kubb:lifecycle:start',
+  'kubb:lifecycle:end',
+  'kubb:format:start',
+  'kubb:format:end',
+  'kubb:lint:start',
+  'kubb:lint:end',
+  'kubb:hooks:start',
+  'kubb:hooks:end',
+  'kubb:hook:start',
+  'kubb:hook:line',
+  'kubb:hook:end',
+] as const satisfies ReadonlyArray<keyof KubbHooks>
+
+/**
+ * One of the lifecycle hooks {@link generationEventTypes} publishes.
+ */
+export type GenerationEventType = (typeof generationEventTypes)[number]
+
+/**
+ * The JSON-safe payload each published event carries. These are flattened on purpose: a core hook
+ * context holds live objects (a `Config`, a `Storage`) that cannot cross the wire.
+ */
+export type GenerationEventPayloads = {
   'kubb:plugin:start': [ctx: { plugin: { name: string } }]
   'kubb:plugin:end': [ctx: { plugin: { name: string }; duration: number; success: boolean }]
   'kubb:build:start': [ctx: { config: { name?: string }; adapter: { name: string } }]
@@ -203,11 +213,21 @@ export type KubbHooks = {
   'kubb:success': [ctx: { message: string; info?: string }]
   'kubb:warn': [ctx: { message: string; info?: string }]
   'kubb:error': [ctx: { message: string; stack?: string }]
-  'kubb:debug': [ctx: { logs: Array<string>; fileName?: string }]
+  'kubb:diagnostic': [
+    ctx: {
+      code: string
+      message: string
+      severity: string
+      location?: { kind: string; pointer?: string; ref?: string }
+      help?: string
+      plugin?: string
+      stack?: string
+    },
+  ]
   'kubb:generation:start': [ctx: { name?: string; plugins: number }]
   /**
    * A run finished. See `kubb:build:end` for files, `kubb:generation:summary` for the count, and
-   * `studio:files` for contents.
+   * `readFiles` for contents.
    */
   'kubb:generation:end': []
   'kubb:generation:summary': [ctx: { duration: number; fileCount: number; failedPlugins: number; status: 'success' | 'failed' }]
@@ -232,100 +252,104 @@ export type KubbHooks = {
   ]
 }
 
-export type KubbHook = keyof KubbHooks
-
 /**
- * Run a generation with the given config. `payload` is the merged config Studio wants generated.
+ * Versioned envelope around one lifecycle event. Cap'n Web streams preserve the order the agent
+ * emitted them in, so the receiver replays a run by reading the stream straight through.
  */
-export type StudioGenerateMessage = {
-  type: 'studio:generate'
+export type GenerationEvent = {
+  [Type in GenerationEventType]: { type: Type; data: GenerationEventPayloads[Type] }
+}[GenerationEventType] & {
+  version: 1
   jobId: string
-  payload: JSONKubbConfig
+  timestamp: number
 }
 
 /**
- * Ask the agent to send a fresh `agent:connect` payload. Permissions are fixed when the host starts
- * the agent; this message only triggers another read of disk config and saved Studio state.
+ * Asks the agent to run one generation. `jobId` tags every event the run emits so a caller
+ * watching several runs can tell them apart.
  */
-export type StudioConnectMessage = {
-  type: 'studio:connect'
-  jobId?: string
-  /**
-   * Version of the Studio instance asking, which refreshes what the agent picked up when the
-   * session was created. Absent when Studio predates the field.
-   */
-  version?: string
+export type GenerateInput = { jobId: string; config: JSONKubbConfig }
+
+/**
+ * What a finished run produced. `files` holds paths relative to the output directory.
+ */
+export type GenerateResult = { status: 'success' | 'failed'; files: Array<string>; fileCount: number }
+
+/**
+ * Asks the agent to apply a batch of edits to the config file on disk.
+ */
+export type SaveConfigInput = { edits: Array<ConfigEdit> }
+
+/**
+ * Per-edit outcomes plus the rewritten file. `changed` is false when every edit was a no-op, so a
+ * caller can skip reloading.
+ */
+export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean; file?: ConfigFileView }
+
+/**
+ * Asks the agent to read generated files back. Capped at {@link MAX_FILES_PER_REQUEST} paths, all
+ * of which must sit inside the output directory.
+ */
+export type ReadFilesInput = { paths: Array<string> }
+
+/**
+ * Describes the package to pack and where to PUT it. `uploadPath` is resolved against the Studio
+ * origin, so it cannot redirect the upload elsewhere.
+ */
+export type PublishSnapshotInput = { name: string; version: string; bundledDependencies?: Array<string>; uploadPath: string }
+
+/**
+ * Identifies the uploaded snapshot. `integrity` is the subresource hash Studio verifies against.
+ */
+export type PublishSnapshotResult = { integrity: string; peerDependencies: Record<string, string> }
+
+/**
+ * A generation in flight. Cap'n Web keeps the three calls pointed at the same run, so a caller can
+ * read `events()` while `result()` is still pending and `cancel()` stops it early.
+ */
+export type GenerationRun = {
+  events: () => Promise<ReadableStream<GenerationEvent>>
+  result: () => Promise<GenerateResult>
+  cancel: () => Promise<void>
 }
 
 /**
- * Change plugin options in the user's `kubb.config.ts`. Applied only when the agent was granted
- * `allowConfigEdit`; otherwise every edit comes back refused.
+ * Operations Studio can invoke on an agent through a host-provided RPC transport.
  */
-export type StudioSaveMessage = {
-  type: 'studio:save'
-  jobId: string
-  edits: Array<ConfigEdit>
+export type AgentApi = {
+  connect: () => Promise<ConnectMessagePayload>
+  startGeneration: (input: GenerateInput) => GenerationRun
+  saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
+  publishSnapshot: (input: PublishSnapshotInput) => Promise<PublishSnapshotResult>
+  readFiles: (input: ReadFilesInput) => Promise<{ files: Record<string, string> }>
 }
 
 /**
- * Ask the agent to pack a previous generation's files into an npm-installable tarball and upload
- * it to Studio directly, rather than returning the bytes over this socket. Packs the files the
- * session's own most recent `studio:generate` produced, so it only works right after that
- * generation and never carries file contents itself. Refused for a sandbox agent, since it holds
- * no generated files worth packing, and refused when no prior generation exists to pack.
+ * Operations an agent can invoke on Studio through a host-provided RPC transport.
  */
-export type StudioSnapshotMessage = {
-  type: 'studio:snapshot'
-  jobId: string
-  payload: {
-    name: string
-    version: string
-    /**
-     * Packages Studio already bundles, so a missing one is not a reason to refuse the snapshot.
-     */
-    bundledDependencies?: Array<string>
-    /**
-     * Studio path the agent `PUT`s the finished tarball to. Studio answers with a redirect to
-     * storage, so the storage URL stays out of this message.
-     */
-    uploadPath: string
-  }
+export type StudioApi = {
+  ping: () => Promise<void>
 }
 
 /**
- * Ask the agent for the source of files the last generation produced, by path. Refused unless the
- * agent was granted `allowRead`. Replied to with `agent:files`.
+ * A live RPC session. `closed` settles when the transport drops, whichever side ended it.
  */
-export type StudioFilesMessage = {
-  type: 'studio:files'
-  jobId: string
-  payload: {
-    /**
-     * Paths as `kubb:build:end` listed them, at most `MAX_FILES_PER_REQUEST` of them.
-     */
-    paths: Array<string>
-  }
+export type RpcConnection = {
+  studio: StudioApi
+  closed: Promise<void>
+  close: () => void
 }
 
 /**
- * Anything Studio asks the agent to do. Each command is its own `type`, so a handler switches once
- * instead of reading a `type` and then a nested `command` field.
+ * Opens a transport and hands both sides their peer. Swapping this is how a test drives a session
+ * without a socket.
  */
-export type CommandMessage = StudioGenerateMessage | StudioConnectMessage | StudioSaveMessage | StudioSnapshotMessage | StudioFilesMessage
+export type RpcConnector = (input: { url: string; token: string; local: AgentApi }) => Promise<RpcConnection>
 
 /**
- * The command names, for a host that needs the list rather than the union.
- */
-export const commandTypes = ['studio:generate', 'studio:connect', 'studio:save', 'studio:snapshot', 'studio:files'] as const
-
-/**
- * How many files a single `studio:files` request may ask for at once.
+ * How many files a single `readFiles` request may ask for at once.
  */
 export const MAX_FILES_PER_REQUEST = 50
-
-export function createJobId(): string {
-  return crypto.randomUUID()
-}
 
 /**
  * Identifies the host running the Kubb runtime. Local to the runtime, not part of the wire: it
@@ -341,8 +365,8 @@ export type ClientInfo = {
 }
 
 /**
- * Payload of the `agent:connect` handshake, sent when the agent attaches to a session. Carries only
- * what Studio renders, with everything about the config under one key.
+ * Connection payload returned by {@link AgentApi.connect}. Carries only what Studio renders, with
+ * everything about the config under one key.
  */
 export type ConnectMessagePayload = {
   /**
@@ -417,169 +441,10 @@ export type AgentPermissions = {
    */
   allowConfigEdit: boolean
   /**
-   * Whether the agent hands back file source in response to `studio:files`. Always true for a
+   * Whether the agent hands back file source in response to `readFiles`. Always true for a
    * sandbox agent; for a local agent it mirrors the agent's own opt-in.
    */
   allowRead: boolean
-}
-
-/**
- * Agent → Studio handshake. Sent when the WebSocket opens and again after a `connect` command.
- * Carries the on-disk config baseline, granted permissions, and paths Studio needs to render the editor.
- */
-export type AgentConnectMessage = {
-  type: 'agent:connect'
-  payload: ConnectMessagePayload
-}
-
-/**
- * Reply to a `save` command: what the agent did to the file on disk.
- */
-export type AgentSaveMessage = {
-  type: 'agent:save'
-  jobId: string
-  payload: {
-    /**
-     * Per-edit result, in the order the edits were sent.
-     */
-    outcomes: Array<ConfigEditOutcome>
-    /**
-     * Whether the file on disk changed. False when every edit was refused, and when the applied
-     * edits produced the text the file already had.
-     */
-    changed: boolean
-    /**
-     * The config file as it now stands, so Studio can re-render without a round trip. Absent when
-     * nothing was written. Named to match `config.file` in the connect payload.
-     */
-    file?: ConfigFileView
-  }
-}
-
-/**
- * Reply to `studio:snapshot`. The tarball already went to storage, so this reports whether the
- * upload succeeded plus the peer dependencies the agent resolved while packing it.
- */
-export type AgentSnapshotMessage = {
-  type: 'agent:snapshot'
-  jobId: string
-  payload:
-    | {
-        status: 'ok'
-        integrity: string
-        /**
-         * Resolved peer dependencies of the packed generation, for Studio's snapshot metadata.
-         */
-        peerDependencies: Record<string, string>
-      }
-    | { status: 'error'; message: string }
-}
-
-/**
- * Reply to `studio:files`, carrying the source of the requested paths.
- */
-export type AgentFilesMessage = {
-  type: 'agent:files'
-  jobId: string
-  payload:
-    | {
-        status: 'ok'
-        /**
-         * Source keyed by the requested path. A path the last generation did not produce is left
-         * out rather than reported, so one stale path does not fail the rest.
-         */
-        files: Record<string, string>
-      }
-    | { status: 'error'; message: string }
-}
-
-/**
- * Failure notice from Studio for something that breaks outside a generation, such as a malformed
- * command. The agent's own failures travel as an `agent:data` message carrying a `kubb:error`
- * payload, which keeps them ordered against the generation events around them.
- */
-export type StudioErrorMessage = {
-  type: 'studio:error'
-  message: string
-}
-
-/**
- * Heartbeat sent by the Agent to Studio so the connection is not treated as idle.
- */
-export type AgentPingMessage = {
-  type: 'agent:ping'
-}
-
-/**
- * Studio's reply to an `agent:ping`, confirming the connection is still alive.
- */
-export type StudioPongMessage = {
-  type: 'studio:pong'
-}
-
-/**
- * Studio's acknowledgement that an `agent:connect` handshake was received and the session is
- * fully registered: the connection now counts as available for job dispatch. Distinct from the
- * socket merely being open, which is not yet the same thing.
- */
-export type StudioReadyMessage = {
-  type: 'studio:ready'
-}
-
-/**
- * Disconnect message sent from Studio to Agent when the session is expired or revoked.
- * The agent should close the connection without reconnecting.
- */
-export type StudioDisconnectMessage = {
-  type: 'studio:disconnect'
-  reason: 'expired' | 'revoked'
-}
-
-/**
- * The agent going away, so Studio marks the session offline instead of waiting out the heartbeat
- * window. The mirror of {@link StudioDisconnectMessage}.
- *
- * Only sent for a shutdown. An expired or revoked session was Studio's own decision, so echoing it
- * back says nothing new.
- */
-export type AgentDisconnectMessage = {
-  type: 'agent:disconnect'
-  reason: 'shutdown'
-}
-
-/**
- * Payload of an `agent:data` message: a single Kubb generation event forwarded to Studio in real time.
- * Generic over the hook name so `data` is typed to that hook's context tuple.
- */
-export type DataMessagePayload<T extends KubbHook = KubbHook> = {
-  /**
-   * The Kubb hook this event is for (e.g. `kubb:plugin:start`).
-   */
-  type: T
-  /**
-   * The hook's context tuple, matching `KubbHooks[type]`.
-   */
-  data: KubbHooks[T]
-  /**
-   * When the agent emitted the event, epoch milliseconds.
-   */
-  timestamp: number
-  /**
-   * Monotonic per-connection counter stamped in the order the agent emits events. Studio orders the
-   * event log by this, since `timestamp` has millisecond resolution and a full generation fires
-   * dozens of events per tick, and the relay can deliver them out of order.
-   */
-  seq: number
-}
-
-/**
- * Envelope for a single generation event streamed from Agent to Studio. Wraps a
- * {@link DataMessagePayload} so both sides can switch on `type: 'agent:data'`.
- */
-export type DataMessage<T extends KubbHook = KubbHook> = {
-  type: 'agent:data'
-  jobId: string
-  payload: DataMessagePayload<T>
 }
 
 /**
@@ -587,11 +452,11 @@ export type DataMessage<T extends KubbHook = KubbHook> = {
  */
 export type AgentConnectResponse = {
   /**
-   * WebSocket URL the agent opens to reach the session, with the session token embedded.
+   * URL the agent opens to reach the session, with the session token embedded.
    */
-  wsUrl: string
+  url: string
   /**
-   * When the session expires and the wsUrl stops working (ISO 8601).
+   * When the session expires and the url stops working (ISO 8601).
    */
   expiresAt: string
   /**
@@ -599,7 +464,7 @@ export type AgentConnectResponse = {
    */
   revokedAt: string | null
   /**
-   * Opaque session token, also embedded in `wsUrl`. Store it to revoke the session later.
+   * Opaque session token, also embedded in `url`. Store it to revoke the session later.
    */
   sessionId: string
   /**
@@ -611,58 +476,9 @@ export type AgentConnectResponse = {
    */
   isSandbox: boolean
   /**
-   * The Studio instance's own version. Reported here rather than only on `studio:connect`, so the
-   * agent knows it before it announces itself and can name both sides from the first connect.
+   * The Studio instance's own version. Returned with the RPC session so the agent can name both
+   * sides from the first connection.
    * Absent when Studio predates the field.
    */
   version?: string
-}
-
-/**
- * Every message that can cross the agent WebSocket, in either direction. Narrow it with the
- * `is*Message` guards below before reading a variant's fields.
- */
-export type AgentMessage =
-  | CommandMessage
-  | DataMessage
-  | AgentConnectMessage
-  | AgentSaveMessage
-  | AgentSnapshotMessage
-  | AgentFilesMessage
-  | AgentPingMessage
-  | AgentDisconnectMessage
-  | StudioErrorMessage
-  | StudioPongMessage
-  | StudioReadyMessage
-  | StudioDisconnectMessage
-
-export function isCommandMessage(msg: AgentMessage): msg is CommandMessage {
-  return (commandTypes as ReadonlyArray<string>).includes(msg.type)
-}
-
-/**
- * Type guard to narrow a data message to a specific event type.
- *
- * @example
- * ```ts
- * if (isDataMessage(msg, 'kubb:plugin:start')) {
- *   // msg.payload.data is now typed as [ctx: { plugin: { name: string } }]
- *   const pluginName = msg.payload.data[0].plugin.name
- * }
- * ```
- */
-export function isDataMessage<T extends KubbHook>(msg: AgentMessage, type?: T): msg is DataMessage<T> {
-  return msg.type === 'agent:data' && (type ? msg.payload.type === type : true)
-}
-
-export function isStudioPongMessage(msg: AgentMessage): msg is StudioPongMessage {
-  return msg.type === 'studio:pong'
-}
-
-export function isStudioReadyMessage(msg: AgentMessage): msg is StudioReadyMessage {
-  return msg.type === 'studio:ready'
-}
-
-export function isDisconnectMessage(msg: AgentMessage): msg is StudioDisconnectMessage {
-  return msg.type === 'studio:disconnect'
 }

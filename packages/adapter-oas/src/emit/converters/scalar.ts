@@ -54,7 +54,13 @@ export function convertConst({ schema, name, nullable, defaultValue }: ConvertCo
     return createNullNode(schema, name)
   }
 
-  const constPrimitive = getPrimitiveType(typeof constValue === 'number' ? 'number' : typeof constValue === 'boolean' ? 'boolean' : 'string')
+  const constPrimitive = getPrimitiveType(
+    (() => {
+      if (typeof constValue === 'number') return 'number'
+      if (typeof constValue === 'boolean') return 'boolean'
+      return 'string'
+    })(),
+  )
   return createNode(
     { schema, name, nullable, defaultValue },
     {
@@ -152,9 +158,11 @@ export function convertEnum({ schema, name, nullable, type, rawOptions, parse }:
   const extensionKey = enumExtensionKeys.find((key) => key in schema)
   const descriptionKey = enumDescriptionKeys.find((key) => key in schema)
   if (extensionKey || descriptionKey || enumPrimitive === 'number' || enumPrimitive === 'integer' || enumPrimitive === 'boolean') {
-    let enumPrimitiveType: 'number' | 'boolean' | 'string' = 'string'
-    if (enumPrimitive === 'number' || enumPrimitive === 'integer') enumPrimitiveType = 'number'
-    else if (enumPrimitive === 'boolean') enumPrimitiveType = 'boolean'
+    const enumPrimitiveType: 'number' | 'boolean' | 'string' = (() => {
+      if (enumPrimitive === 'boolean') return 'boolean'
+      if (enumPrimitive === 'number' || enumPrimitive === 'integer') return 'number'
+      return 'string'
+    })()
     const rawEnumNames = extensionKey ? ((schema as Record<string, unknown>)[extensionKey] as Array<string | number>) : undefined
     const rawEnumDescriptions = descriptionKey ? ((schema as Record<string, unknown>)[descriptionKey] as Array<string>) : undefined
     const uniqueValues = [...new Set(filteredValues)]

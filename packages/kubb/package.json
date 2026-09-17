@@ -168,10 +168,10 @@
     "@nuxt/schema": "^4.5.2",
     "esbuild": "^0.28.2",
     "rolldown": "^1.2.8",
-    "rollup": "^4.63.2",
+    "rollup": "^4.63.3",
     "typescript": "catalog:",
     "vite": "^8.3.0",
-    "webpack": "^5.110.3"
+    "webpack": "^5.111.0"
   },
   "preferGlobal": true,
   "engines": {

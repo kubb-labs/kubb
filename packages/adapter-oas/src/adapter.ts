@@ -127,9 +127,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       if (operationNode) operationNodes.push(operationNode)
     }
 
-    let promotedEnums: Map<string, ast.SchemaNode> | null = null
-    if (enums === 'root') {
-      promotedEnums = collectInlineEnums([...parsedByName.values(), ...operationNodes], new Set(Object.keys(schemas)))
+    const promotedEnums = enums === 'root' ? collectInlineEnums([...parsedByName.values(), ...operationNodes], new Set(Object.keys(schemas))) : null
+    if (promotedEnums) {
       for (const name of promotedEnums.keys()) enumNames.push(name)
     }
 
@@ -137,14 +136,14 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     for (const name of Object.keys(schemas)) {
       const alias = refAliasMap.get(name)
 
-      let node: ast.SchemaNode
-      if (alias?.name && parsedByName.has(alias.name)) {
-        node = { ...parsedByName.get(alias.name)!, name }
-      } else {
-        const parsed = parsedByName.get(name)!
-        const child = discriminatorChildMap?.get(name)
-        node = child ? patchDiscriminatorNode(parsed, child) : parsed
-      }
+      const node =
+        alias?.name && parsedByName.has(alias.name)
+          ? { ...parsedByName.get(alias.name)!, name }
+          : (() => {
+              const parsed = parsedByName.get(name)!
+              const child = discriminatorChildMap?.get(name)
+              return child ? patchDiscriminatorNode(parsed, child) : parsed
+            })()
 
       schemaNodes.push(promotedEnums ? refPromotedEnums(node, promotedEnums) : node)
     }
@@ -190,12 +189,14 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       assertDocument(document)
       await validateDocument(document, options)
     },
-    async parse(source) {
+    async parse(source, { signal } = {}) {
+      signal?.throwIfAborted()
       const cached = inputCache.get(source)
       if (cached) return cached
 
       const promise = (async () => {
         const document = await parseFromConfig(source)
+        signal?.throwIfAborted()
         assertDocument(document)
         if (validate) await validateDocument(document)
         parsedDocument = document
@@ -207,7 +208,11 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         return parseInput({ document, refs, schemas, parser })
       })()
       inputCache.set(source, promise)
-      return promise
+      return promise.catch((error: unknown) => {
+        // A canceled parse must not poison the cache: the next call with the same source needs a fresh attempt.
+        if (signal?.aborted) inputCache.delete(source)
+        throw error
+      })
     },
   }
 })

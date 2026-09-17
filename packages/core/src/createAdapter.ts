@@ -72,7 +72,7 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * resolve a `$ref` to the file that is actually generated. Refs that keep their pointer's
    * last segment need no stamp.
    */
-  parse: (source: AdapterSource) => PossiblePromise<InputNode>
+  parse: (source: AdapterSource, options?: { signal?: AbortSignal }) => PossiblePromise<InputNode>
   /**
    * Validate the document at the given path or URL.
    */

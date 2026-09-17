@@ -1,16 +1,10 @@
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import path from 'node:path'
-import process from 'node:process'
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { ast } from '@kubb/ast'
+import { type Config, definePlugin, memoryStorage, type Plugin } from '@kubb/core'
+import { createMockedAdapter } from '@kubb/core/mocks'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { agentDefaults } from './constants.ts'
-import { spyOnConsole } from './console.mock.ts'
-import { MockWebSocket } from './websocket.mock.ts'
-import type { AgentConnectResponse } from './protocol/index.ts'
-import type { Hookable, KubbHooks } from '@kubb/core'
-import { logLevel as logLevelMap, memoryStorage } from '@kubb/core'
-import type { StudioSessionOptions } from './StudioSession.ts'
-import { StudioSession } from './StudioSession.ts'
+import { MAX_FILES_PER_REQUEST, type AgentApi, type StudioApi } from './protocol/index.ts'
+import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
 
 vi.mock('./api.ts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./api.ts')>()),
@@ -18,1369 +12,250 @@ vi.mock('./api.ts', async (importOriginal) => ({
   disconnect: vi.fn().mockResolvedValue(undefined),
 }))
 
-vi.mock('./generate.ts', () => ({
-  generate: vi.fn().mockResolvedValue(undefined),
-}))
+vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
 
-// Config resolution runs for real. It reaches outside the process in two ways, `import()`-ing a
-// plugin package and `import()`-ing the adapter package, so those packages are what gets stubbed.
-vi.mock('@kubb/plugin-ts', () => ({ pluginTs: (options: unknown) => ({ name: 'plugin-ts', options }) }))
-vi.mock('@kubb/plugin-zod', () => ({ pluginZod: (options: unknown) => ({ name: 'plugin-zod', options }) }))
-vi.mock('@kubb/adapter-oas', () => ({ adapterOas: (options: unknown) => ({ name: 'oas', options, parse: vi.fn() }) }))
-vi.mock('../package.json', () => ({
-  default: { version: '5.0.0-test' },
-  version: '5.0.0-test',
-}))
-vi.mock('@kubb/core/package.json', () => ({
-  default: { version: '5.1.0-core-test' },
-  version: '5.1.0-core-test',
-}))
+import { createAgentSession } from './api.ts'
 
-// `setupHookListener` spawns the formatter, the linter, and postGenerate commands through tinyexec.
-vi.mock('tinyexec', () => ({ x: vi.fn(() => Object.assign(Promise.resolve({ exitCode: 0 }), { [Symbol.asyncIterator]: async function* () {} })) }))
-
-vi.mock('./ws.ts', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('./ws.ts')>()),
-  createWebsocket: vi.fn(),
-  sendAgentMessage: vi.fn(),
-  // Returns the remover a real `setupEventsStream` hands back, which the session calls when the
-  // generation ends.
-  setupEventsStream: vi.fn(() => vi.fn()),
-}))
-
-vi.mock('./snapshotPackage.ts', () => ({
-  createSnapshotPackage: vi.fn(),
-}))
-
-import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
-import { generate } from './generate.ts'
-
-import { absoluteStoragePath, createWebsocket, sendAgentMessage, setupEventsStream } from './ws.ts'
-import { createSnapshotPackage } from './snapshotPackage.ts'
-
-// Shared test helpers
-
-const consoleSpy = spyOnConsole()
+const root = '/project'
+const pluginName = 'studio-test-plugin'
+const studioUrl = 'https://studio.test'
 
 /**
- * Opens one session, the way `createClient` does.
+ * A plugin that emits one file, so a run leaves something behind for `readFiles` and
+ * `publishSnapshot` to work from. Storage keys are absolute, which is what the file manager writes
+ * and what the session resolves a request against.
  */
-const connect = (options: StudioSessionOptions) => new StudioSession(options).connect()
+function filePlugin(absolutePath: string, content: string): Plugin {
+  const file = ast.factory.createFile({
+    path: absolutePath,
+    baseName: absolutePath.split('/').pop() as `${string}.${string}`,
+    sources: [ast.factory.createSource({ nodes: [ast.factory.createText(content)] })],
+    imports: [],
+    exports: [],
+  })
+
+  return definePlugin(() => ({
+    name: pluginName,
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        ctx.injectFile(file)
+      },
+    },
+  }))() as unknown as Plugin
+}
 
 /**
- * Builds the shape `onGenerationEnd` now receives: a real `memoryStorage()` pre-seeded with
- * `files` (keyed by the path relative to `root`, matching what a caller requests), the resulting
- * whitelist of relative paths, and the given dependency metadata.
+ * Stands in for Studio: opens a session over a fake connector, then calls `connect()` the way the
+ * real Studio does to finish the handshake. Everything a test drives afterwards goes through the
+ * same {@link AgentApi} Studio itself would hold.
  */
-async function makeGeneration(files: Record<string, string>, extras: { peerDependencies?: Record<string, string>; missingDependencies?: Array<string> } = {}) {
-  const storage = memoryStorage()
-  const root = '/project'
-  for (const [relativePath, content] of Object.entries(files)) {
-    await storage.writeItem(absoluteStoragePath(root, relativePath), content)
-  }
+async function connectStudio(overrides: Partial<StudioSessionOptions> = {}): Promise<{
+  session: StudioSession
+  agent: AgentApi
+  closeTransport: () => void
+}> {
+  let agent: AgentApi | undefined
+  let closeTransport: (() => void) | undefined
 
-  return {
-    storage,
+  const studio: StudioApi = { ping: vi.fn().mockResolvedValue(undefined) }
+  const session = new StudioSession({
+    token: 'token',
+    studioUrl,
+    configPath: 'kubb.config.ts',
+    version: '2.0.0',
     root,
-    paths: new Set(Object.keys(files)),
-    peerDependencies: extras.peerDependencies ?? {},
-    missingDependencies: extras.missingDependencies ?? [],
-  }
+    loadConfig: async () =>
+      ({
+        root,
+        input: 'https://example.com/openapi.json',
+        output: { path: 'src/gen', clean: false },
+        parsers: [],
+        reporters: [],
+        adapter: createMockedAdapter(),
+        plugins: [filePlugin(`${root}/src/gen/pet.ts`, 'export const pet = 1')],
+        storage: memoryStorage(),
+      }) as unknown as Config,
+    ...overrides,
+    connector: async ({ local }) => {
+      agent = local
+      const closed = new Promise<void>((resolve) => {
+        closeTransport = resolve
+      })
+      return { studio, closed, close: vi.fn() }
+    },
+  })
+
+  const started = session.start()
+  await vi.waitFor(() => expect(agent).toBe(session))
+  await agent?.connect()
+  await started
+
+  return { session, agent: agent as AgentApi, closeTransport: () => closeTransport?.() }
 }
 
-/**
- * Records the `studio:*` session events through the same `installLogger` hook a host uses, so a
- * test asserts the event and its context rather than a formatted console string.
- */
-type StudioEventName =
-  | 'studio:connecting'
-  | 'studio:connected'
-  | 'studio:ready'
-  | 'studio:disconnected'
-  | 'studio:command:start'
-  | 'studio:command:end'
-  | 'studio:warn'
-  | 'studio:error'
-
-function recordSessionEvents() {
-  type Recorded = { [K in StudioEventName]: { name: K; ctx: KubbHooks[K][0] } }[StudioEventName]
-  const events: Array<Recorded> = []
-
-  return {
-    installLogger(hooks: Hookable<KubbHooks>) {
-      for (const name of [
-        'studio:connecting',
-        'studio:connected',
-        'studio:ready',
-        'studio:disconnected',
-        'studio:command:start',
-        'studio:command:end',
-        'studio:warn',
-        'studio:error',
-      ] as const) {
-        hooks.hook(name, (ctx) => events.push({ name, ctx } as Recorded))
-      }
-    },
-    warnings(): Array<string> {
-      return events.flatMap((event) => (event.name === 'studio:warn' ? [event.ctx.message] : []))
-    },
-    errors(): Array<Error> {
-      return events.flatMap((event) => (event.name === 'studio:error' ? [event.ctx.error] : []))
-    },
-    named<K extends StudioEventName>(name: K) {
-      return events.filter((event): event is Extract<Recorded, { name: K }> => event.name === name)
-    },
-  }
-}
-
-const loadConfig = vi.fn()
-
-const makeSession = (overrides: Partial<AgentConnectResponse> = {}): AgentConnectResponse => ({
-  sessionId: 'session-abc',
-  slug: 'brave-otter',
-  wsUrl: 'ws://localhost:3000/ws/session-abc',
-  isSandbox: false,
-  expiresAt: new Date(Date.now() + 3_600_000).toISOString(),
-  revokedAt: null,
-  ...overrides,
+beforeEach(() => {
+  vi.clearAllMocks()
+  vi.mocked(createAgentSession).mockResolvedValue({
+    sessionId: 'session-1',
+    slug: 'brave-otter',
+    url: 'ws://studio/session-1',
+    expiresAt: new Date(Date.now() + 60_000).toISOString(),
+    revokedAt: null,
+    isSandbox: false,
+    version: '1.0.0',
+  })
 })
 
-const makeConfig = (overrides = {}) => ({
-  name: 'test',
-  input: 'spec.yaml',
-  output: { path: './gen', write: false },
-  plugins: [],
-  ...overrides,
-})
+describe('the handshake', () => {
+  it('exposes the agent API to Studio once the socket is attached', async () => {
+    const { agent } = await connectStudio()
 
-describe('StudioSession', () => {
-  let mockWs: MockWebSocket
-  let options: StudioSessionOptions
-  let controller: AbortController
-  let session: ReturnType<typeof recordSessionEvents>
-
-  beforeEach(() => {
-    mockWs = new MockWebSocket()
-    session = recordSessionEvents()
-    controller = new AbortController()
-    vi.mocked(createWebsocket).mockReturnValue(mockWs as any)
-    vi.mocked(createAgentSession).mockResolvedValue(makeSession())
-    loadConfig.mockResolvedValue(makeConfig() as any)
-
-    options = {
-      token: 'my-token',
-      studioUrl: 'https://kubb.studio',
-      configPath: 'kubb.config.ts',
-      loadConfig,
-      version: '1.0.0',
-      signal: controller.signal,
-      permissions: { allowWrite: false, allowInput: false },
-      root: '/project',
-      retryInterval: 100,
-      installLogger: session.installLogger,
-    }
+    await expect(agent.connect()).resolves.toMatchObject({ root, versions: { agent: '2.0.0' } })
   })
 
-  afterEach(() => {
-    // A session retries forever until its signal aborts, so a test that leaves a failed
-    // connection behind would keep reconnecting into the next one.
-    controller.abort()
-    vi.clearAllMocks()
-    vi.useRealTimers()
+  it('emits studio:ready only after Studio calls connect()', async () => {
+    const ready = vi.fn()
+    await connectStudio({ installLogger: (hooks) => void hooks.hook('studio:ready', ready) })
+
+    expect(ready).toHaveBeenCalledOnce()
   })
 
-  afterAll(() => {
-    Object.values(consoleSpy).forEach((spy) => spy.mockRestore())
+  it('reports an RPC disconnect to lifecycle hooks', async () => {
+    const disconnected = vi.fn()
+    const { closeTransport } = await connectStudio({ installLogger: (hooks) => void hooks.hook('studio:disconnected', disconnected) })
+
+    closeTransport()
+
+    await vi.waitFor(() => expect(disconnected).toHaveBeenCalledWith({ reason: 'connection closed' }))
   })
 
-  /**
-   * Connects, opens the socket, and waits for the connect payload to go out, the point every
-   * ready-handshake test starts from.
-   */
-  async function openAndHandshake(sessionOptions: StudioSessionOptions) {
-    await connect(sessionOptions)
-    await mockWs.trigger('open')
-    await vi.waitFor(() => expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, expect.objectContaining({ type: 'agent:connect' })))
-  }
-
-  // Session creation
-
-  it('creates an agent session with the provided credentials', async () => {
-    await connect(options)
-
-    expect(createAgentSession).toHaveBeenCalledWith({
-      token: 'my-token',
-      studioUrl: 'https://kubb.studio',
-    })
-  })
-
-  it('installs the host renderer once, on the emitter that carries the session and its generations', async () => {
-    const emitters: Array<Hookable<KubbHooks>> = []
-
-    await connect({ ...options, installLogger: (hooks) => void emitters.push(hooks) })
-
-    // Installed before the socket exists, so a failed connect still reports.
-    expect(emitters).toHaveLength(1)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate', payload: { plugins: [] } }),
-    })
-
-    expect(emitters).toHaveLength(1)
-    expect(vi.mocked(generate).mock.calls[0]?.[0].hooks).toBe(emitters[0])
-  })
-
-  it('creates a WebSocket with the session wsUrl and Bearer auth header', async () => {
-    await connect(options)
-
-    expect(createWebsocket).toHaveBeenCalledWith('ws://localhost:3000/ws/session-abc', {
-      headers: { Authorization: 'Bearer my-token' },
-    })
-  })
-
-  // Studio being unreachable at startup is temporary (a 502 mid-deploy), and no socket exists yet,
-  // so none of the socket-driven reconnect paths can fire. Giving up here would drop the pool slot
-  // for the lifetime of the process.
-  it('retries instead of giving up when the session cannot be created', async () => {
+  it('closes the session when a heartbeat ping never settles', async () => {
     vi.useFakeTimers()
-    vi.mocked(createAgentSession).mockRejectedValueOnce(new Error('Network error'))
-
-    await connect(options)
-
-    expect(session.errors().map((error) => error.message)).toContainEqual(expect.stringContaining('Network error'))
-
-    await vi.advanceTimersByTimeAsync(options.retryInterval!)
-
-    expect(createAgentSession).toHaveBeenCalledTimes(2)
-  })
-
-  // Studio counts an agent offline once its ping is older than its liveness window, so the clamp
-  // is a protocol contract. It lives here because every host goes through this function.
-  it('clamps a heartbeat interval above the ceiling Studio allows', async () => {
-    vi.useFakeTimers()
-
-    await connect({ ...options, heartbeatInterval: 10 * 60_000 })
-    await mockWs.trigger('open')
-    vi.mocked(sendAgentMessage).mockClear()
-
-    await vi.advanceTimersByTimeAsync(agentDefaults.maxHeartbeatIntervalMs)
-
-    expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, { type: 'agent:ping' })
-  })
-
-  it('honors a slower heartbeat up to the ceiling, so a long-lived agent can cost less', async () => {
-    vi.useFakeTimers()
-
-    await connect({ ...options, heartbeatInterval: agentDefaults.maxHeartbeatIntervalMs })
-    await mockWs.trigger('open')
-    vi.mocked(sendAgentMessage).mockClear()
-
-    await vi.advanceTimersByTimeAsync(agentDefaults.heartbeatIntervalMs)
-    expect(sendAgentMessage).not.toHaveBeenCalledWith(mockWs, { type: 'agent:ping' })
-
-    await vi.advanceTimersByTimeAsync(agentDefaults.heartbeatIntervalMs)
-    expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, { type: 'agent:ping' })
-  })
-
-  it('stops retrying once the signal aborts', async () => {
-    vi.useFakeTimers()
-    vi.mocked(createAgentSession).mockRejectedValueOnce(new Error('Network error'))
-
-    await connect(options)
-    controller.abort()
-
-    await vi.advanceTimersByTimeAsync(options.retryInterval! * 3)
-
-    expect(createAgentSession).toHaveBeenCalledTimes(1)
-  })
-
-  // WebSocket messages
-
-  it('accepts a pong without treating it as an unknown message', async () => {
-    await connect(options)
-
-    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:pong' }) })
-
-    expect(session.warnings()).not.toContainEqual(expect.stringContaining('unknown message'))
-  })
-
-  it('logs a warning for unknown message types', async () => {
-    await connect(options)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'unknown' }),
-    })
-
-    expect(session.warnings()).toContainEqual(expect.stringContaining('unknown message'))
-  })
-
-  // Handshake and liveness
-
-  it('sends the connected payload when the WebSocket opens', async () => {
-    // onOpen sends the connected payload without awaiting it, and it now reads storage first,
-    // so openAndHandshake lets the fire-and-forget send settle before asserting.
-    await openAndHandshake(options)
-
-    expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, expect.objectContaining({ type: 'agent:connect' }))
-  })
-
-  it('fires studio:ready once Studio acknowledges the agent:connect handshake', async () => {
-    await openAndHandshake(options)
-
-    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:ready' }) })
-
-    expect(session.named('studio:ready')).toHaveLength(1)
-  })
-
-  it('warns when Studio does not confirm readiness in time', async () => {
-    vi.useFakeTimers()
-
-    await openAndHandshake(options)
-
-    await vi.advanceTimersByTimeAsync(10_000)
-
-    expect(session.warnings()).toContainEqual(expect.stringContaining('did not confirm the connection was ready'))
-  })
-
-  it('clears the ready timeout once Studio acknowledges, so it never warns late', async () => {
-    vi.useFakeTimers()
-
-    await openAndHandshake(options)
-    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:ready' }) })
-
-    await vi.advanceTimersByTimeAsync(10_000)
-
-    expect(session.warnings()).not.toContainEqual(expect.stringContaining('did not confirm the connection was ready'))
-  })
-
-  it('does not arm the ready timeout once the session is disposed while its config load is pending', async () => {
-    vi.useFakeTimers()
-    const { promise: configPromise, resolve: resolveConfig } = Promise.withResolvers<ReturnType<typeof makeConfig>>()
-    loadConfig.mockReturnValueOnce(configPromise)
-
-    await connect(options)
-    void mockWs.trigger('open')
-    controller.abort()
-    resolveConfig(makeConfig())
-    await vi.waitFor(() => expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, expect.objectContaining({ type: 'agent:connect' })))
-
-    await vi.advanceTimersByTimeAsync(10_000)
-
-    expect(session.warnings()).not.toContainEqual(expect.stringContaining('did not confirm the connection was ready'))
-  })
-
-  it('logs the slug when the WebSocket opens', async () => {
-    await connect(options)
-
-    await mockWs.trigger('open')
-
-    expect(session.named('studio:connected')).toStrictEqual([
-      { name: 'studio:connected', ctx: { url: 'https://kubb.studio', versions: { studio: undefined, kubb: '5.0.0-test', agent: '1.0.0' } } },
-    ])
-  })
-
-  it('logs the slug when the WebSocket errors', async () => {
-    await connect(options)
-
-    await mockWs.trigger('error')
-
-    expect(session.named('studio:error')).toStrictEqual([
-      { name: 'studio:error', ctx: { error: expect.objectContaining({ message: 'Failed to connect to Kubb Studio' }) } },
-    ])
-  })
-
-  it('terminates the connection when no pong arrives within two heartbeat intervals', async () => {
-    vi.useFakeTimers()
-    options.heartbeatInterval = 1_000
-
-    await connect(options)
-    await mockWs.trigger('open')
-
-    await vi.advanceTimersByTimeAsync(3_000)
-
-    expect(mockWs.terminated).toBe(true)
-  })
-
-  it('keeps the connection alive while pongs keep arriving', async () => {
-    vi.useFakeTimers()
-    options.heartbeatInterval = 1_000
-
-    await connect(options)
-    await mockWs.trigger('open')
-
-    for (const _ of Array.from({ length: 5 })) {
-      await vi.advanceTimersByTimeAsync(1_000)
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:pong' }) })
-    }
-
-    expect(mockWs.terminated).toBe(false)
-  })
-
-  // save command
-
-  describe('save', () => {
-    const original = [
-      `import { defineConfig } from 'kubb/config'`,
-      `import { pluginTs } from '@kubb/plugin-ts'`,
-      ``,
-      `// Keep the enum shape stable for consumers.`,
-      `export default defineConfig({`,
-      `  input: './openapi.yaml',`,
-      `  plugins: [pluginTs({ enum: { type: 'asConst' }, group: { type: 'tag', name: ({ group }) => group } })],`,
-      `})`,
-      ``,
-    ].join('\n')
-
-    let projectRoot: string
-    let configFile: string
-
-    /**
-     * The `kubb:config-saved` reply the agent sent, if any.
-     */
-    const reply = () =>
-      vi
-        .mocked(sendAgentMessage)
-        .mock.calls.map(([, message]) => message)
-        .find((message) => message.type === 'agent:save')
-
-    beforeEach(() => {
-      projectRoot = mkdtempSync(path.join(tmpdir(), 'kubb-studio-'))
-      configFile = path.join(projectRoot, 'kubb.config.ts')
-      writeFileSync(configFile, original, 'utf-8')
-      options = { ...options, root: projectRoot }
-    })
-
-    afterEach(() => {
-      rmSync(projectRoot, { recursive: true, force: true })
-    })
-
-    const write = async (edits: Array<unknown>) => mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:save', edits }) })
-
-    it('writes a literal option and leaves the rest of the file alone', async () => {
-      await connect({ ...options, permissions: { allowConfigEdit: true } })
-
-      await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
-
-      expect(readFileSync(configFile, 'utf-8')).toBe(original.replace("'asConst'", "'enum'"))
-      expect(reply()).toMatchObject({ payload: { changed: true, outcomes: [{ applied: true }] } })
-    })
-
-    it('comments a plugin out on disable and restores it on enable, keeping every other line', async () => {
-      // A plugin needs its own line to be commented out safely, unlike `original` above where a
-      // single call shares its line with `plugins: [`.
-      const multiline = [
-        `import { defineConfig } from 'kubb/config'`,
-        `import { pluginTs } from '@kubb/plugin-ts'`,
-        `import { pluginZod } from '@kubb/plugin-zod'`,
-        ``,
-        `export default defineConfig({`,
-        `  plugins: [`,
-        `    pluginTs({ enum: { type: 'asConst' } }),`,
-        `    pluginZod({`,
-        `      inferred: true,`,
-        `    }),`,
-        `  ],`,
-        `})`,
-        ``,
-      ].join('\n')
-      writeFileSync(configFile, multiline, 'utf-8')
-
-      await connect({ ...options, permissions: { allowConfigEdit: true } })
-
-      await write([{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }])
-      const disabled = readFileSync(configFile, 'utf-8')
-      expect(disabled).toContain('// kubb:disabled @kubb/plugin-zod')
-      expect(disabled).toContain('//   inferred: true,')
-      expect(disabled).toContain("pluginTs({ enum: { type: 'asConst' } }),")
-
-      await write([{ operation: 'enable-plugin', plugin: '@kubb/plugin-zod' }])
-      expect(readFileSync(configFile, 'utf-8')).toBe(multiline)
-    })
-
-    it('refuses every edit when editing the config was not granted', async () => {
-      await connect({ ...options, permissions: { allowConfigEdit: false } })
-
-      await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
-
-      expect(readFileSync(configFile, 'utf-8')).toBe(original)
-      expect(reply()?.payload).toMatchObject({ changed: false, outcomes: [{ applied: false }] })
-    })
-
-    it('refuses in sandbox mode even when the host granted it', async () => {
-      vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
-
-      await connect({ ...options, permissions: { allowConfigEdit: true } })
-
-      await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
-
-      expect(readFileSync(configFile, 'utf-8')).toBe(original)
-    })
-
-    it('leaves an option customized in code untouched', async () => {
-      await connect({ ...options, permissions: { allowConfigEdit: true } })
-
-      await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['group', 'name'], value: 'x' }])
-
-      expect(readFileSync(configFile, 'utf-8')).toBe(original)
-      expect(reply()?.payload.outcomes[0]?.reason).toBe('group.name is customized in code')
-    })
-
-    // Studio only ever saw the file as it was on connect. Re-reading it right before the patch is
-    // what saves an edit the user made in their editor since then.
-    it('patches the file as it is on disk, not as it was on connect', async () => {
-      await connect({ ...options, permissions: { allowConfigEdit: true } })
-
-      const editedByHand = original.replace("'./openapi.yaml'", "'./petstore.yaml'")
-      writeFileSync(configFile, editedByHand, 'utf-8')
-
-      await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
-
-      expect(readFileSync(configFile, 'utf-8')).toBe(editedByHand.replace("'asConst'", "'enum'"))
-    })
-
-    // Studio waits on the reply, so a failure that produced none would hang its UI.
-    it('still replies when the config file cannot be read', async () => {
-      await connect({ ...options, permissions: { allowConfigEdit: true } })
-
-      rmSync(configFile)
-      await write([{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
-
-      expect(reply()?.payload).toMatchObject({ changed: false, outcomes: [{ applied: false }] })
-    })
-
-    it('still replies when the message carries no edits', async () => {
-      await connect({ ...options, permissions: { allowConfigEdit: true } })
-
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:save' }) })
-
-      expect(reply()?.payload).toMatchObject({ changed: false, outcomes: [] })
-    })
-
-    it('reports what the file holds on connect so Studio can disable the right controls', async () => {
-      await connect({ ...options, permissions: { allowConfigEdit: true } })
-
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:connect' }) })
-
-      const connected = vi
-        .mocked(sendAgentMessage)
-        .mock.calls.map(([, message]) => message)
-        .find((message) => message.type === 'agent:connect')
-
-      expect(connected?.type === 'agent:connect' && connected.payload.config.file).toStrictEqual({
-        configs: [
-          {
-            name: undefined,
-            plugins: [
-              {
-                importName: 'pluginTs',
-                options: {
-                  enum: {
-                    literal: true,
-                    value: {
-                      type: 'asConst',
-                    },
-                  },
-                  group: {
-                    literal: false,
-                  },
-                },
-                packageName: '@kubb/plugin-ts',
-              },
-            ],
-          },
-        ],
-        managed: true,
-      })
-    })
-  })
-
-  // generate command
-
-  it('calls generate with the resolved config on a generate command', async () => {
-    await connect(options)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate' }),
-    })
-
-    expect(generate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        config: expect.objectContaining({ name: 'test' }),
-      }),
-    )
-  })
-
-  it('generates with the plugins the payload names', async () => {
-    const payload = { plugins: [{ name: '@kubb/plugin-ts', options: {} }] }
-
-    await connect(options)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate', payload }),
-    })
-
-    expect(generate).toHaveBeenCalledWith(
-      expect.objectContaining({ config: expect.objectContaining({ plugins: [expect.objectContaining({ name: 'plugin-ts' })] }) }),
-    )
-  })
-
-  it('disables write in sandbox mode even when allowWrite is true', async () => {
-    vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
-
-    await connect({ ...options, permissions: { allowWrite: true } })
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate' }),
-    })
-
-    expect(generate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        config: expect.objectContaining({
-          output: expect.objectContaining({ write: false }),
-        }),
-      }),
-    )
-  })
-
-  it('uses inline input from payload in sandbox mode', async () => {
-    // Use a fresh session with isSandbox=true baked in
-    vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
-    const sandboxWs = new MockWebSocket()
-    vi.mocked(createWebsocket).mockReturnValue(sandboxWs as any)
-
-    const payload = { input: 'openapi: "3.0.0"', plugins: [] }
-
-    await connect(options)
-
-    await sandboxWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate', payload }),
-    })
-
-    expect(generate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        config: expect.objectContaining({
-          input: 'openapi: "3.0.0"',
-        }),
-      }),
-    )
-  })
-
-  it('ignores inline input from payload for a local agent that has not opted in', async () => {
-    const payload = { input: 'openapi: "3.0.0"', plugins: [] }
-
-    await connect(options) // allowInput: false
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate', payload }),
-    })
-
-    // Without allowInput the spec stays the on-disk config.input
-    expect(generate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        config: expect.objectContaining({ input: 'spec.yaml' }),
-      }),
-    )
-    expect(session.warnings()).toContainEqual(expect.stringContaining('KUBB_AGENT_ALLOW_INPUT'))
-  })
-
-  it('tells a CLI host to use --allowInput instead of the Docker-only env var', async () => {
-    const payload = { input: 'openapi: "3.0.0"', plugins: [] }
-
-    await connect({ ...options, client: { kind: 'cli' } }) // allowInput: false
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate', payload }),
-    })
-
-    expect(session.warnings()).toContainEqual(expect.stringContaining('--allowInput'))
-    expect(session.warnings()).not.toContainEqual(expect.stringContaining('KUBB_AGENT_ALLOW_INPUT'))
-  })
-
-  it('uses inline input from payload for a local agent when allowInput is enabled', async () => {
-    const payload = { input: 'openapi: "3.0.0"', plugins: [] }
-
-    await connect({ ...options, permissions: { allowInput: true } })
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate', payload }),
-    })
-
-    expect(generate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        config: expect.objectContaining({ input: 'openapi: "3.0.0"' }),
-      }),
-    )
-  })
-
-  it('falls back to the on-disk input for a local agent when allowInput is enabled but no spec is sent', async () => {
-    const payload = { plugins: [] }
-
-    await connect({ ...options, permissions: { allowInput: true } })
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate', payload }),
-    })
-
-    expect(generate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        config: expect.objectContaining({ input: 'spec.yaml' }),
-      }),
-    )
-  })
-
-  it('skips the formatter, the linter, and postGenerate when exec is not allowed', async () => {
-    loadConfig.mockResolvedValue(makeConfig({ output: { path: './gen', format: 'auto', lint: 'auto', postGenerate: ['echo hi'] } }))
-
-    await connect({ ...options, permissions: { allowExec: false } })
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate', payload: { plugins: [] } }),
-    })
-
-    expect(generate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        config: expect.objectContaining({ output: expect.objectContaining({ format: false, lint: false, postGenerate: [] }) }),
-      }),
-    )
-  })
-
-  // An adapter instance carries closures that cannot survive JSON, so the payload is an options
-  // patch: the adapter factory is re-invoked with the merged options rather than replaced by the
-  // plain object Studio sent.
-  it('re-invokes the adapter factory with the payload options merged in', async () => {
-    loadConfig.mockResolvedValueOnce(makeConfig({ adapter: { name: 'oas', options: { validate: true } } }) as any)
-    const payload = { adapter: { server: { index: 1 } }, plugins: [] }
-
-    await connect(options)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate', payload }),
-    })
-
-    const adapter = vi.mocked(generate).mock.calls[0]?.[0].config.adapter
-
-    expect(adapter?.options).toStrictEqual({ validate: true, server: { index: 1 } })
-    expect(adapter).toHaveProperty('parse')
-  })
-
-  it('preserves the disk config adapter when payload has no adapter', async () => {
-    const diskAdapter = { name: 'oas', options: {}, parse: vi.fn() }
-    loadConfig.mockResolvedValueOnce(makeConfig({ adapter: diskAdapter }) as any)
-    const payload = { plugins: [] }
-
-    await connect(options)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate', payload }),
-    })
-
-    const call = vi.mocked(generate).mock.calls[0]?.[0]
-    expect(call?.config).toHaveProperty('adapter', diskAdapter)
-  })
-
-  it('ignores a second generate command while one is already in progress', async () => {
-    let resolveGenerate: () => void = () => {}
-    vi.mocked(generate).mockImplementationOnce(
-      () =>
-        new Promise((resolve) => {
-          resolveGenerate = resolve
-        }),
-    )
-
-    await connect(options)
-
-    const first = mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate' }),
-    })
-
-    // Wait until `generate()` is actually in flight (loadConfig/mergePlugins/etc. resolve
-    // over several microtasks) before firing the second command, so it reliably lands
-    // while the first generation is still running.
-    await vi.waitFor(() => expect(generate).toHaveBeenCalledTimes(1))
-
-    const second = mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate' }),
-    })
-
-    resolveGenerate()
-    await Promise.all([first, second])
-
-    expect(generate).toHaveBeenCalledTimes(1)
-    expect(session.warnings()).toContainEqual(expect.stringContaining('already in progress'))
-  })
-
-  it('allows a new generate command once the previous one has finished', async () => {
-    await connect(options)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate' }),
-    })
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate' }),
-    })
-
-    expect(generate).toHaveBeenCalledTimes(2)
-  })
-
-  // The stream is attached for the length of one generation and detached after, so two runs can
-  // never interleave their events on one socket.
-  it('detaches the event stream when a generate command finishes', async () => {
-    await connect(options)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate', payload: { plugins: [] } }),
-    })
-
-    const detach = vi.mocked(setupEventsStream).mock.results[0]?.value
-    const streamHooks = vi.mocked(setupEventsStream).mock.calls[0]?.[1]
-
-    expect(streamHooks).toBe(vi.mocked(generate).mock.calls[0]?.[0].hooks)
-    expect(detach).toHaveBeenCalledTimes(1)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:generate', payload: { plugins: [] } }),
-    })
-
-    expect(setupEventsStream).toHaveBeenCalledTimes(2)
-    expect(vi.mocked(setupEventsStream).mock.results[1]?.value).toHaveBeenCalledTimes(1)
-  })
-
-  // files command
-
-  describe('files command', () => {
-    function reply(type: 'agent:files') {
-      return vi
-        .mocked(sendAgentMessage)
-        .mock.calls.map(([, message]) => message)
-        .findLast((message) => message.type === type)
-    }
-
-    // `onGenerationEnd` has to fire while `generate()` is still pending, the same as a real
-    // `setupEventsStream` reacting to the `kubb:generation:end` hook mid-run, so `#handleFiles`
-    // has the cached result by the time a `studio:files` command arrives.
-    async function generateThenRequestFiles(paths: Array<string> = ['src/index.ts']) {
-      const generation = await makeGeneration({ 'src/index.ts': 'export {}' })
-      vi.mocked(generate).mockImplementationOnce(async () => {
-        vi.mocked(setupEventsStream).mock.calls.at(-1)?.[3]?.onGenerationEnd?.(generation)
-      })
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:files', jobId: 'job-1', payload: { paths } }) })
-    }
-
-    it('refuses when the agent was not granted allowRead', async () => {
-      await connect(options) // allowRead: false
-
-      await generateThenRequestFiles()
-
-      expect(reply('agent:files')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('not granted') })
-    })
-
-    it('serves the requested file once allowRead is granted', async () => {
-      await connect({ ...options, permissions: { allowRead: true } })
-
-      await generateThenRequestFiles()
-
-      expect(reply('agent:files')?.payload).toStrictEqual({ status: 'ok', files: { 'src/index.ts': 'export {}' } })
-    })
-
-    it('serves files for a sandbox agent even when allowRead is false', async () => {
-      vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
-
-      await connect({ ...options, permissions: { allowRead: false } })
-
-      await generateThenRequestFiles()
-
-      expect(reply('agent:files')?.payload).toStrictEqual({ status: 'ok', files: { 'src/index.ts': 'export {}' } })
-    })
-
-    it('omits a path the last generation did not produce, rather than refusing the whole request', async () => {
-      await connect({ ...options, permissions: { allowRead: true } })
-
-      await generateThenRequestFiles(['src/index.ts', 'src/missing.ts'])
-
-      expect(reply('agent:files')?.payload).toStrictEqual({ status: 'ok', files: { 'src/index.ts': 'export {}' } })
-    })
-
-    it('refuses a request over the per-message path cap', async () => {
-      await connect({ ...options, permissions: { allowRead: true } })
-
-      await generateThenRequestFiles(Array.from({ length: 51 }, (_, index) => `src/file-${index}.ts`))
-
-      expect(reply('agent:files')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('50') })
-    })
-
-    it('refuses when no prior generation exists to read from', async () => {
-      await connect({ ...options, permissions: { allowRead: true } })
-
-      await mockWs.trigger('message', {
-        data: JSON.stringify({ type: 'studio:files', jobId: 'job-1', payload: { paths: ['src/index.ts'] } }),
-      })
-
-      expect(reply('agent:files')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('no prior generation') })
-    })
-  })
-
-  // snapshot command
-
-  describe('snapshot command', () => {
-    function reply(type: 'agent:snapshot') {
-      return vi
-        .mocked(sendAgentMessage)
-        .mock.calls.map(([, message]) => message)
-        .findLast((message) => message.type === type)
-    }
-
-    // `onGenerationEnd` has to fire while `generate()` is still pending, the same as a real
-    // `setupEventsStream` reacting to the `kubb:generation:end` hook mid-run, so `#handleGenerate`
-    // has the result by the time its callback caches it.
-    async function generateThenSnapshot(
-      payload: Record<string, unknown> = { name: 'pkg', version: '1.0.0', uploadPath: '/api/agent/snapshots/id/upload' },
-      generation?: Awaited<ReturnType<typeof makeGeneration>>,
-    ) {
-      const resolvedGeneration = generation ?? (await makeGeneration({ 'src/index.ts': 'export {}' }, { peerDependencies: { '@kubb/core': '5.0.0' } }))
-      vi.mocked(generate).mockImplementationOnce(async () => {
-        vi.mocked(setupEventsStream).mock.calls.at(-1)?.[3]?.onGenerationEnd?.(resolvedGeneration)
-      })
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:snapshot', jobId: 'job-1', payload }) })
-    }
-
-    const redirectResponse = { status: 307, headers: new Headers({ location: 'https://storage.example.com/upload' }) }
-
-    beforeEach(() => {
-      vi.mocked(createSnapshotPackage).mockResolvedValue({ bytes: Buffer.from([1]), integrity: 'sha512-abc' })
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(redirectResponse).mockResolvedValueOnce({ ok: true }))
-    })
-
-    afterEach(() => vi.unstubAllGlobals())
-
-    it('refuses in sandbox mode, since a sandbox agent has no project to build a package from', async () => {
-      vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
-      await connect(options)
-
-      await generateThenSnapshot()
-
-      expect(createSnapshotPackage).not.toHaveBeenCalled()
-      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('sandbox') })
-    })
-
-    it('refuses when the message is missing required fields', async () => {
-      await connect(options)
-
-      await generateThenSnapshot({ name: 'pkg' })
-
-      expect(createSnapshotPackage).not.toHaveBeenCalled()
-      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('missing required fields') })
-    })
-
-    it('refuses when no prior generation exists to pack', async () => {
-      await connect(options)
-
-      await mockWs.trigger('message', {
-        data: JSON.stringify({
-          type: 'studio:snapshot',
-          jobId: 'job-1',
-          payload: { name: 'pkg', version: '1.0.0', uploadPath: '/api/agent/snapshots/id/upload' },
-        }),
-      })
-
-      expect(createSnapshotPackage).not.toHaveBeenCalled()
-      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('no prior generation') })
-    })
-
-    it('packs the cached generation, asks Studio for a storage URL with no body, uploads to it, and replies with the integrity hash and peer dependencies', async () => {
-      await connect(options)
-
-      await generateThenSnapshot()
-
-      expect(createSnapshotPackage).toHaveBeenCalledWith(
-        { 'src/index.ts': 'export {}' },
-        expect.objectContaining({ name: 'pkg', version: '1.0.0', peerDependencies: { '@kubb/core': '5.0.0' } }),
-      )
-      expect(fetch).toHaveBeenNthCalledWith(1, new URL('/api/agent/snapshots/id/upload', 'https://kubb.studio'), {
-        method: 'PUT',
-        headers: { Authorization: 'Bearer my-token' },
-        redirect: 'manual',
-      })
-      expect(fetch).toHaveBeenNthCalledWith(2, 'https://storage.example.com/upload', { method: 'PUT', body: new Uint8Array([1]) })
-      expect(reply('agent:snapshot')?.payload).toStrictEqual({ status: 'ok', integrity: 'sha512-abc', peerDependencies: { '@kubb/core': '5.0.0' } })
-    })
-
-    it('refuses before any upload when the generation has a missing dependency Studio does not bundle', async () => {
-      await connect(options)
-
-      await generateThenSnapshot(undefined, await makeGeneration({ 'src/index.ts': 'export {}' }, { missingDependencies: ['@kubb/plugin-barrel'] }))
-
-      expect(fetch).not.toHaveBeenCalled()
-      expect(createSnapshotPackage).not.toHaveBeenCalled()
-      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('@kubb/plugin-barrel') })
-    })
-
-    it('packs anyway when the missing dependency is one Studio bundles', async () => {
-      await connect(options)
-
-      await generateThenSnapshot(
-        { name: 'pkg', version: '1.0.0', uploadPath: '/api/agent/snapshots/id/upload', bundledDependencies: ['@kubb/plugin-barrel'] },
-        await makeGeneration({ 'src/index.ts': 'export {}' }, { missingDependencies: ['@kubb/plugin-barrel'] }),
-      )
-
-      expect(createSnapshotPackage).toHaveBeenCalled()
-      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'ok' })
-    })
-
-    it('refuses when Studio does not redirect to a storage URL', async () => {
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ status: 401, headers: new Headers() }))
-      await connect(options)
-
-      await generateThenSnapshot()
-
-      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('401') })
-    })
-
-    it('reports an error reply when the storage upload fails', async () => {
-      vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(redirectResponse).mockResolvedValueOnce({ ok: false, status: 500 }))
-      await connect(options)
-
-      await generateThenSnapshot()
-
-      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('500') })
-    })
-
-    it('clears the cached generation once a following generate command fails, so a stale run is never packed', async () => {
-      await connect(options)
-
-      const generation = await makeGeneration({ 'src/index.ts': 'export {}' })
-      vi.mocked(generate).mockImplementationOnce(async () => {
-        vi.mocked(setupEventsStream).mock.calls.at(-1)?.[3]?.onGenerationEnd?.(generation)
-      })
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
-
-      vi.mocked(generate).mockRejectedValueOnce(new Error('generation blew up'))
-      await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:generate' }) })
-
-      await mockWs.trigger('message', {
-        data: JSON.stringify({
-          type: 'studio:snapshot',
-          jobId: 'job-1',
-          payload: { name: 'pkg', version: '1.0.0', uploadPath: '/api/agent/snapshots/id/upload' },
-        }),
-      })
-
-      expect(createSnapshotPackage).not.toHaveBeenCalled()
-      expect(reply('agent:snapshot')?.payload).toMatchObject({ status: 'error', message: expect.stringContaining('no prior generation') })
-    })
-  })
-
-  // connect command
-
-  it('sends a connected message with agent info on a connect command', async () => {
-    await connect(options)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:connect' }),
-    })
-
-    expect(sendAgentMessage).toHaveBeenCalledWith(
-      mockWs,
-      expect.objectContaining({
-        type: 'agent:connect',
-        payload: expect.objectContaining({
-          versions: {
-            kubb: '5.0.0-test',
-            agent: '1.0.0',
-          },
-          root: '/project',
-          config: expect.objectContaining({ path: 'kubb.config.ts' }),
-        }),
-      }),
-    )
-  })
-
-  it('announces a shutdown so Studio does not wait out the heartbeat window', async () => {
-    await connect(options)
-
-    controller.abort()
-    await vi.waitFor(() => expect(sendAgentMessage).toHaveBeenCalledWith(mockWs, { type: 'agent:disconnect', reason: 'shutdown' }))
-  })
-
-  it('stays quiet when Studio is the one ending the session', async () => {
-    await connect(options)
-
-    // Studio decided this, so echoing it back would say nothing new.
-    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:disconnect', reason: 'revoked' }) })
-
-    expect(sendAgentMessage).not.toHaveBeenCalledWith(mockWs, expect.objectContaining({ type: 'agent:disconnect' }))
-  })
-
-  // Studio's UI only sends `studio:connect` from its own socket's `open`, so it always lands after
-  // the agent has already announced itself. The version has to come off the session response, or
-  // the connect line can never name both sides.
-  it('names Studio from the session response, before any command arrives', async () => {
-    vi.mocked(createAgentSession).mockResolvedValue(makeSession({ version: '9.9.9' }))
-
-    await connect(options)
-    await mockWs.trigger('open')
-
-    expect(session.named('studio:connected').at(-1)?.ctx).toStrictEqual({
-      url: 'https://kubb.studio',
-      versions: { studio: '9.9.9', kubb: '5.0.0-test', agent: '1.0.0' },
-    })
-  })
-
-  // `addEventListener` drops the promise its listener returns, so a throwing logger used to reach
-  // the process as an unhandled rejection.
-  it('survives a logger that throws while announcing the connection', async () => {
-    const rejections: Array<unknown> = []
-    const onUnhandled = (reason: unknown) => rejections.push(reason)
-    const processEvents = process as unknown as NodeJS.EventEmitter
-    processEvents.on('unhandledRejection', onUnhandled)
 
     try {
-      await connect({
-        ...options,
-        installLogger: (hooks) => {
-          hooks.hook('studio:connected', () => {
-            throw new Error('broken logger')
-          })
+      const disconnected = vi.fn()
+      const { promise: closed, resolve: resolveClosed } = Promise.withResolvers<void>()
+      const close = vi.fn(() => resolveClosed())
+      const ping = vi.fn((): Promise<void> => new Promise(() => {}))
+      const { promise: agentReady, resolve: onAgentReady } = Promise.withResolvers<AgentApi>()
+
+      const started = new StudioSession({
+        token: 'token',
+        studioUrl,
+        configPath: 'kubb.config.ts',
+        version: '2.0.0',
+        root,
+        heartbeatInterval: 1_000,
+        loadConfig: async () => ({ plugins: [] }) as unknown as Config,
+        installLogger: (hooks) => void hooks.hook('studio:disconnected', disconnected),
+        connector: async ({ local }) => {
+          onAgentReady(local)
+          return { studio: { ping }, closed, close }
         },
-      })
+      }).start()
 
-      await mockWs.trigger('open')
-      await new Promise((resolve) => setImmediate(resolve))
+      const agent = await agentReady
+      await agent.connect()
+      await started
 
-      expect(rejections).toStrictEqual([])
+      // Fires the heartbeat timer, then lets its deadline elapse without the ping settling.
+      await vi.advanceTimersByTimeAsync(1_000)
+      await vi.advanceTimersByTimeAsync(agentDefaults.heartbeatTimeoutMs)
+
+      // Called at least once by the failed heartbeat, and again by the disconnect it triggers.
+      expect(close).toHaveBeenCalled()
+      expect(disconnected).toHaveBeenCalledWith({ reason: 'connection closed' })
     } finally {
-      processEvents.off('unhandledRejection', onUnhandled)
+      vi.useRealTimers()
     }
   })
+})
 
-  it('refreshes the Studio version from a later studio:connect', async () => {
-    vi.mocked(createAgentSession).mockResolvedValue(makeSession({ version: '9.9.9' }))
+describe('startGeneration', () => {
+  it('disposing the run cancels it instead of leaving an unhandled rejection', async () => {
+    const { agent } = await connectStudio()
 
-    await connect(options)
-    await mockWs.trigger('message', { data: JSON.stringify({ type: 'studio:connect', version: '10.0.0' }) })
-    await mockWs.trigger('open')
+    const run = agent.startGeneration({ jobId: 'job-1', config: {} })
+    // Stands in for capnweb disposing the stub, without a round trip.
+    ;(run as unknown as Disposable)[Symbol.dispose]()
 
-    expect(session.named('studio:connected').at(-1)?.ctx.versions).toStrictEqual({ studio: '10.0.0', kubb: '5.0.0-test', agent: '1.0.0' })
+    await expect(run.result()).rejects.toThrow('Generation canceled')
+  })
+})
+
+describe('readFiles', () => {
+  it('refuses to read when the host did not grant allowRead', async () => {
+    const { agent } = await connectStudio()
+
+    await expect(agent.readFiles({ paths: ['src/gen/pet.ts'] })).rejects.toThrow(/not granted permission to read generated files.*KUBB_AGENT_ALLOW_READ=true/)
   })
 
-  it('reflects allowWrite in permissions on connect command', async () => {
-    await connect({ ...options, permissions: { allowWrite: true } })
+  it('refuses more paths than one request may carry', async () => {
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+    const paths = Array.from({ length: MAX_FILES_PER_REQUEST + 1 }, (_, index) => `src/gen/file${index}.ts`)
 
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:connect' }),
+    await expect(agent.readFiles({ paths })).rejects.toThrow(`At most ${MAX_FILES_PER_REQUEST} paths may be requested at once`)
+  })
+
+  it('returns only the paths the run produced, so a request cannot escape the output', async () => {
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+    await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
+
+    await expect(agent.readFiles({ paths: ['../../etc/passwd', 'src/gen/pet.ts'] })).resolves.toStrictEqual({
+      files: { 'src/gen/pet.ts': 'export const pet = 1' },
     })
+  })
+})
 
-    expect(sendAgentMessage).toHaveBeenCalledWith(
-      mockWs,
-      expect.objectContaining({
-        payload: expect.objectContaining({
-          permissions: {
-            allowRead: false,
-            allowWrite: true,
-            allowConfigEdit: false,
-            allowInput: false,
-            allowExec: false,
-          },
-        }),
-      }),
+describe('saveConfig', () => {
+  it('refuses every edit when the host did not grant allowConfigEdit', async () => {
+    const { agent } = await connectStudio()
+    const edits = [{ kind: 'plugin', name: '@kubb/plugin-ts', options: {} }] as unknown as Parameters<AgentApi['saveConfig']>[0]['edits']
+
+    await expect(agent.saveConfig({ edits })).resolves.toStrictEqual({
+      outcomes: [{ edit: edits[0], applied: false, reason: 'the agent was not granted permission to edit kubb.config.ts' }],
+      changed: false,
+    })
+  })
+})
+
+describe('publishSnapshot', () => {
+  const input = { name: 'pkg', version: '1.0.0', bundledDependencies: [pluginName], uploadPath: '/snapshots/1' }
+
+  async function generated(): Promise<AgentApi> {
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+    await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
+    return agent
+  }
+
+  it('refuses an upload path that points off the Studio origin', async () => {
+    const agent = await generated()
+    using fetchMock = vi.spyOn(globalThis, 'fetch')
+
+    await expect(agent.publishSnapshot({ ...input, uploadPath: 'https://evil.test/steal' })).rejects.toThrow(
+      'Snapshot upload path must stay on the Studio origin',
     )
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
-  it('advertises allowInput in permissions when the agent opts in', async () => {
-    await connect({ ...options, permissions: { allowInput: true } })
+  it('refuses a plaintext storage URL the redirect points at', async () => {
+    const agent = await generated()
+    using _ = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 307, headers: { location: 'http://evil.test/bucket' } }))
 
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:connect' }),
-    })
-
-    expect(sendAgentMessage).toHaveBeenCalledWith(
-      mockWs,
-      expect.objectContaining({
-        payload: expect.objectContaining({
-          permissions: {
-            allowRead: false,
-            allowWrite: false,
-            allowConfigEdit: false,
-            allowInput: true,
-            allowExec: false,
-          },
-        }),
-      }),
-    )
+    await expect(agent.publishSnapshot(input)).rejects.toThrow('Refusing snapshot upload to http://evil.test')
   })
 
-  it('disables write in sandbox mode but still accepts input and read', async () => {
-    vi.mocked(createAgentSession).mockResolvedValue(makeSession({ isSandbox: true }))
-    const sandboxWs = new MockWebSocket()
-    vi.mocked(createWebsocket).mockReturnValue(sandboxWs as any)
+  it('PUTs the package to the storage URL without the Studio bearer token', async () => {
+    const agent = await generated()
+    using fetchMock = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(null, { status: 307, headers: { location: 'https://storage.test/bucket/1' } }))
+      .mockResolvedValueOnce(new Response(null, { status: 200 }))
 
-    await connect({ ...options, permissions: { allowWrite: true } })
+    await expect(agent.publishSnapshot(input)).resolves.toMatchObject({ integrity: expect.stringContaining('sha') })
 
-    await sandboxWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:connect' }),
-    })
-
-    expect(sendAgentMessage).toHaveBeenCalledWith(
-      sandboxWs,
-      expect.objectContaining({
-        payload: expect.objectContaining({
-          permissions: {
-            allowRead: true,
-            allowWrite: false,
-            allowConfigEdit: false,
-            allowInput: true,
-            allowExec: false,
-          },
-        }),
-      }),
-    )
-  })
-
-  // Reconnect on close / error
-
-  it('calls disconnect when the WebSocket closes', async () => {
-    vi.useFakeTimers()
-
-    await connect(options)
-
-    await mockWs.trigger('close')
-
-    expect(disconnect).toHaveBeenCalledWith({
-      sessionId: 'session-abc',
-      studioUrl: 'https://kubb.studio',
-      token: 'my-token',
-      slug: 'brave-otter',
-    })
-  })
-
-  it('closes the WebSocket without reconnecting when a disconnect message with reason "revoked" is received', async () => {
-    vi.useFakeTimers()
-
-    await connect({ ...options, logLevel: logLevelMap.info })
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:disconnect', reason: 'revoked' }),
-    })
-
-    expect(session.named('studio:disconnected')).toStrictEqual([{ name: 'studio:disconnected', ctx: { reason: 'revoked' } }])
-    expect(mockWs.closed).toBe(true)
-    // The server already knows about the closure, so the disconnect API is not called.
-    expect(disconnect).not.toHaveBeenCalled()
-    // A revoked session does not trigger a reconnect.
-    expect(consoleSpy.error).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
-
-    // A real socket fires its own `close` event once `.close()` above settles. That must not run
-    // teardown a second time and reconnect a session Studio just revoked.
-    await mockWs.trigger('close')
-
-    expect(disconnect).not.toHaveBeenCalled()
-    expect(consoleSpy.error).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
-  })
-
-  it('cleans up and reconnects when a disconnect message with reason "expired" is received', async () => {
-    vi.useFakeTimers()
-
-    await connect({ ...options, logLevel: logLevelMap.info })
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:disconnect', reason: 'expired' }),
-    })
-
-    expect(session.named('studio:disconnected')).toStrictEqual([{ name: 'studio:disconnected', ctx: { reason: 'expired' } }])
-    expect(mockWs.closed).toBe(true)
-    expect(disconnect).not.toHaveBeenCalled()
-    // Unlike a revoked session, an expired one triggers a reconnect.
-    expect(consoleSpy.error).toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
-
-    const reconnectCount = vi.mocked(consoleSpy.error).mock.calls.filter((call) => String(call[0]).includes('Retrying connection')).length
-
-    // A real socket fires its own `close` event once `.close()` above settles. That must not run
-    // teardown a second time and queue a duplicate reconnect on top of the one already scheduled
-    // above.
-    await mockWs.trigger('close')
-
-    expect(disconnect).not.toHaveBeenCalled()
-    expect(vi.mocked(consoleSpy.error).mock.calls.filter((call) => String(call[0]).includes('Retrying connection'))).toHaveLength(reconnectCount)
-  })
-
-  it('never logs a retry when no logLevel is given, the silent default a library should have', async () => {
-    vi.useFakeTimers()
-
-    await connect(options)
-
-    await mockWs.trigger('message', {
-      data: JSON.stringify({ type: 'studio:disconnect', reason: 'expired' }),
-    })
-
-    expect(consoleSpy.error).not.toHaveBeenCalledWith(expect.stringContaining('Retrying connection'))
-  })
-
-  it('calls onTokenRejected and stops retrying when a background reconnect is rejected with an invalid token', async () => {
-    vi.useFakeTimers()
-    const onTokenRejected = vi.fn()
-
-    await connect({ ...options, onTokenRejected })
-
-    await mockWs.trigger('close')
-
-    const error = new InvalidAgentTokenError('https://kubb.studio')
-    vi.mocked(createAgentSession).mockRejectedValueOnce(error)
-
-    await vi.advanceTimersByTimeAsync(options.retryInterval!)
-
-    expect(onTokenRejected).toHaveBeenCalledWith(error)
-
-    // A rejected token stays rejected, so no further reconnect attempt should follow.
-    await vi.advanceTimersByTimeAsync(options.retryInterval! * 3)
-    expect(createAgentSession).toHaveBeenCalledTimes(2)
-  })
-
-  it('keeps retrying an ordinary network failure without calling onTokenRejected', async () => {
-    vi.useFakeTimers()
-    const onTokenRejected = vi.fn()
-
-    await connect({ ...options, onTokenRejected })
-
-    await mockWs.trigger('close')
-
-    vi.mocked(createAgentSession).mockRejectedValueOnce(new Error('502 Bad Gateway'))
-    vi.mocked(createAgentSession).mockResolvedValueOnce(makeSession())
-
-    await vi.advanceTimersByTimeAsync(options.retryInterval!)
-    await vi.advanceTimersByTimeAsync(0)
-
-    expect(onTokenRejected).not.toHaveBeenCalled()
-    expect(createAgentSession).toHaveBeenCalledTimes(2)
-  })
-
-  it('logs and retries instead of crashing when a reconnect attempt fails to reach Studio', async () => {
-    vi.useFakeTimers()
-    const unhandledRejections: Array<unknown> = []
-    const onUnhandledRejection = (reason: unknown) => unhandledRejections.push(reason)
-    // `bun-types` narrows `process.on` to its own event union, which omits Node's process events.
-    const processEvents = process as unknown as NodeJS.EventEmitter
-    processEvents.on('unhandledRejection', onUnhandledRejection)
-
-    try {
-      await connect(options)
-
-      await mockWs.trigger('close')
-
-      // The reconnect attempt scheduled after close fails to reach Studio (e.g. a 502)
-      vi.mocked(createAgentSession).mockRejectedValueOnce(new Error('502 Bad Gateway'))
-      vi.mocked(createAgentSession).mockResolvedValueOnce(makeSession())
-
-      await vi.advanceTimersByTimeAsync(options.retryInterval!)
-      await vi.advanceTimersByTimeAsync(0)
-
-      expect(session.errors().map((error) => error.message)).toContainEqual(expect.stringContaining('502 Bad Gateway'))
-      // The failed attempt schedules another reconnect rather than giving up.
-      await vi.advanceTimersByTimeAsync(options.retryInterval!)
-      expect(createAgentSession).toHaveBeenCalledTimes(3)
-      expect(unhandledRejections).toStrictEqual([])
-    } finally {
-      processEvents.off('unhandledRejection', onUnhandledRejection)
-    }
+    const [uploadUrl, uploadInit] = fetchMock.mock.calls[1] as [URL, RequestInit]
+    expect(uploadUrl.href).toBe('https://storage.test/bucket/1')
+    expect(uploadInit.headers).toBeUndefined()
   })
 })

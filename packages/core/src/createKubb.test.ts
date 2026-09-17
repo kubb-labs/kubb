@@ -88,6 +88,45 @@ describe('createKubb', () => {
     expect(kubb.config.parsers).toStrictEqual([])
   })
 
+  test('stops before setup when its signal is aborted', async () => {
+    const controller = new AbortController()
+    controller.abort(new Error('Canceled'))
+
+    await expect(createKubb(config, { signal: controller.signal }).build()).rejects.toThrow('Canceled')
+  })
+
+  test('stops mid-build when its signal aborts during parsing', async () => {
+    const controller = new AbortController()
+    let releaseParse: (() => void) | undefined
+    const parseStarted = new Promise<void>((resolve) => {
+      releaseParse = resolve
+    })
+
+    const waitingAdapter = createMockedAdapter({
+      parse: async (_source, { signal } = {}) => {
+        releaseParse?.()
+        await delay(50)
+        signal?.throwIfAborted()
+        return ast.factory.createInput()
+      },
+    })
+
+    const promise = createKubb(
+      {
+        ...config,
+        adapter: waitingAdapter,
+        output: { ...config.output, clean: false },
+        storage: memoryStorage(),
+      },
+      { hooks: new Hookable<KubbHooks>(), signal: controller.signal },
+    ).generate()
+
+    await parseStarted
+    controller.abort(new Error('Canceled'))
+
+    await expect(promise).rejects.toThrow('Canceled')
+  })
+
   test('output.clean raises a KUBB_CLEAN_ROOT diagnostic when the output is the project root', async () => {
     // A nonexistent temp dir as root, so a regression in the guard can only touch a throwaway path.
     const root = path.join(os.tmpdir(), 'kubb-clean-guard')

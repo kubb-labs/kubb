@@ -21,6 +21,7 @@ type ParseOptions = {
 
 type WriteOptions = ParseOptions & {
   storage: Storage
+  signal?: AbortSignal
   /**
    * Consulted before each write so a file the output passes already normalized is recognized as
    * unchanged. Omitted when no formatter, linter, or `postGenerate` step is configured.
@@ -200,7 +201,7 @@ export class FileManager {
    * A file the storage already holds is skipped, so a rebuild that generates identical output
    * writes nothing and leaves every mtime where it was.
    */
-  async write(files: Array<FileNode>, { storage, parsers, manifest }: WriteOptions): Promise<void> {
+  async write(files: Array<FileNode>, { storage, parsers, manifest, signal }: WriteOptions): Promise<void> {
     if (files.length === 0) return
 
     await this.hooks.callHook('start', files)
@@ -211,15 +212,19 @@ export class FileManager {
       items: files,
       limit: FILE_CONCURRENCY,
       run: async (file, index) => {
+        signal?.throwIfAborted()
         const source = await this.parse(file, { parsers })
         await this.hooks.callHook('update', { file, source, processed: index + 1, total, percentage: ((index + 1) / total) * 100 })
         if (!source) return
+
+        signal?.throwIfAborted()
 
         // Checking here rather than inside a driver gives a storage writing to S3 or a database
         // the same guarantee `fsStorage` has, that unchanged content is never rewritten.
         const stored = await storage.readItem(file.path)
         if (isUnchanged({ stored, source, key: file.path, manifest })) return
 
+        signal?.throwIfAborted()
         await storage.writeItem(file.path, source, { stored })
 
         // Only a file that was written can have been changed by the output passes.

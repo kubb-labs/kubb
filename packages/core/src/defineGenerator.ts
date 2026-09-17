@@ -18,6 +18,10 @@ import type { Hookable } from './Hookable.ts'
  */
 export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
+   * Stops cooperative generation work at the next safe checkpoint.
+   */
+  signal?: AbortSignal
+  /**
    * The resolved Kubb config for this build, including `root`, `input`, `output`, and the
    * full plugin list.
    */
