@@ -21,9 +21,6 @@ type ParseOptions = {
 
 type WriteOptions = ParseOptions & {
   storage: Storage
-  /**
-   * Stops file writes before the next file begins processing.
-   */
   signal?: AbortSignal
   /**
    * Consulted before each write so a file the output passes already normalized is recognized as

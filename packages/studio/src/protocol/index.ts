@@ -1,13 +1,10 @@
 import type { KubbHooks as CoreKubbHooks } from '@kubb/core'
 
-/** Canonical Kubb lifecycle registry, owned by `@kubb/core`. */
+/**
+ * Canonical Kubb lifecycle registry from `@kubb/core`.
+ */
 export type KubbHooks = CoreKubbHooks
 
-/**
- * Dependency-free RPC contracts shared by Kubb agents and Studio hosts.
- *
- * Cap’n Web transport implementations live in the hosts so this package stays portable.
- */
 /**
  * JSON-serializable Kubb config exchanged over RPC. A live `kubb/kit` config holds
  * functions and class instances that cannot survive JSON, so both sides pass this flattened shape
@@ -193,7 +190,6 @@ export const studioJobEventTypes = [
 
 export type StudioJobEventType = (typeof studioJobEventTypes)[number]
 
-/** JSON-safe payloads for the stable Studio event API. */
 export type StudioJobEventPayloads = {
   'kubb:plugin:start': [ctx: { plugin: { name: string } }]
   'kubb:plugin:end': [ctx: { plugin: { name: string }; duration: number; success: boolean }]
@@ -263,19 +259,9 @@ export type StudioJobEvent = {
  * and terminal results are fetched independently after reconnecting.
  */
 export type JobEvent = StudioJobEvent & {
-  /** Event-envelope version. Breaking payload changes require a new version. */
   version: 1
-  /**
-   * Server-owned job identifier.
-   */
   jobId: string
-  /**
-   * Unix time in milliseconds when the agent emitted the event.
-   */
   timestamp: number
-  /**
-   * Monotonic sequence number for this agent connection.
-   */
   seq: number
 }
 
@@ -289,29 +275,11 @@ export type SnapshotResult = { integrity: string; peerDependencies: Record<strin
  * Operations Studio can invoke on an agent through a host-provided RPC transport.
  */
 export type AgentApi = {
-  /**
-   * Returns the agent's current connection payload.
-   */
   connect: () => Promise<ConnectMessagePayload>
-  /**
-   * Runs one generation and returns its summary.
-   */
   generate: (input: GenerateInput) => Promise<GenerateResult>
-  /**
-   * Applies the requested edits to the agent's Kubb config.
-   */
   saveConfig: (input: { edits: Array<ConfigEdit> }) => Promise<SaveResult>
-  /**
-   * Packages the most recent generation and uploads it to Studio storage.
-   */
   snapshot: (input: SnapshotInput) => Promise<SnapshotResult>
-  /**
-   * Reads generated files from the active run. Callers must request no more than `MAX_FILES_PER_REQUEST` paths.
-   */
   readFiles: (input: { paths: Array<string> }) => Promise<{ files: Record<string, string> }>
-  /**
-   * Cancels the matching active generation.
-   */
   cancel: (input: { jobId: string }) => Promise<void>
 }
 
@@ -319,19 +287,10 @@ export type AgentApi = {
  * Operations an agent can invoke on Studio through a host-provided RPC transport.
  */
 export type StudioApi = {
-  /**
-   * Delivers one lifecycle event for a generation job.
-   */
   event: (input: JobEvent) => Promise<void>
-  /**
-   * Refreshes the agent's Studio liveness record.
-   */
   ping: () => Promise<void>
 }
 
-/**
- * Run a generation with the given config. `payload` is the merged config Studio wants generated.
- */
 /**
  * How many files a single `readFiles` request may ask for at once.
  */

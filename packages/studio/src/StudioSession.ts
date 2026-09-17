@@ -42,9 +42,6 @@ type GenerationState = { storage: Storage; root: string; paths: Set<string>; pee
 export type RpcAttach = (socket: WebSocket, local: AgentApi) => { remote: StudioApi; close: () => void }
 
 export type StudioSessionOptions = {
-  /**
-   * Binds the authenticated socket to the host's RPC implementation.
-   */
   attach: RpcAttach
   token: string
   studioUrl?: string

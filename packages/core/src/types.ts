@@ -588,7 +588,6 @@ export type KubbDiagnosticContext = {
   diagnostic: ProblemDiagnostic | UpdateDiagnostic
 }
 
-/** A terminal, transport-safe generation summary computed by a host. */
 export type KubbGenerationSummaryContext = {
   duration: number
   fileCount: number
