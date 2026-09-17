@@ -4,18 +4,20 @@
  *
  * | Direction        | Type                  | Purpose                                                      |
  * | ---------------- | --------------------- | -------------------------------------------------------------|
- * | Studio → agent    | `studio:generate`     | Run a generation. No dedicated reply, the result arrives as an `agent:data` message carrying `kubb:generation:end`, so it stays ordered against the rest of that run's event stream. `studio:save`/`studio:snapshot` reply directly instead, since neither needs that ordering. A CI client omits `storage` from that reply on its own, since it has no UI to render the files for. |
+ * | Studio → agent    | `studio:generate`     | Run a generation. No dedicated reply, the result arrives as an `agent:data` message carrying `kubb:generation:end`, so it stays ordered against the rest of that run's event stream. The file list is on `kubb:build:end`; contents are fetched separately with `studio:files`. |
  * | Studio → agent    | `studio:connect`      | Ask the agent to resend its `agent:connect` handshake payload. |
  * | Studio → agent    | `studio:save`         | Edit `kubb.config.ts`. Replied to with `agent:save`. |
  * | Studio → agent    | `studio:snapshot`     | Pack the session's most recent generation into a tarball and upload it to a Studio path, which redirects to storage. Carries no file contents itself. Replied to with `agent:snapshot`. |
+ * | Studio → agent    | `studio:files`        | Ask for the source of files the last generation produced, by path. Refused unless the agent was granted `allowRead`. Replied to with `agent:files`. |
  * | Studio → agent    | `studio:pong`         | Reply to an `agent:ping` heartbeat. |
  * | Studio → agent    | `studio:ready`        | Acknowledges `agent:connect`, so the session now counts as available for job dispatch. |
  * | Studio → agent    | `studio:disconnect`   | The session expired or was revoked, so the agent should not reconnect. |
  * | Studio → agent    | `studio:error`        | A failure outside a generation, e.g. a malformed command. |
  * | Agent → Studio    | `agent:connect`       | Handshake sent on open and after every `studio:connect`. |
  * | Agent → Studio    | `agent:save`          | Reply to `studio:save`. |
- * | Agent → Studio    | `agent:snapshot`      | Reply to `studio:snapshot`. The tarball itself already went out to storage, so this only carries the integrity hash or an error. |
- * | Agent → Studio    | `agent:data`          | One generation lifecycle event, `payload.type` a {@link KubbHook}. Carries `kubb:generation:end` (the closest thing `studio:generate` has to a reply) among many others. |
+ * | Agent → Studio    | `agent:snapshot`      | Reply to `studio:snapshot`. The tarball itself already went out to storage, so this only carries the integrity hash, the resolved peer dependencies, or an error. |
+ * | Agent → Studio    | `agent:files`         | Reply to `studio:files`, carrying only the source of the requested paths, or an error. |
+ * | Agent → Studio    | `agent:data`          | One generation lifecycle event, `payload.type` a {@link KubbHook}. Carries `kubb:generation:end`, `studio:generate`'s closest thing to a reply, among many others. |
  * | Agent → Studio    | `agent:ping`          | Heartbeat, so the connection is not treated as idle. |
  * | Agent → Studio    | `agent:disconnect`    | The agent is shutting down. |
  *
@@ -23,8 +25,6 @@
  * `agent:data` payload keep their own names. The envelope says who sent it, the payload says what
  * happened.
  */
-
-import type { Config } from '@kubb/core'
 
 /**
  * JSON-serializable Kubb config exchanged over the WebSocket. A live `kubb/kit` config holds
@@ -205,14 +205,11 @@ export type KubbHooks = {
   'kubb:error': [ctx: { message: string; stack?: string }]
   'kubb:debug': [ctx: { logs: Array<string>; fileName?: string }]
   'kubb:generation:start': [ctx: { name?: string; plugins: number }]
-  'kubb:generation:end': [
-    ctx: {
-      config: Config
-      storage: Record<string, string>
-      peerDependencies: Record<string, string>
-      missingDependencies: Array<string>
-    },
-  ]
+  /**
+   * A run finished. See `kubb:build:end` for files, `kubb:generation:summary` for the count, and
+   * `studio:files` for contents.
+   */
+  'kubb:generation:end': []
   'kubb:generation:summary': [ctx: { duration: number; fileCount: number; failedPlugins: number; status: 'success' | 'failed' }]
   'kubb:lifecycle:start': []
   'kubb:lifecycle:end': []
@@ -283,7 +280,10 @@ export type StudioSnapshotMessage = {
   payload: {
     name: string
     version: string
-    peerDependencies?: Record<string, string>
+    /**
+     * Packages Studio already bundles, so a missing one is not a reason to refuse the snapshot.
+     */
+    bundledDependencies?: Array<string>
     /**
      * Studio path the agent `PUT`s the finished tarball to. Studio answers with a redirect to
      * storage, so the storage URL stays out of this message.
@@ -293,31 +293,51 @@ export type StudioSnapshotMessage = {
 }
 
 /**
+ * Ask the agent for the source of files the last generation produced, by path. Refused unless the
+ * agent was granted `allowRead`. Replied to with `agent:files`.
+ */
+export type StudioFilesMessage = {
+  type: 'studio:files'
+  jobId: string
+  payload: {
+    /**
+     * Paths as `kubb:build:end` listed them, at most `MAX_FILES_PER_REQUEST` of them.
+     */
+    paths: Array<string>
+  }
+}
+
+/**
  * Anything Studio asks the agent to do. Each command is its own `type`, so a handler switches once
  * instead of reading a `type` and then a nested `command` field.
  */
-export type CommandMessage = StudioGenerateMessage | StudioConnectMessage | StudioSaveMessage | StudioSnapshotMessage
+export type CommandMessage = StudioGenerateMessage | StudioConnectMessage | StudioSaveMessage | StudioSnapshotMessage | StudioFilesMessage
 
 /**
  * The command names, for a host that needs the list rather than the union.
  */
-export const commandTypes = ['studio:generate', 'studio:connect', 'studio:save', 'studio:snapshot'] as const
+export const commandTypes = ['studio:generate', 'studio:connect', 'studio:save', 'studio:snapshot', 'studio:files'] as const
+
+/**
+ * How many files a single `studio:files` request may ask for at once.
+ */
+export const MAX_FILES_PER_REQUEST = 50
 
 export function createJobId(): string {
   return crypto.randomUUID()
 }
 
 /**
- * Identifies the host running the Kubb runtime. Local to the runtime rather than part of the wire:
- * it picks which remedy a refused-input warning suggests, since the Docker agent and the CLI grant
- * `allowInput` different ways.
+ * Identifies the host running the Kubb runtime. Local to the runtime, not part of the wire: it
+ * picks which remedy a refused-permission warning names. Distinct from an agent's `type` (`user`,
+ * `cli`, `ci`, `sandbox`, `global`), which is what Studio records the agent as at pairing.
  */
 export type ClientInfo = {
   /**
-   * `cli` for a `kubb studio` connection from a developer's machine, `docker` for the agent image,
-   * `ci` for a client embedded directly in an automated pipeline (no `kubb studio` process).
+   * `cli` for any `kubb` invocation, including `kubb studio snapshot` from CI. `docker` for the
+   * agent image.
    */
-  kind: 'cli' | 'docker' | 'ci'
+  kind: 'cli' | 'docker'
 }
 
 /**
@@ -396,6 +416,11 @@ export type AgentPermissions = {
    * `allowWrite`, which covers generated output: this one edits a hand-authored source file.
    */
   allowConfigEdit: boolean
+  /**
+   * Whether the agent hands back file source in response to `studio:files`. Always true for a
+   * sandbox agent; for a local agent it mirrors the agent's own opt-in.
+   */
+  allowRead: boolean
 }
 
 /**
@@ -432,13 +457,40 @@ export type AgentSaveMessage = {
 }
 
 /**
- * Reply to `studio:snapshot`. The tarball already went to storage, so this only reports whether
- * the upload succeeded.
+ * Reply to `studio:snapshot`. The tarball already went to storage, so this reports whether the
+ * upload succeeded plus the peer dependencies the agent resolved while packing it.
  */
 export type AgentSnapshotMessage = {
   type: 'agent:snapshot'
   jobId: string
-  payload: { status: 'ok'; integrity: string } | { status: 'error'; message: string }
+  payload:
+    | {
+        status: 'ok'
+        integrity: string
+        /**
+         * Resolved peer dependencies of the packed generation, for Studio's snapshot metadata.
+         */
+        peerDependencies: Record<string, string>
+      }
+    | { status: 'error'; message: string }
+}
+
+/**
+ * Reply to `studio:files`, carrying the source of the requested paths.
+ */
+export type AgentFilesMessage = {
+  type: 'agent:files'
+  jobId: string
+  payload:
+    | {
+        status: 'ok'
+        /**
+         * Source keyed by the requested path. A path the last generation did not produce is left
+         * out rather than reported, so one stale path does not fail the rest.
+         */
+        files: Record<string, string>
+      }
+    | { status: 'error'; message: string }
 }
 
 /**
@@ -576,6 +628,7 @@ export type AgentMessage =
   | AgentConnectMessage
   | AgentSaveMessage
   | AgentSnapshotMessage
+  | AgentFilesMessage
   | AgentPingMessage
   | AgentDisconnectMessage
   | StudioErrorMessage

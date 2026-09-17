@@ -58,7 +58,7 @@ function baseOptions(overrides: Partial<StudioOptions> = {}): StudioOptions {
     action: 'snapshot',
     version: '0.0.0',
     studioUrl: 'http://localhost:3000',
-    permission: { allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false },
+    permission: { allowRead: false, allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false },
     autoOpen: false,
     token: 'ci-token',
     name: '@acme/api',

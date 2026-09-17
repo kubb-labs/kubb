@@ -50,11 +50,12 @@ describe('setupEventsStream', () => {
     expect(socket.send).not.toHaveBeenCalled()
   })
 
-  it('reports installed plugin versions and missing plugins when generation ends', async () => {
+  it('sends kubb:generation:end with no file, config or dependency data', async () => {
     const socket = fakeSocket()
     const hooks = new Hookable<KubbHooks>()
     setupEventsStream(socket.ws, hooks, 'job-1')
     const config = {
+      root: '/project',
       plugins: [{ name: '@kubb/core' }, { name: '@kubb/missing-plugin' }, { name: '@kubb/core' }],
     } as Config
 
@@ -69,14 +70,7 @@ describe('setupEventsStream', () => {
         jobId: 'job-1',
         payload: {
           type: 'kubb:generation:end',
-          data: [
-            {
-              config,
-              storage: {},
-              peerDependencies: { '@kubb/core': expect.any(String) },
-              missingDependencies: ['@kubb/missing-plugin'],
-            },
-          ],
+          data: [],
           timestamp: expect.any(Number),
           seq: 0,
         },
@@ -84,56 +78,82 @@ describe('setupEventsStream', () => {
     ])
   })
 
-  it('sends generated files relative to the project root', async () => {
+  it('never reads file content on kubb:generation:end, only keys', async () => {
+    const socket = fakeSocket()
+    const hooks = new Hookable<KubbHooks>()
+    const readItem = vi.fn(async () => 'export {}')
+    const config = { root: '/project', plugins: [] } as unknown as Config
+    setupEventsStream(socket.ws, hooks, 'job-1')
+
+    await hooks.callHook('kubb:generation:end', {
+      config,
+      storage: { readKeys: async () => ['/project/src/index.ts'], readItem } as never,
+    })
+
+    expect(readItem).not.toHaveBeenCalled()
+  })
+
+  it('hands the storage, its paths, peer dependencies and missing dependencies to onGenerationEnd instead of the wire', async () => {
+    const socket = fakeSocket()
+    const hooks = new Hookable<KubbHooks>()
+    const onGenerationEnd = vi.fn()
+    setupEventsStream(socket.ws, hooks, 'job-1', { onGenerationEnd })
+    const config = {
+      root: '/project',
+      plugins: [{ name: '@kubb/core' }, { name: '@kubb/missing-plugin' }, { name: '@kubb/core' }],
+    } as Config
+    const storage = { readKeys: async () => ['/project/src/index.ts'], readItem: async () => 'export {}' } as never
+
+    await hooks.callHook('kubb:generation:end', { config, storage })
+
+    expect(onGenerationEnd).toHaveBeenCalledWith({
+      storage,
+      root: '/project',
+      paths: new Set(['src/index.ts']),
+      peerDependencies: { '@kubb/core': expect.any(String) },
+      missingDependencies: ['@kubb/missing-plugin'],
+    })
+  })
+
+  it('sends kubb:build:end paths relative to the project root, matching studio:files keys', async () => {
     const socket = fakeSocket()
     const hooks = new Hookable<KubbHooks>()
     setupEventsStream(socket.ws, hooks, 'job-1')
 
-    await hooks.callHook('kubb:generation:end', {
-      config: { root: '/home/runner/work/plugins/plugins/examples/advanced', plugins: [] } as unknown as Config,
-      storage: {
-        readKeys: async () => ['/home/runner/work/plugins/plugins/examples/advanced/src/gen/index.ts'],
-        readItem: async () => 'export {}',
-      } as never,
+    await hooks.callHook('kubb:build:end', {
+      config: { root: '/home/runner/work/plugins/plugins/examples/advanced' } as unknown as Config,
+      files: [{ path: '/home/runner/work/plugins/plugins/examples/advanced/src/gen/index.ts', name: 'index' }] as never,
+      outputDir: '/home/runner/work/plugins/plugins/examples/advanced/src/gen',
     })
 
     expect(socket.sent()[0]).toMatchObject({
-      payload: { data: [{ storage: { 'src/gen/index.ts': 'export {}' } }] },
+      payload: { data: [{ files: [{ path: 'src/gen/index.ts', name: 'index' }] }] },
     })
   })
 
-  it('sends an empty storage when skipStorage is set, so the generated files never cross the socket', async () => {
-    const socket = fakeSocket()
-    const hooks = new Hookable<KubbHooks>()
-    setupEventsStream(socket.ws, hooks, 'job-1', { skipStorage: true })
-
-    await hooks.callHook('kubb:generation:end', {
-      config: { root: '/project', plugins: [] } as unknown as Config,
-      storage: {
-        readKeys: async () => ['/project/src/index.ts'],
-        readItem: async () => 'export {}',
-      } as never,
-    })
-
-    expect(socket.sent()[0]).toMatchObject({
-      payload: { data: [{ storage: {} }] },
-    })
-  })
-
-  it('still hands the generated files to onGenerationEnd when skipStorage keeps them off the wire', async () => {
+  it('round-trips kubb:build:end paths through onGenerationEnd, so a fetched path matches the tree', async () => {
     const socket = fakeSocket()
     const hooks = new Hookable<KubbHooks>()
     const onGenerationEnd = vi.fn()
-    setupEventsStream(socket.ws, hooks, 'job-1', { skipStorage: true, onGenerationEnd })
+    setupEventsStream(socket.ws, hooks, 'job-1', { onGenerationEnd })
+    const config = { root: '/project', plugins: [] } as unknown as Config
+
+    await hooks.callHook('kubb:build:end', {
+      config,
+      files: [{ path: '/project/src/gen/index.ts', name: 'index' }] as never,
+      outputDir: '/project/src/gen',
+    })
+
+    const treePath = (socket.sent()[0] as { payload: { data: [{ files: Array<{ path: string }> }] } }).payload.data[0].files[0]?.path
 
     await hooks.callHook('kubb:generation:end', {
-      config: { root: '/project', plugins: [] } as unknown as Config,
+      config,
       storage: {
-        readKeys: async () => ['/project/src/index.ts'],
+        readKeys: async () => ['/project/src/gen/index.ts'],
         readItem: async () => 'export {}',
       } as never,
     })
 
-    expect(onGenerationEnd).toHaveBeenCalledWith({ 'src/index.ts': 'export {}' })
+    expect(onGenerationEnd).toHaveBeenCalledWith(expect.objectContaining({ paths: new Set([treePath as string]) }))
   })
 })

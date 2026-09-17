@@ -33,7 +33,7 @@ const ACTIONS = ['connect', 'login', 'logout', 'status', 'snapshot'] as const
 
 export type StudioAction = (typeof ACTIONS)[number]
 
-type Permission = 'allowWrite' | 'allowConfigEdit' | 'allowInput' | 'allowExec'
+type Permission = 'allowRead' | 'allowWrite' | 'allowConfigEdit' | 'allowInput' | 'allowExec'
 
 export type StudioOptions = {
   action: StudioAction
@@ -151,6 +151,11 @@ const PERMISSIONS: ReadonlyArray<{
   label: string
   question: (project: string, configPath: string) => string
 }> = [
+  {
+    key: 'allowRead',
+    label: 'read generated files',
+    question: () => 'Let Kubb Studio read the files a generation produced?',
+  },
   { key: 'allowWrite', label: 'write generated files', question: (project) => `Let Kubb Studio write generated files into ${project}?` },
   {
     key: 'allowConfigEdit',
@@ -193,7 +198,7 @@ export async function resolvePermissions(
 ): Promise<Record<Permission, boolean>> {
   const project = process.cwd()
   const remembered = credentials.projects?.[project]
-  const granted: Record<Permission, boolean> = { allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false }
+  const granted: Record<Permission, boolean> = { allowRead: false, allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false }
   const answers: Partial<Record<Permission, boolean>> = {}
 
   for (const { key, question } of PERMISSIONS) {
@@ -531,6 +536,7 @@ async function status(options: StudioOptions): Promise<void> {
   console.log(styleText('dim', 'Saved permissions'))
 
   for (const row of formatPermissionRows({
+    allowRead: remembered.allowRead === true,
     allowWrite: remembered.allowWrite === true,
     allowConfigEdit: remembered.allowConfigEdit === true,
     allowInput: remembered.allowInput === true,
@@ -602,6 +608,7 @@ export const runner: CommandRunner<{ args: typeof definition.args; extensions: {
     configPath: values.config,
     studioUrl: values.url ?? defaultStudioUrl,
     permission: {
+      allowRead: values.allowRead,
       allowWrite: values.allowWrite,
       allowConfigEdit: values.allowConfigEdit,
       allowInput: values.allowInput,

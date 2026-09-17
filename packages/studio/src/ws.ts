@@ -1,20 +1,13 @@
 import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { isAbsolute, relative, resolve } from 'node:path'
-import { getElapsedMs, inParallel } from '@internals/utils'
-import { Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
+import { getElapsedMs } from '@internals/utils'
+import { Diagnostics, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
 import WebSocket from 'ws'
 import type { AgentMessage, DataMessagePayload } from './protocol/index.ts'
 import { toPackageName } from './resolveConfig.ts'
 
 type WebSocketOptions = WebSocket.ClientOptions
-
-/**
- * How many generated files are read from storage at once when building the
- * `kubb:generation:end` payload. A spec producing thousands of files would otherwise fire one
- * `storage.readItem` per file simultaneously.
- */
-const FILE_READ_CONCURRENCY = 50
 
 /**
  * How long the initial handshake may take before the socket is closed and the reconnect loop
@@ -31,8 +24,15 @@ const CONNECT_TIMEOUT_MS = 5_000
 const eventSeqCounters = new WeakMap<WebSocket, number>()
 const require = createRequire(import.meta.url)
 
-function relativeStoragePath(root: string, filePath: string): string {
+export function relativeStoragePath(root: string, filePath: string): string {
   return (isAbsolute(filePath) ? relative(resolve(root), filePath) : filePath).replaceAll('\\', '/')
+}
+
+/**
+ * Inverse of {@link relativeStoragePath}: rebuilds the storage key a relative path came from.
+ */
+export function absoluteStoragePath(root: string, relativePath: string): string {
+  return resolve(root, relativePath)
 }
 
 type PackageJSON = {
@@ -134,16 +134,18 @@ export function setupEventsStream(
   jobId: string,
   options: {
     /**
-     * Send `storage: {}` on `kubb:generation:end` instead of the generated files. `onGenerationEnd`
-     * still receives the full files map either way, so a caller that needs them for something other
-     * than the wire (e.g. packing a snapshot) still gets them.
+     * Called once a run finishes, with the live `storage` it wrote through (not a copy of its
+     * contents), the relative paths it produced, and resolved dependency metadata. The caller reads
+     * file content back through `storage` on demand for `studio:files` and `studio:snapshot`,
+     * rather than this holding the whole run's output in memory.
      */
-    skipStorage?: boolean
-    /**
-     * Called with the flattened files map built for `kubb:generation:end`, whether or not
-     * `skipStorage` kept it off the wire.
-     */
-    onGenerationEnd?: (files: Record<string, string>) => void
+    onGenerationEnd?: (result: {
+      storage: Storage
+      root: string
+      paths: Set<string>
+      peerDependencies: Record<string, string>
+      missingDependencies: Array<string>
+    }) => void
   } = {},
 ): () => void {
   const unhooks: Array<() => void> = []
@@ -185,10 +187,10 @@ export function setupEventsStream(
     })
   })
 
-  on('kubb:build:end', ({ files, outputDir }) => {
+  on('kubb:build:end', ({ files, config, outputDir }) => {
     sendDataMessage({
       type: 'kubb:build:end',
-      data: [{ files: files.map((file) => ({ path: file.path, name: file.name })), outputDir }],
+      data: [{ files: files.map((file) => ({ path: relativeStoragePath(config.root, file.path), name: file.name })), outputDir }],
     })
   })
 
@@ -243,22 +245,14 @@ export function setupEventsStream(
 
   on('kubb:generation:end', async ({ config, storage, diagnostics = [], status, hrStart, filesCreated }) => {
     const { peerDependencies, missingDependencies } = await resolvePeerDependencies(config.plugins.map(({ name }) => name))
-    const paths = await storage.readKeys()
-    const files: Record<string, string> = {}
-    await inParallel({
-      items: paths,
-      limit: FILE_READ_CONCURRENCY,
-      run: async (path) => {
-        const content = await storage.readItem(path)
-        if (content !== null) files[relativeStoragePath(config.root, path)] = content
-      },
-    })
+    const keys = await storage.readKeys()
+    const paths = new Set(keys.map((key) => relativeStoragePath(config.root, key)))
 
-    options.onGenerationEnd?.(files)
+    options.onGenerationEnd?.({ storage, root: config.root, paths, peerDependencies, missingDependencies })
 
     sendDataMessage({
       type: 'kubb:generation:end',
-      data: [{ config, storage: options.skipStorage ? {} : files, peerDependencies, missingDependencies }],
+      data: [],
     })
 
     if (!hrStart) {
