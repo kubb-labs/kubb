@@ -9,7 +9,7 @@ allowBuilds:
   esbuild: true
   msw: true
 catalog:
-  "@types/node": ^22.20.2
+  "@types/node": 22.20.1
   "@vitest/coverage-v8": ^5.0.0
   "@vitest/ui": ^5.0.0
   oxfmt: ^0.64.0
