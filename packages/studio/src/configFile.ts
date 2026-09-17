@@ -505,11 +505,11 @@ function applyRemove(call: CallNode, path: Array<string>): string | undefined {
  * Outcome of `applyAddPlugin`. `addImport` is set when the new plugin call needs an import line
  * the caller must still insert; absent when the import was already there.
  */
-type AddPluginResult = { reason: string } | { addImport?: { importName: string; moduleSpecifier: string } }
+type AddPluginResult = { reason: string } | { noop: true } | { addImport?: { importName: string; moduleSpecifier: string } }
 
 /**
- * Adds a `pluginX(...)` call to a config's plugins array. Refuses when the plugin is already
- * present, or when its import name collides with an unrelated existing import.
+ * Adds a `pluginX(...)` call to a config's plugins array. Replaying the same add is a no-op, while
+ * an import name collision with an unrelated package remains an error.
  */
 function applyAddPlugin(mod: ProxifiedModule, config: ObjectNode, edit: Extract<ConfigEdit, { operation: 'add-plugin' }>): AddPluginResult {
   if (!isKubbPluginSpecifier(edit.plugin)) {
@@ -522,7 +522,7 @@ function applyAddPlugin(mod: ProxifiedModule, config: ObjectNode, edit: Extract<
   }
 
   if (pluginCalls(mod, config).some((plugin) => plugin.packageName === edit.plugin)) {
-    return { reason: `${edit.plugin} is already in the plugins array` }
+    return { noop: true }
   }
 
   const taken = importedFrom(mod).get(importName)
@@ -675,6 +675,9 @@ export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): Appl
       const result = applyAddPlugin(mod, config, edit)
       if ('reason' in result) {
         return { edit, applied: false, reason: result.reason }
+      }
+      if ('noop' in result) {
+        return { edit, applied: true }
       }
       const afterLine = lastImportEndLine(mod)
       let next = generateCode(mod, { format }).code

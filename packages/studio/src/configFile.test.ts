@@ -349,18 +349,18 @@ describe('applyConfigEdits', () => {
       })
     })
 
-    const addPluginRefusals: Array<[label: string, source: string, reason: string]> = [
-      ['a plugin that is already there', advanced, '@kubb/plugin-ts is already in the plugins array'],
-      [
-        'an import name taken by another package',
-        `import { pluginTs } from './my-own-plugin-ts.ts'\n\nexport default defineConfig({ plugins: [pluginTs()] })\n`,
-        'pluginTs is already imported from ./my-own-plugin-ts.ts',
-      ],
-    ]
+    it('treats adding an existing plugin as a no-op', () => {
+      const result = applyConfigEdits(advanced, [{ operation: 'add-plugin', plugin: '@kubb/plugin-ts' }])
+      expect({ changed: result.changed, applied: result.outcomes[0]?.applied }).toStrictEqual({ changed: false, applied: true })
+    })
 
-    it.each(addPluginRefusals)('refuses %s', (_label, source, reason) => {
+    it('refuses an import name taken by another package', () => {
+      const source = `import { pluginTs } from './my-own-plugin-ts.ts'\n\nexport default defineConfig({ plugins: [pluginTs()] })\n`
       const result = applyConfigEdits(source, [{ operation: 'add-plugin', plugin: '@kubb/plugin-ts' }])
-      expect({ changed: result.changed, reason: result.outcomes[0]?.reason }).toStrictEqual({ changed: false, reason })
+      expect({ changed: result.changed, reason: result.outcomes[0]?.reason }).toStrictEqual({
+        changed: false,
+        reason: 'pluginTs is already imported from ./my-own-plugin-ts.ts',
+      })
     })
 
     it('fills an empty plugins array', () => {
