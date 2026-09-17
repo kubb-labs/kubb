@@ -17,7 +17,7 @@ const CONNECT_TIMEOUT_MS = 5_000
 
 const require = createRequire(import.meta.url)
 
-export function relativeStoragePath(root: string, filePath: string): string {
+function relativeStoragePath(root: string, filePath: string): string {
   return (isAbsolute(filePath) ? relative(resolve(root), filePath) : filePath).replaceAll('\\', '/')
 }
 

@@ -32,8 +32,7 @@ import type WebSocket from 'ws'
 import { absoluteStoragePath, createWebsocket, setupEventsStream } from './ws.ts'
 
 /**
- * How many files are read from storage at once when serving `studio:files` or packing a
- * `studio:snapshot`.
+ * How many files are read from storage at once when serving `readFiles` or packing a snapshot.
  */
 const FILE_READ_CONCURRENCY = 50
 
@@ -124,11 +123,6 @@ type ResolvedOptions = StudioSessionOptions & {
 }
 
 /**
- * How long the `agent:connect` handshake may go unacknowledged before `studio:ready` is given up
- * on for this open. A Studio that predates the ack never sends one, so this only ever produces a
- * warning, not a reconnect.
- */
-/**
  * Fills in a host's options: the hosted Studio URL, the current working directory, and every
  * permission off unless granted. Idempotent, so a reconnect can pass an already-resolved bag
  * back in.
@@ -206,8 +200,8 @@ function reconnect(options: ResolvedOptions): void {
 }
 
 /**
- * One WebSocket session with Studio: opening it, keeping it alive, and running the commands it
- * sends. `createClient` opens one per pool slot and is the only caller.
+ * One agent-to-Studio RPC transport: opening it, keeping it alive, and serving remote methods.
+ * `createClient` opens one per pool slot and is the only caller.
  */
 export class StudioSession implements AgentApi {
   readonly #options: ResolvedOptions
@@ -228,8 +222,7 @@ export class StudioSession implements AgentApi {
   #ws: WebSocket | undefined
   #studio: StudioApi | undefined
   #closeRpc: (() => void) | undefined
-  // Known before the agent announces itself, and refreshed by a later `studio:connect`, so both
-  // sides can be named from the first connect on.
+  // Returned with the session, so both sides can be named from the first RPC connection.
   #studioVersion: string | undefined
   #activeJobId: string | null = null
   #activeGeneration: AbortController | undefined
@@ -242,8 +235,8 @@ export class StudioSession implements AgentApi {
   // events interleave with no way for Studio to tell the two runs apart.
   #isGenerating = false
   #heartbeatTimer: ReturnType<typeof setInterval> | undefined
-  // The most recent generation's live storage, kept so `studio:files` and `studio:snapshot` can
-  // read file content on demand instead of Studio round tripping it back over the socket, and
+  // The most recent generation's live storage, kept so `readFiles` and `snapshot` can read file
+  // content on demand instead of Studio round tripping it back over RPC, and
   // instead of this holding the whole run's output in memory. `paths` is the whitelist a request
   // is checked against, so a caller can only ever read what this run actually produced. Set as
   // soon as `kubb:generation:end` fires, undefined again if a run fails before that.
@@ -556,9 +549,8 @@ export class StudioSession implements AgentApi {
     await this.#hooks.callHook('studio:command:start', { command })
     const { configPath, configFile } = this.#options
 
-    // Studio waits on an `agent:save` for every `studio:save`, so every path out of this function
-    // sends one. `edits` is checked before it is walked: the message crosses the same trust
-    // boundary as the values inside it.
+    // Every RPC call gets one result. `edits` is checked before it is walked because values cross
+    // the agent trust boundary.
     if (!Array.isArray(data.edits)) {
       await this.#warn('Ignored save: the message carried no edits')
 

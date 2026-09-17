@@ -1,10 +1,8 @@
-import type { KubbHooks as CoreKubbHooks } from '@kubb/core'
+import type { KubbHooks } from '@kubb/core'
 
 /**
  * Canonical Kubb lifecycle registry from `@kubb/core`.
  */
-export type KubbHooks = CoreKubbHooks
-
 /**
  * JSON-serializable Kubb config exchanged over RPC. A live `kubb/kit` config holds
  * functions and class instances that cannot survive JSON, so both sides pass this flattened shape
@@ -186,7 +184,7 @@ export const studioJobEventTypes = [
   'kubb:hook:start',
   'kubb:hook:line',
   'kubb:hook:end',
-] as const satisfies ReadonlyArray<keyof CoreKubbHooks>
+] as const satisfies ReadonlyArray<keyof KubbHooks>
 
 export type StudioJobEventType = (typeof studioJobEventTypes)[number]
 
@@ -425,8 +423,8 @@ export type AgentConnectResponse = {
    */
   isSandbox: boolean
   /**
-   * The Studio instance's own version. Reported here rather than only on `studio:connect`, so the
-   * agent knows it before it announces itself and can name both sides from the first connect.
+   * The Studio instance's own version. Returned with the RPC session so the agent can name both
+   * sides from the first connection.
    * Absent when Studio predates the field.
    */
   version?: string
