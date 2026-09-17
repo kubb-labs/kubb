@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@changesets/changelog-github": "^1.0.1",
-    "@changesets/cli": "^3.0.2",
+    "@changesets/cli": "^3.0.3",
     "@types/node": "catalog:",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
@@ -44,7 +44,7 @@
     "oxlint": "catalog:",
     "taze": "^21.1.0",
     "tsdown": "catalog:",
-    "turbo": "^2.10.12",
+    "turbo": "^2.10.13",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
