@@ -22,7 +22,7 @@ describe('StudioSession RPC', () => {
     vi.mocked(createAgentSession).mockResolvedValue({
       sessionId: 'session-1',
       slug: 'brave-otter',
-      rpcUrl: 'ws://studio/session-1',
+      url: 'ws://studio/session-1',
       expiresAt: new Date(Date.now() + 60_000).toISOString(),
       revokedAt: null,
       isSandbox: false,

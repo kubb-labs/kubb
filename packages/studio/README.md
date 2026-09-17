@@ -77,8 +77,8 @@ touches it.
 | Step       | Call                                              | What it does                                                                       |
 | ---------- | ------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | Register   | `POST /api/agent/connect`                         | Binds the token to this machine with a `machineToken`. A failure here is not fatal |
-| Session    | `POST /api/agent/sessions`                        | Returns `{ rpcUrl, sessionId, expiresAt }`                                         |
-| Connect    | Configured RPC connector on `rpcUrl`              | Attaches the typed `AgentApi`/`StudioApi` RPC session                              |
+| Session    | `POST /api/agent/sessions`                        | Returns `{ url, sessionId, expiresAt }`                                            |
+| Connect    | Configured RPC connector on `url`                 | Attaches the typed `AgentApi`/`StudioApi` RPC session                              |
 | Disconnect | `POST /api/agent/sessions/{sessionId}/disconnect` | Closes the session on a clean shutdown                                             |
 
 The runtime reconnects on its own when a session drops, and keeps retrying while Studio is

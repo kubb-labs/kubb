@@ -307,7 +307,7 @@ export class StudioSession implements AgentApi {
       this.#session = session
       this.#studioVersion = session.version
 
-      const rpc = await (this.#options.connector ?? connectWebSocketRpc)({ url: session.rpcUrl, token, local: this })
+      const rpc = await (this.#options.connector ?? connectWebSocketRpc)({ url: session.url, token, local: this })
       this.#rpc = rpc
       void rpc.closed.then(this.#onClose, this.#onError)
 

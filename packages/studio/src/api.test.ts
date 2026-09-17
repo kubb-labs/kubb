@@ -19,7 +19,7 @@ const fetchMock = vi.fn()
 const session = {
   sessionId: 'session-abc',
   slug: 'brave-otter',
-  rpcUrl: 'ws://localhost:3000/api/agent/sessions/session-abc/socket',
+  url: 'ws://localhost:3000/api/agent/sessions/session-abc/socket',
   expiresAt: new Date().toISOString(),
   revokedAt: null,
   isSandbox: false,

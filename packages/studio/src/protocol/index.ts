@@ -405,9 +405,9 @@ export type AgentConnectResponse = {
   /**
    * URL the agent opens to reach the session, with the session token embedded.
    */
-  rpcUrl: string
+  url: string
   /**
-   * When the session expires and the rpcUrl stops working (ISO 8601).
+   * When the session expires and the url stops working (ISO 8601).
    */
   expiresAt: string
   /**
@@ -415,7 +415,7 @@ export type AgentConnectResponse = {
    */
   revokedAt: string | null
   /**
-   * Opaque session token, also embedded in `rpcUrl`. Store it to revoke the session later.
+   * Opaque session token, also embedded in `url`. Store it to revoke the session later.
    */
   sessionId: string
   /**
