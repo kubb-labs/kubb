@@ -46,6 +46,8 @@ class GenerationRunTarget extends RpcTarget implements GenerationRun {
     private readonly generationStream: ReadableStream<GenerationEvent>,
     private readonly generationResult: Promise<GenerateResult>,
     private readonly cancelGeneration: () => Promise<void>,
+    /** Stops the run. Cap'n Web calls this on explicit disposal and on a dropped session alike. */
+    private readonly stopGeneration: () => void,
   ) {
     super()
   }
@@ -58,6 +60,9 @@ class GenerationRunTarget extends RpcTarget implements GenerationRun {
   }
   cancel() {
     return this.cancelGeneration()
+  }
+  [Symbol.dispose]() {
+    this.stopGeneration()
   }
 }
 
@@ -317,7 +322,7 @@ export class StudioSession implements AgentApi {
 
       const rpc = await (this.#options.connector ?? connectWebSocketRpc)({ url: session.url, token, local: this })
       this.#rpc = rpc
-      void rpc.closed.then(this.#onClose, this.#onError)
+      void rpc.closed.then(this.#onClose)
 
       signal?.addEventListener('abort', this.#onAbort, { once: true })
       this.#unhooks.push(() => signal?.removeEventListener('abort', this.#onAbort))
@@ -365,7 +370,7 @@ export class StudioSession implements AgentApi {
     }
     this.#heartbeatTimer = setTimeout(async () => {
       try {
-        await rpc.studio.ping()
+        await this.#ping(rpc)
       } catch {
         if (this.#rpc === rpc) {
           rpc.close()
@@ -377,6 +382,16 @@ export class StudioSession implements AgentApi {
         this.#scheduleHeartbeat(interval)
       }
     }, interval)
+  }
+
+  /**
+   * Races `studio.ping()` against a deadline, so a half-open socket can't hang it forever.
+   * */
+  #ping(rpc: RpcConnection): Promise<void> {
+    const { promise: timedOut, reject: onTimeout } = Promise.withResolvers<never>()
+    const timer = setTimeout(() => onTimeout(new Error('Heartbeat ping timed out')), agentDefaults.heartbeatTimeoutMs)
+
+    return Promise.race([rpc.studio.ping(), timedOut]).finally(() => clearTimeout(timer))
   }
 
   /**
@@ -429,12 +444,6 @@ export class StudioSession implements AgentApi {
   #onAbort = (): void => void this.#end({ retry: false })
 
   #onClose = (): void => void this.#end({ retry: true })
-
-  #onError = (): void => {
-    void this.#hooks.callHook('studio:error', { error: new Error('Failed to connect to Kubb Studio') })
-
-    this.#onClose()
-  }
 
   /**
    * Drops the socket and detaches every listener and timer this session added. Idempotent, and
@@ -496,24 +505,34 @@ export class StudioSession implements AgentApi {
         generationStream.fail(error)
         throw error
       })
+    // A dispose can reject this with nobody holding it, which would otherwise be unhandled.
+    void result.catch(() => {})
 
-    return new GenerationRunTarget(generationStream.stream, result, async () => {
-      controller.abort(new Error('Generation canceled'))
-    })
+    return new GenerationRunTarget(
+      generationStream.stream,
+      result,
+      async () => {
+        controller.abort(new Error('Generation canceled'))
+      },
+      () => {
+        controller.abort(new Error('Generation canceled'))
+        generationStream.dispose()
+      },
+    )
   }
 
   async #runGeneration(data: GenerateInput, controller: AbortController): Promise<GenerateResult> {
-    const command = 'generate'
-    await this.#hooks.callHook('studio:command:start', { command })
-    const { root, loadConfig, permissions, client } = this.#options
-
+    // Checked before the first `await`, so two calls in the same tick can't both pass.
     if (this.#isGenerating) {
       return this.#refuse('Ignored generate: a generation is already in progress', 'A generation is already in progress, please wait for it to finish')
     }
-
     this.#isGenerating = true
 
+    const command = 'generate'
+    const { root, loadConfig, permissions, client } = this.#options
+
     try {
+      await this.#hooks.callHook('studio:command:start', { command })
       const config = await loadConfig()
       const patch = data.config
       const plugins = await mergePlugins(config.plugins, patch?.plugins)

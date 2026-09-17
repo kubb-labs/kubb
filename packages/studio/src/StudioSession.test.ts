@@ -2,6 +2,7 @@ import { ast } from '@kubb/ast'
 import { type Config, definePlugin, memoryStorage, type Plugin } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { agentDefaults } from './constants.ts'
 import { MAX_FILES_PER_REQUEST, type AgentApi, type StudioApi } from './protocol/index.ts'
 import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
 
@@ -126,6 +127,59 @@ describe('the handshake', () => {
     closeTransport()
 
     await vi.waitFor(() => expect(disconnected).toHaveBeenCalledWith({ reason: 'connection closed' }))
+  })
+
+  it('closes the session when a heartbeat ping never settles', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const disconnected = vi.fn()
+      const { promise: closed, resolve: resolveClosed } = Promise.withResolvers<void>()
+      const close = vi.fn(() => resolveClosed())
+      const ping = vi.fn((): Promise<void> => new Promise(() => {}))
+      const { promise: agentReady, resolve: onAgentReady } = Promise.withResolvers<AgentApi>()
+
+      const started = new StudioSession({
+        token: 'token',
+        studioUrl,
+        configPath: 'kubb.config.ts',
+        version: '2.0.0',
+        root,
+        heartbeatInterval: 1_000,
+        loadConfig: async () => ({ plugins: [] }) as unknown as Config,
+        installLogger: (hooks) => void hooks.hook('studio:disconnected', disconnected),
+        connector: async ({ local }) => {
+          onAgentReady(local)
+          return { studio: { ping }, closed, close }
+        },
+      }).start()
+
+      const agent = await agentReady
+      await agent.connect()
+      await started
+
+      // Fires the heartbeat timer, then lets its deadline elapse without the ping settling.
+      await vi.advanceTimersByTimeAsync(1_000)
+      await vi.advanceTimersByTimeAsync(agentDefaults.heartbeatTimeoutMs)
+
+      // Called at least once by the failed heartbeat, and again by the disconnect it triggers.
+      expect(close).toHaveBeenCalled()
+      expect(disconnected).toHaveBeenCalledWith({ reason: 'connection closed' })
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+})
+
+describe('startGeneration', () => {
+  it('disposing the run cancels it instead of leaving an unhandled rejection', async () => {
+    const { agent } = await connectStudio()
+
+    const run = agent.startGeneration({ jobId: 'job-1', config: {} })
+    // Stands in for capnweb disposing the stub, without a round trip.
+    ;(run as unknown as Disposable)[Symbol.dispose]()
+
+    await expect(run.result()).rejects.toThrow('Generation canceled')
   })
 })
 

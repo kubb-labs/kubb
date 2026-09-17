@@ -15,7 +15,8 @@ describe('connectWebSocketRpc', () => {
     await expect(connectWebSocketRpc({ url: 'http://studio.example.com/s/1', token: 'secret', local })).rejects.toThrow('Refusing unencrypted WebSocket')
   })
 
-  it.each(['ws://localhost:3000/s/1', 'ws://127.0.0.1:3000/s/1', 'ws://[::1]:3000/s/1'])('allows plaintext to the loopback host %s', async (url) => {
+  // A port nothing binds, so this can't reach a real dev server on 3000.
+  it.each(['ws://localhost:39847/s/1', 'ws://127.0.0.1:39847/s/1', 'ws://[::1]:39847/s/1'])('allows plaintext to the loopback host %s', async (url) => {
     const connection = await connectWebSocketRpc({ url, token: 'secret', local })
     connection.close()
   })
