@@ -34,7 +34,6 @@ import { createSnapshotPackage } from './snapshotPackage.ts'
 import { RpcTarget } from 'capnweb'
 import { absoluteStoragePath, createGenerationStream, type GenerationState } from './ws.ts'
 import { connectWebSocketRpc } from './rpc.ts'
-import { assertSafeStorageUrl, resolveStudioUploadUrl } from './urlSafety.ts'
 
 /**
  * How many files are read from storage at once when serving `readFiles` or packing a snapshot.
@@ -266,6 +265,8 @@ export class StudioSession implements AgentApi {
 
   constructor(options: StudioSessionOptions) {
     this.#options = applyStudioDefaults(options)
+    // dispose() may reject this before start() awaits it
+    void this.#connectAck.promise.catch(() => {})
   }
 
   /**
@@ -326,29 +327,7 @@ export class StudioSession implements AgentApi {
         versions: { studio: this.#studioVersion, kubb: kubbVersion, agent: this.#options.version },
       })
       // Studio registers the agent by calling connect() over RPC. Ready means that handshake landed.
-      await new Promise<void>((resolve, reject) => {
-        let done = false
-        void this.#connectAck.promise.then(
-          () => {
-            if (!done) {
-              done = true
-              resolve()
-            }
-          },
-          (error: unknown) => {
-            if (!done) {
-              done = true
-              reject(error)
-            }
-          },
-        )
-        void rpc.closed.then(() => {
-          if (!done) {
-            done = true
-            reject(new Error('RPC closed before Studio called connect()'))
-          }
-        })
-      })
+      await this.#connectAck.promise
       await this.#hooks.callHook('studio:ready', {})
     } catch (error) {
       // A connector can fail after opening RPC and installing the heartbeat. Tear down every
@@ -458,6 +437,7 @@ export class StudioSession implements AgentApi {
     this.#heartbeatTimer = undefined
     this.#rpc?.close()
     this.#rpc = undefined
+    this.#connectAck.reject(new Error('Session ended before Studio called connect()'))
 
     for (const unhook of this.#unhooks) unhook()
     this.#unhooks.length = 0
@@ -688,7 +668,10 @@ export class StudioSession implements AgentApi {
       // PUT the bytes to wherever it points. That also keeps the bearer token off the storage
       // request, since it's a fresh call rather than a followed redirect.
       const { token, studioUrl } = this.#options
-      const uploadUrl = resolveStudioUploadUrl(uploadPath, studioUrl)
+      const uploadUrl = new URL(uploadPath, studioUrl)
+      if (uploadUrl.origin !== new URL(studioUrl).origin) {
+        throw new Error('Snapshot upload path must stay on the Studio origin')
+      }
       const redirect = await fetch(uploadUrl, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
@@ -698,8 +681,11 @@ export class StudioSession implements AgentApi {
       if (redirect.status !== 307 || !storageUrl) {
         throw new Error(`Studio did not provide a storage URL (status ${redirect.status})`)
       }
-      const safeStorageUrl = assertSafeStorageUrl(storageUrl, studioUrl)
-      const response = await fetch(safeStorageUrl, { method: 'PUT', body: new Uint8Array(bytes), redirect: 'error' })
+      const storage = new URL(storageUrl)
+      if (storage.protocol !== 'https:' && storage.hostname !== 'localhost' && storage.hostname !== '127.0.0.1') {
+        throw new Error(`Refusing snapshot upload to ${storage.origin}`)
+      }
+      const response = await fetch(storage, { method: 'PUT', body: new Uint8Array(bytes), redirect: 'error' })
       if (!response.ok) {
         throw new Error(`Snapshot upload failed with status ${response.status}`)
       }
