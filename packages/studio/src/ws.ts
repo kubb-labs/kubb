@@ -284,7 +284,7 @@ export function createGenerationStream(
     unhooks.length = 0
     if (!closed) {
       closed = true
-      void writer.abort()
+      void writer.abort().catch(() => undefined)
     }
   }
 
@@ -295,7 +295,7 @@ export function createGenerationStream(
     closed = true
     for (const unhook of unhooks) unhook()
     unhooks.length = 0
-    void writer.abort(error)
+    void writer.abort(error).catch(() => undefined)
   }
 
   return { stream: transform.readable, close, dispose, fail }
