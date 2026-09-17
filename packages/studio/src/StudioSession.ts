@@ -660,14 +660,7 @@ export class StudioSession implements AgentApi {
         redirect: 'manual',
       })
       const storageUrl = redirect.headers.get('location')
-      if (redirect.status === 501) {
-        const response = await fetch(new URL(uploadPath, studioUrl), {
-          method: 'PUT',
-          headers: { Authorization: `Bearer ${token}` },
-          body: new Uint8Array(bytes),
-        })
-        if (!response.ok) throw new Error(`Snapshot upload failed with status ${response.status}`)
-      } else if (redirect.status !== 307 || !storageUrl) {
+      if (redirect.status !== 307 || !storageUrl) {
         throw new Error(`Studio did not provide a storage URL (status ${redirect.status})`)
       } else {
         const response = await fetch(storageUrl, { method: 'PUT', body: new Uint8Array(bytes) })
