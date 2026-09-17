@@ -176,6 +176,8 @@ export async function generate({ config, hooks, signal }: GenerateProps): Promis
         await hooks.callHook('kubb:success', { message: `${step.verbing} with ${tool} successfully` })
       } catch (caughtError) {
         await hooks.callHook('kubb:error', { error: new Error(command.errorMessage, { cause: caughtError }) })
+        // Format/lint failures are non-fatal, but an abort during those commands must still reject.
+        signal?.throwIfAborted()
       }
     }
 

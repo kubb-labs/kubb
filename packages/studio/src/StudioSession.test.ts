@@ -44,9 +44,10 @@ describe('StudioSession RPC', () => {
 
   it('attaches the authenticated socket and exposes the agent API', async () => {
     const session = new StudioSession(options())
-    await session.start()
-    expect(local).toBe(session)
+    const started = session.start()
+    await vi.waitFor(() => expect(local).toBe(session))
     await expect(local?.connect()).resolves.toMatchObject({ root: '/project', versions: { agent: '2.0.0' } })
+    await started
   })
 
   it('reports an RPC disconnect to lifecycle hooks', async () => {
@@ -66,8 +67,28 @@ describe('StudioSession RPC', () => {
       },
     })
 
-    await session.start()
+    const started = session.start()
+    await vi.waitFor(() => expect(local).toBeDefined())
+    await local?.connect()
+    await started
     close?.()
     await vi.waitFor(() => expect(disconnected).toHaveBeenCalledWith({ reason: 'connection closed' }))
+  })
+
+  it('emits studio:ready only after Studio calls connect()', async () => {
+    const ready = vi.fn()
+    const session = new StudioSession({
+      ...options(),
+      installLogger: (hooks) => {
+        hooks.hook('studio:ready', ready)
+      },
+    })
+
+    const started = session.start()
+    await vi.waitFor(() => expect(local).toBe(session))
+    expect(ready).not.toHaveBeenCalled()
+    await local?.connect()
+    await started
+    expect(ready).toHaveBeenCalledOnce()
   })
 })

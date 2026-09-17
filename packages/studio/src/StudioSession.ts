@@ -34,6 +34,7 @@ import { createSnapshotPackage } from './snapshotPackage.ts'
 import { RpcTarget } from 'capnweb'
 import { absoluteStoragePath, createGenerationStream, type GenerationState } from './ws.ts'
 import { connectWebSocketRpc } from './rpc.ts'
+import { assertSafeStorageUrl, resolveStudioUploadUrl } from './urlSafety.ts'
 
 /**
  * How many files are read from storage at once when serving `readFiles` or packing a snapshot.
@@ -257,6 +258,11 @@ export class StudioSession implements AgentApi {
   // is checked against, so a caller can only ever read what this run actually produced. Set as
   // soon as `kubb:generation:end` fires, undefined again if a run fails before that.
   #lastGeneration: GenerationState | undefined
+  /**
+   * Resolves when Studio calls {@link StudioSession.connect}. `studio:ready` waits on this so the
+   * host does not queue jobs before the agent session is registered.
+   */
+  readonly #connectAck = Promise.withResolvers<void>()
 
   constructor(options: StudioSessionOptions) {
     this.#options = applyStudioDefaults(options)
@@ -318,6 +324,30 @@ export class StudioSession implements AgentApi {
       await this.#hooks.callHook('studio:connected', {
         url: studioUrl,
         versions: { studio: this.#studioVersion, kubb: kubbVersion, agent: this.#options.version },
+      })
+      // Studio registers the agent by calling connect() over RPC. Ready means that handshake landed.
+      await new Promise<void>((resolve, reject) => {
+        let done = false
+        void this.#connectAck.promise.then(
+          () => {
+            if (!done) {
+              done = true
+              resolve()
+            }
+          },
+          (error: unknown) => {
+            if (!done) {
+              done = true
+              reject(error)
+            }
+          },
+        )
+        void rpc.closed.then(() => {
+          if (!done) {
+            done = true
+            reject(new Error('RPC closed before Studio called connect()'))
+          }
+        })
       })
       await this.#hooks.callHook('studio:ready', {})
     } catch (error) {
@@ -384,7 +414,7 @@ export class StudioSession implements AgentApi {
     const { configPath, root, version, loadConfig, permissions } = this.#options
     const [config, file] = await Promise.all([loadConfig(), this.#readConfigFileView()])
 
-    return {
+    const payload: ConnectMessagePayload = {
       versions: { kubb: kubbVersion, agent: version },
       root,
       config: {
@@ -403,6 +433,8 @@ export class StudioSession implements AgentApi {
         allowRead: this.#canRead,
       },
     }
+    this.#connectAck.resolve()
+    return payload
   }
 
   #onAbort = (): void => void this.#end({ retry: false })
@@ -656,7 +688,8 @@ export class StudioSession implements AgentApi {
       // PUT the bytes to wherever it points. That also keeps the bearer token off the storage
       // request, since it's a fresh call rather than a followed redirect.
       const { token, studioUrl } = this.#options
-      const redirect = await fetch(new URL(uploadPath, studioUrl), {
+      const uploadUrl = resolveStudioUploadUrl(uploadPath, studioUrl)
+      const redirect = await fetch(uploadUrl, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
         redirect: 'manual',
@@ -665,7 +698,8 @@ export class StudioSession implements AgentApi {
       if (redirect.status !== 307 || !storageUrl) {
         throw new Error(`Studio did not provide a storage URL (status ${redirect.status})`)
       }
-      const response = await fetch(storageUrl, { method: 'PUT', body: new Uint8Array(bytes) })
+      const safeStorageUrl = assertSafeStorageUrl(storageUrl, studioUrl)
+      const response = await fetch(safeStorageUrl, { method: 'PUT', body: new Uint8Array(bytes), redirect: 'error' })
       if (!response.ok) {
         throw new Error(`Snapshot upload failed with status ${response.status}`)
       }

@@ -104,7 +104,8 @@ export function createGenerationStream(
 ): { stream: ReadableStream<GenerationEvent>; close: () => Promise<void>; dispose: () => void; fail: (error: unknown) => void } {
   const unhooks: Array<() => void> = []
   let root = ''
-  const transform = new TransformStream<GenerationEvent>()
+  // Infinite readable HWM: unread events must not backpressure writer.write(), or result() hangs when nobody reads events().
+  const transform = new TransformStream<GenerationEvent>(undefined, undefined, { highWaterMark: Infinity })
   const writer = transform.writable.getWriter()
   let writes = Promise.resolve()
   let closed = false
@@ -272,11 +273,11 @@ export function createGenerationStream(
     closed = true
     for (const unhook of unhooks) unhook()
     await writes
+    // A canceled consumer rejects writes into streamError. That must not fail a successful generation — fail() already covers real errors.
     if (streamError) {
-      await writer.abort(streamError)
-      throw streamError
+      return
     }
-    await writer.close()
+    await writer.close().catch(() => undefined)
   }
 
   function dispose(): void {

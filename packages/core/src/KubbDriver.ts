@@ -399,7 +399,12 @@ export class KubbDriver {
           // Write every generated file once, after post-processing (barrel etc.) has had its
           // chance to add more. Writing mid-generation measured no faster in practice, so a
           // single pass keeps the pipeline simpler.
-          await fileManager.write(fileManager.files, { storage: config.storage, parsers: parsersMap, manifest: this.options.manifest, signal: this.options.signal })
+          await fileManager.write(fileManager.files, {
+            storage: config.storage,
+            parsers: parsersMap,
+            manifest: this.options.manifest,
+            signal: this.options.signal,
+          })
 
           await hooks.callHook('kubb:build:end', { files: this.fileManager.files, config, outputDir: outputRoot })
 

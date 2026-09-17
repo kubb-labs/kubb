@@ -1,5 +1,6 @@
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import type { AgentApi, RpcConnection, RpcConnector, StudioApi } from './protocol/index.ts'
+import { assertSafeWebSocketUrl } from './urlSafety.ts'
 import { createWebsocket } from './ws.ts'
 
 class AgentRpcTarget extends RpcTarget implements AgentApi {
@@ -25,6 +26,7 @@ class AgentRpcTarget extends RpcTarget implements AgentApi {
 }
 
 export const connectWebSocketRpc: RpcConnector = async ({ url, token, local }): Promise<RpcConnection> => {
+  assertSafeWebSocketUrl(url)
   const socket = createWebsocket(url, { headers: { Authorization: `Bearer ${token}` } })
   const closed = new Promise<void>((resolve) => socket.once('close', resolve))
   const studio = newWebSocketRpcSession<StudioApi>(socket as unknown as globalThis.WebSocket, new AgentRpcTarget(local))

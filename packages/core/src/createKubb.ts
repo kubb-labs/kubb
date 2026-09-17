@@ -125,13 +125,14 @@ export class Kubb {
   /**
    * Initializes the driver and storage. `build()` calls this automatically.
    */
-  async setup(): Promise<void> {
-    this.#signal?.throwIfAborted()
+  async setup(options: { signal?: AbortSignal } = {}): Promise<void> {
+    const signal = options.signal ?? this.#signal
+    signal?.throwIfAborted()
     const config = this.config
     const manifest = hasOutputPasses(config.output)
       ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) })
       : undefined
-    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal: this.#signal })
+    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal })
 
     // Each generator a plugin registers adds a listener to the shared hooks emitter, so size the
     // ceiling to the plugin count. Without this, a multi-generator plugin set trips Node's
@@ -184,9 +185,10 @@ export class Kubb {
    * Automatically calls `setup()` if needed. This is the canonical call: it never throws on
    * plugin errors, so callers stay in control of how failures surface.
    */
-  async safeBuild(): Promise<BuildOutput> {
-    this.#signal?.throwIfAborted()
-    if (!this.#driver) await this.setup()
+  async safeBuild(options: { signal?: AbortSignal } = {}): Promise<BuildOutput> {
+    const signal = options.signal ?? this.#signal
+    signal?.throwIfAborted()
+    if (!this.#driver) await this.setup({ signal })
     using self = this
     const driver = self.driver
     const storage = self.storage
@@ -216,10 +218,10 @@ export class Kubb {
     await hooks.callHook('kubb:generation:start', { config })
 
     await hooks.callHook('kubb:setup:start')
-    await this.setup()
+    await this.setup({ signal })
     await hooks.callHook('kubb:setup:end')
 
-    const { files, diagnostics, storage } = await this.safeBuild()
+    const { files, diagnostics, storage } = await this.safeBuild({ signal })
     signal?.throwIfAborted()
 
     // Surface every problem on the diagnostic hooks. An unstructured `unknown` error goes out as

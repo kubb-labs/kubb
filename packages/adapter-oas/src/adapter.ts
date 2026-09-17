@@ -208,7 +208,11 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         return parseInput({ document, refs, schemas, parser })
       })()
       inputCache.set(source, promise)
-      return promise
+      return promise.catch((error: unknown) => {
+        // A canceled parse must not poison the cache: the next call with the same source needs a fresh attempt.
+        if (signal?.aborted) inputCache.delete(source)
+        throw error
+      })
     },
   }
 })

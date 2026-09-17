@@ -119,7 +119,7 @@ organization CI API key as `x-api-key`. They do not open a WebSocket.
 | Step   | Call                 | What it does                                                          |
 | ------ | -------------------- | --------------------------------------------------------------------- |
 | Queue  | `POST /api/jobs`     | Accepts a `generation` or `snapshot` job and returns `202` with an id |
-| Status | `GET /api/jobs/{id}` | Returns the job until `success` or `failed`                           |
+| Status | `GET /api/jobs/{id}` | Returns the job until `success`, `failed`, or `canceled`              |
 
 ```typescript
 import { createJob, waitForJob } from '@kubb/studio'
@@ -140,6 +140,7 @@ const finished = await waitForJob({
 })
 
 if (finished.status === 'failed') throw new Error(finished.error)
+if (finished.status === 'canceled') throw new Error('Studio job was canceled')
 const snapshot = finished.snapshot
 ```
 
