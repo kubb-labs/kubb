@@ -134,14 +134,22 @@ export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: S
           return [`package/dist/${distRelativePath}`, await readFile(filePath, 'utf8')] as const
         }),
     )
+    // Without `@kubb/plugin-barrel` the build produces no `dist/index.*`, so pointing
+    // `main`/`module`/`exports['.']` at it would ship a manifest with missing files.
+    const builtPaths = new Set(builtEntries.map(([path]) => path))
+    const hasBarrel = builtPaths.has('package/dist/index.mjs') && builtPaths.has('package/dist/index.cjs')
+    const barrelFields = hasBarrel ? { main: './dist/index.cjs', module: './dist/index.mjs' } : {}
+    const barrelExport = hasBarrel ? { '.': { import: './dist/index.mjs', require: './dist/index.cjs' } } : {}
+
     const entries = {
       'package/package.json': JSON.stringify(
         {
           ...packageInfo,
           type: 'module',
-          main: './dist/index.cjs',
-          module: './dist/index.mjs',
-          exports: { '.': { import: './dist/index.mjs', require: './dist/index.cjs' } },
+          ...barrelFields,
+          // `exports` denies any subpath it doesn't list, so the wildcard keeps individual
+          // generated files (e.g. `models/Pet`) importable without a barrel.
+          exports: { ...barrelExport, './*': { import: './dist/*.mjs', require: './dist/*.cjs' } },
         },
         null,
         2,
