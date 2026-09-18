@@ -98,14 +98,26 @@ export async function publish(options: PublishOptions): Promise<void> {
       agentUrl: absoluteUrl(options.studioUrl, `/agents/${agent.slug}`),
     }
     if (options.json) console.log(JSON.stringify(result))
-    else logBlock([`${styleText('dim', 'Package'.padEnd(10))}  ${result.name}@${result.version}`, `${styleText('dim', 'Registry'.padEnd(10))}  ${result.registry}`, `${styleText('dim', 'Agent'.padEnd(10))}  ${result.agentUrl}`])
+    else
+      logBlock([
+        `${styleText('dim', 'Package'.padEnd(10))}  ${result.name}@${result.version}`,
+        `${styleText('dim', 'Registry'.padEnd(10))}  ${result.registry}`,
+        `${styleText('dim', 'Agent'.padEnd(10))}  ${result.agentUrl}`,
+      ])
   } finally {
     client.disconnect()
   }
 }
 
 export const runner: CommandRunner<{ args: typeof definition.args; extensions: {} }> = async ({ values }) => {
-  const options: PublishOptions = { ...createStudioOptions(values), token: values.token, id: values.id, snapshotId: values.snapshotId, timeout: values.timeout, json: values.json }
+  const options: PublishOptions = {
+    ...createStudioOptions(values),
+    token: values.token,
+    id: values.id,
+    snapshotId: values.snapshotId,
+    timeout: values.timeout,
+    json: values.json,
+  }
   if (!options.snapshotId && (isCIEnvironment() || !canUseTTY())) throw new Error('Pass --snapshot-id when running without an interactive terminal')
   await run(options, () => publish(options), { json: options.json })
 }

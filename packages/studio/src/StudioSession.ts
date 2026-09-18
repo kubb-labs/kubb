@@ -170,7 +170,15 @@ function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
     // `configPath` is relative to the agent's root unless it is already absolute, which is what
     // `resolve` does on its own.
     configFile: path.resolve(root, options.configPath),
-    permissions: { allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false, allowRead: false, allowPublish: false, ...options.permissions },
+    permissions: {
+      allowWrite: false,
+      allowConfigEdit: false,
+      allowInput: false,
+      allowExec: false,
+      allowRead: false,
+      allowPublish: false,
+      ...options.permissions,
+    },
     retryInterval: options.retryInterval ?? agentDefaults.retryIntervalMs,
     // Studio counts an agent offline once its last ping is older than its liveness window, so a
     // slower cadence would make a healthy agent invisible. Clamped here rather than in a host's

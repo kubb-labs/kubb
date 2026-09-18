@@ -91,7 +91,13 @@ function mockPairing(agentId: string = credentials.agentId) {
 
 describe('resolvePermissions', () => {
   it('asks for every permission and stores the answers', async () => {
-    confirm.mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(false)
+    confirm
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true)
+      .mockResolvedValueOnce(false)
 
     const answers = { allowRead: false, allowWrite: true, allowConfigEdit: false, allowInput: false, allowExec: true, allowPublish: false }
 
@@ -149,7 +155,13 @@ describe('resolvePermissions', () => {
   })
 
   it('still answers the questions but never writes to disk when persist is false', async () => {
-    confirm.mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(false)
+    confirm
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(false)
+      .mockResolvedValueOnce(true)
+      .mockResolvedValueOnce(false)
 
     const answers = { allowRead: false, allowWrite: true, allowConfigEdit: false, allowInput: false, allowExec: true, allowPublish: false }
 
@@ -161,7 +173,9 @@ describe('resolvePermissions', () => {
 
 describe('formatPermissionRows', () => {
   it('marks every permission with whether it was granted', () => {
-    expect(formatPermissionRows({ allowRead: true, allowWrite: true, allowConfigEdit: false, allowInput: true, allowExec: false, allowPublish: false })).toStrictEqual([
+    expect(
+      formatPermissionRows({ allowRead: true, allowWrite: true, allowConfigEdit: false, allowInput: true, allowExec: false, allowPublish: false }),
+    ).toStrictEqual([
       '✔ read generated files',
       '✔ write generated files',
       '✘ edit kubb.config.ts',

@@ -225,7 +225,14 @@ export async function resolvePermissions(
 ): Promise<Record<Permission, boolean>> {
   const project = process.cwd()
   const remembered = credentials.projects?.[project]
-  const granted: Record<Permission, boolean> = { allowRead: false, allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false, allowPublish: false }
+  const granted: Record<Permission, boolean> = {
+    allowRead: false,
+    allowWrite: false,
+    allowConfigEdit: false,
+    allowInput: false,
+    allowExec: false,
+    allowPublish: false,
+  }
   const answers: Partial<Record<Permission, boolean>> = {}
 
   for (const { key, question } of PERMISSIONS) {
