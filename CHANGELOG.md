@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.3.8 — Sep 18, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Carry an agent's organization slug through pairing and connecting, so a host can log and trace it
+  alongside the agent's own slug.
+  
+  `PairingResult.agent` and the `studio:connected` hook context gain an optional
+  `organizationSlug`, absent for a sandbox or global agent, which has none. `studio:connected` also
+  gains `agentSlug`, refreshed on every connect so a rename in Studio shows up without a re-pair.
+  Both fields are additive: a host built against an older type just ignores them. ([#4066](https://github.com/kubb-labs/kubb/pull/4066), [`eb5fa50`](https://github.com/kubb-labs/kubb/commit/eb5fa50fedf52a06349813fae039f562225ae240))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.7 — Sep 18, 2026
 
 ### @kubb/studio
