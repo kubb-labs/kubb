@@ -2,6 +2,7 @@ import { defineWithTypes } from 'gunshi'
 import type { ReporterName } from '@kubb/core'
 import { dryRunId } from '../gunshiDryRun.ts'
 import type { DryRunExtensions } from '../gunshiDryRun.ts'
+import { configArg, logLevelArg } from './shared.ts'
 
 const REPORTER_NAMES: Array<ReporterName> = ['cli', 'json', 'file', 'html']
 
@@ -54,18 +55,8 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
       required: false,
       description: 'Path to the OpenAPI specification, overriding the config',
     },
-    config: {
-      type: 'string',
-      description: 'Path to the Kubb config',
-      short: 'c',
-    },
-    logLevel: {
-      type: 'enum',
-      choices: ['silent', 'info', 'verbose'] as const,
-      description: 'Info, silent or verbose',
-      short: 'l',
-      default: 'info',
-    },
+    ...configArg,
+    ...logLevelArg,
     watch: {
       type: 'boolean',
       description: 'Watch mode: watches an input file for changes, or polls an input URL',

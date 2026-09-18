@@ -17,22 +17,13 @@ function stripExecArgs(argv: Array<string>): Array<string> {
 }
 
 /**
- * Whether this run is `kubb studio snapshot --json`, which must print exactly one JSON object on
- * stdout so a script can parse it. The telemetry notice and gunshi's own header both write to
- * stdout by default, so both are suppressed for this one invocation shape.
- */
-function isSnapshotJson(args: Array<string>): boolean {
-  return args[0] === 'studio' && args[1] === 'snapshot' && args.includes('--json')
-}
-
-/**
  * Entry point for the `kubb` CLI. Prints the telemetry notice unless telemetry is disabled or a
  * quiet flag is passed, then runs the generate, validate, mcp, studio, and init commands. Defaults to
  * `generate` when no command is given.
  */
 export async function run(argv: Array<string> = process.argv): Promise<void> {
   const args = resolveDeprecatedFlags(stripExecArgs(argv))
-  const isQuietFlag = args.some((arg) => QUIET_FLAGS.has(arg)) || isSnapshotJson(args)
+  const isQuietFlag = args.some((arg) => QUIET_FLAGS.has(arg))
 
   if (!isTelemetryDisabled() && !isQuietFlag) {
     console.log(
@@ -48,8 +39,8 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
   const validateCommand = lazy(async () => (await import('./runners/validate/run.ts')).runner, validateDefinition)
   const { definition: mcpDefinition } = await import('./commands/mcp.ts')
   const mcpCommand = lazy(async () => (await import('./runners/mcp/run.ts')).runner, mcpDefinition)
-  const { definition: studioDefinition } = await import('./commands/studio.ts')
-  const studioCommand = lazy(async () => (await import('./runners/studio/run.ts')).runner, studioDefinition)
+  const { definition: studioDefinition } = await import('./commands/studio/index.ts')
+  const studioCommand = lazy(async () => (await import('./runners/studio/connect.ts')).runner, studioDefinition)
 
   await cli(args, generateCommand, {
     name: 'kubb',
@@ -67,8 +58,6 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
     fallbackToEntry: true,
     strict: true,
     plugins: [dryrun({ name: 'dry-run' })],
-    // `snapshot --json` owns stdout: gunshi's default header would otherwise print ahead of it.
-    ...(isSnapshotJson(args) ? { renderHeader: null } : {}),
     onErrorCommand: async (_ctx, error) => {
       process.exitCode = 1
       console.error(error)

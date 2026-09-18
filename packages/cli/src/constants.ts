@@ -39,4 +39,4 @@ export const UPDATE_CHECK_TIMEOUT_MS = 3_000
 /**
  * Flags that short-circuit execution (help and version). The telemetry notice is suppressed for these.
  */
-export const QUIET_FLAGS = new Set<string>(['--help', '-h', '--version', '-v'])
+export const QUIET_FLAGS = new Set<string>(['--help', '-h', '--version', '-v', '--json'])

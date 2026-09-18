@@ -6,7 +6,9 @@ import { logLevel as logLevelMap } from '@kubb/core'
 import { createAgent, createClient, createJob, machineTokenFrom, waitForJob, type StudioSnapshot } from '@kubb/studio'
 import { createSpinner, logBlock } from '../../loggers/output.ts'
 import { detectCi } from './ci.ts'
-import { loadConfigs, type StudioOptions } from './run.ts'
+import { createStudioOptions, loadConfigs, run, type SnapshotOptions } from './run.ts'
+import type { definition } from '../../commands/studio/snapshot.ts'
+import type { CommandRunner } from 'gunshi'
 
 /**
  * How long to wait for Studio's `studio:ready` acknowledgement, above the client's own 10s
@@ -48,7 +50,7 @@ async function findPackageJson(startDirectory: string): Promise<{ name: string; 
 }
 
 /** Reads package.json only for whichever of name/version --name and --version did not supply. */
-async function resolvePackageMetadata(options: StudioOptions): Promise<{ name: string; version: string }> {
+async function resolvePackageMetadata(options: SnapshotOptions): Promise<{ name: string; version: string }> {
   if (options.name && options.packageVersion) {
     return { name: options.name, version: options.packageVersion }
   }
@@ -58,7 +60,7 @@ async function resolvePackageMetadata(options: StudioOptions): Promise<{ name: s
   return { name: options.name ?? packageMetadata.name, version: options.packageVersion ?? packageMetadata.version }
 }
 
-function resolveToken(options: StudioOptions): string {
+function resolveToken(options: SnapshotOptions): string {
   const token = options.token ?? process.env.KUBB_TOKEN
 
   if (!token) {
@@ -68,7 +70,7 @@ function resolveToken(options: StudioOptions): string {
   return token
 }
 
-function resolveCiIdentity(options: StudioOptions): { id: string; name: string } {
+function resolveCiIdentity(options: SnapshotOptions): { id: string; name: string } {
   const detected = detectCi()
 
   if (options.id) {
@@ -83,7 +85,7 @@ function resolveCiIdentity(options: StudioOptions): { id: string; name: string }
 }
 
 /** Rejects a bad `--timeout` up front instead of letting it reach `waitForJob` as NaN or <= 0. */
-function resolveTimeoutMs(options: StudioOptions): number {
+function resolveTimeoutMs(options: SnapshotOptions): number {
   const seconds = options.timeout ?? 600
 
   if (!Number.isFinite(seconds) || seconds <= 0) {
@@ -144,7 +146,7 @@ function printSummary(result: SnapshotResult): void {
  * queues a snapshot job, and polls until the tarball is ready. A snapshot job runs generation and
  * packs the tarball in one step, so this needs no separate generation run.
  */
-export async function snapshot(options: StudioOptions): Promise<void> {
+export async function snapshot(options: SnapshotOptions): Promise<void> {
   const timeoutMs = resolveTimeoutMs(options)
   const token = resolveToken(options)
   assertSecureStudioUrl(options.studioUrl)
@@ -257,4 +259,17 @@ export async function snapshot(options: StudioOptions): Promise<void> {
     }
     client.disconnect()
   }
+}
+
+export const runner: CommandRunner<{ args: typeof definition.args; extensions: {} }> = async ({ values }) => {
+  const options: SnapshotOptions = {
+    ...createStudioOptions(values),
+    token: values.token,
+    id: values.id,
+    name: values.name,
+    packageVersion: values.packageVersion,
+    timeout: values.timeout,
+    json: values.json,
+  }
+  await run(options, () => snapshot(options), { json: options.json })
 }

@@ -48,7 +48,6 @@ const { isCIEnvironment } = utils
 const { canUseTTY } = await import('../../utils/env.ts')
 
 const options: StudioOptions = {
-  action: 'connect',
   version: '0.0.0',
   studioUrl: 'http://localhost:3000',
   permission: { allowRead: false, allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false },
