@@ -18,25 +18,17 @@ import {
   setStorage,
   startPairing,
 } from '@kubb/studio'
-import type { CommandRunner } from 'gunshi'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
-import { version } from '../../../package.json'
-import type { definition } from '../../commands/studio.ts'
 import setupReporters from '../../loggers/utils.ts'
 import { createSpinner, logBlock, logIntro, logOutro } from '../../loggers/output.ts'
 import { canUseTTY } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
-import { snapshot } from './snapshot.ts'
-
-const ACTIONS = ['connect', 'login', 'logout', 'status', 'snapshot'] as const
-
-export type StudioAction = (typeof ACTIONS)[number]
+import { version } from '../../../package.json'
 
 type Permission = 'allowRead' | 'allowWrite' | 'allowConfigEdit' | 'allowInput' | 'allowExec'
 
 export type StudioOptions = {
-  action: StudioAction
   /**
    * Current `@kubb/cli` version, reported to Studio and used for the telemetry payload.
    */
@@ -57,30 +49,62 @@ export type StudioOptions = {
    */
   autoOpen: boolean
   logLevel?: CLIOptions['logLevel']
+}
+
+export type SnapshotOptions = StudioOptions & {
   /**
-   * `snapshot` only: organization CI API key. Falls back to `KUBB_TOKEN`.
+   * Organization CI API key. Falls back to `KUBB_TOKEN`.
    */
   token?: string
   /**
-   * `snapshot` only: stable identity for the CI agent. Falls back to CI auto-detection.
+   * Stable identity for the CI agent. Falls back to CI auto-detection.
    */
   id?: string
   /**
-   * `snapshot` only: package name for the generated tarball. Falls back to the nearest package.json.
+   * Package name for the generated tarball. Falls back to the nearest package.json.
    */
   name?: string
   /**
-   * `snapshot` only: package version for the generated tarball. Falls back to the nearest package.json.
+   * Package version for the generated tarball. Falls back to the nearest package.json.
    */
   packageVersion?: string
   /**
-   * `snapshot` only: seconds to wait for the job to finish.
+   * Seconds to wait for the job to finish.
    */
   timeout?: number
   /**
-   * `snapshot` only: print the result as one JSON object instead of a summary.
+   * Print the result as one JSON object instead of a summary.
    */
   json?: boolean
+}
+
+type StudioValues = {
+  config?: string
+  url?: string
+  allowRead: boolean
+  allowWrite: boolean
+  allowConfigEdit: boolean
+  allowInput: boolean
+  allowExec: boolean
+  open?: boolean
+  logLevel?: CLIOptions['logLevel']
+}
+
+export function createStudioOptions(values: StudioValues): StudioOptions {
+  return {
+    version,
+    configPath: values.config,
+    studioUrl: values.url ?? defaultStudioUrl,
+    permission: {
+      allowRead: values.allowRead,
+      allowWrite: values.allowWrite,
+      allowConfigEdit: values.allowConfigEdit,
+      allowInput: values.allowInput,
+      allowExec: values.allowExec,
+    },
+    autoOpen: values.open ?? true,
+    logLevel: values.logLevel,
+  }
 }
 
 type LoginOptions = {
@@ -105,7 +129,7 @@ type LoginOptions = {
  * the UI. The token comes back over the CLI's own HTTPS POST, so it never lands in a URL, a
  * server log, or a `Referer` header.
  */
-async function login({ studioUrl, autoOpen }: StudioOptions, { signal, previousCredentials }: LoginOptions = {}): Promise<Credentials> {
+export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, previousCredentials }: LoginOptions = {}): Promise<Credentials> {
   const session = await startPairing({ studioUrl, name: path.basename(process.cwd()), hostname: hostname(), signal })
 
   console.log(`\nOpen ${styleText('cyan', session.verification_uri)} and approve the code ${styleText('bold', session.user_code)}`)
@@ -510,7 +534,7 @@ export async function connect(options: StudioOptions): Promise<void> {
 /**
  * Reports the paired agent and any saved permissions for the current project.
  */
-async function status(options: StudioOptions): Promise<void> {
+export async function status(options: StudioOptions): Promise<void> {
   const credentials = await readCredentials()
 
   if (!credentials) {
@@ -547,9 +571,9 @@ async function status(options: StudioOptions): Promise<void> {
 }
 
 /**
- * Runs a `kubb studio` action and reports the outcome to telemetry.
+ * Runs a Studio command with shared setup and telemetry reporting.
  */
-async function run(options: StudioOptions): Promise<void> {
+export async function run(options: StudioOptions, action: () => Promise<unknown>, { block = false, json = false } = {}): Promise<void> {
   // The machine secret lives here and pairing binds it, so storage is installed before anything
   // reads `getMachineToken()`, which `startPairing` does, before any client exists.
   setStorage(createFileStorage(getProjectKubbHome()))
@@ -558,36 +582,15 @@ async function run(options: StudioOptions): Promise<void> {
   const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'studio', kubbVersion: options.version, hrStart, status }))
 
   try {
-    // `snapshot --json` prints exactly one JSON object on stdout, so nothing else may write there.
-    if (options.logLevel !== 'silent' && !(options.action === 'snapshot' && options.json)) {
+    if (options.logLevel !== 'silent' && !json) {
       logIntro({
         title: `Kubb Studio  ${styleText('dim', `v${options.version}`)}`,
         warning: styleText('yellow', 'This feature is still under development, use with caution'),
-        // Only `connect` stays open long enough to close the block again with `logOutro`.
-        block: options.action === 'connect',
+        block,
       })
     }
 
-    switch (options.action) {
-      case 'login':
-        await login(options)
-        break
-      case 'logout':
-        await clearCredentials()
-        console.log('Signed out of Kubb Studio.')
-        break
-      case 'status':
-        await status(options)
-        break
-      case 'connect':
-        await connect(options)
-        break
-      case 'snapshot':
-        await snapshot(options)
-        break
-      default:
-        throw new Error(`Unknown action "${options.action}", expected one of ${ACTIONS.join(', ')}`)
-    }
+    await action()
 
     await report('success')
   } catch (error) {
@@ -595,32 +598,4 @@ async function run(options: StudioOptions): Promise<void> {
     console.error(toError(error).message)
     process.exitCode = 1
   }
-}
-
-/**
- * Maps the parsed `kubb studio` flags onto {@link run}. Loaded on demand by `index.ts`, so the
- * Studio client stays out of the process for every other command.
- */
-export const runner: CommandRunner<{ args: typeof definition.args; extensions: {} }> = async ({ values }) => {
-  await run({
-    action: (values.action ?? 'connect') as StudioAction,
-    version,
-    configPath: values.config,
-    studioUrl: values.url ?? defaultStudioUrl,
-    permission: {
-      allowRead: values.allowRead,
-      allowWrite: values.allowWrite,
-      allowConfigEdit: values.allowConfigEdit,
-      allowInput: values.allowInput,
-      allowExec: values.allowExec,
-    },
-    autoOpen: values.open,
-    logLevel: values.logLevel,
-    token: values.token,
-    id: values.id,
-    name: values.name,
-    packageVersion: values.packageVersion,
-    timeout: values.timeout,
-    json: values.json,
-  })
 }

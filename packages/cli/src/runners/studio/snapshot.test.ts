@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { StudioAgent, StudioJob } from '@kubb/studio'
-import type { StudioOptions } from './run.ts'
+import type { SnapshotOptions } from './run.ts'
 
 vi.mock('../generate/utils.ts', () => ({
   getConfigs: vi.fn().mockResolvedValue({
@@ -53,9 +53,8 @@ const successfulJob: StudioJob = {
   },
 }
 
-function baseOptions(overrides: Partial<StudioOptions> = {}): StudioOptions {
+function baseOptions(overrides: Partial<SnapshotOptions> = {}): SnapshotOptions {
   return {
-    action: 'snapshot',
     version: '0.0.0',
     studioUrl: 'http://localhost:3000',
     permission: { allowRead: false, allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false },
