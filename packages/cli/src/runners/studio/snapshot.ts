@@ -108,6 +108,52 @@ export function absoluteUrl(studioUrl: string, path: string): string {
   return new URL(path, `${studioUrl}/`).toString()
 }
 
+/**
+ * Registers, connects, and waits for a CI agent to become ready.
+ */
+export async function connectStudioAgent(options: SnapshotOptions, configPath: string, log: (message: string) => void) {
+  const ci = resolveCiIdentity(options)
+  process.env.KUBB_AGENT_SECRET = ci.id
+  const agent = await createAgent({ studioUrl: options.studioUrl, token: resolveToken(options), name: ci.name, machineToken: machineTokenFrom(ci.id) })
+  const { promise: ready, reject: markFailed, resolve: markReady } = Promise.withResolvers<void>()
+  const client = createClient({
+    studioUrl: options.studioUrl,
+    token: agent.token,
+    configPath,
+    root: process.cwd(),
+    version: options.version,
+    client: { kind: 'cli' },
+    logLevel: logLevelMap[options.logLevel ?? 'info'],
+    loadConfig: async () => (await loadConfigs(options)).config,
+    permissions: options.permission,
+    installLogger: (hooks) => {
+      hooks.hook('studio:connecting', ({ url }) => log(`Connecting to Kubb Studio at ${url}`))
+      hooks.hook('studio:connected', ({ url }) => log(`Connected to Kubb Studio at ${url}`))
+      hooks.hook('studio:ready', () => {
+        log('Kubb Studio connection ready')
+        markReady()
+      })
+      hooks.hook('studio:warn', ({ message }) => log(`Kubb Studio warning: ${message}`))
+      hooks.hook('studio:error', ({ error }) => markFailed(error))
+    },
+  })
+
+  await client.connect()
+  let readyTimeoutHandle: ReturnType<typeof setTimeout> | undefined
+  try {
+    await Promise.race([
+      ready,
+      new Promise<void>((_, reject) => {
+        readyTimeoutHandle = setTimeout(() => reject(new Error('Timed out waiting for Kubb Studio to confirm the agent was ready')), READY_TIMEOUT_MS)
+      }),
+    ])
+  } finally {
+    clearTimeout(readyTimeoutHandle)
+  }
+
+  return { agent, client }
+}
+
 type SnapshotResult = {
   id: string
   name: string | null
@@ -151,12 +197,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
   const token = resolveToken(options)
   assertSecureStudioUrl(options.studioUrl)
   const { configPath } = await loadConfigs(options)
-  const ci = resolveCiIdentity(options)
   const { name, version: packageVersion } = await resolvePackageMetadata(options)
-
-  // Set before the first `getMachineToken()` call (inside `client.connect()`), so the WebSocket
-  // session registers under the same machine token `createAgent` just registered with Studio.
-  process.env.KUBB_AGENT_SECRET = ci.id
 
   const spinner = options.json ? null : createSpinner()
   const log = (message: string) => {
@@ -175,47 +216,9 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
     spinner?.start('Creating Kubb Studio agent')
   }
 
-  const agent = await createAgent({ studioUrl: options.studioUrl, token, name: ci.name, machineToken: machineTokenFrom(ci.id) })
-
-  const { promise: ready, reject: markFailed, resolve: markReady } = Promise.withResolvers<void>()
-
-  const client = createClient({
-    studioUrl: options.studioUrl,
-    token: agent.token,
-    configPath,
-    root: process.cwd(),
-    version: options.version,
-    client: { kind: 'cli' },
-    logLevel: logLevelMap[options.logLevel ?? 'info'],
-    loadConfig: async () => (await loadConfigs(options)).config,
-    installLogger: (hooks) => {
-      hooks.hook('studio:connecting', ({ url }) => log(`Connecting to Kubb Studio at ${url}`))
-      hooks.hook('studio:connected', ({ url }) => log(`Connected to Kubb Studio at ${url}`))
-      hooks.hook('studio:ready', () => {
-        log('Kubb Studio connection ready')
-        markReady()
-      })
-      hooks.hook('studio:warn', ({ message }) => log(`Kubb Studio warning: ${message}`))
-      hooks.hook('studio:error', ({ error }) => markFailed(error))
-    },
-  })
-
-  await client.connect()
+  const { agent, client } = await connectStudioAgent(options, configPath, log)
 
   try {
-    let readyTimeoutHandle: ReturnType<typeof setTimeout> | undefined
-
-    try {
-      await Promise.race([
-        ready,
-        new Promise<void>((_, reject) => {
-          readyTimeoutHandle = setTimeout(() => reject(new Error('Timed out waiting for Kubb Studio to confirm the agent was ready')), READY_TIMEOUT_MS)
-        }),
-      ])
-    } finally {
-      clearTimeout(readyTimeoutHandle)
-    }
-
     log('Creating snapshot job')
 
     const job = await createJob({ studioUrl: options.studioUrl, token, type: 'snapshot', agentId: agent.id, name, version: packageVersion })

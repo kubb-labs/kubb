@@ -1,12 +1,10 @@
 import * as prompts from '@clack/prompts'
-import process from 'node:process'
 import { styleText } from 'node:util'
 import { isCIEnvironment } from '@internals/utils'
-import { createAgent, createClient, createJob, listSnapshots, machineTokenFrom, waitForJob, type StudioSnapshot } from '@kubb/studio'
+import { createJob, listSnapshots, waitForJob, type StudioSnapshot } from '@kubb/studio'
 import { canUseTTY } from '../../utils/env.ts'
 import { createSpinner, logBlock } from '../../loggers/output.ts'
-import { detectCi } from './ci.ts'
-import { assertSecureStudioUrl, absoluteUrl, resolveTimeoutMs, resolveToken } from './snapshot.ts'
+import { assertSecureStudioUrl, absoluteUrl, connectStudioAgent, resolveTimeoutMs, resolveToken } from './snapshot.ts'
 import { createStudioOptions, loadConfigs, run, type SnapshotOptions } from './run.ts'
 import type { definition } from '../../commands/studio/publish.ts'
 import type { CommandRunner } from 'gunshi'
@@ -20,13 +18,6 @@ type PublishResult = {
   version: string
   registry: string
   agentUrl: string
-}
-
-function resolveIdentity(options: PublishOptions): { id: string; name: string } {
-  const detected = detectCi()
-  if (options.id) return { id: options.id, name: detected?.name ?? options.id }
-  if (!detected) throw new Error('Could not detect a supported CI provider. Pass --id.')
-  return detected
 }
 
 async function chooseSnapshot(snapshots: Array<StudioSnapshot>): Promise<StudioSnapshot> {
@@ -50,31 +41,10 @@ export async function publish(options: PublishOptions): Promise<void> {
   const token = resolveToken(options)
   assertSecureStudioUrl(options.studioUrl)
   const { configPath } = await loadConfigs(options)
-  const ci = resolveIdentity(options)
-  process.env.KUBB_AGENT_SECRET = ci.id
   const spinner = options.json ? null : createSpinner()
   const log = (message: string) => (options.json ? console.error(message) : spinner?.message(message))
-  const agent = await createAgent({ studioUrl: options.studioUrl, token, name: ci.name, machineToken: machineTokenFrom(ci.id) })
-  const { promise: ready, resolve: markReady, reject: markFailed } = Promise.withResolvers<void>()
-  const client = createClient({
-    studioUrl: options.studioUrl,
-    token: agent.token,
-    configPath,
-    root: process.cwd(),
-    version: options.version,
-    client: { kind: 'cli' },
-    loadConfig: async () => (await loadConfigs(options)).config,
-    permissions: options.permission,
-    installLogger: (hooks) => {
-      hooks.hook('studio:connecting', ({ url }) => log(`Connecting to Kubb Studio at ${url}`))
-      hooks.hook('studio:connected', ({ url }) => log(`Connected to Kubb Studio at ${url}`))
-      hooks.hook('studio:ready', () => markReady())
-      hooks.hook('studio:error', ({ error }) => markFailed(error))
-    },
-  })
-  await client.connect()
+  const { agent, client } = await connectStudioAgent(options, configPath, log)
   try {
-    await Promise.race([ready, new Promise<void>((_, reject) => setTimeout(() => reject(new Error('Timed out waiting for Kubb Studio')), 15_000))])
     const selected = options.snapshotId
       ? (await listSnapshots({ studioUrl: options.studioUrl, token, agentId: agent.id })).find((snapshot) => snapshot.id === options.snapshotId)
       : await chooseSnapshot(await listSnapshots({ studioUrl: options.studioUrl, token, agentId: agent.id }))
