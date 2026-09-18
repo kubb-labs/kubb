@@ -120,6 +120,65 @@ describe('the handshake', () => {
     expect(ready).toHaveBeenCalledOnce()
   })
 
+  it('carries the agent and organization slug on studio:connected', async () => {
+    vi.mocked(createAgentSession).mockResolvedValue({
+      sessionId: 'session-1',
+      slug: 'brave-otter',
+      url: 'ws://studio/session-1',
+      expiresAt: new Date(Date.now() + 60_000).toISOString(),
+      revokedAt: null,
+      isSandbox: false,
+      version: '1.0.0',
+      agentSlug: 'brave-otter',
+      organizationSlug: 'acme',
+    })
+    const connected = vi.fn()
+
+    await connectStudio({ installLogger: (hooks) => void hooks.hook('studio:connected', connected) })
+
+    expect(connected).toHaveBeenCalledWith(expect.objectContaining({ agentSlug: 'brave-otter', organizationSlug: 'acme' }))
+  })
+
+  it('leaves the slugs undefined when Studio omits them', async () => {
+    const connected = vi.fn()
+
+    await connectStudio({ installLogger: (hooks) => void hooks.hook('studio:connected', connected) })
+
+    expect(connected).toHaveBeenCalledWith(expect.objectContaining({ agentSlug: undefined, organizationSlug: undefined }))
+  })
+
+  it('reports the current slug on a reconnect, not a stale one', async () => {
+    vi.mocked(createAgentSession).mockResolvedValueOnce({
+      sessionId: 'session-1',
+      slug: 'brave-otter',
+      url: 'ws://studio/session-1',
+      expiresAt: new Date(Date.now() + 60_000).toISOString(),
+      revokedAt: null,
+      isSandbox: false,
+      version: '1.0.0',
+      agentSlug: 'brave-otter',
+      organizationSlug: 'acme',
+    })
+    await connectStudio()
+
+    vi.mocked(createAgentSession).mockResolvedValueOnce({
+      sessionId: 'session-2',
+      slug: 'quiet-fox',
+      url: 'ws://studio/session-2',
+      expiresAt: new Date(Date.now() + 60_000).toISOString(),
+      revokedAt: null,
+      isSandbox: false,
+      version: '1.0.0',
+      agentSlug: 'quiet-fox',
+      organizationSlug: 'acme',
+    })
+    const reconnected = vi.fn()
+
+    await connectStudio({ installLogger: (hooks) => void hooks.hook('studio:connected', reconnected) })
+
+    expect(reconnected).toHaveBeenCalledWith(expect.objectContaining({ agentSlug: 'quiet-fox' }))
+  })
+
   it('reports an RPC disconnect to lifecycle hooks', async () => {
     const disconnected = vi.fn()
     const { closeTransport } = await connectStudio({ installLogger: (hooks) => void hooks.hook('studio:disconnected', disconnected) })

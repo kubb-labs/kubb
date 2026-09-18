@@ -481,4 +481,14 @@ export type AgentConnectResponse = {
    * Absent when Studio predates the field.
    */
   version?: string
+  /**
+   * This agent's slug, so a reconnect refreshes it the same way pairing did.
+   * Absent when Studio predates the field.
+   */
+  agentSlug?: string
+  /**
+   * This agent's organization slug, absent for a sandbox or global agent, which has none, or when
+   * Studio predates the field.
+   */
+  organizationSlug?: string
 }

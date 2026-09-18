@@ -36,6 +36,10 @@ export type PairingResult = {
      * Display name chosen at pairing time.
      */
     name: string
+    /**
+     * This agent's organization slug, absent for a sandbox or global agent, which has none.
+     */
+    organizationSlug?: string
   }
 }
 

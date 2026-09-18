@@ -34,6 +34,16 @@ export type StudioConnectedContext = {
      */
     agent: string
   }
+  /**
+   * This agent's slug, refreshed on every connect so a rename in Studio shows up without a
+   * re-pair. Absent when Studio predates the field.
+   */
+  agentSlug?: string
+  /**
+   * This agent's organization slug, absent for a sandbox or global agent, which has none, or when
+   * Studio predates the field.
+   */
+  organizationSlug?: string
 }
 
 /**
