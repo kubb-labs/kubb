@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.3.7 — Sep 18, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Fix a snapshot package's `package.json` pointing `main`/`module`/`exports['.']` at
+  `dist/index.*` even when the generation had no top-level barrel, and add a wildcard
+  `exports['./*']` so individual generated files stay importable by path. ([#4064](https://github.com/kubb-labs/kubb/pull/4064), [`d2ce0c4`](https://github.com/kubb-labs/kubb/commit/d2ce0c4af275d7bf89535e64fc0c6bdbfcfaecd1))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.6 — Sep 17, 2026
 
 ### @kubb/studio
