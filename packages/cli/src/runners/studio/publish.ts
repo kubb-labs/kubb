@@ -1,0 +1,111 @@
+import * as prompts from '@clack/prompts'
+import process from 'node:process'
+import { styleText } from 'node:util'
+import { isCIEnvironment } from '@internals/utils'
+import { createAgent, createClient, createJob, listSnapshots, machineTokenFrom, waitForJob, type StudioSnapshot } from '@kubb/studio'
+import { canUseTTY } from '../../utils/env.ts'
+import { createSpinner, logBlock } from '../../loggers/output.ts'
+import { detectCi } from './ci.ts'
+import { assertSecureStudioUrl, absoluteUrl, resolveTimeoutMs, resolveToken } from './snapshot.ts'
+import { createStudioOptions, loadConfigs, run, type SnapshotOptions } from './run.ts'
+import type { definition } from '../../commands/studio/publish.ts'
+import type { CommandRunner } from 'gunshi'
+
+export type PublishOptions = SnapshotOptions & { snapshotId?: string }
+
+type PublishResult = {
+  jobId: string
+  snapshotId: string
+  name: string
+  version: string
+  registry: string
+  agentUrl: string
+}
+
+function resolveIdentity(options: PublishOptions): { id: string; name: string } {
+  const detected = detectCi()
+  if (options.id) return { id: options.id, name: detected?.name ?? options.id }
+  if (!detected) throw new Error('Could not detect a supported CI provider. Pass --id.')
+  return detected
+}
+
+async function chooseSnapshot(snapshots: Array<StudioSnapshot>): Promise<StudioSnapshot> {
+  if (!snapshots.length) throw new Error('No snapshots are available for this agent')
+  const value = await prompts.select({
+    message: 'Choose a snapshot to publish',
+    options: snapshots.map((snapshot) => ({
+      value: snapshot.id,
+      label: `${snapshot.name ?? '(unnamed)'}@${snapshot.version ?? '0.0.0'}`,
+      hint: `${snapshot.id} · expires ${snapshot.expiresAt}`,
+    })),
+  })
+  if (prompts.isCancel(value)) throw new Error('Snapshot selection canceled')
+  const snapshot = snapshots.find((item) => item.id === value)
+  if (!snapshot) throw new Error('The selected snapshot no longer exists')
+  return snapshot
+}
+
+export async function publish(options: PublishOptions): Promise<void> {
+  const timeoutMs = resolveTimeoutMs(options)
+  const token = resolveToken(options)
+  assertSecureStudioUrl(options.studioUrl)
+  const { configPath } = await loadConfigs(options)
+  const ci = resolveIdentity(options)
+  process.env.KUBB_AGENT_SECRET = ci.id
+  const spinner = options.json ? null : createSpinner()
+  const log = (message: string) => (options.json ? console.error(message) : spinner?.message(message))
+  const agent = await createAgent({ studioUrl: options.studioUrl, token, name: ci.name, machineToken: machineTokenFrom(ci.id) })
+  const { promise: ready, resolve: markReady, reject: markFailed } = Promise.withResolvers<void>()
+  const client = createClient({
+    studioUrl: options.studioUrl,
+    token: agent.token,
+    configPath,
+    root: process.cwd(),
+    version: options.version,
+    client: { kind: 'cli' },
+    loadConfig: async () => (await loadConfigs(options)).config,
+    permissions: options.permission,
+    installLogger: (hooks) => {
+      hooks.hook('studio:connecting', ({ url }) => log(`Connecting to Kubb Studio at ${url}`))
+      hooks.hook('studio:connected', ({ url }) => log(`Connected to Kubb Studio at ${url}`))
+      hooks.hook('studio:ready', () => markReady())
+      hooks.hook('studio:error', ({ error }) => markFailed(error))
+    },
+  })
+  await client.connect()
+  try {
+    await Promise.race([ready, new Promise<void>((_, reject) => setTimeout(() => reject(new Error('Timed out waiting for Kubb Studio')), 15_000))])
+    const selected = options.snapshotId
+      ? (await listSnapshots({ studioUrl: options.studioUrl, token, agentId: agent.id })).find((snapshot) => snapshot.id === options.snapshotId)
+      : await chooseSnapshot(await listSnapshots({ studioUrl: options.studioUrl, token, agentId: agent.id }))
+    if (!selected) throw new Error(`Snapshot ${options.snapshotId} was not found`)
+    const job = await createJob({ studioUrl: options.studioUrl, token, type: 'publish', agentId: agent.id, snapshotId: selected.id })
+    const finished = await waitForJob({
+      studioUrl: options.studioUrl,
+      token,
+      id: job.id,
+      timeoutMs,
+      onUpdate: (current) => current.stage && log(`Publishing: ${current.stage}`),
+    })
+    if (finished.status !== 'success') throw new Error(finished.error ?? `Publish job ${finished.status}`)
+    if (!finished.publish) throw new Error('Publish job succeeded without publish details')
+    const result: PublishResult = {
+      jobId: job.id,
+      snapshotId: selected.id,
+      name: finished.publish.name,
+      version: finished.publish.version,
+      registry: finished.publish.registry,
+      agentUrl: absoluteUrl(options.studioUrl, `/agents/${agent.slug}`),
+    }
+    if (options.json) console.log(JSON.stringify(result))
+    else logBlock([`${styleText('dim', 'Package'.padEnd(10))}  ${result.name}@${result.version}`, `${styleText('dim', 'Registry'.padEnd(10))}  ${result.registry}`, `${styleText('dim', 'Agent'.padEnd(10))}  ${result.agentUrl}`])
+  } finally {
+    client.disconnect()
+  }
+}
+
+export const runner: CommandRunner<{ args: typeof definition.args; extensions: {} }> = async ({ values }) => {
+  const options: PublishOptions = { ...createStudioOptions(values), token: values.token, id: values.id, snapshotId: values.snapshotId, timeout: values.timeout, json: values.json }
+  if (!options.snapshotId && (isCIEnvironment() || !canUseTTY())) throw new Error('Pass --snapshot-id when running without an interactive terminal')
+  await run(options, () => publish(options), { json: options.json })
+}

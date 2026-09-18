@@ -2,6 +2,7 @@ import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import type {
   AgentApi,
   GenerateInput,
+  PublishPackageInput,
   PublishSnapshotInput,
   ReadFilesInput,
   RpcConnection,
@@ -32,6 +33,9 @@ class AgentRpcTarget extends RpcTarget implements AgentApi {
   }
   publishSnapshot(input: PublishSnapshotInput) {
     return this.api.publishSnapshot(input)
+  }
+  publishPackage(input: PublishPackageInput) {
+    return this.api.publishPackage(input)
   }
   readFiles(input: ReadFilesInput) {
     return this.api.readFiles(input)

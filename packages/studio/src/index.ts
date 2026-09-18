@@ -12,6 +12,9 @@ export type {
   GenerationRun,
   PublishSnapshotInput,
   PublishSnapshotResult,
+  PublishPackageInput,
+  PublishPackageResult,
+  AgentPermissions,
   RpcConnection,
   RpcConnector,
   StudioApi,
@@ -20,6 +23,7 @@ export type { StudioConnectedContext } from './hooks.ts'
 export {
   createAgent,
   createJob,
+  listSnapshots,
   waitForJob,
   InvalidAgentTokenError,
   type StudioAgent,

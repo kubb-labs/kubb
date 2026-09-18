@@ -59,4 +59,10 @@ export const studioPermissionArgs = {
     default: false,
     toKebab: true,
   },
+  allowPublish: {
+    type: 'boolean',
+    description: 'Let Kubb Studio publish a snapshot to npm from this machine',
+    default: false,
+    toKebab: true,
+  },
 } as const

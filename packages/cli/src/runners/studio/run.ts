@@ -26,7 +26,7 @@ import { getConfigs } from '../generate/utils.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 import { version } from '../../../package.json'
 
-type Permission = 'allowRead' | 'allowWrite' | 'allowConfigEdit' | 'allowInput' | 'allowExec'
+type Permission = 'allowRead' | 'allowWrite' | 'allowConfigEdit' | 'allowInput' | 'allowExec' | 'allowPublish'
 
 export type StudioOptions = {
   /**
@@ -43,7 +43,7 @@ export type StudioOptions = {
    * What Studio may do in this project. Each flag grants outright; the rest are asked once per
    * project through {@link resolvePermissions}.
    */
-  permission: Record<Permission, boolean>
+  permission: Partial<Record<Permission, boolean>>
   /**
    * Whether to open the approval page in a browser during pairing.
    */
@@ -86,6 +86,7 @@ type StudioValues = {
   allowConfigEdit: boolean
   allowInput: boolean
   allowExec: boolean
+  allowPublish: boolean
   open?: boolean
   logLevel?: CLIOptions['logLevel']
 }
@@ -101,6 +102,7 @@ export function createStudioOptions(values: StudioValues): StudioOptions {
       allowConfigEdit: values.allowConfigEdit,
       allowInput: values.allowInput,
       allowExec: values.allowExec,
+      allowPublish: values.allowPublish,
     },
     autoOpen: values.open ?? true,
     logLevel: values.logLevel,
@@ -196,13 +198,14 @@ const PERMISSIONS: ReadonlyArray<{
     label: 'run formatter, linter, postGenerate',
     question: () => 'Let Kubb Studio run the formatter, the linter, and output.postGenerate?',
   },
+  { key: 'allowPublish', label: 'publish a snapshot to npm', question: () => 'Let Kubb Studio publish a snapshot to npm from this machine?' },
 ]
 
 /**
  * One row per permission, for the connect banner and `kubb studio status`. A list rather than a
  * joined line: four labels this long read as one run-on sentence side by side.
  */
-export function formatPermissionRows(granted: Record<Permission, boolean>): Array<string> {
+export function formatPermissionRows(granted: Partial<Record<Permission, boolean>>): Array<string> {
   return PERMISSIONS.map(({ key, label }) => `${granted[key] ? styleText('green', '✔') : styleText('red', '✘')} ${label}`)
 }
 
@@ -222,7 +225,7 @@ export async function resolvePermissions(
 ): Promise<Record<Permission, boolean>> {
   const project = process.cwd()
   const remembered = credentials.projects?.[project]
-  const granted: Record<Permission, boolean> = { allowRead: false, allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false }
+  const granted: Record<Permission, boolean> = { allowRead: false, allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false, allowPublish: false }
   const answers: Partial<Record<Permission, boolean>> = {}
 
   for (const { key, question } of PERMISSIONS) {
@@ -565,6 +568,7 @@ export async function status(options: StudioOptions): Promise<void> {
     allowConfigEdit: remembered.allowConfigEdit === true,
     allowInput: remembered.allowInput === true,
     allowExec: remembered.allowExec === true,
+    allowPublish: remembered.allowPublish === true,
   })) {
     console.log(row)
   }

@@ -23,7 +23,7 @@ const MAX_TIMEOUT_SECONDS = 3600
 
 const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1'])
 
-async function findPackageJson(startDirectory: string): Promise<{ name: string; version: string }> {
+export async function findPackageJson(startDirectory: string): Promise<{ name: string; version: string }> {
   let directory = startDirectory
 
   for (;;) {
@@ -50,7 +50,7 @@ async function findPackageJson(startDirectory: string): Promise<{ name: string; 
 }
 
 /** Reads package.json only for whichever of name/version --name and --version did not supply. */
-async function resolvePackageMetadata(options: SnapshotOptions): Promise<{ name: string; version: string }> {
+export async function resolvePackageMetadata(options: SnapshotOptions): Promise<{ name: string; version: string }> {
   if (options.name && options.packageVersion) {
     return { name: options.name, version: options.packageVersion }
   }
@@ -60,7 +60,7 @@ async function resolvePackageMetadata(options: SnapshotOptions): Promise<{ name:
   return { name: options.name ?? packageMetadata.name, version: options.packageVersion ?? packageMetadata.version }
 }
 
-function resolveToken(options: SnapshotOptions): string {
+export function resolveToken(options: SnapshotOptions): string {
   const token = options.token ?? process.env.KUBB_TOKEN
 
   if (!token) {
@@ -70,7 +70,7 @@ function resolveToken(options: SnapshotOptions): string {
   return token
 }
 
-function resolveCiIdentity(options: SnapshotOptions): { id: string; name: string } {
+export function resolveCiIdentity(options: SnapshotOptions): { id: string; name: string } {
   const detected = detectCi()
 
   if (options.id) {
@@ -85,7 +85,7 @@ function resolveCiIdentity(options: SnapshotOptions): { id: string; name: string
 }
 
 /** Rejects a bad `--timeout` up front instead of letting it reach `waitForJob` as NaN or <= 0. */
-function resolveTimeoutMs(options: SnapshotOptions): number {
+export function resolveTimeoutMs(options: SnapshotOptions): number {
   const seconds = options.timeout ?? 600
 
   if (!Number.isFinite(seconds) || seconds <= 0) {
@@ -96,7 +96,7 @@ function resolveTimeoutMs(options: SnapshotOptions): number {
 }
 
 /** The CI key is a credential, so refuse to send it anywhere but HTTPS or a loopback dev host. */
-function assertSecureStudioUrl(studioUrl: string): void {
+export function assertSecureStudioUrl(studioUrl: string): void {
   const url = new URL(studioUrl)
 
   if (url.protocol !== 'https:' && !LOOPBACK_HOSTS.has(url.hostname)) {
@@ -104,7 +104,7 @@ function assertSecureStudioUrl(studioUrl: string): void {
   }
 }
 
-function absoluteUrl(studioUrl: string, path: string): string {
+export function absoluteUrl(studioUrl: string, path: string): string {
   return new URL(path, `${studioUrl}/`).toString()
 }
 
