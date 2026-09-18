@@ -304,6 +304,19 @@ export type PublishSnapshotInput = { name: string; version: string; bundledDepen
 export type PublishSnapshotResult = { integrity: string; peerDependencies: Record<string, string> }
 
 /**
+ * Describes a snapshot to publish and where to fetch it.
+ */
+export type PublishPackageInput = {
+  downloadPath: string
+  name: string
+  version: string
+  integrity: string | null
+}
+
+/** Where the package landed. */
+export type PublishPackageResult = { registry: string; name: string; version: string }
+
+/**
  * A generation in flight. Cap'n Web keeps the three calls pointed at the same run, so a caller can
  * read `events()` while `result()` is still pending and `cancel()` stops it early.
  */
@@ -321,6 +334,7 @@ export type AgentApi = {
   startGeneration: (input: GenerateInput) => GenerationRun
   saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
   publishSnapshot: (input: PublishSnapshotInput) => Promise<PublishSnapshotResult>
+  publishPackage: (input: PublishPackageInput) => Promise<PublishPackageResult>
   readFiles: (input: ReadFilesInput) => Promise<{ files: Record<string, string> }>
 }
 
@@ -445,6 +459,8 @@ export type AgentPermissions = {
    * sandbox agent; for a local agent it mirrors the agent's own opt-in.
    */
   allowRead: boolean
+  /** Whether the agent may publish a package to npm using its own credentials. */
+  allowPublish: boolean
 }
 
 /**

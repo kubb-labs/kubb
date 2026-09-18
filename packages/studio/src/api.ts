@@ -266,6 +266,7 @@ export type StudioJob = {
    * Current status. Poll until `success`, `failed`, or `canceled`.
    */
   status: StudioJobStatus
+  stage?: 'downloading' | 'verifying' | 'publishing'
   /**
    * Failure message when `status` is `failed`.
    */
@@ -274,6 +275,7 @@ export type StudioJob = {
    * Package view when a snapshot job finished successfully.
    */
   snapshot?: StudioSnapshot
+  publish?: { registry: string; name: string; version: string }
 }
 
 /**
@@ -300,14 +302,16 @@ export async function createJob({
   token,
   type,
   agentId,
+  snapshotId,
   name,
   version,
   config,
 }: {
   studioUrl: string
   token: string
-  type: 'generation' | 'snapshot'
+  type: 'generation' | 'snapshot' | 'publish'
   agentId: string
+  snapshotId?: string
   name?: string
   version?: string
   config?: Record<string, unknown>
@@ -315,7 +319,7 @@ export async function createJob({
   const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs`, {
     method: 'POST',
     headers: { 'x-api-key': token },
-    body: { type, agentId, name, version, config },
+    body: { type, agentId, snapshotId, name, version, config },
   })
 
   return job
@@ -345,6 +349,7 @@ export async function waitForJob({
   token,
   id,
   timeoutMs = 60_000,
+  onUpdate,
 }: {
   studioUrl: string
   token: string
@@ -355,6 +360,7 @@ export async function waitForJob({
    * @default 60000
    */
   timeoutMs?: number
+  onUpdate?: (job: StudioJob) => void
 }): Promise<StudioJob> {
   const deadline = Date.now() + timeoutMs
   let interval = INITIAL_POLL_DELAY_MS
@@ -373,6 +379,7 @@ export async function waitForJob({
         retry: false,
       })
 
+      onUpdate?.(job)
       if (job.status === 'success' || job.status === 'failed' || job.status === 'canceled') return job
     } catch (error) {
       const response = (error as { response?: { status?: number; _data?: { data?: { tryAgainIn?: unknown } } } }).response
@@ -386,6 +393,15 @@ export async function waitForJob({
       interval = Math.max(interval, usable ? retryAfter : MAX_POLL_INTERVAL_MS)
     }
   }
+}
+
+/** Lists snapshots belonging to an agent, newest first. */
+export async function listSnapshots({ studioUrl, token, agentId }: { studioUrl: string; token: string; agentId: string }): Promise<Array<StudioSnapshot>> {
+  const { snapshots } = await ofetch<{ snapshots: Array<StudioSnapshot> }>(`${studioUrl}/api/snapshots`, {
+    headers: { 'x-api-key': token },
+    query: { agentId },
+  })
+  return snapshots
 }
 
 /**

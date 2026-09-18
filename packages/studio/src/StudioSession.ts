@@ -1,7 +1,11 @@
-import { writeFile } from 'node:fs/promises'
+import { execFile } from 'node:child_process'
+import { createHash } from 'node:crypto'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
+import { promisify } from 'node:util'
 import { getErrorMessage, inParallel, read, toError } from '@internals/utils'
 import { type Config, fsStorage, Hookable, type KubbHooks, logLevel as logLevelMap, memoryStorage } from '@kubb/core'
 import { version as kubbVersion } from '../package.json'
@@ -23,6 +27,8 @@ import {
   type SaveResult,
   type PublishSnapshotInput,
   type PublishSnapshotResult,
+  type PublishPackageInput,
+  type PublishPackageResult,
   type RpcConnector,
   type RpcConnection,
 } from './protocol/index.ts'
@@ -40,6 +46,7 @@ import { connectWebSocketRpc } from './rpc.ts'
  * How many files are read from storage at once when serving `readFiles` or packing a snapshot.
  */
 const FILE_READ_CONCURRENCY = 50
+const execFileAsync = promisify(execFile)
 
 class GenerationRunTarget extends RpcTarget implements GenerationRun {
   constructor(
@@ -163,7 +170,15 @@ function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
     // `configPath` is relative to the agent's root unless it is already absolute, which is what
     // `resolve` does on its own.
     configFile: path.resolve(root, options.configPath),
-    permissions: { allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false, allowRead: false, ...options.permissions },
+    permissions: {
+      allowWrite: false,
+      allowConfigEdit: false,
+      allowInput: false,
+      allowExec: false,
+      allowRead: false,
+      allowPublish: false,
+      ...options.permissions,
+    },
     retryInterval: options.retryInterval ?? agentDefaults.retryIntervalMs,
     // Studio counts an agent offline once its last ping is older than its liveness window, so a
     // slower cadence would make a healthy agent invisible. Clamped here rather than in a host's
@@ -437,6 +452,7 @@ export class StudioSession implements AgentApi {
         allowInput: this.#canUseInput,
         allowConfigEdit: this.#canEditConfig,
         allowRead: this.#canRead,
+        allowPublish: !this.#isSandbox && permissions.allowPublish,
       },
     }
     this.#connectAck.resolve()
@@ -726,6 +742,77 @@ export class StudioSession implements AgentApi {
     } catch (error) {
       await this.#hooks.callHook('studio:error', { error: toError(error) })
       throw error
+    }
+  }
+
+  async publishPackage(data: PublishPackageInput): Promise<PublishPackageResult> {
+    const command = 'publishPackage'
+    await this.#hooks.callHook('studio:command:start', { command })
+
+    if (this.#isSandbox) {
+      return this.#refuse('Ignored publish: a sandbox agent cannot publish packages', 'A sandbox agent cannot publish packages')
+    }
+    if (!this.#options.permissions.allowPublish) {
+      return this.#refuse('Ignored publish: publishing was not granted', 'The agent was not granted permission to publish packages')
+    }
+    if (!data?.downloadPath || !data.name || !data.version) {
+      return this.#refuse('Ignored publish: the message was missing required fields', 'The request was missing required fields')
+    }
+
+    const { studioUrl, token } = this.#options
+    const downloadUrl = new URL(data.downloadPath, studioUrl)
+    if (downloadUrl.origin !== new URL(studioUrl).origin) {
+      throw new Error('Package download path must stay on the Studio origin')
+    }
+
+    const temp = await mkdtemp(path.join(tmpdir(), 'kubb-publish-'))
+    try {
+      const redirect = await fetch(downloadUrl, { redirect: 'manual', headers: { Authorization: `Bearer ${token}` } })
+      const storageUrl = redirect.headers.get('location')
+      if (redirect.status !== 307 || !storageUrl) {
+        throw new Error(`Studio did not provide a package storage URL (status ${redirect.status})`)
+      }
+      const storage = new URL(storageUrl)
+      if (storage.protocol !== 'https:' && !['localhost', '127.0.0.1', '[::1]'].includes(storage.hostname)) {
+        throw new Error(`Refusing package download from ${storage.origin}`)
+      }
+      const response = await fetch(storage, { redirect: 'error' })
+      if (!response.ok) {
+        throw new Error(`Package download failed with status ${response.status}`)
+      }
+      const bytes = Buffer.from(await response.arrayBuffer())
+      if (!data.integrity) {
+        throw new Error('Package integrity is missing')
+      }
+      const actual = `sha512-${createHash('sha512').update(bytes).digest('base64')}`
+      if (actual !== data.integrity) {
+        throw new Error(`Package integrity mismatch: expected ${data.integrity}, got ${actual}`)
+      }
+
+      const tarball = path.join(temp, `${data.name.replaceAll('/', '-')}-${data.version}.tgz`)
+      await writeFile(tarball, bytes)
+      const registry = process.env.NPM_CONFIG_REGISTRY ?? 'https://registry.npmjs.org'
+      const args = ['publish', tarball]
+      const env = { ...process.env }
+      if (process.env.NPM_TOKEN) {
+        const userConfig = path.join(temp, '.npmrc')
+        const registryUrl = new URL(registry)
+        await writeFile(userConfig, `//${registryUrl.host}${registryUrl.pathname.replace(/\/?$/, '/')}:_authToken=${process.env.NPM_TOKEN}\n`)
+        args.push('--userconfig', userConfig)
+      }
+      try {
+        await execFileAsync('npm', args, { env, shell: false, maxBuffer: 10 * 1024 * 1024 })
+      } catch (error) {
+        const detail = error as { stderr?: string; message?: string }
+        throw new Error(detail.stderr?.trim() || detail.message || 'npm publish failed', { cause: error })
+      }
+      await this.#hooks.callHook('studio:command:end', { command, info: `published ${data.name}@${data.version}` })
+      return { registry, name: data.name, version: data.version }
+    } catch (error) {
+      await this.#hooks.callHook('studio:error', { error: toError(error) })
+      throw error
+    } finally {
+      await rm(temp, { recursive: true, force: true })
     }
   }
 
