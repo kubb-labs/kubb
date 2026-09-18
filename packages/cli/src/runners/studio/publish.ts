@@ -43,7 +43,7 @@ export async function publish(options: PublishOptions): Promise<void> {
   const { configPath } = await loadConfigs(options)
   const spinner = options.json ? null : createSpinner()
   const log = (message: string) => (options.json ? console.error(message) : spinner?.message(message))
-  const { agent, client } = await connectStudioAgent(options, configPath, log)
+  const { agent, client } = await connectStudioAgent(options, configPath, token, log)
   try {
     const selected = options.snapshotId
       ? (await listSnapshots({ studioUrl: options.studioUrl, token, agentId: agent.id })).find((snapshot) => snapshot.id === options.snapshotId)
