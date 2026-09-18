@@ -1,5 +1,5 @@
 ---
-'@kubb/studio': minor
+'@kubb/studio': patch
 ---
 
 Carry an agent's organization slug through pairing and connecting, so a host can log and trace it
