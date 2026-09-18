@@ -93,17 +93,19 @@ async function connectStudio(overrides: Partial<StudioSessionOptions> = {}): Pro
   return { session, agent: agent as AgentApi, closeTransport: () => closeTransport?.() }
 }
 
+const sessionResponse = {
+  sessionId: 'session-1',
+  slug: 'brave-otter',
+  url: 'ws://studio/session-1',
+  expiresAt: new Date(Date.now() + 60_000).toISOString(),
+  revokedAt: null,
+  isSandbox: false,
+  version: '1.0.0',
+}
+
 beforeEach(() => {
   vi.clearAllMocks()
-  vi.mocked(createAgentSession).mockResolvedValue({
-    sessionId: 'session-1',
-    slug: 'brave-otter',
-    url: 'ws://studio/session-1',
-    expiresAt: new Date(Date.now() + 60_000).toISOString(),
-    revokedAt: null,
-    isSandbox: false,
-    version: '1.0.0',
-  })
+  vi.mocked(createAgentSession).mockResolvedValue(sessionResponse)
 })
 
 describe('the handshake', () => {
@@ -120,63 +122,23 @@ describe('the handshake', () => {
     expect(ready).toHaveBeenCalledOnce()
   })
 
-  it('carries the agent and organization slug on studio:connected', async () => {
-    vi.mocked(createAgentSession).mockResolvedValue({
-      sessionId: 'session-1',
-      slug: 'brave-otter',
-      url: 'ws://studio/session-1',
-      expiresAt: new Date(Date.now() + 60_000).toISOString(),
-      revokedAt: null,
-      isSandbox: false,
-      version: '1.0.0',
-      agentSlug: 'brave-otter',
-      organizationSlug: 'acme',
-    })
+  // A reconnect builds a new session the same way this does, so a later connect reporting the
+  // slugs Studio just sent is what keeps a renamed agent from logging under its old slug.
+  it('reports the slugs from the session it just created', async () => {
     const connected = vi.fn()
+    const hook: Partial<StudioSessionOptions> = { installLogger: (hooks) => void hooks.hook('studio:connected', connected) }
 
-    await connectStudio({ installLogger: (hooks) => void hooks.hook('studio:connected', connected) })
-
-    expect(connected).toHaveBeenCalledWith(expect.objectContaining({ agentSlug: 'brave-otter', organizationSlug: 'acme' }))
-  })
-
-  it('leaves the slugs undefined when Studio omits them', async () => {
-    const connected = vi.fn()
-
-    await connectStudio({ installLogger: (hooks) => void hooks.hook('studio:connected', connected) })
-
+    await connectStudio(hook)
     expect(connected).toHaveBeenCalledWith(expect.objectContaining({ agentSlug: undefined, organizationSlug: undefined }))
-  })
 
-  it('reports the current slug on a reconnect, not a stale one', async () => {
-    vi.mocked(createAgentSession).mockResolvedValueOnce({
-      sessionId: 'session-1',
-      slug: 'brave-otter',
-      url: 'ws://studio/session-1',
-      expiresAt: new Date(Date.now() + 60_000).toISOString(),
-      revokedAt: null,
-      isSandbox: false,
-      version: '1.0.0',
-      agentSlug: 'brave-otter',
-      organizationSlug: 'acme',
-    })
-    await connectStudio()
+    vi.mocked(createAgentSession).mockResolvedValue({ ...sessionResponse, agentSlug: 'brave-otter', organizationSlug: 'acme' })
+    await connectStudio(hook)
+    expect(connected).toHaveBeenLastCalledWith(expect.objectContaining({ agentSlug: 'brave-otter', organizationSlug: 'acme' }))
 
-    vi.mocked(createAgentSession).mockResolvedValueOnce({
-      sessionId: 'session-2',
-      slug: 'quiet-fox',
-      url: 'ws://studio/session-2',
-      expiresAt: new Date(Date.now() + 60_000).toISOString(),
-      revokedAt: null,
-      isSandbox: false,
-      version: '1.0.0',
-      agentSlug: 'quiet-fox',
-      organizationSlug: 'acme',
-    })
-    const reconnected = vi.fn()
+    vi.mocked(createAgentSession).mockResolvedValue({ ...sessionResponse, agentSlug: 'quiet-fox', organizationSlug: 'acme' })
+    await connectStudio(hook)
 
-    await connectStudio({ installLogger: (hooks) => void hooks.hook('studio:connected', reconnected) })
-
-    expect(reconnected).toHaveBeenCalledWith(expect.objectContaining({ agentSlug: 'quiet-fox' }))
+    expect(connected).toHaveBeenLastCalledWith(expect.objectContaining({ agentSlug: 'quiet-fox' }))
   })
 
   it('reports an RPC disconnect to lifecycle hooks', async () => {
