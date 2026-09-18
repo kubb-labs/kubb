@@ -111,7 +111,17 @@ export function absoluteUrl(studioUrl: string, path: string): string {
 /**
  * Registers, connects, and waits for a CI agent to become ready.
  */
-export async function connectStudioAgent(options: SnapshotOptions, configPath: string, token: string, log: (message: string) => void) {
+export async function connectStudioAgent({
+  options,
+  configPath,
+  token,
+  log,
+}: {
+  options: SnapshotOptions
+  configPath: string
+  token: string
+  log: (message: string) => void
+}) {
   const ci = resolveCiIdentity(options)
   process.env.KUBB_AGENT_SECRET = ci.id
   const agent = await createAgent({ studioUrl: options.studioUrl, token, name: ci.name, machineToken: machineTokenFrom(ci.id) })
@@ -216,7 +226,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
     spinner?.start('Creating Kubb Studio agent')
   }
 
-  const { agent, client } = await connectStudioAgent(options, configPath, token, log)
+  const { agent, client } = await connectStudioAgent({ options, configPath, token, log })
 
   try {
     log('Creating snapshot job')
