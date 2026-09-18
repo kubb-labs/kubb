@@ -331,6 +331,8 @@ export class StudioSession implements AgentApi {
       await this.#hooks.callHook('studio:connected', {
         url: studioUrl,
         versions: { studio: this.#studioVersion, kubb: kubbVersion, agent: this.#options.version },
+        agentSlug: session.agentSlug,
+        organizationSlug: session.organizationSlug,
       })
       // Studio registers the agent by calling connect() over RPC. Ready means that handshake landed.
       await this.#connectAck.promise
