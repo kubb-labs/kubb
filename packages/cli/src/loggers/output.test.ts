@@ -78,5 +78,4 @@ describe('rich output', () => {
     expect(log).toHaveBeenCalledOnce()
     vi.useRealTimers()
   })
-
 })

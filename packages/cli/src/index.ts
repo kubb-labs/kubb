@@ -22,7 +22,11 @@ function shouldShowTip(args: Array<string>): boolean {
   const reporterValue = reporter === '--reporter' ? args[args.indexOf(reporter) + 1] : reporter?.slice('--reporter='.length)
   const quiet = args.some((arg) => QUIET_FLAGS.has(arg) || arg === '--silent' || arg === '-s')
   const silentLog = args.some((arg, index) => arg === '--log-level=silent' || (arg === '--log-level' && args[index + 1] === 'silent'))
-  const longRunning = args.includes('--watch') || args.includes('-w') || args[0] === 'mcp' || (args[0] === 'studio' && !args.some((arg) => ['login', 'logout', 'status', 'snapshot'].includes(arg)))
+  const longRunning =
+    args.includes('--watch') ||
+    args.includes('-w') ||
+    args[0] === 'mcp' ||
+    (args[0] === 'studio' && !args.some((arg) => ['login', 'logout', 'status', 'snapshot'].includes(arg)))
 
   return !quiet && !silentLog && !reporterValue?.split(',').includes('json') && !longRunning
 }
