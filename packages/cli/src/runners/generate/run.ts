@@ -379,7 +379,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
     // Watch mode prints a tip after each successful build. Regular generate commands need to
     // print one explicitly after the lifecycle group has closed so it stays outside the group.
-    if (!watch && !anyFailed) {
+    if (!quiet && !watch && !anyFailed) {
       logTip()
     }
 
