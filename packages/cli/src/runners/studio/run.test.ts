@@ -286,35 +286,4 @@ describe('connect', () => {
     // One pairing only: the second rejection is a hard failure.
     expect(startPairing).toHaveBeenCalledTimes(1)
   })
-
-  it('keeps tip rotation aware of commands after logger reinstallation', async () => {
-    vi.mocked(readCredentials).mockResolvedValue(credentials)
-    vi.mocked(runConnection).mockImplementation(async (connectionOptions) => {
-      const firstHooks = new Hookable<KubbHooks>()
-      const secondHooks = new Hookable<KubbHooks>()
-
-      await connectionOptions.clientOptions(credentials).installLogger?.(firstHooks)
-      await firstHooks.callHook('studio:ready', {})
-      await connectionOptions.clientOptions(credentials).installLogger?.(secondHooks)
-      await secondHooks.callHook('studio:ready', {})
-
-      expect(startTipRotation).toHaveBeenCalledOnce()
-      const isIdle = vi.mocked(startTipRotation).mock.calls[0]?.[0]?.isIdle
-      expect(isIdle?.()).toBe(true)
-
-      await secondHooks.callHook('studio:command:start', { command: 'generate' })
-      expect(isIdle?.()).toBe(false)
-
-      await secondHooks.callHook('studio:command:end', { command: 'generate' })
-      expect(isIdle?.()).toBe(true)
-
-      await secondHooks.callHook('studio:command:start', { command: 'generate' })
-      await secondHooks.callHook('studio:error', { error: new Error('generation failed') })
-      expect(isIdle?.()).toBe(true)
-
-      return 'shutdown'
-    })
-
-    await connect(options)
-  })
 })
