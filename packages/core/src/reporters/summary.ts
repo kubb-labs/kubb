@@ -15,11 +15,6 @@ export type SummaryRenderer = (lines: ReadonlyArray<string>, meta: { title: stri
  * Formats the vitest/jest-style summary for one {@link Report}: right-aligned dim labels with
  * `N passed (total)` counts, and a per-plugin `Timings` section when `showTimings`. Pure, so a host
  * can render the same lines through whatever output it already owns.
- *
- * @example
- * ```ts
- * const lines = formatSummary(buildReport(result), { showTimings: false })
- * ```
  */
 export function formatSummary(report: Report, { showTimings }: { showTimings: boolean }): Array<string> {
   const { status, plugins, counts, filesCreated, durationMs, output, timings } = report

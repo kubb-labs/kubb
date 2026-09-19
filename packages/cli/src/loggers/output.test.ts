@@ -84,6 +84,24 @@ describe('rich output', () => {
     expect(prompts.log.message).not.toHaveBeenCalled()
   })
 
+  it('keeps a long-running session tipping, but only once it has been idle a while', () => {
+    vi.useFakeTimers()
+    using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(true)
+    using log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    let idle = false
+    const stop = startTipRotation('studio', { intervalMs: 1_000, max: Number.POSITIVE_INFINITY, isIdle: () => idle })
+
+    vi.advanceTimersByTime(3_000)
+    expect(log).not.toHaveBeenCalled()
+
+    idle = true
+    vi.advanceTimersByTime(3_000)
+    expect(log).toHaveBeenCalledTimes(3)
+
+    stop()
+    vi.useRealTimers()
+  })
+
   it('rotates tips until the long-running command stops', () => {
     vi.useFakeTimers()
     using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(true)

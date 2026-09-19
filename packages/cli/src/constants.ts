@@ -40,3 +40,14 @@ export const UPDATE_CHECK_TIMEOUT_MS = 3_000
  * Flags that short-circuit execution (help and version). The telemetry notice is suppressed for these.
  */
 export const QUIET_FLAGS = new Set<string>(['--help', '-h', '--version', '-v', '--json'])
+
+/**
+ * How often a `kubb studio` session checks whether it has been idle long enough to show a tip.
+ */
+export const STUDIO_TIP_INTERVAL_MS = 300_000
+
+/**
+ * How long a `kubb studio` session has to sit without a job before a tip counts as welcome rather
+ * than as an interruption.
+ */
+export const STUDIO_IDLE_MS = 120_000

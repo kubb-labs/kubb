@@ -49,8 +49,8 @@ function formatTip(tip: string): string {
 }
 
 /**
- * Prints the next rotating tip, without clack's gutter bar: a tip sits outside every group. Skipped
- * where the output is piped, captured by CI, or read by an agent, so nothing sponsors a log file.
+ * Prints the next rotating tip, without clack's gutter bar, since a tip sits outside every group.
+ * Skipped where the output is piped, captured by CI, or read by an agent.
  */
 export function logTip(group: TipGroup = 'sponsor'): void {
   if (!isRichOutput()) {
@@ -60,18 +60,46 @@ export function logTip(group: TipGroup = 'sponsor'): void {
   console.log(`${styleText('magenta', '✦')}${formatTip(nextTip(group))}`)
 }
 
+type TipRotationOptions = {
+  intervalMs?: number
+  /**
+   * How many tips to show before the rotation stops on its own. Omit for a command that keeps
+   * running, such as a `kubb studio` session waiting for jobs.
+   *
+   * @default 1
+   */
+  max?: number
+  /**
+   * Asked before each tip. A `false` answer skips that turn without stopping the rotation, so a tip
+   * never lands in the middle of a run.
+   */
+  isIdle?: () => boolean
+}
+
 /**
- * Rotates tips during an interactive long-running command.
+ * Rotates tips during an interactive long-running command. Returns the function that stops it.
+ *
+ * @example A session that tips every five minutes it sits idle
+ * ```ts
+ * const stop = startTipRotation('studio', { intervalMs: 300_000, max: Number.POSITIVE_INFINITY, isIdle })
+ * ```
  */
-export function startTipRotation(group: TipGroup = 'sponsor'): () => void {
+export function startTipRotation(
+  group: TipGroup = 'sponsor',
+  { intervalMs = TIP_ROTATION_INTERVAL_MS, max = MAX_ROTATING_TIPS, isIdle }: TipRotationOptions = {},
+): () => void {
   if (!isRichOutput()) return () => {}
 
   let shown = 0
   const timer = setInterval(() => {
+    if (isIdle && !isIdle()) {
+      return
+    }
+
     logTip(group)
     shown++
-    if (shown >= MAX_ROTATING_TIPS) clearInterval(timer)
-  }, TIP_ROTATION_INTERVAL_MS)
+    if (shown >= max) clearInterval(timer)
+  }, intervalMs)
   timer.unref()
 
   return () => clearInterval(timer)
@@ -142,8 +170,8 @@ export function logOutro(text: string): void {
 }
 
 /**
- * Prints one empty line between two groups. Bare on purpose: clack's gutter bar belongs to a group,
- * and a spacer sits outside every group.
+ * Prints one empty line between two groups, without clack's gutter bar, since the bar belongs to a
+ * group and a spacer sits outside every one.
  */
 export function logSpacer(): void {
   console.log('')
@@ -197,9 +225,6 @@ export function logStep(message: string): void {
 
 type Spinner = {
   start: (message?: string) => void
-  /**
-   * Ends the step as done.
-   */
   stop: (message?: string) => void
   /**
    * Ends the step as failed, so a phase that went wrong does not read as finished.

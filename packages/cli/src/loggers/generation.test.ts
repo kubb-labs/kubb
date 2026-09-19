@@ -1,5 +1,5 @@
 import type { FileNode } from '@kubb/ast'
-import { Hookable, cliReporter, type Config, type KubbHooks, logLevel, type Storage } from '@kubb/core'
+import { Hookable, cliReporter, type Config, type KubbHooks, logLevel, type NormalizedPlugin, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import * as agent from '../agent.ts'
 import * as env from '../utils/env.ts'
@@ -13,7 +13,7 @@ const calls: Array<string> = []
 
 function record(name: string) {
   return (text?: string | Array<string>, options?: { symbol?: string }) =>
-    void calls.push(`${name}${options?.symbol === '' ? '.bare' : ''}:${[text ?? ''].flat().join(' ')}`)
+    void calls.push(`${name}${options?.symbol === '' ? '.bare' : ''}:${[text ?? ''].flat().join('\n')}`)
 }
 
 vi.mock('@clack/prompts', () => {
@@ -51,9 +51,10 @@ type Emit = (context: Hookable<KubbHooks>) => Promise<void>
 
 /**
  * Drives the given hook sequence through the logger the CLI would pick, with the `cli` reporter
- * installed the same way `kubb generate` installs it.
+ * installed the same way `kubb generate` installs it. Returns both what went to clack and what went
+ * straight to the console, since a hook's own output deliberately bypasses clack.
  */
-async function render(emit: Emit, { rich, level = logLevel.info }: { rich: boolean; level?: number }) {
+async function renderBoth(emit: Emit, { rich = true, level = logLevel.info }: { rich?: boolean; level?: number } = {}) {
   calls.length = 0
   using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(rich)
   using _agent = vi.spyOn(agent, 'getAgentName').mockReturnValue(undefined)
@@ -64,7 +65,13 @@ async function render(emit: Emit, { rich, level = logLevel.info }: { rich: boole
   await setupReporters(context, { logLevel: level, reporters: [cliReporter] })
   await emit(context)
 
-  return rich ? calls.slice() : lines
+  return { calls: calls.slice(), lines }
+}
+
+async function render(emit: Emit, { rich, level = logLevel.info }: { rich: boolean; level?: number }) {
+  const { calls, lines } = await renderBoth(emit, { rich, level })
+
+  return rich ? calls : lines
 }
 
 /**
@@ -78,8 +85,20 @@ function makeConfig(name: string): Config {
   return { name, root: '/tmp', input: 'petstore.yaml', output: { path: 'src/gen' }, plugins: [{}, {}] } as unknown as Config
 }
 
-function makeFile(path: string): { file: FileNode; config: Config } {
-  return { file: { path } as FileNode, config: makeConfig('petstore') }
+function makePlugin(name: string): NormalizedPlugin {
+  return { name } as NormalizedPlugin
+}
+
+function makeFile(path: string): FileNode {
+  return { path } as FileNode
+}
+
+/**
+ * The `files` and `upsertFile` pair every file-carrying hook context adds, which no assertion here
+ * looks at.
+ */
+function withFiles<T extends object>(extra: T): T & { files: Array<FileNode>; upsertFile: () => void } {
+  return { ...extra, files: [], upsertFile: () => {} }
 }
 
 type GenerateOptions = {
@@ -95,21 +114,17 @@ type GenerateOptions = {
  */
 function generation({ config, pluginFailed = false, formatFailed = false, hookLines = [], status = 'success' }: GenerateOptions): Emit {
   return async (context) => {
-    await context.callHook('kubb:generation:start', { config })
-    await context.callHook('kubb:plugin:start', { plugin: { name: '@kubb/plugin-ts' } } as never)
-    await context.callHook('kubb:plugin:end', { config, plugin: { name: '@kubb/plugin-ts' }, duration: 12, success: true, files: [] } as never)
-    await context.callHook('kubb:plugin:end', {
-      config,
-      plugin: { name: '@kubb/plugin-zod' },
-      duration: 8,
-      success: !pluginFailed,
-      files: [],
-    } as never)
-    await context.callHook('kubb:plugins:end', { config } as never)
+    const file = makeFile('/tmp/src/gen/pet.ts')
 
-    await context.callHook('kubb:files:processing:start', { files: [{ path: '/tmp/src/gen/pet.ts' }] as Array<FileNode> })
-    await context.callHook('kubb:files:processing:update', { files: [makeFile('/tmp/src/gen/pet.ts')] } as never)
-    await context.callHook('kubb:files:processing:end', { files: [{ path: '/tmp/src/gen/pet.ts' }] } as never)
+    await context.callHook('kubb:generation:start', { config })
+    await context.callHook('kubb:plugin:start', { plugin: makePlugin('@kubb/plugin-ts') })
+    await context.callHook('kubb:plugin:end', withFiles({ config, plugin: makePlugin('@kubb/plugin-ts'), duration: 12, success: true }))
+    await context.callHook('kubb:plugin:end', withFiles({ config, plugin: makePlugin('@kubb/plugin-zod'), duration: 8, success: !pluginFailed }))
+    await context.callHook('kubb:plugins:end', withFiles({ config }))
+
+    await context.callHook('kubb:files:processing:start', { files: [file] })
+    await context.callHook('kubb:files:processing:update', { files: [{ processed: 1, total: 1, percentage: 100, file, config }] })
+    await context.callHook('kubb:files:processing:end', { files: [file] })
 
     await context.callHook('kubb:format:start')
     await context.callHook('kubb:hook:start', { id: 'format', command: 'biome', args: ['format'] })
@@ -208,13 +223,14 @@ describe('grouped generation output', () => {
     const output = await render(generation({ config: makeConfig('petstore') }), { rich: true })
 
     const pluginSummary = output.findIndex((call) => call.startsWith('spinner.stop:Plugins 2/2'))
-    expect(withoutDuration(output[pluginSummary + 1] ?? '')).toBe('log.message:@kubb/plugin-ts completed in  @kubb/plugin-zod completed in ')
+    expect(withoutDuration(output[pluginSummary + 1] ?? '')).toBe('log.message:@kubb/plugin-ts completed in \n@kubb/plugin-zod completed in ')
   })
 
-  it("prints a hook's own output without the gutter bar, and trims the blank lines around it", async () => {
-    const output = await render(generation({ config: makeConfig('petstore'), hookLines: ['', 'tsc: no errors', ''] }), { rich: true })
+  it("prints a hook's own output past clack, and trims the blank lines around it", async () => {
+    const { calls, lines } = await renderBoth(generation({ config: makeConfig('petstore'), hookLines: ['', 'tsc: no errors', ''] }))
 
-    expect(output).toContain('log.message.bare:tsc: no errors')
+    expect(lines).toContain('tsc: no errors')
+    expect(calls.some((call) => call.includes('tsc: no errors'))).toBe(false)
   })
 
   it('stops the write progress bar once the files are written', async () => {
@@ -271,45 +287,70 @@ describe('grouped generation output', () => {
 })
 
 describe('plain generation output', () => {
-  it('keeps the same ordered phases and closes with the same result', async () => {
+  it('reports the same run in the same order, without the animation', async () => {
     const lines = await render(generation({ config: makeConfig('petstore') }), { rich: false })
 
-    // The summary block starts at the blank line the renderer writes before it.
-    expect(lines.slice(0, lines.indexOf('')).map(withoutDuration)).toStrictEqual([
-      'Generation started for petstore petstore.yaml',
+    // Everything up to the summary block, which the reporter renders as one entry.
+    expect(lines.slice(0, -2).map(withoutDuration)).toStrictEqual([
+      'petstore petstore.yaml',
+      'Generating',
       'Generating @kubb/plugin-ts',
-      '✓ @kubb/plugin-ts completed in ',
-      '✓ @kubb/plugin-zod completed in ',
+      'Plugins 2/2 |  elapsed',
+      '@kubb/plugin-ts completed in \n@kubb/plugin-zod completed in ',
       'Writing 1 file',
       'Writing src/gen/pet.ts',
-      '✓ Wrote 1 file',
-      'Format started',
-      'Hook biome format started',
-      '✓ Hook biome format completed in ',
-      '✓ Format completed',
-      'Lint started',
-      '✓ Lint completed',
-      'Hooks started',
-      'Hook tsc --noEmit started',
-      '✓ Hook tsc --noEmit completed in ',
-      '✓ Hooks completed',
+      'Wrote 1 file',
+      'Formatting',
+      'Formatted in ',
+      'Linting',
+      'Linted in ',
+      'Running post-generate hooks',
+      'Post-generate hooks completed in ',
+      '✓ tsc --noEmit in ',
     ])
-    expect(lines.at(-1)).toBe('✓ Generation succeeded for petstore')
-    expect(lines).toContain('petstore')
+    expect(lines.at(-1)).toBe('✓ Generation succeeded')
   })
 
-  it('marks a phase as failed when its hook failed', async () => {
+  it('marks a failed phase as failed and still runs the next one', async () => {
     const lines = await render(generation({ config: makeConfig('petstore'), formatFailed: true }), { rich: false })
 
-    expect(lines).toContain('✗ Format failed')
-    expect(lines).not.toContain('✓ Format completed')
-    expect(lines).toContain('✓ Lint completed')
+    expect(lines.map(withoutDuration)).toContain('✗ Formatting failed after ')
+    expect(lines.map(withoutDuration)).toContain('Linted in ')
   })
 
-  it('names the failed config on the closing line', async () => {
+  it('closes the group on the failure when a plugin failed', async () => {
     const lines = await render(generation({ config: makeConfig('orders'), pluginFailed: true, status: 'failed' }), { rich: false })
 
-    expect(lines.map(withoutDuration)).toContain('✗ @kubb/plugin-zod failed in ')
-    expect(lines.at(-1)).toBe('✗ Generation failed for orders')
+    expect(lines.map(withoutDuration)).toContain('✗ Plugins 1/2 (1 failed) |  elapsed')
+    expect(lines.at(-1)).toBe('✗ Generation failed')
+  })
+})
+
+/**
+ * Both loggers run off one installer, so a run has to read the same way in either. Comparing the
+ * message each one was given, with the writers' own symbols stripped, is what keeps them from
+ * drifting apart again.
+ */
+describe('both loggers', () => {
+  it('report the same run, in the same order', async () => {
+    const emit = () => generation({ config: makeConfig('petstore'), hookLines: ['tsc: no errors'] })
+
+    // Rich output is split across clack and the console, since a hook's own output bypasses clack.
+    const richRun = await renderBoth(emit(), { rich: true })
+    const rich = [...richRun.calls.map((call) => call.slice(call.indexOf(':') + 1)), ...richRun.lines]
+    const plain = (await renderBoth(emit(), { rich: false })).lines
+
+    const messages = (source: Array<string>) =>
+      source
+        .flatMap((line) => line.split('\n'))
+        .map((line) =>
+          withoutDuration(line)
+            .replace(/^[◇✓✗]\s*/, '')
+            .trim(),
+        )
+        .filter(Boolean)
+        .sort()
+
+    expect(messages(plain)).toStrictEqual(messages(rich))
   })
 })
