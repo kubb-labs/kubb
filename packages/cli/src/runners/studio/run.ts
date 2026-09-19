@@ -608,6 +608,9 @@ export async function run(options: StudioOptions, action: () => Promise<unknown>
   } catch (error) {
     await report('failed')
     console.error(toError(error).message)
+    if (!json && options.logLevel !== 'silent') {
+      logTip()
+    }
     process.exitCode = 1
   }
 }
