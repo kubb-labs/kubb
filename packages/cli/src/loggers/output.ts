@@ -21,16 +21,10 @@ const SPONSOR_TIPS = [
 
 const SPONSOR_LINKS = ['https://github.com/sponsors/stijnvanhulle', 'https://opencollective.com/kubb', 'https://kubb.dev/sponsors'] as const
 
-const TIP_ROTATION_INTERVAL_MS = 30_000
-const MAX_ROTATING_TIPS = 1
-
-let tipIndex = Math.floor(Math.random() * SPONSOR_TIPS.length)
-
 function nextTip(): string {
-  const tip = SPONSOR_TIPS[tipIndex]!
-  tipIndex = (tipIndex + 1) % SPONSOR_TIPS.length
-
-  return `${tip}: ${SPONSOR_LINKS[Math.floor(Math.random() * SPONSOR_LINKS.length)]}`
+  const tip = SPONSOR_TIPS[Math.floor(Math.random() * SPONSOR_TIPS.length)]!
+  const link = SPONSOR_LINKS[Math.floor(Math.random() * SPONSOR_LINKS.length)]!
+  return `${tip}: ${link}`
 }
 
 function formatTip(tip: string): string {
@@ -38,58 +32,17 @@ function formatTip(tip: string): string {
 }
 
 /**
- * Prints the next rotating tip, without clack's gutter bar, since a tip sits outside every group.
- * Skipped where the output is piped, captured by CI, or read by an agent.
+ * Prints one random tip outside every group. Rich terminals get the styled variant;
+ * plain/CI output gets a stable text-only line so the tip is still visible as final output.
  */
 export function logTip(): void {
+  const tip = nextTip()
   if (!isRichOutput()) {
+    console.log(`Tip: ${tip}`)
     return
   }
 
-  console.log(`${styleText('magenta', '✦')}${formatTip(nextTip())}`)
-}
-
-type TipRotationOptions = {
-  intervalMs?: number
-  /**
-   * How many tips to show before the rotation stops on its own. Pass
-   * `Number.POSITIVE_INFINITY` for a command that keeps running, such as a `kubb studio` session
-   * waiting for jobs.
-   *
-   * @default 1
-   */
-  max?: number
-  /**
-   * Asked before each tip. A `false` answer skips that turn without stopping the rotation, so a tip
-   * never lands in the middle of a run.
-   */
-  isIdle?: () => boolean
-}
-
-/**
- * Rotates tips during an interactive long-running command. Returns the function that stops it.
- *
- * @example A session that tips every five minutes it sits idle
- * ```ts
- * const stop = startTipRotation({ intervalMs: 300_000, max: Number.POSITIVE_INFINITY, isIdle })
- * ```
- */
-export function startTipRotation({ intervalMs = TIP_ROTATION_INTERVAL_MS, max = MAX_ROTATING_TIPS, isIdle }: TipRotationOptions = {}): () => void {
-  if (!isRichOutput()) return () => {}
-
-  let shown = 0
-  const timer = setInterval(() => {
-    if (isIdle && !isIdle()) {
-      return
-    }
-
-    logTip()
-    shown++
-    if (shown >= max) clearInterval(timer)
-  }, intervalMs)
-  timer.unref()
-
-  return () => clearInterval(timer)
+  console.log(`${styleText('magenta', '✦')}${formatTip(tip)}`)
 }
 
 type Level = keyof typeof SYMBOLS
