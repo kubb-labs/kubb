@@ -2,4 +2,4 @@
 '@kubb/cli': patch
 ---
 
-Show sponsor tips again for successful `kubb generate` runs and when starting a `kubb studio` session.
+Show one random sponsor tip across successful Kubb CLI commands, including generate, init, validate, MCP startup, and Studio commands.
