@@ -310,6 +310,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     await hooks.callHook('kubb:error', { error: toError(error) })
 
     if (!quiet) logOutro(styleText('red', '✗ Configuration failed'))
+    logTip()
     process.exit(1)
   }
 
@@ -384,7 +385,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
     // Watch mode prints a tip after each successful build. Regular generate commands need to
     // print one explicitly after the lifecycle group has closed so it stays outside the group.
-    if (!watch && !anyFailed) {
+    if (!watch) {
       logTip()
     }
 
@@ -393,6 +394,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     }
   } catch (error) {
     await hooks.callHook('kubb:error', { error: toError(error) })
+    logTip()
     process.exit(1)
   }
 }
