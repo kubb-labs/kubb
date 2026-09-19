@@ -33,6 +33,7 @@ export async function run({ version }: McpOptions): Promise<void> {
   } catch (error) {
     await report('failed')
     console.error(toError(error).message)
+    logTip()
     process.exitCode = 1
   }
 }
