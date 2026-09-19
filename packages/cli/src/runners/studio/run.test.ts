@@ -32,7 +32,8 @@ vi.mock('../generate/utils.ts', () => ({
     configPath: '/project/kubb.config.ts',
     configs: [{ name: 'test', input: 'spec.yaml', output: { path: './gen' }, plugins: [] }],
   }),
-}))vi.mock('@kubb/studio', async (importOriginal) => ({
+}))
+vi.mock('@kubb/studio', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@kubb/studio')>()),
   runConnection: vi.fn(),
   startPairing: vi.fn(),
