@@ -38,15 +38,17 @@ function formatTip(tip: string): string {
 }
 
 /**
- * Prints the next rotating tip, without clack's gutter bar, since a tip sits outside every group.
- * Skipped where the output is piped, captured by CI, or read by an agent.
+ * Prints the next rotating tip outside every group. Rich terminals get the styled variant;
+ * plain/CI output gets a stable text-only line so the tip is still visible as final output.
  */
 export function logTip(): void {
+  const tip = nextTip()
   if (!isRichOutput()) {
+    console.log(`Tip: ${tip}`)
     return
   }
 
-  console.log(`${styleText('magenta', '✦')}${formatTip(nextTip())}`)
+  console.log(`${styleText('magenta', '✦')}${formatTip(tip)}`)
 }
 
 type TipRotationOptions = {
