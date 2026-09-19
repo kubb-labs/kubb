@@ -20,7 +20,7 @@ import {
 } from '@kubb/studio'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import setupReporters from '../../loggers/utils.ts'
-import { createSpinner, logBlock, logIntro, logOutro, logTip, startTipRotation } from '../../loggers/output.ts'
+import { createSpinner, logBlock, logIntro, logOutro, logTip } from '../../loggers/output.ts'
 import { canUseTTY } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
@@ -368,7 +368,6 @@ class StudioConnection {
 
       throw error
     } finally {
-      this.#stopTipRotation?.()
       this.#processEvents.off('SIGINT', this.#requestShutdown)
       this.#processEvents.off('SIGTERM', this.#requestShutdown)
     }
@@ -449,20 +448,6 @@ class StudioConnection {
         // "Ready to receive jobs" spinner when the Studio session becomes ready.
         hooks.hook('studio:ready', () => {
           logTip()
-          this.#stopTipRotation ??= startTipRotation({
-            intervalMs: 300_000,
-            max: Number.POSITIVE_INFINITY,
-            isIdle: () => !this.#commandActive,
-          })
-        })
-        hooks.hook('studio:command:start', () => {
-          this.#commandActive = true
-        })
-        hooks.hook('studio:command:end', () => {
-          this.#commandActive = false
-        })
-        hooks.hook('studio:error', () => {
-          this.#commandActive = false
         })
       },
     }
