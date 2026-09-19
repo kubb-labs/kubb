@@ -530,6 +530,12 @@ export function createLogger(writer: LoggerWriter) {
     })
 
     return {
+      pauseStudioIdle() {
+        stopSpinner()
+      },
+      resumeStudioIdle() {
+        startSpinner('✓ Ready to receive jobs')
+      },
       renderSummary(lines, { status }) {
         if (silent || !state.groupOpen) {
           return
