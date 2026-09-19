@@ -193,7 +193,7 @@ describe('studio session events', () => {
       await context.callHook('studio:command:end', { command: 'save', info: 'applied 2/3 edits to kubb.config.ts' })
     })
 
-    expect(lines).toStrictEqual(['Kubb Studio asked to save', '✓ Finished save (applied 2/3 edits to kubb.config.ts)'])
+    expect(lines).toStrictEqual(['Kubb Studio asked to save', '✓ Finished save (applied 2/3 edits to kubb.config.ts)', '✓ Ready to receive jobs'])
   })
 
   it('drops everything but errors at silent', async () => {

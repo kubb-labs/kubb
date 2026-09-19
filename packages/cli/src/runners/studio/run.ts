@@ -432,6 +432,7 @@ class StudioConnection {
       // generations it drives.
       installLogger: async (hooks) => {
         await setupReporters(hooks, { logLevel: logLevelMap[this.#options.logLevel ?? 'info'], reporters: [cliReporter] })
+        let commandActive = false
 
         // `client.connect()` resolves once the agent is registered, not once a session is open, so
         // this is the only point that knows the connection is live. Registered after the loggers so
@@ -450,7 +451,17 @@ class StudioConnection {
           this.#stopTipRotation ??= startTipRotation({
             intervalMs: 300_000,
             max: Number.POSITIVE_INFINITY,
+            isIdle: () => !commandActive,
           })
+        })
+        hooks.hook('studio:command:start', () => {
+          commandActive = true
+        })
+        hooks.hook('studio:command:end', () => {
+          commandActive = false
+        })
+        hooks.hook('studio:error', () => {
+          commandActive = false
         })
       },
     }

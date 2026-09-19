@@ -338,6 +338,7 @@ export function createLogger(writer: LoggerWriter) {
         return
       }
       writer.success(text(`✓ Finished ${command}${info ? ` ${styleText('dim', `(${info})`)}` : ''}`))
+      startSpinner('✓ Ready to receive jobs')
     })
 
     context.hook('studio:warn', ({ message }) => {
