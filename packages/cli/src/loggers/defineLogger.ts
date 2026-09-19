@@ -84,6 +84,10 @@ export type LoggerWriter = {
  * `renderSummary` so the `cli` reporter's summary lands inside that group instead of after it.
  */
 export type LoggerHandle = {
+  /** Clears the current Studio idle spinner, if this logger owns one. */
+  pauseStudioIdle?: () => void
+  /** Restarts the Studio idle spinner after temporary output such as a tip. */
+  resumeStudioIdle?: () => void
   /**
    * Writes the `cli` reporter's summary lines through this logger's own output, and closes the
    * group the logger opened for that config.
