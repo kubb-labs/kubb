@@ -125,7 +125,7 @@ export function createLogger(writer: LoggerWriter) {
       state.spinner = null
 
       if (message === undefined) {
-        spinner.stop('')
+        spinner.clear()
         return
       }
       if (status === 'failed') {
@@ -313,7 +313,7 @@ export function createLogger(writer: LoggerWriter) {
       if (silent) {
         return
       }
-      writer.success(text('✓ Ready to receive jobs'))
+      startSpinner('✓ Ready to receive jobs')
     })
 
     context.hook('studio:disconnected', ({ reason }) => {
@@ -329,6 +329,7 @@ export function createLogger(writer: LoggerWriter) {
       if (silent) {
         return
       }
+      stopSpinner()
       writer.info(text(`Kubb Studio asked to ${styleText('bold', command)}`))
     })
 
@@ -533,8 +534,8 @@ export function createLogger(writer: LoggerWriter) {
           return
         }
 
-        writer.diagnostic([...lines])
         closeGroup(status)
+        writer.diagnostic([...lines])
       },
     }
   }

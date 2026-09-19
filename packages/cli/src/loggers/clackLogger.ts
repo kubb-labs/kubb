@@ -36,6 +36,7 @@ const writer: LoggerWriter = {
     return {
       start: (text) => spinner.start(text),
       message: (text) => spinner.message(text),
+      clear: () => spinner.clear(),
       stop: (text) => spinner.stop(text),
       error: (text) => spinner.error(text),
     }
@@ -45,7 +46,7 @@ const writer: LoggerWriter = {
 
     return {
       start: (text) => bar.start(text),
-      advance: (text) => bar.advance(undefined, text),
+      advance: (text) => bar.advance(1, text),
       stop: (text) => bar.stop(text),
     }
   },

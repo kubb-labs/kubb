@@ -30,6 +30,7 @@ export type LogStatus = 'success' | 'failed'
 export type WriterSpinner = {
   start: (text: string) => void
   message: (text: string) => void
+  clear: () => void
   stop: (text: string) => void
   error: (text: string) => void
 }

@@ -29,6 +29,7 @@ const writer: LoggerWriter = {
   spinner: () => ({
     start: write,
     message: write,
+    clear: () => {},
     stop: (text) => text && write(text),
     error: (text) => write(`${SYMBOLS.error} ${text}`),
   }),

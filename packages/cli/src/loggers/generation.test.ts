@@ -277,12 +277,12 @@ describe('grouped generation output', () => {
     expect(output.some((call) => call.startsWith('log.message:') && call.includes('Auto-detected formatter: oxfmt'))).toBe(true)
   })
 
-  it('renders the summary before the group closes', async () => {
+  it('renders the summary after the group closes', async () => {
     const output = await render(generation({ config: makeConfig('petstore') }), { rich: true })
 
     const summary = output.findIndex((call) => call.includes('2 passed (2)'))
-    expect(summary).toBeGreaterThan(-1)
-    expect(summary).toBeLessThan(output.indexOf('outro:✓ Generation succeeded'))
+    const outro = output.indexOf('outro:✓ Generation succeeded')
+    expect(outro).toBeLessThan(summary)
   })
 })
 
@@ -308,7 +308,8 @@ describe('plain generation output', () => {
       'Post-generate hooks completed in ',
       '✓ tsc --noEmit in ',
     ])
-    expect(lines.at(-1)).toBe('✓ Generation succeeded')
+    expect(lines.at(-2)).toBe('✓ Generation succeeded')
+    expect(lines.at(-1)).toContain('Plugins  2 passed (2)')
   })
 
   it('marks a failed phase as failed and still runs the next one', async () => {
@@ -322,7 +323,7 @@ describe('plain generation output', () => {
     const lines = await render(generation({ config: makeConfig('orders'), pluginFailed: true, status: 'failed' }), { rich: false })
 
     expect(lines.map(withoutDuration)).toContain('✗ Plugins 1/2 (1 failed) |  elapsed')
-    expect(lines.at(-1)).toBe('✗ Generation failed')
+    expect(lines.at(-2)).toBe('✗ Generation failed')
   })
 })
 
