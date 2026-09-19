@@ -348,6 +348,9 @@ class StudioConnection {
       this.#granted = await resolvePermissions(this.#options, this.#credentials, this.#configPath, !process.env.KUBB_AGENT_TOKEN)
 
       this.#printBanner()
+      if (this.#options.logLevel !== 'silent') {
+        logTip()
+      }
 
       const outcome = await runConnection({
         credentials: this.#credentials,
@@ -445,9 +448,9 @@ class StudioConnection {
 
           logBlock(styleText('dim', 'Press Ctrl+C to disconnect'))
         })
-        // Show one tip as soon as the session is ready, then replace it every five minutes.
+        // The initial tip is printed with the command banner. Once the session is ready, keep
+        // rotating tips while Studio is idle without depending on the ready event for visibility.
         hooks.hook('studio:ready', () => {
-          logTip()
           this.#stopTipRotation ??= startTipRotation({
             intervalMs: 300_000,
             max: Number.POSITIVE_INFINITY,
