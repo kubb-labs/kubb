@@ -11,6 +11,7 @@ vi.mock('@clack/prompts', () => ({
   log: { message: vi.fn() },
   intro: vi.fn(),
   outro: vi.fn(),
+  updateSettings: vi.fn(),
 }))
 vi.mock('../../utils/env.ts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../utils/env.ts')>()),

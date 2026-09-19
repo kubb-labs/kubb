@@ -26,7 +26,6 @@ export async function run({ version }: McpOptions): Promise<void> {
   try {
     console.log(styleText('cyan', '⏳ Starting MCP server...'))
     console.warn(styleText('yellow', 'This feature is still under development, use with caution'))
-
     await startMcpServer()
     await report('success')
   } catch (error) {

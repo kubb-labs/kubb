@@ -5,6 +5,7 @@ import { isDisabled as isTelemetryDisabled } from './Telemetry.ts'
 import { version } from '../package.json'
 import { QUIET_FLAGS } from './constants.ts'
 import { resolveDeprecatedFlags } from './deprecatedFlags.ts'
+import { logTip } from './loggers/output.ts'
 
 /**
  * Strips the leading executable + script entries when `process.argv` is passed directly.
@@ -14,6 +15,16 @@ import { resolveDeprecatedFlags } from './deprecatedFlags.ts'
 function stripExecArgs(argv: Array<string>): Array<string> {
   const firstArgIsExecutablePath = (argv[0]?.includes('/') || argv[0]?.includes('\\')) ?? false
   return argv.length >= 2 && firstArgIsExecutablePath ? argv.slice(2) : argv
+}
+
+function shouldShowTip(args: Array<string>): boolean {
+  const reporter = args.find((arg) => arg === '--reporter' || arg.startsWith('--reporter='))
+  const reporterValue = reporter === '--reporter' ? args[args.indexOf(reporter) + 1] : reporter?.slice('--reporter='.length)
+  const quiet = args.some((arg) => QUIET_FLAGS.has(arg) || arg === '--silent' || arg === '-s')
+  const silentLog = args.some((arg, index) => arg === '--log-level=silent' || (arg === '--log-level' && args[index + 1] === 'silent'))
+  const longRunning = args.includes('--watch') || args.includes('-w') || args[0] === 'mcp' || (args[0] === 'studio' && !args.some((arg) => ['login', 'logout', 'status', 'snapshot'].includes(arg)))
+
+  return !quiet && !silentLog && !reporterValue?.split(',').includes('json') && !longRunning
 }
 
 /**
@@ -63,4 +74,8 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
       console.error(error)
     },
   })
+
+  if (shouldShowTip(args) && (process.exitCode ?? 0) === 0) {
+    logTip()
+  }
 }

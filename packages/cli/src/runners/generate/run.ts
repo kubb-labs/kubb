@@ -23,7 +23,7 @@ import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import setupReporters, { selectReporters } from '../../loggers/utils.ts'
-import { logError, logInfo, logStep } from '../../loggers/output.ts'
+import { createSpinner, logBlock, logError, logInfo, logStep, logTip, startTipRotation } from '../../loggers/output.ts'
 import { fetchUrlBody, getConfigs, isNewerVersion, runHook, runPostGenerate, startUrlWatcher, startWatcher } from './utils.ts'
 import { FORMATTER_PREFERENCE, LINTER_PREFERENCE } from '@internals/utils'
 import { detectTool, formatters, linters } from '../../tools.ts'
@@ -210,7 +210,6 @@ async function generate(options: GenerateProps): Promise<boolean> {
   hooks.hook('kubb:generation:end', ({ status }) => {
     if (status === 'success') return hooks.callHook('kubb:success', { message: 'Generation succeeded', info: inputPath })
   })
-
   const kubb = createKubb(config, { hooks })
   const result = await kubb.generate({ processOutput })
 
@@ -314,6 +313,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     await hooks.callHook('kubb:success', { message: 'Config loaded successfully', info: relativeConfigPath })
 
     let anyFailed = false
+    let tipRotationStarted = false
     for (const config of configs) {
       const effectiveInput = input ?? config.input
       const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
@@ -324,8 +324,9 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async (paths: Array<string>) => {
-          await generate({ input, config, logLevel, hooks, dryRun })
+          const succeeded = await generate({ input, config, logLevel, hooks, dryRun })
           logStep(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
+          if (succeeded) logTip()
         }
 
         // For a URL input, capture the document before the build: it becomes the watcher's
@@ -347,6 +348,10 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
           startUrlWatcher(watchPath, build, { log: { info: logInfo, error: logError }, initialBody })
         } else {
           await startWatcher(watchedPaths, build, { info: logInfo, error: logError })
+        }
+        if (!tipRotationStarted) {
+          tipRotationStarted = true
+          startTipRotation()
         }
       } else {
         try {

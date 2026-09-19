@@ -111,13 +111,13 @@ export function getIntro({
   const eyeTop = areEyesOpen ? palette.eye('█▀█') : palette.eye('───')
   const eyeBottom = areEyesOpen ? palette.eye('▀▀▀') : palette.eye('───')
 
-  return `
-   ${palette.lid('▄▄▄▄▄▄▄▄▄▄▄▄▄')}
-  ${palette.woodTop('█  ')}${palette.highlight('▄▄')}${palette.woodTop('     ')}${palette.highlight('▄▄')}${palette.woodTop('  █')}  ${kubbVersion}
-  ${palette.woodMid('█ ')}${eyeTop}${palette.woodMid('     ')}${eyeTop}${palette.woodMid(' █')}  ${styleText('gray', title)}
-  ${palette.woodMid('█ ')}${eyeBottom}${palette.woodMid('  ')}${palette.blush('◡')}${palette.woodMid('  ')}${eyeBottom}${palette.woodMid(' █')}  ${styleText('yellow', '➜')} ${styleText('white', description)}
-   ${palette.woodBase('▀▀▀▀▀▀▀▀▀▀▀▀▀')}
-`
+  return [
+    `   ${palette.lid('▄▄▄▄▄▄▄▄▄▄▄▄▄')}`,
+    `  ${palette.woodTop('█  ')}${palette.highlight('▄▄')}${palette.woodTop('     ')}${palette.highlight('▄▄')}${palette.woodTop('  █')} ${kubbVersion}`,
+    `  ${palette.woodMid('█ ')}${eyeTop}${palette.woodMid('     ')}${eyeTop}${palette.woodMid(' █')} ${styleText('gray', title)}`,
+    `  ${palette.woodMid('█ ')}${eyeBottom}${palette.woodMid('  ')}${palette.blush('◡')}${palette.woodMid('  ')}${eyeBottom}${palette.woodMid(' █')} ${styleText('yellow', '➜')} ${styleText('white', description)}`,
+    `   ${palette.woodBase('▀▀▀▀▀▀▀▀▀▀▀▀▀')}`,
+  ].join('\n')
 }
 
 /**

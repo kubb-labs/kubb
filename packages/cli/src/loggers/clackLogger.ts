@@ -29,9 +29,8 @@ export const clackLogger = {
       ...createProgressCounters(),
       spinner: clack.spinner(),
       isSpinning: false,
-      runningPlugins: new Set<string>(),
       activeProgress: new Map<string, { interval?: NodeJS.Timeout; progressBar: clack.ProgressResult }>(),
-      activeHookLogs: new Map<string, { taskLog: ReturnType<typeof clack.taskLog>; hrStart: [number, number] }>(),
+      activeHookLogs: new Map<string, { hrStart: [number, number] }>(),
     }
 
     // Clear every active progress bar's interval, stop it, and drop the map.
@@ -51,14 +50,7 @@ export const clackLogger = {
       resetProgressCounters(state)
       state.spinner = clack.spinner()
       state.isSpinning = false
-      state.runningPlugins.clear()
       state.activeHookLogs.clear()
-    }
-
-    // Label for the shared plugin bar, listing the plugins currently generating.
-    function pluginProgressText(): string {
-      const running = [...state.runningPlugins].map((name) => styleText('bold', name))
-      return getMessage(running.length > 0 ? `Generating ${running.join(', ')}` : 'Generating plugins')
     }
 
     function showProgressStep() {
@@ -296,53 +288,13 @@ Run \`npm install -g @kubb/cli\` to update`,
       clack.intro(text)
     })
 
-    // Plugins run concurrently, so they share a single progress bar. A bar per plugin
-    // would make clack render them side by side and pile up keypress listeners.
-    context.hook('kubb:plugin:start', ({ plugin }) => {
+    context.hook('kubb:plugin:end', ({ plugin, duration, success }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
 
-      stopSpinner()
-
-      state.runningPlugins.add(plugin.name)
-
-      const active = state.activeProgress.get('plugins')
-      if (active) {
-        active.progressBar.advance(0, pluginProgressText())
-        return
-      }
-
-      const progressBar = clack.progress({
-        style: 'block',
-        max: Math.max(state.totalPlugins, 1),
-        size: 30,
-      })
-      progressBar.start(pluginProgressText())
-      // Catch up to plugins already finished before this bar opened.
-      progressBar.advance(state.completedPlugins + state.failedPlugins, pluginProgressText())
-      state.activeProgress.set('plugins', { progressBar })
-    })
-
-    context.hook('kubb:plugin:end', ({ plugin, success }) => {
-      stopSpinner()
-
-      const active = state.activeProgress.get('plugins')
-
-      if (!active || logLevel <= logLevelMap.silent) {
-        return
-      }
-
-      state.runningPlugins.delete(plugin.name)
       recordPluginResult(state, success)
-      active.progressBar.advance(1, pluginProgressText())
-
-      // Close the bar once nothing is generating, then print the progress step.
-      if (state.runningPlugins.size === 0) {
-        active.progressBar.stop(getMessage('Plugins generated'))
-        state.activeProgress.delete('plugins')
-        showProgressStep()
-      }
+      clack.log.step(getMessage(`${plugin.name} ${success ? 'completed' : 'failed'} in ${formatMsWithColor(duration)}`), { spacing: 0 })
     })
 
     context.hook('kubb:files:processing:start', ({ files }) => {
@@ -415,26 +367,23 @@ Run \`npm install -g @kubb/cli\` to update`,
     onStep('kubb:lint:start', 'Linting')
     onStep('kubb:hooks:start', 'Running hooks')
 
-    context.hook('kubb:hook:start', ({ id, command, name, args }) => {
+    context.hook('kubb:hook:start', ({ id }) => {
       if (logLevel <= logLevelMap.silent || !id) {
         return
       }
 
       stopSpinner()
 
-      const commandWithArgs = formatCommandWithArgs(command, args)
-      const title = getMessage(`Running ${styleText('dim', name ?? commandWithArgs)}`)
-      const taskLog = clack.taskLog({ title })
-
-      state.activeHookLogs.set(id, { taskLog, hrStart: process.hrtime() })
+      state.activeHookLogs.set(id, { hrStart: process.hrtime() })
     })
 
     // Registered only when not silent, so its presence is what tells the runner to stream
     // (`kubb:hook:line` listenerCount). At silent level the listener is absent, so no streaming happens.
     if (logLevel > logLevelMap.silent) {
       context.hook('kubb:hook:line', ({ id, line }) => {
-        const active = state.activeHookLogs.get(id)
-        active?.taskLog.message(styleText('dim', line))
+        if (state.activeHookLogs.has(id)) {
+          clack.log.message(styleText('dim', line), { spacing: 0 })
+        }
       })
     }
 
@@ -462,12 +411,10 @@ Run \`npm install -g @kubb/cli\` to update`,
       const duration = formatMsWithColor(getElapsedMs(active.hrStart))
 
       if (success) {
-        active.taskLog.success(getMessage(`${styleText('dim', name ?? commandWithArgs)} completed in ${duration}`))
+        clack.log.success(getMessage(`${styleText('dim', name ?? commandWithArgs)} completed in ${duration}`), { spacing: 0 })
       } else {
-        // The hook's output already reached the taskLog live via `kubb:hook:line`, so `showLog`
-        // replays it here. `kubb:hook:end` carries no captured output on the streaming path.
         const reason = error?.message ? ` (${error.message})` : ''
-        active.taskLog.error(getMessage(`${styleText('dim', name ?? commandWithArgs)} failed${reason}`), { showLog: true })
+        clack.log.error(getMessage(`${styleText('dim', name ?? commandWithArgs)} failed${reason}`), { spacing: 0 })
       }
     })
 
