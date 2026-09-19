@@ -2,6 +2,7 @@ import type { CLIOptions, Parser, Reporter, UserConfig } from '@kubb/core'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { describe, expect, test } from 'vitest'
+import { createKubb } from './createKubb.ts'
 import { defineConfig } from './defineConfig.ts'
 
 describe('defineConfig', () => {
@@ -352,5 +353,18 @@ describe('defineConfig', () => {
       expect(c.root).toBe('.')
       expect(c.adapter).toBeDefined()
     }
+  })
+})
+
+describe('createKubb', () => {
+  test('applies the same defaults as defineConfig', () => {
+    const kubb = createKubb({
+      input: 'spec.yaml',
+      output: { path: './gen' },
+    })
+
+    expect(kubb.config.adapter?.name).toBe('oas')
+    expect(kubb.config.parsers).toHaveLength(3)
+    expect(kubb.config.plugins.some((plugin) => plugin.name === pluginBarrelName)).toBe(true)
   })
 })
