@@ -272,7 +272,10 @@ export function installReporter(context: LoggerContext, reporter: Reporter, ctx:
  * `cli` reporter (live logger and summary) is skipped whenever `json` is among the reporters, even
  * if `cli` is also listed.
  */
-async function setupReporters(context: LoggerContext, { logLevel, reporters }: LoggerOptions & { reporters: ReadonlyArray<Reporter> }): Promise<LoggerHandle | undefined> {
+async function setupReporters(
+  context: LoggerContext,
+  { logLevel, reporters }: LoggerOptions & { reporters: ReadonlyArray<Reporter> },
+): Promise<LoggerHandle | undefined> {
   let cliHandle: LoggerHandle | undefined
   const hasJson = reporters.some((reporter) => reporter.name === 'json')
   const ctx: ReporterContext = { logLevel }

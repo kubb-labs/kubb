@@ -78,7 +78,13 @@ type TipRotationOptions = {
  * const stop = startTipRotation({ intervalMs: 300_000, max: Number.POSITIVE_INFINITY, isIdle })
  * ```
  */
-export function startTipRotation({ intervalMs = TIP_ROTATION_INTERVAL_MS, max = MAX_ROTATING_TIPS, isIdle, beforeTip, afterTip }: TipRotationOptions = {}): () => void {
+export function startTipRotation({
+  intervalMs = TIP_ROTATION_INTERVAL_MS,
+  max = MAX_ROTATING_TIPS,
+  isIdle,
+  beforeTip,
+  afterTip,
+}: TipRotationOptions = {}): () => void {
   if (!isRichOutput()) return () => {}
 
   let shown = 0
