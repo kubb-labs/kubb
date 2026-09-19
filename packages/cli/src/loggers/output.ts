@@ -64,6 +64,10 @@ type TipRotationOptions = {
    * never lands in the middle of a run.
    */
   isIdle?: () => boolean
+  /** Called immediately before a rotating tip is written. */
+  beforeTip?: () => void
+  /** Called immediately after a rotating tip is written. */
+  afterTip?: () => void
 }
 
 /**
@@ -74,7 +78,7 @@ type TipRotationOptions = {
  * const stop = startTipRotation({ intervalMs: 300_000, max: Number.POSITIVE_INFINITY, isIdle })
  * ```
  */
-export function startTipRotation({ intervalMs = TIP_ROTATION_INTERVAL_MS, max = MAX_ROTATING_TIPS, isIdle }: TipRotationOptions = {}): () => void {
+export function startTipRotation({ intervalMs = TIP_ROTATION_INTERVAL_MS, max = MAX_ROTATING_TIPS, isIdle, beforeTip, afterTip }: TipRotationOptions = {}): () => void {
   if (!isRichOutput()) return () => {}
 
   let shown = 0
@@ -83,7 +87,9 @@ export function startTipRotation({ intervalMs = TIP_ROTATION_INTERVAL_MS, max = 
       return
     }
 
+    beforeTip?.()
     logTip()
+    afterTip?.()
     shown++
     if (shown >= max) clearInterval(timer)
   }, intervalMs)
