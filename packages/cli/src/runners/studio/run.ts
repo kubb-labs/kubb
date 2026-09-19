@@ -20,7 +20,7 @@ import {
 } from '@kubb/studio'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import setupReporters from '../../loggers/utils.ts'
-import { createSpinner, logBlock, logIntro, logOutro } from '../../loggers/output.ts'
+import { createSpinner, logBlock, logIntro, logOutro, logTip, startTipRotation } from '../../loggers/output.ts'
 import { canUseTTY } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
@@ -224,6 +224,7 @@ export async function resolvePermissions(
   const remembered = credentials.projects?.[project]
   const granted: Record<Permission, boolean> = { allowRead: false, allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false }
   const answers: Partial<Record<Permission, boolean>> = {}
+  prompts.updateSettings({ withGuide: true })
 
   for (const { key, question } of PERMISSIONS) {
     if (options.permission[key] || typeof remembered?.[key] === 'boolean') {
@@ -239,7 +240,6 @@ export async function resolvePermissions(
     granted[key] = (await prompts.confirm({ message: question(project, configPath), initialValue: false })) === true
     answers[key] = granted[key]
   }
-
   if (persist && Object.keys(answers).length) {
     await writeCredentials({
       ...credentials,
@@ -308,10 +308,12 @@ class StudioConnection {
   #credentials!: Credentials
   // Whether the "Press Ctrl+C" hint already printed, so a reconnect never repeats it.
   #hinted = false
+  #commandActive = false
   // One automatic re-pair per run, whether the rejection lands at startup or once the session is
   // live. A token rejected right after a fresh login is a hard failure, not a reason to keep
   // pairing.
   #hasReauthenticated = false
+  #stopTipRotation: (() => void) | undefined
   // Resolved by `run()` from the flags and the project's saved answers, before anything reads it.
   #granted!: Record<Permission, boolean>
 
@@ -366,6 +368,7 @@ class StudioConnection {
 
       throw error
     } finally {
+      this.#stopTipRotation?.()
       this.#processEvents.off('SIGINT', this.#requestShutdown)
       this.#processEvents.off('SIGTERM', this.#requestShutdown)
     }
@@ -441,6 +444,24 @@ class StudioConnection {
           this.#hinted = true
 
           logBlock(styleText('dim', 'Press Ctrl+C to disconnect'))
+        })
+        // Show one tip as soon as the session is ready, then replace it every five minutes.
+        hooks.hook('studio:ready', () => {
+          logTip()
+          this.#stopTipRotation ??= startTipRotation({
+            intervalMs: 300_000,
+            max: Number.POSITIVE_INFINITY,
+            isIdle: () => !this.#commandActive,
+          })
+        })
+        hooks.hook('studio:command:start', () => {
+          this.#commandActive = true
+        })
+        hooks.hook('studio:command:end', () => {
+          this.#commandActive = false
+        })
+        hooks.hook('studio:error', () => {
+          this.#commandActive = false
         })
       },
     }
@@ -584,7 +605,6 @@ export async function run(options: StudioOptions, action: () => Promise<unknown>
   try {
     if (options.logLevel !== 'silent' && !json) {
       logIntro({
-        title: `Kubb Studio  ${styleText('dim', `v${options.version}`)}`,
         warning: styleText('yellow', 'This feature is still under development, use with caution'),
         block,
       })

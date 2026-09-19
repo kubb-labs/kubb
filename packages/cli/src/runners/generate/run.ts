@@ -22,8 +22,8 @@ import {
 import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
-import setupReporters, { selectReporters } from '../../loggers/utils.ts'
-import { logError, logInfo, logStep } from '../../loggers/output.ts'
+import setupReporters, { pluralize, selectReporters } from '../../loggers/utils.ts'
+import { createSpinner, logBanner, logError, logInfo, logIntro, logOutro, logSpacer, logStep, logTip, startTipRotation } from '../../loggers/output.ts'
 import { fetchUrlBody, getConfigs, isNewerVersion, runHook, runPostGenerate, startUrlWatcher, startWatcher } from './utils.ts'
 import { FORMATTER_PREFERENCE, LINTER_PREFERENCE } from '@internals/utils'
 import { detectTool, formatters, linters } from '../../tools.ts'
@@ -126,7 +126,6 @@ async function generate(options: GenerateProps): Promise<boolean> {
   const { input, hooks, logLevel, dryRun = false } = options
 
   const hrStart = process.hrtime()
-  const inputPath = input ?? (typeof options.config.input === 'string' ? options.config.input : undefined)
 
   const config: Config = {
     ...options.config,
@@ -207,10 +206,6 @@ async function generate(options: GenerateProps): Promise<boolean> {
     return outputDiagnostics
   }
 
-  hooks.hook('kubb:generation:end', ({ status }) => {
-    if (status === 'success') return hooks.callHook('kubb:success', { message: 'Generation succeeded', info: inputPath })
-  })
-
   const kubb = createKubb(config, { hooks })
   const result = await kubb.generate({ processOutput })
 
@@ -278,11 +273,26 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new Hookable<KubbHooks>()
 
+  // CLI `--reporter` selects which reporters to trigger by name, defaulting to `cli`. The config
+  // always carries the available reporters (defineConfig registers the built-ins).
+  const requestedNames: Array<ReporterName> = cliReporters?.length ? cliReporters : ['cli']
+
+  // The `json` reporter owns stdout, so the command writes nothing of its own around it.
+  const quiet = logLevel <= logLevelMap.silent || requestedNames.includes('json')
+
+  if (!quiet) {
+    logBanner(version)
+    logIntro({ title: 'Configuration' })
+  }
+
   // Load the config first so `config.reporters` can pick the reporters. A failure here has no
   // reporter installed yet, so fall back to the default `cli` reporter to surface it.
+  const configSpinner = createSpinner()
   let configs: Array<Config>
   let resolvedConfigPath: string
   try {
+    if (!quiet) configSpinner.start('Loading config')
+
     const loaded = await getConfigs({
       configPath,
       input,
@@ -291,29 +301,32 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     })
     configs = loaded.configs
     resolvedConfigPath = loaded.configPath
+
+    if (!quiet) configSpinner.stop(`Loaded ${styleText('dim', path.relative(process.cwd(), resolvedConfigPath))}`)
   } catch (error) {
+    if (!quiet) configSpinner.error('Config failed loading')
+
     await setupReporters(hooks, { logLevel, reporters: [cliReporter] })
     await hooks.callHook('kubb:error', { error: toError(error) })
+
+    if (!quiet) logOutro(styleText('red', '✗ Configuration failed'))
     process.exit(1)
   }
 
-  // CLI `--reporter` selects which reporters to trigger by name, defaulting to `cli`. The config
-  // always carries the available reporters (defineConfig registers the built-ins).
-  const requestedNames: Array<ReporterName> = cliReporters?.length ? cliReporters : ['cli']
   const reporters = selectReporters(configs[0]?.reporters ?? [], requestedNames)
   await setupReporters(hooks, { logLevel, reporters })
 
   await hooks.callHook('kubb:lifecycle:start', { version })
 
+  // Inside the bootstrap group, so an update notice reads as part of the setup rather than as part
+  // of the first config's generation.
   await checkForUpdate(hooks)
 
+  if (!quiet) logOutro(`${pluralize(configs.length, 'config')} ready`)
+
   try {
-    const relativeConfigPath = path.relative(process.cwd(), resolvedConfigPath)
-
-    await hooks.callHook('kubb:info', { message: 'Config loaded', info: relativeConfigPath })
-    await hooks.callHook('kubb:success', { message: 'Config loaded successfully', info: relativeConfigPath })
-
     let anyFailed = false
+    let tipRotationStarted = false
     for (const config of configs) {
       const effectiveInput = input ?? config.input
       const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
@@ -324,8 +337,12 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async (paths: Array<string>) => {
-          await generate({ input, config, logLevel, hooks, dryRun })
+          const succeeded = await generate({ input, config, logLevel, hooks, dryRun })
           logStep(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
+          if (succeeded) {
+            logSpacer()
+            logTip()
+          }
         }
 
         // For a URL input, capture the document before the build: it becomes the watcher's
@@ -347,6 +364,10 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
           startUrlWatcher(watchPath, build, { log: { info: logInfo, error: logError }, initialBody })
         } else {
           await startWatcher(watchedPaths, build, { info: logInfo, error: logError })
+        }
+        if (!tipRotationStarted) {
+          tipRotationStarted = true
+          startTipRotation()
         }
       } else {
         try {

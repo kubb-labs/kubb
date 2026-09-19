@@ -114,20 +114,39 @@ describe('setupReporters', () => {
     expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
   })
 
+  /**
+   * Both loggers open a group, but only the plain one writes it with `console.log`: clack draws
+   * straight to the stream.
+   */
+  async function renderGroup() {
+    const context = new Hookable<KubbHooks>()
+    const lines: Array<string> = []
+    using _log = vi.spyOn(console, 'log').mockImplementation((line = '') => void lines.push(String(line)))
+
+    await setupReporters(context, { logLevel: logLevel.info, reporters: [cliReporter] })
+    await context.callHook('kubb:generation:start', {
+      config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [] } as unknown as Config,
+    })
+
+    return lines
+  }
+
   it('installs the plain logger instead of the interactive one when an AI agent is detected', async () => {
     using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(true)
     using _agent = vi.spyOn(agent, 'getAgentName').mockReturnValue('claude')
-    const context = new Hookable<KubbHooks>()
 
-    await setupReporters(context, { logLevel: logLevel.info, reporters: [cliReporter] })
-
-    // Only the clack logger streams hook output through `kubb:hook:line`.
-    expect(context.listenerCount('kubb:hook:line')).toBe(0)
+    expect(await renderGroup()).toContain('petstore')
   })
 
   it('installs the interactive logger when no AI agent is detected and a TTY is available', async () => {
     using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(true)
     using _agent = vi.spyOn(agent, 'getAgentName').mockReturnValue(undefined)
+
+    expect(await renderGroup()).not.toContain('petstore')
+  })
+
+  it('streams a hook output through both loggers, so neither goes quiet', async () => {
+    using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(false)
     const context = new Hookable<KubbHooks>()
 
     await setupReporters(context, { logLevel: logLevel.info, reporters: [cliReporter] })
@@ -174,7 +193,7 @@ describe('studio session events', () => {
       await context.callHook('studio:command:end', { command: 'save', info: 'applied 2/3 edits to kubb.config.ts' })
     })
 
-    expect(lines).toStrictEqual(['Kubb Studio asked to save', '✓ Finished save (applied 2/3 edits to kubb.config.ts)'])
+    expect(lines).toStrictEqual(['Kubb Studio asked to save', '✓ Finished save (applied 2/3 edits to kubb.config.ts)', '✓ Ready to receive jobs'])
   })
 
   it('drops everything but errors at silent', async () => {

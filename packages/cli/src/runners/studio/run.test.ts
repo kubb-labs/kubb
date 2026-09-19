@@ -11,6 +11,7 @@ vi.mock('@clack/prompts', () => ({
   log: { message: vi.fn() },
   intro: vi.fn(),
   outro: vi.fn(),
+  updateSettings: vi.fn(),
 }))
 vi.mock('../../utils/env.ts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../utils/env.ts')>()),
@@ -32,6 +33,10 @@ vi.mock('../generate/utils.ts', () => ({
     configs: [{ name: 'test', input: 'spec.yaml', output: { path: './gen' }, plugins: [] }],
   }),
 }))
+vi.mock('../../loggers/output.ts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../loggers/output.ts')>()),
+  startTipRotation: vi.fn(() => vi.fn()),
+}))
 vi.mock('@kubb/studio', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@kubb/studio')>()),
   runConnection: vi.fn(),
@@ -46,6 +51,7 @@ const { readCredentials, writeCredentials, clearCredentials } = await import('./
 const { runConnection, startPairing, pollForPairingToken } = await import('@kubb/studio')
 const { isCIEnvironment } = utils
 const { canUseTTY } = await import('../../utils/env.ts')
+const { startTipRotation } = await import('../../loggers/output.ts')
 
 const options: StudioOptions = {
   version: '0.0.0',
@@ -66,6 +72,7 @@ beforeEach(() => {
   vi.mocked(pollForPairingToken).mockReset()
   vi.mocked(isCIEnvironment).mockReset().mockReturnValue(false)
   vi.mocked(canUseTTY).mockReset().mockReturnValue(true)
+  vi.mocked(startTipRotation).mockClear()
   delete process.env.KUBB_AGENT_TOKEN
 })
 

@@ -2,7 +2,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { formatMs, getElapsedMs } from '@internals/utils'
 import type { Config, Reporter, ReporterContext, ReporterPluginFiles } from '@kubb/core'
-import { logLevel as logLevelMap } from '@kubb/core'
+import { createCliReporter, logLevel as logLevelMap } from '@kubb/core'
 import type { StudioConnectedContext } from '@kubb/studio'
 import { getAgentName } from '../agent.ts'
 import { canUseTTY } from '../utils/env.ts'
@@ -18,6 +18,16 @@ export function getInputPath(config: Config): string | undefined {
   const { input } = config
   if (typeof input === 'string') return input
   return typeof input?.path === 'string' ? input.path : undefined
+}
+
+/**
+ * Counts a noun, so a message never reads `1 files`.
+ *
+ * @example
+ * `pluralize(1, 'config')` returns `'1 config'`
+ */
+export function pluralize(count: number, noun: string): string {
+  return `${count} ${count === 1 ? noun : `${noun}s`}`
 }
 
 /**
@@ -257,25 +267,32 @@ export function installReporter(context: LoggerContext, reporter: Reporter, ctx:
  * `stdout`/`stderr` on `kubb:hook:end`, so nothing is returned here.
  *
  * Loggers and reporters are independent, except for `cli`: it both installs the live logger view
- * here and registers as a reporter that prints the per-config summary. The `json` reporter owns
- * stdout, so the whole `cli` reporter (live logger and summary) is skipped whenever `json` is
- * among the reporters, even if `cli` is also listed.
+ * here and registers a reporter that renders the per-config summary through that logger, so the
+ * summary lands inside the group the logger opened. The `json` reporter owns stdout, so the whole
+ * `cli` reporter (live logger and summary) is skipped whenever `json` is among the reporters, even
+ * if `cli` is also listed.
  */
 async function setupReporters(context: LoggerContext, { logLevel, reporters }: LoggerOptions & { reporters: ReadonlyArray<Reporter> }): Promise<void> {
   const hasJson = reporters.some((reporter) => reporter.name === 'json')
   const ctx: ReporterContext = { logLevel }
 
   for (const reporter of reporters) {
-    if (reporter.name === 'cli') {
-      if (hasJson) {
-        continue
-      }
-      // Spinners and cursor-movement escapes are hard for an AI coding agent to parse, even over a pseudo-TTY.
-      const logger = canUseTTY() && !getAgentName() ? clackLogger : plainLogger
-      await logger.install(context, { logLevel })
+    if (reporter.name !== 'cli') {
+      installReporter(context, reporter, ctx)
+      continue
     }
 
-    installReporter(context, reporter, ctx)
+    if (hasJson) {
+      continue
+    }
+
+    // Spinners and cursor-movement escapes are hard for an AI coding agent to parse, even over a pseudo-TTY.
+    const logger = canUseTTY() && !getAgentName() ? clackLogger : plainLogger
+    const handle = await logger.install(context, { logLevel })
+
+    // The summary belongs inside the group the logger opened for this config, so hand the writing
+    // to the logger rather than letting the reporter print alongside it.
+    installReporter(context, createCliReporter({ render: handle?.renderSummary }), ctx)
   }
 }
 
