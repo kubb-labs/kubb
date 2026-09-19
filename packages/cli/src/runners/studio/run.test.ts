@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
 import * as utils from '@internals/utils'
-import { Hookable, type KubbHooks } from '@kubb/core'
 import { InvalidAgentTokenError, PairingCanceledError, type ConnectionOptions } from '@kubb/studio'
 import type { Credentials } from './credentials.ts'
 import { connect, formatPermissionRows, resolvePermissions, type StudioOptions } from './run.ts'
