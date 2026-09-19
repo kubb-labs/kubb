@@ -432,7 +432,7 @@ class StudioConnection {
       // The loggers `kubb generate` installs, so one place renders the session events and the
       // generations it drives.
       installLogger: async (hooks) => {
-        await setupReporters(hooks, { logLevel: logLevelMap[this.#options.logLevel ?? 'info'], reporters: [cliReporter] })
+        const logger = await setupReporters(hooks, { logLevel: logLevelMap[this.#options.logLevel ?? 'info'], reporters: [cliReporter] })
 
         // `client.connect()` resolves once the agent is registered, not once a session is open, so
         // this is the only point that knows the connection is live. Registered after the loggers so
@@ -453,6 +453,8 @@ class StudioConnection {
             intervalMs: 300_000,
             max: Number.POSITIVE_INFINITY,
             isIdle: () => !this.#commandActive,
+            beforeTip: () => logger?.pauseStudioIdle?.(),
+            afterTip: () => logger?.resumeStudioIdle?.(),
           })
         })
         hooks.hook('studio:command:start', () => {
