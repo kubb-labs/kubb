@@ -52,8 +52,9 @@ export function logTip(): void {
 type TipRotationOptions = {
   intervalMs?: number
   /**
-   * How many tips to show before the rotation stops on its own. Omit for a command that keeps
-   * running, such as a `kubb studio` session waiting for jobs.
+   * How many tips to show before the rotation stops on its own. Pass
+   * `Number.POSITIVE_INFINITY` for a command that keeps running, such as a `kubb studio` session
+   * waiting for jobs.
    *
    * @default 1
    */

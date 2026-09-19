@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
 import * as utils from '@internals/utils'
+import { Hookable, type KubbHooks } from '@kubb/core'
 import { InvalidAgentTokenError, PairingCanceledError, type ConnectionOptions } from '@kubb/studio'
 import type { Credentials } from './credentials.ts'
 import { connect, formatPermissionRows, resolvePermissions, type StudioOptions } from './run.ts'
@@ -33,6 +34,10 @@ vi.mock('../generate/utils.ts', () => ({
     configs: [{ name: 'test', input: 'spec.yaml', output: { path: './gen' }, plugins: [] }],
   }),
 }))
+vi.mock('../../loggers/output.ts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../loggers/output.ts')>()),
+  startTipRotation: vi.fn(() => vi.fn()),
+}))
 vi.mock('@kubb/studio', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@kubb/studio')>()),
   runConnection: vi.fn(),
@@ -47,6 +52,7 @@ const { readCredentials, writeCredentials, clearCredentials } = await import('./
 const { runConnection, startPairing, pollForPairingToken } = await import('@kubb/studio')
 const { isCIEnvironment } = utils
 const { canUseTTY } = await import('../../utils/env.ts')
+const { startTipRotation } = await import('../../loggers/output.ts')
 
 const options: StudioOptions = {
   version: '0.0.0',
@@ -67,6 +73,7 @@ beforeEach(() => {
   vi.mocked(pollForPairingToken).mockReset()
   vi.mocked(isCIEnvironment).mockReset().mockReturnValue(false)
   vi.mocked(canUseTTY).mockReset().mockReturnValue(true)
+  vi.mocked(startTipRotation).mockClear()
   delete process.env.KUBB_AGENT_TOKEN
 })
 
@@ -278,5 +285,36 @@ describe('connect', () => {
     await expect(connect(options)).rejects.toThrow(/rejected the newly approved token/)
     // One pairing only: the second rejection is a hard failure.
     expect(startPairing).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps tip rotation aware of commands after logger reinstallation', async () => {
+    vi.mocked(readCredentials).mockResolvedValue(credentials)
+    vi.mocked(runConnection).mockImplementation(async (connectionOptions) => {
+      const firstHooks = new Hookable<KubbHooks>()
+      const secondHooks = new Hookable<KubbHooks>()
+
+      await connectionOptions.clientOptions(credentials).installLogger?.(firstHooks)
+      await firstHooks.callHook('studio:ready', {})
+      await connectionOptions.clientOptions(credentials).installLogger?.(secondHooks)
+      await secondHooks.callHook('studio:ready', {})
+
+      expect(startTipRotation).toHaveBeenCalledOnce()
+      const isIdle = vi.mocked(startTipRotation).mock.calls[0]?.[0]?.isIdle
+      expect(isIdle?.()).toBe(true)
+
+      await secondHooks.callHook('studio:command:start', { command: 'generate' })
+      expect(isIdle?.()).toBe(false)
+
+      await secondHooks.callHook('studio:command:end', { command: 'generate' })
+      expect(isIdle?.()).toBe(true)
+
+      await secondHooks.callHook('studio:command:start', { command: 'generate' })
+      await secondHooks.callHook('studio:error', { error: new Error('generation failed') })
+      expect(isIdle?.()).toBe(true)
+
+      return 'shutdown'
+    })
+
+    await connect(options)
   })
 })
