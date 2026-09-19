@@ -4,6 +4,7 @@ import { toError } from '@internals/utils'
 import type * as McpModule from '@kubb/mcp'
 import type { CommandRunner } from 'gunshi'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
+import { logTip } from '../../loggers/output.ts'
 import { version } from '../../../package.json'
 import type { definition } from '../../commands/mcp.ts'
 
@@ -26,6 +27,7 @@ export async function run({ version }: McpOptions): Promise<void> {
   try {
     console.log(styleText('cyan', '⏳ Starting MCP server...'))
     console.warn(styleText('yellow', 'This feature is still under development, use with caution'))
+    logTip()
     await startMcpServer()
     await report('success')
   } catch (error) {
