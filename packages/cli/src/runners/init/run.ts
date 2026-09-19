@@ -220,6 +220,7 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     if (error instanceof Error) {
       logError(error.message)
     }
+    logTip()
     process.exit(1)
   }
 }
