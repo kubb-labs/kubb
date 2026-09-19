@@ -25,7 +25,6 @@ function capturePlain(run: () => void): Array<string> {
 }
 
 describe('plain output', () => {
-
   it('prefixes a message with the same symbol the plain logger uses', () => {
     expect(capturePlain(() => logInfo('Detected pnpm'))).toEqual(['ℹ Detected pnpm'])
   })
@@ -73,5 +72,4 @@ describe('rich output', () => {
     expect(prompts.outro).toHaveBeenCalledWith('Disconnected')
     expect(prompts.log.info).toHaveBeenCalledWith('Connected')
   })
-
 })
