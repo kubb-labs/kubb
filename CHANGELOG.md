@@ -1,5 +1,50 @@
 # Changelog
 
+## v5.4.0 — Sep 19, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Update the OpenAPI parser, upgrader, and unplugin dependencies. ([#4068](https://github.com/kubb-labs/kubb/pull/4068), [`d88ab19`](https://github.com/kubb-labs/kubb/commit/d88ab1989b222f8b1012ed046f10bf105139e3e9))
+
+### @kubb/cli
+
+#### Features
+
+- Group `kubb generate` output per config, with a spinner that reports each phase as started, then done or failed.
+  
+  - A `Configuration` group opens first: it spins while the config loads, then reports the file it loaded or the failure.
+  - Each named config gets its own group, from its name and input down to its summary and its success or failure line.
+  - Formatting, linting, and post-generate hooks each get their own spinner and one result line with a duration. A failed hook ends its phase on the error symbol instead of reading as done.
+  - A hook's streamed output is collected and printed under the phase it belongs to, so nothing is drawn over.
+  - The plain writer reports the same run in the same order, without the animation. Both loggers now run off one installer, so neither can drift from the other again.
+  - A `kubb studio` session keeps showing tips while it sits idle, rather than stopping after the first.
+  
+  `@kubb/core` gains `createCliReporter`, which takes a `render` callback so a host can write the summary through output it already owns. The exported `cliReporter` still writes to the console.
+  
+  ```ts
+  import { createCliReporter } from '@kubb/core'
+  
+  const reporter = createCliReporter({ render: (lines) => lines.forEach((line) => myLogger.info(line)) })
+  ``` ([#4071](https://github.com/kubb-labs/kubb/pull/4071), [`a10abe9`](https://github.com/kubb-labs/kubb/commit/a10abe9711357442a25959151894f04e42d2564a))
+
+#### Bug Fixes
+
+- Scope Kubb Studio help by subcommand and reject flags passed to the wrong Studio command. ([#4068](https://github.com/kubb-labs/kubb/pull/4068), [`d88ab19`](https://github.com/kubb-labs/kubb/commit/d88ab1989b222f8b1012ed046f10bf105139e3e9))
+
+### kubb
+
+#### Bug Fixes
+
+- Apply the same adapter, parser, and plugin defaults to programmatic `createKubb` builds as the CLI configuration. ([#4072](https://github.com/kubb-labs/kubb/pull/4072), [`4afe194`](https://github.com/kubb-labs/kubb/commit/4afe194a5d88e4ac59813564485e7542d633518c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.8 — Sep 18, 2026
 
 ### @kubb/studio
