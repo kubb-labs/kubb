@@ -599,6 +599,12 @@ export async function run(options: StudioOptions, action: () => Promise<unknown>
     await action()
 
     await report('success')
+
+    // Finite Studio commands end with one tip. The long-running connect command (`block`) shows
+    // its tip on `studio:ready` instead so users see it before the idle status.
+    if (!block && !json && options.logLevel !== 'silent') {
+      logTip()
+    }
   } catch (error) {
     await report('failed')
     console.error(toError(error).message)
