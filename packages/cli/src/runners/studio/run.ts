@@ -308,12 +308,10 @@ class StudioConnection {
   #credentials!: Credentials
   // Whether the "Press Ctrl+C" hint already printed, so a reconnect never repeats it.
   #hinted = false
-  #commandActive = false
   // One automatic re-pair per run, whether the rejection lands at startup or once the session is
   // live. A token rejected right after a fresh login is a hard failure, not a reason to keep
   // pairing.
   #hasReauthenticated = false
-  #stopTipRotation: (() => void) | undefined
   // Resolved by `run()` from the flags and the project's saved answers, before anything reads it.
   #granted!: Record<Permission, boolean>
 
