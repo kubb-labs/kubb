@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.3.10 — Sep 19, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Show sponsor tips again for successful `kubb generate` runs and when starting a `kubb studio` session. ([#4077](https://github.com/kubb-labs/kubb/pull/4077), [`15c644e`](https://github.com/kubb-labs/kubb/commit/15c644e427dc7bc522bbf473eba4818bc4ac767c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.9 — Sep 19, 2026
 
 ### @kubb/adapter-oas
