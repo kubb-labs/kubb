@@ -3,6 +3,7 @@ import { styleText } from 'node:util'
 import { toError } from '@internals/utils'
 import type { CommandRunner } from 'gunshi'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
+import { logTip } from '../../loggers/output.ts'
 import { version } from '../../../package.json'
 import type { definition } from '../../commands/validate.ts'
 
@@ -37,6 +38,7 @@ export async function run({ input, version }: ValidateOptions): Promise<void> {
     await report('success')
 
     console.log('✅ Validation success')
+    logTip()
   } catch (error) {
     await report('failed')
     if (error instanceof Error && /@kubb\/adapter-oas/.test(error.message)) {
@@ -50,6 +52,7 @@ export async function run({ input, version }: ValidateOptions): Promise<void> {
     }
     console.error('❌ Validation failed')
     console.error(toError(error).message)
+    logTip()
 
     process.exit(1)
   }

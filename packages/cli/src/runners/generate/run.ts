@@ -23,7 +23,7 @@ import { version } from '../../../package.json'
 import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.ts'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import setupReporters, { pluralize, selectReporters } from '../../loggers/utils.ts'
-import { createSpinner, logBanner, logError, logInfo, logIntro, logOutro, logSpacer, logStep, logTip, startTipRotation } from '../../loggers/output.ts'
+import { createSpinner, logBanner, logError, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'
 import { fetchUrlBody, getConfigs, isNewerVersion, runHook, runPostGenerate, startUrlWatcher, startWatcher } from './utils.ts'
 import { FORMATTER_PREFERENCE, LINTER_PREFERENCE } from '@internals/utils'
 import { detectTool, formatters, linters } from '../../tools.ts'
@@ -310,6 +310,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     await hooks.callHook('kubb:error', { error: toError(error) })
 
     if (!quiet) logOutro(styleText('red', '✗ Configuration failed'))
+    if (!quiet) logTip()
     process.exit(1)
   }
 
@@ -326,7 +327,6 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
   try {
     let anyFailed = false
-    let tipRotationStarted = false
     for (const config of configs) {
       const effectiveInput = input ?? config.input
       const inputKind = typeof effectiveInput === 'string' ? getInputKind(effectiveInput) : undefined
@@ -365,10 +365,6 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         } else {
           await startWatcher(watchedPaths, build, { info: logInfo, error: logError })
         }
-        if (!tipRotationStarted) {
-          tipRotationStarted = true
-          startTipRotation()
-        }
       } else {
         try {
           const succeeded = await generate({ input, config, logLevel, hooks, dryRun })
@@ -384,7 +380,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
     // Watch mode prints a tip after each successful build. Regular generate commands need to
     // print one explicitly after the lifecycle group has closed so it stays outside the group.
-    if (!watch && !anyFailed) {
+    if (!watch && !quiet) {
       logTip()
     }
 
@@ -393,6 +389,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     }
   } catch (error) {
     await hooks.callHook('kubb:error', { error: toError(error) })
+    if (!quiet) logTip()
     process.exit(1)
   }
 }

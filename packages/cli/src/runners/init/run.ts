@@ -14,7 +14,7 @@ import {
   resolveInstallVersions,
   resolvePlugins,
 } from '@internals/shared'
-import { createSpinner, logError, logInfo, logIntro, logOutro, logWarn } from '../../loggers/output.ts'
+import { createSpinner, logError, logInfo, logIntro, logOutro, logTip, logWarn } from '../../loggers/output.ts'
 import { hasPackageJson, initPackageJson, installPackages } from './utils.ts'
 import { detectPackageManager } from '../../tools.ts'
 
@@ -214,11 +214,13 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
         '\n\n' +
         styleText('dim', `Using ${packageManager.name} • Kubb v${version}`),
     )
+    logTip()
   } catch (error) {
     logError(styleText('red', 'An error occurred during initialization'))
     if (error instanceof Error) {
       logError(error.message)
     }
+    logTip()
     process.exit(1)
   }
 }
