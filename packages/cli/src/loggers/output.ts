@@ -19,45 +19,34 @@ const SPONSOR_TIPS = [
   'Help Kubb stay independent and focused on developer tools',
 ] as const
 
-const tips = { sponsor: SPONSOR_TIPS, studio: SPONSOR_TIPS } as const
-
 const SPONSOR_LINKS = ['https://github.com/sponsors/stijnvanhulle', 'https://opencollective.com/kubb', 'https://kubb.dev/sponsors'] as const
 
 const TIP_ROTATION_INTERVAL_MS = 30_000
 const MAX_ROTATING_TIPS = 1
 
-type TipGroup = keyof typeof tips
+let tipIndex = Math.floor(Math.random() * SPONSOR_TIPS.length)
 
-const tipIndexes: Record<TipGroup, number> = {
-  sponsor: Math.floor(Math.random() * tips.sponsor.length),
-  studio: Math.floor(Math.random() * tips.studio.length),
-}
-
-function nextTip(group: TipGroup = 'sponsor'): string {
-  const groupTips = tips[group]
-  const tip = groupTips[tipIndexes[group]]!
-  tipIndexes[group] = (tipIndexes[group] + 1) % groupTips.length
+function nextTip(): string {
+  const tip = SPONSOR_TIPS[tipIndex]!
+  tipIndex = (tipIndex + 1) % SPONSOR_TIPS.length
 
   return `${tip}: ${SPONSOR_LINKS[Math.floor(Math.random() * SPONSOR_LINKS.length)]}`
 }
 
 function formatTip(tip: string): string {
-  const text = ` Tip  ${tip}`
-  const labelLength = ' Tip  '.length
-
-  return styleText('magenta', text.slice(0, labelLength)) + styleText('yellow', text.slice(labelLength))
+  return styleText('magenta', ' Tip  ') + styleText('yellow', tip)
 }
 
 /**
  * Prints the next rotating tip, without clack's gutter bar, since a tip sits outside every group.
  * Skipped where the output is piped, captured by CI, or read by an agent.
  */
-export function logTip(group: TipGroup = 'sponsor'): void {
+export function logTip(): void {
   if (!isRichOutput()) {
     return
   }
 
-  console.log(`${styleText('magenta', '✦')}${formatTip(nextTip(group))}`)
+  console.log(`${styleText('magenta', '✦')}${formatTip(nextTip())}`)
 }
 
 type TipRotationOptions = {
@@ -81,13 +70,10 @@ type TipRotationOptions = {
  *
  * @example A session that tips every five minutes it sits idle
  * ```ts
- * const stop = startTipRotation('studio', { intervalMs: 300_000, max: Number.POSITIVE_INFINITY, isIdle })
+ * const stop = startTipRotation({ intervalMs: 300_000, max: Number.POSITIVE_INFINITY, isIdle })
  * ```
  */
-export function startTipRotation(
-  group: TipGroup = 'sponsor',
-  { intervalMs = TIP_ROTATION_INTERVAL_MS, max = MAX_ROTATING_TIPS, isIdle }: TipRotationOptions = {},
-): () => void {
+export function startTipRotation({ intervalMs = TIP_ROTATION_INTERVAL_MS, max = MAX_ROTATING_TIPS, isIdle }: TipRotationOptions = {}): () => void {
   if (!isRichOutput()) return () => {}
 
   let shown = 0
@@ -96,7 +82,7 @@ export function startTipRotation(
       return
     }
 
-    logTip(group)
+    logTip()
     shown++
     if (shown >= max) clearInterval(timer)
   }, intervalMs)

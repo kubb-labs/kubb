@@ -184,7 +184,7 @@ export function createLogger(writer: LoggerWriter) {
 
       stopSpinner()
       stopProgress()
-      writer.groupEnd(status === 'failed' ? styleText('red', '✗ Generation failed') : styleText('green', '✓ Generation succeeded'), status)
+      writer.groupEnd(status === 'failed' ? styleText('red', '✗ Generation failed') : styleText('green', '✓ Generation succeeded'))
     }
 
     function reset() {

@@ -89,7 +89,7 @@ describe('rich output', () => {
     using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(true)
     using log = vi.spyOn(console, 'log').mockImplementation(() => {})
     let idle = false
-    const stop = startTipRotation('studio', { intervalMs: 1_000, max: Number.POSITIVE_INFINITY, isIdle: () => idle })
+    const stop = startTipRotation({ intervalMs: 1_000, max: Number.POSITIVE_INFINITY, isIdle: () => idle })
 
     vi.advanceTimersByTime(3_000)
     expect(log).not.toHaveBeenCalled()

@@ -52,7 +52,7 @@ export type LoggerWriter = {
    * Opens a group. Every `group` is closed by a {@link LoggerWriter.groupEnd}.
    */
   group: (title: string) => void
-  groupEnd: (text: string, status: LogStatus) => void
+  groupEnd: (text: string) => void
   step: (text: string) => void
   info: (text: string) => void
   success: (text: string) => void

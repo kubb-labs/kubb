@@ -21,7 +21,6 @@ import {
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import setupReporters from '../../loggers/utils.ts'
 import { createSpinner, logBlock, logIntro, logOutro, startTipRotation } from '../../loggers/output.ts'
-import { STUDIO_IDLE_MS, STUDIO_TIP_INTERVAL_MS } from '../../constants.ts'
 import { canUseTTY } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
@@ -457,10 +456,10 @@ class StudioConnection {
         // first, and each one waits for the session to have been idle a while.
         hooks.hook('studio:ready', () => {
           this.#lastActivityAt = Date.now()
-          this.#stopTipRotation ??= startTipRotation('studio', {
-            intervalMs: STUDIO_TIP_INTERVAL_MS,
+          this.#stopTipRotation ??= startTipRotation({
+            intervalMs: 300_000,
             max: Number.POSITIVE_INFINITY,
-            isIdle: () => Date.now() - this.#lastActivityAt >= STUDIO_IDLE_MS,
+            isIdle: () => Date.now() - this.#lastActivityAt >= 120_000,
           })
         })
       },
