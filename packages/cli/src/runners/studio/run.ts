@@ -20,7 +20,7 @@ import {
 } from '@kubb/studio'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import setupReporters from '../../loggers/utils.ts'
-import { createSpinner, logBlock, logIntro, logOutro, startTipRotation } from '../../loggers/output.ts'
+import { createSpinner, logBlock, logIntro, logOutro, logTip, startTipRotation } from '../../loggers/output.ts'
 import { canUseTTY } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
@@ -313,8 +313,6 @@ class StudioConnection {
   // pairing.
   #hasReauthenticated = false
   #stopTipRotation: (() => void) | undefined
-  // When the session last had a job to do, so a tip only lands after a real idle stretch.
-  #lastActivityAt = Date.now()
   // Resolved by `run()` from the flags and the project's saved answers, before anything reads it.
   #granted!: Record<Permission, boolean>
 
@@ -446,20 +444,12 @@ class StudioConnection {
 
           logBlock(styleText('dim', 'Press Ctrl+C to disconnect'))
         })
-        for (const hook of ['studio:command:start', 'studio:command:end'] as const) {
-          hooks.hook(hook, () => {
-            this.#lastActivityAt = Date.now()
-          })
-        }
-
-        // A session sits waiting for jobs, so its tips keep coming rather than stopping after the
-        // first, and each one waits for the session to have been idle a while.
+        // Show one tip as soon as the session is ready, then replace it every five minutes.
         hooks.hook('studio:ready', () => {
-          this.#lastActivityAt = Date.now()
+          logTip()
           this.#stopTipRotation ??= startTipRotation({
             intervalMs: 300_000,
             max: Number.POSITIVE_INFINITY,
-            isIdle: () => Date.now() - this.#lastActivityAt >= 120_000,
           })
         })
       },
@@ -604,7 +594,6 @@ export async function run(options: StudioOptions, action: () => Promise<unknown>
   try {
     if (options.logLevel !== 'silent' && !json) {
       logIntro({
-        title: `Kubb Studio  ${styleText('dim', `v${options.version}`)}`,
         warning: styleText('yellow', 'This feature is still under development, use with caution'),
         block,
       })

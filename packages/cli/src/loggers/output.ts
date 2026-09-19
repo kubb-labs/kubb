@@ -104,7 +104,7 @@ function write(level: Level, message: string): void {
 }
 
 type IntroOptions = {
-  title: string
+  title?: string
   /**
    * Printed under the title, for a command that has a caveat to lead with.
    */
@@ -123,7 +123,9 @@ type IntroOptions = {
  */
 export function logIntro({ title, warning, block = true }: IntroOptions): void {
   if (block && isRichOutput()) {
-    prompts.intro(title)
+    if (title) {
+      prompts.intro(title)
+    }
 
     if (warning) {
       prompts.log.warn(warning)
@@ -132,13 +134,17 @@ export function logIntro({ title, warning, block = true }: IntroOptions): void {
     return
   }
 
-  console.log(title)
+  if (title) {
+    console.log(title)
+  }
 
   if (warning) {
     console.warn(warning)
   }
 
-  console.log()
+  if (title || warning) {
+    console.log()
+  }
 }
 
 /**

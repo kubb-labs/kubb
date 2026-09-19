@@ -37,6 +37,10 @@ describe('plain output', () => {
     expect(capturePlain(() => logIntro({ title: 'Kubb Studio', warning: 'Use with caution' }))).toEqual(['Kubb Studio', 'Use with caution', ''])
   })
 
+  it('prints a warning without a duplicate title', () => {
+    expect(capturePlain(() => logIntro({ warning: 'Use with caution' }))).toEqual(['Use with caution', ''])
+  })
+
   it('prints every step the spinner was given, so nothing is lost without an animation', () => {
     const lines = capturePlain(() => {
       const spinner = createSpinner()
