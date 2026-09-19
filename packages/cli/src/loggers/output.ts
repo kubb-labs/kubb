@@ -1,6 +1,7 @@
 import { styleText } from 'node:util'
 import * as prompts from '@clack/prompts'
 import { isRichOutput } from '../utils/env.ts'
+import { getIntro } from './banner.ts'
 
 /**
  * Prefixes the plain writers use, the same ones `plainLogger` prints, so a command's own output
@@ -48,12 +49,15 @@ function formatTip(tip: string): string {
 }
 
 /**
- * Prints the next rotating tip as a highlighted message.
+ * Prints the next rotating tip, without clack's gutter bar: a tip sits outside every group. Skipped
+ * where the output is piped, captured by CI, or read by an agent, so nothing sponsors a log file.
  */
 export function logTip(group: TipGroup = 'sponsor'): void {
-  if (isRichOutput()) {
-    console.log(`\n${styleText('magenta', '✦')}${formatTip(nextTip(group))}`)
+  if (!isRichOutput()) {
+    return
   }
+
+  console.log(`${styleText('magenta', '✦')}${formatTip(nextTip(group))}`)
 }
 
 /**
@@ -138,6 +142,28 @@ export function logOutro(text: string): void {
 }
 
 /**
+ * Prints one empty line between two groups. Bare on purpose: clack's gutter bar belongs to a group,
+ * and a spacer sits outside every group.
+ */
+export function logSpacer(): void {
+  console.log('')
+}
+
+/**
+ * Opens the command with the Kubb mascot and version, or a single version line where the terminal
+ * cannot draw it.
+ */
+export function logBanner(version: string): void {
+  if (isRichOutput()) {
+    console.log(`\n${getIntro({ title: 'The meta framework for code generation', description: 'Ready to start', version, areEyesOpen: true })}\n`)
+
+    return
+  }
+
+  console.log(`Kubb CLI v${version}`)
+}
+
+/**
  * Prints lines as one block, without a symbol in front of them.
  */
 export function logBlock(lines: string | Array<string>): void {
@@ -171,13 +197,20 @@ export function logStep(message: string): void {
 
 type Spinner = {
   start: (message?: string) => void
-  stop: (message?: string, code?: number) => void
+  /**
+   * Ends the step as done.
+   */
+  stop: (message?: string) => void
+  /**
+   * Ends the step as failed, so a phase that went wrong does not read as finished.
+   */
+  error: (message?: string) => void
   message: (message?: string) => void
 }
 
 /**
  * A progress spinner, or a writer that prints each message it is given when the terminal cannot
- * animate one. Callers drive both the same way.
+ * animate one. Callers drive both the same way, including the failure state.
  */
 export function createSpinner(): Spinner {
   if (isRichOutput()) {
@@ -190,5 +223,14 @@ export function createSpinner(): Spinner {
     }
   }
 
-  return { start: print, stop: print, message: print }
+  return {
+    start: print,
+    stop: print,
+    error: (message?: string) => {
+      if (message) {
+        console.log(`${SYMBOLS.error} ${message}`)
+      }
+    },
+    message: print,
+  }
 }

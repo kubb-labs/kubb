@@ -5,7 +5,7 @@ import { isDisabled as isTelemetryDisabled } from './Telemetry.ts'
 import { version } from '../package.json'
 import { QUIET_FLAGS } from './constants.ts'
 import { resolveDeprecatedFlags } from './deprecatedFlags.ts'
-import { logTip } from './loggers/output.ts'
+import { logSpacer, logTip } from './loggers/output.ts'
 
 /**
  * Strips the leading executable + script entries when `process.argv` is passed directly.
@@ -80,6 +80,7 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
   })
 
   if (shouldShowTip(args) && (process.exitCode ?? 0) === 0) {
+    logSpacer()
     logTip()
   }
 }

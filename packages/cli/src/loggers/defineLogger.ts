@@ -1,4 +1,4 @@
-import type { KubbHooks, Hookable } from '@kubb/core'
+import type { KubbHooks, Hookable, SummaryRenderer } from '@kubb/core'
 
 /**
  * Options accepted by a logger's `install` callback.
@@ -19,6 +19,18 @@ export type LoggerOptions = {
 export type LoggerContext = Hookable<KubbHooks>
 
 /**
+ * What `Logger.install` hands back to its host. A logger that groups its output returns a
+ * `renderSummary` so the `cli` reporter's summary lands inside that group instead of after it.
+ */
+export type LoggerHandle = {
+  /**
+   * Writes the `cli` reporter's summary lines through this logger's own output, and closes the
+   * group the logger opened for that config.
+   */
+  renderSummary?: SummaryRenderer
+}
+
+/**
  * Logger contract. A logger receives the build's hook emitter and subscribes
  * to whichever lifecycle hooks it wants to forward to its destination
  * (console, file, remote service).
@@ -32,5 +44,5 @@ export type Logger = {
    * Called once per build with the shared hook emitter. Subscribe to the
    * lifecycle hooks the logger wants to forward to its destination.
    */
-  install: (context: LoggerContext, options?: LoggerOptions) => void | Promise<void>
+  install: (context: LoggerContext, options?: LoggerOptions) => LoggerHandle | void | Promise<LoggerHandle | void>
 }

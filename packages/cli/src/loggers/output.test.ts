@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
 import * as env from '../utils/env.ts'
-import { createSpinner, logIntro, logInfo, logOutro, logTip, startTipRotation } from './output.ts'
+import { createSpinner, logIntro, logInfo, logOutro, logSpacer, logTip, startTipRotation } from './output.ts'
 
 vi.mock('@clack/prompts', () => ({
   intro: vi.fn(),
@@ -25,6 +25,10 @@ function capturePlain(run: () => void): Array<string> {
 }
 
 describe('plain output', () => {
+  it('prints no tip where the output is piped, captured by CI, or read by an agent', () => {
+    expect(capturePlain(() => logTip())).toStrictEqual([])
+  })
+
   it('prefixes a message with the same symbol the plain logger uses', () => {
     expect(capturePlain(() => logInfo('Detected pnpm'))).toEqual(['ℹ Detected pnpm'])
   })
@@ -42,6 +46,20 @@ describe('plain output', () => {
 
     expect(lines).toEqual(['Installing packages', 'Installed packages'])
   })
+
+  it('marks a failed step, so it does not read as finished', () => {
+    const lines = capturePlain(() => {
+      const spinner = createSpinner()
+      spinner.start('Linting')
+      spinner.error('Linting failed')
+    })
+
+    expect(lines).toEqual(['Linting', '✗ Linting failed'])
+  })
+
+  it('prints a bare line for the spacer between groups', () => {
+    expect(capturePlain(() => logSpacer())).toEqual([''])
+  })
 })
 
 describe('rich output', () => {
@@ -55,13 +73,15 @@ describe('rich output', () => {
     expect(prompts.log.info).toHaveBeenCalledWith('Connected')
   })
 
-  it('renders a highlighted rotating tip', () => {
+  // A tip sits outside every group, so it is written without clack's gutter bar.
+  it('renders a highlighted rotating tip without a gutter bar', () => {
     using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(true)
     using log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
     logTip()
 
     expect(log).toHaveBeenCalledWith(expect.stringContaining('Tip'))
+    expect(prompts.log.message).not.toHaveBeenCalled()
   })
 
   it('rotates tips until the long-running command stops', () => {

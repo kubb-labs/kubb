@@ -1,30 +1,48 @@
 import { relative } from 'node:path'
 import { formatMs } from '@internals/utils'
-import { Diagnostics, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { Diagnostics, logLevel as logLevelMap } from '@kubb/core'
 import type { Logger } from './defineLogger.ts'
-import { createHookTimer, formatCommandWithArgs, formatErrorFrames, formatMessage, formatVersions, getInputPath } from './utils.ts'
+import { createHookTimer, formatCommandWithArgs, formatErrorFrames, formatMessage, formatVersions, getInputPath, pluralize } from './utils.ts'
 
 /**
- * Plain console adapter for non-TTY environments, built on `console.log`.
+ * Plain console adapter for non-TTY environments, built on `console.log`. Prints the same ordered
+ * phases and the same per-config group boundaries as `clackLogger`, without the animation.
  */
 export const plainLogger = {
   name: 'plain',
   install(context, options) {
     const logLevel = options?.logLevel ?? logLevelMap.info
     const hookTimer = createHookTimer()
+    const state = {
+      /**
+       * Name of the config whose group is open, used to close it with the summary.
+       */
+      configName: '',
+      /**
+       * Set when a hook or an error lands inside the current phase, so its end line can report the
+       * failure. Reset at each phase start.
+       */
+      phaseFailed: false,
+    }
 
     function getMessage(message: string): string {
       return formatMessage(message, logLevel)
     }
 
-    // Registers a handler that logs a fixed message, skipped at silent level.
-    function onStep<E extends keyof KubbHooks>(hook: E, message: string): void {
-      context.hook(hook, () => {
-        if (logLevel <= logLevelMap.silent) {
-          return
-        }
-        console.log(getMessage(message))
-      })
+    function startPhase(message: string) {
+      state.phaseFailed = false
+
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+      console.log(getMessage(message))
+    }
+
+    function endPhase({ success, failure }: { success: string; failure: string }) {
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+      console.log(getMessage(state.phaseFailed ? `✗ ${failure}` : `✓ ${success}`))
     }
 
     context.hook('kubb:info', ({ message, info }) => {
@@ -58,6 +76,8 @@ export const plainLogger = {
     })
 
     context.hook('kubb:error', ({ error }) => {
+      state.phaseFailed = true
+
       const text = getMessage(['✗', error.message].join(' '))
 
       console.log(text)
@@ -142,14 +162,15 @@ export const plainLogger = {
       console.log(getMessage(`✗ ${error.message}`))
     })
 
-    context.hook('kubb:lifecycle:start', ({ version }) => {
-      console.log(`Kubb CLI v${version}`)
-    })
-
     context.hook('kubb:generation:start', ({ config }) => {
-      const text = getMessage(['Generation started', getInputPath(config)].filter(Boolean).join(' '))
+      state.configName = config.name ?? ''
+      state.phaseFailed = false
 
-      console.log(text)
+      if (logLevel <= logLevelMap.silent) {
+        return
+      }
+
+      console.log(getMessage(['Generation started', config.name ? `for ${config.name}` : undefined, getInputPath(config)].filter(Boolean).join(' ')))
     })
 
     context.hook('kubb:plugin:start', ({ plugin }) => {
@@ -167,7 +188,7 @@ export const plainLogger = {
       }
 
       const durationStr = formatMs(duration)
-      const text = getMessage(success ? `${plugin.name} completed in ${durationStr}` : `${plugin.name} failed in ${durationStr}`)
+      const text = getMessage(success ? `✓ ${plugin.name} completed in ${durationStr}` : `✗ ${plugin.name} failed in ${durationStr}`)
 
       console.log(text)
     })
@@ -177,7 +198,7 @@ export const plainLogger = {
         return
       }
 
-      const text = getMessage(`Writing ${files.length} files`)
+      const text = getMessage(`Writing ${pluralize(files.length, 'file')}`)
 
       console.log(text)
     })
@@ -192,28 +213,22 @@ export const plainLogger = {
       }
     })
 
-    context.hook('kubb:files:processing:end', () => {
+    context.hook('kubb:files:processing:end', ({ files }) => {
       if (logLevel <= logLevelMap.silent) {
         return
       }
 
-      const text = getMessage('Files written successfully')
+      const text = getMessage(`✓ Wrote ${pluralize(files.length, 'file')}`)
 
       console.log(text)
     })
 
-    context.hook('kubb:generation:end', ({ config }) => {
-      const text = getMessage(config.name ? `Generation completed for ${config.name}` : 'Generation completed')
-
-      console.log(text)
-    })
-
-    onStep('kubb:format:start', 'Format started')
-    onStep('kubb:format:end', 'Format completed')
-    onStep('kubb:lint:start', 'Lint started')
-    onStep('kubb:lint:end', 'Lint completed')
-    onStep('kubb:hooks:start', 'Hooks started')
-    onStep('kubb:hooks:end', 'Hooks completed')
+    context.hook('kubb:format:start', () => startPhase('Format started'))
+    context.hook('kubb:format:end', () => endPhase({ success: 'Format completed', failure: 'Format failed' }))
+    context.hook('kubb:lint:start', () => startPhase('Lint started'))
+    context.hook('kubb:lint:end', () => endPhase({ success: 'Lint completed', failure: 'Lint failed' }))
+    context.hook('kubb:hooks:start', () => startPhase('Hooks started'))
+    context.hook('kubb:hooks:end', () => endPhase({ success: 'Hooks completed', failure: 'Hooks failed' }))
 
     context.hook('kubb:hook:start', ({ id, command, name, args }) => {
       if (logLevel <= logLevelMap.silent) {
@@ -229,6 +244,10 @@ export const plainLogger = {
     })
 
     context.hook('kubb:hook:end', ({ id, command, name, args, success, error, stdout, stderr }) => {
+      if (!success) {
+        state.phaseFailed = true
+      }
+
       if (logLevel <= logLevelMap.silent) {
         return
       }
@@ -240,12 +259,36 @@ export const plainLogger = {
 
       if (success) {
         console.log(getMessage(`✓ Hook ${name ?? commandWithArgs} completed${durationStr}`))
-      } else {
-        if (stdout) console.log(stdout)
-        if (stderr) console.error(stderr)
-        const reason = error?.message ? ` (${error.message})` : ''
-        console.log(getMessage(`✗ Hook ${name ?? commandWithArgs} failed${durationStr}${reason}`))
+        return
       }
+
+      if (stdout) console.log(stdout)
+      if (stderr) console.error(stderr)
+      const reason = error?.message ? ` (${error.message})` : ''
+      console.log(getMessage(`✗ Hook ${name ?? commandWithArgs} failed${durationStr}${reason}`))
     })
+
+    return {
+      /**
+       * Prints the summary under the config's phases, then the line that closes its group.
+       */
+      renderSummary(lines, { title, status }) {
+        if (logLevel <= logLevelMap.silent) {
+          return
+        }
+
+        console.log('')
+        if (title) {
+          console.log(title)
+        }
+        for (const line of lines) {
+          console.log(line)
+        }
+
+        const name = state.configName ? ` for ${state.configName}` : ''
+        console.log(getMessage(status === 'failed' ? `✗ Generation failed${name}` : `✓ Generation succeeded${name}`))
+        state.configName = ''
+      },
+    }
   },
 } satisfies Logger
