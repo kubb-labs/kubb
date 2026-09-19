@@ -54,6 +54,12 @@ npx kubb generate
 
 See the [documentation](https://kubb.dev) for detailed usage and advanced features.
 
+## Kubb Studio
+
+[Kubb Studio](https://kubb.studio) is the visual companion for Kubb. Configure, run, and inspect generations from the browser while Kubb keeps running in your project or on an agent you control.
+
+Try the shared sandbox in Studio, [connect a local project](https://kubb.dev/docs/5.x/guide/integrations/studio), or [publish reviewable snapshots from CI](https://github.com/kubb-labs/action). Kubb remains MIT-licensed and works without Studio.
+
 ## Features
 
 - Generate TypeScript types, type-safe clients, [TanStack Query](https://github.com/TanStack/query) and [SWR](https://github.com/vercel/swr) hooks, [Zod](https://github.com/colinhacks/zod) validators, [Faker](https://github.com/faker-js/faker) mocks, and [MSW](https://github.com/mswjs/msw) handlers from one schema.
