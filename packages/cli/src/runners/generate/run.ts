@@ -382,6 +382,12 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
     await hooks.callHook('kubb:lifecycle:end')
 
+    // Watch mode prints a tip after each successful build. Regular generate commands need to
+    // print one explicitly after the lifecycle group has closed so it stays outside the group.
+    if (!watch && !anyFailed) {
+      logTip()
+    }
+
     if (anyFailed) {
       process.exit(1)
     }
