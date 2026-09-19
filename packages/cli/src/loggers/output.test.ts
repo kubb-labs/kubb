@@ -78,7 +78,7 @@ describe('rich output', () => {
   })
 
   // A tip sits outside every group, so it is written without clack's gutter bar.
-  it('renders a highlighted rotating tip without a gutter bar', () => {
+  it('renders a highlighted random tip without a gutter bar', () => {
     using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(true)
     using log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
@@ -87,5 +87,4 @@ describe('rich output', () => {
     expect(log).toHaveBeenCalledWith(expect.stringContaining('Tip'))
     expect(prompts.log.message).not.toHaveBeenCalled()
   })
-
 })
