@@ -6,7 +6,7 @@ import { createCliReporter, logLevel as logLevelMap } from '@kubb/core'
 import type { StudioConnectedContext } from '@kubb/studio'
 import { getAgentName } from '../agent.ts'
 import { canUseTTY } from '../utils/env.ts'
-import type { LoggerContext, LoggerOptions } from './defineLogger.ts'
+import type { LoggerContext, LoggerHandle, LoggerOptions } from './defineLogger.ts'
 import { clackLogger } from './clackLogger.ts'
 import { plainLogger } from './plainLogger.ts'
 
@@ -272,7 +272,8 @@ export function installReporter(context: LoggerContext, reporter: Reporter, ctx:
  * `cli` reporter (live logger and summary) is skipped whenever `json` is among the reporters, even
  * if `cli` is also listed.
  */
-async function setupReporters(context: LoggerContext, { logLevel, reporters }: LoggerOptions & { reporters: ReadonlyArray<Reporter> }): Promise<void> {
+async function setupReporters(context: LoggerContext, { logLevel, reporters }: LoggerOptions & { reporters: ReadonlyArray<Reporter> }): Promise<LoggerHandle | undefined> {
+  let cliHandle: LoggerHandle | undefined
   const hasJson = reporters.some((reporter) => reporter.name === 'json')
   const ctx: ReporterContext = { logLevel }
 
@@ -289,11 +290,14 @@ async function setupReporters(context: LoggerContext, { logLevel, reporters }: L
     // Spinners and cursor-movement escapes are hard for an AI coding agent to parse, even over a pseudo-TTY.
     const logger = canUseTTY() && !getAgentName() ? clackLogger : plainLogger
     const handle = await logger.install(context, { logLevel })
+    cliHandle = handle
 
     // The summary belongs inside the group the logger opened for this config, so hand the writing
     // to the logger rather than letting the reporter print alongside it.
     installReporter(context, createCliReporter({ render: handle?.renderSummary }), ctx)
   }
+
+  return cliHandle
 }
 
 export default setupReporters
