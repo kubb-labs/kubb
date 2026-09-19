@@ -52,6 +52,7 @@ export async function run({ input, version }: ValidateOptions): Promise<void> {
     }
     console.error('❌ Validation failed')
     console.error(toError(error).message)
+    logTip()
 
     process.exit(1)
   }
