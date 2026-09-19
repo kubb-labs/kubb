@@ -2,4 +2,4 @@
 '@kubb/cli': patch
 ---
 
-Show the sponsor tip again after a successful `kubb generate` run.
+Show sponsor tips again for successful `kubb generate` runs and when starting a `kubb studio` session.
