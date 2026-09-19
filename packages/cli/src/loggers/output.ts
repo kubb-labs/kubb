@@ -21,7 +21,6 @@ const SPONSOR_TIPS = [
 
 const SPONSOR_LINKS = ['https://github.com/sponsors/stijnvanhulle', 'https://opencollective.com/kubb', 'https://kubb.dev/sponsors'] as const
 
-
 function nextTip(): string {
   const tip = SPONSOR_TIPS[Math.floor(Math.random() * SPONSOR_TIPS.length)]!
   const link = SPONSOR_LINKS[Math.floor(Math.random() * SPONSOR_LINKS.length)]!
