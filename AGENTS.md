@@ -58,8 +58,7 @@ rtk proxy <cmd>       # Run raw without filtering but still track usage
 
 ## How agents read this repo
 
-`AGENTS.md` is the canonical instruction file. `GEMINI.md` and
-`.github/copilot-instructions.md` symlink to it. Local skills live in `.agents/skills/` (open
+`AGENTS.md` is the canonical instruction file. Local skills live in `.agents/skills/` (open
 `SKILL.md` format, cross-provider). Always-on conventions live in `.claude/rules/`
 (`code-style`, `jsdoc`, `markdown`, `plain-language`, `testing`, `security`, `usa-english`),
 and `.claude/` also holds commands, subagents, output styles, and hooks.
