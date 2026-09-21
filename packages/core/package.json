@@ -85,7 +85,7 @@
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
-    "vue": "^3.5.42"
+    "vue": "^3.5.43"
   },
   "engines": {
     "node": ">=22"

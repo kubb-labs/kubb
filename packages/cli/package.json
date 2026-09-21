@@ -78,7 +78,7 @@
     "jiti": "^2.7.0",
     "tinyexec": "catalog:",
     "unconfig": "^7.5.0",
-    "verkit": "^0.4.0"
+    "verkit": "^0.4.1"
   },
   "devDependencies": {
     "@internals/shared": "workspace:*",
