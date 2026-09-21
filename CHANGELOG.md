@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.3.11 — Sep 21, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Generate `Blob` for multipart binary properties after upgrading an OpenAPI 3.0 document to 3.1. ([#4083](https://github.com/kubb-labs/kubb/pull/4083), [`95d93a7`](https://github.com/kubb-labs/kubb/commit/95d93a70c8021bc6aa912be412a3e21b37890bf0))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.10 — Sep 19, 2026
 
 ### @kubb/cli
