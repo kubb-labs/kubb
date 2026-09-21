@@ -57,9 +57,13 @@ export type SchemaObject = {
    */
   const?: string | number | boolean | null
   /**
-   * OAS 3.1: media type of the schema content. `'application/octet-stream'` on a `string` schema maps to `blob`.
+   * OAS 3.1: media type of the schema content. Raw `'application/octet-stream'` content maps to `blob`.
    */
   contentMediaType?: string
+  /**
+   * OAS 3.1: encoding applied to string content, such as `base64`.
+   */
+  contentEncoding?: string
   $ref?: string
   /**
    * OAS 3.1: positional tuple items, replacing the multi-item `items` array from OAS 3.0.

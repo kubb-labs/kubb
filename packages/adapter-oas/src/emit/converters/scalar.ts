@@ -233,8 +233,7 @@ export function convertBoolean({ schema, name, nullable, defaultValue }: Convert
 }
 
 /**
- * Converts a binary string schema (`type: 'string'`, `contentMediaType: 'application/octet-stream'`)
- * into a `blob` node.
+ * Converts a raw binary schema into a `blob` node.
  */
 export function convertBinary({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
   return createNode({ schema, name, nullable, defaultValue }, { type: 'blob', primitive: 'string' })

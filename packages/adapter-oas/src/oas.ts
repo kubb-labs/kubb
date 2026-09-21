@@ -34,10 +34,12 @@ export function isDiscriminator(obj?: unknown): obj is SchemaObject & { discrimi
 }
 
 /**
- * Returns `true` when a schema is a binary payload: an octet-stream string body.
+ * Returns `true` when a schema is a raw binary payload.
  */
 export function isBinary(schema: SchemaObject): boolean {
-  return schema.type === 'string' && schema.contentMediaType === 'application/octet-stream'
+  return (
+    schema.contentMediaType === 'application/octet-stream' && schema.contentEncoding === undefined && (schema.type === undefined || schema.type === 'string')
+  )
 }
 
 /**
