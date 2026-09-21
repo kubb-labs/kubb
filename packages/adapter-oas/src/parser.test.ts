@@ -597,6 +597,39 @@ describe('buildAst', () => {
       expect(uploadFile?.requestBody?.content?.[0]?.schema?.type).toBe('blob')
     })
 
+    it('keeps a binary multipart property upgraded to 3.1', async () => {
+      const oas = await parseDocument({
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/upload': {
+            post: {
+              operationId: 'upload',
+              requestBody: {
+                required: true,
+                content: {
+                  'multipart/form-data': {
+                    schema: {
+                      type: 'object',
+                      required: ['file'],
+                      properties: { file: { type: 'string', format: 'binary' } },
+                    },
+                  },
+                },
+              },
+              responses: { '204': { description: 'Uploaded' } },
+            },
+          },
+        },
+      })
+      const root = parseOas(oas)
+      const upload = root.operations.find((operation) => operation.operationId === 'upload')
+      const body = ast.narrowSchema(upload?.requestBody?.content?.[0]?.schema, 'object')
+      const file = body?.properties.find((property) => property.name === 'file')
+
+      expect(file?.schema.type).toBe('blob')
+    })
+
     it('keeps a binary response for an application/octet-stream body upgraded to 3.1', async () => {
       const oas = await parseDocument(binaryResponseDocument)
       const root = parseOas(oas)
@@ -853,12 +886,28 @@ describe('parseSchema binary', () => {
 describe('parseSchema contentMediaType (OAS 3.1)', () => {
   const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
+  it('maps untyped application/octet-stream content to blob', () => {
+    const node = parseSchema(ctx, {
+      schema: { contentMediaType: 'application/octet-stream' },
+    })
+
+    expect(node.type).toBe('blob')
+  })
+
   it('maps string with contentMediaType application/octet-stream to blob', () => {
     const node = parseSchema(ctx, {
       schema: { type: 'string', contentMediaType: 'application/octet-stream' },
     })
 
     expect(node.type).toBe('blob')
+  })
+
+  it('does not map encoded application/octet-stream content to blob', () => {
+    const node = parseSchema(ctx, {
+      schema: { type: 'string', contentMediaType: 'application/octet-stream', contentEncoding: 'base64' },
+    })
+
+    expect(node.type).toBe('string')
   })
 
   it('leaves string with other contentMediaType as string', () => {
