@@ -59,12 +59,26 @@ rtk proxy <cmd>       # Run raw without filtering but still track usage
 ## How agents read this repo
 
 `AGENTS.md` is the canonical instruction file. `CLAUDE.md`, `GEMINI.md`, and
-`.github/copilot-instructions.md` symlink to it. Skills live in `.agents/skills/` (open
+`.github/copilot-instructions.md` symlink to it. Local skills live in `.agents/skills/` (open
 `SKILL.md` format, cross-provider). Always-on conventions live in `.claude/rules/`
 (`code-style`, `jsdoc`, `markdown`, `plain-language`, `testing`, `security`, `usa-english`),
-and `.claude/` also holds commands, subagents, output styles, and hooks. `toolkit:changelog`,
-`toolkit:deslop`, `toolkit:documentation`, `toolkit:humanizer`, `toolkit:jsdoc`, and `toolkit:pr`
-come from the `toolkit` plugin, not a local skill file.
+and `.claude/` also holds commands, subagents, output styles, and hooks.
+
+Shared skills come from [stijnvanhulle/agents](https://github.com/stijnvanhulle/agents).
+Install the `agents` plugin (`agents@stijnvanhulle`) for Claude Code, Cursor, and Codex.
+
+- [ask](https://github.com/stijnvanhulle/agents/blob/main/.agents/skills/ask/SKILL.md) - Ask a blocking multiple-choice question with the client's native picker, or a lettered list when none exists.
+- [backlog](https://github.com/stijnvanhulle/agents/blob/main/.agents/skills/backlog/SKILL.md) - Triage recent GitHub, ClickUp, or Jira issues, then implement confirmed ones in isolated worktrees.
+- [branch](https://github.com/stijnvanhulle/agents/blob/main/.agents/skills/branch/SKILL.md) - Name and create a Conventional Commit branch from a GitHub, ClickUp, or Jira issue.
+- [changelog](https://github.com/stijnvanhulle/agents/blob/main/.agents/skills/changelog/SKILL.md) - Turn commit history and changesets into user-facing release notes.
+- [changeset](https://github.com/stijnvanhulle/agents/blob/main/.agents/skills/changeset/SKILL.md) - Write or review a release-note changeset with the correct bump.
+- [conventions](https://github.com/stijnvanhulle/agents/blob/main/.agents/skills/conventions/SKILL.md) - Apply the shared TypeScript, markdown, testing, security, and language rules.
+- [deslop](https://github.com/stijnvanhulle/agents/blob/main/.agents/skills/deslop/SKILL.md) - Audit a diff for over-engineering and AI code/prose tells, then apply only confirmed fixes.
+- [documentation](https://github.com/stijnvanhulle/agents/blob/main/.agents/skills/documentation/SKILL.md) - Write or review developer documentation using the project style and SEO guidance.
+- [humanizer](https://github.com/stijnvanhulle/agents/blob/main/.agents/skills/humanizer/SKILL.md) - Find AI writing tells and apply only confirmed rewrites.
+- [issue](https://github.com/stijnvanhulle/agents/blob/main/.agents/skills/issue/SKILL.md) - Create or triage a GitHub or Jira issue with its type, labels, and fields filled.
+- [jsdoc](https://github.com/stijnvanhulle/agents/blob/main/.agents/skills/jsdoc/SKILL.md) - Apply the TypeScript JSDoc format, examples, tags, and ordering.
+- [pr](https://github.com/stijnvanhulle/agents/blob/main/.agents/skills/pr/SKILL.md) - Prepare, open, update, or assess a pull request, including checks, changesets, title, template, and CI.
 
 <skills>
 

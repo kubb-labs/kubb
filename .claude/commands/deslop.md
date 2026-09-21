@@ -16,5 +16,5 @@ Remove AI-generated code slop from the changes on this branch.
    weaken types, lint rules, or tests.
 4. Run `pnpm format && pnpm lint:fix` and report a 1-3 sentence summary.
 
-Follow the `toolkit:deslop` skill for the full checklist. For prose and user-facing markdown, use the
-`toolkit:humanizer` skill instead.
+Follow the `deslop` skill for the full checklist. For prose and user-facing markdown, use the
+`humanizer` skill instead.

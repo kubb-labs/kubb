@@ -13,5 +13,5 @@ Create a Changeset for the changes above.
 3. Add a markdown file under `.changeset/` with the correct frontmatter and a concise,
    user-facing summary of what changed and why.
 
-For wording and release-note conventions, follow the `toolkit:changelog` skill. For the surrounding
-PR checklist, follow the `toolkit:pr` skill.
+For wording and release-note conventions, follow the `changelog` skill. For the surrounding
+PR checklist, follow the `pr` skill.
