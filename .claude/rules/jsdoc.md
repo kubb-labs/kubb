@@ -6,7 +6,7 @@ paths:
 
 # JSDoc conventions
 
-Minimal, high-quality JSDoc. For the full format guide and examples, use the `jsdoc` skill.
+Minimal, high-quality JSDoc. For the full format guide and examples, use the `toolkit:jsdoc` skill.
 
 - Document what a member does, not its TypeScript type
 - Always use multi-line `/** ... */` blocks, never single-line
@@ -19,4 +19,4 @@ Minimal, high-quality JSDoc. For the full format guide and examples, use the `js
 
 ## Voice
 
-- Follow the house voice (`humanizer` skill)
+- Follow the house voice (`toolkit:humanizer` skill)

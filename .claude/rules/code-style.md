@@ -8,7 +8,7 @@ paths:
 # Coding style
 
 Conventions for code in this repo. Repo setup and tooling are in AGENTS.md. For release
-workflows, see the `changelog` and `pr` skills. For test authoring and CI, see the `testing`
+workflows, see the `toolkit:changelog` and `toolkit:pr` skills. For test authoring and CI, see the `testing`
 rule.
 
 ## Style
@@ -22,7 +22,7 @@ rule.
 
 - Default to no comments
 - Add one only when the WHY is non-obvious
-- Follow the house voice (`humanizer` skill)
+- Follow the house voice (`toolkit:humanizer` skill)
 
 ## Naming
 
