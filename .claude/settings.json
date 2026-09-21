@@ -85,5 +85,16 @@
         ]
       }
     ]
+  },
+  "extraKnownMarketplaces": {
+    "stijnvanhulle": {
+      "source": {
+        "source": "github",
+        "repo": "stijnvanhulle/agents"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "agents@stijnvanhulle": true
   }
 }

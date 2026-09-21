@@ -1,5 +1,5 @@
 <!--
-Agents: follow the `pr` skill, or run /pr.
+Agents: follow the `pr` skill, or run /create-pr.
 Fill every section below, and tick a box only when you actually ran or verified it.
 -->
 
