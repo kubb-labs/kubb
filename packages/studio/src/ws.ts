@@ -2,9 +2,10 @@ import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { isAbsolute, relative, resolve } from 'node:path'
 import { getElapsedMs } from '@internals/utils'
-import { Diagnostics, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
+import { Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
 import WebSocket from 'ws'
 import type { GenerationEvent, GenerationEventPayloads, GenerationEventType } from './protocol/index.ts'
+import type { SourceFiles } from './generations.ts'
 import { toPackageName } from './resolveConfig.ts'
 
 type WebSocketOptions = WebSocket.ClientOptions
@@ -19,13 +20,6 @@ const require = createRequire(import.meta.url)
 
 function relativeStoragePath(root: string, filePath: string): string {
   return (isAbsolute(filePath) ? relative(resolve(root), filePath) : filePath).replaceAll('\\', '/')
-}
-
-/**
- * Inverse of {@link relativeStoragePath}: rebuilds the storage key a relative path came from.
- */
-export function absoluteStoragePath(root: string, relativePath: string): string {
-  return resolve(root, relativePath)
 }
 
 type PackageJSON = {
@@ -84,16 +78,17 @@ export function createWebsocket(url: string, options: WebSocketOptions): WebSock
   return ws
 }
 
-export type GenerationState = {
-  storage: Storage
-  root: string
-  paths: Set<string>
+/**
+ * What `kubb:generation:end` reports: the files the run produced, still in its own storage.
+ */
+export type GenerationEnd = {
+  output: SourceFiles
   peerDependencies: Record<string, string>
   missingDependencies: Array<string>
 }
 
 export type GenerationStreamOptions = {
-  onGenerationEnd?: (result: GenerationState) => void
+  onGenerationEnd?: (result: GenerationEnd) => void
 }
 
 /** Forwards selected Kubb lifecycle events to a native Cap'n Web stream. */
@@ -187,13 +182,7 @@ export function createGenerationStream(
     const { peerDependencies, missingDependencies } = await resolvePeerDependencies(config.plugins.map(({ name }) => name))
     const keys = await storage.readKeys()
     const paths = new Set(keys.map((key) => relativeStoragePath(config.root, key)))
-
-    // This hook fires for a failed run too (`status: 'failed'`), so a failed run's output must not
-    // become `#lastGeneration`: the next run would otherwise promote it to `#previousGeneration` and
-    // diff or serve a failed run's files as if they were the session's last real output.
-    if ((status ?? 'success') === 'success') {
-      options.onGenerationEnd?.({ storage, root: config.root, paths, peerDependencies, missingDependencies })
-    }
+    options.onGenerationEnd?.({ output: { storage, root: config.root, paths }, peerDependencies, missingDependencies })
 
     emitEvent('kubb:generation:end', [])
 

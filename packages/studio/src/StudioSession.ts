@@ -2,8 +2,8 @@ import { writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { getErrorMessage, inParallel, read, toError } from '@internals/utils'
-import { type Config, fsStorage, Hookable, type KubbHooks, logLevel as logLevelMap, memoryStorage } from '@kubb/core'
+import { getErrorMessage, read, toError } from '@internals/utils'
+import { cacheStorage, type Config, fsStorage, Hookable, type KubbHooks, logLevel as logLevelMap, memoryStorage } from '@kubb/core'
 import { version as kubbVersion } from '../package.json'
 import { setupHookListener } from './hooks.ts'
 import {
@@ -13,11 +13,11 @@ import {
   type ClientInfo,
   type ConfigFileView,
   type ConnectMessagePayload,
-  type FileChange,
   type GenerateInput,
   type GenerateResult,
   type GenerationEvent,
   type GenerationRun,
+  GENERATION_GONE_MESSAGE,
   MAX_FILES_PER_REQUEST,
   type ReadFilesInput,
   type SaveConfigInput,
@@ -30,58 +30,18 @@ import {
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { applyConfigEdits, readConfig } from './configFile.ts'
 import { generate } from './generate.ts'
-import { agentDefaults } from './constants.ts'
+import { agentDefaults, resolveGenerationLimits } from './constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
 import { createSnapshotPackage } from './snapshotPackage.ts'
 import { RpcTarget } from 'capnweb'
-import { absoluteStoragePath, createGenerationStream, type GenerationState } from './ws.ts'
+import { createGenerationStore, type GenerationStore, listDisk } from './generations.ts'
+import { createGenerationStream, type GenerationEnd } from './ws.ts'
 import { connectWebSocketRpc } from './rpc.ts'
 
 /**
- * How many files are read from storage at once when serving `readFiles` or packing a snapshot.
+ * Past this many files in the output directory, no snapshot of it is taken before a run.
  */
-const FILE_READ_CONCURRENCY = 50
-
-/**
- * A run's file contents keyed by output-relative path.
- */
-type GenerationSnapshot = Map<string, string>
-
-/**
- * Reads every file a run produced back out of its storage.
- */
-async function readSnapshot(generation: GenerationState): Promise<GenerationSnapshot> {
-  const snapshot: GenerationSnapshot = new Map()
-  await inParallel({
-    items: [...generation.paths],
-    limit: FILE_READ_CONCURRENCY,
-    run: async (path) => {
-      const content = await generation.storage.readItem(absoluteStoragePath(generation.root, path))
-      if (content !== null) {
-        snapshot.set(path, content)
-      }
-    },
-  })
-  return snapshot
-}
-
-/**
- * How each path differs between two runs. Paths with identical content are left out.
- */
-function diffSnapshots(previous: GenerationSnapshot, current: GenerationSnapshot): Record<string, FileChange> {
-  const changes: Record<string, FileChange> = {}
-  for (const [path, content] of current) {
-    if (!previous.has(path)) {
-      changes[path] = 'added'
-      continue
-    }
-    if (previous.get(path) !== content) changes[path] = 'changed'
-  }
-  for (const path of previous.keys()) {
-    if (!current.has(path)) changes[path] = 'removed'
-  }
-  return changes
-}
+const DISK_SNAPSHOT_MAX_FILES = 10_000
 
 class GenerationRunTarget extends RpcTarget implements GenerationRun {
   constructor(
@@ -299,16 +259,10 @@ export class StudioSession implements AgentApi {
   // events interleave with no way for Studio to tell the two runs apart.
   #isGenerating = false
   #heartbeatTimer: ReturnType<typeof setTimeout> | undefined
-  // The most recent generation's live storage, kept so `readFiles` and `snapshot` can read file
-  // content on demand instead of Studio round tripping it back over RPC, and
-  // instead of this holding the whole run's output in memory. `paths` is the whitelist a request
-  // is checked against, so a caller can only ever read what this run actually produced. Set as
-  // soon as `kubb:generation:end` fires, undefined again if a run fails before that.
-  #lastGeneration: GenerationState | undefined
-  // The run before `#lastGeneration`, read into memory right before the next run starts, so a
-  // written-to-disk run can still be diffed after the new one overwrites its files. It backs both
-  // `GenerateResult.changes` and `readFiles({ revision: 'previous' })`.
-  #previousGeneration: GenerationSnapshot | undefined
+  // Set by `kubb:generation:end`, filed into `#generations` once the job finishes.
+  #lastGeneration: GenerationEnd | undefined
+  #store: GenerationStore | undefined
+  readonly #limits = resolveGenerationLimits()
   /**
    * Resolves when Studio calls {@link StudioSession.connect}. `studio:ready` waits on this so the
    * host does not queue jobs before the agent session is registered.
@@ -326,6 +280,19 @@ export class StudioSession implements AgentApi {
    */
   get #isSandbox(): boolean {
     return this.#session?.isSandbox === true
+  }
+
+  /**
+   * Kept in the project's cache directory, so it survives a restart, except on a sandbox: its pool
+   * sessions run every tenant's jobs, so it keeps them in memory. Looked up by job id only.
+   */
+  get #generations(): GenerationStore {
+    this.#store ??= createGenerationStore({
+      storage: this.#isSandbox ? memoryStorage() : cacheStorage({ root: this.#options.root }),
+      maxCount: this.#limits.maxCount,
+      maxMb: this.#limits.maxMb,
+    })
+    return this.#store
   }
 
   get #canWrite(): boolean {
@@ -606,12 +573,11 @@ export class StudioSession implements AgentApi {
       // The session's own emitter carries the run: the host's logger is already on it from
       // `connect`, and these two come off again below, so one run's listeners never see the next.
       // Cleared up front, filled the moment `kubb:generation:end` fires.
-      // Read before `generate` runs, since `fsStorage` overwrites these files. Kept as soon as it is
-      // read, so a run that fails still leaves the last successful run as the one to compare with.
-      if (this.#lastGeneration) {
-        this.#previousGeneration = await readSnapshot(this.#lastGeneration)
-      }
       this.#lastGeneration = undefined
+      const diskFiles = this.#hasProjectOnDisk ? await listDisk({ root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES }) : undefined
+      const disk = diskFiles
+        ? await this.#generations.keep({ jobId: data.jobId, source: 'disk', files: diskFiles, maxSetMb: this.#limits.maxSnapshotMb })
+        : undefined
       const detach = [setupHookListener(this.#hooks, root, controller.signal)]
 
       try {
@@ -628,6 +594,9 @@ export class StudioSession implements AgentApi {
           hooks: this.#hooks,
           signal: controller.signal,
         })
+      } catch (error) {
+        await this.#generations.drop(data.jobId)
+        throw error
       } finally {
         for (const remove of detach) remove()
       }
@@ -639,14 +608,25 @@ export class StudioSession implements AgentApi {
 
       // The generate call above reassigns the field, but control flow analysis still sees the
       // `= undefined` from this method and narrows it to `never`.
-      const generation = this.#lastGeneration as GenerationState | undefined
-      const files = [...(generation?.paths ?? [])]
-      const previous = this.#previousGeneration
-      if (!generation || !previous) {
-        return { status: 'success', files, fileCount: files.length }
+      const generation = this.#lastGeneration as GenerationEnd | undefined
+      const output = generation
+        ? await this.#generations.keep({ jobId: data.jobId, source: 'output', files: generation.output, maxSetMb: this.#limits.maxMb })
+        : undefined
+      if (generation && output) {
+        if (!output.paths.length && Object.keys(output.hashes).length) {
+          await this.#warn('Kept only the hashes of this generation: its output is too large to keep')
+        }
+        const { peerDependencies, missingDependencies } = generation
+        await this.#generations.add({ jobId: data.jobId, output, disk, peerDependencies, missingDependencies })
       }
-
-      return { status: 'success', files, fileCount: files.length, changes: diffSnapshots(previous, await readSnapshot(generation)) }
+      const files = [...(generation?.output.paths ?? [])]
+      return {
+        status: 'success',
+        files,
+        fileCount: files.length,
+        hashes: output?.hashes ?? {},
+        disk: disk ? { hashes: disk.hashes } : undefined,
+      }
     } finally {
       this.#isGenerating = false
     }
@@ -719,7 +699,7 @@ export class StudioSession implements AgentApi {
       return this.#refuse('Ignored snapshot: the message was missing required fields', 'The request was missing required fields')
     }
 
-    const generation = this.#lastGeneration
+    const generation = await this.#generations.latest()
 
     if (!generation) {
       return this.#refuse('Ignored snapshot: no prior generation to pack', 'No prior generation exists to pack, run a generation first')
@@ -733,17 +713,7 @@ export class StudioSession implements AgentApi {
     }
 
     try {
-      const files: Record<string, string> = {}
-      await inParallel({
-        items: [...generation.paths],
-        limit: FILE_READ_CONCURRENCY,
-        run: async (relativePath) => {
-          const content = await generation.storage.readItem(absoluteStoragePath(generation.root, relativePath))
-          if (content !== null) {
-            files[relativePath] = content
-          }
-        },
-      })
+      const files = await this.#generations.read({ generation, source: 'output', paths: generation.output.paths })
 
       const { bytes, integrity } = await createSnapshotPackage(files, { name, version, peerDependencies: generation.peerDependencies })
 
@@ -785,6 +755,14 @@ export class StudioSession implements AgentApi {
     }
   }
 
+  /**
+   * An agent with a project on disk can show a run against what its output directory held before.
+   * A sandbox agent has no project.
+   */
+  get #hasProjectOnDisk(): boolean {
+    return !this.#isSandbox && this.#canRead
+  }
+
   async readFiles(data: ReadFilesInput): Promise<{ files: Record<string, string> }> {
     const command = 'readFiles'
     await this.#hooks.callHook('studio:command:start', { command })
@@ -812,41 +790,24 @@ export class StudioSession implements AgentApi {
       )
     }
 
-    if (data.revision === 'previous') {
-      const previous = this.#previousGeneration
-
-      if (!previous) {
-        return this.#refuse('Ignored files: no previous generation to read from', 'No previous generation to compare against')
-      }
-
-      const files = Object.fromEntries(paths.filter((path) => previous.has(path)).map((path) => [path, previous.get(path) as string]))
-      await this.#hooks.callHook('studio:command:end', {
-        command,
-        info: `read ${Object.keys(files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'} from the previous run`,
-      })
-      return { files }
+    if (typeof data.jobId !== 'string' || !data.jobId) {
+      return this.#refuse('Ignored files: the message named no job', 'The request named no generation job')
     }
 
-    const generation = this.#lastGeneration
+    const generation = await this.#generations.get(data.jobId)
 
     if (!generation) {
-      return this.#refuse('Ignored files: no prior generation to read from', 'No prior generation to read from, run a generation first')
+      return this.#refuse(`Ignored files: job ${data.jobId} is not kept on this agent`, GENERATION_GONE_MESSAGE)
     }
 
-    // Checked against the paths this run actually produced before touching storage, so a caller
-    // can only ever read what that run produced, never an arbitrary path on disk.
-    const requested = paths.filter((path) => generation.paths.has(path))
-    const files: Record<string, string> = {}
-    await inParallel({
-      items: requested,
-      limit: FILE_READ_CONCURRENCY,
-      run: async (path) => {
-        const content = await generation.storage.readItem(absoluteStoragePath(generation.root, path))
-        if (content !== null) {
-          files[path] = content
-        }
-      },
-    })
+    const source = data.source === 'disk' ? 'disk' : 'output'
+
+    if (!generation[source]) {
+      return this.#refuse('Ignored files: that job has no snapshot of the files on disk', 'This agent kept no snapshot of the files on disk for that job')
+    }
+
+    // Only paths the set holds are read, never an arbitrary path.
+    const files = await this.#generations.read({ generation, source, paths })
 
     await this.#hooks.callHook('studio:command:end', {
       command,

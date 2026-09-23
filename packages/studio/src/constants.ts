@@ -21,4 +21,25 @@ export const agentDefaults = {
   /** How long a heartbeat ping may take before the session is treated as dead. */
   heartbeatTimeoutMs: 10_000,
   poolSize: 1,
+  maxGenerations: 8,
+  maxGenerationsMb: 100,
+  maxSnapshotMb: 50,
 } as const
+
+function positiveNumber(value: string | undefined): number | undefined {
+  const parsed = Number(value)
+  return value && Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
+}
+
+/**
+ * How many generations an agent keeps and how large they may get, read from
+ * `KUBB_AGENT_MAX_GENERATIONS`, `KUBB_AGENT_MAX_GENERATIONS_MB` and `KUBB_AGENT_MAX_SNAPSHOT_MB`.
+ * An unset or invalid value keeps the default.
+ */
+export function resolveGenerationLimits(env: NodeJS.ProcessEnv = process.env): { maxCount: number; maxMb: number; maxSnapshotMb: number } {
+  return {
+    maxCount: Math.max(1, Math.floor(positiveNumber(env.KUBB_AGENT_MAX_GENERATIONS) ?? agentDefaults.maxGenerations)),
+    maxMb: positiveNumber(env.KUBB_AGENT_MAX_GENERATIONS_MB) ?? agentDefaults.maxGenerationsMb,
+    maxSnapshotMb: positiveNumber(env.KUBB_AGENT_MAX_SNAPSHOT_MB) ?? agentDefaults.maxSnapshotMb,
+  }
+}

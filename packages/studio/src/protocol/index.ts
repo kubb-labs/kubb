@@ -271,18 +271,24 @@ export type GenerationEvent = {
 export type GenerateInput = { jobId: string; config: JSONKubbConfig }
 
 /**
- * How a file differs from the session's previous successful run.
+ * What a finished run produced.
  */
-export type FileChange = 'added' | 'changed' | 'removed'
-
-/**
- * What a finished run produced. `files` holds paths relative to the output directory.
- *
- * `changes` maps each path that differs from the session's previous successful run to how it
- * changed, including paths that run produced and this one did not (`removed`). Unchanged files are
- * left out. It is absent on a session's first run, since there is nothing to compare against.
- */
-export type GenerateResult = { status: 'success' | 'failed'; files: Array<string>; fileCount: number; changes?: Record<string, FileChange> }
+export type GenerateResult = {
+  status: 'success' | 'failed'
+  /**
+   * Paths of the generated files, relative to the output directory.
+   */
+  files: Array<string>
+  fileCount: number
+  /**
+   * Content fingerprint per file in `files`, to tell changed files apart without reading them.
+   */
+  hashes: Record<string, string>
+  /**
+   * Fingerprints of the output directory on disk before the run, for an agent with a project on disk.
+   */
+  disk?: { hashes: Record<string, string> }
+}
 
 /**
  * Asks the agent to apply a batch of edits to the config file on disk.
@@ -296,14 +302,34 @@ export type SaveConfigInput = { edits: Array<ConfigEdit> }
 export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean; file?: ConfigFileView }
 
 /**
- * Asks the agent to read generated files back. Capped at {@link MAX_FILES_PER_REQUEST} paths, all
- * of which must sit inside the output directory.
- *
- * `revision` picks which run to read from: `current` (the default) is the latest run, `previous`
- * is the run before it, as it stood right before the latest run started. Reading `previous` is how
- * Studio gets the old side of a diff for the paths `GenerateResult.changes` reported.
+ * What a file read returns for a job: the files that job generated (`output`), or what the output
+ * directory held on disk before that job ran (`disk`, only on an agent with a project on disk).
  */
-export type ReadFilesInput = { paths: Array<string>; revision?: 'current' | 'previous' }
+export type FileSource = 'output' | 'disk'
+
+/**
+ * Asks the agent to read files of one generation job back.
+ */
+export type ReadFilesInput = {
+  /**
+   * The job whose files to read, the only lookup key, so the caller decides whose jobs a reader may
+   * see. A job the agent no longer keeps fails with {@link GENERATION_GONE_MESSAGE}.
+   */
+  jobId: string
+  /**
+   * At most {@link MAX_FILES_PER_REQUEST} paths, each checked against what the job's set holds.
+   */
+  paths: Array<string>
+  /**
+   * Which of the job's sets to read, `output` when left out.
+   */
+  source?: FileSource
+}
+
+/**
+ * The error a file read fails with once the agent no longer keeps the job's files.
+ */
+export const GENERATION_GONE_MESSAGE = 'The files of this generation are no longer kept on the agent, run the generation again'
 
 /**
  * Describes the package to pack and where to PUT it. `uploadPath` is resolved against the Studio
