@@ -1,5 +1,24 @@
 # Changelog
 
+## v5.3.12 — Sep 23, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Report which files a Studio run added, changed, or removed, and serve the previous run's contents so Studio can show a diff.
+  
+  - `GenerateResult.changes` maps each path that differs from the session's previous successful run to `added`, `changed`, or `removed`. Unchanged files are left out, and the field is absent on a session's first run.
+  - `readFiles` takes `revision: 'previous'` to read the run before the latest one, including files the latest run removed. The previous run is read into memory before the next run starts, so a session that writes to disk can still be diffed after its files are overwritten.
+  - A failed run leaves the last successful run as the one to compare against.
+  - `FileChange` is exported from `@kubb/studio`. ([#4086](https://github.com/kubb-labs/kubb/pull/4086), [`300186d`](https://github.com/kubb-labs/kubb/commit/300186d94395921012334877c291e8065dd591ef))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.11 — Sep 21, 2026
 
 ### @kubb/adapter-oas
