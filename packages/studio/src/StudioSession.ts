@@ -35,7 +35,7 @@ import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
 import { createSnapshotPackage } from './snapshotPackage.ts'
 import { RpcTarget } from 'capnweb'
 import { captureDisk, copyToMemory, GenerationHistory, readFileSet } from './generations.ts'
-import { createGenerationStream, type GenerationState } from './ws.ts'
+import { createGenerationStream, type GenerationEnd, type GenerationState } from './ws.ts'
 import { connectWebSocketRpc } from './rpc.ts'
 
 /**
@@ -274,12 +274,11 @@ export class StudioSession implements AgentApi {
   #heartbeatTimer: ReturnType<typeof setTimeout> | undefined
   // The generation the running job produced, set the moment `kubb:generation:end` fires and filed
   // into `#generations` under its job id once the job finishes.
-  #lastGeneration: GenerationState | undefined
+  #lastGeneration: GenerationEnd | undefined
   // Finished generations by job id, kept so `readFiles` and `snapshot` can read file content on
   // demand instead of Studio round tripping it over RPC. Lookups are by job id only: Studio checks
   // who may read which job, so no tenant reaches another's output. See `GenerationHistory`.
   #generations = new GenerationHistory<GenerationState>({ maxCount: MAX_KEPT_GENERATIONS, maxBytes: KEPT_GENERATIONS_MAX_BYTES })
-  #latestJobId: string | undefined
   /**
    * Resolves when Studio calls {@link StudioSession.connect}. `studio:ready` waits on this so the
    * host does not queue jobs before the agent session is registered.
@@ -615,11 +614,10 @@ export class StudioSession implements AgentApi {
 
       // The generate call above reassigns the field, but control flow analysis still sees the
       // `= undefined` from this method and narrows it to `never`.
-      const generation = this.#lastGeneration as GenerationState | undefined
+      const generation = this.#lastGeneration as GenerationEnd | undefined
       if (generation) {
         // A run written to disk stays readable there until the next run, which copies it first.
         this.#generations.add(data.jobId, { ...generation, output: { ...generation.output, inMemory: !this.#canWrite }, disk })
-        this.#latestJobId = data.jobId
       }
       const files = [...(generation?.output.paths ?? [])]
       return {
@@ -771,7 +769,7 @@ export class StudioSession implements AgentApi {
    * hashes only when it is too large.
    */
   async #keepLatestInMemory(): Promise<void> {
-    const jobId = this.#latestJobId
+    const jobId = this.#generations.latestJobId
     const latest = jobId ? this.#generations.get(jobId) : undefined
     if (!jobId || !latest || latest.output.inMemory) return
 

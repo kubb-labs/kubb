@@ -91,8 +91,14 @@ export type GenerationState = {
   missingDependencies: Array<string>
 }
 
+/**
+ * What `kubb:generation:end` reports. The session decides whether `output` lives in memory, since
+ * only it knows whether the run wrote to disk.
+ */
+export type GenerationEnd = Omit<GenerationState, 'output' | 'disk'> & { output: Omit<FileSet, 'inMemory'> }
+
 export type GenerationStreamOptions = {
-  onGenerationEnd?: (result: GenerationState) => void
+  onGenerationEnd?: (result: GenerationEnd) => void
 }
 
 /** Forwards selected Kubb lifecycle events to a native Cap'n Web stream. */
@@ -187,9 +193,7 @@ export function createGenerationStream(
     const keys = await storage.readKeys()
     const paths = new Set(keys.map((key) => relativeStoragePath(config.root, key)))
     const { hashes, bytes } = await describeFiles(storage, config.root, paths)
-    const output: FileSet = { storage, root: config.root, paths, hashes, bytes, inMemory: true }
-
-    options.onGenerationEnd?.({ output, peerDependencies, missingDependencies })
+    options.onGenerationEnd?.({ output: { storage, root: config.root, paths, hashes, bytes }, peerDependencies, missingDependencies })
 
     emitEvent('kubb:generation:end', [])
 

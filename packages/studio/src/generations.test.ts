@@ -15,6 +15,7 @@ describe('GenerationHistory', () => {
     expect(history.get('job-1')).toBe(generation)
     expect(history.get('job-2')).toBeUndefined()
     expect(history.latest).toBe(generation)
+    expect(history.latestJobId).toBe('job-1')
   })
 
   it('drops the oldest past the count', () => {
@@ -22,7 +23,7 @@ describe('GenerationHistory', () => {
     for (const jobId of ['job-1', 'job-2', 'job-3']) history.add(jobId, { output: fileSet(1) })
 
     expect(history.get('job-1')).toBeUndefined()
-    expect(history.size).toBe(2)
+    expect(history.get('job-2')).toBeDefined()
   })
 
   it('drops the oldest while what it keeps in memory weighs too much, counting disk snapshots too', () => {
@@ -41,7 +42,7 @@ describe('GenerationHistory', () => {
     history.add('job-2', { output: fileSet(500, { kept: false }) })
     history.add('job-3', { output: fileSet(50) })
 
-    expect(history.size).toBe(3)
+    for (const jobId of ['job-1', 'job-2', 'job-3']) expect(history.get(jobId)).toBeDefined()
   })
 
   it('always keeps the newest, however large', () => {

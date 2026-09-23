@@ -11,7 +11,7 @@ const READ_CONCURRENCY = 50
 /**
  * Rebuilds the absolute storage key a root-relative path came from.
  */
-export function absoluteStoragePath(root: string, relativePath: string): string {
+function absoluteStoragePath(root: string, relativePath: string): string {
   return resolve(root, relativePath)
 }
 
@@ -19,7 +19,7 @@ export function absoluteStoragePath(root: string, relativePath: string): string 
  * Short content fingerprint, enough for Studio to tell an unchanged file from a changed one
  * between two sets without fetching either.
  */
-export function hashContent(content: string): string {
+function hashContent(content: string): string {
   return createHash('sha1').update(content).digest('hex').slice(0, 16)
 }
 
@@ -160,12 +160,13 @@ export class GenerationHistory<TGeneration extends { output: FileSet; disk?: Fil
     return this.#entries.get(jobId)
   }
 
-  get latest(): TGeneration | undefined {
-    return [...this.#entries.values()].at(-1)
+  get latestJobId(): string | undefined {
+    return [...this.#entries.keys()].at(-1)
   }
 
-  get size(): number {
-    return this.#entries.size
+  get latest(): TGeneration | undefined {
+    const jobId = this.latestJobId
+    return jobId ? this.#entries.get(jobId) : undefined
   }
 
   add(jobId: string, generation: TGeneration): void {
