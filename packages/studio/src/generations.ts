@@ -95,7 +95,7 @@ function isInsideRoot(root: string, outputPath: string): boolean {
   return fromRoot !== '' && !fromRoot.startsWith('..') && !fromRoot.startsWith(sep)
 }
 
-export type CaptureDiskOptions = {
+type CaptureDiskOptions = {
   root: string
   outputPath: string
   /**
