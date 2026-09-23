@@ -5,7 +5,7 @@ import { getElapsedMs } from '@internals/utils'
 import { Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
 import WebSocket from 'ws'
 import type { GenerationEvent, GenerationEventPayloads, GenerationEventType } from './protocol/index.ts'
-import { describeFiles, type FileSet } from './generations.ts'
+import type { SourceFiles } from './generations.ts'
 import { toPackageName } from './resolveConfig.ts'
 
 type WebSocketOptions = WebSocket.ClientOptions
@@ -78,21 +78,14 @@ export function createWebsocket(url: string, options: WebSocketOptions): WebSock
   return ws
 }
 
-export type GenerationState = {
-  output: FileSet
-  /**
-   * What the output directory held on disk before the run, when the agent has a project on disk.
-   */
-  disk?: FileSet
+/**
+ * What `kubb:generation:end` reports: the files the run produced, still in its own storage.
+ */
+export type GenerationEnd = {
+  output: SourceFiles
   peerDependencies: Record<string, string>
   missingDependencies: Array<string>
 }
-
-/**
- * What `kubb:generation:end` reports. The session decides whether `output` lives in memory, since
- * only it knows whether the run wrote to disk.
- */
-export type GenerationEnd = Omit<GenerationState, 'output' | 'disk'> & { output: Omit<FileSet, 'inMemory'> }
 
 export type GenerationStreamOptions = {
   onGenerationEnd?: (result: GenerationEnd) => void
@@ -189,8 +182,7 @@ export function createGenerationStream(
     const { peerDependencies, missingDependencies } = await resolvePeerDependencies(config.plugins.map(({ name }) => name))
     const keys = await storage.readKeys()
     const paths = new Set(keys.map((key) => relativeStoragePath(config.root, key)))
-    const described = await describeFiles({ storage, root: config.root, paths })
-    options.onGenerationEnd?.({ output: { storage, root: config.root, paths, ...described }, peerDependencies, missingDependencies })
+    options.onGenerationEnd?.({ output: { storage, root: config.root, paths }, peerDependencies, missingDependencies })
 
     emitEvent('kubb:generation:end', [])
 

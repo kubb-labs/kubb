@@ -1,73 +1,63 @@
 import { memoryStorage } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { copyToMemory, createGenerationHistory, type FileSet } from './generations.ts'
+import { createGenerationStore, type GenerationStore, type SourceFiles } from './generations.ts'
 
-function fileSet({ bytes, inMemory = true }: { bytes: number; inMemory?: boolean }): FileSet {
-  return { storage: memoryStorage(), root: '/project', paths: new Set(['a.ts']), hashes: new Map([['a.ts', 'hash']]), bytes, inMemory }
+function sourceFiles(files: Record<string, string>): SourceFiles {
+  const storage = memoryStorage()
+  for (const [path, content] of Object.entries(files)) void storage.writeItem(`/project/${path}`, content)
+  return { storage, root: '/project', paths: new Set(Object.keys(files)) }
 }
 
-describe('createGenerationHistory', () => {
-  it('looks a generation up by its job id only', () => {
-    const history = createGenerationHistory({ maxCount: 4, maxBytes: 100 })
-    const generation = { output: fileSet({ bytes: 1 }) }
-    history.set('job-1', generation)
+async function addRun({ store, jobId, files }: { store: GenerationStore; jobId: string; files: Record<string, string> }) {
+  const output = await store.keep({ jobId, source: 'output', files: sourceFiles(files), maxSetBytes: 1_000 })
+  await store.add({ jobId, output, peerDependencies: {}, missingDependencies: [] })
+}
 
-    expect(history.get('job-1')).toBe(generation)
-    expect(history.get('job-2')).toBeUndefined()
-    expect(history.latestJobId()).toBe('job-1')
+describe('createGenerationStore', () => {
+  it('reads a generation back by its job id only', async () => {
+    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxBytes: 1_000 })
+    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'one' } })
+    const generation = await store.get('job-1')
+
+    expect(await store.get('job-2')).toBeUndefined()
+    expect(generation?.output.hashes['a.ts']).toMatch(/^[0-9a-f]{16}$/)
+    await expect(store.read({ generation: generation!, source: 'output', paths: ['a.ts', 'b.ts'] })).resolves.toStrictEqual({ 'a.ts': 'one' })
   })
 
-  it('drops the oldest past the count', () => {
-    const history = createGenerationHistory({ maxCount: 2, maxBytes: 100 })
-    for (const jobId of ['job-1', 'job-2', 'job-3']) history.set(jobId, { output: fileSet({ bytes: 1 }) })
+  it('drops the oldest past the count, and their files with them', async () => {
+    const storage = memoryStorage()
+    const store = createGenerationStore({ storage, maxCount: 2, maxBytes: 1_000 })
+    for (const jobId of ['job-1', 'job-2', 'job-3']) await addRun({ store, jobId, files: { 'a.ts': jobId } })
 
-    expect(history.get('job-1')).toBeUndefined()
-    expect(history.get('job-2')).toBeDefined()
+    expect(await store.get('job-1')).toBeUndefined()
+    expect((await store.latest())?.jobId).toBe('job-3')
+    expect((await storage.readKeys()).filter((key) => key.endsWith('a.ts'))).toHaveLength(2)
   })
 
-  it('drops the oldest while what it keeps in memory weighs too much, counting disk snapshots too', () => {
-    const history = createGenerationHistory({ maxCount: 10, maxBytes: 100 })
-    history.set('job-1', { output: fileSet({ bytes: 40 }) })
-    history.set('job-2', { output: fileSet({ bytes: 10 }), disk: fileSet({ bytes: 40 }) })
-    history.set('job-3', { output: fileSet({ bytes: 40 }) })
+  it('drops the oldest while the kept content weighs too much, but always keeps the newest', async () => {
+    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 10, maxBytes: 10 })
+    await addRun({ store, jobId: 'job-1', files: { 'a.ts': '12345' } })
+    await addRun({ store, jobId: 'job-2', files: { 'a.ts': '1234567890ab' } })
 
-    expect(history.get('job-1')).toBeUndefined()
-    expect(history.get('job-2')).toBeDefined()
+    expect(await store.get('job-1')).toBeUndefined()
+    expect(await store.get('job-2')).toBeDefined()
   })
 
-  it('does not count output read from disk', () => {
-    const history = createGenerationHistory({ maxCount: 10, maxBytes: 100 })
-    history.set('job-1', { output: fileSet({ bytes: 500, inMemory: false }) })
-    history.set('job-2', { output: fileSet({ bytes: 50 }) })
+  it('keeps only the hashes of a set above the cap', async () => {
+    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxBytes: 1_000 })
+    const kept = await store.keep({ jobId: 'job-1', source: 'output', files: sourceFiles({ 'a.ts': 'x'.repeat(20) }), maxSetBytes: 10 })
 
-    expect(history.get('job-1')).toBeDefined()
+    expect(kept).toMatchObject({ paths: [], bytes: 0 })
+    expect(kept.hashes['a.ts']).toBeDefined()
   })
 
-  it('keeps the latest position when a generation is set again', () => {
-    const history = createGenerationHistory({ maxCount: 10, maxBytes: 100 })
-    history.set('job-1', { output: fileSet({ bytes: 1 }) })
-    history.set('job-1', { output: fileSet({ bytes: 2 }) })
+  it('survives a restart through the index in its storage', async () => {
+    const storage = memoryStorage()
+    await addRun({ store: createGenerationStore({ storage, maxCount: 4, maxBytes: 1_000 }), jobId: 'job-1', files: { 'a.ts': 'one' } })
 
-    expect(history.latestJobId()).toBe('job-1')
-    expect(history.get('job-1')?.output.bytes).toBe(2)
-  })
+    const restarted = createGenerationStore({ storage, maxCount: 4, maxBytes: 1_000 })
+    const generation = await restarted.get('job-1')
 
-  it('always keeps the newest, however large', () => {
-    const history = createGenerationHistory({ maxCount: 10, maxBytes: 100 })
-    history.set('job-1', { output: fileSet({ bytes: 10 }) })
-    history.set('job-2', { output: fileSet({ bytes: 1_000 }) })
-
-    expect(history.get('job-1')).toBeUndefined()
-    expect(history.get('job-2')).toBeDefined()
-  })
-})
-
-describe('copyToMemory', () => {
-  it('keeps only the hashes of a set above the cap, weighing nothing', async () => {
-    const copy = await copyToMemory({ set: fileSet({ bytes: 500, inMemory: false }), maxBytes: 100 })
-
-    expect(copy).toMatchObject({ bytes: 0, inMemory: true })
-    expect(copy.paths.size).toBe(0)
-    expect(copy.hashes.get('a.ts')).toBe('hash')
+    await expect(restarted.read({ generation: generation!, source: 'output', paths: ['a.ts'] })).resolves.toStrictEqual({ 'a.ts': 'one' })
   })
 })

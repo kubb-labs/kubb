@@ -3,7 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { getErrorMessage, read, toError } from '@internals/utils'
-import { type Config, fsStorage, Hookable, type KubbHooks, logLevel as logLevelMap, memoryStorage } from '@kubb/core'
+import { cacheStorage, type Config, fsStorage, Hookable, type KubbHooks, logLevel as logLevelMap, memoryStorage } from '@kubb/core'
 import { version as kubbVersion } from '../package.json'
 import { setupHookListener } from './hooks.ts'
 import {
@@ -34,8 +34,8 @@ import { agentDefaults } from './constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
 import { createSnapshotPackage } from './snapshotPackage.ts'
 import { RpcTarget } from 'capnweb'
-import { captureDisk, copyToMemory, createGenerationHistory, readFileSet } from './generations.ts'
-import { createGenerationStream, type GenerationEnd, type GenerationState } from './ws.ts'
+import { createGenerationStore, type GenerationStore, listDisk } from './generations.ts'
+import { createGenerationStream, type GenerationEnd } from './ws.ts'
 import { connectWebSocketRpc } from './rpc.ts'
 
 /**
@@ -44,7 +44,8 @@ import { connectWebSocketRpc } from './rpc.ts'
 const MAX_KEPT_GENERATIONS = 8
 
 /**
- * The most the kept generations may weigh in agent memory together. Past it the oldest go first.
+ * The most the kept generations may weigh together. Past it the oldest go first, and a single run
+ * above it keeps its hashes only.
  */
 const KEPT_GENERATIONS_MAX_BYTES = 100 * 1024 * 1024
 
@@ -273,8 +274,7 @@ export class StudioSession implements AgentApi {
   #heartbeatTimer: ReturnType<typeof setTimeout> | undefined
   // Set by `kubb:generation:end`, filed into `#generations` once the job finishes.
   #lastGeneration: GenerationEnd | undefined
-  // Looked up by job id only: Studio checks who may read which job.
-  #generations = createGenerationHistory<GenerationState>({ maxCount: MAX_KEPT_GENERATIONS, maxBytes: KEPT_GENERATIONS_MAX_BYTES })
+  #store: GenerationStore | undefined
   /**
    * Resolves when Studio calls {@link StudioSession.connect}. `studio:ready` waits on this so the
    * host does not queue jobs before the agent session is registered.
@@ -292,6 +292,19 @@ export class StudioSession implements AgentApi {
    */
   get #isSandbox(): boolean {
     return this.#session?.isSandbox === true
+  }
+
+  /**
+   * Kept in the project's cache directory, so it survives a restart, except on a sandbox: its pool
+   * sessions run every tenant's jobs, so it keeps them in memory. Looked up by job id only.
+   */
+  get #generations(): GenerationStore {
+    this.#store ??= createGenerationStore({
+      storage: this.#isSandbox ? memoryStorage() : cacheStorage({ root: this.#options.root }),
+      maxCount: MAX_KEPT_GENERATIONS,
+      maxBytes: KEPT_GENERATIONS_MAX_BYTES,
+    })
+    return this.#store
   }
 
   get #canWrite(): boolean {
@@ -573,15 +586,9 @@ export class StudioSession implements AgentApi {
       // `connect`, and these two come off again below, so one run's listeners never see the next.
       // Cleared up front, filled the moment `kubb:generation:end` fires.
       this.#lastGeneration = undefined
-      await this.#keepLatestInMemory()
-      const disk = this.#hasProjectOnDisk
-        ? await captureDisk({
-            root,
-            outputPath: config.output.path,
-            willOverwrite: this.#canWrite,
-            maxFiles: DISK_SNAPSHOT_MAX_FILES,
-            maxBytes: DISK_SNAPSHOT_MAX_BYTES,
-          })
+      const diskFiles = this.#hasProjectOnDisk ? await listDisk({ root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES }) : undefined
+      const disk = diskFiles
+        ? await this.#generations.keep({ jobId: data.jobId, source: 'disk', files: diskFiles, maxSetBytes: DISK_SNAPSHOT_MAX_BYTES })
         : undefined
       const detach = [setupHookListener(this.#hooks, root, controller.signal)]
 
@@ -599,6 +606,9 @@ export class StudioSession implements AgentApi {
           hooks: this.#hooks,
           signal: controller.signal,
         })
+      } catch (error) {
+        await this.#generations.drop(data.jobId)
+        throw error
       } finally {
         for (const remove of detach) remove()
       }
@@ -611,17 +621,23 @@ export class StudioSession implements AgentApi {
       // The generate call above reassigns the field, but control flow analysis still sees the
       // `= undefined` from this method and narrows it to `never`.
       const generation = this.#lastGeneration as GenerationEnd | undefined
-      if (generation) {
-        // A run written to disk stays readable there until the next run, which copies it first.
-        this.#generations.set(data.jobId, { ...generation, output: { ...generation.output, inMemory: !this.#canWrite }, disk })
+      const output = generation
+        ? await this.#generations.keep({ jobId: data.jobId, source: 'output', files: generation.output, maxSetBytes: KEPT_GENERATIONS_MAX_BYTES })
+        : undefined
+      if (generation && output) {
+        if (!output.paths.length && Object.keys(output.hashes).length) {
+          await this.#warn('Kept only the hashes of this generation: its output is too large to keep')
+        }
+        const { peerDependencies, missingDependencies } = generation
+        await this.#generations.add({ jobId: data.jobId, output, disk, peerDependencies, missingDependencies })
       }
       const files = [...(generation?.output.paths ?? [])]
       return {
         status: 'success',
         files,
         fileCount: files.length,
-        hashes: Object.fromEntries(generation?.output.hashes ?? []),
-        disk: disk ? { hashes: Object.fromEntries(disk.hashes) } : undefined,
+        hashes: output?.hashes ?? {},
+        disk: disk ? { hashes: disk.hashes } : undefined,
       }
     } finally {
       this.#isGenerating = false
@@ -695,8 +711,7 @@ export class StudioSession implements AgentApi {
       return this.#refuse('Ignored snapshot: the message was missing required fields', 'The request was missing required fields')
     }
 
-    const latestJobId = this.#generations.latestJobId()
-    const generation = latestJobId ? this.#generations.get(latestJobId) : undefined
+    const generation = await this.#generations.latest()
 
     if (!generation) {
       return this.#refuse('Ignored snapshot: no prior generation to pack', 'No prior generation exists to pack, run a generation first')
@@ -710,7 +725,7 @@ export class StudioSession implements AgentApi {
     }
 
     try {
-      const files = await readFileSet({ set: generation.output, paths: [...generation.output.paths] })
+      const files = await this.#generations.read({ generation, source: 'output', paths: generation.output.paths })
 
       const { bytes, integrity } = await createSnapshotPackage(files, { name, version, peerDependencies: generation.peerDependencies })
 
@@ -760,21 +775,6 @@ export class StudioSession implements AgentApi {
     return !this.#isSandbox && this.#canRead
   }
 
-  /**
-   * The latest generation of an agent that writes to disk lives there, and the next run overwrites it.
-   */
-  async #keepLatestInMemory(): Promise<void> {
-    const jobId = this.#generations.latestJobId()
-    const latest = jobId ? this.#generations.get(jobId) : undefined
-    if (!jobId || !latest || latest.output.inMemory) return
-
-    const output = await copyToMemory({ set: latest.output, maxBytes: DISK_SNAPSHOT_MAX_BYTES })
-    if (!output.paths.size && latest.output.paths.size) {
-      await this.#warn('Kept only the hashes of the previous generation: its output is too large to keep in memory')
-    }
-    this.#generations.set(jobId, { ...latest, output })
-  }
-
   async readFiles(data: ReadFilesInput): Promise<{ files: Record<string, string> }> {
     const command = 'readFiles'
     await this.#hooks.callHook('studio:command:start', { command })
@@ -806,23 +806,20 @@ export class StudioSession implements AgentApi {
       return this.#refuse('Ignored files: the message named no job', 'The request named no generation job')
     }
 
-    const generation = this.#generations.get(data.jobId)
+    const generation = await this.#generations.get(data.jobId)
 
     if (!generation) {
       return this.#refuse(`Ignored files: job ${data.jobId} is not kept on this agent`, GENERATION_GONE_MESSAGE)
     }
 
-    const set = (() => {
-      if (data.source === 'disk') return generation.disk
-      return generation.output
-    })()
+    const source = data.source === 'disk' ? 'disk' : 'output'
 
-    if (!set) {
+    if (!generation[source]) {
       return this.#refuse('Ignored files: that job has no snapshot of the files on disk', 'This agent kept no snapshot of the files on disk for that job')
     }
 
     // Only paths the set holds are read, never an arbitrary path.
-    const files = await readFileSet({ set, paths })
+    const files = await this.#generations.read({ generation, source, paths })
 
     await this.#hooks.callHook('studio:command:end', {
       command,

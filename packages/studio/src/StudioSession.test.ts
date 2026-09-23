@@ -17,7 +17,10 @@ vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
 // `fsStorage` is the project on disk: what a run granted allowWrite writes to, and what the agent
 // snapshots before each run. Every call shares this one in-memory store instead, so a test can seed
 // the disk and watch a run overwrite it. `readKeys` answers relative to the base like the real one.
-const disk = vi.hoisted(() => ({ storage: undefined as import('@kubb/core').Storage | undefined }))
+const disk = vi.hoisted(() => ({
+  storage: undefined as import('@kubb/core').Storage | undefined,
+  cache: undefined as import('@kubb/core').Storage | undefined,
+}))
 vi.mock('@kubb/core', async (importOriginal) => {
   const core = await importOriginal<typeof import('@kubb/core')>()
   const createDisk = (): import('@kubb/core').Storage => {
@@ -30,7 +33,7 @@ vi.mock('@kubb/core', async (importOriginal) => {
       },
     }
   }
-  return { ...core, fsStorage: () => (disk.storage ??= createDisk()) }
+  return { ...core, fsStorage: () => (disk.storage ??= createDisk()), cacheStorage: () => (disk.cache ??= core.memoryStorage()) }
 })
 
 import { createAgentSession } from './api.ts'
@@ -133,6 +136,7 @@ async function run(agent: AgentApi, jobId: string) {
 beforeEach(() => {
   vi.clearAllMocks()
   disk.storage = undefined
+  disk.cache = undefined
   vi.mocked(createAgentSession).mockResolvedValue({
     sessionId: 'session-1',
     slug: 'brave-otter',
@@ -366,6 +370,15 @@ describe('generation history', () => {
     expect(third.hashes['src/gen/pet.ts']).not.toBe(second.hashes['src/gen/pet.ts'])
   })
 
+  it('reads the last job after the agent restarts, from the project cache', async () => {
+    const first = await connectStudio({ permissions: { allowRead: true } })
+    await run(first.agent, 'job-1')
+
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'export const pet = 1' } })
+  })
+
   it('reads an earlier job after a later one ran', async () => {
     const { content, overrides } = changingConfig()
     const { agent } = await connectStudio({ permissions: { allowRead: true }, ...overrides })
@@ -498,6 +511,8 @@ describe('disk snapshot', () => {
 
     expect(result.disk).toBeUndefined()
     await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], source: 'disk' })).rejects.toThrow('kept no snapshot of the files on disk')
+    // Pool sessions run every tenant's jobs, so nothing of theirs goes to a shared cache on disk.
+    expect(disk.cache).toBeUndefined()
   })
 })
 
