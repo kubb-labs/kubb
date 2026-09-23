@@ -20,3 +20,24 @@ export function resolveRefName(node: SchemaNode | null | undefined): string | nu
 
   return node.name ?? node.schema?.name ?? null
 }
+
+/**
+ * Returns `true` when a schema is a bare ref without modifiers, metadata, or omit keys.
+ *
+ * Modifiers inherited from the resolved schema are included in the check because a ref emits the
+ * referenced schema variable with those modifiers already applied.
+ */
+export function isBareRef(node: SchemaNode | null | undefined, keysToOmit?: Array<string> | null): boolean {
+  if (!node || node.type !== 'ref') return false
+
+  const meta = (() => {
+    if (!node.schema) return node
+
+    const { kind: _kind, type: _type, name: _name, ref: _ref, schema: _schema, ...overrides } = node
+    const definedOverrides = Object.fromEntries(Object.entries(overrides).filter(([, value]) => value !== undefined))
+
+    return { ...node.schema, ...definedOverrides }
+  })()
+
+  return !meta.nullable && !meta.optional && !meta.nullish && meta.default === undefined && !meta.description && !meta.examples?.length && !keysToOmit?.length
+}
