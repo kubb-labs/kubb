@@ -1,56 +1,73 @@
 import { memoryStorage } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { type FileSet, GenerationHistory } from './generations.ts'
+import { copyToMemory, createGenerationHistory, type FileSet } from './generations.ts'
 
-function fileSet(bytes: number, { inMemory = true, kept = true } = {}): FileSet {
-  return { storage: memoryStorage(), root: '/project', paths: new Set(kept ? ['a.ts'] : []), hashes: new Map([['a.ts', 'hash']]), bytes, inMemory }
+function fileSet({ bytes, inMemory = true }: { bytes: number; inMemory?: boolean }): FileSet {
+  return { storage: memoryStorage(), root: '/project', paths: new Set(['a.ts']), hashes: new Map([['a.ts', 'hash']]), bytes, inMemory }
 }
 
-describe('GenerationHistory', () => {
+describe('createGenerationHistory', () => {
   it('looks a generation up by its job id only', () => {
-    const history = new GenerationHistory({ maxCount: 4, maxBytes: 100 })
-    const generation = { output: fileSet(1) }
-    history.add('job-1', generation)
+    const history = createGenerationHistory({ maxCount: 4, maxBytes: 100 })
+    const generation = { output: fileSet({ bytes: 1 }) }
+    history.set('job-1', generation)
 
     expect(history.get('job-1')).toBe(generation)
     expect(history.get('job-2')).toBeUndefined()
-    expect(history.latest).toBe(generation)
-    expect(history.latestJobId).toBe('job-1')
+    expect(history.latestJobId()).toBe('job-1')
   })
 
   it('drops the oldest past the count', () => {
-    const history = new GenerationHistory({ maxCount: 2, maxBytes: 100 })
-    for (const jobId of ['job-1', 'job-2', 'job-3']) history.add(jobId, { output: fileSet(1) })
+    const history = createGenerationHistory({ maxCount: 2, maxBytes: 100 })
+    for (const jobId of ['job-1', 'job-2', 'job-3']) history.set(jobId, { output: fileSet({ bytes: 1 }) })
 
     expect(history.get('job-1')).toBeUndefined()
     expect(history.get('job-2')).toBeDefined()
   })
 
   it('drops the oldest while what it keeps in memory weighs too much, counting disk snapshots too', () => {
-    const history = new GenerationHistory({ maxCount: 10, maxBytes: 100 })
-    history.add('job-1', { output: fileSet(40) })
-    history.add('job-2', { output: fileSet(10), disk: fileSet(40) })
-    history.add('job-3', { output: fileSet(40) })
+    const history = createGenerationHistory({ maxCount: 10, maxBytes: 100 })
+    history.set('job-1', { output: fileSet({ bytes: 40 }) })
+    history.set('job-2', { output: fileSet({ bytes: 10 }), disk: fileSet({ bytes: 40 }) })
+    history.set('job-3', { output: fileSet({ bytes: 40 }) })
 
     expect(history.get('job-1')).toBeUndefined()
     expect(history.get('job-2')).toBeDefined()
   })
 
-  it('does not count output read from disk, or sets kept as hashes only', () => {
-    const history = new GenerationHistory({ maxCount: 10, maxBytes: 100 })
-    history.add('job-1', { output: fileSet(500, { inMemory: false }) })
-    history.add('job-2', { output: fileSet(500, { kept: false }) })
-    history.add('job-3', { output: fileSet(50) })
+  it('does not count output read from disk', () => {
+    const history = createGenerationHistory({ maxCount: 10, maxBytes: 100 })
+    history.set('job-1', { output: fileSet({ bytes: 500, inMemory: false }) })
+    history.set('job-2', { output: fileSet({ bytes: 50 }) })
 
-    for (const jobId of ['job-1', 'job-2', 'job-3']) expect(history.get(jobId)).toBeDefined()
+    expect(history.get('job-1')).toBeDefined()
+  })
+
+  it('keeps the latest position when a generation is set again', () => {
+    const history = createGenerationHistory({ maxCount: 10, maxBytes: 100 })
+    history.set('job-1', { output: fileSet({ bytes: 1 }) })
+    history.set('job-1', { output: fileSet({ bytes: 2 }) })
+
+    expect(history.latestJobId()).toBe('job-1')
+    expect(history.get('job-1')?.output.bytes).toBe(2)
   })
 
   it('always keeps the newest, however large', () => {
-    const history = new GenerationHistory({ maxCount: 10, maxBytes: 100 })
-    history.add('job-1', { output: fileSet(10) })
-    history.add('job-2', { output: fileSet(1_000) })
+    const history = createGenerationHistory({ maxCount: 10, maxBytes: 100 })
+    history.set('job-1', { output: fileSet({ bytes: 10 }) })
+    history.set('job-2', { output: fileSet({ bytes: 1_000 }) })
 
     expect(history.get('job-1')).toBeUndefined()
     expect(history.get('job-2')).toBeDefined()
+  })
+})
+
+describe('copyToMemory', () => {
+  it('keeps only the hashes of a set above the cap, weighing nothing', async () => {
+    const copy = await copyToMemory({ set: fileSet({ bytes: 500, inMemory: false }), maxBytes: 100 })
+
+    expect(copy).toMatchObject({ bytes: 0, inMemory: true })
+    expect(copy.paths.size).toBe(0)
+    expect(copy.hashes.get('a.ts')).toBe('hash')
   })
 })

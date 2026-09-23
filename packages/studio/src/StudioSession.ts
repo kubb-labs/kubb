@@ -34,7 +34,7 @@ import { agentDefaults } from './constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
 import { createSnapshotPackage } from './snapshotPackage.ts'
 import { RpcTarget } from 'capnweb'
-import { captureDisk, copyToMemory, GenerationHistory, readFileSet } from './generations.ts'
+import { captureDisk, copyToMemory, createGenerationHistory, readFileSet } from './generations.ts'
 import { createGenerationStream, type GenerationEnd, type GenerationState } from './ws.ts'
 import { connectWebSocketRpc } from './rpc.ts'
 
@@ -277,8 +277,8 @@ export class StudioSession implements AgentApi {
   #lastGeneration: GenerationEnd | undefined
   // Finished generations by job id, kept so `readFiles` and `snapshot` can read file content on
   // demand instead of Studio round tripping it over RPC. Lookups are by job id only: Studio checks
-  // who may read which job, so no tenant reaches another's output. See `GenerationHistory`.
-  #generations = new GenerationHistory<GenerationState>({ maxCount: MAX_KEPT_GENERATIONS, maxBytes: KEPT_GENERATIONS_MAX_BYTES })
+  // who may read which job, so no tenant reaches another's output.
+  #generations = createGenerationHistory<GenerationState>({ maxCount: MAX_KEPT_GENERATIONS, maxBytes: KEPT_GENERATIONS_MAX_BYTES })
   /**
    * Resolves when Studio calls {@link StudioSession.connect}. `studio:ready` waits on this so the
    * host does not queue jobs before the agent session is registered.
@@ -617,7 +617,7 @@ export class StudioSession implements AgentApi {
       const generation = this.#lastGeneration as GenerationEnd | undefined
       if (generation) {
         // A run written to disk stays readable there until the next run, which copies it first.
-        this.#generations.add(data.jobId, { ...generation, output: { ...generation.output, inMemory: !this.#canWrite }, disk })
+        this.#generations.set(data.jobId, { ...generation, output: { ...generation.output, inMemory: !this.#canWrite }, disk })
       }
       const files = [...(generation?.output.paths ?? [])]
       return {
@@ -699,7 +699,8 @@ export class StudioSession implements AgentApi {
       return this.#refuse('Ignored snapshot: the message was missing required fields', 'The request was missing required fields')
     }
 
-    const generation = this.#generations.latest
+    const latestJobId = this.#generations.latestJobId()
+    const generation = latestJobId ? this.#generations.get(latestJobId) : undefined
 
     if (!generation) {
       return this.#refuse('Ignored snapshot: no prior generation to pack', 'No prior generation exists to pack, run a generation first')
@@ -713,7 +714,7 @@ export class StudioSession implements AgentApi {
     }
 
     try {
-      const files = await readFileSet(generation.output, [...generation.output.paths])
+      const files = await readFileSet({ set: generation.output, paths: [...generation.output.paths] })
 
       const { bytes, integrity } = await createSnapshotPackage(files, { name, version, peerDependencies: generation.peerDependencies })
 
@@ -769,15 +770,15 @@ export class StudioSession implements AgentApi {
    * hashes only when it is too large.
    */
   async #keepLatestInMemory(): Promise<void> {
-    const jobId = this.#generations.latestJobId
+    const jobId = this.#generations.latestJobId()
     const latest = jobId ? this.#generations.get(jobId) : undefined
     if (!jobId || !latest || latest.output.inMemory) return
 
-    const output = await copyToMemory(latest.output, DISK_SNAPSHOT_MAX_BYTES)
+    const output = await copyToMemory({ set: latest.output, maxBytes: DISK_SNAPSHOT_MAX_BYTES })
     if (!output.paths.size && latest.output.paths.size) {
       await this.#warn('Kept only the hashes of the previous generation: its output is too large to keep in memory')
     }
-    this.#generations.replace(jobId, { ...latest, output })
+    this.#generations.set(jobId, { ...latest, output })
   }
 
   async readFiles(data: ReadFilesInput): Promise<{ files: Record<string, string> }> {
@@ -828,7 +829,7 @@ export class StudioSession implements AgentApi {
 
     // Checked against the paths the set holds before touching storage, so a caller can only ever
     // read what that run produced or what its output directory held, never an arbitrary path.
-    const files = await readFileSet(set, paths)
+    const files = await readFileSet({ set, paths })
 
     await this.#hooks.callHook('studio:command:end', {
       command,

@@ -192,8 +192,8 @@ export function createGenerationStream(
     const { peerDependencies, missingDependencies } = await resolvePeerDependencies(config.plugins.map(({ name }) => name))
     const keys = await storage.readKeys()
     const paths = new Set(keys.map((key) => relativeStoragePath(config.root, key)))
-    const { hashes, bytes } = await describeFiles(storage, config.root, paths)
-    options.onGenerationEnd?.({ output: { storage, root: config.root, paths, hashes, bytes }, peerDependencies, missingDependencies })
+    const described = await describeFiles({ storage, root: config.root, paths })
+    options.onGenerationEnd?.({ output: { storage, root: config.root, paths, ...described }, peerDependencies, missingDependencies })
 
     emitEvent('kubb:generation:end', [])
 
