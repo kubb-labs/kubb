@@ -1,6 +1,6 @@
 ---
 "@kubb/ast": minor
-"kubb": minor
+"@kubb/kit": minor
 ---
 
 Add `isBareRef` to the AST and kit exports for detecting unmodified schema references.
