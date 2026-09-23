@@ -1,3 +1,6 @@
+import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import { ast } from '@kubb/ast'
 import { type Config, definePlugin, memoryStorage, type Plugin } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
@@ -242,6 +245,92 @@ describe('startGeneration', () => {
   })
 })
 
+/**
+ * A `loadConfig` whose output is whatever `files` holds when a run loads it. The handshake loads
+ * the config too, so a test swaps `files` between runs rather than counting calls.
+ */
+function mutableConfig(
+  initial: Record<string, string>,
+  configRoot = root,
+): { loadConfig: StudioSessionOptions['loadConfig']; setFiles: (files: Record<string, string>) => void } {
+  let files = initial
+  return {
+    setFiles: (next) => {
+      files = next
+    },
+    loadConfig: async () =>
+      ({
+        root: configRoot,
+        input: 'https://example.com/openapi.json',
+        output: { path: 'src/gen', clean: false },
+        parsers: [],
+        reporters: [],
+        adapter: createMockedAdapter(),
+        plugins: Object.entries(files).map(([path, content], index) => ({ ...filePlugin(`${configRoot}/${path}`, content), name: `${pluginName}-${index}` })),
+        storage: memoryStorage(),
+      }) as unknown as Config,
+  }
+}
+
+describe('generation changes', () => {
+  it('reports nothing on the first run', async () => {
+    const { agent } = await connectStudio()
+
+    const result = await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
+
+    expect(result.changes).toBeUndefined()
+  })
+
+  it('reports added, changed, and removed files against the previous run, and leaves unchanged ones out', async () => {
+    const config = mutableConfig({ 'src/gen/pet.ts': 'v1', 'src/gen/order.ts': 'same', 'src/gen/store.ts': 'gone' })
+    const { agent } = await connectStudio({ loadConfig: config.loadConfig })
+
+    await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
+    config.setFiles({ 'src/gen/pet.ts': 'v2', 'src/gen/order.ts': 'same', 'src/gen/owner.ts': 'new' })
+    const result = await agent.startGeneration({ jobId: 'job-2', config: {} }).result()
+
+    expect(result.changes).toStrictEqual({ 'src/gen/pet.ts': 'changed', 'src/gen/owner.ts': 'added', 'src/gen/store.ts': 'removed' })
+  })
+
+  it('keeps the previous run of a written-to-disk session, even though the new run overwrites it', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'kubb-studio-'))
+    try {
+      const config = mutableConfig({ 'src/gen/pet.ts': 'v1' }, dir)
+      const { agent } = await connectStudio({ root: dir, permissions: { allowRead: true, allowWrite: true }, loadConfig: config.loadConfig })
+
+      await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
+      config.setFiles({ 'src/gen/pet.ts': 'v2' })
+      const result = await agent.startGeneration({ jobId: 'job-2', config: {} }).result()
+
+      expect(await readFile(path.join(dir, 'src/gen/pet.ts'), 'utf8')).toBe('v2\n')
+      expect(result.changes).toStrictEqual({ 'src/gen/pet.ts': 'changed' })
+      await expect(agent.readFiles({ paths: ['src/gen/pet.ts'], revision: 'previous' })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'v1\n' } })
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
+  })
+
+  it('compares with the last successful run when a run in between fails', async () => {
+    const config = mutableConfig({ 'src/gen/pet.ts': 'v1' })
+    let fail = false
+    const { agent } = await connectStudio({
+      loadConfig: async () => {
+        if (fail) throw new Error('config broke')
+        return config.loadConfig()
+      },
+    })
+
+    await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
+    config.setFiles({ 'src/gen/pet.ts': 'v2' })
+    fail = true
+    await expect(agent.startGeneration({ jobId: 'job-2', config: {} }).result()).rejects.toThrow('config broke')
+    fail = false
+    const result = await agent.startGeneration({ jobId: 'job-3', config: {} }).result()
+
+    expect(result.changes).toStrictEqual({ 'src/gen/pet.ts': 'changed' })
+  })
+})
+
 describe('readFiles', () => {
   it('refuses to read when the host did not grant allowRead', async () => {
     const { agent } = await connectStudio()
@@ -263,6 +352,26 @@ describe('readFiles', () => {
     await expect(agent.readFiles({ paths: ['../../etc/passwd', 'src/gen/pet.ts'] })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'export const pet = 1' },
     })
+  })
+
+  it('reads the previous run, including files the latest run removed', async () => {
+    const config = mutableConfig({ 'src/gen/pet.ts': 'v1', 'src/gen/store.ts': 'gone' })
+    const { agent } = await connectStudio({ permissions: { allowRead: true }, loadConfig: config.loadConfig })
+    await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
+    config.setFiles({ 'src/gen/pet.ts': 'v2' })
+    await agent.startGeneration({ jobId: 'job-2', config: {} }).result()
+
+    await expect(agent.readFiles({ paths: ['src/gen/pet.ts', 'src/gen/store.ts', 'src/gen/other.ts'], revision: 'previous' })).resolves.toStrictEqual({
+      files: { 'src/gen/pet.ts': 'v1', 'src/gen/store.ts': 'gone' },
+    })
+    await expect(agent.readFiles({ paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'v2' } })
+  })
+
+  it('refuses the previous revision before a second run', async () => {
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+    await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
+
+    await expect(agent.readFiles({ paths: ['src/gen/pet.ts'], revision: 'previous' })).rejects.toThrow('No previous generation to compare against')
   })
 })
 
