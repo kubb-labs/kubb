@@ -1,6 +1,6 @@
 {
   "name": "@kubb/kit",
-  "version": "5.3.12",
+  "version": "5.3.13",
   "description": "Authoring toolkit for Kubb plugins, generators, adapters, resolvers, and renderers.",
   "keywords": [
     "codegen",
