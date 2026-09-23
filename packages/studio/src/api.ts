@@ -74,14 +74,23 @@ function sessionError(cause: unknown): Error {
 async function requestAgentSession({ token, studioUrl }: ConnectProps): Promise<AgentConnectResponse> {
   const url = `${studioUrl}/api/agent/sessions`
 
-  const data = await ofetch<AgentConnectResponse>(url, {
+  const response = await ofetch.raw<AgentConnectResponse>(url, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
     body: { machineToken: await getMachineToken() },
   })
+  const data = response._data
 
-  if (!data) {
-    throw new Error('No data available for agent session')
+  // A 200 without a session body means something other than Studio's handler answered: a proxy or
+  // firewall block page, or a redirect that turned the POST into a GET for the SPA shell. Opening
+  // the socket anyway would only fail later with `Invalid URL: undefined`.
+  if (!data || typeof data !== 'object' || typeof data.url !== 'string' || !data.url) {
+    const contentType = response.headers.get('content-type') ?? 'no content type'
+    const redirected = response.url && response.url !== url ? `, redirected to ${response.url}` : ''
+
+    throw new Error(
+      `${url} answered without a session URL (${response.status}, ${contentType}${redirected}). Check that ${studioUrl} is a Kubb Studio instance and that no proxy or firewall intercepts the request.`,
+    )
   }
 
   return data

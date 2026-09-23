@@ -87,6 +87,21 @@ describe('createAgentSession', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
+  it('throws a readable error when the response has no session URL, instead of opening a socket to `undefined`', async () => {
+    fetchMock.mockResolvedValueOnce(new Response('<!doctype html><html></html>', { status: 200, headers: { 'Content-Type': 'text/html' } }))
+
+    await expect(createAgentSession({ token: 'tok', studioUrl: 'http://studio' })).rejects.toThrow(
+      'Failed to get agent session from Kubb Studio: http://studio/api/agent/sessions answered without a session URL (200, text/html)',
+    )
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('throws when a JSON response is missing the session URL', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ ...session, url: undefined }))
+
+    await expect(createAgentSession({ token: 'tok', studioUrl: 'http://studio' })).rejects.toThrow('answered without a session URL (200, application/json)')
+  })
+
   it('throws on a non-403 error without re-registering', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse({ message: 'Bad Gateway' }, 502))
 
