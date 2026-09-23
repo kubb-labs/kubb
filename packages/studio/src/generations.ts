@@ -4,6 +4,7 @@ import { inParallel } from '@internals/utils'
 import { fsStorage, type Storage } from '@kubb/core'
 
 const READ_CONCURRENCY = 50
+const MB = 1024 * 1024
 const INDEX_KEY = 'studio/generations.json'
 
 /**
@@ -60,10 +61,10 @@ export async function listDisk({ root, outputPath, maxFiles }: { root: string; o
 /**
  * Keeps recent generations by job id in `storage`, with an index next to them so a store on disk
  * survives a restart. A generation is only ever looked up by its job id, so on a pooled sandbox one
- * tenant never reaches another's output. The oldest go past `maxCount` or `maxBytes`, but the newest
+ * tenant never reaches another's output. The oldest go past `maxCount` or `maxMb`, but the newest
  * always stays.
  */
-export function createGenerationStore({ storage, maxCount, maxBytes }: { storage: Storage; maxCount: number; maxBytes: number }) {
+export function createGenerationStore({ storage, maxCount, maxMb }: { storage: Storage; maxCount: number; maxMb: number }) {
   let index: Array<KeptGeneration> | undefined
 
   // Hashed so a job id from the wire can never point outside the store.
@@ -81,19 +82,10 @@ export function createGenerationStore({ storage, maxCount, maxBytes }: { storage
   }
 
   /**
-   * Copies `files` into the store as one set of `jobId`. Above `maxSetBytes` only the hashes are kept.
+   * Copies `files` into the store as one set of `jobId`. Above `maxSetMb` only the hashes are kept.
    */
-  async function keep({
-    jobId,
-    source,
-    files,
-    maxSetBytes,
-  }: {
-    jobId: string
-    source: GenerationSource
-    files: SourceFiles
-    maxSetBytes: number
-  }): Promise<KeptSet> {
+  async function keep({ jobId, source, files, maxSetMb }: { jobId: string; source: GenerationSource; files: SourceFiles; maxSetMb: number }): Promise<KeptSet> {
+    const maxSetBytes = maxSetMb * MB
     const hashes: Record<string, string> = {}
     let bytes = 0
     await inParallel({
@@ -129,7 +121,7 @@ export function createGenerationStore({ storage, maxCount, maxBytes }: { storage
       const entries = (await load()).filter((entry) => entry.jobId !== generation.jobId)
       entries.push(generation)
       const weight = () => entries.reduce((sum, { output, disk }) => sum + output.bytes + (disk?.bytes ?? 0), 0)
-      while (entries.length > 1 && (entries.length > maxCount || weight() > maxBytes)) {
+      while (entries.length > 1 && (entries.length > maxCount || weight() > maxMb * MB)) {
         await drop(entries.shift()!.jobId)
       }
       index = entries

@@ -30,7 +30,7 @@ import {
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { applyConfigEdits, readConfig } from './configFile.ts'
 import { generate } from './generate.ts'
-import { agentDefaults } from './constants.ts'
+import { agentDefaults, resolveGenerationLimits } from './constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
 import { createSnapshotPackage } from './snapshotPackage.ts'
 import { RpcTarget } from 'capnweb'
@@ -39,22 +39,9 @@ import { createGenerationStream, type GenerationEnd } from './ws.ts'
 import { connectWebSocketRpc } from './rpc.ts'
 
 /**
- * How many generations the agent keeps readable, so Studio can diff a run against an earlier one.
- */
-const MAX_KEPT_GENERATIONS = 8
-
-/**
- * The most the kept generations may weigh together. Past it the oldest go first, and a single run
- * above it keeps its hashes only.
- */
-const KEPT_GENERATIONS_MAX_BYTES = 100 * 1024 * 1024
-
-/**
- * Limits for the snapshot of the output directory on disk taken before each run. Past `FILES` no
- * snapshot is taken. Past `BYTES` only its hashes are kept when the run is about to overwrite it.
+ * Past this many files in the output directory, no snapshot of it is taken before a run.
  */
 const DISK_SNAPSHOT_MAX_FILES = 10_000
-const DISK_SNAPSHOT_MAX_BYTES = 50 * 1024 * 1024
 
 class GenerationRunTarget extends RpcTarget implements GenerationRun {
   constructor(
@@ -275,6 +262,7 @@ export class StudioSession implements AgentApi {
   // Set by `kubb:generation:end`, filed into `#generations` once the job finishes.
   #lastGeneration: GenerationEnd | undefined
   #store: GenerationStore | undefined
+  readonly #limits = resolveGenerationLimits()
   /**
    * Resolves when Studio calls {@link StudioSession.connect}. `studio:ready` waits on this so the
    * host does not queue jobs before the agent session is registered.
@@ -301,8 +289,8 @@ export class StudioSession implements AgentApi {
   get #generations(): GenerationStore {
     this.#store ??= createGenerationStore({
       storage: this.#isSandbox ? memoryStorage() : cacheStorage({ root: this.#options.root }),
-      maxCount: MAX_KEPT_GENERATIONS,
-      maxBytes: KEPT_GENERATIONS_MAX_BYTES,
+      maxCount: this.#limits.maxCount,
+      maxMb: this.#limits.maxMb,
     })
     return this.#store
   }
@@ -588,7 +576,7 @@ export class StudioSession implements AgentApi {
       this.#lastGeneration = undefined
       const diskFiles = this.#hasProjectOnDisk ? await listDisk({ root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES }) : undefined
       const disk = diskFiles
-        ? await this.#generations.keep({ jobId: data.jobId, source: 'disk', files: diskFiles, maxSetBytes: DISK_SNAPSHOT_MAX_BYTES })
+        ? await this.#generations.keep({ jobId: data.jobId, source: 'disk', files: diskFiles, maxSetMb: this.#limits.maxSnapshotMb })
         : undefined
       const detach = [setupHookListener(this.#hooks, root, controller.signal)]
 
@@ -622,7 +610,7 @@ export class StudioSession implements AgentApi {
       // `= undefined` from this method and narrows it to `never`.
       const generation = this.#lastGeneration as GenerationEnd | undefined
       const output = generation
-        ? await this.#generations.keep({ jobId: data.jobId, source: 'output', files: generation.output, maxSetBytes: KEPT_GENERATIONS_MAX_BYTES })
+        ? await this.#generations.keep({ jobId: data.jobId, source: 'output', files: generation.output, maxSetMb: this.#limits.maxMb })
         : undefined
       if (generation && output) {
         if (!output.paths.length && Object.keys(output.hashes).length) {
