@@ -1,5 +1,5 @@
 ---
-'@kubb/studio': minor
+'@kubb/studio': patch
 ---
 
 Report which files a Studio run added, changed, or removed, and serve the previous run's contents so Studio can show a diff.
