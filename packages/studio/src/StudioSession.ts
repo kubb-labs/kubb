@@ -819,13 +819,13 @@ export class StudioSession implements AgentApi {
       return this.#refuse(`Ignored files: job ${data.jobId} is not kept on this agent`, GENERATION_GONE_MESSAGE)
     }
 
-    const source = data.source ?? 'output'
-    let set = generation.output
-    if (source === 'disk') {
-      if (!generation.disk) {
-        return this.#refuse('Ignored files: that job has no snapshot of the files on disk', 'This agent kept no snapshot of the files on disk for that job')
-      }
-      set = generation.disk
+    const set = (() => {
+      if (data.source === 'disk') return generation.disk
+      return generation.output
+    })()
+
+    if (!set) {
+      return this.#refuse('Ignored files: that job has no snapshot of the files on disk', 'This agent kept no snapshot of the files on disk for that job')
     }
 
     // Checked against the paths the set holds before touching storage, so a caller can only ever

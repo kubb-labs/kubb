@@ -171,7 +171,7 @@ export class GenerationHistory<TGeneration extends { output: FileSet; disk?: Fil
   add(jobId: string, generation: TGeneration): void {
     this.#entries.delete(jobId)
     this.#entries.set(jobId, generation)
-    this.#evict()
+    this.#dropOldest()
   }
 
   /**
@@ -180,10 +180,10 @@ export class GenerationHistory<TGeneration extends { output: FileSet; disk?: Fil
   replace(jobId: string, generation: TGeneration): void {
     if (!this.#entries.has(jobId)) return
     this.#entries.set(jobId, generation)
-    this.#evict()
+    this.#dropOldest()
   }
 
-  #weight(): number {
+  #bytesInMemory(): number {
     let bytes = 0
     for (const { output, disk } of this.#entries.values()) {
       // A set kept as hashes only holds no content.
@@ -193,8 +193,8 @@ export class GenerationHistory<TGeneration extends { output: FileSet; disk?: Fil
     return bytes
   }
 
-  #evict(): void {
-    while (this.#entries.size > 1 && (this.#entries.size > this.#maxCount || this.#weight() > this.#maxBytes)) {
+  #dropOldest(): void {
+    while (this.#entries.size > 1 && (this.#entries.size > this.#maxCount || this.#bytesInMemory() > this.#maxBytes)) {
       const oldest = this.#entries.keys().next().value
       if (oldest === undefined) return
       this.#entries.delete(oldest)

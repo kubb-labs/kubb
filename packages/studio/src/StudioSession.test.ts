@@ -64,6 +64,20 @@ function filePlugin(absolutePath: string, content: string): Plugin {
 }
 
 /**
+ * A plugin that fails a run after it started, so `kubb:generation:end` still fires for it.
+ */
+function failingPlugin(): Plugin {
+  return definePlugin(() => ({
+    name: 'studio-failing-plugin',
+    hooks: {
+      'kubb:plugin:start'() {
+        throw new Error('plugin exploded')
+      },
+    },
+  }))() as unknown as Plugin
+}
+
+/**
  * Stands in for Studio: opens a session over a fake connector, then calls `connect()` the way the
  * real Studio does to finish the handshake. Everything a test drives afterwards goes through the
  * same {@link AgentApi} Studio itself would hold.
@@ -373,6 +387,50 @@ describe('generation history', () => {
     await run(agent, 'job-2')
 
     await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'export const pet = 1' } })
+  })
+
+  it('does not keep a job whose config failed to load, and leaves earlier jobs readable', async () => {
+    const { content, overrides } = changingConfig()
+    let fail = false
+    const loadConfig = overrides.loadConfig!
+    const { agent } = await connectStudio({
+      permissions: { allowRead: true },
+      loadConfig: async () => {
+        if (fail) throw new Error('config broke')
+        return loadConfig()
+      },
+    })
+    content.current = 'v1'
+    await run(agent, 'job-1')
+    fail = true
+    await expect(run(agent, 'job-2')).rejects.toThrow('config broke')
+
+    await expect(agent.readFiles({ jobId: 'job-2', paths: ['src/gen/pet.ts'] })).rejects.toThrow(GENERATION_GONE_MESSAGE)
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'v1' } })
+  })
+
+  it('does not keep a job that failed after writing files, and keeps the earlier job as it was', async () => {
+    let failing = false
+    const { agent } = await connectStudio({
+      permissions: { allowRead: true, allowWrite: true },
+      loadConfig: async () =>
+        ({
+          root,
+          input: 'https://example.com/openapi.json',
+          output: { path: 'src/gen', clean: false },
+          parsers: [],
+          reporters: [],
+          adapter: createMockedAdapter(),
+          plugins: failing ? [filePlugin(`${root}/src/gen/pet.ts`, 'v2'), failingPlugin()] : [filePlugin(`${root}/src/gen/pet.ts`, 'v1')],
+          storage: memoryStorage(),
+        }) as unknown as Config,
+    })
+    await run(agent, 'job-1')
+    failing = true
+    await expect(run(agent, 'job-2')).rejects.toThrow()
+
+    await expect(agent.readFiles({ jobId: 'job-2', paths: ['src/gen/pet.ts'] })).rejects.toThrow(GENERATION_GONE_MESSAGE)
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'v1' } })
   })
 
   it('drops the oldest jobs once it keeps too many', async () => {
