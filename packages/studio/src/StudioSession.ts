@@ -13,6 +13,7 @@ import {
   type ClientInfo,
   type ConfigFileView,
   type ConnectMessagePayload,
+  type FileChange,
   type GenerateInput,
   type GenerateResult,
   type GenerationEvent,
@@ -40,6 +41,47 @@ import { connectWebSocketRpc } from './rpc.ts'
  * How many files are read from storage at once when serving `readFiles` or packing a snapshot.
  */
 const FILE_READ_CONCURRENCY = 50
+
+/**
+ * A run's file contents keyed by output-relative path.
+ */
+type GenerationSnapshot = Map<string, string>
+
+/**
+ * Reads every file a run produced back out of its storage.
+ */
+async function readSnapshot(generation: GenerationState): Promise<GenerationSnapshot> {
+  const snapshot: GenerationSnapshot = new Map()
+  await inParallel({
+    items: [...generation.paths],
+    limit: FILE_READ_CONCURRENCY,
+    run: async (path) => {
+      const content = await generation.storage.readItem(absoluteStoragePath(generation.root, path))
+      if (content !== null) {
+        snapshot.set(path, content)
+      }
+    },
+  })
+  return snapshot
+}
+
+/**
+ * How each path differs between two runs. Paths with identical content are left out.
+ */
+function diffSnapshots(previous: GenerationSnapshot, current: GenerationSnapshot): Record<string, FileChange> {
+  const changes: Record<string, FileChange> = {}
+  for (const [path, content] of current) {
+    if (!previous.has(path)) {
+      changes[path] = 'added'
+      continue
+    }
+    if (previous.get(path) !== content) changes[path] = 'changed'
+  }
+  for (const path of previous.keys()) {
+    if (!current.has(path)) changes[path] = 'removed'
+  }
+  return changes
+}
 
 class GenerationRunTarget extends RpcTarget implements GenerationRun {
   constructor(
@@ -263,6 +305,10 @@ export class StudioSession implements AgentApi {
   // is checked against, so a caller can only ever read what this run actually produced. Set as
   // soon as `kubb:generation:end` fires, undefined again if a run fails before that.
   #lastGeneration: GenerationState | undefined
+  // The run before `#lastGeneration`, read into memory right before the next run starts, so a
+  // written-to-disk run can still be diffed after the new one overwrites its files. It backs both
+  // `GenerateResult.changes` and `readFiles({ revision: 'previous' })`.
+  #previousGeneration: GenerationSnapshot | undefined
   /**
    * Resolves when Studio calls {@link StudioSession.connect}. `studio:ready` waits on this so the
    * host does not queue jobs before the agent session is registered.
@@ -560,6 +606,11 @@ export class StudioSession implements AgentApi {
       // The session's own emitter carries the run: the host's logger is already on it from
       // `connect`, and these two come off again below, so one run's listeners never see the next.
       // Cleared up front, filled the moment `kubb:generation:end` fires.
+      // Read before `generate` runs, since `fsStorage` overwrites these files. Kept as soon as it is
+      // read, so a run that fails still leaves the last successful run as the one to compare with.
+      if (this.#lastGeneration) {
+        this.#previousGeneration = await readSnapshot(this.#lastGeneration)
+      }
       this.#lastGeneration = undefined
       const detach = [setupHookListener(this.#hooks, root, controller.signal)]
 
@@ -590,7 +641,12 @@ export class StudioSession implements AgentApi {
       // `= undefined` from this method and narrows it to `never`.
       const generation = this.#lastGeneration as GenerationState | undefined
       const files = [...(generation?.paths ?? [])]
-      return { status: 'success', files, fileCount: files.length }
+      const previous = this.#previousGeneration
+      if (!generation || !previous) {
+        return { status: 'success', files, fileCount: files.length }
+      }
+
+      return { status: 'success', files, fileCount: files.length, changes: diffSnapshots(previous, await readSnapshot(generation)) }
     } finally {
       this.#isGenerating = false
     }
@@ -754,6 +810,21 @@ export class StudioSession implements AgentApi {
         `Ignored files: requested ${paths.length} paths, more than the ${MAX_FILES_PER_REQUEST} allowed per request`,
         `At most ${MAX_FILES_PER_REQUEST} paths may be requested at once`,
       )
+    }
+
+    if (data.revision === 'previous') {
+      const previous = this.#previousGeneration
+
+      if (!previous) {
+        return this.#refuse('Ignored files: no previous generation to read from', 'No previous generation to compare against')
+      }
+
+      const files = Object.fromEntries(paths.filter((path) => previous.has(path)).map((path) => [path, previous.get(path) as string]))
+      await this.#hooks.callHook('studio:command:end', {
+        command,
+        info: `read ${Object.keys(files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'} from the previous run`,
+      })
+      return { files }
     }
 
     const generation = this.#lastGeneration

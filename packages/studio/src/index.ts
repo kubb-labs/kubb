@@ -4,6 +4,7 @@ export type {
   AgentApi,
   ConfigEdit,
   ConnectMessagePayload,
+  FileChange,
   GenerateInput,
   GenerateResult,
   GenerationEvent,

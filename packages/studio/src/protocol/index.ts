@@ -271,9 +271,18 @@ export type GenerationEvent = {
 export type GenerateInput = { jobId: string; config: JSONKubbConfig }
 
 /**
- * What a finished run produced. `files` holds paths relative to the output directory.
+ * How a file differs from the session's previous successful run.
  */
-export type GenerateResult = { status: 'success' | 'failed'; files: Array<string>; fileCount: number }
+export type FileChange = 'added' | 'changed' | 'removed'
+
+/**
+ * What a finished run produced. `files` holds paths relative to the output directory.
+ *
+ * `changes` maps each path that differs from the session's previous successful run to how it
+ * changed, including paths that run produced and this one did not (`removed`). Unchanged files are
+ * left out. It is absent on a session's first run, since there is nothing to compare against.
+ */
+export type GenerateResult = { status: 'success' | 'failed'; files: Array<string>; fileCount: number; changes?: Record<string, FileChange> }
 
 /**
  * Asks the agent to apply a batch of edits to the config file on disk.
@@ -289,8 +298,12 @@ export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean;
 /**
  * Asks the agent to read generated files back. Capped at {@link MAX_FILES_PER_REQUEST} paths, all
  * of which must sit inside the output directory.
+ *
+ * `revision` picks which run to read from: `current` (the default) is the latest run, `previous`
+ * is the run before it, as it stood right before the latest run started. Reading `previous` is how
+ * Studio gets the old side of a diff for the paths `GenerateResult.changes` reported.
  */
-export type ReadFilesInput = { paths: Array<string> }
+export type ReadFilesInput = { paths: Array<string>; revision?: 'current' | 'previous' }
 
 /**
  * Describes the package to pack and where to PUT it. `uploadPath` is resolved against the Studio
