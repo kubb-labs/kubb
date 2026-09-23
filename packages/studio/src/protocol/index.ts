@@ -271,9 +271,11 @@ export type GenerationEvent = {
 export type GenerateInput = { jobId: string; config: JSONKubbConfig }
 
 /**
- * What a finished run produced. `files` holds paths relative to the output directory.
+ * What a finished run produced. `files` holds paths relative to the output directory. `hashes`
+ * fingerprints each file's content, so a caller can tell which files changed since the previous
+ * run without reading them. Older agents leave it out.
  */
-export type GenerateResult = { status: 'success' | 'failed'; files: Array<string>; fileCount: number }
+export type GenerateResult = { status: 'success' | 'failed'; files: Array<string>; fileCount: number; hashes?: Record<string, string> }
 
 /**
  * Asks the agent to apply a batch of edits to the config file on disk.
@@ -287,10 +289,15 @@ export type SaveConfigInput = { edits: Array<ConfigEdit> }
 export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean; file?: ConfigFileView }
 
 /**
- * Asks the agent to read generated files back. Capped at {@link MAX_FILES_PER_REQUEST} paths, all
- * of which must sit inside the output directory.
+ * Which run a file read targets: the latest one, or the run before it so a caller can diff the two.
  */
-export type ReadFilesInput = { paths: Array<string> }
+export type ReadFilesGeneration = 'latest' | 'previous'
+
+/**
+ * Asks the agent to read generated files back. Capped at {@link MAX_FILES_PER_REQUEST} paths, all
+ * of which must sit inside the output directory. `generation` defaults to `'latest'`.
+ */
+export type ReadFilesInput = { paths: Array<string>; generation?: ReadFilesGeneration }
 
 /**
  * Describes the package to pack and where to PUT it. `uploadPath` is resolved against the Studio

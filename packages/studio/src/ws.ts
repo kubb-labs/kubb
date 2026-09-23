@@ -1,7 +1,8 @@
+import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { isAbsolute, relative, resolve } from 'node:path'
-import { getElapsedMs } from '@internals/utils'
+import { getElapsedMs, inParallel } from '@internals/utils'
 import { Diagnostics, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
 import WebSocket from 'ws'
 import type { GenerationEvent, GenerationEventPayloads, GenerationEventType } from './protocol/index.ts'
@@ -26,6 +27,32 @@ function relativeStoragePath(root: string, filePath: string): string {
  */
 export function absoluteStoragePath(root: string, relativePath: string): string {
   return resolve(root, relativePath)
+}
+
+/**
+ * How many files are read at once while hashing a finished run.
+ */
+const HASH_READ_CONCURRENCY = 50
+
+/**
+ * Short content fingerprint, enough for Studio to tell an unchanged file from a changed one
+ * between two runs without fetching either.
+ */
+export function hashContent(content: string): string {
+  return createHash('sha1').update(content).digest('hex').slice(0, 16)
+}
+
+async function hashStorage(storage: Storage, root: string, paths: Set<string>): Promise<Map<string, string>> {
+  const hashes = new Map<string, string>()
+  await inParallel({
+    items: [...paths],
+    limit: HASH_READ_CONCURRENCY,
+    run: async (path) => {
+      const content = await storage.readItem(absoluteStoragePath(root, path))
+      if (content !== null) hashes.set(path, hashContent(content))
+    },
+  })
+  return hashes
 }
 
 type PackageJSON = {
@@ -88,6 +115,10 @@ export type GenerationState = {
   storage: Storage
   root: string
   paths: Set<string>
+  /**
+   * Content fingerprint per relative path, see {@link hashContent}.
+   */
+  hashes: Map<string, string>
   peerDependencies: Record<string, string>
   missingDependencies: Array<string>
 }
@@ -187,8 +218,9 @@ export function createGenerationStream(
     const { peerDependencies, missingDependencies } = await resolvePeerDependencies(config.plugins.map(({ name }) => name))
     const keys = await storage.readKeys()
     const paths = new Set(keys.map((key) => relativeStoragePath(config.root, key)))
+    const hashes = await hashStorage(storage, config.root, paths)
 
-    options.onGenerationEnd?.({ storage, root: config.root, paths, peerDependencies, missingDependencies })
+    options.onGenerationEnd?.({ storage, root: config.root, paths, hashes, peerDependencies, missingDependencies })
 
     emitEvent('kubb:generation:end', [])
 

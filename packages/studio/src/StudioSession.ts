@@ -41,6 +41,13 @@ import { connectWebSocketRpc } from './rpc.ts'
  */
 const FILE_READ_CONCURRENCY = 50
 
+/**
+ * The most a run's output written to disk may weigh for the agent to keep a copy of it in memory
+ * once the next run overwrites it. Above this only the hashes are kept, so Studio still knows
+ * which files changed but can no longer show how.
+ */
+const PREVIOUS_GENERATION_MAX_BYTES = 50 * 1024 * 1024
+
 class GenerationRunTarget extends RpcTarget implements GenerationRun {
   constructor(
     private readonly generationStream: ReadableStream<GenerationEvent>,
@@ -263,6 +270,8 @@ export class StudioSession implements AgentApi {
   // is checked against, so a caller can only ever read what this run actually produced. Set as
   // soon as `kubb:generation:end` fires, undefined again if a run fails before that.
   #lastGeneration: GenerationState | undefined
+  // The run before `#lastGeneration`, kept so Studio can diff the two. See `#retainGeneration`.
+  #previousGeneration: GenerationState | undefined
   /**
    * Resolves when Studio calls {@link StudioSession.connect}. `studio:ready` waits on this so the
    * host does not queue jobs before the agent session is registered.
@@ -559,7 +568,11 @@ export class StudioSession implements AgentApi {
 
       // The session's own emitter carries the run: the host's logger is already on it from
       // `connect`, and these two come off again below, so one run's listeners never see the next.
-      // Cleared up front, filled the moment `kubb:generation:end` fires.
+      // Cleared up front, filled the moment `kubb:generation:end` fires. The run it held becomes
+      // the previous one, retained before this run can overwrite its files on disk.
+      if (this.#lastGeneration) {
+        this.#previousGeneration = await this.#retainGeneration(this.#lastGeneration)
+      }
       this.#lastGeneration = undefined
       const detach = [setupHookListener(this.#hooks, root, controller.signal)]
 
@@ -590,7 +603,7 @@ export class StudioSession implements AgentApi {
       // `= undefined` from this method and narrows it to `never`.
       const generation = this.#lastGeneration as GenerationState | undefined
       const files = [...(generation?.paths ?? [])]
-      return { status: 'success', files, fileCount: files.length }
+      return { status: 'success', files, fileCount: files.length, hashes: Object.fromEntries(generation?.hashes ?? []) }
     } finally {
       this.#isGenerating = false
     }
@@ -729,6 +742,44 @@ export class StudioSession implements AgentApi {
     }
   }
 
+  /**
+   * Makes a finished run outlive the next one. An in-memory run already has its own storage, so
+   * it is kept as is. A run written to disk is copied into memory first, since the next run writes
+   * over the same files. A run too large to copy keeps its paths and hashes but no content.
+   */
+  async #retainGeneration(generation: GenerationState): Promise<GenerationState> {
+    if (!this.#canWrite) {
+      return generation
+    }
+
+    const storage = memoryStorage()
+    let bytes = 0
+    let tooLarge = false
+    await inParallel({
+      items: [...generation.paths],
+      limit: FILE_READ_CONCURRENCY,
+      run: async (relativePath) => {
+        if (tooLarge) return
+        const key = absoluteStoragePath(generation.root, relativePath)
+        const content = await generation.storage.readItem(key)
+        if (content === null) return
+        bytes += Buffer.byteLength(content)
+        if (bytes > PREVIOUS_GENERATION_MAX_BYTES) {
+          tooLarge = true
+          return
+        }
+        await storage.writeItem(key, content)
+      },
+    })
+
+    if (tooLarge) {
+      await this.#warn('Kept only the hashes of the previous generation: its output is too large to keep in memory')
+      return { ...generation, storage: memoryStorage(), paths: new Set() }
+    }
+
+    return { ...generation, storage }
+  }
+
   async readFiles(data: ReadFilesInput): Promise<{ files: Record<string, string> }> {
     const command = 'readFiles'
     await this.#hooks.callHook('studio:command:start', { command })
@@ -756,10 +807,13 @@ export class StudioSession implements AgentApi {
       )
     }
 
-    const generation = this.#lastGeneration
+    const fromPrevious = data.generation === 'previous'
+    const generation = fromPrevious ? this.#previousGeneration : this.#lastGeneration
 
     if (!generation) {
-      return this.#refuse('Ignored files: no prior generation to read from', 'No prior generation to read from, run a generation first')
+      return fromPrevious
+        ? this.#refuse('Ignored files: no previous generation to read from', 'No previous generation to read from, run a generation twice')
+        : this.#refuse('Ignored files: no prior generation to read from', 'No prior generation to read from, run a generation first')
     }
 
     // Checked against the paths this run actually produced before touching storage, so a caller

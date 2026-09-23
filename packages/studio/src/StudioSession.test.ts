@@ -14,6 +14,14 @@ vi.mock('./api.ts', async (importOriginal) => ({
 
 vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
 
+// A run granted allowWrite uses `fsStorage`. Every run shares this one in-memory store instead, so
+// a test can watch the next run overwrite the previous one's files the way it would on disk.
+const disk = vi.hoisted(() => ({ storage: undefined as import('@kubb/core').Storage | undefined }))
+vi.mock('@kubb/core', async (importOriginal) => {
+  const core = await importOriginal<typeof import('@kubb/core')>()
+  return { ...core, fsStorage: () => (disk.storage ??= core.memoryStorage()) }
+})
+
 import { createAgentSession } from './api.ts'
 
 const root = '/project'
@@ -95,6 +103,7 @@ async function connectStudio(overrides: Partial<StudioSessionOptions> = {}): Pro
 
 beforeEach(() => {
   vi.clearAllMocks()
+  disk.storage = undefined
   vi.mocked(createAgentSession).mockResolvedValue({
     sessionId: 'session-1',
     slug: 'brave-otter',
@@ -263,6 +272,100 @@ describe('readFiles', () => {
     await expect(agent.readFiles({ paths: ['../../etc/passwd', 'src/gen/pet.ts'] })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'export const pet = 1' },
     })
+  })
+})
+
+describe('generation history', () => {
+  /**
+   * Emits `pet.ts` with whatever `content.current` holds when a run loads its config, so a test
+   * sets it before each run to make two runs differ.
+   */
+  function changingConfig(): { content: { current: string }; overrides: Partial<StudioSessionOptions> } {
+    const content = { current: '' }
+    return {
+      content,
+      overrides: {
+        loadConfig: async () =>
+          ({
+            root,
+            input: 'https://example.com/openapi.json',
+            output: { path: 'src/gen', clean: false },
+            parsers: [],
+            reporters: [],
+            adapter: createMockedAdapter(),
+            plugins: [filePlugin(`${root}/src/gen/pet.ts`, content.current)],
+            storage: memoryStorage(),
+          }) as unknown as Config,
+      },
+    }
+  }
+
+  async function run(agent: AgentApi, jobId: string) {
+    return agent.startGeneration({ jobId, config: {} }).result()
+  }
+
+  it('fingerprints every file in the run result', async () => {
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+
+    const result = await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
+
+    expect(result.hashes).toStrictEqual({ 'src/gen/pet.ts': expect.stringMatching(/^[0-9a-f]{16}$/) })
+  })
+
+  it('gives unchanged content the same hash across runs, and changed content a new one', async () => {
+    const { content, overrides } = changingConfig()
+    const { agent } = await connectStudio({ permissions: { allowRead: true }, ...overrides })
+
+    content.current = 'a'
+    const first = await run(agent, 'job-1')
+    const second = await run(agent, 'job-2')
+    content.current = 'b'
+    const third = await run(agent, 'job-3')
+
+    expect(second.hashes).toStrictEqual(first.hashes)
+    expect(third.hashes?.['src/gen/pet.ts']).not.toBe(second.hashes?.['src/gen/pet.ts'])
+  })
+
+  it('refuses to read a previous generation before a second run', async () => {
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+    await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
+
+    await expect(agent.readFiles({ paths: ['src/gen/pet.ts'], generation: 'previous' })).rejects.toThrow('No previous generation to read from')
+  })
+
+  it('reads the run before the latest one', async () => {
+    const { content, overrides } = changingConfig()
+    const { agent } = await connectStudio({ permissions: { allowRead: true }, ...overrides })
+    content.current = 'export const pet = 1'
+    await run(agent, 'job-1')
+    content.current = 'export const pet = 2'
+    await run(agent, 'job-2')
+
+    await expect(agent.readFiles({ paths: ['src/gen/pet.ts'], generation: 'previous' })).resolves.toStrictEqual({
+      files: { 'src/gen/pet.ts': 'export const pet = 1' },
+    })
+    await expect(agent.readFiles({ paths: ['src/gen/pet.ts'] })).resolves.toStrictEqual({ files: { 'src/gen/pet.ts': 'export const pet = 2' } })
+  })
+
+  it('keeps the previous content of a run written to disk after the next run overwrites it', async () => {
+    const { content, overrides } = changingConfig()
+    const { agent } = await connectStudio({ permissions: { allowRead: true, allowWrite: true }, ...overrides })
+    content.current = 'export const pet = 1'
+    await run(agent, 'job-1')
+    content.current = 'export const pet = 2'
+    await run(agent, 'job-2')
+
+    await expect(agent.readFiles({ paths: ['src/gen/pet.ts'], generation: 'previous' })).resolves.toStrictEqual({
+      files: { 'src/gen/pet.ts': 'export const pet = 1' },
+    })
+  })
+
+  it('checks a previous read against the paths that run produced', async () => {
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+    await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
+    await agent.startGeneration({ jobId: 'job-2', config: {} }).result()
+
+    await expect(agent.readFiles({ paths: ['../../etc/passwd'], generation: 'previous' })).resolves.toStrictEqual({ files: {} })
   })
 })
 
