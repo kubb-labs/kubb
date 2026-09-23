@@ -272,10 +272,17 @@ export type GenerateInput = { jobId: string; config: JSONKubbConfig }
 
 /**
  * What a finished run produced. `files` holds paths relative to the output directory. `hashes`
- * fingerprints each file's content, so a caller can tell which files changed since the previous
- * run without reading them. Older agents leave it out.
+ * fingerprints each file's content, so a caller can tell which files changed between two runs, or
+ * between a run and the disk, without reading them. `disk` fingerprints what the output directory
+ * held on disk before the run, and is only there for an agent with a project on disk.
  */
-export type GenerateResult = { status: 'success' | 'failed'; files: Array<string>; fileCount: number; hashes?: Record<string, string> }
+export type GenerateResult = {
+  status: 'success' | 'failed'
+  files: Array<string>
+  fileCount: number
+  hashes: Record<string, string>
+  disk?: { hashes: Record<string, string> }
+}
 
 /**
  * Asks the agent to apply a batch of edits to the config file on disk.
@@ -289,15 +296,23 @@ export type SaveConfigInput = { edits: Array<ConfigEdit> }
 export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean; file?: ConfigFileView }
 
 /**
- * Which run a file read targets: the latest one, or the run before it so a caller can diff the two.
+ * What a file read returns for a job: the files that job generated (`output`), or what the output
+ * directory held on disk before that job ran (`disk`, only on an agent with a project on disk).
  */
-export type ReadFilesGeneration = 'latest' | 'previous'
+export type FileSource = 'output' | 'disk'
 
 /**
- * Asks the agent to read generated files back. Capped at {@link MAX_FILES_PER_REQUEST} paths, all
- * of which must sit inside the output directory. `generation` defaults to `'latest'`.
+ * Asks the agent to read files of one generation job back. Capped at
+ * {@link MAX_FILES_PER_REQUEST} paths, each checked against what that job's set holds. The agent
+ * keeps a few recent jobs; a job it no longer keeps fails with {@link GENERATION_GONE_MESSAGE}.
+ * Only ever looked up by job id, so the caller decides whose jobs a reader may see.
  */
-export type ReadFilesInput = { paths: Array<string>; generation?: ReadFilesGeneration }
+export type ReadFilesInput = { jobId: string; paths: Array<string>; source?: FileSource }
+
+/**
+ * The error a file read fails with once the agent no longer keeps the job's files.
+ */
+export const GENERATION_GONE_MESSAGE = 'The files of this generation are no longer kept on the agent, run the generation again'
 
 /**
  * Describes the package to pack and where to PUT it. `uploadPath` is resolved against the Studio
