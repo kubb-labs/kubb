@@ -71,8 +71,11 @@ async function readSnapshot(generation: GenerationState): Promise<GenerationSnap
 function diffSnapshots(previous: GenerationSnapshot, current: GenerationSnapshot): Record<string, FileChange> {
   const changes: Record<string, FileChange> = {}
   for (const [path, content] of current) {
-    if (!previous.has(path)) changes[path] = 'added'
-    else if (previous.get(path) !== content) changes[path] = 'changed'
+    if (!previous.has(path)) {
+      changes[path] = 'added'
+      continue
+    }
+    if (previous.get(path) !== content) changes[path] = 'changed'
   }
   for (const path of previous.keys()) {
     if (!current.has(path)) changes[path] = 'removed'

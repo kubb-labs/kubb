@@ -263,6 +263,23 @@ describe('startGeneration', () => {
 })
 
 /**
+ * The config shape every `loadConfig` in this file returns, with only `root` and `plugins`
+ * varying per test.
+ */
+function baseTestConfig(configRoot: string, plugins: Array<Plugin>): Config {
+  return {
+    root: configRoot,
+    input: 'https://example.com/openapi.json',
+    output: { path: 'src/gen', clean: false },
+    parsers: [],
+    reporters: [],
+    adapter: createMockedAdapter(),
+    plugins,
+    storage: memoryStorage(),
+  } as unknown as Config
+}
+
+/**
  * A `loadConfig` whose output is whatever `files` holds when a run loads it. The handshake loads
  * the config too, so a test swaps `files` between runs rather than counting calls.
  */
@@ -276,16 +293,10 @@ function mutableConfig(
       files = next
     },
     loadConfig: async () =>
-      ({
-        root: configRoot,
-        input: 'https://example.com/openapi.json',
-        output: { path: 'src/gen', clean: false },
-        parsers: [],
-        reporters: [],
-        adapter: createMockedAdapter(),
-        plugins: Object.entries(files).map(([path, content], index) => ({ ...filePlugin(`${configRoot}/${path}`, content), name: `${pluginName}-${index}` })),
-        storage: memoryStorage(),
-      }) as unknown as Config,
+      baseTestConfig(
+        configRoot,
+        Object.entries(files).map(([path, content], index) => ({ ...filePlugin(`${configRoot}/${path}`, content), name: `${pluginName}-${index}` })),
+      ),
   }
 }
 
@@ -352,16 +363,8 @@ describe('generation changes', () => {
     // a second plugin fails it: `kubb:generation:end` still fires for it, with `status: 'failed'`.
     let run = 1
     const { agent } = await connectStudio({
-      loadConfig: async () => ({
-        root,
-        input: 'https://example.com/openapi.json',
-        output: { path: 'src/gen', clean: false },
-        parsers: [],
-        reporters: [],
-        adapter: createMockedAdapter(),
-        plugins: run === 1 ? [filePlugin(`${root}/src/gen/pet.ts`, 'v1')] : [filePlugin(`${root}/src/gen/pet.ts`, 'v2'), failingPlugin()],
-        storage: memoryStorage(),
-      }),
+      loadConfig: async () =>
+        baseTestConfig(root, run === 1 ? [filePlugin(`${root}/src/gen/pet.ts`, 'v1')] : [filePlugin(`${root}/src/gen/pet.ts`, 'v2'), failingPlugin()]),
     })
 
     await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
