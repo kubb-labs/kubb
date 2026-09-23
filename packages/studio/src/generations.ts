@@ -3,14 +3,8 @@ import { relative, resolve, sep } from 'node:path'
 import { inParallel } from '@internals/utils'
 import { fsStorage, memoryStorage, type Storage } from '@kubb/core'
 
-/**
- * How many files are read at once while hashing, copying, or snapshotting a file set.
- */
 const READ_CONCURRENCY = 50
 
-/**
- * Rebuilds the absolute storage key a root-relative path came from.
- */
 function absoluteStoragePath(root: string, relativePath: string): string {
   return resolve(root, relativePath)
 }
@@ -41,9 +35,6 @@ export type FileSet = {
   inMemory: boolean
 }
 
-/**
- * Hashes every file in `paths` and totals their size.
- */
 export async function describeFiles(storage: Storage, root: string, paths: Set<string>): Promise<{ hashes: Map<string, string>; bytes: number }> {
   const hashes = new Map<string, string>()
   let bytes = 0
@@ -60,9 +51,6 @@ export async function describeFiles(storage: Storage, root: string, paths: Set<s
   return { hashes, bytes }
 }
 
-/**
- * Reads every file of `set` that exists.
- */
 export async function readFileSet(set: FileSet, paths: Array<string>): Promise<Record<string, string>> {
   const files: Record<string, string> = {}
   await inParallel({
