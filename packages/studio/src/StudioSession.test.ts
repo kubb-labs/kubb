@@ -48,6 +48,23 @@ function filePlugin(absolutePath: string, content: string): Plugin {
 }
 
 /**
+ * A plugin whose `kubb:plugin:start` throws, turning the run into an error diagnostic. The driver
+ * catches this per-plugin and keeps going, so a run with this plugin alongside {@link filePlugin}
+ * still writes that file and still reports `status: 'failed'` — the case where a run produces real
+ * output but still counts as a failure.
+ */
+function failingPlugin(): Plugin {
+  return definePlugin(() => ({
+    name: 'studio-failing-plugin',
+    hooks: {
+      'kubb:plugin:start'() {
+        throw new Error('plugin exploded')
+      },
+    },
+  }))() as unknown as Plugin
+}
+
+/**
  * Stands in for Studio: opens a session over a fake connector, then calls `connect()` the way the
  * real Studio does to finish the handshake. Everything a test drives afterwards goes through the
  * same {@link AgentApi} Studio itself would hold.
@@ -328,6 +345,34 @@ describe('generation changes', () => {
     const result = await agent.startGeneration({ jobId: 'job-3', config: {} }).result()
 
     expect(result.changes).toStrictEqual({ 'src/gen/pet.ts': 'changed' })
+  })
+
+  it('does not promote a run that failed after writing files, even though it produced output', async () => {
+    // Unlike the config-throws case above, this run reaches `generate()` and writes a file before
+    // a second plugin fails it: `kubb:generation:end` still fires for it, with `status: 'failed'`.
+    let run = 1
+    const { agent } = await connectStudio({
+      loadConfig: async () => ({
+        root,
+        input: 'https://example.com/openapi.json',
+        output: { path: 'src/gen', clean: false },
+        parsers: [],
+        reporters: [],
+        adapter: createMockedAdapter(),
+        plugins: run === 1 ? [filePlugin(`${root}/src/gen/pet.ts`, 'v1')] : [filePlugin(`${root}/src/gen/pet.ts`, 'v2'), failingPlugin()],
+        storage: memoryStorage(),
+      }),
+    })
+
+    await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
+    run = 2
+    await expect(agent.startGeneration({ jobId: 'job-2', config: {} }).result()).rejects.toThrow()
+    run = 1
+    const result = await agent.startGeneration({ jobId: 'job-3', config: {} }).result()
+
+    // Compares against job-1's output (unchanged), not job-2's failed 'v2' (which would read as
+    // 'changed' back to 'v1').
+    expect(result.changes).toStrictEqual({})
   })
 })
 

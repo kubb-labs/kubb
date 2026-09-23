@@ -188,7 +188,12 @@ export function createGenerationStream(
     const keys = await storage.readKeys()
     const paths = new Set(keys.map((key) => relativeStoragePath(config.root, key)))
 
-    options.onGenerationEnd?.({ storage, root: config.root, paths, peerDependencies, missingDependencies })
+    // This hook fires for a failed run too (`status: 'failed'`), so a failed run's output must not
+    // become `#lastGeneration`: the next run would otherwise promote it to `#previousGeneration` and
+    // diff or serve a failed run's files as if they were the session's last real output.
+    if ((status ?? 'success') === 'success') {
+      options.onGenerationEnd?.({ storage, root: config.root, paths, peerDependencies, missingDependencies })
+    }
 
     emitEvent('kubb:generation:end', [])
 
