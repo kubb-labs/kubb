@@ -6,14 +6,18 @@ import { fsStorage, memoryStorage, type Storage } from '@kubb/core'
 const READ_CONCURRENCY = 50
 
 /**
- * A set of files keyed by root-relative path. `paths` is the whitelist a read is checked against,
- * so a caller only ever reads what the set holds. `hashes` describe the content even when a set was
- * too large to keep and `paths` is empty.
+ * A set of files keyed by path relative to `root`.
  */
 export type FileSet = {
   storage: Storage
   root: string
+  /**
+   * The paths a read is checked against. Empty for a set kept as hashes only.
+   */
   paths: Set<string>
+  /**
+   * Content fingerprint per path. Kept even when the set was too large to keep and `paths` is empty.
+   */
   hashes: Map<string, string>
   bytes: number
   /**
@@ -24,6 +28,9 @@ export type FileSet = {
 
 type Generation = { output: FileSet; disk?: FileSet }
 
+/**
+ * Fingerprints and measures the files at `paths`. A path with no content in `storage` is left out.
+ */
 export async function describeFiles({
   storage,
   root,
@@ -48,6 +55,9 @@ export async function describeFiles({
   return { hashes, bytes }
 }
 
+/**
+ * Reads the requested paths the set holds, skipping any it does not.
+ */
 export async function readFileSet({ set, paths }: { set: FileSet; paths: Array<string> }): Promise<Record<string, string>> {
   const files: Record<string, string> = {}
   await inParallel({
@@ -62,8 +72,7 @@ export async function readFileSet({ set, paths }: { set: FileSet; paths: Array<s
 }
 
 /**
- * Copies a set into agent memory, so it outlives files on disk being overwritten. Above
- * `maxBytes` only the hashes are kept.
+ * Copies a set into agent memory so it outlives the disk. Above `maxBytes` only the hashes are kept.
  */
 export async function copyToMemory({ set, maxBytes }: { set: FileSet; maxBytes: number }): Promise<FileSet> {
   const storage = memoryStorage()
@@ -84,10 +93,8 @@ export async function copyToMemory({ set, maxBytes }: { set: FileSet; maxBytes: 
 }
 
 /**
- * What the output directory holds on disk before a run, so Studio can diff a run against it.
- * `undefined` when `outputPath` is not a real subdirectory of `root` (listing the root would take in
- * every source file) or holds more than `maxFiles`. `willOverwrite` copies the content now, so it
- * survives the run.
+ * What the output directory holds on disk before a run. `undefined` when `outputPath` is not a real
+ * subdirectory of `root` (listing the root would take in every source file) or holds more than `maxFiles`.
  */
 export async function captureDisk({
   root,
@@ -119,10 +126,8 @@ export async function captureDisk({
 }
 
 /**
- * Keeps recent generations by job id, newest last. A generation is only ever looked up by the job
- * that produced it, so on a pooled sandbox agent one tenant can never reach another's output
- * through "the previous run": Studio decides which job ids a user may read. The oldest are dropped
- * past `maxCount`, or while the in-memory ones weigh more than `maxBytes`. The newest always stays.
+ * Keeps recent generations by job id, so on a pooled sandbox one tenant never reaches another's
+ * output. The oldest go past `maxCount` or `maxBytes` in memory, but the newest always stays.
  */
 export function createGenerationHistory<TGeneration extends Generation>({ maxCount, maxBytes }: { maxCount: number; maxBytes: number }) {
   const entries = new Map<string, TGeneration>()

@@ -40,7 +40,6 @@ import { connectWebSocketRpc } from './rpc.ts'
 
 /**
  * How many generations the agent keeps readable, so Studio can diff a run against an earlier one.
- * On a pooled sandbox agent these span every tenant, each only reachable by its own job id.
  */
 const MAX_KEPT_GENERATIONS = 8
 
@@ -51,7 +50,7 @@ const KEPT_GENERATIONS_MAX_BYTES = 100 * 1024 * 1024
 
 /**
  * Limits for the snapshot of the output directory on disk taken before each run. Past `FILES` no
- * snapshot is taken; past `BYTES` only its hashes are kept when the run is about to overwrite it.
+ * snapshot is taken. Past `BYTES` only its hashes are kept when the run is about to overwrite it.
  */
 const DISK_SNAPSHOT_MAX_FILES = 10_000
 const DISK_SNAPSHOT_MAX_BYTES = 50 * 1024 * 1024
@@ -272,12 +271,9 @@ export class StudioSession implements AgentApi {
   // events interleave with no way for Studio to tell the two runs apart.
   #isGenerating = false
   #heartbeatTimer: ReturnType<typeof setTimeout> | undefined
-  // The generation the running job produced, set the moment `kubb:generation:end` fires and filed
-  // into `#generations` under its job id once the job finishes.
+  // Set by `kubb:generation:end`, filed into `#generations` once the job finishes.
   #lastGeneration: GenerationEnd | undefined
-  // Finished generations by job id, kept so `readFiles` and `snapshot` can read file content on
-  // demand instead of Studio round tripping it over RPC. Lookups are by job id only: Studio checks
-  // who may read which job, so no tenant reaches another's output.
+  // Looked up by job id only: Studio checks who may read which job.
   #generations = createGenerationHistory<GenerationState>({ maxCount: MAX_KEPT_GENERATIONS, maxBytes: KEPT_GENERATIONS_MAX_BYTES })
   /**
    * Resolves when Studio calls {@link StudioSession.connect}. `studio:ready` waits on this so the
@@ -765,9 +761,7 @@ export class StudioSession implements AgentApi {
   }
 
   /**
-   * The latest generation of an agent that writes to disk is read straight from there, which the
-   * run about to start overwrites. Copy it into memory first so it stays readable, or keep its
-   * hashes only when it is too large.
+   * The latest generation of an agent that writes to disk lives there, and the next run overwrites it.
    */
   async #keepLatestInMemory(): Promise<void> {
     const jobId = this.#generations.latestJobId()
@@ -827,8 +821,7 @@ export class StudioSession implements AgentApi {
       return this.#refuse('Ignored files: that job has no snapshot of the files on disk', 'This agent kept no snapshot of the files on disk for that job')
     }
 
-    // Checked against the paths the set holds before touching storage, so a caller can only ever
-    // read what that run produced or what its output directory held, never an arbitrary path.
+    // Only paths the set holds are read, never an arbitrary path.
     const files = await readFileSet({ set, paths })
 
     await this.#hooks.callHook('studio:command:end', {

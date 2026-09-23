@@ -4,7 +4,7 @@
 
 Let Studio diff a run against an earlier run, or against the files on disk.
 
-**Breaking for the Studio connection:** this replaces the session-wide `GenerateResult.changes` and `readFiles({ revision: 'previous' })` from the last release, which compared against whichever run the session did last, another tenant's included on a pooled sandbox. `readFiles` now takes a `jobId` (required) and a `source`
+This breaks the Studio connection. It replaces the session-wide `GenerateResult.changes` and `readFiles({ revision: 'previous' })` from the last release, which compared against whichever run the session did last, another tenant's included on a pooled sandbox. `readFiles` now takes a `jobId` (required) and a `source`
 (`'output'` or `'disk'`), and fails with `GENERATION_GONE_MESSAGE` for a job the agent no longer keeps.
 Reads are only ever by job id, so on a pooled sandbox agent one tenant never reaches another's output:
 Studio decides whose jobs a reader may see. Update Studio and the agent together.

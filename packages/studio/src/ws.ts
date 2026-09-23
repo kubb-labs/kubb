@@ -79,9 +79,6 @@ export function createWebsocket(url: string, options: WebSocketOptions): WebSock
 }
 
 export type GenerationState = {
-  /**
-   * What the run produced.
-   */
   output: FileSet
   /**
    * What the output directory held on disk before the run, when the agent has a project on disk.

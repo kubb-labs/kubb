@@ -271,16 +271,22 @@ export type GenerationEvent = {
 export type GenerateInput = { jobId: string; config: JSONKubbConfig }
 
 /**
- * What a finished run produced. `files` holds paths relative to the output directory. `hashes`
- * fingerprints each file's content, so a caller can tell which files changed between two runs, or
- * between a run and the disk, without reading them. `disk` fingerprints what the output directory
- * held on disk before the run, and is only there for an agent with a project on disk.
+ * What a finished run produced.
  */
 export type GenerateResult = {
   status: 'success' | 'failed'
+  /**
+   * Paths of the generated files, relative to the output directory.
+   */
   files: Array<string>
   fileCount: number
+  /**
+   * Content fingerprint per file in `files`, to tell changed files apart without reading them.
+   */
   hashes: Record<string, string>
+  /**
+   * Fingerprints of the output directory on disk before the run, for an agent with a project on disk.
+   */
   disk?: { hashes: Record<string, string> }
 }
 
@@ -302,12 +308,23 @@ export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean;
 export type FileSource = 'output' | 'disk'
 
 /**
- * Asks the agent to read files of one generation job back. Capped at
- * {@link MAX_FILES_PER_REQUEST} paths, each checked against what that job's set holds. The agent
- * keeps a few recent jobs; a job it no longer keeps fails with {@link GENERATION_GONE_MESSAGE}.
- * Only ever looked up by job id, so the caller decides whose jobs a reader may see.
+ * Asks the agent to read files of one generation job back.
  */
-export type ReadFilesInput = { jobId: string; paths: Array<string>; source?: FileSource }
+export type ReadFilesInput = {
+  /**
+   * The job whose files to read, the only lookup key, so the caller decides whose jobs a reader may
+   * see. A job the agent no longer keeps fails with {@link GENERATION_GONE_MESSAGE}.
+   */
+  jobId: string
+  /**
+   * At most {@link MAX_FILES_PER_REQUEST} paths, each checked against what the job's set holds.
+   */
+  paths: Array<string>
+  /**
+   * Which of the job's sets to read, `output` when left out.
+   */
+  source?: FileSource
+}
 
 /**
  * The error a file read fails with once the agent no longer keeps the job's files.
