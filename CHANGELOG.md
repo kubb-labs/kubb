@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.3.15 — Sep 24, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Files emitted with `copy` now follow the parser's `extension` option. Parsers can implement the new `copy(file, source)` hook to turn a copied file into nodes, and `parserTs`/`parserTsx` use it to lift a template's imports and exports into import and export nodes. ([#4096](https://github.com/kubb-labs/kubb/pull/4096), [`050f6f9`](https://github.com/kubb-labs/kubb/commit/050f6f98d4150a2bd9b26d1937a56c1b0a89fd72))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.14 — Sep 24, 2026
 
 ### @kubb/adapter-oas
