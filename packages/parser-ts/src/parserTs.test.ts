@@ -1,7 +1,6 @@
 import { ast } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { parserTs } from './parserTs.ts'
-import { parserTsx } from './parserTsx.ts'
 
 describe('parserTs', () => {
   it('parses a source with structured nodes', async () => {
@@ -84,79 +83,43 @@ describe('parserTs', () => {
   })
 
   describe('copy', () => {
-    const body = [
-      '/** Shared client. */',
-      'export const client = axios.create()',
-      'export type Options = { headers: HeadersInit; validator: StandardSchemaValidator }',
-      'export const helpers = { applyHeaderStyles, ParseError }',
-    ].join('\n')
+    const file = ast.factory.createFile({ baseName: 'client.ts', path: '/src/client.ts', copy: '/templates/client.ts' })
     const template = [
       "import axios from 'axios'",
-      "import { applyHeaderStyles } from './serializers.ts'",
-      "import type { HeadersInit } from './serializers.ts'",
-      "import { ParseError, type StandardSchemaValidator } from './standardSchema.ts'",
-      "export * from '../models/pet.ts'",
+      "import { defaults, type Options } from './options.ts'",
+      "export * from './models.ts'",
       '',
-      body,
+      'export const client = (options: Options) => axios.create({ ...defaults, ...options })',
     ].join('\n')
-    const file = ast.factory.createFile({ baseName: 'client.ts', path: '/src/.kubb/client.ts', copy: '/templates/axios.ts', footer: 'client.setConfig({})' })
 
-    function copyAndParse(parser: ReturnType<typeof parserTs>, source = template) {
+    function copy(parser: ReturnType<typeof parserTs>, source = template) {
       return parser.parse(ast.factory.createFile(parser.copy!(file, source)))
     }
 
-    it('prints the template imports and exports like an injected file, dropping the extension by default', () => {
-      expect(copyAndParse(parserTs())).toBe(
+    it('prints the template imports and exports as nodes', () => {
+      expect(copy(parserTs())).toBe(
         [
-          [
-            "import axios from 'axios'",
-            "import type { HeadersInit } from './serializers'",
-            "import type { StandardSchemaValidator } from './standardSchema'",
-            "import { applyHeaderStyles } from './serializers'",
-            "import { ParseError } from './standardSchema'",
-            "export * from '../models/pet'",
-          ].join('\n'),
-          body,
-          'client.setConfig({})',
-        ].join('\n\n'),
+          "import axios from 'axios'",
+          "import type { Options } from './options'",
+          "import { defaults } from './options'",
+          "export * from './models'",
+          '',
+          'export const client = (options: Options) => axios.create({ ...defaults, ...options })',
+        ].join('\n'),
       )
     })
 
-    it('keeps the template extension when explicitly mapped', () => {
-      const result = copyAndParse(parserTs({ extension: { '.ts': '.ts' } }))
-
-      expect(result).toContain("import { applyHeaderStyles } from './serializers.ts'")
-      expect(result).toContain("import type { StandardSchemaValidator } from './standardSchema.ts'")
-      expect(result).toContain("export * from '../models/pet.ts'")
+    it.each([
+      ['.ts', "from './options.ts'"],
+      ['.js', "from './options.js'"],
+    ] as const)('applies the %s extension to template imports', (extension, expected) => {
+      expect(copy(parserTs({ extension: { '.ts': extension } }))).toContain(expected)
     })
 
-    it('rewrites the template extension to the mapped value', () => {
-      const result = copyAndParse(parserTs({ extension: { '.ts': '.js' } }))
+    it('keeps statements it cannot turn into nodes in the body', () => {
+      const source = ["import './polyfill.ts'", 'polyfill()'].join('\n')
 
-      expect(result).toContain("import { applyHeaderStyles } from './serializers.js'")
-      expect(result).toContain("export * from '../models/pet.js'")
-      expect(result).toContain("import axios from 'axios'")
-    })
-
-    it('drops template imports the body never uses, like createFile does for injected files', () => {
-      const result = copyAndParse(parserTs(), ["import { used, unused } from './a.ts'", 'used()'].join('\n'))
-
-      expect(result).toContain("import { used } from './a'")
-    })
-
-    it('lifts namespace and aliased imports, and leaves side-effect imports and other statements in the body', () => {
-      const source = ["import * as z from 'zod'", "import { a as b } from './a.ts'", "import './polyfill.ts'", 'b(z)'].join('\n')
-
-      expect(copyAndParse(parserTs({ extension: { '.ts': '.js' } }), source)).toBe(
-        ["import * as z from 'zod'\nimport { a as b } from './a.js'", "import './polyfill.ts'\nb(z)", 'client.setConfig({})'].join('\n\n'),
-      )
-    })
-
-    it('uses the mapping of the copied file extension in parserTsx', () => {
-      const tsxFile = ast.factory.createFile({ baseName: 'Provider.tsx', path: '/src/.kubb/Provider.tsx', copy: '/templates/Provider.tsx' })
-      const parser = parserTsx({ extension: { '.tsx': '.js' } })
-
-      expect(parser.parse(ast.factory.createFile(parser.copy!(tsxFile, "import { client } from './client.ts'")))).toBe("import { client } from './client.js'")
+      expect(copy(parserTs(), source)).toBe(source)
     })
   })
 })

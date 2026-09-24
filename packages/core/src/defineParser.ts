@@ -24,8 +24,8 @@ export type Parser<TMeta extends object = object, TNode = unknown> = {
    */
   parse(file: FileNode<TMeta>): string
   /**
-   * Describe a `copy` file's raw content as nodes (e.g. its imports as `ImportNode`s), the same `UserFileNode` shape `injectFile`
-   * takes. Kubb builds it with `createFile` and prints it with `parse` like any other file. Omit to copy the file verbatim.
+   * Turn the content of a `copy` file into a file node, which is then printed with `parse`.
+   * Omit to copy the file verbatim.
    */
   copy?(file: FileNode<TMeta>, source: string): UserFileNode<TMeta>
   /**

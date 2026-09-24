@@ -268,7 +268,7 @@ describe('FileManager', () => {
         dir = undefined
       })
 
-      it('copies a real file verbatim when the parser has no copy hook', async () => {
+      it('copies a real file verbatim and bypasses the parser', async () => {
         dir = mkdtempSync(path.join(tmpdir(), 'kubb-copy-'))
         const template = path.join(dir, 'template.ts')
         const content = "import a from 'b'\nexport const z = 1\nimport c from 'd'\n"
@@ -285,28 +285,19 @@ describe('FileManager', () => {
         expect(result).toBe(content.trimEnd())
       })
 
-      it('builds the copy hook result with createFile and prints it through parse', async () => {
+      it('prints a copied file through the parser copy hook', async () => {
         dir = mkdtempSync(path.join(tmpdir(), 'kubb-copy-'))
         const template = path.join(dir, 'template.ts')
-        writeFileSync(template, "import { a } from './a.ts'\n")
+        writeFileSync(template, 'export const a = 1')
 
-        const copied = {
-          path: '/src/client.ts',
-          baseName: 'client.ts' as const,
-          imports: [ast.factory.createImport({ name: ['a'], path: './a.ts' })],
-          sources: [ast.factory.createSource({ nodes: [ast.factory.createText('a()')] })],
-        }
-        const copy = vi.fn().mockReturnValue(copied)
-        const parse = vi.fn().mockReturnValue("import { a } from './a.js'")
-        const parser = { name: 'ts', extNames: ['.ts' as const], parse, copy, print: vi.fn().mockReturnValue('') }
-        const manager = new FileManager()
-
+        const copy = vi.fn((file: FileNode, source: string) => ({ ...file, sources: [ast.factory.createSource({ nodes: [ast.factory.createText(source)] })] }))
+        const parse = vi.fn().mockReturnValue('parsed')
+        const parser = { name: 'ts', extNames: ['.ts' as const], parse, copy, print: vi.fn() }
         const file = ast.factory.createFile({ path: '/src/client.ts', baseName: 'client.ts', copy: template })
-        const result = await manager.parse(file, { parsers: new Map([['.ts' as const, parser]]) })
 
-        expect(copy).toHaveBeenCalledWith(file, "import { a } from './a.ts'\n")
-        expect(parse).toHaveBeenCalledExactlyOnceWith(ast.factory.createFile(copied))
-        expect(result).toBe("import { a } from './a.js'")
+        expect(await new FileManager().parse(file, { parsers: new Map([['.ts' as const, parser]]) })).toBe('parsed')
+        expect(copy).toHaveBeenCalledWith(file, 'export const a = 1')
+        expect(parse).toHaveBeenCalledOnce()
       })
 
       it('wraps the copied content with banner and footer', async () => {

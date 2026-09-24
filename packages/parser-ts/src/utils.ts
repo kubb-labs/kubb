@@ -49,7 +49,7 @@ function toImportNodes(statement: ts.Statement, root: string): Array<ast.ImportN
 
   const { name, namedBindings, phaseModifier } = statement.importClause
   const specifier = statement.moduleSpecifier.text
-  // Plugins pass an absolute `path` plus `root`; `parse` makes it relative again and applies `extension`.
+  // Same shape as plugin imports, so `parse` resolves the path and applies `extension`.
   const target = specifier.startsWith('.') ? { path: resolve(root, specifier), root } : { path: specifier }
   const isTypeOnly = phaseModifier === ts.SyntaxKind.TypeKeyword
   const nodes: Array<ast.ImportNode> = []
@@ -88,8 +88,7 @@ type ModuleDeclarations = {
 }
 
 /**
- * Lifts the top-level `import` and `export … from` declarations of `source` into Import/Export nodes, built the way plugins
- * build them for injected files. The rest of the module is returned as `body`.
+ * Splits `source` into its top-level `import`/`export … from` declarations, as nodes, and the remaining `body`.
  */
 export function splitModuleDeclarations(source: string, filePath: string): ModuleDeclarations {
   const sourceFile = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest)

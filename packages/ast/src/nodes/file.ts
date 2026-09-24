@@ -242,13 +242,12 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
    */
   footer?: string | null
   /**
-   * Absolute on-disk path to copy into the output instead of rendering `sources`.
+   * Absolute on-disk path to copy into the output, through the parser's `copy` hook when it has one.
    *
    * Use to emit a real source file shipped inside a package (a template) into the generated
-   * folder. A parser with a `copy` hook turns it into nodes and prints it like any other file (so
-   * `@kubb/parser-ts` applies its `extension` option to the template's imports); otherwise it is
-   * copied verbatim. `sources` nodes are ignored for output but may still carry `name`/`isExportable`/`isIndexable`
-   * so barrel generation treats the file the same as a rendered one.
+   * folder. When set, `copy` provides the file content and any `sources` nodes are ignored for
+   * output; `sources` may still carry `name`/`isExportable`/`isIndexable` so barrel generation
+   * treats the file the same as a rendered one.
    */
   copy?: string | null
 }
