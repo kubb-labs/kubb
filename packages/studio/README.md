@@ -197,6 +197,15 @@ Pass `commit` with a snapshot job, and the finished snapshot carries `changes`: 
 changed, and removed since the previous snapshot of the same package on the same agent, and which
 snapshot (and commit) that was. `base` is `null` on the first one.
 
+Pass `baseMachineToken`, the machine token of another agent (`machineTokenFrom(id)`), and the
+snapshot also carries `branchChanges`: the same comparison against that agent's latest snapshot of
+the package. `kubb studio snapshot` passes the agent a CI run on the pull request's base branch
+registers under, so a pull request sees what it changes against `main`. `base` is `null` when that
+agent has no snapshot yet.
+
+An agent granted `allowRead` with a project on disk also reports `diskChanges`: what the run
+generated against what its output directory held before it ran, such as committed generated code.
+
 A snapshot job packs the tarball on the agent, not on Studio. The agent `PUT`s an empty request to
 a path Studio provides, gets back a redirect to a short-lived storage URL, and uploads the tarball
 there. The storage URL never crosses the RPC socket.

@@ -202,9 +202,16 @@ export async function disconnect({ sessionId, token, studioUrl }: DisconnectProp
  */
 export type StudioJobStatus = 'queued' | 'running' | 'success' | 'failed' | 'canceled'
 
-/** How a snapshot's files differ from the previous one of the same package and agent, relative to `output.path`. */
-export type StudioSnapshotChanges = {
-  /** The snapshot these changes are measured against, `null` for the first one. */
+/** Generated files that differ between two sets, by path relative to the config's `root`. */
+export type StudioFileChanges = {
+  added: Array<string>
+  changed: Array<string>
+  removed: Array<string>
+}
+
+/** How a snapshot's files differ from an earlier snapshot of the same package. */
+export type StudioSnapshotChanges = StudioFileChanges & {
+  /** The snapshot these changes are measured against, `null` when there is none to compare with. */
   base: {
     id: string
     version: string | null
@@ -212,9 +219,6 @@ export type StudioSnapshotChanges = {
     commit?: string
     createdAt: string
   } | null
-  added: Array<string>
-  changed: Array<string>
-  removed: Array<string>
 }
 
 /**
@@ -249,8 +253,19 @@ export type StudioSnapshot = {
    * ISO timestamp after which Studio may delete the tarball.
    */
   expiresAt: string
-  /** What changed since the previous snapshot. Absent when Studio or the agent predates it. */
+  /** What changed since the previous snapshot on the same agent. Absent when Studio or the agent predates it. */
   changes?: StudioSnapshotChanges
+  /**
+   * What differs from the latest snapshot on the agent `baseMachineToken` names, such as the branch a
+   * pull request merges into. `base` is `null` when that agent has no snapshot to compare with.
+   * Absent when the job named no base, or Studio predates it.
+   */
+  branchChanges?: StudioSnapshotChanges
+  /**
+   * What differs from the output directory on disk before the run, such as committed generated code.
+   * Only when the agent may read files and has a project on disk.
+   */
+  diskChanges?: StudioFileChanges
 }
 
 /**
@@ -302,6 +317,7 @@ export async function createJob({
   name,
   version,
   commit,
+  baseMachineToken,
   config,
 }: {
   studioUrl: string
@@ -312,12 +328,17 @@ export async function createJob({
   version?: string
   /** The commit this snapshot is built from, so the next one can diff against it. */
   commit?: string
+  /**
+   * Machine token of the agent whose latest snapshot this one is also compared with, such as the
+   * agent a CI run on the pull request's base branch registers under, derived with `machineTokenFrom`.
+   */
+  baseMachineToken?: string
   config?: Record<string, unknown>
 }): Promise<StudioJob> {
   const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs`, {
     method: 'POST',
     headers: { 'x-api-key': token },
-    body: { type, agentId, name, version, commit, config },
+    body: { type, agentId, name, version, commit, baseMachineToken, config },
   })
 
   return job

@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { detectCi } from './ci.ts'
+import { detectCi, gitlabRefSlug } from './ci.ts'
 
 const tempFiles: Array<string> = []
 
@@ -38,6 +38,36 @@ describe('detectCi', () => {
     ).toEqual({ id: 'gh:123456:42', name: 'acme/api#42' })
   })
 
+  it('reads the head commit and the base branch of a GitHub pull request, never the merge commit', () => {
+    const eventPath = writeGithubEvent({ pull_request: { number: 42, head: { sha: 'head1234' }, base: { ref: 'main' } } })
+
+    expect(
+      detectCi({
+        GITHUB_ACTIONS: 'true',
+        GITHUB_REPOSITORY_ID: '123456',
+        GITHUB_REPOSITORY: 'acme/api',
+        GITHUB_EVENT_PATH: eventPath,
+        GITHUB_SHA: 'merge5678',
+      }),
+    ).toEqual({ id: 'gh:123456:42', name: 'acme/api#42', commit: 'head1234', baseBranch: 'main', baseId: 'gh:123456:refs/heads/main' })
+  })
+
+  it('gives a GitHub branch run one agent per branch, the one pull requests into it compare with', () => {
+    const eventPath = writeGithubEvent({ pull_request: { number: 42, base: { ref: 'main' } } })
+    const pullRequest = detectCi({ GITHUB_ACTIONS: 'true', GITHUB_REPOSITORY_ID: '123456', GITHUB_EVENT_PATH: eventPath })
+    const branch = detectCi({
+      GITHUB_ACTIONS: 'true',
+      GITHUB_REPOSITORY_ID: '123456',
+      GITHUB_REPOSITORY: 'acme/api',
+      GITHUB_REF: 'refs/heads/main',
+      GITHUB_RUN_ID: '987',
+      GITHUB_SHA: 'a1b2c3d',
+    })
+
+    expect(branch).toEqual({ id: 'gh:123456:refs/heads/main', name: 'acme/api#main', commit: 'a1b2c3d' })
+    expect(pullRequest?.baseId).toBe(branch?.id)
+  })
+
   it('falls back to the run id when GitHub Actions has no pull request', () => {
     expect(
       detectCi({
@@ -69,6 +99,35 @@ describe('detectCi', () => {
         CI_COMMIT_REF_SLUG: 'main',
       }),
     ).toEqual({ id: 'gl:77:main', name: 'acme/api#main' })
+  })
+
+  it('compares a GitLab merge request with the agent a pipeline on its target branch registers under', () => {
+    const mergeRequest = detectCi({
+      GITLAB_CI: 'true',
+      CI_PROJECT_ID: '77',
+      CI_PROJECT_PATH: 'acme/api',
+      CI_MERGE_REQUEST_IID: '9',
+      CI_MERGE_REQUEST_TARGET_BRANCH_NAME: 'Release/2.x',
+      CI_MERGE_REQUEST_SOURCE_BRANCH_SHA: 'head1234',
+      CI_COMMIT_SHA: 'merge5678',
+    })
+    const branch = detectCi({ GITLAB_CI: 'true', CI_PROJECT_ID: '77', CI_COMMIT_REF_SLUG: 'release-2-x' })
+
+    expect(mergeRequest).toEqual({ id: 'gl:77:9', name: 'acme/api#9', commit: 'head1234', baseBranch: 'Release/2.x', baseId: 'gl:77:release-2-x' })
+    expect(mergeRequest?.baseId).toBe(branch?.id)
+  })
+
+  it('reproduces CI_COMMIT_REF_SLUG', () => {
+    expect(gitlabRefSlug('Feature/Add_Pets')).toBe('feature-add-pets')
+    expect(gitlabRefSlug('-main-')).toBe('main')
+    expect(gitlabRefSlug('a'.repeat(70))).toHaveLength(63)
+  })
+
+  it('compares a Bitbucket pull request with its destination branch', () => {
+    expect(
+      detectCi({ BITBUCKET_BUILD_NUMBER: '5', BITBUCKET_REPO_UUID: '{repo-uuid}', BITBUCKET_PR_ID: '3', BITBUCKET_PR_DESTINATION_BRANCH: 'main' }),
+    ).toMatchObject({ baseBranch: 'main', baseId: 'bb:{repo-uuid}:main' })
+    expect(detectCi({ BITBUCKET_BUILD_NUMBER: '5', BITBUCKET_REPO_UUID: '{repo-uuid}', BITBUCKET_BRANCH: 'main' })?.id).toBe('bb:{repo-uuid}:main')
   })
 
   it('derives an id from Bitbucket Pipelines', () => {
