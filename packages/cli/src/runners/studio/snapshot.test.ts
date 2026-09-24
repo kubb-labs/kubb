@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Hookable, type KubbHooks } from '@kubb/core'
-import { type ConnectionOptions, InvalidAgentTokenError, machineTokenFrom, type StudioAgent, type StudioJob } from '@kubb/studio'
+import { type ConnectionOptions, InvalidAgentTokenError, type StudioAgent, type StudioJob } from '@kubb/studio'
 import type { SnapshotOptions } from './run.ts'
 
 vi.mock('../generate/utils.ts', () => ({
@@ -164,7 +164,7 @@ describe('snapshot', () => {
 
     await snapshot(baseOptions({ json: true }))
 
-    expect(vi.mocked(createJob)).toHaveBeenCalledWith(expect.objectContaining({ baseMachineToken: machineTokenFrom('gh:123:refs/heads/main') }))
+    expect(vi.mocked(createJob)).toHaveBeenCalledWith(expect.objectContaining({ baseId: 'gh:123:refs/heads/main' }))
     const printed = JSON.parse(String(vi.mocked(console.log).mock.calls[0]?.[0]))
     expect(printed.branchChanges).toStrictEqual({ ...branchChanges, branch: 'main' })
     expect(printed.diskChanges).toStrictEqual(diskChanges)

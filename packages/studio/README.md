@@ -197,7 +197,7 @@ Pass `commit` with a snapshot job, and the finished snapshot carries `changes`: 
 changed, and removed since the previous snapshot of the same package on the same agent, and which
 snapshot (and commit) that was. `base` is `null` on the first one.
 
-Pass `baseMachineToken` (`machineTokenFrom(id)` of another agent) and the snapshot also carries
+Pass `baseId` (the `id` another CI agent's runs register under) and the snapshot also carries
 `branchChanges`: the same comparison against that agent's latest snapshot. On a GitHub pull
 request, `kubb studio snapshot` passes the agent its base branch's runs use. An agent granted
 `allowRead` also reports `diskChanges`, against its output directory before the run.

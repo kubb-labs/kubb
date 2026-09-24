@@ -255,7 +255,7 @@ export type StudioSnapshot = {
   expiresAt: string
   /** What changed since the previous snapshot on the same agent. Absent when Studio or the agent predates it. */
   changes?: StudioSnapshotChanges
-  /** What differs from the latest snapshot on the agent `baseMachineToken` names. Absent without a base. */
+  /** What differs from the latest snapshot of the CI agent `baseId` names. Absent without a base. */
   branchChanges?: StudioSnapshotChanges
   /** What differs from the output directory on disk before the run. Only for an agent granted reads. */
   diskChanges?: StudioFileChanges
@@ -310,7 +310,7 @@ export async function createJob({
   name,
   version,
   commit,
-  baseMachineToken,
+  baseId,
   config,
 }: {
   studioUrl: string
@@ -321,14 +321,14 @@ export async function createJob({
   version?: string
   /** The commit this snapshot is built from, so the next one can diff against it. */
   commit?: string
-  /** `machineTokenFrom(id)` of an agent whose latest snapshot this one is also compared with. */
-  baseMachineToken?: string
+  /** The `id` another CI agent's runs register under, such as the base branch's; this snapshot is also compared with its latest one. */
+  baseId?: string
   config?: Record<string, unknown>
 }): Promise<StudioJob> {
   const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs`, {
     method: 'POST',
     headers: { 'x-api-key': token },
-    body: { type, agentId, name, version, commit, baseMachineToken, config },
+    body: { type, agentId, name, version, commit, baseId, config },
   })
 
   return job

@@ -266,7 +266,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
       name,
       version: packageVersion,
       commit: ci.commit,
-      baseMachineToken: ci.base ? machineTokenFrom(ci.base.id) : undefined,
+      baseId: ci.base?.id,
     })
     step(`Snapshot job queued: ${job.id}`)
     const finished = await Promise.race([waitForJob({ studioUrl: options.studioUrl, token, id: job.id, timeoutMs }), lost])
