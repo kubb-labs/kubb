@@ -1,4 +1,4 @@
-import type { FileNode } from '@kubb/ast'
+import type { FileNode, UserFileNode } from '@kubb/ast'
 
 /**
  * Converts a resolved {@link FileNode} into the final source string that gets
@@ -24,10 +24,10 @@ export type Parser<TMeta extends object = object, TNode = unknown> = {
    */
   parse(file: FileNode<TMeta>): string
   /**
-   * Turn a `copy` file's raw content into nodes (e.g. its imports as `ImportNode`s) so `parse` prints it like any other file.
-   * Omit to copy the file verbatim.
+   * Describe a `copy` file's raw content as nodes (e.g. its imports as `ImportNode`s), the same `UserFileNode` shape `injectFile`
+   * takes. Kubb builds it with `createFile` and prints it with `parse` like any other file. Omit to copy the file verbatim.
    */
-  copy?(file: FileNode<TMeta>, source: string): FileNode<TMeta>
+  copy?(file: FileNode<TMeta>, source: string): UserFileNode<TMeta>
   /**
    * Render compiler AST nodes for this parser's language into source text.
    * Plugins call this to format the nodes they assemble before handing them

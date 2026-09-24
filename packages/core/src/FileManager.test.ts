@@ -285,16 +285,17 @@ describe('FileManager', () => {
         expect(result).toBe(content.trimEnd())
       })
 
-      it('prints the nodes the parser copy hook builds from the copied content through parse', async () => {
+      it('builds the copy hook result with createFile and prints it through parse', async () => {
         dir = mkdtempSync(path.join(tmpdir(), 'kubb-copy-'))
         const template = path.join(dir, 'template.ts')
         writeFileSync(template, "import { a } from './a.ts'\n")
 
-        const copied = ast.factory.createFile({
+        const copied = {
           path: '/src/client.ts',
-          baseName: 'client.ts',
+          baseName: 'client.ts' as const,
           imports: [ast.factory.createImport({ name: ['a'], path: './a.ts' })],
-        })
+          sources: [ast.factory.createSource({ nodes: [ast.factory.createText('a()')] })],
+        }
         const copy = vi.fn().mockReturnValue(copied)
         const parse = vi.fn().mockReturnValue("import { a } from './a.js'")
         const parser = { name: 'ts', extNames: ['.ts' as const], parse, copy, print: vi.fn().mockReturnValue('') }
@@ -304,7 +305,7 @@ describe('FileManager', () => {
         const result = await manager.parse(file, { parsers: new Map([['.ts' as const, parser]]) })
 
         expect(copy).toHaveBeenCalledWith(file, "import { a } from './a.ts'\n")
-        expect(parse).toHaveBeenCalledExactlyOnceWith(copied)
+        expect(parse).toHaveBeenCalledExactlyOnceWith(ast.factory.createFile(copied))
         expect(result).toBe("import { a } from './a.js'")
       })
 

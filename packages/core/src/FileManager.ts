@@ -45,7 +45,7 @@ async function parseCopy(file: FileNode, parser: Parser | undefined): Promise<st
   }
 
   if (parser?.copy) {
-    return parser.parse(parser.copy(file, content))
+    return parser.parse(ast.factory.createFile(parser.copy(file, content)))
   }
 
   return [file.banner, content, file.footer]
@@ -178,7 +178,7 @@ export class FileManager {
    * Converts a file's AST sources (or its `copy` source) into the final on-disk string.
    */
   async parse(file: FileNode, { parsers }: ParseOptions = {}): Promise<string> {
-    const parser = parsers && file.extname ? parsers.get(file.extname) : undefined
+    const parser = parsers?.get(file.extname)
 
     if (file.copy) {
       return parseCopy(file, parser)
