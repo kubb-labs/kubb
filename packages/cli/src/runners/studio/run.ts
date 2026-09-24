@@ -59,8 +59,6 @@ export type SnapshotOptions = StudioOptions & {
    * Stable identity for the CI agent. Falls back to CI auto-detection.
    */
   id?: string
-  /** Identity of the CI agent to also compare with. Falls back to CI auto-detection. */
-  baseId?: string
   /**
    * Package name for the generated tarball. Falls back to the nearest package.json.
    */

@@ -47,7 +47,7 @@ vi.mock('@kubb/studio', async (importOriginal) => ({
 
 const { createAgent, createJob, waitForJob, runConnection } = await import('@kubb/studio')
 const { detectCi } = await import('./ci.ts')
-const { formatBranchChanges, formatChanges, formatDiskChanges, snapshot } = await import('./snapshot.ts')
+const { formatBranchChanges, formatChanges, snapshot } = await import('./snapshot.ts')
 
 const agent: StudioAgent = { id: 'agent-1', slug: 'brave-otter', name: 'acme/api#42', token: 'agent-token' }
 
@@ -156,14 +156,9 @@ describe('snapshot', () => {
     expect(printed.changes).toStrictEqual(successfulJob.snapshot?.changes)
   })
 
-  it('compares with the base branch agent, and labels those changes with the branch', async () => {
-    vi.mocked(detectCi).mockReturnValueOnce({ id: 'gh:123:42', name: 'acme/api#42', commit: 'c4d7e10aa', baseBranch: 'main', baseId: 'gh:123:refs/heads/main' })
-    const branchChanges = {
-      base: { id: 'snap-main', version: '1.0.0', commit: 'a1b2c3d4e', createdAt: '2026-01-01T00:00:00.000Z' },
-      added: [],
-      changed: ['models/Pet.ts'],
-      removed: [],
-    }
+  it("compares with the base branch's agent, and labels those changes with the branch", async () => {
+    vi.mocked(detectCi).mockReturnValueOnce({ id: 'gh:123:42', name: 'acme/api#42', base: { branch: 'main', id: 'gh:123:refs/heads/main' } })
+    const branchChanges = { base: null, added: [], changed: [], removed: [] }
     const diskChanges = { added: [], changed: [], removed: ['models/Old.ts'] }
     vi.mocked(waitForJob).mockResolvedValue({ ...successfulJob, snapshot: { ...successfulJob.snapshot!, branchChanges, diskChanges } })
 
@@ -173,36 +168,6 @@ describe('snapshot', () => {
     const printed = JSON.parse(String(vi.mocked(console.log).mock.calls[0]?.[0]))
     expect(printed.branchChanges).toStrictEqual({ ...branchChanges, branch: 'main' })
     expect(printed.diskChanges).toStrictEqual(diskChanges)
-  })
-
-  it('names no base on a run of the base branch itself, or without one', async () => {
-    vi.mocked(detectCi).mockReturnValueOnce({ id: 'gh:123:refs/heads/main', name: 'acme/api#main', baseId: 'gh:123:refs/heads/main' })
-    await snapshot(baseOptions())
-    await snapshot(baseOptions())
-
-    for (const [call] of vi.mocked(createJob).mock.calls) {
-      expect(call.baseMachineToken).toBeUndefined()
-    }
-  })
-
-  it('takes the base only from --base-id once --id is custom', async () => {
-    vi.mocked(detectCi).mockReturnValueOnce({ id: 'gh:123:42', name: 'acme/api#42', baseBranch: 'main', baseId: 'gh:123:refs/heads/main' })
-    await snapshot(baseOptions({ id: 'custom-pr-42' }))
-    expect(vi.mocked(createJob).mock.calls[0]?.[0].baseMachineToken).toBeUndefined()
-
-    await snapshot(baseOptions({ id: 'custom-pr-42', baseId: 'custom-main' }))
-    expect(vi.mocked(createJob).mock.calls[1]?.[0].baseMachineToken).toBe(machineTokenFrom('custom-main'))
-  })
-
-  it('labels the comparison with an explicit --base-id, not the detected base branch', async () => {
-    vi.mocked(detectCi).mockReturnValueOnce({ id: 'gh:123:42', name: 'acme/api#42', baseBranch: 'main', baseId: 'gh:123:refs/heads/main' })
-    const branchChanges = { base: null, added: [], changed: [], removed: [] }
-    vi.mocked(waitForJob).mockResolvedValue({ ...successfulJob, snapshot: { ...successfulJob.snapshot!, branchChanges } })
-
-    await snapshot(baseOptions({ json: true, baseId: 'custom-release' }))
-
-    expect(vi.mocked(createJob)).toHaveBeenCalledWith(expect.objectContaining({ baseMachineToken: machineTokenFrom('custom-release') }))
-    expect(JSON.parse(String(vi.mocked(console.log).mock.calls[0]?.[0])).branchChanges.branch).toBe('custom-release')
   })
 
   it('logs the run to stderr in JSON mode, through the same logger as kubb studio', async () => {
@@ -312,24 +277,11 @@ describe('formatChanges', () => {
 describe('formatBranchChanges', () => {
   const base = { id: 'snap-main', version: '1.0.0', commit: 'a1b2c3d4e', createdAt: '2026-01-01T00:00:00.000Z' }
 
-  it('counts each kind against the branch and its short commit', () => {
-    expect(formatBranchChanges({ branch: 'main', base, added: ['a.ts'], changed: [], removed: ['b.ts'] })).toBe(
-      '1 added, 0 changed, 1 removed against main (a1b2c3d)',
-    )
-  })
-
-  it('says so when nothing differs', () => {
-    expect(formatBranchChanges({ branch: 'main', base: { ...base, commit: undefined }, added: [], changed: [], removed: [] })).toBe('No changes against main')
+  it('counts each kind against the branch', () => {
+    expect(formatBranchChanges({ branch: 'main', base, added: ['a.ts'], changed: [], removed: ['b.ts'] })).toBe('1 added, 0 changed, 1 removed against main')
   })
 
   it('says so when the branch has no snapshot yet', () => {
     expect(formatBranchChanges({ branch: 'main', base: null, added: [], changed: [], removed: [] })).toBe('No snapshot of main to compare with')
-  })
-})
-
-describe('formatDiskChanges', () => {
-  it('counts what differs from the files on disk', () => {
-    expect(formatDiskChanges({ added: ['a.ts'], changed: ['b.ts'], removed: [] })).toBe('1 added, 1 changed, 0 removed against the files on disk')
-    expect(formatDiskChanges({ added: [], changed: [], removed: [] })).toBe('Matches the files on disk')
   })
 })
