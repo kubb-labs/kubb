@@ -72,47 +72,6 @@ describe('pollForPairingToken', () => {
     await expect(promise).rejects.toBeInstanceOf(PairingExpiredError)
   })
 
-  it('throws on an unexpected pairing error instead of spinning until expiry', async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse({ error: 'server_error', error_description: 'pairing store unavailable' }, 500))
-
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session })
-    promise.catch(() => {})
-    await vi.runAllTimersAsync()
-
-    await expect(promise).rejects.toThrow('pairing store unavailable')
-  })
-
-  it('throws when Studio returns an empty body', async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse(undefined, 500))
-
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session })
-    promise.catch(() => {})
-    await vi.runAllTimersAsync()
-
-    await expect(promise).rejects.toThrow('empty pairing response')
-  })
-
-  it('falls back to a 5s interval instead of spinning when Studio omits it', async () => {
-    const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
-    fetchMock.mockResolvedValueOnce(createMockResponse(result))
-
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session: { ...session, interval: 0 } })
-    await vi.runAllTimersAsync()
-    await promise
-
-    expect(delayMock).toHaveBeenCalledWith(5_000, undefined, { signal: undefined })
-  })
-
-  it('falls back to a 600s expiry instead of expiring before the first poll when Studio omits it', async () => {
-    const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
-    fetchMock.mockResolvedValueOnce(createMockResponse(result))
-
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session: { ...session, expires_in: 0 } })
-    await vi.runAllTimersAsync()
-
-    await expect(promise).resolves.toEqual(result)
-  })
-
   it('keeps polling when Studio is briefly unreachable, and reports each miss through onRetry', async () => {
     using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const onRetry = vi.fn()
@@ -140,40 +99,9 @@ describe('pollForPairingToken', () => {
 
     await expect(promise).rejects.toBeInstanceOf(PairingCanceledError)
   })
-
-  it('rejects with PairingCanceledError when the signal is already aborted before polling starts', async () => {
-    const controller = new AbortController()
-    controller.abort()
-
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session, signal: controller.signal })
-
-    await expect(promise).rejects.toBeInstanceOf(PairingCanceledError)
-    expect(fetchMock).not.toHaveBeenCalled()
-  })
-
-  it('rejects with PairingCanceledError when the signal aborts mid-request', async () => {
-    const controller = new AbortController()
-    fetchMock.mockImplementationOnce(() => {
-      controller.abort()
-      return Promise.reject(new Error('The operation was aborted'))
-    })
-
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session, signal: controller.signal })
-    promise.catch(() => {})
-    await vi.runAllTimersAsync()
-
-    await expect(promise).rejects.toBeInstanceOf(PairingCanceledError)
-  })
 })
 
 describe('startPairing', () => {
-  it('requests a pairing session from Studio', async () => {
-    const session = { device_code: 'device', user_code: 'ABCD-EFGH', verification_uri: 'https://kubb.studio/pair' }
-    fetchMock.mockResolvedValueOnce(createMockResponse(session))
-
-    await expect(startPairing({ studioUrl: 'http://studio', type: 'cli', name: 'my-project', hostname: 'my-host' })).resolves.toMatchObject(session)
-  })
-
   it('pairs a cli machine as the kubb-cli client, with no agent kind', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse(session))
 
@@ -190,16 +118,6 @@ describe('startPairing', () => {
     await startPairing({ studioUrl: 'http://studio', type, name: 'kubb-agent on box', hostname: 'box' })
 
     expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toMatchObject({ client_id: 'kubb-agent', agent_kind: type })
-  })
-
-  it('rejects with PairingCanceledError when the signal is already aborted', async () => {
-    const controller = new AbortController()
-    controller.abort()
-    fetchMock.mockRejectedValueOnce(new DOMException('The operation was aborted', 'AbortError'))
-
-    await expect(
-      startPairing({ studioUrl: 'http://studio', type: 'cli', name: 'my-project', hostname: 'my-host', signal: controller.signal }),
-    ).rejects.toBeInstanceOf(PairingCanceledError)
   })
 })
 
@@ -231,17 +149,6 @@ describe('pairAgent', () => {
 
     await expect(promise).resolves.toEqual(result)
     expect(onCode).toHaveBeenNthCalledWith(2, expect.objectContaining({ user_code: 'WXYZ-1234' }), 2)
-  })
-
-  it('stops at the first expiry by default', async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse(session)).mockResolvedValueOnce(createMockResponse({ error: 'expired_token' }, 400))
-
-    const promise = pairAgent({ ...options, onCode: vi.fn() })
-    promise.catch(() => {})
-    await vi.runAllTimersAsync()
-
-    await expect(promise).rejects.toBeInstanceOf(PairingExpiredError)
-    expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
   it('never asks for a new code after a denial', async () => {

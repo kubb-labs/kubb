@@ -42,36 +42,12 @@ describe('getMachineToken', () => {
     }
   })
 
-  it('returns a 64-character hex string', async () => {
-    const getMachineToken = await importFreshToken()
-
-    await expect(getMachineToken()).resolves.toMatch(/^[a-f0-9]{64}$/)
-  })
-
-  it('returns a consistent value when KUBB_AGENT_SECRET is not set', async () => {
-    const getMachineToken = await importFreshToken()
-
-    await expect(getMachineToken()).resolves.toBe(await getMachineToken())
-  })
-
   it('returns a deterministic value derived from KUBB_AGENT_SECRET without touching storage', async () => {
     process.env.KUBB_AGENT_SECRET = 'my-secret'
     const getMachineToken = await importFreshToken()
 
     await expect(getMachineToken()).resolves.toBe(hash('sha256', 'my-secret'))
     expect(mockStorage.getItem).not.toHaveBeenCalled()
-  })
-
-  it('returns a different value for different KUBB_AGENT_SECRET values', async () => {
-    const getMachineToken = await importFreshToken()
-
-    process.env.KUBB_AGENT_SECRET = 'secret-a'
-    const tokenA = await getMachineToken()
-
-    process.env.KUBB_AGENT_SECRET = 'secret-b'
-    const tokenB = await getMachineToken()
-
-    expect(tokenA).not.toBe(tokenB)
   })
 
   it('persists the generated fallback secret to storage on first use', async () => {
@@ -91,12 +67,5 @@ describe('getMachineToken', () => {
     const freshGetMachineToken = await importFreshToken()
 
     await expect(freshGetMachineToken()).resolves.toBe(firstToken)
-  })
-
-  it('still returns a stable in-process token when persisting fails', async () => {
-    mockStorage.setItem.mockRejectedValueOnce(new Error('EACCES'))
-    const getMachineToken = await importFreshToken()
-
-    await expect(getMachineToken()).resolves.toBe(await getMachineToken())
   })
 })

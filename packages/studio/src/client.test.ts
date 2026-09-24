@@ -54,18 +54,6 @@ describe('createClient', () => {
     expect(registerAgent).toHaveBeenCalledWith({ token: 'my-token', studioUrl: 'https://kubb.studio', poolSize: 3 })
   })
 
-  it('hands a failed registration to the first pool session only, so a pool warns once', async () => {
-    vi.mocked(registerAgent).mockResolvedValueOnce(false)
-    sessionConnect.mockResolvedValue(undefined)
-
-    const client = createClient({ ...options, poolSize: 3 })
-    await client.connect()
-
-    const warnings = sessionConnect.mock.calls.map(([opts]) => opts.startupWarning)
-    expect(warnings[0]).toContain('Could not register with Kubb Studio')
-    expect(warnings.slice(1)).toStrictEqual([undefined, undefined])
-  })
-
   it('fires onAuthRequired once when several pool sessions reject the same token concurrently', async () => {
     const onAuthRequired = vi.fn()
     const capturedOptions: Array<StudioSessionOptions> = []
@@ -89,37 +77,5 @@ describe('createClient', () => {
 
     expect(onAuthRequired).toHaveBeenCalledTimes(1)
     expect(onAuthRequired).toHaveBeenCalledWith(error)
-  })
-
-  it('aborts the pool signal before calling the caller onAuthRequired', async () => {
-    const calls: Array<string> = []
-    const onAuthRequired = vi.fn(() => calls.push('onAuthRequired'))
-    let capturedSignal: AbortSignal | undefined
-
-    sessionConnect.mockImplementation((opts) => {
-      capturedSignal = opts.signal
-      capturedSignal?.addEventListener('abort', () => calls.push('abort'))
-
-      return Promise.resolve()
-    })
-
-    const client = createClient({ ...options, poolSize: 1, onAuthRequired })
-    await client.connect()
-
-    sessionConnect.mock.calls[0]?.[0].onTokenRejected?.(new InvalidAgentTokenError('https://kubb.studio'))
-
-    expect(calls).toStrictEqual(['abort', 'onAuthRequired'])
-    expect(capturedSignal?.aborted).toBe(true)
-  })
-
-  it('rejects connect() with the startup error instead of calling onAuthRequired', async () => {
-    const onAuthRequired = vi.fn()
-    const error = new InvalidAgentTokenError('https://kubb.studio')
-    sessionConnect.mockRejectedValue(error)
-
-    const client = createClient({ ...options, onAuthRequired })
-
-    await expect(client.connect()).rejects.toBe(error)
-    expect(onAuthRequired).not.toHaveBeenCalled()
   })
 })

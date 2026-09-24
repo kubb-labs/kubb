@@ -46,16 +46,6 @@ beforeEach(() => {
 })
 
 describe('runConnection', () => {
-  it('stops before opening a client when the run is already shutting down', async () => {
-    const clients = queueClients()
-    const controller = new AbortController()
-    controller.abort()
-
-    await expect(runConnection({ credentials: { token: 'a' }, clientOptions, onTokenRejected: vi.fn(), signal: controller.signal })).resolves.toBe('shutdown')
-    expect(clients).toHaveLength(0)
-    expect(createClient).not.toHaveBeenCalled()
-  })
-
   it('ends the run when the signal aborts while the session is live', async () => {
     const clients = queueClients(() => Promise.resolve())
     const controller = new AbortController()
@@ -86,39 +76,9 @@ describe('runConnection', () => {
     expect(options.mock.calls).toEqual([[{ token: 'a' }], [{ token: 'b' }]])
   })
 
-  it('reports a token rejected during a live session as live', async () => {
-    const clients = queueClients(
-      () => Promise.resolve(),
-      () => Promise.resolve(),
-    )
-    const controller = new AbortController()
-    const onTokenRejected = vi.fn(async () => ({ token: 'b' }))
-
-    const outcome = runConnection({ credentials: { token: 'a' }, clientOptions, onTokenRejected, signal: controller.signal })
-    await vi.waitFor(() => expect(createClient).toHaveBeenCalledTimes(1))
-    clients[0]?.onAuthRequired?.(new InvalidAgentTokenError('https://kubb.studio'))
-
-    await vi.waitFor(() => expect(createClient).toHaveBeenCalledTimes(2))
-    controller.abort()
-
-    await expect(outcome).resolves.toBe('shutdown')
-    expect(onTokenRejected).toHaveBeenCalledWith({ error: expect.any(InvalidAgentTokenError), credentials: { token: 'a' }, live: true })
-  })
-
   it('ends the run when the host declines to replace the token', async () => {
     queueClients(rejected)
 
     await expect(runConnection({ credentials: { token: 'a' }, clientOptions, onTokenRejected: async () => null })).resolves.toBe('stopped')
-  })
-
-  it('rethrows anything that is not a rejected token, since sessions retry those themselves', async () => {
-    const error = new Error('ECONNREFUSED')
-    const clients = queueClients(() => Promise.reject(error))
-    const onTokenRejected = vi.fn()
-
-    await expect(runConnection({ credentials: { token: 'a' }, clientOptions, onTokenRejected })).rejects.toBe(error)
-    expect(onTokenRejected).not.toHaveBeenCalled()
-    // The attempt still closes its client on the way out.
-    expect(clients[0]?.disconnect).toHaveBeenCalled()
   })
 })

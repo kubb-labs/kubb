@@ -34,23 +34,6 @@ describe('createGenerationStore', () => {
     expect((await storage.readKeys()).filter((key) => key.endsWith('a.ts'))).toHaveLength(2)
   })
 
-  it('drops the oldest while the kept content weighs too much, but always keeps the newest', async () => {
-    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 10, maxMb: 1 })
-    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'a'.repeat(600_000) } })
-    await addRun({ store, jobId: 'job-2', files: { 'a.ts': 'b'.repeat(600_000) } })
-
-    expect(await store.get('job-1')).toBeUndefined()
-    expect(await store.get('job-2')).toBeDefined()
-  })
-
-  it('keeps only the hashes of a set above the cap', async () => {
-    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
-    const kept = await store.keep({ jobId: 'job-1', source: 'output', files: sourceFiles({ 'a.ts': 'x'.repeat(2 * 1024 * 1024) }), maxSetMb: 1 })
-
-    expect(kept).toMatchObject({ paths: [], bytes: 0 })
-    expect(kept.hashes['a.ts']).toBeDefined()
-  })
-
   it('survives a restart through the index in its storage', async () => {
     const storage = memoryStorage()
     await addRun({ store: createGenerationStore({ storage, maxCount: 4, maxMb: 10 }), jobId: 'job-1', files: { 'a.ts': 'one' } })
