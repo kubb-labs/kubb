@@ -1,5 +1,6 @@
 import type { Hookable, KubbHooks } from '@kubb/core'
 import { x } from 'tinyexec'
+import type { AgentPermissions } from './protocol/index.ts'
 
 /**
  * Events a host emits about its Kubb Studio session, as opposed to a generation. `kubb:` stays
@@ -59,6 +60,13 @@ export type StudioDisconnectedContext = {
   reason: string
 }
 
+export type StudioReconnectingContext = {
+  /**
+   * How long until the next connection attempt, in milliseconds.
+   */
+  delayMs: number
+}
+
 export type StudioCommandStartContext = {
   /**
    * The command Studio sent, without its `studio:` prefix: `generate`, `connect` or `save`.
@@ -79,9 +87,14 @@ export type StudioCommandEndContext = {
 
 export type StudioWarnContext = {
   /**
-   * What was refused or ignored, and what would change it.
+   * What was refused or ignored.
    */
   message: string
+  /**
+   * The permission that was missing, when that is why. The runtime does not know how its host grants
+   * permissions, so the host appends its own remedy: a CLI flag, an environment variable.
+   */
+  permission?: keyof AgentPermissions
 }
 
 export type StudioErrorContext = {
@@ -99,6 +112,7 @@ declare global {
       'studio:connected': [ctx: StudioConnectedContext]
       'studio:ready': [ctx: StudioReadyContext]
       'studio:disconnected': [ctx: StudioDisconnectedContext]
+      'studio:reconnecting': [ctx: StudioReconnectingContext]
       'studio:command:start': [ctx: StudioCommandStartContext]
       'studio:command:end': [ctx: StudioCommandEndContext]
       'studio:warn': [ctx: StudioWarnContext]

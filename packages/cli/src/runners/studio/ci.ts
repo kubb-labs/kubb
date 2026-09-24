@@ -13,6 +13,10 @@ export type CiContext = {
    * Agent display name shown in Studio.
    */
   name: string
+  /**
+   * The commit this run builds, so the next snapshot can say what changed since this one.
+   */
+  commit?: string
 }
 
 function readGithubPullRequestNumber(eventPath: string | undefined): string | undefined {
@@ -39,19 +43,19 @@ export function detectCi(env: Record<string, string | undefined> = process.env):
     const repositoryId = env.GITHUB_REPOSITORY_ID ?? env.GITHUB_REPOSITORY ?? ''
     const scope = pullRequestNumber ?? env.GITHUB_RUN_ID ?? ''
 
-    return { id: `gh:${repositoryId}:${scope}`, name: `${env.GITHUB_REPOSITORY ?? 'github'}#${scope}` }
+    return { id: `gh:${repositoryId}:${scope}`, name: `${env.GITHUB_REPOSITORY ?? 'github'}#${scope}`, commit: env.GITHUB_SHA }
   }
 
   if (env.GITLAB_CI) {
     const scope = env.CI_MERGE_REQUEST_IID ?? env.CI_COMMIT_REF_SLUG ?? ''
 
-    return { id: `gl:${env.CI_PROJECT_ID ?? ''}:${scope}`, name: `${env.CI_PROJECT_PATH ?? 'gitlab'}#${scope}` }
+    return { id: `gl:${env.CI_PROJECT_ID ?? ''}:${scope}`, name: `${env.CI_PROJECT_PATH ?? 'gitlab'}#${scope}`, commit: env.CI_COMMIT_SHA }
   }
 
   if (env.BITBUCKET_BUILD_NUMBER) {
     const scope = env.BITBUCKET_PR_ID ?? env.BITBUCKET_BRANCH ?? ''
 
-    return { id: `bb:${env.BITBUCKET_REPO_UUID ?? ''}:${scope}`, name: `${env.BITBUCKET_REPO_FULL_NAME ?? 'bitbucket'}#${scope}` }
+    return { id: `bb:${env.BITBUCKET_REPO_UUID ?? ''}:${scope}`, name: `${env.BITBUCKET_REPO_FULL_NAME ?? 'bitbucket'}#${scope}`, commit: env.BITBUCKET_COMMIT }
   }
 
   if (env.CIRCLECI) {
@@ -61,7 +65,7 @@ export function detectCi(env: Record<string, string | undefined> = process.env):
     const project = env.CIRCLE_PROJECT_REPONAME ?? 'circleci'
     const scope = env.CIRCLE_PR_NUMBER ?? env.CIRCLE_BRANCH ?? ''
 
-    return { id: `circle:${owner}:${project}:${scope}`, name: `${owner ? `${owner}/` : ''}${project}#${scope}` }
+    return { id: `circle:${owner}:${project}:${scope}`, name: `${owner ? `${owner}/` : ''}${project}#${scope}`, commit: env.CIRCLE_SHA1 }
   }
 
   return null

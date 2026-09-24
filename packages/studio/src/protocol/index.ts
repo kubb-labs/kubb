@@ -391,19 +391,6 @@ export type RpcConnector = (input: { url: string; token: string; local: AgentApi
 export const MAX_FILES_PER_REQUEST = 50
 
 /**
- * Identifies the host running the Kubb runtime. Local to the runtime, not part of the wire: it
- * picks which remedy a refused-permission warning names. Distinct from an agent's `type` (`user`,
- * `cli`, `ci`, `sandbox`, `global`), which is what Studio records the agent as at pairing.
- */
-export type ClientInfo = {
-  /**
-   * `cli` for any `kubb` invocation, including `kubb studio snapshot` from CI. `docker` for the
-   * agent image.
-   */
-  kind: 'cli' | 'docker'
-}
-
-/**
  * Connection payload returned by {@link AgentApi.connect}. Carries only what Studio renders, with
  * everything about the config under one key.
  */

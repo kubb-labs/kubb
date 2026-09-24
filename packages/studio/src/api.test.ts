@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { logLevel as logLevelMap } from '@kubb/core'
 import { spyOnConsole } from './console.mock.ts'
 import { createAgent, createAgentSession, createJob, disconnect, InvalidAgentTokenError, registerAgent, waitForJob } from './api.ts'
 
@@ -68,7 +67,7 @@ describe('registerAgent', () => {
     expect(fetchMock).toHaveBeenCalledTimes(3)
   })
 
-  it('returns false when every attempt fails', async () => {
+  it('returns false when every attempt fails, and leaves reporting it to the caller', async () => {
     fetchMock.mockRejectedValue(new Error('502'))
 
     const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio' })
@@ -76,6 +75,7 @@ describe('registerAgent', () => {
 
     await expect(promise).resolves.toBe(false)
     expect(fetchMock).toHaveBeenCalledTimes(4)
+    expect(consoleSpy.error).not.toHaveBeenCalled()
   })
 })
 
@@ -137,46 +137,28 @@ describe('createAgentSession', () => {
 })
 
 describe('disconnect', () => {
-  it('logs the slug when one is known', async () => {
+  it('returns true once Studio is notified, without printing anything', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse({}))
 
-    await disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', slug: 'brave-otter', logLevel: logLevelMap.info })
+    await expect(disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio' })).resolves.toBe(true)
 
-    // console.error, not console.log: a CI runner only forwards a child process's stderr live.
-    expect(consoleSpy.error).toHaveBeenCalledWith('[brave-otter] Disconnected from Studio')
+    const [url, init] = fetchMock.mock.calls[0]!
+    expect(url).toBe('http://studio/api/agent/sessions/session-abc/disconnect')
+    expect(init.method).toBe('POST')
+    expect(consoleSpy.error).not.toHaveBeenCalled()
   })
 
-  it('falls back to a generic tag when no slug is known', async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse({}))
-
-    await disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', logLevel: logLevelMap.info })
-
-    expect(consoleSpy.error).toHaveBeenCalledWith('[agent] Disconnected from Studio')
-  })
-
-  it('warns instead of throwing when Studio cannot be notified', async () => {
+  it('returns false instead of throwing when Studio cannot be notified', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse({ message: 'gone' }, 500))
 
-    await expect(
-      disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', slug: 'brave-otter', logLevel: logLevelMap.info }),
-    ).resolves.toBeUndefined()
-
-    expect(consoleSpy.warn).toHaveBeenCalledWith(expect.stringContaining('[brave-otter] Failed to notify Studio of disconnection'))
-  })
-
-  it.each([400, 401, 403, 404, 409])('ignores a %s response', async (status) => {
-    fetchMock.mockResolvedValueOnce(createMockResponse({}, status))
-
-    await expect(disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', logLevel: logLevelMap.info })).resolves.toBeUndefined()
+    await expect(disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio' })).resolves.toBe(false)
     expect(consoleSpy.warn).not.toHaveBeenCalled()
   })
 
-  it('never logs when no logLevel is given, the silent default a library should have', async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse({}))
+  it.each([400, 401, 403, 404, 409])('counts a %s response as notified, since Studio already dropped the session', async (status) => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({}, status))
 
-    await disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio', slug: 'brave-otter' })
-
-    expect(consoleSpy.error).not.toHaveBeenCalled()
+    await expect(disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio' })).resolves.toBe(true)
   })
 })
 
@@ -220,6 +202,22 @@ describe('createJob', () => {
     expect(init.method).toBe('POST')
     expect(new Headers(init.headers).get('x-api-key')).toBe('ci-token')
     expect(JSON.parse(String(init.body))).toEqual({ type: 'snapshot', agentId: 'agent-1', name: '@kubb/demo', version: '1.0.0' })
+  })
+
+  it('sends the commit a snapshot is built from', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'queued' } }, 202))
+
+    await createJob({
+      studioUrl: 'http://studio',
+      token: 'ci-token',
+      type: 'snapshot',
+      agentId: 'agent-1',
+      name: '@kubb/demo',
+      version: '1.0.0',
+      commit: 'c4d7e10',
+    })
+
+    expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toMatchObject({ commit: 'c4d7e10' })
   })
 })
 

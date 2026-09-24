@@ -196,6 +196,20 @@ describe('studio session events', () => {
     expect(lines).toStrictEqual(['Kubb Studio asked to save', '✓ Finished save (applied 2/3 edits to kubb.config.ts)', '✓ Ready to receive jobs'])
   })
 
+  it('announces a retry instead of leaving the runtime to print it', async () => {
+    const lines = await render((context) => context.callHook('studio:reconnecting', { delayMs: 30_000 }))
+
+    expect(lines).toStrictEqual(['Retrying connection to Kubb Studio in 30.00s'])
+  })
+
+  it('names the flag that grants a refused permission', async () => {
+    const lines = await render((context) =>
+      context.callHook('studio:warn', { message: 'Ignored the spec from Studio: generating from a Studio spec was not granted', permission: 'allowInput' }),
+    )
+
+    expect(lines).toStrictEqual(['⚠ Ignored the spec from Studio: generating from a Studio spec was not granted; pass --allow-input to allow it'])
+  })
+
   it('drops everything but errors at silent', async () => {
     const lines = await render(async (context) => {
       await context.callHook('studio:connecting', { url: 'http://localhost:3000' })

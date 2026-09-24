@@ -1,16 +1,14 @@
 import { writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
-import { styleText } from 'node:util'
 import { getErrorMessage, read, toError } from '@internals/utils'
-import { cacheStorage, type Config, fsStorage, Hookable, type KubbHooks, logLevel as logLevelMap, memoryStorage } from '@kubb/core'
+import { cacheStorage, type Config, fsStorage, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { version as kubbVersion } from '../package.json'
 import { setupHookListener } from './hooks.ts'
 import {
   type AgentApi,
   type AgentConnectResponse,
   type AgentPermissions,
-  type ClientInfo,
   type ConfigFileView,
   type ConnectMessagePayload,
   type GenerateInput,
@@ -84,10 +82,6 @@ export type StudioSessionOptions = {
    */
   version: string
   /**
-   * Identifies the host to Studio, so the UI can badge a CLI connection and show the real project.
-   */
-  client?: ClientInfo
-  /**
    * What Studio may do in this project, off unless the host grants it. A sandbox session narrows
    * them further: it never writes to disk and never edits a config file, and it always generates
    * from the spec Studio sends.
@@ -119,19 +113,18 @@ export type StudioSessionOptions = {
    */
   installLogger?: (hooks: Hookable<KubbHooks>) => void | Promise<void>
   /**
-   * Threshold for the reconnect loop's own `console.error` lines, using the numeric constants
-   * `@kubb/core` exports as `logLevel`. Left out, those lines never print, the same silent default
-   * as an unset `installLogger` — a reconnect happens outside any one session's hooks, so it has no
-   * other way to ask a host how loud to be.
-   */
-  logLevel?: number
-  /**
    * Called when this session's background reconnect is rejected with an invalid token. Unlike
    * `ClientOptions.onAuthRequired`, this fires once per session rather than once per pool:
    * `createClient` wraps it into that deduped, pool-stopping callback. Not meant to be set
    * directly by a host.
    */
   onTokenRejected?: (error: InvalidAgentTokenError) => void
+  /**
+   * Sent as `studio:warn` once the host's logger is installed. `createClient` uses it to report a
+   * failed registration, which happens before any session has hooks to report through. Not meant
+   * to be set directly by a host, and dropped on reconnect so it is reported once.
+   */
+  startupWarning?: string
 }
 
 /**
@@ -182,16 +175,10 @@ function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
  * socket, its hook emitter, or its session id alive for the length of the retry interval.
  */
 function reconnect(options: ResolvedOptions): void {
-  const { signal, retryInterval, onTokenRejected, logLevel } = options
+  const { signal, retryInterval, onTokenRejected } = options
 
   if (signal?.aborted) {
     return
-  }
-
-  // console.error, not console.info: a CI runner only forwards a child process's stderr live, so
-  // an info-level write here would be silently buffered away instead of reaching its log.
-  if (logLevel !== undefined && logLevel > logLevelMap.silent) {
-    console.error(styleText('dim', `Retrying connection in ${retryInterval}ms to Kubb Studio ...`))
   }
 
   const cancel = () => clearTimeout(timer)
@@ -205,12 +192,9 @@ function reconnect(options: ResolvedOptions): void {
     }
 
     // The rejection is never awaited, so it has to be caught here or it surfaces as an
-    // unhandledRejection that kills the retry loop instead of trying again.
+    // unhandledRejection that kills the retry loop instead of trying again. The failure itself was
+    // already reported: `start()` sends `studio:error` through the new session's hooks.
     new StudioSession(options).start().catch((error: unknown) => {
-      if (logLevel !== undefined && logLevel > logLevelMap.silent) {
-        console.error(styleText('red', `Reconnect attempt to Kubb Studio failed: ${getErrorMessage(error)}`))
-      }
-
       // A rejected token stays rejected, so retrying only spams 401s until the process is killed.
       // The host learns about it here instead: the startup path already reports its own rejection
       // by throwing, so only the background path needs the callback.
@@ -268,9 +252,11 @@ export class StudioSession implements AgentApi {
    * host does not queue jobs before the agent session is registered.
    */
   readonly #connectAck = Promise.withResolvers<void>()
+  readonly #startupWarning: string | undefined
 
-  constructor(options: StudioSessionOptions) {
+  constructor({ startupWarning, ...options }: StudioSessionOptions) {
     this.#options = applyStudioDefaults(options)
+    this.#startupWarning = startupWarning
     // dispose() may reject this before start() awaits it
     void this.#connectAck.promise.catch(() => {})
   }
@@ -323,6 +309,10 @@ export class StudioSession implements AgentApi {
 
     await installLogger?.(this.#hooks)
 
+    if (this.#startupWarning) {
+      await this.#warn(this.#startupWarning)
+    }
+
     try {
       // Before the session exists, so a host can cover the wait: `createAgentSession` is a round
       // trip and the socket after it opens without being awaited.
@@ -361,20 +351,33 @@ export class StudioSession implements AgentApi {
         throw error
       }
 
-      reconnect(this.#options)
+      await this.#reconnect()
     }
   }
 
-  #warn(message: string): Promise<void> | void {
-    return this.#hooks.callHook('studio:warn', { message })
+  /**
+   * Tells the host a retry is coming, then schedules it. The host prints the retry, since the
+   * runtime has no output of its own.
+   */
+  async #reconnect(): Promise<void> {
+    if (this.#options.signal?.aborted) {
+      return
+    }
+
+    await this.#hooks.callHook('studio:reconnecting', { delayMs: this.#options.retryInterval })
+    reconnect(this.#options)
+  }
+
+  #warn(message: string, permission?: keyof AgentPermissions): Promise<void> | void {
+    return this.#hooks.callHook('studio:warn', { message, permission })
   }
 
   /**
    * Declines a request: logs why locally, then tells Studio. The two wordings differ on purpose,
    * since the log names the request that was ignored and the error names what the caller can do.
    */
-  async #refuse(reason: string, message: string): Promise<never> {
-    await this.#warn(reason)
+  async #refuse(reason: string, message: string, permission?: keyof AgentPermissions): Promise<never> {
+    await this.#warn(reason, permission)
     throw new Error(message)
   }
 
@@ -482,7 +485,7 @@ export class StudioSession implements AgentApi {
    * `#disposed` keeps the close event from running this twice, and a shutdown from reconnecting.
    */
   async #end({ retry }: { retry: boolean }): Promise<void> {
-    const { studioUrl, token, logLevel } = this.#options
+    const { studioUrl, token } = this.#options
 
     if (this.#disposed) {
       return
@@ -493,14 +496,14 @@ export class StudioSession implements AgentApi {
 
     await this.#hooks.callHook('studio:disconnected', { reason: retry ? 'connection closed' : 'shutdown' })
 
-    // Nothing to tell Studio about when the session never opened.
-    if (this.#session) {
-      // Already tearing down, so a failed disconnect changes nothing.
-      await disconnect({ sessionId: this.#session.sessionId, studioUrl, token, slug: this.#session.slug, logLevel }).catch(() => {})
+    // Nothing to tell Studio about when the session never opened. Already tearing down, so a failed
+    // notify is only worth a warning.
+    if (this.#session && !(await disconnect({ sessionId: this.#session.sessionId, studioUrl, token }))) {
+      await this.#warn('Could not notify Kubb Studio of the disconnect')
     }
 
     if (retry) {
-      reconnect(this.#options)
+      await this.#reconnect()
     }
   }
 
@@ -544,7 +547,7 @@ export class StudioSession implements AgentApi {
     this.#isGenerating = true
 
     const command = 'generate'
-    const { root, loadConfig, permissions, client } = this.#options
+    const { root, loadConfig, permissions } = this.#options
 
     try {
       await this.#hooks.callHook('studio:command:start', { command })
@@ -562,10 +565,7 @@ export class StudioSession implements AgentApi {
       }
 
       if (patch?.input && !this.#canUseInput) {
-        // The Docker agent reads `allowInput` from `KUBB_AGENT_ALLOW_INPUT`. The CLI grants it
-        // through `--allowInput` or the per-project prompt instead, so each host gets its own remedy.
-        const remedy = client?.kind === 'cli' ? '--allowInput, or answer yes when kubb studio asks,' : 'KUBB_AGENT_ALLOW_INPUT=true'
-        await this.#warn(`Ignored the spec from Studio; set ${remedy} to generate from it`)
+        await this.#warn('Ignored the spec from Studio: generating from a Studio spec was not granted', 'allowInput')
       }
 
       const resolvedPlugins = plugins ?? config.plugins
@@ -766,14 +766,9 @@ export class StudioSession implements AgentApi {
   async readFiles(data: ReadFilesInput): Promise<{ files: Record<string, string> }> {
     const command = 'readFiles'
     await this.#hooks.callHook('studio:command:start', { command })
-    const { client } = this.#options
 
     if (!this.#canRead) {
-      await this.#warn('Ignored files: reading generated files was not granted')
-
-      // Each host grants it a different way.
-      const remedy = client?.kind === 'cli' ? '--allow-read, or answer yes when kubb studio asks,' : 'KUBB_AGENT_ALLOW_READ=true'
-      throw new Error(`The agent was not granted permission to read generated files; set ${remedy} to allow it`)
+      return this.#refuse('Ignored files: reading generated files was not granted', 'The agent was not granted permission to read generated files', 'allowRead')
     }
 
     // `paths` came off the wire, so check its shape before walking it.

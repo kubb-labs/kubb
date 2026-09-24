@@ -9,7 +9,7 @@ import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
 vi.mock('./api.ts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./api.ts')>()),
   createAgentSession: vi.fn(),
-  disconnect: vi.fn().mockResolvedValue(undefined),
+  disconnect: vi.fn().mockResolvedValue(true),
 }))
 
 vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
@@ -36,7 +36,7 @@ vi.mock('@kubb/core', async (importOriginal) => {
   return { ...core, fsStorage: () => (disk.storage ??= createDisk()), cacheStorage: () => (disk.cache ??= core.memoryStorage()) }
 })
 
-import { createAgentSession } from './api.ts'
+import { createAgentSession, disconnect } from './api.ts'
 
 const root = '/project'
 const pluginName = 'studio-test-plugin'
@@ -155,6 +155,28 @@ describe('the handshake', () => {
     await expect(agent.connect()).resolves.toMatchObject({ root, versions: { agent: '2.0.0' } })
   })
 
+  it('sends every permission off when the host granted none, even inside a CI job', async () => {
+    vi.stubEnv('CI', 'true')
+    vi.stubEnv('GITHUB_ACTIONS', 'true')
+
+    try {
+      const { agent } = await connectStudio()
+
+      await expect(agent.connect()).resolves.toMatchObject({
+        permissions: { allowWrite: false, allowInput: false, allowExec: false, allowConfigEdit: false, allowRead: false },
+      })
+    } finally {
+      vi.unstubAllEnvs()
+    }
+  })
+
+  it('reports a startup warning once the host logger is installed', async () => {
+    const warn = vi.fn()
+    await connectStudio({ startupWarning: 'Could not register', installLogger: (hooks) => void hooks.hook('studio:warn', warn) })
+
+    expect(warn).toHaveBeenCalledExactlyOnceWith({ message: 'Could not register', permission: undefined })
+  })
+
   it('emits studio:ready only after Studio calls connect()', async () => {
     const ready = vi.fn()
     await connectStudio({ installLogger: (hooks) => void hooks.hook('studio:ready', ready) })
@@ -221,6 +243,39 @@ describe('the handshake', () => {
     expect(reconnected).toHaveBeenCalledWith(expect.objectContaining({ agentSlug: 'quiet-fox' }))
   })
 
+  it('announces the retry through studio:reconnecting instead of printing it', async () => {
+    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const controller = new AbortController()
+    const reconnecting = vi.fn()
+    const { closeTransport } = await connectStudio({
+      retryInterval: 60_000,
+      signal: controller.signal,
+      installLogger: (hooks) => void hooks.hook('studio:reconnecting', reconnecting),
+    })
+
+    closeTransport()
+
+    await vi.waitFor(() => expect(reconnecting).toHaveBeenCalledWith({ delayMs: 60_000 }))
+    expect(error).not.toHaveBeenCalled()
+    controller.abort()
+  })
+
+  it('warns through studio:warn when Studio could not be told about the disconnect', async () => {
+    vi.mocked(disconnect).mockResolvedValueOnce(false)
+    const controller = new AbortController()
+    const warn = vi.fn()
+    const { closeTransport } = await connectStudio({
+      retryInterval: 60_000,
+      signal: controller.signal,
+      installLogger: (hooks) => void hooks.hook('studio:warn', warn),
+    })
+
+    closeTransport()
+
+    await vi.waitFor(() => expect(warn).toHaveBeenCalledWith(expect.objectContaining({ message: 'Could not notify Kubb Studio of the disconnect' })))
+    controller.abort()
+  })
+
   it('reports an RPC disconnect to lifecycle hooks', async () => {
     const disconnected = vi.fn()
     const { closeTransport } = await connectStudio({ installLogger: (hooks) => void hooks.hook('studio:disconnected', disconnected) })
@@ -273,6 +328,15 @@ describe('the handshake', () => {
 })
 
 describe('startGeneration', () => {
+  it('ignores a spec from Studio when the host did not grant allowInput, and names the permission', async () => {
+    const warn = vi.fn()
+    const { agent } = await connectStudio({ installLogger: (hooks) => void hooks.hook('studio:warn', warn) })
+
+    await agent.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } }).result()
+
+    expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('Ignored the spec from Studio'), permission: 'allowInput' })
+  })
+
   it('disposing the run cancels it instead of leaving an unhandled rejection', async () => {
     const { agent } = await connectStudio()
 
@@ -285,12 +349,12 @@ describe('startGeneration', () => {
 })
 
 describe('readFiles', () => {
-  it('refuses to read when the host did not grant allowRead', async () => {
-    const { agent } = await connectStudio()
+  it('refuses to read when the host did not grant allowRead, and names the permission for the host', async () => {
+    const warn = vi.fn()
+    const { agent } = await connectStudio({ installLogger: (hooks) => void hooks.hook('studio:warn', warn) })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).rejects.toThrow(
-      /not granted permission to read generated files.*KUBB_AGENT_ALLOW_READ=true/,
-    )
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).rejects.toThrow('The agent was not granted permission to read generated files')
+    expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('not granted'), permission: 'allowRead' })
   })
 
   it('refuses more paths than one request may carry', async () => {

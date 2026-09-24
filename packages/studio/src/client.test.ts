@@ -54,6 +54,18 @@ describe('createClient', () => {
     expect(registerAgent).toHaveBeenCalledWith({ token: 'my-token', studioUrl: 'https://kubb.studio', poolSize: 3 })
   })
 
+  it('hands a failed registration to the first pool session only, so a pool warns once', async () => {
+    vi.mocked(registerAgent).mockResolvedValueOnce(false)
+    sessionConnect.mockResolvedValue(undefined)
+
+    const client = createClient({ ...options, poolSize: 3 })
+    await client.connect()
+
+    const warnings = sessionConnect.mock.calls.map(([opts]) => opts.startupWarning)
+    expect(warnings[0]).toContain('Could not register with Kubb Studio')
+    expect(warnings.slice(1)).toStrictEqual([undefined, undefined])
+  })
+
   it('fires onAuthRequired once when several pool sessions reject the same token concurrently', async () => {
     const onAuthRequired = vi.fn()
     const capturedOptions: Array<StudioSessionOptions> = []

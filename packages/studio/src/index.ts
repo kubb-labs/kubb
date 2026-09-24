@@ -26,9 +26,20 @@ export {
   type StudioJob,
   type StudioJobStatus,
   type StudioSnapshot,
+  type StudioSnapshotChanges,
 } from './api.ts'
 export { defaultStudioUrl } from './constants.ts'
 export { createFileStorage, machineTokenFrom, setStorage } from './machine.ts'
 export { runConnection, type ConnectionOptions } from './runConnection.ts'
-export { PairingCanceledError, pollForPairingToken, startPairing } from './pair.ts'
+export {
+  pairAgent,
+  PairingCanceledError,
+  PairingDeniedError,
+  PairingExpiredError,
+  pollForPairingToken,
+  startPairing,
+  type PairingAgentType,
+  type PairingResult,
+  type PairingSession,
+} from './pair.ts'
 export { connectWebSocketRpc } from './rpc.ts'
