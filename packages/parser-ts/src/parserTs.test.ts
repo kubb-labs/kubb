@@ -86,7 +86,7 @@ describe('parserTs', () => {
     const file = ast.factory.createFile({ baseName: 'client.ts', path: '/src/client.ts', copy: '/templates/client.ts' })
     const template = [
       "import axios from 'axios'",
-      "import { defaults, type Options } from './options.ts'",
+      "import { defaults, type Options } from '../options.ts'",
       "export * from './models.ts'",
       '',
       'export const client = (options: Options) => axios.create({ ...defaults, ...options })',
@@ -100,8 +100,8 @@ describe('parserTs', () => {
       expect(copy(parserTs())).toBe(
         [
           "import axios from 'axios'",
-          "import type { Options } from './options'",
-          "import { defaults } from './options'",
+          "import type { Options } from '../options'",
+          "import { defaults } from '../options'",
           "export * from './models'",
           '',
           'export const client = (options: Options) => axios.create({ ...defaults, ...options })',
@@ -110,8 +110,8 @@ describe('parserTs', () => {
     })
 
     it.each([
-      ['.ts', "from './options.ts'"],
-      ['.js', "from './options.js'"],
+      ['.ts', "from '../options.ts'"],
+      ['.js', "from '../options.js'"],
     ] as const)('applies the %s extension to template imports', (extension, expected) => {
       expect(copy(parserTs({ extension: { '.ts': extension } }))).toContain(expected)
     })
@@ -121,13 +121,18 @@ describe('parserTs', () => {
     })
 
     it.each([
-      ['a side-effect import before other imports', ["import './setup.ts'", "import { client } from './client.ts'", 'client()']],
+      ['a side-effect import before other imports', ["import './setup.ts'", "import { api } from './api.ts'", 'api()']],
       ['an import with attributes', ["import data from './data.json' with { type: 'json' }", 'data()']],
-      ['a shebang', ['#!/usr/bin/env node', "import { client } from './client.ts'", 'client()']],
     ])('keeps the source as written for %s', (_, lines) => {
       const source = lines.join('\n')
 
       expect(copy(parserTs(), source)).toBe(source)
+    })
+
+    it.each(['#!/usr/bin/env node', "'use client'"])('keeps %s above the lifted imports', (header) => {
+      const source = [header, "import { api } from './api.ts'", 'api()'].join('\n')
+
+      expect(copy(parserTs(), source)).toBe([header, "import { api } from './api'", 'api()'].join('\n\n'))
     })
   })
 })

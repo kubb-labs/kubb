@@ -99,10 +99,11 @@ export const parserTs = defineParser<ParserTsOptions>(({ extension = DEFAULT_EXT
       return parts.join('\n\n')
     },
     copy(file, source) {
-      const { imports, exports, body } = splitModuleDeclarations(source, file.path)
+      const { header, imports, exports, body } = splitModuleDeclarations(source, file.path)
 
       return {
         ...file,
+        banner: [header, file.banner].filter(Boolean).join('\n') || undefined,
         imports: [...file.imports, ...imports],
         exports: [...file.exports, ...exports],
         sources: [ast.factory.createSource({ nodes: [ast.factory.createText(body)] })],
