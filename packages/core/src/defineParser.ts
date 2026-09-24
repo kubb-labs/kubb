@@ -24,17 +24,7 @@ export type Parser<TMeta extends object = object, TNode = unknown> = {
    */
   parse(file: FileNode<TMeta>): string
   /**
-   * Adapt the content of a `copy` file (a template shipped inside a package) to this parser's
-   * output conventions, e.g. the extension of relative module specifiers. `source` is the raw
-   * template content, `banner`/`footer` are applied after this hook. Omit it to write copied
-   * files verbatim.
-   *
-   * @example
-   * ```ts
-   * parseCopy(file, source) {
-   *   return source.replaceAll("from './serializers.ts'", "from './serializers.js'")
-   * }
-   * ```
+   * Adapt a `copy` file's raw content (e.g. import extensions) before `banner`/`footer` are added. Omit to copy verbatim.
    */
   parseCopy?(file: FileNode<TMeta>, source: string): string
   /**

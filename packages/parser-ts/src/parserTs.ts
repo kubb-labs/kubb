@@ -13,11 +13,7 @@ export type ParserTsOptions = {
    * Rewrite the extensions emitted in `import`/`export` statements, e.g. emit `.js` imports from
    * `.ts` sources for ESM dual packages, or keep the source extension for Node16/NodeNext
    * resolution. Keys are the source extension, values the output, and `''` drops it. Only the
-   * module-specifier string changes, never the on-disk filename.
-   *
-   * Also applies to runtime templates a plugin emits with `copy`: their relative `.ts`/`.tsx`/
-   * `.js`/`.jsx` specifiers are rewritten the same way, so author templates with explicit
-   * extensions (`import { x } from './serializers.ts'`).
+   * module-specifier string changes, never the on-disk filename. Also applies to `copy` templates.
    *
    * @default { '.ts': '' }
    * @example

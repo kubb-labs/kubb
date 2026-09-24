@@ -36,7 +36,6 @@ function joinSources(file: FileNode): string {
     .join('\n\n')
 }
 
-// The parser's `parseCopy` sees only the template content, so `banner`/`footer` are never rewritten.
 async function renderCopy(file: FileNode, parser: Parser | undefined): Promise<string> {
   let content: string
   try {
@@ -172,9 +171,7 @@ export class FileManager {
   }
 
   /**
-   * Converts a file's AST sources (or its `copy` source) into the final on-disk string. A `copy`
-   * file is read from disk and handed to the parser's optional `parseCopy`, so a template follows
-   * the same output conventions (e.g. import extensions) as the rendered files around it.
+   * Converts a file's AST sources (or its `copy` source, through the parser's `parseCopy`) into the final on-disk string.
    */
   async parse(file: FileNode, { parsers }: ParseOptions = {}): Promise<string> {
     const parser = parsers && file.extname ? parsers.get(file.extname) : undefined

@@ -42,30 +42,19 @@ export function resolveOutputPath(path: string, options: { extname?: string } | 
 }
 
 /**
- * Rewrites the relative module specifiers in raw TypeScript/JavaScript `source` with the same rule
- * {@link resolveOutputPath} applies to generated imports: the extension is swapped for
- * `options.extname`, or dropped when it is unset. Covers static and type-only imports,
- * `export … from`, `import()` types, dynamic `import()` and `require()`. Package specifiers,
- * non-module extensions (`./data.json`) and specifiers inside comments stay untouched.
- *
- * @example
- * ```ts
- * rewriteModuleSpecifiers("import { a } from './a.ts'", { extname: '.js' })
- * // "import { a } from './a.js'"
- * ```
+ * Rewrites relative module specifiers in raw `source` with the {@link resolveOutputPath} rule. `preProcessFile` only scans
+ * tokens, so specifiers in comments and plain strings stay untouched.
  */
 export function rewriteModuleSpecifiers(source: string, options: { extname?: string }): string {
-  // `preProcessFile` only scans tokens, so it is cheap and skips comments and plain strings.
   const { importedFiles } = ts.preProcessFile(source, true, true)
   let result = source
 
-  // Splice from the last specifier backwards so earlier offsets stay valid.
+  // Last match first so earlier offsets stay valid.
   for (const { fileName, pos } of importedFiles.toSorted((a, b) => b.pos - a.pos)) {
     if (!fileName.startsWith(CURRENT_DIRECTORY_PREFIX) && !fileName.startsWith(PARENT_DIRECTORY_PREFIX)) continue
     if (!MODULE_EXTENSIONS.has(getExtname(fileName))) continue
 
-    // `pos` points at the opening quote. A specifier with escape sequences does not match its
-    // cooked value and is left alone.
+    // `pos` is the opening quote; an escaped specifier does not match its cooked value and is skipped.
     const start = pos + 1
     const end = start + fileName.length
     if (source.slice(start, end) !== fileName) continue

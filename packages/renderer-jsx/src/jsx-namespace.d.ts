@@ -40,9 +40,8 @@ export namespace JSX {
       baseName: string
       path: string
       /**
-       * Absolute on-disk path to copy into the output. Use to emit a real source file shipped inside
-       * a package (a template) into the generated folder. The parser for the file's extension may
-       * adapt it through `parseCopy`.
+       * Absolute on-disk path to copy into the output (a template shipped inside a package). The
+       * parser's `parseCopy` may adapt it, e.g. import extensions.
        */
       copy?: string | null
       meta?: FileNode['meta'] | null
