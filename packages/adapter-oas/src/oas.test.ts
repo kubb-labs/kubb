@@ -78,7 +78,7 @@ describe('isDiscriminator', () => {
 })
 
 describe('getBinaryFallbackSchema', () => {
-  it('returns the binary schema for an octet-stream entry the 3.1 upgrade emptied out', () => {
+  it('returns the binary schema for a non-JSON entry the 3.1 upgrade emptied out', () => {
     expect(getBinaryFallbackSchema('application/octet-stream', undefined)).toEqual({
       type: 'string',
       contentMediaType: 'application/octet-stream',
@@ -87,16 +87,21 @@ describe('getBinaryFallbackSchema', () => {
       type: 'string',
       contentMediaType: 'application/octet-stream',
     })
+    expect(getBinaryFallbackSchema('application/pdf', {})).toEqual({
+      type: 'string',
+      contentMediaType: 'application/octet-stream',
+    })
   })
 
-  it('returns undefined when the octet-stream entry carries a schema of its own', () => {
+  it('returns undefined when the entry carries a schema of its own', () => {
     expect(getBinaryFallbackSchema('application/octet-stream', { type: 'object' })).toBeUndefined()
     expect(getBinaryFallbackSchema('application/octet-stream', { $ref: '#/components/schemas/Pet' })).toBeUndefined()
+    expect(getBinaryFallbackSchema('application/pdf', { type: 'object' })).toBeUndefined()
   })
 
-  it('returns undefined for any other media type', () => {
+  it('returns undefined for a JSON-like media type or a missing one', () => {
     expect(getBinaryFallbackSchema('application/json', undefined)).toBeUndefined()
-    expect(getBinaryFallbackSchema('application/pdf', {})).toBeUndefined()
+    expect(getBinaryFallbackSchema('application/vnd.api+json', {})).toBeUndefined()
     expect(getBinaryFallbackSchema(undefined, undefined)).toBeUndefined()
   })
 })
