@@ -339,7 +339,9 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
    * Inject a raw file into the build output, bypassing the generation pipeline.
    *
    * Pass `copy` with an absolute path to emit a real source file (a shipped template) into the
-   * generated folder verbatim, instead of building its content from `sources`.
+   * generated folder instead of building its content from `sources`. The file keeps its content,
+   * except that the parser for its extension may adapt it (`@kubb/parser-ts` rewrites relative
+   * import extensions per its `extension` option).
    */
   injectFile(userFileNode: UserFileNode): void
   /**

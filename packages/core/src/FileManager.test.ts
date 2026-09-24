@@ -268,7 +268,7 @@ describe('FileManager', () => {
         dir = undefined
       })
 
-      it('copies a real file verbatim and bypasses the parser', async () => {
+      it('copies a real file verbatim when the parser has no parseCopy', async () => {
         dir = mkdtempSync(path.join(tmpdir(), 'kubb-copy-'))
         const template = path.join(dir, 'template.ts')
         const content = "import a from 'b'\nexport const z = 1\nimport c from 'd'\n"
@@ -283,6 +283,24 @@ describe('FileManager', () => {
 
         expect(parse).not.toHaveBeenCalled()
         expect(result).toBe(content.trimEnd())
+      })
+
+      it('hands the copied content to the parser parseCopy hook instead of parse', async () => {
+        dir = mkdtempSync(path.join(tmpdir(), 'kubb-copy-'))
+        const template = path.join(dir, 'template.ts')
+        writeFileSync(template, "import { a } from './a.ts'\n")
+
+        const parse = vi.fn().mockReturnValue('SHOULD NOT RUN')
+        const parseCopy = vi.fn((_file: FileNode, source: string) => source.replace("'./a.ts'", "'./a.js'"))
+        const parser = { name: 'ts', extNames: ['.ts' as const], parse, parseCopy, print: vi.fn().mockReturnValue('') }
+        const manager = new FileManager()
+
+        const file = ast.factory.createFile({ path: '/src/client.ts', baseName: 'client.ts', copy: template, banner: "/* './a.ts' */", footer: '/* bottom */' })
+        const result = await manager.parse(file, { parsers: new Map([['.ts' as const, parser]]) })
+
+        expect(parse).not.toHaveBeenCalled()
+        expect(parseCopy).toHaveBeenCalledWith(file, "import { a } from './a.ts'\n")
+        expect(result).toBe("/* './a.ts' */\nimport { a } from './a.js'\n/* bottom */")
       })
 
       it('wraps the copied content with banner and footer', async () => {

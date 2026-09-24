@@ -49,10 +49,11 @@ type Props<TMeta> = BaseProps & {
    */
   footer?: string | null
   /**
-   * Absolute on-disk path to copy verbatim into the output, bypassing the parser. Use to emit a
-   * real source file shipped inside a package (a template) into the generated folder. Only
-   * `banner`/`footer` are applied around the copied content; child source blocks are ignored for
-   * output but still drive barrel generation.
+   * Absolute on-disk path to copy into the output. Use to emit a real source file shipped inside a
+   * package (a template) into the generated folder. The parser for the file's extension may adapt
+   * it through `parseCopy` (`@kubb/parser-ts` rewrites relative import extensions), then
+   * `banner`/`footer` are applied around it; child source blocks are ignored for output but still
+   * drive barrel generation.
    */
   copy?: string | null
   /**

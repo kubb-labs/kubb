@@ -1,7 +1,7 @@
 import { defineParser } from '@kubb/kit'
 import type { ast } from '@kubb/kit'
 import type * as ts from 'typescript'
-import { getRelativePath, print, printExport, printImport, printSource, resolveOutputPath } from './utils.ts'
+import { getRelativePath, print, printExport, printImport, printSource, resolveOutputPath, rewriteModuleSpecifiers } from './utils.ts'
 
 const DEFAULT_EXTENSION: Record<ast.FileNode['extname'], ast.FileNode['extname'] | ''> = { '.ts': '' }
 
@@ -14,6 +14,10 @@ export type ParserTsOptions = {
    * `.ts` sources for ESM dual packages, or keep the source extension for Node16/NodeNext
    * resolution. Keys are the source extension, values the output, and `''` drops it. Only the
    * module-specifier string changes, never the on-disk filename.
+   *
+   * Also applies to runtime templates a plugin emits with `copy`: their relative `.ts`/`.tsx`/
+   * `.js`/`.jsx` specifiers are rewritten the same way, so author templates with explicit
+   * extensions (`import { x } from './serializers.ts'`).
    *
    * @default { '.ts': '' }
    * @example
@@ -98,6 +102,9 @@ export const parserTs = defineParser<ParserTsOptions>(({ extension = DEFAULT_EXT
       const parts = [file.banner, importExportBlock, source, file.footer].filter((segment): segment is string => Boolean(segment)).map((s) => s.trimEnd())
 
       return parts.join('\n\n')
+    },
+    parseCopy(file, source) {
+      return rewriteModuleSpecifiers(source, { extname: extension[file.extname] || undefined })
     },
   }
 })

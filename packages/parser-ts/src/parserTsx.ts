@@ -38,5 +38,8 @@ export const parserTsx = defineParser<ParserTsOptions>((options = {}) => {
     parse(file) {
       return parser.parse(file)
     },
+    parseCopy(file, source) {
+      return parser.parseCopy?.(file, source) ?? source
+    },
   }
 })

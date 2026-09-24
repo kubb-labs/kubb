@@ -50,3 +50,9 @@ export const PARENT_DIRECTORY_PREFIX = '../' as const
  * Relative path prefix used when resolving imports within the output root.
  */
 export const CURRENT_DIRECTORY_PREFIX = './' as const
+
+/**
+ * Module extensions a Kubb parser emits. A relative specifier in a copied template is rewritten
+ * only when it ends in one of these, so `./data.json` or `./styles.css` imports keep their extension.
+ */
+export const MODULE_EXTENSIONS: ReadonlySet<string> = new Set(['.ts', '.tsx', '.js', '.jsx'])
