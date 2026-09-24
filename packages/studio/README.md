@@ -71,8 +71,9 @@ container running a fixed plugin set.
 ## Hosts and the runtime
 
 Three hosts run this package: `kubb studio`, the `kubblabs/kubb-agent` Docker image, and
-`kubb studio snapshot` in CI. They all follow the same steps. The runtime owns only the connection:
-it never reads CI environment variables, never prints, and never knows which host it is in.
+`kubb studio snapshot` in CI. All three follow the steps below. The runtime owns only the
+connection: it doesn't read CI environment variables or print anything, and behaves the same in
+every host.
 
 | Step             | `kubb studio`                           | Docker agent                             | `kubb studio snapshot`                   |
 | ---------------- | --------------------------------------- | ---------------------------------------- | ---------------------------------------- |

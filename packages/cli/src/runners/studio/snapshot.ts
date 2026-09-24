@@ -159,22 +159,6 @@ function printSummary(result: SnapshotResult): void {
   ])
 }
 
-/** Rejects with `message` once `ms` passes, unless `promise` settles first. */
-async function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
-  let timer: ReturnType<typeof setTimeout> | undefined
-
-  try {
-    return await Promise.race([
-      promise,
-      new Promise<never>((_, reject) => {
-        timer = setTimeout(() => reject(new Error(message)), ms)
-      }),
-    ])
-  } finally {
-    clearTimeout(timer)
-  }
-}
-
 /**
  * Generates a Kubb Studio snapshot from a script: registers or reuses a CI agent, connects it,
  * queues a snapshot job, and polls until the tarball is ready. A snapshot job runs generation and
@@ -231,7 +215,18 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
   void lost.catch(() => {})
 
   try {
-    await withTimeout(Promise.race([ready, lost]), READY_TIMEOUT_MS, 'Timed out waiting for Kubb Studio to confirm the agent was ready')
+    let readyTimeout: ReturnType<typeof setTimeout> | undefined
+    try {
+      await Promise.race([
+        ready,
+        lost,
+        new Promise<never>((_, reject) => {
+          readyTimeout = setTimeout(() => reject(new Error('Timed out waiting for Kubb Studio to confirm the agent was ready')), READY_TIMEOUT_MS)
+        }),
+      ])
+    } finally {
+      clearTimeout(readyTimeout)
+    }
 
     step('Creating snapshot job')
 

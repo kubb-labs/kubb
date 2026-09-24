@@ -26,7 +26,7 @@ function responseMessage(data: unknown): string | undefined {
 /**
  * Retries after the first registration attempt, each backing off twice as far as the last.
  */
-export const REGISTER_RETRIES = 3
+const REGISTER_RETRIES = 3
 
 /**
  * Shared in-flight registration so concurrent pool sessions trigger one purge, not N.

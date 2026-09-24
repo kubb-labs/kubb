@@ -354,7 +354,6 @@ export function createLogger(writer: LoggerWriter) {
       if (logLevel < logLevelMap.warn) {
         return
       }
-      // The runtime names the missing permission, and this is the host that knows how to grant it.
       const remedy = permission ? `; pass --${permission.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)} to allow it` : ''
       writer.warn(text(`⚠ ${message}${remedy}`))
     })

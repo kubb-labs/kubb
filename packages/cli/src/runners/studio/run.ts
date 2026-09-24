@@ -130,7 +130,7 @@ type LoginOptions = {
  */
 export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, previousCredentials }: LoginOptions = {}): Promise<Credentials> {
   const spinner = createSpinner()
-  // Only once a code is on screen is there a wait to report the end of.
+  // The spinner only starts once a code is shown.
   let waiting = false
 
   try {

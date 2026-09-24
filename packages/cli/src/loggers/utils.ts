@@ -300,7 +300,7 @@ async function setupReporters(
 
     // Spinners and cursor-movement escapes are hard for an AI coding agent to parse, even over a pseudo-TTY.
     const logger = forcedLogger ?? (canUseTTY() && !getAgentName() ? clackLogger : plainLogger)
-    const handle = (await logger.install(context, { logLevel })) || undefined
+    const handle = (await logger.install(context, { logLevel })) ?? undefined
     cliHandle = handle
 
     // The summary belongs inside the group the logger opened for this config, so hand the writing

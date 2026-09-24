@@ -1,6 +1,6 @@
 import { agentDefaults } from './constants.ts'
 import type { InvalidAgentTokenError } from './api.ts'
-import { REGISTER_RETRIES, registerAgent } from './api.ts'
+import { registerAgent } from './api.ts'
 import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
 
 export type ClientOptions = Omit<StudioSessionOptions, 'signal' | 'onTokenRejected' | 'startupWarning'> & {
@@ -65,7 +65,7 @@ export function createClient({ onAuthRequired, ...options }: ClientOptions): Cli
       }
       // Not fatal, since session creation registers again when Studio rejects the machine token.
       // Reported through the first session only, so a pool warns once.
-      const startupWarning = registered ? undefined : `Could not register with Kubb Studio after ${REGISTER_RETRIES + 1} attempts, continuing`
+      const startupWarning = registered ? undefined : 'Could not register with Kubb Studio, continuing'
 
       // Each slot is its own session, so one Studio user never sees another's generation events.
       // Awaited: `connect()` only ever rejects with `InvalidAgentTokenError` (every other failure
