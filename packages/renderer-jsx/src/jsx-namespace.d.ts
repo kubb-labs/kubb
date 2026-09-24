@@ -41,7 +41,7 @@ export namespace JSX {
       path: string
       /**
        * Absolute on-disk path to copy into the output (a template shipped inside a package). The
-       * parser's `parseCopy` may adapt it, e.g. import extensions.
+       * parser's `copy` hook may adapt it, e.g. import extensions.
        */
       copy?: string | null
       meta?: FileNode['meta'] | null

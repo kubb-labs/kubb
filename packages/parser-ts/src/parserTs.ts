@@ -99,7 +99,7 @@ export const parserTs = defineParser<ParserTsOptions>(({ extension = DEFAULT_EXT
 
       return parts.join('\n\n')
     },
-    parseCopy(file, source) {
+    copy(file, source) {
       return rewriteModuleSpecifiers(source, { extname: extension[file.extname] || undefined })
     },
   }

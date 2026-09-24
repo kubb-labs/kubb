@@ -83,7 +83,7 @@ describe('parserTs', () => {
     })
   })
 
-  describe('parseCopy', () => {
+  describe('copy', () => {
     const template = [
       "import axios from 'axios'",
       "import { applyHeaderStyles } from './serializers.ts'",
@@ -95,7 +95,7 @@ describe('parserTs', () => {
     const file = ast.factory.createFile({ baseName: 'client.ts', path: '/src/.kubb/client.ts', copy: '/templates/axios.ts' })
 
     it('drops the template extension by default', () => {
-      expect(parserTs().parseCopy?.(file, template)).toBe(
+      expect(parserTs().copy?.(file, template)).toBe(
         [
           "import axios from 'axios'",
           "import { applyHeaderStyles } from './serializers'",
@@ -108,11 +108,11 @@ describe('parserTs', () => {
     })
 
     it('keeps the template extension when explicitly mapped', () => {
-      expect(parserTs({ extension: { '.ts': '.ts' } }).parseCopy?.(file, template)).toBe(template)
+      expect(parserTs({ extension: { '.ts': '.ts' } }).copy?.(file, template)).toBe(template)
     })
 
     it('rewrites the template extension to the mapped value', () => {
-      const result = parserTs({ extension: { '.ts': '.js' } }).parseCopy?.(file, template)
+      const result = parserTs({ extension: { '.ts': '.js' } }).copy?.(file, template)
 
       expect(result).toContain("from './serializers.js'")
       expect(result).toContain("from './standardSchema.js'")
@@ -121,7 +121,7 @@ describe('parserTs', () => {
 
     it('uses the mapping of the copied file extension in parserTsx', () => {
       const tsxFile = ast.factory.createFile({ baseName: 'Provider.tsx', path: '/src/.kubb/Provider.tsx', copy: '/templates/Provider.tsx' })
-      const result = parserTsx({ extension: { '.tsx': '.js' } }).parseCopy?.(tsxFile, "import { client } from './client.ts'")
+      const result = parserTsx({ extension: { '.tsx': '.js' } }).copy?.(tsxFile, "import { client } from './client.ts'")
 
       expect(result).toBe("import { client } from './client.js'")
     })

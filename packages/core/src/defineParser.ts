@@ -26,7 +26,7 @@ export type Parser<TMeta extends object = object, TNode = unknown> = {
   /**
    * Adapt a `copy` file's raw content (e.g. import extensions) before `banner`/`footer` are added. Omit to copy verbatim.
    */
-  parseCopy?(file: FileNode<TMeta>, source: string): string
+  copy?(file: FileNode<TMeta>, source: string): string
   /**
    * Render compiler AST nodes for this parser's language into source text.
    * Plugins call this to format the nodes they assemble before handing them

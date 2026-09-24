@@ -44,7 +44,7 @@ async function renderCopy(file: FileNode, parser: Parser | undefined): Promise<s
     throw new Error(`[kubb] Could not copy file into output: ${file.copy}`, { cause: err })
   }
 
-  return [file.banner, parser?.parseCopy ? parser.parseCopy(file, content) : content, file.footer]
+  return [file.banner, parser?.copy ? parser.copy(file, content) : content, file.footer]
     .filter((segment): segment is string => Boolean(segment))
     .map((segment) => segment.trimEnd())
     .join('\n')
@@ -171,7 +171,7 @@ export class FileManager {
   }
 
   /**
-   * Converts a file's AST sources (or its `copy` source, through the parser's `parseCopy`) into the final on-disk string.
+   * Converts a file's AST sources (or its `copy` source, through the parser's `copy` hook) into the final on-disk string.
    */
   async parse(file: FileNode, { parsers }: ParseOptions = {}): Promise<string> {
     const parser = parsers && file.extname ? parsers.get(file.extname) : undefined

@@ -51,5 +51,5 @@ export const PARENT_DIRECTORY_PREFIX = '../' as const
  */
 export const CURRENT_DIRECTORY_PREFIX = './' as const
 
-/** Extensions whose relative specifiers `parseCopy` rewrites, so `./data.json` keeps its extension. */
+/** Extensions whose relative specifiers the `copy` hook rewrites, so `./data.json` keeps its extension. */
 export const MODULE_EXTENSIONS: ReadonlySet<string> = new Set(['.ts', '.tsx', '.js', '.jsx'])

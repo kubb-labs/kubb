@@ -50,7 +50,7 @@ type Props<TMeta> = BaseProps & {
   footer?: string | null
   /**
    * Absolute on-disk path to copy into the output. Use to emit a real source file shipped inside a
-   * package (a template). The parser's `parseCopy` may adapt it (e.g. import extensions), then
+   * package (a template). The parser's `copy` hook may adapt it (e.g. import extensions), then
    * `banner`/`footer` are applied; child source blocks are ignored for output but still drive
    * barrel generation.
    */
