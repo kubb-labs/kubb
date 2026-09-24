@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.3.14 — Sep 24, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Keep a binary response or request body typed as a blob for any non-JSON media type (`application/pdf`, `image/png`, ...), not just `application/octet-stream`. A newer `@scalar/openapi-upgrader` release started emptying `format: 'binary'` schemas for every media type on the OAS 3.1 upgrade, not just `application/octet-stream`, so those bodies fell back to `emptySchemaType` instead of resolving to a blob. ([#4094](https://github.com/kubb-labs/kubb/pull/4094), [`cfcb497`](https://github.com/kubb-labs/kubb/commit/cfcb497977f246d02dac9cc8f88a2a230ab8734e))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Add `isBareRef` for detecting unmodified schema references. ([#4093](https://github.com/kubb-labs/kubb/pull/4093), [`c7a9157`](https://github.com/kubb-labs/kubb/commit/c7a91570a9f9ad176fb4580094476406ac5b9997))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.13 — Sep 23, 2026
 
 ### @kubb/studio
