@@ -194,6 +194,17 @@ describe('snapshot', () => {
     expect(vi.mocked(createJob).mock.calls[1]?.[0].baseMachineToken).toBe(machineTokenFrom('custom-main'))
   })
 
+  it('labels the comparison with an explicit --base-id, not the detected base branch', async () => {
+    vi.mocked(detectCi).mockReturnValueOnce({ id: 'gh:123:42', name: 'acme/api#42', baseBranch: 'main', baseId: 'gh:123:refs/heads/main' })
+    const branchChanges = { base: null, added: [], changed: [], removed: [] }
+    vi.mocked(waitForJob).mockResolvedValue({ ...successfulJob, snapshot: { ...successfulJob.snapshot!, branchChanges } })
+
+    await snapshot(baseOptions({ json: true, baseId: 'custom-release' }))
+
+    expect(vi.mocked(createJob)).toHaveBeenCalledWith(expect.objectContaining({ baseMachineToken: machineTokenFrom('custom-release') }))
+    expect(JSON.parse(String(vi.mocked(console.log).mock.calls[0]?.[0])).branchChanges.branch).toBe('custom-release')
+  })
+
   it('logs the run to stderr in JSON mode, through the same logger as kubb studio', async () => {
     const error = vi.mocked(console.error)
 

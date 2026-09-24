@@ -92,14 +92,15 @@ function resolveCiIdentity(options: SnapshotOptions): CiContext {
 function resolveIdentity(options: SnapshotOptions, detected: CiContext | null): CiContext {
   if (options.id) {
     // A custom --id means runs on the base branch use a custom id too, so only --base-id names it.
-    return { id: options.id, name: detected?.name ?? options.id, commit: detected?.commit, baseBranch: detected?.baseBranch, baseId: options.baseId }
+    return { id: options.id, name: detected?.name ?? options.id, commit: detected?.commit, baseId: options.baseId }
   }
 
   if (!detected) {
     throw new Error('Could not detect a supported CI provider (GitHub Actions, GitLab CI, Bitbucket Pipelines, CircleCI). Pass --id.')
   }
 
-  return { ...detected, baseId: options.baseId ?? detected.baseId }
+  // An explicit --base-id may not be the detected branch, so it labels the comparison itself.
+  return options.baseId ? { ...detected, baseBranch: undefined, baseId: options.baseId } : detected
 }
 
 /** Rejects a bad `--timeout` up front instead of letting it reach `waitForJob` as NaN or <= 0. */

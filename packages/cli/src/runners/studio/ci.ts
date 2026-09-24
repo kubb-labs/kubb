@@ -13,19 +13,11 @@ export type CiContext = {
    * Agent display name shown in Studio.
    */
   name: string
-  /**
-   * The commit this run builds, so the next snapshot can diff against it. On a pull request this is
-   * its head commit, never the temporary merge commit the CI checks out.
-   */
+  /** The commit this run builds (a pull request's head), so the next snapshot can diff against it. */
   commit?: string
-  /**
-   * The branch a pull request merges into.
-   */
+  /** The branch a pull request merges into. */
   baseBranch?: string
-  /**
-   * The `id` a run on `baseBranch` registers its agent under, so a pull request can compare its
-   * snapshot with that branch's latest one.
-   */
+  /** The `id` a run on `baseBranch` registers under, whose latest snapshot a pull request compares with. */
   baseId?: string
 }
 
@@ -45,10 +37,7 @@ function readGithubPullRequest(eventPath: string | undefined): GithubPullRequest
   }
 }
 
-/**
- * Reproduces GitLab's `CI_COMMIT_REF_SLUG`, so a merge request finds the agent a branch pipeline on
- * its target branch registered under.
- */
+/** Reproduces GitLab's `CI_COMMIT_REF_SLUG`, the scope of a branch pipeline's agent. */
 export function gitlabRefSlug(ref: string): string {
   return ref
     .toLowerCase()
@@ -63,10 +52,8 @@ function withBase(context: CiContext, baseBranch: string | undefined, baseId: st
 
 /**
  * Detects the CI provider from its environment variables and derives a stable identity from it.
- * The GitHub pull request row reproduces `gh:<repositoryId>:<prNumber>`, the identity
- * `kubb-labs/action` has always registered agents under, so an existing repository keeps reusing
- * its agent. A GitHub branch run registers under `gh:<repositoryId>:refs/heads/<branch>`, which a
- * pull request number can never collide with.
+ * GitHub pull requests keep `gh:<repositoryId>:<prNumber>`, the identity `kubb-labs/action` has
+ * always used, and a branch run uses `gh:<repositoryId>:refs/heads/<branch>`.
  */
 export function detectCi(env: Record<string, string | undefined> = process.env): CiContext | null {
   if (env.GITHUB_ACTIONS) {
@@ -123,7 +110,6 @@ export function detectCi(env: Record<string, string | undefined> = process.env):
   if (env.CIRCLECI) {
     // Owner-qualified: two projects with the same name under different CircleCI orgs must not
     // collide on one agent, since registering it purges the other project's live sessions.
-    // CircleCI exposes no pull request target branch, so there is no base to compare against.
     const owner = env.CIRCLE_PROJECT_USERNAME ?? ''
     const project = env.CIRCLE_PROJECT_REPONAME ?? 'circleci'
     const scope = env.CIRCLE_PR_NUMBER ?? env.CIRCLE_BRANCH ?? ''

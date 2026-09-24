@@ -255,16 +255,9 @@ export type StudioSnapshot = {
   expiresAt: string
   /** What changed since the previous snapshot on the same agent. Absent when Studio or the agent predates it. */
   changes?: StudioSnapshotChanges
-  /**
-   * What differs from the latest snapshot on the agent `baseMachineToken` names, such as the branch a
-   * pull request merges into. `base` is `null` when that agent has no snapshot to compare with.
-   * Absent when the job named no base, or Studio predates it.
-   */
+  /** What differs from the latest snapshot on the agent `baseMachineToken` names. Absent without a base. */
   branchChanges?: StudioSnapshotChanges
-  /**
-   * What differs from the output directory on disk before the run, such as committed generated code.
-   * Only when the agent may read files and has a project on disk.
-   */
+  /** What differs from the output directory on disk before the run. Only for an agent granted reads. */
   diskChanges?: StudioFileChanges
 }
 
@@ -328,10 +321,7 @@ export async function createJob({
   version?: string
   /** The commit this snapshot is built from, so the next one can diff against it. */
   commit?: string
-  /**
-   * Machine token of the agent whose latest snapshot this one is also compared with, such as the
-   * agent a CI run on the pull request's base branch registers under, derived with `machineTokenFrom`.
-   */
+  /** `machineTokenFrom(id)` of an agent whose latest snapshot this one is also compared with. */
   baseMachineToken?: string
   config?: Record<string, unknown>
 }): Promise<StudioJob> {
