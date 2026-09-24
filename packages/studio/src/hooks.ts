@@ -61,9 +61,7 @@ export type StudioDisconnectedContext = {
 }
 
 export type StudioReconnectingContext = {
-  /**
-   * How long until the next connection attempt, in milliseconds.
-   */
+  /** Milliseconds until the next connection attempt. */
   delayMs: number
 }
 
@@ -90,10 +88,7 @@ export type StudioWarnContext = {
    * What was refused or ignored.
    */
   message: string
-  /**
-   * The permission that was missing, when that is why. The runtime does not know how its host grants
-   * permissions, so the host appends its own remedy: a CLI flag, an environment variable.
-   */
+  /** The missing permission, if that is why, so the host can append its own remedy. */
   permission?: keyof AgentPermissions
 }
 

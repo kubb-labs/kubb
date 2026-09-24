@@ -60,6 +60,9 @@ export function createClient({ onAuthRequired, ...options }: ClientOptions): Cli
   return {
     async connect() {
       const registered = await registerAgent({ token: options.token, studioUrl: options.studioUrl ?? agentDefaults.studioUrl, poolSize })
+      if (controller.signal.aborted) {
+        return
+      }
       // Not fatal, since session creation registers again when Studio rejects the machine token.
       // Reported through the first session only, so a pool warns once.
       const startupWarning = registered ? undefined : `Could not register with Kubb Studio after ${REGISTER_RETRIES + 1} attempts, continuing`

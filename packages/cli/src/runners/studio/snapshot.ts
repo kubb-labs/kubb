@@ -119,10 +119,7 @@ type SnapshotResult = {
   snapshotIdUrl: string
   expiresAt: string
   agentUrl: string
-  /**
-   * What changed since the previous snapshot of this package on this agent. Absent when Studio
-   * predates it.
-   */
+  /** What changed since the previous snapshot of this package on this agent. */
   changes?: StudioSnapshotChanges
 }
 
@@ -140,9 +137,7 @@ function toResult(studioUrl: string, snapshot: StudioSnapshot, agentSlug: string
   }
 }
 
-/**
- * One line for the summary: how many files changed, and since which run.
- */
+/** One summary line: how many files changed, and since which run. */
 export function formatChanges(changes: StudioSnapshotChanges): string {
   if (!changes.base) {
     return 'First snapshot'
@@ -164,9 +159,7 @@ function printSummary(result: SnapshotResult): void {
   ])
 }
 
-/**
- * Rejects with `message` once `ms` passes, unless `promise` settles first.
- */
+/** Rejects with `message` once `ms` passes, unless `promise` settles first. */
 async function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined
 
@@ -186,10 +179,6 @@ async function withTimeout<T>(promise: Promise<T>, ms: number, message: string):
  * Generates a Kubb Studio snapshot from a script: registers or reuses a CI agent, connects it,
  * queues a snapshot job, and polls until the tarball is ready. A snapshot job runs generation and
  * packs the tarball in one step, so this needs no separate generation run.
- *
- * Connects through `runConnection` and renders through the CLI logger, the same way `kubb studio`
- * does. The plain logger is always used, since this runs as a script, and it writes to stderr
- * under `--json` so stdout carries only the result.
  */
 export async function snapshot(options: SnapshotOptions): Promise<void> {
   const timeoutMs = resolveTimeoutMs(options)
@@ -204,7 +193,6 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
   // session registers under the same machine token `createAgent` just registered with Studio.
   process.env.KUBB_AGENT_SECRET = ci.id
 
-  // console.error under --json: stdout is the result, and a CI runner forwards stderr live.
   const write = options.json ? (line: string) => console.error(line) : (line: string) => console.log(line)
   const logger = createPlainLogger(write)
   const step = (message: string) => {
@@ -217,8 +205,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
 
   const agent = await createAgent({ studioUrl: options.studioUrl, token, name: ci.name, machineToken: machineTokenFrom(ci.id) })
 
-  const { promise: ready, reject: markFailed, resolve: markReady } = Promise.withResolvers<void>()
-  void ready.catch(() => {})
+  const { promise: ready, resolve: markReady } = Promise.withResolvers<void>()
   const shutdown = new AbortController()
 
   const connection = runConnection({
@@ -229,21 +216,17 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
       configPath,
       root: process.cwd(),
       version: options.version,
-      // Only what was passed as a flag: a script is never asked, and never reuses a saved answer.
+      // Flags only: a script is never prompted and never reuses a saved answer.
       permissions: options.permission,
       loadConfig: async () => (await loadConfigs(options)).config,
       installLogger: async (hooks) => {
         await setupReporters(hooks, { logLevel, reporters: [cliReporter], logger })
         hooks.hook('studio:ready', () => markReady())
-        hooks.hook('studio:error', ({ error }) => markFailed(error))
       },
     }),
-    // A CI agent's token comes from the organization key, not a pairing, so there is nothing to
-    // replace it with here. Failing is the only honest outcome.
+    // A CI agent's token comes from the organization key, so there is no pairing to fall back to.
     onTokenRejected: ({ error }) => Promise.reject(error),
   })
-  // Settles only when the connection ends: a shutdown resolves it, a rejected token rejects it.
-  // Either way before the job finished means the run cannot finish.
   const lost = connection.then(() => Promise.reject(new Error('The Kubb Studio connection ended before the snapshot finished')))
   void lost.catch(() => {})
 
@@ -279,7 +262,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
     throw error
   } finally {
     step('Disconnecting from Kubb Studio')
-    // Not awaited: a half-open socket must not hold the run open, the same as before.
+    // Not awaited: a half-open socket must not hold the run open.
     shutdown.abort()
   }
 }

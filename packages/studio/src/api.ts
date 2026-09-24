@@ -177,8 +177,8 @@ type DisconnectProps = {
  * Called on process termination or server close. Never throws: the local socket is already gone,
  * and failing teardown must not block shutdown or reconnect.
  *
- * @returns `false` when Studio could not be reached. A 4xx counts as notified, since it means
- * Studio already dropped the session.
+ * @returns `false` when Studio could not be reached or rate limited the call. Any other 4xx
+ * counts as notified, since it means Studio already dropped the session.
  */
 export async function disconnect({ sessionId, token, studioUrl }: DisconnectProps): Promise<boolean> {
   try {
@@ -193,7 +193,7 @@ export async function disconnect({ sessionId, token, studioUrl }: DisconnectProp
   } catch (error) {
     const statusCode = (error as { statusCode?: number } | undefined)?.statusCode
 
-    return statusCode !== undefined && statusCode >= 400 && statusCode < 500
+    return statusCode !== undefined && statusCode !== 429 && statusCode >= 400 && statusCode < 500
   }
 }
 
@@ -202,20 +202,13 @@ export async function disconnect({ sessionId, token, studioUrl }: DisconnectProp
  */
 export type StudioJobStatus = 'queued' | 'running' | 'success' | 'failed' | 'canceled'
 
-/**
- * How a snapshot's generated files differ from the previous snapshot of the same package on the
- * same agent. Paths are relative to the config's `output.path`.
- */
+/** How a snapshot's files differ from the previous one of the same package and agent, relative to `output.path`. */
 export type StudioSnapshotChanges = {
-  /**
-   * The snapshot these changes are measured against, or `null` when this is the first one.
-   */
+  /** The snapshot these changes are measured against, `null` for the first one. */
   base: {
     id: string
     version: string | null
-    /**
-     * The commit the base snapshot was built from, when the run that created it reported one.
-     */
+    /** The commit the base snapshot was built from, when reported. */
     commit?: string
     createdAt: string
   } | null
@@ -256,9 +249,7 @@ export type StudioSnapshot = {
    * ISO timestamp after which Studio may delete the tarball.
    */
   expiresAt: string
-  /**
-   * What changed since the previous snapshot. Absent when Studio or the agent predates it.
-   */
+  /** What changed since the previous snapshot. Absent when Studio or the agent predates it. */
   changes?: StudioSnapshotChanges
 }
 
@@ -319,9 +310,7 @@ export async function createJob({
   agentId: string
   name?: string
   version?: string
-  /**
-   * The commit this snapshot is built from, so the next snapshot can say what it changed since.
-   */
+  /** The commit this snapshot is built from, so the next one can diff against it. */
   commit?: string
   config?: Record<string, unknown>
 }): Promise<StudioJob> {

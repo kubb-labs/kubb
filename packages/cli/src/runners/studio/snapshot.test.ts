@@ -22,10 +22,6 @@ vi.mock('@internals/utils', async (importOriginal) => ({
 
 type Connection = ConnectionOptions<{ token: string }>
 
-/**
- * What the fake session does once the host logger is on its hooks. Defaults to a session Studio
- * accepts: connecting, connected, ready.
- */
 let session: (hooks: Hookable<KubbHooks>, options: Connection) => Promise<void>
 let connection: Connection | undefined
 
@@ -34,8 +30,7 @@ vi.mock('@kubb/studio', async (importOriginal) => ({
   createAgent: vi.fn(),
   createJob: vi.fn(),
   waitForJob: vi.fn(),
-  // Stands in for the real loop: installs the host logger on one session's hooks, runs the scripted
-  // session, then holds the connection open until the host aborts it, like `runConnection` does.
+  // Holds the connection open until the host aborts it, like the real `runConnection`.
   runConnection: vi.fn(async (options: Connection) => {
     connection = options
     const hooks = new Hookable<KubbHooks>()
@@ -154,7 +149,6 @@ describe('snapshot', () => {
     await snapshot(baseOptions({ json: true }))
 
     expect(vi.mocked(createJob)).toHaveBeenCalledWith(expect.objectContaining({ type: 'snapshot', agentId: 'agent-1', commit: 'c4d7e10aa' }))
-    // stdout carries the result and nothing else.
     expect(log).toHaveBeenCalledOnce()
     const printed = JSON.parse(String(log.mock.calls[0]?.[0]))
     expect(printed.url).toBe('http://localhost:3000/packages/brave-otter/%40acme%2Fapi.tgz')
@@ -198,7 +192,6 @@ describe('snapshot', () => {
       await acceptedSession(hooks)
       await options.onTokenRejected({ error: rejected, credentials: options.credentials, live: true })
     }
-    // The job never finishes on its own.
     vi.mocked(waitForJob).mockReturnValue(new Promise(() => {}))
 
     await expect(snapshot(baseOptions())).rejects.toBe(rejected)

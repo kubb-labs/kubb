@@ -6,10 +6,7 @@ import type { Logger, LoggerWriter } from './defineLogger.ts'
  */
 const SYMBOLS = { info: 'ℹ', warn: '⚠', error: '✗', step: '◇' } as const
 
-/**
- * Draws with one `write` call per line. Nothing animates, so a step prints when it starts and again
- * when it ends, and every message it was given in between.
- */
+/** Draws with one `write` call per line. Nothing animates, so a step prints at start and end. */
 function createWriter(write: (line: string) => void): LoggerWriter {
   return {
     group: write,
@@ -38,10 +35,7 @@ function createWriter(write: (line: string) => void): LoggerWriter {
   }
 }
 
-/**
- * The plain logger, writing each line through `write`. `kubb studio snapshot --json` passes
- * `console.error`, so the log stays readable while stdout carries only the JSON result.
- */
+/** The plain logger writing through `write`, e.g. `console.error` so stdout carries only JSON. */
 export function createPlainLogger(write: (line: string) => void) {
   return {
     name: 'plain',

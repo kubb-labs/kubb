@@ -13,9 +13,7 @@ export type CiContext = {
    * Agent display name shown in Studio.
    */
   name: string
-  /**
-   * The commit this run builds, so the next snapshot can say what changed since this one.
-   */
+  /** The commit this run builds, so the next snapshot can diff against it. */
   commit?: string
 }
 

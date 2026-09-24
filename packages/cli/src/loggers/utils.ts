@@ -280,10 +280,7 @@ async function setupReporters(
     logger: forcedLogger,
   }: LoggerOptions & {
     reporters: ReadonlyArray<Reporter>
-    /**
-     * The live view for the `cli` reporter, instead of picking one from the terminal. `kubb studio
-     * snapshot` runs as a script and passes the plain logger.
-     */
+    /** Overrides the terminal-based pick, e.g. the plain logger for `kubb studio snapshot`. */
     logger?: Logger
   },
 ): Promise<LoggerHandle | undefined> {

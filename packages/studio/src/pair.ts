@@ -43,17 +43,12 @@ export type PairingResult = {
 }
 
 /**
- * What a pairing asks Studio to register this machine as, in the same vocabulary Studio stores on
- * the agent. `cli` is a `kubb studio` machine, which any signed-in member may approve. `user` and
- * `sandbox` are the Docker image, whose codes only an admin can approve. A `ci` agent never pairs:
- * it is created with an organization API key instead.
+ * What this machine registers as. Any member may approve `cli` (`kubb studio`); only an admin may
+ * approve `user` and `sandbox` (the Docker image). A `ci` agent never pairs.
  */
 export type PairingAgentType = 'cli' | 'user' | 'sandbox'
 
-/**
- * Labels Studio's device authorization endpoint tells the two front ends apart by. Not secrets:
- * what authorizes a pairing is a signed-in person approving the code in the browser.
- */
+/** Labels, not secrets: a person approving the code in the browser is what authorizes a pairing. */
 const CLIENT_IDS = { cli: 'kubb-cli', agent: 'kubb-agent' } as const
 
 /**
@@ -68,10 +63,7 @@ export class PairingCanceledError extends Error {
   }
 }
 
-/**
- * Thrown when the pairing code expired before anyone approved it. Asking for a fresh code can
- * still succeed, which is what {@link pairAgent} does when given more than one attempt.
- */
+/** Thrown when the code expired unapproved. A fresh code can still succeed. */
 export class PairingExpiredError extends Error {
   constructor(message = 'The pairing code expired, pair again') {
     super(message)
@@ -79,10 +71,7 @@ export class PairingExpiredError extends Error {
   }
 }
 
-/**
- * Thrown when the pairing was denied in the browser, including an approval refused because the
- * organization hit its agent limit. A fresh code would be denied the same way.
- */
+/** Thrown when the pairing was denied in the browser, including by the organization's agent limit. */
 export class PairingDeniedError extends Error {
   constructor(message = 'Pairing was denied in the browser') {
     super(message)
@@ -92,9 +81,6 @@ export class PairingDeniedError extends Error {
 
 type StartPairingOptions = {
   studioUrl?: string
-  /**
-   * What this machine pairs as.
-   */
   type: PairingAgentType
   /**
    * Display name for the agent, usually the project or machine name.
@@ -117,8 +103,6 @@ export async function startPairing({ studioUrl = agentDefaults.studioUrl, type, 
     return await ofetch<PairingSession>(`${studioUrl}/api/auth/device/code`, {
       method: 'POST',
       body: {
-        // The wire keeps its two-field shape: the CLI's client id alone, or the image's client id
-        // plus the kind it asks to be registered as.
         client_id: type === 'cli' ? CLIENT_IDS.cli : CLIENT_IDS.agent,
         name,
         hostname,
@@ -144,10 +128,7 @@ type PollOptions = {
    * lands between polls or during the wait for the next one.
    */
   signal?: AbortSignal
-  /**
-   * Called when a poll could not reach Studio. Polling carries on, since the code stays valid, so
-   * this is only for the host to say so.
-   */
+  /** Called when a poll could not reach Studio. Polling carries on. */
   onRetry?: (error: Error) => void
 }
 
@@ -169,8 +150,7 @@ function isPairingResult(response: PollResponse | undefined): response is Pairin
 }
 
 /**
- * Polls until the user approves or denies, honoring the server's `slow_down` back-off. A poll that
- * cannot reach Studio is warned about and retried, since the code stays valid either way.
+ * Polls until the user approves or denies, honoring the server's `slow_down` back-off.
  *
  * Studio's own endpoint is used rather than the auth layer's `/device/token`, because an approved
  * Kubb pairing is worth an agent bearer token, not a user session.
@@ -212,9 +192,7 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
         throw new PairingCanceledError()
       }
 
-      // Studio can go briefly unreachable (a deploy, a dropped connection) during the minutes the
-      // user has to approve in the browser. One failed poll should not end a pairing whose code is
-      // still valid, so report it and try again on the next tick, the way `registerAgent` retries.
+      // Studio can be briefly unreachable (a deploy) while the code is still valid, so retry.
       onRetry?.(toError(error))
       continue
     }
@@ -251,38 +229,19 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
 }
 
 type PairAgentOptions = StartPairingOptions & {
-  /**
-   * Shows the code to whoever approves it: a terminal line, a container log. Called again with the
-   * next attempt number whenever a fresh code replaces an expired one.
-   */
+  /** Shows the code to whoever approves it. Called again for each fresh code. */
   onCode: (session: PairingSession, attempt: number) => void | Promise<void>
-  /**
-   * Called when a poll could not reach Studio. Polling carries on.
-   */
+  /** Called when a poll could not reach Studio. Polling carries on. */
   onRetry?: (error: Error) => void
   /**
-   * How many codes to ask for in total when one expires before anyone approves it. A denial or a
-   * canceled `signal` always ends the pairing at once.
-   *
+   * Codes to ask for in total when one expires unapproved. A denial or abort ends it at once.
    * @default 1
    */
   maxAttempts?: number
 }
 
 /**
- * Pairs this machine with Studio: asks for a code, hands it to the host to show, and waits for the
- * approval. The one pairing flow every host shares, so `kubb studio` and the Docker image differ only
- * in how they show the code and where they keep the token.
- *
- * @example
- * ```ts
- * const { token, agent } = await pairAgent({
- *   type: 'cli',
- *   name: 'my-project',
- *   hostname: os.hostname(),
- *   onCode: (session) => console.log(`Approve ${session.user_code} at ${session.verification_uri}`),
- * })
- * ```
+ * Pairs this machine with Studio: asks for a code, hands it to the host to show, and waits for approval.
  */
 export async function pairAgent({ onCode, onRetry, maxAttempts = 1, ...options }: PairAgentOptions): Promise<PairingResult> {
   for (let attempt = 1; ; attempt++) {
