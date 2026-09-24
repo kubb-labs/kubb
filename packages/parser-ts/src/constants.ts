@@ -50,6 +50,3 @@ export const PARENT_DIRECTORY_PREFIX = '../' as const
  * Relative path prefix used when resolving imports within the output root.
  */
 export const CURRENT_DIRECTORY_PREFIX = './' as const
-
-/** Matches the extension of a relative `from '…'` / `import('…')` specifier, e.g. `.ts` in `from './client.ts'`. */
-export const RELATIVE_SPECIFIER_EXTENSION_PATTERN = /((?:from|import)\s*\(?\s*['"]\.{1,2}\/[^'"\n]+?)\.[jt]sx?(?=['"])/g

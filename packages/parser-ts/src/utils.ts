@@ -1,6 +1,6 @@
-import { normalize, relative } from 'node:path'
+import { dirname, normalize, relative, resolve } from 'node:path'
 import { trimExtName } from '@internals/utils'
-import type { ast } from '@kubb/kit'
+import { ast } from '@kubb/kit'
 import ts from 'typescript'
 import {
   CARRIAGE_RETURN_PATTERN,
@@ -38,6 +38,73 @@ export function resolveOutputPath(path: string, options: { extname?: string } | 
     return `${trimExtName(path)}${options.extname}`
   }
   return rootAware ? trimExtName(path) : path
+}
+
+function toImportName(element: ts.ImportSpecifier): string | { propertyName: string; name: string } {
+  return element.propertyName ? { propertyName: element.propertyName.text, name: element.name.text } : element.name.text
+}
+
+function toImportNodes(statement: ts.Statement, root: string): Array<ast.ImportNode> | undefined {
+  if (!ts.isImportDeclaration(statement) || !statement.importClause || !ts.isStringLiteral(statement.moduleSpecifier)) return undefined
+
+  const { name, namedBindings, phaseModifier } = statement.importClause
+  const specifier = statement.moduleSpecifier.text
+  // Same shape plugins use: an absolute `path` plus `root`, which `parse` turns back into a relative path with the configured extension.
+  const target = specifier.startsWith('.') ? { path: resolve(root, specifier), root } : { path: specifier }
+  const isTypeOnly = phaseModifier === ts.SyntaxKind.TypeKeyword
+  const nodes: Array<ast.ImportNode> = []
+
+  if (name) nodes.push(ast.factory.createImport({ name: name.text, ...target, isTypeOnly }))
+  if (namedBindings && ts.isNamespaceImport(namedBindings)) {
+    nodes.push(ast.factory.createImport({ name: namedBindings.name.text, ...target, isTypeOnly, isNameSpace: true }))
+  }
+  if (namedBindings && ts.isNamedImports(namedBindings)) {
+    const values = namedBindings.elements.filter((element) => !element.isTypeOnly)
+    const types = namedBindings.elements.filter((element) => element.isTypeOnly)
+    if (values.length) nodes.push(ast.factory.createImport({ name: values.map(toImportName), ...target, isTypeOnly }))
+    if (types.length) nodes.push(ast.factory.createImport({ name: types.map(toImportName), ...target, isTypeOnly: true }))
+  }
+
+  return nodes.length ? nodes : undefined
+}
+
+function toExportNodes(statement: ts.Statement): Array<ast.ExportNode> | undefined {
+  if (!ts.isExportDeclaration(statement) || !statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier)) return undefined
+
+  const { exportClause, isTypeOnly } = statement
+  const path = statement.moduleSpecifier.text
+
+  if (!exportClause) return [ast.factory.createExport({ path, isTypeOnly })]
+  if (ts.isNamespaceExport(exportClause)) return [ast.factory.createExport({ name: exportClause.name.text, path, isTypeOnly, asAlias: true })]
+  if (exportClause.elements.some((element) => element.propertyName || element.isTypeOnly)) return undefined
+
+  return [ast.factory.createExport({ name: exportClause.elements.map((element) => element.name.text), path, isTypeOnly })]
+}
+
+/**
+ * Lifts the top-level `import` and `export … from` declarations of `source` into Import/Export nodes, so `parse` prints them
+ * like any generated file. The rest of the module is returned as `body`.
+ */
+export function splitModuleDeclarations(source: string, filePath: string): { imports: Array<ast.ImportNode>; exports: Array<ast.ExportNode>; body: string } {
+  const sourceFile = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest, true)
+  const root = dirname(filePath)
+  const imports: Array<ast.ImportNode> = []
+  const exports: Array<ast.ExportNode> = []
+  let body = ''
+  let cursor = 0
+
+  for (const statement of sourceFile.statements) {
+    const importNodes = toImportNodes(statement, root)
+    const exportNodes = importNodes ? undefined : toExportNodes(statement)
+    if (!importNodes && !exportNodes) continue
+
+    imports.push(...(importNodes ?? []))
+    exports.push(...(exportNodes ?? []))
+    body += source.slice(cursor, statement.getStart(sourceFile))
+    cursor = statement.getEnd()
+  }
+
+  return { imports, exports, body: `${body}${source.slice(cursor)}`.trim() }
 }
 
 /**

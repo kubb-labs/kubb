@@ -89,63 +89,65 @@ describe('parserTs', () => {
       "import { applyHeaderStyles } from './serializers.ts'",
       "import type { HeadersInit } from './serializers.ts'",
       "import { ParseError, type StandardSchemaValidator } from './standardSchema.ts'",
+      "export * from '../models/pet.ts'",
       '',
+      '/** Shared client. */',
       'export const client = axios.create()',
     ].join('\n')
-    const file = ast.factory.createFile({ baseName: 'client.ts', path: '/src/.kubb/client.ts', copy: '/templates/axios.ts' })
+    const file = ast.factory.createFile({ baseName: 'client.ts', path: '/src/.kubb/client.ts', copy: '/templates/axios.ts', footer: 'client.setConfig({})' })
 
-    it('drops the template extension by default', () => {
-      expect(parserTs().copy?.(file, template)).toBe(
+    function copyAndParse(parser: ReturnType<typeof parserTs>, source = template, target = file) {
+      return parser.parse(parser.copy!(target, source))
+    }
+
+    it('prints the template imports and exports as nodes, dropping the extension by default', () => {
+      expect(copyAndParse(parserTs())).toBe(
         [
-          "import axios from 'axios'",
-          "import { applyHeaderStyles } from './serializers'",
-          "import type { HeadersInit } from './serializers'",
-          "import { ParseError, type StandardSchemaValidator } from './standardSchema'",
-          '',
-          'export const client = axios.create()',
-        ].join('\n'),
+          [
+            "import axios from 'axios'",
+            "import { applyHeaderStyles } from './serializers'",
+            "import type { HeadersInit } from './serializers'",
+            "import { ParseError } from './standardSchema'",
+            "import type { StandardSchemaValidator } from './standardSchema'",
+            "export * from '../models/pet'",
+          ].join('\n'),
+          ['/** Shared client. */', 'export const client = axios.create()'].join('\n'),
+          'client.setConfig({})',
+        ].join('\n\n'),
       )
     })
 
     it('keeps the template extension when explicitly mapped', () => {
-      expect(parserTs({ extension: { '.ts': '.ts' } }).copy?.(file, template)).toBe(template)
+      const result = copyAndParse(parserTs({ extension: { '.ts': '.ts' } }))
+
+      expect(result).toContain("import { applyHeaderStyles } from './serializers.ts'")
+      expect(result).toContain("import type { StandardSchemaValidator } from './standardSchema.ts'")
+      expect(result).toContain("export * from '../models/pet.ts'")
     })
 
     it('rewrites the template extension to the mapped value', () => {
-      const result = parserTs({ extension: { '.ts': '.js' } }).copy?.(file, template)
+      const result = copyAndParse(parserTs({ extension: { '.ts': '.js' } }))
 
-      expect(result).toContain("from './serializers.js'")
-      expect(result).toContain("from './standardSchema.js'")
+      expect(result).toContain("import { applyHeaderStyles } from './serializers.js'")
+      expect(result).toContain("export * from '../models/pet.js'")
       expect(result).toContain("import axios from 'axios'")
     })
 
-    it('rewrites every relative from/import specifier and leaves the rest alone', () => {
-      const input = [
-        "export * from '../models/pet.ts'",
-        "import './polyfill.js'",
-        "type Client = typeof import('./client.ts')",
-        "import { z } from 'zod/v4'",
-        "import data from './data.json' with { type: 'json' }",
-        "const path = './client.ts'",
-      ].join('\n')
+    it('lifts namespace and aliased imports, and leaves side-effect imports and other statements in the body', () => {
+      const source = ["import * as z from 'zod'", "import { a as b } from './a.ts'", "import './polyfill.ts'", 'const path = "./client.ts"'].join('\n')
 
-      expect(parserTs({ extension: { '.ts': '.js' } }).copy?.(file, input)).toBe(
-        [
-          "export * from '../models/pet.js'",
-          "import './polyfill.js'",
-          "type Client = typeof import('./client.js')",
-          "import { z } from 'zod/v4'",
-          "import data from './data.json' with { type: 'json' }",
-          "const path = './client.ts'",
-        ].join('\n'),
+      expect(copyAndParse(parserTs({ extension: { '.ts': '.js' } }), source)).toBe(
+        ["import * as z from 'zod'\nimport { a as b } from './a.js'", 'import \'./polyfill.ts\'\nconst path = "./client.ts"', 'client.setConfig({})'].join(
+          '\n\n',
+        ),
       )
     })
 
     it('uses the mapping of the copied file extension in parserTsx', () => {
       const tsxFile = ast.factory.createFile({ baseName: 'Provider.tsx', path: '/src/.kubb/Provider.tsx', copy: '/templates/Provider.tsx' })
-      const result = parserTsx({ extension: { '.tsx': '.js' } }).copy?.(tsxFile, "import { client } from './client.ts'")
+      const parser = parserTsx({ extension: { '.tsx': '.js' } })
 
-      expect(result).toBe("import { client } from './client.js'")
+      expect(parser.parse(parser.copy!(tsxFile, "import { client } from './client.ts'"))).toBe("import { client } from './client.js'")
     })
   })
 })
