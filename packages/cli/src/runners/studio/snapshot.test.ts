@@ -159,15 +159,13 @@ describe('snapshot', () => {
   it("compares with the base branch's agent, and labels those changes with the branch", async () => {
     vi.mocked(detectCi).mockReturnValueOnce({ id: 'gh:123:42', name: 'acme/api#42', base: { branch: 'main', id: 'gh:123:refs/heads/main' } })
     const branchChanges = { base: null, added: [], changed: [], removed: [] }
-    const diskChanges = { added: [], changed: [], removed: ['models/Old.ts'] }
-    vi.mocked(waitForJob).mockResolvedValue({ ...successfulJob, snapshot: { ...successfulJob.snapshot!, branchChanges, diskChanges } })
+    vi.mocked(waitForJob).mockResolvedValue({ ...successfulJob, snapshot: { ...successfulJob.snapshot!, branchChanges } })
 
     await snapshot(baseOptions({ json: true }))
 
     expect(vi.mocked(createJob)).toHaveBeenCalledWith(expect.objectContaining({ baseId: 'gh:123:refs/heads/main' }))
     const printed = JSON.parse(String(vi.mocked(console.log).mock.calls[0]?.[0]))
     expect(printed.branchChanges).toStrictEqual({ ...branchChanges, branch: 'main' })
-    expect(printed.diskChanges).toStrictEqual(diskChanges)
   })
 
   it('logs the run to stderr in JSON mode, through the same logger as kubb studio', async () => {

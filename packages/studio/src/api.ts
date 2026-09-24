@@ -202,15 +202,8 @@ export async function disconnect({ sessionId, token, studioUrl }: DisconnectProp
  */
 export type StudioJobStatus = 'queued' | 'running' | 'success' | 'failed' | 'canceled'
 
-/** Generated files that differ between two sets, by path relative to the config's `root`. */
-export type StudioFileChanges = {
-  added: Array<string>
-  changed: Array<string>
-  removed: Array<string>
-}
-
-/** How a snapshot's files differ from an earlier snapshot of the same package. */
-export type StudioSnapshotChanges = StudioFileChanges & {
+/** How a snapshot's files differ from an earlier snapshot of the same package, relative to `output.path`. */
+export type StudioSnapshotChanges = {
   /** The snapshot these changes are measured against, `null` when there is none to compare with. */
   base: {
     id: string
@@ -219,6 +212,9 @@ export type StudioSnapshotChanges = StudioFileChanges & {
     commit?: string
     createdAt: string
   } | null
+  added: Array<string>
+  changed: Array<string>
+  removed: Array<string>
 }
 
 /**
@@ -257,8 +253,6 @@ export type StudioSnapshot = {
   changes?: StudioSnapshotChanges
   /** What differs from the latest snapshot of the CI agent `baseId` names. Absent without a base. */
   branchChanges?: StudioSnapshotChanges
-  /** What differs from the output directory on disk before the run. Only for an agent granted reads. */
-  diskChanges?: StudioFileChanges
 }
 
 /**

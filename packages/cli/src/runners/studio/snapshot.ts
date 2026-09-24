@@ -3,16 +3,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { exists, read } from '@internals/utils'
 import { cliReporter, logLevel as logLevelMap } from '@kubb/core'
-import {
-  createAgent,
-  createJob,
-  machineTokenFrom,
-  runConnection,
-  waitForJob,
-  type StudioFileChanges,
-  type StudioSnapshot,
-  type StudioSnapshotChanges,
-} from '@kubb/studio'
+import { createAgent, createJob, machineTokenFrom, runConnection, waitForJob, type StudioSnapshot, type StudioSnapshotChanges } from '@kubb/studio'
 import { logBlock } from '../../loggers/output.ts'
 import { createPlainLogger } from '../../loggers/plainLogger.ts'
 import setupReporters from '../../loggers/utils.ts'
@@ -132,8 +123,6 @@ type SnapshotResult = {
   changes?: StudioSnapshotChanges
   /** What differs from the latest snapshot of the base branch, named by `branch`. */
   branchChanges?: StudioSnapshotChanges & { branch: string }
-  /** What differs from the output directory on disk before the run. */
-  diskChanges?: StudioFileChanges
 }
 
 function toResult(studioUrl: string, snapshot: StudioSnapshot, agentSlug: string, ci: CiContext): SnapshotResult {
@@ -148,12 +137,11 @@ function toResult(studioUrl: string, snapshot: StudioSnapshot, agentSlug: string
     agentUrl: absoluteUrl(studioUrl, `/agents/${agentSlug}`),
     changes: snapshot.changes,
     branchChanges: snapshot.branchChanges && ci.base ? { ...snapshot.branchChanges, branch: ci.base.branch } : undefined,
-    diskChanges: snapshot.diskChanges,
   }
 }
 
 /** How many files differ, `against` what. */
-function describeChanges(changes: StudioFileChanges, against: string): string {
+function describeChanges(changes: StudioSnapshotChanges, against: string): string {
   const { added, changed, removed } = changes
 
   return added.length + changed.length + removed.length
@@ -182,7 +170,6 @@ function printSummary(result: SnapshotResult): void {
     `${styleText('dim', 'Agent'.padEnd(10))}  ${result.agentUrl}`,
     ...(result.branchChanges ? [`${styleText('dim', 'Branch'.padEnd(10))}  ${formatBranchChanges(result.branchChanges)}`] : []),
     ...(result.changes ? [`${styleText('dim', 'Changes'.padEnd(10))}  ${formatChanges(result.changes)}`] : []),
-    ...(result.diskChanges ? [`${styleText('dim', 'On disk'.padEnd(10))}  ${describeChanges(result.diskChanges, 'against the files on disk')}`] : []),
     `${styleText('dim', 'Expires'.padEnd(10))}  ${result.expiresAt}`,
   ])
 }

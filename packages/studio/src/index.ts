@@ -26,7 +26,6 @@ export {
   type StudioJob,
   type StudioJobStatus,
   type StudioSnapshot,
-  type StudioFileChanges,
   type StudioSnapshotChanges,
 } from './api.ts'
 export { defaultStudioUrl } from './constants.ts'
