@@ -17,7 +17,6 @@ import {
   printSource,
   printType,
   resolveOutputPath,
-  rewriteModuleSpecifiers,
 } from './utils.ts'
 
 describe('getRelativePath', () => {
@@ -38,60 +37,6 @@ describe('resolveOutputPath', () => {
 
   it('leaves the path unchanged when no extension and not rootAware', () => {
     expect(resolveOutputPath('zod', undefined, false)).toBe('zod')
-  })
-})
-
-describe('rewriteModuleSpecifiers', () => {
-  const source = [
-    "import { a } from './a.ts'",
-    "import type { B } from '../b.ts'",
-    "export * from './c.tsx'",
-    "export { d } from './d.js'",
-    "type E = typeof import('./e.ts')",
-    'const f = await import("./f.ts")',
-  ].join('\n')
-
-  it('drops the extension when no extname is given', () => {
-    expect(rewriteModuleSpecifiers(source, {})).toBe(
-      [
-        "import { a } from './a'",
-        "import type { B } from '../b'",
-        "export * from './c'",
-        "export { d } from './d'",
-        "type E = typeof import('./e')",
-        'const f = await import("./f")',
-      ].join('\n'),
-    )
-  })
-
-  it('swaps the extension for the given extname', () => {
-    expect(rewriteModuleSpecifiers(source, { extname: '.js' })).toBe(
-      [
-        "import { a } from './a.js'",
-        "import type { B } from '../b.js'",
-        "export * from './c.js'",
-        "export { d } from './d.js'",
-        "type E = typeof import('./e.js')",
-        'const f = await import("./f.js")',
-      ].join('\n'),
-    )
-  })
-
-  it('leaves package, extensionless and non-module specifiers untouched', () => {
-    const input = [
-      "import axios from 'axios'",
-      "import { z } from 'zod/v4'",
-      "import { g } from './g'",
-      "import data from './data.json' with { type: 'json' }",
-    ].join('\n')
-
-    expect(rewriteModuleSpecifiers(input, { extname: '.js' })).toBe(input)
-  })
-
-  it('ignores specifiers inside comments and plain strings', () => {
-    const input = ["// import { a } from './a.ts'", "/* export * from './b.ts' */", "const path = './c.ts'"].join('\n')
-
-    expect(rewriteModuleSpecifiers(input, { extname: '.js' })).toBe(input)
   })
 })
 

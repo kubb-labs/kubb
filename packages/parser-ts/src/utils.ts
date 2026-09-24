@@ -1,4 +1,4 @@
-import { extname as getExtname, normalize, relative } from 'node:path'
+import { normalize, relative } from 'node:path'
 import { trimExtName } from '@internals/utils'
 import type { ast } from '@kubb/kit'
 import ts from 'typescript'
@@ -11,7 +11,6 @@ import {
   INDENT_CHAR,
   JSDOC_TERMINATOR_PATTERN,
   LEADING_DIGIT_PATTERN,
-  MODULE_EXTENSIONS,
   PARENT_DIRECTORY_PREFIX,
   WINDOWS_PATH_SEPARATOR,
 } from './constants.ts'
@@ -39,30 +38,6 @@ export function resolveOutputPath(path: string, options: { extname?: string } | 
     return `${trimExtName(path)}${options.extname}`
   }
   return rootAware ? trimExtName(path) : path
-}
-
-/**
- * Rewrites relative module specifiers in raw `source` with the {@link resolveOutputPath} rule. `preProcessFile` only scans
- * tokens, so specifiers in comments and plain strings stay untouched.
- */
-export function rewriteModuleSpecifiers(source: string, options: { extname?: string }): string {
-  const { importedFiles } = ts.preProcessFile(source, true, true)
-  let result = source
-
-  // Last match first so earlier offsets stay valid.
-  for (const { fileName, pos } of importedFiles.toSorted((a, b) => b.pos - a.pos)) {
-    if (!fileName.startsWith(CURRENT_DIRECTORY_PREFIX) && !fileName.startsWith(PARENT_DIRECTORY_PREFIX)) continue
-    if (!MODULE_EXTENSIONS.has(getExtname(fileName))) continue
-
-    // `pos` is the opening quote; an escaped specifier does not match its cooked value and is skipped.
-    const start = pos + 1
-    const end = start + fileName.length
-    if (source.slice(start, end) !== fileName) continue
-
-    result = `${result.slice(0, start)}${resolveOutputPath(fileName, options, true)}${result.slice(end)}`
-  }
-
-  return result
 }
 
 /**

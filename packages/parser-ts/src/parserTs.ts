@@ -1,7 +1,8 @@
 import { defineParser } from '@kubb/kit'
 import type { ast } from '@kubb/kit'
 import type * as ts from 'typescript'
-import { getRelativePath, print, printExport, printImport, printSource, resolveOutputPath, rewriteModuleSpecifiers } from './utils.ts'
+import { RELATIVE_SPECIFIER_EXTENSION_PATTERN } from './constants.ts'
+import { getRelativePath, print, printExport, printImport, printSource, resolveOutputPath } from './utils.ts'
 
 const DEFAULT_EXTENSION: Record<ast.FileNode['extname'], ast.FileNode['extname'] | ''> = { '.ts': '' }
 
@@ -100,7 +101,8 @@ export const parserTs = defineParser<ParserTsOptions>(({ extension = DEFAULT_EXT
       return parts.join('\n\n')
     },
     copy(file, source) {
-      return rewriteModuleSpecifiers(source, { extname: extension[file.extname] || undefined })
+      const extname = extension[file.extname] || ''
+      return source.replace(RELATIVE_SPECIFIER_EXTENSION_PATTERN, (_, specifier: string) => `${specifier}${extname}`)
     },
   }
 })

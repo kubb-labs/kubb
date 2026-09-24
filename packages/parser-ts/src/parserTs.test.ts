@@ -119,6 +119,28 @@ describe('parserTs', () => {
       expect(result).toContain("import axios from 'axios'")
     })
 
+    it('rewrites every relative from/import specifier and leaves the rest alone', () => {
+      const input = [
+        "export * from '../models/pet.ts'",
+        "import './polyfill.js'",
+        "type Client = typeof import('./client.ts')",
+        "import { z } from 'zod/v4'",
+        "import data from './data.json' with { type: 'json' }",
+        "const path = './client.ts'",
+      ].join('\n')
+
+      expect(parserTs({ extension: { '.ts': '.js' } }).copy?.(file, input)).toBe(
+        [
+          "export * from '../models/pet.js'",
+          "import './polyfill.js'",
+          "type Client = typeof import('./client.js')",
+          "import { z } from 'zod/v4'",
+          "import data from './data.json' with { type: 'json' }",
+          "const path = './client.ts'",
+        ].join('\n'),
+      )
+    })
+
     it('uses the mapping of the copied file extension in parserTsx', () => {
       const tsxFile = ast.factory.createFile({ baseName: 'Provider.tsx', path: '/src/.kubb/Provider.tsx', copy: '/templates/Provider.tsx' })
       const result = parserTsx({ extension: { '.tsx': '.js' } }).copy?.(tsxFile, "import { client } from './client.ts'")

@@ -51,5 +51,5 @@ export const PARENT_DIRECTORY_PREFIX = '../' as const
  */
 export const CURRENT_DIRECTORY_PREFIX = './' as const
 
-/** Extensions whose relative specifiers the `copy` hook rewrites, so `./data.json` keeps its extension. */
-export const MODULE_EXTENSIONS: ReadonlySet<string> = new Set(['.ts', '.tsx', '.js', '.jsx'])
+/** Matches the extension of a relative `from '…'` / `import('…')` specifier, e.g. `.ts` in `from './client.ts'`. */
+export const RELATIVE_SPECIFIER_EXTENSION_PATTERN = /((?:from|import)\s*\(?\s*['"]\.{1,2}\/[^'"\n]+?)\.[jt]sx?(?=['"])/g
