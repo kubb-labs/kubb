@@ -40,8 +40,8 @@ export namespace JSX {
       baseName: string
       path: string
       /**
-       * Absolute on-disk path to copy into the output (a template shipped inside a package). The
-       * parser's `copy` hook may adapt it, e.g. import extensions.
+       * Absolute on-disk path to copy into the output (a template shipped inside a package). A parser
+       * with a `copy` hook prints it like any other file.
        */
       copy?: string | null
       meta?: FileNode['meta'] | null

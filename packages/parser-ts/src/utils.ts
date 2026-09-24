@@ -49,7 +49,7 @@ function toImportNodes(statement: ts.Statement, root: string): Array<ast.ImportN
 
   const { name, namedBindings, phaseModifier } = statement.importClause
   const specifier = statement.moduleSpecifier.text
-  // Same shape plugins use: an absolute `path` plus `root`, which `parse` turns back into a relative path with the configured extension.
+  // Plugins pass an absolute `path` plus `root`; `parse` makes it relative again and applies `extension`.
   const target = specifier.startsWith('.') ? { path: resolve(root, specifier), root } : { path: specifier }
   const isTypeOnly = phaseModifier === ts.SyntaxKind.TypeKeyword
   const nodes: Array<ast.ImportNode> = []
@@ -86,7 +86,7 @@ function toExportNodes(statement: ts.Statement): Array<ast.ExportNode> | undefin
  * like any generated file. The rest of the module is returned as `body`.
  */
 export function splitModuleDeclarations(source: string, filePath: string): { imports: Array<ast.ImportNode>; exports: Array<ast.ExportNode>; body: string } {
-  const sourceFile = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest, true)
+  const sourceFile = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest)
   const root = dirname(filePath)
   const imports: Array<ast.ImportNode> = []
   const exports: Array<ast.ExportNode> = []
@@ -95,7 +95,7 @@ export function splitModuleDeclarations(source: string, filePath: string): { imp
 
   for (const statement of sourceFile.statements) {
     const importNodes = toImportNodes(statement, root)
-    const exportNodes = importNodes ? undefined : toExportNodes(statement)
+    const exportNodes = toExportNodes(statement)
     if (!importNodes && !exportNodes) continue
 
     imports.push(...(importNodes ?? []))

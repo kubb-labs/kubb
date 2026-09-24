@@ -96,8 +96,8 @@ describe('parserTs', () => {
     ].join('\n')
     const file = ast.factory.createFile({ baseName: 'client.ts', path: '/src/.kubb/client.ts', copy: '/templates/axios.ts', footer: 'client.setConfig({})' })
 
-    function copyAndParse(parser: ReturnType<typeof parserTs>, source = template, target = file) {
-      return parser.parse(parser.copy!(target, source))
+    function copyAndParse(parser: ReturnType<typeof parserTs>, source = template) {
+      return parser.parse(parser.copy!(file, source))
     }
 
     it('prints the template imports and exports as nodes, dropping the extension by default', () => {

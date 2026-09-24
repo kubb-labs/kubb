@@ -36,7 +36,7 @@ function joinSources(file: FileNode): string {
     .join('\n\n')
 }
 
-async function renderCopy(file: FileNode, parser: Parser | undefined): Promise<string> {
+async function parseCopy(file: FileNode, parser: Parser | undefined): Promise<string> {
   let content: string
   try {
     content = await read(file.copy as string)
@@ -175,13 +175,13 @@ export class FileManager {
   }
 
   /**
-   * Converts a file's AST sources (or its `copy` source, turned into nodes by the parser's `copy` hook) into the final on-disk string.
+   * Converts a file's AST sources (or its `copy` source) into the final on-disk string.
    */
   async parse(file: FileNode, { parsers }: ParseOptions = {}): Promise<string> {
     const parser = parsers && file.extname ? parsers.get(file.extname) : undefined
 
     if (file.copy) {
-      return renderCopy(file, parser)
+      return parseCopy(file, parser)
     }
 
     if (!parser) {
