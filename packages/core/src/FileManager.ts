@@ -36,6 +36,9 @@ function joinSources(file: FileNode): string {
     .join('\n\n')
 }
 
+/**
+ * Reads a `copy` file and prints it through the parser's `copy` hook, or verbatim with `banner`/`footer` when there is none.
+ */
 async function parseCopy(file: FileNode, parser: Parser | undefined): Promise<string> {
   let content: string
   try {

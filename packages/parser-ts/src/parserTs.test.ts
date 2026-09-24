@@ -116,8 +116,16 @@ describe('parserTs', () => {
       expect(copy(parserTs({ extension: { '.ts': extension } }))).toContain(expected)
     })
 
-    it('keeps statements it cannot turn into nodes in the body', () => {
-      const source = ["import './polyfill.ts'", 'polyfill()'].join('\n')
+    it('keeps quoted import names', () => {
+      expect(copy(parserTs(), ["import { 'a-b' as ab } from './a.ts'", 'ab()'].join('\n'))).toBe(["import { 'a-b' as ab } from './a'", '', 'ab()'].join('\n'))
+    })
+
+    it.each([
+      ['a side-effect import before other imports', ["import './setup.ts'", "import { client } from './client.ts'", 'client()']],
+      ['an import with attributes', ["import data from './data.json' with { type: 'json' }", 'data()']],
+      ['a shebang', ['#!/usr/bin/env node', "import { client } from './client.ts'", 'client()']],
+    ])('keeps the source as written for %s', (_, lines) => {
+      const source = lines.join('\n')
 
       expect(copy(parserTs(), source)).toBe(source)
     })

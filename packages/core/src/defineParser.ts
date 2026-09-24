@@ -24,8 +24,7 @@ export type Parser<TMeta extends object = object, TNode = unknown> = {
    */
   parse(file: FileNode<TMeta>): string
   /**
-   * Turn the content of a `copy` file into a file node, which is then printed with `parse`.
-   * Omit to copy the file verbatim.
+   * Turn the content of a `copy` file into a file node that `parse` prints. Omit to copy the file verbatim.
    */
   copy?(file: FileNode<TMeta>, source: string): UserFileNode<TMeta>
   /**

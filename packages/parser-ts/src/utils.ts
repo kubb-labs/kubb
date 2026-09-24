@@ -40,16 +40,24 @@ export function resolveOutputPath(path: string, options: { extname?: string } | 
   return rootAware ? trimExtName(path) : path
 }
 
+/**
+ * Converts an import specifier into an `ImportNode` name, keeping the quotes of a string-literal name (`{ 'a-b' as ab }`).
+ */
 function toImportName(element: ts.ImportSpecifier): string | { propertyName: string; name: string } {
-  return element.propertyName ? { propertyName: element.propertyName.text, name: element.name.text } : element.name.text
+  if (!element.propertyName) return element.name.text
+
+  const { propertyName } = element
+  return { propertyName: ts.isStringLiteral(propertyName) ? quoteModulePath(propertyName.text) : propertyName.text, name: element.name.text }
 }
 
+/**
+ * Converts an `import` declaration into `ImportNode`s. Side-effect imports and imports with attributes stay as written.
+ */
 function toImportNodes(statement: ts.Statement, root: string): Array<ast.ImportNode> {
-  if (!ts.isImportDeclaration(statement) || !statement.importClause || !ts.isStringLiteral(statement.moduleSpecifier)) return []
+  if (!ts.isImportDeclaration(statement) || !statement.importClause || !ts.isStringLiteral(statement.moduleSpecifier) || statement.attributes) return []
 
   const { name, namedBindings, phaseModifier } = statement.importClause
   const specifier = statement.moduleSpecifier.text
-  // Same shape as plugin imports, so `parse` resolves the path and applies `extension`.
   const target = specifier.startsWith('.') ? { path: resolve(root, specifier), root } : { path: specifier }
   const isTypeOnly = phaseModifier === ts.SyntaxKind.TypeKeyword
   const nodes: Array<ast.ImportNode> = []
@@ -68,17 +76,24 @@ function toImportNodes(statement: ts.Statement, root: string): Array<ast.ImportN
   return nodes
 }
 
+/**
+ * Converts an `export … from` declaration into `ExportNode`s. Forms `printExport` cannot print stay as written.
+ */
 function toExportNodes(statement: ts.Statement): Array<ast.ExportNode> {
-  if (!ts.isExportDeclaration(statement) || !statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier)) return []
+  if (!ts.isExportDeclaration(statement) || !statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier) || statement.attributes) return []
 
   const { exportClause, isTypeOnly } = statement
   const path = statement.moduleSpecifier.text
 
   if (!exportClause) return [ast.factory.createExport({ path, isTypeOnly })]
   if (ts.isNamespaceExport(exportClause)) return [ast.factory.createExport({ name: exportClause.name.text, path, isTypeOnly, asAlias: true })]
-  if (exportClause.elements.some((element) => element.propertyName || element.isTypeOnly)) return []
+  if (exportClause.elements.some((element) => element.propertyName || element.isTypeOnly || ts.isStringLiteral(element.name))) return []
 
   return [ast.factory.createExport({ name: exportClause.elements.map((element) => element.name.text), path, isTypeOnly })]
+}
+
+function isModuleDeclaration(statement: ts.Statement): boolean {
+  return ts.isImportDeclaration(statement) || (ts.isExportDeclaration(statement) && Boolean(statement.moduleSpecifier))
 }
 
 type ModuleDeclarations = {
@@ -91,17 +106,23 @@ type ModuleDeclarations = {
  * Splits `source` into its top-level `import`/`export … from` declarations, as nodes, and the remaining `body`.
  */
 export function splitModuleDeclarations(source: string, filePath: string): ModuleDeclarations {
-  const sourceFile = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest)
-  const root = dirname(filePath)
   const imports: Array<ast.ImportNode> = []
   const exports: Array<ast.ExportNode> = []
+  if (source.startsWith('#!')) return { imports, exports, body: source.trim() }
+
+  const sourceFile = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest)
+  const root = dirname(filePath)
   let body = ''
   let cursor = 0
 
   for (const statement of sourceFile.statements) {
     const importNodes = toImportNodes(statement, root)
     const exportNodes = toExportNodes(statement)
-    if (!importNodes.length && !exportNodes.length) continue
+    if (!importNodes.length && !exportNodes.length) {
+      // Lifted declarations print above the body, so stop at the first one that stays in place to keep the evaluation order.
+      if (isModuleDeclaration(statement)) break
+      continue
+    }
 
     imports.push(...importNodes)
     exports.push(...exportNodes)
