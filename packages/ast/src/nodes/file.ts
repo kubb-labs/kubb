@@ -242,13 +242,12 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
    */
   footer?: string | null
   /**
-   * Absolute on-disk path to copy verbatim into the output, bypassing the parser.
+   * Absolute on-disk path to copy into the output, through the parser's `copy` hook when it has one.
    *
    * Use to emit a real source file shipped inside a package (a template) into the generated
-   * folder without reformatting or import reordering. Only `banner` and `footer` are applied
-   * around the copied content. When set, `copy` provides the file content and any `sources`
-   * nodes are ignored for output; `sources` may still carry `name`/`isExportable`/`isIndexable`
-   * so barrel generation treats the file the same as a rendered one.
+   * folder. When set, `copy` provides the file content and any `sources` nodes are ignored for
+   * output; `sources` may still carry `name`/`isExportable`/`isIndexable` so barrel generation
+   * treats the file the same as a rendered one.
    */
   copy?: string | null
 }
@@ -342,7 +341,7 @@ export type UserFileNode<TMeta extends object = object> = Omit<FileNode<TMeta>, 
  * // file.extname = '.ts'
  * ```
  *
- * @example Copy a real file into the output verbatim
+ * @example Copy a real file into the output
  * ```ts
  * const file = createFile({
  *   baseName: 'client.ts',

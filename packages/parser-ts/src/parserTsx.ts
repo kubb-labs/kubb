@@ -38,5 +38,6 @@ export const parserTsx = defineParser<ParserTsOptions>((options = {}) => {
     parse(file) {
       return parser.parse(file)
     },
+    copy: parser.copy,
   }
 })

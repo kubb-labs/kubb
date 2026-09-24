@@ -1,4 +1,4 @@
-import type { FileNode } from '@kubb/ast'
+import type { FileNode, UserFileNode } from '@kubb/ast'
 
 /**
  * Converts a resolved {@link FileNode} into the final source string that gets
@@ -23,6 +23,10 @@ export type Parser<TMeta extends object = object, TNode = unknown> = {
    * Serialize the file's AST into source code.
    */
   parse(file: FileNode<TMeta>): string
+  /**
+   * Turn the content of a `copy` file into a file node that `parse` prints. Omit to copy the file verbatim.
+   */
+  copy?(file: FileNode<TMeta>, source: string): UserFileNode<TMeta>
   /**
    * Render compiler AST nodes for this parser's language into source text.
    * Plugins call this to format the nodes they assemble before handing them

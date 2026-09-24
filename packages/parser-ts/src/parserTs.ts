@@ -1,7 +1,6 @@
-import { defineParser } from '@kubb/kit'
-import type { ast } from '@kubb/kit'
+import { ast, defineParser } from '@kubb/kit'
 import type * as ts from 'typescript'
-import { getRelativePath, print, printExport, printImport, printSource, resolveOutputPath } from './utils.ts'
+import { getRelativePath, print, printExport, printImport, printSource, resolveOutputPath, splitModuleDeclarations } from './utils.ts'
 
 const DEFAULT_EXTENSION: Record<ast.FileNode['extname'], ast.FileNode['extname'] | ''> = { '.ts': '' }
 
@@ -13,7 +12,7 @@ export type ParserTsOptions = {
    * Rewrite the extensions emitted in `import`/`export` statements, e.g. emit `.js` imports from
    * `.ts` sources for ESM dual packages, or keep the source extension for Node16/NodeNext
    * resolution. Keys are the source extension, values the output, and `''` drops it. Only the
-   * module-specifier string changes, never the on-disk filename.
+   * module-specifier string changes, never the on-disk filename. Also applies to `copy` templates.
    *
    * @default { '.ts': '' }
    * @example
@@ -98,6 +97,17 @@ export const parserTs = defineParser<ParserTsOptions>(({ extension = DEFAULT_EXT
       const parts = [file.banner, importExportBlock, source, file.footer].filter((segment): segment is string => Boolean(segment)).map((s) => s.trimEnd())
 
       return parts.join('\n\n')
+    },
+    copy(file, source) {
+      const { header, imports, exports, body } = splitModuleDeclarations(source, file.path)
+
+      return {
+        ...file,
+        banner: [header, file.banner].filter(Boolean).join('\n') || undefined,
+        imports: [...file.imports, ...imports],
+        exports: [...file.exports, ...exports],
+        sources: [ast.factory.createSource({ nodes: [ast.factory.createText(body)] })],
+      }
     },
   }
 })

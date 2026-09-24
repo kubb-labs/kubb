@@ -36,12 +36,19 @@ function joinSources(file: FileNode): string {
     .join('\n\n')
 }
 
-async function parseCopy(file: FileNode): Promise<string> {
+/**
+ * Reads a `copy` file and prints it through the parser's `copy` hook, or verbatim with `banner`/`footer` when there is none.
+ */
+async function parseCopy(file: FileNode, parser: Parser | undefined): Promise<string> {
   let content: string
   try {
     content = await read(file.copy as string)
   } catch (err) {
     throw new Error(`[kubb] Could not copy file into output: ${file.copy}`, { cause: err })
+  }
+
+  if (parser?.copy) {
+    return parser.parse(ast.factory.createFile(parser.copy(file, content)))
   }
 
   return [file.banner, content, file.footer]
@@ -174,15 +181,11 @@ export class FileManager {
    * Converts a file's AST sources (or its `copy` source) into the final on-disk string.
    */
   async parse(file: FileNode, { parsers }: ParseOptions = {}): Promise<string> {
+    const parser = parsers?.get(file.extname)
+
     if (file.copy) {
-      return parseCopy(file)
+      return parseCopy(file, parser)
     }
-
-    if (!parsers || !file.extname) {
-      return joinSources(file)
-    }
-
-    const parser = parsers.get(file.extname)
 
     if (!parser) {
       return joinSources(file)

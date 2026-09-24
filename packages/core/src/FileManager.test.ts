@@ -285,6 +285,21 @@ describe('FileManager', () => {
         expect(result).toBe(content.trimEnd())
       })
 
+      it('prints a copied file through the parser copy hook', async () => {
+        dir = mkdtempSync(path.join(tmpdir(), 'kubb-copy-'))
+        const template = path.join(dir, 'template.ts')
+        writeFileSync(template, 'export const a = 1')
+
+        const copy = vi.fn((file: FileNode, source: string) => ({ ...file, sources: [ast.factory.createSource({ nodes: [ast.factory.createText(source)] })] }))
+        const parse = vi.fn().mockReturnValue('parsed')
+        const parser = { name: 'ts', extNames: ['.ts' as const], parse, copy, print: vi.fn() }
+        const file = ast.factory.createFile({ path: '/src/client.ts', baseName: 'client.ts', copy: template })
+
+        expect(await new FileManager().parse(file, { parsers: new Map([['.ts' as const, parser]]) })).toBe('parsed')
+        expect(copy).toHaveBeenCalledWith(file, 'export const a = 1')
+        expect(parse).toHaveBeenCalledOnce()
+      })
+
       it('wraps the copied content with banner and footer', async () => {
         dir = mkdtempSync(path.join(tmpdir(), 'kubb-copy-'))
         const template = path.join(dir, 'template.ts')

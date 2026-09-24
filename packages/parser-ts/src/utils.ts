@@ -1,6 +1,6 @@
-import { normalize, relative } from 'node:path'
+import { dirname, normalize, relative, resolve } from 'node:path'
 import { trimExtName } from '@internals/utils'
-import type { ast } from '@kubb/kit'
+import { ast } from '@kubb/kit'
 import ts from 'typescript'
 import {
   CARRIAGE_RETURN_PATTERN,
@@ -38,6 +38,101 @@ export function resolveOutputPath(path: string, options: { extname?: string } | 
     return `${trimExtName(path)}${options.extname}`
   }
   return rootAware ? trimExtName(path) : path
+}
+
+/**
+ * Converts an import specifier into an `ImportNode` name, keeping the quotes of a string-literal name (`{ 'a-b' as ab }`).
+ */
+function toImportName(element: ts.ImportSpecifier): string | { propertyName: string; name: string } {
+  if (!element.propertyName) return element.name.text
+
+  const { propertyName } = element
+  return { propertyName: ts.isStringLiteral(propertyName) ? quoteModulePath(propertyName.text) : propertyName.text, name: element.name.text }
+}
+
+/**
+ * Converts an `import` declaration into `ImportNode`s. Side-effect imports and imports with attributes stay as written.
+ */
+function toImportNodes(statement: ts.Statement, filePath: string): Array<ast.ImportNode> {
+  if (!ts.isImportDeclaration(statement) || !statement.importClause || !ts.isStringLiteral(statement.moduleSpecifier) || statement.attributes) return []
+
+  const { name, namedBindings, phaseModifier } = statement.importClause
+  const specifier = statement.moduleSpecifier.text
+  const target = specifier.startsWith('.') ? { path: resolve(dirname(filePath), specifier), root: filePath } : { path: specifier }
+  const isTypeOnly = phaseModifier === ts.SyntaxKind.TypeKeyword
+  const nodes: Array<ast.ImportNode> = []
+
+  if (name) nodes.push(ast.factory.createImport({ name: name.text, ...target, isTypeOnly }))
+  if (namedBindings && ts.isNamespaceImport(namedBindings)) {
+    nodes.push(ast.factory.createImport({ name: namedBindings.name.text, ...target, isTypeOnly, isNameSpace: true }))
+  }
+  if (namedBindings && ts.isNamedImports(namedBindings)) {
+    const values = namedBindings.elements.filter((element) => !element.isTypeOnly)
+    const types = namedBindings.elements.filter((element) => element.isTypeOnly)
+    if (values.length) nodes.push(ast.factory.createImport({ name: values.map(toImportName), ...target, isTypeOnly }))
+    if (types.length) nodes.push(ast.factory.createImport({ name: types.map(toImportName), ...target, isTypeOnly: true }))
+  }
+
+  return nodes
+}
+
+/**
+ * Converts an `export … from` declaration into `ExportNode`s. Forms `printExport` cannot print stay as written.
+ */
+function toExportNodes(statement: ts.Statement): Array<ast.ExportNode> {
+  if (!ts.isExportDeclaration(statement) || !statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier) || statement.attributes) return []
+
+  const { exportClause, isTypeOnly } = statement
+  const path = statement.moduleSpecifier.text
+
+  if (!exportClause) return [ast.factory.createExport({ path, isTypeOnly })]
+  if (ts.isNamespaceExport(exportClause)) return [ast.factory.createExport({ name: exportClause.name.text, path, isTypeOnly, asAlias: true })]
+  if (exportClause.elements.some((element) => element.propertyName || element.isTypeOnly || ts.isStringLiteral(element.name))) return []
+
+  return [ast.factory.createExport({ name: exportClause.elements.map((element) => element.name.text), path, isTypeOnly })]
+}
+
+function isModuleDeclaration(statement: ts.Statement): boolean {
+  return ts.isImportDeclaration(statement) || (ts.isExportDeclaration(statement) && Boolean(statement.moduleSpecifier))
+}
+
+type ModuleDeclarations = {
+  header: string
+  imports: Array<ast.ImportNode>
+  exports: Array<ast.ExportNode>
+  body: string
+}
+
+/**
+ * Splits `source` into its top-level `import`/`export … from` declarations, as nodes, the `header` above the first of them
+ * (shebang, directives, comments) and the remaining `body`.
+ */
+export function splitModuleDeclarations(source: string, filePath: string): ModuleDeclarations {
+  const sourceFile = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest)
+  const imports: Array<ast.ImportNode> = []
+  const exports: Array<ast.ExportNode> = []
+  let header = ''
+  let body = ''
+  let cursor = 0
+
+  for (const statement of sourceFile.statements) {
+    const importNodes = toImportNodes(statement, filePath)
+    const exportNodes = toExportNodes(statement)
+    if (!importNodes.length && !exportNodes.length) {
+      // Lifted declarations print above the body, so stop at the first one that stays in place to keep the evaluation order.
+      if (isModuleDeclaration(statement)) break
+      continue
+    }
+
+    const text = source.slice(cursor, statement.getStart(sourceFile))
+    if (imports.length || exports.length) body += text
+    else header = text
+    imports.push(...importNodes)
+    exports.push(...exportNodes)
+    cursor = statement.getEnd()
+  }
+
+  return { header: header.trim(), imports, exports, body: `${body}${source.slice(cursor)}`.trim() }
 }
 
 /**
