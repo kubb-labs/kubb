@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.3.16 — Sep 24, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Align how `kubb studio`, the Docker agent, and `kubb studio snapshot` pair, connect, and log. The runtime no longer prints or knows its host, pairing takes a `type` through the new `pairAgent`, and snapshots report the files changed since the previous one. ([#4098](https://github.com/kubb-labs/kubb/pull/4098), [`555e057`](https://github.com/kubb-labs/kubb/commit/555e057827aed831b755035ffab2a3e84a120629))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.15 — Sep 24, 2026
 
 ### @kubb/core
