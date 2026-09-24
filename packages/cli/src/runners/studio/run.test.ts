@@ -3,7 +3,7 @@ import * as prompts from '@clack/prompts'
 import * as utils from '@internals/utils'
 import { InvalidAgentTokenError, PairingCanceledError, type ConnectionOptions } from '@kubb/studio'
 import type { Credentials } from './credentials.ts'
-import { connect, formatPermissionRows, resolvePermissions, type StudioOptions } from './run.ts'
+import { connect, formatPermissionRows, login, resolvePermissions, type StudioOptions } from './run.ts'
 
 vi.mock('@clack/prompts', () => ({
   confirm: vi.fn(),
@@ -36,15 +36,14 @@ vi.mock('../generate/utils.ts', () => ({
 vi.mock('@kubb/studio', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@kubb/studio')>()),
   runConnection: vi.fn(),
-  startPairing: vi.fn(),
-  pollForPairingToken: vi.fn(),
+  pairAgent: vi.fn(),
   setStorage: vi.fn(),
   createFileStorage: vi.fn(),
 }))
 
 const confirm = vi.mocked(prompts.confirm)
 const { readCredentials, writeCredentials, clearCredentials } = await import('./credentials.ts')
-const { runConnection, startPairing, pollForPairingToken } = await import('@kubb/studio')
+const { runConnection, pairAgent } = await import('@kubb/studio')
 const { isCIEnvironment } = utils
 const { canUseTTY } = await import('../../utils/env.ts')
 
@@ -63,8 +62,7 @@ beforeEach(() => {
   vi.mocked(readCredentials).mockReset().mockResolvedValue(null)
   vi.mocked(clearCredentials).mockReset().mockResolvedValue(undefined)
   vi.mocked(runConnection).mockReset()
-  vi.mocked(startPairing).mockReset()
-  vi.mocked(pollForPairingToken).mockReset()
+  vi.mocked(pairAgent).mockReset()
   vi.mocked(isCIEnvironment).mockReset().mockReturnValue(false)
   vi.mocked(canUseTTY).mockReset().mockReturnValue(true)
   delete process.env.KUBB_AGENT_TOKEN
@@ -79,16 +77,33 @@ afterEach(() => {
  * agent keeps the stored credential's identity, and so its saved project permissions.
  */
 function mockPairing(agentId: string = credentials.agentId) {
-  vi.mocked(startPairing).mockResolvedValue({
-    device_code: 'device',
-    user_code: 'ABCD-EFGH',
-    verification_uri: 'https://studio/pair',
-    verification_uri_complete: 'https://studio/pair?user_code=ABCD-EFGH',
-    expires_in: 60,
-    interval: 1,
+  vi.mocked(pairAgent).mockImplementation(async ({ onCode }) => {
+    await onCode(
+      {
+        device_code: 'device',
+        user_code: 'ABCD-EFGH',
+        verification_uri: 'https://studio/pair',
+        verification_uri_complete: 'https://studio/pair?user_code=ABCD-EFGH',
+        expires_in: 60,
+        interval: 1,
+      },
+      1,
+    )
+
+    return { token: 'new-token', agent: { id: agentId, slug: 'slug', name: 'demo' } }
   })
-  vi.mocked(pollForPairingToken).mockResolvedValue({ token: 'new-token', agent: { id: agentId, slug: 'slug', name: 'demo' } })
 }
+
+describe('login', () => {
+  it('pairs this machine as a cli agent and stores the approved token', async () => {
+    using _log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    mockPairing()
+
+    await expect(login(options)).resolves.toMatchObject({ token: 'new-token', agentId: credentials.agentId })
+    expect(pairAgent).toHaveBeenCalledWith(expect.objectContaining({ type: 'cli', studioUrl: options.studioUrl }))
+    expect(writeCredentials).toHaveBeenCalledWith(expect.objectContaining({ token: 'new-token' }))
+  })
+})
 
 describe('resolvePermissions', () => {
   it('asks for every permission and stores the answers', async () => {
@@ -263,7 +278,7 @@ describe('connect', () => {
 
   it('exits cleanly instead of throwing when the user cancels pairing during a live reauth', async () => {
     vi.mocked(readCredentials).mockResolvedValue(credentials)
-    vi.mocked(startPairing).mockRejectedValue(new PairingCanceledError())
+    vi.mocked(pairAgent).mockRejectedValue(new PairingCanceledError())
     const connection = mockConnection(rejection(true))
 
     await expect(connect(options)).resolves.toBeUndefined()
@@ -277,6 +292,6 @@ describe('connect', () => {
 
     await expect(connect(options)).rejects.toThrow(/rejected the newly approved token/)
     // One pairing only: the second rejection is a hard failure.
-    expect(startPairing).toHaveBeenCalledTimes(1)
+    expect(pairAgent).toHaveBeenCalledTimes(1)
   })
 })

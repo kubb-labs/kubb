@@ -1,7 +1,7 @@
 import { relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { getElapsedMs } from '@internals/utils'
+import { formatMs, getElapsedMs } from '@internals/utils'
 import { Diagnostics, logLevel as logLevelMap } from '@kubb/core'
 import { formatMsWithColor } from './banner.ts'
 import type { LoggerContext, LoggerHandle, LoggerOptions, LoggerWriter, LogStatus, WriterProgress, WriterSpinner } from './defineLogger.ts'
@@ -341,11 +341,21 @@ export function createLogger(writer: LoggerWriter) {
       startSpinner('✓ Ready to receive jobs')
     })
 
-    context.hook('studio:warn', ({ message }) => {
+    context.hook('studio:reconnecting', ({ delayMs }) => {
+      if (silent) {
+        return
+      }
+
+      stopSpinner()
+      writer.info(text(styleText('dim', `Retrying connection to Kubb Studio in ${formatMs(delayMs)}`)))
+    })
+
+    context.hook('studio:warn', ({ message, permission }) => {
       if (logLevel < logLevelMap.warn) {
         return
       }
-      writer.warn(text(`⚠ ${message}`))
+      const remedy = permission ? `; pass --${permission.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)} to allow it` : ''
+      writer.warn(text(`⚠ ${message}${remedy}`))
     })
 
     // Unguarded, like `kubb:error`: a failure stays visible even at silent.

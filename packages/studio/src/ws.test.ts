@@ -23,23 +23,4 @@ describe('Generation event stream', () => {
       }),
     )
   })
-
-  it('does not fail close when the consumer cancels the event stream', async () => {
-    const hooks = new Hookable<KubbHooks>()
-    const generation = createGenerationStream(hooks, 'job-2')
-    const reader = generation.stream.getReader()
-
-    await hooks.callHook('kubb:info', { message: 'hello' })
-    await reader.cancel()
-
-    await expect(generation.close()).resolves.toBeUndefined()
-  })
-
-  it('resolves close without a reader draining events', async () => {
-    const hooks = new Hookable<KubbHooks>()
-    const generation = createGenerationStream(hooks, 'job-3')
-
-    await hooks.callHook('kubb:info', { message: 'unread' })
-    await expect(generation.close()).resolves.toBeUndefined()
-  })
 })

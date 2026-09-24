@@ -40,32 +40,67 @@ npm install @kubb/studio
 ## Usage
 
 ```typescript
-import { createClient, createFileStorage } from '@kubb/studio'
+import { createFileStorage, runConnection, setStorage } from '@kubb/studio'
 
-const client = createClient({
-  token: process.env.KUBB_AGENT_TOKEN!,
-  configPath: 'kubb.config.ts',
-  version: '1.0.0',
-  loadConfig: () => loadMyKubbConfig(),
-  storage: createFileStorage('./.kubb-cache'),
+// The machine identity lives in this storage, so install it before anything pairs or connects.
+setStorage(createFileStorage('./.kubb-cache'))
+
+const outcome = await runConnection({
+  credentials: { token: process.env.KUBB_AGENT_TOKEN! },
+  clientOptions: () => ({
+    configPath: 'kubb.config.ts',
+    version: '1.0.0',
+    loadConfig: () => loadMyKubbConfig(),
+    installLogger: (hooks) => {
+      hooks.hook('studio:connected', ({ url }) => console.log(`Connected to ${url}`))
+      hooks.hook('studio:reconnecting', ({ delayMs }) => console.log(`Retrying in ${delayMs}ms`))
+      hooks.hook('studio:warn', ({ message }) => console.warn(message))
+      hooks.hook('studio:error', ({ error }) => console.error(error.message))
+    },
+  }),
+  signal: shutdown.signal,
+  // Return a new credential to reconnect with, `null` to stop, or throw to fail the run.
+  onTokenRejected: async () => null,
 })
-
-await client.connect()
 ```
 
 The runtime discovers nothing on its own: the host injects the config loader, the storage, and its
 own version. That is what lets one runtime serve a CLI running in a developer's project and a
 container running a fixed plugin set.
 
+## Hosts and the runtime
+
+Three hosts run this package: `kubb studio`, the `kubblabs/kubb-agent` Docker image, and
+`kubb studio snapshot` in CI. All three follow the steps below. The runtime owns only the
+connection: it doesn't read CI environment variables or print anything, and behaves the same in
+every host.
+
+| Step             | `kubb studio`                           | Docker agent                             | `kubb studio snapshot`                   |
+| ---------------- | --------------------------------------- | ---------------------------------------- | ---------------------------------------- |
+| Machine identity | `setStorage` under `~/.kubb`            | `setStorage` on the Nitro `kubb` mount   | `KUBB_AGENT_SECRET` from the CI identity |
+| Credentials      | stored, or `pairAgent({ type: 'cli' })` | stored, or `pairAgent({ type: 'user' })` | `createAgent` with the CI API key        |
+| Permissions      | flags and a per-project prompt          | `KUBB_AGENT_ALLOW_*`                     | flags only                               |
+| Connection       | `runConnection`                         | `runConnection`                          | `runConnection`                          |
+| Token rejected   | pair again once                         | pair again once                          | fail the run                             |
+| Output           | renders the `studio:*` hooks            | renders the `studio:*` hooks             | renders the `studio:*` hooks             |
+
+Everything the runtime has to say goes through hooks on the emitter `installLogger` receives:
+`studio:connecting`, `studio:connected`, `studio:ready`, `studio:reconnecting`,
+`studio:disconnected`, `studio:command:start`, `studio:command:end`, `studio:warn`, and
+`studio:error`. When a request is refused for a missing permission, `studio:warn` carries it as
+`permission`, and the host adds its own remedy, a CLI flag or an environment variable.
+
 ## Permissions
 
 Every permission is off by default, and each covers one trust boundary:
 
-| Option       | What it grants                                                                                 |
-| ------------ | ---------------------------------------------------------------------------------------------- |
-| `allowWrite` | Generated files are written to disk. Off means they exist only in memory and stream to Studio. |
-| `allowInput` | An OpenAPI spec sent by Studio replaces the one on disk.                                       |
-| `allowExec`  | The formatter, the linter, and `output.postGenerate` run as child processes.                   |
+| Option            | What it grants                                                                                 |
+| ----------------- | ---------------------------------------------------------------------------------------------- |
+| `allowWrite`      | Generated files are written to disk. Off means they exist only in memory and stream to Studio. |
+| `allowInput`      | An OpenAPI spec sent by Studio replaces the one on disk.                                       |
+| `allowExec`       | The formatter, the linter, and `output.postGenerate` run as child processes.                   |
+| `allowConfigEdit` | Studio may change plugin options in `kubb.config.ts`.                                          |
+| `allowRead`       | Studio may read back the files a generation produced.                                          |
 
 ## Connection flow
 
@@ -107,9 +142,23 @@ No host starts with a token, so each one pairs over
 `POST /api/agent/token` until someone approves in the browser. Studio mints the token once and stores only its hash, so
 nothing can read it back.
 
-`startPairing` defaults to the `kubb-cli` client, which `kubb studio login` uses and any signed-in
-member can approve. A host that pairs a shared or tier-limited agent passes `clientId: 'kubb-agent'`
-and an `agentKind`, whose codes only an admin can approve.
+`pairAgent` runs that whole flow and hands each code to the host's `onCode` to show. The `type` is
+what Studio registers the machine as: `cli` is a `kubb studio` machine any signed-in member can
+approve, and `user` or `sandbox` is the Docker image, whose codes only an admin can approve. With
+`maxAttempts` above 1 it asks for a fresh code when one expires unapproved. A denial throws
+`PairingDeniedError`, an expired code `PairingExpiredError`, and an aborted `signal`
+`PairingCanceledError`.
+
+```typescript
+import { pairAgent } from '@kubb/studio'
+
+const { token, agent } = await pairAgent({
+  type: 'cli',
+  name: 'my-project',
+  hostname: os.hostname(),
+  onCode: (session) => console.log(`Approve ${session.user_code} at ${session.verification_uri}`),
+})
+```
 
 ## Asynchronous jobs
 
@@ -143,6 +192,10 @@ if (finished.status === 'failed') throw new Error(finished.error)
 if (finished.status === 'canceled') throw new Error('Studio job was canceled')
 const snapshot = finished.snapshot
 ```
+
+Pass `commit` with a snapshot job, and the finished snapshot carries `changes`: the files added,
+changed, and removed since the previous snapshot of the same package on the same agent, and which
+snapshot (and commit) that was. `base` is `null` on the first one.
 
 A snapshot job packs the tarball on the agent, not on Studio. The agent `PUT`s an empty request to
 a path Studio provides, gets back a redirect to a short-lived storage URL, and uploads the tarball

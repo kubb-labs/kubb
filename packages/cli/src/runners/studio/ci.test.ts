@@ -98,4 +98,13 @@ describe('detectCi', () => {
 
     expect(forOwner('acme')?.id).not.toBe(forOwner('other')?.id)
   })
+
+  it.each([
+    [{ GITHUB_ACTIONS: 'true', GITHUB_SHA: 'a1b2c3d' }],
+    [{ GITLAB_CI: 'true', CI_COMMIT_SHA: 'a1b2c3d' }],
+    [{ BITBUCKET_BUILD_NUMBER: '7', BITBUCKET_COMMIT: 'a1b2c3d' }],
+    [{ CIRCLECI: 'true', CIRCLE_SHA1: 'a1b2c3d' }],
+  ])('reads the commit the run builds from %o', (env) => {
+    expect(detectCi(env)?.commit).toBe('a1b2c3d')
+  })
 })

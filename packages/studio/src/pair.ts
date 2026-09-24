@@ -1,6 +1,5 @@
 import { setTimeout as delay } from 'node:timers/promises'
-import { styleText } from 'node:util'
-import { getErrorMessage } from '@internals/utils'
+import { toError } from '@internals/utils'
 import { ofetch } from 'ofetch'
 import { agentDefaults } from './constants.ts'
 import { getMachineToken } from './machine.ts'
@@ -44,10 +43,13 @@ export type PairingResult = {
 }
 
 /**
- * Identifies the CLI to Studio's device authorization endpoint. A label, not a secret: what
- * authorizes a pairing is a signed-in person approving the code in the browser.
+ * What this machine registers as. Any member may approve `cli` (`kubb studio`); only an admin may
+ * approve `user` and `sandbox` (the Docker image). A `ci` agent never pairs.
  */
-const CLIENT_ID = 'kubb-cli'
+export type PairingAgentType = 'cli' | 'user' | 'sandbox'
+
+/** Labels, not secrets: a person approving the code in the browser is what authorizes a pairing. */
+const CLIENT_IDS = { cli: 'kubb-cli', agent: 'kubb-agent' } as const
 
 /**
  * Thrown when a caller aborts `startPairing` or `pollForPairingToken` through their `signal`, such
@@ -61,23 +63,30 @@ export class PairingCanceledError extends Error {
   }
 }
 
+/** Thrown when the code expired unapproved. A fresh code can still succeed. */
+export class PairingExpiredError extends Error {
+  constructor(message = 'The pairing code expired, pair again') {
+    super(message)
+    this.name = 'PairingExpiredError'
+  }
+}
+
+/** Thrown when the pairing was denied in the browser, including by the organization's agent limit. */
+export class PairingDeniedError extends Error {
+  constructor(message = 'Pairing was denied in the browser') {
+    super(message)
+    this.name = 'PairingDeniedError'
+  }
+}
+
 type StartPairingOptions = {
   studioUrl?: string
+  type: PairingAgentType
   /**
    * Display name for the agent, usually the project or machine name.
    */
   name: string
   hostname: string
-  /**
-   * Which client is pairing. Defaults to the CLI, where any signed-in member may approve their own
-   * machine. The Docker image passes `kubb-agent`, whose codes only an admin can approve.
-   */
-  clientId?: string
-  /**
-   * What a `kubb-agent` pairing asks to be registered as. Studio rejects the request without it,
-   * and ignores it for the CLI.
-   */
-  agentKind?: 'user' | 'sandbox'
   /**
    * Aborting this cancels the request in flight and rejects with {@link PairingCanceledError}.
    */
@@ -89,23 +98,16 @@ type StartPairingOptions = {
  * the code, so approval knows which machine it is pairing: the same machine pairing twice rotates
  * one agent's token instead of creating a second agent.
  */
-export async function startPairing({
-  studioUrl = agentDefaults.studioUrl,
-  name,
-  hostname,
-  clientId = CLIENT_ID,
-  agentKind,
-  signal,
-}: StartPairingOptions): Promise<PairingSession> {
+export async function startPairing({ studioUrl = agentDefaults.studioUrl, type, name, hostname, signal }: StartPairingOptions): Promise<PairingSession> {
   try {
     return await ofetch<PairingSession>(`${studioUrl}/api/auth/device/code`, {
       method: 'POST',
       body: {
-        client_id: clientId,
+        client_id: type === 'cli' ? CLIENT_IDS.cli : CLIENT_IDS.agent,
         name,
         hostname,
         machine_token: await getMachineToken(),
-        agent_kind: agentKind,
+        agent_kind: type === 'cli' ? undefined : type,
       },
       signal,
     })
@@ -126,6 +128,8 @@ type PollOptions = {
    * lands between polls or during the wait for the next one.
    */
   signal?: AbortSignal
+  /** Called when a poll could not reach Studio. Polling carries on. */
+  onRetry?: (error: Error) => void
 }
 
 type PollError = 'authorization_pending' | 'slow_down' | 'expired_token' | 'access_denied' | 'invalid_grant'
@@ -146,15 +150,16 @@ function isPairingResult(response: PollResponse | undefined): response is Pairin
 }
 
 /**
- * Polls until the user approves or denies, honoring the server's `slow_down` back-off. A poll that
- * cannot reach Studio is warned about and retried, since the code stays valid either way.
+ * Polls until the user approves or denies, honoring the server's `slow_down` back-off.
  *
  * Studio's own endpoint is used rather than the auth layer's `/device/token`, because an approved
  * Kubb pairing is worth an agent bearer token, not a user session.
  *
- * @throws when the code expires, the user denies it, or Studio returns an unexpected error.
+ * @throws {PairingExpiredError} when the code expires before anyone approves it.
+ * @throws {PairingDeniedError} when the pairing is denied in the browser.
+ * @throws {PairingCanceledError} when `signal` aborts.
  */
-export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl, session, signal }: PollOptions): Promise<PairingResult> {
+export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl, session, signal, onRetry }: PollOptions): Promise<PairingResult> {
   // Both fields cross the network, so neither is trusted as-is: a missing or zero `interval` would
   // spin the poll loop, and a missing or zero `expires_in` would expire the code before the first
   // poll. `> 0` is also false for `NaN` and for a missing field, so it doubles as the type guard.
@@ -187,10 +192,8 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
         throw new PairingCanceledError()
       }
 
-      // Studio can go briefly unreachable (a deploy, a dropped connection) during the minutes the
-      // user has to approve in the browser. One failed poll should not end a pairing whose code is
-      // still valid, so warn and try again on the next tick, the way `registerAgent` retries.
-      console.warn(styleText('yellow', `Could not reach Kubb Studio while waiting for approval, retrying: ${getErrorMessage(error)}`))
+      // Studio can be briefly unreachable (a deploy) while the code is still valid, so retry.
+      onRetry?.(toError(error))
       continue
     }
 
@@ -212,15 +215,45 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
     }
 
     if (response.error === 'access_denied') {
-      throw new Error(response.error_description ?? 'Pairing was denied in the browser')
+      throw new PairingDeniedError(response.error_description)
     }
 
     if (response.error === 'expired_token' || response.error === 'invalid_grant') {
-      throw new Error(response.error_description ?? 'The pairing code expired, pair again')
+      throw new PairingExpiredError(response.error_description)
     }
 
     throw new Error(response.error_description ?? `Pairing failed (${response.error})`)
   }
 
-  throw new Error('The pairing code expired, pair again')
+  throw new PairingExpiredError()
+}
+
+type PairAgentOptions = StartPairingOptions & {
+  /** Shows the code to whoever approves it. Called again for each fresh code. */
+  onCode: (session: PairingSession, attempt: number) => void | Promise<void>
+  /** Called when a poll could not reach Studio. Polling carries on. */
+  onRetry?: (error: Error) => void
+  /**
+   * Codes to ask for in total when one expires unapproved. A denial or abort ends it at once.
+   * @default 1
+   */
+  maxAttempts?: number
+}
+
+/**
+ * Pairs this machine with Studio: asks for a code, hands it to the host to show, and waits for approval.
+ */
+export async function pairAgent({ onCode, onRetry, maxAttempts = 1, ...options }: PairAgentOptions): Promise<PairingResult> {
+  for (let attempt = 1; ; attempt++) {
+    const session = await startPairing(options)
+    await onCode(session, attempt)
+
+    try {
+      return await pollForPairingToken({ studioUrl: options.studioUrl, session, signal: options.signal, onRetry })
+    } catch (error) {
+      if (!(error instanceof PairingExpiredError) || attempt >= maxAttempts) {
+        throw error
+      }
+    }
+  }
 }

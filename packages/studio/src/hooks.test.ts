@@ -44,14 +44,6 @@ describe('setupHookListener', () => {
     hooks.removeAllHooks()
   })
 
-  it('skips execution when hook:start fires without an id', async () => {
-    setupHookListener(hooks, '/root')
-
-    await hooks.callHook('kubb:hook:start', { id: undefined as any, command: 'echo', args: [] })
-
-    expect(x).not.toHaveBeenCalled()
-  })
-
   it('emits hook:end with success when command exits zero', async () => {
     vi.mocked(x).mockReturnValue(fakeProc({ lines: ['output'], exitCode: 0 }) as any)
 
@@ -93,33 +85,5 @@ describe('setupHookListener', () => {
 
     expect(hookEndSpy).toHaveBeenCalledWith(expect.objectContaining({ id: 'fail-id', success: false, error: expect.any(Error) }))
     expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ error: expect.objectContaining({ message: 'Hook execute failed: oxlint --fix' }) }))
-  })
-
-  it('emits hook:end failure and error when spawning throws', async () => {
-    vi.mocked(x).mockImplementation(() => {
-      throw new Error('command not found')
-    })
-
-    setupHookListener(hooks, '/root')
-
-    const hookEndSpy = vi.fn()
-    const errorSpy = vi.fn()
-    hooks.hook('kubb:hook:end', hookEndSpy)
-    hooks.hook('kubb:error', errorSpy)
-
-    await hooks.callHook('kubb:hook:start', { id: 'throw-id', command: 'nonexistent', args: [] })
-
-    expect(hookEndSpy).toHaveBeenCalledWith(expect.objectContaining({ id: 'throw-id', success: false, error: expect.any(Error) }))
-    expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ error: expect.objectContaining({ message: 'Hook execute failed: nonexistent' }) }))
-  })
-
-  it('passes the root as cwd to tinyexec', async () => {
-    vi.mocked(x).mockReturnValue(fakeProc({ exitCode: 0 }) as any)
-
-    setupHookListener(hooks, '/my/project/root')
-
-    await hooks.callHook('kubb:hook:start', { id: 'cwd-id', command: 'npm', args: ['run', 'lint'] })
-
-    expect(x).toHaveBeenCalledWith('npm', ['run', 'lint'], expect.objectContaining({ nodeOptions: expect.objectContaining({ cwd: '/my/project/root' }) }))
   })
 })

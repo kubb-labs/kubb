@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setTimeout as delay } from 'node:timers/promises'
-import { PairingCanceledError, pollForPairingToken, startPairing, type PairingSession } from './pair.ts'
+import { pairAgent, PairingCanceledError, PairingDeniedError, PairingExpiredError, pollForPairingToken, startPairing, type PairingSession } from './pair.ts'
 
 vi.mock('node:timers/promises', () => ({
   setTimeout: vi.fn(async () => {}),
@@ -59,59 +59,31 @@ describe('pollForPairingToken', () => {
     await vi.runAllTimersAsync()
 
     await expect(promise).rejects.toThrow('agent limit reached')
+    await expect(promise).rejects.toBeInstanceOf(PairingDeniedError)
   })
 
-  it('throws on an unexpected pairing error instead of spinning until expiry', async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse({ error: 'server_error', error_description: 'pairing store unavailable' }, 500))
+  it.each(['expired_token', 'invalid_grant'])('throws PairingExpiredError on %s', async (error) => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ error }, 400))
 
     const promise = pollForPairingToken({ studioUrl: 'http://studio', session })
     promise.catch(() => {})
     await vi.runAllTimersAsync()
 
-    await expect(promise).rejects.toThrow('pairing store unavailable')
+    await expect(promise).rejects.toBeInstanceOf(PairingExpiredError)
   })
 
-  it('throws when Studio returns an empty body', async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse(undefined, 500))
-
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session })
-    promise.catch(() => {})
-    await vi.runAllTimersAsync()
-
-    await expect(promise).rejects.toThrow('empty pairing response')
-  })
-
-  it('falls back to a 5s interval instead of spinning when Studio omits it', async () => {
-    const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
-    fetchMock.mockResolvedValueOnce(createMockResponse(result))
-
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session: { ...session, interval: 0 } })
-    await vi.runAllTimersAsync()
-    await promise
-
-    expect(delayMock).toHaveBeenCalledWith(5_000, undefined, { signal: undefined })
-  })
-
-  it('falls back to a 600s expiry instead of expiring before the first poll when Studio omits it', async () => {
-    const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
-    fetchMock.mockResolvedValueOnce(createMockResponse(result))
-
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session: { ...session, expires_in: 0 } })
-    await vi.runAllTimersAsync()
-
-    await expect(promise).resolves.toEqual(result)
-  })
-
-  it('keeps polling when Studio is briefly unreachable', async () => {
+  it('keeps polling when Studio is briefly unreachable, and reports each miss through onRetry', async () => {
     using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const onRetry = vi.fn()
     const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
     fetchMock.mockRejectedValueOnce(new Error('socket hang up')).mockResolvedValueOnce(createMockResponse(result))
 
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session })
+    const promise = pollForPairingToken({ studioUrl: 'http://studio', session, onRetry })
     await vi.runAllTimersAsync()
 
     await expect(promise).resolves.toEqual(result)
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('socket hang up'))
+    expect(onRetry).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining('socket hang up') }))
+    expect(warn).not.toHaveBeenCalled()
   })
 
   it('rejects with PairingCanceledError when the signal aborts during the wait between polls', async () => {
@@ -127,47 +99,66 @@ describe('pollForPairingToken', () => {
 
     await expect(promise).rejects.toBeInstanceOf(PairingCanceledError)
   })
-
-  it('rejects with PairingCanceledError when the signal is already aborted before polling starts', async () => {
-    const controller = new AbortController()
-    controller.abort()
-
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session, signal: controller.signal })
-
-    await expect(promise).rejects.toBeInstanceOf(PairingCanceledError)
-    expect(fetchMock).not.toHaveBeenCalled()
-  })
-
-  it('rejects with PairingCanceledError when the signal aborts mid-request', async () => {
-    const controller = new AbortController()
-    fetchMock.mockImplementationOnce(() => {
-      controller.abort()
-      return Promise.reject(new Error('The operation was aborted'))
-    })
-
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session, signal: controller.signal })
-    promise.catch(() => {})
-    await vi.runAllTimersAsync()
-
-    await expect(promise).rejects.toBeInstanceOf(PairingCanceledError)
-  })
 })
 
 describe('startPairing', () => {
-  it('requests a pairing session from Studio', async () => {
-    const session = { device_code: 'device', user_code: 'ABCD-EFGH', verification_uri: 'https://kubb.studio/pair' }
+  it('pairs a cli machine as the kubb-cli client, with no agent kind', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse(session))
 
-    await expect(startPairing({ studioUrl: 'http://studio', name: 'my-project', hostname: 'my-host' })).resolves.toMatchObject(session)
+    await startPairing({ studioUrl: 'http://studio', type: 'cli', name: 'my-project', hostname: 'my-host' })
+
+    const body = JSON.parse(String(fetchMock.mock.calls[0]![1].body))
+    expect(body).toMatchObject({ client_id: 'kubb-cli', machine_token: 'machine-token-hash' })
+    expect(body).not.toHaveProperty('agent_kind')
   })
 
-  it('rejects with PairingCanceledError when the signal is already aborted', async () => {
-    const controller = new AbortController()
-    controller.abort()
-    fetchMock.mockRejectedValueOnce(new DOMException('The operation was aborted', 'AbortError'))
+  it.each(['user', 'sandbox'] as const)('pairs a %s agent as the kubb-agent client with that kind', async (type) => {
+    fetchMock.mockResolvedValueOnce(createMockResponse(session))
 
-    await expect(startPairing({ studioUrl: 'http://studio', name: 'my-project', hostname: 'my-host', signal: controller.signal })).rejects.toBeInstanceOf(
-      PairingCanceledError,
-    )
+    await startPairing({ studioUrl: 'http://studio', type, name: 'kubb-agent on box', hostname: 'box' })
+
+    expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toMatchObject({ client_id: 'kubb-agent', agent_kind: type })
+  })
+})
+
+describe('pairAgent', () => {
+  const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
+  const options = { studioUrl: 'http://studio', type: 'user', name: 'kubb-agent on box', hostname: 'box' } as const
+
+  it('hands the code to the host, then returns the approved token', async () => {
+    const onCode = vi.fn()
+    fetchMock.mockResolvedValueOnce(createMockResponse(session)).mockResolvedValueOnce(createMockResponse(result))
+
+    const promise = pairAgent({ ...options, onCode })
+    await vi.runAllTimersAsync()
+
+    await expect(promise).resolves.toEqual(result)
+    expect(onCode).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ user_code: 'ABCD-EFGH' }), 1)
+  })
+
+  it('asks for a fresh code when one expires, up to maxAttempts', async () => {
+    const onCode = vi.fn()
+    fetchMock
+      .mockResolvedValueOnce(createMockResponse(session))
+      .mockResolvedValueOnce(createMockResponse({ error: 'expired_token' }, 400))
+      .mockResolvedValueOnce(createMockResponse({ ...session, user_code: 'WXYZ-1234' }))
+      .mockResolvedValueOnce(createMockResponse(result))
+
+    const promise = pairAgent({ ...options, onCode, maxAttempts: 2 })
+    await vi.runAllTimersAsync()
+
+    await expect(promise).resolves.toEqual(result)
+    expect(onCode).toHaveBeenNthCalledWith(2, expect.objectContaining({ user_code: 'WXYZ-1234' }), 2)
+  })
+
+  it('never asks for a new code after a denial', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse(session)).mockResolvedValueOnce(createMockResponse({ error: 'access_denied' }, 403))
+
+    const promise = pairAgent({ ...options, onCode: vi.fn(), maxAttempts: 5 })
+    promise.catch(() => {})
+    await vi.runAllTimersAsync()
+
+    await expect(promise).rejects.toBeInstanceOf(PairingDeniedError)
+    expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 })

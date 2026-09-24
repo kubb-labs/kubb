@@ -1,16 +1,9 @@
-import type { Storage } from 'unstorage'
 import { agentDefaults } from './constants.ts'
 import type { InvalidAgentTokenError } from './api.ts'
 import { registerAgent } from './api.ts'
 import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
-import { setStorage } from './machine.ts'
 
-export type ClientOptions = Omit<StudioSessionOptions, 'signal' | 'onTokenRejected'> & {
-  /**
-   * Where the machine secret and the last Studio config are persisted. Defaults to in-memory,
-   * which gives up a stable machine identity across restarts.
-   */
-  storage?: Storage
+export type ClientOptions = Omit<StudioSessionOptions, 'signal' | 'onTokenRejected' | 'startupWarning'> & {
   /**
    * Called once when a live pool's token is rejected during background reconnect (401: revoked, or
    * the agent was deleted). The whole pool is already stopped by the time this fires, so a host
@@ -38,7 +31,8 @@ export type Client = {
  * Creates the Kubb Studio client: the connection, the command loop, and the generation event
  * stream shared by the `kubb studio` CLI command and the Docker agent.
  *
- * Every permission is off by default. A host that wants more grants it explicitly.
+ * Every permission is off by default. A host that wants more grants it explicitly. The machine
+ * identity comes from the storage the host installed with `setStorage`, before connecting.
  *
  * @example
  * ```ts
@@ -46,11 +40,7 @@ export type Client = {
  * await studio.connect()
  * ```
  */
-export function createClient({ storage, onAuthRequired, ...options }: ClientOptions): Client {
-  if (storage) {
-    setStorage(storage)
-  }
-
+export function createClient({ onAuthRequired, ...options }: ClientOptions): Client {
   const controller = new AbortController()
   const poolSize = options.poolSize ?? agentDefaults.poolSize
   function notifyAuthRequired(error: InvalidAgentTokenError) {
@@ -69,14 +59,27 @@ export function createClient({ storage, onAuthRequired, ...options }: ClientOpti
 
   return {
     async connect() {
-      await registerAgent({ token: options.token, studioUrl: options.studioUrl ?? agentDefaults.studioUrl, poolSize })
+      const registered = await registerAgent({ token: options.token, studioUrl: options.studioUrl ?? agentDefaults.studioUrl, poolSize })
+      if (controller.signal.aborted) {
+        return
+      }
+      // Not fatal, since session creation registers again when Studio rejects the machine token.
+      // Reported through the first session only, so a pool warns once.
+      const startupWarning = registered ? undefined : 'Could not register with Kubb Studio, continuing'
 
       // Each slot is its own session, so one Studio user never sees another's generation events.
       // Awaited: `connect()` only ever rejects with `InvalidAgentTokenError` (every other failure
       // is retried internally through the session's own reconnect loop and resolves normally), so
       // awaiting here surfaces a dead token to the caller without blocking on a down Studio.
       await Promise.all(
-        Array.from({ length: poolSize }, () => new StudioSession({ ...options, signal: controller.signal, onTokenRejected: notifyAuthRequired }).start()),
+        Array.from({ length: poolSize }, (_, slot) =>
+          new StudioSession({
+            ...options,
+            signal: controller.signal,
+            onTokenRejected: notifyAuthRequired,
+            startupWarning: slot === 0 ? startupWarning : undefined,
+          }).start(),
+        ),
       )
     },
     disconnect() {

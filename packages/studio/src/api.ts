@@ -1,6 +1,4 @@
-import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
-import { logLevel as logLevelMap } from '@kubb/core'
 import { FetchError, ofetch } from 'ofetch'
 import type { AgentConnectResponse } from './protocol/index.ts'
 import { getMachineToken } from './machine.ts'
@@ -164,8 +162,6 @@ async function runRegistration({ token, studioUrl, poolSize }: RegisterProps): P
       throw new InvalidAgentTokenError(studioUrl, { cause: error })
     }
 
-    console.error(styleText('red', `Failed to register agent with Studio after ${REGISTER_RETRIES + 1} attempts`))
-
     return false
   }
 }
@@ -174,44 +170,30 @@ type DisconnectProps = {
   studioUrl: string
   token: string
   sessionId: string
-  slug?: string | null
-  /**
-   * Threshold for this function's own console lines, using the numeric constants `@kubb/core`
-   * exports as `logLevel`. Left out, nothing prints, the same silent default `StudioSessionOptions`
-   * gives a host that never set one.
-   */
-  logLevel?: number
 }
 
 /**
  * Notify Kubb Studio that this agent is disconnecting.
- * Called on process termination or server close. A failed notify is logged and swallowed: the
- * local socket is already gone, and failing teardown must not block shutdown or reconnect.
+ * Called on process termination or server close. Never throws: the local socket is already gone,
+ * and failing teardown must not block shutdown or reconnect.
+ *
+ * @returns `false` when Studio could not be reached or rate limited the call. Any other 4xx
+ * counts as notified, since it means Studio already dropped the session.
  */
-export async function disconnect({ sessionId, token, studioUrl, slug, logLevel }: DisconnectProps): Promise<void> {
-  const url = `${studioUrl}/api/agent/sessions/${sessionId}/disconnect`
-  const tag = slug ?? 'agent'
-  const canLog = logLevel !== undefined && logLevel > logLevelMap.silent
-
+export async function disconnect({ sessionId, token, studioUrl }: DisconnectProps): Promise<boolean> {
   try {
-    await ofetch(url, {
+    await ofetch(`${studioUrl}/api/agent/sessions/${sessionId}/disconnect`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
-    // console.error, not console.log: a CI runner only forwards a child process's stderr live, so
-    // a stdout write here would be silently buffered away instead of reaching its log.
-    if (canLog) {
-      console.error(styleText('green', `[${tag}] Disconnected from Studio`))
-    }
+
+    return true
   } catch (error) {
     const statusCode = (error as { statusCode?: number } | undefined)?.statusCode
-    if (statusCode !== undefined && statusCode >= 400 && statusCode < 500) return
 
-    if (canLog) {
-      console.warn(styleText('yellow', `[${tag}] Failed to notify Studio of disconnection: ${getErrorMessage(error)}`))
-    }
+    return statusCode !== undefined && statusCode !== 429 && statusCode >= 400 && statusCode < 500
   }
 }
 
@@ -219,6 +201,21 @@ export async function disconnect({ sessionId, token, studioUrl, slug, logLevel }
  * Status values returned by Studio's jobs API.
  */
 export type StudioJobStatus = 'queued' | 'running' | 'success' | 'failed' | 'canceled'
+
+/** How a snapshot's files differ from the previous one of the same package and agent, relative to `output.path`. */
+export type StudioSnapshotChanges = {
+  /** The snapshot these changes are measured against, `null` for the first one. */
+  base: {
+    id: string
+    version: string | null
+    /** The commit the base snapshot was built from, when reported. */
+    commit?: string
+    createdAt: string
+  } | null
+  added: Array<string>
+  changed: Array<string>
+  removed: Array<string>
+}
 
 /**
  * Package view returned on a successful snapshot job from Studio.
@@ -252,6 +249,8 @@ export type StudioSnapshot = {
    * ISO timestamp after which Studio may delete the tarball.
    */
   expiresAt: string
+  /** What changed since the previous snapshot. Absent when Studio or the agent predates it. */
+  changes?: StudioSnapshotChanges
 }
 
 /**
@@ -302,6 +301,7 @@ export async function createJob({
   agentId,
   name,
   version,
+  commit,
   config,
 }: {
   studioUrl: string
@@ -310,12 +310,14 @@ export async function createJob({
   agentId: string
   name?: string
   version?: string
+  /** The commit this snapshot is built from, so the next one can diff against it. */
+  commit?: string
   config?: Record<string, unknown>
 }): Promise<StudioJob> {
   const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs`, {
     method: 'POST',
     headers: { 'x-api-key': token },
-    body: { type, agentId, name, version, config },
+    body: { type, agentId, name, version, commit, config },
   })
 
   return job

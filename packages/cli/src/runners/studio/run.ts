@@ -12,11 +12,10 @@ import {
   type ClientOptions,
   defaultStudioUrl,
   type InvalidAgentTokenError,
+  pairAgent,
   PairingCanceledError,
-  pollForPairingToken,
   runConnection,
   setStorage,
-  startPairing,
 } from '@kubb/studio'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import setupReporters from '../../loggers/utils.ts'
@@ -130,19 +129,29 @@ type LoginOptions = {
  * server log, or a `Referer` header.
  */
 export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, previousCredentials }: LoginOptions = {}): Promise<Credentials> {
-  const session = await startPairing({ studioUrl, name: path.basename(process.cwd()), hostname: hostname(), signal })
-
-  console.log(`\nOpen ${styleText('cyan', session.verification_uri)} and approve the code ${styleText('bold', session.user_code)}`)
-
-  if (autoOpen) {
-    openInBrowser(session.verification_uri_complete)
-  }
-
   const spinner = createSpinner()
-  spinner.start('Waiting for approval')
+  // The spinner only starts once a code is shown.
+  let waiting = false
 
   try {
-    const { token, agent } = await pollForPairingToken({ studioUrl, session, signal })
+    const { token, agent } = await pairAgent({
+      studioUrl,
+      type: 'cli',
+      name: path.basename(process.cwd()),
+      hostname: hostname(),
+      signal,
+      onCode: (session) => {
+        console.log(`\nOpen ${styleText('cyan', session.verification_uri)} and approve the code ${styleText('bold', session.user_code)}`)
+
+        if (autoOpen) {
+          openInBrowser(session.verification_uri_complete)
+        }
+
+        spinner.start('Waiting for approval')
+        waiting = true
+      },
+      onRetry: (error) => spinner.message(`Could not reach Kubb Studio, retrying: ${error.message}`),
+    })
     spinner.stop(`Paired as ${agent.name}`)
 
     const keepsIdentity = previousCredentials?.studioUrl === studioUrl && previousCredentials.agentId === agent.id
@@ -159,7 +168,9 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
 
     return credentials
   } catch (error) {
-    spinner.stop(error instanceof PairingCanceledError ? 'Pairing canceled' : 'Pairing failed')
+    if (waiting) {
+      spinner.stop(error instanceof PairingCanceledError ? 'Pairing canceled' : 'Pairing failed')
+    }
     throw error
   }
 }
@@ -422,10 +433,8 @@ class StudioConnection {
       version: this.#options.version,
       // Reloaded on every generate, so an edit to kubb.config.ts is picked up without reconnecting.
       loadConfig: async () => (await loadConfigs(this.#options)).config,
-      client: { kind: 'cli' },
       root: process.cwd(),
       permissions: this.#granted,
-      logLevel: logLevelMap[this.#options.logLevel ?? 'info'],
       // The loggers `kubb generate` installs, so one place renders the session events and the
       // generations it drives.
       installLogger: async (hooks) => {

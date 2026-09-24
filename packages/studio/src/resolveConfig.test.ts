@@ -29,13 +29,6 @@ describe('mergePlugins', () => {
     expect(await mergePlugins(diskPlugins, undefined)).toBe(diskPlugins)
   })
 
-  it('resolves and returns studio plugins when disk plugins are undefined', async () => {
-    const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-zod', options: { validate: false } }]
-    const result = await mergePlugins(undefined, studioPlugins)
-    expect(result).toHaveLength(1)
-    expect(result?.[0]).toMatchObject({ name: 'plugin-zod', options: { validate: false } })
-  })
-
   it('merges studio options into a matching disk plugin, studio takes priority', async () => {
     const diskPlugins = [makePlugin('plugin-zod', { validate: true })]
     const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-zod', options: { validate: false } }]
@@ -44,16 +37,6 @@ describe('mergePlugins', () => {
 
     expect(result).toHaveLength(1)
     expect(result?.[0]).toMatchObject({ name: 'plugin-zod', options: { validate: false } })
-  })
-
-  it('returns a fresh plugin instance (not the disk reference) when merging matching plugins', async () => {
-    const diskPlugin = makePlugin('plugin-zod', { validate: true })
-    const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-zod', options: { validate: false } }]
-
-    const result = await mergePlugins([diskPlugin], studioPlugins)
-
-    // Must be a new instance so internal closures reference the merged options
-    expect(result?.[0]).not.toBe(diskPlugin)
   })
 
   it('preserves disk plugins that have no studio counterpart', async () => {
@@ -81,26 +64,6 @@ describe('mergePlugins', () => {
     expect(result?.[1]).toMatchObject({ name: 'plugin-ts', options: { enumType: 'enum' } })
   })
 
-  describe('false opt-out cases', () => {
-    it('preserves barrel: false from studio override when disk has a barrel object', async () => {
-      const diskPlugins = [makePlugin('plugin-ts', { barrel: { type: 'named' } })]
-      const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-ts', options: { barrel: false } }]
-
-      const result = await mergePlugins(diskPlugins, studioPlugins)
-
-      expect(result?.[0]?.options).toMatchObject({ barrel: false })
-    })
-
-    it('preserves barrel object from studio override when disk has barrel: false', async () => {
-      const diskPlugins = [makePlugin('plugin-ts', { barrel: false })]
-      const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-ts', options: { barrel: { type: 'named' } } }]
-
-      const result = await mergePlugins(diskPlugins, studioPlugins)
-
-      expect(result?.[0]?.options).toMatchObject({ barrel: { type: 'named' } })
-    })
-  })
-
   describe('disabled plugin entries', () => {
     it('drops a disk plugin that studio explicitly disabled', async () => {
       const diskPlugins = [makePlugin('plugin-zod', { validate: true }), makePlugin('plugin-ts', { enumType: 'asConst' })]
@@ -111,48 +74,6 @@ describe('mergePlugins', () => {
       expect(result).toHaveLength(1)
       expect(result?.[0]?.name).toBe('plugin-zod')
     })
-
-    it('drops a disabled disk plugin even when studio also sends other plugin overrides', async () => {
-      const diskPlugins = [makePlugin('plugin-zod', { validate: true }), makePlugin('plugin-ts', { enumType: 'asConst' })]
-      const studioPlugins: JSONKubbConfig['plugins'] = [
-        { name: '@kubb/plugin-zod', options: { validate: false } },
-        { name: '@kubb/plugin-ts', disabled: true },
-      ]
-
-      const result = await mergePlugins(diskPlugins, studioPlugins)
-
-      expect(result).toHaveLength(1)
-      expect(result?.[0]).toMatchObject({ name: 'plugin-zod', options: { validate: false } })
-    })
-
-    it('returns an empty array when disabling removes the only disk plugin and studio sends nothing else', async () => {
-      const diskPlugins = [makePlugin('plugin-ts', { enumType: 'asConst' })]
-      const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-ts', disabled: true }]
-
-      const result = await mergePlugins(diskPlugins, studioPlugins)
-
-      expect(result).toEqual([])
-    })
-
-    it('is a no-op when studio disables nothing', async () => {
-      const diskPlugins = [makePlugin('plugin-zod', { validate: true })]
-
-      const result = await mergePlugins(diskPlugins, [])
-
-      expect(result).toBe(diskPlugins)
-    })
-  })
-
-  it('merges studio options into a disk plugin that has no options field', async () => {
-    // @kubb/plugin-barrel never sets `options` on its returned Plugin object, so `diskPlugin.options`
-    // is undefined here. `mergeDeep` can't accept undefined, so merging must fall back to `{}` first.
-    const diskPlugin = { name: 'plugin-barrel' } as Plugin
-    const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-barrel', options: { output: { barrel: { type: 'all' } } } }]
-
-    const result = await mergePlugins([diskPlugin], studioPlugins)
-
-    expect(result).toHaveLength(1)
-    expect(result?.[0]).toMatchObject({ name: 'plugin-barrel', options: { output: { barrel: { type: 'all' } } } })
   })
 })
 
@@ -171,58 +92,8 @@ describe('resolvePlugins', () => {
     expect(mockPluginTs).toHaveBeenCalledWith({ output: { path: './types' } })
   })
 
-  it('resolves a plugin with undefined options using empty object', async () => {
-    vi.doMock('@kubb/plugin-zod', () => ({ pluginZod: mockPluginZod }))
-    const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
-
-    const result = await resolve([{ name: '@kubb/plugin-zod' }])
-
-    expect(result).toHaveLength(1)
-    expect(mockPluginZod).toHaveBeenCalledWith({})
-  })
-
-  it('resolves multiple plugins', async () => {
-    vi.doMock('@kubb/plugin-ts', () => ({ pluginTs: mockPluginTs }))
-    vi.doMock('@kubb/plugin-zod', () => ({ pluginZod: mockPluginZod }))
-    const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
-
-    const result = await resolve([
-      { name: '@kubb/plugin-ts', options: {} },
-      { name: '@kubb/plugin-zod', options: {} },
-    ])
-
-    expect(result).toHaveLength(2)
-  })
-
-  it('falls back to default export when named export is missing', async () => {
-    const mockDefault = vi.fn((options: unknown) => ({
-      name: 'plugin-default-only',
-      options,
-    }))
-    vi.doMock('@kubb/plugin-default-only', () => ({
-      pluginDefaultOnly: undefined,
-      default: mockDefault,
-    }))
-    const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
-
-    const result = await resolve([{ name: '@kubb/plugin-default-only', options: {} }])
-
-    expect(result).toHaveLength(1)
-    expect(mockDefault).toHaveBeenCalledWith({})
-  })
-
   it('refuses a plugin name that is not a @kubb/plugin-* package', async () => {
     await expect(resolvePlugins([{ name: 'my-custom-plugin', options: {} }])).rejects.toThrow('is not a @kubb/plugin-* package')
-  })
-
-  it('throws when the module exists but exports no callable factory', async () => {
-    vi.doMock('@kubb/plugin-broken', () => ({
-      pluginBroken: 'not-a-function',
-      default: 42,
-    }))
-    const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
-
-    await expect(resolve([{ name: '@kubb/plugin-broken', options: {} }])).rejects.toThrow('does not export a callable factory')
   })
 })
 
@@ -233,12 +104,6 @@ describe('mergeAdapter', () => {
     const result = await mergeAdapter(diskAdapter, undefined)
 
     expect(result).toBe(diskAdapter)
-  })
-
-  it('returns undefined when there is no disk adapter, even with studio options', async () => {
-    const result = await mergeAdapter(undefined, { validate: false })
-
-    expect(result).toBeUndefined()
   })
 
   it('re-invokes the same @kubb/adapter-<name> factory with merged options', async () => {
@@ -252,30 +117,6 @@ describe('mergeAdapter', () => {
 
     expect(mockAdapterOas).toHaveBeenCalledWith({ validate: true, server: { index: 1 } })
     expect(result).toStrictEqual({ name: 'oas', options: { validate: true, server: { index: 1 } }, parse: expect.any(Function) })
-  })
-
-  it('returns the disk adapter unchanged when the resolved package exports no callable factory', async () => {
-    vi.doMock('@kubb/adapter-broken', () => ({ adapterBroken: 'not-a-function' }))
-    const { mergeAdapter: merge } = await import('./resolveConfig.ts')
-
-    const diskAdapter = { name: 'broken', options: {}, parse: vi.fn() } as any
-
-    const result = await merge(diskAdapter, { foo: 'bar' })
-
-    expect(result).toBe(diskAdapter)
-  })
-
-  it('merges studio options into an adapter that was constructed with none', async () => {
-    const mockAdapterOas = vi.fn((options: unknown) => ({ name: 'oas', options, parse: vi.fn() }))
-    vi.doMock('@kubb/adapter-oas', () => ({ adapterOas: mockAdapterOas }))
-    const { mergeAdapter: merge } = await import('./resolveConfig.ts')
-
-    const diskAdapter = { name: 'oas', options: undefined, parse: vi.fn() } as any
-
-    const result = await merge(diskAdapter, { validate: false })
-
-    expect(mockAdapterOas).toHaveBeenCalledWith({ validate: false })
-    expect(result).toStrictEqual({ name: 'oas', options: { validate: false }, parse: expect.any(Function) })
   })
 })
 

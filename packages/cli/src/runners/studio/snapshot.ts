@@ -2,10 +2,12 @@ import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { exists, read } from '@internals/utils'
-import { logLevel as logLevelMap } from '@kubb/core'
-import { createAgent, createClient, createJob, machineTokenFrom, waitForJob, type StudioSnapshot } from '@kubb/studio'
-import { createSpinner, logBlock } from '../../loggers/output.ts'
-import { detectCi } from './ci.ts'
+import { cliReporter, logLevel as logLevelMap } from '@kubb/core'
+import { createAgent, createJob, machineTokenFrom, runConnection, waitForJob, type StudioSnapshot, type StudioSnapshotChanges } from '@kubb/studio'
+import { logBlock } from '../../loggers/output.ts'
+import { createPlainLogger } from '../../loggers/plainLogger.ts'
+import setupReporters from '../../loggers/utils.ts'
+import { type CiContext, detectCi } from './ci.ts'
 import { createStudioOptions, loadConfigs, run, type SnapshotOptions } from './run.ts'
 import type { definition } from '../../commands/studio/snapshot.ts'
 import type { CommandRunner } from 'gunshi'
@@ -70,11 +72,11 @@ function resolveToken(options: SnapshotOptions): string {
   return token
 }
 
-function resolveCiIdentity(options: SnapshotOptions): { id: string; name: string } {
+function resolveCiIdentity(options: SnapshotOptions): CiContext {
   const detected = detectCi()
 
   if (options.id) {
-    return { id: options.id, name: detected?.name ?? options.id }
+    return { id: options.id, name: detected?.name ?? options.id, commit: detected?.commit }
   }
 
   if (!detected) {
@@ -117,6 +119,8 @@ type SnapshotResult = {
   snapshotIdUrl: string
   expiresAt: string
   agentUrl: string
+  /** What changed since the previous snapshot of this package on this agent. */
+  changes?: StudioSnapshotChanges
 }
 
 function toResult(studioUrl: string, snapshot: StudioSnapshot, agentSlug: string): SnapshotResult {
@@ -129,7 +133,20 @@ function toResult(studioUrl: string, snapshot: StudioSnapshot, agentSlug: string
     snapshotIdUrl: absoluteUrl(studioUrl, snapshot.snapshotIdUrl),
     expiresAt: snapshot.expiresAt,
     agentUrl: absoluteUrl(studioUrl, `/agents/${agentSlug}`),
+    changes: snapshot.changes,
   }
+}
+
+/** One summary line: how many files changed, and since which run. */
+export function formatChanges(changes: StudioSnapshotChanges): string {
+  if (!changes.base) {
+    return 'First snapshot'
+  }
+
+  const counts = [`${changes.added.length} added`, `${changes.changed.length} changed`, `${changes.removed.length} removed`].join(', ')
+  const since = changes.base.commit ? changes.base.commit.slice(0, 7) : changes.base.createdAt
+
+  return changes.added.length + changes.changed.length + changes.removed.length ? `${counts} since ${since}` : `No changes since ${since}`
 }
 
 function printSummary(result: SnapshotResult): void {
@@ -137,6 +154,7 @@ function printSummary(result: SnapshotResult): void {
     `${styleText('dim', 'Package'.padEnd(10))}  ${result.name ?? '(unnamed)'}@${result.version ?? '0.0.0'}`,
     `${styleText('dim', 'Tarball'.padEnd(10))}  ${styleText('cyan', result.url)}`,
     `${styleText('dim', 'Agent'.padEnd(10))}  ${result.agentUrl}`,
+    ...(result.changes ? [`${styleText('dim', 'Changes'.padEnd(10))}  ${formatChanges(result.changes)}`] : []),
     `${styleText('dim', 'Expires'.padEnd(10))}  ${result.expiresAt}`,
   ])
 }
@@ -153,74 +171,68 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
   const { configPath } = await loadConfigs(options)
   const ci = resolveCiIdentity(options)
   const { name, version: packageVersion } = await resolvePackageMetadata(options)
+  const logLevel = logLevelMap[options.logLevel ?? 'info']
 
-  // Set before the first `getMachineToken()` call (inside `client.connect()`), so the WebSocket
+  // Set before the first `getMachineToken()` call (inside the connection), so the WebSocket
   // session registers under the same machine token `createAgent` just registered with Studio.
   process.env.KUBB_AGENT_SECRET = ci.id
 
-  const spinner = options.json ? null : createSpinner()
-  const log = (message: string) => {
-    if (options.json) {
-      console.error(message)
-      return
+  const write = options.json ? (line: string) => console.error(line) : (line: string) => console.log(line)
+  const logger = createPlainLogger(write)
+  const step = (message: string) => {
+    if (logLevel > logLevelMap.silent) {
+      write(message)
     }
-
-    spinner?.message(message)
   }
 
-  if (options.json) {
-    log('Creating Kubb Studio agent')
-  }
-  if (!options.json) {
-    spinner?.start('Creating Kubb Studio agent')
-  }
+  step('Creating Kubb Studio agent')
 
   const agent = await createAgent({ studioUrl: options.studioUrl, token, name: ci.name, machineToken: machineTokenFrom(ci.id) })
 
-  const { promise: ready, reject: markFailed, resolve: markReady } = Promise.withResolvers<void>()
+  const { promise: ready, resolve: markReady } = Promise.withResolvers<void>()
+  const shutdown = new AbortController()
 
-  const client = createClient({
-    studioUrl: options.studioUrl,
-    token: agent.token,
-    configPath,
-    root: process.cwd(),
-    version: options.version,
-    client: { kind: 'cli' },
-    logLevel: logLevelMap[options.logLevel ?? 'info'],
-    loadConfig: async () => (await loadConfigs(options)).config,
-    installLogger: (hooks) => {
-      hooks.hook('studio:connecting', ({ url }) => log(`Connecting to Kubb Studio at ${url}`))
-      hooks.hook('studio:connected', ({ url }) => log(`Connected to Kubb Studio at ${url}`))
-      hooks.hook('studio:ready', () => {
-        log('Kubb Studio connection ready')
-        markReady()
-      })
-      hooks.hook('studio:warn', ({ message }) => log(`Kubb Studio warning: ${message}`))
-      hooks.hook('studio:error', ({ error }) => markFailed(error))
-    },
+  const connection = runConnection({
+    credentials: { token: agent.token },
+    signal: shutdown.signal,
+    clientOptions: () => ({
+      studioUrl: options.studioUrl,
+      configPath,
+      root: process.cwd(),
+      version: options.version,
+      // Flags only: a script is never prompted and never reuses a saved answer.
+      permissions: options.permission,
+      loadConfig: async () => (await loadConfigs(options)).config,
+      installLogger: async (hooks) => {
+        await setupReporters(hooks, { logLevel, reporters: [cliReporter], logger })
+        hooks.hook('studio:ready', () => markReady())
+      },
+    }),
+    // A CI agent's token comes from the organization key, so there is no pairing to fall back to.
+    onTokenRejected: ({ error }) => Promise.reject(error),
   })
-
-  await client.connect()
+  const lost = connection.then(() => Promise.reject(new Error('The Kubb Studio connection ended before the snapshot finished')))
+  void lost.catch(() => {})
 
   try {
-    let readyTimeoutHandle: ReturnType<typeof setTimeout> | undefined
-
+    let readyTimeout: ReturnType<typeof setTimeout> | undefined
     try {
       await Promise.race([
         ready,
-        new Promise<void>((_, reject) => {
-          readyTimeoutHandle = setTimeout(() => reject(new Error('Timed out waiting for Kubb Studio to confirm the agent was ready')), READY_TIMEOUT_MS)
+        lost,
+        new Promise<never>((_, reject) => {
+          readyTimeout = setTimeout(() => reject(new Error('Timed out waiting for Kubb Studio to confirm the agent was ready')), READY_TIMEOUT_MS)
         }),
       ])
     } finally {
-      clearTimeout(readyTimeoutHandle)
+      clearTimeout(readyTimeout)
     }
 
-    log('Creating snapshot job')
+    step('Creating snapshot job')
 
-    const job = await createJob({ studioUrl: options.studioUrl, token, type: 'snapshot', agentId: agent.id, name, version: packageVersion })
-    log(`Snapshot job queued: ${job.id}`)
-    const finished = await waitForJob({ studioUrl: options.studioUrl, token, id: job.id, timeoutMs })
+    const job = await createJob({ studioUrl: options.studioUrl, token, type: 'snapshot', agentId: agent.id, name, version: packageVersion, commit: ci.commit })
+    step(`Snapshot job queued: ${job.id}`)
+    const finished = await Promise.race([waitForJob({ studioUrl: options.studioUrl, token, id: job.id, timeoutMs }), lost])
 
     if (finished.status === 'failed') {
       throw new Error(finished.error ?? 'Snapshot job failed')
@@ -232,12 +244,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
 
     const result = toResult(options.studioUrl, finished.snapshot, agent.slug)
 
-    if (options.json) {
-      log('Snapshot published')
-    }
-    if (!options.json) {
-      spinner?.stop('Snapshot published')
-    }
+    step('Snapshot published')
 
     if (options.json) {
       console.log(JSON.stringify(result))
@@ -246,18 +253,12 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
       printSummary(result)
     }
   } catch (error) {
-    if (options.json) {
-      log('Snapshot failed')
-    }
-    if (!options.json) {
-      spinner?.stop('Snapshot failed')
-    }
+    step('Snapshot failed')
     throw error
   } finally {
-    if (options.json) {
-      log('Disconnecting from Kubb Studio')
-    }
-    client.disconnect()
+    step('Disconnecting from Kubb Studio')
+    // Not awaited: a half-open socket must not hold the run open.
+    shutdown.abort()
   }
 }
 

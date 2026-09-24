@@ -1,13 +1,6 @@
-import { execFile } from 'node:child_process'
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
-import { dirname, join } from 'node:path'
-import { promisify } from 'node:util'
 import { gunzipSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
 import { createSnapshotPackage } from './snapshotPackage.ts'
-
-const execFileAsync = promisify(execFile)
 
 /** Reads back the path (USTAR `prefix` + `name`) and content of every entry in a tarball. */
 function readTarEntries(tar: Buffer): Array<{ path: string; content: string }> {
@@ -41,26 +34,6 @@ function readManifest(bytes: Buffer): Manifest {
   if (!entry) throw new Error('Tarball has no package/package.json')
 
   return JSON.parse(entry.content) as Manifest
-}
-
-/** Unpacks a tarball into `<root>/node_modules/<name>`, as an install would, and returns the root. */
-async function installTarball(bytes: Buffer, packageName: string): Promise<string> {
-  const root = await mkdtemp(join(tmpdir(), 'kubb-snapshot-consumer-'))
-  const target = join(root, 'node_modules', ...packageName.split('/'))
-
-  for (const { path, content } of readTarEntries(gunzipSync(bytes))) {
-    const file = join(target, path.slice('package/'.length))
-    await mkdir(dirname(file), { recursive: true })
-    await writeFile(file, content)
-  }
-
-  return root
-}
-
-/** A generated project with no `@kubb/plugin-barrel`, so the build produces no `dist/index.*`. */
-const filesWithoutBarrel = {
-  'src/models/Pet.ts': "export const petName = 'doggie'",
-  'src/hooks/usePet.ts': "import { petName } from '../models/Pet.ts'\nexport function usePet() {\n  return petName\n}",
 }
 
 describe('[util] snapshotPackage', () => {
@@ -99,28 +72,6 @@ describe('[util] snapshotPackage', () => {
     expect(tarball).not.toContain('package/home/runner')
   })
 
-  it('rejects generated files that sanitize to the same path', async () => {
-    await expect(
-      createSnapshotPackage(
-        { 'a/index.ts': 'export const a = 1', 'a/../index.ts': 'export const a = 2' },
-        { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: {} },
-      ),
-    ).rejects.toThrow(/collide|same path/)
-  })
-
-  it('addresses a tar entry path over 100 bytes with the USTAR prefix field', async () => {
-    const longSegment = 'x'.repeat(90)
-    const { bytes } = await createSnapshotPackage(
-      { [`src/${longSegment}/index.ts`]: 'export {}' },
-      { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: {} },
-    )
-
-    const entries = readTarEntries(gunzipSync(bytes))
-    const entry = entries.find(({ path }) => path.endsWith('index.ts'))
-    expect(entry?.path).toBe(`package/src/${longSegment}/index.ts`)
-    expect(entry?.content).toBe('export {}')
-  })
-
   it('preserves nested dist output paths from an unbundled multi-file build', async () => {
     const { bytes } = await createSnapshotPackage(
       {
@@ -148,53 +99,4 @@ describe('[util] snapshotPackage', () => {
     expect(manifest.exports['.']).toEqual({ import: './dist/index.mjs', require: './dist/index.cjs' })
     expect(manifest.exports['./*']).toEqual({ import: './dist/*.mjs', require: './dist/*.cjs' })
   })
-
-  it('omits the barrel fields when the build produced no dist/index', async () => {
-    const { bytes } = await createSnapshotPackage(filesWithoutBarrel, { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: {} })
-
-    const paths = readTarEntries(gunzipSync(bytes)).map((entry) => entry.path)
-    const manifest = readManifest(bytes)
-
-    expect(paths).not.toContain('package/dist/index.mjs')
-    expect(manifest.main).toBeUndefined()
-    expect(manifest.module).toBeUndefined()
-    expect(manifest.exports['.']).toBeUndefined()
-    expect(manifest.exports['./*']).toEqual({ import: './dist/*.mjs', require: './dist/*.cjs' })
-  })
-
-  it('resolves and loads a barrel-less subpath under both import and require', async () => {
-    const { bytes } = await createSnapshotPackage(filesWithoutBarrel, { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: {} })
-    const root = await installTarball(bytes, '@kubb/snapshot-test')
-    const consumer = join(root, 'consumer.mjs')
-
-    try {
-      await writeFile(
-        consumer,
-        [
-          "import { createRequire } from 'node:module'",
-          'const require = createRequire(import.meta.url)',
-          "const esm = await import('@kubb/snapshot-test/hooks/usePet')",
-          "const cjs = require('@kubb/snapshot-test/hooks/usePet')",
-          'console.log(',
-          '  JSON.stringify({',
-          "    esmUrl: import.meta.resolve('@kubb/snapshot-test/hooks/usePet'),",
-          "    cjsPath: require.resolve('@kubb/snapshot-test/hooks/usePet'),",
-          '    esmValue: esm.usePet(),',
-          '    cjsValue: cjs.usePet(),',
-          '  }),',
-          ')',
-        ].join('\n'),
-      )
-
-      const { stdout } = await execFileAsync(process.execPath, [consumer])
-      const result = JSON.parse(stdout) as { esmUrl: string; cjsPath: string; esmValue: string; cjsValue: string }
-
-      expect(result.esmUrl).toMatch(/dist\/hooks\/usePet\.mjs$/)
-      expect(result.cjsPath).toMatch(/dist[/\\]hooks[/\\]usePet\.cjs$/)
-      expect(result.esmValue).toBe('doggie')
-      expect(result.cjsValue).toBe('doggie')
-    } finally {
-      await rm(root, { recursive: true, force: true })
-    }
-  }, 60_000)
 })

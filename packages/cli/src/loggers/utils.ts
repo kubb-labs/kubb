@@ -6,7 +6,7 @@ import { createCliReporter, logLevel as logLevelMap } from '@kubb/core'
 import type { StudioConnectedContext } from '@kubb/studio'
 import { getAgentName } from '../agent.ts'
 import { canUseTTY } from '../utils/env.ts'
-import type { LoggerContext, LoggerHandle, LoggerOptions } from './defineLogger.ts'
+import type { Logger, LoggerContext, LoggerHandle, LoggerOptions } from './defineLogger.ts'
 import { clackLogger } from './clackLogger.ts'
 import { plainLogger } from './plainLogger.ts'
 
@@ -274,7 +274,15 @@ export function installReporter(context: LoggerContext, reporter: Reporter, ctx:
  */
 async function setupReporters(
   context: LoggerContext,
-  { logLevel, reporters }: LoggerOptions & { reporters: ReadonlyArray<Reporter> },
+  {
+    logLevel,
+    reporters,
+    logger: forcedLogger,
+  }: LoggerOptions & {
+    reporters: ReadonlyArray<Reporter>
+    /** Overrides the terminal-based pick, e.g. the plain logger for `kubb studio snapshot`. */
+    logger?: Logger
+  },
 ): Promise<LoggerHandle | undefined> {
   let cliHandle: LoggerHandle | undefined
   const hasJson = reporters.some((reporter) => reporter.name === 'json')
@@ -291,8 +299,8 @@ async function setupReporters(
     }
 
     // Spinners and cursor-movement escapes are hard for an AI coding agent to parse, even over a pseudo-TTY.
-    const logger = canUseTTY() && !getAgentName() ? clackLogger : plainLogger
-    const handle = await logger.install(context, { logLevel })
+    const logger = forcedLogger ?? (canUseTTY() && !getAgentName() ? clackLogger : plainLogger)
+    const handle = (await logger.install(context, { logLevel })) ?? undefined
     cliHandle = handle
 
     // The summary belongs inside the group the logger opened for this config, so hand the writing
