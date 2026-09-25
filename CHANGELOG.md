@@ -1,5 +1,26 @@
 # Changelog
 
+## v5.3.17 — Sep 25, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb studio snapshot` compares a GitLab merge request with its target branch, the same as a GitHub pull request with its base branch. It sends the id the target branch's pipelines register under as `baseId`, and the result carries `branchChanges`. On any other CI, pass `--base-id` with the `--id` the base branch's runs use. ([#4101](https://github.com/kubb-labs/kubb/pull/4101), [`c5e56b3`](https://github.com/kubb-labs/kubb/commit/c5e56b3886b50ba00c628a4003eb46522229106c))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- `kubb studio snapshot` compares a GitHub pull request with its base branch. Branch runs reuse one agent per branch instead of one per run, a pull request passes that agent's id as `baseId`, and the result carries `branchChanges`. The commit sent for a pull request is its head commit, not the merge commit. ([#4100](https://github.com/kubb-labs/kubb/pull/4100), [`a07e35e`](https://github.com/kubb-labs/kubb/commit/a07e35ecc2c6dc660bb571a3d64e18959d7338cc))
+- `createJob` retries a busy agent, a full queue, or a momentary lack of a live connection (409, 429, 503) with exponential backoff and jitter, honoring Studio's `Retry-After` header when it sends one, up to a new `timeoutMs` option (default 60 seconds). Every other failure, including a missing agent (404), still throws immediately. ([#4104](https://github.com/kubb-labs/kubb/pull/4104), [`9a913d4`](https://github.com/kubb-labs/kubb/commit/9a913d4791b69ae3703440a183a7e5f95b0bb430))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.16 — Sep 24, 2026
 
 ### @kubb/studio
