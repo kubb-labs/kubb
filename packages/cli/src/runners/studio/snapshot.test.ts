@@ -226,7 +226,14 @@ describe('snapshot', () => {
       await acceptedSession(hooks)
       await options.onTokenRejected({ error: rejected, credentials: options.credentials, live: true })
     }
-    vi.mocked(waitForJob).mockReturnValue(new Promise(() => {}))
+    // Never finishes on its own, but rejects once the connection-lost signal aborts, like the real one.
+    vi.mocked(waitForJob).mockImplementation(
+      ({ signal }) =>
+        new Promise((_, reject) => {
+          if (signal?.aborted) return reject(signal.reason)
+          signal?.addEventListener('abort', () => reject(signal.reason), { once: true })
+        }),
+    )
 
     await expect(snapshot(baseOptions())).rejects.toBe(rejected)
   })

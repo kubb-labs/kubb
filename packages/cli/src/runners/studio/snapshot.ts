@@ -229,7 +229,12 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
   })
   const connectionLost = new AbortController()
   const connectionEnded = new Error('The Kubb Studio connection ended before the snapshot finished')
-  void connection.then(() => connectionLost.abort(connectionEnded))
+  // A rejected connection (a revoked CI token) aborts with its own error, so the job calls fail
+  // fast with it instead of polling until the timeout.
+  void connection.then(
+    () => connectionLost.abort(connectionEnded),
+    (error: unknown) => connectionLost.abort(error),
+  )
   const lost = connection.then(() => Promise.reject(connectionEnded))
   void lost.catch(() => {})
 
