@@ -150,6 +150,10 @@ describe('snapshot', () => {
     await snapshot(baseOptions({ json: true }))
 
     expect(vi.mocked(createJob)).toHaveBeenCalledWith(expect.objectContaining({ type: 'snapshot', agentId: 'agent-1', commit: 'c4d7e10aa' }))
+    // The job runs on the process this run connected, never on an overlapping run's.
+    const { instanceId } = vi.mocked(createJob).mock.calls[0]![0]
+    expect(instanceId).toMatch(/^[0-9a-f-]{36}$/)
+    expect(vi.mocked(runConnection).mock.calls[0]![0].clientOptions({ token: 'agent-token' }).instanceId).toBe(instanceId)
     expect(log).toHaveBeenCalledOnce()
     const printed = JSON.parse(String(log.mock.calls[0]?.[0]))
     expect(printed.url).toBe('http://localhost:3000/packages/brave-otter/%40acme%2Fapi.tgz')

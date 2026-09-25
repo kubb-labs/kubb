@@ -56,6 +56,14 @@ describe('createClient', () => {
     expect(second).not.toBe(first)
   })
 
+  it('uses the instance id a host passes in, so it can pin its own jobs to this process', async () => {
+    sessionConnect.mockResolvedValue(undefined)
+
+    await createClient({ ...options, instanceId: 'ci-run-42' }).connect()
+
+    expect((sessionConnect.mock.calls[0]![0] as StudioSessionOptions).instanceId).toBe('ci-run-42')
+  })
+
   it('fires onAuthRequired once, however often the session reports the rejected token', async () => {
     const onAuthRequired = vi.fn()
     let captured: StudioSessionOptions | undefined
