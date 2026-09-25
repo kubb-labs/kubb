@@ -36,6 +36,9 @@ class AgentRpcTarget extends RpcTarget implements AgentApi {
   readFiles(input: ReadFilesInput) {
     return this.api.readFiles(input)
   }
+  cancel(jobId: string) {
+    return this.api.cancel(jobId)
+  }
 }
 
 /**
