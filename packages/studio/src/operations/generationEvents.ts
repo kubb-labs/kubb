@@ -62,6 +62,11 @@ export type GenerationStreamOptions = {
   onGenerationEnd?: (result: GenerationEnd) => void
 }
 
+const MAX_QUEUED_EVENTS = 1_024
+const RESERVED_EVENTS = 64
+const isDiscardable = (event: GenerationEvent) =>
+  event.type === 'kubb:files:processing:update' || event.type === 'kubb:info' || event.type === 'kubb:success'
+
 /** Forwards selected Kubb lifecycle events to a native Cap'n Web stream. */
 export function createGenerationStream(
   hooks: Hookable<KubbHooks>,
@@ -70,12 +75,20 @@ export function createGenerationStream(
 ): { stream: ReadableStream<GenerationEvent>; close: () => Promise<void>; dispose: () => void; fail: (error: unknown) => void } {
   const unhooks: Array<() => void> = []
   let root = ''
-  // Infinite HWM so unread events don't stall result()
-  const transform = new TransformStream<GenerationEvent>(undefined, undefined, { highWaterMark: Infinity })
-  const writer = transform.writable.getWriter()
-  let writes = Promise.resolve()
+  let controller!: ReadableStreamDefaultController<GenerationEvent>
   let closed = false
-  let streamError: unknown
+  const stream = new ReadableStream<GenerationEvent>(
+    {
+      start: (value) => {
+        controller = value
+      },
+      cancel: () => {
+        closed = true
+        detach()
+      },
+    },
+    { highWaterMark: MAX_QUEUED_EVENTS },
+  )
 
   /**
    * Registers a listener and keeps its remover, so one generation's listeners come off the session
@@ -86,13 +99,14 @@ export function createGenerationStream(
   }
 
   function emitEvent<Type extends GenerationEventType>(type: Type, data: GenerationEventPayloads[Type]): void {
+    if (closed) return
     const event = { jobId, type, data, version: 1 as const, timestamp: Date.now() } as unknown as GenerationEvent
-    // A prior failure skips the write; either way the chain settles so the next event still runs.
-    writes = writes
-      .then(() => writer.write(event))
-      .catch((error) => {
-        streamError = error
-      })
+    if (controller.desiredSize! <= RESERVED_EVENTS && isDiscardable(event)) return
+    if (controller.desiredSize! <= 0) {
+      fail(new Error(`Generation event stream exceeded ${MAX_QUEUED_EVENTS} queued events`))
+      return
+    }
+    controller.enqueue(event)
   }
 
   on('kubb:plugin:start', (ctx) => {
@@ -242,12 +256,7 @@ export function createGenerationStream(
     }
     closed = true
     detach()
-    await writes
-    // Consumer cancel sets streamError; don't fail a successful generation over that.
-    if (streamError) {
-      return
-    }
-    await writer.close().catch(() => undefined)
+    controller.close()
   }
 
   function fail(error?: unknown): void {
@@ -256,8 +265,8 @@ export function createGenerationStream(
       return
     }
     closed = true
-    void writer.abort(error).catch(() => undefined)
+    controller.error(error)
   }
 
-  return { stream: transform.readable, close, dispose: () => fail(), fail }
+  return { stream, close, dispose: () => fail(), fail }
 }

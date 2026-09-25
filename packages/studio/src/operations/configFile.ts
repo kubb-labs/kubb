@@ -1,3 +1,5 @@
+import { writeFile } from 'node:fs/promises'
+import { read } from '@internals/utils'
 import { builders, detectCodeFormat, generateCode, parseModule } from 'magicast'
 import type { ASTNode, ProxifiedModule } from 'magicast'
 import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigRef, ConfigView, OptionValue, PluginView } from '../protocol/index.ts'
@@ -701,6 +703,13 @@ export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): Appl
   })
 
   return { source: current, outcomes, changed: current !== source }
+}
+
+export async function writeConfigEdits({ filePath, edits }: { filePath: string; edits: Array<ConfigEdit> }): Promise<ApplyResult> {
+  const current = await read(filePath)
+  const result = applyConfigEdits(current, edits)
+  if (result.changed) await writeFile(filePath, result.source, 'utf-8')
+  return result
 }
 
 /**

@@ -1,6 +1,6 @@
 import { gunzipSync } from 'node:zlib'
-import { describe, expect, it } from 'vitest'
-import { createSnapshotPackage } from './snapshotPackage.ts'
+import { describe, expect, it, vi } from 'vitest'
+import { createSnapshotPackage, uploadSnapshot } from './snapshotPackage.ts'
 
 /** Reads back the path (USTAR `prefix` + `name`) and content of every entry in a tarball. */
 function readTarEntries(tar: Buffer): Array<{ path: string; content: string }> {
@@ -37,6 +37,27 @@ function readManifest(bytes: Buffer): Manifest {
 }
 
 describe('[util] snapshotPackage', () => {
+  it('aborts an upload when the agent shuts down', async () => {
+    const shutdown = new AbortController()
+    using fetchMock = vi
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation(
+        (_url, init) => new Promise((_resolve, reject) => init?.signal?.addEventListener('abort', () => reject(init.signal?.reason), { once: true })),
+      )
+
+    const upload = uploadSnapshot({
+      bytes: Buffer.alloc(0),
+      uploadPath: '/snapshot',
+      studioUrl: 'https://studio.test',
+      token: 'token',
+      shutdown: shutdown.signal,
+    })
+    shutdown.abort(new Error('shutdown'))
+
+    await expect(upload).rejects.toThrow('shutdown')
+    expect(fetchMock.mock.calls[0]?.[1]?.signal).toBeInstanceOf(AbortSignal)
+  })
+
   it('creates a gzip tarball with a package manifest and generated files', () => {
     const result = createSnapshotPackage(
       { 'index.js': 'export const answer = 42' },

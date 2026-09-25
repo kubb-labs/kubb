@@ -14,6 +14,10 @@ import {
   detectTool as detectUncachedTool,
 } from '@internals/utils'
 import { waitForHookEnd } from './hooks.ts'
+import { setupHookListener } from './hooks.ts'
+import { type GenerationStore, listDisk } from './generations.ts'
+
+const DISK_SNAPSHOT_MAX_FILES = 10_000
 
 /**
  * `isToolAvailable` spawns a process, and a long-lived connection generates repeatedly, so each
@@ -202,4 +206,34 @@ export async function generate({ config, hooks, signal }: GenerateProps): Promis
 
     await hooks.callHook('kubb:hooks:end')
   }
+}
+
+export async function runGenerationOperation({
+  config,
+  hooks,
+  signal,
+  jobId,
+  store,
+  snapshotRoot,
+  maxSnapshotMb,
+}: GenerateProps & {
+  jobId: string
+  store: GenerationStore
+  snapshotRoot?: string
+  maxSnapshotMb: number
+}): Promise<Awaited<ReturnType<GenerationStore['keep']>> | undefined> {
+  const diskFiles = snapshotRoot ? await listDisk({ root: snapshotRoot, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES }) : undefined
+  const disk = diskFiles ? await store.keep({ jobId, source: 'disk', files: diskFiles, maxSetMb: maxSnapshotMb }) : undefined
+  const removeHookListener = setupHookListener(hooks, config.root, signal)
+
+  try {
+    await generate({ config, hooks, signal })
+  } catch (error) {
+    await store.drop(jobId)
+    throw error
+  } finally {
+    removeHookListener()
+  }
+
+  return disk
 }

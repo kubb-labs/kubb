@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
@@ -31,24 +31,18 @@ import {
   type RpcConnection,
 } from '../protocol/index.ts'
 import { IncompatibleAgentError, InvalidAgentTokenError, registerAgent } from '../operations/api.ts'
-import { applyConfigEdits, readConfig } from '../operations/configFile.ts'
+import { readConfig, writeConfigEdits } from '../operations/configFile.ts'
 import { agentDefaults, resolveAgentCapacity, resolveGenerationLimits } from '../operations/constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from '../operations/resolveConfig.ts'
-import { createSnapshotPackage } from '../operations/snapshotPackage.ts'
+import { createSnapshotPackage, uploadSnapshot } from '../operations/snapshotPackage.ts'
 import { RpcTarget } from 'capnweb'
-import { createGenerationStore, type GenerationStore, listDisk } from '../operations/generations.ts'
+import { createGenerationStore, type GenerationStore } from '../operations/generations.ts'
 import { createGenerationStream, type GenerationEnd } from '../operations/generationEvents.ts'
 import { connectWebSocketRpc } from '../operations/rpc.ts'
-import { setupHookListener } from '../operations/hooks.ts'
-import { generate } from '../operations/generate.ts'
+import { runGenerationOperation } from '../operations/generate.ts'
 
 /** A sandbox shares one in-memory generation store across tenants, so old generations expire. */
 const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
-
-/**
- * Past this many files in the output directory, no snapshot of it is taken before a run.
- */
-const DISK_SNAPSHOT_MAX_FILES = 10_000
 
 /**
  * A fresh root for one sandbox job. Kubb keys its output manifest cache by root, so tenants that
@@ -686,32 +680,23 @@ export class StudioSession implements AgentApi {
       // `connect`, and these two come off again below, so one run's listeners never see the next.
       // Cleared up front, filled the moment `kubb:generation:end` fires.
       this.#lastGeneration = undefined
-      const diskFiles = this.#hasProjectOnDisk ? await listDisk({ root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES }) : undefined
-      const disk = diskFiles
-        ? await this.#generations.keep({ jobId: data.jobId, source: 'disk', files: diskFiles, maxSetMb: this.#limits.maxSnapshotMb })
-        : undefined
-      const detach = [setupHookListener(this.#hooks, root, controller.signal)]
-
-      try {
-        await generate({
-          config: {
-            ...config,
-            root,
-            input: inputOverride ?? config.input,
-            storage: this.#canWrite ? fsStorage() : memoryStorage(),
-            output: permissions.allowExec ? { ...config.output } : { ...config.output, format: false, lint: false, postGenerate: [] },
-            plugins: resolvedPlugins,
-            adapter,
-          },
-          hooks: this.#hooks,
-          signal: controller.signal,
-        })
-      } catch (error) {
-        await this.#generations.drop(data.jobId)
-        throw error
-      } finally {
-        for (const remove of detach) remove()
-      }
+      const disk = await runGenerationOperation({
+        config: {
+          ...config,
+          root,
+          input: inputOverride ?? config.input,
+          storage: this.#canWrite ? fsStorage() : memoryStorage(),
+          output: permissions.allowExec ? { ...config.output } : { ...config.output, format: false, lint: false, postGenerate: [] },
+          plugins: resolvedPlugins,
+          adapter,
+        },
+        hooks: this.#hooks,
+        signal: controller.signal,
+        jobId: data.jobId,
+        store: this.#generations,
+        snapshotRoot: this.#hasProjectOnDisk ? root : undefined,
+        maxSnapshotMb: this.#limits.maxSnapshotMb,
+      })
 
       await this.#hooks.callHook('studio:command:end', {
         command,
@@ -774,9 +759,7 @@ export class StudioSession implements AgentApi {
     }
 
     try {
-      const current = await read(configFile)
-      const { source: patched, outcomes, changed } = applyConfigEdits(current, edits)
-      if (changed) await writeFile(configFile, patched, 'utf-8')
+      const { source: patched, outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits })
 
       const applied = outcomes.filter((outcome) => outcome.applied).length
       await this.#hooks.callHook('studio:command:end', { command, info: `applied ${applied}/${outcomes.length} edits to ${configPath}` })
@@ -822,18 +805,8 @@ export class StudioSession implements AgentApi {
 
       const { bytes, integrity } = await createSnapshotPackage(files, { name, version, peerDependencies: generation.peerDependencies })
 
-      const { token, studioUrl } = this.#options
-      const uploadUrl = new URL(uploadPath, studioUrl)
-      if (uploadUrl.origin !== new URL(studioUrl).origin) throw new Error('Snapshot upload path must stay on the Studio origin')
-      const redirect = await fetch(uploadUrl, { method: 'PUT', headers: { Authorization: `Bearer ${token}` }, redirect: 'manual' })
-      const storageUrl = redirect.headers.get('location')
-      if (redirect.status !== 307 || !storageUrl) throw new Error(`Studio did not provide a storage URL (status ${redirect.status})`)
-      const storage = new URL(storageUrl)
-      if (storage.protocol !== 'https:' && storage.hostname !== 'localhost' && storage.hostname !== '127.0.0.1') {
-        throw new Error(`Refusing snapshot upload to ${storage.origin}`)
-      }
-      const response = await fetch(storage, { method: 'PUT', body: new Uint8Array(bytes), redirect: 'error' })
-      if (!response.ok) throw new Error(`Snapshot upload failed with status ${response.status}`)
+      const { token, studioUrl, signal } = this.#options
+      await uploadSnapshot({ bytes, uploadPath, studioUrl, token, shutdown: signal })
 
       await this.#hooks.callHook('studio:command:end', {
         command,
