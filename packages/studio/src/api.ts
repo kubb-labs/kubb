@@ -2,6 +2,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { getErrorMessage } from '@internals/utils'
 import { FetchError, ofetch } from 'ofetch'
 import type { AgentConnectResponse } from './protocol/index.ts'
+import type { AgentCapacity } from './constants.ts'
 import { getMachineToken } from './machine.ts'
 
 /**
@@ -121,6 +122,7 @@ type RegisterProps = {
   studioUrl: string
   token: string
   poolSize?: number
+  capacity?: AgentCapacity
 }
 
 /**
@@ -142,7 +144,7 @@ export function registerAgent(props: RegisterProps): Promise<boolean> {
   return registrationInFlight
 }
 
-async function runRegistration({ token, studioUrl, poolSize }: RegisterProps): Promise<boolean> {
+async function runRegistration({ token, studioUrl, poolSize, capacity }: RegisterProps): Promise<boolean> {
   const machineToken = await getMachineToken()
 
   try {
@@ -151,7 +153,7 @@ async function runRegistration({ token, studioUrl, poolSize }: RegisterProps): P
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: { machineToken, poolSize },
+      body: { machineToken, poolSize, capacity },
       retry: REGISTER_RETRIES,
       // 2s, 4s, then 8s. `retry` counts down, so the first retry is the one with the most left.
       retryDelay: ({ options }) => 2_000 * 2 ** (REGISTER_RETRIES - Number(options.retry)),
