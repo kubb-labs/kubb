@@ -135,6 +135,8 @@ export function createGenerationStore({
     drop,
     get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId && isLive(generation)),
     latest: async () => (await load()).filter(isLive).at(-1),
+    /** Total bytes of every set the store holds, expired ones too until the next add drops them. */
+    bytes: async () => (await load()).reduce((sum, { output, disk }) => sum + output.bytes + (disk?.bytes ?? 0), 0),
     async add(generation: KeptGeneration): Promise<void> {
       const current = await load()
       for (const expired of current.filter((entry) => !isLive(entry))) await drop(expired.jobId)
