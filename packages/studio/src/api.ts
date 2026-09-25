@@ -1,3 +1,4 @@
+import { setTimeout as delay } from 'node:timers/promises'
 import { getErrorMessage } from '@internals/utils'
 import { FetchError, ofetch } from 'ofetch'
 import type { AgentConnectResponse } from './protocol/index.ts'
@@ -278,10 +279,48 @@ export type StudioJob = {
 }
 
 /**
+ * First wait before `createJob` retries a busy or queue-full response, absent a `Retry-After` hint.
+ */
+const CREATE_JOB_INITIAL_DELAY_MS = 1_000
+
+/**
+ * Slowest `createJob` backs off to between retries.
+ */
+const CREATE_JOB_MAX_INTERVAL_MS = 10_000
+
+/**
+ * Statuses worth retrying: the agent has no free connection yet (409, a stale conflict a moment
+ * later resolves), its queue is momentarily full (429), or it has no live connection at all yet
+ * (503, an agent process that is mid-reconnect). Anything else (404 agent not found, 401/403 auth)
+ * is thrown straight away, since retrying cannot change the outcome.
+ */
+const CREATE_JOB_RETRYABLE_STATUSES = new Set([409, 429, 503])
+
+/**
+ * Reads Studio's `Retry-After` header (seconds) off a thrown `ofetch` error, when present.
+ */
+function retryAfterMs(error: unknown): number | undefined {
+  const seconds = Number((error as { response?: Response }).response?.headers.get('retry-after'))
+  return Number.isFinite(seconds) && seconds > 0 ? seconds * 1_000 : undefined
+}
+
+/**
+ * Adds up to 30% jitter, so every CI run queued behind the same busy agent does not retry in
+ * lockstep.
+ */
+function withJitter(ms: number): number {
+  return ms + Math.random() * ms * 0.3
+}
+
+/**
  * Queues a generation or snapshot job on Studio (`POST /api/jobs`).
  *
  * Returns as soon as Studio accepts the job (`202`). Poll with {@link waitForJob} until it finishes.
  * Authenticates with the organization CI API key via `x-api-key`.
+ *
+ * A busy agent, a full queue, or a momentary lack of a live connection (409, 429, 503) retries with
+ * exponential backoff and jitter, honoring Studio's `Retry-After` header when it sends one, up to
+ * `timeoutMs`. Every other failure, including a missing agent (404), throws immediately.
  *
  * @example Snapshot job
  * ```ts
@@ -306,6 +345,8 @@ export async function createJob({
   commit,
   baseId,
   config,
+  timeoutMs = 60_000,
+  signal,
 }: {
   studioUrl: string
   token: string
@@ -318,14 +359,47 @@ export async function createJob({
   /** The `id` another CI agent's runs register under, such as the base branch's; this snapshot is also compared with its latest one. */
   baseId?: string
   config?: Record<string, unknown>
+  /**
+   * How long to keep retrying a busy or queue-full response before giving up, in milliseconds.
+   *
+   * @default 60000
+   */
+  timeoutMs?: number
+  signal?: AbortSignal
 }): Promise<StudioJob> {
-  const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs`, {
-    method: 'POST',
-    headers: { 'x-api-key': token },
-    body: { type, agentId, name, version, commit, baseId, config },
-  })
+  const deadline = Date.now() + timeoutMs
+  let interval = CREATE_JOB_INITIAL_DELAY_MS
 
-  return job
+  for (;;) {
+    signal?.throwIfAborted()
+
+    try {
+      const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs`, {
+        method: 'POST',
+        headers: { 'x-api-key': token },
+        body: { type, agentId, name, version, commit, baseId, config },
+        retry: false,
+        timeout: Math.max(deadline - Date.now(), 1),
+        signal,
+      })
+
+      return job
+    } catch (error) {
+      signal?.throwIfAborted()
+
+      const status = (error as { response?: { status?: number } }).response?.status
+      if (!status || !CREATE_JOB_RETRYABLE_STATUSES.has(status) || Date.now() >= deadline) throw error
+
+      const wait = Math.min(retryAfterMs(error) ?? withJitter(interval), Math.max(deadline - Date.now(), 0))
+      if (signal) {
+        await delay(wait, undefined, { signal })
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, wait))
+      }
+      if (Date.now() >= deadline) throw error
+      interval = Math.min(interval * 2, CREATE_JOB_MAX_INTERVAL_MS)
+    }
+  }
 }
 
 /**
@@ -352,6 +426,7 @@ export async function waitForJob({
   token,
   id,
   timeoutMs = 60_000,
+  signal,
 }: {
   studioUrl: string
   token: string
@@ -362,12 +437,20 @@ export async function waitForJob({
    * @default 60000
    */
   timeoutMs?: number
+  signal?: AbortSignal
 }): Promise<StudioJob> {
   const deadline = Date.now() + timeoutMs
   let interval = INITIAL_POLL_DELAY_MS
 
   for (;;) {
-    await new Promise((resolve) => setTimeout(resolve, Math.max(Math.min(interval, deadline - Date.now()), 0)))
+    signal?.throwIfAborted()
+
+    const wait = Math.max(Math.min(interval, deadline - Date.now()), 0)
+    if (signal) {
+      await delay(wait, undefined, { signal })
+    } else {
+      await new Promise((resolve) => setTimeout(resolve, wait))
+    }
 
     if (Date.now() >= deadline) throw new Error('Timed out waiting for the Studio job')
 
@@ -378,10 +461,14 @@ export async function waitForJob({
       const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs/${id}`, {
         headers: { 'x-api-key': token },
         retry: false,
+        timeout: Math.max(deadline - Date.now(), 1),
+        signal,
       })
 
       if (job.status === 'success' || job.status === 'failed' || job.status === 'canceled') return job
     } catch (error) {
+      signal?.throwIfAborted()
+
       const response = (error as { response?: { status?: number; _data?: { data?: { tryAgainIn?: unknown } } } }).response
 
       if (response?.status !== 429) throw error

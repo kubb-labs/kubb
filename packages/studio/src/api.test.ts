@@ -11,7 +11,8 @@ vi.mock('./machine.ts', async (importOriginal) => ({
   getMachineToken: vi.fn(async () => 'machine-token-hash'),
 }))
 
-const createMockResponse = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } })
+const createMockResponse = (data: unknown, status = 200, headers?: Record<string, string>) =>
+  new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', ...headers } })
 
 const fetchMock = vi.fn()
 
@@ -153,6 +154,50 @@ describe('createJob', () => {
     })
 
     expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toMatchObject({ commit: 'c4d7e10' })
+  })
+
+  it('retries a busy agent, honoring the Retry-After header, until it is queued', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createMockResponse({ message: 'Agent is busy' }, 429, { 'Retry-After': '2' }))
+      .mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'queued' } }, 202))
+
+    const promise = createJob({ studioUrl: 'http://studio', token: 'ci-token', type: 'generation', agentId: 'agent-1' })
+    await vi.advanceTimersByTimeAsync(2_000)
+
+    await expect(promise).resolves.toEqual({ id: 'job-1', status: 'queued' })
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('retries a full queue and a disconnected agent (409, 429, 503) without a Retry-After hint', async () => {
+    fetchMock
+      .mockResolvedValueOnce(createMockResponse({ message: 'conflict' }, 409))
+      .mockResolvedValueOnce(createMockResponse({ message: 'Agent queue is full' }, 429))
+      .mockResolvedValueOnce(createMockResponse({ message: 'Agent is offline' }, 503))
+      .mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'queued' } }, 202))
+
+    const promise = createJob({ studioUrl: 'http://studio', token: 'ci-token', type: 'generation', agentId: 'agent-1' })
+    await vi.advanceTimersByTimeAsync(30_000)
+
+    await expect(promise).resolves.toEqual({ id: 'job-1', status: 'queued' })
+    expect(fetchMock).toHaveBeenCalledTimes(4)
+  })
+
+  it('throws immediately on a non-retryable status such as a missing agent', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ message: 'Agent not found' }, 404))
+
+    await expect(createJob({ studioUrl: 'http://studio', token: 'ci-token', type: 'generation', agentId: 'agent-1' })).rejects.toThrow()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('gives up once the timeout passes, instead of retrying forever', async () => {
+    fetchMock.mockResolvedValue(createMockResponse({ message: 'Agent is busy' }, 429))
+
+    const promise = createJob({ studioUrl: 'http://studio', token: 'ci-token', type: 'generation', agentId: 'agent-1', timeoutMs: 5_000 })
+    const assertion = expect(promise).rejects.toThrow()
+    await vi.advanceTimersByTimeAsync(5_000)
+    await assertion
+
+    expect(fetchMock.mock.calls.length).toBeGreaterThan(0)
   })
 })
 
