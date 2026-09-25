@@ -96,7 +96,8 @@ export async function registerAgent({ token, studioUrl, instanceId, capacity }: 
     })
   } catch (error) {
     if (rejectedWith(error, 401)) throw new InvalidAgentTokenError(studioUrl, { cause: error })
-    if (rejectedWith(error, 426)) throw new IncompatibleAgentError(studioUrl, error instanceof FetchError ? responseMessage(error.data) : undefined, { cause: error })
+    if (rejectedWith(error, 426))
+      throw new IncompatibleAgentError(studioUrl, error instanceof FetchError ? responseMessage(error.data) : undefined, { cause: error })
     throw registrationError(error)
   }
 }

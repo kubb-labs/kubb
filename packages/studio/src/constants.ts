@@ -46,7 +46,6 @@ export function resolveGenerationLimits(env: NodeJS.ProcessEnv = process.env): {
   }
 }
 
-
 /**
  * How far past its memory budget an agent may grow before it refuses new jobs. The headroom covers
  * the build that pushed it there finishing and handing its memory back.

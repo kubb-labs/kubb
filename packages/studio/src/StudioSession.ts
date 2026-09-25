@@ -400,7 +400,9 @@ export class StudioSession implements AgentApi {
       await this.#hooks.callHook('studio:connecting', { url: studioUrl })
 
       if (this.#reconnectAttempt === 0 && capacity.maxConcurrent > RUNTIME_MAX_CONCURRENT) {
-        await this.#warn(`Running ${RUNTIME_MAX_CONCURRENT} job at a time: KUBB_AGENT_MAX_CONCURRENT=${capacity.maxConcurrent} needs per-job workers, which this agent does not have yet`)
+        await this.#warn(
+          `Running ${RUNTIME_MAX_CONCURRENT} job at a time: KUBB_AGENT_MAX_CONCURRENT=${capacity.maxConcurrent} needs per-job workers, which this agent does not have yet`,
+        )
       }
 
       const registration = await registerAgent({

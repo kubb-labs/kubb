@@ -131,10 +131,10 @@ beforeEach(() => {
   disk.storage = undefined
   disk.cache = undefined
   vi.mocked(registerAgent).mockResolvedValue({
-      socketUrl: 'ws://studio/api/agent/socket',
-      isSandbox: false,
-      version: '1.0.0',
-    })
+    socketUrl: 'ws://studio/api/agent/socket',
+    isSandbox: false,
+    version: '1.0.0',
+  })
 })
 
 describe('the handshake', () => {
@@ -277,10 +277,21 @@ describe('close codes', () => {
 describe('registration', () => {
   it('opens the socket Studio registered this process for, with its instance id', async () => {
     const connector = vi.fn(async () => ({ studio: { ping: vi.fn().mockResolvedValue(undefined) }, closed: new Promise<void>(() => {}), close: vi.fn() }))
-    const session = new StudioSession({ token: 'token', studioUrl, configPath: 'kubb.config.ts', version: '2.0.0', root, loadConfig: vi.fn(), instanceId: 'instance-1', connector })
+    const session = new StudioSession({
+      token: 'token',
+      studioUrl,
+      configPath: 'kubb.config.ts',
+      version: '2.0.0',
+      root,
+      loadConfig: vi.fn(),
+      instanceId: 'instance-1',
+      connector,
+    })
     void session.start()
 
-    await vi.waitFor(() => expect(connector).toHaveBeenCalledWith(expect.objectContaining({ url: 'ws://studio/api/agent/socket', token: 'token', instanceId: 'instance-1' })))
+    await vi.waitFor(() =>
+      expect(connector).toHaveBeenCalledWith(expect.objectContaining({ url: 'ws://studio/api/agent/socket', token: 'token', instanceId: 'instance-1' })),
+    )
     expect(registerAgent).toHaveBeenCalledWith(expect.objectContaining({ token: 'token', studioUrl, instanceId: 'instance-1' }))
     session.dispose()
   })

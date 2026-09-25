@@ -109,10 +109,10 @@ the machine-facing surface, singular because the caller is describing itself. Th
 `/api/agents` is the collection a signed-in user manages in the browser, and the runtime never
 touches it.
 
-| Step     | Call                                                     | What it does                                                                                    |
-| -------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Register | `POST /api/agent/connect`                                | Binds the token to this machine and process (`machineToken`, `instanceId`), reports `capacity`, and returns `socketUrl` |
-| Connect  | Configured RPC connector on `socketUrl`                  | Opens the process's one socket with the bearer token and `x-kubb-instance-id`, then attaches the typed `AgentApi`/`StudioApi` RPC session |
+| Step     | Call                                    | What it does                                                                                                                              |
+| -------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Register | `POST /api/agent/connect`               | Binds the token to this machine and process (`machineToken`, `instanceId`), reports `capacity`, and returns `socketUrl`                   |
+| Connect  | Configured RPC connector on `socketUrl` | Opens the process's one socket with the bearer token and `x-kubb-instance-id`, then attaches the typed `AgentApi`/`StudioApi` RPC session |
 
 Every connection attempt registers first, so a reconnect is also how the agent registers again.
 Each heartbeat carries the agent's load. A process keeps one socket, not one per job: Studio
