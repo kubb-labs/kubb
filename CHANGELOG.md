@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.3.18 — Sep 25, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Remove `memoryBudgetMb` from `AgentCapacity`, along with the `KUBB_AGENT_MEMORY_BUDGET_MB` environment variable. An agent no longer refuses a job for memory, and its heartbeat always reports `accepting: true`. ([#4117](https://github.com/kubb-labs/kubb/pull/4117), [`d3996ef`](https://github.com/kubb-labs/kubb/commit/d3996ef6ead14995ade6378963ee0e45b9bbd5f5))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.17 — Sep 25, 2026
 
 ### @kubb/studio
