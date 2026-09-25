@@ -60,6 +60,11 @@ export type SnapshotOptions = StudioOptions & {
    */
   id?: string
   /**
+   * Identity of another CI agent whose latest snapshot this one is also compared with. Falls back
+   * to the base branch CI auto-detection finds.
+   */
+  baseId?: string
+  /**
    * Package name for the generated tarball. Falls back to the nearest package.json.
    */
   name?: string

@@ -168,6 +168,27 @@ describe('snapshot', () => {
     expect(printed.branchChanges).toStrictEqual({ ...branchChanges, branch: 'main' })
   })
 
+  it('compares with the agent --base-id names on any CI, labeled with that id', async () => {
+    const branchChanges = { base: null, added: [], changed: [], removed: [] }
+    vi.mocked(waitForJob).mockResolvedValue({ ...successfulJob, snapshot: { ...successfulJob.snapshot!, branchChanges } })
+
+    await snapshot(baseOptions({ json: true, id: 'jenkins:api:pr-12', baseId: 'jenkins:api:main' }))
+
+    expect(vi.mocked(createJob)).toHaveBeenCalledWith(expect.objectContaining({ baseId: 'jenkins:api:main' }))
+    const printed = JSON.parse(String(vi.mocked(console.log).mock.calls[0]?.[0]))
+    expect(printed.branchChanges).toStrictEqual({ ...branchChanges, branch: 'jenkins:api:main' })
+  })
+
+  it('drops the detected base for a custom --id, and any base that names the run itself', async () => {
+    const detected = { id: 'gh:123:42', name: 'acme/api#42', base: { branch: 'main', id: 'gh:123:refs/heads/main' } }
+    vi.mocked(detectCi).mockReturnValueOnce(detected).mockReturnValueOnce(detected)
+
+    await snapshot(baseOptions({ id: 'custom:pr-42' }))
+    await snapshot(baseOptions({ id: 'custom:main', baseId: 'custom:main' }))
+
+    expect(vi.mocked(createJob).mock.calls.map(([options]) => options.baseId)).toStrictEqual([undefined, undefined])
+  })
+
   it('logs the run to stderr in JSON mode, through the same logger as kubb studio', async () => {
     const error = vi.mocked(console.error)
 
