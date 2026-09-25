@@ -34,10 +34,7 @@ function readGithubPullRequest(eventPath: string | undefined): GithubPullRequest
   }
 }
 
-/**
- * Reproduces GitLab's `CI_COMMIT_REF_SLUG`, which scopes a branch pipeline's agent, for a branch
- * name GitLab gives no slug of, such as a merge request's target branch.
- */
+/** Reproduces GitLab's `CI_COMMIT_REF_SLUG` for a branch it gives no slug of, like a merge request's target. */
 export function gitlabRefSlug(ref: string): string {
   return ref
     .toLowerCase()

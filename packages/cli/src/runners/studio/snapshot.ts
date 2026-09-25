@@ -84,7 +84,6 @@ function resolveCiIdentity(options: SnapshotOptions): CiContext {
   // An explicit --base-id may not name a branch, so it labels the comparison itself.
   const base = options.baseId ? { branch: options.baseId, id: options.baseId } : ci.base
 
-  // A run on its own base has nothing else to compare with.
   return { ...ci, base: base?.id === ci.id ? undefined : base }
 }
 
