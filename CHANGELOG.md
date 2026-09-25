@@ -1,5 +1,35 @@
 # Changelog
 
+## v5.3.17 — Sep 25, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb studio snapshot` compares a GitLab merge request with its target branch, the same as a GitHub pull request with its base branch. It sends the id the target branch's pipelines register under as `baseId`, and the result carries `branchChanges`. On any other CI, pass `--base-id` with the `--id` the base branch's runs use. ([#4101](https://github.com/kubb-labs/kubb/pull/4101), [`c5e56b3`](https://github.com/kubb-labs/kubb/commit/c5e56b3886b50ba00c628a4003eb46522229106c))
+- `kubb studio snapshot` fails fast again when Studio rejects the CI agent's token mid-run, instead of polling the job until `--timeout` runs out. The connection-lost signal now aborts when the connection rejects as well as when it ends, carrying the token error as its reason. ([#4107](https://github.com/kubb-labs/kubb/pull/4107), [`c24ffbd`](https://github.com/kubb-labs/kubb/commit/c24ffbdcd2d692e0db42252dd13d4fe12deb8c8f))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- `kubb studio snapshot` compares a GitHub pull request with its base branch. Branch runs reuse one agent per branch instead of one per run, a pull request passes that agent's id as `baseId`, and the result carries `branchChanges`. The commit sent for a pull request is its head commit, not the merge commit. ([#4100](https://github.com/kubb-labs/kubb/pull/4100), [`a07e35e`](https://github.com/kubb-labs/kubb/commit/a07e35ecc2c6dc660bb571a3d64e18959d7338cc))
+- An agent reports its capacity when it registers (`KUBB_AGENT_MAX_CONCURRENT`, default 1, and `KUBB_AGENT_MEMORY_BUDGET_MB`, or the new `capacity` option), and what it is carrying with every heartbeat: jobs running, resident memory, bytes of kept generations, and whether it is accepting work. With a memory budget set, an agent refuses new generations once its memory passes 1.5 times that budget, and says so in the heartbeat. Without one it behaves as before. Studios that don't read the new fields ignore them. ([#4110](https://github.com/kubb-labs/kubb/pull/4110), [`327bfe9`](https://github.com/kubb-labs/kubb/commit/327bfe9d2a38caacfc0707345a5f532f264b2754))
+- An agent reads why Studio closed its connection. On `4001` it registers again, then reconnects. On `4002`, another instance of the same agent took over, so it stays down. On `4003`, the agent is too old for Studio or was deleted, so it stops and reports that it needs upgrading or pairing again. Any other close reconnects as before. `AgentCloseCode` and `RpcClose` are exported, and `RpcConnection.closed` now resolves with the close code and reason when the transport has one. ([#4111](https://github.com/kubb-labs/kubb/pull/4111), [`58c8569`](https://github.com/kubb-labs/kubb/commit/58c85694d107ba0ded1753d3bd116541ae9e6705))
+- `createJob` retries a busy agent, a full queue, or a momentary lack of a live connection (409, 429, 503) with exponential backoff and jitter, honoring Studio's `Retry-After` header when it sends one, up to a new `timeoutMs` option (default 60 seconds). Every other failure, including a missing agent (404), still throws immediately. ([#4104](https://github.com/kubb-labs/kubb/pull/4104), [`9a913d4`](https://github.com/kubb-labs/kubb/commit/9a913d4791b69ae3703440a183a7e5f95b0bb430))
+- A sandbox agent runs each job under its own temporary root and removes it, with the output-manifest cache Kubb derived from it, once the job ends. Before, every tenant's job shared the agent's root, and with it one manifest cache. A sandbox also stops serving a kept generation 15 minutes after it ran, since its in-memory store holds every tenant's runs. A local agent keeps its runs until count or size pushes them out, as before, so a later run can still compare against the one before it.
+  
+  `@kubb/core` exports `resolveCacheDir`, the directory `cacheStorage` uses for a root. ([#4112](https://github.com/kubb-labs/kubb/pull/4112), [`4faf3d3`](https://github.com/kubb-labs/kubb/commit/4faf3d33a933e3a7bd7deccb7b666b6cbce7b30b))
+- An agent's reconnect now backs off with full jitter (doubling from a 1s floor up to `retryInterval`) instead of retrying at a fixed interval, so many agents reconnecting after the same Studio outage land at different moments instead of in lockstep.
+  
+  `AgentApi` gains `cancel(jobId)`, reaching the running job by id instead of only through the `GenerationRun` object `startGeneration` returned — useful for a caller (Studio, after its own restart) that re-attaches to a job by id without holding that reference. ([#4105](https://github.com/kubb-labs/kubb/pull/4105), [`d6d0cdc`](https://github.com/kubb-labs/kubb/commit/d6d0cdc9776c253d516b73850cbc54ee87a75610))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.16 — Sep 24, 2026
 
 ### @kubb/studio
