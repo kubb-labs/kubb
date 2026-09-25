@@ -1,13 +1,12 @@
-import { agentDefaults, resolveAgentCapacity } from './constants.ts'
+import { randomUUID } from 'node:crypto'
 import type { InvalidAgentTokenError } from './api.ts'
-import { registerAgent } from './api.ts'
 import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
 
-export type ClientOptions = Omit<StudioSessionOptions, 'signal' | 'onTokenRejected' | 'startupWarning'> & {
+export type ClientOptions = Omit<StudioSessionOptions, 'signal' | 'onTokenRejected' | 'instanceId' | 'reconnectAttempt'> & {
   /**
-   * Called once when a live pool's token is rejected during background reconnect (401: revoked, or
-   * the agent was deleted). The whole pool is already stopped by the time this fires, so a host
-   * only needs to get a replacement token and start a new client.
+   * Called once when the token is rejected during a background reconnect (401: revoked, or the
+   * agent was deleted). The client is already stopped by the time this fires, so a host only needs
+   * to get a replacement token and start a new client.
    *
    * Never fires for a startup rejection, which `connect()` reports by throwing, nor for an ordinary
    * session expiry or revocation, both of which reconnect on their own.
@@ -17,12 +16,12 @@ export type ClientOptions = Omit<StudioSessionOptions, 'signal' | 'onTokenReject
 
 export type Client = {
   /**
-   * Registers with Studio and opens the session pool. Resolves once the pool is starting: the
-   * sessions keep running, and reconnect on their own, until `disconnect` is called.
+   * Registers with Studio and opens this process's one socket. Resolves once it is starting: the
+   * connection keeps running, and reconnects on its own, until `disconnect` is called.
    */
   connect: () => Promise<void>
   /**
-   * Closes every session and stops reconnecting.
+   * Closes the socket and stops reconnecting.
    */
   disconnect: () => void
 }
@@ -42,46 +41,29 @@ export type Client = {
  */
 export function createClient({ onAuthRequired, ...options }: ClientOptions): Client {
   const controller = new AbortController()
-  const poolSize = options.poolSize ?? agentDefaults.poolSize
+  // One per process: a reconnect keeps it, so Studio sees the same instance come back, and a
+  // restart gets a new one.
+  const instanceId = randomUUID()
+
   function notifyAuthRequired(error: InvalidAgentTokenError) {
-    // Several pool sessions can reject the same token at once, and a host can stop the pool
-    // itself, so an aborted controller is what says this callback is spent.
+    // A host can stop the client itself, so an aborted controller is what says this callback is spent.
     if (controller.signal.aborted) {
       return
     }
 
-    // Stop the whole pool first: every session's socket closes and every pending retry timer is
-    // canceled through the `signal` each one already listens on, so the caller starts its next
-    // client from a clean slate.
+    // Stop first: the socket closes and any pending retry timer is canceled through the `signal`
+    // the session listens on, so the caller starts its next client from a clean slate.
     controller.abort()
     onAuthRequired?.(error)
   }
 
   return {
     async connect() {
-      const capacity = { ...resolveAgentCapacity(), ...options.capacity }
-      const registered = await registerAgent({ token: options.token, studioUrl: options.studioUrl ?? agentDefaults.studioUrl, poolSize, capacity })
-      if (controller.signal.aborted) {
-        return
-      }
-      // Not fatal, since session creation registers again when Studio rejects the machine token.
-      // Reported through the first session only, so a pool warns once.
-      const startupWarning = registered ? undefined : 'Could not register with Kubb Studio, continuing'
-
-      // Each slot is its own session, so one Studio user never sees another's generation events.
-      // Awaited: `connect()` only ever rejects with `InvalidAgentTokenError` (every other failure
-      // is retried internally through the session's own reconnect loop and resolves normally), so
-      // awaiting here surfaces a dead token to the caller without blocking on a down Studio.
-      await Promise.all(
-        Array.from({ length: poolSize }, (_, slot) =>
-          new StudioSession({
-            ...options,
-            signal: controller.signal,
-            onTokenRejected: notifyAuthRequired,
-            startupWarning: slot === 0 ? startupWarning : undefined,
-          }).start(),
-        ),
-      )
+      // Awaited: `connect()` only rejects with `InvalidAgentTokenError` or `IncompatibleAgentError`
+      // (every other failure is retried through the session's own reconnect loop and resolves
+      // normally), so awaiting surfaces a dead token or a too-old agent without blocking on a
+      // down Studio.
+      await new StudioSession({ ...options, instanceId, signal: controller.signal, onTokenRejected: notifyAuthRequired }).start()
     },
     disconnect() {
       controller.abort()

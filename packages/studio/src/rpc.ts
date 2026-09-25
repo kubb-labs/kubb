@@ -10,6 +10,7 @@ import type {
   SaveConfigInput,
   StudioApi,
 } from './protocol/index.ts'
+import { AGENT_INSTANCE_HEADER } from './protocol/index.ts'
 import { createWebsocket } from './ws.ts'
 
 /**
@@ -52,7 +53,7 @@ class AgentRpcTarget extends RpcTarget implements AgentApi {
  * await rpc.studio.ping()
  * ```
  */
-export const connectWebSocketRpc: RpcConnector = async ({ url, token, local }): Promise<RpcConnection> => {
+export const connectWebSocketRpc: RpcConnector = async ({ url, token, instanceId, local }): Promise<RpcConnection> => {
   const { protocol, hostname, host } = new URL(url)
   // `URL` keeps the brackets on an IPv6 hostname, so `::1` arrives as `[::1]`.
   const isLoopback = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]'
@@ -60,7 +61,7 @@ export const connectWebSocketRpc: RpcConnector = async ({ url, token, local }): 
     throw new Error(`Refusing unencrypted WebSocket to ${host}`)
   }
 
-  const socket = createWebsocket(url, { headers: { Authorization: `Bearer ${token}` } })
+  const socket = createWebsocket(url, { headers: { Authorization: `Bearer ${token}`, [AGENT_INSTANCE_HEADER]: instanceId } })
   const closed = new Promise<RpcClose>((resolve) => socket.once('close', (code: number, reason: Buffer) => resolve({ code, reason: reason.toString() })))
   // `ws` implements the browser WebSocket surface capnweb uses, but declares its own nominal type.
   const studio = newWebSocketRpcSession<StudioApi>(socket as unknown as globalThis.WebSocket, new AgentRpcTarget(local))

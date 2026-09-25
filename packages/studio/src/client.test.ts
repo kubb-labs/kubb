@@ -3,11 +3,6 @@ import { InvalidAgentTokenError } from './api.ts'
 import { createClient } from './client.ts'
 import type { StudioSessionOptions } from './StudioSession.ts'
 
-vi.mock('./api.ts', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('./api.ts')>()),
-  registerAgent: vi.fn().mockResolvedValue(true),
-}))
-
 /**
  * Stands in for a session: `connect()` runs this spy with the options the client built it with, so
  * a test can resolve, reject, or read back the callbacks the client passed in.
@@ -28,8 +23,6 @@ vi.mock('./StudioSession.ts', () => ({
   },
 }))
 
-import { registerAgent } from './api.ts'
-
 const options = {
   attach: vi.fn(),
   token: 'my-token',
@@ -44,43 +37,43 @@ afterEach(() => {
 })
 
 describe('createClient', () => {
-  it('opens one session per pool slot, each with its own AbortSignal listener', async () => {
+  it('opens one session for the whole process', async () => {
     sessionConnect.mockResolvedValue(undefined)
 
-    const client = createClient({ ...options, poolSize: 3 })
-    await client.connect()
+    await createClient(options).connect()
 
-    expect(sessionConnect).toHaveBeenCalledTimes(3)
-    expect(registerAgent).toHaveBeenCalledWith({
-      token: 'my-token',
-      studioUrl: 'https://kubb.studio',
-      poolSize: 3,
-      capacity: { maxConcurrent: 1, memoryBudgetMb: undefined },
-    })
+    expect(sessionConnect).toHaveBeenCalledOnce()
   })
 
-  it('fires onAuthRequired once when several pool sessions reject the same token concurrently', async () => {
-    const onAuthRequired = vi.fn()
-    const capturedOptions: Array<StudioSessionOptions> = []
+  it('names the process with one instance id, and a new one for each client', async () => {
+    sessionConnect.mockResolvedValue(undefined)
 
-    sessionConnect.mockImplementation((opts) => {
-      capturedOptions.push(opts)
-      // Every pool slot resolves startup normally: the rejection happens later, during background
-      // reconnect, which is exactly what onAuthRequired covers.
+    await createClient(options).connect()
+    await createClient(options).connect()
+
+    const [first, second] = sessionConnect.mock.calls.map(([opts]) => (opts as StudioSessionOptions).instanceId)
+    expect(first).toMatch(/^[0-9a-f-]{36}$/)
+    expect(second).not.toBe(first)
+  })
+
+  it('fires onAuthRequired once, however often the session reports the rejected token', async () => {
+    const onAuthRequired = vi.fn()
+    let captured: StudioSessionOptions | undefined
+    sessionConnect.mockImplementation((opts: StudioSessionOptions) => {
+      captured = opts
+      // Startup resolves normally: the rejection happens later, during background reconnect,
+      // which is exactly what onAuthRequired covers.
       return Promise.resolve()
     })
 
-    const client = createClient({ ...options, poolSize: 3, onAuthRequired })
-    await client.connect()
+    await createClient({ ...options, onAuthRequired }).connect()
 
     const error = new InvalidAgentTokenError('https://kubb.studio')
+    captured?.onTokenRejected?.(error)
+    captured?.onTokenRejected?.(error)
 
-    // Two pool sessions reject the same dead token at once.
-    capturedOptions[0]?.onTokenRejected?.(error)
-    capturedOptions[1]?.onTokenRejected?.(error)
-    capturedOptions[2]?.onTokenRejected?.(error)
-
-    expect(onAuthRequired).toHaveBeenCalledTimes(1)
+    expect(onAuthRequired).toHaveBeenCalledOnce()
     expect(onAuthRequired).toHaveBeenCalledWith(error)
+    expect(captured?.signal?.aborted).toBe(true)
   })
 })

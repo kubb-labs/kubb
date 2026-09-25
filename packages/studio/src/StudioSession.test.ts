@@ -9,9 +9,7 @@ import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
 
 vi.mock('./api.ts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./api.ts')>()),
-  createAgentSession: vi.fn(),
-  disconnect: vi.fn().mockResolvedValue(true),
-  registerAgent: vi.fn().mockResolvedValue(true),
+  registerAgent: vi.fn(),
 }))
 
 vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
@@ -44,7 +42,7 @@ vi.mock('@kubb/core', async (importOriginal) => {
   return { ...core, fsStorage: () => (disk.storage ??= createDisk()), cacheStorage: () => (disk.cache ??= core.memoryStorage()) }
 })
 
-import { createAgentSession } from './api.ts'
+import { IncompatibleAgentError, registerAgent } from './api.ts'
 
 const root = '/project'
 const pluginName = 'studio-test-plugin'
@@ -132,15 +130,11 @@ beforeEach(() => {
   vi.clearAllMocks()
   disk.storage = undefined
   disk.cache = undefined
-  vi.mocked(createAgentSession).mockResolvedValue({
-    sessionId: 'session-1',
-    slug: 'brave-otter',
-    url: 'ws://studio/session-1',
-    expiresAt: new Date(Date.now() + 60_000).toISOString(),
-    revokedAt: null,
-    isSandbox: false,
-    version: '1.0.0',
-  })
+  vi.mocked(registerAgent).mockResolvedValue({
+      socketUrl: 'ws://studio/api/agent/socket',
+      isSandbox: false,
+      version: '1.0.0',
+    })
 })
 
 describe('the handshake', () => {
@@ -173,12 +167,8 @@ describe('the handshake', () => {
   })
 
   it('carries the agent and organization slug on studio:connected', async () => {
-    vi.mocked(createAgentSession).mockResolvedValue({
-      sessionId: 'session-1',
-      slug: 'brave-otter',
-      url: 'ws://studio/session-1',
-      expiresAt: new Date(Date.now() + 60_000).toISOString(),
-      revokedAt: null,
+    vi.mocked(registerAgent).mockResolvedValue({
+      socketUrl: 'ws://studio/api/agent/socket',
       isSandbox: false,
       version: '1.0.0',
       agentSlug: 'brave-otter',
@@ -222,8 +212,8 @@ describe('the handshake', () => {
 
 describe('close codes', () => {
   /**
-   * Closes the transport with `code`, then waits until the session finished ending: the disconnect
-   * notice is the last await before a reconnect would be scheduled.
+   * Closes the transport with `code`, then waits until the session finished ending. A reconnect
+   * backs off with a mocked jitter of 0, so one that is coming registers straight away.
    */
   async function closeWith(code: number) {
     const controller = new AbortController()
@@ -236,22 +226,27 @@ describe('close codes', () => {
         emitter.hook('studio:error', hooks.error)
       },
     })
-    const { disconnect, registerAgent } = await import('./api.ts')
-    vi.mocked(disconnect).mockClear()
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0)
     vi.mocked(registerAgent).mockClear()
 
     closeTransport({ code, reason: '' })
-    await vi.waitFor(() => expect(disconnect).toHaveBeenCalled())
-    await new Promise((resolve) => setTimeout(resolve, 10))
+    await vi.waitFor(() => expect(hooks.disconnected).toHaveBeenCalled())
+    await new Promise((resolve) => setTimeout(resolve, 20))
 
-    return { hooks, registerAgent: vi.mocked(registerAgent), stop: () => controller.abort() }
+    return {
+      hooks,
+      stop: () => {
+        controller.abort()
+        random.mockRestore()
+      },
+    }
   }
 
-  it('registers again, then reconnects, when Studio asks the agent to reauthenticate', async () => {
-    const { hooks, registerAgent, stop } = await closeWith(AgentCloseCode.REAUTHENTICATE)
+  it('registers again by reconnecting when Studio asks the agent to reauthenticate', async () => {
+    const { hooks, stop } = await closeWith(AgentCloseCode.REAUTHENTICATE)
 
-    expect(registerAgent).toHaveBeenCalledOnce()
     expect(hooks.reconnecting).toHaveBeenCalledOnce()
+    await vi.waitFor(() => expect(registerAgent).toHaveBeenCalledOnce())
     stop()
   })
 
@@ -272,70 +267,54 @@ describe('close codes', () => {
   })
 
   it('reconnects on any other code, as before', async () => {
-    const { hooks, registerAgent, stop } = await closeWith(1006)
+    const { hooks, stop } = await closeWith(1006)
 
     expect(hooks.reconnecting).toHaveBeenCalledOnce()
-    expect(registerAgent).not.toHaveBeenCalled()
     stop()
   })
 })
 
-describe('startGeneration', () => {
-  it('ignores a spec from Studio when the host did not grant allowInput, and names the permission', async () => {
+describe('registration', () => {
+  it('opens the socket Studio registered this process for, with its instance id', async () => {
+    const connector = vi.fn(async () => ({ studio: { ping: vi.fn().mockResolvedValue(undefined) }, closed: new Promise<void>(() => {}), close: vi.fn() }))
+    const session = new StudioSession({ token: 'token', studioUrl, configPath: 'kubb.config.ts', version: '2.0.0', root, loadConfig: vi.fn(), instanceId: 'instance-1', connector })
+    void session.start()
+
+    await vi.waitFor(() => expect(connector).toHaveBeenCalledWith(expect.objectContaining({ url: 'ws://studio/api/agent/socket', token: 'token', instanceId: 'instance-1' })))
+    expect(registerAgent).toHaveBeenCalledWith(expect.objectContaining({ token: 'token', studioUrl, instanceId: 'instance-1' }))
+    session.dispose()
+  })
+
+  it('advertises one job at a time and warns when the host asked for more', async () => {
     const warn = vi.fn()
-    const { agent } = await connectStudio({ installLogger: (hooks) => void hooks.hook('studio:warn', warn) })
+    await connectStudio({ capacity: { maxConcurrent: 2 }, installLogger: (hooks) => void hooks.hook('studio:warn', warn) })
 
-    await agent.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } }).result()
-
-    expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('Ignored the spec from Studio'), permission: 'allowInput' })
-  })
-})
-
-describe('load', () => {
-  it('reports what the agent is carrying with each heartbeat', async () => {
-    const controller = new AbortController()
-    const { studio } = await connectStudio({ heartbeatInterval: 10, signal: controller.signal })
-
-    await vi.waitFor(() => expect(studio.ping).toHaveBeenCalledWith({ running: 0, rssMb: expect.any(Number), storeBytes: 0, accepting: true }))
-    controller.abort()
+    expect(registerAgent).toHaveBeenCalledWith(expect.objectContaining({ capacity: expect.objectContaining({ maxConcurrent: 1 }) }))
+    expect(warn).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining('KUBB_AGENT_MAX_CONCURRENT=2') }))
   })
 
-  it('refuses a generation once memory is past the budget, and says so in the heartbeat', async () => {
-    const controller = new AbortController()
-    // A 1 MB budget puts any real process far past the 1.5 MB watermark.
-    const { agent, studio } = await connectStudio({ heartbeatInterval: 10, signal: controller.signal, capacity: { memoryBudgetMb: 1 } })
+  it('stops instead of retrying when Studio needs a newer agent', async () => {
+    vi.mocked(registerAgent).mockRejectedValue(new IncompatibleAgentError(studioUrl, 'agent 5.3.0 is below 5.4.0'))
+    const reconnecting = vi.fn()
+    const session = new StudioSession({
+      token: 'token',
+      studioUrl,
+      configPath: 'kubb.config.ts',
+      version: '2.0.0',
+      root,
+      loadConfig: vi.fn(),
+      installLogger: (hooks) => void hooks.hook('studio:reconnecting', reconnecting),
+    })
 
-    await expect(run(agent, 'job-1')).rejects.toThrow('The agent is past its memory budget')
-    await vi.waitFor(() => expect(studio.ping).toHaveBeenCalledWith(expect.objectContaining({ accepting: false })))
-    controller.abort()
-  })
-})
-
-describe('cancel', () => {
-  it('does nothing when no job is running', async () => {
-    const { agent } = await connectStudio()
-
-    await expect(agent.cancel('job-1')).resolves.toBeUndefined()
-  })
-
-  it('leaves the running job alone when asked to cancel a different id', async () => {
-    const { agent } = await connectStudio()
-    const run = agent.startGeneration({ jobId: 'job-1', config: {} })
-
-    await agent.cancel('job-2')
-
-    await expect(run.result()).resolves.toMatchObject({ status: 'success' })
+    await expect(session.start()).rejects.toBeInstanceOf(IncompatibleAgentError)
+    expect(reconnecting).not.toHaveBeenCalled()
   })
 })
 
 describe('a sandbox job', () => {
   it('runs under its own temporary root, removed with its manifest cache once the job ends', async () => {
-    vi.mocked(createAgentSession).mockResolvedValue({
-      sessionId: 'session-1',
-      slug: 'brave-otter',
-      url: 'ws://studio/session-1',
-      expiresAt: new Date(Date.now() + 60_000).toISOString(),
-      revokedAt: null,
+    vi.mocked(registerAgent).mockResolvedValue({
+      socketUrl: 'ws://studio/api/agent/socket',
       isSandbox: true,
       version: '1.0.0',
     })

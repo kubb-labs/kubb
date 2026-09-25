@@ -1,3 +1,5 @@
+import type { AgentCapacity } from './protocol/index.ts'
+
 /**
  * Hosted Kubb Studio URL. Exported so credential stores can bind tokens to the resolved instance,
  * not whatever default the client would pick on its own.
@@ -20,7 +22,6 @@ export const agentDefaults = {
   maxHeartbeatIntervalMs: 60_000,
   /** How long a heartbeat ping may take before the session is treated as dead. */
   heartbeatTimeoutMs: 10_000,
-  poolSize: 1,
   maxConcurrent: 1,
   maxGenerations: 8,
   maxGenerationsMb: 100,
@@ -45,18 +46,6 @@ export function resolveGenerationLimits(env: NodeJS.ProcessEnv = process.env): {
   }
 }
 
-/**
- * What an agent process can take on: how many jobs at once, and, when set, how much memory it may
- * use before it stops accepting new ones.
- */
-export type AgentCapacity = {
-  maxConcurrent: number
-  /**
-   * Left unset, the agent never refuses a job for memory. Set, the agent stops accepting new jobs
-   * once its resident memory passes {@link MEMORY_WATERMARK} times this many megabytes.
-   */
-  memoryBudgetMb?: number
-}
 
 /**
  * How far past its memory budget an agent may grow before it refuses new jobs. The headroom covers
