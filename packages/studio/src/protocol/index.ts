@@ -425,7 +425,7 @@ export type RpcConnection = {
  * Opens a transport and hands both sides their peer. Swapping this is how a test drives a session
  * without a socket.
  */
-export type RpcConnector = (input: { url: string; token: string; local: AgentApi }) => Promise<RpcConnection>
+export type RpcConnector = (input: { url: string; token: string; instanceId: string; local: AgentApi }) => Promise<RpcConnection>
 
 /**
  * How many files a single `readFiles` request may ask for at once.
@@ -516,47 +516,49 @@ export type AgentPermissions = {
 }
 
 /**
- * Response returned by the Studio `/api/agent/sessions` endpoint.
+ * Header naming which process of an agent a socket belongs to, next to the agent's bearer token.
+ * Several processes may share one token (CI runners, sandbox containers). For a kind that allows
+ * only one, a new id supersedes the old socket with {@link AgentCloseCode.SUPERSEDED}.
  */
-export type AgentConnectResponse = {
+export const AGENT_INSTANCE_HEADER = 'x-kubb-instance-id'
+
+/**
+ * What an agent process can take on, reported at registration.
+ */
+export type AgentCapacity = {
+  /** Jobs the process runs at once. Studio clamps it to the agent kind's own cap. */
+  maxConcurrent: number
   /**
-   * URL the agent opens to reach the session, with the session token embedded.
+   * Left unset, the agent never refuses a job for memory. Set, the agent stops accepting new jobs
+   * once its resident memory passes 1.5 times this many megabytes.
    */
-  url: string
-  /**
-   * When the session expires and the url stops working (ISO 8601).
-   */
-  expiresAt: string
-  /**
-   * When the session was revoked (ISO 8601), or null while it is still valid.
-   */
-  revokedAt: string | null
-  /**
-   * Opaque session token, also embedded in `url`. Store it to revoke the session later.
-   */
-  sessionId: string
-  /**
-   * Short readable identifier for this connection, used in logs (e.g. brave-otter).
-   */
-  slug: string | null
-  /**
-   * Whether this session belongs to a shared sandbox agent rather than an owned one.
-   */
+  memoryBudgetMb?: number
+}
+
+/**
+ * Body of `POST /api/agent/connect`, authenticated with the agent's bearer token.
+ */
+export type AgentRegisterInput = {
+  /** Hash of this machine's secret, binding the token to one machine identity. */
+  machineToken: string
+  /** This process, sent again as {@link AGENT_INSTANCE_HEADER} when it opens its socket. */
+  instanceId: string
+  capacity: AgentCapacity
+}
+
+/**
+ * Response of `POST /api/agent/connect`: where this process opens its one socket, and what Studio
+ * knows about the agent.
+ */
+export type AgentRegisterResponse = {
+  /** `wss:` URL of the agent socket. The agent authenticates it with its bearer token and instance id. */
+  socketUrl: string
+  /** Whether the agent is a shared sandbox rather than one someone owns. */
   isSandbox: boolean
-  /**
-   * The Studio instance's own version. Returned with the RPC session so the agent can name both
-   * sides from the first connection.
-   * Absent when Studio predates the field.
-   */
+  /** The Studio instance's own version, so both sides can be named from the first connection. */
   version?: string
-  /**
-   * This agent's slug, so a reconnect refreshes it the same way pairing did.
-   * Absent when Studio predates the field.
-   */
+  /** This agent's slug, so a reconnect refreshes it the same way pairing did. */
   agentSlug?: string
-  /**
-   * This agent's organization slug, absent for a sandbox or global agent, which has none, or when
-   * Studio predates the field.
-   */
+  /** This agent's organization slug. Absent for a sandbox or global agent, which has none. */
   organizationSlug?: string
 }

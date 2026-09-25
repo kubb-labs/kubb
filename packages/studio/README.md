@@ -109,14 +109,19 @@ the machine-facing surface, singular because the caller is describing itself. Th
 `/api/agents` is the collection a signed-in user manages in the browser, and the runtime never
 touches it.
 
-| Step       | Call                                              | What it does                                                                       |
-| ---------- | ------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Register   | `POST /api/agent/connect`                         | Binds the token to this machine with a `machineToken`. A failure here is not fatal |
-| Session    | `POST /api/agent/sessions`                        | Returns `{ url, sessionId, expiresAt }`                                            |
-| Connect    | Configured RPC connector on `url`                 | Attaches the typed `AgentApi`/`StudioApi` RPC session                              |
-| Disconnect | `POST /api/agent/sessions/{sessionId}/disconnect` | Closes the session on a clean shutdown                                             |
+| Step     | Call                                    | What it does                                                                                                                              |
+| -------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Register | `POST /api/agent/connect`               | Binds the token to this machine and process (`machineToken`, `instanceId`), reports `capacity`, and returns `socketUrl`                   |
+| Connect  | Configured RPC connector on `socketUrl` | Opens the process's one socket with the bearer token and `x-kubb-instance-id`, then attaches the typed `AgentApi`/`StudioApi` RPC session |
 
-The runtime reconnects on its own when a session drops, and keeps retrying while Studio is
+Every connection attempt registers first, so a reconnect is also how the agent registers again.
+Each heartbeat carries the agent's load. A process keeps one socket, not one per job: Studio
+schedules jobs onto it up to the advertised `maxConcurrent`. Studio's close codes say whether to
+come back: `4001` registers and reconnects, `4002` (another instance took over) and `4003` (the
+agent is too old or was deleted) stay down. A `426` at registration means the agent is too old for
+that Studio.
+
+The runtime reconnects on its own when the socket drops, and keeps retrying while Studio is
 unreachable. Generation progress is a native Cap'n Web `ReadableStream` on the generation
 capability; durable job status is read through the HTTP job API.
 

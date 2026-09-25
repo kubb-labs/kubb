@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -8,7 +9,8 @@ import { version as kubbVersion } from '../package.json'
 import { setupHookListener } from './hooks.ts'
 import {
   type AgentApi,
-  type AgentConnectResponse,
+  type AgentCapacity,
+  type AgentRegisterResponse,
   type AgentLoad,
   type AgentPermissions,
   type ConfigFileView,
@@ -29,10 +31,10 @@ import {
   type RpcConnector,
   type RpcConnection,
 } from './protocol/index.ts'
-import { createAgentSession, disconnect, InvalidAgentTokenError, registerAgent } from './api.ts'
+import { IncompatibleAgentError, InvalidAgentTokenError, registerAgent } from './api.ts'
 import { applyConfigEdits, readConfig } from './configFile.ts'
 import { generate } from './generate.ts'
-import { type AgentCapacity, agentDefaults, MEMORY_WATERMARK, resolveAgentCapacity, resolveGenerationLimits } from './constants.ts'
+import { agentDefaults, MEMORY_WATERMARK, resolveAgentCapacity, resolveGenerationLimits } from './constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
 import { createSnapshotPackage } from './snapshotPackage.ts'
 import { RpcTarget } from 'capnweb'
@@ -136,10 +138,11 @@ export type StudioSessionOptions = {
    */
   capacity?: Partial<AgentCapacity>
   /**
-   * Number of pool sessions this agent serves. Read by `createClient`, which opens one
-   * session per slot, and reported to Studio at registration.
+   * Names this agent process to Studio, sent at registration and as {@link AGENT_INSTANCE_HEADER}
+   * on the socket. `createClient` sets one per process, so a reconnect is the same instance and a
+   * restart is a new one. Not meant to be set directly by a host.
    */
-  poolSize?: number
+  instanceId?: string
   /**
    * Aborting this disconnects the session and stops the reconnect loop. Hosts wire it to their own
    * shutdown: Nitro's `close` hook, or `SIGINT`/`SIGTERM` in the CLI.
@@ -158,12 +161,6 @@ export type StudioSessionOptions = {
    * directly by a host.
    */
   onTokenRejected?: (error: InvalidAgentTokenError) => void
-  /**
-   * Sent as `studio:warn` once the host's logger is installed. `createClient` uses it to report a
-   * failed registration, which happens before any session has hooks to report through. Not meant
-   * to be set directly by a host, and dropped on reconnect so it is reported once.
-   */
-  startupWarning?: string
 }
 
 /**
@@ -176,6 +173,7 @@ type ResolvedOptions = StudioSessionOptions & {
   retryInterval: number
   heartbeatInterval: number
   capacity: AgentCapacity
+  instanceId: string
   /**
    * Absolute path to the config file, for reading and patching it. `configPath` keeps the form the
    * host gave, which is what Studio shows.
@@ -205,8 +203,15 @@ function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
     // env parsing, so every host is held to the contract.
     heartbeatInterval: Math.min(options.heartbeatInterval ?? agentDefaults.heartbeatIntervalMs, agentDefaults.maxHeartbeatIntervalMs),
     capacity: { ...resolveAgentCapacity(), ...options.capacity },
+    instanceId: options.instanceId ?? randomUUID(),
   }
 }
+
+/**
+ * Jobs one agent process can run at once today. Two runs would share this session's hook emitter,
+ * and with it each other's events, until each job runs in its own worker (ADR-0003 slice B2).
+ */
+const RUNTIME_MAX_CONCURRENT = 1
 
 const MB = 1024 * 1024
 
@@ -249,6 +254,9 @@ function reconnect(options: ResolvedOptions, delayMs: number, attempt: number): 
         return
       }
 
+      // An agent too old for Studio stays too old; `start()` already reported it.
+      if (error instanceof IncompatibleAgentError) return
+
       const nextAttempt = attempt + 1
       reconnect(options, backoffDelayMs(nextAttempt, options.retryInterval), nextAttempt)
     })
@@ -263,8 +271,6 @@ function reconnect(options: ResolvedOptions, delayMs: number, attempt: number): 
 type EndPlan = {
   reason: string
   retry: boolean
-  /** Register again before reconnecting. */
-  reregister?: boolean
   /** Reported through `studio:error` when the end needs the user to act. */
   error?: Error
 }
@@ -275,7 +281,8 @@ type EndPlan = {
  */
 function planEnd(close: RpcClose | void): EndPlan {
   const code = close?.code
-  if (code === AgentCloseCode.REAUTHENTICATE) return { reason: 'Kubb Studio asked the agent to register again', retry: true, reregister: true }
+  // Every connection attempt registers first, so reconnecting is how the agent registers again.
+  if (code === AgentCloseCode.REAUTHENTICATE) return { reason: 'Kubb Studio asked the agent to register again', retry: true }
   if (code === AgentCloseCode.SUPERSEDED) return { reason: 'another instance of this agent took over', retry: false }
   if (code === AgentCloseCode.INCOMPATIBLE) {
     return {
@@ -303,10 +310,10 @@ export class StudioSession implements AgentApi {
   readonly #unhooks: Array<() => void> = []
 
   /**
-   * What `createAgentSession` handed back, and the marker for whether a session exists at all.
-   * Before it resolves there is nothing to disconnect and no sandbox flag to read.
+   * What registration handed back, and the marker for whether the agent registered at all.
+   * Before it resolves there is no sandbox flag to read.
    */
-  #session: AgentConnectResponse | undefined
+  #registration: AgentRegisterResponse | undefined
   #rpc: RpcConnection | undefined
   // Returned with the session, so both sides can be named from the first RPC connection.
   #studioVersion: string | undefined
@@ -329,12 +336,10 @@ export class StudioSession implements AgentApi {
    * host does not queue jobs before the agent session is registered.
    */
   readonly #connectAck = Promise.withResolvers<void>()
-  readonly #startupWarning: string | undefined
   #reconnectAttempt: number
 
-  constructor({ startupWarning, reconnectAttempt, ...options }: StudioSessionOptions) {
+  constructor({ reconnectAttempt, ...options }: StudioSessionOptions) {
     this.#options = applyStudioDefaults(options)
-    this.#startupWarning = startupWarning
     this.#reconnectAttempt = reconnectAttempt ?? 0
     // dispose() may reject this before start() awaits it
     void this.#connectAck.promise.catch(() => {})
@@ -344,7 +349,7 @@ export class StudioSession implements AgentApi {
    * A sandbox agent runs on Studio's own infrastructure, so it has no user project to touch.
    */
   get #isSandbox(): boolean {
-    return this.#session?.isSandbox === true
+    return this.#registration?.isSandbox === true
   }
 
   /**
@@ -385,25 +390,32 @@ export class StudioSession implements AgentApi {
   }
 
   async start(): Promise<void> {
-    const { token, studioUrl, signal, heartbeatInterval, installLogger } = this.#options
+    const { token, studioUrl, signal, heartbeatInterval, installLogger, instanceId, capacity } = this.#options
 
     await installLogger?.(this.#hooks)
 
-    if (this.#startupWarning) {
-      await this.#warn(this.#startupWarning)
-    }
-
     try {
-      // Before the session exists, so a host can cover the wait: `createAgentSession` is a round
-      // trip and the socket after it opens without being awaited.
+      // Before registering, so a host can cover the wait: registration is a round trip and the
+      // socket after it opens without being awaited.
       await this.#hooks.callHook('studio:connecting', { url: studioUrl })
 
-      const session = await createAgentSession({ token, studioUrl })
+      if (this.#reconnectAttempt === 0 && capacity.maxConcurrent > RUNTIME_MAX_CONCURRENT) {
+        await this.#warn(
+          `Running ${RUNTIME_MAX_CONCURRENT} job at a time: KUBB_AGENT_MAX_CONCURRENT=${capacity.maxConcurrent} needs per-job workers, which this agent does not have yet`,
+        )
+      }
 
-      this.#session = session
-      this.#studioVersion = session.version
+      const registration = await registerAgent({
+        token,
+        studioUrl,
+        instanceId,
+        capacity: { ...capacity, maxConcurrent: Math.min(capacity.maxConcurrent, RUNTIME_MAX_CONCURRENT) },
+      })
 
-      const rpc = await (this.#options.connector ?? connectWebSocketRpc)({ url: session.url, token, local: this })
+      this.#registration = registration
+      this.#studioVersion = registration.version
+
+      const rpc = await (this.#options.connector ?? connectWebSocketRpc)({ url: registration.socketUrl, token, instanceId, local: this })
       this.#rpc = rpc
       void rpc.closed.then(this.#onClose)
 
@@ -414,8 +426,8 @@ export class StudioSession implements AgentApi {
       await this.#hooks.callHook('studio:connected', {
         url: studioUrl,
         versions: { studio: this.#studioVersion, kubb: kubbVersion, agent: this.#options.version },
-        agentSlug: session.agentSlug,
-        organizationSlug: session.organizationSlug,
+        agentSlug: registration.agentSlug,
+        organizationSlug: registration.organizationSlug,
       })
       // Studio registers the agent by calling connect() over RPC. Ready means that handshake landed.
       await this.#connectAck.promise
@@ -428,7 +440,7 @@ export class StudioSession implements AgentApi {
       this.dispose()
       await this.#hooks.callHook('studio:error', { error: toError(error) })
 
-      if (error instanceof InvalidAgentTokenError) {
+      if (error instanceof InvalidAgentTokenError || error instanceof IncompatibleAgentError) {
         throw error
       }
 
@@ -591,9 +603,7 @@ export class StudioSession implements AgentApi {
    * Ends the session: tells Studio it is over, drops the socket, and optionally reconnects.
    * `#disposed` keeps the close event from running this twice, and a shutdown from reconnecting.
    */
-  async #end({ reason, retry, reregister, error }: EndPlan): Promise<void> {
-    const { studioUrl, token, poolSize, onTokenRejected } = this.#options
-
+  async #end({ reason, retry, error }: EndPlan): Promise<void> {
     if (this.#disposed) {
       return
     }
@@ -607,24 +617,7 @@ export class StudioSession implements AgentApi {
       await this.#hooks.callHook('studio:error', { error })
     }
 
-    // Nothing to tell Studio about when the session never opened. Already tearing down, so a failed
-    // notify is only worth a warning.
-    if (this.#session && !(await disconnect({ sessionId: this.#session.sessionId, studioUrl, token }))) {
-      await this.#warn('Could not notify Kubb Studio of the disconnect')
-    }
-
-    if (reregister) {
-      try {
-        await registerAgent({ token, studioUrl, poolSize })
-      } catch (registerError) {
-        // A token Studio rejects outright stays rejected, so the host re-pairs instead of retrying.
-        if (registerError instanceof InvalidAgentTokenError) {
-          onTokenRejected?.(registerError)
-          return
-        }
-      }
-    }
-
+    // The closed socket is the whole notice: Studio drops the agent's connection the moment it sees it.
     if (retry) {
       await this.#reconnect()
     }

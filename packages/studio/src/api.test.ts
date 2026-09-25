@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { spyOnConsole } from './console.mock.ts'
-import { createAgent, createAgentSession, createJob, disconnect, InvalidAgentTokenError, registerAgent, waitForJob } from './api.ts'
+import { createAgent, createJob, IncompatibleAgentError, InvalidAgentTokenError, registerAgent, waitForJob } from './api.ts'
 
 const consoleSpy = spyOnConsole()
 
@@ -16,14 +16,8 @@ const createMockResponse = (data: unknown, status = 200, headers?: Record<string
 
 const fetchMock = vi.fn()
 
-const session = {
-  sessionId: 'session-abc',
-  slug: 'brave-otter',
-  url: 'ws://localhost:3000/api/agent/sessions/session-abc/socket',
-  expiresAt: new Date().toISOString(),
-  revokedAt: null,
-  isSandbox: false,
-}
+const registration = { socketUrl: 'wss://studio/api/agent/socket', isSandbox: false, version: '1.0.0', agentSlug: 'brave-otter' }
+const props = { token: 'tok', studioUrl: 'http://studio', instanceId: 'instance-1', capacity: { maxConcurrent: 1 } }
 
 beforeEach(() => {
   fetchMock.mockReset()
@@ -36,14 +30,10 @@ afterEach(() => {
 })
 
 describe('registerAgent', () => {
-  it('returns true when registration succeeds on the first attempt', async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse({}))
+  it('returns where to open the socket', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse(registration))
 
-    const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio' })
-    await vi.runAllTimersAsync()
-
-    await expect(promise).resolves.toBe(true)
-    expect(fetchMock).toHaveBeenCalledTimes(1)
+    await expect(registerAgent(props)).resolves.toStrictEqual(registration)
 
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe('http://studio/api/agent/connect')
@@ -51,82 +41,46 @@ describe('registerAgent', () => {
     expect(new Headers(init.headers).get('Authorization')).toBe('Bearer tok')
   })
 
-  it("reports the agent's capacity with the machine token", async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse({}))
+  it('sends the machine token, the instance id, and the capacity', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse(registration))
 
-    const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio', capacity: { maxConcurrent: 2, memoryBudgetMb: 1024 } })
-    await vi.runAllTimersAsync()
-    await promise
+    await registerAgent({ ...props, capacity: { maxConcurrent: 1, memoryBudgetMb: 1024 } })
 
-    expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toMatchObject({ capacity: { maxConcurrent: 2, memoryBudgetMb: 1024 } })
+    expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toStrictEqual({
+      machineToken: 'machine-token-hash',
+      instanceId: 'instance-1',
+      capacity: { maxConcurrent: 1, memoryBudgetMb: 1024 },
+    })
   })
 
-  it('returns false when every attempt fails, and leaves reporting it to the caller', async () => {
-    fetchMock.mockRejectedValue(new Error('502'))
+  it('retries a transient failure before giving up with the reason', async () => {
+    // A fresh response each time: a body can only be read once, and the call is retried.
+    fetchMock.mockImplementation(async () => createMockResponse({ message: 'maintenance' }, 503))
 
-    const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio' })
+    const promise = registerAgent(props)
+    const assertion = expect(promise).rejects.toThrow('Failed to register with Kubb Studio: maintenance')
     await vi.runAllTimersAsync()
+    await assertion
 
-    await expect(promise).resolves.toBe(false)
     expect(fetchMock).toHaveBeenCalledTimes(4)
     expect(consoleSpy.error).not.toHaveBeenCalled()
   })
-})
 
-describe('createAgentSession', () => {
-  it('returns the session on success', async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse(session))
+  it('throws InvalidAgentTokenError on a rejected token, without retrying', async () => {
+    fetchMock.mockResolvedValue(createMockResponse({ message: 'invalid token' }, 401))
 
-    await expect(createAgentSession({ token: 'tok', studioUrl: 'http://studio' })).resolves.toEqual(session)
-    expect(fetchMock).toHaveBeenCalledTimes(1)
+    await expect(registerAgent(props)).rejects.toBeInstanceOf(InvalidAgentTokenError)
+    expect(fetchMock).toHaveBeenCalledOnce()
   })
 
-  it('re-registers and retries once when Studio rejects the machine token', async () => {
-    // 1: session create → 403, 2: register → ok, 3: session create retry → ok
-    fetchMock
-      .mockResolvedValueOnce(createMockResponse({ message: 'machine token mismatch' }, 403))
-      .mockResolvedValueOnce(createMockResponse({}))
-      .mockResolvedValueOnce(createMockResponse(session))
+  it('throws IncompatibleAgentError when Studio needs a newer agent, without retrying', async () => {
+    fetchMock.mockResolvedValue(createMockResponse({ message: 'agent 5.3.0 is below 5.4.0' }, 426))
 
-    const promise = createAgentSession({ token: 'tok', studioUrl: 'http://studio' })
-    await vi.runAllTimersAsync()
+    const error = await registerAgent(props).catch((thrown: unknown) => thrown)
 
-    await expect(promise).resolves.toEqual(session)
-    expect(fetchMock).toHaveBeenCalledTimes(3)
-    expect(fetchMock.mock.calls[1]![0]).toBe('http://studio/api/agent/connect')
-  })
-
-  it('throws InvalidAgentTokenError when the retry after re-register still gets a 401', async () => {
-    fetchMock
-      .mockResolvedValueOnce(createMockResponse({ message: 'machine token mismatch' }, 403))
-      .mockResolvedValueOnce(createMockResponse({}))
-      .mockResolvedValueOnce(createMockResponse({ message: 'revoked' }, 401))
-
-    const promise = createAgentSession({ token: 'tok', studioUrl: 'http://studio' })
-    promise.catch(() => {})
-    await vi.runAllTimersAsync()
-
-    await expect(promise).rejects.toBeInstanceOf(InvalidAgentTokenError)
-  })
-})
-
-describe('disconnect', () => {
-  it('returns true once Studio is notified, without printing anything', async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse({}))
-
-    await expect(disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio' })).resolves.toBe(true)
-
-    const [url, init] = fetchMock.mock.calls[0]!
-    expect(url).toBe('http://studio/api/agent/sessions/session-abc/disconnect')
-    expect(init.method).toBe('POST')
-    expect(consoleSpy.error).not.toHaveBeenCalled()
-  })
-
-  it('returns false instead of throwing when Studio cannot be notified', async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse({ message: 'gone' }, 500))
-
-    await expect(disconnect({ sessionId: 'session-abc', token: 'tok', studioUrl: 'http://studio' })).resolves.toBe(false)
-    expect(consoleSpy.warn).not.toHaveBeenCalled()
+    expect(error).toBeInstanceOf(IncompatibleAgentError)
+    expect((error as Error).message).toContain('agent 5.3.0 is below 5.4.0')
+    expect(fetchMock).toHaveBeenCalledOnce()
   })
 })
 
