@@ -120,6 +120,14 @@ describe('createJob', () => {
     expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toMatchObject({ commit: 'c4d7e10' })
   })
 
+  it('sends the agent process the job should run on', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'queued' } }, 202))
+
+    await createJob({ studioUrl: 'http://studio', token: 'ci-token', type: 'snapshot', agentId: 'agent-1', instanceId: 'ci-run-42' })
+
+    expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toMatchObject({ instanceId: 'ci-run-42' })
+  })
+
   it('retries a busy agent, honoring the Retry-After header, until it is queued', async () => {
     fetchMock
       .mockResolvedValueOnce(createMockResponse({ message: 'Agent is busy' }, 429, { 'Retry-After': '2' }))

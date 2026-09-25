@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
@@ -204,6 +205,9 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
   step('Creating Kubb Studio agent')
 
   const agent = await createAgent({ studioUrl: options.studioUrl, token, name: ci.name, machineToken: machineTokenFrom(ci.id) })
+  // Overlapping runs of one pipeline connect under the same CI agent. Naming this process lets the
+  // snapshot job run here, on this run's checkout, and not on another run's.
+  const instanceId = randomUUID()
 
   const { promise: ready, resolve: markReady } = Promise.withResolvers<void>()
   const shutdown = new AbortController()
@@ -213,6 +217,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
     signal: shutdown.signal,
     clientOptions: () => ({
       studioUrl: options.studioUrl,
+      instanceId,
       configPath,
       root: process.cwd(),
       version: options.version,
@@ -263,6 +268,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
       token,
       type: 'snapshot',
       agentId: agent.id,
+      instanceId,
       name,
       version: packageVersion,
       commit: ci.commit,

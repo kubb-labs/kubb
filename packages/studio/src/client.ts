@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import type { InvalidAgentTokenError } from './api.ts'
 import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
 
-export type ClientOptions = Omit<StudioSessionOptions, 'signal' | 'onTokenRejected' | 'instanceId' | 'reconnectAttempt'> & {
+export type ClientOptions = Omit<StudioSessionOptions, 'signal' | 'onTokenRejected' | 'reconnectAttempt'> & {
   /**
    * Called once when the token is rejected during a background reconnect (401: revoked, or the
    * agent was deleted). The client is already stopped by the time this fires, so a host only needs
@@ -42,8 +42,9 @@ export type Client = {
 export function createClient({ onAuthRequired, ...options }: ClientOptions): Client {
   const controller = new AbortController()
   // One per process: a reconnect keeps it, so Studio sees the same instance come back, and a
-  // restart gets a new one.
-  const instanceId = randomUUID()
+  // restart gets a new one. A host that queues its own jobs, such as a CI run, passes one in so it
+  // can pin those jobs to this process.
+  const instanceId = options.instanceId ?? randomUUID()
 
   function notifyAuthRequired(error: InvalidAgentTokenError) {
     // A host can stop the client itself, so an aborted controller is what says this callback is spent.

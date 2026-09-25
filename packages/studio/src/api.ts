@@ -249,6 +249,7 @@ export async function createJob({
   commit,
   baseId,
   config,
+  instanceId,
   timeoutMs = 60_000,
   signal,
 }: {
@@ -263,6 +264,11 @@ export async function createJob({
   /** The `id` another CI agent's runs register under, such as the base branch's; this snapshot is also compared with its latest one. */
   baseId?: string
   config?: Record<string, unknown>
+  /**
+   * The agent process to run the job on, the `instanceId` its client connected with. A CI run passes
+   * its own, so an overlapping pipeline under the same CI agent never builds its checkout.
+   */
+  instanceId?: string
   /**
    * How long to keep retrying a busy or queue-full response before giving up, in milliseconds.
    *
@@ -281,7 +287,7 @@ export async function createJob({
       const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs`, {
         method: 'POST',
         headers: { 'x-api-key': token },
-        body: { type, agentId, name, version, commit, baseId, config },
+        body: { type, agentId, name, version, commit, baseId, config, instanceId },
         retry: false,
         timeout: Math.max(deadline - Date.now(), 1),
         signal,
