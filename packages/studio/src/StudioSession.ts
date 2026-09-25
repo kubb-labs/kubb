@@ -1,8 +1,9 @@
-import { writeFile } from 'node:fs/promises'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { getErrorMessage, read, toError } from '@internals/utils'
-import { cacheStorage, type Config, fsStorage, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
+import { cacheStorage, type Config, fsStorage, Hookable, type KubbHooks, memoryStorage, resolveCacheDir } from '@kubb/core'
 import { version as kubbVersion } from '../package.json'
 import { setupHookListener } from './hooks.ts'
 import {
@@ -40,6 +41,29 @@ import { connectWebSocketRpc } from './rpc.ts'
  * Past this many files in the output directory, no snapshot of it is taken before a run.
  */
 const DISK_SNAPSHOT_MAX_FILES = 10_000
+
+/**
+ * How long a sandbox keeps a generation readable. Its store is in memory and holds every tenant's
+ * runs, so an old one has to go even when count and size leave room. A local agent keeps its runs
+ * until count or size pushes them out, so a later run can still diff against the one before it.
+ */
+const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
+
+/**
+ * A fresh root for one sandbox job. Kubb keys its output manifest cache by root, so tenants that
+ * shared the agent's own root would read each other's manifest.
+ */
+function createJobRoot(): Promise<string> {
+  return mkdtemp(path.join(tmpdir(), 'kubb-job-'))
+}
+
+/**
+ * Removes a job root and the manifest cache Kubb derived from it. Best effort: a leftover temp
+ * directory must not fail a job that already finished.
+ */
+async function removeJobRoot(jobRoot: string): Promise<void> {
+  await Promise.all([rm(jobRoot, { recursive: true, force: true }), rm(resolveCacheDir(jobRoot), { recursive: true, force: true })]).catch(() => {})
+}
 
 class GenerationRunTarget extends RpcTarget implements GenerationRun {
   constructor(
@@ -286,6 +310,7 @@ export class StudioSession implements AgentApi {
       storage: this.#isSandbox ? memoryStorage() : cacheStorage({ root: this.#options.root }),
       maxCount: this.#limits.maxCount,
       maxMb: this.#limits.maxMb,
+      ttlMs: this.#isSandbox ? SANDBOX_GENERATION_TTL_MS : undefined,
     })
     return this.#store
   }
@@ -566,9 +591,11 @@ export class StudioSession implements AgentApi {
     this.#activeJob = { jobId: data.jobId, cancel: cancelRun }
 
     const command = 'generate'
-    const { root, loadConfig, permissions } = this.#options
+    const { loadConfig, permissions } = this.#options
+    let root = this.#options.root
 
     try {
+      if (this.#isSandbox) root = await createJobRoot()
       await this.#hooks.callHook('studio:command:start', { command })
       const config = await loadConfig()
       const patch = data.config
@@ -647,6 +674,7 @@ export class StudioSession implements AgentApi {
         disk: disk ? { hashes: disk.hashes } : undefined,
       }
     } finally {
+      if (root !== this.#options.root) await removeJobRoot(root)
       this.#isGenerating = false
     }
   }

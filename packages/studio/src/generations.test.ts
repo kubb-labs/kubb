@@ -24,6 +24,32 @@ describe('createGenerationStore', () => {
     await expect(store.read({ generation: generation!, source: 'output', paths: ['a.ts', 'b.ts'] })).resolves.toStrictEqual({ 'a.ts': 'one' })
   })
 
+  it('stops serving a generation once it is older than ttlMs, and drops its files on the next add', async () => {
+    const storage = memoryStorage()
+    let clock = 0
+    const store = createGenerationStore({ storage, maxCount: 4, maxMb: 10, ttlMs: 1_000, now: () => clock })
+    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'one' } })
+
+    clock = 999
+    expect((await store.latest())?.jobId).toBe('job-1')
+
+    clock = 1_000
+    expect(await store.get('job-1')).toBeUndefined()
+    expect(await store.latest()).toBeUndefined()
+
+    await addRun({ store, jobId: 'job-2', files: { 'b.ts': 'two' } })
+    expect((await storage.readKeys()).some((key) => key.endsWith('a.ts'))).toBe(false)
+  })
+
+  it('keeps generations past any age without ttlMs', async () => {
+    let clock = 0
+    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10, now: () => clock })
+    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'one' } })
+
+    clock = 365 * 24 * 60 * 60_000
+    expect((await store.get('job-1'))?.jobId).toBe('job-1')
+  })
+
   it('drops the oldest past the count, and their files with them', async () => {
     const storage = memoryStorage()
     const store = createGenerationStore({ storage, maxCount: 2, maxMb: 10 })

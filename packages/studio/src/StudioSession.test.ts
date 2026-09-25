@@ -1,5 +1,7 @@
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { ast } from '@kubb/ast'
-import { type Config, definePlugin, memoryStorage, type Plugin } from '@kubb/core'
+import { type Config, definePlugin, memoryStorage, type Plugin, resolveCacheDir } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AgentApi, StudioApi } from './protocol/index.ts'
@@ -12,6 +14,12 @@ vi.mock('./api.ts', async (importOriginal) => ({
 }))
 
 vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
+
+// Recorded but real, so a sandbox run's job root can be checked without faking the filesystem.
+vi.mock('node:fs/promises', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:fs/promises')>()
+  return { ...actual, mkdtemp: vi.fn(actual.mkdtemp), rm: vi.fn(actual.rm) }
+})
 
 // `fsStorage` is the project on disk: what a run granted allowWrite writes to, and what the agent
 // snapshots before each run. Every call shares this one in-memory store instead, so a test can seed
@@ -235,6 +243,40 @@ describe('cancel', () => {
     await agent.cancel('job-2')
 
     await expect(run.result()).resolves.toMatchObject({ status: 'success' })
+  })
+})
+
+describe('a sandbox job', () => {
+  it('runs under its own temporary root, removed with its manifest cache once the job ends', async () => {
+    vi.mocked(createAgentSession).mockResolvedValue({
+      sessionId: 'session-1',
+      slug: 'brave-otter',
+      url: 'ws://studio/session-1',
+      expiresAt: new Date(Date.now() + 60_000).toISOString(),
+      revokedAt: null,
+      isSandbox: true,
+      version: '1.0.0',
+    })
+    const { mkdtemp, rm } = await import('node:fs/promises')
+    const { agent } = await connectStudio()
+
+    // A sandbox always generates from the spec Studio sends.
+    await agent.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } }).result()
+
+    const jobRoot = await vi.mocked(mkdtemp).mock.results[0]?.value
+    expect(jobRoot).toContain(join(tmpdir(), 'kubb-job-'))
+    expect(vi.mocked(rm)).toHaveBeenCalledWith(jobRoot, { recursive: true, force: true })
+    expect(vi.mocked(rm)).toHaveBeenCalledWith(resolveCacheDir(jobRoot), { recursive: true, force: true })
+  })
+
+  it('leaves a local agent on its own root', async () => {
+    const { mkdtemp } = await import('node:fs/promises')
+    vi.mocked(mkdtemp).mockClear()
+    const { agent } = await connectStudio()
+
+    await run(agent, 'job-1')
+
+    expect(vi.mocked(mkdtemp)).not.toHaveBeenCalled()
   })
 })
 
