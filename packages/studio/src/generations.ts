@@ -31,6 +31,8 @@ type KeptSet = {
 
 export type KeptGeneration = {
   jobId: string
+  /** When the store took it, in epoch milliseconds. Absent on an index written before it existed. */
+  keptAt?: number
   output: KeptSet
   disk?: KeptSet
   peerDependencies: Record<string, string>
@@ -64,8 +66,24 @@ export async function listDisk({ root, outputPath, maxFiles }: { root: string; o
  * tenant never reaches another's output. The oldest go past `maxCount` or `maxMb`, but the newest
  * always stays.
  */
-export function createGenerationStore({ storage, maxCount, maxMb }: { storage: Storage; maxCount: number; maxMb: number }) {
+export function createGenerationStore({
+  storage,
+  maxCount,
+  maxMb,
+  ttlMs,
+  now = Date.now,
+}: {
+  storage: Storage
+  maxCount: number
+  maxMb: number
+  /** How long a generation stays readable. Unset, it stays until count or size pushes it out. */
+  ttlMs?: number
+  now?: () => number
+}) {
   let index: Array<KeptGeneration> | undefined
+
+  // An entry from before `keptAt` existed never expires, so upgrading drops nothing.
+  const isLive = (generation: KeptGeneration) => ttlMs === undefined || generation.keptAt === undefined || now() - generation.keptAt < ttlMs
 
   // Hashed so a job id from the wire can never point outside the store.
   const dirOf = (jobId: string) => `studio/generations/${hashOf(jobId)}/`
@@ -115,13 +133,15 @@ export function createGenerationStore({ storage, maxCount, maxMb }: { storage: S
   return {
     keep,
     drop,
-    get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId),
-    latest: async () => (await load()).at(-1),
-    /** Total bytes of every set the store keeps. */
+    get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId && isLive(generation)),
+    latest: async () => (await load()).filter(isLive).at(-1),
+    /** Total bytes of every set the store holds, expired ones too until the next add drops them. */
     bytes: async () => (await load()).reduce((sum, { output, disk }) => sum + output.bytes + (disk?.bytes ?? 0), 0),
     async add(generation: KeptGeneration): Promise<void> {
-      const entries = (await load()).filter((entry) => entry.jobId !== generation.jobId)
-      entries.push(generation)
+      const current = await load()
+      for (const expired of current.filter((entry) => !isLive(entry))) await drop(expired.jobId)
+      const entries = current.filter((entry) => entry.jobId !== generation.jobId && isLive(entry))
+      entries.push({ ...generation, keptAt: now() })
       const weight = () => entries.reduce((sum, { output, disk }) => sum + output.bytes + (disk?.bytes ?? 0), 0)
       while (entries.length > 1 && (entries.length > maxCount || weight() > maxMb * MB)) {
         await drop(entries.shift()!.jobId)
