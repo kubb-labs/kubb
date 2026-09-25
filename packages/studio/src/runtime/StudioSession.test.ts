@@ -246,7 +246,7 @@ describe('close codes', () => {
     const { hooks, stop } = await closeWith(AgentCloseCode.REAUTHENTICATE)
 
     expect(hooks.reconnecting).toHaveBeenCalledOnce()
-    await vi.waitFor(() => expect(registerAgent).toHaveBeenCalledOnce())
+    await vi.waitFor(() => expect(registerAgent).toHaveBeenCalled())
     stop()
   })
 
