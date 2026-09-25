@@ -199,11 +199,12 @@ snapshot (and commit) that was. `base` is `null` on the first one.
 
 Pass `baseId` (the `id` another CI agent's runs register under) and the snapshot also carries
 `branchChanges`: the same comparison against that agent's latest snapshot. On a GitHub pull
-request, `kubb studio snapshot` passes the agent its base branch's runs use.
+request or a GitLab merge request, `kubb studio snapshot` passes the agent its base branch's runs
+use. Elsewhere, pass `--base-id` with the `--id` those runs use.
 
 Runs that share an agent (one pull request, or one branch) must not overlap, since registering it
 again ends the other run's session. Serialize them per ref, such as a GitHub Actions `concurrency`
-group on `github.ref`.
+group on `github.ref` or a GitLab `resource_group` on `$CI_COMMIT_REF_SLUG`.
 
 A snapshot job packs the tarball on the agent, not on Studio. The agent `PUT`s an empty request to
 a path Studio provides, gets back a redirect to a short-lived storage URL, and uploads the tarball

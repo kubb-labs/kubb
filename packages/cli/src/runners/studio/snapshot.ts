@@ -74,16 +74,17 @@ function resolveToken(options: SnapshotOptions): string {
 
 function resolveCiIdentity(options: SnapshotOptions): CiContext {
   const detected = detectCi()
+  // A custom --id drops the detected base, since runs on that branch may use a custom id too.
+  const ci = options.id ? { id: options.id, name: detected?.name ?? options.id, commit: detected?.commit } : detected
 
-  if (options.id) {
-    return { id: options.id, name: detected?.name ?? options.id, commit: detected?.commit }
-  }
-
-  if (!detected) {
+  if (!ci) {
     throw new Error('Could not detect a supported CI provider (GitHub Actions, GitLab CI, Bitbucket Pipelines, CircleCI). Pass --id.')
   }
 
-  return detected
+  // An explicit --base-id may not name a branch, so it labels the comparison itself.
+  const base = options.baseId ? { branch: options.baseId, id: options.baseId } : ci.base
+
+  return { ...ci, base: base?.id === ci.id ? undefined : base }
 }
 
 /** Rejects a bad `--timeout` up front instead of letting it reach `waitForJob` as NaN or <= 0. */
@@ -291,6 +292,7 @@ export const runner: CommandRunner<{ args: typeof definition.args; extensions: {
     ...createStudioOptions(values),
     token: values.token,
     id: values.id,
+    baseId: values.baseId,
     name: values.name,
     packageVersion: values.packageVersion,
     timeout: values.timeout,
