@@ -183,9 +183,7 @@ describe('the handshake', () => {
 
   it('announces the retry through studio:reconnecting instead of printing it, backed off and jittered', async () => {
     using error = vi.spyOn(console, 'error').mockImplementation(() => {})
-    // The first retry's cap is `min(1000 * 2 ** 1, retryInterval)` = 2000ms; a mocked full-jitter
-    // draw of 0 makes the delay deterministic without slowing the test down.
-    using random = vi.spyOn(Math, 'random').mockReturnValue(0)
+    using random = vi.spyOn(Math, 'random').mockReturnValue(0.5)
     const controller = new AbortController()
     const reconnecting = vi.fn()
     const { closeTransport } = await connectStudio({
@@ -196,7 +194,7 @@ describe('the handshake', () => {
 
     closeTransport()
 
-    await vi.waitFor(() => expect(reconnecting).toHaveBeenCalledWith({ delayMs: 0 }))
+    await vi.waitFor(() => expect(reconnecting).toHaveBeenCalledWith({ delayMs: 500 }))
     expect(error).not.toHaveBeenCalled()
     expect(random).toHaveBeenCalled()
     controller.abort()

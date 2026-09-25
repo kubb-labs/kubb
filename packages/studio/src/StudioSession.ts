@@ -89,16 +89,11 @@ export type StudioSessionOptions = {
   permissions?: Partial<AgentPermissions>
   root?: string
   /**
-   * Ceiling for the reconnect backoff, in milliseconds. Each attempt waits a random duration
-   * between 0 and `min(1000 * 2 ** attempt, retryInterval)` (full jitter), so a Studio outage does
-   * not bring every reconnecting agent back at once, and a long outage still retries at roughly
-   * this cadence rather than climbing forever.
+   * Maximum reconnect backoff in milliseconds.
    */
   retryInterval?: number
   /**
-   * How many consecutive reconnect attempts already failed before this session. Set by
-   * {@link reconnect} when it constructs the next session in the chain; not meant to be set by a
-   * host, and absent (0) for the session a host constructs itself.
+   * Number of consecutive reconnect attempts that already failed.
    */
   reconnectAttempt?: number
   /**
@@ -179,25 +174,11 @@ function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
   }
 }
 
-/**
- * Full-jitter exponential backoff (AWS's "Full Jitter"): doubles the ceiling each attempt from a 1s
- * floor, capped at `maxMs`, then picks uniformly between 0 and that cap. Many agents reconnecting
- * after the same Studio outage land at different moments instead of retrying in lockstep, while a
- * long outage still settles into roughly `maxMs`-paced attempts rather than climbing forever.
- */
 function backoffDelayMs(attempt: number, maxMs: number): number {
-  const cap = Math.min(1_000 * 2 ** attempt, maxMs)
+  const cap = Math.min(1_000 * 2 ** (attempt - 1), maxMs)
   return Math.random() * cap
 }
 
-/**
- * Schedules another connection attempt after `delayMs`, tagging the next session with `attempt` so
- * its own failure, if any, backs off one step further.
- *
- * A free function rather than a method: a pending retry timer reaches whatever it closes over, so
- * closing only over `options` (not a `StudioSession`) keeps a queued retry from pinning a closed
- * socket, its hook emitter, or its session id alive for the length of the delay.
- */
 function reconnect(options: ResolvedOptions, delayMs: number, attempt: number): void {
   const { signal, onTokenRejected } = options
 
@@ -267,11 +248,6 @@ export class StudioSession implements AgentApi {
   // this, two concurrent `generate()` calls share this socket via `setupEventsStream`, and their
   // events interleave with no way for Studio to tell the two runs apart.
   #isGenerating = false
-  /**
-   * The running job's id and how to cancel it, reachable by id rather than only through the
-   * `GenerationRun` object `startGeneration` returned. Studio uses this after losing that
-   * reference, such as re-attaching to a job it already knows the id of following its own restart.
-   */
   #activeJob: { jobId: string; cancel: () => Promise<void> } | undefined
   #heartbeatTimer: ReturnType<typeof setTimeout> | undefined
   // Set by `kubb:generation:end`, filed into `#generations` once the job finishes.
@@ -284,8 +260,7 @@ export class StudioSession implements AgentApi {
    */
   readonly #connectAck = Promise.withResolvers<void>()
   readonly #startupWarning: string | undefined
-  /** How many consecutive reconnects already failed before this session. See {@link reconnect}. */
-  readonly #reconnectAttempt: number
+  #reconnectAttempt: number
 
   constructor({ startupWarning, reconnectAttempt, ...options }: StudioSessionOptions) {
     this.#options = applyStudioDefaults(options)
@@ -373,6 +348,7 @@ export class StudioSession implements AgentApi {
       })
       // Studio registers the agent by calling connect() over RPC. Ready means that handshake landed.
       await this.#connectAck.promise
+      this.#reconnectAttempt = 0
       await this.#hooks.callHook('studio:ready', {})
     } catch (error) {
       // A connector can fail after opening RPC and installing the heartbeat. Tear down every
@@ -553,7 +529,7 @@ export class StudioSession implements AgentApi {
     const cancelRun = async () => {
       controller.abort(new Error('Generation canceled'))
     }
-    const result = this.#runGeneration(data, controller)
+    const result = this.#runGeneration(data, controller, cancelRun)
       .then(async (value) => {
         await generationStream.close()
         return value
@@ -563,12 +539,10 @@ export class StudioSession implements AgentApi {
         throw error
       })
       .finally(() => {
-        if (this.#activeJob?.jobId === data.jobId) this.#activeJob = undefined
+        if (this.#activeJob?.cancel === cancelRun) this.#activeJob = undefined
       })
     // A dispose can reject this with nobody holding it, which would otherwise be unhandled.
     void result.catch(() => {})
-
-    this.#activeJob = { jobId: data.jobId, cancel: cancelRun }
 
     return new GenerationRunTarget(generationStream.stream, result, cancelRun, () => {
       controller.abort(new Error('Generation canceled'))
@@ -577,21 +551,19 @@ export class StudioSession implements AgentApi {
   }
 
   /**
-   * Cancels the job named by `jobId`, if it is the one currently running. Reaches it by id rather
-   * than through the `GenerationRun` object `startGeneration` returned, for a caller (Studio,
-   * across its own restart) that no longer holds that reference. Silently does nothing for a job
-   * that already finished or was never this agent's, since there is nothing left to cancel.
+   * Cancels the currently running job when its id matches `jobId`.
    */
   async cancel(jobId: string): Promise<void> {
     if (this.#activeJob?.jobId === jobId) await this.#activeJob.cancel()
   }
 
-  async #runGeneration(data: GenerateInput, controller: AbortController): Promise<GenerateResult> {
+  async #runGeneration(data: GenerateInput, controller: AbortController, cancelRun: () => Promise<void>): Promise<GenerateResult> {
     // Checked before the first `await`, so two calls in the same tick can't both pass.
     if (this.#isGenerating) {
       return this.#refuse('Ignored generate: a generation is already in progress', 'A generation is already in progress, please wait for it to finish')
     }
     this.#isGenerating = true
+    this.#activeJob = { jobId: data.jobId, cancel: cancelRun }
 
     const command = 'generate'
     const { root, loadConfig, permissions } = this.#options
