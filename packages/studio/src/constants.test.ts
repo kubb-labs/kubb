@@ -23,7 +23,13 @@ describe('resolveAgentCapacity', () => {
   })
 
   it('reads the concurrency and memory budget from the environment, ignoring invalid values', () => {
-    expect(resolveAgentCapacity({ KUBB_AGENT_MAX_CONCURRENT: '2', KUBB_AGENT_MEMORY_BUDGET_MB: '1024' })).toStrictEqual({ maxConcurrent: 2, memoryBudgetMb: 1024 })
-    expect(resolveAgentCapacity({ KUBB_AGENT_MAX_CONCURRENT: '0', KUBB_AGENT_MEMORY_BUDGET_MB: 'lots' })).toStrictEqual({ maxConcurrent: 1, memoryBudgetMb: undefined })
+    expect(resolveAgentCapacity({ KUBB_AGENT_MAX_CONCURRENT: '2', KUBB_AGENT_MEMORY_BUDGET_MB: '1024' })).toStrictEqual({
+      maxConcurrent: 2,
+      memoryBudgetMb: 1024,
+    })
+    expect(resolveAgentCapacity({ KUBB_AGENT_MAX_CONCURRENT: '0', KUBB_AGENT_MEMORY_BUDGET_MB: 'lots' })).toStrictEqual({
+      maxConcurrent: 1,
+      memoryBudgetMb: undefined,
+    })
   })
 })
