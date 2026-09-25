@@ -4,6 +4,7 @@ import type {
   GenerateInput,
   PublishSnapshotInput,
   ReadFilesInput,
+  RpcClose,
   RpcConnection,
   RpcConnector,
   SaveConfigInput,
@@ -60,7 +61,7 @@ export const connectWebSocketRpc: RpcConnector = async ({ url, token, local }): 
   }
 
   const socket = createWebsocket(url, { headers: { Authorization: `Bearer ${token}` } })
-  const closed = new Promise<void>((resolve) => socket.once('close', resolve))
+  const closed = new Promise<RpcClose>((resolve) => socket.once('close', (code: number, reason: Buffer) => resolve({ code, reason: reason.toString() })))
   // `ws` implements the browser WebSocket surface capnweb uses, but declares its own nominal type.
   const studio = newWebSocketRpcSession<StudioApi>(socket as unknown as globalThis.WebSocket, new AgentRpcTarget(local))
   studio.onRpcBroken(() => socket.close())

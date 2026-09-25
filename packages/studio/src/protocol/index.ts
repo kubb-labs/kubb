@@ -395,11 +395,29 @@ export type AgentLoad = {
 }
 
 /**
+ * Close codes Studio sends when it ends an agent's connection on purpose. Any other code is an
+ * ordinary drop, and the agent reconnects.
+ */
+export const AgentCloseCode = {
+  /** Register again before reconnecting, such as after Studio forgot this agent's machine token. */
+  REAUTHENTICATE: 4001,
+  /** Another instance of the same agent took the connection over. Reconnecting would take it back. */
+  SUPERSEDED: 4002,
+  /** This agent is too old for Studio, or was deleted. Reconnecting cannot succeed. */
+  INCOMPATIBLE: 4003,
+} as const
+
+/**
+ * Why a transport closed. Absent when the transport cannot tell, such as an in-process test pair.
+ */
+export type RpcClose = { code: number; reason: string }
+
+/**
  * A live RPC session. `closed` settles when the transport drops, whichever side ended it.
  */
 export type RpcConnection = {
   studio: StudioApi
-  closed: Promise<void>
+  closed: Promise<RpcClose | void>
   close: () => void
 }
 

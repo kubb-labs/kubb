@@ -23,10 +23,12 @@ import {
   type SaveResult,
   type PublishSnapshotInput,
   type PublishSnapshotResult,
+  AgentCloseCode,
+  type RpcClose,
   type RpcConnector,
   type RpcConnection,
 } from './protocol/index.ts'
-import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
+import { createAgentSession, disconnect, InvalidAgentTokenError, registerAgent } from './api.ts'
 import { applyConfigEdits, readConfig } from './configFile.ts'
 import { generate } from './generate.ts'
 import { type AgentCapacity, agentDefaults, MEMORY_WATERMARK, resolveAgentCapacity, resolveGenerationLimits } from './constants.ts'
@@ -229,6 +231,36 @@ function reconnect(options: ResolvedOptions, delayMs: number, attempt: number): 
   }, delayMs)
 
   signal?.addEventListener('abort', cancel, { once: true })
+}
+
+/**
+ * How a session ends: what the host is told, and whether it reconnects.
+ */
+type EndPlan = {
+  reason: string
+  retry: boolean
+  /** Register again before reconnecting. */
+  reregister?: boolean
+  /** Reported through `studio:error` when the end needs the user to act. */
+  error?: Error
+}
+
+/**
+ * Reads what Studio meant by closing the connection. A code Studio did not send on purpose is an
+ * ordinary drop, and the agent reconnects as it always has.
+ */
+function planEnd(close: RpcClose | void): EndPlan {
+  const code = close?.code
+  if (code === AgentCloseCode.REAUTHENTICATE) return { reason: 'Kubb Studio asked the agent to register again', retry: true, reregister: true }
+  if (code === AgentCloseCode.SUPERSEDED) return { reason: 'another instance of this agent took over', retry: false }
+  if (code === AgentCloseCode.INCOMPATIBLE) {
+    return {
+      reason: 'this agent is too old for Kubb Studio, or was deleted',
+      retry: false,
+      error: new Error('Kubb Studio closed the connection: this agent is too old for it, or was deleted. Upgrade the agent, or pair it again.'),
+    }
+  }
+  return { reason: 'connection closed', retry: true }
 }
 
 /**
@@ -509,9 +541,9 @@ export class StudioSession implements AgentApi {
     return payload
   }
 
-  #onAbort = (): void => void this.#end({ retry: false })
+  #onAbort = (): void => void this.#end({ reason: 'shutdown', retry: false })
 
-  #onClose = (): void => void this.#end({ retry: true })
+  #onClose = (close: RpcClose | void): void => void this.#end(planEnd(close))
 
   /**
    * Drops the socket and detaches every listener and timer this session added. Idempotent, and
@@ -534,8 +566,8 @@ export class StudioSession implements AgentApi {
    * Ends the session: tells Studio it is over, drops the socket, and optionally reconnects.
    * `#disposed` keeps the close event from running this twice, and a shutdown from reconnecting.
    */
-  async #end({ retry }: { retry: boolean }): Promise<void> {
-    const { studioUrl, token } = this.#options
+  async #end({ reason, retry, reregister, error }: EndPlan): Promise<void> {
+    const { studioUrl, token, poolSize, onTokenRejected } = this.#options
 
     if (this.#disposed) {
       return
@@ -544,12 +576,28 @@ export class StudioSession implements AgentApi {
 
     this.dispose()
 
-    await this.#hooks.callHook('studio:disconnected', { reason: retry ? 'connection closed' : 'shutdown' })
+    await this.#hooks.callHook('studio:disconnected', { reason })
+
+    if (error) {
+      await this.#hooks.callHook('studio:error', { error })
+    }
 
     // Nothing to tell Studio about when the session never opened. Already tearing down, so a failed
     // notify is only worth a warning.
     if (this.#session && !(await disconnect({ sessionId: this.#session.sessionId, studioUrl, token }))) {
       await this.#warn('Could not notify Kubb Studio of the disconnect')
+    }
+
+    if (reregister) {
+      try {
+        await registerAgent({ token, studioUrl, poolSize })
+      } catch (registerError) {
+        // A token Studio rejects outright stays rejected, so the host re-pairs instead of retrying.
+        if (registerError instanceof InvalidAgentTokenError) {
+          onTokenRejected?.(registerError)
+          return
+        }
+      }
     }
 
     if (retry) {
