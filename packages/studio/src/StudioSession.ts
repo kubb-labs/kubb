@@ -88,7 +88,19 @@ export type StudioSessionOptions = {
    */
   permissions?: Partial<AgentPermissions>
   root?: string
+  /**
+   * Ceiling for the reconnect backoff, in milliseconds. Each attempt waits a random duration
+   * between 0 and `min(1000 * 2 ** attempt, retryInterval)` (full jitter), so a Studio outage does
+   * not bring every reconnecting agent back at once, and a long outage still retries at roughly
+   * this cadence rather than climbing forever.
+   */
   retryInterval?: number
+  /**
+   * How many consecutive reconnect attempts already failed before this session. Set by
+   * {@link reconnect} when it constructs the next session in the chain; not meant to be set by a
+   * host, and absent (0) for the session a host constructs itself.
+   */
+  reconnectAttempt?: number
   /**
    * Milliseconds between keep-alive pings, clamped to `agentDefaults.maxHeartbeatIntervalMs`.
    * Raise it to halve the traffic and database writes a long-lived agent costs, at the price of
@@ -168,14 +180,26 @@ function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
 }
 
 /**
- * Schedules another connection attempt.
+ * Full-jitter exponential backoff (AWS's "Full Jitter"): doubles the ceiling each attempt from a 1s
+ * floor, capped at `maxMs`, then picks uniformly between 0 and that cap. Many agents reconnecting
+ * after the same Studio outage land at different moments instead of retrying in lockstep, while a
+ * long outage still settles into roughly `maxMs`-paced attempts rather than climbing forever.
+ */
+function backoffDelayMs(attempt: number, maxMs: number): number {
+  const cap = Math.min(1_000 * 2 ** attempt, maxMs)
+  return Math.random() * cap
+}
+
+/**
+ * Schedules another connection attempt after `delayMs`, tagging the next session with `attempt` so
+ * its own failure, if any, backs off one step further.
  *
  * A free function rather than a method: a pending retry timer reaches whatever it closes over, so
  * closing only over `options` (not a `StudioSession`) keeps a queued retry from pinning a closed
- * socket, its hook emitter, or its session id alive for the length of the retry interval.
+ * socket, its hook emitter, or its session id alive for the length of the delay.
  */
-function reconnect(options: ResolvedOptions): void {
-  const { signal, retryInterval, onTokenRejected } = options
+function reconnect(options: ResolvedOptions, delayMs: number, attempt: number): void {
+  const { signal, onTokenRejected } = options
 
   if (signal?.aborted) {
     return
@@ -194,7 +218,7 @@ function reconnect(options: ResolvedOptions): void {
     // The rejection is never awaited, so it has to be caught here or it surfaces as an
     // unhandledRejection that kills the retry loop instead of trying again. The failure itself was
     // already reported: `start()` sends `studio:error` through the new session's hooks.
-    new StudioSession(options).start().catch((error: unknown) => {
+    new StudioSession({ ...options, reconnectAttempt: attempt }).start().catch((error: unknown) => {
       // A rejected token stays rejected, so retrying only spams 401s until the process is killed.
       // The host learns about it here instead: the startup path already reports its own rejection
       // by throwing, so only the background path needs the callback.
@@ -204,9 +228,10 @@ function reconnect(options: ResolvedOptions): void {
         return
       }
 
-      reconnect(options)
+      const nextAttempt = attempt + 1
+      reconnect(options, backoffDelayMs(nextAttempt, options.retryInterval), nextAttempt)
     })
-  }, retryInterval)
+  }, delayMs)
 
   signal?.addEventListener('abort', cancel, { once: true })
 }
@@ -242,6 +267,12 @@ export class StudioSession implements AgentApi {
   // this, two concurrent `generate()` calls share this socket via `setupEventsStream`, and their
   // events interleave with no way for Studio to tell the two runs apart.
   #isGenerating = false
+  /**
+   * The running job's id and how to cancel it, reachable by id rather than only through the
+   * `GenerationRun` object `startGeneration` returned. Studio uses this after losing that
+   * reference, such as re-attaching to a job it already knows the id of following its own restart.
+   */
+  #activeJob: { jobId: string; cancel: () => Promise<void> } | undefined
   #heartbeatTimer: ReturnType<typeof setTimeout> | undefined
   // Set by `kubb:generation:end`, filed into `#generations` once the job finishes.
   #lastGeneration: GenerationEnd | undefined
@@ -253,10 +284,13 @@ export class StudioSession implements AgentApi {
    */
   readonly #connectAck = Promise.withResolvers<void>()
   readonly #startupWarning: string | undefined
+  /** How many consecutive reconnects already failed before this session. See {@link reconnect}. */
+  readonly #reconnectAttempt: number
 
-  constructor({ startupWarning, ...options }: StudioSessionOptions) {
+  constructor({ startupWarning, reconnectAttempt, ...options }: StudioSessionOptions) {
     this.#options = applyStudioDefaults(options)
     this.#startupWarning = startupWarning
+    this.#reconnectAttempt = reconnectAttempt ?? 0
     // dispose() may reject this before start() awaits it
     void this.#connectAck.promise.catch(() => {})
   }
@@ -364,8 +398,10 @@ export class StudioSession implements AgentApi {
       return
     }
 
-    await this.#hooks.callHook('studio:reconnecting', { delayMs: this.#options.retryInterval })
-    reconnect(this.#options)
+    const attempt = this.#reconnectAttempt + 1
+    const delayMs = backoffDelayMs(attempt, this.#options.retryInterval)
+    await this.#hooks.callHook('studio:reconnecting', { delayMs })
+    reconnect(this.#options, delayMs, attempt)
   }
 
   #warn(message: string, permission?: keyof AgentPermissions): Promise<void> | void {
@@ -514,6 +550,9 @@ export class StudioSession implements AgentApi {
       },
     })
     const controller = new AbortController()
+    const cancelRun = async () => {
+      controller.abort(new Error('Generation canceled'))
+    }
     const result = this.#runGeneration(data, controller)
       .then(async (value) => {
         await generationStream.close()
@@ -523,20 +562,28 @@ export class StudioSession implements AgentApi {
         generationStream.fail(error)
         throw error
       })
+      .finally(() => {
+        if (this.#activeJob?.jobId === data.jobId) this.#activeJob = undefined
+      })
     // A dispose can reject this with nobody holding it, which would otherwise be unhandled.
     void result.catch(() => {})
 
-    return new GenerationRunTarget(
-      generationStream.stream,
-      result,
-      async () => {
-        controller.abort(new Error('Generation canceled'))
-      },
-      () => {
-        controller.abort(new Error('Generation canceled'))
-        generationStream.dispose()
-      },
-    )
+    this.#activeJob = { jobId: data.jobId, cancel: cancelRun }
+
+    return new GenerationRunTarget(generationStream.stream, result, cancelRun, () => {
+      controller.abort(new Error('Generation canceled'))
+      generationStream.dispose()
+    })
+  }
+
+  /**
+   * Cancels the job named by `jobId`, if it is the one currently running. Reaches it by id rather
+   * than through the `GenerationRun` object `startGeneration` returned, for a caller (Studio,
+   * across its own restart) that no longer holds that reference. Silently does nothing for a job
+   * that already finished or was never this agent's, since there is nothing left to cancel.
+   */
+  async cancel(jobId: string): Promise<void> {
+    if (this.#activeJob?.jobId === jobId) await this.#activeJob.cancel()
   }
 
   async #runGeneration(data: GenerateInput, controller: AbortController): Promise<GenerateResult> {

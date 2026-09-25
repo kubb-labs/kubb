@@ -181,8 +181,11 @@ describe('the handshake', () => {
     expect(connected).toHaveBeenCalledWith(expect.objectContaining({ agentSlug: 'brave-otter', organizationSlug: 'acme' }))
   })
 
-  it('announces the retry through studio:reconnecting instead of printing it', async () => {
+  it('announces the retry through studio:reconnecting instead of printing it, backed off and jittered', async () => {
     using error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    // The first retry's cap is `min(1000 * 2 ** 1, retryInterval)` = 2000ms; a mocked full-jitter
+    // draw of 0 makes the delay deterministic without slowing the test down.
+    using random = vi.spyOn(Math, 'random').mockReturnValue(0)
     const controller = new AbortController()
     const reconnecting = vi.fn()
     const { closeTransport } = await connectStudio({
@@ -193,8 +196,9 @@ describe('the handshake', () => {
 
     closeTransport()
 
-    await vi.waitFor(() => expect(reconnecting).toHaveBeenCalledWith({ delayMs: 60_000 }))
+    await vi.waitFor(() => expect(reconnecting).toHaveBeenCalledWith({ delayMs: 0 }))
     expect(error).not.toHaveBeenCalled()
+    expect(random).toHaveBeenCalled()
     controller.abort()
   })
 
@@ -216,6 +220,23 @@ describe('startGeneration', () => {
     await agent.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } }).result()
 
     expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('Ignored the spec from Studio'), permission: 'allowInput' })
+  })
+})
+
+describe('cancel', () => {
+  it('does nothing when no job is running', async () => {
+    const { agent } = await connectStudio()
+
+    await expect(agent.cancel('job-1')).resolves.toBeUndefined()
+  })
+
+  it('leaves the running job alone when asked to cancel a different id', async () => {
+    const { agent } = await connectStudio()
+    const run = agent.startGeneration({ jobId: 'job-1', config: {} })
+
+    await agent.cancel('job-2')
+
+    await expect(run.result()).resolves.toMatchObject({ status: 'success' })
   })
 })
 
