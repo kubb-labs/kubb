@@ -117,6 +117,8 @@ export function createGenerationStore({ storage, maxCount, maxMb }: { storage: S
     drop,
     get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId),
     latest: async () => (await load()).at(-1),
+    /** Total bytes of every set the store keeps. */
+    bytes: async () => (await load()).reduce((sum, { output, disk }) => sum + output.bytes + (disk?.bytes ?? 0), 0),
     async add(generation: KeptGeneration): Promise<void> {
       const entries = (await load()).filter((entry) => entry.jobId !== generation.jobId)
       entries.push(generation)

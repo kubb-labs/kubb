@@ -51,6 +51,16 @@ describe('registerAgent', () => {
     expect(new Headers(init.headers).get('Authorization')).toBe('Bearer tok')
   })
 
+  it("reports the agent's capacity with the machine token", async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({}))
+
+    const promise = registerAgent({ token: 'tok', studioUrl: 'http://studio', capacity: { maxConcurrent: 2, memoryBudgetMb: 1024 } })
+    await vi.runAllTimersAsync()
+    await promise
+
+    expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toMatchObject({ capacity: { maxConcurrent: 2, memoryBudgetMb: 1024 } })
+  })
+
   it('returns false when every attempt fails, and leaves reporting it to the caller', async () => {
     fetchMock.mockRejectedValue(new Error('502'))
 

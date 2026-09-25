@@ -21,6 +21,7 @@ export const agentDefaults = {
   /** How long a heartbeat ping may take before the session is treated as dead. */
   heartbeatTimeoutMs: 10_000,
   poolSize: 1,
+  maxConcurrent: 1,
   maxGenerations: 8,
   maxGenerationsMb: 100,
   maxSnapshotMb: 50,
@@ -41,5 +42,35 @@ export function resolveGenerationLimits(env: NodeJS.ProcessEnv = process.env): {
     maxCount: Math.max(1, Math.floor(positiveNumber(env.KUBB_AGENT_MAX_GENERATIONS) ?? agentDefaults.maxGenerations)),
     maxMb: positiveNumber(env.KUBB_AGENT_MAX_GENERATIONS_MB) ?? agentDefaults.maxGenerationsMb,
     maxSnapshotMb: positiveNumber(env.KUBB_AGENT_MAX_SNAPSHOT_MB) ?? agentDefaults.maxSnapshotMb,
+  }
+}
+
+/**
+ * What an agent process can take on: how many jobs at once, and, when set, how much memory it may
+ * use before it stops accepting new ones.
+ */
+export type AgentCapacity = {
+  maxConcurrent: number
+  /**
+   * Left unset, the agent never refuses a job for memory. Set, the agent stops accepting new jobs
+   * once its resident memory passes {@link MEMORY_WATERMARK} times this many megabytes.
+   */
+  memoryBudgetMb?: number
+}
+
+/**
+ * How far past its memory budget an agent may grow before it refuses new jobs. The headroom covers
+ * the build that pushed it there finishing and handing its memory back.
+ */
+export const MEMORY_WATERMARK = 1.5
+
+/**
+ * An agent's capacity read from `KUBB_AGENT_MAX_CONCURRENT` and `KUBB_AGENT_MEMORY_BUDGET_MB`. An
+ * unset or invalid value keeps the default: one job at a time, and no memory budget.
+ */
+export function resolveAgentCapacity(env: NodeJS.ProcessEnv = process.env): AgentCapacity {
+  return {
+    maxConcurrent: Math.max(1, Math.floor(positiveNumber(env.KUBB_AGENT_MAX_CONCURRENT) ?? agentDefaults.maxConcurrent)),
+    memoryBudgetMb: positiveNumber(env.KUBB_AGENT_MEMORY_BUDGET_MB),
   }
 }

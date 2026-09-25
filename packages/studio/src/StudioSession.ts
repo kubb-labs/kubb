@@ -8,6 +8,7 @@ import { setupHookListener } from './hooks.ts'
 import {
   type AgentApi,
   type AgentConnectResponse,
+  type AgentLoad,
   type AgentPermissions,
   type ConfigFileView,
   type ConnectMessagePayload,
@@ -28,7 +29,7 @@ import {
 import { createAgentSession, disconnect, InvalidAgentTokenError } from './api.ts'
 import { applyConfigEdits, readConfig } from './configFile.ts'
 import { generate } from './generate.ts'
-import { agentDefaults, resolveGenerationLimits } from './constants.ts'
+import { type AgentCapacity, agentDefaults, MEMORY_WATERMARK, resolveAgentCapacity, resolveGenerationLimits } from './constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
 import { createSnapshotPackage } from './snapshotPackage.ts'
 import { RpcTarget } from 'capnweb'
@@ -104,6 +105,11 @@ export type StudioSessionOptions = {
    */
   heartbeatInterval?: number
   /**
+   * What this agent process can take on, reported to Studio at registration. Unset fields come from
+   * `KUBB_AGENT_MAX_CONCURRENT` and `KUBB_AGENT_MEMORY_BUDGET_MB`.
+   */
+  capacity?: Partial<AgentCapacity>
+  /**
    * Number of pool sessions this agent serves. Read by `createClient`, which opens one
    * session per slot, and reported to Studio at registration.
    */
@@ -143,6 +149,7 @@ type ResolvedOptions = StudioSessionOptions & {
   permissions: AgentPermissions
   retryInterval: number
   heartbeatInterval: number
+  capacity: AgentCapacity
   /**
    * Absolute path to the config file, for reading and patching it. `configPath` keeps the form the
    * host gave, which is what Studio shows.
@@ -171,7 +178,14 @@ function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
     // slower cadence would make a healthy agent invisible. Clamped here rather than in a host's
     // env parsing, so every host is held to the contract.
     heartbeatInterval: Math.min(options.heartbeatInterval ?? agentDefaults.heartbeatIntervalMs, agentDefaults.maxHeartbeatIntervalMs),
+    capacity: { ...resolveAgentCapacity(), ...options.capacity },
   }
+}
+
+const MB = 1024 * 1024
+
+function rssMb(): number {
+  return process.memoryUsage().rss / MB
 }
 
 function backoffDelayMs(attempt: number, maxMs: number): number {
@@ -417,11 +431,35 @@ export class StudioSession implements AgentApi {
   /**
    * Races `studio.ping()` against a deadline, so a half-open socket can't hang it forever.
    * */
-  #ping(rpc: RpcConnection): Promise<void> {
+  async #ping(rpc: RpcConnection): Promise<void> {
     const { promise: timedOut, reject: onTimeout } = Promise.withResolvers<never>()
     const timer = setTimeout(() => onTimeout(new Error('Heartbeat ping timed out')), agentDefaults.heartbeatTimeoutMs)
 
-    return Promise.race([rpc.studio.ping(), timedOut]).finally(() => clearTimeout(timer))
+    try {
+      // A load report that fails to build must not cost the heartbeat itself.
+      const load = await Promise.race([this.#load().catch(() => undefined), timedOut])
+      await Promise.race([rpc.studio.ping(load), timedOut])
+    } finally {
+      clearTimeout(timer)
+    }
+  }
+
+  /**
+   * Whether memory still leaves room for another job. Always, when the host set no budget.
+   */
+  #isAccepting(memoryMb = rssMb()): boolean {
+    const budget = this.#options.capacity.memoryBudgetMb
+    return budget === undefined || memoryMb <= budget * MEMORY_WATERMARK
+  }
+
+  async #load(): Promise<AgentLoad> {
+    const memoryMb = rssMb()
+    return {
+      running: this.#isGenerating ? 1 : 0,
+      rssMb: Math.round(memoryMb),
+      storeBytes: await this.#generations.bytes(),
+      accepting: this.#isAccepting(memoryMb),
+    }
   }
 
   /**
@@ -561,6 +599,9 @@ export class StudioSession implements AgentApi {
     // Checked before the first `await`, so two calls in the same tick can't both pass.
     if (this.#isGenerating) {
       return this.#refuse('Ignored generate: a generation is already in progress', 'A generation is already in progress, please wait for it to finish')
+    }
+    if (!this.#isAccepting()) {
+      return this.#refuse('Ignored generate: the agent is past its memory budget', 'The agent is past its memory budget, try again once it frees memory')
     }
     this.#isGenerating = true
     this.#activeJob = { jobId: data.jobId, cancel: cancelRun }
