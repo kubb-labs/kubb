@@ -361,6 +361,12 @@ export type AgentApi = {
   saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
   publishSnapshot: (input: PublishSnapshotInput) => Promise<PublishSnapshotResult>
   readFiles: (input: ReadFilesInput) => Promise<{ files: Record<string, string> }>
+  /**
+   * Cancels the job named by `jobId`, if it is the one this agent is currently running. Reachable
+   * by id alone, unlike {@link GenerationRun.cancel}, so a caller that no longer holds that object
+   * (Studio, after its own restart re-attaches to a job by id) can still cancel it.
+   */
+  cancel: (jobId: string) => Promise<void>
 }
 
 /**
