@@ -1,4 +1,4 @@
-export { createClient, type Client, type ClientOptions } from './client.ts'
+export { createClient, type Client, type ClientOptions } from './runtime/client.ts'
 export { AGENT_INSTANCE_HEADER, AgentCloseCode, generationEventTypes } from './protocol/index.ts'
 export type {
   AgentApi,
@@ -21,7 +21,7 @@ export type {
   RpcConnector,
   StudioApi,
 } from './protocol/index.ts'
-export type { StudioConnectedContext } from './hooks.ts'
+export type { StudioConnectedContext } from './operations/hooks.ts'
 export {
   createAgent,
   createJob,
@@ -33,10 +33,10 @@ export {
   type StudioJobStatus,
   type StudioSnapshot,
   type StudioSnapshotChanges,
-} from './api.ts'
-export { defaultStudioUrl } from './constants.ts'
-export { createFileStorage, machineTokenFrom, setStorage } from './machine.ts'
-export { runConnection, type ConnectionOptions } from './runConnection.ts'
+} from './operations/api.ts'
+export { defaultStudioUrl } from './operations/constants.ts'
+export { createFileStorage, machineTokenFrom, setStorage } from './operations/machine.ts'
+export { runConnection, type ConnectionOptions } from './runtime/runConnection.ts'
 export {
   pairAgent,
   PairingCanceledError,
@@ -47,5 +47,5 @@ export {
   type PairingAgentType,
   type PairingResult,
   type PairingSession,
-} from './pair.ts'
-export { connectWebSocketRpc } from './rpc.ts'
+} from './operations/pair.ts'
+export { connectWebSocketRpc } from './operations/rpc.ts'

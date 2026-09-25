@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
-import { InvalidAgentTokenError } from './api.ts'
+import { InvalidAgentTokenError } from '../operations/api.ts'
 import { runConnection } from './runConnection.ts'
 
 vi.mock('./client.ts', () => ({ createClient: vi.fn() }))

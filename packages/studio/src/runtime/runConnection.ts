@@ -1,4 +1,4 @@
-import { InvalidAgentTokenError } from './api.ts'
+import { InvalidAgentTokenError } from '../operations/api.ts'
 import { type ClientOptions, createClient } from './client.ts'
 
 /**

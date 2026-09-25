@@ -1,6 +1,6 @@
 import { builders, detectCodeFormat, generateCode, parseModule } from 'magicast'
 import type { ASTNode, ProxifiedModule } from 'magicast'
-import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigRef, ConfigView, OptionValue, PluginView } from './protocol/index.ts'
+import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigRef, ConfigView, OptionValue, PluginView } from '../protocol/index.ts'
 import { isKubbPluginSpecifier, toExportName } from './resolveConfig.ts'
 
 /**

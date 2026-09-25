@@ -1,7 +1,7 @@
 import { setTimeout as delay } from 'node:timers/promises'
 import { getErrorMessage } from '@internals/utils'
 import { FetchError, ofetch } from 'ofetch'
-import type { AgentCapacity, AgentRegisterInput, AgentRegisterResponse } from './protocol/index.ts'
+import type { AgentCapacity, AgentRegisterInput, AgentRegisterResponse } from '../protocol/index.ts'
 import { getMachineToken } from './machine.ts'
 
 /**

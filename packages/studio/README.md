@@ -68,6 +68,14 @@ The runtime discovers nothing on its own: the host injects the config loader, th
 own version. That is what lets one runtime serve a CLI running in a developer's project and a
 container running a fixed plugin set.
 
+## Package layers
+
+`src/protocol` defines the shared wire contracts and imports no Studio implementation. `src/operations`
+contains focused work such as pairing, generation, config edits, snapshots, and transport; it may
+import the protocol. `src/runtime` owns connection state and coordinates operations; it may import
+both lower layers. Keep new code in the lowest layer that can own it, with direct internal imports.
+Only `@kubb/studio` and `@kubb/studio/protocol` are public entry points.
+
 ## Hosts and the runtime
 
 Three hosts run this package: `kubb studio`, the `kubblabs/kubb-agent` Docker image, and

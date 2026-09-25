@@ -1,4 +1,4 @@
-import type { AgentCapacity } from './protocol/index.ts'
+import type { AgentCapacity } from '../protocol/index.ts'
 
 /**
  * Hosted Kubb Studio URL. Exported so credential stores can bind tokens to the resolved instance,

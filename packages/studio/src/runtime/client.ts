@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import type { InvalidAgentTokenError } from './api.ts'
+import type { InvalidAgentTokenError } from '../operations/api.ts'
 import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
 
 export type ClientOptions = Omit<StudioSessionOptions, 'signal' | 'onTokenRejected' | 'reconnectAttempt'> & {

@@ -3,18 +3,9 @@ import { createRequire } from 'node:module'
 import { isAbsolute, relative, resolve } from 'node:path'
 import { getElapsedMs } from '@internals/utils'
 import { Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
-import WebSocket from 'ws'
-import type { GenerationEvent, GenerationEventPayloads, GenerationEventType } from './protocol/index.ts'
+import type { GenerationEvent, GenerationEventPayloads, GenerationEventType } from '../protocol/index.ts'
 import type { SourceFiles } from './generations.ts'
 import { toPackageName } from './resolveConfig.ts'
-
-type WebSocketOptions = WebSocket.ClientOptions
-
-/**
- * How long the initial handshake may take before the socket is closed and the reconnect loop
- * takes over.
- */
-const CONNECT_TIMEOUT_MS = 5_000
 
 const require = createRequire(import.meta.url)
 
@@ -56,26 +47,6 @@ async function resolvePeerDependencies(names: Array<string>): Promise<{
   }
 
   return { peerDependencies, missingDependencies }
-}
-
-/**
- * Opens a Studio WebSocket connection and closes it when the initial handshake exceeds the configured timeout.
- */
-export function createWebsocket(url: string, options: WebSocketOptions): WebSocket {
-  const ws = new WebSocket(url, options)
-
-  const timer = setTimeout(() => {
-    if (ws.readyState === WebSocket.CONNECTING) {
-      ws.close(3008, 'Connection timeout')
-    }
-  }, CONNECT_TIMEOUT_MS)
-
-  // Once the handshake settles the timer has nothing left to check, and leaving it pending holds
-  // the socket for the rest of the window.
-  ws.once('open', () => clearTimeout(timer))
-  ws.once('close', () => clearTimeout(timer))
-
-  return ws
 }
 
 /**

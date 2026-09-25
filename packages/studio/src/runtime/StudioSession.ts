@@ -5,8 +5,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { getErrorMessage, read, toError } from '@internals/utils'
 import { cacheStorage, type Config, fsStorage, Hookable, type KubbHooks, memoryStorage, resolveCacheDir } from '@kubb/core'
-import { version as kubbVersion } from '../package.json'
-import { setupHookListener } from './hooks.ts'
+import { version as kubbVersion } from '../../package.json'
 import {
   type AgentApi,
   type AgentCapacity,
@@ -30,29 +29,26 @@ import {
   type RpcClose,
   type RpcConnector,
   type RpcConnection,
-} from './protocol/index.ts'
-import { IncompatibleAgentError, InvalidAgentTokenError, registerAgent } from './api.ts'
-import { applyConfigEdits, readConfig } from './configFile.ts'
-import { generate } from './generate.ts'
-import { agentDefaults, resolveAgentCapacity, resolveGenerationLimits } from './constants.ts'
-import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
-import { createSnapshotPackage } from './snapshotPackage.ts'
+} from '../protocol/index.ts'
+import { IncompatibleAgentError, InvalidAgentTokenError, registerAgent } from '../operations/api.ts'
+import { applyConfigEdits, readConfig } from '../operations/configFile.ts'
+import { agentDefaults, resolveAgentCapacity, resolveGenerationLimits } from '../operations/constants.ts'
+import { mergeAdapter, mergePlugins, toPackageName } from '../operations/resolveConfig.ts'
+import { createSnapshotPackage } from '../operations/snapshotPackage.ts'
 import { RpcTarget } from 'capnweb'
-import { createGenerationStore, type GenerationStore, listDisk } from './generations.ts'
-import { createGenerationStream, type GenerationEnd } from './ws.ts'
-import { connectWebSocketRpc } from './rpc.ts'
+import { createGenerationStore, type GenerationStore, listDisk } from '../operations/generations.ts'
+import { createGenerationStream, type GenerationEnd } from '../operations/generationEvents.ts'
+import { connectWebSocketRpc } from '../operations/rpc.ts'
+import { setupHookListener } from '../operations/hooks.ts'
+import { generate } from '../operations/generate.ts'
+
+/** A sandbox shares one in-memory generation store across tenants, so old generations expire. */
+const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
 
 /**
  * Past this many files in the output directory, no snapshot of it is taken before a run.
  */
 const DISK_SNAPSHOT_MAX_FILES = 10_000
-
-/**
- * How long a sandbox keeps a generation readable. Its store is in memory and holds every tenant's
- * runs, so an old one has to go even when count and size leave room. A local agent keeps its runs
- * until count or size pushes them out, so a later run can still diff against the one before it.
- */
-const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
 
 /**
  * A fresh root for one sandbox job. Kubb keys its output manifest cache by root, so tenants that
@@ -778,17 +774,9 @@ export class StudioSession implements AgentApi {
     }
 
     try {
-      // Read straight before the patch rather than reusing what went out on connect. The user may
-      // have edited the file since, and since every untouched node keeps its own text, patching
-      // what is on disk right now preserves that edit.
       const current = await read(configFile)
       const { source: patched, outcomes, changed } = applyConfigEdits(current, edits)
-
-      if (changed) {
-        // `writeFile` rather than the `write` helper: that one trims and re-terminates what it
-        // writes, which is right for generated output and wrong for a file the user wrote by hand.
-        await writeFile(configFile, patched, 'utf-8')
-      }
+      if (changed) await writeFile(configFile, patched, 'utf-8')
 
       const applied = outcomes.filter((outcome) => outcome.applied).length
       await this.#hooks.callHook('studio:command:end', { command, info: `applied ${applied}/${outcomes.length} edits to ${configPath}` })
@@ -834,32 +822,18 @@ export class StudioSession implements AgentApi {
 
       const { bytes, integrity } = await createSnapshotPackage(files, { name, version, peerDependencies: generation.peerDependencies })
 
-      // The tarball can't go on this request: Studio's handler answers before reading the body,
-      // so the connection drops mid-upload. Ask for the redirect with an empty body first, then
-      // PUT the bytes to wherever it points. That also keeps the bearer token off the storage
-      // request, since it's a fresh call rather than a followed redirect.
       const { token, studioUrl } = this.#options
       const uploadUrl = new URL(uploadPath, studioUrl)
-      if (uploadUrl.origin !== new URL(studioUrl).origin) {
-        throw new Error('Snapshot upload path must stay on the Studio origin')
-      }
-      const redirect = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` },
-        redirect: 'manual',
-      })
+      if (uploadUrl.origin !== new URL(studioUrl).origin) throw new Error('Snapshot upload path must stay on the Studio origin')
+      const redirect = await fetch(uploadUrl, { method: 'PUT', headers: { Authorization: `Bearer ${token}` }, redirect: 'manual' })
       const storageUrl = redirect.headers.get('location')
-      if (redirect.status !== 307 || !storageUrl) {
-        throw new Error(`Studio did not provide a storage URL (status ${redirect.status})`)
-      }
+      if (redirect.status !== 307 || !storageUrl) throw new Error(`Studio did not provide a storage URL (status ${redirect.status})`)
       const storage = new URL(storageUrl)
       if (storage.protocol !== 'https:' && storage.hostname !== 'localhost' && storage.hostname !== '127.0.0.1') {
         throw new Error(`Refusing snapshot upload to ${storage.origin}`)
       }
       const response = await fetch(storage, { method: 'PUT', body: new Uint8Array(bytes), redirect: 'error' })
-      if (!response.ok) {
-        throw new Error(`Snapshot upload failed with status ${response.status}`)
-      }
+      if (!response.ok) throw new Error(`Snapshot upload failed with status ${response.status}`)
 
       await this.#hooks.callHook('studio:command:end', {
         command,
@@ -872,10 +846,7 @@ export class StudioSession implements AgentApi {
     }
   }
 
-  /**
-   * An agent with a project on disk can show a run against what its output directory held before.
-   * A sandbox agent has no project.
-   */
+  /** A sandbox has no project directory to snapshot. */
   get #hasProjectOnDisk(): boolean {
     return !this.#isSandbox && this.#canRead
   }

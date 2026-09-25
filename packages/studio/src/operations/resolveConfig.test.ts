@@ -1,6 +1,6 @@
 import type { Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { JSONKubbConfig } from './protocol/index.ts'
+import type { JSONKubbConfig } from '../protocol/index.ts'
 import { mergeAdapter, mergePlugins, resolvePlugins, toExportName, toPackageName } from './resolveConfig.ts'
 
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin

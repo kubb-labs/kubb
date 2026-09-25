@@ -1,6 +1,6 @@
 import { Hookable, type KubbHooks } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { createGenerationStream } from './ws.ts'
+import { createGenerationStream } from './generationEvents.ts'
 
 describe('Generation event stream', () => {
   it('serializes errors and ignores core hooks outside the public catalog', async () => {

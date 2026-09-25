@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { InvalidAgentTokenError } from './api.ts'
+import { InvalidAgentTokenError } from '../operations/api.ts'
 import { createClient } from './client.ts'
 import type { StudioSessionOptions } from './StudioSession.ts'
 
