@@ -35,6 +35,18 @@ function readGithubPullRequest(eventPath: string | undefined): GithubPullRequest
 }
 
 /**
+ * Reproduces GitLab's `CI_COMMIT_REF_SLUG`, which scopes a branch pipeline's agent, for a branch
+ * name GitLab gives no slug of, such as a merge request's target branch.
+ */
+export function gitlabRefSlug(ref: string): string {
+  return ref
+    .toLowerCase()
+    .replace(/[^a-z0-9]/gu, '-')
+    .slice(0, 63)
+    .replace(/^-+|-+$/g, '')
+}
+
+/**
  * Detects the CI provider from its environment variables and derives a stable identity from it.
  * The GitHub row reproduces `gh:<repositoryId>:<prNumber>`, the identity `kubb-labs/action` has
  * always registered agents under, so an existing repository keeps reusing its agent.
@@ -59,11 +71,13 @@ export function detectCi(env: Record<string, string | undefined> = process.env):
 
   if (env.GITLAB_CI) {
     const scope = env.CI_MERGE_REQUEST_IID ?? env.CI_COMMIT_REF_SLUG ?? ''
+    const baseBranch = env.CI_MERGE_REQUEST_TARGET_BRANCH_NAME
 
     return {
       id: `gl:${env.CI_PROJECT_ID ?? ''}:${scope}`,
       name: `${env.CI_PROJECT_PATH ?? 'gitlab'}#${scope}`,
       commit: env.CI_MERGE_REQUEST_SOURCE_BRANCH_SHA || env.CI_COMMIT_SHA,
+      base: baseBranch ? { branch: baseBranch, id: `gl:${env.CI_PROJECT_ID ?? ''}:${gitlabRefSlug(baseBranch)}` } : undefined,
     }
   }
 
