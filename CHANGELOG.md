@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.3.17 — Sep 25, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Improve Studio agent connections, job isolation, retries, capacity reporting, and close handling. Add GitHub/GitLab branch snapshots and fail-fast token rejection handling to the CLI. ([#4110](https://github.com/kubb-labs/kubb/pull/4110), [`327bfe9`](https://github.com/kubb-labs/kubb/commit/327bfe9d2a38caacfc0707345a5f532f264b2754))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.16 — Sep 24, 2026
 
 ### @kubb/studio
