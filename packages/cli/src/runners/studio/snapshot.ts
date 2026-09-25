@@ -229,8 +229,14 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
   })
   const connectionLost = new AbortController()
   const connectionEnded = new Error('The Kubb Studio connection ended before the snapshot finished')
-  void connection.then(() => connectionLost.abort(connectionEnded))
-  const lost = connection.then(() => Promise.reject(connectionEnded))
+  void connection.then(
+    () => connectionLost.abort(connectionEnded),
+    (error) => connectionLost.abort(error),
+  )
+  const lost = connection.then(
+    () => Promise.reject(connectionEnded),
+    (error) => Promise.reject(error),
+  )
   void lost.catch(() => {})
 
   try {
@@ -265,13 +271,16 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
       signal: connectionLost.signal,
     })
     step(`Snapshot job queued: ${job.id}`)
-    const finished = await waitForJob({
-      studioUrl: options.studioUrl,
-      token,
-      id: job.id,
-      timeoutMs: snapshotTimeoutMs(),
-      signal: connectionLost.signal,
-    })
+    const finished = await Promise.race([
+      waitForJob({
+        studioUrl: options.studioUrl,
+        token,
+        id: job.id,
+        timeoutMs: snapshotTimeoutMs(),
+        signal: connectionLost.signal,
+      }),
+      lost,
+    ])
 
     if (finished.status === 'failed') {
       throw new Error(finished.error ?? 'Snapshot job failed')
