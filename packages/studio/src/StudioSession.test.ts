@@ -74,6 +74,7 @@ function filePlugin(absolutePath: string, content: string): Plugin {
 async function connectStudio(overrides: Partial<StudioSessionOptions> = {}): Promise<{
   session: StudioSession
   agent: AgentApi
+  studio: StudioApi
   closeTransport: (close?: RpcClose) => void
 }> {
   let agent: AgentApi | undefined
@@ -112,7 +113,7 @@ async function connectStudio(overrides: Partial<StudioSessionOptions> = {}): Pro
   await agent?.connect()
   await started
 
-  return { session, agent: agent as AgentApi, closeTransport: (close?: RpcClose) => closeTransport?.(close) }
+  return { session, agent: agent as AgentApi, studio, closeTransport: (close?: RpcClose) => closeTransport?.(close) }
 }
 
 async function run(agent: AgentApi, jobId: string) {
@@ -279,6 +280,26 @@ describe('startGeneration', () => {
     await agent.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } }).result()
 
     expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('Ignored the spec from Studio'), permission: 'allowInput' })
+  })
+})
+
+describe('load', () => {
+  it('reports what the agent is carrying with each heartbeat', async () => {
+    const controller = new AbortController()
+    const { studio } = await connectStudio({ heartbeatInterval: 10, signal: controller.signal })
+
+    await vi.waitFor(() => expect(studio.ping).toHaveBeenCalledWith({ running: 0, rssMb: expect.any(Number), storeBytes: 0, accepting: true }))
+    controller.abort()
+  })
+
+  it('refuses a generation once memory is past the budget, and says so in the heartbeat', async () => {
+    const controller = new AbortController()
+    // A 1 MB budget puts any real process far past the 1.5 MB watermark.
+    const { agent, studio } = await connectStudio({ heartbeatInterval: 10, signal: controller.signal, capacity: { memoryBudgetMb: 1 } })
+
+    await expect(run(agent, 'job-1')).rejects.toThrow('The agent is past its memory budget')
+    await vi.waitFor(() => expect(studio.ping).toHaveBeenCalledWith(expect.objectContaining({ accepting: false })))
+    controller.abort()
   })
 })
 

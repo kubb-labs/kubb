@@ -2,6 +2,7 @@ export { createClient, type Client, type ClientOptions } from './client.ts'
 export { AgentCloseCode, generationEventTypes } from './protocol/index.ts'
 export type {
   AgentApi,
+  AgentLoad,
   ConfigEdit,
   ConnectMessagePayload,
   GenerateInput,
@@ -30,6 +31,7 @@ export {
   type StudioSnapshotChanges,
 } from './api.ts'
 export { defaultStudioUrl } from './constants.ts'
+export type { AgentCapacity } from './constants.ts'
 export { createFileStorage, machineTokenFrom, setStorage } from './machine.ts'
 export { runConnection, type ConnectionOptions } from './runConnection.ts'
 export {

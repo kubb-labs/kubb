@@ -1,4 +1,4 @@
-import { agentDefaults } from './constants.ts'
+import { agentDefaults, resolveAgentCapacity } from './constants.ts'
 import type { InvalidAgentTokenError } from './api.ts'
 import { registerAgent } from './api.ts'
 import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
@@ -59,7 +59,8 @@ export function createClient({ onAuthRequired, ...options }: ClientOptions): Cli
 
   return {
     async connect() {
-      const registered = await registerAgent({ token: options.token, studioUrl: options.studioUrl ?? agentDefaults.studioUrl, poolSize })
+      const capacity = { ...resolveAgentCapacity(), ...options.capacity }
+      const registered = await registerAgent({ token: options.token, studioUrl: options.studioUrl ?? agentDefaults.studioUrl, poolSize, capacity })
       if (controller.signal.aborted) {
         return
       }

@@ -373,7 +373,25 @@ export type AgentApi = {
  * Operations an agent can invoke on Studio through a host-provided RPC transport.
  */
 export type StudioApi = {
-  ping: () => Promise<void>
+  /**
+   * Keeps the connection alive. `load` reports what the agent is carrying right now, so Studio can
+   * stop sending it work before it runs out of memory. Absent from an agent that predates it.
+   */
+  ping: (load?: AgentLoad) => Promise<void>
+}
+
+/**
+ * What an agent is carrying at one heartbeat.
+ */
+export type AgentLoad = {
+  /** Jobs running on this connection right now. */
+  running: number
+  /** Resident memory of the agent process, in megabytes. */
+  rssMb: number
+  /** Bytes of past generations the agent keeps for file reads and snapshots. */
+  storeBytes: number
+  /** `false` once memory is past the watermark: the agent refuses new jobs until it drops. */
+  accepting: boolean
 }
 
 /**
