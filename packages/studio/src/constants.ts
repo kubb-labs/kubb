@@ -47,18 +47,11 @@ export function resolveGenerationLimits(env: NodeJS.ProcessEnv = process.env): {
 }
 
 /**
- * How far past its memory budget an agent may grow before it refuses new jobs. The headroom covers
- * the build that pushed it there finishing and handing its memory back.
- */
-export const MEMORY_WATERMARK = 1.5
-
-/**
- * An agent's capacity read from `KUBB_AGENT_MAX_CONCURRENT` and `KUBB_AGENT_MEMORY_BUDGET_MB`. An
- * unset or invalid value keeps the default: one job at a time, and no memory budget.
+ * An agent's capacity read from `KUBB_AGENT_MAX_CONCURRENT`. An unset or invalid value keeps the
+ * default: one job at a time.
  */
 export function resolveAgentCapacity(env: NodeJS.ProcessEnv = process.env): AgentCapacity {
   return {
     maxConcurrent: Math.max(1, Math.floor(positiveNumber(env.KUBB_AGENT_MAX_CONCURRENT) ?? agentDefaults.maxConcurrent)),
-    memoryBudgetMb: positiveNumber(env.KUBB_AGENT_MEMORY_BUDGET_MB),
   }
 }

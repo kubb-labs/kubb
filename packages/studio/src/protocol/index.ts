@@ -374,8 +374,8 @@ export type AgentApi = {
  */
 export type StudioApi = {
   /**
-   * Keeps the connection alive. `load` reports what the agent is carrying right now, so Studio can
-   * stop sending it work before it runs out of memory. Absent from an agent that predates it.
+   * Keeps the connection alive. `load` reports what the agent is carrying right now. Absent from an
+   * agent that predates it.
    */
   ping: (load?: AgentLoad) => Promise<void>
 }
@@ -390,7 +390,7 @@ export type AgentLoad = {
   rssMb: number
   /** Bytes of past generations the agent keeps for file reads and snapshots. */
   storeBytes: number
-  /** `false` once memory is past the watermark: the agent refuses new jobs until it drops. */
+  /** Whether the agent takes new jobs. Always `true` today; Studio skips a connection that reports `false`. */
   accepting: boolean
 }
 
@@ -528,11 +528,6 @@ export const AGENT_INSTANCE_HEADER = 'x-kubb-instance-id'
 export type AgentCapacity = {
   /** Jobs the process runs at once. Studio clamps it to the agent kind's own cap. */
   maxConcurrent: number
-  /**
-   * Left unset, the agent never refuses a job for memory. Set, the agent stops accepting new jobs
-   * once its resident memory passes 1.5 times this many megabytes.
-   */
-  memoryBudgetMb?: number
 }
 
 /**
