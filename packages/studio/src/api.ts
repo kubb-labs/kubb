@@ -1,3 +1,4 @@
+import { setTimeout as delay } from 'node:timers/promises'
 import { getErrorMessage } from '@internals/utils'
 import { FetchError, ofetch } from 'ofetch'
 import type { AgentConnectResponse } from './protocol/index.ts'
@@ -345,6 +346,7 @@ export async function createJob({
   baseId,
   config,
   timeoutMs = 60_000,
+  signal,
 }: {
   studioUrl: string
   token: string
@@ -363,26 +365,38 @@ export async function createJob({
    * @default 60000
    */
   timeoutMs?: number
+  signal?: AbortSignal
 }): Promise<StudioJob> {
   const deadline = Date.now() + timeoutMs
   let interval = CREATE_JOB_INITIAL_DELAY_MS
 
   for (;;) {
+    signal?.throwIfAborted()
+
     try {
       const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs`, {
         method: 'POST',
         headers: { 'x-api-key': token },
         body: { type, agentId, name, version, commit, baseId, config },
         retry: false,
+        timeout: Math.max(deadline - Date.now(), 1),
+        signal,
       })
 
       return job
     } catch (error) {
+      signal?.throwIfAborted()
+
       const status = (error as { response?: { status?: number } }).response?.status
       if (!status || !CREATE_JOB_RETRYABLE_STATUSES.has(status) || Date.now() >= deadline) throw error
 
       const wait = Math.min(retryAfterMs(error) ?? withJitter(interval), Math.max(deadline - Date.now(), 0))
-      await new Promise((resolve) => setTimeout(resolve, wait))
+      if (signal) {
+        await delay(wait, undefined, { signal })
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, wait))
+      }
+      if (Date.now() >= deadline) throw error
       interval = Math.min(interval * 2, CREATE_JOB_MAX_INTERVAL_MS)
     }
   }

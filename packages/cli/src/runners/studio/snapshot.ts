@@ -227,7 +227,10 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
     // A CI agent's token comes from the organization key, so there is no pairing to fall back to.
     onTokenRejected: ({ error }) => Promise.reject(error),
   })
-  const lost = connection.then(() => Promise.reject(new Error('The Kubb Studio connection ended before the snapshot finished')))
+  const connectionLost = new AbortController()
+  const connectionEnded = new Error('The Kubb Studio connection ended before the snapshot finished')
+  void connection.then(() => connectionLost.abort(connectionEnded))
+  const lost = connection.then(() => Promise.reject(connectionEnded))
   void lost.catch(() => {})
 
   try {
@@ -256,6 +259,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
       commit: ci.commit,
       baseId: ci.base?.id,
       timeoutMs,
+      signal: connectionLost.signal,
     })
     step(`Snapshot job queued: ${job.id}`)
     const finished = await Promise.race([waitForJob({ studioUrl: options.studioUrl, token, id: job.id, timeoutMs }), lost])

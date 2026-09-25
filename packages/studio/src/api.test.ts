@@ -199,6 +199,26 @@ describe('createJob', () => {
 
     expect(fetchMock.mock.calls.length).toBeGreaterThan(0)
   })
+
+  it('stops retrying when the caller aborts during a retry delay', async () => {
+    fetchMock.mockResolvedValueOnce(createMockResponse({ message: 'Agent is busy' }, 429))
+
+    const controller = new AbortController()
+    const promise = createJob({
+      studioUrl: 'http://studio',
+      token: 'ci-token',
+      type: 'generation',
+      agentId: 'agent-1',
+      signal: controller.signal,
+    })
+    promise.catch(() => {})
+    await vi.advanceTimersByTimeAsync(0)
+    controller.abort()
+    await vi.runAllTimersAsync()
+    await expect(promise).rejects.toMatchObject({ name: 'AbortError' })
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('waitForJob', () => {
