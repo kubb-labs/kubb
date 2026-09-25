@@ -426,6 +426,7 @@ export async function waitForJob({
   token,
   id,
   timeoutMs = 60_000,
+  signal,
 }: {
   studioUrl: string
   token: string
@@ -436,12 +437,20 @@ export async function waitForJob({
    * @default 60000
    */
   timeoutMs?: number
+  signal?: AbortSignal
 }): Promise<StudioJob> {
   const deadline = Date.now() + timeoutMs
   let interval = INITIAL_POLL_DELAY_MS
 
   for (;;) {
-    await new Promise((resolve) => setTimeout(resolve, Math.max(Math.min(interval, deadline - Date.now()), 0)))
+    signal?.throwIfAborted()
+
+    const wait = Math.max(Math.min(interval, deadline - Date.now()), 0)
+    if (signal) {
+      await delay(wait, undefined, { signal })
+    } else {
+      await new Promise((resolve) => setTimeout(resolve, wait))
+    }
 
     if (Date.now() >= deadline) throw new Error('Timed out waiting for the Studio job')
 
@@ -452,10 +461,14 @@ export async function waitForJob({
       const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs/${id}`, {
         headers: { 'x-api-key': token },
         retry: false,
+        timeout: Math.max(deadline - Date.now(), 1),
+        signal,
       })
 
       if (job.status === 'success' || job.status === 'failed' || job.status === 'canceled') return job
     } catch (error) {
+      signal?.throwIfAborted()
+
       const response = (error as { response?: { status?: number; _data?: { data?: { tryAgainIn?: unknown } } } }).response
 
       if (response?.status !== 429) throw error

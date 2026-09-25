@@ -249,6 +249,9 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
 
     step('Creating snapshot job')
 
+    const snapshotDeadline = Date.now() + timeoutMs
+    const snapshotTimeoutMs = () => Math.max(snapshotDeadline - Date.now(), 1)
+
     const job = await createJob({
       studioUrl: options.studioUrl,
       token,
@@ -258,11 +261,17 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
       version: packageVersion,
       commit: ci.commit,
       baseId: ci.base?.id,
-      timeoutMs,
+      timeoutMs: snapshotTimeoutMs(),
       signal: connectionLost.signal,
     })
     step(`Snapshot job queued: ${job.id}`)
-    const finished = await Promise.race([waitForJob({ studioUrl: options.studioUrl, token, id: job.id, timeoutMs }), lost])
+    const finished = await waitForJob({
+      studioUrl: options.studioUrl,
+      token,
+      id: job.id,
+      timeoutMs: snapshotTimeoutMs(),
+      signal: connectionLost.signal,
+    })
 
     if (finished.status === 'failed') {
       throw new Error(finished.error ?? 'Snapshot job failed')
