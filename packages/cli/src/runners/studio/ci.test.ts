@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { detectCi } from './ci.ts'
+import { detectCi, gitlabRefSlug } from './ci.ts'
 
 const tempFiles: Array<string> = []
 
@@ -38,6 +38,22 @@ describe('detectCi', () => {
     ).toEqual({ id: 'gh:123456:42', name: 'acme/api#42' })
   })
 
+  it('reads the head commit and the base branch of a GitHub pull request, and the base matches a run on that branch', () => {
+    const eventPath = writeGithubEvent({ pull_request: { number: 42, head: { sha: 'head1234' }, base: { ref: 'main' } } })
+    const env = { GITHUB_ACTIONS: 'true', GITHUB_REPOSITORY_ID: '123456', GITHUB_REPOSITORY: 'acme/api', GITHUB_SHA: 'merge5678' }
+
+    const pullRequest = detectCi({ ...env, GITHUB_EVENT_PATH: eventPath })
+    const branch = detectCi({ ...env, GITHUB_REF: 'refs/heads/main' })
+
+    expect(pullRequest).toEqual({
+      id: 'gh:123456:42',
+      name: 'acme/api#42',
+      commit: 'head1234',
+      base: { branch: 'main', id: 'gh:123456:refs/heads/main' },
+    })
+    expect(branch).toEqual({ id: 'gh:123456:refs/heads/main', name: 'acme/api#main', commit: 'merge5678' })
+  })
+
   it('falls back to the run id when GitHub Actions has no pull request', () => {
     expect(
       detectCi({
@@ -69,6 +85,16 @@ describe('detectCi', () => {
         CI_COMMIT_REF_SLUG: 'main',
       }),
     ).toEqual({ id: 'gl:77:main', name: 'acme/api#main' })
+  })
+
+  it('reads the target branch of a GitLab merge request, and the base matches a pipeline on that branch', () => {
+    const env = { GITLAB_CI: 'true', CI_PROJECT_ID: '77', CI_PROJECT_PATH: 'acme/api' }
+
+    const mergeRequest = detectCi({ ...env, CI_MERGE_REQUEST_IID: '9', CI_MERGE_REQUEST_TARGET_BRANCH_NAME: 'release/2.x' })
+    const branch = detectCi({ ...env, CI_COMMIT_REF_SLUG: 'release-2-x' })
+
+    expect(mergeRequest?.base).toEqual({ branch: 'release/2.x', id: 'gl:77:release-2-x' })
+    expect(mergeRequest?.base?.id).toBe(branch?.id)
   })
 
   it('derives an id from Bitbucket Pipelines', () => {
@@ -106,5 +132,17 @@ describe('detectCi', () => {
     [{ CIRCLECI: 'true', CIRCLE_SHA1: 'a1b2c3d' }],
   ])('reads the commit the run builds from %o', (env) => {
     expect(detectCi(env)?.commit).toBe('a1b2c3d')
+  })
+})
+
+describe('gitlabRefSlug', () => {
+  it.each([
+    ['main', 'main'],
+    ['Feature/Login_Page', 'feature-login-page'],
+    ['-release/2.x-', 'release-2-x'],
+    ['fix/🚀-launch', 'fix---launch'],
+    ['a'.repeat(70), 'a'.repeat(63)],
+  ])('slugs %s like GitLab', (ref, slug) => {
+    expect(gitlabRefSlug(ref)).toBe(slug)
   })
 })

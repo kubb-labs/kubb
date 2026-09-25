@@ -74,16 +74,17 @@ function resolveToken(options: SnapshotOptions): string {
 
 function resolveCiIdentity(options: SnapshotOptions): CiContext {
   const detected = detectCi()
+  // A custom --id drops the detected base, since runs on that branch may use a custom id too.
+  const ci = options.id ? { id: options.id, name: detected?.name ?? options.id, commit: detected?.commit } : detected
 
-  if (options.id) {
-    return { id: options.id, name: detected?.name ?? options.id, commit: detected?.commit }
-  }
-
-  if (!detected) {
+  if (!ci) {
     throw new Error('Could not detect a supported CI provider (GitHub Actions, GitLab CI, Bitbucket Pipelines, CircleCI). Pass --id.')
   }
 
-  return detected
+  // An explicit --base-id may not name a branch, so it labels the comparison itself.
+  const base = options.baseId ? { branch: options.baseId, id: options.baseId } : ci.base
+
+  return { ...ci, base: base?.id === ci.id ? undefined : base }
 }
 
 /** Rejects a bad `--timeout` up front instead of letting it reach `waitForJob` as NaN or <= 0. */
@@ -121,9 +122,11 @@ type SnapshotResult = {
   agentUrl: string
   /** What changed since the previous snapshot of this package on this agent. */
   changes?: StudioSnapshotChanges
+  /** What differs from the latest snapshot of the base branch, named by `branch`. */
+  branchChanges?: StudioSnapshotChanges & { branch: string }
 }
 
-function toResult(studioUrl: string, snapshot: StudioSnapshot, agentSlug: string): SnapshotResult {
+function toResult(studioUrl: string, snapshot: StudioSnapshot, agentSlug: string, ci: CiContext): SnapshotResult {
   return {
     id: snapshot.id,
     name: snapshot.name,
@@ -134,7 +137,17 @@ function toResult(studioUrl: string, snapshot: StudioSnapshot, agentSlug: string
     expiresAt: snapshot.expiresAt,
     agentUrl: absoluteUrl(studioUrl, `/agents/${agentSlug}`),
     changes: snapshot.changes,
+    branchChanges: snapshot.branchChanges && ci.base ? { ...snapshot.branchChanges, branch: ci.base.branch } : undefined,
   }
+}
+
+/** How many files differ, `against` what. */
+function describeChanges(changes: StudioSnapshotChanges, against: string): string {
+  const { added, changed, removed } = changes
+
+  return added.length + changed.length + removed.length
+    ? `${added.length} added, ${changed.length} changed, ${removed.length} removed ${against}`
+    : `No changes ${against}`
 }
 
 /** One summary line: how many files changed, and since which run. */
@@ -143,10 +156,12 @@ export function formatChanges(changes: StudioSnapshotChanges): string {
     return 'First snapshot'
   }
 
-  const counts = [`${changes.added.length} added`, `${changes.changed.length} changed`, `${changes.removed.length} removed`].join(', ')
-  const since = changes.base.commit ? changes.base.commit.slice(0, 7) : changes.base.createdAt
+  return describeChanges(changes, `since ${changes.base.commit?.slice(0, 7) ?? changes.base.createdAt}`)
+}
 
-  return changes.added.length + changes.changed.length + changes.removed.length ? `${counts} since ${since}` : `No changes since ${since}`
+/** One summary line: how the snapshot differs from the base branch's latest one. */
+export function formatBranchChanges(changes: StudioSnapshotChanges & { branch: string }): string {
+  return changes.base ? describeChanges(changes, `against ${changes.branch}`) : `No snapshot of ${changes.branch} to compare with`
 }
 
 function printSummary(result: SnapshotResult): void {
@@ -154,6 +169,7 @@ function printSummary(result: SnapshotResult): void {
     `${styleText('dim', 'Package'.padEnd(10))}  ${result.name ?? '(unnamed)'}@${result.version ?? '0.0.0'}`,
     `${styleText('dim', 'Tarball'.padEnd(10))}  ${styleText('cyan', result.url)}`,
     `${styleText('dim', 'Agent'.padEnd(10))}  ${result.agentUrl}`,
+    ...(result.branchChanges ? [`${styleText('dim', 'Branch'.padEnd(10))}  ${formatBranchChanges(result.branchChanges)}`] : []),
     ...(result.changes ? [`${styleText('dim', 'Changes'.padEnd(10))}  ${formatChanges(result.changes)}`] : []),
     `${styleText('dim', 'Expires'.padEnd(10))}  ${result.expiresAt}`,
   ])
@@ -230,7 +246,16 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
 
     step('Creating snapshot job')
 
-    const job = await createJob({ studioUrl: options.studioUrl, token, type: 'snapshot', agentId: agent.id, name, version: packageVersion, commit: ci.commit })
+    const job = await createJob({
+      studioUrl: options.studioUrl,
+      token,
+      type: 'snapshot',
+      agentId: agent.id,
+      name,
+      version: packageVersion,
+      commit: ci.commit,
+      baseId: ci.base?.id,
+    })
     step(`Snapshot job queued: ${job.id}`)
     const finished = await Promise.race([waitForJob({ studioUrl: options.studioUrl, token, id: job.id, timeoutMs }), lost])
 
@@ -242,7 +267,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
       throw new Error('Snapshot job succeeded without a snapshot')
     }
 
-    const result = toResult(options.studioUrl, finished.snapshot, agent.slug)
+    const result = toResult(options.studioUrl, finished.snapshot, agent.slug, ci)
 
     step('Snapshot published')
 
@@ -267,6 +292,7 @@ export const runner: CommandRunner<{ args: typeof definition.args; extensions: {
     ...createStudioOptions(values),
     token: values.token,
     id: values.id,
+    baseId: values.baseId,
     name: values.name,
     packageVersion: values.packageVersion,
     timeout: values.timeout,

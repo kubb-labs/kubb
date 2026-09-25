@@ -202,9 +202,9 @@ export async function disconnect({ sessionId, token, studioUrl }: DisconnectProp
  */
 export type StudioJobStatus = 'queued' | 'running' | 'success' | 'failed' | 'canceled'
 
-/** How a snapshot's files differ from the previous one of the same package and agent, relative to `output.path`. */
+/** How a snapshot's files differ from an earlier snapshot of the same package, relative to `output.path`. */
 export type StudioSnapshotChanges = {
-  /** The snapshot these changes are measured against, `null` for the first one. */
+  /** The snapshot these changes are measured against, `null` when there is none to compare with. */
   base: {
     id: string
     version: string | null
@@ -249,8 +249,10 @@ export type StudioSnapshot = {
    * ISO timestamp after which Studio may delete the tarball.
    */
   expiresAt: string
-  /** What changed since the previous snapshot. Absent when Studio or the agent predates it. */
+  /** What changed since the previous snapshot on the same agent. Absent when Studio or the agent predates it. */
   changes?: StudioSnapshotChanges
+  /** What differs from the latest snapshot of the CI agent `baseId` names. Absent without a base. */
+  branchChanges?: StudioSnapshotChanges
 }
 
 /**
@@ -302,6 +304,7 @@ export async function createJob({
   name,
   version,
   commit,
+  baseId,
   config,
 }: {
   studioUrl: string
@@ -312,12 +315,14 @@ export async function createJob({
   version?: string
   /** The commit this snapshot is built from, so the next one can diff against it. */
   commit?: string
+  /** The `id` another CI agent's runs register under, such as the base branch's; this snapshot is also compared with its latest one. */
+  baseId?: string
   config?: Record<string, unknown>
 }): Promise<StudioJob> {
   const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs`, {
     method: 'POST',
     headers: { 'x-api-key': token },
-    body: { type, agentId, name, version, commit, config },
+    body: { type, agentId, name, version, commit, baseId, config },
   })
 
   return job

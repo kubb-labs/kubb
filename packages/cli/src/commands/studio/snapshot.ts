@@ -17,6 +17,12 @@ export const definition = define({
       type: 'string',
       description: 'Stable identity for the CI agent, such as a pull request. Auto-detected on GitHub Actions, GitLab CI, Bitbucket Pipelines and CircleCI',
     },
+    baseId: {
+      type: 'string',
+      description:
+        "Identity of another CI agent, such as the base branch's, to also compare this snapshot with. Auto-detected on GitHub pull requests and GitLab merge requests",
+      toKebab: true,
+    },
     name: {
       type: 'string',
       description: 'Package name for the generated tarball. Defaults to the name in package.json',

@@ -15,19 +15,32 @@ export type CiContext = {
   name: string
   /** The commit this run builds, so the next snapshot can diff against it. */
   commit?: string
+  /** The branch a pull request merges into, and the `id` runs on that branch register under. */
+  base?: { branch: string; id: string }
 }
 
-function readGithubPullRequestNumber(eventPath: string | undefined): string | undefined {
+type GithubPullRequest = { number: number; head?: { sha?: string }; base?: { ref?: string } }
+
+function readGithubPullRequest(eventPath: string | undefined): GithubPullRequest | undefined {
   if (!eventPath) {
     return undefined
   }
 
   try {
-    const event = JSON.parse(readFileSync(eventPath, 'utf8')) as { pull_request?: { number?: number } }
-    return event.pull_request?.number ? String(event.pull_request.number) : undefined
+    const event = JSON.parse(readFileSync(eventPath, 'utf8')) as { pull_request?: GithubPullRequest }
+    return event.pull_request?.number ? event.pull_request : undefined
   } catch {
     return undefined
   }
+}
+
+/** Reproduces GitLab's `CI_COMMIT_REF_SLUG` for a branch it gives no slug of, like a merge request's target. */
+export function gitlabRefSlug(ref: string): string {
+  return ref
+    .toLowerCase()
+    .replace(/[^a-z0-9]/gu, '-')
+    .slice(0, 63)
+    .replace(/^-+|-+$/g, '')
 }
 
 /**
@@ -37,17 +50,32 @@ function readGithubPullRequestNumber(eventPath: string | undefined): string | un
  */
 export function detectCi(env: Record<string, string | undefined> = process.env): CiContext | null {
   if (env.GITHUB_ACTIONS) {
-    const pullRequestNumber = readGithubPullRequestNumber(env.GITHUB_EVENT_PATH)
+    const pullRequest = readGithubPullRequest(env.GITHUB_EVENT_PATH)
     const repositoryId = env.GITHUB_REPOSITORY_ID ?? env.GITHUB_REPOSITORY ?? ''
-    const scope = pullRequestNumber ?? env.GITHUB_RUN_ID ?? ''
+    const branch = env.GITHUB_REF?.startsWith('refs/heads/') ? env.GITHUB_REF.slice('refs/heads/'.length) : undefined
+    // A branch run is scoped by its ref, which a pull request number never collides with.
+    const scope = pullRequest?.number ?? (branch ? `refs/heads/${branch}` : env.GITHUB_RUN_ID) ?? ''
+    const baseBranch = pullRequest?.base?.ref
 
-    return { id: `gh:${repositoryId}:${scope}`, name: `${env.GITHUB_REPOSITORY ?? 'github'}#${scope}`, commit: env.GITHUB_SHA }
+    return {
+      id: `gh:${repositoryId}:${scope}`,
+      name: `${env.GITHUB_REPOSITORY ?? 'github'}#${pullRequest?.number ?? branch ?? scope}`,
+      // The head commit, not the merge commit a pull request run checks out.
+      commit: pullRequest?.head?.sha ?? env.GITHUB_SHA,
+      base: baseBranch ? { branch: baseBranch, id: `gh:${repositoryId}:refs/heads/${baseBranch}` } : undefined,
+    }
   }
 
   if (env.GITLAB_CI) {
     const scope = env.CI_MERGE_REQUEST_IID ?? env.CI_COMMIT_REF_SLUG ?? ''
+    const baseBranch = env.CI_MERGE_REQUEST_TARGET_BRANCH_NAME
 
-    return { id: `gl:${env.CI_PROJECT_ID ?? ''}:${scope}`, name: `${env.CI_PROJECT_PATH ?? 'gitlab'}#${scope}`, commit: env.CI_COMMIT_SHA }
+    return {
+      id: `gl:${env.CI_PROJECT_ID ?? ''}:${scope}`,
+      name: `${env.CI_PROJECT_PATH ?? 'gitlab'}#${scope}`,
+      commit: env.CI_MERGE_REQUEST_SOURCE_BRANCH_SHA || env.CI_COMMIT_SHA,
+      base: baseBranch ? { branch: baseBranch, id: `gl:${env.CI_PROJECT_ID ?? ''}:${gitlabRefSlug(baseBranch)}` } : undefined,
+    }
   }
 
   if (env.BITBUCKET_BUILD_NUMBER) {
