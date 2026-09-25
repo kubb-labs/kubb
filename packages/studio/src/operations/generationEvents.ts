@@ -64,8 +64,7 @@ export type GenerationStreamOptions = {
 
 const MAX_QUEUED_EVENTS = 1_024
 const RESERVED_EVENTS = 64
-const isDiscardable = (event: GenerationEvent) =>
-  event.type === 'kubb:files:processing:update' || event.type === 'kubb:info' || event.type === 'kubb:success'
+const isDiscardable = (event: GenerationEvent) => event.type === 'kubb:files:processing:update' || event.type === 'kubb:info' || event.type === 'kubb:success'
 
 /** Forwards selected Kubb lifecycle events to a native Cap'n Web stream. */
 export function createGenerationStream(
