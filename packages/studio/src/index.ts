@@ -1,5 +1,5 @@
 export { createClient, type Client, type ClientOptions } from './client.ts'
-export { generationEventTypes } from './protocol/index.ts'
+export { AgentCloseCode, generationEventTypes } from './protocol/index.ts'
 export type {
   AgentApi,
   ConfigEdit,
@@ -12,6 +12,7 @@ export type {
   GenerationRun,
   PublishSnapshotInput,
   PublishSnapshotResult,
+  RpcClose,
   RpcConnection,
   RpcConnector,
   StudioApi,

@@ -2,13 +2,14 @@ import { ast } from '@kubb/ast'
 import { type Config, definePlugin, memoryStorage, type Plugin } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { AgentApi, StudioApi } from './protocol/index.ts'
+import { type AgentApi, AgentCloseCode, type RpcClose, type StudioApi } from './protocol/index.ts'
 import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
 
 vi.mock('./api.ts', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./api.ts')>()),
   createAgentSession: vi.fn(),
   disconnect: vi.fn().mockResolvedValue(true),
+  registerAgent: vi.fn().mockResolvedValue(true),
 }))
 
 vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
@@ -73,10 +74,10 @@ function filePlugin(absolutePath: string, content: string): Plugin {
 async function connectStudio(overrides: Partial<StudioSessionOptions> = {}): Promise<{
   session: StudioSession
   agent: AgentApi
-  closeTransport: () => void
+  closeTransport: (close?: RpcClose) => void
 }> {
   let agent: AgentApi | undefined
-  let closeTransport: (() => void) | undefined
+  let closeTransport: ((close?: RpcClose) => void) | undefined
 
   const studio: StudioApi = { ping: vi.fn().mockResolvedValue(undefined) }
   const session = new StudioSession({
@@ -99,7 +100,7 @@ async function connectStudio(overrides: Partial<StudioSessionOptions> = {}): Pro
     ...overrides,
     connector: async ({ local }) => {
       agent = local
-      const closed = new Promise<void>((resolve) => {
+      const closed = new Promise<RpcClose | void>((resolve) => {
         closeTransport = resolve
       })
       return { studio, closed, close: vi.fn() }
@@ -111,7 +112,7 @@ async function connectStudio(overrides: Partial<StudioSessionOptions> = {}): Pro
   await agent?.connect()
   await started
 
-  return { session, agent: agent as AgentApi, closeTransport: () => closeTransport?.() }
+  return { session, agent: agent as AgentApi, closeTransport: (close?: RpcClose) => closeTransport?.(close) }
 }
 
 async function run(agent: AgentApi, jobId: string) {
@@ -207,6 +208,66 @@ describe('the handshake', () => {
     closeTransport()
 
     await vi.waitFor(() => expect(disconnected).toHaveBeenCalledWith({ reason: 'connection closed' }))
+  })
+})
+
+describe('close codes', () => {
+  /**
+   * Closes the transport with `code`, then waits until the session finished ending: the disconnect
+   * notice is the last await before a reconnect would be scheduled.
+   */
+  async function closeWith(code: number) {
+    const controller = new AbortController()
+    const hooks = { disconnected: vi.fn(), reconnecting: vi.fn(), error: vi.fn() }
+    const { closeTransport } = await connectStudio({
+      signal: controller.signal,
+      installLogger: (emitter) => {
+        emitter.hook('studio:disconnected', hooks.disconnected)
+        emitter.hook('studio:reconnecting', hooks.reconnecting)
+        emitter.hook('studio:error', hooks.error)
+      },
+    })
+    const { disconnect, registerAgent } = await import('./api.ts')
+    vi.mocked(disconnect).mockClear()
+    vi.mocked(registerAgent).mockClear()
+
+    closeTransport({ code, reason: '' })
+    await vi.waitFor(() => expect(disconnect).toHaveBeenCalled())
+    await new Promise((resolve) => setTimeout(resolve, 10))
+
+    return { hooks, registerAgent: vi.mocked(registerAgent), stop: () => controller.abort() }
+  }
+
+  it('registers again, then reconnects, when Studio asks the agent to reauthenticate', async () => {
+    const { hooks, registerAgent, stop } = await closeWith(AgentCloseCode.REAUTHENTICATE)
+
+    expect(registerAgent).toHaveBeenCalledOnce()
+    expect(hooks.reconnecting).toHaveBeenCalledOnce()
+    stop()
+  })
+
+  it('stays down when another instance of the agent took over', async () => {
+    const { hooks, stop } = await closeWith(AgentCloseCode.SUPERSEDED)
+
+    expect(hooks.disconnected).toHaveBeenCalledWith({ reason: 'another instance of this agent took over' })
+    expect(hooks.reconnecting).not.toHaveBeenCalled()
+    stop()
+  })
+
+  it('stops and says what to do when the agent is too old for Studio or was deleted', async () => {
+    const { hooks, stop } = await closeWith(AgentCloseCode.INCOMPATIBLE)
+
+    expect(hooks.error).toHaveBeenCalledWith({ error: expect.objectContaining({ message: expect.stringContaining('Upgrade the agent, or pair it again') }) })
+    expect(hooks.reconnecting).not.toHaveBeenCalled()
+    stop()
+  })
+
+  it('reconnects on any other code, as before', async () => {
+    const { hooks, registerAgent, stop } = await closeWith(1006)
+
+    expect(hooks.reconnecting).toHaveBeenCalledOnce()
+    expect(registerAgent).not.toHaveBeenCalled()
+    stop()
   })
 })
 
