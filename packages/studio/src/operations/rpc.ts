@@ -9,9 +9,9 @@ import type {
   RpcConnector,
   SaveConfigInput,
   StudioApi,
-} from './protocol/index.ts'
-import { AGENT_INSTANCE_HEADER } from './protocol/index.ts'
-import { createWebsocket } from './ws.ts'
+} from '../protocol/index.ts'
+import { AGENT_INSTANCE_HEADER } from '../protocol/index.ts'
+import { createWebsocket } from './websocket.ts'
 
 /**
  * The only methods Studio may call on an agent. A `StudioSession` carries far more than

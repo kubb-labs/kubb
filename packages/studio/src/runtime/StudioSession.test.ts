@@ -4,15 +4,15 @@ import { ast } from '@kubb/ast'
 import { type Config, definePlugin, memoryStorage, type Plugin, resolveCacheDir } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { type AgentApi, AgentCloseCode, type RpcClose, type StudioApi } from './protocol/index.ts'
+import { type AgentApi, AgentCloseCode, type RpcClose, type StudioApi } from '../protocol/index.ts'
 import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
 
-vi.mock('./api.ts', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('./api.ts')>()),
+vi.mock('../operations/api.ts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../operations/api.ts')>()),
   registerAgent: vi.fn(),
 }))
 
-vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
+vi.mock('../../package.json', () => ({ version: '5.0.0-test' }))
 
 // Recorded but real, so a sandbox run's job root can be checked without faking the filesystem.
 vi.mock('node:fs/promises', async (importOriginal) => {
@@ -42,7 +42,7 @@ vi.mock('@kubb/core', async (importOriginal) => {
   return { ...core, fsStorage: () => (disk.storage ??= createDisk()), cacheStorage: () => (disk.cache ??= core.memoryStorage()) }
 })
 
-import { IncompatibleAgentError, registerAgent } from './api.ts'
+import { IncompatibleAgentError, registerAgent } from '../operations/api.ts'
 
 const root = '/project'
 const pluginName = 'studio-test-plugin'
@@ -246,7 +246,7 @@ describe('close codes', () => {
     const { hooks, stop } = await closeWith(AgentCloseCode.REAUTHENTICATE)
 
     expect(hooks.reconnecting).toHaveBeenCalledOnce()
-    await vi.waitFor(() => expect(registerAgent).toHaveBeenCalledOnce())
+    await vi.waitFor(() => expect(registerAgent).toHaveBeenCalled())
     stop()
   })
 

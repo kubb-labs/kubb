@@ -1,6 +1,6 @@
 import type { Hookable, KubbHooks } from '@kubb/core'
 import { x } from 'tinyexec'
-import type { AgentPermissions } from './protocol/index.ts'
+import type { AgentPermissions } from '../protocol/index.ts'
 
 /**
  * Events a host emits about its Kubb Studio session, as opposed to a generation. `kubb:` stays

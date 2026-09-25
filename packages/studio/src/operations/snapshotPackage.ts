@@ -7,6 +7,7 @@ import { gzip } from 'node:zlib'
 import { build } from 'tsdown'
 
 const gzipAsync = promisify(gzip)
+const UPLOAD_TIMEOUT_MS = 120_000
 
 type SnapshotFiles = Record<string, string>
 type SnapshotPackage = { name: string; version: string; peerDependencies: Record<string, string> }
@@ -169,4 +170,34 @@ export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: S
   } finally {
     await rm(root, { recursive: true, force: true })
   }
+}
+
+export async function uploadSnapshot({
+  bytes,
+  uploadPath,
+  studioUrl,
+  token,
+  shutdown,
+}: {
+  bytes: Buffer
+  uploadPath: string
+  studioUrl: string
+  token: string
+  shutdown?: AbortSignal
+}): Promise<void> {
+  const uploadUrl = new URL(uploadPath, studioUrl)
+  if (uploadUrl.origin !== new URL(studioUrl).origin) throw new Error('Snapshot upload path must stay on the Studio origin')
+
+  const timeout = AbortSignal.timeout(UPLOAD_TIMEOUT_MS)
+  const signal = shutdown ? AbortSignal.any([shutdown, timeout]) : timeout
+  const redirect = await fetch(uploadUrl, { method: 'PUT', headers: { Authorization: `Bearer ${token}` }, redirect: 'manual', signal })
+  const storageUrl = redirect.headers.get('location')
+  if (redirect.status !== 307 || !storageUrl) throw new Error(`Studio did not provide a storage URL (status ${redirect.status})`)
+
+  const storage = new URL(storageUrl)
+  if (storage.protocol !== 'https:' && storage.hostname !== 'localhost' && storage.hostname !== '127.0.0.1') {
+    throw new Error(`Refusing snapshot upload to ${storage.origin}`)
+  }
+  const response = await fetch(storage, { method: 'PUT', body: new Uint8Array(bytes), redirect: 'error', signal })
+  if (!response.ok) throw new Error(`Snapshot upload failed with status ${response.status}`)
 }

@@ -2,9 +2,9 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { applyConfigEdits, isOptionValue, readConfig } from './configFile.ts'
-import type { ConfigEdit, ConfigFileView, PluginView } from './protocol/index.ts'
+import type { ConfigEdit, ConfigFileView, PluginView } from '../protocol/index.ts'
 
-const advanced = readFileSync(join(import.meta.dirname, '../mocks/advanced.config.txt'), 'utf8')
+const advanced = readFileSync(join(import.meta.dirname, '../../mocks/advanced.config.txt'), 'utf8')
 
 /**
  * `view` with one plugin's option replaced, or dropped when `option` is `undefined`. Diffing a

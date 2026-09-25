@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { AgentApi } from './protocol/index.ts'
+import type { AgentApi } from '../protocol/index.ts'
 import { connectWebSocketRpc } from './rpc.ts'
 
 const local = {} as AgentApi

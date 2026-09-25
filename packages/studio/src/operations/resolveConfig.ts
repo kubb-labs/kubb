@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url'
 import type { Adapter, Plugin } from '@kubb/core'
 import { camelCase } from '@internals/utils'
 import { mergeDeep } from 'remeda'
-import type { JSONKubbConfig } from './protocol/index.ts'
+import type { JSONKubbConfig } from '../protocol/index.ts'
 
 /**
  * Turns the JSON config Studio sends back into live Kubb objects.
