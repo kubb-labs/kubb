@@ -18,18 +18,12 @@ describe('resolveGenerationLimits', () => {
 })
 
 describe('resolveAgentCapacity', () => {
-  it('runs one job at a time with no memory budget when nothing is set', () => {
-    expect(resolveAgentCapacity({})).toStrictEqual({ maxConcurrent: 1, memoryBudgetMb: undefined })
+  it('runs one job at a time when nothing is set', () => {
+    expect(resolveAgentCapacity({})).toStrictEqual({ maxConcurrent: 1 })
   })
 
-  it('reads the concurrency and memory budget from the environment, ignoring invalid values', () => {
-    expect(resolveAgentCapacity({ KUBB_AGENT_MAX_CONCURRENT: '2', KUBB_AGENT_MEMORY_BUDGET_MB: '1024' })).toStrictEqual({
-      maxConcurrent: 2,
-      memoryBudgetMb: 1024,
-    })
-    expect(resolveAgentCapacity({ KUBB_AGENT_MAX_CONCURRENT: '0', KUBB_AGENT_MEMORY_BUDGET_MB: 'lots' })).toStrictEqual({
-      maxConcurrent: 1,
-      memoryBudgetMb: undefined,
-    })
+  it('reads the concurrency from the environment, ignoring invalid values', () => {
+    expect(resolveAgentCapacity({ KUBB_AGENT_MAX_CONCURRENT: '2' })).toStrictEqual({ maxConcurrent: 2 })
+    expect(resolveAgentCapacity({ KUBB_AGENT_MAX_CONCURRENT: '0' })).toStrictEqual({ maxConcurrent: 1 })
   })
 })

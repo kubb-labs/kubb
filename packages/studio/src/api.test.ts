@@ -44,12 +44,12 @@ describe('registerAgent', () => {
   it('sends the machine token, the instance id, and the capacity', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse(registration))
 
-    await registerAgent({ ...props, capacity: { maxConcurrent: 1, memoryBudgetMb: 1024 } })
+    await registerAgent({ ...props, capacity: { maxConcurrent: 1 } })
 
     expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toStrictEqual({
       machineToken: 'machine-token-hash',
       instanceId: 'instance-1',
-      capacity: { maxConcurrent: 1, memoryBudgetMb: 1024 },
+      capacity: { maxConcurrent: 1 },
     })
   })
 

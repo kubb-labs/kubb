@@ -34,7 +34,7 @@ import {
 import { IncompatibleAgentError, InvalidAgentTokenError, registerAgent } from './api.ts'
 import { applyConfigEdits, readConfig } from './configFile.ts'
 import { generate } from './generate.ts'
-import { agentDefaults, MEMORY_WATERMARK, resolveAgentCapacity, resolveGenerationLimits } from './constants.ts'
+import { agentDefaults, resolveAgentCapacity, resolveGenerationLimits } from './constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
 import { createSnapshotPackage } from './snapshotPackage.ts'
 import { RpcTarget } from 'capnweb'
@@ -134,7 +134,7 @@ export type StudioSessionOptions = {
   heartbeatInterval?: number
   /**
    * What this agent process can take on, reported to Studio at registration. Unset fields come from
-   * `KUBB_AGENT_MAX_CONCURRENT` and `KUBB_AGENT_MEMORY_BUDGET_MB`.
+   * `KUBB_AGENT_MAX_CONCURRENT`.
    */
   capacity?: Partial<AgentCapacity>
   /**
@@ -513,21 +513,12 @@ export class StudioSession implements AgentApi {
     }
   }
 
-  /**
-   * Whether memory still leaves room for another job. Always, when the host set no budget.
-   */
-  #isAccepting(memoryMb = rssMb()): boolean {
-    const budget = this.#options.capacity.memoryBudgetMb
-    return budget === undefined || memoryMb <= budget * MEMORY_WATERMARK
-  }
-
   async #load(): Promise<AgentLoad> {
-    const memoryMb = rssMb()
     return {
       running: this.#isGenerating ? 1 : 0,
-      rssMb: Math.round(memoryMb),
+      rssMb: Math.round(rssMb()),
       storeBytes: await this.#generations.bytes(),
-      accepting: this.#isAccepting(memoryMb),
+      accepting: true,
     }
   }
 
@@ -665,9 +656,6 @@ export class StudioSession implements AgentApi {
     // Checked before the first `await`, so two calls in the same tick can't both pass.
     if (this.#isGenerating) {
       return this.#refuse('Ignored generate: a generation is already in progress', 'A generation is already in progress, please wait for it to finish')
-    }
-    if (!this.#isAccepting()) {
-      return this.#refuse('Ignored generate: the agent is past its memory budget', 'The agent is past its memory budget, try again once it frees memory')
     }
     this.#isGenerating = true
     this.#activeJob = { jobId: data.jobId, cancel: cancelRun }
