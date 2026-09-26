@@ -29,6 +29,7 @@ export {
   IncompatibleAgentError,
   InvalidAgentTokenError,
   type StudioAgent,
+  type StudioBranchSnapshotChanges,
   type StudioJob,
   type StudioJobStatus,
   type StudioSnapshot,

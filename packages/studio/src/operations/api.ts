@@ -123,6 +123,14 @@ export type StudioSnapshotChanges = {
 }
 
 /**
+ * `StudioSnapshotChanges` against a pull request's base branch. `baseFound` tells apart the two
+ * reasons `base` can be `null`: `false` when no CI agent is registered for the branch yet (the
+ * workflow has never run there), `true` when that agent exists but has no snapshot of this package
+ * to compare with.
+ */
+export type StudioBranchSnapshotChanges = StudioSnapshotChanges & { baseFound: boolean }
+
+/**
  * Package view returned on a successful snapshot job from Studio.
  */
 export type StudioSnapshot = {
@@ -157,7 +165,7 @@ export type StudioSnapshot = {
   /** What changed since the previous snapshot on the same agent. Absent when Studio or the agent predates it. */
   changes?: StudioSnapshotChanges
   /** What differs from the latest snapshot of the CI agent `baseId` names. Absent without a base. */
-  branchChanges?: StudioSnapshotChanges
+  branchChanges?: StudioBranchSnapshotChanges
 }
 
 /**
