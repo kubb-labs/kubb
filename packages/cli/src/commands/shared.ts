@@ -47,12 +47,6 @@ export const studioPermissionArgs = {
     default: false,
     toKebab: true,
   },
-  allowInput: {
-    type: 'boolean',
-    description: 'Generate from an OpenAPI spec sent by Studio instead of the one on disk. Asked for once per project when omitted',
-    default: false,
-    toKebab: true,
-  },
   allowExec: {
     type: 'boolean',
     description: 'Run the formatter, the linter, and output.postGenerate after a generation',

@@ -18,8 +18,8 @@ export type JSONKubbConfig = {
   }>
   /**
    * Raw OpenAPI / Swagger spec content (YAML or JSON string).
-   * Always honored for a 'sandbox' agent. For a non-sandbox agent it is honored only when the
-   * agent opts in with `KUBB_AGENT_ALLOW_INPUT`; otherwise the spec is read from disk and this is ignored.
+   * Only honored for a 'sandbox' agent, which has no disk config of its own. A non-sandbox agent
+   * always reads its spec from disk, so this is ignored.
    */
   input?: string
   /**
@@ -491,12 +491,6 @@ export type AgentPermissions = {
    * agent it mirrors the agent's `KUBB_AGENT_ALLOW_WRITE`.
    */
   allowWrite: boolean
-  /**
-   * Whether the agent will accept and generate from an OpenAPI spec supplied by Studio.
-   * Always true for a sandbox agent, otherwise it mirrors the agent's own opt-in. Studio reads
-   * this to decide whether to send `input`.
-   */
-  allowInput: boolean
   /**
    * Whether the agent runs the formatter, the linter, and `output.postGenerate` as child
    * processes after a generation. Always true for the Docker agent, where the image bounds what

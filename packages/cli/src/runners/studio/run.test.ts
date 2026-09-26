@@ -50,7 +50,7 @@ const { canUseTTY } = await import('../../utils/env.ts')
 const options: StudioOptions = {
   version: '0.0.0',
   studioUrl: 'http://localhost:3000',
-  permission: { allowRead: false, allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false },
+  permission: { allowRead: false, allowWrite: false, allowConfigEdit: false, allowExec: false },
   autoOpen: false,
 }
 
@@ -107,12 +107,12 @@ describe('login', () => {
 
 describe('resolvePermissions', () => {
   it('asks for every permission and stores the answers', async () => {
-    confirm.mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(false).mockResolvedValueOnce(true)
+    confirm.mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(true)
 
-    const answers = { allowRead: false, allowWrite: true, allowConfigEdit: false, allowInput: false, allowExec: true }
+    const answers = { allowRead: false, allowWrite: true, allowConfigEdit: false, allowExec: true }
 
     await expect(resolvePermissions(options, credentials)).resolves.toEqual(answers)
-    expect(confirm).toHaveBeenCalledTimes(5)
+    expect(confirm).toHaveBeenCalledTimes(4)
     expect(writeCredentials).toHaveBeenCalledWith(expect.objectContaining({ projects: { [process.cwd()]: answers } }))
   })
 
@@ -127,7 +127,6 @@ describe('resolvePermissions', () => {
       'Let Kubb Studio read the files a generation produced?',
       'Let Kubb Studio write generated files into <project>?',
       'Let Kubb Studio change plugin options in kubb.config.ts?',
-      'Let Kubb Studio generate from an OpenAPI spec it sends, instead of the one on disk?',
       'Let Kubb Studio run the formatter, the linter, and output.postGenerate?',
     ])
   })
@@ -143,7 +142,7 @@ describe('resolvePermissions', () => {
   })
 
   it('asks nothing again once the project answered, and never stores a flag-granted permission', async () => {
-    const remembered = { allowRead: false, allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false }
+    const remembered = { allowRead: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
     const stored: Credentials = { ...credentials, projects: { [process.cwd()]: remembered } }
 
     await expect(resolvePermissions({ ...options, permission: { ...options.permission, allowExec: true } }, stored)).resolves.toEqual({
@@ -154,33 +153,32 @@ describe('resolvePermissions', () => {
     expect(writeCredentials).not.toHaveBeenCalled()
   })
 
-  it('still asks for the other four when one permission is granted by flag', async () => {
+  it('still asks for the other two when one permission is granted by flag', async () => {
     confirm.mockResolvedValue(false)
 
     await resolvePermissions({ ...options, permission: { ...options.permission, allowConfigEdit: true } }, credentials)
 
-    expect(confirm).toHaveBeenCalledTimes(4)
+    expect(confirm).toHaveBeenCalledTimes(3)
     expect(confirm.mock.calls.some(([call]) => call?.message?.includes('plugin options'))).toBe(false)
   })
 
   it('still answers the questions but never writes to disk when persist is false', async () => {
-    confirm.mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(false).mockResolvedValueOnce(true)
+    confirm.mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(true)
 
-    const answers = { allowRead: false, allowWrite: true, allowConfigEdit: false, allowInput: false, allowExec: true }
+    const answers = { allowRead: false, allowWrite: true, allowConfigEdit: false, allowExec: true }
 
     await expect(resolvePermissions(options, credentials, undefined, false)).resolves.toEqual(answers)
-    expect(confirm).toHaveBeenCalledTimes(5)
+    expect(confirm).toHaveBeenCalledTimes(4)
     expect(writeCredentials).not.toHaveBeenCalled()
   })
 })
 
 describe('formatPermissionRows', () => {
   it('marks every permission with whether it was granted', () => {
-    expect(formatPermissionRows({ allowRead: true, allowWrite: true, allowConfigEdit: false, allowInput: true, allowExec: false })).toStrictEqual([
+    expect(formatPermissionRows({ allowRead: true, allowWrite: true, allowConfigEdit: false, allowExec: false })).toStrictEqual([
       '✔ read generated files',
       '✔ write generated files',
       '✘ edit kubb.config.ts',
-      '✔ use a Studio spec',
       '✘ run formatter, linter, postGenerate',
     ])
   })

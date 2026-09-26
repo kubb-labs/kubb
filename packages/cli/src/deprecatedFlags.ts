@@ -7,7 +7,6 @@ import { styleText } from 'node:util'
 const DEPRECATED_FLAGS: Record<string, string> = {
   allowWrite: 'allow-write',
   allowConfigEdit: 'allow-config-edit',
-  allowInput: 'allow-input',
   allowExec: 'allow-exec',
   logLevel: 'log-level',
   dryRun: 'dry-run',

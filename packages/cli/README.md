@@ -174,7 +174,6 @@ skips the question for that one permission.
 | `--url <url>`         |       | string  | `https://kubb.studio` | Base URL of the Kubb Studio instance                                                          |
 | `--allow-write`       |       | boolean | `false`               | Write generated files to disk. Asked for once per project when omitted                        |
 | `--allow-config-edit` |       | boolean | `false`               | Edit plugin options in `kubb.config.ts`. Asked for once per project when omitted              |
-| `--allow-input`       |       | boolean | `false`               | Generate from a spec sent by Studio. Asked for once per project when omitted                  |
 | `--allow-exec`        |       | boolean | `false`               | Run the formatter, the linter, and `output.postGenerate`. Asked once per project when omitted |
 | `--no-open`           |       | boolean |                       | Do not open the approval page in a browser while pairing                                      |
 | `--log-level <level>` | `-l`  | string  | `info`                | Log level: `silent`, `info`, or `verbose`                                                     |
