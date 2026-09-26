@@ -1,5 +1,20 @@
 # Changelog
 
+## v5.3.19 — Sep 26, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Fix `kubb studio snapshot` saying "No snapshot of `main` to compare with" even when a CI agent for the base branch already exists and simply has no snapshot of this package yet, such as a package newly added in the pull request. `branchChanges` now carries `baseFound`, and the summary line tells the two cases apart: "No snapshot of `main` to compare with" (no agent has run there) versus "No snapshot of `main` for this package yet" (the agent exists, this package is new to it). ([#4123](https://github.com/kubb-labs/kubb/pull/4123), [`3561e19`](https://github.com/kubb-labs/kubb/commit/3561e1977c36056a0727566175c3b40edf8c097d))
+- Remove `allowInput` from `AgentPermissions` and the `--allow-input`/`KUBB_AGENT_ALLOW_INPUT` flag. Only a sandbox agent can generate from an OpenAPI spec sent by Studio; every other agent always reads its spec from disk, so this was never actually a permission a host could opt into. ([#4124](https://github.com/kubb-labs/kubb/pull/4124), [`292350e`](https://github.com/kubb-labs/kubb/commit/292350e28f01c65e277cf32288724fb8bc0ca4d8))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.18 — Sep 25, 2026
 
 ### @kubb/studio
