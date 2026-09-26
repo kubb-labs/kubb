@@ -152,7 +152,7 @@ describe('the handshake', () => {
       const { agent } = await connectStudio()
 
       await expect(agent.connect()).resolves.toMatchObject({
-        permissions: { allowWrite: false, allowInput: false, allowExec: false, allowConfigEdit: false, allowRead: false },
+        permissions: { allowWrite: false, allowExec: false, allowConfigEdit: false, allowRead: false },
       })
     } finally {
       vi.unstubAllEnvs()

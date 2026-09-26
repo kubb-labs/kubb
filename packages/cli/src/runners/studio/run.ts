@@ -25,7 +25,7 @@ import { getConfigs } from '../generate/utils.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 import { version } from '../../../package.json'
 
-type Permission = 'allowRead' | 'allowWrite' | 'allowConfigEdit' | 'allowInput' | 'allowExec'
+type Permission = 'allowRead' | 'allowWrite' | 'allowConfigEdit' | 'allowExec'
 
 export type StudioOptions = {
   /**
@@ -85,7 +85,6 @@ type StudioValues = {
   allowRead: boolean
   allowWrite: boolean
   allowConfigEdit: boolean
-  allowInput: boolean
   allowExec: boolean
   open?: boolean
   logLevel?: CLIOptions['logLevel']
@@ -100,7 +99,6 @@ export function createStudioOptions(values: StudioValues): StudioOptions {
       allowRead: values.allowRead,
       allowWrite: values.allowWrite,
       allowConfigEdit: values.allowConfigEdit,
-      allowInput: values.allowInput,
       allowExec: values.allowExec,
     },
     autoOpen: values.open ?? true,
@@ -200,11 +198,6 @@ const PERMISSIONS: ReadonlyArray<{
     question: (_project, configPath) => `Let Kubb Studio change plugin options in ${configPath}?`,
   },
   {
-    key: 'allowInput',
-    label: 'use a Studio spec',
-    question: () => 'Let Kubb Studio generate from an OpenAPI spec it sends, instead of the one on disk?',
-  },
-  {
     key: 'allowExec',
     label: 'run formatter, linter, postGenerate',
     question: () => 'Let Kubb Studio run the formatter, the linter, and output.postGenerate?',
@@ -235,7 +228,7 @@ export async function resolvePermissions(
 ): Promise<Record<Permission, boolean>> {
   const project = process.cwd()
   const remembered = credentials.projects?.[project]
-  const granted: Record<Permission, boolean> = { allowRead: false, allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false }
+  const granted: Record<Permission, boolean> = { allowRead: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
   const answers: Partial<Record<Permission, boolean>> = {}
   prompts.updateSettings({ withGuide: true })
 
@@ -579,7 +572,6 @@ export async function status(options: StudioOptions): Promise<void> {
     allowRead: remembered.allowRead === true,
     allowWrite: remembered.allowWrite === true,
     allowConfigEdit: remembered.allowConfigEdit === true,
-    allowInput: remembered.allowInput === true,
     allowExec: remembered.allowExec === true,
   })) {
     console.log(row)

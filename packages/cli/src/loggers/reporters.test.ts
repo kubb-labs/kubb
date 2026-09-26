@@ -204,10 +204,10 @@ describe('studio session events', () => {
 
   it('names the flag that grants a refused permission', async () => {
     const lines = await render((context) =>
-      context.callHook('studio:warn', { message: 'Ignored the spec from Studio: generating from a Studio spec was not granted', permission: 'allowInput' }),
+      context.callHook('studio:warn', { message: 'Ignored save: editing kubb.config.ts was not granted', permission: 'allowConfigEdit' }),
     )
 
-    expect(lines).toStrictEqual(['⚠ Ignored the spec from Studio: generating from a Studio spec was not granted; pass --allow-input to allow it'])
+    expect(lines).toStrictEqual(['⚠ Ignored save: editing kubb.config.ts was not granted; pass --allow-config-edit to allow it'])
   })
 
   it('drops everything but errors at silent', async () => {

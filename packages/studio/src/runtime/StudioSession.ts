@@ -186,7 +186,7 @@ function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
     // `configPath` is relative to the agent's root unless it is already absolute, which is what
     // `resolve` does on its own.
     configFile: path.resolve(root, options.configPath),
-    permissions: { allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false, allowRead: false, ...options.permissions },
+    permissions: { allowWrite: false, allowConfigEdit: false, allowExec: false, allowRead: false, ...options.permissions },
     retryInterval: options.retryInterval ?? agentDefaults.retryIntervalMs,
     // Studio counts an agent offline once its last ping is older than its liveness window, so a
     // slower cadence would make a healthy agent invisible. Clamped here rather than in a host's
@@ -362,14 +362,6 @@ export class StudioSession implements AgentApi {
 
   get #canEditConfig(): boolean {
     return !this.#isSandbox && this.#options.permissions.allowConfigEdit
-  }
-
-  /**
-   * A sandbox agent always generates from the spec Studio supplies. A local agent only when the
-   * host opted in.
-   */
-  get #canUseInput(): boolean {
-    return this.#isSandbox || this.#options.permissions.allowInput
   }
 
   /**
@@ -550,7 +542,6 @@ export class StudioSession implements AgentApi {
       permissions: {
         ...permissions,
         allowWrite: this.#canWrite,
-        allowInput: this.#canUseInput,
         allowConfigEdit: this.#canEditConfig,
         allowRead: this.#canRead,
       },
@@ -663,15 +654,15 @@ export class StudioSession implements AgentApi {
       const adapter = await mergeAdapter(config.adapter, patch?.adapter)
 
       // A sandbox agent always uses the inline spec (empty string included, since it has no disk
-      // file); a local agent only when opted in, and an empty or absent spec falls back to disk.
-      const inputOverride = this.#isSandbox ? (patch?.input ?? '') : (permissions.allowInput && patch?.input) || undefined
+      // file); a non-sandbox agent always reads its spec from disk.
+      const inputOverride = this.#isSandbox ? (patch?.input ?? '') : undefined
 
       if (permissions.allowWrite && this.#isSandbox) {
         await this.#warn('Running in a sandbox, so writing files is disabled')
       }
 
-      if (patch?.input && !this.#canUseInput) {
-        await this.#warn('Ignored the spec from Studio: generating from a Studio spec was not granted', 'allowInput')
+      if (patch?.input && !this.#isSandbox) {
+        await this.#warn('Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent')
       }
 
       const resolvedPlugins = plugins ?? config.plugins

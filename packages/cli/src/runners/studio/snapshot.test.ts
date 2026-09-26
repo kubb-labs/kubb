@@ -75,7 +75,7 @@ function baseOptions(overrides: Partial<SnapshotOptions> = {}): SnapshotOptions 
   return {
     version: '0.0.0',
     studioUrl: 'http://localhost:3000',
-    permission: { allowRead: false, allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: false },
+    permission: { allowRead: false, allowWrite: false, allowConfigEdit: false, allowExec: false },
     autoOpen: false,
     token: 'ci-token',
     name: '@acme/api',
@@ -132,14 +132,13 @@ describe('snapshot', () => {
   })
 
   it('connects with the CI agent token and grants only what was passed as a flag, even inside a CI job', async () => {
-    await snapshot(baseOptions({ permission: { allowRead: false, allowWrite: false, allowConfigEdit: false, allowInput: false, allowExec: true } }))
+    await snapshot(baseOptions({ permission: { allowRead: false, allowWrite: false, allowConfigEdit: false, allowExec: true } }))
 
     expect(connection?.credentials).toStrictEqual({ token: 'agent-token' })
     expect(connection?.clientOptions({ token: 'agent-token' }).permissions).toStrictEqual({
       allowRead: false,
       allowWrite: false,
       allowConfigEdit: false,
-      allowInput: false,
       allowExec: true,
     })
   })

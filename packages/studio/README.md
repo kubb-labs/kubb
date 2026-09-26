@@ -105,7 +105,6 @@ Every permission is off by default, and each covers one trust boundary:
 | Option            | What it grants                                                                                 |
 | ----------------- | ---------------------------------------------------------------------------------------------- |
 | `allowWrite`      | Generated files are written to disk. Off means they exist only in memory and stream to Studio. |
-| `allowInput`      | An OpenAPI spec sent by Studio replaces the one on disk.                                       |
 | `allowExec`       | The formatter, the linter, and `output.postGenerate` run as child processes.                   |
 | `allowConfigEdit` | Studio may change plugin options in `kubb.config.ts`.                                          |
 | `allowRead`       | Studio may read back the files a generation produced.                                          |
