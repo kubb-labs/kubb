@@ -162,7 +162,7 @@ describe('snapshot', () => {
 
   it("compares with the base branch's agent, and labels those changes with the branch", async () => {
     vi.mocked(detectCi).mockReturnValueOnce({ id: 'gh:123:42', name: 'acme/api#42', base: { branch: 'main', id: 'gh:123:refs/heads/main' } })
-    const branchChanges = { base: null, added: [], changed: [], removed: [] }
+    const branchChanges = { base: null, added: [], changed: [], removed: [], baseFound: true }
     vi.mocked(waitForJob).mockResolvedValue({ ...successfulJob, snapshot: { ...successfulJob.snapshot!, branchChanges } })
 
     await snapshot(baseOptions({ json: true }))
@@ -173,7 +173,7 @@ describe('snapshot', () => {
   })
 
   it('compares with the agent --base-id names on any CI, labeled with that id', async () => {
-    const branchChanges = { base: null, added: [], changed: [], removed: [] }
+    const branchChanges = { base: null, added: [], changed: [], removed: [], baseFound: true }
     vi.mocked(waitForJob).mockResolvedValue({ ...successfulJob, snapshot: { ...successfulJob.snapshot!, branchChanges } })
 
     await snapshot(baseOptions({ json: true, id: 'jenkins:api:pr-12', baseId: 'jenkins:api:main' }))
@@ -308,10 +308,20 @@ describe('formatBranchChanges', () => {
   const base = { id: 'snap-main', version: '1.0.0', commit: 'a1b2c3d4e', createdAt: '2026-01-01T00:00:00.000Z' }
 
   it('counts each kind against the branch', () => {
-    expect(formatBranchChanges({ branch: 'main', base, added: ['a.ts'], changed: [], removed: ['b.ts'] })).toBe('1 added, 0 changed, 1 removed against main')
+    expect(formatBranchChanges({ branch: 'main', base, added: ['a.ts'], changed: [], removed: ['b.ts'], baseFound: true })).toBe(
+      '1 added, 0 changed, 1 removed against main',
+    )
   })
 
-  it('says so when the branch has no snapshot yet', () => {
-    expect(formatBranchChanges({ branch: 'main', base: null, added: [], changed: [], removed: [] })).toBe('No snapshot of main to compare with')
+  it('says so when no CI agent is registered for the branch yet', () => {
+    expect(formatBranchChanges({ branch: 'main', base: null, added: [], changed: [], removed: [], baseFound: false })).toBe(
+      'No snapshot of main to compare with',
+    )
+  })
+
+  it('says so when the branch has an agent but no snapshot of this package yet', () => {
+    expect(formatBranchChanges({ branch: 'main', base: null, added: [], changed: [], removed: [], baseFound: true })).toBe(
+      'No snapshot of main for this package yet',
+    )
   })
 })

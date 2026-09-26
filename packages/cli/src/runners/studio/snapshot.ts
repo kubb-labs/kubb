@@ -4,7 +4,16 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { exists, read } from '@internals/utils'
 import { cliReporter, logLevel as logLevelMap } from '@kubb/core'
-import { createAgent, createJob, machineTokenFrom, runConnection, waitForJob, type StudioSnapshot, type StudioSnapshotChanges } from '@kubb/studio'
+import {
+  createAgent,
+  createJob,
+  machineTokenFrom,
+  runConnection,
+  waitForJob,
+  type StudioBranchSnapshotChanges,
+  type StudioSnapshot,
+  type StudioSnapshotChanges,
+} from '@kubb/studio'
 import { logBlock } from '../../loggers/output.ts'
 import { createPlainLogger } from '../../loggers/plainLogger.ts'
 import setupReporters from '../../loggers/utils.ts'
@@ -124,7 +133,7 @@ type SnapshotResult = {
   /** What changed since the previous snapshot of this package on this agent. */
   changes?: StudioSnapshotChanges
   /** What differs from the latest snapshot of the base branch, named by `branch`. */
-  branchChanges?: StudioSnapshotChanges & { branch: string }
+  branchChanges?: StudioBranchSnapshotChanges & { branch: string }
 }
 
 function toResult(studioUrl: string, snapshot: StudioSnapshot, agentSlug: string, ci: CiContext): SnapshotResult {
@@ -161,8 +170,10 @@ export function formatChanges(changes: StudioSnapshotChanges): string {
 }
 
 /** One summary line: how the snapshot differs from the base branch's latest one. */
-export function formatBranchChanges(changes: StudioSnapshotChanges & { branch: string }): string {
-  return changes.base ? describeChanges(changes, `against ${changes.branch}`) : `No snapshot of ${changes.branch} to compare with`
+export function formatBranchChanges(changes: StudioBranchSnapshotChanges & { branch: string }): string {
+  if (changes.base) return describeChanges(changes, `against ${changes.branch}`)
+
+  return changes.baseFound ? `No snapshot of ${changes.branch} for this package yet` : `No snapshot of ${changes.branch} to compare with`
 }
 
 function printSummary(result: SnapshotResult): void {
