@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.4.0 — Sep 29, 2026
+
+### @kubb/core
+
+#### Features
+
+- Add `this.import(...)` to printer handlers and `printer.drainImports()`, so a `printer.nodes` handler can declare the import its output needs. Allow `resolver.imports` to be overridden through `ResolverPatch` without a cast. ([#4130](https://github.com/kubb-labs/kubb/pull/4130), [`0d737e2`](https://github.com/kubb-labs/kubb/commit/0d737e227e8c21a37a2554aa7129434843bef811))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.3.19 — Sep 26, 2026
 
 ### @kubb/studio
