@@ -25,11 +25,6 @@ function responseMessage(data: unknown): string | undefined {
 }
 
 /**
- * Retries after the first registration attempt, each backing off twice as far as the last.
- */
-const REGISTER_RETRIES = 3
-
-/**
  * Thrown when Studio rejects the agent token itself (401). Retrying cannot help: the token was
  * revoked, or the agent it belonged to was deleted in the Studio UI. Hosts catch this to forget
  * the stored credential and pair again.
@@ -71,6 +66,7 @@ type RegisterProps = {
   /** Names this agent process, so Studio tells two processes sharing one token apart. */
   instanceId: string
   capacity: AgentCapacity
+  signal?: AbortSignal
 }
 
 /**
@@ -78,11 +74,11 @@ type RegisterProps = {
  * identity to the token, reports what the process can take on, and gets back the URL of the one
  * socket it keeps open.
  *
- * Retries a transient failure with backoff. A rejected token (401) throws
+ * Makes one bounded attempt; `runConnection` owns retries. A rejected token (401) throws
  * {@link InvalidAgentTokenError} and an unsupported agent version (426) throws
  * {@link IncompatibleAgentError}, since retrying either cannot help.
  */
-export async function registerAgent({ token, studioUrl, instanceId, capacity }: RegisterProps): Promise<AgentRegisterResponse> {
+export async function registerAgent({ token, studioUrl, instanceId, capacity, signal }: RegisterProps): Promise<AgentRegisterResponse> {
   const body: AgentRegisterInput = { machineToken: await getMachineToken(), instanceId, capacity }
 
   try {
@@ -90,9 +86,9 @@ export async function registerAgent({ token, studioUrl, instanceId, capacity }: 
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body,
-      retry: REGISTER_RETRIES,
-      // 2s, 4s, then 8s. `retry` counts down, so the first retry is the one with the most left.
-      retryDelay: ({ options }) => 2_000 * 2 ** (REGISTER_RETRIES - Number(options.retry)),
+      retry: 0,
+      timeout: 10_000,
+      signal,
     })
   } catch (error) {
     if (rejectedWith(error, 401)) throw new InvalidAgentTokenError(studioUrl, { cause: error })
