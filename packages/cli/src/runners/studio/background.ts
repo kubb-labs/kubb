@@ -132,7 +132,7 @@ export async function serveWorker(shutdown: AbortController) {
       }
     })
   })
-  // ponytail: one hashed port per project; refuse a collision instead of adding a lock manager.
+  // Hash the project directory to choose its loopback port; fail on collisions.
   const port = 20_000 + (Number.parseInt(hash('sha256', getProjectKubbHome()).slice(0, 8), 16) % 30_000)
   try {
     await new Promise<void>((resolve, reject) => {
