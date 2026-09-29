@@ -3,7 +3,7 @@ import { configArg, logLevelArg, studioConnectionArgs, studioPermissionArgs } fr
 
 export const definition = define({
   name: 'status',
-  description: 'Show the machine’s Kubb Studio pairing and saved project permissions.',
+  description: 'Show the project worker, Kubb Studio pairing, and saved permissions.',
   examples: ['kubb studio status'].join('\n'),
   toKebab: true,
   args: {

@@ -1,143 +1,80 @@
-import { InvalidAgentTokenError } from '../operations/api.ts'
-import { type ClientOptions, createClient } from './client.ts'
+import { randomUUID } from 'node:crypto'
+import { setTimeout as delay } from 'node:timers/promises'
+import { IncompatibleAgentError, InvalidAgentTokenError } from '../operations/api.ts'
+import { agentDefaults } from '../operations/constants.ts'
+import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
 
-/**
- * Why a connection ended: the host asked it to stop through its `signal`, or the host declined to
- * replace a rejected token.
- */
 export type ConnectionOutcome = 'shutdown' | 'stopped'
 
-/**
- * A rejected token, and whether it was already serving a live session when Studio rejected it.
- */
 export type TokenRejection<TCredentials> = {
   error: InvalidAgentTokenError
-  /**
-   * The credential Studio rejected, so a host can carry parts of it into the replacement.
-   */
   credentials: TCredentials
-  /**
-   * `false` when the token was dead before a session ever opened, which is what `connect()` itself
-   * reports. `true` when a live pool's background reconnect was rejected, well after the session
-   * was up. Hosts treat the two differently: only the first has nothing to tear down.
-   */
+  /** Whether this credential already served a ready session. */
   live: boolean
 }
 
 export type ConnectionOptions<TCredentials extends { token: string }> = {
-  /**
-   * The credential to open with. Only its token is read here, so a host keeps whatever else it
-   * stores alongside.
-   */
   credentials: TCredentials
-  /**
-   * Builds the client options for one attempt. Called again for every reconnect, so a host whose
-   * options depend on which agent approved, such as the permissions it granted, re-derives them
-   * rather than reusing the ones the rejected token was opened with.
-   */
-  clientOptions: (credentials: TCredentials) => Omit<ClientOptions, 'token' | 'onAuthRequired'>
-  /**
-   * Called when Studio rejects the token. Return the credential to reconnect with, or `null` to
-   * end the run. Throwing fails it, which is what a host does when it cannot pair again.
-   */
+  clientOptions: (credentials: TCredentials) => Omit<StudioSessionOptions, 'token' | 'signal'>
   onTokenRejected: (rejection: TokenRejection<TCredentials>) => Promise<TCredentials | null>
-  /**
-   * Aborting this disconnects and ends the run. Hosts wire it to their own shutdown: `SIGINT` in
-   * the CLI, Nitro's `close` hook in the Docker agent.
-   */
   signal?: AbortSignal
+  /** Used by the client facade once startup succeeds or schedules its first retry. */
+  onStarted?: () => void
 }
 
-/**
- * Waits for whichever comes first: the shutdown signal, or Studio rejecting the token during a
- * background reconnect. Resolves with the rejection, or nothing when the run is being shut down.
- */
-function waitForRejection(authRequired: Promise<InvalidAgentTokenError>, signal?: AbortSignal): Promise<InvalidAgentTokenError | undefined> {
-  // Nothing to race without a signal: a host without one ends the run some other way.
-  if (!signal) {
-    return authRequired
-  }
-
-  // `{ once: true }` drops the listener when the abort fires, not when the other side settles the
-  // race, so `settled` covers that half. Without it a reconnected run leaves one behind on the
-  // host's signal for every attempt it makes.
-  const settled = new AbortController()
-  const shutdown = new Promise<undefined>((resolve) => {
-    if (signal.aborted) {
-      resolve(undefined)
-      return
-    }
-    signal.addEventListener('abort', () => resolve(undefined), { once: true, signal: settled.signal })
-  })
-
-  return Promise.race([shutdown, authRequired]).finally(() => settled.abort())
-}
-
-/**
- * Keeps a host connected to Studio across token changes: it opens a client, waits until the run
- * ends or Studio rejects the token, and reconnects with whatever credential the host hands back.
- *
- * The host owns everything around that. Where credentials live, whether a rejected token may be
- * replaced, and how any of it is reported are all decisions `onTokenRejected` makes.
- *
- * @example
- * ```ts
- * const outcome = await runConnection({
- *   credentials,
- *   clientOptions: () => ({ studioUrl, configPath, version, loadConfig }),
- *   signal: shutdown.signal,
- *   onTokenRejected: ({ error, live }) => pairAgain(error, live),
- * })
- * ```
- */
+/** Runs the process's one connection loop, including retries and credential replacement. */
 export async function runConnection<TCredentials extends { token: string }>({
   credentials,
   clientOptions,
   onTokenRejected,
   signal,
+  onStarted,
 }: ConnectionOptions<TCredentials>): Promise<ConnectionOutcome> {
   let current = credentials
+  const initialOptions = clientOptions(current)
+  const instanceId = initialOptions.instanceId ?? randomUUID()
+  let options = initialOptions
+  let attempt = 0
+  let live = false
 
-  while (true) {
-    // A shutdown can land outside the race below, while a host is pairing or prompting. Registering
-    // one more agent with Studio only to drop it again is not what the operator asked for.
-    if (signal?.aborted) {
-      return 'shutdown'
-    }
-
-    const { promise: authRequired, resolve: notifyAuthRequired } = Promise.withResolvers<InvalidAgentTokenError>()
-    const client = createClient({ ...clientOptions(current), token: current.token, onAuthRequired: notifyAuthRequired })
-
-    let rejection: TokenRejection<TCredentials> | undefined
-
+  while (!signal?.aborted) {
+    const session = new StudioSession({ ...options, instanceId, token: current.token, signal })
     try {
-      await client.connect()
-
-      const error = await waitForRejection(authRequired, signal)
-
-      if (!error) {
-        return 'shutdown'
-      }
-
-      rejection = { error, credentials: current, live: true }
+      await session.start()
+      live = true
+      attempt = 0
+      onStarted?.()
+      const end = await session.closed
+      if (!end.retry) return signal?.aborted ? 'shutdown' : 'stopped'
     } catch (error) {
-      // Every other failure is retried inside the session's own reconnect loop, so anything that
-      // surfaces here is a dead token or a host's own bug.
-      if (!(error instanceof InvalidAgentTokenError)) {
-        throw error
+      if (signal?.aborted) return 'shutdown'
+      if (error instanceof IncompatibleAgentError) throw error
+      await session.dispose()
+      const end = await session.closed
+      // A terminal socket close during the handshake must not become a network retry.
+      if (!end.retry && end.reason !== 'shutdown') return 'stopped'
+      if (error instanceof InvalidAgentTokenError) {
+        const next = await onTokenRejected({ error, credentials: current, live })
+        if (!next) return 'stopped'
+        current = next
+        options = clientOptions(current)
+        live = false
+        attempt = 0
+        continue
       }
-
-      rejection = { error, credentials: current, live: false }
     } finally {
-      client.disconnect()
+      await session.dispose()
     }
 
-    const next = await onTokenRejected(rejection)
-
-    if (!next) {
-      return 'stopped'
+    onStarted?.()
+    const cap = Math.min(1_000 * 2 ** Math.min(attempt++, 16), options.retryInterval ?? agentDefaults.retryIntervalMs)
+    const delayMs = Math.random() * cap
+    await session.reportRetry(delayMs)
+    try {
+      await delay(delayMs, undefined, { signal })
+    } catch (error) {
+      if (!signal?.aborted) throw error
     }
-
-    current = next
   }
+  return 'shutdown'
 }

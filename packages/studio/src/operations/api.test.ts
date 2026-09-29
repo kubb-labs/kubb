@@ -33,11 +33,13 @@ describe('registerAgent', () => {
   it('returns where to open the socket', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse(registration))
 
-    await expect(registerAgent(props)).resolves.toStrictEqual(registration)
+    const signal = new AbortController().signal
+    await expect(registerAgent({ ...props, signal })).resolves.toStrictEqual(registration)
 
     const [url, init] = fetchMock.mock.calls[0]!
     expect(url).toBe('http://studio/api/agent/connect')
     expect(init.method).toBe('POST')
+    expect(init.signal.aborted).toBe(false)
     expect(new Headers(init.headers).get('Authorization')).toBe('Bearer tok')
   })
 
@@ -53,8 +55,7 @@ describe('registerAgent', () => {
     })
   })
 
-  it('retries a transient failure before giving up with the reason', async () => {
-    // A fresh response each time: a body can only be read once, and the call is retried.
+  it('leaves transient retries to the runtime and reports the reason', async () => {
     fetchMock.mockImplementation(async () => createMockResponse({ message: 'maintenance' }, 503))
 
     const promise = registerAgent(props)
@@ -62,7 +63,7 @@ describe('registerAgent', () => {
     await vi.runAllTimersAsync()
     await assertion
 
-    expect(fetchMock).toHaveBeenCalledTimes(4)
+    expect(fetchMock).toHaveBeenCalledOnce()
     expect(consoleSpy.error).not.toHaveBeenCalled()
   })
 

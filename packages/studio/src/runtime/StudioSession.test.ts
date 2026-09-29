@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { ast } from '@kubb/ast'
 import { type Config, definePlugin, memoryStorage, type Plugin, resolveCacheDir } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type AgentApi, AgentCloseCode, type RpcClose, type StudioApi } from '../protocol/index.ts'
 import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
 
@@ -47,6 +47,10 @@ import { IncompatibleAgentError, registerAgent } from '../operations/api.ts'
 const root = '/project'
 const pluginName = 'studio-test-plugin'
 const studioUrl = 'https://studio.test'
+const sessions: Array<StudioSession> = []
+afterEach(async () => {
+  await Promise.all(sessions.splice(0).map((session) => session.dispose()))
+})
 
 /**
  * A plugin that emits one file, so a run leaves something behind for `readFiles` and
@@ -114,6 +118,7 @@ async function connectStudio(overrides: Partial<StudioSessionOptions> = {}): Pro
     },
   })
 
+  sessions.push(session)
   const started = session.start()
   await vi.waitFor(() => expect(agent).toBe(session))
   await agent?.connect()
@@ -181,25 +186,6 @@ describe('the handshake', () => {
     expect(connected).toHaveBeenCalledWith(expect.objectContaining({ agentSlug: 'brave-otter', organizationSlug: 'acme' }))
   })
 
-  it('announces the retry through studio:reconnecting instead of printing it, backed off and jittered', async () => {
-    using error = vi.spyOn(console, 'error').mockImplementation(() => {})
-    using random = vi.spyOn(Math, 'random').mockReturnValue(0.5)
-    const controller = new AbortController()
-    const reconnecting = vi.fn()
-    const { closeTransport } = await connectStudio({
-      retryInterval: 60_000,
-      signal: controller.signal,
-      installLogger: (hooks) => void hooks.hook('studio:reconnecting', reconnecting),
-    })
-
-    closeTransport()
-
-    await vi.waitFor(() => expect(reconnecting).toHaveBeenCalledWith({ delayMs: 500 }))
-    expect(error).not.toHaveBeenCalled()
-    expect(random).toHaveBeenCalled()
-    controller.abort()
-  })
-
   it('reports an RPC disconnect to lifecycle hooks', async () => {
     const disconnected = vi.fn()
     const { closeTransport } = await connectStudio({ installLogger: (hooks) => void hooks.hook('studio:disconnected', disconnected) })
@@ -211,66 +197,27 @@ describe('the handshake', () => {
 })
 
 describe('close codes', () => {
-  /**
-   * Closes the transport with `code`, then waits until the session finished ending. A reconnect
-   * backs off with a mocked jitter of 0, so one that is coming registers straight away.
-   */
-  async function closeWith(code: number) {
-    const controller = new AbortController()
-    const hooks = { disconnected: vi.fn(), reconnecting: vi.fn(), error: vi.fn() }
-    const { closeTransport } = await connectStudio({
-      signal: controller.signal,
-      installLogger: (emitter) => {
-        emitter.hook('studio:disconnected', hooks.disconnected)
-        emitter.hook('studio:reconnecting', hooks.reconnecting)
-        emitter.hook('studio:error', hooks.error)
-      },
+  it('settles a closed session when a disconnect hook throws', async () => {
+    const { session, closeTransport } = await connectStudio({
+      installLogger: (hooks) =>
+        void hooks.hook('studio:disconnected', () => {
+          throw new Error('Reporter failed')
+        }),
     })
-    const random = vi.spyOn(Math, 'random').mockReturnValue(0)
-    vi.mocked(registerAgent).mockClear()
+    closeTransport()
+    await expect(session.closed).resolves.toMatchObject({ retry: true })
+  })
 
+  it.each([
+    [AgentCloseCode.REAUTHENTICATE, true],
+    [AgentCloseCode.SUPERSEDED, false],
+    [AgentCloseCode.INCOMPATIBLE, false],
+    [1006, true],
+  ])('reports whether close code %s should retry', async (code, retry) => {
+    const { session, closeTransport } = await connectStudio()
     closeTransport({ code, reason: '' })
-    await vi.waitFor(() => expect(hooks.disconnected).toHaveBeenCalled())
-    await new Promise((resolve) => setTimeout(resolve, 20))
-
-    return {
-      hooks,
-      stop: () => {
-        controller.abort()
-        random.mockRestore()
-      },
-    }
-  }
-
-  it('registers again by reconnecting when Studio asks the agent to reauthenticate', async () => {
-    const { hooks, stop } = await closeWith(AgentCloseCode.REAUTHENTICATE)
-
-    expect(hooks.reconnecting).toHaveBeenCalledOnce()
-    await vi.waitFor(() => expect(registerAgent).toHaveBeenCalled())
-    stop()
-  })
-
-  it('stays down when another instance of the agent took over', async () => {
-    const { hooks, stop } = await closeWith(AgentCloseCode.SUPERSEDED)
-
-    expect(hooks.disconnected).toHaveBeenCalledWith({ reason: 'another instance of this agent took over' })
-    expect(hooks.reconnecting).not.toHaveBeenCalled()
-    stop()
-  })
-
-  it('stops and says what to do when the agent is too old for Studio or was deleted', async () => {
-    const { hooks, stop } = await closeWith(AgentCloseCode.INCOMPATIBLE)
-
-    expect(hooks.error).toHaveBeenCalledWith({ error: expect.objectContaining({ message: expect.stringContaining('Upgrade the agent, or pair it again') }) })
-    expect(hooks.reconnecting).not.toHaveBeenCalled()
-    stop()
-  })
-
-  it('reconnects on any other code, as before', async () => {
-    const { hooks, stop } = await closeWith(1006)
-
-    expect(hooks.reconnecting).toHaveBeenCalledOnce()
-    stop()
+    await expect(session.closed).resolves.toMatchObject({ retry })
+    expect(registerAgent).toHaveBeenCalledOnce()
   })
 })
 
@@ -287,13 +234,14 @@ describe('registration', () => {
       instanceId: 'instance-1',
       connector,
     })
-    void session.start()
+    sessions.push(session)
+    void session.start().catch(() => {})
 
     await vi.waitFor(() =>
       expect(connector).toHaveBeenCalledWith(expect.objectContaining({ url: 'ws://studio/api/agent/socket', token: 'token', instanceId: 'instance-1' })),
     )
     expect(registerAgent).toHaveBeenCalledWith(expect.objectContaining({ token: 'token', studioUrl, instanceId: 'instance-1' }))
-    session.dispose()
+    await session.dispose()
   })
 
   it('advertises one job at a time and warns when the host asked for more', async () => {
@@ -504,5 +452,32 @@ describe('publishSnapshot', () => {
     const [uploadUrl, uploadInit] = fetchMock.mock.calls[1] as [URL, RequestInit]
     expect(uploadUrl.href).toBe('https://storage.test/bucket/1')
     expect(uploadInit.headers).toBeUndefined()
+  })
+})
+
+describe('disconnect during generation', () => {
+  it('waits for the canceled run before releasing the session', async () => {
+    const config: Config = { root, plugins: [], parsers: [], reporters: [], storage: memoryStorage(), output: { path: 'gen' }, input: 'spec.yaml' }
+    const loaded = Promise.withResolvers<Config>()
+    const loadConfig = vi
+      .fn()
+      .mockResolvedValueOnce(config)
+      .mockImplementationOnce(() => loaded.promise)
+    const { session, agent, closeTransport } = await connectStudio({ loadConfig })
+    const generation = run(agent, 'interrupted').catch(() => {})
+    await vi.waitFor(() => expect(loadConfig).toHaveBeenCalledTimes(2))
+    await expect(run(agent, 'duplicate')).rejects.toThrow('already in progress')
+    let closed = false
+    void session.closed.then(() => {
+      closed = true
+    })
+    closeTransport()
+    await Promise.resolve()
+    expect(closed).toBe(false)
+    loaded.resolve(config)
+    await generation
+    await session.closed
+    expect(closed).toBe(true)
+    await expect(run(agent, 'late')).rejects.toThrow('Connection is closed')
   })
 })

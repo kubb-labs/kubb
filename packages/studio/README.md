@@ -85,7 +85,7 @@ every host.
 
 | Step             | `kubb studio`                           | Docker agent                             | `kubb studio snapshot`                   |
 | ---------------- | --------------------------------------- | ---------------------------------------- | ---------------------------------------- |
-| Machine identity | `setStorage` under `~/.kubb`            | `setStorage` on the Nitro `kubb` mount   | `KUBB_AGENT_SECRET` from the CI identity |
+| Machine identity | `setStorage` under project Kubb home    | `setStorage` on the cache volume         | `KUBB_AGENT_SECRET` from the CI identity |
 | Credentials      | stored, or `pairAgent({ type: 'cli' })` | stored, or `pairAgent({ type: 'user' })` | `createAgent` with the CI API key        |
 | Permissions      | flags and a per-project prompt          | `KUBB_AGENT_ALLOW_*`                     | flags only                               |
 | Connection       | `runConnection`                         | `runConnection`                          | `runConnection`                          |
@@ -128,8 +128,11 @@ come back: `4001` registers and reconnects, `4002` (another instance took over) 
 agent is too old or was deleted) stay down. A `426` at registration means the agent is too old for
 that Studio.
 
-The runtime reconnects on its own when the socket drops, and keeps retrying while Studio is
-unreachable. Generation progress is a native Cap'n Web `ReadableStream` on the generation
+`runConnection` owns registration retries, capped reconnect backoff, credential replacement, and
+shutdown. `StudioSession` serves one attempt and waits for canceled generation work to settle before
+the loop reconnects. `createClient` remains a thin compatibility facade over that loop.
+
+The runtime reconnects when the socket drops and keeps retrying while Studio is unreachable. Generation progress is a native Cap'n Web `ReadableStream` on the generation
 capability; durable job status is read through the HTTP job API.
 
 ## Studio job events

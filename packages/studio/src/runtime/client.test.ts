@@ -1,87 +1,41 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { InvalidAgentTokenError } from '../operations/api.ts'
 import { createClient } from './client.ts'
-import type { StudioSessionOptions } from './StudioSession.ts'
+import { runConnection } from './runConnection.ts'
 
-/**
- * Stands in for a session: `connect()` runs this spy with the options the client built it with, so
- * a test can resolve, reject, or read back the callbacks the client passed in.
- */
-const { sessionConnect } = vi.hoisted(() => ({ sessionConnect: vi.fn() }))
+vi.mock('./runConnection.ts', () => ({ runConnection: vi.fn() }))
+afterEach(() => vi.resetAllMocks())
+const options = { token: 'token', configPath: 'kubb.config.ts', version: '1.0.0', loadConfig: vi.fn() }
 
-vi.mock('./StudioSession.ts', () => ({
-  StudioSession: class {
-    #options: StudioSessionOptions
-
-    constructor(options: StudioSessionOptions) {
-      this.#options = options
-    }
-
-    start(): Promise<void> {
-      return sessionConnect(this.#options)
-    }
-  },
-}))
-
-const options = {
-  attach: vi.fn(),
-  token: 'my-token',
-  studioUrl: 'https://kubb.studio',
-  configPath: 'kubb.config.ts',
-  loadConfig: vi.fn(),
-  version: '1.0.0',
-}
-
-afterEach(() => {
-  vi.clearAllMocks()
-})
-
-describe('createClient', () => {
-  it('opens one session for the whole process', async () => {
-    sessionConnect.mockResolvedValue(undefined)
-
-    await createClient(options).connect()
-
-    expect(sessionConnect).toHaveBeenCalledOnce()
-  })
-
-  it('names the process with one instance id, and a new one for each client', async () => {
-    sessionConnect.mockResolvedValue(undefined)
-
-    await createClient(options).connect()
-    await createClient(options).connect()
-
-    const [first, second] = sessionConnect.mock.calls.map(([opts]) => (opts as StudioSessionOptions).instanceId)
-    expect(first).toMatch(/^[0-9a-f-]{36}$/)
-    expect(second).not.toBe(first)
-  })
-
-  it('uses the instance id a host passes in, so it can pin its own jobs to this process', async () => {
-    sessionConnect.mockResolvedValue(undefined)
-
-    await createClient({ ...options, instanceId: 'ci-run-42' }).connect()
-
-    expect((sessionConnect.mock.calls[0]![0] as StudioSessionOptions).instanceId).toBe('ci-run-42')
-  })
-
-  it('fires onAuthRequired once, however often the session reports the rejected token', async () => {
-    const onAuthRequired = vi.fn()
-    let captured: StudioSessionOptions | undefined
-    sessionConnect.mockImplementation((opts: StudioSessionOptions) => {
-      captured = opts
-      // Startup resolves normally: the rejection happens later, during background reconnect,
-      // which is exactly what onAuthRequired covers.
-      return Promise.resolve()
+describe('createClient facade', () => {
+  it('starts one shared loop and forwards shutdown', async () => {
+    vi.mocked(runConnection).mockImplementation(async ({ signal, onStarted }) => {
+      onStarted?.()
+      return new Promise((resolve) => signal?.addEventListener('abort', () => resolve('shutdown'), { once: true }))
     })
+    const client = createClient(options)
+    await client.connect()
+    await client.connect()
+    expect(runConnection).toHaveBeenCalledOnce()
+    client.disconnect()
+    expect(vi.mocked(runConnection).mock.calls[0]?.[0].signal?.aborted).toBe(true)
+  })
 
-    await createClient({ ...options, onAuthRequired }).connect()
-
-    const error = new InvalidAgentTokenError('https://kubb.studio')
-    captured?.onTokenRejected?.(error)
-    captured?.onTokenRejected?.(error)
-
-    expect(onAuthRequired).toHaveBeenCalledOnce()
-    expect(onAuthRequired).toHaveBeenCalledWith(error)
-    expect(captured?.signal?.aborted).toBe(true)
+  it('rejects startup authentication but notifies rejection after connect resolves', async () => {
+    const error = new InvalidAgentTokenError('https://studio.test')
+    const required = vi.fn()
+    vi.mocked(runConnection).mockImplementation(async ({ onTokenRejected }) => {
+      await onTokenRejected({ error, credentials: { token: 'token' }, live: false })
+      return 'stopped'
+    })
+    await expect(createClient({ ...options, onAuthRequired: required }).connect()).rejects.toBe(error)
+    expect(required).not.toHaveBeenCalled()
+    vi.mocked(runConnection).mockImplementation(async ({ onStarted, onTokenRejected }) => {
+      onStarted?.()
+      await onTokenRejected({ error, credentials: { token: 'token' }, live: false })
+      return 'stopped'
+    })
+    await createClient({ ...options, onAuthRequired: required }).connect()
+    expect(required).toHaveBeenCalledOnce()
   })
 })

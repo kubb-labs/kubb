@@ -1,84 +1,119 @@
-import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
-import { InvalidAgentTokenError } from '../operations/api.ts'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Config } from '@kubb/core'
+import { AgentCloseCode, type RpcClose } from '../protocol/index.ts'
+import { InvalidAgentTokenError, registerAgent } from '../operations/api.ts'
 import { runConnection } from './runConnection.ts'
 
-vi.mock('./client.ts', () => ({ createClient: vi.fn() }))
-
-import { createClient } from './client.ts'
-
-const clientOptions = () => ({ attach: vi.fn(), studioUrl: 'https://kubb.studio', configPath: 'kubb.config.ts', version: '1.0.0', loadConfig: vi.fn() })
-
-type FakeClient = {
-  connect: Mock<() => Promise<void>>
-  disconnect: Mock<() => void>
-  /**
-   * What the pool would call for a token rejected during background reconnect, once it has stopped.
-   */
-  onAuthRequired?: (error: InvalidAgentTokenError) => void
-  token?: string
-}
-
-/**
- * Queues one client per attempt. `connect` decides how that attempt ends, and every client records
- * whether it was disconnected, which is what the run promises before it moves on.
- */
-function queueClients(...connects: Array<() => Promise<void>>): Array<FakeClient> {
-  const clients: Array<FakeClient> = connects.map((connect) => ({ connect: vi.fn(connect), disconnect: vi.fn() }))
-  let attempt = 0
-
-  vi.mocked(createClient).mockImplementation((options) => {
-    const client = clients[attempt++]
-    if (!client) throw new Error('createClient was called more times than the test queued')
-
-    client.onAuthRequired = options.onAuthRequired
-    client.token = options.token
-
-    return client
-  })
-
-  return clients
-}
-
-const rejected = () => Promise.reject(new InvalidAgentTokenError('https://kubb.studio'))
+vi.mock('../operations/api.ts', async (original) => ({ ...(await original<typeof import('../operations/api.ts')>()), registerAgent: vi.fn() }))
 
 beforeEach(() => {
-  vi.clearAllMocks()
+  vi.mocked(registerAgent).mockReset().mockResolvedValue({ socketUrl: 'ws://studio/socket', version: '1.0.0', isSandbox: false })
 })
+afterEach(() => vi.restoreAllMocks())
+
+function connection() {
+  const shutdown = new AbortController()
+  const closes: Array<(close?: RpcClose) => void> = []
+  const ready = vi.fn()
+  const retry = vi.fn()
+  const options = () => ({
+    configPath: 'kubb.config.ts',
+    version: '1.0.0',
+    retryInterval: 1,
+    loadConfig: async () => ({ plugins: [] }) as unknown as Config,
+    installLogger: (hooks: import('@kubb/core').Hookable<import('@kubb/core').KubbHooks>) => {
+      hooks.hook('studio:ready', ready)
+      hooks.hook('studio:reconnecting', retry)
+    },
+    connector: async ({ local }: Parameters<import('../protocol/index.ts').RpcConnector>[0]) => {
+      const closed = Promise.withResolvers<RpcClose | void>()
+      closes.push(closed.resolve)
+      queueMicrotask(() => {
+        void local.connect()
+      })
+      return { studio: { ping: async () => {} }, closed: closed.promise, close: () => closed.resolve() }
+    },
+  })
+  return { shutdown, closes, ready, retry, options }
+}
 
 describe('runConnection', () => {
-  it('ends the run when the signal aborts while the session is live', async () => {
-    const clients = queueClients(() => Promise.resolve())
-    const controller = new AbortController()
-
-    const outcome = runConnection({ credentials: { token: 'a' }, clientOptions, onTokenRejected: vi.fn(), signal: controller.signal })
-    await vi.waitFor(() => expect(createClient).toHaveBeenCalledTimes(1))
-    controller.abort()
-
-    await expect(outcome).resolves.toBe('shutdown')
-    expect(clients[0]?.disconnect).toHaveBeenCalled()
+  it('does not retry a terminal close before the handshake completes', async () => {
+    const c = connection()
+    await expect(
+      runConnection({
+        credentials: { token: 'a' },
+        clientOptions: () => ({
+          ...c.options(),
+          connector: async () => ({
+            studio: { ping: async () => {} },
+            closed: Promise.resolve({ code: AgentCloseCode.INCOMPATIBLE, reason: '' }),
+            close: () => {},
+          }),
+        }),
+        onTokenRejected: async () => null,
+      }),
+    ).resolves.toBe('stopped')
+    expect(registerAgent).toHaveBeenCalledOnce()
+    expect(c.retry).not.toHaveBeenCalled()
   })
 
-  it('reports a token rejected before a session opened, then reconnects with the replacement', async () => {
-    const clients = queueClients(rejected, () => Promise.resolve())
-    const controller = new AbortController()
-    const onTokenRejected = vi.fn(async () => ({ token: 'b' }))
-    const options = vi.fn(clientOptions)
+  it('retries network failures and dropped sockets with the same instance, then stops cleanly', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.5)
+    vi.mocked(registerAgent).mockRejectedValueOnce(new Error('offline'))
+    const c = connection()
+    const running = runConnection({ credentials: { token: 'a' }, clientOptions: c.options, signal: c.shutdown.signal, onTokenRejected: async () => null })
+    await vi.waitFor(() => expect(c.ready).toHaveBeenCalledOnce())
+    c.closes[0]?.()
+    await vi.waitFor(() => expect(c.ready).toHaveBeenCalledTimes(2))
+    c.shutdown.abort()
+    await expect(running).resolves.toBe('shutdown')
+    expect(c.retry).toHaveBeenCalledTimes(2)
+    expect(new Set(vi.mocked(registerAgent).mock.calls.map(([options]) => options.instanceId)).size).toBe(1)
+  })
 
-    const outcome = runConnection({ credentials: { token: 'a' }, clientOptions: options, onTokenRejected, signal: controller.signal })
-    await vi.waitFor(() => expect(createClient).toHaveBeenCalledTimes(2))
-    controller.abort()
-
-    await expect(outcome).resolves.toBe('shutdown')
-    expect(onTokenRejected).toHaveBeenCalledWith({ error: expect.any(InvalidAgentTokenError), credentials: { token: 'a' }, live: false })
-    expect(clients[0]?.disconnect).toHaveBeenCalled()
-    expect(clients[1]?.token).toBe('b')
-    // Options are rebuilt per attempt, so a host that re-derives them from the credential is heard.
+  it('replaces a rejected credential, including after a live connection', async () => {
+    const c = connection()
+    const rejected = new InvalidAgentTokenError('https://studio.test')
+    const replace = vi.fn(async () => ({ token: 'b' }))
+    const options = vi.fn(c.options)
+    const running = runConnection({ credentials: { token: 'a' }, clientOptions: options, signal: c.shutdown.signal, onTokenRejected: replace })
+    await vi.waitFor(() => expect(c.ready).toHaveBeenCalledOnce())
+    vi.mocked(registerAgent).mockRejectedValueOnce(rejected)
+    c.closes[0]?.()
+    await vi.waitFor(() => expect(c.ready).toHaveBeenCalledTimes(2))
+    c.shutdown.abort()
+    await running
+    expect(replace).toHaveBeenCalledWith({ error: rejected, credentials: { token: 'a' }, live: true })
     expect(options.mock.calls).toEqual([[{ token: 'a' }], [{ token: 'b' }]])
   })
 
-  it('ends the run when the host declines to replace the token', async () => {
-    queueClients(rejected)
+  it('stops when the host declines a startup rejection', async () => {
+    vi.mocked(registerAgent).mockRejectedValue(new InvalidAgentTokenError('https://studio.test'))
+    const c = connection()
+    const replace = vi.fn(async () => null)
+    await expect(runConnection({ credentials: { token: 'a' }, clientOptions: c.options, onTokenRejected: replace })).resolves.toBe('stopped')
+    expect(replace).toHaveBeenCalledWith(expect.objectContaining({ live: false }))
+  })
 
-    await expect(runConnection({ credentials: { token: 'a' }, clientOptions, onTokenRejected: async () => null })).resolves.toBe('stopped')
+  it('stops on supersession and cancels a pending retry', async () => {
+    const c = connection()
+    const running = runConnection({ credentials: { token: 'a' }, clientOptions: c.options, signal: c.shutdown.signal, onTokenRejected: async () => null })
+    await vi.waitFor(() => expect(c.ready).toHaveBeenCalledOnce())
+    c.closes[0]?.({ code: AgentCloseCode.SUPERSEDED, reason: '' })
+    await expect(running).resolves.toBe('stopped')
+    expect(c.retry).not.toHaveBeenCalled()
+
+    vi.spyOn(Math, 'random').mockReturnValue(1)
+    vi.mocked(registerAgent).mockRejectedValue(new Error('offline'))
+    const retrying = runConnection({
+      credentials: { token: 'a' },
+      clientOptions: () => ({ ...c.options(), retryInterval: 10_000 }),
+      signal: c.shutdown.signal,
+      onTokenRejected: async () => null,
+    })
+    await vi.waitFor(() => expect(c.retry).toHaveBeenCalledOnce())
+    c.shutdown.abort()
+    await expect(retrying).resolves.toBe('shutdown')
   })
 })

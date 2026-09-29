@@ -4,6 +4,7 @@ import { definition as connectDefinition } from './connect.ts'
 import { definition as loginDefinition } from './login.ts'
 import { definition as logoutDefinition } from './logout.ts'
 import { definition as snapshotDefinition } from './snapshot.ts'
+import { definition as startDefinition, stopDefinition } from './background.ts'
 import { definition as statusDefinition } from './status.ts'
 
 export const definition = define({
@@ -28,6 +29,8 @@ export const definition = define({
     await runner(ctx)
   },
   subCommands: {
+    start: lazy(async () => (await import('../../runners/studio/start.ts')).runner, startDefinition),
+    stop: lazy(async () => (await import('../../runners/studio/stop.ts')).runner, stopDefinition),
     connect: lazy(async () => (await import('../../runners/studio/connect.ts')).runner, connectDefinition),
     login: lazy(async () => (await import('../../runners/studio/login.ts')).runner, loginDefinition),
     logout: lazy(async () => (await import('../../runners/studio/logout.ts')).runner, logoutDefinition),

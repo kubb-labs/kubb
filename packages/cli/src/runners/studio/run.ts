@@ -297,247 +297,114 @@ function explainRejectedToken(error: InvalidAgentTokenError, reason: RejectedTok
   return new Error(`${error.message} Run \`kubb studio login\` to pair again.`)
 }
 
-/**
- * One `kubb studio` connect run: pairing if needed, connecting, and pairing again whenever Studio
- * rejects the token. Reached through `connect()`, which is what the command runs.
- */
-class StudioConnection {
-  readonly #options: StudioOptions
-  readonly #configPath: string
-  readonly #shutdown = new AbortController()
-  readonly #requestShutdown = (): void => this.#shutdown.abort()
-  // `bun-types` narrows `process.on`/`process.off` to its own event union, which omits Node's
-  // process signal events, so the listener is installed and removed through the plain emitter API.
-  readonly #processEvents = process as unknown as NodeJS.EventEmitter
-
-  // Known once `run()` resolves the initial credentials, before anything else reads this field.
-  #credentials!: Credentials
-  // Whether the "Press Ctrl+C" hint already printed, so a reconnect never repeats it.
-  #hinted = false
-  // One automatic re-pair per run, whether the rejection lands at startup or once the session is
-  // live. A token rejected right after a fresh login is a hard failure, not a reason to keep
-  // pairing.
-  #hasReauthenticated = false
-  // Resolved by `run()` from the flags and the project's saved answers, before anything reads it.
-  #granted!: Record<Permission, boolean>
-
-  constructor(options: StudioOptions, configPath: string) {
-    this.#options = options
-    this.#configPath = configPath
-  }
-
-  #reportDisconnected(): void {
-    if (this.#options.logLevel === 'silent') {
-      return
-    }
-
-    logOutro('Disconnected')
-  }
-
-  /**
-   * Connects and streams generation events until the process is stopped or Studio rejects the
-   * token.
-   *
-   * One `AbortController` covers the whole run: it cancels an in-flight pairing poll on Ctrl+C and
-   * ends the wait in `#connectAndWait`. Its signal listeners are armed once here, so a retried
-   * pairing cannot leave a duplicate behind.
-   */
-  async run(): Promise<void> {
-    this.#processEvents.once('SIGINT', this.#requestShutdown)
-    this.#processEvents.once('SIGTERM', this.#requestShutdown)
-
-    try {
-      this.#credentials = await this.#resolveInitialCredentials()
-
-      this.#granted = await resolvePermissions(this.#options, this.#credentials, this.#configPath, !process.env.KUBB_AGENT_TOKEN)
-
-      this.#printBanner()
-
-      const outcome = await runConnection({
-        credentials: this.#credentials,
-        signal: this.#shutdown.signal,
-        clientOptions: () => this.#clientOptions(),
-        onTokenRejected: ({ error, live }) => this.#handleRejection(error, live),
-      })
-
-      if (outcome === 'shutdown') {
-        this.#reportDisconnected()
-      }
-    } catch (error) {
-      // Canceling the very first pairing (before anything was ever connected) is Ctrl+C working as
-      // intended, not a failure to report.
-      if (error instanceof PairingCanceledError) {
-        return
-      }
-
-      throw error
-    } finally {
-      this.#processEvents.off('SIGINT', this.#requestShutdown)
-      this.#processEvents.off('SIGTERM', this.#requestShutdown)
-    }
-  }
-
-  async #resolveInitialCredentials(): Promise<Credentials> {
-    const envToken = process.env.KUBB_AGENT_TOKEN
-    const stored = envToken ? null : await readCredentials()
-
-    // A credential is only reused for the Studio it was issued by, so switching `--url` re-pairs
-    // instead of sending one instance's token to another.
-    const resolved = envToken
-      ? { studioUrl: this.#options.studioUrl, token: envToken, agentId: '', agentSlug: '' }
-      : stored?.studioUrl === this.#options.studioUrl
-        ? stored
-        : null
-
-    if (resolved) {
-      return resolved
-    }
-
-    if (isCIEnvironment()) {
-      throw new Error(`Not paired with ${this.#options.studioUrl}. Set KUBB_AGENT_TOKEN, or run \`kubb studio login\` on a machine with a browser.`)
-    }
-
-    return login(this.#options, { signal: this.#shutdown.signal })
-  }
-
-  #printBanner(): void {
-    if (this.#options.logLevel === 'silent') {
-      return
-    }
-
-    const detail = (label: string, value: string) => `${styleText('dim', label.padEnd(7))}  ${value}`
-
-    logBlock([
-      detail('Studio', styleText('cyan', this.#options.studioUrl)),
-      detail('Project', path.basename(process.cwd())),
-      detail('Config', path.relative(process.cwd(), this.#configPath) || this.#configPath),
-      '',
-      styleText('dim', 'Permissions'),
-      ...formatPermissionRows(this.#granted),
-    ])
-  }
-
-  /**
-   * What every connection attempt opens with. Rebuilt per attempt, so a re-pair that changed the
-   * granted permissions takes effect on the next one.
-   */
-  #clientOptions(): Omit<ClientOptions, 'token' | 'onAuthRequired'> {
-    return {
-      studioUrl: this.#options.studioUrl,
-      configPath: this.#configPath,
-      version: this.#options.version,
-      // Reloaded on every generate, so an edit to kubb.config.ts is picked up without reconnecting.
-      loadConfig: async () => (await loadConfigs(this.#options)).config,
-      root: process.cwd(),
-      permissions: this.#granted,
-      // The loggers `kubb generate` installs, so one place renders the session events and the
-      // generations it drives.
-      installLogger: async (hooks) => {
-        await setupReporters(hooks, { logLevel: logLevelMap[this.#options.logLevel ?? 'info'], reporters: [cliReporter] })
-
-        // `client.connect()` resolves once the agent is registered, not once a session is open, so
-        // this is the only point that knows the connection is live. Registered after the loggers so
-        // it lands under their "Connected to ..." line, and once, since every reconnect fires again.
-        hooks.hook('studio:connected', () => {
-          if (this.#hinted || this.#options.logLevel === 'silent') {
-            return
-          }
-          this.#hinted = true
-
-          logBlock(styleText('dim', 'Press Ctrl+C to disconnect'))
-        })
-        // Registered after the CLI reporter so the tip is printed immediately before its
-        // "Ready to receive jobs" spinner when the Studio session becomes ready.
-        hooks.hook('studio:ready', () => {
-          logTip()
-        })
-      },
-    }
-  }
-
-  /**
-   * Throws when a rejected token cannot be replaced by pairing again: this run already paired once
-   * and was rejected anyway, or there is no browser to approve a new pairing.
-   */
-  #assertCanReauthenticate(error: InvalidAgentTokenError): void {
-    if (this.#hasReauthenticated) {
-      throw explainRejectedToken(error, 'reauthExhausted')
-    }
-
-    if (isCIEnvironment() || !canUseTTY()) {
-      throw explainRejectedToken(error, 'nonInteractive')
-    }
-  }
-
-  /**
-   * Studio rejected the token, either before a session ever opened or once one was already live.
-   * Keeping a rejected token only produces 401s on every run, so it is forgotten and paired again.
-   * Returns the credential to reconnect with, or null when the run is over.
-   */
-  async #handleRejection(error: InvalidAgentTokenError, live: boolean): Promise<Credentials | null> {
-    // An operator-supplied token is never replaced automatically.
-    if (process.env.KUBB_AGENT_TOKEN) {
-      throw explainRejectedToken(error, 'envToken')
-    }
-
-    // A token dead at startup is forgotten either way. A live one is only forgotten once this run
-    // knows it can pair again, so a CI run keeps the credential it could not replace.
-    if (!live) {
-      await clearCredentials()
-    }
-
-    this.#assertCanReauthenticate(error)
-
-    console.log(styleText('yellow', live ? `${error.message} Studio needs you to approve access again.` : `${error.message} Pairing again...`))
-
-    if (live) {
-      await clearCredentials()
-    }
-
-    const credentials = await this.#reauthenticate()
-
-    // Nothing was ever connected at startup, so there is no session to report the end of.
-    if (!credentials && live) {
-      this.#reportDisconnected()
-    }
-
-    return credentials
-  }
-
-  /**
-   * Re-pairs and stores the resulting credentials. Returns null when the operator canceled it.
-   */
-  async #reauthenticate(): Promise<Credentials | null> {
-    try {
-      this.#credentials = await login(this.#options, { signal: this.#shutdown.signal, previousCredentials: this.#credentials })
-    } catch (loginError) {
-      if (loginError instanceof PairingCanceledError) {
-        return null
-      }
-      throw loginError
-    }
-
-    this.#hasReauthenticated = true
-
-    // The approved agent may be a different identity, whose saved permissions did not carry
-    // forward. Resolving again asks for whatever this credential does not already hold, instead
-    // of handing the new agent what the previous one was granted.
-    this.#granted = await resolvePermissions(this.#options, this.#credentials, this.#configPath, !process.env.KUBB_AGENT_TOKEN)
-
-    return this.#credentials
-  }
+export type PreparedConnection = {
+  configPath: string
+  credentials: Credentials
+  permissions: StudioOptions['permission']
 }
 
-/**
- * Connects this project to Studio and streams generation events until the process is stopped or
- * Studio rejects the token.
- */
-export async function connect(options: StudioOptions): Promise<void> {
-  // Resolved before any network call to Studio (pairing included), so a project with no config
-  // fails fast instead of starting a device-authorization flow it can never use.
+/** Validates the project and resolves pairing and permissions before starting its worker. */
+export async function prepareConnection(options: StudioOptions, signal?: AbortSignal): Promise<PreparedConnection> {
   const { configPath } = await loadConfigs(options)
+  const envToken = process.env.KUBB_AGENT_TOKEN
+  const stored = envToken ? null : await readCredentials()
+  const credentials = await (async () => {
+    if (envToken) return { studioUrl: options.studioUrl, token: envToken, agentId: '', agentSlug: '' }
+    if (stored?.studioUrl === options.studioUrl) return stored
+    if (isCIEnvironment()) {
+      throw new Error(`Not paired with ${options.studioUrl}. Set KUBB_AGENT_TOKEN, or run \`kubb studio login\` on a machine with a browser.`)
+    }
+    return login(options, { signal })
+  })()
+  const permissions = await resolvePermissions(options, credentials, configPath, !envToken)
+  return { configPath, credentials, permissions }
+}
 
-  await new StudioConnection(options, configPath).run()
+export type WorkerState = 'starting' | 'connected' | 'reconnecting' | 'authentication required' | 'stopped'
+
+/** Runs the same project connection in the foreground or in a background worker. */
+export async function connect(
+  options: StudioOptions,
+  context: {
+    prepared?: PreparedConnection
+    signal?: AbortSignal
+    onState?: (state: WorkerState) => void | Promise<void>
+  } = {},
+): Promise<void> {
+  const shutdown = new AbortController()
+  const signal = context.signal ?? shutdown.signal
+  const stop = () => shutdown.abort()
+  const events = process as unknown as NodeJS.EventEmitter
+  if (!context.signal) {
+    events.once('SIGINT', stop)
+    events.once('SIGTERM', stop)
+  }
+  let hinted = false
+  let reauthenticated = false
+  try {
+    if (!context.prepared) {
+      const { getWorkerStatus } = await import('./background.ts')
+      const worker = await getWorkerStatus()
+      if (worker.running) throw new Error('This project is running in the background. Run `kubb studio stop` first.')
+    }
+    const prepared = context.prepared ?? (await prepareConnection(options, signal))
+    let { credentials, permissions } = prepared
+    const { configPath } = prepared
+    await runConnection({
+      credentials,
+      signal,
+      clientOptions: (): Omit<ClientOptions, 'token' | 'onAuthRequired'> => ({
+        studioUrl: options.studioUrl,
+        configPath,
+        version: options.version,
+        root: process.cwd(),
+        permissions,
+        loadConfig: async () => (await loadConfigs(options)).config,
+        installLogger: async (hooks) => {
+          if (!context.onState) await setupReporters(hooks, { logLevel: logLevelMap[options.logLevel ?? 'info'], reporters: [cliReporter] })
+          hooks.hook('studio:connected', () => {
+            if (!hinted && !context.onState && options.logLevel !== 'silent') logBlock(styleText('dim', 'Press Ctrl+C to disconnect'))
+            hinted = true
+          })
+          hooks.hook('studio:ready', async () => {
+            await context.onState?.('connected')
+            if (!context.onState) logTip()
+          })
+          hooks.hook('studio:reconnecting', () => context.onState?.('reconnecting'))
+          hooks.hook('studio:error', ({ error }) => {
+            if (context.onState) console.error(error.message)
+          })
+        },
+      }),
+      onTokenRejected: async ({ error, live }) => {
+        await context.onState?.('authentication required')
+        if (process.env.KUBB_AGENT_TOKEN) throw explainRejectedToken(error, 'envToken')
+        if (!live) await clearCredentials()
+        if (reauthenticated) throw explainRejectedToken(error, 'reauthExhausted')
+        if (context.onState || isCIEnvironment() || !canUseTTY()) throw explainRejectedToken(error, 'nonInteractive')
+        console.log(styleText('yellow', live ? `${error.message} Studio needs you to approve access again.` : `${error.message} Pairing again...`))
+        if (live) await clearCredentials()
+        try {
+          credentials = await login(options, { signal, previousCredentials: credentials })
+        } catch (error) {
+          if (error instanceof PairingCanceledError) {
+            if (live && options.logLevel !== 'silent') logOutro('Disconnected')
+            return null
+          }
+          throw error
+        }
+        reauthenticated = true
+        permissions = await resolvePermissions(options, credentials, configPath, !process.env.KUBB_AGENT_TOKEN)
+        return credentials
+      },
+    })
+    if (!context.onState && signal.aborted && options.logLevel !== 'silent') logOutro('Disconnected')
+  } catch (error) {
+    if (!(error instanceof PairingCanceledError)) throw error
+  } finally {
+    events.off('SIGINT', stop)
+    events.off('SIGTERM', stop)
+  }
 }
 
 /**

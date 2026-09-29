@@ -30,7 +30,7 @@ import {
   type RpcConnector,
   type RpcConnection,
 } from '../protocol/index.ts'
-import { IncompatibleAgentError, InvalidAgentTokenError, registerAgent } from '../operations/api.ts'
+import { registerAgent } from '../operations/api.ts'
 import { readConfig, writeConfigEdits } from '../operations/configFile.ts'
 import { agentDefaults, resolveAgentCapacity, resolveGenerationLimits } from '../operations/constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from '../operations/resolveConfig.ts'
@@ -112,10 +112,6 @@ export type StudioSessionOptions = {
    */
   retryInterval?: number
   /**
-   * Number of consecutive reconnect attempts that already failed.
-   */
-  reconnectAttempt?: number
-  /**
    * Milliseconds between keep-alive pings, clamped to `agentDefaults.maxHeartbeatIntervalMs`.
    * Raise it to halve the traffic and database writes a long-lived agent costs, at the price of
    * Studio taking that much longer to notice the agent has gone. Lower it in development to see
@@ -129,13 +125,13 @@ export type StudioSessionOptions = {
   capacity?: Partial<AgentCapacity>
   /**
    * Names this agent process to Studio, sent at registration and as {@link AGENT_INSTANCE_HEADER}
-   * on the socket. `createClient` sets one per process, so a reconnect is the same instance and a
+   * on the socket. `runConnection` sets one per process, so a reconnect is the same instance and a
    * restart is a new one. Not meant to be set directly by a host.
    */
   instanceId?: string
   /**
    * Aborting this disconnects the session and stops the reconnect loop. Hosts wire it to their own
-   * shutdown: Nitro's `close` hook, or `SIGINT`/`SIGTERM` in the CLI.
+   * shutdown signal, usually `SIGINT` or `SIGTERM`.
    */
   signal?: AbortSignal
   /**
@@ -144,13 +140,6 @@ export type StudioSessionOptions = {
    * default to.
    */
   installLogger?: (hooks: Hookable<KubbHooks>) => void | Promise<void>
-  /**
-   * Called when this session's background reconnect is rejected with an invalid token. Unlike
-   * `ClientOptions.onAuthRequired`, this fires once per session rather than once per pool:
-   * `createClient` wraps it into that deduped, pool-stopping callback. Not meant to be set
-   * directly by a host.
-   */
-  onTokenRejected?: (error: InvalidAgentTokenError) => void
 }
 
 /**
@@ -199,7 +188,7 @@ function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
 
 /**
  * Jobs one agent process can run at once today. Two runs would share this session's hook emitter,
- * and with it each other's events, until each job runs in its own worker (ADR-0003 slice B2).
+ * and with it each other's events, so the connection keeps this limit.
  */
 const RUNTIME_MAX_CONCURRENT = 1
 
@@ -209,56 +198,10 @@ function rssMb(): number {
   return process.memoryUsage().rss / MB
 }
 
-function backoffDelayMs(attempt: number, maxMs: number): number {
-  const cap = Math.min(1_000 * 2 ** (attempt - 1), maxMs)
-  return Math.random() * cap
-}
-
-function reconnect(options: ResolvedOptions, delayMs: number, attempt: number): void {
-  const { signal, onTokenRejected } = options
-
-  if (signal?.aborted) {
-    return
-  }
-
-  const cancel = () => clearTimeout(timer)
-  const timer = setTimeout(() => {
-    // Removed here rather than left to `{ once: true }`: the signal only aborts at shutdown, so one
-    // listener per retry would accumulate for the whole life of a down-Studio retry loop.
-    signal?.removeEventListener('abort', cancel)
-
-    if (signal?.aborted) {
-      return
-    }
-
-    // The rejection is never awaited, so it has to be caught here or it surfaces as an
-    // unhandledRejection that kills the retry loop instead of trying again. The failure itself was
-    // already reported: `start()` sends `studio:error` through the new session's hooks.
-    new StudioSession({ ...options, reconnectAttempt: attempt }).start().catch((error: unknown) => {
-      // A rejected token stays rejected, so retrying only spams 401s until the process is killed.
-      // The host learns about it here instead: the startup path already reports its own rejection
-      // by throwing, so only the background path needs the callback.
-      if (error instanceof InvalidAgentTokenError) {
-        onTokenRejected?.(error)
-
-        return
-      }
-
-      // An agent too old for Studio stays too old; `start()` already reported it.
-      if (error instanceof IncompatibleAgentError) return
-
-      const nextAttempt = attempt + 1
-      reconnect(options, backoffDelayMs(nextAttempt, options.retryInterval), nextAttempt)
-    })
-  }, delayMs)
-
-  signal?.addEventListener('abort', cancel, { once: true })
-}
-
 /**
  * How a session ends: what the host is told, and whether it reconnects.
  */
-type EndPlan = {
+export type SessionEnd = {
   reason: string
   retry: boolean
   /** Reported through `studio:error` when the end needs the user to act. */
@@ -269,7 +212,7 @@ type EndPlan = {
  * Reads what Studio meant by closing the connection. A code Studio did not send on purpose is an
  * ordinary drop, and the agent reconnects as it always has.
  */
-function planEnd(close: RpcClose | void): EndPlan {
+function planEnd(close: RpcClose | void): SessionEnd {
   const code = close?.code
   // Every connection attempt registers first, so reconnecting is how the agent registers again.
   if (code === AgentCloseCode.REAUTHENTICATE) return { reason: 'Kubb Studio asked the agent to register again', retry: true }
@@ -286,7 +229,7 @@ function planEnd(close: RpcClose | void): EndPlan {
 
 /**
  * One agent-to-Studio RPC transport: opening it, keeping it alive, and serving remote methods.
- * `createClient` opens one per pool slot and is the only caller.
+ * `runConnection` owns the lifetime and retry of each attempt.
  */
 export class StudioSession implements AgentApi {
   readonly #options: ResolvedOptions
@@ -326,11 +269,12 @@ export class StudioSession implements AgentApi {
    * host does not queue jobs before the agent session is registered.
    */
   readonly #connectAck = Promise.withResolvers<void>()
-  #reconnectAttempt: number
+  readonly #ended = Promise.withResolvers<SessionEnd>()
+  readonly closed = this.#ended.promise
+  #generationResult: Promise<GenerateResult> | undefined
 
-  constructor({ reconnectAttempt, ...options }: StudioSessionOptions) {
+  constructor(options: StudioSessionOptions) {
     this.#options = applyStudioDefaults(options)
-    this.#reconnectAttempt = reconnectAttempt ?? 0
     // dispose() may reject this before start() awaits it
     void this.#connectAck.promise.catch(() => {})
   }
@@ -375,25 +319,30 @@ export class StudioSession implements AgentApi {
     const { token, studioUrl, signal, heartbeatInterval, installLogger, instanceId, capacity } = this.#options
 
     await installLogger?.(this.#hooks)
+    signal?.addEventListener('abort', this.#onAbort, { once: true })
+    this.#unhooks.push(() => signal?.removeEventListener('abort', this.#onAbort))
 
     try {
+      signal?.throwIfAborted()
       // Before registering, so a host can cover the wait: registration is a round trip and the
       // socket after it opens without being awaited.
       await this.#hooks.callHook('studio:connecting', { url: studioUrl })
 
-      if (this.#reconnectAttempt === 0 && capacity.maxConcurrent > RUNTIME_MAX_CONCURRENT) {
+      if (capacity.maxConcurrent > RUNTIME_MAX_CONCURRENT) {
         await this.#warn(
           `Running ${RUNTIME_MAX_CONCURRENT} job at a time: KUBB_AGENT_MAX_CONCURRENT=${capacity.maxConcurrent} needs per-job workers, which this agent does not have yet`,
         )
       }
 
       const registration = await registerAgent({
+        signal,
         token,
         studioUrl,
         instanceId,
         capacity: { ...capacity, maxConcurrent: Math.min(capacity.maxConcurrent, RUNTIME_MAX_CONCURRENT) },
       })
 
+      signal?.throwIfAborted()
       this.#registration = registration
       this.#studioVersion = registration.version
 
@@ -401,8 +350,10 @@ export class StudioSession implements AgentApi {
       this.#rpc = rpc
       void rpc.closed.then(this.#onClose)
 
-      signal?.addEventListener('abort', this.#onAbort, { once: true })
-      this.#unhooks.push(() => signal?.removeEventListener('abort', this.#onAbort))
+      if (signal?.aborted || this.#disposed) {
+        rpc.close()
+        throw new Error('Connection stopped during startup')
+      }
 
       this.#scheduleHeartbeat(heartbeatInterval)
       await this.#hooks.callHook('studio:connected', {
@@ -413,36 +364,16 @@ export class StudioSession implements AgentApi {
       })
       // Studio registers the agent by calling connect() over RPC. Ready means that handshake landed.
       await this.#connectAck.promise
-      this.#reconnectAttempt = 0
       await this.#hooks.callHook('studio:ready', {})
     } catch (error) {
-      // A connector can fail after opening RPC and installing the heartbeat. Tear down every
-      // partial resource before retrying, otherwise each retry leaks a timer and a live session.
-      this.#disposed = true
-      this.dispose()
-      await this.#hooks.callHook('studio:error', { error: toError(error) })
-
-      if (error instanceof InvalidAgentTokenError || error instanceof IncompatibleAgentError) {
-        throw error
-      }
-
-      await this.#reconnect()
+      await this.dispose()
+      if (!signal?.aborted) await this.#hooks.callHook('studio:error', { error: toError(error) })
+      throw error
     }
   }
 
-  /**
-   * Tells the host a retry is coming, then schedules it. The host prints the retry, since the
-   * runtime has no output of its own.
-   */
-  async #reconnect(): Promise<void> {
-    if (this.#options.signal?.aborted) {
-      return
-    }
-
-    const attempt = this.#reconnectAttempt + 1
-    const delayMs = backoffDelayMs(attempt, this.#options.retryInterval)
-    await this.#hooks.callHook('studio:reconnecting', { delayMs })
-    reconnect(this.#options, delayMs, attempt)
+  reportRetry(delayMs: number): Promise<void> | void {
+    return this.#hooks.callHook('studio:reconnecting', { delayMs })
   }
 
   #warn(message: string, permission?: keyof AgentPermissions): Promise<void> | void {
@@ -550,48 +481,35 @@ export class StudioSession implements AgentApi {
     return payload
   }
 
-  #onAbort = (): void => void this.#end({ reason: 'shutdown', retry: false })
+  #onAbort = (): void => void this.#end({ reason: 'shutdown', retry: false }).catch(() => {})
 
-  #onClose = (close: RpcClose | void): void => void this.#end(planEnd(close))
+  #onClose = (close: RpcClose | void): void => void this.#end(planEnd(close)).catch(() => {})
 
-  /**
-   * Drops the socket and detaches every listener and timer this session added. Idempotent, and
-   * safe before `connect` opened anything.
-   *
-   * @internal
-   */
-  dispose(): void {
-    clearTimeout(this.#heartbeatTimer)
-    this.#heartbeatTimer = undefined
-    this.#rpc?.close()
-    this.#rpc = undefined
-    this.#connectAck.reject(new Error('Session ended before Studio called connect()'))
-
-    for (const unhook of this.#unhooks) unhook()
-    this.#unhooks.length = 0
+  /** Closes this attempt and waits for its generation to stop before another can start. */
+  dispose(): Promise<void> {
+    return this.#end({ reason: 'shutdown', retry: false })
   }
 
-  /**
-   * Ends the session: tells Studio it is over, drops the socket, and optionally reconnects.
-   * `#disposed` keeps the close event from running this twice, and a shutdown from reconnecting.
-   */
-  async #end({ reason, retry, error }: EndPlan): Promise<void> {
+  async #end(plan: SessionEnd): Promise<void> {
     if (this.#disposed) {
+      await this.closed
       return
     }
     this.#disposed = true
+    clearTimeout(this.#heartbeatTimer)
+    this.#rpc?.close()
+    this.#rpc = undefined
+    this.#connectAck.reject(new Error('Session ended before Studio called connect()'))
+    for (const unhook of this.#unhooks) unhook()
+    this.#unhooks.length = 0
 
-    this.dispose()
-
-    await this.#hooks.callHook('studio:disconnected', { reason })
-
-    if (error) {
-      await this.#hooks.callHook('studio:error', { error })
-    }
-
-    // The closed socket is the whole notice: Studio drops the agent's connection the moment it sees it.
-    if (retry) {
-      await this.#reconnect()
+    try {
+      await this.#activeJob?.cancel()
+      await this.#generationResult?.catch(() => {})
+      await this.#hooks.callHook('studio:disconnected', { reason: plan.reason })
+      if (plan.error) await this.#hooks.callHook('studio:error', { error: plan.error })
+    } finally {
+      this.#ended.resolve(plan)
     }
   }
 
@@ -617,7 +535,8 @@ export class StudioSession implements AgentApi {
       .finally(() => {
         if (this.#activeJob?.cancel === cancelRun) this.#activeJob = undefined
       })
-    // A dispose can reject this with nobody holding it, which would otherwise be unhandled.
+    if (this.#activeJob?.cancel === cancelRun) this.#generationResult = result
+    // A disconnect can reject this after the remote caller disappeared.
     void result.catch(() => {})
 
     return new GenerationRunTarget(generationStream.stream, result, cancelRun, () => {
@@ -635,6 +554,7 @@ export class StudioSession implements AgentApi {
 
   async #runGeneration(data: GenerateInput, controller: AbortController, cancelRun: () => Promise<void>): Promise<GenerateResult> {
     // Checked before the first `await`, so two calls in the same tick can't both pass.
+    if (this.#disposed) throw new Error('Connection is closed')
     if (this.#isGenerating) {
       return this.#refuse('Ignored generate: a generation is already in progress', 'A generation is already in progress, please wait for it to finish')
     }

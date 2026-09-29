@@ -1,6 +1,6 @@
 import { defineConfig, type UserConfig } from 'tsdown'
 
-const entry = ['src/index.ts']
+const entry = { index: 'src/index.ts', studioWorker: 'src/runners/studio/worker.ts' }
 
 const shared: Partial<UserConfig> = {
   platform: 'node',
@@ -24,7 +24,7 @@ export default defineConfig([
     ...shared,
   },
   {
-    entry,
+    entry: { index: 'src/index.ts' },
     format: 'cjs',
     dts: false,
     ...shared,
