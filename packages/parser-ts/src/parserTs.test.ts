@@ -55,6 +55,28 @@ describe('parserTs', () => {
     expect(result).toContain('export const pet = {}')
   })
 
+  describe('package imports', () => {
+    function createFileWithCodec(code: string) {
+      return ast.factory.createFile({
+        baseName: 'test.ts',
+        path: '/src/nested/test.ts',
+        sources: [ast.factory.createSource({ name: 'schema', isExportable: true, nodes: [ast.factory.createText(code)] })],
+        imports: [ast.factory.createImport({ name: ['myCodec'], path: 'my-codec/zod' })],
+        exports: [],
+      })
+    }
+
+    it('keeps a package specifier without a root as-is', async () => {
+      const result = await parserTs().parse(createFileWithCodec('export const schema = myCodec.uint64()'))
+      expect(result).toContain("import { myCodec } from 'my-codec/zod'")
+    })
+
+    it('drops the import when the file does not use it', async () => {
+      const result = await parserTs().parse(createFileWithCodec('export const schema = 1'))
+      expect(result).not.toContain('my-codec/zod')
+    })
+  })
+
   describe('extension option', () => {
     function createFileWithImport() {
       return ast.factory.createFile({
