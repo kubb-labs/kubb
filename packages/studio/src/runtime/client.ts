@@ -16,6 +16,7 @@ export type Client = {
 export function createClient({ onAuthRequired, ...options }: ClientOptions): Client {
   const shutdown = new AbortController()
   const started = Promise.withResolvers<void>()
+  let resolved = false
   let running: Promise<unknown> | undefined
 
   return {
@@ -24,9 +25,12 @@ export function createClient({ onAuthRequired, ...options }: ClientOptions): Cli
         credentials: { token: options.token },
         clientOptions: () => options,
         signal: shutdown.signal,
-        onStarted: () => started.resolve(),
-        onTokenRejected: async ({ error, live }) => {
-          if (!live) throw error
+        onStarted: () => {
+          resolved = true
+          started.resolve()
+        },
+        onTokenRejected: async ({ error }) => {
+          if (!resolved) throw error
           onAuthRequired?.(error)
           return null
         },

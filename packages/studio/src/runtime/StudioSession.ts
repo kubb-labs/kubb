@@ -481,9 +481,9 @@ export class StudioSession implements AgentApi {
     return payload
   }
 
-  #onAbort = (): void => void this.#end({ reason: 'shutdown', retry: false })
+  #onAbort = (): void => void this.#end({ reason: 'shutdown', retry: false }).catch(() => {})
 
-  #onClose = (close: RpcClose | void): void => void this.#end(planEnd(close))
+  #onClose = (close: RpcClose | void): void => void this.#end(planEnd(close)).catch(() => {})
 
   /** Closes this attempt and waits for its generation to stop before another can start. */
   dispose(): Promise<void> {

@@ -21,7 +21,7 @@ describe('createClient facade', () => {
     expect(vi.mocked(runConnection).mock.calls[0]?.[0].signal?.aborted).toBe(true)
   })
 
-  it('rejects startup authentication but notifies a live rejection', async () => {
+  it('rejects startup authentication but notifies rejection after connect resolves', async () => {
     const error = new InvalidAgentTokenError('https://studio.test')
     const required = vi.fn()
     vi.mocked(runConnection).mockImplementation(async ({ onTokenRejected }) => {
@@ -32,7 +32,7 @@ describe('createClient facade', () => {
     expect(required).not.toHaveBeenCalled()
     vi.mocked(runConnection).mockImplementation(async ({ onStarted, onTokenRejected }) => {
       onStarted?.()
-      await onTokenRejected({ error, credentials: { token: 'token' }, live: true })
+      await onTokenRejected({ error, credentials: { token: 'token' }, live: false })
       return 'stopped'
     })
     await createClient({ ...options, onAuthRequired: required }).connect()

@@ -197,6 +197,17 @@ describe('the handshake', () => {
 })
 
 describe('close codes', () => {
+  it('settles a closed session when a disconnect hook throws', async () => {
+    const { session, closeTransport } = await connectStudio({
+      installLogger: (hooks) =>
+        void hooks.hook('studio:disconnected', () => {
+          throw new Error('Reporter failed')
+        }),
+    })
+    closeTransport()
+    await expect(session.closed).resolves.toMatchObject({ retry: true })
+  })
+
   it.each([
     [AgentCloseCode.REAUTHENTICATE, true],
     [AgentCloseCode.SUPERSEDED, false],

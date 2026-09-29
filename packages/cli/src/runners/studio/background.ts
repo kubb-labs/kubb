@@ -82,8 +82,13 @@ export async function stopWorker(): Promise<void> {
   if (!record) return
   try {
     await requestWorker(record, 'stop')
-  } catch {
-    if (isAlive(record.pid) && record.state !== 'stopped' && record.state !== 'authentication required') {
+  } catch (error) {
+    if (
+      (error as NodeJS.ErrnoException).code !== 'ECONNREFUSED' &&
+      isAlive(record.pid) &&
+      record.state !== 'stopped' &&
+      record.state !== 'authentication required'
+    ) {
       throw new Error('Cannot verify the background worker. No process was signaled.')
     }
     return

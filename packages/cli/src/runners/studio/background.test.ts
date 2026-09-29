@@ -1,5 +1,5 @@
 import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
-import { connect as connectSocket } from 'node:net'
+import { connect as connectSocket, createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
@@ -62,7 +62,14 @@ it('reclaims stale state without signaling its PID and retains login-required st
   const record = JSON.parse(await readFile(file, 'utf8'))
   // PID reuse is harmless: ownership comes from the listener and nonce.
   await writeFile(file, JSON.stringify({ ...record, pid: process.pid, state: 'connected' }))
-  await expect(stopWorker()).rejects.toThrow('Cannot verify')
+  await expect(stopWorker()).resolves.toBeUndefined()
+  const listener = createServer((socket) => socket.once('data', () => socket.end('{}')))
+  await new Promise<void>((resolve) => listener.listen(record.port, '127.0.0.1', resolve))
+  try {
+    await expect(stopWorker()).rejects.toThrow('Cannot verify')
+  } finally {
+    await new Promise<void>((resolve) => listener.close(() => resolve()))
+  }
   const next = await serveWorker(new AbortController())
   if ('existing' in next) throw new Error('Unexpected owner')
   await next.state('authentication required')
