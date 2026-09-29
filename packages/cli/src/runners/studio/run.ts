@@ -308,16 +308,14 @@ export async function prepareConnection(options: StudioOptions, signal?: AbortSi
   const { configPath } = await loadConfigs(options)
   const envToken = process.env.KUBB_AGENT_TOKEN
   const stored = envToken ? null : await readCredentials()
-  let credentials = envToken
-    ? { studioUrl: options.studioUrl, token: envToken, agentId: '', agentSlug: '' }
-    : stored?.studioUrl === options.studioUrl
-      ? stored
-      : null
-  if (!credentials) {
-    if (isCIEnvironment())
+  const credentials = await (async () => {
+    if (envToken) return { studioUrl: options.studioUrl, token: envToken, agentId: '', agentSlug: '' }
+    if (stored?.studioUrl === options.studioUrl) return stored
+    if (isCIEnvironment()) {
       throw new Error(`Not paired with ${options.studioUrl}. Set KUBB_AGENT_TOKEN, or run \`kubb studio login\` on a machine with a browser.`)
-    credentials = await login(options, { signal })
-  }
+    }
+    return login(options, { signal })
+  })()
   const permissions = await resolvePermissions(options, credentials, configPath, !envToken)
   return { configPath, credentials, permissions }
 }
