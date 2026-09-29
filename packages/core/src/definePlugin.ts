@@ -1,6 +1,6 @@
 import path from 'node:path'
 import type { LiteralUnion } from '@internals/utils'
-import type { Enforce, FileNode, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
+import type { Enforce, FileNode, HttpMethod, ImportNode, Macro, UserFileNode } from '@kubb/ast'
 import { diagnosticCode } from './constants.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { BannerMeta, Resolver, ResolverPatch } from './Resolver.ts'
@@ -54,7 +54,7 @@ export type Output = {
    * @example Add a package import when generated code references `myCodec`
    * `imports: [ast.factory.createImport({ name: ['myCodec'], path: 'my-codec/zod' })]`
    */
-  imports?: Array<import('@kubb/ast').ImportNode>
+  imports?: Array<ImportNode>
   /**
    * Text prepended to every generated file. Useful for license headers,
    * lint disables, or `@ts-nocheck` directives.
