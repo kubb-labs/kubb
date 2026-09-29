@@ -1,4 +1,5 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
+import { createImport } from './nodes/file.ts'
 import { createProperty } from './nodes/property.ts'
 import { createSchema } from './nodes/schema.ts'
 import type { PrinterFactoryOptions } from './createPrinter.ts'
@@ -234,5 +235,56 @@ describe('createPrinter', () => {
     expectTypeOf(printer.name).toEqualTypeOf<'zod'>()
     expectTypeOf(printer.options).toEqualTypeOf<object>()
     expectTypeOf(printer.print(createSchema({ type: 'string' }))).toEqualTypeOf<string | null>()
+  })
+
+  describe('this.import', () => {
+    type P = PrinterFactoryOptions<'zod', object, string>
+    const codec = createImport({ name: ['myCodec'], path: 'my-codec/zod' })
+
+    const build = createPrinter<P>(() => ({
+      name: 'zod',
+      options: {},
+      nodes: {
+        string() {
+          this.import(codec)
+          return 'myCodec.string()'
+        },
+      },
+    }))
+
+    it('collects imports declared by handlers and clears them once taken', () => {
+      const printer = build()
+
+      printer.print(createSchema({ type: 'string' }))
+
+      expect(printer.drainImports()).toStrictEqual([codec])
+      expect(printer.drainImports()).toStrictEqual([])
+    })
+
+    it('keeps the imports of each printer instance separate', () => {
+      const [a, b] = [build(), build()]
+
+      a.print(createSchema({ type: 'string' }))
+
+      expect(b.drainImports()).toStrictEqual([])
+    })
+
+    it('is available to overrides', () => {
+      const printer = createPrinter<P>(() => ({
+        name: 'zod',
+        options: {},
+        nodes: { string: () => 'z.string()' },
+        overrides: {
+          string() {
+            this.import(codec)
+            return this.base(createSchema({ type: 'string' }))
+          },
+        },
+      }))()
+
+      printer.print(createSchema({ type: 'string' }))
+
+      expect(printer.drainImports()).toStrictEqual([codec])
+    })
   })
 })

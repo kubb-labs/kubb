@@ -281,6 +281,7 @@ export type ResolverBuildOptions = {
 export type ResolverPatch<T extends Resolver = Resolver> = {
   [K in keyof Omit<T, keyof Resolver>]?: T[K] extends (...args: Array<never>) => unknown ? T[K] : Partial<T[K]>
 } & {
+  imports?: T['imports']
   name?: T['name']
   file?: ResolverFile
 } & ThisType<T>

@@ -548,6 +548,12 @@ describe('default.file', () => {
     farewell: () => '',
   })
 
+  it('accepts an `imports` override in a resolver patch without a cast', () => {
+    const merged = Resolver.merge(baseResolver, { imports: () => [] })
+
+    expect(merged.imports({ node: ast.factory.createSchema({ type: 'string' }), ...context })).toStrictEqual([])
+  })
+
   it('resolves a file with correct baseName and path', () => {
     const file = resolver.default.file({ name: 'pet', extname: '.ts', ...context })
 
