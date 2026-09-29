@@ -644,9 +644,7 @@ export class KubbDriver {
   }: {
     result: TElement | Array<FileNode> | undefined | null
     renderer?: RendererFactory<TElement> | null
-    /**
-     * The plugin that produced `result`. Its `output.imports` are added to every file it owns.
-     */
+    /** The plugin that produced `result`. Its `output.imports` reach the files it owns. */
     plugin?: NormalizedPlugin
   }): Promise<void> {
     if (!result) return

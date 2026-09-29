@@ -27,12 +27,7 @@ type PrinterHandlerContext<TOutput, TOptions extends object> = {
    * still dispatch through the overrides.
    */
   base: (node: SchemaNode) => TOutput | null
-  /**
-   * Declare an import the printed code needs, for example when a handler emits `myCodec.uint64()`.
-   * The printer collects it, and the generator reads it back with `printer.takeImports()` and adds
-   * it to the file. Kubb drops the import from files that end up not using the name.
-   * Leave `root` unset on the node to keep a package specifier as written.
-   */
+  /** Declares an import the printed code needs. The generator reads it back with `printer.takeImports()`. */
   import: (node: ImportNode) => void
   /**
    * Options for this printer instance.
@@ -130,10 +125,7 @@ export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
    * Otherwise, falls back to the node-level dispatcher.
    */
   print: (node: SchemaNode) => T['printOutput'] | null
-  /**
-   * Returns the imports handlers declared with `this.import(...)` since the last call, then clears
-   * them. Call it after printing a schema and add the result to the file being generated.
-   */
+  /** Returns the imports declared with `this.import(...)` since the last call, then clears them. */
   takeImports: () => Array<ImportNode>
 }
 
