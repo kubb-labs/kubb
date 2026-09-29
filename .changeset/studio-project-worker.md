@@ -1,5 +1,5 @@
 ---
-'@kubb/cli': minor
+'@kubb/cli': patch
 '@kubb/studio': patch
 ---
 
