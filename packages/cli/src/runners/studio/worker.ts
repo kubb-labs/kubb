@@ -47,7 +47,6 @@ if (!('existing' in control)) {
   try {
     setStorage(createFileStorage(getProjectKubbHome()))
     log('Background connection starting')
-    const token = launch.prepared.credentials.token
     await connect(launch.options, {
       prepared: launch.prepared,
       signal: shutdown.signal,
@@ -56,7 +55,7 @@ if (!('existing' in control)) {
         await control.state(state)
       },
     }).catch((error: unknown) => {
-      log(error instanceof Error ? error.message.replaceAll(token, '[redacted]') : 'Connection failed')
+      log(error instanceof Error ? error.message : 'Connection failed')
       process.exitCode = 1
     })
   } finally {

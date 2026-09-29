@@ -357,7 +357,7 @@ export async function connect(
       signal,
       clientOptions: (): Omit<ClientOptions, 'token' | 'onAuthRequired'> => ({
         studioUrl: options.studioUrl,
-        configPath: configPath ?? KUBB_CONFIG_FILENAME,
+        configPath,
         version: options.version,
         root: process.cwd(),
         permissions,
