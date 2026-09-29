@@ -167,10 +167,10 @@
     "@nuxt/kit": "^4.5.2",
     "@nuxt/schema": "^4.5.2",
     "esbuild": "^0.28.2",
-    "rolldown": "^1.2.9",
-    "rollup": "^4.63.4",
+    "rolldown": "^1.2.11",
+    "rollup": "^4.63.5",
     "typescript": "catalog:",
-    "vite": "^8.3.0",
+    "vite": "^8.3.1",
     "webpack": "^5.111.1"
   },
   "preferGlobal": true,

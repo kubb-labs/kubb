@@ -79,7 +79,7 @@
     "tinyexec": "catalog:",
     "tsdown": "catalog:",
     "unstorage": "^1.17.5",
-    "ws": "^8.21.3"
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
