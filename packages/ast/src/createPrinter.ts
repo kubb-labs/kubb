@@ -27,7 +27,7 @@ type PrinterHandlerContext<TOutput, TOptions extends object> = {
    * still dispatch through the overrides.
    */
   base: (node: SchemaNode) => TOutput | null
-  /** Declares an import the printed code needs. The generator reads it back with `printer.takeImports()`. */
+  /** Declares an import the printed code needs. The generator reads it back with `printer.drainImports()`. */
   import: (node: ImportNode) => void
   /**
    * Options for this printer instance.
@@ -126,7 +126,7 @@ export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
    */
   print: (node: SchemaNode) => T['printOutput'] | null
   /** Returns the imports declared with `this.import(...)` since the last call, then clears them. */
-  takeImports: () => Array<ImportNode>
+  drainImports: () => Array<ImportNode>
 }
 
 /**
@@ -239,7 +239,7 @@ export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
       options: resolvedOptions,
       transform: context.transform,
       print: (printOverride ? printOverride.bind(context) : context.transform) as (node: SchemaNode) => T['printOutput'] | null,
-      takeImports: () => collectedImports.splice(0),
+      drainImports: () => collectedImports.splice(0),
     }
   }
 }

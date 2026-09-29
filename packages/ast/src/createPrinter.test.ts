@@ -257,8 +257,8 @@ describe('createPrinter', () => {
 
       printer.print(createSchema({ type: 'string' }))
 
-      expect(printer.takeImports()).toStrictEqual([codec])
-      expect(printer.takeImports()).toStrictEqual([])
+      expect(printer.drainImports()).toStrictEqual([codec])
+      expect(printer.drainImports()).toStrictEqual([])
     })
 
     it('keeps the imports of each printer instance separate', () => {
@@ -266,7 +266,7 @@ describe('createPrinter', () => {
 
       a.print(createSchema({ type: 'string' }))
 
-      expect(b.takeImports()).toStrictEqual([])
+      expect(b.drainImports()).toStrictEqual([])
     })
 
     it('is available to overrides', () => {
@@ -284,7 +284,7 @@ describe('createPrinter', () => {
 
       printer.print(createSchema({ type: 'string' }))
 
-      expect(printer.takeImports()).toStrictEqual([codec])
+      expect(printer.drainImports()).toStrictEqual([codec])
     })
   })
 })
