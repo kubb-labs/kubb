@@ -7,7 +7,6 @@ import type { Parser } from './defineParser.ts'
 import { FileManager } from './FileManager.ts'
 import { Hookable } from './Hookable.ts'
 import { createNodeCache } from './nodeCache.ts'
-import { withOutputImports } from './withOutputImports.ts'
 import type { KubbDriver } from './KubbDriver.ts'
 import type {
   Adapter,
@@ -39,11 +38,11 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
     },
     getResolver: (_pluginName: string) => options?.plugin?.resolver,
     fileManager,
-    async dispatch({ result, renderer, plugin }: { result: unknown; renderer?: RendererFactory | null; plugin?: NormalizedPlugin }): Promise<void> {
+    async dispatch({ result, renderer }: { result: unknown; renderer?: RendererFactory | null }): Promise<void> {
       if (!result) return
 
       if (Array.isArray(result)) {
-        fileManager.upsert(...withOutputImports(plugin, result as Array<FileNode>))
+        fileManager.upsert(...(result as Array<FileNode>))
         return
       }
 
@@ -51,7 +50,7 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
 
       using instance = renderer()
       await instance.render(result)
-      fileManager.upsert(...withOutputImports(plugin, instance.files))
+      fileManager.upsert(...instance.files)
     },
   } as unknown as KubbDriver
 }
@@ -153,7 +152,7 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
   const matches = generator.match ? await generator.match(transformedNode, ctx) : true
   if (!matches) return
   const result = await generator.schema(transformedNode, ctx)
-  await opts.driver.dispatch({ result, renderer: generator.renderer, plugin: opts.plugin })
+  await opts.driver.dispatch({ result, renderer: generator.renderer })
 }
 
 /**
@@ -177,7 +176,7 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
   const matches = generator.match ? await generator.match(transformedNode, ctx) : true
   if (!matches) return
   const result = await generator.operation(transformedNode, ctx)
-  await opts.driver.dispatch({ result, renderer: generator.renderer, plugin: opts.plugin })
+  await opts.driver.dispatch({ result, renderer: generator.renderer })
 }
 
 /**
@@ -201,7 +200,7 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
     ...context,
     options: opts.options,
   })
-  await opts.driver.dispatch({ result, renderer: generator.renderer, plugin: opts.plugin })
+  await opts.driver.dispatch({ result, renderer: generator.renderer })
 }
 
 type MatchFilesOptions = {

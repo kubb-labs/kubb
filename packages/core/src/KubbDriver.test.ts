@@ -205,44 +205,6 @@ describe('KubbDriver#dispatch', () => {
     expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['a', 'b'])
   })
 
-  describe('output.imports', () => {
-    const codec = () => ast.factory.createImport({ name: ['myCodec'], path: 'my-codec/zod' })
-    const plugin = { name: 'plugin-zod', options: { output: { path: 'zod', imports: [codec()] } } } as never
-
-    function ownedFile(pluginName: string, code: string): FileNode {
-      return ast.factory.createFile({
-        baseName: 'pet.ts',
-        path: `${pluginName}/pet.ts`,
-        meta: { pluginName },
-        sources: [ast.factory.createSource({ name: 'pet', isExportable: true, nodes: [ast.factory.createText(code)] })],
-      })
-    }
-
-    it('adds the imports to files the plugin owns', () => {
-      const driver = makeDriver()
-
-      driver.dispatch({ result: [ownedFile('plugin-zod', 'export const pet = myCodec.uint64()')], plugin })
-
-      expect(driver.fileManager.files[0]?.imports).toMatchObject([{ name: ['myCodec'], path: 'my-codec/zod' }])
-    })
-
-    it('drops the import from a file that does not use it', () => {
-      const driver = makeDriver()
-
-      driver.dispatch({ result: [ownedFile('plugin-zod', 'export const pet = 1')], plugin })
-
-      expect(driver.fileManager.files[0]?.imports).toStrictEqual([])
-    })
-
-    it('leaves files owned by another plugin alone', () => {
-      const driver = makeDriver()
-
-      driver.dispatch({ result: [ownedFile('plugin-barrel', 'export const pet = myCodec.uint64()')], plugin })
-
-      expect(driver.fileManager.files[0]?.imports).toStrictEqual([])
-    })
-  })
-
   it('ignores non-array results when no renderer is provided', () => {
     const driver = makeDriver()
     const upsert = vi.spyOn(driver.fileManager, 'upsert')

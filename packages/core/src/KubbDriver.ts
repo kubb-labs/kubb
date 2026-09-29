@@ -12,7 +12,6 @@ import { createResolver } from './createResolver.ts'
 import { Resolver, type ResolverPatch } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import { Transform } from './Transform.ts'
-import { withOutputImports } from './withOutputImports.ts'
 import { createNodeCache } from './nodeCache.ts'
 import type { OutputManifest } from './outputManifest.ts'
 import { inputToAdapterSource } from './input.ts'
@@ -558,7 +557,7 @@ export class KubbDriver {
           for (const generator of state.schemaGenerators) {
             const matches = generator.match ? await generator.match(transformedNode, ctx) : true
             if (!matches) continue
-            await this.dispatch({ result: await generator.schema!(transformedNode, ctx), renderer: generator.renderer, plugin: state.plugin })
+            await this.dispatch({ result: await generator.schema!(transformedNode, ctx), renderer: generator.renderer })
           }
           await this.hooks.callHook('kubb:generate:schema', transformedNode, ctx)
         } catch (caughtError) {
@@ -585,7 +584,7 @@ export class KubbDriver {
             for (const generator of state.operationGenerators) {
               const matches = generator.match ? await generator.match(resolved.transformedNode, ctx) : true
               if (!matches) continue
-              await this.dispatch({ result: await generator.operation!(resolved.transformedNode, ctx), renderer: generator.renderer, plugin: state.plugin })
+              await this.dispatch({ result: await generator.operation!(resolved.transformedNode, ctx), renderer: generator.renderer })
             }
             await this.hooks.callHook('kubb:generate:operation', resolved.transformedNode, ctx)
           }
@@ -602,7 +601,7 @@ export class KubbDriver {
       try {
         const ctx = { ...state.generatorContext, options: state.plugin.options, cache: createNodeCache() }
         for (const generator of state.operationsGenerators) {
-          await this.dispatch({ result: await generator.operations!(state.pluginOperations, ctx), renderer: generator.renderer, plugin: state.plugin })
+          await this.dispatch({ result: await generator.operations!(state.pluginOperations, ctx), renderer: generator.renderer })
         }
         await this.hooks.callHook('kubb:generate:operations', state.pluginOperations, ctx)
       } catch (caughtError) {
@@ -640,17 +639,14 @@ export class KubbDriver {
   async dispatch<TElement = unknown>({
     result,
     renderer,
-    plugin,
   }: {
     result: TElement | Array<FileNode> | undefined | null
     renderer?: RendererFactory<TElement> | null
-    /** The plugin that produced `result`. Its `output.imports` reach the files it owns. */
-    plugin?: NormalizedPlugin
   }): Promise<void> {
     if (!result) return
 
     if (Array.isArray(result)) {
-      this.fileManager.upsert(...withOutputImports(plugin, result as Array<FileNode>))
+      this.fileManager.upsert(...(result as Array<FileNode>))
       return
     }
 
@@ -661,7 +657,7 @@ export class KubbDriver {
     using instance = renderer()
     await instance.render(result)
 
-    this.fileManager.upsert(...withOutputImports(plugin, instance.files))
+    this.fileManager.upsert(...instance.files)
   }
 
   /**
@@ -731,10 +727,10 @@ export class KubbDriver {
       getResolver: driver.getResolver.bind(driver),
       driver,
       addFile: async (...files: Array<FileNode>) => {
-        driver.fileManager.add(...withOutputImports(plugin, files))
+        driver.fileManager.add(...files)
       },
       upsertFile: async (...files: Array<FileNode>) => {
-        driver.fileManager.upsert(...withOutputImports(plugin, files))
+        driver.fileManager.upsert(...files)
       },
       get meta(): InputMeta {
         return driver.inputNode?.meta ?? { circularNames: [], enumNames: [] }
