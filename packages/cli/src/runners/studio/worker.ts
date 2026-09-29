@@ -14,7 +14,7 @@ function log(...args: Array<unknown>) {
     if (token) line = line.replaceAll(token, '[redacted]')
   }
   try {
-    // ponytail: keep one 1 MiB log; add rotation only if older diagnostics are needed.
+    // Keep the log under 1 MiB; discard older output when it fills.
     const size = (() => {
       try {
         return statSync(logPath).size
