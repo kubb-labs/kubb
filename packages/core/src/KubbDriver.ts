@@ -557,7 +557,7 @@ export class KubbDriver {
           for (const generator of state.schemaGenerators) {
             const matches = generator.match ? await generator.match(transformedNode, ctx) : true
             if (!matches) continue
-            await this.dispatch({ result: await generator.schema!(transformedNode, ctx), renderer: generator.renderer })
+            await this.dispatch({ result: await generator.schema!(transformedNode, ctx), renderer: generator.renderer, plugin: state.plugin })
           }
           await this.hooks.callHook('kubb:generate:schema', transformedNode, ctx)
         } catch (caughtError) {
@@ -584,7 +584,7 @@ export class KubbDriver {
             for (const generator of state.operationGenerators) {
               const matches = generator.match ? await generator.match(resolved.transformedNode, ctx) : true
               if (!matches) continue
-              await this.dispatch({ result: await generator.operation!(resolved.transformedNode, ctx), renderer: generator.renderer })
+              await this.dispatch({ result: await generator.operation!(resolved.transformedNode, ctx), renderer: generator.renderer, plugin: state.plugin })
             }
             await this.hooks.callHook('kubb:generate:operation', resolved.transformedNode, ctx)
           }
@@ -601,7 +601,7 @@ export class KubbDriver {
       try {
         const ctx = { ...state.generatorContext, options: state.plugin.options, cache: createNodeCache() }
         for (const generator of state.operationsGenerators) {
-          await this.dispatch({ result: await generator.operations!(state.pluginOperations, ctx), renderer: generator.renderer })
+          await this.dispatch({ result: await generator.operations!(state.pluginOperations, ctx), renderer: generator.renderer, plugin: state.plugin })
         }
         await this.hooks.callHook('kubb:generate:operations', state.pluginOperations, ctx)
       } catch (caughtError) {
@@ -639,14 +639,19 @@ export class KubbDriver {
   async dispatch<TElement = unknown>({
     result,
     renderer,
+    plugin,
   }: {
     result: TElement | Array<FileNode> | undefined | null
     renderer?: RendererFactory<TElement> | null
+    /**
+     * The plugin that produced `result`. Its `output.imports` are added to every file it owns.
+     */
+    plugin?: NormalizedPlugin
   }): Promise<void> {
     if (!result) return
 
     if (Array.isArray(result)) {
-      this.fileManager.upsert(...(result as Array<FileNode>))
+      this.fileManager.upsert(...this.#withOutputImports(plugin, result as Array<FileNode>))
       return
     }
 
@@ -657,7 +662,19 @@ export class KubbDriver {
     using instance = renderer()
     await instance.render(result)
 
-    this.fileManager.upsert(...instance.files)
+    this.fileManager.upsert(...this.#withOutputImports(plugin, instance.files))
+  }
+
+  /**
+   * Adds the plugin's `output.imports` to each file that plugin owns (`meta.pluginName` matches).
+   * Files from other plugins, such as barrels, are left alone. `FileManager` later merges and prunes
+   * the imports, so a name the file never uses does not reach the output.
+   */
+  #withOutputImports(plugin: NormalizedPlugin | undefined, files: Array<FileNode>): Array<FileNode> {
+    const imports = plugin?.options.output?.imports
+    if (!plugin || !imports?.length) return files
+
+    return files.map((file) => ((file.meta as { pluginName?: string } | undefined)?.pluginName === plugin.name ? { ...file, imports: [...imports, ...file.imports] } : file))
   }
 
   /**
@@ -727,10 +744,10 @@ export class KubbDriver {
       getResolver: driver.getResolver.bind(driver),
       driver,
       addFile: async (...files: Array<FileNode>) => {
-        driver.fileManager.add(...files)
+        driver.fileManager.add(...driver.#withOutputImports(plugin, files))
       },
       upsertFile: async (...files: Array<FileNode>) => {
-        driver.fileManager.upsert(...files)
+        driver.fileManager.upsert(...driver.#withOutputImports(plugin, files))
       },
       get meta(): InputMeta {
         return driver.inputNode?.meta ?? { circularNames: [], enumNames: [] }

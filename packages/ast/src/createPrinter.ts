@@ -1,4 +1,4 @@
-import type { SchemaNode, SchemaNodeByType, SchemaType } from './nodes/index.ts'
+import type { ImportNode, SchemaNode, SchemaNodeByType, SchemaType } from './nodes/index.ts'
 
 /**
  * Runtime context passed as `this` to printer handlers.
@@ -27,6 +27,13 @@ type PrinterHandlerContext<TOutput, TOptions extends object> = {
    * still dispatch through the overrides.
    */
   base: (node: SchemaNode) => TOutput | null
+  /**
+   * Declare an import the printed code needs, for example when a handler emits `myCodec.uint64()`.
+   * The printer collects it, and the generator reads it back with `printer.takeImports()` and adds
+   * it to the file. Kubb drops the import from files that end up not using the name.
+   * Leave `root` unset on the node to keep a package specifier as written.
+   */
+  import: (node: ImportNode) => void
   /**
    * Options for this printer instance.
    */
@@ -123,6 +130,11 @@ export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
    * Otherwise, falls back to the node-level dispatcher.
    */
   print: (node: SchemaNode) => T['printOutput'] | null
+  /**
+   * Returns the imports handlers declared with `this.import(...)` since the last call, then clears
+   * them. Call it after printing a schema and add the result to the file being generated.
+   */
+  takeImports: () => Array<ImportNode>
 }
 
 /**
@@ -209,8 +221,13 @@ export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
     const { name, options: resolvedOptions, nodes, overrides, print: printOverride } = build((options ?? {}) as T['options'])
     const merged = overrides ? { ...nodes, ...overrides } : nodes
 
+    const collectedImports: Array<ImportNode> = []
+
     const context = {
       options: resolvedOptions,
+      import: (node: ImportNode): void => {
+        collectedImports.push(node)
+      },
       transform: (node: SchemaNode): T['output'] | null => {
         const handler = merged[node.type]
         if (!handler) return null
@@ -230,6 +247,7 @@ export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
       options: resolvedOptions,
       transform: context.transform,
       print: (printOverride ? printOverride.bind(context) : context.transform) as (node: SchemaNode) => T['printOutput'] | null,
+      takeImports: () => collectedImports.splice(0),
     }
   }
 }

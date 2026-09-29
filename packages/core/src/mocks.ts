@@ -38,7 +38,7 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
     },
     getResolver: (_pluginName: string) => options?.plugin?.resolver,
     fileManager,
-    async dispatch({ result, renderer }: { result: unknown; renderer?: RendererFactory | null }): Promise<void> {
+    async dispatch({ result, renderer }: { result: unknown; renderer?: RendererFactory | null; plugin?: unknown }): Promise<void> {
       if (!result) return
 
       if (Array.isArray(result)) {

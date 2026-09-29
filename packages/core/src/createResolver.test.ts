@@ -548,14 +548,6 @@ describe('default.file', () => {
     farewell: () => '',
   })
 
-  it('seeds the file with `output.imports`', () => {
-    const codec = ast.factory.createImport({ name: ['myCodec'], path: 'my-codec/zod' })
-    const file = resolver.default.file({ name: 'pet', extname: '.ts', ...context, output: { ...context.output, imports: [codec] } })
-
-    expect(file.imports).toMatchObject([{ name: ['myCodec'], path: 'my-codec/zod' }])
-    expect(file.imports[0]?.root).toBeUndefined()
-  })
-
   it('accepts an `imports` override in a resolver patch without a cast', () => {
     const merged = Resolver.merge(baseResolver, { imports: () => [] })
 

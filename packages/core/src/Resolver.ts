@@ -638,7 +638,7 @@ export class Resolver {
         pluginName: this.pluginName,
       },
       sources: [],
-      imports: output.imports ?? [],
+      imports: [],
       exports: [],
     })
   }
