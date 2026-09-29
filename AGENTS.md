@@ -36,26 +36,6 @@ The full folder structure, repository setup, and commands live in
 
 Plugins are maintained in a separate monorepo at [kubb-labs/plugins](https://github.com/kubb-labs/plugins). Extension metadata and the docs pages live in the platform repo ([kubb-labs/platform](https://github.com/kubb-labs/platform), `apps/kubb.dev/extensions/` and `apps/kubb.dev/plugins/`), published on [kubb.dev](https://kubb.dev). When an extension's options change here, update its kubb.dev docs page there.
 
-## Token optimized CLI (rtk)
-
-`rtk` is a CLI proxy that filters and compresses command output to cut token usage. Prefix shell
-commands with it so their output stays small:
-
-```bash
-rtk git status
-rtk git log -10
-rtk pnpm test
-```
-
-Run these meta commands directly:
-
-```bash
-rtk gain              # Token savings dashboard
-rtk gain --history    # Per-command savings history
-rtk discover          # Find missed rtk opportunities
-rtk proxy <cmd>       # Run raw without filtering but still track usage
-```
-
 ## How agents read this repo
 
 `AGENTS.md` is the canonical instruction file. Local skills live in `.agents/skills/` (open
