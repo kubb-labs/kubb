@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.4.1 — Sep 29, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Add `kubb studio start` and `stop` for a background connection per project. `status` reports its connection state and log path, and `logout` stops it before removing credentials. Rejected tokens stop the worker until you log in again.
+  
+  Use one shared connection loop for the CLI and Docker agent. Abort pending registration on shutdown and wait for canceled generation cleanup before reconnecting. ([#4128](https://github.com/kubb-labs/kubb/pull/4128), [`5d9151c`](https://github.com/kubb-labs/kubb/commit/5d9151c4c74e6c93e215ac24dfff0f270c64e771))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.4.0 — Sep 29, 2026
 
 ### @kubb/core
