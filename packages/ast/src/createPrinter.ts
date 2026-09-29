@@ -1,4 +1,4 @@
-import type { SchemaNode, SchemaNodeByType, SchemaType } from './nodes/index.ts'
+import type { ImportNode, SchemaNode, SchemaNodeByType, SchemaType } from './nodes/index.ts'
 
 /**
  * Runtime context passed as `this` to printer handlers.
@@ -27,6 +27,8 @@ type PrinterHandlerContext<TOutput, TOptions extends object> = {
    * still dispatch through the overrides.
    */
   base: (node: SchemaNode) => TOutput | null
+  /** Declares an import the printed code needs. The generator reads it back with `printer.drainImports()`. */
+  import: (node: ImportNode) => void
   /**
    * Options for this printer instance.
    */
@@ -123,6 +125,8 @@ export type Printer<T extends PrinterFactoryOptions = PrinterFactoryOptions> = {
    * Otherwise, falls back to the node-level dispatcher.
    */
   print: (node: SchemaNode) => T['printOutput'] | null
+  /** Returns the imports declared with `this.import(...)` since the last call, then clears them. */
+  drainImports: () => Array<ImportNode>
 }
 
 /**
@@ -209,8 +213,13 @@ export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
     const { name, options: resolvedOptions, nodes, overrides, print: printOverride } = build((options ?? {}) as T['options'])
     const merged = overrides ? { ...nodes, ...overrides } : nodes
 
+    const collectedImports: Array<ImportNode> = []
+
     const context = {
       options: resolvedOptions,
+      import: (node: ImportNode): void => {
+        collectedImports.push(node)
+      },
       transform: (node: SchemaNode): T['output'] | null => {
         const handler = merged[node.type]
         if (!handler) return null
@@ -230,6 +239,7 @@ export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
       options: resolvedOptions,
       transform: context.transform,
       print: (printOverride ? printOverride.bind(context) : context.transform) as (node: SchemaNode) => T['printOutput'] | null,
+      drainImports: () => collectedImports.splice(0),
     }
   }
 }

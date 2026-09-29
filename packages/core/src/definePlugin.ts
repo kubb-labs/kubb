@@ -48,14 +48,6 @@ export type Output = {
    */
   mode?: OutputMode
   /**
-   * Imports added to each generated file. The file AST combines these with generated imports and
-   * removes named imports whose identifiers are unused.
-   *
-   * @example Add a package import when generated code references `myCodec`
-   * `imports: [ast.factory.createImport({ name: ['myCodec'], path: 'my-codec/zod' })]`
-   */
-  imports?: Array<import('@kubb/ast').ImportNode>
-  /**
    * Text prepended to every generated file. Useful for license headers,
    * lint disables, or `@ts-nocheck` directives.
    *
