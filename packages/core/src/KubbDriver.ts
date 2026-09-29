@@ -12,6 +12,7 @@ import { createResolver } from './createResolver.ts'
 import { Resolver, type ResolverPatch } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import { Transform } from './Transform.ts'
+import { withOutputImports } from './withOutputImports.ts'
 import { createNodeCache } from './nodeCache.ts'
 import type { OutputManifest } from './outputManifest.ts'
 import { inputToAdapterSource } from './input.ts'
@@ -651,7 +652,7 @@ export class KubbDriver {
     if (!result) return
 
     if (Array.isArray(result)) {
-      this.fileManager.upsert(...this.#withOutputImports(plugin, result as Array<FileNode>))
+      this.fileManager.upsert(...withOutputImports(plugin, result as Array<FileNode>))
       return
     }
 
@@ -662,19 +663,7 @@ export class KubbDriver {
     using instance = renderer()
     await instance.render(result)
 
-    this.fileManager.upsert(...this.#withOutputImports(plugin, instance.files))
-  }
-
-  /**
-   * Adds the plugin's `output.imports` to each file that plugin owns (`meta.pluginName` matches).
-   * Files from other plugins, such as barrels, are left alone. `FileManager` later merges and prunes
-   * the imports, so a name the file never uses does not reach the output.
-   */
-  #withOutputImports(plugin: NormalizedPlugin | undefined, files: Array<FileNode>): Array<FileNode> {
-    const imports = plugin?.options.output?.imports
-    if (!plugin || !imports?.length) return files
-
-    return files.map((file) => ((file.meta as { pluginName?: string } | undefined)?.pluginName === plugin.name ? { ...file, imports: [...imports, ...file.imports] } : file))
+    this.fileManager.upsert(...withOutputImports(plugin, instance.files))
   }
 
   /**
@@ -744,10 +733,10 @@ export class KubbDriver {
       getResolver: driver.getResolver.bind(driver),
       driver,
       addFile: async (...files: Array<FileNode>) => {
-        driver.fileManager.add(...driver.#withOutputImports(plugin, files))
+        driver.fileManager.add(...withOutputImports(plugin, files))
       },
       upsertFile: async (...files: Array<FileNode>) => {
-        driver.fileManager.upsert(...driver.#withOutputImports(plugin, files))
+        driver.fileManager.upsert(...withOutputImports(plugin, files))
       },
       get meta(): InputMeta {
         return driver.inputNode?.meta ?? { circularNames: [], enumNames: [] }
