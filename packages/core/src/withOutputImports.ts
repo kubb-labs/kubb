@@ -12,5 +12,7 @@ export function withOutputImports(plugin: NormalizedPlugin | undefined, files: A
   const imports = plugin?.options.output?.imports
   if (!plugin || !imports?.length) return files
 
-  return files.map((file) => ((file.meta as { pluginName?: string } | undefined)?.pluginName === plugin.name ? { ...file, imports: [...imports, ...file.imports] } : file))
+  return files.map((file) =>
+    (file.meta as { pluginName?: string } | undefined)?.pluginName === plugin.name ? { ...file, imports: [...imports, ...file.imports] } : file,
+  )
 }
