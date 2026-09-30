@@ -374,6 +374,14 @@ export async function connect(
           hooks.hook('studio:error', ({ error }) => {
             if (context.onState) console.error(error.message)
           })
+          // The background worker has no reporters, so its log file would otherwise stop at
+          // `connected` and hide what Studio asked it to do.
+          if (context.onState) {
+            hooks.hook('studio:command:start', ({ command }) => console.log(`Command started: ${command}`))
+            hooks.hook('studio:command:end', ({ command, info }) => console.log(`Command finished: ${command}${info ? ` (${info})` : ''}`))
+            hooks.hook('studio:warn', ({ message }) => console.warn(message))
+            hooks.hook('studio:disconnected', ({ reason }) => console.log(`Disconnected: ${reason}`))
+          }
         },
       }),
       onTokenRejected: async ({ error, live }) => {
