@@ -18,6 +18,7 @@ import {
   setStorage,
 } from '@kubb/studio'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
+import { plainLogger } from '../../loggers/plainLogger.ts'
 import setupReporters from '../../loggers/utils.ts'
 import { createSpinner, logBlock, logIntro, logOutro, logTip } from '../../loggers/output.ts'
 import { canUseTTY } from '../../utils/env.ts'
@@ -361,7 +362,13 @@ export async function connect(
         permissions,
         loadConfig: async () => (await loadConfigs(options)).config,
         installLogger: async (hooks) => {
-          if (!context.onState) await setupReporters(hooks, { logLevel: logLevelMap[options.logLevel ?? 'info'], reporters: [cliReporter] })
+          // The background worker writes to a log file, so it gets the plain logger rather than the
+          // animated one. The logger also covers the `studio:*` events and each generation run.
+          await setupReporters(hooks, {
+            logLevel: logLevelMap[options.logLevel ?? 'info'],
+            reporters: [cliReporter],
+            ...(context.onState ? { logger: plainLogger } : {}),
+          })
           hooks.hook('studio:connected', () => {
             if (!hinted && !context.onState && options.logLevel !== 'silent') logBlock(styleText('dim', 'Press Ctrl+C to disconnect'))
             hinted = true
@@ -371,9 +378,6 @@ export async function connect(
             if (!context.onState) logTip()
           })
           hooks.hook('studio:reconnecting', () => context.onState?.('reconnecting'))
-          hooks.hook('studio:error', ({ error }) => {
-            if (context.onState) console.error(error.message)
-          })
         },
       }),
       onTokenRejected: async ({ error, live }) => {

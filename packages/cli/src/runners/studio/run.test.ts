@@ -292,4 +292,31 @@ describe('connect', () => {
     // One pairing only: the second rejection is a hard failure.
     expect(pairAgent).toHaveBeenCalledTimes(1)
   })
+  it('logs Studio commands and warnings through the plain logger when it runs as the background worker', async () => {
+    vi.mocked(readCredentials).mockResolvedValue(credentials)
+    const handlers = new Map<string, Array<(ctx: unknown) => unknown>>()
+    const hooks = { hook: (name: string, handler: (ctx: unknown) => unknown) => handlers.set(name, [...(handlers.get(name) ?? []), handler]) }
+    const fire = (name: string, ctx?: unknown) => Promise.all((handlers.get(name) ?? []).map((handler) => handler(ctx)))
+    const lines: Array<string> = []
+    const log = vi.spyOn(console, 'log').mockImplementation((...args) => void lines.push(args.join(' ')))
+    const states: Array<string> = []
+
+    vi.mocked(runConnection).mockImplementation(async (connectionOptions) => {
+      await connectionOptions.clientOptions(connectionOptions.credentials).installLogger?.(hooks as never)
+      await fire('studio:ready', {})
+      await fire('studio:command:start', { command: 'generate' })
+      await fire('studio:warn', { message: 'Ignored the spec from Studio' })
+      await fire('studio:command:end', { command: 'generate', info: '1 plugin, in memory' })
+      return 'shutdown'
+    })
+
+    await connect(options, { onState: (state) => void states.push(state) })
+    log.mockRestore()
+
+    const output = lines.join('\n')
+    expect(states).toContain('connected')
+    expect(output).toContain('generate')
+    expect(output).toContain('Ignored the spec from Studio')
+    expect(output).toContain('1 plugin, in memory')
+  })
 })
