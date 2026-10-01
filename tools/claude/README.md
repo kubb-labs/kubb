@@ -1,6 +1,6 @@
 # Kubb Claude Code plugin
 
-Kubb is a meta framework for code generation. It turns an OpenAPI spec into TypeScript types,
+Kubb generates your API layer from OpenAPI. It turns an OpenAPI spec into TypeScript types,
 Zod schemas, Axios and fetch clients, React Query and Vue Query hooks, Faker mocks and more,
 without leaving Claude Code.
 

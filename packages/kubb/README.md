@@ -24,9 +24,9 @@
 
 # Kubb
 
-### The meta framework for code generation
+### Generate your API layer from OpenAPI
 
-Point Kubb at a schema and it generates types, clients, hooks, validators, mocks, and more.
+Kubb turns your OpenAPI spec into TypeScript types, API clients, hooks, validators and mocks, and keeps them in sync with your API.
 
 ## Installation
 
