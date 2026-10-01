@@ -3,7 +3,7 @@
   "url": "https://context7.com/kubb-labs/kubb",
   "public_key": "pk_E3UkJR9X5FvhME9wB1sCS",
   "projectTitle": "Kubb Core",
-  "description": "The meta framework for code generation. Point Kubb at a schema and it generates types, clients, hooks, validators and mocks. This repository holds the core engine, CLI, authoring kit, OpenAPI adapter, parsers and renderers. The documentation is at https://kubb.dev, indexed on Context7 as /kubb-labs/docs.",
+  "description": "Turn your API spec into type-safe code. Generate TypeScript types, API clients, hooks, validators and mocks from a spec such as OpenAPI. This repository holds the core engine, CLI, authoring kit, OpenAPI adapter, parsers and renderers. The documentation is at https://kubb.dev, indexed on Context7 as /kubb-labs/docs.",
   "folders": ["packages"],
   "excludeFiles": ["AGENTS.md", "CHANGELOG.md", "CODE_OF_CONDUCT.md", "SECURITY.md"],
   "rules": [

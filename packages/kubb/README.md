@@ -24,9 +24,9 @@
 
 # Kubb
 
-### The meta framework for code generation
+### Turn your API spec into type-safe code
 
-Point Kubb at a schema and it generates types, clients, hooks, validators, mocks, and more.
+Kubb turns an API spec, such as OpenAPI, into TypeScript types, API clients, hooks, validators and mocks, and keeps them in sync with your API. It reads OpenAPI 2.0, 3.0 and 3.1.
 
 ## Installation
 

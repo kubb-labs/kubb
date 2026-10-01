@@ -129,7 +129,7 @@ export function logSpacer(): void {
  */
 export function logBanner(version: string): void {
   if (isRichOutput()) {
-    console.log(`\n${getIntro({ title: 'The meta framework for code generation', description: 'Ready to start', version, areEyesOpen: true })}\n`)
+    console.log(`\n${getIntro({ title: 'Turn your API spec into type-safe code', description: 'Ready to start', version, areEyesOpen: true })}\n`)
 
     return
   }

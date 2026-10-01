@@ -1,7 +1,7 @@
 {
   "name": "kubb",
   "version": "5.4.1",
-  "description": "The meta framework for code generation. Point Kubb at a schema and it generates types, clients, hooks, validators, mocks, and more.",
+  "description": "Turn your API spec into type-safe code. Generate TypeScript types, API clients, hooks, validators and mocks from a spec such as OpenAPI.",
   "keywords": [
     "api-client",
     "code-generator",
