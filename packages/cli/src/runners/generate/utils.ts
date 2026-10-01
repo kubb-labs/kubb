@@ -7,7 +7,7 @@ import { toError, tokenize } from '@internals/utils'
 import type { CLIOptions, Config, KubbHooks, PossibleConfig, PostGenerateCommand, Hookable } from '@kubb/core'
 import { NonZeroExitError, x } from 'tinyexec'
 import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
-import { isGreater, isValid, truncate } from 'verkit'
+import { isGreaterThan, isValid, truncate } from 'verkit'
 import { URL_WATCHER_INTERVAL_MS, URL_WATCHER_TIMEOUT_MS, WATCHER_DEBOUNCE_MS, WATCHER_IGNORED_PATHS } from '../../constants.ts'
 
 const loader = createModuleLoader()
@@ -129,7 +129,7 @@ type HookResult = {
 export function isNewerVersion(current: string, latest: string): boolean {
   if (!isValid(current) || !isValid(latest)) return false
 
-  return isGreater(truncate(latest, 'patch') as string, truncate(current, 'patch') as string)
+  return isGreaterThan(truncate(latest, 'patch') as string, truncate(current, 'patch') as string)
 }
 
 /**

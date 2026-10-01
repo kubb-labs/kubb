@@ -42,9 +42,9 @@
     "bun-types": "^1.4.2",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
-    "taze": "^21.1.0",
+    "taze": "^21.2.0",
     "tsdown": "catalog:",
-    "turbo": "^2.11.4",
+    "turbo": "^2.11.5",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
