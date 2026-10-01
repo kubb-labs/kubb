@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.4.2 — Oct 1, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Log Studio commands, warnings and each generation run in the background worker log, so it no longer stops at `connected`. ([#4135](https://github.com/kubb-labs/kubb/pull/4135), [`9e33c7e`](https://github.com/kubb-labs/kubb/commit/9e33c7e8b52a24cc3a1ca387f89628bd6aa0562f))
+
+### kubb
+
+#### Bug Fixes
+
+- Describe Kubb as a way to turn your API spec into type-safe code in the package description, README and CLI intro. ([#4137](https://github.com/kubb-labs/kubb/pull/4137), [`b25ce0d`](https://github.com/kubb-labs/kubb/commit/b25ce0d0ca4e5024a59b6ca7e3dbe3e1ac5c79bc))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.4.1 — Sep 29, 2026
 
 ### @kubb/cli
