@@ -24,9 +24,9 @@
 
 # Kubb
 
-### Generate your API layer from OpenAPI
+### Generate your API layer from your API spec
 
-Kubb turns your OpenAPI spec into TypeScript types, API clients, hooks, validators and mocks, and keeps them in sync with your API.
+Kubb turns your API spec into TypeScript types, API clients, hooks, validators and mocks, and keeps them in sync with your API. It reads OpenAPI today, and adapters add more specs.
 
 ## Installation
 

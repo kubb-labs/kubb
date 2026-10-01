@@ -5,12 +5,12 @@
     "name": "kubb-labs",
     "url": "https://github.com/kubb-labs"
   },
-  "description": "Kubb, which generates your API layer from OpenAPI, as a Claude Code plugin.",
+  "description": "Kubb, which generates your API layer from your API spec, as a Claude Code plugin.",
   "plugins": [
     {
       "name": "kubb",
       "source": "./tools/claude",
-      "description": "Generate your API layer from OpenAPI. Turn an OpenAPI spec into TypeScript types, Zod schemas, Axios clients, React Query hooks and more, with the Kubb MCP server wired in.",
+      "description": "Generate your API layer from your API spec. Turn an OpenAPI spec into TypeScript types, Zod schemas, Axios clients, React Query hooks and more, with the Kubb MCP server wired in.",
       "category": "development",
       "keywords": ["kubb", "openapi", "swagger", "codegen", "typescript", "zod", "axios", "react-query", "mcp"]
     }

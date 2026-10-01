@@ -129,7 +129,7 @@ export function logSpacer(): void {
  */
 export function logBanner(version: string): void {
   if (isRichOutput()) {
-    console.log(`\n${getIntro({ title: 'Generate your API layer from OpenAPI', description: 'Ready to start', version, areEyesOpen: true })}\n`)
+    console.log(`\n${getIntro({ title: 'Generate your API layer from your API spec', description: 'Ready to start', version, areEyesOpen: true })}\n`)
 
     return
   }

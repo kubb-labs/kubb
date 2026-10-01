@@ -1,7 +1,7 @@
 {
   "name": "kubb",
   "version": "5.4.1",
-  "description": "Generate your API layer from OpenAPI. Kubb turns your OpenAPI spec into TypeScript types, API clients, hooks, validators and mocks.",
+  "description": "Generate your API layer from your API spec. Kubb turns your API spec into TypeScript types, API clients, hooks, validators and mocks. OpenAPI today, more specs through adapters.",
   "keywords": [
     "api-client",
     "code-generator",

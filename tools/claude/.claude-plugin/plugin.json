@@ -3,7 +3,7 @@
   "name": "kubb",
   "displayName": "Kubb",
   "version": "5.4.1",
-  "description": "Kubb generates your API layer from OpenAPI. Generate TypeScript types, Zod schemas, Axios and fetch clients, React Query and Vue Query hooks, Faker mocks and more from an OpenAPI spec. The commands run the Kubb CLI, and a bundled MCP server adds conversational generation.",
+  "description": "Kubb generates your API layer from your API spec. Generate TypeScript types, Zod schemas, Axios and fetch clients, React Query and Vue Query hooks, Faker mocks and more from an OpenAPI spec. The commands run the Kubb CLI, and a bundled MCP server adds conversational generation.",
   "author": {
     "name": "stijnvanhulle",
     "url": "https://github.com/kubb-labs"

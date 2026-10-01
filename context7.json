@@ -3,7 +3,7 @@
   "url": "https://context7.com/kubb-labs/kubb",
   "public_key": "pk_E3UkJR9X5FvhME9wB1sCS",
   "projectTitle": "Kubb Core",
-  "description": "Generate your API layer from OpenAPI. Kubb turns your OpenAPI spec into TypeScript types, API clients, hooks, validators and mocks. This repository holds the core engine, CLI, authoring kit, OpenAPI adapter, parsers and renderers. The documentation is at https://kubb.dev, indexed on Context7 as /kubb-labs/docs.",
+  "description": "Generate your API layer from your API spec. Kubb turns your API spec into TypeScript types, API clients, hooks, validators and mocks. OpenAPI today, more specs through adapters. This repository holds the core engine, CLI, authoring kit, OpenAPI adapter, parsers and renderers. The documentation is at https://kubb.dev, indexed on Context7 as /kubb-labs/docs.",
   "folders": ["packages"],
   "excludeFiles": ["AGENTS.md", "CHANGELOG.md", "CODE_OF_CONDUCT.md", "SECURITY.md"],
   "rules": [
