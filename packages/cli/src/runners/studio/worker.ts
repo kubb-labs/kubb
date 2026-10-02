@@ -5,6 +5,8 @@ import { getProjectKubbHome } from './credentials.ts'
 import { getWorkerLogPath, serveWorker, type WorkerLaunch } from './background.ts'
 import { connect } from './run.ts'
 
+process.title = 'Kubb'
+
 mkdirSync(getProjectKubbHome(), { recursive: true, mode: 0o700 })
 const logPath = getWorkerLogPath()
 const tokens = [process.env.KUBB_AGENT_TOKEN, process.env.KUBB_TOKEN]
