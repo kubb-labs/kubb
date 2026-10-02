@@ -151,8 +151,7 @@ export function createGenerationStore({
       await storage.writeItem(INDEX_KEY, JSON.stringify(entries))
     },
     /**
-     * Reads the requested paths the set holds, skipping any it does not. With a `window` each file
-     * is cut to those lines and `windows` reports where the cut landed.
+     * Reads the requested paths the set holds, skipping any it does not, cut to `window` when given.
      */
     async read({
       generation,
@@ -178,7 +177,7 @@ export function createGenerationStore({
             files[path] = content
             return
           }
-          const lines = content.split('\n')
+          const lines = content.split(/\r\n|\r|\n/)
           const endLine = Math.min(window.startLine + window.lineCount, lines.length)
           files[path] = lines.slice(window.startLine, endLine).join('\n')
           windows[path] = { startLine: Math.min(window.startLine, lines.length), endLine, totalLines: lines.length }

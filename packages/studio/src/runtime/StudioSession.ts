@@ -230,9 +230,6 @@ function planEnd(close: RpcClose | void): SessionEnd {
   return { reason: 'connection closed', retry: true }
 }
 
-/**
- * The window if it is a usable one, `undefined` otherwise.
- */
 function parseWindow(window: FileWindow): FileWindow | undefined {
   const { startLine, lineCount } = window ?? {}
   if (!Number.isSafeInteger(startLine) || startLine < 0) return undefined
@@ -780,7 +777,6 @@ export class StudioSession implements AgentApi {
       return this.#refuse(`Ignored files: job ${data.jobId} is not kept on this agent`, GENERATION_GONE_MESSAGE)
     }
 
-    // `window` came off the wire too, and an unusable one is refused rather than read as the whole file.
     const window = data.window === undefined ? undefined : parseWindow(data.window)
 
     if (data.window !== undefined && !window) {

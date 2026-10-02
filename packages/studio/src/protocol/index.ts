@@ -325,27 +325,23 @@ export type ReadFilesInput = {
    */
   source?: FileSource
   /**
-   * Returns only these lines of each file instead of its whole content, so a large file reaches
-   * the caller piece by piece. Left out, the whole file is returned.
+   * Reads only these lines of each file. Left out, the whole file is returned.
    */
   window?: FileWindow
 }
 
 /**
- * A run of lines to read from a file: `lineCount` lines from `startLine` (0-based), at most
- * {@link MAX_WINDOW_LINES}.
+ * Lines to read, from `startLine` (0-based), at most {@link MAX_WINDOW_LINES}.
  */
 export type FileWindow = { startLine: number; lineCount: number }
 
 /**
- * Where a windowed read landed, by path. `totalLines` is the length of the whole file, so a caller
- * can size a scroller before it has read the rest. `startLine` and `endLine` (exclusive) are the
- * lines returned, which stop short of the request at the end of the file.
+ * The lines a windowed read returned per path (`endLine` is exclusive), and the file's length.
  */
 export type FileWindows = Record<string, { startLine: number; endLine: number; totalLines: number }>
 
 /**
- * What a file read returns. `windows` is set only when the request carried a {@link FileWindow}.
+ * What a file read returns. `windows` is set only for a windowed read.
  */
 export type ReadFilesResult = { files: Record<string, string>; windows?: FileWindows }
 
@@ -456,7 +452,7 @@ export type RpcConnector = (input: { url: string; token: string; instanceId: str
 export const MAX_FILES_PER_REQUEST = 50
 
 /**
- * How many lines a single {@link FileWindow} may ask for.
+ * Most lines one {@link FileWindow} may ask for.
  */
 export const MAX_WINDOW_LINES = 2000
 
