@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.5.0 — Oct 2, 2026
+
+### @kubb/studio
+
+#### Features
+
+- Add an optional `cursor` and `limit` to `readFiles`, so a caller can page through a large generated file. The reply carries only that page's lines plus `pages[path]` with the `nextCursor` (`null` after the last page) and the file's `totalLines`. Reads without a `limit` behave as before. ([#4140](https://github.com/kubb-labs/kubb/pull/4140), [`3bb9df6`](https://github.com/kubb-labs/kubb/commit/3bb9df67383285d2719f98bc30df59368a7ac3e0))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.4.2 — Oct 1, 2026
 
 ### @kubb/cli
