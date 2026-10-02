@@ -329,8 +329,7 @@ export type ReadFilesInput = {
    */
   cursor?: number
   /**
-   * Reads only this many lines of each file, at most {@link MAX_PAGE_LINES}. Left out, the whole
-   * file is returned.
+   * Lines to read per file, at most {@link MAX_PAGE_LINES}. Left out, the whole file.
    */
   limit?: number
 }
@@ -451,9 +450,7 @@ export type RpcConnector = (input: { url: string; token: string; instanceId: str
  */
 export const MAX_FILES_PER_REQUEST = 50
 
-/**
- * Most lines one page may ask for.
- */
+/** Most lines one page may ask for. */
 export const MAX_PAGE_LINES = 2000
 
 /**
