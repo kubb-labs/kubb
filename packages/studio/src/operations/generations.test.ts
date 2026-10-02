@@ -21,7 +21,26 @@ describe('createGenerationStore', () => {
 
     expect(await store.get('job-2')).toBeUndefined()
     expect(generation?.output.hashes['a.ts']).toMatch(/^[0-9a-f]{16}$/)
-    await expect(store.read({ generation: generation!, source: 'output', paths: ['a.ts', 'b.ts'] })).resolves.toStrictEqual({ 'a.ts': 'one' })
+    await expect(store.read({ generation: generation!, source: 'output', paths: ['a.ts', 'b.ts'] })).resolves.toStrictEqual({ files: { 'a.ts': 'one' } })
+  })
+
+  it('reads a window of lines and reports where it landed', async () => {
+    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
+    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'l0\nl1\nl2\nl3\nl4' } })
+    const generation = (await store.get('job-1'))!
+
+    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], window: { startLine: 1, lineCount: 2 } })).resolves.toStrictEqual({
+      files: { 'a.ts': 'l1\nl2' },
+      windows: { 'a.ts': { startLine: 1, endLine: 3, totalLines: 5 } },
+    })
+    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], window: { startLine: 4, lineCount: 10 } })).resolves.toStrictEqual({
+      files: { 'a.ts': 'l4' },
+      windows: { 'a.ts': { startLine: 4, endLine: 5, totalLines: 5 } },
+    })
+    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], window: { startLine: 9, lineCount: 2 } })).resolves.toStrictEqual({
+      files: { 'a.ts': '' },
+      windows: { 'a.ts': { startLine: 5, endLine: 5, totalLines: 5 } },
+    })
   })
 
   it('stops serving a generation once it is older than ttlMs, and drops its files on the next add', async () => {
@@ -67,6 +86,6 @@ describe('createGenerationStore', () => {
     const restarted = createGenerationStore({ storage, maxCount: 4, maxMb: 10 })
     const generation = await restarted.get('job-1')
 
-    await expect(restarted.read({ generation: generation!, source: 'output', paths: ['a.ts'] })).resolves.toStrictEqual({ 'a.ts': 'one' })
+    await expect(restarted.read({ generation: generation!, source: 'output', paths: ['a.ts'] })).resolves.toStrictEqual({ files: { 'a.ts': 'one' } })
   })
 })

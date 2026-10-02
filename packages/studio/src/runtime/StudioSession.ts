@@ -20,7 +20,10 @@ import {
   type GenerationRun,
   GENERATION_GONE_MESSAGE,
   MAX_FILES_PER_REQUEST,
+  MAX_WINDOW_LINES,
+  type FileWindow,
   type ReadFilesInput,
+  type ReadFilesResult,
   type SaveConfigInput,
   type SaveResult,
   type PublishSnapshotInput,
@@ -225,6 +228,16 @@ function planEnd(close: RpcClose | void): SessionEnd {
     }
   }
   return { reason: 'connection closed', retry: true }
+}
+
+/**
+ * The window if it is a usable one, `undefined` otherwise.
+ */
+function parseWindow(window: FileWindow): FileWindow | undefined {
+  const { startLine, lineCount } = window ?? {}
+  if (!Number.isSafeInteger(startLine) || startLine < 0) return undefined
+  if (!Number.isSafeInteger(lineCount) || lineCount < 1 || lineCount > MAX_WINDOW_LINES) return undefined
+  return { startLine, lineCount }
 }
 
 /**
@@ -712,7 +725,7 @@ export class StudioSession implements AgentApi {
     }
 
     try {
-      const files = await this.#generations.read({ generation, source: 'output', paths: generation.output.paths })
+      const { files } = await this.#generations.read({ generation, source: 'output', paths: generation.output.paths })
 
       const { bytes, integrity } = await createSnapshotPackage(files, { name, version, peerDependencies: generation.peerDependencies })
 
@@ -735,7 +748,7 @@ export class StudioSession implements AgentApi {
     return !this.#isSandbox && this.#canRead
   }
 
-  async readFiles(data: ReadFilesInput): Promise<{ files: Record<string, string> }> {
+  async readFiles(data: ReadFilesInput): Promise<ReadFilesResult> {
     const command = 'readFiles'
     await this.#hooks.callHook('studio:command:start', { command })
 
@@ -767,6 +780,16 @@ export class StudioSession implements AgentApi {
       return this.#refuse(`Ignored files: job ${data.jobId} is not kept on this agent`, GENERATION_GONE_MESSAGE)
     }
 
+    // `window` came off the wire too, and an unusable one is refused rather than read as the whole file.
+    const window = data.window === undefined ? undefined : parseWindow(data.window)
+
+    if (data.window !== undefined && !window) {
+      return this.#refuse(
+        'Ignored files: the message carried an invalid window',
+        `The window must start at a whole line from 0 and span 1 to ${MAX_WINDOW_LINES} lines`,
+      )
+    }
+
     const source = data.source === 'disk' ? 'disk' : 'output'
 
     if (!generation[source]) {
@@ -774,12 +797,12 @@ export class StudioSession implements AgentApi {
     }
 
     // Only paths the set holds are read, never an arbitrary path.
-    const files = await this.#generations.read({ generation, source, paths })
+    const result = await this.#generations.read({ generation, source, paths, window })
 
     await this.#hooks.callHook('studio:command:end', {
       command,
-      info: `read ${Object.keys(files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}`,
+      info: `read ${Object.keys(result.files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}`,
     })
-    return { files }
+    return result
   }
 }

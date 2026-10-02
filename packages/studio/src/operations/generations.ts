@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { relative, resolve, sep } from 'node:path'
 import { inParallel } from '@internals/utils'
 import { fsStorage, type Storage } from '@kubb/core'
+import type { FileWindow, FileWindows, ReadFilesResult } from '../protocol/index.ts'
 
 const READ_CONCURRENCY = 50
 const MB = 1024 * 1024
@@ -150,20 +151,40 @@ export function createGenerationStore({
       await storage.writeItem(INDEX_KEY, JSON.stringify(entries))
     },
     /**
-     * Reads the requested paths the set holds, skipping any it does not.
+     * Reads the requested paths the set holds, skipping any it does not. With a `window` each file
+     * is cut to those lines and `windows` reports where the cut landed.
      */
-    async read({ generation, source, paths }: { generation: KeptGeneration; source: GenerationSource; paths: Array<string> }): Promise<Record<string, string>> {
+    async read({
+      generation,
+      source,
+      paths,
+      window,
+    }: {
+      generation: KeptGeneration
+      source: GenerationSource
+      paths: Array<string>
+      window?: FileWindow
+    }): Promise<ReadFilesResult> {
       const kept = new Set(generation[source]?.paths)
       const files: Record<string, string> = {}
+      const windows: FileWindows = {}
       await inParallel({
         items: paths.filter((path) => kept.has(path)),
         limit: READ_CONCURRENCY,
         run: async (path) => {
           const content = await storage.readItem(`${dirOf(generation.jobId)}${source}/${path}`)
-          if (content !== null) files[path] = content
+          if (content === null) return
+          if (!window) {
+            files[path] = content
+            return
+          }
+          const lines = content.split('\n')
+          const endLine = Math.min(window.startLine + window.lineCount, lines.length)
+          files[path] = lines.slice(window.startLine, endLine).join('\n')
+          windows[path] = { startLine: Math.min(window.startLine, lines.length), endLine, totalLines: lines.length }
         },
       })
-      return files
+      return window ? { files, windows } : { files }
     },
   }
 }
