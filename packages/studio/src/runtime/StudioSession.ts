@@ -230,8 +230,9 @@ function planEnd(close: RpcClose | void): SessionEnd {
 }
 
 function isValidPage({ cursor, limit }: Pick<ReadFilesInput, 'cursor' | 'limit'>): boolean {
+  if (limit === undefined) return cursor === undefined
   if (cursor !== undefined && (!Number.isSafeInteger(cursor) || cursor < 0)) return false
-  return limit === undefined || (Number.isSafeInteger(limit) && limit >= 1 && limit <= MAX_PAGE_LINES)
+  return Number.isSafeInteger(limit) && limit >= 1 && limit <= MAX_PAGE_LINES
 }
 
 /**
@@ -777,7 +778,7 @@ export class StudioSession implements AgentApi {
     if (!isValidPage(data)) {
       return this.#refuse(
         'Ignored files: the message carried an invalid page',
-        `The cursor must be a whole line from 0 and the limit 1 to ${MAX_PAGE_LINES} lines`,
+        `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines`,
       )
     }
 

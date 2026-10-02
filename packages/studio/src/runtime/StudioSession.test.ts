@@ -328,17 +328,15 @@ describe('readFiles', () => {
     })
   })
 
-  it.each([
-    { cursor: -1, limit: 10 },
-    { cursor: 0.5, limit: 10 },
-    { cursor: 0, limit: 0 },
-    { cursor: 0, limit: MAX_PAGE_LINES + 1 },
-  ])('refuses the page %j', async (page) => {
-    const { agent } = await connectStudio({ permissions: { allowRead: true } })
-    await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
+  it.each([{ cursor: -1, limit: 10 }, { cursor: 0.5, limit: 10 }, { cursor: 0, limit: 0 }, { cursor: 0, limit: MAX_PAGE_LINES + 1 }, { cursor: 5 }])(
+    'refuses the page %j',
+    async (page) => {
+      const { agent } = await connectStudio({ permissions: { allowRead: true } })
+      await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], ...page })).rejects.toThrow('The cursor must be')
-  })
+      await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], ...page })).rejects.toThrow('The cursor must be')
+    },
+  )
 })
 
 describe('generation history', () => {
