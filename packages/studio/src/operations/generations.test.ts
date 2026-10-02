@@ -24,33 +24,33 @@ describe('createGenerationStore', () => {
     await expect(store.read({ generation: generation!, source: 'output', paths: ['a.ts', 'b.ts'] })).resolves.toStrictEqual({ files: { 'a.ts': 'one' } })
   })
 
-  it('splits windows on any line ending', async () => {
+  it('splits pages on any line ending', async () => {
     const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
     await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'l0\r\nl1\rl2\nl3' } })
     const generation = (await store.get('job-1'))!
 
-    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], window: { startLine: 0, lineCount: 2 } })).resolves.toStrictEqual({
+    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], limit: 2 })).resolves.toStrictEqual({
       files: { 'a.ts': 'l0\nl1' },
-      windows: { 'a.ts': { startLine: 0, endLine: 2, totalLines: 4 } },
+      pages: { 'a.ts': { nextCursor: 2, totalLines: 4 } },
     })
   })
 
-  it('reads a window of lines and reports where it landed', async () => {
+  it('pages through a file with a cursor until nextCursor is null', async () => {
     const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
     await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'l0\nl1\nl2\nl3\nl4' } })
     const generation = (await store.get('job-1'))!
 
-    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], window: { startLine: 1, lineCount: 2 } })).resolves.toStrictEqual({
-      files: { 'a.ts': 'l1\nl2' },
-      windows: { 'a.ts': { startLine: 1, endLine: 3, totalLines: 5 } },
+    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], cursor: 0, limit: 2 })).resolves.toStrictEqual({
+      files: { 'a.ts': 'l0\nl1' },
+      pages: { 'a.ts': { nextCursor: 2, totalLines: 5 } },
     })
-    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], window: { startLine: 4, lineCount: 10 } })).resolves.toStrictEqual({
+    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], cursor: 4, limit: 10 })).resolves.toStrictEqual({
       files: { 'a.ts': 'l4' },
-      windows: { 'a.ts': { startLine: 4, endLine: 5, totalLines: 5 } },
+      pages: { 'a.ts': { nextCursor: null, totalLines: 5 } },
     })
-    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], window: { startLine: 9, lineCount: 2 } })).resolves.toStrictEqual({
+    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], cursor: 9, limit: 2 })).resolves.toStrictEqual({
       files: { 'a.ts': '' },
-      windows: { 'a.ts': { startLine: 5, endLine: 5, totalLines: 5 } },
+      pages: { 'a.ts': { nextCursor: null, totalLines: 5 } },
     })
   })
 

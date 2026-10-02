@@ -4,7 +4,7 @@ import { ast } from '@kubb/ast'
 import { type Config, definePlugin, memoryStorage, type Plugin, resolveCacheDir } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { type AgentApi, AgentCloseCode, MAX_WINDOW_LINES, type RpcClose, type StudioApi } from '../protocol/index.ts'
+import { type AgentApi, AgentCloseCode, MAX_PAGE_LINES, type RpcClose, type StudioApi } from '../protocol/index.ts'
 import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
 
 vi.mock('../operations/api.ts', async (importOriginal) => ({
@@ -318,26 +318,26 @@ describe('readFiles', () => {
     })
   })
 
-  it('returns one window of a file with its total line count', async () => {
+  it('returns one page of a file with its total line count', async () => {
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
     await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], window: { startLine: 0, lineCount: 10 } })).resolves.toStrictEqual({
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], limit: 10 })).resolves.toStrictEqual({
       files: { 'src/gen/pet.ts': 'export const pet = 1' },
-      windows: { 'src/gen/pet.ts': { startLine: 0, endLine: 1, totalLines: 1 } },
+      pages: { 'src/gen/pet.ts': { nextCursor: null, totalLines: 1 } },
     })
   })
 
   it.each([
-    { startLine: -1, lineCount: 10 },
-    { startLine: 0.5, lineCount: 10 },
-    { startLine: 0, lineCount: 0 },
-    { startLine: 0, lineCount: MAX_WINDOW_LINES + 1 },
-  ])('refuses the window %j', async (window) => {
+    { cursor: -1, limit: 10 },
+    { cursor: 0.5, limit: 10 },
+    { cursor: 0, limit: 0 },
+    { cursor: 0, limit: MAX_PAGE_LINES + 1 },
+  ])('refuses the page %j', async (page) => {
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
     await agent.startGeneration({ jobId: 'job-1', config: {} }).result()
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], window })).rejects.toThrow('The window must start')
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], ...page })).rejects.toThrow('The cursor must be')
   })
 })
 

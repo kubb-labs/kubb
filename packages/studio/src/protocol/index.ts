@@ -325,25 +325,25 @@ export type ReadFilesInput = {
    */
   source?: FileSource
   /**
-   * Reads only these lines of each file. Left out, the whole file is returned.
+   * The line to start from (0-based), the `nextCursor` of the previous page. Defaults to 0.
    */
-  window?: FileWindow
+  cursor?: number
+  /**
+   * Reads only this many lines of each file, at most {@link MAX_PAGE_LINES}. Left out, the whole
+   * file is returned.
+   */
+  limit?: number
 }
 
 /**
- * Lines to read, from `startLine` (0-based), at most {@link MAX_WINDOW_LINES}.
+ * Where a paged read stands for one file: the cursor of the next page, `null` after the last one.
  */
-export type FileWindow = { startLine: number; lineCount: number }
+export type FilePage = { nextCursor: number | null; totalLines: number }
 
 /**
- * The lines a windowed read returned per path (`endLine` is exclusive), and the file's length.
+ * What a file read returns. `pages` is set only for a paged read.
  */
-export type FileWindows = Record<string, { startLine: number; endLine: number; totalLines: number }>
-
-/**
- * What a file read returns. `windows` is set only for a windowed read.
- */
-export type ReadFilesResult = { files: Record<string, string>; windows?: FileWindows }
+export type ReadFilesResult = { files: Record<string, string>; pages?: Record<string, FilePage> }
 
 /**
  * The error a file read fails with once the agent no longer keeps the job's files.
@@ -452,9 +452,9 @@ export type RpcConnector = (input: { url: string; token: string; instanceId: str
 export const MAX_FILES_PER_REQUEST = 50
 
 /**
- * Most lines one {@link FileWindow} may ask for.
+ * Most lines one page may ask for.
  */
-export const MAX_WINDOW_LINES = 2000
+export const MAX_PAGE_LINES = 2000
 
 /**
  * Connection payload returned by {@link AgentApi.connect}. Carries only what Studio renders, with

@@ -20,8 +20,7 @@ import {
   type GenerationRun,
   GENERATION_GONE_MESSAGE,
   MAX_FILES_PER_REQUEST,
-  MAX_WINDOW_LINES,
-  type FileWindow,
+  MAX_PAGE_LINES,
   type ReadFilesInput,
   type ReadFilesResult,
   type SaveConfigInput,
@@ -230,11 +229,9 @@ function planEnd(close: RpcClose | void): SessionEnd {
   return { reason: 'connection closed', retry: true }
 }
 
-function parseWindow(window: FileWindow): FileWindow | undefined {
-  const { startLine, lineCount } = window ?? {}
-  if (!Number.isSafeInteger(startLine) || startLine < 0) return undefined
-  if (!Number.isSafeInteger(lineCount) || lineCount < 1 || lineCount > MAX_WINDOW_LINES) return undefined
-  return { startLine, lineCount }
+function isValidPage({ cursor, limit }: Pick<ReadFilesInput, 'cursor' | 'limit'>): boolean {
+  if (cursor !== undefined && (!Number.isSafeInteger(cursor) || cursor < 0)) return false
+  return limit === undefined || (Number.isSafeInteger(limit) && limit >= 1 && limit <= MAX_PAGE_LINES)
 }
 
 /**
@@ -777,12 +774,10 @@ export class StudioSession implements AgentApi {
       return this.#refuse(`Ignored files: job ${data.jobId} is not kept on this agent`, GENERATION_GONE_MESSAGE)
     }
 
-    const window = data.window === undefined ? undefined : parseWindow(data.window)
-
-    if (data.window !== undefined && !window) {
+    if (!isValidPage(data)) {
       return this.#refuse(
-        'Ignored files: the message carried an invalid window',
-        `The window must start at a whole line from 0 and span 1 to ${MAX_WINDOW_LINES} lines`,
+        'Ignored files: the message carried an invalid page',
+        `The cursor must be a whole line from 0 and the limit 1 to ${MAX_PAGE_LINES} lines`,
       )
     }
 
@@ -793,7 +788,7 @@ export class StudioSession implements AgentApi {
     }
 
     // Only paths the set holds are read, never an arbitrary path.
-    const result = await this.#generations.read({ generation, source, paths, window })
+    const result = await this.#generations.read({ generation, source, paths, cursor: data.cursor, limit: data.limit })
 
     await this.#hooks.callHook('studio:command:end', {
       command,
