@@ -324,7 +324,25 @@ export type ReadFilesInput = {
    * Which of the job's sets to read, `output` when left out.
    */
   source?: FileSource
+  /**
+   * The line to start from (0-based), the `nextCursor` of the previous page. Defaults to 0.
+   */
+  cursor?: number
+  /**
+   * Lines to read per file, at most {@link MAX_PAGE_LINES}. Left out, the whole file.
+   */
+  limit?: number
 }
+
+/**
+ * Where a paged read stands for one file: the cursor of the next page, `null` after the last one.
+ */
+export type FilePage = { nextCursor: number | null; totalLines: number }
+
+/**
+ * What a file read returns. `pages` is set only for a paged read.
+ */
+export type ReadFilesResult = { files: Record<string, string>; pages?: Record<string, FilePage> }
 
 /**
  * The error a file read fails with once the agent no longer keeps the job's files.
@@ -360,7 +378,7 @@ export type AgentApi = {
   startGeneration: (input: GenerateInput) => GenerationRun
   saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
   publishSnapshot: (input: PublishSnapshotInput) => Promise<PublishSnapshotResult>
-  readFiles: (input: ReadFilesInput) => Promise<{ files: Record<string, string> }>
+  readFiles: (input: ReadFilesInput) => Promise<ReadFilesResult>
   /**
    * Cancels the job named by `jobId`, if it is the one this agent is currently running. Reachable
    * by id alone, unlike {@link GenerationRun.cancel}, so a caller that no longer holds that object
@@ -431,6 +449,9 @@ export type RpcConnector = (input: { url: string; token: string; instanceId: str
  * How many files a single `readFiles` request may ask for at once.
  */
 export const MAX_FILES_PER_REQUEST = 50
+
+/** Most lines one page may ask for. */
+export const MAX_PAGE_LINES = 2000
 
 /**
  * Connection payload returned by {@link AgentApi.connect}. Carries only what Studio renders, with

@@ -20,7 +20,9 @@ import {
   type GenerationRun,
   GENERATION_GONE_MESSAGE,
   MAX_FILES_PER_REQUEST,
+  MAX_PAGE_LINES,
   type ReadFilesInput,
+  type ReadFilesResult,
   type SaveConfigInput,
   type SaveResult,
   type PublishSnapshotInput,
@@ -225,6 +227,12 @@ function planEnd(close: RpcClose | void): SessionEnd {
     }
   }
   return { reason: 'connection closed', retry: true }
+}
+
+function isValidPage({ cursor, limit }: Pick<ReadFilesInput, 'cursor' | 'limit'>): boolean {
+  if (limit === undefined) return cursor === undefined
+  if (cursor !== undefined && (!Number.isSafeInteger(cursor) || cursor < 0)) return false
+  return Number.isSafeInteger(limit) && limit >= 1 && limit <= MAX_PAGE_LINES
 }
 
 /**
@@ -712,7 +720,7 @@ export class StudioSession implements AgentApi {
     }
 
     try {
-      const files = await this.#generations.read({ generation, source: 'output', paths: generation.output.paths })
+      const { files } = await this.#generations.read({ generation, source: 'output', paths: generation.output.paths })
 
       const { bytes, integrity } = await createSnapshotPackage(files, { name, version, peerDependencies: generation.peerDependencies })
 
@@ -735,7 +743,7 @@ export class StudioSession implements AgentApi {
     return !this.#isSandbox && this.#canRead
   }
 
-  async readFiles(data: ReadFilesInput): Promise<{ files: Record<string, string> }> {
+  async readFiles(data: ReadFilesInput): Promise<ReadFilesResult> {
     const command = 'readFiles'
     await this.#hooks.callHook('studio:command:start', { command })
 
@@ -767,6 +775,13 @@ export class StudioSession implements AgentApi {
       return this.#refuse(`Ignored files: job ${data.jobId} is not kept on this agent`, GENERATION_GONE_MESSAGE)
     }
 
+    if (!isValidPage(data)) {
+      return this.#refuse(
+        'Ignored files: the message carried an invalid page',
+        `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines`,
+      )
+    }
+
     const source = data.source === 'disk' ? 'disk' : 'output'
 
     if (!generation[source]) {
@@ -774,12 +789,12 @@ export class StudioSession implements AgentApi {
     }
 
     // Only paths the set holds are read, never an arbitrary path.
-    const files = await this.#generations.read({ generation, source, paths })
+    const result = await this.#generations.read({ generation, source, paths, cursor: data.cursor, limit: data.limit })
 
     await this.#hooks.callHook('studio:command:end', {
       command,
-      info: `read ${Object.keys(files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}`,
+      info: `read ${Object.keys(result.files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}`,
     })
-    return { files }
+    return result
   }
 }

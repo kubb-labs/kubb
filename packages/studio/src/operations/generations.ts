@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { relative, resolve, sep } from 'node:path'
 import { inParallel } from '@internals/utils'
 import { fsStorage, type Storage } from '@kubb/core'
+import type { FilePage, ReadFilesResult } from '../protocol/index.ts'
 
 const READ_CONCURRENCY = 50
 const MB = 1024 * 1024
@@ -150,20 +151,41 @@ export function createGenerationStore({
       await storage.writeItem(INDEX_KEY, JSON.stringify(entries))
     },
     /**
-     * Reads the requested paths the set holds, skipping any it does not.
+     * Reads the requested paths the set holds, skipping any it does not, one page of lines when `limit` is given.
      */
-    async read({ generation, source, paths }: { generation: KeptGeneration; source: GenerationSource; paths: Array<string> }): Promise<Record<string, string>> {
+    async read({
+      generation,
+      source,
+      paths,
+      cursor = 0,
+      limit,
+    }: {
+      generation: KeptGeneration
+      source: GenerationSource
+      paths: Array<string>
+      cursor?: number
+      limit?: number
+    }): Promise<ReadFilesResult> {
       const kept = new Set(generation[source]?.paths)
       const files: Record<string, string> = {}
+      const pages: Record<string, FilePage> = {}
       await inParallel({
         items: paths.filter((path) => kept.has(path)),
         limit: READ_CONCURRENCY,
         run: async (path) => {
           const content = await storage.readItem(`${dirOf(generation.jobId)}${source}/${path}`)
-          if (content !== null) files[path] = content
+          if (content === null) return
+          if (limit === undefined) {
+            files[path] = content
+            return
+          }
+          const lines = content.split(/\r\n|\r|\n/)
+          const end = Math.min(cursor + limit, lines.length)
+          files[path] = lines.slice(cursor, end).join('\n')
+          pages[path] = { nextCursor: end < lines.length ? end : null, totalLines: lines.length }
         },
       })
-      return files
+      return limit === undefined ? { files } : { files, pages }
     },
   }
 }

@@ -21,7 +21,37 @@ describe('createGenerationStore', () => {
 
     expect(await store.get('job-2')).toBeUndefined()
     expect(generation?.output.hashes['a.ts']).toMatch(/^[0-9a-f]{16}$/)
-    await expect(store.read({ generation: generation!, source: 'output', paths: ['a.ts', 'b.ts'] })).resolves.toStrictEqual({ 'a.ts': 'one' })
+    await expect(store.read({ generation: generation!, source: 'output', paths: ['a.ts', 'b.ts'] })).resolves.toStrictEqual({ files: { 'a.ts': 'one' } })
+  })
+
+  it('splits pages on any line ending', async () => {
+    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
+    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'l0\r\nl1\rl2\nl3' } })
+    const generation = (await store.get('job-1'))!
+
+    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], limit: 2 })).resolves.toStrictEqual({
+      files: { 'a.ts': 'l0\nl1' },
+      pages: { 'a.ts': { nextCursor: 2, totalLines: 4 } },
+    })
+  })
+
+  it('pages through a file with a cursor until nextCursor is null', async () => {
+    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
+    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'l0\nl1\nl2\nl3\nl4' } })
+    const generation = (await store.get('job-1'))!
+
+    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], cursor: 0, limit: 2 })).resolves.toStrictEqual({
+      files: { 'a.ts': 'l0\nl1' },
+      pages: { 'a.ts': { nextCursor: 2, totalLines: 5 } },
+    })
+    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], cursor: 4, limit: 10 })).resolves.toStrictEqual({
+      files: { 'a.ts': 'l4' },
+      pages: { 'a.ts': { nextCursor: null, totalLines: 5 } },
+    })
+    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], cursor: 9, limit: 2 })).resolves.toStrictEqual({
+      files: { 'a.ts': '' },
+      pages: { 'a.ts': { nextCursor: null, totalLines: 5 } },
+    })
   })
 
   it('stops serving a generation once it is older than ttlMs, and drops its files on the next add', async () => {
@@ -67,6 +97,6 @@ describe('createGenerationStore', () => {
     const restarted = createGenerationStore({ storage, maxCount: 4, maxMb: 10 })
     const generation = await restarted.get('job-1')
 
-    await expect(restarted.read({ generation: generation!, source: 'output', paths: ['a.ts'] })).resolves.toStrictEqual({ 'a.ts': 'one' })
+    await expect(restarted.read({ generation: generation!, source: 'output', paths: ['a.ts'] })).resolves.toStrictEqual({ files: { 'a.ts': 'one' } })
   })
 })
