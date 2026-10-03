@@ -518,6 +518,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "mheob",
+      "name": "Alex Böhm",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3983539?v=4",
+      "profile": "http://www.alex-boehm.dev",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
