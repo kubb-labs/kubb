@@ -27,8 +27,12 @@ describe('getRelativePath', () => {
 })
 
 describe('resolveOutputPath', () => {
-  it('replaces the extension when options.extname is set', () => {
-    expect(resolveOutputPath('src/pet.ts', { extname: '.js' }, false)).toBe('src/pet.js')
+  it('replaces the extension for root-aware paths when options.extname is set', () => {
+    expect(resolveOutputPath('src/pet.ts', { extname: '.js' }, true)).toBe('src/pet.js')
+  })
+
+  it('leaves non-root-aware paths unchanged when options.extname is set', () => {
+    expect(resolveOutputPath('@modelcontextprotocol/sdk/server/mcp.js', { extname: '.ts' }, false)).toBe('@modelcontextprotocol/sdk/server/mcp.js')
   })
 
   it('strips the extension when rootAware is true and no extname given', () => {
