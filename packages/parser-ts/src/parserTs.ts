@@ -9,10 +9,10 @@ const DEFAULT_EXTENSION: Record<ast.FileNode['extname'], ast.FileNode['extname']
  */
 export type ParserTsOptions = {
   /**
-   * Rewrite the extensions emitted in `import`/`export` statements, e.g. emit `.js` imports from
+   * Rewrite extensions on relative `import`/`export` statements, e.g. emit `.js` imports from
    * `.ts` sources for ESM dual packages, or keep the source extension for Node16/NodeNext
-   * resolution. Keys are the source extension, values the output, and `''` drops it. Only the
-   * module-specifier string changes, never the on-disk filename. Also applies to `copy` templates.
+   * resolution. Package specifiers stay unchanged. Keys are the source extension, values the
+   * output, and `''` drops it. Also applies to relative paths in `copy` templates.
    *
    * @default { '.ts': '' }
    * @example
@@ -85,7 +85,7 @@ export const parserTs = defineParser<ParserTsOptions>(({ extension = DEFAULT_EXT
         exportLines.push(
           printExport({
             name: item.name as string | Array<ts.Identifier | string> | null | undefined,
-            path: resolveOutputPath(item.path, { extname }, true),
+            path: resolveOutputPath(item.path, { extname }, item.path.startsWith('.')),
             isTypeOnly: item.isTypeOnly,
             asAlias: item.asAlias,
           }),

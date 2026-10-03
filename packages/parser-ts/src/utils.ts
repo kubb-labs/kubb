@@ -34,7 +34,7 @@ export function getRelativePath(rootDir: string, filePath: string): string {
  */
 export function resolveOutputPath(path: string, options: { extname?: string } | undefined, rootAware: boolean): string {
   const hasExtname = FILE_EXTENSION_PATTERN.test(path)
-  if (options?.extname && hasExtname) {
+  if (rootAware && options?.extname && hasExtname) {
     return `${trimExtName(path)}${options.extname}`
   }
   return rootAware ? trimExtName(path) : path

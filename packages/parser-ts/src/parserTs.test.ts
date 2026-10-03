@@ -71,6 +71,16 @@ describe('parserTs', () => {
       expect(result).toContain("import { myCodec } from 'my-codec/zod'")
     })
 
+    it('does not rewrite extensions in package specifiers', async () => {
+      const file = {
+        ...createFileWithCodec('export const schema = myCodec.uint64()'),
+        imports: [ast.factory.createImport({ name: ['myCodec'], path: '@modelcontextprotocol/sdk/server/mcp.js' })],
+      }
+
+      const result = await parserTs({ extension: { '.ts': '.ts' } }).parse(file)
+      expect(result).toContain("from '@modelcontextprotocol/sdk/server/mcp.js'")
+    })
+
     it('drops the import when the file does not use it', async () => {
       const result = await parserTs().parse(createFileWithCodec('export const schema = 1'))
       expect(result).not.toContain('my-codec/zod')
