@@ -132,7 +132,7 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
  * Converts a `oneOf` / `anyOf` schema into a `UnionSchemaNode`.
  */
 export function convertUnion(context: ConvertContext): ast.SchemaNode {
-  const annotatedEnum = context.annotatedEnums ? convertAnnotatedEnum(context) : undefined
+  const annotatedEnum = convertAnnotatedEnum(context)
   if (annotatedEnum) return annotatedEnum
   const { schema, name, nullable, defaultValue, rawOptions, parse, refs } = context
   const ctx = { schema, name, nullable, defaultValue }

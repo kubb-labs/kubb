@@ -8,12 +8,12 @@ const members = [
   { const: 2, title: 'Second' },
 ]
 
-async function parse(schema: SchemaObject, annotatedEnums = true) {
-  const adapter = adapterOas({ annotatedEnums, integerType: 'number' })
+async function parse(schema: SchemaObject, openapi = '3.1.0') {
+  const adapter = adapterOas({ integerType: 'number' })
   return adapter.parse({
     type: 'data',
     data: {
-      openapi: '3.1.0',
+      openapi,
       info: { title: 'Annotated enums', version: '1' },
       paths: {},
       components: { schemas: { Status: schema, Container: { type: 'object', properties: { status: { $ref: '#/components/schemas/Status' } } } } },
@@ -48,15 +48,22 @@ describe('annotated enums', () => {
     })
   })
 
-  it('keeps current output by default', async () => {
-    const adapter = adapterOas({ integerType: 'number' })
-    const result = await adapter.parse({
-      type: 'data',
-      data: { openapi: '3.1.0', info: { title: 'Enums', version: '1' }, paths: {}, components: { schemas: { Status: { oneOf: members } } } },
-    })
+  it.each(['3.1.0', '3.1.1', '3.1.2'])('recognizes annotated enums automatically in OpenAPI %s', async (openapi) => {
+    const result = await parse({ oneOf: members }, openapi)
+    expect(result.schemas[0]?.type).toBe('enum')
+    expect(result.meta?.enumNames).toContain('Status')
+  })
+
+  it.each(['3.0.0', '3.0.4'])('keeps ordinary enum unions unchanged in OpenAPI %s', async (openapi) => {
+    const result = await parse({ oneOf: members.map(({ const: value, ...annotations }) => ({ enum: [value], ...annotations })) }, openapi)
     expect(result.schemas[0]?.type).toBe('union')
     expect(result.meta?.enumNames).not.toContain('Status')
-    expect(adapter.options.annotatedEnums).toBe(false)
+  })
+
+  it('recognizes const unions after the loader upgrades a document to OpenAPI 3.1', async () => {
+    const result = await parse({ oneOf: members }, '3.0.4')
+    expect(result.schemas[0]?.type).toBe('enum')
+    expect(result.meta?.enumNames).toContain('Status')
   })
 
   it('preserves string wire values without using titles as serialized values', async () => {

@@ -39,7 +39,6 @@ export type ParseFn = (entry: { schema: SchemaObject; name?: string | null }, ra
  * document, and the `$ref` service bound to it.
  */
 export type ConverterDeps = {
-  annotatedEnums?: boolean
   parse: ParseFn
   document: Document
   refs: Refs

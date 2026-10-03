@@ -17,7 +17,8 @@ function matchesType(type: SchemaObject['type'], value: string | number): boolea
 
 /** Recognizes annotated const unions only when replacing them cannot discard validation constraints. */
 export function convertAnnotatedEnum(context: ConvertContext): ast.SchemaNode | undefined {
-  const { schema } = context
+  const { schema, document } = context
+  if (!document.openapi?.startsWith('3.1.')) return undefined
   if (!hasOnlyKeys(schema, UNION_KEYS) || (schema.oneOf !== undefined && schema.anyOf !== undefined)) return undefined
   const members = schema.oneOf ?? schema.anyOf
   if (!members?.length) return undefined

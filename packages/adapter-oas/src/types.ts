@@ -215,14 +215,6 @@ export type AdapterOasOptions = {
    * @default 'inline'
    */
   enums?: 'inline' | 'root'
-  /**
-   * Recognize annotation-only `oneOf`/`anyOf` const unions as named enums.
-   * Members must have distinct, non-empty titles and distinct string or number values.
-   * Additionally constrained or ambiguous unions keep their existing representation.
-   *
-   * @default false
-   */
-  annotatedEnums?: boolean
 } & Partial<ast.ParserOptions>
 
 /**
@@ -234,7 +226,6 @@ export type AdapterOasResolvedOptions = {
   server: AdapterOasOptions['server']
   discriminator: NonNullable<AdapterOasOptions['discriminator']>
   enums: NonNullable<AdapterOasOptions['enums']>
-  annotatedEnums: boolean
   dateType: NonNullable<AdapterOasOptions['dateType']>
   integerType: NonNullable<AdapterOasOptions['integerType']>
   unknownType: NonNullable<AdapterOasOptions['unknownType']>
