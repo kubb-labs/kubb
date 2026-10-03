@@ -54,6 +54,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     server,
     discriminator = 'preserve',
     enums = 'inline',
+    annotatedEnums = false,
     dateType = DEFAULT_PARSER_OPTIONS.dateType,
     integerType = DEFAULT_PARSER_OPTIONS.integerType,
     unknownType = DEFAULT_PARSER_OPTIONS.unknownType,
@@ -173,6 +174,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
         server,
         discriminator,
         enums,
+        annotatedEnums,
         dateType,
         integerType,
         unknownType,
@@ -203,7 +205,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
         const refs = createRefs(document)
         const { schemas, renames } = getSchemas(document, { contentType }, refs)
-        const parser = createSchemaParser({ document, refs, contentType, renames })
+        const parser = createSchemaParser({ document, refs, contentType, renames, annotatedEnums })
 
         return parseInput({ document, refs, schemas, parser })
       })()

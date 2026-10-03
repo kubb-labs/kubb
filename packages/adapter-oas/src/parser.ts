@@ -16,6 +16,7 @@ import type { ContentTypeOptions, Document, Operation, SchemaObject } from './ty
  * and handle content negotiation when multiple media types are available.
  */
 export type OasParserContext = ContentTypeOptions & {
+  annotatedEnums?: boolean
   document: Document
   refs: Refs
   /**
@@ -74,6 +75,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       document,
       refs,
       renames: ctx.renames,
+      annotatedEnums: ctx.annotatedEnums,
     }
 
     for (const rule of schemaRules) {

@@ -6,6 +6,7 @@ import { createNode } from '../createNode.ts'
 import { createDiscriminantNode, extractDiscriminatedAllOfMembers, narrowUnionMembers } from '../discriminator/preserve.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 import { extractExamples } from '../schemaShape.ts'
+import { convertAnnotatedEnum } from './annotatedEnum.ts'
 
 /**
  * Converts a `$ref` schema into a `RefSchemaNode`.
@@ -130,7 +131,10 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
 /**
  * Converts a `oneOf` / `anyOf` schema into a `UnionSchemaNode`.
  */
-export function convertUnion({ schema, name, nullable, defaultValue, rawOptions, parse, refs }: ConvertContext): ast.SchemaNode {
+export function convertUnion(context: ConvertContext): ast.SchemaNode {
+  const annotatedEnum = context.annotatedEnums ? convertAnnotatedEnum(context) : undefined
+  if (annotatedEnum) return annotatedEnum
+  const { schema, name, nullable, defaultValue, rawOptions, parse, refs } = context
   const ctx = { schema, name, nullable, defaultValue }
   const unionMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
   const strategy: 'one' | 'any' = schema.oneOf ? 'one' : 'any'
