@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.4.4 — Oct 3, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- The background worker started by `kubb studio start` now shows up as `Kubb` in process lists, like the main CLI. ([#4145](https://github.com/kubb-labs/kubb/pull/4145), [`81aa079`](https://github.com/kubb-labs/kubb/commit/81aa07992b3a06a426165219ad2c387088ee7f56))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.4.3 — Oct 2, 2026
 
 ### @kubb/studio
