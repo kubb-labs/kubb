@@ -91,9 +91,7 @@ export function convertFormat(context: ConvertContext): ast.SchemaNode {
     return createNode(ctx, {
       type: options.integerType === 'bigint' ? 'bigint' : 'integer',
       primitive: 'integer',
-      min: schema.minimum,
-      max: schema.maximum,
-      ...getExclusiveBounds(schema),
+      ...getNumericConstraints(schema),
     })
   }
 
@@ -117,13 +115,15 @@ export function convertFormat(context: ConvertContext): ast.SchemaNode {
 
   const specialType = getSchemaType(schema.format!)!
 
-  const specialPrimitive: ast.PrimitiveSchemaType = specialType === 'number' || specialType === 'integer' || specialType === 'bigint' ? specialType : 'string'
+  const isNumeric = specialType === 'number' || specialType === 'integer' || specialType === 'bigint'
+  const specialPrimitive: ast.PrimitiveSchemaType = isNumeric ? specialType : 'string'
   const hasLength = specialType === 'url' || specialType === 'uuid' || specialType === 'email'
 
   return createNode(ctx, {
     primitive: specialPrimitive,
     type: specialType as ast.ScalarSchemaType,
     ...(hasLength ? { min: schema.minLength, max: schema.maxLength } : {}),
+    ...(isNumeric ? getNumericConstraints(schema) : {}),
   })
 }
 
@@ -209,6 +209,19 @@ export function convertString({ schema, name, nullable, defaultValue }: ConvertC
 }
 
 /**
+ * Reads the numeric constraints shared by every `number`, `integer` and `bigint` node. A `format`
+ * such as `double` or `int32` only narrows the type, so formatted numbers keep these too.
+ */
+function getNumericConstraints(schema: SchemaObject): Pick<ast.NumberSchemaNode, 'min' | 'max' | 'exclusiveMinimum' | 'exclusiveMaximum' | 'multipleOf'> {
+  return {
+    min: schema.minimum,
+    max: schema.maximum,
+    ...getExclusiveBounds(schema),
+    multipleOf: schema.multipleOf,
+  }
+}
+
+/**
  * Converts a `type: 'number'` or `type: 'integer'` schema.
  */
 export function convertNumeric({ schema, name, nullable, defaultValue }: ConvertContext, type: 'number' | 'integer'): ast.SchemaNode {
@@ -217,10 +230,7 @@ export function convertNumeric({ schema, name, nullable, defaultValue }: Convert
     {
       type,
       primitive: type,
-      min: schema.minimum,
-      max: schema.maximum,
-      ...getExclusiveBounds(schema),
-      multipleOf: schema.multipleOf,
+      ...getNumericConstraints(schema),
     },
   )
 }
