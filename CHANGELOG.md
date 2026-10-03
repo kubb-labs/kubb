@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.4.5 — Oct 3, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Numbers with a `format` such as `double`, `float` or `int32` keep their `minimum`, `maximum`, `exclusiveMinimum`, `exclusiveMaximum` and `multipleOf` constraints, so `{ type: 'number', format: 'double', minimum: -90, maximum: 90 }` generates `z.number().min(-90).max(90)` again. `int64` and `uint64` now keep `multipleOf` as well. ([#4149](https://github.com/kubb-labs/kubb/pull/4149), [`8ff2b1e`](https://github.com/kubb-labs/kubb/commit/8ff2b1e74cf741965447ad58a33c5d3a1ba12a23))
+
+### @kubb/parser-ts
+
+#### Bug Fixes
+
+- Keep package import and export specifiers unchanged when applying the `extension` option. ([#4147](https://github.com/kubb-labs/kubb/pull/4147), [`31ad673`](https://github.com/kubb-labs/kubb/commit/31ad673781d6c62410c69ed8c5dbf5c5489ab994))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@mheob](https://github.com/mheob), [@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.4.4 — Oct 3, 2026
 
 ### @kubb/cli
