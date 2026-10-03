@@ -3693,6 +3693,75 @@ describe('parseSchema constraints', () => {
       expect(narrowed?.max).toBeUndefined()
     })
   })
+
+  describe('formatted numbers: minimum / maximum / multipleOf', () => {
+    it.each(['float', 'double'])('maps minimum and maximum on a %s number', (format) => {
+      const node = parseSchema(ctx, {
+        schema: { type: 'number', format, minimum: -90, maximum: 90 },
+      })
+      const narrowed = ast.narrowSchema(node, 'number')
+
+      expect(narrowed?.min).toBe(-90)
+      expect(narrowed?.max).toBe(90)
+    })
+
+    it('maps minimum and maximum on an int32 integer', () => {
+      const node = parseSchema(ctx, {
+        schema: { type: 'integer', format: 'int32', minimum: 1, maximum: 100 },
+      })
+      const narrowed = ast.narrowSchema(node, 'integer')
+
+      expect(narrowed?.min).toBe(1)
+      expect(narrowed?.max).toBe(100)
+    })
+
+    it('maps minimum and maximum when only the format names the type', () => {
+      const node = parseSchema(ctx, {
+        schema: { format: 'double', minimum: 0, maximum: 1 },
+      })
+      const narrowed = ast.narrowSchema(node, 'number')
+
+      expect(narrowed?.min).toBe(0)
+      expect(narrowed?.max).toBe(1)
+    })
+
+    it('maps numeric exclusiveMinimum and exclusiveMaximum on a double number', () => {
+      const node = parseSchema(ctx, {
+        schema: { type: 'number', format: 'double', exclusiveMinimum: 0, exclusiveMaximum: 100 },
+      })
+      const narrowed = ast.narrowSchema(node, 'number')
+
+      expect(narrowed?.exclusiveMinimum).toBe(0)
+      expect(narrowed?.exclusiveMaximum).toBe(100)
+    })
+
+    it('maps multipleOf on a double number', () => {
+      const node = parseSchema(ctx, {
+        schema: { type: 'number', format: 'double', multipleOf: 0.5 },
+      })
+      const narrowed = ast.narrowSchema(node, 'number')
+
+      expect(narrowed?.multipleOf).toBe(0.5)
+    })
+
+    it('maps multipleOf on an int64 integer', () => {
+      const node = parseSchema(ctx, { schema: { type: 'integer', format: 'int64', multipleOf: 10 } }, { integerType: 'number' })
+      const narrowed = ast.narrowSchema(node, 'integer')
+
+      expect(narrowed?.multipleOf).toBe(10)
+    })
+
+    it('does not map minimum and maximum onto a uuid string', () => {
+      const node = parseSchema(ctx, {
+        schema: { type: 'string', format: 'uuid', minimum: 0, maximum: 1 },
+      })
+      const narrowed = ast.narrowSchema(node, 'uuid')
+
+      expect(narrowed).not.toBeNull()
+      expect(narrowed?.min).toBeUndefined()
+      expect(narrowed?.max).toBeUndefined()
+    })
+  })
 })
 
 describe('parser options', () => {
