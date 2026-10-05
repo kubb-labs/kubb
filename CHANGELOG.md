@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.5.1 — Oct 5, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Point diagnostic documentation links to the matching sections in the consolidated diagnostic reference. ([#4156](https://github.com/kubb-labs/kubb/pull/4156), [`d3711ad`](https://github.com/kubb-labs/kubb/commit/d3711adc4ac817897a22c6d13f8c5fbc2ff8e7fa))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.5.0 — Oct 5, 2026
 
 ### @kubb/adapter-oas
