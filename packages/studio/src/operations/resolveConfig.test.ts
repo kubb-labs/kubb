@@ -92,7 +92,9 @@ describe('mergePlugins', () => {
 
 describe('mergeOptions', () => {
   it('lets studio override JSON values, merging plain objects key by key', () => {
-    expect(mergeOptions({ output: { path: 'types', barrel: false }, exclude: [{ type: 'tag', pattern: 'a' }] }, { output: { path: 'models' }, exclude: [] })).toStrictEqual({
+    expect(
+      mergeOptions({ output: { path: 'types', barrel: false }, exclude: [{ type: 'tag', pattern: 'a' }] }, { output: { path: 'models' }, exclude: [] }),
+    ).toStrictEqual({
       output: { path: 'models', barrel: false },
       exclude: [],
     })
