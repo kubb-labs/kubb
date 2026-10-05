@@ -19,7 +19,7 @@ export type DiagnosticSeverity = 'error' | 'warning' | 'info'
 
 /**
  * A human-readable explanation of a diagnostic code: a short title, what triggers it, and how
- * to resolve it. This is the source of truth the kubb.dev `/diagnostics/<slug>` pages mirror, so
+ * to resolve it. This is the source of truth the kubb.dev `/reference/diagnostics#<slug>` sections mirror, so
  * every code stays documented in one place. Adding a code without documenting it fails the build.
  */
 export type DiagnosticDoc = {
@@ -595,16 +595,16 @@ export class Diagnostics {
 
   /**
    * Builds the kubb.dev docs URL for a diagnostic code, e.g.
-   * `KUBB_REF_NOT_FOUND` → `https://kubb.dev/docs/5.x/reference/diagnostics/kubb-ref-not-found`.
+   * `KUBB_REF_NOT_FOUND` → `https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found`.
    */
   static docsUrl(code: string): string {
     const slug = code.toLowerCase().replaceAll('_', '-')
-    return `https://kubb.dev/docs/${docsMajor}.x/reference/diagnostics/${slug}`
+    return `https://kubb.dev/docs/${docsMajor}.x/reference/diagnostics#${slug}`
   }
 
   /**
    * The catalog entry for a code: its title, cause, and fix. Mirrors the kubb.dev
-   * `/diagnostics/<slug>` page.
+   * `/reference/diagnostics#<slug>` section.
    */
   static explain(code: DiagnosticCode): DiagnosticDoc {
     return diagnosticCatalog[code]

@@ -46,6 +46,6 @@ describe('buildReport', () => {
     ])
     expect(report.diagnostics).toHaveLength(2)
     expect(report.diagnostics[0]).toMatchObject({ code: 'KUBB_REF_NOT_FOUND', plugin: '@kubb/plugin-zod', location: { pointer: '#/components/schemas/Pet' } })
-    expect(report.diagnostics[0]?.docsUrl).toMatch(/\/diagnostics\/kubb-ref-not-found$/)
+    expect(report.diagnostics[0]?.docsUrl).toMatch(/\/diagnostics#kubb-ref-not-found$/)
   })
 })
