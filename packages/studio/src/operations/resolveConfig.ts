@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import type { Adapter, Plugin } from '@kubb/core'
 import { camelCase } from '@internals/utils'
-import { mergeDeep } from 'remeda'
+import { isPlainObject } from 'remeda'
 import type { JSONKubbConfig } from '../protocol/index.ts'
 
 /**
@@ -149,8 +149,53 @@ export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugin
 }
 
 /**
+ * Whether `value` comes back unchanged from a JSON round trip. A function, a `RegExp` or another
+ * class instance does not: the agent reports options to Studio as JSON, so what Studio sends back
+ * for such a value is a lossy copy (`macros: [{ name }]` without its hooks, `pattern: {}`).
+ */
+function survivesJson(value: unknown): boolean {
+  if (value === null || typeof value === 'string' || typeof value === 'boolean') return true
+  if (typeof value === 'number') return Number.isFinite(value)
+  if (Array.isArray(value)) return value.every(survivesJson)
+  if (isPlainObject(value)) return Object.values(value).every(survivesJson)
+
+  return false
+}
+
+/**
+ * Deep-merges Studio's options over the disk options, with Studio taking priority, except where the
+ * disk value cannot survive JSON. Studio only ever saw a lossy copy of such a value, so the disk
+ * value is kept rather than replaced by what Studio echoes back. Plain objects merge key by key, so
+ * Studio can still change a literal that sits next to a function (e.g. `group.type` beside `group.name`).
+ *
+ * @example
+ * ```ts
+ * mergeOptions({ macros: [camelCaseMacro], syntaxType: 'type' }, { macros: [{ name: 'camelCase' }], syntaxType: 'interface' })
+ * // { macros: [camelCaseMacro], syntaxType: 'interface' }
+ * ```
+ */
+export function mergeOptions(disk: Record<string, unknown>, studio: Record<string, unknown>): Record<string, unknown> {
+  const merged: Record<string, unknown> = { ...disk }
+
+  for (const [key, value] of Object.entries(studio)) {
+    const current = disk[key]
+
+    if (isPlainObject(current) && isPlainObject(value)) {
+      merged[key] = mergeOptions(current, value)
+      continue
+    }
+    if (current !== undefined && !survivesJson(current)) continue
+
+    merged[key] = value
+  }
+
+  return merged
+}
+
+/**
  * Merges studio plugin options with disk config plugins.
- * Studio takes priority: options from studio win over disk, and a plugin Studio explicitly
+ * Studio takes priority: options from studio win over disk (except values only the disk config
+ * can express, see {@link mergeOptions}), and a plugin Studio explicitly
  * disabled is dropped even when the disk config still lists it. Disk plugins without a studio
  * counterpart are kept as-is. Studio plugins not present on disk are appended.
  *
@@ -185,8 +230,8 @@ export async function mergePlugins(
 
       // Disk as base, studio overrides, then re-instantiate so the plugin's closures reference the
       // merged values. A plugin that never sets `options` (e.g. `@kubb/plugin-barrel`) leaves
-      // `diskPlugin.options` undefined, which `mergeDeep` can't accept.
-      const options = mergeDeep((diskPlugin.options as Record<string, unknown>) ?? {}, (studioEntry.options as Record<string, unknown>) ?? {})
+      // `diskPlugin.options` undefined.
+      const options = mergeOptions((diskPlugin.options as Record<string, unknown>) ?? {}, (studioEntry.options as Record<string, unknown>) ?? {})
       const [resolved] = await resolvePlugins([{ name: studioEntry.name, options }])
 
       return resolved ?? diskPlugin
@@ -220,7 +265,7 @@ export async function mergeAdapter(diskAdapter: Adapter | undefined, studioOptio
     return diskAdapter
   }
 
-  const mergedOptions = mergeDeep((diskAdapter.options as Record<string, unknown>) ?? {}, studioOptions as Record<string, unknown>)
+  const mergedOptions = mergeOptions((diskAdapter.options as Record<string, unknown>) ?? {}, studioOptions as Record<string, unknown>)
 
   return factory(mergedOptions) as Adapter
 }
