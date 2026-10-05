@@ -1,7 +1,7 @@
 import type { Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { JSONKubbConfig } from '../protocol/index.ts'
-import { mergeAdapter, mergePlugins, resolvePlugins, toExportName, toPackageName } from './resolveConfig.ts'
+import { mergeAdapter, mergeOptions, mergePlugins, resolvePlugins, toExportName, toPackageName } from './resolveConfig.ts'
 
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
 
@@ -64,6 +64,19 @@ describe('mergePlugins', () => {
     expect(result?.[1]).toMatchObject({ name: 'plugin-ts', options: { enumType: 'enum' } })
   })
 
+  it('keeps disk macros and resolver functions when studio echoes back their JSON copy', async () => {
+    const macro = { name: 'camelCaseSchemaProperties', schema: (node: unknown) => node }
+    const baseName = ({ name }: { name: string }) => `${name}.gen.ts`
+    const diskPlugins = [makePlugin('plugin-ts', { macros: [macro], resolver: { file: { baseName } }, syntaxType: 'type' })]
+    const studioPlugins: JSONKubbConfig['plugins'] = [
+      { name: '@kubb/plugin-ts', options: { macros: [{ name: 'camelCaseSchemaProperties' }], resolver: { file: {} }, syntaxType: 'interface' } },
+    ]
+
+    const [plugin] = (await mergePlugins(diskPlugins, studioPlugins)) ?? []
+
+    expect(plugin?.options).toStrictEqual({ macros: [macro], resolver: { file: { baseName } }, syntaxType: 'interface' })
+  })
+
   describe('disabled plugin entries', () => {
     it('drops a disk plugin that studio explicitly disabled', async () => {
       const diskPlugins = [makePlugin('plugin-zod', { validate: true }), makePlugin('plugin-ts', { enumType: 'asConst' })]
@@ -73,6 +86,27 @@ describe('mergePlugins', () => {
 
       expect(result).toHaveLength(1)
       expect(result?.[0]?.name).toBe('plugin-zod')
+    })
+  })
+})
+
+describe('mergeOptions', () => {
+  it('lets studio override JSON values, merging plain objects key by key', () => {
+    expect(
+      mergeOptions({ output: { path: 'types', barrel: false }, exclude: [{ type: 'tag', pattern: 'a' }] }, { output: { path: 'models' }, exclude: [] }),
+    ).toStrictEqual({
+      output: { path: 'models', barrel: false },
+      exclude: [],
+    })
+  })
+
+  it('keeps disk values that do not survive JSON', () => {
+    const name = (group: string) => `${group}Controller`
+    const disk = { exclude: [{ type: 'path', pattern: /^\/admin/ }], group: { type: 'tag', name } }
+
+    expect(mergeOptions(disk, { exclude: [{ type: 'path', pattern: {} }], group: { type: 'path' } })).toStrictEqual({
+      exclude: disk.exclude,
+      group: { type: 'path', name },
     })
   })
 })
