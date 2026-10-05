@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.5.0 — Oct 5, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Automatically recognize OpenAPI 3.1 `oneOf`/`anyOf` const unions as named enums when their members have distinct, non-empty titles and distinct string or number values. Member titles and descriptions are retained alongside their original wire values, without an additional adapter option. Recognition runs after Kubb's existing upgrade to OpenAPI 3.1. Ordinary enum unions and incomplete, ambiguous or additionally constrained unions retain their existing representation. Recognition can change generated enum exports, such as a literal-union `Status` type becoming an enum-backed `StatusKey` with `@kubb/plugin-ts` and `enum.type: 'asConst'`. ([#4155](https://github.com/kubb-labs/kubb/pull/4155), [`0d3468f`](https://github.com/kubb-labs/kubb/commit/0d3468fcaa2218cdfecdd3a6813386f5691b0df1))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@pkasarda](https://github.com/pkasarda)
+
 ## v5.4.5 — Oct 3, 2026
 
 ### @kubb/adapter-oas
