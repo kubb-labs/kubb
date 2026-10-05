@@ -46,7 +46,7 @@ describe('validate tool', () => {
     expect(json).toMatchObject({
       code: 'KUBB_INPUT_NOT_FOUND',
       severity: 'error',
-      docsUrl: expect.stringContaining('/diagnostics/kubb-input-not-found'),
+      docsUrl: expect.stringContaining('/diagnostics#kubb-input-not-found'),
     })
   })
 })

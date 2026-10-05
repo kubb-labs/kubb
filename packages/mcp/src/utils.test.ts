@@ -11,7 +11,7 @@ describe('formatDiagnostics', () => {
       plugin: '@kubb/adapter-oas',
       location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
       help: 'add it',
-      docsUrl: 'https://kubb.dev/docs/5.x/reference/diagnostics/kubb-ref-not-found',
+      docsUrl: 'https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found',
     }
 
     const output = formatDiagnostics([diagnostic])
@@ -21,7 +21,7 @@ describe('formatDiagnostics', () => {
         '[KUBB_REF_NOT_FOUND] @kubb/adapter-oas: missing Pet',
         '  at: #/components/schemas/Pet',
         '  fix: add it',
-        '  see: https://kubb.dev/docs/5.x/reference/diagnostics/kubb-ref-not-found',
+        '  see: https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found',
       ].join('\n'),
     )
   })

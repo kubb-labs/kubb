@@ -75,7 +75,7 @@ Thanks to everyone who contributed to this release:
 #### Bug Fixes
 
 - Add `kubb studio start` and `stop` for a background connection per project. `status` reports its connection state and log path, and `logout` stops it before removing credentials. Rejected tokens stop the worker until you log in again.
-  
+
   Use one shared connection loop for the CLI and Docker agent. Abort pending registration on shutdown and wait for canceled generation cleanup before reconnecting. ([#4128](https://github.com/kubb-labs/kubb/pull/4128), [`5d9151c`](https://github.com/kubb-labs/kubb/commit/5d9151c4c74e6c93e215ac24dfff0f270c64e771))
 
 ### Contributors
@@ -882,6 +882,6 @@ Thanks to everyone who contributed to this release:
 
 Kubb v5 rebuilds code generation around adapters, a universal AST, parsers, and storage, and generates code up to 5.4x faster than v4. Config gets shorter, generated client calls change shape, and plugins move to their own repo ([kubb-labs/plugins](https://github.com/kubb-labs/plugins)).
 
-Read the [release blog post](https://kubb.dev/blog/v5) for the highlights, and the [migration guide](https://kubb.dev/docs/5.x/migration) for the full, per-package breaking-change list and upgrade steps.
+Read the [release blog post](https://kubb.dev/blog/v5) for the highlights, and the [migration guide](https://kubb.dev/docs/5.x/how-to/migration) for the full, per-package breaking-change list and upgrade steps.
 
 For prior releases, see [GitHub Releases](https://github.com/kubb-labs/kubb/releases).
