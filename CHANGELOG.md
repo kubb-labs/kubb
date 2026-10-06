@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.5.2 — Oct 5, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Keep plugin and adapter options from `kubb.config.ts` that can't be sent as JSON, such as `macros`, resolver functions, and `RegExp` patterns, when merging Studio's options for a generate. Before, Studio's lossy copy replaced them, so custom macros stopped running. ([#4162](https://github.com/kubb-labs/kubb/pull/4162), [`d798e0a`](https://github.com/kubb-labs/kubb/commit/d798e0a39712fb104254322cf55c61c7293797ff))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.5.1 — Oct 5, 2026
 
 ### @kubb/core
