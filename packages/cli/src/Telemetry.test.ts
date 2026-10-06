@@ -85,6 +85,99 @@ describe('buildTelemetryEvent', () => {
 })
 
 describe('buildOtlpPayload', () => {
+  it.each([
+    ['plugin-zod', 'plugin-ts', 'plugin-ts'],
+    ['plugin-ts', 'plugin-zod'],
+  ])('should expose the same plugin filters regardless of order or duplicates: %j', (...names) => {
+    const event = buildTelemetryEvent({
+      command: 'generate',
+      kubbVersion: '4.0.0',
+      hrStart: process.hrtime(),
+      plugins: names.map((name) => ({ name, options: {} })),
+      status: 'success',
+    })
+
+    const span = buildOtlpPayload(event).resourceSpans[0]!.scopeSpans[0]!.spans[0]!
+    const filters = span.attributes.filter((attribute) => attribute.key.startsWith('kubb.plugin') && attribute.key !== 'kubb.plugin_options')
+
+    expect(filters).toStrictEqual([
+      { key: 'kubb.plugins', value: { arrayValue: { values: [{ stringValue: 'plugin-ts' }, { stringValue: 'plugin-zod' }] } } },
+      { key: 'kubb.plugin.plugin-ts', value: { boolValue: true } },
+      { key: 'kubb.plugin.plugin-zod', value: { boolValue: true } },
+    ])
+  })
+
+  it('should preserve registered names in plugin filters', () => {
+    const event = buildTelemetryEvent({
+      command: 'generate',
+      kubbVersion: '4.0.0',
+      hrStart: process.hrtime(),
+      plugins: [
+        { name: '@kubb/plugin-ts', options: {} },
+        { name: '@custom/plugin-ts', options: {} },
+      ],
+      status: 'success',
+    })
+
+    const span = buildOtlpPayload(event).resourceSpans[0]!.scopeSpans[0]!.spans[0]!
+
+    expect(span.attributes).toContainEqual({ key: 'kubb.plugin.@kubb/plugin-ts', value: { boolValue: true } })
+    expect(span.attributes).toContainEqual({ key: 'kubb.plugin.@custom/plugin-ts', value: { boolValue: true } })
+  })
+
+  it('should retain every plugin options snapshot separately from plugin names', () => {
+    const plugins = [
+      { name: 'plugin-ts', options: { output: { path: 'types' }, enumType: 'asConst', usedEnumNames: ['Pet'] } },
+      { name: 'plugin-zod', options: { output: { path: 'schemas' }, typed: true } },
+      { name: 'plugin-ts', options: { output: { path: 'other-types' }, enumType: 'enum' } },
+    ]
+    const event = buildTelemetryEvent({ command: 'generate', kubbVersion: '4.0.0', hrStart: process.hrtime(), plugins, status: 'success' })
+
+    const span = buildOtlpPayload(event).resourceSpans[0]!.scopeSpans[0]!.spans[0]!
+
+    expect(span.attributes.find((attribute) => attribute.key === 'kubb.plugin_options')?.value).toStrictEqual({
+      arrayValue: {
+        values: [
+          {
+            kvlistValue: {
+              values: [
+                { key: 'name', value: { stringValue: 'plugin-ts' } },
+                { key: 'options', value: { stringValue: '{"output":{"path":"types"},"enumType":"asConst"}' } },
+              ],
+            },
+          },
+          {
+            kvlistValue: {
+              values: [
+                { key: 'name', value: { stringValue: 'plugin-zod' } },
+                { key: 'options', value: { stringValue: '{"output":{"path":"schemas"},"typed":true}' } },
+              ],
+            },
+          },
+          {
+            kvlistValue: {
+              values: [
+                { key: 'name', value: { stringValue: 'plugin-ts' } },
+                { key: 'options', value: { stringValue: '{"output":{"path":"other-types"},"enumType":"enum"}' } },
+              ],
+            },
+          },
+        ],
+      },
+    })
+    expect(plugins[0]!.options.usedEnumNames).toStrictEqual(['Pet'])
+  })
+
+  it('should emit empty plugin summaries without usage flags when no plugins are supplied', () => {
+    const event = buildTelemetryEvent({ command: 'validate', kubbVersion: '4.0.0', hrStart: process.hrtime(), status: 'success' })
+
+    const span = buildOtlpPayload(event).resourceSpans[0]!.scopeSpans[0]!.spans[0]!
+
+    expect(span.attributes).toContainEqual({ key: 'kubb.plugins', value: { arrayValue: { values: [] } } })
+    expect(span.attributes).toContainEqual({ key: 'kubb.plugin_options', value: { arrayValue: { values: [] } } })
+    expect(span.attributes.filter((attribute) => attribute.key.startsWith('kubb.plugin.'))).toStrictEqual([])
+  })
+
   it('should include the kubb.agent attribute when the event has an agent', () => {
     const event: ReturnType<typeof buildTelemetryEvent> = {
       command: 'generate',
