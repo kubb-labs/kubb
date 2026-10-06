@@ -1,5 +1,20 @@
 # Changelog
 
+## v5.5.3 — Oct 6, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Restore the telemetry source header so CLI usage events reach the existing ingestion source. ([`acff588`](https://github.com/kubb-labs/kubb/commit/acff58884dedafcfd41e25ef6294005b2f12b192))
+- Make plugin usage easier to filter in telemetry. Send plugin names in `kubb.plugins` and boolean usage flags in `kubb.plugin.<name>`. Preserve detailed options under `kubb.plugin_options`. ([#4167](https://github.com/kubb-labs/kubb/pull/4167), [`4766cf9`](https://github.com/kubb-labs/kubb/commit/4766cf9802306b01202c48cc92896baa820c4b04))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.5.2 — Oct 5, 2026
 
 ### @kubb/studio
