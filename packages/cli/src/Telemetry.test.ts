@@ -231,7 +231,7 @@ describe('sendTelemetry', () => {
     const [url, init] = fetchSpy.mock.calls[0]!
     expect(url).toBe('https://otlp.kubb.dev/v1/traces')
     expect(init?.method).toBe('POST')
-    expect(init?.headers).toMatchObject({ 'Kubb-Telemetry-Source': 'kubb-cli' })
+    expect(init?.headers).toMatchObject({ 'Kubb-Telemetry-Source': 'kubb' })
     const body = JSON.parse(init?.body as string)
     expect(body).toHaveProperty('resourceSpans')
     const span = body.resourceSpans[0].scopeSpans[0].spans[0]
