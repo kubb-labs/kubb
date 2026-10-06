@@ -5,14 +5,16 @@ import { isCIEnvironment, runtime } from '@internals/utils'
 import { getAgentName } from './agent.ts'
 import { OTLP_ENDPOINT } from './constants.ts'
 
+type OtlpValue =
+  | { stringValue: string }
+  | { boolValue: boolean }
+  | { intValue: number }
+  | { arrayValue: { values: Array<OtlpValue> } }
+  | { kvlistValue: { values: Array<OtlpKeyValue> } }
+
 type OtlpKeyValue = {
   key: string
-  value:
-    | { stringValue: string }
-    | { boolValue: boolean }
-    | { intValue: number }
-    | { arrayValue: { values: Array<{ kvlistValue: { values: Array<OtlpKeyValue> } }> } }
-    | { kvlistValue: { values: Array<OtlpKeyValue> } }
+  value: OtlpValue
 }
 
 type OtlpSpan = {
@@ -133,6 +135,7 @@ export function buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceR
   const spanId = randomBytes(8).toString('hex')
   const endTimeNs = BigInt(Date.now()) * 1_000_000n
   const startTimeNs = endTimeNs - BigInt(event.duration) * 1_000_000n
+  const pluginNames = [...new Set(event.plugins.map((plugin) => plugin.name))].sort()
 
   const attributes: Array<OtlpKeyValue> = [
     { key: 'kubb.command', value: { stringValue: event.command } },
@@ -147,6 +150,11 @@ export function buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceR
     { key: 'kubb.status', value: { stringValue: event.status } },
     {
       key: 'kubb.plugins',
+      value: { arrayValue: { values: pluginNames.map((name) => ({ stringValue: name })) } },
+    },
+    ...pluginNames.map((name) => ({ key: `kubb.plugin.${name}`, value: { boolValue: true } })),
+    {
+      key: 'kubb.plugin_options',
       value: {
         arrayValue: {
           values: event.plugins.map((p) => ({
