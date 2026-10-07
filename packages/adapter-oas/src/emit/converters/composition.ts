@@ -72,7 +72,7 @@ function resolveUnionMembers(
     }
 
     const existingProps = (obj.properties ?? {}) as Record<string, unknown>
-    const missingKeys = obj.required.filter((key) => !(key in existingProps))
+    const missingKeys = obj.required.filter((key) => !Object.prototype.hasOwnProperty.call(existingProps, key))
 
     if (missingKeys.length === 0) {
       return member
@@ -80,7 +80,8 @@ function resolveUnionMembers(
 
     const newProperties: Record<string, unknown> = { ...existingProps }
     for (const key of missingKeys) {
-      newProperties[key] = siblingProperties[key] ?? {}
+      const value = Object.prototype.hasOwnProperty.call(siblingProperties, key) ? siblingProperties[key] : {}
+      Object.defineProperty(newProperties, key, { value, enumerable: true, writable: true, configurable: true })
     }
 
     return {
