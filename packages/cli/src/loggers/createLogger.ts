@@ -250,12 +250,10 @@ export function createLogger(writer: LoggerWriter) {
       }
 
       // The writer draws the error symbol, so the message goes in bare.
-      const line = error.message
-
       if (state.spinner) {
-        stopSpinner(line, 'failed')
+        stopSpinner(error.message, 'failed')
       } else {
-        writer.error(text(line))
+        writer.error(text(error.message))
       }
 
       const frames = logLevel >= logLevelMap.verbose ? formatErrorFrames(error) : null
@@ -361,13 +359,11 @@ export function createLogger(writer: LoggerWriter) {
 
     // Unguarded, like `kubb:error`: a failure stays visible even at silent.
     context.hook('studio:error', ({ error }) => {
-      const line = error.message
-
       if (state.spinner) {
-        stopSpinner(line, 'failed')
+        stopSpinner(error.message, 'failed')
         return
       }
-      writer.error(text(line))
+      writer.error(text(error.message))
     })
 
     context.hook('kubb:lifecycle:start', () => {

@@ -267,7 +267,6 @@ describe('grouped generation output', () => {
     expect(lines).toContain('✗ No client plugin is registered.')
     expect(lines.some((line) => line.includes('✗ ✗'))).toBe(false)
 
-    // Clack draws its own error symbol, so the message reaches it bare.
     expect(await render(failDuringStep, { rich: true })).toContain('spinner.error:No client plugin is registered.')
   })
 
