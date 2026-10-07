@@ -119,6 +119,7 @@ declare global {
 /**
  * Register a `kubb:hook:start` listener that spawns the requested command via tinyexec,
  * streams each stdout line as a `kubb:hook:line` event, and calls `kubb:hook:end` with the result.
+ * A failure travels on `kubb:hook:end` only: the caller waiting on it reports `kubb:error` once.
  * Streaming the output lets Kubb Studio render live hook progress over the WebSocket connection.
  *
  * Returns a remover, so a session that runs one generation after another on the same emitter does
@@ -150,7 +151,6 @@ export function setupHookListener(hooks: Hookable<KubbHooks>, root: string, sign
         const error = new Error(`Hook execute failed: ${commandWithArgs}`)
 
         await hooks.callHook('kubb:hook:end', { id, command, args, success: false, error })
-        await hooks.callHook('kubb:error', { error })
 
         return
       }
@@ -161,7 +161,6 @@ export function setupHookListener(hooks: Hookable<KubbHooks>, root: string, sign
       error.cause = caughtError
 
       await hooks.callHook('kubb:hook:end', { id, command, args, success: false, error })
-      await hooks.callHook('kubb:error', { error })
     }
   })
 }

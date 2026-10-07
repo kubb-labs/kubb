@@ -44,7 +44,7 @@ export namespace JSX {
        * one. Use to emit a real source file shipped inside a package (a template) into the generated folder.
        */
       copy?: string | null
-      meta?: FileNode['meta'] | null
+      meta?: ast.FileNode['meta'] | null
     }
     ['kubb-source']: Omit<ast.SourceNode, 'kind'> & {
       children?: KubbReactNode

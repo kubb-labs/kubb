@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { Diagnostics } from '@kubb/core'
-import { resolveSource } from './source.ts'
+import { assertInputExists, resolveSource } from './source.ts'
 
 function codeOf(error: unknown): string | undefined {
   return Diagnostics.isError(error) ? error.diagnostic.code : undefined
@@ -70,5 +70,20 @@ paths: {}
     )
 
     await expect(resolveSource('https://specs.example.com/openapi.yaml')).resolves.toStrictEqual({ openapi: '3.1.0', paths: {} })
+  })
+})
+
+describe('assertInputExists', () => {
+  it('skips the check for an http(s) URL', async () => {
+    await expect(assertInputExists('https://specs.example.com/openapi.yaml')).resolves.toBeUndefined()
+  })
+
+  it('reports a missing Windows-style absolute path instead of treating it as a URL', async () => {
+    try {
+      await assertInputExists('C:\\specs\\missing.yaml')
+      expect.unreachable('expected assertInputExists to throw')
+    } catch (error) {
+      expect(codeOf(error)).toBe(Diagnostics.code.inputNotFound)
+    }
   })
 })

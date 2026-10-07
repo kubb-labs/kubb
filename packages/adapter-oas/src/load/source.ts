@@ -104,7 +104,7 @@ export async function resolveSource(sourcePath: string): Promise<object | string
  * its parse error instead.
  */
 export async function assertInputExists(input: string): Promise<void> {
-  if (URL.canParse(input)) {
+  if (urlRegExp.test(input)) {
     return
   }
   if (!(await exists(input))) {
