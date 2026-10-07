@@ -1,5 +1,32 @@
 # Changelog
 
+## v5.5.4 — Oct 7, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Print output and errors for a `kubb.config.ts` that does not use `defineConfig`. Such a config has no `reporters`, so `kubb generate` attached no logger and exited with code 1 without saying why. It now falls back to the built-in reporters. ([#4170](https://github.com/kubb-labs/kubb/pull/4170), [`dd2a728`](https://github.com/kubb-labs/kubb/commit/dd2a72899e1fe18110fe01b930f2f858eb324c07))
+- Print one `✗` before an error instead of two. The error handler added its own `✗`, and the spinner it stopped added another, so a failing plugin setup printed `✗ ✗ No client plugin is registered.` ([#4173](https://github.com/kubb-labs/kubb/pull/4173), [`464523a`](https://github.com/kubb-labs/kubb/commit/464523a88194b2734589aaecc423028438e052b6))
+
+### @kubb/parser-ts
+
+#### Bug Fixes
+
+- Load `typescript` with `require` instead of `import`. When ESM code imports a CommonJS package, Node keeps a second copy of its source, and for TypeScript that copy is about 9 MB. With `plugin-ts` and `plugin-zod` loaded, heap drops by about 9 MB and RSS by about 25 MB, which matters most for the long-running `kubb studio` agent. ([#4169](https://github.com/kubb-labs/kubb/pull/4169), [`34b95e8`](https://github.com/kubb-labs/kubb/commit/34b95e89840b327ad24f9448043a02da0b3b8950))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Lower the memory the `kubb studio` agent uses while idle. `tsdown` and `magicast` now load only when Studio packs a snapshot or reads or edits `kubb.config.ts`. The agent also drops its reference to a finished generation's output, which held every generated file in memory when `allowWrite` was off. ([#4169](https://github.com/kubb-labs/kubb/pull/4169), [`c705ba7`](https://github.com/kubb-labs/kubb/commit/c705ba7931f7562ceff80a6cf5d2509afba386f1))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.5.3 — Oct 6, 2026
 
 ### @kubb/cli
