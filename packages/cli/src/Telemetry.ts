@@ -183,7 +183,7 @@ export function buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceR
       {
         resource: {
           attributes: [
-            { key: 'service.name', value: { stringValue: 'kubb-core' } },
+            { key: 'service.name', value: { stringValue: 'kubb' } },
             {
               key: 'service.version',
               value: { stringValue: event.kubbVersion },
