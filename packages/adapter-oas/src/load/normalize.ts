@@ -150,7 +150,24 @@ export function assertDocument(document: Document): void {
 }
 
 /**
- * Validates an OpenAPI document using `@readme/openapi-parser` with colorized error output.
+ * Reports one validation problem into the active build as a `KUBB_INVALID_SPEC` warning. Outside a
+ * build there is nowhere to report it, and validation stays non-fatal, so it is dropped.
+ */
+function reportInvalidSpec(message: string): void {
+  Diagnostics.report({
+    code: Diagnostics.code.invalidSpec,
+    severity: 'warning',
+    message,
+    help: 'Fix the spec, or run `kubb validate` to list every error. Set `validate: false` on the adapter to skip this check.',
+  })
+}
+
+/**
+ * Validates an OpenAPI document using `@readme/openapi-parser`.
+ *
+ * With `throwOnError`, an invalid document throws with the colorized error list, which is what
+ * `kubb validate` prints. Otherwise each problem is reported as a `KUBB_INVALID_SPEC` warning and
+ * generation continues.
  *
  * @example
  * ```ts
@@ -162,22 +179,29 @@ export async function validateDocument(document: Document, { throwOnError = fals
   // pay for it even with `validate` off.
   const { compileErrors, validate } = await import('@readme/openapi-parser')
 
+  let result: Awaited<ReturnType<typeof validate>>
   try {
     // `validate` dereferences its input in place, so clone to keep the cached document intact.
-    const result = await validate(structuredClone(document), {
+    result = await validate(structuredClone(document), {
       validate: {
-        errors: { colorize: true },
+        errors: { colorize: throwOnError },
       },
     })
-
-    if (!result.valid) {
-      throw new Error(compileErrors(result))
-    }
   } catch (error) {
-    if (throwOnError) {
-      throw error
-    }
+    if (throwOnError) throw error
+    reportInvalidSpec(error instanceof Error ? error.message : String(error))
+    return
+  }
 
-    // Validation failures are non-fatal, mirror plugin-oas behavior
+  if (result.valid) return
+  if (throwOnError) throw new Error(compileErrors(result))
+
+  for (const { message } of result.errors) {
+    // Only the first line: the code frame after it numbers the lines of a JSON re-serialization of
+    // the spec, not of the user's file. `kubb validate` still prints it in full.
+    reportInvalidSpec(message.split('\n')[0] ?? message)
+  }
+  if (result.additionalErrors > 0) {
+    reportInvalidSpec(`${result.additionalErrors} more validation errors are not listed.`)
   }
 }

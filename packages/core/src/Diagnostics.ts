@@ -268,6 +268,11 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
     cause: 'The parsed `input` has no `openapi` or `swagger` version field, so it is not an OpenAPI or Swagger document.',
     fix: 'Point `input` at a document that declares `openapi` or `swagger`, and check that a passed object is the spec itself rather than a wrapper around it.',
   },
+  [diagnosticCode.invalidSpec]: {
+    title: 'Invalid spec',
+    cause: 'The document does not pass OpenAPI schema validation. Kubb still generates from it, but the output can be incomplete or wrong.',
+    fix: 'Fix the reported problem in the spec. Run `kubb validate` to list every error, or set `validate: false` on the adapter to skip the check.',
+  },
   [diagnosticCode.refNotFound]: {
     title: 'Reference not found',
     cause: 'A `$ref` could not be resolved in the source document.',

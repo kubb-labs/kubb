@@ -68,6 +68,11 @@ export const diagnosticCode = {
    */
   invalidDocument: 'KUBB_INVALID_DOCUMENT',
   /**
+   * The document does not pass OpenAPI schema validation. Reported as a warning, so generation
+   * continues.
+   */
+  invalidSpec: 'KUBB_INVALID_SPEC',
+  /**
    * A `$ref` (or equivalent reference) could not be resolved in the source document.
    */
   refNotFound: 'KUBB_REF_NOT_FOUND',

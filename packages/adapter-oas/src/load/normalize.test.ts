@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
-import { Diagnostics } from '@kubb/core'
+import { type Diagnostic, Diagnostics } from '@kubb/core'
 import { assertDocument, bundleDocument, hasExternalRef, parseDocument, parseFromConfig, validateDocument } from './normalize.ts'
 import type { Document } from '../types.ts'
 
@@ -154,6 +154,31 @@ describe('validateDocument', () => {
 
   it('throws when throwOnError is enabled', async () => {
     await expect(validateDocument(invalidSchema, { throwOnError: true })).rejects.toThrow()
+  })
+
+  it('reports each problem as a KUBB_INVALID_SPEC warning inside a build', async () => {
+    const diagnostics: Array<Diagnostic> = []
+
+    await Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => validateDocument(invalidSchema),
+    )
+
+    expect(diagnostics.length).toBeGreaterThan(0)
+    expect(diagnostics.every((diagnostic) => diagnostic.code === Diagnostics.code.invalidSpec && diagnostic.severity === 'warning')).toBe(true)
+    expect(diagnostics.every((diagnostic) => !Diagnostics.isProblem(diagnostic) || !diagnostic.message.includes('\n'))).toBe(true)
+  })
+
+  it('reports nothing for a valid document', async () => {
+    const diagnostics: Array<Diagnostic> = []
+    const validSchema = { openapi: '3.0.3', info: { title: 'Valid API', version: '1.0.0' }, paths: {} } as unknown as Document
+
+    await Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => validateDocument(validSchema),
+    )
+
+    expect(diagnostics).toStrictEqual([])
   })
 })
 
