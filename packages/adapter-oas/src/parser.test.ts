@@ -1589,6 +1589,103 @@ describe('parseSchema oneOf / anyOf', () => {
       expect(branchPhone?.properties[0]?.schema.type).toBe('unknown')
     })
 
+    it('resolves required-only anyOf branches inside allOf against sibling allOf members', () => {
+      const node = parseSchema(ctx, {
+        schema: {
+          type: 'object',
+          allOf: [
+            {
+              properties: {
+                shippingAddress: { type: 'string' },
+                billingAddress: { type: 'string' },
+              },
+            },
+            {
+              anyOf: [{ required: ['shippingAddress'] }, { required: ['billingAddress'] }],
+            },
+          ],
+        },
+      })
+
+      expect(node.type).toBe('intersection')
+      const intersection = ast.narrowSchema(node, 'intersection')!
+      const unionMember = intersection.members?.find((m) => m.type === 'union')
+      expect(unionMember).toBeDefined()
+      const unionNode = ast.narrowSchema(unionMember!, 'union')
+      expect(unionNode?.strategy).toBe('any')
+      expect(unionNode?.members).toHaveLength(2)
+
+      const branch1 = ast.narrowSchema(unionNode?.members?.[0], 'object')
+      expect(branch1?.properties[0]?.name).toBe('shippingAddress')
+      expect(branch1?.properties[0]?.required).toBe(true)
+      expect(branch1?.properties[0]?.schema.type).toBe('string')
+    })
+
+    it('preserves local properties while borrowing remaining required sibling properties', () => {
+      const node = parseSchema(ctx, {
+        schema: {
+          type: 'object',
+          properties: {
+            sharedKey: { type: 'number' },
+          },
+          oneOf: [
+            {
+              properties: {
+                localKey: { type: 'string' },
+              },
+              required: ['localKey', 'sharedKey'],
+            },
+          ],
+        },
+      })
+
+      const intersection = ast.narrowSchema(node, 'intersection')!
+      const unionNode = ast.narrowSchema(intersection.members?.[0], 'union')
+      const branch = ast.narrowSchema(unionNode?.members?.[0], 'object')
+
+      expect(branch?.properties).toHaveLength(2)
+      const localProp = branch?.properties.find((p) => p.name === 'localKey')
+      const sharedProp = branch?.properties.find((p) => p.name === 'sharedKey')
+      expect(localProp?.required).toBe(true)
+      expect(localProp?.schema.type).toBe('string')
+      expect(sharedProp?.required).toBe(true)
+      expect(sharedProp?.schema.type).toBe('number')
+    })
+
+    it('resolves union branches inside nested allOf members against outer siblings', () => {
+      const node = parseSchema(ctx, {
+        schema: {
+          type: 'object',
+          allOf: [
+            {
+              properties: {
+                tenantId: { type: 'string' },
+              },
+            },
+            {
+              allOf: [
+                {
+                  oneOf: [{ required: ['tenantId'] }],
+                },
+              ],
+            },
+          ],
+        },
+      })
+
+      expect(node.type).toBe('intersection')
+      const intersection = ast.narrowSchema(node, 'intersection')!
+      expect(intersection.members).toHaveLength(2)
+      const nestedAllOf = ast.narrowSchema(intersection.members?.[1], 'intersection')
+      expect(nestedAllOf).toBeDefined()
+      const nestedUnion = ast.narrowSchema(nestedAllOf?.members?.[0], 'union')
+      expect(nestedUnion).toBeDefined()
+      const branch = ast.narrowSchema(nestedUnion?.members?.[0], 'object')
+      expect(branch?.properties[0]?.name).toBe('tenantId')
+      expect(branch?.properties[0]?.required).toBe(true)
+      expect(branch?.properties[0]?.schema.type).toBe('string')
+    })
+
     it('preserves discriminated parent propagation when child uses allOf with oneOf', () => {
       const doc: Document = {
         openapi: '3.0.0',
