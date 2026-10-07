@@ -33,10 +33,8 @@ import {
   type RpcConnection,
 } from '../protocol/index.ts'
 import { registerAgent } from '../operations/api.ts'
-import { readConfig, writeConfigEdits } from '../operations/configFile.ts'
 import { agentDefaults, resolveAgentCapacity, resolveGenerationLimits } from '../operations/constants.ts'
 import { mergeAdapter, mergePlugins, toPackageName } from '../operations/resolveConfig.ts'
-import { createSnapshotPackage, uploadSnapshot } from '../operations/snapshotPackage.ts'
 import { RpcTarget } from 'capnweb'
 import { createGenerationStore, type GenerationStore } from '../operations/generations.ts'
 import { createGenerationStream, type GenerationEnd } from '../operations/generationEvents.ts'
@@ -455,6 +453,7 @@ export class StudioSession implements AgentApi {
     }
 
     try {
+      const { readConfig } = await import('../operations/configFile.ts')
       return readConfig(source ?? (await read(this.#options.configFile)))
     } catch (error) {
       await this.#warn(`Could not read ${this.#options.configFile}: ${getErrorMessage(error)}`)
@@ -644,6 +643,9 @@ export class StudioSession implements AgentApi {
         disk: disk ? { hashes: disk.hashes } : undefined,
       }
     } finally {
+      // The store holds its own copy by now. Without `allowWrite` this output is the in-memory
+      // storage with every generated file, so holding it until the next run wastes memory.
+      this.#lastGeneration = undefined
       if (root !== this.#options.root) await removeJobRoot(root)
       this.#isGenerating = false
     }
@@ -678,6 +680,7 @@ export class StudioSession implements AgentApi {
     }
 
     try {
+      const { writeConfigEdits } = await import('../operations/configFile.ts')
       const { source: patched, outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits })
 
       const applied = outcomes.filter((outcome) => outcome.applied).length
@@ -720,6 +723,7 @@ export class StudioSession implements AgentApi {
     }
 
     try {
+      const { createSnapshotPackage, uploadSnapshot } = await import('../operations/snapshotPackage.ts')
       const { files } = await this.#generations.read({ generation, source: 'output', paths: generation.output.paths })
 
       const { bytes, integrity } = await createSnapshotPackage(files, { name, version, peerDependencies: generation.peerDependencies })
