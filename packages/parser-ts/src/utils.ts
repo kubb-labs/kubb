@@ -1,7 +1,8 @@
+import { createRequire } from 'node:module'
 import { dirname, normalize, relative, resolve } from 'node:path'
 import { trimExtName } from '@internals/utils'
 import { ast } from '@kubb/kit'
-import ts from 'typescript'
+import type * as ts from 'typescript'
 import {
   CARRIAGE_RETURN_PATTERN,
   CRLF_PATTERN,
@@ -15,7 +16,13 @@ import {
   WINDOWS_PATH_SEPARATOR,
 } from './constants.ts'
 
-const { factory } = ts
+/**
+ * Loaded with `require`, not `import`. When ESM imports a CommonJS package, Node keeps a second
+ * copy of its source to detect named exports, and for TypeScript that copy is about 9 MB.
+ */
+const typescript: typeof ts = createRequire(import.meta.url)('typescript')
+
+const { factory } = typescript
 
 /**
  * Resolves `filePath` relative to `rootDir` and returns a POSIX-style path
@@ -47,26 +54,26 @@ function toImportName(element: ts.ImportSpecifier): string | { propertyName: str
   if (!element.propertyName) return element.name.text
 
   const { propertyName } = element
-  return { propertyName: ts.isStringLiteral(propertyName) ? quoteModulePath(propertyName.text) : propertyName.text, name: element.name.text }
+  return { propertyName: typescript.isStringLiteral(propertyName) ? quoteModulePath(propertyName.text) : propertyName.text, name: element.name.text }
 }
 
 /**
  * Converts an `import` declaration into `ImportNode`s. Side-effect imports and imports with attributes stay as written.
  */
 function toImportNodes(statement: ts.Statement, filePath: string): Array<ast.ImportNode> {
-  if (!ts.isImportDeclaration(statement) || !statement.importClause || !ts.isStringLiteral(statement.moduleSpecifier) || statement.attributes) return []
+  if (!typescript.isImportDeclaration(statement) || !statement.importClause || !typescript.isStringLiteral(statement.moduleSpecifier) || statement.attributes) return []
 
   const { name, namedBindings, phaseModifier } = statement.importClause
   const specifier = statement.moduleSpecifier.text
   const target = specifier.startsWith('.') ? { path: resolve(dirname(filePath), specifier), root: filePath } : { path: specifier }
-  const isTypeOnly = phaseModifier === ts.SyntaxKind.TypeKeyword
+  const isTypeOnly = phaseModifier === typescript.SyntaxKind.TypeKeyword
   const nodes: Array<ast.ImportNode> = []
 
   if (name) nodes.push(ast.factory.createImport({ name: name.text, ...target, isTypeOnly }))
-  if (namedBindings && ts.isNamespaceImport(namedBindings)) {
+  if (namedBindings && typescript.isNamespaceImport(namedBindings)) {
     nodes.push(ast.factory.createImport({ name: namedBindings.name.text, ...target, isTypeOnly, isNameSpace: true }))
   }
-  if (namedBindings && ts.isNamedImports(namedBindings)) {
+  if (namedBindings && typescript.isNamedImports(namedBindings)) {
     const values = namedBindings.elements.filter((element) => !element.isTypeOnly)
     const types = namedBindings.elements.filter((element) => element.isTypeOnly)
     if (values.length) nodes.push(ast.factory.createImport({ name: values.map(toImportName), ...target, isTypeOnly }))
@@ -80,20 +87,20 @@ function toImportNodes(statement: ts.Statement, filePath: string): Array<ast.Imp
  * Converts an `export … from` declaration into `ExportNode`s. Forms `printExport` cannot print stay as written.
  */
 function toExportNodes(statement: ts.Statement): Array<ast.ExportNode> {
-  if (!ts.isExportDeclaration(statement) || !statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier) || statement.attributes) return []
+  if (!typescript.isExportDeclaration(statement) || !statement.moduleSpecifier || !typescript.isStringLiteral(statement.moduleSpecifier) || statement.attributes) return []
 
   const { exportClause, isTypeOnly } = statement
   const path = statement.moduleSpecifier.text
 
   if (!exportClause) return [ast.factory.createExport({ path, isTypeOnly })]
-  if (ts.isNamespaceExport(exportClause)) return [ast.factory.createExport({ name: exportClause.name.text, path, isTypeOnly, asAlias: true })]
-  if (exportClause.elements.some((element) => element.propertyName || element.isTypeOnly || ts.isStringLiteral(element.name))) return []
+  if (typescript.isNamespaceExport(exportClause)) return [ast.factory.createExport({ name: exportClause.name.text, path, isTypeOnly, asAlias: true })]
+  if (exportClause.elements.some((element) => element.propertyName || element.isTypeOnly || typescript.isStringLiteral(element.name))) return []
 
   return [ast.factory.createExport({ name: exportClause.elements.map((element) => element.name.text), path, isTypeOnly })]
 }
 
 function isModuleDeclaration(statement: ts.Statement): boolean {
-  return ts.isImportDeclaration(statement) || (ts.isExportDeclaration(statement) && Boolean(statement.moduleSpecifier))
+  return typescript.isImportDeclaration(statement) || (typescript.isExportDeclaration(statement) && Boolean(statement.moduleSpecifier))
 }
 
 type ModuleDeclarations = {
@@ -108,7 +115,7 @@ type ModuleDeclarations = {
  * (shebang, directives, comments) and the remaining `body`.
  */
 export function splitModuleDeclarations(source: string, filePath: string): ModuleDeclarations {
-  const sourceFile = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest)
+  const sourceFile = typescript.createSourceFile(filePath, source, typescript.ScriptTarget.Latest)
   const imports: Array<ast.ImportNode> = []
   const exports: Array<ast.ExportNode> = []
   let header = ''
@@ -230,9 +237,9 @@ export function formatReturnType(returnType: string | null | undefined, isAsync:
  * Module-scoped TypeScript printer instance. A printer does not mutate the source file, so one
  * instance is reused across every `print()` call instead of constructing a new printer each time.
  */
-const TS_PRINTER = ts.createPrinter({
+const TS_PRINTER = typescript.createPrinter({
   omitTrailingSemicolon: true,
-  newLine: ts.NewLineKind.LineFeed,
+  newLine: typescript.NewLineKind.LineFeed,
   removeComments: false,
   noEmitHelpers: true,
 })
@@ -241,12 +248,12 @@ const TS_PRINTER = ts.createPrinter({
  * Module-scoped source file used as the print target. `printList` only reads the source
  * file's compiler options / language version. It never mutates it.
  */
-const PRINT_SOURCE_FILE = ts.createSourceFile('print.tsx', '', ts.ScriptTarget.ES2022, true, ts.ScriptKind.TSX)
+const PRINT_SOURCE_FILE = typescript.createSourceFile('print.tsx', '', typescript.ScriptTarget.ES2022, true, typescript.ScriptKind.TSX)
 
 // Pre-warm the printer at module load. The first `printList` call lazily initializes
 // the printer's internal string-builder and identifier tables. Doing it once at import
 // time keeps that cost off the critical path for short-lived CLI builds.
-TS_PRINTER.printList(ts.ListFormat.MultiLine, factory.createNodeArray([]), PRINT_SOURCE_FILE)
+TS_PRINTER.printList(typescript.ListFormat.MultiLine, factory.createNodeArray([]), PRINT_SOURCE_FILE)
 
 /**
  * Converts TypeScript/TSX AST nodes to a string using the TypeScript printer.
@@ -255,7 +262,7 @@ export function print(...elements: Array<ts.Node>): string {
   const filtered = elements.filter(Boolean)
   if (filtered.length === 0) return ''
 
-  const output = TS_PRINTER.printList(ts.ListFormat.MultiLine, factory.createNodeArray(filtered), PRINT_SOURCE_FILE)
+  const output = TS_PRINTER.printList(typescript.ListFormat.MultiLine, factory.createNodeArray(filtered), PRINT_SOURCE_FILE)
 
   return output.replace(CRLF_PATTERN, '\n')
 }
