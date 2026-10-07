@@ -1,6 +1,7 @@
 import { pascalCase } from '@internals/utils'
 import { ast, type StatusCode } from '@kubb/ast'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
+import { createNode } from './emit/createNode.ts'
 import { type ConvertContext, schemaRules } from './emit/parseSchema.ts'
 import { flattenSchema } from './emit/schemaShape.ts'
 import { getParameters, getRequestBodyContentTypes, getRequestSchema, getResponseBodyContentTypes, getResponseSchema } from './model/operations.ts'
@@ -81,12 +82,8 @@ export function createSchemaParser(ctx: OasParserContext) {
     }
 
     const emptyType = options.emptySchemaType
-    return ast.factory.createSchema({
+    return createNode(context, {
       type: emptyType as ast.ScalarSchemaType,
-      name,
-      title: schema.title,
-      description: schema.description,
-      format: schema.format,
     })
   }
 

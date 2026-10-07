@@ -4067,6 +4067,72 @@ describe('parser options', () => {
 
       expect(node.type).toBe('string')
     })
+
+    it('preserves metadata (deprecated, nullable, readOnly, writeOnly, default, examples) on typeless schemas', () => {
+      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
+      const node = parseSchema(ctx, {
+        schema: {
+          title: 'Typeless',
+          description: 'A schema with metadata but no type',
+          deprecated: true,
+          readOnly: true,
+          writeOnly: false,
+          nullable: true,
+          default: 'foo',
+          example: 'bar',
+          format: 'custom-format',
+        } as SchemaObject,
+      })
+
+      expect(node.type).toBe('unknown')
+      expect(node.title).toBe('Typeless')
+      expect(node.description).toBe('A schema with metadata but no type')
+      expect(node.deprecated).toBe(true)
+      expect(node.readOnly).toBe(true)
+      expect(node.writeOnly).toBe(false)
+      expect(node.nullable).toBe(true)
+      expect(node.default).toBe('foo')
+      expect(node.examples).toEqual(['bar'])
+      expect(node.format).toBe('custom-format')
+    })
+
+    it('preserves metadata when emptySchemaType is set to any', () => {
+      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
+      const node = parseSchema(ctx, {
+        schema: {
+          title: 'TypelessAny',
+          deprecated: true,
+          nullable: true,
+        } as SchemaObject,
+      }, { emptySchemaType: 'any' })
+
+      expect(node.type).toBe('any')
+      expect(node.title).toBe('TypelessAny')
+      expect(node.deprecated).toBe(true)
+      expect(node.nullable).toBe(true)
+    })
+
+    it('preserves deprecated on typeless object properties', () => {
+      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
+      const node = parseSchema(ctx, {
+        schema: {
+          type: 'object',
+          properties: {
+            oldProp: {
+              deprecated: true,
+              description: 'Deprecated legacy property',
+            },
+          },
+        } as SchemaObject,
+      })
+
+      const objNode = ast.narrowSchema(node, 'object')
+      const prop = objNode?.properties?.find((p) => p.name === 'oldProp')
+      expect(prop).toBeDefined()
+      expect(prop?.schema.type).toBe('unknown')
+      expect(prop?.schema.deprecated).toBe(true)
+      expect(prop?.schema.description).toBe('Deprecated legacy property')
+    })
   })
 
   describe('integerType', () => {
