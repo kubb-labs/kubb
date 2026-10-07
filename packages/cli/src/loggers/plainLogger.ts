@@ -15,7 +15,7 @@ function createWriter(write: (line: string) => void): LoggerWriter {
     info: write,
     success: write,
     warn: write,
-    error: write,
+    error: (text) => write(`${SYMBOLS.error} ${text}`),
     block: (lines) => write(lines.join('\n')),
     raw: (lines) => write(lines.join('\n')),
     diagnostic: (lines) => write(lines.join('\n')),

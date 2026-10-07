@@ -257,6 +257,19 @@ describe('grouped generation output', () => {
     ])
   })
 
+  it('marks an error once while a step is running', async () => {
+    const failDuringStep: Emit = async (context) => {
+      await context.callHook('kubb:generation:start', { config: makeConfig('petstore') })
+      await context.callHook('kubb:error', { error: new Error('No client plugin is registered.') })
+    }
+
+    const lines = await render(failDuringStep, { rich: false })
+    expect(lines).toContain('✗ No client plugin is registered.')
+    expect(lines.some((line) => line.includes('✗ ✗'))).toBe(false)
+
+    expect(await render(failDuringStep, { rich: true })).toContain('spinner.error:No client plugin is registered.')
+  })
+
   it('counts one file as a file', async () => {
     const output = await render(generation({ config: makeConfig('petstore') }), { rich: true })
 
