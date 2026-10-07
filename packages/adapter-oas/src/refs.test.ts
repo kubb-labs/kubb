@@ -69,6 +69,18 @@ describe('resolveRef', () => {
     expect(result).toStrictEqual({ type: 'array', items: { type: 'string' } })
   })
 
+  it('unescapes ~1 and ~0 tokens and keeps an encoded slash inside its token', () => {
+    const docWithPaths = {
+      ...document,
+      paths: { '/pets': { get: { operationId: 'listPets' } } },
+      components: { schemas: { 'a~b': { type: 'string' }, 'a/b': { type: 'number' } } },
+    } as unknown as Document
+
+    expect(resolveRef(docWithPaths, '#/paths/~1pets/get')).toStrictEqual({ operationId: 'listPets' })
+    expect(resolveRef<SchemaObject>(docWithPaths, '#/components/schemas/a~0b')).toStrictEqual({ type: 'string' })
+    expect(resolveRef<SchemaObject>(docWithPaths, '#/components/schemas/a%2Fb')).toStrictEqual({ type: 'number' })
+  })
+
   it('throws when the pointer cannot be resolved outside a build scope', () => {
     expect(() => resolveRef(document, '#/components/schemas/Missing')).toThrow('Could not find a definition for #/components/schemas/Missing.')
   })

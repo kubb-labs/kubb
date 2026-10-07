@@ -121,7 +121,7 @@ export async function parseFromConfig(source: AdapterSource): Promise<Document> 
   }
 
   // type === 'path'
-  if (URL.canParse(source.path)) {
+  if (urlRegExp.test(source.path)) {
     return parseDocument(source.path)
   }
 

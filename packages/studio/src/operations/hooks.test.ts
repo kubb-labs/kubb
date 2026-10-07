@@ -71,7 +71,7 @@ describe('setupHookListener', () => {
     expect(lineSpy).toHaveBeenNthCalledWith(2, { id: 'stream-id', line: 'second' })
   })
 
-  it('emits hook:end failure and an error on non-zero exit', async () => {
+  it('reports a non-zero exit on hook:end only, leaving kubb:error to the caller', async () => {
     vi.mocked(x).mockReturnValue(fakeProc({ lines: ['boom'], exitCode: 1, stdout: 'boom', stderr: 'parse error' }) as any)
 
     setupHookListener(hooks, '/root')
@@ -83,7 +83,9 @@ describe('setupHookListener', () => {
 
     await hooks.callHook('kubb:hook:start', { id: 'fail-id', command: 'oxlint', args: ['--fix'] })
 
-    expect(hookEndSpy).toHaveBeenCalledWith(expect.objectContaining({ id: 'fail-id', success: false, error: expect.any(Error) }))
-    expect(errorSpy).toHaveBeenCalledWith(expect.objectContaining({ error: expect.objectContaining({ message: 'Hook execute failed: oxlint --fix' }) }))
+    expect(hookEndSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'fail-id', success: false, error: expect.objectContaining({ message: 'Hook execute failed: oxlint --fix' }) }),
+    )
+    expect(errorSpy).not.toHaveBeenCalled()
   })
 })

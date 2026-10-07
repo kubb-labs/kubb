@@ -9,6 +9,7 @@ import {
   formatters,
   linters,
   memoize,
+  toError,
   tokenize,
   type ToolCommand,
   detectTool as detectUncachedTool,
@@ -200,7 +201,12 @@ export async function generate({ config, hooks, signal }: GenerateProps): Promis
         continue
       }
 
-      await runHook({ hooks, id: line, command: cmd, args })
+      try {
+        await runHook({ hooks, id: line, command: cmd, args })
+      } catch (error) {
+        await hooks.callHook('kubb:error', { error: toError(error) })
+        throw error
+      }
       await hooks.callHook('kubb:success', { message: `${line} successfully executed` })
     }
 

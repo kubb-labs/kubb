@@ -29,9 +29,9 @@ export interface PackageManagerInfo {
    */
   name: PackageManagerName
   /**
-   * Lock file name that uniquely identifies this package manager in a project root.
+   * Lock file names that identify this package manager in a project root.
    */
-  lockFile: string
+  lockFiles: ReadonlyArray<string>
   /**
    * Subcommands passed to the package manager binary to install a dev dependency.
    */
@@ -44,28 +44,28 @@ export interface PackageManagerInfo {
  * @example
  * ```ts
  * packageManagers.pnpm.installCommand // ['add', '-D']
- * packageManagers.npm.lockFile        // 'package-lock.json'
+ * packageManagers.npm.lockFiles       // ['package-lock.json']
  * ```
  */
 const packageManagers: Record<PackageManagerName, PackageManagerInfo> = {
   pnpm: {
     name: 'pnpm',
-    lockFile: 'pnpm-lock.yaml',
+    lockFiles: ['pnpm-lock.yaml'],
     installCommand: ['add', '-D'],
   },
   yarn: {
     name: 'yarn',
-    lockFile: 'yarn.lock',
+    lockFiles: ['yarn.lock'],
     installCommand: ['add', '-D'],
   },
   bun: {
     name: 'bun',
-    lockFile: 'bun.lockb',
+    lockFiles: ['bun.lock', 'bun.lockb'],
     installCommand: ['add', '-d'],
   },
   npm: {
     name: 'npm',
-    lockFile: 'package-lock.json',
+    lockFiles: ['package-lock.json'],
     installCommand: ['install', '--save-dev'],
   },
 }
@@ -87,7 +87,7 @@ type PackageJson = {
  *
  * @example
  * ```ts
- * detectPackageManager('/my/project') // { name: 'pnpm', lockFile: 'pnpm-lock.yaml', ... }
+ * detectPackageManager('/my/project') // { name: 'pnpm', lockFiles: ['pnpm-lock.yaml'], ... }
  * detectPackageManager()              // falls back to npm when no lock file is found
  * ```
  */
@@ -109,7 +109,7 @@ export function detectPackageManager(cwd: string = process.cwd()): PackageManage
   }
 
   for (const pm of Object.values(packageManagers)) {
-    if (existsSync(join(cwd, pm.lockFile))) {
+    if (pm.lockFiles.some((lockFile) => existsSync(join(cwd, lockFile)))) {
       return pm
     }
   }

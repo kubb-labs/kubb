@@ -37,7 +37,7 @@ describe('packageManager', () => {
       {
         pm: {
           name: 'npm',
-          lockFile: 'package-lock.json',
+          lockFiles: ['package-lock.json'],
           installCommand: ['install'],
         },
         expectedArgs: ['init', '-y'],
@@ -45,17 +45,17 @@ describe('packageManager', () => {
       {
         pm: {
           name: 'pnpm',
-          lockFile: 'pnpm-lock.yaml',
+          lockFiles: ['pnpm-lock.yaml'],
           installCommand: ['install'],
         },
         expectedArgs: ['init'],
       },
       {
-        pm: { name: 'yarn', lockFile: 'yarn.lock', installCommand: ['add'] },
+        pm: { name: 'yarn', lockFiles: ['yarn.lock'], installCommand: ['add'] },
         expectedArgs: ['init', '-y'],
       },
       {
-        pm: { name: 'bun', lockFile: 'bun.lockb', installCommand: ['add'] },
+        pm: { name: 'bun', lockFiles: ['bun.lockb'], installCommand: ['add'] },
         expectedArgs: ['init', '-y'],
       },
     ])('runs $pm.name $expectedArgs', async ({ pm, expectedArgs }) => {
@@ -68,7 +68,7 @@ describe('packageManager', () => {
       vi.mocked(x).mockImplementation(() => Promise.reject(new Error('Process exited with non-zero status (1)')) as never)
       const pm: PackageManagerInfo = {
         name: 'npm',
-        lockFile: 'package-lock.json',
+        lockFiles: ['package-lock.json'],
         installCommand: ['install'],
       }
       await expect(initPackageJson('/tmp/project', pm)).rejects.toThrow('Process exited with non-zero status')
@@ -80,7 +80,7 @@ describe('packageManager', () => {
       vi.mocked(x).mockReturnValue(Promise.resolve() as never)
       const pm: PackageManagerInfo = {
         name: 'pnpm',
-        lockFile: 'pnpm-lock.yaml',
+        lockFiles: ['pnpm-lock.yaml'],
         installCommand: ['add'],
       }
       await installPackages(['kubb', '@kubb/plugin-ts'], pm, '/tmp/project')
@@ -95,7 +95,7 @@ describe('packageManager', () => {
       vi.mocked(x).mockReturnValue(Promise.resolve() as never)
       const pm: PackageManagerInfo = {
         name: 'npm',
-        lockFile: 'package-lock.json',
+        lockFiles: ['package-lock.json'],
         installCommand: ['install'],
       }
       await installPackages(['kubb'], pm)
@@ -106,7 +106,7 @@ describe('packageManager', () => {
       vi.mocked(x).mockImplementation(() => Promise.reject(new Error('Process exited with non-zero status (2)')) as never)
       const pm: PackageManagerInfo = {
         name: 'pnpm',
-        lockFile: 'pnpm-lock.yaml',
+        lockFiles: ['pnpm-lock.yaml'],
         installCommand: ['add'],
       }
       await expect(installPackages(['kubb'], pm)).rejects.toThrow('Process exited with non-zero status')

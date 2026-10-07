@@ -34,6 +34,11 @@ describe('isCIEnvironment', () => {
   it('returns false when no CI env vars are set', () => {
     expect(isCIEnvironment()).toBe(false)
   })
+
+  it.each(['false', '0'])('returns false when CI is %s', (value) => {
+    vi.stubEnv('CI', value)
+    expect(isCIEnvironment()).toBe(false)
+  })
 })
 
 describe('canUseTTY', () => {

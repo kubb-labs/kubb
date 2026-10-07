@@ -36,15 +36,9 @@ type NotifyFunction = (type: string, message: string, data?: Record<string, unkn
 
 const loader = createModuleLoader()
 
-const loadedModules = new Map<string, unknown>()
-
-async function loadModule(filePath: string): Promise<unknown> {
-  if (loadedModules.has(filePath)) {
-    return loadedModules.get(filePath)
-  }
-  const mod = await loader.load(filePath, { default: true })
-  loadedModules.set(filePath, mod)
-  return mod
+// No cache: the MCP server is long-running, so every tool call re-reads the config to pick up edits.
+function loadModule(filePath: string): Promise<unknown> {
+  return loader.load(filePath, { default: true })
 }
 
 /**

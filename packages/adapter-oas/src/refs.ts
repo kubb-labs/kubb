@@ -16,7 +16,7 @@ function walkPointer<T>(document: Document, $ref: string): { applicable: boolean
   if (trimmed === '' || !trimmed.startsWith('#')) {
     return { applicable: false, value: null }
   }
-  const pointer = globalThis.decodeURIComponent(trimmed.substring(1))
+  const pointer = trimmed.substring(1)
 
   let docCache = _refCache.get(document)
   if (!docCache) {
@@ -28,9 +28,11 @@ function walkPointer<T>(document: Document, $ref: string): { applicable: boolean
     return { applicable: true, value: docCache.get(pointer) as T }
   }
 
+  // Split before decoding so an encoded `%2F` stays inside its token, then unescape `~1` and `~0` (RFC 6901).
   const current = pointer
     .split('/')
     .filter(Boolean)
+    .map((token) => globalThis.decodeURIComponent(token).replaceAll('~1', '/').replaceAll('~0', '~'))
     .reduce((obj: unknown, key: string) => (obj as Record<string, unknown>)?.[key], document as unknown)
 
   if (current) {
