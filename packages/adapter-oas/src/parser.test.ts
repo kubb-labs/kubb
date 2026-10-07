@@ -1652,40 +1652,6 @@ describe('parseSchema oneOf / anyOf', () => {
       expect(sharedProp?.schema.type).toBe('number')
     })
 
-    it('resolves union branches inside nested allOf members against outer siblings', () => {
-      const node = parseSchema(ctx, {
-        schema: {
-          type: 'object',
-          allOf: [
-            {
-              properties: {
-                tenantId: { type: 'string' },
-              },
-            },
-            {
-              allOf: [
-                {
-                  oneOf: [{ required: ['tenantId'] }],
-                },
-              ],
-            },
-          ],
-        },
-      })
-
-      expect(node.type).toBe('intersection')
-      const intersection = ast.narrowSchema(node, 'intersection')!
-      expect(intersection.members).toHaveLength(2)
-      const nestedAllOf = ast.narrowSchema(intersection.members?.[1], 'intersection')
-      expect(nestedAllOf).toBeDefined()
-      const nestedUnion = ast.narrowSchema(nestedAllOf?.members?.[0], 'union')
-      expect(nestedUnion).toBeDefined()
-      const branch = ast.narrowSchema(nestedUnion?.members?.[0], 'object')
-      expect(branch?.properties[0]?.name).toBe('tenantId')
-      expect(branch?.properties[0]?.required).toBe(true)
-      expect(branch?.properties[0]?.schema.type).toBe('string')
-    })
-
     it('preserves discriminated parent propagation when child uses allOf with oneOf', () => {
       const doc: Document = {
         openapi: '3.0.0',
