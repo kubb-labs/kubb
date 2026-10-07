@@ -239,7 +239,7 @@ describe('buildOtlpPayload', () => {
     const [resourceSpan] = payload.resourceSpans
     expect(resourceSpan!.resource.attributes).toContainEqual({
       key: 'service.name',
-      value: { stringValue: 'kubb-core' },
+      value: { stringValue: 'kubb' },
     })
     const [scopeSpan] = resourceSpan!.scopeSpans
     const [span] = scopeSpan!.spans
