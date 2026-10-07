@@ -12,7 +12,10 @@ import {
   createKubb,
   type Diagnostic,
   Diagnostics,
+  fileReporter,
   getInputKind,
+  htmlReporter,
+  jsonReporter,
   type KubbHooks,
   logLevel as logLevelMap,
   memoryStorage,
@@ -273,8 +276,8 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   const logLevel = logLevelMap[logLevelKey as keyof typeof logLevelMap] ?? logLevelMap.info
   const hooks = new Hookable<KubbHooks>()
 
-  // CLI `--reporter` selects which reporters to trigger by name, defaulting to `cli`. The config
-  // always carries the available reporters (defineConfig registers the built-ins).
+  // CLI `--reporter` selects which reporters to trigger by name, defaulting to `cli`. `defineConfig`
+  // registers the built-in reporters on the config; a config exported without it falls back to them below.
   const requestedNames: Array<ReporterName> = cliReporters?.length ? cliReporters : ['cli']
 
   // The `json` reporter owns stdout, so the command writes nothing of its own around it.
@@ -313,7 +316,10 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     process.exit(1)
   }
 
-  const reporters = selectReporters(configs[0]?.reporters ?? [], requestedNames)
+  // Without a reporter nothing is printed, not even an error, so a config written without
+  // `defineConfig` gets the same built-ins it would have registered.
+  const available = configs[0]?.reporters?.length ? configs[0].reporters : [cliReporter, jsonReporter, fileReporter, htmlReporter]
+  const reporters = selectReporters(available, requestedNames)
   await setupReporters(hooks, { logLevel, reporters })
 
   await hooks.callHook('kubb:lifecycle:start', { version })
