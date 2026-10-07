@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { getErrorMessage } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { upgrade } from '@scalar/openapi-upgrader'
@@ -182,7 +183,7 @@ export async function validateDocument(document: Document, { throwOnError = fals
     })
   } catch (error) {
     if (throwOnError) throw error
-    reportInvalidSpec(error instanceof Error ? error.message : String(error))
+    reportInvalidSpec(getErrorMessage(error))
     return
   }
 
@@ -191,7 +192,7 @@ export async function validateDocument(document: Document, { throwOnError = fals
 
   for (const { message } of result.errors) {
     // The code frame after the first line numbers a JSON copy of the spec, not the user's file.
-    reportInvalidSpec(message.split('\n')[0] ?? message)
+    reportInvalidSpec(message.replace(/\n.*/s, ''))
   }
   if (result.additionalErrors > 0) {
     reportInvalidSpec(`${result.additionalErrors} more validation errors are not listed.`)
