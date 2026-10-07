@@ -61,7 +61,8 @@ function toImportName(element: ts.ImportSpecifier): string | { propertyName: str
  * Converts an `import` declaration into `ImportNode`s. Side-effect imports and imports with attributes stay as written.
  */
 function toImportNodes(statement: ts.Statement, filePath: string): Array<ast.ImportNode> {
-  if (!typescript.isImportDeclaration(statement) || !statement.importClause || !typescript.isStringLiteral(statement.moduleSpecifier) || statement.attributes) return []
+  if (!typescript.isImportDeclaration(statement) || !statement.importClause || !typescript.isStringLiteral(statement.moduleSpecifier) || statement.attributes)
+    return []
 
   const { name, namedBindings, phaseModifier } = statement.importClause
   const specifier = statement.moduleSpecifier.text
@@ -87,7 +88,13 @@ function toImportNodes(statement: ts.Statement, filePath: string): Array<ast.Imp
  * Converts an `export … from` declaration into `ExportNode`s. Forms `printExport` cannot print stay as written.
  */
 function toExportNodes(statement: ts.Statement): Array<ast.ExportNode> {
-  if (!typescript.isExportDeclaration(statement) || !statement.moduleSpecifier || !typescript.isStringLiteral(statement.moduleSpecifier) || statement.attributes) return []
+  if (
+    !typescript.isExportDeclaration(statement) ||
+    !statement.moduleSpecifier ||
+    !typescript.isStringLiteral(statement.moduleSpecifier) ||
+    statement.attributes
+  )
+    return []
 
   const { exportClause, isTypeOnly } = statement
   const path = statement.moduleSpecifier.text
