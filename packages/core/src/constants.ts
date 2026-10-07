@@ -67,10 +67,7 @@ export const diagnosticCode = {
    * document the adapter can read.
    */
   invalidDocument: 'KUBB_INVALID_DOCUMENT',
-  /**
-   * The document does not pass OpenAPI schema validation. Reported as a warning, so generation
-   * continues.
-   */
+  /** The document fails OpenAPI schema validation. Reported as a warning. */
   invalidSpec: 'KUBB_INVALID_SPEC',
   /**
    * A `$ref` (or equivalent reference) could not be resolved in the source document.

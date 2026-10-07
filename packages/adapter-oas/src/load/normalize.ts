@@ -149,10 +149,7 @@ export function assertDocument(document: Document): void {
   })
 }
 
-/**
- * Reports one validation problem into the active build as a `KUBB_INVALID_SPEC` warning. Outside a
- * build there is nowhere to report it, and validation stays non-fatal, so it is dropped.
- */
+/** Reports a validation problem as a `KUBB_INVALID_SPEC` warning, a no-op outside a build. */
 function reportInvalidSpec(message: string): void {
   Diagnostics.report({
     code: Diagnostics.code.invalidSpec,
@@ -163,11 +160,7 @@ function reportInvalidSpec(message: string): void {
 }
 
 /**
- * Validates an OpenAPI document using `@readme/openapi-parser`.
- *
- * With `throwOnError`, an invalid document throws with the colorized error list, which is what
- * `kubb validate` prints. Otherwise each problem is reported as a `KUBB_INVALID_SPEC` warning and
- * generation continues.
+ * Validates an OpenAPI document using `@readme/openapi-parser`. Throws with `throwOnError`, otherwise warns.
  *
  * @example
  * ```ts
@@ -197,8 +190,7 @@ export async function validateDocument(document: Document, { throwOnError = fals
   if (throwOnError) throw new Error(compileErrors(result))
 
   for (const { message } of result.errors) {
-    // Only the first line: the code frame after it numbers the lines of a JSON re-serialization of
-    // the spec, not of the user's file. `kubb validate` still prints it in full.
+    // The code frame after the first line numbers a JSON copy of the spec, not the user's file.
     reportInvalidSpec(message.split('\n')[0] ?? message)
   }
   if (result.additionalErrors > 0) {
