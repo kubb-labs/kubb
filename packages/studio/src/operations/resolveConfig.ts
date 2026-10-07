@@ -3,7 +3,6 @@ import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import type { Adapter, Plugin } from '@kubb/core'
 import { camelCase } from '@internals/utils'
-import { isPlainObject } from 'remeda'
 import type { JSONKubbConfig } from '../protocol/index.ts'
 
 /**
@@ -146,6 +145,15 @@ export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugin
       return factory(options ?? {}) as Plugin
     }),
   )
+}
+
+/**
+ * Whether `value` is an object literal or a null-prototype object, not an array or class instance.
+ */
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null) return false
+  const prototype = Object.getPrototypeOf(value)
+  return prototype === null || prototype === Object.prototype
 }
 
 /**
