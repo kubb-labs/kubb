@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { getErrorMessage } from '@internals/utils'
 import { Diagnostics } from '@kubb/core'
 import type { AdapterSource } from '@kubb/core'
 import { upgrade } from '@scalar/openapi-upgrader'
@@ -149,8 +150,18 @@ export function assertDocument(document: Document): void {
   })
 }
 
+/** Reports a validation problem as a `KUBB_INVALID_SPEC` warning, a no-op outside a build. */
+function reportInvalidSpec(message: string): void {
+  Diagnostics.report({
+    code: Diagnostics.code.invalidSpec,
+    severity: 'warning',
+    message,
+    help: 'Fix the spec, or run `kubb validate` to list every error. Set `validate: false` on the adapter to skip this check.',
+  })
+}
+
 /**
- * Validates an OpenAPI document using `@readme/openapi-parser` with colorized error output.
+ * Validates an OpenAPI document using `@readme/openapi-parser`. Throws with `throwOnError`, otherwise warns.
  *
  * @example
  * ```ts
@@ -162,22 +173,28 @@ export async function validateDocument(document: Document, { throwOnError = fals
   // pay for it even with `validate` off.
   const { compileErrors, validate } = await import('@readme/openapi-parser')
 
+  let result: Awaited<ReturnType<typeof validate>>
   try {
     // `validate` dereferences its input in place, so clone to keep the cached document intact.
-    const result = await validate(structuredClone(document), {
+    result = await validate(structuredClone(document), {
       validate: {
-        errors: { colorize: true },
+        errors: { colorize: throwOnError },
       },
     })
-
-    if (!result.valid) {
-      throw new Error(compileErrors(result))
-    }
   } catch (error) {
-    if (throwOnError) {
-      throw error
-    }
+    if (throwOnError) throw error
+    reportInvalidSpec(getErrorMessage(error))
+    return
+  }
 
-    // Validation failures are non-fatal, mirror plugin-oas behavior
+  if (result.valid) return
+  if (throwOnError) throw new Error(compileErrors(result))
+
+  for (const { message } of result.errors) {
+    // The code frame after the first line numbers a JSON copy of the spec, not the user's file.
+    reportInvalidSpec(message.replace(/\n.*/s, ''))
+  }
+  if (result.additionalErrors > 0) {
+    reportInvalidSpec(`${result.additionalErrors} more validation errors are not listed.`)
   }
 }

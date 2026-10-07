@@ -170,9 +170,9 @@ export type ServerOptions = {
  */
 export type AdapterOasOptions = {
   /**
-   * Validate the OpenAPI spec with `@readme/openapi-parser` before parsing.
-   * Set to `false` only when you have a known-invalid spec you still want to
-   * generate from.
+   * Validate the OpenAPI spec with `@readme/openapi-parser` before parsing. Each problem is
+   * reported as a `KUBB_INVALID_SPEC` warning and generation continues. Set to `false` to skip the
+   * check, which also makes generation faster on a large spec.
    *
    * @default true
    */
