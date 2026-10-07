@@ -7,6 +7,7 @@ import { parseDocument } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
 import { getOperations } from './operation.ts'
 import { createSchemaParser, type OasParserContext } from './parser.ts'
+import { patchDiscriminatorNode } from './emit/discriminator/propagate.ts'
 import { createRefs } from './refs.ts'
 import type { ContentType, Document, SchemaObject } from './types.ts'
 
@@ -1419,6 +1420,209 @@ describe('parseSchema oneOf / anyOf', () => {
     const [, propsMember] = topIntersection?.members ?? []
     expect(refMember?.type).toBe('ref')
     expect(propsMember?.type).toBe('object')
+  })
+
+  describe('required-only union branches', () => {
+    it('resolves required-only anyOf branches against sibling properties on the same schema (Example 1)', () => {
+      const node = parseSchema(ctx, {
+        schema: {
+          type: 'object',
+          properties: {
+            email: { type: 'string' },
+            phone: { type: 'string' },
+          },
+          anyOf: [{ required: ['email'] }, { required: ['phone'] }],
+        },
+      })
+
+      expect(node.type).toBe('intersection')
+      const intersection = ast.narrowSchema(node, 'intersection')!
+      const unionNode = ast.narrowSchema(intersection.members?.[0], 'union')
+      const sharedNode = ast.narrowSchema(intersection.members?.[1], 'object')
+
+      expect(unionNode).toBeDefined()
+      expect(unionNode?.strategy).toBe('any')
+      expect(unionNode?.members).toHaveLength(2)
+
+      const branchEmail = ast.narrowSchema(unionNode?.members?.[0], 'object')
+      const branchPhone = ast.narrowSchema(unionNode?.members?.[1], 'object')
+
+      expect(branchEmail).toBeDefined()
+      expect(branchEmail?.properties).toHaveLength(1)
+      expect(branchEmail?.properties[0]?.name).toBe('email')
+      expect(branchEmail?.properties[0]?.required).toBe(true)
+      expect(branchEmail?.properties[0]?.schema.type).toBe('string')
+
+      expect(branchPhone).toBeDefined()
+      expect(branchPhone?.properties).toHaveLength(1)
+      expect(branchPhone?.properties[0]?.name).toBe('phone')
+      expect(branchPhone?.properties[0]?.required).toBe(true)
+      expect(branchPhone?.properties[0]?.schema.type).toBe('string')
+
+      expect(sharedNode?.properties?.find((p) => p.name === 'email')?.required).toBe(false)
+      expect(sharedNode?.properties?.find((p) => p.name === 'phone')?.required).toBe(false)
+    })
+
+    it('resolves required-only oneOf branches inside allOf against sibling allOf members including refs (nested composition)', () => {
+      const doc: Document = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            BasePayment: {
+              type: 'object',
+              properties: { provider: { type: 'string' } },
+            },
+            TokenType: {
+              type: 'string',
+              enum: ['BEARER', 'JWT'],
+            },
+          },
+        },
+      } as Document
+      const testCtx = { document: doc, refs: createRefs(doc) }
+
+      const node = parseSchema(testCtx, {
+        schema: {
+          type: 'object',
+          allOf: [
+            { $ref: '#/components/schemas/BasePayment' },
+            {
+              properties: {
+                tokenValue: {},
+                tokenType: { $ref: '#/components/schemas/TokenType' },
+                accountNumber: { type: 'string' },
+              },
+            },
+            {
+              oneOf: [{ required: ['tokenValue', 'tokenType'] }, { required: ['accountNumber'] }],
+            },
+          ],
+        },
+      })
+
+      expect(node.type).toBe('intersection')
+      const intersection = ast.narrowSchema(node, 'intersection')!
+      expect(intersection.members).toHaveLength(3)
+
+      const [refMember, objMember, unionMember] = intersection.members!
+      expect(refMember?.type).toBe('ref')
+
+      const objNode = ast.narrowSchema(objMember, 'object')
+      expect(objNode?.properties?.find((p) => p.name === 'tokenValue')?.required).toBe(false)
+      expect(objNode?.properties?.find((p) => p.name === 'tokenType')?.required).toBe(false)
+      expect(objNode?.properties?.find((p) => p.name === 'accountNumber')?.required).toBe(false)
+
+      const unionNode = ast.narrowSchema(unionMember, 'union')
+      expect(unionNode).toBeDefined()
+      expect(unionNode?.strategy).toBe('one')
+      expect(unionNode?.members).toHaveLength(2)
+
+      const branch1 = ast.narrowSchema(unionNode?.members?.[0], 'object')
+      const branch2 = ast.narrowSchema(unionNode?.members?.[1], 'object')
+
+      expect(branch1?.properties).toHaveLength(2)
+      const valProp = branch1?.properties.find((p) => p.name === 'tokenValue')
+      const typeProp = branch1?.properties.find((p) => p.name === 'tokenType')
+      expect(valProp?.required).toBe(true)
+      expect(valProp?.schema.type).toBe('unknown')
+      expect(typeProp?.required).toBe(true)
+      expect(typeProp?.schema.type).toBe('ref')
+
+      expect(branch2?.properties).toHaveLength(1)
+      const pathProp = branch2?.properties.find((p) => p.name === 'accountNumber')
+      expect(pathProp?.required).toBe(true)
+      expect(pathProp?.schema.type).toBe('string')
+    })
+
+    it('enriches containing schema required properties with sibling properties when allOf member nests union', () => {
+      const node = parseSchema(ctx, {
+        schema: {
+          type: 'object',
+          allOf: [
+            {
+              properties: {
+                id: { type: 'string' },
+                channel: { type: 'string' },
+                phone: { type: 'string' },
+              },
+            },
+            {
+              required: ['id'],
+              oneOf: [{ required: ['channel'] }, { required: ['phone'] }],
+            },
+          ],
+        },
+      })
+
+      expect(node.type).toBe('intersection')
+      const intersection = ast.narrowSchema(node, 'intersection')!
+      const secondMember = intersection.members?.[1]
+      expect(secondMember).toBeDefined()
+      const secondIntersection = ast.narrowSchema(secondMember!, 'intersection')
+      expect(secondIntersection).toBeDefined()
+      const sharedObj = secondIntersection?.members?.find((m) => m.type === 'object')
+      const idProp = ast.narrowSchema(sharedObj!, 'object')?.properties.find((p) => p.name === 'id')
+      expect(idProp?.required).toBe(true)
+      expect(idProp?.schema.type).toBe('string')
+    })
+
+    it('falls back to unknown with required: true for required keys not declared in siblings', () => {
+      const node = parseSchema(ctx, {
+        schema: {
+          type: 'object',
+          properties: {
+            email: { type: 'string' },
+          },
+          oneOf: [{ required: ['email'] }, { required: ['phone'] }],
+        },
+      })
+
+      const intersection = ast.narrowSchema(node, 'intersection')!
+      const unionNode = ast.narrowSchema(intersection.members?.[0], 'union')
+      const branchPhone = ast.narrowSchema(unionNode?.members?.[1], 'object')
+
+      expect(branchPhone?.properties).toHaveLength(1)
+      expect(branchPhone?.properties[0]?.name).toBe('phone')
+      expect(branchPhone?.properties[0]?.required).toBe(true)
+      expect(branchPhone?.properties[0]?.schema.type).toBe('unknown')
+    })
+
+    it('preserves discriminated parent propagation when child uses allOf with oneOf', () => {
+      const doc: Document = {
+        openapi: '3.0.0',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            ChildItem: {
+              type: 'object',
+              allOf: [
+                {
+                  properties: {
+                    itemId: { type: 'string' },
+                  },
+                },
+                {
+                  oneOf: [{ required: ['itemId'] }],
+                },
+              ],
+            },
+          },
+        },
+      } as Document
+      const testCtx = { document: doc, refs: createRefs(doc) }
+      const childNode = parseSchema(testCtx, { schema: doc.components!.schemas!.ChildItem! as SchemaObject, name: 'ChildItem' })
+
+      const patched = patchDiscriminatorNode(childNode, { propertyName: 'kind', enumValues: ['child'] })
+      expect(patched.type).toBe('intersection')
+      const patchedIntersection = ast.narrowSchema(patched, 'intersection')!
+      const hasKind = patchedIntersection.members?.some(
+        (m) => ast.narrowSchema(m, 'object')?.properties.some((p) => p.name === 'kind'),
+      )
+      expect(hasKind).toBe(true)
+    })
   })
 })
 
