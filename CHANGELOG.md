@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.5.6 — Oct 7, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Report `kubb` as the telemetry service name instead of `kubb-core`. ([#4177](https://github.com/kubb-labs/kubb/pull/4177), [`04e7b50`](https://github.com/kubb-labs/kubb/commit/04e7b501cf27bf1fb56b53e8f5e72bf77ebee250))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.5.5 — Oct 7, 2026
 
 ### @kubb/adapter-oas
