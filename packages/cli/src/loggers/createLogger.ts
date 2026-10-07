@@ -249,7 +249,8 @@ export function createLogger(writer: LoggerWriter) {
         state.phase.failed = true
       }
 
-      const line = [styleText('red', '✗'), error.message].join(' ')
+      // The writer draws the error symbol, so the message goes in bare.
+      const line = error.message
 
       if (state.spinner) {
         stopSpinner(line, 'failed')
@@ -360,7 +361,7 @@ export function createLogger(writer: LoggerWriter) {
 
     // Unguarded, like `kubb:error`: a failure stays visible even at silent.
     context.hook('studio:error', ({ error }) => {
-      const line = `✗ ${error.message}`
+      const line = error.message
 
       if (state.spinner) {
         stopSpinner(line, 'failed')
