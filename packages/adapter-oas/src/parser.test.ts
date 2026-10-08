@@ -1681,9 +1681,7 @@ describe('parseSchema oneOf / anyOf', () => {
       const patched = patchDiscriminatorNode(childNode, { propertyName: 'kind', enumValues: ['child'] })
       expect(patched.type).toBe('intersection')
       const patchedIntersection = ast.narrowSchema(patched, 'intersection')!
-      const hasKind = patchedIntersection.members?.some(
-        (m) => ast.narrowSchema(m, 'object')?.properties.some((p) => p.name === 'kind'),
-      )
+      const hasKind = patchedIntersection.members?.some((m) => ast.narrowSchema(m, 'object')?.properties.some((p) => p.name === 'kind'))
       expect(hasKind).toBe(true)
     })
   })
@@ -4098,13 +4096,17 @@ describe('parser options', () => {
 
     it('preserves metadata when emptySchemaType is set to any', () => {
       const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-      const node = parseSchema(ctx, {
-        schema: {
-          title: 'TypelessAny',
-          deprecated: true,
-          nullable: true,
-        } as SchemaObject,
-      }, { emptySchemaType: 'any' })
+      const node = parseSchema(
+        ctx,
+        {
+          schema: {
+            title: 'TypelessAny',
+            deprecated: true,
+            nullable: true,
+          } as SchemaObject,
+        },
+        { emptySchemaType: 'any' },
+      )
 
       expect(node.type).toBe('any')
       expect(node.title).toBe('TypelessAny')
