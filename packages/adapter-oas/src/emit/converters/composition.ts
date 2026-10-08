@@ -1,12 +1,113 @@
 import { ast } from '@kubb/ast'
 import { extractRefName, macroSimplifyUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
 import { isDiscriminator, isReference } from '../../oas.ts'
+import type { Refs } from '../../refs.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import { createDiscriminantNode, extractDiscriminatedAllOfMembers, narrowUnionMembers } from '../discriminator/preserve.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 import { extractExamples } from '../schemaShape.ts'
 import { convertAnnotatedEnum } from './annotatedEnum.ts'
+
+/**
+ * Collects property schemas from all `allOf` members and outer schema properties,
+ * recursively resolving `$ref` pointers.
+ */
+function collectSiblingProperties(
+  allOfMembers: Array<SchemaObject | ReferenceObject>,
+  refs: Refs,
+  outerProperties?: Record<string, unknown>,
+): Record<string, unknown> {
+  const properties: Record<string, unknown> = { ...outerProperties }
+  const visited = new Set<string>()
+
+  function collectFrom(item: SchemaObject | ReferenceObject | undefined): void {
+    if (!item) return
+
+    if (isReference(item)) {
+      if (visited.has(item.$ref)) return
+      visited.add(item.$ref)
+      const resolved = refs.resolve<SchemaObject>(item.$ref, { report: false })
+      if (resolved && !isReference(resolved)) {
+        collectFrom(resolved)
+      }
+      return
+    }
+
+    if (item.properties) {
+      Object.assign(properties, item.properties)
+    }
+
+    if (Array.isArray(item.allOf)) {
+      for (const member of item.allOf) {
+        collectFrom(member as SchemaObject | ReferenceObject)
+      }
+    }
+  }
+
+  for (const item of allOfMembers) {
+    collectFrom(item)
+  }
+
+  return properties
+}
+
+/**
+ * Enriches union members that declare `required` properties without declaring corresponding
+ * property schemas, populating the missing property definitions from available sibling schemas
+ * (or an empty schema falling back to the configured emptySchemaType).
+ */
+function resolveUnionMembers(
+  members: Array<unknown>,
+  siblingProperties: Record<string, unknown>,
+): Array<unknown> {
+  return members.map((member) => {
+    if (!member || typeof member !== 'object' || isReference(member)) {
+      return member
+    }
+
+    const obj = member as SchemaObject
+    if (!Array.isArray(obj.required) || obj.required.length === 0) {
+      return member
+    }
+
+    const existingProps = (obj.properties ?? {}) as Record<string, unknown>
+    const missingKeys = obj.required.filter((key) => !Object.prototype.hasOwnProperty.call(existingProps, key))
+
+    if (missingKeys.length === 0) {
+      return member
+    }
+
+    const newProperties: Record<string, unknown> = { ...existingProps }
+    for (const key of missingKeys) {
+      const value = Object.prototype.hasOwnProperty.call(siblingProperties, key) ? siblingProperties[key] : {}
+      Object.defineProperty(newProperties, key, { value, enumerable: true, writable: true, configurable: true })
+    }
+
+    return {
+      type: obj.type ?? 'object',
+      ...obj,
+      properties: newProperties,
+    }
+  })
+}
+
+/**
+ * Enriches any `oneOf` or `anyOf` branches on a schema object with properties from sibling schemas.
+ */
+function resolveUnionSchema(schema: SchemaObject, siblingProperties: Record<string, unknown>): SchemaObject {
+  if (!schema.oneOf && !schema.anyOf) return schema
+
+  const resolvedSchema = (resolveUnionMembers([schema], siblingProperties)[0] as SchemaObject) ?? schema
+  const next: SchemaObject = { ...resolvedSchema }
+  if (schema.oneOf) {
+    next.oneOf = resolveUnionMembers(schema.oneOf, siblingProperties) as typeof schema.oneOf
+  }
+  if (schema.anyOf) {
+    next.anyOf = resolveUnionMembers(schema.anyOf, siblingProperties) as typeof schema.anyOf
+  }
+  return next
+}
 
 /**
  * Converts a `$ref` schema into a `RefSchemaNode`.
@@ -78,7 +179,9 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
     name,
     refs,
   })
-  const allOfMembers: Array<ast.SchemaNode> = discriminatedAllOf.map((s) => parse({ schema: s as SchemaObject, name }, rawOptions))
+  const siblingProperties = collectSiblingProperties(schema.allOf as Array<SchemaObject | ReferenceObject>, refs, schema.properties)
+  const resolvedAllOf = discriminatedAllOf.map((s) => (isReference(s) ? s : resolveUnionSchema(s as SchemaObject, siblingProperties)))
+  const allOfMembers: Array<ast.SchemaNode> = resolvedAllOf.map((s) => parse({ schema: s as SchemaObject, name }, rawOptions))
 
   const syntheticStart = allOfMembers.length
 
@@ -136,7 +239,7 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
   if (annotatedEnum) return annotatedEnum
   const { schema, name, nullable, defaultValue, rawOptions, parse, refs } = context
   const ctx = { schema, name, nullable, defaultValue }
-  const unionMembers = [...(schema.oneOf ?? []), ...(schema.anyOf ?? [])]
+  const unionMembers = resolveUnionMembers([...(schema.oneOf ?? []), ...(schema.anyOf ?? [])], schema.properties ?? {})
   const strategy: 'one' | 'any' = schema.oneOf ? 'one' : 'any'
   const explicitDiscriminatorPropertyName = isDiscriminator(schema) ? schema.discriminator.propertyName : undefined
   const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
