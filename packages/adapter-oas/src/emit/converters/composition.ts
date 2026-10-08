@@ -57,10 +57,7 @@ function collectSiblingProperties(
  * property schemas, populating the missing property definitions from available sibling schemas
  * (or an empty schema falling back to the configured emptySchemaType).
  */
-function resolveUnionMembers(
-  members: Array<unknown>,
-  siblingProperties: Record<string, unknown>,
-): Array<unknown> {
+function resolveUnionMembers(members: Array<unknown>, siblingProperties: Record<string, unknown>): Array<unknown> {
   return members.map((member) => {
     if (!member || typeof member !== 'object' || isReference(member)) {
       return member
