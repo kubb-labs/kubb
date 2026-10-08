@@ -1,5 +1,26 @@
 # Changelog
 
+## v5.5.6 — Oct 8, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Preserve metadata (`deprecated`, `nullable`, `readOnly`, `writeOnly`, `default`, `examples`) on schemas without explicit `type` when falling back to `emptySchemaType`. ([#4179](https://github.com/kubb-labs/kubb/pull/4179), [`66a20f1`](https://github.com/kubb-labs/kubb/commit/66a20f101ad1efaac2e53ab07ca47b4e67158526))
+- Resolve required-only `oneOf` and `anyOf` union branches against sibling schemas and properties. ([#4180](https://github.com/kubb-labs/kubb/pull/4180), [`7e2c4c2`](https://github.com/kubb-labs/kubb/commit/7e2c4c2d38958d6fcddc5ce9c997adf9b6241b97))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Report `kubb` as the telemetry service name instead of `kubb-core`. ([#4177](https://github.com/kubb-labs/kubb/pull/4177), [`04e7b50`](https://github.com/kubb-labs/kubb/commit/04e7b501cf27bf1fb56b53e8f5e72bf77ebee250))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle), [@xeoneux](https://github.com/xeoneux)
+
 ## v5.5.5 — Oct 7, 2026
 
 ### @kubb/adapter-oas
