@@ -16,8 +16,8 @@ export const agentDefaults = {
   heartbeatIntervalMs: 30_000,
   /**
    * Slowest heartbeat a host may ask for. Studio drops an agent from the active list once its
-   * stored ping is older than its liveness window, and it stores a ping at most once a minute, so
-   * a slower cadence would make a healthy agent look dead after a single missed ping.
+   * stored ping is older than its liveness window, and it persists a ping at most once an hour,
+   * so a slower cadence would make a healthy agent look dead after a single missed ping.
    */
   maxHeartbeatIntervalMs: 60_000,
   /** How long a heartbeat ping may take before the session is treated as dead. */
