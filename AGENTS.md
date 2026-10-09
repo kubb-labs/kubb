@@ -34,7 +34,7 @@ The full folder structure, repository setup, and commands live in
 
 ## Plugin ecosystem
 
-Plugins are maintained in a separate monorepo at [kubb-labs/plugins](https://github.com/kubb-labs/plugins). Extension metadata and the docs pages live in the platform repo ([kubb-labs/platform](https://github.com/kubb-labs/platform), `apps/kubb.dev/extensions/` and `apps/kubb.dev/plugins/`), published on [kubb.dev](https://kubb.dev). When an extension's options change here, update its kubb.dev docs page there.
+Plugins are maintained in a separate monorepo at [kubb-labs/plugins](https://github.com/kubb-labs/plugins). Extension metadata and the docs pages live in the docs repo ([kubb-labs/docs](https://github.com/kubb-labs/docs), `plugins/<id>/index.md`, `adapters/<id>/index.md`, and `parsers/<id>/index.md` with their `reference/options.md`), published on [kubb.dev](https://kubb.dev). When an extension's options change here, update its kubb.dev docs page there.
 
 ## How agents read this repo
 
@@ -44,3 +44,14 @@ Plugins are maintained in a separate monorepo at [kubb-labs/plugins](https://git
 `house` output style come from the `agents` plugin
 ([stijnvanhulle/agents](https://github.com/stijnvanhulle/agents)). Claude Code loads it from
 this repo's `.claude/settings.json`. Install `agents@stijnvanhulle` for Cursor and Codex.
+
+<!-- BEGIN:turborepo-agent-rules -->
+
+# This is NOT the Turborepo you know
+
+Turborepo configuration, task behavior, and CLI commands can vary between installed versions and may differ from your training data. Resolve the `turbo` package from this file's directory or relevant workspace; in monorepos, it may not be visible from the repository root. For example, run `node -p "require.resolve('turbo/package.json')"` from a workspace that depends on `turbo`.
+
+Read `docs/README.md` inside that installed package first, then read the relevant pages from its `docs/` directory before changing Turborepo configuration or commands. Heed deprecation notices. These bundled docs match the installed package version and are available without network access.
+
+This block is written and re-added by `turbo` before repository-scoped commands when an AI agent is detected. In the Turborepo source repository, its template is defined in `crates/turborepo-cli/src/cli/agent_guidance.rs`. Removing the managed block while updates are enabled means a later qualifying invocation will add it again. Set `"agentGuidance": false` in the root `turbo.json` or `turbo.jsonc` to opt out; this does not remove an existing block. Keep the block committed with your work to avoid an uncommitted change on the next agent invocation.
+<!-- END:turborepo-agent-rules -->

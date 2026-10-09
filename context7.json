@@ -10,7 +10,7 @@
     "This repository holds the core packages, not the documentation. Guides, the configuration reference and plugin options are on https://kubb.dev, indexed on Context7 as /kubb-labs/docs.",
     "Import `defineConfig` from `kubb/config`, not from `kubb`.",
     "Kubb v5 has no `pluginOas()`. The OpenAPI adapter is a top-level `adapter` key that defaults to `adapterOas()` from `@kubb/adapter-oas`, which ships with `kubb`. Set it only when you need to pass options.",
-    "Each output format is its own `@kubb/plugin-*` package, listed in `plugins: []`. They are maintained in kubb-labs/plugins, not here.",
-    "`@kubb/plugin-client` was removed in v5. Register `pluginAxios` or `pluginFetch` instead, then point the query and MCP plugins at it with `client: 'axios' | 'fetch'`."
+    "Each output format is its own `@kubb/plugin-*` package, listed in `plugins: []`. They are maintained in kubb-labs/plugins, except `@kubb/plugin-barrel`, which lives here, ships with `kubb`, and is registered automatically.",
+    "Register `pluginAxios` or `pluginFetch` for an HTTP client, then point the query and MCP plugins at it with `client: 'axios' | 'fetch'`. `@kubb/plugin-client` is the bring-your-own-client plugin for a client module you write yourself, not a `client` value."
   ]
 }
