@@ -100,7 +100,9 @@ export type InputNode = BaseNode & {
  */
 export const inputDef = defineNode<InputNode, Partial<Omit<InputNode, 'kind'>>>({
   kind: 'Input',
-  defaults: { schemas: [], operations: [], meta: { circularNames: [], enumNames: [] } },
+  // A build hook, not `defaults`: a shared default object would let every InputNode mutate the same
+  // `schemas`, `operations` and `meta` instances.
+  build: (props) => ({ schemas: [], operations: [], meta: { circularNames: [], enumNames: [] }, ...props }),
   children: ['schemas', 'operations'],
   visitorKey: 'input',
 })

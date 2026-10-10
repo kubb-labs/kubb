@@ -1,4 +1,4 @@
-import { ast } from '@kubb/ast'
+import { ast } from '@kubb/kit'
 import { enumDescriptionKeys, enumExtensionKeys, numericFormats } from '../../constants.ts'
 import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'

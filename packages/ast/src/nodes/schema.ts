@@ -58,45 +58,14 @@ export type PrimitiveSchemaType =
   | 'date'
 
 /**
- * Composite schema types.
+ * All schema type strings, one per key of {@link SchemaNodeByType}.
  */
-type ComplexSchemaType = 'tuple' | 'union' | 'intersection' | 'enum'
+export type SchemaType = keyof SchemaNodeByType
 
 /**
- * Schema types that need special handling in generators.
+ * Scalar schema types without extra object/array/ref structure or constraints.
  */
-type SpecialSchemaType = 'ref' | 'datetime' | 'time' | 'uuid' | 'email' | 'url' | 'ipv4' | 'ipv6' | 'blob'
-
-/**
- * All schema type strings.
- */
-export type SchemaType = PrimitiveSchemaType | ComplexSchemaType | SpecialSchemaType
-
-/**
- * Scalar schema types without extra object/array/ref structure.
- */
-export type ScalarSchemaType = Exclude<
-  SchemaType,
-  | 'object'
-  | 'array'
-  | 'tuple'
-  | 'union'
-  | 'intersection'
-  | 'enum'
-  | 'ref'
-  | 'datetime'
-  | 'date'
-  | 'time'
-  | 'string'
-  | 'number'
-  | 'integer'
-  | 'bigint'
-  | 'url'
-  | 'uuid'
-  | 'email'
-  | 'ipv4'
-  | 'ipv6'
->
+export type ScalarSchemaType = 'boolean' | 'null' | 'any' | 'unknown' | 'void' | 'never' | 'blob'
 
 /**
  * Fields shared by all schema nodes.
@@ -721,7 +690,7 @@ export const schemaDef = defineNode<SchemaNode, CreateSchemaInput>({
 
     return { primitive: TYPE_TO_PRIMITIVE[props.type as keyof typeof TYPE_TO_PRIMITIVE], ...props }
   },
-  children: ['properties', 'items', 'members', 'additionalProperties'],
+  children: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'rest'],
   visitorKey: 'schema',
 })
 

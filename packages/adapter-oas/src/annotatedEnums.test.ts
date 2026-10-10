@@ -1,4 +1,4 @@
-import { narrowSchema } from '@kubb/ast'
+import { ast } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { adapterOas } from './adapter.ts'
 import type { SchemaObject } from './types.ts'
@@ -37,8 +37,8 @@ describe('annotated enums', () => {
       ],
     })
     expect(result.meta?.enumNames).toContain('Status')
-    const container = narrowSchema(result.schemas[1]!, 'object')!
-    const reference = narrowSchema(container.properties![0]!.schema, 'ref')!
+    const container = ast.narrowSchema(result.schemas[1]!, 'object')!
+    const reference = ast.narrowSchema(container.properties![0]!.schema, 'ref')!
     expect(reference.schema).toMatchObject({
       type: 'enum',
       namedEnumValues: [

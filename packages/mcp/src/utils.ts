@@ -1,9 +1,10 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { createModuleLoader } from '@internals/shared'
+import { CONFIG_EXTENSIONS, createModuleLoader } from '@internals/shared'
 import { isPathInside, isPromise } from '@internals/utils'
 import type { CLIOptions, Config, PossibleConfig, SerializedDiagnostic } from '@kubb/core'
-import { ALLOWED_CONFIG_EXTENSIONS } from './constants.ts'
+
+const CONFIG_FILE_NAMES = CONFIG_EXTENSIONS.map((extension) => `kubb.config${extension}`)
 
 /**
  * Renders serialized diagnostics as a plain-text block for an AI assistant. Each entry
@@ -52,8 +53,8 @@ function loadModule(filePath: string): Promise<unknown> {
 export async function loadUserConfig(configPath: string | undefined, { notify }: { notify: NotifyFunction }): Promise<{ userConfig: Config; cwd: string }> {
   if (configPath) {
     const ext = path.extname(configPath)
-    if (!ALLOWED_CONFIG_EXTENSIONS.has(ext)) {
-      const msg = `Invalid config file extension "${ext}". Allowed: ${[...ALLOWED_CONFIG_EXTENSIONS].join(', ')}`
+    if (!CONFIG_EXTENSIONS.some((extension) => extension === ext)) {
+      const msg = `Invalid config file extension "${ext}". Allowed: ${CONFIG_EXTENSIONS.join(', ')}`
       await notify('CONFIG_ERROR', msg)
       throw new Error(msg)
     }
@@ -77,9 +78,8 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
   }
 
   const cwd = process.cwd()
-  const configFileNames = ['kubb.config.ts', 'kubb.config.mts', 'kubb.config.cts', 'kubb.config.js', 'kubb.config.mjs', 'kubb.config.cjs']
 
-  for (const configFileName of configFileNames) {
+  for (const configFileName of CONFIG_FILE_NAMES) {
     const configFilePath = path.resolve(process.cwd(), configFileName)
     if (!existsSync(configFilePath)) continue
     try {
@@ -92,25 +92,7 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
   }
 
   await notify('CONFIG_ERROR', 'No config file found')
-  throw new Error(`No config file found. Please provide a config path or create one of: ${configFileNames.join(', ')}`)
-}
-
-/**
- * Determine the root directory based on userConfig.root and resolvedConfigDir
- * 1. If userConfig.root exists and is absolute, use it as-is
- * 2. If userConfig.root exists and is relative, resolve it relative to config directory
- * 3. Otherwise, use the config directory as root
- */
-export function resolveCwd(userConfig: Config, cwd: string): string {
-  if (userConfig.root) {
-    if (path.isAbsolute(userConfig.root)) {
-      return userConfig.root
-    }
-
-    return path.resolve(cwd, userConfig.root)
-  }
-
-  return cwd
+  throw new Error(`No config file found. Please provide a config path or create one of: ${CONFIG_FILE_NAMES.join(', ')}`)
 }
 
 /**

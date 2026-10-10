@@ -1,7 +1,12 @@
 export { ast } from '@kubb/ast'
 export { Url } from './Url.ts'
-export { macroDiscriminatorEnum, macroEnumName, macroRenameSchema, macroSimplifyUnion } from './macros/index.ts'
-export { childName, containsCircularRef, enumPropName, extractRefName, isStringType, mergeAdjacentObjectsLazy, syncSchemaRef } from './utils/index.ts'
+export { macroDiscriminatorEnum } from './macros/macroDiscriminatorEnum.ts'
+export { macroEnumName } from './macros/macroEnumName.ts'
+export { macroRenameSchema } from './macros/macroRenameSchema.ts'
+export { macroSimplifyUnion } from './macros/macroSimplifyUnion.ts'
+export { mergeAdjacentObjectsLazy } from './utils/mergeAdjacentSchemas.ts'
+export { childName, enumPropName, extractRefName, isStringType, syncSchemaRef } from './utils/refs.ts'
+export { containsCircularRef } from './utils/schemaGraph.ts'
 export { createAdapter } from '@kubb/core'
 export { createRenderer } from '@kubb/core'
 export { createStorage } from '@kubb/core'
@@ -19,6 +24,7 @@ export type {
   AdapterSource,
   BannerMeta,
   Config,
+  Diagnostic,
   Exclude,
   Generator,
   GeneratorContext,
