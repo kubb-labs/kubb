@@ -10,6 +10,7 @@ import { cacheStorage } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { BuildOutput, Config, KubbHooks, UserConfig } from './types.ts'
 import { Hookable } from './Hookable.ts'
+import { runOutputPasses, type RunOutputPassesOptions } from './output/runOutputPasses.ts'
 
 function resolveConfig(userConfig: UserConfig): Config {
   return {
@@ -53,10 +54,11 @@ export type CreateKubbOptions = {
  */
 export type GenerateOptions = {
   /**
-   * Format, lint, and run `postGenerate` over the generated output after an error-free build, and
-   * return the diagnostics they emitted. CLI-only.
+   * Replaces the output passes that run after an error-free build. The default,
+   * {@link runOutputPasses}, formats, lints and runs `output.postGenerate` over the generated
+   * output and returns the diagnostics they emitted.
    */
-  processOutput?: (context: { config: Config; outputPath: string }) => Promise<Array<Diagnostic>>
+  processOutput?: (context: RunOutputPassesOptions) => Promise<Array<Diagnostic>>
 }
 
 /**
@@ -236,7 +238,8 @@ export class Kubb {
       return { success: false, files, diagnostics }
     }
 
-    const outputDiagnostics = options.processOutput ? await options.processOutput({ config, outputPath: resolve(config.root, config.output.path) }) : []
+    const processOutput = options.processOutput ?? runOutputPasses
+    const outputDiagnostics = await processOutput({ config, outputPath: resolve(config.root, config.output.path), hooks, signal })
 
     const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
     const failed = Diagnostics.hasError(outputDiagnostics)
