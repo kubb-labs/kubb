@@ -1,3 +1,4 @@
+import { stripVTControlCharacters } from 'node:util'
 import { getElapsedMs } from '@internals/utils'
 import { Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
 import { type GenerationEvent, type GenerationEventPayloads, type GenerationEventType, generationEventTypes } from '../protocol/index.ts'
@@ -70,9 +71,9 @@ export function createGenerationStream(
       },
     ],
     'kubb:files:processing:end': ({ files }) => [{ total: files.length }],
-    'kubb:info': ({ message, info }) => [{ message, info }],
-    'kubb:success': ({ message, info }) => [{ message, info }],
-    'kubb:warn': ({ message, info }) => [{ message, info }],
+    'kubb:info': ({ message, info }) => [{ message: stripVTControlCharacters(message), info }],
+    'kubb:success': ({ message, info }) => [{ message: stripVTControlCharacters(message), info }],
+    'kubb:warn': ({ message, info }) => [{ message: stripVTControlCharacters(message), info }],
     'kubb:error': ({ error }) => [{ message: error.message, stack: error.stack }],
     'kubb:diagnostic': ({ diagnostic }) => [
       {

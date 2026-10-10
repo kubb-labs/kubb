@@ -4,7 +4,18 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
 import { getErrorMessage, read, toError } from '@internals/utils'
-import { cacheStorage, type Config, fsStorage, Hookable, type KubbHooks, memoryStorage, resolveCacheDir } from '@kubb/core'
+import {
+  cacheStorage,
+  type Config,
+  createKubb,
+  type Diagnostic,
+  Diagnostics,
+  fsStorage,
+  Hookable,
+  type KubbHooks,
+  memoryStorage,
+  resolveCacheDir,
+} from '@kubb/core'
 import { version as kubbVersion } from '../../package.json'
 import {
   type AgentApi,
@@ -36,10 +47,25 @@ import { registerAgent } from '../operations/api.ts'
 import { agentDefaults, resolveAgentCapacity, resolveGenerationLimits } from '../operations/constants.ts'
 import { mergeAdapter, mergePlugins, resolvePeerDependencies, toPackageName } from '../operations/resolveConfig.ts'
 import { RpcTarget } from 'capnweb'
-import { createGenerationStore, type GenerationStore, relativeStoragePath } from '../operations/generations.ts'
+import { createGenerationStore, type GenerationStore, listDisk, relativeStoragePath } from '../operations/generations.ts'
 import { createGenerationStream } from '../operations/generationEvents.ts'
 import { connectWebSocketRpc } from '../operations/rpc.ts'
-import { runGenerationOperation } from '../operations/generate.ts'
+
+const DISK_SNAPSHOT_MAX_FILES = 10_000
+
+/**
+ * Folds error-severity diagnostics into one thrown error so logs name the failing plugin or pass.
+ */
+function generationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error {
+  const reasons = diagnostics
+    .filter(Diagnostics.isProblem)
+    .filter((diagnostic) => diagnostic.severity === 'error')
+    .map((diagnostic) => (diagnostic.plugin ? `${diagnostic.plugin}: ${diagnostic.message}` : diagnostic.message))
+
+  if (!reasons.length) return new Error('Generation failed')
+
+  return new Error(`Generation failed: ${reasons.length} error${reasons.length === 1 ? '' : 's'}: ${reasons.join('; ')}`)
+}
 
 /** A sandbox shares one in-memory generation store across tenants, so old generations expire. */
 const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
@@ -596,11 +622,16 @@ export class StudioSession implements AgentApi {
     const resolvedPlugins = plugins ?? config.plugins
 
     const storage = this.#canWrite ? fsStorage() : memoryStorage()
+    const diskFiles = this.#hasProjectOnDisk ? await listDisk({ root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES }) : undefined
+    const disk = diskFiles
+      ? await this.#generations.keep({ jobId: data.jobId, source: 'disk', files: diskFiles, maxSetMb: this.#limits.maxSnapshotMb })
+      : undefined
+
     // The session's own emitter carries the run: the host's logger is already on it from
     // `connect`, and the stream's listeners come off again once the run ends, so one run's
     // listeners never see the next.
-    const { disk, files } = await runGenerationOperation({
-      config: {
+    const kubb = createKubb(
+      {
         ...config,
         root,
         input: inputOverride ?? config.input,
@@ -609,15 +640,18 @@ export class StudioSession implements AgentApi {
         plugins: resolvedPlugins,
         adapter,
       },
-      hooks: this.#hooks,
-      signal,
-      jobId: data.jobId,
-      store: this.#generations,
-      snapshotRoot: this.#hasProjectOnDisk ? root : undefined,
-      maxSnapshotMb: this.#limits.maxSnapshotMb,
+      { hooks: this.#hooks, signal },
+    )
+    const result = await kubb.generate().catch(async (error: unknown) => {
+      await this.#generations.drop(data.jobId)
+      throw error
     })
+    if (!result.success) {
+      await this.#generations.drop(data.jobId)
+      throw generationFailure(result.diagnostics)
+    }
 
-    const paths = new Set(files.map((file) => relativeStoragePath({ root, filePath: file.path })))
+    const paths = new Set(result.files.map((file) => relativeStoragePath({ root, filePath: file.path })))
     const output = await this.#generations.keep({ jobId: data.jobId, source: 'output', files: { storage, root, paths }, maxSetMb: this.#limits.maxMb })
     if (!output.paths.length && Object.keys(output.hashes).length) {
       await this.#warn('Kept only the hashes of this generation: its output is too large to keep')
