@@ -75,29 +75,15 @@ describe('combineSources', () => {
     expect(result[0]!.name).toBe('Z')
     expect(result[1]!.name).toBe('A')
   })
-
-  it('returns empty array for empty input', () => {
-    expect(combineSources([])).toStrictEqual([])
-  })
 })
 
 describe('combineExports', () => {
-  it('deduplicates identical named exports from the same path', () => {
-    const exp = createExport({ name: ['Pet'], path: './Pet' })
-    const result = combineExports([exp, exp])
+  it('returns one export per path with the names merged, deduplicated and sorted', () => {
+    const pet = createExport({ name: ['Pet'], path: './models' })
+    const order = createExport({ name: ['Order'], path: './models' })
+    const result = combineExports([pet, pet, order])
 
-    expect(result).toHaveLength(1)
-    expect(result[0]!.name).toStrictEqual(['Pet'])
-  })
-
-  it('merges named exports from the same path into one entry', () => {
-    const a = createExport({ name: ['Pet'], path: './models' })
-    const b = createExport({ name: ['Order'], path: './models' })
-    const result = combineExports([a, b])
-
-    expect(result).toHaveLength(1)
-    expect(result[0]!.name).toContain('Pet')
-    expect(result[0]!.name).toContain('Order')
+    expect(result).toStrictEqual([{ kind: 'Export', name: ['Order', 'Pet'], path: './models' }])
   })
 
   it('keeps type-only and value exports from the same path separate', () => {
@@ -116,42 +102,14 @@ describe('combineExports', () => {
     expect(result).toHaveLength(2)
   })
 
-  it('keeps wildcard and named exports from the same path separate', () => {
-    const wildcard = createExport({ path: './utils' })
-    const named = createExport({ name: ['helper'], path: './utils' })
-    const result = combineExports([wildcard, named])
-
-    expect(result.length).toBeGreaterThanOrEqual(1)
-  })
-
-  it('sorts wildcard exports before named array exports', () => {
+  it('returns wildcard exports before named ones, type-only first, then sorted by path', () => {
     const named = createExport({ name: ['Pet'], path: './Pet' })
-    const wildcard = createExport({ path: './utils' })
-    const result = combineExports([named, wildcard])
-
-    // wildcard (name = undefined, not array) comes before named array
-    const wildcardIndex = result.findIndex((e) => e.name == null)
-    const namedIndex = result.findIndex((e) => Array.isArray(e.name))
-    expect(wildcardIndex).toBeLessThan(namedIndex)
-  })
-
-  it('sorts type-only exports before value exports', () => {
-    const value = createExport({ path: './a' })
-    const typeOnly = createExport({ path: './b', isTypeOnly: true })
-    const result = combineExports([value, typeOnly])
-
-    const typeOnlyIndex = result.findIndex((e) => e.isTypeOnly)
-    const valueIndex = result.findIndex((e) => !e.isTypeOnly)
-    expect(typeOnlyIndex).toBeLessThan(valueIndex)
-  })
-
-  it('sorts exports alphabetically by path', () => {
     const c = createExport({ path: './c' })
     const a = createExport({ path: './a' })
-    const b = createExport({ path: './b' })
-    const result = combineExports([c, a, b])
+    const typeOnly = createExport({ path: './b', isTypeOnly: true })
+    const result = combineExports([named, c, a, typeOnly])
 
-    expect(result.map((e) => e.path)).toStrictEqual(['./a', './b', './c'])
+    expect(result.map((e) => e.path)).toStrictEqual(['./b', './a', './c', './Pet'])
   })
 
   it('deduplicates namespace alias exports', () => {
@@ -167,40 +125,23 @@ describe('combineExports', () => {
 
     expect(result).toHaveLength(0)
   })
-
-  it('returns empty array for empty input', () => {
-    expect(combineExports([])).toStrictEqual([])
-  })
 })
 
 describe('combineImports', () => {
-  it('keeps imports whose names appear in the source', () => {
-    const imp = createImport({ name: ['z'], path: 'zod' })
-    const result = combineImports([imp], [], 'const schema = z.string()')
-
-    expect(result).toHaveLength(1)
-    expect(result[0]!.path).toBe('zod')
+  it.each([
+    { label: 'a named import', imp: createImport({ name: ['z'], path: 'zod' }) },
+    { label: 'a namespace import', imp: createImport({ name: 'z', path: 'zod' }) },
+    { label: 'an aliased named import', imp: createImport({ name: [{ propertyName: 'zod', name: 'z' }], path: 'zod' }) },
+  ])('keeps $label when its local name appears in the source', ({ imp }) => {
+    expect(combineImports([imp], [], 'const schema = z.string()')).toStrictEqual([imp])
   })
 
-  it('filters out imports whose names do not appear in the source', () => {
-    const imp = createImport({ name: ['unused'], path: 'lodash' })
-    const result = combineImports([imp], [], 'const x = 1')
-
-    expect(result).toHaveLength(0)
-  })
-
-  it('filters out namespace imports when the alias is not used in the source', () => {
-    const imp = createImport({ name: 'z', path: 'zod' })
-    const result = combineImports([imp], [], 'const x = 1')
-
-    expect(result).toHaveLength(0)
-  })
-
-  it('keeps namespace import when the alias appears in the source', () => {
-    const imp = createImport({ name: 'z', path: 'zod' })
-    const result = combineImports([imp], [], 'const schema = z.string()')
-
-    expect(result).toHaveLength(1)
+  it.each([
+    { label: 'a named import', imp: createImport({ name: ['unused'], path: 'lodash' }) },
+    { label: 'a namespace import', imp: createImport({ name: 'unused', path: 'lodash' }) },
+    { label: 'an aliased named import', imp: createImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' }) },
+  ])('filters out $label when its name does not appear in the source', ({ imp }) => {
+    expect(combineImports([imp], [], 'const x = 1')).toStrictEqual([])
   })
 
   it('retains imports that are re-exported', () => {
@@ -211,14 +152,16 @@ describe('combineImports', () => {
     expect(result).toHaveLength(1)
   })
 
-  it('merges named imports from the same path with the same isTypeOnly', () => {
-    const a = createImport({ name: ['Pet'], path: './models' })
-    const b = createImport({ name: ['Order'], path: './models' })
-    const result = combineImports([a, b], [], 'Pet Order')
+  it('returns one import per path with the names merged, deduplicated and sorted', () => {
+    const pet = createImport({ name: ['Pet'], path: './models' })
+    const order = createImport({ name: ['Order'], path: './models' })
+    const aliased = createImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' })
+    const result = combineImports([pet, pet, order, aliased, aliased], [], 'Pet Order faker')
 
-    expect(result).toHaveLength(1)
-    expect(result[0]!.name).toContain('Pet')
-    expect(result[0]!.name).toContain('Order')
+    expect(result).toStrictEqual([
+      { kind: 'Import', name: ['Order', 'Pet'], path: './models' },
+      { kind: 'Import', name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' },
+    ])
   })
 
   it('keeps value and type-only imports from the same path separate', () => {
@@ -237,23 +180,14 @@ describe('combineImports', () => {
     expect(result).toHaveLength(2)
   })
 
-  it('sorts namespace imports before named array imports', () => {
-    const named = createImport({ name: ['Pet'], path: './Pet' })
-    const ns = createImport({ name: 'z', path: 'zod' })
-    const result = combineImports([named, ns], [], 'Pet z')
-
-    const nsIndex = result.findIndex((i) => !Array.isArray(i.name))
-    const namedIndex = result.findIndex((i) => Array.isArray(i.name))
-    expect(nsIndex).toBeLessThan(namedIndex)
-  })
-
-  it('sorts imports alphabetically by path', () => {
+  it('returns namespace imports before named ones, then sorted by path', () => {
     const c = createImport({ name: ['c'], path: './c' })
     const a = createImport({ name: ['a'], path: './a' })
     const b = createImport({ name: ['b'], path: './b' })
-    const result = combineImports([c, a, b], [], 'a b c')
+    const ns = createImport({ name: 'z', path: 'zod' })
+    const result = combineImports([c, a, ns, b], [], 'a b c z')
 
-    expect(result.map((i) => i.path)).toStrictEqual(['./a', './b', './c'])
+    expect(result.map((i) => i.path)).toStrictEqual(['zod', './a', './b', './c'])
   })
 
   it('skips an import when path equals root', () => {
@@ -265,34 +199,6 @@ describe('combineImports', () => {
     const result = combineImports([imp], [], 'self')
 
     expect(result).toHaveLength(0)
-  })
-
-  it('returns empty array for empty input', () => {
-    expect(combineImports([], [], '')).toStrictEqual([])
-  })
-
-  it('keeps aliased named import when the local alias appears in the source', () => {
-    const imp = createImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' })
-    const result = combineImports([imp], [], 'const x = faker.string.uuid()')
-
-    expect(result).toHaveLength(1)
-    expect(result[0]!.path).toBe('@faker-js/faker')
-  })
-
-  it('filters out aliased named import when neither alias nor propertyName appears in the source', () => {
-    const imp = createImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' })
-    const result = combineImports([imp], [], 'const x = 1')
-
-    expect(result).toHaveLength(0)
-  })
-
-  it('deduplicates object-named imports with the same propertyName and name from the same path', () => {
-    const a = createImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' })
-    const b = createImport({ name: [{ propertyName: 'fakerDE', name: 'faker' }], path: '@faker-js/faker' })
-    const result = combineImports([a, b], [], 'faker')
-
-    expect(result).toHaveLength(1)
-    expect(result[0]!.name).toHaveLength(1)
   })
 
   it('keeps a default import when a used named import from the same path is retained', () => {

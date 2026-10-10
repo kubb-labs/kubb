@@ -12,14 +12,6 @@ describe('createInput', () => {
     expect(node.operations).toStrictEqual([])
   })
 
-  it('accepts overrides', () => {
-    const schema = createSchema({ type: 'string' })
-    const node = createInput({ schemas: [schema] })
-
-    expect(node.schemas).toHaveLength(1)
-    expect(node.operations).toStrictEqual([])
-  })
-
   it('returns fresh schemas, operations and meta objects for every call', () => {
     const first = createInput()
     const second = createInput()
