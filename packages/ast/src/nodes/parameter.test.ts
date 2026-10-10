@@ -18,4 +18,17 @@ describe('createParameter', () => {
       schema: { kind: 'Schema', type: 'integer', primitive: 'integer', optional: true, nullish: undefined },
     })
   })
+
+  it('keeps required true when given', () => {
+    const node = createParameter({
+      name: 'petId',
+      in: 'path',
+      schema: createSchema({ type: 'integer' }),
+      required: true,
+    })
+
+    expect(node.kind).toBe('Parameter')
+    expect(node.in).toBe('path')
+    expect(node.required).toBe(true)
+  })
 })

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 import { createImport } from './nodes/file.ts'
 import { createProperty } from './nodes/property.ts'
 import { createSchema } from './nodes/schema.ts'
@@ -193,6 +193,20 @@ describe('createPrinter', () => {
     }))
 
     expect(zodPrinter().print(createSchema({ type: 'string' }))).toBe('z.string()')
+  })
+
+  it('returns a Printer typed by the factory name, options and output', () => {
+    type P = PrinterFactoryOptions<'zod', object, string>
+    const zodPrinter = createPrinter<P>(() => ({
+      name: 'zod',
+      options: {},
+      nodes: {},
+    }))
+    const printer = zodPrinter()
+
+    expectTypeOf(printer.name).toEqualTypeOf<'zod'>()
+    expectTypeOf(printer.options).toEqualTypeOf<object>()
+    expectTypeOf(printer.print(createSchema({ type: 'string' }))).toEqualTypeOf<string | null>()
   })
 
   describe('this.import', () => {
