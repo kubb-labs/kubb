@@ -10,7 +10,6 @@ import {
   printFunction,
   printImport,
   printJSDoc,
-  printNodes,
   printSource,
   printType,
 } from './utils.ts'
@@ -44,12 +43,12 @@ describe('printNodes', () => {
   const br = ast.factory.createBreak()
 
   it.each([
-    { when: 'nodes follow each other', nodes: [x, y], expected: 'const x = 1\nconst y = 2' },
-    { when: 'a break sits between nodes', nodes: [x, br, y], expected: 'const x = 1\n\nconst y = 2' },
-    { when: 'consecutive breaks sit between nodes', nodes: [x, br, br, y], expected: 'const x = 1\n\nconst y = 2' },
-    { when: 'breaks lead and trail the nodes', nodes: [br, x, br], expected: 'const x = 1' },
+    { when: 'nodes follow each other', nodes: [x, y], expected: 'function f() {\n  const x = 1\n  const y = 2\n}' },
+    { when: 'a break sits between nodes', nodes: [x, br, y], expected: 'function f() {\n  const x = 1\n\n  const y = 2\n}' },
+    { when: 'consecutive breaks sit between nodes', nodes: [x, br, br, y], expected: 'function f() {\n  const x = 1\n\n  const y = 2\n}' },
+    { when: 'breaks lead and trail the nodes', nodes: [br, x, br], expected: 'function f() {\n  const x = 1\n}' },
   ])('returns $expected when $when', ({ nodes, expected }) => {
-    expect(printNodes(nodes)).toBe(expected)
+    expect(printSource(ast.factory.createSource({ nodes: [ast.factory.createFunction({ name: 'f', nodes })] }))).toBe(expected)
   })
 })
 

@@ -138,30 +138,26 @@ export function splitModuleDeclarations(source: string, filePath: string): Modul
 }
 
 /**
- * Serializes a `nodes` array into source text. Each entry is rendered via {@link printCodeNode}
- * and joined with a single newline. A `Break` node (`<br/>`) inserts one blank line between
- * statements. Consecutive breaks, and breaks at the very start or end, are folded into the
- * separator, so a double `<br/>` never emits more than one blank line.
+ * Joins the printed `nodes` with `separator`. A `Break` node (`<br/>`) widens the separator before the next
+ * node to one blank line; leading, trailing and consecutive breaks fold into one.
+ *
+ * Imperative on purpose: this runs once per source fragment and `map().filter().join()` showed up in deopt traces.
  */
-export function printNodes(nodes: Array<ast.CodeNode> | undefined): string {
-  if (!nodes || nodes.length === 0) return ''
-
+export function printNodes({ nodes, separator }: { nodes: Array<ast.CodeNode> | undefined; separator: '\n' | '\n\n' }): string {
   let result = ''
-  let hasContent = false
   let pendingBreak = false
 
-  for (const node of nodes) {
+  for (const node of nodes ?? []) {
     if (node.kind === 'Break') {
-      if (hasContent) pendingBreak = true
+      pendingBreak = result !== ''
       continue
     }
 
     const text = printCodeNode(node)
     if (!text) continue
 
-    if (hasContent) result += pendingBreak ? '\n\n' : '\n'
+    if (result) result += pendingBreak ? '\n\n' : separator
     result += text
-    hasContent = true
     pendingBreak = false
   }
 
@@ -309,7 +305,7 @@ export function printJSDoc(jsDoc: ast.JSDocNode): string {
 export function printConst(node: ast.ConstNode): string {
   const { name, export: canExport, type, JSDoc, asConst, nodes } = node
 
-  const declaration = `${canExport ? 'export ' : ''}const ${name}${type ? `: ${type}` : ''} = ${printNodes(nodes)}${asConst ? ' as const' : ''}`
+  const declaration = `${canExport ? 'export ' : ''}const ${name}${type ? `: ${type}` : ''} = ${printNodes({ nodes, separator: '\n' })}${asConst ? ' as const' : ''}`
 
   return withJSDoc({ jsDoc: JSDoc, declaration })
 }
@@ -328,7 +324,7 @@ export function printConst(node: ast.ConstNode): string {
 export function printType(node: ast.TypeNode): string {
   const { name, export: canExport, JSDoc, nodes } = node
 
-  const declaration = `${canExport ? 'export ' : ''}type ${name} = ${printNodes(nodes)}`
+  const declaration = `${canExport ? 'export ' : ''}type ${name} = ${printNodes({ nodes, separator: '\n' })}`
 
   return withJSDoc({ jsDoc: JSDoc, declaration })
 }
@@ -347,7 +343,7 @@ export function printType(node: ast.TypeNode): string {
 export function printFunction(node: ast.FunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes } = node
 
-  const body = indentLines(printNodes(nodes))
+  const body = indentLines(printNodes({ nodes, separator: '\n' }))
   const prefix = `${canExport ? 'export ' : ''}${isDefault ? 'default ' : ''}${isAsync ? 'async ' : ''}`
   const declaration = `${prefix}function ${name}${signature({ async: isAsync, generics, params, returnType })} {${body ? `\n${body}\n` : ''}}`
 
@@ -368,7 +364,7 @@ export function printFunction(node: ast.FunctionNode): string {
 export function printArrowFunction(node: ast.ArrowFunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes, singleLine } = node
 
-  const body = printNodes(nodes)
+  const body = printNodes({ nodes, separator: '\n' })
   const arrowBody = singleLine ? ` => ${body}` : body ? ` => {\n${indentLines(body)}\n}` : ' => {}'
   const prefix = `${canExport ? 'export ' : ''}${isDefault ? 'default ' : ''}`
   const declaration = `${prefix}const ${name} = ${isAsync ? 'async ' : ''}${signature({ async: isAsync, generics, params, returnType })}${arrowBody}`
@@ -406,35 +402,17 @@ export function printCodeNode(node: ast.CodeNode): string {
 }
 
 /**
- * Converts a {@link ast.SourceNode} to its TypeScript string representation.
+ * Converts a {@link ast.SourceNode} to its TypeScript string representation. Top-level nodes are
+ * separated by a blank line so the source reads cleanly without an external formatter.
  *
- * Iterates `nodes` in DOM order, rendering each {@link ast.CodeNode} via
- * {@link printCodeNode}.
- *
- * Top-level declarations are separated by a blank line so the source reads
- * cleanly without an external formatter.
- *
- * @example From nodes
+ * @example
  * ```ts
  * printSource({ kind: 'Source', nodes: [factory.createConst({ name: 'x', nodes: [factory.createText('1')] }), factory.createText('x.toString()')] })
  * // 'const x = 1\n\nx.toString()'
  * ```
  */
 export function printSource(node: ast.SourceNode): string {
-  const nodes = node.nodes
-
-  if (!nodes || nodes.length === 0) return ''
-
-  // Imperative join. `map().filter().join()` allocated a closure and two arrays per source, and
-  // this runs once per source fragment during printing, so it surfaced in the deopt churn trace.
-  let result = ''
-  for (const child of nodes) {
-    const text = printCodeNode(child as ast.CodeNode)
-    if (!text) continue
-    result = result ? `${result}\n\n${text}` : text
-  }
-
-  return result
+  return printNodes({ nodes: node.nodes, separator: '\n\n' })
 }
 
 /**
