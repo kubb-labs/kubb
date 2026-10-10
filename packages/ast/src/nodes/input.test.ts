@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createInput } from './input.ts'
+import { createOperation } from './operation.ts'
 import { createSchema } from './schema.ts'
 
 describe('createInput', () => {
@@ -11,12 +12,17 @@ describe('createInput', () => {
     expect(node.operations).toStrictEqual([])
   })
 
-  it('accepts overrides', () => {
-    const schema = createSchema({ type: 'string' })
-    const node = createInput({ schemas: [schema] })
+  it('returns fresh schemas, operations and meta objects for every call', () => {
+    const first = createInput()
+    const second = createInput()
 
-    expect(node.schemas).toHaveLength(1)
-    expect(node.operations).toStrictEqual([])
+    first.schemas.push(createSchema({ type: 'string' }))
+    first.operations.push(createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' }))
+
+    expect(second.schemas).toStrictEqual([])
+    expect(second.operations).toStrictEqual([])
+    expect(second.meta).not.toBe(first.meta)
+    expect(second.meta).toStrictEqual({ circularNames: [], enumNames: [] })
   })
 
   it('always sets kind to Input', () => {

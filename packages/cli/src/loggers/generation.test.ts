@@ -128,7 +128,12 @@ function generation({ config, pluginFailed = false, formatFailed = false, hookLi
 
     await context.callHook('kubb:format:start')
     await context.callHook('kubb:hook:start', { id: 'format', command: 'biome', args: ['format'] })
-    await context.callHook('kubb:hook:end', { id: 'format', command: 'biome', args: ['format'], success: !formatFailed, error: null })
+    await context.callHook('kubb:hook:end', {
+      id: 'format',
+      command: 'biome',
+      args: ['format'],
+      ...(formatFailed ? { success: false, error: new Error('biome failed') } : { success: true, error: null }),
+    })
     await context.callHook('kubb:format:end')
 
     await context.callHook('kubb:lint:start')

@@ -1,5 +1,5 @@
 import { pascalCase } from '@internals/utils'
-import { ast, type StatusCode } from '@kubb/ast'
+import { ast } from '@kubb/kit'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { createNode } from './emit/createNode.ts'
 import { type ConvertContext, schemaRules } from './emit/parseSchema.ts'
@@ -224,7 +224,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       }
 
       return ast.factory.createResponse({
-        statusCode: statusCode as StatusCode,
+        statusCode: statusCode as ast.StatusCode,
         description,
         content,
       })

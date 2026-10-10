@@ -199,12 +199,6 @@ importers:
 
   packages/adapter-oas:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../core
       '@kubb/kit':
         specifier: workspace:*
         version: link:../kit
@@ -393,6 +387,9 @@ importers:
       '@tmcp/transport-stdio':
         specifier: ^0.5.0
         version: 0.5.0(tmcp@1.20.0(typescript@6.0.3))
+      jiti:
+        specifier: ^2.7.0
+        version: 2.7.0
       tmcp:
         specifier: ^1.20.0
         version: 1.20.0(typescript@6.0.3)

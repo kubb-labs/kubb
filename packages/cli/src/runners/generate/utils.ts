@@ -4,7 +4,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { createModuleLoader } from '@internals/shared'
 import { toError, tokenize } from '@internals/utils'
-import type { CLIOptions, Config, KubbHooks, PossibleConfig, PostGenerateCommand, Hookable } from '@kubb/core'
+import type { CLIOptions, Config, HookResult, KubbHooks, PossibleConfig, PostGenerateCommand, Hookable } from '@kubb/core'
 import { NonZeroExitError, x } from 'tinyexec'
 import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
 import { isGreaterThan, isValid, truncate } from 'verkit'
@@ -90,29 +90,6 @@ export async function getConfigs({ configPath, input, watch, logLevel }: GetConf
 type RunPostGenerateOptions = {
   commands: Array<PostGenerateCommand>
   hooks: Hookable<KubbHooks>
-}
-
-/**
- * Outcome of a single hook subprocess, returned by `runHook` alongside the
- * `kubb:hook:end` hook it emits for the loggers.
- */
-type HookResult = {
-  /**
-   * `true` when the command exited with code `0`.
-   */
-  success: boolean
-  /**
-   * What went wrong, `null` when the command succeeded.
-   */
-  error: Error | null
-  /**
-   * Captured stdout, only present on a non-zero exit.
-   */
-  stdout?: string
-  /**
-   * Captured stderr, only present on a non-zero exit.
-   */
-  stderr?: string
 }
 
 /**

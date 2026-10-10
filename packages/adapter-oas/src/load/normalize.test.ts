@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
-import { type Diagnostic, Diagnostics } from '@kubb/core'
+import { type Diagnostic, Diagnostics } from '@kubb/kit'
 import { assertDocument, bundleDocument, hasExternalRef, parseDocument, parseFromConfig, validateDocument } from './normalize.ts'
 import type { Document } from '../types.ts'
 

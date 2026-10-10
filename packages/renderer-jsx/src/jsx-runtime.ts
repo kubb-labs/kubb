@@ -15,7 +15,14 @@ export const Fragment = Symbol.for('kubb.fragment')
  * `props`.
  */
 function createElement(type: unknown, props: Record<string, unknown> | null, key?: Key | null): KubbReactElement {
-  return { $$typeof: KUBB_ELEMENT, type, key: key ?? null, props: props ?? {} } as unknown as KubbReactElement
+  return { $$typeof: KUBB_ELEMENT, type, key: key ?? null, props: props ?? {} }
+}
+
+/**
+ * Returns `true` when `value` is an element this runtime created.
+ */
+export function isKubbElement(value: unknown): value is KubbReactElement {
+  return typeof value === 'object' && value !== null && (value as { $$typeof?: unknown }).$$typeof === KUBB_ELEMENT
 }
 
 export const jsx = createElement

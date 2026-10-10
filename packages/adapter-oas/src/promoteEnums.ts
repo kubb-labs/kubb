@@ -1,4 +1,4 @@
-import { ast } from '@kubb/ast'
+import { ast } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from './constants.ts'
 
 /**

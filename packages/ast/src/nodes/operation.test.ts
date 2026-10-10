@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { isHttpOperationNode } from '../guards.ts'
+import { createContent } from './content.ts'
 import { createOperation } from './operation.ts'
-import type { OperationNode } from './operation.ts'
+import { createSchema } from './schema.ts'
 
 describe('createOperation', () => {
   it('creates an OperationNode with required fields', () => {
@@ -24,7 +24,7 @@ describe('createOperation', () => {
     expectTypeOf(node.path).toEqualTypeOf<string>()
   })
 
-  it('accepts optional fields', () => {
+  it('keeps summary, deprecated and tags when given', () => {
     const node = createOperation({
       operationId: 'createPet',
       method: 'POST',
@@ -47,14 +47,15 @@ describe('createOperation', () => {
     expect(node.protocol).toBeUndefined()
   })
 
-  it('narrows an HTTP operation with isHttpOperationNode', () => {
-    const node: OperationNode = createOperation({ operationId: 'getPets', method: 'GET', path: '/pets' })
+  it('returns a RequestBodyNode when requestBody is a plain object', () => {
+    const content = createContent({ contentType: 'application/json', schema: createSchema({ type: 'object' }) })
+    const node = createOperation({
+      operationId: 'createPet',
+      method: 'POST',
+      path: '/pets',
+      requestBody: { required: true, description: 'A pet', content: [content] },
+    })
 
-    expect(isHttpOperationNode(node)).toBe(true)
-
-    if (isHttpOperationNode(node)) {
-      expectTypeOf(node.method).toEqualTypeOf<'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE'>()
-      expectTypeOf(node.path).toEqualTypeOf<string>()
-    }
+    expect(node.requestBody).toStrictEqual({ kind: 'RequestBody', required: true, description: 'A pet', content: [content] })
   })
 })
