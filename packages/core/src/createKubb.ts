@@ -103,7 +103,6 @@ export class Kubb {
   readonly hooks: Hookable<KubbHooks>
   readonly config: Config
   #driver: KubbDriver | null = null
-  #storage: Storage | null = null
   #manifest: OutputManifest | null = null
   readonly #signal: AbortSignal | undefined
 
@@ -114,8 +113,8 @@ export class Kubb {
   }
 
   get storage(): Storage {
-    if (!this.#storage) throw new Error('[kubb] setup() must be called before accessing storage')
-    return this.#storage
+    if (!this.#driver) throw new Error('[kubb] setup() must be called before accessing storage')
+    return this.config.storage
   }
 
   get driver(): KubbDriver {
@@ -160,7 +159,6 @@ export class Kubb {
     await driver.setup()
 
     this.#driver = driver
-    this.#storage = config.storage
     this.#manifest = manifest ?? null
   }
 

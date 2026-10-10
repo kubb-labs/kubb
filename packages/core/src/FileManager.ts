@@ -86,14 +86,7 @@ function isIndexPath(path: string): boolean {
 
 // Sort order: shortest path first. Within a length bucket, index.ts barrels last.
 function compareFiles(a: FileNode, b: FileNode): number {
-  const lenDiff = a.path.length - b.path.length
-  if (lenDiff !== 0) return lenDiff
-  const aIsIndex = isIndexPath(a.path)
-  const bIsIndex = isIndexPath(b.path)
-  if (aIsIndex && !bIsIndex) return 1
-  if (!aIsIndex && bIsIndex) return -1
-
-  return 0
+  return a.path.length - b.path.length || Number(isIndexPath(a.path)) - Number(isIndexPath(b.path))
 }
 
 // A file is unchanged either because the storage already holds this content, or because the
@@ -197,17 +190,13 @@ export class FileManager {
     return [...seen.values()]
   }
 
-  clear(): void {
-    this.#cache.clear()
-    this.#sorted = null
-  }
-
   /**
    * Releases all stored files and clears every `hooks` listener. Called by the core after
    * `kubb:build:end`.
    */
   dispose(): void {
-    this.clear()
+    this.#cache.clear()
+    this.#sorted = null
     this.hooks.removeAllHooks()
   }
 
