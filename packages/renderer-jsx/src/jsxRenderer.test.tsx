@@ -6,7 +6,7 @@ import { Type } from './components/js/Type.tsx'
 import { jsxRenderer } from './jsxRenderer.tsx'
 
 describe('jsxRenderer', () => {
-  it('should collect imports, exports, and typed source nodes from multiple files', async () => {
+  it('collects imports, exports, and typed source nodes from multiple files', async () => {
     const renderer = jsxRenderer()
     await renderer.render(
       <>
@@ -46,6 +46,113 @@ describe('jsxRenderer', () => {
     expect(client?.sources[1]?.nodes?.[0]?.kind).toBe('Function')
   })
 
+  it('maps Function, Function.Arrow, and Const props onto code nodes', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="client.ts" path="src/client.ts">
+        <File.Source name="getPet" isExportable>
+          <Function
+            export
+            default={false}
+            async
+            name="getPet"
+            generics={['T', 'U']}
+            params="id: T"
+            returnType="Promise<U>"
+            JSDoc={{ comments: ['@description Fetch a pet'] }}
+          >
+            {'return fetch(id)'}
+          </Function>
+          <Function.Arrow export={false} default={false} async={false} name="double" generics="T" params="n: T" returnType="T" singleLine JSDoc={null}>
+            {'n * 2'}
+          </Function.Arrow>
+          <Const export name="BASE_URL" type="string" asConst JSDoc={null}>
+            {'"https://api.example.com"'}
+          </Const>
+        </File.Source>
+      </File>,
+    )
+
+    expect(renderer.files[0]?.sources[0]?.nodes).toStrictEqual([
+      {
+        kind: 'Function',
+        name: 'getPet',
+        params: 'id: T',
+        export: true,
+        default: false,
+        async: true,
+        generics: 'T, U',
+        returnType: 'Promise<U>',
+        JSDoc: { comments: ['@description Fetch a pet'] },
+        nodes: [{ kind: 'Text', value: 'return fetch(id)' }],
+      },
+      {
+        kind: 'ArrowFunction',
+        name: 'double',
+        params: 'n: T',
+        export: false,
+        default: false,
+        async: false,
+        generics: 'T',
+        returnType: 'T',
+        singleLine: true,
+        JSDoc: null,
+        nodes: [{ kind: 'Text', value: 'n * 2' }],
+      },
+      {
+        kind: 'Const',
+        name: 'BASE_URL',
+        type: 'string',
+        export: true,
+        asConst: true,
+        JSDoc: null,
+        nodes: [{ kind: 'Text', value: '"https://api.example.com"' }],
+      },
+    ])
+  })
+
+  it('emits a Break node when a br element appears inside File.Source', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File baseName="a.ts" path="src/a.ts">
+        <File.Source>
+          {'const a = 1'}
+          <br />
+          {'const b = 2'}
+        </File.Source>
+      </File>,
+    )
+
+    expect(renderer.files[0]?.sources[0]?.nodes).toStrictEqual([
+      { kind: 'Text', value: 'const a = 1' },
+      { kind: 'Break' },
+      { kind: 'Text', value: 'const b = 2' },
+    ])
+  })
+
+  it('throws when text appears outside File.Source', async () => {
+    const renderer = jsxRenderer()
+
+    await expect(
+      renderer.render(
+        <File baseName="bad.ts" path="src/bad.ts">
+          {'stray text'}
+        </File>,
+      ),
+    ).rejects.toThrow("[jsx] 'stray text' should be part of <File.Source> component when using the <File/> component")
+  })
+
+  it('renders nested files inline when File has no baseName', async () => {
+    const renderer = jsxRenderer()
+    await renderer.render(
+      <File>
+        <File baseName="inner.ts" path="src/inner.ts" />
+      </File>,
+    )
+
+    expect(renderer.files.map((file) => file.baseName)).toStrictEqual(['inner.ts'])
+  })
+
   it('renders every file in a nested children array', async () => {
     const renderer = jsxRenderer()
     const files = [
@@ -57,7 +164,7 @@ describe('jsxRenderer', () => {
     expect(renderer.files.map((file) => file.baseName)).toStrictEqual(['a.ts', 'b.ts', 'c.ts'])
   })
 
-  it('should propagate render errors', async () => {
+  it('propagates render errors', async () => {
     const renderer = jsxRenderer()
     function BadComponent(): never {
       throw new Error('render error')
@@ -71,7 +178,7 @@ describe('jsxRenderer', () => {
     ).rejects.toThrow('render error')
   })
 
-  it('should accumulate files across multiple render calls', async () => {
+  it('accumulates files across multiple render calls', async () => {
     const renderer = jsxRenderer()
 
     await renderer.render(
@@ -94,8 +201,6 @@ describe('jsxRenderer', () => {
       </File>,
     )
 
-    expect(renderer.files.length).toBe(2)
-    expect(renderer.files.find((f) => f.baseName === 'first.ts')).toBeDefined()
-    expect(renderer.files.find((f) => f.baseName === 'second.ts')).toBeDefined()
+    expect(renderer.files.map((file) => file.baseName)).toStrictEqual(['first.ts', 'second.ts'])
   })
 })

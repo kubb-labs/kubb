@@ -4,7 +4,7 @@ import { File } from '../File.tsx'
 import { Type } from './Type.tsx'
 
 describe('Type', () => {
-  it('should emit a Type node', async () => {
+  it('returns a Type node with the name, export flag, and text children', async () => {
     const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="types.ts" path="src/types.ts">
@@ -16,20 +16,16 @@ describe('Type', () => {
       </File>,
     )
 
-    expect(renderer.files[0]?.sources[0]?.nodes?.[0]).toMatchObject({
-      export: true,
+    expect(renderer.files[0]?.sources[0]?.nodes?.[0]).toStrictEqual({
       kind: 'Type',
       name: 'PetId',
-      nodes: [
-        {
-          kind: 'Text',
-          value: 'string | number',
-        },
-      ],
+      export: true,
+      JSDoc: undefined,
+      nodes: [{ kind: 'Text', value: 'string | number' }],
     })
   })
 
-  it('should throw when name does not start with an uppercase letter', () => {
+  it('throws when name does not start with an uppercase letter', () => {
     const renderer = jsxRenderer()
     const renderPromise = renderer.render(
       <File baseName="types.ts" path="src/types.ts">

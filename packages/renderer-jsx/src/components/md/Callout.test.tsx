@@ -3,8 +3,12 @@ import { jsxRenderer } from '../../jsxRenderer.tsx'
 import { Callout } from './Callout.tsx'
 import { File } from '../File.tsx'
 
+function firstValue(renderer: ReturnType<typeof jsxRenderer>): string | undefined {
+  return (renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value
+}
+
 describe('Callout', () => {
-  it('renders a tip callout without a title', async () => {
+  it('returns a header without a title when title is not set', async () => {
     const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="post.md" path="src/post.md">
@@ -12,13 +16,10 @@ describe('Callout', () => {
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
-      "> [!TIP]
-      > Run \`kubb start --watch\` to keep the generator hot."
-    `)
+    expect(firstValue(renderer)).toBe('> [!TIP]\n> Run `kubb start --watch` to keep the generator hot.')
   })
 
-  it('renders a warning callout with a title and multi-line body', async () => {
+  it('returns a titled header and quotes every body line when title is set', async () => {
     const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="post.md" path="src/post.md">
@@ -28,14 +29,10 @@ describe('Callout', () => {
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
-      "> [!WARNING] Heads up
-      > body line 1
-      > line 2"
-    `)
+    expect(firstValue(renderer)).toBe('> [!WARNING] Heads up\n> body line 1\n> line 2')
   })
 
-  it('quotes blank lines as a bare `>`', async () => {
+  it('returns a bare > for blank lines when the body has paragraphs', async () => {
     const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="post.md" path="src/post.md">
@@ -43,81 +40,20 @@ describe('Callout', () => {
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
-      "> [!NOTE]
-      > first paragraph
-      >
-      > second paragraph"
-    `)
+    expect(firstValue(renderer)).toBe('> [!NOTE]\n> first paragraph\n>\n> second paragraph')
   })
 
-  it('uses the TIP label for type tip', async () => {
+  it.each([
+    { type: 'important', label: 'IMPORTANT' },
+    { type: 'caution', label: 'CAUTION' },
+  ] as const)('returns a $label marker when type is $type', async ({ type, label }) => {
     const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="post.md" path="src/post.md">
-        <Callout type="tip">body</Callout>
+        <Callout type={type}>body</Callout>
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
-      "> [!TIP]
-      > body"
-    `)
-  })
-
-  it('uses the NOTE label for type note', async () => {
-    const renderer = jsxRenderer()
-    await renderer.render(
-      <File baseName="post.md" path="src/post.md">
-        <Callout type="note">body</Callout>
-      </File>,
-    )
-
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
-      "> [!NOTE]
-      > body"
-    `)
-  })
-
-  it('uses the IMPORTANT label for type important', async () => {
-    const renderer = jsxRenderer()
-    await renderer.render(
-      <File baseName="post.md" path="src/post.md">
-        <Callout type="important">body</Callout>
-      </File>,
-    )
-
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
-      "> [!IMPORTANT]
-      > body"
-    `)
-  })
-
-  it('uses the WARNING label for type warning', async () => {
-    const renderer = jsxRenderer()
-    await renderer.render(
-      <File baseName="post.md" path="src/post.md">
-        <Callout type="warning">body</Callout>
-      </File>,
-    )
-
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
-      "> [!WARNING]
-      > body"
-    `)
-  })
-
-  it('uses the CAUTION label for type caution', async () => {
-    const renderer = jsxRenderer()
-    await renderer.render(
-      <File baseName="post.md" path="src/post.md">
-        <Callout type="caution">body</Callout>
-      </File>,
-    )
-
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
-      "> [!CAUTION]
-      > body"
-    `)
+    expect(firstValue(renderer)).toBe(`> [!${label}]\n> body`)
   })
 })
