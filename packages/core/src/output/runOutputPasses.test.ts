@@ -9,7 +9,8 @@ import { Hookable } from '../Hookable.ts'
 import { resolveCacheDir } from '../storages/cacheStorage.ts'
 import { fsStorage } from '../storages/fsStorage.ts'
 import { memoryStorage } from '../storages/memoryStorage.ts'
-import type { Config, Diagnostic, KubbHooks, KubbHookStartContext } from '../types.ts'
+import type { Config, KubbHooks, KubbHookStartContext } from '../types.ts'
+import type { Diagnostic } from '../Diagnostics.ts'
 import { runOutputPasses } from './runOutputPasses.ts'
 
 const node = process.execPath

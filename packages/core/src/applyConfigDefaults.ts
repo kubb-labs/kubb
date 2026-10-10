@@ -1,4 +1,6 @@
-import type { Adapter, Config, Plugin } from './types.ts'
+import type { Config } from './types.ts'
+import type { Adapter } from './createAdapter.ts'
+import type { Plugin } from './definePlugin.ts'
 
 type ApplyConfigDefaultsOptions<TOutput> = {
   defaultAdapter: Adapter

@@ -3,9 +3,9 @@ import { getElapsedMs, toError } from '@internals/utils'
 import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
-import type { Generator } from './defineGenerator.ts'
+import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
-import type { Plugin, PluginName, ResolvePluginOptions } from './definePlugin.ts'
+import type { Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginFactoryOptions } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
@@ -15,17 +15,8 @@ import { createNodeCache } from './nodeCache.ts'
 import type { OutputManifest } from './outputManifest.ts'
 import { inputToAdapterSource } from './input.ts'
 
-import type {
-  Adapter,
-  AdapterSource,
-  Config,
-  GeneratorContext,
-  Group,
-  KubbFileProcessingUpdate,
-  KubbHooks,
-  NormalizedPlugin,
-  PluginFactoryOptions,
-} from './types.ts'
+import type { Config, KubbFileProcessingUpdate, KubbHooks } from './types.ts'
+import type { Adapter, AdapterSource } from './createAdapter.ts'
 import type { Hookable } from './Hookable.ts'
 
 type Options = {

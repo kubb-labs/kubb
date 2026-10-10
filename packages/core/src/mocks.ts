@@ -8,17 +8,11 @@ import { FileManager } from './FileManager.ts'
 import { Hookable } from './Hookable.ts'
 import { createNodeCache } from './nodeCache.ts'
 import type { KubbDriver } from './KubbDriver.ts'
-import type {
-  Adapter,
-  AdapterFactoryOptions,
-  Config,
-  Generator,
-  GeneratorContext,
-  KubbHooks,
-  NormalizedPlugin,
-  PluginFactoryOptions,
-  RendererFactory,
-} from './types.ts'
+import type { Config, KubbHooks } from './types.ts'
+import type { Adapter, AdapterFactoryOptions } from './createAdapter.ts'
+import type { Generator, GeneratorContext } from './defineGenerator.ts'
+import type { NormalizedPlugin, PluginFactoryOptions } from './definePlugin.ts'
+import type { RendererFactory } from './createRenderer.ts'
 
 /**
  * Creates a minimal `KubbDriver` mock for unit tests.

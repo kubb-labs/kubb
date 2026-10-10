@@ -14,8 +14,8 @@ import {
 } from '@kubb/ast'
 import { Diagnostics } from './Diagnostics.ts'
 import { getInputKind } from './input.ts'
-import type { Filter, Override } from './definePlugin.ts'
-import type { Config, Group, Output } from './types.ts'
+import type { Filter, Override, Group, Output } from './definePlugin.ts'
+import type { Config } from './types.ts'
 
 /**
  * Context for resolving filtered options for a given operation or schema node.
