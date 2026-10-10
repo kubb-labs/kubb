@@ -72,6 +72,27 @@ describe('parserTs', () => {
   })
 
   it.each([
+    {
+      when: 'a function has several generics',
+      file: {
+        sources: [
+          ast.factory.createSource({ nodes: [ast.factory.createFunction({ name: 'getPet', generics: ['T', 'U'], params: 'value: T', returnType: 'U' })] }),
+        ],
+        imports: [],
+      },
+      expected: 'function getPet<T, U>(value: T): U {}',
+    },
+    {
+      when: 'an import has several names',
+      file: { sources: [], imports: [ast.factory.createImport({ name: ['a', 'b'], path: '/src/x.ts', root: '/src/test.ts' })] },
+      expected: "import { a, b } from './x'",
+    },
+    { when: 'the source has no nodes', file: { sources: [ast.factory.createSource({})], imports: [] }, expected: '' },
+  ])('returns $expected when $when', async ({ file, expected }) => {
+    expect(await parserTs().parse(ast.factory.createFile({ baseName: 'test.ts', path: '/src/test.ts', exports: [], ...file }))).toBe(expected)
+  })
+
+  it.each([
     { path: 'my-codec/zod', options: {} },
     { path: '@modelcontextprotocol/sdk/server/mcp.js', options: { extension: { '.ts': '.ts' } } },
   ] as const)('keeps the package specifier $path as-is when extension is $options.extension', async ({ path, options }) => {
