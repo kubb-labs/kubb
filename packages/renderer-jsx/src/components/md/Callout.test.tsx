@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { jsxRenderer } from '../../jsxRenderer.tsx'
+import { jsxRenderer } from '../../jsxRenderer.ts'
 import { Callout } from './Callout.tsx'
 import { File } from '../File.tsx'
 
