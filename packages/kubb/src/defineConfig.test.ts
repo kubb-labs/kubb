@@ -76,7 +76,7 @@ describe('defineConfig', () => {
   ]
 
   test.each(explicitFields)('preserves an explicit $field', ({ partial, pick, value }) => {
-    expect(pick(resolve(partial))).toBe(value)
+    expect(pick(resolve(partial))).toStrictEqual(value)
   })
 
   const shapes: Array<ConfigShapeRow> = [
