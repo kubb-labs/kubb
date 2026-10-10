@@ -1,6 +1,10 @@
+import { mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { adapterOas } from '@kubb/adapter-oas'
-import type { Config, UserConfig } from '@kubb/core'
-import { describe, expect, it, vi } from 'vitest'
+import { type Config, fsStorage, type PostGenerateCommand, resolveCacheDir, type UserConfig } from '@kubb/core'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as config from '../../config.ts'
 import * as env from '../../utils/env.ts'
 import { run } from './run.ts'
@@ -87,6 +91,55 @@ describe('reporters', () => {
     const lines = await bootstrap({ configs: [config as unknown as Config] })
 
     expect(lines.some((line) => line.includes('✗'))).toBe(true)
+    expect(lines.at(-1)).toBe('exit 1')
+  })
+})
+
+describe('output passes', () => {
+  const node = process.execPath
+  const petStore = fileURLToPath(new URL('../../../../core/mocks/petStore.yaml', import.meta.url))
+  const roots: Array<string> = []
+
+  afterEach(() => {
+    for (const root of roots.splice(0)) {
+      rmSync(root, { recursive: true, force: true })
+      rmSync(resolveCacheDir(root), { recursive: true, force: true })
+    }
+  })
+
+  /**
+   * A config whose build succeeds in a temp root, so only `output.postGenerate` decides the outcome.
+   */
+  function withPostGenerate(postGenerate: Array<PostGenerateCommand>): Config {
+    const root = mkdtempSync(join(tmpdir(), 'kubb-cli-run-'))
+    roots.push(root)
+    const config = {
+      root,
+      input: petStore,
+      output: { path: './gen', format: false, lint: false, postGenerate },
+      adapter: adapterOas(),
+      plugins: [],
+      storage: fsStorage(),
+    } satisfies UserConfig
+
+    return config as unknown as Config
+  }
+
+  it('runs the post-generate hooks from core and reports each one', async () => {
+    const lines = await bootstrap({ configs: [withPostGenerate([{ name: 'types', command: `"${node}" -e "process.exit(0)"` }])] })
+
+    expect(lines.some((line) => line.startsWith('✓ types in '))).toBe(true)
+    expect(lines.some((line) => line.startsWith('Post-generate hooks completed in '))).toBe(true)
+    expect(lines).toContain('✓ Generation succeeded')
+    expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
+  })
+
+  it('fails the run when a post-generate hook exits non-zero', async () => {
+    const lines = await bootstrap({ configs: [withPostGenerate([{ name: 'types', command: `"${node}" -e "process.exit(1)"` }])] })
+
+    expect(lines.some((line) => line.startsWith('✗ types failed (Hook execute failed: '))).toBe(true)
+    expect(lines.some((line) => line.startsWith('[KUBB_POST_GENERATE_FAILED]: Post-generate command failed: '))).toBe(true)
+    expect(lines).toContain('✗ Generation failed')
     expect(lines.at(-1)).toBe('exit 1')
   })
 })

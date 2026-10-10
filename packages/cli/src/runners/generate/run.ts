@@ -1,15 +1,13 @@
-import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { toError } from '@internals/utils'
+import { formatters, linters, toError } from '@internals/utils'
 import {
   Hookable,
   type CLIOptions,
   cliReporter,
   type Config,
   createKubb,
-  type Diagnostic,
   Diagnostics,
   fileReporter,
   getInputKind,
@@ -18,7 +16,6 @@ import {
   type KubbHooks,
   logLevel as logLevelMap,
   memoryStorage,
-  type ProblemDiagnostic,
   type ReporterName,
 } from '@kubb/core'
 import { version } from '../../../package.json'
@@ -27,8 +24,7 @@ import { pluralize } from '../../loggers/createLogger.ts'
 import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createSpinner, logBanner, logError, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'
 import { getConfigs } from '../../config.ts'
-import { fetchUrlBody, isNewerVersion, runHook, runPostGenerate, startUrlWatcher, startWatcher } from './utils.ts'
-import { detectTool, FORMATTER_PREFERENCE, formatters, LINTER_PREFERENCE, linters } from '@internals/utils'
+import { fetchUrlBody, isNewerVersion, startUrlWatcher, startWatcher } from './utils.ts'
 
 /** NPM registry endpoint used to check for @kubb/cli updates. */
 const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
@@ -48,7 +44,6 @@ type GenerateProps = {
   input?: string
   config: Config
   hooks: Hookable<KubbHooks>
-  logLevel: number
   /**
    * When `true`, generates in memory instead of writing to disk, and skips formatting, linting,
    * and post-generate commands.
@@ -56,76 +51,8 @@ type GenerateProps = {
   dryRun?: boolean
 }
 
-type ToolMap = typeof formatters | typeof linters
-
-type ToolKind = 'format' | 'lint'
-
-/** What differs between the format and the lint pass: the tool table, the auto-detection order, the log words and the diagnostic code. */
-const TOOL_PASSES = {
-  format: { label: 'formatter', map: formatters, preference: FORMATTER_PREFERENCE, verb: 'Formatting', code: Diagnostics.code.formatFailed },
-  lint: { label: 'linter', map: linters, preference: LINTER_PREFERENCE, verb: 'Linting', code: Diagnostics.code.lintFailed },
-} as const satisfies Record<ToolKind, { label: string; map: ToolMap; preference: ReadonlyArray<string>; verb: string; code: ProblemDiagnostic['code'] }>
-
-type RunToolPassOptions = {
-  kind: ToolKind
-  toolValue: string
-  outputPath: string
-  logLevel: number
-  hooks: Hookable<KubbHooks>
-}
-
-/** Runs one formatter or linter pass, announced through `kubb:<kind>:start` and `kubb:<kind>:end`; returns the failure instead of throwing. */
-async function runToolPass({ kind, toolValue, outputPath, logLevel, hooks }: RunToolPassOptions): Promise<Error | null> {
-  const { label, map, preference, verb } = TOOL_PASSES[kind]
-
-  await hooks.callHook(`kubb:${kind}:start`)
-
-  let resolvedTool = toolValue
-  if (resolvedTool === 'auto') {
-    const detected = await detectTool(preference)
-    if (!detected) {
-      await hooks.callHook('kubb:warn', { message: `No ${label} found (${preference.join(', ')}). Skipping ${verb.toLowerCase()}.` })
-    } else {
-      resolvedTool = detected
-      await hooks.callHook('kubb:info', { message: `Auto-detected ${label}: ${styleText('dim', resolvedTool)}` })
-    }
-  }
-
-  let toolError: Error | null = null
-
-  // Nothing to lint or format when the output dir was never written. Skip so the tool
-  // (e.g. oxlint with --no-ignore) doesn't fail with "No files found to lint".
-  if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in map && existsSync(outputPath)) {
-    const toolConfig = map[resolvedTool as keyof ToolMap]
-
-    const successMessage = [
-      `${verb} with ${styleText('dim', resolvedTool)}`,
-      logLevel >= logLevelMap.info ? `on ${styleText('dim', outputPath)}` : undefined,
-      'successfully',
-    ]
-      .filter(Boolean)
-      .join(' ')
-
-    try {
-      const result = await runHook({ command: toolConfig.command, args: toolConfig.args(outputPath), hooks })
-
-      if (result.success) {
-        await hooks.callHook('kubb:success', { message: successMessage })
-      } else {
-        toolError = result.error ?? new Error(toolConfig.errorMessage)
-      }
-    } catch (caughtError) {
-      toolError = toError(caughtError)
-    }
-  }
-
-  await hooks.callHook(`kubb:${kind}:end`)
-
-  return toolError
-}
-
 async function generate(options: GenerateProps): Promise<boolean> {
-  const { input, hooks, logLevel, dryRun = false } = options
+  const { input, hooks, dryRun = false } = options
 
   const report = trackRun({ command: 'generate', hrStart: process.hrtime() })
 
@@ -138,41 +65,10 @@ async function generate(options: GenerateProps): Promise<boolean> {
     output: dryRun ? { ...options.config.output, format: false, lint: false, postGenerate: [] } : options.config.output,
   }
 
-  // The formatter, linter, and post-generate commands run after a successful build. Collect their
-  // failures as coded diagnostics so they reach the summary, the json report, and the exit code.
-  const processOutput = async ({ config: resolvedConfig, outputPath }: { config: Config; outputPath: string }): Promise<Array<Diagnostic>> => {
-    if (dryRun) return []
-
-    const outputDiagnostics: Array<Diagnostic> = []
-    const reportOutputFailure = async (code: ProblemDiagnostic['code'], label: string, error: Error) => {
-      const diagnostic = outputDiagnostic(code, label, error)
-      outputDiagnostics.push(diagnostic)
-      await Diagnostics.emit(hooks, diagnostic)
-    }
-
-    // Format and lint are the same pass over the output directory, so run them in that order.
-    for (const kind of ['format', 'lint'] as const) {
-      const toolValue = resolvedConfig.output[kind]
-      if (!toolValue) continue
-      const error = await runToolPass({ kind, toolValue, outputPath, logLevel, hooks })
-      if (error) await reportOutputFailure(TOOL_PASSES[kind].code, TOOL_PASSES[kind].label, error)
-    }
-
-    if (resolvedConfig.output.postGenerate?.length) {
-      await hooks.callHook('kubb:hooks:start')
-      const hookResults = await runPostGenerate({ commands: resolvedConfig.output.postGenerate, hooks })
-      for (const hookResult of hookResults) {
-        if (hookResult.success) continue
-        await reportOutputFailure(Diagnostics.code.postGenerateFailed, 'Post-generate command', hookResult.error ?? new Error('Post-generate command failed'))
-      }
-      await hooks.callHook('kubb:hooks:end')
-    }
-
-    return outputDiagnostics
-  }
-
+  // Core formats, lints and runs `output.postGenerate` after an error-free build, and reports
+  // their failures as coded diagnostics that reach the summary, the json report and the exit code.
   const kubb = createKubb(config, { hooks })
-  const result = await kubb.generate({ processOutput })
+  const result = await kubb.generate()
 
   if (dryRun) {
     await hooks.callHook('kubb:info', { message: 'Dry run: no files were written', info: `${result.files.length} file(s) would be generated` })
@@ -185,21 +81,6 @@ async function generate(options: GenerateProps): Promise<boolean> {
   })
 
   return result.success
-}
-
-/**
- * Builds a coded diagnostic for an output-phase failure (formatter, linter, or `done` hook).
- */
-function outputDiagnostic(code: ProblemDiagnostic['code'], label: string, caughtError: unknown): ProblemDiagnostic {
-  const error = toError(caughtError)
-  return {
-    code,
-    severity: 'error',
-    message: `${label} failed: ${error.message}`,
-    help: 'Check that the tool is installed and that the command and its config are correct.',
-    location: { kind: 'config' },
-    cause: error,
-  }
 }
 
 type GenerateCommandOptions = {
@@ -298,7 +179,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // listeners. Plugin listeners are already disposed by safeBuild's dispose()
         // in its finally block, so re-running generate() on the same hooks emitter is safe.
         const build = async (paths: Array<string>) => {
-          const succeeded = await generate({ input, config, logLevel, hooks, dryRun })
+          const succeeded = await generate({ input, config, hooks, dryRun })
           logStep(styleText('yellow', `Watching for changes in ${paths.join(' and ')}`))
           if (succeeded) {
             logSpacer()
@@ -326,7 +207,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         }
       } else {
         try {
-          const succeeded = await generate({ input, config, logLevel, hooks, dryRun })
+          const succeeded = await generate({ input, config, hooks, dryRun })
           if (!succeeded) anyFailed = true
         } catch (configError) {
           await hooks.callHook('kubb:error', { error: toError(configError) })
