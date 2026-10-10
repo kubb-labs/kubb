@@ -4,10 +4,15 @@ import { collect, collectSync } from '../visitor.ts'
 import { resolveRefName } from './refs.ts'
 
 /**
- * Memoized inner pass that walks a single node and returns the names of every schema it references.
- * Each ref contributes its name only, so the schema it points to is never traversed here.
+ * Collects the names of every schema a node's subtree references, resolved with `resolveRefName`.
+ * Each ref contributes its name only, so the schema it points to is never traversed. The walk is
+ * memoized by node identity, which lets `findCircularSchemas` and `containsCircularRef` share one
+ * scan per schema.
+ *
+ * @example
+ * `collectSchemaRefs(petSchema) // Set { 'Category', 'Tag' }`
  */
-const collectSchemaRefs = memoize(new WeakMap<SchemaNode, ReadonlySet<string>>(), (node: SchemaNode): ReadonlySet<string> => {
+export const collectSchemaRefs = memoize(new WeakMap<SchemaNode, ReadonlySet<string>>(), (node: SchemaNode): ReadonlySet<string> => {
   const refs = new Set<string>()
   collectSync<void>(node, {
     schema(child) {
