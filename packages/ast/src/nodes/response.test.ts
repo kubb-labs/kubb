@@ -4,18 +4,6 @@ import { createResponse } from './response.ts'
 import { createSchema } from './schema.ts'
 
 describe('createResponse', () => {
-  it('creates a response with just a status code', () => {
-    const node = createResponse({
-      statusCode: '200',
-      schema: createSchema({
-        type: 'string',
-      }),
-    })
-
-    expect(node.kind).toBe('Response')
-    expect(node.statusCode).toBe('200')
-  })
-
   it('normalizes a legacy schema into a single content entry', () => {
     const node = createResponse({
       statusCode: '200',
@@ -24,6 +12,8 @@ describe('createResponse', () => {
       description: 'Success',
     })
 
+    expect(node.kind).toBe('Response')
+    expect(node.statusCode).toBe('200')
     expect(node.content?.[0]?.contentType).toBe('application/json')
     expect(node.content?.[0]?.schema?.type).toBe('object')
     expect(node.description).toBe('Success')
