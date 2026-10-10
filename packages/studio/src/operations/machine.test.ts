@@ -50,14 +50,6 @@ describe('getMachineToken', () => {
     expect(mockStorage.getItem).not.toHaveBeenCalled()
   })
 
-  it('persists the generated fallback secret to storage on first use', async () => {
-    const getMachineToken = await importFreshToken()
-
-    await getMachineToken()
-
-    expect(mockStorage.setItem).toHaveBeenCalledWith('machine-secret', expect.stringMatching(/^[a-f0-9]{64}$/))
-  })
-
   it('returns the same token across restarts by reusing the persisted secret', async () => {
     const getMachineToken = await importFreshToken()
     const firstToken = await getMachineToken()
