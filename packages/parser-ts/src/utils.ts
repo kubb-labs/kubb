@@ -3,17 +3,6 @@ import { dirname, relative, resolve } from 'node:path'
 import { toPosixPath, trimExtName } from '@internals/utils'
 import { ast } from '@kubb/kit'
 import type * as ts from 'typescript'
-import {
-  CARRIAGE_RETURN_PATTERN,
-  CRLF_PATTERN,
-  CURRENT_DIRECTORY_PREFIX,
-  FILE_EXTENSION_PATTERN,
-  INDENT,
-  INDENT_CHAR,
-  JSDOC_TERMINATOR_PATTERN,
-  LEADING_DIGIT_PATTERN,
-  PARENT_DIRECTORY_PREFIX,
-} from './constants.ts'
 
 /**
  * Loaded with `require`, not `import`. When ESM imports a CommonJS package, Node keeps a second
@@ -29,7 +18,7 @@ const { factory } = typescript
  */
 export function getRelativePath(root: string, filePath: string): string {
   const slashed = toPosixPath(relative(dirname(root), filePath))
-  return slashed.startsWith(PARENT_DIRECTORY_PREFIX) ? slashed : `${CURRENT_DIRECTORY_PREFIX}${slashed}`
+  return slashed.startsWith('../') ? slashed : `./${slashed}`
 }
 
 /**
@@ -38,7 +27,8 @@ export function getRelativePath(root: string, filePath: string): string {
  * so virtual/module-only paths flow through unchanged.
  */
 export function resolveOutputPath(path: string, options: { extname?: string } | undefined, rootAware: boolean): string {
-  const hasExtname = FILE_EXTENSION_PATTERN.test(path)
+  // Only the final `.<ext>` counts, so `foo.bar.ts` keeps `foo.bar`
+  const hasExtname = /\.[^/.]+$/.test(path)
   if (rootAware && options?.extname && hasExtname) {
     return `${trimExtName(path)}${options.extname}`
   }
@@ -179,12 +169,12 @@ export function printNodes(nodes: Array<ast.CodeNode> | undefined): string {
 }
 
 /**
- * Indents every non-empty line of `text` by one indent unit. Pass a number to repeat
- * {@link INDENT_CHAR} that many times, or a string to use as the indent verbatim.
+ * Indents every non-empty line of `text` by one indent unit (two spaces). Pass a number to repeat
+ * a single space that many times, or a string to use as the indent verbatim.
  */
-export function indentLines(text: string, indent: number | string = INDENT): string {
+export function indentLines(text: string, indent: number | string = '  '): string {
   if (!text) return ''
-  const pad = typeof indent === 'string' ? indent : INDENT_CHAR.repeat(indent)
+  const pad = typeof indent === 'string' ? indent : ' '.repeat(indent)
   return text
     .split('\n')
     .map((line) => (line.trim() ? `${pad}${line}` : ''))
@@ -269,7 +259,7 @@ export function print(...elements: Array<ts.Node>): string {
 
   const output = TS_PRINTER.printList(typescript.ListFormat.MultiLine, factory.createNodeArray(filtered), PRINT_SOURCE_FILE)
 
-  return output.replace(CRLF_PATTERN, '\n')
+  return output.replace(/\r\n/g, '\n')
 }
 
 /**
@@ -290,7 +280,7 @@ export function printJSDoc(jsDoc: ast.JSDocNode): string {
 
   const lines = comments
     .flatMap((c) => c.split(/\r?\n/))
-    .map((l) => l.replace(JSDOC_TERMINATOR_PATTERN, '* /').replace(CARRIAGE_RETURN_PATTERN, ''))
+    .map((l) => l.replace(/\*\//g, '* /').replace(/\r/g, ''))
     .filter((l) => l.trim().length > 0)
 
   if (lines.length === 0) return ''
@@ -580,7 +570,8 @@ export function printExport({
   }
 
   if (asAlias && name) {
-    const parsedName = LEADING_DIGIT_PATTERN.test(name) ? `_${name.slice(1)}` : name
+    // An identifier cannot start with a digit, so swap the digit for `_`
+    const parsedName = /^\d/.test(name) ? `_${name.slice(1)}` : name
     return `export ${typePrefix}* as ${parsedName} from ${from}`
   }
 
