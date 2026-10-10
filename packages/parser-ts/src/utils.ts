@@ -169,15 +169,13 @@ export function printNodes(nodes: Array<ast.CodeNode> | undefined): string {
 }
 
 /**
- * Indents every non-empty line of `text` by one indent unit (two spaces). Pass a number to repeat
- * a single space that many times, or a string to use as the indent verbatim.
+ * Indents every non-empty line of `text` by two spaces.
  */
-export function indentLines(text: string, indent: number | string = '  '): string {
+export function indentLines(text: string): string {
   if (!text) return ''
-  const pad = typeof indent === 'string' ? indent : ' '.repeat(indent)
   return text
     .split('\n')
-    .map((line) => (line.trim() ? `${pad}${line}` : ''))
+    .map((line) => (line.trim() ? `  ${line}` : ''))
     .join('\n')
 }
 
@@ -210,22 +208,31 @@ export function dedent(text: string): string {
   return trimmed.map((line) => (isBlank(line) ? '' : line.slice(min))).join('\n')
 }
 
-/**
- * Renders the generic clause (`<T, U>`) shared by function and arrow-function nodes.
- * Accepts either a raw string (rendered verbatim) or an array of type-parameter names.
- */
-export function formatGenerics(generics: ast.FunctionNode['generics'] | ast.ArrowFunctionNode['generics']): string {
-  if (!generics) return ''
-  return `<${Array.isArray(generics) ? generics.join(', ') : generics}>`
+type Signature = {
+  async?: boolean | null
+  generics?: ast.FunctionNode['generics'] | ast.ArrowFunctionNode['generics']
+  params?: string | null
+  returnType?: string | null
 }
 
 /**
- * Renders the return-type suffix (`: T` or `: Promise<T>` when `isAsync` is true).
- * Returns an empty string when no return type is provided.
+ * Renders `<T>(params): ReturnType` shared by function and arrow-function nodes. An async function
+ * wraps its return type in `Promise<>`.
  */
-export function formatReturnType(returnType: string | null | undefined, isAsync: boolean | null | undefined): string {
-  if (!returnType) return ''
-  return isAsync ? `: Promise<${returnType}>` : `: ${returnType}`
+function signature({ async: isAsync, generics, params, returnType }: Signature): string {
+  const genericsStr = generics ? `<${Array.isArray(generics) ? generics.join(', ') : generics}>` : ''
+  const returnTypeStr = returnType ? (isAsync ? `: Promise<${returnType}>` : `: ${returnType}`) : ''
+
+  return `${genericsStr}(${params ?? ''})${returnTypeStr}`
+}
+
+/**
+ * Puts the JSDoc block, when it renders to something, above `declaration`.
+ */
+function withJSDoc({ jsDoc, declaration }: { jsDoc?: ast.JSDocNode | null; declaration: string }): string {
+  const jsDocStr = jsDoc ? printJSDoc(jsDoc) : ''
+
+  return jsDocStr ? `${jsDocStr}\n${declaration}` : declaration
 }
 
 /**
@@ -295,35 +302,16 @@ export function printJSDoc(jsDoc: ast.JSDocNode): string {
  *
  * @example
  * ```ts
- * printConst(factory.createConst({ name: 'pet', export: true, nodes: ['{}'] }))
+ * printConst(factory.createConst({ name: 'pet', export: true, nodes: [factory.createText('{}')] }))
  * // 'export const pet = {}'
- * ```
- *
- * @example With type and `as const`
- * ```ts
- * printConst(factory.createConst({ name: 'pets', export: true, type: 'Pet[]', asConst: true, nodes: ['[]'] }))
- * // 'export const pets: Pet[] = [] as const'
  * ```
  */
 export function printConst(node: ast.ConstNode): string {
   const { name, export: canExport, type, JSDoc, asConst, nodes } = node
 
-  const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
-  const body = printNodes(nodes)
+  const declaration = `${canExport ? 'export ' : ''}const ${name}${type ? `: ${type}` : ''} = ${printNodes(nodes)}${asConst ? ' as const' : ''}`
 
-  const parts: Array<string> = []
-  if (canExport) parts.push('export ')
-  parts.push('const ')
-  parts.push(name)
-  if (type) {
-    parts.push(`: ${type}`)
-  }
-  parts.push(' = ')
-  parts.push(body)
-  if (asConst) parts.push(' as const')
-
-  const declaration = parts.join('')
-  return [jsDocStr, declaration].filter(Boolean).join('\n')
+  return withJSDoc({ jsDoc: JSDoc, declaration })
 }
 
 /**
@@ -333,25 +321,16 @@ export function printConst(node: ast.ConstNode): string {
  *
  * @example
  * ```ts
- * printType(factory.createType({ name: 'Pet', export: true, nodes: ['{ id: number }'] }))
+ * printType(factory.createType({ name: 'Pet', export: true, nodes: [factory.createText('{ id: number }')] }))
  * // 'export type Pet = { id: number }'
  * ```
  */
 export function printType(node: ast.TypeNode): string {
   const { name, export: canExport, JSDoc, nodes } = node
 
-  const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
-  const body = printNodes(nodes)
+  const declaration = `${canExport ? 'export ' : ''}type ${name} = ${printNodes(nodes)}`
 
-  const parts: Array<string> = []
-  if (canExport) parts.push('export ')
-  parts.push('type ')
-  parts.push(name)
-  parts.push(' = ')
-  parts.push(body)
-
-  const declaration = parts.join('')
-  return [jsDocStr, declaration].filter(Boolean).join('\n')
+  return withJSDoc({ jsDoc: JSDoc, declaration })
 }
 
 /**
@@ -361,40 +340,18 @@ export function printType(node: ast.TypeNode): string {
  *
  * @example
  * ```ts
- * printFunction(factory.createFunction({ name: 'getPet', export: true, params: 'id: string', returnType: 'Pet', nodes: ['return fetch(id)'] }))
+ * printFunction(factory.createFunction({ name: 'getPet', export: true, params: 'id: string', returnType: 'Pet', nodes: [factory.createText('return fetch(id)')] }))
  * // 'export function getPet(id: string): Pet {\n  return fetch(id)\n}'
- * ```
- *
- * @example Async with generics
- * ```ts
- * printFunction(factory.createFunction({ name: 'fetchPet', export: true, async: true, generics: ['T'], params: 'id: string', returnType: 'T' }))
- * // 'export async function fetchPet<T>(id: string): Promise<T> {\n}'
  * ```
  */
 export function printFunction(node: ast.FunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes } = node
 
-  const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
-  const body = printNodes(nodes)
-  const indented = body ? indentLines(body) : ''
+  const body = indentLines(printNodes(nodes))
+  const prefix = `${canExport ? 'export ' : ''}${isDefault ? 'default ' : ''}${isAsync ? 'async ' : ''}`
+  const declaration = `${prefix}function ${name}${signature({ async: isAsync, generics, params, returnType })} {${body ? `\n${body}\n` : ''}}`
 
-  const parts: Array<string> = []
-  if (canExport) parts.push('export ')
-  if (isDefault) parts.push('default ')
-  if (isAsync) parts.push('async ')
-  parts.push('function ')
-  parts.push(name)
-  parts.push(formatGenerics(generics))
-  parts.push(`(${params ?? ''})`)
-  parts.push(formatReturnType(returnType, isAsync))
-  parts.push(' {')
-  if (indented) {
-    parts.push(`\n${indented}\n`)
-  }
-  parts.push('}')
-
-  const declaration = parts.join('')
-  return [jsDocStr, declaration].filter(Boolean).join('\n')
+  return withJSDoc({ jsDoc: JSDoc, declaration })
 }
 
 /**
@@ -402,39 +359,21 @@ export function printFunction(node: ast.FunctionNode): string {
  *
  * Mirrors the `Function.Arrow` component from `@kubb/renderer-jsx`.
  *
- * @example Multi-line arrow function
+ * @example
  * ```ts
- * printArrowFunction(factory.createArrowFunction({ name: 'getPet', export: true, params: 'id: string', nodes: ['return fetch(id)'] }))
- * // 'export const getPet = (id: string) => {\n  return fetch(id)\n}'
- * ```
- *
- * @example Single-line arrow function
- * ```ts
- * printArrowFunction(factory.createArrowFunction({ name: 'double', params: 'n: number', singleLine: true, nodes: ['n * 2'] }))
+ * printArrowFunction(factory.createArrowFunction({ name: 'double', params: 'n: number', singleLine: true, nodes: [factory.createText('n * 2')] }))
  * // 'const double = (n: number) => n * 2'
  * ```
  */
 export function printArrowFunction(node: ast.ArrowFunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes, singleLine } = node
 
-  const jsDocStr = JSDoc ? printJSDoc(JSDoc) : ''
   const body = printNodes(nodes)
   const arrowBody = singleLine ? ` => ${body}` : body ? ` => {\n${indentLines(body)}\n}` : ' => {}'
+  const prefix = `${canExport ? 'export ' : ''}${isDefault ? 'default ' : ''}`
+  const declaration = `${prefix}const ${name} = ${isAsync ? 'async ' : ''}${signature({ async: isAsync, generics, params, returnType })}${arrowBody}`
 
-  const parts: Array<string> = []
-  if (canExport) parts.push('export ')
-  if (isDefault) parts.push('default ')
-  parts.push('const ')
-  parts.push(name)
-  parts.push(' = ')
-  if (isAsync) parts.push('async ')
-  parts.push(formatGenerics(generics))
-  parts.push(`(${params ?? ''})`)
-  parts.push(formatReturnType(returnType, isAsync))
-  parts.push(arrowBody)
-
-  const declaration = parts.join('')
-  return [jsDocStr, declaration].filter(Boolean).join('\n')
+  return withJSDoc({ jsDoc: JSDoc, declaration })
 }
 
 /**
@@ -444,19 +383,26 @@ export function printArrowFunction(node: ast.ArrowFunctionNode): string {
  *
  * @example
  * ```ts
- * printCodeNode(factory.createConst({ name: 'x', nodes: ['1'] }))
+ * printCodeNode(factory.createConst({ name: 'x', nodes: [factory.createText('1')] }))
  * // 'const x = 1'
  * ```
  */
 export function printCodeNode(node: ast.CodeNode): string {
-  if (node.kind === 'Break') return ''
-  if (node.kind === 'Text') return dedent((node as ast.TextNode).value)
-  if (node.kind === 'Jsx') return dedent((node as ast.JsxNode).value)
-  if (node.kind === 'Const') return printConst(node)
-  if (node.kind === 'Type') return printType(node)
-  if (node.kind === 'Function') return printFunction(node)
-  if (node.kind === 'ArrowFunction') return printArrowFunction(node)
-  return ''
+  switch (node.kind) {
+    case 'Break':
+      return ''
+    case 'Text':
+    case 'Jsx':
+      return dedent(node.value)
+    case 'Const':
+      return printConst(node)
+    case 'Type':
+      return printType(node)
+    case 'Function':
+      return printFunction(node)
+    case 'ArrowFunction':
+      return printArrowFunction(node)
+  }
 }
 
 /**
