@@ -1,7 +1,6 @@
-import type { JSDoc, Key, KubbReactElement, KubbReactNode } from '../../types.ts'
+import type { JSDoc, KubbReactElement, KubbReactNode } from '../../types.ts'
 
 type Props = {
-  key?: Key
   /**
    * Identifier of the generated function declaration.
    *
@@ -76,10 +75,18 @@ type Props = {
  * // }
  * ```
  */
-export function Function({ children, ...props }: Props): KubbReactElement {
-  const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc } = props
-
-  // Normalize generics array to comma-separated string for DOM attribute storage
+export function Function({
+  children,
+  name,
+  default: isDefault,
+  export: canExport,
+  async: isAsync,
+  generics,
+  params,
+  returnType,
+  JSDoc,
+}: Props): KubbReactElement {
+  // The node keeps the joined string, not the array, so consumers reading `generics` see one shape.
   const genericsString = Array.isArray(generics) ? generics.join(', ').trim() : generics
 
   return (
@@ -97,8 +104,6 @@ export function Function({ children, ...props }: Props): KubbReactElement {
     </kubb-function>
   )
 }
-
-Function.displayName = 'Function'
 
 type ArrowFunctionProps = Props & {
   /**
@@ -122,9 +127,7 @@ type ArrowFunctionProps = Props & {
  * // export const double = (n: number): number => n * 2
  * ```
  */
-function ArrowFunction({ children, ...props }: ArrowFunctionProps) {
-  const { name, default: isDefault, export: canExport, async, generics, params, returnType, JSDoc, singleLine } = props
-
+function ArrowFunction({ children, name, default: isDefault, export: canExport, async, generics, params, returnType, JSDoc, singleLine }: ArrowFunctionProps) {
   const genericsString = Array.isArray(generics) ? generics.join(', ').trim() : generics
 
   return (
@@ -144,5 +147,4 @@ function ArrowFunction({ children, ...props }: ArrowFunctionProps) {
   )
 }
 
-ArrowFunction.displayName = 'ArrowFunction'
 Function.Arrow = ArrowFunction

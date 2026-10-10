@@ -31,5 +31,3 @@ type Props = {
 export function Jsx({ children }: Props): KubbReactElement {
   return <kubb-jsx>{children}</kubb-jsx>
 }
-
-Jsx.displayName = 'Jsx'

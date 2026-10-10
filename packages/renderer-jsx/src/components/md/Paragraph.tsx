@@ -1,7 +1,6 @@
-import type { Key, KubbReactElement } from '../../types.ts'
+import type { KubbReactElement } from '../../types.ts'
 
 type Props = {
-  key?: Key
   /**
    * Paragraph text. Inline markdown (links, emphasis, code spans) is passed
    * through verbatim.
@@ -24,5 +23,3 @@ type Props = {
 export function Paragraph({ children }: Props): KubbReactElement {
   return <kubb-source name="paragraph">{children}</kubb-source>
 }
-
-Paragraph.displayName = 'Paragraph'

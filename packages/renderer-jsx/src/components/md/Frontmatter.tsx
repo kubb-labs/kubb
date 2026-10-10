@@ -1,8 +1,7 @@
 import { stringify } from 'yaml'
-import type { Key, KubbReactElement } from '../../types.ts'
+import type { KubbReactElement } from '../../types.ts'
 
 type Props = {
-  key?: Key
   /**
    * Plain object serialized as YAML between `---` fences.
    *
@@ -33,5 +32,3 @@ export function Frontmatter({ data }: Props): KubbReactElement {
   const envelope = Object.keys(data).length === 0 ? '' : `---\n${stringify(data).trimEnd()}\n---`
   return <kubb-source name="frontmatter">{envelope}</kubb-source>
 }
-
-Frontmatter.displayName = 'Frontmatter'

@@ -1,4 +1,4 @@
-import type { Key, KubbReactElement } from '../../types.ts'
+import type { KubbReactElement } from '../../types.ts'
 
 const CALLOUT_LABEL = {
   tip: 'TIP',
@@ -11,7 +11,6 @@ const CALLOUT_LABEL = {
 type CalloutType = keyof typeof CALLOUT_LABEL
 
 type Props = {
-  key?: Key
   /**
    * Callout kind. Maps to the uppercase label inside the `> [!TYPE]` marker.
    */
@@ -54,5 +53,3 @@ export function Callout({ type, title, children }: Props): KubbReactElement {
     .join('\n')
   return <kubb-source name="callout">{`${header}\n${quoted}`}</kubb-source>
 }
-
-Callout.displayName = 'Callout'
