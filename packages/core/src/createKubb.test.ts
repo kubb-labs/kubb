@@ -48,7 +48,7 @@ describe('createKubb', () => {
     reporters: [],
     adapter: createMockedAdapter(),
     plugins: [plugin] as unknown as Array<Plugin>,
-    storage: fsStorage(),
+    storage: memoryStorage(),
   } satisfies Config
 
   afterEach(() => {
@@ -446,7 +446,7 @@ describe('createKubb', () => {
     const hookConfig = {
       ...config,
       plugins: [hookPlugin as unknown as Plugin],
-      storage: fsStorage(),
+      storage: memoryStorage(),
     } satisfies Config
 
     await createKubb(hookConfig, { hooks }).build()
@@ -467,6 +467,7 @@ describe('createKubb', () => {
       },
       parsers: [],
       adapter: createMockedAdapter(),
+      storage: memoryStorage(),
     }
 
     await expect(createKubb(userConfig).safeBuild()).resolves.not.toThrow()

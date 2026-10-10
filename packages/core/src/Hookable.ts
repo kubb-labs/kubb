@@ -57,13 +57,8 @@ export class Hookable<THooks extends { [K in keyof THooks]: Array<unknown> }> {
       try {
         await listener(...hookArgs)
       } catch (err) {
-        let serializedArgs: string
-        try {
-          serializedArgs = JSON.stringify(hookArgs)
-        } catch {
-          serializedArgs = String(hookArgs)
-        }
-        throw new Error(`Error in async listener for "${hookName}" with hookArgs ${serializedArgs}`, { cause: toError(err) })
+        // Only the hook name goes in the message: the args can be a whole `Config` or AST subtree.
+        throw new Error(`Error in async listener for "${hookName}"`, { cause: toError(err) })
       }
     }
   }
