@@ -7,7 +7,7 @@ import { assertInputExists } from './load/source.ts'
 import { assertDocument, parseDocument, parseFromConfig, validateDocument } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
 import { resolveBaseUrl } from './model/server.ts'
-import { getOperations } from './operation.ts'
+import { getOperations, parseOperation } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
 import { createRefs } from './refs.ts'
@@ -90,7 +90,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     schemas: Record<string, SchemaObject>
     parser: ReturnType<typeof createSchemaParser>
   }): ast.InputNode {
-    const { parseSchema, parseOperation } = parser
+    const { parseSchema } = parser
 
     const parsedByName = new Map<string, ast.SchemaNode>()
     const refAliasMap = new Map<string, ast.SchemaNode>()
@@ -120,11 +120,9 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     const discriminatorChildMap: Map<string, DiscriminatorTarget> | null =
       discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 
-    const operationNodes: Array<ast.OperationNode> = []
-    for (const operation of getOperations(document, refs)) {
-      const operationNode = parseOperation(parserOptions, operation)
-      if (operationNode) operationNodes.push(operationNode)
-    }
+    const operationNodes = getOperations(document, refs).map((operation) =>
+      parseOperation({ operation, refs, contentType, options: parserOptions, parseSchema }),
+    )
 
     const promotedEnums = enums === 'root' ? collectInlineEnums([...parsedByName.values(), ...operationNodes], new Set(Object.keys(schemas))) : null
     if (promotedEnums) {
@@ -202,7 +200,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
         const refs = createRefs(document)
         const { schemas, renames } = getSchemas(document, { contentType }, refs)
-        const parser = createSchemaParser({ document, refs, contentType, renames })
+        const parser = createSchemaParser({ document, refs, renames })
 
         return parseInput({ document, refs, schemas, parser })
       })()
