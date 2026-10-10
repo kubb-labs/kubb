@@ -194,7 +194,7 @@ const RUNTIME_MAX_CONCURRENT = 1
 /**
  * How a session ends: what the host is told, and whether it reconnects.
  */
-export type SessionEnd = {
+type SessionEnd = {
   reason: string
   retry: boolean
   /** Reported through `studio:error` when the end needs the user to act. */

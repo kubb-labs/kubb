@@ -109,7 +109,7 @@ function formatGenerationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error 
  * can forward progress to connected clients. After a successful build, auto-formatting and
  * linting are applied when configured, followed by any user-defined `hooks.done` commands.
  */
-export async function generate({ config, hooks, signal }: GenerateProps): Promise<BuildOutput['files']> {
+async function generate({ config, hooks, signal }: GenerateProps): Promise<BuildOutput['files']> {
   signal?.throwIfAborted()
   const hrStart = process.hrtime()
 

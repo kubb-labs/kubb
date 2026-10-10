@@ -32,7 +32,7 @@ type KeptSet = {
   bytes: number
 }
 
-export type KeptGeneration = {
+type KeptGeneration = {
   jobId: string
   /** When the store took it, in epoch milliseconds. Absent on an index written before it existed. */
   keptAt?: number

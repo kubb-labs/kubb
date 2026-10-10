@@ -4,9 +4,9 @@ import { IncompatibleAgentError, InvalidAgentTokenError } from '../operations/ap
 import { agentDefaults } from '../operations/constants.ts'
 import { StudioSession, type StudioSessionOptions } from './StudioSession.ts'
 
-export type ConnectionOutcome = 'shutdown' | 'stopped'
+type ConnectionOutcome = 'shutdown' | 'stopped'
 
-export type TokenRejection<TCredentials> = {
+type TokenRejection<TCredentials> = {
   error: InvalidAgentTokenError
   credentials: TCredentials
   /** Whether this credential already served a ready session. */
