@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
 import * as env from '../utils/env.ts'
-import { createSpinner, logIntro, logInfo, logTip } from './output.ts'
+import { createSpinner, logIntro, logInfo, logOutro, logSpacer, logTip } from './output.ts'
 
 vi.mock('@clack/prompts', () => ({
   intro: vi.fn(),
@@ -59,9 +59,23 @@ describe('plain output', () => {
 
     expect(lines).toEqual(['Linting', '✗ Linting failed'])
   })
+
+  it('prints a bare line for the spacer between groups', () => {
+    expect(capturePlain(() => logSpacer())).toStrictEqual([''])
+  })
 })
 
 describe('rich output', () => {
+  it('hands the text to clack', () => {
+    using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(true)
+
+    logOutro('Disconnected')
+    logInfo('Connected')
+
+    expect(prompts.outro).toHaveBeenCalledWith('Disconnected')
+    expect(prompts.log.info).toHaveBeenCalledWith('Connected')
+  })
+
   // A tip sits outside every group, so it is written without clack's gutter bar.
   it('renders a highlighted random tip without a gutter bar', () => {
     using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(true)

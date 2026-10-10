@@ -212,14 +212,16 @@ describe('grouped generation output', () => {
   })
 
   it.each([
-    { rich: true, failed: 'spinner.error:Plugins 1/2 (1 failed) |  elapsed', closed: ['outro:✗ Generation failed'] },
-    { rich: false, failed: '✗ Plugins 1/2 (1 failed) |  elapsed', closed: ['✗ Generation failed'] },
+    { rich: true, failed: 'spinner.error:Plugins 1/2 (1 failed) |  elapsed', closed: 'outro:✗ Generation failed' },
+    { rich: false, failed: '✗ Plugins 1/2 (1 failed) |  elapsed', closed: '✗ Generation failed' },
   ])('keeps a failed plugin inside the group and closes it once, on the failure (rich: $rich)', async ({ rich, failed, closed }) => {
     const output = await render(generation({ config: makeConfig('petstore'), pluginFailed: true, status: 'failed' }), { rich })
 
     expect(output.map(withoutDuration)).toContain(failed)
     expect(output.some((call) => call.includes('@kubb/plugin-zod failed'))).toBe(true)
-    expect(output.filter((call) => call.includes('Generation failed'))).toStrictEqual(closed)
+    // The group closes once, right before the summary.
+    expect(output.filter((call) => call.includes('Generation failed'))).toStrictEqual([closed])
+    expect(output.at(-2)).toBe(closed)
   })
 
   it("prints a hook's own output past clack, and trims the blank lines around it", async () => {

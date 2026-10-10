@@ -60,6 +60,12 @@ describe('bootstrap configuration group', () => {
     expect(lines.at(-1)).toBe('exit 1')
   })
 
+  it('does not repeat the config path once the group has reported it', async () => {
+    const lines = await bootstrap()
+
+    expect(lines.filter((line) => line.includes('Config loaded'))).toStrictEqual([])
+  })
+
   it('writes nothing of its own when json owns stdout', async () => {
     const lines = await bootstrap({ reporters: ['json'] })
 
