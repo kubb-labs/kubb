@@ -16,11 +16,11 @@ describe('file factories', () => {
   })
 
   it('returns the factory kind when the input carries another kind', () => {
-    // @ts-expect-error — kind is not part of the input
+    // @ts-expect-error
     expect(createImport({ name: ['x'], path: './x', kind: 'Export' }).kind).toBe('Import')
-    // @ts-expect-error — kind is not part of the input
+    // @ts-expect-error
     expect(createExport({ name: ['x'], path: './x', kind: 'Import' }).kind).toBe('Export')
-    // @ts-expect-error — kind is not part of the input
+    // @ts-expect-error
     expect(createSource({ nodes: [createText('x')], kind: 'Import' }).kind).toBe('Source')
   })
 })

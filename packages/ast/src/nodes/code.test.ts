@@ -31,13 +31,13 @@ describe('code factories', () => {
   })
 
   it('returns the factory kind when the input carries another kind', () => {
-    // @ts-expect-error — kind is not part of the input
+    // @ts-expect-error
     expect(createConst({ name: 'x', kind: 'Import' }).kind).toBe('Const')
-    // @ts-expect-error — kind is not part of the input
+    // @ts-expect-error
     expect(createType({ name: 'X', kind: 'Import' }).kind).toBe('Type')
-    // @ts-expect-error — kind is not part of the input
+    // @ts-expect-error
     expect(createFunction({ name: 'x', kind: 'Import' }).kind).toBe('Function')
-    // @ts-expect-error — kind is not part of the input
+    // @ts-expect-error
     expect(createArrowFunction({ name: 'x', kind: 'Import' }).kind).toBe('ArrowFunction')
   })
 })

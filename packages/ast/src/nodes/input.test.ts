@@ -26,7 +26,7 @@ describe('createInput', () => {
   })
 
   it('always sets kind to Input', () => {
-    // @ts-expect-error — kind should be overridden back to 'Input'
+    // @ts-expect-error
     const node = createInput({ kind: 'Operation' })
 
     expect(node.kind).toBe('Input')
