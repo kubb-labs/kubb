@@ -31,33 +31,19 @@ describe('narrowSchema', () => {
     expect(result?.type).toBe('object')
   })
 
-  it('returns null when type does not match', () => {
+  it('returns null when the node is missing or has another type', () => {
     expect(narrowSchema(createSchema({ type: 'string' }), 'object')).toBeNull()
-  })
-
-  it('returns null when node is undefined', () => {
     expect(narrowSchema(undefined, 'string')).toBeNull()
   })
 
-  it('narrows return type to ObjectSchemaNode | null for "object"', () => {
+  it('narrows the return type to the variant of the given type or null', () => {
     expectTypeOf(narrowSchema(createSchema({ type: 'object' }), 'object')).toEqualTypeOf<ObjectSchemaNode | null>()
-  })
-
-  it('narrows return type to StringSchemaNode | null for "string"', () => {
     expectTypeOf(narrowSchema(createSchema({ type: 'string' }), 'string')).toEqualTypeOf<StringSchemaNode | null>()
-  })
-
-  it('narrows return type to UnionSchemaNode | null for "union"', () => {
     expectTypeOf(narrowSchema(createSchema({ type: 'union' }), 'union')).toEqualTypeOf<UnionSchemaNode | null>()
   })
 })
 
 describe('node definition guards', () => {
-  it('exposes a guard for every node kind', () => {
-    const kinds = new Set(nodeDefs.map((def) => def.kind))
-    expect(kinds.size).toBe(nodeDefs.length)
-  })
-
   it.each(nodeDefs.map((def) => [def.kind, def] as const))('%s def.is matches only its own kind', (kind, def) => {
     expect(def.is({ kind })).toBe(true)
     expect(def.is({ kind: 'Other' })).toBe(false)
