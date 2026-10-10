@@ -199,12 +199,6 @@ importers:
 
   packages/adapter-oas:
     dependencies:
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../core
       '@kubb/kit':
         specifier: workspace:*
         version: link:../kit

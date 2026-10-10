@@ -24,6 +24,7 @@ export type {
   AdapterSource,
   BannerMeta,
   Config,
+  Diagnostic,
   Exclude,
   Generator,
   GeneratorContext,

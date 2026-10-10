@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { findCircularSchemasFromGraph } from '@kubb/ast'
+import { ast } from '@kubb/kit'
 import { test } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { parseDocument } from './load/normalize.ts'
@@ -34,7 +34,7 @@ function parseOas(document: Document): void {
     const node = parseSchema({ schema, name }, DEFAULT_PARSER_OPTIONS)
     if (node.name) graph.set(node.name, scanSchema({ node, name }))
   }
-  findCircularSchemasFromGraph(graph)
+  ast.findCircularSchemasFromGraph(graph)
 
   for (const operation of getOperations(document, refs)) parseOperation(DEFAULT_PARSER_OPTIONS, operation)
 }

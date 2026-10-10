@@ -1,6 +1,4 @@
-import { resolveRefName } from '@kubb/ast'
-import type { ast } from '@kubb/ast'
-import { Diagnostics } from '@kubb/core'
+import { ast, Diagnostics } from '@kubb/kit'
 import { isHandledFormat } from './emit/schemaShape.ts'
 
 /**
@@ -30,7 +28,7 @@ function escapePointerToken(token: string): string {
 
 function visit(node: ast.SchemaNode, pointer: string, refs: Set<string>): void {
   if (node.type === 'ref') {
-    const refName = resolveRefName(node)
+    const refName = ast.resolveRefName(node)
     if (refName) refs.add(refName)
   }
 

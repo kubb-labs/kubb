@@ -1,5 +1,4 @@
-import { ast } from '@kubb/ast'
-import { syncSchemaRef } from '@kubb/kit'
+import { ast, syncSchemaRef } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
