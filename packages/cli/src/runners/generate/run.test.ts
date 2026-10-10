@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, memoryStorage, type PostGenerateCommand, type UserConfig } from '@kubb/core'
+import { type Config, fsStorage, type PostGenerateCommand, resolveCacheDir, type UserConfig } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as config from '../../config.ts'
 import * as env from '../../utils/env.ts'
@@ -101,11 +101,14 @@ describe('output passes', () => {
   const roots: Array<string> = []
 
   afterEach(() => {
-    for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true })
+    for (const root of roots.splice(0)) {
+      rmSync(root, { recursive: true, force: true })
+      rmSync(resolveCacheDir(root), { recursive: true, force: true })
+    }
   })
 
   /**
-   * A config whose build succeeds in memory, so only `output.postGenerate` decides the outcome.
+   * A config whose build succeeds in a temp root, so only `output.postGenerate` decides the outcome.
    */
   function withPostGenerate(postGenerate: Array<PostGenerateCommand>): Config {
     const root = mkdtempSync(join(tmpdir(), 'kubb-cli-run-'))
@@ -116,7 +119,7 @@ describe('output passes', () => {
       output: { path: './gen', format: false, lint: false, postGenerate },
       adapter: adapterOas(),
       plugins: [],
-      storage: memoryStorage(),
+      storage: fsStorage(),
     } satisfies UserConfig
 
     return config as unknown as Config
