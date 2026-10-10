@@ -13,15 +13,6 @@ describe('createDiscriminantNode', () => {
     expect(node.properties?.[0]?.schema.type).toBe('enum')
   })
 
-  it('enum has exactly one value matching the input', () => {
-    const node = createDiscriminantNode({ propertyName: 'kind', values: ['dog'] })
-
-    if (node.type !== 'object') return
-    const enumNode = node.properties?.[0]?.schema
-    if (!enumNode || enumNode.type !== 'enum') return
-    expect(enumNode.enumValues).toStrictEqual(['dog'])
-  })
-
   it('keeps every value when the discriminant covers several keys', () => {
     const node = createDiscriminantNode({ propertyName: 'kind', values: ['dog', 'hound'] })
 

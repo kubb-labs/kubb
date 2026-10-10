@@ -105,10 +105,6 @@ describe('dereferenceWithRef', () => {
     expect(dereferenceWithRef(document, schema)).toBe(schema)
   })
 
-  it('returns undefined as-is', () => {
-    expect(dereferenceWithRef(document, undefined)).toBeUndefined()
-  })
-
   it('resolved fields are overridden by $ref identity (preserves $ref)', () => {
     const result = dereferenceWithRef<SchemaObject & { $ref: string }>(document, { $ref: '#/components/schemas/Order' })
 

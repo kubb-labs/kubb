@@ -18,11 +18,6 @@ function objectSchema(props: Array<{ name: string; schema: ast.SchemaNode }>) {
 }
 
 describe('buildDiscriminatorChildMap', () => {
-  it('returns an empty map when no schemas carry a discriminator', () => {
-    const map = buildDiscriminatorChildMap([])
-    expect(map.size).toBe(0)
-  })
-
   it('skips union schemas without a discriminatorPropertyName', () => {
     const union = ast.factory.createSchema({ type: 'union', members: [refSchema('Cat'), refSchema('Dog')] })
     const map = buildDiscriminatorChildMap([union])

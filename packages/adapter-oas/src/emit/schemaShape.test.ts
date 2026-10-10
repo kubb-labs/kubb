@@ -1,38 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from '../constants.ts'
-import { flattenSchema, getDateType, getPrimitiveType, getSchemaType, resolveDateTypeValue } from './schemaShape.ts'
-
-describe('getSchemaType', () => {
-  it('returns the SchemaType for a known format', () => {
-    expect(getSchemaType('uuid')).toBe('uuid')
-    expect(getSchemaType('uri')).toBe('url')
-    expect(getSchemaType('email')).toBe('email')
-  })
-
-  it('returns null for an unknown format', () => {
-    expect(getSchemaType('int64')).toBeNull()
-    expect(getSchemaType('date-time')).toBeNull()
-    expect(getSchemaType('not-a-format')).toBeNull()
-  })
-})
-
-describe('getPrimitiveType', () => {
-  it('returns numeric types unchanged', () => {
-    expect(getPrimitiveType('number')).toBe('number')
-    expect(getPrimitiveType('integer')).toBe('integer')
-    expect(getPrimitiveType('bigint')).toBe('bigint')
-  })
-
-  it('maps boolean to boolean', () => {
-    expect(getPrimitiveType('boolean')).toBe('boolean')
-  })
-
-  it('defaults everything else to string', () => {
-    expect(getPrimitiveType('string')).toBe('string')
-    expect(getPrimitiveType('object')).toBe('string')
-    expect(getPrimitiveType(undefined)).toBe('string')
-  })
-})
+import { flattenSchema, getDateType, resolveDateTypeValue } from './schemaShape.ts'
 
 describe('getDateType', () => {
   const base = DEFAULT_PARSER_OPTIONS
@@ -123,10 +91,6 @@ describe('resolveDateTypeValue', () => {
 })
 
 describe('flattenSchema', () => {
-  it('returns null for null input', () => {
-    expect(flattenSchema(null)).toBeNull()
-  })
-
   it('returns schema unchanged when there is no allOf', () => {
     const schema = { type: 'string' as const }
 

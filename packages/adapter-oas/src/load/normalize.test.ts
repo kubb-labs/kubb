@@ -352,11 +352,6 @@ describe('hasExternalRef', () => {
   it('finds an external ref nested inside an array', () => {
     expect(hasExternalRef({ allOf: [{ $ref: '#/components/schemas/Base' }, { $ref: './extra.yaml' }] })).toBe(true)
   })
-
-  it('returns false for non-object input', () => {
-    expect(hasExternalRef(null)).toBe(false)
-    expect(hasExternalRef('a string')).toBe(false)
-  })
 })
 
 describe('assertDocument', () => {

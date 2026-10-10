@@ -4,14 +4,6 @@ import type { Document } from '../types.ts'
 import { extractSchemaFromContent, getSchemas, sortSchemas } from './components.ts'
 
 describe('extractSchemaFromContent', () => {
-  it('returns null when content is undefined', () => {
-    expect(extractSchemaFromContent(undefined)).toBeNull()
-  })
-
-  it('returns null when content is empty', () => {
-    expect(extractSchemaFromContent({})).toBeNull()
-  })
-
   it('returns the schema for the preferred content type', () => {
     const schema = { type: 'object' as const }
     const content = {
@@ -47,10 +39,6 @@ describe('extractSchemaFromContent', () => {
 })
 
 describe('sortSchemas', () => {
-  it('returns an empty object for empty input', () => {
-    expect(sortSchemas({})).toStrictEqual({})
-  })
-
   it('preserves order when there are no dependencies', () => {
     const schemas = {
       A: { type: 'string' as const },

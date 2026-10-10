@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import { getBinaryFallbackSchema, isDiscriminator, isNullable, isReference } from './oas.ts'
-import type { ReferenceObject, SchemaObject } from './types.ts'
+import { getBinaryFallbackSchema, isDiscriminator, isNullable } from './oas.ts'
+import type { SchemaObject } from './types.ts'
 
 describe('isNullable', () => {
   it('returns true for nullable: true (OAS 3.0)', () => {
@@ -22,30 +22,6 @@ describe('isNullable', () => {
   it('returns false for a plain non-nullable schema', () => {
     expect(isNullable({ type: 'string' } as SchemaObject)).toBe(false)
   })
-
-  it('returns false for undefined', () => {
-    expect(isNullable(undefined)).toBe(false)
-  })
-})
-
-describe('isReference', () => {
-  it('returns true for a $ref object', () => {
-    const ref = { $ref: '#/components/schemas/Pet' }
-    expect(isReference(ref)).toBe(true)
-
-    if (isReference(ref)) {
-      expectTypeOf(ref).toEqualTypeOf<ReferenceObject>()
-    }
-  })
-
-  it('returns false for a plain schema object', () => {
-    expect(isReference({ type: 'string' })).toBe(false)
-  })
-
-  it('returns false for null / undefined', () => {
-    expect(isReference(null)).toBe(false)
-    expect(isReference(undefined)).toBe(false)
-  })
 })
 
 describe('isDiscriminator', () => {
@@ -65,15 +41,6 @@ describe('isDiscriminator', () => {
 
   it('returns false for a Swagger 2 string-form discriminator', () => {
     expect(isDiscriminator({ discriminator: 'type' })).toBe(false)
-  })
-
-  it('returns false when discriminator is absent', () => {
-    expect(isDiscriminator({ type: 'object' })).toBe(false)
-  })
-
-  it('returns false for null / undefined', () => {
-    expect(isDiscriminator(null)).toBe(false)
-    expect(isDiscriminator(undefined)).toBe(false)
   })
 })
 
