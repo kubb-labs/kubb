@@ -6,6 +6,8 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { createMockedAdapter } from '../mocks.ts'
 import { createKubb } from '../createKubb.ts'
 import { Hookable } from '../Hookable.ts'
+import { resolveCacheDir } from '../storages/cacheStorage.ts'
+import { fsStorage } from '../storages/fsStorage.ts'
 import { memoryStorage } from '../storages/memoryStorage.ts'
 import type { Config, Diagnostic, KubbHooks, KubbHookStartContext } from '../types.ts'
 import { runOutputPasses } from './runOutputPasses.ts'
@@ -14,7 +16,10 @@ const node = process.execPath
 const roots: Array<string> = []
 
 afterEach(() => {
-  for (const root of roots.splice(0)) fs.rmSync(root, { recursive: true, force: true })
+  for (const root of roots.splice(0)) {
+    fs.rmSync(root, { recursive: true, force: true })
+    fs.rmSync(resolveCacheDir(root), { recursive: true, force: true })
+  }
 })
 
 function makeConfig(output: Partial<Config['output']>): Config {
@@ -129,9 +134,11 @@ describe('runOutputPasses', () => {
   })
 
   it('runs the passes from generate() by default', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-output-'))
+    roots.push(root)
     const hooks = new Hookable<KubbHooks>()
     const seen = record(hooks)
-    const config = makeConfig({ postGenerate: [{ name: 'after', command: `"${node}" -e "process.exit(1)"` }] })
+    const config = { ...makeConfig({ postGenerate: [{ name: 'after', command: `"${node}" -e "process.exit(1)"` }] }), root, storage: fsStorage() }
 
     const result = await createKubb(config, { hooks }).generate()
 
