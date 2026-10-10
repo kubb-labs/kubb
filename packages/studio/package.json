@@ -77,14 +77,12 @@
     "ofetch": "^1.5.1",
     "tinyexec": "catalog:",
     "tsdown": "catalog:",
-    "unstorage": "^1.17.5",
-    "ws": "^8.22.0"
+    "unstorage": "^1.17.5"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@kubb/adapter-oas": "workspace:*",
-    "@kubb/ast": "workspace:*",
-    "@types/ws": "^8.18.2"
+    "@kubb/ast": "workspace:*"
   },
   "engines": {
     "node": ">=22"
