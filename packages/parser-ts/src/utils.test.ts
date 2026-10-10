@@ -1,19 +1,10 @@
 import { ast } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
-import {
-  dedent,
-  getRelativePath,
-  printArrowFunction,
-  printCodeNode,
-  printConst,
-  printExport,
-  printFunction,
-  printImport,
-  printJSDoc,
-  printNodes,
-  printSource,
-  printType,
-} from './utils.ts'
+import { getRelativePath, printExport, printImport, printSource } from './utils.ts'
+
+function print(...nodes: Array<ast.CodeNode>): string {
+  return printSource(ast.factory.createSource({ nodes }))
+}
 
 describe('getRelativePath', () => {
   it('returns a ./ path when the target sits beside the importing file', () => {
@@ -25,7 +16,7 @@ describe('getRelativePath', () => {
   })
 })
 
-describe('dedent', () => {
+describe('text nodes', () => {
   it.each([
     { when: 'every line shares leading whitespace', input: '    foo\n      bar', expected: 'foo\n  bar' },
     { when: 'the text has leading and trailing blank lines', input: '\n\n  foo\n  bar\n\n', expected: 'foo\nbar' },
@@ -34,38 +25,42 @@ describe('dedent', () => {
     { when: 'the text is whitespace only', input: '   \n  ', expected: '' },
     { when: 'the indent uses tabs', input: '\t\tfoo\n\t\t\tbar', expected: 'foo\n\tbar' },
   ])('returns $expected when $when', ({ input, expected }) => {
-    expect(dedent(input)).toBe(expected)
+    expect(print(ast.factory.createText(input))).toBe(expected)
   })
 })
 
-describe('printNodes', () => {
+describe('function bodies', () => {
   const x = ast.factory.createText('const x = 1')
   const y = ast.factory.createText('const y = 2')
   const br = ast.factory.createBreak()
 
   it.each([
-    { when: 'nodes follow each other', nodes: [x, y], expected: 'const x = 1\nconst y = 2' },
-    { when: 'a break sits between nodes', nodes: [x, br, y], expected: 'const x = 1\n\nconst y = 2' },
-    { when: 'consecutive breaks sit between nodes', nodes: [x, br, br, y], expected: 'const x = 1\n\nconst y = 2' },
-    { when: 'breaks lead and trail the nodes', nodes: [br, x, br], expected: 'const x = 1' },
+    { when: 'nodes follow each other', nodes: [x, y], expected: 'function f() {\n  const x = 1\n  const y = 2\n}' },
+    { when: 'a break sits between nodes', nodes: [x, br, y], expected: 'function f() {\n  const x = 1\n\n  const y = 2\n}' },
+    { when: 'consecutive breaks sit between nodes', nodes: [x, br, br, y], expected: 'function f() {\n  const x = 1\n\n  const y = 2\n}' },
+    { when: 'breaks lead and trail the nodes', nodes: [br, x, br], expected: 'function f() {\n  const x = 1\n}' },
   ])('returns $expected when $when', ({ nodes, expected }) => {
-    expect(printNodes(nodes)).toBe(expected)
+    expect(printSource(ast.factory.createSource({ nodes: [ast.factory.createFunction({ name: 'f', nodes })] }))).toBe(expected)
   })
 })
 
-describe('printJSDoc', () => {
+describe('JSDoc', () => {
   it.each([
-    { when: 'comments is empty', comments: [], expected: '' },
-    { when: 'comments holds only undefined', comments: [undefined], expected: '' },
-    { when: 'there are several comments', comments: ['@description A pet', '@deprecated'], expected: '/**\n * @description A pet\n * @deprecated\n */' },
-    { when: 'a comment spans lines', comments: ['line one\nline two'], expected: '/**\n * line one\n * line two\n */' },
-    { when: 'a comment contains */', comments: ['see */ here'], expected: '/**\n * see * / here\n */' },
+    { when: 'comments is empty', comments: [], expected: 'const x = 1' },
+    { when: 'comments holds only undefined', comments: [undefined], expected: 'const x = 1' },
+    {
+      when: 'there are several comments',
+      comments: ['@description A pet', '@deprecated'],
+      expected: '/**\n * @description A pet\n * @deprecated\n */\nconst x = 1',
+    },
+    { when: 'a comment spans lines', comments: ['line one\nline two'], expected: '/**\n * line one\n * line two\n */\nconst x = 1' },
+    { when: 'a comment contains */', comments: ['see */ here'], expected: '/**\n * see * / here\n */\nconst x = 1' },
   ])('returns $expected when $when', ({ comments, expected }) => {
-    expect(printJSDoc({ comments })).toBe(expected)
+    expect(print(ast.factory.createConst({ name: 'x', JSDoc: { comments }, nodes: [ast.factory.createText('1')] }))).toBe(expected)
   })
 })
 
-describe('printCodeNode', () => {
+describe('code nodes', () => {
   it.each([
     { kind: 'Const', node: ast.factory.createConst({ name: 'x', nodes: [ast.factory.createText('1')] }), expected: 'const x = 1' },
     { kind: 'Type', node: ast.factory.createType({ name: 'Pet', nodes: [ast.factory.createText('{ id: number }')] }), expected: 'type Pet = { id: number }' },
@@ -73,11 +68,11 @@ describe('printCodeNode', () => {
     { kind: 'ArrowFunction', node: ast.factory.createArrowFunction({ name: 'bar' }), expected: 'const bar = () => {}' },
     { kind: 'Text', node: ast.factory.createText('    const x = 1'), expected: 'const x = 1' },
   ])('returns $expected when given a minimal $kind node', ({ node, expected }) => {
-    expect(printCodeNode(node)).toBe(expected)
+    expect(print(node)).toBe(expected)
   })
 })
 
-describe('printConst', () => {
+describe('Const nodes', () => {
   it('returns an as const declaration when asConst is set', () => {
     const node = ast.factory.createConst({
       name: 'pets',
@@ -86,7 +81,7 @@ describe('printConst', () => {
       asConst: true,
       nodes: [ast.factory.createText('[]')],
     })
-    expect(printConst(node)).toBe('export const pets: Pet[] = [] as const')
+    expect(print(node)).toBe('export const pets: Pet[] = [] as const')
   })
 
   it('returns the JSDoc block above the declaration when JSDoc is set', () => {
@@ -95,7 +90,7 @@ describe('printConst', () => {
       JSDoc: { comments: ['@description A pet'] },
       nodes: [ast.factory.createText('{}')],
     })
-    expect(printConst(node)).toBe('/**\n * @description A pet\n */\nconst pet = {}')
+    expect(print(node)).toBe('/**\n * @description A pet\n */\nconst pet = {}')
   })
 
   it('returns a baselined value when the multi-line value has baked-in indentation', () => {
@@ -104,22 +99,22 @@ describe('printConst', () => {
       export: true,
       nodes: [ast.factory.createText('\n    {\n      foo: 1,\n      bar: 2,\n    }\n  ')],
     })
-    expect(printConst(node)).toBe(['export const pet = {', '  foo: 1,', '  bar: 2,', '}'].join('\n'))
+    expect(print(node)).toBe(['export const pet = {', '  foo: 1,', '  bar: 2,', '}'].join('\n'))
   })
 })
 
-describe('printType', () => {
+describe('Type nodes', () => {
   it('returns an exported type alias when export is set', () => {
     const node = ast.factory.createType({
       name: 'Pet',
       export: true,
       nodes: [ast.factory.createText('{ id: number }')],
     })
-    expect(printType(node)).toBe('export type Pet = { id: number }')
+    expect(print(node)).toBe('export type Pet = { id: number }')
   })
 })
 
-describe('printFunction', () => {
+describe('Function nodes', () => {
   it.each([
     { when: 'a return type is set', node: { returnType: 'Pet' }, expected: 'function getPet(): Pet {}' },
     { when: 'generics is an array', node: { generics: ['T'], params: 'value: T', returnType: 'T' }, expected: 'function getPet<T>(value: T): T {}' },
@@ -129,7 +124,7 @@ describe('printFunction', () => {
       expected: 'function getPet<T extends string>(value: T): T {}',
     },
   ])('returns $expected when $when', ({ node, expected }) => {
-    expect(printFunction(ast.factory.createFunction({ name: 'getPet', ...node }))).toBe(expected)
+    expect(print(ast.factory.createFunction({ name: 'getPet', ...node }))).toBe(expected)
   })
 
   it('returns a Promise return type when async is set', () => {
@@ -139,7 +134,7 @@ describe('printFunction', () => {
       async: true,
       returnType: 'Pet',
     })
-    expect(printFunction(node)).toBe('export async function fetchPet(): Promise<Pet> {}')
+    expect(print(node)).toBe('export async function fetchPet(): Promise<Pet> {}')
   })
 
   it('returns a default export when default and export are set', () => {
@@ -148,7 +143,7 @@ describe('printFunction', () => {
       default: true,
       export: true,
     })
-    expect(printFunction(node)).toBe('export default function handler() {}')
+    expect(print(node)).toBe('export default function handler() {}')
   })
 
   it('returns a single-level body when the body has baked-in indentation and blank lines', () => {
@@ -156,17 +151,17 @@ describe('printFunction', () => {
       name: 'getPet',
       nodes: [ast.factory.createText('      const a = 1\n\n      const b = 2')],
     })
-    expect(printFunction(node)).toBe(['function getPet() {', '  const a = 1', '', '  const b = 2', '}'].join('\n'))
+    expect(print(node)).toBe(['function getPet() {', '  const a = 1', '', '  const b = 2', '}'].join('\n'))
   })
 
   it('returns cumulative indentation when a function is nested', () => {
     const inner = ast.factory.createFunction({ name: 'inner', nodes: [ast.factory.createText('return 1')] })
     const node = ast.factory.createFunction({ name: 'outer', nodes: [inner] })
-    expect(printFunction(node)).toBe(['function outer() {', '  function inner() {', '    return 1', '  }', '}'].join('\n'))
+    expect(print(node)).toBe(['function outer() {', '  function inner() {', '    return 1', '  }', '}'].join('\n'))
   })
 })
 
-describe('printArrowFunction', () => {
+describe('ArrowFunction nodes', () => {
   it.each([
     {
       when: 'the function is single-line',
@@ -175,9 +170,7 @@ describe('printArrowFunction', () => {
     },
     { when: 'the function is async', node: { async: true }, expected: 'const identity = async <T>(value: T): Promise<T> => {}' },
   ])('returns $expected when generics are set and $when', ({ node, expected }) => {
-    expect(printArrowFunction(ast.factory.createArrowFunction({ name: 'identity', generics: ['T'], params: 'value: T', returnType: 'T', ...node }))).toBe(
-      expected,
-    )
+    expect(print(ast.factory.createArrowFunction({ name: 'identity', generics: ['T'], params: 'value: T', returnType: 'T', ...node }))).toBe(expected)
   })
 
   it('returns an expression body when singleLine is set', () => {
@@ -187,7 +180,7 @@ describe('printArrowFunction', () => {
       singleLine: true,
       nodes: [ast.factory.createText('n * 2')],
     })
-    expect(printArrowFunction(node)).toBe('const double = (n: number) => n * 2')
+    expect(print(node)).toBe('const double = (n: number) => n * 2')
   })
 
   it('returns an indented block body when nodes are set', () => {
@@ -195,7 +188,7 @@ describe('printArrowFunction', () => {
       name: 'getPet',
       nodes: [ast.factory.createText('return fetch("/pets")')],
     })
-    expect(printArrowFunction(node)).toBe(['const getPet = () => {', '  return fetch("/pets")', '}'].join('\n'))
+    expect(print(node)).toBe(['const getPet = () => {', '  return fetch("/pets")', '}'].join('\n'))
   })
 })
 
