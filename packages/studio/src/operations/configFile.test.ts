@@ -236,6 +236,7 @@ describe('applyConfigEdits', () => {
         ['Infinity', Number.POSITIVE_INFINITY, false],
         ['an array holding a function', [() => 1], false],
         ['an object holding undefined', { a: undefined }, false],
+        ['a class instance', new Date(0), false],
       ]
 
       it.each(values)('writes %s into the file only when it is a literal', (_label, value, applied) => {

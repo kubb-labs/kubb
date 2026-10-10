@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { isAbsolute, relative, resolve, sep } from 'node:path'
 import { inParallel } from '@internals/utils'
 import { fsStorage, type Storage } from '@kubb/core'
-import type { FilePage, ReadFilesResult } from '../protocol/index.ts'
+import type { FilePage, FileSource, ReadFilesResult } from '../protocol/index.ts'
 
 const READ_CONCURRENCY = 50
 const MB = 1024 * 1024
@@ -19,11 +19,6 @@ export type SourceFiles = { storage: Storage; root: string; paths: Set<string> }
 export function relativeStoragePath({ root, filePath }: { root: string; filePath: string }): string {
   return (isAbsolute(filePath) ? relative(resolve(root), filePath) : filePath).replaceAll('\\', '/')
 }
-
-/**
- * Which set of a generation to read: what the run produced, or the output directory before it ran.
- */
-export type GenerationSource = 'output' | 'disk'
 
 /**
  * A set as kept in the store.
@@ -48,6 +43,8 @@ export type KeptGeneration = {
 }
 
 const hashOf = (content: string) => createHash('sha1').update(content).digest('hex').slice(0, 16)
+
+const totalBytes = (entries: Array<KeptGeneration>) => entries.reduce((sum, { output, disk }) => sum + output.bytes + (disk?.bytes ?? 0), 0)
 
 /**
  * What the output directory holds on disk before a run. `undefined` when `outputPath` is not a real
@@ -110,7 +107,7 @@ export function createGenerationStore({
   /**
    * Copies `files` into the store as one set of `jobId`. Above `maxSetMb` only the hashes are kept.
    */
-  async function keep({ jobId, source, files, maxSetMb }: { jobId: string; source: GenerationSource; files: SourceFiles; maxSetMb: number }): Promise<KeptSet> {
+  async function keep({ jobId, source, files, maxSetMb }: { jobId: string; source: FileSource; files: SourceFiles; maxSetMb: number }): Promise<KeptSet> {
     const maxSetBytes = maxSetMb * MB
     const hashes: Record<string, string> = {}
     let bytes = 0
@@ -144,14 +141,13 @@ export function createGenerationStore({
     get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId && isLive(generation)),
     latest: async () => (await load()).filter(isLive).at(-1),
     /** Total bytes of every set the store holds, expired ones too until the next add drops them. */
-    bytes: async () => (await load()).reduce((sum, { output, disk }) => sum + output.bytes + (disk?.bytes ?? 0), 0),
+    bytes: async () => totalBytes(await load()),
     async add(generation: KeptGeneration): Promise<void> {
       const current = await load()
       for (const expired of current.filter((entry) => !isLive(entry))) await drop(expired.jobId)
       const entries = current.filter((entry) => entry.jobId !== generation.jobId && isLive(entry))
       entries.push({ ...generation, keptAt: now() })
-      const weight = () => entries.reduce((sum, { output, disk }) => sum + output.bytes + (disk?.bytes ?? 0), 0)
-      while (entries.length > 1 && (entries.length > maxCount || weight() > maxMb * MB)) {
+      while (entries.length > 1 && (entries.length > maxCount || totalBytes(entries) > maxMb * MB)) {
         await drop(entries.shift()!.jobId)
       }
       index = entries
@@ -168,7 +164,7 @@ export function createGenerationStore({
       limit,
     }: {
       generation: KeptGeneration
-      source: GenerationSource
+      source: FileSource
       paths: Array<string>
       cursor?: number
       limit?: number

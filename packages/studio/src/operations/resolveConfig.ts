@@ -4,7 +4,7 @@ import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import type { Adapter, Plugin } from '@kubb/core'
 import { camelCase } from '@internals/utils'
-import type { JSONKubbConfig } from '../protocol/index.ts'
+import type { JSONKubbConfig, OptionValue } from '../protocol/index.ts'
 
 /**
  * Turns the JSON config Studio sends back into live Kubb objects.
@@ -199,15 +199,18 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Whether `value` comes back unchanged from a JSON round trip. A function, a `RegExp` or another
- * class instance does not: the agent reports options to Studio as JSON, so what Studio sends back
- * for such a value is a lossy copy (`macros: [{ name }]` without its hooks, `pattern: {}`).
+ * Whether `value` comes back unchanged from a JSON round trip, so it can be printed into a config
+ * file as a literal and compared with what Studio echoes back. A function, `undefined`, a
+ * non-finite number, a `RegExp` or another class instance does not: the agent reports options to
+ * Studio as JSON, so what Studio sends back for such a value is a lossy copy (`macros: [{ name }]`
+ * without its hooks, `pattern: {}`), and an edit carrying one is refused rather than written into
+ * the user's source.
  */
-function survivesJson(value: unknown): boolean {
+export function isOptionValue(value: unknown): value is OptionValue {
   if (value === null || typeof value === 'string' || typeof value === 'boolean') return true
   if (typeof value === 'number') return Number.isFinite(value)
-  if (Array.isArray(value)) return value.every(survivesJson)
-  if (isPlainObject(value)) return Object.values(value).every(survivesJson)
+  if (Array.isArray(value)) return value.every(isOptionValue)
+  if (isPlainObject(value)) return Object.values(value).every(isOptionValue)
 
   return false
 }
@@ -234,7 +237,7 @@ export function mergeOptions(disk: Record<string, unknown>, studio: Record<strin
       merged[key] = mergeOptions(current, value)
       continue
     }
-    if (current !== undefined && !survivesJson(current)) continue
+    if (current !== undefined && !isOptionValue(current)) continue
 
     merged[key] = value
   }
