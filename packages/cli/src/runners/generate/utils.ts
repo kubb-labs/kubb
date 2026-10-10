@@ -1,11 +1,8 @@
-import { randomUUID } from 'node:crypto'
 import { existsSync, watch } from 'node:fs'
 import { basename, dirname, resolve } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { toError, tokenize } from '@internals/utils'
-import type { KubbHooks, PostGenerateCommand, Hookable } from '@kubb/core'
-import { NonZeroExitError, x } from 'tinyexec'
+import { toError } from '@internals/utils'
 
 /** Quiet window in milliseconds that collapses a burst of watcher events (an editor save emits several) into one rebuild. */
 const WATCHER_DEBOUNCE_MS = 100
@@ -15,34 +12,6 @@ const URL_WATCHER_INTERVAL_MS = 2_000
 
 /** Upper bound in milliseconds for one URL watcher request, headers and body read, so a hung server never stalls polling. */
 const URL_WATCHER_TIMEOUT_MS = 10_000
-
-type RunPostGenerateOptions = {
-  commands: Array<PostGenerateCommand>
-  hooks: Hookable<KubbHooks>
-}
-
-/**
- * Outcome of a single hook subprocess, returned by `runHook` alongside the
- * `kubb:hook:end` hook it emits for the loggers.
- */
-type HookResult = {
-  /**
-   * `true` when the command exited with code `0`.
-   */
-  success: boolean
-  /**
-   * What went wrong, `null` when the command succeeded.
-   */
-  error: Error | null
-  /**
-   * Captured stdout, only present on a non-zero exit.
-   */
-  stdout?: string
-  /**
-   * Captured stderr, only present on a non-zero exit.
-   */
-  stderr?: string
-}
 
 /** The numeric `major.minor.patch` of a semver string, `null` when it is not one; a leading `v`, prerelease and build metadata are dropped. */
 function parseVersion(version: string): [number, number, number] | null {
@@ -70,78 +39,6 @@ export function isNewerVersion(current: string, latest: string): boolean {
   const differs = latestParts.findIndex((part, index) => part !== currentParts[index])
 
   return differs !== -1 && latestParts[differs]! > currentParts[differs]!
-}
-
-/**
- * Runs the `output.postGenerate` commands of a Kubb config in sequence and returns each command's
- * outcome, so the caller can turn failures into diagnostics.
- */
-export async function runPostGenerate({ commands, hooks }: RunPostGenerateOptions): Promise<Array<HookResult>> {
-  const results: Array<HookResult> = []
-
-  for (const entry of commands) {
-    const { command, name } = typeof entry === 'string' ? { command: entry, name: undefined } : entry
-    const [cmd, ...args] = tokenize(command)
-    if (!cmd) continue
-
-    results.push(await runHook({ command: cmd, name, args, hooks }))
-  }
-
-  return results
-}
-
-type RunHookOptions = {
-  /** Ties the `kubb:hook:*` events of one run together. Generated when omitted. */
-  id?: string
-  command: string
-  name?: string
-  args?: ReadonlyArray<string>
-  hooks: Hookable<KubbHooks>
-}
-
-/** Spawns a hook command, announced through `kubb:hook:start` and `kubb:hook:end`, and returns a failure instead of throwing. */
-export async function runHook({ id = randomUUID(), command, name, args, hooks }: RunHookOptions): Promise<HookResult> {
-  const commandWithArgs = [command, ...(args ?? [])].join(' ')
-  const emitEnd = async (result: HookResult): Promise<HookResult> => {
-    await hooks.callHook('kubb:hook:end', { command, name, args, id, ...result })
-    return result
-  }
-
-  await hooks.callHook('kubb:hook:start', { id, command, name, args })
-
-  // Only stream line-by-line when a logger is listening, so the non-streaming plain
-  // logger doesn't pay to iterate the subprocess output.
-  const stream = hooks.listenerCount('kubb:hook:line') > 0
-
-  try {
-    const proc = x(command, [...(args ?? [])], {
-      nodeOptions: { detached: process.platform !== 'win32' },
-      throwOnError: true,
-    })
-
-    if (stream) {
-      for await (const line of proc) {
-        await hooks.callHook('kubb:hook:line', { id, line })
-      }
-    }
-
-    await proc
-    await hooks.callHook('kubb:success', { message: `${styleText('dim', name ?? commandWithArgs)} successfully executed` })
-    return emitEnd({ success: true, error: null })
-  } catch (err) {
-    if (!(err instanceof NonZeroExitError)) {
-      return emitEnd({ success: false, error: toError(err) })
-    }
-
-    const stderr = err.output?.stderr ?? ''
-    const stdout = err.output?.stdout ?? ''
-
-    const error = new Error(`Hook execute failed: ${commandWithArgs}`)
-    // Signal the failure via the result and `kubb:hook:end` only, carrying the captured output so
-    // the logger can render it. The caller turns this into a coded diagnostic and emits that
-    // through `Diagnostics.emit`, so emitting `kubb:error` here would render it twice.
-    return emitEnd({ success: false, error, stdout, stderr })
-  }
 }
 
 type SerialRunnerOptions = {
