@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { relative, resolve, sep } from 'node:path'
+import { isAbsolute, relative, resolve, sep } from 'node:path'
 import { inParallel } from '@internals/utils'
 import { fsStorage, type Storage } from '@kubb/core'
 import type { FilePage, ReadFilesResult } from '../protocol/index.ts'
@@ -12,6 +12,13 @@ const INDEX_KEY = 'studio/generations.json'
  * Files a run produced, or the output directory held, keyed by path relative to `root`.
  */
 export type SourceFiles = { storage: Storage; root: string; paths: Set<string> }
+
+/**
+ * The path form {@link SourceFiles} keys on: relative to `root`, with forward slashes.
+ */
+export function relativeStoragePath({ root, filePath }: { root: string; filePath: string }): string {
+  return (isAbsolute(filePath) ? relative(resolve(root), filePath) : filePath).replaceAll('\\', '/')
+}
 
 /**
  * Which set of a generation to read: what the run produced, or the output directory before it ran.

@@ -1,66 +1,7 @@
-import { readFile } from 'node:fs/promises'
-import { createRequire } from 'node:module'
-import { isAbsolute, relative, resolve } from 'node:path'
 import { getElapsedMs } from '@internals/utils'
 import { Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
 import { type GenerationEvent, type GenerationEventPayloads, type GenerationEventType, generationEventTypes } from '../protocol/index.ts'
-import type { SourceFiles } from './generations.ts'
-import { toPackageName } from './resolveConfig.ts'
-
-const require = createRequire(import.meta.url)
-
-function relativeStoragePath(root: string, filePath: string): string {
-  return (isAbsolute(filePath) ? relative(resolve(root), filePath) : filePath).replaceAll('\\', '/')
-}
-
-type PackageJSON = {
-  version?: string
-}
-
-async function resolvePeerDependencies(names: Array<string>): Promise<{
-  peerDependencies: Record<string, string>
-  missingDependencies: Array<string>
-}> {
-  const uniqueNames = [...new Set(names.map(toPackageName))]
-  const peerDependencies: Record<string, string> = {}
-  const missingDependencies: Array<string> = []
-
-  const versions = await Promise.all(
-    uniqueNames.map(async (name) => {
-      try {
-        const path = require.resolve(`${name}/package.json`)
-        const packageJSON = JSON.parse(await readFile(path, 'utf8')) as PackageJSON
-        return packageJSON.version
-      } catch {
-        return undefined
-      }
-    }),
-  )
-
-  for (const [index, name] of uniqueNames.entries()) {
-    const version = versions[index]
-    if (version) {
-      peerDependencies[name] = version
-      continue
-    }
-    missingDependencies.push(name)
-  }
-
-  return { peerDependencies, missingDependencies }
-}
-
-/**
- * What `kubb:generation:end` reports: the files the run produced, still in its own storage.
- */
-export type GenerationEnd = {
-  output: SourceFiles
-  peerDependencies: Record<string, string>
-  missingDependencies: Array<string>
-}
-
-export type GenerationStreamOptions = {
-  onGenerationEnd?: (result: GenerationEnd) => void
-}
+import { relativeStoragePath } from './generations.ts'
 
 /**
  * How each published hook's context becomes its wire payload. Keyed by {@link generationEventTypes},
@@ -76,7 +17,6 @@ const isDiscardable = (event: GenerationEvent) => event.type === 'kubb:files:pro
 export function createGenerationStream(
   hooks: Hookable<KubbHooks>,
   jobId: string,
-  options: GenerationStreamOptions = {},
 ): { stream: ReadableStream<GenerationEvent>; close: () => Promise<void>; dispose: () => void; fail: (error: unknown) => void } {
   const unhooks: Array<() => void> = []
   let root = ''
@@ -119,11 +59,18 @@ export function createGenerationStream(
     'kubb:plugin:end': ({ plugin, duration, success }) => [{ plugin: { name: plugin.name }, duration, success }],
     'kubb:build:start': ({ config, adapter }) => [{ config: { name: config.name }, adapter: { name: adapter.name } }],
     'kubb:build:end': ({ files, config, outputDir }) => [
-      { files: files.map((file) => ({ path: relativeStoragePath(config.root, file.path), name: file.name })), outputDir },
+      { files: files.map((file) => ({ path: relativeStoragePath({ root: config.root, filePath: file.path }), name: file.name })), outputDir },
     ],
     'kubb:files:processing:start': ({ files }) => [{ total: files.length }],
     'kubb:files:processing:update': ({ files }) => [
-      { files: files.map(({ file, processed, total, percentage }) => ({ file: relativeStoragePath(root, file.path), processed, total, percentage })) },
+      {
+        files: files.map(({ file, processed, total, percentage }) => ({
+          file: relativeStoragePath({ root, filePath: file.path }),
+          processed,
+          total,
+          percentage,
+        })),
+      },
     ],
     'kubb:files:processing:end': ({ files }) => [{ total: files.length }],
     'kubb:info': ({ message, info }) => [{ message, info }],
@@ -172,12 +119,7 @@ export function createGenerationStream(
 
   // Registered after the loop, so the summary follows the `kubb:generation:end` it describes. Core
   // never emits `kubb:generation:summary` itself.
-  on('kubb:generation:end', async ({ config, storage, diagnostics = [], status, hrStart, filesCreated }) => {
-    const { peerDependencies, missingDependencies } = await resolvePeerDependencies(config.plugins.map(({ name }) => name))
-    const keys = await storage.readKeys()
-    const paths = new Set(keys.map((key) => relativeStoragePath(config.root, key)))
-    options.onGenerationEnd?.({ output: { storage, root: config.root, paths }, peerDependencies, missingDependencies })
-
+  on('kubb:generation:end', ({ diagnostics = [], status, hrStart, filesCreated }) => {
     if (!hrStart) {
       return
     }

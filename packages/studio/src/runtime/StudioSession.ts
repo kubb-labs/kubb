@@ -34,10 +34,10 @@ import {
 } from '../protocol/index.ts'
 import { registerAgent } from '../operations/api.ts'
 import { agentDefaults, resolveAgentCapacity, resolveGenerationLimits } from '../operations/constants.ts'
-import { mergeAdapter, mergePlugins, toPackageName } from '../operations/resolveConfig.ts'
+import { mergeAdapter, mergePlugins, resolvePeerDependencies, toPackageName } from '../operations/resolveConfig.ts'
 import { RpcTarget } from 'capnweb'
-import { createGenerationStore, type GenerationStore } from '../operations/generations.ts'
-import { createGenerationStream, type GenerationEnd } from '../operations/generationEvents.ts'
+import { createGenerationStore, type GenerationStore, relativeStoragePath } from '../operations/generations.ts'
+import { createGenerationStream } from '../operations/generationEvents.ts'
 import { connectWebSocketRpc } from '../operations/rpc.ts'
 import { runGenerationOperation } from '../operations/generate.ts'
 
@@ -267,8 +267,6 @@ export class StudioSession implements AgentApi {
   #isGenerating = false
   #activeJob: { jobId: string; cancel: () => Promise<void> } | undefined
   #heartbeatTimer: ReturnType<typeof setTimeout> | undefined
-  // Set by `kubb:generation:end`, filed into `#generations` once the job finishes.
-  #lastGeneration: GenerationEnd | undefined
   #store: GenerationStore | undefined
   readonly #limits = resolveGenerationLimits()
   /**
@@ -522,11 +520,7 @@ export class StudioSession implements AgentApi {
   }
 
   startGeneration(data: GenerateInput): GenerationRun {
-    const generationStream = createGenerationStream(this.#hooks, data.jobId, {
-      onGenerationEnd: (result) => {
-        this.#lastGeneration = result
-      },
-    })
+    const generationStream = createGenerationStream(this.#hooks, data.jobId)
     const controller = new AbortController()
     const cancelRun = async () => {
       controller.abort(new Error('Generation canceled'))
@@ -595,16 +589,16 @@ export class StudioSession implements AgentApi {
 
       const resolvedPlugins = plugins ?? config.plugins
 
+      const storage = this.#canWrite ? fsStorage() : memoryStorage()
       // The session's own emitter carries the run: the host's logger is already on it from
-      // `connect`, and these two come off again below, so one run's listeners never see the next.
-      // Cleared up front, filled the moment `kubb:generation:end` fires.
-      this.#lastGeneration = undefined
-      const disk = await runGenerationOperation({
+      // `connect`, and the stream's listeners come off again once the run ends, so one run's
+      // listeners never see the next.
+      const { disk, files } = await runGenerationOperation({
         config: {
           ...config,
           root,
           input: inputOverride ?? config.input,
-          storage: this.#canWrite ? fsStorage() : memoryStorage(),
+          storage,
           output: permissions.allowExec ? { ...config.output } : { ...config.output, format: false, lint: false, postGenerate: [] },
           plugins: resolvedPlugins,
           adapter,
@@ -622,31 +616,21 @@ export class StudioSession implements AgentApi {
         info: `${resolvedPlugins.length} plugin${resolvedPlugins.length === 1 ? '' : 's'}, ${this.#canWrite ? 'written to disk' : 'in memory'}${inputOverride !== undefined ? ', from a Studio spec' : ''}`,
       })
 
-      // The generate call above reassigns the field, but control flow analysis still sees the
-      // `= undefined` from this method and narrows it to `never`.
-      const generation = this.#lastGeneration as GenerationEnd | undefined
-      const output = generation
-        ? await this.#generations.keep({ jobId: data.jobId, source: 'output', files: generation.output, maxSetMb: this.#limits.maxMb })
-        : undefined
-      if (generation && output) {
-        if (!output.paths.length && Object.keys(output.hashes).length) {
-          await this.#warn('Kept only the hashes of this generation: its output is too large to keep')
-        }
-        const { peerDependencies, missingDependencies } = generation
-        await this.#generations.add({ jobId: data.jobId, output, disk, peerDependencies, missingDependencies })
+      const paths = new Set(files.map((file) => relativeStoragePath({ root, filePath: file.path })))
+      const output = await this.#generations.keep({ jobId: data.jobId, source: 'output', files: { storage, root, paths }, maxSetMb: this.#limits.maxMb })
+      if (!output.paths.length && Object.keys(output.hashes).length) {
+        await this.#warn('Kept only the hashes of this generation: its output is too large to keep')
       }
-      const files = [...(generation?.output.paths ?? [])]
+      const { peerDependencies, missingDependencies } = await resolvePeerDependencies(resolvedPlugins.map(({ name }) => name))
+      await this.#generations.add({ jobId: data.jobId, output, disk, peerDependencies, missingDependencies })
       return {
         status: 'success',
-        files,
-        fileCount: files.length,
-        hashes: output?.hashes ?? {},
+        files: [...paths],
+        fileCount: paths.size,
+        hashes: output.hashes,
         disk: disk ? { hashes: disk.hashes } : undefined,
       }
     } finally {
-      // The store holds its own copy by now. Without `allowWrite` this output is the in-memory
-      // storage with every generated file, so holding it until the next run wastes memory.
-      this.#lastGeneration = undefined
       if (root !== this.#options.root) await removeJobRoot(root)
       this.#isGenerating = false
     }

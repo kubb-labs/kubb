@@ -2,7 +2,7 @@ import { hash } from 'node:crypto'
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { type Config, createKubb, type Diagnostic, Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
+import { type BuildOutput, type Config, createKubb, type Diagnostic, Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
 import {
   FORMATTER_PREFERENCE,
   LINTER_PREFERENCE,
@@ -109,7 +109,7 @@ function formatGenerationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error 
  * can forward progress to connected clients. After a successful build, auto-formatting and
  * linting are applied when configured, followed by any user-defined `hooks.done` commands.
  */
-export async function generate({ config, hooks, signal }: GenerateProps): Promise<void> {
+export async function generate({ config, hooks, signal }: GenerateProps): Promise<BuildOutput['files']> {
   signal?.throwIfAborted()
   const hrStart = process.hrtime()
 
@@ -138,9 +138,7 @@ export async function generate({ config, hooks, signal }: GenerateProps): Promis
 
   await hooks.callHook('kubb:generation:end', {
     config,
-    // Only the files Kubb generated. `fsStorage().readKeys()` lists the working directory, so
-    // Studio's tree would show the host's own source and miss output landing outside it.
-    storage: { ...storage, readKeys: async () => [...new Set(files.map((file) => file.path))] },
+    storage,
     diagnostics,
     status,
     hrStart,
@@ -212,6 +210,8 @@ export async function generate({ config, hooks, signal }: GenerateProps): Promis
 
     await hooks.callHook('kubb:hooks:end')
   }
+
+  return files
 }
 
 export async function runGenerationOperation({
@@ -227,19 +227,18 @@ export async function runGenerationOperation({
   store: GenerationStore
   snapshotRoot?: string
   maxSnapshotMb: number
-}): Promise<Awaited<ReturnType<GenerationStore['keep']>> | undefined> {
+}): Promise<{ disk: Awaited<ReturnType<GenerationStore['keep']>> | undefined; files: BuildOutput['files'] }> {
   const diskFiles = snapshotRoot ? await listDisk({ root: snapshotRoot, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES }) : undefined
   const disk = diskFiles ? await store.keep({ jobId, source: 'disk', files: diskFiles, maxSetMb: maxSnapshotMb }) : undefined
   const removeHookListener = setupHookListener(hooks, config.root, signal)
 
   try {
-    await generate({ config, hooks, signal })
+    const files = await generate({ config, hooks, signal })
+    return { disk, files }
   } catch (error) {
     await store.drop(jobId)
     throw error
   } finally {
     removeHookListener()
   }
-
-  return disk
 }

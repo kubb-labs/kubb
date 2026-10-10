@@ -1,4 +1,5 @@
 import { existsSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import type { Adapter, Plugin } from '@kubb/core'
@@ -145,6 +146,47 @@ export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugin
       return factory(options ?? {}) as Plugin
     }),
   )
+}
+
+type PackageJSON = {
+  version?: string
+}
+
+/**
+ * The installed version of each plugin's package, resolved from where this package is installed,
+ * and the names that could not be found.
+ */
+export async function resolvePeerDependencies(names: Array<string>): Promise<{
+  peerDependencies: Record<string, string>
+  missingDependencies: Array<string>
+}> {
+  const require = createRequire(import.meta.url)
+  const uniqueNames = [...new Set(names.map(toPackageName))]
+  const peerDependencies: Record<string, string> = {}
+  const missingDependencies: Array<string> = []
+
+  const versions = await Promise.all(
+    uniqueNames.map(async (name) => {
+      try {
+        const path = require.resolve(`${name}/package.json`)
+        const packageJSON = JSON.parse(await readFile(path, 'utf8')) as PackageJSON
+        return packageJSON.version
+      } catch {
+        return undefined
+      }
+    }),
+  )
+
+  for (const [index, name] of uniqueNames.entries()) {
+    const version = versions[index]
+    if (version) {
+      peerDependencies[name] = version
+      continue
+    }
+    missingDependencies.push(name)
+  }
+
+  return { peerDependencies, missingDependencies }
 }
 
 /**
