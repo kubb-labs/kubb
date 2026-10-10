@@ -118,6 +118,7 @@ export async function runOutputPasses({ config, outputPath, hooks, signal }: Run
     if (!executable) continue
 
     const result = await runHook({ hooks, command: executable, args, name, cwd: config.root, signal })
+    if (result.success) await hooks.callHook('kubb:success', { message: `${styleText('dim', name ?? command)} successfully executed` })
     if (!result.success) await report(Diagnostics.code.postGenerateFailed, 'Post-generate command', result.error ?? new Error('Post-generate command failed'))
     signal?.throwIfAborted()
   }

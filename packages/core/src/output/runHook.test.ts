@@ -11,15 +11,11 @@ describe('runHook', () => {
     const hooks = new Hookable<KubbHooks>()
     const starts: Array<KubbHookStartContext> = []
     const ends: Array<KubbHookEndContext> = []
-    const messages: Array<string> = []
     hooks.hook('kubb:hook:start', (ctx) => {
       starts.push(ctx)
     })
     hooks.hook('kubb:hook:end', (ctx) => {
       ends.push(ctx)
-    })
-    hooks.hook('kubb:success', ({ message }) => {
-      messages.push(message)
     })
 
     const result = await runHook({ hooks, id: 'ok', command: node, args: ['-e', 'process.exit(0)'], name: 'types' })
@@ -27,8 +23,6 @@ describe('runHook', () => {
     expect(result).toStrictEqual({ success: true, error: null })
     expect(starts).toStrictEqual([{ id: 'ok', command: node, name: 'types', args: ['-e', 'process.exit(0)'] }])
     expect(ends).toStrictEqual([{ id: 'ok', command: node, name: 'types', args: ['-e', 'process.exit(0)'], success: true, error: null }])
-    expect(messages).toHaveLength(1)
-    expect(messages[0]).toContain('types')
   })
 
   it('returns the captured output and success=false when the command exits non-zero', async () => {
@@ -73,6 +67,18 @@ describe('runHook', () => {
 
     expect(lines).toStrictEqual(['lines:first', 'lines:second'])
     expect(result.success).toBe(false)
+  })
+
+  it('returns success=false when a kubb:hook:line listener throws', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    hooks.hook('kubb:hook:line', () => {
+      throw new Error('listener failed')
+    })
+
+    const result = await runHook({ hooks, command: node, args: ['-e', 'console.log("first"); process.exit(0)'] })
+
+    expect(result.success).toBe(false)
+    expect(result.error?.message).toContain('kubb:hook:line')
   })
 
   it('runs the command in the given working directory', async () => {

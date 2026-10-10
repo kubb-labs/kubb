@@ -30,10 +30,19 @@ function makeConfig(output: Partial<Config['output']>): Config {
   }
 }
 
-function record(hooks: Hookable<KubbHooks>): { names: Array<string>; starts: Array<KubbHookStartContext>; diagnostics: Array<Diagnostic> } {
+function record(hooks: Hookable<KubbHooks>): {
+  names: Array<string>
+  starts: Array<KubbHookStartContext>
+  diagnostics: Array<Diagnostic>
+  successes: Array<string>
+} {
   const names: Array<string> = []
   const starts: Array<KubbHookStartContext> = []
   const diagnostics: Array<Diagnostic> = []
+  const successes: Array<string> = []
+  hooks.hook('kubb:success', ({ message }) => {
+    successes.push(message)
+  })
   for (const name of ['kubb:format:start', 'kubb:format:end', 'kubb:lint:start', 'kubb:lint:end', 'kubb:hooks:start', 'kubb:hooks:end'] as const) {
     hooks.hook(name, () => {
       names.push(name)
@@ -45,7 +54,7 @@ function record(hooks: Hookable<KubbHooks>): { names: Array<string>; starts: Arr
   hooks.hook('kubb:diagnostic', ({ diagnostic }) => {
     diagnostics.push(diagnostic)
   })
-  return { names, starts, diagnostics }
+  return { names, starts, diagnostics, successes }
 }
 
 describe('runOutputPasses', () => {
@@ -72,6 +81,8 @@ describe('runOutputPasses', () => {
       { command: node, name: undefined },
       { command: node, name: 'types' },
     ])
+    expect(seen.successes).toHaveLength(2)
+    expect(seen.successes[1]).toContain('types')
   })
 
   it('reports a failing postGenerate command as a coded diagnostic and keeps going', async () => {
@@ -112,6 +123,8 @@ describe('runOutputPasses', () => {
 
     expect(diagnostics).toStrictEqual([])
     expect(seen.starts.map((ctx) => ctx.command)).toStrictEqual(['oxfmt'])
+    expect(seen.successes).toHaveLength(1)
+    expect(seen.successes[0]).toContain('Formatting')
     expect(fs.readFileSync(path.join(outputPath, 'pet.ts'), 'utf8')).toBe('export const pet = { id: 1 }\n')
   })
 
