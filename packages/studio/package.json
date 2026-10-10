@@ -74,7 +74,6 @@
     "@kubb/core": "workspace:*",
     "capnweb": "^0.12.0",
     "magicast": "^0.5.5",
-    "tinyexec": "catalog:",
     "tsdown": "catalog:"
   },
   "devDependencies": {
