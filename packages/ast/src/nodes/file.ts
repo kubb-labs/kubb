@@ -1,6 +1,5 @@
 import { hash } from 'node:crypto'
 import path from 'node:path'
-import { trimExtName } from '@internals/utils'
 import { defineNode } from '../defineNode.ts'
 import { combineExports, combineImports, combineSources, importLocalName } from '../utils/combineFileMembers.ts'
 import { extractStringsFromNodes } from '../utils/extractStringsFromNodes.ts'
@@ -390,7 +389,7 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
     kind: 'File',
     ...input,
     id: hash('sha256', input.path, 'hex'),
-    name: trimExtName(input.baseName),
+    name: path.basename(input.baseName, extname),
     extname,
     imports: resolvedImports,
     exports: resolvedExports,

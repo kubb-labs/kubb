@@ -20,15 +20,11 @@ export function extractStringsFromNodes(nodes: Array<CodeNode> | undefined): str
       if (node) collected.push(node as string)
       continue
     }
-    if (node.kind === 'Text') {
+    if (node.kind === 'Text' || node.kind === 'Jsx') {
       if (node.value) collected.push(node.value)
       continue
     }
     if (node.kind === 'Break') continue
-    if (node.kind === 'Jsx') {
-      if (node.value) collected.push(node.value)
-      continue
-    }
 
     const parts: Array<string> = []
     if ('params' in node && node.params) parts.push(node.params)
