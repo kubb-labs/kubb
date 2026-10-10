@@ -2,7 +2,7 @@ import { ast } from '@kubb/ast'
 import { Diagnostics } from '@kubb/core'
 import type { Diagnostic } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { buildBarrelIndex, getBarrelFiles, isExcludedPath } from './utils.ts'
+import { buildBarrelIndex, getBarrelFiles } from './utils.ts'
 import type { BarrelType } from './types.ts'
 
 function makeFile(filePath: string, names: Array<string> = [], isTypeOnly = false) {
@@ -114,17 +114,5 @@ describe('getBarrelFiles', () => {
     expect(barrels).toHaveLength(1)
     expect(barrels[0]!.path).toBe(`${ROOT}/pets/index.ts`)
     expect(barrels[0]!.exports[0]?.name).toStrictEqual(['listPets'])
-  })
-})
-
-describe('isExcludedPath', () => {
-  const prefixes = new Set(['/workspace/src/gen/types/', '/workspace/src/gen/schemas/'])
-
-  it.each([
-    { scenario: 'the path is inside an excluded directory', path: '/workspace/src/gen/types/pet.ts', expected: true },
-    { scenario: 'the path is not under any excluded prefix', path: '/workspace/src/gen/clients/petClient.ts', expected: false },
-    { scenario: 'a sibling directory only shares a prefix substring', path: '/workspace/src/gen/typesExtra/pet.ts', expected: false },
-  ])('returns $expected when $scenario', ({ path, expected }) => {
-    expect(isExcludedPath(path, prefixes)).toBe(expected)
   })
 })

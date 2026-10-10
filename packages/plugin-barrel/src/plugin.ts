@@ -4,7 +4,7 @@ import type { FileNode } from '@kubb/ast'
 import { definePlugin } from '@kubb/core'
 import type { Config, NormalizedPlugin, Plugin } from '@kubb/core'
 import type { BarrelConfig, BarrelType, PluginBarrelConfig } from './types.ts'
-import { buildBarrelIndex, getBarrelFiles, getPluginOutputPrefix, isExcludedPath } from './utils.ts'
+import { buildBarrelIndex, getBarrelFiles } from './utils.ts'
 
 /**
  * Applies a plugin's configured `output.banner`/`footer` to a barrel file, flagged as `isBarrel`.
@@ -107,7 +107,7 @@ type PendingBarrel = {
  * ```
  */
 export const pluginBarrel = definePlugin(() => {
-  const excludedPrefixes = new Set<string>()
+  const excludedTargets: Array<string> = []
   const pendingBarrels: Array<PendingBarrel> = []
 
   return {
@@ -120,9 +120,11 @@ export const pluginBarrel = definePlugin(() => {
 
         // A plugin-level `false` wins over an enabled root barrel.
         const barrelConfig: PluginBarrelConfig | false = plugin.options.output?.barrel ?? config.output.barrel ?? false
+        const base = path.resolve(config.root, config.output.path)
+        const target = path.resolve(base, plugin.options.output.path)
 
         if (barrelConfig === false) {
-          excludedPrefixes.add(getPluginOutputPrefix(plugin, config))
+          excludedTargets.push(target)
           return
         }
 
@@ -132,8 +134,6 @@ export const pluginBarrel = definePlugin(() => {
           return
         }
 
-        const base = path.resolve(config.root, config.output.path)
-        const target = path.resolve(base, plugin.options.output.path)
         if (!isPathInside(target, base)) {
           throw new Error('Invalid output path')
         }
@@ -149,8 +149,8 @@ export const pluginBarrel = definePlugin(() => {
 
         // A `barrel: false` plugin gets no barrel and stays out of the root, so drop its files
         // once here. Every barrel below then derives from a single index of what remains.
-        const relevantFiles = excludedPrefixes.size === 0 ? files : files.filter((f) => !isExcludedPath(f.path, excludedPrefixes))
-        excludedPrefixes.clear()
+        const relevantFiles = files.filter((file) => !excludedTargets.some((target) => isPathInside(file.path, target)))
+        excludedTargets.length = 0
 
         const index = buildBarrelIndex(outputPath, relevantFiles)
         const reportedCollisions = new Set<string>()
