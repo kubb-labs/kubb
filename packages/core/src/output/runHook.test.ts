@@ -5,7 +5,7 @@ import process from 'node:process'
 import { afterEach, describe, expect, it } from 'vitest'
 import { Hookable } from '../Hookable.ts'
 import type { KubbHooks, KubbHookEndContext, KubbHookStartContext } from '../types.ts'
-import { binDirectories, runHook, toWindowsCommandLine } from './runHook.ts'
+import { runHook } from './runHook.ts'
 
 const node = process.execPath
 
@@ -26,11 +26,11 @@ describe('runHook', () => {
       ends.push(ctx)
     })
 
-    const result = await runHook({ hooks, id: 'ok', command: node, args: ['-e', 'process.exit(0)'], name: 'types' })
+    const result = await runHook({ hooks, command: node, args: ['-e', 'process.exit(0)'], name: 'types' })
 
     expect(result).toStrictEqual({ success: true, error: null })
-    expect(starts).toStrictEqual([{ id: 'ok', command: node, name: 'types', args: ['-e', 'process.exit(0)'] }])
-    expect(ends).toStrictEqual([{ id: 'ok', command: node, name: 'types', args: ['-e', 'process.exit(0)'], success: true, error: null }])
+    expect(starts).toStrictEqual([{ id: expect.any(String), command: node, name: 'types', args: ['-e', 'process.exit(0)'] }])
+    expect(ends).toStrictEqual([{ ...starts[0], success: true, error: null }])
   })
 
   it('returns the captured output and success=false when the command exits non-zero', async () => {
@@ -42,17 +42,13 @@ describe('runHook', () => {
 
     const result = await runHook({
       hooks,
-      id: 'fail',
       command: node,
       args: ['-e', 'process.stdout.write("out"); process.stderr.write("boom"); process.exit(1)'],
     })
 
-    expect(result.success).toBe(false)
+    expect(result).toMatchObject({ success: false, stdout: 'out', stderr: 'boom' })
     expect(result.error?.message).toBe(`Hook execute failed: ${node} -e process.stdout.write("out"); process.stderr.write("boom"); process.exit(1)`)
-    expect(result.stdout).toBe('out')
-    expect(result.stderr).toBe('boom')
-    expect(ends[0]?.success).toBe(false)
-    expect(ends[0]?.stderr).toBe('boom')
+    expect(ends[0]).toMatchObject({ success: false, stderr: 'boom' })
   })
 
   it('returns the spawn error promptly when the executable does not exist', async () => {
@@ -87,13 +83,18 @@ describe('runHook', () => {
   it('streams each stdout and stderr line through kubb:hook:line when a listener is attached', async () => {
     const hooks = new Hookable<KubbHooks>()
     const lines: Array<string> = []
-    hooks.hook('kubb:hook:line', ({ id, line }) => {
-      lines.push(`${id}:${line}`)
+    let id = ''
+    hooks.hook('kubb:hook:start', (ctx) => {
+      id = ctx.id ?? ''
+    })
+    hooks.hook('kubb:hook:line', (ctx) => {
+      lines.push(`${ctx.id}:${ctx.line}`)
     })
 
-    const result = await runHook({ hooks, id: 'lines', command: node, args: ['-e', 'console.log("first"); console.error("second"); process.exit(1)'] })
+    const result = await runHook({ hooks, command: node, args: ['-e', 'console.log("first"); console.error("second"); process.exit(1)'] })
 
-    expect([...lines].sort()).toStrictEqual(['lines:first', 'lines:second'])
+    expect(id).not.toBe('')
+    expect([...lines].sort()).toStrictEqual([`${id}:first`, `${id}:second`])
     expect(result.success).toBe(false)
   })
 
@@ -140,42 +141,17 @@ describe('runHook', () => {
     expect(result).toStrictEqual({ success: true, error: null })
     expect(lines).toStrictEqual(['local'])
   })
-})
 
-describe('binDirectories', () => {
-  it('returns one node_modules/.bin per directory from cwd up to the root', () => {
-    const dirs = binDirectories(path.join(path.parse(process.cwd()).root, 'a', 'b'))
+  it.skipIf(process.platform !== 'win32')('passes a quoted argument through cmd.exe unchanged', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const lines: Array<string> = []
+    hooks.hook('kubb:hook:line', ({ line }) => {
+      lines.push(line)
+    })
 
-    expect(dirs).toStrictEqual([
-      path.join(path.parse(process.cwd()).root, 'a', 'b', 'node_modules', '.bin'),
-      path.join(path.parse(process.cwd()).root, 'a', 'node_modules', '.bin'),
-      path.join(path.parse(process.cwd()).root, 'node_modules', '.bin'),
-    ])
-  })
-})
+    const result = await runHook({ hooks, command: node, args: ['-e', 'console.log(process.argv[1])', 'say "hi" & bye'] })
 
-describe('toWindowsCommandLine', () => {
-  it('returns the command bare and each argument quoted', () => {
-    expect(toWindowsCommandLine('prettier', ['--write', 'src/gen'])).toBe('prettier ^"--write^" ^"src/gen^"')
-  })
-
-  it('returns a quoted argument when it contains a space', () => {
-    expect(toWindowsCommandLine('npm', ['run', 'gen types'])).toBe('npm ^"run^" ^"gen types^"')
-  })
-
-  it('returns backslash-escaped inner quotes with cmd metacharacters carets', () => {
-    expect(toWindowsCommandLine('echo', ['say "hi"'])).toBe('echo ^"say \\^"hi\\^"^"')
-  })
-
-  it('returns doubled backslashes before an inner quote and at the end', () => {
-    expect(toWindowsCommandLine('echo', ['C:\\dir\\', 'a\\"b'])).toBe('echo ^"C:\\dir\\\\^" ^"a\\\\\\^"b^"')
-  })
-
-  it('returns caret-prefixed percent and ampersand', () => {
-    expect(toWindowsCommandLine('echo', ['100%', 'a&b'])).toBe('echo ^"100^%^" ^"a^&b^"')
-  })
-
-  it('returns a quoted command when its path contains a space', () => {
-    expect(toWindowsCommandLine('C:\\Program Files\\nodejs\\node.exe', ['-v'])).toBe('^"C:\\Program Files\\nodejs\\node.exe^" ^"-v^"')
+    expect(result).toStrictEqual({ success: true, error: null })
+    expect(lines).toStrictEqual(['say "hi" & bye'])
   })
 })

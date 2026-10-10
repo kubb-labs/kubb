@@ -8,6 +8,7 @@ import type { GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, Plugin, PluginName, ResolvePluginOptions } from './definePlugin.ts'
 import type { KubbDriver } from './KubbDriver.ts'
+import type { HookResult } from './output/runHook.ts'
 
 /**
  * @internal
@@ -673,40 +674,8 @@ export type KubbHookLineContext = {
   line: string
 }
 
-export type KubbHookEndContext = {
-  /**
-   * Optional identifier matching the corresponding `kubb:hook:start` hook.
-   */
-  id?: string
-  /**
-   * The shell command that ran.
-   */
-  command: string
-  /**
-   * Optional label for the command, shown in the CLI output when set.
-   */
-  name?: string
-  /**
-   * Parsed argument list, when available.
-   */
-  args?: ReadonlyArray<string>
-  /**
-   * `true` when the command exited with code `0`.
-   */
-  success: boolean
-  /**
-   * Error thrown by the command, or `null` on success.
-   */
-  error: Error | null
-  /**
-   * Captured stdout from the process, populated when it exits non-zero.
-   */
-  stdout?: string
-  /**
-   * Captured stderr from the process, populated when it exits non-zero.
-   */
-  stderr?: string
-}
+/** Emitted when a hook subprocess ends: its `kubb:hook:start` context plus the outcome. */
+export type KubbHookEndContext = KubbHookStartContext & HookResult
 
 /**
  * CLI options derived from command-line flags.
