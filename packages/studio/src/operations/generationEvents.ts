@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import { isAbsolute, relative, resolve } from 'node:path'
 import { getElapsedMs } from '@internals/utils'
 import { Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
-import type { GenerationEvent, GenerationEventPayloads, GenerationEventType } from '../protocol/index.ts'
+import { type GenerationEvent, type GenerationEventPayloads, type GenerationEventType, generationEventTypes } from '../protocol/index.ts'
 import type { SourceFiles } from './generations.ts'
 import { toPackageName } from './resolveConfig.ts'
 
@@ -62,6 +62,12 @@ export type GenerationStreamOptions = {
   onGenerationEnd?: (result: GenerationEnd) => void
 }
 
+/**
+ * How each published hook's context becomes its wire payload. Keyed by {@link generationEventTypes},
+ * so a hook added to the catalog without a projection fails to compile.
+ */
+type Projections = { [Type in GenerationEventType]: (...args: KubbHooks[Type]) => GenerationEventPayloads[Type] }
+
 const MAX_QUEUED_EVENTS = 1_024
 const RESERVED_EVENTS = 64
 const isDiscardable = (event: GenerationEvent) => event.type === 'kubb:files:processing:update' || event.type === 'kubb:info' || event.type === 'kubb:success'
@@ -108,67 +114,69 @@ export function createGenerationStream(
     controller.enqueue(event)
   }
 
-  on('kubb:plugin:start', (ctx) => {
-    emitEvent('kubb:plugin:start', [{ plugin: { name: ctx.plugin.name } }])
-  })
-
-  on('kubb:plugin:end', (ctx) => {
-    emitEvent('kubb:plugin:end', [{ plugin: { name: ctx.plugin.name }, duration: ctx.duration, success: ctx.success }])
-  })
-
-  on('kubb:build:start', ({ config, adapter }) => {
-    root = config.root
-    emitEvent('kubb:build:start', [{ config: { name: config.name }, adapter: { name: adapter.name } }])
-  })
-
-  on('kubb:build:end', ({ files, config, outputDir }) => {
-    emitEvent('kubb:build:end', [{ files: files.map((file) => ({ path: relativeStoragePath(config.root, file.path), name: file.name })), outputDir }])
-  })
-
-  on('kubb:files:processing:start', ({ files }) => {
-    emitEvent('kubb:files:processing:start', [{ total: files.length }])
-  })
-
-  on('kubb:files:processing:update', ({ files }) => {
-    emitEvent('kubb:files:processing:update', [
+  const projections: Projections = {
+    'kubb:plugin:start': ({ plugin }) => [{ plugin: { name: plugin.name } }],
+    'kubb:plugin:end': ({ plugin, duration, success }) => [{ plugin: { name: plugin.name }, duration, success }],
+    'kubb:build:start': ({ config, adapter }) => [{ config: { name: config.name }, adapter: { name: adapter.name } }],
+    'kubb:build:end': ({ files, config, outputDir }) => [
+      { files: files.map((file) => ({ path: relativeStoragePath(config.root, file.path), name: file.name })), outputDir },
+    ],
+    'kubb:files:processing:start': ({ files }) => [{ total: files.length }],
+    'kubb:files:processing:update': ({ files }) => [
+      { files: files.map(({ file, processed, total, percentage }) => ({ file: relativeStoragePath(root, file.path), processed, total, percentage })) },
+    ],
+    'kubb:files:processing:end': ({ files }) => [{ total: files.length }],
+    'kubb:info': ({ message, info }) => [{ message, info }],
+    'kubb:success': ({ message, info }) => [{ message, info }],
+    'kubb:warn': ({ message, info }) => [{ message, info }],
+    'kubb:error': ({ error }) => [{ message: error.message, stack: error.stack }],
+    'kubb:diagnostic': ({ diagnostic }) => [
       {
-        files: files.map(({ file, processed, total, percentage }) => ({
-          file: relativeStoragePath(root, file.path),
-          processed,
-          total,
-          percentage,
-        })),
+        code: diagnostic.code,
+        message: diagnostic.message,
+        severity: diagnostic.severity,
+        location: 'location' in diagnostic ? diagnostic.location : undefined,
+        help: 'help' in diagnostic ? diagnostic.help : undefined,
+        plugin: 'plugin' in diagnostic ? diagnostic.plugin : undefined,
+        stack: 'cause' in diagnostic ? diagnostic.cause?.stack : undefined,
       },
-    ])
-  })
-
-  on('kubb:files:processing:end', ({ files }) => {
-    emitEvent('kubb:files:processing:end', [{ total: files.length }])
-  })
-
-  // The three log levels differ only in their event name.
-  for (const type of ['kubb:info', 'kubb:success', 'kubb:warn'] as const) {
-    on(type, ({ message, info }) => {
-      emitEvent(type, [{ message, info }])
-    })
+    ],
+    'kubb:generation:start': ({ config }) => [{ name: config.name, plugins: config.plugins.length }],
+    'kubb:generation:end': () => [],
+    'kubb:generation:summary': ({ duration, fileCount, failedPlugins, status }) => [{ duration, fileCount, failedPlugins, status }],
+    'kubb:lifecycle:start': () => [],
+    'kubb:lifecycle:end': () => [],
+    'kubb:format:start': () => [],
+    'kubb:format:end': () => [],
+    'kubb:lint:start': () => [],
+    'kubb:lint:end': () => [],
+    'kubb:hooks:start': () => [],
+    'kubb:hooks:end': () => [],
+    'kubb:hook:start': ({ id, command, args }) => [{ id, command, args: args ? [...args] : undefined }],
+    'kubb:hook:line': ({ id, line }) => [{ id, line }],
+    'kubb:hook:end': ({ id, command, args, success, error }) => [
+      { id, command, args: args ? [...args] : undefined, success, error: error ? { message: error.message, stack: error.stack } : undefined },
+    ],
   }
 
-  on('kubb:generation:start', ({ config }) => {
-    emitEvent('kubb:generation:start', [
-      {
-        name: config.name,
-        plugins: config.plugins.length,
-      },
-    ])
+  function forward<Type extends GenerationEventType>(type: Type): void {
+    on(type, (...args: KubbHooks[Type]) => emitEvent(type, projections[type](...args)))
+  }
+
+  // Paths in `kubb:files:processing:update` are made relative to the root the build announced.
+  on('kubb:build:start', ({ config }) => {
+    root = config.root
   })
 
+  for (const type of generationEventTypes) forward(type)
+
+  // Registered after the loop, so the summary follows the `kubb:generation:end` it describes. Core
+  // never emits `kubb:generation:summary` itself.
   on('kubb:generation:end', async ({ config, storage, diagnostics = [], status, hrStart, filesCreated }) => {
     const { peerDependencies, missingDependencies } = await resolvePeerDependencies(config.plugins.map(({ name }) => name))
     const keys = await storage.readKeys()
     const paths = new Set(keys.map((key) => relativeStoragePath(config.root, key)))
     options.onGenerationEnd?.({ output: { storage, root: config.root, paths }, peerDependencies, missingDependencies })
-
-    emitEvent('kubb:generation:end', [])
 
     if (!hrStart) {
       return
@@ -178,66 +186,6 @@ export function createGenerationStream(
 
     emitEvent('kubb:generation:summary', [
       { duration, fileCount: filesCreated ?? 0, failedPlugins: Diagnostics.failedPlugins(diagnostics).length, status: status ?? 'success' },
-    ])
-  })
-
-  on('kubb:error', ({ error }) => {
-    emitEvent('kubb:error', [
-      {
-        message: error.message,
-        stack: error.stack,
-      },
-    ])
-  })
-
-  on('kubb:diagnostic', ({ diagnostic }) => {
-    const cause = 'cause' in diagnostic ? diagnostic.cause : undefined
-    emitEvent('kubb:diagnostic', [
-      {
-        code: diagnostic.code,
-        message: diagnostic.message,
-        severity: diagnostic.severity,
-        location: 'location' in diagnostic ? diagnostic.location : undefined,
-        help: 'help' in diagnostic ? diagnostic.help : undefined,
-        plugin: 'plugin' in diagnostic ? diagnostic.plugin : undefined,
-        stack: cause?.stack,
-      },
-    ])
-  })
-
-  // Bracketing events carry no context, so they forward identically.
-  for (const type of [
-    'kubb:lifecycle:start',
-    'kubb:lifecycle:end',
-    'kubb:format:start',
-    'kubb:format:end',
-    'kubb:lint:start',
-    'kubb:lint:end',
-    'kubb:hooks:start',
-    'kubb:hooks:end',
-  ] as const) {
-    on(type, () => {
-      emitEvent(type, [])
-    })
-  }
-
-  on('kubb:hook:start', ({ id, command, args }) => {
-    emitEvent('kubb:hook:start', [{ id, command, args: args ? [...args] : undefined }])
-  })
-
-  on('kubb:hook:line', ({ id, line }) => {
-    emitEvent('kubb:hook:line', [{ id, line }])
-  })
-
-  on('kubb:hook:end', ({ id, command, args, success, error }) => {
-    emitEvent('kubb:hook:end', [
-      {
-        id,
-        command,
-        args: args ? [...args] : undefined,
-        success,
-        error: error ? { message: error.message, stack: error.stack } : undefined,
-      },
     ])
   })
 
