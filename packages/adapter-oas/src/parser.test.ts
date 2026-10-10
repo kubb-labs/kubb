@@ -1,14 +1,11 @@
 import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
-import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
+import { adapterOas } from './adapter.ts'
 import { patchDiscriminatorNode } from './emit/discriminator/propagate.ts'
-import { parseDocument } from './load/normalize.ts'
-import { getSchemas } from './model/components.ts'
-import { getOperations } from './operation.ts'
 import { createSchemaParser, type OasParserContext } from './parser.ts'
 import { createRefs } from './refs.ts'
-import type { ContentType, Document, SchemaObject } from './types.ts'
+import type { AdapterOasOptions, ContentType, Document, SchemaObject } from './types.ts'
 
 const emptyDocument: Document = {
   openapi: '3.0.0',
@@ -115,29 +112,11 @@ function parseSchema(ctx: OasParserContext, { schema, name }: { schema: SchemaOb
 }
 
 /**
- * Parses a full OpenAPI document into Kubb's universal `InputNode` AST, mirroring
- * `parseInput()` in `adapter.ts` for whole-spec test cases.
+ * Parses a full OpenAPI document through the real adapter, so collision renames, discriminator
+ * propagation and root enums apply exactly as they do in a build.
  */
-function parseOas(document: Document, options: Partial<ast.ParserOptions> & { contentType?: ContentType } = {}): ast.InputNode {
-  const { contentType, ...parserOptions } = options
-  const mergedOptions: ast.ParserOptions = {
-    ...DEFAULT_PARSER_OPTIONS,
-    ...parserOptions,
-  }
-
-  const refs = createRefs(document)
-  const { schemas: schemaObjects } = getSchemas(document, { contentType }, refs)
-  const { parseSchema: _parseSchema, parseOperation: _parseOperation } = createSchemaParser({ document, refs, contentType })
-
-  const schemas: Array<ast.SchemaNode> = Object.entries(schemaObjects).map(([name, schema]) => _parseSchema({ schema, name }, mergedOptions))
-
-  const operations: Array<ast.OperationNode> = getOperations(document, refs)
-    .map((operation) => _parseOperation(mergedOptions, operation))
-    .filter((op): op is ast.OperationNode => op !== null)
-
-  const root = ast.factory.createInput({ schemas, operations })
-
-  return root
+async function parseOas(data: unknown, options: AdapterOasOptions = {}): Promise<ast.InputNode> {
+  return adapterOas({ validate: false, ...options }).parse({ type: 'data', data })
 }
 
 function findSchema(root: ast.InputNode, name: string): ast.SchemaNode | undefined {
@@ -151,7 +130,7 @@ function findOperation(root: ast.InputNode, operationId: string): ast.OperationN
 describe('buildAst', () => {
   describe('schemas', () => {
     it('returns an InputNode with the named component schemas', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
       const names = root.schemas.map((s) => s.name)
 
       expect(root.kind).toBe('Input')
@@ -159,7 +138,7 @@ describe('buildAst', () => {
     })
 
     it('converts object schema with properties', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
       const pet = ast.narrowSchema(findSchema(root, 'Pet'), 'object')
 
       expect(pet?.type).toBe('object')
@@ -167,7 +146,7 @@ describe('buildAst', () => {
     })
 
     it('marks required properties', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
       const pet = ast.narrowSchema(findSchema(root, 'Pet'), 'object')
 
       expect(pet?.properties?.find((p) => p.name === 'id')?.required).toBe(true)
@@ -175,7 +154,7 @@ describe('buildAst', () => {
     })
 
     it('converts array schema', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
       const list = ast.narrowSchema(findSchema(root, 'PetList'), 'array')
 
       expect(list?.type).toBe('array')
@@ -184,29 +163,29 @@ describe('buildAst', () => {
     })
 
     it('populates node.schema with the resolved ref schema when the document contains the definition', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
       const petList = ast.narrowSchema(findSchema(root, 'PetList'), 'array')
 
       expect(petList?.items?.[0]).toMatchObject({ type: 'ref', schema: { type: 'object' } })
     })
 
     it('converts enum schema', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
       const status = ast.narrowSchema(findSchema(root, 'Status'), 'enum')
 
       expect(status).toMatchObject({ type: 'enum', primitive: 'string', enumValues: ['active', 'inactive', 'pending'] })
     })
 
     it('converts oneOf to union', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
       const petOrError = ast.narrowSchema(findSchema(root, 'PetOrError'), 'union')
 
       expect(petOrError?.type).toBe('union')
       expect(petOrError?.members).toHaveLength(2)
     })
 
-    it('parses a drf-spectacular NullEnum component as a null node', () => {
-      const root = parseOas({
+    it('parses a drf-spectacular NullEnum component as a null node', async () => {
+      const root = await parseOas({
         openapi: '3.0.3',
         info: { title: '', version: '' },
         paths: {},
@@ -217,7 +196,7 @@ describe('buildAst', () => {
     })
 
     it('converts allOf to intersection', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
       const fullPet = ast.narrowSchema(findSchema(root, 'FullPet'), 'intersection')
 
       expect(fullPet?.type).toBe('intersection')
@@ -225,14 +204,14 @@ describe('buildAst', () => {
     })
 
     it('flattens single-member allOf and propagates nullable', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
 
       // Flattened to 'string', not an intersection
       expect(findSchema(root, 'NullableString')).toMatchObject({ type: 'string', nullable: true, readOnly: true, examples: ['some-value'] })
     })
 
     it('flattens single-member allOf for nullable $ref', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
       const nullableRef = ast.narrowSchema(findSchema(root, 'NullableRef'), 'union')
 
       // The 3.1 upgrade rewrites `{ $ref, nullable: true }` into `anyOf: [$ref, null]`, so the
@@ -243,7 +222,7 @@ describe('buildAst', () => {
     })
 
     it('maps formats on properties nested inside an allOf member', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
       const fullPet = ast.narrowSchema(findSchema(root, 'FullPet'), 'intersection')
       // second member is an inline object with createdAt (datetime) and email
       const objectMember = ast.narrowSchema(
@@ -276,13 +255,13 @@ describe('buildAst', () => {
 
   describe('operations', () => {
     it('converts all operations', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
 
       expect(root.operations).toHaveLength(4)
     })
 
     it('sets operationId, method, path, tags', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
 
       expect(findOperation(root, 'listPets')).toMatchObject({
         method: 'GET',
@@ -294,13 +273,13 @@ describe('buildAst', () => {
     })
 
     it('sets deprecated flag', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
 
       expect(findOperation(root, 'createPet')?.deprecated).toBe(true)
     })
 
     it('uses uppercase HTTP method per RFC 9110', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
 
       for (const op of root.operations) {
         expect(op.method).toBe(op.method?.toUpperCase())
@@ -311,7 +290,7 @@ describe('buildAst', () => {
       { operationId: 'listPets', method: 'GET', path: '/pets', name: 'limit', in: 'query', required: false },
       { operationId: 'getPetById', method: 'GET', path: '/pets/{petId}', name: 'petId', in: 'path', required: true },
     ])('converts $in parameters', async ({ operationId, method, path, name, in: location, required }) => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
       const operation = findOperation(root, operationId)
       const parameter = operation?.parameters.find((p) => p.name === name)
 
@@ -320,7 +299,7 @@ describe('buildAst', () => {
     })
 
     it('converts path parameters with $ref schema to a named ref type', async () => {
-      const oas = await parseDocument({
+      const oas = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         components: {
@@ -347,15 +326,15 @@ describe('buildAst', () => {
             },
           },
         },
-      })
-      const root = parseOas(oas)
+      }
+      const root = await parseOas(oas)
       const petId = findOperation(root, 'getPetById')?.parameters.find((p) => p.name === 'petId')
 
       expect(petId?.schema).toMatchObject({ type: 'ref', name: 'PetId' })
     })
 
     it('captures the parameter style and explode metadata', async () => {
-      const oas = await parseDocument({
+      const oas = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -370,8 +349,8 @@ describe('buildAst', () => {
             },
           },
         },
-      })
-      const root = parseOas(oas)
+      }
+      const root = await parseOas(oas)
       const op = findOperation(root, 'listPetsByIds')
 
       expect(op?.parameters.find((p) => p.name === 'ids')).toMatchObject({ style: 'matrix', explode: true })
@@ -379,7 +358,7 @@ describe('buildAst', () => {
     })
 
     it('converts requestBody with description, required and a single content entry', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
       const createPet = findOperation(root, 'createPet')
 
       expect(createPet?.requestBody).toMatchObject({
@@ -391,7 +370,7 @@ describe('buildAst', () => {
     })
 
     it('leaves requestBody.required undefined when spec omits required', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
       const patchPet = findOperation(root, 'patchPet')
 
       expect(patchPet?.requestBody).toBeDefined()
@@ -400,7 +379,7 @@ describe('buildAst', () => {
     })
 
     it('converts a response with statusCode, description and a single content entry', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
       const ok = findOperation(root, 'listPets')?.responses.find((r) => r.statusCode === '200')
 
       expect(ok).toMatchObject({
@@ -410,14 +389,14 @@ describe('buildAst', () => {
     })
 
     it('converts responses without a body schema', async () => {
-      const root = parseOas(await buildMinimalOas())
+      const root = await parseOas(await buildMinimalOas())
       const notFound = findOperation(root, 'getPetById')?.responses.find((r) => r.statusCode === '404')
 
       expect(notFound?.description).toBe('Not found')
     })
 
     it('populates requestBody.content with every content type in spec order', async () => {
-      const root = parseOas(await parseDocument(multipartUploadDocument))
+      const root = await parseOas(multipartUploadDocument)
       const upload = findOperation(root, 'upload')
 
       expect(upload?.requestBody?.content).toMatchObject([
@@ -427,14 +406,14 @@ describe('buildAst', () => {
     })
 
     it('keeps only the configured contentType in requestBody.content', async () => {
-      const root = parseOas(await parseDocument(multipartUploadDocument), { contentType: 'multipart/form-data' })
+      const root = await parseOas(multipartUploadDocument, { contentType: 'multipart/form-data' })
       const upload = findOperation(root, 'upload')
 
       expect(upload?.requestBody?.content?.map((entry) => entry.contentType)).toStrictEqual(['multipart/form-data'])
     })
 
     it('keeps a binary requestBody for an application/octet-stream body upgraded to 3.1', async () => {
-      const oas = await parseDocument({
+      const oas = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -453,15 +432,15 @@ describe('buildAst', () => {
             },
           },
         },
-      })
-      const root = parseOas(oas)
+      }
+      const root = await parseOas(oas)
       const uploadFile = findOperation(root, 'uploadFile')
 
       expect(uploadFile?.requestBody?.content).toMatchObject([{ contentType: 'application/octet-stream', schema: { type: 'blob' } }])
     })
 
     it('keeps a binary multipart property upgraded to 3.1', async () => {
-      const oas = await parseDocument({
+      const oas = {
         openapi: '3.0.3',
         info: { title: 'Test', version: '1.0.0' },
         paths: {
@@ -484,35 +463,35 @@ describe('buildAst', () => {
             },
           },
         },
-      })
-      const root = parseOas(oas)
+      }
+      const root = await parseOas(oas)
       const body = ast.narrowSchema(findOperation(root, 'upload')?.requestBody?.content?.[0]?.schema, 'object')
 
       expect(body?.properties.find((property) => property.name === 'file')?.schema.type).toBe('blob')
     })
 
     it('keeps a binary response for an application/octet-stream body upgraded to 3.1', async () => {
-      const root = parseOas(await parseDocument(binaryResponseDocument))
+      const root = await parseOas(binaryResponseDocument)
 
       expect(findOperation(root, 'downloadEssay')?.responses[0]?.content).toMatchObject([{ contentType: 'application/octet-stream', schema: { type: 'blob' } }])
       expect(findOperation(root, 'downloadPdf')?.responses[0]?.content?.[0]?.schema?.type).toBe('blob')
     })
 
     it('keeps a binary octet-stream response whatever emptySchemaType is configured', async () => {
-      const root = parseOas(await parseDocument(binaryResponseDocument), { emptySchemaType: 'void' })
+      const root = await parseOas(binaryResponseDocument, { emptySchemaType: 'void' })
 
       expect(findOperation(root, 'downloadEssay')?.responses[0]?.content?.[0]?.schema?.type).toBe('blob')
     })
 
     it('populates response.content with every content type in spec order', async () => {
-      const root = parseOas(await parseDocument(multiResponseDocument))
+      const root = await parseOas(multiResponseDocument)
       const ok = findOperation(root, 'getPetById')?.responses.find((r) => r.statusCode === '200')
 
       expect(ok?.content?.map((entry) => entry.contentType)).toStrictEqual(['application/json', 'application/xml'])
     })
 
     it('keeps only the configured contentType in response.content', async () => {
-      const root = parseOas(await parseDocument(multiResponseDocument), { contentType: 'application/xml' })
+      const root = await parseOas(multiResponseDocument, { contentType: 'application/xml' })
       const ok = findOperation(root, 'getPetById')?.responses.find((r) => r.statusCode === '200')
 
       expect(ok?.content?.map((entry) => entry.contentType)).toStrictEqual(['application/xml'])
@@ -1078,7 +1057,7 @@ describe('parseSchema oneOf / anyOf', () => {
     { title: 'one member', oneOf: [{ $ref: '#/components/schemas/Cat' }], members: ['ref'] },
   ] satisfies Array<{ title: string; oneOf: Array<SchemaObject>; members: Array<string> }>)(
     'intersects a oneOf with $title with the sibling properties when properties are present',
-    ({ oneOf, members }) => {
+    async ({ oneOf, members }) => {
       const node = parseSchema(emptyCtx, {
         schema: {
           oneOf,
@@ -1468,7 +1447,7 @@ describe('parseSchema discriminator on union', () => {
   })
 
   it('folds the implicit schema-name value into ref members when no mapping is present', async () => {
-    const oas = await parseDocument({
+    const oas = {
       openapi: '3.0.3',
       info: { title: 'ImplicitDiscriminator', version: '1.0.0' },
       paths: {},
@@ -1482,9 +1461,9 @@ describe('parseSchema discriminator on union', () => {
           Dog: { type: 'object', properties: { petType: { type: 'string' }, bark: { type: 'boolean' } } },
         },
       },
-    })
+    }
 
-    const pet = findSchema(parseOas(oas), 'Pet')
+    const pet = findSchema(await parseOas(oas), 'Pet')
     const { members } = ast.narrowSchema(pet, 'union')!
 
     const discriminantOf = (member: ast.SchemaNode) => {
@@ -1498,7 +1477,7 @@ describe('parseSchema discriminator on union', () => {
   })
 
   it('leaves a ref member untouched when the variant already pins the discriminator to a literal', async () => {
-    const oas = await parseDocument({
+    const oas = {
       openapi: '3.0.3',
       info: { title: 'SelfDescribingDiscriminator', version: '1.0.0' },
       paths: {},
@@ -1512,9 +1491,9 @@ describe('parseSchema discriminator on union', () => {
           Disapproved: { type: 'object', properties: { kind: { type: 'string', enum: ['DISAPPROVED'] } } },
         },
       },
-    })
+    }
 
-    const notification = findSchema(parseOas(oas), 'Notification')
+    const notification = findSchema(await parseOas(oas), 'Notification')
 
     // Each variant already carries its own `kind` literal, so folding the schema name would
     // collide with it; the members must stay plain refs.
@@ -1847,7 +1826,7 @@ describe('parseSchema prefixItems (tuple)', () => {
     { title: 'second', prefixItems: [{ type: 'integer' }, { enum: ['NW', 'NE', 'SW', 'SE'] }], index: 1 },
   ] satisfies Array<{ title: string; prefixItems: Array<SchemaObject>; index: number }>)(
     'names the $title enum element inside a tuple property using parent + propName',
-    ({ prefixItems, index }) => {
+    async ({ prefixItems, index }) => {
       const node = parseSchema(
         emptyCtx,
         {
@@ -1911,7 +1890,7 @@ describe('parseSchema enum', () => {
     { title: 'duplicate values without an extension key', schema: { type: 'integer', enum: [5, 5, 10] }, values: [5, 10], names: ['5', '10'] },
   ] satisfies Array<{ title: string; schema: SchemaObject; values: Array<number>; names: Array<string> }>)(
     'deduplicates numeric enum values and uses the stringified value as name for $title',
-    ({ schema, values, names }) => {
+    async ({ schema, values, names }) => {
       const namedEnumValues = ast.narrowSchema(parseSchema(emptyCtx, { schema }), 'enum')?.namedEnumValues
 
       expect(namedEnumValues?.map((v) => v.value)).toStrictEqual(values)
@@ -1928,7 +1907,7 @@ describe('parseSchema enum', () => {
     { title: 'blank and null together', schema: { enum: ['', null] }, enumValues: [''] },
   ] satisfies Array<{ title: string; schema: SchemaObject; enumValues: Array<unknown> }>)(
     'strips null from enumValues and sets nullable for $title',
-    ({ schema, enumValues }) => {
+    async ({ schema, enumValues }) => {
       const node = parseSchema(emptyCtx, { schema })
 
       expect(node.nullable).toBe(true)
@@ -1958,7 +1937,7 @@ describe('parseSchema enum', () => {
     { title: 'string with x-enumNames', schema: { enum: ['a', 'b'], 'x-enumNames': ['Alpha', 'Beta'] }, primitive: 'string', values: ['a', 'b'] },
   ] satisfies Array<{ title: string; schema: SchemaObject; primitive: string; values: Array<unknown> }>)(
     'produces namedEnumValues with primitive $primitive for a $title enum',
-    ({ schema, primitive, values }) => {
+    async ({ schema, primitive, values }) => {
       const node = parseSchema(emptyCtx, { schema })
       const namedEnumValues = ast.narrowSchema(node, 'enum')?.namedEnumValues
 
@@ -2260,7 +2239,7 @@ describe('parseSchema array', () => {
   // The operation path qualifies with `Status<code>` so its enums stay distinct from the
   // component's, avoiding the `TS2300: Duplicate identifier` re-export in the barrel.
   it('does not collide operation-response enums with a same-named component schema (#3364)', async () => {
-    const oas = await parseDocument({
+    const oas = {
       openapi: '3.0.3',
       info: { title: 'Test', version: '1.0.0' },
       components: {
@@ -2313,8 +2292,8 @@ describe('parseSchema array', () => {
           },
         },
       },
-    })
-    const root = parseOas(oas)
+    }
+    const root = await parseOas(oas)
 
     const collectEnumNames = (node: ast.SchemaNode | null | undefined): Array<string> =>
       node
@@ -2353,7 +2332,7 @@ describe('parser options', () => {
       { title: 'unknown for emptySchemaType: unknown', options: { emptySchemaType: 'unknown' }, type: 'unknown' },
     ] satisfies Array<{ title: string; options: Partial<ast.ParserOptions> | undefined; type: string }>)(
       'returns $title for an empty schema',
-      ({ options, type }) => {
+      async ({ options, type }) => {
         expect(parseSchema(emptyCtx, { schema: {} }, options).type).toBe(type)
       },
     )
@@ -2369,7 +2348,7 @@ describe('parser options', () => {
       { title: 'any for emptySchemaType: any', options: { emptySchemaType: 'any' }, type: 'any' },
     ] satisfies Array<{ title: string; options: Partial<ast.ParserOptions> | undefined; type: string }>)(
       'preserves metadata (title, description, deprecated, nullable, readOnly, writeOnly, default, examples, format) on a typeless schema mapped to $title',
-      ({ options, type }) => {
+      async ({ options, type }) => {
         const node = parseSchema(
           emptyCtx,
           {
@@ -2431,7 +2410,7 @@ describe('parser options', () => {
       { title: 'number float to number (non-integer types are untouched)', schema: { type: 'number', format: 'float' }, integerType: 'bigint', type: 'number' },
     ] satisfies Array<{ title: string; schema: SchemaObject; integerType: ast.ParserOptions['integerType']; type: string }>)(
       'integerType: $integerType maps $title',
-      ({ schema, integerType, type }) => {
+      async ({ schema, integerType, type }) => {
         const node = parseSchema(emptyCtx, { schema }, { integerType })
 
         expect(node.type).toBe(type)
@@ -2509,7 +2488,7 @@ describe('parser options', () => {
       },
     ] satisfies Array<{ title: string; format: string; dateType: ast.ParserOptions['dateType'] | undefined; expected: Record<string, unknown> }>)(
       'maps $title',
-      ({ format, dateType, expected }) => {
+      async ({ format, dateType, expected }) => {
         const node = parseSchema(emptyCtx, { schema: { type: 'string', format } }, dateType === undefined ? undefined : { dateType })
 
         expect(node).toMatchObject(expected)
@@ -2528,7 +2507,7 @@ describe('parseSchema not keyword', () => {
     { title: 'any for emptySchemaType: any', options: { emptySchemaType: 'any' }, type: 'any' },
   ] satisfies Array<{ title: string; options: Partial<ast.ParserOptions> | undefined; type: string }>)(
     'falls through to $title since "not" is not supported',
-    ({ options, type }) => {
+    async ({ options, type }) => {
       const node = parseSchema(emptyCtx, { schema: { not: { type: 'string' } } as SchemaObject }, options)
 
       expect(node.type).toBe(type)
@@ -2540,7 +2519,7 @@ describe('parseSchema circular allOf discriminator detection', () => {
   it('skips allOf member that references the child schema back through its discriminator parent', async () => {
     // This models the OAS pattern: Animal (parent, discriminator) → Cat (child, allOf: [Animal])
     // The parser must skip the back-reference to Animal from Cat's allOf to avoid circular types.
-    const oas = await parseDocument({
+    const oas = {
       openapi: '3.0.3',
       info: { title: 'Circular', version: '1.0.0' },
       paths: {},
@@ -2565,9 +2544,9 @@ describe('parseSchema circular allOf discriminator detection', () => {
           },
         },
       },
-    })
+    }
 
-    const cat = findSchema(parseOas(oas), 'Cat')
+    const cat = findSchema(await parseOas(oas), 'Cat')
 
     expect(cat?.type).toBe('intersection')
     // The intersection should contain only the concrete Cat properties — Animal is filtered out.
@@ -2579,7 +2558,7 @@ describe('parseSchema circular allOf discriminator detection', () => {
   it('injects the narrowed discriminant value when the discriminator parent is filtered from allOf', async () => {
     // Cat is identified as 'cat' in Animal's mapping; the Animal $ref is skipped to prevent
     // circularity, but { type: 'cat' } must be injected into Cat's intersection.
-    const oas = await parseDocument({
+    const oas = {
       openapi: '3.0.3',
       info: { title: 'DiscriminantInjection', version: '1.0.0' },
       paths: {},
@@ -2603,9 +2582,9 @@ describe('parseSchema circular allOf discriminator detection', () => {
           },
         },
       },
-    })
+    }
 
-    const root = parseOas(oas)
+    const root = await parseOas(oas)
 
     const discriminantMember = (name: string, value: string) => {
       const schema = findSchema(root, name)
@@ -2623,7 +2602,7 @@ describe('parseSchema circular allOf discriminator detection', () => {
 })
 
 describe('buildAst – header and cookie parameters', async () => {
-  const oas = await parseDocument({
+  const oas = {
     openapi: '3.0.3',
     info: { title: 'Params', version: '1.0.0' },
     paths: {
@@ -2657,9 +2636,9 @@ describe('buildAst – header and cookie parameters', async () => {
         },
       },
     },
-  })
+  }
 
-  const getItems = findOperation(parseOas(oas), 'getItems')
+  const getItems = findOperation(await parseOas(oas), 'getItems')
 
   it('parses operation description', () => {
     expect(getItems?.description).toBe('Fetch a list of items')
@@ -2678,7 +2657,7 @@ describe('buildAst – header and cookie parameters', async () => {
 })
 
 describe('buildAst – parameter description propagation', async () => {
-  const oas = await parseDocument({
+  const oas = {
     openapi: '3.0.3',
     info: { title: 'Params', version: '1.0.0' },
     paths: {
@@ -2707,9 +2686,9 @@ describe('buildAst – parameter description propagation', async () => {
         },
       },
     },
-  })
+  }
 
-  const listPets = findOperation(parseOas(oas), 'listPets')
+  const listPets = findOperation(await parseOas(oas), 'listPets')
 
   it.each([
     { name: 'limit', in: 'query', description: 'Maximum number of results to return' },
@@ -2719,7 +2698,7 @@ describe('buildAst – parameter description propagation', async () => {
   })
 
   it('prefers parameter-level description over schema-level description', async () => {
-    const oasWithBoth = await parseDocument({
+    const oasWithBoth = {
       openapi: '3.0.3',
       info: { title: 'Test', version: '1.0.0' },
       paths: {
@@ -2739,8 +2718,8 @@ describe('buildAst – parameter description propagation', async () => {
           },
         },
       },
-    })
-    const q = findOperation(parseOas(oasWithBoth), 'getItems')?.parameters.find((p) => p.name === 'q')
+    }
+    const q = findOperation(await parseOas(oasWithBoth), 'getItems')?.parameters.find((p) => p.name === 'q')
 
     expect(q?.schema.description).toBe('Parameter description')
   })
@@ -2748,7 +2727,7 @@ describe('buildAst – parameter description propagation', async () => {
 
 describe('parameter enum naming', () => {
   it('parameter enum schemas are qualified with `<operationName><ParamName>` so nested enums collide-free across operations', async () => {
-    const oas = await parseDocument({
+    const oas = {
       openapi: '3.0.3',
       info: { title: 'Test', version: '1.0.0' },
       paths: {
@@ -2771,8 +2750,8 @@ describe('parameter enum naming', () => {
           },
         },
       },
-    })
-    const statusParam = findOperation(parseOas(oas), 'listPets')?.parameters.find((p) => p.name === 'status')
+    }
+    const statusParam = findOperation(await parseOas(oas), 'listPets')?.parameters.find((p) => p.name === 'status')
 
     expect(statusParam?.schema).toMatchObject({ type: 'enum', name: 'ListPetsStatus', enumValues: ['available', 'pending', 'sold'], default: 'available' })
   })
@@ -2909,7 +2888,7 @@ describe('$ref path-item and requestBody resolution', () => {
     },
   } as unknown as Document
 
-  it('merges parameters from a $ref path-item into the operation', () => {
+  it('merges parameters from a $ref path-item into the operation', async () => {
     const document = {
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
@@ -2929,12 +2908,12 @@ describe('$ref path-item and requestBody resolution', () => {
       },
     } as unknown as Document
 
-    const op = findOperation(parseOas(document), 'listThings')
+    const op = findOperation(await parseOas(document), 'listThings')
 
     expect(op?.parameters).toMatchObject([{ name: 'limit', in: 'query' }])
   })
 
-  it('falls back to the $ref path-item summary and description', () => {
+  it('falls back to the $ref path-item summary and description', async () => {
     const document = {
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
@@ -2952,7 +2931,7 @@ describe('$ref path-item and requestBody resolution', () => {
       },
     } as unknown as Document
 
-    const op = findOperation(parseOas(document), 'listThingsWithDoc')
+    const op = findOperation(await parseOas(document), 'listThingsWithDoc')
 
     expect(op).toMatchObject({ summary: 'Shared summary', description: 'Shared description' })
   })
@@ -2967,8 +2946,8 @@ describe('$ref path-item and requestBody resolution', () => {
     { title: 'with a global contentType option', contentType: 'application/json' },
   ] satisfies Array<{ title: string; contentType: ContentType | undefined }>)(
     'resolves description, required and content from a $ref requestBody $title',
-    ({ contentType }) => {
-      const op = findOperation(parseOas(refRequestBodyDocument, { contentType }), 'createThing')
+    async ({ contentType }) => {
+      const op = findOperation(await parseOas(refRequestBodyDocument, { contentType }), 'createThing')
 
       expect(op?.requestBody).toMatchObject({
         description: 'Create a thing',

@@ -5,21 +5,19 @@ describe('createDiscriminantNode', () => {
   it('creates an object with a single required enum property', () => {
     const node = createDiscriminantNode({ propertyName: 'type', values: ['cat'] })
 
-    expect(node.type).toBe('object')
-    if (node.type !== 'object') return
-    expect(node.properties).toHaveLength(1)
-    expect(node.properties?.[0]?.name).toBe('type')
-    expect(node.properties?.[0]?.required).toBe(true)
-    expect(node.properties?.[0]?.schema.type).toBe('enum')
+    expect(node).toMatchObject({
+      type: 'object',
+      properties: [{ name: 'type', required: true, schema: { type: 'enum', enumValues: ['cat'] } }],
+    })
   })
 
   it('keeps every value when the discriminant covers several keys', () => {
     const node = createDiscriminantNode({ propertyName: 'kind', values: ['dog', 'hound'] })
 
-    if (node.type !== 'object') return
-    const enumNode = node.properties?.[0]?.schema
-    if (!enumNode || enumNode.type !== 'enum') return
-    expect(enumNode.enumValues).toStrictEqual(['dog', 'hound'])
+    expect(node).toMatchObject({
+      type: 'object',
+      properties: [{ name: 'kind', required: true, schema: { type: 'enum', enumValues: ['dog', 'hound'] } }],
+    })
   })
 })
 
