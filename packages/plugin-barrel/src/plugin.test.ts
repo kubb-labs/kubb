@@ -1,5 +1,5 @@
-import { ast } from '@kubb/ast'
-import { createKubb, definePlugin, memoryStorage } from '@kubb/core'
+import { ast } from '@kubb/kit'
+import { createKubb, definePlugin, Diagnostics, memoryStorage } from '@kubb/core'
 import type { Config, Plugin } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { pluginBarrel } from './plugin.ts'
@@ -59,10 +59,10 @@ function schemasPlugin() {
   })
 }
 
-async function build({ barrel = { type: 'named' }, plugins }: { barrel?: Config['output']['barrel']; plugins: Array<Plugin> }) {
+async function build({ plugins }: { plugins: Array<Plugin> }) {
   const config = {
     root: '/workspace',
-    output: { path: 'src/gen', barrel },
+    output: { path: 'src/gen', barrel: { type: 'named' } },
     parsers: [],
     reporters: [],
     plugins: [...plugins, pluginBarrel()] as unknown as Array<Plugin>,
@@ -71,11 +71,9 @@ async function build({ barrel = { type: 'named' }, plugins }: { barrel?: Config[
 
   const { files } = await createKubb(config).build()
 
-  return {
-    paths: files.map((file) => file.path),
-    file: (path: string) => files.find((file) => file.path === path),
-    rootExportNames: () => files.find((file) => file.path === '/workspace/src/gen/index.ts')?.exports.flatMap((item) => item.name ?? []),
-  }
+  const rootExportNames = files.find((file) => file.path === '/workspace/src/gen/index.ts')?.exports.flatMap((item) => item.name ?? [])
+
+  return { files, paths: files.map((file) => file.path), rootExportNames }
 }
 
 describe('pluginBarrel', () => {
@@ -91,7 +89,7 @@ describe('pluginBarrel', () => {
         '/workspace/src/gen/index.ts',
       ]),
     )
-    expect(rootExportNames()).toStrictEqual(expect.arrayContaining(['Pet', 'PetSchema']))
+    expect(rootExportNames).toStrictEqual(expect.arrayContaining(['Pet', 'PetSchema']))
   })
 
   it.each([
@@ -104,8 +102,8 @@ describe('pluginBarrel', () => {
       footer: undefined,
     },
   ])('sets barrel banner to $banner and footer to $footer when $scenario', async ({ output, banner, footer }) => {
-    const { file } = await build({ plugins: [typesPlugin(output)] })
-    const barrel = file('/workspace/src/gen/types/index.ts')
+    const { files } = await build({ plugins: [typesPlugin(output)] })
+    const barrel = files.find((file) => file.path === '/workspace/src/gen/types/index.ts')
 
     expect(barrel?.banner).toBe(banner)
     expect(barrel?.footer).toBe(footer)
@@ -120,7 +118,7 @@ describe('pluginBarrel', () => {
 
     expect(paths).not.toContain('/workspace/src/gen/types.ts/index.ts')
     expect(paths).toContain('/workspace/src/gen/types.ts')
-    expect(rootExportNames()).toContain('Pet')
+    expect(rootExportNames).toContain('Pet')
   })
 
   it.each([
@@ -139,8 +137,20 @@ describe('pluginBarrel', () => {
     const { paths, rootExportNames } = await build({ plugins: [plugin, schemasPlugin()] })
 
     expect(paths).not.toContain('/workspace/src/gen/types/index.ts')
-    expect(rootExportNames()).not.toContain('Pet')
-    expect(rootExportNames()).toContain('PetSchema')
+    expect(rootExportNames).not.toContain('Pet')
+    expect(rootExportNames).toContain('PetSchema')
+  })
+
+  it('reports a path traversal when a plugin output path escapes the output directory', async () => {
+    const escapingPlugin = makePlugin({
+      name: 'plugin-types',
+      outputPath: '../outside',
+      filePath: '/workspace/src/outside/pet.ts',
+      exportName: 'Pet',
+      output: { mode: 'directory' },
+    })
+
+    await expect(build({ plugins: [escapingPlugin] })).rejects.toMatchObject({ errors: [{ diagnostic: { code: Diagnostics.code.pathTraversal } }] })
   })
 
   it('keeps a plugin whose output path only shares a prefix with an excluded one', async () => {
@@ -153,7 +163,7 @@ describe('pluginBarrel', () => {
     })
     const { rootExportNames } = await build({ plugins: [typesPlugin({ barrel: false }), extraPlugin] })
 
-    expect(rootExportNames()).not.toContain('Pet')
-    expect(rootExportNames()).toContain('PetExtra')
+    expect(rootExportNames).not.toContain('Pet')
+    expect(rootExportNames).toContain('PetExtra')
   })
 })

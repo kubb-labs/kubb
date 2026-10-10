@@ -1,7 +1,5 @@
-import { extname, resolve } from 'node:path'
-import { ast, type ExportNode, type FileNode, type SourceNode } from '@kubb/ast'
-import { Diagnostics } from '@kubb/core'
-import type { Config, NormalizedPlugin } from '@kubb/core'
+import { extname, posix } from 'node:path'
+import { ast, Diagnostics } from '@kubb/kit'
 import { toPosixPath } from '@internals/utils'
 import type { BarrelType } from './types.ts'
 
@@ -60,8 +58,6 @@ function buildTree(rootPath: string, filePaths: ReadonlyArray<string>): BuildTre
     if (!normalized.startsWith(rootPrefix)) continue
 
     const parts = normalized.slice(rootPrefix.length).split('/')
-    if (parts.length === 0) continue
-
     let current = root
     const lastIndex = parts.length - 1
     for (const [i, part] of parts.entries()) {
@@ -98,20 +94,27 @@ function compareByPath(a: BuildTree, b: BuildTree): number {
   return a.path < b.path ? -1 : a.path > b.path ? 1 : 0
 }
 
-function toRelativeModulePath(fromDir: string, filePath: string): string {
-  return `./${filePath.slice(fromDir.length + 1)}`
+function toRelativeModulePath({ fromDir, filePath }: { fromDir: string; filePath: string }): string {
+  return `./${posix.relative(fromDir, filePath)}`
 }
 
 function isBarrelPath(path: string): boolean {
   return path.endsWith(BARREL_SUFFIX)
 }
 
-function makeBarrel(dirPath: string, exports: Array<ExportNode>, sourceFiles: ReadonlyMap<string, FileNode>, reportedCollisions: Set<string>): FileNode {
+type MakeBarrelParams = {
+  dirPath: string
+  exports: Array<ast.ExportNode>
+  sourceFiles: ReadonlyMap<string, ast.FileNode>
+  reportedCollisions: Set<string>
+}
+
+function makeBarrel({ dirPath, exports, sourceFiles, reportedCollisions }: MakeBarrelParams): ast.FileNode {
   const names = new Map<string, string>()
-  const uniqueExports: Array<ExportNode> = []
+  const uniqueExports: Array<ast.ExportNode> = []
 
   for (const item of exports) {
-    const itemPath = toPosixPath(resolve(dirPath, item.path))
+    const itemPath = posix.join(dirPath, item.path)
     const itemNames = Array.isArray(item.name)
       ? item.name
       : item.name
@@ -127,7 +130,7 @@ function makeBarrel(dirPath: string, exports: Array<ExportNode>, sourceFiles: Re
         continue
       }
 
-      const key = [name, toPosixPath(resolve(dirPath, first)), itemPath].join('\0')
+      const key = [name, posix.join(dirPath, first), itemPath].join('\0')
       if (reportedCollisions.has(key)) continue
       reportedCollisions.add(key)
       Diagnostics.report({
@@ -143,86 +146,48 @@ function makeBarrel(dirPath: string, exports: Array<ExportNode>, sourceFiles: Re
     }
   }
 
-  return ast.factory.createFile({
-    baseName: 'index.ts',
-    path: `${dirPath}${BARREL_SUFFIX}`,
-    exports: uniqueExports,
-    sources: [],
-    imports: [],
-    // Default to no banner/footer. The barrel plugin resolves a configured plugin
-    // banner/footer (with isBarrel: true) afterwards, so a `banner` function can
-    // decide per file whether a barrel should carry a directive like "use server".
-    banner: undefined,
-    footer: undefined,
-  })
+  return ast.factory.createFile({ baseName: 'index.ts', path: `${dirPath}${BARREL_SUFFIX}`, exports: uniqueExports })
 }
 
-type LeafContext = {
-  dirPath: string
-  leafPath: string
-  sourceFile: FileNode | null
-}
+type LeafStrategy = (params: { dirPath: string; leafPath: string; sourceFile: ast.FileNode | undefined }) => Array<ast.ExportNode>
 
-type LeafStrategy = (ctx: LeafContext) => Array<ExportNode>
-
-function hasOnlyNonIndexableSources(sources: ReadonlyArray<SourceNode>): boolean {
-  if (sources.length === 0) return false
-  for (const source of sources) {
-    if (source.isIndexable) return false
-  }
-  return true
-}
-
-function partitionIndexableNames(sources: ReadonlyArray<SourceNode>): Map<boolean, Set<string>> {
-  const byTypeOnly = new Map<boolean, Set<string>>([
-    [false, new Set()],
-    [true, new Set()],
-  ])
-  for (const source of sources) {
-    if (!source.isIndexable || !source.name) continue
-    byTypeOnly.get(Boolean(source.isTypeOnly))!.add(source.name)
-  }
-  return byTypeOnly
+function indexableNames({ sources, isTypeOnly }: { sources: ReadonlyArray<ast.SourceNode>; isTypeOnly: boolean }): Array<string> {
+  const names = sources.flatMap((source) => (source.isIndexable && source.name && Boolean(source.isTypeOnly) === isTypeOnly ? [source.name] : []))
+  return [...new Set(names)].sort()
 }
 
 const allStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
-  if (sourceFile && hasOnlyNonIndexableSources(sourceFile.sources)) return []
-  return [ast.factory.createExport({ path: toRelativeModulePath(dirPath, leafPath) })]
+  const sources = sourceFile?.sources ?? []
+  if (sources.length > 0 && !sources.some((source) => source.isIndexable)) return []
+  return [ast.factory.createExport({ path: toRelativeModulePath({ fromDir: dirPath, filePath: leafPath }) })]
 }
 
 const namedStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
-  const modulePath = toRelativeModulePath(dirPath, leafPath)
+  const modulePath = toRelativeModulePath({ fromDir: dirPath, filePath: leafPath })
 
   if (!sourceFile) return [ast.factory.createExport({ path: modulePath })]
 
-  const namesByTypeOnly = partitionIndexableNames(sourceFile.sources)
-  const valueNames = namesByTypeOnly.get(false)!
-  const typeNames = namesByTypeOnly.get(true)!
+  const valueNames = indexableNames({ sources: sourceFile.sources, isTypeOnly: false })
+  const typeNames = indexableNames({ sources: sourceFile.sources, isTypeOnly: true })
 
-  if (valueNames.size === 0 && typeNames.size === 0) {
+  if (valueNames.length === 0 && typeNames.length === 0) {
     if (sourceFile.sources.length > 0) return []
     return [ast.factory.createExport({ path: modulePath })]
   }
 
-  const exports: Array<ExportNode> = []
-  if (valueNames.size > 0) {
-    exports.push(ast.factory.createExport({ name: [...valueNames].sort(), path: modulePath }))
+  const exports: Array<ast.ExportNode> = []
+  if (valueNames.length > 0) {
+    exports.push(ast.factory.createExport({ name: valueNames, path: modulePath }))
   }
-  if (typeNames.size > 0) {
-    exports.push(ast.factory.createExport({ name: [...typeNames].sort(), path: modulePath, isTypeOnly: true }))
+  if (typeNames.length > 0) {
+    exports.push(ast.factory.createExport({ name: typeNames, path: modulePath, isTypeOnly: true }))
   }
   return exports
 }
 
-const LEAF_STRATEGIES: ReadonlyMap<BarrelType, LeafStrategy> = new Map([
-  ['all', allStrategy],
-  ['named', namedStrategy],
-])
-
-type LeafWalkParams = {
-  sourceFiles: ReadonlyMap<string, FileNode>
+type WalkParams = {
+  sourceFiles: ReadonlyMap<string, ast.FileNode>
   strategy: LeafStrategy
-  recursive: boolean
   reportedCollisions: Set<string>
 }
 
@@ -230,7 +195,11 @@ type LeafWalkParams = {
  * Post-order walk that yields a barrel per visited directory.
  * Returns the list of leaf file paths collected in this subtree (used by the parent call).
  */
-function* walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolean): Generator<FileNode, Array<string>> {
+function* walkAllOrNamed(
+  node: BuildTree,
+  params: WalkParams,
+  { isRoot, recursive }: { isRoot: boolean; recursive: boolean },
+): Generator<ast.FileNode, Array<string>> {
   const subtreeLeaves: Array<string> = []
 
   for (const child of node.children) {
@@ -239,25 +208,19 @@ function* walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolea
       continue
     }
 
-    const childLeaves = yield* walkAllOrNamed(child, params, false)
+    const childLeaves = yield* walkAllOrNamed(child, params, { isRoot: false, recursive })
     for (const leaf of childLeaves) subtreeLeaves.push(leaf)
   }
 
-  if (!isRoot && !params.recursive) return subtreeLeaves
+  if (!isRoot && !recursive) return subtreeLeaves
 
-  const exports = subtreeLeaves.flatMap((leafPath) => params.strategy({ dirPath: node.path, leafPath, sourceFile: params.sourceFiles.get(leafPath) ?? null }))
+  const exports = subtreeLeaves.flatMap((leafPath) => params.strategy({ dirPath: node.path, leafPath, sourceFile: params.sourceFiles.get(leafPath) }))
 
   if (exports.length > 0) {
-    yield makeBarrel(node.path, exports, params.sourceFiles, params.reportedCollisions)
+    yield makeBarrel({ dirPath: node.path, exports, sourceFiles: params.sourceFiles, reportedCollisions: params.reportedCollisions })
   }
 
   return subtreeLeaves
-}
-
-type NestedWalkParams = {
-  sourceFiles: ReadonlyMap<string, FileNode>
-  strategy: LeafStrategy
-  reportedCollisions: Set<string>
 }
 
 /**
@@ -267,52 +230,28 @@ type NestedWalkParams = {
  * re-export, which forwards the names the child barrel already curated. Returns whether this
  * node yielded a barrel, so a parent never re-exports a sub-directory that produced nothing.
  */
-function* walkNested(node: BuildTree, params: NestedWalkParams): Generator<FileNode, boolean> {
-  const exports: Array<ExportNode> = []
+function* walkNested(node: BuildTree, params: WalkParams): Generator<ast.FileNode, boolean> {
+  const exports: Array<ast.ExportNode> = []
 
   for (const child of node.children) {
     if (child.isFile) {
       if (isBarrelPath(child.path)) continue
-      const sourceFile = params.sourceFiles.get(child.path) ?? null
-      exports.push(...params.strategy({ dirPath: node.path, leafPath: child.path, sourceFile }))
+      exports.push(...params.strategy({ dirPath: node.path, leafPath: child.path, sourceFile: params.sourceFiles.get(child.path) }))
       continue
     }
 
     const childYieldedBarrel = yield* walkNested(child, params)
     if (childYieldedBarrel) {
-      exports.push(ast.factory.createExport({ path: toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`) }))
+      exports.push(ast.factory.createExport({ path: toRelativeModulePath({ fromDir: node.path, filePath: `${child.path}${BARREL_SUFFIX}` }) }))
     }
   }
 
   if (exports.length > 0) {
-    yield makeBarrel(node.path, exports, params.sourceFiles, params.reportedCollisions)
+    yield makeBarrel({ dirPath: node.path, exports, sourceFiles: params.sourceFiles, reportedCollisions: params.reportedCollisions })
     return true
   }
 
   return false
-}
-
-type IndexedFiles = {
-  sourceFiles: ReadonlyMap<string, FileNode>
-  paths: ReadonlyArray<string>
-}
-
-function indexRelevantFiles(files: ReadonlyArray<FileNode>, outputPath: string): IndexedFiles {
-  const outputPrefix = `${toPosixPath(outputPath)}/`
-  const sourceFiles = new Map<string, FileNode>()
-  const paths: Array<string> = []
-
-  for (const file of files) {
-    const normalized = toPosixPath(file.path)
-    if (!normalized.startsWith(outputPrefix)) continue
-    if (isBarrelPath(normalized)) continue
-    if (!SOURCE_EXTENSIONS.has(extname(normalized))) continue
-
-    sourceFiles.set(normalized, file)
-    paths.push(normalized)
-  }
-
-  return { sourceFiles, paths }
 }
 
 /**
@@ -322,7 +261,7 @@ function indexRelevantFiles(files: ReadonlyArray<FileNode>, outputPath: string):
  */
 type BarrelIndex = {
   tree: BuildTree
-  sourceFiles: ReadonlyMap<string, FileNode>
+  sourceFiles: ReadonlyMap<string, ast.FileNode>
 }
 
 /**
@@ -330,9 +269,20 @@ type BarrelIndex = {
  * files under that path and builds their directory tree. Reuse the result across every barrel
  * derived from the same root rather than re-filtering and re-building per barrel.
  */
-export function buildBarrelIndex(outputPath: string, files: ReadonlyArray<FileNode>): BarrelIndex {
-  const { sourceFiles, paths } = indexRelevantFiles(files, outputPath)
-  return { tree: buildTree(outputPath, paths), sourceFiles }
+export function buildBarrelIndex(outputPath: string, files: ReadonlyArray<ast.FileNode>): BarrelIndex {
+  const outputPrefix = `${toPosixPath(outputPath)}/`
+  const sourceFiles = new Map<string, ast.FileNode>()
+
+  for (const file of files) {
+    const normalized = toPosixPath(file.path)
+    if (!normalized.startsWith(outputPrefix)) continue
+    if (isBarrelPath(normalized)) continue
+    if (!SOURCE_EXTENSIONS.has(extname(normalized))) continue
+
+    sourceFiles.set(normalized, file)
+  }
+
+  return { tree: buildTree(outputPath, [...sourceFiles.keys()]), sourceFiles }
 }
 
 /**
@@ -385,7 +335,7 @@ type GetBarrelFilesParams = {
 }
 
 /**
- * Yields barrel `FileNode`s for `targetPath` (or the index root), derived from a shared index.
+ * Yields barrel `ast.FileNode`s for `targetPath` (or the index root), derived from a shared index.
  * Locating the subtree is a bounded walk down from the root, so deriving many barrels (one per
  * plugin, plus the root) from one index avoids re-scanning the full file set for each.
  *
@@ -404,46 +354,16 @@ export function* getBarrelFiles({
   nested = false,
   recursive = false,
   reportedCollisions = new Set(),
-}: GetBarrelFilesParams): Generator<FileNode> {
+}: GetBarrelFilesParams): Generator<ast.FileNode> {
   const node = targetPath ? findNode(index.tree, toPosixPath(targetPath)) : index.tree
   if (!node) return
 
-  const strategy = LEAF_STRATEGIES.get(barrelType)
-  if (!strategy) return
+  const strategy = barrelType === 'named' ? namedStrategy : allStrategy
 
   if (nested) {
     yield* walkNested(node, { sourceFiles: index.sourceFiles, strategy, reportedCollisions })
     return
   }
 
-  yield* walkAllOrNamed(node, { sourceFiles: index.sourceFiles, strategy, recursive, reportedCollisions }, true)
-}
-
-/**
- * Builds a POSIX-normalized prefix for a plugin's output. A directory output gets a trailing `/`,
- * while a `mode: 'file'` output (the path is the file itself) gets the exact path with no trailing `/`.
- *
- * Used to detect (and later exclude) files generated by plugins that opted out of the root barrel.
- */
-export function getPluginOutputPrefix(plugin: NormalizedPlugin, config: Config): string {
-  const resolved = toPosixPath(resolve(config.root, config.output.path, plugin.options.output.path))
-  return plugin.options.output.mode === 'file' ? resolved : `${resolved}/`
-}
-
-/**
- * Returns `true` when `filePath` lives under any of the given excluded prefixes. A prefix with a
- * trailing `/` matches a directory subtree, and a prefix without one matches that exact file
- * (used for `mode: 'file'` outputs).
- *
- * Both sides are POSIX-normalized so Windows backslash paths match correctly.
- */
-export function isExcludedPath(filePath: string, prefixes: ReadonlySet<string>): boolean {
-  const normalized = toPosixPath(filePath)
-  // Plain `for...of` over the Set rather than `.values().some()`: the iterator-helper `some`
-  // allocates an iterator object per call, and this runs once per file during barrel generation.
-  for (const prefix of prefixes) {
-    const matched = prefix.endsWith('/') ? normalized.startsWith(prefix) : normalized === prefix
-    if (matched) return true
-  }
-  return false
+  yield* walkAllOrNamed(node, { sourceFiles: index.sourceFiles, strategy, reportedCollisions }, { isRoot: true, recursive })
 }

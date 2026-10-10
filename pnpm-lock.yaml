@@ -434,16 +434,16 @@ importers:
 
   packages/plugin-barrel:
     dependencies:
-      '@kubb/ast':
+      '@kubb/kit':
         specifier: workspace:*
-        version: link:../ast
-      '@kubb/core':
-        specifier: workspace:*
-        version: link:../core
+        version: link:../kit
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/renderer-jsx:
     dependencies:
