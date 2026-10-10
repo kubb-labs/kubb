@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module'
-import { dirname, normalize, relative, resolve } from 'node:path'
-import { trimExtName } from '@internals/utils'
+import { dirname, relative, resolve } from 'node:path'
+import { toPosixPath, trimExtName } from '@internals/utils'
 import { ast } from '@kubb/kit'
 import type * as ts from 'typescript'
 import {
@@ -13,7 +13,6 @@ import {
   JSDOC_TERMINATOR_PATTERN,
   LEADING_DIGIT_PATTERN,
   PARENT_DIRECTORY_PREFIX,
-  WINDOWS_PATH_SEPARATOR,
 } from './constants.ts'
 
 /**
@@ -25,12 +24,11 @@ const typescript: typeof ts = createRequire(import.meta.url)('typescript')
 const { factory } = typescript
 
 /**
- * Resolves `filePath` relative to `rootDir` and returns a POSIX-style path
- * prefixed with `./` when the target sits inside the root, or `../` when it escapes it.
+ * Returns the module specifier that imports `filePath` from the file at `root`: a POSIX path
+ * relative to that file's directory, prefixed with `./` unless it already climbs with `../`.
  */
-export function getRelativePath(rootDir: string, filePath: string): string {
-  const rel = relative(rootDir, filePath)
-  const slashed = normalize(rel).replaceAll(WINDOWS_PATH_SEPARATOR, '/').replace(PARENT_DIRECTORY_PREFIX, '')
+export function getRelativePath(root: string, filePath: string): string {
+  const slashed = toPosixPath(relative(dirname(root), filePath))
   return slashed.startsWith(PARENT_DIRECTORY_PREFIX) ? slashed : `${CURRENT_DIRECTORY_PREFIX}${slashed}`
 }
 

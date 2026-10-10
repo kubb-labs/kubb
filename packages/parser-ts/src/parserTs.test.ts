@@ -93,7 +93,7 @@ describe('parserTs', () => {
         baseName: 'test.ts',
         path: '/src/test.ts',
         sources: [],
-        imports: [ast.factory.createImport({ name: ['Pet'], path: '/src/models/pet.ts', root: '/src' })],
+        imports: [ast.factory.createImport({ name: ['Pet'], path: '/src/models/pet.ts', root: '/src/test.ts' })],
         exports: [],
       })
     }

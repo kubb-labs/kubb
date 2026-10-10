@@ -20,9 +20,12 @@ import {
 } from './utils.ts'
 
 describe('getRelativePath', () => {
-  it('returns a ./ prefixed path for a file inside the root', () => {
-    const result = getRelativePath('/root/src', '/root/src/models/pet.ts')
-    expect(result).toBe('./models/pet.ts')
+  it('returns a ./ path when the target sits beside the importing file', () => {
+    expect(getRelativePath('/root/src/index.ts', '/root/src/models/pet.ts')).toBe('./models/pet.ts')
+  })
+
+  it('returns a ../ path when the target sits outside the importing file directory', () => {
+    expect(getRelativePath('/root/src/models/pet.ts', '/root/lib/client.ts')).toBe('../../lib/client.ts')
   })
 })
 
