@@ -412,44 +412,6 @@ export async function connect(
 }
 
 /**
- * Reports the paired agent and any saved permissions for the current project.
- */
-export async function status(options: StudioOptions): Promise<void> {
-  const credentials = await readCredentials()
-
-  if (!credentials) {
-    console.log('Not paired. Run `kubb studio login`.')
-
-    return
-  }
-
-  console.log(`Paired with ${credentials.studioUrl} as ${styleText('cyan', credentials.agentSlug || credentials.agentId)}`)
-
-  if (credentials.studioUrl !== options.studioUrl) {
-    console.log(styleText('yellow', `Connecting to ${options.studioUrl} needs pairing again.`))
-  }
-
-  const remembered = credentials.projects?.[process.cwd()]
-
-  if (!remembered) {
-    console.log(styleText('dim', 'No saved permissions for this project. Run `kubb studio` to connect and choose.'))
-
-    return
-  }
-
-  console.log(styleText('dim', 'Saved permissions'))
-
-  for (const row of formatPermissionRows({
-    allowRead: remembered.allowRead === true,
-    allowWrite: remembered.allowWrite === true,
-    allowConfigEdit: remembered.allowConfigEdit === true,
-    allowExec: remembered.allowExec === true,
-  })) {
-    console.log(row)
-  }
-}
-
-/**
  * Runs a Studio command with shared setup and telemetry reporting.
  */
 export async function run(options: StudioOptions, action: () => Promise<unknown>, { block = false, json = false } = {}): Promise<void> {

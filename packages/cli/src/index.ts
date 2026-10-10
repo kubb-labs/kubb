@@ -1,8 +1,13 @@
 import { styleText } from 'node:util'
 import dryrun from '@gunshi/plugin-dryrun'
-import { cli, lazy } from 'gunshi'
+import { cli } from 'gunshi'
 import { isDisabled as isTelemetryDisabled } from './Telemetry.ts'
 import { version } from '../package.json'
+import { command as generateCommand } from './commands/generate.ts'
+import { command as initCommand } from './commands/init.ts'
+import { command as mcpCommand } from './commands/mcp.ts'
+import { command as studioCommand } from './commands/studio/index.ts'
+import { command as validateCommand } from './commands/validate.ts'
 import { QUIET_FLAGS } from './constants.ts'
 import { resolveDeprecatedFlags } from './deprecatedFlags.ts'
 
@@ -31,17 +36,8 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
     )
   }
 
-  const { command: generateCommand } = await import('./commands/generate.ts')
-  const { command: initCommand } = await import('./commands/init.ts')
-  // Each runner pulls in an optional peer (@kubb/adapter-oas, @kubb/mcp, @kubb/studio), so it
-  // loads only when its command runs.
-  const { definition: validateDefinition } = await import('./commands/validate.ts')
-  const validateCommand = lazy(async () => (await import('./runners/validate/run.ts')).runner, validateDefinition)
-  const { definition: mcpDefinition } = await import('./commands/mcp.ts')
-  const mcpCommand = lazy(async () => (await import('./runners/mcp/run.ts')).runner, mcpDefinition)
-  const { definition: studioDefinition } = await import('./commands/studio/index.ts')
-  const studioCommand = lazy(async () => (await import('./runners/studio/connect.ts')).runner, studioDefinition)
-
+  // Each command's `run` imports its runner, so an optional peer (@kubb/adapter-oas, @kubb/mcp,
+  // @kubb/studio) loads only when that command runs.
   await cli(args, generateCommand, {
     name: 'kubb',
     version,

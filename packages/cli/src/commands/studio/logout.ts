@@ -1,7 +1,7 @@
 import { define } from 'gunshi'
 import { configArg, logLevelArg, studioConnectionArgs, studioPermissionArgs } from '../shared.ts'
 
-export const definition = define({
+export const command = define({
   name: 'logout',
   description: 'Forget the stored Kubb Studio token.',
   examples: ['kubb studio logout'].join('\n'),
@@ -11,5 +11,9 @@ export const definition = define({
     ...studioConnectionArgs,
     ...studioPermissionArgs,
     ...logLevelArg,
+  },
+  async run(ctx) {
+    const { logoutRunner } = await import('../../runners/studio/commands.ts')
+    await logoutRunner(ctx)
   },
 })

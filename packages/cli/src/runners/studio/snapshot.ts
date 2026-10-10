@@ -19,7 +19,7 @@ import { createPlainLogger } from '../../loggers/plainLogger.ts'
 import setupReporters from '../../loggers/reporters.ts'
 import { type CiContext, detectCi } from './ci.ts'
 import { createStudioOptions, loadConfigs, run, type SnapshotOptions } from './run.ts'
-import type { definition } from '../../commands/studio/snapshot.ts'
+import type { command } from '../../commands/studio/snapshot.ts'
 import type { CommandRunner } from 'gunshi'
 
 /**
@@ -327,7 +327,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
   }
 }
 
-export const runner: CommandRunner<{ args: typeof definition.args; extensions: {} }> = async ({ values }) => {
+export const runner: CommandRunner<{ args: typeof command.args; extensions: {} }> = async ({ values }) => {
   const options: SnapshotOptions = {
     ...createStudioOptions(values),
     token: values.token,

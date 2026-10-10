@@ -23,7 +23,7 @@ describe('runValidate', () => {
 
     const { run: runValidate } = await import('./run.ts')
 
-    await runValidate({ input: 'spec.yaml', version: '1.0.0' })
+    await runValidate({ input: 'spec.yaml' })
 
     expect(validate).toHaveBeenCalledWith('spec.yaml', { throwOnError: true })
     expect(logSpy).toHaveBeenCalledWith('✅ Validation success')
@@ -43,7 +43,7 @@ describe('runValidate', () => {
 
     const { run: runValidate } = await import('./run.ts')
 
-    await expect(runValidate({ input: 'spec.yaml', version: '1.0.0' })).rejects.toThrow('process.exit')
+    await expect(runValidate({ input: 'spec.yaml' })).rejects.toThrow('process.exit')
 
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('The @kubb/adapter-oas package is not installed.'))
     expect(errorSpy).toHaveBeenCalledWith('Install it with:')

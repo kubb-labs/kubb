@@ -1,14 +1,11 @@
 import { define } from 'gunshi'
 import { configArg, logLevelArg, studioConnectionArgs, studioPermissionArgs } from '../shared.ts'
 
-export const definition = define({
+export const command = define({
   name: 'snapshot',
   description: 'Generate and publish a Kubb Studio snapshot from CI.',
   examples: ['kubb studio snapshot', 'kubb studio snapshot --json'].join('\n'),
   toKebab: true,
-  rendering: {
-    header: null,
-  },
   args: {
     ...configArg,
     ...studioConnectionArgs,
@@ -21,7 +18,6 @@ export const definition = define({
       type: 'string',
       description:
         "Identity of another CI agent, such as the base branch's, to also compare this snapshot with. Auto-detected on GitHub pull requests and GitLab merge requests",
-      toKebab: true,
     },
     name: {
       type: 'string',
@@ -30,7 +26,6 @@ export const definition = define({
     packageVersion: {
       type: 'string',
       description: 'Package version for the generated tarball. Defaults to the version in package.json',
-      toKebab: true,
     },
     timeout: {
       type: 'number',
@@ -43,5 +38,9 @@ export const definition = define({
       default: false,
     },
     ...logLevelArg,
+  },
+  async run(ctx) {
+    const { runner } = await import('../../runners/studio/snapshot.ts')
+    await runner(ctx)
   },
 })
