@@ -1,5 +1,5 @@
 import { stripVTControlCharacters } from 'node:util'
-import { Hookable, cliReporter, type Config, jsonReporter, type KubbHooks, logLevel } from '@kubb/core'
+import { Hookable, cliReporter, type Config, htmlReporter, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import * as agent from '../agent.ts'
 import * as env from '../utils/env.ts'
@@ -12,6 +12,52 @@ describe('setupReporters', () => {
     setupReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
 
     expect(context.listenerCount('kubb:hook:line')).toBe(0)
+    expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
+  })
+
+  it('holds the json output until lifecycle end, then writes one array for every config', async () => {
+    const context = new Hookable<KubbHooks>()
+    const writes: Array<string> = []
+    using _write = vi.spyOn(process.stdout, 'write').mockImplementation((chunk) => {
+      writes.push(String(chunk))
+      return true
+    })
+
+    setupReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
+
+    await context.callHook('kubb:generation:end', {
+      config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
+      storage: {} as Storage,
+      diagnostics: [{ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing Pet', plugin: '@kubb/plugin-zod' }],
+      filesCreated: 3,
+      status: 'failed',
+      hrStart: process.hrtime(),
+    })
+    await context.callHook('kubb:generation:end', {
+      config: { name: 'orders', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
+      storage: {} as Storage,
+      diagnostics: [],
+      filesCreated: 5,
+      status: 'success',
+      hrStart: process.hrtime(),
+    })
+    expect(writes).toStrictEqual([])
+
+    await context.callHook('kubb:lifecycle:end')
+
+    expect(writes).toHaveLength(1)
+    const reports = JSON.parse(writes[0]!)
+    expect(reports).toHaveLength(2)
+    expect(reports[0]).toMatchObject({ name: 'petstore', status: 'failed', counts: { errors: 1 } })
+    expect(reports[1]).toMatchObject({ name: 'orders', status: 'success' })
+  })
+
+  it('collects plugin files for the html reporter', async () => {
+    const context = new Hookable<KubbHooks>()
+
+    setupReporters(context, { logLevel: logLevel.info, reporters: [htmlReporter] })
+
+    expect(context.listenerCount('kubb:plugin:end')).toBe(1)
     expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
   })
 
