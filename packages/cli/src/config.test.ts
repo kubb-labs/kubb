@@ -1,7 +1,8 @@
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import { afterEach, describe, expect, it } from 'vitest'
+import process from 'node:process'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { getConfigs } from './config.ts'
 
 describe('getConfigs', () => {
@@ -33,7 +34,9 @@ describe('getConfigs', () => {
     dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
     const configPath = await writeConfig(join(dir, 'custom.config.mjs'))
 
-    await expect(getConfigs({ configPath: './custom.config.mjs', cwd: dir })).resolves.toMatchObject({ configPath })
+    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(dir)
+
+    await expect(getConfigs({ configPath: './custom.config.mjs' })).resolves.toMatchObject({ configPath })
   })
 
   it('calls a config function with the CLI options', async () => {
@@ -49,8 +52,10 @@ describe('getConfigs', () => {
   it('throws a clear error when no config is found', async () => {
     dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
 
+    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(dir)
+
     await expect(getConfigs({ configPath: join(dir, 'missing.config.ts') })).rejects.toThrow(/Config/)
-    await expect(getConfigs({ cwd: dir })).rejects.toThrow('Config not defined')
+    await expect(getConfigs({})).rejects.toThrow('Config not defined')
   })
 
   it('wraps a config that fails to load', async () => {
@@ -71,8 +76,9 @@ describe('getConfigs', () => {
   ])('finds $label', async ({ file }) => {
     dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
     const configPath = await writeConfig(join(dir, file))
+    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(dir)
 
-    await expect(getConfigs({ cwd: dir })).resolves.toMatchObject({ configPath })
+    await expect(getConfigs({})).resolves.toMatchObject({ configPath })
   })
 
   it.each(['ts', 'mts', 'cts', 'js', 'mjs', 'cjs'])('finds kubb.config.%s', async (extension) => {
@@ -83,8 +89,9 @@ describe('getConfigs', () => {
       configPath,
       extension.endsWith('ts') || extension === 'mjs' || extension === 'js' ? `export default { root: '.' }\n` : `module.exports = { root: '.' }\n`,
     )
+    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(dir)
 
-    await expect(getConfigs({ cwd: dir })).resolves.toMatchObject({ configPath })
+    await expect(getConfigs({})).resolves.toMatchObject({ configPath })
   })
 
   it('walks up to a parent directory', async () => {
@@ -92,8 +99,9 @@ describe('getConfigs', () => {
     const configPath = await writeConfig(join(dir, 'kubb.config.mjs'))
     const cwd = join(dir, 'packages', 'api')
     await mkdir(cwd, { recursive: true })
+    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(cwd)
 
-    await expect(getConfigs({ cwd })).resolves.toMatchObject({ configPath })
+    await expect(getConfigs({})).resolves.toMatchObject({ configPath })
   })
 
   it('prefers the nearest directory, then .kubbrc over kubb.config, then the extension order', async () => {
@@ -101,14 +109,15 @@ describe('getConfigs', () => {
     const cwd = join(dir, 'packages', 'api')
     await writeConfig(join(dir, '.kubbrc.ts'), 'parent')
     const nearest = await writeConfig(join(cwd, 'configs', 'kubb.config.mjs'), 'nearest')
+    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(cwd)
 
-    await expect(getConfigs({ cwd })).resolves.toMatchObject({ configPath: nearest, configs: [{ name: 'nearest' }] })
+    await expect(getConfigs({})).resolves.toMatchObject({ configPath: nearest, configs: [{ name: 'nearest' }] })
 
     const rc = await writeConfig(join(cwd, '.kubbrc.cjs'), 'rc')
     await writeConfig(join(cwd, 'kubb.config.ts'), 'config')
-    await expect(getConfigs({ cwd })).resolves.toMatchObject({ configPath: rc })
+    await expect(getConfigs({})).resolves.toMatchObject({ configPath: rc })
 
     const ts = await writeConfig(join(cwd, '.kubbrc.ts'), 'ts')
-    await expect(getConfigs({ cwd })).resolves.toMatchObject({ configPath: ts })
+    await expect(getConfigs({})).resolves.toMatchObject({ configPath: ts })
   })
 })

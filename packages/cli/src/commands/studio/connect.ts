@@ -1,5 +1,5 @@
 import { define } from 'gunshi'
-import { configArg, logLevelArg, openArg, studioConnectionArgs, studioPermissionArgs } from '../shared.ts'
+import { configArg, logLevelArg, studioConnectionArgs, studioPermissionArgs } from '../shared.ts'
 
 export const command = define({
   name: 'connect',
@@ -15,7 +15,12 @@ export const command = define({
     ...configArg,
     ...studioConnectionArgs,
     ...studioPermissionArgs,
-    ...openArg,
+    open: {
+      type: 'boolean',
+      description: 'Open the approval page in a browser while pairing',
+      default: true,
+      negatable: true,
+    },
     ...logLevelArg,
   },
   async run(ctx) {

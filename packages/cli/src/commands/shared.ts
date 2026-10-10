@@ -59,12 +59,3 @@ export const studioPermissionArgs = {
     default: false,
   },
 } as const
-
-export const openArg = {
-  open: {
-    type: 'boolean',
-    description: 'Open the approval page in a browser while pairing',
-    default: true,
-    negatable: true,
-  },
-} as const

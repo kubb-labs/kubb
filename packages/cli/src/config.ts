@@ -1,7 +1,7 @@
-import { stat } from 'node:fs/promises'
 import { basename, dirname, parse, resolve } from 'node:path'
 import process from 'node:process'
-import { createModuleLoader } from '@internals/shared'
+import { CONFIG_EXTENSIONS, createModuleLoader } from '@internals/shared'
+import { exists } from '@internals/utils'
 import type { CLIOptions, Config, PossibleConfig } from '@kubb/core'
 
 const loader = createModuleLoader()
@@ -9,18 +9,9 @@ const loader = createModuleLoader()
 const MODULE_NAME = 'kubb'
 
 const SEARCH_FILES = ['', '.config/', 'configs/'].flatMap((prefix) => [`${prefix}.${MODULE_NAME}rc`, `${prefix}${MODULE_NAME}.config`])
-const SEARCH_EXTENSIONS = ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs']
 
 /** Every name tried in one directory, in order: `.kubbrc` before `kubb.config`, the top level before `.config/` and `configs/`, `ts` first. */
-const SEARCH_CANDIDATES = SEARCH_FILES.flatMap((file) => SEARCH_EXTENSIONS.map((extension) => `${file}.${extension}`))
-
-async function isFile(path: string): Promise<boolean> {
-  try {
-    return (await stat(path)).isFile()
-  } catch {
-    return false
-  }
-}
+const SEARCH_CANDIDATES = SEARCH_FILES.flatMap((file) => CONFIG_EXTENSIONS.map((extension) => `${file}${extension}`))
 
 type FindConfigFileOptions = {
   /** Directory the search starts from. */
@@ -36,12 +27,9 @@ export async function findConfigFile({ cwd, files }: FindConfigFileOptions): Pro
   for (let directory = cwd; directory !== stopAt; directory = dirname(directory)) {
     for (const file of files) {
       const path = resolve(directory, file)
-      if (await isFile(path)) {
+      if (await exists(path)) {
         return path
       }
-    }
-    if (dirname(directory) === directory) {
-      return undefined
     }
   }
 
@@ -49,10 +37,8 @@ export async function findConfigFile({ cwd, files }: FindConfigFileOptions): Pro
 }
 
 type GetConfigsOptions = {
-  /** Explicit path to the Kubb config file. When omitted, the loader searches up from `cwd`. */
+  /** Explicit path to the Kubb config file. When omitted, the loader searches up from `process.cwd()`. */
   configPath?: string
-  /** Directory the search starts from, `process.cwd()` by default. */
-  cwd?: string
   /** OpenAPI input path or URL that overrides `config.input` for this run. */
   input?: string
   /** Watch flag forwarded to the user's `defineConfig` function. */
@@ -69,7 +55,8 @@ type GetConfigsResult = {
 }
 
 /** Discovers the Kubb config and resolves it into normalized configs, each guaranteed to have a `plugins` array. */
-export async function getConfigs({ configPath, cwd = process.cwd(), input, watch, logLevel }: GetConfigsOptions): Promise<GetConfigsResult> {
+export async function getConfigs({ configPath, input, watch, logLevel }: GetConfigsOptions): Promise<GetConfigsResult> {
+  const cwd = process.cwd()
   const abs = configPath ? resolve(cwd, configPath) : undefined
   // An explicit path is searched the same way, by its name from its own directory up.
   const filepath = await (abs ? findConfigFile({ cwd: dirname(abs), files: [basename(abs)] }) : findConfigFile({ cwd, files: SEARCH_CANDIDATES }))

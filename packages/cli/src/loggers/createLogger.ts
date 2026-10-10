@@ -104,7 +104,6 @@ function buildProgressLine(state: ProgressState): string | null {
   return parts.join(styleText('dim', ' | '))
 }
 
-/** Creates the per-run progress counters. */
 function createProgressCounters(): ProgressState {
   return {
     totalPlugins: 0,
