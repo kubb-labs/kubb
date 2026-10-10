@@ -13,8 +13,7 @@ const typescript: typeof ts = createRequire(import.meta.url)('typescript')
 const { factory } = typescript
 
 /**
- * Returns the module specifier that imports `filePath` from the file at `root`: a POSIX path
- * relative to that file's directory, prefixed with `./` unless it already climbs with `../`.
+ * Module specifier that imports `filePath` from the file at `root`: POSIX, relative to that file's directory, `./`-prefixed unless it climbs with `../`.
  */
 export function getRelativePath(root: string, filePath: string): string {
   const slashed = toPosixPath(relative(dirname(root), filePath))
@@ -22,9 +21,7 @@ export function getRelativePath(root: string, filePath: string): string {
 }
 
 /**
- * Rewrites an import/export path so its extension matches the caller-supplied
- * `options.extname`. When the source path has no extension the original is kept,
- * so virtual/module-only paths flow through unchanged.
+ * Swaps the extension of a relative import/export path for `options.extname`; package specifiers and extension-less paths stay as-is.
  */
 export function resolveOutputPath(path: string, options: { extname?: string } | undefined, rootAware: boolean): string {
   // Only the final `.<ext>` counts, so `foo.bar.ts` keeps `foo.bar`
@@ -102,8 +99,7 @@ type ModuleDeclarations = {
 }
 
 /**
- * Splits `source` into its top-level `import`/`export … from` declarations, as nodes, the `header` above the first of them
- * (shebang, directives, comments) and the remaining `body`.
+ * Splits `source` into its lifted `import`/`export … from` nodes, the `header` above the first of them (shebang, directives, comments) and the remaining `body`.
  */
 export function splitModuleDeclarations(source: string, filePath: string): ModuleDeclarations {
   const sourceFile = typescript.createSourceFile(filePath, source, typescript.ScriptTarget.Latest)
@@ -134,8 +130,7 @@ export function splitModuleDeclarations(source: string, filePath: string): Modul
 }
 
 /**
- * Joins the printed `nodes` with `separator`. A `Break` node (`<br/>`) widens the separator before the next
- * node to one blank line; leading, trailing and consecutive breaks fold into one.
+ * Joins the printed `nodes` with `separator`; a `Break` node widens the next separator to a blank line and leading, trailing and consecutive breaks fold into one.
  *
  * Imperative on purpose: this runs once per source fragment and `map().filter().join()` showed up in deopt traces.
  */
@@ -172,16 +167,7 @@ export function indentLines(text: string): string {
 }
 
 /**
- * Removes the common leading whitespace shared by every non-blank line and trims
- * surrounding blank lines, so multi-line content authored inside an indented template
- * literal lines up at a column-zero baseline. Leading whitespace is counted by
- * character, so N tabs and N spaces are treated as the same depth.
- *
- * @example
- * ```ts
- * dedent('\n    foo\n      bar\n    ')
- * // 'foo\n  bar'
- * ```
+ * Strips the common leading whitespace and the surrounding blank lines, counting tabs and spaces alike, so indented template-literal content starts at column zero.
  */
 export function dedent(text: string): string {
   if (!text) return ''
@@ -208,8 +194,7 @@ type Signature = {
 }
 
 /**
- * Renders `<T>(params): ReturnType` shared by function and arrow-function nodes. An async function
- * wraps its return type in `Promise<>`.
+ * Renders `<T>(params): ReturnType`; an async function wraps its return type in `Promise<>`.
  */
 function signature({ async: isAsync, generics, params, returnType }: Signature): string {
   const genericsStr = generics ? `<${Array.isArray(generics) ? generics.join(', ') : generics}>` : ''
@@ -228,8 +213,7 @@ function withJSDoc({ jsDoc, declaration }: { jsDoc?: ast.JSDocNode | null; decla
 }
 
 /**
- * Module-scoped TypeScript printer instance. A printer does not mutate the source file, so one
- * instance is reused across every `print()` call instead of constructing a new printer each time.
+ * One printer serves every `print()` call; printing does not mutate the source file.
  */
 const TS_PRINTER = typescript.createPrinter({
   omitTrailingSemicolon: true,
@@ -239,8 +223,7 @@ const TS_PRINTER = typescript.createPrinter({
 })
 
 /**
- * Module-scoped source file used as the print target. `printList` only reads the source
- * file's compiler options / language version. It never mutates it.
+ * Print target for `printList`, which only reads its compiler options and language version.
  */
 const PRINT_SOURCE_FILE = typescript.createSourceFile('print.tsx', '', typescript.ScriptTarget.ES2022, true, typescript.ScriptKind.TSX)
 
@@ -262,16 +245,7 @@ export function print(...elements: Array<ts.Node>): string {
 }
 
 /**
- * Converts a {@link ast.JSDocNode} to a JSDoc comment block string.
- *
- * @example
- * ```ts
- * printJSDoc({ comments: ['@description A pet', '@deprecated'] })
- * // /**
- * //  * @description A pet
- * //  * @deprecated
- * //  *\/
- * ```
+ * Converts a {@link ast.JSDocNode} to a `/** … *\/` block, dropping blank comments.
  */
 export function printJSDoc(jsDoc: ast.JSDocNode): string {
   const comments = (jsDoc.comments ?? []).filter((c) => c != null)
@@ -288,15 +262,7 @@ export function printJSDoc(jsDoc: ast.JSDocNode): string {
 }
 
 /**
- * Converts a {@link ast.ConstNode} to a TypeScript `const` declaration string.
- *
- * Mirrors the `Const` component from `@kubb/renderer-jsx`.
- *
- * @example
- * ```ts
- * printConst(factory.createConst({ name: 'pet', export: true, nodes: [factory.createText('{}')] }))
- * // 'export const pet = {}'
- * ```
+ * Converts a {@link ast.ConstNode} to a `const` declaration, mirroring the `Const` component from `@kubb/renderer-jsx`.
  */
 export function printConst(node: ast.ConstNode): string {
   const { name, export: canExport, type, JSDoc, asConst, nodes } = node
@@ -307,15 +273,7 @@ export function printConst(node: ast.ConstNode): string {
 }
 
 /**
- * Converts a {@link ast.TypeNode} to a TypeScript `type` alias declaration string.
- *
- * Mirrors the `Type` component from `@kubb/renderer-jsx`.
- *
- * @example
- * ```ts
- * printType(factory.createType({ name: 'Pet', export: true, nodes: [factory.createText('{ id: number }')] }))
- * // 'export type Pet = { id: number }'
- * ```
+ * Converts a {@link ast.TypeNode} to a `type` alias, mirroring the `Type` component from `@kubb/renderer-jsx`.
  */
 export function printType(node: ast.TypeNode): string {
   const { name, export: canExport, JSDoc, nodes } = node
@@ -326,15 +284,7 @@ export function printType(node: ast.TypeNode): string {
 }
 
 /**
- * Converts a {@link ast.FunctionNode} to a TypeScript `function` declaration string.
- *
- * Mirrors the `Function` component from `@kubb/renderer-jsx`.
- *
- * @example
- * ```ts
- * printFunction(factory.createFunction({ name: 'getPet', export: true, params: 'id: string', returnType: 'Pet', nodes: [factory.createText('return fetch(id)')] }))
- * // 'export function getPet(id: string): Pet {\n  return fetch(id)\n}'
- * ```
+ * Converts a {@link ast.FunctionNode} to a `function` declaration, mirroring the `Function` component from `@kubb/renderer-jsx`.
  */
 export function printFunction(node: ast.FunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes } = node
@@ -347,15 +297,7 @@ export function printFunction(node: ast.FunctionNode): string {
 }
 
 /**
- * Converts an {@link ast.ArrowFunctionNode} to a TypeScript arrow function declaration string.
- *
- * Mirrors the `Function.Arrow` component from `@kubb/renderer-jsx`.
- *
- * @example
- * ```ts
- * printArrowFunction(factory.createArrowFunction({ name: 'double', params: 'n: number', singleLine: true, nodes: [factory.createText('n * 2')] }))
- * // 'const double = (n: number) => n * 2'
- * ```
+ * Converts an {@link ast.ArrowFunctionNode} to a `const` arrow function, mirroring the `Function.Arrow` component from `@kubb/renderer-jsx`.
  */
 export function printArrowFunction(node: ast.ArrowFunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes, singleLine } = node
@@ -369,15 +311,7 @@ export function printArrowFunction(node: ast.ArrowFunctionNode): string {
 }
 
 /**
- * Converts a {@link ast.CodeNode} to its TypeScript string representation.
- *
- * Dispatches to the appropriate printer based on the node's `kind`.
- *
- * @example
- * ```ts
- * printCodeNode(factory.createConst({ name: 'x', nodes: [factory.createText('1')] }))
- * // 'const x = 1'
- * ```
+ * Dispatches a {@link ast.CodeNode} to the printer for its `kind`.
  */
 export function printCodeNode(node: ast.CodeNode): string {
   switch (node.kind) {
@@ -398,39 +332,28 @@ export function printCodeNode(node: ast.CodeNode): string {
 }
 
 /**
- * Converts a {@link ast.SourceNode} to its TypeScript string representation. Top-level nodes are
- * separated by a blank line so the source reads cleanly without an external formatter.
- *
- * @example
- * ```ts
- * printSource({ kind: 'Source', nodes: [factory.createConst({ name: 'x', nodes: [factory.createText('1')] }), factory.createText('x.toString()')] })
- * // 'const x = 1\n\nx.toString()'
- * ```
+ * Prints a {@link ast.SourceNode} with a blank line between its top-level nodes.
  */
 export function printSource(node: ast.SourceNode): string {
   return printNodes({ nodes: node.nodes, separator: '\n\n' })
 }
 
 /**
- * Wraps a module specifier in single quotes, escaping any embedded backslash or quote so the emitted
- * statement stays valid even for unusual paths.
+ * Wraps a module specifier in single quotes, escaping embedded backslashes and quotes.
  */
 function quoteModulePath(path: string): string {
   return `'${path.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
 }
 
 /**
- * Renders an import declaration string in the repo style (single quotes, no semicolons), covering
- * default, namespace (`* as`), and named imports with `{ a as b }` aliases, each optionally
- * `type`-only. `path` is used verbatim, so resolve it first.
- *
- * @example
- * ```ts
- * printImport({ name: ['z'], path: './zod.ts' })
- * // "import { z } from './zod.ts'"
- * ```
+ * Renders an `import` declaration (default, `* as`, or named with `{ a as b }`, each optionally `type`-only). `path` is used verbatim, so resolve it first.
  */
-export function printImport({ name, path, isTypeOnly = false, isNameSpace = false }: Pick<ast.ImportNode, 'name' | 'path' | 'isTypeOnly' | 'isNameSpace'>): string {
+export function printImport({
+  name,
+  path,
+  isTypeOnly = false,
+  isNameSpace = false,
+}: Pick<ast.ImportNode, 'name' | 'path' | 'isTypeOnly' | 'isNameSpace'>): string {
   const typePrefix = isTypeOnly ? 'type ' : ''
   const from = quoteModulePath(path)
 
@@ -450,15 +373,7 @@ export function printImport({ name, path, isTypeOnly = false, isNameSpace = fals
 }
 
 /**
- * Renders an export declaration string in the repo style (single quotes, no semicolons), covering
- * named re-exports, namespace alias (`* as name`), and wildcard, each optionally `type`-only.
- * `path` is used verbatim, so resolve it first.
- *
- * @example
- * ```ts
- * printExport({ name: ['Pet', 'Order'], path: './models.ts' })
- * // "export { Pet, Order } from './models.ts'"
- * ```
+ * Renders an `export … from` declaration (named, `* as name`, or wildcard, each optionally `type`-only). `path` is used verbatim, so resolve it first.
  */
 export function printExport({ path, name, isTypeOnly = false, asAlias = false }: Pick<ast.ExportNode, 'name' | 'path' | 'isTypeOnly' | 'asAlias'>): string {
   const typePrefix = isTypeOnly ? 'type ' : ''
