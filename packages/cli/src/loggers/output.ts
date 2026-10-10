@@ -18,9 +18,7 @@ const SPONSOR_TIPS = [
 
 const SPONSOR_LINKS = ['https://github.com/sponsors/stijnvanhulle', 'https://opencollective.com/kubb', 'https://kubb.dev/sponsors'] as const
 
-/**
- * The writer the loggers draw with on this terminal, so a command's own lines look like its run.
- */
+/** The writer the loggers draw with on this terminal, so a command's own lines look like its run. */
 function writer(): LoggerWriter {
   return isRichOutput() ? clackWriter : plainWriter
 }
@@ -51,8 +49,7 @@ export function logTip(): void {
 
 type Level = keyof typeof SYMBOLS
 
-// Not through the writers: a command's own info and warning carry their symbol in plain output,
-// where the plain writer prints them bare, and clack's step keeps its default spacing here.
+// Not through the writers: in plain output a command's own info and warning carry their symbol, and clack's step keeps its spacing.
 function write(level: Level, message: string): void {
   if (isRichOutput()) {
     prompts.log[level](message)
@@ -137,10 +134,7 @@ export function logBanner(version: string): void {
   console.log(`Kubb CLI v${version}`)
 }
 
-/**
- * Prints lines as one block, without a symbol in front of them. Not the writer's block, which
- * drops clack's spacing around it.
- */
+/** Prints lines as one block, without a symbol in front of them. Not the writer's block, which drops clack's spacing around it. */
 export function logBlock(lines: string | Array<string>): void {
   if (isRichOutput()) {
     prompts.log.message(lines)

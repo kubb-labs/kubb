@@ -10,9 +10,7 @@ import { connect, createStudioOptions, formatPermissionRows, login, run, type St
 
 type Runner<T extends { args: object }> = CommandRunner<{ args: T['args']; extensions: {} }>
 
-/**
- * Reports the paired agent and any saved permissions for the current project.
- */
+/** Reports the paired agent and any saved permissions for the current project. */
 async function status(options: StudioOptions): Promise<void> {
   const credentials = await readCredentials()
 

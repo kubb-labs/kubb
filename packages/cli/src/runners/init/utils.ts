@@ -5,37 +5,19 @@ import { x } from 'tinyexec'
 
 export type PackageManagerName = 'npm' | 'pnpm' | 'yarn' | 'bun'
 
-/**
- * Metadata describing a package manager's lock file and commands.
- */
+/** Metadata describing a package manager's lock file and commands. */
 export type PackageManagerInfo = {
-  /**
-   * Identifier used in CLI commands, e.g. `pnpm`, `yarn`.
-   */
+  /** Identifier used in CLI commands, e.g. `pnpm`, `yarn`. */
   name: PackageManagerName
-  /**
-   * Lock file names that identify this package manager in a project root.
-   */
+  /** Lock file names that identify this package manager in a project root. */
   lockFiles: ReadonlyArray<string>
-  /**
-   * Subcommands passed to the package manager binary to create a `package.json`.
-   */
+  /** Subcommands passed to the package manager binary to create a `package.json`. */
   initCommand: ReadonlyArray<string>
-  /**
-   * Subcommands passed to the package manager binary to install a dev dependency.
-   */
+  /** Subcommands passed to the package manager binary to install a dev dependency. */
   installCommand: ReadonlyArray<string>
 }
 
-/**
- * Metadata for each supported package manager, keyed by its short name.
- *
- * @example
- * ```ts
- * packageManagers.pnpm.installCommand // ['add', '-D']
- * packageManagers.npm.lockFiles       // ['package-lock.json']
- * ```
- */
+/** Metadata for each supported package manager, keyed by its short name. */
 export const packageManagers: Record<PackageManagerName, PackageManagerInfo> = {
   pnpm: {
     name: 'pnpm',
@@ -63,27 +45,13 @@ export const packageManagers: Record<PackageManagerName, PackageManagerInfo> = {
   },
 }
 
-/**
- * Minimal shape of `package.json` fields read during detection.
- */
+/** Minimal shape of `package.json` fields read during detection. */
 type PackageJson = {
-  /**
-   * The `packageManager` field from `package.json` (e.g. `"pnpm@9.0.0"`).
-   */
+  /** The `packageManager` field from `package.json` (e.g. `"pnpm@9.0.0"`). */
   packageManager?: string
 }
 
-/**
- * Detects the active package manager for the given directory.
- * Resolution order: `packageManager` field in `package.json`, then presence of a lock file.
- * Falls back to `npm` when no signal is found.
- *
- * @example
- * ```ts
- * detectPackageManager('/my/project') // { name: 'pnpm', lockFiles: ['pnpm-lock.yaml'], ... }
- * detectPackageManager()              // falls back to npm when no lock file is found
- * ```
- */
+/** Detects the package manager for `cwd`: the `packageManager` field in `package.json`, then a lock file, then `npm`. */
 export function detectPackageManager(cwd: string = process.cwd()): PackageManagerInfo {
   const packageJsonPath = path.join(cwd, 'package.json')
   if (fs.existsSync(packageJsonPath)) {

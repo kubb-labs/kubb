@@ -7,22 +7,13 @@ import { toError, tokenize } from '@internals/utils'
 import type { KubbHooks, PostGenerateCommand, Hookable } from '@kubb/core'
 import { NonZeroExitError, x } from 'tinyexec'
 
-/**
- * Quiet window in milliseconds that collapses a burst of watcher events (an editor save emits
- * several) into a single rebuild.
- */
+/** Quiet window in milliseconds that collapses a burst of watcher events (an editor save emits several) into one rebuild. */
 const WATCHER_DEBOUNCE_MS = 100
 
-/**
- * Interval in milliseconds between polls of a remote `input` URL in watch mode. A remote document
- * emits no filesystem events, so watch mode falls back to fetching it and comparing bodies.
- */
+/** Interval in milliseconds between polls of a remote `input` URL in watch mode, which emits no filesystem events. */
 const URL_WATCHER_INTERVAL_MS = 2_000
 
-/**
- * Upper bound in milliseconds for a single URL watcher request, covering both the response headers
- * and the body read. A server that hangs mid-response would otherwise stall polling forever.
- */
+/** Upper bound in milliseconds for one URL watcher request, headers and body read, so a hung server never stalls polling. */
 const URL_WATCHER_TIMEOUT_MS = 10_000
 
 type RunPostGenerateOptions = {
@@ -53,10 +44,7 @@ type HookResult = {
   stderr?: string
 }
 
-/**
- * The numeric `major.minor.patch` of a semver string, `null` when it is not one. A leading `v`,
- * a prerelease and build metadata are accepted and dropped.
- */
+/** The numeric `major.minor.patch` of a semver string, `null` when it is not one; a leading `v`, prerelease and build metadata are dropped. */
 function parseVersion(version: string): [number, number, number] | null {
   const match = /^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.exec(version.trim())
 
@@ -103,9 +91,7 @@ export async function runPostGenerate({ commands, hooks }: RunPostGenerateOption
 }
 
 type RunHookOptions = {
-  /**
-   * Ties the `kubb:hook:*` events of one run together. Generated when omitted.
-   */
+  /** Ties the `kubb:hook:*` events of one run together. Generated when omitted. */
   id?: string
   command: string
   name?: string
@@ -113,12 +99,7 @@ type RunHookOptions = {
   hooks: Hookable<KubbHooks>
 }
 
-/**
- * Spawns a hook command and returns its outcome, announcing it through `kubb:hook:start` and
- * mirroring the result through `kubb:hook:end` for the loggers. A non-zero exit returns
- * `success: false` rather than throwing, so the caller can turn it into a diagnostic. Other spawn
- * errors do the same. Output is streamed through `kubb:hook:line` only while a listener is attached.
- */
+/** Spawns a hook command, announced through `kubb:hook:start` and `kubb:hook:end`, and returns a failure instead of throwing. */
 export async function runHook({ id = randomUUID(), command, name, args, hooks }: RunHookOptions): Promise<HookResult> {
   const commandWithArgs = [command, ...(args ?? [])].join(' ')
   const emitEnd = async (result: HookResult): Promise<HookResult> => {
@@ -216,12 +197,7 @@ type WatcherLog = {
   error: (message: string) => void
 }
 
-/**
- * Starts a file watcher on the given files and calls `cb` on any change. Event bursts (an editor
- * save emits several) are debounced into one build, and builds never overlap: changes during a
- * build queue exactly one rebuild. Returns a function that stops watching, so callers (and tests)
- * can shut the watcher down without signaling the process.
- */
+/** Watches the given files and calls `cb` on a change, debounced and never overlapping; returns a function that stops watching. */
 export function startWatcher(
   paths: Array<string>,
   cb: (path: Array<string>) => Promise<void>,
@@ -237,8 +213,7 @@ export function startWatcher(
 
   const watchers = paths.map((file) => {
     const absolute = resolve(file)
-    // Watching the directory rather than the file keeps the watch alive across an editor's
-    // atomic save, which replaces the file instead of writing into it.
+    // Watch the directory, not the file: an editor's atomic save replaces the file, which would end a file watch.
     const watcher = watch(dirname(absolute), (event, changed) => {
       if (changed !== basename(absolute)) return
       // A replaced file reports `rename`; name it by what happened to the path, as before.

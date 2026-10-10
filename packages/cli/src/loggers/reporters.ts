@@ -6,10 +6,7 @@ import type { Logger, LoggerContext, LoggerOptions } from './defineLogger.ts'
 import { clackLogger } from './clackLogger.ts'
 import { plainLogger } from './plainLogger.ts'
 
-/**
- * Bridges a {@link Reporter} onto the run's hook emitter: calls `report` with each config's
- * {@link GenerationResult} on `kubb:generation:end`. The reporter never touches the emitter.
- */
+/** Bridges a {@link Reporter} onto the hook emitter: calls `report` with each config's {@link GenerationResult} on `kubb:generation:end`. */
 export function installReporter(context: LoggerContext, reporter: Reporter, ctx: ReporterContext): void {
   const pluginFiles = reporter.needsPluginFiles ? new Map<Config, Map<string, Set<string>>>() : undefined
 
@@ -39,18 +36,7 @@ export function installReporter(context: LoggerContext, reporter: Reporter, ctx:
   }
 }
 
-/**
- * Installs the live logger (the TUI view) and the given reporters (the output). The reporters are
- * already selected by the caller (the CLI maps `--reporter` to names via `selectReporters`). This
- * only wires them. Loggers receive hook subprocess output through `kubb:hook:line` and the
- * `stdout`/`stderr` on `kubb:hook:end`, so nothing is returned here.
- *
- * Loggers and reporters are independent, except for `cli`: it both installs the live logger view
- * here and registers a reporter that renders the per-config summary through that logger, so the
- * summary lands inside the group the logger opened. The `json` reporter owns stdout, so the whole
- * `cli` reporter (live logger and summary) is skipped whenever `json` is among the reporters, even
- * if `cli` is also listed.
- */
+/** Installs the live logger and wires the selected reporters. `cli` renders its summary through the logger, and is skipped when `json` owns stdout. */
 function setupReporters(
   context: LoggerContext,
   {
@@ -79,20 +65,14 @@ function setupReporters(
     const logger = forcedLogger ?? (isRichOutput() ? clackLogger : plainLogger)
     const handle = logger(context, { logLevel })
 
-    // The summary belongs inside the group the logger opened for this config, so hand the writing
-    // to the logger rather than letting the reporter print alongside it.
+    // The summary belongs inside the group the logger opened for this config, so the logger writes it.
     installReporter(context, createCliReporter({ render: handle?.renderSummary }), ctx)
   }
 }
 
 export default setupReporters
 
-/**
- * Picks the reporters whose `name` matches one of `names`, in the order the names are given.
- * The config carries every available reporter, and the host selects which to activate by name
- * (the CLI maps `--reporter` to this). Duplicate names and names without a matching reporter are
- * skipped.
- */
+/** Picks the reporters whose `name` is in `names`, in the given order (the CLI maps `--reporter` to this); duplicates and unknown names are skipped. */
 export function selectReporters(reporters: ReadonlyArray<Reporter>, names: ReadonlyArray<string>): Array<Reporter> {
   return [...new Set(names)].flatMap((name) => reporters.find((reporter) => reporter.name === name) ?? [])
 }

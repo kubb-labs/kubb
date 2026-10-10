@@ -5,9 +5,7 @@ import { getElapsedMs, isCIEnvironment, runtime } from '@internals/utils'
 import { getAgentName } from './agent.ts'
 import { version } from '../package.json'
 
-/**
- * OpenTelemetry ingestion endpoint for anonymous usage telemetry.
- */
+/** OpenTelemetry ingestion endpoint for anonymous usage telemetry. */
 const OTLP_ENDPOINT = 'https://otlp.kubb.dev' as const
 
 type TelemetryCommand = 'generate' | 'mcp' | 'studio' | 'validate'
@@ -128,24 +126,13 @@ export function buildTelemetryEvent(options: {
 
 type TrackRunOptions = {
   command: TelemetryCommand
-  /**
-   * `process.hrtime()` snapshot taken when the command started.
-   */
+  /** `process.hrtime()` snapshot taken when the command started. */
   hrStart: [number, number]
 }
 
 type RunResult = Pick<TelemetryEvent, 'status'> & Partial<Pick<TelemetryEvent, 'plugins' | 'filesCreated'>>
 
-/**
- * Tracks one command run for the running CLI version. Returns the reporter the command calls once
- * it knows how it ended.
- *
- * @example
- * ```ts
- * const report = trackRun({ command: 'validate', hrStart: process.hrtime() })
- * await report({ status: 'success' })
- * ```
- */
+/** Tracks one command run for the running CLI version; returns the reporter the command calls once it knows how it ended. */
 export function trackRun({ command, hrStart }: TrackRunOptions): (result: RunResult) => Promise<void> {
   return (result) => sendTelemetry(buildTelemetryEvent({ command, kubbVersion: version, hrStart, ...result }))
 }

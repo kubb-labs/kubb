@@ -40,9 +40,7 @@ export function createPlainLogger(write: (line: string) => void): Logger {
   return createLogger(createWriter(write))
 }
 
-/**
- * Draws on the console, for non-TTY environments and for an AI coding agent reading the output.
- */
+/** Draws on the console, for non-TTY environments and for an AI coding agent reading the output. */
 export const plainWriter = createWriter((line) => console.log(line))
 
 /**
