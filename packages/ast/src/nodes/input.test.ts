@@ -25,7 +25,7 @@ describe('createInput', () => {
     const second = createInput()
 
     first.schemas.push(createSchema({ type: 'string' }))
-    first.operations.push(createOperation({ operationId: 'listPets', method: 'get', path: '/pets' }))
+    first.operations.push(createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' }))
 
     expect(second.schemas).toStrictEqual([])
     expect(second.operations).toStrictEqual([])
