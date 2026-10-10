@@ -60,8 +60,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
   } = options
 
-  const parserOptions: ast.ParserOptions = { dateType, integerType, unknownType, emptySchemaType, enumSuffix }
-  const resolvedOptions: AdapterOasResolvedOptions = { validate, contentType, server, discriminator, enums, ...parserOptions, integerType }
+  const parserOptions = { dateType, integerType, unknownType, emptySchemaType, enumSuffix } satisfies ast.ParserOptions
+  const resolvedOptions: AdapterOasResolvedOptions = { validate, contentType, server, discriminator, enums, ...parserOptions }
 
   let parsedDocument: Document | null = null
 
@@ -129,7 +129,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       const aliased = aliasTarget ? parsedByName.get(aliasTarget) : undefined
       const parsed = parsedByName.get(name)!
       const child = discriminatorChildMap?.get(name)
-      const node = aliased ? { ...aliased, name } : child ? patchDiscriminatorNode(parsed, child) : parsed
+      const base = child ? patchDiscriminatorNode(parsed, child) : parsed
+      const node = aliased ? { ...aliased, name } : base
 
       schemaNodes.push(promotedEnums ? refPromotedEnums(node, promotedEnums) : node)
     }

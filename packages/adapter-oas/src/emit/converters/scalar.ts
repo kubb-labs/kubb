@@ -34,14 +34,7 @@ function getPrimitiveType(type: string | undefined): ast.PrimitiveSchemaType {
   return 'string'
 }
 
-function primitiveOf(value: unknown): 'string' | 'number' | 'boolean' {
-  if (typeof value === 'number') return 'number'
-  if (typeof value === 'boolean') return 'boolean'
-
-  return 'string'
-}
-
-// Shared by number, integer and bigint nodes; the exclusive bounds keep only the OAS 3.1 numeric form.
+/** Shared by number, integer and bigint nodes; the exclusive bounds keep only the OAS 3.1 numeric form. */
 function getNumericConstraints(schema: SchemaObject): Pick<ast.NumberSchemaNode, 'min' | 'max' | 'exclusiveMinimum' | 'exclusiveMaximum' | 'multipleOf'> {
   return {
     min: schema.minimum,
@@ -98,7 +91,7 @@ export function convertConst(context: ConvertContext): ast.SchemaNode {
 
   return createNode(context, {
     type: 'enum',
-    primitive: primitiveOf(constValue),
+    primitive: getPrimitiveType(typeof constValue),
     enumValues: [constValue as string | number | boolean],
   })
 }

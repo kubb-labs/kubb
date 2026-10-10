@@ -176,7 +176,7 @@ export function getOperations(document: Document, refs: Refs): Array<Operation> 
   return operations
 }
 
-// Property names whose schema has a truthy `readOnly` or `writeOnly` flag; `$ref` entries are skipped.
+/** Property names whose schema has a truthy `readOnly` or `writeOnly` flag; `$ref` entries are skipped. */
 function collectPropertyKeysByFlag(schema: SchemaObject | null, flag: 'readOnly' | 'writeOnly'): Array<string> | null {
   if (!schema?.properties) return null
 
@@ -195,7 +195,7 @@ function parseParameter({
   parentName,
   options,
   parseSchema,
-}: OperationParseContext & { param: ParameterObject; parentName?: string }): ast.ParameterNode {
+}: Pick<OperationParseContext, 'options' | 'parseSchema'> & { param: ParameterObject; parentName?: string }): ast.ParameterNode {
   const schemaName = parentName && param.name ? pascalCase(`${parentName} ${param.name}`) : undefined
   const schema: ast.SchemaNode = param.schema
     ? parseSchema({ schema: param.schema as SchemaObject, name: schemaName })
@@ -223,7 +223,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
   const { refs, contentType, options, parseSchema } = ctx
   const operationId = getOperationId(operation)
   const operationName = operationId ? pascalCase(operationId) : undefined
-  const parameters = getParameters({ operation, refs }).map((param) => parseParameter({ ...ctx, param, parentName: operationName }))
+  const parameters = getParameters({ operation, refs }).map((param) => parseParameter({ options, parseSchema, param, parentName: operationName }))
 
   // A configured contentType restricts the body to that one media type; otherwise every declared one is kept.
   const body = getRequestBody({ operation, refs })
@@ -271,7 +271,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     if (responseContent.length === 0) {
       responseContent.push(
         ast.factory.createContent({
-          contentType: getRequestContentType({ operation, refs }) || 'application/json',
+          contentType: getRequestContentType({ operation, refs }),
           ...parseEntrySchema(contentType),
         }),
       )
