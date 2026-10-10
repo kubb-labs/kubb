@@ -4,7 +4,13 @@ import process from 'node:process'
 import { generateConfigFile, KUBB_CONFIG_FILENAME, resolvePlugins } from '@internals/shared'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
-import { initSchema } from '../schemas/initSchema.ts'
+import * as v from 'valibot'
+
+const initSchema = v.object({
+  input: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Path to OpenAPI spec (default: ./openapi.yaml)'))),
+  output: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Output directory (default: ./src/gen)'))),
+  plugins: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Comma-separated list of plugins: plugin-ts,plugin-zod,...'))),
+})
 
 export const initTool = defineTool(
   {
