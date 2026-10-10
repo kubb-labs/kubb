@@ -159,10 +159,10 @@ describe('createSerialRunner', () => {
 
 describe('startWatcher', () => {
   let dir: string
-  const stops: Array<() => void> = []
+  const stops: Array<() => Promise<void>> = []
 
   afterEach(async () => {
-    for (const stop of stops.splice(0)) stop()
+    for (const stop of stops.splice(0)) await stop()
     if (dir) await rm(dir, { recursive: true, force: true })
   })
 
@@ -174,7 +174,7 @@ describe('startWatcher', () => {
     const messages: Array<string> = []
 
     stops.push(
-      startWatcher(
+      await startWatcher(
         [file],
         async (paths) => {
           builds.push(paths)
@@ -205,7 +205,7 @@ describe('startWatcher', () => {
     const builds: Array<Array<string>> = []
 
     stops.push(
-      startWatcher(
+      await startWatcher(
         [file],
         async (paths) => {
           builds.push(paths)

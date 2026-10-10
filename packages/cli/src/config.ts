@@ -1,40 +1,19 @@
-import { basename, dirname, parse, resolve } from 'node:path'
+import { basename, dirname, resolve } from 'node:path'
 import process from 'node:process'
-import { CONFIG_EXTENSIONS, createModuleLoader } from '@internals/shared'
-import { exists } from '@internals/utils'
+import { createModuleLoader } from '@internals/shared'
 import type { CLIOptions, Config, PossibleConfig } from '@kubb/core'
+import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
 
 const loader = createModuleLoader()
+
+// Kubb configs are JS/TS modules (they call `defineConfig`/`pluginX()`), so YAML and JSON are not
+// supported. The jiti loader handles every module format and the JSX runtime, returning the default export.
+const tsLoader = (configFile: string) => loader.load(configFile, { default: true })
 
 const MODULE_NAME = 'kubb'
 
 const SEARCH_FILES = ['', '.config/', 'configs/'].flatMap((prefix) => [`${prefix}.${MODULE_NAME}rc`, `${prefix}${MODULE_NAME}.config`])
-
-/** Every name tried in one directory, in order: `.kubbrc` before `kubb.config`, the top level before `.config/` and `configs/`, `ts` first. */
-const SEARCH_CANDIDATES = SEARCH_FILES.flatMap((file) => CONFIG_EXTENSIONS.map((extension) => `${file}${extension}`))
-
-type FindConfigFileOptions = {
-  /** Directory the search starts from. */
-  cwd: string
-  /** File names, relative to each directory, tried in order. */
-  files: ReadonlyArray<string>
-}
-
-/** Walks up from `cwd` and returns the first of `files` found, trying every name in a directory before its parent; the root is not searched. */
-export async function findConfigFile({ cwd, files }: FindConfigFileOptions): Promise<string | undefined> {
-  const stopAt = parse(cwd).root
-
-  for (let directory = cwd; directory !== stopAt; directory = dirname(directory)) {
-    for (const file of files) {
-      const path = resolve(directory, file)
-      if (await exists(path)) {
-        return path
-      }
-    }
-  }
-
-  return undefined
-}
+const SEARCH_EXTENSIONS = ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs']
 
 type GetConfigsOptions = {
   /** Explicit path to the Kubb config file. When omitted, the loader searches up from `process.cwd()`. */
@@ -56,24 +35,24 @@ type GetConfigsResult = {
 
 /** Discovers the Kubb config and resolves it into normalized configs, each guaranteed to have a `plugins` array. */
 export async function getConfigs({ configPath, input, watch, logLevel }: GetConfigsOptions): Promise<GetConfigsResult> {
-  const cwd = process.cwd()
-  const abs = configPath ? resolve(cwd, configPath) : undefined
-  // An explicit path is searched the same way, by its name from its own directory up.
-  const filepath = await (abs ? findConfigFile({ cwd: dirname(abs), files: [basename(abs)] }) : findConfigFile({ cwd, files: SEARCH_CANDIDATES }))
+  const abs = configPath ? resolve(configPath) : undefined
+  const sources: Array<LoadConfigSource<unknown>> = abs
+    ? [{ files: [basename(abs)], extensions: [], parser: tsLoader }]
+    : [{ files: SEARCH_FILES, extensions: SEARCH_EXTENSIONS, parser: tsLoader }]
 
-  // Kubb configs are JS/TS modules (they call `defineConfig`/`pluginX()`), so YAML and JSON are not supported; jiti loads the default export.
-  let loaded: unknown
+  let result: LoadConfigResult<unknown>
   try {
-    loaded = filepath ? await loader.load(filepath, { default: true }) : undefined
+    result = await loadConfig<unknown>({ cwd: abs ? dirname(abs) : process.cwd(), sources, merge: false })
   } catch (error) {
     throw new Error('Config failed loading', { cause: error })
   }
 
-  if (!loaded || !filepath) {
+  const [filepath] = result.sources
+  if (!result.config || !filepath) {
     throw new Error('Config not defined, create a kubb.config.js or pass through your config with the option --config')
   }
 
-  const config = loaded as PossibleConfig<CLIOptions>
+  const config = result.config as PossibleConfig<CLIOptions>
   const cli: CLIOptions = { config: configPath, input, watch, logLevel }
   const resolved = await (typeof config === 'function' ? config(cli) : config)
   const userConfigs = Array.isArray(resolved) ? resolved : [resolved]

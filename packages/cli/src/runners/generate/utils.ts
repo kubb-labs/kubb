@@ -1,11 +1,13 @@
 import { randomUUID } from 'node:crypto'
-import { existsSync, watch } from 'node:fs'
-import { basename, dirname, resolve } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { toError, tokenize } from '@internals/utils'
 import type { HookResult, KubbHooks, PostGenerateCommand, Hookable } from '@kubb/core'
 import { NonZeroExitError, x } from 'tinyexec'
+import { isGreaterThan, isValid, truncate } from 'verkit'
+
+/** Glob pattern for paths the file watcher ignores. */
+const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
 
 /** Quiet window in milliseconds that collapses a burst of watcher events (an editor save emits several) into one rebuild. */
 const WATCHER_DEBOUNCE_MS = 100
@@ -21,13 +23,6 @@ type RunPostGenerateOptions = {
   hooks: Hookable<KubbHooks>
 }
 
-/** The numeric `major.minor.patch` of a semver string, `null` when it is not one; a leading `v`, prerelease and build metadata are dropped. */
-function parseVersion(version: string): [number, number, number] | null {
-  const match = /^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/.exec(version.trim())
-
-  return match ? [Number(match[1]), Number(match[2]), Number(match[3])] : null
-}
-
 /**
  * Returns `true` when `latest` is a newer semver version than `current`. Compares each numeric
  * part, so `5.10.0` beats `5.9.0` where a plain string comparison would not. Prerelease
@@ -40,13 +35,9 @@ function parseVersion(version: string): [number, number, number] | null {
  * `isNewerVersion('5.10.0', '5.9.0') // false`
  */
 export function isNewerVersion(current: string, latest: string): boolean {
-  const currentParts = parseVersion(current)
-  const latestParts = parseVersion(latest)
-  if (!currentParts || !latestParts) return false
+  if (!isValid(current) || !isValid(latest)) return false
 
-  const differs = latestParts.findIndex((part, index) => part !== currentParts[index])
-
-  return differs !== -1 && latestParts[differs]! > currentParts[differs]!
+  return isGreaterThan(truncate(latest, 'patch') as string, truncate(current, 'patch') as string)
 }
 
 /**
@@ -174,46 +165,50 @@ type WatcherLog = {
   error: (message: string) => void
 }
 
-/** Watches the given files and calls `cb` on a change, debounced and never overlapping; returns a function that stops watching. */
-export function startWatcher(
-  paths: Array<string>,
+/**
+ * Starts a file watcher on the given paths and calls `cb` on any change.
+ * Ignores `.git` and `node_modules` directories. Event bursts (an editor save emits several)
+ * are debounced into one build, and builds never overlap: changes during a build queue exactly
+ * one rebuild. Resolves to a function that stops watching.
+ */
+export async function startWatcher(
+  path: Array<string>,
   cb: (path: Array<string>) => Promise<void>,
   log: WatcherLog = { info: console.log, error: console.log },
-): () => void {
+): Promise<() => Promise<void>> {
+  const { watch } = await import('chokidar')
+  // `ignoreInitial` skips the `add` events chokidar fires for existing files at startup, which
+  // would otherwise rebuild right after the initial run.
+  const watcher = watch(path, { ignorePermissionErrors: true, ignored: WATCHER_IGNORED_PATHS, ignoreInitial: true })
+
+  process.once('SIGINT', () => {
+    watcher.close()
+  })
+  process.once('SIGTERM', () => {
+    watcher.close()
+  })
+
   // Bursts never overlap builds on the shared hooks emitter: a change during a build
   // queues exactly one rerun.
   const runBuild = createSerialRunner({
-    run: () => cb(paths),
+    run: () => cb(path),
     onError: () => log.error(styleText('red', 'Watcher failed')),
   })
   let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
-  const watchers = paths.map((file) => {
-    const absolute = resolve(file)
-    // Watch the directory, not the file: an editor's atomic save replaces the file, which would end a file watch.
-    const watcher = watch(dirname(absolute), (event, changed) => {
-      if (changed !== basename(absolute)) return
-      // A replaced file reports `rename`; name it by what happened to the path, as before.
-      const type = event === 'change' || existsSync(absolute) ? 'change' : 'unlink'
-      log.info(styleText('yellow', styleText('bold', `Change detected: ${type} ${file}`)))
-      if (debounceTimer) clearTimeout(debounceTimer)
-      debounceTimer = setTimeout(() => {
-        debounceTimer = null
-        void runBuild()
-      }, WATCHER_DEBOUNCE_MS)
-    })
-    watcher.on('error', () => log.error(styleText('red', 'Watcher failed')))
-    return watcher
+  watcher.on('all', (type, file) => {
+    log.info(styleText('yellow', styleText('bold', `Change detected: ${type} ${file}`)))
+    if (debounceTimer) clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(() => {
+      debounceTimer = null
+      void runBuild()
+    }, WATCHER_DEBOUNCE_MS)
   })
 
-  const stop = () => {
+  return async () => {
     if (debounceTimer) clearTimeout(debounceTimer)
-    for (const watcher of watchers) watcher.close()
+    await watcher.close()
   }
-  process.once('SIGINT', stop)
-  process.once('SIGTERM', stop)
-
-  return stop
 }
 
 /**
