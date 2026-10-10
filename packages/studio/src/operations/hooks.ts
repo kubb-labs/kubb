@@ -2,17 +2,6 @@ import type { Hookable, KubbHooks } from '@kubb/core'
 import { x } from 'tinyexec'
 import type { AgentPermissions } from '../protocol/index.ts'
 
-/**
- * Events a host emits about its Kubb Studio session, as opposed to a generation. `kubb:` stays
- * reserved for generation lifecycle.
- */
-export type StudioConnectingContext = {
-  /**
-   * The Studio instance this session is opening against.
-   */
-  url: string
-}
-
 export type StudioConnectedContext = {
   /**
    * The Studio instance this session attached to.
@@ -48,70 +37,49 @@ export type StudioConnectedContext = {
 }
 
 /**
- * Fired once Studio confirms the `agent:connect` handshake was received and the session is fully
- * registered. Distinct from `studio:connected`, which only means the socket is open.
+ * Events a host emits about its Kubb Studio session, as opposed to a generation. `kubb:` stays
+ * reserved for generation lifecycle.
  */
-export type StudioReadyContext = Record<string, never>
-
-export type StudioDisconnectedContext = {
-  /**
-   * Why Studio ended the session.
-   */
-  reason: string
-}
-
-export type StudioReconnectingContext = {
-  /** Milliseconds until the next connection attempt. */
-  delayMs: number
-}
-
-export type StudioCommandStartContext = {
-  /**
-   * The command Studio sent, without its `studio:` prefix: `generate`, `connect` or `save`.
-   */
-  command: string
-}
-
-export type StudioCommandEndContext = {
-  /**
-   * The command that finished, without its `studio:` prefix.
-   */
-  command: string
-  /**
-   * What the command did, when there is something to report: `applied 2/3 edits to kubb.config.ts`.
-   */
-  info?: string
-}
-
-export type StudioWarnContext = {
-  /**
-   * What was refused or ignored.
-   */
-  message: string
-  /** The missing permission, if that is why, so the host can append its own remedy. */
-  permission?: keyof AgentPermissions
-}
-
-export type StudioErrorContext = {
-  /**
-   * The failure, for the host's own output. One Studio needs to hear about goes over the socket
-   * through the `kubb:error` generation hook instead.
-   */
-  error: Error
-}
-
 declare global {
   namespace Kubb {
     interface KubbHooksRegistry {
-      'studio:connecting': [ctx: StudioConnectingContext]
+      /**
+       * The Studio instance this session is opening against.
+       */
+      'studio:connecting': [ctx: { url: string }]
       'studio:connected': [ctx: StudioConnectedContext]
-      'studio:ready': [ctx: StudioReadyContext]
-      'studio:disconnected': [ctx: StudioDisconnectedContext]
-      'studio:reconnecting': [ctx: StudioReconnectingContext]
-      'studio:command:start': [ctx: StudioCommandStartContext]
-      'studio:command:end': [ctx: StudioCommandEndContext]
-      'studio:warn': [ctx: StudioWarnContext]
-      'studio:error': [ctx: StudioErrorContext]
+      /**
+       * Fired once Studio confirms the `agent:connect` handshake was received and the session is
+       * fully registered. Distinct from `studio:connected`, which only means the socket is open.
+       */
+      'studio:ready': [ctx: Record<string, never>]
+      /**
+       * Why Studio ended the session.
+       */
+      'studio:disconnected': [ctx: { reason: string }]
+      /**
+       * Milliseconds until the next connection attempt.
+       */
+      'studio:reconnecting': [ctx: { delayMs: number }]
+      /**
+       * The command Studio sent, without its `studio:` prefix: `generate`, `connect` or `save`.
+       */
+      'studio:command:start': [ctx: { command: string }]
+      /**
+       * The command that finished, with what it did when there is something to report:
+       * `applied 2/3 edits to kubb.config.ts`.
+       */
+      'studio:command:end': [ctx: { command: string; info?: string }]
+      /**
+       * What was refused or ignored, and the missing permission if that is why, so the host can
+       * append its own remedy.
+       */
+      'studio:warn': [ctx: { message: string; permission?: keyof AgentPermissions }]
+      /**
+       * The failure, for the host's own output. One Studio needs to hear about goes over the
+       * socket through the `kubb:error` generation hook instead.
+       */
+      'studio:error': [ctx: { error: Error }]
     }
   }
 }
