@@ -106,6 +106,22 @@ describe('getBarrelFiles', () => {
     expect(petsBarrel.exports.map((e) => e.path)).toStrictEqual(['./createPet.ts', './listPets.ts'])
   })
 
+  it('returns a barrel per level linking root files and nested directories when depths are mixed', () => {
+    const files = [makeFile(`${ROOT}/pet.ts`), makeFile(`${ROOT}/pets/listPets.ts`), makeFile(`${ROOT}/pets/tags/getTag.ts`)]
+    const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'all', nested: true })]
+
+    expect(barrels.map((b) => b.path).sort()).toStrictEqual([`${ROOT}/index.ts`, `${ROOT}/pets/index.ts`, `${ROOT}/pets/tags/index.ts`])
+
+    const rootBarrel = barrels.find((b) => b.path === `${ROOT}/index.ts`)!
+    expect(rootBarrel.exports.map((e) => e.path)).toStrictEqual(['./pet.ts', './pets/index.ts'])
+
+    const petsBarrel = barrels.find((b) => b.path === `${ROOT}/pets/index.ts`)!
+    expect(petsBarrel.exports.map((e) => e.path)).toStrictEqual(['./listPets.ts', './tags/index.ts'])
+
+    const tagsBarrel = barrels.find((b) => b.path === `${ROOT}/pets/tags/index.ts`)!
+    expect(tagsBarrel.exports.map((e) => e.path)).toStrictEqual(['./getTag.ts'])
+  })
+
   it('derives a subtree barrel from a shared index via targetPath', () => {
     const files = [makeFile(`${ROOT}/pets/listPets.ts`, ['listPets']), makeFile(`${ROOT}/users/getUser.ts`, ['getUser'])]
     const index = buildBarrelIndex(ROOT, files)
