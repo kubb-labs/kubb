@@ -59,6 +59,12 @@ describe('FileManager', () => {
       expect(manager.files.map((f) => f.path)).toStrictEqual(['/src/a.ts', '/src/b.ts'])
     })
 
+    it('returns the resolved file nodes', () => {
+      const manager = new FileManager()
+
+      expect(manager.add(makeFile('/src/foo.ts')).map((file) => file.path)).toStrictEqual(['/src/foo.ts'])
+    })
+
     it('merges two files with the same path passed in a single call', () => {
       const manager = new FileManager()
       manager.add(makeFile('/src/foo.ts', 'const a = 1'), makeFile('/src/foo.ts', 'const b = 2'))

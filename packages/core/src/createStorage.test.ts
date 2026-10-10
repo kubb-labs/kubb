@@ -56,6 +56,8 @@ describe('createStorage', () => {
 type StorageCase = {
   name: string
   create(): Storage
+  /** The `name` the driver reports on its instances. */
+  driverName: string
   /** What `readItem` returns after `writeItem(key, value)`; the filesystem driver appends a newline. */
   written(value: string): string
   /** What `readKeys(base)` returns for `names` under `base`: relative on disk, full keys in memory. */
@@ -66,19 +68,21 @@ const storages: Array<StorageCase> = [
   {
     name: 'memoryStorage',
     create: memoryStorage,
+    driverName: 'memory',
     written: (value) => value,
     keysUnder: (base, names) => names.map((name) => join(base, name)),
   },
   {
     name: 'fsStorage',
     create: fsStorage,
+    driverName: 'fs',
     written: (value) => `${value}\n`,
     keysUnder: (_base, names) => names,
   },
 ]
 
 // Every key lives under a temp dir that is removed afterwards, so the filesystem driver never touches the package.
-describe.each(storages)('Storage contract: $name', ({ create, written, keysUnder }) => {
+describe.each(storages)('Storage contract: $name', ({ create, driverName, written, keysUnder }) => {
   let dir: string
   let storage: Storage
 
@@ -89,6 +93,10 @@ describe.each(storages)('Storage contract: $name', ({ create, written, keysUnder
 
   afterEach(() => {
     rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('reports the driver name', () => {
+    expect(storage.name).toBe(driverName)
   })
 
   it('returns null from readItem for a missing key', async () => {
