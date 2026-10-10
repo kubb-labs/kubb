@@ -79,8 +79,11 @@ describe('date types', () => {
     expectTypeOf<InferSchemaNode<{ type: 'string'; format: 'date-time' }, 'date'>>().toEqualTypeOf<DateSchemaNode>()
   })
 
-  it('falls back to the string result when dateType is not a string key of the map', () => {
-    expectTypeOf<InferSchemaNode<{ format: 'date-time' }, false>>().toEqualTypeOf<DatetimeSchemaNode>()
+  it('maps date-time to a plain string when dateType is false', () => {
+    expectTypeOf<InferSchemaNode<{ format: 'date-time' }, false>>().toEqualTypeOf<StringSchemaNode>()
+  })
+
+  it('falls back to the string result for the object dateType form', () => {
     expectTypeOf<InferSchemaNode<{ format: 'date-time' }, { dateTime: 'date' }>>().toEqualTypeOf<DatetimeSchemaNode>()
   })
 

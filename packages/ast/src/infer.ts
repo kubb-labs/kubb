@@ -98,9 +98,11 @@ type DateTimeNodeByDateType = {
 /**
  * Resolves the AST node produced by `format: 'date-time'` based on the `dateType` option.
  */
-type ResolveDateTimeNode<TDateType extends ParserOptions['dateType']> = DateTimeNodeByDateType[TDateType extends keyof DateTimeNodeByDateType
-  ? TDateType
-  : 'string']
+type ResolveDateTimeNode<TDateType extends ParserOptions['dateType']> = DateTimeNodeByDateType[TDateType extends false
+  ? 'false'
+  : TDateType extends keyof DateTimeNodeByDateType
+    ? TDateType
+    : 'string']
 
 /**
  * Ordered list of `[schema-shape, SchemaNode]` pairs.
