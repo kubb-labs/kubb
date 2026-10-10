@@ -123,21 +123,37 @@ describe('pluginBarrel', () => {
     expect(rootExportNames()).toContain('Pet')
   })
 
-  it('excludes a barrel:false file-mode plugin from the root barrel', async () => {
-    const { rootExportNames } = await build({
-      plugins: [
-        makePlugin({
-          name: 'plugin-types',
-          outputPath: 'types.ts',
-          filePath: '/workspace/src/gen/types.ts',
-          exportName: 'Pet',
-          output: { mode: 'file', barrel: false },
-        }),
-        schemasPlugin(),
-      ],
-    })
+  it.each([
+    {
+      scenario: 'file-mode',
+      plugin: makePlugin({
+        name: 'plugin-types',
+        outputPath: 'types.ts',
+        filePath: '/workspace/src/gen/types.ts',
+        exportName: 'Pet',
+        output: { mode: 'file', barrel: false },
+      }),
+    },
+    { scenario: 'directory-mode', plugin: typesPlugin({ barrel: false }) },
+  ])('excludes a barrel:false $scenario plugin from the root barrel', async ({ plugin }) => {
+    const { paths, rootExportNames } = await build({ plugins: [plugin, schemasPlugin()] })
 
+    expect(paths).not.toContain('/workspace/src/gen/types/index.ts')
     expect(rootExportNames()).not.toContain('Pet')
     expect(rootExportNames()).toContain('PetSchema')
+  })
+
+  it('keeps a plugin whose output path only shares a prefix with an excluded one', async () => {
+    const extraPlugin = makePlugin({
+      name: 'plugin-types-extra',
+      outputPath: 'typesExtra',
+      filePath: '/workspace/src/gen/typesExtra/pet.ts',
+      exportName: 'PetExtra',
+      output: { mode: 'directory' },
+    })
+    const { rootExportNames } = await build({ plugins: [typesPlugin({ barrel: false }), extraPlugin] })
+
+    expect(rootExportNames()).not.toContain('Pet')
+    expect(rootExportNames()).toContain('PetExtra')
   })
 })
