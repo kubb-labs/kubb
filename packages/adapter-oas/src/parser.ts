@@ -156,7 +156,7 @@ export function createSchemaParser(ctx: OasParserContext) {
   function parseOperation(options: ast.ParserOptions, operation: Operation): ast.OperationNode {
     const operationId = getOperationId(operation)
     const operationName = operationId ? pascalCase(operationId) : undefined
-    const parameters: Array<ast.ParameterNode> = getParameters({ document, operation }).map((param) =>
+    const parameters: Array<ast.ParameterNode> = getParameters({ operation, refs }).map((param) =>
       parseParameter(options, param as unknown as Record<string, unknown>, operationName),
     )
 
@@ -169,7 +169,7 @@ export function createSchemaParser(ctx: OasParserContext) {
     const requestBodyName = operationName ? `${operationName}Request` : undefined
 
     const content = allContentTypes.flatMap((ct) => {
-      const schema = getRequestSchema({ document, operation, refs, options: { contentType: ct } })
+      const schema = getRequestSchema({ operation, refs, options: { contentType: ct } })
       if (!schema) return []
       return [
         ast.factory.createContent({
@@ -199,7 +199,7 @@ export function createSchemaParser(ctx: OasParserContext) {
       const description = typeof responseObj === 'object' && responseObj !== null ? (responseObj as { description?: string }).description : undefined
 
       const parseEntrySchema = (contentType?: string) => {
-        const raw = getResponseSchema({ document, operation, refs, statusCode, options: { contentType } })
+        const raw = getResponseSchema({ operation, refs, statusCode, options: { contentType } })
         const node =
           raw && Object.keys(raw).length > 0
             ? parseSchema({ schema: raw, name: responseName }, options)

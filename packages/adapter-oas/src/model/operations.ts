@@ -1,23 +1,22 @@
 import { getBinaryFallbackSchema, isReference, pickContentEntry } from '../oas.ts'
 import { getRequestBody, getRequestContent, getResponseByStatusCode } from '../operation.ts'
-import { dereferenceWithRef } from '../refs.ts'
 import type { Refs } from '../refs.ts'
-import type { ContentTypeOptions, Document, MediaTypeObject, Operation, ParameterObject, ResponseObject, SchemaObject } from '../types.ts'
+import type { ContentTypeOptions, MediaTypeObject, Operation, ParameterObject, ResponseObject, SchemaObject } from '../types.ts'
 
 /**
  * Returns all parameters for an operation, merging path-level and operation-level entries.
  * Operation-level parameters override path-level ones with the same `in:name` key.
- * Each `$ref` parameter is dereferenced via `dereferenceWithRef` before merging.
+ * Each `$ref` parameter is dereferenced through `refs` before merging.
  *
  * @example
  * ```ts
- * getParameters({ document, operation })
+ * getParameters({ operation, refs })
  * // [{ name: 'petId', in: 'path', required: true, schema: { type: 'integer' } }]
  * ```
  */
-export function getParameters({ document, operation }: { document: Document; operation: Operation }): Array<ParameterObject> {
+export function getParameters({ operation, refs }: { operation: Operation; refs: Refs }): Array<ParameterObject> {
   const resolveParams = (params: Array<unknown>): Array<ParameterObject> =>
-    params.map((p) => dereferenceWithRef(document, p)).filter((p): p is ParameterObject => !!p && typeof p === 'object' && 'in' in p && 'name' in p)
+    params.map((p) => refs.derefKeepingRef(p)).filter((p): p is ParameterObject => !!p && typeof p === 'object' && 'in' in p && 'name' in p)
 
   const operationParams = resolveParams(operation.schema?.parameters || [])
   const pathLevelParams = resolveParams((operation.pathItem as { parameters?: Array<unknown> }).parameters ?? [])
@@ -58,18 +57,16 @@ function getResponseBody(responseBody: boolean | ResponseObject, contentType?: s
  *
  * @example
  * ```ts
- * getResponseSchema({ document, operation, refs, statusCode: 200 })   // SchemaObject
- * getResponseSchema({ document, operation, refs, statusCode: '4XX' }) // {}
+ * getResponseSchema({ operation, refs, statusCode: 200 })   // SchemaObject
+ * getResponseSchema({ operation, refs, statusCode: '4XX' }) // {}
  * ```
  */
 export function getResponseSchema({
-  document,
   operation,
   refs,
   statusCode,
   options = {},
 }: {
-  document: Document
   operation: Operation
   refs: Refs
   statusCode: string | number
@@ -93,7 +90,7 @@ export function getResponseSchema({
     return {}
   }
 
-  return dereferenceWithRef(document, schema)
+  return refs.derefKeepingRef(schema)
 }
 
 /**
@@ -101,20 +98,10 @@ export function getResponseSchema({
  *
  * @example
  * ```ts
- * getRequestSchema({ document, operation, refs }) // SchemaObject | null
+ * getRequestSchema({ operation, refs }) // SchemaObject | null
  * ```
  */
-export function getRequestSchema({
-  document,
-  operation,
-  refs,
-  options = {},
-}: {
-  document: Document
-  operation: Operation
-  refs: Refs
-  options?: ContentTypeOptions
-}): SchemaObject | null {
+export function getRequestSchema({ operation, refs, options = {} }: { operation: Operation; refs: Refs; options?: ContentTypeOptions }): SchemaObject | null {
   const requestBody = getRequestContent({ operation, refs, mediaType: options.contentType })
 
   if (requestBody === false) {
@@ -133,7 +120,7 @@ export function getRequestSchema({
     return null
   }
 
-  return dereferenceWithRef(document, schema)
+  return refs.derefKeepingRef(schema)
 }
 
 /**
