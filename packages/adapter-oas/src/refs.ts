@@ -16,11 +16,7 @@ type RefNodeParser = (entry: { schema: SchemaObject; name?: string | null }) => 
 export type Refs = ReturnType<typeof createRefs>
 
 /**
- * Creates the `$ref` resolution service for one document.
- *
- * One pointer walk backs every method, with one explicit `report` contract for a missing ref:
- * `report: true` (the default) reports a `refNotFound` diagnostic (or throws outside a build),
- * `report: false` resolves to `null` silently for a speculative lookup.
+ * Creates the `$ref` resolution service for one document. One pointer walk backs every method.
  *
  * @example
  * ```ts
@@ -38,7 +34,6 @@ export function createRefs(document: Document) {
   const resolvedNodeCache = new Map<string, ast.SchemaNode | null>()
   const resolvingRefs = new Set<string>()
 
-  // Walks a local `#/...` JSON pointer. `applicable` is `false` for an empty or non-local ref.
   function walkPointer<T>($ref: string): { applicable: boolean; value: T | null } {
     const trimmed = $ref.trim()
     if (trimmed === '' || !trimmed.startsWith('#')) {
@@ -81,7 +76,6 @@ export function createRefs(document: Document) {
       help: 'Add the schema under `components.schemas`, or fix the `$ref`. Run `kubb validate` to check the spec.',
       location: { kind: 'schema', pointer: refPath, ref: refPath },
     }
-    // The build collects the diagnostic and keeps going. Outside a build there is no sink, so throw.
     if (!Diagnostics.report(diagnostic)) {
       throw new Diagnostics.Error(diagnostic)
     }
@@ -138,11 +132,7 @@ export function createRefs(document: Document) {
     return resolved && !isReference(resolved) ? resolved : null
   }
 
-  /**
-   * Resolves a `$ref` object while keeping the original `$ref` field on the result, so a parser
-   * flow has both the dereferenced fields and the pointer identity. A non-`$ref` value is
-   * returned as-is.
-   */
+  /** Resolves a `$ref` object but keeps the `$ref` field on the result; other values pass through. */
   function derefKeepingRef<T = unknown>(value?: T): T {
     if (isReference(value)) {
       return { ...value, ...resolve(value.$ref), $ref: value.$ref }

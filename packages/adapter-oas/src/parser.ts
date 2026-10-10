@@ -19,18 +19,12 @@ export type OasParserContext = {
    * emitted name without a post-parse pass.
    */
   renames?: ReadonlyMap<string, string>
-  /**
-   * Parser options, merged over `DEFAULT_PARSER_OPTIONS` once per parser instance.
-   */
   options?: Partial<ast.ParserOptions>
 }
 
 /**
- * Creates the schema converter bound to one OpenAPI document.
- *
- * Owns the `parseSchema` recursion seam and dispatches each schema through the ordered
- * `schemaRules` table from `emit/parseSchema.ts`. Every converter is a standalone function that
- * recurses through the `parse` function passed to it, so this file only wires state to them.
+ * Creates the schema converter bound to one OpenAPI document: `parseSchema` dispatches each
+ * schema through the ordered `schemaRules` table, with the parser options merged once.
  *
  * @internal
  */
@@ -38,10 +32,6 @@ export function createSchemaParser(ctx: OasParserContext) {
   const { document, refs, renames } = ctx
   const options: ast.ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...ctx.options }
 
-  /**
-   * Converts an OAS `SchemaObject` into a `SchemaNode`: the first matching rule in
-   * {@link schemaRules} wins, otherwise the configured `emptySchemaType` applies.
-   */
   function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }): ast.SchemaNode {
     const flattenedSchema = flattenSchema(schema)
     if (flattenedSchema !== schema) {

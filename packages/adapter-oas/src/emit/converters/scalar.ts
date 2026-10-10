@@ -27,7 +27,6 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
   return merged as SchemaObject
 }
 
-// Numeric types pass through, `boolean` stays, everything else is a string.
 function getPrimitiveType(type: string | undefined): ast.PrimitiveSchemaType {
   if (type === 'number' || type === 'integer' || type === 'bigint') return type
   if (type === 'boolean') return 'boolean'
@@ -42,9 +41,7 @@ function primitiveOf(value: unknown): 'string' | 'number' | 'boolean' {
   return 'string'
 }
 
-// Numeric constraints shared by every `number`, `integer` and `bigint` node; a `format` such as
-// `double` or `int32` only narrows the type, so formatted numbers keep these too. The
-// exclusive bounds are the OAS 3.1 numeric form; the legacy OAS 3.0 boolean form is dropped.
+// Shared by number, integer and bigint nodes; the exclusive bounds keep only the OAS 3.1 numeric form.
 function getNumericConstraints(schema: SchemaObject): Pick<ast.NumberSchemaNode, 'min' | 'max' | 'exclusiveMinimum' | 'exclusiveMaximum' | 'multipleOf'> {
   return {
     min: schema.minimum,
@@ -55,7 +52,6 @@ function getNumericConstraints(schema: SchemaObject): Pick<ast.NumberSchemaNode,
   }
 }
 
-// The AST type descriptor for a date/time format under the `dateType` option.
 function getDateType(
   options: ast.ParserOptions,
   format: 'date-time' | 'date' | 'time',

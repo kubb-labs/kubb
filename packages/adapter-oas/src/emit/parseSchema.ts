@@ -15,19 +15,15 @@ import { isHandledFormat, resolveDateTypeValue } from './schemaShape.ts'
 export type ParseFn = (entry: { schema: SchemaObject; name?: string | null }) => ast.SchemaNode
 
 /**
- * Everything a converter receives: the per-schema derivations (normalized type, nullability,
- * default) plus what it needs from the parser instance (how to recurse, the source document,
- * the `$ref` service and the collision renames used to stamp `targetName` on ref nodes).
+ * Everything a converter receives: the per-schema derivations plus the parser instance's
+ * recursion seam, document, `$ref` service and collision renames.
  */
 export type ConvertContext = {
   schema: SchemaObject
   name: string | null | undefined
   nullable: true | undefined
   defaultValue: unknown
-  /**
-   * Normalized single type string: the first non-`null` element of an OAS 3.1 multi-type array,
-   * so `['null', 'string']` and `['string', 'null']` both become `string` with `nullable` set.
-   */
+  /** First non-`null` entry of an OAS 3.1 multi-type array, or the plain `type`. */
   type: string | undefined
   options: ast.ParserOptions
   parse: ParseFn

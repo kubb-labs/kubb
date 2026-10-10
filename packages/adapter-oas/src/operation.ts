@@ -18,11 +18,7 @@ import type {
 } from './types.ts'
 
 /**
- * A single OpenAPI operation: its URL path, HTTP method, and the raw operation object.
- *
- * `schema` is a live reference into the document; every accessor below resolves a `$ref`
- * through `refs` instead of in place. `pathItem` is the already-resolved path item this
- * operation was read from, for path-level parameters, summary and description.
+ * A single OpenAPI operation: its path, method, raw operation object and resolved path item.
  */
 export type Operation = {
   path: string
@@ -36,10 +32,7 @@ type OperationContext = {
   refs: Refs
 }
 
-/**
- * What `parseOperation` needs beyond the operation: the `$ref` service, the configured
- * content-type restriction, the resolved parser options and the schema parser to recurse into.
- */
+/** What `parseOperation` needs beyond the operation. */
 export type OperationParseContext = {
   refs: Refs
   contentType?: ContentType
@@ -109,11 +102,7 @@ export function getRequestContentType({ operation, refs }: OperationContext): st
   return mediaTypes.findLast(isJsonMimeType) ?? mediaTypes[0] ?? 'application/json'
 }
 
-/**
- * Returns all parameters for an operation, merging path-level and operation-level entries.
- * Operation-level parameters override path-level ones with the same `in:name` key. Each `$ref`
- * parameter is dereferenced through `refs` before merging.
- */
+/** Merges path-level and operation-level parameters; operation-level wins per `in:name`. */
 export function getParameters({ operation, refs }: OperationContext): Array<ParameterObject> {
   const resolveParams = (params: Array<unknown>): Array<ParameterObject> =>
     params.map((p) => refs.derefKeepingRef(p)).filter((p): p is ParameterObject => !!p && typeof p === 'object' && 'in' in p && 'name' in p)
@@ -131,11 +120,7 @@ export function getParameters({ operation, refs }: OperationContext): Array<Para
   return Array.from(paramMap.values())
 }
 
-/**
- * Reads the schema declared for one media type of a request or response `content` map, with
- * the binary fallback for a non-JSON entry the OAS 3.1 upgrade emptied out. `null` when the
- * media type is not declared or carries no schema.
- */
+/** Schema for one media type of a `content` map, with the binary fallback for an emptied non-JSON entry. */
 export function getBodySchema({
   content,
   contentType,
@@ -233,13 +218,6 @@ function parseParameter({
 
 /**
  * Converts an OAS `Operation` into an `OperationNode`.
- *
- * @example
- * ```ts
- * for (const operation of getOperations(document, refs)) {
- *   parseOperation({ operation, refs, contentType, options, parseSchema })
- * }
- * ```
  */
 export function parseOperation({ operation, ...ctx }: OperationParseContext & { operation: Operation }): ast.OperationNode {
   const { refs, contentType, options, parseSchema } = ctx
@@ -276,8 +254,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
 
   const responses = getResponseStatusCodes(operation).map((statusCode) => {
     const response = getResponseByStatusCode({ operation, refs, statusCode })
-    // `Status<code>` matches plugin-ts's resolveResponseStatusName, so nested enum names don't
-    // collide with a component schema named `<operation><statusCode>`.
+    // `Status<code>` keeps nested enum names clear of a component schema named `<operation><statusCode>`.
     const responseName = operationName ? `${operationName}Status${statusCode}` : undefined
 
     const parseEntrySchema = (ct?: string) => {

@@ -102,7 +102,7 @@ export async function parseDocument(pathOrApi: string | Document): Promise<Docum
 /**
  * Creates a `Document` from an `AdapterSource`.
  *
- * - `{ type: 'path' }` bundles a local file path or remote URL.
+ * - `{ type: 'path' }` bundles an absolute file path (core resolves `input`) or remote URL.
  * - `{ type: 'data' }` parses an inline string (YAML/JSON) or raw object.
  *
  * @example
@@ -119,7 +119,6 @@ export async function parseFromConfig(source: AdapterSource): Promise<Document> 
     return parseDocument(data as Document)
   }
 
-  // `core` resolves a local `input` to an absolute path; `assertInputExists` skips URLs.
   await assertInputExists(source.path)
   return parseDocument(source.path)
 }

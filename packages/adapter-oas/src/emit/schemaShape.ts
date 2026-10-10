@@ -4,9 +4,7 @@ import { isReference } from '../oas.ts'
 import type { SchemaObject } from '../types.ts'
 
 /**
- * Whether the parser maps `format` to a dedicated type: any `formatMap` entry, plus the
- * `specialCasedFormats` that `convertFormat` handles directly. False means the format falls back
- * to the base type, which is what `KUBB_UNSUPPORTED_FORMAT` flags.
+ * Whether `format` maps to a dedicated type; `false` is what `KUBB_UNSUPPORTED_FORMAT` flags.
  */
 export function isHandledFormat(format: string): boolean {
   return formatMap[format as keyof typeof formatMap] !== undefined || specialCasedFormats.has(format)
@@ -39,7 +37,6 @@ export function extractExamples(schema: SchemaObject): Array<unknown> | undefine
   return schema.example !== undefined ? [schema.example] : undefined
 }
 
-// A fragment carrying a structural keyword (see `structuralKeys`) can't be merged into its parent.
 function hasStructuralKeywords(fragment: SchemaObject): boolean {
   return Object.keys(fragment).some((key) => structuralKeys.has(key as 'properties'))
 }
