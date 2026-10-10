@@ -48,7 +48,8 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "devDependencies": {
-    "@types/node": "catalog:"
+    "@types/node": "catalog:",
+    "tinyexec": "catalog:"
   },
   "engines": {
     "node": ">=22"

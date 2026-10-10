@@ -1,21 +1,14 @@
-import { EventEmitter } from 'node:events'
+import { x } from 'tinyexec'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { detectTool, FORMATTER_PREFERENCE, formatters, LINTER_PREFERENCE, linters, tokenize } from './tools.ts'
 
-vi.mock('node:child_process', () => ({
-  spawn: vi.fn(),
+vi.mock('tinyexec', () => ({
+  x: vi.fn(),
 }))
 
-import type { ChildProcess } from 'node:child_process'
-import { spawn } from 'node:child_process'
-
-function makeChild(exitCode: number | null): ChildProcess {
-  const child = new EventEmitter() as unknown as ChildProcess
-  setTimeout(() => {
-    if (exitCode !== null) child.emit('close', exitCode)
-    else child.emit('error', new Error('not found'))
-  }, 0)
-  return child
+function makeResult(exitCode: number | null): ReturnType<typeof x> {
+  const output = exitCode === null ? Promise.reject(new Error('not found')) : Promise.resolve({ stdout: '', stderr: '', exitCode })
+  return output as unknown as ReturnType<typeof x>
 }
 
 describe('detectTool', () => {
@@ -24,25 +17,33 @@ describe('detectTool', () => {
   })
 
   it('returns the first candidate when available', async () => {
-    vi.mocked(spawn).mockImplementation((command: string) => {
-      return makeChild(command === 'oxfmt' ? 0 : 1)
+    vi.mocked(x).mockImplementation((command: string) => {
+      return makeResult(command === 'oxfmt' ? 0 : 1)
     })
 
     expect(await detectTool(['oxfmt', 'biome', 'prettier'])).toBe('oxfmt')
   })
 
   it('skips missing candidates and returns the first available one', async () => {
-    vi.mocked(spawn).mockImplementation((command: string) => {
-      return makeChild(command === 'biome' ? 0 : 1)
+    vi.mocked(x).mockImplementation((command: string) => {
+      return makeResult(command === 'biome' ? 0 : 1)
     })
 
     expect(await detectTool(['oxfmt', 'biome', 'prettier'])).toBe('biome')
   })
 
   it('returns null when no candidate is available', async () => {
-    vi.mocked(spawn).mockImplementation(() => makeChild(null))
+    vi.mocked(x).mockImplementation(() => makeResult(null))
 
     expect(await detectTool(['oxlint', 'biome', 'eslint'])).toBeNull()
+  })
+
+  it('probes from the given working directory', async () => {
+    vi.mocked(x).mockImplementation(() => makeResult(0))
+
+    await detectTool(['oxfmt'], '/repo/app')
+
+    expect(x).toHaveBeenCalledWith('oxfmt', ['--version'], { throwOnError: false, nodeOptions: { cwd: '/repo/app', stdio: 'ignore' } })
   })
 })
 

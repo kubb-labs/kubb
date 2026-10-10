@@ -40,7 +40,7 @@ type ToolPassRun = Pick<RunOutputPassesOptions, 'hooks' | 'outputPath' | 'signal
  * Resolves `auto` to an installed tool and runs it. Returns the failure instead of throwing.
  */
 async function runToolPass({ pass, setting, outputPath, hooks, cwd, signal }: ToolPassRun): Promise<Error | null> {
-  const detected = setting === 'auto' ? await detectTool(pass.preference) : setting
+  const detected = setting === 'auto' ? await detectTool(pass.preference, cwd) : setting
   if (!detected) {
     await hooks.callHook('kubb:warn', { message: `No ${pass.label} found (${pass.preference.join(', ')}). Skipping ${pass.verb.toLowerCase()}.` })
     return null
