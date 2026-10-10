@@ -787,6 +787,12 @@ describe('Kubb#generate', () => {
     ...overrides,
   })
 
+  const tempRoot = () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-generate-'))
+    roots.push(root)
+    return root
+  }
+
   const failingAdapter = (): Adapter =>
     createMockedAdapter({
       parse: async () => {
@@ -824,13 +830,41 @@ describe('Kubb#generate', () => {
       endStatus = status
     })
 
-    const result = await createKubb(makeConfig(), { hooks }).generate({
+    const result = await createKubb(makeConfig({ root: tempRoot(), storage: fsStorage() }), { hooks }).generate({
       processOutput: async () => [diagnostic],
     })
 
     expect(result.success).toBe(false)
     expect(result.diagnostics).toContain(diagnostic)
     expect(endStatus).toBe('failed')
+  })
+
+  it('skips processOutput and the format pass when the storage keeps the output in memory', async () => {
+    hooks = new Hookable<KubbHooks>()
+    const formatStarted = vi.fn()
+    hooks.hook('kubb:format:start', formatStarted)
+    const processOutput = vi.fn(async () => [])
+
+    const result = await createKubb(makeConfig({ root: tempRoot(), storage: memoryStorage(), output: { path: './gen', format: 'prettier' } }), {
+      hooks,
+    }).generate({
+      processOutput,
+    })
+
+    expect(result.success).toBe(true)
+    expect(processOutput).not.toHaveBeenCalled()
+    expect(formatStarted).not.toHaveBeenCalled()
+  })
+
+  it('runs processOutput once when the storage writes the output to disk', async () => {
+    hooks = new Hookable<KubbHooks>()
+    const processOutput = vi.fn(async () => [])
+
+    await createKubb(makeConfig({ root: tempRoot(), storage: fsStorage(), output: { path: './gen', format: 'prettier' } }), { hooks }).generate({
+      processOutput,
+    })
+
+    expect(processOutput).toHaveBeenCalledTimes(1)
   })
 
   it('stops after a build error without running processOutput', async () => {

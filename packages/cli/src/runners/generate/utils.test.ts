@@ -114,10 +114,8 @@ describe('runHook', () => {
       hooks,
     })
 
-    expect(result.success).toBe(false)
+    expect(result).toMatchObject({ success: false, stdout: expect.stringContaining('out'), stderr: expect.stringContaining('boom') })
     expect(result.error?.message).toContain('Hook execute failed')
-    expect(result.stdout).toContain('out')
-    expect(result.stderr).toContain('boom')
   })
 })
 
