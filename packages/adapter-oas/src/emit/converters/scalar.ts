@@ -1,9 +1,9 @@
 import { ast } from '@kubb/kit'
-import { enumDescriptionKeys, enumExtensionKeys, numericFormats } from '../../constants.ts'
+import { enumDescriptionKeys, enumExtensionKeys, formatMap, numericFormats } from '../../constants.ts'
 import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
-import { getDateType, getExclusiveBounds, getPrimitiveType, getSchemaType } from '../schemaShape.ts'
+import { resolveDateTypeValue } from '../schemaShape.ts'
 
 /**
  * Normalizes malformed `{ type: 'array', enum: [...] }` schemas by moving enum values into items.
@@ -27,6 +27,40 @@ function normalizeArrayEnum(schema: SchemaObject): SchemaObject {
   return merged as SchemaObject
 }
 
+function getPrimitiveType(type: string | undefined): ast.PrimitiveSchemaType {
+  if (type === 'number' || type === 'integer' || type === 'bigint') return type
+  if (type === 'boolean') return 'boolean'
+
+  return 'string'
+}
+
+/** Shared by number, integer and bigint nodes; the exclusive bounds keep only the OAS 3.1 numeric form. */
+function getNumericConstraints(schema: SchemaObject): Pick<ast.NumberSchemaNode, 'min' | 'max' | 'exclusiveMinimum' | 'exclusiveMaximum' | 'multipleOf'> {
+  return {
+    min: schema.minimum,
+    max: schema.maximum,
+    exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
+    exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
+    multipleOf: schema.multipleOf,
+  }
+}
+
+function getDateType(
+  options: ast.ParserOptions,
+  format: 'date-time' | 'date' | 'time',
+): { type: 'datetime'; offset?: boolean; local?: boolean } | { type: 'date' | 'time'; representation: 'date' | 'string' } {
+  const value = resolveDateTypeValue(options.dateType, format)
+
+  if (format !== 'date-time') {
+    return { type: format, representation: value === 'date' ? 'date' : 'string' }
+  }
+  if (value === 'date') return { type: 'date', representation: 'date' }
+  if (value === 'stringOffset') return { type: 'datetime', offset: true }
+  if (value === 'stringLocal') return { type: 'datetime', local: true }
+
+  return { type: 'datetime', offset: false }
+}
+
 /**
  * Builds a `null` scalar node carrying the schema's documentation. Shared by the `const: null`
  * and the drf-spectacular `NullEnum` (`{ enum: [null] }`) branches, which render identically.
@@ -47,28 +81,19 @@ export function createNullNode(schema: SchemaObject, name: string | null | undef
 /**
  * Converts an OAS 3.1 `const` schema into a null scalar or a single-value `EnumSchemaNode`.
  */
-export function convertConst({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
+export function convertConst(context: ConvertContext): ast.SchemaNode {
+  const { schema, name } = context
   const constValue = schema.const
 
   if (constValue === null) {
     return createNullNode(schema, name)
   }
 
-  const constPrimitive = getPrimitiveType(
-    (() => {
-      if (typeof constValue === 'number') return 'number'
-      if (typeof constValue === 'boolean') return 'boolean'
-      return 'string'
-    })(),
-  )
-  return createNode(
-    { schema, name, nullable, defaultValue },
-    {
-      type: 'enum',
-      primitive: constPrimitive,
-      enumValues: [constValue as string | number | boolean],
-    },
-  )
+  return createNode(context, {
+    type: 'enum',
+    primitive: getPrimitiveType(typeof constValue),
+    enumValues: [constValue as string | number | boolean],
+  })
 }
 
 /**
@@ -77,8 +102,7 @@ export function convertConst({ schema, name, nullable, defaultValue }: ConvertCo
  * a date-ish format, that `dateType` is not `false`.
  */
 export function convertFormat(context: ConvertContext): ast.SchemaNode {
-  const { schema, name, nullable, defaultValue, options, type } = context
-  const ctx = { schema, name, nullable, defaultValue }
+  const { schema, options, type } = context
 
   // A numeric format on a `type: 'string'` schema describes how the number is spelled, not that
   // the value is a number, so the declared type wins. The format stays on the node for plugins
@@ -88,7 +112,7 @@ export function convertFormat(context: ConvertContext): ast.SchemaNode {
   }
 
   if (schema.format === 'int64' || schema.format === 'uint64') {
-    return createNode(ctx, {
+    return createNode(context, {
       type: options.integerType === 'bigint' ? 'bigint' : 'integer',
       primitive: 'integer',
       ...getNumericConstraints(schema),
@@ -96,30 +120,30 @@ export function convertFormat(context: ConvertContext): ast.SchemaNode {
   }
 
   if (schema.format === 'date-time' || schema.format === 'date' || schema.format === 'time') {
-    const dateType = getDateType(options, schema.format)!
+    const dateType = getDateType(options, schema.format)
 
     if (dateType.type === 'datetime') {
-      return createNode(ctx, {
+      return createNode(context, {
         primitive: 'string' as const,
         type: 'datetime',
         offset: dateType.offset,
         local: dateType.local,
       })
     }
-    return createNode(ctx, {
+    return createNode(context, {
       primitive: 'string' as const,
       type: dateType.type,
       representation: dateType.representation,
     })
   }
 
-  const specialType = getSchemaType(schema.format!)!
+  const specialType = formatMap[schema.format as keyof typeof formatMap]
 
-  const isNumeric = specialType === 'number' || specialType === 'integer' || specialType === 'bigint'
+  const isNumeric = specialType === 'number' || specialType === 'integer'
   const specialPrimitive: ast.PrimitiveSchemaType = isNumeric ? specialType : 'string'
   const hasLength = specialType === 'url' || specialType === 'uuid' || specialType === 'email'
 
-  return createNode(ctx, {
+  return createNode(context, {
     primitive: specialPrimitive,
     type: specialType as ast.ScalarSchemaType,
     ...(hasLength ? { min: schema.minLength, max: schema.maxLength } : {}),
@@ -130,9 +154,9 @@ export function convertFormat(context: ConvertContext): ast.SchemaNode {
 /**
  * Converts an `enum` schema into an `EnumSchemaNode`.
  */
-export function convertEnum({ schema, name, nullable, type, rawOptions, parse }: ConvertContext): ast.SchemaNode {
+export function convertEnum({ schema, name, nullable, type, parse }: ConvertContext): ast.SchemaNode {
   if (type === 'array') {
-    return parse({ schema: normalizeArrayEnum(schema), name }, rawOptions)
+    return parse({ schema: normalizeArrayEnum(schema), name })
   }
 
   const nullInEnum = schema.enum!.includes(null)
@@ -195,56 +219,25 @@ export function convertEnum({ schema, name, nullable, type, rawOptions, parse }:
 /**
  * Converts a `type: 'string'` schema into a `StringSchemaNode`.
  */
-export function convertString({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
-  return createNode(
-    { schema, name, nullable, defaultValue },
-    {
-      type: 'string',
-      primitive: 'string',
-      min: schema.minLength,
-      max: schema.maxLength,
-      pattern: schema.pattern,
-    },
-  )
-}
+export function convertString(context: ConvertContext): ast.SchemaNode {
+  const { schema } = context
 
-/**
- * Reads the numeric constraints shared by every `number`, `integer` and `bigint` node. A `format`
- * such as `double` or `int32` only narrows the type, so formatted numbers keep these too.
- */
-function getNumericConstraints(schema: SchemaObject): Pick<ast.NumberSchemaNode, 'min' | 'max' | 'exclusiveMinimum' | 'exclusiveMaximum' | 'multipleOf'> {
-  return {
-    min: schema.minimum,
-    max: schema.maximum,
-    ...getExclusiveBounds(schema),
-    multipleOf: schema.multipleOf,
-  }
+  return createNode(context, {
+    type: 'string',
+    primitive: 'string',
+    min: schema.minLength,
+    max: schema.maxLength,
+    pattern: schema.pattern,
+  })
 }
 
 /**
  * Converts a `type: 'number'` or `type: 'integer'` schema.
  */
-export function convertNumeric({ schema, name, nullable, defaultValue }: ConvertContext, type: 'number' | 'integer'): ast.SchemaNode {
-  return createNode(
-    { schema, name, nullable, defaultValue },
-    {
-      type,
-      primitive: type,
-      ...getNumericConstraints(schema),
-    },
-  )
-}
-
-/**
- * Converts a `type: 'boolean'` schema.
- */
-export function convertBoolean({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
-  return createNode({ schema, name, nullable, defaultValue }, { type: 'boolean', primitive: 'boolean' })
-}
-
-/**
- * Converts a raw binary schema into a `blob` node.
- */
-export function convertBinary({ schema, name, nullable, defaultValue }: ConvertContext): ast.SchemaNode {
-  return createNode({ schema, name, nullable, defaultValue }, { type: 'blob', primitive: 'string' })
+export function convertNumeric(context: ConvertContext, type: 'number' | 'integer'): ast.SchemaNode {
+  return createNode(context, {
+    type,
+    primitive: type,
+    ...getNumericConstraints(context.schema),
+  })
 }

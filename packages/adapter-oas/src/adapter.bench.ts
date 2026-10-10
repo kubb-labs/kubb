@@ -4,7 +4,7 @@ import { test } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { parseDocument } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
-import { getOperations } from './operation.ts'
+import { getOperations, parseOperation } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
 import { createRefs } from './refs.ts'
 import { scanSchema } from './schemaDiagnostics.ts'
@@ -27,16 +27,16 @@ async function getPetStoreDocument(): Promise<Document> {
 function parseOas(document: Document): void {
   const refs = createRefs(document)
   const { schemas: schemaObjects } = getSchemas(document, {}, refs)
-  const { parseSchema, parseOperation } = createSchemaParser({ document, refs })
+  const { parseSchema } = createSchemaParser({ document, refs, options: DEFAULT_PARSER_OPTIONS })
 
   const graph = new Map<string, Set<string>>()
   for (const [name, schema] of Object.entries(schemaObjects)) {
-    const node = parseSchema({ schema, name }, DEFAULT_PARSER_OPTIONS)
+    const node = parseSchema({ schema, name })
     if (node.name) graph.set(node.name, scanSchema({ node, name }))
   }
   ast.findCircularSchemasFromGraph(graph)
 
-  for (const operation of getOperations(document, refs)) parseOperation(DEFAULT_PARSER_OPTIONS, operation)
+  for (const operation of getOperations(document, refs)) parseOperation({ operation, refs, options: DEFAULT_PARSER_OPTIONS, parseSchema })
 }
 
 test('parseOas() performance / petStore spec', async ({ bench }) => {

@@ -2,7 +2,7 @@ import { exists, getErrorMessage, read } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
 import { parse } from 'yaml'
 
-const urlRegExp = /^https?:\/+/i
+export const urlRegExp = /^https?:\/+/i
 
 /**
  * Node reports every connection failure as `TypeError: fetch failed` and keeps the useful part
@@ -117,5 +117,3 @@ export async function assertInputExists(input: string): Promise<void> {
     })
   }
 }
-
-export { urlRegExp }

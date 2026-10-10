@@ -1,4 +1,3 @@
-import path from 'node:path'
 import { getErrorMessage } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
 import type { AdapterSource } from '@kubb/kit'
@@ -103,7 +102,7 @@ export async function parseDocument(pathOrApi: string | Document): Promise<Docum
 /**
  * Creates a `Document` from an `AdapterSource`.
  *
- * - `{ type: 'path' }` resolves and bundles a local file path or remote URL.
+ * - `{ type: 'path' }` bundles an absolute file path (core resolves `input`) or remote URL.
  * - `{ type: 'data' }` parses an inline string (YAML/JSON) or raw object.
  *
  * @example
@@ -120,14 +119,8 @@ export async function parseFromConfig(source: AdapterSource): Promise<Document> 
     return parseDocument(data as Document)
   }
 
-  // type === 'path'
-  if (urlRegExp.test(source.path)) {
-    return parseDocument(source.path)
-  }
-
-  const resolved = path.resolve(path.dirname(source.path), source.path)
-  await assertInputExists(resolved)
-  return parseDocument(resolved)
+  await assertInputExists(source.path)
+  return parseDocument(source.path)
 }
 
 /**

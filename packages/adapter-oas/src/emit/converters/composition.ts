@@ -113,9 +113,9 @@ function resolveUnionSchema(schema: SchemaObject, siblingProperties: Record<stri
  * Use `syncSchemaRef(node)` in printers to get a merged view of both.
  * Circular refs are detected in `refs.resolveNode` and leave `schema` as `null`.
  */
-export function convertRef({ schema, name, nullable, defaultValue, rawOptions, document, parse, refs, renames }: ConvertContext): ast.SchemaNode {
+export function convertRef({ schema, name, nullable, defaultValue, document, parse, refs, renames }: ConvertContext): ast.SchemaNode {
   const refPath = schema.$ref
-  const resolvedSchema = refPath ? refs.resolveNode(refPath, parse, rawOptions) : null
+  const resolvedSchema = refPath ? refs.resolveNode(refPath, parse) : null
   const ctx = { schema, name, nullable, defaultValue }
 
   // A `$ref` to a component the document never defines (a malformed spec) would otherwise emit an
@@ -141,7 +141,7 @@ export function convertRef({ schema, name, nullable, defaultValue, rawOptions, d
 /**
  * Converts an `allOf` schema into a flattened node or an `IntersectionSchemaNode`.
  */
-export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions, parse, refs }: ConvertContext): ast.SchemaNode {
+export function convertAllOf({ schema, name, nullable, defaultValue, parse, refs }: ConvertContext): ast.SchemaNode {
   if (
     schema.allOf!.length === 1 &&
     !schema.properties &&
@@ -149,7 +149,7 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
     schema.additionalProperties === undefined
   ) {
     const [memberSchema] = schema.allOf as Array<SchemaObject | ReferenceObject>
-    const memberNode = parse({ schema: memberSchema! as SchemaObject, name }, rawOptions)
+    const memberNode = parse({ schema: memberSchema! as SchemaObject, name })
     const { kind: _kind, ...memberNodeProps } = memberNode
     const mergedNullable = nullable || memberNode.nullable || undefined
     const mergedDefault = schema.default === null && mergedNullable ? undefined : (schema.default ?? memberNode.default)
@@ -177,7 +177,7 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
   })
   const siblingProperties = collectSiblingProperties(schema.allOf as Array<SchemaObject | ReferenceObject>, refs, schema.properties)
   const resolvedAllOf = discriminatedAllOf.map((s) => (isReference(s) ? s : resolveUnionSchema(s as SchemaObject, siblingProperties)))
-  const allOfMembers: Array<ast.SchemaNode> = resolvedAllOf.map((s) => parse({ schema: s as SchemaObject, name }, rawOptions))
+  const allOfMembers: Array<ast.SchemaNode> = resolvedAllOf.map((s) => parse({ schema: s as SchemaObject, name }))
 
   const syntheticStart = allOfMembers.length
 
@@ -198,7 +198,7 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
           if (prop) {
             const raw = { properties: { [key]: prop }, required: [key] }
             const memberSchema = raw as SchemaObject
-            allOfMembers.push(parse({ schema: memberSchema, name }, rawOptions))
+            allOfMembers.push(parse({ schema: memberSchema, name }))
             break
           }
         }
@@ -211,7 +211,7 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
     // Don't pass `name` here, the result must stay anonymous so it can be merged with the
     // adjacent synthetic object in `mergeAdjacentObjectsLazy`. Nested enum qualification
     // happens upstream via `convertObject`'s `setEnumName` propagation.
-    allOfMembers.push(parse({ schema: schemaWithoutAllOf }, rawOptions))
+    allOfMembers.push(parse({ schema: schemaWithoutAllOf }))
   }
 
   for (const { propertyName, values } of discriminantValues) {
@@ -233,17 +233,17 @@ export function convertAllOf({ schema, name, nullable, defaultValue, rawOptions,
 export function convertUnion(context: ConvertContext): ast.SchemaNode {
   const annotatedEnum = convertAnnotatedEnum(context)
   if (annotatedEnum) return annotatedEnum
-  const { schema, name, nullable, defaultValue, rawOptions, parse, refs } = context
+  const { schema, name, nullable, defaultValue, parse, refs } = context
   const ctx = { schema, name, nullable, defaultValue }
   const unionMembers = resolveUnionMembers([...(schema.oneOf ?? []), ...(schema.anyOf ?? [])], schema.properties ?? {})
   const strategy: 'one' | 'any' = schema.oneOf ? 'one' : 'any'
   const explicitDiscriminatorPropertyName = isDiscriminator(schema) ? schema.discriminator.propertyName : undefined
   const discriminator = isDiscriminator(schema) ? schema.discriminator : undefined
   const { oneOf: _o, anyOf: _a, discriminator: _d, ...memberBaseSchema } = schema
-  const sharedPropertiesNode = schema.properties ? parse({ schema: memberBaseSchema as SchemaObject, name }, rawOptions) : undefined
+  const sharedPropertiesNode = schema.properties ? parse({ schema: memberBaseSchema as SchemaObject, name }) : undefined
 
   if (sharedPropertiesNode || discriminator) {
-    const members = narrowUnionMembers({ unionMembers, discriminator, sharedPropertiesNode, parse, rawOptions, name, refs })
+    const members = narrowUnionMembers({ unionMembers, discriminator, sharedPropertiesNode, parse, name, refs })
     const unionNode = createNode(ctx, {
       type: 'union',
       strategy,
@@ -258,7 +258,7 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
     return createNode(ctx, { type: 'intersection', members: [unionNode, sharedPropertiesNode] })
   }
 
-  const members = unionMembers.map((s) => parse({ schema: s as SchemaObject, name }, rawOptions))
+  const members = unionMembers.map((s) => parse({ schema: s as SchemaObject, name }))
   const unionNode = createNode(ctx, {
     type: 'union',
     strategy,
@@ -275,7 +275,7 @@ export function convertUnion(context: ConvertContext): ast.SchemaNode {
  * remains; a single remaining type (e.g. `['string', 'null']`) is handled as that type instead,
  * with nullability already folded in.
  */
-export function convertMultiType({ schema, name, nullable, defaultValue, rawOptions, parse }: ConvertContext): ast.SchemaNode {
+export function convertMultiType({ schema, name, nullable, defaultValue, parse }: ConvertContext): ast.SchemaNode {
   const types = schema.type as Array<string>
   const nonNullTypes = types.filter((t) => t !== 'null')
 
@@ -287,7 +287,7 @@ export function convertMultiType({ schema, name, nullable, defaultValue, rawOpti
       members: nonNullTypes.map((t) => {
         const raw = { ...schema, type: t }
         const memberSchema = raw as SchemaObject
-        return parse({ schema: memberSchema, name }, rawOptions)
+        return parse({ schema: memberSchema, name })
       }),
     },
   )

@@ -3,56 +3,34 @@ import { isBinary, isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
 import type { Document, SchemaObject } from '../types.ts'
 import { convertAllOf, convertMultiType, convertRef, convertUnion } from './converters/composition.ts'
-import { convertBinary, convertBoolean, convertConst, convertEnum, convertFormat, convertNumeric, convertString, createNullNode } from './converters/scalar.ts'
+import { convertConst, convertEnum, convertFormat, convertNumeric, convertString, createNullNode } from './converters/scalar.ts'
 import { convertArray, convertObject, convertTuple } from './converters/structural.ts'
+import { createNode } from './createNode.ts'
 import { isHandledFormat, resolveDateTypeValue } from './schemaShape.ts'
-
-/**
- * Pre-computed per-schema context passed to every schema converter.
- *
- * Centralizes schema derivations (type resolution, defaults, options) to avoid repeated
- * computation across all conversion branches. The `type` field is normalized from OAS 3.1
- * multi-type arrays to a single string.
- */
-export type SchemaContext = {
-  schema: SchemaObject
-  name: string | null | undefined
-  nullable: true | undefined
-  defaultValue: unknown
-  /**
-   * Normalized single type string (first non-`null` element when OAS 3.1 multi-type array, so
-   * `['null', 'string']` and `['string', 'null']` both normalize to `string` with `nullable` set).
-   */
-  type: string | undefined
-  rawOptions: Partial<ast.ParserOptions> | undefined
-  options: ast.ParserOptions
-}
 
 /**
  * Recurses into a nested schema. Converters call this instead of capturing the parser closure,
  * so each converter stays a standalone function.
  */
-export type ParseFn = (entry: { schema: SchemaObject; name?: string | null }, rawOptions?: Partial<ast.ParserOptions>) => ast.SchemaNode
+export type ParseFn = (entry: { schema: SchemaObject; name?: string | null }) => ast.SchemaNode
 
 /**
- * What a converter needs from the parser instance beyond the schema: how to recurse, the source
- * document, and the `$ref` service bound to it.
+ * Everything a converter receives: the per-schema derivations plus the parser instance's
+ * recursion seam, document, `$ref` service and collision renames.
  */
-export type ConverterDeps = {
+export type ConvertContext = {
+  schema: SchemaObject
+  name: string | null | undefined
+  nullable: true | undefined
+  defaultValue: unknown
+  /** First non-`null` entry of an OAS 3.1 multi-type array, or the plain `type`. */
+  type: string | undefined
+  options: ast.ParserOptions
   parse: ParseFn
   document: Document
   refs: Refs
-  /**
-   * Collision renames keyed by the original component pointer, used to stamp `targetName`
-   * on ref nodes whose target the adapter renamed.
-   */
   renames?: ReadonlyMap<string, string>
 }
-
-/**
- * Everything a converter receives: the per-schema context plus what it needs from the parser instance.
- */
-export type ConvertContext = SchemaContext & ConverterDeps
 
 /**
  * One entry in the ordered schema rule table: a predicate paired with a converter. `match`
@@ -95,7 +73,7 @@ export const schemaRules: Array<SchemaRule> = [
     },
     convert: convertFormat,
   },
-  { match: ({ schema }) => isBinary(schema), convert: convertBinary },
+  { match: ({ schema }) => isBinary(schema), convert: (ctx) => createNode(ctx, { type: 'blob', primitive: 'string' }) },
   {
     match: ({ schema, type }) => !type && (schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined),
     convert: convertString,
@@ -114,6 +92,6 @@ export const schemaRules: Array<SchemaRule> = [
   { match: ({ type }) => type === 'string', convert: convertString },
   { match: ({ type }) => type === 'number', convert: (ctx) => convertNumeric(ctx, 'number') },
   { match: ({ type }) => type === 'integer', convert: (ctx) => convertNumeric(ctx, 'integer') },
-  { match: ({ type }) => type === 'boolean', convert: convertBoolean },
+  { match: ({ type }) => type === 'boolean', convert: (ctx) => createNode(ctx, { type: 'boolean', primitive: 'boolean' }) },
   { match: ({ type }) => type === 'null', convert: ({ schema, name, nullable }) => createNullNode(schema, name, nullable) },
 ]

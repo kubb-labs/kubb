@@ -8,16 +8,11 @@ import type { ConvertContext } from '../parseSchema.ts'
  * Resolves a `true` or empty-object map schema (`additionalProperties`/`patternProperties`) to
  * `options.unknownType`, otherwise parses it as a regular schema.
  */
-function resolveMapSchema(
-  mapSchema: unknown,
-  options: ConvertContext['options'],
-  parse: ConvertContext['parse'],
-  rawOptions: ConvertContext['rawOptions'],
-): ast.SchemaNode {
+function resolveMapSchema(mapSchema: unknown, { options, parse }: Pick<ConvertContext, 'options' | 'parse'>): ast.SchemaNode {
   if (mapSchema === true || (typeof mapSchema === 'object' && Object.keys(mapSchema as object).length === 0)) {
     return ast.factory.createSchema({ type: options.unknownType })
   }
-  return parse({ schema: mapSchema as SchemaObject }, rawOptions)
+  return parse({ schema: mapSchema as SchemaObject })
 }
 
 /**
@@ -40,7 +35,7 @@ function nameEnums(node: ast.SchemaNode, options: { parentName: string | null | 
 /**
  * Converts an object-like schema into an `ObjectSchemaNode`.
  */
-export function convertObject({ schema, name, nullable, defaultValue, rawOptions, options, parse }: ConvertContext): ast.SchemaNode {
+export function convertObject({ schema, name, nullable, defaultValue, options, parse }: ConvertContext): ast.SchemaNode {
   const properties: Array<ast.PropertyNode> = schema.properties
     ? Object.entries(schema.properties).map(([propName, propSchema]) => {
         const required = Array.isArray(schema.required) ? schema.required.includes(propName) : !!schema.required
@@ -48,7 +43,7 @@ export function convertObject({ schema, name, nullable, defaultValue, rawOptions
         const propNullable = isNullable(resolvedPropSchema)
 
         const resolvedChildName = childName(name, propName)
-        const propNode = parse({ schema: resolvedPropSchema, name: resolvedChildName }, rawOptions)
+        const propNode = parse({ schema: resolvedPropSchema, name: resolvedChildName })
         const schemaNode = nameEnums(propNode, { parentName: name, propName, enumSuffix: options.enumSuffix })
 
         return ast.factory.createProperty({
@@ -65,16 +60,14 @@ export function convertObject({ schema, name, nullable, defaultValue, rawOptions
   const additionalProperties = schema.additionalProperties
   const additionalPropertiesNode = (() => {
     if (additionalProperties === true) return true
-    if (additionalProperties) return resolveMapSchema(additionalProperties, options, parse, rawOptions)
+    if (additionalProperties) return resolveMapSchema(additionalProperties, { options, parse })
     return additionalProperties
   })()
 
   const rawPatternProperties = 'patternProperties' in schema ? schema.patternProperties : undefined
 
   const patternProperties = rawPatternProperties
-    ? Object.fromEntries(
-        Object.entries(rawPatternProperties).map(([pattern, patternSchema]) => [pattern, resolveMapSchema(patternSchema, options, parse, rawOptions)]),
-      )
+    ? Object.fromEntries(Object.entries(rawPatternProperties).map(([pattern, patternSchema]) => [pattern, resolveMapSchema(patternSchema, { options, parse })]))
     : undefined
 
   const objectNode: ast.SchemaNode = createNode(
@@ -103,15 +96,15 @@ export function convertObject({ schema, name, nullable, defaultValue, rawOptions
 /**
  * Converts an OAS 3.1 `prefixItems` tuple into a `TupleSchemaNode`.
  */
-export function convertTuple({ schema, name, nullable, defaultValue, rawOptions, options, parse }: ConvertContext): ast.SchemaNode {
-  const tupleItems = (schema.prefixItems ?? []).map((item) => parse({ schema: item as SchemaObject }, rawOptions))
+export function convertTuple({ schema, name, nullable, defaultValue, options, parse }: ConvertContext): ast.SchemaNode {
+  const tupleItems = (schema.prefixItems ?? []).map((item) => parse({ schema: item as SchemaObject }))
   // items: false closes the tuple; absent/true widens the tail to unknownType.
   const rest =
     schema.items === false
       ? undefined
       : !schema.items || schema.items === true
         ? ast.factory.createSchema({ type: options.unknownType })
-        : parse({ schema: schema.items as SchemaObject }, rawOptions)
+        : parse({ schema: schema.items as SchemaObject })
 
   return createNode(
     { schema, name, nullable, defaultValue },
@@ -129,10 +122,10 @@ export function convertTuple({ schema, name, nullable, defaultValue, rawOptions,
 /**
  * Converts a `type: 'array'` schema into an `ArraySchemaNode`.
  */
-export function convertArray({ schema, name, nullable, defaultValue, rawOptions, options, parse }: ConvertContext): ast.SchemaNode {
+export function convertArray({ schema, name, nullable, defaultValue, options, parse }: ConvertContext): ast.SchemaNode {
   const rawItems = schema.items as SchemaObject | undefined
   const itemName = rawItems?.enum?.length && name ? enumPropName(null, name, options.enumSuffix) : name
-  const items = rawItems ? [parse({ schema: rawItems, name: itemName }, rawOptions)] : []
+  const items = rawItems ? [parse({ schema: rawItems, name: itemName })] : []
 
   return createNode(
     { schema, name, nullable, defaultValue },
