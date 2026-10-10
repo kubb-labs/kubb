@@ -21,5 +21,7 @@ export { fsStorage } from './storages/fsStorage.ts'
 export { memoryStorage } from './storages/memoryStorage.ts'
 
 export { Hookable } from './Hookable.ts'
+export { runHook, type HookResult, type RunHookOptions } from './output/runHook.ts'
+export { runOutputPasses, type RunOutputPassesOptions } from './output/runOutputPasses.ts'
 
 export * from './types.ts'

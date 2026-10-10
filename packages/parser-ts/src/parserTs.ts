@@ -48,49 +48,28 @@ export type ParserTsOptions = {
  * })
  * ```
  */
-export const parserTs = defineParser<ParserTsOptions>(({ extension = DEFAULT_EXTENSION } = {}) => {
+export const parserTs = defineParser<ParserTsOptions, object, ts.Node>(({ extension = DEFAULT_EXTENSION } = {}) => {
   return {
     name: 'typescript',
     extNames: ['.ts', '.js'],
-    print(...nodes: Array<ts.Node>) {
-      return print(...nodes)
-    },
+    print,
     parse(file) {
       const extname = extension[file.extname] || undefined
 
-      const sourceParts: Array<string> = []
-      for (const item of file.sources) {
-        const sourceStr = printSource(item as ast.SourceNode)
-        if (sourceStr) {
-          sourceParts.push(sourceStr.trimEnd())
-        }
-      }
-      const source = sourceParts.join('\n\n')
+      const source = file.sources
+        .map((item) => printSource(item))
+        .filter(Boolean)
+        .map((text) => text.trimEnd())
+        .join('\n\n')
 
-      const importLines: Array<string> = []
-      for (const item of (file as ast.FileNode).imports) {
-        const importPath = item.root ? getRelativePath(item.root, item.path) : item.path
-        importLines.push(
-          printImport({
-            name: item.name as string | Array<string | { propertyName: string; name?: string }>,
-            path: resolveOutputPath(importPath, { extname }, Boolean(item.root)),
-            isTypeOnly: item.isTypeOnly,
-            isNameSpace: item.isNameSpace,
-          }),
-        )
-      }
+      const importLines = file.imports.map((item) =>
+        printImport({
+          ...item,
+          path: resolveOutputPath(item.root ? getRelativePath(item.root, item.path) : item.path, { extname }, Boolean(item.root)),
+        }),
+      )
 
-      const exportLines: Array<string> = []
-      for (const item of (file as ast.FileNode).exports) {
-        exportLines.push(
-          printExport({
-            name: item.name as string | Array<ts.Identifier | string> | null | undefined,
-            path: resolveOutputPath(item.path, { extname }, item.path.startsWith('.')),
-            isTypeOnly: item.isTypeOnly,
-            asAlias: item.asAlias,
-          }),
-        )
-      }
+      const exportLines = file.exports.map((item) => printExport({ ...item, path: resolveOutputPath(item.path, { extname }, item.path.startsWith('.')) }))
 
       const importExportBlock = [...importLines, ...exportLines].join('\n')
 

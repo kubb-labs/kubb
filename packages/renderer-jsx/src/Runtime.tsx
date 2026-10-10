@@ -1,6 +1,6 @@
 import { ast } from '@kubb/kit'
 import { KUBB_ARROW_FUNCTION, KUBB_CONST, KUBB_EXPORT, KUBB_FILE, KUBB_FUNCTION, KUBB_IMPORT, KUBB_JSX, KUBB_SOURCE, KUBB_TYPE } from './constants.ts'
-import { Fragment } from './jsx-runtime.ts'
+import { Fragment, isKubbElement } from './jsx-runtime.ts'
 import type { KubbReactElement } from './types.ts'
 
 type OnText = (text: string) => void
@@ -25,10 +25,9 @@ function walkElement(element: unknown, onText: OnText, onHost: OnHost): void {
     return
   }
 
-  if (typeof element === 'object' && '$$typeof' in element) {
-    const el = element as unknown as KubbReactElement
-    const { type } = el
-    const props = el.props as Record<string, unknown>
+  if (isKubbElement(element)) {
+    const { type } = element
+    const props = element.props as Record<string, unknown>
 
     if (type === Fragment) {
       walkElement(props['children'], onText, onHost)
@@ -216,10 +215,9 @@ function* walkFiles(element: unknown): Generator<ast.FileNode> {
     return
   }
 
-  if (typeof element === 'object' && '$$typeof' in element) {
-    const el = element as unknown as KubbReactElement
-    const { type } = el
-    const props = el.props as Record<string, unknown>
+  if (isKubbElement(element)) {
+    const { type } = element
+    const props = element.props as Record<string, unknown>
 
     if (type === Fragment) {
       yield* walkFiles(props['children'])

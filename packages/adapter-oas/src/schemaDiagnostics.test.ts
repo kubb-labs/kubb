@@ -1,5 +1,4 @@
-import { ast } from '@kubb/ast'
-import { type Diagnostic, Diagnostics } from '@kubb/core'
+import { ast, type Diagnostic, Diagnostics } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { adapterOas } from './adapter.ts'
 import { formatMap, specialCasedFormats } from './constants.ts'

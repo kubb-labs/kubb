@@ -58,7 +58,7 @@ describe('Hookable', () => {
       throw cause
     })
 
-    await expect(hooks.callHook('test', 'hello', 42)).rejects.toThrow('Error in async listener for "test" with hookArgs ["hello",42]')
+    await expect(hooks.callHook('test', 'hello', 42)).rejects.toMatchObject({ message: 'Error in async listener for "test"' })
     await expect(hooks.callHook('test', 'hello', 42)).rejects.toMatchObject({ cause })
   })
 

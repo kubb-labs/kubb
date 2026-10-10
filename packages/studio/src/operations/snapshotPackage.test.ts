@@ -24,6 +24,10 @@ function readTarEntries(tar: Buffer): Array<{ path: string; content: string }> {
 }
 
 type Manifest = {
+  name: string
+  version: string
+  peerDependencies: Record<string, string>
+  type: string
   main?: string
   module?: string
   exports: Record<string, { import: string; require: string }>
@@ -58,28 +62,30 @@ describe('[util] snapshotPackage', () => {
     expect(fetchMock.mock.calls[0]?.[1]?.signal).toBeInstanceOf(AbortSignal)
   })
 
-  it('creates a gzip tarball with a package manifest and generated files', () => {
-    const result = createSnapshotPackage(
-      { 'index.js': 'export const answer = 42' },
-      {
-        name: '@kubb/snapshot-test',
-        version: '1.2.3',
-        peerDependencies: { typescript: '^5.0.0' },
-      },
+  it('packs the sources, a dist build and a manifest whose barrel fields point at dist/index', async () => {
+    const { bytes, integrity } = await createSnapshotPackage(
+      { 'src/index.ts': 'export const answer = 42' },
+      { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: { typescript: '^5.0.0' } },
     )
 
-    return result.then(({ bytes, integrity }) => {
-      const tarball = gunzipSync(bytes).toString('utf8')
-      expect(tarball).toContain('package/package.json')
-      expect(tarball).toContain('"name": "@kubb/snapshot-test"')
-      expect(tarball).toContain('"version": "1.2.3"')
-      expect(tarball).toContain('"peerDependencies": {')
-      expect(tarball).toContain('package/index.js')
-      expect(tarball).toContain('export const answer = 42')
-      expect(tarball).toContain('package/dist/index.mjs')
-      expect(tarball).toContain('package/dist/index.cjs')
-      expect(integrity).toMatch(/^sha512-/)
+    const entries = readTarEntries(gunzipSync(bytes))
+    expect(entries.map((entry) => entry.path)).toStrictEqual([
+      'package/package.json',
+      'package/src/index.ts',
+      'package/dist/index.cjs',
+      'package/dist/index.mjs',
+    ])
+    expect(entries[1]?.content).toBe('export const answer = 42')
+    expect(readManifest(bytes)).toStrictEqual({
+      name: '@kubb/snapshot-test',
+      version: '1.2.3',
+      peerDependencies: { typescript: '^5.0.0' },
+      type: 'module',
+      main: './dist/index.cjs',
+      module: './dist/index.mjs',
+      exports: { '.': { import: './dist/index.mjs', require: './dist/index.cjs' }, './*': { import: './dist/*.mjs', require: './dist/*.cjs' } },
     })
+    expect(integrity).toMatch(/^sha512-/)
   })
 
   it('normalizes absolute generated file paths', async () => {
@@ -105,19 +111,5 @@ describe('[util] snapshotPackage', () => {
     const paths = readTarEntries(gunzipSync(bytes)).map((entry) => entry.path)
     expect(paths).toContain('package/dist/nested/helper.mjs')
     expect(paths).toContain('package/dist/nested/helper.cjs')
-  })
-
-  it('points the barrel fields at dist/index and still exports the wildcard', async () => {
-    const { bytes } = await createSnapshotPackage(
-      { 'src/index.ts': 'export const answer = 42' },
-      { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: {} },
-    )
-
-    const manifest = readManifest(bytes)
-
-    expect(manifest.main).toBe('./dist/index.cjs')
-    expect(manifest.module).toBe('./dist/index.mjs')
-    expect(manifest.exports['.']).toEqual({ import: './dist/index.mjs', require: './dist/index.cjs' })
-    expect(manifest.exports['./*']).toEqual({ import: './dist/*.mjs', require: './dist/*.cjs' })
   })
 })

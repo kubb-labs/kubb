@@ -3,14 +3,18 @@ import { createProperty } from './property.ts'
 import { createSchema } from './schema.ts'
 
 describe('createProperty', () => {
-  it('defaults required to false', () => {
+  it('returns required false and an optional schema when required is omitted', () => {
     const node = createProperty({
       name: 'name',
       schema: createSchema({ type: 'string' }),
     })
 
-    expect(node.kind).toBe('Property')
-    expect(node.required).toBe(false)
+    expect(node).toStrictEqual({
+      kind: 'Property',
+      name: 'name',
+      required: false,
+      schema: { kind: 'Schema', type: 'string', primitive: 'string', optional: true, nullish: undefined },
+    })
   })
 
   it('accepts required: true', () => {
@@ -24,16 +28,6 @@ describe('createProperty', () => {
     expect(node.schema.optional).toBeFalsy()
     expect(node.schema.nullable).toBeFalsy()
     expect(node.schema.nullish).toBeFalsy()
-  })
-
-  it('marks a non-required schema optional without a dialect', () => {
-    const node = createProperty({
-      name: 'name',
-      schema: createSchema({ type: 'string' }),
-    })
-
-    expect(node.schema.optional).toBe(true)
-    expect(node.schema.nullish).toBeUndefined()
   })
 
   it('marks a non-required nullable schema nullish without a dialect', () => {

@@ -1,5 +1,4 @@
-import { ast } from '@kubb/ast'
-import { extractRefName, macroSimplifyUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
+import { ast, extractRefName, macroSimplifyUnion, mergeAdjacentObjectsLazy } from '@kubb/kit'
 import { isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'
 import type { ReferenceObject, SchemaObject } from '../../types.ts'

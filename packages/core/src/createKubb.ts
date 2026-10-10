@@ -10,6 +10,7 @@ import { cacheStorage } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { BuildOutput, Config, KubbHooks, UserConfig } from './types.ts'
 import { Hookable } from './Hookable.ts'
+import { runOutputPasses, type RunOutputPassesOptions } from './output/runOutputPasses.ts'
 
 function resolveConfig(userConfig: UserConfig): Config {
   return {
@@ -29,11 +30,19 @@ function resolveConfig(userConfig: UserConfig): Config {
 }
 
 /**
+ * Only the fs storage writes `output.path`, so only then do the passes have fresh files to run
+ * over; a memory or custom storage would leave them formatting whatever an earlier run left there.
+ */
+function writesOutputDirectory(storage: Storage): boolean {
+  return storage.name === 'fs'
+}
+
+/**
  * Whether anything runs over the output directory after the files are written. Only then can the
  * bytes on disk stop matching what Kubb wrote, which is what the manifest exists to track.
  */
-function hasOutputPasses(output: Config['output']): boolean {
-  return Boolean(output.format || output.lint || output.postGenerate?.length)
+function hasOutputPasses({ output, storage }: Pick<Config, 'output' | 'storage'>): boolean {
+  return writesOutputDirectory(storage) && Boolean(output.format || output.lint || output.postGenerate?.length)
 }
 
 export type CreateKubbOptions = {
@@ -53,10 +62,11 @@ export type CreateKubbOptions = {
  */
 export type GenerateOptions = {
   /**
-   * Format, lint, and run `postGenerate` over the generated output after an error-free build, and
-   * return the diagnostics they emitted. CLI-only.
+   * Replaces the output passes that run after an error-free build. The default,
+   * {@link runOutputPasses}, formats, lints and runs `output.postGenerate` over the generated
+   * output and returns the diagnostics they emitted.
    */
-  processOutput?: (context: { config: Config; outputPath: string }) => Promise<Array<Diagnostic>>
+  processOutput?: (context: RunOutputPassesOptions) => Promise<Array<Diagnostic>>
 }
 
 /**
@@ -98,7 +108,6 @@ export class Kubb {
   readonly hooks: Hookable<KubbHooks>
   readonly config: Config
   #driver: KubbDriver | null = null
-  #storage: Storage | null = null
   #manifest: OutputManifest | null = null
   readonly #signal: AbortSignal | undefined
 
@@ -109,8 +118,7 @@ export class Kubb {
   }
 
   get storage(): Storage {
-    if (!this.#storage) throw new Error('[kubb] setup() must be called before accessing storage')
-    return this.#storage
+    return this.config.storage
   }
 
   get driver(): KubbDriver {
@@ -125,9 +133,7 @@ export class Kubb {
     const signal = this.#signal
     signal?.throwIfAborted()
     const config = this.config
-    const manifest = hasOutputPasses(config.output)
-      ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) })
-      : undefined
+    const manifest = hasOutputPasses(config) ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) }) : undefined
     const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal })
 
     // Each generator a plugin registers adds a listener to the shared hooks emitter, so size the
@@ -156,7 +162,6 @@ export class Kubb {
     await driver.setup()
 
     this.#driver = driver
-    this.#storage = config.storage
     this.#manifest = manifest ?? null
   }
 
@@ -236,7 +241,10 @@ export class Kubb {
       return { success: false, files, diagnostics }
     }
 
-    const outputDiagnostics = options.processOutput ? await options.processOutput({ config, outputPath: resolve(config.root, config.output.path) }) : []
+    const processOutput = options.processOutput ?? runOutputPasses
+    const outputDiagnostics = writesOutputDirectory(config.storage)
+      ? await processOutput({ config, outputPath: resolve(config.root, config.output.path), hooks, signal })
+      : []
 
     const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
     const failed = Diagnostics.hasError(outputDiagnostics)
