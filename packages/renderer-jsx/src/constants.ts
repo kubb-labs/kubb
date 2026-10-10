@@ -1,9 +1,0 @@
-export const KUBB_FILE = 'kubb-file' as const
-export const KUBB_SOURCE = 'kubb-source' as const
-export const KUBB_EXPORT = 'kubb-export' as const
-export const KUBB_IMPORT = 'kubb-import' as const
-export const KUBB_FUNCTION = 'kubb-function' as const
-export const KUBB_ARROW_FUNCTION = 'kubb-arrow-function' as const
-export const KUBB_CONST = 'kubb-const' as const
-export const KUBB_TYPE = 'kubb-type' as const
-export const KUBB_JSX = 'kubb-jsx' as const

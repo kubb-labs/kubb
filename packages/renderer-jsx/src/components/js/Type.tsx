@@ -48,9 +48,7 @@ type TypeProps = {
  * </Type>
  * ```
  */
-export function Type({ children, ...props }: TypeProps): KubbReactElement {
-  const { name, export: canExport, JSDoc } = props
-
+export function Type({ children, name, export: canExport, JSDoc }: TypeProps): KubbReactElement {
   if (name.charAt(0).toUpperCase() !== name.charAt(0)) {
     throw new Error('Name should start with a capital letter(see TypeScript types)')
   }
@@ -61,5 +59,3 @@ export function Type({ children, ...props }: TypeProps): KubbReactElement {
     </kubb-type>
   )
 }
-
-Type.displayName = 'Type'

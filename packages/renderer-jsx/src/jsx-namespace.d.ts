@@ -10,23 +10,14 @@ import type { ast } from '@kubb/kit'
  * the HTML element and class-component machinery from `@types/react` is not needed.
  */
 export namespace JSX {
-  type ElementType = string | ((props: any) => KubbReactNode)
+  type ElementType = string | ((props: never) => KubbReactNode)
   type Element = KubbReactElement
 
-  interface ElementClass {
-    render(): KubbReactNode
-  }
-  interface ElementAttributesProperty {
-    props: {}
-  }
   interface ElementChildrenAttribute {
     children: {}
   }
 
   interface IntrinsicAttributes {
-    key?: Key | null
-  }
-  interface IntrinsicClassAttributes<T> {
     key?: Key | null
   }
 
@@ -37,8 +28,10 @@ export namespace JSX {
     ['kubb-file']: {
       id?: string | null
       children?: KubbReactNode
-      baseName: string
+      baseName: ast.FileNode['baseName']
       path: string
+      banner?: string | null
+      footer?: string | null
       /**
        * Absolute on-disk path to copy into the output, through the parser's `copy` hook when it has
        * one. Use to emit a real source file shipped inside a package (a template) into the generated folder.
@@ -65,6 +58,4 @@ export namespace JSX {
     }
     br: {}
   }
-
-  type LibraryManagedAttributes<C, P> = P
 }

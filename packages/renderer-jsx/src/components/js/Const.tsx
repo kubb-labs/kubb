@@ -57,14 +57,10 @@ type ConstProps = {
  * </Const>
  * ```
  */
-export function Const({ children, ...props }: ConstProps): KubbReactElement {
-  const { name, export: canExport, type, JSDoc, asConst } = props
-
+export function Const({ children, name, export: canExport, type, JSDoc, asConst }: ConstProps): KubbReactElement {
   return (
     <kubb-const name={name} type={type} export={canExport} asConst={asConst} JSDoc={JSDoc}>
       {children}
     </kubb-const>
   )
 }
-
-Const.displayName = 'Const'

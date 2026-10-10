@@ -1,3 +1,5 @@
+import type { ast } from '@kubb/kit'
+
 /**
  * Unique key for a Kubb JSX element in lists or conditional renders.
  */
@@ -30,17 +32,6 @@ export type KubbReactNode = KubbReactElement | string | number | bigint | boolea
  * @example
  * ```ts
  * { comments: ['@description A pet object.', '@deprecated Use PetV2 instead.'] }
- * // Emits:
- * // /**
- * //  * @description A pet object.
- * //  * @deprecated Use PetV2 instead.
- * //  *\/
  * ```
  */
-export type JSDoc = {
-  /**
-   * Lines to emit inside the JSDoc block, in source order.
-   * Use standard JSDoc tags such as `@description`, `@deprecated`, `@see`, etc.
-   */
-  comments: Array<string>
-}
+export type JSDoc = ast.JSDocNode

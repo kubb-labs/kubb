@@ -36,5 +36,3 @@ export function List({ ordered, items }: Props): KubbReactElement {
   const body = items.map((item, index) => `${ordered ? `${index + 1}.` : '-'} ${item}`).join('\n')
   return <kubb-source name="list">{body}</kubb-source>
 }
-
-List.displayName = 'List'

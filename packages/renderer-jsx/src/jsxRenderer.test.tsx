@@ -3,7 +3,7 @@ import { Const } from './components/js/Const.tsx'
 import { File } from './components/File.tsx'
 import { Function } from './components/js/Function.tsx'
 import { Type } from './components/js/Type.tsx'
-import { jsxRenderer } from './jsxRenderer.tsx'
+import { jsxRenderer } from './jsxRenderer.ts'
 
 describe('jsxRenderer', () => {
   it('collects imports, exports, and typed source nodes from multiple files', async () => {
