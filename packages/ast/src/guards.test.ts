@@ -44,6 +44,10 @@ describe('narrowSchema', () => {
 })
 
 describe('node definition guards', () => {
+  it('registers every node kind once', () => {
+    expect(new Set(nodeDefs.map((def) => def.kind)).size).toBe(nodeDefs.length)
+  })
+
   it.each(nodeDefs.map((def) => [def.kind, def] as const))('%s def.is matches only its own kind', (kind, def) => {
     expect(def.is({ kind })).toBe(true)
     expect(def.is({ kind: 'Other' })).toBe(false)

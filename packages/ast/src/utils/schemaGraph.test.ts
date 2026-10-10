@@ -123,6 +123,18 @@ describe('collectImportedRefNames', () => {
   it('returns an empty array for schemas without refs', () => {
     expect(collectImportedRefNames(createSchema({ type: 'string' }))).toStrictEqual([])
   })
+
+  it('returns the same array reference when called again with the same node', () => {
+    const schema = createSchema({
+      type: 'object',
+      name: 'Pet',
+      properties: [
+        createProperty({ name: 'category', required: false, schema: createSchema({ type: 'ref', name: 'Category', ref: '#/components/schemas/Category' }) }),
+      ],
+    })
+
+    expect(collectImportedRefNames(schema)).toBe(collectImportedRefNames(schema))
+  })
 })
 
 describe('collectSchemaRefs', () => {
