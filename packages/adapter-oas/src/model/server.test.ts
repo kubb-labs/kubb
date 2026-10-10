@@ -33,22 +33,14 @@ describe('resolveBaseUrl', () => {
     expect(url).toBe('https://api.example.com/v1')
   })
 
-  it('returns null when no server index is provided', async () => {
+  it.each([
+    { title: 'no server index is provided', server: {} },
+    { title: 'no server is provided', server: undefined },
+    { title: 'the server index is out of range', server: { index: 99 } },
+  ])('returns null when $title', async ({ server }) => {
     const document = await parseFromConfig({ type: 'data', data: minimalSpec })
-    const url = resolveBaseUrl({ document, server: {} })
-    expect(url).toBeNull()
-  })
 
-  it('returns null when no server is provided', async () => {
-    const document = await parseFromConfig({ type: 'data', data: minimalSpec })
-    const url = resolveBaseUrl({ document })
-    expect(url).toBeNull()
-  })
-
-  it('returns null when the server index is out of range', async () => {
-    const document = await parseFromConfig({ type: 'data', data: minimalSpec })
-    const url = resolveBaseUrl({ document, server: { index: 99 } })
-    expect(url).toBeNull()
+    expect(resolveBaseUrl({ document, server })).toBeNull()
   })
 
   it('substitutes server variables into the resolved URL', async () => {

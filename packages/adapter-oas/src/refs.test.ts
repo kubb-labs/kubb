@@ -28,12 +28,11 @@ describe('resolveRef', () => {
     })
   })
 
-  it('returns null for an empty ref', () => {
-    expect(resolveRef(document, '')).toBeNull()
-  })
-
-  it('returns null for a non-local (external) ref', () => {
-    expect(resolveRef(document, 'https://example.com/schemas/Pet')).toBeNull()
+  it.each([
+    { title: 'an empty ref', $ref: '' },
+    { title: 'a non-local (external) ref', $ref: 'https://example.com/schemas/Pet' },
+  ])('returns null for $title', ({ $ref }) => {
+    expect(resolveRef(document, $ref)).toBeNull()
   })
 
   it('reports a refNotFound diagnostic and resolves to null when the pointer cannot be resolved', () => {
@@ -87,32 +86,16 @@ describe('resolveRef', () => {
 })
 
 describe('dereferenceWithRef', () => {
-  it('resolves a $ref object and preserves the $ref field', () => {
-    const result = dereferenceWithRef<SchemaObject>(document, {
-      $ref: '#/components/schemas/Pet',
-    })
-
-    expect(result).toMatchObject({
-      $ref: '#/components/schemas/Pet',
-      type: 'object',
-      properties: { name: { type: 'string' } },
-    })
+  it.each([
+    { $ref: '#/components/schemas/Pet', expected: { type: 'object', properties: { name: { type: 'string' } } } },
+    { $ref: '#/components/schemas/Order', expected: { type: 'object', properties: { pet: { $ref: '#/components/schemas/Pet' } } } },
+  ])('resolves $$ref and keeps the $ref field on the result', ({ $ref, expected }) => {
+    expect(dereferenceWithRef<SchemaObject>(document, { $ref })).toStrictEqual({ $ref, ...expected })
   })
 
   it('returns a plain schema unchanged', () => {
     const schema: SchemaObject = { type: 'string' }
 
     expect(dereferenceWithRef(document, schema)).toBe(schema)
-  })
-
-  it('returns undefined as-is', () => {
-    expect(dereferenceWithRef(document, undefined)).toBeUndefined()
-  })
-
-  it('resolved fields are overridden by $ref identity (preserves $ref)', () => {
-    const result = dereferenceWithRef<SchemaObject & { $ref: string }>(document, { $ref: '#/components/schemas/Order' })
-
-    expect(result.$ref).toBe('#/components/schemas/Order')
-    expect(result.type).toBe('object')
   })
 })

@@ -1,7 +1,7 @@
 import { ast } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
-import { adapterOas } from './adapter.ts'
-import type { SchemaObject } from './types.ts'
+import { adapterOas } from '../../adapter.ts'
+import type { SchemaObject } from '../../types.ts'
 
 const members = [
   { const: 1, title: 'First', description: 'First status' },

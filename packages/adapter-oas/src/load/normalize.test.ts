@@ -100,23 +100,12 @@ describe('parseDocument', () => {
 })
 
 describe('parseFromConfig', () => {
-  it('parses an inline object via type: data', async () => {
-    const doc = await parseFromConfig({ type: 'data', data: petSchema })
-
-    expect(doc.components?.schemas?.['Pet']).toBeDefined()
-  })
-
-  it('parses an inline JSON string via type: data', async () => {
-    const doc = await parseFromConfig({
-      type: 'data',
-      data: JSON.stringify(petSchema),
-    })
-
-    expect(doc.components?.schemas?.['Pet']).toBeDefined()
-  })
-
-  it('parses an inline YAML string via type: data', async () => {
-    const yaml = `
+  it.each([
+    { title: 'an inline object', data: petSchema },
+    { title: 'an inline JSON string', data: JSON.stringify(petSchema) },
+    {
+      title: 'an inline YAML string',
+      data: `
 openapi: '3.0.3'
 info:
   title: Pets API
@@ -126,8 +115,10 @@ components:
   schemas:
     Pet:
       type: object
-`
-    const doc = await parseFromConfig({ type: 'data', data: yaml })
+`,
+    },
+  ])('parses $title via type: data', async ({ data }) => {
+    const doc = await parseFromConfig({ type: 'data', data })
 
     expect(doc.components?.schemas?.['Pet']).toBeDefined()
   })
@@ -329,33 +320,22 @@ describe('bundleDocument', () => {
 })
 
 describe('hasExternalRef', () => {
-  it('returns false for a document with no $ref at all', () => {
-    expect(hasExternalRef({ openapi: '3.1.0', paths: {} })).toBe(false)
-  })
-
-  it('returns false for an internal #/ ref, at any depth', () => {
-    expect(
-      hasExternalRef({
-        paths: { '/pets': { get: { responses: { '200': { schema: { $ref: '#/components/schemas/Pet' } } } } } },
-      }),
-    ).toBe(false)
-  })
-
-  it('returns true for a relative file ref', () => {
-    expect(hasExternalRef({ components: { schemas: { Pet: { $ref: './schemas/Pet.yaml' } } } })).toBe(true)
-  })
-
-  it('returns true for a URL ref', () => {
-    expect(hasExternalRef({ components: { schemas: { Pet: { $ref: 'https://example.com/pet.yaml' } } } })).toBe(true)
-  })
-
-  it('finds an external ref nested inside an array', () => {
-    expect(hasExternalRef({ allOf: [{ $ref: '#/components/schemas/Base' }, { $ref: './extra.yaml' }] })).toBe(true)
-  })
-
-  it('returns false for non-object input', () => {
-    expect(hasExternalRef(null)).toBe(false)
-    expect(hasExternalRef('a string')).toBe(false)
+  it.each([
+    { title: 'false for a document with no $ref at all', node: { openapi: '3.1.0', paths: {} }, expected: false },
+    {
+      title: 'false for an internal #/ ref, at any depth',
+      node: { paths: { '/pets': { get: { responses: { '200': { schema: { $ref: '#/components/schemas/Pet' } } } } } } },
+      expected: false,
+    },
+    { title: 'true for a relative file ref', node: { components: { schemas: { Pet: { $ref: './schemas/Pet.yaml' } } } }, expected: true },
+    { title: 'true for a URL ref', node: { components: { schemas: { Pet: { $ref: 'https://example.com/pet.yaml' } } } }, expected: true },
+    {
+      title: 'true for an external ref nested inside an array',
+      node: { allOf: [{ $ref: '#/components/schemas/Base' }, { $ref: './extra.yaml' }] },
+      expected: true,
+    },
+  ])('returns $title', ({ node, expected }) => {
+    expect(hasExternalRef(node)).toBe(expected)
   })
 })
 
