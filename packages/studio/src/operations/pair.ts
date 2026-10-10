@@ -1,8 +1,8 @@
 import { setTimeout as delay } from 'node:timers/promises'
 import { toError } from '@internals/utils'
-import { ofetch } from 'ofetch'
 import { agentDefaults } from './constants.ts'
 import { getMachineToken } from './machine.ts'
+import { requestJson } from './request.ts'
 
 /**
  * RFC 8628 device-authorization response from Studio's `/api/auth/device/code` endpoint.
@@ -100,7 +100,8 @@ type StartPairingOptions = {
  */
 export async function startPairing({ studioUrl = agentDefaults.studioUrl, type, name, hostname, signal }: StartPairingOptions): Promise<PairingSession> {
   try {
-    return await ofetch<PairingSession>(`${studioUrl}/api/auth/device/code`, {
+    return await requestJson<PairingSession>({
+      url: `${studioUrl}/api/auth/device/code`,
       method: 'POST',
       body: {
         client_id: type === 'cli' ? CLIENT_IDS.cli : CLIENT_IDS.agent,
@@ -179,7 +180,8 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
 
     let response: PollResponse | undefined
     try {
-      response = await ofetch<PollResponse | undefined>(`${studioUrl}/api/agent/token`, {
+      response = await requestJson<PollResponse | undefined>({
+        url: `${studioUrl}/api/agent/token`,
         method: 'POST',
         body: { device_code: session.device_code },
         // A denial, an expiry, and "not yet" all come back as 4xx with a body the caller needs to
