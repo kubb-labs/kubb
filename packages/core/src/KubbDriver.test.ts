@@ -67,6 +67,29 @@ describe('KubbDriver#setup', () => {
     await expect(driver.setup()).rejects.toThrow('Plugin dependencies form a cycle')
   })
 
+  test('setup resolves for a plugin without a hooks property', async () => {
+    const driver = makeDriver(makeConfig({ plugins: [{ name: 'no-hooks' } as Plugin] }))
+
+    await expect(driver.setup()).resolves.toBeUndefined()
+  })
+
+  test('hasHookGenerators returns false before setupHooks and true after', async () => {
+    const plugin: Plugin = {
+      name: 'gen-plugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.addGenerator({ name: 'gen', schema: vi.fn() })
+        },
+      },
+    }
+    const driver = makeDriver(makeConfig({ plugins: [plugin] }))
+    await driver.setup()
+
+    expect(driver.hasHookGenerators('gen-plugin')).toBe(false)
+    await driver.setupHooks()
+    expect(driver.hasHookGenerators('gen-plugin')).toBe(true)
+  })
+
   test('plugin and post-plugin listeners fire in order, and dispose drops both for the next build', async () => {
     const calls: Array<string> = []
     const pluginHook = vi.fn(() => void calls.push('plugin'))
@@ -116,6 +139,18 @@ function file(name: string): FileNode {
 }
 
 describe('KubbDriver#dispatch', () => {
+  it.each([
+    ['null', null],
+    ['undefined', undefined],
+  ])('does not upsert when the result is %s', (_name, result) => {
+    const driver = makeDriver(makeConfig())
+    const upsert = vi.spyOn(driver.fileManager, 'upsert')
+
+    driver.dispatch({ result })
+
+    expect(upsert).not.toHaveBeenCalled()
+  })
+
   it('upserts every file when the result is an Array<FileNode>', () => {
     const driver = makeDriver(makeConfig())
     const files = [file('a'), file('b')]
@@ -235,7 +270,8 @@ function inputAdapter() {
 type Recorder = {
   schema: Array<{ plugin: string; name: string | null | undefined }>
   operation: Array<{ plugin: string; id: string }>
-  operations: Array<{ plugin: string; count: number }>
+  operations: Array<{ plugin: string; ids: Array<string> }>
+  pairs: Array<{ generator: string; ctx: string }>
 }
 
 // A generator that records every call and emits one file per node, prefixed by plugin name so the
@@ -245,14 +281,17 @@ function recordingGenerator(pluginName: string, rec: Recorder): Generator {
     name: `${pluginName}-gen`,
     schema(node: SchemaNode, ctx: GeneratorContext) {
       rec.schema.push({ plugin: ctx.plugin.name, name: node.name })
+      rec.pairs.push({ generator: pluginName, ctx: ctx.plugin.name })
       return [fileNode(`${pluginName}/schema-${node.name}.ts`)]
     },
     operation(node: OperationNode, ctx: GeneratorContext) {
       rec.operation.push({ plugin: ctx.plugin.name, id: node.operationId })
+      rec.pairs.push({ generator: pluginName, ctx: ctx.plugin.name })
       return [fileNode(`${pluginName}/op-${node.operationId}.ts`)]
     },
     operations(nodes: Array<OperationNode>, ctx: GeneratorContext) {
-      rec.operations.push({ plugin: ctx.plugin.name, count: nodes.length })
+      rec.operations.push({ plugin: ctx.plugin.name, ids: nodes.map((node) => node.operationId) })
+      rec.pairs.push({ generator: pluginName, ctx: ctx.plugin.name })
       return [fileNode(`${pluginName}/operations.ts`)]
     },
   }
@@ -275,7 +314,7 @@ describe('KubbDriver generator dispatch', () => {
   let hooks: Hookable<KubbHooks>
 
   const build = async () => {
-    rec = { schema: [], operation: [], operations: [] }
+    rec = { schema: [], operation: [], operations: [], pairs: [] }
     hooks = new Hookable<KubbHooks>()
     driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [makePlugin('pluginA', rec), makePlugin('pluginB', rec)] }), hooks)
     await driver.setup()
@@ -302,8 +341,20 @@ describe('KubbDriver generator dispatch', () => {
     ])
     // The batch still fires once per plugin, in plugin order, after the operation walk.
     expect(rec.operations).toStrictEqual([
-      { plugin: 'pluginA', count: 2 },
-      { plugin: 'pluginB', count: 2 },
+      { plugin: 'pluginA', ids: ['getPet', 'listPets'] },
+      { plugin: 'pluginB', ids: ['getPet', 'listPets'] },
+    ])
+    expect(rec.pairs).toStrictEqual([
+      { generator: 'pluginA', ctx: 'pluginA' },
+      { generator: 'pluginB', ctx: 'pluginB' },
+      { generator: 'pluginA', ctx: 'pluginA' },
+      { generator: 'pluginB', ctx: 'pluginB' },
+      { generator: 'pluginA', ctx: 'pluginA' },
+      { generator: 'pluginB', ctx: 'pluginB' },
+      { generator: 'pluginA', ctx: 'pluginA' },
+      { generator: 'pluginB', ctx: 'pluginB' },
+      { generator: 'pluginA', ctx: 'pluginA' },
+      { generator: 'pluginB', ctx: 'pluginB' },
     ])
     expect(driver.fileManager.files.map((file) => file.path).sort()).toStrictEqual([
       'pluginA/op-getPet.ts',
@@ -348,7 +399,7 @@ describe('KubbDriver generator dispatch', () => {
   })
 
   it('stops a throwing plugin without aborting the rest', async () => {
-    rec = { schema: [], operation: [], operations: [] }
+    rec = { schema: [], operation: [], operations: [], pairs: [] }
     const boomPlugin: Plugin = {
       name: 'boom',
       hooks: {
@@ -422,7 +473,7 @@ describe('KubbDriver generator dispatch', () => {
   })
 
   it("skips a generator's schema and operation calls for a node its match predicate resolves false for, and still calls them when true", async () => {
-    rec = { schema: [], operation: [], operations: [] }
+    rec = { schema: [], operation: [], operations: [], pairs: [] }
     const petOnly: Generator = {
       ...recordingGenerator('petOnly', rec),
       match: (node) => ('operationId' in node ? node.operationId === 'getPet' : node.name === 'Pet'),
@@ -444,7 +495,7 @@ describe('KubbDriver generator dispatch', () => {
   })
 
   it('filters per generator, not per plugin, when a matched and an unmatched generator share a plugin', async () => {
-    rec = { schema: [], operation: [], operations: [] }
+    rec = { schema: [], operation: [], operations: [], pairs: [] }
     // Operation-only generators (no `schema`/`operations`) so the emitted file set below only
     // reflects the operation loop's match filtering, with no schema/batch noise to account for.
     const matched: Generator = {

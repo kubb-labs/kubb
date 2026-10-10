@@ -170,6 +170,17 @@ describe('createResolver', () => {
     expect(() => resolver.file({ name: 'pet', extname: '.ts', ...context })).toThrow('outside the project root')
   })
 
+  it('returns false from default.options when options is false', () => {
+    const resolver = createResolver<TestPluginFactory>({
+      pluginName: 'test',
+      greet: (name: string) => name,
+      farewell: (name: string) => name,
+    })
+    const node = ast.factory.createFile({ baseName: 'pet.ts', path: 'src/pet.ts' })
+
+    expect(resolver.default.options<boolean>(node, { options: false })).toBe(false)
+  })
+
   it('Resolver.merge() rebuilds helpers on a new instance', () => {
     type SchemaResolver = Resolver & { schema: { label(name: string): string } }
     type SchemaFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: SchemaResolver }

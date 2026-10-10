@@ -34,6 +34,10 @@ describe('resolveCacheDir', () => {
 })
 
 describe('cacheStorage', () => {
+  it('reports the driver name', () => {
+    expect(cacheStorage({ root: makeDir() }).name).toBe('cache')
+  })
+
   it('passes reads, writes and removes through to plain keys inside the cache directory', async () => {
     const dir = makeDir()
     mkdirSync(join(dir, 'node_modules'))
