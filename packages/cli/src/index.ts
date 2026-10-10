@@ -25,8 +25,9 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
   const args = resolveDeprecatedFlags(stripExecArgs(argv))
   const isQuietFlag = args.some((arg) => QUIET_FLAGS.has(arg))
 
+  // stderr, so the notice never lands in a stream a client parses, such as `kubb mcp` stdio.
   if (!isTelemetryDisabled() && !isQuietFlag) {
-    console.log(
+    console.error(
       `${styleText('yellow', 'Notice:')} Kubb collects anonymous telemetry data to help improve the tool. No personal data or file contents are collected. \nTo disable, set ${styleText('cyan', 'KUBB_DISABLE_TELEMETRY=1')}.\n`,
     )
   }
