@@ -40,13 +40,8 @@ export function enumPropName(parentName: string | null | undefined, propName: st
 }
 
 /**
- * Merges a ref node with its resolved schema, giving usage-site fields precedence.
- *
- * The merge rule is `ast.mergeRefWithSchema()`: every field set on the ref node except `kind`,
- * `type`, `name`, `ref`, and `schema` overrides the same field in the resolved `node.schema`, and
- * fields left `undefined` on the ref do not shadow it. The result is rebuilt through
- * `ast.factory.createSchema()`. Non-ref nodes and refs without a resolved `schema` are returned
- * unchanged.
+ * Applies `ast.mergeRefWithSchema()` to a resolved ref and rebuilds the result through
+ * `ast.factory.createSchema()`. Non-ref nodes and unresolved refs are returned unchanged.
  *
  * @example
  * ```ts

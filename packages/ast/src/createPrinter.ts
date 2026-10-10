@@ -211,7 +211,6 @@ export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
 
     const collectedImports: Array<ImportNode> = []
 
-    // Runs the handler `table` holds for the node's type with the printer context as `this`.
     const dispatch =
       (table: PrinterPartial<T['output'], T['options']>) =>
       (node: SchemaNode): T['output'] | null => {

@@ -10,7 +10,10 @@ import { resolveRefName } from './refs.ts'
  * scan per schema.
  *
  * @example
- * `collectSchemaRefs(petSchema) // Set { 'Category', 'Tag' }`
+ * ```ts
+ * collectSchemaRefs(petSchema)
+ * // Set { 'Category', 'Tag' }
+ * ```
  */
 export const collectSchemaRefs = memoize(new WeakMap<SchemaNode, ReadonlySet<string>>(), (node: SchemaNode): ReadonlySet<string> => {
   const refs = new Set<string>()

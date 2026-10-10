@@ -206,7 +206,7 @@ function isNode(value: unknown): value is Node {
  * Returns `true` for a plain object that maps names to nodes, such as `patternProperties`.
  */
 function isNodeRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value) && !isNode(value)
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 /**
@@ -239,12 +239,12 @@ function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undef
       for (const item of value) if (isNode(item)) yield item
       continue
     }
-    if (isNodeRecord(value)) {
-      for (const item of Object.values(value)) if (isNode(item)) yield item
-      continue
-    }
     if (isNode(value)) {
       yield value
+      continue
+    }
+    if (isNodeRecord(value)) {
+      for (const item of Object.values(value)) if (isNode(item)) yield item
     }
   }
 }
@@ -342,6 +342,11 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
       if (mapped) (updates ??= {})[key] = mapped
       continue
     }
+    if (isNode(value)) {
+      const next = transformNode(value, visitor, recurse, node)
+      if (next !== value) (updates ??= {})[key] = next
+      continue
+    }
     if (isNodeRecord(value)) {
       let mapped: Record<string, unknown> | undefined
       for (const [name, item] of Object.entries(value)) {
@@ -349,11 +354,6 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
         if (next !== item) (mapped ??= { ...value })[name] = next
       }
       if (mapped) (updates ??= {})[key] = mapped
-      continue
-    }
-    if (isNode(value)) {
-      const next = transformNode(value, visitor, recurse, node)
-      if (next !== value) (updates ??= {})[key] = next
     }
   }
 

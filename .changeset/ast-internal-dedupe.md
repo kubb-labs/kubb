@@ -2,4 +2,4 @@
 '@kubb/ast': patch
 ---
 
-Deduplicate internal helpers and derived types in `@kubb/ast`; no behavior change.
+Internal cleanup of `@kubb/ast` with no change in behavior.
