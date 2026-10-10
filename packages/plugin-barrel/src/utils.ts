@@ -45,7 +45,7 @@ type BuildTree = {
  * ])
  * ```
  */
-export function buildTree(rootPath: string, filePaths: ReadonlyArray<string>): BuildTree {
+function buildTree(rootPath: string, filePaths: ReadonlyArray<string>): BuildTree {
   const normalizedRoot = toPosixPath(rootPath)
   const root: BuildTree = { path: normalizedRoot, children: [], isFile: false }
   // Per-directory child lookup avoids the O(N) `Array.find` scan during insertion.
