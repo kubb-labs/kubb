@@ -7,25 +7,6 @@
 export type BarrelType = 'all' | 'named'
 
 /**
- * Barrel configuration at the root config level.
- *
- * @example
- * ```ts
- * barrel: { type: 'named' }
- * barrel: { type: 'all' }
- * barrel: false  // no barrel generated (default)
- * ```
- */
-export type BarrelConfig = {
-  /**
-   * Export strategy for the root barrel file.
-   * - `'all'` wildcard exports: `export * from './file'`
-   * - `'named'` explicit exports: `export { x, y } from './file'`
-   */
-  type: BarrelType
-}
-
-/**
  * Barrel configuration at the plugin level.
  * Supports nested barrel generation in subdirectories.
  *
@@ -50,3 +31,8 @@ export type PluginBarrelConfig = {
    */
   nested?: boolean
 }
+
+/**
+ * Barrel configuration at the root config level: the export strategy only, since the root barrel is never nested.
+ */
+export type BarrelConfig = Pick<PluginBarrelConfig, 'type'>
