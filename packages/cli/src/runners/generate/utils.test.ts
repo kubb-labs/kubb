@@ -24,7 +24,6 @@ describe('runHook', () => {
       id: 'a',
       command: node,
       args: ['-e', 'console.log("first"); console.log("second"); process.exit(1)'],
-      commandWithArgs: 'node',
       hooks,
     })
 
@@ -43,7 +42,6 @@ describe('runHook', () => {
       id: 'b',
       command: node,
       args: ['-e', 'console.log("noop")'],
-      commandWithArgs: 'node',
       hooks,
     })
 
@@ -62,7 +60,6 @@ describe('runHook', () => {
       id: 'c',
       command: node,
       args: ['-e', 'process.stdout.write("out"); process.stderr.write("boom"); process.exit(1)'],
-      commandWithArgs: 'node',
       hooks,
     })
 

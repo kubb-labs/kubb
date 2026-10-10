@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -67,44 +66,44 @@ type GenerateProps = {
 
 type ToolMap = typeof formatters | typeof linters
 
+type ToolKind = 'format' | 'lint'
+
 /**
- * Static description of one output tool: its command table, the label and messages the pass logs,
- * and how to auto-detect it. Format and lint differ only in these values.
+ * What differs between the format and the lint pass: the tool table, the preference order for
+ * auto-detection, the words the pass logs with, and the diagnostic code of a failure.
  */
-type Tool = {
-  label: string
-  map: ToolMap
-  detect: () => Promise<string | null>
-  successPrefix: string
-  noToolMessage: string
-}
+const TOOL_PASSES = {
+  format: { label: 'formatter', map: formatters, preference: FORMATTER_PREFERENCE, verb: 'Formatting', code: Diagnostics.code.formatFailed },
+  lint: { label: 'linter', map: linters, preference: LINTER_PREFERENCE, verb: 'Linting', code: Diagnostics.code.lintFailed },
+} as const satisfies Record<ToolKind, { label: string; map: ToolMap; preference: ReadonlyArray<string>; verb: string; code: ProblemDiagnostic['code'] }>
 
 type RunToolPassOptions = {
+  kind: ToolKind
   toolValue: string
-  tool: Tool
   outputPath: string
   logLevel: number
   hooks: Hookable<KubbHooks>
-  onStart: () => Promise<void> | void
-  onEnd: () => Promise<void> | void
 }
 
 /**
- * Runs one formatter or linter pass over the output directory. Returns the failure instead of
- * throwing, so the caller can turn it into a coded diagnostic. Failures never render here:
- * the caller emits them through `Diagnostics.emit`, like every other diagnostic.
+ * Runs one formatter or linter pass over the output directory, announced through
+ * `kubb:<kind>:start` and `kubb:<kind>:end`. Returns the failure instead of throwing, so the
+ * caller can turn it into a coded diagnostic. Failures never render here: the caller emits them
+ * through `Diagnostics.emit`, like every other diagnostic.
  */
-async function runToolPass({ toolValue, tool, outputPath, logLevel, hooks, onStart, onEnd }: RunToolPassOptions): Promise<Error | null> {
-  await onStart()
+async function runToolPass({ kind, toolValue, outputPath, logLevel, hooks }: RunToolPassOptions): Promise<Error | null> {
+  const { label, map, preference, verb } = TOOL_PASSES[kind]
+
+  await hooks.callHook(`kubb:${kind}:start`)
 
   let resolvedTool = toolValue
   if (resolvedTool === 'auto') {
-    const detected = await tool.detect()
+    const detected = await detectTool(preference)
     if (!detected) {
-      await hooks.callHook('kubb:warn', { message: tool.noToolMessage })
+      await hooks.callHook('kubb:warn', { message: `No ${label} found (${preference.join(', ')}). Skipping ${verb.toLowerCase()}.` })
     } else {
       resolvedTool = detected
-      await hooks.callHook('kubb:info', { message: `Auto-detected ${tool.label}: ${styleText('dim', resolvedTool)}` })
+      await hooks.callHook('kubb:info', { message: `Auto-detected ${label}: ${styleText('dim', resolvedTool)}` })
     }
   }
 
@@ -112,11 +111,11 @@ async function runToolPass({ toolValue, tool, outputPath, logLevel, hooks, onSta
 
   // Nothing to lint or format when the output dir was never written. Skip so the tool
   // (e.g. oxlint with --no-ignore) doesn't fail with "No files found to lint".
-  if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in tool.map && existsSync(outputPath)) {
-    const toolConfig = tool.map[resolvedTool as keyof ToolMap]
+  if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in map && existsSync(outputPath)) {
+    const toolConfig = map[resolvedTool as keyof ToolMap]
 
     const successMessage = [
-      `${tool.successPrefix} with ${styleText('dim', resolvedTool)}`,
+      `${verb} with ${styleText('dim', resolvedTool)}`,
       logLevel >= logLevelMap.info ? `on ${styleText('dim', outputPath)}` : undefined,
       'successfully',
     ]
@@ -124,13 +123,7 @@ async function runToolPass({ toolValue, tool, outputPath, logLevel, hooks, onSta
       .join(' ')
 
     try {
-      const hookId = randomUUID()
-      const hookArgs = toolConfig.args(outputPath)
-      const commandWithArgs = [toolConfig.command, ...hookArgs].join(' ')
-
-      await hooks.callHook('kubb:hook:start', { id: hookId, command: toolConfig.command, args: hookArgs })
-
-      const result = await runHook({ id: hookId, command: toolConfig.command, args: hookArgs, commandWithArgs, hooks })
+      const result = await runHook({ command: toolConfig.command, args: toolConfig.args(outputPath), hooks })
 
       if (result.success) {
         await hooks.callHook('kubb:success', { message: successMessage })
@@ -142,7 +135,7 @@ async function runToolPass({ toolValue, tool, outputPath, logLevel, hooks, onSta
     }
   }
 
-  await onEnd()
+  await hooks.callHook(`kubb:${kind}:end`)
 
   return toolError
 }
@@ -173,49 +166,12 @@ async function generate(options: GenerateProps): Promise<boolean> {
       await Diagnostics.emit(hooks, diagnostic)
     }
 
-    // Format and lint are the same pass over the output directory, differing only in the tool
-    // table and the hooks they announce themselves with, so run them from one descriptor list.
-    const toolPasses = [
-      {
-        value: resolvedConfig.output.format,
-        code: Diagnostics.code.formatFailed,
-        tool: {
-          label: 'formatter',
-          map: formatters,
-          detect: () => detectTool(FORMATTER_PREFERENCE),
-          successPrefix: 'Formatting',
-          noToolMessage: `No formatter found (${FORMATTER_PREFERENCE.join(', ')}). Skipping formatting.`,
-        },
-        onStart: () => hooks.callHook('kubb:format:start'),
-        onEnd: () => hooks.callHook('kubb:format:end'),
-      },
-      {
-        value: resolvedConfig.output.lint,
-        code: Diagnostics.code.lintFailed,
-        tool: {
-          label: 'linter',
-          map: linters,
-          detect: () => detectTool(LINTER_PREFERENCE),
-          successPrefix: 'Linting',
-          noToolMessage: `No linter found (${LINTER_PREFERENCE.join(', ')}). Skipping linting.`,
-        },
-        onStart: () => hooks.callHook('kubb:lint:start'),
-        onEnd: () => hooks.callHook('kubb:lint:end'),
-      },
-    ]
-
-    for (const pass of toolPasses) {
-      if (!pass.value) continue
-      const error = await runToolPass({
-        toolValue: pass.value,
-        tool: pass.tool,
-        onStart: pass.onStart,
-        onEnd: pass.onEnd,
-        outputPath,
-        logLevel,
-        hooks,
-      })
-      if (error) await reportOutputFailure(pass.code, pass.tool.label, error)
+    // Format and lint are the same pass over the output directory, so run them in that order.
+    for (const kind of ['format', 'lint'] as const) {
+      const toolValue = resolvedConfig.output[kind]
+      if (!toolValue) continue
+      const error = await runToolPass({ kind, toolValue, outputPath, logLevel, hooks })
+      if (error) await reportOutputFailure(TOOL_PASSES[kind].code, TOOL_PASSES[kind].label, error)
     }
 
     if (resolvedConfig.output.postGenerate?.length) {

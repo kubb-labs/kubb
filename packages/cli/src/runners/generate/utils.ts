@@ -166,36 +166,37 @@ export async function runPostGenerate({ commands, hooks }: RunPostGenerateOption
     const [cmd, ...args] = tokenize(command)
     if (!cmd) continue
 
-    const hookId = randomUUID()
-    const commandWithArgs = [cmd, ...args].join(' ')
-
-    await hooks.callHook('kubb:hook:start', { id: hookId, command: cmd, name, args })
-    results.push(await runHook({ id: hookId, command: cmd, name, args, commandWithArgs, hooks }))
+    results.push(await runHook({ command: cmd, name, args, hooks }))
   }
 
   return results
 }
 
 type RunHookOptions = {
-  id: string
+  /**
+   * Ties the `kubb:hook:*` events of one run together. Generated when omitted.
+   */
+  id?: string
   command: string
   name?: string
   args?: ReadonlyArray<string>
-  commandWithArgs: string
   hooks: Hookable<KubbHooks>
 }
 
 /**
- * Spawns a hook command and returns its outcome, mirroring it through `kubb:hook:end` for the
- * loggers. A non-zero exit returns `success: false` rather than throwing, so the caller can turn
- * it into a diagnostic. Other spawn errors do the same. Output is streamed through `kubb:hook:line`
- * only while a listener is attached.
+ * Spawns a hook command and returns its outcome, announcing it through `kubb:hook:start` and
+ * mirroring the result through `kubb:hook:end` for the loggers. A non-zero exit returns
+ * `success: false` rather than throwing, so the caller can turn it into a diagnostic. Other spawn
+ * errors do the same. Output is streamed through `kubb:hook:line` only while a listener is attached.
  */
-export async function runHook({ id, command, name, args, commandWithArgs, hooks }: RunHookOptions): Promise<HookResult> {
+export async function runHook({ id = randomUUID(), command, name, args, hooks }: RunHookOptions): Promise<HookResult> {
+  const commandWithArgs = [command, ...(args ?? [])].join(' ')
   const emitEnd = async (result: HookResult): Promise<HookResult> => {
     await hooks.callHook('kubb:hook:end', { command, name, args, id, ...result })
     return result
   }
+
+  await hooks.callHook('kubb:hook:start', { id, command, name, args })
 
   // Only stream line-by-line when a logger is listening, so the non-streaming plain
   // logger doesn't pay to iterate the subprocess output.
@@ -328,12 +329,12 @@ export async function startWatcher(
 
 /**
  * Fetches the body of a remote spec URL, `undefined` when the server does not answer with a
- * readable 2xx body within the timeout. The caller seeds `startUrlWatcher` with the result, so
+ * readable 2xx body before `signal` aborts. The caller seeds `startUrlWatcher` with the result, so
  * the watcher compares polls against the content the initial build ran on.
  */
-export async function fetchUrlBody(url: string, timeoutMs: number = URL_WATCHER_TIMEOUT_MS): Promise<string | undefined> {
+export async function fetchUrlBody(url: string, signal: AbortSignal = AbortSignal.timeout(URL_WATCHER_TIMEOUT_MS)): Promise<string | undefined> {
   try {
-    const response = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) })
+    const response = await fetch(url, { signal })
     if (!response.ok) return undefined
     return await response.text()
   } catch {
@@ -399,38 +400,40 @@ export function startUrlWatcher(url: string, cb: (path: Array<string>) => Promis
     onError: () => log.error(styleText('red', 'Watcher failed')),
   })
 
+  const schedule = () => {
+    if (!stopped) {
+      timer = setTimeout(() => void poll(), intervalMs)
+    }
+  }
+
   const poll = async (): Promise<void> => {
     controller = new AbortController()
-    try {
-      // The signal also aborts the body read, so a response that stalls mid-stream still times out.
-      const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(timeoutMs)])
-      const response = await fetch(url, { signal })
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
-      const body = await response.text()
-      if (offline) {
-        offline = false
-        log.info(styleText('yellow', `${url} is reachable again`))
-      }
-      const changed = lastBody !== undefined && body !== lastBody
-      if (changed) {
-        log.info(styleText('yellow', styleText('bold', `Change detected: ${url}`)))
-      }
-      if (changed || lastBody === undefined) {
-        void runBuild()
-      }
-      lastBody = body
-    } catch {
+    // The signal also aborts the body read, so a response that stalls mid-stream still times out.
+    const body = await fetchUrlBody(url, AbortSignal.any([controller.signal, AbortSignal.timeout(timeoutMs)]))
+
+    if (body === undefined) {
       // `lastBody` survives the outage so recovery rebuilds only on real content changes.
       if (!offline && !stopped) {
         offline = true
         log.error(styleText('red', `Cannot reach ${url}, polling until it responds again`))
       }
+      schedule()
+      return
     }
-    if (!stopped) {
-      timer = setTimeout(() => void poll(), intervalMs)
+
+    if (offline) {
+      offline = false
+      log.info(styleText('yellow', `${url} is reachable again`))
     }
+    const changed = lastBody !== undefined && body !== lastBody
+    if (changed) {
+      log.info(styleText('yellow', styleText('bold', `Change detected: ${url}`)))
+    }
+    if (changed || lastBody === undefined) {
+      void runBuild()
+    }
+    lastBody = body
+    schedule()
   }
 
   void poll()
