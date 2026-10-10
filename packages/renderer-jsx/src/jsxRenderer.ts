@@ -7,12 +7,7 @@ type HostProps = Record<string, unknown>
 type OnText = (text: string) => void
 type OnHost = (type: HostTag, props: HostProps) => void
 
-/**
- * Walks `element`, resolving arrays, Fragments, and function components, then
- * calls `onText` for primitive values and `onHost` for each host element.
- * Function components are called synchronously. Hooks and class components are
- * not supported.
- */
+/** Walks `element` through arrays, Fragments and function components, calling `onText` and `onHost`. */
 function walkElement(element: unknown, onText: OnText, onHost: OnHost): void {
   if (element == null || typeof element === 'boolean') return
 
@@ -46,8 +41,7 @@ function walkElement(element: unknown, onText: OnText, onHost: OnHost): void {
 
 type CodeFactory = (input: HostProps) => ast.CodeNode
 
-// Host props reach the walker untyped; each component passes its tag's full key set in node
-// field order, so the spread below builds the same shape `ast.factory` would from typed input.
+// Each component passes its tag's full key set in node field order, so the spread matches `ast.factory`.
 const codeFactories: Partial<Record<HostTag, CodeFactory>> = {
   'kubb-function': ast.factory.createFunction as CodeFactory,
   'kubb-arrow-function': ast.factory.createArrowFunction as CodeFactory,
@@ -158,10 +152,7 @@ function collectFileChildren(element: unknown): FileChildren {
 
 function createFileNode(props: HostProps): ast.FileNode {
   const { sources, exports, imports } = collectFileChildren(props['children'])
-  // The `<kubb-file>` props are kept as-is; `id`, `name`, `extname`, and `kind`, plus
-  // unused-import pruning, are only computed once the file reaches `FileManager` (via
-  // `ast.factory.createFile`) — calling it here would prune imports before `FileManager`
-  // merges same-path fragments from separate `render()` calls into their final source text.
+  // Not `ast.factory.createFile`: it prunes imports, which must wait until `FileManager` merged same-path fragments.
   const file: ast.UserFileNode = {
     baseName: props['baseName'] as ast.FileNode['baseName'],
     path: props['path'] as string,
@@ -181,10 +172,8 @@ function createFileNode(props: HostProps): ast.FileNode {
  * Factory for a renderer that walks the JSX tree in a single recursive pass,
  * with no React reconciler or scheduler. Pass it as the `renderer` property on
  * `defineGenerator`. Kubb core calls the factory once per render cycle and stays
- * generic, with no hard dependency on `@kubb/renderer-jsx`.
- *
- * Every component must be a pure function. Hooks, suspense, and class
- * components are not supported.
+ * generic, with no hard dependency on `@kubb/renderer-jsx`. Every component must be a pure
+ * function; hooks, suspense and class components are not supported.
  *
  * @example Wire up a JSX generator
  * ```tsx
