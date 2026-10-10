@@ -32,16 +32,10 @@ describe('Diagnostics.serialize', () => {
 })
 
 describe('Diagnostics.from', () => {
-  it('should return the structured diagnostic from a DiagnosticError', () => {
-    const error = new Diagnostics.Error({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing' })
+  it('returns the structured diagnostic, with help and plugin, from a DiagnosticError', () => {
+    const diagnostic = { code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing', help: 'fix the ref', plugin: '@kubb/plugin-zod' } as const
 
-    expect(Diagnostics.from(error)).toMatchObject({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing' })
-  })
-
-  it('should carry help and plugin through a DiagnosticError', () => {
-    const error = new Diagnostics.Error({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing', help: 'fix the ref', plugin: '@kubb/plugin-zod' })
-
-    expect(Diagnostics.from(error)).toMatchObject({ help: 'fix the ref', plugin: '@kubb/plugin-zod' })
+    expect(Diagnostics.from(new Diagnostics.Error(diagnostic))).toStrictEqual(diagnostic)
   })
 
   it('should unwrap a DiagnosticError nested in the cause chain', () => {
@@ -62,8 +56,11 @@ describe('Diagnostics.from', () => {
     expect(Diagnostics.from(foreign).code).toBe('KUBB_INPUT_NOT_FOUND')
   })
 
-  it('should fall back to KUBB_UNKNOWN for a plain error', () => {
-    expect(Diagnostics.from(new Error('boom'))).toMatchObject({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom' })
+  it.each([
+    ['a plain error', new Error('boom'), 'boom'],
+    ['a non-error thrown value', 'oops', 'oops'],
+  ])('returns KUBB_UNKNOWN for %s', (_name, thrown, message) => {
+    expect(Diagnostics.from(thrown)).toMatchObject({ code: 'KUBB_UNKNOWN', severity: 'error', message })
   })
 
   it('should surface the root cause message, not the wrapper, for a wrapped unknown error', () => {
@@ -73,10 +70,6 @@ describe('Diagnostics.from', () => {
     const diagnostic = Diagnostics.from(wrapped)
     expect(diagnostic).toMatchObject({ code: 'KUBB_UNKNOWN', message: 'plugin blew up' })
     expect(diagnostic.cause).toBe(root)
-  })
-
-  it('should coerce a non-error thrown value', () => {
-    expect(Diagnostics.from('oops')).toMatchObject({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'oops' })
   })
 
   it('should not loop on a self-referencing cause', () => {

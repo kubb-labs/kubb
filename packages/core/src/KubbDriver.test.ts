@@ -175,11 +175,16 @@ describe('GeneratorContext diagnostics', () => {
     return diagnostics
   }
 
-  it('reports ctx.error as an error diagnostic that fails the build, attributed to the plugin', () => {
-    const diagnostics = collect((ctx) => ctx.error('boom'))
+  // Only an error fails the build; every level is attributed to the plugin.
+  it.each<['error' | 'warn' | 'info', string, string, boolean]>([
+    ['error', Diagnostics.code.pluginFailed, 'error', true],
+    ['warn', Diagnostics.code.pluginWarning, 'warning', false],
+    ['info', Diagnostics.code.pluginInfo, 'info', false],
+  ])('reports ctx.%s as a %s diagnostic attributed to the plugin', (method, code, severity, failsBuild) => {
+    const diagnostics = collect((ctx) => ctx[method]('boom'))
 
-    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.pluginFailed, severity: 'error', message: 'boom', plugin: 'pluginA' }])
-    expect(Diagnostics.hasError(diagnostics)).toBe(true)
+    expect(diagnostics).toMatchObject([{ code, severity, message: 'boom', plugin: 'pluginA' }])
+    expect(Diagnostics.hasError(diagnostics)).toBe(failsBuild)
   })
 
   it('keeps the original Error as the cause when ctx.error is passed an Error', () => {
@@ -188,19 +193,6 @@ describe('GeneratorContext diagnostics', () => {
 
     const [diagnostic] = diagnostics
     expect(diagnostic && Diagnostics.isProblem(diagnostic) ? diagnostic.cause : undefined).toBe(cause)
-  })
-
-  it('reports ctx.warn as a warning diagnostic that does not fail the build', () => {
-    const diagnostics = collect((ctx) => ctx.warn('careful'))
-
-    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.pluginWarning, severity: 'warning', message: 'careful', plugin: 'pluginA' }])
-    expect(Diagnostics.hasError(diagnostics)).toBe(false)
-  })
-
-  it('reports ctx.info as an info diagnostic', () => {
-    const diagnostics = collect((ctx) => ctx.info('heads up'))
-
-    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.pluginInfo, severity: 'info', message: 'heads up', plugin: 'pluginA' }])
   })
 
   it('collects the diagnostic only and does not emit a live hook', () => {
@@ -212,12 +204,11 @@ describe('GeneratorContext diagnostics', () => {
     expect(onError).not.toHaveBeenCalled()
   })
 
-  it('names the requiring plugin when ctx.requirePlugin misses', () => {
-    expect(() => context().requirePlugin('missing')).toThrowError(/Plugin "missing" is required by "pluginA" but not found/)
-  })
-
-  it('keeps the plain message for a direct driver.requirePlugin call', () => {
-    expect(() => driver.requirePlugin('missing')).toThrowError(/Plugin "missing" is required but not found/)
+  it.each([
+    ['ctx.requirePlugin', () => context().requirePlugin('missing'), /Plugin "missing" is required by "pluginA" but not found/],
+    ['driver.requirePlugin', () => driver.requirePlugin('missing'), /Plugin "missing" is required but not found/],
+  ])('throws with the caller in the message when %s misses', (_name, requirePlugin, message) => {
+    expect(requirePlugin).toThrowError(message)
   })
 
   it('returns the plugin from ctx.requirePlugin when it exists', () => {
@@ -293,7 +284,7 @@ describe('KubbDriver generator dispatch', () => {
   beforeEach(build)
   afterEach(() => hooks.removeAllHooks())
 
-  it('walks each node once and fans it out to every plugin in dependency order', async () => {
+  it('walks each node once, fans it out to every plugin in order, and collects one file per generator return', async () => {
     await driver.run()
 
     // Node-outer: each schema is visited once, both plugins run before the next schema.
@@ -314,11 +305,6 @@ describe('KubbDriver generator dispatch', () => {
       { plugin: 'pluginA', count: 2 },
       { plugin: 'pluginB', count: 2 },
     ])
-  })
-
-  it('collects one file per generator return, keyed by plugin and node', async () => {
-    await driver.run()
-
     expect(driver.fileManager.files.map((file) => file.path).sort()).toStrictEqual([
       'pluginA/op-getPet.ts',
       'pluginA/op-listPets.ts',

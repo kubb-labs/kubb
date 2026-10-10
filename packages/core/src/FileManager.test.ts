@@ -53,11 +53,10 @@ function makeFileWithSources(filePath: string, sources: Array<string> = []) {
 
 describe('FileManager', () => {
   describe('add', () => {
-    it('stores a new file', () => {
+    it('stores every distinct file', () => {
       const manager = new FileManager()
-      manager.add(makeFile('/src/foo.ts', 'export const x = 1'))
-      expect(manager.files).toHaveLength(1)
-      expect(manager.files[0]?.path).toBe('/src/foo.ts')
+      manager.add(makeFile('/src/a.ts', 'export const x = 1'), makeFile('/src/b.ts'))
+      expect(manager.files.map((f) => f.path)).toStrictEqual(['/src/a.ts', '/src/b.ts'])
     })
 
     it('merges two files with the same path passed in a single call', () => {
@@ -84,12 +83,6 @@ describe('FileManager', () => {
       const imports = manager.files[0]?.imports ?? []
       expect(imports.some((i) => i.name === 'client')).toBe(true)
     })
-
-    it('stores multiple distinct files', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/a.ts'), makeFile('/src/b.ts'))
-      expect(manager.files).toHaveLength(2)
-    })
   })
 
   describe('upsert', () => {
@@ -107,32 +100,18 @@ describe('FileManager', () => {
       expect(manager.files[0]?.sources).toHaveLength(2)
     })
 
-    it('incoming file banner overrides existing banner (barrel clears plugin banner)', () => {
+    // The incoming file's banner and footer win, so a barrel can clear a plugin banner.
+    it.each<['banner' | 'footer', string | undefined, string | undefined]>([
+      ['banner', "'use server'", undefined],
+      ['banner', undefined, "'use server'"],
+      ['banner', "'use server'", "'use server'"],
+      ['footer', '// end', undefined],
+      ['footer', undefined, '// end'],
+    ])('returns the incoming %s when upserting %s over %s', (field, existing, incoming) => {
       const manager = new FileManager()
-      manager.add(makeFile('/src/index.ts', undefined, { banner: "'use server'" }))
-      manager.upsert(makeFile('/src/index.ts'))
-      expect(manager.files[0]?.banner).toBeUndefined()
-    })
-
-    it('incoming banner is applied when existing file has none', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/index.ts'))
-      manager.upsert(makeFile('/src/index.ts', undefined, { banner: "'use server'" }))
-      expect(manager.files[0]?.banner).toBe("'use server'")
-    })
-
-    it('preserves banner when both files carry the same banner', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/index.ts', undefined, { banner: "'use server'" }))
-      manager.upsert(makeFile('/src/index.ts', 'const x = 1', { banner: "'use server'" }))
-      expect(manager.files[0]?.banner).toBe("'use server'")
-    })
-
-    it('incoming file footer overrides existing footer', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/index.ts', undefined, { footer: '// end' }))
-      manager.upsert(makeFile('/src/index.ts'))
-      expect(manager.files[0]?.footer).toBeUndefined()
+      manager.add(makeFile('/src/index.ts', undefined, { [field]: existing }))
+      manager.upsert(makeFile('/src/index.ts', 'const x = 1', { [field]: incoming }))
+      expect(manager.files[0]?.[field]).toBe(incoming)
     })
   })
 
@@ -321,39 +300,19 @@ describe('FileManager', () => {
       expect(await storage.readItem('b.ts')).toContain('/* b.ts */')
     })
 
-    it('skips a file the storage already holds, with no manifest in play', async () => {
+    // With no manifest in play, the stored bytes decide. A storage keeping bytes verbatim stores
+    // leading whitespace back, so comparing against a trimmed source would rewrite every build.
+    it.each([
+      ['the same bytes', '/* a.ts */', '/* a.ts */'],
+      ['the source plus a trailing newline', '/* a.ts */\n', '/* a.ts */'],
+      ['a source with leading whitespace, verbatim', '\n/* a.ts */', '\n/* a.ts */'],
+    ])('skips a file when the storage holds %s', async (_name, stored, source) => {
       const storage = memoryStorage()
-      const manager = new FileManager()
-      const files = [makeFileWithSources('a.ts', ['/* a.ts */'])]
-
-      await manager.write(files, { storage })
-      const writeItem = vi.spyOn(storage, 'writeItem')
-      await manager.write(files, { storage })
-
-      expect(writeItem).not.toHaveBeenCalled()
-    })
-
-    it('skips a file the storage holds down to a trailing newline', async () => {
-      const storage = memoryStorage()
-      await storage.writeItem('a.ts', '/* a.ts */\n')
+      await storage.writeItem('a.ts', stored)
       const writeItem = vi.spyOn(storage, 'writeItem')
       const manager = new FileManager()
 
-      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage })
-
-      expect(writeItem).not.toHaveBeenCalled()
-    })
-
-    // A storage keeping bytes verbatim stores the leading whitespace back, so comparing it against
-    // a trimmed source would never match and would rewrite the file on every build.
-    it('skips a source with leading whitespace on a storage that keeps bytes verbatim', async () => {
-      const storage = memoryStorage()
-      const manager = new FileManager()
-      const files = [makeFileWithSources('a.ts', ['\n/* a.ts */'])]
-
-      await manager.write(files, { storage })
-      const writeItem = vi.spyOn(storage, 'writeItem')
-      await manager.write(files, { storage })
+      await manager.write([makeFileWithSources('a.ts', [source])], { storage })
 
       expect(writeItem).not.toHaveBeenCalled()
     })
@@ -368,57 +327,22 @@ describe('FileManager', () => {
       expect(await storage.readItem('a.ts')).toContain('/* changed */')
     })
 
-    it('skips a file the output passes already turned into what is on disk', async () => {
+    // A written file is tracked so the commit re-reads it; a skipped file's record already stands.
+    it.each([
+      ['skips', 'a file the output passes already turned into what is on disk', '/* a.ts */;\n', true, []],
+      ['writes', 'a file the manifest does not vouch for', '/* stale */', false, ['a.ts']],
+      ['writes', 'a file that is not on disk yet, whatever the manifest says', null, true, ['a.ts']],
+    ])('%s %s', async (_verb, _name, stored, upToDate, tracked) => {
       const storage = memoryStorage()
-      await storage.writeItem('a.ts', '/* a.ts */;\n')
+      if (stored !== null) await storage.writeItem('a.ts', stored)
       const writeItem = vi.spyOn(storage, 'writeItem')
-      const manager = new FileManager()
-
-      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest: stubManifest({ upToDate: true }) })
-
-      expect(writeItem).not.toHaveBeenCalled()
-    })
-
-    it('writes a file the manifest does not vouch for', async () => {
-      const storage = memoryStorage()
-      await storage.writeItem('a.ts', '/* stale */')
-      const writeItem = vi.spyOn(storage, 'writeItem')
-      const manager = new FileManager()
-
-      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest: stubManifest({ upToDate: false }) })
-
-      expect(writeItem).toHaveBeenCalledTimes(1)
-    })
-
-    it('writes a file that is not on disk yet, whatever the manifest says', async () => {
-      const storage = memoryStorage()
-      const writeItem = vi.spyOn(storage, 'writeItem')
-      const manager = new FileManager()
-
-      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest: stubManifest({ upToDate: true }) })
-
-      expect(writeItem).toHaveBeenCalledTimes(1)
-    })
-
-    it('tracks a file it wrote, so the commit knows to re-read it', async () => {
-      const storage = memoryStorage()
-      const manifest = stubManifest({ upToDate: false })
+      const manifest = stubManifest({ upToDate })
       const manager = new FileManager()
 
       await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest })
 
-      expect(manifest.tracked).toStrictEqual(['a.ts'])
-    })
-
-    it('does not track a file it skipped, whose record already stands', async () => {
-      const storage = memoryStorage()
-      await storage.writeItem('a.ts', '/* a.ts */;\n')
-      const manifest = stubManifest({ upToDate: true })
-      const manager = new FileManager()
-
-      await manager.write([makeFileWithSources('a.ts', ['/* a.ts */'])], { storage, manifest })
-
-      expect(manifest.tracked).toStrictEqual([])
+      expect(writeItem.mock.calls.map(([key]) => key)).toStrictEqual(tracked)
+      expect(manifest.tracked).toStrictEqual(tracked)
     })
 
     it('leaves the output alone on a rebuild after a formatter reflowed it', async () => {

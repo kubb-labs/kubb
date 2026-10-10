@@ -9,6 +9,21 @@ const MANIFEST_KEY = 'output-manifest.json'
  */
 const formatted = 'const a = 1;\n'
 
+/**
+ * A manifest that recorded `a.ts` with source `const a = 1` and the formatted output on disk,
+ * reopened as the next run would see it.
+ */
+async function recordedManifest() {
+  const storage = memoryStorage()
+  const cache = memoryStorage()
+  await storage.writeItem('a.ts', formatted)
+  const manifest = await createOutputManifest({ storage, cache })
+  manifest.track({ key: 'a.ts', source: 'const a = 1' })
+  await manifest.commit()
+
+  return createOutputManifest({ storage, cache })
+}
+
 describe('createOutputManifest', () => {
   it('starts empty when no cache exists yet', async () => {
     const manifest = await createOutputManifest({ storage: memoryStorage(), cache: memoryStorage() })
@@ -16,43 +31,15 @@ describe('createOutputManifest', () => {
     expect(manifest.isUpToDate({ key: 'a.ts', source: 'const a = 1', disk: formatted })).toBe(false)
   })
 
-  it('recognizes a source the output passes turned into what is stored', async () => {
-    const storage = memoryStorage()
-    const cache = memoryStorage()
-    await storage.writeItem('a.ts', formatted)
-    const manifest = await createOutputManifest({ storage, cache })
-    manifest.track({ key: 'a.ts', source: 'const a = 1' })
-    await manifest.commit()
+  it.each([
+    ['the recorded source and output', { key: 'a.ts', source: 'const a = 1', disk: formatted }, true],
+    ['a changed source', { key: 'a.ts', source: 'const a = 2', disk: formatted }, false],
+    ['an edited output with the same source', { key: 'a.ts', source: 'const a = 1', disk: 'const a = 999\n' }, false],
+    ['a key it never recorded', { key: 'unknown.ts', source: 'const a = 1', disk: formatted }, false],
+  ])('returns %s as up to date: %s', async (_name, entry, expected) => {
+    const next = await recordedManifest()
 
-    const next = await createOutputManifest({ storage, cache })
-
-    expect(next.isUpToDate({ key: 'a.ts', source: 'const a = 1', disk: formatted })).toBe(true)
-  })
-
-  it('reports a changed source as out of date', async () => {
-    const storage = memoryStorage()
-    const cache = memoryStorage()
-    await storage.writeItem('a.ts', formatted)
-    const manifest = await createOutputManifest({ storage, cache })
-    manifest.track({ key: 'a.ts', source: 'const a = 1' })
-    await manifest.commit()
-
-    const next = await createOutputManifest({ storage, cache })
-
-    expect(next.isUpToDate({ key: 'a.ts', source: 'const a = 2', disk: formatted })).toBe(false)
-  })
-
-  it('reports an edited file as out of date even when the source is unchanged', async () => {
-    const storage = memoryStorage()
-    const cache = memoryStorage()
-    await storage.writeItem('a.ts', formatted)
-    const manifest = await createOutputManifest({ storage, cache })
-    manifest.track({ key: 'a.ts', source: 'const a = 1' })
-    await manifest.commit()
-
-    const next = await createOutputManifest({ storage, cache })
-
-    expect(next.isUpToDate({ key: 'a.ts', source: 'const a = 1', disk: 'const a = 999\n' })).toBe(false)
+    expect(next.isUpToDate(entry)).toBe(expected)
   })
 
   it('keeps entries from another config generating into the same root', async () => {
@@ -94,24 +81,14 @@ describe('createOutputManifest', () => {
     expect(next.isUpToDate({ key: 'a.ts', source: 'const a = 1', disk: formatted })).toBe(true)
   })
 
-  it('vouches only for the keys it recorded', async () => {
+  it.each([
+    ['entries that are not a record', JSON.stringify({ version: 1, entries: 'nope' })],
+    ['an older version', JSON.stringify({ version: 0, entries: { 'a.ts': { source: 'x', output: 'y' } } })],
+    ['corrupted content', 'not json'],
+  ])('ignores a cache with %s', async (_name, stored) => {
     const storage = memoryStorage()
     const cache = memoryStorage()
-    await storage.writeItem('a.ts', formatted)
-    const manifest = await createOutputManifest({ storage, cache })
-    manifest.track({ key: 'a.ts', source: 'const a = 1' })
-    await manifest.commit()
-
-    const next = await createOutputManifest({ storage, cache })
-
-    expect(next.isUpToDate({ key: 'a.ts', source: 'const a = 1', disk: formatted })).toBe(true)
-    expect(next.isUpToDate({ key: 'unknown.ts', source: 'const a = 1', disk: formatted })).toBe(false)
-  })
-
-  it('ignores a cache whose entries are not a record', async () => {
-    const storage = memoryStorage()
-    const cache = memoryStorage()
-    await cache.writeItem(MANIFEST_KEY, JSON.stringify({ version: 1, entries: 'nope' }))
+    await cache.writeItem(MANIFEST_KEY, stored)
     const manifest = await createOutputManifest({ storage, cache })
 
     await expect(manifest.commit()).resolves.toBeUndefined()
@@ -128,24 +105,6 @@ describe('createOutputManifest', () => {
     const stored = JSON.parse((await cache.readItem(MANIFEST_KEY)) as string) as { entries: Record<string, unknown> }
 
     expect(stored.entries).toStrictEqual({})
-  })
-
-  it('ignores a cache written by an older version', async () => {
-    const storage = memoryStorage()
-    const cache = memoryStorage()
-    await cache.writeItem(MANIFEST_KEY, JSON.stringify({ version: 0, entries: { 'a.ts': { source: 'x', output: 'y' } } }))
-    const manifest = await createOutputManifest({ storage, cache })
-
-    expect(manifest.isUpToDate({ key: 'a.ts', source: 'const a = 1', disk: formatted })).toBe(false)
-  })
-
-  it('ignores a corrupted cache', async () => {
-    const storage = memoryStorage()
-    const cache = memoryStorage()
-    await cache.writeItem(MANIFEST_KEY, 'not json')
-    const manifest = await createOutputManifest({ storage, cache })
-
-    expect(manifest.isUpToDate({ key: 'a.ts', source: 'const a = 1', disk: formatted })).toBe(false)
   })
 
   it('does not fail the build when the cache cannot be written', async () => {

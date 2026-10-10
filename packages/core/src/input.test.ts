@@ -7,33 +7,29 @@ function createConfig(input: Config['input'], root = '/project'): Config {
   return { root, input } as unknown as Config
 }
 
+/**
+ * The diagnostic code `fn` throws with, or `undefined` when it returns or throws something else.
+ */
+function diagnosticCode(fn: () => unknown): string | undefined {
+  try {
+    fn()
+  } catch (error) {
+    return Diagnostics.isError(error) ? error.diagnostic.code : undefined
+  }
+  return undefined
+}
+
 describe('getInputKind', () => {
-  it('classifies a relative path as a file', () => {
-    expect(getInputKind('./petStore.yaml')).toBe('file')
-  })
-
-  it('classifies an absolute path as a file', () => {
-    expect(getInputKind('/specs/openapi.json')).toBe('file')
-  })
-
-  it('classifies an http(s) address as a url', () => {
-    expect(getInputKind('https://example.com/openapi.json')).toBe('url')
-  })
-
-  it('classifies inline JSON content as inline', () => {
-    expect(getInputKind('{ "openapi": "3.1.0" }')).toBe('inline')
-  })
-
-  it('classifies multi-line YAML content as inline', () => {
-    expect(getInputKind('openapi: 3.1.0\ninfo:\n  title: Pets')).toBe('inline')
-  })
-
-  it('classifies a single-line YAML document marker as inline', () => {
-    expect(getInputKind('swagger: "2.0"')).toBe('inline')
-  })
-
-  it('classifies a parsed spec as an object', () => {
-    expect(getInputKind({ openapi: '3.1.0' })).toBe('object')
+  it.each([
+    ['a relative path', './petStore.yaml', 'file'],
+    ['an absolute path', '/specs/openapi.json', 'file'],
+    ['an http(s) address', 'https://example.com/openapi.json', 'url'],
+    ['inline JSON content', '{ "openapi": "3.1.0" }', 'inline'],
+    ['multi-line YAML content', 'openapi: 3.1.0\ninfo:\n  title: Pets', 'inline'],
+    ['a single-line YAML document marker', 'swagger: "2.0"', 'inline'],
+    ['a parsed spec', { openapi: '3.1.0' }, 'object'],
+  ])('returns %s as %s', (_name, input, expected) => {
+    expect(getInputKind(input)).toBe(expected)
   })
 })
 
@@ -52,37 +48,20 @@ describe('inputToAdapterSource', () => {
     })
   })
 
-  it('passes inline JSON content as data', () => {
-    const data = '{ "openapi": "3.1.0" }'
+  it.each([
+    ['inline JSON content', '{ "openapi": "3.1.0" }'],
+    ['inline YAML content', 'openapi: 3.1.0\ninfo:\n  title: Pets'],
+    ['a parsed object', { openapi: '3.1.0' }],
+    ['a parsed spec that happens to carry a path property', { openapi: '3.1.0', path: './petStore.yaml' }],
+  ])('passes %s as data', (_name, data) => {
     expect(inputToAdapterSource(createConfig(data))).toStrictEqual({ type: 'data', data })
   })
 
-  it('passes inline YAML content as data', () => {
-    const data = 'openapi: 3.1.0\ninfo:\n  title: Pets'
-    expect(inputToAdapterSource(createConfig(data))).toStrictEqual({ type: 'data', data })
-  })
-
-  it('passes a parsed object as data', () => {
-    const data = { openapi: '3.1.0' }
-    expect(inputToAdapterSource(createConfig(data))).toStrictEqual({ type: 'data', data })
-  })
-
-  it('throws a required diagnostic when input is missing', () => {
-    try {
-      inputToAdapterSource(createConfig(undefined))
-      expect.unreachable('expected inputToAdapterSource to throw')
-    } catch (error) {
-      expect(Diagnostics.isError(error) && error.diagnostic.code).toBe(Diagnostics.code.inputRequired)
-    }
-  })
-
-  it('throws a required diagnostic when input is an empty string', () => {
-    try {
-      inputToAdapterSource(createConfig(''))
-      expect.unreachable('expected inputToAdapterSource to throw')
-    } catch (error) {
-      expect(Diagnostics.isError(error) && error.diagnostic.code).toBe(Diagnostics.code.inputRequired)
-    }
+  it.each([
+    ['missing', undefined],
+    ['an empty string', ''],
+  ])('throws a required diagnostic when input is %s', (_name, input) => {
+    expect(diagnosticCode(() => inputToAdapterSource(createConfig(input)))).toBe(Diagnostics.code.inputRequired)
   })
 
   it.each([
@@ -91,16 +70,6 @@ describe('inputToAdapterSource', () => {
     ['a v4 wrapper carrying both keys', { path: './petStore.yaml', data: { openapi: '3.1.0' } }],
     ['a v4 array of path wrappers', [{ path: './petStore.yaml' }]],
   ])('throws a legacy diagnostic for %s', (_name, input) => {
-    try {
-      inputToAdapterSource(createConfig(input as Config['input']))
-      expect.unreachable('expected inputToAdapterSource to throw')
-    } catch (error) {
-      expect(Diagnostics.isError(error) && error.diagnostic.code).toBe(Diagnostics.code.legacyInput)
-    }
-  })
-
-  it('passes a parsed spec that happens to carry a path property', () => {
-    const data = { openapi: '3.1.0', path: './petStore.yaml' }
-    expect(inputToAdapterSource(createConfig(data))).toStrictEqual({ type: 'data', data })
+    expect(diagnosticCode(() => inputToAdapterSource(createConfig(input as Config['input'])))).toBe(Diagnostics.code.legacyInput)
   })
 })

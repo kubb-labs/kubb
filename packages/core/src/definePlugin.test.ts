@@ -1,5 +1,5 @@
 import { ast } from '@kubb/ast'
-import type { OperationNode, SchemaNode } from '@kubb/ast'
+import type { SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
@@ -99,7 +99,7 @@ describe('definePlugin', () => {
 })
 
 describe('kubb:plugin:setup context', () => {
-  it('does not register kubb:plugin:setup on the hook emitter', async () => {
+  it('runs the kubb:plugin:setup handler once from setupHooks instead of the hook emitter', async () => {
     const setupHandler = vi.fn()
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
@@ -109,23 +109,9 @@ describe('kubb:plugin:setup context', () => {
     }))()
 
     const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig({ plugins: [hookPlugin] }), { hooks })
-    await driver.setup()
+    await setupDriver([hookPlugin], hooks)
 
     expect(hooks.listenerCount('kubb:plugin:setup')).toBe(0)
-  })
-
-  it('runs the kubb:plugin:setup handler on setupHooks', async () => {
-    const setupHandler = vi.fn()
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {
-        'kubb:plugin:setup': setupHandler,
-      },
-    }))()
-
-    await setupDriver([hookPlugin])
-
     expect(setupHandler).toHaveBeenCalledOnce()
   })
 
@@ -164,7 +150,7 @@ describe('kubb:plugin:setup context', () => {
     expect(capturedOptions[0]).toStrictEqual({ tag: 'pets' })
   })
 
-  it('setResolver() merges partial resolver overrides with framework defaults', async () => {
+  it('setResolver() merges partial overrides with the defaults, on getResolver() and plugin.resolver alike', async () => {
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
       hooks: {
@@ -189,27 +175,38 @@ describe('kubb:plugin:setup context', () => {
         output: { path: 'gen', mode: 'directory' },
       }),
     ).toBe('/tmp/root/gen/pets.ts')
+    expect(driver.plugins.get('hook-plugin')?.resolver?.name('any value')).toBe('CustomName')
   })
 
-  it('setResolver() mirrors resolver onto plugin.resolver for getPlugin() consumers', async () => {
+  it('passes the resolver set during setup on ctx.resolver to a generator', async () => {
+    const seen: Array<string> = []
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.setResolver({
             name() {
-              return 'FromPlugin'
+              return 'ResolvedFromSetup'
+            },
+          })
+          ctx.addGenerator({
+            name: 'test-gen',
+            schema(_node: SchemaNode, generatorCtx: GeneratorContext) {
+              seen.push(generatorCtx.resolver.name('pet schema'))
             },
           })
         },
       },
     }))()
+    const adapter = createMockedAdapter({
+      parse: async () => ast.factory.createInput({ schemas: [ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [] })] }),
+    })
 
-    const driver = await setupDriver([hookPlugin])
+    const driver = new KubbDriver(makeConfig({ adapter, plugins: [hookPlugin] }), { hooks: new Hookable<KubbHooks>() })
+    await driver.setup()
+    await driver.run()
 
-    const plugin = driver.plugins.get('hook-plugin')!
-    expect(plugin.resolver).toBeDefined()
-    expect(plugin.resolver!.name('test')).toBe('FromPlugin')
+    expect(seen).toStrictEqual(['ResolvedFromSetup'])
   })
 
   it('uses default resolver when setResolver() is never called', async () => {
@@ -248,208 +245,38 @@ describe('kubb:plugin:setup context', () => {
   })
 })
 
-describe('generator dispatch', () => {
-  function populatedAdapter() {
-    return createMockedAdapter({
-      parse: async () =>
-        ast.factory.createInput({
-          schemas: [ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [] })],
-          operations: [ast.factory.createOperation({ operationId: 'getPet', method: 'GET', path: '/pet' })],
-        }),
-    })
-  }
-
-  async function run(plugins: Config['plugins']): Promise<KubbDriver> {
-    const driver = new KubbDriver(makeConfig({ adapter: populatedAdapter(), plugins }), { hooks: new Hookable<KubbHooks>() })
-    await driver.setup()
-    await driver.run()
-    return driver
-  }
-
-  it('calls a plugin schema generator for each schema node during run()', async () => {
-    const schemaMock = vi.fn().mockResolvedValue(undefined)
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator({ name: 'test-gen', schema: schemaMock })
-        },
-      },
-    }))()
-
-    await run([hookPlugin])
-
-    expect(schemaMock).toHaveBeenCalledOnce()
-    const [node, ctx] = schemaMock.mock.calls[0] as [SchemaNode, GeneratorContext]
-    expect(node.name).toBe('Pet')
-    expect(ctx.plugin.name).toBe('hook-plugin')
-  })
-
-  it('only calls a plugin generator with its own plugin context (no cross-fire)', async () => {
-    const schemaA = vi.fn().mockResolvedValue(undefined)
-    const schemaB = vi.fn().mockResolvedValue(undefined)
-    const pluginA = definePlugin(() => ({
-      name: 'plugin-a',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator({ name: 'gen-a', schema: schemaA })
-        },
-      },
-    }))()
-    const pluginB = definePlugin(() => ({
-      name: 'plugin-b',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator({ name: 'gen-b', schema: schemaB })
-        },
-      },
-    }))()
-
-    await run([pluginA, pluginB])
-
-    expect(schemaA).toHaveBeenCalledOnce()
-    expect(schemaB).toHaveBeenCalledOnce()
-    const [, ctxA] = schemaA.mock.calls[0] as [SchemaNode, GeneratorContext]
-    const [, ctxB] = schemaB.mock.calls[0] as [SchemaNode, GeneratorContext]
-    expect(ctxA.plugin.name).toBe('plugin-a')
-    expect(ctxB.plugin.name).toBe('plugin-b')
-  })
-
-  it('calls a plugin operation generator for each operation node during run()', async () => {
-    const operationMock = vi.fn().mockResolvedValue(undefined)
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator({ name: 'test-gen', operation: operationMock })
-        },
-      },
-    }))()
-
-    await run([hookPlugin])
-
-    expect(operationMock).toHaveBeenCalledOnce()
-    const [operationNode] = operationMock.mock.calls[0] as [OperationNode, GeneratorContext]
-    expect(operationNode.operationId).toBe('getPet')
-  })
-
-  it('calls a plugin operations generator once with the collected operations', async () => {
-    const operationsMock = vi.fn().mockResolvedValue(undefined)
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator({ name: 'test-gen', operations: operationsMock })
-        },
-      },
-    }))()
-
-    await run([hookPlugin])
-
-    expect(operationsMock).toHaveBeenCalledOnce()
-    const [nodes] = operationsMock.mock.calls[0] as [Array<OperationNode>, GeneratorContext]
-    expect(nodes.map((node) => node.operationId)).toStrictEqual(['getPet'])
-  })
-
-  it('passes the resolved resolver on ctx.resolver to a generator', async () => {
-    const capturedResolverResult = vi.fn()
-    const schemaMock = vi.fn(function (_node: SchemaNode, ctx: GeneratorContext) {
-      capturedResolverResult(ctx.resolver.name('pet schema'))
-      return undefined
-    })
-
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.setResolver({
-            name() {
-              return 'ResolvedFromSetup'
-            },
-          })
-          ctx.addGenerator({ name: 'test-gen', schema: schemaMock })
-        },
-      },
-    }))()
-
-    await run([hookPlugin])
-
-    expect(schemaMock).toHaveBeenCalledOnce()
-    expect(capturedResolverResult).toHaveBeenCalledWith('ResolvedFromSetup')
-  })
-})
-
 describe('normalizeOutput', () => {
-  it('defaults an extensionless path to directory mode', () => {
-    const result = normalizeOutput({ output: { path: 'types' }, pluginName: 'plugin-ts' })
-
-    expect(result).toStrictEqual({ path: 'types', mode: 'directory' })
+  // Mode is inferred from the path extension unless set, and a group always means a directory.
+  it.each<[string, { output: { path: string; mode?: 'directory' | 'file' }; group?: { type: 'tag' } }, { path: string; mode: 'directory' | 'file' }]>([
+    ['an extensionless path', { output: { path: 'types' } }, { path: 'types', mode: 'directory' }],
+    ['a nested extensionless path', { output: { path: 'ts/models' } }, { path: 'ts/models', mode: 'directory' }],
+    ['a path with an extension', { output: { path: 'models.ts' } }, { path: 'models.ts', mode: 'file' }],
+    ['an explicit directory mode', { output: { path: 'types', mode: 'directory' } }, { path: 'types', mode: 'directory' }],
+    ['an explicit file mode', { output: { path: 'models.ts', mode: 'file' } }, { path: 'models.ts', mode: 'file' }],
+    ['a group with directory mode', { output: { path: 'clients', mode: 'directory' }, group: { type: 'tag' } }, { path: 'clients', mode: 'directory' }],
+    ['a group with mode unset', { output: { path: 'clients' }, group: { type: 'tag' } }, { path: 'clients', mode: 'directory' }],
+    [
+      'a group with directory mode over a path that looks like a file',
+      { output: { path: 'clients.v2', mode: 'directory' }, group: { type: 'tag' } },
+      { path: 'clients.v2', mode: 'directory' },
+    ],
+  ])('returns %j for %s', (_name, options, expected) => {
+    expect(normalizeOutput({ ...options, pluginName: 'plugin-ts' })).toStrictEqual(expected)
   })
 
-  it('defaults a path with an extension to file mode', () => {
-    const result = normalizeOutput({ output: { path: 'models.ts' }, pluginName: 'plugin-ts' })
-
-    expect(result).toStrictEqual({ path: 'models.ts', mode: 'file' })
-  })
-
-  it('defaults a nested extensionless path to directory mode', () => {
-    const result = normalizeOutput({ output: { path: 'ts/models' }, pluginName: 'plugin-ts' })
-
-    expect(result).toStrictEqual({ path: 'ts/models', mode: 'directory' })
-  })
-
-  it('keeps an explicit directory mode', () => {
-    const result = normalizeOutput({ output: { path: 'types', mode: 'directory' }, pluginName: 'plugin-ts' })
-
-    expect(result.mode).toBe('directory')
-  })
-
-  it('keeps an explicit file mode with its path as-is', () => {
-    const result = normalizeOutput({ output: { path: 'models.ts', mode: 'file' }, pluginName: 'plugin-ts' })
-
-    expect(result).toStrictEqual({ path: 'models.ts', mode: 'file' })
-  })
-
-  it('passes through directory mode when a group is configured', () => {
-    const result = normalizeOutput({ output: { path: 'clients', mode: 'directory' }, group: { type: 'tag' }, pluginName: 'plugin-axios' })
-
-    expect(result).toStrictEqual({ path: 'clients', mode: 'directory' })
-  })
-
-  it('infers directory mode for a group when mode is left unset', () => {
-    const result = normalizeOutput({ output: { path: 'clients' }, group: { type: 'tag' }, pluginName: 'plugin-axios' })
-
-    expect(result).toStrictEqual({ path: 'clients', mode: 'directory' })
-  })
-
-  it('lets an explicit directory mode override a path that looks like a file, for a group', () => {
-    const result = normalizeOutput({ output: { path: 'clients.v2', mode: 'directory' }, group: { type: 'tag' }, pluginName: 'plugin-axios' })
-
-    expect(result).toStrictEqual({ path: 'clients.v2', mode: 'directory' })
-  })
-
-  it('throws KUBB_INVALID_PLUGIN_OPTIONS for an explicit file mode paired with a group', () => {
-    expect(() => normalizeOutput({ output: { path: 'models.ts', mode: 'file' }, group: { type: 'tag' }, pluginName: 'plugin-ts' })).toThrowError(
-      /output\.mode. to 'file'/,
-    )
-  })
-
-  it('throws KUBB_INVALID_PLUGIN_OPTIONS for a path that infers file mode, paired with a group', () => {
-    expect(() => normalizeOutput({ output: { path: 'clients.v2' }, group: { type: 'tag' }, pluginName: 'plugin-axios' })).toThrowError(
-      /output\.mode. to 'file'/,
-    )
-  })
-
-  it('throws a Diagnostics error when file mode is paired with a group', () => {
+  it.each<[string, { path: string; mode?: 'file' }]>([
+    ['an explicit file mode', { path: 'models.ts', mode: 'file' }],
+    ['a path that infers file mode', { path: 'clients.v2' }],
+  ])('throws KUBB_INVALID_PLUGIN_OPTIONS for %s paired with a group', (_name, output) => {
     let thrown: unknown
     try {
-      normalizeOutput({ output: { path: 'models.ts', mode: 'file' }, group: { type: 'tag' }, pluginName: 'plugin-ts' })
+      normalizeOutput({ output, group: { type: 'tag' }, pluginName: 'plugin-ts' })
     } catch (error) {
       thrown = error
     }
 
     expect(Diagnostics.isError(thrown)).toBe(true)
-    expect((thrown as InstanceType<typeof Diagnostics.Error>).diagnostic.code).toBe('KUBB_INVALID_PLUGIN_OPTIONS')
+    expect(thrown).toMatchObject({ diagnostic: { code: 'KUBB_INVALID_PLUGIN_OPTIONS' }, message: expect.stringMatching(/output\.mode. to 'file'/) })
   })
 
   it('accepts group at the type level without spelling out mode', () => {

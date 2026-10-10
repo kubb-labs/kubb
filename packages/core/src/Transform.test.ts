@@ -43,19 +43,7 @@ describe('Transform — applyTo', () => {
 })
 
 describe('Transform — memoization', () => {
-  it('returns the identical transformed reference for repeated applyTo calls', () => {
-    const transforms = new Transform()
-    transforms.set('a', [{ name: 'a', schema: (node) => (node.name === 'Pet' ? { ...node, name: 'PetRenamed' } : undefined) }])
-
-    const node = namedSchema('Pet')
-    const first = transforms.applyTo('a', node)
-    const second = transforms.applyTo('a', node)
-
-    expect(first.name).toBe('PetRenamed')
-    expect(second).toBe(first)
-  })
-
-  it('runs the macro once per node even when applied twice', () => {
+  it('returns the same transformed reference and runs the macro once when applied twice', () => {
     const transforms = new Transform()
     let calls = 0
     transforms.set('a', [
@@ -69,14 +57,15 @@ describe('Transform — memoization', () => {
     ])
 
     const node = namedSchema('Pet')
-    transforms.applyTo('a', node)
-    const callsAfterFirst = calls
-    transforms.applyTo('a', node)
+    const first = transforms.applyTo('a', node)
+    const second = transforms.applyTo('a', node)
 
-    expect(calls).toBe(callsAfterFirst)
+    expect(first.name).toBe('PetRenamed')
+    expect(second).toBe(first)
+    expect(calls).toBe(1)
   })
 
-  it('invalidates memoized results when a new macro list is set for the plugin', () => {
+  it('replaces the macro list and its memoized results when set is called again for the plugin', () => {
     const transforms = new Transform()
     const node = namedSchema('Pet')
     transforms.set('a', [{ name: 'a', schema: (n) => ({ ...n, name: 'first' }) }])
@@ -88,38 +77,21 @@ describe('Transform — memoization', () => {
     expect(transforms.applyTo('a', node).name).toBe('second')
   })
 
-  it('dispose clears memoized results along with the registry', () => {
+  it('dispose clears the registry and the memoized results', () => {
     const transforms = new Transform()
     const node = namedSchema('Pet')
     transforms.set('a', [{ name: 'a', schema: (n) => ({ ...n, name: 'changed' }) }])
     const before = transforms.applyTo('a', node)
 
     transforms.dispose()
+
+    expect(transforms.applyTo('a', node).name).toBe('Pet')
+
     transforms.set('a', [{ name: 'a', schema: (n) => ({ ...n, name: 'changed' }) }])
     const after = transforms.applyTo('a', node)
 
     expect(after.name).toBe('changed')
     expect(after).not.toBe(before)
-  })
-})
-
-describe('Transform — registry', () => {
-  it('overwrites a previous macro list for the same plugin', () => {
-    const transforms = new Transform()
-
-    transforms.set('a', [{ name: 'first', schema: (node) => ({ ...node, name: 'first' }) }])
-    transforms.set('a', [{ name: 'second', schema: (node) => ({ ...node, name: 'second' }) }])
-
-    expect(transforms.applyTo('a', namedSchema('original')).name).toBe('second')
-  })
-
-  it('dispose clears the registry', () => {
-    const transforms = new Transform()
-    transforms.set('a', [{ name: 'a', schema: (node) => ({ ...node, name: 'changed' }) }])
-
-    transforms.dispose()
-
-    expect(transforms.applyTo('a', namedSchema('Pet')).name).toBe('Pet')
   })
 })
 

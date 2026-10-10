@@ -9,74 +9,70 @@ type TestHooks = {
 }
 
 describe('Hookable', () => {
-  it('should emit hook to registered listeners', async () => {
-    const hooks = new Hookable<TestHooks>()
-    const handler = vi.fn()
-
-    hooks.hook('test', handler)
-    await hooks.callHook('test', 'hello', 42)
-
-    expect(handler).toHaveBeenCalledWith('hello', 42)
-    expect(handler).toHaveBeenCalledTimes(1)
-  })
-
-  it('should emit hook to multiple listeners', async () => {
+  it('calls every listener once with the hook arguments', async () => {
     const hooks = new Hookable<TestHooks>()
     const handler1 = vi.fn()
     const handler2 = vi.fn()
+    const noArgs = vi.fn()
 
     hooks.hook('test', handler1)
     hooks.hook('test', handler2)
+    hooks.hook('noArgs', noArgs)
     await hooks.callHook('test', 'hello', 42)
+    await hooks.callHook('noArgs')
 
-    expect(handler1).toHaveBeenCalledWith('hello', 42)
-    expect(handler2).toHaveBeenCalledWith('hello', 42)
+    expect(handler1.mock.calls).toStrictEqual([['hello', 42]])
+    expect(handler2.mock.calls).toStrictEqual([['hello', 42]])
+    expect(noArgs.mock.calls).toStrictEqual([[]])
   })
 
-  it('should return undefined when emitting a hook with no registered listeners', async () => {
+  it('returns undefined when emitting a hook with no registered listeners', async () => {
     const hooks = new Hookable<TestHooks>()
     const result = await hooks.callHook('test', 'hello', 42)
 
     expect(result).toBeUndefined()
   })
 
-  it('should wrap a rejecting listener with the hook name and serialized arguments', async () => {
+  it('wraps a rejecting listener with the hook name and stops calling later listeners', async () => {
     const hooks = new Hookable<TestHooks>()
     const cause = new Error('listener failed')
+    const second = vi.fn()
 
     hooks.hook('test', () => {
       throw cause
     })
+    hooks.hook('test', second)
 
     await expect(hooks.callHook('test', 'hello', 42)).rejects.toThrow('Error in async listener for "test"')
     await expect(hooks.callHook('test', 'hello', 42)).rejects.toMatchObject({ cause })
-  })
-
-  it('should stop calling later listeners once one rejects', async () => {
-    const hooks = new Hookable<TestHooks>()
-    const second = vi.fn()
-
-    hooks.hook('test', () => {
-      throw new Error('boom')
-    })
-    hooks.hook('test', second)
-
-    await expect(hooks.callHook('test', 'hello', 42)).rejects.toThrow()
     expect(second).not.toHaveBeenCalled()
   })
 
-  it('should remove listener with removeHook method', async () => {
+  it.each([
+    [
+      'removeHook',
+      (hooks: Hookable<TestHooks>, handler: () => void) => {
+        hooks.hook('test', handler)
+        hooks.removeHook('test', handler)
+      },
+    ],
+    [
+      'the function returned by hook',
+      (hooks: Hookable<TestHooks>, handler: () => void) => {
+        hooks.hook('test', handler)()
+      },
+    ],
+  ])('removes a listener through %s', async (_name, registerAndRemove) => {
     const hooks = new Hookable<TestHooks>()
     const handler = vi.fn()
 
-    hooks.hook('test', handler)
-    hooks.removeHook('test', handler)
+    registerAndRemove(hooks, handler)
     await hooks.callHook('test', 'hello', 42)
 
     expect(handler).not.toHaveBeenCalled()
   })
 
-  it('should remove all listeners', async () => {
+  it('removes all listeners', async () => {
     const hooks = new Hookable<TestHooks>()
     const handler1 = vi.fn()
     const handler2 = vi.fn()
@@ -91,28 +87,7 @@ describe('Hookable', () => {
     expect(handler2).not.toHaveBeenCalled()
   })
 
-  it('should handle hooks with no arguments', async () => {
-    const hooks = new Hookable<TestHooks>()
-    const handler = vi.fn()
-
-    hooks.hook('noArgs', handler)
-    await hooks.callHook('noArgs')
-
-    expect(handler).toHaveBeenCalledTimes(1)
-  })
-
-  it('should remove the listener when calling the function returned by hook', async () => {
-    const hooks = new Hookable<TestHooks>()
-    const handler = vi.fn()
-
-    const unhook = hooks.hook('test', handler)
-    unhook()
-    await hooks.callHook('test', 'hello', 42)
-
-    expect(handler).not.toHaveBeenCalled()
-  })
-
-  it('should register every handler passed to addHooks', async () => {
+  it('registers every handler passed to addHooks', async () => {
     const hooks = new Hookable<TestHooks>()
     const onTest = vi.fn()
     const onSingle = vi.fn()
@@ -125,7 +100,7 @@ describe('Hookable', () => {
     expect(onSingle).toHaveBeenCalledWith('world')
   })
 
-  it('should skip undefined entries in addHooks', async () => {
+  it('skips undefined entries in addHooks', async () => {
     const hooks = new Hookable<TestHooks>()
     const onTest = vi.fn()
 
@@ -136,11 +111,13 @@ describe('Hookable', () => {
     expect(onTest).toHaveBeenCalledTimes(1)
   })
 
-  it('should remove every added handler when calling the function returned by addHooks', async () => {
+  it('removes only the handlers added by addHooks when its remover runs', async () => {
     const hooks = new Hookable<TestHooks>()
+    const standalone = vi.fn()
     const onTest = vi.fn()
     const onSingle = vi.fn()
 
+    hooks.hook('test', standalone)
     const unhook = hooks.addHooks({ test: onTest, single: onSingle })
     unhook()
     await hooks.callHook('test', 'hello', 42)
@@ -148,23 +125,10 @@ describe('Hookable', () => {
 
     expect(onTest).not.toHaveBeenCalled()
     expect(onSingle).not.toHaveBeenCalled()
-  })
-
-  it('should leave listeners registered outside addHooks untouched when its remover runs', async () => {
-    const hooks = new Hookable<TestHooks>()
-    const standalone = vi.fn()
-    const batched = vi.fn()
-
-    hooks.hook('test', standalone)
-    const unhook = hooks.addHooks({ test: batched })
-    unhook()
-    await hooks.callHook('test', 'hello', 42)
-
-    expect(batched).not.toHaveBeenCalled()
     expect(standalone).toHaveBeenCalledWith('hello', 42)
   })
 
-  it('should ignore a value returned by a listener', async () => {
+  it('ignores a value returned by a listener', async () => {
     const hooks = new Hookable<TestHooks>()
 
     hooks.hook('single', (value) => value.toUpperCase())
