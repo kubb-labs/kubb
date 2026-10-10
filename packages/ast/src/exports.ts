@@ -6,7 +6,7 @@ export { optionality } from './optionality.ts'
 export { createPrinter } from './createPrinter.ts'
 export { collect, collectSync, transform } from './visitor.ts'
 export { extractStringsFromNodes } from './utils/extractStringsFromNodes.ts'
-export { isBareRef, resolveRefName } from './utils/refs.ts'
+export { isBareRef, mergeRefWithSchema, resolveRefName } from './utils/refs.ts'
 export { collectImportedRefNames, collectUsedSchemaNames, findCircularSchemas, findCircularSchemasFromGraph } from './utils/schemaGraph.ts'
 export { getSchemaLiteralValues, inferDiscriminatorPropertyName, resolveSchemaProperties } from './utils/schemaProperties.ts'
 
