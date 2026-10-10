@@ -156,36 +156,16 @@ function makeBarrel(dirPath: string, exports: Array<ExportNode>, sourceFiles: Re
   })
 }
 
-type LeafContext = {
-  dirPath: string
-  leafPath: string
-  sourceFile: FileNode | null
-}
+type LeafStrategy = (params: { dirPath: string; leafPath: string; sourceFile: FileNode | undefined }) => Array<ExportNode>
 
-type LeafStrategy = (ctx: LeafContext) => Array<ExportNode>
-
-function hasOnlyNonIndexableSources(sources: ReadonlyArray<SourceNode>): boolean {
-  if (sources.length === 0) return false
-  for (const source of sources) {
-    if (source.isIndexable) return false
-  }
-  return true
-}
-
-function partitionIndexableNames(sources: ReadonlyArray<SourceNode>): Map<boolean, Set<string>> {
-  const byTypeOnly = new Map<boolean, Set<string>>([
-    [false, new Set()],
-    [true, new Set()],
-  ])
-  for (const source of sources) {
-    if (!source.isIndexable || !source.name) continue
-    byTypeOnly.get(Boolean(source.isTypeOnly))!.add(source.name)
-  }
-  return byTypeOnly
+function indexableNames({ sources, isTypeOnly }: { sources: ReadonlyArray<SourceNode>; isTypeOnly: boolean }): Array<string> {
+  const names = sources.flatMap((source) => (source.isIndexable && source.name && Boolean(source.isTypeOnly) === isTypeOnly ? [source.name] : []))
+  return [...new Set(names)].sort()
 }
 
 const allStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
-  if (sourceFile && hasOnlyNonIndexableSources(sourceFile.sources)) return []
+  const sources = sourceFile?.sources ?? []
+  if (sources.length > 0 && !sources.some((source) => source.isIndexable)) return []
   return [ast.factory.createExport({ path: toRelativeModulePath(dirPath, leafPath) })]
 }
 
@@ -194,29 +174,23 @@ const namedStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
 
   if (!sourceFile) return [ast.factory.createExport({ path: modulePath })]
 
-  const namesByTypeOnly = partitionIndexableNames(sourceFile.sources)
-  const valueNames = namesByTypeOnly.get(false)!
-  const typeNames = namesByTypeOnly.get(true)!
+  const valueNames = indexableNames({ sources: sourceFile.sources, isTypeOnly: false })
+  const typeNames = indexableNames({ sources: sourceFile.sources, isTypeOnly: true })
 
-  if (valueNames.size === 0 && typeNames.size === 0) {
+  if (valueNames.length === 0 && typeNames.length === 0) {
     if (sourceFile.sources.length > 0) return []
     return [ast.factory.createExport({ path: modulePath })]
   }
 
   const exports: Array<ExportNode> = []
-  if (valueNames.size > 0) {
-    exports.push(ast.factory.createExport({ name: [...valueNames].sort(), path: modulePath }))
+  if (valueNames.length > 0) {
+    exports.push(ast.factory.createExport({ name: valueNames, path: modulePath }))
   }
-  if (typeNames.size > 0) {
-    exports.push(ast.factory.createExport({ name: [...typeNames].sort(), path: modulePath, isTypeOnly: true }))
+  if (typeNames.length > 0) {
+    exports.push(ast.factory.createExport({ name: typeNames, path: modulePath, isTypeOnly: true }))
   }
   return exports
 }
-
-const LEAF_STRATEGIES: ReadonlyMap<BarrelType, LeafStrategy> = new Map([
-  ['all', allStrategy],
-  ['named', namedStrategy],
-])
 
 type LeafWalkParams = {
   sourceFiles: ReadonlyMap<string, FileNode>
@@ -244,7 +218,7 @@ function* walkAllOrNamed(node: BuildTree, params: LeafWalkParams, isRoot: boolea
 
   if (!isRoot && !params.recursive) return subtreeLeaves
 
-  const exports = subtreeLeaves.flatMap((leafPath) => params.strategy({ dirPath: node.path, leafPath, sourceFile: params.sourceFiles.get(leafPath) ?? null }))
+  const exports = subtreeLeaves.flatMap((leafPath) => params.strategy({ dirPath: node.path, leafPath, sourceFile: params.sourceFiles.get(leafPath) }))
 
   if (exports.length > 0) {
     yield makeBarrel(node.path, exports, params.sourceFiles, params.reportedCollisions)
@@ -272,8 +246,7 @@ function* walkNested(node: BuildTree, params: NestedWalkParams): Generator<FileN
   for (const child of node.children) {
     if (child.isFile) {
       if (isBarrelPath(child.path)) continue
-      const sourceFile = params.sourceFiles.get(child.path) ?? null
-      exports.push(...params.strategy({ dirPath: node.path, leafPath: child.path, sourceFile }))
+      exports.push(...params.strategy({ dirPath: node.path, leafPath: child.path, sourceFile: params.sourceFiles.get(child.path) }))
       continue
     }
 
@@ -407,8 +380,7 @@ export function* getBarrelFiles({
   const node = targetPath ? findNode(index.tree, toPosixPath(targetPath)) : index.tree
   if (!node) return
 
-  const strategy = LEAF_STRATEGIES.get(barrelType)
-  if (!strategy) return
+  const strategy = barrelType === 'named' ? namedStrategy : allStrategy
 
   if (nested) {
     yield* walkNested(node, { sourceFiles: index.sourceFiles, strategy, reportedCollisions })
