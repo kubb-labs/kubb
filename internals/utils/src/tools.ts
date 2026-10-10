@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process'
+import { x } from 'tinyexec'
 
 /**
  * How one formatter or linter is invoked: the executable, the argv it takes for an output
@@ -65,14 +65,13 @@ export const FORMATTER_PREFERENCE = ['oxfmt', 'biome', 'prettier'] as const
 export const LINTER_PREFERENCE = ['oxlint', 'biome', 'eslint'] as const
 
 /**
- * Whether `name` is on PATH and answers `--version` with a zero exit.
+ * Whether `name` is on PATH or in a `node_modules/.bin` above the working directory and answers `--version` with a zero exit.
  */
-export function isToolAvailable(name: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    const child = spawn(name, ['--version'], { stdio: 'ignore' })
-    child.on('close', (code) => resolve(code === 0))
-    child.on('error', () => resolve(false))
-  })
+export async function isToolAvailable(name: string): Promise<boolean> {
+  return x(name, ['--version'], { throwOnError: false, nodeOptions: { stdio: 'ignore' } }).then(
+    ({ exitCode }) => exitCode === 0,
+    () => false,
+  )
 }
 
 /**

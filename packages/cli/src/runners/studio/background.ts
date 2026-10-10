@@ -1,10 +1,10 @@
-import { fork } from 'node:child_process'
 import { hash, randomBytes } from 'node:crypto'
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { connect as connectSocket, createServer } from 'node:net'
 import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
+import { x } from 'tinyexec'
 import { getProjectKubbHome } from './credentials.ts'
 import { prepareConnection, type PreparedConnection, type StudioOptions, type WorkerState } from './run.ts'
 
@@ -199,7 +199,8 @@ export async function startWorker(options: StudioOptions): Promise<void> {
   }
   const prepared = await prepareConnection(options)
   const entry = path.join(path.dirname(createRequire(import.meta.url).resolve('@kubb/cli/package.json')), 'dist', 'studioWorker.js')
-  const child = fork(entry, [], { cwd: process.cwd(), detached: true, stdio: ['ignore', 'ignore', 'ignore', 'ipc'] })
+  const child = x(process.execPath, [entry], { nodeOptions: { cwd: process.cwd(), detached: true, stdio: ['ignore', 'ignore', 'ignore', 'ipc'] } }).process
+  if (!child) throw new Error('Background worker failed to start')
   try {
     const started = new Promise<void>((resolve, reject) => {
       const timer = setTimeout(() => done(new Error('Background worker startup timed out')), 20_000)
