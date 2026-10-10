@@ -152,10 +152,7 @@ type PackageJSON = {
   version?: string
 }
 
-/**
- * The installed version of each plugin's package, resolved from where this package is installed,
- * and the names that could not be found.
- */
+/** The installed version of each plugin's package, plus the names that could not be resolved. */
 export async function resolvePeerDependencies(names: Array<string>): Promise<{
   peerDependencies: Record<string, string>
   missingDependencies: Array<string>
@@ -199,12 +196,9 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Whether `value` comes back unchanged from a JSON round trip, so it can be printed into a config
- * file as a literal and compared with what Studio echoes back. A function, `undefined`, a
- * non-finite number, a `RegExp` or another class instance does not: the agent reports options to
- * Studio as JSON, so what Studio sends back for such a value is a lossy copy (`macros: [{ name }]`
- * without its hooks, `pattern: {}`), and an edit carrying one is refused rather than written into
- * the user's source.
+ * Whether `value` survives a JSON round trip, so it can be printed into a config file as a literal.
+ * A function, `undefined`, a non-finite number or a class instance comes back from Studio as a
+ * lossy copy, so an edit carrying one is refused rather than written into the user's source.
  */
 export function isOptionValue(value: unknown): value is OptionValue {
   if (value === null || typeof value === 'string' || typeof value === 'boolean') return true

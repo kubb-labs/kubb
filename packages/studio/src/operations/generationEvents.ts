@@ -3,10 +3,7 @@ import { Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
 import { type GenerationEvent, type GenerationEventPayloads, type GenerationEventType, generationEventTypes } from '../protocol/index.ts'
 import { relativeStoragePath } from './generations.ts'
 
-/**
- * How each published hook's context becomes its wire payload. Keyed by {@link generationEventTypes},
- * so a hook added to the catalog without a projection fails to compile.
- */
+/** How each published hook's context becomes its wire payload; a hook without a projection fails to compile. */
 type Projections = { [Type in GenerationEventType]: (...args: KubbHooks[Type]) => GenerationEventPayloads[Type] }
 
 const MAX_QUEUED_EVENTS = 1_024
@@ -117,8 +114,7 @@ export function createGenerationStream(
 
   for (const type of generationEventTypes) forward(type)
 
-  // Registered after the loop, so the summary follows the `kubb:generation:end` it describes. Core
-  // never emits `kubb:generation:summary` itself.
+  // Registered after the loop so the summary follows its `kubb:generation:end`; core never emits it.
   on('kubb:generation:end', ({ diagnostics = [], status, hrStart, filesCreated }) => {
     if (!hrStart) {
       return
