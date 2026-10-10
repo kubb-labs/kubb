@@ -139,25 +139,32 @@ export type Visitor = {
 }
 
 /**
- * Visitor used by `collect`.
+ * The callbacks of {@link Visitor} with every return type replaced by `TResult`. `collect` uses it
+ * so a visitor can yield values instead of replacement nodes.
  *
  * @example
  * ```ts
- * const visitor: CollectVisitor<string> = {
+ * const visitor: VisitorOf<string> = {
  *   operation(node) {
  *     return node.operationId
  *   },
  * }
  * ```
  */
-type CollectVisitor<T> = {
-  input?(node: InputNode, context: VisitorContext<InputNode>): T | null | undefined
-  output?(node: OutputNode, context: VisitorContext<OutputNode>): T | null | undefined
-  operation?(node: OperationNode, context: VisitorContext<OperationNode>): T | null | undefined
-  schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): T | null | undefined
-  property?(node: PropertyNode, context: VisitorContext<PropertyNode>): T | null | undefined
-  parameter?(node: ParameterNode, context: VisitorContext<ParameterNode>): T | null | undefined
-  response?(node: ResponseNode, context: VisitorContext<ResponseNode>): T | null | undefined
+type VisitorOf<TResult> = {
+  [K in keyof Visitor]?: (node: Parameters<NonNullable<Visitor[K]>>[0], context: Parameters<NonNullable<Visitor[K]>>[1]) => TResult | null | undefined
+}
+
+type TraversalOptions = {
+  /**
+   * Traversal depth.
+   * @default 'deep'
+   */
+  depth?: VisitorDepth
+  /**
+   * Internal parent override used during recursion.
+   */
+  parent?: Node
 }
 
 /**
@@ -174,17 +181,7 @@ type CollectVisitor<T> = {
  * const options: TransformOptions = { depth: 'shallow', schema: (node) => node }
  * ```
  */
-type TransformOptions = Visitor & {
-  /**
-   * Traversal depth.
-   * @default 'deep'
-   */
-  depth?: VisitorDepth
-  /**
-   * Internal parent override used during recursion.
-   */
-  parent?: Node
-}
+type TransformOptions = Visitor & TraversalOptions
 
 /**
  * Options for `collect`.
@@ -194,17 +191,7 @@ type TransformOptions = Visitor & {
  * const options: CollectOptions<string> = { depth: 'shallow', schema: () => undefined }
  * ```
  */
-type CollectOptions<T> = CollectVisitor<T> & {
-  /**
-   * Traversal depth.
-   * @default 'deep'
-   */
-  depth?: VisitorDepth
-  /**
-   * Internal parent override used during recursion.
-   */
-  parent?: Node
-}
+type CollectOptions<T> = VisitorOf<T> & TraversalOptions
 
 const visitorKeysByKind = VISITOR_KEYS as Record<string, ReadonlyArray<string> | undefined>
 
@@ -216,9 +203,24 @@ function isNode(value: unknown): value is Node {
 }
 
 /**
- * Returns the immediate traversable children of `node` based on {@link VISITOR_KEYS}.
- *
- * `Schema` children are only included when `recurse` is `true`. Shallow mode skips them.
+ * Returns `true` for a plain object that maps names to nodes, such as `patternProperties`.
+ */
+function isNodeRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value) && !isNode(value)
+}
+
+/**
+ * Returns the child fields of `node` to walk, from {@link VISITOR_KEYS}, or `undefined` when there
+ * is nothing to walk. `Schema` children are only walked when `recurse` is `true`.
+ */
+function childKeys(node: Node, recurse: boolean): ReadonlyArray<string> | undefined {
+  if (node.kind === 'Schema' && !recurse) return undefined
+
+  return visitorKeysByKind[node.kind]
+}
+
+/**
+ * Returns the immediate traversable children of `node`.
  *
  * @example
  * ```ts
@@ -227,9 +229,7 @@ function isNode(value: unknown): value is Node {
  * ```
  */
 function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undefined> {
-  if (node.kind === 'Schema' && !recurse) return
-
-  const keys = visitorKeysByKind[node.kind]
+  const keys = childKeys(node, recurse)
   if (!keys) return
 
   const record = node as unknown as Record<string, unknown>
@@ -237,6 +237,10 @@ function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undef
     const value = record[key]
     if (Array.isArray(value)) {
       for (const item of value) if (isNode(item)) yield item
+      continue
+    }
+    if (isNodeRecord(value)) {
+      for (const item of Object.values(value)) if (isNode(item)) yield item
       continue
     }
     if (isNode(value)) {
@@ -254,7 +258,7 @@ function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undef
  * `TResult` is the caller's expected return: the same node type for `transform`,
  * the collected value type for `collect`.
  */
-function applyVisitor<TResult>(node: Node, visitor: Visitor | CollectVisitor<unknown>, parent: Node | undefined): TResult | null | undefined {
+function applyVisitor<TResult>(node: Node, visitor: Visitor | VisitorOf<unknown>, parent: Node | undefined): TResult | null | undefined {
   const key = VISITOR_KEY_BY_KIND[node.kind]
   if (!key) return undefined
 
@@ -287,15 +291,7 @@ function applyVisitor<TResult>(node: Node, visitor: Visitor | CollectVisitor<unk
  * })
  * ```
  */
-export function transform(node: InputNode, options: TransformOptions): InputNode
-export function transform(node: OutputNode, options: TransformOptions): OutputNode
-export function transform(node: OperationNode, options: TransformOptions): OperationNode
-export function transform(node: SchemaNode, options: TransformOptions): SchemaNode
-export function transform(node: PropertyNode, options: TransformOptions): PropertyNode
-export function transform(node: ParameterNode, options: TransformOptions): ParameterNode
-export function transform(node: ResponseNode, options: TransformOptions): ResponseNode
-export function transform(node: Node, options: TransformOptions): Node
-export function transform(node: Node, options: TransformOptions): Node {
+export function transform<T extends Node>(node: T, options: TransformOptions): T {
   const { depth, parent, ...visitor } = options
   const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
 
@@ -303,7 +299,7 @@ export function transform(node: Node, options: TransformOptions): Node {
   // arguments through the recursion. The previous code re-ran the `...visitor` rest-destructure on
   // every recursive `transform` call and rebuilt a `{ ...options, parent }` object per node, so the
   // options shape (which callbacks are present) varied call to call and the hot recursion churned.
-  return transformNode(node, visitor, recurse, parent)
+  return transformNode(node, visitor, recurse, parent) as T
 }
 
 /**
@@ -317,14 +313,11 @@ function transformNode(node: Node, visitor: Visitor, recurse: boolean, parent: N
 }
 
 /**
- * Immutably rebuilds a node's children using {@link VISITOR_KEYS}, transforming
- * each child node and leaving non-node values (e.g. `additionalProperties: true`) intact.
- * `Schema` children are skipped in shallow mode.
+ * Immutably rebuilds a node's children, transforming each child node and leaving non-node values
+ * (e.g. `additionalProperties: true`) intact.
  */
 function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node {
-  if (node.kind === 'Schema' && !recurse) return node
-
-  const keys = visitorKeysByKind[node.kind]
+  const keys = childKeys(node, recurse)
   if (!keys) return node
 
   const record = node as unknown as Record<string, unknown>
@@ -349,6 +342,15 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
       if (mapped) (updates ??= {})[key] = mapped
       continue
     }
+    if (isNodeRecord(value)) {
+      let mapped: Record<string, unknown> | undefined
+      for (const [name, item] of Object.entries(value)) {
+        const next = isNode(item) ? transformNode(item, visitor, recurse, node) : item
+        if (next !== item) (mapped ??= { ...value })[name] = next
+      }
+      if (mapped) (updates ??= {})[key] = mapped
+      continue
+    }
     if (isNode(value)) {
       const next = transformNode(value, visitor, recurse, node)
       if (next !== value) (updates ??= {})[key] = next
@@ -359,6 +361,7 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
   const merged = { ...node, ...updates }
   return merged as Node
 }
+
 /**
  * Lazy depth-first collection pass. Yields every non-null value returned by
  * the visitor callbacks. Use `collectSync` for the eager array form.
@@ -381,10 +384,10 @@ export function* collect<T>(node: Node, options: CollectOptions<T>): Generator<T
 
   // Thread the split-out visitor through the recursion instead of rebuilding `{ ...options, parent }`
   // for every child, mirroring `transform`. Keeps the recursive object shape stable.
-  yield* collectNode<T>(node, visitor as CollectVisitor<T>, recurse, parent)
+  yield* collectNode<T>(node, visitor, recurse, parent)
 }
 
-function* collectNode<T>(node: Node, visitor: CollectVisitor<T>, recurse: boolean, parent: Node | undefined): Generator<T, void, undefined> {
+function* collectNode<T>(node: Node, visitor: VisitorOf<T>, recurse: boolean, parent: Node | undefined): Generator<T, void, undefined> {
   const v = applyVisitor<T>(node, visitor, parent)
   if (v != null) yield v
 

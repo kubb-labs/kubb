@@ -19,11 +19,7 @@ describe('createPrinter', () => {
     expect(printer.options).toStrictEqual({ strict: false })
   })
 
-  it('returns undefined when no node handler matches', () => {
-    expect(zodPrinter().print(createSchema({ type: 'string' }))).toBeNull()
-  })
-
-  it('dispatches print() to the matching node handler', () => {
+  it('dispatches print() to the matching node handler and returns null when none matches', () => {
     type P = PrinterFactoryOptions<'zod', object, string>
 
     const zodPrinter = createPrinter<P>(() => ({
@@ -64,44 +60,7 @@ describe('createPrinter', () => {
     expect(zodPrinter().print(createSchema({ type: 'string' }))).toBe('z.string()')
   })
 
-  it('supports recursive this.transform() for object properties', () => {
-    type P = PrinterFactoryOptions<'zod', object, string>
-
-    const zodPrinter = createPrinter<P>(() => ({
-      name: 'zod',
-      options: {},
-      nodes: {
-        string() {
-          return 'z.string()'
-        },
-        integer() {
-          return 'z.number()'
-        },
-        object(node) {
-          const props = node.properties.map((p) => `${p.name}: ${this.transform(p.schema)}`).join(', ')
-          return `z.object({ ${props} })`
-        },
-      },
-    }))
-
-    const node = createSchema({
-      type: 'object',
-      properties: [
-        createProperty({
-          name: 'id',
-          schema: createSchema({ type: 'integer' }),
-        }),
-        createProperty({
-          name: 'label',
-          schema: createSchema({ type: 'string' }),
-        }),
-      ],
-    })
-
-    expect(zodPrinter().print(node)).toBe('z.object({ id: z.number(), label: z.string() })')
-  })
-
-  it('supports recursive this.transform() for union members', () => {
+  it('transforms nested object properties and union members through this.transform()', () => {
     type P = PrinterFactoryOptions<'zod', object, string>
 
     const zodPrinter = createPrinter<P>(() => ({
@@ -114,6 +73,10 @@ describe('createPrinter', () => {
         number() {
           return 'z.number()'
         },
+        object(node) {
+          const props = node.properties.map((p) => `${p.name}: ${this.transform(p.schema)}`).join(', ')
+          return `z.object({ ${props} })`
+        },
         union(node) {
           const members = node.members?.map((m) => this.transform(m)).filter(Boolean) ?? []
           return `z.union([${members.join(', ')}])`
@@ -122,11 +85,20 @@ describe('createPrinter', () => {
     }))
 
     const node = createSchema({
-      type: 'union',
-      members: [createSchema({ type: 'string' }), createSchema({ type: 'number' })],
+      type: 'object',
+      properties: [
+        createProperty({
+          name: 'id',
+          schema: createSchema({ type: 'number' }),
+        }),
+        createProperty({
+          name: 'label',
+          schema: createSchema({ type: 'union', members: [createSchema({ type: 'string' }), createSchema({ type: 'number' })] }),
+        }),
+      ],
     })
 
-    expect(zodPrinter().print(node)).toBe('z.union([z.string(), z.number()])')
+    expect(zodPrinter().print(node)).toBe('z.object({ id: z.number(), label: z.union([z.string(), z.number()]) })')
   })
 
   it('dispatches overrides before nodes handlers', () => {
@@ -223,7 +195,7 @@ describe('createPrinter', () => {
     expect(zodPrinter().print(createSchema({ type: 'string' }))).toBe('z.string()')
   })
 
-  it('infers the Printer type correctly', () => {
+  it('returns a Printer typed by the factory name, options and output', () => {
     type P = PrinterFactoryOptions<'zod', object, string>
     const zodPrinter = createPrinter<P>(() => ({
       name: 'zod',

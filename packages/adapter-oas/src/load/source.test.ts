@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Diagnostics } from '@kubb/core'
+import { Diagnostics } from '@kubb/kit'
 import { assertInputExists, resolveSource } from './source.ts'
 
 function codeOf(error: unknown): string | undefined {

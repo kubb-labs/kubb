@@ -68,8 +68,6 @@
     "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@kubb/ast": "workspace:*",
-    "@kubb/core": "workspace:*",
     "@kubb/kit": "workspace:*",
     "@readme/openapi-parser": "^9.1.0",
     "@scalar/openapi-upgrader": "^0.4.2",

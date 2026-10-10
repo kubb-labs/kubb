@@ -14,40 +14,60 @@ const IDENTIFIER_RUN = /[\w$]+/g
  */
 const INDEX_ABOVE_IMPORTS = 128
 
+type ImportNameItem = string | { propertyName: string; name?: string }
+
+type FileMember = { name?: string | Array<unknown> | null; isTypeOnly?: boolean | null; path: string }
+
 /**
- * Every unbroken run of identifier characters in the source.
+ * Returns the local binding an import name item introduces: the alias when there is one, else the
+ * imported name.
  */
-function collectIdentifiers(source: string): Set<string> {
-  return new Set(source.match(IDENTIFIER_RUN))
-}
-
-function sourceKey(source: SourceNode): string {
-  const nameKey = source.name ?? extractStringsFromNodes(source.nodes)
-  return `${nameKey}:${source.isExportable ?? false}:${source.isTypeOnly ?? false}`
-}
-
-function pathTypeKey(path: string, isTypeOnly: boolean | null | undefined): string {
-  return `${path}:${isTypeOnly ?? false}`
-}
-
-function exportKey(path: string, name: string | null | undefined, isTypeOnly: boolean | null | undefined, asAlias: boolean | null | undefined): string {
-  return `${path}:${name ?? ''}:${isTypeOnly ?? false}:${asAlias ?? ''}`
-}
-
-function importKey(path: string, name: string | null | undefined, isTypeOnly: boolean | null | undefined): string {
-  return `${path}:${name ?? ''}:${isTypeOnly ?? false}`
+export function importLocalName(item: ImportNameItem): string {
+  return typeof item === 'string' ? item : (item.name ?? item.propertyName)
 }
 
 /**
  * Computes a multi-level sort key for exports and imports:
  * non-array names first (wildcards/namespace aliases). Type-only before value. Alphabetical path. Unnamed before named.
  */
-function sortKey(node: { name?: string | Array<unknown> | null; isTypeOnly?: boolean | null; path: string }): string {
+function sortKey(node: FileMember): string {
   const isArray = Array.isArray(node.name) ? '1' : '0'
   const typeOnly = node.isTypeOnly ? '0' : '1'
   const hasName = node.name != null ? '1' : '0'
   const name = Array.isArray(node.name) ? node.name.toSorted().join('\0') : (node.name ?? '')
   return `${isArray}:${typeOnly}:${node.path}:${hasName}:${name}`
+}
+
+/**
+ * Sorts members by {@link sortKey}. Keys are computed once per node, not per comparison.
+ */
+function sortMembers<TNode extends FileMember>(nodes: Array<TNode>): Array<TNode> {
+  return nodes
+    .map((node) => ({ node, key: sortKey(node) }))
+    .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
+    .map(({ node }) => node)
+}
+
+/**
+ * Returns a collector for array-named members. A member whose path and `isTypeOnly` were already
+ * seen folds its names into that entry, otherwise it joins `result` as a new entry.
+ */
+function mergeByPath<TNode extends FileMember>(result: Array<TNode>): (member: { node: TNode; names: Array<unknown> }) => void {
+  const byPath = new Map<string, TNode>()
+
+  return ({ node, names }) => {
+    const key = `${node.path}:${node.isTypeOnly ?? false}`
+    const existing = byPath.get(key)
+
+    if (existing && Array.isArray(existing.name)) {
+      existing.name = [...new Set([...existing.name, ...names])]
+      return
+    }
+
+    const item = { ...node, name: names }
+    result.push(item)
+    byPath.set(key, item)
+  }
 }
 
 /**
@@ -58,21 +78,11 @@ function sortKey(node: { name?: string | Array<unknown> | null; isTypeOnly?: boo
 export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
   const seen = new Map<string, SourceNode>()
   for (const source of sources) {
-    const key = sourceKey(source)
+    const nameKey = source.name ?? extractStringsFromNodes(source.nodes)
+    const key = `${nameKey}:${source.isExportable ?? false}:${source.isTypeOnly ?? false}`
     if (!seen.has(key)) seen.set(key, source)
   }
   return [...seen.values()]
-}
-
-/**
- * Merges `incoming` names into `existing`, preserving order and dropping duplicates.
- *
- * Shared by `combineExports` and `combineImports` for the same-path name-merge case.
- */
-function mergeNameArrays<TName>(existing: Array<TName>, incoming: Array<TName>): Array<TName> {
-  const merged = new Set(existing)
-  for (const name of incoming) merged.add(name)
-  return [...merged]
 }
 
 /**
@@ -83,37 +93,22 @@ function mergeNameArrays<TName>(existing: Array<TName>, incoming: Array<TName>):
  */
 export function combineExports(exports: Array<ExportNode>): Array<ExportNode> {
   const result: Array<ExportNode> = []
-  // Accumulates array-named exports keyed by `path:isTypeOnly` for name-merging
-  const namedByPath = new Map<string, ExportNode>()
+  const merge = mergeByPath(result)
   // Deduplicates non-array exports by their exact identity
   const seen = new Set<string>()
 
-  // Precompute sort keys once, avoids recomputing per comparison.
-  const keyed = exports.map((node) => ({ node, key: sortKey(node) }))
-  keyed.sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
-
-  for (const { node: curr } of keyed) {
+  for (const curr of sortMembers(exports)) {
     const { name, path, isTypeOnly, asAlias } = curr
 
     if (Array.isArray(name)) {
-      if (!name.length) continue
+      if (name.length) merge({ node: curr, names: [...new Set(name)] })
+      continue
+    }
 
-      const key = pathTypeKey(path, isTypeOnly)
-      const existing = namedByPath.get(key)
-
-      if (existing && Array.isArray(existing.name)) {
-        existing.name = mergeNameArrays(existing.name, name)
-      } else {
-        const newItem: ExportNode = { ...curr, name: [...new Set(name)] }
-        result.push(newItem)
-        namedByPath.set(key, newItem)
-      }
-    } else {
-      const key = exportKey(path, name, isTypeOnly, asAlias)
-      if (!seen.has(key)) {
-        result.push(curr)
-        seen.add(key)
-      }
+    const key = `${path}:${name ?? ''}:${isTypeOnly ?? false}:${asAlias ?? ''}`
+    if (!seen.has(key)) {
+      result.push(curr)
+      seen.add(key)
     }
   }
 
@@ -132,7 +127,7 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   // `createFile` re-runs on every merge into a file, so scanning the source once per import name
   // costs a heavily merged file that scan again for every fragment it already holds. Indexing pays
   // for itself there, and costs more than it saves on the small files the default output produces.
-  const identifiers = source && imports.length > INDEX_ABOVE_IMPORTS ? collectIdentifiers(source) : null
+  const identifiers = source && imports.length > INDEX_ABOVE_IMPORTS ? new Set(source.match(IDENTIFIER_RUN)) : null
 
   // A name in the index is used. One that is not still might be, inside a longer identifier, so the
   // substring test stays behind it.
@@ -140,8 +135,8 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
 
   // Memoize object import names so the same logical (propertyName, name) pair always
   // reuses the same object reference. Set-based deduplication then works correctly.
-  const importNameMemo = new Map<string, { propertyName: string; name?: string }>()
-  const canonicalizeName = (n: string | { propertyName: string; name?: string }): string | { propertyName: string; name?: string } => {
+  const importNameMemo = new Map<string, ImportNameItem>()
+  const canonicalizeName = (n: ImportNameItem): ImportNameItem => {
     if (typeof n === 'string') return n
     const key = `${n.propertyName}:${n.name ?? ''}`
     if (!importNameMemo.has(key)) importNameMemo.set(key, n)
@@ -153,50 +148,33 @@ export function combineImports(imports: Array<ImportNode>, exports: Array<Export
   // alongside `import type { Client } from <same path>`, where merged grouped output omits the body.
   const pathsWithUsedNamedImport = new Set<string>()
   for (const node of imports) {
-    if (!Array.isArray(node.name)) continue
-    if (node.name.some((item) => (typeof item === 'string' ? isUsed(item) : isUsed(item.name ?? item.propertyName)))) {
+    if (Array.isArray(node.name) && node.name.some((item) => isUsed(importLocalName(item)))) {
       pathsWithUsedNamedImport.add(node.path)
     }
   }
 
   const result: Array<ImportNode> = []
-  // Accumulates array-named imports keyed by `path:isTypeOnly` for name-merging
-  const namedByPath = new Map<string, ImportNode>()
+  const merge = mergeByPath(result)
   // Deduplicates non-array imports by their exact identity
   const seen = new Set<string>()
 
-  // Precompute sort keys once, avoids recomputing per comparison.
-  const keyed = imports.map((node) => ({ node, key: sortKey(node) }))
-  keyed.sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
-
-  for (const { node: curr } of keyed) {
+  for (const curr of sortMembers(imports)) {
     if (curr.path === curr.root) continue
 
-    const { path, isTypeOnly } = curr
-    let { name } = curr
+    const { name, path, isTypeOnly } = curr
 
     if (Array.isArray(name)) {
-      name = [...new Set(name.map(canonicalizeName))].filter((item) => (typeof item === 'string' ? isUsed(item) : isUsed(item.name ?? item.propertyName)))
-      if (!name.length) continue
+      const names = [...new Set(name.map(canonicalizeName))].filter((item) => isUsed(importLocalName(item)))
+      if (names.length) merge({ node: curr, names })
+      continue
+    }
 
-      const key = pathTypeKey(path, isTypeOnly)
-      const existing = namedByPath.get(key)
+    if (!isUsed(name) && !pathsWithUsedNamedImport.has(path)) continue
 
-      if (existing && Array.isArray(existing.name)) {
-        existing.name = mergeNameArrays(existing.name, name)
-      } else {
-        const newItem: ImportNode = { ...curr, name }
-        result.push(newItem)
-        namedByPath.set(key, newItem)
-      }
-    } else {
-      if (name && !isUsed(name) && !pathsWithUsedNamedImport.has(path)) continue
-
-      const key = importKey(path, name, isTypeOnly)
-      if (!seen.has(key)) {
-        result.push(curr)
-        seen.add(key)
-      }
+    const key = `${path}:${name}:${isTypeOnly ?? false}`
+    if (!seen.has(key)) {
+      result.push(curr)
+      seen.add(key)
     }
   }
 
