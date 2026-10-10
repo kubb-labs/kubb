@@ -34,10 +34,10 @@ import {
 } from '../protocol/index.ts'
 import { registerAgent } from '../operations/api.ts'
 import { agentDefaults, resolveAgentCapacity, resolveGenerationLimits } from '../operations/constants.ts'
-import { mergeAdapter, mergePlugins, toPackageName } from '../operations/resolveConfig.ts'
+import { mergeAdapter, mergePlugins, resolvePeerDependencies, toPackageName } from '../operations/resolveConfig.ts'
 import { RpcTarget } from 'capnweb'
-import { createGenerationStore, type GenerationStore } from '../operations/generations.ts'
-import { createGenerationStream, type GenerationEnd } from '../operations/generationEvents.ts'
+import { createGenerationStore, type GenerationStore, relativeStoragePath } from '../operations/generations.ts'
+import { createGenerationStream } from '../operations/generationEvents.ts'
 import { connectWebSocketRpc } from '../operations/rpc.ts'
 import { runGenerationOperation } from '../operations/generate.ts'
 
@@ -150,7 +150,6 @@ type ResolvedOptions = StudioSessionOptions & {
   studioUrl: string
   root: string
   permissions: AgentPermissions
-  retryInterval: number
   heartbeatInterval: number
   capacity: AgentCapacity
   instanceId: string
@@ -177,7 +176,6 @@ function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
     // `resolve` does on its own.
     configFile: path.resolve(root, options.configPath),
     permissions: { allowWrite: false, allowConfigEdit: false, allowExec: false, allowRead: false, ...options.permissions },
-    retryInterval: options.retryInterval ?? agentDefaults.retryIntervalMs,
     // Studio counts an agent offline once its last ping is older than its liveness window, so a
     // slower cadence would make a healthy agent invisible. Clamped here rather than in a host's
     // env parsing, so every host is held to the contract.
@@ -193,16 +191,10 @@ function applyStudioDefaults(options: StudioSessionOptions): ResolvedOptions {
  */
 const RUNTIME_MAX_CONCURRENT = 1
 
-const MB = 1024 * 1024
-
-function rssMb(): number {
-  return process.memoryUsage().rss / MB
-}
-
 /**
  * How a session ends: what the host is told, and whether it reconnects.
  */
-export type SessionEnd = {
+type SessionEnd = {
   reason: string
   retry: boolean
   /** Reported through `studio:error` when the end needs the user to act. */
@@ -255,8 +247,6 @@ export class StudioSession implements AgentApi {
    */
   #registration: AgentRegisterResponse | undefined
   #rpc: RpcConnection | undefined
-  // Returned with the session, so both sides can be named from the first RPC connection.
-  #studioVersion: string | undefined
 
   // Whether the session is over: guards the close event from tearing down twice, and a shutdown
   // from being turned into a reconnect.
@@ -267,8 +257,6 @@ export class StudioSession implements AgentApi {
   #isGenerating = false
   #activeJob: { jobId: string; cancel: () => Promise<void> } | undefined
   #heartbeatTimer: ReturnType<typeof setTimeout> | undefined
-  // Set by `kubb:generation:end`, filed into `#generations` once the job finishes.
-  #lastGeneration: GenerationEnd | undefined
   #store: GenerationStore | undefined
   readonly #limits = resolveGenerationLimits()
   /**
@@ -351,7 +339,6 @@ export class StudioSession implements AgentApi {
 
       signal?.throwIfAborted()
       this.#registration = registration
-      this.#studioVersion = registration.version
 
       const rpc = await (this.#options.connector ?? connectWebSocketRpc)({ url: registration.socketUrl, token, instanceId, local: this })
       this.#rpc = rpc
@@ -365,7 +352,7 @@ export class StudioSession implements AgentApi {
       this.#scheduleHeartbeat(heartbeatInterval)
       await this.#hooks.callHook('studio:connected', {
         url: studioUrl,
-        versions: { studio: this.#studioVersion, kubb: kubbVersion, agent: this.#options.version },
+        versions: { studio: registration.version, kubb: kubbVersion, agent: this.#options.version },
         agentSlug: registration.agentSlug,
         organizationSlug: registration.organizationSlug,
       })
@@ -394,6 +381,17 @@ export class StudioSession implements AgentApi {
   async #refuse(reason: string, message: string, permission?: keyof AgentPermissions): Promise<never> {
     await this.#warn(reason, permission)
     throw new Error(message)
+  }
+
+  /**
+   * Brackets one Studio command with `studio:command:start` and `studio:command:end`. A command
+   * that declined its request reports no `info`, and only the start is heard.
+   */
+  async #command<T>({ command, run }: { command: string; run: () => Promise<{ value: T; info?: string }> }): Promise<T> {
+    await this.#hooks.callHook('studio:command:start', { command })
+    const { value, info } = await run()
+    if (info !== undefined) await this.#hooks.callHook('studio:command:end', { command, info })
+    return value
   }
 
   #scheduleHeartbeat(interval: number): void {
@@ -436,7 +434,7 @@ export class StudioSession implements AgentApi {
   async #load(): Promise<AgentLoad> {
     return {
       running: this.#isGenerating ? 1 : 0,
-      rssMb: Math.round(rssMb()),
+      rssMb: Math.round(process.memoryUsage().rss / (1024 * 1024)),
       storeBytes: await this.#generations.bytes(),
       accepting: true,
     }
@@ -522,11 +520,7 @@ export class StudioSession implements AgentApi {
   }
 
   startGeneration(data: GenerateInput): GenerationRun {
-    const generationStream = createGenerationStream(this.#hooks, data.jobId, {
-      onGenerationEnd: (result) => {
-        this.#lastGeneration = result
-      },
-    })
+    const generationStream = createGenerationStream(this.#hooks, data.jobId)
     const controller = new AbortController()
     const cancelRun = async () => {
       controller.abort(new Error('Generation canceled'))
@@ -569,92 +563,84 @@ export class StudioSession implements AgentApi {
     this.#isGenerating = true
     this.#activeJob = { jobId: data.jobId, cancel: cancelRun }
 
-    const command = 'generate'
-    const { loadConfig, permissions } = this.#options
     let root = this.#options.root
 
     try {
       if (this.#isSandbox) root = await createJobRoot()
-      await this.#hooks.callHook('studio:command:start', { command })
-      const config = await loadConfig()
-      const patch = data.config
-      const plugins = await mergePlugins(config.plugins, patch?.plugins)
-      const adapter = await mergeAdapter(config.adapter, patch?.adapter)
-
-      // A sandbox agent always uses the inline spec (empty string included, since it has no disk
-      // file); a non-sandbox agent always reads its spec from disk.
-      const inputOverride = this.#isSandbox ? (patch?.input ?? '') : undefined
-
-      if (permissions.allowWrite && this.#isSandbox) {
-        await this.#warn('Running in a sandbox, so writing files is disabled')
-      }
-
-      if (patch?.input && !this.#isSandbox) {
-        await this.#warn('Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent')
-      }
-
-      const resolvedPlugins = plugins ?? config.plugins
-
-      // The session's own emitter carries the run: the host's logger is already on it from
-      // `connect`, and these two come off again below, so one run's listeners never see the next.
-      // Cleared up front, filled the moment `kubb:generation:end` fires.
-      this.#lastGeneration = undefined
-      const disk = await runGenerationOperation({
-        config: {
-          ...config,
-          root,
-          input: inputOverride ?? config.input,
-          storage: this.#canWrite ? fsStorage() : memoryStorage(),
-          output: permissions.allowExec ? { ...config.output } : { ...config.output, format: false, lint: false, postGenerate: [] },
-          plugins: resolvedPlugins,
-          adapter,
-        },
-        hooks: this.#hooks,
-        signal: controller.signal,
-        jobId: data.jobId,
-        store: this.#generations,
-        snapshotRoot: this.#hasProjectOnDisk ? root : undefined,
-        maxSnapshotMb: this.#limits.maxSnapshotMb,
-      })
-
-      await this.#hooks.callHook('studio:command:end', {
-        command,
-        info: `${resolvedPlugins.length} plugin${resolvedPlugins.length === 1 ? '' : 's'}, ${this.#canWrite ? 'written to disk' : 'in memory'}${inputOverride !== undefined ? ', from a Studio spec' : ''}`,
-      })
-
-      // The generate call above reassigns the field, but control flow analysis still sees the
-      // `= undefined` from this method and narrows it to `never`.
-      const generation = this.#lastGeneration as GenerationEnd | undefined
-      const output = generation
-        ? await this.#generations.keep({ jobId: data.jobId, source: 'output', files: generation.output, maxSetMb: this.#limits.maxMb })
-        : undefined
-      if (generation && output) {
-        if (!output.paths.length && Object.keys(output.hashes).length) {
-          await this.#warn('Kept only the hashes of this generation: its output is too large to keep')
-        }
-        const { peerDependencies, missingDependencies } = generation
-        await this.#generations.add({ jobId: data.jobId, output, disk, peerDependencies, missingDependencies })
-      }
-      const files = [...(generation?.output.paths ?? [])]
-      return {
-        status: 'success',
-        files,
-        fileCount: files.length,
-        hashes: output?.hashes ?? {},
-        disk: disk ? { hashes: disk.hashes } : undefined,
-      }
+      return await this.#command<GenerateResult>({ command: 'generate', run: () => this.#generate({ data, root, signal: controller.signal }) })
     } finally {
-      // The store holds its own copy by now. Without `allowWrite` this output is the in-memory
-      // storage with every generated file, so holding it until the next run wastes memory.
-      this.#lastGeneration = undefined
       if (root !== this.#options.root) await removeJobRoot(root)
       this.#isGenerating = false
     }
   }
 
-  async saveConfig(data: SaveConfigInput): Promise<SaveResult> {
-    const command = 'saveConfig'
-    await this.#hooks.callHook('studio:command:start', { command })
+  async #generate({ data, root, signal }: { data: GenerateInput; root: string; signal: AbortSignal }): Promise<{ value: GenerateResult; info: string }> {
+    const { loadConfig, permissions } = this.#options
+    const config = await loadConfig()
+    const patch = data.config
+    const plugins = await mergePlugins(config.plugins, patch?.plugins)
+    const adapter = await mergeAdapter(config.adapter, patch?.adapter)
+
+    // A sandbox agent always uses the inline spec (empty string included, since it has no disk
+    // file); a non-sandbox agent always reads its spec from disk.
+    const inputOverride = this.#isSandbox ? (patch?.input ?? '') : undefined
+
+    if (permissions.allowWrite && this.#isSandbox) {
+      await this.#warn('Running in a sandbox, so writing files is disabled')
+    }
+
+    if (patch?.input && !this.#isSandbox) {
+      await this.#warn('Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent')
+    }
+
+    const resolvedPlugins = plugins ?? config.plugins
+
+    const storage = this.#canWrite ? fsStorage() : memoryStorage()
+    // The session's own emitter carries the run: the host's logger is already on it from
+    // `connect`, and the stream's listeners come off again once the run ends, so one run's
+    // listeners never see the next.
+    const { disk, files } = await runGenerationOperation({
+      config: {
+        ...config,
+        root,
+        input: inputOverride ?? config.input,
+        storage,
+        output: permissions.allowExec ? { ...config.output } : { ...config.output, format: false, lint: false, postGenerate: [] },
+        plugins: resolvedPlugins,
+        adapter,
+      },
+      hooks: this.#hooks,
+      signal,
+      jobId: data.jobId,
+      store: this.#generations,
+      snapshotRoot: this.#hasProjectOnDisk ? root : undefined,
+      maxSnapshotMb: this.#limits.maxSnapshotMb,
+    })
+
+    const paths = new Set(files.map((file) => relativeStoragePath({ root, filePath: file.path })))
+    const output = await this.#generations.keep({ jobId: data.jobId, source: 'output', files: { storage, root, paths }, maxSetMb: this.#limits.maxMb })
+    if (!output.paths.length && Object.keys(output.hashes).length) {
+      await this.#warn('Kept only the hashes of this generation: its output is too large to keep')
+    }
+    const { peerDependencies, missingDependencies } = await resolvePeerDependencies(resolvedPlugins.map(({ name }) => name))
+    await this.#generations.add({ jobId: data.jobId, output, disk, peerDependencies, missingDependencies })
+    return {
+      value: {
+        status: 'success',
+        files: [...paths],
+        fileCount: paths.size,
+        hashes: output.hashes,
+        disk: disk ? { hashes: disk.hashes } : undefined,
+      },
+      info: `${resolvedPlugins.length} plugin${resolvedPlugins.length === 1 ? '' : 's'}, ${this.#canWrite ? 'written to disk' : 'in memory'}${inputOverride !== undefined ? ', from a Studio spec' : ''}`,
+    }
+  }
+
+  saveConfig(data: SaveConfigInput): Promise<SaveResult> {
+    return this.#command<SaveResult>({ command: 'saveConfig', run: () => this.#saveConfig(data) })
+  }
+
+  async #saveConfig(data: SaveConfigInput): Promise<{ value: SaveResult; info?: string }> {
     const { configPath, configFile } = this.#options
 
     // Every RPC call gets one result. `edits` is checked before it is walked because values cross
@@ -662,7 +648,7 @@ export class StudioSession implements AgentApi {
     if (!Array.isArray(data.edits)) {
       await this.#warn('Ignored save: the message carried no edits')
 
-      return { outcomes: [], changed: false }
+      return { value: { outcomes: [], changed: false } }
     }
 
     const edits = data.edits
@@ -671,13 +657,13 @@ export class StudioSession implements AgentApi {
     if (!this.#canEditConfig) {
       await this.#warn('Ignored save: editing kubb.config.ts was not granted')
 
-      return refuse('the agent was not granted permission to edit kubb.config.ts')
+      return { value: refuse('the agent was not granted permission to edit kubb.config.ts') }
     }
 
     // A generation reloads the config while it runs, so rewriting the file underneath it would
     // leave that run working from half the change.
     if (this.#isGenerating) {
-      return refuse('a generation is in progress')
+      return { value: refuse('a generation is in progress') }
     }
 
     try {
@@ -685,21 +671,24 @@ export class StudioSession implements AgentApi {
       const { source: patched, outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits })
 
       const applied = outcomes.filter((outcome) => outcome.applied).length
-      await this.#hooks.callHook('studio:command:end', { command, info: `applied ${applied}/${outcomes.length} edits to ${configPath}` })
-      return { outcomes, changed, file: changed ? await this.#readConfigFileView(patched) : undefined }
+      return {
+        value: { outcomes, changed, file: changed ? await this.#readConfigFileView(patched) : undefined },
+        info: `applied ${applied}/${outcomes.length} edits to ${configPath}`,
+      }
     } catch (error) {
       // An unreadable config, a read-only filesystem. Reported as a refusal of every edit so
       // Studio hears back rather than waiting on a reply that never comes.
       await this.#hooks.callHook('studio:error', { error: toError(error) })
 
-      return refuse(getErrorMessage(error))
+      return { value: refuse(getErrorMessage(error)) }
     }
   }
 
-  async publishSnapshot(data: PublishSnapshotInput): Promise<PublishSnapshotResult> {
-    const command = 'snapshot'
-    await this.#hooks.callHook('studio:command:start', { command })
+  publishSnapshot(data: PublishSnapshotInput): Promise<PublishSnapshotResult> {
+    return this.#command<PublishSnapshotResult>({ command: 'snapshot', run: () => this.#publishSnapshot(data) })
+  }
 
+  async #publishSnapshot(data: PublishSnapshotInput): Promise<{ value: PublishSnapshotResult; info: string }> {
     if (this.#isSandbox) {
       return this.#refuse('Ignored snapshot: a sandbox agent has no project to build a package from', 'A sandbox agent has no project to build a package from')
     }
@@ -732,11 +721,10 @@ export class StudioSession implements AgentApi {
       const { token, studioUrl, signal } = this.#options
       await uploadSnapshot({ bytes, uploadPath, studioUrl, token, shutdown: signal })
 
-      await this.#hooks.callHook('studio:command:end', {
-        command,
+      return {
+        value: { integrity, peerDependencies: generation.peerDependencies },
         info: `packed ${Object.keys(files).length} file${Object.keys(files).length === 1 ? '' : 's'}`,
-      })
-      return { integrity, peerDependencies: generation.peerDependencies }
+      }
     } catch (error) {
       await this.#hooks.callHook('studio:error', { error: toError(error) })
       throw error
@@ -748,10 +736,11 @@ export class StudioSession implements AgentApi {
     return !this.#isSandbox && this.#canRead
   }
 
-  async readFiles(data: ReadFilesInput): Promise<ReadFilesResult> {
-    const command = 'readFiles'
-    await this.#hooks.callHook('studio:command:start', { command })
+  readFiles(data: ReadFilesInput): Promise<ReadFilesResult> {
+    return this.#command<ReadFilesResult>({ command: 'readFiles', run: () => this.#readFiles(data) })
+  }
 
+  async #readFiles(data: ReadFilesInput): Promise<{ value: ReadFilesResult; info: string }> {
     if (!this.#canRead) {
       return this.#refuse('Ignored files: reading generated files was not granted', 'The agent was not granted permission to read generated files', 'allowRead')
     }
@@ -796,10 +785,6 @@ export class StudioSession implements AgentApi {
     // Only paths the set holds are read, never an arbitrary path.
     const result = await this.#generations.read({ generation, source, paths, cursor: data.cursor, limit: data.limit })
 
-    await this.#hooks.callHook('studio:command:end', {
-      command,
-      info: `read ${Object.keys(result.files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}`,
-    })
-    return result
+    return { value: result, info: `read ${Object.keys(result.files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}` }
   }
 }

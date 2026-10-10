@@ -3,7 +3,7 @@ import { read } from '@internals/utils'
 import { builders, detectCodeFormat, generateCode, parseModule } from 'magicast'
 import type { ASTNode, ProxifiedModule } from 'magicast'
 import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigRef, ConfigView, OptionValue, PluginView } from '../protocol/index.ts'
-import { isKubbPluginSpecifier, toExportName } from './resolveConfig.ts'
+import { isKubbPluginSpecifier, isOptionValue, toExportName } from './resolveConfig.ts'
 
 /**
  * A valid JavaScript identifier, so an import name can only ever print as `import { name } from`,
@@ -61,13 +61,6 @@ type ApplyResult = {
  * restores exactly those lines instead of scanning forward through whatever comments follow.
  */
 const DISABLED_MARKER = 'kubb:disabled'
-
-/**
- * The one line `disable-plugin` writes above the comment block it produces for `plugin`.
- */
-function formatMarker(plugin: string, lineCount: number, indent = ''): string {
-  return `${indent}// ${DISABLED_MARKER} ${plugin} ${lineCount}`
-}
 
 /**
  * The plugin and comment-block length a marker line names, when `line` is one.
@@ -324,24 +317,18 @@ function disabledMarkers(source: string): Array<{ packageName: string; line: num
  * ```
  */
 export function readConfig(source: string): ConfigFileView {
-  let mod: ProxifiedModule
-  try {
-    mod = parseModule(source)
-  } catch {
-    return { managed: false, reason: 'the config file could not be parsed' }
+  const parsed = parseConfigs(source)
+  if ('reason' in parsed) {
+    return { managed: false, reason: parsed.reason }
   }
 
-  const found = findConfigs(mod)
-  if ('reason' in found) {
-    return { managed: false, reason: found.reason }
-  }
-
+  const { mod, configs } = parsed
   const importNames = new Map([...importedFrom(mod)].map(([local, from]) => [from, local]))
   const disabled = disabledMarkers(source)
 
   return {
     managed: true,
-    configs: found.configs.map((config): ConfigView => {
+    configs: configs.map((config): ConfigView => {
       const plugins = pluginCalls(mod, config).map(({ importName, packageName, call }): PluginView => {
         const entries: PluginView['options'] = {}
         const options = call.arguments[0]
@@ -377,31 +364,6 @@ export function readConfig(source: string): ConfigFileView {
       return { name: configName(config), plugins }
     }),
   }
-}
-
-/**
- * Whether a value can be written into a config file as a literal.
- *
- * This is the trust boundary for edits that arrive over the agent WebSocket: a function, `undefined`,
- * or a non-finite number is refused rather than printed into the user's source.
- */
-export function isOptionValue(value: unknown): value is OptionValue {
-  if (value === null) {
-    return true
-  }
-  if (typeof value === 'string' || typeof value === 'boolean') {
-    return true
-  }
-  if (typeof value === 'number') {
-    return Number.isFinite(value)
-  }
-  if (Array.isArray(value)) {
-    return value.every(isOptionValue)
-  }
-  if (typeof value === 'object') {
-    return Object.values(value).every(isOptionValue)
-  }
-  return false
 }
 
 /**
@@ -580,7 +542,7 @@ function disablePlugin(source: string, mod: ProxifiedModule, config: ObjectNode,
 
   const indent = firstLine.match(/^\s*/)?.[0] ?? ''
   const commented = lines.slice(from, to + 1).map((line) => (line.trim() ? `${indent}// ${line.slice(indent.length)}` : indent ? `${indent}//` : '//'))
-  lines.splice(from, to - from + 1, formatMarker(plugin, commented.length, indent), ...commented)
+  lines.splice(from, to - from + 1, `${indent}// ${DISABLED_MARKER} ${plugin} ${commented.length}`, ...commented)
 
   return { source: lines.join('\n') }
 }
@@ -610,11 +572,9 @@ function enablePlugin(source: string, plugin: string): { source: string } | { re
 }
 
 /**
- * Re-parses `source` and resolves the config entry an edit targets. Every edit re-parses rather
- * than sharing one module across the batch, since the disable/enable edits rewrite `source` as
- * text and would otherwise leave the others working from a stale tree.
+ * Parses `source` and finds the config entries it exports.
  */
-function parseTarget(source: string, ref: ConfigRef | undefined): { mod: ProxifiedModule; config: ObjectNode } | { reason: string } {
+function parseConfigs(source: string): { mod: ProxifiedModule; configs: Array<ObjectNode> } | { reason: string } {
   let mod: ProxifiedModule
   try {
     mod = parseModule(source)
@@ -623,16 +583,26 @@ function parseTarget(source: string, ref: ConfigRef | undefined): { mod: Proxifi
   }
 
   const found = findConfigs(mod)
-  if ('reason' in found) {
-    return { reason: found.reason }
+  return 'reason' in found ? found : { mod, configs: found.configs }
+}
+
+/**
+ * Re-parses `source` and resolves the config entry an edit targets. Every edit re-parses rather
+ * than sharing one module across the batch, since the disable/enable edits rewrite `source` as
+ * text and would otherwise leave the others working from a stale tree.
+ */
+function parseTarget(source: string, ref: ConfigRef | undefined): { mod: ProxifiedModule; config: ObjectNode } | { reason: string } {
+  const parsed = parseConfigs(source)
+  if ('reason' in parsed) {
+    return parsed
   }
 
-  const config = selectConfig(found.configs, ref)
+  const config = selectConfig(parsed.configs, ref)
   if (!config) {
     return { reason: `no config entry found for ${JSON.stringify(ref)}` }
   }
 
-  return { mod, config }
+  return { mod: parsed.mod, config }
 }
 
 /**

@@ -1,9 +1,10 @@
 import { existsSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import type { Adapter, Plugin } from '@kubb/core'
 import { camelCase } from '@internals/utils'
-import type { JSONKubbConfig } from '../protocol/index.ts'
+import type { JSONKubbConfig, OptionValue } from '../protocol/index.ts'
 
 /**
  * Turns the JSON config Studio sends back into live Kubb objects.
@@ -147,6 +148,44 @@ export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugin
   )
 }
 
+type PackageJSON = {
+  version?: string
+}
+
+/** The installed version of each plugin's package, plus the names that could not be resolved. */
+export async function resolvePeerDependencies(names: Array<string>): Promise<{
+  peerDependencies: Record<string, string>
+  missingDependencies: Array<string>
+}> {
+  const require = createRequire(import.meta.url)
+  const uniqueNames = [...new Set(names.map(toPackageName))]
+  const peerDependencies: Record<string, string> = {}
+  const missingDependencies: Array<string> = []
+
+  const versions = await Promise.all(
+    uniqueNames.map(async (name) => {
+      try {
+        const path = require.resolve(`${name}/package.json`)
+        const packageJSON = JSON.parse(await readFile(path, 'utf8')) as PackageJSON
+        return packageJSON.version
+      } catch {
+        return undefined
+      }
+    }),
+  )
+
+  for (const [index, name] of uniqueNames.entries()) {
+    const version = versions[index]
+    if (version) {
+      peerDependencies[name] = version
+      continue
+    }
+    missingDependencies.push(name)
+  }
+
+  return { peerDependencies, missingDependencies }
+}
+
 /**
  * Whether `value` is an object literal or a null-prototype object, not an array or class instance.
  */
@@ -157,15 +196,15 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Whether `value` comes back unchanged from a JSON round trip. A function, a `RegExp` or another
- * class instance does not: the agent reports options to Studio as JSON, so what Studio sends back
- * for such a value is a lossy copy (`macros: [{ name }]` without its hooks, `pattern: {}`).
+ * Whether `value` survives a JSON round trip, so it can be printed into a config file as a literal.
+ * A function, `undefined`, a non-finite number or a class instance comes back from Studio as a
+ * lossy copy, so an edit carrying one is refused rather than written into the user's source.
  */
-function survivesJson(value: unknown): boolean {
+export function isOptionValue(value: unknown): value is OptionValue {
   if (value === null || typeof value === 'string' || typeof value === 'boolean') return true
   if (typeof value === 'number') return Number.isFinite(value)
-  if (Array.isArray(value)) return value.every(survivesJson)
-  if (isPlainObject(value)) return Object.values(value).every(survivesJson)
+  if (Array.isArray(value)) return value.every(isOptionValue)
+  if (isPlainObject(value)) return Object.values(value).every(isOptionValue)
 
   return false
 }
@@ -192,7 +231,7 @@ export function mergeOptions(disk: Record<string, unknown>, studio: Record<strin
       merged[key] = mergeOptions(current, value)
       continue
     }
-    if (current !== undefined && !survivesJson(current)) continue
+    if (current !== undefined && !isOptionValue(current)) continue
 
     merged[key] = value
   }
