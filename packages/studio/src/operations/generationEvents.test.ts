@@ -3,36 +3,21 @@ import { describe, expect, it } from 'vitest'
 import { createGenerationStream } from './generationEvents.ts'
 
 describe('Generation event stream', () => {
-  it('delivers events to a reader already waiting', async () => {
-    const hooks = new Hookable<KubbHooks>()
-    const generation = createGenerationStream(hooks, 'job-1')
-    const reading = generation.stream.getReader().read()
-
-    await hooks.callHook('kubb:info', { message: 'ready' })
-
-    await expect(reading).resolves.toMatchObject({ value: { type: 'kubb:info' } })
-    await generation.close()
-  })
-
-  it('serializes errors and ignores core hooks outside the public catalog', async () => {
+  it('serializes an error for a waiting reader and skips core hooks outside the public catalog', async () => {
     const hooks = new Hookable<KubbHooks>()
     const generation = createGenerationStream(hooks, 'job-1')
     const reader = generation.stream.getReader()
+    const reading = reader.read()
 
-    await hooks.callHook('kubb:error', { error: new Error('broken') })
     await hooks.callHook('kubb:setup:start')
-    const eventPromise = reader.read()
+    await hooks.callHook('kubb:error', { error: new Error('broken') })
     await generation.close()
-    const event = await eventPromise
 
-    expect(event.value).toEqual(
-      expect.objectContaining({
-        version: 1,
-        jobId: 'job-1',
-        type: 'kubb:error',
-        data: [{ message: 'broken', stack: expect.any(String) }],
-      }),
-    )
+    await expect(reading).resolves.toStrictEqual({
+      done: false,
+      value: { version: 1, jobId: 'job-1', type: 'kubb:error', data: [{ message: 'broken', stack: expect.any(String) }], timestamp: expect.any(Number) },
+    })
+    await expect(reader.read()).resolves.toStrictEqual({ done: true, value: undefined })
   })
 
   it('keeps errors when progress fills the event queue', async () => {

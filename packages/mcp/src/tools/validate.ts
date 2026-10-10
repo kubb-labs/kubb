@@ -1,8 +1,13 @@
+import { adapterOas } from '@kubb/adapter-oas'
 import { Diagnostics } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
-import { validateSchema } from '../schemas/validateSchema.ts'
+import * as v from 'valibot'
 import { formatDiagnostics } from '../utils.ts'
+
+const validateSchema = v.object({
+  input: v.pipe(v.string(), v.minLength(1), v.description('Path or URL to the OpenAPI/Swagger specification')),
+})
 
 export const validateTool = defineTool(
   {
@@ -11,14 +16,8 @@ export const validateTool = defineTool(
     schema: validateSchema,
   },
   async ({ input }) => {
-    let mod: typeof import('@kubb/adapter-oas')
     try {
-      mod = await import('@kubb/adapter-oas')
-    } catch {
-      return tool.error('The validate tool requires @kubb/adapter-oas.\nInstall: npm install @kubb/adapter-oas')
-    }
-    try {
-      await mod.adapterOas().validate(input, { throwOnError: true })
+      await adapterOas().validate(input, { throwOnError: true })
       return tool.text(`Validation successful: ${input}`)
     } catch (err) {
       const serialized = Diagnostics.serialize(Diagnostics.from(err))
