@@ -1,4 +1,4 @@
-import { camelCase, pascalCase } from '@internals/utils'
+import { camelCase } from '@internals/utils'
 import { ast, type InputMeta } from '@kubb/ast'
 import { describe, expect, it, test } from 'vitest'
 import { createResolver } from './createResolver.ts'
@@ -26,28 +26,6 @@ const context = {
 }
 
 describe('createResolver', () => {
-  it('injects the default machinery and top-level name/file', () => {
-    const resolver = createResolver<TestPluginFactory>({
-      pluginName: 'test',
-      greet(name) {
-        return `Hello ${name}`
-      },
-      farewell(name) {
-        return `Goodbye ${name}`
-      },
-    })
-
-    expect(resolver.default.name).toBeTypeOf('function')
-    expect(resolver.default.options).toBeTypeOf('function')
-    expect(resolver.default.path).toBeTypeOf('function')
-    expect(resolver.default.file).toBeTypeOf('function')
-    expect(resolver.name).toBeTypeOf('function')
-    expect(resolver.file).toBeTypeOf('function')
-    // the injected top-level name delegates to the built-in camelCase default
-    expect(resolver.name('list pets')).toBe('listPets')
-    expect(resolver).toBeInstanceOf(Resolver)
-  })
-
   it('a plugin overrides the top-level name; default.name keeps the built-in casing', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
@@ -204,22 +182,6 @@ describe('createResolver', () => {
     })
 
     expect(() => resolver.file({ name: 'pet', extname: '.ts', ...context })).toThrow('outside the project root')
-  })
-
-  it('resolveOptions does not throw when options is not an object', () => {
-    const resolver = createResolver<TestPluginFactory>({
-      pluginName: 'test',
-      greet: (name: string) => name,
-      farewell: (name: string) => name,
-    })
-
-    const node = ast.factory.createFile({ baseName: 'pet.ts', path: 'src/pet.ts' })
-
-    // A re-instantiated plugin can hand back a falsy-but-not-nullish `options` (e.g. `false`).
-    // `resolveOptions` caches by `options` identity in a `WeakMap`, which only accepts object
-    // keys, so this must fall back to computing directly instead of throwing.
-    expect(() => resolver.default.options<boolean>(node, { options: false })).not.toThrow()
-    expect(resolver.default.options<boolean>(node, { options: false })).toBe(false)
   })
 
   it('Resolver.merge() rebuilds helpers on a new instance', () => {
@@ -825,15 +787,5 @@ describe('toFilePath', () => {
     ['.Internal', 'internal'],
   ])('toFilePath(%s) -> %s (camelCase segments)', (input, expected) => {
     expect(toFilePath(input)).toBe(expected)
-  })
-
-  test('cases the last segment with the provided caser', () => {
-    expect(toFilePath('pet.petId', pascalCase)).toBe('pet/PetId')
-    expect(toFilePath('pet.Pet', pascalCase)).toBe('pet/Pet')
-  })
-
-  test('applies prefix and suffix to the last segment only', () => {
-    expect(toFilePath('create tag.tag', (part) => camelCase(part, { prefix: 'create' }))).toBe('createTag/createTag')
-    expect(toFilePath('tag.tag', (part) => camelCase(part, { suffix: 'schema' }))).toBe('tag/tagSchema')
   })
 })

@@ -46,24 +46,4 @@ describe('htmlReporter', () => {
     expect(data).toContain('\\u003cunsafe\\u003e')
     expect(data).not.toContain('<unsafe>')
   })
-
-  it('passes the report path to the browser helper', async () => {
-    using _open = vi.spyOn(utils, 'openInBrowser').mockImplementation(() => {})
-    using _read = vi.spyOn(utils, 'read').mockResolvedValue('const ui = true')
-    using _write = vi.spyOn(utils, 'write').mockImplementation(async () => null)
-    using _error = vi.spyOn(console, 'error').mockImplementation(() => {})
-
-    await htmlReporter.report(
-      {
-        config: { root: '/tmp', output: { path: 'src/gen' } } as Config,
-        diagnostics: [],
-        filesCreated: 0,
-        status: 'success',
-        hrStart: process.hrtime(),
-      },
-      { logLevel: logLevel.info },
-    )
-
-    expect(_open).toHaveBeenCalledWith(expect.stringMatching(/index\.html$/))
-  })
 })

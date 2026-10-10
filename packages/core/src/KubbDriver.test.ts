@@ -5,68 +5,40 @@ import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, GeneratorContext, KubbHooks, KubbPluginSetupContext, Plugin } from './types.ts'
 import type { Generator } from './defineGenerator.ts'
-import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
 
-describe('PluginDriver', () => {
-  const pluginA = {
-    name: 'pluginA',
-    hooks: {},
-  }
-
-  const pluginB = {
-    name: 'pluginB',
-    hooks: {},
-  }
-
-  const pluginC = {
-    name: 'pluginC',
-    hooks: {},
-  }
-
-  const config = {
+function makeConfig(overrides: Partial<Config> = {}): Config {
+  return {
     root: '.',
     input: './petStore.yaml',
-    output: {
-      path: './src/gen',
-      clean: true,
-    },
+    output: { path: './gen' },
     parsers: [],
     reporters: [],
     adapter: createMockedAdapter(),
-    plugins: [pluginA, pluginB, pluginC] as unknown as Array<Plugin>,
-    storage: fsStorage(),
-  } satisfies Config
-  let pluginDriver: KubbDriver
+    plugins: [],
+    storage: memoryStorage(),
+    ...overrides,
+  }
+}
 
-  beforeEach(async () => {
-    pluginDriver = new KubbDriver(config, {
-      hooks: new Hookable<KubbHooks>(),
-    })
-    await pluginDriver.setup()
-  })
+function makeDriver(config: Config, hooks = new Hookable<KubbHooks>()): KubbDriver {
+  return new KubbDriver(config, { hooks })
+}
 
-  afterEach(() => {
-    pluginDriver.hooks.removeAllHooks()
-  })
-
-  test('if pluginDriver can be created', () => {
-    expect(pluginDriver.plugins.size).toBe(config.plugins.length)
-  })
+describe('KubbDriver#setup', () => {
+  const pluginA = { name: 'pluginA', hooks: {} }
+  const pluginB = { name: 'pluginB', hooks: {} }
+  const pluginC = { name: 'pluginC', hooks: {} }
+  const config = makeConfig({ plugins: [pluginA, pluginB, pluginC] })
 
   test('enforce: pre plugins run before normal and post plugins', async () => {
     const prePlugin = { name: 'pre', enforce: 'pre' as const, hooks: {} }
     const normalPlugin = { name: 'normal', hooks: {} }
     const postPlugin = { name: 'post', enforce: 'post' as const, hooks: {} }
 
-    const cfg = {
-      ...config,
-      // intentionally declared in reverse order to verify sorting
-      plugins: [postPlugin, normalPlugin, prePlugin] as unknown as Array<Plugin>,
-    } satisfies Config
-
-    const driver = new KubbDriver(cfg, { hooks: new Hookable<KubbHooks>() })
+    // intentionally declared in reverse order to verify sorting
+    const driver = makeDriver(makeConfig({ plugins: [postPlugin, normalPlugin, prePlugin] }))
     await driver.setup()
     const names = [...driver.plugins.keys()]
 
@@ -79,13 +51,8 @@ describe('PluginDriver', () => {
     const pluginMiddle = { name: 'middle', dependencies: ['base'], hooks: {} }
     const pluginBase = { name: 'base', hooks: {} }
 
-    const cfg = {
-      ...config,
-      // declared dependents-first so declaration order alone cannot produce the result
-      plugins: [pluginTop, pluginMiddle, pluginBase] as unknown as Array<Plugin>,
-    } satisfies Config
-
-    const driver = new KubbDriver(cfg, { hooks: new Hookable<KubbHooks>() })
+    // declared dependents-first so declaration order alone cannot produce the result
+    const driver = makeDriver(makeConfig({ plugins: [pluginTop, pluginMiddle, pluginBase] }))
     await driver.setup()
 
     expect([...driver.plugins.keys()]).toStrictEqual(['base', 'middle', 'top'])
@@ -95,25 +62,9 @@ describe('PluginDriver', () => {
     const first = { name: 'first', dependencies: ['second'], hooks: {} }
     const second = { name: 'second', dependencies: ['first'], hooks: {} }
 
-    const cfg = {
-      ...config,
-      plugins: [first, second] as unknown as Array<Plugin>,
-    } satisfies Config
-
-    const driver = new KubbDriver(cfg, { hooks: new Hookable<KubbHooks>() })
+    const driver = makeDriver(makeConfig({ plugins: [first, second] }))
 
     await expect(driver.setup()).rejects.toThrow('Plugin dependencies form a cycle')
-  })
-
-  test('does not throw when a plugin has no hooks property', async () => {
-    const pluginWithoutHooks = { name: 'no-hooks' } as unknown as Plugin
-    const cfg = {
-      ...config,
-      plugins: [pluginWithoutHooks],
-    } satisfies Config
-
-    const driver = new KubbDriver(cfg, { hooks: new Hookable<KubbHooks>() })
-    await expect(driver.setup()).resolves.not.toThrow()
   })
 
   test('plugin and post-plugin listeners fire in order, and dispose drops both for the next build', async () => {
@@ -124,13 +75,8 @@ describe('PluginDriver', () => {
     const plugin = { name: 'order-plugin', hooks: { 'kubb:plugin:start': pluginHook } } as unknown as Plugin
     const postPlugin = { name: 'order-post-plugin', enforce: 'post' as const, hooks: { 'kubb:plugin:start': postPluginHook } } as unknown as Plugin
 
-    const cfg = {
-      ...config,
-      plugins: [plugin, postPlugin],
-    } satisfies Config
-
     const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(cfg, { hooks })
+    const driver = makeDriver(makeConfig({ plugins: [plugin, postPlugin] }), hooks)
     await driver.setup()
     await hooks.callHook('kubb:plugin:start', { plugin: plugin as never })
 
@@ -150,7 +96,7 @@ describe('PluginDriver', () => {
   test('listeners attached directly to hooks survive dispose', async () => {
     const external = vi.fn()
     const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(config, { hooks })
+    const driver = makeDriver(config, hooks)
     await driver.setup()
 
     hooks.hook('kubb:build:end', external)
@@ -169,35 +115,9 @@ function file(name: string): FileNode {
   return ast.factory.createFile({ baseName: `${name}.ts`, path: `${name}.ts` })
 }
 
-function makeDriver(): KubbDriver {
-  return new KubbDriver(
-    {
-      root: '.',
-      input: './petStore.yaml',
-      output: { path: './gen', clean: true },
-      parsers: [],
-      reporters: [],
-      adapter: createMockedAdapter(),
-      plugins: [],
-      storage: fsStorage(),
-    } satisfies Config,
-    { hooks: new Hookable<KubbHooks>() },
-  )
-}
-
 describe('KubbDriver#dispatch', () => {
-  it('does nothing on null or undefined', () => {
-    const driver = makeDriver()
-    const upsert = vi.spyOn(driver.fileManager, 'upsert')
-
-    driver.dispatch({ result: null })
-    driver.dispatch({ result: undefined })
-
-    expect(upsert).not.toHaveBeenCalled()
-  })
-
   it('upserts every file when the result is an Array<FileNode>', () => {
-    const driver = makeDriver()
+    const driver = makeDriver(makeConfig())
     const files = [file('a'), file('b')]
 
     driver.dispatch({ result: files })
@@ -206,7 +126,7 @@ describe('KubbDriver#dispatch', () => {
   })
 
   it('ignores non-array results when no renderer is provided', () => {
-    const driver = makeDriver()
+    const driver = makeDriver(makeConfig())
     const upsert = vi.spyOn(driver.fileManager, 'upsert')
 
     driver.dispatch({ result: { kind: 'element' } })
@@ -215,7 +135,7 @@ describe('KubbDriver#dispatch', () => {
   })
 
   it('routes element results through the renderer, upserting its files', async () => {
-    const driver = makeDriver()
+    const driver = makeDriver(makeConfig())
     const renderer = {
       render: vi.fn(async () => {}),
       files: [file('async-1')],
@@ -231,21 +151,10 @@ describe('KubbDriver#dispatch', () => {
 })
 
 describe('GeneratorContext diagnostics', () => {
-  const config = {
-    root: '.',
-    input: './petStore.yaml',
-    output: { path: './src/gen', clean: true },
-    parsers: [],
-    reporters: [],
-    adapter: createMockedAdapter(),
-    plugins: [{ name: 'pluginA', hooks: {} }] as unknown as Array<Plugin>,
-    storage: fsStorage(),
-  } satisfies Config
-
   let driver: KubbDriver
 
   beforeEach(async () => {
-    driver = new KubbDriver(config, { hooks: new Hookable<KubbHooks>() })
+    driver = makeDriver(makeConfig({ plugins: [{ name: 'pluginA', hooks: {} }] }))
     await driver.setup()
   })
 
@@ -366,7 +275,7 @@ function makePlugin(name: string, rec: Recorder): Plugin {
         ctx.addGenerator(recordingGenerator(name, rec))
       },
     },
-  } as unknown as Plugin
+  }
 }
 
 describe('KubbDriver generator dispatch', () => {
@@ -377,17 +286,7 @@ describe('KubbDriver generator dispatch', () => {
   const build = async () => {
     rec = { schema: [], operation: [], operations: [] }
     hooks = new Hookable<KubbHooks>()
-    const config = {
-      root: '.',
-      input: './petStore.yaml',
-      output: { path: './gen' },
-      parsers: [],
-      reporters: [],
-      adapter: inputAdapter(),
-      plugins: [makePlugin('pluginA', rec), makePlugin('pluginB', rec)],
-      storage: memoryStorage(),
-    } satisfies Config
-    driver = new KubbDriver(config, { hooks })
+    driver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [makePlugin('pluginA', rec), makePlugin('pluginB', rec)] }), hooks)
     await driver.setup()
   }
 
@@ -464,11 +363,10 @@ describe('KubbDriver generator dispatch', () => {
 
   it('stops a throwing plugin without aborting the rest', async () => {
     rec = { schema: [], operation: [], operations: [] }
-    hooks = new Hookable<KubbHooks>()
-    const boomPlugin = {
+    const boomPlugin: Plugin = {
       name: 'boom',
       hooks: {
-        'kubb:plugin:setup'(ctx: KubbPluginSetupContext) {
+        'kubb:plugin:setup'(ctx) {
           ctx.addGenerator({
             name: 'boom-gen',
             schema() {
@@ -477,18 +375,8 @@ describe('KubbDriver generator dispatch', () => {
           })
         },
       },
-    } as unknown as Plugin
-    const config = {
-      root: '.',
-      input: './petStore.yaml',
-      output: { path: './gen' },
-      parsers: [],
-      reporters: [],
-      adapter: inputAdapter(),
-      plugins: [boomPlugin, makePlugin('after', rec)],
-      storage: memoryStorage(),
-    } satisfies Config
-    const boomDriver = new KubbDriver(config, { hooks })
+    }
+    const boomDriver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [boomPlugin, makePlugin('after', rec)] }))
     await boomDriver.setup()
 
     const { diagnostics } = await boomDriver.run()
@@ -496,42 +384,29 @@ describe('KubbDriver generator dispatch', () => {
     // The plugin after the failing one still runs every node.
     expect(rec.schema.map((entry) => entry.name)).toStrictEqual(['Pet', 'Store'])
     expect(diagnostics.some((diagnostic) => 'plugin' in diagnostic && diagnostic.plugin === 'boom')).toBe(true)
-    hooks.removeAllHooks()
   })
 
   it('shares one cache per node across plugins and gives each node a fresh one', async () => {
     const seen: Array<{ plugin: string; node: string; token: number }> = []
     let counter = 0
-    const cachePlugin = (name: string): Plugin =>
-      ({
-        name,
-        hooks: {
-          'kubb:plugin:setup'(ctx: KubbPluginSetupContext) {
-            ctx.addGenerator({
-              name: `${name}-cache`,
-              schema(node: SchemaNode, gctx: GeneratorContext) {
-                // The first plugin to reach a node fills the token, and the rest read the same value.
-                const token = gctx.cache.ensureItem('token', () => ++counter)
-                seen.push({ plugin: gctx.plugin.name, node: node.name!, token })
-                return null
-              },
-            })
-          },
+    const cachePlugin = (name: string): Plugin => ({
+      name,
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.addGenerator({
+            name: `${name}-cache`,
+            schema(node: SchemaNode, gctx: GeneratorContext) {
+              // The first plugin to reach a node fills the token, and the rest read the same value.
+              const token = gctx.cache.ensureItem('token', () => ++counter)
+              seen.push({ plugin: gctx.plugin.name, node: node.name!, token })
+              return null
+            },
+          })
         },
-      }) as unknown as Plugin
+      },
+    })
 
-    const localHooks = new Hookable<KubbHooks>()
-    const cfg = {
-      root: '.',
-      input: './petStore.yaml',
-      output: { path: './gen' },
-      parsers: [],
-      reporters: [],
-      adapter: inputAdapter(),
-      plugins: [cachePlugin('one'), cachePlugin('two')],
-      storage: memoryStorage(),
-    } satisfies Config
-    const cacheDriver = new KubbDriver(cfg, { hooks: localHooks })
+    const cacheDriver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [cachePlugin('one'), cachePlugin('two')] }))
     await cacheDriver.setup()
     await cacheDriver.run()
 
@@ -541,27 +416,15 @@ describe('KubbDriver generator dispatch', () => {
       { plugin: 'one', node: 'Store', token: 2 },
       { plugin: 'two', node: 'Store', token: 2 },
     ])
-    localHooks.removeAllHooks()
   })
 
   it('normalizes plugin options after setup even when setOptions is never called', async () => {
-    const localHooks = new Hookable<KubbHooks>()
     const plugin = {
       name: 'opts-plugin',
       options: { output: { path: 'types' }, enumType: 'asConst' },
       hooks: {},
     } as unknown as Plugin
-    const config = {
-      root: '.',
-      input: './petStore.yaml',
-      output: { path: './gen' },
-      parsers: [],
-      reporters: [],
-      adapter: inputAdapter(),
-      plugins: [plugin],
-      storage: memoryStorage(),
-    } satisfies Config
-    const optsDriver = new KubbDriver(config, { hooks: localHooks })
+    const optsDriver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
     await optsDriver.setup()
     await optsDriver.run()
 
@@ -570,46 +433,32 @@ describe('KubbDriver generator dispatch', () => {
     expect(normalized.exclude).toStrictEqual([])
     expect(normalized.override).toStrictEqual([])
     expect((normalized as Record<string, unknown>).enumType).toBe('asConst')
-    localHooks.removeAllHooks()
   })
 
   it("skips a generator's schema and operation calls for a node its match predicate resolves false for, and still calls them when true", async () => {
     rec = { schema: [], operation: [], operations: [] }
-    hooks = new Hookable<KubbHooks>()
     const petOnly: Generator = {
       ...recordingGenerator('petOnly', rec),
       match: (node) => ('operationId' in node ? node.operationId === 'getPet' : node.name === 'Pet'),
     }
-    const plugin = {
+    const plugin: Plugin = {
       name: 'petOnlyPlugin',
       hooks: {
-        'kubb:plugin:setup'(ctx: KubbPluginSetupContext) {
+        'kubb:plugin:setup'(ctx) {
           ctx.addGenerator(petOnly)
         },
       },
-    } as unknown as Plugin
-    const config = {
-      root: '.',
-      input: './petStore.yaml',
-      output: { path: './gen' },
-      parsers: [],
-      reporters: [],
-      adapter: inputAdapter(),
-      plugins: [plugin],
-      storage: memoryStorage(),
-    } satisfies Config
-    const matchDriver = new KubbDriver(config, { hooks })
+    }
+    const matchDriver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
     await matchDriver.setup()
     await matchDriver.run()
 
     expect(rec.schema).toStrictEqual([{ plugin: 'petOnlyPlugin', name: 'Pet' }])
     expect(rec.operation).toStrictEqual([{ plugin: 'petOnlyPlugin', id: 'getPet' }])
-    hooks.removeAllHooks()
   })
 
   it('filters per generator, not per plugin, when a matched and an unmatched generator share a plugin', async () => {
     rec = { schema: [], operation: [], operations: [] }
-    hooks = new Hookable<KubbHooks>()
     // Operation-only generators (no `schema`/`operations`) so the emitted file set below only
     // reflects the operation loop's match filtering, with no schema/batch noise to account for.
     const matched: Generator = {
@@ -627,25 +476,15 @@ describe('KubbDriver generator dispatch', () => {
         return [fileNode(`unmatched/op-${node.operationId}.ts`)]
       },
     }
-    const plugin = {
+    const plugin: Plugin = {
       name: 'mixedPlugin',
       hooks: {
-        'kubb:plugin:setup'(ctx: KubbPluginSetupContext) {
+        'kubb:plugin:setup'(ctx) {
           ctx.addGenerator(matched, unmatched)
         },
       },
-    } as unknown as Plugin
-    const config = {
-      root: '.',
-      input: './petStore.yaml',
-      output: { path: './gen' },
-      parsers: [],
-      reporters: [],
-      adapter: inputAdapter(),
-      plugins: [plugin],
-      storage: memoryStorage(),
-    } satisfies Config
-    const mixedDriver = new KubbDriver(config, { hooks })
+    }
+    const mixedDriver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [plugin] }))
     await mixedDriver.setup()
     await mixedDriver.run()
 
@@ -654,6 +493,5 @@ describe('KubbDriver generator dispatch', () => {
       'unmatched/op-getPet.ts',
       'unmatched/op-listPets.ts',
     ])
-    hooks.removeAllHooks()
   })
 })

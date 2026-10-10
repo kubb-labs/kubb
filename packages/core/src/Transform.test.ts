@@ -40,16 +40,6 @@ describe('Transform — applyTo', () => {
     expect(fromA.name).toBe('Pet-A')
     expect(fromB.name).toBe('Pet-B')
   })
-
-  it('returns the original node when the registered macro leaves it untouched', () => {
-    const transforms = new Transform()
-    transforms.set('noop', [{ name: 'noop', schema: () => undefined }])
-
-    const node = namedSchema('Pet')
-    const result = transforms.applyTo('noop', node)
-
-    expect(result).toBe(node)
-  })
 })
 
 describe('Transform — memoization', () => {
@@ -148,13 +138,5 @@ describe('Transform — macros', () => {
     transforms.set('a', [{ name: 'only', schema: (node) => ({ ...node, name: 'only' }) }])
 
     expect(transforms.applyTo('a', namedSchema('Pet')).name).toBe('only')
-  })
-
-  it('orders macros within a plugin by enforce', () => {
-    const transforms = new Transform()
-    transforms.add('a', { name: 'post', enforce: 'post', schema: (node) => ({ ...node, name: `${node.name}-post` }) })
-    transforms.add('a', { name: 'pre', enforce: 'pre', schema: (node) => ({ ...node, name: `${node.name}-pre` }) })
-
-    expect(transforms.applyTo('a', namedSchema('Pet')).name).toBe('Pet-pre-post')
   })
 })

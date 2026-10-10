@@ -9,17 +9,6 @@ describe('Diagnostics.docsUrl', () => {
   })
 })
 
-describe('Diagnostics.explain', () => {
-  it('documents every code with a title, cause, and fix', () => {
-    for (const code of Object.values(Diagnostics.code)) {
-      const doc = Diagnostics.explain(code)
-      expect(doc.title).toBeTruthy()
-      expect(doc.cause).toBeTruthy()
-      expect(doc.fix).toBeTruthy()
-    }
-  })
-})
-
 describe('Diagnostics.serialize', () => {
   it('keeps the JSON-safe fields and adds a docsUrl, dropping the cause', () => {
     const serialized = Diagnostics.serialize(

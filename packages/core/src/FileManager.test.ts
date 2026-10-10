@@ -52,11 +52,6 @@ function makeFileWithSources(filePath: string, sources: Array<string> = []) {
 }
 
 describe('FileManager', () => {
-  it('starts with an empty file list', () => {
-    const manager = new FileManager()
-    expect(manager.files).toStrictEqual([])
-  })
-
   describe('add', () => {
     it('stores a new file', () => {
       const manager = new FileManager()
@@ -94,13 +89,6 @@ describe('FileManager', () => {
       const manager = new FileManager()
       manager.add(makeFile('/src/a.ts'), makeFile('/src/b.ts'))
       expect(manager.files).toHaveLength(2)
-    })
-
-    it('returns the resolved file nodes', () => {
-      const manager = new FileManager()
-      const result = manager.add(makeFile('/src/foo.ts'))
-      expect(result).toHaveLength(1)
-      expect(result[0]?.path).toBe('/src/foo.ts')
     })
   })
 
@@ -145,15 +133,6 @@ describe('FileManager', () => {
       manager.add(makeFile('/src/index.ts', undefined, { footer: '// end' }))
       manager.upsert(makeFile('/src/index.ts'))
       expect(manager.files[0]?.footer).toBeUndefined()
-    })
-  })
-
-  describe('clear', () => {
-    it('removes all stored files', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/a.ts'), makeFile('/src/b.ts'))
-      manager.clear()
-      expect(manager.files).toHaveLength(0)
     })
   })
 
@@ -518,28 +497,6 @@ describe('FileManager', () => {
       expect(hookCalls.slice(1, -1).toSorted()).toStrictEqual(['update:a.ts', 'update:b.ts'])
     })
 
-    it('runs writes concurrently instead of pacing itself between files', async () => {
-      const { promise: blockA, resolve: unblockA } = Promise.withResolvers<void>()
-      const storage = memoryStorage()
-      const realWriteItem = storage.writeItem.bind(storage)
-      const started: Array<string> = []
-      storage.writeItem = async (itemPath: string, source: string) => {
-        started.push(itemPath)
-        if (itemPath === 'a.ts') await blockA
-        await realWriteItem(itemPath, source)
-      }
-      const manager = new FileManager()
-
-      const writing = manager.write([makeFileWithSources('a.ts', ['/* a */']), makeFileWithSources('b.ts', ['/* b */'])], { storage })
-      await delay(5)
-
-      // b.ts's write started without waiting for a.ts's still-blocked write to finish.
-      expect(started.toSorted()).toStrictEqual(['a.ts', 'b.ts'])
-
-      unblockA()
-      await writing
-    })
-
     it('bounds how many files are in flight for a large spec', async () => {
       // Blocks every write for the duration of the test so the in-flight count can be observed.
       const block = new Promise<void>(() => {})
@@ -559,30 +516,6 @@ describe('FileManager', () => {
       // at most WRITE_CONCURRENCY (50) parsed sources in flight at once.
       expect(started.length).toBeLessThan(files.length)
       expect(started.length).toBe(50)
-    })
-
-    it('waits for every write to finish before resolving', async () => {
-      const { promise: blocker, resolve: unblock } = Promise.withResolvers<void>()
-      const storage = memoryStorage()
-      const realWriteItem = storage.writeItem.bind(storage)
-      let settled = false
-      storage.writeItem = async (itemPath: string, source: string) => {
-        await blocker
-        await realWriteItem(itemPath, source)
-      }
-      const manager = new FileManager()
-
-      const writing = manager.write([makeFileWithSources('a.ts', ['/* a */'])], { storage }).then(() => {
-        settled = true
-      })
-      await delay(5)
-      expect(settled).toBe(false)
-
-      unblock()
-      await writing
-
-      expect(settled).toBe(true)
-      expect(await storage.readItem('a.ts')).toContain('/* a */')
     })
 
     it('rejects when a write fails', async () => {

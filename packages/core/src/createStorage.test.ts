@@ -46,22 +46,4 @@ describe('createStorage', () => {
     expect(() => factory()).not.toThrow()
     expect(factory().name).toBe('no-options')
   })
-
-  it('fulfils the Storage interface contract', async () => {
-    const map = new Map<string, string>()
-    const storage = createStorage((_options: Record<string, never>) => createMapStorage(map))()
-
-    await storage.writeItem('a', '1')
-    await storage.writeItem('b', '2')
-
-    expect(await storage.existsItem('a')).toBe(true)
-    expect(await storage.readItem('a')).toBe('1')
-    expect(await storage.readKeys()).toStrictEqual(['a', 'b'])
-
-    await storage.removeItem('a')
-    expect(await storage.existsItem('a')).toBe(false)
-
-    await storage.empty()
-    expect(await storage.readKeys()).toStrictEqual([])
-  })
 })

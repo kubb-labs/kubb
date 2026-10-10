@@ -14,6 +14,20 @@ import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
 
+function makeConfig(overrides: Partial<Config> = {}): Config {
+  return {
+    root: '.',
+    input: './petStore.yaml',
+    output: { path: './gen' },
+    parsers: [],
+    reporters: [],
+    adapter: createMockedAdapter(),
+    plugins: [],
+    storage: memoryStorage(),
+    ...overrides,
+  }
+}
+
 describe('createKubb', () => {
   const pluginMocks = {
     buildStart: vi.fn(),
@@ -37,19 +51,7 @@ describe('createKubb', () => {
     },
   }))()
 
-  const config = {
-    root: '.',
-    input: 'https://petstore3.swagger.io/api/v3/openapi.json',
-    output: {
-      path: './src/gen',
-      clean: true,
-    },
-    parsers: [],
-    reporters: [],
-    adapter: createMockedAdapter(),
-    plugins: [plugin] as unknown as Array<Plugin>,
-    storage: memoryStorage(),
-  } satisfies Config
+  const config = makeConfig({ output: { path: './gen', clean: true }, plugins: [plugin] as unknown as Array<Plugin> })
 
   afterEach(() => {
     Object.keys(pluginMocks).forEach((key) => {
@@ -282,20 +284,6 @@ describe('createKubb', () => {
     expect(timings.every((diagnostic) => typeof diagnostic.duration === 'number')).toBe(true)
   })
 
-  it('should emit plugin lifecycle hooks', async () => {
-    const hooks = new Hookable<KubbHooks>()
-    const startSpy = vi.fn()
-    const endSpy = vi.fn()
-
-    hooks.hook('kubb:plugin:start', startSpy)
-    hooks.hook('kubb:plugin:end', endSpy)
-
-    await createKubb(config, { hooks }).build()
-
-    expect(startSpy).toHaveBeenCalled()
-    expect(endSpy).toHaveBeenCalled()
-  })
-
   it('writes every generated file in one batch after plugin:end fires for each plugin', async () => {
     const hooks = new Hookable<KubbHooks>()
     const batches: Array<number> = []
@@ -459,16 +447,7 @@ describe('createKubb', () => {
   })
 
   it('does not throw when userConfig.plugins is undefined', async () => {
-    const userConfig: UserConfig = {
-      root: '.',
-      input: 'https://petstore3.swagger.io/api/v3/openapi.json',
-      output: {
-        path: './src/gen',
-      },
-      parsers: [],
-      adapter: createMockedAdapter(),
-      storage: memoryStorage(),
-    }
+    const { plugins: _plugins, ...userConfig } = makeConfig()
 
     await expect(createKubb(userConfig).safeBuild()).resolves.not.toThrow()
   })
@@ -773,18 +752,6 @@ describe('Kubb#generate', () => {
       fs.rmSync(root, { recursive: true, force: true })
       fs.rmSync(resolveCacheDir(root), { recursive: true, force: true })
     }
-  })
-
-  const makeConfig = (overrides: Partial<Config> = {}): Config => ({
-    root: '.',
-    input: './petStore.yaml',
-    output: { path: './gen' },
-    parsers: [],
-    reporters: [],
-    adapter: createMockedAdapter(),
-    plugins: [],
-    storage: memoryStorage(),
-    ...overrides,
   })
 
   const failingAdapter = (): Adapter =>

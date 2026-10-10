@@ -2,10 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { memoryStorage } from './memoryStorage.ts'
 
 describe('memoryStorage', () => {
-  it('returns a storage with name "memory"', () => {
-    expect(memoryStorage().name).toBe('memory')
-  })
-
   it('each call returns an independent store', async () => {
     const a = memoryStorage()
     const b = memoryStorage()

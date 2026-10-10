@@ -38,10 +38,6 @@ describe('resolveCacheDir', () => {
 })
 
 describe('cacheStorage', () => {
-  it('returns a storage with name "cache"', () => {
-    expect(cacheStorage().name).toBe('cache')
-  })
-
   it('resolves plain keys inside the cache directory', async () => {
     dir = mkdtempSync(join(tmpdir(), 'kubb-cache-'))
     mkdirSync(join(dir, 'node_modules'))

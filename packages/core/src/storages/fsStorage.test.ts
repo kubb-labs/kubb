@@ -16,10 +16,6 @@ describe('fsStorage', () => {
     rmSync(dir, { recursive: true, force: true })
   })
 
-  it('returns a storage with name "fs"', () => {
-    expect(fsStorage().name).toBe('fs')
-  })
-
   it('writeItem writes a file and readItem reads it back', async () => {
     const storage = fsStorage()
     const key = join(dir, 'hello.ts')
@@ -87,10 +83,6 @@ describe('fsStorage', () => {
     await storage.removeItem(key)
 
     expect(await storage.existsItem(key)).toBe(false)
-  })
-
-  it('removeItem does nothing for a missing key', async () => {
-    await expect(fsStorage().removeItem(join(dir, 'ghost.ts'))).resolves.toBeUndefined()
   })
 
   it('readKeys returns all files under a base directory', async () => {

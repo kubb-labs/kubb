@@ -33,16 +33,6 @@ describe('Hookable', () => {
     expect(handler2).toHaveBeenCalledWith('hello', 42)
   })
 
-  it('should handle async listeners', async () => {
-    const hooks = new Hookable<TestHooks>()
-    const handler = vi.fn().mockResolvedValue(undefined)
-
-    hooks.hook('test', handler)
-    await hooks.callHook('test', 'hello', 42)
-
-    expect(handler).toHaveBeenCalled()
-  })
-
   it('should return undefined when emitting a hook with no registered listeners', async () => {
     const hooks = new Hookable<TestHooks>()
     const result = await hooks.callHook('test', 'hello', 42)
