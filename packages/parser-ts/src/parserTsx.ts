@@ -1,7 +1,5 @@
 import { defineParser } from '@kubb/kit'
-import type * as ts from 'typescript'
 import { parserTs, type ParserTsOptions } from './parserTs.ts'
-import { print } from './utils.ts'
 
 /**
  * Kubb parser for `.tsx` and `.jsx` files. Delegates to `parserTs` because the
@@ -26,18 +24,8 @@ import { print } from './utils.ts'
  * })
  * ```
  */
-export const parserTsx = defineParser<ParserTsOptions>((options = {}) => {
-  const parser = parserTs(options)
-
-  return {
-    name: 'tsx',
-    extNames: ['.tsx', '.jsx'],
-    print(...nodes: Array<ts.Node>) {
-      return print(...nodes)
-    },
-    parse(file) {
-      return parser.parse(file)
-    },
-    copy: parser.copy,
-  }
-})
+export const parserTsx = defineParser<ParserTsOptions>((options) => ({
+  ...parserTs(options),
+  name: 'tsx',
+  extNames: ['.tsx', '.jsx'],
+}))

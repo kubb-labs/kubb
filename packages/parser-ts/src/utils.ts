@@ -94,10 +94,6 @@ function toExportNodes(statement: ts.Statement): Array<ast.ExportNode> {
   return [ast.factory.createExport({ name: exportClause.elements.map((element) => element.name.text), path, isTypeOnly })]
 }
 
-function isModuleDeclaration(statement: ts.Statement): boolean {
-  return typescript.isImportDeclaration(statement) || (typescript.isExportDeclaration(statement) && Boolean(statement.moduleSpecifier))
-}
-
 type ModuleDeclarations = {
   header: string
   imports: Array<ast.ImportNode>
@@ -122,7 +118,7 @@ export function splitModuleDeclarations(source: string, filePath: string): Modul
     const exportNodes = toExportNodes(statement)
     if (!importNodes.length && !exportNodes.length) {
       // Lifted declarations print above the body, so stop at the first one that stays in place to keep the evaluation order.
-      if (isModuleDeclaration(statement)) break
+      if (typescript.isImportDeclaration(statement) || (typescript.isExportDeclaration(statement) && statement.moduleSpecifier)) break
       continue
     }
 
@@ -434,17 +430,7 @@ function quoteModulePath(path: string): string {
  * // "import { z } from './zod.ts'"
  * ```
  */
-export function printImport({
-  name,
-  path,
-  isTypeOnly = false,
-  isNameSpace = false,
-}: {
-  name: string | Array<string | { propertyName: string; name?: string }>
-  path: string
-  isTypeOnly?: boolean | null
-  isNameSpace?: boolean | null
-}): string {
+export function printImport({ name, path, isTypeOnly = false, isNameSpace = false }: Pick<ast.ImportNode, 'name' | 'path' | 'isTypeOnly' | 'isNameSpace'>): string {
   const typePrefix = isTypeOnly ? 'type ' : ''
   const from = quoteModulePath(path)
 
@@ -474,23 +460,12 @@ export function printImport({
  * // "export { Pet, Order } from './models.ts'"
  * ```
  */
-export function printExport({
-  path,
-  name,
-  isTypeOnly = false,
-  asAlias = false,
-}: {
-  path: string
-  name?: string | Array<ts.Identifier | string> | null
-  isTypeOnly?: boolean | null
-  asAlias?: boolean | null
-}): string {
+export function printExport({ path, name, isTypeOnly = false, asAlias = false }: Pick<ast.ExportNode, 'name' | 'path' | 'isTypeOnly' | 'asAlias'>): string {
   const typePrefix = isTypeOnly ? 'type ' : ''
   const from = quoteModulePath(path)
 
   if (Array.isArray(name)) {
-    const specifiers = name.map((item) => (typeof item === 'string' ? item : item.text))
-    return `export ${typePrefix}{ ${specifiers.join(', ')} } from ${from}`
+    return `export ${typePrefix}{ ${name.join(', ')} } from ${from}`
   }
 
   if (asAlias && name) {
