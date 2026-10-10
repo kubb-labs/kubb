@@ -10,7 +10,7 @@ import type { Plugin, PluginName, ResolvePluginOptions } from './definePlugin.ts
 import { normalizeOutput } from './definePlugin.ts'
 import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
-import { FileManager } from './FileManager.ts'
+import { dispatchResult, FileManager } from './FileManager.ts'
 import { Transform } from './Transform.ts'
 import { createNodeCache } from './nodeCache.ts'
 import type { OutputManifest } from './outputManifest.ts'
@@ -617,39 +617,11 @@ export class KubbDriver {
   }
 
   /**
-   * Stores whatever a generator method or `kubb:generate:*` hook returned.
-   *
-   * - An `Array<FileNode>` goes straight into `fileManager` via `upsert`.
-   * - A renderer element runs through `renderer` (the renderer factory, e.g. JSX) and the
-   *   produced files go to `fileManager.upsert`.
-   * - A falsy result is treated as a no-op. The generator wrote files itself via
-   *   `ctx.upsertFile`.
-   *
-   * Pass `renderer` when the result may be a renderer element. Generators that only return
-   * `Array<FileNode>` do not need one.
+   * Stores whatever a generator method or `kubb:generate:*` hook returned into `fileManager`.
+   * See {@link dispatchResult} for how arrays, renderer elements, and falsy results are handled.
    */
-  async dispatch<TElement = unknown>({
-    result,
-    renderer,
-  }: {
-    result: TElement | Array<FileNode> | undefined | null
-    renderer?: RendererFactory<TElement> | null
-  }): Promise<void> {
-    if (!result) return
-
-    if (Array.isArray(result)) {
-      this.fileManager.upsert(...(result as Array<FileNode>))
-      return
-    }
-
-    if (!renderer) {
-      return
-    }
-
-    using instance = renderer()
-    await instance.render(result)
-
-    this.fileManager.upsert(...instance.files)
+  dispatch<TElement = unknown>(params: { result: TElement | Array<FileNode> | undefined | null; renderer?: RendererFactory<TElement> | null }): Promise<void> {
+    return dispatchResult({ ...params, fileManager: this.fileManager })
   }
 
   /**

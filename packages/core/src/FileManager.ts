@@ -1,6 +1,7 @@
 import { inParallel, matchesStored, read } from '@internals/utils'
 import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
 import { FILE_CONCURRENCY } from './constants.ts'
+import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'
 import type { OutputManifest } from './outputManifest.ts'
@@ -96,6 +97,41 @@ function isUnchanged({ stored, source, key, manifest }: { stored: string | null;
   if (matchesStored({ stored, source })) return true
 
   return manifest?.isUpToDate({ key, source, disk: stored }) ?? false
+}
+
+/**
+ * Stores whatever a generator method returned into `fileManager`.
+ *
+ * - An `Array<FileNode>` goes straight in via `upsert`.
+ * - A renderer element runs through `renderer` (the renderer factory, e.g. JSX) and the
+ *   produced files go to `upsert`.
+ * - A falsy result is a no-op. The generator wrote files itself via `ctx.upsertFile`.
+ *
+ * Pass `renderer` when the result may be a renderer element. Generators that only return
+ * `Array<FileNode>` do not need one.
+ */
+export async function dispatchResult<TElement = unknown>({
+  result,
+  renderer,
+  fileManager,
+}: {
+  result: TElement | Array<FileNode> | undefined | null
+  renderer?: RendererFactory<TElement> | null
+  fileManager: FileManager
+}): Promise<void> {
+  if (!result) return
+
+  if (Array.isArray(result)) {
+    fileManager.upsert(...(result as Array<FileNode>))
+    return
+  }
+
+  if (!renderer) return
+
+  using instance = renderer()
+  await instance.render(result)
+
+  fileManager.upsert(...instance.files)
 }
 
 /**
