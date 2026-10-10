@@ -26,8 +26,8 @@ describe('createInput', () => {
   })
 
   it('always sets kind to Input', () => {
-    // @ts-expect-error
-    const node = createInput({ kind: 'Operation' })
+    const input = { kind: 'Operation', schemas: [] }
+    const node = createInput(input)
 
     expect(node.kind).toBe('Input')
   })
