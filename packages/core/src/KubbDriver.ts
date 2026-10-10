@@ -256,6 +256,14 @@ export class KubbDriver {
   }
 
   /**
+   * Returns `true` when at least one generator was registered for the given plugin via
+   * `addGenerator()` in `kubb:plugin:setup`.
+   */
+  hasHookGenerators(pluginName: string): boolean {
+    return (this.plugins.get(pluginName)?.generators?.length ?? 0) > 0
+  }
+
+  /**
    * Runs the full plugin pipeline. Returns the diagnostics collected so far even
    * when an outer hook throws, since the orchestrator preserves partial state by capturing
    * the failure as a {@link Diagnostic} instead of propagating. Each plugin also
@@ -346,7 +354,7 @@ export class KubbDriver {
               continue
             }
 
-            if (plugin.generators?.length) {
+            if (this.hasHookGenerators(plugin.name)) {
               generatorPlugins.push({ plugin, context, hrStart })
 
               continue
