@@ -1,14 +1,10 @@
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import { createModuleLoader } from '@internals/shared'
+import { CONFIG_EXTENSIONS, createModuleLoader } from '@internals/shared'
 import { isPathInside, isPromise } from '@internals/utils'
 import type { CLIOptions, Config, PossibleConfig, SerializedDiagnostic } from '@kubb/core'
 
-/**
- * File extensions a Kubb config may use. Any other extension is rejected before the file loads.
- */
-const ALLOWED_CONFIG_EXTENSIONS = ['.ts', '.mts', '.cts', '.js', '.mjs', '.cjs']
-const CONFIG_FILE_NAMES = ALLOWED_CONFIG_EXTENSIONS.map((extension) => `kubb.config${extension}`)
+const CONFIG_FILE_NAMES = CONFIG_EXTENSIONS.map((extension) => `kubb.config${extension}`)
 
 /**
  * Renders serialized diagnostics as a plain-text block for an AI assistant. Each entry
@@ -57,8 +53,8 @@ function loadModule(filePath: string): Promise<unknown> {
 export async function loadUserConfig(configPath: string | undefined, { notify }: { notify: NotifyFunction }): Promise<{ userConfig: Config; cwd: string }> {
   if (configPath) {
     const ext = path.extname(configPath)
-    if (!ALLOWED_CONFIG_EXTENSIONS.includes(ext)) {
-      const msg = `Invalid config file extension "${ext}". Allowed: ${ALLOWED_CONFIG_EXTENSIONS.join(', ')}`
+    if (!CONFIG_EXTENSIONS.some((extension) => extension === ext)) {
+      const msg = `Invalid config file extension "${ext}". Allowed: ${CONFIG_EXTENSIONS.join(', ')}`
       await notify('CONFIG_ERROR', msg)
       throw new Error(msg)
     }

@@ -115,8 +115,7 @@ export const generateTool = defineTool(
 
       const config: Config = {
         ...userConfig,
-        // An absolute `root` wins, a relative one is taken from the config directory.
-        root: path.resolve(cwd, userConfig.root ?? ''),
+        root: path.resolve(cwd, userConfig.root ?? '.'),
         input: input ?? userConfig.input,
         output: output
           ? {
