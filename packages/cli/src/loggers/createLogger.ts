@@ -482,7 +482,8 @@ export function createLogger(writer: LoggerWriter) {
       })
     }
 
-    context.hook('kubb:hook:end', ({ id, command, name, args, success, error, stdout, stderr }) => {
+    context.hook('kubb:hook:end', (ctx) => {
+      const { id, command, name, args, success, error } = ctx
       if (!id) {
         return
       }
@@ -493,9 +494,9 @@ export function createLogger(writer: LoggerWriter) {
 
       if (silent) {
         // Even when silent, surface a failed hook's captured output.
-        if (!success) {
-          if (stdout) console.log(stdout)
-          if (stderr) console.error(stderr)
+        if (!ctx.success) {
+          if (ctx.stdout) console.log(ctx.stdout)
+          if (ctx.stderr) console.error(ctx.stderr)
         }
         return
       }
