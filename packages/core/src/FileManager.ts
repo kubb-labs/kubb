@@ -15,11 +15,7 @@ export type FileManagerHooks = {
   end: [files: Array<FileNode>]
 }
 
-/**
- * How many files Kubb keeps in flight at once, both writing the output and reading it back to
- * record what the output passes produced. Caps parsed sources held in memory and open file
- * descriptors alike.
- */
+/** Files kept in flight at once, writing the output and reading it back for the manifest. */
 export const FILE_CONCURRENCY = 50
 
 type ParseOptions = {
@@ -98,17 +94,7 @@ function isUnchanged({ stored, source, key, manifest }: { stored: string | null;
   return manifest?.isUpToDate({ key, source, disk: stored }) ?? false
 }
 
-/**
- * Stores whatever a generator method returned into `fileManager`.
- *
- * - An `Array<FileNode>` goes straight in via `upsert`.
- * - A renderer element runs through `renderer` (the renderer factory, e.g. JSX) and the
- *   produced files go to `upsert`.
- * - A falsy result is a no-op. The generator wrote files itself via `ctx.upsertFile`.
- *
- * Pass `renderer` when the result may be a renderer element. Generators that only return
- * `Array<FileNode>` do not need one.
- */
+/** Stores a generator result: a file array is upserted as is, an element renders through `renderer` first, falsy is a no-op. */
 export async function dispatchResult<TElement = unknown>({
   result,
   renderer,
@@ -150,10 +136,8 @@ export async function dispatchResult<TElement = unknown>({
 export class FileManager {
   readonly hooks = new Hookable<FileManagerHooks>()
   readonly #cache = new Map<string, FileNode>()
-  // Cached sorted view. Null means stale and rebuilt lazily on next `files` read.
-  // Nulled (not mutated) on every write so callers holding a prior reference keep
-  // their snapshot. `dispose()` must not silently empty an array the consumer
-  // already holds.
+  // Cached sorted view, rebuilt lazily on the next `files` read. Nulled (not mutated) on every
+  // write so callers holding a prior reference keep their snapshot, `dispose()` included.
   #sorted: Array<FileNode> | null = null
 
   add(...files: Array<FileNode>): Array<FileNode> {
@@ -179,8 +163,7 @@ export class FileManager {
     return resolved
   }
 
-  // Merges same-path entries within a batch so the cache update loop stays
-  // uniform. Only called for multi-file batches.
+  // Merges same-path entries within a multi-file batch so the cache update loop stays uniform.
   #dedupe(files: ReadonlyArray<FileNode>): Array<FileNode> {
     const seen = new Map<string, FileNode>()
     for (const file of files) {

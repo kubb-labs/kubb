@@ -311,10 +311,7 @@ export function toFilePath(name: string): string {
     .join('/')
 }
 
-/**
- * Throws `KUBB_PATH_TRAVERSAL` when `target` lies outside `parent`. `target === parent` stays
- * allowed, for the edge case where a base name resolves to the directory itself.
- */
+/** Throws `KUBB_PATH_TRAVERSAL` when `target` lies outside `parent`; `target === parent` stays allowed. */
 function assertInside({ target, parent, message, help }: { target: string; parent: string; message: string; help: string }): void {
   const parentWithSep = parent.endsWith(path.sep) ? parent : `${parent}${path.sep}`
   if (target === parent || target.startsWith(parentWithSep)) return
@@ -365,11 +362,7 @@ export class Resolver {
   static #optionsCache = new WeakMap<object, WeakMap<Node, { value: unknown }>>()
 
   readonly pluginName: string
-  /**
-   * The built-in resolution machinery. Always reaches the untouched defaults, even when a
-   * plugin overrides the top-level `name` or `file`. Built once per resolver, since the driver
-   * reads it for every node of every plugin.
-   */
+  /** The built-in machinery, untouched by `name`/`file` overrides and built once since the driver reads it per node. */
   readonly default: ResolverDefault
   #options: ResolverBuildOptions
   // Base-name builder from `options.file.baseName`, bound to the resolver so it can reach `this`.
@@ -582,7 +575,6 @@ export class Resolver {
         ? path.resolve(outputDir, Resolver.#resolveGroupDir(group, group.type === 'path' ? groupPath! : tag!), baseName)
         : path.resolve(outputDir, baseName)
 
-    // A malicious OpenAPI spec or a misconfigured group.name function could otherwise write anywhere.
     assertInside({
       target: result,
       parent: outputDir,

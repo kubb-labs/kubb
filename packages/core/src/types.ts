@@ -428,19 +428,11 @@ declare global {
  */
 export type KubbHooks = Kubb.KubbHooksRegistry
 
-/**
- * The file access every file-carrying hook context shares: a lazy snapshot of the files
- * accumulated so far, including those added by plugins that have already run, and a way to add
- * more.
- */
+/** The file access every file-carrying hook context shares: a lazy snapshot of the files so far, and a way to add more. */
 export type FilesContext = {
-  /**
-   * Snapshot of all files accumulated so far.
-   */
+  /** Snapshot of all files accumulated so far, including those added by plugins that already ran. */
   readonly files: ReadonlyArray<FileNode>
-  /**
-   * Adds or merges one or more files into the file manager.
-   */
+  /** Adds or merges one or more files into the file manager. */
   upsertFile: (...files: Array<FileNode>) => void
 }
 
@@ -540,10 +532,7 @@ export type KubbGenerationEndContext = {
   filesCreated?: number
 }
 
-/**
- * A human-readable message with optional detail, as carried by `kubb:info`, `kubb:success`,
- * and `kubb:warn`.
- */
+/** A human-readable message with optional detail, as carried by `kubb:info`, `kubb:success`, and `kubb:warn`. */
 export type KubbMessageContext = {
   /**
    * Human-readable message.
@@ -664,10 +653,7 @@ export type KubbHookLineContext = {
   line: string
 }
 
-/**
- * Emitted when a hook command exits. Carries the same `id`, `command`, `name`, and `args` as
- * the matching `kubb:hook:start` plus the outcome.
- */
+/** Emitted when a hook command exits: the matching `kubb:hook:start` fields plus the outcome. */
 export type KubbHookEndContext = KubbHookStartContext & {
   /**
    * `true` when the command exited with code `0`.

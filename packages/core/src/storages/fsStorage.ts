@@ -16,9 +16,7 @@ import { createStorage } from '../createStorage.ts'
  *   a formatter left behind
  * - missing parent directories are created automatically
  * - Bun's native file API is used when running under Bun
- *
- * `FileManager.write` bounds how many writes are in flight at once, so this driver does not
- * pace itself.
+ * - `FileManager.write` bounds in-flight writes, so this driver does not pace itself
  *
  * @example
  * ```ts

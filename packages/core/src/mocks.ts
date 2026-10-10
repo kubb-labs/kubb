@@ -118,10 +118,6 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
   } as unknown as Omit<GeneratorContext<TOptions>, 'options'>
 }
 
-/**
- * Applies the plugin's macros to `node`, checks `generator.match`, and dispatches what `generate`
- * returns. Shared by the per-node `schema` and `operation` renderers.
- */
 async function renderNode<TOptions extends PluginFactoryOptions, TNode extends SchemaNode | OperationNode>({
   generator,
   node,

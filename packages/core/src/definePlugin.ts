@@ -6,11 +6,7 @@ import type { BannerMeta, Resolver, ResolverPatch } from './Resolver.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Config, FilesContext, KubbHooks } from './types.ts'
 
-/**
- * Reads key `K` from a registry interface, or `{}` when no package has augmented it.
- *
- * @internal
- */
+/** Reads key `K` from a registry interface, or `{}` when no package has augmented it. @internal */
 export type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
 
 /**

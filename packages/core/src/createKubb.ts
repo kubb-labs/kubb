@@ -10,10 +10,7 @@ import { fsStorage } from './storages/fsStorage.ts'
 import type { BuildOutput, Config, KubbHooks, UserConfig } from './types.ts'
 import { Hookable } from './Hookable.ts'
 
-/**
- * Upper bound of listeners a single plugin adds to one hook through its lifecycle handlers. Sizes
- * the hooks emitter's max-listener ceiling so a large plugin set does not trip Node's leak warning.
- */
+/** Upper bound of listeners one plugin adds to a hook, sizing the emitter ceiling for large plugin sets. */
 const HOOK_LISTENERS_PER_PLUGIN = 4
 
 function resolveConfig(userConfig: UserConfig): Config {
@@ -134,8 +131,7 @@ export class Kubb {
       : undefined
     const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal })
 
-    // Every plugin registers its lifecycle handlers on the shared hooks emitter, so size the
-    // ceiling to the plugin count instead of Node's default of 10.
+    // Every plugin registers its lifecycle handlers on the shared emitter, so size the ceiling to the plugin count.
     this.hooks.setMaxListeners(Math.max(10, config.plugins.length * HOOK_LISTENERS_PER_PLUGIN))
 
     if (config.output.clean) {

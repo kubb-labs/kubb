@@ -47,11 +47,7 @@ type RequirePluginContext = {
 
 const ENFORCE_ORDER = { pre: -1, post: 1 } satisfies Record<Enforce, number>
 
-/**
- * Plugin `include` filter types that select operations directly. When one of these is set
- * without a `schemaName` include, the generate phase pre-scans operations to compute the set
- * of schemas they reach, so unreachable schemas can be pruned for that plugin.
- */
+/** `include` filter types that select operations, and so prune the schemas they do not reach. */
 const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
 
 const enforceWeight = (plugin: NormalizedPlugin): number => (plugin.enforce ? ENFORCE_ORDER[plugin.enforce] : 0)
@@ -64,8 +60,8 @@ const defaultPluginOptions = (): NormalizedPlugin['options'] => ({ output: { pat
 
 /**
  * Fills in the `output`, `exclude`, and `override` a `NormalizedPlugin` needs from a plugin's raw
- * options, running `output` through `normalizeOutput`. Idempotent, so `setOptions` and the
- * post-setup pass in `run` can both apply it without disturbing an already-normalized bag.
+ * options, running `output` through `normalizeOutput`. Idempotent, so the driver can apply it after
+ * `setOptions` has already run without disturbing an already-normalized bag.
  */
 function normalizePluginOptions(rawOptions: Plugin['options'], pluginName: string): NormalizedPlugin['options'] {
   const options: NormalizedPlugin['options'] = { ...defaultPluginOptions(), ...(rawOptions ?? {}) }
@@ -225,11 +221,6 @@ export class KubbDriver {
    * plugin so `addGenerator`, `setResolver`, `addMacro`, `setMacros`, and `setOptions` target its
    * `NormalizedPlugin` entry. Called once from `run` before the plugin execution loop begins, so
    * plugins can configure generators, resolvers, macros, and options before `buildStart`.
-   *
-   * A registered generator's `schema`, `operation`, and `operations` methods run per node during
-   * the AST walk in `#runGenerators`, and their result is routed through `dispatch`. A resolver set
-   * through `setResolver` is merged onto a fresh default and stored on `plugin.resolver`, the single
-   * source `getResolver` and `getPlugin(name).resolver` both read.
    */
   async setupHooks(): Promise<void> {
     for (const plugin of this.plugins.values()) {
@@ -261,10 +252,7 @@ export class KubbDriver {
     }
   }
 
-  /**
-   * Returns `true` when at least one generator was registered for the given plugin via
-   * `addGenerator()` in `kubb:plugin:setup`.
-   */
+  /** `true` once `addGenerator()` in `kubb:plugin:setup` registered a generator for the plugin. */
   hasHookGenerators(pluginName: string): boolean {
     return (this.plugins.get(pluginName)?.generators?.length ?? 0) > 0
   }
@@ -608,10 +596,7 @@ export class KubbDriver {
     return diagnostics
   }
 
-  /**
-   * Runs `node` through the generators whose `match` accepts it and stores what each returns.
-   * `generate` picks the generator method (`schema` or `operation`) for the node kind.
-   */
+  /** Runs `node` through the generators whose `match` accepts it; `generate` picks the method for the node kind. */
   async #dispatchNode({
     generators,
     node,
@@ -630,10 +615,7 @@ export class KubbDriver {
     }
   }
 
-  /**
-   * Stores whatever a generator method or `kubb:generate:*` hook returned into `fileManager`.
-   * See {@link dispatchResult} for how arrays, renderer elements, and falsy results are handled.
-   */
+  /** Stores whatever a generator method or `kubb:generate:*` hook returned, see {@link dispatchResult}. */
   dispatch<TElement = unknown>(params: { result: TElement | Array<FileNode> | undefined | null; renderer?: RendererFactory<TElement> | null }): Promise<void> {
     return dispatchResult({ ...params, fileManager: this.fileManager })
   }
@@ -660,11 +642,7 @@ export class KubbDriver {
     this.dispose()
   }
 
-  /**
-   * Returns the resolver for the given plugin. It reads `plugin.resolver` (seeded with the default
-   * at registration and replaced by `setResolver`), falling back to a fresh default for a name
-   * that is not a registered plugin.
-   */
+  /** Reads `plugin.resolver`, falling back to a fresh default for a name that is not a registered plugin. */
   getResolver<TName extends PluginName>(pluginName: TName): ResolvePluginOptions<TName>['resolver']
   getResolver(pluginName: string): Resolver {
     return this.plugins.get(pluginName)?.resolver ?? createResolver<PluginFactoryOptions>({ pluginName })
