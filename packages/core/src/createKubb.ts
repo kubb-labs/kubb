@@ -30,11 +30,11 @@ function resolveConfig(userConfig: UserConfig): Config {
 }
 
 /**
- * A memory storage never writes the output directory, so the passes would format whatever stale
- * files an earlier run left there. The fs and cache storages do write it.
+ * Only the fs storage writes `output.path`, so only then do the passes have fresh files to run
+ * over; a memory or custom storage would leave them formatting whatever an earlier run left there.
  */
 function writesOutputDirectory(storage: Storage): boolean {
-  return storage.name !== 'memory'
+  return storage.name === 'fs'
 }
 
 /**
