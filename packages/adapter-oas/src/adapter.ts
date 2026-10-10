@@ -101,7 +101,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     const refGraph = new Map<string, Set<string>>()
 
     for (const [name, schema] of Object.entries(schemas)) {
-      const node = parseSchema({ schema, name }, parserOptions)
+      const node = parseSchema({ schema, name })
       parsedByName.set(name, node)
       const refs = scanSchema({ node, name })
       if (node.name) refGraph.set(node.name, refs)
@@ -200,7 +200,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
         const refs = createRefs(document)
         const { schemas, renames } = getSchemas(document, { contentType }, refs)
-        const parser = createSchemaParser({ document, refs, renames })
+        const parser = createSchemaParser({ document, refs, renames, options: parserOptions })
 
         return parseInput({ document, refs, schemas, parser })
       })()

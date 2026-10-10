@@ -7,7 +7,7 @@ import type { Document, SchemaObject } from './types.ts'
  * Parses a schema for a resolved `$ref` target. Passed in at call time (rather than imported)
  * so `refs.ts` stays independent of the parser/converter layer.
  */
-type RefNodeParser = (entry: { schema: SchemaObject; name?: string | null }, rawOptions?: Partial<ast.ParserOptions>) => ast.SchemaNode
+type RefNodeParser = (entry: { schema: SchemaObject; name?: string | null }) => ast.SchemaNode
 
 /**
  * The `$ref` service bound to one document: pointer resolution, existence checks, and
@@ -102,7 +102,7 @@ export function createRefs(document: Document) {
    * instance. Returns `null` when the ref is currently being resolved (a cycle) or cannot be
    * resolved (e.g. a minimal document in a unit test).
    */
-  function resolveNode(refPath: string, parse: RefNodeParser, rawOptions?: Partial<ast.ParserOptions>): ast.SchemaNode | null {
+  function resolveNode(refPath: string, parse: RefNodeParser): ast.SchemaNode | null {
     if (resolvingRefs.has(refPath)) return null
 
     if (!resolvedNodeCache.has(refPath)) {
@@ -111,7 +111,7 @@ export function createRefs(document: Document) {
         const referenced = resolve<SchemaObject>(refPath)
         if (referenced) {
           resolvingRefs.add(refPath)
-          resolved = parse({ schema: referenced }, rawOptions)
+          resolved = parse({ schema: referenced })
           resolvingRefs.delete(refPath)
         }
       } catch {

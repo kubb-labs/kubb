@@ -213,7 +213,7 @@ function parseParameter({
 }: OperationParseContext & { param: ParameterObject; parentName?: string }): ast.ParameterNode {
   const schemaName = parentName && param.name ? pascalCase(`${parentName} ${param.name}`) : undefined
   const schema: ast.SchemaNode = param.schema
-    ? parseSchema({ schema: param.schema as SchemaObject, name: schemaName }, options)
+    ? parseSchema({ schema: param.schema as SchemaObject, name: schemaName })
     : ast.factory.createSchema({ type: options.unknownType })
   const style = param.style as ast.ParameterStyle | undefined
   const explode = param.explode
@@ -259,7 +259,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     return [
       ast.factory.createContent({
         contentType: ct,
-        schema: ast.optionality(parseSchema({ schema, name: requestBodyName }, options), bodyRequired),
+        schema: ast.optionality(parseSchema({ schema, name: requestBodyName }), bodyRequired),
         keysToOmit: collectPropertyKeysByFlag(schema, 'readOnly'),
       }),
     ]
@@ -283,9 +283,7 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     const parseEntrySchema = (ct?: string) => {
       const raw = getBodySchema({ content: response?.content, contentType: ct, refs })
       const node =
-        raw && Object.keys(raw).length > 0
-          ? parseSchema({ schema: raw, name: responseName }, options)
-          : ast.factory.createSchema({ type: options.emptySchemaType })
+        raw && Object.keys(raw).length > 0 ? parseSchema({ schema: raw, name: responseName }) : ast.factory.createSchema({ type: options.emptySchemaType })
       return { schema: node, keysToOmit: collectPropertyKeysByFlag(raw, 'writeOnly') }
     }
 

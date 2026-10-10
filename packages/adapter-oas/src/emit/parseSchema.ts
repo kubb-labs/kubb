@@ -8,51 +8,32 @@ import { convertArray, convertObject, convertTuple } from './converters/structur
 import { isHandledFormat, resolveDateTypeValue } from './schemaShape.ts'
 
 /**
- * Pre-computed per-schema context passed to every schema converter.
- *
- * Centralizes schema derivations (type resolution, defaults, options) to avoid repeated
- * computation across all conversion branches. The `type` field is normalized from OAS 3.1
- * multi-type arrays to a single string.
+ * Recurses into a nested schema. Converters call this instead of capturing the parser closure,
+ * so each converter stays a standalone function.
  */
-export type SchemaContext = {
+export type ParseFn = (entry: { schema: SchemaObject; name?: string | null }) => ast.SchemaNode
+
+/**
+ * Everything a converter receives: the per-schema derivations (normalized type, nullability,
+ * default) plus what it needs from the parser instance (how to recurse, the source document,
+ * the `$ref` service and the collision renames used to stamp `targetName` on ref nodes).
+ */
+export type ConvertContext = {
   schema: SchemaObject
   name: string | null | undefined
   nullable: true | undefined
   defaultValue: unknown
   /**
-   * Normalized single type string (first non-`null` element when OAS 3.1 multi-type array, so
-   * `['null', 'string']` and `['string', 'null']` both normalize to `string` with `nullable` set).
+   * Normalized single type string: the first non-`null` element of an OAS 3.1 multi-type array,
+   * so `['null', 'string']` and `['string', 'null']` both become `string` with `nullable` set.
    */
   type: string | undefined
-  rawOptions: Partial<ast.ParserOptions> | undefined
   options: ast.ParserOptions
-}
-
-/**
- * Recurses into a nested schema. Converters call this instead of capturing the parser closure,
- * so each converter stays a standalone function.
- */
-export type ParseFn = (entry: { schema: SchemaObject; name?: string | null }, rawOptions?: Partial<ast.ParserOptions>) => ast.SchemaNode
-
-/**
- * What a converter needs from the parser instance beyond the schema: how to recurse, the source
- * document, and the `$ref` service bound to it.
- */
-export type ConverterDeps = {
   parse: ParseFn
   document: Document
   refs: Refs
-  /**
-   * Collision renames keyed by the original component pointer, used to stamp `targetName`
-   * on ref nodes whose target the adapter renamed.
-   */
   renames?: ReadonlyMap<string, string>
 }
-
-/**
- * Everything a converter receives: the per-schema context plus what it needs from the parser instance.
- */
-export type ConvertContext = SchemaContext & ConverterDeps
 
 /**
  * One entry in the ordered schema rule table: a predicate paired with a converter. `match`

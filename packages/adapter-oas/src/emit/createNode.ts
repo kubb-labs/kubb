@@ -1,12 +1,12 @@
 import { ast } from '@kubb/kit'
 import { extractExamples } from './schemaShape.ts'
-import type { SchemaContext } from './parseSchema.ts'
+import type { ConvertContext } from './parseSchema.ts'
 
 /**
  * The `schema`/`name`/`nullable`/`defaultValue` slice of a context, the only part
  * {@link createNode} needs to fill in a node's shared base fields.
  */
-type NodeBaseContext = Pick<SchemaContext, 'schema' | 'name' | 'nullable' | 'defaultValue'>
+type NodeBaseContext = Pick<ConvertContext, 'schema' | 'name' | 'nullable' | 'defaultValue'>
 
 /**
  * Input shape accepted by `ast.factory.createSchema`, recovered from its own signature so

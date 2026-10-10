@@ -19,6 +19,10 @@ export type OasParserContext = {
    * emitted name without a post-parse pass.
    */
   renames?: ReadonlyMap<string, string>
+  /**
+   * Parser options, merged over `DEFAULT_PARSER_OPTIONS` once per parser instance.
+   */
+  options?: Partial<ast.ParserOptions>
 }
 
 /**
@@ -32,19 +36,16 @@ export type OasParserContext = {
  */
 export function createSchemaParser(ctx: OasParserContext) {
   const { document, refs, renames } = ctx
+  const options: ast.ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...ctx.options }
 
   /**
    * Converts an OAS `SchemaObject` into a `SchemaNode`: the first matching rule in
    * {@link schemaRules} wins, otherwise the configured `emptySchemaType` applies.
    */
-  function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }, rawOptions?: Partial<ast.ParserOptions>): ast.SchemaNode {
-    const options: ast.ParserOptions = {
-      ...DEFAULT_PARSER_OPTIONS,
-      ...rawOptions,
-    }
+  function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }): ast.SchemaNode {
     const flattenedSchema = flattenSchema(schema)
     if (flattenedSchema && flattenedSchema !== schema) {
-      return parseSchema({ schema: flattenedSchema, name }, rawOptions)
+      return parseSchema({ schema: flattenedSchema, name })
     }
 
     const nullable = isNullable(schema) || undefined
@@ -57,7 +58,6 @@ export function createSchemaParser(ctx: OasParserContext) {
       nullable,
       defaultValue,
       type,
-      rawOptions,
       options,
       parse: parseSchema,
       document,

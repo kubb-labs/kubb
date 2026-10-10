@@ -130,9 +130,9 @@ export function convertFormat(context: ConvertContext): ast.SchemaNode {
 /**
  * Converts an `enum` schema into an `EnumSchemaNode`.
  */
-export function convertEnum({ schema, name, nullable, type, rawOptions, parse }: ConvertContext): ast.SchemaNode {
+export function convertEnum({ schema, name, nullable, type, parse }: ConvertContext): ast.SchemaNode {
   if (type === 'array') {
-    return parse({ schema: normalizeArrayEnum(schema), name }, rawOptions)
+    return parse({ schema: normalizeArrayEnum(schema), name })
   }
 
   const nullInEnum = schema.enum!.includes(null)

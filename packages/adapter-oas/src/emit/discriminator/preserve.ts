@@ -62,7 +62,6 @@ export function narrowUnionMembers({
   discriminator,
   sharedPropertiesNode,
   parse,
-  rawOptions,
   name,
   refs,
 }: {
@@ -70,7 +69,6 @@ export function narrowUnionMembers({
   discriminator: DiscriminatorObject | undefined
   sharedPropertiesNode: ast.SchemaNode | undefined
   parse: ParseFn
-  rawOptions: Partial<ast.ParserOptions> | undefined
   name: string | null | undefined
   refs: Refs
 }): Array<ast.SchemaNode> {
@@ -126,7 +124,7 @@ export function narrowUnionMembers({
     const mappedValues = findDiscriminators(discriminator?.mapping, ref)
     const implicitValue = mappedValues.length ? null : implicitDiscriminantValue(s)
     const discriminatorValues = mappedValues.length ? mappedValues : implicitValue ? [implicitValue] : []
-    const memberNode = parse({ schema: s as SchemaObject, name }, rawOptions)
+    const memberNode = parse({ schema: s as SchemaObject, name })
 
     if (!discriminatorValues.length || !discriminator) {
       return memberNode
