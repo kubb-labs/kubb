@@ -2,7 +2,7 @@ import { hash } from 'node:crypto'
 import path from 'node:path'
 import { trimExtName } from '@internals/utils'
 import { defineNode } from '../defineNode.ts'
-import { combineExports, combineImports, combineSources } from '../utils/combineFileMembers.ts'
+import { combineExports, combineImports, combineSources, importLocalName } from '../utils/combineFileMembers.ts'
 import { extractStringsFromNodes } from '../utils/extractStringsFromNodes.ts'
 import type { BaseNode } from './base.ts'
 import type { CodeNode } from './code.ts'
@@ -371,7 +371,6 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
     }
     const source = sourceParts.join('\n') || undefined
     const combinedImports = combineImports(input.imports, resolvedExports, source)
-    const nameOf = (item: string | { propertyName: string; name?: string }): string => (typeof item === 'string' ? item : (item.name ?? item.propertyName))
     // Consolidating output (`mode: 'file'`) can put a symbol's definition and an import of it in the
     // same file: by path when the import still targets this file, by name when consolidation moved it.
     return combinedImports.flatMap((imp) => {
@@ -379,7 +378,7 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
       if (!Array.isArray(imp.name)) {
         return typeof imp.name === 'string' && localNames.has(imp.name) ? [] : [imp]
       }
-      const kept = imp.name.filter((item) => !localNames.has(nameOf(item)))
+      const kept = imp.name.filter((item) => !localNames.has(importLocalName(item)))
 
       if (!kept.length) return []
       return [kept.length === imp.name.length ? imp : { ...imp, name: kept }]
