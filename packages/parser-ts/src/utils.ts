@@ -50,7 +50,6 @@ export function getRelativePath(root: string, filePath: string): string {
  * Swaps the extension of a relative import/export path for `options.extname`; package specifiers and extension-less paths stay as-is.
  */
 export function resolveOutputPath(path: string, options: { extname?: string } | undefined, rootAware: boolean): string {
-  // Only the final `.<ext>` counts, so `foo.bar.ts` keeps `foo.bar`
   const hasExtname = /\.[^/.]+$/.test(path)
   if (rootAware && options?.extname && hasExtname) {
     return `${trimExtName(path)}${options.extname}`
@@ -128,7 +127,7 @@ type ModuleDeclarations = {
 }
 
 /**
- * Splits `source` into its lifted `import`/`export … from` nodes, the `header` above the first of them (shebang, directives, comments) and the remaining `body`.
+ * Splits `source` into its lifted `import`/`export … from` nodes, the `header` above the first one (shebang, directives, comments) and the rest as `body`.
  */
 export function splitModuleDeclarations(source: string, filePath: string): ModuleDeclarations {
   const { typescript } = loadCompiler()
@@ -160,7 +159,7 @@ export function splitModuleDeclarations(source: string, filePath: string): Modul
 }
 
 /**
- * Joins the printed `nodes` with `separator`; a `Break` node widens the next separator to a blank line and leading, trailing and consecutive breaks fold into one.
+ * Joins the printed `nodes` with `separator`; a `Break` widens the next separator to a blank line, and leading, trailing and repeated breaks fold into one.
  *
  * Imperative on purpose: this runs once per source fragment and `map().filter().join()` showed up in deopt traces.
  */
@@ -197,7 +196,7 @@ function indentLines(text: string): string {
 }
 
 /**
- * Strips the common leading whitespace and the surrounding blank lines, counting tabs and spaces alike, so indented template-literal content starts at column zero.
+ * Strips the common leading whitespace and the surrounding blank lines, counting tabs and spaces alike, so indented template literals start at column zero.
  */
 function dedent(text: string): string {
   if (!text) return ''
@@ -228,7 +227,8 @@ type Signature = {
  */
 function signature({ async: isAsync, generics, params, returnType }: Signature): string {
   const genericsStr = generics ? `<${Array.isArray(generics) ? generics.join(', ') : generics}>` : ''
-  const returnTypeStr = returnType ? (isAsync ? `: Promise<${returnType}>` : `: ${returnType}`) : ''
+  const wrapped = isAsync ? `Promise<${returnType}>` : returnType
+  const returnTypeStr = returnType ? `: ${wrapped}` : ''
 
   return `${genericsStr}(${params ?? ''})${returnTypeStr}`
 }
