@@ -99,8 +99,16 @@ describe('createResolver', () => {
       imports: () => [],
     })
 
+    const node = ast.factory.createSchema({
+      type: 'object',
+      properties: [
+        ast.factory.createProperty({ name: 'pet', schema: ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Pet', name: 'Pet' }) }),
+      ],
+    })
+
     expect(merged.file({ name: 'pet', extname: '.ts', ...context }).baseName).toBe('pet.mock.ts')
-    expect(merged.imports({ node: ast.factory.createSchema({ type: 'string' }), ...context })).toStrictEqual([])
+    expect(base.imports({ node, ...context })).toMatchObject([{ name: ['pet'], path: '/root/types/pet.ts' }])
+    expect(merged.imports({ node, ...context })).toStrictEqual([])
   })
 
   it('a file.path owns the whole path, resolved against root and bypassing output.path', () => {
