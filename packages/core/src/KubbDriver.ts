@@ -9,7 +9,7 @@ import type { Plugin, PluginName, ResolvePluginOptions } from './definePlugin.ts
 import { normalizeOutput } from './definePlugin.ts'
 import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
-import { dispatchResult, FileManager } from './FileManager.ts'
+import { FileManager } from './FileManager.ts'
 import { Transform } from './Transform.ts'
 import { createNodeCache } from './nodeCache.ts'
 import type { OutputManifest } from './outputManifest.ts'
@@ -615,9 +615,9 @@ export class KubbDriver {
     }
   }
 
-  /** Stores whatever a generator method or `kubb:generate:*` hook returned, see {@link dispatchResult}. */
+  /** Stores whatever a generator method or `kubb:generate:*` hook returned, see {@link FileManager.dispatch}. */
   dispatch<TElement = unknown>(params: { result: TElement | Array<FileNode> | undefined | null; renderer?: RendererFactory<TElement> | null }): Promise<void> {
-    return dispatchResult({ ...params, fileManager: this.fileManager })
+    return this.fileManager.dispatch(params)
   }
 
   /**

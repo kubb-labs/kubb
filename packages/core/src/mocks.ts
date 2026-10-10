@@ -4,7 +4,7 @@ import type { FileNode, InputMeta, Macro, OperationNode, SchemaNode } from '@kub
 import { applyMacros, ast } from '@kubb/ast'
 import { expect } from 'vitest'
 import type { Parser } from './defineParser.ts'
-import { dispatchResult, FileManager } from './FileManager.ts'
+import { FileManager } from './FileManager.ts'
 import { Hookable } from './Hookable.ts'
 import { createNodeCache } from './nodeCache.ts'
 import type { KubbDriver } from './KubbDriver.ts'
@@ -38,7 +38,7 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
     },
     getResolver: (_pluginName: string) => options?.plugin?.resolver,
     fileManager,
-    dispatch: (params: { result: unknown; renderer?: RendererFactory | null }) => dispatchResult({ ...params, fileManager }),
+    dispatch: (params: { result: unknown; renderer?: RendererFactory | null }) => fileManager.dispatch(params),
   } as unknown as KubbDriver
 }
 

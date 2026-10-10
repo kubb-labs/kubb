@@ -94,31 +94,6 @@ function isUnchanged({ stored, source, key, manifest }: { stored: string | null;
   return manifest?.isUpToDate({ key, source, disk: stored }) ?? false
 }
 
-/** Stores a generator result: a file array is upserted as is, an element renders through `renderer` first, falsy is a no-op. */
-export async function dispatchResult<TElement = unknown>({
-  result,
-  renderer,
-  fileManager,
-}: {
-  result: TElement | Array<FileNode> | undefined | null
-  renderer?: RendererFactory<TElement> | null
-  fileManager: FileManager
-}): Promise<void> {
-  if (!result) return
-
-  if (Array.isArray(result)) {
-    fileManager.upsert(...(result as Array<FileNode>))
-    return
-  }
-
-  if (!renderer) return
-
-  using instance = renderer()
-  await instance.render(result)
-
-  fileManager.upsert(...instance.files)
-}
-
 /**
  * In-memory file store for generated files, and the writer that turns them into source
  * strings on `storage`. Files sharing a `path` are merged (sources/imports/exports
@@ -146,6 +121,29 @@ export class FileManager {
 
   upsert(...files: Array<FileNode>): Array<FileNode> {
     return this.#store(files, true)
+  }
+
+  /** Stores a generator result: a file array is upserted as is, an element renders through `renderer` first, falsy is a no-op. */
+  async dispatch<TElement = unknown>({
+    result,
+    renderer,
+  }: {
+    result: TElement | Array<FileNode> | undefined | null
+    renderer?: RendererFactory<TElement> | null
+  }): Promise<void> {
+    if (!result) return
+
+    if (Array.isArray(result)) {
+      this.upsert(...(result as Array<FileNode>))
+      return
+    }
+
+    if (!renderer) return
+
+    using instance = renderer()
+    await instance.render(result)
+
+    this.upsert(...instance.files)
   }
 
   #store(files: ReadonlyArray<FileNode>, mergeExisting: boolean): Array<FileNode> {

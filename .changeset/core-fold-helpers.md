@@ -2,4 +2,4 @@
 '@kubb/core': patch
 ---
 
-Internal cleanup of the core driver, resolver, storage, and diagnostics helpers: fewer single-use wrappers and duplicated types, with no change to generated output or to the surfaces plugins use.
+Fold single-use helpers and duplicated types in the core driver, resolver, storage and diagnostics. Generated output and the plugin API do not change.
