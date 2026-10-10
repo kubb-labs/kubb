@@ -11,15 +11,7 @@ import type { KubbHooks } from '../types.ts'
 /**
  * Outcome of one hook subprocess, also carried by the `kubb:hook:end` hook it emits.
  */
-export type HookResult = {
-  /** `true` when the command exited with code `0`. */
-  success: boolean
-  /** What went wrong, `null` when the command succeeded. */
-  error: Error | null
-  /** Captured stdout and stderr, only present on a non-zero exit. */
-  stdout?: string
-  stderr?: string
-}
+export type HookResult = { success: true; error: null } | { success: false; error: Error; stdout?: string; stderr?: string }
 
 export type RunHookOptions = {
   hooks: Hookable<KubbHooks>
@@ -30,8 +22,6 @@ export type RunHookOptions = {
   name?: string
   /** Working directory for the command. Defaults to the current process directory. */
   cwd?: string
-  /** Correlates `kubb:hook:start`, `kubb:hook:line` and `kubb:hook:end`. A random UUID when omitted. */
-  id?: string
   signal?: AbortSignal
 }
 
@@ -53,7 +43,7 @@ function escapeCmdArgument(arg: string): string {
 /**
  * Joins `command` and `args` into one `cmd.exe /c` line, quoted the way cross-spawn does so `.cmd` shims, spaces and metacharacters survive.
  */
-export function toWindowsCommandLine(command: string, args: ReadonlyArray<string>): string {
+function toWindowsCommandLine(command: string, args: ReadonlyArray<string>): string {
   const executable = /\s/.test(command) ? escapeCmdArgument(command) : command.replace(CMD_META_CHARS, '^$&')
   return [executable, ...args.map(escapeCmdArgument)].join(' ')
 }
@@ -61,7 +51,7 @@ export function toWindowsCommandLine(command: string, args: ReadonlyArray<string
 /**
  * Every `node_modules/.bin` from `cwd` up to the filesystem root, so a project-local tool is found when kubb itself runs as a global binary.
  */
-export function binDirectories(cwd: string): Array<string> {
+function binDirectories(cwd: string): Array<string> {
   const own = join(cwd, 'node_modules', '.bin')
   const parent = dirname(cwd)
   return parent === cwd ? [own] : [own, ...binDirectories(parent)]
@@ -70,6 +60,12 @@ export function binDirectories(cwd: string): Array<string> {
 function hookEnv(cwd: string): NodeJS.ProcessEnv {
   const PATH = [...binDirectories(cwd), process.env.PATH ?? process.env.Path].filter(Boolean).join(delimiter)
   return process.platform === 'win32' ? { ...process.env, PATH, Path: PATH } : { ...process.env, PATH }
+}
+
+function toResult(outcome: SpawnOutcome, commandWithArgs: string): HookResult {
+  if ('error' in outcome) return { success: false, error: outcome.error }
+  if (outcome.code === 0) return { success: true, error: null }
+  return { success: false, error: new Error(`Hook execute failed: ${commandWithArgs}`), stdout: outcome.stdout, stderr: outcome.stderr }
 }
 
 function spawnHook(command: string, args: ReadonlyArray<string>, options: HookSpawnOptions): HookChild {
@@ -86,7 +82,8 @@ function spawnHook(command: string, args: ReadonlyArray<string>, options: HookSp
  * `success: false` instead of throwing. The failure travels on the result and `kubb:hook:end`
  * only, and the caller emits `kubb:success` or a diagnostic, so nothing is reported twice.
  */
-export async function runHook({ hooks, command, args = [], name, cwd = process.cwd(), id = randomUUID(), signal }: RunHookOptions): Promise<HookResult> {
+export async function runHook({ hooks, command, args = [], name, cwd = process.cwd(), signal }: RunHookOptions): Promise<HookResult> {
+  const id = randomUUID()
   const commandWithArgs = [command, ...args].join(' ')
   await hooks.callHook('kubb:hook:start', { id, command, name, args })
 
@@ -135,17 +132,14 @@ export async function runHook({ hooks, command, args = [], name, cwd = process.c
     })
     child.on('close', (code) => {
       clearTimeout(killTimer)
-      lines.then(() => resolve(spawnError ? { error: spawnError } : lineError ? { error: lineError } : { code, stdout, stderr }))
+      lines.then(() => {
+        const error = spawnError ?? lineError
+        resolve(error ? { error } : { code, stdout, stderr })
+      })
     })
   })
 
-  const result: HookResult =
-    'error' in outcome
-      ? { success: false, error: outcome.error }
-      : outcome.code === 0
-        ? { success: true, error: null }
-        : { success: false, error: new Error(`Hook execute failed: ${commandWithArgs}`), stdout: outcome.stdout, stderr: outcome.stderr }
-
+  const result = toResult(outcome, commandWithArgs)
   await hooks.callHook('kubb:hook:end', { id, command, name, args, ...result })
 
   return result

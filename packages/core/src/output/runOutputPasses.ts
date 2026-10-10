@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import { styleText } from 'node:util'
-import { detectTool, FORMATTER_PREFERENCE, formatters, LINTER_PREFERENCE, linters, type ToolCommand, toError, tokenize } from '@internals/utils'
+import { detectTool, FORMATTER_PREFERENCE, formatters, LINTER_PREFERENCE, linters, type ToolCommand, tokenize } from '@internals/utils'
 import { Diagnostics } from '../Diagnostics.ts'
 import type { Hookable } from '../Hookable.ts'
 import type { Config, Diagnostic, KubbHooks, ProblemDiagnostic } from '../types.ts'
@@ -34,21 +34,6 @@ const TOOL_PASSES: ReadonlyArray<ToolPass> = [
   { kind: 'lint', label: 'linter', verb: 'Linting', tools: linters, preference: LINTER_PREFERENCE, code: Diagnostics.code.lintFailed },
 ]
 
-/**
- * Builds the coded diagnostic for an output-phase failure.
- */
-function outputDiagnostic(code: ProblemDiagnostic['code'], label: string, caughtError: unknown): ProblemDiagnostic {
-  const error = toError(caughtError)
-  return {
-    code,
-    severity: 'error',
-    message: `${label} failed: ${error.message}`,
-    help: 'Check that the tool is installed and that the command and its config are correct.',
-    location: { kind: 'config' },
-    cause: error,
-  }
-}
-
 type ToolPassRun = Pick<RunOutputPassesOptions, 'hooks' | 'outputPath' | 'signal'> & { pass: ToolPass; setting: string; cwd: string }
 
 /**
@@ -74,7 +59,7 @@ async function runToolPass({ pass, setting, outputPath, hooks, cwd, signal }: To
     await hooks.callHook('kubb:success', { message: `${pass.verb} with ${styleText('dim', detected)} on ${styleText('dim', outputPath)} successfully` })
     return null
   }
-  return result.error ?? new Error(tool.errorMessage)
+  return result.error
 }
 
 /**
@@ -92,7 +77,14 @@ async function runToolPass({ pass, setting, outputPath, hooks, cwd, signal }: To
 export async function runOutputPasses({ config, outputPath, hooks, signal }: RunOutputPassesOptions): Promise<Array<Diagnostic>> {
   const diagnostics: Array<Diagnostic> = []
   const report = async (code: ProblemDiagnostic['code'], label: string, error: Error) => {
-    const diagnostic = outputDiagnostic(code, label, error)
+    const diagnostic: ProblemDiagnostic = {
+      code,
+      severity: 'error',
+      message: `${label} failed: ${error.message}`,
+      help: 'Check that the tool is installed and that the command and its config are correct.',
+      location: { kind: 'config' },
+      cause: error,
+    }
     diagnostics.push(diagnostic)
     await Diagnostics.emit(hooks, diagnostic)
   }
@@ -119,7 +111,7 @@ export async function runOutputPasses({ config, outputPath, hooks, signal }: Run
 
     const result = await runHook({ hooks, command: executable, args, name, cwd: config.root, signal })
     if (result.success) await hooks.callHook('kubb:success', { message: `${styleText('dim', name ?? command)} successfully executed` })
-    if (!result.success) await report(Diagnostics.code.postGenerateFailed, 'Post-generate command', result.error ?? new Error('Post-generate command failed'))
+    if (!result.success) await report(Diagnostics.code.postGenerateFailed, 'Post-generate command', result.error)
     signal?.throwIfAborted()
   }
   await hooks.callHook('kubb:hooks:end')
