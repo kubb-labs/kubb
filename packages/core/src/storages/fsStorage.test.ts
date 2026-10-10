@@ -5,7 +5,6 @@ import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { fsStorage } from './fsStorage.ts'
 
-// The Storage contract shared with memoryStorage lives in createStorage.test.ts.
 describe('fsStorage', () => {
   let dir: string
 

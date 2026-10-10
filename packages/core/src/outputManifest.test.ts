@@ -9,10 +9,7 @@ const MANIFEST_KEY = 'output-manifest.json'
  */
 const formatted = 'const a = 1;\n'
 
-/**
- * A manifest that recorded `a.ts` with source `const a = 1` and the formatted output on disk,
- * reopened as the next run would see it.
- */
+/** A manifest that recorded `a.ts` and its formatted output, reopened as the next run would see it. */
 async function recordedManifest() {
   const storage = memoryStorage()
   const cache = memoryStorage()

@@ -56,15 +56,9 @@ describe('createStorage', () => {
 type StorageCase = {
   name: string
   create(): Storage
-  /**
-   * What `readItem` returns after `writeItem(key, value)`: the filesystem driver ends a file with a
-   * newline, the in-memory one keeps the value verbatim.
-   */
+  /** What `readItem` returns after `writeItem(key, value)`; the filesystem driver appends a newline. */
   written(value: string): string
-  /**
-   * What `readKeys(base)` returns for `names` stored under `base`: relative to the base on the
-   * filesystem driver, full keys on the in-memory one.
-   */
+  /** What `readKeys(base)` returns for `names` under `base`: relative on disk, full keys in memory. */
   keysUnder(base: string, names: Array<string>): Array<string>
 }
 
@@ -83,9 +77,7 @@ const storages: Array<StorageCase> = [
   },
 ]
 
-// Both drivers back real builds, so each one answers the Storage contract the same way. Every key
-// lives under a temp dir that is removed afterwards, so the filesystem driver never touches the
-// package while the in-memory one keeps paths comparable.
+// Every key lives under a temp dir that is removed afterwards, so the filesystem driver never touches the package.
 describe.each(storages)('Storage contract: $name', ({ create, written, keysUnder }) => {
   let dir: string
   let storage: Storage

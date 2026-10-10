@@ -7,9 +7,7 @@ function createConfig(input: Config['input'], root = '/project'): Config {
   return { root, input } as unknown as Config
 }
 
-/**
- * The diagnostic code `fn` throws with, or `undefined` when it returns or throws something else.
- */
+/** The diagnostic code `fn` throws with, or `undefined` when it returns or throws something else. */
 function diagnosticCode(fn: () => unknown): string | undefined {
   try {
     fn()

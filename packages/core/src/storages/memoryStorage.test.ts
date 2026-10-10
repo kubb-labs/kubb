@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { memoryStorage } from './memoryStorage.ts'
 
-// The Storage contract shared with fsStorage lives in createStorage.test.ts.
 describe('memoryStorage', () => {
   it('returns an independent store from each call', async () => {
     const a = memoryStorage()

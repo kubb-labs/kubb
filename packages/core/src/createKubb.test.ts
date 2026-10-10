@@ -210,9 +210,7 @@ describe('createKubb', () => {
     expect(timings.every((diagnostic) => typeof diagnostic.duration === 'number')).toBe(true)
   })
 
-  // Plugins still run their generator pass sequentially, so `plugin:end` fires in declaration
-  // order, which drives the CLI counter. Writing to storage happens once, after every plugin
-  // (and post-processing) has finished generating, whatever the file count.
+  // Plugins generate sequentially, so `plugin:end` fires in declaration order; storage is written once at the end.
   it.each([
     [2, 1],
     [25, 1],
