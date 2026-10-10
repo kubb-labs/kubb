@@ -10,7 +10,7 @@ export type MachineStorage = {
   setItem: (key: string, value: string) => Promise<void>
 }
 
-/** One file per key under a directory, holding strings as-is and anything else as JSON. */
+/** One file per key under a directory, holding each value as JSON. */
 export type FileStorage = {
   getItem: <T = unknown>(key: string) => Promise<T | null>
   setItem: (key: string, value: unknown) => Promise<void>
@@ -44,13 +44,8 @@ export function setStorage(next: MachineStorage): void {
   hasInstalledStorage = true
 }
 
-function serialize(value: unknown): string {
-  return typeof value === 'string' ? value : JSON.stringify(value)
-}
-
+/** Reads a value as JSON, or as the raw text for a file an older driver wrote as a bare string. */
 function deserialize(text: string): unknown {
-  if (!/^\s*[[{"]/.test(text)) return text
-
   try {
     return JSON.parse(text)
   } catch {
@@ -70,7 +65,7 @@ function ignoreMissing(error: unknown): null {
  */
 export function createFileStorage(base: string): FileStorage {
   const root = resolve(base)
-  const pathOf = (key: string) => join(root, key.replace(/[\\:]/g, '/'))
+  const pathOf = (key: string) => join(root, key)
 
   return {
     getItem: async <T>(key: string) => {
@@ -80,7 +75,7 @@ export function createFileStorage(base: string): FileStorage {
     setItem: async (key, value) => {
       const path = pathOf(key)
       await mkdir(dirname(path), { recursive: true })
-      await writeFile(path, serialize(value), { encoding: 'utf8', mode: 0o600 })
+      await writeFile(path, JSON.stringify(value), { encoding: 'utf8', mode: 0o600 })
     },
     removeItem: (key) => rm(pathOf(key), { force: true }),
   }

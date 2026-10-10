@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { hash } from 'node:crypto'
-import { mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createFileStorage } from './machine.ts'
@@ -84,13 +84,20 @@ describe('createFileStorage', () => {
     rmSync(base, { recursive: true, force: true })
   })
 
-  it('writes a string under the key as a file only the owner can read', async () => {
+  it('writes a string under the key as JSON in a file only the owner can read', async () => {
     const storage = createFileStorage(base)
 
     await storage.setItem('machine-secret', 'abc123')
 
-    expect(readFileSync(join(base, 'machine-secret'), 'utf8')).toBe('abc123')
+    expect(readFileSync(join(base, 'machine-secret'), 'utf8')).toBe('"abc123"')
     expect(statSync(join(base, 'machine-secret')).mode & 0o777).toBe(0o600)
+    await expect(storage.getItem('machine-secret')).resolves.toBe('abc123')
+  })
+
+  it('reads a bare string an older driver wrote as-is', async () => {
+    const storage = createFileStorage(base)
+    writeFileSync(join(base, 'machine-secret'), 'abc123')
+
     await expect(storage.getItem('machine-secret')).resolves.toBe('abc123')
   })
 
