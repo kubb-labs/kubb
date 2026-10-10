@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createInput } from './input.ts'
+import { createOperation } from './operation.ts'
 import { createSchema } from './schema.ts'
 
 describe('createInput', () => {
@@ -24,8 +25,10 @@ describe('createInput', () => {
     const second = createInput()
 
     first.schemas.push(createSchema({ type: 'string' }))
+    first.operations.push(createOperation({ operationId: 'listPets', method: 'get', path: '/pets' }))
 
     expect(second.schemas).toStrictEqual([])
+    expect(second.operations).toStrictEqual([])
     expect(second.meta).not.toBe(first.meta)
     expect(second.meta).toStrictEqual({ circularNames: [], enumNames: [] })
   })
