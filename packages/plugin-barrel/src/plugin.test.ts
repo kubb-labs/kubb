@@ -1,5 +1,5 @@
 import { ast } from '@kubb/kit'
-import { createKubb, definePlugin, memoryStorage } from '@kubb/core'
+import { createKubb, definePlugin, Diagnostics, memoryStorage } from '@kubb/core'
 import type { Config, Plugin } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { pluginBarrel } from './plugin.ts'
@@ -141,6 +141,18 @@ describe('pluginBarrel', () => {
     expect(paths).not.toContain('/workspace/src/gen/types/index.ts')
     expect(rootExportNames()).not.toContain('Pet')
     expect(rootExportNames()).toContain('PetSchema')
+  })
+
+  it('reports a path traversal when a plugin output path escapes the output directory', async () => {
+    const escapingPlugin = makePlugin({
+      name: 'plugin-types',
+      outputPath: '../outside',
+      filePath: '/workspace/src/outside/pet.ts',
+      exportName: 'Pet',
+      output: { mode: 'directory' },
+    })
+
+    await expect(build({ plugins: [escapingPlugin] })).rejects.toMatchObject({ errors: [{ diagnostic: { code: Diagnostics.code.pathTraversal } }] })
   })
 
   it('keeps a plugin whose output path only shares a prefix with an excluded one', async () => {

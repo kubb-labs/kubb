@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { isPathInside } from '@internals/utils'
-import { definePlugin } from '@kubb/kit'
+import { definePlugin, Diagnostics } from '@kubb/kit'
 import type { ast, Config, KubbPluginEndContext, Plugin } from '@kubb/kit'
 import type { BarrelType, PluginBarrelConfig } from './types.ts'
 import { buildBarrelIndex, getBarrelFiles } from './utils.ts'
@@ -104,7 +104,13 @@ export const pluginBarrel = definePlugin(() => {
         }
 
         if (!isPathInside(target, base)) {
-          throw new Error('Invalid output path')
+          throw new Diagnostics.Error({
+            code: Diagnostics.code.pathTraversal,
+            severity: 'error',
+            message: `Output path "${plugin.options.output.path}" of plugin "${plugin.name}" resolves outside the output directory "${base}".`,
+            help: 'Keep the plugin `output.path` within `config.output.path`.',
+            location: { kind: 'config' },
+          })
         }
 
         // Only the target directory and barrel strategy are recorded here. The actual file-set
