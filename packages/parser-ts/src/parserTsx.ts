@@ -1,4 +1,5 @@
 import { defineParser } from '@kubb/kit'
+import type * as ts from 'typescript'
 import { parserTs, type ParserTsOptions } from './parserTs.ts'
 
 /**
@@ -24,7 +25,7 @@ import { parserTs, type ParserTsOptions } from './parserTs.ts'
  * })
  * ```
  */
-export const parserTsx = defineParser<ParserTsOptions>((options) => ({
+export const parserTsx = defineParser<ParserTsOptions, object, ts.Node>((options) => ({
   ...parserTs(options),
   name: 'tsx',
   extNames: ['.tsx', '.jsx'],

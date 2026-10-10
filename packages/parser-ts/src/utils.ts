@@ -134,7 +134,7 @@ export function splitModuleDeclarations(source: string, filePath: string): Modul
  *
  * Imperative on purpose: this runs once per source fragment and `map().filter().join()` showed up in deopt traces.
  */
-export function printNodes({ nodes, separator }: { nodes: Array<ast.CodeNode> | undefined; separator: '\n' | '\n\n' }): string {
+function printNodes({ nodes, separator }: { nodes: Array<ast.CodeNode> | undefined; separator: '\n' | '\n\n' }): string {
   let result = ''
   let pendingBreak = false
 
@@ -158,7 +158,7 @@ export function printNodes({ nodes, separator }: { nodes: Array<ast.CodeNode> | 
 /**
  * Indents every non-empty line of `text` by two spaces.
  */
-export function indentLines(text: string): string {
+function indentLines(text: string): string {
   if (!text) return ''
   return text
     .split('\n')
@@ -169,7 +169,7 @@ export function indentLines(text: string): string {
 /**
  * Strips the common leading whitespace and the surrounding blank lines, counting tabs and spaces alike, so indented template-literal content starts at column zero.
  */
-export function dedent(text: string): string {
+function dedent(text: string): string {
   if (!text) return ''
 
   const lines = text.split('\n')
@@ -247,7 +247,7 @@ export function print(...elements: Array<ts.Node>): string {
 /**
  * Converts a {@link ast.JSDocNode} to a `/** … *\/` block, dropping blank comments.
  */
-export function printJSDoc(jsDoc: ast.JSDocNode): string {
+function printJSDoc(jsDoc: ast.JSDocNode): string {
   const comments = (jsDoc.comments ?? []).filter((c) => c != null)
   if (comments.length === 0) return ''
 
@@ -264,7 +264,7 @@ export function printJSDoc(jsDoc: ast.JSDocNode): string {
 /**
  * Converts a {@link ast.ConstNode} to a `const` declaration, mirroring the `Const` component from `@kubb/renderer-jsx`.
  */
-export function printConst(node: ast.ConstNode): string {
+function printConst(node: ast.ConstNode): string {
   const { name, export: canExport, type, JSDoc, asConst, nodes } = node
 
   const declaration = `${canExport ? 'export ' : ''}const ${name}${type ? `: ${type}` : ''} = ${printNodes({ nodes, separator: '\n' })}${asConst ? ' as const' : ''}`
@@ -275,7 +275,7 @@ export function printConst(node: ast.ConstNode): string {
 /**
  * Converts a {@link ast.TypeNode} to a `type` alias, mirroring the `Type` component from `@kubb/renderer-jsx`.
  */
-export function printType(node: ast.TypeNode): string {
+function printType(node: ast.TypeNode): string {
   const { name, export: canExport, JSDoc, nodes } = node
 
   const declaration = `${canExport ? 'export ' : ''}type ${name} = ${printNodes({ nodes, separator: '\n' })}`
@@ -286,7 +286,7 @@ export function printType(node: ast.TypeNode): string {
 /**
  * Converts a {@link ast.FunctionNode} to a `function` declaration, mirroring the `Function` component from `@kubb/renderer-jsx`.
  */
-export function printFunction(node: ast.FunctionNode): string {
+function printFunction(node: ast.FunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes } = node
 
   const body = indentLines(printNodes({ nodes, separator: '\n' }))
@@ -299,7 +299,7 @@ export function printFunction(node: ast.FunctionNode): string {
 /**
  * Converts an {@link ast.ArrowFunctionNode} to a `const` arrow function, mirroring the `Function.Arrow` component from `@kubb/renderer-jsx`.
  */
-export function printArrowFunction(node: ast.ArrowFunctionNode): string {
+function printArrowFunction(node: ast.ArrowFunctionNode): string {
   const { name, default: isDefault, export: canExport, async: isAsync, generics, params, returnType, JSDoc, nodes, singleLine } = node
 
   const body = printNodes({ nodes, separator: '\n' })
@@ -313,7 +313,7 @@ export function printArrowFunction(node: ast.ArrowFunctionNode): string {
 /**
  * Dispatches a {@link ast.CodeNode} to the printer for its `kind`.
  */
-export function printCodeNode(node: ast.CodeNode): string {
+function printCodeNode(node: ast.CodeNode): string {
   switch (node.kind) {
     case 'Break':
       return ''
