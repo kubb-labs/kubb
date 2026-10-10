@@ -16,11 +16,9 @@ import { buildBarrelIndex, getBarrelFiles, getPluginOutputPrefix, isExcludedPath
 function withBarrelBannerFooter({ file, plugin, config }: { file: FileNode; plugin: NormalizedPlugin; config: Config }): FileNode {
   const output = plugin.options?.output
   const resolver = plugin.resolver
-  if (!resolver) return file
-
   const hasBanner = output?.banner !== undefined
   const hasFooter = output?.footer !== undefined
-  if (!hasBanner && !hasFooter) return file
+  if (!resolver || (!hasBanner && !hasFooter)) return file
 
   const context = { output, config, file: { path: file.path, baseName: file.baseName, isBarrel: true } }
   return {
@@ -120,15 +118,8 @@ export const pluginBarrel = definePlugin(() => {
         // Skip reactions to the barrel plugin's own lifecycle hook
         if (plugin.name === pluginBarrelName) return
 
-        const pluginBarrelOpt = plugin.options.output?.barrel
-        const configBarrel = config.output.barrel
-
-        // Root config barrel doesn't have nested, so we add it
-        const barrelConfig: PluginBarrelConfig | false = (() => {
-          if (pluginBarrelOpt !== undefined) return pluginBarrelOpt
-          if (configBarrel !== undefined) return configBarrel === false ? false : { ...configBarrel, nested: false }
-          return false
-        })()
+        // A plugin-level `false` wins over an enabled root barrel.
+        const barrelConfig: PluginBarrelConfig | false = plugin.options.output?.barrel ?? config.output.barrel ?? false
 
         if (barrelConfig === false) {
           excludedPrefixes.add(getPluginOutputPrefix(plugin, config))
