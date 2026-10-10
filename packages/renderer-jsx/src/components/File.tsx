@@ -77,16 +77,12 @@ type Props<TMeta> = BaseProps & {
  * ```
  */
 export function File<TMeta extends object = object>({ children, ...props }: Props<TMeta>): KubbReactElement {
-  const { baseName, path } = props
-
-  if (!baseName || !path) {
+  if (!props.baseName || !props.path) {
     return <>{children}</>
   }
 
   return <kubb-file {...props}>{children}</kubb-file>
 }
-
-File.displayName = 'File'
 
 type FileSourceProps = Omit<ast.SourceNode, 'kind' | 'value'> & {
   key?: Key
@@ -117,16 +113,8 @@ type FileSourceProps = Omit<ast.SourceNode, 'kind' | 'value'> & {
  * ```
  */
 function FileSource({ children, ...props }: FileSourceProps): KubbReactElement {
-  const { name, isExportable, isIndexable, isTypeOnly } = props
-
-  return (
-    <kubb-source name={name} isTypeOnly={isTypeOnly} isExportable={isExportable} isIndexable={isIndexable}>
-      {children}
-    </kubb-source>
-  )
+  return <kubb-source {...props}>{children}</kubb-source>
 }
-
-FileSource.displayName = 'FileSource'
 
 type FileExportProps = Omit<ast.ExportNode, 'kind'> & { key?: Key }
 
@@ -148,12 +136,8 @@ type FileExportProps = Omit<ast.ExportNode, 'kind'> & { key?: Key }
  * ```
  */
 function FileExport(props: FileExportProps): KubbReactElement {
-  const { name, path, isTypeOnly, asAlias } = props
-
-  return <kubb-export name={name} path={path} isTypeOnly={isTypeOnly} asAlias={asAlias} />
+  return <kubb-export {...props} />
 }
-
-FileExport.displayName = 'FileExport'
 
 type FileImportProps = Omit<ast.ImportNode, 'kind'> & { key?: Key }
 
@@ -181,12 +165,8 @@ type FileImportProps = Omit<ast.ImportNode, 'kind'> & { key?: Key }
  * ```
  */
 function FileImport(props: FileImportProps): KubbReactElement {
-  const { name, root, path, isTypeOnly, isNameSpace } = props
-
-  return <kubb-import name={name} root={root} path={path} isNameSpace={isNameSpace} isTypeOnly={isTypeOnly} />
+  return <kubb-import {...props} />
 }
-
-FileImport.displayName = 'FileImport'
 
 File.Export = FileExport
 File.Import = FileImport

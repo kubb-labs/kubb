@@ -1,5 +1,5 @@
-import { ast } from '@kubb/ast'
-import { createKubb, definePlugin, memoryStorage } from '@kubb/core'
+import { ast } from '@kubb/kit'
+import { createKubb, definePlugin, Diagnostics, memoryStorage } from '@kubb/core'
 import type { Config, Plugin } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { pluginBarrel } from './plugin.ts'
@@ -39,36 +39,46 @@ function makePlugin({
   }))()
 }
 
-describe('pluginBarrel', () => {
-  it('generates plugin and root barrels from streamed file batches', async () => {
-    const storage = memoryStorage()
-    const config = {
-      root: '/workspace',
-      output: { path: 'src/gen', barrel: { type: 'named' } },
-      parsers: [],
-      reporters: [],
-      plugins: [
-        makePlugin({
-          name: 'plugin-types',
-          outputPath: 'types',
-          filePath: '/workspace/src/gen/types/pet.ts',
-          exportName: 'Pet',
-          output: { mode: 'directory' },
-        }),
-        makePlugin({
-          name: 'plugin-schemas',
-          outputPath: 'schemas',
-          filePath: '/workspace/src/gen/schemas/petSchema.ts',
-          exportName: 'PetSchema',
-          output: { mode: 'directory' },
-        }),
-        pluginBarrel(),
-      ] as unknown as Array<Plugin>,
-      storage,
-    } satisfies Config
+function typesPlugin(output: Record<string, unknown> = {}) {
+  return makePlugin({
+    name: 'plugin-types',
+    outputPath: 'types',
+    filePath: '/workspace/src/gen/types/pet.ts',
+    exportName: 'Pet',
+    output: { mode: 'directory', ...output },
+  })
+}
 
-    const { files } = await createKubb(config).build()
-    const paths = files.map((file) => file.path)
+function schemasPlugin() {
+  return makePlugin({
+    name: 'plugin-schemas',
+    outputPath: 'schemas',
+    filePath: '/workspace/src/gen/schemas/petSchema.ts',
+    exportName: 'PetSchema',
+    output: { mode: 'directory' },
+  })
+}
+
+async function build({ plugins }: { plugins: Array<Plugin> }) {
+  const config = {
+    root: '/workspace',
+    output: { path: 'src/gen', barrel: { type: 'named' } },
+    parsers: [],
+    reporters: [],
+    plugins: [...plugins, pluginBarrel()] as unknown as Array<Plugin>,
+    storage: memoryStorage(),
+  } satisfies Config
+
+  const { files } = await createKubb(config).build()
+
+  const rootExportNames = files.find((file) => file.path === '/workspace/src/gen/index.ts')?.exports.flatMap((item) => item.name ?? [])
+
+  return { files, paths: files.map((file) => file.path), rootExportNames }
+}
+
+describe('pluginBarrel', () => {
+  it('generates a barrel per directory-mode plugin and a root barrel re-exporting them', async () => {
+    const { paths, rootExportNames } = await build({ plugins: [typesPlugin(), schemasPlugin()] })
 
     expect(paths).toStrictEqual(
       expect.arrayContaining([
@@ -79,152 +89,81 @@ describe('pluginBarrel', () => {
         '/workspace/src/gen/index.ts',
       ]),
     )
-    expect(files.find((file) => file.path === '/workspace/src/gen/index.ts')?.exports.flatMap((item) => item.name ?? [])).toStrictEqual(
-      expect.arrayContaining(['Pet', 'PetSchema']),
-    )
+    expect(rootExportNames).toStrictEqual(expect.arrayContaining(['Pet', 'PetSchema']))
   })
 
-  it('leaves barrels banner-free by default', async () => {
-    const storage = memoryStorage()
-    const config = {
-      root: '/workspace',
-      output: { path: 'src/gen', barrel: { type: 'named' } },
-      parsers: [],
-      reporters: [],
-      plugins: [
-        makePlugin({
-          name: 'plugin-types',
-          outputPath: 'types',
-          filePath: '/workspace/src/gen/types/pet.ts',
-          exportName: 'Pet',
-          output: { mode: 'directory' },
-        }),
-        pluginBarrel(),
-      ] as unknown as Array<Plugin>,
-      storage,
-    } satisfies Config
-
-    const { files } = await createKubb(config).build()
+  it.each([
+    { scenario: 'no banner or footer is configured', output: {}, banner: undefined, footer: undefined },
+    { scenario: 'a plugin banner and footer are configured', output: { banner: '// header', footer: '// footer' }, banner: '// header', footer: '// footer' },
+    {
+      scenario: 'a banner function skips barrels via isBarrel',
+      output: { banner: (meta: { isBarrel: boolean }) => (meta.isBarrel ? '' : "'use server'") },
+      banner: '',
+      footer: undefined,
+    },
+  ])('sets barrel banner to $banner and footer to $footer when $scenario', async ({ output, banner, footer }) => {
+    const { files } = await build({ plugins: [typesPlugin(output)] })
     const barrel = files.find((file) => file.path === '/workspace/src/gen/types/index.ts')
 
-    expect(barrel?.banner).toBeUndefined()
-    expect(barrel?.footer).toBeUndefined()
-  })
-
-  it('applies a configured plugin banner/footer to its barrel', async () => {
-    const storage = memoryStorage()
-    const config = {
-      root: '/workspace',
-      output: { path: 'src/gen', barrel: { type: 'named' } },
-      parsers: [],
-      reporters: [],
-      plugins: [
-        makePlugin({
-          name: 'plugin-types',
-          outputPath: 'types',
-          filePath: '/workspace/src/gen/types/pet.ts',
-          exportName: 'Pet',
-          output: { mode: 'directory', banner: '// header', footer: '// footer' },
-        }),
-        pluginBarrel(),
-      ] as unknown as Array<Plugin>,
-      storage,
-    } satisfies Config
-
-    const { files } = await createKubb(config).build()
-    const barrel = files.find((file) => file.path === '/workspace/src/gen/types/index.ts')
-
-    expect(barrel?.banner).toBe('// header')
-    expect(barrel?.footer).toBe('// footer')
-  })
-
-  it('passes isBarrel to a banner function so it can skip re-export files', async () => {
-    const storage = memoryStorage()
-    const config = {
-      root: '/workspace',
-      output: { path: 'src/gen', barrel: { type: 'named' } },
-      parsers: [],
-      reporters: [],
-      plugins: [
-        makePlugin({
-          name: 'plugin-types',
-          outputPath: 'types',
-          filePath: '/workspace/src/gen/types/pet.ts',
-          exportName: 'Pet',
-          output: { mode: 'directory', banner: (meta: { isBarrel: boolean }) => (meta.isBarrel ? '' : "'use server'") },
-        }),
-        pluginBarrel(),
-      ] as unknown as Array<Plugin>,
-      storage,
-    } satisfies Config
-
-    const { files } = await createKubb(config).build()
-    const barrel = files.find((file) => file.path === '/workspace/src/gen/types/index.ts')
-
-    expect(barrel?.banner).toBe('')
+    expect(barrel?.banner).toBe(banner)
+    expect(barrel?.footer).toBe(footer)
   })
 
   it("skips the per-plugin barrel for output.mode 'file' and re-exports the single file from the root barrel", async () => {
-    const storage = memoryStorage()
-    const config = {
-      root: '/workspace',
-      output: { path: 'src/gen', barrel: { type: 'named' } },
-      parsers: [],
-      reporters: [],
+    const { paths, rootExportNames } = await build({
       plugins: [
-        makePlugin({
-          name: 'plugin-types',
-          outputPath: 'types.ts',
-          filePath: '/workspace/src/gen/types.ts',
-          exportName: 'Pet',
-          output: { mode: 'file' },
-        }),
-        pluginBarrel(),
-      ] as unknown as Array<Plugin>,
-      storage,
-    } satisfies Config
-
-    const { files } = await createKubb(config).build()
-    const paths = files.map((file) => file.path)
+        makePlugin({ name: 'plugin-types', outputPath: 'types.ts', filePath: '/workspace/src/gen/types.ts', exportName: 'Pet', output: { mode: 'file' } }),
+      ],
+    })
 
     expect(paths).not.toContain('/workspace/src/gen/types.ts/index.ts')
     expect(paths).toContain('/workspace/src/gen/types.ts')
-    const rootBarrel = files.find((file) => file.path === '/workspace/src/gen/index.ts')
-    expect(rootBarrel?.exports.flatMap((item) => item.name ?? [])).toContain('Pet')
+    expect(rootExportNames).toContain('Pet')
   })
 
-  it('excludes a barrel:false file-mode plugin from the root barrel', async () => {
-    const storage = memoryStorage()
-    const config = {
-      root: '/workspace',
-      output: { path: 'src/gen', barrel: { type: 'named' } },
-      parsers: [],
-      reporters: [],
-      plugins: [
-        makePlugin({
-          name: 'plugin-types',
-          outputPath: 'types.ts',
-          filePath: '/workspace/src/gen/types.ts',
-          exportName: 'Pet',
-          output: { mode: 'file', barrel: false },
-        }),
-        makePlugin({
-          name: 'plugin-schemas',
-          outputPath: 'schemas',
-          filePath: '/workspace/src/gen/schemas/petSchema.ts',
-          exportName: 'PetSchema',
-          output: { mode: 'directory' },
-        }),
-        pluginBarrel(),
-      ] as unknown as Array<Plugin>,
-      storage,
-    } satisfies Config
+  it.each([
+    {
+      scenario: 'file-mode',
+      plugin: makePlugin({
+        name: 'plugin-types',
+        outputPath: 'types.ts',
+        filePath: '/workspace/src/gen/types.ts',
+        exportName: 'Pet',
+        output: { mode: 'file', barrel: false },
+      }),
+    },
+    { scenario: 'directory-mode', plugin: typesPlugin({ barrel: false }) },
+  ])('excludes a barrel:false $scenario plugin from the root barrel', async ({ plugin }) => {
+    const { paths, rootExportNames } = await build({ plugins: [plugin, schemasPlugin()] })
 
-    const { files } = await createKubb(config).build()
-    const rootBarrel = files.find((file) => file.path === '/workspace/src/gen/index.ts')
-    const exportedNames = rootBarrel?.exports.flatMap((item) => item.name ?? [])
+    expect(paths).not.toContain('/workspace/src/gen/types/index.ts')
+    expect(rootExportNames).not.toContain('Pet')
+    expect(rootExportNames).toContain('PetSchema')
+  })
 
-    expect(exportedNames).not.toContain('Pet')
-    expect(exportedNames).toContain('PetSchema')
+  it('reports a path traversal when a plugin output path escapes the output directory', async () => {
+    const escapingPlugin = makePlugin({
+      name: 'plugin-types',
+      outputPath: '../outside',
+      filePath: '/workspace/src/outside/pet.ts',
+      exportName: 'Pet',
+      output: { mode: 'directory' },
+    })
+
+    await expect(build({ plugins: [escapingPlugin] })).rejects.toMatchObject({ errors: [{ diagnostic: { code: Diagnostics.code.pathTraversal } }] })
+  })
+
+  it('keeps a plugin whose output path only shares a prefix with an excluded one', async () => {
+    const extraPlugin = makePlugin({
+      name: 'plugin-types-extra',
+      outputPath: 'typesExtra',
+      filePath: '/workspace/src/gen/typesExtra/pet.ts',
+      exportName: 'PetExtra',
+      output: { mode: 'directory' },
+    })
+    const { rootExportNames } = await build({ plugins: [typesPlugin({ barrel: false }), extraPlugin] })
+
+    expect(rootExportNames).not.toContain('Pet')
+    expect(rootExportNames).toContain('PetExtra')
   })
 })

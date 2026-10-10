@@ -1,6 +1,7 @@
-import type { KubbReactElement } from '../../types.ts'
+import type { Key, KubbReactElement } from '../../types.ts'
 
 type Props = {
+  key?: Key
   /**
    * Raw JSX string embedded verbatim in the generated code, including
    * fragments (`<>…</>`).
@@ -31,5 +32,3 @@ type Props = {
 export function Jsx({ children }: Props): KubbReactElement {
   return <kubb-jsx>{children}</kubb-jsx>
 }
-
-Jsx.displayName = 'Jsx'

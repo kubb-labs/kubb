@@ -54,5 +54,3 @@ export function Callout({ type, title, children }: Props): KubbReactElement {
     .join('\n')
   return <kubb-source name="callout">{`${header}\n${quoted}`}</kubb-source>
 }
-
-Callout.displayName = 'Callout'

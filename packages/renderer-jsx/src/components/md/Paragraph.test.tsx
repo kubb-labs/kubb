@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { jsxRenderer } from '../../jsxRenderer.tsx'
+import { jsxRenderer } from '../../jsxRenderer.ts'
+import { firstValue } from './testing.ts'
 import { File } from '../File.tsx'
 import { Paragraph } from './Paragraph.tsx'
 
 describe('Paragraph', () => {
-  it('renders body text verbatim', async () => {
+  it('returns the body text verbatim', async () => {
     const renderer = jsxRenderer()
     await renderer.render(
       <File baseName="post.md" path="src/post.md">
@@ -12,8 +13,6 @@ describe('Paragraph', () => {
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(
-      `"A pet object with \`id\` and \`name\` fields."`,
-    )
+    expect(firstValue(renderer)).toBe('A pet object with `id` and `name` fields.')
   })
 })

@@ -24,5 +24,3 @@ type Props = {
 export function Paragraph({ children }: Props): KubbReactElement {
   return <kubb-source name="paragraph">{children}</kubb-source>
 }
-
-Paragraph.displayName = 'Paragraph'

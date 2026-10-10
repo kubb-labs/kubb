@@ -1,370 +1,124 @@
 import type { CLIOptions, Parser, Reporter, UserConfig } from '@kubb/core'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, expectTypeOf, test } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { defineConfig } from './defineConfig.ts'
 
+type Resolved = UserConfig | Array<UserConfig>
+type ConfigShape = Resolved | Promise<Resolved> | ((cli: CLIOptions) => Promise<Resolved>)
+type ExplicitFieldRow = { field: string; partial: Partial<UserConfig>; pick: (config: UserConfig) => unknown; value: unknown }
+type ConfigShapeRow = { shape: string; config: ConfigShape; count: number }
+
+const minimal = { input: 'spec.yaml', output: { path: './gen' } } satisfies UserConfig
+
+function resolve(partial: Partial<UserConfig> = {}): UserConfig {
+  return defineConfig({ ...minimal, ...partial } as UserConfig) as UserConfig
+}
+
+async function settle(config: ConfigShape): Promise<Array<UserConfig>> {
+  const resolved = await (typeof config === 'function' ? config({}) : config)
+
+  return Array.isArray(resolved) ? resolved : [resolved]
+}
+
 describe('defineConfig', () => {
-  const plugin = createMockedPlugin({
-    name: 'plugin',
-    options: {},
-  })
-
-  const baseConfig: UserConfig = {
-    root: '.',
-    input: 'https://petstore3.swagger.io/api/v3/openapi.json',
-    output: {
-      path: './src/gen',
-      clean: true,
-      barrel: { type: 'named' },
-    },
-    parsers: [],
-    adapter: createMockedAdapter(),
-    plugins: [plugin, pluginBarrel()],
-  }
-
   test('defaults root to process.cwd() when not set', () => {
-    const config = defineConfig({
-      input: 'spec.yaml',
-      output: { path: './gen' },
-    } as UserConfig)
-    const resolved = config as UserConfig
-
-    expect(resolved.root).toBe(process.cwd())
+    expect(resolve().root).toBe(process.cwd())
   })
 
-  test('preserves an explicit root', () => {
-    const config = defineConfig({
-      root: '/custom/root',
-      input: 'spec.yaml',
-      output: { path: './gen' },
-    } as UserConfig)
-    const resolved = config as UserConfig
-
-    expect(resolved.root).toBe('/custom/root')
+  test('applies the oas adapter when not set', () => {
+    expect(resolve().adapter?.name).toBe('oas')
   })
 
-  test('applies default adapter when not set', () => {
-    const config = defineConfig({
-      root: '.',
-      input: 'spec.yaml',
-      output: { path: './gen' },
-    } as UserConfig)
-    const resolved = config as UserConfig
-
-    expect(resolved.adapter).toBeDefined()
-    expect(resolved.adapter?.name).toBe('oas')
-  })
-
-  test('applies default parsers when not set', () => {
-    const config = defineConfig({
-      root: '.',
-      input: 'spec.yaml',
-      output: { path: './gen' },
-    } as UserConfig)
-    const resolved = config as UserConfig
-
-    expect(resolved.parsers?.length).toBeGreaterThan(0)
+  test('applies the typescript, tsx, and markdown parsers when not set', () => {
+    expect(resolve().parsers?.map((parser) => parser.name)).toStrictEqual(['typescript', 'tsx', 'markdown'])
   })
 
   test('registers the built-in reporters when not set', () => {
-    const config = defineConfig({
-      root: '.',
-      input: 'spec.yaml',
-      output: { path: './gen' },
-    } as UserConfig)
-    const resolved = config as UserConfig
-
-    expect(resolved.reporters?.map((reporter) => reporter.name)).toStrictEqual(['cli', 'json', 'file', 'html'])
-  })
-
-  test('preserves existing reporters when non-empty', () => {
-    const reporters = [{ name: 'custom' } as Reporter]
-    const config = defineConfig({
-      root: '.',
-      input: 'spec.yaml',
-      output: { path: './gen' },
-      reporters,
-    } as UserConfig)
-    const resolved = config as UserConfig
-
-    expect(resolved.reporters).toBe(reporters)
+    expect(resolve().reporters?.map((reporter) => reporter.name)).toStrictEqual(['cli', 'json', 'file', 'html'])
   })
 
   test('appends pluginBarrel to plugins when not already present', () => {
-    const config = defineConfig({
-      root: '.',
-      input: 'spec.yaml',
-      output: { path: './gen' },
-    } as UserConfig)
-    const resolved = config as UserConfig
-
-    expect(resolved.plugins?.some((p) => p.name === pluginBarrelName)).toBe(true)
-  })
-
-  test('defaults output.barrel to false when not set', () => {
-    const config = defineConfig({
-      root: '.',
-      input: 'spec.yaml',
-      output: { path: './gen' },
-    } as UserConfig)
-    const resolved = config as UserConfig
-
-    expect(resolved.output.barrel).toBe(false)
-  })
-
-  test('preserves explicit output.barrel (including false)', () => {
-    const named = defineConfig({
-      root: '.',
-      input: 'spec.yaml',
-      output: { path: './gen', barrel: { type: 'all' } },
-    } as UserConfig) as UserConfig
-    const disabled = defineConfig({
-      root: '.',
-      input: 'spec.yaml',
-      output: { path: './gen', barrel: false },
-    } as UserConfig) as UserConfig
-
-    expect(named.output.barrel).toStrictEqual({ type: 'all' })
-    expect(disabled.output.barrel).toBe(false)
+    expect(resolve().plugins?.map((plugin) => plugin.name)).toStrictEqual([pluginBarrelName])
   })
 
   test('does not append pluginBarrel when already in plugins list', () => {
-    const config = defineConfig({
-      root: '.',
-      input: 'spec.yaml',
-      output: { path: './gen' },
-      plugins: [pluginBarrel()],
-    } as UserConfig)
-    const resolved = config as UserConfig
-
-    const barrelCount = resolved.plugins?.filter((p) => p.name === pluginBarrelName).length ?? 0
-    expect(barrelCount).toBe(1)
+    expect(resolve({ plugins: [pluginBarrel()] }).plugins?.map((plugin) => plugin.name)).toStrictEqual([pluginBarrelName])
   })
 
-  test('appends pluginBarrel and defaults barrel when plugins omit it', () => {
-    const customPlugin = createMockedPlugin({ name: 'custom', options: {} })
-    const config = defineConfig({
-      root: '.',
-      input: 'spec.yaml',
-      output: { path: './gen' },
-      plugins: [customPlugin],
-    } as UserConfig)
-    const resolved = config as UserConfig
+  test('appends pluginBarrel after a custom plugin and defaults output.barrel to false', () => {
+    const resolved = resolve({ plugins: [createMockedPlugin({ name: 'custom', options: {} })] })
 
-    expect(resolved.plugins?.some((p) => p.name === pluginBarrelName)).toBe(true)
+    expect(resolved.plugins?.map((plugin) => plugin.name)).toStrictEqual(['custom', pluginBarrelName])
     expect(resolved.output.barrel).toBe(false)
   })
 
-  test('preserves existing adapter', () => {
-    const adapter = createMockedAdapter()
-    const config = defineConfig({
-      root: '.',
-      input: 'spec.yaml',
-      output: { path: './gen' },
-      adapter,
-    } as UserConfig)
-    const resolved = config as UserConfig
-
-    expect(resolved.adapter).toBe(adapter)
+  test('defaults output.barrel, output.format, and output.lint to false when not set', () => {
+    expect(resolve().output).toStrictEqual({ path: './gen', barrel: false, format: false, lint: false })
   })
 
-  test('preserves existing parsers when non-empty', () => {
-    const parsers = [{ name: 'custom' } as Parser]
-    const config = defineConfig({
-      root: '.',
-      input: 'spec.yaml',
-      output: { path: './gen' },
-      parsers,
-    } as UserConfig)
-    const resolved = config as UserConfig
+  const adapter = createMockedAdapter()
+  const parsers = [{ name: 'custom' } as Parser]
+  const reporters = [{ name: 'custom' } as Reporter]
+  const barrel = { type: 'all' } as const
+  const postGenerate = [{ name: 'types', command: 'npm run typecheck' }, 'biome check --write ./gen']
 
-    expect(resolved.parsers).toBe(parsers)
-  })
-
-  test('handles array of configs', () => {
-    const result = defineConfig([{ ...baseConfig }, { ...baseConfig }])
-
-    expect(Array.isArray(result)).toBe(true)
-    expect(result).toHaveLength(2)
-  })
-
-  test('handles function config', async () => {
-    const fn = defineConfig(() => ({ ...baseConfig }))
-    const typedFn: (cli: CLIOptions) => Promise<UserConfig> = fn
-
-    expect(typeof fn).toBe('function')
-    expect(typeof typedFn).toBe('function')
-    const result = await fn({})
-
-    expect(result).toBeDefined()
-  })
-
-  test('handles async function config', async () => {
-    const fn = defineConfig(async () => ({ ...baseConfig }))
-    const typedFn: (cli: CLIOptions) => Promise<UserConfig> = fn
-
-    expect(typeof typedFn).toBe('function')
-    const result = await fn({})
-
-    expect(result).toBeDefined()
-  })
-
-  test('handles function array config', async () => {
-    const fn = defineConfig(() => [{ ...baseConfig }])
-    const typedFn: (cli: CLIOptions) => Promise<Array<UserConfig>> = fn
-
-    expect(typeof typedFn).toBe('function')
-    const result = await fn({})
-
-    expect(result).toHaveLength(1)
-  })
-
-  test('handles async function array config', async () => {
-    const fn = defineConfig(async () => [{ ...baseConfig }])
-    const typedFn: (cli: CLIOptions) => Promise<Array<UserConfig>> = fn
-
-    expect(typeof typedFn).toBe('function')
-    const result = await fn({})
-
-    expect(result).toHaveLength(1)
-  })
-
-  test('handles promise config', async () => {
-    const config = defineConfig(
-      Promise.resolve({
-        input: 'spec.yaml',
-        output: { path: './gen' },
-      }),
-    )
-    const typedConfig: Promise<UserConfig<string>> = config
-
-    const result = await config
-
-    expect(result).toBeDefined()
-    expect(typedConfig).toBeDefined()
-  })
-
-  test('handles promise array config', async () => {
-    const config = defineConfig(
-      Promise.resolve([
-        {
-          input: 'spec.yaml',
-          output: { path: './gen' },
-        },
-      ]),
-    )
-    const typedConfig: Promise<Array<UserConfig<string>>> = config
-
-    const result = await config
-
-    expect(result).toHaveLength(1)
-    expect(typedConfig).toBeDefined()
-  })
-
-  test('preserves inferred input types', () => {
-    const pathConfig = defineConfig({
-      input: 'spec.yaml',
-      output: { path: './gen' },
-    })
-    const dataConfig = defineConfig({
-      input: { openapi: '3.1.0' },
-      output: { path: './gen' },
-    })
-    const typedPathConfig: UserConfig<string> = pathConfig
-    const typedDataConfig: UserConfig<{ openapi: string }> = dataConfig
-
-    expect(typedPathConfig.input).toBe('spec.yaml')
-    expect(typedDataConfig.input).toStrictEqual({ openapi: '3.1.0' })
-  })
-
-  test('accepts named configs with output.postGenerate', () => {
-    const namedConfig = defineConfig({
-      name: 'gen',
-      root: '.',
-      input: 'spec.yaml',
-      output: {
-        path: './gen',
-        postGenerate: [{ name: 'types', command: 'npm run typecheck' }, 'biome check --write ./gen'],
-      },
-      plugins: [],
-    })
-    const typedNamedConfig: UserConfig<string> = namedConfig
-
-    expect(typedNamedConfig.name).toBe('gen')
-    expect(typedNamedConfig.output.postGenerate).toStrictEqual([{ name: 'types', command: 'npm run typecheck' }, 'biome check --write ./gen'])
-  })
-
-  test('preserves inferred input types for array results', () => {
-    const arrayConfig = defineConfig([
-      {
-        input: 'spec.yaml',
-        output: { path: './gen' },
-      },
-    ])
-    const typedArrayConfig: Array<UserConfig<string>> = arrayConfig
-
-    expect(typedArrayConfig).toHaveLength(1)
-  })
-
-  const configs = [
-    {
-      name: 'simple',
-      config: baseConfig,
-    },
-    {
-      name: 'array',
-      config: defineConfig([{ ...baseConfig }]),
-    },
-    {
-      name: 'function',
-      config: defineConfig(() => ({ ...baseConfig })),
-    },
-    {
-      name: 'functionArray',
-      config: defineConfig(() => [{ ...baseConfig }]),
-    },
-    {
-      name: 'asyncFunctionArray',
-      config: defineConfig(async () => [{ ...baseConfig }]),
-    },
-    {
-      name: 'promiseArray',
-      config: defineConfig(Promise.resolve([{ ...baseConfig }])),
-    },
+  const explicitFields: Array<ExplicitFieldRow> = [
+    { field: 'root', partial: { root: '/custom/root' }, pick: (config) => config.root, value: '/custom/root' },
+    { field: 'name', partial: { name: 'gen' }, pick: (config) => config.name, value: 'gen' },
+    { field: 'adapter', partial: { adapter }, pick: (config) => config.adapter, value: adapter },
+    { field: 'parsers', partial: { parsers }, pick: (config) => config.parsers, value: parsers },
+    { field: 'reporters', partial: { reporters }, pick: (config) => config.reporters, value: reporters },
+    { field: 'output.barrel', partial: { output: { path: './gen', barrel } }, pick: (config) => config.output.barrel, value: barrel },
+    { field: 'output.barrel set to false', partial: { output: { path: './gen', barrel: false } }, pick: (config) => config.output.barrel, value: false },
+    { field: 'output.postGenerate', partial: { output: { path: './gen', postGenerate } }, pick: (config) => config.output.postGenerate, value: postGenerate },
   ]
 
-  test.each(configs)('resolves config as $name', async ({ config }) => {
-    let kubbUserConfig = Promise.resolve(config) as Promise<unknown>
+  test.each(explicitFields)('preserves an explicit $field', ({ partial, pick, value }) => {
+    expect(pick(resolve(partial))).toStrictEqual(value)
+  })
 
-    if (typeof config === 'function') {
-      kubbUserConfig = Promise.resolve(config({}))
+  const shapes: Array<ConfigShapeRow> = [
+    { shape: 'an object', config: defineConfig({ ...minimal }), count: 1 },
+    { shape: 'an array', config: defineConfig([{ ...minimal }, { ...minimal }]), count: 2 },
+    { shape: 'a function', config: defineConfig(() => ({ ...minimal })), count: 1 },
+    { shape: 'an async function', config: defineConfig(async () => ({ ...minimal })), count: 1 },
+    { shape: 'a function returning an array', config: defineConfig(() => [{ ...minimal }]), count: 1 },
+    { shape: 'an async function returning an array', config: defineConfig(async () => [{ ...minimal }]), count: 1 },
+    { shape: 'a promise', config: defineConfig(Promise.resolve({ ...minimal })), count: 1 },
+    { shape: 'a promise of an array', config: defineConfig(Promise.resolve([{ ...minimal }])), count: 1 },
+  ]
+
+  test.each(shapes)('applies defaults when config is $shape', async ({ config, count }) => {
+    const configs = await settle(config)
+
+    expect(configs).toHaveLength(count)
+    for (const resolved of configs) {
+      expect(resolved.root).toBe(process.cwd())
+      expect(resolved.adapter?.name).toBe('oas')
+      expect(resolved.plugins?.map((plugin) => plugin.name)).toStrictEqual([pluginBarrelName])
+      expect(resolved.output).toStrictEqual({ path: './gen', barrel: false, format: false, lint: false })
     }
+  })
 
-    let JSONConfig = (await kubbUserConfig) as UserConfig | Array<UserConfig>
-
-    if (!Array.isArray(JSONConfig)) {
-      JSONConfig = [JSONConfig]
-    }
-
-    for (const c of JSONConfig) {
-      expect(c).toBeDefined()
-      expect(c.root).toBe('.')
-      expect(c.adapter).toBeDefined()
-    }
+  test('infers the input type from the config shape', () => {
+    expectTypeOf(defineConfig({ ...minimal })).toEqualTypeOf<UserConfig<string>>()
+    expectTypeOf(defineConfig({ input: { openapi: '3.1.0' }, output: { path: './gen' } })).toEqualTypeOf<UserConfig<{ openapi: string }>>()
+    expectTypeOf(defineConfig([{ ...minimal }])).toEqualTypeOf<Array<UserConfig<string>>>()
+    expectTypeOf(defineConfig(() => ({ ...minimal }))).toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig<string>>>()
+    expectTypeOf(defineConfig(async () => ({ ...minimal }))).toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig<string>>>()
+    expectTypeOf(defineConfig(Promise.resolve({ ...minimal }))).toEqualTypeOf<Promise<UserConfig<string>>>()
+    expectTypeOf(defineConfig(Promise.resolve([{ ...minimal }]))).toEqualTypeOf<Promise<Array<UserConfig<string>>>>()
   })
 })
 
 describe('createKubb', () => {
   test('applies the same defaults as defineConfig', () => {
-    const kubb = createKubb({
-      input: 'spec.yaml',
-      output: { path: './gen' },
-    })
+    const kubb = createKubb({ ...minimal })
 
     expect(kubb.config.adapter?.name).toBe('oas')
-    expect(kubb.config.parsers).toHaveLength(3)
-    expect(kubb.config.plugins.some((plugin) => plugin.name === pluginBarrelName)).toBe(true)
+    expect(kubb.config.parsers.map((parser) => parser.name)).toStrictEqual(['typescript', 'tsx', 'markdown'])
+    expect(kubb.config.plugins.map((plugin) => plugin.name)).toStrictEqual([pluginBarrelName])
   })
 })

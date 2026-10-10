@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { jsxRenderer } from '../../jsxRenderer.tsx'
+import { jsxRenderer } from '../../jsxRenderer.ts'
+import { firstValue } from './testing.ts'
 import { File } from '../File.tsx'
 import { Heading } from './Heading.tsx'
 
@@ -12,6 +13,6 @@ describe('Heading', () => {
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`"## Installation"`)
+    expect(firstValue(renderer)).toMatchInlineSnapshot(`"## Installation"`)
   })
 })

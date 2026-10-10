@@ -35,6 +35,7 @@ export type {
   KubbPluginSetupContext,
   KubbPluginStartContext,
   NodeCache,
+  NormalizedPlugin,
   Output,
   OutputOptions,
   Override,
