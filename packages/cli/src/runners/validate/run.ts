@@ -1,29 +1,21 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { toError } from '@internals/utils'
-import type { CommandRunner } from 'gunshi'
-import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
-import { version } from '../../../package.json'
-import type { definition } from '../../commands/validate.ts'
+import { trackRun } from '../../Telemetry.ts'
 
 type ValidateOptions = {
   /**
    * Path or URL to the OpenAPI/Swagger file to validate.
    */
   input: string
-  /**
-   * Current `@kubb/cli` version string, used for the telemetry payload.
-   */
-  version: string
 }
 
 /**
  * Validates an OpenAPI/Swagger file at `input` using `@kubb/adapter-oas`.
  * Exits the process with code 1 on validation failure or missing dependency.
  */
-export async function run({ input, version }: ValidateOptions): Promise<void> {
-  const hrStart = process.hrtime()
-  const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'validate', kubbVersion: version, hrStart, status }))
+export async function run({ input }: ValidateOptions): Promise<void> {
+  const report = trackRun({ command: 'validate', hrStart: process.hrtime() })
 
   try {
     const { adapterOas } = await import('@kubb/adapter-oas')
@@ -34,11 +26,11 @@ export async function run({ input, version }: ValidateOptions): Promise<void> {
     }
 
     await adapter.validate(input, { throwOnError: true })
-    await report('success')
+    await report({ status: 'success' })
 
     console.log('✅ Validation success')
   } catch (error) {
-    await report('failed')
+    await report({ status: 'failed' })
     if (error instanceof Error && /@kubb\/adapter-oas/.test(error.message)) {
       console.error(styleText('red', 'The @kubb/adapter-oas package is not installed.'))
       console.error('')
@@ -53,12 +45,4 @@ export async function run({ input, version }: ValidateOptions): Promise<void> {
 
     process.exit(1)
   }
-}
-
-/**
- * Loaded on demand by `index.ts`, so `@kubb/adapter-oas` stays out of the process for every other
- * command.
- */
-export const runner: CommandRunner<{ args: typeof definition.args; extensions: {} }> = async ({ values }) => {
-  await run({ input: values.input, version })
 }

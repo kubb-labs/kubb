@@ -1,8 +1,8 @@
 import { adapterOas } from '@kubb/adapter-oas'
 import type { Config, UserConfig } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
+import * as config from '../../config.ts'
 import * as env from '../../utils/env.ts'
-import * as utils from './utils.ts'
 import { run } from './run.ts'
 
 type BootstrapOptions = {
@@ -33,7 +33,7 @@ async function bootstrap({ fail = false, reporters, configs = [] }: BootstrapOpt
     throw new Error(`exit ${code}`)
   }) as never)
   using _configs = vi
-    .spyOn(utils, 'getConfigs')
+    .spyOn(config, 'getConfigs')
     .mockImplementation(() =>
       fail ? Promise.reject(new Error('Config not defined')) : Promise.resolve({ configs, configPath: `${process.cwd()}/kubb.config.ts` }),
     )

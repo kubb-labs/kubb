@@ -2,21 +2,118 @@ import { relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { formatMs, getElapsedMs } from '@internals/utils'
+import type { Config } from '@kubb/core'
 import { Diagnostics, logLevel as logLevelMap } from '@kubb/core'
+import type { StudioConnectedContext } from '@kubb/studio'
 import { formatMsWithColor } from './banner.ts'
-import type { LoggerContext, LoggerHandle, LoggerOptions, LoggerWriter, LogStatus, WriterProgress, WriterSpinner } from './defineLogger.ts'
-import {
-  buildProgressLine,
-  createProgressCounters,
-  formatCommandWithArgs,
-  formatErrorFrames,
-  formatMessage,
-  formatVersions,
-  getInputPath,
-  pluralize,
-  recordPluginResult,
-  resetProgressCounters,
-} from './utils.ts'
+import type { Logger, LoggerWriter, LogStatus, WriterProgress, WriterSpinner } from './defineLogger.ts'
+
+/** Display path for a config's input: the string form, or its `path` field when the input is an object. */
+function getInputPath(config: Config): string | undefined {
+  const { input } = config
+  if (typeof input === 'string') return input
+  return typeof input?.path === 'string' ? input.path : undefined
+}
+
+/** Counts a noun, so a message never reads `1 files`. */
+export function pluralize(count: number, noun: string): string {
+  return `${count} ${count === 1 ? noun : `${noun}s`}`
+}
+
+/** Prefixes a `[HH:MM:SS]` timestamp at verbose and above. */
+function formatMessage(message: string, logLevel: number): string {
+  if (logLevel >= logLevelMap.verbose) {
+    const timestamp = new Date().toLocaleTimeString('en-US', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    })
+    return `${styleText('dim', `[${timestamp}]`)} ${message}`
+  }
+  return message
+}
+
+/** Renders a `studio:connected` event's versions: the runtime only when it differs from the host, Studio's only when it sent one. */
+function formatVersions({ studio, kubb, agent }: StudioConnectedContext['versions']): string {
+  return [`v${agent}`, kubb !== agent ? `runtime v${kubb}` : undefined, studio ? `Studio v${studio}` : undefined].filter(Boolean).join(', ')
+}
+
+/** The first three frames of a stack, without the message line. */
+function topFrames(stack: string): Array<string> {
+  return stack
+    .split('\n')
+    .slice(1, 4)
+    .map((frame) => frame.trim())
+}
+
+/** First stack frames for verbose error output, including an optional `cause` chain. */
+function formatErrorFrames(error: Error): { frames: Array<string>; cause?: { header: string; frames: Array<string> } } | null {
+  if (!error.stack) {
+    return null
+  }
+
+  const frames = topFrames(error.stack)
+  const caused = error.cause instanceof Error ? error.cause : undefined
+
+  if (!caused?.stack) {
+    return { frames }
+  }
+
+  return {
+    frames,
+    cause: {
+      header: `└─ caused by ${caused.message}`,
+      frames: topFrames(caused.stack),
+    },
+  }
+}
+
+type ProgressState = {
+  totalPlugins: number
+  completedPlugins: number
+  failedPlugins: number
+  totalFiles: number
+  processedFiles: number
+  /** `process.hrtime()` snapshot taken at the start of generation, for the elapsed time. */
+  hrStart: [number, number]
+}
+
+/** The progress summary line the clack logger shows, `null` when there is nothing to display. */
+function buildProgressLine(state: ProgressState): string | null {
+  const parts: Array<string> = []
+  const duration = formatMs(getElapsedMs(state.hrStart))
+
+  if (state.totalPlugins > 0) {
+    const pluginStr =
+      state.failedPlugins > 0
+        ? `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins} ${styleText('red', `(${state.failedPlugins} failed)`)}`
+        : `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins}`
+    parts.push(pluginStr)
+  }
+
+  if (state.totalFiles > 0) {
+    parts.push(`Files ${styleText('green', state.processedFiles.toString())}/${state.totalFiles}`)
+  }
+
+  if (parts.length === 0) {
+    return null
+  }
+
+  parts.push(`${styleText('green', duration)} elapsed`)
+  return parts.join(styleText('dim', ' | '))
+}
+
+function createProgressCounters(): ProgressState {
+  return {
+    totalPlugins: 0,
+    completedPlugins: 0,
+    failedPlugins: 0,
+    totalFiles: 0,
+    processedFiles: 0,
+    hrStart: process.hrtime(),
+  }
+}
 
 /**
  * One output phase while its step owns the line. A phase buffers what it is told, because a spinner
@@ -84,12 +181,11 @@ function trimBlankEdges(lines: ReadonlyArray<string>): Array<string> {
  *
  * @example
  * ```ts
- * export const plainLogger = { name: 'plain', install: (context, options) => createLogger(writer)(context, options) }
+ * export const plainLogger = createLogger(writer)
  * ```
  */
-export function createLogger(writer: LoggerWriter) {
-  return function install(context: LoggerContext, options?: LoggerOptions): LoggerHandle {
-    const logLevel = options?.logLevel ?? logLevelMap.info
+export function createLogger(writer: LoggerWriter): Logger {
+  return function install(context, { logLevel }) {
     const silent = logLevel <= logLevelMap.silent
     const state = {
       ...createProgressCounters(),
@@ -190,57 +286,23 @@ export function createLogger(writer: LoggerWriter) {
     function reset() {
       stopSpinner()
       stopProgress()
-      resetProgressCounters(state)
+      Object.assign(state, createProgressCounters())
       state.hooks.clear()
       state.pluginLines = []
       state.phase = null
       state.groupOpen = false
     }
 
-    context.hook('kubb:info', ({ message, info }) => {
-      if (silent) {
-        return
-      }
-
-      const line = text([styleText('blue', 'ℹ'), message, info ? styleText('dim', info) : undefined].filter(Boolean).join(' '))
-
-      // Info carries something new (the auto-detected tool), so inside a phase it waits for the
-      // phase to print rather than being spent on a frame the next one overwrites.
-      if (state.phase) {
-        state.phase.lines.push(line)
-        return
-      }
-      if (state.spinner) {
-        state.spinner.message(line)
-        return
-      }
-      writer.info(line)
-    })
-
-    context.hook('kubb:success', ({ message, info }) => {
-      if (silent) {
-        return
-      }
-
-      const line = text([styleText('green', '✓'), message, logLevel >= logLevelMap.info && info ? styleText('dim', info) : undefined].filter(Boolean).join(' '))
-
-      // A phase step outlives the successes reported inside it, and its own result says the same
-      // thing, so let the step carry them.
-      if (state.spinner) {
-        state.spinner.message(line)
-        return
-      }
-      writer.success(line)
-    })
+    function formatLine(symbol: string, message: string, info?: string): string {
+      return text([symbol, message, info && styleText('dim', info)].filter(Boolean).join(' '))
+    }
 
     context.hook('kubb:warn', ({ message, info }) => {
       if (logLevel < logLevelMap.warn) {
         return
       }
 
-      writer.warn(
-        text([styleText('yellow', '⚠'), message, logLevel >= logLevelMap.info && info ? styleText('dim', info) : undefined].filter(Boolean).join(' ')),
-      )
+      writer.warn(formatLine(styleText('yellow', '⚠'), message, logLevel >= logLevelMap.info ? info : undefined))
     })
 
     // Unguarded: a failure stays visible even at silent.
@@ -294,27 +356,6 @@ export function createLogger(writer: LoggerWriter) {
       startSpinner(`Connecting to ${styleText('cyan', url)}`)
     })
 
-    context.hook('studio:connected', ({ url, versions }) => {
-      if (silent) {
-        return
-      }
-
-      const line = `Connected to ${styleText('cyan', url)} ${styleText('dim', `(${formatVersions(versions)})`)}`
-
-      if (state.spinner) {
-        stopSpinner(line)
-        return
-      }
-      writer.success(text(`✓ ${line}`))
-    })
-
-    context.hook('studio:ready', () => {
-      if (silent) {
-        return
-      }
-      startSpinner('✓ Ready to receive jobs')
-    })
-
     context.hook('studio:disconnected', ({ reason }) => {
       if (logLevel < logLevelMap.warn) {
         return
@@ -322,31 +363,6 @@ export function createLogger(writer: LoggerWriter) {
 
       stopSpinner()
       writer.warn(text(`⚠ Kubb Studio ended the session (${reason})`))
-    })
-
-    context.hook('studio:command:start', ({ command }) => {
-      if (silent) {
-        return
-      }
-      stopSpinner()
-      writer.info(text(`Kubb Studio asked to ${styleText('bold', command)}`))
-    })
-
-    context.hook('studio:command:end', ({ command, info }) => {
-      if (silent) {
-        return
-      }
-      writer.success(text(`✓ Finished ${command}${info ? ` ${styleText('dim', `(${info})`)}` : ''}`))
-      startSpinner('✓ Ready to receive jobs')
-    })
-
-    context.hook('studio:reconnecting', ({ delayMs }) => {
-      if (silent) {
-        return
-      }
-
-      stopSpinner()
-      writer.info(text(styleText('dim', `Retrying connection to Kubb Studio in ${formatMs(delayMs)}`)))
     })
 
     context.hook('studio:warn', ({ message, permission }) => {
@@ -388,99 +404,12 @@ export function createLogger(writer: LoggerWriter) {
       startSpinner('Generating')
     })
 
-    context.hook('kubb:plugin:start', ({ plugin }) => {
-      if (silent) {
-        return
-      }
-      state.spinner?.message(text(`Generating ${styleText('dim', plugin.name)}`))
-    })
-
-    // Buffered, not printed: a step redraws over anything written while it runs.
-    context.hook('kubb:plugin:end', ({ plugin, duration, success }) => {
-      if (silent) {
-        return
-      }
-
-      recordPluginResult(state, success)
-      state.pluginLines.push(text(`${plugin.name} ${success ? 'completed' : 'failed'} in ${formatMsWithColor(duration)}`))
-    })
-
-    context.hook('kubb:plugins:end', () => {
-      if (silent) {
-        return
-      }
-
-      const failed = state.failedPlugins > 0
-      stopSpinner(buildProgressLine(state) ?? 'No plugins ran', failed ? 'failed' : 'success')
-
-      if (state.pluginLines.length) {
-        writer.block(state.pluginLines)
-        state.pluginLines = []
-      }
-    })
-
-    context.hook('kubb:files:processing:start', ({ files }) => {
-      if (silent) {
-        return
-      }
-
-      stopSpinner()
-      state.totalFiles = files.length
-      state.processedFiles = 0
-
-      state.progress = writer.progress(files.length)
-      state.progress.start(text(`Writing ${pluralize(files.length, 'file')}`))
-    })
-
-    context.hook('kubb:files:processing:update', ({ files }) => {
-      if (silent) {
-        return
-      }
-
-      for (const { file, config } of files) {
-        state.processedFiles++
-        state.progress?.advance(`Writing ${relative(config.root, file.path)}`)
-      }
-    })
-
-    context.hook('kubb:files:processing:end', () => {
-      if (silent) {
-        return
-      }
-      stopProgress(`Wrote ${pluralize(state.processedFiles, 'file')}`)
-    })
-
     context.hook('kubb:format:start', () => startPhase(PHASES.format))
     context.hook('kubb:format:end', endPhase)
     context.hook('kubb:lint:start', () => startPhase(PHASES.lint))
     context.hook('kubb:lint:end', endPhase)
     context.hook('kubb:hooks:start', () => startPhase(PHASES.hooks))
     context.hook('kubb:hooks:end', endPhase)
-
-    context.hook('kubb:hook:start', ({ id }) => {
-      if (silent || !id) {
-        return
-      }
-      state.hooks.set(id, { hrStart: process.hrtime(), lines: [] })
-    })
-
-    // Registered only when not silent, so its presence is what tells the runner to stream
-    // (`kubb:hook:line` listenerCount). At silent level the listener is absent, so no streaming happens.
-    if (!silent) {
-      context.hook('kubb:hook:line', ({ id, line }) => {
-        const active = state.hooks.get(id)
-        if (!active) {
-          return
-        }
-
-        // A phase step redraws its own line, so its output waits until the phase ends.
-        if (state.phase) {
-          active.lines.push(line)
-          return
-        }
-        writer.raw([line])
-      })
-    }
 
     context.hook('kubb:hook:end', (ctx) => {
       const { id, command, name, args, success, error } = ctx
@@ -507,7 +436,7 @@ export function createLogger(writer: LoggerWriter) {
       }
       state.hooks.delete(id)
 
-      const label = styleText('dim', name ?? formatCommandWithArgs(command, args))
+      const label = styleText('dim', name ?? (args?.length ? `${command} ${args.join(' ')}` : command))
       const reason = error?.message ? ` (${error.message})` : ''
       const result = success
         ? `${styleText('green', '✓')} ${label} in ${formatMsWithColor(getElapsedMs(active.hrStart))}`
@@ -536,6 +465,130 @@ export function createLogger(writer: LoggerWriter) {
       closeGroup('failed')
       reset()
     })
+
+    // Not registered at silent: the missing `kubb:hook:line` listener is also what tells the runner not to stream.
+    if (!silent) {
+      context.hook('kubb:info', ({ message, info }) => {
+        const line = formatLine(styleText('blue', 'ℹ'), message, info)
+
+        // Info carries something new (the auto-detected tool), so inside a phase it waits for the phase to print.
+        if (state.phase) {
+          state.phase.lines.push(line)
+          return
+        }
+        if (state.spinner) {
+          state.spinner.message(line)
+          return
+        }
+        writer.info(line)
+      })
+
+      context.hook('kubb:success', ({ message, info }) => {
+        const line = formatLine(styleText('green', '✓'), message, logLevel >= logLevelMap.info ? info : undefined)
+
+        // The phase step's own result already reports these successes, so let the step carry them.
+        if (state.spinner) {
+          state.spinner.message(line)
+          return
+        }
+        writer.success(line)
+      })
+
+      context.hook('studio:connected', ({ url, versions }) => {
+        const line = `Connected to ${styleText('cyan', url)} ${styleText('dim', `(${formatVersions(versions)})`)}`
+
+        if (state.spinner) {
+          stopSpinner(line)
+          return
+        }
+        writer.success(text(`✓ ${line}`))
+      })
+
+      context.hook('studio:ready', () => {
+        startSpinner('✓ Ready to receive jobs')
+      })
+
+      context.hook('studio:command:start', ({ command }) => {
+        stopSpinner()
+        writer.info(text(`Kubb Studio asked to ${styleText('bold', command)}`))
+      })
+
+      context.hook('studio:command:end', ({ command, info }) => {
+        writer.success(text(`✓ Finished ${command}${info ? ` ${styleText('dim', `(${info})`)}` : ''}`))
+        startSpinner('✓ Ready to receive jobs')
+      })
+
+      context.hook('studio:reconnecting', ({ delayMs }) => {
+        stopSpinner()
+        writer.info(text(styleText('dim', `Retrying connection to Kubb Studio in ${formatMs(delayMs)}`)))
+      })
+
+      context.hook('kubb:plugin:start', ({ plugin }) => {
+        state.spinner?.message(text(`Generating ${styleText('dim', plugin.name)}`))
+      })
+
+      // Buffered, not printed: a step redraws over anything written while it runs.
+      context.hook('kubb:plugin:end', ({ plugin, duration, success }) => {
+        if (success) {
+          state.completedPlugins++
+        }
+        if (!success) {
+          state.failedPlugins++
+        }
+        state.pluginLines.push(text(`${plugin.name} ${success ? 'completed' : 'failed'} in ${formatMsWithColor(duration)}`))
+      })
+
+      context.hook('kubb:plugins:end', () => {
+        const failed = state.failedPlugins > 0
+        stopSpinner(buildProgressLine(state) ?? 'No plugins ran', failed ? 'failed' : 'success')
+
+        if (state.pluginLines.length) {
+          writer.block(state.pluginLines)
+          state.pluginLines = []
+        }
+      })
+
+      context.hook('kubb:files:processing:start', ({ files }) => {
+        stopSpinner()
+        state.totalFiles = files.length
+        state.processedFiles = 0
+
+        state.progress = writer.progress(files.length)
+        state.progress.start(text(`Writing ${pluralize(files.length, 'file')}`))
+      })
+
+      context.hook('kubb:files:processing:update', ({ files }) => {
+        for (const { file, config } of files) {
+          state.processedFiles++
+          state.progress?.advance(`Writing ${relative(config.root, file.path)}`)
+        }
+      })
+
+      context.hook('kubb:files:processing:end', () => {
+        stopProgress(`Wrote ${pluralize(state.processedFiles, 'file')}`)
+      })
+
+      context.hook('kubb:hook:start', ({ id }) => {
+        if (!id) {
+          return
+        }
+        state.hooks.set(id, { hrStart: process.hrtime(), lines: [] })
+      })
+
+      context.hook('kubb:hook:line', ({ id, line }) => {
+        const active = state.hooks.get(id)
+        if (!active) {
+          return
+        }
+
+        // A phase step redraws its own line, so its output waits until the phase ends.
+        if (state.phase) {
+          active.lines.push(line)
+          return
+        }
+        writer.raw([line])
+      })
+    }
 
     return {
       renderSummary(lines, { status }) {

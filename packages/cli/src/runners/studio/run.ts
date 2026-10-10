@@ -17,12 +17,12 @@ import {
   runConnection,
   setStorage,
 } from '@kubb/studio'
-import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
+import { trackRun } from '../../Telemetry.ts'
 import { plainLogger } from '../../loggers/plainLogger.ts'
-import setupReporters from '../../loggers/utils.ts'
+import setupReporters from '../../loggers/reporters.ts'
 import { createSpinner, logBlock, logIntro, logOutro, logTip } from '../../loggers/output.ts'
 import { canUseTTY } from '../../utils/env.ts'
-import { getConfigs } from '../generate/utils.ts'
+import { getConfigs } from '../../config.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 import { version } from '../../../package.json'
 
@@ -364,7 +364,7 @@ export async function connect(
         installLogger: async (hooks) => {
           // The background worker writes to a log file, so it gets the plain logger rather than the
           // animated one. The logger also covers the `studio:*` events and each generation run.
-          await setupReporters(hooks, {
+          setupReporters(hooks, {
             logLevel: logLevelMap[options.logLevel ?? 'info'],
             reporters: [cliReporter],
             ...(context.onState ? { logger: plainLogger } : {}),
@@ -412,44 +412,6 @@ export async function connect(
 }
 
 /**
- * Reports the paired agent and any saved permissions for the current project.
- */
-export async function status(options: StudioOptions): Promise<void> {
-  const credentials = await readCredentials()
-
-  if (!credentials) {
-    console.log('Not paired. Run `kubb studio login`.')
-
-    return
-  }
-
-  console.log(`Paired with ${credentials.studioUrl} as ${styleText('cyan', credentials.agentSlug || credentials.agentId)}`)
-
-  if (credentials.studioUrl !== options.studioUrl) {
-    console.log(styleText('yellow', `Connecting to ${options.studioUrl} needs pairing again.`))
-  }
-
-  const remembered = credentials.projects?.[process.cwd()]
-
-  if (!remembered) {
-    console.log(styleText('dim', 'No saved permissions for this project. Run `kubb studio` to connect and choose.'))
-
-    return
-  }
-
-  console.log(styleText('dim', 'Saved permissions'))
-
-  for (const row of formatPermissionRows({
-    allowRead: remembered.allowRead === true,
-    allowWrite: remembered.allowWrite === true,
-    allowConfigEdit: remembered.allowConfigEdit === true,
-    allowExec: remembered.allowExec === true,
-  })) {
-    console.log(row)
-  }
-}
-
-/**
  * Runs a Studio command with shared setup and telemetry reporting.
  */
 export async function run(options: StudioOptions, action: () => Promise<unknown>, { block = false, json = false } = {}): Promise<void> {
@@ -457,8 +419,7 @@ export async function run(options: StudioOptions, action: () => Promise<unknown>
   // reads `getMachineToken()`, which `startPairing` does, before any client exists.
   setStorage(createFileStorage(getProjectKubbHome()))
 
-  const hrStart = process.hrtime()
-  const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'studio', kubbVersion: options.version, hrStart, status }))
+  const report = trackRun({ command: 'studio', hrStart: process.hrtime() })
 
   try {
     if (options.logLevel !== 'silent' && !json) {
@@ -470,9 +431,9 @@ export async function run(options: StudioOptions, action: () => Promise<unknown>
 
     await action()
 
-    await report('success')
+    await report({ status: 'success' })
   } catch (error) {
-    await report('failed')
+    await report({ status: 'failed' })
     console.error(toError(error).message)
     process.exitCode = 1
   }

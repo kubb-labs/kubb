@@ -1,6 +1,5 @@
 import { defineWithTypes } from 'gunshi'
-import { dryRunId } from '../gunshiDryRun.ts'
-import type { DryRunExtensions } from '../gunshiDryRun.ts'
+import { dryRunId, type DryRunExtensions } from './shared.ts'
 import { version } from '../../package.json'
 
 export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({

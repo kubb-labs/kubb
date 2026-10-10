@@ -1,3 +1,13 @@
+import { pluginId as dryRunId } from '@gunshi/plugin-dryrun'
+import type { DryRunExtension } from '@gunshi/plugin-dryrun'
+
+export { dryRunId }
+
+/** Extension shape gunshi's command context carries with `@gunshi/plugin-dryrun`; the `extensions` type parameter of `defineWithTypes`. */
+export type DryRunExtensions = {
+  [dryRunId]: DryRunExtension
+}
+
 export const configArg = {
   config: {
     type: 'string',

@@ -15,8 +15,7 @@ import {
   resolvePlugins,
 } from '@internals/shared'
 import { createSpinner, logError, logInfo, logIntro, logOutro, logWarn } from '../../loggers/output.ts'
-import { hasPackageJson, initPackageJson, installPackages } from './utils.ts'
-import { detectPackageManager } from '../../tools.ts'
+import { detectPackageManager, hasPackageJson, initPackageJson, installPackages } from './utils.ts'
 
 function cancelAndExit(message = 'Operation canceled.'): never {
   clack.cancel(message)

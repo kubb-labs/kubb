@@ -3,7 +3,7 @@ import { Hookable, type KubbHooks } from '@kubb/core'
 import { type ConnectionOptions, InvalidAgentTokenError, type StudioAgent, type StudioJob } from '@kubb/studio'
 import type { SnapshotOptions } from './run.ts'
 
-vi.mock('../generate/utils.ts', () => ({
+vi.mock('../../config.ts', () => ({
   getConfigs: vi.fn().mockResolvedValue({
     configPath: '/project/kubb.config.ts',
     configs: [{ name: 'test', input: 'spec.yaml', output: { path: './gen' }, plugins: [] }],

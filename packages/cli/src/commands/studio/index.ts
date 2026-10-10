@@ -1,40 +1,28 @@
-import { define, lazy } from 'gunshi'
-import { configArg, logLevelArg, studioConnectionArgs, studioPermissionArgs } from '../shared.ts'
-import { definition as connectDefinition } from './connect.ts'
-import { definition as loginDefinition } from './login.ts'
-import { definition as logoutDefinition } from './logout.ts'
-import { definition as snapshotDefinition } from './snapshot.ts'
-import { definition as startDefinition, stopDefinition } from './background.ts'
-import { definition as statusDefinition } from './status.ts'
+import { define } from 'gunshi'
+import { command as connectCommand } from './connect.ts'
+import { command as loginCommand } from './login.ts'
+import { command as logoutCommand } from './logout.ts'
+import { command as snapshotCommand } from './snapshot.ts'
+import { command as startCommand, stopCommand } from './background.ts'
+import { command as statusCommand } from './status.ts'
 
-export const definition = define({
+export const command = define({
   name: 'studio',
   description: 'Connect this project to Kubb Studio, or manage its pairing and snapshots.',
   examples: ['kubb studio', 'kubb studio --allow-read', 'kubb studio login', 'kubb studio status', 'kubb studio logout', 'kubb studio snapshot'].join('\n'),
   toKebab: true,
-  args: {
-    ...configArg,
-    ...studioConnectionArgs,
-    ...studioPermissionArgs,
-    open: {
-      type: 'boolean',
-      description: 'Open the approval page in a browser while pairing',
-      default: true,
-      negatable: true,
-    },
-    ...logLevelArg,
-  },
+  args: connectCommand.args,
   async run(ctx) {
-    const { runner } = await import('../../runners/studio/connect.ts')
-    await runner(ctx)
+    const { connectRunner } = await import('../../runners/studio/commands.ts')
+    await connectRunner(ctx)
   },
   subCommands: {
-    start: lazy(async () => (await import('../../runners/studio/start.ts')).runner, startDefinition),
-    stop: lazy(async () => (await import('../../runners/studio/stop.ts')).runner, stopDefinition),
-    connect: lazy(async () => (await import('../../runners/studio/connect.ts')).runner, connectDefinition),
-    login: lazy(async () => (await import('../../runners/studio/login.ts')).runner, loginDefinition),
-    logout: lazy(async () => (await import('../../runners/studio/logout.ts')).runner, logoutDefinition),
-    status: lazy(async () => (await import('../../runners/studio/status.ts')).runner, statusDefinition),
-    snapshot: lazy(async () => (await import('../../runners/studio/snapshot.ts')).runner, snapshotDefinition),
+    start: startCommand,
+    stop: stopCommand,
+    connect: connectCommand,
+    login: loginCommand,
+    logout: logoutCommand,
+    status: statusCommand,
+    snapshot: snapshotCommand,
   },
 })

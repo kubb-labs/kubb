@@ -1,10 +1,10 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, rename, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import process from 'node:process'
 import { Hookable, type KubbHooks } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSerialRunner, fetchUrlBody, getConfigs, isNewerVersion, runHook, runPostGenerate, startUrlWatcher } from './utils.ts'
+import { createSerialRunner, fetchUrlBody, isNewerVersion, runHook, runPostGenerate, startUrlWatcher, startWatcher } from './utils.ts'
 
 const node = process.execPath
 
@@ -24,7 +24,6 @@ describe('runHook', () => {
       id: 'a',
       command: node,
       args: ['-e', 'console.log("first"); console.log("second"); process.exit(1)'],
-      commandWithArgs: 'node',
       hooks,
     })
 
@@ -43,7 +42,6 @@ describe('runHook', () => {
       id: 'b',
       command: node,
       args: ['-e', 'console.log("noop")'],
-      commandWithArgs: 'node',
       hooks,
     })
 
@@ -62,7 +60,6 @@ describe('runHook', () => {
       id: 'c',
       command: node,
       args: ['-e', 'process.stdout.write("out"); process.stderr.write("boom"); process.exit(1)'],
-      commandWithArgs: 'node',
       hooks,
     })
 
@@ -114,41 +111,6 @@ describe('isNewerVersion', () => {
   })
 })
 
-describe('getConfigs', () => {
-  let dir: string
-
-  afterEach(async () => {
-    if (dir) await rm(dir, { recursive: true, force: true })
-  })
-
-  it('loads an explicit ESM config path and defaults plugins to an empty array', async () => {
-    dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
-    const configPath = join(dir, 'kubb.config.mjs')
-    await writeFile(configPath, `export default { root: '.', input: './pets.yaml', output: { path: './gen' } }\n`)
-
-    const { configPath: resolved, configs } = await getConfigs({ configPath })
-
-    expect(resolved).toBe(configPath)
-    expect(configs).toHaveLength(1)
-    expect(configs[0]?.plugins).toStrictEqual([])
-  })
-
-  it('calls a config function with the CLI options', async () => {
-    dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
-    const configPath = join(dir, 'kubb.config.mjs')
-    await writeFile(configPath, `export default ({ input }) => ({ root: '.', input, output: { path: './gen' } })\n`)
-
-    const { configs } = await getConfigs({ configPath, input: './from-cli.yaml' })
-
-    expect(configs[0]).toMatchObject({ input: './from-cli.yaml' })
-  })
-
-  it('throws a clear error when no config is found', async () => {
-    dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
-    await expect(getConfigs({ configPath: join(dir, 'missing.config.ts') })).rejects.toThrow(/Config/)
-  })
-})
-
 describe('createSerialRunner', () => {
   it('collapses triggers that land during a run into one rerun', async () => {
     let calls = 0
@@ -192,6 +154,71 @@ describe('createSerialRunner', () => {
     shouldFail = false
     await runner()
     expect(errors).toStrictEqual(['run exploded'])
+  })
+})
+
+describe('startWatcher', () => {
+  let dir: string
+  const stops: Array<() => Promise<void>> = []
+
+  afterEach(async () => {
+    for (const stop of stops.splice(0)) await stop()
+    if (dir) await rm(dir, { recursive: true, force: true })
+  })
+
+  it('debounces a burst of saves into one build and names the change', async () => {
+    dir = await mkdtemp(join(tmpdir(), 'kubb-watch-'))
+    const file = join(dir, 'petstore.yaml')
+    await writeFile(file, 'openapi: 3.1.0\n')
+    const builds: Array<Array<string>> = []
+    const messages: Array<string> = []
+
+    stops.push(
+      await startWatcher(
+        [file],
+        async (paths) => {
+          builds.push(paths)
+        },
+        { info: (message) => messages.push(message), error: (message) => messages.push(message) },
+      ),
+    )
+    // The watch starts asynchronously; give it a moment before the first write.
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    await writeFile(file, 'openapi: 3.1.0\ninfo: {}\n')
+    // An atomic save: write a temporary file and move it over the watched one.
+    await writeFile(join(dir, 'petstore.yaml.tmp'), 'openapi: 3.1.0\ninfo: { title: pets }\n')
+    await rename(join(dir, 'petstore.yaml.tmp'), file)
+
+    await vi.waitFor(() => expect(builds).toHaveLength(1), { timeout: 2_000 })
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
+    expect(builds).toStrictEqual([[file]])
+    expect(messages.length).toBeGreaterThan(0)
+    expect(messages.every((message) => message.includes(`Change detected: change ${file}`))).toBe(true)
+  })
+
+  it('ignores other files in the directory', async () => {
+    dir = await mkdtemp(join(tmpdir(), 'kubb-watch-'))
+    const file = join(dir, 'petstore.yaml')
+    await writeFile(file, 'openapi: 3.1.0\n')
+    const builds: Array<Array<string>> = []
+
+    stops.push(
+      await startWatcher(
+        [file],
+        async (paths) => {
+          builds.push(paths)
+        },
+        { info: () => {}, error: () => {} },
+      ),
+    )
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    await writeFile(join(dir, 'other.yaml'), 'openapi: 3.1.0\n')
+    await new Promise((resolve) => setTimeout(resolve, 300))
+
+    expect(builds).toStrictEqual([])
   })
 })
 

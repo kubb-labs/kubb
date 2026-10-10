@@ -1,91 +1,22 @@
 import { randomUUID } from 'node:crypto'
-import { basename, dirname, resolve } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { createModuleLoader } from '@internals/shared'
 import { toError, tokenize } from '@internals/utils'
-import type { CLIOptions, Config, HookResult, KubbHooks, PossibleConfig, PostGenerateCommand, Hookable } from '@kubb/core'
+import type { HookResult, KubbHooks, PostGenerateCommand, Hookable } from '@kubb/core'
 import { NonZeroExitError, x } from 'tinyexec'
-import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
 import { isGreaterThan, isValid, truncate } from 'verkit'
-import { URL_WATCHER_INTERVAL_MS, URL_WATCHER_TIMEOUT_MS, WATCHER_DEBOUNCE_MS, WATCHER_IGNORED_PATHS } from '../../constants.ts'
 
-const loader = createModuleLoader()
+/** Glob pattern for paths the file watcher ignores. */
+const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
 
-// Kubb configs are JS/TS modules (they call `defineConfig`/`pluginX()`), so YAML and JSON are not
-// supported. The jiti loader handles every module format and the JSX runtime, returning the default export.
-const tsLoader = (configFile: string) => loader.load(configFile, { default: true })
+/** Quiet window in milliseconds that collapses a burst of watcher events (an editor save emits several) into one rebuild. */
+const WATCHER_DEBOUNCE_MS = 100
 
-const MODULE_NAME = 'kubb'
+/** Interval in milliseconds between polls of a remote `input` URL in watch mode, which emits no filesystem events. */
+const URL_WATCHER_INTERVAL_MS = 2_000
 
-const SEARCH_FILES = ['', '.config/', 'configs/'].flatMap((prefix) => [`${prefix}.${MODULE_NAME}rc`, `${prefix}${MODULE_NAME}.config`])
-const SEARCH_EXTENSIONS = ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs']
-
-type GetConfigsOptions = {
-  /**
-   * Explicit path to the Kubb config file. When omitted, the loader searches up from the current directory.
-   */
-  configPath?: string
-  /**
-   * Optional OpenAPI input path or URL that overrides `config.input` for this run.
-   */
-  input?: string
-  /**
-   * Watch flag forwarded to the user's `defineConfig` function.
-   */
-  watch?: boolean
-  /**
-   * Log level forwarded to the user's `defineConfig` function.
-   */
-  logLevel?: CLIOptions['logLevel']
-}
-
-type GetConfigsResult = {
-  /**
-   * Absolute path to the resolved config file.
-   */
-  configPath: string
-  /**
-   * Resolved and normalized array of Kubb configs, each guaranteed to have a `plugins` array.
-   */
-  configs: Array<Config>
-}
-
-/**
- * Discovers the Kubb config and resolves it into a normalized array of configs.
- * Every config in the result is guaranteed to have a `plugins` array.
- */
-export async function getConfigs({ configPath, input, watch, logLevel }: GetConfigsOptions): Promise<GetConfigsResult> {
-  const abs = configPath ? resolve(configPath) : undefined
-  const sources: Array<LoadConfigSource<unknown>> = abs
-    ? [{ files: [basename(abs)], extensions: [], parser: tsLoader }]
-    : [{ files: SEARCH_FILES, extensions: SEARCH_EXTENSIONS, parser: tsLoader }]
-
-  let result: LoadConfigResult<unknown>
-  try {
-    result = await loadConfig<unknown>({ cwd: abs ? dirname(abs) : process.cwd(), sources, merge: false })
-  } catch (error) {
-    throw new Error('Config failed loading', { cause: error })
-  }
-
-  const [filepath] = result.sources
-  if (!result.config || !filepath) {
-    throw new Error('Config not defined, create a kubb.config.js or pass through your config with the option --config')
-  }
-
-  const config = result.config as PossibleConfig<CLIOptions>
-  const cli: CLIOptions = { config: configPath, input, watch, logLevel }
-  const resolved = await (typeof config === 'function' ? config(cli) : config)
-  const userConfigs = Array.isArray(resolved) ? resolved : [resolved]
-
-  return {
-    configPath: filepath,
-    configs: userConfigs.map((item) => {
-      const config: Config = { ...item, plugins: item.plugins ?? [] }
-      return config
-    }),
-  }
-}
+/** Upper bound in milliseconds for one URL watcher request, headers and body read, so a hung server never stalls polling. */
+const URL_WATCHER_TIMEOUT_MS = 10_000
 
 type RunPostGenerateOptions = {
   commands: Array<PostGenerateCommand>
@@ -121,36 +52,30 @@ export async function runPostGenerate({ commands, hooks }: RunPostGenerateOption
     const [cmd, ...args] = tokenize(command)
     if (!cmd) continue
 
-    const hookId = randomUUID()
-    const commandWithArgs = [cmd, ...args].join(' ')
-
-    await hooks.callHook('kubb:hook:start', { id: hookId, command: cmd, name, args })
-    results.push(await runHook({ id: hookId, command: cmd, name, args, commandWithArgs, hooks }))
+    results.push(await runHook({ command: cmd, name, args, hooks }))
   }
 
   return results
 }
 
 type RunHookOptions = {
-  id: string
+  /** Ties the `kubb:hook:*` events of one run together. Generated when omitted. */
+  id?: string
   command: string
   name?: string
   args?: ReadonlyArray<string>
-  commandWithArgs: string
   hooks: Hookable<KubbHooks>
 }
 
-/**
- * Spawns a hook command and returns its outcome, mirroring it through `kubb:hook:end` for the
- * loggers. A non-zero exit returns `success: false` rather than throwing, so the caller can turn
- * it into a diagnostic. Other spawn errors do the same. Output is streamed through `kubb:hook:line`
- * only while a listener is attached.
- */
-export async function runHook({ id, command, name, args, commandWithArgs, hooks }: RunHookOptions): Promise<HookResult> {
+/** Spawns a hook command, announced through `kubb:hook:start` and `kubb:hook:end`, and returns a failure instead of throwing. */
+export async function runHook({ id = randomUUID(), command, name, args, hooks }: RunHookOptions): Promise<HookResult> {
+  const commandWithArgs = [command, ...(args ?? [])].join(' ')
   const emitEnd = async (result: HookResult): Promise<HookResult> => {
     await hooks.callHook('kubb:hook:end', { command, name, args, id, ...result })
     return result
   }
+
+  await hooks.callHook('kubb:hook:start', { id, command, name, args })
 
   // Only stream line-by-line when a logger is listening, so the non-streaming plain
   // logger doesn't pay to iterate the subprocess output.
@@ -244,13 +169,13 @@ type WatcherLog = {
  * Starts a file watcher on the given paths and calls `cb` on any change.
  * Ignores `.git` and `node_modules` directories. Event bursts (an editor save emits several)
  * are debounced into one build, and builds never overlap: changes during a build queue exactly
- * one rebuild.
+ * one rebuild. Resolves to a function that stops watching.
  */
 export async function startWatcher(
   path: Array<string>,
   cb: (path: Array<string>) => Promise<void>,
   log: WatcherLog = { info: console.log, error: console.log },
-): Promise<void> {
+): Promise<() => Promise<void>> {
   const { watch } = await import('chokidar')
   // `ignoreInitial` skips the `add` events chokidar fires for existing files at startup, which
   // would otherwise rebuild right after the initial run.
@@ -279,16 +204,21 @@ export async function startWatcher(
       void runBuild()
     }, WATCHER_DEBOUNCE_MS)
   })
+
+  return async () => {
+    if (debounceTimer) clearTimeout(debounceTimer)
+    await watcher.close()
+  }
 }
 
 /**
  * Fetches the body of a remote spec URL, `undefined` when the server does not answer with a
- * readable 2xx body within the timeout. The caller seeds `startUrlWatcher` with the result, so
+ * readable 2xx body before `signal` aborts. The caller seeds `startUrlWatcher` with the result, so
  * the watcher compares polls against the content the initial build ran on.
  */
-export async function fetchUrlBody(url: string, timeoutMs: number = URL_WATCHER_TIMEOUT_MS): Promise<string | undefined> {
+export async function fetchUrlBody(url: string, signal: AbortSignal = AbortSignal.timeout(URL_WATCHER_TIMEOUT_MS)): Promise<string | undefined> {
   try {
-    const response = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) })
+    const response = await fetch(url, { signal })
     if (!response.ok) return undefined
     return await response.text()
   } catch {
@@ -354,38 +284,40 @@ export function startUrlWatcher(url: string, cb: (path: Array<string>) => Promis
     onError: () => log.error(styleText('red', 'Watcher failed')),
   })
 
+  const schedule = () => {
+    if (!stopped) {
+      timer = setTimeout(() => void poll(), intervalMs)
+    }
+  }
+
   const poll = async (): Promise<void> => {
     controller = new AbortController()
-    try {
-      // The signal also aborts the body read, so a response that stalls mid-stream still times out.
-      const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(timeoutMs)])
-      const response = await fetch(url, { signal })
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`)
-      }
-      const body = await response.text()
-      if (offline) {
-        offline = false
-        log.info(styleText('yellow', `${url} is reachable again`))
-      }
-      const changed = lastBody !== undefined && body !== lastBody
-      if (changed) {
-        log.info(styleText('yellow', styleText('bold', `Change detected: ${url}`)))
-      }
-      if (changed || lastBody === undefined) {
-        void runBuild()
-      }
-      lastBody = body
-    } catch {
+    // The signal also aborts the body read, so a response that stalls mid-stream still times out.
+    const body = await fetchUrlBody(url, AbortSignal.any([controller.signal, AbortSignal.timeout(timeoutMs)]))
+
+    if (body === undefined) {
       // `lastBody` survives the outage so recovery rebuilds only on real content changes.
       if (!offline && !stopped) {
         offline = true
         log.error(styleText('red', `Cannot reach ${url}, polling until it responds again`))
       }
+      schedule()
+      return
     }
-    if (!stopped) {
-      timer = setTimeout(() => void poll(), intervalMs)
+
+    if (offline) {
+      offline = false
+      log.info(styleText('yellow', `${url} is reachable again`))
     }
+    const changed = lastBody !== undefined && body !== lastBody
+    if (changed) {
+      log.info(styleText('yellow', styleText('bold', `Change detected: ${url}`)))
+    }
+    if (changed || lastBody === undefined) {
+      void runBuild()
+    }
+    lastBody = body
+    schedule()
   }
 
   void poll()

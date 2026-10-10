@@ -1,14 +1,11 @@
 import { define } from 'gunshi'
 import { configArg, logLevelArg, studioConnectionArgs, studioPermissionArgs } from '../shared.ts'
 
-export const definition = define({
+export const command = define({
   name: 'snapshot',
   description: 'Generate and publish a Kubb Studio snapshot from CI.',
   examples: ['kubb studio snapshot', 'kubb studio snapshot --json'].join('\n'),
   toKebab: true,
-  rendering: {
-    header: null,
-  },
   args: {
     ...configArg,
     ...studioConnectionArgs,
@@ -43,5 +40,9 @@ export const definition = define({
       default: false,
     },
     ...logLevelArg,
+  },
+  async run(ctx) {
+    const { runner } = await import('../../runners/studio/snapshot.ts')
+    await runner(ctx)
   },
 })

@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -23,13 +22,27 @@ import {
   type ReporterName,
 } from '@kubb/core'
 import { version } from '../../../package.json'
-import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.ts'
-import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
-import setupReporters, { pluralize, selectReporters } from '../../loggers/utils.ts'
+import { trackRun } from '../../Telemetry.ts'
+import { pluralize } from '../../loggers/createLogger.ts'
+import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createSpinner, logBanner, logError, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'
-import { fetchUrlBody, getConfigs, isNewerVersion, runHook, runPostGenerate, startUrlWatcher, startWatcher } from './utils.ts'
-import { FORMATTER_PREFERENCE, LINTER_PREFERENCE } from '@internals/utils'
-import { detectTool, formatters, linters } from '../../tools.ts'
+import { getConfigs } from '../../config.ts'
+import { fetchUrlBody, isNewerVersion, runHook, runPostGenerate, startUrlWatcher, startWatcher } from './utils.ts'
+import { detectTool, FORMATTER_PREFERENCE, formatters, LINTER_PREFERENCE, linters } from '@internals/utils'
+
+/** NPM registry endpoint used to check for @kubb/cli updates. */
+const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
+
+/** Upper bound in milliseconds for the npm update check, so a slow registry never stalls a run. */
+const UPDATE_CHECK_TIMEOUT_MS = 3_000
+
+/** The formatter names from `Config['output'].format`, without `'auto'` (detection, not a tool) and `false` (skip). */
+type FormatterName = Exclude<NonNullable<Config['output']['format']>, 'auto' | false>
+type LinterName = Exclude<NonNullable<Config['output']['lint']>, 'auto' | false>
+
+// Pinned here, not in `@internals/utils` (which must not import `@kubb/core`): a tool added to the union without a descriptor fails to compile.
+formatters satisfies Record<FormatterName, unknown>
+linters satisfies Record<LinterName, unknown>
 
 type GenerateProps = {
   input?: string
@@ -45,44 +58,36 @@ type GenerateProps = {
 
 type ToolMap = typeof formatters | typeof linters
 
-/**
- * Static description of one output tool: its command table, the label and messages the pass logs,
- * and how to auto-detect it. Format and lint differ only in these values.
- */
-type Tool = {
-  label: string
-  map: ToolMap
-  detect: () => Promise<string | null>
-  successPrefix: string
-  noToolMessage: string
-}
+type ToolKind = 'format' | 'lint'
+
+/** What differs between the format and the lint pass: the tool table, the auto-detection order, the log words and the diagnostic code. */
+const TOOL_PASSES = {
+  format: { label: 'formatter', map: formatters, preference: FORMATTER_PREFERENCE, verb: 'Formatting', code: Diagnostics.code.formatFailed },
+  lint: { label: 'linter', map: linters, preference: LINTER_PREFERENCE, verb: 'Linting', code: Diagnostics.code.lintFailed },
+} as const satisfies Record<ToolKind, { label: string; map: ToolMap; preference: ReadonlyArray<string>; verb: string; code: ProblemDiagnostic['code'] }>
 
 type RunToolPassOptions = {
+  kind: ToolKind
   toolValue: string
-  tool: Tool
   outputPath: string
   logLevel: number
   hooks: Hookable<KubbHooks>
-  onStart: () => Promise<void> | void
-  onEnd: () => Promise<void> | void
 }
 
-/**
- * Runs one formatter or linter pass over the output directory. Returns the failure instead of
- * throwing, so the caller can turn it into a coded diagnostic. Failures never render here:
- * the caller emits them through `Diagnostics.emit`, like every other diagnostic.
- */
-async function runToolPass({ toolValue, tool, outputPath, logLevel, hooks, onStart, onEnd }: RunToolPassOptions): Promise<Error | null> {
-  await onStart()
+/** Runs one formatter or linter pass, announced through `kubb:<kind>:start` and `kubb:<kind>:end`; returns the failure instead of throwing. */
+async function runToolPass({ kind, toolValue, outputPath, logLevel, hooks }: RunToolPassOptions): Promise<Error | null> {
+  const { label, map, preference, verb } = TOOL_PASSES[kind]
+
+  await hooks.callHook(`kubb:${kind}:start`)
 
   let resolvedTool = toolValue
   if (resolvedTool === 'auto') {
-    const detected = await tool.detect()
+    const detected = await detectTool(preference)
     if (!detected) {
-      await hooks.callHook('kubb:warn', { message: tool.noToolMessage })
+      await hooks.callHook('kubb:warn', { message: `No ${label} found (${preference.join(', ')}). Skipping ${verb.toLowerCase()}.` })
     } else {
       resolvedTool = detected
-      await hooks.callHook('kubb:info', { message: `Auto-detected ${tool.label}: ${styleText('dim', resolvedTool)}` })
+      await hooks.callHook('kubb:info', { message: `Auto-detected ${label}: ${styleText('dim', resolvedTool)}` })
     }
   }
 
@@ -90,11 +95,11 @@ async function runToolPass({ toolValue, tool, outputPath, logLevel, hooks, onSta
 
   // Nothing to lint or format when the output dir was never written. Skip so the tool
   // (e.g. oxlint with --no-ignore) doesn't fail with "No files found to lint".
-  if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in tool.map && existsSync(outputPath)) {
-    const toolConfig = tool.map[resolvedTool as keyof ToolMap]
+  if (resolvedTool && resolvedTool !== 'auto' && resolvedTool in map && existsSync(outputPath)) {
+    const toolConfig = map[resolvedTool as keyof ToolMap]
 
     const successMessage = [
-      `${tool.successPrefix} with ${styleText('dim', resolvedTool)}`,
+      `${verb} with ${styleText('dim', resolvedTool)}`,
       logLevel >= logLevelMap.info ? `on ${styleText('dim', outputPath)}` : undefined,
       'successfully',
     ]
@@ -102,13 +107,7 @@ async function runToolPass({ toolValue, tool, outputPath, logLevel, hooks, onSta
       .join(' ')
 
     try {
-      const hookId = randomUUID()
-      const hookArgs = toolConfig.args(outputPath)
-      const commandWithArgs = [toolConfig.command, ...hookArgs].join(' ')
-
-      await hooks.callHook('kubb:hook:start', { id: hookId, command: toolConfig.command, args: hookArgs })
-
-      const result = await runHook({ id: hookId, command: toolConfig.command, args: hookArgs, commandWithArgs, hooks })
+      const result = await runHook({ command: toolConfig.command, args: toolConfig.args(outputPath), hooks })
 
       if (result.success) {
         await hooks.callHook('kubb:success', { message: successMessage })
@@ -120,7 +119,7 @@ async function runToolPass({ toolValue, tool, outputPath, logLevel, hooks, onSta
     }
   }
 
-  await onEnd()
+  await hooks.callHook(`kubb:${kind}:end`)
 
   return toolError
 }
@@ -128,7 +127,7 @@ async function runToolPass({ toolValue, tool, outputPath, logLevel, hooks, onSta
 async function generate(options: GenerateProps): Promise<boolean> {
   const { input, hooks, logLevel, dryRun = false } = options
 
-  const hrStart = process.hrtime()
+  const report = trackRun({ command: 'generate', hrStart: process.hrtime() })
 
   const config: Config = {
     ...options.config,
@@ -151,49 +150,12 @@ async function generate(options: GenerateProps): Promise<boolean> {
       await Diagnostics.emit(hooks, diagnostic)
     }
 
-    // Format and lint are the same pass over the output directory, differing only in the tool
-    // table and the hooks they announce themselves with, so run them from one descriptor list.
-    const toolPasses = [
-      {
-        value: resolvedConfig.output.format,
-        code: Diagnostics.code.formatFailed,
-        tool: {
-          label: 'formatter',
-          map: formatters,
-          detect: () => detectTool(FORMATTER_PREFERENCE),
-          successPrefix: 'Formatting',
-          noToolMessage: `No formatter found (${FORMATTER_PREFERENCE.join(', ')}). Skipping formatting.`,
-        },
-        onStart: () => hooks.callHook('kubb:format:start'),
-        onEnd: () => hooks.callHook('kubb:format:end'),
-      },
-      {
-        value: resolvedConfig.output.lint,
-        code: Diagnostics.code.lintFailed,
-        tool: {
-          label: 'linter',
-          map: linters,
-          detect: () => detectTool(LINTER_PREFERENCE),
-          successPrefix: 'Linting',
-          noToolMessage: `No linter found (${LINTER_PREFERENCE.join(', ')}). Skipping linting.`,
-        },
-        onStart: () => hooks.callHook('kubb:lint:start'),
-        onEnd: () => hooks.callHook('kubb:lint:end'),
-      },
-    ]
-
-    for (const pass of toolPasses) {
-      if (!pass.value) continue
-      const error = await runToolPass({
-        toolValue: pass.value,
-        tool: pass.tool,
-        onStart: pass.onStart,
-        onEnd: pass.onEnd,
-        outputPath,
-        logLevel,
-        hooks,
-      })
-      if (error) await reportOutputFailure(pass.code, pass.tool.label, error)
+    // Format and lint are the same pass over the output directory, so run them in that order.
+    for (const kind of ['format', 'lint'] as const) {
+      const toolValue = resolvedConfig.output[kind]
+      if (!toolValue) continue
+      const error = await runToolPass({ kind, toolValue, outputPath, logLevel, hooks })
+      if (error) await reportOutputFailure(TOOL_PASSES[kind].code, TOOL_PASSES[kind].label, error)
     }
 
     if (resolvedConfig.output.postGenerate?.length) {
@@ -216,17 +178,11 @@ async function generate(options: GenerateProps): Promise<boolean> {
     await hooks.callHook('kubb:info', { message: 'Dry run: no files were written', info: `${result.files.length} file(s) would be generated` })
   }
 
-  const telemetryPlugins = Array.from(kubb.driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> }))
-  await sendTelemetry(
-    buildTelemetryEvent({
-      command: 'generate',
-      kubbVersion: version,
-      plugins: telemetryPlugins,
-      hrStart,
-      filesCreated: result.files.length,
-      status: result.success ? 'success' : 'failed',
-    }),
-  )
+  await report({
+    plugins: Array.from(kubb.driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
+    filesCreated: result.files.length,
+    status: result.success ? 'success' : 'failed',
+  })
 
   return result.success
 }
@@ -309,7 +265,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   } catch (error) {
     if (!quiet) configSpinner.error('Config failed loading')
 
-    await setupReporters(hooks, { logLevel, reporters: [cliReporter] })
+    setupReporters(hooks, { logLevel, reporters: [cliReporter] })
     await hooks.callHook('kubb:error', { error: toError(error) })
 
     if (!quiet) logOutro(styleText('red', '✗ Configuration failed'))
@@ -320,7 +276,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   // `defineConfig` gets the same built-ins it would have registered.
   const available = configs[0]?.reporters?.length ? configs[0].reporters : [cliReporter, jsonReporter, fileReporter, htmlReporter]
   const reporters = selectReporters(available, requestedNames)
-  await setupReporters(hooks, { logLevel, reporters })
+  setupReporters(hooks, { logLevel, reporters })
 
   await hooks.callHook('kubb:lifecycle:start', { version })
 
@@ -356,9 +312,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // first successful poll, so recovery with an unchanged document still generates output.
         const initialBody = inputKind === 'url' ? await fetchUrlBody(watchPath) : undefined
 
-        // The watchers ignore their startup state (chokidar's initial events, the baseline
-        // above), so run the first build here. A failing first build keeps watching, since
-        // the user can fix the input and save.
+        // The watchers ignore their startup state, so run the first build here; a failing one keeps watching so the user can fix the input.
         try {
           await build(watchedPaths)
         } catch (buildError) {

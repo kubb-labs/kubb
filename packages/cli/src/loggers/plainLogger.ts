@@ -4,7 +4,7 @@ import type { Logger, LoggerWriter } from './defineLogger.ts'
 /**
  * Prefixes that stand in for the symbols clack draws, so plain output reads the same way.
  */
-const SYMBOLS = { info: 'ℹ', warn: '⚠', error: '✗', step: '◇' } as const
+export const SYMBOLS = { info: 'ℹ', warn: '⚠', error: '✗', step: '◇' } as const
 
 /** Draws with one `write` call per line. Nothing animates, so a step prints at start and end. */
 function createWriter(write: (line: string) => void): LoggerWriter {
@@ -36,15 +36,15 @@ function createWriter(write: (line: string) => void): LoggerWriter {
 }
 
 /** The plain logger writing through `write`, e.g. `console.error` so stdout carries only JSON. */
-export function createPlainLogger(write: (line: string) => void) {
-  return {
-    name: 'plain',
-    install: createLogger(createWriter(write)),
-  } satisfies Logger
+export function createPlainLogger(write: (line: string) => void): Logger {
+  return createLogger(createWriter(write))
 }
+
+/** Draws on the console, for non-TTY environments and for an AI coding agent reading the output. */
+export const plainWriter = createWriter((line) => console.log(line))
 
 /**
  * Console adapter for non-TTY environments, and for an AI coding agent reading the output. Reports
  * the same run in the same order as `clackLogger`, without the animation.
  */
-export const plainLogger = createPlainLogger((line) => console.log(line))
+export const plainLogger = createLogger(plainWriter)
