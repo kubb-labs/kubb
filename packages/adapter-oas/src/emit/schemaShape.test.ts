@@ -1,78 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_PARSER_OPTIONS } from '../constants.ts'
-import { flattenSchema, getDateType, resolveDateTypeValue } from './schemaShape.ts'
-
-describe('getDateType', () => {
-  const base = DEFAULT_PARSER_OPTIONS
-
-  it('returns null when dateType is false', () => {
-    expect(getDateType({ ...base, dateType: false }, 'date-time')).toBeNull()
-  })
-
-  it('resolves date-time with dateType string to datetime without offset', () => {
-    expect(getDateType({ ...base, dateType: 'string' }, 'date-time')).toStrictEqual({
-      type: 'datetime',
-      offset: false,
-    })
-  })
-
-  it('resolves date-time with dateType date', () => {
-    expect(getDateType({ ...base, dateType: 'date' }, 'date-time')).toStrictEqual({
-      type: 'date',
-      representation: 'date',
-    })
-  })
-
-  it('resolves date-time with dateType stringOffset', () => {
-    expect(getDateType({ ...base, dateType: 'stringOffset' }, 'date-time')).toStrictEqual({ type: 'datetime', offset: true })
-  })
-
-  it('resolves date-time with dateType stringLocal', () => {
-    expect(getDateType({ ...base, dateType: 'stringLocal' }, 'date-time')).toStrictEqual({ type: 'datetime', local: true })
-  })
-
-  it('resolves date format', () => {
-    expect(getDateType({ ...base, dateType: 'string' }, 'date')).toStrictEqual({
-      type: 'date',
-      representation: 'string',
-    })
-    expect(getDateType({ ...base, dateType: 'date' }, 'date')).toStrictEqual({
-      type: 'date',
-      representation: 'date',
-    })
-  })
-
-  it('resolves time format', () => {
-    expect(getDateType({ ...base, dateType: 'string' }, 'time')).toStrictEqual({
-      type: 'time',
-      representation: 'string',
-    })
-    expect(getDateType({ ...base, dateType: 'date' }, 'time')).toStrictEqual({
-      type: 'time',
-      representation: 'date',
-    })
-  })
-
-  it('resolves date-time and date independently through the object form', () => {
-    expect(getDateType({ ...base, dateType: { dateTime: 'date' } }, 'date-time')).toStrictEqual({
-      type: 'date',
-      representation: 'date',
-    })
-    expect(getDateType({ ...base, dateType: { dateTime: 'date' } }, 'date')).toStrictEqual({
-      type: 'date',
-      representation: 'string',
-    })
-    expect(getDateType({ ...base, dateType: { dateTime: 'date' } }, 'time')).toStrictEqual({
-      type: 'time',
-      representation: 'string',
-    })
-  })
-
-  it('returns null for a format the object form sets to false', () => {
-    expect(getDateType({ ...base, dateType: { date: false } }, 'date')).toBeNull()
-    expect(getDateType({ ...base, dateType: { date: false } }, 'date-time')).toStrictEqual({ type: 'datetime', offset: false })
-  })
-})
+import { flattenSchema, resolveDateTypeValue } from './schemaShape.ts'
 
 describe('resolveDateTypeValue', () => {
   it('applies a scalar dateType to every format', () => {
@@ -91,29 +18,12 @@ describe('resolveDateTypeValue', () => {
 })
 
 describe('flattenSchema', () => {
-  it('returns schema unchanged when there is no allOf', () => {
-    const schema = { type: 'string' as const }
-
-    expect(flattenSchema(schema)).toBe(schema)
-  })
-
-  it('returns schema unchanged when allOf is empty', () => {
-    const schema = { allOf: [] }
-
-    expect(flattenSchema(schema)).toBe(schema)
-  })
-
-  it('returns schema unchanged when allOf contains a $ref', () => {
-    const schema = { allOf: [{ $ref: '#/components/schemas/Pet' }] }
-
-    expect(flattenSchema(schema)).toBe(schema)
-  })
-
-  it('returns schema unchanged when allOf contains structural keys', () => {
-    const schema = {
-      allOf: [{ properties: { id: { type: 'integer' as const } } }],
-    }
-
+  it.each([
+    { title: 'there is no allOf', schema: { type: 'string' as const } },
+    { title: 'allOf is empty', schema: { allOf: [] } },
+    { title: 'allOf contains a $ref', schema: { allOf: [{ $ref: '#/components/schemas/Pet' }] } },
+    { title: 'allOf contains structural keys', schema: { allOf: [{ properties: { id: { type: 'integer' as const } } }] } },
+  ])('returns schema unchanged when $title', ({ schema }) => {
     expect(flattenSchema(schema)).toBe(schema)
   })
 

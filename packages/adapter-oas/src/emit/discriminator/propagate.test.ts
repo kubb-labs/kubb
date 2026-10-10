@@ -18,10 +18,27 @@ function objectSchema(props: Array<{ name: string; schema: ast.SchemaNode }>) {
 }
 
 describe('buildDiscriminatorChildMap', () => {
-  it('skips union schemas without a discriminatorPropertyName', () => {
-    const union = ast.factory.createSchema({ type: 'union', members: [refSchema('Cat'), refSchema('Dog')] })
-    const map = buildDiscriminatorChildMap([union])
-    expect(map.size).toBe(0)
+  it.each([
+    {
+      title: 'a union schema has no discriminatorPropertyName',
+      schema: ast.factory.createSchema({ type: 'union', members: [refSchema('Cat'), refSchema('Dog')] }),
+    },
+    {
+      title: 'a member is not an intersection',
+      schema: ast.factory.createSchema({ type: 'union', members: [refSchema('Cat')], discriminatorPropertyName: 'kind' }),
+    },
+    {
+      title: 'a member misses the discriminant property',
+      schema: ast.factory.createSchema({
+        type: 'union',
+        members: [
+          ast.factory.createSchema({ type: 'intersection', members: [refSchema('Cat'), objectSchema([{ name: 'other', schema: enumSchema(['x']) }])] }),
+        ],
+        discriminatorPropertyName: 'kind',
+      }),
+    },
+  ])('returns an empty map when $title', ({ schema }) => {
+    expect(buildDiscriminatorChildMap([schema]).size).toBe(0)
   })
 
   it('builds child entries from a top-level discriminated union (Case 1)', () => {
@@ -69,27 +86,6 @@ describe('buildDiscriminatorChildMap', () => {
 
     const map = buildDiscriminatorChildMap([unionA, unionB])
     expect(map.get('Pet')).toStrictEqual({ propertyName: 'kind', enumValues: ['cat', 'kitten'] })
-  })
-
-  it('skips members that are not intersections', () => {
-    const union = ast.factory.createSchema({
-      type: 'union',
-      members: [refSchema('Cat')],
-      discriminatorPropertyName: 'kind',
-    })
-    const map = buildDiscriminatorChildMap([union])
-    expect(map.size).toBe(0)
-  })
-
-  it('skips members missing the discriminant property', () => {
-    const member = ast.factory.createSchema({
-      type: 'intersection',
-      members: [refSchema('Cat'), objectSchema([{ name: 'other', schema: enumSchema(['x']) }])],
-    })
-    const union = ast.factory.createSchema({ type: 'union', members: [member], discriminatorPropertyName: 'kind' })
-
-    const map = buildDiscriminatorChildMap([union])
-    expect(map.size).toBe(0)
   })
 })
 

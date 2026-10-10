@@ -4,37 +4,35 @@ import type { Document } from '../types.ts'
 import { extractSchemaFromContent, getSchemas, sortSchemas } from './components.ts'
 
 describe('extractSchemaFromContent', () => {
-  it('returns the schema for the preferred content type', () => {
-    const schema = { type: 'object' as const }
-    const content = {
-      'application/json': { schema },
-      'application/xml': { schema: { type: 'string' as const } },
-    }
+  const schema = { type: 'object' as const }
 
-    expect(extractSchemaFromContent(content, 'application/json')).toBe(schema)
-  })
-
-  it('falls back to the first content type when no preference is given', () => {
-    const schema = { type: 'object' as const }
-    const content = { 'application/json': { schema } }
-
-    expect(extractSchemaFromContent(content)).toBe(schema)
-  })
-
-  it('returns null when the schema is a $ref', () => {
-    const content = {
-      'application/json': { schema: { $ref: '#/components/schemas/Pet' } },
-    }
-
-    expect(extractSchemaFromContent(content, 'application/json')).toBeNull()
-  })
-
-  it('returns null when the preferred content type is absent', () => {
-    const content = {
-      'application/xml': { schema: { type: 'string' as const } },
-    }
-
-    expect(extractSchemaFromContent(content, 'application/json')).toBeNull()
+  it.each([
+    {
+      title: 'the schema for the preferred content type',
+      content: { 'application/json': { schema }, 'application/xml': { schema: { type: 'string' as const } } },
+      contentType: 'application/json' as const,
+      expected: schema,
+    },
+    {
+      title: 'the first content type schema when no preference is given',
+      content: { 'application/json': { schema } },
+      contentType: undefined,
+      expected: schema,
+    },
+    {
+      title: 'null when the schema is a $ref',
+      content: { 'application/json': { schema: { $ref: '#/components/schemas/Pet' } } },
+      contentType: 'application/json' as const,
+      expected: null,
+    },
+    {
+      title: 'null when the preferred content type is absent',
+      content: { 'application/xml': { schema: { type: 'string' as const } } },
+      contentType: 'application/json' as const,
+      expected: null,
+    },
+  ])('returns $title', ({ content, contentType, expected }) => {
+    expect(extractSchemaFromContent(content, contentType)).toBe(expected)
   })
 })
 

@@ -3,24 +3,14 @@ import { getBinaryFallbackSchema, isDiscriminator, isNullable } from './oas.ts'
 import type { SchemaObject } from './types.ts'
 
 describe('isNullable', () => {
-  it('returns true for nullable: true (OAS 3.0)', () => {
-    expect(isNullable({ nullable: true } as SchemaObject)).toBe(true)
-  })
-
-  it('returns true for x-nullable: true (vendor extension)', () => {
-    expect(isNullable({ 'x-nullable': true } as SchemaObject)).toBe(true)
-  })
-
-  it('returns true for type: "null"', () => {
-    expect(isNullable({ type: 'null' } as SchemaObject)).toBe(true)
-  })
-
-  it('returns true for type array containing "null" (OAS 3.1)', () => {
-    expect(isNullable({ type: ['string', 'null'] } as SchemaObject)).toBe(true)
-  })
-
-  it('returns false for a plain non-nullable schema', () => {
-    expect(isNullable({ type: 'string' } as SchemaObject)).toBe(false)
+  it.each([
+    { title: 'true for nullable: true (OAS 3.0)', schema: { nullable: true }, expected: true },
+    { title: 'true for x-nullable: true (vendor extension)', schema: { 'x-nullable': true }, expected: true },
+    { title: 'true for type: "null"', schema: { type: 'null' }, expected: true },
+    { title: 'true for a type array containing "null" (OAS 3.1)', schema: { type: ['string', 'null'] }, expected: true },
+    { title: 'false for a plain non-nullable schema', schema: { type: 'string' }, expected: false },
+  ])('returns $title', ({ schema, expected }) => {
+    expect(isNullable(schema as SchemaObject)).toBe(expected)
   })
 })
 

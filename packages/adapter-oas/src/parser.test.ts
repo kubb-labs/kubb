@@ -2,11 +2,11 @@ import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
+import { patchDiscriminatorNode } from './emit/discriminator/propagate.ts'
 import { parseDocument } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
 import { getOperations } from './operation.ts'
 import { createSchemaParser, type OasParserContext } from './parser.ts'
-import { patchDiscriminatorNode } from './emit/discriminator/propagate.ts'
 import { createRefs } from './refs.ts'
 import type { ContentType, Document, SchemaObject } from './types.ts'
 
@@ -15,6 +15,10 @@ const emptyDocument: Document = {
   info: { title: '', version: '' },
   paths: {},
 } as Document
+
+// A document without a component registry parses `$ref`s leniently: the target is expected to
+// live outside the fragment, so the node stays a `ref` instead of falling back to `unknown`.
+const emptyCtx: OasParserContext = { document: emptyDocument, refs: createRefs(emptyDocument) }
 
 // OAS 3.0 document whose binary bodies lose their schema on the upgrade to 3.1.
 const binaryResponseDocument = {
@@ -45,6 +49,62 @@ const binaryResponseDocument = {
     },
   },
 } as Document
+
+const multipartUploadDocument = {
+  openapi: '3.0.3',
+  info: { title: 'Test', version: '1.0.0' },
+  paths: {
+    '/upload': {
+      post: {
+        operationId: 'upload',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { type: 'object', properties: { name: { type: 'string' } } },
+            },
+            'multipart/form-data': {
+              schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } },
+            },
+          },
+        },
+        responses: { '201': { description: 'Created' } },
+      },
+    },
+  },
+} as Document
+
+const multiResponseDocument = {
+  openapi: '3.0.3',
+  info: { title: 'Test', version: '1.0.0' },
+  paths: {
+    '/pets/{petId}': {
+      get: {
+        operationId: 'getPetById',
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {
+                schema: { type: 'object', properties: { name: { type: 'string' } } },
+              },
+              'application/xml': {
+                schema: { type: 'object', properties: { name: { type: 'string' } } },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+} as Document
+
+type SchemaCase = {
+  title: string
+  schema: SchemaObject
+  options?: Partial<ast.ParserOptions>
+  expected: Record<string, unknown>
+}
 
 /**
  * Parses a single OpenAPI `SchemaObject` into a `SchemaNode`, mirroring the
@@ -80,76 +140,66 @@ function parseOas(document: Document, options: Partial<ast.ParserOptions> & { co
   return root
 }
 
+function findSchema(root: ast.InputNode, name: string): ast.SchemaNode | undefined {
+  return root.schemas.find((schema) => schema.name === name)
+}
+
+function findOperation(root: ast.InputNode, operationId: string): ast.OperationNode | undefined {
+  return root.operations.find((operation) => operation.operationId === operationId)
+}
+
 describe('buildAst', () => {
   describe('schemas', () => {
-    it('converts named component schemas', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
+    it('returns an InputNode with the named component schemas', async () => {
+      const root = parseOas(await buildMinimalOas())
       const names = root.schemas.map((s) => s.name)
 
-      expect(names).toContain('Pet')
-      expect(names).toContain('NewPet')
-      expect(names).toContain('Error')
+      expect(root.kind).toBe('Input')
+      expect(names).toStrictEqual(expect.arrayContaining(['Pet', 'NewPet', 'Error']))
     })
 
     it('converts object schema with properties', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const pet = ast.narrowSchema(
-        root.schemas.find((s) => s.name === 'Pet'),
-        'object',
-      )
+      const root = parseOas(await buildMinimalOas())
+      const pet = ast.narrowSchema(findSchema(root, 'Pet'), 'object')
 
       expect(pet?.type).toBe('object')
       expect(pet?.properties?.map((p) => p.name)).toStrictEqual(expect.arrayContaining(['id', 'name', 'tag']))
     })
 
     it('marks required properties', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const pet = ast.narrowSchema(
-        root.schemas.find((s) => s.name === 'Pet'),
-        'object',
-      )
-      const idProp = pet?.properties?.find((p) => p.name === 'id')
-      const tagProp = pet?.properties?.find((p) => p.name === 'tag')
+      const root = parseOas(await buildMinimalOas())
+      const pet = ast.narrowSchema(findSchema(root, 'Pet'), 'object')
 
-      expect(idProp?.required).toBe(true)
-      expect(tagProp?.required).toBe(false)
+      expect(pet?.properties?.find((p) => p.name === 'id')?.required).toBe(true)
+      expect(pet?.properties?.find((p) => p.name === 'tag')?.required).toBe(false)
     })
 
     it('converts array schema', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const list = ast.narrowSchema(
-        root.schemas.find((s) => s.name === 'PetList'),
-        'array',
-      )
+      const root = parseOas(await buildMinimalOas())
+      const list = ast.narrowSchema(findSchema(root, 'PetList'), 'array')
 
       expect(list?.type).toBe('array')
       expect(list?.items).toHaveLength(1)
       expect(list?.items?.[0]?.type).toBe('ref')
     })
 
-    it('converts enum schema', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const status = ast.narrowSchema(
-        root.schemas.find((s) => s.name === 'Status'),
-        'enum',
-      )
+    it('populates node.schema with the resolved ref schema when the document contains the definition', async () => {
+      const root = parseOas(await buildMinimalOas())
+      const petList = ast.narrowSchema(findSchema(root, 'PetList'), 'array')
 
-      expect(status?.type).toBe('enum')
-      expect(status?.enumValues).toStrictEqual(['active', 'inactive', 'pending'])
+      expect(petList?.items?.[0]).toMatchObject({ type: 'ref', schema: { type: 'object' } })
+    })
+
+    it('converts enum schema', async () => {
+      const root = parseOas(await buildMinimalOas())
+      const status = ast.narrowSchema(findSchema(root, 'Status'), 'enum')
+
+      expect(status).toMatchObject({ type: 'enum', primitive: 'string', enumValues: ['active', 'inactive', 'pending'] })
     })
 
     it('converts oneOf to union', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const petOrError = ast.narrowSchema(
-        root.schemas.find((s) => s.name === 'PetOrError'),
-        'union',
-      )
+      const root = parseOas(await buildMinimalOas())
+      const petOrError = ast.narrowSchema(findSchema(root, 'PetOrError'), 'union')
 
       expect(petOrError?.type).toBe('union')
       expect(petOrError?.members).toHaveLength(2)
@@ -163,40 +213,27 @@ describe('buildAst', () => {
         components: { schemas: { NullEnum: { enum: [null] } } },
       } as unknown as Document)
 
-      expect(root.schemas.find((s) => s.name === 'NullEnum')?.type).toBe('null')
+      expect(findSchema(root, 'NullEnum')?.type).toBe('null')
     })
 
     it('converts allOf to intersection', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const fullPet = ast.narrowSchema(
-        root.schemas.find((s) => s.name === 'FullPet'),
-        'intersection',
-      )
+      const root = parseOas(await buildMinimalOas())
+      const fullPet = ast.narrowSchema(findSchema(root, 'FullPet'), 'intersection')
 
       expect(fullPet?.type).toBe('intersection')
       expect(fullPet?.members).toHaveLength(2)
     })
 
     it('flattens single-member allOf and propagates nullable', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const nullableString = root.schemas.find((s) => s.name === 'NullableString')
+      const root = parseOas(await buildMinimalOas())
 
-      // Should be flattened to 'string' — not an intersection
-      expect(nullableString?.type).toBe('string')
-      expect(nullableString?.nullable).toBe(true)
-      expect(nullableString?.readOnly).toBe(true)
-      expect(nullableString?.examples).toStrictEqual(['some-value'])
+      // Flattened to 'string', not an intersection
+      expect(findSchema(root, 'NullableString')).toMatchObject({ type: 'string', nullable: true, readOnly: true, examples: ['some-value'] })
     })
 
     it('flattens single-member allOf for nullable $ref', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const nullableRef = ast.narrowSchema(
-        root.schemas.find((s) => s.name === 'NullableRef'),
-        'union',
-      )
+      const root = parseOas(await buildMinimalOas())
+      const nullableRef = ast.narrowSchema(findSchema(root, 'NullableRef'), 'union')
 
       // The 3.1 upgrade rewrites `{ $ref, nullable: true }` into `anyOf: [$ref, null]`, so the
       // single-member allOf flattens to that union instead of a ref carrying `nullable`.
@@ -205,37 +242,17 @@ describe('buildAst', () => {
       expect(ast.narrowSchema(nullableRef?.members?.[0], 'ref')?.ref).toBe('#/components/schemas/Pet')
     })
 
-    it('maps format date-time to datetime SchemaType', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const fullPet = ast.narrowSchema(
-        root.schemas.find((s) => s.name === 'FullPet'),
-        'intersection',
-      )
+    it('maps formats on properties nested inside an allOf member', async () => {
+      const root = parseOas(await buildMinimalOas())
+      const fullPet = ast.narrowSchema(findSchema(root, 'FullPet'), 'intersection')
       // second member is an inline object with createdAt (datetime) and email
       const objectMember = ast.narrowSchema(
         fullPet?.members?.find((m) => m.type === 'object'),
         'object',
       )
-      const createdAt = objectMember?.properties?.find((p) => p.name === 'createdAt')
 
-      expect(createdAt?.schema.type).toBe('datetime')
-    })
-
-    it('maps format email to email SchemaType', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const fullPet = ast.narrowSchema(
-        root.schemas.find((s) => s.name === 'FullPet'),
-        'intersection',
-      )
-      const objectMember = ast.narrowSchema(
-        fullPet?.members?.find((m) => m.type === 'object'),
-        'object',
-      )
-      const email = objectMember?.properties?.find((p) => p.name === 'email')
-
-      expect(email?.schema.type).toBe('email')
+      expect(objectMember?.properties?.find((p) => p.name === 'createdAt')?.schema.type).toBe('datetime')
+      expect(objectMember?.properties?.find((p) => p.name === 'email')?.schema.type).toBe('email')
     })
   })
 
@@ -247,75 +264,59 @@ describe('buildAst', () => {
       components: { schemas: { Pet: { type: 'object', properties: { id: { type: 'integer' } } } } },
     } as Document
 
-    it('resolves a $ref to a defined component as a ref node', () => {
-      const node = parseSchema({ document, refs: createRefs(document) }, { schema: { $ref: '#/components/schemas/Pet' } })
+    it.each([
+      { title: 'a ref node for a defined component', $ref: '#/components/schemas/Pet', type: 'ref' },
+      { title: 'unknown for a component the document never defines', $ref: '#/components/schemas/Missing', type: 'unknown' },
+    ])('returns $title', ({ $ref, type }) => {
+      const node = parseSchema({ document, refs: createRefs(document) }, { schema: { $ref } })
 
-      expect(node.type).toBe('ref')
-    })
-
-    it('falls back to unknown for a $ref to a component the document never defines', () => {
-      const node = parseSchema({ document, refs: createRefs(document) }, { schema: { $ref: '#/components/schemas/Missing' } })
-
-      expect(node.type).toBe('unknown')
+      expect(node.type).toBe(type)
     })
   })
 
   describe('operations', () => {
     it('converts all operations', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
+      const root = parseOas(await buildMinimalOas())
 
       expect(root.operations).toHaveLength(4)
     })
 
     it('sets operationId, method, path, tags', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const listPets = root.operations.find((op) => op.operationId === 'listPets')
+      const root = parseOas(await buildMinimalOas())
 
-      expect(listPets?.method).toBe('GET')
-      expect(listPets?.path).toBe('/pets')
-      expect(listPets?.protocol).toBe('http')
-      expect(listPets?.tags).toContain('pets')
-      expect(listPets?.summary).toBe('List all pets')
+      expect(findOperation(root, 'listPets')).toMatchObject({
+        method: 'GET',
+        path: '/pets',
+        protocol: 'http',
+        tags: ['pets'],
+        summary: 'List all pets',
+      })
     })
 
     it('sets deprecated flag', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const createPet = root.operations.find((op) => op.operationId === 'createPet')
+      const root = parseOas(await buildMinimalOas())
 
-      expect(createPet?.deprecated).toBe(true)
+      expect(findOperation(root, 'createPet')?.deprecated).toBe(true)
     })
 
     it('uses uppercase HTTP method per RFC 9110', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
+      const root = parseOas(await buildMinimalOas())
+
       for (const op of root.operations) {
         expect(op.method).toBe(op.method?.toUpperCase())
       }
     })
 
-    it('converts query parameters', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const listPets = root.operations.find((op) => op.operationId === 'listPets')
-      const limit = listPets?.parameters.find((p) => p.name === 'limit')
+    it.each([
+      { operationId: 'listPets', method: 'GET', path: '/pets', name: 'limit', in: 'query', required: false },
+      { operationId: 'getPetById', method: 'GET', path: '/pets/{petId}', name: 'petId', in: 'path', required: true },
+    ])('converts $in parameters', async ({ operationId, method, path, name, in: location, required }) => {
+      const root = parseOas(await buildMinimalOas())
+      const operation = findOperation(root, operationId)
+      const parameter = operation?.parameters.find((p) => p.name === name)
 
-      expect(limit?.in).toBe('query')
-      expect(limit?.required).toBe(false)
-      expect(limit?.schema.type).toBe('integer')
-    })
-
-    it('converts path parameters', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const getPet = root.operations.find((op) => op.operationId === 'getPetById')
-      const petId = getPet?.parameters.find((p) => p.name === 'petId')
-
-      expect(petId?.in).toBe('path')
-      expect(petId?.required).toBe(true)
-      expect(petId?.schema.type).toBe('integer')
+      expect(operation).toMatchObject({ method, path })
+      expect(parameter).toMatchObject({ in: location, required, schema: { type: 'integer' } })
     })
 
     it('converts path parameters with $ref schema to a named ref type', async () => {
@@ -348,11 +349,9 @@ describe('buildAst', () => {
         },
       })
       const root = parseOas(oas)
-      const op = root.operations.find((o) => o.operationId === 'getPetById')
-      const petId = op?.parameters.find((p) => p.name === 'petId')
+      const petId = findOperation(root, 'getPetById')?.parameters.find((p) => p.name === 'petId')
 
-      expect(petId?.schema.type).toBe('ref')
-      expect((petId?.schema as { name?: string }).name).toBe('PetId')
+      expect(petId?.schema).toMatchObject({ type: 'ref', name: 'PetId' })
     })
 
     it('captures the parameter style and explode metadata', async () => {
@@ -373,182 +372,65 @@ describe('buildAst', () => {
         },
       })
       const root = parseOas(oas)
-      const op = root.operations.find((o) => o.operationId === 'listPetsByIds')
-      const ids = op?.parameters.find((p) => p.name === 'ids')
-      const tags = op?.parameters.find((p) => p.name === 'tags')
+      const op = findOperation(root, 'listPetsByIds')
 
-      expect(ids?.style).toBe('matrix')
-      expect(ids?.explode).toBe(true)
-      expect(tags?.style).toBe('spaceDelimited')
-      expect(tags?.explode).toBe(false)
+      expect(op?.parameters.find((p) => p.name === 'ids')).toMatchObject({ style: 'matrix', explode: true })
+      expect(op?.parameters.find((p) => p.name === 'tags')).toMatchObject({ style: 'spaceDelimited', explode: false })
     })
 
-    it('converts requestBody', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const createPet = root.operations.find((op) => op.operationId === 'createPet')
+    it('converts requestBody with description, required and a single content entry', async () => {
+      const root = parseOas(await buildMinimalOas())
+      const createPet = findOperation(root, 'createPet')
 
-      expect(createPet?.requestBody).toBeDefined()
-      expect(createPet?.requestBody?.content?.[0]?.schema?.type).toBe('ref')
-    })
-
-    it('captures requestBody description', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const createPet = root.operations.find((op) => op.operationId === 'createPet')
-
-      expect(createPet?.requestBody?.description).toBe('New pet to create')
-    })
-
-    it('sets requestBody.required to true when spec has required: true', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const createPet = root.operations.find((op) => op.operationId === 'createPet')
-
-      expect(createPet?.requestBody?.required).toBe(true)
+      expect(createPet?.requestBody).toMatchObject({
+        description: 'New pet to create',
+        required: true,
+        content: [{ contentType: 'application/json', schema: { type: 'ref' } }],
+      })
       expect(createPet?.requestBody?.content?.[0]?.schema?.optional).toBeFalsy()
     })
 
     it('leaves requestBody.required undefined when spec omits required', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const patchPet = root.operations.find((op) => op.operationId === 'patchPet')
+      const root = parseOas(await buildMinimalOas())
+      const patchPet = findOperation(root, 'patchPet')
 
       expect(patchPet?.requestBody).toBeDefined()
       expect(patchPet?.requestBody?.required).toBeUndefined()
       expect(patchPet?.requestBody?.content?.[0]?.schema?.optional).toBe(true)
     })
 
-    it('converts responses with statusCode and schema', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const listPets = root.operations.find((op) => op.operationId === 'listPets')
-      const ok = listPets?.responses.find((r) => r.statusCode === '200')
+    it('converts a response with statusCode, description and a single content entry', async () => {
+      const root = parseOas(await buildMinimalOas())
+      const ok = findOperation(root, 'listPets')?.responses.find((r) => r.statusCode === '200')
 
-      expect(ok?.description).toBe('A list of pets')
-      expect(ok?.content?.[0]?.schema?.type).toBe('ref')
+      expect(ok).toMatchObject({
+        description: 'A list of pets',
+        content: [{ contentType: 'application/json', schema: { type: 'ref' } }],
+      })
     })
 
     it('converts responses without a body schema', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const getPet = root.operations.find((op) => op.operationId === 'getPetById')
-      const notFound = getPet?.responses.find((r) => r.statusCode === '404')
+      const root = parseOas(await buildMinimalOas())
+      const notFound = findOperation(root, 'getPetById')?.responses.find((r) => r.statusCode === '404')
 
       expect(notFound?.description).toBe('Not found')
     })
 
-    it('sets mediaType on responses', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const listPets = root.operations.find((op) => op.operationId === 'listPets')
-      const ok = listPets?.responses.find((r) => r.statusCode === '200')
+    it('populates requestBody.content with every content type in spec order', async () => {
+      const root = parseOas(await parseDocument(multipartUploadDocument))
+      const upload = findOperation(root, 'upload')
 
-      expect(ok?.content?.[0]?.contentType).toBe('application/json')
+      expect(upload?.requestBody?.content).toMatchObject([
+        { contentType: 'application/json', schema: { type: 'object' } },
+        { contentType: 'multipart/form-data', schema: { type: 'object' } },
+      ])
     })
 
-    it('populates requestBody.content with a single entry when operation has one content type', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const createPet = root.operations.find((op) => op.operationId === 'createPet')
+    it('keeps only the configured contentType in requestBody.content', async () => {
+      const root = parseOas(await parseDocument(multipartUploadDocument), { contentType: 'multipart/form-data' })
+      const upload = findOperation(root, 'upload')
 
-      expect(createPet?.requestBody?.content).toHaveLength(1)
-      expect(createPet?.requestBody?.content?.[0]?.contentType).toBe('application/json')
-      expect(createPet?.requestBody?.content?.[0]?.schema?.type).toBe('ref')
-    })
-
-    it('populates requestBody.content with all entries when operation has multiple content types', async () => {
-      const oas = await parseDocument({
-        openapi: '3.0.3',
-        info: { title: 'Test', version: '1.0.0' },
-        paths: {
-          '/upload': {
-            post: {
-              operationId: 'upload',
-              requestBody: {
-                required: true,
-                content: {
-                  'application/json': {
-                    schema: { type: 'object', properties: { name: { type: 'string' } } },
-                  },
-                  'multipart/form-data': {
-                    schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } },
-                  },
-                },
-              },
-              responses: { '201': { description: 'Created' } },
-            },
-          },
-        },
-      })
-      const root = parseOas(oas)
-      const upload = root.operations.find((op) => op.operationId === 'upload')
-
-      expect(upload?.requestBody?.content).toHaveLength(2)
-      expect(upload?.requestBody?.content?.[0]?.contentType).toBe('application/json')
-      expect(upload?.requestBody?.content?.[1]?.contentType).toBe('multipart/form-data')
-    })
-
-    it('requestBody.content[0] reflects the first content type when no contentType option is set', async () => {
-      const oas = await parseDocument({
-        openapi: '3.0.3',
-        info: { title: 'Test', version: '1.0.0' },
-        paths: {
-          '/upload': {
-            post: {
-              operationId: 'upload',
-              requestBody: {
-                required: true,
-                content: {
-                  'application/json': {
-                    schema: { type: 'object', properties: { name: { type: 'string' } } },
-                  },
-                  'multipart/form-data': {
-                    schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } },
-                  },
-                },
-              },
-              responses: { '201': { description: 'Created' } },
-            },
-          },
-        },
-      })
-      const root = parseOas(oas)
-      const upload = root.operations.find((op) => op.operationId === 'upload')
-
-      expect(upload?.requestBody?.content?.[0]?.contentType).toBe('application/json')
-      expect(upload?.requestBody?.content?.[0]?.schema?.type).toBe('object')
-    })
-
-    it('when contentType is set, requestBody.content contains only that content type', async () => {
-      const oas = await parseDocument({
-        openapi: '3.0.3',
-        info: { title: 'Test', version: '1.0.0' },
-        paths: {
-          '/upload': {
-            post: {
-              operationId: 'upload',
-              requestBody: {
-                required: true,
-                content: {
-                  'application/json': {
-                    schema: { type: 'object', properties: { name: { type: 'string' } } },
-                  },
-                  'multipart/form-data': {
-                    schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } } },
-                  },
-                },
-              },
-              responses: { '201': { description: 'Created' } },
-            },
-          },
-        },
-      })
-      const root = parseOas(oas, { contentType: 'multipart/form-data' })
-      const upload = root.operations.find((op) => op.operationId === 'upload')
-
-      expect(upload?.requestBody?.content).toHaveLength(1)
-      expect(upload?.requestBody?.content?.[0]?.contentType).toBe('multipart/form-data')
+      expect(upload?.requestBody?.content?.map((entry) => entry.contentType)).toStrictEqual(['multipart/form-data'])
     })
 
     it('keeps a binary requestBody for an application/octet-stream body upgraded to 3.1', async () => {
@@ -573,11 +455,9 @@ describe('buildAst', () => {
         },
       })
       const root = parseOas(oas)
-      const uploadFile = root.operations.find((op) => op.operationId === 'uploadFile')
+      const uploadFile = findOperation(root, 'uploadFile')
 
-      expect(uploadFile?.requestBody?.content).toHaveLength(1)
-      expect(uploadFile?.requestBody?.content?.[0]?.contentType).toBe('application/octet-stream')
-      expect(uploadFile?.requestBody?.content?.[0]?.schema?.type).toBe('blob')
+      expect(uploadFile?.requestBody?.content).toMatchObject([{ contentType: 'application/octet-stream', schema: { type: 'blob' } }])
     })
 
     it('keeps a binary multipart property upgraded to 3.1', async () => {
@@ -606,582 +486,465 @@ describe('buildAst', () => {
         },
       })
       const root = parseOas(oas)
-      const upload = root.operations.find((operation) => operation.operationId === 'upload')
-      const body = ast.narrowSchema(upload?.requestBody?.content?.[0]?.schema, 'object')
-      const file = body?.properties.find((property) => property.name === 'file')
+      const body = ast.narrowSchema(findOperation(root, 'upload')?.requestBody?.content?.[0]?.schema, 'object')
 
-      expect(file?.schema.type).toBe('blob')
+      expect(body?.properties.find((property) => property.name === 'file')?.schema.type).toBe('blob')
     })
 
     it('keeps a binary response for an application/octet-stream body upgraded to 3.1', async () => {
-      const oas = await parseDocument(binaryResponseDocument)
-      const root = parseOas(oas)
+      const root = parseOas(await parseDocument(binaryResponseDocument))
 
-      const essay = root.operations.find((op) => op.operationId === 'downloadEssay')
-      const pdf = root.operations.find((op) => op.operationId === 'downloadPdf')
-
-      expect(essay?.responses[0]?.content?.[0]?.contentType).toBe('application/octet-stream')
-      expect(essay?.responses[0]?.content?.[0]?.schema?.type).toBe('blob')
-      expect(pdf?.responses[0]?.content?.[0]?.schema?.type).toBe('blob')
+      expect(findOperation(root, 'downloadEssay')?.responses[0]?.content).toMatchObject([{ contentType: 'application/octet-stream', schema: { type: 'blob' } }])
+      expect(findOperation(root, 'downloadPdf')?.responses[0]?.content?.[0]?.schema?.type).toBe('blob')
     })
 
     it('keeps a binary octet-stream response whatever emptySchemaType is configured', async () => {
-      const oas = await parseDocument(binaryResponseDocument)
-      const root = parseOas(oas, { emptySchemaType: 'void' })
-      const essay = root.operations.find((op) => op.operationId === 'downloadEssay')
+      const root = parseOas(await parseDocument(binaryResponseDocument), { emptySchemaType: 'void' })
 
-      expect(essay?.responses[0]?.content?.[0]?.schema?.type).toBe('blob')
+      expect(findOperation(root, 'downloadEssay')?.responses[0]?.content?.[0]?.schema?.type).toBe('blob')
     })
 
-    it('populates response.content with a single entry when the response has one content type', async () => {
-      const oas = await buildMinimalOas()
-      const root = parseOas(oas)
-      const listPets = root.operations.find((op) => op.operationId === 'listPets')
-      const ok = listPets?.responses.find((r) => r.statusCode === '200')
+    it('populates response.content with every content type in spec order', async () => {
+      const root = parseOas(await parseDocument(multiResponseDocument))
+      const ok = findOperation(root, 'getPetById')?.responses.find((r) => r.statusCode === '200')
 
-      expect(ok?.content).toHaveLength(1)
-      expect(ok?.content?.[0]?.contentType).toBe('application/json')
+      expect(ok?.content?.map((entry) => entry.contentType)).toStrictEqual(['application/json', 'application/xml'])
     })
 
-    it('populates response.content with all entries when the response has multiple content types', async () => {
-      const oas = await parseDocument({
-        openapi: '3.0.3',
-        info: { title: 'Test', version: '1.0.0' },
-        paths: {
-          '/pets/{petId}': {
-            get: {
-              operationId: 'getPetById',
-              responses: {
-                '200': {
-                  description: 'OK',
-                  content: {
-                    'application/json': {
-                      schema: { type: 'object', properties: { name: { type: 'string' } } },
-                    },
-                    'application/xml': {
-                      schema: { type: 'object', properties: { name: { type: 'string' } } },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      })
-      const root = parseOas(oas)
-      const getPetById = root.operations.find((op) => op.operationId === 'getPetById')
-      const ok = getPetById?.responses.find((r) => r.statusCode === '200')
+    it('keeps only the configured contentType in response.content', async () => {
+      const root = parseOas(await parseDocument(multiResponseDocument), { contentType: 'application/xml' })
+      const ok = findOperation(root, 'getPetById')?.responses.find((r) => r.statusCode === '200')
 
-      expect(ok?.content).toHaveLength(2)
-      expect(ok?.content?.[0]?.contentType).toBe('application/json')
-      expect(ok?.content?.[1]?.contentType).toBe('application/xml')
-    })
-
-    it('when contentType is set, response.content contains only that content type', async () => {
-      const oas = await parseDocument({
-        openapi: '3.0.3',
-        info: { title: 'Test', version: '1.0.0' },
-        paths: {
-          '/pets/{petId}': {
-            get: {
-              operationId: 'getPetById',
-              responses: {
-                '200': {
-                  description: 'OK',
-                  content: {
-                    'application/json': {
-                      schema: { type: 'object', properties: { name: { type: 'string' } } },
-                    },
-                    'application/xml': {
-                      schema: { type: 'object', properties: { name: { type: 'string' } } },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      })
-      const root = parseOas(oas, { contentType: 'application/xml' })
-      const getPetById = root.operations.find((op) => op.operationId === 'getPetById')
-      const ok = getPetById?.responses.find((r) => r.statusCode === '200')
-
-      expect(ok?.content).toHaveLength(1)
-      expect(ok?.content?.[0]?.contentType).toBe('application/xml')
+      expect(ok?.content?.map((entry) => entry.contentType)).toStrictEqual(['application/xml'])
     })
   })
 })
 
-describe('parseSchema examples', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('reads the OAS 3.1 examples array', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', examples: ['a', 'b'] } })
-
-    expect(node.examples).toStrictEqual(['a', 'b'])
+describe('parseSchema types', () => {
+  it.each([
+    { schema: { type: 'string' }, type: 'string' },
+    { schema: { type: 'boolean' }, type: 'boolean' },
+    { schema: { type: 'integer' }, type: 'integer' },
+    { schema: { type: 'number' }, type: 'number' },
+    { schema: { type: 'null' }, type: 'null' },
+    { schema: { type: 'array' }, type: 'array' },
+  ] satisfies Array<{ schema: SchemaObject; type: string }>)('maps type $schema.type to a $type node', ({ schema, type }) => {
+    expect(parseSchema(emptyCtx, { schema }).type).toBe(type)
   })
 
-  it('normalizes a singular OAS 3.0 example into the examples array', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', example: 'doggie' } })
-
-    expect(node.examples).toStrictEqual(['doggie'])
-  })
-})
-
-describe('parseSchema uuid', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('maps format uuid to uuid', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'uuid' },
-    })
-
-    expect(node.type).toBe('uuid')
-  })
-
-  it('maps format uuid without type to uuid (format overrides type)', () => {
-    const node = parseSchema(ctx, { schema: { format: 'uuid' } })
-
-    expect(node.type).toBe('uuid')
-  })
-
-  it('preserves nullable on uuid', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'uuid', nullable: true },
-    })
-
-    expect(node.type).toBe('uuid')
-    expect(node.nullable).toBe(true)
-  })
-
-  it('preserves description on uuid', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'string',
-        format: 'uuid',
-        description: 'A unique identifier',
-      },
-    })
-
-    expect(node.type).toBe('uuid')
-    expect(node.description).toBe('A unique identifier')
+  it.each([
+    { title: 'reads the OAS 3.1 examples array', schema: { type: 'string', examples: ['a', 'b'] }, examples: ['a', 'b'] },
+    { title: 'normalizes a singular OAS 3.0 example into the examples array', schema: { type: 'string', example: 'doggie' }, examples: ['doggie'] },
+  ] satisfies Array<{ title: string; schema: SchemaObject; examples: Array<unknown> }>)('$title', ({ schema, examples }) => {
+    expect(parseSchema(emptyCtx, { schema }).examples).toStrictEqual(examples)
   })
 })
 
-describe('parseSchema email', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('maps format email to email', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'email' },
-    })
-
-    expect(node.type).toBe('email')
+describe('parseSchema format', () => {
+  it.each([
+    { title: 'string uuid', schema: { type: 'string', format: 'uuid' }, expected: { type: 'uuid', format: 'uuid' } },
+    { title: 'uuid without type', schema: { format: 'uuid' }, expected: { type: 'uuid', format: 'uuid' } },
+    { title: 'string email', schema: { type: 'string', format: 'email' }, expected: { type: 'email', format: 'email' } },
+    { title: 'string idn-email', schema: { type: 'string', format: 'idn-email' }, expected: { type: 'email', format: 'idn-email' } },
+    { title: 'email without type', schema: { format: 'email' }, expected: { type: 'email', format: 'email' } },
+    { title: 'ipv4 without type', schema: { format: 'ipv4' }, expected: { type: 'ipv4', format: 'ipv4' } },
+    { title: 'ipv6 without type', schema: { format: 'ipv6' }, expected: { type: 'ipv6', format: 'ipv6' } },
+    { title: 'string uri', schema: { type: 'string', format: 'uri' }, expected: { type: 'url', format: 'uri' } },
+    { title: 'string uri-reference', schema: { type: 'string', format: 'uri-reference' }, expected: { type: 'url', format: 'uri-reference' } },
+    { title: 'string url', schema: { type: 'string', format: 'url' }, expected: { type: 'url', format: 'url' } },
+    { title: 'string hostname', schema: { type: 'string', format: 'hostname' }, expected: { type: 'url', format: 'hostname' } },
+    { title: 'string idn-hostname', schema: { type: 'string', format: 'idn-hostname' }, expected: { type: 'url', format: 'idn-hostname' } },
+    { title: 'uri without type', schema: { format: 'uri' }, expected: { type: 'url', format: 'uri' } },
+    { title: 'string binary', schema: { type: 'string', format: 'binary' }, expected: { type: 'blob', format: 'binary' } },
+    { title: 'string byte', schema: { type: 'string', format: 'byte' }, expected: { type: 'blob', format: 'byte' } },
+    { title: 'binary without type', schema: { format: 'binary' }, expected: { type: 'blob', format: 'binary' } },
+    { title: 'string date-time', schema: { type: 'string', format: 'date-time' }, expected: { type: 'datetime', format: 'date-time' } },
+    { title: 'integer int32', schema: { type: 'integer', format: 'int32' }, expected: { type: 'integer', format: 'int32' } },
+    { title: 'integer int64 (default integerType bigint)', schema: { type: 'integer', format: 'int64' }, expected: { type: 'bigint', format: 'int64' } },
+    { title: 'integer uint64 (default integerType bigint)', schema: { type: 'integer', format: 'uint64' }, expected: { type: 'bigint', format: 'uint64' } },
+    { title: 'int64 without type', schema: { format: 'int64' }, expected: { type: 'bigint', format: 'int64' } },
+    { title: 'uint64 without type', schema: { format: 'uint64' }, expected: { type: 'bigint', format: 'uint64' } },
+    { title: 'number float', schema: { type: 'number', format: 'float' }, expected: { type: 'number', format: 'float' } },
+    { title: 'number double', schema: { type: 'number', format: 'double' }, expected: { type: 'number', format: 'double' } },
+    { title: 'float without type', schema: { format: 'float' }, expected: { type: 'number', format: 'float' } },
+    { title: 'string with an unknown format', schema: { type: 'string', format: 'custom-format' }, expected: { type: 'string', format: 'custom-format' } },
+    { title: 'enum with a format', schema: { type: 'string', format: 'custom-enum', enum: ['a', 'b'] }, expected: { type: 'enum', format: 'custom-enum' } },
+    // A numeric format on a `type: 'string'` schema describes how the number is spelled, so the declared type wins.
+    { title: 'string int64', schema: { type: 'string', format: 'int64' }, expected: { type: 'string', format: 'int64' } },
+    { title: 'string uint64', schema: { type: 'string', format: 'uint64' }, expected: { type: 'string', format: 'uint64' } },
+    { title: 'string int32', schema: { type: 'string', format: 'int32' }, expected: { type: 'string', format: 'int32' } },
+    { title: 'string float', schema: { type: 'string', format: 'float' }, expected: { type: 'string', format: 'float' } },
+    { title: 'string double', schema: { type: 'string', format: 'double' }, expected: { type: 'string', format: 'double' } },
+    {
+      title: 'string int64 when integerType is number',
+      schema: { type: 'string', format: 'int64' },
+      options: { integerType: 'number' },
+      expected: { type: 'string', format: 'int64' },
+    },
+  ] satisfies Array<SchemaCase>)('maps $title to $expected.type and keeps the format', ({ schema, options, expected }) => {
+    expect(parseSchema(emptyCtx, { schema }, options)).toMatchObject(expected)
   })
 
-  it('maps format idn-email to email', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'idn-email' },
-    })
-
-    expect(node.type).toBe('email')
-  })
-
-  it('maps format email without type to email (format overrides type)', () => {
-    const node = parseSchema(ctx, { schema: { format: 'email' } })
-
-    expect(node.type).toBe('email')
-  })
-
-  it('preserves nullable on email', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'email', nullable: true },
-    })
-
-    expect(node.type).toBe('email')
-    expect(node.nullable).toBe(true)
-  })
-})
-
-describe('parseSchema url', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('maps format ipv4 to ipv4', () => {
-    const node = parseSchema(ctx, { schema: { format: 'ipv4' } })
-
-    expect(node.type).toBe('ipv4')
-  })
-
-  it('maps format ipv6 to ipv6', () => {
-    const node = parseSchema(ctx, { schema: { format: 'ipv6' } })
-
-    expect(node.type).toBe('ipv6')
-  })
-
-  it.each(['uri', 'uri-reference', 'url', 'hostname', 'idn-hostname'])('maps format %s to url', (format) => {
-    const node = parseSchema(ctx, { schema: { type: 'string', format } })
-
-    expect(node.type).toBe('url')
-  })
-
-  it('maps format uri without type to url (format overrides type)', () => {
-    const node = parseSchema(ctx, { schema: { format: 'uri' } })
-
-    expect(node.type).toBe('url')
-  })
-
-  it('preserves nullable on url', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'uri', nullable: true },
-    })
-
-    expect(node.type).toBe('url')
-    expect(node.nullable).toBe(true)
-  })
-})
-
-describe('parseSchema binary', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('maps string with format binary to blob', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'binary' },
-    })
-
-    expect(node.type).toBe('blob')
-  })
-
-  it('maps string with format byte to blob', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'byte' },
-    })
-
-    expect(node.type).toBe('blob')
-  })
-
-  it('maps format binary without type to blob (format overrides type)', () => {
-    const node = parseSchema(ctx, { schema: { format: 'binary' } })
-
-    expect(node.type).toBe('blob')
-  })
-})
-
-describe('parseSchema contentMediaType (OAS 3.1)', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('maps untyped application/octet-stream content to blob', () => {
-    const node = parseSchema(ctx, {
-      schema: { contentMediaType: 'application/octet-stream' },
-    })
-
-    expect(node.type).toBe('blob')
-  })
-
-  it('maps string with contentMediaType application/octet-stream to blob', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', contentMediaType: 'application/octet-stream' },
-    })
-
-    expect(node.type).toBe('blob')
-  })
-
-  it('does not map encoded application/octet-stream content to blob', () => {
-    const node = parseSchema(ctx, {
+  it.each([
+    { title: 'untyped application/octet-stream content', schema: { contentMediaType: 'application/octet-stream' }, type: 'blob' },
+    { title: 'string application/octet-stream content', schema: { type: 'string', contentMediaType: 'application/octet-stream' }, type: 'blob' },
+    {
+      title: 'base64-encoded application/octet-stream content',
       schema: { type: 'string', contentMediaType: 'application/octet-stream', contentEncoding: 'base64' },
-    })
-
-    expect(node.type).toBe('string')
-  })
-
-  it('leaves string with other contentMediaType as string', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', contentMediaType: 'text/plain' },
-    })
-
-    expect(node.type).toBe('string')
+      type: 'string',
+    },
+    { title: 'string text/plain content', schema: { type: 'string', contentMediaType: 'text/plain' }, type: 'string' },
+  ] satisfies Array<{ title: string; schema: SchemaObject; type: string }>)('maps $title to $type (OAS 3.1 contentMediaType)', ({ schema, type }) => {
+    expect(parseSchema(emptyCtx, { schema }).type).toBe(type)
   })
 })
 
-describe('parseSchema format preservation', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('preserves known format on uuid schema', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'uuid' },
-    })
-
-    expect(node.type).toBe('uuid')
-    expect(node.format).toBe('uuid')
+describe('parseSchema metadata', () => {
+  it.each([
+    { title: 'nullable on a string', schema: { type: 'string', nullable: true }, expected: { type: 'string', nullable: true } },
+    { title: 'nullable on a boolean', schema: { type: 'boolean', nullable: true }, expected: { type: 'boolean', nullable: true } },
+    { title: 'nullable on an integer', schema: { type: 'integer', nullable: true }, expected: { type: 'integer', nullable: true } },
+    { title: 'nullable on a number', schema: { type: 'number', nullable: true }, expected: { type: 'number', nullable: true } },
+    { title: 'nullable on an object', schema: { type: 'object', nullable: true }, expected: { type: 'object', nullable: true } },
+    { title: 'nullable on an array', schema: { type: 'array', nullable: true }, expected: { type: 'array', nullable: true } },
+    { title: 'nullable on a uuid', schema: { type: 'string', format: 'uuid', nullable: true }, expected: { type: 'uuid', nullable: true } },
+    { title: 'nullable on an email', schema: { type: 'string', format: 'email', nullable: true }, expected: { type: 'email', nullable: true } },
+    { title: 'nullable on a url', schema: { type: 'string', format: 'uri', nullable: true }, expected: { type: 'url', nullable: true } },
+    {
+      title: 'nullable on a pattern string',
+      schema: { type: 'string', pattern: '^[a-z]+$', nullable: true },
+      expected: { type: 'string', pattern: '^[a-z]+$', nullable: true },
+    },
+    { title: 'nullable on a ref', schema: { $ref: '#/components/schemas/Pet', nullable: true }, expected: { type: 'ref', nullable: true } },
+    { title: 'nullable on a union', schema: { oneOf: [{ type: 'string' }], nullable: true }, expected: { type: 'union', nullable: true } },
+    // An allOf of plain scalar fragments is merged into the parent before conversion, so the
+    // node takes the first member's type instead of becoming an intersection.
+    {
+      title: 'nullable on an allOf of plain scalars',
+      schema: { allOf: [{ type: 'string' }, { type: 'number' }], nullable: true },
+      expected: { type: 'string', nullable: true },
+    },
+    {
+      title: 'description on a uuid',
+      schema: { type: 'string', format: 'uuid', description: 'A unique identifier' },
+      expected: { type: 'uuid', description: 'A unique identifier' },
+    },
+    { title: 'description on a null', schema: { type: 'null', description: 'always null' }, expected: { type: 'null', description: 'always null' } },
+    { title: 'readOnly on a string', schema: { type: 'string', readOnly: true }, expected: { type: 'string', readOnly: true } },
+    { title: 'readOnly on an object', schema: { type: 'object', readOnly: true }, expected: { type: 'object', readOnly: true } },
+    { title: 'readOnly on an enum', schema: { enum: ['a', 'b'], readOnly: true }, expected: { type: 'enum', readOnly: true } },
+    { title: 'readOnly on a ref', schema: { $ref: '#/components/schemas/Pet', readOnly: true }, expected: { type: 'ref', readOnly: true } },
+    { title: 'writeOnly on a string', schema: { type: 'string', writeOnly: true }, expected: { type: 'string', writeOnly: true } },
+    { title: 'writeOnly on an array', schema: { type: 'array', writeOnly: true }, expected: { type: 'array', writeOnly: true } },
+    { title: 'deprecated on a string', schema: { type: 'string', deprecated: true }, expected: { type: 'string', deprecated: true } },
+    { title: 'deprecated on an object', schema: { type: 'object', deprecated: true }, expected: { type: 'object', deprecated: true } },
+    { title: 'deprecated on an array', schema: { type: 'array', deprecated: true }, expected: { type: 'array', deprecated: true } },
+    { title: 'deprecated on an enum', schema: { enum: ['a', 'b'], deprecated: true }, expected: { type: 'enum', deprecated: true } },
+    { title: 'deprecated on a ref', schema: { $ref: '#/components/schemas/Pet', deprecated: true }, expected: { type: 'ref', deprecated: true } },
+    {
+      title: 'description and deprecated on a union',
+      schema: { oneOf: [{ type: 'string' }], description: 'one of many', deprecated: true },
+      expected: { type: 'union', description: 'one of many', deprecated: true },
+    },
+    {
+      title: 'description and deprecated on an allOf of plain scalars',
+      schema: { allOf: [{ type: 'string' }, { type: 'number' }], description: 'combined', deprecated: true },
+      expected: { type: 'string', description: 'combined', deprecated: true },
+    },
+    {
+      title: 'description and deprecated on an OAS 3.1 type-array union',
+      schema: { type: ['string', 'integer'], description: 'id or label', deprecated: true },
+      expected: { type: 'union', description: 'id or label', deprecated: true },
+    },
+  ] satisfies Array<SchemaCase>)('carries $title', ({ schema, expected }) => {
+    expect(parseSchema(emptyCtx, { schema })).toMatchObject(expected)
   })
 
-  it('preserves known format on email schema', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'email' },
-    })
+  it.each([
+    { title: 'nullable: true (OAS 3.0)', schema: { type: 'string', nullable: true } },
+    { title: 'x-nullable: true', schema: { type: 'string', 'x-nullable': true } },
+    { title: 'a type array including null (OAS 3.1)', schema: { type: ['string', 'null'] } },
+    { title: 'null in the enum values (OAS 3.0 convention)', schema: { enum: ['a', 'b', null] } },
+  ] satisfies Array<{ title: string; schema: SchemaObject }>)('sets nullable via $title', ({ schema }) => {
+    expect(parseSchema(emptyCtx, { schema }).nullable).toBe(true)
+  })
+})
 
-    expect(node.type).toBe('email')
-    expect(node.format).toBe('email')
+describe('parseSchema default', () => {
+  it.each([
+    { title: 'a string', schema: { type: 'string', default: 'hello' }, value: 'hello' },
+    { title: 'a falsy-but-non-null number (0)', schema: { type: 'number', default: 0 }, value: 0 },
+    { title: 'a falsy-but-non-null boolean (false)', schema: { type: 'boolean', default: false }, value: false },
+    { title: 'an enum member', schema: { enum: ['a', 'b'], default: 'a' }, value: 'a' },
+  ] satisfies Array<{ title: string; schema: SchemaObject; value: unknown }>)('passes through $title default', ({ schema, value }) => {
+    expect(parseSchema(emptyCtx, { schema }).default).toBe(value)
   })
 
-  it('preserves known format on datetime schema', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'date-time' },
-    })
+  it('keeps default: null when schema is not nullable', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'string', default: null } })
 
-    expect(node.type).toBe('datetime')
-    expect(node.format).toBe('date-time')
+    expect(node.default).toBeNull()
   })
 
-  it('preserves format when dateType is false (falls through to string)', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: false })
+  it.each([
+    { title: 'a nullable string', schema: { type: 'string', nullable: true, default: null } },
+    { title: 'a nullable enum', schema: { enum: ['a', 'b'], nullable: true, default: null } },
+    { title: 'an enum nullable through a null member', schema: { enum: ['a', null], default: null } },
+    { title: 'a nullable ref sibling', schema: { $ref: '#/components/schemas/Pet', nullable: true, default: null } },
+  ] satisfies Array<{ title: string; schema: SchemaObject }>)('drops default: null on $title', ({ schema }) => {
+    expect(parseSchema(emptyCtx, { schema }).default).toBeUndefined()
+  })
+})
 
-    expect(node.type).toBe('string')
-    expect(node.format).toBe('date-time')
+describe('parseSchema constraints', () => {
+  it.each([
+    { title: 'minLength on a string', schema: { type: 'string', minLength: 1 }, expected: { type: 'string', min: 1 } },
+    { title: 'maxLength on a string', schema: { type: 'string', maxLength: 100 }, expected: { type: 'string', max: 100 } },
+    { title: 'minLength and maxLength on a string', schema: { type: 'string', minLength: 1, maxLength: 100 }, expected: { type: 'string', min: 1, max: 100 } },
+    {
+      title: 'minLength and maxLength alongside pattern',
+      schema: { type: 'string', pattern: '^[a-z]+$', minLength: 2, maxLength: 10 },
+      expected: { type: 'string', pattern: '^[a-z]+$', min: 2, max: 10 },
+    },
+    {
+      title: 'minLength and maxLength on a string int64',
+      schema: { type: 'string', format: 'int64', minLength: 1, maxLength: 20 },
+      expected: { type: 'string', min: 1, max: 20 },
+    },
+    { title: 'minItems on an array', schema: { type: 'array', minItems: 1 }, expected: { type: 'array', min: 1 } },
+    { title: 'maxItems on an array', schema: { type: 'array', maxItems: 5 }, expected: { type: 'array', max: 5 } },
+    { title: 'minItems and maxItems on an array', schema: { type: 'array', minItems: 1, maxItems: 5 }, expected: { type: 'array', min: 1, max: 5 } },
+    { title: 'uniqueItems: true on an array', schema: { type: 'array', uniqueItems: true }, expected: { type: 'array', unique: true } },
+    { title: 'uniqueItems: false on an array', schema: { type: 'array', uniqueItems: false }, expected: { type: 'array', unique: false } },
+    { title: 'minItems on a tuple', schema: { prefixItems: [{ type: 'string' }], minItems: 1 }, expected: { type: 'tuple', min: 1 } },
+    { title: 'maxItems on a tuple', schema: { prefixItems: [{ type: 'string' }], maxItems: 4 }, expected: { type: 'tuple', max: 4 } },
+    { title: 'a zero minimum on a number', schema: { type: 'number', minimum: 0 }, expected: { type: 'number', min: 0 } },
+    { title: 'maximum on a number', schema: { type: 'number', maximum: 999 }, expected: { type: 'number', max: 999 } },
+    { title: 'minimum and maximum on a number', schema: { type: 'number', minimum: 1, maximum: 100 }, expected: { type: 'number', min: 1, max: 100 } },
+    { title: 'numeric exclusiveMinimum on a number', schema: { type: 'number', exclusiveMinimum: 0 }, expected: { type: 'number', exclusiveMinimum: 0 } },
+    { title: 'numeric exclusiveMaximum on a number', schema: { type: 'number', exclusiveMaximum: 100 }, expected: { type: 'number', exclusiveMaximum: 100 } },
+    { title: 'minimum on an integer', schema: { type: 'integer', minimum: 1 }, expected: { type: 'integer', min: 1 } },
+    { title: 'maximum on an integer', schema: { type: 'integer', maximum: 100 }, expected: { type: 'integer', max: 100 } },
+    { title: 'minimum and maximum on an integer', schema: { type: 'integer', minimum: 1, maximum: 100 }, expected: { type: 'integer', min: 1, max: 100 } },
+    { title: 'numeric exclusiveMinimum on an integer', schema: { type: 'integer', exclusiveMinimum: 0 }, expected: { type: 'integer', exclusiveMinimum: 0 } },
+    {
+      title: 'numeric exclusiveMaximum on an integer',
+      schema: { type: 'integer', exclusiveMaximum: 100 },
+      expected: { type: 'integer', exclusiveMaximum: 100 },
+    },
+    {
+      title: 'minimum and maximum on a float number',
+      schema: { type: 'number', format: 'float', minimum: -90, maximum: 90 },
+      expected: { type: 'number', min: -90, max: 90 },
+    },
+    {
+      title: 'minimum and maximum on a double number',
+      schema: { type: 'number', format: 'double', minimum: -90, maximum: 90 },
+      expected: { type: 'number', min: -90, max: 90 },
+    },
+    {
+      title: 'minimum and maximum on an int32 integer',
+      schema: { type: 'integer', format: 'int32', minimum: 1, maximum: 100 },
+      expected: { type: 'integer', min: 1, max: 100 },
+    },
+    {
+      title: 'minimum and maximum when only the format names the type',
+      schema: { format: 'double', minimum: 0, maximum: 1 },
+      expected: { type: 'number', min: 0, max: 1 },
+    },
+    {
+      title: 'numeric exclusiveMinimum and exclusiveMaximum on a double number',
+      schema: { type: 'number', format: 'double', exclusiveMinimum: 0, exclusiveMaximum: 100 },
+      expected: { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 100 },
+    },
+    { title: 'multipleOf on a double number', schema: { type: 'number', format: 'double', multipleOf: 0.5 }, expected: { type: 'number', multipleOf: 0.5 } },
+    {
+      title: 'multipleOf on an int64 integer',
+      schema: { type: 'integer', format: 'int64', multipleOf: 10 },
+      options: { integerType: 'number' },
+      expected: { type: 'integer', multipleOf: 10 },
+    },
+  ] satisfies Array<SchemaCase>)('maps $title', ({ schema, options, expected }) => {
+    expect(parseSchema(emptyCtx, { schema }, options)).toMatchObject(expected)
   })
 
-  it('preserves unknown format on string schema', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'custom-format' },
-    })
+  it.each([
+    {
+      title: 'a boolean exclusiveMinimum (OAS 3.0 style) on a number',
+      schema: { type: 'number', exclusiveMinimum: true },
+      type: 'number',
+      keys: ['exclusiveMinimum'],
+    },
+    {
+      title: 'a boolean exclusiveMinimum (OAS 3.0 style) on an integer',
+      schema: { type: 'integer', exclusiveMinimum: true },
+      type: 'integer',
+      keys: ['exclusiveMinimum'],
+    },
+    { title: 'minimum and maximum on a uuid string', schema: { type: 'string', format: 'uuid', minimum: 0, maximum: 1 }, type: 'uuid', keys: ['min', 'max'] },
+  ] satisfies Array<{ title: string; schema: SchemaObject; type: string; keys: Array<string> }>)('ignores $title', ({ schema, type, keys }) => {
+    const node = parseSchema(emptyCtx, { schema }) as unknown as Record<string, unknown>
 
-    expect(node.type).toBe('string')
-    expect(node.format).toBe('custom-format')
+    expect(node['type']).toBe(type)
+    for (const key of keys) {
+      expect(node[key]).toBeUndefined()
+    }
   })
+})
 
-  it('preserves unknown format with minLength constraint inference', () => {
-    const node = parseSchema(ctx, {
+describe('parseSchema type inference (no explicit type)', () => {
+  it.each([
+    { title: 'string from minLength', schema: { minLength: 1 }, expected: { type: 'string', min: 1 } },
+    { title: 'string from maxLength', schema: { maxLength: 100 }, expected: { type: 'string', max: 100 } },
+    { title: 'string from minLength and maxLength', schema: { minLength: 2, maxLength: 50 }, expected: { type: 'string', min: 2, max: 50 } },
+    { title: 'string from pattern', schema: { pattern: '^[0-9]+$' }, expected: { type: 'string', pattern: '^[0-9]+$' } },
+    {
+      title: 'string from an unknown format with minLength',
       schema: { format: 'custom-format', minLength: 1 },
-    })
-
-    expect(node.type).toBe('string')
-    expect(node.format).toBe('custom-format')
+      expected: { type: 'string', format: 'custom-format' },
+    },
+    { title: 'number from minimum', schema: { minimum: 0 }, expected: { type: 'number', min: 0 } },
+    { title: 'number from maximum', schema: { maximum: 999 }, expected: { type: 'number', max: 999 } },
+    { title: 'number from minimum and maximum', schema: { minimum: 1, maximum: 100 }, expected: { type: 'number', min: 1, max: 100 } },
+    { title: 'array from items', schema: { items: { type: 'string' } }, expected: { type: 'array' } },
+    { title: 'object from additionalProperties: true', schema: { additionalProperties: true }, expected: { type: 'object', additionalProperties: true } },
+    { title: 'object from patternProperties', schema: { patternProperties: { '^x-': { type: 'string' } } }, expected: { type: 'object' } },
+  ] satisfies Array<SchemaCase>)('infers $title', ({ schema, expected }) => {
+    expect(parseSchema(emptyCtx, { schema })).toMatchObject(expected)
   })
 
-  it('preserves format on numeric schema', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'number', format: 'double' },
-    })
+  it('does not infer array from minItems/maxItems alone', () => {
+    const node = parseSchema(emptyCtx, { schema: { minItems: 1, maxItems: 5 } })
 
-    expect(node.type).toBe('number')
-    expect(node.format).toBe('double')
+    expect(node.type).not.toBe('array')
+  })
+})
+
+describe('parseSchema pattern', () => {
+  it('maps pattern on a string type to a string node with pattern', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'string', pattern: '^[a-z]+$' } })
+
+    expect(node).toMatchObject({ type: 'string', pattern: '^[a-z]+$' })
   })
 
-  it('preserves format on int64 schema (default integerType bigint)', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'integer', format: 'int64' },
-    })
+  it.each([
+    { title: 'a number', schema: { type: 'number', pattern: '^[0-9]+$' }, type: 'number' },
+    { title: 'a ref sibling', schema: { $ref: '#/components/schemas/Pet', pattern: '^[a-z]+$' }, type: 'ref' },
+  ] satisfies Array<{ title: string; schema: SchemaObject; type: string }>)('drops pattern on $title', ({ schema, type }) => {
+    const node = parseSchema(emptyCtx, { schema }) as unknown as Record<string, unknown>
 
-    expect(node.type).toBe('bigint')
-    expect(node.format).toBe('int64')
-  })
-
-  it('preserves format on uint64 schema (default integerType bigint)', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'integer', format: 'uint64' },
-    })
-
-    expect(node.type).toBe('bigint')
-    expect(node.format).toBe('uint64')
-  })
-
-  it('preserves format on enum schema', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'custom-enum', enum: ['a', 'b'] },
-    })
-
-    expect(node.type).toBe('enum')
-    expect(node.format).toBe('custom-enum')
+    expect(node['type']).toBe(type)
+    expect(node['pattern']).toBeUndefined()
   })
 })
 
 describe('parseSchema allOf', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('flattens single-member allOf to the member type', () => {
-    const node = parseSchema(ctx, {
-      schema: { allOf: [{ type: 'string' }] } as const,
-    })
-
-    expect(node.type).toBe('string')
+  it.each([
+    { title: 'string member', schema: { allOf: [{ type: 'string' }] }, expected: { type: 'string' } },
+    { title: '$ref member and nullable', schema: { allOf: [{ $ref: '#/components/schemas/Pet' }], nullable: true }, expected: { type: 'ref', nullable: true } },
+    {
+      title: 'string member and outer annotations',
+      schema: { allOf: [{ type: 'string' }], description: 'wrapped', deprecated: true, nullable: true },
+      expected: { type: 'string', description: 'wrapped', deprecated: true, nullable: true },
+    },
+    {
+      title: '$ref member and outer annotations',
+      schema: { allOf: [{ $ref: '#/components/schemas/Foo' }], description: 'annotation only', nullable: true },
+      expected: { type: 'ref', description: 'annotation only', nullable: true },
+    },
+  ] satisfies Array<SchemaCase>)('flattens a single-member allOf with a $title onto the member', ({ schema, expected }) => {
+    // description / nullable / deprecated are safe to merge; no structural keys → flatten.
+    expect(parseSchema(emptyCtx, { schema })).toMatchObject(expected)
   })
 
-  it('merges outer metadata onto a flattened single-member allOf', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        allOf: [{ type: 'string' }],
-        description: 'wrapped',
-        deprecated: true,
-        nullable: true,
-      } as const,
-    })
-
-    expect(node.type).toBe('string')
-    expect(node.description).toBe('wrapped')
-    expect(node.deprecated).toBe(true)
-    expect(node.nullable).toBe(true)
-  })
-
-  it('flattens single-member allOf $ref and preserves nullable', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        allOf: [{ $ref: '#/components/schemas/Pet' }],
-        nullable: true,
-      } as const,
-    })
-
-    expect(node.type).toBe('ref')
-    expect(node.nullable).toBe(true)
+  it.each([
+    // required on the outer schema signals structural intent — do not flatten.
+    {
+      title: 'required array',
+      schema: { allOf: [{ type: 'object', properties: { id: { type: 'integer' }, name: { type: 'string' } } }], required: ['id'] },
+    },
+    // additionalProperties on the outer schema adds a constraint — do not flatten.
+    { title: 'additionalProperties', schema: { allOf: [{ $ref: '#/components/schemas/Foo' }], additionalProperties: false } },
+  ] satisfies Array<{ title: string; schema: SchemaObject }>)('produces an intersection when a single-member allOf has a sibling $title', ({ schema }) => {
+    expect(parseSchema(emptyCtx, { schema }).type).toBe('intersection')
   })
 
   it('produces an intersection for multiple allOf members', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         allOf: [{ $ref: '#/components/schemas/Pet' }, { type: 'object', properties: { tag: { type: 'string' } } }],
-      } as const,
+      },
     })
 
     expect(node.type).toBe('intersection')
-    const narrowed462 = ast.narrowSchema(node, 'intersection')
-    expect(narrowed462?.members).toHaveLength(2)
+    expect(ast.narrowSchema(node, 'intersection')?.members?.map((member) => member.type)).toStrictEqual(['ref', 'object'])
   })
 
   it('appends sibling properties as an extra intersection member', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         allOf: [{ $ref: '#/components/schemas/Pet' }],
         properties: { extra: { type: 'string' } },
-      } as const,
+      },
     })
 
     // first member: the $ref, last member: the sibling properties object
-    const narrowed474 = ast.narrowSchema(node, 'intersection')
-    expect(narrowed474?.members?.[0]?.type).toBe('ref')
-    expect(narrowed474?.members?.[narrowed474.members.length - 1]?.type).toBe('object')
+    const members = ast.narrowSchema(node, 'intersection')?.members ?? []
+    expect(members[0]?.type).toBe('ref')
+    expect(members[members.length - 1]?.type).toBe('object')
   })
 
   it('resolves required keys missing from outer properties by looking into allOf members', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         required: ['id'],
         allOf: [
           { type: 'object', properties: { id: { type: 'integer' } } },
           { type: 'object', properties: { name: { type: 'string' } } },
         ],
-      } as const,
+      },
     })
 
     // The 2 anonymous allOf members are merged into 1; the injected required-key member is a separate synthetic member
-    const narrowed490 = ast.narrowSchema(node, 'intersection')
-    expect(narrowed490?.members).toHaveLength(2)
+    const intersection = ast.narrowSchema(node, 'intersection')
+    expect(intersection?.members).toHaveLength(2)
     // the merged allOf object contains both id and name
-    const mergedAllOf = ast.narrowSchema(narrowed490?.members?.[0], 'object')
-    expect(mergedAllOf?.properties?.map((p) => p.name)).toContain('id')
-    expect(mergedAllOf?.properties?.map((p) => p.name)).toContain('name')
+    const mergedAllOf = ast.narrowSchema(intersection?.members?.[0], 'object')
+    expect(mergedAllOf?.properties?.map((p) => p.name)).toStrictEqual(['id', 'name'])
     // the injected member is an object with `id` marked required
-    const injected = ast.narrowSchema(narrowed490?.members?.[1], 'object')
+    const injected = ast.narrowSchema(intersection?.members?.[1], 'object')
     expect(injected?.properties?.find((p) => p.name === 'id')?.required).toBe(true)
   })
 
   it('does not inject required keys that are already in outer properties', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         required: ['id'],
         properties: { id: { type: 'integer' } },
         allOf: [{ type: 'object', properties: { id: { type: 'integer' } } }],
-      } as const,
+      },
     })
 
     // only the allOf member + the sibling properties object; no extra injection
-    const narrowed510 = ast.narrowSchema(node, 'intersection')
-    const objectMembers = narrowed510?.members?.filter((m) => m.type === 'object')
+    const objectMembers = ast.narrowSchema(node, 'intersection')?.members?.filter((m) => m.type === 'object')
     expect(objectMembers).toHaveLength(2)
   })
 
-  it('propagates nullable onto the intersection node', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        allOf: [{ type: 'string' }, { type: 'number' }],
-        nullable: true,
-      } as const,
-    })
-
-    expect(node.nullable).toBe(true)
-  })
-
-  it('propagates metadata onto the intersection node', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        allOf: [{ type: 'string' }, { type: 'number' }],
-        description: 'combined',
-        deprecated: true,
-      } as const,
-    })
-
-    expect(node.description).toBe('combined')
-    expect(node.deprecated).toBe(true)
-  })
-
-  it('produces an intersection when single-member allOf has a sibling required array', () => {
-    // required on the outer schema signals structural intent — do not flatten.
-    const node = parseSchema(ctx, {
-      schema: {
-        allOf: [
-          {
-            type: 'object',
-            properties: { id: { type: 'integer' }, name: { type: 'string' } },
-          },
-        ],
-        required: ['id'],
-      } as const,
-    })
-
-    expect(node.type).toBe('intersection')
-  })
-
-  it('produces an intersection when single-member allOf has a sibling additionalProperties', () => {
-    // additionalProperties on the outer schema adds a constraint — do not flatten.
-    const node = parseSchema(ctx, {
-      schema: {
-        allOf: [{ $ref: '#/components/schemas/Foo' }],
-        additionalProperties: false,
-      } as const,
-    })
-
-    expect(node.type).toBe('intersection')
-  })
-
-  it('still flattens single-member allOf when only annotation metadata is present', () => {
-    // description / nullable / deprecated are safe to merge; no structural keys → flatten.
-    const node = parseSchema(ctx, {
-      schema: {
-        allOf: [{ $ref: '#/components/schemas/Foo' }],
-        description: 'annotation only',
-        nullable: true,
-      } as const,
-    })
-
-    expect(node.type).toBe('ref')
-    expect(node.description).toBe('annotation only')
-    expect(node.nullable).toBe(true)
-  })
-
   it('merges adjacent anonymous object members within allOf into a single object', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         allOf: [
           { type: 'object', properties: { foo: { type: 'string' } } },
           { type: 'object', properties: { bar: { type: 'string' } } },
         ],
-      } as const,
+      },
     })
 
     // Both anonymous allOf members should be merged into one object
-    const narrowed588 = ast.narrowSchema(node, 'intersection')
-    expect(narrowed588?.members).toHaveLength(1)
-    const merged = ast.narrowSchema(narrowed588?.members?.[0], 'object')
-    const propNames = merged?.properties?.map((p) => p.name)
-    expect(propNames).toContain('foo')
-    expect(propNames).toContain('bar')
+    const intersection = ast.narrowSchema(node, 'intersection')
+    expect(intersection?.members).toHaveLength(1)
+    const merged = ast.narrowSchema(intersection?.members?.[0], 'object')
+    expect(merged?.properties?.map((p) => p.name)).toStrictEqual(['foo', 'bar'])
   })
 
   it('keeps synthetic object members (injected required-key + outer properties) intact for enum naming', () => {
@@ -1195,16 +958,16 @@ describe('parseSchema allOf', () => {
     // That makes the synthetic member non-anonymous, so the lazy adjacent-merge skips it —
     // we keep the three members instead of two. The resulting TypeScript intersection is
     // equivalent at the type level.
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       name: 'FullAddress',
       schema: {
         allOf: [
           {
-            type: 'object' as const,
-            properties: { streetNumber: { type: 'string' as const } },
+            type: 'object',
+            properties: { streetNumber: { type: 'string' } },
           },
         ],
-        properties: { streetName: { type: 'string' as const } },
+        properties: { streetName: { type: 'string' } },
         required: ['streetName', 'streetNumber'],
       },
     })
@@ -1212,123 +975,67 @@ describe('parseSchema allOf', () => {
     const intersection = ast.narrowSchema(node, 'intersection')
     expect(intersection?.members).toHaveLength(3)
     const propNames = intersection?.members?.flatMap((m) => ast.narrowSchema(m, 'object')?.properties?.map((p) => p.name) ?? [])
-    expect(propNames).toContain('streetNumber')
-    expect(propNames).toContain('streetName')
+    expect(propNames).toStrictEqual(expect.arrayContaining(['streetNumber', 'streetName']))
   })
 })
 
 describe('parseSchema oneOf / anyOf', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
+  it.each([
+    { keyword: 'oneOf', strategy: 'one' },
+    { keyword: 'anyOf', strategy: 'any' },
+  ] as const)('maps $keyword to a union node with strategy $strategy', ({ keyword, strategy }) => {
+    const node = parseSchema(emptyCtx, { schema: { [keyword]: [{ type: 'string' }, { type: 'number' }] } })
 
-  it('maps oneOf to a union node', () => {
-    const node = parseSchema(ctx, {
-      schema: { oneOf: [{ type: 'string' }, { type: 'number' }] },
-    })
-
-    expect(node.type).toBe('union')
+    expect(node).toMatchObject({ type: 'union', strategy })
+    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => member.type)).toStrictEqual(['string', 'number'])
   })
 
-  it('sets strategy to one when oneOf is present', () => {
-    const node = parseSchema(ctx, {
-      schema: { oneOf: [{ type: 'string' }, { type: 'number' }] },
-    })
-
-    expect(ast.narrowSchema(node, 'union')?.strategy).toBe('one')
-  })
-
-  it('maps anyOf to a union node', () => {
-    const node = parseSchema(ctx, {
-      schema: { anyOf: [{ type: 'string' }, { type: 'number' }] },
-    })
-
-    expect(node.type).toBe('union')
-  })
-
-  it('sets strategy to any when only anyOf is present', () => {
-    const node = parseSchema(ctx, {
-      schema: { anyOf: [{ type: 'string' }, { type: 'number' }] },
-    })
-
-    expect(ast.narrowSchema(node, 'union')?.strategy).toBe('any')
-  })
-
-  it('prioritizes one (oneOf) when both oneOf and anyOf are present', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        oneOf: [{ type: 'string' }],
-        anyOf: [{ type: 'number' }],
-      },
-    })
-
-    expect(ast.narrowSchema(node, 'union')?.strategy).toBe('one')
-  })
-
-  it('combines oneOf and anyOf members into a single union', () => {
-    const node = parseSchema(ctx, {
+  it('combines oneOf and anyOf members into a single union with strategy one', () => {
+    const node = parseSchema(emptyCtx, {
       schema: {
         oneOf: [{ type: 'string' }],
         anyOf: [{ type: 'number' }, { type: 'boolean' }],
       },
     })
 
-    expect(node.type).toBe('union')
-    const narrowed655 = ast.narrowSchema(node, 'union')
-    expect(narrowed655?.members).toHaveLength(3)
+    expect(node).toMatchObject({ type: 'union', strategy: 'one' })
+    expect(ast.narrowSchema(node, 'union')?.members).toHaveLength(3)
   })
 
   it('converts each oneOf member schema', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         oneOf: [{ type: 'string' }, { $ref: '#/components/schemas/Pet' }],
       },
     })
 
-    const members = ast.narrowSchema(node, 'union')?.members ?? []
-    expect(members[0]?.type).toBe('string')
-    expect(members[1]?.type).toBe('ref')
+    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => member.type)).toStrictEqual(['string', 'ref'])
   })
 
-  it('propagates nullable onto the union node', () => {
-    const node = parseSchema(ctx, {
-      schema: { oneOf: [{ type: 'string' }], nullable: true },
-    })
-
-    expect(node.nullable).toBe(true)
-  })
-
-  it('propagates metadata onto the union node', () => {
-    const node = parseSchema(ctx, {
+  it.each([
+    { keyword: 'oneOf', propertyName: 'petType' },
+    { keyword: 'anyOf', propertyName: 'kind' },
+  ] as const)('sets discriminatorPropertyName from a $keyword discriminator', ({ keyword, propertyName }) => {
+    const node = parseSchema(emptyCtx, {
       schema: {
-        oneOf: [{ type: 'string' }],
-        description: 'one of many',
-        deprecated: true,
+        [keyword]: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+        discriminator: { propertyName },
       },
     })
 
-    expect(node.description).toBe('one of many')
-    expect(node.deprecated).toBe(true)
-  })
-
-  it('sets discriminatorPropertyName when discriminator is present', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
-        discriminator: { propertyName: 'petType' },
-      },
-    })
-
-    expect(ast.narrowSchema(node, 'union')?.discriminatorPropertyName).toBe('petType')
+    expect(node).toMatchObject({ type: 'union', discriminatorPropertyName: propertyName })
   })
 
   it('does not set discriminatorPropertyName when discriminator is absent', () => {
-    const node = parseSchema(ctx, { schema: { oneOf: [{ type: 'string' }] } })
+    const node = parseSchema(emptyCtx, { schema: { oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }] } })
 
+    expect(node.type).toBe('union')
     expect(ast.narrowSchema(node, 'union')?.discriminatorPropertyName).toBeUndefined()
   })
 
   it('infers discriminatorPropertyName when a property carries a distinct literal per branch', () => {
     // No `discriminator` keyword, and the branches differ beyond that property too.
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         oneOf: [
           { type: 'object', properties: { error: { type: 'string', enum: ['validation_failed'] }, field: { type: 'string' } } },
@@ -1342,7 +1049,7 @@ describe('parseSchema oneOf / anyOf', () => {
 
   it('does not infer discriminatorPropertyName when no property has a single literal on every branch', () => {
     // `state` is the only shared property, but each branch carries two literal values for it.
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         oneOf: [
           { type: 'object', properties: { state: { type: 'string', enum: ['open', 'reopened'] } } },
@@ -1356,57 +1063,42 @@ describe('parseSchema oneOf / anyOf', () => {
 
   it('parses oneOf with object members without explicit discriminator', () => {
     // Test case from issue #14: oneOf should be preserved for validation
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         oneOf: [{ $ref: '#/components/schemas/TypeA' }, { $ref: '#/components/schemas/TypeB' }],
       },
     })
 
-    const unionNode = ast.narrowSchema(node, 'union')
-    expect(unionNode?.type).toBe('union')
-    expect(unionNode?.strategy).toBe('one')
-    expect(unionNode?.members).toHaveLength(2)
-    expect(unionNode?.members?.[0]?.type).toBe('ref')
-    expect(unionNode?.members?.[1]?.type).toBe('ref')
+    expect(node).toMatchObject({ type: 'union', strategy: 'one' })
+    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => member.type)).toStrictEqual(['ref', 'ref'])
   })
 
-  it('intersects each member with sibling properties when properties are present', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
-        properties: { id: { type: 'integer' } },
-      },
-    })
+  it.each([
+    { title: 'two members', oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }], members: ['ref', 'ref'] },
+    { title: 'one member', oneOf: [{ $ref: '#/components/schemas/Cat' }], members: ['ref'] },
+  ] satisfies Array<{ title: string; oneOf: Array<SchemaObject>; members: Array<string> }>)(
+    'intersects a oneOf with $title with the sibling properties when properties are present',
+    ({ oneOf, members }) => {
+      const node = parseSchema(emptyCtx, {
+        schema: {
+          oneOf,
+          properties: { id: { type: 'integer' } },
+        },
+      })
 
-    expect(node.type).toBe('intersection')
-    const topIntersection = ast.narrowSchema(node, 'intersection')!
-    const unionNode = ast.narrowSchema(topIntersection.members?.[0], 'union')
-    const sharedNode = ast.narrowSchema(topIntersection.members?.[1], 'object')
+      expect(node.type).toBe('intersection')
+      const topIntersection = ast.narrowSchema(node, 'intersection')
+      const unionNode = ast.narrowSchema(topIntersection?.members?.[0], 'union')
+      const sharedNode = ast.narrowSchema(topIntersection?.members?.[1], 'object')
 
-    expect(unionNode?.members).toHaveLength(2)
-    expect(unionNode?.members?.every((m) => m.type === 'ref')).toBe(true)
-    expect(sharedNode?.properties?.some((p) => p.name === 'id')).toBe(true)
-  })
-
-  it('each intersection member contains the oneOf ref and the properties node', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        oneOf: [{ $ref: '#/components/schemas/Cat' }],
-        properties: { id: { type: 'integer' } },
-      },
-    })
-
-    const topIntersection = ast.narrowSchema(node, 'intersection')
-    const unionNode = ast.narrowSchema(topIntersection?.members?.[0], 'union')
-    const [refMember] = unionNode?.members ?? []
-    const [, propsMember] = topIntersection?.members ?? []
-    expect(refMember?.type).toBe('ref')
-    expect(propsMember?.type).toBe('object')
-  })
+      expect(unionNode?.members?.map((member) => member.type)).toStrictEqual(members)
+      expect(sharedNode?.properties?.map((p) => p.name)).toStrictEqual(['id'])
+    },
+  )
 
   describe('required-only union branches', () => {
     it('resolves required-only anyOf branches against sibling properties on the same schema (Example 1)', () => {
-      const node = parseSchema(ctx, {
+      const node = parseSchema(emptyCtx, {
         schema: {
           type: 'object',
           properties: {
@@ -1429,17 +1121,8 @@ describe('parseSchema oneOf / anyOf', () => {
       const branchEmail = ast.narrowSchema(unionNode?.members?.[0], 'object')
       const branchPhone = ast.narrowSchema(unionNode?.members?.[1], 'object')
 
-      expect(branchEmail).toBeDefined()
-      expect(branchEmail?.properties).toHaveLength(1)
-      expect(branchEmail?.properties[0]?.name).toBe('email')
-      expect(branchEmail?.properties[0]?.required).toBe(true)
-      expect(branchEmail?.properties[0]?.schema.type).toBe('string')
-
-      expect(branchPhone).toBeDefined()
-      expect(branchPhone?.properties).toHaveLength(1)
-      expect(branchPhone?.properties[0]?.name).toBe('phone')
-      expect(branchPhone?.properties[0]?.required).toBe(true)
-      expect(branchPhone?.properties[0]?.schema.type).toBe('string')
+      expect(branchEmail?.properties).toMatchObject([{ name: 'email', required: true, schema: { type: 'string' } }])
+      expect(branchPhone?.properties).toMatchObject([{ name: 'phone', required: true, schema: { type: 'string' } }])
 
       expect(sharedNode?.properties?.find((p) => p.name === 'email')?.required).toBe(false)
       expect(sharedNode?.properties?.find((p) => p.name === 'phone')?.required).toBe(false)
@@ -1504,22 +1187,15 @@ describe('parseSchema oneOf / anyOf', () => {
       const branch1 = ast.narrowSchema(unionNode?.members?.[0], 'object')
       const branch2 = ast.narrowSchema(unionNode?.members?.[1], 'object')
 
-      expect(branch1?.properties).toHaveLength(2)
-      const valProp = branch1?.properties.find((p) => p.name === 'tokenValue')
-      const typeProp = branch1?.properties.find((p) => p.name === 'tokenType')
-      expect(valProp?.required).toBe(true)
-      expect(valProp?.schema.type).toBe('unknown')
-      expect(typeProp?.required).toBe(true)
-      expect(typeProp?.schema.type).toBe('ref')
-
-      expect(branch2?.properties).toHaveLength(1)
-      const pathProp = branch2?.properties.find((p) => p.name === 'accountNumber')
-      expect(pathProp?.required).toBe(true)
-      expect(pathProp?.schema.type).toBe('string')
+      expect(branch1?.properties).toMatchObject([
+        { name: 'tokenValue', required: true, schema: { type: 'unknown' } },
+        { name: 'tokenType', required: true, schema: { type: 'ref' } },
+      ])
+      expect(branch2?.properties).toMatchObject([{ name: 'accountNumber', required: true, schema: { type: 'string' } }])
     })
 
     it('enriches containing schema required properties with sibling properties when allOf member nests union', () => {
-      const node = parseSchema(ctx, {
+      const node = parseSchema(emptyCtx, {
         schema: {
           type: 'object',
           allOf: [
@@ -1546,12 +1222,11 @@ describe('parseSchema oneOf / anyOf', () => {
       expect(secondIntersection).toBeDefined()
       const sharedObj = secondIntersection?.members?.find((m) => m.type === 'object')
       const idProp = ast.narrowSchema(sharedObj!, 'object')?.properties.find((p) => p.name === 'id')
-      expect(idProp?.required).toBe(true)
-      expect(idProp?.schema.type).toBe('string')
+      expect(idProp).toMatchObject({ required: true, schema: { type: 'string' } })
     })
 
     it('falls back to unknown with required: true for required keys not declared in siblings', () => {
-      const node = parseSchema(ctx, {
+      const node = parseSchema(emptyCtx, {
         schema: {
           type: 'object',
           properties: {
@@ -1565,14 +1240,11 @@ describe('parseSchema oneOf / anyOf', () => {
       const unionNode = ast.narrowSchema(intersection.members?.[0], 'union')
       const branchPhone = ast.narrowSchema(unionNode?.members?.[1], 'object')
 
-      expect(branchPhone?.properties).toHaveLength(1)
-      expect(branchPhone?.properties[0]?.name).toBe('phone')
-      expect(branchPhone?.properties[0]?.required).toBe(true)
-      expect(branchPhone?.properties[0]?.schema.type).toBe('unknown')
+      expect(branchPhone?.properties).toMatchObject([{ name: 'phone', required: true, schema: { type: 'unknown' } }])
     })
 
     it('resolves required-only anyOf branches inside allOf against sibling allOf members', () => {
-      const node = parseSchema(ctx, {
+      const node = parseSchema(emptyCtx, {
         schema: {
           type: 'object',
           allOf: [
@@ -1598,13 +1270,11 @@ describe('parseSchema oneOf / anyOf', () => {
       expect(unionNode?.members).toHaveLength(2)
 
       const branch1 = ast.narrowSchema(unionNode?.members?.[0], 'object')
-      expect(branch1?.properties[0]?.name).toBe('shippingAddress')
-      expect(branch1?.properties[0]?.required).toBe(true)
-      expect(branch1?.properties[0]?.schema.type).toBe('string')
+      expect(branch1?.properties[0]).toMatchObject({ name: 'shippingAddress', required: true, schema: { type: 'string' } })
     })
 
     it('preserves local properties while borrowing remaining required sibling properties', () => {
-      const node = parseSchema(ctx, {
+      const node = parseSchema(emptyCtx, {
         schema: {
           type: 'object',
           properties: {
@@ -1626,12 +1296,8 @@ describe('parseSchema oneOf / anyOf', () => {
       const branch = ast.narrowSchema(unionNode?.members?.[0], 'object')
 
       expect(branch?.properties).toHaveLength(2)
-      const localProp = branch?.properties.find((p) => p.name === 'localKey')
-      const sharedProp = branch?.properties.find((p) => p.name === 'sharedKey')
-      expect(localProp?.required).toBe(true)
-      expect(localProp?.schema.type).toBe('string')
-      expect(sharedProp?.required).toBe(true)
-      expect(sharedProp?.schema.type).toBe('number')
+      expect(branch?.properties.find((p) => p.name === 'localKey')).toMatchObject({ required: true, schema: { type: 'string' } })
+      expect(branch?.properties.find((p) => p.name === 'sharedKey')).toMatchObject({ required: true, schema: { type: 'number' } })
     })
 
     it('preserves discriminated parent propagation when child uses allOf with oneOf', () => {
@@ -1669,63 +1335,202 @@ describe('parseSchema oneOf / anyOf', () => {
   })
 })
 
-describe('parseSchema const (OAS 3.1)', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('maps const string to a single-value enum', () => {
-    const node = parseSchema(ctx, { schema: { const: 'active' } })
-
-    expect(node.type).toBe('enum')
-    expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual(['active'])
-  })
-
-  it('maps const number to a single-value enum', () => {
-    const node = parseSchema(ctx, { schema: { const: 42 } })
-
-    expect(node.type).toBe('enum')
-    expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual([42])
-  })
-
-  it('maps const boolean to a single-value enum', () => {
-    const node = parseSchema(ctx, { schema: { const: true } })
-
-    expect(node.type).toBe('enum')
-    expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual([true])
-  })
-
-  it('maps const: null to a null scalar', () => {
-    const node = parseSchema(ctx, { schema: { const: null } })
-
-    expect(node.type).toBe('null')
-  })
-
-  it('const: null does not set nullable (avoids null | null)', () => {
-    const node = parseSchema(ctx, { schema: { const: null, nullable: true } })
-
-    expect(node.type).toBe('null')
-    expect(node.nullable).toBeUndefined()
-  })
-
-  it('const: null as an object property does not set nullable on the property (avoids null | null)', () => {
-    const node = parseSchema(ctx, {
+describe('parseSchema discriminator on union', () => {
+  it('narrows the discriminator property to a single value per union member when a mapping is present', () => {
+    const node = parseSchema(emptyCtx, {
       schema: {
-        type: 'object',
-        properties: {
-          status: { const: null },
+        oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+        discriminator: {
+          propertyName: 'type',
+          mapping: {
+            dog: '#/components/schemas/Dog',
+            cat: '#/components/schemas/Cat',
+          },
         },
+        properties: {
+          type: { type: 'string', enum: ['dog', 'cat'], readOnly: true },
+          name: { type: 'string' },
+        },
+        required: ['type', 'name'],
       },
-      name: 'MyObject',
     })
 
-    const objectNode = ast.narrowSchema(node, 'object')
-    const statusProp = objectNode?.properties.find((p) => p.name === 'status')
+    expect(node.type).toBe('intersection')
+    const topIntersection = ast.narrowSchema(node, 'intersection')!
+    const unionNode = ast.narrowSchema(topIntersection.members?.[0], 'union')!
+    const sharedPropertiesNode = ast.narrowSchema(topIntersection.members?.[1], 'object')
+    const sharedTypeProp = sharedPropertiesNode?.properties?.find((p) => p.name === 'type')
 
-    expect(statusProp?.schema.type).toBe('null')
-    expect(statusProp?.schema.nullable).toBeUndefined()
+    expect(ast.narrowSchema(sharedTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['dog', 'cat'])
+
+    const { members } = unionNode
+
+    // Dog member: intersection of Dog ref + synthetic discriminant object { type: 'dog' }
+    const dogIntersection = ast.narrowSchema(members![0], 'intersection')
+    const dogDiscNode = ast.narrowSchema(dogIntersection!.members![1], 'object')
+    const dogTypeProp = dogDiscNode?.properties?.find((p) => p.name === 'type')
+    expect(dogTypeProp?.schema).toMatchObject({ type: 'enum', readOnly: true, enumValues: ['dog'] })
+
+    // Cat member: intersection of Cat ref + synthetic discriminant object { type: 'cat' }
+    const catIntersection = ast.narrowSchema(members![1], 'intersection')
+    const catDiscNode = ast.narrowSchema(catIntersection!.members![1], 'object')
+    const catTypeProp = catDiscNode?.properties?.find((p) => p.name === 'type')
+    expect(catTypeProp?.schema).toMatchObject({ type: 'enum', readOnly: true, enumValues: ['cat'] })
+  })
+
+  it('gives enum sibling properties a name derived from the union schema name', () => {
+    const node = parseSchema(emptyCtx, {
+      name: 'Pet',
+      schema: {
+        oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+        discriminator: {
+          propertyName: 'type',
+          mapping: {
+            dog: '#/components/schemas/Dog',
+            cat: '#/components/schemas/Cat',
+          },
+        },
+        properties: {
+          type: { type: 'string', enum: ['dog', 'cat'], readOnly: true },
+          status: { type: 'string', enum: ['available', 'pending', 'sold'] },
+        },
+        required: ['type'],
+      },
+    })
+
+    expect(node.type).toBe('intersection')
+    const topIntersection = ast.narrowSchema(node, 'intersection')!
+    const sharedPropertiesNode = ast.narrowSchema(topIntersection.members?.[1], 'object')
+    const statusProp = sharedPropertiesNode?.properties?.find((p) => p.name === 'status')
+    // The enum schema should carry a name derived from the parent union name
+    expect(statusProp?.schema.name).toBe('PetStatusEnum')
+  })
+
+  it('embeds the discriminant value into each union member as an intersection when mapping is present', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+        discriminator: {
+          propertyName: 'type',
+          mapping: {
+            dog: '#/components/schemas/Dog',
+            cat: '#/components/schemas/Cat',
+          },
+        },
+      },
+    })
+
+    expect(node.type).toBe('union')
+    const { members } = ast.narrowSchema(node, 'union')!
+
+    // Dog member: intersection of Dog ref + { type: 'dog' }
+    const dogIntersection = ast.narrowSchema(members![0], 'intersection')
+    expect(dogIntersection).toBeDefined()
+    const dogDiscNode = ast.narrowSchema(dogIntersection!.members![1], 'object')
+    const dogTypeProp = dogDiscNode?.properties?.find((p) => p.name === 'type')
+    expect(ast.narrowSchema(dogTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['dog'])
+
+    // Cat member: intersection of Cat ref + { type: 'cat' }
+    const catIntersection = ast.narrowSchema(members![1], 'intersection')
+    expect(catIntersection).toBeDefined()
+    const catDiscNode = ast.narrowSchema(catIntersection!.members![1], 'object')
+    const catTypeProp = catDiscNode?.properties?.find((p) => p.name === 'type')
+    expect(ast.narrowSchema(catTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['cat'])
+  })
+
+  it('leaves members without a mapping entry as plain refs', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        oneOf: [{ $ref: '#/components/schemas/Dog' }, { type: 'string' }],
+        discriminator: {
+          propertyName: 'type',
+          mapping: {
+            dog: '#/components/schemas/Dog',
+          },
+        },
+      },
+    })
+
+    // Dog is in the mapping → wrapped in an intersection; the string literal has no mapping entry → left as-is
+    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => member.type)).toStrictEqual(['intersection', 'string'])
+  })
+
+  it('leaves members as plain refs when the variant cannot be resolved', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+        discriminator: { propertyName: 'type' },
+      },
+    })
+
+    // Dog and Cat are absent from this document, so the implicit value can't be safely derived.
+    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => member.type)).toStrictEqual(['ref', 'ref'])
+  })
+
+  it('folds the implicit schema-name value into ref members when no mapping is present', async () => {
+    const oas = await parseDocument({
+      openapi: '3.0.3',
+      info: { title: 'ImplicitDiscriminator', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Pet: {
+            oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
+            discriminator: { propertyName: 'petType' },
+          },
+          Cat: { type: 'object', properties: { petType: { type: 'string' }, name: { type: 'string' } } },
+          Dog: { type: 'object', properties: { petType: { type: 'string' }, bark: { type: 'boolean' } } },
+        },
+      },
+    })
+
+    const pet = findSchema(parseOas(oas), 'Pet')
+    const { members } = ast.narrowSchema(pet, 'union')!
+
+    const discriminantOf = (member: ast.SchemaNode) => {
+      const discNode = ast.narrowSchema(ast.narrowSchema(member, 'intersection')?.members?.[1], 'object')
+      return ast.narrowSchema(discNode?.properties?.find((p) => p.name === 'petType')?.schema, 'enum')?.enumValues
+    }
+
+    expect(members?.map((member) => member.type)).toStrictEqual(['intersection', 'intersection'])
+    expect(discriminantOf(members![0]!)).toStrictEqual(['Cat'])
+    expect(discriminantOf(members![1]!)).toStrictEqual(['Dog'])
+  })
+
+  it('leaves a ref member untouched when the variant already pins the discriminator to a literal', async () => {
+    const oas = await parseDocument({
+      openapi: '3.0.3',
+      info: { title: 'SelfDescribingDiscriminator', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Notification: {
+            oneOf: [{ $ref: '#/components/schemas/Approved' }, { $ref: '#/components/schemas/Disapproved' }],
+            discriminator: { propertyName: 'kind' },
+          },
+          Approved: { type: 'object', properties: { kind: { type: 'string', enum: ['APPROVED'] } } },
+          Disapproved: { type: 'object', properties: { kind: { type: 'string', enum: ['DISAPPROVED'] } } },
+        },
+      },
+    })
+
+    const notification = findSchema(parseOas(oas), 'Notification')
+
+    // Each variant already carries its own `kind` literal, so folding the schema name would
+    // collide with it; the members must stay plain refs.
+    expect(ast.narrowSchema(notification, 'union')?.members?.map((member) => member.type)).toStrictEqual(['ref', 'ref'])
+  })
+})
+
+describe('parseSchema const (OAS 3.1)', () => {
+  it.each([{ value: 'active' }, { value: 42 }, { value: true }])('maps const $value to a single-value enum', ({ value }) => {
+    const node = parseSchema(emptyCtx, { schema: { const: value } })
+
+    expect(node).toMatchObject({ type: 'enum', enumValues: [value] })
   })
 
   it('propagates name on const enum', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: { const: 'active' },
       name: 'Status',
     })
@@ -1734,7 +1539,7 @@ describe('parseSchema const (OAS 3.1)', () => {
   })
 
   it('boolean const inside an object property has no name (inline literal)', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         type: 'object',
         properties: {
@@ -1746,261 +1551,89 @@ describe('parseSchema const (OAS 3.1)', () => {
 
     const objectNode = ast.narrowSchema(node, 'object')
     const isHappyProp = objectNode?.properties.find((p) => p.name === 'isHappy')
-    const isHappyEnum = ast.narrowSchema(isHappyProp?.schema, 'enum')
 
-    expect(isHappyEnum?.name).toBeNull()
-    expect(isHappyEnum?.enumValues).toStrictEqual([false])
+    expect(isHappyProp?.schema).toMatchObject({ type: 'enum', name: null, enumValues: [false] })
   })
 })
 
-describe('parseSchema readOnly / writeOnly', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
+describe('parseSchema null', () => {
+  it.each([
+    { title: 'const: null', schema: { const: null } },
+    { title: 'const: null with nullable: true', schema: { const: null, nullable: true } },
+    { title: 'a null-only enum (drf-spectacular NullEnum)', schema: { enum: [null] } },
+    { title: 'a typed null-only enum', schema: { type: 'string', enum: [null] } },
+  ] satisfies Array<{ title: string; schema: SchemaObject }>)('maps $title to a null node without nullable (avoids null | null)', ({ schema }) => {
+    const node = parseSchema(emptyCtx, { schema })
 
-  it('sets readOnly: true when marked', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', readOnly: true },
-    })
-
-    expect(node.readOnly).toBe(true)
+    expect(node.type).toBe('null')
+    expect(node.nullable).toBeUndefined()
   })
 
-  it('sets writeOnly: true when marked', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', writeOnly: true },
-    })
-
-    expect(node.writeOnly).toBe(true)
+  it('keeps a null-only type array as a null node', () => {
+    expect(parseSchema(emptyCtx, { schema: { type: ['null'] } }).type).toBe('null')
   })
 
-  it('propagates readOnly on object schema', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'object', readOnly: true },
-    })
-
-    expect(node.readOnly).toBe(true)
-  })
-
-  it('propagates writeOnly on array schema', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'array', writeOnly: true },
-    })
-
-    expect(node.writeOnly).toBe(true)
-  })
-
-  it('propagates readOnly on enum schema', () => {
-    const node = parseSchema(ctx, {
-      schema: { enum: ['a', 'b'], readOnly: true },
-    })
-
-    expect(node.readOnly).toBe(true)
-  })
-
-  it('populates node.schema with the resolved ref schema when the document contains the definition', async () => {
-    const oas = await buildMinimalOas()
-    const root = parseOas(oas)
-    const petList = ast.narrowSchema(
-      root.schemas.find((s) => s.name === 'PetList'),
-      'array',
-    )
-    // Items of PetList are refs to Pet — they should carry a resolved schema
-    const petRef = petList?.items?.find((item) => item.type === 'ref')
-    expect(petRef?.type).toBe('ref')
-    if (petRef?.type !== 'ref') return
-    expect(petRef.schema).toBeDefined()
-    expect(petRef.schema?.type).toBe('object')
-  })
-
-  it('propagates readOnly on ref schema siblings', () => {
-    const node = parseSchema(ctx, {
-      schema: { $ref: '#/components/schemas/Pet', readOnly: true },
-    })
-
-    expect(node.readOnly).toBe(true)
-  })
-
-  it('drops pattern on ref sibling when type is not string', () => {
-    const node = parseSchema(ctx, {
-      schema: { $ref: '#/components/schemas/Pet', pattern: '^[a-z]+$' },
-    })
-
-    expect(ast.narrowSchema(node, 'ref')?.pattern).toBeUndefined()
-  })
-})
-
-describe('parseSchema deprecated', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('sets deprecated: true when marked', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', deprecated: true },
-    })
-
-    expect(node.deprecated).toBe(true)
-  })
-
-  it('propagates deprecated on object schema', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'object', deprecated: true },
-    })
-
-    expect(node.deprecated).toBe(true)
-  })
-
-  it('propagates deprecated on array schema', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'array', deprecated: true },
-    })
-
-    expect(node.deprecated).toBe(true)
-  })
-
-  it('propagates deprecated on enum schema', () => {
-    const node = parseSchema(ctx, {
-      schema: { enum: ['a', 'b'], deprecated: true },
-    })
-
-    expect(node.deprecated).toBe(true)
-  })
-
-  it('propagates deprecated on ref schema siblings', () => {
-    const node = parseSchema(ctx, {
-      schema: { $ref: '#/components/schemas/Pet', deprecated: true },
-    })
-
-    expect(node.deprecated).toBe(true)
-  })
-})
-
-describe('parseSchema default', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('passes through a normal default value', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', default: 'hello' },
-    })
-
-    expect(node.default).toBe('hello')
-  })
-
-  it('passes through a falsy-but-non-null default (0)', () => {
-    const node = parseSchema(ctx, { schema: { type: 'number', default: 0 } })
-
-    expect(node.default).toBe(0)
-  })
-
-  it('passes through a falsy-but-non-null default (false)', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'boolean', default: false },
-    })
-
-    expect(node.default).toBe(false)
-  })
-
-  it('drops default: null when schema is nullable (defaultNullAndNullable)', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', nullable: true, default: null },
-    })
-
-    expect(node.default).toBeUndefined()
-  })
-
-  it('keeps default: null when schema is not nullable', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', default: null },
-    })
-
-    expect(node.default).toBeNull()
-  })
-
-  it('drops default: null for nullable enum', () => {
-    const node = parseSchema(ctx, {
-      schema: { enum: ['a', 'b'], nullable: true, default: null },
-    })
-
-    expect(node.default).toBeUndefined()
-  })
-
-  it('drops default: null for nullable ref sibling', () => {
-    const node = parseSchema(ctx, {
+  it.each([
+    { title: 'type: null', schema: { type: 'null' } },
+    { title: 'const: null', schema: { const: null } },
+  ] satisfies Array<{ title: string; schema: SchemaObject }>)('does not set nullable on a $title object property (avoids null | null)', ({ schema }) => {
+    const node = parseSchema(emptyCtx, {
       schema: {
-        $ref: '#/components/schemas/Pet',
-        nullable: true,
-        default: null,
+        type: 'object',
+        properties: {
+          field: schema,
+        },
       },
+      name: 'Wrapper',
     })
 
-    expect(node.default).toBeUndefined()
+    const fieldProp = ast.narrowSchema(node, 'object')?.properties.find((p) => p.name === 'field')
+
+    expect(fieldProp?.schema.type).toBe('null')
+    expect(fieldProp?.schema.nullable).toBeUndefined()
   })
 })
 
 describe('parseSchema object properties', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
+  it.each([
+    {
+      title: 'required + not nullable',
+      required: ['id'],
+      property: { type: 'integer' },
+      expected: { required: true, optional: undefined, nullish: undefined, nullable: undefined },
+    },
+    {
+      title: 'not required + not nullable',
+      required: undefined,
+      property: { type: 'string' },
+      expected: { required: false, optional: true, nullish: undefined, nullable: undefined },
+    },
+    {
+      title: 'not required + nullable',
+      required: undefined,
+      property: { type: 'string', nullable: true },
+      expected: { required: false, optional: undefined, nullish: true, nullable: true },
+    },
+    {
+      title: 'required + nullable',
+      required: ['id'],
+      property: { type: 'string', nullable: true },
+      expected: { required: true, optional: undefined, nullish: undefined, nullable: true },
+    },
+  ] satisfies Array<{ title: string; required: Array<string> | undefined; property: SchemaObject; expected: Record<string, unknown> }>)(
+    'marks $title as $expected',
+    ({ required, property, expected }) => {
+      const node = parseSchema(emptyCtx, { schema: { type: 'object', required, properties: { id: property } } })
+      const prop = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'id')
 
-  it('required + not nullable → required: true, optional/nullish undefined', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'object',
-        required: ['id'],
-        properties: { id: { type: 'integer' } },
-      },
-    })
-    const prop = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'id')
-
-    expect(prop?.required).toBe(true)
-    expect(prop?.schema.optional).toBeUndefined()
-    expect(prop?.schema.nullish).toBeUndefined()
-    expect(prop?.schema.nullable).toBeUndefined()
-  })
-
-  it('not required + not nullable → optional: true', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'object',
-        properties: { tag: { type: 'string' } },
-      },
-    })
-    const prop = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'tag')
-
-    expect(prop?.required).toBe(false)
-    expect(prop?.schema.optional).toBe(true)
-    expect(prop?.schema.nullish).toBeUndefined()
-    expect(prop?.schema.nullable).toBeUndefined()
-  })
-
-  it('not required + nullable → nullish: true', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'object',
-        properties: { tag: { type: 'string', nullable: true } },
-      },
-    })
-    const prop = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'tag')
-
-    expect(prop?.required).toBe(false)
-    expect(prop?.schema.nullish).toBe(true)
-    expect(prop?.schema.optional).toBeUndefined()
-    expect(prop?.schema.nullable).toBe(true)
-  })
-
-  it('required + nullable → nullable: true, optional/nullish undefined', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'object',
-        required: ['tag'],
-        properties: { tag: { type: 'string', nullable: true } },
-      },
-    })
-    const prop = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'tag')
-
-    expect(prop?.required).toBe(true)
-    expect(prop?.schema.nullable).toBe(true)
-    expect(prop?.schema.optional).toBeUndefined()
-    expect(prop?.schema.nullish).toBeUndefined()
-  })
+      expect({ required: prop?.required, optional: prop?.schema.optional, nullish: prop?.schema.nullish, nullable: prop?.schema.nullable }).toStrictEqual(
+        expected,
+      )
+    },
+  )
 
   it('treats required: true (OAS 2.0 scalar) as all properties required', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         type: 'object',
         // OAS 2.0 allows `required: true` (boolean) on individual properties.
@@ -2009,208 +1642,15 @@ describe('parseSchema object properties', () => {
         properties: { id: { type: 'integer' }, tag: { type: 'string' } },
       },
     })
-    const narrowed = ast.narrowSchema(node, 'object')
 
-    const id = narrowed?.properties?.find((p) => p.name === 'id')
-    const tag = narrowed?.properties?.find((p) => p.name === 'tag')
-
-    expect(id?.required).toBe(true)
-    expect(id?.schema.optional).toBeUndefined()
-    expect(tag?.required).toBe(true)
-    expect(tag?.schema.optional).toBeUndefined()
-  })
-})
-
-describe('parseSchema object additionalProperties', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('additionalProperties: true → additionalProperties is true', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'object', additionalProperties: true },
-    })
-    const narrowed = ast.narrowSchema(node, 'object')
-
-    expect(node.type).toBe('object')
-    expect(narrowed?.additionalProperties).toBe(true)
+    expect(ast.narrowSchema(node, 'object')?.properties.map((p) => [p.name, p.required, p.schema.optional])).toStrictEqual([
+      ['id', true, undefined],
+      ['tag', true, undefined],
+    ])
   })
 
-  it('additionalProperties with a schema → additionalProperties is a SchemaNode', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'object',
-        additionalProperties: { type: 'string' },
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'object')
-
-    expect(node.type).toBe('object')
-    expect(narrowed?.additionalProperties).toMatchObject({ type: 'string' })
-  })
-
-  it('additionalProperties with an integer schema → additionalProperties is a NumberSchemaNode', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'object',
-        additionalProperties: { type: 'integer' },
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'object')
-
-    expect(narrowed?.additionalProperties).toMatchObject({ type: 'integer' })
-  })
-
-  it('additionalProperties: false → additionalProperties is undefined', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'object',
-        additionalProperties: false,
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'object')
-
-    expect(narrowed?.additionalProperties).toBeFalsy()
-  })
-
-  it('additionalProperties: true triggers object even without type or properties', () => {
-    const node = parseSchema(ctx, { schema: { additionalProperties: true } })
-    const narrowed = ast.narrowSchema(node, 'object')
-
-    expect(node.type).toBe('object')
-    expect(narrowed?.additionalProperties).toBe(true)
-  })
-
-  it('additionalProperties with an empty schema → uses unknownType', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'object',
-        additionalProperties: {},
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'object')
-
-    expect(node.type).toBe('object')
-    expect(narrowed?.additionalProperties).toMatchObject({ type: 'unknown' })
-  })
-
-  it('respects unknownType option for empty additionalProperties', () => {
-    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-    const node = parseSchema(
-      ctx,
-      {
-        schema: {
-          type: 'object',
-          additionalProperties: {},
-        },
-      },
-      { unknownType: 'any' },
-    )
-    const narrowed = ast.narrowSchema(node, 'object')
-
-    expect(narrowed?.additionalProperties).toMatchObject({ type: 'any' })
-  })
-
-  it('properties and additionalProperties coexist', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'object',
-        required: ['id'],
-        properties: { id: { type: 'integer' } },
-        additionalProperties: { type: 'string' },
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'object')
-
-    expect(narrowed?.properties).toHaveLength(1)
-    expect(narrowed?.properties?.[0]?.name).toBe('id')
-    expect(narrowed?.additionalProperties).toMatchObject({ type: 'string' })
-  })
-})
-
-describe('parseSchema object patternProperties', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('maps patternProperties patterns to converted SchemaNodes', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'object',
-        patternProperties: {
-          '^S_': { type: 'string' },
-          '^I_': { type: 'integer' },
-        },
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'object')
-
-    expect(node.type).toBe('object')
-    expect(narrowed?.patternProperties?.['I_']).toBeUndefined()
-    expect(narrowed?.patternProperties?.['S_']).toBeUndefined()
-    expect(narrowed?.patternProperties?.['S_']).toBeUndefined()
-    expect(narrowed?.patternProperties?.['^S_']).toMatchObject({
-      type: 'string',
-    })
-    expect(narrowed?.patternProperties?.['^I_']).toMatchObject({
-      type: 'integer',
-    })
-  })
-
-  it('empty pattern schema falls back to unknownType', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'object',
-        patternProperties: { '^x-': {} },
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'object')
-
-    expect(narrowed?.patternProperties?.['^x-']).toMatchObject({ type: 'unknown' })
-  })
-
-  it('pattern schema true falls back to unknownType', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'object',
-        // OAS 3.1 / JSON Schema 2020-12 allows boolean schemas for patternProperties values.
-        // Cast simulates a `true` boolean schema at runtime where the TS type expects SchemaObject.
-        patternProperties: { '^x-': true as unknown as SchemaObject },
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'object')
-
-    expect(narrowed?.patternProperties?.['^x-']).toMatchObject({ type: 'unknown' })
-  })
-
-  it('patternProperties triggers object even without type or properties', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        patternProperties: { '^x-': { type: 'string' } },
-      },
-    })
-
-    expect(node.type).toBe('object')
-  })
-
-  it('properties and patternProperties coexist', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'object',
-        properties: { id: { type: 'integer' } },
-        patternProperties: { '^meta_': { type: 'string' } },
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'object')
-
-    expect(narrowed?.properties).toHaveLength(1)
-    expect(narrowed?.patternProperties?.['^meta_']).toMatchObject({
-      type: 'string',
-    })
-  })
-})
-
-describe('parseSchema object discriminator', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('overrides discriminator property with enum of mapping keys', () => {
-    const node = parseSchema(ctx, {
+  it('narrows only the discriminator property to the mapping keys', () => {
+    const node = parseSchema(emptyCtx, {
       schema: {
         type: 'object',
         required: ['petType'],
@@ -2227,37 +1667,15 @@ describe('parseSchema object discriminator', () => {
         },
       },
     })
-    const narrowed = ast.narrowSchema(node, 'object')
 
-    const petTypeProp = narrowed?.properties?.find((p) => p.name === 'petType')
-    const petTypeSchema = ast.narrowSchema(petTypeProp?.schema, 'enum')
-    expect(petTypeSchema?.type).toBe('enum')
-    expect(petTypeSchema?.enumValues).toStrictEqual(['Cat', 'Dog'])
+    expect(ast.narrowSchema(node, 'object')?.properties).toMatchObject([
+      { name: 'petType', schema: { type: 'enum', enumValues: ['Cat', 'Dog'] } },
+      { name: 'name', schema: { type: 'string' } },
+    ])
   })
 
-  it('leaves other properties unchanged when discriminator is present', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'object',
-        required: ['petType'],
-        properties: {
-          petType: { type: 'string' },
-          name: { type: 'string' },
-        },
-        discriminator: {
-          propertyName: 'petType',
-          mapping: { Cat: '#/components/schemas/Cat' },
-        },
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'object')
-
-    const nameProp = narrowed?.properties?.find((p) => p.name === 'name')
-    expect(nameProp?.schema.type).toBe('string')
-  })
-
-  it('discriminator without mapping produces no enum', () => {
-    const node = parseSchema(ctx, {
+  it('leaves the discriminator property a string when the discriminator has no mapping', () => {
+    const node = parseSchema(emptyCtx, {
       schema: {
         type: 'object',
         required: ['type'],
@@ -2265,91 +1683,151 @@ describe('parseSchema object discriminator', () => {
         discriminator: { propertyName: 'type' },
       },
     })
-    const narrowed = ast.narrowSchema(node, 'object')
 
-    const typeProp = narrowed?.properties?.find((p) => p.name === 'type')
-    expect(typeProp?.schema.type).toBe('string')
+    expect(ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'type')?.schema.type).toBe('string')
   })
 })
 
-describe('parseSchema object inline enum naming', () => {
-  it('enum name accumulates full parent path (OrderParamsStatusEnum)', () => {
-    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-    const node = parseSchema(
-      ctx,
-      {
-        schema: {
-          type: 'object',
-          properties: {
-            params: {
-              type: 'object',
-              properties: {
-                status: { type: 'string', enum: ['active', 'inactive'] },
-              },
-            },
-          },
-        },
-        name: 'Order',
+describe('parseSchema object additionalProperties', () => {
+  it('maps additionalProperties: true to true', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'object', additionalProperties: true } })
+
+    expect(node.type).toBe('object')
+    expect(ast.narrowSchema(node, 'object')?.additionalProperties).toBe(true)
+  })
+
+  it.each([
+    { title: 'a string schema', additionalProperties: { type: 'string' }, expected: { type: 'string' } },
+    { title: 'an integer schema', additionalProperties: { type: 'integer' }, expected: { type: 'integer' } },
+    { title: 'an empty schema (uses unknownType)', additionalProperties: {}, expected: { type: 'unknown' } },
+  ] satisfies Array<{ title: string; additionalProperties: SchemaObject; expected: Record<string, unknown> }>)(
+    'maps additionalProperties with $title to a SchemaNode',
+    ({ additionalProperties, expected }) => {
+      const node = parseSchema(emptyCtx, { schema: { type: 'object', additionalProperties } })
+
+      expect(node.type).toBe('object')
+      expect(ast.narrowSchema(node, 'object')?.additionalProperties).toMatchObject(expected)
+    },
+  )
+
+  it('leaves additionalProperties unset for additionalProperties: false', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'object', additionalProperties: false } })
+
+    expect(ast.narrowSchema(node, 'object')?.additionalProperties).toBeFalsy()
+  })
+
+  it.each([
+    { unknownType: 'any', type: 'any' },
+    { unknownType: 'unknown', type: 'unknown' },
+  ] satisfies Array<{ unknownType: ast.ParserOptions['unknownType']; type: string }>)(
+    'respects unknownType: $unknownType for empty additionalProperties',
+    ({ unknownType, type }) => {
+      const node = parseSchema(emptyCtx, { schema: { type: 'object', additionalProperties: {} } }, { unknownType })
+
+      expect(ast.narrowSchema(node, 'object')?.additionalProperties).toMatchObject({ type })
+    },
+  )
+
+  it('keeps properties next to additionalProperties', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        type: 'object',
+        required: ['id'],
+        properties: { id: { type: 'integer' } },
+        additionalProperties: { type: 'string' },
       },
-      { enumSuffix: 'enum' },
-    )
+    })
     const narrowed = ast.narrowSchema(node, 'object')
 
-    const paramsProp = narrowed?.properties?.find((p) => p.name === 'params')
-    const paramsSchema = ast.narrowSchema(paramsProp?.schema, 'object')
-    const statusProp = paramsSchema?.properties?.find((p) => p.name === 'status')
-    expect(statusProp?.schema.name).toBe('OrderParamsStatusEnum')
+    expect(narrowed?.properties?.map((p) => p.name)).toStrictEqual(['id'])
+    expect(narrowed?.additionalProperties).toMatchObject({ type: 'string' })
+  })
+})
+
+describe('parseSchema object patternProperties', () => {
+  it('maps patternProperties patterns to converted SchemaNodes', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        type: 'object',
+        patternProperties: {
+          '^S_': { type: 'string' },
+          '^I_': { type: 'integer' },
+        },
+      },
+    })
+    const narrowed = ast.narrowSchema(node, 'object')
+
+    expect(node.type).toBe('object')
+    expect(Object.keys(narrowed?.patternProperties ?? {})).toStrictEqual(['^S_', '^I_'])
+    expect(narrowed?.patternProperties).toMatchObject({ '^S_': { type: 'string' }, '^I_': { type: 'integer' } })
+  })
+
+  it.each([
+    { title: 'an empty pattern schema', pattern: {} },
+    // OAS 3.1 / JSON Schema 2020-12 allows boolean schemas for patternProperties values.
+    // Cast simulates a `true` boolean schema at runtime where the TS type expects SchemaObject.
+    { title: 'a true pattern schema', pattern: true as unknown as SchemaObject },
+  ])('falls back to unknownType for $title', ({ pattern }) => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'object', patternProperties: { '^x-': pattern } } })
+
+    expect(ast.narrowSchema(node, 'object')?.patternProperties?.['^x-']).toMatchObject({ type: 'unknown' })
+  })
+
+  it('keeps properties next to patternProperties', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        type: 'object',
+        properties: { id: { type: 'integer' } },
+        patternProperties: { '^meta_': { type: 'string' } },
+      },
+    })
+    const narrowed = ast.narrowSchema(node, 'object')
+
+    expect(narrowed?.properties?.map((p) => p.name)).toStrictEqual(['id'])
+    expect(narrowed?.patternProperties?.['^meta_']).toMatchObject({ type: 'string' })
   })
 })
 
 describe('parseSchema prefixItems (tuple)', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('maps type to tuple', () => {
-    const node = parseSchema(ctx, {
-      schema: { prefixItems: [{ type: 'string' }] },
-    })
-
-    expect(node.type).toBe('tuple')
+  it.each([
+    { title: 'prefixItems alone', schema: { prefixItems: [{ type: 'string' }] } },
+    { title: 'prefixItems next to type: array', schema: { type: 'array', prefixItems: [{ type: 'string' }] } },
+  ] satisfies Array<{ title: string; schema: SchemaObject }>)('maps $title to a tuple node', ({ schema }) => {
+    expect(parseSchema(emptyCtx, { schema }).type).toBe('tuple')
   })
 
   it('maps each prefixItem to an items entry in order', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         prefixItems: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
       },
     })
-    const narrowed = ast.narrowSchema(node, 'tuple')
 
-    expect(narrowed?.items).toHaveLength(3)
-    expect(narrowed?.items?.[0]?.type).toBe('string')
-    expect(narrowed?.items?.[1]?.type).toBe('number')
-    expect(narrowed?.items?.[2]?.type).toBe('boolean')
+    expect(ast.narrowSchema(node, 'tuple')?.items?.map((item) => item.type)).toStrictEqual(['string', 'number', 'boolean'])
   })
 
-  it('maps items (alongside prefixItems) to rest', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        prefixItems: [{ type: 'string' }],
-        items: { type: 'number' },
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'tuple')
+  it.each([
+    { title: 'a $ref prefixItem to a ref node', prefixItem: { $ref: '#/components/schemas/Pet' }, type: 'ref' },
+    { title: 'a nested object prefixItem to an object node', prefixItem: { type: 'object', properties: { id: { type: 'integer' } } }, type: 'object' },
+  ] satisfies Array<{ title: string; prefixItem: SchemaObject; type: string }>)('converts $title', ({ prefixItem, type }) => {
+    const node = parseSchema(emptyCtx, { schema: { prefixItems: [prefixItem] } })
 
-    expect(narrowed?.rest?.type).toBe('number')
+    expect(ast.narrowSchema(node, 'tuple')?.items?.[0]?.type).toBe(type)
   })
 
-  it('defaults rest to unknownType when items is absent', () => {
-    const node = parseSchema(ctx, {
-      schema: { prefixItems: [{ type: 'string' }] },
-    })
-    const narrowed = ast.narrowSchema(node, 'tuple')
+  it.each([
+    { title: 'items to rest', items: { type: 'number' }, rest: 'number' },
+    { title: 'a $ref items to a ref rest', items: { $ref: '#/components/schemas/Extra' }, rest: 'ref' },
+    { title: 'absent items to an unknownType rest', items: undefined, rest: 'unknown' },
+    { title: 'items: true to an unknownType rest', items: true, rest: 'unknown' },
+  ] satisfies Array<{ title: string; items: SchemaObject | boolean | undefined; rest: string }>)('maps $title', ({ items, rest }) => {
+    const node = parseSchema(emptyCtx, { schema: { prefixItems: [{ type: 'string' }], items } })
 
-    expect(narrowed?.rest?.type).toBe('unknown')
+    expect(ast.narrowSchema(node, 'tuple')?.rest?.type).toBe(rest)
   })
 
   it('omits rest when items is false — closed tuple', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: { prefixItems: [{ type: 'number' }, { type: 'number' }], items: false },
     })
     const narrowed = ast.narrowSchema(node, 'tuple')
@@ -2358,140 +1836,41 @@ describe('parseSchema prefixItems (tuple)', () => {
     expect(narrowed?.rest).toBeUndefined()
   })
 
-  it('defaults rest to unknownType when items is true', () => {
-    const node = parseSchema(ctx, {
-      schema: { prefixItems: [{ type: 'string' }], items: true },
-    })
-    const narrowed = ast.narrowSchema(node, 'tuple')
-
-    expect(narrowed?.rest?.type).toBe('unknown')
-  })
-
-  it('converts a $ref prefixItem to a ref node', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        prefixItems: [{ $ref: '#/components/schemas/Pet' }],
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'tuple')
-
-    expect(narrowed?.items?.[0]?.type).toBe('ref')
-  })
-
-  it('converts a nested object prefixItem', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        prefixItems: [{ type: 'object', properties: { id: { type: 'integer' } } }],
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'tuple')
-
-    expect(narrowed?.items?.[0]?.type).toBe('object')
-  })
-
-  it('converts a $ref rest schema', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        prefixItems: [{ type: 'string' }],
-        items: { $ref: '#/components/schemas/Extra' },
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'tuple')
-
-    expect(narrowed?.rest?.type).toBe('ref')
-  })
-
-  it('maps minItems to min', () => {
-    const node = parseSchema(ctx, {
-      schema: { prefixItems: [{ type: 'string' }], minItems: 1 },
-    })
-    const narrowed = ast.narrowSchema(node, 'tuple')
-
-    expect(narrowed?.min).toBe(1)
-  })
-
-  it('maps maxItems to max', () => {
-    const node = parseSchema(ctx, {
-      schema: { prefixItems: [{ type: 'string' }], maxItems: 4 },
-    })
-    const narrowed = ast.narrowSchema(node, 'tuple')
-
-    expect(narrowed?.max).toBe(4)
-  })
-
   it('produces an empty items array for an empty prefixItems', () => {
-    const node = parseSchema(ctx, { schema: { prefixItems: [] } })
-    const narrowed = ast.narrowSchema(node, 'tuple')
+    const node = parseSchema(emptyCtx, { schema: { prefixItems: [] } })
 
-    expect(narrowed?.items).toHaveLength(0)
+    expect(ast.narrowSchema(node, 'tuple')?.items).toStrictEqual([])
   })
 
-  it('takes precedence over type: array — always resolves to tuple', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'array', prefixItems: [{ type: 'string' }] },
-    })
-
-    expect(node.type).toBe('tuple')
-  })
-})
-
-describe('parseSchema tuple enum naming', () => {
-  it('names enum elements inside a tuple property using parent + propName', () => {
-    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-    const node = parseSchema(
-      ctx,
-      {
-        schema: {
-          type: 'object',
-          properties: {
-            identifier: {
-              type: 'array',
-              prefixItems: [{ type: 'integer' }, { type: 'string' }, { enum: ['NW', 'NE', 'SW', 'SE'] }],
+  it.each([
+    { title: 'third', prefixItems: [{ type: 'integer' }, { type: 'string' }, { enum: ['NW', 'NE', 'SW', 'SE'] }], index: 2 },
+    { title: 'second', prefixItems: [{ type: 'integer' }, { enum: ['NW', 'NE', 'SW', 'SE'] }], index: 1 },
+  ] satisfies Array<{ title: string; prefixItems: Array<SchemaObject>; index: number }>)(
+    'names the $title enum element inside a tuple property using parent + propName',
+    ({ prefixItems, index }) => {
+      const node = parseSchema(
+        emptyCtx,
+        {
+          schema: {
+            type: 'object',
+            properties: {
+              identifier: { type: 'array', prefixItems },
             },
           },
+          name: 'Address',
         },
-        name: 'Address',
-      },
-      { enumSuffix: 'enum' },
-    )
-    const narrowed = ast.narrowSchema(node, 'object')
+        { enumSuffix: 'enum' },
+      )
 
-    const identifierProp = narrowed?.properties?.find((p) => p.name === 'identifier')
-    const tupleNode = ast.narrowSchema(identifierProp?.schema, 'tuple')
-    expect(tupleNode?.items?.[2]?.type).toBe('enum')
-    expect(tupleNode?.items?.[2]?.name).toBe('AddressIdentifierEnum')
-  })
+      const identifierProp = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'identifier')
+      const tupleNode = ast.narrowSchema(identifierProp?.schema, 'tuple')
+      expect(tupleNode?.items?.[index]).toMatchObject({ type: 'enum', name: 'AddressIdentifierEnum' })
+    },
+  )
 
-  it('uses full path for enum in tuple', () => {
-    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
+  it('leaves non-enum tuple elements unnamed', () => {
     const node = parseSchema(
-      ctx,
-      {
-        schema: {
-          type: 'object',
-          properties: {
-            identifier: {
-              type: 'array',
-              prefixItems: [{ type: 'integer' }, { enum: ['NW', 'NE', 'SW', 'SE'] }],
-            },
-          },
-        },
-        name: 'Address',
-      },
-      { enumSuffix: 'enum' },
-    )
-    const narrowed = ast.narrowSchema(node, 'object')
-
-    const identifierProp = narrowed?.properties?.find((p) => p.name === 'identifier')
-    const tupleNode = ast.narrowSchema(identifierProp?.schema, 'tuple')
-    expect(tupleNode?.items?.[1]?.type).toBe('enum')
-    expect(tupleNode?.items?.[1]?.name).toBe('AddressIdentifierEnum')
-  })
-
-  it('non-enum tuple elements are unaffected by enum naming', () => {
-    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-    const node = parseSchema(
-      ctx,
+      emptyCtx,
       {
         schema: {
           type: 'object',
@@ -2506,879 +1885,266 @@ describe('parseSchema tuple enum naming', () => {
       },
       { enumSuffix: 'enum' },
     )
-    const narrowed = ast.narrowSchema(node, 'object')
 
-    const coordsProp = narrowed?.properties?.find((p) => p.name === 'coords')
+    const coordsProp = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'coords')
     const tupleNode = ast.narrowSchema(coordsProp?.schema, 'tuple')
-    expect(tupleNode?.items?.[0]?.name).toBeUndefined()
-    expect(tupleNode?.items?.[1]?.name).toBeUndefined()
-  })
-})
-
-describe('parseSchema nullable', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('sets nullable via nullable: true (OAS 3.0)', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', nullable: true },
-    })
-
-    expect(node.nullable).toBe(true)
-  })
-
-  it('sets nullable via x-nullable: true', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', 'x-nullable': true },
-    })
-
-    expect(node.nullable).toBe(true)
-  })
-
-  it('sets nullable via type array including null (OAS 3.1)', () => {
-    const node = parseSchema(ctx, { schema: { type: ['string', 'null'] } })
-
-    expect(node.nullable).toBe(true)
-  })
-
-  it('sets nullable via null in enum values (OAS 3.0 convention)', () => {
-    const node = parseSchema(ctx, { schema: { enum: ['a', 'b', null] } })
-
-    expect(node.nullable).toBe(true)
-  })
-
-  it('strips null from enum values when nullable via null in enum', () => {
-    const node = parseSchema(ctx, { schema: { enum: ['a', 'b', null] } })
-    const narrowed = ast.narrowSchema(node, 'enum')
-
-    expect(narrowed?.enumValues).toStrictEqual(['a', 'b'])
-  })
-
-  it('propagates nullable from object schema', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'object', nullable: true },
-    })
-
-    expect(node.nullable).toBe(true)
-  })
-
-  it('propagates nullable from array schema', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'array', nullable: true },
-    })
-
-    expect(node.nullable).toBe(true)
-  })
-
-  it('propagates nullable from ref schema siblings', () => {
-    const node = parseSchema(ctx, {
-      schema: { $ref: '#/components/schemas/Pet', nullable: true },
-    })
-
-    expect(node.nullable).toBe(true)
-  })
-})
-
-describe('parseSchema string', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('maps type string to string node', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string' } })
-
-    expect(node.type).toBe('string')
-  })
-
-  it('preserves nullable on string', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', nullable: true },
-    })
-
-    expect(node.type).toBe('string')
-    expect(node.nullable).toBe(true)
-  })
-
-  it('maps minLength to min', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', minLength: 1 } })
-    const narrowed = ast.narrowSchema(node, 'string')
-
-    expect(narrowed?.min).toBe(1)
-  })
-
-  it('maps maxLength to max', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', maxLength: 100 },
-    })
-    const narrowed = ast.narrowSchema(node, 'string')
-
-    expect(narrowed?.max).toBe(100)
-  })
-})
-
-describe('parseSchema boolean', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('maps type boolean to boolean node', () => {
-    const node = parseSchema(ctx, { schema: { type: 'boolean' } })
-
-    expect(node.type).toBe('boolean')
-  })
-
-  it('preserves nullable on boolean', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'boolean', nullable: true },
-    })
-
-    expect(node.type).toBe('boolean')
-    expect(node.nullable).toBe(true)
-  })
-
-  it('passes through default value', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'boolean', default: false },
-    })
-
-    expect(node.default).toBe(false)
+    expect(tupleNode?.items?.map((item) => item.name)).toStrictEqual([undefined, undefined])
   })
 })
 
 describe('parseSchema enum', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
+  it('maps enum values to an enum node with enumValues', () => {
+    const node = parseSchema(emptyCtx, { schema: { enum: ['foo', 'bar', 'baz'] } })
 
-  it('maps type to enum', () => {
-    const node = parseSchema(ctx, { schema: { enum: ['a', 'b'] } })
-
-    expect(node.type).toBe('enum')
+    expect(node).toMatchObject({ type: 'enum', enumValues: ['foo', 'bar', 'baz'] })
   })
 
-  it('stores string values in enumValues', () => {
-    const node = parseSchema(ctx, { schema: { enum: ['foo', 'bar', 'baz'] } })
-    const narrowed = ast.narrowSchema(node, 'enum')
+  it('deduplicates string enum values', () => {
+    const node = parseSchema(emptyCtx, { schema: { enum: ['a', 'a', 'b'] } })
 
-    expect(narrowed?.enumValues).toStrictEqual(['foo', 'bar', 'baz'])
+    expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual(['a', 'b'])
   })
 
-  it('deduplicates enum values', () => {
-    const node = parseSchema(ctx, { schema: { enum: ['a', 'a', 'b'] } })
-    const narrowed = ast.narrowSchema(node, 'enum')
+  it.each([
+    { title: 'a single value', schema: { type: 'integer', enum: [42] }, values: [42], names: ['42'] },
+    { title: 'duplicate values', schema: { type: 'integer', enum: [1, 1, 2] }, values: [1, 2], names: ['1', '2'] },
+    { title: 'duplicate values without an extension key', schema: { type: 'integer', enum: [5, 5, 10] }, values: [5, 10], names: ['5', '10'] },
+  ] satisfies Array<{ title: string; schema: SchemaObject; values: Array<number>; names: Array<string> }>)(
+    'deduplicates numeric enum values and uses the stringified value as name for $title',
+    ({ schema, values, names }) => {
+      const namedEnumValues = ast.narrowSchema(parseSchema(emptyCtx, { schema }), 'enum')?.namedEnumValues
 
-    expect(narrowed?.enumValues).toStrictEqual(['a', 'b'])
-  })
+      expect(namedEnumValues?.map((v) => v.value)).toStrictEqual(values)
+      expect(namedEnumValues?.map((v) => v.name)).toStrictEqual(names)
+    },
+  )
 
-  it('strips null from enumValues and sets nullable', () => {
-    const node = parseSchema(ctx, { schema: { enum: ['a', null, 'b'] } })
-    const narrowed = ast.narrowSchema(node, 'enum')
+  it.each([
+    { title: 'null in the enum values', schema: { enum: ['a', null, 'b'] }, enumValues: ['a', 'b'] },
+    { title: 'a trailing null in the enum values', schema: { enum: ['a', 'b', null] }, enumValues: ['a', 'b'] },
+    { title: 'null in the enum values combined with nullable', schema: { enum: ['a', null], nullable: true }, enumValues: ['a'] },
+    // drf-spectacular splits blank/null choices into `BlankEnum` ({ enum: [''] }) and
+    // `NullEnum` ({ enum: [null] }) components, combined with the real enum via `oneOf`.
+    { title: 'blank and null together', schema: { enum: ['', null] }, enumValues: [''] },
+  ] satisfies Array<{ title: string; schema: SchemaObject; enumValues: Array<unknown> }>)(
+    'strips null from enumValues and sets nullable for $title',
+    ({ schema, enumValues }) => {
+      const node = parseSchema(emptyCtx, { schema })
 
-    expect(node.nullable).toBe(true)
-    expect(narrowed?.enumValues).toStrictEqual(['a', 'b'])
-  })
-
-  // drf-spectacular splits blank/null choices into `BlankEnum` ({ enum: [''] }) and
-  // `NullEnum` ({ enum: [null] }) components, combined with the real enum via `oneOf`.
-  it('treats a null-only enum (NullEnum) as a null node', () => {
-    expect(parseSchema(ctx, { schema: { enum: [null] } }).type).toBe('null')
-  })
-
-  it('treats a typed null-only enum as a null node', () => {
-    expect(parseSchema(ctx, { schema: { type: 'string', enum: [null] } }).type).toBe('null')
-  })
+      expect(node.nullable).toBe(true)
+      expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual(enumValues)
+    },
+  )
 
   it('keeps a blank-only enum (BlankEnum) as a single "" member', () => {
-    const node = parseSchema(ctx, { schema: { enum: [''] } })
+    const node = parseSchema(emptyCtx, { schema: { enum: [''] } })
 
-    expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual([''])
-  })
-
-  it('keeps blank and null together as a nullable "" enum', () => {
-    const node = parseSchema(ctx, { schema: { enum: ['', null] } })
-
-    expect(node.nullable).toBe(true)
     expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual([''])
   })
 
   it('parses the oneOf [enum, BlankEnum, NullEnum] pattern into a valid union', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: { oneOf: [{ type: 'string', enum: ['active', 'inactive'] }, { enum: [''] }, { enum: [null] }] },
     })
 
     expect(ast.narrowSchema(node, 'union')?.members?.map((m) => m.type)).toStrictEqual(['enum', 'enum', 'null'])
   })
 
-  it('sets enumNullable from schema nullable combined with null in enum', () => {
-    const node = parseSchema(ctx, {
-      schema: { enum: ['a', null], nullable: true },
-    })
-    const narrowed = ast.narrowSchema(node, 'enum')
+  it.each([
+    { title: 'integer', schema: { type: 'integer', enum: [1, 2, 3] }, primitive: 'number', values: [1, 2, 3] },
+    { title: 'number', schema: { type: 'number', enum: [0.5, 1.5] }, primitive: 'number', values: [0.5, 1.5] },
+    { title: 'boolean', schema: { type: 'boolean', enum: [true, false] }, primitive: 'boolean', values: [true, false] },
+    { title: 'integer with x-enumNames', schema: { type: 'integer', enum: [0, 1], 'x-enumNames': ['Off', 'On'] }, primitive: 'number', values: [0, 1] },
+    { title: 'string with x-enumNames', schema: { enum: ['a', 'b'], 'x-enumNames': ['Alpha', 'Beta'] }, primitive: 'string', values: ['a', 'b'] },
+  ] satisfies Array<{ title: string; schema: SchemaObject; primitive: string; values: Array<unknown> }>)(
+    'produces namedEnumValues with primitive $primitive for a $title enum',
+    ({ schema, primitive, values }) => {
+      const node = parseSchema(emptyCtx, { schema })
+      const namedEnumValues = ast.narrowSchema(node, 'enum')?.namedEnumValues
 
-    expect(node.nullable).toBe(true)
-    expect(narrowed?.enumValues).toStrictEqual(['a'])
-  })
+      expect(node.type).toBe('enum')
+      expect(node.primitive).toBe(primitive)
+      expect(namedEnumValues?.map((v) => v.value)).toStrictEqual(values)
+      expect(namedEnumValues?.every((v) => v.primitive === primitive)).toBe(true)
+    },
+  )
 
-  it('clears default when default is null and enum is nullable', () => {
-    const node = parseSchema(ctx, {
-      schema: { enum: ['a', null], default: null },
-    })
-
-    expect(node.default).toBeUndefined()
-  })
-
-  it('preserves non-null default', () => {
-    const node = parseSchema(ctx, {
-      schema: { enum: ['a', 'b'], default: 'a' },
-    })
-
-    expect(node.default).toBe('a')
-  })
-
-  // Number enum
-  it('produces namedEnumValues with primitive number for integer enum', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'integer', enum: [1, 2, 3] },
-    })
-    const narrowed = ast.narrowSchema(node, 'enum')
-
-    expect(node.type).toBe('enum')
-    expect(node.primitive).toBe('number')
-    const values = narrowed?.namedEnumValues
-    expect(values?.map((v) => v.value)).toStrictEqual([1, 2, 3])
-    expect(values?.every((v) => v.primitive === 'number')).toBe(true)
-  })
-
-  it('produces namedEnumValues with primitive number for number enum', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'number', enum: [0.5, 1.5] },
-    })
-    const narrowed = ast.narrowSchema(node, 'enum')
-
-    expect(node.primitive).toBe('number')
-    expect(narrowed?.namedEnumValues?.map((v) => v.value)).toStrictEqual([0.5, 1.5])
-  })
-
-  it('uses stringified value as name for numeric enum values', () => {
-    const node = parseSchema(ctx, { schema: { type: 'integer', enum: [42] } })
-    const narrowed = ast.narrowSchema(node, 'enum')
-
-    expect(narrowed?.namedEnumValues?.[0]?.name).toBe('42')
-  })
-
-  it('deduplicates numeric enum values', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'integer', enum: [1, 1, 2] },
-    })
-    const narrowed = ast.narrowSchema(node, 'enum')
-
-    expect(narrowed?.namedEnumValues?.map((v) => v.value)).toStrictEqual([1, 2])
-  })
-
-  // Boolean enum
-  it('produces namedEnumValues with primitive boolean for boolean enum', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'boolean', enum: [true, false] },
-    })
-    const narrowed = ast.narrowSchema(node, 'enum')
-
-    expect(node.primitive).toBe('boolean')
-    const values = narrowed?.namedEnumValues
-    expect(values?.map((v) => v.value)).toStrictEqual([true, false])
-    expect(values?.every((v) => v.primitive === 'boolean')).toBe(true)
-  })
-
-  // x-enumNames
-  it('uses x-enumNames labels as namedEnumValues names', () => {
-    const node = parseSchema(ctx, {
+  it.each(['x-enumNames', 'x-enum-varnames'] as const)('uses %s labels as namedEnumValues names', (key) => {
+    const node = parseSchema(emptyCtx, {
       schema: {
         type: 'integer',
         enum: [1, 2, 3],
-        'x-enumNames': ['One', 'Two', 'Three'],
+        [key]: ['One', 'Two', 'Three'],
       },
     })
-    const narrowed = ast.narrowSchema(node, 'enum')
+    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
 
-    const values = narrowed?.namedEnumValues
     expect(values?.map((v) => v.name)).toStrictEqual(['One', 'Two', 'Three'])
     expect(values?.map((v) => v.value)).toStrictEqual([1, 2, 3])
   })
 
-  it('uses x-enum-varnames labels as namedEnumValues names', () => {
-    const node = parseSchema(ctx, {
+  it.each(['x-enumDescriptions', 'x-enum-descriptions'] as const)('uses %s as namedEnumValues descriptions', (key) => {
+    const node = parseSchema(emptyCtx, {
       schema: {
         enum: ['active', 'inactive'],
         'x-enum-varnames': ['Active', 'Inactive'],
+        [key]: ['Currently active', 'No longer active'],
       },
     })
-    const narrowed = ast.narrowSchema(node, 'enum')
+    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
 
-    const values = narrowed?.namedEnumValues
-    expect(values?.map((v) => v.name)).toStrictEqual(['Active', 'Inactive'])
-    expect(values?.map((v) => v.value)).toStrictEqual(['active', 'inactive'])
-  })
-
-  it('uses x-enumDescriptions as namedEnumValues descriptions', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'integer',
-        enum: [1, 2],
-        'x-enumNames': ['One', 'Two'],
-        'x-enumDescriptions': ['The first value', 'The second value'],
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'enum')
-
-    const values = narrowed?.namedEnumValues
-    expect(values?.map((v) => v.name)).toStrictEqual(['One', 'Two'])
-    expect(values?.map((v) => v.description)).toStrictEqual(['The first value', 'The second value'])
-  })
-
-  it('uses x-enum-descriptions as namedEnumValues descriptions', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        enum: ['active', 'inactive'],
-        'x-enum-varnames': ['Active', 'Inactive'],
-        'x-enum-descriptions': ['Currently active', 'No longer active'],
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'enum')
-
-    const values = narrowed?.namedEnumValues
     expect(values?.map((v) => v.name)).toStrictEqual(['Active', 'Inactive'])
     expect(values?.map((v) => v.description)).toStrictEqual(['Currently active', 'No longer active'])
   })
 
-  it('produces namedEnumValues from x-enumDescriptions on a string enum without varnames', () => {
-    const node = parseSchema(ctx, {
+  it('produces namedEnumValues from x-enum-descriptions on a string enum without varnames', () => {
+    const node = parseSchema(emptyCtx, {
       schema: {
         enum: ['active', 'inactive'],
         'x-enum-descriptions': ['Currently active', 'No longer active'],
       },
     })
-    const narrowed = ast.narrowSchema(node, 'enum')
+    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
 
-    const values = narrowed?.namedEnumValues
     expect(values?.map((v) => v.name)).toStrictEqual(['active', 'inactive'])
     expect(values?.map((v) => v.description)).toStrictEqual(['Currently active', 'No longer active'])
   })
 
   it('x-enumNames deduplicates names', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         enum: [1, 2, 3],
         'x-enumNames': ['A', 'A', 'B'],
       },
     })
-    const narrowed = ast.narrowSchema(node, 'enum')
 
-    const values = narrowed?.namedEnumValues
-    expect(values?.map((v) => v.name)).toStrictEqual(['A', 'B'])
-  })
-
-  it('x-enumNames sets primitive number for integer type', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'integer',
-        enum: [0, 1],
-        'x-enumNames': ['Off', 'On'],
-      },
-    })
-
-    expect(node.primitive).toBe('number')
-  })
-
-  it('x-enumNames sets primitive string when type is not numeric or boolean', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        enum: ['a', 'b'],
-        'x-enumNames': ['Alpha', 'Beta'],
-      },
-    })
-
-    expect(node.primitive).toBe('string')
+    expect(ast.narrowSchema(node, 'enum')?.namedEnumValues?.map((v) => v.name)).toStrictEqual(['A', 'B'])
   })
 
   it('x-enumNames deduplicates by value first, mapping names by deduped index', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         type: 'integer',
         enum: [1, 1, 2],
         'x-enumNames': ['First', 'Duplicate', 'Second'],
       },
     })
-    const narrowed = ast.narrowSchema(node, 'enum')
+    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
 
-    const values = narrowed?.namedEnumValues
     // After deduping values to [1, 2], names are looked up by position in the deduped array
     expect(values?.map((v) => v.name)).toStrictEqual(['First', 'Duplicate'])
     expect(values?.map((v) => v.value)).toStrictEqual([1, 2])
   })
 
   it('x-enumNames falls back to stringified value when fewer names than values', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         type: 'integer',
         enum: [10, 20, 30],
         'x-enumNames': ['Ten'],
       },
     })
-    const narrowed = ast.narrowSchema(node, 'enum')
+    const values = ast.narrowSchema(node, 'enum')?.namedEnumValues
 
-    const values = narrowed?.namedEnumValues
     expect(values?.map((v) => v.name)).toStrictEqual(['Ten', '20', '30'])
     expect(values?.map((v) => v.value)).toStrictEqual([10, 20, 30])
   })
 
-  it('deduplicates numeric enum values and names without extension key', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'integer',
-        enum: [5, 5, 10],
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'enum')
-
-    const values = narrowed?.namedEnumValues
-    expect(values?.map((v) => v.name)).toStrictEqual(['5', '10'])
-    expect(values?.map((v) => v.value)).toStrictEqual([5, 10])
-  })
-
-  // Array + enum normalization
-  it('normalizes array+enum by moving enum into items and returning array node', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'array', enum: ['x', 'y'] },
-    })
-    const narrowed = ast.narrowSchema(node, 'array')
+  it.each([
+    { title: 'without items', schema: { type: 'array', enum: ['x', 'y'] } },
+    { title: 'merging the existing items schema', schema: { type: 'array', items: { type: 'string' }, enum: ['x', 'y'] } },
+  ] satisfies Array<{ title: string; schema: SchemaObject }>)('normalizes array+enum by moving enum into items $title', ({ schema }) => {
+    const node = parseSchema(emptyCtx, { schema })
 
     expect(node.type).toBe('array')
-    const itemNode = ast.narrowSchema(narrowed?.items?.[0], 'enum')
-    expect(itemNode?.type).toBe('enum')
-    expect(itemNode?.enumValues).toStrictEqual(['x', 'y'])
-  })
-
-  it('merges existing items schema when normalizing array+enum', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'array', items: { type: 'string' }, enum: ['x', 'y'] },
-    })
-    const narrowed = ast.narrowSchema(node, 'array')
-
-    expect(node.type).toBe('array')
-    const itemNode = ast.narrowSchema(narrowed?.items?.[0], 'enum')
-    expect(itemNode?.type).toBe('enum')
-    expect(itemNode?.enumValues).toStrictEqual(['x', 'y'])
-  })
-})
-
-describe('parseSchema null', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('maps type null to null node', () => {
-    const node = parseSchema(ctx, { schema: { type: 'null' } })
-
-    expect(node.type).toBe('null')
-  })
-
-  it('propagates description on null', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'null', description: 'always null' },
-    })
-
-    expect(node.description).toBe('always null')
-  })
-
-  it('type: null property in object does not set nullable (avoids null | null)', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'object',
-        properties: {
-          field: { type: 'null' },
-        },
-      },
-      name: 'Wrapper',
-    })
-
-    const objectNode = ast.narrowSchema(node, 'object')
-    const fieldProp = objectNode?.properties.find((p) => p.name === 'field')
-
-    expect(fieldProp?.schema.type).toBe('null')
-    expect(fieldProp?.schema.nullable).toBeUndefined()
+    expect(ast.narrowSchema(node, 'array')?.items?.[0]).toMatchObject({ type: 'enum', enumValues: ['x', 'y'] })
   })
 })
 
 describe('parseSchema OAS 3.1 type array', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('produces a union node for two non-null types', () => {
-    const node = parseSchema(ctx, { schema: { type: ['string', 'integer'] } })
-    const narrowed = ast.narrowSchema(node, 'union')
-
-    expect(node.type).toBe('union')
-    expect(narrowed?.members).toHaveLength(2)
-    expect(narrowed?.members?.[0]?.type).toBe('string')
-    expect(narrowed?.members?.[1]?.type).toBe('integer')
-  })
-
-  it('produces a union node for three non-null types', () => {
-    const node = parseSchema(ctx, {
+  it.each([
+    { title: 'two non-null types', schema: { type: ['string', 'integer'] }, expected: { type: 'union' }, members: ['string', 'integer'] },
+    {
+      title: 'three non-null types',
       schema: { type: ['string', 'integer', 'boolean'] },
-    })
-    const narrowed = ast.narrowSchema(node, 'union')
-
-    expect(node.type).toBe('union')
-    expect(narrowed?.members).toHaveLength(3)
-  })
-
-  it('sets nullable when null is among multiple types', () => {
-    const node = parseSchema(ctx, {
+      expected: { type: 'union' },
+      members: ['string', 'integer', 'boolean'],
+    },
+    {
+      title: 'null among multiple types',
       schema: { type: ['string', 'integer', 'null'] },
-    })
-    const narrowed = ast.narrowSchema(node, 'union')
+      expected: { type: 'union', nullable: true },
+      members: ['string', 'integer'],
+    },
+    {
+      title: 'null leading multiple types',
+      schema: { type: ['null', 'string', 'integer'] },
+      expected: { type: 'union', nullable: true },
+      members: ['string', 'integer'],
+    },
+    {
+      title: 'null leading multiple types with a numeric format',
+      schema: { type: ['null', 'integer', 'string'], format: 'int32' },
+      expected: { type: 'union', nullable: true },
+      members: ['integer', 'string'],
+    },
+    { title: 'null with a single non-null type', schema: { type: ['string', 'null'] }, expected: { type: 'string', nullable: true } },
+    { title: 'null leading a single non-null type', schema: { type: ['null', 'string'] }, expected: { type: 'string', nullable: true } },
+    { title: 'null with a single string int64', schema: { type: ['string', 'null'], format: 'int64' }, expected: { type: 'string', nullable: true } },
+    { title: 'a single non-null entry', schema: { type: ['integer'] }, expected: { type: 'integer' } },
+  ] satisfies Array<SchemaCase & { members?: Array<string> }>)('maps $title', ({ schema, expected, members }) => {
+    const node = parseSchema(emptyCtx, { schema })
 
-    expect(node.type).toBe('union')
-    expect(node.nullable).toBe(true)
-    expect(narrowed?.members).toHaveLength(2)
-  })
-
-  it('sets nullable when null is in a single-non-null type array', () => {
-    const node = parseSchema(ctx, { schema: { type: ['string', 'null'] } })
-
-    expect(node.type).toBe('string')
-    expect(node.nullable).toBe(true)
-  })
-
-  it('sets nullable when null leads a single-non-null type array', () => {
-    const node = parseSchema(ctx, { schema: { type: ['null', 'string'] } })
-
-    expect(node.type).toBe('string')
-    expect(node.nullable).toBe(true)
-  })
-
-  it('sets nullable when null leads multiple types', () => {
-    const node = parseSchema(ctx, { schema: { type: ['null', 'string', 'integer'] } })
-    const narrowed = ast.narrowSchema(node, 'union')
-
-    expect(node.type).toBe('union')
-    expect(node.nullable).toBe(true)
-    expect(narrowed?.members).toHaveLength(2)
-  })
-
-  it('keeps a null-only type array as a null node', () => {
-    const node = parseSchema(ctx, { schema: { type: ['null'] } })
-
-    expect(node.type).toBe('null')
-  })
-
-  it('handles type array with a single non-null entry', () => {
-    const node = parseSchema(ctx, { schema: { type: ['integer'] } })
-
-    expect(node.type).toBe('integer')
-    expect(node.nullable).toBeUndefined()
-  })
-
-  it('propagates shared schema metadata onto the union node', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: ['string', 'integer'],
-        description: 'id or label',
-        deprecated: true,
-      },
-    })
-
-    expect(node.description).toBe('id or label')
-    expect(node.deprecated).toBe(true)
+    expect(node).toMatchObject(expected)
+    expect(node.nullable).toBe(expected['nullable'])
+    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => member.type)).toStrictEqual(members)
   })
 
   it('each union member schema carries the shared schema properties', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: { type: ['string', 'integer'], readOnly: true },
     })
-    const narrowed = ast.narrowSchema(node, 'union')
 
-    const members = narrowed?.members ?? []
-    expect(members.every((m) => m.readOnly === true)).toBe(true)
-  })
-
-  it('splits a multi-type array before a numeric format collapses it', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: ['null', 'integer', 'string'], format: 'int32' },
-    })
-    const narrowed = ast.narrowSchema(node, 'union')
-
-    expect(node.type).toBe('union')
-    expect(node.nullable).toBe(true)
-    expect(narrowed?.members).toHaveLength(2)
-    expect(narrowed?.members?.[0]?.type).toBe('integer')
-    expect(narrowed?.members?.[1]?.type).toBe('string')
-  })
-})
-
-describe('parseSchema integer', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('maps type integer to integer node', () => {
-    const node = parseSchema(ctx, { schema: { type: 'integer' } })
-
-    expect(node.type).toBe('integer')
-  })
-
-  it('maps integer int32 to integer', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'integer', format: 'int32' },
-    })
-
-    expect(node.type).toBe('integer')
-  })
-
-  it('maps integer int64 to bigint when integerType is bigint (default)', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'integer', format: 'int64' },
-    })
-
-    expect(node.type).toBe('bigint')
-  })
-
-  it('maps integer uint64 to bigint when integerType is bigint (default)', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'integer', format: 'uint64' },
-    })
-
-    expect(node.type).toBe('bigint')
-  })
-
-  it('maps format int64 without type to bigint (format overrides type)', () => {
-    const node = parseSchema(ctx, { schema: { format: 'int64' } })
-
-    expect(node.type).toBe('bigint')
-  })
-
-  it('maps format uint64 without type to bigint (format overrides type)', () => {
-    const node = parseSchema(ctx, { schema: { format: 'uint64' } })
-
-    expect(node.type).toBe('bigint')
-  })
-
-  it('keeps string int64 as a string node carrying the format', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'int64' },
-    })
-
-    expect(node.type).toBe('string')
-    expect(node.format).toBe('int64')
-  })
-
-  it('keeps string uint64 as a string node carrying the format', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'uint64' },
-    })
-
-    expect(node.type).toBe('string')
-    expect(node.format).toBe('uint64')
-  })
-
-  it('keeps string int64 as a string node when integerType is number', () => {
-    const node = parseSchema(ctx, { schema: { type: 'string', format: 'int64' } }, { integerType: 'number' })
-
-    expect(node.type).toBe('string')
-  })
-
-  it('keeps string int32, float and double as string nodes', () => {
-    for (const format of ['int32', 'float', 'double']) {
-      const node = parseSchema(ctx, { schema: { type: 'string', format } })
-
-      expect(node.type).toBe('string')
-      expect(node.format).toBe(format)
-    }
-  })
-
-  it('keeps the string length constraints on a string int64', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', format: 'int64', minLength: 1, maxLength: 20 },
-    })
-    const narrowed = ast.narrowSchema(node, 'string')
-
-    expect(narrowed?.min).toBe(1)
-    expect(narrowed?.max).toBe(20)
-  })
-
-  it('keeps nullable string int64 as a nullable string node', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: ['string', 'null'], format: 'int64' },
-    })
-
-    expect(node.type).toBe('string')
-    expect(node.nullable).toBe(true)
-  })
-
-  it('preserves nullable on integer', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'integer', nullable: true },
-    })
-
-    expect(node.type).toBe('integer')
-    expect(node.nullable).toBe(true)
-  })
-})
-
-describe('parseSchema number', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('maps type number to number node', () => {
-    const node = parseSchema(ctx, { schema: { type: 'number' } })
-
-    expect(node.type).toBe('number')
-  })
-
-  it('maps number float to number', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'number', format: 'float' },
-    })
-
-    expect(node.type).toBe('number')
-  })
-
-  it('maps number double to number', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'number', format: 'double' },
-    })
-
-    expect(node.type).toBe('number')
-  })
-
-  it('maps format float without type to number (format overrides type)', () => {
-    const node = parseSchema(ctx, { schema: { format: 'float' } })
-
-    expect(node.type).toBe('number')
-  })
-
-  it('preserves nullable on number', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'number', nullable: true },
-    })
-
-    expect(node.type).toBe('number')
-    expect(node.nullable).toBe(true)
-  })
-})
-
-describe('parseSchema pattern', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('maps pattern on a string type to a string node with pattern', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', pattern: '^[a-z]+$' },
-    })
-    const narrowed = ast.narrowSchema(node, 'string')
-
-    expect(node.type).toBe('string')
-    expect(narrowed?.pattern).toBe('^[a-z]+$')
-  })
-
-  it('infers string type from pattern alone (no explicit type)', () => {
-    const node = parseSchema(ctx, { schema: { pattern: '^[0-9]+$' } })
-    const narrowed = ast.narrowSchema(node, 'string')
-
-    expect(node.type).toBe('string')
-    expect(narrowed?.pattern).toBe('^[0-9]+$')
-  })
-
-  it('ignores pattern on non-string types', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'number', pattern: '^[0-9]+$' },
-    })
-
-    expect(node.type).toBe('number')
-    expect(ast.narrowSchema(node, 'string')?.pattern).toBeUndefined()
-  })
-
-  it('preserves nullable on a pattern string', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'string', pattern: '^[a-z]+$', nullable: true },
-    })
-    const narrowed = ast.narrowSchema(node, 'string')
-
-    expect(node.type).toBe('string')
-    expect(narrowed?.pattern).toBe('^[a-z]+$')
-    expect(node.nullable).toBe(true)
-  })
-
-  it('preserves minLength and maxLength alongside pattern', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'string',
-        pattern: '^[a-z]+$',
-        minLength: 2,
-        maxLength: 10,
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'string')
-
-    expect(node.type).toBe('string')
-    expect(narrowed?.pattern).toBe('^[a-z]+$')
-    expect(narrowed?.min).toBe(2)
-    expect(narrowed?.max).toBe(10)
+    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => member.readOnly)).toStrictEqual([true, true])
   })
 })
 
 describe('parseSchema array', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('maps type array to array node', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array' } })
-
-    expect(node.type).toBe('array')
-  })
-
-  it('infers array type from items key alone (no explicit type)', () => {
-    const node = parseSchema(ctx, { schema: { items: { type: 'string' } } })
-
-    expect(node.type).toBe('array')
-  })
-
   it('converts items to a single-element items array', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: { type: 'array', items: { type: 'string' } },
     })
-    const narrowed = ast.narrowSchema(node, 'array')
 
-    expect(narrowed?.items).toHaveLength(1)
-    expect(narrowed?.items?.[0]?.type).toBe('string')
+    expect(ast.narrowSchema(node, 'array')?.items?.map((item) => item.type)).toStrictEqual(['string'])
   })
 
   it('produces an empty items array when items is absent', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array' } })
-    const narrowed = ast.narrowSchema(node, 'array')
+    const node = parseSchema(emptyCtx, { schema: { type: 'array' } })
 
-    expect(narrowed?.items).toHaveLength(0)
+    expect(ast.narrowSchema(node, 'array')?.items).toStrictEqual([])
   })
 
-  it('maps minItems to min', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array', minItems: 1 } })
-    const narrowed = ast.narrowSchema(node, 'array')
-
-    expect(narrowed?.min).toBe(1)
-  })
-
-  it('maps maxItems to max', () => {
-    const node = parseSchema(ctx, { schema: { type: 'array', maxItems: 5 } })
-    const narrowed = ast.narrowSchema(node, 'array')
-
-    expect(narrowed?.max).toBe(5)
-  })
-
-  it('maps uniqueItems: true to unique: true', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'array', uniqueItems: true },
+  it('converts nested array items recursively', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        type: 'array',
+        items: { type: 'array', items: { type: 'number' } },
+      },
     })
-    const narrowed = ast.narrowSchema(node, 'array')
 
-    expect(narrowed?.unique).toBe(true)
+    expect(node).toMatchObject({ type: 'array', items: [{ type: 'array', items: [{ type: 'number' }] }] })
   })
 
-  it('maps uniqueItems: false to unique: false', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'array', uniqueItems: false },
+  it('converts ref items', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: { type: 'array', items: { $ref: '#/components/schemas/Pet' } },
     })
-    const narrowed = ast.narrowSchema(node, 'array')
 
-    expect(narrowed?.unique).toBe(false)
+    expect(node).toMatchObject({ type: 'array', items: [{ type: 'ref' }] })
   })
 
   it('qualifies inline enums on object array items with the array parent name', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         type: 'object',
         properties: {
@@ -3406,7 +2172,7 @@ describe('parseSchema array', () => {
   // Regression for kubb-labs/plugins#132: an array whose items are an object with a nested enum
   // property must keep the object as its items — the enum must not replace the object structure.
   it('keeps array items as an object when the object has a nested enum property', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         type: 'array',
         items: {
@@ -3421,18 +2187,16 @@ describe('parseSchema array', () => {
       },
       name: 'GetPreferencesUnitsStatus200',
     })
-    const array = ast.narrowSchema(node, 'array')
-    const items = array?.items?.[0]
-    const object = ast.narrowSchema(items, 'object')
+    const object = ast.narrowSchema(ast.narrowSchema(node, 'array')?.items?.[0], 'object')
 
-    expect(array?.type).toBe('array')
+    expect(node.type).toBe('array')
     expect(object?.type).toBe('object')
     expect(object?.properties?.map((p) => p.name)).toStrictEqual(['id', 'type', 'value'])
     expect(ast.narrowSchema(object?.properties?.find((p) => p.name === 'type')?.schema, 'enum')?.enumValues).toStrictEqual(['area', 'density', 'length'])
   })
 
   it('qualifies inline enums inside single-member allOf with the parent name', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         allOf: [
           {
@@ -3458,7 +2222,7 @@ describe('parseSchema array', () => {
   })
 
   it('qualifies inline enums inside multi-member allOf with the parent name', () => {
-    const node = parseSchema(ctx, {
+    const node = parseSchema(emptyCtx, {
       schema: {
         allOf: [
           { type: 'object', properties: { page: { type: 'integer' } } },
@@ -3479,7 +2243,6 @@ describe('parseSchema array', () => {
       },
       name: 'GetTransfers200',
     })
-    const intersection = ast.narrowSchema(node, 'intersection') ?? ast.narrowSchema(node, 'object')
     // Find any deeply-nested status enum to verify its name
     const enums = ast.collectSync(node, {
       schema(n) {
@@ -3488,7 +2251,7 @@ describe('parseSchema array', () => {
     })
     const status = enums.find((e) => e.name?.includes('Status'))
 
-    expect(intersection).toBeDefined()
+    expect(node.type).toBe('intersection')
     expect(status?.name).toBe('GetTransfers200DataStatusEnum')
   })
 
@@ -3565,9 +2328,8 @@ describe('parseSchema array', () => {
             .filter((name): name is string => !!name)
         : []
 
-    const component = root.schemas.find((s) => s.name === 'GetMaintenance200')
-    const responseSchema = root.operations.find((op) => op.operationId === 'getMaintenance')?.responses.find((r) => r.statusCode === '200')
-      ?.content?.[0]?.schema
+    const component = findSchema(root, 'GetMaintenance200')
+    const responseSchema = findOperation(root, 'getMaintenance')?.responses.find((r) => r.statusCode === '200')?.content?.[0]?.schema
 
     const componentEnums = collectEnumNames(component)
     const responseEnums = collectEnumNames(responseSchema)
@@ -3580,328 +2342,54 @@ describe('parseSchema array', () => {
     // The core #3364 guarantee: no enum identifier is emitted by both file owners.
     expect(componentEnums.filter((name) => responseEnums.includes(name))).toStrictEqual([])
   })
-
-  it('preserves nullable on array', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'array', nullable: true },
-    })
-
-    expect(node.type).toBe('array')
-    expect(node.nullable).toBe(true)
-  })
-
-  it('converts nested array items recursively', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        type: 'array',
-        items: { type: 'array', items: { type: 'number' } },
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'array')
-    const outerItem = ast.narrowSchema(narrowed?.items?.[0], 'array')
-    const innerItem = outerItem?.items?.[0]
-
-    expect(node.type).toBe('array')
-    expect(outerItem?.type).toBe('array')
-    expect(innerItem?.type).toBe('number')
-  })
-
-  it('converts ref items', () => {
-    const node = parseSchema(ctx, {
-      schema: { type: 'array', items: { $ref: '#/components/schemas/Pet' } },
-    })
-    const narrowed = ast.narrowSchema(node, 'array')
-
-    expect(node.type).toBe('array')
-    expect(narrowed?.items?.[0]?.type).toBe('ref')
-  })
-})
-
-describe('parseSchema type inference (no explicit type)', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('infers string from minLength alone', () => {
-    const node = parseSchema(ctx, { schema: { minLength: 1 } })
-    const narrowed = ast.narrowSchema(node, 'string')
-
-    expect(node.type).toBe('string')
-    expect(narrowed?.min).toBe(1)
-  })
-
-  it('infers string from maxLength alone', () => {
-    const node = parseSchema(ctx, { schema: { maxLength: 100 } })
-    const narrowed = ast.narrowSchema(node, 'string')
-
-    expect(node.type).toBe('string')
-    expect(narrowed?.max).toBe(100)
-  })
-
-  it('infers string from both minLength and maxLength', () => {
-    const node = parseSchema(ctx, { schema: { minLength: 2, maxLength: 50 } })
-    const narrowed = ast.narrowSchema(node, 'string')
-
-    expect(node.type).toBe('string')
-    expect(narrowed?.min).toBe(2)
-    expect(narrowed?.max).toBe(50)
-  })
-
-  it('infers number from minimum alone', () => {
-    const node = parseSchema(ctx, { schema: { minimum: 0 } })
-    const narrowed = ast.narrowSchema(node, 'number')
-
-    expect(node.type).toBe('number')
-    expect(narrowed?.min).toBe(0)
-  })
-
-  it('infers number from maximum alone', () => {
-    const node = parseSchema(ctx, { schema: { maximum: 999 } })
-    const narrowed = ast.narrowSchema(node, 'number')
-
-    expect(node.type).toBe('number')
-    expect(narrowed?.max).toBe(999)
-  })
-
-  it('infers number from both minimum and maximum', () => {
-    const node = parseSchema(ctx, { schema: { minimum: 1, maximum: 100 } })
-    const narrowed = ast.narrowSchema(node, 'number')
-
-    expect(node.type).toBe('number')
-    expect(narrowed?.min).toBe(1)
-    expect(narrowed?.max).toBe(100)
-  })
-
-  it('does not infer array from minItems/maxItems alone', () => {
-    const node = parseSchema(ctx, { schema: { minItems: 1, maxItems: 5 } })
-
-    expect(node.type).not.toBe('array')
-  })
-})
-
-describe('parseSchema constraints', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  describe('number: minimum / maximum', () => {
-    it('maps minimum to min', () => {
-      const node = parseSchema(ctx, { schema: { type: 'number', minimum: 0 } })
-      const narrowed = ast.narrowSchema(node, 'number')
-
-      expect(narrowed?.min).toBe(0)
-    })
-
-    it('maps maximum to max', () => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'number', maximum: 999 },
-      })
-      const narrowed = ast.narrowSchema(node, 'number')
-      expect(narrowed?.max).toBe(999)
-    })
-
-    it('maps both minimum and maximum', () => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'number', minimum: 1, maximum: 100 },
-      })
-      const narrowed = ast.narrowSchema(node, 'number')
-
-      expect(narrowed?.min).toBe(1)
-      expect(narrowed?.max).toBe(100)
-    })
-
-    it('maps numeric exclusiveMinimum', () => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'number', exclusiveMinimum: 0 },
-      })
-      const narrowed = ast.narrowSchema(node, 'number')
-
-      expect(narrowed?.exclusiveMinimum).toBe(0)
-    })
-
-    it('maps numeric exclusiveMaximum', () => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'number', exclusiveMaximum: 100 },
-      })
-      const narrowed = ast.narrowSchema(node, 'number')
-
-      expect(narrowed?.exclusiveMaximum).toBe(100)
-    })
-
-    it('ignores boolean exclusiveMinimum (OAS 3.0 style)', () => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'number', exclusiveMinimum: true },
-      })
-      const narrowed = ast.narrowSchema(node, 'number')
-
-      expect(narrowed?.exclusiveMinimum).toBeUndefined()
-    })
-  })
-
-  describe('integer: minimum / maximum', () => {
-    it('maps minimum to min', () => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'integer', minimum: 1 },
-      })
-      const narrowed = ast.narrowSchema(node, 'integer')
-
-      expect(narrowed?.min).toBe(1)
-    })
-
-    it('maps maximum to max', () => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'integer', maximum: 100 },
-      })
-      const narrowed = ast.narrowSchema(node, 'integer')
-
-      expect(narrowed?.max).toBe(100)
-    })
-
-    it('maps both minimum and maximum', () => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'integer', minimum: 1, maximum: 100 },
-      })
-      const narrowed = ast.narrowSchema(node, 'integer')
-
-      expect(narrowed?.min).toBe(1)
-      expect(narrowed?.max).toBe(100)
-    })
-
-    it('maps numeric exclusiveMinimum', () => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'integer', exclusiveMinimum: 0 },
-      })
-      const narrowed = ast.narrowSchema(node, 'integer')
-
-      expect(narrowed?.exclusiveMinimum).toBe(0)
-    })
-
-    it('maps numeric exclusiveMaximum', () => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'integer', exclusiveMaximum: 100 },
-      })
-      const narrowed = ast.narrowSchema(node, 'integer')
-
-      expect(narrowed?.exclusiveMaximum).toBe(100)
-    })
-
-    it('ignores boolean exclusiveMinimum (OAS 3.0 style)', () => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'integer', exclusiveMinimum: true },
-      })
-      const narrowed = ast.narrowSchema(node, 'integer')
-
-      expect(narrowed?.exclusiveMinimum).toBeUndefined()
-    })
-  })
-
-  describe('formatted numbers: minimum / maximum / multipleOf', () => {
-    it.each(['float', 'double'])('maps minimum and maximum on a %s number', (format) => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'number', format, minimum: -90, maximum: 90 },
-      })
-      const narrowed = ast.narrowSchema(node, 'number')
-
-      expect(narrowed?.min).toBe(-90)
-      expect(narrowed?.max).toBe(90)
-    })
-
-    it('maps minimum and maximum on an int32 integer', () => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'integer', format: 'int32', minimum: 1, maximum: 100 },
-      })
-      const narrowed = ast.narrowSchema(node, 'integer')
-
-      expect(narrowed?.min).toBe(1)
-      expect(narrowed?.max).toBe(100)
-    })
-
-    it('maps minimum and maximum when only the format names the type', () => {
-      const node = parseSchema(ctx, {
-        schema: { format: 'double', minimum: 0, maximum: 1 },
-      })
-      const narrowed = ast.narrowSchema(node, 'number')
-
-      expect(narrowed?.min).toBe(0)
-      expect(narrowed?.max).toBe(1)
-    })
-
-    it('maps numeric exclusiveMinimum and exclusiveMaximum on a double number', () => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'number', format: 'double', exclusiveMinimum: 0, exclusiveMaximum: 100 },
-      })
-      const narrowed = ast.narrowSchema(node, 'number')
-
-      expect(narrowed?.exclusiveMinimum).toBe(0)
-      expect(narrowed?.exclusiveMaximum).toBe(100)
-    })
-
-    it('maps multipleOf on a double number', () => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'number', format: 'double', multipleOf: 0.5 },
-      })
-      const narrowed = ast.narrowSchema(node, 'number')
-
-      expect(narrowed?.multipleOf).toBe(0.5)
-    })
-
-    it('maps multipleOf on an int64 integer', () => {
-      const node = parseSchema(ctx, { schema: { type: 'integer', format: 'int64', multipleOf: 10 } }, { integerType: 'number' })
-      const narrowed = ast.narrowSchema(node, 'integer')
-
-      expect(narrowed?.multipleOf).toBe(10)
-    })
-
-    it('does not map minimum and maximum onto a uuid string', () => {
-      const node = parseSchema(ctx, {
-        schema: { type: 'string', format: 'uuid', minimum: 0, maximum: 1 },
-      })
-      const narrowed = ast.narrowSchema(node, 'uuid')
-
-      expect(narrowed).not.toBeNull()
-      expect(narrowed?.min).toBeUndefined()
-      expect(narrowed?.max).toBeUndefined()
-    })
-  })
 })
 
 describe('parser options', () => {
   describe('emptySchemaType', () => {
-    it('defaults to unknown for a schema with no type information', () => {
-      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-      const node = parseSchema(ctx, { schema: {} })
-
-      expect(node.type).toBe('unknown')
-    })
-
-    it('emptySchemaType: any returns any for an empty schema', () => {
-      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-      const node = parseSchema(ctx, { schema: {} }, { emptySchemaType: 'any' })
-
-      expect(node.type).toBe('any')
-    })
-
-    it('emptySchemaType: void returns void for an empty schema', () => {
-      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-      const node = parseSchema(ctx, { schema: {} }, { emptySchemaType: 'void' })
-
-      expect(node.type).toBe('void')
-    })
-
-    it('emptySchemaType: unknown returns unknown for an empty schema', () => {
-      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-      const node = parseSchema(ctx, { schema: {} }, { emptySchemaType: 'unknown' })
-
-      expect(node.type).toBe('unknown')
-    })
+    it.each([
+      { title: 'unknown by default', options: undefined, type: 'unknown' },
+      { title: 'any for emptySchemaType: any', options: { emptySchemaType: 'any' }, type: 'any' },
+      { title: 'void for emptySchemaType: void', options: { emptySchemaType: 'void' }, type: 'void' },
+      { title: 'unknown for emptySchemaType: unknown', options: { emptySchemaType: 'unknown' }, type: 'unknown' },
+    ] satisfies Array<{ title: string; options: Partial<ast.ParserOptions> | undefined; type: string }>)(
+      'returns $title for an empty schema',
+      ({ options, type }) => {
+        expect(parseSchema(emptyCtx, { schema: {} }, options).type).toBe(type)
+      },
+    )
 
     it('emptySchemaType does not affect typed schemas', () => {
-      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-      const node = parseSchema(ctx, { schema: { type: 'string' } }, { emptySchemaType: 'any' })
+      const node = parseSchema(emptyCtx, { schema: { type: 'string' } }, { emptySchemaType: 'any' })
 
       expect(node.type).toBe('string')
     })
 
-    it('preserves metadata (deprecated, nullable, readOnly, writeOnly, default, examples) on typeless schemas', () => {
-      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-      const node = parseSchema(ctx, {
-        schema: {
+    it.each([
+      { title: 'unknown by default', options: undefined, type: 'unknown' },
+      { title: 'any for emptySchemaType: any', options: { emptySchemaType: 'any' }, type: 'any' },
+    ] satisfies Array<{ title: string; options: Partial<ast.ParserOptions> | undefined; type: string }>)(
+      'preserves metadata (title, description, deprecated, nullable, readOnly, writeOnly, default, examples, format) on a typeless schema mapped to $title',
+      ({ options, type }) => {
+        const node = parseSchema(
+          emptyCtx,
+          {
+            schema: {
+              title: 'Typeless',
+              description: 'A schema with metadata but no type',
+              deprecated: true,
+              readOnly: true,
+              writeOnly: false,
+              nullable: true,
+              default: 'foo',
+              example: 'bar',
+              format: 'custom-format',
+            } as SchemaObject,
+          },
+          options,
+        )
+
+        expect(node).toMatchObject({
+          type,
           title: 'Typeless',
           description: 'A schema with metadata but no type',
           deprecated: true,
@@ -3909,46 +2397,14 @@ describe('parser options', () => {
           writeOnly: false,
           nullable: true,
           default: 'foo',
-          example: 'bar',
+          examples: ['bar'],
           format: 'custom-format',
-        } as SchemaObject,
-      })
-
-      expect(node.type).toBe('unknown')
-      expect(node.title).toBe('Typeless')
-      expect(node.description).toBe('A schema with metadata but no type')
-      expect(node.deprecated).toBe(true)
-      expect(node.readOnly).toBe(true)
-      expect(node.writeOnly).toBe(false)
-      expect(node.nullable).toBe(true)
-      expect(node.default).toBe('foo')
-      expect(node.examples).toEqual(['bar'])
-      expect(node.format).toBe('custom-format')
-    })
-
-    it('preserves metadata when emptySchemaType is set to any', () => {
-      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-      const node = parseSchema(
-        ctx,
-        {
-          schema: {
-            title: 'TypelessAny',
-            deprecated: true,
-            nullable: true,
-          } as SchemaObject,
-        },
-        { emptySchemaType: 'any' },
-      )
-
-      expect(node.type).toBe('any')
-      expect(node.title).toBe('TypelessAny')
-      expect(node.deprecated).toBe(true)
-      expect(node.nullable).toBe(true)
-    })
+        })
+      },
+    )
 
     it('preserves deprecated on typeless object properties', () => {
-      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-      const node = parseSchema(ctx, {
+      const node = parseSchema(emptyCtx, {
         schema: {
           type: 'object',
           properties: {
@@ -3960,479 +2416,124 @@ describe('parser options', () => {
         } as SchemaObject,
       })
 
-      const objNode = ast.narrowSchema(node, 'object')
-      const prop = objNode?.properties?.find((p) => p.name === 'oldProp')
-      expect(prop).toBeDefined()
-      expect(prop?.schema.type).toBe('unknown')
-      expect(prop?.schema.deprecated).toBe(true)
-      expect(prop?.schema.description).toBe('Deprecated legacy property')
+      const prop = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'oldProp')
+      expect(prop?.schema).toMatchObject({ type: 'unknown', deprecated: true, description: 'Deprecated legacy property' })
     })
   })
 
   describe('integerType', () => {
-    it('defaults to bigint for int64 when integerType is not set', () => {
-      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-      const node = parseSchema(ctx, {
-        schema: { type: 'integer', format: 'int64' },
-      })
+    it.each([
+      { title: 'integer int64 to integer', schema: { type: 'integer', format: 'int64' }, integerType: 'number', type: 'integer' },
+      { title: 'integer int64 to bigint', schema: { type: 'integer', format: 'int64' }, integerType: 'bigint', type: 'bigint' },
+      { title: 'integer uint64 to integer', schema: { type: 'integer', format: 'uint64' }, integerType: 'number', type: 'integer' },
+      { title: 'integer uint64 to bigint', schema: { type: 'integer', format: 'uint64' }, integerType: 'bigint', type: 'bigint' },
+      { title: 'integer int32 to integer', schema: { type: 'integer', format: 'int32' }, integerType: 'bigint', type: 'integer' },
+      { title: 'number float to number (non-integer types are untouched)', schema: { type: 'number', format: 'float' }, integerType: 'bigint', type: 'number' },
+    ] satisfies Array<{ title: string; schema: SchemaObject; integerType: ast.ParserOptions['integerType']; type: string }>)(
+      'integerType: $integerType maps $title',
+      ({ schema, integerType, type }) => {
+        const node = parseSchema(emptyCtx, { schema }, { integerType })
 
-      expect(node.type).toBe('bigint')
-    })
-
-    it('integerType: number keeps int64 as integer', () => {
-      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-      const node = parseSchema(ctx, { schema: { type: 'integer', format: 'int64' } }, { integerType: 'number' })
-
-      expect(node.type).toBe('integer')
-    })
-
-    it('integerType: bigint maps int64 to bigint', () => {
-      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-      const node = parseSchema(ctx, { schema: { type: 'integer', format: 'int64' } }, { integerType: 'bigint' })
-
-      expect(node.type).toBe('bigint')
-    })
-
-    it('integerType: number keeps uint64 as integer', () => {
-      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-      const node = parseSchema(ctx, { schema: { type: 'integer', format: 'uint64' } }, { integerType: 'number' })
-
-      expect(node.type).toBe('integer')
-    })
-
-    it('integerType: bigint maps uint64 to bigint', () => {
-      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-      const node = parseSchema(ctx, { schema: { type: 'integer', format: 'uint64' } }, { integerType: 'bigint' })
-
-      expect(node.type).toBe('bigint')
-    })
-
-    it('integerType: bigint does not affect int32', () => {
-      const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-      const node = parseSchema(ctx, { schema: { type: 'integer', format: 'int32' } }, { integerType: 'bigint' })
-
-      expect(node.type).toBe('integer')
-    })
+        expect(node.type).toBe(type)
+      },
+    )
   })
 
   describe('dateType', () => {
-    describe('format date-time', () => {
-      it('defaults to datetime', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const node = parseSchema(ctx, {
-          schema: { type: 'string', format: 'date-time' },
-        })
-        const narrowed = ast.narrowSchema(node, 'datetime')
+    it.each([
+      { title: 'date-time to datetime without offset by default', format: 'date-time', dateType: undefined, expected: { type: 'datetime', offset: false } },
+      {
+        title: 'date-time to datetime without offset for dateType: string',
+        format: 'date-time',
+        dateType: 'string',
+        expected: { type: 'datetime', offset: false },
+      },
+      {
+        title: 'date-time to datetime with offset for dateType: stringOffset',
+        format: 'date-time',
+        dateType: 'stringOffset',
+        expected: { type: 'datetime', offset: true },
+      },
+      {
+        title: 'date-time to a local datetime for dateType: stringLocal',
+        format: 'date-time',
+        dateType: 'stringLocal',
+        expected: { type: 'datetime', local: true },
+      },
+      { title: 'date-time to a Date for dateType: date', format: 'date-time', dateType: 'date', expected: { type: 'date', representation: 'date' } },
+      {
+        title: 'date-time to a string keeping the format for dateType: false',
+        format: 'date-time',
+        dateType: false,
+        expected: { type: 'string', format: 'date-time' },
+      },
+      { title: 'date to a date string by default', format: 'date', dateType: undefined, expected: { type: 'date', representation: 'string' } },
+      { title: 'date to a date string for dateType: string', format: 'date', dateType: 'string', expected: { type: 'date', representation: 'string' } },
+      { title: 'date to a Date for dateType: date', format: 'date', dateType: 'date', expected: { type: 'date', representation: 'date' } },
+      { title: 'date to a string for dateType: false', format: 'date', dateType: false, expected: { type: 'string' } },
+      { title: 'time to a time string by default', format: 'time', dateType: undefined, expected: { type: 'time', representation: 'string' } },
+      { title: 'time to a time string for dateType: string', format: 'time', dateType: 'string', expected: { type: 'time', representation: 'string' } },
+      { title: 'time to a Date for dateType: date', format: 'time', dateType: 'date', expected: { type: 'time', representation: 'date' } },
+      { title: 'time to a string for dateType: false', format: 'time', dateType: false, expected: { type: 'string' } },
+      // Object form: each format resolves independently, an omitted key defaults to string.
+      {
+        title: 'date-time to a Date for dateType: { dateTime: date }',
+        format: 'date-time',
+        dateType: { dateTime: 'date' },
+        expected: { type: 'date', representation: 'date' },
+      },
+      {
+        title: 'date to a date string for dateType: { dateTime: date }',
+        format: 'date',
+        dateType: { dateTime: 'date' },
+        expected: { type: 'date', representation: 'string' },
+      },
+      {
+        title: 'time to a time string for dateType: { dateTime: date }',
+        format: 'time',
+        dateType: { dateTime: 'date' },
+        expected: { type: 'time', representation: 'string' },
+      },
+      {
+        title: 'date to a string for dateType: { date: false, dateTime: date }',
+        format: 'date',
+        dateType: { date: false, dateTime: 'date' },
+        expected: { type: 'string' },
+      },
+      { title: 'date to a string for dateType: { date: false }', format: 'date', dateType: { date: false }, expected: { type: 'string' } },
+      {
+        title: 'date-time to datetime without offset for dateType: { date: false }',
+        format: 'date-time',
+        dateType: { date: false },
+        expected: { type: 'datetime', offset: false },
+      },
+    ] satisfies Array<{ title: string; format: string; dateType: ast.ParserOptions['dateType'] | undefined; expected: Record<string, unknown> }>)(
+      'maps $title',
+      ({ format, dateType, expected }) => {
+        const node = parseSchema(emptyCtx, { schema: { type: 'string', format } }, dateType === undefined ? undefined : { dateType })
 
-        expect(node.type).toBe('datetime')
-        expect(narrowed?.offset).toBe(false)
-      })
-
-      it('dateType: string returns datetime with offset: false', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: 'string' })
-        const narrowed = ast.narrowSchema(node, 'datetime')
-
-        expect(node.type).toBe('datetime')
-        expect(narrowed?.offset).toBe(false)
-      })
-
-      it('dateType: stringOffset returns datetime with offset: true', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: 'stringOffset' })
-        const narrowed = ast.narrowSchema(node, 'datetime')
-
-        expect(node.type).toBe('datetime')
-        expect(narrowed?.offset).toBe(true)
-      })
-
-      it('dateType: stringLocal returns datetime with local: true', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: 'stringLocal' })
-        const narrowed = ast.narrowSchema(node, 'datetime')
-
-        expect(node.type).toBe('datetime')
-        expect(narrowed?.local).toBe(true)
-      })
-
-      it('dateType: date returns date with representation: date', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: 'date' })
-        const narrowed = ast.narrowSchema(node, 'date')
-
-        expect(node.type).toBe('date')
-        expect(narrowed?.representation).toBe('date')
-      })
-
-      it('dateType: false falls through to string', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const node = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: false })
-
-        expect(node.type).toBe('string')
-      })
-    })
-
-    describe('format date', () => {
-      it('defaults to date with representation: string', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const node = parseSchema(ctx, {
-          schema: { type: 'string', format: 'date' },
-        })
-        const narrowed = ast.narrowSchema(node, 'date')
-
-        expect(node.type).toBe('date')
-        expect(narrowed?.representation).toBe('string')
-      })
-
-      it('dateType: date returns date with representation: date', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const node = parseSchema(ctx, { schema: { type: 'string', format: 'date' } }, { dateType: 'date' })
-        const narrowed = ast.narrowSchema(node, 'date')
-
-        expect(node.type).toBe('date')
-        expect(narrowed?.representation).toBe('date')
-      })
-
-      it('dateType: string returns date with representation: string', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const node = parseSchema(ctx, { schema: { type: 'string', format: 'date' } }, { dateType: 'string' })
-        const narrowed = ast.narrowSchema(node, 'date')
-
-        expect(node.type).toBe('date')
-        expect(narrowed?.representation).toBe('string')
-      })
-
-      it('dateType: false falls through to string', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const node = parseSchema(ctx, { schema: { type: 'string', format: 'date' } }, { dateType: false })
-
-        expect(node.type).toBe('string')
-      })
-    })
-
-    describe('format time', () => {
-      it('defaults to time with representation: string', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const node = parseSchema(ctx, {
-          schema: { type: 'string', format: 'time' },
-        })
-        const narrowed = ast.narrowSchema(node, 'time')
-
-        expect(node.type).toBe('time')
-        expect(narrowed?.representation).toBe('string')
-      })
-
-      it('dateType: date returns time with representation: date', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const node = parseSchema(ctx, { schema: { type: 'string', format: 'time' } }, { dateType: 'date' })
-        const narrowed = ast.narrowSchema(node, 'time')
-
-        expect(node.type).toBe('time')
-        expect(narrowed?.representation).toBe('date')
-      })
-
-      it('dateType: string returns time with representation: string', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const node = parseSchema(ctx, { schema: { type: 'string', format: 'time' } }, { dateType: 'string' })
-        const narrowed = ast.narrowSchema(node, 'time')
-
-        expect(node.type).toBe('time')
-        expect(narrowed?.representation).toBe('string')
-      })
-
-      it('dateType: false falls through to string', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const node = parseSchema(ctx, { schema: { type: 'string', format: 'time' } }, { dateType: false })
-
-        expect(node.type).toBe('string')
-      })
-    })
-
-    describe('object form', () => {
-      it('represents date-time as Date while date and time stay strings', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const dateTimeNode = parseSchema(ctx, { schema: { type: 'string', format: 'date-time' } }, { dateType: { dateTime: 'date' } })
-        const dateNode = parseSchema(ctx, { schema: { type: 'string', format: 'date' } }, { dateType: { dateTime: 'date' } })
-        const timeNode = parseSchema(ctx, { schema: { type: 'string', format: 'time' } }, { dateType: { dateTime: 'date' } })
-
-        expect(dateTimeNode.type).toBe('date')
-        expect(ast.narrowSchema(dateTimeNode, 'date')?.representation).toBe('date')
-        expect(dateNode.type).toBe('date')
-        expect(ast.narrowSchema(dateNode, 'date')?.representation).toBe('string')
-        expect(timeNode.type).toBe('time')
-        expect(ast.narrowSchema(timeNode, 'time')?.representation).toBe('string')
-      })
-
-      it('falls through to string when a format is set to false in the object form', () => {
-        const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-        const node = parseSchema(ctx, { schema: { type: 'string', format: 'date' } }, { dateType: { date: false, dateTime: 'date' } })
-
-        expect(node.type).toBe('string')
-      })
-    })
+        expect(node).toMatchObject(expected)
+      },
+    )
   })
 })
 
 describe('parseSchema not keyword', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
+  // JSON Schema `not` has no direct equivalent in most code generators.
+  // The parser intentionally does not handle it and falls through to the configured emptySchemaType.
+  // Cast required: `not` is valid JSON Schema / OAS 3.1 but not in the TS SchemaObject type.
+  it.each([
+    { title: 'unknown by default', options: undefined, type: 'unknown' },
+    { title: 'unknown for emptySchemaType: unknown', options: { emptySchemaType: 'unknown' }, type: 'unknown' },
+    { title: 'any for emptySchemaType: any', options: { emptySchemaType: 'any' }, type: 'any' },
+  ] satisfies Array<{ title: string; options: Partial<ast.ParserOptions> | undefined; type: string }>)(
+    'falls through to $title since "not" is not supported',
+    ({ options, type }) => {
+      const node = parseSchema(emptyCtx, { schema: { not: { type: 'string' } } as SchemaObject }, options)
 
-  it('falls through to the emptySchemaType (unknown by default) since "not" is not supported', () => {
-    // JSON Schema `not` has no direct equivalent in most code generators.
-    // The parser intentionally does not handle it and falls through to the configured emptySchemaType.
-    // Cast required: `not` is valid JSON Schema / OAS 3.1 but not in the TS SchemaObject type.
-    const node = parseSchema(ctx, {
-      schema: { not: { type: 'string' } } as SchemaObject,
-    })
-
-    expect(node.type).toBe('unknown')
-  })
-
-  it('respects emptySchemaType option when falling through for not keyword', () => {
-    // Cast required: `not` is valid JSON Schema / OAS 3.1 but not in the TS SchemaObject type.
-    const node = parseSchema(ctx, { schema: { not: { type: 'string' } } as SchemaObject }, { emptySchemaType: 'unknown' })
-
-    expect(node.type).toBe('unknown')
-  })
-})
-
-describe('parseSchema discriminator on union (oneOf/anyOf)', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('sets discriminatorPropertyName on union node from oneOf discriminator', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
-        discriminator: { propertyName: 'petType' },
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'union')
-
-    expect(node.type).toBe('union')
-    expect(narrowed?.discriminatorPropertyName).toBe('petType')
-  })
-
-  it('sets discriminatorPropertyName on union node from anyOf discriminator', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        anyOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
-        discriminator: { propertyName: 'kind' },
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'union')
-
-    expect(node.type).toBe('union')
-    expect(narrowed?.discriminatorPropertyName).toBe('kind')
-  })
-
-  it('does not set discriminatorPropertyName when no discriminator is present', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
-      },
-    })
-    const narrowed = ast.narrowSchema(node, 'union')
-
-    expect(node.type).toBe('union')
-    expect(narrowed?.discriminatorPropertyName).toBeUndefined()
-  })
-
-  it('narrows the discriminator property to a single value per union member when a mapping is present', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
-        discriminator: {
-          propertyName: 'type',
-          mapping: {
-            dog: '#/components/schemas/Dog',
-            cat: '#/components/schemas/Cat',
-          },
-        },
-        properties: {
-          type: { type: 'string', enum: ['dog', 'cat'], readOnly: true },
-          name: { type: 'string' },
-        },
-        required: ['type', 'name'],
-      },
-    })
-
-    expect(node.type).toBe('intersection')
-    const topIntersection = ast.narrowSchema(node, 'intersection')!
-    const unionNode = ast.narrowSchema(topIntersection.members?.[0], 'union')!
-    const sharedPropertiesNode = ast.narrowSchema(topIntersection.members?.[1], 'object')
-    const sharedTypeProp = sharedPropertiesNode?.properties?.find((p) => p.name === 'type')
-
-    expect(ast.narrowSchema(sharedTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['dog', 'cat'])
-
-    const { members } = unionNode
-
-    // Dog member: intersection of Dog ref + synthetic discriminant object { type: 'dog' }
-    const dogIntersection = ast.narrowSchema(members![0], 'intersection')
-    const dogDiscNode = ast.narrowSchema(dogIntersection!.members![1], 'object')
-    const dogTypeProp = dogDiscNode?.properties?.find((p) => p.name === 'type')
-    expect(dogTypeProp?.schema.readOnly).toBe(true)
-    expect(ast.narrowSchema(dogTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['dog'])
-
-    // Cat member: intersection of Cat ref + synthetic discriminant object { type: 'cat' }
-    const catIntersection = ast.narrowSchema(members![1], 'intersection')
-    const catDiscNode = ast.narrowSchema(catIntersection!.members![1], 'object')
-    const catTypeProp = catDiscNode?.properties?.find((p) => p.name === 'type')
-    expect(catTypeProp?.schema.readOnly).toBe(true)
-    expect(ast.narrowSchema(catTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['cat'])
-  })
-
-  it('gives enum sibling properties a name derived from the union schema name', () => {
-    const node = parseSchema(ctx, {
-      name: 'Pet',
-      schema: {
-        oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
-        discriminator: {
-          propertyName: 'type',
-          mapping: {
-            dog: '#/components/schemas/Dog',
-            cat: '#/components/schemas/Cat',
-          },
-        },
-        properties: {
-          type: { type: 'string', enum: ['dog', 'cat'], readOnly: true },
-          status: { type: 'string', enum: ['available', 'pending', 'sold'] },
-        },
-        required: ['type'],
-      },
-    })
-
-    expect(node.type).toBe('intersection')
-    const topIntersection = ast.narrowSchema(node, 'intersection')!
-    const sharedPropertiesNode = ast.narrowSchema(topIntersection.members?.[1], 'object')
-    const statusProp = sharedPropertiesNode?.properties?.find((p) => p.name === 'status')
-    // The enum schema should carry a name derived from the parent union name
-    expect(statusProp?.schema.name).toBe('PetStatusEnum')
-  })
-})
-
-describe('parseSchema discriminator on union without sibling properties', () => {
-  const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
-  it('embeds the discriminant value into each union member as an intersection when mapping is present', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
-        discriminator: {
-          propertyName: 'type',
-          mapping: {
-            dog: '#/components/schemas/Dog',
-            cat: '#/components/schemas/Cat',
-          },
-        },
-      },
-    })
-
-    expect(node.type).toBe('union')
-    const { members } = ast.narrowSchema(node, 'union')!
-
-    // Dog member: intersection of Dog ref + { type: 'dog' }
-    const dogIntersection = ast.narrowSchema(members![0], 'intersection')
-    expect(dogIntersection).toBeDefined()
-    const dogDiscNode = ast.narrowSchema(dogIntersection!.members![1], 'object')
-    const dogTypeProp = dogDiscNode?.properties?.find((p) => p.name === 'type')
-    expect(ast.narrowSchema(dogTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['dog'])
-
-    // Cat member: intersection of Cat ref + { type: 'cat' }
-    const catIntersection = ast.narrowSchema(members![1], 'intersection')
-    expect(catIntersection).toBeDefined()
-    const catDiscNode = ast.narrowSchema(catIntersection!.members![1], 'object')
-    const catTypeProp = catDiscNode?.properties?.find((p) => p.name === 'type')
-    expect(ast.narrowSchema(catTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['cat'])
-  })
-
-  it('leaves members without a mapping entry as plain refs', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        oneOf: [{ $ref: '#/components/schemas/Dog' }, { type: 'string' }],
-        discriminator: {
-          propertyName: 'type',
-          mapping: {
-            dog: '#/components/schemas/Dog',
-          },
-        },
-      },
-    })
-
-    const { members } = ast.narrowSchema(node, 'union')!
-    // Dog is in the mapping → wrapped in an intersection
-    expect(members![0]?.type).toBe('intersection')
-    // String literal has no mapping entry → left as-is
-    expect(members![1]?.type).toBe('string')
-  })
-
-  it('leaves members as plain refs when the variant cannot be resolved', () => {
-    const node = parseSchema(ctx, {
-      schema: {
-        oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
-        discriminator: { propertyName: 'type' },
-      },
-    })
-
-    expect(node.type).toBe('union')
-    const { members } = ast.narrowSchema(node, 'union')!
-    // Dog and Cat are absent from this document, so the implicit value can't be safely derived.
-    expect(members!.every((m) => m.type !== 'intersection')).toBe(true)
-  })
-
-  it('folds the implicit schema-name value into ref members when no mapping is present', async () => {
-    const oas = await parseDocument({
-      openapi: '3.0.3',
-      info: { title: 'ImplicitDiscriminator', version: '1.0.0' },
-      paths: {},
-      components: {
-        schemas: {
-          Pet: {
-            oneOf: [{ $ref: '#/components/schemas/Cat' }, { $ref: '#/components/schemas/Dog' }],
-            discriminator: { propertyName: 'petType' },
-          },
-          Cat: { type: 'object', properties: { petType: { type: 'string' }, name: { type: 'string' } } },
-          Dog: { type: 'object', properties: { petType: { type: 'string' }, bark: { type: 'boolean' } } },
-        },
-      },
-    })
-
-    const pet = parseOas(oas).schemas.find((s) => s.name === 'Pet')
-    const { members } = ast.narrowSchema(pet, 'union')!
-
-    const discriminantOf = (member: ast.SchemaNode) => {
-      const discNode = ast.narrowSchema(ast.narrowSchema(member, 'intersection')?.members?.[1], 'object')
-      return ast.narrowSchema(discNode?.properties?.find((p) => p.name === 'petType')?.schema, 'enum')?.enumValues
-    }
-
-    expect(members![0]?.type).toBe('intersection')
-    expect(discriminantOf(members![0]!)).toStrictEqual(['Cat'])
-    expect(members![1]?.type).toBe('intersection')
-    expect(discriminantOf(members![1]!)).toStrictEqual(['Dog'])
-  })
-
-  it('leaves a ref member untouched when the variant already pins the discriminator to a literal', async () => {
-    const oas = await parseDocument({
-      openapi: '3.0.3',
-      info: { title: 'SelfDescribingDiscriminator', version: '1.0.0' },
-      paths: {},
-      components: {
-        schemas: {
-          Notification: {
-            oneOf: [{ $ref: '#/components/schemas/Approved' }, { $ref: '#/components/schemas/Disapproved' }],
-            discriminator: { propertyName: 'kind' },
-          },
-          Approved: { type: 'object', properties: { kind: { type: 'string', enum: ['APPROVED'] } } },
-          Disapproved: { type: 'object', properties: { kind: { type: 'string', enum: ['DISAPPROVED'] } } },
-        },
-      },
-    })
-
-    const notification = parseOas(oas).schemas.find((s) => s.name === 'Notification')
-    const { members } = ast.narrowSchema(notification, 'union')!
-
-    // Each variant already carries its own `kind` literal, so folding the schema name would
-    // collide with it; the members must stay plain refs.
-    expect(members!.every((m) => m.type === 'ref')).toBe(true)
-  })
+      expect(node.type).toBe(type)
+    },
+  )
 })
 
 describe('parseSchema circular allOf discriminator detection', () => {
@@ -4466,11 +2567,9 @@ describe('parseSchema circular allOf discriminator detection', () => {
       },
     })
 
-    const root = parseOas(oas)
-    const cat = root.schemas.find((s) => s.name === 'Cat')
+    const cat = findSchema(parseOas(oas), 'Cat')
 
-    expect(cat).toBeDefined()
-    expect(cat!.type).toBe('intersection')
+    expect(cat?.type).toBe('intersection')
     // The intersection should contain only the concrete Cat properties — Animal is filtered out.
     const members = ast.narrowSchema(cat, 'intersection')?.members ?? []
     expect(members.length).toBeGreaterThan(0)
@@ -4508,24 +2607,18 @@ describe('parseSchema circular allOf discriminator detection', () => {
 
     const root = parseOas(oas)
 
-    const cat = root.schemas.find((s) => s.name === 'Cat')
-    expect(cat?.type).toBe('intersection')
-    const catMembers = ast.narrowSchema(cat, 'intersection')?.members ?? []
-    // A synthetic { type: 'cat' } object must be present in Cat's intersection members.
-    const catDiscNode = catMembers.find((m) => {
-      const obj = ast.narrowSchema(m, 'object')
-      return obj?.properties?.some((p) => p.name === 'type' && ast.narrowSchema(p.schema, 'enum')?.enumValues?.[0] === 'cat')
-    })
-    expect(catDiscNode).toBeDefined()
+    const discriminantMember = (name: string, value: string) => {
+      const schema = findSchema(root, name)
+      expect(schema?.type).toBe('intersection')
+      // A synthetic { type: value } object must be present in the intersection members.
+      return ast.narrowSchema(schema, 'intersection')?.members?.find((m) => {
+        const obj = ast.narrowSchema(m, 'object')
+        return obj?.properties?.some((p) => p.name === 'type' && ast.narrowSchema(p.schema, 'enum')?.enumValues?.[0] === value)
+      })
+    }
 
-    const dog = root.schemas.find((s) => s.name === 'Dog')
-    expect(dog?.type).toBe('intersection')
-    const dogMembers = ast.narrowSchema(dog, 'intersection')?.members ?? []
-    const dogDiscNode = dogMembers.find((m) => {
-      const obj = ast.narrowSchema(m, 'object')
-      return obj?.properties?.some((p) => p.name === 'type' && ast.narrowSchema(p.schema, 'enum')?.enumValues?.[0] === 'dog')
-    })
-    expect(dogDiscNode).toBeDefined()
+    expect(discriminantMember('Cat', 'cat')).toBeDefined()
+    expect(discriminantMember('Dog', 'dog')).toBeDefined()
   })
 })
 
@@ -4566,37 +2659,21 @@ describe('buildAst – header and cookie parameters', async () => {
     },
   })
 
-  const root = parseOas(oas)
-  const getItems = root.operations.find((o) => o.operationId === 'getItems')
+  const getItems = findOperation(parseOas(oas), 'getItems')
 
   it('parses operation description', () => {
     expect(getItems?.description).toBe('Fetch a list of items')
   })
 
-  it('converts header parameters with in: header', () => {
-    const header = getItems?.parameters.find((p) => p.name === 'X-Request-ID')
-
-    expect(header).toBeDefined()
-    expect(header!.in).toBe('header')
-    expect(header!.required).toBe(true)
-    expect(header!.schema.type).toBe('uuid')
+  it.each([
+    { name: 'X-Request-ID', in: 'header', required: true, type: 'uuid' },
+    { name: 'session', in: 'cookie', required: false, type: 'string' },
+  ])('converts $in parameters with in: $in', ({ name, in: location, required, type }) => {
+    expect(getItems?.parameters.find((p) => p.name === name)).toMatchObject({ in: location, required, schema: { type } })
   })
 
-  it('converts cookie parameters with in: cookie', () => {
-    const cookie = getItems?.parameters.find((p) => p.name === 'session')
-
-    expect(cookie).toBeDefined()
-    expect(cookie!.in).toBe('cookie')
-    expect(cookie!.required).toBe(false)
-    expect(cookie!.schema.type).toBe('string')
-  })
-
-  it('includes all four parameter locations in the same operation', () => {
-    const locations = getItems?.parameters.map((p) => p.in) ?? []
-
-    expect(locations).toContain('header')
-    expect(locations).toContain('cookie')
-    expect(locations).toContain('query')
+  it('keeps header, cookie and query parameters in the same operation', () => {
+    expect(getItems?.parameters.map((p) => p.in)).toStrictEqual(['header', 'cookie', 'query'])
   })
 })
 
@@ -4632,19 +2709,13 @@ describe('buildAst – parameter description propagation', async () => {
     },
   })
 
-  const root = parseOas(oas)
-  const listPets = root.operations.find((o) => o.operationId === 'listPets')
+  const listPets = findOperation(parseOas(oas), 'listPets')
 
-  it('propagates parameter-level description to schema.description for query params', () => {
-    const limit = listPets?.parameters.find((p) => p.name === 'limit')
-
-    expect(limit?.schema.description).toBe('Maximum number of results to return')
-  })
-
-  it('propagates parameter-level description to schema.description for path params', () => {
-    const petId = listPets?.parameters.find((p) => p.name === 'petId')
-
-    expect(petId?.schema.description).toBe('The id of the pet to retrieve')
+  it.each([
+    { name: 'limit', in: 'query', description: 'Maximum number of results to return' },
+    { name: 'petId', in: 'path', description: 'The id of the pet to retrieve' },
+  ])('propagates parameter-level description to schema.description for $in params', ({ name, description }) => {
+    expect(listPets?.parameters.find((p) => p.name === name)?.schema.description).toBe(description)
   })
 
   it('prefers parameter-level description over schema-level description', async () => {
@@ -4669,9 +2740,7 @@ describe('buildAst – parameter description propagation', async () => {
         },
       },
     })
-    const root2 = parseOas(oasWithBoth)
-    const getItems = root2.operations.find((o) => o.operationId === 'getItems')
-    const q = getItems?.parameters.find((p) => p.name === 'q')
+    const q = findOperation(parseOas(oasWithBoth), 'getItems')?.parameters.find((p) => p.name === 'q')
 
     expect(q?.schema.description).toBe('Parameter description')
   })
@@ -4703,23 +2772,16 @@ describe('parameter enum naming', () => {
         },
       },
     })
-    const root = parseOas(oas)
-    const op = root.operations.find((o) => o.operationId === 'listPets')
-    const statusParam = op?.parameters.find((p) => p.name === 'status')
-    const enumNode = ast.narrowSchema(statusParam?.schema, 'enum')
+    const statusParam = findOperation(parseOas(oas), 'listPets')?.parameters.find((p) => p.name === 'status')
 
-    expect(enumNode?.name).toBe('ListPetsStatus')
-    expect(enumNode?.enumValues).toStrictEqual(['available', 'pending', 'sold'])
-    expect(enumNode?.default).toBe('available')
+    expect(statusParam?.schema).toMatchObject({ type: 'enum', name: 'ListPetsStatus', enumValues: ['available', 'pending', 'sold'], default: 'available' })
   })
 })
 
 describe('enum naming', () => {
   it('enum name accumulates full parent path without collision suffix', () => {
-    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
     const orderNode = parseSchema(
-      ctx,
+      emptyCtx,
       {
         schema: {
           type: 'object',
@@ -4737,7 +2799,7 @@ describe('enum naming', () => {
       { enumSuffix: 'enum' },
     )
     const customerNode = parseSchema(
-      ctx,
+      emptyCtx,
       {
         schema: {
           type: 'object',
@@ -4755,29 +2817,22 @@ describe('enum naming', () => {
       { enumSuffix: 'enum' },
     )
 
-    const orderEnum = ast.narrowSchema(
-      ast
-        .narrowSchema(ast.narrowSchema(orderNode, 'object')?.properties?.find((p) => p.name === 'params')?.schema, 'object')
-        ?.properties?.find((p) => p.name === 'status')?.schema,
-      'enum',
-    )
-    const customerEnum = ast.narrowSchema(
-      ast
-        .narrowSchema(ast.narrowSchema(customerNode, 'object')?.properties?.find((p) => p.name === 'params')?.schema, 'object')
-        ?.properties?.find((p) => p.name === 'status')?.schema,
-      'enum',
-    )
+    const statusEnumOf = (node: ast.SchemaNode) =>
+      ast.narrowSchema(
+        ast
+          .narrowSchema(ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'params')?.schema, 'object')
+          ?.properties?.find((p) => p.name === 'status')?.schema,
+        'enum',
+      )
 
     // Full path means no collision
-    expect(orderEnum?.name).toBe('OrderParamsStatusEnum')
-    expect(customerEnum?.name).toBe('CustomerParamsStatusEnum')
+    expect(statusEnumOf(orderNode)?.name).toBe('OrderParamsStatusEnum')
+    expect(statusEnumOf(customerNode)?.name).toBe('CustomerParamsStatusEnum')
   })
 
   it('oneOf shared property enums include schema name', () => {
-    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
     const node = parseSchema(
-      ctx,
+      emptyCtx,
       {
         schema: {
           properties: {
@@ -4796,17 +2851,14 @@ describe('enum naming', () => {
     const topIntersection = ast.narrowSchema(node, 'intersection')
     const sharedObj = topIntersection?.members?.find((m) => ast.narrowSchema(m, 'object')?.properties?.some((p) => p.name === 'status'))
     const statusProp = ast.narrowSchema(sharedObj, 'object')?.properties?.find((p) => p.name === 'status')
-    const enumNode = ast.narrowSchema(statusProp?.schema, 'enum')
 
     // Non-legacy: name includes schema name
-    expect(enumNode?.name).toBe('PetStatusEnum')
+    expect(ast.narrowSchema(statusProp?.schema, 'enum')?.name).toBe('PetStatusEnum')
   })
 
   it('array items enum includes the parent schema name', () => {
-    const ctx = { document: emptyDocument, refs: createRefs(emptyDocument) }
-
     const node = parseSchema(
-      ctx,
+      emptyCtx,
       {
         schema: {
           type: 'object',
@@ -4821,17 +2873,42 @@ describe('enum naming', () => {
       },
       { enumSuffix: 'enum' },
     )
-    const narrowed = ast.narrowSchema(node, 'object')
 
-    const tagsProp = narrowed?.properties?.find((p) => p.name === 'tags')
-    const arrayNode = ast.narrowSchema(tagsProp?.schema, 'array')
-    const enumNode = ast.narrowSchema(arrayNode?.items?.[0], 'enum')
+    const tagsProp = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'tags')
+    const enumNode = ast.narrowSchema(ast.narrowSchema(tagsProp?.schema, 'array')?.items?.[0], 'enum')
 
     expect(enumNode?.name).toBe('ItemTagsEnum')
   })
 })
 
 describe('$ref path-item and requestBody resolution', () => {
+  const refRequestBodyDocument = {
+    openapi: '3.1.0',
+    info: { title: 'Test', version: '1.0.0' },
+    paths: {
+      '/things': {
+        post: {
+          operationId: 'createThing',
+          requestBody: { $ref: '#/components/requestBodies/CreateThingBody' },
+          responses: { '200': { description: 'ok' } },
+        },
+      },
+    },
+    components: {
+      requestBodies: {
+        CreateThingBody: {
+          description: 'Create a thing',
+          required: true,
+          content: {
+            'application/json': {
+              schema: { type: 'object', properties: { name: { type: 'string' } } },
+            },
+          },
+        },
+      },
+    },
+  } as unknown as Document
+
   it('merges parameters from a $ref path-item into the operation', () => {
     const document = {
       openapi: '3.1.0',
@@ -4852,11 +2929,9 @@ describe('$ref path-item and requestBody resolution', () => {
       },
     } as unknown as Document
 
-    const root = parseOas(document)
-    const op = root.operations.find((o) => o.operationId === 'listThings')
+    const op = findOperation(parseOas(document), 'listThings')
 
-    expect(op).toBeDefined()
-    expect(op!.parameters.some((p) => p.name === 'limit' && p.in === 'query')).toBe(true)
+    expect(op?.parameters).toMatchObject([{ name: 'limit', in: 'query' }])
   })
 
   it('falls back to the $ref path-item summary and description', () => {
@@ -4877,89 +2952,29 @@ describe('$ref path-item and requestBody resolution', () => {
       },
     } as unknown as Document
 
-    const root = parseOas(document)
-    const op = root.operations.find((o) => o.operationId === 'listThingsWithDoc')
+    const op = findOperation(parseOas(document), 'listThingsWithDoc')
 
-    expect(op).toBeDefined()
-    expect(op!.summary).toBe('Shared summary')
-    expect(op!.description).toBe('Shared description')
+    expect(op).toMatchObject({ summary: 'Shared summary', description: 'Shared description' })
   })
 
-  it('resolves description, required, and content from a $ref requestBody', () => {
-    const document = {
-      openapi: '3.1.0',
-      info: { title: 'Test', version: '1.0.0' },
-      paths: {
-        '/things': {
-          post: {
-            operationId: 'createThing',
-            requestBody: { $ref: '#/components/requestBodies/CreateThingBody' },
-            responses: { '200': { description: 'ok' } },
-          },
-        },
-      },
-      components: {
-        requestBodies: {
-          CreateThingBody: {
-            description: 'Create a thing',
-            required: true,
-            content: {
-              'application/json': {
-                schema: { type: 'object', properties: { name: { type: 'string' } } },
-              },
-            },
-          },
-        },
-      },
-    } as unknown as Document
+  // Regression test for the global `contentType` option: getRequestBodyMeta used to read
+  // operation.schema.requestBody directly, relying on getRequestBodyContentTypes having mutated
+  // it first. That mutation was skipped whenever a global `contentType` was set, so a $ref'd
+  // requestBody's description/required were silently dropped. refs.deref() resolves
+  // independently of that skip.
+  it.each([
+    { title: 'without a contentType option', contentType: undefined },
+    { title: 'with a global contentType option', contentType: 'application/json' },
+  ] satisfies Array<{ title: string; contentType: ContentType | undefined }>)(
+    'resolves description, required and content from a $ref requestBody $title',
+    ({ contentType }) => {
+      const op = findOperation(parseOas(refRequestBodyDocument, { contentType }), 'createThing')
 
-    const root = parseOas(document)
-    const op = root.operations.find((o) => o.operationId === 'createThing')
-
-    expect(op).toBeDefined()
-    expect(op!.requestBody?.description).toBe('Create a thing')
-    expect(op!.requestBody?.required).toBe(true)
-    expect(op!.requestBody?.content?.some((c) => c.contentType === 'application/json')).toBe(true)
-  })
-
-  it('resolves a $ref requestBody description and required even with a global contentType option', () => {
-    // Regression test: getRequestBodyMeta used to read operation.schema.requestBody directly,
-    // relying on getRequestBodyContentTypes having mutated it first. That mutation was skipped
-    // whenever a global `contentType` option was set (`ctx.contentType ? [ctx.contentType] :
-    // getRequestBodyContentTypes(...)`), so a $ref'd requestBody's description/required were
-    // silently dropped in that combination. refs.deref() resolves independently of that skip.
-    const document = {
-      openapi: '3.1.0',
-      info: { title: 'Test', version: '1.0.0' },
-      paths: {
-        '/things': {
-          post: {
-            operationId: 'createThingWithContentType',
-            requestBody: { $ref: '#/components/requestBodies/CreateThingBody' },
-            responses: { '200': { description: 'ok' } },
-          },
-        },
-      },
-      components: {
-        requestBodies: {
-          CreateThingBody: {
-            description: 'Create a thing',
-            required: true,
-            content: {
-              'application/json': {
-                schema: { type: 'object', properties: { name: { type: 'string' } } },
-              },
-            },
-          },
-        },
-      },
-    } as unknown as Document
-
-    const root = parseOas(document, { contentType: 'application/json' })
-    const op = root.operations.find((o) => o.operationId === 'createThingWithContentType')
-
-    expect(op).toBeDefined()
-    expect(op!.requestBody?.description).toBe('Create a thing')
-    expect(op!.requestBody?.required).toBe(true)
-  })
+      expect(op?.requestBody).toMatchObject({
+        description: 'Create a thing',
+        required: true,
+        content: [{ contentType: 'application/json' }],
+      })
+    },
+  )
 })
