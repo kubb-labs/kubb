@@ -15,10 +15,13 @@ describe('routeStudioFlags', () => {
     expect(routeStudioFlags(args)).toStrictEqual(expected)
   })
 
-  it.each([[['studio']], [['studio', 'login', '--url', 'http://localhost:3000']], [['studio', '--help']], [['generate', '--config', 'kubb.config.ts']]])(
-    'leaves %j unchanged',
-    (args) => {
-      expect(routeStudioFlags(args)).toStrictEqual(args)
-    },
-  )
+  it.each([
+    [['studio']],
+    [['studio', 'login', '--url', 'http://localhost:3000']],
+    [['studio', '--help']],
+    [['studio', '-h']],
+    [['generate', '--config', 'kubb.config.ts']],
+  ])('leaves %j unchanged', (args) => {
+    expect(routeStudioFlags(args)).toStrictEqual(args)
+  })
 })

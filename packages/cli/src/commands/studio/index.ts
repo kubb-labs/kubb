@@ -33,7 +33,7 @@ export const command = define({
  */
 export function routeStudioFlags(args: Array<string>): Array<string> {
   const [name, next] = args
-  if (name !== 'studio' || !next?.startsWith('-') || args.includes('--help') || args.includes('-h')) return args
+  if (name !== 'studio' || !next?.startsWith('-') || next === '--help' || next === '-h') return args
 
   return ['studio', 'connect', ...args.slice(1)]
 }
