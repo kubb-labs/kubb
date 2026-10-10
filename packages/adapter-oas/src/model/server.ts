@@ -1,4 +1,4 @@
-import { Diagnostics } from '@kubb/core'
+import { Diagnostics } from '@kubb/kit'
 import type { Document, ServerObject, ServerOptions } from '../types.ts'
 
 /**

@@ -7,7 +7,7 @@ import type { SchemaNode } from '@kubb/ast'
  * Pass `excludeName` to skip refs to a specific schema, which helps when self-references are handled
  * on their own. Pair it with `ast.findCircularSchemas()` to decide where lazy wrappers go.
  *
- * @note Stops at the first matching circular ref.
+ * @note Reads the memoized `ast.collectSchemaRefs()` set, so a schema is scanned once across plugins.
  */
 export function containsCircularRef(
   node: SchemaNode | undefined,
@@ -15,14 +15,8 @@ export function containsCircularRef(
 ): boolean {
   if (!node || circularSchemas.size === 0) return false
 
-  for (const _ of ast.collect<true>(node, {
-    schema(child) {
-      if (child.type !== 'ref') return null
-      const name = ast.resolveRefName(child)
-      return name && name !== excludeName && circularSchemas.has(name) ? true : null
-    },
-  })) {
-    return true
+  for (const name of ast.collectSchemaRefs(node)) {
+    if (name !== excludeName && circularSchemas.has(name)) return true
   }
 
   return false

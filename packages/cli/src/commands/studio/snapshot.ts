@@ -18,6 +18,7 @@ export const command = define({
       type: 'string',
       description:
         "Identity of another CI agent, such as the base branch's, to also compare this snapshot with. Auto-detected on GitHub pull requests and GitLab merge requests",
+      toKebab: true,
     },
     name: {
       type: 'string',
@@ -26,6 +27,7 @@ export const command = define({
     packageVersion: {
       type: 'string',
       description: 'Package version for the generated tarball. Defaults to the version in package.json',
+      toKebab: true,
     },
     timeout: {
       type: 'number',

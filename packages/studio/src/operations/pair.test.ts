@@ -102,22 +102,21 @@ describe('pollForPairingToken', () => {
 })
 
 describe('startPairing', () => {
-  it('pairs a cli machine as the kubb-cli client, with no agent kind', async () => {
+  it.each([
+    ['cli', { client_id: 'kubb-cli' }],
+    ['user', { client_id: 'kubb-agent', agent_kind: 'user' }],
+    ['sandbox', { client_id: 'kubb-agent', agent_kind: 'sandbox' }],
+  ] as const)('sends the client id and agent kind for a %s machine', async (type, client) => {
     fetchMock.mockResolvedValueOnce(createMockResponse(session))
 
-    await startPairing({ studioUrl: 'http://studio', type: 'cli', name: 'my-project', hostname: 'my-host' })
+    await startPairing({ studioUrl: 'http://studio', type, name: 'my-project', hostname: 'my-host' })
 
-    const body = JSON.parse(String(fetchMock.mock.calls[0]![1].body))
-    expect(body).toMatchObject({ client_id: 'kubb-cli', machine_token: 'machine-token-hash' })
-    expect(body).not.toHaveProperty('agent_kind')
-  })
-
-  it.each(['user', 'sandbox'] as const)('pairs a %s agent as the kubb-agent client with that kind', async (type) => {
-    fetchMock.mockResolvedValueOnce(createMockResponse(session))
-
-    await startPairing({ studioUrl: 'http://studio', type, name: 'kubb-agent on box', hostname: 'box' })
-
-    expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toMatchObject({ client_id: 'kubb-agent', agent_kind: type })
+    expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toStrictEqual({
+      ...client,
+      name: 'my-project',
+      hostname: 'my-host',
+      machine_token: 'machine-token-hash',
+    })
   })
 })
 

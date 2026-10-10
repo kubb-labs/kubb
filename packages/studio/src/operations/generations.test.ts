@@ -14,33 +14,24 @@ async function addRun({ store, jobId, files }: { store: GenerationStore; jobId: 
 }
 
 describe('createGenerationStore', () => {
-  it('reads a generation back by its job id only', async () => {
-    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
-    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'one' } })
-    const generation = await store.get('job-1')
+  it('reads a generation back by its job id only, including after a restart', async () => {
+    const storage = memoryStorage()
+    await addRun({ store: createGenerationStore({ storage, maxCount: 4, maxMb: 10 }), jobId: 'job-1', files: { 'a.ts': 'one' } })
 
-    expect(await store.get('job-2')).toBeUndefined()
+    const restarted = createGenerationStore({ storage, maxCount: 4, maxMb: 10 })
+    const generation = await restarted.get('job-1')
+
+    expect(await restarted.get('job-2')).toBeUndefined()
     expect(generation?.output.hashes['a.ts']).toMatch(/^[0-9a-f]{16}$/)
-    await expect(store.read({ generation: generation!, source: 'output', paths: ['a.ts', 'b.ts'] })).resolves.toStrictEqual({ files: { 'a.ts': 'one' } })
+    await expect(restarted.read({ generation: generation!, source: 'output', paths: ['a.ts', 'b.ts'] })).resolves.toStrictEqual({ files: { 'a.ts': 'one' } })
   })
 
-  it('splits pages on any line ending', async () => {
+  it('pages through a file split on any line ending until nextCursor is null', async () => {
     const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
-    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'l0\r\nl1\rl2\nl3' } })
+    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'l0\r\nl1\rl2\nl3\nl4' } })
     const generation = (await store.get('job-1'))!
 
     await expect(store.read({ generation, source: 'output', paths: ['a.ts'], limit: 2 })).resolves.toStrictEqual({
-      files: { 'a.ts': 'l0\nl1' },
-      pages: { 'a.ts': { nextCursor: 2, totalLines: 4 } },
-    })
-  })
-
-  it('pages through a file with a cursor until nextCursor is null', async () => {
-    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
-    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'l0\nl1\nl2\nl3\nl4' } })
-    const generation = (await store.get('job-1'))!
-
-    await expect(store.read({ generation, source: 'output', paths: ['a.ts'], cursor: 0, limit: 2 })).resolves.toStrictEqual({
       files: { 'a.ts': 'l0\nl1' },
       pages: { 'a.ts': { nextCursor: 2, totalLines: 5 } },
     })
@@ -88,15 +79,5 @@ describe('createGenerationStore', () => {
     expect(await store.get('job-1')).toBeUndefined()
     expect((await store.latest())?.jobId).toBe('job-3')
     expect((await storage.readKeys()).filter((key) => key.endsWith('a.ts'))).toHaveLength(2)
-  })
-
-  it('survives a restart through the index in its storage', async () => {
-    const storage = memoryStorage()
-    await addRun({ store: createGenerationStore({ storage, maxCount: 4, maxMb: 10 }), jobId: 'job-1', files: { 'a.ts': 'one' } })
-
-    const restarted = createGenerationStore({ storage, maxCount: 4, maxMb: 10 })
-    const generation = await restarted.get('job-1')
-
-    await expect(restarted.read({ generation: generation!, source: 'output', paths: ['a.ts'] })).resolves.toStrictEqual({ files: { 'a.ts': 'one' } })
   })
 })

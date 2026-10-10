@@ -5,6 +5,7 @@ import { join, relative, sep } from 'node:path'
 import { promisify } from 'node:util'
 import { gzip } from 'node:zlib'
 import { build } from 'tsdown'
+import { isLoopbackHost } from './url.ts'
 
 const gzipAsync = promisify(gzip)
 const UPLOAD_TIMEOUT_MS = 120_000
@@ -195,7 +196,7 @@ export async function uploadSnapshot({
   if (redirect.status !== 307 || !storageUrl) throw new Error(`Studio did not provide a storage URL (status ${redirect.status})`)
 
   const storage = new URL(storageUrl)
-  if (storage.protocol !== 'https:' && storage.hostname !== 'localhost' && storage.hostname !== '127.0.0.1') {
+  if (storage.protocol !== 'https:' && !isLoopbackHost(storage.hostname)) {
     throw new Error(`Refusing snapshot upload to ${storage.origin}`)
   }
   const response = await fetch(storage, { method: 'PUT', body: new Uint8Array(bytes), redirect: 'error', signal })

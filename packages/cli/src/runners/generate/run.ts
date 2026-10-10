@@ -203,7 +203,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         if (inputKind === 'url') {
           startUrlWatcher(watchPath, build, { log: { info: logInfo, error: logError }, initialBody })
         } else {
-          startWatcher(watchedPaths, build, { info: logInfo, error: logError })
+          await startWatcher(watchedPaths, build, { info: logInfo, error: logError })
         }
       } else {
         try {
