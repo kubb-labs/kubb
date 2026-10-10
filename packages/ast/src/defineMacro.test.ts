@@ -60,4 +60,21 @@ describe('applyMacros', () => {
 
     expect(prop?.schema.type).toBe('string')
   })
+
+  it('returns the same reference when the macro list is empty', () => {
+    const root = createSchema({ type: 'object', properties: [createProperty({ name: 'id', schema: createSchema({ type: 'string' }) })] })
+
+    expect(applyMacros(root, [])).toBe(root)
+  })
+
+  it('rewrites the root node only when depth is shallow', () => {
+    const root = createSchema({ type: 'object', properties: [createProperty({ name: 'count', schema: createSchema({ type: 'integer' }) })] })
+    const macro = defineMacro({ name: 'describe', schema: (node) => ({ ...node, description: 'touched' }) })
+
+    const next = applyMacros(root, [macro], { depth: 'shallow' })
+    const prop = 'properties' in next ? next.properties[0] : undefined
+
+    expect(next.description).toBe('touched')
+    expect(prop?.schema.description).toBeUndefined()
+  })
 })
