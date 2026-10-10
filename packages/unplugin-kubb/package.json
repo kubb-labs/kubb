@@ -154,7 +154,6 @@
   },
   "peerDependencies": {
     "@farmfe/core": "^1.7.0",
-    "@kubb/core": "^5.0.0-alpha.0",
     "@nuxt/kit": "^3 || ^4",
     "@nuxt/schema": "^3 || ^4",
     "esbuild": "*",

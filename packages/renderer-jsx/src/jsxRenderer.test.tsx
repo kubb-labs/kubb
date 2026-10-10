@@ -46,6 +46,17 @@ describe('jsxRenderer', () => {
     expect(client?.sources[1]?.nodes?.[0]?.kind).toBe('Function')
   })
 
+  it('renders every file in a nested children array', async () => {
+    const renderer = jsxRenderer()
+    const files = [
+      <File key="a" baseName="a.ts" path="src/a.ts" />,
+      [<File key="b" baseName="b.ts" path="src/b.ts" />, [<File key="c" baseName="c.ts" path="src/c.ts" />]],
+    ]
+    await renderer.render(<>{files}</>)
+
+    expect(renderer.files.map((file) => file.baseName)).toStrictEqual(['a.ts', 'b.ts', 'c.ts'])
+  })
+
   it('should propagate render errors', async () => {
     const renderer = jsxRenderer()
     function BadComponent(): never {

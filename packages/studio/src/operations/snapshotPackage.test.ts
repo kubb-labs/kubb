@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { gunzipSync } from 'node:zlib'
 import { describe, expect, it, vi } from 'vitest'
 import { createSnapshotPackage, uploadSnapshot } from './snapshotPackage.ts'
@@ -85,7 +86,7 @@ describe('[util] snapshotPackage', () => {
       module: './dist/index.mjs',
       exports: { '.': { import: './dist/index.mjs', require: './dist/index.cjs' }, './*': { import: './dist/*.mjs', require: './dist/*.cjs' } },
     })
-    expect(integrity).toMatch(/^sha512-/)
+    expect(integrity).toBe(`sha512-${createHash('sha512').update(bytes).digest('base64')}`)
   })
 
   it('normalizes absolute generated file paths', async () => {

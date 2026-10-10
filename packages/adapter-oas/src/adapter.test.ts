@@ -1,4 +1,4 @@
-import { narrowSchema, resolveRefName } from '@kubb/ast'
+import { ast } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { adapterOas } from './adapter.ts'
 
@@ -98,8 +98,8 @@ describe('adapterOas ref targetName', () => {
     })
 
     const petList = node.schemas.find((schema) => schema.name === 'PetList')
-    const items = narrowSchema(petList!, 'array')?.items ?? []
-    const ref = narrowSchema(items[0]!, 'ref')
+    const items = ast.narrowSchema(petList!, 'array')?.items ?? []
+    const ref = ast.narrowSchema(items[0]!, 'ref')
 
     expect(ref?.ref).toBe('#/components/schemas/Pet')
     expect(ref?.targetName).toBeUndefined()
@@ -143,15 +143,15 @@ describe('adapterOas ref targetName', () => {
     expect(node.schemas.map((schema) => schema.name)).toContain('OrderSchema')
 
     const orderList = node.schemas.find((schema) => schema.name === 'OrderList')
-    const items = narrowSchema(orderList!, 'array')?.items ?? []
-    const schemaRef = narrowSchema(items[0]!, 'ref')
+    const items = ast.narrowSchema(orderList!, 'array')?.items ?? []
+    const schemaRef = ast.narrowSchema(items[0]!, 'ref')
 
     expect(schemaRef?.targetName).toBe('OrderSchema')
-    expect(resolveRefName(schemaRef)).toBe('OrderSchema')
+    expect(ast.resolveRefName(schemaRef)).toBe('OrderSchema')
 
-    const responseRef = narrowSchema(node.operations[0]!.responses[0]!.content![0]!.schema!, 'ref')
+    const responseRef = ast.narrowSchema(node.operations[0]!.responses[0]!.content![0]!.schema!, 'ref')
 
     expect(responseRef?.targetName).toBe('OrderSchema')
-    expect(resolveRefName(responseRef)).toBe('OrderSchema')
+    expect(ast.resolveRefName(responseRef)).toBe('OrderSchema')
   })
 })

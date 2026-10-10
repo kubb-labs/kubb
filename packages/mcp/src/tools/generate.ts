@@ -1,9 +1,23 @@
+import path from 'node:path'
+import { CONFIG_EXTENSIONS } from '@internals/shared'
 import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
-import type * as v from 'valibot'
-import { generateSchema } from '../schemas/generateSchema.ts'
-import { formatDiagnostics, loadUserConfig, resolveCwd, resolveUserConfig } from '../utils.ts'
+import * as v from 'valibot'
+import { formatDiagnostics, loadUserConfig, resolveUserConfig } from '../utils.ts'
+
+const generateSchema = v.object({
+  config: v.optional(
+    v.pipe(
+      v.string(),
+      v.minLength(1),
+      v.description(`Path to kubb.config file (supports ${CONFIG_EXTENSIONS.join(', ')}). If not provided, will look for kubb.config.* in current directory`),
+    ),
+  ),
+  input: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Path to OpenAPI/Swagger spec file (overrides config)'))),
+  output: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Output directory path (overrides config)'))),
+  logLevel: v.optional(v.pipe(v.picklist(['silent', 'info', 'verbose']), v.description('Log level for build output')), 'info'),
+})
 
 export const generateTool = defineTool(
   {
@@ -102,7 +116,7 @@ export const generateTool = defineTool(
 
       const config: Config = {
         ...userConfig,
-        root: resolveCwd(userConfig, cwd),
+        root: path.resolve(cwd, userConfig.root ?? '.'),
         input: input ?? userConfig.input,
         output: output
           ? {

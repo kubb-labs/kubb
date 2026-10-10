@@ -1,4 +1,4 @@
-import type { ast } from '@kubb/ast'
+import type { ast } from '@kubb/kit'
 import { isBinary, isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
 import type { Document, SchemaObject } from '../types.ts'

@@ -1,5 +1,4 @@
-import { ast } from '@kubb/ast'
-import { extractRefName, macroDiscriminatorEnum } from '@kubb/kit'
+import { ast, extractRefName, macroDiscriminatorEnum } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from '../../constants.ts'
 import { isDiscriminator, isReference } from '../../oas.ts'
 import type { Refs } from '../../refs.ts'

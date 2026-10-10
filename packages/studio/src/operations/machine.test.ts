@@ -1,9 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { hash } from 'node:crypto'
-import { mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
-import { createFileStorage } from './machine.ts'
+import type { Storage } from 'unstorage'
 
 // Silence the deliberate warning path so it does not pollute test output.
 vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -20,7 +17,7 @@ const mockStorage = {
 // modules. The storage module resets with it, hence re-installing the mock on every fresh import.
 async function importFreshToken() {
   const { setStorage } = await import('./machine.ts')
-  setStorage(mockStorage)
+  setStorage(mockStorage as unknown as Storage)
 
   const module = await import('./machine.ts')
   return module.getMachineToken
@@ -70,48 +67,5 @@ describe('getMachineToken', () => {
     const freshGetMachineToken = await importFreshToken()
 
     await expect(freshGetMachineToken()).resolves.toBe(firstToken)
-  })
-})
-
-describe('createFileStorage', () => {
-  let base: string
-
-  beforeEach(() => {
-    base = mkdtempSync(join(tmpdir(), 'kubb-studio-'))
-  })
-
-  afterEach(() => {
-    rmSync(base, { recursive: true, force: true })
-  })
-
-  it('writes a string under the key as JSON in a file only the owner can read', async () => {
-    const storage = createFileStorage(base)
-
-    await storage.setItem('machine-secret', 'abc123')
-
-    expect(readFileSync(join(base, 'machine-secret'), 'utf8')).toBe('"abc123"')
-    expect(statSync(join(base, 'machine-secret')).mode & 0o777).toBe(0o600)
-    await expect(storage.getItem('machine-secret')).resolves.toBe('abc123')
-  })
-
-  it('reads a bare string an older driver wrote as-is', async () => {
-    const storage = createFileStorage(base)
-    writeFileSync(join(base, 'machine-secret'), 'abc123')
-
-    await expect(storage.getItem('machine-secret')).resolves.toBe('abc123')
-  })
-
-  it('creates the directory, stores an object as JSON, and reads null once it is removed', async () => {
-    const storage = createFileStorage(join(base, 'cache'))
-    const credentials = { studioUrl: 'http://studio', token: 'agent-token' }
-
-    await expect(storage.getItem('studio-credentials')).resolves.toBeNull()
-    await storage.setItem('studio-credentials', credentials)
-
-    expect(readFileSync(join(base, 'cache', 'studio-credentials'), 'utf8')).toBe(JSON.stringify(credentials))
-    await expect(storage.getItem<typeof credentials>('studio-credentials')).resolves.toStrictEqual(credentials)
-
-    await storage.removeItem('studio-credentials')
-    await expect(storage.getItem('studio-credentials')).resolves.toBeNull()
   })
 })
