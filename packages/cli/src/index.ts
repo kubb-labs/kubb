@@ -8,8 +8,12 @@ import { command as initCommand } from './commands/init.ts'
 import { command as mcpCommand } from './commands/mcp.ts'
 import { command as studioCommand } from './commands/studio/index.ts'
 import { command as validateCommand } from './commands/validate.ts'
-import { QUIET_FLAGS } from './constants.ts'
 import { resolveDeprecatedFlags } from './deprecatedFlags.ts'
+
+/**
+ * Flags that short-circuit execution (help and version). The telemetry notice is suppressed for these.
+ */
+const QUIET_FLAGS = new Set<string>(['--help', '-h', '--version', '-v', '--json'])
 
 /**
  * Strips the leading executable + script entries when `process.argv` is passed directly.

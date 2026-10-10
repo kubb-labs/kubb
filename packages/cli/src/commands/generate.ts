@@ -1,8 +1,6 @@
 import { defineWithTypes } from 'gunshi'
 import type { ReporterName } from '@kubb/core'
-import { dryRunId } from '../gunshiDryRun.ts'
-import type { DryRunExtensions } from '../gunshiDryRun.ts'
-import { configArg, logLevelArg } from './shared.ts'
+import { configArg, dryRunId, type DryRunExtensions, logLevelArg } from './shared.ts'
 
 const REPORTER_NAMES: Array<ReporterName> = ['cli', 'json', 'file', 'html']
 

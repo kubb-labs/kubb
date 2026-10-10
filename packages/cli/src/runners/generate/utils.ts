@@ -8,7 +8,29 @@ import type { CLIOptions, Config, KubbHooks, PossibleConfig, PostGenerateCommand
 import { NonZeroExitError, x } from 'tinyexec'
 import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
 import { isGreaterThan, isValid, truncate } from 'verkit'
-import { URL_WATCHER_INTERVAL_MS, URL_WATCHER_TIMEOUT_MS, WATCHER_DEBOUNCE_MS, WATCHER_IGNORED_PATHS } from '../../constants.ts'
+
+/**
+ * Glob pattern for paths the file watcher ignores.
+ */
+const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
+
+/**
+ * Quiet window in milliseconds that collapses a burst of watcher events (an editor save emits
+ * several) into a single rebuild.
+ */
+const WATCHER_DEBOUNCE_MS = 100
+
+/**
+ * Interval in milliseconds between polls of a remote `input` URL in watch mode. A remote document
+ * emits no filesystem events, so watch mode falls back to fetching it and comparing bodies.
+ */
+const URL_WATCHER_INTERVAL_MS = 2_000
+
+/**
+ * Upper bound in milliseconds for a single URL watcher request, covering both the response headers
+ * and the body read. A server that hangs mid-response would otherwise stall polling forever.
+ */
+const URL_WATCHER_TIMEOUT_MS = 10_000
 
 const loader = createModuleLoader()
 

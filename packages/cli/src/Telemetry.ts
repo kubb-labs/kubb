@@ -1,9 +1,16 @@
 import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
-import { isCIEnvironment, runtime } from '@internals/utils'
+import { getElapsedMs, isCIEnvironment, runtime } from '@internals/utils'
 import { getAgentName } from './agent.ts'
-import { OTLP_ENDPOINT } from './constants.ts'
+import { version } from '../package.json'
+
+/**
+ * OpenTelemetry ingestion endpoint for anonymous usage telemetry.
+ */
+const OTLP_ENDPOINT = 'https://otlp.kubb.dev' as const
+
+type TelemetryCommand = 'generate' | 'mcp' | 'studio' | 'validate'
 
 type OtlpValue =
   | { stringValue: string }
@@ -87,27 +94,21 @@ type TelemetryEvent = {
  * Returns `true` when telemetry is disabled via `DO_NOT_TRACK` or `KUBB_DISABLE_TELEMETRY`.
  */
 export function isDisabled(): boolean {
-  return (
-    process.env['DO_NOT_TRACK'] === '1' ||
-    process.env['DO_NOT_TRACK'] === 'true' ||
-    process.env['KUBB_DISABLE_TELEMETRY'] === '1' ||
-    process.env['KUBB_DISABLE_TELEMETRY'] === 'true'
-  )
+  return ['DO_NOT_TRACK', 'KUBB_DISABLE_TELEMETRY'].some((name) => ['1', 'true'].includes(process.env[name] ?? ''))
 }
 
 /**
  * Build an anonymous telemetry payload from a completed generation run.
  */
 export function buildTelemetryEvent(options: {
-  command: 'generate' | 'mcp' | 'studio' | 'validate'
+  command: TelemetryCommand
   kubbVersion: string
   plugins?: Array<TelemetryPlugin>
   hrStart: [number, number]
   filesCreated?: number
   status: 'success' | 'failed'
 }): TelemetryEvent {
-  const [seconds, nanoseconds] = process.hrtime(options.hrStart)
-  const duration = Math.round(seconds * 1000 + nanoseconds / 1e6)
+  const duration = Math.round(getElapsedMs(options.hrStart))
 
   return {
     command: options.command,
@@ -123,6 +124,30 @@ export function buildTelemetryEvent(options: {
     filesCreated: options.filesCreated ?? 0,
     status: options.status,
   }
+}
+
+type TrackRunOptions = {
+  command: TelemetryCommand
+  /**
+   * `process.hrtime()` snapshot taken when the command started.
+   */
+  hrStart: [number, number]
+}
+
+type RunResult = Pick<TelemetryEvent, 'status'> & Partial<Pick<TelemetryEvent, 'plugins' | 'filesCreated'>>
+
+/**
+ * Tracks one command run for the running CLI version. Returns the reporter the command calls once
+ * it knows how it ended.
+ *
+ * @example
+ * ```ts
+ * const report = trackRun({ command: 'validate', hrStart: process.hrtime() })
+ * await report({ status: 'success' })
+ * ```
+ */
+export function trackRun({ command, hrStart }: TrackRunOptions): (result: RunResult) => Promise<void> {
+  return (result) => sendTelemetry(buildTelemetryEvent({ command, kubbVersion: version, hrStart, ...result }))
 }
 
 /**

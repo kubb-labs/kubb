@@ -23,14 +23,35 @@ import {
   type ReporterName,
 } from '@kubb/core'
 import { version } from '../../../package.json'
-import { KUBB_NPM_PACKAGE_URL, UPDATE_CHECK_TIMEOUT_MS } from '../../constants.ts'
-import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
+import { trackRun } from '../../Telemetry.ts'
 import { pluralize } from '../../loggers/createLogger.ts'
 import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createSpinner, logBanner, logError, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'
 import { fetchUrlBody, getConfigs, isNewerVersion, runHook, runPostGenerate, startUrlWatcher, startWatcher } from './utils.ts'
-import { FORMATTER_PREFERENCE, LINTER_PREFERENCE } from '@internals/utils'
-import { detectTool, formatters, linters } from '../../tools.ts'
+import { detectTool, FORMATTER_PREFERENCE, formatters, LINTER_PREFERENCE, linters } from '@internals/utils'
+
+/**
+ * NPM registry endpoint used to check for @kubb/cli updates.
+ */
+const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
+
+/**
+ * Upper bound in milliseconds for the npm update check, so a slow registry never stalls a run.
+ */
+const UPDATE_CHECK_TIMEOUT_MS = 3_000
+
+/**
+ * The configurable formatter names, mirrored from `Config['output'].format`. Excludes `'auto'`
+ * (detection, not a tool) and `false` (skip). The `formatters`/`linters` tables are pinned to
+ * these so adding a tool to the config union without a descriptor fails to compile.
+ */
+type FormatterName = Exclude<NonNullable<Config['output']['format']>, 'auto' | false>
+type LinterName = Exclude<NonNullable<Config['output']['lint']>, 'auto' | false>
+
+// Pinned to core's union here rather than in `@internals/utils`, which must not import `@kubb/core`:
+// adding a tool to the config union without a descriptor stays a compile error.
+formatters satisfies Record<FormatterName, unknown>
+linters satisfies Record<LinterName, unknown>
 
 type GenerateProps = {
   input?: string
@@ -129,7 +150,7 @@ async function runToolPass({ toolValue, tool, outputPath, logLevel, hooks, onSta
 async function generate(options: GenerateProps): Promise<boolean> {
   const { input, hooks, logLevel, dryRun = false } = options
 
-  const hrStart = process.hrtime()
+  const report = trackRun({ command: 'generate', hrStart: process.hrtime() })
 
   const config: Config = {
     ...options.config,
@@ -217,17 +238,11 @@ async function generate(options: GenerateProps): Promise<boolean> {
     await hooks.callHook('kubb:info', { message: 'Dry run: no files were written', info: `${result.files.length} file(s) would be generated` })
   }
 
-  const telemetryPlugins = Array.from(kubb.driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> }))
-  await sendTelemetry(
-    buildTelemetryEvent({
-      command: 'generate',
-      kubbVersion: version,
-      plugins: telemetryPlugins,
-      hrStart,
-      filesCreated: result.files.length,
-      status: result.success ? 'success' : 'failed',
-    }),
-  )
+  await report({
+    plugins: Array.from(kubb.driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
+    filesCreated: result.files.length,
+    status: result.success ? 'success' : 'failed',
+  })
 
   return result.success
 }

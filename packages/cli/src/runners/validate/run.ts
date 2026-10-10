@@ -1,8 +1,7 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { toError } from '@internals/utils'
-import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
-import { version } from '../../../package.json'
+import { trackRun } from '../../Telemetry.ts'
 
 type ValidateOptions = {
   /**
@@ -16,8 +15,7 @@ type ValidateOptions = {
  * Exits the process with code 1 on validation failure or missing dependency.
  */
 export async function run({ input }: ValidateOptions): Promise<void> {
-  const hrStart = process.hrtime()
-  const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'validate', kubbVersion: version, hrStart, status }))
+  const report = trackRun({ command: 'validate', hrStart: process.hrtime() })
 
   try {
     const { adapterOas } = await import('@kubb/adapter-oas')
@@ -28,11 +26,11 @@ export async function run({ input }: ValidateOptions): Promise<void> {
     }
 
     await adapter.validate(input, { throwOnError: true })
-    await report('success')
+    await report({ status: 'success' })
 
     console.log('✅ Validation success')
   } catch (error) {
-    await report('failed')
+    await report({ status: 'failed' })
     if (error instanceof Error && /@kubb\/adapter-oas/.test(error.message)) {
       console.error(styleText('red', 'The @kubb/adapter-oas package is not installed.'))
       console.error('')

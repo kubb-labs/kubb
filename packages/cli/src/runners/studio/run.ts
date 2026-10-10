@@ -17,7 +17,7 @@ import {
   runConnection,
   setStorage,
 } from '@kubb/studio'
-import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
+import { trackRun } from '../../Telemetry.ts'
 import { plainLogger } from '../../loggers/plainLogger.ts'
 import setupReporters from '../../loggers/reporters.ts'
 import { createSpinner, logBlock, logIntro, logOutro, logTip } from '../../loggers/output.ts'
@@ -419,8 +419,7 @@ export async function run(options: StudioOptions, action: () => Promise<unknown>
   // reads `getMachineToken()`, which `startPairing` does, before any client exists.
   setStorage(createFileStorage(getProjectKubbHome()))
 
-  const hrStart = process.hrtime()
-  const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'studio', kubbVersion: options.version, hrStart, status }))
+  const report = trackRun({ command: 'studio', hrStart: process.hrtime() })
 
   try {
     if (options.logLevel !== 'silent' && !json) {
@@ -432,9 +431,9 @@ export async function run(options: StudioOptions, action: () => Promise<unknown>
 
     await action()
 
-    await report('success')
+    await report({ status: 'success' })
   } catch (error) {
-    await report('failed')
+    await report({ status: 'failed' })
     console.error(toError(error).message)
     process.exitCode = 1
   }
