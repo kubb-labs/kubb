@@ -1,4 +1,4 @@
-import type { ast } from '@kubb/ast'
+import type { ast } from '@kubb/kit'
 import type { SchemaObject } from '../../types.ts'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'

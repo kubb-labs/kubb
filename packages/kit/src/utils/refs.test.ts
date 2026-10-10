@@ -77,8 +77,22 @@ describe('syncSchemaRef', () => {
     expect(merged.type).toBe('object')
   })
 
+  it('keeps resolved fields when the ref override is undefined', () => {
+    const resolved = ast.factory.createSchema({ type: 'string', description: 'Original', readOnly: true })
+    const ref = ast.factory.createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet', schema: resolved, description: undefined })
+
+    const merged = syncSchemaRef(ref)
+    expect(merged.description).toBe('Original')
+    expect(merged.readOnly).toBe(true)
+  })
+
   it('returns a non-ref node unchanged', () => {
     const node = ast.factory.createSchema({ type: 'string' })
     expect(syncSchemaRef(node)).toBe(node)
+  })
+
+  it('returns a ref without a resolved schema unchanged', () => {
+    const ref = ast.factory.createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' })
+    expect(syncSchemaRef(ref)).toBe(ref)
   })
 })

@@ -5,7 +5,7 @@ import { createParameter } from '../nodes/parameter.ts'
 import { createProperty } from '../nodes/property.ts'
 import { createResponse } from '../nodes/response.ts'
 import { createSchema } from '../nodes/schema.ts'
-import { collectImportedRefNames, collectUsedSchemaNames, findCircularSchemas, findCircularSchemasFromGraph } from './schemaGraph.ts'
+import { collectImportedRefNames, collectSchemaRefs, collectUsedSchemaNames, findCircularSchemas, findCircularSchemasFromGraph } from './schemaGraph.ts'
 
 describe('findCircularSchemas', () => {
   it('detects an indirect cycle through refs nested in unions and arrays and skips acyclic schemas', () => {
@@ -134,6 +134,30 @@ describe('collectImportedRefNames', () => {
     })
 
     expect(collectImportedRefNames(schema)).toBe(collectImportedRefNames(schema))
+  })
+})
+
+describe('collectSchemaRefs', () => {
+  it('collects every resolvable ref name, including refs without a $ref pointer, and memoizes by node', () => {
+    const schema = createSchema({
+      type: 'object',
+      name: 'Pet',
+      properties: [
+        createProperty({ name: 'category', required: false, schema: createSchema({ type: 'ref', name: 'Category', ref: '#/components/schemas/Category' }) }),
+        createProperty({
+          name: 'variant',
+          required: false,
+          schema: createSchema({ type: 'union', members: [createSchema({ type: 'ref', name: 'PetApplicationJson' })] }),
+        }),
+      ],
+    })
+
+    expect(collectSchemaRefs(schema)).toStrictEqual(new Set(['Category', 'PetApplicationJson']))
+    expect(collectSchemaRefs(schema)).toBe(collectSchemaRefs(schema))
+  })
+
+  it('returns an empty set for schemas without refs', () => {
+    expect(collectSchemaRefs(createSchema({ type: 'string' }))).toStrictEqual(new Set())
   })
 })
 

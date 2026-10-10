@@ -1,5 +1,5 @@
 import { exists, getErrorMessage, read } from '@internals/utils'
-import { Diagnostics } from '@kubb/core'
+import { Diagnostics } from '@kubb/kit'
 import { parse } from 'yaml'
 
 const urlRegExp = /^https?:\/+/i
