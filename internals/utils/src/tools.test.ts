@@ -37,6 +37,14 @@ describe('detectTool', () => {
 
     expect(await detectTool(['oxlint', 'biome', 'eslint'])).toBeNull()
   })
+
+  it('probes from the given working directory', async () => {
+    vi.mocked(x).mockImplementation(() => makeResult(0))
+
+    await detectTool(['oxfmt'], '/repo/app')
+
+    expect(x).toHaveBeenCalledWith('oxfmt', ['--version'], { throwOnError: false, nodeOptions: { cwd: '/repo/app', stdio: 'ignore' } })
+  })
 })
 
 describe('tool tables', () => {

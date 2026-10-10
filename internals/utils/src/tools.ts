@@ -65,10 +65,10 @@ export const FORMATTER_PREFERENCE = ['oxfmt', 'biome', 'prettier'] as const
 export const LINTER_PREFERENCE = ['oxlint', 'biome', 'eslint'] as const
 
 /**
- * Whether `name` is on PATH or in a `node_modules/.bin` above the working directory and answers `--version` with a zero exit.
+ * Whether `name` is on PATH or in a `node_modules/.bin` above `cwd` and answers `--version` with a zero exit.
  */
-export async function isToolAvailable(name: string): Promise<boolean> {
-  return x(name, ['--version'], { throwOnError: false, nodeOptions: { stdio: 'ignore' } }).then(
+export async function isToolAvailable(name: string, cwd?: string): Promise<boolean> {
+  return x(name, ['--version'], { throwOnError: false, nodeOptions: { cwd, stdio: 'ignore' } }).then(
     ({ exitCode }) => exitCode === 0,
     () => false,
   )
@@ -80,9 +80,9 @@ export async function isToolAvailable(name: string): Promise<boolean> {
  * Not memoized: a long-running host that probes repeatedly should cache the result itself, and a
  * `--watch` build should keep noticing a tool installed mid-session.
  */
-export async function detectTool<TName extends string>(candidates: ReadonlyArray<TName>): Promise<TName | null> {
+export async function detectTool<TName extends string>(candidates: ReadonlyArray<TName>, cwd?: string): Promise<TName | null> {
   for (const candidate of candidates) {
-    if (await isToolAvailable(candidate)) {
+    if (await isToolAvailable(candidate, cwd)) {
       return candidate
     }
   }
