@@ -12,13 +12,6 @@ export type LoggerOptions = {
 }
 
 /**
- * Hook emitter handed to `Logger.install`. Use `.hook('kubb:info', ...)` to subscribe to build
- * hooks, or `.hook('studio:connected', ...)` for the Studio session events a `kubb studio`
- * connection emits on the same emitter.
- */
-export type LoggerContext = Hookable<KubbHooks>
-
-/**
  * How a run ended, which decides the symbol a group closes on.
  */
 export type LogStatus = 'success' | 'failed'
@@ -92,4 +85,4 @@ export type LoggerHandle = {
 }
 
 /** Logger contract: called once per build with the shared hook emitter, it subscribes to the lifecycle hooks it forwards to its destination. */
-export type Logger = (context: LoggerContext, options: LoggerOptions) => LoggerHandle
+export type Logger = (context: Hookable<KubbHooks>, options: LoggerOptions) => LoggerHandle
