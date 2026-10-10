@@ -1,38 +1,7 @@
-import { access, glob, readFile, rm } from 'node:fs/promises'
+import { glob, readFile, rm } from 'node:fs/promises'
 import { join, relative, resolve } from 'node:path'
-import { clean, toPosixPath, write } from '@internals/utils'
+import { clean, exists, toPosixPath, write } from '@internals/utils'
 import { createStorage } from '../createStorage.ts'
-
-// Caps concurrent writes so a build with thousands of files doesn't open that many file
-// descriptors at once.
-const WRITE_CONCURRENCY = 50
-
-function createLimiter(concurrency: number) {
-  let active = 0
-  const queue: Array<() => void> = []
-
-  function next(): void {
-    if (active >= concurrency) return
-    const run = queue.shift()
-    if (!run) return
-    active++
-    run()
-  }
-
-  return function limit<TResult>(task: () => Promise<TResult>): Promise<TResult> {
-    return new Promise((resolve, reject) => {
-      queue.push(() => {
-        task()
-          .then(resolve, reject)
-          .finally(() => {
-            active--
-            next()
-          })
-      })
-      next()
-    })
-  }
-}
 
 /**
  * Built-in filesystem storage driver.
@@ -47,8 +16,9 @@ function createLimiter(concurrency: number) {
  *   a formatter left behind
  * - missing parent directories are created automatically
  * - Bun's native file API is used when running under Bun
- * - concurrent `writeItem` calls are capped at {@link WRITE_CONCURRENCY} in flight, so a caller
- *   can fire every file's write without pacing itself
+ *
+ * `FileManager.write` bounds how many writes are in flight at once, so this driver does not
+ * pace itself.
  *
  * @example
  * ```ts
@@ -62,54 +32,45 @@ function createLimiter(concurrency: number) {
  * })
  * ```
  */
-export const fsStorage = createStorage(() => {
-  const limit = createLimiter(WRITE_CONCURRENCY)
+export const fsStorage = createStorage(() => ({
+  name: 'fs',
+  async existsItem(key: string) {
+    return exists(resolve(key))
+  },
+  async readItem(key: string) {
+    try {
+      return await readFile(resolve(key), 'utf8')
+    } catch (_error) {
+      return null
+    }
+  },
+  async writeItem(key: string, value: string, options?: { stored?: string | null }) {
+    await write(resolve(key), value, { sanity: false, stored: options?.stored })
+  },
+  async removeItem(key: string) {
+    await rm(resolve(key), { force: true })
+  },
+  async readKeys(base?: string) {
+    const resolvedBase = resolve(base ?? process.cwd())
+    const keys: Array<string> = []
 
-  return {
-    name: 'fs',
-    async existsItem(key: string) {
-      try {
-        await access(resolve(key))
-        return true
-      } catch (_error) {
-        return false
-      }
-    },
-    async readItem(key: string) {
-      try {
-        return await readFile(resolve(key), 'utf8')
-      } catch (_error) {
-        return null
-      }
-    },
-    async writeItem(key: string, value: string, options?: { stored?: string | null }) {
-      await limit(() => write(resolve(key), value, { sanity: false, stored: options?.stored }))
-    },
-    async removeItem(key: string) {
-      await rm(resolve(key), { force: true })
-    },
-    async readKeys(base?: string) {
-      const resolvedBase = resolve(base ?? process.cwd())
-      const keys: Array<string> = []
-
-      try {
-        for await (const entry of glob('**/*', { cwd: resolvedBase, withFileTypes: true })) {
-          if (entry.isFile()) {
-            keys.push(toPosixPath(relative(resolvedBase, join(entry.parentPath, entry.name))))
-          }
+    try {
+      for await (const entry of glob('**/*', { cwd: resolvedBase, withFileTypes: true })) {
+        if (entry.isFile()) {
+          keys.push(toPosixPath(relative(resolvedBase, join(entry.parentPath, entry.name))))
         }
-      } catch (_error) {
-        // base directory does not exist yet
       }
+    } catch (_error) {
+      // base directory does not exist yet
+    }
 
-      return keys
-    },
-    async empty(base?: string) {
-      if (!base) {
-        return
-      }
+    return keys
+  },
+  async empty(base?: string) {
+    if (!base) {
+      return
+    }
 
-      await clean(resolve(base))
-    },
-  }
-})
+    await clean(resolve(base))
+  },
+}))
