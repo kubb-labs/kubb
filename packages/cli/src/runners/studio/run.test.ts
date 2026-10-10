@@ -4,7 +4,7 @@ import * as utils from '@internals/utils'
 import type { Config } from '@kubb/core'
 import { type ConnectionOptions, InvalidAgentTokenError, PairingCanceledError, pairAgent, runConnection } from '@kubb/studio'
 import * as env from '../../utils/env.ts'
-import * as generateUtils from '../generate/utils.ts'
+import * as config from '../../config.ts'
 import * as credentialsStore from './credentials.ts'
 import type { Credentials } from './credentials.ts'
 import { connect, formatPermissionRows, login, resolvePermissions, type StudioOptions } from './run.ts'
@@ -53,7 +53,7 @@ function stubProject({ stored = null, ci = false, tty = true }: ProjectOptions =
   const read = vi.spyOn(credentialsStore, 'readCredentials').mockResolvedValue(stored)
   const write = vi.spyOn(credentialsStore, 'writeCredentials').mockResolvedValue(undefined)
   const clear = vi.spyOn(credentialsStore, 'clearCredentials').mockResolvedValue(undefined)
-  const configs = vi.spyOn(generateUtils, 'getConfigs').mockResolvedValue({
+  const configs = vi.spyOn(config, 'getConfigs').mockResolvedValue({
     configPath: '/project/kubb.config.ts',
     configs: [{ name: 'test', input: 'spec.yaml', output: { path: './gen' }, plugins: [] } as unknown as Config],
   })

@@ -1,10 +1,7 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
 import process from 'node:process'
 import { Hookable, type KubbHooks } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSerialRunner, fetchUrlBody, getConfigs, isNewerVersion, runHook, runPostGenerate, startUrlWatcher } from './utils.ts'
+import { createSerialRunner, fetchUrlBody, isNewerVersion, runHook, runPostGenerate, startUrlWatcher } from './utils.ts'
 
 const node = process.execPath
 
@@ -110,41 +107,6 @@ describe('isNewerVersion', () => {
     { current: '5.9.0', latest: 'not-a-version', expected: false, label: 'the latest version is malformed' },
   ])('returns $expected when $label', ({ current, latest, expected }) => {
     expect(isNewerVersion(current, latest)).toBe(expected)
-  })
-})
-
-describe('getConfigs', () => {
-  let dir: string
-
-  afterEach(async () => {
-    if (dir) await rm(dir, { recursive: true, force: true })
-  })
-
-  it('loads an explicit ESM config path and defaults plugins to an empty array', async () => {
-    dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
-    const configPath = join(dir, 'kubb.config.mjs')
-    await writeFile(configPath, `export default { root: '.', input: './pets.yaml', output: { path: './gen' } }\n`)
-
-    const { configPath: resolved, configs } = await getConfigs({ configPath })
-
-    expect(resolved).toBe(configPath)
-    expect(configs).toHaveLength(1)
-    expect(configs[0]?.plugins).toStrictEqual([])
-  })
-
-  it('calls a config function with the CLI options', async () => {
-    dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
-    const configPath = join(dir, 'kubb.config.mjs')
-    await writeFile(configPath, `export default ({ input }) => ({ root: '.', input, output: { path: './gen' } })\n`)
-
-    const { configs } = await getConfigs({ configPath, input: './from-cli.yaml' })
-
-    expect(configs[0]).toMatchObject({ input: './from-cli.yaml' })
-  })
-
-  it('throws a clear error when no config is found', async () => {
-    dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
-    await expect(getConfigs({ configPath: join(dir, 'missing.config.ts') })).rejects.toThrow(/Config/)
   })
 })
 

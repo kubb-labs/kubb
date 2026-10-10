@@ -22,7 +22,7 @@ import { plainLogger } from '../../loggers/plainLogger.ts'
 import setupReporters from '../../loggers/reporters.ts'
 import { createSpinner, logBlock, logIntro, logOutro, logTip } from '../../loggers/output.ts'
 import { canUseTTY } from '../../utils/env.ts'
-import { getConfigs } from '../generate/utils.ts'
+import { getConfigs } from '../../config.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
 import { version } from '../../../package.json'
 
