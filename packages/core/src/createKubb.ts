@@ -30,11 +30,19 @@ function resolveConfig(userConfig: UserConfig): Config {
 }
 
 /**
+ * A memory storage never writes the output directory, so the passes would format whatever stale
+ * files an earlier run left there. The fs and cache storages do write it.
+ */
+function writesOutputDirectory(storage: Storage): boolean {
+  return storage.name !== 'memory'
+}
+
+/**
  * Whether anything runs over the output directory after the files are written. Only then can the
  * bytes on disk stop matching what Kubb wrote, which is what the manifest exists to track.
  */
-function hasOutputPasses(output: Config['output']): boolean {
-  return Boolean(output.format || output.lint || output.postGenerate?.length)
+function hasOutputPasses({ output, storage }: Pick<Config, 'output' | 'storage'>): boolean {
+  return writesOutputDirectory(storage) && Boolean(output.format || output.lint || output.postGenerate?.length)
 }
 
 export type CreateKubbOptions = {
@@ -127,9 +135,7 @@ export class Kubb {
     const signal = this.#signal
     signal?.throwIfAborted()
     const config = this.config
-    const manifest = hasOutputPasses(config.output)
-      ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) })
-      : undefined
+    const manifest = hasOutputPasses(config) ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) }) : undefined
     const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal })
 
     // Each generator a plugin registers adds a listener to the shared hooks emitter, so size the
@@ -239,7 +245,9 @@ export class Kubb {
     }
 
     const processOutput = options.processOutput ?? runOutputPasses
-    const outputDiagnostics = await processOutput({ config, outputPath: resolve(config.root, config.output.path), hooks, signal })
+    const outputDiagnostics = writesOutputDirectory(config.storage)
+      ? await processOutput({ config, outputPath: resolve(config.root, config.output.path), hooks, signal })
+      : []
 
     const finalDiagnostics = [...diagnostics, ...outputDiagnostics]
     const failed = Diagnostics.hasError(outputDiagnostics)
