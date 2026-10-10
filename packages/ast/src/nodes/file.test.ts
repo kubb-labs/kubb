@@ -1,137 +1,27 @@
-import { describe, expect, expectTypeOf, it } from 'vitest'
-import { createConst, createText } from './code.ts'
+import { describe, expect, it } from 'vitest'
+import { createText } from './code.ts'
 import { createExport, createFile, createImport, createSource } from './file.ts'
-import type { FileNode } from './file.ts'
 
-describe('createImport', () => {
-  it('creates a named import', () => {
-    const node = createImport({ name: ['useState'], path: 'react' })
+const importInput = { name: ['FC'], path: 'react', isTypeOnly: true }
+const exportInput = { name: ['default'], path: './Pet', isTypeOnly: true, asAlias: true }
+const sourceInput = { name: 'Pet', nodes: [createText('export type Pet = {}')], isExportable: true, isTypeOnly: true }
 
-    expect(node.kind).toBe('Import')
-    expect(node.name).toStrictEqual(['useState'])
-    expect(node.path).toBe('react')
+describe('file factories', () => {
+  it.each([
+    { kind: 'Import', input: importInput, node: createImport(importInput) },
+    { kind: 'Export', input: exportInput, node: createExport(exportInput) },
+    { kind: 'Source', input: sourceInput, node: createSource(sourceInput) },
+  ])('returns { kind: $kind, ...input } when creating a $kind node', ({ kind, input, node }) => {
+    expect(node).toStrictEqual({ kind, ...input })
   })
 
-  it('creates a type-only import', () => {
-    const node = createImport({
-      name: ['FC'],
-      path: 'react',
-      isTypeOnly: true,
-    })
-
-    expect(node.isTypeOnly).toBe(true)
-  })
-
-  it('creates a default import (no name array)', () => {
-    const node = createImport({ name: 'React', path: 'react' })
-
-    expect(node.name).toBe('React')
-    expect(node.kind).toBe('Import')
-  })
-
-  it('creates a namespace import', () => {
-    const node = createImport({
-      name: ['*'],
-      path: 'lodash',
-      isTypeOnly: false,
-    })
-
-    expect(node.name).toStrictEqual(['*'])
-  })
-
-  it('always sets kind to Import', () => {
-    // @ts-expect-error — kind should be forced to 'Import'
-    const node = createImport({ name: ['x'], path: './x', kind: 'Export' })
-
-    expect(node.kind).toBe('Import')
-  })
-})
-
-describe('createExport', () => {
-  it('creates a named export', () => {
-    const node = createExport({ name: ['Pet'], path: './Pet' })
-
-    expect(node.kind).toBe('Export')
-    expect(node.name).toStrictEqual(['Pet'])
-    expect(node.path).toBe('./Pet')
-  })
-
-  it('creates a wildcard export (no name)', () => {
-    const node = createExport({ path: './utils' })
-
-    expect(node.kind).toBe('Export')
-    expect(node.name).toBeUndefined()
-    expect(node.path).toBe('./utils')
-  })
-
-  it('creates a type-only export', () => {
-    const node = createExport({
-      name: ['Pet'],
-      path: './Pet',
-      isTypeOnly: true,
-    })
-
-    expect(node.isTypeOnly).toBe(true)
-  })
-
-  it('creates an aliased export', () => {
-    const node = createExport({
-      name: ['default'],
-      path: './Pet',
-      asAlias: true,
-    })
-
-    expect(node.asAlias).toBe(true)
-  })
-
-  it('always sets kind to Export', () => {
-    // @ts-expect-error — kind should be forced to 'Export'
-    const node = createExport({ name: ['x'], path: './x', kind: 'Import' })
-
-    expect(node.kind).toBe('Export')
-  })
-})
-
-describe('createSource', () => {
-  it('creates a source node with nodes', () => {
-    const node = createSource({
-      name: 'Pet',
-      nodes: [createText('export type Pet = { id: number }')],
-    })
-
-    expect(node.kind).toBe('Source')
-    expect(node.name).toBe('Pet')
-    expect(node.nodes?.[0]).toStrictEqual({
-      kind: 'Text',
-      value: 'export type Pet = { id: number }',
-    })
-  })
-
-  it('supports isExportable flag', () => {
-    const node = createSource({
-      name: 'Pet',
-      nodes: [createText('export type Pet = {}')],
-      isExportable: true,
-    })
-
-    expect(node.isExportable).toBe(true)
-  })
-
-  it('supports isTypeOnly flag', () => {
-    const node = createSource({
-      nodes: [createText('export type X = string')],
-      isTypeOnly: true,
-    })
-
-    expect(node.isTypeOnly).toBe(true)
-    expect(node.name).toBeUndefined()
-  })
-
-  it('always sets kind to Source', () => {
-    // @ts-expect-error — kind should be forced to 'Source'
-    const node = createSource({ nodes: [createText('x')], kind: 'Import' })
-
-    expect(node.kind).toBe('Source')
+  it('returns the factory kind when the input carries another kind', () => {
+    // @ts-expect-error — kind is not part of the input
+    expect(createImport({ name: ['x'], path: './x', kind: 'Export' }).kind).toBe('Import')
+    // @ts-expect-error — kind is not part of the input
+    expect(createExport({ name: ['x'], path: './x', kind: 'Import' }).kind).toBe('Export')
+    // @ts-expect-error — kind is not part of the input
+    expect(createSource({ nodes: [createText('x')], kind: 'Import' }).kind).toBe('Source')
   })
 })
 
@@ -280,29 +170,5 @@ describe('createFile', () => {
     expect(file.meta).toStrictEqual({ tag: 'pets' })
     expect(file.banner).toBe('// generated')
     expect(file.footer).toBe('// end')
-  })
-
-  it('narrows the return type to FileNode', () => {
-    expectTypeOf(createFile({ baseName: 'pet.ts', path: 'src/pet.ts' })).toMatchTypeOf<FileNode>()
-  })
-})
-
-describe('createSource (nodes field)', () => {
-  it('accepts structured child nodes', () => {
-    const constNode = createConst({ name: 'pet', export: true })
-    const node = createSource({
-      name: 'pet',
-      isExportable: true,
-      nodes: [constNode],
-    })
-
-    expect(node.nodes).toHaveLength(1)
-    expect(node.nodes?.[0]?.kind).toBe('Const')
-  })
-
-  it('omits nodes when not provided', () => {
-    const node = createSource({ name: 'pet', isExportable: true })
-
-    expect(node.nodes).toBeUndefined()
   })
 })

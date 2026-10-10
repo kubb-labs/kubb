@@ -1,5 +1,4 @@
-import type { ast } from '@kubb/ast'
-import { type Diagnostic, Diagnostics } from '@kubb/core'
+import { type ast, type Diagnostic, Diagnostics } from '@kubb/kit'
 import { isReference } from './oas.ts'
 import type { Document, SchemaObject } from './types.ts'
 

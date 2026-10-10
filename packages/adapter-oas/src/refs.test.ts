@@ -1,4 +1,4 @@
-import { type Diagnostic, Diagnostics } from '@kubb/core'
+import { type Diagnostic, Diagnostics } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { dereferenceWithRef, resolveRef } from './refs.ts'
 import type { Document, SchemaObject } from './types.ts'

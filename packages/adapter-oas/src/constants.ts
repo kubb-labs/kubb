@@ -1,4 +1,4 @@
-import type { ast } from '@kubb/ast'
+import type { ast } from '@kubb/kit'
 
 /**
  * Default parser options applied when no explicit options are provided.

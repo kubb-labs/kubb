@@ -1,4 +1,4 @@
-import type { Plugin } from '@kubb/core'
+import type { Adapter, Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { JSONKubbConfig } from '../protocol/index.ts'
 import { mergeAdapter, mergeOptions, mergePlugins, resolvePlugins, toExportName, toPackageName } from './resolveConfig.ts'
@@ -6,7 +6,6 @@ import { mergeAdapter, mergeOptions, mergePlugins, resolvePlugins, toExportName,
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
 
 const mockPluginTs = vi.fn((options: unknown) => ({ name: 'plugin-ts', options }))
-const mockPluginZod = vi.fn((options: unknown) => ({ name: 'plugin-zod', options }))
 
 // `mergePlugins` resolves through a real `import()`, so the packages it names are stubbed rather
 // than the resolver: after the merge they are the same module.
@@ -20,7 +19,6 @@ beforeEach(() => {
   // later test in the file.
   vi.resetModules()
   mockPluginTs.mockClear()
-  mockPluginZod.mockClear()
 })
 
 describe('mergePlugins', () => {
@@ -29,25 +27,14 @@ describe('mergePlugins', () => {
     expect(await mergePlugins(diskPlugins, undefined)).toBe(diskPlugins)
   })
 
-  it('merges studio options into a matching disk plugin, studio takes priority', async () => {
-    const diskPlugins = [makePlugin('plugin-zod', { validate: true })]
-    const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-zod', options: { validate: false } }]
-
-    const result = await mergePlugins(diskPlugins, studioPlugins)
-
-    expect(result).toHaveLength(1)
-    expect(result?.[0]).toMatchObject({ name: 'plugin-zod', options: { validate: false } })
-  })
-
-  it('preserves disk plugins that have no studio counterpart', async () => {
+  it('merges studio options into the matching disk plugin and keeps the ones without a studio counterpart', async () => {
     const pluginTs = makePlugin('plugin-ts', { enumType: 'asConst' })
     const diskPlugins = [makePlugin('plugin-zod', { validate: true }), pluginTs]
     const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-zod', options: { validate: false } }]
 
     const result = await mergePlugins(diskPlugins, studioPlugins)
 
-    expect(result).toHaveLength(2)
-    expect(result?.[1]).toBe(pluginTs)
+    expect(result).toStrictEqual([{ name: 'plugin-zod', options: { validate: false } }, pluginTs])
   })
 
   it('appends resolved studio plugins not present in disk config', async () => {
@@ -112,8 +99,11 @@ describe('mergeOptions', () => {
 })
 
 describe('resolvePlugins', () => {
-  it('throws when the plugin package cannot be imported', async () => {
-    await expect(resolvePlugins([{ name: '@kubb/plugin-missing', options: {} }])).rejects.toThrow('Plugin "@kubb/plugin-missing" could not be loaded')
+  it.each([
+    ['the package cannot be imported', '@kubb/plugin-missing', 'Plugin "@kubb/plugin-missing" could not be loaded'],
+    ['the name is not a @kubb/plugin-* package', 'my-custom-plugin', 'is not a @kubb/plugin-* package'],
+  ])('throws when %s', async (_label, name, message) => {
+    await expect(resolvePlugins([{ name, options: {} }])).rejects.toThrow(message)
   })
 
   it('resolves a @kubb plugin by its camelCase named export', async () => {
@@ -125,15 +115,11 @@ describe('resolvePlugins', () => {
     expect(result).toHaveLength(1)
     expect(mockPluginTs).toHaveBeenCalledWith({ output: { path: './types' } })
   })
-
-  it('refuses a plugin name that is not a @kubb/plugin-* package', async () => {
-    await expect(resolvePlugins([{ name: 'my-custom-plugin', options: {} }])).rejects.toThrow('is not a @kubb/plugin-* package')
-  })
 })
 
 describe('mergeAdapter', () => {
   it('returns the disk adapter unchanged when there are no studio options', async () => {
-    const diskAdapter = { name: 'oas', options: { validate: true }, parse: vi.fn() } as any
+    const diskAdapter = { name: 'oas', options: { validate: true }, parse: vi.fn() } as unknown as Adapter
 
     const result = await mergeAdapter(diskAdapter, undefined)
 
@@ -145,7 +131,7 @@ describe('mergeAdapter', () => {
     vi.doMock('@kubb/adapter-oas', () => ({ adapterOas: mockAdapterOas }))
     const { mergeAdapter: merge } = await import('./resolveConfig.ts')
 
-    const diskAdapter = { name: 'oas', options: { validate: true, server: { index: 0 } }, parse: vi.fn() } as any
+    const diskAdapter = { name: 'oas', options: { validate: true, server: { index: 0 } }, parse: vi.fn() } as unknown as Adapter
 
     const result = await merge(diskAdapter, { server: { index: 1 } })
 
@@ -173,6 +159,7 @@ describe('toExportName', () => {
       '@kubb/plugin-vue-query',
       '@kubb/plugin-zod',
     ]
+
     expect(Object.fromEntries(packages.map((name) => [name, toExportName(name)]))).toStrictEqual({
       '@kubb/plugin-axios': 'pluginAxios',
       '@kubb/plugin-cypress': 'pluginCypress',

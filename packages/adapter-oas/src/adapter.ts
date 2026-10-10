@@ -1,6 +1,5 @@
-import { ast, findCircularSchemasFromGraph, narrowSchema } from '@kubb/ast'
-import { createAdapter } from '@kubb/core'
-import type { AdapterSource } from '@kubb/core'
+import { ast, createAdapter } from '@kubb/kit'
+import type { AdapterSource } from '@kubb/kit'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './emit/discriminator/propagate.ts'
 import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
@@ -109,7 +108,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       if (node.type === 'ref' && node.name && node.name !== name) {
         refAliasMap.set(name, node)
       }
-      if (narrowSchema(node, 'enum') && node.name) {
+      if (ast.narrowSchema(node, 'enum') && node.name) {
         enumNames.push(node.name)
       }
       if (discriminator === 'propagate' && (schema.oneOf ?? schema.anyOf) && schema.discriminator?.propertyName) {
@@ -117,7 +116,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
       }
     }
 
-    const circularNames = [...findCircularSchemasFromGraph(refGraph)]
+    const circularNames = [...ast.findCircularSchemasFromGraph(refGraph)]
     const discriminatorChildMap: Map<string, DiscriminatorTarget> | null =
       discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 

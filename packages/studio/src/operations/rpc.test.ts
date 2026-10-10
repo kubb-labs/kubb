@@ -11,9 +11,12 @@ describe('connectWebSocketRpc', () => {
     )
   })
 
-  // A port nothing binds, so this can't reach a real dev server on 3000.
+  // A port nothing binds, so this can't reach a real dev server on 3000: the URL passes the
+  // loopback check, then the socket fails to connect and closes abnormally (1006).
   it.each(['ws://localhost:39847/s/1', 'ws://127.0.0.1:39847/s/1', 'ws://[::1]:39847/s/1'])('allows plaintext to the loopback host %s', async (url) => {
     const connection = await connectWebSocketRpc({ url, token: 'secret', instanceId: 'instance-1', local })
     connection.close()
+
+    await expect(connection.closed).resolves.toStrictEqual({ code: 1006, reason: '' })
   })
 })
