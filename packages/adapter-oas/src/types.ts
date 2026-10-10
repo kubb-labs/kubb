@@ -1,9 +1,6 @@
 import type { AdapterFactoryOptions, ast } from '@kubb/kit'
 import type { JSONSchema4, JSONSchema6, JSONSchema7 } from 'json-schema'
 import type { OpenAPIV3_1 } from 'openapi-types'
-import type { Operation } from './operation.ts'
-
-export type { Operation }
 
 /**
  * Media type used to pick a schema from an operation's request or response.

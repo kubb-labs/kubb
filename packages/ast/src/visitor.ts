@@ -1,19 +1,17 @@
 import type { VisitorDepth } from './constants.ts'
 import { visitorDepths } from './constants.ts'
 import type { NodeDef } from './defineNode.ts'
-import type {
-  ContentNode,
-  InputNode,
-  Node,
-  NodeKind,
-  OperationNode,
-  OutputNode,
-  ParameterNode,
-  PropertyNode,
-  RequestBodyNode,
-  ResponseNode,
-  SchemaNode,
-} from './nodes/index.ts'
+import type { Node } from './nodes/index.ts'
+import type { ContentNode } from './nodes/content.ts'
+import type { InputNode } from './nodes/input.ts'
+import type { NodeKind } from './nodes/base.ts'
+import type { OperationNode } from './nodes/operation.ts'
+import type { OutputNode } from './nodes/output.ts'
+import type { ParameterNode } from './nodes/parameter.ts'
+import type { PropertyNode } from './nodes/property.ts'
+import type { RequestBodyNode } from './nodes/requestBody.ts'
+import type { ResponseNode } from './nodes/response.ts'
+import type { SchemaNode } from './nodes/schema.ts'
 import { nodeDefs } from './registry.ts'
 
 /**

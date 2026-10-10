@@ -3,7 +3,8 @@ import { styleText } from 'node:util'
 import { detectTool, FORMATTER_PREFERENCE, formatters, LINTER_PREFERENCE, linters, type ToolCommand, tokenize } from '@internals/utils'
 import { Diagnostics } from '../Diagnostics.ts'
 import type { Hookable } from '../Hookable.ts'
-import type { Config, Diagnostic, KubbHooks, ProblemDiagnostic } from '../types.ts'
+import type { Config, KubbHooks } from '../types.ts'
+import type { Diagnostic, ProblemDiagnostic } from '../Diagnostics.ts'
 import { runHook } from './runHook.ts'
 
 export type RunOutputPassesOptions = {

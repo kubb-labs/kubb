@@ -1,13 +1,13 @@
 import process from 'node:process'
-import type { Config, Reporter, ReporterContext, ReporterPluginFiles } from '@kubb/core'
+import type { Config, Hookable, KubbHooks, Reporter, ReporterContext, ReporterPluginFiles } from '@kubb/core'
 import { createCliReporter } from '@kubb/core'
 import { isRichOutput } from '../utils/env.ts'
-import type { Logger, LoggerContext, LoggerOptions } from './defineLogger.ts'
+import type { Logger, LoggerOptions } from './defineLogger.ts'
 import { clackLogger } from './clackLogger.ts'
 import { plainLogger } from './plainLogger.ts'
 
 /** Bridges a {@link Reporter} onto the hook emitter: calls `report` with each config's {@link GenerationResult} on `kubb:generation:end`. */
-function installReporter(context: LoggerContext, reporter: Reporter, ctx: ReporterContext): void {
+function installReporter(context: Hookable<KubbHooks>, reporter: Reporter, ctx: ReporterContext): void {
   const pluginFiles = reporter.needsPluginFiles ? new Map<Config, Map<string, Set<string>>>() : undefined
 
   if (pluginFiles) {
@@ -38,7 +38,7 @@ function installReporter(context: LoggerContext, reporter: Reporter, ctx: Report
 
 /** Installs the live logger and wires the selected reporters. `cli` renders its summary through the logger, and is skipped when `json` owns stdout. */
 function setupReporters(
-  context: LoggerContext,
+  context: Hookable<KubbHooks>,
   {
     logLevel,
     reporters,

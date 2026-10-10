@@ -1,4 +1,5 @@
-import type { HttpOperationNode, OperationNode, SchemaNode, SchemaNodeByType } from './nodes/index.ts'
+import type { HttpOperationNode, OperationNode } from './nodes/operation.ts'
+import type { SchemaNode, SchemaNodeByType } from './nodes/schema.ts'
 
 /**
  * Narrows a `SchemaNode` to the variant that matches `type`.

@@ -15,7 +15,7 @@ import type {
   TimeSchemaNode,
   UnionSchemaNode,
   UrlSchemaNode,
-} from './nodes/index.ts'
+} from './nodes/schema.ts'
 
 describe('InferSchemaNode', () => {
   it('returns the schema node variant when given an AST-shaped type', () => {

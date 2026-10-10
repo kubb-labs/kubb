@@ -1,6 +1,7 @@
 import { resolve } from 'node:path'
 import { Diagnostics } from './Diagnostics.ts'
-import type { AdapterSource, Config, Input } from './types.ts'
+import type { Config, Input } from './types.ts'
+import type { AdapterSource } from './createAdapter.ts'
 
 /**
  * What an `input` value points at, once Kubb has looked at it.

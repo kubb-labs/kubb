@@ -24,4 +24,60 @@ export { Hookable } from './Hookable.ts'
 export { runHook, type HookResult, type RunHookOptions } from './output/runHook.ts'
 export { runOutputPasses, type RunOutputPassesOptions } from './output/runOutputPasses.ts'
 
+export type { Adapter, AdapterFactoryOptions, AdapterSource } from './createAdapter.ts'
+export type {
+  Diagnostic,
+  DiagnosticDoc,
+  DiagnosticKind,
+  DiagnosticLocation,
+  DiagnosticSeverity,
+  PerformanceDiagnostic,
+  ProblemCode,
+  ProblemDiagnostic,
+  SerializedDiagnostic,
+  UpdateDiagnostic,
+} from './Diagnostics.ts'
+export type { CreateKubbOptions, GenerateOptions, GenerateResult, Kubb } from './createKubb.ts'
+export type { GenerationResult, Reporter, ReporterContext, ReporterName, UserReporter } from './createReporter.ts'
+export type { SummaryRenderer } from './reporters/summary.ts'
+export type { Renderer, RendererFactory } from './createRenderer.ts'
+export type { Storage } from './createStorage.ts'
+export type { FileManagerHooks } from './FileManager.ts'
+export type { Generator, GeneratorContext } from './defineGenerator.ts'
+export type { InputKind } from './input.ts'
+export type { NodeCache } from './nodeCache.ts'
+export type { Parser } from './defineParser.ts'
+export type {
+  Exclude,
+  Filter,
+  Group,
+  Include,
+  KubbPluginEndContext,
+  KubbPluginSetupContext,
+  KubbPluginStartContext,
+  NormalizedPlugin,
+  Output,
+  OutputMode,
+  OutputOptions,
+  Override,
+  Plugin,
+  PluginFactoryOptions,
+  PluginName,
+  ResolvePluginOptions,
+} from './definePlugin.ts'
+export type {
+  BannerMeta,
+  ResolveBannerContext,
+  ResolveBannerFile,
+  ResolveFileOptions,
+  ResolveImportsOptions,
+  ResolveOptionsContext,
+  ResolvePathOptions,
+  ResolverDefault,
+  ResolverFile,
+  ResolverFileParams,
+  ResolverFilePathParams,
+  ResolverPatch,
+  ResolverPathParams,
+} from './Resolver.ts'
 export * from './types.ts'

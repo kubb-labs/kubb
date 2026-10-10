@@ -1,4 +1,5 @@
-import type { ImportNode, SchemaNode, SchemaNodeByType, SchemaType } from './nodes/index.ts'
+import type { ImportNode } from './nodes/file.ts'
+import type { SchemaNode, SchemaNodeByType, SchemaType } from './nodes/schema.ts'
 
 /**
  * Runtime context passed as `this` to printer handlers.

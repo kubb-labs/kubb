@@ -1,4 +1,5 @@
-import type { PropertyNode, SchemaNode } from '../nodes/index.ts'
+import type { PropertyNode } from '../nodes/property.ts'
+import type { SchemaNode } from '../nodes/schema.ts'
 
 /**
  * Finds every matching property exposed by an object, resolved reference, or intersection.

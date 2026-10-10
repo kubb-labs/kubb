@@ -7,8 +7,8 @@ export type {
   DiscriminatorObject,
   Document,
   MediaTypeObject,
-  Operation,
   ReferenceObject,
   ResponseObject,
   SchemaObject,
 } from './types.ts'
+export type { Operation } from './operation.ts'
