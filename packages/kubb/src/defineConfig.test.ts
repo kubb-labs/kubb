@@ -1,5 +1,5 @@
 import type { CLIOptions, Parser, Reporter, UserConfig } from '@kubb/core'
-import { createMockedAdapter } from '@kubb/core/mocks'
+import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import { describe, expect, expectTypeOf, test } from 'vitest'
 import { createKubb } from './createKubb.ts'
@@ -47,6 +47,13 @@ describe('defineConfig', () => {
     expect(resolve({ plugins: [pluginBarrel()] }).plugins?.map((plugin) => plugin.name)).toStrictEqual([pluginBarrelName])
   })
 
+  test('appends pluginBarrel after a custom plugin and defaults output.barrel to false', () => {
+    const resolved = resolve({ plugins: [createMockedPlugin({ name: 'custom', options: {} })] })
+
+    expect(resolved.plugins?.map((plugin) => plugin.name)).toStrictEqual(['custom', pluginBarrelName])
+    expect(resolved.output.barrel).toBe(false)
+  })
+
   test('defaults output.barrel, output.format, and output.lint to false when not set', () => {
     expect(resolve().output).toStrictEqual({ path: './gen', barrel: false, format: false, lint: false })
   })
@@ -55,14 +62,17 @@ describe('defineConfig', () => {
   const parsers = [{ name: 'custom' } as Parser]
   const reporters = [{ name: 'custom' } as Reporter]
   const barrel = { type: 'all' } as const
+  const postGenerate = [{ name: 'types', command: 'npm run typecheck' }, 'biome check --write ./gen']
 
   const explicitFields: Array<ExplicitFieldRow> = [
     { field: 'root', partial: { root: '/custom/root' }, pick: (config) => config.root, value: '/custom/root' },
+    { field: 'name', partial: { name: 'gen' }, pick: (config) => config.name, value: 'gen' },
     { field: 'adapter', partial: { adapter }, pick: (config) => config.adapter, value: adapter },
     { field: 'parsers', partial: { parsers }, pick: (config) => config.parsers, value: parsers },
     { field: 'reporters', partial: { reporters }, pick: (config) => config.reporters, value: reporters },
     { field: 'output.barrel', partial: { output: { path: './gen', barrel } }, pick: (config) => config.output.barrel, value: barrel },
     { field: 'output.barrel set to false', partial: { output: { path: './gen', barrel: false } }, pick: (config) => config.output.barrel, value: false },
+    { field: 'output.postGenerate', partial: { output: { path: './gen', postGenerate } }, pick: (config) => config.output.postGenerate, value: postGenerate },
   ]
 
   test.each(explicitFields)('preserves an explicit $field', ({ partial, pick, value }) => {
@@ -97,6 +107,8 @@ describe('defineConfig', () => {
     expectTypeOf(defineConfig({ input: { openapi: '3.1.0' }, output: { path: './gen' } })).toEqualTypeOf<UserConfig<{ openapi: string }>>()
     expectTypeOf(defineConfig([{ ...minimal }])).toEqualTypeOf<Array<UserConfig<string>>>()
     expectTypeOf(defineConfig(() => ({ ...minimal }))).toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig<string>>>()
+    expectTypeOf(defineConfig(async () => ({ ...minimal }))).toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig<string>>>()
+    expectTypeOf(defineConfig(Promise.resolve({ ...minimal }))).toEqualTypeOf<Promise<UserConfig<string>>>()
     expectTypeOf(defineConfig(Promise.resolve([{ ...minimal }]))).toEqualTypeOf<Promise<Array<UserConfig<string>>>>()
   })
 })
