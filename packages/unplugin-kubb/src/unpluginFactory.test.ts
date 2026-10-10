@@ -71,8 +71,8 @@ describe('unpluginFactory', () => {
 
     await pluginOptions.buildStart?.call(createBuildContext())
 
-    const [key] = await storage.readKeys()
-    expect(key && (await storage.readItem(key))).toContain('react/jsx-runtime')
+    const [key = ''] = await storage.readKeys()
+    expect(await storage.readItem(key)).toContain('react/jsx-runtime')
   })
 
   test('preserves the configured root during generation', async () => {
