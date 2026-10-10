@@ -13,3 +13,13 @@ export function optionality(schema: SchemaNode, required: boolean): SchemaNode {
     nullish: !required && nullable ? true : undefined,
   }
 }
+
+/**
+ * Defaults `required` to `false` and derives the schema's `optional`/`nullish` flags from it.
+ * Shared build step of `createProperty` and `createParameter`.
+ */
+export function withRequired<T extends { required?: boolean; schema: SchemaNode }>(props: T): T & { required: boolean } {
+  const required = props.required ?? false
+
+  return { ...props, required, schema: optionality(props.schema, required) }
+}
