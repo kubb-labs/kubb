@@ -1,4 +1,4 @@
-import { ast } from '@kubb/ast'
+import { ast } from '@kubb/kit'
 import { Diagnostics } from '@kubb/core'
 import type { Diagnostic } from '@kubb/core'
 import { describe, expect, it } from 'vitest'

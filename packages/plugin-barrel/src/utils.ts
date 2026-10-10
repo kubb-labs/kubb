@@ -1,6 +1,5 @@
 import { extname, posix } from 'node:path'
-import { ast, type ExportNode, type FileNode, type SourceNode } from '@kubb/ast'
-import { Diagnostics } from '@kubb/core'
+import { ast, Diagnostics } from '@kubb/kit'
 import { toPosixPath } from '@internals/utils'
 import type { BarrelType } from './types.ts'
 
@@ -105,14 +104,14 @@ function isBarrelPath(path: string): boolean {
 
 type MakeBarrelParams = {
   dirPath: string
-  exports: Array<ExportNode>
-  sourceFiles: ReadonlyMap<string, FileNode>
+  exports: Array<ast.ExportNode>
+  sourceFiles: ReadonlyMap<string, ast.FileNode>
   reportedCollisions: Set<string>
 }
 
-function makeBarrel({ dirPath, exports, sourceFiles, reportedCollisions }: MakeBarrelParams): FileNode {
+function makeBarrel({ dirPath, exports, sourceFiles, reportedCollisions }: MakeBarrelParams): ast.FileNode {
   const names = new Map<string, string>()
-  const uniqueExports: Array<ExportNode> = []
+  const uniqueExports: Array<ast.ExportNode> = []
 
   for (const item of exports) {
     const itemPath = posix.join(dirPath, item.path)
@@ -150,9 +149,9 @@ function makeBarrel({ dirPath, exports, sourceFiles, reportedCollisions }: MakeB
   return ast.factory.createFile({ baseName: 'index.ts', path: `${dirPath}${BARREL_SUFFIX}`, exports: uniqueExports })
 }
 
-type LeafStrategy = (params: { dirPath: string; leafPath: string; sourceFile: FileNode | undefined }) => Array<ExportNode>
+type LeafStrategy = (params: { dirPath: string; leafPath: string; sourceFile: ast.FileNode | undefined }) => Array<ast.ExportNode>
 
-function indexableNames({ sources, isTypeOnly }: { sources: ReadonlyArray<SourceNode>; isTypeOnly: boolean }): Array<string> {
+function indexableNames({ sources, isTypeOnly }: { sources: ReadonlyArray<ast.SourceNode>; isTypeOnly: boolean }): Array<string> {
   const names = sources.flatMap((source) => (source.isIndexable && source.name && Boolean(source.isTypeOnly) === isTypeOnly ? [source.name] : []))
   return [...new Set(names)].sort()
 }
@@ -176,7 +175,7 @@ const namedStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
     return [ast.factory.createExport({ path: modulePath })]
   }
 
-  const exports: Array<ExportNode> = []
+  const exports: Array<ast.ExportNode> = []
   if (valueNames.length > 0) {
     exports.push(ast.factory.createExport({ name: valueNames, path: modulePath }))
   }
@@ -187,7 +186,7 @@ const namedStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
 }
 
 type WalkParams = {
-  sourceFiles: ReadonlyMap<string, FileNode>
+  sourceFiles: ReadonlyMap<string, ast.FileNode>
   strategy: LeafStrategy
   reportedCollisions: Set<string>
   /**
@@ -200,7 +199,7 @@ type WalkParams = {
  * Post-order walk that yields a barrel per visited directory.
  * Returns the list of leaf file paths collected in this subtree (used by the parent call).
  */
-function* walkAllOrNamed(node: BuildTree, params: WalkParams, isRoot: boolean): Generator<FileNode, Array<string>> {
+function* walkAllOrNamed(node: BuildTree, params: WalkParams, isRoot: boolean): Generator<ast.FileNode, Array<string>> {
   const subtreeLeaves: Array<string> = []
 
   for (const child of node.children) {
@@ -231,8 +230,8 @@ function* walkAllOrNamed(node: BuildTree, params: WalkParams, isRoot: boolean): 
  * re-export, which forwards the names the child barrel already curated. Returns whether this
  * node yielded a barrel, so a parent never re-exports a sub-directory that produced nothing.
  */
-function* walkNested(node: BuildTree, params: WalkParams): Generator<FileNode, boolean> {
-  const exports: Array<ExportNode> = []
+function* walkNested(node: BuildTree, params: WalkParams): Generator<ast.FileNode, boolean> {
+  const exports: Array<ast.ExportNode> = []
 
   for (const child of node.children) {
     if (child.isFile) {
@@ -262,7 +261,7 @@ function* walkNested(node: BuildTree, params: WalkParams): Generator<FileNode, b
  */
 type BarrelIndex = {
   tree: BuildTree
-  sourceFiles: ReadonlyMap<string, FileNode>
+  sourceFiles: ReadonlyMap<string, ast.FileNode>
 }
 
 /**
@@ -270,9 +269,9 @@ type BarrelIndex = {
  * files under that path and builds their directory tree. Reuse the result across every barrel
  * derived from the same root rather than re-filtering and re-building per barrel.
  */
-export function buildBarrelIndex(outputPath: string, files: ReadonlyArray<FileNode>): BarrelIndex {
+export function buildBarrelIndex(outputPath: string, files: ReadonlyArray<ast.FileNode>): BarrelIndex {
   const outputPrefix = `${toPosixPath(outputPath)}/`
-  const sourceFiles = new Map<string, FileNode>()
+  const sourceFiles = new Map<string, ast.FileNode>()
 
   for (const file of files) {
     const normalized = toPosixPath(file.path)
@@ -336,7 +335,7 @@ type GetBarrelFilesParams = {
 }
 
 /**
- * Yields barrel `FileNode`s for `targetPath` (or the index root), derived from a shared index.
+ * Yields barrel `ast.FileNode`s for `targetPath` (or the index root), derived from a shared index.
  * Locating the subtree is a bounded walk down from the root, so deriving many barrels (one per
  * plugin, plus the root) from one index avoids re-scanning the full file set for each.
  *
@@ -355,7 +354,7 @@ export function* getBarrelFiles({
   nested = false,
   recursive = false,
   reportedCollisions = new Set(),
-}: GetBarrelFilesParams): Generator<FileNode> {
+}: GetBarrelFilesParams): Generator<ast.FileNode> {
   const node = targetPath ? findNode(index.tree, toPosixPath(targetPath)) : index.tree
   if (!node) return
 

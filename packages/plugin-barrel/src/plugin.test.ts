@@ -1,4 +1,4 @@
-import { ast } from '@kubb/ast'
+import { ast } from '@kubb/kit'
 import { createKubb, definePlugin, memoryStorage } from '@kubb/core'
 import type { Config, Plugin } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
