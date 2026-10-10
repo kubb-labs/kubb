@@ -6,7 +6,7 @@ import { version } from '../package.json'
 import { command as generateCommand } from './commands/generate.ts'
 import { command as initCommand } from './commands/init.ts'
 import { command as mcpCommand } from './commands/mcp.ts'
-import { command as studioCommand } from './commands/studio/index.ts'
+import { command as studioCommand, routeStudioFlags } from './commands/studio/index.ts'
 import { command as validateCommand } from './commands/validate.ts'
 import { resolveDeprecatedFlags } from './deprecatedFlags.ts'
 
@@ -29,7 +29,7 @@ function stripExecArgs(argv: Array<string>): Array<string> {
  * `generate` when no command is given.
  */
 export async function run(argv: Array<string> = process.argv): Promise<void> {
-  const args = resolveDeprecatedFlags(stripExecArgs(argv))
+  const args = routeStudioFlags(resolveDeprecatedFlags(stripExecArgs(argv)))
   const isQuietFlag = args.some((arg) => QUIET_FLAGS.has(arg))
 
   // stderr, so the notice never lands in a stream a client parses, such as `kubb mcp` stdio.
