@@ -12,6 +12,7 @@ import type {
 } from '../protocol/index.ts'
 import { AGENT_INSTANCE_HEADER } from '../protocol/index.ts'
 import { createWebsocket } from './websocket.ts'
+import { isLoopbackHost } from './url.ts'
 
 /**
  * The only methods Studio may call on an agent. A `StudioSession` carries far more than
@@ -55,9 +56,7 @@ class AgentRpcTarget extends RpcTarget implements AgentApi {
  */
 export const connectWebSocketRpc: RpcConnector = async ({ url, token, instanceId, local }): Promise<RpcConnection> => {
   const { protocol, hostname, host } = new URL(url)
-  // `URL` keeps the brackets on an IPv6 hostname, so `::1` arrives as `[::1]`.
-  const isLoopback = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]'
-  if (protocol !== 'wss:' && !(protocol === 'ws:' && isLoopback)) {
+  if (protocol !== 'wss:' && !(protocol === 'ws:' && isLoopbackHost(hostname))) {
     throw new Error(`Refusing unencrypted WebSocket to ${host}`)
   }
 
