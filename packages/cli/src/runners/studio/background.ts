@@ -199,7 +199,9 @@ export async function startWorker(options: StudioOptions): Promise<void> {
   }
   const prepared = await prepareConnection(options)
   const entry = path.join(path.dirname(createRequire(import.meta.url).resolve('@kubb/cli/package.json')), 'dist', 'studioWorker.js')
-  const child = x(process.execPath, [entry], { nodeOptions: { cwd: process.cwd(), detached: true, stdio: ['ignore', 'ignore', 'ignore', 'ipc'] } }).process
+  const child = x(process.execPath, [...process.execArgv, entry], {
+    nodeOptions: { cwd: process.cwd(), detached: true, stdio: ['ignore', 'ignore', 'ignore', 'ipc'] },
+  }).process
   if (!child) throw new Error('Background worker failed to start')
   try {
     const started = new Promise<void>((resolve, reject) => {
