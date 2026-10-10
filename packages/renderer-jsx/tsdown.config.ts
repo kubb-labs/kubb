@@ -4,7 +4,7 @@ const entry = {
   index: 'src/index.ts',
   types: 'src/types.ts',
   'jsx-runtime': './src/jsx-runtime.ts',
-  'jsx-dev-runtime': './src/jsx-dev-runtime.ts',
+  'jsx-dev-runtime': './src/jsx-runtime.ts',
 }
 
 const shared: Partial<UserConfig> = {
