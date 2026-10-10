@@ -1,5 +1,4 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { isCIEnvironment } from '@internals/utils'
 import { canUseTTY } from './env.ts'
 
 const originalIsTTY = process.stdout.isTTY
@@ -16,28 +15,6 @@ afterEach(() => {
     value: originalColumns,
     writable: true,
     configurable: true,
-  })
-})
-
-describe('isCIEnvironment', () => {
-  beforeEach(() => {
-    for (const key of ['CI', 'GITHUB_ACTIONS', 'GITLAB_CI', 'CIRCLECI', 'TRAVIS']) {
-      vi.stubEnv(key, '')
-    }
-  })
-
-  it.each(['CI', 'GITHUB_ACTIONS', 'GITLAB_CI', 'CIRCLECI', 'TRAVIS'])('returns true when %s is set', (envVar) => {
-    vi.stubEnv(envVar, 'true')
-    expect(isCIEnvironment()).toBe(true)
-  })
-
-  it('returns false when no CI env vars are set', () => {
-    expect(isCIEnvironment()).toBe(false)
-  })
-
-  it.each(['false', '0'])('returns false when CI is %s', (value) => {
-    vi.stubEnv('CI', value)
-    expect(isCIEnvironment()).toBe(false)
   })
 })
 

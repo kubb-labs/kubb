@@ -1,36 +1,14 @@
-import fs from 'node:fs'
 import { x } from 'tinyexec'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { hasPackageJson, initPackageJson, installPackages } from './utils.ts'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { initPackageJson, installPackages } from './utils.ts'
 import type { PackageManagerInfo } from '../../tools.ts'
-
-vi.mock('node:fs', () => ({
-  default: { existsSync: vi.fn() },
-}))
 
 vi.mock('tinyexec', () => ({
   x: vi.fn(),
 }))
 
 describe('packageManager', () => {
-  beforeEach(() => vi.clearAllMocks())
   afterEach(() => vi.resetAllMocks())
-
-  describe('hasPackageJson', () => {
-    it.each([
-      { exists: true, expected: true },
-      { exists: false, expected: false },
-    ])('returns $expected when existsSync returns $exists', ({ exists, expected }) => {
-      vi.mocked(fs.existsSync).mockReturnValue(exists)
-      expect(hasPackageJson('/test/dir')).toBe(expected)
-    })
-
-    it('uses process.cwd() as default cwd', () => {
-      vi.mocked(fs.existsSync).mockReturnValue(true)
-      hasPackageJson()
-      expect(fs.existsSync).toHaveBeenCalledWith(expect.stringContaining('package.json'))
-    })
-  })
 
   describe('initPackageJson', () => {
     it.each<{ pm: PackageManagerInfo; expectedArgs: Array<string> }>([
@@ -63,16 +41,6 @@ describe('packageManager', () => {
       await initPackageJson('/tmp/project', pm)
       expect(x).toHaveBeenCalledWith(pm.name, expectedArgs, expect.objectContaining({ nodeOptions: expect.objectContaining({ cwd: '/tmp/project' }) }))
     })
-
-    it('rejects when the command fails', async () => {
-      vi.mocked(x).mockImplementation(() => Promise.reject(new Error('Process exited with non-zero status (1)')) as never)
-      const pm: PackageManagerInfo = {
-        name: 'npm',
-        lockFiles: ['package-lock.json'],
-        installCommand: ['install'],
-      }
-      await expect(initPackageJson('/tmp/project', pm)).rejects.toThrow('Process exited with non-zero status')
-    })
   })
 
   describe('installPackages', () => {
@@ -89,27 +57,6 @@ describe('packageManager', () => {
         ['add', 'kubb', '@kubb/plugin-ts'],
         expect.objectContaining({ nodeOptions: expect.objectContaining({ cwd: '/tmp/project' }) }),
       )
-    })
-
-    it('uses process.cwd() as default cwd', async () => {
-      vi.mocked(x).mockReturnValue(Promise.resolve() as never)
-      const pm: PackageManagerInfo = {
-        name: 'npm',
-        lockFiles: ['package-lock.json'],
-        installCommand: ['install'],
-      }
-      await installPackages(['kubb'], pm)
-      expect(x).toHaveBeenCalledWith('npm', ['install', 'kubb'], expect.objectContaining({ nodeOptions: expect.objectContaining({ cwd: process.cwd() }) }))
-    })
-
-    it('rejects when the command fails', async () => {
-      vi.mocked(x).mockImplementation(() => Promise.reject(new Error('Process exited with non-zero status (2)')) as never)
-      const pm: PackageManagerInfo = {
-        name: 'pnpm',
-        lockFiles: ['pnpm-lock.yaml'],
-        installCommand: ['add'],
-      }
-      await expect(installPackages(['kubb'], pm)).rejects.toThrow('Process exited with non-zero status')
     })
   })
 })

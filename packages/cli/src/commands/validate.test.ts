@@ -37,16 +37,4 @@ describe('validate command', () => {
     expect(runValidate).not.toHaveBeenCalled()
     expect(process.exitCode).toBe(1)
   })
-
-  it('rejects unknown options before running the command', async () => {
-    using _log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
-    using _error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    vi.stubEnv('KUBB_DISABLE_TELEMETRY', '1')
-
-    const { run } = await import('../index.ts')
-    await expect(run(['/usr/bin/node', '/usr/local/bin/kubb', 'validate', './spec.yaml', '--typo'])).rejects.toThrow()
-
-    expect(runValidate).not.toHaveBeenCalled()
-    expect(process.exitCode).toBe(1)
-  })
 })

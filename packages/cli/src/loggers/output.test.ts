@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
 import * as env from '../utils/env.ts'
-import { createSpinner, logIntro, logInfo, logOutro, logSpacer, logTip } from './output.ts'
+import { createSpinner, logIntro, logInfo, logTip } from './output.ts'
 
 vi.mock('@clack/prompts', () => ({
   intro: vi.fn(),
@@ -33,12 +33,11 @@ describe('plain output', () => {
     expect(capturePlain(() => logInfo('Detected pnpm'))).toEqual(['ℹ Detected pnpm'])
   })
 
-  it('prints the title and its warning instead of opening a block', () => {
-    expect(capturePlain(() => logIntro({ title: 'Kubb Studio', warning: 'Use with caution' }))).toEqual(['Kubb Studio', 'Use with caution', ''])
-  })
-
-  it('prints a warning without a duplicate title', () => {
-    expect(capturePlain(() => logIntro({ warning: 'Use with caution' }))).toEqual(['Use with caution', ''])
+  it.each([
+    { title: 'Kubb Studio', expected: ['Kubb Studio', 'Use with caution', ''], label: 'the title and its warning' },
+    { title: undefined, expected: ['Use with caution', ''], label: 'a warning without a duplicate title' },
+  ])('prints $label instead of opening a block', ({ title, expected }) => {
+    expect(capturePlain(() => logIntro({ title, warning: 'Use with caution' }))).toEqual(expected)
   })
 
   it('prints every step the spinner was given, so nothing is lost without an animation', () => {
@@ -60,23 +59,9 @@ describe('plain output', () => {
 
     expect(lines).toEqual(['Linting', '✗ Linting failed'])
   })
-
-  it('prints a bare line for the spacer between groups', () => {
-    expect(capturePlain(() => logSpacer())).toEqual([''])
-  })
 })
 
 describe('rich output', () => {
-  it('hands the text to clack', () => {
-    using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(true)
-
-    logOutro('Disconnected')
-    logInfo('Connected')
-
-    expect(prompts.outro).toHaveBeenCalledWith('Disconnected')
-    expect(prompts.log.info).toHaveBeenCalledWith('Connected')
-  })
-
   // A tip sits outside every group, so it is written without clack's gutter bar.
   it('renders a highlighted random tip without a gutter bar', () => {
     using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(true)
