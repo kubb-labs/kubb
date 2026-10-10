@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { CONFIG_EXTENSIONS } from '@internals/shared'
 import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
@@ -10,7 +11,7 @@ const generateSchema = v.object({
     v.pipe(
       v.string(),
       v.minLength(1),
-      v.description('Path to kubb.config file (supports .ts, .js, .cjs). If not provided, will look for kubb.config.{ts,js,cjs} in current directory'),
+      v.description(`Path to kubb.config file (supports ${CONFIG_EXTENSIONS.join(', ')}). If not provided, will look for kubb.config.* in current directory`),
     ),
   ),
   input: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Path to OpenAPI/Swagger spec file (overrides config)'))),
