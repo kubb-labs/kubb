@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Config } from '@kubb/core'
 import { AgentCloseCode, type RpcClose } from '../protocol/index.ts'
-import { InvalidAgentTokenError, registerAgent } from '../operations/api.ts'
+import { IncompatibleAgentError, InvalidAgentTokenError, registerAgent } from '../operations/api.ts'
 import { runConnection } from './runConnection.ts'
 
 vi.mock('../operations/api.ts', async (original) => ({ ...(await original<typeof import('../operations/api.ts')>()), registerAgent: vi.fn() }))
@@ -94,6 +94,16 @@ describe('runConnection', () => {
     const replace = vi.fn(async () => null)
     await expect(runConnection({ credentials: { token: 'a' }, clientOptions: c.options, onTokenRejected: replace })).resolves.toBe('stopped')
     expect(replace).toHaveBeenCalledWith(expect.objectContaining({ live: false }))
+  })
+
+  it('throws IncompatibleAgentError without retrying when Studio needs a newer agent', async () => {
+    vi.mocked(registerAgent).mockRejectedValue(new IncompatibleAgentError('https://studio.test', 'agent 5.3.0 is below 5.4.0'))
+    const c = connection()
+    await expect(runConnection({ credentials: { token: 'a' }, clientOptions: c.options, onTokenRejected: async () => null })).rejects.toBeInstanceOf(
+      IncompatibleAgentError,
+    )
+    expect(registerAgent).toHaveBeenCalledOnce()
+    expect(c.retry).not.toHaveBeenCalled()
   })
 
   it('stops on supersession and cancels a pending retry', async () => {

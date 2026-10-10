@@ -6,7 +6,7 @@ vi.mock('tinyexec', () => ({
   x: vi.fn(),
 }))
 
-import { x } from 'tinyexec'
+import { type Result, x } from 'tinyexec'
 
 type FakeProcOptions = {
   lines?: Array<string>
@@ -17,19 +17,21 @@ type FakeProcOptions = {
 
 /**
  * Builds a stand-in for tinyexec's `Result`: an object that is both async-iterable over
- * stdout lines and awaitable to the final `{ stdout, stderr, exitCode }` output.
+ * stdout lines and awaitable to the final `{ stdout, stderr, exitCode }` output. The listener
+ * touches nothing else on the result, so the rest of the process API is left out.
  */
-function fakeProc({ lines = [], exitCode = 0, stdout = '', stderr = '' }: FakeProcOptions = {}) {
-  return {
+function fakeProc({ lines = [], exitCode = 0, stdout = '', stderr = '' }: FakeProcOptions = {}): Result {
+  const proc: Pick<Result, 'then' | typeof Symbol.asyncIterator> = {
     async *[Symbol.asyncIterator]() {
       for (const line of lines) {
         yield line
       }
     },
-    then(onFulfilled: (value: { stdout: string; stderr: string; exitCode: number }) => unknown) {
+    then(onFulfilled) {
       return Promise.resolve({ stdout, stderr, exitCode }).then(onFulfilled)
     },
   }
+  return proc as Result
 }
 
 describe('setupHookListener', () => {
@@ -45,7 +47,7 @@ describe('setupHookListener', () => {
   })
 
   it('emits hook:end with success when command exits zero', async () => {
-    vi.mocked(x).mockReturnValue(fakeProc({ lines: ['output'], exitCode: 0 }) as any)
+    vi.mocked(x).mockReturnValue(fakeProc({ lines: ['output'], exitCode: 0 }))
 
     setupHookListener(hooks, '/root')
 
@@ -58,7 +60,7 @@ describe('setupHookListener', () => {
   })
 
   it('streams each stdout line as a hook:line event', async () => {
-    vi.mocked(x).mockReturnValue(fakeProc({ lines: ['first', 'second'], exitCode: 0 }) as any)
+    vi.mocked(x).mockReturnValue(fakeProc({ lines: ['first', 'second'], exitCode: 0 }))
 
     setupHookListener(hooks, '/root')
 
@@ -72,7 +74,7 @@ describe('setupHookListener', () => {
   })
 
   it('reports a non-zero exit on hook:end only, leaving kubb:error to the caller', async () => {
-    vi.mocked(x).mockReturnValue(fakeProc({ lines: ['boom'], exitCode: 1, stdout: 'boom', stderr: 'parse error' }) as any)
+    vi.mocked(x).mockReturnValue(fakeProc({ lines: ['boom'], exitCode: 1, stdout: 'boom', stderr: 'parse error' }))
 
     setupHookListener(hooks, '/root')
 

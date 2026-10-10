@@ -18,12 +18,11 @@ describe('resolveGenerationLimits', () => {
 })
 
 describe('resolveAgentCapacity', () => {
-  it('runs one job at a time when nothing is set', () => {
-    expect(resolveAgentCapacity({})).toStrictEqual({ maxConcurrent: 1 })
-  })
-
-  it('reads the concurrency from the environment, ignoring invalid values', () => {
-    expect(resolveAgentCapacity({ KUBB_AGENT_MAX_CONCURRENT: '2' })).toStrictEqual({ maxConcurrent: 2 })
-    expect(resolveAgentCapacity({ KUBB_AGENT_MAX_CONCURRENT: '0' })).toStrictEqual({ maxConcurrent: 1 })
+  it.each([
+    ['nothing is set', {}, 1],
+    ['the environment asks for 2', { KUBB_AGENT_MAX_CONCURRENT: '2' }, 2],
+    ['the environment holds an invalid value', { KUBB_AGENT_MAX_CONCURRENT: '0' }, 1],
+  ])('returns maxConcurrent when %s', (_label, env, maxConcurrent) => {
+    expect(resolveAgentCapacity(env)).toStrictEqual({ maxConcurrent })
   })
 })
