@@ -31,7 +31,7 @@ export class Hookable<THooks extends { [K in keyof THooks]: Array<unknown> }> {
 
   /**
    * Calls `hookName` and awaits all registered listeners sequentially.
-   * Throws if any listener rejects, wrapping the cause with the hook name and serialized arguments.
+   * Throws if any listener rejects, wrapping the cause in an error that names the hook.
    *
    * @example
    * ```ts
