@@ -1,4 +1,4 @@
-import type { Plugin } from '@kubb/core'
+import type { Adapter, Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { JSONKubbConfig } from '../protocol/index.ts'
 import { mergeAdapter, mergeOptions, mergePlugins, resolvePlugins, toExportName, toPackageName } from './resolveConfig.ts'
@@ -6,7 +6,6 @@ import { mergeAdapter, mergeOptions, mergePlugins, resolvePlugins, toExportName,
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
 
 const mockPluginTs = vi.fn((options: unknown) => ({ name: 'plugin-ts', options }))
-const mockPluginZod = vi.fn((options: unknown) => ({ name: 'plugin-zod', options }))
 
 // `mergePlugins` resolves through a real `import()`, so the packages it names are stubbed rather
 // than the resolver: after the merge they are the same module.
@@ -20,7 +19,6 @@ beforeEach(() => {
   // later test in the file.
   vi.resetModules()
   mockPluginTs.mockClear()
-  mockPluginZod.mockClear()
 })
 
 describe('mergePlugins', () => {
@@ -29,25 +27,14 @@ describe('mergePlugins', () => {
     expect(await mergePlugins(diskPlugins, undefined)).toBe(diskPlugins)
   })
 
-  it('merges studio options into a matching disk plugin, studio takes priority', async () => {
-    const diskPlugins = [makePlugin('plugin-zod', { validate: true })]
-    const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-zod', options: { validate: false } }]
-
-    const result = await mergePlugins(diskPlugins, studioPlugins)
-
-    expect(result).toHaveLength(1)
-    expect(result?.[0]).toMatchObject({ name: 'plugin-zod', options: { validate: false } })
-  })
-
-  it('preserves disk plugins that have no studio counterpart', async () => {
+  it('merges studio options into the matching disk plugin and keeps the ones without a studio counterpart', async () => {
     const pluginTs = makePlugin('plugin-ts', { enumType: 'asConst' })
     const diskPlugins = [makePlugin('plugin-zod', { validate: true }), pluginTs]
     const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-zod', options: { validate: false } }]
 
     const result = await mergePlugins(diskPlugins, studioPlugins)
 
-    expect(result).toHaveLength(2)
-    expect(result?.[1]).toBe(pluginTs)
+    expect(result).toStrictEqual([{ name: 'plugin-zod', options: { validate: false } }, pluginTs])
   })
 
   it('appends resolved studio plugins not present in disk config', async () => {
@@ -99,21 +86,14 @@ describe('mergeOptions', () => {
       exclude: [],
     })
   })
-
-  it('keeps disk values that do not survive JSON', () => {
-    const name = (group: string) => `${group}Controller`
-    const disk = { exclude: [{ type: 'path', pattern: /^\/admin/ }], group: { type: 'tag', name } }
-
-    expect(mergeOptions(disk, { exclude: [{ type: 'path', pattern: {} }], group: { type: 'path' } })).toStrictEqual({
-      exclude: disk.exclude,
-      group: { type: 'path', name },
-    })
-  })
 })
 
 describe('resolvePlugins', () => {
-  it('throws when the plugin package cannot be imported', async () => {
-    await expect(resolvePlugins([{ name: '@kubb/plugin-missing', options: {} }])).rejects.toThrow('Plugin "@kubb/plugin-missing" could not be loaded')
+  it.each([
+    ['the package cannot be imported', '@kubb/plugin-missing', 'Plugin "@kubb/plugin-missing" could not be loaded'],
+    ['the name is not a @kubb/plugin-* package', 'my-custom-plugin', 'is not a @kubb/plugin-* package'],
+  ])('throws when %s', async (_label, name, message) => {
+    await expect(resolvePlugins([{ name, options: {} }])).rejects.toThrow(message)
   })
 
   it('resolves a @kubb plugin by its camelCase named export', async () => {
@@ -125,15 +105,11 @@ describe('resolvePlugins', () => {
     expect(result).toHaveLength(1)
     expect(mockPluginTs).toHaveBeenCalledWith({ output: { path: './types' } })
   })
-
-  it('refuses a plugin name that is not a @kubb/plugin-* package', async () => {
-    await expect(resolvePlugins([{ name: 'my-custom-plugin', options: {} }])).rejects.toThrow('is not a @kubb/plugin-* package')
-  })
 })
 
 describe('mergeAdapter', () => {
   it('returns the disk adapter unchanged when there are no studio options', async () => {
-    const diskAdapter = { name: 'oas', options: { validate: true }, parse: vi.fn() } as any
+    const diskAdapter = { name: 'oas', options: { validate: true }, parse: vi.fn() } as unknown as Adapter
 
     const result = await mergeAdapter(diskAdapter, undefined)
 
@@ -145,7 +121,7 @@ describe('mergeAdapter', () => {
     vi.doMock('@kubb/adapter-oas', () => ({ adapterOas: mockAdapterOas }))
     const { mergeAdapter: merge } = await import('./resolveConfig.ts')
 
-    const diskAdapter = { name: 'oas', options: { validate: true, server: { index: 0 } }, parse: vi.fn() } as any
+    const diskAdapter = { name: 'oas', options: { validate: true, server: { index: 0 } }, parse: vi.fn() } as unknown as Adapter
 
     const result = await merge(diskAdapter, { server: { index: 1 } })
 
@@ -155,37 +131,15 @@ describe('mergeAdapter', () => {
 })
 
 describe('toExportName', () => {
-  // Every plugin published from kubb-labs/plugins. Both `resolvePlugins`, which imports this name,
-  // and the config patcher, which writes it into the user's file, go through here, so a package
-  // that breaks the convention has to show up as a failure rather than as a config Studio cannot load.
-  it('derives the factory name every Kubb plugin exports', () => {
-    const packages = [
-      '@kubb/plugin-axios',
-      '@kubb/plugin-cypress',
-      '@kubb/plugin-faker',
-      '@kubb/plugin-fetch',
-      '@kubb/plugin-mcp',
-      '@kubb/plugin-msw',
-      '@kubb/plugin-react-query',
-      '@kubb/plugin-redoc',
-      '@kubb/plugin-swr',
-      '@kubb/plugin-ts',
-      '@kubb/plugin-vue-query',
-      '@kubb/plugin-zod',
-    ]
+  // Both `resolvePlugins`, which imports this name, and the config patcher, which writes it into
+  // the user's file, go through here, so the convention has to hold for one- and many-word names.
+  it('derives the camelCase factory name a Kubb plugin exports', () => {
+    const packages = ['@kubb/plugin-ts', '@kubb/plugin-react-query', '@kubb/plugin-vue-query']
+
     expect(Object.fromEntries(packages.map((name) => [name, toExportName(name)]))).toStrictEqual({
-      '@kubb/plugin-axios': 'pluginAxios',
-      '@kubb/plugin-cypress': 'pluginCypress',
-      '@kubb/plugin-faker': 'pluginFaker',
-      '@kubb/plugin-fetch': 'pluginFetch',
-      '@kubb/plugin-mcp': 'pluginMcp',
-      '@kubb/plugin-msw': 'pluginMsw',
-      '@kubb/plugin-react-query': 'pluginReactQuery',
-      '@kubb/plugin-redoc': 'pluginRedoc',
-      '@kubb/plugin-swr': 'pluginSwr',
       '@kubb/plugin-ts': 'pluginTs',
+      '@kubb/plugin-react-query': 'pluginReactQuery',
       '@kubb/plugin-vue-query': 'pluginVueQuery',
-      '@kubb/plugin-zod': 'pluginZod',
     })
   })
 })

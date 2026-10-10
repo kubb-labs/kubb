@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { applyConfigEdits, isOptionValue, readConfig } from './configFile.ts'
+import { applyConfigEdits, readConfig } from './configFile.ts'
 import type { ConfigEdit, ConfigFileView, PluginView } from '../protocol/index.ts'
 
 const advanced = readFileSync(join(import.meta.dirname, '../../mocks/advanced.config.txt'), 'utf8')
@@ -221,11 +221,29 @@ describe('applyConfigEdits', () => {
     describe('values arriving from outside', () => {
       const base = `import { pluginTs } from '@kubb/plugin-ts'\n\nexport default defineConfig({\n  plugins: [pluginTs({ arrayType: 'generic' })],\n})\n`
 
-      it('refuses a value that is not a literal instead of writing it into the file', () => {
-        const result = applyConfigEdits(base, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: () => 'array' }])
-        expect({ changed: result.changed, reason: result.outcomes[0]?.reason }).toStrictEqual({
-          changed: false,
-          reason: 'the value is not a literal that can be written to a config file',
+      const values: Array<[label: string, value: unknown, applied: boolean]> = [
+        ['a string', 'x', true],
+        ['zero', 0, true],
+        ['false', false, true],
+        ['null', null, true],
+        ['an empty array', [], true],
+        ['an empty object', {}, true],
+        ['nested literals', ['a', { b: [1, null] }], true],
+        ['undefined', undefined, false],
+        ['a function', () => 1, false],
+        ['a symbol', Symbol('x'), false],
+        ['NaN', Number.NaN, false],
+        ['Infinity', Number.POSITIVE_INFINITY, false],
+        ['an array holding a function', [() => 1], false],
+        ['an object holding undefined', { a: undefined }, false],
+      ]
+
+      it.each(values)('writes %s into the file only when it is a literal', (_label, value, applied) => {
+        const result = applyConfigEdits(base, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value }])
+        expect({ changed: result.changed, applied: result.outcomes[0]?.applied, reason: result.outcomes[0]?.reason }).toStrictEqual({
+          changed: applied,
+          applied,
+          reason: applied ? undefined : 'the value is not a literal that can be written to a config file',
         })
       })
 
@@ -342,16 +360,5 @@ describe('applyConfigEdits', () => {
       const enabled = applyConfigEdits(disabled, [{ operation: 'enable-plugin', plugin: '@kubb/plugin-zod' }]).source
       expect(enabled).toBe(source)
     })
-  })
-})
-
-describe('isOptionValue', () => {
-  it('accepts literals and nested structures built from them', () => {
-    expect(['x', 1, 0, true, false, null, [], {}, ['a', { b: [1] }], { a: { b: null } }].every(isOptionValue)).toBe(true)
-  })
-
-  it('refuses anything that cannot be printed as a literal', () => {
-    const refused: Array<unknown> = [undefined, () => 1, Symbol('x'), Number.NaN, Number.POSITIVE_INFINITY, [() => 1], { a: undefined }]
-    expect(refused.some(isOptionValue)).toBe(false)
   })
 })
