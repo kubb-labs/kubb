@@ -24,6 +24,21 @@ describe('createOperation', () => {
     expectTypeOf(node.path).toEqualTypeOf<string>()
   })
 
+  it('keeps summary, deprecated and tags when given', () => {
+    const node = createOperation({
+      operationId: 'createPet',
+      method: 'POST',
+      path: '/pets',
+      summary: 'Create a pet',
+      deprecated: true,
+      tags: ['pets'],
+    })
+
+    expect(node.summary).toBe('Create a pet')
+    expect(node.deprecated).toBe(true)
+    expect(node.tags).toStrictEqual(['pets'])
+  })
+
   it('builds a generic operation without HTTP method/path', () => {
     const node = createOperation({ operationId: 'onPetAdded' })
 
