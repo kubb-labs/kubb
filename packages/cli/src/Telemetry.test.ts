@@ -1,60 +1,65 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { buildOtlpPayload, buildTelemetryEvent, isDisabled, sendTelemetry, type TelemetryPlugin } from './Telemetry.ts'
 
-vi.mock('@internals/utils', async (importActual) => ({
-  ...(await importActual<typeof import('@internals/utils')>()),
-  executeIfOnline: vi.fn(async (fn: () => Promise<unknown>) => fn()),
-}))
-
-const originalEnv = { ...process.env }
+type TelemetryEvent = ReturnType<typeof buildTelemetryEvent>
 
 afterEach(() => {
-  process.env = { ...originalEnv }
+  vi.unstubAllEnvs()
   vi.restoreAllMocks()
 })
 
+/**
+ * A built event with every machine-provided field filled in, so a payload assertion only states
+ * what it varies.
+ */
+function makeEvent(overrides: Partial<TelemetryEvent> = {}): TelemetryEvent {
+  return {
+    command: 'generate',
+    kubbVersion: '4.0.0',
+    nodeVersion: '20',
+    runtime: 'node',
+    runtimeVersion: '20',
+    platform: 'linux',
+    ci: false,
+    plugins: [],
+    duration: 1000,
+    filesCreated: 5,
+    status: 'success',
+    ...overrides,
+  }
+}
+
+function getSpan(event: TelemetryEvent) {
+  return buildOtlpPayload(event).resourceSpans[0]!.scopeSpans[0]!.spans[0]!
+}
+
 describe('isDisabled', () => {
-  it('should return false when DO_NOT_TRACK is not set', () => {
-    delete process.env['DO_NOT_TRACK']
-    delete process.env['KUBB_DISABLE_TELEMETRY']
-    expect(isDisabled()).toBe(false)
-  })
-
-  it('should return true when DO_NOT_TRACK=1', () => {
-    process.env['DO_NOT_TRACK'] = '1'
-
-    expect(isDisabled()).toBe(true)
-  })
-
-  it('should return true when DO_NOT_TRACK=true', () => {
-    process.env['DO_NOT_TRACK'] = 'true'
+  it.each([
+    ['DO_NOT_TRACK', '1'],
+    ['DO_NOT_TRACK', 'true'],
+    ['KUBB_DISABLE_TELEMETRY', '1'],
+    ['KUBB_DISABLE_TELEMETRY', 'true'],
+  ])('returns true when %s=%s', (name, value) => {
+    vi.stubEnv('DO_NOT_TRACK', '')
+    vi.stubEnv('KUBB_DISABLE_TELEMETRY', '')
+    vi.stubEnv(name, value)
 
     expect(isDisabled()).toBe(true)
   })
 
-  it('should return true when KUBB_DISABLE_TELEMETRY=1', () => {
-    delete process.env['DO_NOT_TRACK']
-    process.env['KUBB_DISABLE_TELEMETRY'] = '1'
-
-    expect(isDisabled()).toBe(true)
-  })
-
-  it('should return true when KUBB_DISABLE_TELEMETRY=true', () => {
-    delete process.env['DO_NOT_TRACK']
-    process.env['KUBB_DISABLE_TELEMETRY'] = 'true'
-
-    expect(isDisabled()).toBe(true)
-  })
-
-  it('should return false when DO_NOT_TRACK is set to a different value', () => {
-    process.env['DO_NOT_TRACK'] = '0'
+  it.each([
+    ['', 'neither variable is set'],
+    ['0', 'DO_NOT_TRACK is set to a different value'],
+  ])('returns false when DO_NOT_TRACK=%s (%s)', (value) => {
+    vi.stubEnv('DO_NOT_TRACK', value)
+    vi.stubEnv('KUBB_DISABLE_TELEMETRY', '')
 
     expect(isDisabled()).toBe(false)
   })
 })
 
 describe('buildTelemetryEvent', () => {
-  it('should build a telemetry event with safe anonymous data only', () => {
+  it('builds a telemetry event with safe anonymous data only', () => {
     const hrStart = process.hrtime()
     const plugins: Array<TelemetryPlugin> = [
       { name: 'plugin-ts', options: { output: { path: 'types' } } },
@@ -88,16 +93,8 @@ describe('buildOtlpPayload', () => {
   it.each([
     ['plugin-zod', 'plugin-ts', 'plugin-ts'],
     ['plugin-ts', 'plugin-zod'],
-  ])('should expose the same plugin filters regardless of order or duplicates: %j', (...names) => {
-    const event = buildTelemetryEvent({
-      command: 'generate',
-      kubbVersion: '4.0.0',
-      hrStart: process.hrtime(),
-      plugins: names.map((name) => ({ name, options: {} })),
-      status: 'success',
-    })
-
-    const span = buildOtlpPayload(event).resourceSpans[0]!.scopeSpans[0]!.spans[0]!
+  ])('exposes the same plugin filters regardless of order or duplicates: %j', (...names) => {
+    const span = getSpan(makeEvent({ plugins: names.map((name) => ({ name, options: {} })) }))
     const filters = span.attributes.filter((attribute) => attribute.key.startsWith('kubb.plugin') && attribute.key !== 'kubb.plugin_options')
 
     expect(filters).toStrictEqual([
@@ -107,33 +104,27 @@ describe('buildOtlpPayload', () => {
     ])
   })
 
-  it('should preserve registered names in plugin filters', () => {
-    const event = buildTelemetryEvent({
-      command: 'generate',
-      kubbVersion: '4.0.0',
-      hrStart: process.hrtime(),
-      plugins: [
-        { name: '@kubb/plugin-ts', options: {} },
-        { name: '@custom/plugin-ts', options: {} },
-      ],
-      status: 'success',
-    })
-
-    const span = buildOtlpPayload(event).resourceSpans[0]!.scopeSpans[0]!.spans[0]!
+  it('preserves registered names in plugin filters', () => {
+    const span = getSpan(
+      makeEvent({
+        plugins: [
+          { name: '@kubb/plugin-ts', options: {} },
+          { name: '@custom/plugin-ts', options: {} },
+        ],
+      }),
+    )
 
     expect(span.attributes).toContainEqual({ key: 'kubb.plugin.@kubb/plugin-ts', value: { boolValue: true } })
     expect(span.attributes).toContainEqual({ key: 'kubb.plugin.@custom/plugin-ts', value: { boolValue: true } })
   })
 
-  it('should retain every plugin options snapshot separately from plugin names', () => {
+  it('retains every plugin options snapshot separately from plugin names', () => {
     const plugins = [
       { name: 'plugin-ts', options: { output: { path: 'types' }, enumType: 'asConst', usedEnumNames: ['Pet'] } },
       { name: 'plugin-zod', options: { output: { path: 'schemas' }, typed: true } },
       { name: 'plugin-ts', options: { output: { path: 'other-types' }, enumType: 'enum' } },
     ]
-    const event = buildTelemetryEvent({ command: 'generate', kubbVersion: '4.0.0', hrStart: process.hrtime(), plugins, status: 'success' })
-
-    const span = buildOtlpPayload(event).resourceSpans[0]!.scopeSpans[0]!.spans[0]!
+    const span = getSpan(makeEvent({ plugins }))
 
     expect(span.attributes.find((attribute) => attribute.key === 'kubb.plugin_options')?.value).toStrictEqual({
       arrayValue: {
@@ -168,157 +159,61 @@ describe('buildOtlpPayload', () => {
     expect(plugins[0]!.options.usedEnumNames).toStrictEqual(['Pet'])
   })
 
-  it('should emit empty plugin summaries without usage flags when no plugins are supplied', () => {
-    const event = buildTelemetryEvent({ command: 'validate', kubbVersion: '4.0.0', hrStart: process.hrtime(), status: 'success' })
-
-    const span = buildOtlpPayload(event).resourceSpans[0]!.scopeSpans[0]!.spans[0]!
+  it('emits empty plugin summaries without usage flags when no plugins are supplied', () => {
+    const span = getSpan(buildTelemetryEvent({ command: 'validate', kubbVersion: '4.0.0', hrStart: process.hrtime(), status: 'success' }))
 
     expect(span.attributes).toContainEqual({ key: 'kubb.plugins', value: { arrayValue: { values: [] } } })
     expect(span.attributes).toContainEqual({ key: 'kubb.plugin_options', value: { arrayValue: { values: [] } } })
     expect(span.attributes.filter((attribute) => attribute.key.startsWith('kubb.plugin.'))).toStrictEqual([])
   })
 
-  it('should include the kubb.agent attribute when the event has an agent', () => {
-    const event: ReturnType<typeof buildTelemetryEvent> = {
-      command: 'generate',
-      kubbVersion: '4.0.0',
-      nodeVersion: '20',
-      runtime: 'node',
-      runtimeVersion: '20',
-      platform: 'linux',
-      ci: false,
-      agent: 'claude',
-      plugins: [],
-      duration: 1000,
-      filesCreated: 5,
-      status: 'success',
-    }
+  it.each([
+    { agent: 'claude', expected: { key: 'kubb.agent', value: { stringValue: 'claude' } }, label: 'includes' },
+    { agent: undefined, expected: undefined, label: 'omits' },
+  ])('$label the kubb.agent attribute when the event agent is $agent', ({ agent, expected }) => {
+    const span = getSpan(makeEvent({ agent }))
 
-    const payload = buildOtlpPayload(event)
-    const span = payload.resourceSpans[0]!.scopeSpans[0]!.spans[0]!
-    expect(span.attributes).toContainEqual({ key: 'kubb.agent', value: { stringValue: 'claude' } })
+    expect(span.attributes.find((attribute) => attribute.key === 'kubb.agent')).toStrictEqual(expected)
   })
 
-  it('should omit the kubb.agent attribute when the event has no agent', () => {
-    const event: ReturnType<typeof buildTelemetryEvent> = {
-      command: 'generate',
-      kubbVersion: '4.0.0',
-      nodeVersion: '20',
-      runtime: 'node',
-      runtimeVersion: '20',
-      platform: 'linux',
-      ci: false,
-      plugins: [],
-      duration: 1000,
-      filesCreated: 5,
-      status: 'success',
-    }
+  it.each([
+    { status: 'success', code: 1 },
+    { status: 'failed', code: 2 },
+  ] as const)('builds a valid OTLP trace payload with status code $code for $status', ({ status, code }) => {
+    const payload = buildOtlpPayload(makeEvent({ plugins: [{ name: 'plugin-ts', options: { output: { path: 'types' } } }], status }))
 
-    const payload = buildOtlpPayload(event)
-    const span = payload.resourceSpans[0]!.scopeSpans[0]!.spans[0]!
-    expect(span.attributes.find((a) => a.key === 'kubb.agent')).toBeUndefined()
-  })
-
-  it('should build a valid OTLP trace payload', () => {
-    const event: ReturnType<typeof buildTelemetryEvent> = {
-      command: 'generate',
-      kubbVersion: '4.0.0',
-      nodeVersion: '20',
-      runtime: 'node',
-      runtimeVersion: '20',
-      platform: 'linux',
-      ci: false,
-      plugins: [{ name: 'plugin-ts', options: { output: { path: 'types' } } }],
-      duration: 1000,
-      filesCreated: 5,
-      status: 'success',
-    }
-
-    const payload = buildOtlpPayload(event)
-    expect(payload).toHaveProperty('resourceSpans')
     const [resourceSpan] = payload.resourceSpans
     expect(resourceSpan!.resource.attributes).toContainEqual({
       key: 'service.name',
       value: { stringValue: 'kubb' },
     })
-    const [scopeSpan] = resourceSpan!.scopeSpans
-    const [span] = scopeSpan!.spans
+    const [span] = resourceSpan!.scopeSpans[0]!.spans
     expect(span!.name).toBe('generate')
-    expect(span!.status?.code).toBe(1)
-    expect(typeof span!.traceId).toBe('string')
-    expect(span!.traceId).toHaveLength(32)
-    expect(typeof span!.spanId).toBe('string')
-    expect(span!.spanId).toHaveLength(16)
+    expect(span!.status?.code).toBe(code)
+    expect(span!.traceId).toMatch(/^[0-9a-f]{32}$/)
+    expect(span!.spanId).toMatch(/^[0-9a-f]{16}$/)
     expect(typeof span!.startTimeUnixNano).toBe('string')
     expect(typeof span!.endTimeUnixNano).toBe('string')
-    const attr = span!.attributes?.find((a) => a.key === 'kubb.status')
-    expect(attr?.value).toStrictEqual({ stringValue: 'success' })
-  })
-
-  it('should set status code 2 for failed status', () => {
-    const event: ReturnType<typeof buildTelemetryEvent> = {
-      command: 'generate',
-      kubbVersion: '4.0.0',
-      nodeVersion: '20',
-      runtime: 'node',
-      runtimeVersion: '20',
-      platform: 'linux',
-      ci: false,
-      plugins: [],
-      duration: 500,
-      filesCreated: 0,
-      status: 'failed',
-    }
-
-    const payload = buildOtlpPayload(event)
-    const span = payload?.resourceSpans[0]?.scopeSpans[0]?.spans[0]
-    expect(span?.status?.code).toBe(2)
+    expect(span!.attributes.find((attribute) => attribute.key === 'kubb.status')?.value).toStrictEqual({ stringValue: status })
   })
 })
 
 describe('sendTelemetry', () => {
-  beforeEach(() => {
-    delete process.env['DO_NOT_TRACK']
-    delete process.env['KUBB_DISABLE_TELEMETRY']
-  })
-
-  it('should not send when DO_NOT_TRACK=1', async () => {
-    process.env['DO_NOT_TRACK'] = '1'
+  it('sends nothing when DO_NOT_TRACK=1', async () => {
+    vi.stubEnv('DO_NOT_TRACK', '1')
     const fetchSpy = vi.spyOn(globalThis, 'fetch')
 
-    await sendTelemetry({
-      command: 'generate',
-      kubbVersion: '4.0.0',
-      nodeVersion: '20',
-      runtime: 'node',
-      runtimeVersion: '20',
-      platform: 'linux',
-      ci: false,
-      plugins: [{ name: 'plugin-ts', options: {} }],
-      duration: 1000,
-      filesCreated: 5,
-      status: 'success',
-    })
+    await sendTelemetry(makeEvent({ plugins: [{ name: 'plugin-ts', options: {} }] }))
 
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
-  it('should send when telemetry is enabled', async () => {
+  it('posts the OTLP payload when telemetry is enabled', async () => {
+    vi.stubEnv('DO_NOT_TRACK', '')
+    vi.stubEnv('KUBB_DISABLE_TELEMETRY', '')
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 200 }))
 
-    await sendTelemetry({
-      command: 'generate',
-      kubbVersion: '4.0.0',
-      nodeVersion: '20',
-      runtime: 'node',
-      runtimeVersion: '20',
-      platform: 'linux',
-      ci: false,
-      plugins: [{ name: 'plugin-ts', options: { output: { path: 'types' } } }],
-      duration: 1000,
-      filesCreated: 5,
-      status: 'success',
-    })
+    await sendTelemetry(makeEvent({ plugins: [{ name: 'plugin-ts', options: { output: { path: 'types' } } }] }))
 
     expect(fetchSpy).toHaveBeenCalledOnce()
     const [url, init] = fetchSpy.mock.calls[0]!
@@ -332,23 +227,11 @@ describe('sendTelemetry', () => {
     expect(span.status.code).toBe(1)
   })
 
-  it('should fail silently when fetch throws', async () => {
+  it('resolves without throwing when fetch rejects', async () => {
+    vi.stubEnv('DO_NOT_TRACK', '')
+    vi.stubEnv('KUBB_DISABLE_TELEMETRY', '')
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Network error'))
 
-    await expect(
-      sendTelemetry({
-        command: 'generate',
-        kubbVersion: '4.0.0',
-        nodeVersion: '20',
-        runtime: 'node',
-        runtimeVersion: '20',
-        platform: 'linux',
-        ci: false,
-        plugins: [],
-        duration: 500,
-        filesCreated: 0,
-        status: 'failed',
-      }),
-    ).resolves.not.toThrow()
+    await expect(sendTelemetry(makeEvent({ duration: 500, filesCreated: 0, status: 'failed' }))).resolves.toBeUndefined()
   })
 })

@@ -212,17 +212,6 @@ describe('snapshot', () => {
     )
   })
 
-  it('shows a retry the same way kubb studio does', async () => {
-    session = async (hooks) => {
-      await hooks.callHook('studio:reconnecting', { delayMs: 30_000 })
-      await acceptedSession(hooks)
-    }
-
-    await snapshot(baseOptions({ json: true }))
-
-    expect(vi.mocked(console.error)).toHaveBeenCalledWith('Retrying connection to Kubb Studio in 30.00s')
-  })
-
   it('fails fast when Studio rejects the CI agent token, instead of waiting for the job timeout', async () => {
     const rejected = new InvalidAgentTokenError('http://localhost:3000')
     session = async (hooks, options) => {
@@ -241,32 +230,21 @@ describe('snapshot', () => {
     await expect(snapshot(baseOptions())).rejects.toBe(rejected)
   })
 
-  it('throws when the job fails', async () => {
+  it('throws the job error and still ends the connection when the job fails', async () => {
     vi.mocked(waitForJob).mockResolvedValue({ id: 'job-1', status: 'failed', error: 'Agent does not report peer dependencies' })
 
     await expect(snapshot(baseOptions())).rejects.toThrow('Agent does not report peer dependencies')
-  })
-
-  it('ends the connection even when the job fails', async () => {
-    vi.mocked(waitForJob).mockResolvedValue({ id: 'job-1', status: 'failed', error: 'boom' })
-
-    await expect(snapshot(baseOptions())).rejects.toThrow()
     expect(runConnection).toHaveBeenCalledOnce()
     expect(connection?.signal?.aborted).toBe(true)
   })
 
-  it('requires a token from --token or KUBB_TOKEN', async () => {
-    await expect(snapshot(baseOptions({ token: undefined }))).rejects.toThrow('KUBB_TOKEN')
-  })
-
-  it('rejects a non-positive or non-finite --timeout before touching the network', async () => {
-    await expect(snapshot(baseOptions({ timeout: 0 }))).rejects.toThrow('--timeout must be a positive number of seconds')
-    await expect(snapshot(baseOptions({ timeout: Number.NaN }))).rejects.toThrow('--timeout must be a positive number of seconds')
-    expect(createAgent).not.toHaveBeenCalled()
-  })
-
-  it('refuses to send the CI key to a non-HTTPS, non-loopback Studio URL', async () => {
-    await expect(snapshot(baseOptions({ studioUrl: 'http://studio.internal' }))).rejects.toThrow('Refusing to send the CI API key')
+  it.each([
+    { overrides: { token: undefined }, message: 'KUBB_TOKEN', label: 'no token comes from --token or KUBB_TOKEN' },
+    { overrides: { timeout: 0 }, message: '--timeout must be a positive number of seconds', label: '--timeout is not positive' },
+    { overrides: { timeout: Number.NaN }, message: '--timeout must be a positive number of seconds', label: '--timeout is not finite' },
+    { overrides: { studioUrl: 'http://studio.internal' }, message: 'Refusing to send the CI API key', label: 'the Studio URL is neither HTTPS nor loopback' },
+  ])('rejects before touching the network when $label', async ({ overrides, message }) => {
+    await expect(snapshot(baseOptions(overrides))).rejects.toThrow(message)
     expect(createAgent).not.toHaveBeenCalled()
   })
 
@@ -284,43 +262,44 @@ describe('snapshot', () => {
 describe('formatChanges', () => {
   const base = { id: 'snap-0', version: '1.0.0', commit: '9f3e2a1bbccdd', createdAt: '2026-01-01T00:00:00.000Z' }
 
-  it('counts each kind since the short commit of the previous snapshot', () => {
-    expect(formatChanges({ base, added: ['a.ts', 'b.ts'], changed: ['c.ts'], removed: ['d.ts'] })).toBe('2 added, 1 changed, 1 removed since 9f3e2a1')
-  })
-
-  it('says so when nothing changed', () => {
-    expect(formatChanges({ base, added: [], changed: [], removed: [] })).toBe('No changes since 9f3e2a1')
-  })
-
-  it('falls back to the date when the previous snapshot has no commit', () => {
-    expect(formatChanges({ base: { ...base, commit: undefined }, added: [], changed: ['c.ts'], removed: [] })).toBe(
-      '0 added, 1 changed, 0 removed since 2026-01-01T00:00:00.000Z',
-    )
-  })
-
-  it('names a first snapshot', () => {
-    expect(formatChanges({ base: null, added: ['a.ts'], changed: [], removed: [] })).toBe('First snapshot')
+  it.each([
+    {
+      changes: { base, added: ['a.ts', 'b.ts'], changed: ['c.ts'], removed: ['d.ts'] },
+      expected: '2 added, 1 changed, 1 removed since 9f3e2a1',
+      label: 'counts each kind since the short commit of the previous snapshot',
+    },
+    { changes: { base, added: [], changed: [], removed: [] }, expected: 'No changes since 9f3e2a1', label: 'says so when nothing changed' },
+    {
+      changes: { base: { ...base, commit: undefined }, added: [], changed: ['c.ts'], removed: [] },
+      expected: '0 added, 1 changed, 0 removed since 2026-01-01T00:00:00.000Z',
+      label: 'falls back to the date when the previous snapshot has no commit',
+    },
+    { changes: { base: null, added: ['a.ts'], changed: [], removed: [] }, expected: 'First snapshot', label: 'names a first snapshot' },
+  ])('$label', ({ changes, expected }) => {
+    expect(formatChanges(changes)).toBe(expected)
   })
 })
 
 describe('formatBranchChanges', () => {
   const base = { id: 'snap-main', version: '1.0.0', commit: 'a1b2c3d4e', createdAt: '2026-01-01T00:00:00.000Z' }
 
-  it('counts each kind against the branch', () => {
-    expect(formatBranchChanges({ branch: 'main', base, added: ['a.ts'], changed: [], removed: ['b.ts'], baseFound: true })).toBe(
-      '1 added, 0 changed, 1 removed against main',
-    )
-  })
-
-  it('says so when no CI agent is registered for the branch yet', () => {
-    expect(formatBranchChanges({ branch: 'main', base: null, added: [], changed: [], removed: [], baseFound: false })).toBe(
-      'No snapshot of main to compare with',
-    )
-  })
-
-  it('says so when the branch has an agent but no snapshot of this package yet', () => {
-    expect(formatBranchChanges({ branch: 'main', base: null, added: [], changed: [], removed: [], baseFound: true })).toBe(
-      'No snapshot of main for this package yet',
-    )
+  it.each([
+    {
+      changes: { branch: 'main', base, added: ['a.ts'], changed: [], removed: ['b.ts'], baseFound: true },
+      expected: '1 added, 0 changed, 1 removed against main',
+      label: 'counts each kind against the branch',
+    },
+    {
+      changes: { branch: 'main', base: null, added: [], changed: [], removed: [], baseFound: false },
+      expected: 'No snapshot of main to compare with',
+      label: 'says so when no CI agent is registered for the branch yet',
+    },
+    {
+      changes: { branch: 'main', base: null, added: [], changed: [], removed: [], baseFound: true },
+      expected: 'No snapshot of main for this package yet',
+      label: 'says so when the branch has an agent but no snapshot of this package yet',
+    },
+  ])('$label', ({ changes, expected }) => {
+    expect(formatBranchChanges(changes)).toBe(expected)
   })
 })

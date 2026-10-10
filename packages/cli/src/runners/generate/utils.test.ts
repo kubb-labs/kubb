@@ -9,46 +9,7 @@ import { createSerialRunner, fetchUrlBody, getConfigs, isNewerVersion, runHook, 
 const node = process.execPath
 
 describe('runHook', () => {
-  it('emits kubb:hook:line for each stdout line when a listener is attached', async () => {
-    const hooks = new Hookable<KubbHooks>()
-    const lines: Array<string> = []
-    hooks.hook('kubb:hook:line', ({ line }) => {
-      lines.push(line)
-    })
-
-    await runHook({
-      id: 'a',
-      command: node,
-      args: ['-e', 'console.log("first"); console.log("second")'],
-      commandWithArgs: 'node',
-      hooks,
-    })
-
-    expect(lines).toContain('first')
-    expect(lines).toContain('second')
-  })
-
-  it('emits kubb:hook:end with captured stdout/stderr and success=false on a non-zero exit', async () => {
-    const hooks = new Hookable<KubbHooks>()
-    let end: { success: boolean; stdout?: string; stderr?: string } | undefined
-    hooks.hook('kubb:hook:end', (ctx) => {
-      end = ctx
-    })
-
-    await runHook({
-      id: 'b',
-      command: node,
-      args: ['-e', 'process.stdout.write("out"); process.stderr.write("boom"); process.exit(1)'],
-      commandWithArgs: 'node',
-      hooks,
-    })
-
-    expect(end?.success).toBe(false)
-    expect(end?.stdout).toContain('out')
-    expect(end?.stderr).toContain('boom')
-  })
-
-  it('streams output as kubb:hook:line and still ends with success=false when a streamed hook fails', async () => {
+  it('streams each stdout line through kubb:hook:line and still ends with success=false when the hook fails', async () => {
     const hooks = new Hookable<KubbHooks>()
     const lines: Array<string> = []
     let end: { success: boolean } | undefined
@@ -60,40 +21,26 @@ describe('runHook', () => {
     })
 
     await runHook({
-      id: 'd',
+      id: 'a',
       command: node,
-      args: ['-e', 'console.log("streamed"); process.exit(1)'],
+      args: ['-e', 'console.log("first"); console.log("second"); process.exit(1)'],
       commandWithArgs: 'node',
       hooks,
     })
 
-    expect(lines).toContain('streamed')
+    expect(lines).toStrictEqual(['first', 'second'])
     expect(end?.success).toBe(false)
   })
 
-  it('completes without streaming when no kubb:hook:line listener is attached', async () => {
+  it('returns success=true with no error and emits kubb:hook:end when the command exits 0 without a line listener', async () => {
     const hooks = new Hookable<KubbHooks>()
     let succeeded = false
     hooks.hook('kubb:hook:end', ({ success }) => {
       succeeded = success
     })
 
-    await runHook({
-      id: 'c',
-      command: node,
-      args: ['-e', 'console.log("noop")'],
-      commandWithArgs: 'node',
-      hooks,
-    })
-
-    expect(succeeded).toBe(true)
-  })
-
-  it('returns success=true with no error when the command exits 0', async () => {
-    const hooks = new Hookable<KubbHooks>()
-
     const result = await runHook({
-      id: 'e',
+      id: 'b',
       command: node,
       args: ['-e', 'console.log("noop")'],
       commandWithArgs: 'node',
@@ -101,13 +48,18 @@ describe('runHook', () => {
     })
 
     expect(result).toStrictEqual({ success: true, error: null })
+    expect(succeeded).toBe(true)
   })
 
-  it('returns success=false with the error and captured output on a non-zero exit', async () => {
+  it('returns success=false with the error and captured output, and emits the same on kubb:hook:end, on a non-zero exit', async () => {
     const hooks = new Hookable<KubbHooks>()
+    let end: { success: boolean; stdout?: string; stderr?: string } | undefined
+    hooks.hook('kubb:hook:end', (ctx) => {
+      end = ctx
+    })
 
     const result = await runHook({
-      id: 'f',
+      id: 'c',
       command: node,
       args: ['-e', 'process.stdout.write("out"); process.stderr.write("boom"); process.exit(1)'],
       commandWithArgs: 'node',
@@ -118,35 +70,25 @@ describe('runHook', () => {
     expect(result.error?.message).toContain('Hook execute failed')
     expect(result.stdout).toContain('out')
     expect(result.stderr).toContain('boom')
+    expect(end).toMatchObject({ success: false, stdout: 'out', stderr: 'boom' })
   })
 })
 
 describe('runPostGenerate', () => {
-  it('runs string and labeled commands in sequence and reports each outcome', async () => {
-    const hooks = new Hookable<KubbHooks>()
-
-    const results = await runPostGenerate({
-      commands: [`"${node}" -e "process.exit(0)"`, { name: 'types', command: `"${node}" -e "process.exit(0)"` }],
-      hooks,
-    })
-
-    expect(results).toHaveLength(2)
-    expect(results.every((result) => result.success)).toBe(true)
-  })
-
-  it('emits kubb:hook:start with the step name for a labeled command', async () => {
+  it('runs string and labeled commands in sequence, naming the labeled step on kubb:hook:start', async () => {
     const hooks = new Hookable<KubbHooks>()
     const names: Array<string | undefined> = []
     hooks.hook('kubb:hook:start', ({ name }) => {
       names.push(name)
     })
 
-    await runPostGenerate({
-      commands: [{ name: 'types', command: `"${node}" -e "process.exit(0)"` }],
+    const results = await runPostGenerate({
+      commands: [`"${node}" -e "process.exit(0)"`, { name: 'types', command: `"${node}" -e "process.exit(0)"` }],
       hooks,
     })
 
-    expect(names).toStrictEqual(['types'])
+    expect(results.map((result) => result.success)).toStrictEqual([true, true])
+    expect(names).toStrictEqual([undefined, 'types'])
   })
 
   it('reports success=false when a command exits non-zero', async () => {
@@ -163,24 +105,14 @@ describe('runPostGenerate', () => {
 })
 
 describe('isNewerVersion', () => {
-  it('returns true when the latest minor is double-digit', () => {
-    expect(isNewerVersion('5.9.0', '5.10.0')).toBe(true)
-  })
-
-  it('returns false when the versions are equal', () => {
-    expect(isNewerVersion('5.9.0', '5.9.0')).toBe(false)
-  })
-
-  it('returns false when the latest version is older', () => {
-    expect(isNewerVersion('5.10.0', '5.9.9')).toBe(false)
-  })
-
-  it('ignores prerelease suffixes when comparing', () => {
-    expect(isNewerVersion('5.9.0-beta.1', '5.9.1')).toBe(true)
-  })
-
-  it('returns false for a malformed latest version', () => {
-    expect(isNewerVersion('5.9.0', 'not-a-version')).toBe(false)
+  it.each([
+    { current: '5.9.0', latest: '5.10.0', expected: true, label: 'the latest minor is double-digit' },
+    { current: '5.9.0', latest: '5.9.0', expected: false, label: 'the versions are equal' },
+    { current: '5.10.0', latest: '5.9.9', expected: false, label: 'the latest version is older' },
+    { current: '5.9.0-beta.1', latest: '5.9.1', expected: true, label: 'the current version has a prerelease suffix' },
+    { current: '5.9.0', latest: 'not-a-version', expected: false, label: 'the latest version is malformed' },
+  ])('returns $expected when $label', ({ current, latest, expected }) => {
+    expect(isNewerVersion(current, latest)).toBe(expected)
   })
 })
 
@@ -412,7 +344,7 @@ describe('startUrlWatcher', () => {
     await vi.waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2))
   })
 
-  it('aborts the in-flight request when stopped', async () => {
+  it('aborts the in-flight request and stops polling once the returned stop function runs', async () => {
     let aborted = false
     const fetchMock = stubHungFetch(() => {
       aborted = true
@@ -423,18 +355,9 @@ describe('startUrlWatcher', () => {
     stop()
 
     await vi.waitFor(() => expect(aborted).toBe(true))
-  })
-
-  it('stops polling once the returned stop function runs', async () => {
-    const pollCount = stubFetchQueue(['v1'])
-    const stop = watch(async () => {}, { initialBody: 'v1' })
-
-    await vi.waitFor(() => expect(pollCount()).toBeGreaterThanOrEqual(2))
-    stop()
-    const settled = pollCount()
-
+    const settled = fetchMock.mock.calls.length
     await new Promise((resolve) => setTimeout(resolve, 30))
-    expect(pollCount()).toBeLessThanOrEqual(settled + 1)
+    expect(fetchMock.mock.calls.length).toBe(settled)
   })
 })
 
@@ -452,22 +375,16 @@ describe('fetchUrlBody', () => {
     await expect(fetchUrlBody('http://localhost:1234/openapi.json')).resolves.toBe('{"openapi":"3.1.0"}')
   })
 
-  it('returns undefined for a non-2xx response', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(async () => ({ ok: false, status: 500, text: async () => 'nope' })),
-    )
-
-    await expect(fetchUrlBody('http://localhost:1234/openapi.json')).resolves.toBeUndefined()
-  })
-
-  it('returns undefined when the request fails', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(async () => {
+  it.each([
+    { label: 'the response is not 2xx', fetch: async () => ({ ok: false, status: 500, text: async () => 'nope' }) },
+    {
+      label: 'the request fails',
+      fetch: async () => {
         throw new Error('fetch failed')
-      }),
-    )
+      },
+    },
+  ])('returns undefined when $label', async ({ fetch }) => {
+    vi.stubGlobal('fetch', vi.fn(fetch))
 
     await expect(fetchUrlBody('http://localhost:1234/openapi.json')).resolves.toBeUndefined()
   })

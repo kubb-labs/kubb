@@ -3,20 +3,16 @@ import { describe, expect, it } from 'vitest'
 import { formatMsWithColor } from './banner.ts'
 
 describe('formatMsWithColor', () => {
-  it('should format with green color when duration <= 500ms', () => {
-    expect(formatMsWithColor(100)).toBe(styleText('green', '100ms'))
-    expect(formatMsWithColor(500)).toBe(styleText('green', '500ms'))
-  })
-
-  it('should format with yellow color when duration > 500ms and <= 1000ms', () => {
-    expect(formatMsWithColor(501)).toBe(styleText('yellow', '501ms'))
-    expect(formatMsWithColor(750)).toBe(styleText('yellow', '750ms'))
-    expect(formatMsWithColor(1000)).toBe(styleText('yellow', '1.00s'))
-  })
-
-  it('should format with red color when duration > 1000ms', () => {
-    expect(formatMsWithColor(1001)).toBe(styleText('red', '1.00s'))
-    expect(formatMsWithColor(2000)).toBe(styleText('red', '2.00s'))
-    expect(formatMsWithColor(60000)).toBe(styleText('red', '1m 0.0s'))
+  it.each([
+    { ms: 100, color: 'green', text: '100ms' },
+    { ms: 500, color: 'green', text: '500ms' },
+    { ms: 501, color: 'yellow', text: '501ms' },
+    { ms: 750, color: 'yellow', text: '750ms' },
+    { ms: 1000, color: 'yellow', text: '1.00s' },
+    { ms: 1001, color: 'red', text: '1.00s' },
+    { ms: 2000, color: 'red', text: '2.00s' },
+    { ms: 60000, color: 'red', text: '1m 0.0s' },
+  ] as const)('returns $text in $color for $ms ms', ({ ms, color, text }) => {
+    expect(formatMsWithColor(ms)).toBe(styleText(color, text))
   })
 })

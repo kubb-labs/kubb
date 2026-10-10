@@ -54,15 +54,21 @@ describe('detectCi', () => {
     expect(branch).toEqual({ id: 'gh:123456:refs/heads/main', name: 'acme/api#main', commit: 'merge5678' })
   })
 
-  it('falls back to the run id when GitHub Actions has no pull request', () => {
-    expect(
-      detectCi({
-        GITHUB_ACTIONS: 'true',
-        GITHUB_REPOSITORY_ID: '123456',
-        GITHUB_REPOSITORY: 'acme/api',
-        GITHUB_RUN_ID: '987',
-      }),
-    ).toEqual({ id: 'gh:123456:987', name: 'acme/api#987' })
+  it.each([
+    {
+      ci: 'GitHub Actions',
+      fallback: 'the run id',
+      env: { GITHUB_ACTIONS: 'true', GITHUB_REPOSITORY_ID: '123456', GITHUB_REPOSITORY: 'acme/api', GITHUB_RUN_ID: '987' },
+      expected: { id: 'gh:123456:987', name: 'acme/api#987' },
+    },
+    {
+      ci: 'GitLab CI',
+      fallback: 'the branch slug',
+      env: { GITLAB_CI: 'true', CI_PROJECT_ID: '77', CI_PROJECT_PATH: 'acme/api', CI_COMMIT_REF_SLUG: 'main' },
+      expected: { id: 'gl:77:main', name: 'acme/api#main' },
+    },
+  ])('falls back to $fallback when $ci has no pull request', ({ env, expected }) => {
+    expect(detectCi(env)).toEqual(expected)
   })
 
   it('derives an id from GitLab CI', () => {
@@ -74,17 +80,6 @@ describe('detectCi', () => {
         CI_MERGE_REQUEST_IID: '9',
       }),
     ).toEqual({ id: 'gl:77:9', name: 'acme/api#9' })
-  })
-
-  it('falls back to the branch slug when GitLab CI has no merge request', () => {
-    expect(
-      detectCi({
-        GITLAB_CI: 'true',
-        CI_PROJECT_ID: '77',
-        CI_PROJECT_PATH: 'acme/api',
-        CI_COMMIT_REF_SLUG: 'main',
-      }),
-    ).toEqual({ id: 'gl:77:main', name: 'acme/api#main' })
   })
 
   it('reads the target branch of a GitLab merge request, and the base matches a pipeline on that branch', () => {
