@@ -58,9 +58,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
   })
 
   hooks.hook('kubb:files:processing:end', () => {
-    const text = '✓ Files written successfully'
-
-    console.log(text)
+    console.log('✓ Files written successfully')
   })
 
   hooks.hook('kubb:generation:end', ({ config, status, diagnostics }) => {

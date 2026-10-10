@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { ast } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
-import { definePlugin, type Storage, type UserConfig } from '@kubb/core'
+import { definePlugin, memoryStorage, type UserConfig } from '@kubb/core'
 import { describe, expect, test, vi } from 'vitest'
 import type { UnpluginBuildContext } from 'unplugin'
 import nuxtModule from './nuxt.ts'
@@ -31,45 +31,6 @@ function createBuildContext(): UnpluginBuildContext {
   }
 }
 
-function createMemoryStorage() {
-  const store = new Map<string, string>()
-  const empty = vi.fn<Storage['empty']>(async (base) => {
-    if (!base) {
-      store.clear()
-      return
-    }
-
-    for (const key of store.keys()) {
-      if (key.startsWith(base)) {
-        store.delete(key)
-      }
-    }
-  })
-
-  const storage: Storage = {
-    name: 'memory',
-    async existsItem(key) {
-      return store.has(key)
-    },
-    async readItem(key) {
-      return store.get(key) ?? null
-    },
-    async writeItem(key, value) {
-      store.set(key, value)
-    },
-    async removeItem(key) {
-      store.delete(key)
-    },
-    async readKeys(base) {
-      const keys = [...store.keys()]
-      return base ? keys.filter((key) => key.startsWith(base)) : keys
-    },
-    empty,
-  }
-
-  return { empty, storage, store }
-}
-
 describe('unpluginFactory', () => {
   test('creates vite and webpack subpackage plugins', () => {
     expect(vite({ config: { output: { path: './gen' } } })).toMatchObject({ name: 'unplugin-kubb' })
@@ -84,7 +45,7 @@ describe('unpluginFactory', () => {
   })
 
   test('uses the same generation defaults as defineConfig', async () => {
-    const { storage, store } = createMemoryStorage()
+    const storage = memoryStorage()
     const file = ast.factory.createFile({
       path: 'gen/component.tsx',
       baseName: 'component.tsx',
@@ -110,12 +71,14 @@ describe('unpluginFactory', () => {
 
     await pluginOptions.buildStart?.call(createBuildContext())
 
-    expect([...store.values()][0]).toContain('react/jsx-runtime')
+    const [key] = await storage.readKeys()
+    expect(key && (await storage.readItem(key))).toContain('react/jsx-runtime')
   })
 
   test('preserves the configured root during generation', async () => {
     const root = path.resolve(process.cwd(), 'custom-root')
-    const { empty, storage } = createMemoryStorage()
+    const storage = memoryStorage()
+    const empty = vi.spyOn(storage, 'empty')
     const config = {
       root,
       input: 'https://example.com/openapi.json',

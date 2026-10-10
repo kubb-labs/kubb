@@ -1,6 +1,6 @@
 import { ast, defineParser } from '@kubb/kit'
 
-import { print, type PrintInput } from './utils.ts'
+import { print } from './utils.ts'
 
 /**
  * Metadata accepted by `parserMd`. Set `frontmatter` on a `<File meta={...}>` and
@@ -40,9 +40,7 @@ export const parserMd = defineParser(() => {
   return {
     name: 'markdown',
     extNames: ['.md', '.markdown'],
-    print(...parts: Array<PrintInput>) {
-      return print(...parts)
-    },
+    print,
     parse(file) {
       const sourceParts: Array<string> = []
       for (const source of file.sources) {
