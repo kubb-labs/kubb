@@ -7,7 +7,7 @@ import { clackLogger } from './clackLogger.ts'
 import { plainLogger } from './plainLogger.ts'
 
 /** Bridges a {@link Reporter} onto the hook emitter: calls `report` with each config's {@link GenerationResult} on `kubb:generation:end`. */
-export function installReporter(context: LoggerContext, reporter: Reporter, ctx: ReporterContext): void {
+function installReporter(context: LoggerContext, reporter: Reporter, ctx: ReporterContext): void {
   const pluginFiles = reporter.needsPluginFiles ? new Map<Config, Map<string, Set<string>>>() : undefined
 
   if (pluginFiles) {
