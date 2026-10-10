@@ -149,17 +149,13 @@ type PrinterBuilder<T extends PrinterFactoryOptions> = (options: T['options']) =
    * Options to store on the printer.
    */
   options: T['options']
-  nodes: Partial<{
-    [K in SchemaType]: PrinterHandler<T['output'], T['options'], K>
-  }>
+  nodes: PrinterPartial<T['output'], T['options']>
   /**
    * User-supplied handler overrides. An override wins over the matching `nodes` handler,
    * and can call `this.base(node)` to reuse the handler it replaced. Pass overrides here
    * instead of spreading them into `nodes`, otherwise `this.base` cannot find the original.
    */
-  overrides?: Partial<{
-    [K in SchemaType]: PrinterHandler<T['output'], T['options'], K>
-  }>
+  overrides?: PrinterPartial<T['output'], T['options']>
   /**
    * Optional root-level print override. When provided, becomes the public `printer.print`.
    * Use `this.transform(node)` inside this function to dispatch to the node-level handlers (`nodes`),
@@ -215,23 +211,22 @@ export function createPrinter<T extends PrinterFactoryOptions = PrinterFactoryOp
 
     const collectedImports: Array<ImportNode> = []
 
-    const context = {
+    const dispatch =
+      (table: PrinterPartial<T['output'], T['options']>) =>
+      (node: SchemaNode): T['output'] | null => {
+        const handler = table[node.type]
+        if (!handler) return null
+
+        return (handler as (this: PrinterHandlerContext<T['output'], T['options']>, node: SchemaNode) => T['output'] | null).call(context, node)
+      }
+
+    const context: PrinterHandlerContext<T['output'], T['options']> = {
       options: resolvedOptions,
       import: (node: ImportNode): void => {
         collectedImports.push(node)
       },
-      transform: (node: SchemaNode): T['output'] | null => {
-        const handler = merged[node.type]
-        if (!handler) return null
-
-        return (handler as (this: typeof context, node: SchemaNode) => T['output'] | null).call(context, node)
-      },
-      base: (node: SchemaNode): T['output'] | null => {
-        const handler = nodes[node.type]
-        if (!handler) return null
-
-        return (handler as (this: typeof context, node: SchemaNode) => T['output'] | null).call(context, node)
-      },
+      transform: dispatch(merged),
+      base: dispatch(nodes),
     }
 
     return {

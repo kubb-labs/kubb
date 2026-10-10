@@ -24,7 +24,8 @@ export async function run({ version }: McpOptions): Promise<void> {
   const report = (status: 'success' | 'failed') => sendTelemetry(buildTelemetryEvent({ command: 'mcp', kubbVersion: version, hrStart, status }))
 
   try {
-    console.log(styleText('cyan', '⏳ Starting MCP server...'))
+    // The MCP stdio transport owns stdout: anything else written there corrupts the JSON-RPC stream.
+    console.error(styleText('cyan', '⏳ Starting MCP server...'))
     console.warn(styleText('yellow', 'This feature is still under development, use with caution'))
     await startMcpServer()
     await report('success')

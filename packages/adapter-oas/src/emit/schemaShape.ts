@@ -1,4 +1,4 @@
-import type { ast } from '@kubb/ast'
+import type { ast } from '@kubb/kit'
 import { formatMap, specialCasedFormats, structuralKeys } from '../constants.ts'
 import { isReference } from '../oas.ts'
 import type { SchemaObject } from '../types.ts'

@@ -16,6 +16,7 @@ import type {
   ResolvePluginOptions,
 } from './definePlugin.ts'
 import type { KubbDriver } from './KubbDriver.ts'
+import type { HookResult } from './output/runHook.ts'
 
 /**
  * Source to generate from. Kubb detects what it was given:
@@ -653,25 +654,8 @@ export type KubbHookLineContext = {
   line: string
 }
 
-/** Emitted when a hook command exits: the matching `kubb:hook:start` fields plus the outcome. */
-export type KubbHookEndContext = KubbHookStartContext & {
-  /**
-   * `true` when the command exited with code `0`.
-   */
-  success: boolean
-  /**
-   * Error thrown by the command, or `null` on success.
-   */
-  error: Error | null
-  /**
-   * Captured stdout from the process, populated when it exits non-zero.
-   */
-  stdout?: string
-  /**
-   * Captured stderr from the process, populated when it exits non-zero.
-   */
-  stderr?: string
-}
+/** Emitted when a hook subprocess ends: its `kubb:hook:start` context plus the outcome. */
+export type KubbHookEndContext = KubbHookStartContext & HookResult
 
 /**
  * CLI options derived from command-line flags.

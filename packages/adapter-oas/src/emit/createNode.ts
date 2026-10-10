@@ -1,4 +1,4 @@
-import { ast } from '@kubb/ast'
+import { ast } from '@kubb/kit'
 import { extractExamples } from './schemaShape.ts'
 import type { SchemaContext } from './parseSchema.ts'
 

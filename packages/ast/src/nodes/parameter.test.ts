@@ -3,7 +3,23 @@ import { createParameter } from './parameter.ts'
 import { createSchema } from './schema.ts'
 
 describe('createParameter', () => {
-  it('creates a path parameter', () => {
+  it('returns required false and an optional schema when required is omitted', () => {
+    const node = createParameter({
+      name: 'limit',
+      in: 'query',
+      schema: createSchema({ type: 'integer' }),
+    })
+
+    expect(node).toStrictEqual({
+      kind: 'Parameter',
+      name: 'limit',
+      in: 'query',
+      required: false,
+      schema: { kind: 'Schema', type: 'integer', primitive: 'integer', optional: true, nullish: undefined },
+    })
+  })
+
+  it('keeps required true when given', () => {
     const node = createParameter({
       name: 'petId',
       in: 'path',
@@ -14,15 +30,5 @@ describe('createParameter', () => {
     expect(node.kind).toBe('Parameter')
     expect(node.in).toBe('path')
     expect(node.required).toBe(true)
-  })
-
-  it('defaults required to false', () => {
-    const node = createParameter({
-      name: 'limit',
-      in: 'query',
-      schema: createSchema({ type: 'integer' }),
-    })
-
-    expect(node.required).toBe(false)
   })
 })

@@ -22,6 +22,6 @@ export function createMcpServer() {
  * Starts the Kubb MCP server over stdio, the transport every local MCP client
  * (Claude, Copilot, editors) uses when it launches the server as a subprocess.
  */
-export async function startServer() {
+export function startServer(): void {
   new StdioTransport(createMcpServer()).listen()
 }

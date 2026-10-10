@@ -8,6 +8,10 @@ export type Key = string | number | bigint
  * so the fields stay opaque to type-checking.
  */
 export type KubbReactElement = {
+  /**
+   * Brand set by the JSX runtime, so the renderer only walks elements it created.
+   */
+  $$typeof: symbol
   type: unknown
   props: unknown
   key: Key | null
@@ -15,9 +19,9 @@ export type KubbReactElement = {
 
 /**
  * Anything a Kubb JSX component accepts as children: an element, a primitive
- * rendered as text, a nullish value that is skipped, or an iterable of nodes.
+ * rendered as text, a nullish value that is skipped, or an array of nodes.
  */
-export type KubbReactNode = KubbReactElement | string | number | bigint | boolean | null | undefined | Iterable<KubbReactNode>
+export type KubbReactNode = KubbReactElement | string | number | bigint | boolean | null | undefined | ReadonlyArray<KubbReactNode>
 
 /**
  * JSDoc comment block to attach to a generated declaration.

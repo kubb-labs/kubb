@@ -40,12 +40,8 @@ export function enumPropName(parentName: string | null | undefined, propName: st
 }
 
 /**
- * Merges a ref node with its resolved schema, giving usage-site fields precedence.
- *
- * Every field set on the ref node except `kind`, `type`, `name`, `ref`, and `schema` overrides the
- * same field in the resolved `node.schema` (for example `description`, `nullable`, `readOnly`,
- * `deprecated`). Fields left `undefined` on the ref do not shadow the resolved schema. Non-ref
- * nodes and refs without a resolved `schema` are returned unchanged.
+ * Applies `ast.mergeRefWithSchema()` to a resolved ref and rebuilds the result through
+ * `ast.factory.createSchema()`. Non-ref nodes and unresolved refs are returned unchanged.
  *
  * @example
  * ```ts
@@ -56,15 +52,9 @@ export function enumPropName(parentName: string | null | undefined, propName: st
 export function syncSchemaRef(node: SchemaNode): SchemaNode {
   const ref = ast.narrowSchema(node, 'ref')
 
-  if (!ref) return node
-  if (!ref.schema) return node
+  if (!ref?.schema) return node
 
-  const { kind: _kind, type: _type, name: _name, ref: _ref, schema: _schema, ...overrides } = ref
-
-  // Filter out undefined override values so they don't shadow the resolved schema's fields.
-  const definedOverrides = Object.fromEntries(Object.entries(overrides).filter(([, v]) => v !== undefined))
-
-  return ast.factory.createSchema({ ...ref.schema, ...definedOverrides })
+  return ast.factory.createSchema(ast.mergeRefWithSchema(ref))
 }
 
 /**
