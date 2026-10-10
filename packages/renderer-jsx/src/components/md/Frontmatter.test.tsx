@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { jsxRenderer } from '../../jsxRenderer.ts'
+import { firstValue } from './testing.ts'
 import { File } from '../File.tsx'
 import { Frontmatter } from './Frontmatter.tsx'
 
@@ -12,7 +13,7 @@ describe('Frontmatter', () => {
       </File>,
     )
 
-    expect((renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value).toMatchInlineSnapshot(`
+    expect(firstValue(renderer)).toMatchInlineSnapshot(`
       "---
       title: Hi
       tags:

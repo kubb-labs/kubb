@@ -28,8 +28,10 @@ export namespace JSX {
     ['kubb-file']: {
       id?: string | null
       children?: KubbReactNode
-      baseName: string
+      baseName: ast.FileNode['baseName']
       path: string
+      banner?: string | null
+      footer?: string | null
       /**
        * Absolute on-disk path to copy into the output, through the parser's `copy` hook when it has
        * one. Use to emit a real source file shipped inside a package (a template) into the generated folder.

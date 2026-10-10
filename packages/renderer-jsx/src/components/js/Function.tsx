@@ -87,7 +87,6 @@ export function Function({
   returnType,
   JSDoc,
 }: Props): KubbReactElement {
-  // The node keeps the joined string, not the array, so consumers reading `generics` see one shape.
   const genericsString = Array.isArray(generics) ? generics.join(', ').trim() : generics
 
   return (

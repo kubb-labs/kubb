@@ -1,11 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { jsxRenderer } from '../../jsxRenderer.ts'
+import { firstValue } from './testing.ts'
 import { File } from '../File.tsx'
 import { Paragraph } from './Paragraph.tsx'
-
-function firstValue(renderer: ReturnType<typeof jsxRenderer>): string | undefined {
-  return (renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value
-}
 
 describe('Paragraph', () => {
   it('returns the body text verbatim', async () => {

@@ -1,11 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { jsxRenderer } from '../../jsxRenderer.ts'
+import { firstValue } from './testing.ts'
 import { Callout } from './Callout.tsx'
 import { File } from '../File.tsx'
-
-function firstValue(renderer: ReturnType<typeof jsxRenderer>): string | undefined {
-  return (renderer.files[0]?.sources[0]?.nodes?.[0] as { value?: string } | undefined)?.value
-}
 
 describe('Callout', () => {
   it('returns a header without a title when title is not set', async () => {
