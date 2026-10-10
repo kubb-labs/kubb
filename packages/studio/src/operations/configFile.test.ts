@@ -223,12 +223,15 @@ describe('applyConfigEdits', () => {
 
       const values: Array<[label: string, value: unknown, applied: boolean]> = [
         ['a string', 'x', true],
+        ['one', 1, true],
         ['zero', 0, true],
+        ['true', true, true],
         ['false', false, true],
         ['null', null, true],
         ['an empty array', [], true],
         ['an empty object', {}, true],
         ['nested literals', ['a', { b: [1, null] }], true],
+        ['a nested null', { a: { b: null } }, true],
         ['undefined', undefined, false],
         ['a function', () => 1, false],
         ['a symbol', Symbol('x'), false],

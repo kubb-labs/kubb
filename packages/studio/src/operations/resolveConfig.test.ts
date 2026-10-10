@@ -86,6 +86,16 @@ describe('mergeOptions', () => {
       exclude: [],
     })
   })
+
+  it('keeps disk values that do not survive JSON', () => {
+    const name = (group: string) => `${group}Controller`
+    const disk = { exclude: [{ type: 'path', pattern: /^\/admin/ }], group: { type: 'tag', name } }
+
+    expect(mergeOptions(disk, { exclude: [{ type: 'path', pattern: {} }], group: { type: 'path' } })).toStrictEqual({
+      exclude: disk.exclude,
+      group: { type: 'path', name },
+    })
+  })
 })
 
 describe('resolvePlugins', () => {
@@ -131,15 +141,38 @@ describe('mergeAdapter', () => {
 })
 
 describe('toExportName', () => {
-  // Both `resolvePlugins`, which imports this name, and the config patcher, which writes it into
-  // the user's file, go through here, so the convention has to hold for one- and many-word names.
-  it('derives the camelCase factory name a Kubb plugin exports', () => {
-    const packages = ['@kubb/plugin-ts', '@kubb/plugin-react-query', '@kubb/plugin-vue-query']
+  // Every plugin published from kubb-labs/plugins. Both `resolvePlugins`, which imports this name,
+  // and the config patcher, which writes it into the user's file, go through here, so a package
+  // that breaks the convention has to show up as a failure rather than as a config Studio cannot load.
+  it('derives the factory name every Kubb plugin exports', () => {
+    const packages = [
+      '@kubb/plugin-axios',
+      '@kubb/plugin-cypress',
+      '@kubb/plugin-faker',
+      '@kubb/plugin-fetch',
+      '@kubb/plugin-mcp',
+      '@kubb/plugin-msw',
+      '@kubb/plugin-react-query',
+      '@kubb/plugin-redoc',
+      '@kubb/plugin-swr',
+      '@kubb/plugin-ts',
+      '@kubb/plugin-vue-query',
+      '@kubb/plugin-zod',
+    ]
 
     expect(Object.fromEntries(packages.map((name) => [name, toExportName(name)]))).toStrictEqual({
-      '@kubb/plugin-ts': 'pluginTs',
+      '@kubb/plugin-axios': 'pluginAxios',
+      '@kubb/plugin-cypress': 'pluginCypress',
+      '@kubb/plugin-faker': 'pluginFaker',
+      '@kubb/plugin-fetch': 'pluginFetch',
+      '@kubb/plugin-mcp': 'pluginMcp',
+      '@kubb/plugin-msw': 'pluginMsw',
       '@kubb/plugin-react-query': 'pluginReactQuery',
+      '@kubb/plugin-redoc': 'pluginRedoc',
+      '@kubb/plugin-swr': 'pluginSwr',
+      '@kubb/plugin-ts': 'pluginTs',
       '@kubb/plugin-vue-query': 'pluginVueQuery',
+      '@kubb/plugin-zod': 'pluginZod',
     })
   })
 })
