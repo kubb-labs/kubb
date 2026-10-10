@@ -329,9 +329,9 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // first successful poll, so recovery with an unchanged document still generates output.
         const initialBody = inputKind === 'url' ? await fetchUrlBody(watchPath) : undefined
 
-        // The watchers ignore their startup state (chokidar's initial events, the baseline
-        // above), so run the first build here. A failing first build keeps watching, since
-        // the user can fix the input and save.
+        // The watchers ignore their startup state (the file as it is, the baseline above), so
+        // run the first build here. A failing first build keeps watching, since the user can fix
+        // the input and save.
         try {
           await build(watchedPaths)
         } catch (buildError) {
@@ -341,7 +341,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         if (inputKind === 'url') {
           startUrlWatcher(watchPath, build, { log: { info: logInfo, error: logError }, initialBody })
         } else {
-          await startWatcher(watchedPaths, build, { info: logInfo, error: logError })
+          startWatcher(watchedPaths, build, { info: logInfo, error: logError })
         }
       } else {
         try {

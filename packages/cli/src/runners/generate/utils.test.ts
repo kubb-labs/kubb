@@ -1,7 +1,10 @@
+import { mkdtemp, rename, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import process from 'node:process'
 import { Hookable, type KubbHooks } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSerialRunner, fetchUrlBody, isNewerVersion, runHook, runPostGenerate, startUrlWatcher } from './utils.ts'
+import { createSerialRunner, fetchUrlBody, isNewerVersion, runHook, runPostGenerate, startUrlWatcher, startWatcher } from './utils.ts'
 
 const node = process.execPath
 
@@ -153,6 +156,71 @@ describe('createSerialRunner', () => {
     shouldFail = false
     await runner()
     expect(errors).toStrictEqual(['run exploded'])
+  })
+})
+
+describe('startWatcher', () => {
+  let dir: string
+  const stops: Array<() => void> = []
+
+  afterEach(async () => {
+    for (const stop of stops.splice(0)) stop()
+    if (dir) await rm(dir, { recursive: true, force: true })
+  })
+
+  it('debounces a burst of saves into one build and names the change', async () => {
+    dir = await mkdtemp(join(tmpdir(), 'kubb-watch-'))
+    const file = join(dir, 'petstore.yaml')
+    await writeFile(file, 'openapi: 3.1.0\n')
+    const builds: Array<Array<string>> = []
+    const messages: Array<string> = []
+
+    stops.push(
+      startWatcher(
+        [file],
+        async (paths) => {
+          builds.push(paths)
+        },
+        { info: (message) => messages.push(message), error: (message) => messages.push(message) },
+      ),
+    )
+    // The watch starts asynchronously; give it a moment before the first write.
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    await writeFile(file, 'openapi: 3.1.0\ninfo: {}\n')
+    // An atomic save: write a temporary file and move it over the watched one.
+    await writeFile(join(dir, 'petstore.yaml.tmp'), 'openapi: 3.1.0\ninfo: { title: pets }\n')
+    await rename(join(dir, 'petstore.yaml.tmp'), file)
+
+    await vi.waitFor(() => expect(builds).toHaveLength(1), { timeout: 2_000 })
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
+    expect(builds).toStrictEqual([[file]])
+    expect(messages.length).toBeGreaterThan(0)
+    expect(messages.every((message) => message.includes(`Change detected: change ${file}`))).toBe(true)
+  })
+
+  it('ignores other files in the directory', async () => {
+    dir = await mkdtemp(join(tmpdir(), 'kubb-watch-'))
+    const file = join(dir, 'petstore.yaml')
+    await writeFile(file, 'openapi: 3.1.0\n')
+    const builds: Array<Array<string>> = []
+
+    stops.push(
+      startWatcher(
+        [file],
+        async (paths) => {
+          builds.push(paths)
+        },
+        { info: () => {}, error: () => {} },
+      ),
+    )
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    await writeFile(join(dir, 'other.yaml'), 'openapi: 3.1.0\n')
+    await new Promise((resolve) => setTimeout(resolve, 300))
+
+    expect(builds).toStrictEqual([])
   })
 })
 
