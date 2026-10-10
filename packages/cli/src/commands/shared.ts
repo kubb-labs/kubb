@@ -23,6 +23,7 @@ export const logLevelArg = {
     description: 'Info, silent or verbose',
     short: 'l',
     default: 'info',
+    toKebab: true,
   },
 } as const
 
@@ -42,20 +43,24 @@ export const studioPermissionArgs = {
     type: 'boolean',
     description: 'Read the source of files a generation produced. Asked for once per project when omitted',
     default: false,
+    toKebab: true,
   },
   allowWrite: {
     type: 'boolean',
     description: 'Write generated files to disk. Asked for once per project when omitted',
     default: false,
+    toKebab: true,
   },
   allowConfigEdit: {
     type: 'boolean',
     description: 'Let Studio change plugin options in kubb.config.ts. Asked for once per project when omitted',
     default: false,
+    toKebab: true,
   },
   allowExec: {
     type: 'boolean',
     description: 'Run the formatter, the linter, and output.postGenerate after a generation',
     default: false,
+    toKebab: true,
   },
 } as const
