@@ -45,7 +45,8 @@ describe('registerAgent', () => {
     })
   })
 
-  it('leaves transient retries to the runtime and reports the reason', async () => {
+  it('leaves transient retries to the runtime and reports the reason without logging it', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     fetchMock.mockImplementation(async () => createMockResponse({ message: 'maintenance' }, 503))
 
     const promise = registerAgent(props)
@@ -54,6 +55,8 @@ describe('registerAgent', () => {
     await assertion
 
     expect(fetchMock).toHaveBeenCalledOnce()
+    expect(errorSpy).not.toHaveBeenCalled()
+    errorSpy.mockRestore()
   })
 
   it('throws InvalidAgentTokenError on a rejected token, without retrying', async () => {
