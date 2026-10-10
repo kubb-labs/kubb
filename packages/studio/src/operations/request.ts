@@ -2,12 +2,9 @@ type RequestOptions = {
   url: string
   method?: 'GET' | 'POST'
   headers?: Record<string, string>
-  /** Sent as JSON. */
   body?: unknown
-  /** Milliseconds before the request aborts, on top of `signal`. */
   timeout?: number
   signal?: AbortSignal
-  /** Resolve a non-2xx response with its body instead of throwing. */
   ignoreResponseError?: boolean
 }
 

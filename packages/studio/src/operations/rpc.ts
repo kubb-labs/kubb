@@ -49,9 +49,8 @@ class AgentRpcTarget extends RpcTarget implements AgentApi {
 type NodeWebSocket = new (url: string, init: { headers: Record<string, string> }) => WebSocket
 
 /**
- * Opens a Studio WebSocket and closes it when the handshake exceeds {@link CONNECT_TIMEOUT_MS}.
- * `closed` settles once the socket is gone. Node fires no `close` event when the handshake itself
- * fails, only `error`, so that case settles as an abnormal closure (1006).
+ * Opens a Studio WebSocket, closing it when the handshake exceeds {@link CONNECT_TIMEOUT_MS}. Node
+ * fires no `close` event when the handshake itself fails, only `error`, so `closed` settles as 1006 there.
  */
 function openSocket({ url, headers }: { url: string; headers: Record<string, string> }): { socket: WebSocket; closed: Promise<RpcClose> } {
   const socket = new (WebSocket as unknown as NodeWebSocket)(url, { headers })

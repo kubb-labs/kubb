@@ -5,9 +5,9 @@ import { getMachineToken } from './machine.ts'
 import { requestJson, ResponseError } from './request.ts'
 
 /**
- * Reads a human-readable message from a Studio JSON error body, when it has one. `ResponseError`'s
- * own message stops at the status line, so the detail Studio sends with a failure (an agent limit,
- * a revoked token) would otherwise never reach the user.
+ * Reads a human-readable message from a Studio JSON error body, when it has one. `ResponseError`'s own
+ * message stops at the status line, so the detail Studio sends with a failure (an agent limit, a
+ * revoked token) would otherwise never reach the user.
  */
 function responseMessage(data: unknown): string | undefined {
   if (!data || typeof data !== 'object') {

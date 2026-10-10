@@ -4,18 +4,13 @@ import { dirname, join, resolve } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 
-/**
- * What the runtime needs from a host's key-value storage to keep its machine secret.
- */
+/** What the runtime needs from a host's key-value storage to keep its machine secret. */
 export type MachineStorage = {
   getItem: (key: string) => Promise<unknown>
   setItem: (key: string, value: string) => Promise<void>
 }
 
-/**
- * Key-value storage under one directory, one file per key. Strings are stored as-is and anything
- * else as JSON.
- */
+/** One file per key under a directory, holding strings as-is and anything else as JSON. */
 export type FileStorage = {
   getItem: <T = unknown>(key: string) => Promise<T | null>
   setItem: (key: string, value: unknown) => Promise<void>
@@ -34,12 +29,9 @@ function createMemoryStorage(): MachineStorage {
 }
 
 /**
- * The storage the runtime persists its machine secret to.
- *
- * One storage per process, since one process serves one config file. Hosts install their own on
- * startup: the CLI and the Docker agent a file storage under their cache directory. The in-memory
- * default keeps the runtime usable without a host, at the cost of a machine identity that changes
- * on every restart.
+ * The storage the runtime persists its machine secret to, one per process. Hosts install a file
+ * storage on startup; the in-memory default keeps the runtime usable without a host, at the cost
+ * of a machine identity that changes on every restart.
  */
 let storage: MachineStorage = createMemoryStorage()
 let hasInstalledStorage = false
@@ -73,9 +65,8 @@ function ignoreMissing(error: unknown): null {
 }
 
 /**
- * A storage backed by files under `base`, so the machine secret and whatever else a host keeps
- * there survive a restart. Repeated pairings of one machine depend on that secret staying put.
- * Files are created readable by the owner only.
+ * A storage backed by files under `base`, so the machine secret survives a restart, as repeated
+ * pairings of one machine depend on. Files are created readable by the owner only.
  */
 export function createFileStorage(base: string): FileStorage {
   const root = resolve(base)
