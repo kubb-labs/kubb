@@ -1,4 +1,4 @@
-import type { RefSchemaNode, SchemaNode } from '../nodes/index.ts'
+import type { RefSchemaNode, SchemaNode } from '../nodes/schema.ts'
 
 /**
  * Resolves the emitted name of the schema a ref node points at. Prefers `targetName` (set when

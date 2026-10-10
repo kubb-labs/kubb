@@ -4,7 +4,7 @@
  * `combineImports` also drops imports nothing references. This works on a file's members, not on
  * schema content.
  */
-import type { ExportNode, ImportNode, SourceNode } from '../nodes/index.ts'
+import type { ExportNode, ImportNode, SourceNode } from '../nodes/file.ts'
 import { extractStringsFromNodes } from './extractStringsFromNodes.ts'
 
 const IDENTIFIER_RUN = /[\w$]+/g

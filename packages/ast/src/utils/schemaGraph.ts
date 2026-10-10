@@ -1,5 +1,6 @@
 import { memoize } from '@internals/utils'
-import type { OperationNode, SchemaNode } from '../nodes/index.ts'
+import type { OperationNode } from '../nodes/operation.ts'
+import type { SchemaNode } from '../nodes/schema.ts'
 import { collect, collectSync } from '../visitor.ts'
 import { resolveRefName } from './refs.ts'
 

@@ -13,7 +13,7 @@ import type {
   TimeSchemaNode,
   UnionSchemaNode,
   UrlSchemaNode,
-} from './nodes/index.ts'
+} from './nodes/schema.ts'
 
 /**
  * How `format: 'date-time'` schemas are represented downstream.
