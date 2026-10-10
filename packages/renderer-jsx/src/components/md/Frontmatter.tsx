@@ -1,7 +1,8 @@
 import { stringify } from 'yaml'
-import type { KubbReactElement } from '../../types.ts'
+import type { Key, KubbReactElement } from '../../types.ts'
 
 type Props = {
+  key?: Key
   /**
    * Plain object serialized as YAML between `---` fences.
    *

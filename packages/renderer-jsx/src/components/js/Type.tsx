@@ -1,6 +1,7 @@
-import type { JSDoc, KubbReactElement, KubbReactNode } from '../../types.ts'
+import type { JSDoc, Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
 type TypeProps = {
+  key?: Key
   /**
    * Identifier of the generated type alias.
    * Must start with an uppercase letter to follow TypeScript naming conventions.

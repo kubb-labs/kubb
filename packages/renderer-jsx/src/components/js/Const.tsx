@@ -1,6 +1,7 @@
-import type { JSDoc, KubbReactElement, KubbReactNode } from '../../types.ts'
+import type { JSDoc, Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
 type ConstProps = {
+  key?: Key
   /**
    * Identifier of the generated constant declaration.
    *

@@ -1,8 +1,9 @@
-import type { KubbReactElement } from '../../types.ts'
+import type { Key, KubbReactElement } from '../../types.ts'
 
 type Level = 1 | 2 | 3 | 4 | 5 | 6
 
 type Props = {
+  key?: Key
   /**
    * Heading depth, `1` through `6`. Matches the number of `#` characters
    * prefixed to the heading text.

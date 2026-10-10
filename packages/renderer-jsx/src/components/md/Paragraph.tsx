@@ -1,6 +1,7 @@
-import type { KubbReactElement } from '../../types.ts'
+import type { Key, KubbReactElement } from '../../types.ts'
 
 type Props = {
+  key?: Key
   /**
    * Paragraph text. Inline markdown (links, emphasis, code spans) is passed
    * through verbatim.

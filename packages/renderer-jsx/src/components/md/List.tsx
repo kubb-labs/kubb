@@ -1,6 +1,7 @@
-import type { KubbReactElement } from '../../types.ts'
+import type { Key, KubbReactElement } from '../../types.ts'
 
 type Props = {
+  key?: Key
   /**
    * When `true`, emits a numbered list (`1. …`). When `false` or omitted,
    * emits a bullet list (`- …`).
