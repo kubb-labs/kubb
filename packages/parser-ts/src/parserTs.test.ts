@@ -1,32 +1,10 @@
 import { ast } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { parserTs } from './parserTs.ts'
+import { parserTsx } from './parserTsx.ts'
 
 describe('parserTs', () => {
-  it('parses a source with structured nodes', async () => {
-    const file = ast.factory.createFile({
-      baseName: 'test.ts',
-      path: '/test.ts',
-      sources: [
-        ast.factory.createSource({
-          nodes: [
-            ast.factory.createConst({
-              name: 'schema',
-              export: true,
-              nodes: [ast.factory.createText('z.string()')],
-            }),
-          ],
-        }),
-      ],
-      imports: [],
-      exports: [],
-    })
-
-    const result = await parserTs().parse(file)
-    expect(result).toContain('export const schema = z.string()')
-  })
-
-  it('parses a source with type and const nodes', async () => {
+  it('returns the declarations separated by blank lines when a source has several nodes', async () => {
     const file = ast.factory.createFile({
       baseName: 'test.ts',
       path: '/test.ts',
@@ -36,12 +14,17 @@ describe('parserTs', () => {
             ast.factory.createType({
               name: 'Pet',
               export: true,
+              JSDoc: { comments: ['@description A pet'] },
               nodes: [ast.factory.createText('{ id: number }')],
             }),
-            ast.factory.createConst({
-              name: 'pet',
+            ast.factory.createConst({ name: 'pet', export: true, nodes: [ast.factory.createText('{}')] }),
+            ast.factory.createFunction({ name: 'getPet', export: true, JSDoc: { comments: ['@deprecated'] } }),
+            ast.factory.createArrowFunction({
+              name: 'fetchPet',
               export: true,
-              nodes: [ast.factory.createText('{}')],
+              singleLine: true,
+              JSDoc: { comments: ['@see getPet'] },
+              nodes: [ast.factory.createText('pet')],
             }),
           ],
         }),
@@ -50,68 +33,95 @@ describe('parserTs', () => {
       exports: [],
     })
 
-    const result = await parserTs().parse(file)
-    expect(result).toContain('export type Pet = { id: number }')
-    expect(result).toContain('export const pet = {}')
+    expect(await parserTs().parse(file)).toBe(
+      [
+        '/**',
+        ' * @description A pet',
+        ' */',
+        'export type Pet = { id: number }',
+        '',
+        'export const pet = {}',
+        '',
+        '/**',
+        ' * @deprecated',
+        ' */',
+        'export function getPet() {}',
+        '',
+        '/**',
+        ' * @see getPet',
+        ' */',
+        'export const fetchPet = () => pet',
+      ].join('\n'),
+    )
   })
 
-  describe('package imports', () => {
-    function createFileWithCodec(code: string) {
-      return ast.factory.createFile({
-        baseName: 'test.ts',
-        path: '/src/nested/test.ts',
-        sources: [ast.factory.createSource({ name: 'schema', isExportable: true, nodes: [ast.factory.createText(code)] })],
-        imports: [ast.factory.createImport({ name: ['myCodec'], path: 'my-codec/zod' })],
-        exports: [],
-      })
-    }
-
-    it('keeps a package specifier without a root as-is', async () => {
-      const result = await parserTs().parse(createFileWithCodec('export const schema = myCodec.uint64()'))
-      expect(result).toContain("import { myCodec } from 'my-codec/zod'")
+  it('returns the banner, imports, exports, source and footer in order when all are set', async () => {
+    const file = ast.factory.createFile({
+      baseName: 'index.ts',
+      path: '/src/index.ts',
+      banner: '// generated',
+      footer: '// end',
+      sources: [ast.factory.createSource({ nodes: [ast.factory.createText('export const schema = z.string()')] })],
+      imports: [ast.factory.createImport({ name: ['z'], path: 'zod' })],
+      exports: [ast.factory.createExport({ name: 'models', path: './models.ts', asAlias: true })],
     })
 
-    it('does not rewrite extensions in package specifiers', async () => {
-      const file = {
-        ...createFileWithCodec('export const schema = myCodec.uint64()'),
-        imports: [ast.factory.createImport({ name: ['myCodec'], path: '@modelcontextprotocol/sdk/server/mcp.js' })],
-      }
-
-      const result = await parserTs({ extension: { '.ts': '.ts' } }).parse(file)
-      expect(result).toContain("from '@modelcontextprotocol/sdk/server/mcp.js'")
-    })
-
-    it('drops the import when the file does not use it', async () => {
-      const result = await parserTs().parse(createFileWithCodec('export const schema = 1'))
-      expect(result).not.toContain('my-codec/zod')
-    })
+    expect(await parserTs().parse(file)).toBe(
+      ['// generated', '', "import { z } from 'zod'", "export * as models from './models'", '', 'export const schema = z.string()', '', '// end'].join('\n'),
+    )
   })
 
-  describe('extension option', () => {
-    function createFileWithImport() {
-      return ast.factory.createFile({
-        baseName: 'test.ts',
-        path: '/src/test.ts',
-        sources: [],
-        imports: [ast.factory.createImport({ name: ['Pet'], path: '/src/models/pet.ts', root: '/src/test.ts' })],
-        exports: [],
-      })
-    }
+  it.each([
+    {
+      when: 'a function has several generics',
+      file: {
+        sources: [
+          ast.factory.createSource({ nodes: [ast.factory.createFunction({ name: 'getPet', generics: ['T', 'U'], params: 'value: T', returnType: 'U' })] }),
+        ],
+        imports: [],
+      },
+      expected: 'function getPet<T, U>(value: T): U {}',
+    },
+    {
+      when: 'an import has several names',
+      file: { sources: [], imports: [ast.factory.createImport({ name: ['a', 'b'], path: '/src/x.ts', root: '/src/test.ts' })] },
+      expected: "import { a, b } from './x'",
+    },
+    { when: 'the source has no nodes', file: { sources: [ast.factory.createSource({})], imports: [] }, expected: '' },
+  ])('returns $expected when $when', async ({ file, expected }) => {
+    expect(await parserTs().parse(ast.factory.createFile({ baseName: 'test.ts', path: '/src/test.ts', exports: [], ...file }))).toBe(expected)
+  })
 
-    it('drops the source extension by default', async () => {
-      const result = await parserTs().parse(createFileWithImport())
-      expect(result).toContain("import { Pet } from './models/pet'")
+  it.each([
+    { path: 'my-codec/zod', options: {} },
+    { path: '@modelcontextprotocol/sdk/server/mcp.js', options: { extension: { '.ts': '.ts' } } },
+  ] as const)('keeps the package specifier $path as-is when extension is $options.extension', async ({ path, options }) => {
+    const file = ast.factory.createFile({
+      baseName: 'test.ts',
+      path: '/src/nested/test.ts',
+      sources: [ast.factory.createSource({ name: 'schema', isExportable: true, nodes: [ast.factory.createText('export const schema = myCodec.uint64()')] })],
+      imports: [ast.factory.createImport({ name: ['myCodec'], path })],
+      exports: [],
     })
 
-    it('rewrites the import extension to the mapped value', async () => {
-      const result = await parserTs({ extension: { '.ts': '.js' } }).parse(createFileWithImport())
-      expect(result).toContain("import { Pet } from './models/pet.js'")
-    })
+    expect(await parserTs(options).parse(file)).toContain(`import { myCodec } from '${path}'`)
+  })
 
-    it('keeps the source extension when explicitly mapped', async () => {
-      const result = await parserTs({ extension: { '.ts': '.ts' } }).parse(createFileWithImport())
-      expect(result).toContain("import { Pet } from './models/pet.ts'")
+  it.each([
+    { extension: undefined, expected: "import { Pet } from './models/pet'" },
+    { extension: '.js', expected: "import { Pet } from './models/pet.js'" },
+    { extension: '.ts', expected: "import { Pet } from './models/pet.ts'" },
+  ] as const)('returns $expected when the .ts extension maps to $extension', async ({ extension, expected }) => {
+    const file = ast.factory.createFile({
+      baseName: 'test.ts',
+      path: '/src/test.ts',
+      sources: [],
+      imports: [ast.factory.createImport({ name: ['Pet'], path: '/src/models/pet.ts', root: '/src/test.ts' })],
+      exports: [],
     })
+    const options = extension ? { extension: { '.ts': extension } } : {}
+
+    expect(await parserTs(options).parse(file)).toBe(expected)
   })
 
   describe('copy', () => {
@@ -166,5 +176,27 @@ describe('parserTs', () => {
 
       expect(copy(parserTs(), source)).toBe([header, "import { api } from './api'", 'api()'].join('\n\n'))
     })
+  })
+})
+
+describe('parserTsx', () => {
+  it('returns the same output as parserTs when parsing a tsx file', async () => {
+    const file = ast.factory.createFile({
+      baseName: 'Pet.tsx',
+      path: '/src/Pet.tsx',
+      sources: [
+        ast.factory.createSource({
+          nodes: [ast.factory.createConst({ name: 'Pet', export: true, nodes: [ast.factory.createText('(props: Props) => <div />')] })],
+        }),
+      ],
+      imports: [ast.factory.createImport({ name: ['Props'], path: '/src/types.ts', root: '/src/Pet.tsx', isTypeOnly: true })],
+      exports: [],
+    })
+
+    expect(await parserTsx().parse(file)).toBe(["import type { Props } from './types'", '', 'export const Pet = (props: Props) => <div />'].join('\n'))
+  })
+
+  it('returns .tsx and .jsx as the handled extensions', () => {
+    expect(parserTsx().extNames).toStrictEqual(['.tsx', '.jsx'])
   })
 })
