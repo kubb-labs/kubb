@@ -1,7 +1,6 @@
 import { resolve } from 'node:path'
 import { isPathInside } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'
-import { HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -10,6 +9,12 @@ import { cacheStorage } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { BuildOutput, Config, KubbHooks, UserConfig } from './types.ts'
 import { Hookable } from './Hookable.ts'
+
+/**
+ * Upper bound of listeners a single plugin adds to one hook through its lifecycle handlers. Sizes
+ * the hooks emitter's max-listener ceiling so a large plugin set does not trip Node's leak warning.
+ */
+const HOOK_LISTENERS_PER_PLUGIN = 4
 
 function resolveConfig(userConfig: UserConfig): Config {
   return {
@@ -130,9 +135,8 @@ export class Kubb {
       : undefined
     const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal })
 
-    // Each generator a plugin registers adds a listener to the shared hooks emitter, so size the
-    // ceiling to the plugin count. Without this, a multi-generator plugin set trips Node's
-    // EventEmitter leak warning at the default 10.
+    // Every plugin registers its lifecycle handlers on the shared hooks emitter, so size the
+    // ceiling to the plugin count instead of Node's default of 10.
     this.hooks.setMaxListeners(Math.max(10, config.plugins.length * HOOK_LISTENERS_PER_PLUGIN))
 
     if (config.output.clean) {

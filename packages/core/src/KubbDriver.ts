@@ -1,7 +1,6 @@
 import { resolve } from 'node:path'
 import { getElapsedMs, toError } from '@internals/utils'
 import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
-import { OPERATION_FILTER_TYPES } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -47,6 +46,13 @@ type RequirePluginContext = {
 }
 
 const ENFORCE_ORDER = { pre: -1, post: 1 } satisfies Record<Enforce, number>
+
+/**
+ * Plugin `include` filter types that select operations directly. When one of these is set
+ * without a `schemaName` include, the generate phase pre-scans operations to compute the set
+ * of schemas they reach, so unreachable schemas can be pruned for that plugin.
+ */
+const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
 
 const enforceWeight = (plugin: NormalizedPlugin): number => (plugin.enforce ? ENFORCE_ORDER[plugin.enforce] : 0)
 

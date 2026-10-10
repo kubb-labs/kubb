@@ -1,6 +1,5 @@
 import { inParallel, matchesStored, read } from '@internals/utils'
 import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
-import { FILE_CONCURRENCY } from './constants.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'
@@ -15,6 +14,13 @@ export type FileManagerHooks = {
   update: [params: { file: FileNode; source?: string; processed: number; total: number; percentage: number }]
   end: [files: Array<FileNode>]
 }
+
+/**
+ * How many files Kubb keeps in flight at once, both writing the output and reading it back to
+ * record what the output passes produced. Caps parsed sources held in memory and open file
+ * descriptors alike.
+ */
+export const FILE_CONCURRENCY = 50
 
 type ParseOptions = {
   parsers?: Map<FileNode['extname'], Parser>

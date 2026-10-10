@@ -1,7 +1,7 @@
 import { hash } from 'node:crypto'
 import { inParallel } from '@internals/utils'
-import { FILE_CONCURRENCY } from './constants.ts'
 import type { Storage } from './createStorage.ts'
+import { FILE_CONCURRENCY } from './FileManager.ts'
 
 /**
  * Bumped when the stored shape changes, so an older cache is discarded instead of misread.
