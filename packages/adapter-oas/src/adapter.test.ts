@@ -98,11 +98,11 @@ describe('adapterOas options', () => {
   it('leaves child schemas as written for discriminator: preserve (default)', async () => {
     const node = await adapterOas({ validate: false }).parse({ type: 'data', data: discriminatedSpec })
 
-    const cat = narrowSchema(
+    const cat = ast.narrowSchema(
       node.schemas.find((schema) => schema.name === 'Cat')!,
       'object',
     )
-    const dog = narrowSchema(
+    const dog = ast.narrowSchema(
       node.schemas.find((schema) => schema.name === 'Dog')!,
       'object',
     )
@@ -114,11 +114,11 @@ describe('adapterOas options', () => {
   it('pins the discriminator property to its mapping key on each child for discriminator: propagate', async () => {
     const node = await adapterOas({ validate: false, discriminator: 'propagate' }).parse({ type: 'data', data: discriminatedSpec })
 
-    const cat = narrowSchema(
+    const cat = ast.narrowSchema(
       node.schemas.find((schema) => schema.name === 'Cat')!,
       'object',
     )
-    const dog = narrowSchema(
+    const dog = ast.narrowSchema(
       node.schemas.find((schema) => schema.name === 'Dog')!,
       'object',
     )
@@ -156,7 +156,7 @@ describe('adapterOas options', () => {
     expect(node.schemas[0]).toMatchObject({ type: 'enum', name: 'PetStatusEnum', enumValues: ['available', 'sold'] })
     expect(node.meta?.enumNames).toStrictEqual(['PetStatusEnum', 'ListPetsStatus'])
 
-    const pet = narrowSchema(
+    const pet = ast.narrowSchema(
       node.schemas.find((schema) => schema.name === 'Pet')!,
       'object',
     )
@@ -182,7 +182,7 @@ describe('adapterOas options', () => {
 
     expect(node.schemas.map((schema) => schema.name)).toStrictEqual(['Pet'])
     expect(node.meta?.enumNames).toStrictEqual([])
-    const pet = narrowSchema(node.schemas[0]!, 'object')
+    const pet = ast.narrowSchema(node.schemas[0]!, 'object')
     expect(pet?.properties[0]?.schema).toMatchObject({ type: 'enum', name: 'PetStatusEnum', enumValues: ['available', 'sold'] })
   })
 })
