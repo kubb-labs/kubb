@@ -8,29 +8,19 @@ import type { StudioConnectedContext } from '@kubb/studio'
 import { formatMsWithColor } from './banner.ts'
 import type { Logger, LoggerWriter, LogStatus, WriterProgress, WriterSpinner } from './defineLogger.ts'
 
-/**
- * Display path for a config's input: the string form, or its `path` field when the input is an
- * object. Loggers show it alongside `Generation started`.
- */
+/** Display path for a config's input: the string form, or its `path` field when the input is an object. */
 function getInputPath(config: Config): string | undefined {
   const { input } = config
   if (typeof input === 'string') return input
   return typeof input?.path === 'string' ? input.path : undefined
 }
 
-/**
- * Counts a noun, so a message never reads `1 files`.
- *
- * @example
- * `pluralize(1, 'config')` returns `'1 config'`
- */
+/** Counts a noun, so a message never reads `1 files`. */
 export function pluralize(count: number, noun: string): string {
   return `${count} ${count === 1 ? noun : `${noun}s`}`
 }
 
-/**
- * Optionally prefix a message with a [HH:MM:SS] timestamp when logLevel >= verbose.
- */
+/** Prefixes a `[HH:MM:SS]` timestamp at verbose and above. */
 function formatMessage(message: string, logLevel: number): string {
   if (logLevel >= logLevelMap.verbose) {
     const timestamp = new Date().toLocaleTimeString('en-US', {
@@ -44,17 +34,12 @@ function formatMessage(message: string, logLevel: number): string {
   return message
 }
 
-/**
- * Renders the versions from a `studio:connected` event as one parenthetical. The runtime is listed
- * only when it differs from the host, and Studio's only when it sent one.
- */
+/** Renders a `studio:connected` event's versions: the runtime only when it differs from the host, Studio's only when it sent one. */
 function formatVersions({ studio, kubb, agent }: StudioConnectedContext['versions']): string {
   return [`v${agent}`, kubb !== agent ? `runtime v${kubb}` : undefined, studio ? `Studio v${studio}` : undefined].filter(Boolean).join(', ')
 }
 
-/**
- * The first three frames of a stack, without the message line.
- */
+/** The first three frames of a stack, without the message line. */
 function topFrames(stack: string): Array<string> {
   return stack
     .split('\n')
@@ -62,9 +47,7 @@ function topFrames(stack: string): Array<string> {
     .map((frame) => frame.trim())
 }
 
-/**
- * First stack frames for verbose error output, including an optional `cause` chain.
- */
+/** First stack frames for verbose error output, including an optional `cause` chain. */
 function formatErrorFrames(error: Error): { frames: Array<string>; cause?: { header: string; frames: Array<string> } } | null {
   if (!error.stack) {
     return null
@@ -87,36 +70,16 @@ function formatErrorFrames(error: Error): { frames: Array<string>; cause?: { hea
 }
 
 type ProgressState = {
-  /**
-   * Total number of plugins scheduled for this generation run.
-   */
   totalPlugins: number
-  /**
-   * Number of plugins that have finished without error.
-   */
   completedPlugins: number
-  /**
-   * Number of plugins that exited with an error.
-   */
   failedPlugins: number
-  /**
-   * Total number of files expected to be written.
-   */
   totalFiles: number
-  /**
-   * Number of files written so far.
-   */
   processedFiles: number
-  /**
-   * `process.hrtime()` snapshot taken at the start of generation, used to compute elapsed time.
-   */
+  /** `process.hrtime()` snapshot taken at the start of generation, for the elapsed time. */
   hrStart: [number, number]
 }
 
-/**
- * Build the progress summary line shown by the clack logger.
- * Returns null when there is nothing to display.
- */
+/** The progress summary line the clack logger shows, `null` when there is nothing to display. */
 function buildProgressLine(state: ProgressState): string | null {
   const parts: Array<string> = []
   const duration = formatMs(getElapsedMs(state.hrStart))
@@ -141,9 +104,7 @@ function buildProgressLine(state: ProgressState): string | null {
   return parts.join(styleText('dim', ' | '))
 }
 
-/**
- * Creates the per-run progress counters.
- */
+/** Creates the per-run progress counters. */
 function createProgressCounters(): ProgressState {
   return {
     totalPlugins: 0,
@@ -505,14 +466,12 @@ export function createLogger(writer: LoggerWriter): Logger {
       reset()
     })
 
-    // Silent prints none of these, so they are not registered at all. The absence of the
-    // `kubb:hook:line` listener is also what tells the runner not to stream (`listenerCount`).
+    // Not registered at silent: the missing `kubb:hook:line` listener is also what tells the runner not to stream.
     if (!silent) {
       context.hook('kubb:info', ({ message, info }) => {
         const line = formatLine(styleText('blue', 'ℹ'), message, info)
 
-        // Info carries something new (the auto-detected tool), so inside a phase it waits for the
-        // phase to print rather than being spent on a frame the next one overwrites.
+        // Info carries something new (the auto-detected tool), so inside a phase it waits for the phase to print.
         if (state.phase) {
           state.phase.lines.push(line)
           return
@@ -527,8 +486,7 @@ export function createLogger(writer: LoggerWriter): Logger {
       context.hook('kubb:success', ({ message, info }) => {
         const line = formatLine(styleText('green', '✓'), message, logLevel >= logLevelMap.info ? info : undefined)
 
-        // A phase step outlives the successes reported inside it, and its own result says the same
-        // thing, so let the step carry them.
+        // The phase step's own result already reports these successes, so let the step carry them.
         if (state.spinner) {
           state.spinner.message(line)
           return

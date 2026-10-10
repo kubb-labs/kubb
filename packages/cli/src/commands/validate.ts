@@ -1,9 +1,6 @@
 import { define } from 'gunshi'
 
-/**
- * The runner is imported when the command runs, so listing `kubb --help` never loads
- * `@kubb/adapter-oas`.
- */
+/** The runner is imported when the command runs, so listing `kubb --help` never loads `@kubb/adapter-oas`. */
 export const command = define({
   name: 'validate',
   description:

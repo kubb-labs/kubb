@@ -30,26 +30,17 @@ import { getConfigs } from '../../config.ts'
 import { fetchUrlBody, isNewerVersion, runHook, runPostGenerate, startUrlWatcher, startWatcher } from './utils.ts'
 import { detectTool, FORMATTER_PREFERENCE, formatters, LINTER_PREFERENCE, linters } from '@internals/utils'
 
-/**
- * NPM registry endpoint used to check for @kubb/cli updates.
- */
+/** NPM registry endpoint used to check for @kubb/cli updates. */
 const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
 
-/**
- * Upper bound in milliseconds for the npm update check, so a slow registry never stalls a run.
- */
+/** Upper bound in milliseconds for the npm update check, so a slow registry never stalls a run. */
 const UPDATE_CHECK_TIMEOUT_MS = 3_000
 
-/**
- * The configurable formatter names, mirrored from `Config['output'].format`. Excludes `'auto'`
- * (detection, not a tool) and `false` (skip). The `formatters`/`linters` tables are pinned to
- * these so adding a tool to the config union without a descriptor fails to compile.
- */
+/** The formatter names from `Config['output'].format`, without `'auto'` (detection, not a tool) and `false` (skip). */
 type FormatterName = Exclude<NonNullable<Config['output']['format']>, 'auto' | false>
 type LinterName = Exclude<NonNullable<Config['output']['lint']>, 'auto' | false>
 
-// Pinned to core's union here rather than in `@internals/utils`, which must not import `@kubb/core`:
-// adding a tool to the config union without a descriptor stays a compile error.
+// Pinned here, not in `@internals/utils` (which must not import `@kubb/core`): a tool added to the union without a descriptor fails to compile.
 formatters satisfies Record<FormatterName, unknown>
 linters satisfies Record<LinterName, unknown>
 
@@ -69,10 +60,7 @@ type ToolMap = typeof formatters | typeof linters
 
 type ToolKind = 'format' | 'lint'
 
-/**
- * What differs between the format and the lint pass: the tool table, the preference order for
- * auto-detection, the words the pass logs with, and the diagnostic code of a failure.
- */
+/** What differs between the format and the lint pass: the tool table, the auto-detection order, the log words and the diagnostic code. */
 const TOOL_PASSES = {
   format: { label: 'formatter', map: formatters, preference: FORMATTER_PREFERENCE, verb: 'Formatting', code: Diagnostics.code.formatFailed },
   lint: { label: 'linter', map: linters, preference: LINTER_PREFERENCE, verb: 'Linting', code: Diagnostics.code.lintFailed },
@@ -86,12 +74,7 @@ type RunToolPassOptions = {
   hooks: Hookable<KubbHooks>
 }
 
-/**
- * Runs one formatter or linter pass over the output directory, announced through
- * `kubb:<kind>:start` and `kubb:<kind>:end`. Returns the failure instead of throwing, so the
- * caller can turn it into a coded diagnostic. Failures never render here: the caller emits them
- * through `Diagnostics.emit`, like every other diagnostic.
- */
+/** Runs one formatter or linter pass, announced through `kubb:<kind>:start` and `kubb:<kind>:end`; returns the failure instead of throwing. */
 async function runToolPass({ kind, toolValue, outputPath, logLevel, hooks }: RunToolPassOptions): Promise<Error | null> {
   const { label, map, preference, verb } = TOOL_PASSES[kind]
 
@@ -329,9 +312,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         // first successful poll, so recovery with an unchanged document still generates output.
         const initialBody = inputKind === 'url' ? await fetchUrlBody(watchPath) : undefined
 
-        // The watchers ignore their startup state (the file as it is, the baseline above), so
-        // run the first build here. A failing first build keeps watching, since the user can fix
-        // the input and save.
+        // The watchers ignore their startup state, so run the first build here; a failing one keeps watching so the user can fix the input.
         try {
           await build(watchedPaths)
         } catch (buildError) {

@@ -1,8 +1,6 @@
 import { define } from 'gunshi'
 
-/**
- * The runner is imported when the command runs, so listing `kubb --help` never loads `@kubb/mcp`.
- */
+/** The runner is imported when the command runs, so listing `kubb --help` never loads `@kubb/mcp`. */
 export const command = define({
   name: 'mcp',
   description:

@@ -11,9 +11,7 @@ describe('getConfigs', () => {
     if (dir) await rm(dir, { recursive: true, force: true })
   })
 
-  /**
-   * Writes a config module that records the given name, so a test can tell which file was loaded.
-   */
+  /** Writes a config module that records the given name, so a test can tell which file was loaded. */
   async function writeConfig(file: string, name: string = file): Promise<string> {
     await mkdir(dirname(file), { recursive: true })
     await writeFile(file, `export default { name: ${JSON.stringify(name)}, root: '.', input: './pets.yaml', output: { path: './gen' } }\n`)

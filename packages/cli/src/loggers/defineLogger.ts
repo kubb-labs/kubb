@@ -91,8 +91,5 @@ export type LoggerHandle = {
   renderSummary?: SummaryRenderer
 }
 
-/**
- * Logger contract: called once per build with the shared hook emitter, it subscribes to the
- * lifecycle hooks it forwards to its destination (console, file, remote service).
- */
+/** Logger contract: called once per build with the shared hook emitter, it subscribes to the lifecycle hooks it forwards to its destination. */
 export type Logger = (context: LoggerContext, options: LoggerOptions) => LoggerHandle

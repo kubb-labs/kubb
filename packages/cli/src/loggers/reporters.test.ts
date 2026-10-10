@@ -61,9 +61,7 @@ describe('setupReporters', () => {
     expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
   })
 
-  /**
-   * A usable terminal outside CI, so only the agent decides which logger `isRichOutput` picks.
-   */
+  /** A usable terminal outside CI, so only the agent decides which logger `isRichOutput` picks. */
   function withInteractiveStdout(): Disposable {
     const { isTTY, columns } = process.stdout
     Object.defineProperty(process.stdout, 'isTTY', { value: true, writable: true, configurable: true })

@@ -10,9 +10,7 @@ import { command as studioCommand } from './commands/studio/index.ts'
 import { command as validateCommand } from './commands/validate.ts'
 import { resolveDeprecatedFlags } from './deprecatedFlags.ts'
 
-/**
- * Flags that short-circuit execution (help and version). The telemetry notice is suppressed for these.
- */
+/** Flags that short-circuit execution (help and version). The telemetry notice is suppressed for these. */
 const QUIET_FLAGS = new Set<string>(['--help', '-h', '--version', '-v', '--json'])
 
 /**
@@ -40,8 +38,7 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
     )
   }
 
-  // Each command's `run` imports its runner, so an optional peer (@kubb/adapter-oas, @kubb/mcp,
-  // @kubb/studio) loads only when that command runs.
+  // Each command's `run` imports its runner, so an optional peer (@kubb/adapter-oas, @kubb/mcp, @kubb/studio) loads only when it runs.
   await cli(args, generateCommand, {
     name: 'kubb',
     version,
