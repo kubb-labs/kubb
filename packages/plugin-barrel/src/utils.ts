@@ -189,17 +189,17 @@ type WalkParams = {
   sourceFiles: ReadonlyMap<string, ast.FileNode>
   strategy: LeafStrategy
   reportedCollisions: Set<string>
-  /**
-   * Also yield a barrel for each sub-directory. Only read by {@link walkAllOrNamed}.
-   */
-  recursive?: boolean
 }
 
 /**
  * Post-order walk that yields a barrel per visited directory.
  * Returns the list of leaf file paths collected in this subtree (used by the parent call).
  */
-function* walkAllOrNamed(node: BuildTree, params: WalkParams, isRoot: boolean): Generator<ast.FileNode, Array<string>> {
+function* walkAllOrNamed(
+  node: BuildTree,
+  params: WalkParams,
+  { isRoot, recursive }: { isRoot: boolean; recursive: boolean },
+): Generator<ast.FileNode, Array<string>> {
   const subtreeLeaves: Array<string> = []
 
   for (const child of node.children) {
@@ -208,11 +208,11 @@ function* walkAllOrNamed(node: BuildTree, params: WalkParams, isRoot: boolean): 
       continue
     }
 
-    const childLeaves = yield* walkAllOrNamed(child, params, false)
+    const childLeaves = yield* walkAllOrNamed(child, params, { isRoot: false, recursive })
     for (const leaf of childLeaves) subtreeLeaves.push(leaf)
   }
 
-  if (!isRoot && !params.recursive) return subtreeLeaves
+  if (!isRoot && !recursive) return subtreeLeaves
 
   const exports = subtreeLeaves.flatMap((leafPath) => params.strategy({ dirPath: node.path, leafPath, sourceFile: params.sourceFiles.get(leafPath) }))
 
@@ -365,5 +365,5 @@ export function* getBarrelFiles({
     return
   }
 
-  yield* walkAllOrNamed(node, { sourceFiles: index.sourceFiles, strategy, recursive, reportedCollisions }, true)
+  yield* walkAllOrNamed(node, { sourceFiles: index.sourceFiles, strategy, reportedCollisions }, { isRoot: true, recursive })
 }

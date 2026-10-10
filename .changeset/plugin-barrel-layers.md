@@ -2,4 +2,4 @@
 '@kubb/plugin-barrel': patch
 ---
 
-Depend on `@kubb/kit` only, which removes the `@kubb/core` peer dependency warning, and report a plugin output path that escapes the output directory as a `KUBB_PATH_TRAVERSAL` diagnostic; generated barrels are unchanged.
+The `@kubb/core` peer dependency warning is gone. A plugin `output.path` that resolves outside `config.output.path` is now reported as a `KUBB_PATH_TRAVERSAL` diagnostic. Generated barrels are unchanged.

@@ -1,11 +1,9 @@
 import path from 'node:path'
 import { isPathInside } from '@internals/utils'
 import { definePlugin, Diagnostics } from '@kubb/kit'
-import type { ast, Config, KubbPluginEndContext, Plugin } from '@kubb/kit'
+import type { ast, Config, NormalizedPlugin, Plugin } from '@kubb/kit'
 import type { BarrelType, PluginBarrelConfig } from './types.ts'
 import { buildBarrelIndex, getBarrelFiles } from './utils.ts'
-
-type NormalizedPlugin = KubbPluginEndContext['plugin']
 
 /**
  * Applies a plugin's configured `output.banner`/`footer` to a barrel file, flagged as `isBarrel`.
