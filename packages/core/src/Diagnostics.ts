@@ -208,6 +208,8 @@ const severityStyle: Record<DiagnosticSeverity, 'red' | 'yellow' | 'blue'> = {
   info: 'blue',
 }
 
+const countKey = { error: 'errors', warning: 'warnings', info: 'infos' } as const satisfies Record<DiagnosticSeverity, string>
+
 /**
  * A {@link Diagnostic} reduced to its JSON-safe fields plus a `docsUrl`, for
  * machine-readable output (the `--reporter json` report, the MCP tools). Drops the
@@ -423,17 +425,11 @@ export class Diagnostics {
    * that carries a `code`.
    */
   static isError(error: unknown): error is InstanceType<typeof Diagnostics.Error> {
-    if (error instanceof Diagnostics.Error) {
-      return true
-    }
-    return (
-      error instanceof Error &&
-      error.name === 'DiagnosticError' &&
-      'diagnostic' in error &&
-      typeof (error as { diagnostic?: unknown }).diagnostic === 'object' &&
-      (error as { diagnostic?: Diagnostic }).diagnostic !== null &&
-      typeof (error as { diagnostic?: { code?: unknown } }).diagnostic?.code === 'string'
-    )
+    if (error instanceof Diagnostics.Error) return true
+    if (!(error instanceof Error) || error.name !== 'DiagnosticError') return false
+
+    const { diagnostic } = error as { diagnostic?: { code?: unknown } }
+    return typeof diagnostic === 'object' && diagnostic !== null && typeof diagnostic.code === 'string'
   }
 
   /**
@@ -540,13 +536,7 @@ export class Diagnostics {
    * that carry a `plugin`.
    */
   static failedPlugins(diagnostics: ReadonlyArray<Diagnostic>): Array<string> {
-    const names = new Set<string>()
-    for (const diagnostic of diagnostics) {
-      if (diagnostic.severity === 'error' && diagnostic.plugin) {
-        names.add(diagnostic.plugin)
-      }
-    }
-    return [...names]
+    return [...new Set(diagnostics.flatMap((diagnostic) => (diagnostic.severity === 'error' && diagnostic.plugin ? [diagnostic.plugin] : [])))]
   }
 
   /**
@@ -554,24 +544,11 @@ export class Diagnostics {
    * `update` diagnostics are ignored.
    */
   static count(diagnostics: ReadonlyArray<Diagnostic>): { errors: number; warnings: number; infos: number } {
-    let errors = 0
-    let warnings = 0
-    let infos = 0
-    for (const diagnostic of diagnostics) {
-      if (!isProblem(diagnostic)) {
-        continue
-      }
-      if (diagnostic.severity === 'error') {
-        errors += 1
-        continue
-      }
-      if (diagnostic.severity === 'warning') {
-        warnings += 1
-        continue
-      }
-      infos += 1
+    const counts = { errors: 0, warnings: 0, infos: 0 }
+    for (const diagnostic of diagnostics.filter(isProblem)) {
+      counts[countKey[diagnostic.severity]] += 1
     }
-    return { errors, warnings, infos }
+    return counts
   }
 
   /**

@@ -1,7 +1,6 @@
 import { resolve } from 'node:path'
 import { getElapsedMs, toError } from '@internals/utils'
 import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
-import { OPERATION_FILTER_TYPES } from './constants.ts'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -9,7 +8,7 @@ import type { Parser } from './defineParser.ts'
 import type { Plugin, PluginName, ResolvePluginOptions } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { createResolver } from './createResolver.ts'
-import { Resolver, type ResolverPatch } from './Resolver.ts'
+import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
 import { Transform } from './Transform.ts'
 import { createNodeCache } from './nodeCache.ts'
@@ -48,16 +47,16 @@ type RequirePluginContext = {
 
 const ENFORCE_ORDER = { pre: -1, post: 1 } satisfies Record<Enforce, number>
 
+/** `include` filter types that select operations, and so prune the schemas they do not reach. */
+const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
+
 const enforceWeight = (plugin: NormalizedPlugin): number => (plugin.enforce ? ENFORCE_ORDER[plugin.enforce] : 0)
 
 /**
  * The options bag a `NormalizedPlugin` starts with before a plugin refines it: a directory output
  * at the plugin root and empty filter lists.
  */
-function defaultPluginOptions(): NormalizedPlugin['options'] {
-  const options: NormalizedPlugin['options'] = { output: { path: '.', mode: 'directory' }, exclude: [], override: [] }
-  return options
-}
+const defaultPluginOptions = (): NormalizedPlugin['options'] => ({ output: { path: '.', mode: 'directory' }, exclude: [], override: [] })
 
 /**
  * Fills in the `output`, `exclude`, and `override` a `NormalizedPlugin` needs from a plugin's raw
@@ -232,12 +231,10 @@ export class KubbDriver {
         config: this.config,
         options: plugin.options ?? {},
         addGenerator: (...generators) => {
-          for (const generator of generators) {
-            this.registerGenerator(plugin.name, generator)
-          }
+          plugin.generators = [...(plugin.generators ?? []), ...generators]
         },
         setResolver: (resolver) => {
-          this.setPluginResolver(plugin.name, resolver)
+          plugin.resolver = Resolver.merge(createResolver<PluginFactoryOptions>({ pluginName: plugin.name }), resolver)
         },
         addMacro: (macro) => {
           this.#transforms.add(plugin.name, macro)
@@ -246,11 +243,7 @@ export class KubbDriver {
           this.#transforms.set(plugin.name, macros)
         },
         setOptions: (opts) => {
-          plugin.options = { ...plugin.options, ...opts }
-          if (plugin.options.output) {
-            const group = 'group' in plugin.options ? (plugin.options.group as Group | null | undefined) : undefined
-            plugin.options.output = normalizeOutput({ output: plugin.options.output, group, pluginName: plugin.name })
-          }
+          plugin.options = normalizePluginOptions({ ...plugin.options, ...opts }, plugin.name)
         },
         injectFile: (userFileNode) => {
           this.fileManager.add(ast.factory.createFile(userFileNode))
@@ -259,31 +252,7 @@ export class KubbDriver {
     }
   }
 
-  /**
-   * Appends a generator to its owning plugin so the generate loop can call it directly.
-   *
-   * The generator's `schema`, `operation`, and `operations` methods run per node during the AST
-   * walk in `#runGenerators`, and their result is routed through `dispatch`. Because a generator is
-   * bound to a plugin, generators from different plugins never cross-fire without a name check. The
-   * renderer comes from `generator.renderer`; set it to `null` (or leave it unset) to opt out of
-   * rendering.
-   *
-   * Call this method inside `addGenerator()` (in `kubb:plugin:setup`) to wire up a generator.
-   */
-  registerGenerator(pluginName: string, generator: Generator): void {
-    const plugin = this.plugins.get(pluginName)
-    if (!plugin) return
-
-    plugin.generators = plugin.generators ? [...plugin.generators, generator] : [generator]
-  }
-
-  /**
-   * Returns `true` when at least one generator was registered for the given plugin
-   * via `addGenerator()` in `kubb:plugin:setup`.
-   *
-   * Used by the build loop to decide whether to walk the AST and run the generators
-   * for a plugin.
-   */
+  /** `true` once `addGenerator()` in `kubb:plugin:setup` registered a generator for the plugin. */
   hasHookGenerators(pluginName: string): boolean {
     return (this.plugins.get(pluginName)?.generators?.length ?? 0) > 0
   }
@@ -554,11 +523,12 @@ export class KubbDriver {
           if (state.allowedSchemaNames !== null && transformedNode.name && !state.allowedSchemaNames.has(transformedNode.name)) continue
 
           const ctx = { ...state.generatorContext, options, cache }
-          for (const generator of state.schemaGenerators) {
-            const matches = generator.match ? await generator.match(transformedNode, ctx) : true
-            if (!matches) continue
-            await this.dispatch({ result: await generator.schema!(transformedNode, ctx), renderer: generator.renderer })
-          }
+          await this.#dispatchNode({
+            generators: state.schemaGenerators,
+            node: transformedNode,
+            ctx,
+            generate: (generator) => generator.schema!(transformedNode, ctx),
+          })
           await this.hooks.callHook('kubb:generate:schema', transformedNode, ctx)
         } catch (caughtError) {
           state.error = toError(caughtError)
@@ -580,13 +550,15 @@ export class KubbDriver {
           state.pluginOperations.push(resolved.transformedNode)
 
           if (state.operationGenerators.length) {
+            const { transformedNode } = resolved
             const ctx = { ...state.generatorContext, options: resolved.options, cache }
-            for (const generator of state.operationGenerators) {
-              const matches = generator.match ? await generator.match(resolved.transformedNode, ctx) : true
-              if (!matches) continue
-              await this.dispatch({ result: await generator.operation!(resolved.transformedNode, ctx), renderer: generator.renderer })
-            }
-            await this.hooks.callHook('kubb:generate:operation', resolved.transformedNode, ctx)
+            await this.#dispatchNode({
+              generators: state.operationGenerators,
+              node: transformedNode,
+              ctx,
+              generate: (generator) => generator.operation!(transformedNode, ctx),
+            })
+            await this.hooks.callHook('kubb:generate:operation', transformedNode, ctx)
           }
         } catch (caughtError) {
           state.error = toError(caughtError)
@@ -624,40 +596,28 @@ export class KubbDriver {
     return diagnostics
   }
 
-  /**
-   * Stores whatever a generator method or `kubb:generate:*` hook returned.
-   *
-   * - An `Array<FileNode>` goes straight into `fileManager` via `upsert`.
-   * - A renderer element runs through `renderer` (the renderer factory, e.g. JSX) and the
-   *   produced files go to `fileManager.upsert`.
-   * - A falsy result is treated as a no-op. The generator wrote files itself via
-   *   `ctx.upsertFile`.
-   *
-   * Pass `renderer` when the result may be a renderer element. Generators that only return
-   * `Array<FileNode>` do not need one.
-   */
-  async dispatch<TElement = unknown>({
-    result,
-    renderer,
+  /** Runs `node` through the generators whose `match` accepts it; `generate` picks the method for the node kind. */
+  async #dispatchNode({
+    generators,
+    node,
+    ctx,
+    generate,
   }: {
-    result: TElement | Array<FileNode> | undefined | null
-    renderer?: RendererFactory<TElement> | null
+    generators: Array<Generator>
+    node: SchemaNode | OperationNode
+    ctx: GeneratorContext
+    generate: (generator: Generator) => ReturnType<NonNullable<Generator['schema']>>
   }): Promise<void> {
-    if (!result) return
-
-    if (Array.isArray(result)) {
-      this.fileManager.upsert(...(result as Array<FileNode>))
-      return
+    for (const generator of generators) {
+      const matches = generator.match ? await generator.match(node, ctx) : true
+      if (!matches) continue
+      await this.dispatch({ result: await generate(generator), renderer: generator.renderer })
     }
+  }
 
-    if (!renderer) {
-      return
-    }
-
-    using instance = renderer()
-    await instance.render(result)
-
-    this.fileManager.upsert(...instance.files)
+  /** Stores whatever a generator method or `kubb:generate:*` hook returned, see {@link FileManager.dispatch}. */
+  dispatch<TElement = unknown>(params: { result: TElement | Array<FileNode> | undefined | null; renderer?: RendererFactory<TElement> | null }): Promise<void> {
+    return this.fileManager.dispatch(params)
   }
 
   /**
@@ -682,22 +642,7 @@ export class KubbDriver {
     this.dispose()
   }
 
-  /**
-   * Merges `partial` onto a fresh default resolver and stores the result on `plugin.resolver`,
-   * which is the single source `getResolver` and `getPlugin(name).resolver` both read.
-   */
-  setPluginResolver(pluginName: string, partial: ResolverPatch | Resolver): void {
-    const plugin = this.plugins.get(pluginName)
-    if (!plugin) return
-
-    plugin.resolver = Resolver.merge(createResolver<PluginFactoryOptions>({ pluginName }), partial)
-  }
-
-  /**
-   * Returns the resolver for the given plugin. It reads `plugin.resolver` (seeded with the default
-   * at registration and replaced by `setPluginResolver`), falling back to a fresh default for a
-   * name that is not a registered plugin.
-   */
+  /** Reads `plugin.resolver`, falling back to a fresh default for a name that is not a registered plugin. */
   getResolver<TName extends PluginName>(pluginName: TName): ResolvePluginOptions<TName>['resolver']
   getResolver(pluginName: string): Resolver {
     return this.plugins.get(pluginName)?.resolver ?? createResolver<PluginFactoryOptions>({ pluginName })

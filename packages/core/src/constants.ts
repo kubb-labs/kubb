@@ -9,27 +9,6 @@ export const SUMMARY_MAX_BAR_LENGTH = 10 as const
 export const SUMMARY_TIME_SCALE_DIVISOR = 100 as const
 
 /**
- * Upper bound of hook listeners a single plugin can add to one hook (its schema, operation,
- * and operations generators, plus lifecycle hooks). Used to size the hooks emitter's
- * max-listener ceiling so a multi-generator plugin set does not trip Node's leak warning.
- */
-export const HOOK_LISTENERS_PER_PLUGIN = 4
-
-/**
- * How many files Kubb keeps in flight at once, both writing the output and reading it back to
- * record what the output passes produced. Caps parsed sources held in memory and open file
- * descriptors alike.
- */
-export const FILE_CONCURRENCY = 50
-
-/**
- * Plugin `include` filter types that select operations directly. When one of these is set
- * without a `schemaName` include, the generate phase pre-scans operations to compute the set
- * of schemas they reach, so unreachable schemas can be pruned for that plugin.
- */
-export const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
-
-/**
  * Stable codes Kubb attaches to a `Diagnostic`. Each maps to a known failure mode
  * and stays stable so it can be referenced in tooling and (later) docs. Reference
  * these instead of inlining the string at a throw site.

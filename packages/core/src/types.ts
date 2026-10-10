@@ -6,13 +6,16 @@ import type { Storage } from './createStorage.ts'
 import type { Diagnostic, ProblemDiagnostic, UpdateDiagnostic } from './Diagnostics.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
-import type { KubbPluginEndContext, KubbPluginSetupContext, KubbPluginStartContext, Plugin, PluginName, ResolvePluginOptions } from './definePlugin.ts'
+import type {
+  ExtractRegistryKey,
+  KubbPluginEndContext,
+  KubbPluginSetupContext,
+  KubbPluginStartContext,
+  Plugin,
+  PluginName,
+  ResolvePluginOptions,
+} from './definePlugin.ts'
 import type { KubbDriver } from './KubbDriver.ts'
-
-/**
- * @internal
- */
-type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
 
 /**
  * Source to generate from. Kubb detects what it was given:
@@ -425,7 +428,15 @@ declare global {
  */
 export type KubbHooks = Kubb.KubbHooksRegistry
 
-export type KubbBuildStartContext = {
+/** The file access every file-carrying hook context shares: a lazy snapshot of the files so far, and a way to add more. */
+export type FilesContext = {
+  /** Snapshot of all files accumulated so far, including those added by plugins that already ran. */
+  readonly files: ReadonlyArray<FileNode>
+  /** Adds or merges one or more files into the file manager. */
+  upsertFile: (...files: Array<FileNode>) => void
+}
+
+export type KubbBuildStartContext = FilesContext & {
   /**
    * Resolved configuration for this build.
    */
@@ -443,29 +454,13 @@ export type KubbBuildStartContext = {
    * Looks up a registered plugin by name, typed by the plugin registry.
    */
   getPlugin<TName extends PluginName>(name: TName): Plugin<ResolvePluginOptions<TName>> | undefined
-  /**
-   * Snapshot of all files accumulated so far.
-   */
-  readonly files: ReadonlyArray<FileNode>
-  /**
-   * Adds or merges one or more files into the file manager.
-   */
-  upsertFile: (...files: Array<FileNode>) => void
 }
 
-export type KubbPluginsEndContext = {
+export type KubbPluginsEndContext = FilesContext & {
   /**
    * Resolved configuration for this build.
    */
   config: Config
-  /**
-   * Snapshot of all files accumulated across all plugins.
-   */
-  readonly files: ReadonlyArray<FileNode>
-  /**
-   * Adds or merges one or more files into the file manager.
-   */
-  upsertFile: (...files: Array<FileNode>) => void
 }
 
 export type KubbBuildEndContext = {
@@ -537,9 +532,10 @@ export type KubbGenerationEndContext = {
   filesCreated?: number
 }
 
-export type KubbInfoContext = {
+/** A human-readable message with optional detail, as carried by `kubb:info`, `kubb:success`, and `kubb:warn`. */
+export type KubbMessageContext = {
   /**
-   * Human-readable info message.
+   * Human-readable message.
    */
   message: string
   /**
@@ -547,6 +543,12 @@ export type KubbInfoContext = {
    */
   info?: string
 }
+
+export type KubbInfoContext = KubbMessageContext
+
+export type KubbSuccessContext = KubbMessageContext
+
+export type KubbWarnContext = KubbMessageContext
 
 export type KubbErrorContext = {
   /**
@@ -557,28 +559,6 @@ export type KubbErrorContext = {
    * Optional structured metadata for additional context.
    */
   meta?: Record<string, unknown>
-}
-
-export type KubbSuccessContext = {
-  /**
-   * Human-readable success message.
-   */
-  message: string
-  /**
-   * Optional supplementary detail.
-   */
-  info?: string
-}
-
-export type KubbWarnContext = {
-  /**
-   * Human-readable warning message.
-   */
-  message: string
-  /**
-   * Optional supplementary detail.
-   */
-  info?: string
 }
 
 export type KubbDiagnosticContext = {
@@ -673,23 +653,8 @@ export type KubbHookLineContext = {
   line: string
 }
 
-export type KubbHookEndContext = {
-  /**
-   * Optional identifier matching the corresponding `kubb:hook:start` hook.
-   */
-  id?: string
-  /**
-   * The shell command that ran.
-   */
-  command: string
-  /**
-   * Optional label for the command, shown in the CLI output when set.
-   */
-  name?: string
-  /**
-   * Parsed argument list, when available.
-   */
-  args?: ReadonlyArray<string>
+/** Emitted when a hook command exits: the matching `kubb:hook:start` fields plus the outcome. */
+export type KubbHookEndContext = KubbHookStartContext & {
   /**
    * `true` when the command exited with code `0`.
    */

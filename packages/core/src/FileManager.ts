@@ -1,6 +1,6 @@
 import { inParallel, matchesStored, read } from '@internals/utils'
 import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
-import { FILE_CONCURRENCY } from './constants.ts'
+import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'
 import type { OutputManifest } from './outputManifest.ts'
@@ -14,6 +14,9 @@ export type FileManagerHooks = {
   update: [params: { file: FileNode; source?: string; processed: number; total: number; percentage: number }]
   end: [files: Array<FileNode>]
 }
+
+/** Files kept in flight at once, writing the output and reading it back for the manifest. */
+export const FILE_CONCURRENCY = 50
 
 type ParseOptions = {
   parsers?: Map<FileNode['extname'], Parser>
@@ -79,14 +82,7 @@ function isIndexPath(path: string): boolean {
 
 // Sort order: shortest path first. Within a length bucket, index.ts barrels last.
 function compareFiles(a: FileNode, b: FileNode): number {
-  const lenDiff = a.path.length - b.path.length
-  if (lenDiff !== 0) return lenDiff
-  const aIsIndex = isIndexPath(a.path)
-  const bIsIndex = isIndexPath(b.path)
-  if (aIsIndex && !bIsIndex) return 1
-  if (!aIsIndex && bIsIndex) return -1
-
-  return 0
+  return a.path.length - b.path.length || Number(isIndexPath(a.path)) - Number(isIndexPath(b.path))
 }
 
 // A file is unchanged either because the storage already holds this content, or because the
@@ -115,10 +111,8 @@ function isUnchanged({ stored, source, key, manifest }: { stored: string | null;
 export class FileManager {
   readonly hooks = new Hookable<FileManagerHooks>()
   readonly #cache = new Map<string, FileNode>()
-  // Cached sorted view. Null means stale and rebuilt lazily on next `files` read.
-  // Nulled (not mutated) on every write so callers holding a prior reference keep
-  // their snapshot. `dispose()` must not silently empty an array the consumer
-  // already holds.
+  // Cached sorted view, rebuilt lazily on the next `files` read. Nulled (not mutated) on every
+  // write so callers holding a prior reference keep their snapshot, `dispose()` included.
   #sorted: Array<FileNode> | null = null
 
   add(...files: Array<FileNode>): Array<FileNode> {
@@ -127,6 +121,29 @@ export class FileManager {
 
   upsert(...files: Array<FileNode>): Array<FileNode> {
     return this.#store(files, true)
+  }
+
+  /** Stores a generator result: a file array is upserted as is, an element renders through `renderer` first, falsy is a no-op. */
+  async dispatch<TElement = unknown>({
+    result,
+    renderer,
+  }: {
+    result: TElement | Array<FileNode> | undefined | null
+    renderer?: RendererFactory<TElement> | null
+  }): Promise<void> {
+    if (!result) return
+
+    if (Array.isArray(result)) {
+      this.upsert(...(result as Array<FileNode>))
+      return
+    }
+
+    if (!renderer) return
+
+    using instance = renderer()
+    await instance.render(result)
+
+    this.upsert(...instance.files)
   }
 
   #store(files: ReadonlyArray<FileNode>, mergeExisting: boolean): Array<FileNode> {
@@ -144,8 +161,7 @@ export class FileManager {
     return resolved
   }
 
-  // Merges same-path entries within a batch so the cache update loop stays
-  // uniform. Only called for multi-file batches.
+  // Merges same-path entries within a multi-file batch so the cache update loop stays uniform.
   #dedupe(files: ReadonlyArray<FileNode>): Array<FileNode> {
     const seen = new Map<string, FileNode>()
     for (const file of files) {
@@ -155,17 +171,13 @@ export class FileManager {
     return [...seen.values()]
   }
 
-  clear(): void {
-    this.#cache.clear()
-    this.#sorted = null
-  }
-
   /**
    * Releases all stored files and clears every `hooks` listener. Called by the core after
    * `kubb:build:end`.
    */
   dispose(): void {
-    this.clear()
+    this.#cache.clear()
+    this.#sorted = null
     this.hooks.removeAllHooks()
   }
 

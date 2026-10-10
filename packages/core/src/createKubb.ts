@@ -1,7 +1,6 @@
 import { resolve } from 'node:path'
 import { isPathInside } from '@internals/utils'
 import type { FileNode } from '@kubb/ast'
-import { HOOK_LISTENERS_PER_PLUGIN } from './constants.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import type { Storage } from './createStorage.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -10,6 +9,9 @@ import { cacheStorage } from './storages/cacheStorage.ts'
 import { fsStorage } from './storages/fsStorage.ts'
 import type { BuildOutput, Config, KubbHooks, UserConfig } from './types.ts'
 import { Hookable } from './Hookable.ts'
+
+/** Upper bound of listeners one plugin adds to a hook, sizing the emitter ceiling for large plugin sets. */
+const HOOK_LISTENERS_PER_PLUGIN = 4
 
 function resolveConfig(userConfig: UserConfig): Config {
   return {
@@ -98,7 +100,6 @@ export class Kubb {
   readonly hooks: Hookable<KubbHooks>
   readonly config: Config
   #driver: KubbDriver | null = null
-  #storage: Storage | null = null
   #manifest: OutputManifest | null = null
   readonly #signal: AbortSignal | undefined
 
@@ -109,8 +110,8 @@ export class Kubb {
   }
 
   get storage(): Storage {
-    if (!this.#storage) throw new Error('[kubb] setup() must be called before accessing storage')
-    return this.#storage
+    if (!this.#driver) throw new Error('[kubb] setup() must be called before accessing storage')
+    return this.config.storage
   }
 
   get driver(): KubbDriver {
@@ -130,9 +131,7 @@ export class Kubb {
       : undefined
     const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal })
 
-    // Each generator a plugin registers adds a listener to the shared hooks emitter, so size the
-    // ceiling to the plugin count. Without this, a multi-generator plugin set trips Node's
-    // EventEmitter leak warning at the default 10.
+    // Every plugin registers its lifecycle handlers on the shared emitter, so size the ceiling to the plugin count.
     this.hooks.setMaxListeners(Math.max(10, config.plugins.length * HOOK_LISTENERS_PER_PLUGIN))
 
     if (config.output.clean) {
@@ -156,7 +155,6 @@ export class Kubb {
     await driver.setup()
 
     this.#driver = driver
-    this.#storage = config.storage
     this.#manifest = manifest ?? null
   }
 
