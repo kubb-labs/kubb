@@ -2,7 +2,7 @@ import { pascalCase } from '@internals/utils'
 import { SCHEMA_REF_PREFIX } from '../constants.ts'
 import { isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
-import type { ContentType, ContentTypeOptions, Document, SchemaObject } from '../types.ts'
+import type { ContentType, Document, SchemaObject } from '../types.ts'
 
 /**
  * The three component sections Kubb reads schemas from.
@@ -163,7 +163,7 @@ function collisionSuffix({
  * const { schemas, renames } = getSchemas(document, { contentType: 'application/json' }, refs)
  * ```
  */
-export function getSchemas(document: Document, { contentType }: ContentTypeOptions, refs: Refs): GetSchemasResult {
+export function getSchemas(document: Document, { contentType }: { contentType?: ContentType }, refs: Refs): GetSchemasResult {
   const components = document.components
 
   function resolveSchemaRef(schema: SchemaObject): SchemaObject {

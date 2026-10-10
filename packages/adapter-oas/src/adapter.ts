@@ -12,7 +12,7 @@ import { createSchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
 import { createRefs } from './refs.ts'
 import { scanSchema } from './schemaDiagnostics.ts'
-import type { AdapterOas, Document, SchemaObject } from './types.ts'
+import type { AdapterOas, AdapterOasResolvedOptions, Document, SchemaObject } from './types.ts'
 
 /**
  * The `name` of `@kubb/adapter-oas`, used to identify this adapter in a Kubb config.
@@ -60,14 +60,8 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
     emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
   } = options
 
-  const parserOptions: ast.ParserOptions = {
-    ...DEFAULT_PARSER_OPTIONS,
-    dateType,
-    integerType,
-    unknownType,
-    emptySchemaType,
-    enumSuffix,
-  }
+  const parserOptions: ast.ParserOptions = { dateType, integerType, unknownType, emptySchemaType, enumSuffix }
+  const resolvedOptions: AdapterOasResolvedOptions = { validate, contentType, server, discriminator, enums, ...parserOptions, integerType }
 
   let parsedDocument: Document | null = null
 
@@ -131,16 +125,11 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
     const schemaNodes: Array<ast.SchemaNode> = promotedEnums ? [...promotedEnums.values()] : []
     for (const name of Object.keys(schemas)) {
-      const alias = refAliasMap.get(name)
-
-      const node =
-        alias?.name && parsedByName.has(alias.name)
-          ? { ...parsedByName.get(alias.name)!, name }
-          : (() => {
-              const parsed = parsedByName.get(name)!
-              const child = discriminatorChildMap?.get(name)
-              return child ? patchDiscriminatorNode(parsed, child) : parsed
-            })()
+      const aliasTarget = refAliasMap.get(name)?.name
+      const aliased = aliasTarget ? parsedByName.get(aliasTarget) : undefined
+      const parsed = parsedByName.get(name)!
+      const child = discriminatorChildMap?.get(name)
+      const node = aliased ? { ...aliased, name } : child ? patchDiscriminatorNode(parsed, child) : parsed
 
       schemaNodes.push(promotedEnums ? refPromotedEnums(node, promotedEnums) : node)
     }
@@ -163,20 +152,7 @@ export const adapterOas = createAdapter<AdapterOas>((options) => {
 
   return {
     name: adapterOasName,
-    get options() {
-      return {
-        validate,
-        contentType,
-        server,
-        discriminator,
-        enums,
-        dateType,
-        integerType,
-        unknownType,
-        emptySchemaType,
-        enumSuffix,
-      }
-    },
+    options: resolvedOptions,
     get document() {
       return parsedDocument
     },
