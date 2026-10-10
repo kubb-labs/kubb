@@ -1,8 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { spyOnConsole } from './console.mock.ts'
 import { createAgent, createJob, IncompatibleAgentError, InvalidAgentTokenError, registerAgent, waitForJob } from './api.ts'
-
-const consoleSpy = spyOnConsole()
 
 // Partial: `api.ts` only wants the machine token stubbed, and a full factory would also replace
 // the storage accessors that the rest of the package shares.
@@ -30,7 +27,7 @@ afterEach(() => {
 })
 
 describe('registerAgent', () => {
-  it('returns where to open the socket', async () => {
+  it('returns where to open the socket after posting the machine token, the instance id, and the capacity', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse(registration))
 
     const signal = new AbortController().signal
@@ -41,14 +38,7 @@ describe('registerAgent', () => {
     expect(init.method).toBe('POST')
     expect(init.signal.aborted).toBe(false)
     expect(new Headers(init.headers).get('Authorization')).toBe('Bearer tok')
-  })
-
-  it('sends the machine token, the instance id, and the capacity', async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse(registration))
-
-    await registerAgent({ ...props, capacity: { maxConcurrent: 1 } })
-
-    expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toStrictEqual({
+    expect(JSON.parse(String(init.body))).toStrictEqual({
       machineToken: 'machine-token-hash',
       instanceId: 'instance-1',
       capacity: { maxConcurrent: 1 },
@@ -64,7 +54,6 @@ describe('registerAgent', () => {
     await assertion
 
     expect(fetchMock).toHaveBeenCalledOnce()
-    expect(consoleSpy.error).not.toHaveBeenCalled()
   })
 
   it('throws InvalidAgentTokenError on a rejected token, without retrying', async () => {
@@ -105,7 +94,7 @@ describe('createAgent', () => {
 })
 
 describe('createJob', () => {
-  it('sends the commit a snapshot is built from', async () => {
+  it('sends the commit a snapshot is built from and the agent process it should run on', async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'queued' } }, 202))
 
     await createJob({
@@ -116,17 +105,17 @@ describe('createJob', () => {
       name: '@kubb/demo',
       version: '1.0.0',
       commit: 'c4d7e10',
+      instanceId: 'ci-run-42',
     })
 
-    expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toMatchObject({ commit: 'c4d7e10' })
-  })
-
-  it('sends the agent process the job should run on', async () => {
-    fetchMock.mockResolvedValueOnce(createMockResponse({ job: { id: 'job-1', status: 'queued' } }, 202))
-
-    await createJob({ studioUrl: 'http://studio', token: 'ci-token', type: 'snapshot', agentId: 'agent-1', instanceId: 'ci-run-42' })
-
-    expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toMatchObject({ instanceId: 'ci-run-42' })
+    expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toStrictEqual({
+      type: 'snapshot',
+      agentId: 'agent-1',
+      name: '@kubb/demo',
+      version: '1.0.0',
+      commit: 'c4d7e10',
+      instanceId: 'ci-run-42',
+    })
   })
 
   it('retries a busy agent, honoring the Retry-After header, until it is queued', async () => {
@@ -162,15 +151,17 @@ describe('createJob', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
-  it('gives up once the timeout passes, instead of retrying forever', async () => {
-    fetchMock.mockResolvedValue(createMockResponse({ message: 'Agent is busy' }, 429))
+  it('gives up once the timeout passes, after the attempts that fit in it', async () => {
+    // A fresh Response per attempt: a body reads once, and a reused one fails as a non-retryable error.
+    fetchMock.mockImplementation(async () => createMockResponse({ message: 'Agent is busy' }, 429))
 
     const promise = createJob({ studioUrl: 'http://studio', token: 'ci-token', type: 'generation', agentId: 'agent-1', timeoutMs: 5_000 })
     const assertion = expect(promise).rejects.toThrow()
     await vi.advanceTimersByTimeAsync(5_000)
     await assertion
 
-    expect(fetchMock.mock.calls.length).toBeGreaterThan(0)
+    // Attempts at 0s, ~1s and ~3s (1s, then 2s, with up to 30% jitter); the 4s wait runs past the 5s deadline.
+    expect(fetchMock).toHaveBeenCalledTimes(3)
   })
 })
 

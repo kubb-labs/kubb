@@ -80,6 +80,7 @@ class GenerationRunTarget extends RpcTarget implements GenerationRun {
   cancel() {
     return this.cancelGeneration()
   }
+  // Cap'n Web also calls this when the peer session is torn down, so a dropped socket stops the run.
   [Symbol.dispose]() {
     this.stopGeneration()
   }
