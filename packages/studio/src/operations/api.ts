@@ -1,11 +1,11 @@
 import { setTimeout as delay } from 'node:timers/promises'
 import { getErrorMessage } from '@internals/utils'
+import { FetchError, ofetch } from 'ofetch'
 import type { AgentCapacity, AgentRegisterInput, AgentRegisterResponse } from '../protocol/index.ts'
 import { getMachineToken } from './machine.ts'
-import { requestJson, ResponseError } from './request.ts'
 
 /**
- * Reads a human-readable message from a Studio JSON error body, when it has one. `ResponseError`'s own
+ * Reads a human-readable message from a Studio JSON error body, when it has one. `FetchError`'s own
  * message stops at the status line, so the detail Studio sends with a failure (an agent limit, a
  * revoked token) would otherwise never reach the user.
  */
@@ -48,7 +48,7 @@ export class IncompatibleAgentError extends Error {
 }
 
 /**
- * Whether a thrown value carries `statusCode`. Not narrowed to `ResponseError`: a host wrapper can
+ * Whether a thrown value carries `statusCode`. Not narrowed to `FetchError`: a host wrapper can
  * throw its own error shape with the same field.
  */
 function rejectedWith(error: unknown, statusCode: number): boolean {
@@ -56,7 +56,7 @@ function rejectedWith(error: unknown, statusCode: number): boolean {
 }
 
 function registrationError(cause: unknown): Error {
-  const detail = (cause instanceof ResponseError ? responseMessage(cause.data) : undefined) ?? getErrorMessage(cause)
+  const detail = (cause instanceof FetchError ? responseMessage(cause.data) : undefined) ?? getErrorMessage(cause)
   return new Error(detail ? `Failed to register with Kubb Studio: ${detail}` : 'Failed to register with Kubb Studio', { cause })
 }
 
@@ -82,18 +82,18 @@ export async function registerAgent({ token, studioUrl, instanceId, capacity, si
   const body: AgentRegisterInput = { machineToken: await getMachineToken(), instanceId, capacity }
 
   try {
-    return await requestJson<AgentRegisterResponse>({
-      url: `${studioUrl}/api/agent/connect`,
+    return await ofetch<AgentRegisterResponse>(`${studioUrl}/api/agent/connect`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
       body,
+      retry: 0,
       timeout: 10_000,
       signal,
     })
   } catch (error) {
     if (rejectedWith(error, 401)) throw new InvalidAgentTokenError(studioUrl, { cause: error })
     if (rejectedWith(error, 426))
-      throw new IncompatibleAgentError(studioUrl, error instanceof ResponseError ? responseMessage(error.data) : undefined, { cause: error })
+      throw new IncompatibleAgentError(studioUrl, error instanceof FetchError ? responseMessage(error.data) : undefined, { cause: error })
     throw registrationError(error)
   }
 }
@@ -205,7 +205,7 @@ const CREATE_JOB_MAX_INTERVAL_MS = 10_000
 const CREATE_JOB_RETRYABLE_STATUSES = new Set([409, 429, 503])
 
 /**
- * Reads Studio's `Retry-After` header (seconds) off a thrown response error, when present.
+ * Reads Studio's `Retry-After` header (seconds) off a thrown `ofetch` error, when present.
  */
 function retryAfterMs(error: unknown): number | undefined {
   const seconds = Number((error as { response?: Response }).response?.headers.get('retry-after'))
@@ -288,11 +288,11 @@ export async function createJob({
     signal?.throwIfAborted()
 
     try {
-      const { job } = await requestJson<{ job: StudioJob }>({
-        url: `${studioUrl}/api/jobs`,
+      const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs`, {
         method: 'POST',
         headers: { 'x-api-key': token },
         body: { type, agentId, name, version, commit, baseId, config, instanceId },
+        retry: false,
         timeout: Math.max(deadline - Date.now(), 1),
         signal,
       })
@@ -371,9 +371,10 @@ export async function waitForJob({
     interval = Math.min(interval * 2, MAX_POLL_INTERVAL_MS)
 
     try {
-      const { job } = await requestJson<{ job: StudioJob }>({
-        url: `${studioUrl}/api/jobs/${id}`,
+      // ofetch retries a 429 immediately, which spends the rate limit faster than not retrying.
+      const { job } = await ofetch<{ job: StudioJob }>(`${studioUrl}/api/jobs/${id}`, {
         headers: { 'x-api-key': token },
+        retry: false,
         timeout: Math.max(deadline - Date.now(), 1),
         signal,
       })
@@ -382,9 +383,11 @@ export async function waitForJob({
     } catch (error) {
       signal?.throwIfAborted()
 
-      if (!(error instanceof ResponseError) || error.statusCode !== 429) throw error
+      const response = (error as { response?: { status?: number; _data?: { data?: { tryAgainIn?: unknown } } } }).response
 
-      const retryAfter = (error.data as { data?: { tryAgainIn?: unknown } } | undefined)?.data?.tryAgainIn
+      if (response?.status !== 429) throw error
+
+      const retryAfter = response._data?.data?.tryAgainIn
       const usable = typeof retryAfter === 'number' && Number.isFinite(retryAfter) && retryAfter > 0
 
       // Studio's wait may exceed the ceiling, and a refusal must never shorten the next poll.
@@ -432,14 +435,13 @@ export async function createAgent({
   machineToken: string
 }): Promise<StudioAgent> {
   try {
-    return await requestJson<StudioAgent>({
-      url: `${studioUrl}/api/agents`,
+    return await ofetch<StudioAgent>(`${studioUrl}/api/agents`, {
       method: 'POST',
       headers: { 'x-api-key': token },
       body: { name, machineToken },
     })
   } catch (error: unknown) {
-    if (error instanceof ResponseError) {
+    if (error instanceof FetchError) {
       const upgradeUrl = (error.data as { data?: { upgradeUrl?: string } } | undefined)?.data?.upgradeUrl
       const detail = responseMessage(error.data) ?? getErrorMessage(error)
       const hint = upgradeUrl ? ` Agent limit reached; upgrade at ${upgradeUrl}.` : ''

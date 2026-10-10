@@ -74,8 +74,10 @@
     "@kubb/core": "workspace:*",
     "capnweb": "^0.12.0",
     "magicast": "^0.5.5",
+    "ofetch": "^1.5.1",
     "tinyexec": "catalog:",
-    "tsdown": "catalog:"
+    "tsdown": "catalog:",
+    "unstorage": "^1.17.5"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
