@@ -2,12 +2,7 @@ import { styleText } from 'node:util'
 import * as prompts from '@clack/prompts'
 import { isRichOutput } from '../utils/env.ts'
 import { getIntro } from './banner.ts'
-
-/**
- * Prefixes the plain writers use, the same ones `plainLogger` prints, so a command's own output
- * and the hook output around it read as one stream.
- */
-const SYMBOLS = { info: 'ℹ', warn: '⚠', error: '✗', step: '◇' } as const
+import { SYMBOLS } from './plainLogger.ts'
 
 const SPONSOR_TIPS = [
   'Your sponsorship keeps Kubb codegen, plugins, and docs maintained',

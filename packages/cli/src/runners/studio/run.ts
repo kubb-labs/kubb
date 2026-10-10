@@ -364,7 +364,7 @@ export async function connect(
         installLogger: async (hooks) => {
           // The background worker writes to a log file, so it gets the plain logger rather than the
           // animated one. The logger also covers the `studio:*` events and each generation run.
-          await setupReporters(hooks, {
+          setupReporters(hooks, {
             logLevel: logLevelMap[options.logLevel ?? 'info'],
             reporters: [cliReporter],
             ...(context.onState ? { logger: plainLogger } : {}),

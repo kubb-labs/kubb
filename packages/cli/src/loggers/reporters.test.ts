@@ -9,7 +9,7 @@ describe('setupReporters', () => {
   it('lets json own stdout without installing the live logger when json is selected', async () => {
     const context = new Hookable<KubbHooks>()
 
-    await setupReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
+    setupReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
 
     expect(context.listenerCount('kubb:hook:line')).toBe(0)
     expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
@@ -43,7 +43,7 @@ describe('setupReporters', () => {
     const lines: Array<string> = []
     using _log = vi.spyOn(console, 'log').mockImplementation((line = '') => void lines.push(stripVTControlCharacters(String(line))))
 
-    await setupReporters(context, { logLevel: logLevel.info, reporters: [cliReporter] })
+    setupReporters(context, { logLevel: logLevel.info, reporters: [cliReporter] })
     await context.callHook('kubb:generation:start', {
       config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [] } as unknown as Config,
     })
@@ -74,7 +74,7 @@ describe('studio session events', () => {
     const lines: Array<string> = []
     using _log = vi.spyOn(console, 'log').mockImplementation((line) => void lines.push(String(line)))
 
-    await setupReporters(context, { logLevel: level, reporters: [cliReporter] })
+    setupReporters(context, { logLevel: level, reporters: [cliReporter] })
     await emit(context)
 
     return lines

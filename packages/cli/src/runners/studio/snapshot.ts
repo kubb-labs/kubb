@@ -236,7 +236,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
       permissions: options.permission,
       loadConfig: async () => (await loadConfigs(options)).config,
       installLogger: async (hooks) => {
-        await setupReporters(hooks, { logLevel, reporters: [cliReporter], logger })
+        setupReporters(hooks, { logLevel, reporters: [cliReporter], logger })
         hooks.hook('studio:ready', () => markReady())
       },
     }),

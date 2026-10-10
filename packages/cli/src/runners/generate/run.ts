@@ -310,7 +310,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   } catch (error) {
     if (!quiet) configSpinner.error('Config failed loading')
 
-    await setupReporters(hooks, { logLevel, reporters: [cliReporter] })
+    setupReporters(hooks, { logLevel, reporters: [cliReporter] })
     await hooks.callHook('kubb:error', { error: toError(error) })
 
     if (!quiet) logOutro(styleText('red', '✗ Configuration failed'))
@@ -321,7 +321,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   // `defineConfig` gets the same built-ins it would have registered.
   const available = configs[0]?.reporters?.length ? configs[0].reporters : [cliReporter, jsonReporter, fileReporter, htmlReporter]
   const reporters = selectReporters(available, requestedNames)
-  await setupReporters(hooks, { logLevel, reporters })
+  setupReporters(hooks, { logLevel, reporters })
 
   await hooks.callHook('kubb:lifecycle:start', { version })
 

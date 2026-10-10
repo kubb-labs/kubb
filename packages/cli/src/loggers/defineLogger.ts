@@ -92,18 +92,7 @@ export type LoggerHandle = {
 }
 
 /**
- * Logger contract. A logger receives the build's hook emitter and subscribes
- * to whichever lifecycle hooks it wants to forward to its destination
- * (console, file, remote service).
+ * Logger contract: called once per build with the shared hook emitter, it subscribes to the
+ * lifecycle hooks it forwards to its destination (console, file, remote service).
  */
-export type Logger = {
-  /**
-   * Display name used in diagnostics.
-   */
-  name: string
-  /**
-   * Called once per build with the shared hook emitter. Subscribe to the
-   * lifecycle hooks the logger wants to forward to its destination.
-   */
-  install: (context: LoggerContext, options?: LoggerOptions) => LoggerHandle | void | Promise<LoggerHandle | void>
-}
+export type Logger = (context: LoggerContext, options: LoggerOptions) => LoggerHandle

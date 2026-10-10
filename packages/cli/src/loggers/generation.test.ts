@@ -60,7 +60,7 @@ async function renderBoth(emit: Emit, { rich = true, level = logLevel.info }: { 
   using _log = vi.spyOn(console, 'log').mockImplementation((line = '') => void lines.push(String(line)))
 
   const context = new Hookable<KubbHooks>()
-  await setupReporters(context, { logLevel: level, reporters: [cliReporter] })
+  setupReporters(context, { logLevel: level, reporters: [cliReporter] })
   await emit(context)
 
   return { calls: calls.slice(), lines }

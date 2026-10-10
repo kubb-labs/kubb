@@ -51,7 +51,7 @@ export function installReporter(context: LoggerContext, reporter: Reporter, ctx:
  * `cli` reporter (live logger and summary) is skipped whenever `json` is among the reporters, even
  * if `cli` is also listed.
  */
-async function setupReporters(
+function setupReporters(
   context: LoggerContext,
   {
     logLevel,
@@ -62,7 +62,7 @@ async function setupReporters(
     /** Overrides the terminal-based pick, e.g. the plain logger for `kubb studio snapshot`. */
     logger?: Logger
   },
-): Promise<void> {
+): void {
   const hasJson = reporters.some((reporter) => reporter.name === 'json')
   const ctx: ReporterContext = { logLevel }
 
@@ -77,7 +77,7 @@ async function setupReporters(
     }
 
     const logger = forcedLogger ?? (isRichOutput() ? clackLogger : plainLogger)
-    const handle = (await logger.install(context, { logLevel })) ?? undefined
+    const handle = logger(context, { logLevel })
 
     // The summary belongs inside the group the logger opened for this config, so hand the writing
     // to the logger rather than letting the reporter print alongside it.

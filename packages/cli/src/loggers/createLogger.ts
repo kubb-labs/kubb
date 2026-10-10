@@ -6,7 +6,7 @@ import type { Config } from '@kubb/core'
 import { Diagnostics, logLevel as logLevelMap } from '@kubb/core'
 import type { StudioConnectedContext } from '@kubb/studio'
 import { formatMsWithColor } from './banner.ts'
-import type { LoggerContext, LoggerHandle, LoggerOptions, LoggerWriter, LogStatus, WriterProgress, WriterSpinner } from './defineLogger.ts'
+import type { Logger, LoggerWriter, LogStatus, WriterProgress, WriterSpinner } from './defineLogger.ts'
 
 /**
  * Display path for a config's input: the string form, or its `path` field when the input is an
@@ -221,12 +221,11 @@ function trimBlankEdges(lines: ReadonlyArray<string>): Array<string> {
  *
  * @example
  * ```ts
- * export const plainLogger = { name: 'plain', install: (context, options) => createLogger(writer)(context, options) }
+ * export const plainLogger = createLogger(writer)
  * ```
  */
-export function createLogger(writer: LoggerWriter) {
-  return function install(context: LoggerContext, options?: LoggerOptions): LoggerHandle {
-    const logLevel = options?.logLevel ?? logLevelMap.info
+export function createLogger(writer: LoggerWriter): Logger {
+  return function install(context, { logLevel }) {
     const silent = logLevel <= logLevelMap.silent
     const state = {
       ...createProgressCounters(),

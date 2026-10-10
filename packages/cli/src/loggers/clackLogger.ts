@@ -55,7 +55,4 @@ const writer: LoggerWriter = {
 /**
  * TTY logger for local development, with animated steps and progress bars.
  */
-export const clackLogger = {
-  name: 'clack',
-  install: createLogger(writer),
-} satisfies Logger
+export const clackLogger: Logger = createLogger(writer)
