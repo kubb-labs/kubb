@@ -26,3 +26,14 @@ export const command = define({
     snapshot: snapshotCommand,
   },
 })
+
+/**
+ * Sends `kubb studio --flag value` to `kubb studio connect`, the same runner. gunshi picks a
+ * subcommand from the first token that is not a flag, so `--url http://…` would read the URL as one.
+ */
+export function routeStudioFlags(args: Array<string>): Array<string> {
+  const [name, next] = args
+  if (name !== 'studio' || !next?.startsWith('-') || args.includes('--help') || args.includes('-h')) return args
+
+  return ['studio', 'connect', ...args.slice(1)]
+}
