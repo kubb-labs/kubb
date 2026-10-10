@@ -3,8 +3,9 @@ import { isBinary, isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
 import type { Document, SchemaObject } from '../types.ts'
 import { convertAllOf, convertMultiType, convertRef, convertUnion } from './converters/composition.ts'
-import { convertBinary, convertBoolean, convertConst, convertEnum, convertFormat, convertNumeric, convertString, createNullNode } from './converters/scalar.ts'
+import { convertConst, convertEnum, convertFormat, convertNumeric, convertString, createNullNode } from './converters/scalar.ts'
 import { convertArray, convertObject, convertTuple } from './converters/structural.ts'
+import { createNode } from './createNode.ts'
 import { isHandledFormat, resolveDateTypeValue } from './schemaShape.ts'
 
 /**
@@ -76,7 +77,7 @@ export const schemaRules: Array<SchemaRule> = [
     },
     convert: convertFormat,
   },
-  { match: ({ schema }) => isBinary(schema), convert: convertBinary },
+  { match: ({ schema }) => isBinary(schema), convert: (ctx) => createNode(ctx, { type: 'blob', primitive: 'string' }) },
   {
     match: ({ schema, type }) => !type && (schema.minLength !== undefined || schema.maxLength !== undefined || schema.pattern !== undefined),
     convert: convertString,
@@ -95,6 +96,6 @@ export const schemaRules: Array<SchemaRule> = [
   { match: ({ type }) => type === 'string', convert: convertString },
   { match: ({ type }) => type === 'number', convert: (ctx) => convertNumeric(ctx, 'number') },
   { match: ({ type }) => type === 'integer', convert: (ctx) => convertNumeric(ctx, 'integer') },
-  { match: ({ type }) => type === 'boolean', convert: convertBoolean },
+  { match: ({ type }) => type === 'boolean', convert: (ctx) => createNode(ctx, { type: 'boolean', primitive: 'boolean' }) },
   { match: ({ type }) => type === 'null', convert: ({ schema, name, nullable }) => createNullNode(schema, name, nullable) },
 ]

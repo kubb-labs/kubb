@@ -4,32 +4,12 @@ import { isReference } from '../oas.ts'
 import type { SchemaObject } from '../types.ts'
 
 /**
- * Returns the Kubb `SchemaType` for a given OAS `format` string, or `null` if not found.
- * Formats not in `formatMap` (e.g., `int64`, `uint64`, `date-time`) are handled separately by parser options.
- */
-export function getSchemaType(format: string): ast.SchemaType | null {
-  return formatMap[format as keyof typeof formatMap] ?? null
-}
-
-/**
- * Whether the parser maps `format` to a dedicated type. True for any `formatMap` entry, plus the
- * `specialCasedFormats` that `convertFormat` handles directly (int64, uint64, date-time, date, time). False means the format falls back to
- * the base type, which is what `KUBB_UNSUPPORTED_FORMAT` flags. Reading both sources keeps the
- * diagnostic in step with the parser as `formatMap` grows.
+ * Whether the parser maps `format` to a dedicated type: any `formatMap` entry, plus the
+ * `specialCasedFormats` that `convertFormat` handles directly. False means the format falls back
+ * to the base type, which is what `KUBB_UNSUPPORTED_FORMAT` flags.
  */
 export function isHandledFormat(format: string): boolean {
-  return getSchemaType(format) !== null || specialCasedFormats.has(format)
-}
-
-/**
- * Converts an OAS primitive type string to its `PrimitiveSchemaType` equivalent.
- * Numeric types (`number`, `integer`, `bigint`) pass through unchanged. `boolean` maps to `'boolean'`. Everything else becomes `'string'`.
- */
-export function getPrimitiveType(type: string | undefined): ast.PrimitiveSchemaType {
-  if (type === 'number' || type === 'integer' || type === 'bigint') return type
-  if (type === 'boolean') return 'boolean'
-
-  return 'string'
+  return formatMap[format as keyof typeof formatMap] !== undefined || specialCasedFormats.has(format)
 }
 
 /**
@@ -50,59 +30,6 @@ export function resolveDateTypeValue(
 }
 
 /**
- * Resolves the AST type descriptor for a date/time format, honoring the `dateType` option.
- * Returns `null` when the resolved value is `false`, so the format falls through to `string`.
- */
-export function getDateType(
-  options: ast.ParserOptions,
-  format: 'date-time' | 'date' | 'time',
-): { type: 'datetime'; offset?: boolean; local?: boolean } | { type: 'date' | 'time'; representation: 'date' | 'string' } | null {
-  const value = resolveDateTypeValue(options.dateType, format)
-
-  if (!value) {
-    return null
-  }
-
-  if (format === 'date-time') {
-    if (value === 'date') {
-      return { type: 'date', representation: 'date' }
-    }
-    if (value === 'stringOffset') {
-      return { type: 'datetime', offset: true }
-    }
-    if (value === 'stringLocal') {
-      return { type: 'datetime', local: true }
-    }
-    return { type: 'datetime', offset: false }
-  }
-
-  if (format === 'date') {
-    return {
-      type: 'date',
-      representation: value === 'date' ? 'date' : 'string',
-    }
-  }
-
-  // time
-  return {
-    type: 'time',
-    representation: value === 'date' ? 'date' : 'string',
-  }
-}
-
-/**
- * Reads a schema's numeric `exclusiveMinimum`/`exclusiveMaximum` bounds (the OAS 3.1 numeric
- * form). Either key is `undefined` when absent or, for the legacy OAS 3.0 boolean form, not a
- * number.
- */
-export function getExclusiveBounds(schema: SchemaObject): { exclusiveMinimum: number | undefined; exclusiveMaximum: number | undefined } {
-  return {
-    exclusiveMinimum: typeof schema.exclusiveMinimum === 'number' ? schema.exclusiveMinimum : undefined,
-    exclusiveMaximum: typeof schema.exclusiveMaximum === 'number' ? schema.exclusiveMaximum : undefined,
-  }
-}
-
-/**
  * Reads schema examples as an array. OAS 3.1 uses an `examples` array, but specs (including ones
  * labeled 3.1) still use the singular OAS 3.0 `example`, which the upgrader only converts on the
  * 3.0 -> 3.1 hop. Normalize both into one array so the AST node exposes only `examples`.
@@ -112,12 +39,7 @@ export function extractExamples(schema: SchemaObject): Array<unknown> | undefine
   return schema.example !== undefined ? [schema.example] : undefined
 }
 
-/**
- * Returns `true` when `fragment` carries any JSON Schema keyword that makes it
- * structurally significant on its own (see `structuralKeys`).
- *
- * A fragment with a structural keyword can't be safely merged into a parent schema.
- */
+// A fragment carrying a structural keyword (see `structuralKeys`) can't be merged into its parent.
 function hasStructuralKeywords(fragment: SchemaObject): boolean {
   return Object.keys(fragment).some((key) => structuralKeys.has(key as 'properties'))
 }
@@ -126,23 +48,19 @@ function hasStructuralKeywords(fragment: SchemaObject): boolean {
  * Flattens a keyword-only `allOf` into its parent schema.
  *
  * Only flattens when every member is a plain fragment, with no `$ref` and no structural keywords
- * (see `structuralKeys`). Outer schema values take precedence over fragment values.
- * Returns `null` for a `null` input, and the original schema unchanged when flattening is unsafe.
+ * (see `structuralKeys`). Outer schema values take precedence over fragment values. Returns the
+ * original schema unchanged when flattening is unsafe.
  *
  * @example
  * ```ts
  * flattenSchema({ allOf: [{ description: 'A pet' }], type: 'object', properties: {} })
  * // { type: 'object', properties: {}, description: 'A pet' }
- * ```
- *
- * @example
- * ```ts
  * flattenSchema({ allOf: [{ $ref: '#/components/schemas/Pet' }] })
  * // returned unchanged, contains a $ref
  * ```
  */
-export function flattenSchema(schema: SchemaObject | null): SchemaObject | null {
-  if (!schema?.allOf || schema.allOf.length === 0) return schema ?? null
+export function flattenSchema(schema: SchemaObject): SchemaObject {
+  if (!schema.allOf?.length) return schema
 
   const allOfFragments = schema.allOf as Array<SchemaObject>
   if (allOfFragments.some((item) => isReference(item))) return schema

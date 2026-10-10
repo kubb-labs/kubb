@@ -44,7 +44,7 @@ export function createSchemaParser(ctx: OasParserContext) {
    */
   function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }): ast.SchemaNode {
     const flattenedSchema = flattenSchema(schema)
-    if (flattenedSchema && flattenedSchema !== schema) {
+    if (flattenedSchema !== schema) {
       return parseSchema({ schema: flattenedSchema, name })
     }
 
