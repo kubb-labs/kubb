@@ -1,13 +1,13 @@
 import path from 'node:path'
 import type { LiteralUnion } from '@internals/utils'
-import type { Enforce, FileNode, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
-import { diagnosticCode } from './constants.ts'
+import type { Enforce, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import type { Generator } from './defineGenerator.ts'
 import type { BannerMeta, Resolver, ResolverPatch } from './Resolver.ts'
 import { Diagnostics } from './Diagnostics.ts'
-import type { Config, KubbHooks } from './types.ts'
+import type { Config, FilesContext, KubbHooks } from './types.ts'
 
-type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
+/** Reads key `K` from a registry interface, or `{}` when no package has augmented it. @internal */
+export type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T[K] : {}
 
 /**
  * A plugin name as accepted by `getPlugin`/`requirePlugin`/`getResolver`. Registered names from
@@ -130,7 +130,7 @@ export function normalizeOutput({ output, group, pluginName }: { output: Output;
 
   if (mode === 'file' && group) {
     throw new Diagnostics.Error({
-      code: diagnosticCode.invalidPluginOptions,
+      code: Diagnostics.code.invalidPluginOptions,
       severity: 'error',
       message: `Plugin "${pluginName}" resolves \`output.mode\` to 'file' but also configures a \`group\` option.`,
       help: "A single-file output has nothing to group. Remove the `group` option, give `output.path` an extensionless directory name, or set `output.mode: 'directory'` explicitly.",
@@ -413,21 +413,12 @@ export type KubbPluginStartContext = {
   plugin: NormalizedPlugin
 }
 
-export type KubbPluginEndContext = {
+export type KubbPluginEndContext = FilesContext & {
   plugin: NormalizedPlugin
   duration: number
   success: boolean
   error?: Error
   config: Config
-  /**
-   * Returns all files currently in the file manager (lazy snapshot).
-   * Includes files added by plugins that have already run.
-   */
-  readonly files: ReadonlyArray<FileNode>
-  /**
-   * Upsert one or more files into the file manager.
-   */
-  upsertFile: (...files: Array<FileNode>) => void
 }
 
 /**

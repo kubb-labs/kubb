@@ -38,20 +38,7 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
     },
     getResolver: (_pluginName: string) => options?.plugin?.resolver,
     fileManager,
-    async dispatch({ result, renderer }: { result: unknown; renderer?: RendererFactory | null }): Promise<void> {
-      if (!result) return
-
-      if (Array.isArray(result)) {
-        fileManager.upsert(...(result as Array<FileNode>))
-        return
-      }
-
-      if (!renderer) return
-
-      using instance = renderer()
-      await instance.render(result)
-      fileManager.upsert(...instance.files)
-    },
+    dispatch: (params: { result: unknown; renderer?: RendererFactory | null }) => fileManager.dispatch(params),
   } as unknown as KubbDriver
 }
 
@@ -131,6 +118,24 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
   } as unknown as Omit<GeneratorContext<TOptions>, 'options'>
 }
 
+async function renderNode<TOptions extends PluginFactoryOptions, TNode extends SchemaNode | OperationNode>({
+  generator,
+  node,
+  opts,
+  generate,
+}: {
+  generator: Generator<TOptions>
+  node: TNode
+  opts: RenderGeneratorOptions<TOptions>
+  generate: (node: TNode, ctx: GeneratorContext<TOptions>) => ReturnType<NonNullable<Generator<TOptions>['schema']>>
+}): Promise<void> {
+  const ctx = { ...createMockedPluginContext(opts), options: opts.options }
+  const transformedNode = opts.plugin.macros?.length ? applyMacros(node, opts.plugin.macros) : node
+  const matches = generator.match ? await generator.match(transformedNode, ctx) : true
+  if (!matches) return
+  await opts.driver.dispatch({ result: await generate(transformedNode, ctx), renderer: generator.renderer })
+}
+
 /**
  * Renders a generator's `schema` method in a test context.
  *
@@ -146,13 +151,7 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
   opts: RenderGeneratorOptions<TOptions>,
 ): Promise<void> {
   if (!generator.schema) return
-  const context = createMockedPluginContext(opts)
-  const transformedNode = opts.plugin.macros?.length ? applyMacros(node, opts.plugin.macros) : node
-  const ctx = { ...context, options: opts.options }
-  const matches = generator.match ? await generator.match(transformedNode, ctx) : true
-  if (!matches) return
-  const result = await generator.schema(transformedNode, ctx)
-  await opts.driver.dispatch({ result, renderer: generator.renderer })
+  await renderNode({ generator, node, opts, generate: (transformedNode, ctx) => generator.schema!(transformedNode, ctx) })
 }
 
 /**
@@ -170,13 +169,7 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
   opts: RenderGeneratorOptions<TOptions>,
 ): Promise<void> {
   if (!generator.operation) return
-  const context = createMockedPluginContext(opts)
-  const transformedNode = opts.plugin.macros?.length ? applyMacros(node, opts.plugin.macros) : node
-  const ctx = { ...context, options: opts.options }
-  const matches = generator.match ? await generator.match(transformedNode, ctx) : true
-  if (!matches) return
-  const result = await generator.operation(transformedNode, ctx)
-  await opts.driver.dispatch({ result, renderer: generator.renderer })
+  await renderNode({ generator, node, opts, generate: (transformedNode, ctx) => generator.operation!(transformedNode, ctx) })
 }
 
 /**

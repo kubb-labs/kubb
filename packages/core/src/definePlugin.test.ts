@@ -1,5 +1,5 @@
 import { ast } from '@kubb/ast'
-import type { OperationNode, SchemaNode } from '@kubb/ast'
+import type { SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
@@ -7,8 +7,7 @@ import { definePlugin, normalizeOutput } from './definePlugin.ts'
 import type { OutputOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
-import type { Config, GeneratorContext, KubbHooks, KubbPluginSetupContext, Output, Plugin, PluginFactoryOptions, ResolvePluginOptions } from './types.ts'
-import { fsStorage } from './storages/fsStorage.ts'
+import type { Config, GeneratorContext, KubbHooks, Output, Plugin, PluginFactoryOptions, ResolvePluginOptions } from './types.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
 
@@ -48,22 +47,29 @@ declare global {
 type TestPluginOptions = PluginFactoryOptions<string, { tag: string }>
 type TestPluginOptionalOptions = PluginFactoryOptions<string, { tag?: string }>
 
-/**
- * Builds a stub `kubb:plugin:setup` context with no-op methods.
- * Used by tests that emit the hook directly without a full driver.
- */
-function createSetupCtxStub(config: Config): KubbPluginSetupContext {
+function makeConfig(overrides: Partial<Config> = {}): Config {
   return {
-    config,
-    addGenerator: () => {},
-    setResolver: () => {},
-    addMacro: () => {},
-    setMacros: () => {},
-    setRenderer: () => {},
-    setOptions: () => {},
-    injectFile: () => {},
-    options: {},
-  } as unknown as KubbPluginSetupContext
+    root: '.',
+    input: './petStore.yaml',
+    output: { path: './gen' },
+    parsers: [],
+    reporters: [],
+    adapter: createMockedAdapter(),
+    plugins: [],
+    storage: memoryStorage(),
+    ...overrides,
+  }
+}
+
+/**
+ * A driver with its setup hooks already run, so `kubb:plugin:setup` side effects can be observed
+ * without a full build.
+ */
+async function setupDriver(plugins: Config['plugins'], hooks = new Hookable<KubbHooks>()): Promise<KubbDriver> {
+  const driver = new KubbDriver(makeConfig({ plugins }), { hooks })
+  await driver.setup()
+  await driver.setupHooks()
+  return driver
 }
 
 describe('definePlugin', () => {
@@ -92,35 +98,8 @@ describe('definePlugin', () => {
   })
 })
 
-describe('PluginDriver — hook-style plugin registration', () => {
-  function makeConfig(plugins: Config['plugins']): Config {
-    return {
-      root: '.',
-      input: './petStore.yaml',
-      output: { path: './src/gen', clean: true },
-      parsers: [],
-      reporters: [],
-      adapter: createMockedAdapter(),
-      storage: fsStorage(),
-      plugins,
-    }
-  }
-
-  it('registers a hook-style plugin in the plugins map', async () => {
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {},
-    }))()
-
-    const driver = new KubbDriver(makeConfig([hookPlugin]), {
-      hooks: new Hookable<KubbHooks>(),
-    })
-    await driver.setup()
-
-    expect(driver.plugins.has('hook-plugin')).toBe(true)
-  })
-
-  it('does not register kubb:plugin:setup on the hook emitter', async () => {
+describe('kubb:plugin:setup context', () => {
+  it('runs the kubb:plugin:setup handler once from setupHooks instead of the hook emitter', async () => {
     const setupHandler = vi.fn()
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
@@ -130,52 +109,10 @@ describe('PluginDriver — hook-style plugin registration', () => {
     }))()
 
     const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks })
-    await driver.setup()
+    await setupDriver([hookPlugin], hooks)
 
     expect(hooks.listenerCount('kubb:plugin:setup')).toBe(0)
-  })
-
-  it('runs the kubb:plugin:setup handler on setupHooks', async () => {
-    const setupHandler = vi.fn()
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {
-        'kubb:plugin:setup': setupHandler,
-      },
-    }))()
-
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks })
-    await driver.setup()
-
-    await driver.setupHooks()
     expect(setupHandler).toHaveBeenCalledOnce()
-  })
-
-  it('addGenerator() stores generators on the plugin for direct dispatch', async () => {
-    const generator = { name: 'my-gen', schema: vi.fn() }
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator(generator)
-        },
-      },
-    }))()
-
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks })
-    await driver.setup()
-
-    // Before setup hooks run, no generators exist yet.
-    expect(driver.hasHookGenerators('hook-plugin')).toBe(false)
-
-    await driver.setupHooks()
-
-    // After setup hooks run, the generator lives on its plugin, ready for the generate loop to call.
-    expect(driver.hasHookGenerators('hook-plugin')).toBe(true)
-    expect(driver.plugins.get('hook-plugin')?.generators).toStrictEqual([generator])
   })
 
   it('addGenerator() stores every generator passed as separate arguments', async () => {
@@ -191,38 +128,9 @@ describe('PluginDriver — hook-style plugin registration', () => {
       },
     }))()
 
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks })
-    await driver.setup()
+    const driver = await setupDriver([hookPlugin])
 
-    await driver.setupHooks()
-
-    expect(driver.hasHookGenerators('hook-plugin')).toBe(true)
     expect(driver.plugins.get('hook-plugin')?.generators).toStrictEqual([genSchema, genOperation, genOperations])
-  })
-
-  it('addGenerator() stores a spread list so an existing array can be passed in one call', async () => {
-    const generators = [
-      { name: 'gen-schema', schema: vi.fn() },
-      { name: 'gen-operation', operation: vi.fn() },
-    ]
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator(...generators)
-        },
-      },
-    }))()
-
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks })
-    await driver.setup()
-
-    await driver.setupHooks()
-
-    expect(driver.hasHookGenerators('hook-plugin')).toBe(true)
-    expect(driver.plugins.get('hook-plugin')?.generators).toStrictEqual(generators)
   })
 
   it('options passed to definePlugin are forwarded via ctx.options', async () => {
@@ -237,18 +145,12 @@ describe('PluginDriver — hook-style plugin registration', () => {
       },
     }))({ tag: 'pets' })
 
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin as unknown as Plugin]), {
-      hooks,
-    })
-    await driver.setup()
-
-    await driver.setupHooks()
+    await setupDriver([hookPlugin as unknown as Plugin])
 
     expect(capturedOptions[0]).toStrictEqual({ tag: 'pets' })
   })
 
-  it('setResolver() merges partial resolver overrides with framework defaults', async () => {
+  it('setResolver() merges partial overrides with the defaults, on getResolver() and plugin.resolver alike', async () => {
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
       hooks: {
@@ -262,12 +164,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       },
     }))()
 
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), {
-      hooks,
-    })
-    await driver.setup()
-    await driver.setupHooks()
+    const driver = await setupDriver([hookPlugin])
 
     const resolver = driver.getResolver('hook-plugin')
     expect(resolver.name('any value')).toBe('CustomName')
@@ -278,32 +175,38 @@ describe('PluginDriver — hook-style plugin registration', () => {
         output: { path: 'gen', mode: 'directory' },
       }),
     ).toBe('/tmp/root/gen/pets.ts')
+    expect(driver.plugins.get('hook-plugin')?.resolver?.name('any value')).toBe('CustomName')
   })
 
-  it('setResolver() mirrors resolver onto plugin.resolver for getPlugin() consumers', async () => {
+  it('passes the resolver set during setup on ctx.resolver to a generator', async () => {
+    const seen: Array<string> = []
     const hookPlugin = definePlugin(() => ({
       name: 'hook-plugin',
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.setResolver({
             name() {
-              return 'FromPlugin'
+              return 'ResolvedFromSetup'
+            },
+          })
+          ctx.addGenerator({
+            name: 'test-gen',
+            schema(_node: SchemaNode, generatorCtx: GeneratorContext) {
+              seen.push(generatorCtx.resolver.name('pet schema'))
             },
           })
         },
       },
     }))()
-
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), {
-      hooks,
+    const adapter = createMockedAdapter({
+      parse: async () => ast.factory.createInput({ schemas: [ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [] })] }),
     })
-    await driver.setup()
-    await driver.setupHooks()
 
-    const plugin = driver.plugins.get('hook-plugin')!
-    expect(plugin.resolver).toBeDefined()
-    expect(plugin.resolver!.name('test')).toBe('FromPlugin')
+    const driver = new KubbDriver(makeConfig({ adapter, plugins: [hookPlugin] }), { hooks: new Hookable<KubbHooks>() })
+    await driver.setup()
+    await driver.run()
+
+    expect(seen).toStrictEqual(['ResolvedFromSetup'])
   })
 
   it('uses default resolver when setResolver() is never called', async () => {
@@ -312,11 +215,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       hooks: {},
     }))()
 
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), {
-      hooks,
-    })
-    await driver.setup()
+    const driver = await setupDriver([hookPlugin])
 
     const resolver = driver.getResolver('hook-plugin')
     expect(resolver.name('my custom type')).toBe('myCustomType')
@@ -336,12 +235,7 @@ describe('PluginDriver — hook-style plugin registration', () => {
       },
     }))()
 
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), {
-      hooks,
-    })
-    await driver.setup()
-    await driver.setupHooks()
+    const driver = await setupDriver([hookPlugin])
 
     const plugin = driver.plugins.get('hook-plugin')!
     const opts = plugin.options as Record<string, unknown>
@@ -349,263 +243,40 @@ describe('PluginDriver — hook-style plugin registration', () => {
     expect(opts.syntaxType).toBe('type')
     expect(opts.output).toStrictEqual({ path: 'types', mode: 'directory' })
   })
-
-  it('external listeners receive kubb:plugin:setup context', async () => {
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: { 'kubb:plugin:setup'() {} },
-    }))()
-
-    const hooks = new Hookable<KubbHooks>()
-    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks })
-    await driver.setup()
-
-    const externalListener = vi.fn()
-    hooks.hook('kubb:plugin:setup', externalListener)
-
-    const ctx = createSetupCtxStub(makeConfig([]))
-    await hooks.callHook('kubb:plugin:setup', ctx)
-
-    expect(externalListener).toHaveBeenCalledWith(ctx)
-  })
-})
-
-describe('PluginDriver — generator dispatch', () => {
-  function populatedAdapter() {
-    return createMockedAdapter({
-      parse: async () =>
-        ast.factory.createInput({
-          schemas: [ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [] })],
-          operations: [ast.factory.createOperation({ operationId: 'getPet', method: 'GET', path: '/pet' })],
-        }),
-    })
-  }
-
-  function makeConfig(plugins: Config['plugins']): Config {
-    return {
-      root: '.',
-      input: './petStore.yaml',
-      output: { path: './src/gen', clean: true },
-      parsers: [],
-      reporters: [],
-      storage: memoryStorage(),
-      adapter: populatedAdapter(),
-      plugins,
-    }
-  }
-
-  it('calls a plugin schema generator for each schema node during run()', async () => {
-    const schemaMock = vi.fn().mockResolvedValue(undefined)
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator({ name: 'test-gen', schema: schemaMock })
-        },
-      },
-    }))()
-
-    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks: new Hookable<KubbHooks>() })
-    await driver.setup()
-    await driver.run()
-
-    expect(schemaMock).toHaveBeenCalledOnce()
-    const [node, ctx] = schemaMock.mock.calls[0] as [SchemaNode, GeneratorContext]
-    expect(node.name).toBe('Pet')
-    expect(ctx.plugin.name).toBe('hook-plugin')
-  })
-
-  it('only calls a plugin generator with its own plugin context (no cross-fire)', async () => {
-    const schemaA = vi.fn().mockResolvedValue(undefined)
-    const schemaB = vi.fn().mockResolvedValue(undefined)
-    const pluginA = definePlugin(() => ({
-      name: 'plugin-a',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator({ name: 'gen-a', schema: schemaA })
-        },
-      },
-    }))()
-    const pluginB = definePlugin(() => ({
-      name: 'plugin-b',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator({ name: 'gen-b', schema: schemaB })
-        },
-      },
-    }))()
-
-    const driver = new KubbDriver(makeConfig([pluginA, pluginB]), { hooks: new Hookable<KubbHooks>() })
-    await driver.setup()
-    await driver.run()
-
-    expect(schemaA).toHaveBeenCalledOnce()
-    expect(schemaB).toHaveBeenCalledOnce()
-    const [, ctxA] = schemaA.mock.calls[0] as [SchemaNode, GeneratorContext]
-    const [, ctxB] = schemaB.mock.calls[0] as [SchemaNode, GeneratorContext]
-    expect(ctxA.plugin.name).toBe('plugin-a')
-    expect(ctxB.plugin.name).toBe('plugin-b')
-  })
-
-  it('hasHookGenerators() returns false before setup and true after', async () => {
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator({ name: 'gen', schema: vi.fn() })
-        },
-      },
-    }))()
-
-    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks: new Hookable<KubbHooks>() })
-    await driver.setup()
-
-    expect(driver.hasHookGenerators('hook-plugin')).toBe(false)
-    await driver.setupHooks()
-    expect(driver.hasHookGenerators('hook-plugin')).toBe(true)
-  })
-
-  it('calls a plugin operation generator for each operation node during run()', async () => {
-    const operationMock = vi.fn().mockResolvedValue(undefined)
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator({ name: 'test-gen', operation: operationMock })
-        },
-      },
-    }))()
-
-    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks: new Hookable<KubbHooks>() })
-    await driver.setup()
-    await driver.run()
-
-    expect(operationMock).toHaveBeenCalledOnce()
-    const [operationNode] = operationMock.mock.calls[0] as [OperationNode, GeneratorContext]
-    expect(operationNode.operationId).toBe('getPet')
-  })
-
-  it('calls a plugin operations generator once with the collected operations', async () => {
-    const operationsMock = vi.fn().mockResolvedValue(undefined)
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator({ name: 'test-gen', operations: operationsMock })
-        },
-      },
-    }))()
-
-    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks: new Hookable<KubbHooks>() })
-    await driver.setup()
-    await driver.run()
-
-    expect(operationsMock).toHaveBeenCalledOnce()
-    const [nodes] = operationsMock.mock.calls[0] as [Array<OperationNode>, GeneratorContext]
-    expect(nodes.map((node) => node.operationId)).toStrictEqual(['getPet'])
-  })
-
-  it('passes the resolved resolver on ctx.resolver to a generator', async () => {
-    const capturedResolverResult = vi.fn()
-    const schemaMock = vi.fn(function (_node: SchemaNode, ctx: GeneratorContext) {
-      capturedResolverResult(ctx.resolver.name('pet schema'))
-      return undefined
-    })
-
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.setResolver({
-            name() {
-              return 'ResolvedFromSetup'
-            },
-          })
-          ctx.addGenerator({ name: 'test-gen', schema: schemaMock })
-        },
-      },
-    }))()
-
-    const driver = new KubbDriver(makeConfig([hookPlugin]), { hooks: new Hookable<KubbHooks>() })
-    await driver.setup()
-    await driver.run()
-
-    expect(schemaMock).toHaveBeenCalledOnce()
-    expect(capturedResolverResult).toHaveBeenCalledWith('ResolvedFromSetup')
-  })
 })
 
 describe('normalizeOutput', () => {
-  it('defaults an extensionless path to directory mode', () => {
-    const result = normalizeOutput({ output: { path: 'types' }, pluginName: 'plugin-ts' })
-
-    expect(result).toStrictEqual({ path: 'types', mode: 'directory' })
+  // Mode is inferred from the path extension unless set, and a group always means a directory.
+  it.each<[string, { output: { path: string; mode?: 'directory' | 'file' }; group?: { type: 'tag' } }, { path: string; mode: 'directory' | 'file' }]>([
+    ['an extensionless path', { output: { path: 'types' } }, { path: 'types', mode: 'directory' }],
+    ['a nested extensionless path', { output: { path: 'ts/models' } }, { path: 'ts/models', mode: 'directory' }],
+    ['a path with an extension', { output: { path: 'models.ts' } }, { path: 'models.ts', mode: 'file' }],
+    ['an explicit directory mode', { output: { path: 'types', mode: 'directory' } }, { path: 'types', mode: 'directory' }],
+    ['an explicit file mode', { output: { path: 'models.ts', mode: 'file' } }, { path: 'models.ts', mode: 'file' }],
+    ['a group with directory mode', { output: { path: 'clients', mode: 'directory' }, group: { type: 'tag' } }, { path: 'clients', mode: 'directory' }],
+    ['a group with mode unset', { output: { path: 'clients' }, group: { type: 'tag' } }, { path: 'clients', mode: 'directory' }],
+    [
+      'a group with directory mode over a path that looks like a file',
+      { output: { path: 'clients.v2', mode: 'directory' }, group: { type: 'tag' } },
+      { path: 'clients.v2', mode: 'directory' },
+    ],
+  ])('returns %j for %s', (_name, options, expected) => {
+    expect(normalizeOutput({ ...options, pluginName: 'plugin-ts' })).toStrictEqual(expected)
   })
 
-  it('defaults a path with an extension to file mode', () => {
-    const result = normalizeOutput({ output: { path: 'models.ts' }, pluginName: 'plugin-ts' })
-
-    expect(result).toStrictEqual({ path: 'models.ts', mode: 'file' })
-  })
-
-  it('defaults a nested extensionless path to directory mode', () => {
-    const result = normalizeOutput({ output: { path: 'ts/models' }, pluginName: 'plugin-ts' })
-
-    expect(result).toStrictEqual({ path: 'ts/models', mode: 'directory' })
-  })
-
-  it('keeps an explicit directory mode', () => {
-    const result = normalizeOutput({ output: { path: 'types', mode: 'directory' }, pluginName: 'plugin-ts' })
-
-    expect(result.mode).toBe('directory')
-  })
-
-  it('keeps an explicit file mode with its path as-is', () => {
-    const result = normalizeOutput({ output: { path: 'models.ts', mode: 'file' }, pluginName: 'plugin-ts' })
-
-    expect(result).toStrictEqual({ path: 'models.ts', mode: 'file' })
-  })
-
-  it('passes through directory mode when a group is configured', () => {
-    const result = normalizeOutput({ output: { path: 'clients', mode: 'directory' }, group: { type: 'tag' }, pluginName: 'plugin-axios' })
-
-    expect(result).toStrictEqual({ path: 'clients', mode: 'directory' })
-  })
-
-  it('infers directory mode for a group when mode is left unset', () => {
-    const result = normalizeOutput({ output: { path: 'clients' }, group: { type: 'tag' }, pluginName: 'plugin-axios' })
-
-    expect(result).toStrictEqual({ path: 'clients', mode: 'directory' })
-  })
-
-  it('lets an explicit directory mode override a path that looks like a file, for a group', () => {
-    const result = normalizeOutput({ output: { path: 'clients.v2', mode: 'directory' }, group: { type: 'tag' }, pluginName: 'plugin-axios' })
-
-    expect(result).toStrictEqual({ path: 'clients.v2', mode: 'directory' })
-  })
-
-  it('throws KUBB_INVALID_PLUGIN_OPTIONS for an explicit file mode paired with a group', () => {
-    expect(() => normalizeOutput({ output: { path: 'models.ts', mode: 'file' }, group: { type: 'tag' }, pluginName: 'plugin-ts' })).toThrowError(
-      /output\.mode. to 'file'/,
-    )
-  })
-
-  it('throws KUBB_INVALID_PLUGIN_OPTIONS for a path that infers file mode, paired with a group', () => {
-    expect(() => normalizeOutput({ output: { path: 'clients.v2' }, group: { type: 'tag' }, pluginName: 'plugin-axios' })).toThrowError(
-      /output\.mode. to 'file'/,
-    )
-  })
-
-  it('throws a Diagnostics error when file mode is paired with a group', () => {
+  it.each<[string, { path: string; mode?: 'file' }]>([
+    ['an explicit file mode', { path: 'models.ts', mode: 'file' }],
+    ['a path that infers file mode', { path: 'clients.v2' }],
+  ])('throws KUBB_INVALID_PLUGIN_OPTIONS for %s paired with a group', (_name, output) => {
     let thrown: unknown
     try {
-      normalizeOutput({ output: { path: 'models.ts', mode: 'file' }, group: { type: 'tag' }, pluginName: 'plugin-ts' })
+      normalizeOutput({ output, group: { type: 'tag' }, pluginName: 'plugin-ts' })
     } catch (error) {
       thrown = error
     }
 
     expect(Diagnostics.isError(thrown)).toBe(true)
-    expect((thrown as InstanceType<typeof Diagnostics.Error>).diagnostic.code).toBe('KUBB_INVALID_PLUGIN_OPTIONS')
+    expect(thrown).toMatchObject({ diagnostic: { code: 'KUBB_INVALID_PLUGIN_OPTIONS' }, message: expect.stringMatching(/output\.mode. to 'file'/) })
   })
 
   it('accepts group at the type level without spelling out mode', () => {
@@ -622,19 +293,6 @@ describe('normalizeOutput', () => {
 })
 
 describe('enforce: post — plugin ordering', () => {
-  function makeConfig(overrides: Partial<Config> = {}): Config {
-    return {
-      root: '.',
-      input: './petStore.yaml',
-      output: { path: './src/gen', clean: true },
-      parsers: [],
-      reporters: [],
-      adapter: createMockedAdapter(),
-      plugins: [],
-      ...overrides,
-    } as Config
-  }
-
   it('enforce: post plugin fires after normal plugins for the same hook', async () => {
     const callOrder: Array<string> = []
 
@@ -657,12 +315,7 @@ describe('enforce: post — plugin ordering', () => {
       },
     }))()
 
-    await createKubb(
-      makeConfig({
-        plugins: [normalPlugin, postPlugin] as unknown as Array<Plugin>,
-      }),
-      { hooks: new Hookable<KubbHooks>() },
-    ).build()
+    await createKubb(makeConfig({ plugins: [normalPlugin, postPlugin] }), { hooks: new Hookable<KubbHooks>() }).build()
 
     const pluginIdx = callOrder.indexOf('plugin')
     const postPluginIdx = callOrder.indexOf('post-plugin')

@@ -1,4 +1,4 @@
-import { camelCase, pascalCase } from '@internals/utils'
+import { camelCase } from '@internals/utils'
 import { ast, type InputMeta } from '@kubb/ast'
 import { describe, expect, it, test } from 'vitest'
 import { createResolver } from './createResolver.ts'
@@ -26,28 +26,6 @@ const context = {
 }
 
 describe('createResolver', () => {
-  it('injects the default machinery and top-level name/file', () => {
-    const resolver = createResolver<TestPluginFactory>({
-      pluginName: 'test',
-      greet(name) {
-        return `Hello ${name}`
-      },
-      farewell(name) {
-        return `Goodbye ${name}`
-      },
-    })
-
-    expect(resolver.default.name).toBeTypeOf('function')
-    expect(resolver.default.options).toBeTypeOf('function')
-    expect(resolver.default.path).toBeTypeOf('function')
-    expect(resolver.default.file).toBeTypeOf('function')
-    expect(resolver.name).toBeTypeOf('function')
-    expect(resolver.file).toBeTypeOf('function')
-    // the injected top-level name delegates to the built-in camelCase default
-    expect(resolver.name('list pets')).toBe('listPets')
-    expect(resolver).toBeInstanceOf(Resolver)
-  })
-
   it('a plugin overrides the top-level name; default.name keeps the built-in casing', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
@@ -87,23 +65,7 @@ describe('createResolver', () => {
     expect(resolver.schema.typeName('list pets')).toBe('listPetsSchemaType')
   })
 
-  it('a file renames the base name via file.baseName', () => {
-    const resolver = createResolver<TestPluginFactory>({
-      pluginName: 'test',
-      file: {
-        baseName({ name, extname }) {
-          return `${name.toLowerCase()}.gen${extname}`
-        },
-      },
-      greet: (name: string) => name,
-      farewell: (name: string) => name,
-    })
-
-    const file = resolver.file({ name: 'Pet', extname: '.ts', ...context })
-    expect(file.baseName).toBe('pet.gen.ts')
-  })
-
-  it('a file reaches sibling helpers through `this`', () => {
+  it('returns the base name from file.baseName, which reaches sibling helpers through `this`', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
       name(name) {
@@ -121,7 +83,7 @@ describe('createResolver', () => {
     expect(resolver.file({ name: 'pet', extname: '.ts', ...context }).baseName).toBe('PET.schema.ts')
   })
 
-  it('Resolver.merge accepts a file patch', () => {
+  it('Resolver.merge accepts file and imports patches without a cast', () => {
     const base = createResolver<TestPluginFactory>({
       pluginName: 'test',
       greet: (name: string) => name,
@@ -134,9 +96,19 @@ describe('createResolver', () => {
           return `${name}.mock${extname}`
         },
       },
+      imports: () => [],
+    })
+
+    const node = ast.factory.createSchema({
+      type: 'object',
+      properties: [
+        ast.factory.createProperty({ name: 'pet', schema: ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Pet', name: 'Pet' }) }),
+      ],
     })
 
     expect(merged.file({ name: 'pet', extname: '.ts', ...context }).baseName).toBe('pet.mock.ts')
+    expect(base.imports({ node, ...context })).toMatchObject([{ name: ['pet'], path: '/root/types/pet.ts' }])
+    expect(merged.imports({ node, ...context })).toStrictEqual([])
   })
 
   it('a file.path owns the whole path, resolved against root and bypassing output.path', () => {
@@ -206,19 +178,14 @@ describe('createResolver', () => {
     expect(() => resolver.file({ name: 'pet', extname: '.ts', ...context })).toThrow('outside the project root')
   })
 
-  it('resolveOptions does not throw when options is not an object', () => {
+  it('returns false from default.options when options is false', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
       greet: (name: string) => name,
       farewell: (name: string) => name,
     })
-
     const node = ast.factory.createFile({ baseName: 'pet.ts', path: 'src/pet.ts' })
 
-    // A re-instantiated plugin can hand back a falsy-but-not-nullish `options` (e.g. `false`).
-    // `resolveOptions` caches by `options` identity in a `WeakMap`, which only accepts object
-    // keys, so this must fall back to computing directly instead of throwing.
-    expect(() => resolver.default.options<boolean>(node, { options: false })).not.toThrow()
     expect(resolver.default.options<boolean>(node, { options: false })).toBe(false)
   })
 
@@ -278,26 +245,6 @@ describe('createResolver', () => {
 
     expect(merged.query.name({ operationId: 'get pet' })).toBe('use_getPet')
     expect(merged.query.keyName({ operationId: 'get pet' })).toBe('getPetKey')
-  })
-
-  it('Resolver.merge() keeps a file override from a resolver in another @kubb/core copy', () => {
-    type TestFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: Resolver }
-    const base = createResolver<TestFactory>({ pluginName: 'test' })
-
-    // A resolver loaded from a second @kubb/core copy (a CommonJS config next to the ESM CLI) is not
-    // `instanceof Resolver`, but shares the brand, so its `file` override must still be honored.
-    const foreign = {
-      [Symbol.for('@kubb/core/resolver/options')]: {
-        pluginName: 'test',
-        file: { baseName: ({ name, extname }: { name: string; extname: string }) => `${name}Faker${extname}` },
-      },
-    } as unknown as Resolver
-
-    const merged = Resolver.merge(base, foreign)
-
-    expect(merged.file({ name: 'pet', extname: '.ts', root: '/root', output: { path: 'mocks', mode: 'directory' }, group: undefined }).baseName).toBe(
-      'petFaker.ts',
-    )
   })
 
   it('Resolver.merge() folds multiple overrides left to right, last wins per key', () => {
@@ -376,33 +323,12 @@ describe('createResolver', () => {
     expect(merged.mutation.typeName({ operationId: 'update pet' })).toBe('updatePetType')
   })
 
-  it('Resolver.merge() with a single override matches the pre-variadic behavior', () => {
-    type SchemaResolver = Resolver & { schema: { label(name: string): string } }
-    type SchemaFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: SchemaResolver }
-
-    const base = createResolver<SchemaFactory>({
-      pluginName: 'test',
-      schema: {
-        label(name) {
-          return `base:${this.name(name)}`
-        },
-      },
-    })
-
-    const merged = Resolver.merge(base, {
-      name(name) {
-        return name.toUpperCase()
-      },
-    })
-
-    expect(merged.name('hello')).toBe('HELLO')
-    expect(merged.schema.label('pets')).toBe('base:PETS')
-  })
-
-  it('Resolver.merge() honors the shared brand for an override in the middle of the fold', () => {
+  it('Resolver.merge() keeps a file override from a resolver in another @kubb/core copy, anywhere in the fold', () => {
     type TestFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: Resolver }
     const base = createResolver<TestFactory>({ pluginName: 'test' })
 
+    // A resolver loaded from a second @kubb/core copy (a CommonJS config next to the ESM CLI) is not
+    // `instanceof Resolver`, but shares the brand, so its `file` override must still be honored.
     const foreign = {
       [Symbol.for('@kubb/core/resolver/options')]: {
         pluginName: 'test',
@@ -436,74 +362,24 @@ describe('createResolver', () => {
 })
 
 describe('default.path', () => {
-  it('resolves flat path (directory mode)', () => {
-    const result = baseResolver.default.path({ baseName: 'petTypes.ts', root: '/root', output: { path: 'types', mode: 'directory' }, group: undefined })
-
-    expect(result).toBe('/root/types/petTypes.ts')
-  })
-
-  it('returns the output file as-is in file mode', () => {
-    const result = baseResolver.default.path({ baseName: 'petTypes.ts', root: '/root', output: { path: 'types.ts', mode: 'file' }, group: undefined })
-
-    expect(result).toBe('/root/types.ts')
-  })
-
-  it('groups by tag using the plain camelCased tag by default', () => {
-    const result = baseResolver.default.path({
-      baseName: 'petTypes.ts',
-      tag: 'pet store',
-      root: '/root',
-      output: { path: 'types', mode: 'directory' },
-      group: { type: 'tag' },
-    })
-
-    expect(result).toBe('/root/types/petStore/petTypes.ts')
-  })
-
-  it('groups by path when group.type is path', () => {
-    const result = baseResolver.default.path({
-      baseName: 'petTypes.ts',
-      path: '/pets/list',
-      root: '/root',
-      output: { path: 'types', mode: 'directory' },
-      group: {
-        type: 'path',
-        name: (ctx: { group: string }) => {
-          return `${camelCase(ctx.group)}Controller`
-        },
-      },
-    })
-
-    expect(result).toBe('/root/types/petsListController/petTypes.ts')
-  })
-
-  it('uses custom group.name when provided', () => {
-    const result = baseResolver.default.path({
-      baseName: 'petTypes.ts',
-      tag: 'pets',
-      root: '/root',
-      output: { path: 'types', mode: 'directory' },
-      group: { type: 'tag', name: ({ group }) => `custom_${group}` },
-    })
-
-    expect(result).toBe('/root/types/custom_pets/petTypes.ts')
-  })
-
-  it('falls back to flat path when group present but no tag or path given', () => {
-    const result = baseResolver.default.path({
-      baseName: 'petTypes.ts',
-      tag: 'pets',
-      root: '/root',
-      output: { path: 'types', mode: 'directory' },
-      group: {
-        type: 'tag',
-        name: (ctx: { group: string }) => {
-          return `${camelCase(ctx.group)}Controller`
-        },
-      },
-    })
-
-    expect(result).toBe('/root/types/petsController/petTypes.ts')
+  it.each([
+    ['the output directory in directory mode', { output: { path: 'types', mode: 'directory' } }, '/root/types/petTypes.ts'],
+    ['the output file as-is in file mode', { output: { path: 'types.ts', mode: 'file' } }, '/root/types.ts'],
+    ['a camelCased tag directory for a tag group', { tag: 'pet store', group: { type: 'tag' } }, '/root/types/petStore/petTypes.ts'],
+    [
+      'the custom group.name for a tag group',
+      { tag: 'pets', group: { type: 'tag', name: ({ group }) => `custom_${group}` } },
+      '/root/types/custom_pets/petTypes.ts',
+    ],
+    [
+      'the custom group.name for a path group',
+      { path: '/pets/list', group: { type: 'path', name: ({ group }) => `${camelCase(group)}Controller` } },
+      '/root/types/petsListController/petTypes.ts',
+    ],
+  ] satisfies Array<[string, Partial<Parameters<typeof baseResolver.default.path>[0]>, string]>)('returns %s', (_name, params, expected) => {
+    expect(
+      baseResolver.default.path({ baseName: 'petTypes.ts', root: '/root', output: { path: 'types', mode: 'directory' }, group: undefined, ...params }),
+    ).toBe(expected)
   })
 
   it('sanitizes traversal segments in default path-based grouping', () => {
@@ -522,22 +398,16 @@ describe('default.path', () => {
     expect(result).not.toContain('..')
   })
 
-  it('throws when a custom group.name returns a path outside the output directory', () => {
-    expect(() =>
-      baseResolver.default.path({
-        baseName: 'petTypes.ts',
-        path: '/pets',
-        root: '/root',
-        output: { path: 'types', mode: 'directory' },
-        group: { type: 'path', name: () => '../../secrets' },
-      }),
-    ).toThrow('outside the output directory')
-  })
-
-  it('throws when baseName contains a traversal sequence', () => {
-    expect(() =>
-      baseResolver.default.path({ baseName: '../../etc/passwd', root: '/root', output: { path: 'types', mode: 'directory' }, group: undefined }),
-    ).toThrow('outside the output directory')
+  it.each([
+    [
+      'a custom group.name returns a path outside the output directory',
+      { baseName: 'petTypes.ts', path: '/pets', group: { type: 'path', name: () => '../../secrets' } },
+    ],
+    ['baseName contains a traversal sequence', { baseName: '../../etc/passwd' }],
+  ] satisfies Array<[string, Pick<Parameters<typeof baseResolver.default.path>[0], 'baseName' | 'path' | 'group'>]>)('throws when %s', (_name, params) => {
+    expect(() => baseResolver.default.path({ root: '/root', output: { path: 'types', mode: 'directory' }, group: undefined, ...params })).toThrow(
+      'outside the output directory',
+    )
   })
 })
 
@@ -548,26 +418,10 @@ describe('default.file', () => {
     farewell: () => '',
   })
 
-  it('accepts an `imports` override in a resolver patch without a cast', () => {
-    const merged = Resolver.merge(baseResolver, { imports: () => [] })
-
-    expect(merged.imports({ node: ast.factory.createSchema({ type: 'string' }), ...context })).toStrictEqual([])
-  })
-
-  it('resolves a file with correct baseName and path', () => {
-    const file = resolver.default.file({ name: 'pet', extname: '.ts', ...context })
-
-    expect(file.baseName).toBe('pet.ts')
-    expect(file.path).toBe('/root/types/pet.ts')
-    expect(file.sources).toStrictEqual([])
-    expect(file.imports).toStrictEqual([])
-    expect(file.exports).toStrictEqual([])
-  })
-
-  it('uses the default toFilePath casing for the file name', () => {
+  it('returns an empty file at the camelCased name under the output directory', () => {
     const file = resolver.default.file({ name: 'list pets', extname: '.ts', ...context })
 
-    expect(file.baseName).toBe('listPets.ts')
+    expect(file).toMatchObject({ baseName: 'listPets.ts', path: '/root/types/listPets.ts', sources: [], imports: [], exports: [] })
   })
 
   it.each([
@@ -699,23 +553,6 @@ describe('default.banner', () => {
     expect(result).toBeNull()
   })
 
-  it('user string banner overrides the Kubb default', () => {
-    const result = baseResolver.default.banner(undefined, {
-      config: mockConfig,
-      output: { banner: '// custom banner' },
-    })
-    expect(result).toBe('// custom banner')
-  })
-
-  it('user function banner overrides the Kubb default when meta is provided', () => {
-    const meta: InputMeta = { title: 'Petstore', description: 'Test API', version: '1.0.0', circularNames: [], enumNames: [] }
-    const result = baseResolver.default.banner(meta, {
-      config: mockConfig,
-      output: { banner: (m?: InputMeta) => `// title: ${m?.title}` },
-    })
-    expect(result).toBe('// title: Petstore')
-  })
-
   it('includes meta title and version (but not description) in the Kubb banner when meta is provided', () => {
     const meta: InputMeta = { title: 'Pet API', description: 'A very long description', version: '2.0.0', circularNames: [], enumNames: [] }
     const result = baseResolver.default.banner(meta, {
@@ -725,47 +562,6 @@ describe('default.banner', () => {
     expect(result).toContain('2.0.0')
     expect(result).not.toContain('A very long description')
   })
-
-  it('function banner receives per-file context and can skip aggregation files', () => {
-    const banner = (m: { isBarrel: boolean; isAggregation: boolean }) => (m.isBarrel || m.isAggregation ? '' : "'use server'")
-
-    const aggregation = baseResolver.default.banner(undefined, {
-      config: mockConfig,
-      output: { banner },
-      file: { path: 'src/gen/clients/stocks/stocks.ts', baseName: 'stocks.ts', isAggregation: true },
-    })
-    const barrel = baseResolver.default.banner(undefined, {
-      config: mockConfig,
-      output: { banner },
-      file: { path: 'src/gen/clients/index.ts', baseName: 'index.ts', isBarrel: true },
-    })
-    const source = baseResolver.default.banner(undefined, {
-      config: mockConfig,
-      output: { banner },
-      file: { path: 'src/gen/clients/getStock.ts', baseName: 'getStock.ts' },
-    })
-
-    expect(aggregation).toBe('')
-    expect(barrel).toBe('')
-    expect(source).toBe("'use server'")
-  })
-
-  it('function banner receives filePath and baseName from the file context', () => {
-    const result = baseResolver.default.banner(undefined, {
-      config: mockConfig,
-      output: { banner: (m) => `// ${m.baseName} @ ${m.filePath}` },
-      file: { path: 'a/b.ts', baseName: 'b.ts' },
-    })
-    expect(result).toBe('// b.ts @ a/b.ts')
-  })
-
-  it('per-file fields default to false/empty when no file context is provided', () => {
-    const result = baseResolver.default.banner(undefined, {
-      config: mockConfig,
-      output: { banner: (m) => `${m.isBarrel}-${m.isAggregation}-[${m.filePath}]-[${m.baseName}]` },
-    })
-    expect(result).toBe('false-false-[]-[]')
-  })
 })
 
 describe('default.footer', () => {
@@ -773,39 +569,36 @@ describe('default.footer', () => {
     const result = baseResolver.default.footer(undefined, { config: mockConfig })
     expect(result).toBeNull()
   })
+})
 
-  it('returns static string footer from output.footer', () => {
-    const result = baseResolver.default.footer(undefined, {
-      config: mockConfig,
-      output: { footer: '// end of file' },
-    })
-    expect(result).toBe('// end of file')
+// banner and footer share one user-text path: a string wins verbatim, and a function receives the
+// spec meta plus the per-file context, with the per-file fields defaulting to false/empty.
+describe('default.banner / default.footer user text', () => {
+  const meta: InputMeta = { title: 'Petstore', description: 'Test API', version: '1.0.0', circularNames: [], enumNames: [] }
+  const describeFile = (m: { title?: string; isBarrel: boolean; isAggregation: boolean; filePath: string; baseName: string }) =>
+    `${m.title ?? ''}|${m.isBarrel}|${m.isAggregation}|${m.filePath}|${m.baseName}`
+
+  it.each(['banner', 'footer'] as const)('returns the user string %s verbatim', (method) => {
+    expect(baseResolver.default[method](undefined, { config: mockConfig, output: { [method]: '// custom' } })).toBe('// custom')
   })
 
-  it('calls output.footer function with meta when meta is provided', () => {
-    const meta: InputMeta = { title: 'Petstore', circularNames: [], enumNames: [] }
-    const result = baseResolver.default.footer(meta, {
-      config: mockConfig,
-      output: { footer: (m?: InputMeta) => `// footer for ${m?.title}` },
-    })
-    expect(result).toBe('// footer for Petstore')
-  })
-
-  it('calls output.footer function with undefined when meta is undefined', () => {
-    const result = baseResolver.default.footer(undefined, {
-      config: mockConfig,
-      output: { footer: (_m?: InputMeta) => '// called' },
-    })
-    expect(result).toBe('// called')
-  })
-
-  it('function footer receives per-file context', () => {
-    const result = baseResolver.default.footer(undefined, {
-      config: mockConfig,
-      output: { footer: (m) => (m.isBarrel ? '// barrel' : `// ${m.baseName}`) },
-      file: { path: 'src/gen/index.ts', baseName: 'index.ts', isBarrel: true },
-    })
-    expect(result).toBe('// barrel')
+  it.each([
+    ['banner', meta, undefined, 'Petstore|false|false||'],
+    [
+      'banner',
+      undefined,
+      { path: 'src/gen/clients/stocks/stocks.ts', baseName: 'stocks.ts', isAggregation: true },
+      '|false|true|src/gen/clients/stocks/stocks.ts|stocks.ts',
+    ],
+    ['banner', undefined, { path: 'src/gen/clients/index.ts', baseName: 'index.ts', isBarrel: true }, '|true|false|src/gen/clients/index.ts|index.ts'],
+    ['banner', undefined, { path: 'src/gen/clients/getStock.ts', baseName: 'getStock.ts' }, '|false|false|src/gen/clients/getStock.ts|getStock.ts'],
+    ['footer', meta, undefined, 'Petstore|false|false||'],
+    ['footer', undefined, undefined, '|false|false||'],
+    ['footer', undefined, { path: 'src/gen/index.ts', baseName: 'index.ts', isBarrel: true }, '|true|false|src/gen/index.ts|index.ts'],
+  ] satisfies Array<
+    ['banner' | 'footer', InputMeta | undefined, { path: string; baseName: string; isBarrel?: boolean; isAggregation?: boolean } | undefined, string]
+  >)('calls the user %s function with meta %o and file %o', (method, inputMeta, file, expected) => {
+    expect(baseResolver.default[method](inputMeta, { config: mockConfig, output: { [method]: describeFile }, file })).toBe(expected)
   })
 })
 
@@ -825,15 +618,5 @@ describe('toFilePath', () => {
     ['.Internal', 'internal'],
   ])('toFilePath(%s) -> %s (camelCase segments)', (input, expected) => {
     expect(toFilePath(input)).toBe(expected)
-  })
-
-  test('cases the last segment with the provided caser', () => {
-    expect(toFilePath('pet.petId', pascalCase)).toBe('pet/PetId')
-    expect(toFilePath('pet.Pet', pascalCase)).toBe('pet/Pet')
-  })
-
-  test('applies prefix and suffix to the last segment only', () => {
-    expect(toFilePath('create tag.tag', (part) => camelCase(part, { prefix: 'create' }))).toBe('createTag/createTag')
-    expect(toFilePath('tag.tag', (part) => camelCase(part, { suffix: 'schema' }))).toBe('tag/tagSchema')
   })
 })

@@ -15,22 +15,15 @@ describe('createNodeCache', () => {
     expect(cache.readItem<string>('name')).toBe('pet')
   })
 
-  it('computes with the factory on the first ensureItem and reuses it afterwards', () => {
+  it.each([
+    ['a value', 'computed'],
+    ['undefined', undefined],
+  ])('computes %s with the factory on the first ensureItem and reuses it afterwards', (_name, value) => {
     const cache = createNodeCache()
-    const factory = vi.fn(() => 'computed')
+    const factory = vi.fn(() => value)
 
-    expect(cache.ensureItem('key', factory)).toBe('computed')
-    expect(cache.ensureItem('key', factory)).toBe('computed')
-    expect(factory).toHaveBeenCalledOnce()
-  })
-
-  it('treats a stored undefined as present, so ensureItem does not recompute it', () => {
-    const cache = createNodeCache()
-    const factory = vi.fn(() => undefined)
-
-    cache.ensureItem('key', factory)
-    cache.ensureItem('key', factory)
-
+    expect(cache.ensureItem('key', factory)).toBe(value)
+    expect(cache.ensureItem('key', factory)).toBe(value)
     expect(factory).toHaveBeenCalledOnce()
   })
 })

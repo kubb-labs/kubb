@@ -50,16 +50,8 @@ export type ResolverDefault = {
  * The name request for `resolver.default.path`: a `baseName` plus the optional `tag`/`path` that
  * grouping keys off.
  */
-export type ResolverPathParams = {
+export type ResolverPathParams = Omit<ResolverFileParams, 'name' | 'extname'> & {
   baseName: FileNode['baseName']
-  /**
-   * Tag value used when `group.type === 'tag'`.
-   */
-  tag?: string
-  /**
-   * Path value used when `group.type === 'path'`.
-   */
-  path?: string
 }
 
 /**
@@ -301,7 +293,7 @@ const resolverOptions: unique symbol = Symbol.for('@kubb/core/resolver/options')
 /**
  * Builds a nested file path from a dotted name. Splits on dots that precede a letter
  * (so version numbers embedded in operationIds like `v2025.0` stay intact), camelCases
- * every earlier segment, applies `caseLast` to the final segment, and joins with `/`.
+ * every segment, and joins with `/`.
  *
  * Empty segments are dropped before joining. They arise when the name starts with a dot
  * followed by a letter (e.g. `..Schema` splits into `['..', 'Schema']` and `'..'` cases to
@@ -310,19 +302,27 @@ const resolverOptions: unique symbol = Symbol.for('@kubb/core/resolver/options')
  *
  * @example Nested path from a dotted name
  * `toFilePath('pet.petId') // 'pet/petId'`
- *
- * @example PascalCase the final segment
- * `toFilePath('pet.Pet', pascalCase) // 'pet/Pet'`
- *
- * @example Suffix applied to the final segment only
- * `toFilePath('tag.tag', (part) => camelCase(part, { suffix: 'schema' })) // 'tag/tagSchema'`
  */
-export function toFilePath(name: string, caseLast: (part: string) => string = camelCase): string {
-  const parts = name.split(/\.(?=[a-zA-Z])/)
-  return parts
-    .map((part, i) => (i === parts.length - 1 ? caseLast(part) : camelCase(part)))
+export function toFilePath(name: string): string {
+  return name
+    .split(/\.(?=[a-zA-Z])/)
+    .map((part) => camelCase(part))
     .filter(Boolean)
     .join('/')
+}
+
+/** Throws `KUBB_PATH_TRAVERSAL` when `target` lies outside `parent`; `target === parent` stays allowed. */
+function assertInside({ target, parent, message, help }: { target: string; parent: string; message: string; help: string }): void {
+  const parentWithSep = parent.endsWith(path.sep) ? parent : `${parent}${path.sep}`
+  if (target === parent || target.startsWith(parentWithSep)) return
+
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.pathTraversal,
+    severity: 'error',
+    message,
+    help,
+    location: { kind: 'config' },
+  })
 }
 
 /**
@@ -362,6 +362,8 @@ export class Resolver {
   static #optionsCache = new WeakMap<object, WeakMap<Node, { value: unknown }>>()
 
   readonly pluginName: string
+  /** The built-in machinery, untouched by `name`/`file` overrides and built once since the driver reads it per node. */
+  readonly default: ResolverDefault
   #options: ResolverBuildOptions
   // Base-name builder from `options.file.baseName`, bound to the resolver so it can reach `this`.
   // Defaults to `toBaseName` when a resolver sets no `file.baseName`.
@@ -375,20 +377,7 @@ export class Resolver {
     this.#options = options
     this.#baseName = options.file?.baseName ? options.file.baseName.bind(this) : toBaseName
     this.#filePath = options.file?.path ? options.file.path.bind(this) : undefined
-    this.#apply(options)
-  }
-
-  /** Exposes the raw build options so `Resolver.merge` can read them across `@kubb/core` copies. */
-  get [resolverOptions](): ResolverBuildOptions {
-    return this.#options
-  }
-
-  /**
-   * The built-in resolution machinery. Always reaches the untouched defaults, even when a
-   * plugin overrides the top-level `name` or `file`.
-   */
-  get default(): ResolverDefault {
-    return {
+    this.default = {
       name: camelCase,
       options: this.#resolveOptions.bind(this),
       path: this.#resolvePath.bind(this),
@@ -396,6 +385,12 @@ export class Resolver {
       banner: this.#resolveBanner.bind(this),
       footer: this.#resolveFooter.bind(this),
     }
+    this.#apply(options)
+  }
+
+  /** Exposes the raw build options so `Resolver.merge` can read them across `@kubb/core` copies. */
+  get [resolverOptions](): ResolverBuildOptions {
+    return this.#options
   }
 
   name(name: string): string {
@@ -580,19 +575,12 @@ export class Resolver {
         ? path.resolve(outputDir, Resolver.#resolveGroupDir(group, group.type === 'path' ? groupPath! : tag!), baseName)
         : path.resolve(outputDir, baseName)
 
-    // Reject paths escaping the output directory: a malicious OpenAPI spec or a misconfigured
-    // group.name function could otherwise write anywhere. `result === outputDir` stays allowed
-    // for the edge case where baseName resolves to the output directory itself.
-    const outputDirWithSep = outputDir.endsWith(path.sep) ? outputDir : `${outputDir}${path.sep}`
-    if (result !== outputDir && !result.startsWith(outputDirWithSep)) {
-      throw new Diagnostics.Error({
-        code: Diagnostics.code.pathTraversal,
-        severity: 'error',
-        message: `Resolved path "${result}" is outside the output directory "${outputDir}".`,
-        help: 'This can stem from a path traversal in the OpenAPI specification or a misconfigured `group.name` function. Keep generated paths within the output directory.',
-        location: { kind: 'config' },
-      })
-    }
+    assertInside({
+      target: result,
+      parent: outputDir,
+      message: `Resolved path "${result}" is outside the output directory "${outputDir}".`,
+      help: 'This can stem from a path traversal in the OpenAPI specification or a misconfigured `group.name` function. Keep generated paths within the output directory.',
+    })
 
     return result
   }
@@ -604,16 +592,12 @@ export class Resolver {
    */
   #resolveOverridePath(filePath: string, root: string): string {
     const resolved = path.resolve(root, filePath)
-    const rootWithSep = root.endsWith(path.sep) ? root : `${root}${path.sep}`
-    if (resolved !== root && !resolved.startsWith(rootWithSep)) {
-      throw new Diagnostics.Error({
-        code: Diagnostics.code.pathTraversal,
-        severity: 'error',
-        message: `Resolved path "${resolved}" is outside the project root "${root}".`,
-        help: 'A resolver `file.path` must return a path inside the project root.',
-        location: { kind: 'config' },
-      })
-    }
+    assertInside({
+      target: resolved,
+      parent: root,
+      message: `Resolved path "${resolved}" is outside the project root "${root}".`,
+      help: 'A resolver `file.path` must return a path inside the project root.',
+    })
 
     return resolved
   }

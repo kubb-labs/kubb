@@ -14,19 +14,72 @@ import { fsStorage } from './storages/fsStorage.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
 
+function makeConfig(overrides: Partial<Config> = {}): Config {
+  return {
+    root: '.',
+    input: './petStore.yaml',
+    output: { path: './gen' },
+    parsers: [],
+    reporters: [],
+    adapter: createMockedAdapter(),
+    plugins: [],
+    storage: memoryStorage(),
+    ...overrides,
+  }
+}
+
+function makeAdapter({ schemas = [], operations = [] }: { schemas?: Array<SchemaNode>; operations?: Array<OperationNode> } = {}): Adapter {
+  return createMockedAdapter({
+    parse: async () => ({
+      kind: 'Input' as const,
+      meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
+      schemas,
+      operations,
+    }),
+  })
+}
+
+function makeFile(filePath: string, source: string) {
+  return ast.factory.createFile({
+    path: filePath,
+    baseName: filePath.split('/').pop() as `${string}.${string}`,
+    sources: [ast.factory.createSource({ nodes: [ast.factory.createText(source)] })],
+    imports: [],
+    exports: [],
+  })
+}
+
+/**
+ * A plugin whose generator emits one file per schema node, under `/gen/<plugin>/`.
+ */
+function makeSchemaPlugin(name: string, onSchema?: (node: SchemaNode) => void): Plugin {
+  return definePlugin(() => ({
+    name,
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        ctx.addGenerator({
+          name: `${name}-generator`,
+          schema(node) {
+            onSchema?.(node)
+            return [makeFile(`/gen/${name}/${node.name}.ts`, `export const ${name.replaceAll('-', '_')} = null`)]
+          },
+        })
+      },
+    },
+  }))()
+}
+
+function makeSchemas(count: number, prefix = 'Schema'): Array<SchemaNode> {
+  return Array.from({ length: count }, (_, i) => ast.factory.createSchema({ name: `${prefix}${i}`, type: 'string' }))
+}
+
 describe('createKubb', () => {
   const pluginMocks = {
     buildStart: vi.fn(),
     resolvePath: vi.fn(),
   } as const
 
-  const file = ast.factory.createFile({
-    path: 'hello/world.json',
-    baseName: 'world.json',
-    sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`{ "hello": "world" }`)] })],
-    imports: [],
-    exports: [],
-  })
+  const file = makeFile('hello/world.json', `{ "hello": "world" }`)
   const plugin = definePlugin(() => ({
     name: 'plugin',
     hooks: {
@@ -37,19 +90,7 @@ describe('createKubb', () => {
     },
   }))()
 
-  const config = {
-    root: '.',
-    input: 'https://petstore3.swagger.io/api/v3/openapi.json',
-    output: {
-      path: './src/gen',
-      clean: true,
-    },
-    parsers: [],
-    reporters: [],
-    adapter: createMockedAdapter(),
-    plugins: [plugin] as unknown as Array<Plugin>,
-    storage: memoryStorage(),
-  } satisfies Config
+  const config = makeConfig({ output: { path: './gen', clean: true }, plugins: [plugin] as unknown as Array<Plugin> })
 
   afterEach(() => {
     Object.keys(pluginMocks).forEach((key) => {
@@ -59,15 +100,19 @@ describe('createKubb', () => {
     })
   })
 
-  test('if build can run and return created files and the pluginDriver', async () => {
+  test('returns the files a plugin injected during setup from build', async () => {
     const { driver, files } = await createKubb(config, {
       hooks: new Hookable<KubbHooks>(),
     }).build()
 
-    expect(files).toBeDefined()
     expect(driver).toBeDefined()
-    // The plugin's buildStart already added the file during build
-    expect(files.some((f) => f.baseName === file.baseName)).toBe(true)
+    expect(files.map(({ baseName, sources }) => ({ baseName, sources }))).toStrictEqual([
+      {
+        baseName: 'world.json',
+        sources: [{ kind: 'Source', nodes: [{ kind: 'Text', value: '{ "hello": "world" }' }] }],
+      },
+    ])
+    expect(pluginMocks.buildStart).toHaveBeenCalledTimes(1)
   })
 
   test('resolves config defaults in the constructor, before setup', () => {
@@ -111,15 +156,10 @@ describe('createKubb', () => {
       },
     })
 
-    const promise = createKubb(
-      {
-        ...config,
-        adapter: waitingAdapter,
-        output: { ...config.output, clean: false },
-        storage: memoryStorage(),
-      },
-      { hooks: new Hookable<KubbHooks>(), signal: controller.signal },
-    ).generate()
+    const promise = createKubb(makeConfig({ adapter: waitingAdapter, plugins: config.plugins }), {
+      hooks: new Hookable<KubbHooks>(),
+      signal: controller.signal,
+    }).generate()
 
     await parseStarted
     controller.abort(new Error('Canceled'))
@@ -127,17 +167,12 @@ describe('createKubb', () => {
     await expect(promise).rejects.toThrow('Canceled')
   })
 
-  test('output.clean raises a KUBB_CLEAN_ROOT diagnostic when the output is the project root', async () => {
-    // A nonexistent temp dir as root, so a regression in the guard can only touch a throwaway path.
-    const root = path.join(os.tmpdir(), 'kubb-clean-guard')
-    const kubb = createKubb(
-      {
-        ...config,
-        root,
-        output: { path: '.', clean: true },
-      },
-      { hooks: new Hookable<KubbHooks>() },
-    )
+  // A nonexistent temp dir as root, so a regression in the guard can only touch a throwaway path.
+  test.each([
+    ['the project root', path.join(os.tmpdir(), 'kubb-clean-guard'), '.'],
+    ['a parent of the project root', path.join(os.tmpdir(), 'kubb-clean-guard', 'nested'), '..'],
+  ])('output.clean raises a KUBB_CLEAN_ROOT diagnostic when the output is %s', async (_name, root, outputPath) => {
+    const kubb = createKubb(makeConfig({ ...config, root, output: { path: outputPath, clean: true } }), { hooks: new Hookable<KubbHooks>() })
 
     await expect(kubb.setup()).rejects.toMatchObject({
       name: 'DiagnosticError',
@@ -145,65 +180,7 @@ describe('createKubb', () => {
     })
   })
 
-  test('output.clean raises a KUBB_CLEAN_ROOT diagnostic when the output is a parent of the project root', async () => {
-    const root = path.join(os.tmpdir(), 'kubb-clean-guard', 'nested')
-    const kubb = createKubb(
-      {
-        ...config,
-        root,
-        output: { path: '..', clean: true },
-      },
-      { hooks: new Hookable<KubbHooks>() },
-    )
-
-    await expect(kubb.setup()).rejects.toMatchObject({
-      name: 'DiagnosticError',
-      diagnostic: { code: Diagnostics.code.cleanRoot },
-    })
-  })
-
-  test('if build with one plugin is running the different hooks in the correct order', async () => {
-    const { files } = await createKubb(config, {
-      hooks: new Hookable<KubbHooks>(),
-    }).build()
-
-    expect(
-      files.map((file) => ({
-        ...file,
-        id: undefined,
-        path: undefined,
-      })),
-    ).toMatchInlineSnapshot(`
-      [
-        {
-          "baseName": "world.json",
-          "exports": [],
-          "extname": ".json",
-          "id": undefined,
-          "imports": [],
-          "kind": "File",
-          "meta": {},
-          "name": "world",
-          "path": undefined,
-          "sources": [
-            {
-              "kind": "Source",
-              "nodes": [
-                {
-                  "kind": "Text",
-                  "value": "{ "hello": "world" }",
-                },
-              ],
-            },
-          ],
-        },
-      ]
-    `)
-
-    expect(pluginMocks.buildStart).toHaveBeenCalledTimes(1)
-  })
-
-  it('should handle plugin installation errors', async () => {
+  it('returns a failed plugin as one error diagnostic naming the plugin from safeBuild', async () => {
     const errorPlugin = definePlugin(() => ({
       name: 'errorPlugin',
       hooks: {
@@ -213,63 +190,14 @@ describe('createKubb', () => {
       },
     }))()
 
-    const errorConfig = {
-      ...config,
-      plugins: [errorPlugin] as unknown as Array<Plugin>,
-    }
-
-    const { diagnostics } = await createKubb(errorConfig, {
-      hooks: new Hookable<KubbHooks>(),
-    }).safeBuild()
-
-    const problems = diagnostics.filter(Diagnostics.isProblem)
-    expect(problems).toHaveLength(1)
-    const diagnostic = problems[0]
-    expect(diagnostic?.plugin).toBe('errorPlugin')
-    // Hookable wraps the error; the original message survives on the diagnostic or its cause
-    expect(`${diagnostic?.message} ${diagnostic?.cause?.message ?? ''}`).toContain('Installation failed')
-  })
-
-  it('should collect a failed plugin as a diagnostic with the plugin name', async () => {
-    const errorPlugin = definePlugin(() => ({
-      name: 'errorPlugin',
-      hooks: {
-        'kubb:plugin:start'() {
-          throw new Error('Installation failed')
-        },
-      },
-    }))()
-
-    const { diagnostics } = await createKubb(
-      { ...config, plugins: [errorPlugin] as unknown as Array<Plugin> },
-      { hooks: new Hookable<KubbHooks>() },
-    ).safeBuild()
+    const { diagnostics } = await createKubb(makeConfig({ ...config, plugins: [errorPlugin] }), { hooks: new Hookable<KubbHooks>() }).safeBuild()
 
     const problems = diagnostics.filter(Diagnostics.isProblem)
     expect(problems).toHaveLength(1)
     expect(problems[0]).toMatchObject({ plugin: 'errorPlugin', severity: 'error' })
-  })
-
-  test('safeBuild should return error instead of throwing', async () => {
-    const throwingPlugin = definePlugin(() => ({
-      name: 'throwingPlugin',
-      hooks: {
-        'kubb:plugin:start'() {
-          throw new Error('Critical error')
-        },
-      },
-    }))()
-
-    const throwingConfig = {
-      ...config,
-      plugins: [throwingPlugin] as unknown as Array<Plugin>,
-    }
-
-    const result = await createKubb(throwingConfig, {
-      hooks: new Hookable<KubbHooks>(),
-    }).safeBuild()
-
-    expect(Diagnostics.hasError(result.diagnostics)).toBe(true)
+    // Hookable wraps the error; the original message survives on the diagnostic or its cause
+    expect(`${problems[0]?.message} ${problems[0]?.cause?.message ?? ''}`).toContain('Installation failed')
+    expect(Diagnostics.hasError(diagnostics)).toBe(true)
   })
 
   it('should track plugin timings as performance diagnostics', async () => {
@@ -282,152 +210,61 @@ describe('createKubb', () => {
     expect(timings.every((diagnostic) => typeof diagnostic.duration === 'number')).toBe(true)
   })
 
-  it('should emit plugin lifecycle hooks', async () => {
-    const hooks = new Hookable<KubbHooks>()
-    const startSpy = vi.fn()
-    const endSpy = vi.fn()
-
-    hooks.hook('kubb:plugin:start', startSpy)
-    hooks.hook('kubb:plugin:end', endSpy)
-
-    await createKubb(config, { hooks }).build()
-
-    expect(startSpy).toHaveBeenCalled()
-    expect(endSpy).toHaveBeenCalled()
-  })
-
-  it('writes every generated file in one batch after plugin:end fires for each plugin', async () => {
+  // Plugins generate sequentially, so `plugin:end` fires in declaration order; storage is written once at the end.
+  it.each([
+    [2, 1],
+    [25, 1],
+    [60, 1],
+    [2, 2],
+  ])('writes all %i generated files in one batch after plugin:end fired for each of %i plugins', async (schemaCount, pluginCount) => {
     const hooks = new Hookable<KubbHooks>()
     const batches: Array<number> = []
+    const endOrder: Array<string> = []
     hooks.hook('kubb:files:processing:start', ({ files }) => {
       batches.push(files.length)
     })
-
-    const makePlugin = (name: string, filePath: string) =>
-      definePlugin(() => ({
-        name,
-        hooks: {
-          'kubb:plugin:setup'(ctx) {
-            ctx.addGenerator({
-              name: `${name}-generator`,
-              schema() {
-                return [
-                  ast.factory.createFile({
-                    path: filePath,
-                    baseName: filePath.split('/').pop() as `${string}.${string}`,
-                    sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`export const ${name.replaceAll('-', '_')} = null`)] })],
-                    imports: [],
-                    exports: [],
-                  }),
-                ]
-              },
-            })
-          },
-        },
-      }))()
-
-    const streamingConfig = {
-      ...config,
-      storage: memoryStorage(),
-      adapter: createMockedAdapter({
-        parse: async () => ({
-          kind: 'Input' as const,
-          meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
-          schemas: [ast.factory.createSchema({ name: 'Pet', type: 'string' })],
-          operations: [],
-        }),
-      }),
-      plugins: [makePlugin('plugin-one', '/workspace/src/gen/one.ts'), makePlugin('plugin-two', '/workspace/src/gen/two.ts')] as unknown as Array<Plugin>,
-    } satisfies Config
-
-    const endOrder: Array<string> = []
     hooks.hook('kubb:plugin:end', ({ plugin }) => {
       endOrder.push(plugin.name)
     })
+    const names = Array.from({ length: pluginCount }, (_, i) => `plugin-${i}`)
 
-    const { files } = await createKubb(streamingConfig, { hooks }).build()
+    const { files } = await createKubb(
+      makeConfig({ adapter: makeAdapter({ schemas: makeSchemas(schemaCount) }), plugins: names.map((name) => makeSchemaPlugin(name)) }),
+      { hooks },
+    ).build()
 
-    // Plugins still run their generator pass sequentially, so `plugin:end` fires in
-    // declaration order, which drives the CLI counter. Writing to storage happens once,
-    // after every plugin (and post-processing) has finished generating.
-    expect(batches).toStrictEqual([2])
-    expect(endOrder).toStrictEqual(['plugin-one', 'plugin-two'])
-    expect(files.map((file) => file.path)).toStrictEqual(['/workspace/src/gen/one.ts', '/workspace/src/gen/two.ts'])
+    expect(batches).toStrictEqual([schemaCount * pluginCount])
+    expect(endOrder).toStrictEqual(names)
+    expect(files.map((file) => file.path).toSorted()).toStrictEqual(
+      names.flatMap((name) => makeSchemas(schemaCount).map((schema) => `/gen/${name}/${schema.name}.ts`)).toSorted(),
+    )
   })
 
-  it('streams file-processing updates in generation order with a sequential counter', async () => {
+  it('streams file-processing updates in generation order with a sequential counter and no source', async () => {
     const hooks = new Hookable<KubbHooks>()
-    const updateRows: Array<{ path: string; processed: number; total: number }> = []
+    const updateRows: Array<{ path: string; processed: number; total: number; hasSource: boolean }> = []
     hooks.hook('kubb:files:processing:update', ({ files }) => {
       for (const row of files) {
-        updateRows.push({ path: row.file.path, processed: row.processed, total: row.total })
+        updateRows.push({ path: row.file.path, processed: row.processed, total: row.total, hasSource: 'source' in row })
       }
     })
 
-    const makePlugin = (name: string, filePath: string) =>
-      definePlugin(() => ({
-        name,
-        hooks: {
-          'kubb:plugin:setup'(ctx) {
-            ctx.addGenerator({
-              name: `${name}-generator`,
-              schema() {
-                return [
-                  ast.factory.createFile({
-                    path: filePath,
-                    baseName: filePath.split('/').pop() as `${string}.${string}`,
-                    sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`export const ${name.replaceAll('-', '_')} = null`)] })],
-                    imports: [],
-                    exports: [],
-                  }),
-                ]
-              },
-            })
-          },
-        },
-      }))()
-
-    const streamingConfig = {
-      ...config,
-      storage: memoryStorage(),
-      adapter: createMockedAdapter({
-        parse: async () => ({
-          kind: 'Input' as const,
-          meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
-          schemas: [ast.factory.createSchema({ name: 'Pet', type: 'string' })],
-          operations: [],
-        }),
+    await createKubb(
+      makeConfig({
+        adapter: makeAdapter({ schemas: [ast.factory.createSchema({ name: 'Pet', type: 'string' })] }),
+        plugins: [makeSchemaPlugin('plugin-one'), makeSchemaPlugin('plugin-two'), makeSchemaPlugin('plugin-three')],
       }),
-      plugins: [
-        makePlugin('plugin-one', '/workspace/src/gen/one.ts'),
-        makePlugin('plugin-two', '/workspace/src/gen/two.ts'),
-        makePlugin('plugin-three', '/workspace/src/gen/three.ts'),
-      ] as unknown as Array<Plugin>,
-    } satisfies Config
-
-    await createKubb(streamingConfig, { hooks }).build()
+      { hooks },
+    ).build()
 
     // Order matches the generated files, and the counter is a clean 1..N, regardless of the
-    // order the concurrent write pass finished each file in.
+    // order the concurrent write pass finished each file in. Buffering the source is what used to
+    // hold the whole output tree in memory for the batch, so a row carries none.
     expect(updateRows).toStrictEqual([
-      { path: '/workspace/src/gen/one.ts', processed: 1, total: 3 },
-      { path: '/workspace/src/gen/two.ts', processed: 2, total: 3 },
-      { path: '/workspace/src/gen/three.ts', processed: 3, total: 3 },
+      { path: '/gen/plugin-one/Pet.ts', processed: 1, total: 3, hasSource: false },
+      { path: '/gen/plugin-two/Pet.ts', processed: 2, total: 3, hasSource: false },
+      { path: '/gen/plugin-three/Pet.ts', processed: 3, total: 3, hasSource: false },
     ])
-  })
-
-  it('reports a processed file without its parsed source', async () => {
-    const hooks = new Hookable<KubbHooks>()
-    const rows: Array<unknown> = []
-    hooks.hook('kubb:files:processing:update', ({ files }) => {
-      rows.push(...files)
-    })
-
-    await createKubb({ ...config, storage: memoryStorage() }, { hooks }).build()
-
-    // Buffering the source is what used to hold the whole output tree in memory for the batch.
-    expect(rows).toHaveLength(1)
-    expect(rows[0]).not.toHaveProperty('source')
   })
 
   it('cleans up hook-style plugin listeners between builds on shared hooks', async () => {
@@ -443,11 +280,7 @@ describe('createKubb', () => {
         },
       },
     }))()
-    const hookConfig = {
-      ...config,
-      plugins: [hookPlugin as unknown as Plugin],
-      storage: memoryStorage(),
-    } satisfies Config
+    const hookConfig = makeConfig({ ...config, plugins: [hookPlugin] })
 
     await createKubb(hookConfig, { hooks }).build()
     await createKubb(hookConfig, { hooks }).build()
@@ -459,129 +292,38 @@ describe('createKubb', () => {
   })
 
   it('does not throw when userConfig.plugins is undefined', async () => {
-    const userConfig: UserConfig = {
-      root: '.',
-      input: 'https://petstore3.swagger.io/api/v3/openapi.json',
-      output: {
-        path: './src/gen',
-      },
-      parsers: [],
-      adapter: createMockedAdapter(),
-      storage: memoryStorage(),
-    }
+    const { plugins: _plugins, ...userConfig } = makeConfig()
 
     await expect(createKubb(userConfig).safeBuild()).resolves.not.toThrow()
   })
 
-  describe('schema-level parallelism', () => {
-    function makeBatchPlugin(generatedPaths: Array<string>) {
-      return definePlugin(() => ({
-        name: 'batch-plugin',
-        hooks: {
-          'kubb:plugin:setup'(ctx) {
-            ctx.addGenerator({
-              name: 'batch-gen',
-              schema(node) {
-                const path = `/gen/${node.name}.ts`
-                generatedPaths.push(path)
-                return [
-                  ast.factory.createFile({
-                    path,
-                    baseName: `${node.name}.ts` as `${string}.ts`,
-                    sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`export const x = null`)] })],
-                    imports: [],
-                    exports: [],
-                  }),
-                ]
-              },
-            })
-          },
+  it('passes operations to gen.operations() in insertion order', async () => {
+    const operations = Array.from({ length: 19 }, (_, i) =>
+      ast.factory.createOperation({ operationId: `op${i}`, method: 'GET', path: `/path${i}`, parameters: [], responses: [], tags: [] }),
+    )
+    const receivedOrder: Array<string> = []
+
+    const orderPlugin = definePlugin(() => ({
+      name: 'order-plugin',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.addGenerator({
+            name: 'order-gen',
+            operations(nodes) {
+              receivedOrder.push(...nodes.map((n) => n.operationId))
+              return []
+            },
+          })
         },
-      }))()
-    }
+      },
+    }))()
 
-    it('generates all files when the schema count spans several write batches', async () => {
-      const count = 25
-      const schemas = Array.from({ length: count }, (_, i) => ast.factory.createSchema({ name: `Schema${i}`, type: 'string' }))
-      const generatedPaths: Array<string> = []
+    await createKubb(makeConfig({ adapter: makeAdapter({ operations }), plugins: [orderPlugin] }), { hooks: new Hookable<KubbHooks>() }).build()
 
-      const { files } = await createKubb(
-        {
-          ...config,
-          storage: memoryStorage(),
-          adapter: createMockedAdapter({
-            parse: async () => ({
-              kind: 'Input' as const,
-              meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
-              schemas,
-              operations: [],
-            }),
-          }),
-          plugins: [makeBatchPlugin(generatedPaths) as unknown as Plugin],
-        },
-        { hooks: new Hookable<KubbHooks>() },
-      ).build()
-
-      expect(files).toHaveLength(count)
-      expect(generatedPaths).toHaveLength(count)
-      expect(generatedPaths).toStrictEqual(schemas.map((s) => `/gen/${s.name}.ts`))
-    })
-
-    it('passes operations to gen.operations() in insertion order', async () => {
-      const opCount = 19
-      const operations = Array.from({ length: opCount }, (_, i) =>
-        ast.factory.createOperation({ operationId: `op${i}`, method: 'GET', path: `/path${i}`, parameters: [], responses: [], tags: [] }),
-      )
-      const receivedOrder: Array<string> = []
-
-      const orderPlugin = definePlugin(() => ({
-        name: 'order-plugin',
-        hooks: {
-          'kubb:plugin:setup'(ctx) {
-            ctx.addGenerator({
-              name: 'order-gen',
-              operations(nodes) {
-                receivedOrder.push(...nodes.map((n) => n.operationId))
-                return []
-              },
-            })
-          },
-        },
-      }))()
-
-      await createKubb(
-        {
-          ...config,
-          storage: memoryStorage(),
-          adapter: createMockedAdapter({
-            parse: async () => ({
-              kind: 'Input' as const,
-              meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
-              schemas: [],
-              operations,
-            }),
-          }),
-          plugins: [orderPlugin as unknown as Plugin],
-        },
-        { hooks: new Hookable<KubbHooks>() },
-      ).build()
-
-      expect(receivedOrder).toStrictEqual(operations.map((o) => o.operationId))
-    })
+    expect(receivedOrder).toStrictEqual(operations.map((o) => o.operationId))
   })
 
   describe('per-node options and transform reuse', () => {
-    function makeAdapter({ schemas = [], operations = [] }: { schemas?: Array<SchemaNode>; operations?: Array<OperationNode> }) {
-      return createMockedAdapter({
-        parse: async () => ({
-          kind: 'Input' as const,
-          meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
-          schemas,
-          operations,
-        }),
-      })
-    }
-
     it('resolves per-node options when an override matches', async () => {
       const seen: Array<{ name: string | null | undefined; options: { marker?: string } }> = []
       const overridePlugin = definePlugin(() => ({
@@ -604,12 +346,10 @@ describe('createKubb', () => {
       }))()
 
       await createKubb(
-        {
-          ...config,
-          storage: memoryStorage(),
+        makeConfig({
           adapter: makeAdapter({ schemas: [ast.factory.createSchema({ name: 'A', type: 'string' }), ast.factory.createSchema({ name: 'B', type: 'string' })] }),
           plugins: [overridePlugin as unknown as Plugin],
-        },
+        }),
         { hooks: new Hookable<KubbHooks>() },
       ).build()
 
@@ -640,14 +380,12 @@ describe('createKubb', () => {
       }))()
 
       await createKubb(
-        {
-          ...config,
-          storage: memoryStorage(),
+        makeConfig({
           adapter: makeAdapter({
             operations: [ast.factory.createOperation({ operationId: 'getPet', method: 'GET', path: '/pet', parameters: [], responses: [], tags: [] })],
           }),
-          plugins: [transformPlugin as unknown as Plugin],
-        },
+          plugins: [transformPlugin],
+        }),
         { hooks: new Hookable<KubbHooks>() },
       ).build()
 
@@ -655,60 +393,6 @@ describe('createKubb', () => {
       expect(batch).toHaveLength(1)
       expect(perNode[0]?.operationId).toBe('getPetX')
       expect(batch[0]).toBe(perNode[0])
-    })
-  })
-
-  describe('write batch after generation', () => {
-    it('writes all generated files in a single batch, regardless of schema count', async () => {
-      const count = 60
-      const schemas = Array.from({ length: count }, (_, i) => ast.factory.createSchema({ name: `FlushSchema${i}`, type: 'string' }))
-      const hooks = new Hookable<KubbHooks>()
-      const batches: Array<number> = []
-      hooks.hook('kubb:files:processing:start', ({ files }) => {
-        batches.push(files.length)
-      })
-
-      const flushPlugin = definePlugin(() => ({
-        name: 'flush-plugin',
-        hooks: {
-          'kubb:plugin:setup'(ctx) {
-            ctx.addGenerator({
-              name: 'flush-gen',
-              schema(node) {
-                return [
-                  ast.factory.createFile({
-                    path: `/gen/${node.name}.ts`,
-                    baseName: `${node.name}.ts` as `${string}.ts`,
-                    sources: [ast.factory.createSource({ nodes: [ast.factory.createText('export const x = null')] })],
-                    imports: [],
-                    exports: [],
-                  }),
-                ]
-              },
-            })
-          },
-        },
-      }))()
-
-      const { files } = await createKubb(
-        {
-          ...config,
-          storage: memoryStorage(),
-          adapter: createMockedAdapter({
-            parse: async () => ({
-              kind: 'Input' as const,
-              meta: { circularNames: [] as Array<string>, enumNames: [] as Array<string> },
-              schemas,
-              operations: [],
-            }),
-          }),
-          plugins: [flushPlugin as unknown as Plugin],
-        },
-        { hooks },
-      ).build()
-
-      expect(files).toHaveLength(count)
-      expect(batches).toStrictEqual([count])
     })
   })
 
@@ -728,29 +412,13 @@ describe('createKubb', () => {
         hooks: {
           'kubb:plugin:setup'(ctx) {
             for (let i = 0; i < fileCount; i++) {
-              ctx.injectFile(
-                ast.factory.createFile({
-                  path: `/gen/file${i}.ts`,
-                  baseName: `file${i}.ts` as `${string}.ts`,
-                  sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`export const v${i} = ${i}`)] })],
-                  imports: [],
-                  exports: [],
-                }),
-              )
+              ctx.injectFile(makeFile(`/gen/file${i}.ts`, `export const v${i} = ${i}`))
             }
           },
         },
       }))()
 
-      const { files } = await createKubb(
-        {
-          ...config,
-          storage,
-          adapter: createMockedAdapter(),
-          plugins: [plugin as unknown as Plugin],
-        },
-        { hooks: new Hookable<KubbHooks>() },
-      ).build()
+      const { files } = await createKubb(makeConfig({ storage, plugins: [plugin] }), { hooks: new Hookable<KubbHooks>() }).build()
 
       expect(files).toHaveLength(fileCount)
       expect(writtenPaths).toHaveLength(fileCount)
@@ -773,18 +441,6 @@ describe('Kubb#generate', () => {
       fs.rmSync(root, { recursive: true, force: true })
       fs.rmSync(resolveCacheDir(root), { recursive: true, force: true })
     }
-  })
-
-  const makeConfig = (overrides: Partial<Config> = {}): Config => ({
-    root: '.',
-    input: './petStore.yaml',
-    output: { path: './gen' },
-    parsers: [],
-    reporters: [],
-    adapter: createMockedAdapter(),
-    plugins: [],
-    storage: memoryStorage(),
-    ...overrides,
   })
 
   const tempRoot = () => {
@@ -867,8 +523,12 @@ describe('Kubb#generate', () => {
     expect(processOutput).toHaveBeenCalledTimes(1)
   })
 
-  it('stops after a build error without running processOutput', async () => {
+  it('routes a build error to the kubb:error hook and stops without running processOutput', async () => {
     hooks = new Hookable<KubbHooks>()
+    const messages: Array<string> = []
+    hooks.hook('kubb:error', ({ error }) => {
+      messages.push(error.message)
+    })
     let ranProcessOutput = false
 
     const result = await createKubb(makeConfig({ adapter: failingAdapter() }), { hooks }).generate({
@@ -879,6 +539,7 @@ describe('Kubb#generate', () => {
     })
 
     expect(result.success).toBe(false)
+    expect(messages).toStrictEqual(['boom'])
     expect(ranProcessOutput).toBe(false)
   })
 
@@ -887,8 +548,7 @@ describe('Kubb#generate', () => {
    * different source or a different output pass without repeating the setup.
    */
   const createProject = ({ format = 'oxfmt' as Config['output']['format'] } = {}) => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-generate-'))
-    roots.push(root)
+    const root = tempRoot()
 
     const filePath = path.join(root, 'gen', 'world.ts')
     const storage = fsStorage()
@@ -898,20 +558,12 @@ describe('Kubb#generate', () => {
         name: 'plugin',
         hooks: {
           'kubb:plugin:setup'(ctx) {
-            ctx.injectFile(
-              ast.factory.createFile({
-                path: filePath,
-                baseName: 'world.ts',
-                sources: [ast.factory.createSource({ nodes: [ast.factory.createText(source)] })],
-                imports: [],
-                exports: [],
-              }),
-            )
+            ctx.injectFile(makeFile(filePath, source))
           },
         },
       }))()
 
-      const config = makeConfig({ root, output: { path: './gen', format }, storage, plugins: [plugin] as unknown as Array<Plugin> })
+      const config = makeConfig({ root, output: { path: './gen', format }, storage, plugins: [plugin] })
       return createKubb(config, { hooks: new Hookable<KubbHooks>() }).generate({ processOutput })
     }
 
@@ -959,36 +611,20 @@ describe('Kubb#generate', () => {
     expect(project.read()).toBe(`export const hello = 'moon'\n`)
   })
 
-  it('records nothing when an output pass failed', async () => {
-    const project = createProject()
-
-    await project.generate({
-      processOutput: async () => {
-        fs.writeFileSync(project.filePath, 'half written', { encoding: 'utf-8' })
-        return [{ code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } }]
+  it.each<[string, Parameters<typeof createProject>[0], ProjectBuild]>([
+    [
+      'an output pass failed',
+      {},
+      {
+        processOutput: async () => [{ code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } }],
       },
-    })
+    ],
+    ['nothing runs over the output', { format: false }, {}],
+  ])('keeps no manifest when %s', async (_name, projectOptions, build) => {
+    const project = createProject(projectOptions)
+
+    await project.generate(build)
 
     expect(project.hasManifest()).toBe(false)
-  })
-
-  it('keeps no manifest when nothing runs over the output', async () => {
-    const project = createProject({ format: false })
-
-    await project.generate()
-
-    expect(project.hasManifest()).toBe(false)
-  })
-
-  it('routes an unknown-code build error to the kubb:error hook', async () => {
-    hooks = new Hookable<KubbHooks>()
-    const messages: Array<string> = []
-    hooks.hook('kubb:error', ({ error }) => {
-      messages.push(error.message)
-    })
-
-    await createKubb(makeConfig({ adapter: failingAdapter() }), { hooks }).generate()
-
-    expect(messages).toContain('boom')
   })
 })

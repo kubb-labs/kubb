@@ -47,7 +47,7 @@ describe('htmlReporter', () => {
     expect(data).not.toContain('<unsafe>')
   })
 
-  it('passes the report path to the browser helper', async () => {
+  it('opens the written index.html in the browser', async () => {
     using _open = vi.spyOn(utils, 'openInBrowser').mockImplementation(() => {})
     using _read = vi.spyOn(utils, 'read').mockResolvedValue('const ui = true')
     using _write = vi.spyOn(utils, 'write').mockImplementation(async () => null)
