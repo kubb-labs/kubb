@@ -6,7 +6,7 @@ import type { Logger, LoggerWriter } from './defineLogger.ts'
 /**
  * Draws with clack: a gutter bar per group, animated steps, and a progress bar for the writes.
  */
-const writer: LoggerWriter = {
+export const clackWriter: LoggerWriter = {
   group: (title) => clack.intro(title),
   groupEnd: (text) => clack.outro(text),
   step: (text) => clack.log.step(text, { spacing: 0 }),
@@ -55,4 +55,4 @@ const writer: LoggerWriter = {
 /**
  * TTY logger for local development, with animated steps and progress bars.
  */
-export const clackLogger: Logger = createLogger(writer)
+export const clackLogger: Logger = createLogger(clackWriter)

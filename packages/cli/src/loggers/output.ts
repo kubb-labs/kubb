@@ -2,7 +2,9 @@ import { styleText } from 'node:util'
 import * as prompts from '@clack/prompts'
 import { isRichOutput } from '../utils/env.ts'
 import { getIntro } from './banner.ts'
-import { SYMBOLS } from './plainLogger.ts'
+import { clackWriter } from './clackLogger.ts'
+import type { LoggerWriter, WriterSpinner } from './defineLogger.ts'
+import { plainWriter, SYMBOLS } from './plainLogger.ts'
 
 const SPONSOR_TIPS = [
   'Your sponsorship keeps Kubb codegen, plugins, and docs maintained',
@@ -15,6 +17,13 @@ const SPONSOR_TIPS = [
 ] as const
 
 const SPONSOR_LINKS = ['https://github.com/sponsors/stijnvanhulle', 'https://opencollective.com/kubb', 'https://kubb.dev/sponsors'] as const
+
+/**
+ * The writer the loggers draw with on this terminal, so a command's own lines look like its run.
+ */
+function writer(): LoggerWriter {
+  return isRichOutput() ? clackWriter : plainWriter
+}
 
 function nextTip(): string {
   const tip = SPONSOR_TIPS[Math.floor(Math.random() * SPONSOR_TIPS.length)]!
@@ -42,6 +51,8 @@ export function logTip(): void {
 
 type Level = keyof typeof SYMBOLS
 
+// Not through the writers: a command's own info and warning carry their symbol in plain output,
+// where the plain writer prints them bare, and clack's step keeps its default spacing here.
 function write(level: Level, message: string): void {
   if (isRichOutput()) {
     prompts.log[level](message)
@@ -101,13 +112,7 @@ export function logIntro({ title, warning, block = true }: IntroOptions): void {
  * output prints the text on its own.
  */
 export function logOutro(text: string): void {
-  if (isRichOutput()) {
-    prompts.outro(text)
-
-    return
-  }
-
-  console.log(text)
+  writer().groupEnd(text)
 }
 
 /**
@@ -133,7 +138,8 @@ export function logBanner(version: string): void {
 }
 
 /**
- * Prints lines as one block, without a symbol in front of them.
+ * Prints lines as one block, without a symbol in front of them. Not the writer's block, which
+ * drops clack's spacing around it.
  */
 export function logBlock(lines: string | Array<string>): void {
   if (isRichOutput()) {
@@ -164,39 +170,10 @@ export function logStep(message: string): void {
   write('step', message)
 }
 
-type Spinner = {
-  start: (message?: string) => void
-  stop: (message?: string) => void
-  /**
-   * Ends the step as failed, so a phase that went wrong does not read as finished.
-   */
-  error: (message?: string) => void
-  message: (message?: string) => void
-}
-
 /**
  * A progress spinner, or a writer that prints each message it is given when the terminal cannot
  * animate one. Callers drive both the same way, including the failure state.
  */
-export function createSpinner(): Spinner {
-  if (isRichOutput()) {
-    return prompts.spinner()
-  }
-
-  const print = (message?: string) => {
-    if (message) {
-      console.log(message)
-    }
-  }
-
-  return {
-    start: print,
-    stop: print,
-    error: (message?: string) => {
-      if (message) {
-        console.log(`${SYMBOLS.error} ${message}`)
-      }
-    },
-    message: print,
-  }
+export function createSpinner(): WriterSpinner {
+  return writer().spinner()
 }

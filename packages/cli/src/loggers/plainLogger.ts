@@ -41,7 +41,12 @@ export function createPlainLogger(write: (line: string) => void): Logger {
 }
 
 /**
+ * Draws on the console, for non-TTY environments and for an AI coding agent reading the output.
+ */
+export const plainWriter = createWriter((line) => console.log(line))
+
+/**
  * Console adapter for non-TTY environments, and for an AI coding agent reading the output. Reports
  * the same run in the same order as `clackLogger`, without the animation.
  */
-export const plainLogger = createPlainLogger((line) => console.log(line))
+export const plainLogger = createLogger(plainWriter)
