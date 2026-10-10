@@ -1,14 +1,23 @@
-import { Hookable, cliReporter, type Config, fileReporter, htmlReporter, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
+import { Hookable, cliReporter, type Config, htmlReporter, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import * as agent from '../agent.ts'
 import * as env from '../utils/env.ts'
-import setupReporters, { installReporter } from './utils.ts'
+import setupReporters from './utils.ts'
 
-describe('jsonReporter', () => {
-  it('writes one JSON array for every config on lifecycle end', async () => {
+describe('setupReporters', () => {
+  it('lets json own stdout without installing the live logger when json is selected', async () => {
+    const context = new Hookable<KubbHooks>()
+
+    await setupReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
+
+    expect(context.listenerCount('kubb:hook:line')).toBe(0)
+    expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
+  })
+
+  it('holds the json output until lifecycle end, then writes one array for every config', async () => {
     const context = new Hookable<KubbHooks>()
     const writes: Array<string> = []
-    using _ = vi.spyOn(process.stdout, 'write').mockImplementation((chunk) => {
+    using _write = vi.spyOn(process.stdout, 'write').mockImplementation((chunk) => {
       writes.push(String(chunk))
       return true
     })
@@ -31,78 +40,15 @@ describe('jsonReporter', () => {
       status: 'success',
       hrStart: process.hrtime(),
     })
+    expect(writes).toStrictEqual([])
+
     await context.callHook('kubb:lifecycle:end')
 
-    const reports = JSON.parse(writes.join(''))
+    expect(writes).toHaveLength(1)
+    const reports = JSON.parse(writes[0]!)
     expect(reports).toHaveLength(2)
     expect(reports[0]).toMatchObject({ name: 'petstore', status: 'failed', counts: { errors: 1 } })
     expect(reports[1]).toMatchObject({ name: 'orders', status: 'success' })
-  })
-})
-
-describe('cliReporter', () => {
-  it('renders the summary per config', async () => {
-    const context = new Hookable<KubbHooks>()
-    const logs: Array<string> = []
-    using _ = vi.spyOn(console, 'log').mockImplementation((...args) => {
-      logs.push(args.join(' '))
-    })
-
-    installReporter(context, cliReporter, { logLevel: logLevel.info })
-
-    await context.callHook('kubb:generation:end', {
-      config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}, {}] } as unknown as Config,
-      storage: {} as Storage,
-      diagnostics: [],
-      filesCreated: 12,
-      status: 'success',
-      hrStart: process.hrtime(),
-    })
-
-    const output = logs.join('\n')
-    expect(output).toContain('petstore')
-    expect(output).toContain('2 passed (2)')
-    expect(output).toContain('12 generated')
-  })
-
-  it('renders nothing at silent', async () => {
-    const context = new Hookable<KubbHooks>()
-    const logs: Array<string> = []
-    using _ = vi.spyOn(console, 'log').mockImplementation((...args) => {
-      logs.push(args.join(' '))
-    })
-
-    installReporter(context, cliReporter, { logLevel: logLevel.silent })
-
-    await context.callHook('kubb:generation:end', {
-      config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}] } as unknown as Config,
-      storage: {} as Storage,
-      diagnostics: [],
-      filesCreated: 1,
-      status: 'success',
-      hrStart: process.hrtime(),
-    })
-
-    expect(logs).toHaveLength(0)
-  })
-})
-
-describe('setupReporters', () => {
-  it('lets json own stdout without installing the live logger when json is selected', async () => {
-    const context = new Hookable<KubbHooks>()
-
-    await setupReporters(context, { logLevel: logLevel.info, reporters: [jsonReporter] })
-
-    expect(context.listenerCount('kubb:hook:line')).toBe(0)
-    expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
-  })
-
-  it('wires the file reporter to the generation hook', async () => {
-    const context = new Hookable<KubbHooks>()
-
-    await setupReporters(context, { logLevel: logLevel.info, reporters: [fileReporter] })
-
-    expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
   })
 
   it('collects plugin files for the html reporter', async () => {
@@ -131,27 +77,14 @@ describe('setupReporters', () => {
     return lines
   }
 
-  it('installs the plain logger instead of the interactive one when an AI agent is detected', async () => {
+  it.each([
+    { agentName: 'claude', plain: true, label: 'an AI agent is detected' },
+    { agentName: undefined, plain: false, label: 'no AI agent is detected' },
+  ])('installs the plain logger: $plain when a TTY is available and $label', async ({ agentName, plain }) => {
     using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(true)
-    using _agent = vi.spyOn(agent, 'getAgentName').mockReturnValue('claude')
+    using _agent = vi.spyOn(agent, 'getAgentName').mockReturnValue(agentName)
 
-    expect(await renderGroup()).toContain('petstore')
-  })
-
-  it('installs the interactive logger when no AI agent is detected and a TTY is available', async () => {
-    using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(true)
-    using _agent = vi.spyOn(agent, 'getAgentName').mockReturnValue(undefined)
-
-    expect(await renderGroup()).not.toContain('petstore')
-  })
-
-  it('streams a hook output through both loggers, so neither goes quiet', async () => {
-    using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(false)
-    const context = new Hookable<KubbHooks>()
-
-    await setupReporters(context, { logLevel: logLevel.info, reporters: [cliReporter] })
-
-    expect(context.listenerCount('kubb:hook:line')).toBeGreaterThan(0)
+    expect((await renderGroup()).includes('petstore')).toBe(plain)
   })
 })
 

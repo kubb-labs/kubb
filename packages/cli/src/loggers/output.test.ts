@@ -33,12 +33,11 @@ describe('plain output', () => {
     expect(capturePlain(() => logInfo('Detected pnpm'))).toEqual(['ℹ Detected pnpm'])
   })
 
-  it('prints the title and its warning instead of opening a block', () => {
-    expect(capturePlain(() => logIntro({ title: 'Kubb Studio', warning: 'Use with caution' }))).toEqual(['Kubb Studio', 'Use with caution', ''])
-  })
-
-  it('prints a warning without a duplicate title', () => {
-    expect(capturePlain(() => logIntro({ warning: 'Use with caution' }))).toEqual(['Use with caution', ''])
+  it.each([
+    { title: 'Kubb Studio', expected: ['Kubb Studio', 'Use with caution', ''], label: 'the title and its warning' },
+    { title: undefined, expected: ['Use with caution', ''], label: 'a warning without a duplicate title' },
+  ])('prints $label instead of opening a block', ({ title, expected }) => {
+    expect(capturePlain(() => logIntro({ title, warning: 'Use with caution' }))).toEqual(expected)
   })
 
   it('prints every step the spinner was given, so nothing is lost without an animation', () => {
@@ -62,7 +61,7 @@ describe('plain output', () => {
   })
 
   it('prints a bare line for the spacer between groups', () => {
-    expect(capturePlain(() => logSpacer())).toEqual([''])
+    expect(capturePlain(() => logSpacer())).toStrictEqual([''])
   })
 })
 

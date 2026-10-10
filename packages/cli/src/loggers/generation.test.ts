@@ -159,12 +159,28 @@ function generation({ config, pluginFailed = false, formatFailed = false, hookLi
 }
 
 describe('grouped generation output', () => {
-  it('opens a group for the config name and closes it with the run result', async () => {
+  it('reports the full run in order, grouped by config, with the summary after the group closes', async () => {
     const output = await render(generation({ config: makeConfig('petstore') }), { rich: true })
 
-    expect(output.filter((call) => call.startsWith('intro:') || call.startsWith('outro:'))).toStrictEqual([
+    expect(output.map(withoutDuration)).toStrictEqual([
       'intro:petstore petstore.yaml',
+      'spinner.start:Generating',
+      'spinner.message:Generating @kubb/plugin-ts',
+      'spinner.stop:Plugins 2/2 |  elapsed',
+      'log.message:@kubb/plugin-ts completed in \n@kubb/plugin-zod completed in ',
+      'spinner.start:Writing 1 file',
+      'progress.advance:Writing src/gen/pet.ts',
+      'spinner.stop:Wrote 1 file',
+      'spinner.start:Formatting',
+      'spinner.stop:Formatted in ',
+      'spinner.start:Linting',
+      'spinner.stop:Linted in ',
+      'spinner.start:Running post-generate hooks',
+      'spinner.stop:Post-generate hooks completed in ',
+      'log.message:✓ tsc --noEmit in ',
       'outro:✓ Generation succeeded',
+      // The summary block, which the reporter renders as one entry after the group closes.
+      'log.message.bare: Plugins  2 passed (2)\n   Files  1 generated\nDuration  \n  Output  /tmp/src/gen',
     ])
   })
 
@@ -189,46 +205,28 @@ describe('grouped generation output', () => {
     expect(output.some((call) => /Generation \d/.test(call))).toBe(false)
   })
 
-  it('loads the config once, so the group does not repeat what the bootstrap already said', async () => {
-    const output = await render(generation({ config: makeConfig('petstore') }), { rich: true })
+  it.each([
+    { rich: true, failed: 'spinner.error:Formatting failed after ', done: 'spinner.stop:Formatted in ', next: 'spinner.stop:Linted in ' },
+    { rich: false, failed: '✗ Formatting failed after ', done: 'Formatted in ', next: 'Linted in ' },
+  ])('marks the formatting phase failed when its hook failed, and still runs the next phase (rich: $rich)', async ({ rich, failed, done, next }) => {
+    const output = await render(generation({ config: makeConfig('petstore'), formatFailed: true }), { rich }).then((calls) => calls.map(withoutDuration))
 
-    expect(output.filter((call) => call.includes('Config loaded'))).toStrictEqual([])
+    expect(output).toContain(failed)
+    expect(output).not.toContain(done)
+    expect(output).toContain(next)
   })
 
-  it('ends each phase at its own completion point, as done', async () => {
-    const output = await render(generation({ config: makeConfig('petstore') }), { rich: true })
+  it.each([
+    { rich: true, failed: 'spinner.error:Plugins 1/2 (1 failed) |  elapsed', closed: 'outro:✗ Generation failed' },
+    { rich: false, failed: '✗ Plugins 1/2 (1 failed) |  elapsed', closed: '✗ Generation failed' },
+  ])('keeps a failed plugin inside the group and closes it once, on the failure (rich: $rich)', async ({ rich, failed, closed }) => {
+    const output = await render(generation({ config: makeConfig('petstore'), pluginFailed: true, status: 'failed' }), { rich })
 
-    expect(output.filter((call) => call.startsWith('spinner.stop:') || call.startsWith('spinner.error:')).map(withoutDuration)).toStrictEqual([
-      'spinner.stop:Plugins 2/2 |  elapsed',
-      'spinner.stop:Wrote 1 file',
-      'spinner.stop:Formatted in ',
-      'spinner.stop:Linted in ',
-      'spinner.stop:Post-generate hooks completed in ',
-    ])
-  })
-
-  it('fails the formatting phase when its hook failed, and still runs and reports the next phase', async () => {
-    const output = await render(generation({ config: makeConfig('petstore'), formatFailed: true }), { rich: true }).then((calls) => calls.map(withoutDuration))
-
-    expect(output).toContain('spinner.error:Formatting failed after ')
-    expect(output).not.toContain('spinner.stop:Formatted in ')
-    expect(output).toContain('spinner.stop:Linted in ')
-  })
-
-  it('keeps a failed plugin inside the group and lets the run result carry it', async () => {
-    const output = await render(generation({ config: makeConfig('petstore'), pluginFailed: true, status: 'failed' }), { rich: true })
-
-    expect(output.map(withoutDuration)).toContain('spinner.error:Plugins 1/2 (1 failed) |  elapsed')
+    expect(output.map(withoutDuration)).toContain(failed)
     expect(output.some((call) => call.includes('@kubb/plugin-zod failed'))).toBe(true)
-    // The group closes once, at the end, on the failure.
-    expect(output.filter((call) => call.startsWith('outro:'))).toStrictEqual(['outro:✗ Generation failed'])
-  })
-
-  it('reports each plugin result once the spinner has released the line', async () => {
-    const output = await render(generation({ config: makeConfig('petstore') }), { rich: true })
-
-    const pluginSummary = output.findIndex((call) => call.startsWith('spinner.stop:Plugins 2/2'))
-    expect(withoutDuration(output[pluginSummary + 1] ?? '')).toBe('log.message:@kubb/plugin-ts completed in \n@kubb/plugin-zod completed in ')
+    // The group closes once, right before the summary.
+    expect(output.filter((call) => call.includes('Generation failed'))).toStrictEqual([closed])
+    expect(output.at(-2)).toBe(closed)
   })
 
   it("prints a hook's own output past clack, and trims the blank lines around it", async () => {
@@ -236,13 +234,6 @@ describe('grouped generation output', () => {
 
     expect(lines).toContain('tsc: no errors')
     expect(calls.some((call) => call.includes('tsc: no errors'))).toBe(false)
-  })
-
-  it('stops the write progress bar once the files are written', async () => {
-    const output = await render(generation({ config: makeConfig('petstore') }), { rich: true })
-
-    expect(output).toContain('progress.advance:Writing src/gen/pet.ts')
-    expect(output.filter((call) => call.startsWith('spinner.start:Writing'))).toHaveLength(1)
   })
 
   it('closes a group the run abandoned, so an intro never dangles', async () => {
@@ -275,13 +266,6 @@ describe('grouped generation output', () => {
     expect(await render(failDuringStep, { rich: true })).toContain('spinner.error:No client plugin is registered.')
   })
 
-  it('counts one file as a file', async () => {
-    const output = await render(generation({ config: makeConfig('petstore') }), { rich: true })
-
-    expect(output).toContain('spinner.start:Writing 1 file')
-    expect(output).toContain('spinner.stop:Wrote 1 file')
-  })
-
   it('keeps what a phase reported, rather than spending it on a spinner frame', async () => {
     const output = await render(
       async (context) => {
@@ -293,14 +277,6 @@ describe('grouped generation output', () => {
     )
 
     expect(output.some((call) => call.startsWith('log.message:') && call.includes('Auto-detected formatter: oxfmt'))).toBe(true)
-  })
-
-  it('renders the summary after the group closes', async () => {
-    const output = await render(generation({ config: makeConfig('petstore') }), { rich: true })
-
-    const summary = output.findIndex((call) => call.includes('2 passed (2)'))
-    const outro = output.indexOf('outro:✓ Generation succeeded')
-    expect(outro).toBeLessThan(summary)
   })
 })
 
@@ -328,20 +304,6 @@ describe('plain generation output', () => {
     ])
     expect(lines.at(-2)).toBe('✓ Generation succeeded')
     expect(lines.at(-1)).toContain('Plugins  2 passed (2)')
-  })
-
-  it('marks a failed phase as failed and still runs the next one', async () => {
-    const lines = await render(generation({ config: makeConfig('petstore'), formatFailed: true }), { rich: false })
-
-    expect(lines.map(withoutDuration)).toContain('✗ Formatting failed after ')
-    expect(lines.map(withoutDuration)).toContain('Linted in ')
-  })
-
-  it('closes the group on the failure when a plugin failed', async () => {
-    const lines = await render(generation({ config: makeConfig('orders'), pluginFailed: true, status: 'failed' }), { rich: false })
-
-    expect(lines.map(withoutDuration)).toContain('✗ Plugins 1/2 (1 failed) |  elapsed')
-    expect(lines.at(-2)).toBe('✗ Generation failed')
   })
 })
 

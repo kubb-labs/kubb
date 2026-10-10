@@ -1,23 +1,15 @@
 import process from 'node:process'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@internals/utils', () => ({
-  toError: vi.fn((error: unknown) => (error instanceof Error ? error : new Error(String(error)))),
-}))
-
-vi.mock('../../Telemetry.ts', () => ({
-  buildTelemetryEvent: vi.fn((payload: object) => payload),
-  sendTelemetry: vi.fn(async () => undefined),
-}))
-
 describe('runValidate', () => {
   beforeEach(() => {
     vi.resetModules()
-    vi.clearAllMocks()
+    vi.stubEnv('KUBB_DISABLE_TELEMETRY', '1')
   })
 
   afterEach(() => {
     vi.doUnmock('@kubb/adapter-oas')
+    vi.unstubAllEnvs()
     vi.restoreAllMocks()
   })
 
@@ -26,7 +18,8 @@ describe('runValidate', () => {
     vi.doMock('@kubb/adapter-oas', () => ({
       adapterOas: () => ({ validate }),
     }))
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    using logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    using fetchSpy = vi.spyOn(globalThis, 'fetch')
 
     const { run: runValidate } = await import('./run.ts')
 
@@ -34,6 +27,7 @@ describe('runValidate', () => {
 
     expect(validate).toHaveBeenCalledWith('spec.yaml', { throwOnError: true })
     expect(logSpy).toHaveBeenCalledWith('✅ Validation success')
+    expect(fetchSpy).not.toHaveBeenCalled()
   })
 
   it('prints install guidance when @kubb/adapter-oas is missing', async () => {
@@ -42,8 +36,8 @@ describe('runValidate', () => {
         throw new Error("Cannot find module '@kubb/adapter-oas'")
       },
     }))
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    const exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {
+    using errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    using exitSpy = vi.spyOn(process, 'exit').mockImplementation((() => {
       throw new Error('process.exit')
     }) as never)
 
@@ -54,6 +48,7 @@ describe('runValidate', () => {
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('The @kubb/adapter-oas package is not installed.'))
     expect(errorSpy).toHaveBeenCalledWith('Install it with:')
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('npm install @kubb/adapter-oas'))
+    expect(errorSpy).toHaveBeenCalledWith("Cannot find module '@kubb/adapter-oas'")
     expect(exitSpy).toHaveBeenCalledWith(1)
   })
 })

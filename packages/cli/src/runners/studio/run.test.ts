@@ -1,7 +1,11 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
 import * as utils from '@internals/utils'
-import { InvalidAgentTokenError, PairingCanceledError, type ConnectionOptions } from '@kubb/studio'
+import type { Config } from '@kubb/core'
+import { type ConnectionOptions, InvalidAgentTokenError, PairingCanceledError, pairAgent, runConnection } from '@kubb/studio'
+import * as env from '../../utils/env.ts'
+import * as generateUtils from '../generate/utils.ts'
+import * as credentialsStore from './credentials.ts'
 import type { Credentials } from './credentials.ts'
 import { connect, formatPermissionRows, login, resolvePermissions, type StudioOptions } from './run.ts'
 
@@ -13,26 +17,6 @@ vi.mock('@clack/prompts', () => ({
   outro: vi.fn(),
   updateSettings: vi.fn(),
 }))
-vi.mock('../../utils/env.ts', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../utils/env.ts')>()),
-  canUseTTY: vi.fn(() => true),
-}))
-vi.mock('@internals/utils', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@internals/utils')>()),
-  isCIEnvironment: vi.fn(() => false),
-}))
-vi.mock('./credentials.ts', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('./credentials.ts')>()),
-  readCredentials: vi.fn().mockResolvedValue(null),
-  writeCredentials: vi.fn().mockResolvedValue(undefined),
-  clearCredentials: vi.fn().mockResolvedValue(undefined),
-}))
-vi.mock('../generate/utils.ts', () => ({
-  getConfigs: vi.fn().mockResolvedValue({
-    configPath: '/project/kubb.config.ts',
-    configs: [{ name: 'test', input: 'spec.yaml', output: { path: './gen' }, plugins: [] }],
-  }),
-}))
 vi.mock('@kubb/studio', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@kubb/studio')>()),
   runConnection: vi.fn(),
@@ -42,10 +26,6 @@ vi.mock('@kubb/studio', async (importOriginal) => ({
 }))
 
 const confirm = vi.mocked(prompts.confirm)
-const { readCredentials, writeCredentials, clearCredentials } = await import('./credentials.ts')
-const { runConnection, pairAgent } = await import('@kubb/studio')
-const { isCIEnvironment } = utils
-const { canUseTTY } = await import('../../utils/env.ts')
 
 const options: StudioOptions = {
   version: '0.0.0',
@@ -56,20 +36,44 @@ const options: StudioOptions = {
 
 const credentials: Credentials = { studioUrl: options.studioUrl, token: 'token', agentId: 'id', agentSlug: 'slug' }
 
-beforeEach(() => {
-  confirm.mockReset()
-  vi.mocked(writeCredentials).mockClear()
-  vi.mocked(readCredentials).mockReset().mockResolvedValue(null)
-  vi.mocked(clearCredentials).mockReset().mockResolvedValue(undefined)
-  vi.mocked(runConnection).mockReset()
-  vi.mocked(pairAgent).mockReset()
-  vi.mocked(isCIEnvironment).mockReset().mockReturnValue(false)
-  vi.mocked(canUseTTY).mockReset().mockReturnValue(true)
-  delete process.env.KUBB_AGENT_TOKEN
-})
+type ProjectOptions = {
+  /**
+   * The credential this machine has stored for the project, or `null` when it has not paired yet.
+   */
+  stored?: Credentials | null
+  ci?: boolean
+  tty?: boolean
+}
+
+/**
+ * Stands in for the machine a test runs on: what is paired, whether a browser is reachable, and
+ * the project config, so no test touches `~/.kubb` or a real `kubb.config.ts`.
+ */
+function stubProject({ stored = null, ci = false, tty = true }: ProjectOptions = {}) {
+  const read = vi.spyOn(credentialsStore, 'readCredentials').mockResolvedValue(stored)
+  const write = vi.spyOn(credentialsStore, 'writeCredentials').mockResolvedValue(undefined)
+  const clear = vi.spyOn(credentialsStore, 'clearCredentials').mockResolvedValue(undefined)
+  const configs = vi.spyOn(generateUtils, 'getConfigs').mockResolvedValue({
+    configPath: '/project/kubb.config.ts',
+    configs: [{ name: 'test', input: 'spec.yaml', output: { path: './gen' }, plugins: [] } as unknown as Config],
+  })
+  const isCI = vi.spyOn(utils, 'isCIEnvironment').mockReturnValue(ci)
+  const canUseTTY = vi.spyOn(env, 'canUseTTY').mockReturnValue(tty)
+
+  return {
+    write,
+    clear,
+    [Symbol.dispose]() {
+      for (const spy of [read, write, clear, configs, isCI, canUseTTY]) {
+        spy.mockRestore()
+      }
+    },
+  }
+}
 
 afterEach(() => {
-  vi.restoreAllMocks()
+  vi.unstubAllEnvs()
+  vi.resetAllMocks()
 })
 
 /**
@@ -96,27 +100,36 @@ function mockPairing(agentId: string = credentials.agentId) {
 
 describe('login', () => {
   it('pairs this machine as a cli agent and stores the approved token', async () => {
+    using project = stubProject()
     using _log = vi.spyOn(console, 'log').mockImplementation(() => {})
     mockPairing()
 
     await expect(login(options)).resolves.toMatchObject({ token: 'new-token', agentId: credentials.agentId })
     expect(pairAgent).toHaveBeenCalledWith(expect.objectContaining({ type: 'cli', studioUrl: options.studioUrl }))
-    expect(writeCredentials).toHaveBeenCalledWith(expect.objectContaining({ token: 'new-token' }))
+    expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'new-token' }))
   })
 })
 
 describe('resolvePermissions', () => {
-  it('asks for every permission and stores the answers', async () => {
+  it.each([
+    { persist: true, writes: 1 },
+    { persist: false, writes: 0 },
+  ])('returns every answer and writes to disk $writes times when persist is $persist', async ({ persist, writes }) => {
+    using project = stubProject()
     confirm.mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(true)
 
     const answers = { allowRead: false, allowWrite: true, allowConfigEdit: false, allowExec: true }
 
-    await expect(resolvePermissions(options, credentials)).resolves.toEqual(answers)
+    await expect(resolvePermissions(options, credentials, undefined, persist)).resolves.toEqual(answers)
     expect(confirm).toHaveBeenCalledTimes(4)
-    expect(writeCredentials).toHaveBeenCalledWith(expect.objectContaining({ projects: { [process.cwd()]: answers } }))
+    expect(project.write).toHaveBeenCalledTimes(writes)
+    if (writes) {
+      expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ projects: { [process.cwd()]: answers } }))
+    }
   })
 
   it('asks for editing kubb.config.ts on its own, not as part of writing generated files', async () => {
+    using _project = stubProject()
     confirm.mockResolvedValue(false)
 
     await resolvePermissions(options, credentials)
@@ -132,6 +145,7 @@ describe('resolvePermissions', () => {
   })
 
   it('names the config the project actually has, not the default', async () => {
+    using _project = stubProject()
     confirm.mockResolvedValue(false)
 
     await resolvePermissions(options, credentials, 'configs/kubb.config.mjs')
@@ -142,6 +156,7 @@ describe('resolvePermissions', () => {
   })
 
   it('asks nothing again once the project answered, and never stores a flag-granted permission', async () => {
+    using project = stubProject()
     const remembered = { allowRead: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
     const stored: Credentials = { ...credentials, projects: { [process.cwd()]: remembered } }
 
@@ -150,26 +165,17 @@ describe('resolvePermissions', () => {
       allowExec: true,
     })
     expect(confirm).not.toHaveBeenCalled()
-    expect(writeCredentials).not.toHaveBeenCalled()
+    expect(project.write).not.toHaveBeenCalled()
   })
 
   it('still asks for the other two when one permission is granted by flag', async () => {
+    using _project = stubProject()
     confirm.mockResolvedValue(false)
 
     await resolvePermissions({ ...options, permission: { ...options.permission, allowConfigEdit: true } }, credentials)
 
     expect(confirm).toHaveBeenCalledTimes(3)
     expect(confirm.mock.calls.some(([call]) => call?.message?.includes('plugin options'))).toBe(false)
-  })
-
-  it('still answers the questions but never writes to disk when persist is false', async () => {
-    confirm.mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(true)
-
-    const answers = { allowRead: false, allowWrite: true, allowConfigEdit: false, allowExec: true }
-
-    await expect(resolvePermissions(options, credentials, undefined, false)).resolves.toEqual(answers)
-    expect(confirm).toHaveBeenCalledTimes(4)
-    expect(writeCredentials).not.toHaveBeenCalled()
   })
 })
 
@@ -217,56 +223,50 @@ describe('connect', () => {
     return captured
   }
 
-  it('tells the operator to update KUBB_AGENT_TOKEN when a live rejection hits an env-sourced token, without touching stored credentials', async () => {
-    process.env.KUBB_AGENT_TOKEN = 'env-token'
+  it.each([
+    { label: 'update KUBB_AGENT_TOKEN when a live rejection hits an env-sourced token', envToken: 'env-token', ci: false, message: /update KUBB_AGENT_TOKEN/ },
+    { label: 'run kubb studio login when a live rejection hits a CI run', envToken: undefined, ci: true, message: /kubb studio login/ },
+  ])('tells the operator to $label, without touching stored credentials', async ({ envToken, ci, message }) => {
+    using project = stubProject({ stored: credentials, ci })
+    if (envToken) {
+      vi.stubEnv('KUBB_AGENT_TOKEN', envToken)
+    }
     mockConnection(rejection(true))
 
-    await expect(connect(options)).rejects.toThrow(/update KUBB_AGENT_TOKEN/)
-    expect(clearCredentials).not.toHaveBeenCalled()
-    expect(writeCredentials).not.toHaveBeenCalled()
-  })
-
-  it('tells the operator to run kubb studio login when a live rejection hits a CI run, without touching stored credentials', async () => {
-    vi.mocked(readCredentials).mockResolvedValue(credentials)
-    vi.mocked(isCIEnvironment).mockReturnValue(true)
-    mockConnection(rejection(true))
-
-    await expect(connect(options)).rejects.toThrow(/kubb studio login/)
-    expect(clearCredentials).not.toHaveBeenCalled()
-    expect(writeCredentials).not.toHaveBeenCalled()
+    await expect(connect(options)).rejects.toThrow(message)
+    expect(project.clear).not.toHaveBeenCalled()
+    expect(project.write).not.toHaveBeenCalled()
   })
 
   it('forgets a token rejected before a session ever opened, even on a run that cannot pair again', async () => {
-    vi.mocked(readCredentials).mockResolvedValue(credentials)
-    vi.mocked(isCIEnvironment).mockReturnValue(true)
+    using project = stubProject({ stored: credentials, ci: true })
     mockConnection(rejection(false))
 
     await expect(connect(options)).rejects.toThrow(/kubb studio login/)
-    expect(clearCredentials).toHaveBeenCalled()
+    expect(project.clear).toHaveBeenCalled()
   })
 
   it('reauthenticates interactively on a live rejection and carries saved permissions forward for the same agent identity', async () => {
-    vi.mocked(readCredentials).mockResolvedValue({ ...credentials, projects: { [process.cwd()]: { allowWrite: true } } })
+    using project = stubProject({ stored: { ...credentials, projects: { [process.cwd()]: { allowWrite: true } } } })
+    using _log = vi.spyOn(console, 'log').mockImplementation(() => {})
     // The same agentId as the stored credential, so the reauth keeps the identity.
     mockPairing()
     mockConnection(rejection(true))
 
     await connect(options)
 
-    expect(writeCredentials).toHaveBeenCalledWith(expect.objectContaining({ token: 'new-token', projects: { [process.cwd()]: { allowWrite: true } } }))
+    expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ token: 'new-token', projects: { [process.cwd()]: { allowWrite: true } } }))
   })
 
   it('does not carry saved permissions forward when the reauthenticated agent identity differs', async () => {
-    vi.mocked(readCredentials).mockResolvedValue({ ...credentials, projects: { [process.cwd()]: { allowWrite: true } } })
+    using project = stubProject({ stored: { ...credentials, projects: { [process.cwd()]: { allowWrite: true } } } })
+    using _log = vi.spyOn(console, 'log').mockImplementation(() => {})
     mockPairing('a-different-agent')
     const connection = mockConnection(rejection(true))
 
     await connect(options)
 
-    const written = vi
-      .mocked(writeCredentials)
-      .mock.calls.map(([call]) => call)
-      .find((call) => call.token === 'new-token')
+    const written = project.write.mock.calls.map(([call]) => call).find((call) => call.token === 'new-token')
     expect(written?.projects).toBeUndefined()
 
     // The permissions were granted to the previous agent, so the new one is asked again rather
@@ -275,7 +275,8 @@ describe('connect', () => {
   })
 
   it('exits cleanly instead of throwing when the user cancels pairing during a live reauth', async () => {
-    vi.mocked(readCredentials).mockResolvedValue(credentials)
+    using _project = stubProject({ stored: credentials })
+    using _log = vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.mocked(pairAgent).mockRejectedValue(new PairingCanceledError())
     const connection = mockConnection(rejection(true))
 
@@ -284,7 +285,8 @@ describe('connect', () => {
   })
 
   it('stops after one automatic reauth instead of pairing forever when the newly approved token is rejected again', async () => {
-    vi.mocked(readCredentials).mockResolvedValue(credentials)
+    using _project = stubProject({ stored: credentials })
+    using _log = vi.spyOn(console, 'log').mockImplementation(() => {})
     mockPairing()
     mockConnection(rejection(true), rejection(true))
 
@@ -292,13 +294,14 @@ describe('connect', () => {
     // One pairing only: the second rejection is a hard failure.
     expect(pairAgent).toHaveBeenCalledTimes(1)
   })
+
   it('logs Studio commands and warnings through the plain logger when it runs as the background worker', async () => {
-    vi.mocked(readCredentials).mockResolvedValue(credentials)
+    using _project = stubProject({ stored: credentials })
     const handlers = new Map<string, Array<(ctx: unknown) => unknown>>()
     const hooks = { hook: (name: string, handler: (ctx: unknown) => unknown) => handlers.set(name, [...(handlers.get(name) ?? []), handler]) }
     const fire = (name: string, ctx?: unknown) => Promise.all((handlers.get(name) ?? []).map((handler) => handler(ctx)))
     const lines: Array<string> = []
-    const log = vi.spyOn(console, 'log').mockImplementation((...args) => void lines.push(args.join(' ')))
+    using _log = vi.spyOn(console, 'log').mockImplementation((...args) => void lines.push(args.join(' ')))
     const states: Array<string> = []
 
     vi.mocked(runConnection).mockImplementation(async (connectionOptions) => {
@@ -311,7 +314,6 @@ describe('connect', () => {
     })
 
     await connect(options, { onState: (state) => void states.push(state) })
-    log.mockRestore()
 
     const output = lines.join('\n')
     expect(states).toContain('connected')
