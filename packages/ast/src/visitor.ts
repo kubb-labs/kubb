@@ -216,6 +216,13 @@ function isNode(value: unknown): value is Node {
 }
 
 /**
+ * Returns `true` for a plain object that maps names to nodes, such as `patternProperties`.
+ */
+function isNodeRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value) && !isNode(value)
+}
+
+/**
  * Returns the immediate traversable children of `node` based on {@link VISITOR_KEYS}.
  *
  * `Schema` children are only included when `recurse` is `true`. Shallow mode skips them.
@@ -237,6 +244,10 @@ function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undef
     const value = record[key]
     if (Array.isArray(value)) {
       for (const item of value) if (isNode(item)) yield item
+      continue
+    }
+    if (isNodeRecord(value)) {
+      for (const item of Object.values(value)) if (isNode(item)) yield item
       continue
     }
     if (isNode(value)) {
@@ -345,6 +356,15 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
           continue
         }
         if (next !== item) mapped = [...value.slice(0, i), next]
+      }
+      if (mapped) (updates ??= {})[key] = mapped
+      continue
+    }
+    if (isNodeRecord(value)) {
+      let mapped: Record<string, unknown> | undefined
+      for (const [name, item] of Object.entries(value)) {
+        const next = isNode(item) ? transformNode(item, visitor, recurse, node) : item
+        if (next !== item) (mapped ??= { ...value })[name] = next
       }
       if (mapped) (updates ??= {})[key] = mapped
       continue

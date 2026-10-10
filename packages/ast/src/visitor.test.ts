@@ -146,6 +146,23 @@ describe('transform', () => {
     expect(types).toContain('string')
   })
 
+  it('rebuilds a schema inside patternProperties and keeps the record when nothing changes', () => {
+    const root = createInput({
+      schemas: [createSchema({ type: 'object', name: 'Map', properties: [], patternProperties: { '^x-': createSchema({ type: 'ref', name: 'Extension' }) } })],
+    })
+
+    const renamed = transform(root, {
+      schema(n): SchemaNode {
+        return n.type === 'ref' ? { ...n, name: 'Renamed' } : n
+      },
+    })
+    const untouched = transform(root, { schema: (n) => n })
+
+    const map = renamed.schemas[0]
+    expect(map?.type === 'object' ? map.patternProperties?.['^x-']?.name : undefined).toBe('Renamed')
+    expect(untouched).toBe(root)
+  })
+
   it('does not recurse into schema properties/items/members when depth: shallow', () => {
     const root = buildSampleTree()
     const types: Array<string> = []
@@ -344,6 +361,23 @@ describe('collectSync', () => {
     expect(types).toContain('object')
     expect(types).toContain('integer')
     expect(types).toContain('string')
+  })
+
+  it('collects schemas inside a tuple rest and patternProperties', () => {
+    const root = createInput({
+      schemas: [
+        createSchema({ type: 'tuple', name: 'Pair', items: [createSchema({ type: 'string' })], rest: createSchema({ type: 'ref', name: 'Tail' }) }),
+        createSchema({ type: 'object', name: 'Map', properties: [], patternProperties: { '^x-': createSchema({ type: 'ref', name: 'Extension' }) } }),
+      ],
+    })
+
+    const names = collectSync<string>(root, {
+      schema(n) {
+        return n.type === 'ref' ? (n.name ?? undefined) : undefined
+      },
+    })
+
+    expect(names).toStrictEqual(['Tail', 'Extension'])
   })
 
   it('collects only top-level schemas (not object properties) when depth: shallow', () => {

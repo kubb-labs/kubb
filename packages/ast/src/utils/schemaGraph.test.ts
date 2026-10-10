@@ -199,6 +199,27 @@ describe('collectImportedRefNames', () => {
     expect(collectImportedRefNames(schema)).toStrictEqual(['Category', 'Tag'])
   })
 
+  it('collects ref names from a tuple rest and from patternProperties', () => {
+    const schema = createSchema({
+      type: 'object',
+      name: 'Envelope',
+      properties: [
+        createProperty({
+          name: 'pair',
+          required: false,
+          schema: createSchema({
+            type: 'tuple',
+            items: [createSchema({ type: 'string' })],
+            rest: createSchema({ type: 'ref', name: 'Tail', ref: '#/components/schemas/Tail' }),
+          }),
+        }),
+      ],
+      patternProperties: { '^x-': createSchema({ type: 'ref', name: 'Extension', ref: '#/components/schemas/Extension' }) },
+    })
+
+    expect(collectImportedRefNames(schema)).toStrictEqual(['Tail', 'Extension'])
+  })
+
   it('prefers targetName for collision-renamed refs', () => {
     const schema = createSchema({
       type: 'object',
