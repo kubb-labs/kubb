@@ -16,7 +16,7 @@ import {
 } from '@kubb/studio'
 import { logBlock } from '../../loggers/output.ts'
 import { createPlainLogger } from '../../loggers/plainLogger.ts'
-import setupReporters from '../../loggers/utils.ts'
+import setupReporters from '../../loggers/reporters.ts'
 import { type CiContext, detectCi } from './ci.ts'
 import { createStudioOptions, loadConfigs, run, type SnapshotOptions } from './run.ts'
 import type { definition } from '../../commands/studio/snapshot.ts'

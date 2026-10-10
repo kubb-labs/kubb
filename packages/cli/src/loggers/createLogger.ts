@@ -2,21 +2,158 @@ import { relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { formatMs, getElapsedMs } from '@internals/utils'
+import type { Config } from '@kubb/core'
 import { Diagnostics, logLevel as logLevelMap } from '@kubb/core'
+import type { StudioConnectedContext } from '@kubb/studio'
 import { formatMsWithColor } from './banner.ts'
 import type { LoggerContext, LoggerHandle, LoggerOptions, LoggerWriter, LogStatus, WriterProgress, WriterSpinner } from './defineLogger.ts'
-import {
-  buildProgressLine,
-  createProgressCounters,
-  formatCommandWithArgs,
-  formatErrorFrames,
-  formatMessage,
-  formatVersions,
-  getInputPath,
-  pluralize,
-  recordPluginResult,
-  resetProgressCounters,
-} from './utils.ts'
+
+/**
+ * Display path for a config's input: the string form, or its `path` field when the input is an
+ * object. Loggers show it alongside `Generation started`.
+ */
+function getInputPath(config: Config): string | undefined {
+  const { input } = config
+  if (typeof input === 'string') return input
+  return typeof input?.path === 'string' ? input.path : undefined
+}
+
+/**
+ * Counts a noun, so a message never reads `1 files`.
+ *
+ * @example
+ * `pluralize(1, 'config')` returns `'1 config'`
+ */
+export function pluralize(count: number, noun: string): string {
+  return `${count} ${count === 1 ? noun : `${noun}s`}`
+}
+
+/**
+ * Optionally prefix a message with a [HH:MM:SS] timestamp when logLevel >= verbose.
+ */
+function formatMessage(message: string, logLevel: number): string {
+  if (logLevel >= logLevelMap.verbose) {
+    const timestamp = new Date().toLocaleTimeString('en-US', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    })
+    return `${styleText('dim', `[${timestamp}]`)} ${message}`
+  }
+  return message
+}
+
+/**
+ * Renders the versions from a `studio:connected` event as one parenthetical. The runtime is listed
+ * only when it differs from the host, and Studio's only when it sent one.
+ */
+function formatVersions({ studio, kubb, agent }: StudioConnectedContext['versions']): string {
+  return [`v${agent}`, kubb !== agent ? `runtime v${kubb}` : undefined, studio ? `Studio v${studio}` : undefined].filter(Boolean).join(', ')
+}
+
+/**
+ * The first three frames of a stack, without the message line.
+ */
+function topFrames(stack: string): Array<string> {
+  return stack
+    .split('\n')
+    .slice(1, 4)
+    .map((frame) => frame.trim())
+}
+
+/**
+ * First stack frames for verbose error output, including an optional `cause` chain.
+ */
+function formatErrorFrames(error: Error): { frames: Array<string>; cause?: { header: string; frames: Array<string> } } | null {
+  if (!error.stack) {
+    return null
+  }
+
+  const frames = topFrames(error.stack)
+  const caused = error.cause instanceof Error ? error.cause : undefined
+
+  if (!caused?.stack) {
+    return { frames }
+  }
+
+  return {
+    frames,
+    cause: {
+      header: `└─ caused by ${caused.message}`,
+      frames: topFrames(caused.stack),
+    },
+  }
+}
+
+type ProgressState = {
+  /**
+   * Total number of plugins scheduled for this generation run.
+   */
+  totalPlugins: number
+  /**
+   * Number of plugins that have finished without error.
+   */
+  completedPlugins: number
+  /**
+   * Number of plugins that exited with an error.
+   */
+  failedPlugins: number
+  /**
+   * Total number of files expected to be written.
+   */
+  totalFiles: number
+  /**
+   * Number of files written so far.
+   */
+  processedFiles: number
+  /**
+   * `process.hrtime()` snapshot taken at the start of generation, used to compute elapsed time.
+   */
+  hrStart: [number, number]
+}
+
+/**
+ * Build the progress summary line shown by the clack logger.
+ * Returns null when there is nothing to display.
+ */
+function buildProgressLine(state: ProgressState): string | null {
+  const parts: Array<string> = []
+  const duration = formatMs(getElapsedMs(state.hrStart))
+
+  if (state.totalPlugins > 0) {
+    const pluginStr =
+      state.failedPlugins > 0
+        ? `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins} ${styleText('red', `(${state.failedPlugins} failed)`)}`
+        : `Plugins ${styleText('green', state.completedPlugins.toString())}/${state.totalPlugins}`
+    parts.push(pluginStr)
+  }
+
+  if (state.totalFiles > 0) {
+    parts.push(`Files ${styleText('green', state.processedFiles.toString())}/${state.totalFiles}`)
+  }
+
+  if (parts.length === 0) {
+    return null
+  }
+
+  parts.push(`${styleText('green', duration)} elapsed`)
+  return parts.join(styleText('dim', ' | '))
+}
+
+/**
+ * Creates the per-run progress counters.
+ */
+function createProgressCounters(): ProgressState {
+  return {
+    totalPlugins: 0,
+    completedPlugins: 0,
+    failedPlugins: 0,
+    totalFiles: 0,
+    processedFiles: 0,
+    hrStart: process.hrtime(),
+  }
+}
 
 /**
  * One output phase while its step owns the line. A phase buffers what it is told, because a spinner
@@ -190,7 +327,7 @@ export function createLogger(writer: LoggerWriter) {
     function reset() {
       stopSpinner()
       stopProgress()
-      resetProgressCounters(state)
+      Object.assign(state, createProgressCounters())
       state.hooks.clear()
       state.pluginLines = []
       state.phase = null
@@ -401,7 +538,12 @@ export function createLogger(writer: LoggerWriter) {
         return
       }
 
-      recordPluginResult(state, success)
+      if (success) {
+        state.completedPlugins++
+      }
+      if (!success) {
+        state.failedPlugins++
+      }
       state.pluginLines.push(text(`${plugin.name} ${success ? 'completed' : 'failed'} in ${formatMsWithColor(duration)}`))
     })
 
@@ -506,7 +648,7 @@ export function createLogger(writer: LoggerWriter) {
       }
       state.hooks.delete(id)
 
-      const label = styleText('dim', name ?? formatCommandWithArgs(command, args))
+      const label = styleText('dim', name ?? (args?.length ? `${command} ${args.join(' ')}` : command))
       const reason = error?.message ? ` (${error.message})` : ''
       const result = success
         ? `${styleText('green', '✓')} ${label} in ${formatMsWithColor(getElapsedMs(active.hrStart))}`

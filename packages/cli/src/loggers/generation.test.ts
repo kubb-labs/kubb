@@ -1,9 +1,8 @@
 import type { FileNode } from '@kubb/ast'
 import { Hookable, cliReporter, type Config, type KubbHooks, logLevel, type NormalizedPlugin, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
-import * as agent from '../agent.ts'
 import * as env from '../utils/env.ts'
-import setupReporters from './utils.ts'
+import setupReporters from './reporters.ts'
 
 /**
  * Every clack call this logger makes, in order, as `name:text`. The sequence is the thing under
@@ -56,8 +55,7 @@ type Emit = (context: Hookable<KubbHooks>) => Promise<void>
  */
 async function renderBoth(emit: Emit, { rich = true, level = logLevel.info }: { rich?: boolean; level?: number } = {}) {
   calls.length = 0
-  using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(rich)
-  using _agent = vi.spyOn(agent, 'getAgentName').mockReturnValue(undefined)
+  using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(rich)
   const lines: Array<string> = []
   using _log = vi.spyOn(console, 'log').mockImplementation((line = '') => void lines.push(String(line)))
 

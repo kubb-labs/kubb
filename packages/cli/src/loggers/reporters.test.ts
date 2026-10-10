@@ -1,8 +1,9 @@
+import { stripVTControlCharacters } from 'node:util'
 import { Hookable, cliReporter, type Config, jsonReporter, type KubbHooks, logLevel } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import * as agent from '../agent.ts'
 import * as env from '../utils/env.ts'
-import setupReporters from './utils.ts'
+import setupReporters from './reporters.ts'
 
 describe('setupReporters', () => {
   it('lets json own stdout without installing the live logger when json is selected', async () => {
@@ -15,13 +16,32 @@ describe('setupReporters', () => {
   })
 
   /**
+   * A usable terminal outside CI, so only the agent decides which logger `isRichOutput` picks.
+   */
+  function withInteractiveStdout(): Disposable {
+    const { isTTY, columns } = process.stdout
+    Object.defineProperty(process.stdout, 'isTTY', { value: true, writable: true, configurable: true })
+    Object.defineProperty(process.stdout, 'columns', { value: 80, writable: true, configurable: true })
+    vi.stubEnv('CI', '')
+    vi.stubEnv('GITHUB_ACTIONS', '')
+
+    return {
+      [Symbol.dispose]() {
+        Object.defineProperty(process.stdout, 'isTTY', { value: isTTY, writable: true, configurable: true })
+        Object.defineProperty(process.stdout, 'columns', { value: columns, writable: true, configurable: true })
+        vi.unstubAllEnvs()
+      },
+    }
+  }
+
+  /**
    * Both loggers open a group, but only the plain one writes it with `console.log`: clack draws
-   * straight to the stream.
+   * straight to the stream. Colors are stripped, since the stubbed terminal makes `styleText` emit them.
    */
   async function renderGroup() {
     const context = new Hookable<KubbHooks>()
     const lines: Array<string> = []
-    using _log = vi.spyOn(console, 'log').mockImplementation((line = '') => void lines.push(String(line)))
+    using _log = vi.spyOn(console, 'log').mockImplementation((line = '') => void lines.push(stripVTControlCharacters(String(line))))
 
     await setupReporters(context, { logLevel: logLevel.info, reporters: [cliReporter] })
     await context.callHook('kubb:generation:start', {
@@ -35,7 +55,7 @@ describe('setupReporters', () => {
     { agentName: 'claude', plain: true, label: 'an AI agent is detected' },
     { agentName: undefined, plain: false, label: 'no AI agent is detected' },
   ])('installs the plain logger: $plain when a TTY is available and $label', async ({ agentName, plain }) => {
-    using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(true)
+    using _stdout = withInteractiveStdout()
     using _agent = vi.spyOn(agent, 'getAgentName').mockReturnValue(agentName)
 
     expect((await renderGroup()).includes('petstore')).toBe(plain)
@@ -49,7 +69,7 @@ describe('studio session events', () => {
    * answers and the output is plain text.
    */
   async function render(emit: (context: Hookable<KubbHooks>) => Promise<void> | void, level: number = logLevel.info) {
-    using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(false)
+    using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(false)
     const context = new Hookable<KubbHooks>()
     const lines: Array<string> = []
     using _log = vi.spyOn(console, 'log').mockImplementation((line) => void lines.push(String(line)))

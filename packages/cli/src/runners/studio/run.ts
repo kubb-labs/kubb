@@ -19,7 +19,7 @@ import {
 } from '@kubb/studio'
 import { buildTelemetryEvent, sendTelemetry } from '../../Telemetry.ts'
 import { plainLogger } from '../../loggers/plainLogger.ts'
-import setupReporters from '../../loggers/utils.ts'
+import setupReporters from '../../loggers/reporters.ts'
 import { createSpinner, logBlock, logIntro, logOutro, logTip } from '../../loggers/output.ts'
 import { canUseTTY } from '../../utils/env.ts'
 import { getConfigs } from '../generate/utils.ts'
