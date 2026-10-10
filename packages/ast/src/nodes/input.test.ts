@@ -19,6 +19,17 @@ describe('createInput', () => {
     expect(node.operations).toStrictEqual([])
   })
 
+  it('returns fresh schemas, operations and meta objects for every call', () => {
+    const first = createInput()
+    const second = createInput()
+
+    first.schemas.push(createSchema({ type: 'string' }))
+
+    expect(second.schemas).toStrictEqual([])
+    expect(second.meta).not.toBe(first.meta)
+    expect(second.meta).toStrictEqual({ circularNames: [], enumNames: [] })
+  })
+
   it('always sets kind to Input', () => {
     // @ts-expect-error — kind should be overridden back to 'Input'
     const node = createInput({ kind: 'Operation' })

@@ -721,7 +721,7 @@ export const schemaDef = defineNode<SchemaNode, CreateSchemaInput>({
 
     return { primitive: TYPE_TO_PRIMITIVE[props.type as keyof typeof TYPE_TO_PRIMITIVE], ...props }
   },
-  children: ['properties', 'items', 'members', 'additionalProperties'],
+  children: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'rest'],
   visitorKey: 'schema',
 })
 
