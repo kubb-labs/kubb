@@ -4,6 +4,7 @@ import { join, relative, resolve, sep } from 'node:path'
 import { promisify } from 'node:util'
 import { gzip } from 'node:zlib'
 import { type Config, type Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
+import { type FetchResponse, ofetch } from 'ofetch'
 import { generate, hashOf } from './generations.ts'
 import { MAX_SNAPSHOT_BYTES, type PublishedSnapshot, type SnapshotUploadMetadata } from './protocol.ts'
 import { resolvePeerDependencies } from './resolveConfig.ts'
@@ -194,11 +195,12 @@ export type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'pee
   signal?: AbortSignal
 }
 
-async function failureMessage(response: Response): Promise<string> {
-  const body = (await response.json().catch(() => undefined)) as { message?: string; data?: { upgradeUrl?: string } } | undefined
-  const upgrade = body?.data?.upgradeUrl ? ` Upgrade at ${body.data.upgradeUrl}.` : ''
+type UploadResponse = { snapshot?: PublishedSnapshot; message?: string; data?: { upgradeUrl?: string } }
 
-  return `Kubb Studio refused the snapshot (status ${response.status})${body?.message ? `: ${body.message}` : ''}.${upgrade}`
+function failureMessage({ status, _data }: FetchResponse<UploadResponse>): string {
+  const upgrade = _data?.data?.upgradeUrl ? ` Upgrade at ${_data.data.upgradeUrl}.` : ''
+
+  return `Kubb Studio refused the snapshot (status ${status})${_data?.message ? `: ${_data.message}` : ''}.${upgrade}`
 }
 
 /**
@@ -254,16 +256,17 @@ export async function createSnapshot({
 
   const timeout = AbortSignal.timeout(UPLOAD_TIMEOUT_MS)
   // A redirect would forward the CI key and tarball to wherever it points.
-  const response = await fetch(url, {
+  const response = await ofetch.raw<UploadResponse>(url.href, {
     method: 'POST',
     headers: { 'x-api-key': apiKey },
     body,
     redirect: 'error',
     signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
+    ignoreResponseError: true,
   })
-  if (!response.ok) throw new Error(await failureMessage(response))
+  if (!response.ok) throw new Error(failureMessage(response))
 
-  const result = (await response.json().catch(() => undefined)) as { snapshot?: PublishedSnapshot } | undefined
-  if (!result?.snapshot) throw new Error(`Kubb Studio returned no snapshot (status ${response.status})`)
-  return result.snapshot
+  const snapshot = response._data?.snapshot
+  if (!snapshot) throw new Error(`Kubb Studio returned no snapshot (status ${response.status})`)
+  return snapshot
 }

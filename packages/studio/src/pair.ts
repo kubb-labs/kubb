@@ -1,6 +1,7 @@
 import { hash } from 'node:crypto'
 import { setTimeout as delay } from 'node:timers/promises'
 import { toError } from '@internals/utils'
+import { ofetch } from 'ofetch'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 /**
@@ -98,30 +99,12 @@ type StartPairingOptions = {
 }
 
 /**
- * POSTs JSON to Studio and returns the parsed body, whatever the status.
- */
-async function postJson<T>({
-  url,
-  body,
-  signal,
-}: {
-  url: URL
-  body: unknown
-  signal?: AbortSignal
-}): Promise<{ ok: boolean; status: number; data: T | undefined }> {
-  const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal })
-  const data = (await response.json().catch(() => undefined)) as T | undefined
-
-  return { ok: response.ok, status: response.status, data }
-}
-
-/**
  * Asks Studio for a pairing code, sending the hashed machine id with it.
  */
 export async function startPairing({ studioUrl = defaultStudioUrl, type, name, hostname, machineId, signal }: StartPairingOptions): Promise<PairingSession> {
   try {
-    const { ok, status, data } = await postJson<PairingSession>({
-      url: secureUrl({ studioUrl, path: '/api/auth/device/code' }),
+    const pairing = await ofetch<PairingSession>(secureUrl({ studioUrl, path: '/api/auth/device/code' }).href, {
+      method: 'POST',
       body: {
         client_id: type === 'cli' ? CLIENT_IDS.cli : CLIENT_IDS.agent,
         name,
@@ -131,9 +114,9 @@ export async function startPairing({ studioUrl = defaultStudioUrl, type, name, h
       },
       signal,
     })
-    if (!ok || !data) throw new Error(`Kubb Studio refused the pairing request (status ${status})`)
+    if (typeof pairing?.device_code !== 'string') throw new Error('Kubb Studio returned no pairing code')
 
-    return data
+    return pairing
   } catch (error) {
     if (signal?.aborted) {
       throw new PairingCanceledError()
@@ -203,13 +186,14 @@ export async function pollForPairingToken({ studioUrl = defaultStudioUrl, sessio
     let response: PollResponse | undefined
     try {
       // A denial, an expiry, and "not yet" all come back as 4xx with a body to switch on.
-      const { status, data } = await postJson<PollResponse>({
-        url: secureUrl({ studioUrl, path: '/api/agent/token' }),
+      const { status, _data } = await ofetch.raw<PollResponse>(secureUrl({ studioUrl, path: '/api/agent/token' }).href, {
+        method: 'POST',
         body: { device_code: session.device_code },
         signal,
+        ignoreResponseError: true,
       })
-      if (status >= 500 || data === undefined) throw new Error(`Kubb Studio answered with status ${status}`)
-      response = data
+      if (status >= 500 || typeof _data !== 'object') throw new Error(`Kubb Studio answered with status ${status}`)
+      response = _data
     } catch (error) {
       if (signal?.aborted) {
         throw new PairingCanceledError()

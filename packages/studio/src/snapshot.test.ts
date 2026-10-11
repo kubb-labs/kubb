@@ -106,9 +106,9 @@ describe('createSnapshot', () => {
 
     await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', config: projectConfig() })).resolves.toStrictEqual(snapshot)
 
-    const [url, init] = fetchMock.mock.calls[0] as [URL, RequestInit]
-    expect(url.href).toBe('https://studio.test/api/snapshots')
-    expect(init.headers).toStrictEqual({ 'x-api-key': 'kubb_key' })
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
+    expect(url).toBe('https://studio.test/api/snapshots')
+    expect(new Headers(init.headers).get('x-api-key')).toBe('kubb_key')
     expect(init.redirect).toBe('error')
     const body = init.body as FormData
     expect(JSON.parse(String(body.get('metadata'))) as SnapshotUploadMetadata).toStrictEqual({

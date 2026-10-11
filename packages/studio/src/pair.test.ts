@@ -127,6 +127,14 @@ describe('startPairing', () => {
     })
   })
 
+  it('rejects a response without a pairing code', async () => {
+    fetchMock.mockResolvedValueOnce(new Response('<html></html>', { status: 200 }))
+
+    await expect(startPairing({ studioUrl: 'https://studio.test', type: 'cli', name: 'my-project', hostname: 'my-host', machineId: 'secret' })).rejects.toThrow(
+      'Kubb Studio returned no pairing code',
+    )
+  })
+
   it('refuses a plaintext Studio URL before sending anything', async () => {
     await expect(startPairing({ studioUrl: 'http://studio.test', type: 'cli', name: 'my-project', hostname: 'my-host', machineId: 'secret' })).rejects.toThrow(
       'Refusing to reach Kubb Studio',

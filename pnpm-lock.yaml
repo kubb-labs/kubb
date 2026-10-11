@@ -468,6 +468,9 @@ importers:
       magicast:
         specifier: ^0.5.5
         version: 0.5.5
+      ofetch:
+        specifier: ^1.5.1
+        version: 1.5.1
       tsdown:
         specifier: 'catalog:'
         version: 0.23.0(typescript@6.0.3)
