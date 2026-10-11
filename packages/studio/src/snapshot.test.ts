@@ -2,7 +2,7 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { gunzipSync } from 'node:zlib'
-import { resolveCacheDir } from '@kubb/core'
+import { type Config, resolveCacheDir } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import { hashOf } from './generations.ts'
 import type { SnapshotUploadMetadata } from './protocol.ts'
@@ -141,6 +141,22 @@ describe('createSnapshot', () => {
 
     const body = fetchMock.mock.calls[0]![1]!.body as FormData
     expect((JSON.parse(String(body.get('metadata'))) as SnapshotUploadMetadata).hashes).toStrictEqual({ 'src/gen/pet.ts': hashOf('export const pet = 2') })
+  })
+
+  it('packs a config without storage, as kubb studio snapshot loads it, from the default fs storage', async () => {
+    const projectRoot = await mkdtemp(join(tmpdir(), 'kubb-snapshot-project-'))
+    const { storage: _storage, ...config } = projectConfig({ projectRoot })
+    using fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ snapshot: { id: 'snap-1' } }, { status: 201 }))
+
+    try {
+      await createSnapshot({ ...options, studioUrl: 'https://studio.test', config: config as Config })
+    } finally {
+      await Promise.all([rm(projectRoot, { recursive: true, force: true }), rm(resolveCacheDir(projectRoot), { recursive: true, force: true })])
+    }
+
+    const body = fetchMock.mock.calls[0]![1]!.body as FormData
+    const entries = readTarEntries(gunzipSync(Buffer.from(await (body.get('tarball') as Blob).arrayBuffer())))
+    expect(entries.find(({ path }) => path === 'package/src/gen/pet.ts')?.content).toContain('export const pet = 1')
   })
 
   it('names the upgrade page when Studio refuses the snapshot over a limit', async () => {
