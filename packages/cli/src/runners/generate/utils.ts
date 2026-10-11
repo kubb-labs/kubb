@@ -6,8 +6,11 @@ import { isGreaterThan, isValid, truncate } from 'verkit'
 /** Glob pattern for paths the file watcher ignores. */
 const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
 
-/** Quiet window in milliseconds that collapses a burst of watcher events (an editor save emits several) into one rebuild. */
-const WATCHER_DEBOUNCE_MS = 100
+/**
+ * Quiet window in milliseconds that collapses a burst of watcher events (an editor save emits several) into one rebuild.
+ * It outlasts chokidar's 100 ms atomic-save window, which holds back the event of a write-then-rename save.
+ */
+const WATCHER_DEBOUNCE_MS = 250
 
 /** Interval in milliseconds between polls of a remote `input` URL in watch mode, which emits no filesystem events. */
 const URL_WATCHER_INTERVAL_MS = 2_000
