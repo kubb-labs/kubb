@@ -1,9 +1,10 @@
-import { relative, resolve } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 import process from 'node:process'
 import { stripVTControlCharacters } from 'node:util'
-import { formatMs, write } from '@internals/utils'
+import { formatMs } from '@internals/utils'
 import { createReporter } from '../createReporter.ts'
 import { type Diagnostic, Diagnostics } from '../Diagnostics.ts'
+import { kubbStorage, resolveKubbDir } from '../storages/kubbStorage.ts'
 import { buildReport, type Report } from './report.ts'
 
 /**
@@ -93,10 +94,11 @@ export const fileReporter = createReporter({
     const sections = [buildSummarySection(report), buildProblemSection(diagnostics), buildTimingSection(report)].filter((section) => section.length > 0)
     const content = stripVTControlCharacters([header, ...sections.map((section) => section.join('\n'))].join('\n\n'))
 
-    const baseName = `${['kubb', config.name, Date.now()].filter(Boolean).join('-')}.log`
-    const pathName = resolve(process.cwd(), '.kubb', baseName)
+    const name = config.name?.replace(/[^a-zA-Z0-9_-]+/g, '-').replace(/^-+|-+$/g, '')
+    const baseName = `${['kubb', name, Date.now()].filter(Boolean).join('-')}.log`
+    const dir = resolveKubbDir(resolve(process.cwd(), '.kubb'))
 
-    await write(pathName, `${content}\n`)
-    console.error(`Debug log written to ${relative(process.cwd(), pathName)}`)
+    await kubbStorage({ base: dir }).setItem(baseName, `${content}\n`)
+    console.error(`Debug log written to ${relative(process.cwd(), join(dir, baseName))}`)
   },
 })

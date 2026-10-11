@@ -10,7 +10,7 @@ function sourceFiles(files: Record<string, string>): SourceFiles {
 
 async function addRun({ store, jobId, files }: { store: GenerationStore; jobId: string; files: Record<string, string> }) {
   const output = await store.keep({ jobId, source: 'output', files: sourceFiles(files), maxSetMb: 1 })
-  await store.add({ jobId, output, peerDependencies: {}, missingDependencies: [] })
+  await store.add({ jobId, output })
 }
 
 describe('createGenerationStore', () => {
@@ -52,11 +52,10 @@ describe('createGenerationStore', () => {
     await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'one' } })
 
     clock = 999
-    expect((await store.latest())?.jobId).toBe('job-1')
+    expect((await store.get('job-1'))?.jobId).toBe('job-1')
 
     clock = 1_000
     expect(await store.get('job-1')).toBeUndefined()
-    expect(await store.latest()).toBeUndefined()
 
     await addRun({ store, jobId: 'job-2', files: { 'b.ts': 'two' } })
     expect((await storage.readKeys()).some((key) => key.endsWith('a.ts'))).toBe(false)
@@ -77,7 +76,7 @@ describe('createGenerationStore', () => {
     for (const jobId of ['job-1', 'job-2', 'job-3']) await addRun({ store, jobId, files: { 'a.ts': jobId } })
 
     expect(await store.get('job-1')).toBeUndefined()
-    expect((await store.latest())?.jobId).toBe('job-3')
+    expect((await store.get('job-3'))?.jobId).toBe('job-3')
     expect((await storage.readKeys()).filter((key) => key.endsWith('a.ts'))).toHaveLength(2)
   })
 })

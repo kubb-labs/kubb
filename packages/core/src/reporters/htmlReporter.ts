@@ -1,7 +1,8 @@
-import { relative, resolve } from 'node:path'
+import { join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { openInBrowser, read, write } from '@internals/utils'
+import { openInBrowser, read } from '@internals/utils'
 import { createReporter, type GenerationResult } from '../createReporter.ts'
+import { kubbStorage, resolveKubbDir } from '../storages/kubbStorage.ts'
 import { buildReport } from './report.ts'
 
 function serializeReport(result: GenerationResult): string {
@@ -21,16 +22,17 @@ export const htmlReporter = createReporter({
   async report(result) {
     const name = result.config.name?.replace(/[^a-zA-Z0-9_-]+/g, '-').replace(/^-+|-+$/g, '')
     const baseName = ['kubb', name, Date.now()].filter(Boolean).join('-')
-    const pathName = resolve(process.cwd(), '.kubb', baseName)
+    const dir = resolveKubbDir(resolve(process.cwd(), '.kubb'))
+    const storage = kubbStorage({ base: dir })
     const assets = new URL('./html/', import.meta.url)
     const [html, ui] = await Promise.all([read(fileURLToPath(new URL('index.html', assets))), read(fileURLToPath(new URL('ui.iife.js', assets)))])
 
     await Promise.all([
-      write(resolve(pathName, 'index.html'), html),
-      write(resolve(pathName, 'ui.iife.js'), ui),
-      write(resolve(pathName, 'data.js'), serializeReport(result)),
+      storage.setItem(`${baseName}/index.html`, html),
+      storage.setItem(`${baseName}/ui.iife.js`, ui),
+      storage.setItem(`${baseName}/data.js`, serializeReport(result)),
     ])
-    const reportPath = resolve(pathName, 'index.html')
+    const reportPath = join(dir, baseName, 'index.html')
     console.error(`HTML report written to ${relative(process.cwd(), reportPath)}`)
     openInBrowser(reportPath)
   },

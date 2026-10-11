@@ -1,7 +1,7 @@
 import { stripVTControlCharacters } from 'node:util'
 import { getElapsedMs } from '@internals/utils'
 import { Diagnostics, type Hookable, type KubbHooks } from '@kubb/core'
-import { type GenerationEvent, type GenerationEventPayloads, type GenerationEventType, generationEventTypes } from '../protocol/index.ts'
+import { type GenerationEvent, type GenerationEventPayloads, type GenerationEventType, generationEventTypes } from './protocol.ts'
 import { relativeStoragePath } from './generations.ts'
 
 /** How each published hook's context becomes its wire payload; a hook without a projection fails to compile. */

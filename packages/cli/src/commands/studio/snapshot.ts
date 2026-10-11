@@ -1,5 +1,5 @@
 import { define } from 'gunshi'
-import { configArg, logLevelArg, studioConnectionArgs, studioPermissionArgs } from '../shared.ts'
+import { configArg, logLevelArg, studioConnectionArgs } from '../shared.ts'
 
 export const command = define({
   name: 'snapshot',
@@ -9,7 +9,6 @@ export const command = define({
   args: {
     ...configArg,
     ...studioConnectionArgs,
-    ...studioPermissionArgs,
     id: {
       type: 'string',
       description: 'Stable identity for the CI agent, such as a pull request. Auto-detected on GitHub Actions, GitLab CI, Bitbucket Pipelines and CircleCI',
@@ -28,11 +27,6 @@ export const command = define({
       type: 'string',
       description: 'Package version for the generated tarball. Defaults to the version in package.json',
       toKebab: true,
-    },
-    timeout: {
-      type: 'number',
-      description: 'Seconds to wait for the job to finish',
-      default: 600,
     },
     json: {
       type: 'boolean',

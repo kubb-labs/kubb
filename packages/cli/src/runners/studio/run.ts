@@ -6,24 +6,15 @@ import * as prompts from '@clack/prompts'
 import { KUBB_CONFIG_FILENAME } from '@internals/shared'
 import { isCIEnvironment, openInBrowser, toError } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
-import { cliReporter, logLevel as logLevelMap } from '@kubb/core'
-import {
-  createFileStorage,
-  type ClientOptions,
-  defaultStudioUrl,
-  type InvalidAgentTokenError,
-  pairAgent,
-  PairingCanceledError,
-  runConnection,
-  setStorage,
-} from '@kubb/studio'
+import { cliReporter, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { connectAgent, defaultStudioUrl, InvalidAgentTokenError, pairAgent, PairingCanceledError } from '@kubb/studio'
 import { trackRun } from '../../Telemetry.ts'
 import { plainLogger } from '../../loggers/plainLogger.ts'
 import setupReporters from '../../loggers/reporters.ts'
 import { createSpinner, logBlock, logIntro, logOutro, logTip } from '../../loggers/output.ts'
 import { canUseTTY } from '../../utils/env.ts'
 import { getConfigs } from '../../config.ts'
-import { clearCredentials, type Credentials, getCredentialsPath, getProjectKubbHome, readCredentials, writeCredentials } from './credentials.ts'
+import { clearCredentials, type Credentials, getCredentialsPath, getMachineId, readCredentials, writeCredentials } from './credentials.ts'
 import { version } from '../../../package.json'
 
 type Permission = 'allowRead' | 'allowWrite' | 'allowConfigEdit' | 'allowExec'
@@ -51,7 +42,7 @@ export type StudioOptions = {
   logLevel?: CLIOptions['logLevel']
 }
 
-export type SnapshotOptions = StudioOptions & {
+export type SnapshotOptions = Pick<StudioOptions, 'configPath' | 'studioUrl' | 'logLevel'> & {
   /**
    * Organization CI API key. Falls back to `KUBB_TOKEN`.
    */
@@ -70,10 +61,6 @@ export type SnapshotOptions = StudioOptions & {
    * Package version for the generated tarball. Falls back to the nearest package.json.
    */
   packageVersion?: string
-  /**
-   * Seconds to wait for the job to finish.
-   */
-  timeout?: number
   /**
    * Print the result as one JSON object instead of a summary.
    */
@@ -140,6 +127,7 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
       type: 'cli',
       name: path.basename(process.cwd()),
       hostname: hostname(),
+      machineId: await getMachineId(),
       signal,
       onCode: (session) => {
         console.log(`\nOpen ${styleText('cyan', session.verification_uri)} and approve the code ${styleText('bold', session.user_code)}`)
@@ -261,7 +249,7 @@ export async function resolvePermissions(
  * Loads the project's Kubb config the same way `kubb generate` does.
  * Returns the first config.
  */
-export async function loadConfigs(options: StudioOptions): Promise<{ configPath: string; config: Config }> {
+export async function loadConfigs(options: Pick<StudioOptions, 'configPath' | 'logLevel'>): Promise<{ configPath: string; config: Config }> {
   const { configPath, configs } = await getConfigs({ configPath: options.configPath, logLevel: options.logLevel })
   const [config] = configs
 
@@ -340,8 +328,6 @@ export async function connect(
     events.once('SIGINT', stop)
     events.once('SIGTERM', stop)
   }
-  let hinted = false
-  let reauthenticated = false
   try {
     if (!context.prepared) {
       const { getWorkerStatus } = await import('./background.ts')
@@ -351,57 +337,56 @@ export async function connect(
     const prepared = context.prepared ?? (await prepareConnection(options, signal))
     let { credentials, permissions } = prepared
     const { configPath } = prepared
-    await runConnection({
-      credentials,
-      signal,
-      clientOptions: (): Omit<ClientOptions, 'token' | 'onAuthRequired'> => ({
-        studioUrl: options.studioUrl,
-        configPath,
-        version: options.version,
-        root: process.cwd(),
-        permissions,
-        loadConfig: async () => (await loadConfigs(options)).config,
-        installLogger: async (hooks) => {
-          // The background worker writes to a log file, so it gets the plain logger rather than the
-          // animated one. The logger also covers the `studio:*` events and each generation run.
-          setupReporters(hooks, {
-            logLevel: logLevelMap[options.logLevel ?? 'info'],
-            reporters: [cliReporter],
-            ...(context.onState ? { logger: plainLogger } : {}),
-          })
-          hooks.hook('studio:connected', () => {
-            if (!hinted && !context.onState && options.logLevel !== 'silent') logBlock(styleText('dim', 'Press Ctrl+C to disconnect'))
-            hinted = true
-          })
-          hooks.hook('studio:ready', async () => {
-            await context.onState?.('connected')
-            if (!context.onState) logTip()
-          })
-          hooks.hook('studio:reconnecting', () => context.onState?.('reconnecting'))
-        },
-      }),
-      onTokenRejected: async ({ error, live }) => {
+    let hinted = false
+    // Set by a fresh pairing until it connects, so a token rejected right after approval fails the run instead of looping.
+    let pairedAgain = false
+
+    // The background worker writes to a log file, so it gets the plain logger rather than the
+    // animated one. The logger also covers the `studio:*` events and each generation run.
+    const hooks = new Hookable<KubbHooks>()
+    setupReporters(hooks, {
+      logLevel: logLevelMap[options.logLevel ?? 'info'],
+      reporters: [cliReporter],
+      ...(context.onState ? { logger: plainLogger } : {}),
+    })
+    hooks.hook('studio:connected', async () => {
+      pairedAgain = false
+      await context.onState?.('connected')
+      if (hinted || context.onState || options.logLevel === 'silent') return
+      hinted = true
+      logBlock(styleText('dim', 'Press Ctrl+C to disconnect'))
+      logTip()
+    })
+    hooks.hook('studio:reconnecting', () => context.onState?.('reconnecting'))
+
+    for (;;) {
+      try {
+        await connectAgent({
+          token: credentials.token,
+          studioUrl: options.studioUrl,
+          configPath,
+          version: options.version,
+          root: process.cwd(),
+          permissions,
+          loadConfig: async () => (await loadConfigs(options)).config,
+          hooks,
+          signal,
+        })
+        break
+      } catch (error) {
+        if (!(error instanceof InvalidAgentTokenError)) throw error
         await context.onState?.('authentication required')
         if (process.env.KUBB_AGENT_TOKEN) throw explainRejectedToken(error, 'envToken')
-        if (!live) await clearCredentials()
-        if (reauthenticated) throw explainRejectedToken(error, 'reauthExhausted')
+        await clearCredentials()
+        if (pairedAgain) throw explainRejectedToken(error, 'reauthExhausted')
         if (context.onState || isCIEnvironment() || !canUseTTY()) throw explainRejectedToken(error, 'nonInteractive')
-        console.log(styleText('yellow', live ? `${error.message} Studio needs you to approve access again.` : `${error.message} Pairing again...`))
-        if (live) await clearCredentials()
-        try {
-          credentials = await login(options, { signal, previousCredentials: credentials })
-        } catch (error) {
-          if (error instanceof PairingCanceledError) {
-            if (live && options.logLevel !== 'silent') logOutro('Disconnected')
-            return null
-          }
-          throw error
-        }
-        reauthenticated = true
-        permissions = await resolvePermissions(options, credentials, configPath, !process.env.KUBB_AGENT_TOKEN)
-        return credentials
-      },
-    })
+
+        console.log(styleText('yellow', `${error.message} Pairing again...`))
+        credentials = await login(options, { signal, previousCredentials: credentials })
+        pairedAgain = true
+        permissions = await resolvePermissions(options, credentials, configPath)
+      }
+    }
     if (!context.onState && signal.aborted && options.logLevel !== 'silent') logOutro('Disconnected')
   } catch (error) {
     if (!(error instanceof PairingCanceledError)) throw error
@@ -414,11 +399,17 @@ export async function connect(
 /**
  * Runs a Studio command with shared setup and telemetry reporting.
  */
-export async function run(options: StudioOptions, action: () => Promise<unknown>, { block = false, json = false } = {}): Promise<void> {
-  // The machine secret lives here and pairing binds it, so storage is installed before anything
-  // reads `getMachineToken()`, which `startPairing` does, before any client exists.
-  setStorage(createFileStorage(getProjectKubbHome()))
-
+export async function run({
+  options,
+  action,
+  block = false,
+  json = false,
+}: {
+  options: Pick<StudioOptions, 'logLevel'>
+  action: () => Promise<unknown>
+  block?: boolean
+  json?: boolean
+}): Promise<void> {
   const report = trackRun({ command: 'studio', hrStart: process.hrtime() })
 
   try {

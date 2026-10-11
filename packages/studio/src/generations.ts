@@ -1,8 +1,9 @@
 import { createHash } from 'node:crypto'
 import { isAbsolute, relative, resolve, sep } from 'node:path'
+import process from 'node:process'
 import { inParallel } from '@internals/utils'
-import { fsStorage, type Storage } from '@kubb/core'
-import type { FilePage, FileSource, ReadFilesResult } from '../protocol/index.ts'
+import { type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
+import type { FilePage, FileSource, ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
 const MB = 1024 * 1024
@@ -38,13 +39,72 @@ type KeptGeneration = {
   keptAt?: number
   output: KeptSet
   disk?: KeptSet
-  peerDependencies: Record<string, string>
-  missingDependencies: Array<string>
 }
 
-const hashOf = (content: string) => createHash('sha1').update(content).digest('hex').slice(0, 16)
+/**
+ * The content fingerprint Studio compares snapshots by. Agent runs and CI uploads must agree on it.
+ */
+export const hashOf = (content: string) => createHash('sha1').update(content).digest('hex').slice(0, 16)
 
 const totalBytes = (entries: Array<KeptGeneration>) => entries.reduce((sum, { output, disk }) => sum + output.bytes + (disk?.bytes ?? 0), 0)
+
+function positiveNumber(value: string | undefined): number | undefined {
+  const parsed = Number(value)
+  return value && Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
+}
+
+/**
+ * How many generations an agent keeps and how large they may get, read from
+ * `KUBB_AGENT_MAX_GENERATIONS`, `KUBB_AGENT_MAX_GENERATIONS_MB` and `KUBB_AGENT_MAX_SNAPSHOT_MB`.
+ * An unset or invalid value keeps the default.
+ */
+export function resolveGenerationLimits(): { maxCount: number; maxMb: number; maxSnapshotMb: number } {
+  return {
+    maxCount: Math.max(1, Math.floor(positiveNumber(process.env.KUBB_AGENT_MAX_GENERATIONS) ?? 8)),
+    maxMb: positiveNumber(process.env.KUBB_AGENT_MAX_GENERATIONS_MB) ?? 100,
+    maxSnapshotMb: positiveNumber(process.env.KUBB_AGENT_MAX_SNAPSHOT_MB) ?? 50,
+  }
+}
+
+/**
+ * Folds error-severity diagnostics into one thrown error so logs name the failing plugin or pass.
+ */
+function generationFailure(diagnostics: ReadonlyArray<Diagnostic>): Error {
+  const reasons = diagnostics
+    .filter(Diagnostics.isProblem)
+    .filter((diagnostic) => diagnostic.severity === 'error')
+    .map((diagnostic) => (diagnostic.plugin ? `${diagnostic.plugin}: ${diagnostic.message}` : diagnostic.message))
+
+  if (!reasons.length) return new Error('Generation failed')
+
+  return new Error(`Generation failed: ${reasons.length} error${reasons.length === 1 ? '' : 's'}: ${reasons.join('; ')}`)
+}
+
+/**
+ * Runs one generation and returns the files it produced. The formatter, the linter, and
+ * `output.postGenerate` only run with `allowExec`. Throws when any plugin reports an error.
+ */
+export async function generate({
+  config,
+  hooks,
+  signal,
+  allowExec,
+}: {
+  config: Config
+  hooks?: Hookable<KubbHooks>
+  signal?: AbortSignal
+  allowExec: boolean
+}): Promise<SourceFiles> {
+  const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
+  const result = await createKubb({ ...config, output }, { hooks, signal }).generate()
+  if (!result.success) throw generationFailure(result.diagnostics)
+
+  return {
+    storage: config.storage,
+    root: config.root,
+    paths: new Set(result.files.map((file) => relativeStoragePath({ root: config.root, filePath: file.path }))),
+  }
+}
 
 /**
  * What the output directory holds on disk before a run. `undefined` when `outputPath` is not a real
@@ -139,9 +199,6 @@ export function createGenerationStore({
     keep,
     drop,
     get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId && isLive(generation)),
-    latest: async () => (await load()).filter(isLive).at(-1),
-    /** Total bytes of every set the store holds, expired ones too until the next add drops them. */
-    bytes: async () => totalBytes(await load()),
     async add(generation: KeptGeneration): Promise<void> {
       const current = await load()
       for (const expired of current.filter((entry) => !isLive(entry))) await drop(expired.jobId)

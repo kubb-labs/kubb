@@ -1,8 +1,8 @@
+import { hash } from 'node:crypto'
 import { setTimeout as delay } from 'node:timers/promises'
 import { toError } from '@internals/utils'
 import { ofetch } from 'ofetch'
-import { agentDefaults } from './constants.ts'
-import { getMachineToken } from './machine.ts'
+import { defaultStudioUrl, secureUrl } from './url.ts'
 
 /**
  * RFC 8628 device-authorization response from Studio's `/api/auth/device/code` endpoint.
@@ -17,7 +17,7 @@ export type PairingSession = {
   interval: number
 }
 
-export type PairingResult = {
+type PairingResult = {
   /**
    * Bearer token for this machine. Write credentials with mode 0600 and never log the value.
    */
@@ -46,7 +46,7 @@ export type PairingResult = {
  * What this machine registers as. Any member may approve `cli` (`kubb studio`); only an admin may
  * approve `user` and `sandbox` (the Docker image). A `ci` agent never pairs.
  */
-export type PairingAgentType = 'cli' | 'user' | 'sandbox'
+type PairingAgentType = 'cli' | 'user' | 'sandbox'
 
 /** Labels, not secrets: a person approving the code in the browser is what authorizes a pairing. */
 const CLIENT_IDS = { cli: 'kubb-cli', agent: 'kubb-agent' } as const
@@ -88,29 +88,35 @@ type StartPairingOptions = {
   name: string
   hostname: string
   /**
+   * A stable secret the host keeps for this machine. Studio stores its hash against the agent, so
+   * the same machine pairing again rotates one agent's token instead of creating a second agent.
+   */
+  machineId: string
+  /**
    * Aborting this cancels the request in flight and rejects with {@link PairingCanceledError}.
    */
   signal?: AbortSignal
 }
 
 /**
- * Asks Studio for a pairing code. The machine token travels with the request and is stored against
- * the code, so approval knows which machine it is pairing: the same machine pairing twice rotates
- * one agent's token instead of creating a second agent.
+ * Asks Studio for a pairing code, sending the hashed machine id with it.
  */
-export async function startPairing({ studioUrl = agentDefaults.studioUrl, type, name, hostname, signal }: StartPairingOptions): Promise<PairingSession> {
+export async function startPairing({ studioUrl = defaultStudioUrl, type, name, hostname, machineId, signal }: StartPairingOptions): Promise<PairingSession> {
   try {
-    return await ofetch<PairingSession>(`${studioUrl}/api/auth/device/code`, {
+    const pairing = await ofetch<PairingSession>(secureUrl({ studioUrl, path: '/api/auth/device/code' }).href, {
       method: 'POST',
       body: {
         client_id: type === 'cli' ? CLIENT_IDS.cli : CLIENT_IDS.agent,
         name,
         hostname,
-        machine_token: await getMachineToken(),
+        machine_token: hash('sha256', machineId),
         agent_kind: type === 'cli' ? undefined : type,
       },
       signal,
     })
+    if (typeof pairing?.device_code !== 'string') throw new Error('Kubb Studio returned no pairing code')
+
+    return pairing
   } catch (error) {
     if (signal?.aborted) {
       throw new PairingCanceledError()
@@ -145,8 +151,8 @@ type PollResponse =
       error_description?: string
     }
 
-function isPairingResult(response: PollResponse | undefined): response is PairingResult {
-  return !!response && typeof response === 'object' && 'token' in response && typeof response.token === 'string'
+function isPairingResult(response: PollResponse): response is PairingResult {
+  return 'token' in response && typeof response.token === 'string'
 }
 
 /**
@@ -159,7 +165,7 @@ function isPairingResult(response: PollResponse | undefined): response is Pairin
  * @throws {PairingDeniedError} when the pairing is denied in the browser.
  * @throws {PairingCanceledError} when `signal` aborts.
  */
-export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl, session, signal, onRetry }: PollOptions): Promise<PairingResult> {
+export async function pollForPairingToken({ studioUrl = defaultStudioUrl, session, signal, onRetry }: PollOptions): Promise<PairingResult> {
   // Both fields cross the network, so neither is trusted as-is: a missing or zero `interval` would
   // spin the poll loop, and a missing or zero `expires_in` would expire the code before the first
   // poll. `> 0` is also false for `NaN` and for a missing field, so it doubles as the type guard.
@@ -177,16 +183,17 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
       throw new PairingCanceledError()
     }
 
-    let response: PollResponse | undefined
+    let response: PollResponse
     try {
-      response = await ofetch<PollResponse | undefined>(`${studioUrl}/api/agent/token`, {
+      // A denial, an expiry, and "not yet" all come back as 4xx with a body to switch on.
+      const { status, _data } = await ofetch.raw<PollResponse>(secureUrl({ studioUrl, path: '/api/agent/token' }).href, {
         method: 'POST',
         body: { device_code: session.device_code },
-        // A denial, an expiry, and "not yet" all come back as 4xx with a body the caller needs to
-        // read, so let every response through and switch on `error` instead of catching.
-        ignoreResponseError: true,
         signal,
+        ignoreResponseError: true,
       })
+      if (status >= 500 || !_data || typeof _data !== 'object') throw new Error(`Kubb Studio answered with status ${status}`)
+      response = _data
     } catch (error) {
       if (signal?.aborted) {
         throw new PairingCanceledError()
@@ -201,7 +208,7 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
       return response
     }
 
-    if (!response || typeof response !== 'object' || !('error' in response) || typeof response.error !== 'string') {
+    if (!('error' in response) || typeof response.error !== 'string') {
       throw new Error('Kubb Studio returned an empty pairing response, pair again')
     }
 

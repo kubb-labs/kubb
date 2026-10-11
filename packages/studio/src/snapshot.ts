@@ -1,14 +1,20 @@
-import { createHash } from 'node:crypto'
-import { glob, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join, relative, sep } from 'node:path'
+import { join, resolve } from 'node:path'
 import { promisify } from 'node:util'
 import { gzip } from 'node:zlib'
-import { build } from 'tsdown'
-import { isLoopbackHost } from './url.ts'
+import { type Config, fsStorage, type Hookable, type KubbHooks } from '@kubb/core'
+import { type FetchResponse, ofetch } from 'ofetch'
+import { generate, hashOf } from './generations.ts'
+import { MAX_SNAPSHOT_BYTES, type PublishedSnapshot, type SnapshotUploadMetadata } from './protocol.ts'
+import { resolvePeerDependencies } from './resolveConfig.ts'
+import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const gzipAsync = promisify(gzip)
 const UPLOAD_TIMEOUT_MS = 120_000
+
+// Plugins whose output a snapshot carries without depending on the plugin package.
+const BUNDLED_DEPENDENCIES = ['@kubb/plugin-barrel']
 
 type SnapshotFiles = Record<string, string>
 type SnapshotPackage = { name: string; version: string; peerDependencies: Record<string, string> }
@@ -59,13 +65,8 @@ function header(path: string, size: number): Buffer {
   value.write('0000000\0', 108, 'ascii')
   value.write('0000000\0', 116, 'ascii')
   value.write(`${size.toString(8).padStart(11, '0')}\0`, 124, 'ascii')
-  value.write(
-    `${Math.floor(Date.now() / 1000)
-      .toString(8)
-      .padStart(11, '0')}\0`,
-    136,
-    'ascii',
-  )
+  // npm's fixed mtime, so the same files always pack to the same integrity.
+  value.write('03560116604\0', 136, 'ascii')
   value.fill(32, 148, 156)
   value.write('0', 156, 'ascii')
   value.write('ustar\0', 257, 'ascii')
@@ -82,7 +83,7 @@ function header(path: string, size: number): Buffer {
  * Packs a generation's files into a gzipped, npm-installable tarball: a `package/` root with the
  * generated sources, a `tsdown`-built `dist/` (esm + cjs), and a `package.json` manifest.
  */
-export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: SnapshotPackage): Promise<{ bytes: Buffer; integrity: string }> {
+export async function createSnapshotPackage({ files, packageInfo }: { files: SnapshotFiles; packageInfo: SnapshotPackage }): Promise<Buffer> {
   const root = await mkdtemp(join(tmpdir(), 'kubb-snapshot-'))
   const dist = join(root, 'dist')
 
@@ -109,7 +110,9 @@ export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: S
       }),
     )
     const sourceEntries = resolvedPaths.filter(({ name }) => /\.(?:[cm]?[jt]sx?)$/.test(name)).map(({ target }) => join(root, target.slice('package/'.length)))
-    if (sourceEntries.length)
+    if (sourceEntries.length) {
+      // Loaded on first use: tsdown is large, and most agent processes never pack a snapshot.
+      const { build } = await import('tsdown')
       await build({
         entry: sourceEntries,
         outDir: dist,
@@ -124,17 +127,9 @@ export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: S
         // infers it from the nearest ancestor package.json, which differs by host).
         fixedExtension: true,
       })
+    }
     const builtEntries = await Promise.all(
-      (await Array.fromAsync(glob('**/*', { cwd: dist, withFileTypes: true })))
-        .filter((entry) => entry.isFile())
-        .map(async (entry) => {
-          // `unbundle: true` preserves dist's own subdirectory structure, so the archive path must
-          // follow suit: `entry.name` alone is just the basename and would flatten (and collide)
-          // nested output files.
-          const filePath = join(entry.parentPath, entry.name)
-          const distRelativePath = relative(dist, filePath).split(sep).join('/')
-          return [`package/dist/${distRelativePath}`, await readFile(filePath, 'utf8')] as const
-        }),
+      (await fsStorage().readKeys(dist)).map(async (key) => [`package/dist/${key}`, await readFile(join(dist, key), 'utf8')] as const),
     )
     // Without `@kubb/plugin-barrel` the build produces no `dist/index.*`, so pointing
     // `main`/`module`/`exports['.']` at it would ship a manifest with missing files.
@@ -166,39 +161,99 @@ export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: S
       chunks.push(header(name, bytes.length), bytes, Buffer.alloc((512 - (bytes.length % 512)) % 512))
     }
 
-    const bytes = await gzipAsync(Buffer.concat([...chunks, Buffer.alloc(1024)]))
-    return { bytes, integrity: `sha512-${createHash('sha512').update(bytes).digest('base64')}` }
+    return await gzipAsync(Buffer.concat([...chunks, Buffer.alloc(1024)]))
   } finally {
     await rm(root, { recursive: true, force: true })
   }
 }
 
-export async function uploadSnapshot({
-  bytes,
-  uploadPath,
-  studioUrl,
-  token,
-  shutdown,
-}: {
-  bytes: Buffer
-  uploadPath: string
-  studioUrl: string
-  token: string
-  shutdown?: AbortSignal
-}): Promise<void> {
-  const uploadUrl = new URL(uploadPath, studioUrl)
-  if (uploadUrl.origin !== new URL(studioUrl).origin) throw new Error('Snapshot upload path must stay on the Studio origin')
+type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'peerDependencies'> & {
+  studioUrl?: string
+  /**
+   * Organization CI API key, sent as `x-api-key`.
+   */
+  apiKey: string
+  /**
+   * The project's Kubb config. Like `kubb generate`, it writes to `output.path`, then runs the
+   * formatter, the linter, and `output.postGenerate`.
+   */
+  config: Config
+  hooks?: Hookable<KubbHooks>
+  signal?: AbortSignal
+}
+
+type UploadResponse = { snapshot?: PublishedSnapshot; message?: string; data?: { upgradeUrl?: string } }
+
+function failureMessage({ status, _data }: FetchResponse<UploadResponse>): string {
+  const upgrade = _data?.data?.upgradeUrl ? ` Upgrade at ${_data.data.upgradeUrl}.` : ''
+
+  return `Kubb Studio refused the snapshot (status ${status})${_data?.message ? `: ${_data.message}` : ''}.${upgrade}`
+}
+
+/**
+ * Generates the project, packs it as an npm tarball, and publishes it to Studio in one
+ * `POST /api/snapshots` request.
+ *
+ * @example
+ * ```ts
+ * const snapshot = await createSnapshot({
+ *   apiKey: process.env.KUBB_TOKEN!,
+ *   config,
+ *   id: 'gh:123:pr-4',
+ *   name: 'acme/api#4',
+ *   packageName: '@acme/api',
+ *   version: '1.0.0',
+ * })
+ * console.log(snapshot.url, snapshot.changes)
+ * ```
+ */
+export async function createSnapshot({
+  studioUrl = defaultStudioUrl,
+  apiKey,
+  config,
+  hooks,
+  signal,
+  ...metadata
+}: CreateSnapshotOptions): Promise<PublishedSnapshot> {
+  const url = secureUrl({ studioUrl, path: '/api/snapshots' })
+  const generated = await generate({ config, hooks, signal, allowExec: true })
+  const files = Object.fromEntries(
+    await Promise.all(
+      [...generated.paths].map(async (path) => {
+        const content = await generated.storage.readItem(resolve(generated.root, path))
+        if (content === null) throw new Error(`The generation listed ${path} but did not keep its content`)
+        return [path, content] as const
+      }),
+    ),
+  )
+  const { peerDependencies, missingDependencies } = await resolvePeerDependencies(config.plugins.map(({ name }) => name))
+  // The package would declare no version for a plugin that is not installed.
+  const missing = missingDependencies.filter((dependency) => !BUNDLED_DEPENDENCIES.includes(dependency))
+  if (missing.length) throw new Error(`Missing dependencies: ${missing.join(', ')}`)
+
+  const bytes = await createSnapshotPackage({ files, packageInfo: { name: metadata.packageName, version: metadata.version, peerDependencies } })
+  if (bytes.length > MAX_SNAPSHOT_BYTES) {
+    throw new Error(`The snapshot is ${Math.ceil(bytes.length / 1024 / 1024)} MB, over the ${MAX_SNAPSHOT_BYTES / 1024 / 1024} MB limit`)
+  }
+
+  const hashes = Object.fromEntries(Object.entries(files).map(([path, content]) => [path, hashOf(content)]))
+  const body = new FormData()
+  body.set('metadata', JSON.stringify({ ...metadata, hashes, peerDependencies } satisfies SnapshotUploadMetadata))
+  body.set('tarball', new Blob([new Uint8Array(bytes)], { type: 'application/gzip' }), 'snapshot.tgz')
 
   const timeout = AbortSignal.timeout(UPLOAD_TIMEOUT_MS)
-  const signal = shutdown ? AbortSignal.any([shutdown, timeout]) : timeout
-  const redirect = await fetch(uploadUrl, { method: 'PUT', headers: { Authorization: `Bearer ${token}` }, redirect: 'manual', signal })
-  const storageUrl = redirect.headers.get('location')
-  if (redirect.status !== 307 || !storageUrl) throw new Error(`Studio did not provide a storage URL (status ${redirect.status})`)
+  // A redirect would forward the CI key and tarball to wherever it points.
+  const response = await ofetch.raw<UploadResponse>(url.href, {
+    method: 'POST',
+    headers: { 'x-api-key': apiKey },
+    body,
+    redirect: 'error',
+    signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
+    ignoreResponseError: true,
+  })
+  if (!response.ok) throw new Error(failureMessage(response))
 
-  const storage = new URL(storageUrl)
-  if (storage.protocol !== 'https:' && !isLoopbackHost(storage.hostname)) {
-    throw new Error(`Refusing snapshot upload to ${storage.origin}`)
-  }
-  const response = await fetch(storage, { method: 'PUT', body: new Uint8Array(bytes), redirect: 'error', signal })
-  if (!response.ok) throw new Error(`Snapshot upload failed with status ${response.status}`)
+  const snapshot = response._data?.snapshot
+  if (!snapshot) throw new Error(`Kubb Studio returned no snapshot (status ${response.status})`)
+  return snapshot
 }

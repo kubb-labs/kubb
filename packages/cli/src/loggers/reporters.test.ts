@@ -124,27 +124,24 @@ describe('studio session events', () => {
     return lines
   }
 
-  it('names both sides on connect, so a version mismatch is visible', async () => {
+  it('names both sides on connect, so a version mismatch is visible, then waits for jobs', async () => {
     const lines = await render((context) =>
-      context.callHook('studio:connected', { url: 'http://localhost:3000', versions: { studio: '5.1.0', kubb: '5.0.6', agent: '5.0.6' } }),
+      context.callHook('studio:connected', {
+        url: 'http://localhost:3000',
+        versions: { studio: '5.1.0', kubb: '5.0.6', agent: '5.0.6' },
+        sandbox: false,
+        agentSlug: 'brave-otter',
+        studioVersion: '5.1.0',
+      }),
     )
 
-    expect(lines).toStrictEqual(['✓ Connected to http://localhost:3000 (v5.0.6, Studio v5.1.0)'])
-  })
-
-  it('reports readiness once Studio confirms registration', async () => {
-    const lines = await render((context) => context.callHook('studio:ready', {}))
-
-    expect(lines).toStrictEqual(['✓ Ready to receive jobs'])
+    expect(lines).toStrictEqual(['✓ Connected to http://localhost:3000 (v5.0.6, Studio v5.1.0)', '✓ Ready to receive jobs'])
   })
 
   it('reports a command and what it did', async () => {
-    const lines = await render(async (context) => {
-      await context.callHook('studio:command:start', { command: 'save' })
-      await context.callHook('studio:command:end', { command: 'save', info: 'applied 2/3 edits to kubb.config.ts' })
-    })
+    const lines = await render((context) => context.callHook('studio:command', { command: 'saveConfig', info: 'applied 2/3 edits to kubb.config.ts' }))
 
-    expect(lines).toStrictEqual(['Kubb Studio asked to save', '✓ Finished save (applied 2/3 edits to kubb.config.ts)', '✓ Ready to receive jobs'])
+    expect(lines).toStrictEqual(['✓ Finished saveConfig (applied 2/3 edits to kubb.config.ts)', '✓ Ready to receive jobs'])
   })
 
   it('announces a retry instead of leaving the runtime to print it', async () => {
@@ -163,7 +160,7 @@ describe('studio session events', () => {
 
   it('drops everything but errors at silent', async () => {
     const lines = await render(async (context) => {
-      await context.callHook('studio:connecting', { url: 'http://localhost:3000' })
+      await context.callHook('studio:disconnected', { code: 1006, reason: '' })
       await context.callHook('studio:warn', { message: 'Ignored save' })
       // A failure stays visible, or the command exits without saying why.
       await context.callHook('studio:error', { error: new Error('token revoked') })
