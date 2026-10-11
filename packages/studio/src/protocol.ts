@@ -466,7 +466,9 @@ export type ConnectMessagePayload = {
      */
     file?: ConfigFileView
     /**
-     * Plugins the config registers, with their serialized options.
+     * Plugins the config registers, with a JSON copy of their options: anything JSON cannot hold,
+     * such as a function, is left out. A plugin defined in the project rather than installed as a
+     * `@kubb/plugin-*` package keeps its own `name`.
      */
     plugins?: Array<{
       name: string

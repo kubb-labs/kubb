@@ -190,6 +190,19 @@ describe('the handshake', () => {
   })
 })
 
+describe('plugin options in the handshake', () => {
+  it('sends a JSON copy, so no function in the user config reaches Studio', async () => {
+    const config = projectConfig()
+    const name = (group: string) => `${group}Service`
+    config.plugins[0]!.options = { output: { path: 'types' }, group: { type: 'tag', name } }
+    const { agent } = await connectStudio({ loadConfig: async () => config })
+
+    const payload = await agent.connect(info)
+
+    expect(payload.config.plugins).toStrictEqual([{ name: '@kubb/plugin-barrel', options: { output: { path: 'types' }, group: { type: 'tag' } } }])
+  })
+})
+
 describe('close codes', () => {
   it('rejects with InvalidAgentTokenError when Studio refuses the token', async () => {
     const { socket, done } = await connectStudio()

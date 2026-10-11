@@ -33,7 +33,7 @@ import {
   type SaveResult,
   type StudioApi,
 } from './protocol.ts'
-import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
+import { mergeAdapter, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
@@ -267,7 +267,13 @@ class Agent extends RpcTarget implements AgentApi {
     return {
       versions: { kubb: kubbVersion, agent: version },
       root,
-      config: { path: configPath, file, plugins: config.plugins.map((plugin) => ({ name: toPackageName(plugin.name), options: plugin.options ?? {} })) },
+      // Copied through JSON: Cap'n Web would otherwise pass every function in the options as a stub
+      // Studio could call, running the user's config code in this process.
+      config: {
+        path: configPath,
+        file,
+        plugins: config.plugins.map((plugin) => ({ name: toStudioName({ name: plugin.name, root }), options: toJSONOptions(plugin.options) })),
+      },
       permissions: this.#permissions,
     }
   }
