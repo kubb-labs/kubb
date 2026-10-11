@@ -24,10 +24,7 @@
     },
     "start": {
       "dependsOn": [
-        "^start"
-      ],
-      "outputs": [
-        "dist/**"
+        "^build"
       ],
       "cache": false,
       "persistent": true
