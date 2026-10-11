@@ -1,4 +1,7 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { mkdtemp, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as prompts from '@clack/prompts'
 import * as utils from '@internals/utils'
 import type { Config } from '@kubb/core'
@@ -70,9 +73,17 @@ function stubProject({ stored = null, ci = false, tty = true }: ProjectOptions =
   }
 }
 
-afterEach(() => {
+let home: string
+
+beforeEach(async () => {
+  home = await mkdtemp(path.join(tmpdir(), 'kubb-home-'))
+  vi.stubEnv('KUBB_HOME', home)
+})
+
+afterEach(async () => {
   vi.unstubAllEnvs()
   vi.resetAllMocks()
+  await rm(home, { recursive: true, force: true })
 })
 
 /**

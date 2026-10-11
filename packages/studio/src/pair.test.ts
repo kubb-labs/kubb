@@ -82,28 +82,19 @@ describe('pollForPairingToken', () => {
     expect(warn).not.toHaveBeenCalled()
   })
 
-  it('keeps polling when a proxy answers a deploy with a 5xx page instead of JSON', async () => {
+  it.each([
+    ['a proxy answers a deploy with a 5xx page instead of JSON', new Response('<html>Bad Gateway</html>', { status: 502 }), 502],
+    ['Studio answers with a null JSON body', createMockResponse(null, 400), 400],
+  ])('keeps polling when %s', async (_case, first, status) => {
     const onRetry = vi.fn()
     const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
-    fetchMock.mockResolvedValueOnce(new Response('<html>Bad Gateway</html>', { status: 502 })).mockResolvedValueOnce(createMockResponse(result))
+    fetchMock.mockResolvedValueOnce(first).mockResolvedValueOnce(createMockResponse(result))
 
     const promise = pollForPairingToken({ studioUrl: 'https://studio.test', session, onRetry })
     await vi.runAllTimersAsync()
 
     await expect(promise).resolves.toEqual(result)
-    expect(onRetry).toHaveBeenCalledWith(expect.objectContaining({ message: 'Kubb Studio answered with status 502' }))
-  })
-
-  it('keeps polling when Studio answers with a null JSON body', async () => {
-    const onRetry = vi.fn()
-    const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
-    fetchMock.mockResolvedValueOnce(createMockResponse(null, 400)).mockResolvedValueOnce(createMockResponse(result))
-
-    const promise = pollForPairingToken({ studioUrl: 'https://studio.test', session, onRetry })
-    await vi.runAllTimersAsync()
-
-    await expect(promise).resolves.toEqual(result)
-    expect(onRetry).toHaveBeenCalledWith(expect.objectContaining({ message: 'Kubb Studio answered with status 400' }))
+    expect(onRetry).toHaveBeenCalledWith(expect.objectContaining({ message: `Kubb Studio answered with status ${status}` }))
   })
 
   it('rejects with PairingCanceledError when the signal aborts during the wait between polls', async () => {
