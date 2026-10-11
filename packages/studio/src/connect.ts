@@ -146,9 +146,7 @@ type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal'>> & {
   configFile: string
 }
 
-type RpcClose = { code: number; reason: string }
-
-type Rpc = { studio: StudioApi; closed: Promise<RpcClose>; close: () => void }
+type Rpc = { studio: StudioApi; closed: Promise<{ code: number; reason: string }>; close: () => void }
 
 // Tests swap in an in-process pair.
 export type OpenRpc = (input: { url: URL; token: string; instanceId: string; agent: AgentApi }) => Rpc
@@ -171,30 +169,28 @@ function isValidPage({ cursor, limit }: Pick<ReadFilesInput, 'cursor' | 'limit'>
   return Number.isSafeInteger(limit) && limit >= 1 && limit <= MAX_PAGE_LINES
 }
 
-class GenerationRunTarget extends RpcTarget implements GenerationRun {
-  readonly #stream: ReadableStream<GenerationEvent>
-  readonly #result: Promise<GenerateResult>
-  readonly #stop: () => void
+type RunHandle = { stream: ReadableStream<GenerationEvent>; result: Promise<GenerateResult>; stop: () => void }
 
-  constructor({ stream, result, stop }: { stream: ReadableStream<GenerationEvent>; result: Promise<GenerateResult>; stop: () => void }) {
+class GenerationRunTarget extends RpcTarget implements GenerationRun {
+  readonly #run: RunHandle
+
+  constructor(run: RunHandle) {
     super()
-    this.#stream = stream
-    this.#result = result
-    this.#stop = stop
+    this.#run = run
   }
 
   async events() {
-    return this.#stream
+    return this.#run.stream
   }
   result() {
-    return this.#result
+    return this.#run.result
   }
   async cancel() {
-    this.#stop()
+    this.#run.stop()
   }
   // Cap'n Web also calls this when the peer session is torn down, so a dropped socket stops the run.
   [Symbol.dispose]() {
-    this.#stop()
+    this.#run.stop()
   }
 }
 
@@ -215,16 +211,10 @@ class Agent extends RpcTarget implements AgentApi {
     return this.#session.info?.sandbox === true
   }
 
-  get #canWrite(): boolean {
-    return !this.#sandbox && this.#options.permissions.allowWrite
-  }
-
-  get #canEditConfig(): boolean {
-    return !this.#sandbox && this.#options.permissions.allowConfigEdit
-  }
-
-  get #canRead(): boolean {
-    return this.#sandbox || this.#options.permissions.allowRead
+  // A sandbox has no project to write to or edit, and Studio may always read what it generated there.
+  get #permissions(): AgentPermissions {
+    const { permissions } = this.#options
+    return this.#sandbox ? { ...permissions, allowWrite: false, allowConfigEdit: false, allowRead: true } : permissions
   }
 
   // Kept in the project's cache directory so it survives a restart. A sandbox keeps them in memory,
@@ -243,8 +233,9 @@ class Agent extends RpcTarget implements AgentApi {
     return emit(this.#options.hooks, 'studio:warn', { message, permission })
   }
 
-  async #refuse({ reason, message, permission }: { reason: string; message: string; permission?: keyof AgentPermissions }): Promise<never> {
-    await this.#warn({ message: reason, permission })
+  // Studio shows the thrown message, and the host logs the same text.
+  async #refuse({ message, permission }: { message: string; permission?: keyof AgentPermissions }): Promise<never> {
+    await this.#warn({ message, permission })
     throw new Error(message)
   }
 
@@ -257,7 +248,7 @@ class Agent extends RpcTarget implements AgentApi {
 
   // Not cached: the user can edit the file between two Studio actions.
   async #readConfigFileView(source?: string): Promise<ConfigFileView | undefined> {
-    if (!this.#canEditConfig) return undefined
+    if (!this.#permissions.allowConfigEdit) return undefined
 
     try {
       return readConfig(source ?? (await read(this.#options.configFile)))
@@ -269,7 +260,7 @@ class Agent extends RpcTarget implements AgentApi {
 
   async connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
     this.#session.info = info
-    const { configPath, root, version, loadConfig, permissions } = this.#options
+    const { configPath, root, version, loadConfig } = this.#options
     const [config, file] = await Promise.all([loadConfig(), this.#readConfigFileView()])
     this.#session.connected.resolve(info)
 
@@ -277,7 +268,7 @@ class Agent extends RpcTarget implements AgentApi {
       versions: { kubb: kubbVersion, agent: version },
       root,
       config: { path: configPath, file, plugins: config.plugins.map((plugin) => ({ name: toPackageName(plugin.name), options: plugin.options ?? {} })) },
-      permissions: { ...permissions, allowWrite: this.#canWrite, allowConfigEdit: this.#canEditConfig, allowRead: this.#canRead },
+      permissions: this.#permissions,
     }
   }
 
@@ -285,10 +276,7 @@ class Agent extends RpcTarget implements AgentApi {
     const stream = createGenerationStream(this.#options.hooks, input.jobId)
     const controller = new AbortController()
     const result = this.#runGeneration(input, controller).then(
-      async (value) => {
-        await stream.close()
-        return value
-      },
+      (value) => stream.close().then(() => value),
       (error: unknown) => {
         stream.fail(error)
         throw error
@@ -310,12 +298,7 @@ class Agent extends RpcTarget implements AgentApi {
   async #runGeneration(input: GenerateInput, controller: AbortController): Promise<GenerateResult> {
     // Checked before the first `await`, so two calls in the same tick can't both pass.
     if (this.#session.closed) throw new Error('Connection is closed')
-    if (this.#session.active) {
-      return this.#refuse({
-        reason: 'Ignored generate: a generation is already in progress',
-        message: 'A generation is already in progress, please wait for it to finish',
-      })
-    }
+    if (this.#session.active) return this.#refuse({ message: 'A generation is already in progress, please wait for it to finish' })
     const settled = Promise.withResolvers<void>()
     this.#session.active = { jobId: input.jobId, abort: () => controller.abort(new Error('Generation canceled')), settled: settled.promise }
     let root = this.#options.root
@@ -345,12 +328,12 @@ class Agent extends RpcTarget implements AgentApi {
       await this.#warn({ message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent' })
     }
 
-    const hasProjectOnDisk = !this.#sandbox && this.#canRead
+    const hasProjectOnDisk = !this.#sandbox && this.#options.permissions.allowRead
     const diskFiles = hasProjectOnDisk ? await listDisk({ root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES }) : undefined
     const disk = diskFiles ? await this.#generations.keep({ jobId, source: 'disk', files: diskFiles, maxSetMb: this.#limits.maxSnapshotMb }) : undefined
 
     const files = await generate({
-      config: { ...config, root, input: studioInput ?? config.input, storage: this.#canWrite ? fsStorage() : memoryStorage(), plugins, adapter },
+      config: { ...config, root, input: studioInput ?? config.input, storage: this.#permissions.allowWrite ? fsStorage() : memoryStorage(), plugins, adapter },
       hooks: this.#options.hooks,
       signal,
       allowExec: this.#options.permissions.allowExec,
@@ -373,7 +356,7 @@ class Agent extends RpcTarget implements AgentApi {
         hashes: output.hashes,
         disk: disk ? { hashes: disk.hashes } : undefined,
       },
-      info: `${plugins.length} plugin${plugins.length === 1 ? '' : 's'}, ${this.#canWrite ? 'written to disk' : 'in memory'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
+      info: `${plugins.length} plugin${plugins.length === 1 ? '' : 's'}, ${this.#permissions.allowWrite ? 'written to disk' : 'in memory'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
     }
   }
 
@@ -392,15 +375,13 @@ class Agent extends RpcTarget implements AgentApi {
     const edits = input.edits
     const refuse = (reason: string): SaveResult => ({ outcomes: edits.map((edit) => ({ edit, applied: false, reason })), changed: false })
 
-    if (!this.#canEditConfig) {
+    if (!this.#permissions.allowConfigEdit) {
       await this.#warn({ message: 'Ignored save: editing kubb.config.ts was not granted' })
       return { value: refuse('the agent was not granted permission to edit kubb.config.ts') }
     }
 
     // A running generation reloads the config, so it would see half the change.
-    if (this.#session.active) {
-      return { value: refuse('a generation is in progress') }
-    }
+    if (this.#session.active) return { value: refuse('a generation is in progress') }
 
     try {
       const { source, outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits })
@@ -422,45 +403,19 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   async #readFiles(input: ReadFilesInput): Promise<{ value: ReadFilesResult; info: string }> {
-    if (!this.#canRead) {
-      return this.#refuse({
-        reason: 'Ignored files: reading generated files was not granted',
-        message: 'The agent was not granted permission to read generated files',
-        permission: 'allowRead',
-      })
-    }
-    if (!Array.isArray(input.paths)) {
-      return this.#refuse({ reason: 'Ignored files: the message carried no paths', message: 'The request carried no paths' })
+    if (!this.#permissions.allowRead) return this.#refuse({ message: 'The agent was not granted permission to read generated files', permission: 'allowRead' })
+    if (!Array.isArray(input.paths) || typeof input.jobId !== 'string' || !input.jobId) {
+      return this.#refuse({ message: 'The request must name a job and carry paths' })
     }
     const { paths } = input
-    if (paths.length > MAX_FILES_PER_REQUEST) {
-      return this.#refuse({
-        reason: `Ignored files: requested ${paths.length} paths, more than the ${MAX_FILES_PER_REQUEST} allowed per request`,
-        message: `At most ${MAX_FILES_PER_REQUEST} paths may be requested at once`,
-      })
-    }
-    if (typeof input.jobId !== 'string' || !input.jobId) {
-      return this.#refuse({ reason: 'Ignored files: the message named no job', message: 'The request named no generation job' })
-    }
+    if (paths.length > MAX_FILES_PER_REQUEST) return this.#refuse({ message: `At most ${MAX_FILES_PER_REQUEST} paths may be requested at once` })
 
     const generation = await this.#generations.get(input.jobId)
-    if (!generation) {
-      return this.#refuse({ reason: `Ignored files: job ${input.jobId} is not kept on this agent`, message: GENERATION_GONE_MESSAGE })
-    }
-    if (!isValidPage(input)) {
-      return this.#refuse({
-        reason: 'Ignored files: the message carried an invalid page',
-        message: `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines`,
-      })
-    }
+    if (!generation) return this.#refuse({ message: GENERATION_GONE_MESSAGE })
+    if (!isValidPage(input)) return this.#refuse({ message: `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines` })
 
     const source = input.source === 'disk' ? 'disk' : 'output'
-    if (!generation[source]) {
-      return this.#refuse({
-        reason: 'Ignored files: that job has no snapshot of the files on disk',
-        message: 'This agent kept no snapshot of the files on disk for that job',
-      })
-    }
+    if (!generation[source]) return this.#refuse({ message: 'This agent kept no snapshot of the files on disk for that job' })
 
     // Only paths the set holds are read, never an arbitrary path.
     const result = await this.#generations.read({ generation, source, paths, cursor: input.cursor, limit: input.limit })
@@ -476,7 +431,7 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
   const timer = setTimeout(() => socket.close(3008, 'Connection timeout'), OPEN_TIMEOUT_MS)
   socket.addEventListener('open', () => clearTimeout(timer), { once: true })
 
-  const closed = new Promise<RpcClose>((resolve) => {
+  const closed = new Promise<Awaited<Rpc['closed']>>((resolve) => {
     socket.addEventListener('close', ({ code, reason }) => resolve({ code, reason }), { once: true })
     // Node fires only `error` when the handshake itself fails.
     socket.addEventListener('error', () => {
@@ -501,23 +456,22 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
   const { hooks, signal, heartbeatInterval, token, studioUrl, version } = options
   const session: Session = { connected: Promise.withResolvers(), closed: false }
   const rpc = openRpc({ url, token, instanceId, agent: new Agent(options, session) })
-  const stop = () => rpc.close()
-  signal?.addEventListener('abort', stop, { once: true })
+  signal?.addEventListener('abort', rpc.close, { once: true })
   let timer: ReturnType<typeof setTimeout> | undefined
 
   // Races each ping against a deadline, so a half-open socket can't hang it forever.
   const heartbeat = async (): Promise<void> => {
-    const ping = Promise.resolve(rpc.studio.ping())
-    void ping.catch(() => {})
     let deadline: ReturnType<typeof setTimeout> | undefined
-    try {
-      await Promise.race([ping, new Promise((_, reject) => (deadline = setTimeout(() => reject(new Error('Heartbeat timed out')), PING_TIMEOUT_MS)))])
-    } catch {
-      rpc.close()
-      return
-    } finally {
-      clearTimeout(deadline)
-    }
+    const timedOut = new Promise<boolean>((resolve) => (deadline = setTimeout(resolve, PING_TIMEOUT_MS, true)))
+    const failed = await Promise.race([
+      Promise.resolve(rpc.studio.ping()).then(
+        () => false,
+        () => true,
+      ),
+      timedOut,
+    ])
+    clearTimeout(deadline)
+    if (failed) return rpc.close()
     if (!session.closed) timer = setTimeout(heartbeat, heartbeatInterval)
   }
 
@@ -532,7 +486,7 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
   const close = await rpc.closed
   session.closed = true
   clearTimeout(timer)
-  signal?.removeEventListener('abort', stop)
+  signal?.removeEventListener('abort', rpc.close)
   session.connected.reject(new Error('The socket closed before Studio called connect()'))
   session.active?.abort()
   await session.active?.settled
