@@ -158,6 +158,12 @@ describe('studio session events', () => {
     expect(lines).toStrictEqual(['⚠ Ignored save: editing kubb.config.ts was not granted; pass --allow-config-edit to allow it'])
   })
 
+  it('says another process took over instead of printing the close code', async () => {
+    const lines = await render((context) => context.callHook('studio:disconnected', { code: 4002, reason: '' }))
+
+    expect(lines).toStrictEqual(['⚠ Another process connected to Kubb Studio as this agent, so this one stopped'])
+  })
+
   it('drops everything but errors at silent', async () => {
     const lines = await render(async (context) => {
       await context.callHook('studio:disconnected', { code: 1006, reason: '' })

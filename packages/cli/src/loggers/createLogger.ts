@@ -200,6 +200,10 @@ export function createLogger(writer: LoggerWriter): Logger {
       pluginLines: [] as Array<string>,
       phase: null as Phase | null,
       groupOpen: false,
+      /**
+       * Whether this run keeps its files in memory, as a `kubb studio` run without `--allow-write` does.
+       */
+      inMemory: false,
     }
 
     function text(message: string): string {
@@ -360,6 +364,11 @@ export function createLogger(writer: LoggerWriter): Logger {
       }
 
       stopSpinner()
+      // 4002 is `AgentCloseCode.SUPERSEDED`, spelled out because `@kubb/studio` is an optional peer.
+      if (code === 4002) {
+        writer.warn(text('⚠ Another process connected to Kubb Studio as this agent, so this one stopped'))
+        return
+      }
       writer.warn(text(`⚠ Kubb Studio ended the session (${reason || `code ${code}`})`))
     })
 
@@ -389,6 +398,7 @@ export function createLogger(writer: LoggerWriter): Logger {
       reset()
 
       state.totalPlugins = config.plugins?.length ?? 0
+      state.inMemory = config.storage?.name === 'memory'
 
       if (silent) {
         return
@@ -540,18 +550,18 @@ export function createLogger(writer: LoggerWriter): Logger {
         state.processedFiles = 0
 
         state.progress = writer.progress(files.length)
-        state.progress.start(text(`Writing ${pluralize(files.length, 'file')}`))
+        state.progress.start(text(`${state.inMemory ? 'Generating' : 'Writing'} ${pluralize(files.length, 'file')}`))
       })
 
       context.hook('kubb:files:processing:update', ({ files }) => {
         for (const { file, config } of files) {
           state.processedFiles++
-          state.progress?.advance(`Writing ${relative(config.root, file.path)}`)
+          state.progress?.advance(`${state.inMemory ? 'Generating' : 'Writing'} ${relative(config.root, file.path)}`)
         }
       })
 
       context.hook('kubb:files:processing:end', () => {
-        stopProgress(`Wrote ${pluralize(state.processedFiles, 'file')}`)
+        stopProgress(state.inMemory ? `Generated ${pluralize(state.processedFiles, 'file')} in memory` : `Wrote ${pluralize(state.processedFiles, 'file')}`)
       })
 
       context.hook('kubb:hook:start', ({ id }) => {
