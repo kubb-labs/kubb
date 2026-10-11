@@ -84,9 +84,6 @@ function header(path: string, size: number): Buffer {
  * generated sources, a `tsdown`-built `dist/` (esm + cjs), and a `package.json` manifest.
  */
 export async function createSnapshotPackage({ files, packageInfo }: { files: SnapshotFiles; packageInfo: SnapshotPackage }): Promise<Buffer> {
-  const root = await mkdtemp(join(tmpdir(), 'kubb-snapshot-'))
-  const dist = join(root, 'dist')
-
   // Resolved once so the sanitized target for each file is computed exactly one way, and any two
   // generated files that collide after sanitizing (e.g. `a/../index.ts` and `a/index.ts`) are
   // caught here instead of silently overwriting one another later.
@@ -99,6 +96,9 @@ export async function createSnapshotPackage({ files, packageInfo }: { files: Sna
     }
     targetOwners.set(target, name)
   }
+
+  const root = await mkdtemp(join(tmpdir(), 'kubb-snapshot-'))
+  const dist = join(root, 'dist')
 
   try {
     await mkdir(dist)
