@@ -139,7 +139,7 @@ export type ConfigFileView =
     }
 
 /**
- * Outcome of a single {@link ConfigEdit}, returned in a {@link ConfigSavedMessage}.
+ * Outcome of a single {@link ConfigEdit}, returned in a {@link SaveResult}.
  */
 export type ConfigEditOutcome = {
   edit: ConfigEdit
@@ -350,17 +350,6 @@ export type ReadFilesResult = { files: Record<string, string>; pages?: Record<st
 export const GENERATION_GONE_MESSAGE = 'The files of this generation are no longer kept on the agent, run the generation again'
 
 /**
- * Describes the package to pack and where to PUT it. `uploadPath` is resolved against the Studio
- * origin, so it cannot redirect the upload elsewhere.
- */
-export type PublishSnapshotInput = { name: string; version: string; bundledDependencies?: Array<string>; uploadPath: string }
-
-/**
- * Identifies the uploaded snapshot. `integrity` is the subresource hash Studio verifies against.
- */
-export type PublishSnapshotResult = { integrity: string; peerDependencies: Record<string, string> }
-
-/**
  * A generation in flight. Cap'n Web keeps the three calls pointed at the same run, so a caller can
  * read `events()` while `result()` is still pending and `cancel()` stops it early.
  */
@@ -371,79 +360,70 @@ export type GenerationRun = {
 }
 
 /**
- * Operations Studio can invoke on an agent through a host-provided RPC transport.
+ * What Studio knows about the agent on the other end of a socket. Studio passes it with every
+ * {@link AgentApi.connect} call, so it stays the authority on whether the agent is a sandbox.
  */
-export type AgentApi = {
-  connect: () => Promise<ConnectMessagePayload>
-  startGeneration: (input: GenerateInput) => GenerationRun
-  saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
-  publishSnapshot: (input: PublishSnapshotInput) => Promise<PublishSnapshotResult>
-  readFiles: (input: ReadFilesInput) => Promise<ReadFilesResult>
+export type AgentConnectInfo = {
   /**
-   * Cancels the job named by `jobId`, if it is the one this agent is currently running. Reachable
-   * by id alone, unlike {@link GenerationRun.cancel}, so a caller that no longer holds that object
-   * (Studio, after its own restart re-attaches to a job by id) can still cancel it.
+   * A shared `sandbox` or `global` agent. It keeps generations in memory, runs each job in a
+   * temporary root, generates from the spec Studio sends, and never writes to disk or edits config.
    */
-  cancel: (jobId: string) => Promise<void>
+  sandbox: boolean
+  agentSlug: string
+  /**
+   * Absent for a sandbox or global agent, which belongs to no organization.
+   */
+  organizationSlug?: string
+  studioVersion: string
 }
 
 /**
- * Operations an agent can invoke on Studio through a host-provided RPC transport.
+ * Operations Studio invokes on an agent over its socket.
+ */
+export type AgentApi = {
+  /**
+   * The first call on every socket, and again whenever Studio needs the current config.
+   */
+  connect: (info: AgentConnectInfo) => Promise<ConnectMessagePayload>
+  startGeneration: (input: GenerateInput) => GenerationRun
+  saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
+  readFiles: (input: ReadFilesInput) => Promise<ReadFilesResult>
+}
+
+/**
+ * Operations an agent invokes on Studio over its socket.
  */
 export type StudioApi = {
   /**
-   * Keeps the connection alive. `load` reports what the agent is carrying right now. Absent from an
-   * agent that predates it.
+   * Keeps the connection alive. A ping that does not settle in time makes the agent reconnect.
    */
-  ping: (load?: AgentLoad) => Promise<void>
+  ping: () => Promise<void>
 }
 
 /**
- * What an agent is carrying at one heartbeat.
- */
-export type AgentLoad = {
-  /** Jobs running on this connection right now. */
-  running: number
-  /** Resident memory of the agent process, in megabytes. */
-  rssMb: number
-  /** Bytes of past generations the agent keeps for file reads and snapshots. */
-  storeBytes: number
-  /** Whether the agent takes new jobs. Always `true` today; Studio skips a connection that reports `false`. */
-  accepting: boolean
-}
-
-/**
- * Close codes Studio sends when it ends an agent's connection on purpose. Any other code is an
- * ordinary drop, and the agent reconnects.
+ * Close codes Studio sends when it ends an agent socket on purpose. Any other code, `1011` for a
+ * Studio-side failure included, is an ordinary drop and the agent reconnects.
  */
 export const AgentCloseCode = {
-  /** Register again before reconnecting, such as after Studio forgot this agent's machine token. */
-  REAUTHENTICATE: 4001,
-  /** Another instance of the same agent took the connection over. Reconnecting would take it back. */
+  /** The token is invalid, expired, or revoked, or the agent was deleted. Pair again. */
+  UNAUTHORIZED: 4001,
+  /** Another process of the same agent took the connection over. Reconnecting would take it back. */
   SUPERSEDED: 4002,
-  /** This agent is too old for Studio, or was deleted. Reconnecting cannot succeed. */
+  /** This agent is older than Studio's minimum version. Reconnecting cannot succeed. */
   INCOMPATIBLE: 4003,
 } as const
 
 /**
- * Why a transport closed. Absent when the transport cannot tell, such as an in-process test pair.
+ * Path of the agent socket on the Studio origin.
  */
-export type RpcClose = { code: number; reason: string }
+export const AGENT_SOCKET_PATH = '/api/agent/socket'
 
 /**
- * A live RPC session. `closed` settles when the transport drops, whichever side ended it.
+ * Optional header naming which process of an agent a socket belongs to. Several processes may share
+ * one token (Docker replicas, sandbox pools). For a kind that allows only one, a new id supersedes
+ * the old socket with {@link AgentCloseCode.SUPERSEDED}.
  */
-export type RpcConnection = {
-  studio: StudioApi
-  closed: Promise<RpcClose | void>
-  close: () => void
-}
-
-/**
- * Opens a transport and hands both sides their peer. Swapping this is how a test drives a session
- * without a socket.
- */
-export type RpcConnector = (input: { url: string; token: string; instanceId: string; local: AgentApi }) => Promise<RpcConnection>
+export const AGENT_INSTANCE_HEADER = 'x-kubb-instance-id'
 
 /**
  * How many files a single `readFiles` request may ask for at once.
@@ -452,6 +432,11 @@ export const MAX_FILES_PER_REQUEST = 50
 
 /** Most lines one page may ask for. */
 export const MAX_PAGE_LINES = 2000
+
+/**
+ * Largest snapshot tarball Studio accepts.
+ */
+export const MAX_SNAPSHOT_BYTES = 50 * 1024 * 1024
 
 /**
  * Connection payload returned by {@link AgentApi.connect}. Carries only what Studio renders, with
@@ -473,8 +458,7 @@ export type ConnectMessagePayload = {
     agent: string
   }
   /**
-   * The agent's project root (`KUBB_AGENT_ROOT`, or the working directory when unset). This is the
-   * workspace that generation runs against.
+   * The agent's project root. This is the workspace that generation runs against.
    */
   root: string
   /**
@@ -482,7 +466,7 @@ export type ConnectMessagePayload = {
    */
   config: {
     /**
-     * The config path as configured (`KUBB_AGENT_CONFIG`), relative to `root` unless absolute.
+     * The config path as the host gave it, relative to `root` unless absolute.
      */
     path: string
     /**
@@ -504,18 +488,16 @@ export type ConnectMessagePayload = {
 
 /**
  * What an agent may do in the project it serves. Every one is off unless the host granted it, and
- * a sandbox session narrows them further.
+ * a sandbox narrows them further.
  */
 export type AgentPermissions = {
   /**
-   * Whether the agent writes generated files to disk. False for a sandbox agent. For a local
-   * agent it mirrors the agent's `KUBB_AGENT_ALLOW_WRITE`.
+   * Whether the agent writes generated files to disk. Always false for a sandbox.
    */
   allowWrite: boolean
   /**
    * Whether the agent runs the formatter, the linter, and `output.postGenerate` as child
-   * processes after a generation. Always true for the Docker agent, where the image bounds what
-   * can run. The CLI runs in the user's own project and defaults it off.
+   * processes after a generation.
    */
   allowExec: boolean
   /**
@@ -525,50 +507,92 @@ export type AgentPermissions = {
   allowConfigEdit: boolean
   /**
    * Whether the agent hands back file source in response to `readFiles`. Always true for a
-   * sandbox agent; for a local agent it mirrors the agent's own opt-in.
+   * sandbox.
    */
   allowRead: boolean
 }
 
 /**
- * Header naming which process of an agent a socket belongs to, next to the agent's bearer token.
- * Several processes may share one token (CI runners, sandbox containers). For a kind that allows
- * only one, a new id supersedes the old socket with {@link AgentCloseCode.SUPERSEDED}.
+ * Metadata part of `POST /api/snapshots`, the one request a CI run makes. The `tarball` part
+ * carries the packed package next to it.
  */
-export const AGENT_INSTANCE_HEADER = 'x-kubb-instance-id'
-
-/**
- * What an agent process can take on, reported at registration.
- */
-export type AgentCapacity = {
-  /** Jobs the process runs at once. Studio clamps it to the agent kind's own cap. */
-  maxConcurrent: number
+export type SnapshotUploadMetadata = {
+  /**
+   * Stable CI identity, such as `gh:<repoId>:<pr>`. Snapshots with the same `id` share one CI agent
+   * in Studio, which is what `changes` compares against.
+   */
+  id: string
+  /**
+   * Display name of that CI agent.
+   */
+  name: string
+  packageName: string
+  version: string
+  /**
+   * The commit the snapshot is built from, so the next one can name it as its base.
+   */
+  commit?: string
+  /**
+   * The `id` of another CI agent, such as the base branch's, to also compare with.
+   */
+  baseId?: string
+  /**
+   * Content fingerprint per generated file, keyed by path relative to the project root.
+   */
+  hashes: Record<string, string>
+  peerDependencies: Record<string, string>
 }
 
 /**
- * Body of `POST /api/agent/connect`, authenticated with the agent's bearer token.
+ * How a snapshot's files differ from an earlier snapshot of the same package.
  */
-export type AgentRegisterInput = {
-  /** Hash of this machine's secret, binding the token to one machine identity. */
-  machineToken: string
-  /** This process, sent again as {@link AGENT_INSTANCE_HEADER} when it opens its socket. */
-  instanceId: string
-  capacity: AgentCapacity
+export type SnapshotChanges = {
+  /**
+   * The snapshot these changes are measured against, `null` when there is none to compare with.
+   */
+  base: { id: string; version: string | null; commit?: string; createdAt: string } | null
+  added: Array<string>
+  changed: Array<string>
+  removed: Array<string>
 }
 
 /**
- * Response of `POST /api/agent/connect`: where this process opens its one socket, and what Studio
- * knows about the agent.
+ * {@link SnapshotChanges} against another CI agent. `baseFound` is `false` when Studio has no CI
+ * agent with that id yet, and `true` when it has one without a snapshot of this package.
  */
-export type AgentRegisterResponse = {
-  /** `wss:` URL of the agent socket. The agent authenticates it with its bearer token and instance id. */
-  socketUrl: string
-  /** Whether the agent is a shared sandbox rather than one someone owns. */
-  isSandbox: boolean
-  /** The Studio instance's own version, so both sides can be named from the first connection. */
-  version?: string
-  /** This agent's slug, so a reconnect refreshes it the same way pairing did. */
-  agentSlug?: string
-  /** This agent's organization slug. Absent for a sandbox or global agent, which has none. */
-  organizationSlug?: string
+export type BranchSnapshotChanges = SnapshotChanges & { baseFound: boolean }
+
+/**
+ * Response body of `POST /api/snapshots`: `{ snapshot: PublishedSnapshot }`.
+ */
+export type PublishedSnapshot = {
+  id: string
+  name: string | null
+  version: string | null
+  integrity: string | null
+  /**
+   * The CI agent the snapshot belongs to.
+   */
+  agent: { id: string; name: string; slug: string | null } | null
+  /**
+   * Readable download path, often `/packages/{agentSlug}/{name}.tgz`.
+   */
+  url: string
+  /**
+   * Stable download path keyed by snapshot id.
+   */
+  snapshotIdUrl: string
+  createdAt: string
+  /**
+   * ISO timestamp after which Studio may delete the tarball.
+   */
+  expiresAt: string
+  /**
+   * What changed since the previous snapshot of this package on the same CI agent.
+   */
+  changes?: SnapshotChanges
+  /**
+   * What differs from the latest snapshot of the CI agent `baseId` names. Absent without a base.
+   */
+  branchChanges?: BranchSnapshotChanges
 }

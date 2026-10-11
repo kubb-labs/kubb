@@ -1,8 +1,7 @@
+import { hash } from 'node:crypto'
 import { setTimeout as delay } from 'node:timers/promises'
 import { toError } from '@internals/utils'
-import { ofetch } from 'ofetch'
-import { agentDefaults } from './constants.ts'
-import { getMachineToken } from './machine.ts'
+import { defaultStudioUrl, secureUrl } from './url.ts'
 
 /**
  * RFC 8628 device-authorization response from Studio's `/api/auth/device/code` endpoint.
@@ -88,29 +87,45 @@ type StartPairingOptions = {
   name: string
   hostname: string
   /**
+   * A stable secret the host keeps for this machine. Studio stores its hash against the agent, so
+   * the same machine pairing again rotates one agent's token instead of creating a second agent.
+   */
+  machineId: string
+  /**
    * Aborting this cancels the request in flight and rejects with {@link PairingCanceledError}.
    */
   signal?: AbortSignal
 }
 
 /**
- * Asks Studio for a pairing code. The machine token travels with the request and is stored against
- * the code, so approval knows which machine it is pairing: the same machine pairing twice rotates
- * one agent's token instead of creating a second agent.
+ * POSTs JSON to Studio and returns the parsed body, whatever the status.
  */
-export async function startPairing({ studioUrl = agentDefaults.studioUrl, type, name, hostname, signal }: StartPairingOptions): Promise<PairingSession> {
+async function postJson<T>(url: URL, body: unknown, signal?: AbortSignal): Promise<{ ok: boolean; status: number; data: T | undefined }> {
+  const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal })
+  const data = (await response.json().catch(() => undefined)) as T | undefined
+
+  return { ok: response.ok, status: response.status, data }
+}
+
+/**
+ * Asks Studio for a pairing code, sending the hashed machine id with it.
+ */
+export async function startPairing({ studioUrl = defaultStudioUrl, type, name, hostname, machineId, signal }: StartPairingOptions): Promise<PairingSession> {
   try {
-    return await ofetch<PairingSession>(`${studioUrl}/api/auth/device/code`, {
-      method: 'POST',
-      body: {
+    const { ok, status, data } = await postJson<PairingSession>(
+      secureUrl(studioUrl, '/api/auth/device/code'),
+      {
         client_id: type === 'cli' ? CLIENT_IDS.cli : CLIENT_IDS.agent,
         name,
         hostname,
-        machine_token: await getMachineToken(),
+        machine_token: hash('sha256', machineId),
         agent_kind: type === 'cli' ? undefined : type,
       },
       signal,
-    })
+    )
+    if (!ok || !data) throw new Error(`Kubb Studio refused the pairing request (status ${status})`)
+
+    return data
   } catch (error) {
     if (signal?.aborted) {
       throw new PairingCanceledError()
@@ -159,7 +174,7 @@ function isPairingResult(response: PollResponse | undefined): response is Pairin
  * @throws {PairingDeniedError} when the pairing is denied in the browser.
  * @throws {PairingCanceledError} when `signal` aborts.
  */
-export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl, session, signal, onRetry }: PollOptions): Promise<PairingResult> {
+export async function pollForPairingToken({ studioUrl = defaultStudioUrl, session, signal, onRetry }: PollOptions): Promise<PairingResult> {
   // Both fields cross the network, so neither is trusted as-is: a missing or zero `interval` would
   // spin the poll loop, and a missing or zero `expires_in` would expire the code before the first
   // poll. `> 0` is also false for `NaN` and for a missing field, so it doubles as the type guard.
@@ -179,14 +194,8 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
 
     let response: PollResponse | undefined
     try {
-      response = await ofetch<PollResponse | undefined>(`${studioUrl}/api/agent/token`, {
-        method: 'POST',
-        body: { device_code: session.device_code },
-        // A denial, an expiry, and "not yet" all come back as 4xx with a body the caller needs to
-        // read, so let every response through and switch on `error` instead of catching.
-        ignoreResponseError: true,
-        signal,
-      })
+      // A denial, an expiry, and "not yet" all come back as 4xx with a body to switch on.
+      response = (await postJson<PollResponse>(secureUrl(studioUrl, '/api/agent/token'), { device_code: session.device_code }, signal)).data
     } catch (error) {
       if (signal?.aborted) {
         throw new PairingCanceledError()
@@ -228,7 +237,7 @@ export async function pollForPairingToken({ studioUrl = agentDefaults.studioUrl,
   throw new PairingExpiredError()
 }
 
-type PairAgentOptions = StartPairingOptions & {
+export type PairAgentOptions = StartPairingOptions & {
   /** Shows the code to whoever approves it. Called again for each fresh code. */
   onCode: (session: PairingSession, attempt: number) => void | Promise<void>
   /** Called when a poll could not reach Studio. Polling carries on. */

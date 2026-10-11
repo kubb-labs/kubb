@@ -4,7 +4,7 @@ import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import type { Adapter, Plugin } from '@kubb/core'
 import { camelCase } from '@internals/utils'
-import type { JSONKubbConfig, OptionValue } from '../protocol/index.ts'
+import type { JSONKubbConfig, OptionValue } from './protocol.ts'
 
 /**
  * Turns the JSON config Studio sends back into live Kubb objects.

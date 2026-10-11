@@ -1,14 +1,22 @@
 import { createHash } from 'node:crypto'
 import { glob, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join, relative, sep } from 'node:path'
+import { join, relative, resolve, sep } from 'node:path'
 import { promisify } from 'node:util'
 import { gzip } from 'node:zlib'
-import { build } from 'tsdown'
-import { isLoopbackHost } from './url.ts'
+import { type Config, type Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
+import { generate, hashOf } from './generations.ts'
+import { MAX_SNAPSHOT_BYTES, type PublishedSnapshot, type SnapshotUploadMetadata } from './protocol.ts'
+import { resolvePeerDependencies } from './resolveConfig.ts'
+import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const gzipAsync = promisify(gzip)
 const UPLOAD_TIMEOUT_MS = 120_000
+
+/**
+ * Plugins whose output a snapshot carries without depending on the plugin package.
+ */
+const BUNDLED_DEPENDENCIES = ['@kubb/plugin-barrel']
 
 type SnapshotFiles = Record<string, string>
 type SnapshotPackage = { name: string; version: string; peerDependencies: Record<string, string> }
@@ -109,7 +117,9 @@ export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: S
       }),
     )
     const sourceEntries = resolvedPaths.filter(({ name }) => /\.(?:[cm]?[jt]sx?)$/.test(name)).map(({ target }) => join(root, target.slice('package/'.length)))
-    if (sourceEntries.length)
+    if (sourceEntries.length) {
+      // Loaded on first use: tsdown is large, and most agent processes never pack a snapshot.
+      const { build } = await import('tsdown')
       await build({
         entry: sourceEntries,
         outDir: dist,
@@ -124,6 +134,7 @@ export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: S
         // infers it from the nearest ancestor package.json, which differs by host).
         fixedExtension: true,
       })
+    }
     const builtEntries = await Promise.all(
       (await Array.fromAsync(glob('**/*', { cwd: dist, withFileTypes: true })))
         .filter((entry) => entry.isFile())
@@ -173,32 +184,80 @@ export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: S
   }
 }
 
-export async function uploadSnapshot({
-  bytes,
-  uploadPath,
-  studioUrl,
-  token,
-  shutdown,
-}: {
-  bytes: Buffer
-  uploadPath: string
-  studioUrl: string
-  token: string
-  shutdown?: AbortSignal
-}): Promise<void> {
-  const uploadUrl = new URL(uploadPath, studioUrl)
-  if (uploadUrl.origin !== new URL(studioUrl).origin) throw new Error('Snapshot upload path must stay on the Studio origin')
+export type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'peerDependencies'> & {
+  studioUrl?: string
+  /**
+   * Organization CI API key, sent as `x-api-key`.
+   */
+  apiKey: string
+  /**
+   * The project's Kubb config. It generates in memory, so nothing is written to disk.
+   */
+  config: Config
+  /**
+   * Receives the generation's `kubb:*` lifecycle hooks.
+   */
+  hooks?: Hookable<KubbHooks>
+  signal?: AbortSignal
+}
+
+/**
+ * Reads the most useful message out of a failed Studio response.
+ */
+async function failureMessage(response: Response): Promise<string> {
+  const body = (await response.json().catch(() => undefined)) as { message?: string; data?: { upgradeUrl?: string } } | undefined
+  const upgrade = body?.data?.upgradeUrl ? ` Upgrade at ${body.data.upgradeUrl}.` : ''
+
+  return `Kubb Studio refused the snapshot (status ${response.status})${body?.message ? `: ${body.message}` : ''}.${upgrade}`
+}
+
+/**
+ * Generates the project, packs it as an npm tarball, and publishes it to Studio in one request
+ * (`POST /api/snapshots`). This is the CI path: no agent connection, no job to poll.
+ *
+ * @example
+ * ```ts
+ * const snapshot = await createSnapshot({
+ *   apiKey: process.env.KUBB_TOKEN!,
+ *   config,
+ *   id: 'gh:123:pr-4',
+ *   name: 'acme/api#4',
+ *   packageName: '@acme/api',
+ *   version: '1.0.0',
+ * })
+ * console.log(snapshot.url, snapshot.changes)
+ * ```
+ */
+export async function createSnapshot({
+  studioUrl = defaultStudioUrl,
+  apiKey,
+  config,
+  hooks,
+  signal,
+  ...metadata
+}: CreateSnapshotOptions): Promise<PublishedSnapshot> {
+  const url = secureUrl(studioUrl, '/api/snapshots')
+  const generated = await generate({ config: { ...config, storage: memoryStorage() }, hooks, signal, allowExec: false })
+  const files = Object.fromEntries(
+    await Promise.all([...generated.paths].map(async (path) => [path, (await generated.storage.readItem(resolve(generated.root, path))) ?? ''] as const)),
+  )
+  const { peerDependencies, missingDependencies } = await resolvePeerDependencies(config.plugins.map(({ name }) => name))
+  // The package would declare no version for a plugin that is not installed.
+  const missing = missingDependencies.filter((dependency) => !BUNDLED_DEPENDENCIES.includes(dependency))
+  if (missing.length) throw new Error(`Missing dependencies: ${missing.join(', ')}`)
+
+  const { bytes } = await createSnapshotPackage(files, { name: metadata.packageName, version: metadata.version, peerDependencies })
+  if (bytes.length > MAX_SNAPSHOT_BYTES)
+    throw new Error(`The snapshot is ${Math.ceil(bytes.length / 1024 / 1024)} MB, over the ${MAX_SNAPSHOT_BYTES / 1024 / 1024} MB limit`)
+
+  const hashes = Object.fromEntries(Object.entries(files).map(([path, content]) => [path, hashOf(content)]))
+  const body = new FormData()
+  body.set('metadata', JSON.stringify({ ...metadata, hashes, peerDependencies } satisfies SnapshotUploadMetadata))
+  body.set('tarball', new Blob([new Uint8Array(bytes)], { type: 'application/gzip' }), 'snapshot.tgz')
 
   const timeout = AbortSignal.timeout(UPLOAD_TIMEOUT_MS)
-  const signal = shutdown ? AbortSignal.any([shutdown, timeout]) : timeout
-  const redirect = await fetch(uploadUrl, { method: 'PUT', headers: { Authorization: `Bearer ${token}` }, redirect: 'manual', signal })
-  const storageUrl = redirect.headers.get('location')
-  if (redirect.status !== 307 || !storageUrl) throw new Error(`Studio did not provide a storage URL (status ${redirect.status})`)
+  const response = await fetch(url, { method: 'POST', headers: { 'x-api-key': apiKey }, body, signal: signal ? AbortSignal.any([signal, timeout]) : timeout })
+  if (!response.ok) throw new Error(await failureMessage(response))
 
-  const storage = new URL(storageUrl)
-  if (storage.protocol !== 'https:' && !isLoopbackHost(storage.hostname)) {
-    throw new Error(`Refusing snapshot upload to ${storage.origin}`)
-  }
-  const response = await fetch(storage, { method: 'PUT', body: new Uint8Array(bytes), redirect: 'error', signal })
-  if (!response.ok) throw new Error(`Snapshot upload failed with status ${response.status}`)
+  return ((await response.json()) as { snapshot: PublishedSnapshot }).snapshot
 }

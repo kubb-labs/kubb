@@ -1,7 +1,12 @@
 import { createHash } from 'node:crypto'
 import { gunzipSync } from 'node:zlib'
+import { ast } from '@kubb/ast'
+import { type Config, definePlugin, memoryStorage, type Plugin } from '@kubb/core'
+import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
-import { createSnapshotPackage, uploadSnapshot } from './snapshotPackage.ts'
+import { hashOf } from './generations.ts'
+import type { SnapshotUploadMetadata } from './protocol.ts'
+import { createSnapshot, createSnapshotPackage } from './snapshot.ts'
 
 /** Reads back the path (USTAR `prefix` + `name`) and content of every entry in a tarball. */
 function readTarEntries(tar: Buffer): Array<{ path: string; content: string }> {
@@ -41,28 +46,7 @@ function readManifest(bytes: Buffer): Manifest {
   return JSON.parse(entry.content) as Manifest
 }
 
-describe('[util] snapshotPackage', () => {
-  it('aborts an upload when the agent shuts down', async () => {
-    const shutdown = new AbortController()
-    using fetchMock = vi
-      .spyOn(globalThis, 'fetch')
-      .mockImplementation(
-        (_url, init) => new Promise((_resolve, reject) => init?.signal?.addEventListener('abort', () => reject(init.signal?.reason), { once: true })),
-      )
-
-    const upload = uploadSnapshot({
-      bytes: Buffer.alloc(0),
-      uploadPath: '/snapshot',
-      studioUrl: 'https://studio.test',
-      token: 'token',
-      shutdown: shutdown.signal,
-    })
-    shutdown.abort(new Error('shutdown'))
-
-    await expect(upload).rejects.toThrow('shutdown')
-    expect(fetchMock.mock.calls[0]?.[1]?.signal).toBeInstanceOf(AbortSignal)
-  })
-
+describe('createSnapshotPackage', () => {
   it('packs the sources, a dist build and a manifest whose barrel fields point at dist/index', async () => {
     const { bytes, integrity } = await createSnapshotPackage(
       { 'src/index.ts': 'export const answer = 42' },
@@ -112,5 +96,79 @@ describe('[util] snapshotPackage', () => {
     const paths = readTarEntries(gunzipSync(bytes)).map((entry) => entry.path)
     expect(paths).toContain('package/dist/nested/helper.mjs')
     expect(paths).toContain('package/dist/nested/helper.cjs')
+  })
+})
+
+describe('createSnapshot', () => {
+  const root = '/project'
+
+  function config(): Config {
+    const file = ast.factory.createFile({
+      path: `${root}/src/gen/pet.ts`,
+      baseName: 'pet.ts',
+      sources: [ast.factory.createSource({ nodes: [ast.factory.createText('export const pet = 1')] })],
+      imports: [],
+      exports: [],
+    })
+    const plugin = definePlugin(() => ({
+      name: 'plugin-barrel',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.injectFile(file)
+        },
+      },
+    }))() as unknown as Plugin
+
+    return {
+      root,
+      input: 'https://example.com/openapi.json',
+      output: { path: 'src/gen', clean: false },
+      parsers: [],
+      reporters: [],
+      adapter: createMockedAdapter(),
+      plugins: [plugin],
+      storage: memoryStorage(),
+    } as unknown as Config
+  }
+
+  const options = { apiKey: 'kubb_key', id: 'gh:1:pr-2', name: 'acme/api#2', packageName: '@acme/api', version: '1.0.0', commit: 'abc' }
+
+  it('sends one multipart request with the metadata, the agent-compatible hashes and the tarball', async () => {
+    const snapshot = { id: 'snap-1', url: '/packages/ci/acme-api.tgz' }
+    using fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ snapshot }, { status: 201 }))
+
+    await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', config: config() })).resolves.toStrictEqual(snapshot)
+
+    const [url, init] = fetchMock.mock.calls[0] as [URL, RequestInit]
+    expect(url.href).toBe('https://studio.test/api/snapshots')
+    expect(init.headers).toStrictEqual({ 'x-api-key': 'kubb_key' })
+    const body = init.body as FormData
+    expect(JSON.parse(String(body.get('metadata'))) as SnapshotUploadMetadata).toStrictEqual({
+      id: 'gh:1:pr-2',
+      name: 'acme/api#2',
+      packageName: '@acme/api',
+      version: '1.0.0',
+      commit: 'abc',
+      hashes: { 'src/gen/pet.ts': hashOf('export const pet = 1') },
+      peerDependencies: { '@kubb/plugin-barrel': expect.any(String) },
+    })
+    expect(readManifest(Buffer.from(await (body.get('tarball') as Blob).arrayBuffer()))).toMatchObject({ name: '@acme/api', version: '1.0.0' })
+  })
+
+  it('names the upgrade page when Studio refuses the snapshot over a limit', async () => {
+    using _ = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(Response.json({ message: 'Snapshot limit reached', data: { upgradeUrl: 'https://kubb.studio/billing' } }, { status: 402 }))
+
+    await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', config: config() })).rejects.toThrow(
+      'Kubb Studio refused the snapshot (status 402): Snapshot limit reached. Upgrade at https://kubb.studio/billing.',
+    )
+  })
+
+  it('refuses a plaintext Studio URL before generating', async () => {
+    using fetchMock = vi.spyOn(globalThis, 'fetch')
+
+    await expect(createSnapshot({ ...options, studioUrl: 'http://studio.test', config: config() })).rejects.toThrow('Refusing to reach Kubb Studio')
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 })

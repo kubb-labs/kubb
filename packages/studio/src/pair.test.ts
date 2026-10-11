@@ -1,3 +1,4 @@
+import { hash } from 'node:crypto'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setTimeout as delay } from 'node:timers/promises'
 import { pairAgent, PairingCanceledError, PairingDeniedError, PairingExpiredError, pollForPairingToken, startPairing, type PairingSession } from './pair.ts'
@@ -7,11 +8,6 @@ vi.mock('node:timers/promises', () => ({
 }))
 
 const delayMock = vi.mocked(delay)
-
-vi.mock('./machine.ts', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('./machine.ts')>()),
-  getMachineToken: vi.fn(async () => 'machine-token-hash'),
-}))
 
 const fetchMock = vi.fn()
 
@@ -45,7 +41,7 @@ describe('pollForPairingToken', () => {
     }
     fetchMock.mockResolvedValueOnce(createMockResponse({ error: 'authorization_pending' }, 400)).mockResolvedValueOnce(createMockResponse(result))
 
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session })
+    const promise = pollForPairingToken({ studioUrl: 'https://studio.test', session })
     await vi.runAllTimersAsync()
 
     await expect(promise).resolves.toEqual(result)
@@ -54,7 +50,7 @@ describe('pollForPairingToken', () => {
   it("surfaces Studio's error_description on access_denied", async () => {
     fetchMock.mockResolvedValueOnce(createMockResponse({ error: 'access_denied', error_description: 'agent limit reached' }, 403))
 
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session })
+    const promise = pollForPairingToken({ studioUrl: 'https://studio.test', session })
     promise.catch(() => {})
     await vi.runAllTimersAsync()
 
@@ -65,7 +61,7 @@ describe('pollForPairingToken', () => {
   it.each(['expired_token', 'invalid_grant'])('throws PairingExpiredError on %s', async (error) => {
     fetchMock.mockResolvedValueOnce(createMockResponse({ error }, 400))
 
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session })
+    const promise = pollForPairingToken({ studioUrl: 'https://studio.test', session })
     promise.catch(() => {})
     await vi.runAllTimersAsync()
 
@@ -78,7 +74,7 @@ describe('pollForPairingToken', () => {
     const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
     fetchMock.mockRejectedValueOnce(new Error('socket hang up')).mockResolvedValueOnce(createMockResponse(result))
 
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session, onRetry })
+    const promise = pollForPairingToken({ studioUrl: 'https://studio.test', session, onRetry })
     await vi.runAllTimersAsync()
 
     await expect(promise).resolves.toEqual(result)
@@ -93,7 +89,7 @@ describe('pollForPairingToken', () => {
       return Promise.reject(new Error('The operation was aborted'))
     })
 
-    const promise = pollForPairingToken({ studioUrl: 'http://studio', session, signal: controller.signal })
+    const promise = pollForPairingToken({ studioUrl: 'https://studio.test', session, signal: controller.signal })
     promise.catch(() => {})
     await vi.runAllTimersAsync()
 
@@ -106,23 +102,30 @@ describe('startPairing', () => {
     ['cli', { client_id: 'kubb-cli' }],
     ['user', { client_id: 'kubb-agent', agent_kind: 'user' }],
     ['sandbox', { client_id: 'kubb-agent', agent_kind: 'sandbox' }],
-  ] as const)('sends the client id and agent kind for a %s machine', async (type, client) => {
+  ] as const)('sends the client id, the agent kind and the hashed machine id for a %s machine', async (type, client) => {
     fetchMock.mockResolvedValueOnce(createMockResponse(session))
 
-    await startPairing({ studioUrl: 'http://studio', type, name: 'my-project', hostname: 'my-host' })
+    await startPairing({ studioUrl: 'https://studio.test', type, name: 'my-project', hostname: 'my-host', machineId: 'secret' })
 
     expect(JSON.parse(String(fetchMock.mock.calls[0]![1].body))).toStrictEqual({
       ...client,
       name: 'my-project',
       hostname: 'my-host',
-      machine_token: 'machine-token-hash',
+      machine_token: hash('sha256', 'secret'),
     })
+  })
+
+  it('refuses a plaintext Studio URL before sending anything', async () => {
+    await expect(startPairing({ studioUrl: 'http://studio.test', type: 'cli', name: 'my-project', hostname: 'my-host', machineId: 'secret' })).rejects.toThrow(
+      'Refusing to reach Kubb Studio',
+    )
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 })
 
 describe('pairAgent', () => {
   const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
-  const options = { studioUrl: 'http://studio', type: 'user', name: 'kubb-agent on box', hostname: 'box' } as const
+  const options = { studioUrl: 'https://studio.test', type: 'user', name: 'kubb-agent on box', hostname: 'box', machineId: 'secret' } as const
 
   it('hands the code to the host, then returns the approved token', async () => {
     const onCode = vi.fn()
