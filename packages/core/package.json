@@ -72,7 +72,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsdown && node scripts/copyHtmlReporterAssets.mjs",
+    "build": "tsdown",
     "start": "tsdown --watch",
     "typecheck": "tsc --noEmit"
   },
