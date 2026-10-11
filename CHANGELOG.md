@@ -1,5 +1,111 @@
 # Changelog
 
+## v5.6.0 — Oct 10, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Internal cleanup of `@kubb/adapter-oas` with no change to generated output. ([#4216](https://github.com/kubb-labs/kubb/pull/4216), [`8708135`](https://github.com/kubb-labs/kubb/commit/8708135eb00a2b7d17c29a17b4c2cc89ea6c4da7))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Type a `format: 'date-time'` schema as a plain string node in `InferSchemaNode` when `dateType` is `false`, matching what the adapter produces. ([#4217](https://github.com/kubb-labs/kubb/pull/4217), [`396dde2`](https://github.com/kubb-labs/kubb/commit/396dde2496ef1504fdceb32b88f9135140a27d6d))
+- Internal cleanup of `@kubb/ast` with no change in behavior. ([#4204](https://github.com/kubb-labs/kubb/pull/4204), [`b87f7e4`](https://github.com/kubb-labs/kubb/commit/b87f7e42e43ddb296ce4fb504ddcf422696f57c2))
+- Visit schemas inside a tuple's `rest` and inside `patternProperties`, so refs there are collected, transformed by macros, and imported in generated files.
+  
+  - `transform`, `collect` and `collectImportedRefNames` now reach `rest` and `patternProperties` on a `SchemaNode`.
+  - `createInput()` gives every node its own `schemas`, `operations` and `meta` objects instead of sharing one default. ([#4188](https://github.com/kubb-labs/kubb/pull/4188), [`62485c5`](https://github.com/kubb-labs/kubb/commit/62485c55cd6b6ce5e66f97449d5baeb15f99cc48))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Run `output.format`, `output.lint` and `output.postGenerate` through `@kubb/core` instead of the CLI's own copies, so every host runs the same passes. ([#4215](https://github.com/kubb-labs/kubb/pull/4215), [`ecf2b25`](https://github.com/kubb-labs/kubb/commit/ecf2b25c9b254cdc2b46decd725fdb7c4467dbe7))
+- Reorganize the CLI internals: config discovery moves to its own module, the logger helpers fold into the loggers that use them, and every command loads its runner the same way. Every command, flag and printed line stays the same. ([#4211](https://github.com/kubb-labs/kubb/pull/4211), [`a2c9cd7`](https://github.com/kubb-labs/kubb/commit/a2c9cd7267620c60b5855d16e6e4374a18611522))
+- `kubb studio` accepts a flag value after a space, such as `kubb studio --open --url http://localhost:3000` or `--config ./kubb.config.ts`, instead of failing with "Command not found". ([#4221](https://github.com/kubb-labs/kubb/pull/4221), [`8dc93fc`](https://github.com/kubb-labs/kubb/commit/8dc93fc76e63f8c49172cdc04568cb00695c5d33))
+- Keep stdout clean for the MCP stdio transport: the telemetry notice and the `kubb mcp` startup banner print on stderr, so the JSON-RPC stream no longer starts with a stray line. `@kubb/mcp` also declares `jiti` as a dependency instead of bundling its own copy. ([#4189](https://github.com/kubb-labs/kubb/pull/4189), [`10c1f3b`](https://github.com/kubb-labs/kubb/commit/10c1f3b6de887e2cc9deedd8d2d25c596dddef92))
+
+### @kubb/core
+
+#### Features
+
+- Run `output.format`, `output.lint` and `output.postGenerate` from `Kubb.generate()` by default, so every host gets the same passes.
+  
+  - Adds `runOutputPasses` and `runHook`, the one implementation of the format, lint and post-generate steps. `runHook` spawns the command with `node:child_process`, in the config `root`, and emits `kubb:hook:start`, `kubb:hook:line` and `kubb:hook:end` itself.
+  - `generate({ processOutput })` still replaces the passes when a host needs to; its context now also carries `hooks` and `signal`.
+  - `unplugin-kubb` and `kubb mcp` start honoring `output.format`, `output.lint` and `output.postGenerate`, which they ignored before. ([#4196](https://github.com/kubb-labs/kubb/pull/4196), [`50617dd`](https://github.com/kubb-labs/kubb/commit/50617ddbe0c5a1b0ae78ffab3b8efb0a90bd5295))
+
+#### Bug Fixes
+
+- Import types from the modules that define them instead of internal re-export barrels. The public exports are unchanged. ([#4222](https://github.com/kubb-labs/kubb/pull/4222), [`2667074`](https://github.com/kubb-labs/kubb/commit/2667074a89d1753e5fb8a63643de6eb0cc1874b0))
+- Run `output.format`, `output.lint` and `output.postGenerate` commands through `tinyexec`, which resolves Windows command shims and the project's `node_modules/.bin`.
+  
+  Formatter and linter detection for `'auto'` also finds a tool installed only in `node_modules/.bin` under `config.root`, the folder the tool then runs from. The browser opener and the `kubb studio start` background worker spawn through `tinyexec` too. ([#4218](https://github.com/kubb-labs/kubb/pull/4218), [`0fb79d5`](https://github.com/kubb-labs/kubb/commit/0fb79d56b52c32d621875857135877b26b001ab0))
+- Fold single-use helpers and duplicated types in the core driver, resolver, storage and diagnostics. Generated output and the plugin API do not change. ([#4203](https://github.com/kubb-labs/kubb/pull/4203), [`d1b5a6a`](https://github.com/kubb-labs/kubb/commit/d1b5a6a717fde727c0a9c0bfb3ab72aa8e60e844))
+- Keep a failing hook listener's error message to the hook name. The message no longer serializes the hook arguments, which could be a whole config or AST subtree. ([#4193](https://github.com/kubb-labs/kubb/pull/4193), [`ee09318`](https://github.com/kubb-labs/kubb/commit/ee09318741f86c00512f3c862e9d0e05aadd6f95))
+- Correct three doc comments so they match what the code does: `group.name` keeps the first path segment as written for `path` groups, the `defaultBanner` example shows the banner Kubb writes, and the Studio heartbeat note says a ping is persisted at most once an hour. ([#4186](https://github.com/kubb-labs/kubb/pull/4186), [`425998f`](https://github.com/kubb-labs/kubb/commit/425998fb04946afc1493f22ee859eadb1f3b8d8c))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- `@kubb/kit` now exports the `Diagnostic` type. `@kubb/ast` exports `collectSchemaRefs`, the set of schema names a node references. `@kubb/adapter-oas` depends on `@kubb/kit` only, with no change to generated output. ([#4210](https://github.com/kubb-labs/kubb/pull/4210), [`76d1ec8`](https://github.com/kubb-labs/kubb/commit/76d1ec8048ba3d8decaf07d354d7132d7cbc8790))
+
+### @kubb/mcp
+
+#### Bug Fixes
+
+- The `validate` tool no longer prints the unreachable 'install @kubb/adapter-oas' hint. ([#4197](https://github.com/kubb-labs/kubb/pull/4197), [`465e220`](https://github.com/kubb-labs/kubb/commit/465e2205fd1d90b1f3bb40f11a2030f0cb0f0042))
+
+### @kubb/parser-ts
+
+#### Bug Fixes
+
+- Load TypeScript only on the first `print` or `copy` call, so a run that only parses files starts faster. ([#4205](https://github.com/kubb-labs/kubb/pull/4205), [`12428cc`](https://github.com/kubb-labs/kubb/commit/12428cc4898029beda20d35fb8f34fcf402d66e4))
+- Resolve a relative import path from the importing file's directory instead of dropping the first `../`, which produced a wrong path when the target sat outside that directory. ([#4190](https://github.com/kubb-labs/kubb/pull/4190), [`2dbb0cd`](https://github.com/kubb-labs/kubb/commit/2dbb0cdc3611ef0449979f9195dfe792900d068d))
+
+### @kubb/plugin-barrel
+
+#### Bug Fixes
+
+- The `@kubb/core` peer dependency warning is gone. A plugin `output.path` that resolves outside `config.output.path` is now reported as a `KUBB_PATH_TRAVERSAL` diagnostic. Generated barrels are unchanged. ([#4202](https://github.com/kubb-labs/kubb/pull/4202), [`e872176`](https://github.com/kubb-labs/kubb/commit/e87217657f9bd7c2ac96ff4cf65354a1307ab8f0))
+
+### @kubb/renderer-jsx
+
+#### Bug Fixes
+
+- Type JSX children as an array instead of any iterable, which the renderer never walked, so a `Set` or generator passed as children is now a type error instead of silently rendering nothing. The element type also carries its `$typeof` brand, and the renderer only walks elements the Kubb JSX runtime created. ([#4192](https://github.com/kubb-labs/kubb/pull/4192), [`068f4a9`](https://github.com/kubb-labs/kubb/commit/068f4a9ec2f193b4f29f8492d741819bb75155b0))
+- Internal rewrite of the JSX renderer with no change to the rendered `FileNode` output. ([#4202](https://github.com/kubb-labs/kubb/pull/4202), [`e872176`](https://github.com/kubb-labs/kubb/commit/e87217657f9bd7c2ac96ff4cf65354a1307ab8f0))
+
+### @kubb/studio
+
+#### Features
+
+- Studio runs a generation through `@kubb/core`, so the format, lint and `output.postGenerate` passes run inside core. A failing pass fails the job and arrives as a `kubb:diagnostic` event with the code `KUBB_FORMAT_FAILED`, `KUBB_LINT_FAILED` or `KUBB_POST_GENERATE_FAILED`. The output manifest is committed after the passes, so the next run skips files the formatter already handled. ([#4214](https://github.com/kubb-labs/kubb/pull/4214), [`56a24f2`](https://github.com/kubb-labs/kubb/commit/56a24f23d7acf8bb13ee279d9f7f0f59e812b1da))
+
+#### Bug Fixes
+
+- Internal cleanup of `@kubb/studio`. A config edit whose value is a class instance, such as a `Date`, is now refused as not a literal, matching the protocol's `OptionValue` type. ([#4208](https://github.com/kubb-labs/kubb/pull/4208), [`9971e64`](https://github.com/kubb-labs/kubb/commit/9971e64685124daea7dc06a383a3f4519deae34f))
+- Accept `[::1]` as a loopback host for plaintext snapshot uploads, matching the WebSocket check, so a local Studio reachable over IPv6 works the same as over IPv4. ([#4191](https://github.com/kubb-labs/kubb/pull/4191), [`86e5ed7`](https://github.com/kubb-labs/kubb/commit/86e5ed787f9c6a792b6f1ac74225812c4d9f75af))
+- Use the global `WebSocket` (Node 22 and later) instead of the `ws` package for the agent connection.
+  
+  - A failed handshake still settles as close code 1006. ([#4212](https://github.com/kubb-labs/kubb/pull/4212), [`caf454f`](https://github.com/kubb-labs/kubb/commit/caf454ff04a46aaa7e8b3819889b3cf830cf56fd))
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- `unplugin-kubb` declares `@kubb/core` as a dependency only, so the peer dependency warning is gone. `@kubb/parser-md` has no behavior change. ([#4201](https://github.com/kubb-labs/kubb/pull/4201), [`719f6bd`](https://github.com/kubb-labs/kubb/commit/719f6bdbb927ce82c7bf4bb791d659de4ee2cecd))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.5.6 — Oct 8, 2026
 
 ### @kubb/adapter-oas
