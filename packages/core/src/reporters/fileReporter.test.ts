@@ -1,17 +1,26 @@
-import * as utils from '@internals/utils'
-import { describe, expect, it, vi } from 'vitest'
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { logLevel } from '../createReporter.ts'
 import { Diagnostics } from '../Diagnostics.ts'
 import type { Config } from '../types.ts'
 import { fileReporter } from './fileReporter.ts'
 
+let cwd: string
+
+beforeEach(() => {
+  cwd = mkdtempSync(join(tmpdir(), 'kubb-file-reporter-'))
+  vi.spyOn(process, 'cwd').mockReturnValue(cwd)
+})
+
+afterEach(() => {
+  vi.restoreAllMocks()
+  rmSync(cwd, { recursive: true, force: true })
+})
+
 describe('fileReporter', () => {
   it('writes a sectioned, plain-text report with problems and timings', async () => {
-    let written = ''
-    using _write = vi.spyOn(utils, 'write').mockImplementation(async (_path, data) => {
-      written = data
-      return null
-    })
     using _error = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     await fileReporter.report(
@@ -34,7 +43,9 @@ describe('fileReporter', () => {
       { logLevel: logLevel.verbose },
     )
 
-    expect(_write).toHaveBeenCalledOnce()
+    const files = readdirSync(join(cwd, '.kubb'))
+    expect(files).toEqual([expect.stringMatching(/^kubb-petstore-\d+\.log$/)])
+    const written = readFileSync(join(cwd, '.kubb', files[0]!), 'utf8')
     // No ANSI escape codes leak into the file.
     expect(written).not.toMatch(/\[/)
     expect(written).toContain('# petstore — ')
@@ -50,8 +61,6 @@ describe('fileReporter', () => {
   })
 
   it('writes nothing when there are no diagnostics', async () => {
-    using _write = vi.spyOn(utils, 'write').mockImplementation(async () => null)
-
     await fileReporter.report(
       {
         config: { name: 'petstore', root: '/tmp', output: { path: 'src/gen' }, plugins: [{}, {}] } as unknown as Config,
@@ -63,6 +72,6 @@ describe('fileReporter', () => {
       { logLevel: logLevel.verbose },
     )
 
-    expect(_write).not.toHaveBeenCalled()
+    expect(existsSync(join(cwd, '.kubb'))).toBe(false)
   })
 })

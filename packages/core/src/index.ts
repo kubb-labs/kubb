@@ -18,6 +18,7 @@ export { KubbDriver } from './KubbDriver.ts'
 export { getInputKind } from './input.ts'
 export { cacheStorage, resolveCacheDir } from './storages/cacheStorage.ts'
 export { fsStorage } from './storages/fsStorage.ts'
+export { kubbStorage, resolveKubbDir } from './storages/kubbStorage.ts'
 export { memoryStorage } from './storages/memoryStorage.ts'
 
 export { Hookable } from './Hookable.ts'

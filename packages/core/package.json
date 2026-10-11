@@ -78,7 +78,8 @@
   },
   "dependencies": {
     "@kubb/ast": "workspace:*",
-    "tinyexec": "catalog:"
+    "tinyexec": "catalog:",
+    "unstorage": "^1.17.5"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",

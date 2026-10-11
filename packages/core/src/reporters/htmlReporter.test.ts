@@ -1,3 +1,6 @@
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import * as utils from '@internals/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { logLevel } from '../createReporter.ts'
@@ -5,16 +8,22 @@ import { Diagnostics } from '../Diagnostics.ts'
 import type { Config } from '../types.ts'
 import { htmlReporter } from './htmlReporter.ts'
 
-beforeEach(() => vi.stubEnv('CI', 'true'))
-afterEach(() => vi.unstubAllEnvs())
+let cwd: string
+
+beforeEach(() => {
+  vi.stubEnv('CI', 'true')
+  cwd = mkdtempSync(join(tmpdir(), 'kubb-html-reporter-'))
+  vi.spyOn(process, 'cwd').mockReturnValue(cwd)
+})
+
+afterEach(() => {
+  vi.unstubAllEnvs()
+  vi.restoreAllMocks()
+  rmSync(cwd, { recursive: true, force: true })
+})
 
 describe('htmlReporter', () => {
   it('writes escaped report data and static UI assets', async () => {
-    const written = new Map<string, string>()
-    using _write = vi.spyOn(utils, 'write').mockImplementation(async (_path, data) => {
-      written.set(_path, data)
-      return null
-    })
     using _read = vi
       .spyOn(utils, 'read')
       .mockImplementation(async (path) => (path.endsWith('index.html') ? '<script src="./data.js"></script>' : 'const ui = true'))
@@ -32,14 +41,17 @@ describe('htmlReporter', () => {
       { logLevel: logLevel.info },
     )
 
-    expect(_write).toHaveBeenCalledTimes(3)
-    expect(_read).toHaveBeenCalledTimes(2)
-    expect([...written.keys()]).toContainEqual(expect.stringMatching(/\.kubb\/kubb-petstore-client-\d+\/index\.html$/))
-    expect(_error).toHaveBeenCalledWith(expect.stringContaining('HTML report written to'))
-    expect([...written.values()]).toContain('<script src="./data.js"></script>')
-    expect([...written.values()]).toContain('const ui = true')
+    const [report] = readdirSync(join(cwd, '.kubb'))
+    const dir = join(cwd, '.kubb', report!)
 
-    const data = [...written.entries()].find(([path]) => path.endsWith('/data.js'))?.[1]
+    expect(_read).toHaveBeenCalledTimes(2)
+    expect(report).toMatch(/^kubb-petstore-client-\d+$/)
+    expect(readdirSync(dir).sort()).toEqual(['data.js', 'index.html', 'ui.iife.js'])
+    expect(_error).toHaveBeenCalledWith(expect.stringContaining('HTML report written to'))
+    expect(readFileSync(join(dir, 'index.html'), 'utf8')).toBe('<script src="./data.js"></script>')
+    expect(readFileSync(join(dir, 'ui.iife.js'), 'utf8')).toBe('const ui = true')
+
+    const data = readFileSync(join(dir, 'data.js'), 'utf8')
 
     expect(data).toContain('plugin-ts')
     expect(data).toContain('src/\\u003cpet\\u003e.ts')
@@ -50,7 +62,6 @@ describe('htmlReporter', () => {
   it('opens the written index.html in the browser', async () => {
     using _open = vi.spyOn(utils, 'openInBrowser').mockImplementation(() => {})
     using _read = vi.spyOn(utils, 'read').mockResolvedValue('const ui = true')
-    using _write = vi.spyOn(utils, 'write').mockImplementation(async () => null)
     using _error = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     await htmlReporter.report(
@@ -64,6 +75,8 @@ describe('htmlReporter', () => {
       { logLevel: logLevel.info },
     )
 
-    expect(_open).toHaveBeenCalledWith(expect.stringMatching(/index\.html$/))
+    const [report] = readdirSync(join(cwd, '.kubb'))
+
+    expect(_open).toHaveBeenCalledWith(join(cwd, '.kubb', report!, 'index.html'))
   })
 })
