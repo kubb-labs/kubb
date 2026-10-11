@@ -17,6 +17,8 @@
       "inputs": [
         "src/**/*.ts",
         "src/**/*.tsx",
+        "src/**/*.vue",
+        "src/**/*.html",
         "tsdown.config.ts",
         "package.json",
         "tsconfig.json"
