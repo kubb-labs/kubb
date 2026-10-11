@@ -119,10 +119,10 @@ for a code, hands it to `onCode` to show, and polls until someone approves it in
 
 `machineId` is a secret the host keeps for the machine. Studio stores its hash, so the same machine
 pairing again rotates one agent's token instead of creating a second agent. Studio records the
-`type` with the agent. `cli` is `kubb studio`, which any member can approve. `user` is the Docker
-image, which only an admin can approve. `sandbox` is the Docker image run as a sandbox, which only
-an admin can approve. A denial throws `PairingDeniedError`, an expired code `PairingExpiredError`,
-and an aborted `signal` `PairingCanceledError`.
+`type` with the agent. `cli` is `kubb studio`, which any member can approve. `user` and `sandbox`
+are the Docker image, run normally or as a sandbox. Only an admin can approve them. A denial
+throws `PairingDeniedError`, an expired code `PairingExpiredError`, and an aborted `signal`
+`PairingCanceledError`.
 
 ## CI snapshots
 
