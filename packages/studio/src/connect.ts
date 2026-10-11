@@ -36,21 +36,17 @@ import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
-/**
- * Slowest heartbeat a host may ask for. Studio counts an agent offline once its last ping is older
- * than its liveness window, so a slower cadence would make a healthy agent look dead.
- */
+// Studio marks an agent offline after its liveness window, so a slower cadence would look dead.
 const MAX_HEARTBEAT_INTERVAL_MS = 60_000
 const PING_TIMEOUT_MS = 10_000
 const OPEN_TIMEOUT_MS = 5_000
 const MAX_RETRY_DELAY_MS = 30_000
 const DISK_SNAPSHOT_MAX_FILES = 10_000
-/** A sandbox shares one in-memory generation store across tenants, so old generations expire. */
+// A sandbox shares one in-memory store across tenants, so old generations expire.
 const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
 
 /**
- * Thrown when Studio closes the socket with {@link AgentCloseCode.UNAUTHORIZED}: the token was
- * revoked or expired, or the agent was deleted. Hosts catch this to forget the token and pair again.
+ * Studio closed with {@link AgentCloseCode.UNAUTHORIZED}. Hosts forget the token and pair again.
  */
 export class InvalidAgentTokenError extends Error {
   constructor(studioUrl: string) {
@@ -60,8 +56,7 @@ export class InvalidAgentTokenError extends Error {
 }
 
 /**
- * Thrown when Studio closes the socket with {@link AgentCloseCode.INCOMPATIBLE}. Reconnecting cannot
- * help until the agent is upgraded.
+ * Studio closed with {@link AgentCloseCode.INCOMPATIBLE}. Only an upgrade helps.
  */
 export class IncompatibleAgentError extends Error {
   constructor(studioUrl: string, detail?: string) {
@@ -71,46 +66,30 @@ export class IncompatibleAgentError extends Error {
 }
 
 export type StudioConnectedContext = AgentConnectInfo & {
-  /**
-   * The Studio instance this agent connected to.
-   */
   url: string
   /**
-   * Both sides of the connection, so a host can print them and make a mismatch visible.
+   * The Studio, runtime, and host versions, so a host can show a mismatch.
    */
   versions: { studio: string; kubb: string; agent: string }
 }
 
-/**
- * Events a host hears about its Studio connection, next to the `kubb:*` hooks of each generation.
- */
 declare global {
   namespace Kubb {
     interface KubbHooksRegistry {
       /**
-       * Studio accepted the agent and finished the handshake. Fired again after each reconnect.
+       * Fired after each handshake, including reconnects.
        */
       'studio:connected': [ctx: StudioConnectedContext]
-      /**
-       * The socket closed. `code` is the WebSocket close code.
-       */
       'studio:disconnected': [ctx: { code: number; reason: string }]
-      /**
-       * Milliseconds until the next connection attempt.
-       */
       'studio:reconnecting': [ctx: { delayMs: number }]
       /**
-       * A Studio command finished, with what it did: `applied 2/3 edits to kubb.config.ts`.
+       * A finished command and what it did, such as `applied 2/3 edits to kubb.config.ts`.
        */
       'studio:command': [ctx: { command: 'generate' | 'saveConfig' | 'readFiles'; info: string }]
       /**
-       * What was refused or ignored, and the missing permission if that is why, so the host can
-       * append its own remedy.
+       * A refused or ignored request, with the missing permission so the host can add a remedy.
        */
       'studio:warn': [ctx: { message: string; permission?: keyof AgentPermissions }]
-      /**
-       * A failure for the host's own output.
-       */
       'studio:error': [ctx: { error: Error }]
     }
   }
@@ -127,7 +106,7 @@ export type ConnectAgentOptions = {
    */
   configPath: string
   /**
-   * Loads the Kubb config. Called for every handshake and every generation, so edits on disk show up.
+   * Called for every handshake and every generation, so edits on disk show up.
    */
   loadConfig: () => Promise<Config>
   /**
@@ -135,7 +114,8 @@ export type ConnectAgentOptions = {
    */
   version: string
   /**
-   * The project root generation runs against. Defaults to the working directory.
+   * The project root generation runs against.
+   * @default process.cwd()
    */
   root?: string
   /**
@@ -143,23 +123,17 @@ export type ConnectAgentOptions = {
    */
   permissions?: Partial<AgentPermissions>
   /**
-   * Receives the `studio:*` hooks and the `kubb:*` hooks of every generation. Left out, nothing is
-   * printed.
+   * Receives the `studio:*` hooks and the `kubb:*` hooks of every generation.
    */
   hooks?: Hookable<KubbHooks>
-  /**
-   * Aborting this closes the socket and ends the connection.
-   */
   signal?: AbortSignal
   /**
    * Longest wait between reconnect attempts, in milliseconds.
-   *
    * @default 30000
    */
   maxRetryDelay?: number
   /**
    * Milliseconds between keep-alive pings, at most 60000.
-   *
    * @default 30000
    */
   heartbeatInterval?: number
@@ -168,31 +142,16 @@ export type ConnectAgentOptions = {
 type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal'>> & {
   signal?: AbortSignal
   permissions: AgentPermissions
-  /**
-   * Absolute path of the config file, for reading and patching it.
-   */
   configFile: string
 }
 
-/**
- * Why a socket closed. Node fires no `close` event when the handshake itself fails, so that case
- * reports `1006`.
- */
 type RpcClose = { code: number; reason: string }
 
-/**
- * One open socket to Studio, seen from the agent.
- */
 export type Rpc = { studio: StudioApi; closed: Promise<RpcClose>; close: () => void }
 
-/**
- * Opens the transport. Swapped in tests for an in-process pair.
- */
+// Tests swap in an in-process pair.
 export type OpenRpc = (input: { url: URL; token: string; instanceId: string; agent: AgentApi }) => Rpc
 
-/**
- * What one socket shares between the loop and the {@link Agent} serving it.
- */
 type Session = {
   info?: AgentConnectInfo
   connected: PromiseWithResolvers<void>
@@ -200,25 +159,16 @@ type Session = {
   active?: { jobId: string; abort: () => void; settled: Promise<void> }
 }
 
-/**
- * Calls a host listener without letting it break the connection.
- */
+// A throwing host listener must not break the connection.
 function emit<TName extends keyof KubbHooks & string>(hooks: Hookable<KubbHooks>, name: TName, ...args: KubbHooks[TName]): Promise<void> {
   return Promise.resolve(hooks.callHook(name, ...args)).catch(() => {})
 }
 
-/**
- * A fresh root for one sandbox job. Kubb keys its output manifest cache by root, so tenants that
- * shared the agent's own root would read each other's manifest.
- */
+// Kubb keys its manifest cache by root, so sandbox tenants sharing one root would read each other's.
 function createJobRoot(): Promise<string> {
   return mkdtemp(path.join(tmpdir(), 'kubb-job-'))
 }
 
-/**
- * Removes a job root and the manifest cache Kubb derived from it. Best effort: a leftover temp
- * directory must not fail a job that already finished.
- */
 async function removeJobRoot(jobRoot: string): Promise<void> {
   await Promise.all([rm(jobRoot, { recursive: true, force: true }), rm(resolveCacheDir(jobRoot), { recursive: true, force: true })]).catch(() => {})
 }
@@ -256,10 +206,7 @@ class GenerationRunTarget extends RpcTarget implements GenerationRun {
   }
 }
 
-/**
- * What Studio reaches over one socket. Cap'n Web exposes only prototype methods, so the public
- * methods here are exactly {@link AgentApi} and everything else stays private.
- */
+// Cap'n Web exposes only prototype methods, so the public methods are exactly `AgentApi`.
 class Agent extends RpcTarget implements AgentApi {
   readonly #options: ResolvedOptions
   readonly #session: Session
@@ -288,10 +235,7 @@ class Agent extends RpcTarget implements AgentApi {
     return this.#sandbox || this.#options.permissions.allowRead
   }
 
-  /**
-   * Kept in the project's cache directory so it survives a restart, except on a sandbox: its pool
-   * runs every tenant's jobs, so it keeps them in memory. Looked up by job id only.
-   */
+  // A sandbox runs every tenant's jobs, so it keeps generations in memory instead of the project cache.
   get #generations(): GenerationStore {
     this.#store ??= createGenerationStore({
       storage: this.#sandbox ? memoryStorage() : cacheStorage({ root: this.#options.root }),
@@ -306,18 +250,11 @@ class Agent extends RpcTarget implements AgentApi {
     return emit(this.#options.hooks, 'studio:warn', { message, permission })
   }
 
-  /**
-   * Declines a request: logs why locally, then tells Studio. The log names the request that was
-   * ignored and the error names what the caller can do.
-   */
   async #refuse(reason: string, message: string, permission?: keyof AgentPermissions): Promise<never> {
     await this.#warn(reason, permission)
     throw new Error(message)
   }
 
-  /**
-   * Runs one Studio command and reports what it did through `studio:command`.
-   */
   async #command<T>(command: KubbHooks['studio:command'][0]['command'], run: () => Promise<{ value: T; info?: string }>): Promise<T> {
     if (!this.#session.info) throw new Error('Studio must call connect() before any other command')
     const { value, info } = await run()
@@ -325,10 +262,7 @@ class Agent extends RpcTarget implements AgentApi {
     return value
   }
 
-  /**
-   * Reads `kubb.config.ts` and reports which plugin options Studio may edit. Skipped without
-   * `allowConfigEdit`. Not cached: the user can edit the file between two Studio actions.
-   */
+  // Not cached: the user can edit the file between two Studio actions.
   async #readConfigFileView(source?: string): Promise<ConfigFileView | undefined> {
     if (!this.#canEditConfig) return undefined
 
@@ -448,7 +382,6 @@ class Agent extends RpcTarget implements AgentApi {
   async #saveConfig(input: SaveConfigInput): Promise<{ value: SaveResult; info?: string }> {
     const { configPath, configFile } = this.#options
 
-    // `edits` crossed the trust boundary, so check it before walking it.
     if (!Array.isArray(input.edits)) {
       await this.#warn('Ignored save: the message carried no edits')
       return { value: { outcomes: [], changed: false } }
@@ -462,8 +395,7 @@ class Agent extends RpcTarget implements AgentApi {
       return { value: refuse('the agent was not granted permission to edit kubb.config.ts') }
     }
 
-    // A generation reloads the config while it runs, so rewriting the file underneath it would
-    // leave that run working from half the change.
+    // A running generation reloads the config, so it would see half the change.
     if (this.#session.active) {
       return { value: refuse('a generation is in progress') }
     }
@@ -478,8 +410,7 @@ class Agent extends RpcTarget implements AgentApi {
         info: `applied ${applied}/${outcomes.length} edits to ${configPath}`,
       }
     } catch (error) {
-      // An unreadable config or a read-only filesystem. Reported as a refusal of every edit so
-      // Studio hears back rather than waiting on a reply that never comes.
+      // Refuse every edit so Studio hears back instead of waiting.
       await emit(this.#options.hooks, 'studio:error', { error: toError(error) })
       return { value: refuse(getErrorMessage(error)) }
     }
@@ -493,7 +424,6 @@ class Agent extends RpcTarget implements AgentApi {
     if (!this.#canRead) {
       return this.#refuse('Ignored files: reading generated files was not granted', 'The agent was not granted permission to read generated files', 'allowRead')
     }
-    // `paths` came off the wire, so check its shape before walking it.
     if (!Array.isArray(input.paths)) {
       return this.#refuse('Ignored files: the message carried no paths', 'The request carried no paths')
     }
@@ -531,10 +461,6 @@ class Agent extends RpcTarget implements AgentApi {
   }
 }
 
-/**
- * Opens the agent socket and attaches Cap'n Web RPC to it, closing the socket when the handshake
- * takes longer than {@link OPEN_TIMEOUT_MS}.
- */
 const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
   // Node's `WebSocket` takes undici's `headers` option, which the DOM typing leaves out.
   const NodeWebSocket = WebSocket as unknown as new (url: URL, init: { headers: Record<string, string> }) => WebSocket
@@ -563,9 +489,6 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
   }
 }
 
-/**
- * Serves one socket until it closes, then waits for its generation to stop.
- */
 async function runSession(options: ResolvedOptions, openRpc: OpenRpc, { url, instanceId }: { url: URL; instanceId: string }) {
   const { hooks, signal, heartbeatInterval, token, studioUrl, version } = options
   const session: Session = { connected: Promise.withResolvers(), closed: false }
@@ -611,8 +534,7 @@ async function runSession(options: ResolvedOptions, openRpc: OpenRpc, { url, ins
 }
 
 /**
- * Runs the connection loop with a swappable transport. {@link connectAgent} is this with a real
- * WebSocket.
+ * The connection loop with a swappable transport. {@link connectAgent} passes a real WebSocket.
  */
 export async function runAgent(options: ConnectAgentOptions, openRpc: OpenRpc): Promise<void> {
   const root = options.root ?? process.cwd()
@@ -650,12 +572,9 @@ export async function runAgent(options: ConnectAgentOptions, openRpc: OpenRpc): 
 }
 
 /**
- * Connects this project to Kubb Studio and serves its commands until `signal` aborts.
- *
- * Reconnects with capped, jittered backoff whenever the socket drops. Resolves on shutdown or when
- * another process of the same agent takes over. Rejects with {@link InvalidAgentTokenError} when
- * Studio refuses the token, so the host can pair again, and with {@link IncompatibleAgentError}
- * when the agent is too old.
+ * Connects this project to Kubb Studio and serves its commands until `signal` aborts. Reconnects
+ * with jittered backoff, and resolves when another process of the agent takes over. Rejects with
+ * {@link InvalidAgentTokenError} so the host can pair again, or {@link IncompatibleAgentError}.
  *
  * @example
  * ```ts

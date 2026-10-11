@@ -401,27 +401,20 @@ export type StudioApi = {
 }
 
 /**
- * Close codes Studio sends when it ends an agent socket on purpose. Any other code, `1011` for a
- * Studio-side failure included, is an ordinary drop and the agent reconnects.
+ * Close codes Studio sends when it ends an agent socket on purpose. `UNAUTHORIZED` means the token
+ * was refused, so pair again. `SUPERSEDED` and `INCOMPATIBLE` mean stop. Any other code, `1011`
+ * included, is an ordinary drop and the agent reconnects.
  */
 export const AgentCloseCode = {
-  /** The token is invalid, expired, or revoked, or the agent was deleted. Pair again. */
   UNAUTHORIZED: 4001,
-  /** Another process of the same agent took the connection over. Reconnecting would take it back. */
   SUPERSEDED: 4002,
-  /** This agent is older than Studio's minimum version. Reconnecting cannot succeed. */
   INCOMPATIBLE: 4003,
 } as const
 
-/**
- * Path of the agent socket on the Studio origin.
- */
 export const AGENT_SOCKET_PATH = '/api/agent/socket'
 
 /**
- * Optional header naming which process of an agent a socket belongs to. Several processes may share
- * one token (Docker replicas, sandbox pools). For a kind that allows only one, a new id supersedes
- * the old socket with {@link AgentCloseCode.SUPERSEDED}.
+ * Optional header naming the process a socket belongs to, for agents that run several processes.
  */
 export const AGENT_INSTANCE_HEADER = 'x-kubb-instance-id'
 
@@ -433,9 +426,6 @@ export const MAX_FILES_PER_REQUEST = 50
 /** Most lines one page may ask for. */
 export const MAX_PAGE_LINES = 2000
 
-/**
- * Largest snapshot tarball Studio accepts.
- */
 export const MAX_SNAPSHOT_BYTES = 50 * 1024 * 1024
 
 /**
@@ -513,18 +503,13 @@ export type AgentPermissions = {
 }
 
 /**
- * Metadata part of `POST /api/snapshots`, the one request a CI run makes. The `tarball` part
- * carries the packed package next to it.
+ * Metadata part of `POST /api/snapshots`. The `tarball` part carries the packed package.
  */
 export type SnapshotUploadMetadata = {
   /**
-   * Stable CI identity, such as `gh:<repoId>:<pr>`. Snapshots with the same `id` share one CI agent
-   * in Studio, which is what `changes` compares against.
+   * Stable CI identity, such as `gh:<repoId>:<pr>`. Snapshots with the same `id` share one CI agent.
    */
   id: string
-  /**
-   * Display name of that CI agent.
-   */
   name: string
   packageName: string
   version: string
@@ -570,22 +555,13 @@ export type PublishedSnapshot = {
   name: string | null
   version: string | null
   integrity: string | null
-  /**
-   * The CI agent the snapshot belongs to.
-   */
   agent: { id: string; name: string; slug: string | null } | null
   /**
    * Readable download path, often `/packages/{agentSlug}/{name}.tgz`.
    */
   url: string
-  /**
-   * Stable download path keyed by snapshot id.
-   */
   snapshotIdUrl: string
   createdAt: string
-  /**
-   * ISO timestamp after which Studio may delete the tarball.
-   */
   expiresAt: string
   /**
    * What changed since the previous snapshot of this package on the same CI agent.

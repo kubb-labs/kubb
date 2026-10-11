@@ -21,9 +21,7 @@ vi.mock('node:fs/promises', async (importOriginal) => {
   return { ...actual, mkdtemp: vi.fn(actual.mkdtemp), rm: vi.fn(actual.rm) }
 })
 
-// `fsStorage` is the project on disk: what a run granted allowWrite writes to, and what the agent
-// snapshots before each run. Every call shares this one in-memory store instead, so a test can seed
-// the disk and watch a run overwrite it. `readKeys` answers relative to the base like the real one.
+// One shared in-memory store stands in for the project on disk, so a test can seed it and watch a run.
 const disk = vi.hoisted(() => ({
   storage: undefined as import('@kubb/core').Storage | undefined,
   cache: undefined as import('@kubb/core').Storage | undefined,
@@ -59,9 +57,7 @@ beforeEach(() => {
   disk.cache = undefined
 })
 
-/**
- * A plugin that emits one file, so a run leaves something behind for `readFiles` to work from.
- */
+// Emits one file, so a run leaves something for `readFiles`.
 function filePlugin(absolutePath: string, content: string): Plugin {
   const file = ast.factory.createFile({
     path: absolutePath,
@@ -96,10 +92,7 @@ function projectConfig(content = 'export const pet = 1'): Config {
 
 type Socket = { agent: AgentApi; ping: ReturnType<typeof vi.fn>; close: (code: number, reason?: string) => void }
 
-/**
- * Stands in for Studio: every socket the loop opens lands in `sockets`, and a test closes it with
- * whatever code Studio would send.
- */
+// Stands in for Studio: each socket lands in `sockets`, and a test closes it with Studio's code.
 function startAgent(overrides: Partial<ConnectAgentOptions> = {}) {
   const sockets: Array<Socket> = []
   const openRpc: OpenRpc = ({ agent }) => {
@@ -131,9 +124,7 @@ function startAgent(overrides: Partial<ConnectAgentOptions> = {}) {
   return { sockets, shutdown, done }
 }
 
-/**
- * Starts the loop and finishes the handshake the way Studio does, by calling `connect(info)`.
- */
+// Starts the loop and finishes the handshake the way Studio does.
 async function connectStudio(overrides: Partial<ConnectAgentOptions> = {}, connectInfo: AgentConnectInfo = info) {
   const started = startAgent(overrides)
   await vi.waitFor(() => expect(started.sockets).toHaveLength(1))

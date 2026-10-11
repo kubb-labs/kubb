@@ -13,9 +13,7 @@ import { defaultStudioUrl, secureUrl } from './url.ts'
 const gzipAsync = promisify(gzip)
 const UPLOAD_TIMEOUT_MS = 120_000
 
-/**
- * Plugins whose output a snapshot carries without depending on the plugin package.
- */
+// Plugins whose output a snapshot carries without depending on the plugin package.
 const BUNDLED_DEPENDENCIES = ['@kubb/plugin-barrel']
 
 type SnapshotFiles = Record<string, string>
@@ -194,16 +192,10 @@ export type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'pee
    * The project's Kubb config. It generates in memory, so nothing is written to disk.
    */
   config: Config
-  /**
-   * Receives the generation's `kubb:*` lifecycle hooks.
-   */
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
 }
 
-/**
- * Reads the most useful message out of a failed Studio response.
- */
 async function failureMessage(response: Response): Promise<string> {
   const body = (await response.json().catch(() => undefined)) as { message?: string; data?: { upgradeUrl?: string } } | undefined
   const upgrade = body?.data?.upgradeUrl ? ` Upgrade at ${body.data.upgradeUrl}.` : ''
@@ -212,8 +204,8 @@ async function failureMessage(response: Response): Promise<string> {
 }
 
 /**
- * Generates the project, packs it as an npm tarball, and publishes it to Studio in one request
- * (`POST /api/snapshots`). This is the CI path: no agent connection, no job to poll.
+ * Generates the project, packs it as an npm tarball, and publishes it to Studio in one
+ * `POST /api/snapshots` request.
  *
  * @example
  * ```ts
