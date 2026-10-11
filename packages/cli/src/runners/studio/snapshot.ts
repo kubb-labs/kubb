@@ -1,7 +1,7 @@
 import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { exists, read } from '@internals/utils'
+import { read } from '@internals/utils'
 import { cliReporter, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { createSnapshot, defaultStudioUrl } from '@kubb/studio'
 import type { BranchSnapshotChanges, PublishedSnapshot, SnapshotChanges } from '@kubb/studio/protocol'
@@ -13,41 +13,25 @@ import { loadConfigs, run, type SnapshotOptions } from './run.ts'
 import type { command } from '../../commands/studio/snapshot.ts'
 import type { CommandRunner } from 'gunshi'
 
-async function findPackageJson(startDirectory: string): Promise<{ name: string; version: string }> {
-  let directory = startDirectory
+/**
+ * Walks up from `directory` to the first package.json with a name and a version.
+ */
+async function findPackageJson(directory: string): Promise<{ name: string; version: string }> {
+  const packageJson = JSON.parse(await read(join(directory, 'package.json')).catch(() => '{}')) as Partial<{ name: string; version: string }>
+  if (packageJson.name && packageJson.version) return { name: packageJson.name, version: packageJson.version }
 
-  for (;;) {
-    const file = join(directory, 'package.json')
+  const parent = dirname(directory)
+  if (parent === directory) throw new Error(`No package.json with a name and a version found above ${process.cwd()}`)
 
-    if (await exists(file)) {
-      const packageJson = JSON.parse(await read(file)) as Partial<{ name: string; version: string }>
-
-      if (packageJson.name && packageJson.version) {
-        return { name: packageJson.name, version: packageJson.version }
-      }
-    }
-
-    const parent = dirname(directory)
-
-    if (parent === directory) {
-      break
-    }
-
-    directory = parent
-  }
-
-  throw new Error(`No package.json with a name and a version found above ${startDirectory}`)
+  return findPackageJson(parent)
 }
 
 /** Reads package.json only for whichever of name/version --name and --version did not supply. */
 async function resolvePackageMetadata(options: SnapshotOptions): Promise<{ name: string; version: string }> {
-  if (options.name && options.packageVersion) {
-    return { name: options.name, version: options.packageVersion }
-  }
+  if (options.name && options.packageVersion) return { name: options.name, version: options.packageVersion }
 
-  const packageMetadata = await findPackageJson(process.cwd())
-
-  return { name: options.name ?? packageMetadata.name, version: options.packageVersion ?? packageMetadata.version }
+  const found = await findPackageJson(process.cwd())
+  return { name: options.name ?? found.name, version: options.packageVersion ?? found.version }
 }
 
 function resolveToken(options: SnapshotOptions): string {

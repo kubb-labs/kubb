@@ -15,8 +15,7 @@ vi.mock('./ci.ts', () => ({
 // and that omitting either still falls back to it.
 vi.mock('@internals/utils', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@internals/utils')>()),
-  exists: vi.fn().mockResolvedValue(false),
-  read: vi.fn(),
+  read: vi.fn().mockRejectedValue(new Error('ENOENT')),
 }))
 vi.mock('@kubb/studio', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@kubb/studio')>()),

@@ -1,9 +1,9 @@
-import { glob, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join, relative, resolve, sep } from 'node:path'
+import { join, resolve } from 'node:path'
 import { promisify } from 'node:util'
 import { gzip } from 'node:zlib'
-import { type Config, type Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
+import { type Config, fsStorage, type Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
 import { type FetchResponse, ofetch } from 'ofetch'
 import { generate, hashOf } from './generations.ts'
 import { MAX_SNAPSHOT_BYTES, type PublishedSnapshot, type SnapshotUploadMetadata } from './protocol.ts'
@@ -65,13 +65,8 @@ function header(path: string, size: number): Buffer {
   value.write('0000000\0', 108, 'ascii')
   value.write('0000000\0', 116, 'ascii')
   value.write(`${size.toString(8).padStart(11, '0')}\0`, 124, 'ascii')
-  value.write(
-    `${Math.floor(Date.now() / 1000)
-      .toString(8)
-      .padStart(11, '0')}\0`,
-    136,
-    'ascii',
-  )
+  // npm's fixed mtime, so the same files always pack to the same integrity.
+  value.write('03560116604\0', 136, 'ascii')
   value.fill(32, 148, 156)
   value.write('0', 156, 'ascii')
   value.write('ustar\0', 257, 'ascii')
@@ -133,17 +128,9 @@ export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: S
         fixedExtension: true,
       })
     }
+    // `unbundle: true` keeps dist's subdirectories, so each entry keeps its path relative to `dist`.
     const builtEntries = await Promise.all(
-      (await Array.fromAsync(glob('**/*', { cwd: dist, withFileTypes: true })))
-        .filter((entry) => entry.isFile())
-        .map(async (entry) => {
-          // `unbundle: true` preserves dist's own subdirectory structure, so the archive path must
-          // follow suit: `entry.name` alone is just the basename and would flatten (and collide)
-          // nested output files.
-          const filePath = join(entry.parentPath, entry.name)
-          const distRelativePath = relative(dist, filePath).split(sep).join('/')
-          return [`package/dist/${distRelativePath}`, await readFile(filePath, 'utf8')] as const
-        }),
+      (await fsStorage().readKeys(dist)).map(async (key) => [`package/dist/${key}`, await readFile(join(dist, key), 'utf8')] as const),
     )
     // Without `@kubb/plugin-barrel` the build produces no `dist/index.*`, so pointing
     // `main`/`module`/`exports['.']` at it would ship a manifest with missing files.
