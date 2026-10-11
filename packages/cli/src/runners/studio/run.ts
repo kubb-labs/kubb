@@ -399,7 +399,17 @@ export async function connect(
 /**
  * Runs a Studio command with shared setup and telemetry reporting.
  */
-export async function run(options: Pick<StudioOptions, 'logLevel'>, action: () => Promise<unknown>, { block = false, json = false } = {}): Promise<void> {
+export async function run({
+  options,
+  action,
+  block = false,
+  json = false,
+}: {
+  options: Pick<StudioOptions, 'logLevel'>
+  action: () => Promise<unknown>
+  block?: boolean
+  json?: boolean
+}): Promise<void> {
   const report = trackRun({ command: 'studio', hrStart: process.hrtime() })
 
   try {

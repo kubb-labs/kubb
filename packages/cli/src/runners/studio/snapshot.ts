@@ -78,7 +78,7 @@ type SnapshotResult = {
   branchChanges?: BranchSnapshotChanges & { branch: string }
 }
 
-function toResult(studioUrl: string, snapshot: PublishedSnapshot, ci: CiContext): SnapshotResult {
+function toResult({ studioUrl, snapshot, ci }: { studioUrl: string; snapshot: PublishedSnapshot; ci: CiContext }): SnapshotResult {
   return {
     id: snapshot.id,
     name: snapshot.name,
@@ -164,7 +164,7 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
       commit: ci.commit,
       baseId: ci.base?.id,
     })
-    const result = toResult(options.studioUrl, published, ci)
+    const result = toResult({ studioUrl: options.studioUrl, snapshot: published, ci })
 
     step('Snapshot published')
 
@@ -192,5 +192,5 @@ export const runner: CommandRunner<{ args: typeof command.args; extensions: {} }
     packageVersion: values.packageVersion,
     json: values.json,
   }
-  await run(options, () => snapshot(options), { json: options.json })
+  await run({ options, action: () => snapshot(options), json: options.json })
 }

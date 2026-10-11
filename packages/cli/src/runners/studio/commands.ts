@@ -48,35 +48,41 @@ async function status(options: StudioOptions): Promise<void> {
 
 export const connectRunner: Runner<typeof connectCommand> = async ({ values }) => {
   const options = createStudioOptions(values)
-  await run(options, () => connect(options), { block: true })
+  await run({ options, action: () => connect(options), block: true })
 }
 
 export const loginRunner: Runner<typeof connectCommand> = async ({ values }) => {
   const options = createStudioOptions(values)
-  await run(options, () => login(options))
+  await run({ options, action: () => login(options) })
 }
 
 export const logoutRunner: Runner<typeof logoutCommand> = async ({ values }) => {
   const options = createStudioOptions(values)
-  await run(options, async () => {
-    await stopWorker()
-    await clearCredentials()
-    console.log('Signed out of Kubb Studio.')
+  await run({
+    options,
+    action: async () => {
+      await stopWorker()
+      await clearCredentials()
+      console.log('Signed out of Kubb Studio.')
+    },
   })
 }
 
 export const startRunner: Runner<typeof connectCommand> = async ({ values }) => {
   const options = createStudioOptions(values)
-  await run(options, () => startWorker(options))
+  await run({ options, action: () => startWorker(options) })
 }
 
 export const statusRunner: Runner<typeof statusCommand> = async ({ values }) => {
   const options = createStudioOptions(values)
-  await run(options, async () => {
-    const worker = await getWorkerStatus()
-    console.log(`Background connection: ${worker.state}${worker.running ? ` (PID ${worker.pid})` : ''}`)
-    console.log(`Logs: ${getWorkerLogPath()}`)
-    await status(options)
+  await run({
+    options,
+    action: async () => {
+      const worker = await getWorkerStatus()
+      console.log(`Background connection: ${worker.state}${worker.running ? ` (PID ${worker.pid})` : ''}`)
+      console.log(`Logs: ${getWorkerLogPath()}`)
+      await status(options)
+    },
   })
 }
 

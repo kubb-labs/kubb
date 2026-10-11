@@ -16,14 +16,14 @@ export function projectConfig({ content = 'export const pet = 1', projectRoot }:
     imports: [],
     exports: [],
   })
-  const plugin = definePlugin(() => ({
+  const plugin: Plugin = definePlugin(() => ({
     name: 'plugin-barrel',
     hooks: {
       'kubb:plugin:setup'(ctx) {
         ctx.injectFile(file)
       },
     },
-  }))() as unknown as Plugin
+  }))()
 
   return {
     root: projectRoot ?? root,

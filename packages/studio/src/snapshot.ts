@@ -83,7 +83,7 @@ function header(path: string, size: number): Buffer {
  * Packs a generation's files into a gzipped, npm-installable tarball: a `package/` root with the
  * generated sources, a `tsdown`-built `dist/` (esm + cjs), and a `package.json` manifest.
  */
-export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: SnapshotPackage): Promise<{ bytes: Buffer }> {
+export async function createSnapshotPackage({ files, packageInfo }: { files: SnapshotFiles; packageInfo: SnapshotPackage }): Promise<Buffer> {
   const root = await mkdtemp(join(tmpdir(), 'kubb-snapshot-'))
   const dist = join(root, 'dist')
 
@@ -161,13 +161,13 @@ export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: S
       chunks.push(header(name, bytes.length), bytes, Buffer.alloc((512 - (bytes.length % 512)) % 512))
     }
 
-    return { bytes: await gzipAsync(Buffer.concat([...chunks, Buffer.alloc(1024)])) }
+    return await gzipAsync(Buffer.concat([...chunks, Buffer.alloc(1024)]))
   } finally {
     await rm(root, { recursive: true, force: true })
   }
 }
 
-export type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'peerDependencies'> & {
+type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'peerDependencies'> & {
   studioUrl?: string
   /**
    * Organization CI API key, sent as `x-api-key`.
@@ -231,7 +231,7 @@ export async function createSnapshot({
   const missing = missingDependencies.filter((dependency) => !BUNDLED_DEPENDENCIES.includes(dependency))
   if (missing.length) throw new Error(`Missing dependencies: ${missing.join(', ')}`)
 
-  const { bytes } = await createSnapshotPackage(files, { name: metadata.packageName, version: metadata.version, peerDependencies })
+  const bytes = await createSnapshotPackage({ files, packageInfo: { name: metadata.packageName, version: metadata.version, peerDependencies } })
   if (bytes.length > MAX_SNAPSHOT_BYTES) {
     throw new Error(`The snapshot is ${Math.ceil(bytes.length / 1024 / 1024)} MB, over the ${MAX_SNAPSHOT_BYTES / 1024 / 1024} MB limit`)
   }

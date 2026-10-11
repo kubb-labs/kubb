@@ -60,7 +60,7 @@ export class InvalidAgentTokenError extends Error {
  * Studio closed with {@link AgentCloseCode.INCOMPATIBLE}. Only an upgrade helps.
  */
 export class IncompatibleAgentError extends Error {
-  constructor(studioUrl: string, detail?: string) {
+  constructor({ studioUrl, detail }: { studioUrl: string; detail?: string }) {
     super(`Kubb Studio at ${studioUrl} requires a newer agent${detail ? `: ${detail}` : ''}. Upgrade kubb or the Kubb agent image.`)
     this.name = 'IncompatibleAgentError'
   }
@@ -201,7 +201,7 @@ class Agent extends RpcTarget implements AgentApi {
   readonly #limits = resolveGenerationLimits()
   #store: GenerationStore | undefined
 
-  constructor(options: ResolvedOptions, session: Session) {
+  constructor({ options, session }: { options: ResolvedOptions; session: Session }) {
     super()
     this.#options = options
     this.#session = session
@@ -239,7 +239,7 @@ class Agent extends RpcTarget implements AgentApi {
     throw new Error(message)
   }
 
-  async #command<T>(command: KubbHooks['studio:command'][0]['command'], run: () => Promise<{ value: T; info?: string }>): Promise<T> {
+  async #command<T>({ command, run }: { command: KubbHooks['studio:command'][0]['command']; run: () => Promise<{ value: T; info?: string }> }): Promise<T> {
     if (!this.#session.info) throw new Error('Studio must call connect() before any other command')
     const { value, info } = await run()
     if (info !== undefined) await emit(this.#options.hooks, 'studio:command', { command, info })
@@ -306,7 +306,7 @@ class Agent extends RpcTarget implements AgentApi {
     try {
       // Kubb keys its manifest cache by root, so sandbox tenants sharing one root would read each other's.
       if (this.#sandbox) root = await mkdtemp(path.join(tmpdir(), 'kubb-job-'))
-      return await this.#command('generate', () => this.#generate({ input, root, signal: controller.signal }))
+      return await this.#command({ command: 'generate', run: () => this.#generate({ input, root, signal: controller.signal }) })
     } finally {
       if (root !== this.#options.root) {
         await Promise.all([rm(root, { recursive: true, force: true }), rm(resolveCacheDir(root), { recursive: true, force: true })]).catch(() => {})
@@ -328,7 +328,7 @@ class Agent extends RpcTarget implements AgentApi {
       await this.#warn({ message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent' })
     }
 
-    const hasProjectOnDisk = !this.#sandbox && this.#options.permissions.allowRead
+    const hasProjectOnDisk = !this.#sandbox && this.#permissions.allowRead
     const diskFiles = hasProjectOnDisk ? await listDisk({ root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES }) : undefined
     const disk = diskFiles ? await this.#generations.keep({ jobId, source: 'disk', files: diskFiles, maxSetMb: this.#limits.maxSnapshotMb }) : undefined
 
@@ -336,7 +336,7 @@ class Agent extends RpcTarget implements AgentApi {
       config: { ...config, root, input: studioInput ?? config.input, storage: this.#permissions.allowWrite ? fsStorage() : memoryStorage(), plugins, adapter },
       hooks: this.#options.hooks,
       signal,
-      allowExec: this.#options.permissions.allowExec,
+      allowExec: this.#permissions.allowExec,
     }).catch(async (error: unknown) => {
       await this.#generations.drop(jobId)
       throw error
@@ -361,7 +361,7 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   saveConfig(input: SaveConfigInput): Promise<SaveResult> {
-    return this.#command('saveConfig', () => this.#saveConfig(input))
+    return this.#command({ command: 'saveConfig', run: () => this.#saveConfig(input) })
   }
 
   async #saveConfig(input: SaveConfigInput): Promise<{ value: SaveResult; info?: string }> {
@@ -399,7 +399,7 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   readFiles(input: ReadFilesInput): Promise<ReadFilesResult> {
-    return this.#command('readFiles', () => this.#readFiles(input))
+    return this.#command({ command: 'readFiles', run: () => this.#readFiles(input) })
   }
 
   async #readFiles(input: ReadFilesInput): Promise<{ value: ReadFilesResult; info: string }> {
@@ -455,7 +455,7 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
 async function runSession({ options, openRpc, url, instanceId }: { options: ResolvedOptions; openRpc: OpenRpc; url: URL; instanceId: string }) {
   const { hooks, signal, heartbeatInterval, token, studioUrl, version } = options
   const session: Session = { connected: Promise.withResolvers(), closed: false }
-  const rpc = openRpc({ url, token, instanceId, agent: new Agent(options, session) })
+  const rpc = openRpc({ url, token, instanceId, agent: new Agent({ options, session }) })
   signal?.addEventListener('abort', rpc.close, { once: true })
   let timer: ReturnType<typeof setTimeout> | undefined
 
@@ -497,7 +497,7 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
 /**
  * The connection loop with a swappable transport. {@link connectAgent} passes a real WebSocket.
  */
-export async function runAgent(options: ConnectAgentOptions, openRpc: OpenRpc): Promise<void> {
+export async function runAgent({ options, openRpc }: { options: ConnectAgentOptions; openRpc: OpenRpc }): Promise<void> {
   const root = options.root ?? process.cwd()
   const resolved: ResolvedOptions = {
     ...options,
@@ -521,7 +521,7 @@ export async function runAgent(options: ConnectAgentOptions, openRpc: OpenRpc): 
     await emit(hooks, 'studio:disconnected', { code, reason })
 
     if (code === AgentCloseCode.UNAUTHORIZED) throw new InvalidAgentTokenError(studioUrl)
-    if (code === AgentCloseCode.INCOMPATIBLE) throw new IncompatibleAgentError(studioUrl, reason)
+    if (code === AgentCloseCode.INCOMPATIBLE) throw new IncompatibleAgentError({ studioUrl, detail: reason })
     if (code === AgentCloseCode.SUPERSEDED) return
 
     // Reset only once Studio called connect(), so a socket that opens and closes again backs off.
@@ -546,5 +546,5 @@ export async function runAgent(options: ConnectAgentOptions, openRpc: OpenRpc): 
  * ```
  */
 export function connectAgent(options: ConnectAgentOptions): Promise<void> {
-  return runAgent(options, openWebSocketRpc)
+  return runAgent({ options, openRpc: openWebSocketRpc })
 }

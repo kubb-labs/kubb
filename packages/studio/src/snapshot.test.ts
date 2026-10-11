@@ -2,6 +2,7 @@ import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { gunzipSync } from 'node:zlib'
+import { resolveCacheDir } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import { hashOf } from './generations.ts'
 import type { SnapshotUploadMetadata } from './protocol.ts'
@@ -50,10 +51,10 @@ function readManifest(bytes: Buffer): Manifest {
 
 describe('createSnapshotPackage', () => {
   it('packs the sources, a dist build and a manifest whose barrel fields point at dist/index', async () => {
-    const { bytes } = await createSnapshotPackage(
-      { 'src/index.ts': 'export const answer = 42' },
-      { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: { typescript: '^5.0.0' } },
-    )
+    const bytes = await createSnapshotPackage({
+      files: { 'src/index.ts': 'export const answer = 42' },
+      packageInfo: { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: { typescript: '^5.0.0' } },
+    })
 
     const entries = readTarEntries(gunzipSync(bytes))
     expect(entries.map((entry) => entry.path)).toStrictEqual([
@@ -75,10 +76,10 @@ describe('createSnapshotPackage', () => {
   })
 
   it('normalizes absolute generated file paths', async () => {
-    const { bytes } = await createSnapshotPackage(
-      { '/home/runner/work/plugins/plugins/examples/advanced/src/gen/index.ts': 'export {}' },
-      { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: {} },
-    )
+    const bytes = await createSnapshotPackage({
+      files: { '/home/runner/work/plugins/plugins/examples/advanced/src/gen/index.ts': 'export {}' },
+      packageInfo: { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: {} },
+    })
 
     const tarball = gunzipSync(bytes).toString('utf8')
     expect(tarball).toContain('package/src/gen/index.ts')
@@ -86,13 +87,13 @@ describe('createSnapshotPackage', () => {
   })
 
   it('preserves nested dist output paths from an unbundled multi-file build', async () => {
-    const { bytes } = await createSnapshotPackage(
-      {
+    const bytes = await createSnapshotPackage({
+      files: {
         'src/index.ts': "export { helper } from './nested/helper.ts'",
         'src/nested/helper.ts': 'export const helper = 1',
       },
-      { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: {} },
-    )
+      packageInfo: { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: {} },
+    })
 
     const paths = readTarEntries(gunzipSync(bytes)).map((entry) => entry.path)
     expect(paths).toContain('package/dist/nested/helper.mjs')
@@ -135,7 +136,7 @@ describe('createSnapshot', () => {
     try {
       await createSnapshot({ ...options, studioUrl: 'https://studio.test', config: { ...config, output: { ...config.output, postGenerate: [rewrite] } } })
     } finally {
-      await rm(projectRoot, { recursive: true, force: true })
+      await Promise.all([rm(projectRoot, { recursive: true, force: true }), rm(resolveCacheDir(projectRoot), { recursive: true, force: true })])
     }
 
     const body = fetchMock.mock.calls[0]![1]!.body as FormData

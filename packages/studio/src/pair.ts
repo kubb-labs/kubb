@@ -17,7 +17,7 @@ export type PairingSession = {
   interval: number
 }
 
-export type PairingResult = {
+type PairingResult = {
   /**
    * Bearer token for this machine. Write credentials with mode 0600 and never log the value.
    */
@@ -46,7 +46,7 @@ export type PairingResult = {
  * What this machine registers as. Any member may approve `cli` (`kubb studio`); only an admin may
  * approve `user` and `sandbox` (the Docker image). A `ci` agent never pairs.
  */
-export type PairingAgentType = 'cli' | 'user' | 'sandbox'
+type PairingAgentType = 'cli' | 'user' | 'sandbox'
 
 /** Labels, not secrets: a person approving the code in the browser is what authorizes a pairing. */
 const CLIENT_IDS = { cli: 'kubb-cli', agent: 'kubb-agent' } as const
@@ -151,8 +151,8 @@ type PollResponse =
       error_description?: string
     }
 
-function isPairingResult(response: PollResponse | undefined): response is PairingResult {
-  return !!response && typeof response === 'object' && 'token' in response && typeof response.token === 'string'
+function isPairingResult(response: PollResponse): response is PairingResult {
+  return 'token' in response && typeof response.token === 'string'
 }
 
 /**
@@ -183,7 +183,7 @@ export async function pollForPairingToken({ studioUrl = defaultStudioUrl, sessio
       throw new PairingCanceledError()
     }
 
-    let response: PollResponse | undefined
+    let response: PollResponse
     try {
       // A denial, an expiry, and "not yet" all come back as 4xx with a body to switch on.
       const { status, _data } = await ofetch.raw<PollResponse>(secureUrl({ studioUrl, path: '/api/agent/token' }).href, {
@@ -208,7 +208,7 @@ export async function pollForPairingToken({ studioUrl = defaultStudioUrl, sessio
       return response
     }
 
-    if (!response || typeof response !== 'object' || !('error' in response) || typeof response.error !== 'string') {
+    if (!('error' in response) || typeof response.error !== 'string') {
       throw new Error('Kubb Studio returned an empty pairing response, pair again')
     }
 
@@ -235,7 +235,7 @@ export async function pollForPairingToken({ studioUrl = defaultStudioUrl, sessio
   throw new PairingExpiredError()
 }
 
-export type PairAgentOptions = StartPairingOptions & {
+type PairAgentOptions = StartPairingOptions & {
   /** Shows the code to whoever approves it. Called again for each fresh code. */
   onCode: (session: PairingSession, attempt: number) => void | Promise<void>
   /** Called when a poll could not reach Studio. Polling carries on. */
