@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { promisify } from 'node:util'
 import { gzip } from 'node:zlib'
-import { type Config, fsStorage, type Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
+import { type Config, fsStorage, type Hookable, type KubbHooks } from '@kubb/core'
 import { type FetchResponse, ofetch } from 'ofetch'
 import { generate, hashOf } from './generations.ts'
 import { MAX_SNAPSHOT_BYTES, type PublishedSnapshot, type SnapshotUploadMetadata } from './protocol.ts'
@@ -175,7 +175,8 @@ export type CreateSnapshotOptions = Omit<SnapshotUploadMetadata, 'hashes' | 'pee
    */
   apiKey: string
   /**
-   * The project's Kubb config. It generates in memory, so nothing is written to disk.
+   * The project's Kubb config. Like `kubb generate`, it writes to `output.path`, then runs the
+   * formatter, the linter, and `output.postGenerate`.
    */
   config: Config
   hooks?: Hookable<KubbHooks>
@@ -216,7 +217,7 @@ export async function createSnapshot({
   ...metadata
 }: CreateSnapshotOptions): Promise<PublishedSnapshot> {
   const url = secureUrl({ studioUrl, path: '/api/snapshots' })
-  const generated = await generate({ config: { ...config, storage: memoryStorage() }, hooks, signal, allowExec: false })
+  const generated = await generate({ config, hooks, signal, allowExec: true })
   const files = Object.fromEntries(
     await Promise.all(
       [...generated.paths].map(async (path) => {

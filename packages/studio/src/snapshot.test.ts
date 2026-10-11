@@ -1,3 +1,6 @@
+import { mkdtemp, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { gunzipSync } from 'node:zlib'
 import { describe, expect, it, vi } from 'vitest'
 import { hashOf } from './generations.ts'
@@ -121,6 +124,22 @@ describe('createSnapshot', () => {
       peerDependencies: { '@kubb/plugin-barrel': expect.any(String) },
     })
     expect(readManifest(Buffer.from(await (body.get('tarball') as Blob).arrayBuffer()))).toMatchObject({ name: '@acme/api', version: '1.0.0' })
+  })
+
+  it('packs the output after output.postGenerate ran, like kubb generate', async () => {
+    const projectRoot = await mkdtemp(join(tmpdir(), 'kubb-snapshot-project-'))
+    const rewrite = `node -e "require('fs').writeFileSync('src/gen/pet.ts', 'export const pet = 2')"`
+    const config = projectConfig({ projectRoot })
+    using fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ snapshot: { id: 'snap-1' } }, { status: 201 }))
+
+    try {
+      await createSnapshot({ ...options, studioUrl: 'https://studio.test', config: { ...config, output: { ...config.output, postGenerate: [rewrite] } } })
+    } finally {
+      await rm(projectRoot, { recursive: true, force: true })
+    }
+
+    const body = fetchMock.mock.calls[0]![1]!.body as FormData
+    expect((JSON.parse(String(body.get('metadata'))) as SnapshotUploadMetadata).hashes).toStrictEqual({ 'src/gen/pet.ts': hashOf('export const pet = 2') })
   })
 
   it('names the upgrade page when Studio refuses the snapshot over a limit', async () => {

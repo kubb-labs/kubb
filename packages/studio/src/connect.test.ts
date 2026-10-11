@@ -340,7 +340,7 @@ describe('generation history', () => {
 
   it('reads every earlier job after the agent restarts, from the project cache', async () => {
     const content = { current: '' }
-    const loadConfig = async () => projectConfig(content.current)
+    const loadConfig = async () => projectConfig({ content: content.current })
     const first = await connectStudio({ permissions: { allowRead: true }, loadConfig })
     content.current = 'export const pet = 1'
     await run(first.agent, 'job-1')

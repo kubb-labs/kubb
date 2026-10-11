@@ -126,7 +126,8 @@ and an aborted `signal` `PairingCanceledError`.
 
 ## CI snapshots
 
-`createSnapshot` generates the project in memory, packs it as an npm tarball, and sends one
+`createSnapshot` generates the project like `kubb generate`, with the formatter, the linter, and
+`output.postGenerate`. It then packs the output as an npm tarball and sends one
 `POST /api/snapshots` with the organization CI API key as `x-api-key`.
 
 ```typescript
