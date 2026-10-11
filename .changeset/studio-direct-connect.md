@@ -3,7 +3,7 @@
 '@kubb/cli': patch
 ---
 
-Connect to Kubb Studio over one WebSocket, and publish CI snapshots in one request. This needs a Kubb Studio release with the same protocol.
+Connect to Kubb Studio over one WebSocket, and publish CI snapshots in one request. Needs the Kubb Studio release from kubb-labs/platform#940.
 
 - `connectAgent` replaces `runConnection` and `createClient`. It resolves on shutdown and rejects with `InvalidAgentTokenError` when Studio refuses the token, so the host pairs again in its own loop. Pass one `hooks` emitter instead of `installLogger`.
 - `createSnapshot` replaces `createAgent`, `createJob`, and `waitForJob`. It generates in memory, packs the tarball, and sends one `POST /api/snapshots` with the CI API key. Snapshots come only from CI now, so the `publishSnapshot` RPC is gone.

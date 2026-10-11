@@ -118,16 +118,16 @@ No host starts with a token, so each one pairs over
 for a code, hands it to `onCode` to show, and polls until someone approves it in the browser.
 
 `machineId` is a secret the host keeps for the machine. Studio stores its hash, so the same machine
-pairing again rotates one agent's token instead of creating a second agent. The `type` is what
-Studio registers: `cli` for `kubb studio`, which any member can approve, and `user` or `sandbox` for
-the Docker image, which only an admin can approve. A denial throws `PairingDeniedError`, an expired
-code `PairingExpiredError`, and an aborted `signal` `PairingCanceledError`.
+pairing again rotates one agent's token instead of creating a second agent. Studio records the
+`type` with the agent. `cli` is `kubb studio`, which any member can approve. `user` is the Docker
+image, which only an admin can approve. `sandbox` is the Docker image run as a sandbox, which only
+an admin can approve. A denial throws `PairingDeniedError`, an expired code `PairingExpiredError`,
+and an aborted `signal` `PairingCanceledError`.
 
 ## CI snapshots
 
 `createSnapshot` generates the project in memory, packs it as an npm tarball, and sends one
-`POST /api/snapshots` with the organization CI API key as `x-api-key`. There is no socket and no job
-to poll.
+`POST /api/snapshots` with the organization CI API key as `x-api-key`.
 
 ```typescript
 import { createSnapshot } from '@kubb/studio'

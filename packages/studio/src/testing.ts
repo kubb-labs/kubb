@@ -5,8 +5,7 @@ import { createMockedAdapter } from '@kubb/core/mocks'
 export const root = '/project'
 
 /**
- * A project config whose one plugin injects `src/gen/pet.ts` with `content`, so a run leaves a file
- * to read back. The plugin is named `plugin-barrel`, a package a snapshot can resolve and bundle.
+ * A project whose one plugin injects `src/gen/pet.ts`, named `plugin-barrel` so a snapshot can resolve its package.
  */
 export function projectConfig(content = 'export const pet = 1'): Config {
   const file = ast.factory.createFile({

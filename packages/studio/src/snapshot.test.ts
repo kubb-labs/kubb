@@ -5,7 +5,9 @@ import type { SnapshotUploadMetadata } from './protocol.ts'
 import { createSnapshot, createSnapshotPackage } from './snapshot.ts'
 import { projectConfig } from './testing.ts'
 
-/** Reads back the path (USTAR `prefix` + `name`) and content of every entry in a tarball. */
+/**
+ * Reads back the path (USTAR `prefix` + `name`) and content of every entry in a tarball.
+ */
 function readTarEntries(tar: Buffer): Array<{ path: string; content: string }> {
   const entries: Array<{ path: string; content: string }> = []
   let offset = 0

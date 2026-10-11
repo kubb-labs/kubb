@@ -227,7 +227,8 @@ class Agent extends RpcTarget implements AgentApi {
     return this.#sandbox || this.#options.permissions.allowRead
   }
 
-  // A sandbox runs every tenant's jobs, so it keeps generations in memory instead of the project cache.
+  // Kept in the project's cache directory so it survives a restart. A sandbox keeps them in memory,
+  // because its pool runs every tenant's jobs.
   get #generations(): GenerationStore {
     this.#store ??= createGenerationStore({
       storage: this.#sandbox ? memoryStorage() : cacheStorage({ root: this.#options.root }),

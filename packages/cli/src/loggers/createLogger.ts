@@ -34,7 +34,9 @@ function formatMessage(message: string, logLevel: number): string {
   return message
 }
 
-/** Renders a `studio:connected` event's versions: the runtime only when it differs from the host. */
+/**
+ * Renders a `studio:connected` event's versions: the runtime only when it differs from the host.
+ */
 function formatVersions({ studio, kubb, agent }: StudioConnectedContext['versions']): string {
   return [`v${agent}`, kubb !== agent ? `runtime v${kubb}` : undefined, `Studio v${studio}`].filter(Boolean).join(', ')
 }
