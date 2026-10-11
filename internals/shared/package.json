@@ -41,7 +41,7 @@
   "scripts": {
     "build": "tsdown",
     "start": "tsdown --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc"
   },
   "devDependencies": {
     "@types/node": "catalog:",

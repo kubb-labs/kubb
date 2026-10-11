@@ -61,7 +61,7 @@
   "scripts": {
     "build": "tsdown",
     "start": "tsdown --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",

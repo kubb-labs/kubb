@@ -89,7 +89,7 @@
   "scripts": {
     "build": "tsdown",
     "start": "tsdown --watch ./src",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@kubb/kit": "workspace:*",

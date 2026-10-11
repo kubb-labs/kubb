@@ -142,7 +142,7 @@
   "scripts": {
     "build": "tsdown",
     "start": "tsdown --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@kubb/adapter-oas": "workspace:*",
