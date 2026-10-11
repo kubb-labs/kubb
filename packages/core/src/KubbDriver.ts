@@ -26,6 +26,11 @@ type Options = {
    * Passed to `fileManager.write` so files the output passes already normalized are left alone.
    */
   manifest?: OutputManifest
+  /**
+   * The output directory `output.clean` empties. Emptied right before the files are written, so a
+   * run that fails earlier leaves the previous output in place.
+   */
+  cleanPath?: string
 }
 
 type RequirePluginContext = {
@@ -218,28 +223,34 @@ export class KubbDriver {
       const setup = plugin.hooks?.['kubb:plugin:setup']
       if (!setup) continue
 
-      await setup({
-        config: this.config,
-        options: plugin.options ?? {},
-        addGenerator: (...generators) => {
-          plugin.generators = [...(plugin.generators ?? []), ...generators]
-        },
-        setResolver: (resolver) => {
-          plugin.resolver = Resolver.merge(createResolver<PluginFactoryOptions>({ pluginName: plugin.name }), resolver)
-        },
-        addMacro: (macro) => {
-          this.#transforms.add(plugin.name, macro)
-        },
-        setMacros: (macros) => {
-          this.#transforms.set(plugin.name, macros)
-        },
-        setOptions: (opts) => {
-          plugin.options = normalizePluginOptions({ ...plugin.options, ...opts }, plugin.name)
-        },
-        injectFile: (userFileNode) => {
-          this.fileManager.add(ast.factory.createFile(userFileNode))
-        },
-      })
+      try {
+        await setup({
+          config: this.config,
+          options: plugin.options ?? {},
+          addGenerator: (...generators) => {
+            plugin.generators = [...(plugin.generators ?? []), ...generators]
+          },
+          setResolver: (resolver) => {
+            plugin.resolver = Resolver.merge(createResolver<PluginFactoryOptions>({ pluginName: plugin.name }), resolver)
+          },
+          addMacro: (macro) => {
+            this.#transforms.add(plugin.name, macro)
+          },
+          setMacros: (macros) => {
+            this.#transforms.set(plugin.name, macros)
+          },
+          setOptions: (opts) => {
+            plugin.options = normalizePluginOptions({ ...plugin.options, ...opts }, plugin.name)
+          },
+          injectFile: (userFileNode) => {
+            this.fileManager.add(ast.factory.createFile(userFileNode))
+          },
+        })
+      } catch (caughtError) {
+        // Attributed to the plugin, so the run summary counts it as a failed plugin.
+        const diagnostic = Diagnostics.from(caughtError)
+        throw new Diagnostics.Error({ ...diagnostic, plugin: diagnostic.plugin ?? plugin.name })
+      }
     }
   }
 
@@ -296,6 +307,22 @@ export class KubbDriver {
         try {
           this.options.signal?.throwIfAborted()
           const outputRoot = resolve(config.root, config.output.path)
+
+          // A dependency missing from the config orders nothing in `#sortPlugins`, and a plugin that
+          // only reads it through `getPlugin` would quietly generate less, so report it up front.
+          for (const plugin of this.plugins.values()) {
+            for (const dependency of plugin.dependencies ?? []) {
+              if (this.plugins.has(dependency)) continue
+              Diagnostics.report({
+                code: Diagnostics.code.pluginNotFound,
+                severity: 'warning',
+                message: `Plugin "${dependency}" is required by "${plugin.name}" but not found, so "${plugin.name}" may generate less than expected.`,
+                help: `Add "${dependency}" to the \`plugins\` array in kubb.config.ts.`,
+                location: { kind: 'config' },
+                plugin: plugin.name,
+              })
+            }
+          }
 
           // Parse the adapter source into `this.inputNode`.
           await this.#parseInput()
@@ -359,6 +386,8 @@ export class KubbDriver {
           // Write every generated file once, after post-processing (barrel etc.) has had its
           // chance to add more. Writing mid-generation measured no faster in practice, so a
           // single pass keeps the pipeline simpler.
+          if (this.options.cleanPath) await config.storage.empty(this.options.cleanPath)
+
           await fileManager.write(fileManager.files, {
             storage: config.storage,
             parsers: parsersMap,

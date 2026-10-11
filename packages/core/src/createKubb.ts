@@ -136,29 +136,27 @@ export class Kubb {
     signal?.throwIfAborted()
     const config = this.config
     const manifest = hasOutputPasses(config) ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) }) : undefined
-    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal })
 
     // Every plugin registers its lifecycle handlers on the shared emitter, so size the ceiling to the plugin count.
     this.hooks.setMaxListeners(Math.max(10, config.plugins.length * HOOK_LISTENERS_PER_PLUGIN))
 
-    if (config.output.clean) {
-      const cleanPath = resolve(config.root, config.output.path)
+    const cleanPath = config.output.clean ? resolve(config.root, config.output.path) : undefined
 
-      // clean only removes generated code. Refuse when the output resolves to the project root or
-      // an ancestor of it, otherwise the wipe would delete kubb.config and every source file.
-      if (isPathInside(config.root, cleanPath)) {
-        throw new Diagnostics.Error({
-          code: Diagnostics.code.cleanRoot,
-          severity: 'error',
-          message: `output.clean cannot delete "${cleanPath}" because it is the project root or a parent of it.`,
-          help: 'Point `output.path` at a subdirectory such as `./src/gen` so clean only removes generated code.',
-          location: { kind: 'config' },
-        })
-      }
-
-      await config.storage.empty(cleanPath)
+    // clean only removes generated code. Refuse when the output resolves to the project root or
+    // an ancestor of it, otherwise the wipe would delete kubb.config and every source file.
+    if (cleanPath && isPathInside(config.root, cleanPath)) {
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.cleanRoot,
+        severity: 'error',
+        message: `output.clean cannot delete "${cleanPath}" because it is the project root or a parent of it.`,
+        help: 'Point `output.path` at a subdirectory such as `./src/gen` so clean only removes generated code.',
+        location: { kind: 'config' },
+      })
     }
 
+    // The driver empties `cleanPath` right before it writes the new files, so a run that fails
+    // earlier, on an invalid spec or a plugin that throws, leaves the previous output in place.
+    const driver = new KubbDriver(config, { hooks: this.hooks, manifest, signal, cleanPath })
     await driver.setup()
 
     this.#driver = driver
