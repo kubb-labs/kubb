@@ -58,11 +58,11 @@ function positiveNumber(value: string | undefined): number | undefined {
  * `KUBB_AGENT_MAX_GENERATIONS`, `KUBB_AGENT_MAX_GENERATIONS_MB` and `KUBB_AGENT_MAX_SNAPSHOT_MB`.
  * An unset or invalid value keeps the default.
  */
-export function resolveGenerationLimits(env: NodeJS.ProcessEnv = process.env): { maxCount: number; maxMb: number; maxSnapshotMb: number } {
+export function resolveGenerationLimits(): { maxCount: number; maxMb: number; maxSnapshotMb: number } {
   return {
-    maxCount: Math.max(1, Math.floor(positiveNumber(env.KUBB_AGENT_MAX_GENERATIONS) ?? 8)),
-    maxMb: positiveNumber(env.KUBB_AGENT_MAX_GENERATIONS_MB) ?? 100,
-    maxSnapshotMb: positiveNumber(env.KUBB_AGENT_MAX_SNAPSHOT_MB) ?? 50,
+    maxCount: Math.max(1, Math.floor(positiveNumber(process.env.KUBB_AGENT_MAX_GENERATIONS) ?? 8)),
+    maxMb: positiveNumber(process.env.KUBB_AGENT_MAX_GENERATIONS_MB) ?? 100,
+    maxSnapshotMb: positiveNumber(process.env.KUBB_AGENT_MAX_SNAPSHOT_MB) ?? 50,
   }
 }
 
@@ -199,8 +199,6 @@ export function createGenerationStore({
     keep,
     drop,
     get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId && isLive(generation)),
-    /** Total bytes of every set the store holds, expired ones too until the next add drops them. */
-    bytes: async () => totalBytes(await load()),
     async add(generation: KeptGeneration): Promise<void> {
       const current = await load()
       for (const expired of current.filter((entry) => !isLive(entry))) await drop(expired.jobId)

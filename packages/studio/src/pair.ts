@@ -100,7 +100,15 @@ type StartPairingOptions = {
 /**
  * POSTs JSON to Studio and returns the parsed body, whatever the status.
  */
-async function postJson<T>(url: URL, body: unknown, signal?: AbortSignal): Promise<{ ok: boolean; status: number; data: T | undefined }> {
+async function postJson<T>({
+  url,
+  body,
+  signal,
+}: {
+  url: URL
+  body: unknown
+  signal?: AbortSignal
+}): Promise<{ ok: boolean; status: number; data: T | undefined }> {
   const response = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), signal })
   const data = (await response.json().catch(() => undefined)) as T | undefined
 
@@ -112,9 +120,9 @@ async function postJson<T>(url: URL, body: unknown, signal?: AbortSignal): Promi
  */
 export async function startPairing({ studioUrl = defaultStudioUrl, type, name, hostname, machineId, signal }: StartPairingOptions): Promise<PairingSession> {
   try {
-    const { ok, status, data } = await postJson<PairingSession>(
-      secureUrl(studioUrl, '/api/auth/device/code'),
-      {
+    const { ok, status, data } = await postJson<PairingSession>({
+      url: secureUrl({ studioUrl, path: '/api/auth/device/code' }),
+      body: {
         client_id: type === 'cli' ? CLIENT_IDS.cli : CLIENT_IDS.agent,
         name,
         hostname,
@@ -122,7 +130,7 @@ export async function startPairing({ studioUrl = defaultStudioUrl, type, name, h
         agent_kind: type === 'cli' ? undefined : type,
       },
       signal,
-    )
+    })
     if (!ok || !data) throw new Error(`Kubb Studio refused the pairing request (status ${status})`)
 
     return data
@@ -195,7 +203,11 @@ export async function pollForPairingToken({ studioUrl = defaultStudioUrl, sessio
     let response: PollResponse | undefined
     try {
       // A denial, an expiry, and "not yet" all come back as 4xx with a body to switch on.
-      const { status, data } = await postJson<PollResponse>(secureUrl(studioUrl, '/api/agent/token'), { device_code: session.device_code }, signal)
+      const { status, data } = await postJson<PollResponse>({
+        url: secureUrl({ studioUrl, path: '/api/agent/token' }),
+        body: { device_code: session.device_code },
+        signal,
+      })
       if (status >= 500 || data === undefined) throw new Error(`Kubb Studio answered with status ${status}`)
       response = data
     } catch (error) {

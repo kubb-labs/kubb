@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto'
 import { glob, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, relative, resolve, sep } from 'node:path'
@@ -88,7 +87,7 @@ function header(path: string, size: number): Buffer {
  * Packs a generation's files into a gzipped, npm-installable tarball: a `package/` root with the
  * generated sources, a `tsdown`-built `dist/` (esm + cjs), and a `package.json` manifest.
  */
-export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: SnapshotPackage): Promise<{ bytes: Buffer; integrity: string }> {
+export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: SnapshotPackage): Promise<{ bytes: Buffer }> {
   const root = await mkdtemp(join(tmpdir(), 'kubb-snapshot-'))
   const dist = join(root, 'dist')
 
@@ -175,8 +174,7 @@ export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: S
       chunks.push(header(name, bytes.length), bytes, Buffer.alloc((512 - (bytes.length % 512)) % 512))
     }
 
-    const bytes = await gzipAsync(Buffer.concat([...chunks, Buffer.alloc(1024)]))
-    return { bytes, integrity: `sha512-${createHash('sha512').update(bytes).digest('base64')}` }
+    return { bytes: await gzipAsync(Buffer.concat([...chunks, Buffer.alloc(1024)])) }
   } finally {
     await rm(root, { recursive: true, force: true })
   }
@@ -228,10 +226,16 @@ export async function createSnapshot({
   signal,
   ...metadata
 }: CreateSnapshotOptions): Promise<PublishedSnapshot> {
-  const url = secureUrl(studioUrl, '/api/snapshots')
+  const url = secureUrl({ studioUrl, path: '/api/snapshots' })
   const generated = await generate({ config: { ...config, storage: memoryStorage() }, hooks, signal, allowExec: false })
   const files = Object.fromEntries(
-    await Promise.all([...generated.paths].map(async (path) => [path, (await generated.storage.readItem(resolve(generated.root, path))) ?? ''] as const)),
+    await Promise.all(
+      [...generated.paths].map(async (path) => {
+        const content = await generated.storage.readItem(resolve(generated.root, path))
+        if (content === null) throw new Error(`The generation listed ${path} but did not keep its content`)
+        return [path, content] as const
+      }),
+    ),
   )
   const { peerDependencies, missingDependencies } = await resolvePeerDependencies(config.plugins.map(({ name }) => name))
   // The package would declare no version for a plugin that is not installed.
@@ -239,8 +243,9 @@ export async function createSnapshot({
   if (missing.length) throw new Error(`Missing dependencies: ${missing.join(', ')}`)
 
   const { bytes } = await createSnapshotPackage(files, { name: metadata.packageName, version: metadata.version, peerDependencies })
-  if (bytes.length > MAX_SNAPSHOT_BYTES)
+  if (bytes.length > MAX_SNAPSHOT_BYTES) {
     throw new Error(`The snapshot is ${Math.ceil(bytes.length / 1024 / 1024)} MB, over the ${MAX_SNAPSHOT_BYTES / 1024 / 1024} MB limit`)
+  }
 
   const hashes = Object.fromEntries(Object.entries(files).map(([path, content]) => [path, hashOf(content)]))
   const body = new FormData()

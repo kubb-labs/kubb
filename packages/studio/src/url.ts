@@ -3,10 +3,8 @@
  */
 export const defaultStudioUrl = 'https://kubb.studio'
 
-/**
- * Whether `hostname` only resolves to this machine. `URL` keeps IPv6 brackets, so `::1` is `[::1]`.
- */
-export function isLoopbackHost(hostname: string): boolean {
+// `URL` keeps IPv6 brackets, so `::1` is `[::1]`.
+function isLoopbackHost(hostname: string): boolean {
   return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]'
 }
 
@@ -16,10 +14,10 @@ export function isLoopbackHost(hostname: string): boolean {
  *
  * @example
  * ```ts
- * secureUrl('https://kubb.studio', '/api/agent/socket', { socket: true }).href // 'wss://kubb.studio/api/agent/socket'
+ * secureUrl({ studioUrl: 'https://kubb.studio', path: '/api/agent/socket', socket: true }).href // 'wss://kubb.studio/api/agent/socket'
  * ```
  */
-export function secureUrl(studioUrl: string, path: string, { socket = false }: { socket?: boolean } = {}): URL {
+export function secureUrl({ studioUrl, path, socket = false }: { studioUrl: string; path: string; socket?: boolean }): URL {
   const url = new URL(`${studioUrl.replace(/\/+$/, '')}${path}`)
 
   if (url.protocol !== 'https:' && !(url.protocol === 'http:' && isLoopbackHost(url.hostname))) {

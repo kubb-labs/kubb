@@ -8,6 +8,7 @@ import { getErrorMessage, read, toError } from '@internals/utils'
 import { cacheStorage, type Config, fsStorage, Hookable, type KubbHooks, memoryStorage, resolveCacheDir } from '@kubb/core'
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { version as kubbVersion } from '../package.json'
+import { readConfig, writeConfigEdits } from './configFile.ts'
 import { createGenerationStream } from './generationEvents.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
 import {
@@ -147,14 +148,14 @@ type ResolvedOptions = Required<Omit<ConnectAgentOptions, 'signal'>> & {
 
 type RpcClose = { code: number; reason: string }
 
-export type Rpc = { studio: StudioApi; closed: Promise<RpcClose>; close: () => void }
+type Rpc = { studio: StudioApi; closed: Promise<RpcClose>; close: () => void }
 
 // Tests swap in an in-process pair.
 export type OpenRpc = (input: { url: URL; token: string; instanceId: string; agent: AgentApi }) => Rpc
 
 type Session = {
   info?: AgentConnectInfo
-  connected: PromiseWithResolvers<void>
+  connected: PromiseWithResolvers<AgentConnectInfo>
   closed: boolean
   active?: { jobId: string; abort: () => void; settled: Promise<void> }
 }
@@ -162,15 +163,6 @@ type Session = {
 // A throwing host listener must not break the connection.
 function emit<TName extends keyof KubbHooks & string>(hooks: Hookable<KubbHooks>, name: TName, ...args: KubbHooks[TName]): Promise<void> {
   return Promise.resolve(hooks.callHook(name, ...args)).catch(() => {})
-}
-
-// Kubb keys its manifest cache by root, so sandbox tenants sharing one root would read each other's.
-function createJobRoot(): Promise<string> {
-  return mkdtemp(path.join(tmpdir(), 'kubb-job-'))
-}
-
-async function removeJobRoot(jobRoot: string): Promise<void> {
-  await Promise.all([rm(jobRoot, { recursive: true, force: true }), rm(resolveCacheDir(jobRoot), { recursive: true, force: true })]).catch(() => {})
 }
 
 function isValidPage({ cursor, limit }: Pick<ReadFilesInput, 'cursor' | 'limit'>): boolean {
@@ -184,7 +176,7 @@ class GenerationRunTarget extends RpcTarget implements GenerationRun {
   readonly #result: Promise<GenerateResult>
   readonly #stop: () => void
 
-  constructor(stream: ReadableStream<GenerationEvent>, result: Promise<GenerateResult>, stop: () => void) {
+  constructor({ stream, result, stop }: { stream: ReadableStream<GenerationEvent>; result: Promise<GenerateResult>; stop: () => void }) {
     super()
     this.#stream = stream
     this.#result = result
@@ -246,12 +238,12 @@ class Agent extends RpcTarget implements AgentApi {
     return this.#store
   }
 
-  #warn(message: string, permission?: keyof AgentPermissions): Promise<void> {
+  #warn({ message, permission }: { message: string; permission?: keyof AgentPermissions }): Promise<void> {
     return emit(this.#options.hooks, 'studio:warn', { message, permission })
   }
 
-  async #refuse(reason: string, message: string, permission?: keyof AgentPermissions): Promise<never> {
-    await this.#warn(reason, permission)
+  async #refuse({ reason, message, permission }: { reason: string; message: string; permission?: keyof AgentPermissions }): Promise<never> {
+    await this.#warn({ message: reason, permission })
     throw new Error(message)
   }
 
@@ -267,10 +259,9 @@ class Agent extends RpcTarget implements AgentApi {
     if (!this.#canEditConfig) return undefined
 
     try {
-      const { readConfig } = await import('./configFile.ts')
       return readConfig(source ?? (await read(this.#options.configFile)))
     } catch (error) {
-      await this.#warn(`Could not read ${this.#options.configFile}: ${getErrorMessage(error)}`)
+      await this.#warn({ message: `Could not read ${this.#options.configFile}: ${getErrorMessage(error)}` })
       return undefined
     }
   }
@@ -279,7 +270,7 @@ class Agent extends RpcTarget implements AgentApi {
     this.#session.info = info
     const { configPath, root, version, loadConfig, permissions } = this.#options
     const [config, file] = await Promise.all([loadConfig(), this.#readConfigFileView()])
-    this.#session.connected.resolve()
+    this.#session.connected.resolve(info)
 
     return {
       versions: { kubb: kubbVersion, agent: version },
@@ -305,9 +296,13 @@ class Agent extends RpcTarget implements AgentApi {
     // A disconnect can reject this after the remote caller disappeared.
     void result.catch(() => {})
 
-    return new GenerationRunTarget(stream.stream, result, () => {
-      controller.abort(new Error('Generation canceled'))
-      stream.dispose()
+    return new GenerationRunTarget({
+      stream: stream.stream,
+      result,
+      stop: () => {
+        controller.abort(new Error('Generation canceled'))
+        stream.dispose()
+      },
     })
   }
 
@@ -315,17 +310,23 @@ class Agent extends RpcTarget implements AgentApi {
     // Checked before the first `await`, so two calls in the same tick can't both pass.
     if (this.#session.closed) throw new Error('Connection is closed')
     if (this.#session.active) {
-      return this.#refuse('Ignored generate: a generation is already in progress', 'A generation is already in progress, please wait for it to finish')
+      return this.#refuse({
+        reason: 'Ignored generate: a generation is already in progress',
+        message: 'A generation is already in progress, please wait for it to finish',
+      })
     }
     const settled = Promise.withResolvers<void>()
     this.#session.active = { jobId: input.jobId, abort: () => controller.abort(new Error('Generation canceled')), settled: settled.promise }
     let root = this.#options.root
 
     try {
-      if (this.#sandbox) root = await createJobRoot()
+      // Kubb keys its manifest cache by root, so sandbox tenants sharing one root would read each other's.
+      if (this.#sandbox) root = await mkdtemp(path.join(tmpdir(), 'kubb-job-'))
       return await this.#command('generate', () => this.#generate({ input, root, signal: controller.signal }))
     } finally {
-      if (root !== this.#options.root) await removeJobRoot(root)
+      if (root !== this.#options.root) {
+        await Promise.all([rm(root, { recursive: true, force: true }), rm(resolveCacheDir(root), { recursive: true, force: true })]).catch(() => {})
+      }
       this.#session.active = undefined
       settled.resolve()
     }
@@ -340,7 +341,7 @@ class Agent extends RpcTarget implements AgentApi {
     const studioInput = this.#sandbox ? (patch?.input ?? '') : undefined
 
     if (patch?.input && !this.#sandbox) {
-      await this.#warn('Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent')
+      await this.#warn({ message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent' })
     }
 
     const hasProjectOnDisk = !this.#sandbox && this.#canRead
@@ -359,7 +360,7 @@ class Agent extends RpcTarget implements AgentApi {
 
     const output = await this.#generations.keep({ jobId, source: 'output', files, maxSetMb: this.#limits.maxMb })
     if (!output.paths.length && Object.keys(output.hashes).length) {
-      await this.#warn('Kept only the hashes of this generation: its output is too large to keep')
+      await this.#warn({ message: 'Kept only the hashes of this generation: its output is too large to keep' })
     }
     await this.#generations.add({ jobId, output, disk })
 
@@ -383,7 +384,7 @@ class Agent extends RpcTarget implements AgentApi {
     const { configPath, configFile } = this.#options
 
     if (!Array.isArray(input.edits)) {
-      await this.#warn('Ignored save: the message carried no edits')
+      await this.#warn({ message: 'Ignored save: the message carried no edits' })
       return { value: { outcomes: [], changed: false } }
     }
 
@@ -391,7 +392,7 @@ class Agent extends RpcTarget implements AgentApi {
     const refuse = (reason: string): SaveResult => ({ outcomes: edits.map((edit) => ({ edit, applied: false, reason })), changed: false })
 
     if (!this.#canEditConfig) {
-      await this.#warn('Ignored save: editing kubb.config.ts was not granted')
+      await this.#warn({ message: 'Ignored save: editing kubb.config.ts was not granted' })
       return { value: refuse('the agent was not granted permission to edit kubb.config.ts') }
     }
 
@@ -401,7 +402,6 @@ class Agent extends RpcTarget implements AgentApi {
     }
 
     try {
-      const { writeConfigEdits } = await import('./configFile.ts')
       const { source, outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits })
       const applied = outcomes.filter((outcome) => outcome.applied).length
 
@@ -422,36 +422,43 @@ class Agent extends RpcTarget implements AgentApi {
 
   async #readFiles(input: ReadFilesInput): Promise<{ value: ReadFilesResult; info: string }> {
     if (!this.#canRead) {
-      return this.#refuse('Ignored files: reading generated files was not granted', 'The agent was not granted permission to read generated files', 'allowRead')
+      return this.#refuse({
+        reason: 'Ignored files: reading generated files was not granted',
+        message: 'The agent was not granted permission to read generated files',
+        permission: 'allowRead',
+      })
     }
     if (!Array.isArray(input.paths)) {
-      return this.#refuse('Ignored files: the message carried no paths', 'The request carried no paths')
+      return this.#refuse({ reason: 'Ignored files: the message carried no paths', message: 'The request carried no paths' })
     }
     const { paths } = input
     if (paths.length > MAX_FILES_PER_REQUEST) {
-      return this.#refuse(
-        `Ignored files: requested ${paths.length} paths, more than the ${MAX_FILES_PER_REQUEST} allowed per request`,
-        `At most ${MAX_FILES_PER_REQUEST} paths may be requested at once`,
-      )
+      return this.#refuse({
+        reason: `Ignored files: requested ${paths.length} paths, more than the ${MAX_FILES_PER_REQUEST} allowed per request`,
+        message: `At most ${MAX_FILES_PER_REQUEST} paths may be requested at once`,
+      })
     }
     if (typeof input.jobId !== 'string' || !input.jobId) {
-      return this.#refuse('Ignored files: the message named no job', 'The request named no generation job')
+      return this.#refuse({ reason: 'Ignored files: the message named no job', message: 'The request named no generation job' })
     }
 
     const generation = await this.#generations.get(input.jobId)
     if (!generation) {
-      return this.#refuse(`Ignored files: job ${input.jobId} is not kept on this agent`, GENERATION_GONE_MESSAGE)
+      return this.#refuse({ reason: `Ignored files: job ${input.jobId} is not kept on this agent`, message: GENERATION_GONE_MESSAGE })
     }
     if (!isValidPage(input)) {
-      return this.#refuse(
-        'Ignored files: the message carried an invalid page',
-        `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines`,
-      )
+      return this.#refuse({
+        reason: 'Ignored files: the message carried an invalid page',
+        message: `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines`,
+      })
     }
 
     const source = input.source === 'disk' ? 'disk' : 'output'
     if (!generation[source]) {
-      return this.#refuse('Ignored files: that job has no snapshot of the files on disk', 'This agent kept no snapshot of the files on disk for that job')
+      return this.#refuse({
+        reason: 'Ignored files: that job has no snapshot of the files on disk',
+        message: 'This agent kept no snapshot of the files on disk for that job',
+      })
     }
 
     // Only paths the set holds are read, never an arbitrary path.
@@ -489,7 +496,7 @@ const openWebSocketRpc: OpenRpc = ({ url, token, instanceId, agent }) => {
   }
 }
 
-async function runSession(options: ResolvedOptions, openRpc: OpenRpc, { url, instanceId }: { url: URL; instanceId: string }) {
+async function runSession({ options, openRpc, url, instanceId }: { options: ResolvedOptions; openRpc: OpenRpc; url: URL; instanceId: string }) {
   const { hooks, signal, heartbeatInterval, token, studioUrl, version } = options
   const session: Session = { connected: Promise.withResolvers(), closed: false }
   const rpc = openRpc({ url, token, instanceId, agent: new Agent(options, session) })
@@ -514,8 +521,7 @@ async function runSession(options: ResolvedOptions, openRpc: OpenRpc, { url, ins
   }
 
   void session.connected.promise.then(
-    async () => {
-      const info = session.info!
+    async (info) => {
       await emit(hooks, 'studio:connected', { ...info, url: studioUrl, versions: { studio: info.studioVersion, kubb: kubbVersion, agent: version } })
       if (!session.closed) timer = setTimeout(heartbeat, heartbeatInterval)
     },
@@ -549,13 +555,13 @@ export async function runAgent(options: ConnectAgentOptions, openRpc: OpenRpc): 
     heartbeatInterval: Math.min(options.heartbeatInterval ?? HEARTBEAT_INTERVAL_MS, MAX_HEARTBEAT_INTERVAL_MS),
   }
   const { studioUrl, hooks, signal, maxRetryDelay } = resolved
-  const url = secureUrl(studioUrl, AGENT_SOCKET_PATH, { socket: true })
+  const url = secureUrl({ studioUrl, path: AGENT_SOCKET_PATH, socket: true })
   // One per call, so a reconnect is the same process to Studio and a restart is a new one.
   const instanceId = randomUUID()
   let attempt = 0
 
   while (!signal?.aborted) {
-    const { code, reason, connected } = await runSession(resolved, openRpc, { url, instanceId })
+    const { code, reason, connected } = await runSession({ options: resolved, openRpc, url, instanceId })
     if (signal?.aborted) return
     await emit(hooks, 'studio:disconnected', { code, reason })
 

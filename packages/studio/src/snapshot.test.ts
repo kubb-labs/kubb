@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto'
 import { gunzipSync } from 'node:zlib'
 import { ast } from '@kubb/ast'
 import { type Config, definePlugin, memoryStorage, type Plugin } from '@kubb/core'
@@ -48,7 +47,7 @@ function readManifest(bytes: Buffer): Manifest {
 
 describe('createSnapshotPackage', () => {
   it('packs the sources, a dist build and a manifest whose barrel fields point at dist/index', async () => {
-    const { bytes, integrity } = await createSnapshotPackage(
+    const { bytes } = await createSnapshotPackage(
       { 'src/index.ts': 'export const answer = 42' },
       { name: '@kubb/snapshot-test', version: '1.2.3', peerDependencies: { typescript: '^5.0.0' } },
     )
@@ -70,7 +69,6 @@ describe('createSnapshotPackage', () => {
       module: './dist/index.mjs',
       exports: { '.': { import: './dist/index.mjs', require: './dist/index.cjs' }, './*': { import: './dist/*.mjs', require: './dist/*.cjs' } },
     })
-    expect(integrity).toBe(`sha512-${createHash('sha512').update(bytes).digest('base64')}`)
   })
 
   it('normalizes absolute generated file paths', async () => {
