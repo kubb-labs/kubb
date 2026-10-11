@@ -248,8 +248,17 @@ export async function createSnapshot({
   body.set('tarball', new Blob([new Uint8Array(bytes)], { type: 'application/gzip' }), 'snapshot.tgz')
 
   const timeout = AbortSignal.timeout(UPLOAD_TIMEOUT_MS)
-  const response = await fetch(url, { method: 'POST', headers: { 'x-api-key': apiKey }, body, signal: signal ? AbortSignal.any([signal, timeout]) : timeout })
+  // A redirect would forward the CI key and tarball to wherever it points.
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'x-api-key': apiKey },
+    body,
+    redirect: 'error',
+    signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
+  })
   if (!response.ok) throw new Error(await failureMessage(response))
 
-  return ((await response.json()) as { snapshot: PublishedSnapshot }).snapshot
+  const result = (await response.json().catch(() => undefined)) as { snapshot?: PublishedSnapshot } | undefined
+  if (!result?.snapshot) throw new Error(`Kubb Studio returned no snapshot (status ${response.status})`)
+  return result.snapshot
 }

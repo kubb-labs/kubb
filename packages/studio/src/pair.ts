@@ -195,7 +195,9 @@ export async function pollForPairingToken({ studioUrl = defaultStudioUrl, sessio
     let response: PollResponse | undefined
     try {
       // A denial, an expiry, and "not yet" all come back as 4xx with a body to switch on.
-      response = (await postJson<PollResponse>(secureUrl(studioUrl, '/api/agent/token'), { device_code: session.device_code }, signal)).data
+      const { status, data } = await postJson<PollResponse>(secureUrl(studioUrl, '/api/agent/token'), { device_code: session.device_code }, signal)
+      if (status >= 500 || data === undefined) throw new Error(`Kubb Studio answered with status ${status}`)
+      response = data
     } catch (error) {
       if (signal?.aborted) {
         throw new PairingCanceledError()

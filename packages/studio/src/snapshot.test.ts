@@ -142,6 +142,7 @@ describe('createSnapshot', () => {
     const [url, init] = fetchMock.mock.calls[0] as [URL, RequestInit]
     expect(url.href).toBe('https://studio.test/api/snapshots')
     expect(init.headers).toStrictEqual({ 'x-api-key': 'kubb_key' })
+    expect(init.redirect).toBe('error')
     const body = init.body as FormData
     expect(JSON.parse(String(body.get('metadata'))) as SnapshotUploadMetadata).toStrictEqual({
       id: 'gh:1:pr-2',
@@ -162,6 +163,14 @@ describe('createSnapshot', () => {
 
     await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', config: config() })).rejects.toThrow(
       'Kubb Studio refused the snapshot (status 402): Snapshot limit reached. Upgrade at https://kubb.studio/billing.',
+    )
+  })
+
+  it('names the status when a successful response carries no snapshot', async () => {
+    using _ = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('<html></html>', { status: 200 }))
+
+    await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', config: config() })).rejects.toThrow(
+      'Kubb Studio returned no snapshot (status 200)',
     )
   })
 
