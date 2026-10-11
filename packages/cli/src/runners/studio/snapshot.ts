@@ -12,7 +12,6 @@ import { type CiContext, detectCi } from './ci.ts'
 import { loadConfigs, run, type SnapshotOptions } from './run.ts'
 import type { command } from '../../commands/studio/snapshot.ts'
 import type { CommandRunner } from 'gunshi'
-import { version } from '../../../package.json'
 
 async function findPackageJson(startDirectory: string): Promise<{ name: string; version: string }> {
   let directory = startDirectory
@@ -104,7 +103,7 @@ function toResult(studioUrl: string, snapshot: PublishedSnapshot, ci: CiContext)
     url: absoluteUrl(studioUrl, snapshot.url),
     snapshotIdUrl: absoluteUrl(studioUrl, snapshot.snapshotIdUrl),
     expiresAt: snapshot.expiresAt,
-    agentUrl: absoluteUrl(studioUrl, `/agents/${snapshot.agent?.slug ?? snapshot.agent?.id ?? ''}`),
+    agentUrl: absoluteUrl(studioUrl, `/agents/${snapshot.agent.slug ?? snapshot.agent.id}`),
     changes: snapshot.changes,
     branchChanges: snapshot.branchChanges && ci.base ? { ...snapshot.branchChanges, branch: ci.base.branch } : undefined,
   }
@@ -199,7 +198,6 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
 
 export const runner: CommandRunner<{ args: typeof command.args; extensions: {} }> = async ({ values }) => {
   const options: SnapshotOptions = {
-    version,
     configPath: values.config,
     studioUrl: values.url ?? defaultStudioUrl,
     logLevel: values.logLevel,

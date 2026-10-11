@@ -42,7 +42,7 @@ export type StudioOptions = {
   logLevel?: CLIOptions['logLevel']
 }
 
-export type SnapshotOptions = Pick<StudioOptions, 'version' | 'configPath' | 'studioUrl' | 'logLevel'> & {
+export type SnapshotOptions = Pick<StudioOptions, 'configPath' | 'studioUrl' | 'logLevel'> & {
   /**
    * Organization CI API key. Falls back to `KUBB_TOKEN`.
    */

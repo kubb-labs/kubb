@@ -555,7 +555,7 @@ export type PublishedSnapshot = {
   name: string | null
   version: string | null
   integrity: string | null
-  agent: { id: string; name: string; slug: string | null } | null
+  agent: { id: string; name: string; slug: string | null }
   /**
    * Readable download path, often `/packages/{agentSlug}/{name}.tgz`.
    */

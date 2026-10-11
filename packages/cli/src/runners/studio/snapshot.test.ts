@@ -47,7 +47,6 @@ const published: PublishedSnapshot = {
 
 function baseOptions(overrides: Partial<SnapshotOptions> = {}): SnapshotOptions {
   return {
-    version: '0.0.0',
     studioUrl: 'http://localhost:3000',
     token: 'ci-token',
     name: '@acme/api',
@@ -100,6 +99,14 @@ describe('snapshot', () => {
       agentUrl: 'http://localhost:3000/agents/brave-otter',
       changes: published.changes,
     })
+  })
+
+  it('links the agent page by id when the CI agent has no slug', async () => {
+    vi.mocked(createSnapshot).mockResolvedValue({ ...published, agent: { ...published.agent, slug: null } })
+
+    await snapshot(baseOptions({ json: true }))
+
+    expect(printedJson().agentUrl).toBe('http://localhost:3000/agents/agent-1')
   })
 
   it("compares with the base branch's agent, and labels those changes with the branch", async () => {
