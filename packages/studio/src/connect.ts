@@ -332,11 +332,21 @@ class Agent extends RpcTarget implements AgentApi {
     }
 
     const config = await this.#options.loadConfig()
-    const plugins = (await mergePlugins(config.plugins, patch?.plugins)) ?? config.plugins
-    const adapter = await mergeAdapter(config.adapter, patch?.adapter)
+    const [plugins, adapter] = await Promise.all([mergePlugins(config.plugins, patch?.plugins), mergeAdapter(config.adapter, patch?.adapter)]).catch(
+      async (error: unknown) => {
+        // Thrown before core runs, so nothing else reports it to the host.
+        await emit(this.#options.hooks, 'kubb:error', { error: toError(error) })
+        throw error
+      },
+    )
+
+    const activePlugins = plugins ?? config.plugins
 
     if (patch?.input && !this.#sandbox) {
-      await this.#warn({ message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent' })
+      // A `kubb:warn` rather than `studio:warn`, so the generation's event stream carries it to Studio too.
+      await emit(this.#options.hooks, 'kubb:warn', {
+        message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent',
+      })
     }
 
     const hasProjectOnDisk = !this.#sandbox && this.#permissions.allowRead
@@ -344,7 +354,14 @@ class Agent extends RpcTarget implements AgentApi {
     const disk = diskFiles ? await this.#generations.keep({ jobId, source: 'disk', files: diskFiles, maxSetMb: this.#limits.maxSnapshotMb }) : undefined
 
     const files = await generate({
-      config: { ...config, root, input: studioInput ?? config.input, storage: this.#permissions.allowWrite ? fsStorage() : memoryStorage(), plugins, adapter },
+      config: {
+        ...config,
+        root,
+        input: studioInput ?? config.input,
+        storage: this.#permissions.allowWrite ? fsStorage() : memoryStorage(),
+        plugins: activePlugins,
+        adapter,
+      },
       hooks: this.#options.hooks,
       signal,
       allowExec: this.#permissions.allowExec,
@@ -367,7 +384,7 @@ class Agent extends RpcTarget implements AgentApi {
         hashes: output.hashes,
         disk: disk ? { hashes: disk.hashes } : undefined,
       },
-      info: `${plugins.length} plugin${plugins.length === 1 ? '' : 's'}, ${this.#permissions.allowWrite ? 'written to disk' : 'in memory'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
+      info: `${activePlugins.length} plugin${activePlugins.length === 1 ? '' : 's'}, ${this.#permissions.allowWrite ? 'written to disk' : 'in memory'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
     }
   }
 
@@ -499,7 +516,10 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
   clearTimeout(timer)
   signal?.removeEventListener('abort', rpc.close)
   session.connected.reject(new Error('The socket closed before Studio called connect()'))
-  session.active?.abort()
+  if (session.active) {
+    await emit(hooks, 'studio:warn', { message: 'Canceled the running generation: the connection to Kubb Studio closed' })
+    session.active.abort()
+  }
   await session.active?.settled
 
   return { ...close, connected: session.info !== undefined }

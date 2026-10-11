@@ -325,6 +325,41 @@ describe('a sandbox job', () => {
   })
 })
 
+describe('generation reports', () => {
+  async function events(run: ReturnType<AgentApi['startGeneration']>) {
+    const seen: Array<{ type: string; data: unknown }> = []
+    const reader = (await run.events()).getReader()
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) return seen
+      seen.push({ type: value.type, data: value.data })
+    }
+  }
+
+  it('tells Studio, through the event stream, that a project agent ignored its spec', async () => {
+    const { agent } = await connectStudio()
+
+    const run = agent.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } })
+    const [seen] = await Promise.all([events(run), run.result()])
+
+    expect(seen).toContainEqual({
+      type: 'kubb:warn',
+      data: [{ message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent', info: undefined }],
+    })
+  })
+
+  it('reports a plugin Studio asked for that cannot be loaded to the host as well', async () => {
+    const { hooks, heard } = withHooks()
+    const error = heard('kubb:error')
+    const { agent } = await connectStudio({ hooks })
+
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { plugins: [{ name: 'not-a-plugin' }] } }).result()).rejects.toThrow(
+      'is not a @kubb/plugin-* package',
+    )
+    expect(error).toHaveBeenCalledWith({ error: expect.objectContaining({ message: expect.stringContaining('is not a @kubb/plugin-* package') }) })
+  })
+})
+
 describe('readFiles', () => {
   it('refuses to read when the host did not grant allowRead, and names the permission for the host', async () => {
     const { hooks, heard } = withHooks()
@@ -445,5 +480,25 @@ describe('disconnect during generation', () => {
 
     await vi.waitFor(() => expect(sockets).toHaveLength(2))
     await expect(run({ agent, jobId: 'late' })).rejects.toThrow('Connection is closed')
+  })
+
+  it('tells the host why the running generation stopped', async () => {
+    const { hooks, heard } = withHooks()
+    const warn = heard('studio:warn')
+    const loaded = Promise.withResolvers<Config>()
+    const loadConfig = vi
+      .fn()
+      .mockResolvedValueOnce(projectConfig())
+      .mockImplementationOnce(() => loaded.promise)
+      .mockResolvedValue(projectConfig())
+    const { agent, socket } = await connectStudio({ hooks, loadConfig })
+    const generation = run({ agent, jobId: 'interrupted' }).catch(() => {})
+    await vi.waitFor(() => expect(loadConfig).toHaveBeenCalledTimes(2))
+
+    socket.close(1011)
+    loaded.resolve(projectConfig())
+    await generation
+
+    await vi.waitFor(() => expect(warn).toHaveBeenCalledWith({ message: 'Canceled the running generation: the connection to Kubb Studio closed' }))
   })
 })
