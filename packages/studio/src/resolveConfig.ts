@@ -279,7 +279,7 @@ export function isOptionValue(value: unknown): value is OptionValue {
   if (value === null || typeof value === 'string' || typeof value === 'boolean') return true
   if (typeof value === 'number') return Number.isFinite(value)
   if (Array.isArray(value)) return value.every(isOptionValue)
-  if (isPlainObject(value)) return Object.values(value).every(isOptionValue)
+  if (isPlainObject(value)) return Object.entries(value).every(([key, entry]) => isSafeKey(key) && isOptionValue(entry))
 
   return false
 }
@@ -300,6 +300,7 @@ export function mergeOptions(disk: Record<string, unknown>, studio: Record<strin
   const merged: Record<string, unknown> = { ...disk }
 
   for (const [key, value] of Object.entries(studio)) {
+    if (!isSafeKey(key)) continue
     const current = disk[key]
 
     if (isPlainObject(current) && isPlainObject(value)) {

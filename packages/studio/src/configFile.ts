@@ -1,9 +1,9 @@
 import { writeFile } from 'node:fs/promises'
-import { read } from '@internals/utils'
-import { builders, detectCodeFormat, generateCode, parseModule } from 'magicast'
+import { getErrorMessage, read } from '@internals/utils'
+import { detectCodeFormat, parseExpression, parseModule } from 'magicast'
 import type { ASTNode, ProxifiedModule } from 'magicast'
 import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigRef, ConfigView, OptionValue, PluginView } from './protocol.ts'
-import { isKubbPluginSpecifier, isOptionValue, toExportName } from './resolveConfig.ts'
+import { isKubbPluginSpecifier, isOptionValue, isSafeKey, toExportName } from './resolveConfig.ts'
 
 /**
  * A valid JavaScript identifier, so an import name can only ever print as `import { name } from`,
@@ -17,25 +17,34 @@ const IDENTIFIER = /^[A-Za-z_$][\w$]*$/
 type ObjectNode = Extract<ASTNode, { type: 'ObjectExpression' }>
 
 /**
+ * A config's `plugins` array literal.
+ */
+type ArrayNode = Extract<ASTNode, { type: 'ArrayExpression' }>
+
+/**
  * A `pluginX(...)` call in a config's `plugins` array.
  */
 type CallNode = Extract<ASTNode, { type: 'CallExpression' }>
 
 /**
- * A `key: value` entry of an object literal.
+ * One member of an object literal: `key: value`, a method or accessor, or a `...spread`.
  */
-type ObjectPropertyNode = Extract<ASTNode, { type: 'ObjectProperty' }>
+type ObjectMember = ObjectNode['properties'][number]
 
 /**
- * `key: value` as an object literal property, in the file's quote and key style.
- *
- * Uses magicast's literal builder for the key/value nodes, then wraps them as a Babel
- * `ObjectProperty`, the type the rest of this file reads.
+ * An object literal member that has a key: `key: value`, `key() {}`, `get key() {}`.
  */
-function literalProperty({ key, value }: { key: string; value: OptionValue }): ObjectPropertyNode {
-  const built = (builders.literal({ [key]: value }) as unknown as ObjectNode).properties[0] as unknown as ObjectPropertyNode
-  return { type: 'ObjectProperty', key: built.key, value: built.value, computed: false, shorthand: false }
-}
+type NamedMember = Extract<ObjectMember, { type: 'ObjectProperty' | 'ObjectMethod' }>
+
+/**
+ * How the file exports its config, which decides how an import for a new plugin is written.
+ */
+type ModuleKind = 'esm' | 'cjs'
+
+/**
+ * The quote character string literals are written with, matching the file.
+ */
+type Quote = `'` | `"`
 
 /**
  * What `applyConfigEdits` did to a config file.
@@ -56,11 +65,54 @@ type ApplyResult = {
 }
 
 /**
+ * What a single edit did: the rewritten source, or why it was refused.
+ */
+type EditResult = { source: string } | { reason: string }
+
+/**
  * Marks the comment block a `disable-plugin` leaves behind, so `enable-plugin` can find its way
  * back to the exact lines it commented out. Carries the block's line count, so `enable-plugin`
  * restores exactly those lines instead of scanning forward through whatever comments follow.
  */
 const DISABLED_MARKER = 'kubb:disabled'
+
+const OPERATIONS = new Set<string>(['set', 'remove', 'add-plugin', 'disable-plugin', 'enable-plugin'])
+
+/**
+ * Why an edit from Studio cannot be applied as sent, checked before anything reads its fields.
+ * The edit crossed the wire, so its declared type is a promise the sender may not have kept.
+ */
+function invalidEdit(edit: ConfigEdit): string | undefined {
+  const fields = (typeof edit === 'object' && edit !== null ? edit : {}) as Record<string, unknown>
+
+  if (typeof fields['operation'] !== 'string' || !OPERATIONS.has(fields['operation'])) {
+    return `unknown operation ${JSON.stringify(fields['operation'])}`
+  }
+  if (typeof fields['plugin'] !== 'string' || !fields['plugin']) {
+    return 'the edit names no plugin'
+  }
+  const config = fields['config']
+  if (config !== undefined && typeof config !== 'string' && !Number.isSafeInteger(config)) {
+    return 'config must name an entry or give its index'
+  }
+  if (fields['operation'] === 'set' || fields['operation'] === 'remove') {
+    const path = fields['path']
+    if (!Array.isArray(path) || !path.every((key) => typeof key === 'string' && key)) {
+      return 'path must be a list of option names'
+    }
+    if (!path.length) {
+      return 'no option path given'
+    }
+    const unsafe = path.find((key: string) => !isSafeKey(key))
+    if (unsafe !== undefined) {
+      return `${unsafe} cannot be used as an option name`
+    }
+  }
+  if (fields['operation'] === 'add-plugin' && fields['importName'] !== undefined && typeof fields['importName'] !== 'string') {
+    return 'importName must be a string'
+  }
+  return undefined
+}
 
 /**
  * The plugin and comment-block length a marker line names, when `line` is one.
@@ -73,6 +125,39 @@ function parseMarker(line: string): { plugin: string; lineCount: number } | unde
 
   const match = trimmed.slice(`// ${DISABLED_MARKER} `.length).match(/^(.+)\s+(\d+)$/)
   return match ? { plugin: match[1]!, lineCount: Number(match[2]) } : undefined
+}
+
+/**
+ * One line of a block `disable-plugin` commented out, as it was before. A blank line comes back
+ * empty rather than as the indentation the comment carried.
+ */
+function uncomment(line: string): string {
+  const restored = line.replace(/^(\s*)\/\/ ?/, '$1')
+  return restored.trim() ? restored : ''
+}
+
+/**
+ * Where a node sits in the source text.
+ */
+function rangeOf(node: { start?: number | null; end?: number | null }): { start: number; end: number } {
+  if (typeof node.start !== 'number' || typeof node.end !== 'number') {
+    throw new Error('the config file could not be mapped back to its source text')
+  }
+  return { start: node.start, end: node.end }
+}
+
+/**
+ * The first and last line a node spans, 1-based.
+ */
+function linesOf(node: ASTNode): { start: number; end: number } {
+  return { start: node.loc?.start.line ?? 0, end: node.loc?.end.line ?? Number.POSITIVE_INFINITY }
+}
+
+/**
+ * `source` with the text between `start` and `end` replaced by `text`.
+ */
+function splice({ source, start, end, text }: { source: string; start: number; end: number; text: string }): string {
+  return `${source.slice(0, start)}${text}${source.slice(end)}`
 }
 
 /**
@@ -98,26 +183,56 @@ function unwrap(node: ASTNode | null | undefined): ASTNode | undefined {
 }
 
 /**
- * Every config object in `export default defineConfig(...)`, or why the file is unmanaged.
+ * Whether `node` is `module.exports`.
+ */
+function isModuleExports(node: ASTNode): boolean {
+  return (
+    node.type === 'MemberExpression' &&
+    !node.computed &&
+    node.object.type === 'Identifier' &&
+    node.object.name === 'module' &&
+    node.property.type === 'Identifier' &&
+    node.property.name === 'exports'
+  )
+}
+
+/**
+ * The value the file exports as its config: `export default ...` or `module.exports = ...`.
+ */
+function exportedValue(mod: ProxifiedModule): { value: ASTNode | null | undefined; kind: ModuleKind } | undefined {
+  const body = mod.$ast.type === 'Program' ? mod.$ast.body : []
+
+  for (const node of body) {
+    if (node.type === 'ExportDefaultDeclaration') {
+      return { value: node.declaration, kind: 'esm' }
+    }
+    if (node.type === 'ExpressionStatement' && node.expression.type === 'AssignmentExpression' && isModuleExports(node.expression.left)) {
+      return { value: node.expression.right, kind: 'cjs' }
+    }
+  }
+  return undefined
+}
+
+/**
+ * Every config object in `export default defineConfig(...)` (or `module.exports = defineConfig(...)`),
+ * or why the file is unmanaged.
  *
  * An array export gets one entry per element, matching {@link ConfigRef}'s numeric index.
  *
  * Walks the parsed AST rather than magicast's proxies, which throw on node types they cannot
  * cast, most of what an unmanaged config file is made of.
  */
-function findConfigs(mod: ProxifiedModule): { configs: Array<ObjectNode> } | { reason: string } {
-  const body = mod.$ast.type === 'Program' ? mod.$ast.body : []
-  const declaration = body.find((node): node is Extract<ASTNode, { type: 'ExportDefaultDeclaration' }> => node.type === 'ExportDefaultDeclaration')
-
-  const exported = unwrap(declaration?.declaration)
-  if (!exported) {
-    return { reason: 'no default export found' }
+function findConfigs(mod: ProxifiedModule): { configs: Array<ObjectNode>; kind: ModuleKind } | { reason: string } {
+  const exported = exportedValue(mod)
+  const value = unwrap(exported?.value)
+  if (!exported || !value) {
+    return { reason: 'no `export default` or `module.exports` found' }
   }
-  if (exported.type !== 'CallExpression' || exported.callee.type !== 'Identifier' || exported.callee.name !== 'defineConfig') {
-    return { reason: 'default export is not a defineConfig(...) call' }
+  if (value.type !== 'CallExpression' || value.callee.type !== 'Identifier' || value.callee.name !== 'defineConfig') {
+    return { reason: 'the exported config is not a defineConfig(...) call' }
   }
 
-  const argument = unwrap(exported.arguments[0])
+  const argument = unwrap(value.arguments[0])
   if (!argument) {
     return { reason: 'defineConfig(...) was called without a config' }
   }
@@ -131,12 +246,12 @@ function findConfigs(mod: ProxifiedModule): { configs: Array<ObjectNode> } | { r
       }
       configs.push(entry)
     }
-    return { configs }
+    return { configs, kind: exported.kind }
   }
   if (argument.type !== 'ObjectExpression') {
     return { reason: 'config is not an object literal' }
   }
-  return { configs: [argument] }
+  return { configs: [argument], kind: exported.kind }
 }
 
 /**
@@ -158,10 +273,13 @@ function configName(config: ObjectNode): string | undefined {
 }
 
 /**
- * The name of an object literal property, for the two key shapes a config uses: `key: value` and
- * `'key': value`. `undefined` for a computed key, which the patcher never touches.
+ * The name of an object literal member, for the two key shapes a config uses: `key` and `'key'`.
+ * `undefined` for a spread or a computed key, which the patcher never touches.
  */
-function propertyKey(entry: Extract<ASTNode, { type: 'ObjectProperty' }>): string | undefined {
+function memberKey(entry: ObjectMember): string | undefined {
+  if (entry.type === 'SpreadElement' || entry.computed) {
+    return undefined
+  }
   if (entry.key.type === 'Identifier') {
     return entry.key.name
   }
@@ -172,45 +290,31 @@ function propertyKey(entry: Extract<ASTNode, { type: 'ObjectProperty' }>): strin
 }
 
 /**
- * The index of an object literal's own property named `key`, `-1` when it has none.
+ * The member of an object literal named `key`. The last one wins when the key repeats, as it does
+ * when the object is evaluated.
  */
-function entryIndex({ node, key }: { node: ObjectNode; key: string }): number {
-  return node.properties.findIndex((entry) => entry.type === 'ObjectProperty' && propertyKey(entry) === key)
+function findMember(node: ObjectNode, key: string): { member: NamedMember; index: number } | undefined {
+  const index = node.properties.findLastIndex((entry) => memberKey(entry) === key)
+  return index === -1 ? undefined : { member: node.properties[index] as NamedMember, index }
 }
 
 /**
- * The value node of an object literal's own property.
+ * The value node of an object literal's own member. A method or accessor is its own value: it is
+ * code, never a literal.
  */
 function property(node: ObjectNode, key: string): ASTNode | undefined {
-  const index = entryIndex({ node, key })
-  return index === -1 ? undefined : (node.properties[index] as ObjectPropertyNode).value
+  const found = findMember(node, key)
+  if (!found) {
+    return undefined
+  }
+  return found.member.type === 'ObjectProperty' ? found.member.value : found.member
 }
 
 /**
- * Writes `key: value` on an object literal, replacing the value when the property is already there.
- *
- * An existing property has its value swapped in place rather than being replaced whole, so recast
- * reprints only that value and leaves the object's own layout alone.
+ * Whether a `...spread` after the member at `index` could override it.
  */
-function setProperty({ node, key, value }: { node: ObjectNode; key: string; value: OptionValue }): void {
-  const entry = literalProperty({ key, value })
-  const index = entryIndex({ node, key })
-
-  if (index === -1) {
-    node.properties.push(entry)
-    return
-  }
-  ;(node.properties[index] as ObjectPropertyNode).value = entry.value
-}
-
-/**
- * Drops `key` from an object literal.
- */
-function removeProperty({ node, key }: { node: ObjectNode; key: string }): void {
-  const index = entryIndex({ node, key })
-  if (index !== -1) {
-    node.properties.splice(index, 1)
-  }
+function isShadowed(node: ObjectNode, index: number): boolean {
+  return node.properties.slice(index + 1).some((entry) => entry.type === 'SpreadElement')
 }
 
 /**
@@ -254,9 +358,10 @@ function readLiteral(node: ASTNode | undefined): OptionValue | undefined {
       if (entry.type !== 'ObjectProperty') {
         return undefined
       }
-      const key = propertyKey(entry)
+      const key = memberKey(entry)
       const value = readLiteral(entry.value)
-      if (key === undefined || value === undefined) {
+      // A `__proto__` key would replace the object's prototype instead of adding an entry.
+      if (key === undefined || !isSafeKey(key) || value === undefined) {
         return undefined
       }
       entries[key] = value
@@ -267,10 +372,148 @@ function readLiteral(node: ASTNode | undefined): OptionValue | undefined {
 }
 
 /**
- * Maps a factory identifier in the file back to the module it was imported from.
+ * Writes `value` as source text: a single-line literal with the file's quote style.
+ */
+function printValue(value: OptionValue, quote: Quote): string {
+  if (value === null) {
+    return 'null'
+  }
+  if (typeof value === 'string') {
+    // JSON's escaping covers every character that could end the literal or the line.
+    const escaped = JSON.stringify(value).slice(1, -1)
+    return quote === `"` ? `"${escaped}"` : `'${escaped.replaceAll(`\\"`, `"`).replaceAll(`'`, `\\'`)}'`
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value)
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => printValue(item, quote)).join(', ')}]`
+  }
+
+  const entries = Object.entries(value)
+  if (!entries.length) {
+    return '{}'
+  }
+  return `{ ${entries.map(([key, item]) => `${printKey(key, quote)}: ${printValue(item, quote)}`).join(', ')} }`
+}
+
+/**
+ * An object key as source text: bare when it is an identifier, quoted otherwise.
+ */
+function printKey(key: string, quote: Quote): string {
+  return IDENTIFIER.test(key) ? key : printValue(key, quote)
+}
+
+/**
+ * `value` wrapped in one object per key of `path`: `nest(['enum', 'type'], 'enum')` is `{ enum: { type: 'enum' } }`.
+ */
+function nest(path: Array<string>, value: OptionValue): OptionValue {
+  return path.reduceRight<OptionValue>((inner, key) => ({ [key]: inner }), value)
+}
+
+/**
+ * Adds `text` as the last item of an object or array literal, following its layout: on a line of
+ * its own with the last item's indentation when the literal spans lines, inline otherwise.
+ */
+function insertItem({
+  source,
+  container,
+  items,
+  text,
+}: {
+  source: string
+  container: ObjectNode | ArrayNode
+  items: Array<ASTNode | null>
+  text: string
+}): string {
+  const { start, end } = rangeOf(container)
+  const last = items.filter((item): item is ASTNode => item !== null).at(-1)
+
+  if (!last) {
+    return splice({ source, start, end, text: container.type === 'ObjectExpression' ? `{ ${text} }` : `[${text}]` })
+  }
+
+  const lastRange = rangeOf(last)
+  const closing = end - 1
+  const between = source.slice(lastRange.end, closing)
+
+  // The closing bracket shares the last item's line: add the item inline.
+  if (!between.includes('\n')) {
+    return splice({ source, start: lastRange.end, end: lastRange.end, text: `, ${text}` })
+  }
+
+  const lineStart = source.lastIndexOf('\n', lastRange.start - 1) + 1
+  const indent = source.slice(lineStart).match(/^[ \t]*/)?.[0] ?? ''
+  // After the last item's comma and any comment on its line, so neither moves.
+  const lineEnd = source.indexOf('\n', lastRange.end)
+  const hasComma = /^\s*,/.test(between)
+
+  if (hasComma) {
+    return splice({ source, start: lineEnd, end: lineEnd, text: `\n${indent}${text},` })
+  }
+  return `${source.slice(0, lastRange.end)},${source.slice(lastRange.end, lineEnd)}\n${indent}${text}${source.slice(lineEnd)}`
+}
+
+/**
+ * Drops the member at `index` from an object literal, with its own lines when it sits on them alone.
+ */
+function removeMember({ source, node, index }: { source: string; node: ObjectNode; index: number }): string {
+  const { start, end } = rangeOf(node.properties[index]!)
+
+  if (node.properties.length === 1) {
+    return splice({ source, ...rangeOf(node), text: '{}' })
+  }
+
+  const lineStart = source.lastIndexOf('\n', start - 1) + 1
+  const nextNewline = source.indexOf('\n', end)
+  const lineEnd = nextNewline === -1 ? source.length : nextNewline
+  if (!source.slice(lineStart, start).trim() && /^\s*,?\s*(\/\/.*)?$/.test(source.slice(end, lineEnd))) {
+    return splice({ source, start: lineStart, end: Math.min(lineEnd + 1, source.length), text: '' })
+  }
+
+  const next = node.properties[index + 1]
+  if (next) {
+    return splice({ source, start, end: rangeOf(next).start, text: '' })
+  }
+  return splice({ source, start: rangeOf(node.properties[index - 1]!).end, end, text: '' })
+}
+
+/**
+ * Maps a factory identifier in the file back to the module it was imported from, through an
+ * `import { x } from` or a `const { x } = require(...)`.
  */
 function importedFrom(mod: ProxifiedModule): Map<string, string> {
-  return new Map(mod.imports.$items.map((item) => [item.local, item.from]))
+  const imports = new Map(mod.imports.$items.map((item) => [item.local, item.from]))
+  const body = mod.$ast.type === 'Program' ? mod.$ast.body : []
+
+  for (const statement of body) {
+    if (statement.type !== 'VariableDeclaration') {
+      continue
+    }
+    for (const declarator of statement.declarations) {
+      const from = requiredModule(declarator.init)
+      if (from === undefined || declarator.id.type !== 'ObjectPattern') {
+        continue
+      }
+      for (const entry of declarator.id.properties) {
+        if (entry.type === 'ObjectProperty' && entry.value.type === 'Identifier') {
+          imports.set(entry.value.name, from)
+        }
+      }
+    }
+  }
+  return imports
+}
+
+/**
+ * The module a `require('...')` call loads, when `node` is one.
+ */
+function requiredModule(node: ASTNode | null | undefined): string | undefined {
+  if (node?.type !== 'CallExpression' || node.callee.type !== 'Identifier' || node.callee.name !== 'require') {
+    return undefined
+  }
+  const [argument] = node.arguments
+  return argument?.type === 'StringLiteral' ? argument.value : undefined
 }
 
 /**
@@ -294,15 +537,57 @@ function pluginCalls(mod: ProxifiedModule, config: ObjectNode): Array<{ importNa
 }
 
 /**
- * Plugins a previous `disable-plugin` commented out of this config, keyed by package name.
- *
- * Read from the marker lines rather than the AST, since a commented-out call is no longer a node.
+ * The blocks a previous `disable-plugin` commented out of this config, read from the marker lines
+ * rather than the AST, since a commented-out call is no longer a node.
  */
-function disabledMarkers(source: string): Array<{ packageName: string; line: number }> {
-  return source.split('\n').flatMap((line, index) => {
+function disabledBlocks(source: string, config: ObjectNode): Array<{ packageName: string; line: number; code: string }> {
+  const lines = source.split('\n')
+  const range = linesOf(config)
+
+  return lines.flatMap((line, index) => {
     const marker = parseMarker(line)
-    return marker ? [{ packageName: marker.plugin, line: index + 1 }] : []
+    if (!marker || index + 1 < range.start || index + 1 > range.end) {
+      return []
+    }
+    const code = lines
+      .slice(index + 1, index + 1 + marker.lineCount)
+      .map(uncomment)
+      .join('\n')
+    return [{ packageName: marker.plugin, line: index + 1, code }]
   })
+}
+
+/**
+ * The top-level options of a plugin call, each flagged with whether Studio may write it.
+ */
+function readOptions(call: CallNode): PluginView['options'] {
+  const entries: PluginView['options'] = {}
+  const options = call.arguments[0]
+  if (options?.type !== 'ObjectExpression') {
+    return entries
+  }
+
+  for (const entry of options.properties) {
+    const key = memberKey(entry)
+    if (key === undefined || !isSafeKey(key)) {
+      continue
+    }
+    const value = entry.type === 'ObjectProperty' ? readLiteral(entry.value) : undefined
+    entries[key] = value === undefined ? { literal: false } : { literal: true, value }
+  }
+  return entries
+}
+
+/**
+ * The options a commented-out plugin call holds, so Studio can show them while it is disabled.
+ */
+function readDisabledOptions(code: string): PluginView['options'] {
+  try {
+    const call = (parseExpression(code.trim().replace(/,$/, '')) as { $ast: ASTNode }).$ast
+    return call.type === 'CallExpression' ? readOptions(call) : {}
+  } catch {
+    return {}
+  }
 }
 
 /**
@@ -324,42 +609,26 @@ export function readConfig(source: string): ConfigFileView {
 
   const { mod, configs } = parsed
   const importNames = new Map([...importedFrom(mod)].map(([local, from]) => [from, local]))
-  const disabled = disabledMarkers(source)
 
   return {
     managed: true,
     configs: configs.map((config): ConfigView => {
-      const plugins = pluginCalls(mod, config).map(({ importName, packageName, call }): PluginView => {
-        const entries: PluginView['options'] = {}
-        const options = call.arguments[0]
-
-        if (options?.type === 'ObjectExpression') {
-          for (const entry of options.properties) {
-            if (entry.type !== 'ObjectProperty') {
-              continue
-            }
-            const key = propertyKey(entry)
-            if (key === undefined) {
-              continue
-            }
-            const value = readLiteral(entry.value)
-            entries[key] = value === undefined ? { literal: false } : { literal: true, value }
-          }
-        }
-        return { importName, packageName, options: entries }
-      })
-
-      const start = config.loc?.start.line ?? 0
-      const end = config.loc?.end.line ?? Number.POSITIVE_INFINITY
-
-      for (const { packageName } of disabled.filter((entry) => entry.line >= start && entry.line <= end)) {
-        plugins.push({
+      const active = pluginCalls(mod, config).map(({ importName, packageName, call }) => ({
+        line: call.loc?.start.line ?? 0,
+        plugin: { importName, packageName, options: readOptions(call) } satisfies PluginView,
+      }))
+      const disabled = disabledBlocks(source, config).map(({ packageName, line, code }) => ({
+        line,
+        plugin: {
           importName: importNames.get(packageName) ?? toExportName(packageName),
           packageName,
-          options: {},
+          options: readDisabledOptions(code),
           disabled: true,
-        })
-      }
+        } satisfies PluginView,
+      }))
+
+      // In source order, so a disabled plugin keeps its place in the list.
+      const plugins = [...active, ...disabled].sort((a, b) => a.line - b.line).map(({ plugin }): PluginView => plugin)
 
       return { name: configName(config), plugins }
     }),
@@ -367,115 +636,120 @@ export function readConfig(source: string): ConfigFileView {
 }
 
 /**
- * The options object of a plugin call, when it was called with one.
+ * Walks `path` through a plugin's options to the object holding its last key.
+ *
+ * Returns `missing` with the index of the first key that is not there yet, so `set` can write the
+ * rest of the path as one nested literal and `remove` can report it as unset.
  */
-function getOptions(call: CallNode): ObjectNode | undefined {
-  const options = call.arguments[0]
-  return options?.type === 'ObjectExpression' ? options : undefined
-}
-
-/**
- * The options object of a plugin call, creating an empty one when the plugin was called bare.
- */
-function ensureOptions(call: CallNode): ObjectNode | undefined {
-  if (call.arguments.length === 0) {
-    call.arguments.push({ type: 'ObjectExpression', properties: [] })
-  }
-  return getOptions(call)
-}
-
-/**
- * Walks `path` down to the object holding its last key, descending only through object literals.
- */
-function optionParent(options: ObjectNode, path: Array<string>): { object: ObjectNode; key: string } | { reason: string } {
+function walk(
+  options: ObjectNode,
+  path: Array<string>,
+): { object: ObjectNode; found: { member: NamedMember; index: number } } | { object: ObjectNode; missing: number } | { reason: string } {
   let object = options
 
   for (const [index, key] of path.entries()) {
+    const found = findMember(object, key)
+    if (!found) {
+      return { object, missing: index }
+    }
+    if (isShadowed(object, found.index)) {
+      return { reason: `${path.slice(0, index + 1).join('.')} can be overridden by a spread after it, so it is customized in code` }
+    }
     if (index === path.length - 1) {
-      return { object, key }
+      return { object, found }
     }
-
-    if (property(object, key) === undefined) {
-      setProperty({ node: object, key, value: {} })
-    }
-
-    const next = property(object, key)
-    if (next?.type !== 'ObjectExpression') {
+    if (found.member.type !== 'ObjectProperty' || found.member.value.type !== 'ObjectExpression') {
       return { reason: `${key} is not an object, so ${path.join('.')} cannot be reached` }
     }
-    object = next
+    object = found.member.value
   }
   return { reason: 'no option path given' }
 }
 
 /**
- * Writes `value` at `path` inside a plugin call's options, creating the options object and any
+ * Writes `value` at `path` inside a plugin call's options, adding the options object and any
  * intermediate object along the path as needed. Refuses when the current value at `path` is
  * something other than a literal, so an option customized in code is never overwritten.
  */
-function applySet(call: CallNode, path: Array<string>, value: unknown): string | undefined {
+function applySet({ source, call, path, value, quote }: { source: string; call: CallNode; path: Array<string>; value: unknown; quote: Quote }): EditResult {
   if (!isOptionValue(value)) {
-    return 'the value is not a literal that can be written to a config file'
+    return { reason: 'the value is not a literal that can be written to a config file' }
   }
 
-  const options = ensureOptions(call)
+  const options = call.arguments[0]
   if (!options) {
-    return 'the plugin was not called with an object literal'
+    const closing = rangeOf(call).end - 1
+    if (source[closing] !== ')') {
+      return { reason: 'the plugin call could not be located in the file' }
+    }
+    return { source: splice({ source, start: closing, end: closing, text: printValue(nest(path, value), quote) }) }
+  }
+  if (options.type !== 'ObjectExpression') {
+    return { reason: 'the plugin was not called with an object literal' }
   }
 
-  const target = optionParent(options, path)
+  const target = walk(options, path)
   if ('reason' in target) {
-    return target.reason
+    return target
+  }
+  if ('missing' in target) {
+    const [key, ...rest] = path.slice(target.missing)
+    const text = `${printKey(key!, quote)}: ${printValue(nest(rest, value), quote)}`
+    return { source: insertItem({ source, container: target.object, items: target.object.properties, text }) }
   }
 
-  const current = property(target.object, target.key)
-  if (current !== undefined && readLiteral(current) === undefined) {
-    return `${path.join('.')} is customized in code`
+  const { member } = target.found
+  if (member.type !== 'ObjectProperty' || readLiteral(member.value) === undefined) {
+    return { reason: `${path.join('.')} is customized in code` }
   }
-
-  setProperty({ node: target.object, key: target.key, value })
-  return undefined
+  return { source: splice({ source, ...rangeOf(member.value), text: printValue(value, quote) }) }
 }
 
 /**
- * Deletes the property at `path` inside a plugin call's options, falling the plugin back to its
+ * Deletes the option at `path` inside a plugin call's options, falling the plugin back to its
  * default for that option. Refuses when the value at `path` is not a literal, for the same reason
  * `applySet` does.
  */
-function applyRemove(call: CallNode, path: Array<string>): string | undefined {
-  const options = getOptions(call)
-  if (!options) {
-    return 'the plugin has no options to remove'
+function applyRemove({ source, call, path }: { source: string; call: CallNode; path: Array<string> }): EditResult {
+  const options = call.arguments[0]
+  if (options?.type !== 'ObjectExpression') {
+    return { reason: 'the plugin has no options to remove' }
   }
 
-  const target = optionParent(options, path)
+  const target = walk(options, path)
   if ('reason' in target) {
-    return target.reason
+    return target
+  }
+  if ('missing' in target) {
+    return { reason: `${path.join('.')} is not set` }
   }
 
-  const current = property(target.object, target.key)
-  if (current === undefined) {
-    return `${path.join('.')} is not set`
+  const { member, index } = target.found
+  if (member.type !== 'ObjectProperty' || readLiteral(member.value) === undefined) {
+    return { reason: `${path.join('.')} is customized in code` }
   }
-  if (readLiteral(current) === undefined) {
-    return `${path.join('.')} is customized in code`
-  }
-
-  removeProperty({ node: target.object, key: target.key })
-  return undefined
+  return { source: removeMember({ source, node: target.object, index }) }
 }
 
 /**
- * Outcome of `applyAddPlugin`. `addImport` is set when the new plugin call needs an import line
- * the caller must still insert; absent when the import was already there.
+ * Adds a `pluginX(...)` call to a config's plugins array, and its import. Replaying the same add is
+ * a no-op, while an import name collision with an unrelated package remains an error.
  */
-type AddPluginResult = { reason: string } | { noop: true } | { addImport?: { importName: string; moduleSpecifier: string } }
-
-/**
- * Adds a `pluginX(...)` call to a config's plugins array. Replaying the same add is a no-op, while
- * an import name collision with an unrelated package remains an error.
- */
-function applyAddPlugin(mod: ProxifiedModule, config: ObjectNode, edit: Extract<ConfigEdit, { operation: 'add-plugin' }>): AddPluginResult {
+function applyAddPlugin({
+  source,
+  mod,
+  config,
+  kind,
+  edit,
+  quote,
+}: {
+  source: string
+  mod: ProxifiedModule
+  config: ObjectNode
+  kind: ModuleKind
+  edit: Extract<ConfigEdit, { operation: 'add-plugin' }>
+  quote: Quote
+}): EditResult {
   if (!isKubbPluginSpecifier(edit.plugin)) {
     return { reason: `"${edit.plugin}" is not a @kubb/plugin-* package` }
   }
@@ -486,7 +760,7 @@ function applyAddPlugin(mod: ProxifiedModule, config: ObjectNode, edit: Extract<
   }
 
   if (pluginCalls(mod, config).some((plugin) => plugin.packageName === edit.plugin)) {
-    return { noop: true }
+    return { source }
   }
 
   const taken = importedFrom(mod).get(importName)
@@ -504,19 +778,18 @@ function applyAddPlugin(mod: ProxifiedModule, config: ObjectNode, edit: Extract<
     return { reason: 'plugins is not an array literal' }
   }
 
-  const call = Object.keys(options).length ? builders.functionCall(importName, options) : builders.functionCall(importName)
-  plugins.elements.push(call.$ast as CallNode)
+  const call = `${importName}(${Object.keys(options).length ? printValue(options, quote) : ''})`
+  // The array sits below the imports, so adding to it first leaves the import lines where they are.
+  const next = insertItem({ source, container: plugins, items: plugins.elements, text: call })
 
-  return taken ? {} : { addImport: { importName, moduleSpecifier: edit.plugin } }
+  return { source: taken ? next : insertImport({ source: next, mod, kind, importName, moduleSpecifier: edit.plugin }) }
 }
 
 /**
  * Comments out a plugin call in place, keeping its options on disk so `enable-plugin` can restore
- * them exactly. Operates on `source` text rather than the AST: a commented-out call is no longer a
- * node magicast can address, and the surrounding array must not reflow when its element count
- * never actually changes.
+ * them exactly.
  */
-function disablePlugin(source: string, mod: ProxifiedModule, config: ObjectNode, plugin: string): { source: string } | { reason: string } {
+function disablePlugin({ source, mod, config, plugin }: { source: string; mod: ProxifiedModule; config: ObjectNode; plugin: string }): EditResult {
   const target = pluginCalls(mod, config).find((entry) => entry.packageName === plugin)
   if (!target) {
     return { reason: `${plugin} is not in the plugins array` }
@@ -548,22 +821,23 @@ function disablePlugin(source: string, mod: ProxifiedModule, config: ObjectNode,
 }
 
 /**
- * Uncomments the block a previous `disable-plugin` left behind for `plugin`.
+ * Uncomments the block a previous `disable-plugin` left behind for `plugin` in this config.
  */
-function enablePlugin(source: string, plugin: string): { source: string } | { reason: string } {
+function enablePlugin({ source, config, plugin }: { source: string; config: ObjectNode; plugin: string }): EditResult {
   const lines = source.split('\n')
+  const range = linesOf(config)
 
   for (const [index, line] of lines.entries()) {
     const marker = parseMarker(line)
-    if (marker?.plugin !== plugin) {
+    // Only markers inside this entry, so an array config never enables another entry's plugin.
+    if (marker?.plugin !== plugin || index + 1 < range.start || index + 1 > range.end) {
       continue
     }
 
     // Bounded by the marker's own line count rather than scanning for trailing `//` lines, so a
     // comment or another disabled block right after this one is left untouched.
     const end = index + 1 + marker.lineCount
-    const restored = lines.slice(index + 1, end).map((commented) => commented.replace(/^(\s*)\/\/ ?/, '$1'))
-    lines.splice(index, end - index, ...restored)
+    lines.splice(index, end - index, ...lines.slice(index + 1, end).map(uncomment))
 
     return { source: lines.join('\n') }
   }
@@ -574,7 +848,7 @@ function enablePlugin(source: string, plugin: string): { source: string } | { re
 /**
  * Parses `source` and finds the config entries it exports.
  */
-function parseConfigs(source: string): { mod: ProxifiedModule; configs: Array<ObjectNode> } | { reason: string } {
+function parseConfigs(source: string): { mod: ProxifiedModule; configs: Array<ObjectNode>; kind: ModuleKind } | { reason: string } {
   let mod: ProxifiedModule
   try {
     mod = parseModule(source)
@@ -583,31 +857,48 @@ function parseConfigs(source: string): { mod: ProxifiedModule; configs: Array<Ob
   }
 
   const found = findConfigs(mod)
-  return 'reason' in found ? found : { mod, configs: found.configs }
+  return 'reason' in found ? found : { mod, ...found }
 }
 
 /**
- * Re-parses `source` and resolves the config entry an edit targets. Every edit re-parses rather
- * than sharing one module across the batch, since the disable/enable edits rewrite `source` as
- * text and would otherwise leave the others working from a stale tree.
+ * Applies one edit to `source`. Every edit re-parses the file, since the previous one rewrote it.
  */
-function parseTarget(source: string, ref: ConfigRef | undefined): { mod: ProxifiedModule; config: ObjectNode } | { reason: string } {
+function applyEdit({ source, edit, quote }: { source: string; edit: ConfigEdit; quote: Quote }): EditResult {
   const parsed = parseConfigs(source)
   if ('reason' in parsed) {
     return parsed
   }
 
-  const config = selectConfig(parsed.configs, ref)
+  const { mod, kind } = parsed
+  const config = selectConfig(parsed.configs, edit.config)
   if (!config) {
-    return { reason: `no config entry found for ${JSON.stringify(ref)}` }
+    return { reason: `no config entry found for ${JSON.stringify(edit.config)}` }
   }
 
-  return { mod: parsed.mod, config }
+  if (edit.operation === 'disable-plugin') {
+    return disablePlugin({ source, mod, config, plugin: edit.plugin })
+  }
+  if (edit.operation === 'enable-plugin') {
+    return enablePlugin({ source, config, plugin: edit.plugin })
+  }
+  if (edit.operation === 'add-plugin') {
+    return applyAddPlugin({ source, mod, config, kind, edit, quote })
+  }
+
+  const pluginCall = pluginCalls(mod, config).find((plugin) => plugin.packageName === edit.plugin)
+  if (!pluginCall) {
+    const disabled = disabledBlocks(source, config).some((block) => block.packageName === edit.plugin)
+    return { reason: disabled ? `${edit.plugin} is disabled, enable it first` : `${edit.plugin} is not in the plugins array` }
+  }
+
+  return edit.operation === 'set'
+    ? applySet({ source, call: pluginCall.call, path: edit.path, value: edit.value, quote })
+    : applyRemove({ source, call: pluginCall.call, path: edit.path })
 }
 
 /**
- * Applies edits to a `kubb.config.ts` in place. Every node the edits do not touch keeps its
- * original text, so comments, formatting, and hand-written code around the config survive.
+ * Applies edits to a `kubb.config.ts` in place. Each edit rewrites only the text it targets, so
+ * comments, formatting, and hand-written code around the config survive.
  *
  * Edits are independent: one that cannot be applied is reported in `outcomes` and the rest still run.
  *
@@ -617,59 +908,27 @@ function parseTarget(source: string, ref: ConfigRef | undefined): { mod: Proxifi
  *   { operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' },
  * ])
  * ```
- *
- * @note recast always reprints a semicolon on a reprinted statement, so editing a block-body
- * `defineConfig` in a semicolon-free file adds one to the `return` line. This is a known gap.
- * Strip it when `detectCodeFormat` reports `useSemi: false`, if it turns out to matter in practice.
  */
 export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): ApplyResult {
   let current = source
-  const format = detectCodeFormat(source)
-  const endsWithNewline = source.endsWith('\n')
+  const quote: Quote = detectCodeFormat(source).quote === 'double' ? `"` : `'`
 
   const outcomes = edits.map((edit): ConfigEditOutcome => {
-    const target = parseTarget(current, edit.config)
-    if ('reason' in target) {
-      return { edit, applied: false, reason: target.reason }
+    const invalid = invalidEdit(edit)
+    if (invalid) {
+      return { edit, applied: false, reason: invalid }
     }
-    const { mod, config } = target
 
-    if (edit.operation === 'disable-plugin' || edit.operation === 'enable-plugin') {
-      const result = edit.operation === 'disable-plugin' ? disablePlugin(current, mod, config, edit.plugin) : enablePlugin(current, edit.plugin)
+    try {
+      const result = applyEdit({ source: current, edit, quote })
       if ('reason' in result) {
         return { edit, applied: false, reason: result.reason }
       }
       current = result.source
       return { edit, applied: true }
+    } catch (error) {
+      return { edit, applied: false, reason: getErrorMessage(error) }
     }
-
-    if (edit.operation === 'add-plugin') {
-      const result = applyAddPlugin(mod, config, edit)
-      if ('reason' in result) {
-        return { edit, applied: false, reason: result.reason }
-      }
-      if ('noop' in result) {
-        return { edit, applied: true }
-      }
-      const afterLine = lastImportEndLine(mod)
-      let next = generateCode(mod, { format }).code
-      if (result.addImport) {
-        next = insertImportLine({ source: next, afterLine, ...result.addImport })
-      }
-      current = withTrailingNewline(next, endsWithNewline)
-      return { edit, applied: true }
-    }
-
-    const pluginCall = pluginCalls(mod, config).find((plugin) => plugin.packageName === edit.plugin)
-    if (!pluginCall) {
-      return { edit, applied: false, reason: `${edit.plugin} is not in the plugins array` }
-    }
-
-    const reason = edit.operation === 'set' ? applySet(pluginCall.call, edit.path, edit.value) : applyRemove(pluginCall.call, edit.path)
-    if (!reason) {
-      current = withTrailingNewline(generateCode(mod, { format }).code, endsWithNewline)
-    }
-    return { edit, applied: !reason, reason }
   })
 
   return { source: current, outcomes, changed: current !== source }
@@ -683,53 +942,48 @@ export async function writeConfigEdits({ filePath, edits }: { filePath: string; 
 }
 
 /**
- * The 1-based line where the file's last import declaration ends, or `0` when it has none. Read
- * off the parsed module, so a multi-line `import {\n  x,\n} from '...'` reports its closing line
- * rather than the `import` keyword.
+ * The 1-based line where the file's last import ends: an `import` declaration, or for a CommonJS
+ * file a `const { x } = require(...)`. `0` when it has none. Read off the parsed module, so a
+ * multi-line `import {\n  x,\n} from '...'` reports its closing line rather than the `import` keyword.
  */
-function lastImportEndLine(mod: ProxifiedModule): number {
+function lastImportEndLine(mod: ProxifiedModule, kind: ModuleKind): number {
   const body = mod.$ast.type === 'Program' ? mod.$ast.body : []
+  const imports = body.filter((node) =>
+    kind === 'esm'
+      ? node.type === 'ImportDeclaration'
+      : node.type === 'VariableDeclaration' && node.declarations.some((declarator) => requiredModule(declarator.init) !== undefined),
+  )
 
-  return body.filter((node) => node.type === 'ImportDeclaration').at(-1)?.loc?.end.line ?? 0
+  return imports.at(-1)?.loc?.end.line ?? 0
 }
 
 /**
  * Writes an import after the last one already in the file, matching its quote style and whether it
- * ends in a semicolon. `afterLine` is where that last import ends, `0` for a file with none.
- *
- * Written as plain text rather than through magicast's import builder, which prints a brand-new
- * import declaration with its own default spacing and a semicolon regardless of `format`, since
- * that formatting only governs nodes recast can diff against the original source.
+ * ends in a semicolon: `import { x } from '...'`, or `const { x } = require('...')` in a CommonJS file.
  */
-function insertImportLine({
+function insertImport({
   source,
+  mod,
+  kind,
   importName,
   moduleSpecifier,
-  afterLine,
 }: {
   source: string
+  mod: ProxifiedModule
+  kind: ModuleKind
   importName: string
   moduleSpecifier: string
-  afterLine: number
 }): string {
+  const afterLine = lastImportEndLine(mod, kind)
   const lines = source.split('\n')
 
   const lastImportLine = afterLine > 0 ? lines[afterLine - 1] : undefined
   const quote = lastImportLine?.includes(`"`) ? `"` : `'`
   const semicolon = lastImportLine?.trimEnd().endsWith(';') ? ';' : ''
-  const line = `import { ${importName} } from ${quote}${moduleSpecifier}${quote}${semicolon}`
+  const specifier = `${quote}${moduleSpecifier}${quote}`
+  const line = kind === 'esm' ? `import { ${importName} } from ${specifier}${semicolon}` : `const { ${importName} } = require(${specifier})${semicolon}`
 
   lines.splice(afterLine, 0, ...(afterLine > 0 ? [line] : [line, '']))
 
   return lines.join('\n')
-}
-
-/**
- * `generateCode` always drops the file's trailing newline. Restore it when the input had one.
- */
-function withTrailingNewline(code: string, hadTrailingNewline: boolean): string {
-  if (!hadTrailingNewline || code.endsWith('\n')) {
-    return code
-  }
-  return `${code}\n`
 }

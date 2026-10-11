@@ -102,6 +102,14 @@ describe('mergeOptions', () => {
     })
   })
 
+  it('ignores keys that would reach the prototype', () => {
+    const studio = JSON.parse('{ "__proto__": { "polluted": true }, "output": { "constructor": { "x": 1 }, "path": "models" } }') as Record<string, unknown>
+    const merged = mergeOptions({ output: { path: 'types' } }, studio)
+
+    expect(merged).toStrictEqual({ output: { path: 'models' } })
+    expect(Object.getPrototypeOf(merged)).toBe(Object.prototype)
+  })
+
   it('keeps disk values that do not survive JSON', () => {
     const name = (group: string) => `${group}Controller`
     const disk = { exclude: [{ type: 'path', pattern: /^\/admin/ }], group: { type: 'tag', name } }
