@@ -94,6 +94,18 @@ describe('pollForPairingToken', () => {
     expect(onRetry).toHaveBeenCalledWith(expect.objectContaining({ message: 'Kubb Studio answered with status 502' }))
   })
 
+  it('keeps polling when Studio answers with a null JSON body', async () => {
+    const onRetry = vi.fn()
+    const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
+    fetchMock.mockResolvedValueOnce(createMockResponse(null, 400)).mockResolvedValueOnce(createMockResponse(result))
+
+    const promise = pollForPairingToken({ studioUrl: 'https://studio.test', session, onRetry })
+    await vi.runAllTimersAsync()
+
+    await expect(promise).resolves.toEqual(result)
+    expect(onRetry).toHaveBeenCalledWith(expect.objectContaining({ message: 'Kubb Studio answered with status 400' }))
+  })
+
   it('rejects with PairingCanceledError when the signal aborts during the wait between polls', async () => {
     const controller = new AbortController()
     delayMock.mockImplementationOnce(() => {

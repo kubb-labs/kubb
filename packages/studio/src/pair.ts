@@ -192,7 +192,7 @@ export async function pollForPairingToken({ studioUrl = defaultStudioUrl, sessio
         signal,
         ignoreResponseError: true,
       })
-      if (status >= 500 || typeof _data !== 'object') throw new Error(`Kubb Studio answered with status ${status}`)
+      if (status >= 500 || !_data || typeof _data !== 'object') throw new Error(`Kubb Studio answered with status ${status}`)
       response = _data
     } catch (error) {
       if (signal?.aborted) {
