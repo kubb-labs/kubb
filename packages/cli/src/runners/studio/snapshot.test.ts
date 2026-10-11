@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { Hookable, type KubbHooks } from '@kubb/core'
-import { type ConnectionOptions, InvalidAgentTokenError, type StudioAgent, type StudioJob } from '@kubb/studio'
+import type { PublishedSnapshot } from '@kubb/studio/protocol'
 import type { SnapshotOptions } from './run.ts'
 
 vi.mock('../../config.ts', () => ({
@@ -19,55 +18,30 @@ vi.mock('@internals/utils', async (importOriginal) => ({
   exists: vi.fn().mockResolvedValue(false),
   read: vi.fn(),
 }))
-
-type Connection = ConnectionOptions<{ token: string }>
-
-let session: (hooks: Hookable<KubbHooks>, options: Connection) => Promise<void>
-let connection: Connection | undefined
-
 vi.mock('@kubb/studio', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@kubb/studio')>()),
-  createAgent: vi.fn(),
-  createJob: vi.fn(),
-  waitForJob: vi.fn(),
-  // Holds the connection open until the host aborts it, like the real `runConnection`.
-  runConnection: vi.fn(async (options: Connection) => {
-    connection = options
-    const hooks = new Hookable<KubbHooks>()
-    await options.clientOptions(options.credentials).installLogger?.(hooks)
-    await session(hooks, options)
-
-    if (!options.signal?.aborted) {
-      await new Promise((resolve) => options.signal?.addEventListener('abort', resolve, { once: true }))
-    }
-
-    return 'shutdown'
-  }),
+  createSnapshot: vi.fn(),
 }))
 
-const { createAgent, createJob, waitForJob, runConnection } = await import('@kubb/studio')
+const { createSnapshot } = await import('@kubb/studio')
 const { detectCi } = await import('./ci.ts')
 const { formatBranchChanges, formatChanges, snapshot } = await import('./snapshot.ts')
 
-const agent: StudioAgent = { id: 'agent-1', slug: 'brave-otter', name: 'acme/api#42', token: 'agent-token' }
-
-const successfulJob: StudioJob = {
-  id: 'job-1',
-  status: 'success',
-  snapshot: {
-    id: 'snap-1',
-    name: '@acme/api',
-    version: '1.0.0',
-    integrity: 'sha512-abc',
-    url: '/packages/brave-otter/%40acme%2Fapi.tgz',
-    snapshotIdUrl: '/packages/snap-1/snapshot.tgz',
-    expiresAt: '2026-01-08T00:00:00.000Z',
-    changes: {
-      base: { id: 'snap-0', version: '1.0.0', commit: '9f3e2a1bb', createdAt: '2026-01-01T00:00:00.000Z' },
-      added: ['models/PetStatus.ts'],
-      changed: ['models/Pet.ts'],
-      removed: [],
-    },
+const published: PublishedSnapshot = {
+  id: 'snap-1',
+  name: '@acme/api',
+  version: '1.0.0',
+  integrity: 'sha512-abc',
+  agent: { id: 'agent-1', name: 'acme/api#42', slug: 'brave-otter' },
+  url: '/packages/brave-otter/%40acme%2Fapi.tgz',
+  snapshotIdUrl: '/packages/snap-1/snapshot.tgz',
+  createdAt: '2026-01-01T00:00:00.000Z',
+  expiresAt: '2026-01-08T00:00:00.000Z',
+  changes: {
+    base: { id: 'snap-0', version: '1.0.0', commit: '9f3e2a1bb', createdAt: '2026-01-01T00:00:00.000Z' },
+    added: ['models/PetStatus.ts'],
+    changed: ['models/Pet.ts'],
+    removed: [],
   },
 }
 
@@ -75,8 +49,6 @@ function baseOptions(overrides: Partial<SnapshotOptions> = {}): SnapshotOptions 
   return {
     version: '0.0.0',
     studioUrl: 'http://localhost:3000',
-    permission: { allowRead: false, allowWrite: false, allowConfigEdit: false, allowExec: false },
-    autoOpen: false,
     token: 'ci-token',
     name: '@acme/api',
     packageVersion: '1.0.0',
@@ -84,21 +56,14 @@ function baseOptions(overrides: Partial<SnapshotOptions> = {}): SnapshotOptions 
   }
 }
 
-async function acceptedSession(hooks: Hookable<KubbHooks>): Promise<void> {
-  await hooks.callHook('studio:connecting', { url: 'http://localhost:3000' })
-  await hooks.callHook('studio:connected', { url: 'http://localhost:3000', versions: { kubb: '5.0.0', agent: '5.0.0' } })
-  await hooks.callHook('studio:ready', {})
+function printedJson() {
+  return JSON.parse(String(vi.mocked(console.log).mock.calls[0]?.[0]))
 }
 
 beforeEach(() => {
-  session = acceptedSession
-  connection = undefined
-  vi.mocked(createAgent).mockResolvedValue(agent)
-  vi.mocked(createJob).mockResolvedValue({ id: 'job-1', status: 'queued' })
-  vi.mocked(waitForJob).mockResolvedValue(successfulJob)
+  vi.mocked(createSnapshot).mockResolvedValue(published)
   vi.spyOn(console, 'log').mockImplementation(() => {})
   vi.spyOn(console, 'error').mockImplementation(() => {})
-  delete process.env.KUBB_AGENT_SECRET
   delete process.env.KUBB_TOKEN
 })
 
@@ -108,78 +73,54 @@ afterEach(() => {
 })
 
 describe('snapshot', () => {
-  it('sets KUBB_AGENT_SECRET before connecting, so the socket registers under the same machine token', async () => {
-    const order: Array<string> = []
-    vi.mocked(createAgent).mockImplementation(async () => {
-      order.push(`createAgent:${process.env.KUBB_AGENT_SECRET}`)
-      return agent
-    })
-    session = async (hooks) => {
-      order.push(`connect:${process.env.KUBB_AGENT_SECRET}`)
-      await acceptedSession(hooks)
-    }
-
-    await snapshot(baseOptions({ id: 'gh:123:42' }))
-
-    expect(order).toEqual(['createAgent:gh:123:42', 'connect:gh:123:42'])
-    expect(vi.mocked(createAgent)).toHaveBeenCalledWith(expect.objectContaining({ name: 'acme/api#42' }))
-  })
-
-  it("reuses kubb-labs/action's GitHub identity through CI auto-detection when --id is omitted", async () => {
+  it("publishes under kubb-labs/action's GitHub identity, with the CI key and the detected commit", async () => {
     await snapshot(baseOptions())
 
-    expect(vi.mocked(createAgent)).toHaveBeenCalledWith(expect.objectContaining({ name: 'acme/api#42' }))
+    expect(vi.mocked(createSnapshot)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        studioUrl: 'http://localhost:3000',
+        apiKey: 'ci-token',
+        id: 'gh:123:42',
+        name: 'acme/api#42',
+        packageName: '@acme/api',
+        version: '1.0.0',
+        commit: 'c4d7e10aa',
+        baseId: undefined,
+      }),
+    )
   })
 
-  it('connects with the CI agent token and grants only what was passed as a flag, even inside a CI job', async () => {
-    await snapshot(baseOptions({ permission: { allowRead: false, allowWrite: false, allowConfigEdit: false, allowExec: true } }))
-
-    expect(connection?.credentials).toStrictEqual({ token: 'agent-token' })
-    expect(connection?.clientOptions({ token: 'agent-token' }).permissions).toStrictEqual({
-      allowRead: false,
-      allowWrite: false,
-      allowConfigEdit: false,
-      allowExec: true,
-    })
-  })
-
-  it('queues a snapshot job with the detected commit, and prints the result with absolute URLs and its changes', async () => {
-    const log = vi.mocked(console.log)
-
+  it('prints one JSON line with absolute URLs, the agent page and the changes', async () => {
     await snapshot(baseOptions({ json: true }))
 
-    expect(vi.mocked(createJob)).toHaveBeenCalledWith(expect.objectContaining({ type: 'snapshot', agentId: 'agent-1', commit: 'c4d7e10aa' }))
-    // The job runs on the process this run connected, never on an overlapping run's.
-    const { instanceId } = vi.mocked(createJob).mock.calls[0]![0]
-    expect(instanceId).toMatch(/^[0-9a-f-]{36}$/)
-    expect(vi.mocked(runConnection).mock.calls[0]![0].clientOptions({ token: 'agent-token' }).instanceId).toBe(instanceId)
-    expect(log).toHaveBeenCalledOnce()
-    const printed = JSON.parse(String(log.mock.calls[0]?.[0]))
-    expect(printed.url).toBe('http://localhost:3000/packages/brave-otter/%40acme%2Fapi.tgz')
-    expect(printed.changes).toStrictEqual(successfulJob.snapshot?.changes)
+    expect(vi.mocked(console.log)).toHaveBeenCalledOnce()
+    expect(printedJson()).toMatchObject({
+      url: 'http://localhost:3000/packages/brave-otter/%40acme%2Fapi.tgz',
+      snapshotIdUrl: 'http://localhost:3000/packages/snap-1/snapshot.tgz',
+      agentUrl: 'http://localhost:3000/agents/brave-otter',
+      changes: published.changes,
+    })
   })
 
   it("compares with the base branch's agent, and labels those changes with the branch", async () => {
     vi.mocked(detectCi).mockReturnValueOnce({ id: 'gh:123:42', name: 'acme/api#42', base: { branch: 'main', id: 'gh:123:refs/heads/main' } })
     const branchChanges = { base: null, added: [], changed: [], removed: [], baseFound: true }
-    vi.mocked(waitForJob).mockResolvedValue({ ...successfulJob, snapshot: { ...successfulJob.snapshot!, branchChanges } })
+    vi.mocked(createSnapshot).mockResolvedValue({ ...published, branchChanges })
 
     await snapshot(baseOptions({ json: true }))
 
-    expect(vi.mocked(createJob)).toHaveBeenCalledWith(expect.objectContaining({ baseId: 'gh:123:refs/heads/main' }))
-    const printed = JSON.parse(String(vi.mocked(console.log).mock.calls[0]?.[0]))
-    expect(printed.branchChanges).toStrictEqual({ ...branchChanges, branch: 'main' })
+    expect(vi.mocked(createSnapshot)).toHaveBeenCalledWith(expect.objectContaining({ baseId: 'gh:123:refs/heads/main' }))
+    expect(printedJson().branchChanges).toStrictEqual({ ...branchChanges, branch: 'main' })
   })
 
   it('compares with the agent --base-id names on any CI, labeled with that id', async () => {
     const branchChanges = { base: null, added: [], changed: [], removed: [], baseFound: true }
-    vi.mocked(waitForJob).mockResolvedValue({ ...successfulJob, snapshot: { ...successfulJob.snapshot!, branchChanges } })
+    vi.mocked(createSnapshot).mockResolvedValue({ ...published, branchChanges })
 
     await snapshot(baseOptions({ json: true, id: 'jenkins:api:pr-12', baseId: 'jenkins:api:main' }))
 
-    expect(vi.mocked(createJob)).toHaveBeenCalledWith(expect.objectContaining({ baseId: 'jenkins:api:main' }))
-    const printed = JSON.parse(String(vi.mocked(console.log).mock.calls[0]?.[0]))
-    expect(printed.branchChanges).toStrictEqual({ ...branchChanges, branch: 'jenkins:api:main' })
+    expect(vi.mocked(createSnapshot)).toHaveBeenCalledWith(expect.objectContaining({ id: 'jenkins:api:pr-12', baseId: 'jenkins:api:main' }))
+    expect(printedJson().branchChanges).toStrictEqual({ ...branchChanges, branch: 'jenkins:api:main' })
   })
 
   it('drops the detected base for a custom --id, and any base that names the run itself', async () => {
@@ -189,69 +130,31 @@ describe('snapshot', () => {
     await snapshot(baseOptions({ id: 'custom:pr-42' }))
     await snapshot(baseOptions({ id: 'custom:main', baseId: 'custom:main' }))
 
-    expect(vi.mocked(createJob).mock.calls.map(([options]) => options.baseId)).toStrictEqual([undefined, undefined])
+    expect(vi.mocked(createSnapshot).mock.calls.map(([options]) => options.baseId)).toStrictEqual([undefined, undefined])
   })
 
-  it('logs the run to stderr in JSON mode, through the same logger as kubb studio', async () => {
-    const error = vi.mocked(console.error)
-
+  it('logs the run to stderr in JSON mode', async () => {
     await snapshot(baseOptions({ json: true }))
 
-    const lines = error.mock.calls.map(([line]) => String(line))
-    expect(lines).toEqual(
-      expect.arrayContaining([
-        'Creating Kubb Studio agent',
-        'Connecting to http://localhost:3000',
-        'Connected to http://localhost:3000 (v5.0.0)',
-        '✓ Ready to receive jobs',
-        'Creating snapshot job',
-        'Snapshot job queued: job-1',
-        'Snapshot published',
-        'Disconnecting from Kubb Studio',
-      ]),
-    )
+    expect(vi.mocked(console.error).mock.calls.map(([line]) => String(line))).toStrictEqual(['Generating the snapshot', 'Snapshot published'])
   })
 
-  it('fails fast when Studio rejects the CI agent token, instead of waiting for the job timeout', async () => {
-    const rejected = new InvalidAgentTokenError('http://localhost:3000')
-    session = async (hooks, options) => {
-      await acceptedSession(hooks)
-      await options.onTokenRejected({ error: rejected, credentials: options.credentials, live: true })
-    }
-    // Never finishes on its own, but rejects once the connection-lost signal aborts, like the real one.
-    vi.mocked(waitForJob).mockImplementation(
-      ({ signal }) =>
-        new Promise((_, reject) => {
-          if (signal?.aborted) return reject(signal.reason)
-          signal?.addEventListener('abort', () => reject(signal.reason), { once: true })
-        }),
-    )
+  it('reports a failed publish and passes its error on', async () => {
+    vi.mocked(createSnapshot).mockRejectedValue(new Error('Kubb Studio refused the snapshot (status 402): Snapshot limit reached.'))
 
-    await expect(snapshot(baseOptions())).rejects.toBe(rejected)
+    await expect(snapshot(baseOptions())).rejects.toThrow('Snapshot limit reached')
+    expect(vi.mocked(console.log)).toHaveBeenCalledWith('Snapshot failed')
   })
 
-  it('throws the job error and still ends the connection when the job fails', async () => {
-    vi.mocked(waitForJob).mockResolvedValue({ id: 'job-1', status: 'failed', error: 'Agent does not report peer dependencies' })
-
-    await expect(snapshot(baseOptions())).rejects.toThrow('Agent does not report peer dependencies')
-    expect(runConnection).toHaveBeenCalledOnce()
-    expect(connection?.signal?.aborted).toBe(true)
-  })
-
-  it.each([
-    { overrides: { token: undefined }, message: 'KUBB_TOKEN', label: 'no token comes from --token or KUBB_TOKEN' },
-    { overrides: { timeout: 0 }, message: '--timeout must be a positive number of seconds', label: '--timeout is not positive' },
-    { overrides: { timeout: Number.NaN }, message: '--timeout must be a positive number of seconds', label: '--timeout is not finite' },
-    { overrides: { studioUrl: 'http://studio.internal' }, message: 'Refusing to send the CI API key', label: 'the Studio URL is neither HTTPS nor loopback' },
-  ])('rejects before touching the network when $label', async ({ overrides, message }) => {
-    await expect(snapshot(baseOptions(overrides))).rejects.toThrow(message)
-    expect(createAgent).not.toHaveBeenCalled()
+  it('rejects before generating when no token comes from --token or KUBB_TOKEN', async () => {
+    await expect(snapshot(baseOptions({ token: undefined }))).rejects.toThrow('KUBB_TOKEN')
+    expect(createSnapshot).not.toHaveBeenCalled()
   })
 
   it('skips the package.json lookup entirely once both --name and --version are given', async () => {
     await snapshot(baseOptions({ name: '@acme/override', packageVersion: '9.9.9' }))
 
-    expect(vi.mocked(createJob)).toHaveBeenCalledWith(expect.objectContaining({ name: '@acme/override', version: '9.9.9' }))
+    expect(vi.mocked(createSnapshot)).toHaveBeenCalledWith(expect.objectContaining({ packageName: '@acme/override', version: '9.9.9' }))
   })
 
   it('falls back to package.json when only one of --name or --version is given, and fails when none exists', async () => {

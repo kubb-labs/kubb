@@ -34,9 +34,9 @@ function formatMessage(message: string, logLevel: number): string {
   return message
 }
 
-/** Renders a `studio:connected` event's versions: the runtime only when it differs from the host, Studio's only when it sent one. */
+/** Renders a `studio:connected` event's versions: the runtime only when it differs from the host. */
 function formatVersions({ studio, kubb, agent }: StudioConnectedContext['versions']): string {
-  return [`v${agent}`, kubb !== agent ? `runtime v${kubb}` : undefined, studio ? `Studio v${studio}` : undefined].filter(Boolean).join(', ')
+  return [`v${agent}`, kubb !== agent ? `runtime v${kubb}` : undefined, `Studio v${studio}`].filter(Boolean).join(', ')
 }
 
 /** The first three frames of a stack, without the message line. */
@@ -351,18 +351,14 @@ export function createLogger(writer: LoggerWriter): Logger {
     })
 
     // A `kubb studio` session emits these on the same emitter as its generations, so one logger
-    // renders the whole command. The socket opens without being awaited, hence the step.
-    context.hook('studio:connecting', ({ url }) => {
-      startSpinner(`Connecting to ${styleText('cyan', url)}`)
-    })
-
-    context.hook('studio:disconnected', ({ reason }) => {
+    // renders the whole command.
+    context.hook('studio:disconnected', ({ code, reason }) => {
       if (logLevel < logLevelMap.warn) {
         return
       }
 
       stopSpinner()
-      writer.warn(text(`⚠ Kubb Studio ended the session (${reason})`))
+      writer.warn(text(`⚠ Kubb Studio ended the session (${reason || `code ${code}`})`))
     })
 
     context.hook('studio:warn', ({ message, permission }) => {
@@ -495,26 +491,14 @@ export function createLogger(writer: LoggerWriter): Logger {
       })
 
       context.hook('studio:connected', ({ url, versions }) => {
-        const line = `Connected to ${styleText('cyan', url)} ${styleText('dim', `(${formatVersions(versions)})`)}`
-
-        if (state.spinner) {
-          stopSpinner(line)
-          return
-        }
-        writer.success(text(`✓ ${line}`))
-      })
-
-      context.hook('studio:ready', () => {
+        stopSpinner()
+        writer.success(text(`✓ Connected to ${styleText('cyan', url)} ${styleText('dim', `(${formatVersions(versions)})`)}`))
         startSpinner('✓ Ready to receive jobs')
       })
 
-      context.hook('studio:command:start', ({ command }) => {
+      context.hook('studio:command', ({ command, info }) => {
         stopSpinner()
-        writer.info(text(`Kubb Studio asked to ${styleText('bold', command)}`))
-      })
-
-      context.hook('studio:command:end', ({ command, info }) => {
-        writer.success(text(`✓ Finished ${command}${info ? ` ${styleText('dim', `(${info})`)}` : ''}`))
+        writer.success(text(`✓ Finished ${command} ${styleText('dim', `(${info})`)}`))
         startSpinner('✓ Ready to receive jobs')
       })
 

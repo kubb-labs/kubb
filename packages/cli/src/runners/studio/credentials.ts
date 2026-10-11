@@ -1,4 +1,4 @@
-import { hash } from 'node:crypto'
+import { hash, randomBytes } from 'node:crypto'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import path from 'node:path'
@@ -86,4 +86,21 @@ export async function writeCredentials(credentials: Credentials): Promise<void> 
  */
 export async function clearCredentials(): Promise<void> {
   await clean(getCredentialsPath())
+}
+
+/**
+ * Reads this project's machine secret, creating it on first use. Pairing sends its hash, so pairing
+ * the same project again rotates one agent's token instead of creating a second agent. It lives
+ * apart from the credential, which {@link clearCredentials} deletes.
+ */
+export async function getMachineId(): Promise<string> {
+  const file = path.join(getProjectKubbHome(), 'machine-secret')
+  const stored = (await read(file).catch(() => '')).trim()
+  if (stored) return stored
+
+  const secret = randomBytes(32).toString('hex')
+  await mkdir(path.dirname(file), { recursive: true, mode: 0o700 })
+  await writeFile(file, secret, { mode: 0o600 })
+
+  return secret
 }

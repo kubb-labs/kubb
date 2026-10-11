@@ -1,6 +1,5 @@
 import { appendFileSync, mkdirSync, statSync, writeFileSync } from 'node:fs'
 import { format } from 'node:util'
-import { createFileStorage, setStorage } from '@kubb/studio'
 import { getProjectKubbHome } from './credentials.ts'
 import { getWorkerLogPath, serveWorker, type WorkerLaunch } from './background.ts'
 import { connect } from './run.ts'
@@ -47,7 +46,6 @@ process.send?.({ started: true })
 process.disconnect?.()
 if (!('existing' in control)) {
   try {
-    setStorage(createFileStorage(getProjectKubbHome()))
     log('Background connection starting')
     await connect(launch.options, {
       prepared: launch.prepared,
