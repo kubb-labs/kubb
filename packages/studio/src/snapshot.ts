@@ -128,7 +128,6 @@ export async function createSnapshotPackage(files: SnapshotFiles, packageInfo: S
         fixedExtension: true,
       })
     }
-    // `unbundle: true` keeps dist's subdirectories, so each entry keeps its path relative to `dist`.
     const builtEntries = await Promise.all(
       (await fsStorage().readKeys(dist)).map(async (key) => [`package/dist/${key}`, await readFile(join(dist, key), 'utf8')] as const),
     )
