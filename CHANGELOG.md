@@ -1,5 +1,20 @@
 # Changelog
 
+## v5.6.2 — Oct 11, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Fix `kubb studio snapshot` failing with `Cannot read properties of undefined (reading 'readItem')` when `kubb.config.ts` does not set `storage`. The snapshot now reads the generated files from the default fs storage. ([#4231](https://github.com/kubb-labs/kubb/pull/4231), [`6876c64`](https://github.com/kubb-labs/kubb/commit/6876c6476318bc983af0f2b094ceac7371541624))
+- Remove the `kubb-snapshot-*` temp folder when two generated files sanitize to the same path, instead of leaving it behind. ([#4229](https://github.com/kubb-labs/kubb/pull/4229), [`905f027`](https://github.com/kubb-labs/kubb/commit/905f027ca7a4b90fdca84a9c78cedd2f0c98f19a))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.6.1 — Oct 11, 2026
 
 ### @kubb/cli
