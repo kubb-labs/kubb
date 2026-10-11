@@ -3,6 +3,8 @@ import path from 'node:path'
 import process from 'node:process'
 import { kubbStorage, resolveKubbDir } from '@kubb/core'
 
+const projectBase = (project = process.cwd()) => path.join('projects', hash('sha256', project))
+
 /**
  * Root for the credential and machine identity of the current project, inside `KUBB_HOME`.
  *
@@ -10,10 +12,10 @@ import { kubbStorage, resolveKubbDir } from '@kubb/core'
  * persisted token or machine secret.
  */
 export function getProjectKubbHome(project = process.cwd()): string {
-  return resolveKubbDir(path.join('projects', hash('sha256', project)))
+  return resolveKubbDir(projectBase(project))
 }
 
-const projectStorage = () => kubbStorage({ base: getProjectKubbHome() })
+const projectStorage = () => kubbStorage({ base: projectBase() })
 
 const CREDENTIALS_FILENAME = 'credentials.json'
 

@@ -13,7 +13,7 @@ type KubbStorageOptions = {
   base?: string
 }
 
-function lock(dir: string): string {
+function ensurePrivateDir(dir: string): string {
   mkdirSync(dir, { recursive: true, mode: 0o700 })
   chmodSync(dir, 0o700)
   return dir
@@ -21,7 +21,7 @@ function lock(dir: string): string {
 
 /**
  * Folder Kubb keeps its own files in, created with mode 0700. `base` resolves inside `KUBB_HOME`
- * (default `~/.kubb`). When that folder is not writable, a folder in the OS temp directory is used.
+ * (default `~/.kubb`). When that folder is not writable, it falls back to a folder in the OS temp directory.
  *
  * @example
  * `resolveKubbDir('cache') // '/home/me/.kubb/cache'`
@@ -29,9 +29,9 @@ function lock(dir: string): string {
 export function resolveKubbDir(base = ''): string {
   const dir = resolve(process.env.KUBB_HOME ?? join(homedir(), '.kubb'), base)
   try {
-    return lock(dir)
+    return ensurePrivateDir(dir)
   } catch {
-    return lock(join(tmpdir(), 'kubb', hash('sha256', dir).slice(0, 16)))
+    return ensurePrivateDir(join(tmpdir(), 'kubb', hash('sha256', dir).slice(0, 16)))
   }
 }
 
