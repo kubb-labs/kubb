@@ -88,12 +88,8 @@
   },
   "scripts": {
     "build": "tsdown",
-    "clean": "node -e \"require('fs').rmSync('./dist', {recursive:true,force:true})\"",
-    "lint": "oxlint .",
-    "lint:fix": "oxlint --fix .",
     "start": "tsdown --watch ./src",
-    "test": "vitest --passWithNoTests",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@kubb/kit": "workspace:*",

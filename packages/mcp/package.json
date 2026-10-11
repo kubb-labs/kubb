@@ -63,14 +63,10 @@
   },
   "scripts": {
     "build": "tsdown",
-    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
     "debug:mcp": "npx -y @modelcontextprotocol/inspector node ./bin/kubb-mcp.cjs",
-    "lint": "oxlint .",
-    "lint:fix": "oxlint --fix .",
     "start": "tsdown --watch",
     "start:mcp": "bun --watch ./src/server.ts",
-    "test": "vitest --passWithNoTests",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@kubb/adapter-oas": "workspace:*",
