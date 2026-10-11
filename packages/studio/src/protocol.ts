@@ -17,9 +17,9 @@ export type JSONKubbConfig = {
     disabled?: boolean
   }>
   /**
-   * Raw OpenAPI / Swagger spec content (YAML or JSON string).
-   * Only honored for a 'sandbox' agent, which has no disk config of its own. A non-sandbox agent
-   * always reads its spec from disk, so this is ignored.
+   * Raw OpenAPI / Swagger spec content (YAML or JSON string), never a file path or URL.
+   * Required by a 'sandbox' agent, which has no disk config of its own and refuses anything else.
+   * A non-sandbox agent always reads its spec from disk, so this is ignored with a `kubb:warn`.
    */
   input?: string
   /**

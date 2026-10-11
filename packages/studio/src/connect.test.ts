@@ -298,6 +298,24 @@ describe('a sandbox job', () => {
     expect(vi.mocked(rm)).toHaveBeenCalledWith(resolveCacheDir(jobRoot), { recursive: true, force: true })
   })
 
+  it.each([
+    ['a file path', '/etc/passwd'],
+    ['a relative path', '../../petStore.yaml'],
+    ['a URL', 'http://127.0.0.1:8080/internal'],
+    ['an empty string', ''],
+    ['no spec at all', undefined],
+  ])('refuses %s instead of reading or fetching it', async (_label, input) => {
+    const { hooks, heard } = withHooks()
+    const warn = heard('studio:warn')
+    const { agent } = await connectStudio({ hooks, connectInfo: { sandbox: true, agentSlug: 'sandbox', studioVersion: '1.0.0' } })
+
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { input } }).result()).rejects.toThrow(
+      'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
+    )
+    expect(warn).toHaveBeenCalledOnce()
+    expect(vi.mocked(mkdtemp).mock.results).toHaveLength(1)
+  })
+
   it('reports writes and config edits off and reads on, whatever the host granted', async () => {
     const { agent } = await connectStudio({ permissions: { allowWrite: true, allowConfigEdit: true }, connectInfo: { ...info, sandbox: true } })
 

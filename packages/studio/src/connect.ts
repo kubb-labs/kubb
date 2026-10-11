@@ -5,7 +5,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
 import { getErrorMessage, read, toError } from '@internals/utils'
-import { cacheStorage, type Config, fsStorage, Hookable, type KubbHooks, memoryStorage, resolveCacheDir } from '@kubb/core'
+import { cacheStorage, type Config, fsStorage, getInputKind, Hookable, type KubbHooks, memoryStorage, resolveCacheDir } from '@kubb/core'
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { version as kubbVersion } from '../package.json'
 import { readConfig, writeConfigEdits } from './configFile.ts'
@@ -324,11 +324,16 @@ class Agent extends RpcTarget implements AgentApi {
 
   async #generate({ input, root, signal }: { input: GenerateInput; root: string; signal: AbortSignal }): Promise<{ value: GenerateResult; info: string }> {
     const { jobId, config: patch } = input
+    // A sandbox has no spec on disk, so it only ever generates from the content Studio sends. A path
+    // or URL would make it read host files or fetch internal addresses on behalf of any tenant.
+    const studioInput = this.#sandbox ? patch?.input : undefined
+    if (this.#sandbox && (typeof studioInput !== 'string' || !studioInput.trim() || getInputKind(studioInput) !== 'inline')) {
+      return this.#refuse({ message: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL' })
+    }
+
     const config = await this.#options.loadConfig()
     const plugins = (await mergePlugins(config.plugins, patch?.plugins)) ?? config.plugins
     const adapter = await mergeAdapter(config.adapter, patch?.adapter)
-    // A sandbox has no spec on disk, so it always generates from Studio's, empty string included.
-    const studioInput = this.#sandbox ? (patch?.input ?? '') : undefined
 
     if (patch?.input && !this.#sandbox) {
       await this.#warn({ message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent' })
