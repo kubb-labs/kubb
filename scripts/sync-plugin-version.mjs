@@ -1,24 +1,9 @@
 import { readFileSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 
-const root = fileURLToPath(new URL('..', import.meta.url))
-const packageJsonPath = join(root, 'tools/claude/package.json')
-const pluginJsonPath = join(root, 'tools/claude/.claude-plugin/plugin.json')
+const packageJsonUrl = new URL('../tools/claude/package.json', import.meta.url)
+const pluginJsonUrl = new URL('../tools/claude/.claude-plugin/plugin.json', import.meta.url)
+const { version } = JSON.parse(readFileSync(packageJsonUrl, 'utf-8'))
 
-const { version } = JSON.parse(readFileSync(packageJsonPath, 'utf-8'))
-const pluginJsonText = readFileSync(pluginJsonPath, 'utf-8')
-const currentVersion = JSON.parse(pluginJsonText).version
-
-if (currentVersion === version) {
-  console.log(`tools/claude/.claude-plugin/plugin.json is already at ${version}`)
-} else {
-  // A targeted replace keeps the file's existing formatting (single-line arrays, key
-  // order) intact instead of re-serializing the whole document.
-  const updated = pluginJsonText.replace(
-    /"version":\s*"[^"]*"/,
-    `"version": "${version}"`,
-  )
-  writeFileSync(pluginJsonPath, updated)
-  console.log(`Synced tools/claude/.claude-plugin/plugin.json to ${version}`)
-}
+// A targeted replace keeps the file's formatting (single-line arrays, key order) intact.
+writeFileSync(pluginJsonUrl, readFileSync(pluginJsonUrl, 'utf-8').replace(/"version":\s*"[^"]*"/, `"version": "${version}"`))
+console.log(`Synced tools/claude/.claude-plugin/plugin.json to ${version}`)

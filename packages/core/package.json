@@ -72,13 +72,9 @@
     "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
-    "build": "tsdown && node scripts/copyHtmlReporterAssets.mjs",
-    "clean": "node -e \"require('node:fs').rmSync('./dist', {recursive:true,force:true})\"",
-    "lint": "oxlint .",
-    "lint:fix": "oxlint --fix .",
+    "build": "tsdown",
     "start": "tsdown --watch",
-    "test": "vitest --passWithNoTests",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit --emitDeclarationOnly false"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@kubb/ast": "workspace:*",

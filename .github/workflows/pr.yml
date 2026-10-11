@@ -8,8 +8,6 @@ on:
       - '**/*.md'
       - '.agents/**'
       - '.claude/**'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/FUNDING.yml'
       - 'assets/**'
       - 'LICENSE'
 
@@ -56,12 +54,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Tools
+      - &setup
+        name: Setup Tools
         uses: kubb-labs/config/.github/setup@d0ff54e67d893d61f92cd331c71dc60762ec3d48 # main
         with:
           node-version: '22.22.3'
 
-      - name: Build
+      - &build
+        name: Build
         run: pnpm run build
 
   typecheck:
@@ -70,7 +70,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    if: github.actor != 'github-actions[bot]'
     needs: build
     steps:
       - name: Check out code
@@ -78,13 +77,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@d0ff54e67d893d61f92cd331c71dc60762ec3d48 # main
-        with:
-          node-version: '22.22.3'
+      - *setup
 
-      - name: Build
-        run: pnpm run build
+      - *build
 
       - name: Typecheck
         run: pnpm run typecheck
@@ -95,7 +90,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    if: github.actor != 'github-actions[bot]'
     needs: build
     steps:
       - name: Check out code
@@ -103,13 +97,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@d0ff54e67d893d61f92cd331c71dc60762ec3d48 # main
-        with:
-          node-version: '22.22.3'
+      - *setup
 
-      - name: Build
-        run: pnpm run build
+      - *build
 
       - name: Test
         run: pnpm test --coverage
@@ -119,6 +109,15 @@ jobs:
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Run Vitest benchmarks
+        if: ${{ !cancelled() }}
+        run: pnpm run test:bench
+
+      # Bun comes from the Setup Tools step.
+      - name: Run the CLI under Bun
+        if: ${{ !cancelled() }}
+        run: bun packages/cli/bin/kubb.js --version
 
   linting:
     name: Linting
@@ -133,10 +132,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@d0ff54e67d893d61f92cd331c71dc60762ec3d48 # main
-        with:
-          node-version: '22.22.3'
+      - *setup
 
       - name: Linting
         env:
@@ -151,7 +147,7 @@ jobs:
       contents: read
       pull-requests: write
     # pkg-pr-new publishes preview packages, so gate it on a package changing.
-    if: github.actor != 'github-actions[bot]' && github.event.pull_request.head.repo.full_name == github.repository && needs.changes.outputs.packages == 'true'
+    if: github.event.pull_request.head.repo.full_name == github.repository && needs.changes.outputs.packages == 'true'
     needs: [build, changes]
     steps:
       - name: Check out code
@@ -159,41 +155,12 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@d0ff54e67d893d61f92cd331c71dc60762ec3d48 # main
-        with:
-          node-version: '22.22.3'
+      - *setup
 
-      - name: Build
-        run: pnpm run build
+      - *build
 
       - name: Publish preview packages
         run: pnpx pkg-pr-new publish --pnpm --owner=stijnvanhulle --repo=https://github.com/kubb-labs/kubb.git './packages/*'
-
-  benchmarks:
-    name: Performance benchmarks (Vitest)
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    if: github.actor != 'github-actions[bot]'
-    needs: build
-    steps:
-      - name: Check out code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 1
-
-      - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@d0ff54e67d893d61f92cd331c71dc60762ec3d48 # main
-        with:
-          node-version: '22.22.3'
-
-      - name: Build
-        run: pnpm run build
-
-      - name: Run Vitest benchmarks
-        run: pnpm run test:bench
 
   dependency-diff:
     name: Dependency Diff
@@ -223,7 +190,7 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    if: github.actor != 'github-actions[bot]' && github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request'
     needs: build
     steps:
       - name: Check out code
@@ -231,10 +198,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@d0ff54e67d893d61f92cd331c71dc60762ec3d48 # main
-        with:
-          node-version: '22.22.3'
+      - *setup
 
       - name: Report compressed bundle size
         uses: preactjs/compressed-size-action@f322c295dde06a1cb7ccaef105732dd8a726d1d9 # v2
@@ -242,36 +206,6 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           build-script: 'build'
           pattern: './packages/*/dist/**/*.{js,mjs,cjs}'
-
-  bun:
-    name: Bun runtime
-    timeout-minutes: 15
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    if: github.actor != 'github-actions[bot]'
-    needs: build
-    steps:
-      - name: Check out code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 1
-
-      - name: Setup Tools
-        uses: kubb-labs/config/.github/setup@d0ff54e67d893d61f92cd331c71dc60762ec3d48 # main
-        with:
-          node-version: '22.22.3'
-
-      - name: Setup Bun
-        run: |
-          curl -fsSL https://bun.sh/install | bash
-          echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
-
-      - name: Build
-        run: pnpm run build
-
-      - name: Run the CLI under Bun
-        run: bun packages/cli/bin/kubb.js --version
 
   comment-ratio:
     name: Comment ratio

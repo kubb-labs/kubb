@@ -53,6 +53,7 @@ export default defineConfig([
     dts: false,
     platform: 'browser',
     plugins: [vueSfc],
+    copy: { from: 'src/reporters/html/index.html', to: 'dist/html' },
     sourcemap: false,
     minify: true,
     deps: {

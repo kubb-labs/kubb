@@ -6,7 +6,7 @@ We welcome contributions that help improve Kubb. A few ways to get involved:
 - Have an idea to improve Kubb? [Open an issue](https://github.com/kubb-labs/kubb/issues/new) to share it.
 - Need help? Ask the community on [Discord](https://discord.gg/4dQjA6vrWX).
 
-Please read and follow our [Code of Conduct](./CODE_OF_CONDUCT.md). Be respectful and open-minded, search the [issue tracker](https://github.com/kubb-labs/kubb/issues) before opening a PR, and for opinion-driven changes open an issue first.
+Please read and follow our [Code of Conduct](https://github.com/kubb-labs/.github/blob/main/CODE_OF_CONDUCT.md). Be respectful and open-minded, search the [issue tracker](https://github.com/kubb-labs/kubb/issues) before opening a PR, and for opinion-driven changes open an issue first.
 
 ## Prerequisites
 
