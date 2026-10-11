@@ -1,4 +1,4 @@
-import { mkdtemp, rm, stat } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, stat } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -31,12 +31,13 @@ describe('getMachineId', () => {
     await expect(getMachineId()).resolves.toBe(id)
   })
 
-  it.skipIf(process.platform === 'win32')('creates the secret readable by its owner only', async () => {
+  it.skipIf(process.platform === 'win32')('keeps the secret in a folder only its owner can open', async () => {
     home = await mkdtemp(path.join(tmpdir(), 'kubb-home-'))
     vi.stubEnv('KUBB_HOME', home)
 
     await getMachineId()
 
-    expect((await stat(path.join(getProjectKubbHome(), 'machine-secret'))).mode & 0o777).toBe(0o600)
+    expect((await stat(getProjectKubbHome())).mode & 0o777).toBe(0o700)
+    expect((await readFile(path.join(getProjectKubbHome(), 'machine-secret'), 'utf8')).length).toBe(64)
   })
 })

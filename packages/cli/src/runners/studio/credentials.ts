@@ -1,28 +1,19 @@
 import { hash, randomBytes } from 'node:crypto'
-import { mkdir, writeFile } from 'node:fs/promises'
-import { homedir } from 'node:os'
 import path from 'node:path'
 import process from 'node:process'
-import { clean, read } from '@internals/utils'
+import { kubbStorage, resolveKubbDir } from '@kubb/core'
 
 /**
- * Root for everything the CLI persists between runs: the paired credential, the machine secret,
- * the last Studio config, and the live-session registry. `KUBB_HOME` relocates all of it.
- */
-function getKubbHome(): string {
-  return process.env.KUBB_HOME ?? path.join(homedir(), '.kubb')
-}
-
-/**
- * Root for the credential and machine identity of the current project.
+ * Root for the credential and machine identity of the current project, inside `KUBB_HOME`.
  *
  * Studio agents are project connections, so two projects on one machine must not share the same
  * persisted token or machine secret.
  */
 export function getProjectKubbHome(project = process.cwd()): string {
-  const projectId = hash('sha256', project)
-  return path.join(getKubbHome(), 'projects', projectId)
+  return resolveKubbDir(path.join('projects', hash('sha256', project)))
 }
+
+const projectStorage = () => kubbStorage({ base: getProjectKubbHome() })
 
 const CREDENTIALS_FILENAME = 'credentials.json'
 
@@ -57,35 +48,25 @@ export type Credentials = {
  * overwrite it rather than the CLI dying on it.
  */
 export async function readCredentials(): Promise<Credentials | null> {
-  const raw = await read(getCredentialsPath()).catch(() => null)
-  if (!raw) {
-    return null
-  }
+  const stored = await projectStorage()
+    .getItem<Credentials>(CREDENTIALS_FILENAME)
+    .catch(() => null)
 
-  try {
-    return JSON.parse(raw) as Credentials
-  } catch {
-    return null
-  }
+  return typeof stored?.token === 'string' && stored.token !== '' ? stored : null
 }
 
 /**
- * Writes the credential with owner-only permissions. The file holds a bearer token, so the mode
- * is set at creation time rather than left to the process umask or fixed up afterward, which
- * would leave the token briefly readable under the umask's default mode.
+ * Writes the credential into the project folder, which only its owner can open.
  */
 export async function writeCredentials(credentials: Credentials): Promise<void> {
-  const file = getCredentialsPath()
-
-  await mkdir(path.dirname(file), { recursive: true, mode: 0o700 })
-  await writeFile(file, JSON.stringify(credentials, null, 2), { mode: 0o600 })
+  await projectStorage().setItem(CREDENTIALS_FILENAME, credentials)
 }
 
 /**
  * Forgets the stored credential. Succeeds when there was nothing to forget.
  */
 export async function clearCredentials(): Promise<void> {
-  await clean(getCredentialsPath())
+  await projectStorage().removeItem(CREDENTIALS_FILENAME)
 }
 
 /**
@@ -94,13 +75,12 @@ export async function clearCredentials(): Promise<void> {
  * apart from the credential, which {@link clearCredentials} deletes.
  */
 export async function getMachineId(): Promise<string> {
-  const file = path.join(getProjectKubbHome(), 'machine-secret')
-  const stored = (await read(file).catch(() => '')).trim()
-  if (stored) return stored
+  const storage = projectStorage()
+  const stored = await storage.getItem('machine-secret').catch(() => null)
+  if (typeof stored === 'string' && stored.trim()) return stored.trim()
 
   const secret = randomBytes(32).toString('hex')
-  await mkdir(path.dirname(file), { recursive: true, mode: 0o700 })
-  await writeFile(file, secret, { mode: 0o600 })
+  await storage.setItem('machine-secret', secret)
 
   return secret
 }

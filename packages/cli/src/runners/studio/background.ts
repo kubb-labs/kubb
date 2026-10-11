@@ -1,5 +1,5 @@
 import { hash, randomBytes } from 'node:crypto'
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises'
+import { readFile, rename, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { connect as connectSocket, createServer } from 'node:net'
 import path from 'node:path'
@@ -165,7 +165,6 @@ export async function serveWorker(shutdown: AbortController) {
     return saving
   }
   try {
-    await mkdir(getProjectKubbHome(), { recursive: true, mode: 0o700 })
     await save()
   } catch (error) {
     server.close()
