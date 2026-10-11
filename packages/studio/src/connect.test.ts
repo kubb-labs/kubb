@@ -1,14 +1,14 @@
 import { createHash } from 'node:crypto'
+import { mkdtemp, rm } from 'node:fs/promises'
 import { createServer, type IncomingHttpHeaders } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { ast } from '@kubb/ast'
-import { type Config, definePlugin, Hookable, type KubbHooks, memoryStorage, type Plugin, resolveCacheDir } from '@kubb/core'
-import { createMockedAdapter } from '@kubb/core/mocks'
+import { type Config, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type ConnectAgentOptions, connectAgent, IncompatibleAgentError, InvalidAgentTokenError, type OpenRpc, runAgent } from './connect.ts'
 import { AGENT_INSTANCE_HEADER, type AgentApi, AgentCloseCode, type AgentConnectInfo, MAX_PAGE_LINES } from './protocol.ts'
+import { projectConfig, root } from './testing.ts'
 
 vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
 
@@ -23,12 +23,12 @@ vi.mock('node:fs/promises', async (importOriginal) => {
 
 // One shared in-memory store stands in for the project on disk, so a test can seed it and watch a run.
 const disk = vi.hoisted(() => ({
-  storage: undefined as import('@kubb/core').Storage | undefined,
-  cache: undefined as import('@kubb/core').Storage | undefined,
+  storage: undefined as Storage | undefined,
+  cache: undefined as Storage | undefined,
 }))
 vi.mock('@kubb/core', async (importOriginal) => {
   const core = await importOriginal<typeof import('@kubb/core')>()
-  const createDisk = (): import('@kubb/core').Storage => {
+  const createDisk = (): Storage => {
     const store = core.memoryStorage()
     return {
       ...store,
@@ -41,8 +41,6 @@ vi.mock('@kubb/core', async (importOriginal) => {
   return { ...core, fsStorage: () => (disk.storage ??= createDisk()), cacheStorage: () => (disk.cache ??= core.memoryStorage()) }
 })
 
-const root = '/project'
-const pluginName = 'studio-test-plugin'
 const studioUrl = 'https://studio.test'
 const info: AgentConnectInfo = { sandbox: false, agentSlug: 'brave-otter', organizationSlug: 'acme', studioVersion: '1.0.0' }
 const cleanups: Array<() => Promise<void>> = []
@@ -56,39 +54,6 @@ beforeEach(() => {
   disk.storage = undefined
   disk.cache = undefined
 })
-
-// Emits one file, so a run leaves something for `readFiles`.
-function filePlugin(absolutePath: string, content: string): Plugin {
-  const file = ast.factory.createFile({
-    path: absolutePath,
-    baseName: absolutePath.split('/').pop() as `${string}.${string}`,
-    sources: [ast.factory.createSource({ nodes: [ast.factory.createText(content)] })],
-    imports: [],
-    exports: [],
-  })
-
-  return definePlugin(() => ({
-    name: pluginName,
-    hooks: {
-      'kubb:plugin:setup'(ctx) {
-        ctx.injectFile(file)
-      },
-    },
-  }))() as unknown as Plugin
-}
-
-function projectConfig(content = 'export const pet = 1'): Config {
-  return {
-    root,
-    input: 'https://example.com/openapi.json',
-    output: { path: 'src/gen', clean: false },
-    parsers: [],
-    reporters: [],
-    adapter: createMockedAdapter(),
-    plugins: [filePlugin(`${root}/src/gen/pet.ts`, content)],
-    storage: memoryStorage(),
-  } as unknown as Config
-}
 
 type Socket = { agent: AgentApi; ping: ReturnType<typeof vi.fn>; close: (code: number, reason?: string) => void }
 
@@ -289,9 +254,27 @@ describe('close codes', () => {
   })
 })
 
+describe('heartbeat', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('closes the socket once a ping goes unanswered past the timeout, then reconnects', async () => {
+    vi.useFakeTimers()
+    const { socket, sockets } = await connectStudio({ heartbeatInterval: 1_000 })
+    socket.ping.mockReturnValue(new Promise(() => {}))
+
+    await vi.advanceTimersByTimeAsync(1_000 + 9_999)
+    expect(socket.ping).toHaveBeenCalledOnce()
+    expect(sockets).toHaveLength(1)
+
+    await vi.advanceTimersByTimeAsync(1)
+    await vi.waitFor(() => expect(sockets).toHaveLength(2))
+  })
+})
+
 describe('a sandbox job', () => {
   it('runs under its own temporary root, removed with its manifest cache once the job ends', async () => {
-    const { mkdtemp, rm } = await import('node:fs/promises')
     const { agent } = await connectStudio({}, { sandbox: true, agentSlug: 'sandbox', studioVersion: '1.0.0' })
 
     await agent.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } }).result()
@@ -344,7 +327,6 @@ describe('readFiles', () => {
 
 describe('generation history', () => {
   it('fingerprints every file in the run result, run on the project root', async () => {
-    const { mkdtemp } = await import('node:fs/promises')
     const { hooks, heard } = withHooks()
     const command = heard('studio:command')
     const { agent } = await connectStudio({ hooks, permissions: { allowRead: true } })
@@ -374,7 +356,6 @@ describe('generation history', () => {
 
 describe('disk snapshot', () => {
   async function seedDisk(files: Record<string, string>) {
-    const { fsStorage } = await import('@kubb/core')
     const storage = fsStorage()
     for (const [path, value] of Object.entries(files)) await storage.writeItem(`${root}/${path}`, value)
   }

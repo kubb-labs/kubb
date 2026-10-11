@@ -1,11 +1,9 @@
 import { gunzipSync } from 'node:zlib'
-import { ast } from '@kubb/ast'
-import { type Config, definePlugin, memoryStorage, type Plugin } from '@kubb/core'
-import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { hashOf } from './generations.ts'
 import type { SnapshotUploadMetadata } from './protocol.ts'
 import { createSnapshot, createSnapshotPackage } from './snapshot.ts'
+import { projectConfig } from './testing.ts'
 
 /** Reads back the path (USTAR `prefix` + `name`) and content of every entry in a tarball. */
 function readTarEntries(tar: Buffer): Array<{ path: string; content: string }> {
@@ -98,44 +96,13 @@ describe('createSnapshotPackage', () => {
 })
 
 describe('createSnapshot', () => {
-  const root = '/project'
-
-  function config(): Config {
-    const file = ast.factory.createFile({
-      path: `${root}/src/gen/pet.ts`,
-      baseName: 'pet.ts',
-      sources: [ast.factory.createSource({ nodes: [ast.factory.createText('export const pet = 1')] })],
-      imports: [],
-      exports: [],
-    })
-    const plugin = definePlugin(() => ({
-      name: 'plugin-barrel',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.injectFile(file)
-        },
-      },
-    }))() as unknown as Plugin
-
-    return {
-      root,
-      input: 'https://example.com/openapi.json',
-      output: { path: 'src/gen', clean: false },
-      parsers: [],
-      reporters: [],
-      adapter: createMockedAdapter(),
-      plugins: [plugin],
-      storage: memoryStorage(),
-    } as unknown as Config
-  }
-
   const options = { apiKey: 'kubb_key', id: 'gh:1:pr-2', name: 'acme/api#2', packageName: '@acme/api', version: '1.0.0', commit: 'abc' }
 
   it('sends one multipart request with the metadata, the agent-compatible hashes and the tarball', async () => {
     const snapshot = { id: 'snap-1', url: '/packages/ci/acme-api.tgz' }
     using fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ snapshot }, { status: 201 }))
 
-    await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', config: config() })).resolves.toStrictEqual(snapshot)
+    await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', config: projectConfig() })).resolves.toStrictEqual(snapshot)
 
     const [url, init] = fetchMock.mock.calls[0] as [URL, RequestInit]
     expect(url.href).toBe('https://studio.test/api/snapshots')
@@ -159,7 +126,7 @@ describe('createSnapshot', () => {
       .spyOn(globalThis, 'fetch')
       .mockResolvedValue(Response.json({ message: 'Snapshot limit reached', data: { upgradeUrl: 'https://kubb.studio/billing' } }, { status: 402 }))
 
-    await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', config: config() })).rejects.toThrow(
+    await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', config: projectConfig() })).rejects.toThrow(
       'Kubb Studio refused the snapshot (status 402): Snapshot limit reached. Upgrade at https://kubb.studio/billing.',
     )
   })
@@ -167,7 +134,7 @@ describe('createSnapshot', () => {
   it('names the status when a successful response carries no snapshot', async () => {
     using _ = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('<html></html>', { status: 200 }))
 
-    await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', config: config() })).rejects.toThrow(
+    await expect(createSnapshot({ ...options, studioUrl: 'https://studio.test', config: projectConfig() })).rejects.toThrow(
       'Kubb Studio returned no snapshot (status 200)',
     )
   })
@@ -175,7 +142,7 @@ describe('createSnapshot', () => {
   it('refuses a plaintext Studio URL before generating', async () => {
     using fetchMock = vi.spyOn(globalThis, 'fetch')
 
-    await expect(createSnapshot({ ...options, studioUrl: 'http://studio.test', config: config() })).rejects.toThrow('Refusing to reach Kubb Studio')
+    await expect(createSnapshot({ ...options, studioUrl: 'http://studio.test', config: projectConfig() })).rejects.toThrow('Refusing to reach Kubb Studio')
     expect(fetchMock).not.toHaveBeenCalled()
   })
 })

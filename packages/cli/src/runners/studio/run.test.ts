@@ -200,8 +200,8 @@ describe('connect', () => {
 
   /**
    * A `connectAgent` stand-in. Each call runs the next queued attempt: `rejected` throws what the
-   * runtime throws when Studio turns the token down, `connected` announces the session first, and a
-   * call past the queue returns like a shutdown.
+   * runtime throws when Studio turns the token down, `connected then rejected` announces the
+   * session before it throws, and a call past the queue returns like a shutdown.
    */
   function mockConnection(...attempts: Array<'rejected' | 'connected then rejected'>) {
     const calls: Array<ConnectAgentOptions> = []

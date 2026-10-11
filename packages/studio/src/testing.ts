@@ -1,0 +1,38 @@
+import { ast } from '@kubb/ast'
+import { type Config, definePlugin, memoryStorage, type Plugin } from '@kubb/core'
+import { createMockedAdapter } from '@kubb/core/mocks'
+
+export const root = '/project'
+
+/**
+ * A project config whose one plugin injects `src/gen/pet.ts` with `content`, so a run leaves a file
+ * to read back. The plugin is named `plugin-barrel`, a package a snapshot can resolve and bundle.
+ */
+export function projectConfig(content = 'export const pet = 1'): Config {
+  const file = ast.factory.createFile({
+    path: `${root}/src/gen/pet.ts`,
+    baseName: 'pet.ts',
+    sources: [ast.factory.createSource({ nodes: [ast.factory.createText(content)] })],
+    imports: [],
+    exports: [],
+  })
+  const plugin = definePlugin(() => ({
+    name: 'plugin-barrel',
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        ctx.injectFile(file)
+      },
+    },
+  }))() as unknown as Plugin
+
+  return {
+    root,
+    input: 'https://example.com/openapi.json',
+    output: { path: 'src/gen', clean: false },
+    parsers: [],
+    reporters: [],
+    adapter: createMockedAdapter(),
+    plugins: [plugin],
+    storage: memoryStorage(),
+  } as unknown as Config
+}

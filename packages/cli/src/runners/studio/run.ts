@@ -338,9 +338,8 @@ export async function connect(
     let { credentials, permissions } = prepared
     const { configPath } = prepared
     let hinted = false
-    // Set once this run pairs again, and cleared once that token connects, so a token rejected
-    // straight after its approval fails the run instead of pairing in a loop.
-    let repaired = false
+    // Set by a fresh pairing until it connects, so a token rejected right after approval fails the run instead of looping.
+    let pairedAgain = false
 
     // The background worker writes to a log file, so it gets the plain logger rather than the
     // animated one. The logger also covers the `studio:*` events and each generation run.
@@ -351,7 +350,7 @@ export async function connect(
       ...(context.onState ? { logger: plainLogger } : {}),
     })
     hooks.hook('studio:connected', async () => {
-      repaired = false
+      pairedAgain = false
       await context.onState?.('connected')
       if (hinted || context.onState || options.logLevel === 'silent') return
       hinted = true
@@ -379,12 +378,12 @@ export async function connect(
         await context.onState?.('authentication required')
         if (process.env.KUBB_AGENT_TOKEN) throw explainRejectedToken(error, 'envToken')
         await clearCredentials()
-        if (repaired) throw explainRejectedToken(error, 'reauthExhausted')
+        if (pairedAgain) throw explainRejectedToken(error, 'reauthExhausted')
         if (context.onState || isCIEnvironment() || !canUseTTY()) throw explainRejectedToken(error, 'nonInteractive')
 
         console.log(styleText('yellow', `${error.message} Pairing again...`))
         credentials = await login(options, { signal, previousCredentials: credentials })
-        repaired = true
+        pairedAgain = true
         permissions = await resolvePermissions(options, credentials, configPath)
       }
     }

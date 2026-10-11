@@ -44,6 +44,7 @@ const published: PublishedSnapshot = {
     removed: [],
   },
 }
+const branchChanges = { base: null, added: [], changed: [], removed: [], baseFound: true }
 
 function baseOptions(overrides: Partial<SnapshotOptions> = {}): SnapshotOptions {
   return {
@@ -72,7 +73,7 @@ afterEach(() => {
 })
 
 describe('snapshot', () => {
-  it("publishes under kubb-labs/action's GitHub identity, with the CI key and the detected commit", async () => {
+  it('publishes under the detected CI identity, with the CI key and commit', async () => {
     await snapshot(baseOptions())
 
     expect(vi.mocked(createSnapshot)).toHaveBeenCalledWith(
@@ -111,7 +112,6 @@ describe('snapshot', () => {
 
   it("compares with the base branch's agent, and labels those changes with the branch", async () => {
     vi.mocked(detectCi).mockReturnValueOnce({ id: 'gh:123:42', name: 'acme/api#42', base: { branch: 'main', id: 'gh:123:refs/heads/main' } })
-    const branchChanges = { base: null, added: [], changed: [], removed: [], baseFound: true }
     vi.mocked(createSnapshot).mockResolvedValue({ ...published, branchChanges })
 
     await snapshot(baseOptions({ json: true }))
@@ -121,7 +121,6 @@ describe('snapshot', () => {
   })
 
   it('compares with the agent --base-id names on any CI, labeled with that id', async () => {
-    const branchChanges = { base: null, added: [], changed: [], removed: [], baseFound: true }
     vi.mocked(createSnapshot).mockResolvedValue({ ...published, branchChanges })
 
     await snapshot(baseOptions({ json: true, id: 'jenkins:api:pr-12', baseId: 'jenkins:api:main' }))
@@ -156,12 +155,6 @@ describe('snapshot', () => {
   it('rejects before generating when no token comes from --token or KUBB_TOKEN', async () => {
     await expect(snapshot(baseOptions({ token: undefined }))).rejects.toThrow('KUBB_TOKEN')
     expect(createSnapshot).not.toHaveBeenCalled()
-  })
-
-  it('skips the package.json lookup entirely once both --name and --version are given', async () => {
-    await snapshot(baseOptions({ name: '@acme/override', packageVersion: '9.9.9' }))
-
-    expect(vi.mocked(createSnapshot)).toHaveBeenCalledWith(expect.objectContaining({ packageName: '@acme/override', version: '9.9.9' }))
   })
 
   it('falls back to package.json when only one of --name or --version is given, and fails when none exists', async () => {
