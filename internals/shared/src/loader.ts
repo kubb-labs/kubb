@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises'
 import { createJiti } from 'jiti'
 
 /**
@@ -8,6 +9,12 @@ const JITI_OPTIONS = {
   jsx: { runtime: 'automatic', importSource: '@kubb/renderer-jsx' },
   moduleCache: false,
 } satisfies Parameters<typeof createJiti>[1]
+
+/**
+ * Plain JavaScript files. jiti hands these to Node's native `import()`, whose module cache never
+ * lets go of a file, so `moduleCache: false` alone would keep returning the first version of it.
+ */
+const JAVASCRIPT_EXTENSION = /\.[cm]?jsx?$/
 
 /**
  * Per-call options for {@link ModuleLoader.load}.
@@ -29,7 +36,8 @@ type ModuleLoader = {
 /**
  * Creates a jiti-based loader for Kubb's TypeScript and JavaScript config modules.
  *
- * jiti transpiles TypeScript and the `@kubb/renderer-jsx` JSX runtime on the fly.
+ * jiti transpiles TypeScript and the `@kubb/renderer-jsx` JSX runtime on the fly. Every load
+ * re-evaluates the file, so a config edited on disk is picked up by the next load.
  *
  * @example
  * ```ts
@@ -40,8 +48,16 @@ export function createModuleLoader(): ModuleLoader {
   const jiti = createJiti(import.meta.url, JITI_OPTIONS)
 
   return {
-    load<T>(filePath: string, options?: LoadModuleOptions) {
-      return (options?.default ? jiti.import(filePath, { default: true }) : jiti.import(filePath)) as Promise<T>
+    async load<T>(filePath: string, options?: LoadModuleOptions) {
+      if (!JAVASCRIPT_EXTENSION.test(filePath)) {
+        return (options?.default ? jiti.import(filePath, { default: true }) : jiti.import(filePath)) as Promise<T>
+      }
+
+      // Transpiled through jiti instead, so every load re-evaluates the file as it is on disk now.
+      const mod = (await jiti.evalModule(await readFile(filePath, 'utf8'), { filename: filePath, async: true, forceTranspile: true })) as
+        | { default?: unknown }
+        | undefined
+      return (options?.default ? (mod?.default ?? mod) : mod) as T
     },
   }
 }
