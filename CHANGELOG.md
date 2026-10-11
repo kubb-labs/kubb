@@ -1,5 +1,58 @@
 # Changelog
 
+## v5.6.1 — Oct 11, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Rebuild once per editor save in `kubb generate --watch`. An atomic save (write a temp file, then rename it) could trigger two rebuilds, because the 100 ms debounce matched chokidar's 100 ms atomic-save window. The debounce is now 250 ms. ([#4227](https://github.com/kubb-labs/kubb/pull/4227), [`4ba64cf`](https://github.com/kubb-labs/kubb/commit/4ba64cf431201531556e41efd7b7ca2ea386d1a9))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Add `kubbStorage`, an unstorage fs storage for the files Kubb keeps for itself under `~/.kubb`, with a temp folder as fallback.
+  
+  - Use `kubbStorage({ base })` or `resolveKubbDir(base)` to resolve `base` inside `KUBB_HOME` (default `~/.kubb`). An absolute `base` is used as is, and a folder that is not writable falls back to the OS temp directory.
+  - Keep the files private: the folder gets mode 0700.
+  - Write `file` and `html` reports to `.kubb` through it.
+  - Name log files after the config with every character other than letters, digits, `_`, and `-` replaced by `-`, as the `html` reporter already did.
+  - Keep existing pairings: `kubb studio` reads its credential and machine secret from the same files under `~/.kubb/projects`.
+  
+  ```typescript
+  import { kubbStorage } from '@kubb/core'
+  
+  const storage = kubbStorage({ base: 'cache' })
+  await storage.setItem('last-run.json', { at: Date.now() })
+  ``` ([#4225](https://github.com/kubb-labs/kubb/pull/4225), [`30f9f4d`](https://github.com/kubb-labs/kubb/commit/30f9f4d1bd4bf190564d54b953e8b6e27a558c3a))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Connect to Kubb Studio over one WebSocket, and publish CI snapshots in one request. Needs a Kubb Studio release that accepts Kubb 5.6.1 agents.
+  
+  - Replace `runConnection` and `createClient` with `connectAgent`. It resolves on shutdown and rejects with `InvalidAgentTokenError` when Studio refuses the token, so the host pairs again in its own loop. Pass one `hooks` emitter instead of `installLogger`.
+  - Replace `createAgent`, `createJob`, and `waitForJob` with `createSnapshot`. It generates like `kubb generate`, with the formatter, the linter, and `output.postGenerate`. It then packs the tarball and sends one `POST /api/snapshots` with the CI API key. Snapshots come only from CI now, so the `publishSnapshot` RPC is gone.
+  - Pass a `machineId` to `pairAgent`. `setStorage`, `createFileStorage`, `machineTokenFrom`, `connectWebSocketRpc`, `startPairing`, and `pollForPairingToken` are removed, and the runtime no longer reads `KUBB_AGENT_SECRET`.
+  - Rename the `studio:*` hooks to `studio:connected`, `studio:disconnected`, `studio:reconnecting`, `studio:command`, `studio:warn`, and `studio:error`.
+  - Drop `--timeout` and the `--allow-*` flags from `kubb studio snapshot`. Overlapping CI runs no longer end each other's session, so they need no `concurrency` group.
+  
+  ```typescript
+  // Before
+  await runConnection({ credentials: { token }, clientOptions: () => ({ configPath, loadConfig, version, installLogger }), onTokenRejected: async () => null })
+  
+  // After
+  await connectAgent({ token, configPath, loadConfig, version, hooks, signal })
+  ``` ([#4225](https://github.com/kubb-labs/kubb/pull/4225), [`30f9f4d`](https://github.com/kubb-labs/kubb/commit/30f9f4d1bd4bf190564d54b953e8b6e27a558c3a))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.6.0 — Oct 10, 2026
 
 ### @kubb/adapter-oas
