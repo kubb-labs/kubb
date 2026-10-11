@@ -8,8 +8,6 @@ on:
       - '**/*.md'
       - '.agents/**'
       - '.claude/**'
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/FUNDING.yml'
       - 'assets/**'
       - 'LICENSE'
 
