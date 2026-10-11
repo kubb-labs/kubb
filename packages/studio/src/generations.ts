@@ -96,13 +96,16 @@ export async function generate({
   allowExec: boolean
 }): Promise<SourceFiles> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
-  const result = await createKubb({ ...config, output }, { hooks, signal }).generate()
+  const kubb = createKubb({ ...config, output }, { hooks, signal })
+  const result = await kubb.generate()
   if (!result.success) throw generationFailure(result.diagnostics)
 
+  // `kubb.config` carries the defaults, such as the fs storage a config loaded by the CLI leaves unset.
+  const { storage, root } = kubb.config
   return {
-    storage: config.storage,
-    root: config.root,
-    paths: new Set(result.files.map((file) => relativeStoragePath({ root: config.root, filePath: file.path }))),
+    storage,
+    root,
+    paths: new Set(result.files.map((file) => relativeStoragePath({ root, filePath: file.path }))),
   }
 }
 
