@@ -14,7 +14,7 @@ import {
   useConfig,
   useKubb,
   useOptions,
-  usePlugin,
+  requirePlugin,
 } from './composables.ts'
 import { createKubb } from './createKubb.ts'
 import type { Generator } from './defineGenerator.ts'
@@ -55,7 +55,7 @@ describe('composables', () => {
       ['useOptions', () => useOptions()],
       ['setOptions', () => setOptions({})],
       ['useConfig', () => useConfig()],
-      ['usePlugin', () => usePlugin('plugin-ts')],
+      ['requirePlugin', () => requirePlugin('plugin-ts')],
     ]
 
     for (const [name, call] of calls) {
@@ -89,8 +89,8 @@ describe('composables', () => {
 
       expect(useOptions()).toBe(ctx.options)
       expect(useConfig()).toBe(ctx.config)
-      expect(usePlugin('plugin-ts').name).toBe('plugin-ts')
-      expect(() => usePlugin('plugin-missing')).toThrow('Plugin "plugin-missing" is required but not found.')
+      expect(requirePlugin('plugin-ts').name).toBe('plugin-ts')
+      expect(() => requirePlugin('plugin-missing')).toThrow('Plugin "plugin-missing" is required but not found.')
     })
 
     expect(ctx.addGenerator).toHaveBeenCalledWith(generator, generator)
@@ -153,7 +153,7 @@ describe('KubbDriver#setupHooks with composables', () => {
     expect(fromComposable).toBe(fromArgument)
   })
 
-  it('usePlugin returns another plugin from the config', async () => {
+  it('requirePlugin returns another plugin from the config', async () => {
     let found: string | undefined
 
     const base: Plugin = { name: 'base', hooks: {} }
@@ -161,7 +161,7 @@ describe('KubbDriver#setupHooks with composables', () => {
       name: 'dependent',
       hooks: {
         'kubb:plugin:setup'() {
-          found = usePlugin('base').name
+          found = requirePlugin('base').name
         },
       },
     }

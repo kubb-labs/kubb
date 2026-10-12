@@ -5,6 +5,7 @@ export {
   addMacro,
   injectFile,
   kubbContext,
+  requirePlugin,
   setMacros,
   setOptions,
   setResolver,
@@ -12,7 +13,6 @@ export {
   useConfig,
   useKubb,
   useOptions,
-  usePlugin,
 } from './composables.ts'
 export { Diagnostics } from './Diagnostics.ts'
 export { createKubb } from './createKubb.ts'

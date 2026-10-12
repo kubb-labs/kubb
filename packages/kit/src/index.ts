@@ -12,6 +12,7 @@ export {
   addMacro,
   injectFile,
   kubbContext,
+  requirePlugin,
   setMacros,
   setOptions,
   setResolver,
@@ -19,7 +20,6 @@ export {
   useConfig,
   useKubb,
   useOptions,
-  usePlugin,
 } from '@kubb/core'
 export { createAdapter } from '@kubb/core'
 export { createRenderer } from '@kubb/core'

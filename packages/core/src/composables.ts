@@ -102,6 +102,6 @@ export function useConfig(): Config {
 /**
  * Returns another plugin from the config, typed through `Kubb.PluginRegistry`, like `ctx.requirePlugin`.
  */
-export function usePlugin<TName extends PluginName>(name: TName): NormalizedPlugin<ResolvePluginOptions<TName>> {
-  return requireContext('usePlugin').requirePlugin(name) as NormalizedPlugin<ResolvePluginOptions<TName>>
+export function requirePlugin<TName extends PluginName>(name: TName): NormalizedPlugin<ResolvePluginOptions<TName>> {
+  return requireContext('requirePlugin').requirePlugin(name) as NormalizedPlugin<ResolvePluginOptions<TName>>
 }

@@ -5,8 +5,7 @@
 
 Add composables to `kubb/kit`, so plugins can call `addGenerator()` and the other setup helpers inside `kubb:plugin:setup` without passing `ctx` around.
 
-- `addGenerator()`, `setResolver()`, `addMacro()`, `setMacros()`, `setOptions()`, and `injectFile()` each call the `ctx` method with that name.
-- `usePlugin(name)` returns another plugin from the config, typed through `Kubb.PluginRegistry`. It fails with `KUBB_PLUGIN_NOT_FOUND` like `ctx.requirePlugin`.
+- `addGenerator()`, `setResolver()`, `addMacro()`, `setMacros()`, `setOptions()`, `injectFile()`, and `requirePlugin()` each call the `ctx` method with that name. `requirePlugin(name)` is typed through `Kubb.PluginRegistry`.
 - `useOptions()` and `useConfig()` return `ctx.options` and `ctx.config`.
 - `useKubb()` returns the setup context. `tryUseKubb()` returns `undefined` outside setup.
 
