@@ -1,5 +1,26 @@
 # Changelog
 
+## v5.8.0 — Oct 12, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Add `schema` to `definePlugin` to validate plugin options with any Standard Schema. ([#4244](https://github.com/kubb-labs/kubb/pull/4244), [`6145209`](https://github.com/kubb-labs/kubb/commit/614520944348d43aeb8c13d8dcdd2683b6631135))
+- Fix `KUBB_NO_CONTEXT` for plugins that a CommonJS config loads. The ESM and CommonJS builds of `@kubb/core` now share one plugin context, so composables such as `setResolver()` work in both. ([#4246](https://github.com/kubb-labs/kubb/pull/4246), [`dcf2485`](https://github.com/kubb-labs/kubb/commit/dcf24857f35aa665c0dc1e07c7ebe703795c7a02))
+
+### @kubb/kit
+
+#### Features
+
+- Add `@kubb/kit/options` with shared Zod schemas for common plugin options. ([#4245](https://github.com/kubb-labs/kubb/pull/4245), [`d2e57fb`](https://github.com/kubb-labs/kubb/commit/d2e57fbb74340e963c5ebf425d735558487ae173))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.7.0 — Oct 12, 2026
 
 ### @kubb/core
