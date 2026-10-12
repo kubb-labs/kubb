@@ -1,5 +1,40 @@
 # Changelog
 
+## v5.7.0 — Oct 12, 2026
+
+### @kubb/core
+
+#### Features
+
+- Add composables to `kubb/kit`, so plugins can call `addGenerator()` and the other setup helpers inside `kubb:plugin:setup` without passing `ctx` around.
+  
+  - `addGenerator()`, `setResolver()`, `addMacro()`, `setMacros()`, `setOptions()`, `injectFile()`, and `requirePlugin()` each call the `ctx` method with that name. `requirePlugin(name)` is typed through `Kubb.PluginRegistry`.
+  - `useOptions()` and `useConfig()` return `ctx.options` and `ctx.config`.
+  - `useKubb()` returns the setup context. `tryUseKubb()` returns `undefined` outside setup.
+  
+  The context survives an `await` in setup and is scoped to one plugin at a time. Calling a composable outside setup fails with the new `KUBB_NO_CONTEXT` diagnostic.
+  
+  ```ts
+  import { addGenerator, definePlugin, setResolver } from 'kubb/kit'
+  
+  export const pluginExample = definePlugin(() => ({
+    name: 'plugin-example',
+    hooks: {
+      async 'kubb:plugin:setup'() {
+        await loadTemplates()
+        setResolver(resolverExample)
+        addGenerator(exampleGenerator)
+      },
+    },
+  }))
+  ``` ([#4240](https://github.com/kubb-labs/kubb/pull/4240), [`f7ee401`](https://github.com/kubb-labs/kubb/commit/f7ee4014038910fc2932629e33f6d9c60801edcd))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.6.3 — Oct 12, 2026
 
 ### @kubb/core
