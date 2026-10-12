@@ -501,4 +501,25 @@ describe('disconnect during generation', () => {
 
     await vi.waitFor(() => expect(warn).toHaveBeenCalledWith({ message: 'Canceled the running generation: the connection to Kubb Studio closed' }))
   })
+
+  it('cancels the run before a slow listener has heard why', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const heard = Promise.withResolvers<void>()
+    hooks.hook('studio:warn', () => heard.promise)
+    const loaded = Promise.withResolvers<Config>()
+    const loadConfig = vi
+      .fn()
+      .mockResolvedValueOnce(projectConfig())
+      .mockImplementationOnce(() => loaded.promise)
+      .mockResolvedValue(projectConfig())
+    const { agent, socket } = await connectStudio({ hooks, loadConfig })
+    const generation = run({ agent, jobId: 'interrupted' })
+    await vi.waitFor(() => expect(loadConfig).toHaveBeenCalledTimes(2))
+
+    socket.close(1011)
+    loaded.resolve(projectConfig())
+
+    await expect(generation).rejects.toThrow('Generation canceled')
+    heard.resolve()
+  })
 })

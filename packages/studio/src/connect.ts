@@ -516,11 +516,14 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
   clearTimeout(timer)
   signal?.removeEventListener('abort', rpc.close)
   session.connected.reject(new Error('The socket closed before Studio called connect()'))
-  if (session.active) {
+  // Captured and aborted before the warning, so a slow listener neither keeps the run going nor
+  // sees it finish and clear `session.active` first.
+  const active = session.active
+  if (active) {
+    active.abort()
     await emit(hooks, 'studio:warn', { message: 'Canceled the running generation: the connection to Kubb Studio closed' })
-    session.active.abort()
   }
-  await session.active?.settled
+  await active?.settled
 
   return { ...close, connected: session.info !== undefined }
 }
