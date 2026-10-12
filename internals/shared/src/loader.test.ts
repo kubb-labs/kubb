@@ -44,4 +44,17 @@ describe('createModuleLoader', () => {
     await writeFile(filePath, source('after'))
     expect(await loader.load(filePath, { default: true })).toStrictEqual({ name: 'after' })
   })
+
+  test('picks up an edit to a TypeScript file the config imports', async () => {
+    const loader = createModuleLoader()
+    const helperPath = path.join(testDir, 'helper.ts')
+    const filePath = path.join(testDir, 'imports.config.js')
+
+    await writeFile(helperPath, `export const name = 'before'\n`)
+    await writeFile(filePath, `import { name } from './helper.ts'\n\nexport default { name }\n`)
+    expect(await loader.load(filePath, { default: true })).toStrictEqual({ name: 'before' })
+
+    await writeFile(helperPath, `export const name = 'after'\n`)
+    expect(await loader.load(filePath, { default: true })).toStrictEqual({ name: 'after' })
+  })
 })

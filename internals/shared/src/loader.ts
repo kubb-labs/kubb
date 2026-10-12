@@ -54,6 +54,8 @@ export function createModuleLoader(): ModuleLoader {
       }
 
       // Transpiled through jiti instead, so every load re-evaluates the file as it is on disk now.
+      // A TypeScript file it imports reloads too. A plain JavaScript file it imports still goes
+      // through Node's `import()` and stays cached until the process restarts.
       const mod = (await jiti.evalModule(await readFile(filePath, 'utf8'), { filename: filePath, async: true, forceTranspile: true })) as
         | { default?: unknown }
         | undefined
