@@ -12,6 +12,7 @@ export { createStorage } from './createStorage.ts'
 export { defineGenerator } from './defineGenerator.ts'
 export { defineParser } from './defineParser.ts'
 export { assertPluginOption, definePlugin } from './definePlugin.ts'
+export { checkCompatibility } from './defineExtension.ts'
 export { createResolver } from './createResolver.ts'
 export { Resolver } from './Resolver.ts'
 export { KubbDriver } from './KubbDriver.ts'
@@ -46,6 +47,7 @@ export type { Storage } from './createStorage.ts'
 export type { FileManagerHooks } from './FileManager.ts'
 export type { Generator, GeneratorContext } from './defineGenerator.ts'
 export type { InputKind } from './input.ts'
+export type { ExtensionDependencies, ExtensionDependency, ExtensionDependencyRecord, ExtensionKind, ExtensionMeta } from './defineExtension.ts'
 export type { NodeCache } from './nodeCache.ts'
 export type { Parser } from './defineParser.ts'
 export type {
@@ -62,8 +64,11 @@ export type {
   OutputOptions,
   Override,
   Plugin,
+  PluginDefinition,
+  PluginFactory,
   PluginFactoryOptions,
   PluginName,
+  PluginType,
   ResolvePluginOptions,
 } from './definePlugin.ts'
 export type {

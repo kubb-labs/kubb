@@ -2,6 +2,7 @@ import path from 'node:path'
 import type { LiteralUnion } from '@internals/utils'
 import type { Enforce, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import type { Generator } from './defineGenerator.ts'
+import type { ExtensionDependencies, ExtensionDependencyRecord, ExtensionMeta } from './defineExtension.ts'
 import type { BannerMeta, Resolver, ResolverPatch } from './Resolver.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Config, FilesContext, KubbHooks } from './types.ts'
@@ -322,6 +323,14 @@ export type PluginFactoryOptions<
   resolver: TResolver
 }
 
+/** Type parameter for the object form of `definePlugin`. Same shape as `PluginFactoryOptions`. */
+export type PluginType<
+  TName extends string = string,
+  TOptions extends object = object,
+  TResolvedOptions extends object = TOptions,
+  TResolver extends Resolver = Resolver,
+> = PluginFactoryOptions<TName, TOptions, TResolvedOptions, TResolver>
+
 /**
  * Context passed to a plugin's `kubb:plugin:setup` handler, where it registers generators and
  * sets its resolver, transformer, and options.
@@ -389,11 +398,13 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    * Unique name for the plugin, following the same naming convention as `createPlugin`.
    */
   name: string
+  /** Identity, compatibility, and registry data. Set by the object form of `definePlugin`. */
+  meta?: ExtensionMeta
   /**
-   * Plugins this one builds on. They run first when the config has them; a missing one is skipped.
-   * Call `ctx.requirePlugin` in `kubb:plugin:setup` to fail the run when one is missing.
+   * Plugins this one builds on. They run first when the config has them. An array only orders
+   * plugins. A record also fails the run when a required entry is missing or out of range.
    */
-  dependencies?: Array<PluginName>
+  dependencies?: Array<PluginName> | ExtensionDependencies<TFactory['options']>
   /**
    * Controls the execution order of this plugin relative to others.
    *
@@ -417,6 +428,21 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
   } & {
     'kubb:plugin:setup'?(ctx: KubbPluginSetupContext<TFactory>): void | Promise<void>
   }
+  /** Runs before `kubb:plugin:setup`. Takes the user's options and returns the resolved options. */
+  setup?(options: TFactory['options'], kubb: KubbPluginSetupContext<TFactory>): TFactory['resolvedOptions'] | Promise<TFactory['resolvedOptions']>
+}
+
+/** The object passed to `definePlugin`. */
+export type PluginDefinition<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = Pick<Plugin<TFactory>, 'dependencies' | 'enforce' | 'setup'> & {
+  meta: ExtensionMeta<TFactory['name']>
+  hooks?: Plugin<TFactory>['hooks']
+}
+
+/** The function `definePlugin` returns. Call it with user options to get a `Plugin`. */
+export type PluginFactory<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
+  (options?: TFactory['options']): Plugin<TFactory>
+  kind: 'plugin'
+  meta: ExtensionMeta<TFactory['name']>
 }
 
 /**
@@ -426,6 +452,7 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
  * @internal
  */
 export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Plugin<TOptions> & {
+  dependencies?: Array<PluginName> | ExtensionDependencyRecord
   options: TOptions['resolvedOptions'] & {
     output: Output
     include?: Array<Include>
@@ -450,29 +477,34 @@ export type KubbPluginEndContext = FilesContext & {
 }
 
 /**
- * Wraps a plugin factory and returns a function that accepts user options and
- * yields a typed `Plugin`. Lifecycle handlers go inside a single `hooks` object.
- *
- * Pass a `PluginFactoryOptions` type parameter to get a typed `ctx` inside
- * `kubb:plugin:setup`. Plugin names should follow the `plugin-<feature>`
- * convention (`plugin-react-query`, `plugin-zod`, ...).
+ * Defines a plugin from one object and returns a factory that takes the user's options.
+ * Name plugins `plugin-<feature>`.
  *
  * @example
  * ```ts
- * import { definePlugin } from '@kubb/core'
- *
- * export const pluginTs = definePlugin((options: { prefix?: string } = {}) => ({
- *   name: 'plugin-ts',
- *   hooks: {
- *     'kubb:plugin:setup'(ctx) {
- *       ctx.setResolver(resolverTs)
- *     },
+ * export const pluginZod = definePlugin<PluginZod>({
+ *   meta: { name: 'plugin-zod', compatibility: { kubb: '>=5.7.0' } },
+ *   dependencies: { 'plugin-ts': { optional: true } },
+ *   setup(options, kubb) {
+ *     kubb.addGenerator(zodGenerator)
+ *     return { ...options, inferred: options.inferred ?? false }
  *   },
- * }))
+ * })
  * ```
  */
+export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(definition: PluginDefinition<TFactory>): PluginFactory<TFactory>
+/** @deprecated Pass a definition object with `meta` and `setup` instead. The factory form is removed in the next major. */
 export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(
   factory: (options: TFactory['options']) => Plugin<TFactory>,
-): (options?: TFactory['options']) => Plugin<TFactory> {
-  return (options) => factory((options ?? {}) as TFactory['options'])
+): (options?: TFactory['options']) => Plugin<TFactory>
+export function definePlugin(input: PluginDefinition | ((options: object) => Plugin)): PluginFactory | ((options?: object) => Plugin) {
+  if (typeof input === 'function') {
+    return (options) => input(options ?? {})
+  }
+
+  const { meta, dependencies, enforce, hooks = {}, setup } = input
+  // Keeps the raw options: Studio and config merging read them back.
+  const factory = (options?: object): Plugin => ({ name: meta.name, meta, options: options ?? {}, dependencies, enforce, hooks, setup })
+
+  return Object.assign(factory, { kind: 'plugin' as const, meta })
 }

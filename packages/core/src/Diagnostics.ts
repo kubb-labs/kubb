@@ -290,6 +290,21 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
     cause: 'A plugin that another plugin depends on is missing from the config.',
     fix: 'Add the required plugin to the `plugins` array in kubb.config.ts, or remove the dependency on it.',
   },
+  [diagnosticCode.incompatibleExtension]: {
+    title: 'Incompatible extension',
+    cause: 'A plugin sets `meta.compatibility.kubb` or `meta.compatibility.node` to a range the running Kubb or Node.js version does not satisfy.',
+    fix: 'Upgrade Kubb or Node.js to a version in the range, or install a plugin version that supports the one you run.',
+  },
+  [diagnosticCode.missingDependency]: {
+    title: 'Missing dependency',
+    cause: 'A plugin lists another plugin in its `dependencies` record without `optional: true`, and the config does not include it.',
+    fix: 'Add the missing plugin to the `plugins` array in kubb.config.ts.',
+  },
+  [diagnosticCode.incompatibleDependency]: {
+    title: 'Incompatible dependency',
+    cause: "A plugin's `dependencies` record sets a `version` range, and the configured plugin's `meta.version` falls outside it.",
+    fix: 'Install a version of the dependency inside the range, or a version of the dependent plugin that supports the one you have.',
+  },
   [diagnosticCode.pluginFailed]: {
     title: 'Plugin failed',
     cause: 'A plugin threw while generating, or reported an error through `ctx.error`.',

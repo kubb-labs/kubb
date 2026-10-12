@@ -7,6 +7,7 @@ import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginFactoryOptions } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
+import { checkCompatibility, checkDependencies, dependencyNames } from './defineExtension.ts'
 import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
@@ -108,7 +109,7 @@ export class KubbDriver {
   }
 
   /**
-   * Normalizes every configured plugin, orders them, and registers their lifecycle handlers.
+   * Normalizes and checks every configured plugin, orders them, and registers their lifecycle handlers.
    * A plugin that another lists as a dependency runs first, then `enforce: 'pre'` before
    * `'post'`. When the config has an adapter, the adapter source is resolved from the input
    * so `run` can parse it later.
@@ -117,11 +118,16 @@ export class KubbDriver {
     this.options.signal?.throwIfAborted()
     const normalized = this.#sortPlugins(
       this.config.plugins.map((rawPlugin) => {
+        if (rawPlugin.meta) checkCompatibility(rawPlugin.meta)
+
         const normalizedPlugin: NormalizedPlugin = {
           name: rawPlugin.name,
-          dependencies: rawPlugin.dependencies,
+          meta: rawPlugin.meta,
+          dependencies:
+            typeof rawPlugin.dependencies === 'function' ? rawPlugin.dependencies(rawPlugin.options ?? {}, { config: this.config }) : rawPlugin.dependencies,
           enforce: rawPlugin.enforce,
           hooks: rawPlugin.hooks,
+          setup: rawPlugin.setup,
           // `rawPlugin.options` is the user-supplied shape. The normalized `output`/`exclude`/`override`
           // bag is filled in by the post-setup `normalizePluginOptions` pass, after `setOptions` runs.
           options: (rawPlugin.options ?? defaultPluginOptions()) as NormalizedPlugin['options'],
@@ -130,6 +136,11 @@ export class KubbDriver {
         return normalizedPlugin
       }),
     )
+
+    const byName = new Map(normalized.map((plugin) => [plugin.name, plugin]))
+    for (const plugin of normalized) {
+      checkDependencies({ name: plugin.name, dependencies: plugin.dependencies, plugins: byName })
+    }
 
     for (const plugin of normalized) {
       this.#registerPlugin(plugin)
@@ -152,7 +163,9 @@ export class KubbDriver {
   #sortPlugins(plugins: Array<NormalizedPlugin>): Array<NormalizedPlugin> {
     const queue = [...plugins].sort((a, b) => enforceWeight(a) - enforceWeight(b))
     const names = new Set(queue.map((plugin) => plugin.name))
-    const blockedBy = new Map(queue.map((plugin) => [plugin.name, new Set(plugin.dependencies?.filter((name) => names.has(name) && name !== plugin.name))]))
+    const blockedBy = new Map(
+      queue.map((plugin) => [plugin.name, new Set(dependencyNames(plugin.dependencies).filter((name) => names.has(name) && name !== plugin.name))]),
+    )
 
     // One plugin leaves `queue` per pass, so iterating once per plugin drains it. Each pass takes
     // the lowest-index plugin with no remaining blockers, preserving enforce and declaration order.
@@ -213,18 +226,18 @@ export class KubbDriver {
   }
 
   /**
-   * Runs each plugin's `kubb:plugin:setup` handler, in plugin order, with a context scoped to that
+   * Runs each plugin's `setup` and `kubb:plugin:setup` handler, in plugin order, with a context scoped to that
    * plugin so `addGenerator`, `setResolver`, `addMacro`, `setMacros`, and `setOptions` target its
    * `NormalizedPlugin` entry. Called once from `run` before the plugin execution loop begins, so
    * plugins can configure generators, resolvers, macros, and options before `buildStart`.
    */
   async setupHooks(): Promise<void> {
     for (const plugin of this.plugins.values()) {
-      const setup = plugin.hooks?.['kubb:plugin:setup']
-      if (!setup) continue
+      const setupHook = plugin.hooks?.['kubb:plugin:setup']
+      if (!plugin.setup && !setupHook) continue
 
       try {
-        await setup({
+        const ctx: KubbPluginSetupContext = {
           config: this.config,
           options: plugin.options ?? {},
           addGenerator: (...generators) => {
@@ -246,7 +259,12 @@ export class KubbDriver {
             this.fileManager.add(ast.factory.createFile(userFileNode))
           },
           requirePlugin: ((name: string) => this.requirePlugin(name, { requiredBy: plugin.name })) as KubbPluginSetupContext['requirePlugin'],
-        })
+        }
+
+        if (plugin.setup) {
+          plugin.options = normalizePluginOptions(await plugin.setup(ctx.options, ctx), plugin.name)
+        }
+        await setupHook?.(ctx)
       } catch (caughtError) {
         // Attributed to the plugin, so the run summary counts it as a failed plugin.
         const diagnostic = Diagnostics.from(caughtError)
