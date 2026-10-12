@@ -143,7 +143,17 @@ export function normalizeOutput({ output, group, pluginName }: { output: Output;
 }
 
 /** Throws `KUBB_INVALID_PLUGIN_OPTIONS`, listing the allowed values, when `value` is not one of `allowed`. */
-export function assertOneOf({ plugin, option, value, allowed }: { plugin: string; option: string; value: unknown; allowed: ReadonlyArray<unknown> }): void {
+export function assertPluginOptionValue({
+  plugin,
+  option,
+  value,
+  allowed,
+}: {
+  plugin: string
+  option: string
+  value: unknown
+  allowed: ReadonlyArray<unknown>
+}): void {
   if (allowed.includes(value)) return
 
   const format = (item: unknown) => (typeof item === 'string' ? JSON.stringify(item) : String(item))
