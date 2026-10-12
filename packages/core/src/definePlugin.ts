@@ -378,7 +378,7 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    */
   enforce?: Enforce
   /**
-   * The options passed by the user when calling the plugin factory.
+   * The options passed by the user when calling the plugin factory, with `schema` defaults applied.
    */
   options?: TFactory['options']
   /**
@@ -443,6 +443,7 @@ function formatIssuePath(path: StandardSchemaV1.Issue['path']): string {
 function validatePluginOptions<TOptions>(schema: StandardSchemaV1<unknown, TOptions>, options: unknown): TOptions {
   const result = schema['~standard'].validate(options)
   if (result instanceof Promise) {
+    void result.catch(() => undefined)
     throw new Error('Plugin options schemas must validate synchronously, because plugin factories are called synchronously.')
   }
   if (!result.issues) return result.value
@@ -508,7 +509,7 @@ export function definePlugin<TFactory extends PluginFactoryOptions = PluginFacto
     const raw = (options ?? {}) as TFactory['options']
     if (!schema && !jsonSchema) return factory(raw)
 
-    const plugin = factory(schema ? validatePluginOptions(schema, raw) : raw)
-    return { ...plugin, options: raw, schema, jsonSchema }
+    const parsed = schema ? validatePluginOptions(schema, raw) : raw
+    return { ...factory(parsed), options: parsed, schema, jsonSchema }
   }
 }

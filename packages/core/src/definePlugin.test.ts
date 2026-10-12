@@ -103,10 +103,7 @@ describe('definePlugin', () => {
 type TagOptions = { tag?: string }
 type TagPlugin = PluginFactoryOptions<'tag-plugin', TagOptions>
 
-function createTagSchema({ async = false, jsonSchema }: { async?: boolean; jsonSchema?: () => Record<string, unknown> } = {}): StandardSchemaV1<
-  unknown,
-  TagOptions
-> {
+function createTagSchema({ jsonSchema }: { jsonSchema?: () => Record<string, unknown> } = {}): StandardSchemaV1<unknown, TagOptions> {
   const validate = (value: unknown): StandardSchemaV1.Result<TagOptions> => {
     const { tag = 'pets' } = value as { tag?: unknown }
     if (typeof tag !== 'string') return { issues: [{ message: 'Expected a string', path: [{ key: 'tag' }] }] }
@@ -117,7 +114,7 @@ function createTagSchema({ async = false, jsonSchema }: { async?: boolean; jsonS
     '~standard': {
       version: 1,
       vendor: 'test',
-      validate: async ? (value) => Promise.resolve(validate(value)) : validate,
+      validate,
       jsonSchema: jsonSchema ? { input: jsonSchema } : undefined,
     },
   }
@@ -126,14 +123,14 @@ function createTagSchema({ async = false, jsonSchema }: { async?: boolean; jsonS
 describe('definePlugin with an options schema', () => {
   const factory = (options: TagOptions): Plugin<TagPlugin> => ({ name: 'tag-plugin', options, hooks: {} })
 
-  it('hands the factory the parsed options and keeps the raw options on the plugin', () => {
+  it('hands the factory and the plugin the parsed options', () => {
     const received = vi.fn(factory)
     const schema = createTagSchema()
 
     const plugin = definePlugin<TagPlugin>(received, { schema })()
 
     expect(received).toHaveBeenCalledWith({ tag: 'pets' })
-    expect(plugin.options).toStrictEqual({})
+    expect(plugin.options).toStrictEqual({ tag: 'pets' })
     expect(plugin.schema).toBe(schema)
   })
 
@@ -147,10 +144,18 @@ describe('definePlugin with an options schema', () => {
     )
   })
 
-  it('refuses an async validator', () => {
-    const create = definePlugin<TagPlugin>(factory, { schema: createTagSchema({ async: true }) })
+  it('refuses an async validator without leaving its promise unhandled', async () => {
+    const unhandled = vi.fn()
+    process.on('unhandledRejection', unhandled)
+    const schema = createTagSchema()
+    const create = definePlugin<TagPlugin>(factory, {
+      schema: { '~standard': { ...schema['~standard'], validate: () => Promise.reject(new Error('rejected')) } },
+    })
 
     expect(() => create()).toThrow('must validate synchronously')
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    process.off('unhandledRejection', unhandled)
+    expect(unhandled).not.toHaveBeenCalled()
   })
 })
 
