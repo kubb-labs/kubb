@@ -443,11 +443,12 @@ function formatIssuePath(path: StandardSchemaV1.Issue['path']): string {
 
 /** Validates raw plugin options and returns the parsed value, or throws `KUBB_INVALID_PLUGIN_OPTIONS`. */
 function validatePluginOptions<TOptions>(schema: StandardSchemaV1<unknown, TOptions>, options: unknown): TOptions {
-  const result = schema['~standard'].validate(options)
-  if (result instanceof Promise) {
-    void result.catch(() => undefined)
+  const validated = schema['~standard'].validate(options)
+  if (typeof (validated as { then?: unknown }).then === 'function') {
+    void Promise.resolve(validated).catch(() => undefined)
     throw new Error('Plugin options schemas must validate synchronously, because plugin factories are called synchronously.')
   }
+  const result = validated as StandardSchemaV1.Result<TOptions>
   if (!result.issues) return result.value
 
   const issues = result.issues.map((issue) => {

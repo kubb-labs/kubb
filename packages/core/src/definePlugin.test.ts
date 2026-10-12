@@ -145,6 +145,16 @@ describe('definePlugin with an options schema', () => {
     )
   })
 
+  it('refuses a validator that returns a non-native thenable', () => {
+    const schema = createTagSchema()
+    const thenable = { then: (resolve: (result: StandardSchemaV1.Result<TagOptions>) => void) => resolve({ value: {} }) }
+    const create = definePlugin<TagPlugin>(factory, {
+      schema: { '~standard': { ...schema['~standard'], validate: () => thenable as unknown as Promise<StandardSchemaV1.Result<TagOptions>> } },
+    })
+
+    expect(() => create()).toThrow('must validate synchronously')
+  })
+
   it('refuses an async validator without leaving its promise unhandled', async () => {
     const unhandled = vi.fn()
     process.on('unhandledRejection', unhandled)
