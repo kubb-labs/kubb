@@ -37,11 +37,14 @@ export type ExtensionMeta<TName extends string = string> = {
   docs?: string
 }
 
-/** How one dependency is checked. */
+/** Sets how Kubb checks one entry in a `dependencies` record. */
 export type ExtensionDependency = {
   /** Semver range the dependency's `meta.version` must satisfy. Skipped when the dependency has no `meta.version`. */
   version?: string
-  /** When `true`, a missing dependency only affects ordering. Otherwise it fails the run with `KUBB_MISSING_DEPENDENCY`. */
+  /**
+   * When `true`, Kubb skips the entry if the plugin is missing, but still checks `version` on an installed one.
+   * Otherwise a missing plugin fails the run with `KUBB_MISSING_DEPENDENCY`.
+   */
   optional?: boolean
 }
 
@@ -51,6 +54,7 @@ export type ExtensionDependencies<TOptions = object> =
   // Method syntax keeps `options` bivariant, so a `Plugin<PluginTs>` still fits `Config['plugins']`.
   | { resolve(options: TOptions, kubb: { config: Config }): ExtensionDependencyRecord }['resolve']
 
+/** Maps each dependency's plugin name to how Kubb checks it. */
 export type ExtensionDependencyRecord = Partial<Record<PluginName, ExtensionDependency>>
 
 /** Throws `KUBB_INCOMPATIBLE_EXTENSION` when the running Kubb or Node.js version is outside `meta.compatibility`. */

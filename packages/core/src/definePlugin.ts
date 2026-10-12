@@ -493,7 +493,11 @@ export type KubbPluginEndContext = FilesContext & {
  * ```
  */
 export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(definition: PluginDefinition<TFactory>): PluginFactory<TFactory>
-/** @deprecated Pass a definition object with `meta` and `setup` instead. The factory form is removed in the next major. */
+/**
+ * Wraps a factory function that returns a `Plugin`, and calls it with the user's options.
+ *
+ * @deprecated Pass a definition object with `meta` and `setup` instead. The factory form is removed in the next major.
+ */
 export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(
   factory: (options: TFactory['options']) => Plugin<TFactory>,
 ): (options?: TFactory['options']) => Plugin<TFactory>

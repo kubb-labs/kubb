@@ -60,11 +60,17 @@ export const diagnosticCode = {
    * A required plugin is missing from the config.
    */
   pluginNotFound: 'KUBB_PLUGIN_NOT_FOUND',
-  /** The running Kubb or Node.js version is outside a plugin's `meta.compatibility`. */
+  /**
+   * The running Kubb or Node.js version is outside a plugin's `meta.compatibility`.
+   */
   incompatibleExtension: 'KUBB_INCOMPATIBLE_EXTENSION',
-  /** A required entry in a plugin's `dependencies` record is missing from the config. */
+  /**
+   * A required entry in a plugin's `dependencies` record is missing from the config.
+   */
   missingDependency: 'KUBB_MISSING_DEPENDENCY',
-  /** A dependency's `meta.version` is outside the range a plugin's `dependencies` record declares. */
+  /**
+   * A dependency's `meta.version` is outside the range a plugin's `dependencies` record declares.
+   */
   incompatibleDependency: 'KUBB_INCOMPATIBLE_DEPENDENCY',
   /**
    * A plugin threw while generating.

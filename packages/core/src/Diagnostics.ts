@@ -293,7 +293,7 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   [diagnosticCode.incompatibleExtension]: {
     title: 'Incompatible extension',
     cause: 'A plugin sets `meta.compatibility.kubb` or `meta.compatibility.node` to a range the running Kubb or Node.js version does not satisfy.',
-    fix: 'Upgrade Kubb or Node.js to a version in the range, or install a plugin version that supports the one you run.',
+    fix: 'Upgrade Kubb or Node.js to a version in the range, or install a version of the plugin that supports your current Kubb and Node.js.',
   },
   [diagnosticCode.missingDependency]: {
     title: 'Missing dependency',
@@ -303,7 +303,7 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   [diagnosticCode.incompatibleDependency]: {
     title: 'Incompatible dependency',
     cause: "A plugin's `dependencies` record sets a `version` range, and the configured plugin's `meta.version` falls outside it.",
-    fix: 'Install a version of the dependency inside the range, or a version of the dependent plugin that supports the one you have.',
+    fix: 'Install a version of the dependency inside the range, or a version of the dependent plugin that supports the installed dependency.',
   },
   [diagnosticCode.pluginFailed]: {
     title: 'Plugin failed',
