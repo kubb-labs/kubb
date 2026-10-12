@@ -47,6 +47,8 @@ export type {
   ExtensionDependencyRecord,
   ExtensionFactory,
   ExtensionKind,
+  ExtensionManifest,
+  ExtensionManifestOption,
   ExtensionMeta,
   Generator,
   GeneratorContext,
