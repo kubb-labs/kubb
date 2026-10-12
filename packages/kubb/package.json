@@ -160,11 +160,11 @@
   "devDependencies": {
     "@farmfe/core": "^1.7.11",
     "@internals/utils": "workspace:*",
-    "@nuxt/kit": "^4.6.0",
-    "@nuxt/schema": "^4.6.0",
+    "@nuxt/kit": "^4.6.1",
+    "@nuxt/schema": "^4.6.1",
     "esbuild": "^0.28.2",
     "rolldown": "^1.2.13",
-    "rollup": "^4.64.3",
+    "rollup": "^4.64.5",
     "typescript": "catalog:",
     "vite": "^8.3.4",
     "webpack": "^5.111.1"
