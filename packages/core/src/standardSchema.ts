@@ -13,8 +13,6 @@ export declare namespace StandardSchemaV1 {
     readonly vendor: string
     readonly validate: (value: unknown) => Result<Output> | Promise<Result<Output>>
     readonly types?: Types<Input, Output> | undefined
-    // From the Standard JSON Schema extension, which Zod and ArkType implement.
-    readonly jsonSchema?: JsonSchemaConverter | undefined
   }
 
   type Result<Output> = SuccessResult<Output> | FailureResult
@@ -40,10 +38,6 @@ export declare namespace StandardSchemaV1 {
   interface Types<Input = unknown, Output = Input> {
     readonly input: Input
     readonly output: Output
-  }
-
-  interface JsonSchemaConverter {
-    readonly input: (options: { readonly target: string; readonly libraryOptions?: Record<string, unknown> }) => Record<string, unknown>
   }
 
   type InferInput<Schema extends StandardSchemaV1> = NonNullable<Schema['~standard']['types']>['input']
