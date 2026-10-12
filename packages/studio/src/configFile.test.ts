@@ -142,6 +142,32 @@ describe('readConfig', () => {
     it.each(formats)('reads %s', (_label, body, expected) => {
       expect(readConfig(`${imports}\nexport default ${body}`)).toStrictEqual(expected)
     })
+
+    it.each([
+      ['a file it cannot parse', `export default defineConfig({`, 'the config file could not be parsed'],
+      ['an export that is not a defineConfig call', `export default config`, 'the exported config is not a defineConfig(...) call'],
+      ['defineConfig without a config', `export default defineConfig()`, 'defineConfig(...) was called without a config'],
+      ['a config passed as a variable', `export default defineConfig(config)`, 'config is not an object literal'],
+      ['an array holding a variable', `export default defineConfig([${config}, shared])`, 'config is not an object literal'],
+    ])('explains %s', (_label, body, reason) => {
+      expect(readConfig(`${imports}\n${body}\n`)).toStrictEqual({ managed: false, reason })
+    })
+  })
+
+  it('reads every literal shape as a value, and anything computed as code', () => {
+    const view = readConfig(
+      `import { pluginTs } from '@kubb/plugin-ts'\nexport default defineConfig({\n  plugins: [pluginTs({ a: \`x\`, b: -1, c: +2, d: null, e: [1, null], f: \`x${'$'}{y}\`, g: !1, h: [, 1] })],\n})\n`,
+    )
+    expect(view.managed && view.configs[0]!.plugins[0]!.options).toStrictEqual({
+      a: { literal: true, value: 'x' },
+      b: { literal: true, value: -1 },
+      c: { literal: true, value: 2 },
+      d: { literal: true, value: null },
+      e: { literal: true, value: [1, null] },
+      f: { literal: false },
+      g: { literal: false },
+      h: { literal: false },
+    })
   })
 })
 
@@ -409,6 +435,8 @@ describe('applyConfigEdits', () => {
         '__proto__ cannot be used as an option name',
       ],
       ['a constructor key', { operation: 'set', plugin: '@kubb/plugin-ts', path: ['constructor'], value: 'x' }, 'constructor cannot be used as an option name'],
+      ['an edit that is not an object', null, 'unknown operation undefined'],
+      ['an import name that is not a string', { operation: 'add-plugin', plugin: '@kubb/plugin-zod', importName: 1 }, 'importName must be a string'],
     ]
 
     it.each(malformed)('refuses %s on its own and still applies the rest of the batch', (_label, edit, reason) => {
