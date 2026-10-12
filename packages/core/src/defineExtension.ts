@@ -2,7 +2,6 @@ import { satisfies } from 'verkit'
 import { version as kubbVersion } from '../package.json'
 import { Diagnostics } from './Diagnostics.ts'
 import type { PluginName } from './definePlugin.ts'
-import type { StandardSchemaV1 } from './standardSchema.ts'
 import type { Config } from './types.ts'
 
 /**
@@ -39,11 +38,6 @@ export type ExtensionMeta<TName extends string = string> = {
     node?: string
   }
   docs?: string
-  /**
-   * Schemas of the keys this extension adds to the options of every plugin, keyed by the option they extend,
-   * such as `{ output: barrelSchema }`. Studio and the docs read them.
-   */
-  contributes?: Record<string, StandardSchemaV1>
 }
 
 /**
@@ -164,98 +158,32 @@ export function checkDependencies({
   }
 }
 
-function formatIssuePath(path: StandardSchemaV1.Issue['path']): string {
-  return (path ?? []).map((segment) => String(typeof segment === 'object' ? segment.key : segment)).join('.')
-}
-
-/**
- * Validates an extension's raw options against its `schema` and returns the parsed value, with the schema's defaults.
- * Throws `KUBB_INVALID_OPTIONS`, naming the extension and each issue path, when the options are invalid.
- * Refuses an async validator, because extension factories run synchronously while the config loads.
- */
-export function parseExtensionOptions<TOutput>({
-  kind,
-  meta,
-  schema,
-  input,
-}: {
-  kind: ExtensionKind
-  meta: ExtensionMeta
-  schema: StandardSchemaV1<unknown, TOutput>
-  input: unknown
-}): TOutput {
-  const validated = schema['~standard'].validate(input)
-  if (typeof (validated as { then?: unknown }).then === 'function') {
-    // Swallow a rejection so refusing the promise does not also leave it unhandled.
-    void Promise.resolve(validated).catch(() => undefined)
-    throw new Error(
-      `The options schema of ${kind} "${meta.name}" validates asynchronously. Use a synchronous schema, because Kubb validates options while the config loads.`,
-    )
-  }
-
-  const result = validated as StandardSchemaV1.Result<TOutput>
-  if (!result.issues) return result.value
-
-  const issues = result.issues.map((issue) => {
-    const path = formatIssuePath(issue.path)
-    return path ? `\`${path}\`: ${issue.message}` : issue.message
-  })
-
-  throw new Diagnostics.Error({
-    code: Diagnostics.code.invalidOptions,
-    severity: 'error',
-    message: `Invalid options for ${kind} "${meta.name}". ${issues.join('; ')}`,
-    help: `Fix the listed options of "${meta.name}" in kubb.config.ts. Its documentation lists the accepted values.`,
-    location: { kind: 'config' },
-    ...(kind === 'plugin' && { plugin: meta.name }),
-  })
-}
-
 /**
  * The function an extension definition returns. Call it with user options to get the extension.
  */
-export type ExtensionFactory<TKind extends ExtensionKind, TOptions, TExtension, TName extends string = string, TParsedOptions = TOptions> = {
+export type ExtensionFactory<TKind extends ExtensionKind, TOptions, TExtension, TName extends string = string> = {
   (options?: TOptions): TExtension
   kind: TKind
   meta: ExtensionMeta<TName>
-  /**
-   * The definition's options schema, so tools can read it without calling the factory.
-   */
-  schema?: StandardSchemaV1<TOptions, TParsedOptions>
 }
 
 /**
  * Builds the factory behind `definePlugin`, `defineParser`, and `createAdapter`. It passes `{}` when called without
- * options, parses them with `schema` when set, and carries `kind`, plus `meta` and `schema` when
- * the definition has them, so tools can read them without calling it.
+ * options, and carries `kind`, plus `meta` when the definition has it, so tools can read them
+ * without calling it.
  *
  * @internal
  */
-export function defineExtension<TKind extends ExtensionKind, TOptions extends object, TExtension, TName extends string, TParsedOptions = TOptions>(params: {
+export function defineExtension<TKind extends ExtensionKind, TOptions extends object, TExtension, TName extends string>(params: {
   kind: TKind
   meta: ExtensionMeta<TName>
-  schema?: StandardSchemaV1<TOptions, TParsedOptions>
-  build: (params: { options: TOptions; parsedOptions: TParsedOptions }) => TExtension
-}): ExtensionFactory<TKind, TOptions, TExtension, TName, TParsedOptions>
+  build: (options: TOptions) => TExtension
+}): ExtensionFactory<TKind, TOptions, TExtension, TName>
 export function defineExtension<TKind extends ExtensionKind, TOptions extends object, TExtension>(params: {
   kind: TKind
-  build: (params: { options: TOptions; parsedOptions: TOptions }) => TExtension
+  build: (options: TOptions) => TExtension
 }): ((options?: TOptions) => TExtension) & { kind: TKind }
-export function defineExtension({
-  kind,
-  meta,
-  schema,
-  build,
-}: {
-  kind: ExtensionKind
-  meta?: ExtensionMeta
-  schema?: StandardSchemaV1
-  build: (params: { options: object; parsedOptions: unknown }) => unknown
-}) {
-  const factory = (raw?: object) => {
-    const options = raw ?? {}
-    const parsedOptions = schema && meta ? parseExtensionOptions({ kind, meta, schema, input: options }) : options
-    return build({ options, parsedOptions })
-  }
-  return Object.assign(factory, { kind }, meta && { meta }, schema && { schema })
+export function defineExtension({ kind, meta, build }: { kind: ExtensionKind; meta?: ExtensionMeta; build: (options: object) => unknown }) {
+  const factory = (options?: object) => build(options ?? {})
+  return Object.assign(factory, meta ? { kind, meta } : { kind })
 }

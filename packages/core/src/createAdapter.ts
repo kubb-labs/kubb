@@ -2,7 +2,6 @@ import type { PossiblePromise } from '@internals/utils'
 import type { InputNode } from '@kubb/ast'
 import { defineExtension } from './defineExtension.ts'
 import type { ExtensionFactory, ExtensionMeta } from './defineExtension.ts'
-import type { StandardSchemaV1 } from './standardSchema.ts'
 
 /**
  * Source data handed to an adapter's `parse` function. Mirrors the config
@@ -20,18 +19,15 @@ export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; dat
  * - `TOptions`: user-facing options accepted by the adapter factory.
  * - `TResolvedOptions`: options after defaults are applied.
  * - `TDocument`: type of the parsed source document.
- * - `TParsedOptions`: options after the options `schema` parsed them, with its defaults applied.
  */
 export type AdapterFactoryOptions<
   TName extends string = string,
   TOptions extends object = object,
   TResolvedOptions extends object = TOptions,
   TDocument = unknown,
-  TParsedOptions extends object = TOptions,
 > = {
   name: TName
   options: TOptions
-  parsedOptions: TParsedOptions
   resolvedOptions: TResolvedOptions
   document: TDocument
 }
@@ -68,10 +64,6 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    */
   options: TOptions['resolvedOptions']
   /**
-   * The options schema of the definition that built this adapter.
-   */
-  schema?: StandardSchemaV1<TOptions['options'], TOptions['parsedOptions']>
-  /**
    * Parsed source document after the first `parse()` call. `null` before parsing.
    */
   document: TOptions['document'] | null
@@ -98,31 +90,20 @@ type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) =
 export type AdapterDefinition<T extends AdapterFactoryOptions = AdapterFactoryOptions> = {
   meta: ExtensionMeta<T['name']>
   /**
-   * Any Standard Schema, such as a Zod schema, that validates the options and applies their defaults
-   * when the factory is called. Invalid options throw `KUBB_INVALID_OPTIONS`. The schema must validate synchronously.
+   * Takes the user's options and returns the resolved options, which `build` receives and the adapter exposes as `options`.
+   * Without `setup`, the user's options are the resolved options.
    */
-  schema?: StandardSchemaV1<T['options'], T['parsedOptions']>
-  /**
-   * Takes the parsed options and returns the resolved options, which `build` receives and the adapter exposes as `options`.
-   * Without `setup`, the parsed options are the resolved options.
-   */
-  setup?(options: T['parsedOptions']): T['resolvedOptions']
+  setup?(options: T['options']): T['resolvedOptions']
   /**
    * Returns the adapter's document and methods for the resolved options.
    */
-  build(options: T['resolvedOptions']): Omit<Adapter<T>, 'name' | 'meta' | 'options' | 'schema'>
+  build(options: T['resolvedOptions']): Omit<Adapter<T>, 'name' | 'meta' | 'options'>
 }
 
 /**
  * The function `createAdapter` returns. Call it with user options to get an `Adapter`.
  */
-export type AdapterFactory<T extends AdapterFactoryOptions = AdapterFactoryOptions> = ExtensionFactory<
-  'adapter',
-  T['options'],
-  Adapter<T>,
-  T['name'],
-  T['parsedOptions']
->
+export type AdapterFactory<T extends AdapterFactoryOptions = AdapterFactoryOptions> = ExtensionFactory<'adapter', T['options'], Adapter<T>, T['name']>
 
 /**
  * Defines a custom adapter that translates a spec format into Kubb's universal
@@ -166,18 +147,17 @@ export function createAdapter<T extends AdapterFactoryOptions = AdapterFactoryOp
 ): ((options?: T['options']) => Adapter<T>) & { kind: 'adapter' }
 export function createAdapter(input: AdapterDefinition | AdapterBuilder<AdapterFactoryOptions>) {
   if (typeof input === 'function') {
-    return defineExtension({ kind: 'adapter', build: ({ options }: { options: object }): Adapter => input(options) })
+    return defineExtension({ kind: 'adapter', build: (options: object): Adapter => input(options) })
   }
 
-  const { meta, schema, setup, build } = input
+  const { meta, setup, build } = input
   return defineExtension({
     kind: 'adapter',
     meta,
-    schema,
-    build: ({ parsedOptions }: { options: object; parsedOptions: object }): Adapter => {
-      const options = setup ? setup(parsedOptions) : parsedOptions
+    build: (raw: object): Adapter => {
+      const options = setup ? setup(raw) : raw
       // Assigned onto the built object instead of spread, so getters such as `document` stay live.
-      return Object.assign(build(options), { name: meta.name, meta, options }, schema && { schema })
+      return Object.assign(build(options), { name: meta.name, meta, options })
     },
   })
 }

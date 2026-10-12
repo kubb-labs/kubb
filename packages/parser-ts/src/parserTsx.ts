@@ -1,6 +1,5 @@
 import { defineParser } from '@kubb/kit'
 import type * as ts from 'typescript'
-import { optionsSchema } from './options.ts'
 import { parserTs, type ParserTsOptions } from './parserTs.ts'
 
 /**
@@ -26,8 +25,7 @@ import { parserTs, type ParserTsOptions } from './parserTs.ts'
  * })
  * ```
  */
-export const parserTsx = defineParser<ParserTsOptions, object, ts.Node, Required<ParserTsOptions>>({
+export const parserTsx = defineParser<ParserTsOptions, object, ts.Node>({
   meta: { name: 'tsx' },
-  schema: optionsSchema,
   build: (options) => ({ ...parserTs(options), extNames: ['.tsx', '.jsx'] }),
 })

@@ -1,7 +1,6 @@
 import type { FileNode, UserFileNode } from '@kubb/ast'
 import { defineExtension, resolveMeta } from './defineExtension.ts'
 import type { ExtensionFactory, ExtensionMeta, ExtensionNamed } from './defineExtension.ts'
-import type { StandardSchemaV1 } from './standardSchema.ts'
 
 /**
  * Converts a resolved {@link FileNode} into the final source string that gets
@@ -10,13 +9,9 @@ import type { StandardSchemaV1 } from './standardSchema.ts'
  */
 export type Parser<TMeta extends object = object, TNode = unknown, TOptions extends object = object> = ExtensionNamed & {
   /**
-   * The options passed to the parser factory, parsed by its options `schema` when it has one.
+   * The options passed to the parser factory.
    */
   options?: TOptions
-  /**
-   * The options schema of the definition that built this parser.
-   */
-  schema?: StandardSchemaV1<unknown, TOptions>
   /**
    * File extensions this parser handles. The driver registers the parser for each
    * extension in this list. A parser with `undefined` here is not registered, so
@@ -42,47 +37,39 @@ export type Parser<TMeta extends object = object, TNode = unknown, TOptions exte
   print(...nodes: Array<TNode>): string
 }
 
-type ParserBuild<TOptions extends object, TMeta extends object, TNode> = (
-  options: TOptions,
-) => Omit<Parser<TMeta, TNode>, 'name' | 'meta' | 'options' | 'schema'>
+type ParserBuild<TOptions extends object, TMeta extends object, TNode> = (options: TOptions) => Omit<Parser<TMeta, TNode>, 'name' | 'meta' | 'options'>
 
 /**
- * The object passed to `defineParser`. `build` receives the parsed options and returns the parser methods.
+ * The object passed to `defineParser`. `build` receives the user's options and returns the parser methods.
  */
-export type ParserDefinition<TOptions extends object = object, TMeta extends object = object, TNode = unknown, TParsedOptions extends object = TOptions> = {
+export type ParserDefinition<TOptions extends object = object, TMeta extends object = object, TNode = unknown> = {
   meta: ExtensionMeta
-  /**
-   * Any Standard Schema, such as a Zod schema, that validates the options and applies their defaults
-   * when the factory is called. Invalid options throw `KUBB_INVALID_OPTIONS`. The schema must validate synchronously.
-   */
-  schema?: StandardSchemaV1<TOptions, TParsedOptions>
 } & (
-  | { build: ParserBuild<TParsedOptions, TMeta, TNode> }
+  | { build: ParserBuild<TOptions, TMeta, TNode> }
   | {
       /**
        * @deprecated Renamed to `build`.
        */
-      setup: ParserBuild<TParsedOptions, TMeta, TNode>
+      setup: ParserBuild<TOptions, TMeta, TNode>
     }
 )
 
 /**
  * The function `defineParser` returns. Call it with user options to get a `Parser`.
  */
-export type ParserFactory<
-  TOptions extends object = object,
-  TMeta extends object = object,
-  TNode = unknown,
-  TParsedOptions extends object = TOptions,
-> = ExtensionFactory<'parser', TOptions, Parser<TMeta, TNode, TParsedOptions>, string, TParsedOptions>
+export type ParserFactory<TOptions extends object = object, TMeta extends object = object, TNode = unknown> = ExtensionFactory<
+  'parser',
+  TOptions,
+  Parser<TMeta, TNode, TOptions>
+>
 
 /**
  * Defines a parser from one object and returns a factory that takes the user's options.
  * Register the result in the `parsers` array on `defineConfig`.
  */
-export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown, TParsedOptions extends object = TOptions>(
-  definition: ParserDefinition<TOptions, TMeta, TNode, TParsedOptions>,
-): ParserFactory<TOptions, TMeta, TNode, TParsedOptions>
+export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(
+  definition: ParserDefinition<TOptions, TMeta, TNode>,
+): ParserFactory<TOptions, TMeta, TNode>
 /**
  * Wraps a factory function that returns a `Parser`. Without `meta`, the parser gets `{ name }`.
  *
@@ -95,25 +82,18 @@ export function defineParser(input: ParserDefinition | ((options: object) => Par
   if (typeof input === 'function') {
     return defineExtension({
       kind: 'parser',
-      build: ({ options }: { options: object }): Parser => {
+      build: (options: object): Parser => {
         const parser = input(options)
         return { ...parser, meta: resolveMeta(parser) }
       },
     })
   }
 
-  const { meta, schema } = input
+  const { meta } = input
   const build = 'build' in input ? input.build : input.setup
   return defineExtension({
     kind: 'parser',
     meta,
-    schema,
-    build: ({ parsedOptions }: { options: object; parsedOptions: object }): Parser => ({
-      ...build(parsedOptions),
-      name: meta.name,
-      meta,
-      options: parsedOptions,
-      ...(schema && { schema }),
-    }),
+    build: (options: object): Parser => ({ ...build(options), name: meta.name, meta, options }),
   })
 }

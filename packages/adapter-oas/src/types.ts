@@ -223,12 +223,6 @@ export type AdapterOasResolvedOptions = {
 }
 
 /**
- * Adapter options after the options schema applied its defaults. `emptySchemaType` follows `unknownType`, so `setup` resolves it.
- */
-export type AdapterOasParsedOptions = Omit<AdapterOasResolvedOptions, 'contentType' | 'server' | 'emptySchemaType'> &
-  Pick<AdapterOasOptions, 'contentType' | 'server' | 'emptySchemaType'>
-
-/**
  * `@kubb/core` adapter factory type for the OpenAPI adapter.
  */
-export type AdapterOas = AdapterFactoryOptions<'oas', AdapterOasOptions, AdapterOasResolvedOptions, Document, AdapterOasParsedOptions>
+export type AdapterOas = AdapterFactoryOptions<'oas', AdapterOasOptions, AdapterOasResolvedOptions, Document>

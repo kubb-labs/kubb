@@ -1,5 +1,6 @@
 import { ast, createAdapter } from '@kubb/kit'
 import type { AdapterSource } from '@kubb/kit'
+import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './emit/discriminator/propagate.ts'
 import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
 import { assertInputExists } from './load/source.ts'
@@ -7,7 +8,6 @@ import { assertDocument, parseDocument, parseFromConfig, validateDocument } from
 import { getSchemas } from './model/components.ts'
 import { resolveBaseUrl } from './model/server.ts'
 import { getOperations, parseOperation } from './operation.ts'
-import { optionsSchema } from './options.ts'
 import { createSchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
 import { createRefs } from './refs.ts'
@@ -48,19 +48,18 @@ export const adapterOasName = 'oas' satisfies AdapterOas['name']
  */
 export const adapterOas = createAdapter<AdapterOas>({
   meta: { name: adapterOasName },
-  schema: optionsSchema,
-  setup: ({ validate, contentType, server, discriminator, enums, dateType, integerType, unknownType, emptySchemaType, enumSuffix }) => ({
-    validate,
+  setup: ({
+    validate = true,
     contentType,
     server,
-    discriminator,
-    enums,
-    dateType,
-    integerType,
-    unknownType,
-    emptySchemaType: emptySchemaType ?? unknownType,
-    enumSuffix,
-  }),
+    discriminator = 'preserve',
+    enums = 'inline',
+    dateType = DEFAULT_PARSER_OPTIONS.dateType,
+    integerType = DEFAULT_PARSER_OPTIONS.integerType,
+    unknownType = DEFAULT_PARSER_OPTIONS.unknownType,
+    enumSuffix = DEFAULT_PARSER_OPTIONS.enumSuffix,
+    emptySchemaType = unknownType || DEFAULT_PARSER_OPTIONS.emptySchemaType,
+  }) => ({ validate, contentType, server, discriminator, enums, dateType, integerType, unknownType, emptySchemaType, enumSuffix }),
   build({ validate, contentType, server, discriminator, enums, ...parserOptions }) {
     let parsedDocument: Document | null = null
 
