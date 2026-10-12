@@ -5,10 +5,7 @@ import type { KubbPluginSetupContext, NormalizedPlugin, PluginFactoryOptions, Pl
 import { Diagnostics } from './Diagnostics.ts'
 import type { Resolver, ResolverPatch } from './Resolver.ts'
 
-/**
- * Holds the setup context of the plugin whose `kubb:plugin:setup` is running. `KubbDriver` enters it
- * for each plugin, so the composables below reach that plugin's context without a `ctx` argument.
- */
+/** The setup context of the plugin whose `kubb:plugin:setup` is running, entered by `KubbDriver`. */
 export const kubbContext = new AsyncLocalStorage<KubbPluginSetupContext>()
 
 function requireContext(caller: string): KubbPluginSetupContext {
@@ -24,23 +21,14 @@ function requireContext(caller: string): KubbPluginSetupContext {
 }
 
 /**
- * Returns the setup context of the plugin being set up. Throws `KUBB_NO_CONTEXT` outside
- * `kubb:plugin:setup`. The context survives an `await` inside setup.
- *
- * @example
- * ```ts
- * 'kubb:plugin:setup'() {
- *   const { config, options } = useKubb<PluginTs>()
- * }
- * ```
+ * Returns the setup context of the plugin being set up, also after an `await` in setup.
+ * Throws `KUBB_NO_CONTEXT` outside `kubb:plugin:setup`.
  */
 export function useKubb<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(): KubbPluginSetupContext<TFactory> {
   return requireContext('useKubb') as unknown as KubbPluginSetupContext<TFactory>
 }
 
-/**
- * Like {@link useKubb}, but returns `undefined` outside `kubb:plugin:setup` instead of throwing.
- */
+/** Like {@link useKubb}, but returns `undefined` outside `kubb:plugin:setup`. */
 export function tryUseKubb<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(): KubbPluginSetupContext<TFactory> | undefined {
   return kubbContext.getStore() as KubbPluginSetupContext<TFactory> | undefined
 }
@@ -61,45 +49,27 @@ export function addGenerator<TFactory extends PluginFactoryOptions = PluginFacto
   requireContext('addGenerator').addGenerator(...(generators as Array<Generator>))
 }
 
-/**
- * Sets the resolver of the plugin being set up. Same as `ctx.setResolver`.
- */
+/** Same as `ctx.setResolver`. */
 export function setResolver<TResolver extends Resolver = Resolver>(resolver: ResolverPatch<TResolver> | TResolver): void {
   requireContext('setResolver').setResolver(resolver as ResolverPatch)
 }
 
-/**
- * Adds a macro to the plugin being set up. Same as `ctx.addMacro`.
- */
+/** Same as `ctx.addMacro`. */
 export function addMacro(macro: Macro): void {
   requireContext('addMacro').addMacro(macro)
 }
 
-/**
- * Replaces the macros of the plugin being set up. Same as `ctx.setMacros`.
- */
+/** Same as `ctx.setMacros`. */
 export function setMacros(macros: ReadonlyArray<Macro>): void {
   requireContext('setMacros').setMacros(macros)
 }
 
-/**
- * Adds a raw file to the build output. Same as `ctx.injectFile`.
- */
+/** Same as `ctx.injectFile`. */
 export function injectFile(file: UserFileNode): void {
   requireContext('injectFile').injectFile(file)
 }
 
-/**
- * Returns another plugin from the config, typed through `Kubb.PluginRegistry`. Fails the run with
- * `KUBB_PLUGIN_NOT_FOUND` when the config lacks it. Same as `ctx.requirePlugin`.
- *
- * @example
- * ```ts
- * 'kubb:plugin:setup'() {
- *   const pluginTs = usePlugin('plugin-ts')
- * }
- * ```
- */
+/** Returns another plugin, typed through `Kubb.PluginRegistry`. Same as `ctx.requirePlugin`. */
 export function usePlugin<TName extends PluginName>(name: TName): NormalizedPlugin<ResolvePluginOptions<TName>> {
   return requireContext('usePlugin').requirePlugin(name) as unknown as NormalizedPlugin<ResolvePluginOptions<TName>>
 }
