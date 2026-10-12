@@ -25,4 +25,5 @@ export const pluginZod = definePlugin<PluginZod>({
 - Both forms return a factory with `kind` (`'plugin'` or `'parser'`). The object form's factory also carries `meta`, so tools can read it without calling the factory.
 - A factory-form plugin or parser can return `meta`, a `dependencies` record, and `setup` too, which eases moving over. Without `meta`, it gets `{ name }`.
 - `parserTs`, `parserTsx`, and `parserMd` use the object form.
+- `name` on a plugin or parser is `@deprecated` in favor of `meta.name`. It stays required and set, because the object form fills it from `meta.name`, so code that reads or returns `name` keeps working until the next major.
 - `PluginType<TName, TOptions, TResolvedOptions, TResolver>` types the definition. It is the same shape as `PluginFactoryOptions`.

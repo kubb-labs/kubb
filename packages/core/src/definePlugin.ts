@@ -396,7 +396,9 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
  */
 export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
   /**
-   * Unique name for the plugin, following the same naming convention as `createPlugin`.
+   * Unique name for the plugin. The object form of `definePlugin` fills it from `meta.name`.
+   *
+   * @deprecated Read `meta.name` instead. `name` stays set until the next major so existing plugins keep working.
    */
   name: string
   /** Identity, compatibility, and registry data. Set by the object form of `definePlugin`. */

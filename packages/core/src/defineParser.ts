@@ -9,7 +9,9 @@ import type { ExtensionFactory, ExtensionMeta } from './defineExtension.ts'
  */
 export type Parser<TMeta extends object = object, TNode = unknown> = {
   /**
-   * Display name used in diagnostics and the parser registry.
+   * Display name used in diagnostics and the parser registry. The object form of `defineParser` fills it from `meta.name`.
+   *
+   * @deprecated Read `meta.name` instead. `name` stays set until the next major so existing parsers keep working.
    */
   name: string
   /**
