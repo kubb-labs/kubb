@@ -2,16 +2,16 @@ import path, { resolve } from 'node:path'
 import { camelCase } from '@internals/utils'
 import type { FileNode, InputMeta, Macro, OperationNode, SchemaNode } from '@kubb/ast'
 import { applyMacros, ast } from '@kubb/ast'
-import { expect } from 'vitest'
+import { expect, vi } from 'vitest'
 import type { Parser } from './defineParser.ts'
 import { FileManager } from './FileManager.ts'
 import { Hookable } from './Hookable.ts'
 import { createNodeCache } from './nodeCache.ts'
-import type { KubbDriver } from './KubbDriver.ts'
+import { type KubbDriver, pluginNotFoundError } from './KubbDriver.ts'
 import type { Config, KubbHooks } from './types.ts'
 import type { Adapter, AdapterFactoryOptions } from './createAdapter.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
-import type { NormalizedPlugin, PluginFactoryOptions } from './definePlugin.ts'
+import type { KubbPluginSetupContext, NormalizedPlugin, Plugin, PluginFactoryOptions } from './definePlugin.ts'
 import type { RendererFactory } from './createRenderer.ts'
 
 /**
@@ -34,6 +34,52 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
     fileManager,
     dispatch: (params: { result: unknown; renderer?: RendererFactory | null }) => fileManager.dispatch(params),
   } as unknown as KubbDriver
+}
+
+/**
+ * Creates the context a plugin's `kubb:plugin:setup` hook receives, for unit tests. Every method is
+ * a `vi.fn()`, and `requirePlugin` fails like the real one for a plugin `plugins` does not list.
+ *
+ * @example
+ * ```ts
+ * const ctx = createMockedSetupContext<PluginMsw>({ plugins: ['plugin-ts', 'plugin-msw'] })
+ * expect(() => pluginMsw({ parser: 'faker' }).hooks?.['kubb:plugin:setup']?.(ctx)).toThrow('plugin-faker')
+ * ```
+ */
+export function createMockedSetupContext<TFactory extends PluginFactoryOptions = PluginFactoryOptions>({
+  plugins = [],
+  options = {} as TFactory['options'],
+  config,
+  requiredBy,
+}: {
+  /**
+   * Names of the plugins the config registers.
+   */
+  plugins?: Array<string>
+  options?: TFactory['options']
+  config?: Partial<Config>
+  /**
+   * The plugin under test, named in the error `requirePlugin` throws.
+   */
+  requiredBy?: string
+} = {}): KubbPluginSetupContext<TFactory> {
+  const registered = plugins.map((name) => ({ name }) as unknown as Plugin)
+
+  return {
+    config: { root: '.', output: { path: './gen' }, ...config, plugins: registered } as unknown as Config,
+    options,
+    addGenerator: vi.fn(),
+    setResolver: vi.fn(),
+    addMacro: vi.fn(),
+    setMacros: vi.fn(),
+    setOptions: vi.fn(),
+    injectFile: vi.fn(),
+    requirePlugin: vi.fn((pluginName: string) => {
+      const plugin = registered.find((entry) => entry.name === pluginName)
+      if (!plugin) throw pluginNotFoundError({ pluginName, requiredBy })
+      return plugin
+    }) as KubbPluginSetupContext<TFactory>['requirePlugin'],
+  }
 }
 
 /**

@@ -1,9 +1,9 @@
 import { ast } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast'
-import { createMockedAdapter } from '@kubb/core/mocks'
+import { createMockedAdapter, createMockedSetupContext } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
-import { definePlugin, normalizeOutput } from './definePlugin.ts'
+import { assertOneOf, definePlugin, normalizeOutput } from './definePlugin.ts'
 import type { OutputOptions, Output, Plugin, PluginFactoryOptions, ResolvePluginOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -366,5 +366,36 @@ describe('declare global augmentation', () => {
 
     expect(registered.dependencies).toStrictEqual(['plugin-registered'])
     expect(arbitrary.dependencies).toStrictEqual(['some-unregistered-plugin'])
+  })
+})
+
+describe('assertOneOf', () => {
+  it('accepts an allowed value', () => {
+    expect(() => assertOneOf({ plugin: 'plugin-ts', option: 'syntaxType', value: 'interface', allowed: ['type', 'interface'] })).not.toThrow()
+  })
+
+  it.each([['bogus'], [undefined], [1]])('throws KUBB_INVALID_PLUGIN_OPTIONS with the allowed values for %s', (value) => {
+    let thrown: unknown
+    try {
+      assertOneOf({ plugin: 'plugin-ts', option: 'syntaxType', value, allowed: ['type', 'interface'] })
+    } catch (error) {
+      thrown = error
+    }
+
+    expect(Diagnostics.from(thrown)).toMatchObject({
+      code: Diagnostics.code.invalidPluginOptions,
+      severity: 'error',
+      plugin: 'plugin-ts',
+      message: `Plugin "plugin-ts" option \`syntaxType\` is ${JSON.stringify(value) ?? 'undefined'}, but it must be one of "type", "interface".`,
+    })
+  })
+})
+
+describe('createMockedSetupContext', () => {
+  it('returns a registered plugin from requirePlugin and throws the core error for a missing one', () => {
+    const ctx = createMockedSetupContext({ plugins: ['plugin-ts'], requiredBy: 'plugin-faker' })
+
+    expect(ctx.requirePlugin('plugin-ts')).toStrictEqual({ name: 'plugin-ts' })
+    expect(() => ctx.requirePlugin('plugin-zod')).toThrow('Plugin "plugin-zod" is required by "plugin-faker" but not found.')
   })
 })
