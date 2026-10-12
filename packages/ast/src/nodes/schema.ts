@@ -132,29 +132,16 @@ type SchemaNodeBase = BaseNode & {
    */
   format?: string
   /**
-   * An existing TypeScript type that stands in for this schema, set by the `x-kubb-type`
-   * extension. Printers that support it reference `name`, imported from `importPath` when set.
-   * Other printers print the node's own `type`.
-   *
-   * @example
-   * ```ts
-   * { name: 'ResolverPatch', importPath: 'kubb/kit' }
-   * ```
+   * Existing TypeScript type that stands in for this schema, set by the `x-kubb-type` extension.
    */
   customType?: CustomType
 }
 
 /**
- * A named TypeScript type a schema maps to, with the module it is imported from.
+ * A TypeScript type name, such as `ResolverPatch` or `ts.Node`, and the module it is imported from.
  */
 export type CustomType = {
-  /**
-   * Type name, optionally dotted (`ts.Node`). Global types such as `RegExp` need no `importPath`.
-   */
   name: string
-  /**
-   * Module to import `name` from, for example `kubb/kit`.
-   */
   importPath?: string
 }
 

@@ -2,25 +2,13 @@ import { type ast, Diagnostics } from '@kubb/kit'
 import { createNode } from '../createNode.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 
-/**
- * Vendor extension that maps a schema to an existing TypeScript type, for values JSON Schema
- * cannot describe, such as functions or a `RegExp`.
- */
 export const customTypeExtension = 'x-kubb-type'
 
-/**
- * A type name, optionally dotted (`ts.Node`). Anything else would reach generated source as-is.
- */
+// Both values reach generated source, so only a (dotted) identifier and a quote-free path pass.
 const typeNamePattern = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*$/
 
-/**
- * A module specifier printed inside quotes, so it must not hold a quote, a backtick, or a line break.
- */
 const importPathPattern = /^[^'"`\r\n]+$/
 
-/**
- * Reads `x-kubb-type: { name, import }`, or `undefined` when the value is not that shape.
- */
 function readCustomType(value: unknown): ast.CustomType | undefined {
   if (!value || typeof value !== 'object') return undefined
 
@@ -33,8 +21,8 @@ function readCustomType(value: unknown): ast.CustomType | undefined {
 }
 
 /**
- * Converts a schema carrying `x-kubb-type` into an `unknown` node with `customType` set, whatever
- * its other keywords say. An invalid extension value is reported and the schema is parsed without it.
+ * Turns a schema with `x-kubb-type: { name, import }` into an `unknown` node with `customType` set.
+ * An invalid value is reported and the schema is parsed without it.
  */
 export function convertCustomType(ctx: ConvertContext): ast.SchemaNode {
   const { [customTypeExtension]: value, ...schema } = ctx.schema as ConvertContext['schema'] & Record<string, unknown>
