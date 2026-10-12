@@ -182,6 +182,49 @@ describe('createKubb', () => {
     })
   })
 
+  it('names the plugin whose setup threw, so the summary counts it as failed', async () => {
+    const throwingSetup = definePlugin(() => ({
+      name: 'plugin-throws',
+      hooks: {
+        'kubb:plugin:setup'() {
+          throw new Error('query.methods.some is not a function')
+        },
+      },
+    }))()
+
+    const { diagnostics } = await createKubb(makeConfig({ ...config, plugins: [throwingSetup] }), { hooks: new Hookable<KubbHooks>() }).safeBuild()
+
+    expect(Diagnostics.failedPlugins(diagnostics)).toStrictEqual(['plugin-throws'])
+  })
+
+  it('warns when a plugin depends on one that is not in the config', async () => {
+    const dependent = definePlugin(() => ({ name: 'plugin-dependent', dependencies: ['plugin-missing'], hooks: {} }))()
+
+    const { diagnostics } = await createKubb(makeConfig({ ...config, plugins: [dependent] }), { hooks: new Hookable<KubbHooks>() }).safeBuild()
+
+    expect(diagnostics.filter(Diagnostics.isProblem)).toContainEqual(
+      expect.objectContaining({ code: Diagnostics.code.pluginNotFound, severity: 'warning', plugin: 'plugin-dependent' }),
+    )
+  })
+
+  it('keeps the previous output when output.clean is set and the run fails before writing', async () => {
+    const storage = memoryStorage()
+    const outputFile = path.resolve('.', 'gen', 'previous.ts')
+    await storage.writeItem(outputFile, 'export const previous = 1\n')
+    const failingAdapter = createMockedAdapter({
+      parse: async () => {
+        throw new Error('The spec is not valid')
+      },
+    })
+
+    const result = await createKubb(makeConfig({ ...config, adapter: failingAdapter, storage, output: { path: './gen', clean: true } }), {
+      hooks: new Hookable<KubbHooks>(),
+    }).generate()
+
+    expect(result.success).toBe(false)
+    expect(await storage.readItem(outputFile)).toBe('export const previous = 1\n')
+  })
+
   it('returns a failed plugin as one error diagnostic naming the plugin from safeBuild', async () => {
     const errorPlugin = definePlugin(() => ({
       name: 'errorPlugin',

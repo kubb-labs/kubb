@@ -190,6 +190,19 @@ describe('the handshake', () => {
   })
 })
 
+describe('plugin options in the handshake', () => {
+  it('sends a JSON copy, so no function in the user config reaches Studio', async () => {
+    const config = projectConfig()
+    const name = (group: string) => `${group}Service`
+    config.plugins[0]!.options = { output: { path: 'types' }, group: { type: 'tag', name } }
+    const { agent } = await connectStudio({ loadConfig: async () => config })
+
+    const payload = await agent.connect(info)
+
+    expect(payload.config.plugins).toStrictEqual([{ name: '@kubb/plugin-barrel', options: { output: { path: 'types' }, group: { type: 'tag' } } }])
+  })
+})
+
 describe('close codes', () => {
   it('rejects with InvalidAgentTokenError when Studio refuses the token', async () => {
     const { socket, done } = await connectStudio()
@@ -285,12 +298,65 @@ describe('a sandbox job', () => {
     expect(vi.mocked(rm)).toHaveBeenCalledWith(resolveCacheDir(jobRoot), { recursive: true, force: true })
   })
 
+  it.each([
+    ['a file path', '/etc/passwd'],
+    ['a relative path', '../../petStore.yaml'],
+    ['a URL', 'http://127.0.0.1:8080/internal'],
+    ['an empty string', ''],
+    ['no spec at all', undefined],
+  ])('refuses %s instead of reading or fetching it', async (_label, input) => {
+    const { hooks, heard } = withHooks()
+    const warn = heard('studio:warn')
+    const { agent } = await connectStudio({ hooks, connectInfo: { sandbox: true, agentSlug: 'sandbox', studioVersion: '1.0.0' } })
+
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { input } }).result()).rejects.toThrow(
+      'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL',
+    )
+    expect(warn).toHaveBeenCalledOnce()
+    expect(vi.mocked(mkdtemp).mock.results).toHaveLength(1)
+  })
+
   it('reports writes and config edits off and reads on, whatever the host granted', async () => {
     const { agent } = await connectStudio({ permissions: { allowWrite: true, allowConfigEdit: true }, connectInfo: { ...info, sandbox: true } })
 
     await expect(agent.connect({ ...info, sandbox: true })).resolves.toMatchObject({
       permissions: { allowWrite: false, allowConfigEdit: false, allowRead: true },
     })
+  })
+})
+
+describe('generation reports', () => {
+  async function events(run: ReturnType<AgentApi['startGeneration']>) {
+    const seen: Array<{ type: string; data: unknown }> = []
+    const reader = (await run.events()).getReader()
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) return seen
+      seen.push({ type: value.type, data: value.data })
+    }
+  }
+
+  it('tells Studio, through the event stream, that a project agent ignored its spec', async () => {
+    const { agent } = await connectStudio()
+
+    const run = agent.startGeneration({ jobId: 'job-1', config: { input: 'openapi: 3.1.0' } })
+    const [seen] = await Promise.all([events(run), run.result()])
+
+    expect(seen).toContainEqual({
+      type: 'kubb:warn',
+      data: [{ message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent', info: undefined }],
+    })
+  })
+
+  it('reports a plugin Studio asked for that cannot be loaded to the host as well', async () => {
+    const { hooks, heard } = withHooks()
+    const error = heard('kubb:error')
+    const { agent } = await connectStudio({ hooks })
+
+    await expect(agent.startGeneration({ jobId: 'job-1', config: { plugins: [{ name: 'not-a-plugin' }] } }).result()).rejects.toThrow(
+      'is not a @kubb/plugin-* package',
+    )
+    expect(error).toHaveBeenCalledWith({ error: expect.objectContaining({ message: expect.stringContaining('is not a @kubb/plugin-* package') }) })
   })
 })
 
@@ -414,5 +480,46 @@ describe('disconnect during generation', () => {
 
     await vi.waitFor(() => expect(sockets).toHaveLength(2))
     await expect(run({ agent, jobId: 'late' })).rejects.toThrow('Connection is closed')
+  })
+
+  it('tells the host why the running generation stopped', async () => {
+    const { hooks, heard } = withHooks()
+    const warn = heard('studio:warn')
+    const loaded = Promise.withResolvers<Config>()
+    const loadConfig = vi
+      .fn()
+      .mockResolvedValueOnce(projectConfig())
+      .mockImplementationOnce(() => loaded.promise)
+      .mockResolvedValue(projectConfig())
+    const { agent, socket } = await connectStudio({ hooks, loadConfig })
+    const generation = run({ agent, jobId: 'interrupted' }).catch(() => {})
+    await vi.waitFor(() => expect(loadConfig).toHaveBeenCalledTimes(2))
+
+    socket.close(1011)
+    loaded.resolve(projectConfig())
+    await generation
+
+    await vi.waitFor(() => expect(warn).toHaveBeenCalledWith({ message: 'Canceled the running generation: the connection to Kubb Studio closed' }))
+  })
+
+  it('cancels the run before a slow listener has heard why', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const heard = Promise.withResolvers<void>()
+    hooks.hook('studio:warn', () => heard.promise)
+    const loaded = Promise.withResolvers<Config>()
+    const loadConfig = vi
+      .fn()
+      .mockResolvedValueOnce(projectConfig())
+      .mockImplementationOnce(() => loaded.promise)
+      .mockResolvedValue(projectConfig())
+    const { agent, socket } = await connectStudio({ hooks, loadConfig })
+    const generation = run({ agent, jobId: 'interrupted' })
+    await vi.waitFor(() => expect(loadConfig).toHaveBeenCalledTimes(2))
+
+    socket.close(1011)
+    loaded.resolve(projectConfig())
+
+    await expect(generation).rejects.toThrow('Generation canceled')
+    heard.resolve()
   })
 })

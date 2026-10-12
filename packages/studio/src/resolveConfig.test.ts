@@ -1,7 +1,8 @@
+import { join } from 'node:path'
 import type { Adapter, Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { JSONKubbConfig } from './protocol.ts'
-import { mergeAdapter, mergeOptions, mergePlugins, resolvePlugins, toExportName, toPackageName } from './resolveConfig.ts'
+import { mergeAdapter, mergeOptions, mergePlugins, resolvePlugins, toExportName, toJSONOptions, toPackageName, toStudioName } from './resolveConfig.ts'
 
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
 
@@ -64,6 +65,20 @@ describe('mergePlugins', () => {
     expect(plugin?.options).toStrictEqual({ macros: [macro], resolver: { file: { baseName } }, syntaxType: 'interface' })
   })
 
+  it('keeps a plugin defined in the project when Studio echoes its options back unchanged', async () => {
+    const local = makePlugin('plugin-zod-operations', { tag: 'pet', name: () => 'x' })
+
+    expect(await mergePlugins([local], [{ name: 'plugin-zod-operations', options: { tag: 'pet' } }])).toStrictEqual([local])
+  })
+
+  it('explains that a plugin defined in the project can only be changed on disk', async () => {
+    const local = makePlugin('plugin-zod-operations', { tag: 'pet' })
+
+    await expect(mergePlugins([local], [{ name: '@kubb/plugin-zod-operations', options: { tag: 'store' } }])).rejects.toThrow(
+      'Plugin "plugin-zod-operations" is not an installed @kubb/plugin-* package, so Studio cannot change its options.',
+    )
+  })
+
   describe('disabled plugin entries', () => {
     it('drops a disk plugin that studio explicitly disabled', async () => {
       const diskPlugins = [makePlugin('plugin-zod', { validate: true }), makePlugin('plugin-ts', { enumType: 'asConst' })]
@@ -85,6 +100,14 @@ describe('mergeOptions', () => {
       output: { path: 'models', barrel: false },
       exclude: [],
     })
+  })
+
+  it('ignores keys that would reach the prototype', () => {
+    const studio = JSON.parse('{ "__proto__": { "polluted": true }, "output": { "constructor": { "x": 1 }, "path": "models" } }') as Record<string, unknown>
+    const merged = mergeOptions({ output: { path: 'types' } }, studio)
+
+    expect(merged).toStrictEqual({ output: { path: 'models' } })
+    expect(Object.getPrototypeOf(merged)).toBe(Object.prototype)
   })
 
   it('keeps disk values that do not survive JSON', () => {
@@ -187,5 +210,32 @@ describe('toPackageName', () => {
       '@acme/my-plugin': '@acme/my-plugin',
       kubb: 'kubb',
     })
+  })
+})
+
+describe('toStudioName', () => {
+  it('scopes a plugin whose package is installed, and keeps a plugin defined in the project by its own name', () => {
+    // A project that installs `kubb`, which brings `@kubb/plugin-barrel` along.
+    const root = join(import.meta.dirname, '../../kubb')
+
+    expect([toStudioName({ name: 'plugin-barrel', root }), toStudioName({ name: 'plugin-zod-operations', root })]).toStrictEqual([
+      '@kubb/plugin-barrel',
+      'plugin-zod-operations',
+    ])
+  })
+})
+
+describe('toJSONOptions', () => {
+  it('leaves out functions, so nothing callable reaches Studio', () => {
+    const options = { output: { path: 'types' }, group: { type: 'tag', name: (group: string) => group }, pattern: /x/, big: 1n, macros: [() => 1] }
+
+    expect(toJSONOptions(options)).toStrictEqual({ output: { path: 'types' }, group: { type: 'tag' }, pattern: {}, macros: [null] })
+  })
+
+  it('returns an empty object for options JSON cannot copy', () => {
+    const circular: Record<string, unknown> = {}
+    circular['self'] = circular
+
+    expect([toJSONOptions(circular), toJSONOptions(undefined)]).toStrictEqual([{}, {}])
   })
 })

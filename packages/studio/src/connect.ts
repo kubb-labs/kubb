@@ -5,7 +5,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
 import { getErrorMessage, read, toError } from '@internals/utils'
-import { cacheStorage, type Config, fsStorage, Hookable, type KubbHooks, memoryStorage, resolveCacheDir } from '@kubb/core'
+import { cacheStorage, type Config, fsStorage, getInputKind, Hookable, type KubbHooks, memoryStorage, resolveCacheDir } from '@kubb/core'
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { version as kubbVersion } from '../package.json'
 import { readConfig, writeConfigEdits } from './configFile.ts'
@@ -33,7 +33,7 @@ import {
   type SaveResult,
   type StudioApi,
 } from './protocol.ts'
-import { mergeAdapter, mergePlugins, toPackageName } from './resolveConfig.ts'
+import { mergeAdapter, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
@@ -267,7 +267,13 @@ class Agent extends RpcTarget implements AgentApi {
     return {
       versions: { kubb: kubbVersion, agent: version },
       root,
-      config: { path: configPath, file, plugins: config.plugins.map((plugin) => ({ name: toPackageName(plugin.name), options: plugin.options ?? {} })) },
+      // Copied through JSON: Cap'n Web would otherwise pass every function in the options as a stub
+      // Studio could call, running the user's config code in this process.
+      config: {
+        path: configPath,
+        file,
+        plugins: config.plugins.map((plugin) => ({ name: toStudioName({ name: plugin.name, root }), options: toJSONOptions(plugin.options) })),
+      },
       permissions: this.#permissions,
     }
   }
@@ -318,14 +324,29 @@ class Agent extends RpcTarget implements AgentApi {
 
   async #generate({ input, root, signal }: { input: GenerateInput; root: string; signal: AbortSignal }): Promise<{ value: GenerateResult; info: string }> {
     const { jobId, config: patch } = input
+    // A sandbox has no spec on disk, so it only ever generates from the content Studio sends. A path
+    // or URL would make it read host files or fetch internal addresses on behalf of any tenant.
+    const studioInput = this.#sandbox ? patch?.input : undefined
+    if (this.#sandbox && (typeof studioInput !== 'string' || !studioInput.trim() || getInputKind(studioInput) !== 'inline')) {
+      return this.#refuse({ message: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL' })
+    }
+
     const config = await this.#options.loadConfig()
-    const plugins = (await mergePlugins(config.plugins, patch?.plugins)) ?? config.plugins
-    const adapter = await mergeAdapter(config.adapter, patch?.adapter)
-    // A sandbox has no spec on disk, so it always generates from Studio's, empty string included.
-    const studioInput = this.#sandbox ? (patch?.input ?? '') : undefined
+    const [plugins, adapter] = await Promise.all([mergePlugins(config.plugins, patch?.plugins), mergeAdapter(config.adapter, patch?.adapter)]).catch(
+      async (error: unknown) => {
+        // Thrown before core runs, so nothing else reports it to the host.
+        await emit(this.#options.hooks, 'kubb:error', { error: toError(error) })
+        throw error
+      },
+    )
+
+    const activePlugins = plugins ?? config.plugins
 
     if (patch?.input && !this.#sandbox) {
-      await this.#warn({ message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent' })
+      // A `kubb:warn` rather than `studio:warn`, so the generation's event stream carries it to Studio too.
+      await emit(this.#options.hooks, 'kubb:warn', {
+        message: 'Ignored the spec from Studio: generating from a Studio spec is only available to a sandbox agent',
+      })
     }
 
     const hasProjectOnDisk = !this.#sandbox && this.#permissions.allowRead
@@ -333,7 +354,14 @@ class Agent extends RpcTarget implements AgentApi {
     const disk = diskFiles ? await this.#generations.keep({ jobId, source: 'disk', files: diskFiles, maxSetMb: this.#limits.maxSnapshotMb }) : undefined
 
     const files = await generate({
-      config: { ...config, root, input: studioInput ?? config.input, storage: this.#permissions.allowWrite ? fsStorage() : memoryStorage(), plugins, adapter },
+      config: {
+        ...config,
+        root,
+        input: studioInput ?? config.input,
+        storage: this.#permissions.allowWrite ? fsStorage() : memoryStorage(),
+        plugins: activePlugins,
+        adapter,
+      },
       hooks: this.#options.hooks,
       signal,
       allowExec: this.#permissions.allowExec,
@@ -356,7 +384,7 @@ class Agent extends RpcTarget implements AgentApi {
         hashes: output.hashes,
         disk: disk ? { hashes: disk.hashes } : undefined,
       },
-      info: `${plugins.length} plugin${plugins.length === 1 ? '' : 's'}, ${this.#permissions.allowWrite ? 'written to disk' : 'in memory'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
+      info: `${activePlugins.length} plugin${activePlugins.length === 1 ? '' : 's'}, ${this.#permissions.allowWrite ? 'written to disk' : 'in memory'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
     }
   }
 
@@ -488,8 +516,14 @@ async function runSession({ options, openRpc, url, instanceId }: { options: Reso
   clearTimeout(timer)
   signal?.removeEventListener('abort', rpc.close)
   session.connected.reject(new Error('The socket closed before Studio called connect()'))
-  session.active?.abort()
-  await session.active?.settled
+  // Captured and aborted before the warning, so a slow listener neither keeps the run going nor
+  // sees it finish and clear `session.active` first.
+  const active = session.active
+  if (active) {
+    active.abort()
+    await emit(hooks, 'studio:warn', { message: 'Canceled the running generation: the connection to Kubb Studio closed' })
+  }
+  await active?.settled
 
   return { ...close, connected: session.info !== undefined }
 }

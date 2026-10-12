@@ -17,9 +17,9 @@ export type JSONKubbConfig = {
     disabled?: boolean
   }>
   /**
-   * Raw OpenAPI / Swagger spec content (YAML or JSON string).
-   * Only honored for a 'sandbox' agent, which has no disk config of its own. A non-sandbox agent
-   * always reads its spec from disk, so this is ignored.
+   * Raw OpenAPI / Swagger spec content (YAML or JSON string), never a file path or URL.
+   * Required by a 'sandbox' agent, which has no disk config of its own and refuses anything else.
+   * A non-sandbox agent always reads its spec from disk, so this is ignored with a `kubb:warn`.
    */
   input?: string
   /**
@@ -466,7 +466,9 @@ export type ConnectMessagePayload = {
      */
     file?: ConfigFileView
     /**
-     * Plugins the config registers, with their serialized options.
+     * Plugins the config registers, with a JSON copy of their options: anything JSON cannot hold,
+     * such as a function, is left out. A plugin defined in the project rather than installed as a
+     * `@kubb/plugin-*` package keeps its own `name`.
      */
     plugins?: Array<{
       name: string

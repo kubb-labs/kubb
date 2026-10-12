@@ -66,6 +66,48 @@ export function toPackageName(name: string): string {
   return name.startsWith('plugin-') ? `@kubb/${name}` : name
 }
 
+function resolvesFrom(base: string | URL, packageName: string): boolean {
+  try {
+    // Every Kubb package exports its `package.json`, which resolves even before a build exists.
+    createRequire(base).resolve(`${packageName}/package.json`)
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Whether `packageName` resolves from the project at `root`, from this package, or from the `kubb`
+ * package the project installs, which brings the plugins Kubb adds on its own such as
+ * `@kubb/plugin-barrel`. Only resolves the package, it never runs it.
+ */
+function isInstalled({ packageName, root }: { packageName: string; root: string }): boolean {
+  const project = pathToFileURL(`${root}/`)
+  if (resolvesFrom(project, packageName) || resolvesFrom(import.meta.url, packageName)) return true
+
+  try {
+    return resolvesFrom(createRequire(project).resolve('kubb/package.json'), packageName)
+  } catch {
+    return false
+  }
+}
+
+/**
+ * The name Studio knows a plugin by: its `@kubb/plugin-*` package when one is installed, otherwise
+ * the plugin's own `name`, so a plugin defined in the user's project is never reported as a Kubb
+ * package that does not exist.
+ *
+ * @example
+ * ```ts
+ * toStudioName({ name: 'plugin-ts', root })              // '@kubb/plugin-ts'
+ * toStudioName({ name: 'plugin-zod-operations', root })  // 'plugin-zod-operations', a local plugin
+ * ```
+ */
+export function toStudioName({ name, root }: { name: string; root: string }): string {
+  const packageName = toPackageName(name)
+  return packageName !== name && isInstalled({ packageName, root }) ? packageName : name
+}
+
 /**
  * Derives the conventional named export for a `@kubb/*` plugin package from its package name.
  *
@@ -187,6 +229,39 @@ export async function resolvePeerDependencies(names: Array<string>): Promise<{
 }
 
 /**
+ * Keys that reach an object's prototype when assigned. Never read from or written into options.
+ */
+const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
+
+/**
+ * Whether `key` can be used as an option key without touching an object's prototype.
+ */
+export function isSafeKey(key: string): boolean {
+  return !UNSAFE_KEYS.has(key)
+}
+
+/**
+ * A JSON copy of plugin or adapter options: functions and other values JSON cannot hold are left
+ * out, so nothing callable crosses the socket. Options that cannot be copied at all, such as a
+ * circular structure, come back empty.
+ *
+ * @example
+ * ```ts
+ * toJSONOptions({ output: { path: 'types' }, group: { name: () => 'x' } }) // { output: { path: 'types' }, group: {} }
+ * ```
+ */
+export function toJSONOptions(options: unknown): Record<string, unknown> {
+  try {
+    const copy = JSON.parse(
+      JSON.stringify(options ?? {}, (key, value: unknown) => (isSafeKey(key) && typeof value !== 'bigint' ? value : undefined)),
+    ) as unknown
+    return isPlainObject(copy) ? copy : {}
+  } catch {
+    return {}
+  }
+}
+
+/**
  * Whether `value` is an object literal or a null-prototype object, not an array or class instance.
  */
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -204,7 +279,7 @@ export function isOptionValue(value: unknown): value is OptionValue {
   if (value === null || typeof value === 'string' || typeof value === 'boolean') return true
   if (typeof value === 'number') return Number.isFinite(value)
   if (Array.isArray(value)) return value.every(isOptionValue)
-  if (isPlainObject(value)) return Object.values(value).every(isOptionValue)
+  if (isPlainObject(value)) return Object.entries(value).every(([key, entry]) => isSafeKey(key) && isOptionValue(entry))
 
   return false
 }
@@ -225,6 +300,7 @@ export function mergeOptions(disk: Record<string, unknown>, studio: Record<strin
   const merged: Record<string, unknown> = { ...disk }
 
   for (const [key, value] of Object.entries(studio)) {
+    if (!isSafeKey(key)) continue
     const current = disk[key]
 
     if (isPlainObject(current) && isPlainObject(value)) {
@@ -278,8 +354,18 @@ export async function mergePlugins(
       // Disk as base, studio overrides, then re-instantiate so the plugin's closures reference the
       // merged values. A plugin that never sets `options` (e.g. `@kubb/plugin-barrel`) leaves
       // `diskPlugin.options` undefined.
-      const options = mergeOptions((diskPlugin.options as Record<string, unknown>) ?? {}, (studioEntry.options as Record<string, unknown>) ?? {})
-      const [resolved] = await resolvePlugins([{ name: studioEntry.name, options }])
+      const diskOptions = (diskPlugin.options as Record<string, unknown>) ?? {}
+      const options = mergeOptions(diskOptions, (studioEntry.options as Record<string, unknown>) ?? {})
+      // A plugin defined in the user's project has no package to re-instantiate it from. Studio
+      // echoing its options back unchanged is fine, any real change can only be made on disk.
+      const unchanged = JSON.stringify(toJSONOptions(options)) === JSON.stringify(toJSONOptions(diskOptions))
+      const [resolved] = await resolvePlugins([{ name: studioEntry.name, options }]).catch((cause: unknown) => {
+        if (unchanged) return [diskPlugin]
+        throw new Error(
+          `Plugin "${diskPlugin.name}" is not an installed @kubb/plugin-* package, so Studio cannot change its options. Edit it in the config file, or only enable or disable it from Studio.`,
+          { cause },
+        )
+      })
 
       return resolved ?? diskPlugin
     }),

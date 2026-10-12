@@ -303,6 +303,17 @@ describe('plain generation output', () => {
     expect(lines.at(-2)).toBe('✓ Generation succeeded')
     expect(lines.at(-1)).toContain('Plugins  2 passed (2)')
   })
+
+  it('says files were generated rather than written when the run keeps them in memory', async () => {
+    const config = { ...makeConfig('petstore'), storage: { name: 'memory' } } as unknown as Config
+    const lines = await render(generation({ config }), { rich: false })
+
+    expect(lines.filter((line) => /^(Writing|Wrote|Generat(ing|ed)) .*file/.test(line) || line.includes('pet.ts'))).toStrictEqual([
+      'Generating 1 file',
+      'Generating src/gen/pet.ts',
+      'Generated 1 file in memory',
+    ])
+  })
 })
 
 /**
