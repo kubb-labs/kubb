@@ -284,7 +284,7 @@ class Agent extends RpcTarget implements AgentApi {
         file,
         plugins: config.plugins.map((plugin) => {
           const schema = getPluginOptionsJsonSchema(plugin)
-          return { name: toStudioName({ name: plugin.name, root }), options: toJSONOptions(plugin.options), ...(schema && { schema }) }
+          return { name: toStudioName({ name: plugin.name, root }), options: toJSONOptions(plugin.options), ...(schema && { schema: toJSONOptions(schema) }) }
         }),
       },
       permissions: this.#permissions,

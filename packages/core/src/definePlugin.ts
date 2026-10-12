@@ -506,9 +506,9 @@ export function definePlugin<TFactory extends PluginFactoryOptions = PluginFacto
 ): (options?: TFactory['options']) => Plugin<TFactory> {
   return (options) => {
     const raw = (options ?? {}) as TFactory['options']
-    if (!schema) return factory(raw)
+    if (!schema && !jsonSchema) return factory(raw)
 
-    const plugin = factory(validatePluginOptions(schema, raw))
+    const plugin = factory(schema ? validatePluginOptions(schema, raw) : raw)
     return { ...plugin, options: raw, schema, jsonSchema }
   }
 }

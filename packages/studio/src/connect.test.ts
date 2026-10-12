@@ -205,7 +205,7 @@ describe('plugin options in the handshake', () => {
   it("sends each plugin's options JSON Schema", async () => {
     const config = projectConfig()
     const jsonSchema = { type: 'object', properties: { output: { type: 'object' } } }
-    config.plugins[0]!.jsonSchema = jsonSchema
+    config.plugins[0]!.jsonSchema = { ...jsonSchema, transform: () => 'not sent' }
     const { agent } = await connectStudio({ loadConfig: async () => config })
 
     const payload = await agent.connect(info)

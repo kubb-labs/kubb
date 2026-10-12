@@ -172,6 +172,12 @@ describe('getPluginOptionsJsonSchema', () => {
     expect(input).toHaveBeenCalledWith({ target: 'draft-2020-12', libraryOptions: { unrepresentable: 'any' } })
   })
 
+  it('keeps a jsonSchema passed without a validator', () => {
+    const jsonSchema = { type: 'object' }
+
+    expect(getPluginOptionsJsonSchema(definePlugin<TagPlugin>(factory, { jsonSchema })())).toBe(jsonSchema)
+  })
+
   it('returns undefined without a schema, or when the conversion throws', () => {
     const throwing = () => {
       throw new Error('Custom types cannot be represented in JSON Schema')
