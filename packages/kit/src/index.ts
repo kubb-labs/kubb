@@ -7,7 +7,20 @@ export { macroSimplifyUnion } from './macros/macroSimplifyUnion.ts'
 export { mergeAdjacentObjectsLazy } from './utils/mergeAdjacentSchemas.ts'
 export { childName, enumPropName, extractRefName, isStringType, syncSchemaRef } from './utils/refs.ts'
 export { containsCircularRef } from './utils/schemaGraph.ts'
-export { addGenerator, addMacro, injectFile, kubbContext, setMacros, setResolver, tryUseKubb, useKubb, usePlugin } from '@kubb/core'
+export {
+  addGenerator,
+  addMacro,
+  injectFile,
+  kubbContext,
+  setMacros,
+  setOptions,
+  setResolver,
+  tryUseKubb,
+  useConfig,
+  useKubb,
+  useOptions,
+  usePlugin,
+} from '@kubb/core'
 export { createAdapter } from '@kubb/core'
 export { createRenderer } from '@kubb/core'
 export { createStorage } from '@kubb/core'

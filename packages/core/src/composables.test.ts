@@ -2,7 +2,20 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { ast, type Macro, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter, createMockedSetupContext } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
-import { addGenerator, addMacro, injectFile, kubbContext, setMacros, setResolver, tryUseKubb, useKubb, usePlugin } from './composables.ts'
+import {
+  addGenerator,
+  addMacro,
+  injectFile,
+  kubbContext,
+  setMacros,
+  setOptions,
+  setResolver,
+  tryUseKubb,
+  useConfig,
+  useKubb,
+  useOptions,
+  usePlugin,
+} from './composables.ts'
 import { createKubb } from './createKubb.ts'
 import type { Generator } from './defineGenerator.ts'
 import type { KubbPluginSetupContext, Plugin } from './definePlugin.ts'
@@ -39,6 +52,9 @@ describe('composables', () => {
       ['addMacro', () => addMacro(macro)],
       ['setMacros', () => setMacros([macro])],
       ['injectFile', () => injectFile(file)],
+      ['useOptions', () => useOptions()],
+      ['setOptions', () => setOptions({})],
+      ['useConfig', () => useConfig()],
       ['usePlugin', () => usePlugin('plugin-ts')],
     ]
 
@@ -57,7 +73,7 @@ describe('composables', () => {
   })
 
   it('delegate to the context method of the same name', () => {
-    const ctx = createMockedSetupContext({ plugins: ['plugin-ts'] })
+    const ctx = createMockedSetupContext({ plugins: ['plugin-ts'], options: { label: 'user' } })
     const resolver = { name: (name: string) => name }
 
     kubbContext.run(ctx, () => {
@@ -69,7 +85,10 @@ describe('composables', () => {
       addMacro(macro)
       setMacros([macro])
       injectFile(file)
+      setOptions({ label: 'resolved' })
 
+      expect(useOptions()).toBe(ctx.options)
+      expect(useConfig()).toBe(ctx.config)
       expect(usePlugin('plugin-ts').name).toBe('plugin-ts')
       expect(() => usePlugin('plugin-missing')).toThrow('Plugin "plugin-missing" is required but not found.')
     })
@@ -79,6 +98,7 @@ describe('composables', () => {
     expect(ctx.addMacro).toHaveBeenCalledWith(macro)
     expect(ctx.setMacros).toHaveBeenCalledWith([macro])
     expect(ctx.injectFile).toHaveBeenCalledWith(file)
+    expect(ctx.setOptions).toHaveBeenCalledWith({ label: 'resolved' })
   })
 })
 

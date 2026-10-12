@@ -4,6 +4,7 @@ import type { Generator } from './defineGenerator.ts'
 import type { KubbPluginSetupContext, NormalizedPlugin, PluginFactoryOptions, PluginName, ResolvePluginOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Resolver, ResolverPatch } from './Resolver.ts'
+import type { Config } from './types.ts'
 
 /**
  * Holds the setup context of the plugin whose `kubb:plugin:setup` is running. `KubbDriver` sets it for each plugin.
@@ -75,6 +76,27 @@ export function setMacros(macros: ReadonlyArray<Macro>): void {
  */
 export function injectFile(file: UserFileNode): void {
   requireContext('injectFile').injectFile(file)
+}
+
+/**
+ * Returns the options the user passed to the plugin being set up, like `ctx.options`.
+ */
+export function useOptions<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(): TFactory['options'] {
+  return requireContext('useOptions').options as TFactory['options']
+}
+
+/**
+ * Sets the resolved options of the plugin being set up, like `ctx.setOptions`.
+ */
+export function setOptions<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(options: TFactory['resolvedOptions']): void {
+  requireContext('setOptions').setOptions(options)
+}
+
+/**
+ * Returns the resolved build configuration, like `ctx.config`.
+ */
+export function useConfig(): Config {
+  return requireContext('useConfig').config
 }
 
 /**
