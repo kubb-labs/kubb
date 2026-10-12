@@ -1,0 +1,84 @@
+{
+  "$schema": "https://kubb.dev/schemas/kubb.json",
+  "name": "kubb-plugin-greeting",
+  "version": "1.2.0",
+  "repository": {
+    "url": "https://github.com/example/kubb-plugin-greeting"
+  },
+  "bugs": "https://github.com/example/kubb-plugin-greeting/issues",
+  "contributors": [
+    {
+      "name": "Ada Lovelace",
+      "email": "ada@example.com",
+      "url": "https://example.com"
+    },
+    {
+      "name": "Grace Hopper",
+      "url": "https://example.com/grace"
+    }
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "extensions": [
+    {
+      "kind": "plugin",
+      "export": "pluginGreeting",
+      "meta": {
+        "name": "plugin-greeting",
+        "displayName": "Greeting",
+        "description": "Generates a greeting per operation.",
+        "compatibility": {
+          "kubb": ">=5.8.0"
+        }
+      },
+      "options": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "default": {
+              "path": "greetings"
+            },
+            "description": "Where the plugin writes its greetings.",
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Directory, relative to the config's `output.path`.",
+                "x-kubb-type": "string"
+              }
+            },
+            "required": [
+              "path"
+            ],
+            "x-kubb-type": "{ path: string; }"
+          },
+          "greeting": {
+            "default": "hello",
+            "type": "string",
+            "enum": [
+              "hello",
+              "hi"
+            ],
+            "description": "Word each greeting starts with.",
+            "examples": [
+              "```ts\ngreeting: 'hi'\n```"
+            ],
+            "x-kubb-type": "'hello' | 'hi'"
+          },
+          "shout": {
+            "type": "boolean",
+            "description": "Print greetings in capitals.",
+            "deprecated": true,
+            "x-kubb-type": "boolean"
+          },
+          "transform": {
+            "description": "Rewrites each name before it is greeted.",
+            "x-kubb-docs": "https://example.com/docs/transform",
+            "x-kubb-type": "(name: string) => string"
+          }
+        }
+      }
+    }
+  ]
+}

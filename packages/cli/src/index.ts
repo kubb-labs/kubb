@@ -3,6 +3,7 @@ import dryrun from '@gunshi/plugin-dryrun'
 import { cli } from 'gunshi'
 import { isDisabled as isTelemetryDisabled } from './Telemetry.ts'
 import { version } from '../package.json'
+import { command as extensionCommand } from './commands/extension/index.ts'
 import { command as generateCommand } from './commands/generate.ts'
 import { command as initCommand } from './commands/init.ts'
 import { command as mcpCommand } from './commands/mcp.ts'
@@ -25,7 +26,7 @@ function stripExecArgs(argv: Array<string>): Array<string> {
 
 /**
  * Entry point for the `kubb` CLI. Prints the telemetry notice unless telemetry is disabled or a
- * quiet flag is passed, then runs the generate, validate, mcp, studio, and init commands. Defaults to
+ * quiet flag is passed, then runs the generate, validate, mcp, studio, extension, and init commands. Defaults to
  * `generate` when no command is given.
  */
 export async function run(argv: Array<string> = process.argv): Promise<void> {
@@ -52,6 +53,7 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
       validate: validateCommand,
       mcp: mcpCommand,
       studio: studioCommand,
+      extension: extensionCommand,
     },
     fallbackToEntry: true,
     strict: true,

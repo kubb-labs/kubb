@@ -251,6 +251,9 @@ importers:
       '@kubb/mcp':
         specifier: workspace:*
         version: link:../mcp
+      ajv:
+        specifier: ^8.20.0
+        version: 8.20.0
       chokidar:
         specifier: ^5.0.0
         version: 5.0.0
@@ -282,6 +285,12 @@ importers:
       '@kubb/studio':
         specifier: workspace:*
         version: link:../studio
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
 
   packages/core:
     dependencies:

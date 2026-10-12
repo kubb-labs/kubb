@@ -1,0 +1,111 @@
+{
+  "$schema": "https://kubb.dev/schemas/kubb.json",
+  "name": "@example/kubb-extensions",
+  "version": "0.4.0",
+  "repository": {
+    "url": "https://github.com/example/kubb-extensions"
+  },
+  "bugs": "https://github.com/example/kubb-extensions/issues",
+  "extensions": [
+    {
+      "kind": "plugin",
+      "export": "pluginRoutes",
+      "meta": {
+        "name": "plugin-routes",
+        "category": "framework",
+        "tags": [
+          "routes"
+        ]
+      },
+      "options": {
+        "type": "object",
+        "properties": {
+          "output": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "File path, relative to the config's `output.path`.",
+                "x-kubb-type": "string",
+                "default": "routes.ts"
+              }
+            },
+            "required": [
+              "path"
+            ],
+            "description": "Where the route table is written.",
+            "x-kubb-type": "{ path: string; }"
+          },
+          "basePath": {
+            "type": "string",
+            "description": "Base path every route starts with.",
+            "x-kubb-type": "string",
+            "default": "/"
+          },
+          "casing": {
+            "type": "string",
+            "enum": [
+              "camelCase",
+              "kebab-case"
+            ],
+            "description": "How route names are cased.",
+            "x-kubb-type": "'camelCase' | 'kebab-case'",
+            "default": "camelCase"
+          },
+          "methods": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "x-kubb-values": [
+                "GET",
+                "POST"
+              ]
+            },
+            "description": "HTTP methods to include. Any other string is accepted too.",
+            "x-kubb-type": "('GET' | 'POST' | (string & {}))[]",
+            "default": [
+              "GET"
+            ]
+          },
+          "withMeta": {
+            "type": "boolean",
+            "description": "Adds a `meta` field to each route.",
+            "x-kubb-type": "boolean",
+            "default": false
+          },
+          "depth": {
+            "type": "number",
+            "description": "Maximum depth of nested routes.",
+            "deprecated": true,
+            "x-kubb-type": "number",
+            "default": 3
+          },
+          "name": {
+            "description": "Names each route. See `RoutesOptions.casing` for the default.",
+            "x-kubb-docs": "https://example.com/docs/name",
+            "x-kubb-type": "(path: string) => string",
+            "x-kubb-default": "casing"
+          }
+        }
+      }
+    },
+    {
+      "kind": "parser",
+      "export": "parserRoutes",
+      "meta": {
+        "name": "routes"
+      },
+      "options": {
+        "type": "object",
+        "properties": {
+          "tabs": {
+            "type": "boolean",
+            "description": "Indent with tabs instead of spaces.",
+            "x-kubb-type": "boolean",
+            "default": false
+          }
+        }
+      }
+    }
+  ]
+}

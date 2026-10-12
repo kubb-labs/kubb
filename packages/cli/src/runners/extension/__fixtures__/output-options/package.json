@@ -1,0 +1,7 @@
+{
+  "name": "kubb-plugin-output-options",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "module": "./src/index.ts"
+}

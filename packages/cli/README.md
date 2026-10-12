@@ -44,6 +44,7 @@ npm install -D @kubb/cli
 - [`kubb studio`](#kubb-studio) — connect this project to Kubb Studio
 - [`kubb validate`](#kubb-validate) — validate an OpenAPI spec
 - [`kubb mcp`](#kubb-mcp) — start the MCP server for AI assistants
+- [`kubb extension build`](#kubb-extension-build) — write the `kubb.json` manifest of a plugin, adapter or parser package
 
 ---
 
@@ -254,6 +255,45 @@ Add the following to your MCP client config (e.g. Claude Desktop's `claude_deskt
     }
   }
 }
+```
+
+---
+
+### `kubb extension build`
+
+Write `dist/kubb.json` for a package that exports Kubb plugins, adapters or parsers. Studio, the [kubb.dev](https://kubb.dev) registry and the options reference pages read it. Build the package first: the command imports the built entry to find each extension, then reads its options from the schema and from the TypeScript types and JSDoc in `--entry`. It needs `typescript` installed.
+
+```bash
+npx kubb extension build
+```
+
+Point `package.json#kubb` at the manifest and export it, so tools can find it:
+
+```json
+{
+  "kubb": "./dist/kubb.json",
+  "exports": {
+    "./kubb.json": "./dist/kubb.json"
+  }
+}
+```
+
+#### Options
+
+| Option           | Type    | Default          | Description                                                  |
+| ---------------- | ------- | ---------------- | ------------------------------------------------------------ |
+| `--entry <path>` | string  | `src/index.ts`   | TypeScript source entry to read option types and JSDoc from  |
+| `--out <path>`   | string  | `dist/kubb.json` | Where to write the manifest                                  |
+| `--check`        | boolean | `false`          | Exit with code 1 when the manifest is missing or out of date |
+
+#### Examples
+
+```bash
+# Write dist/kubb.json after the package build
+npx kubb extension build
+
+# Fail CI when the manifest is out of date
+npx kubb extension build --check
 ```
 
 ## Supporting Kubb
