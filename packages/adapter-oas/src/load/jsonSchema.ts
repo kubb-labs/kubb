@@ -23,13 +23,25 @@ export function wrapJsonSchema(schema: SchemaObject & Record<string, unknown>): 
   const { $schema: _schema, $id: _id, $defs, definitions, ...root } = schema
   const localDefinitions = { ...(definitions as Record<string, unknown> | undefined), ...($defs as Record<string, unknown> | undefined) }
 
-  let name = (typeof root.title === 'string' ? root.title : '').replace(/[^\w.-]/g, '') || 'Schema'
-  while (name in localDefinitions) name = `${name}Schema`
+  // Component keys may only hold `[A-Za-z0-9_.-]`, so names are stripped and suffixed until unique.
+  const usedKeys = new Set<string>()
+  const claimKey = (raw: string): string => {
+    let key = raw.replace(/[^\w.-]/g, '') || 'Schema'
+    while (usedKeys.has(key)) key = `${key}Schema`
+    usedKeys.add(key)
+    return key
+  }
+  const definitionKeys = new Map(Object.keys(localDefinitions).map((raw) => [raw, claimKey(raw)]))
+  const name = claimKey(typeof root.title === 'string' ? root.title : '')
   const rootPointer = `#/components/schemas/${name}`
 
   const rewriteRef = (ref: string): string => {
     const prefix = definitionPrefixes.find((candidate) => ref.startsWith(candidate))
-    if (prefix) return `#/components/schemas/${ref.slice(prefix.length)}`
+    if (prefix) {
+      const [token = '', ...rest] = ref.slice(prefix.length).split('/')
+      const raw = token.replaceAll('~1', '/').replaceAll('~0', '~')
+      return ['#/components/schemas', definitionKeys.get(raw) ?? token, ...rest].join('/')
+    }
     return ref === '#' || ref.startsWith('#/') ? `${rootPointer}${ref.slice(1)}` : ref
   }
 
@@ -42,12 +54,14 @@ export function wrapJsonSchema(schema: SchemaObject & Record<string, unknown>): 
     )
   }
 
+  const schemas = Object.fromEntries([...Object.entries(localDefinitions).map(([raw, definition]) => [definitionKeys.get(raw), definition]), [name, root]])
+
   const document: Document = {
     openapi: '3.1.0',
     info: { title: name, version: '0.0.0' },
     paths: {},
     components: {
-      schemas: rewriteRefs({ ...localDefinitions, [name]: root }) as NonNullable<Document['components']>['schemas'],
+      schemas: rewriteRefs(schemas) as NonNullable<Document['components']>['schemas'],
     },
   }
 

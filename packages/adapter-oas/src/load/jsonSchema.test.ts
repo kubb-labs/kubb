@@ -80,6 +80,19 @@ describe('wrapJsonSchema', () => {
     })
   })
 
+  it('strips definition keys to valid component keys and points refs at them', () => {
+    const document = wrapJsonSchema({
+      title: 'Root',
+      properties: { a: { $ref: '#/$defs/User Settings' }, b: { $ref: '#/$defs/a~1b/properties/id' } },
+      $defs: { 'User Settings': { type: 'object' }, 'a/b': { type: 'object' } },
+    })
+
+    expect(Object.keys(document.components?.schemas ?? {})).toStrictEqual(['UserSettings', 'ab', 'Root'])
+    expect(document.components?.schemas?.['Root']).toMatchObject({
+      properties: { a: { $ref: '#/components/schemas/UserSettings' }, b: { $ref: '#/components/schemas/ab/properties/id' } },
+    })
+  })
+
   it('names an untitled root Schema', () => {
     expect(Object.keys(wrapJsonSchema({ type: 'string' }).components?.schemas ?? {})).toStrictEqual(['Schema'])
   })
