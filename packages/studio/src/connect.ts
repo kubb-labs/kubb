@@ -5,7 +5,17 @@ import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
 import { getErrorMessage, read, toError } from '@internals/utils'
-import { cacheStorage, type Config, fsStorage, getInputKind, Hookable, type KubbHooks, memoryStorage, resolveCacheDir } from '@kubb/core'
+import {
+  cacheStorage,
+  type Config,
+  fsStorage,
+  getInputKind,
+  getPluginOptionsJsonSchema,
+  Hookable,
+  type KubbHooks,
+  memoryStorage,
+  resolveCacheDir,
+} from '@kubb/core'
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { version as kubbVersion } from '../package.json'
 import { readConfig, writeConfigEdits } from './configFile.ts'
@@ -272,7 +282,10 @@ class Agent extends RpcTarget implements AgentApi {
       config: {
         path: configPath,
         file,
-        plugins: config.plugins.map((plugin) => ({ name: toStudioName({ name: plugin.name, root }), options: toJSONOptions(plugin.options) })),
+        plugins: config.plugins.map((plugin) => {
+          const schema = getPluginOptionsJsonSchema(plugin)
+          return { name: toStudioName({ name: plugin.name, root }), options: toJSONOptions(plugin.options), ...(schema && { schema }) }
+        }),
       },
       permissions: this.#permissions,
     }

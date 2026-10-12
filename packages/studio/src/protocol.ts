@@ -473,6 +473,11 @@ export type ConnectMessagePayload = {
     plugins?: Array<{
       name: string
       options?: object
+      /**
+       * JSON Schema of the plugin's options, from `getPluginOptionsJsonSchema`. Studio renders it
+       * as the plugin's settings form. Absent when the plugin does not describe its options.
+       */
+      schema?: Record<string, unknown>
     }>
   }
   permissions: AgentPermissions
