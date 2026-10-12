@@ -5,6 +5,7 @@ import { upgrade } from '@scalar/openapi-upgrader'
 import { bundle } from 'api-ref-bundler'
 import { parse } from 'yaml'
 import type { Document } from '../types.ts'
+import { isJsonSchemaDocument, wrapJsonSchema } from './jsonSchema.ts'
 import { assertInputExists, resolveSource, urlRegExp } from './source.ts'
 
 /**
@@ -94,6 +95,8 @@ export async function parseDocument(pathOrApi: string | Document): Promise<Docum
 
     return parseDocument(bundled)
   }
+
+  if (isJsonSchemaDocument(pathOrApi)) return wrapJsonSchema(pathOrApi)
 
   // `upgrade` chains Swagger 2.0 -> 3.0 -> 3.1, leaving documents already on 3.1 untouched.
   return upgrade(pathOrApi, '3.1') as Document

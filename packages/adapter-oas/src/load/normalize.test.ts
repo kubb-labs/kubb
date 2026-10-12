@@ -99,6 +99,29 @@ describe('parseDocument', () => {
   })
 })
 
+describe('parseDocument with a JSON Schema', () => {
+  it('wraps a JSON Schema object in an OpenAPI 3.1 document', async () => {
+    const doc = await parseDocument({ title: 'Pet', type: 'object' } as unknown as Document)
+
+    expect(doc.openapi).toBe('3.1.0')
+    expect(doc.components?.schemas?.['Pet']).toStrictEqual({ title: 'Pet', type: 'object' })
+  })
+
+  it('bundles a JSON Schema file and names the schemas its external refs point to', async () => {
+    const doc = await parseDocument(path.resolve(__dirname, '../../mocks/jsonSchema/options.schema.yaml'))
+    const schemas = doc.components?.schemas ?? {}
+
+    expect(Object.keys(schemas).sort()).toStrictEqual(['EnumOptions', 'Options', 'Output'])
+    expect(schemas['Options']).toMatchObject({
+      properties: {
+        output: { $ref: '#/components/schemas/Output' },
+        enum: { $ref: '#/components/schemas/EnumOptions' },
+      },
+    })
+    expect(() => assertDocument(doc)).not.toThrow()
+  })
+})
+
 describe('parseFromConfig', () => {
   it.each([
     { title: 'an inline object', data: petSchema },

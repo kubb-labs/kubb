@@ -1,0 +1,16 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Options
+type: object
+properties:
+  output:
+    $ref: ./shared.schema.yaml#/$defs/Output
+  enum:
+    $ref: '#/$defs/EnumOptions'
+$defs:
+  EnumOptions:
+    type: object
+    properties:
+      type:
+        type: string
+        enum: [asConst, enum]
+        default: asConst
