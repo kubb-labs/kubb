@@ -40,19 +40,11 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
 export function createMockedSetupContext<TFactory extends PluginFactoryOptions = PluginFactoryOptions>({
   plugins = [],
   options = {} as TFactory['options'],
-  config,
-  requiredBy,
-}: {
-  plugins?: Array<string>
-  options?: TFactory['options']
-  config?: Partial<Config>
-  /** The plugin under test, named in the error `requirePlugin` throws. */
-  requiredBy?: string
-} = {}): KubbPluginSetupContext<TFactory> {
+}: { plugins?: Array<string>; options?: TFactory['options'] } = {}): KubbPluginSetupContext<TFactory> {
   const registered = plugins.map((name) => ({ name }) as unknown as Plugin)
 
   return {
-    config: { root: '.', output: { path: './gen' }, ...config, plugins: registered } as unknown as Config,
+    config: { plugins: registered } as unknown as Config,
     options,
     addGenerator: vi.fn(),
     setResolver: vi.fn(),
@@ -62,7 +54,7 @@ export function createMockedSetupContext<TFactory extends PluginFactoryOptions =
     injectFile: vi.fn(),
     requirePlugin: vi.fn((pluginName: string) => {
       const plugin = registered.find((entry) => entry.name === pluginName)
-      if (!plugin) throw pluginNotFoundError({ pluginName, requiredBy })
+      if (!plugin) throw pluginNotFoundError({ pluginName })
       return plugin
     }) as KubbPluginSetupContext<TFactory>['requirePlugin'],
   }

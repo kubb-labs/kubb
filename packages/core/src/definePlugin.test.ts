@@ -375,27 +375,24 @@ describe('assertOneOf', () => {
   })
 
   it.each([['bogus'], [undefined], [1]])('throws KUBB_INVALID_PLUGIN_OPTIONS with the allowed values for %s', (value) => {
-    let thrown: unknown
-    try {
-      assertOneOf({ plugin: 'plugin-ts', option: 'syntaxType', value, allowed: ['type', 'interface'] })
-    } catch (error) {
-      thrown = error
-    }
-
-    expect(Diagnostics.from(thrown)).toMatchObject({
-      code: Diagnostics.code.invalidPluginOptions,
-      severity: 'error',
-      plugin: 'plugin-ts',
-      message: `Plugin "plugin-ts" option \`syntaxType\` is ${JSON.stringify(value) ?? 'undefined'}, but it must be one of "type", "interface".`,
-    })
+    expect(() => assertOneOf({ plugin: 'plugin-ts', option: 'syntaxType', value, allowed: ['type', 'interface'] })).toThrow(
+      expect.objectContaining({
+        diagnostic: expect.objectContaining({
+          code: Diagnostics.code.invalidPluginOptions,
+          severity: 'error',
+          plugin: 'plugin-ts',
+          message: `Plugin "plugin-ts" option \`syntaxType\` is ${JSON.stringify(value) ?? 'undefined'}, but it must be one of "type", "interface".`,
+        }),
+      }),
+    )
   })
 })
 
 describe('createMockedSetupContext', () => {
   it('returns a registered plugin from requirePlugin and throws the core error for a missing one', () => {
-    const ctx = createMockedSetupContext({ plugins: ['plugin-ts'], requiredBy: 'plugin-faker' })
+    const ctx = createMockedSetupContext({ plugins: ['plugin-ts'] })
 
     expect(ctx.requirePlugin('plugin-ts')).toStrictEqual({ name: 'plugin-ts' })
-    expect(() => ctx.requirePlugin('plugin-zod')).toThrow('Plugin "plugin-zod" is required by "plugin-faker" but not found.')
+    expect(() => ctx.requirePlugin('plugin-zod')).toThrow('Plugin "plugin-zod" is required but not found.')
   })
 })
