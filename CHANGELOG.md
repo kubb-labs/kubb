@@ -1,5 +1,77 @@
 # Changelog
 
+## v5.7.0 — Oct 12, 2026
+
+### @kubb/core
+
+#### Features
+
+- `definePlugin` and `defineParser` accept an object with `meta`. Plugins also take `dependencies` and `setup(options, kubb)`. The factory form and `name` are deprecated, and `name` is optional when `meta.name` is set.
+  
+  Before:
+  
+  ```ts
+  export const pluginZod = definePlugin<PluginZod>((options) => ({
+    name: 'plugin-zod',
+    dependencies: ['plugin-ts'],
+    hooks: {
+      'kubb:plugin:setup'(ctx) {
+        ctx.addGenerator(zodGenerator)
+        ctx.setOptions({ ...options, inferred: options.inferred ?? false })
+      },
+    },
+  }))
+  ```
+  
+  After:
+  
+  ```ts
+  export const pluginZod = definePlugin<PluginZod>({
+    meta: { name: 'plugin-zod', version: '5.7.0', compatibility: { kubb: '>=5.7.0' } },
+    dependencies: { 'plugin-ts': { version: '>=5.0.0' } },
+    setup(options, kubb) {
+      kubb.addGenerator(zodGenerator)
+      return { ...options, inferred: options.inferred ?? false }
+    },
+  })
+  ```
+  
+  A mismatch in `meta.compatibility` or `dependencies` fails the run with `KUBB_INCOMPATIBLE_EXTENSION`, `KUBB_MISSING_DEPENDENCY`, or `KUBB_INCOMPATIBLE_DEPENDENCY`. ([#4241](https://github.com/kubb-labs/kubb/pull/4241), [`dfe8df8`](https://github.com/kubb-labs/kubb/commit/dfe8df8364f5fdbe80587036d955c36407ee4edd))
+- Add composables to `kubb/kit`, so plugins can call `addGenerator()` and the other setup helpers inside `kubb:plugin:setup` without passing `ctx` around.
+  
+  - `addGenerator()`, `setResolver()`, `addMacro()`, `setMacros()`, `setOptions()`, `injectFile()`, and `requirePlugin()` each call the `ctx` method with that name. `requirePlugin(name)` is typed through `Kubb.PluginRegistry`.
+  - `useOptions()` and `useConfig()` return `ctx.options` and `ctx.config`.
+  - `useKubb()` returns the setup context. `tryUseKubb()` returns `undefined` outside setup.
+  
+  The context survives an `await` in setup and is scoped to one plugin at a time. Calling a composable outside setup fails with the new `KUBB_NO_CONTEXT` diagnostic.
+  
+  ```ts
+  import { addGenerator, definePlugin, setResolver } from 'kubb/kit'
+  
+  export const pluginExample = definePlugin(() => ({
+    name: 'plugin-example',
+    hooks: {
+      async 'kubb:plugin:setup'() {
+        await loadTemplates()
+        setResolver(resolverExample)
+        addGenerator(exampleGenerator)
+      },
+    },
+  }))
+  ``` ([#4240](https://github.com/kubb-labs/kubb/pull/4240), [`f7ee401`](https://github.com/kubb-labs/kubb/commit/f7ee4014038910fc2932629e33f6d9c60801edcd))
+
+### @kubb/plugin-barrel
+
+#### Bug Fixes
+
+- Define `pluginBarrel` with the object form of `definePlugin`. ([#4241](https://github.com/kubb-labs/kubb/pull/4241), [`dfe8df8`](https://github.com/kubb-labs/kubb/commit/dfe8df8364f5fdbe80587036d955c36407ee4edd))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.6.3 — Oct 12, 2026
 
 ### @kubb/core
