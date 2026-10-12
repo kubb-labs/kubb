@@ -11,8 +11,7 @@ import { run } from './run.ts'
 
 type BootstrapOptions = {
   /**
-   * Reject the config load, so the group has a failure to report. An `Error` is the rejection
-   * reason, `true` a plain one.
+   * Reject the config load, with this error or a plain one, so the group has a failure to report.
    */
   fail?: boolean | Error
   reporters?: Array<'cli' | 'json'>

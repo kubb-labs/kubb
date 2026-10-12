@@ -474,8 +474,7 @@ export type ConnectMessagePayload = {
       name: string
       options?: object
       /**
-       * JSON Schema of the plugin's options, from `getPluginOptionsJsonSchema`. Studio renders it
-       * as the plugin's settings form. Absent when the plugin does not describe its options.
+       * JSON Schema of the plugin's options, which Studio renders as its settings form.
        */
       schema?: Record<string, unknown>
     }>

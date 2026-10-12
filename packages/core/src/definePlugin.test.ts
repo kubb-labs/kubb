@@ -103,9 +103,6 @@ describe('definePlugin', () => {
 type TagOptions = { tag?: string }
 type TagPlugin = PluginFactoryOptions<'tag-plugin', TagOptions>
 
-/**
- * A hand-written Standard Schema: `tag` must be a string and defaults to `'pets'`.
- */
 function createTagSchema({ async = false, jsonSchema }: { async?: boolean; jsonSchema?: () => Record<string, unknown> } = {}): StandardSchemaV1<
   unknown,
   TagOptions

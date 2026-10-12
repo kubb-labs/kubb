@@ -13,9 +13,7 @@ export declare namespace StandardSchemaV1 {
     readonly vendor: string
     readonly validate: (value: unknown) => Result<Output> | Promise<Result<Output>>
     readonly types?: Types<Input, Output> | undefined
-    /**
-     * From the Standard JSON Schema extension, which Zod and ArkType implement.
-     */
+    // From the Standard JSON Schema extension, which Zod and ArkType implement.
     readonly jsonSchema?: JsonSchemaConverter | undefined
   }
 
