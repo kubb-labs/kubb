@@ -390,9 +390,6 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      '@tmcp/adapter-valibot':
-        specifier: ^0.1.6
-        version: 0.1.6(tmcp@1.20.0(typescript@6.0.3))(valibot@1.5.0(typescript@6.0.3))
       '@tmcp/transport-stdio':
         specifier: ^0.5.0
         version: 0.5.0(tmcp@1.20.0(typescript@6.0.3))
@@ -402,9 +399,9 @@ importers:
       tmcp:
         specifier: ^1.20.0
         version: 1.20.0(typescript@6.0.3)
-      valibot:
-        specifier: ^1.5.0
-        version: 1.5.0(typescript@6.0.3)
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
     devDependencies:
       '@internals/shared':
         specifier: workspace:*
@@ -1788,12 +1785,6 @@ packages:
   '@swc/helpers@0.5.23':
     resolution: {integrity: sha512-5lSsMOTXURePglDfvuAQUqkGek9Hg2kksOYay2m0+XR++b2NWYL/4sWyuvVBIs8oKnJaxkdi9whaL/sqN13afw==}
 
-  '@tmcp/adapter-valibot@0.1.6':
-    resolution: {integrity: sha512-drirZeNinhYLiRSMksN+m//u0ImFxtGRk1Vp425Xp/7CbBXFQdjAG+f7grssyHAukbVTGzmWsMMP6ejrGVErUA==}
-    peerDependencies:
-      tmcp: ^1.17.0
-      valibot: ^1.1.0
-
   '@tmcp/session-manager@0.3.0':
     resolution: {integrity: sha512-L16r8qlzXUoS0ec7kuap1P1nQorCcZHHUFe7UGijwwrfBRXB0hFnfC+/BM1PVdGlM7Ade8YxomecybQN5imYXA==}
     peerDependencies:
@@ -1866,11 +1857,6 @@ packages:
 
   '@types/ua-parser-js@0.7.39':
     resolution: {integrity: sha512-P/oDfpofrdtF5xw433SPALpdSchtJmY7nsJItf8h3KXqOslkbySh8zq4dSWXH2oTjRvJ5PczVEoCZPow6GicLg==}
-
-  '@valibot/to-json-schema@1.7.1':
-    resolution: {integrity: sha512-3qkmU6KXWh8GIThEAW3kuRHPQBMjWkKy+Ppz3WkUucx53DTpOa6siMn4xDGSOhlVyMrDaJTCTMLYPZVAIk1P0A==}
-    peerDependencies:
-      valibot: ^1.4.0
 
   '@vitest/coverage-v8@5.0.3':
     resolution: {integrity: sha512-+klsyz7BvT1vCU28Zkfzms1Ia78XD0V41U3FUtRaa3S+vOr/EXvK1O6BvVD7l1RzEjm6SONR2aybOvDDf9u0mQ==}
@@ -4070,6 +4056,9 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
+  zod@4.6.5:
+    resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
+
 snapshots:
 
   '@antfu/ni@30.6.0':
@@ -5055,13 +5044,6 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@tmcp/adapter-valibot@0.1.6(tmcp@1.20.0(typescript@6.0.3))(valibot@1.5.0(typescript@6.0.3))':
-    dependencies:
-      '@standard-schema/spec': 1.1.0
-      '@valibot/to-json-schema': 1.7.1(valibot@1.5.0(typescript@6.0.3))
-      tmcp: 1.20.0(typescript@6.0.3)
-      valibot: 1.5.0(typescript@6.0.3)
-
   '@tmcp/session-manager@0.3.0(tmcp@1.20.0(typescript@6.0.3))':
     dependencies:
       json-rpc-2.0: 1.7.1
@@ -5120,10 +5102,6 @@ snapshots:
   '@types/semver@7.7.1': {}
 
   '@types/ua-parser-js@0.7.39': {}
-
-  '@valibot/to-json-schema@1.7.1(valibot@1.5.0(typescript@6.0.3))':
-    dependencies:
-      valibot: 1.5.0(typescript@6.0.3)
 
   '@vitest/coverage-v8@5.0.3(vitest@5.0.3)':
     dependencies:
@@ -7098,3 +7076,5 @@ snapshots:
       zod: 3.25.76
 
   zod@3.25.76: {}
+
+  zod@4.6.5: {}

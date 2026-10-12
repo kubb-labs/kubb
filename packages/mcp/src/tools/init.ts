@@ -4,12 +4,12 @@ import process from 'node:process'
 import { generateConfigFile, KUBB_CONFIG_FILENAME, resolvePlugins } from '@internals/shared'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
-import * as v from 'valibot'
+import * as z from 'zod/mini'
 
-const initSchema = v.object({
-  input: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Path to OpenAPI spec (default: ./openapi.yaml)'))),
-  output: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Output directory (default: ./src/gen)'))),
-  plugins: v.optional(v.pipe(v.string(), v.minLength(1), v.description('Comma-separated list of plugins: plugin-ts,plugin-zod,...'))),
+const initSchema = z.object({
+  input: z.optional(z.string().check(z.minLength(1), z.describe('Path to OpenAPI spec (default: ./openapi.yaml)'))),
+  output: z.optional(z.string().check(z.minLength(1), z.describe('Output directory (default: ./src/gen)'))),
+  plugins: z.optional(z.string().check(z.minLength(1), z.describe('Comma-separated list of plugins: plugin-ts,plugin-zod,...'))),
 })
 
 export const initTool = defineTool(
