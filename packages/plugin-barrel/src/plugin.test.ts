@@ -1,8 +1,9 @@
 import { ast } from '@kubb/kit'
 import { createKubb, definePlugin, Diagnostics, memoryStorage } from '@kubb/core'
 import type { Config, Plugin } from '@kubb/core'
-import { describe, expect, it } from 'vitest'
-import { pluginBarrel } from './plugin.ts'
+import { describe, expect, expectTypeOf, it } from 'vitest'
+import type { z } from '@kubb/kit'
+import { barrelSchema, pluginBarrel } from './plugin.ts'
 
 function makeFile(filePath: string, name: string) {
   return ast.factory.createFile({
@@ -165,5 +166,20 @@ describe('pluginBarrel', () => {
 
     expect(rootExportNames).not.toContain('Pet')
     expect(rootExportNames).toContain('PetExtra')
+  })
+})
+
+describe('pluginBarrel meta.contributes', () => {
+  it('types the contributed output key as the barrel option', () => {
+    expectTypeOf<z.input<typeof barrelSchema>>().toExtend<Kubb.PluginOptionsRegistry['output']>()
+    expectTypeOf<Kubb.PluginOptionsRegistry['output']>().toExtend<z.input<typeof barrelSchema>>()
+    expect(pluginBarrel.meta.contributes).toStrictEqual({ output: barrelSchema })
+  })
+
+  it('validates the barrel option it adds to every plugin output', () => {
+    expect(barrelSchema.safeParse({ barrel: { type: 'named', nested: true } }).success).toBe(true)
+    expect(barrelSchema.safeParse({ barrel: false }).success).toBe(true)
+    expect(barrelSchema.safeParse({}).success).toBe(true)
+    expect(barrelSchema.safeParse({ barrel: { type: 'some' } }).error?.issues[0]?.path).toStrictEqual(['barrel'])
   })
 })

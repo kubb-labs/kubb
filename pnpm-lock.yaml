@@ -313,13 +313,13 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
-      zod:
-        specifier: ^4.6.5
-        version: 4.6.5
 
   packages/kubb:
     dependencies:

@@ -17,6 +17,7 @@ import {
   when,
 } from './options.ts'
 import type { WhenCondition } from './options.ts'
+import { z as kitZ } from './index.ts'
 
 function toJSONSchema(schema: z.ZodType) {
   return z.toJSONSchema(schema, { io: 'input', unrepresentable: 'any' })
@@ -225,5 +226,17 @@ describe('when', () => {
     z.string().meta({ 'x-kubb-when': 'enum.type' })
     // @ts-expect-error `.meta()` types `x-kubb-values`
     z.string().meta({ 'x-kubb-values': [1] })
+  })
+})
+
+describe('z', () => {
+  it('is Zod with the Kubb option helpers', () => {
+    expect(kitZ.object).toBe(z.object)
+    expect(kitZ.toJSONSchema).toBe(z.toJSONSchema)
+    expect(kitZ.suggest).toBe(suggest)
+    expect(kitZ.when).toBe(when)
+    expect(kitZ.outputOptionsSchema).toBe(outputOptionsSchema)
+    expectTypeOf<kitZ.input<typeof outputSchema>>().toEqualTypeOf<z.input<typeof outputSchema>>()
+    expectTypeOf<kitZ.WhenCondition>().toEqualTypeOf<WhenCondition>()
   })
 })

@@ -1,5 +1,6 @@
 export { ast } from '@kubb/ast'
 export { Url } from './Url.ts'
+export * as z from './z.ts'
 export { macroDiscriminatorEnum } from './macros/macroDiscriminatorEnum.ts'
 export { macroEnumName } from './macros/macroEnumName.ts'
 export { macroRenameSchema } from './macros/macroRenameSchema.ts'
@@ -34,6 +35,8 @@ export { fsStorage } from '@kubb/core'
 export { memoryStorage } from '@kubb/core'
 export type {
   Adapter,
+  AdapterDefinition,
+  AdapterFactory,
   AdapterFactoryOptions,
   AdapterSource,
   BannerMeta,

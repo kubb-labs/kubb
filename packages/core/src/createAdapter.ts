@@ -1,5 +1,8 @@
 import type { PossiblePromise } from '@internals/utils'
 import type { InputNode } from '@kubb/ast'
+import { defineExtension } from './defineExtension.ts'
+import type { ExtensionFactory, ExtensionMeta } from './defineExtension.ts'
+import type { StandardSchemaV1 } from './standardSchema.ts'
 
 /**
  * Source data handed to an adapter's `parse` function. Mirrors the config
@@ -17,15 +20,18 @@ export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; dat
  * - `TOptions`: user-facing options accepted by the adapter factory.
  * - `TResolvedOptions`: options after defaults are applied.
  * - `TDocument`: type of the parsed source document.
+ * - `TParsedOptions`: options after the options `schema` parsed them, with its defaults applied.
  */
 export type AdapterFactoryOptions<
   TName extends string = string,
   TOptions extends object = object,
   TResolvedOptions extends object = TOptions,
   TDocument = unknown,
+  TParsedOptions extends object = TOptions,
 > = {
   name: TName
   options: TOptions
+  parsedOptions: TParsedOptions
   resolvedOptions: TResolvedOptions
   document: TDocument
 }
@@ -56,10 +62,15 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
    * Human-readable adapter identifier (e.g. `'oas'`, `'asyncapi'`).
    */
   name: TOptions['name']
+  meta?: ExtensionMeta<TOptions['name']>
   /**
    * Resolved adapter options after defaults have been applied.
    */
   options: TOptions['resolvedOptions']
+  /**
+   * The options schema of the definition that built this adapter.
+   */
+  schema?: StandardSchemaV1<TOptions['options'], TOptions['parsedOptions']>
   /**
    * Parsed source document after the first `parse()` call. `null` before parsing.
    */
@@ -82,6 +93,38 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
 type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) => Adapter<T>
 
 /**
+ * The object passed to `createAdapter`.
+ */
+export type AdapterDefinition<T extends AdapterFactoryOptions = AdapterFactoryOptions> = {
+  meta: ExtensionMeta<T['name']>
+  /**
+   * Any Standard Schema, such as a Zod schema, that validates the options and applies their defaults
+   * when the factory is called. Invalid options throw `KUBB_INVALID_OPTIONS`. The schema must validate synchronously.
+   */
+  schema?: StandardSchemaV1<T['options'], T['parsedOptions']>
+  /**
+   * Takes the parsed options and returns the resolved options, which `build` receives and the adapter exposes as `options`.
+   * Without `setup`, the parsed options are the resolved options.
+   */
+  setup?(options: T['parsedOptions']): T['resolvedOptions']
+  /**
+   * Returns the adapter's document and methods for the resolved options.
+   */
+  build(options: T['resolvedOptions']): Omit<Adapter<T>, 'name' | 'meta' | 'options' | 'schema'>
+}
+
+/**
+ * The function `createAdapter` returns. Call it with user options to get an `Adapter`.
+ */
+export type AdapterFactory<T extends AdapterFactoryOptions = AdapterFactoryOptions> = ExtensionFactory<
+  'adapter',
+  T['options'],
+  Adapter<T>,
+  T['name'],
+  T['parsedOptions']
+>
+
+/**
  * Defines a custom adapter that translates a spec format into Kubb's universal
  * AST, for example GraphQL, gRPC, or AsyncAPI. The built-in `@kubb/adapter-oas`
  * handles OpenAPI/Swagger documents.
@@ -94,22 +137,47 @@ type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) =
  * import { createAdapter, type AdapterFactoryOptions } from '@kubb/core'
  * import { ast } from '@kubb/ast'
  *
- * type MyAdapter = AdapterFactoryOptions<'my-adapter', { validate?: boolean }>
+ * type MyAdapter = AdapterFactoryOptions<'my-adapter', { validate?: boolean }, { validate: boolean }>
  *
- * export const myAdapter = createAdapter<MyAdapter>((options) => ({
- *   name: 'my-adapter',
- *   options,
- *   document: null,
- *   async parse(_source) {
- *     // Convert the source (path or inline data) into an InputNode.
- *     return ast.factory.createInput()
- *   },
- *   async validate() {
- *     // Throw here when the spec is invalid.
- *   },
- * }))
+ * export const myAdapter = createAdapter<MyAdapter>({
+ *   meta: { name: 'my-adapter', compatibility: { kubb: '>=5.7.0' } },
+ *   setup: (options) => ({ validate: options.validate ?? true }),
+ *   build: (options) => ({
+ *     document: null,
+ *     async parse(_source) {
+ *       // Convert the source (path or inline data) into an InputNode.
+ *       return ast.factory.createInput()
+ *     },
+ *     async validate() {
+ *       // Throw here when `options.validate` is set and the spec is invalid.
+ *     },
+ *   }),
+ * })
  * ```
  */
-export function createAdapter<T extends AdapterFactoryOptions = AdapterFactoryOptions>(build: AdapterBuilder<T>): (options?: T['options']) => Adapter<T> {
-  return (options) => build((options ?? {}) as T['options'])
+export function createAdapter<T extends AdapterFactoryOptions = AdapterFactoryOptions>(definition: AdapterDefinition<T>): AdapterFactory<T>
+/**
+ * Wraps a factory function that returns an `Adapter`.
+ *
+ * @deprecated Pass a definition object with `meta` and `build` instead. The factory form is removed in the next major.
+ */
+export function createAdapter<T extends AdapterFactoryOptions = AdapterFactoryOptions>(
+  build: AdapterBuilder<T>,
+): ((options?: T['options']) => Adapter<T>) & { kind: 'adapter' }
+export function createAdapter(input: AdapterDefinition | AdapterBuilder<AdapterFactoryOptions>) {
+  if (typeof input === 'function') {
+    return defineExtension({ kind: 'adapter', build: ({ options }: { options: object }): Adapter => input(options) })
+  }
+
+  const { meta, schema, setup, build } = input
+  return defineExtension({
+    kind: 'adapter',
+    meta,
+    schema,
+    build: ({ parsedOptions }: { options: object; parsedOptions: object }): Adapter => {
+      const options = setup ? setup(parsedOptions) : parsedOptions
+      // Assigned onto the built object instead of spread, so getters such as `document` stay live.
+      return Object.assign(build(options), { name: meta.name, meta, options }, schema && { schema })
+    },
+  })
 }

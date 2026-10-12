@@ -79,14 +79,14 @@ import { createMockedPlugin, renderGeneratorSchema } from 'kubb/kit/testing'
 
 ## Options schemas
 
-`@kubb/kit/options` holds Zod schemas for the options most plugins share (`outputOptionsSchema`, `includeSchema`, `excludeSchema`, `overrideSchema`, `resolverSchema`, `macrosSchema`), plus `suggest()` for an open string with suggested values and `when()` for an option that only applies when another option matches. Install `zod` 4 to use it. The main `@kubb/kit` import never pulls in Zod.
+`z` is Zod 4 plus the Kubb helpers, so extensions write their options schema without adding `zod` as a dependency. It adds schemas for the options most plugins share (`z.outputOptionsSchema`, `z.includeSchema`, `z.excludeSchema`, `z.overrideSchema`, `z.resolverSchema`, `z.macrosSchema`), `z.suggest()` for an open string with suggested values, and `z.when()` for an option that only applies when another option matches.
 
 ```typescript
-import { excludeSchema, outputOptionsSchema, suggest } from '@kubb/kit/options'
+import { z } from 'kubb/kit'
 
-const optionsSchema = outputOptionsSchema.extend({
-  exclude: excludeSchema.optional(),
-  importPath: suggest(['zod', 'zod/mini']).optional(),
+const optionsSchema = z.outputOptionsSchema.extend({
+  exclude: z.excludeSchema.optional(),
+  importPath: z.suggest(['zod', 'zod/mini']).optional(),
 })
 ```
 

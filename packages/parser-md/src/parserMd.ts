@@ -38,7 +38,7 @@ export type MdMeta = {
  */
 export const parserMd = defineParser({
   meta: { name: 'markdown' },
-  setup() {
+  build() {
     return {
       extNames: ['.md', '.markdown'],
       print,

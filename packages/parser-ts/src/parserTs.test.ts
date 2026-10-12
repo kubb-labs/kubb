@@ -1,6 +1,8 @@
-import { ast } from '@kubb/kit'
-import { describe, expect, it } from 'vitest'
-import { parserTs } from './parserTs.ts'
+import { ast, Diagnostics } from '@kubb/kit'
+import type { z } from '@kubb/kit'
+import { describe, expect, expectTypeOf, it } from 'vitest'
+import { optionsSchema } from './options.ts'
+import { parserTs, type ParserTsOptions } from './parserTs.ts'
 import { parserTsx } from './parserTsx.ts'
 
 describe('parserTs', () => {
@@ -198,5 +200,30 @@ describe('parserTsx', () => {
 
   it('returns .tsx and .jsx as the handled extensions', () => {
     expect(parserTsx().extNames).toStrictEqual(['.tsx', '.jsx'])
+  })
+})
+
+describe('parserTs options schema', () => {
+  it('types the schema input as ParserTsOptions and its output with extension set', () => {
+    expectTypeOf<z.input<typeof optionsSchema>>().toExtend<ParserTsOptions>()
+    expectTypeOf<ParserTsOptions>().toExtend<z.input<typeof optionsSchema>>()
+    expectTypeOf<z.output<typeof optionsSchema>>().toExtend<Required<ParserTsOptions>>()
+    expect(parserTs.schema).toBe(optionsSchema)
+    expect(parserTsx.schema).toBe(optionsSchema)
+  })
+
+  it('defaults extension to dropping .ts and keeps the parsed options on the parser', () => {
+    expect(parserTs().options).toStrictEqual({ extension: { '.ts': '' } })
+    expect(parserTsx({ extension: { '.ts': '.js' } }).options).toStrictEqual({ extension: { '.ts': '.js' } })
+  })
+
+  it('throws KUBB_INVALID_OPTIONS for an extension that does not start with a dot', () => {
+    for (const factory of [parserTs, parserTsx]) {
+      expect(() => factory({ extension: { '.ts': 'js' as never } })).toThrow(
+        expect.objectContaining({
+          diagnostic: expect.objectContaining({ code: Diagnostics.code.invalidOptions, message: expect.stringContaining('`extension..ts`') }),
+        }),
+      )
+    }
   })
 })
