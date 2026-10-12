@@ -430,6 +430,11 @@ function insertItem({
   const last = items.filter((item): item is ASTNode => item !== null).at(-1)
 
   if (!last) {
+    const inner = source.slice(start + 1, end - 1)
+    // A comment inside the empty literal stays, after the new item.
+    if (inner.trim()) {
+      return splice({ source, start: start + 1, end: start + 1, text: /^\s/.test(inner) ? `${text},` : `${text}, ` })
+    }
     return splice({ source, start, end, text: container.type === 'ObjectExpression' ? `{ ${text} }` : `[${text}]` })
   }
 
@@ -567,12 +572,13 @@ function readOptions(call: CallNode): PluginView['options'] {
     return entries
   }
 
-  for (const entry of options.properties) {
+  for (const [index, entry] of options.properties.entries()) {
     const key = memberKey(entry)
     if (key === undefined || !isSafeKey(key)) {
       continue
     }
-    const value = entry.type === 'ObjectProperty' ? readLiteral(entry.value) : undefined
+    // A spread after the option can override it, so `set` refuses it like code.
+    const value = entry.type === 'ObjectProperty' && !isShadowed(options, index) ? readLiteral(entry.value) : undefined
     entries[key] = value === undefined ? { literal: false } : { literal: true, value }
   }
   return entries

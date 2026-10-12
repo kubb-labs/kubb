@@ -295,6 +295,8 @@ describe('applyConfigEdits', () => {
 
     it.each([
       ['an empty array', `plugins: []`, `plugins: [pluginZod()]`],
+      ['an empty array holding a comment', `plugins: [/* keep this note */]`, `plugins: [pluginZod(), /* keep this note */]`],
+      ['an empty multi-line array holding a comment', `plugins: [\n    // keep this note\n  ]`, `plugins: [pluginZod(),\n    // keep this note\n  ]`],
       ['an inline array', `plugins: [pluginTs()]`, `plugins: [pluginTs(), pluginZod()]`],
       ['a multi-line array without a trailing comma', `plugins: [\n    pluginTs()\n  ]`, `plugins: [\n    pluginTs(),\n    pluginZod()\n  ]`],
     ])('follows the layout of %s', (_label, before, after) => {
@@ -456,10 +458,10 @@ describe('applyConfigEdits', () => {
       ``,
     ].join('\n')
 
-    it('lists methods and accessors as options customized in code', () => {
+    it('lists methods, accessors, and options a later spread can override as customized in code', () => {
       const view = readConfig(source)
       expect(view.managed && view.configs[0]!.plugins[0]!.options).toStrictEqual({
-        importPath: { literal: true, value: 'zod' },
+        importPath: { literal: false },
         inferred: { literal: false },
         resolver: { literal: false },
       })
