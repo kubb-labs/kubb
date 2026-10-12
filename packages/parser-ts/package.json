@@ -62,8 +62,7 @@
   },
   "dependencies": {
     "@kubb/kit": "workspace:*",
-    "typescript": "catalog:",
-    "zod": "^4.6.5"
+    "typescript": "catalog:"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*"

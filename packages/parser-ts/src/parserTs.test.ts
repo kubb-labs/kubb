@@ -1,6 +1,6 @@
 import { ast, Diagnostics } from '@kubb/kit'
+import type { z } from '@kubb/kit'
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import type * as z from 'zod'
 import { optionsSchema } from './options.ts'
 import { parserTs, type ParserTsOptions } from './parserTs.ts'
 import { parserTsx } from './parserTsx.ts'

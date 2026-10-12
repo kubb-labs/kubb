@@ -1,4 +1,4 @@
-import * as z from 'zod'
+import { z } from '@kubb/kit'
 
 const extnameSchema = z.templateLiteral(['.', z.string()])
 

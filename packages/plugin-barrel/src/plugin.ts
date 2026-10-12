@@ -1,8 +1,7 @@
 import path from 'node:path'
 import { isPathInside } from '@internals/utils'
-import { definePlugin, Diagnostics } from '@kubb/kit'
+import { definePlugin, Diagnostics, z } from '@kubb/kit'
 import type { ast, Config, NormalizedPlugin, Plugin } from '@kubb/kit'
-import { outputSchema } from '@kubb/kit/options'
 import type { BarrelType, PluginBarrelConfig } from './types.ts'
 import { buildBarrelIndex, getBarrelFiles } from './utils.ts'
 
@@ -37,7 +36,7 @@ export const pluginBarrelName = 'plugin-barrel' satisfies Plugin['name']
 /**
  * The `barrel` key this plugin adds to every plugin's `output`.
  */
-export const barrelSchema = outputSchema.pick({ barrel: true })
+export const barrelSchema = z.outputSchema.pick({ barrel: true })
 
 type PendingBarrel = {
   plugin: NormalizedPlugin

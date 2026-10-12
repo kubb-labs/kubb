@@ -1,5 +1,4 @@
-import { suggest } from '@kubb/kit/options'
-import * as z from 'zod'
+import { z } from '@kubb/kit'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 
 const dateTimeTypeSchema = z.union([z.literal(false), z.enum(['string', 'stringOffset', 'stringLocal', 'date'])])
@@ -34,7 +33,8 @@ const parserOptionsSchema = z.object({
     .default(DEFAULT_PARSER_OPTIONS.unknownType)
     .meta({ description: "AST type used when a schema's type cannot be inferred from the spec (`additionalProperties: true`, missing `type`, ...)." }),
   emptySchemaType: typeFallbackSchema.optional().meta({ description: 'AST type used for completely empty schemas (`{}`). Defaults to `unknownType`.' }),
-  enumSuffix: suggest(['enum'])
+  enumSuffix: z
+    .suggest(['enum'])
     .default(DEFAULT_PARSER_OPTIONS.enumSuffix)
     .meta({ description: 'Suffix appended to derived enum names when Kubb has to invent one, typically for inline enums on object properties.' }),
 })
@@ -48,7 +48,8 @@ export const optionsSchema = parserOptionsSchema.extend({
     description:
       'Validate the OpenAPI spec before parsing. Each problem is reported as a `KUBB_INVALID_SPEC` warning and generation continues. Set to `false` to skip the check, which also makes generation faster on a large spec.',
   }),
-  contentType: suggest(['application/json'])
+  contentType: z
+    .suggest(['application/json'])
     .optional()
     .meta({ description: 'Preferred media type when an operation defines several. Defaults to the first JSON-compatible media type found in the spec.' }),
   server: z

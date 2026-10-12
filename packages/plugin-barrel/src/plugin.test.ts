@@ -2,7 +2,7 @@ import { ast } from '@kubb/kit'
 import { createKubb, definePlugin, Diagnostics, memoryStorage } from '@kubb/core'
 import type { Config, Plugin } from '@kubb/core'
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import type * as z from 'zod'
+import type { z } from '@kubb/kit'
 import { barrelSchema, pluginBarrel } from './plugin.ts'
 
 function makeFile(filePath: string, name: string) {

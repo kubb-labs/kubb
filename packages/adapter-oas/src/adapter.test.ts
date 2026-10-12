@@ -1,6 +1,6 @@
 import { ast, Diagnostics } from '@kubb/kit'
+import type { z } from '@kubb/kit'
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import type * as z from 'zod'
 import { adapterOas } from './adapter.ts'
 import { optionsSchema } from './options.ts'
 import type { AdapterOasOptions, AdapterOasParsedOptions } from './types.ts'
