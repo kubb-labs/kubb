@@ -103,6 +103,7 @@ describe('definePlugin', () => {
 type TagOptions = { tag?: string }
 type TagPlugin = PluginFactoryOptions<'tag-plugin', TagOptions>
 
+/** A hand-written Standard Schema where `tag` is a string that defaults to `'pets'`. */
 function createTagSchema({ jsonSchema }: { jsonSchema?: () => Record<string, unknown> } = {}): StandardSchemaV1<unknown, TagOptions> {
   const validate = (value: unknown): StandardSchemaV1.Result<TagOptions> => {
     const { tag = 'pets' } = value as { tag?: unknown }

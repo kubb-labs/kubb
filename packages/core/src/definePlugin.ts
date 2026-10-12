@@ -436,10 +436,12 @@ export type PluginOptionsSchema<TFactory extends PluginFactoryOptions = PluginFa
   jsonSchema?: Record<string, unknown>
 }
 
+/** Joins a Standard Schema issue path into a dotted option path, such as `enum.type`. */
 function formatIssuePath(path: StandardSchemaV1.Issue['path']): string {
   return (path ?? []).map((segment) => String(typeof segment === 'object' ? segment.key : segment)).join('.')
 }
 
+/** Validates raw plugin options and returns the parsed value, or throws `KUBB_INVALID_PLUGIN_OPTIONS`. */
 function validatePluginOptions<TOptions>(schema: StandardSchemaV1<unknown, TOptions>, options: unknown): TOptions {
   const result = schema['~standard'].validate(options)
   if (result instanceof Promise) {
