@@ -5,6 +5,7 @@ const entry = {
   config: 'src/config.ts',
   kit: 'src/kit.ts',
   'kit/testing': 'src/kit/testing.ts',
+  'kit/options': 'src/kit/options.ts',
   jsx: 'src/jsx.ts',
   'jsx/jsx-runtime': 'src/jsx/jsx-runtime.ts',
   'jsx/jsx-dev-runtime': 'src/jsx/jsx-dev-runtime.ts',

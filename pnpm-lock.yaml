@@ -317,6 +317,9 @@ importers:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
 
   packages/kubb:
     dependencies:
@@ -353,6 +356,9 @@ importers:
       unplugin-kubb:
         specifier: workspace:*
         version: link:../unplugin-kubb
+      zod:
+        specifier: ^4.0.0
+        version: 4.6.5
     devDependencies:
       '@farmfe/core':
         specifier: ^1.7.11

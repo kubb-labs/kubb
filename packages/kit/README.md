@@ -77,6 +77,19 @@ Rounding out the package are the option and hook types every plugin, generator, 
 import { createMockedPlugin, renderGeneratorSchema } from 'kubb/kit/testing'
 ```
 
+## Options schemas
+
+`kubb/kit/options` holds Zod schemas for the options most plugins share (`outputOptionsSchema`, `includeSchema`, `excludeSchema`, `overrideSchema`, `resolverSchema`, `macrosSchema`), plus `suggest()` for an open string with suggested values and `when()` for an option that only applies when another option matches. Install `zod` 4 to use it. The main `kubb/kit` import never pulls in Zod.
+
+```typescript
+import { excludeSchema, outputOptionsSchema, suggest } from 'kubb/kit/options'
+
+const optionsSchema = outputOptionsSchema.extend({
+  exclude: excludeSchema.optional(),
+  importPath: suggest(['zod', 'zod/mini']).optional(),
+})
+```
+
 ## Why a separate package from `@kubb/core`
 
 `@kubb/core` also runs the build engine: the plugin driver, the file manager, and the CLI reporters. None of that is part of authoring a plugin. `@kubb/kit` keeps the two apart, the same way the surrounding `kubb/ast` and `kubb/jsx` subpaths separate the AST layer and the JSX renderer from the engine that drives them.
