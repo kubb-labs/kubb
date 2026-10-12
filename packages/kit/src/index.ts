@@ -12,7 +12,7 @@ export { createRenderer } from '@kubb/core'
 export { createStorage } from '@kubb/core'
 export { defineGenerator } from '@kubb/core'
 export { defineParser } from '@kubb/core'
-export { definePlugin } from '@kubb/core'
+export { definePlugin, getPluginOptionsJsonSchema } from '@kubb/core'
 export { createResolver, Resolver } from '@kubb/core'
 export { Diagnostics } from '@kubb/core'
 export { Hookable } from '@kubb/core'
@@ -42,6 +42,7 @@ export type {
   Parser,
   Plugin,
   PluginFactoryOptions,
+  PluginOptionsSchema,
   Renderer,
   RendererFactory,
   ResolveFileOptions,
@@ -51,5 +52,6 @@ export type {
   ResolverFileParams,
   ResolverFilePathParams,
   ResolverPatch,
+  StandardSchemaV1,
   Storage,
 } from '@kubb/core'

@@ -11,7 +11,7 @@ export { createRenderer } from './createRenderer.ts'
 export { createStorage } from './createStorage.ts'
 export { defineGenerator } from './defineGenerator.ts'
 export { defineParser } from './defineParser.ts'
-export { definePlugin } from './definePlugin.ts'
+export { definePlugin, getPluginOptionsJsonSchema } from './definePlugin.ts'
 export { createResolver } from './createResolver.ts'
 export { Resolver } from './Resolver.ts'
 export { KubbDriver } from './KubbDriver.ts'
@@ -64,8 +64,10 @@ export type {
   Plugin,
   PluginFactoryOptions,
   PluginName,
+  PluginOptionsSchema,
   ResolvePluginOptions,
 } from './definePlugin.ts'
+export type { StandardSchemaV1 } from './standardSchema.ts'
 export type {
   BannerMeta,
   ResolveBannerContext,

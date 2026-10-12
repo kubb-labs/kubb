@@ -4,6 +4,7 @@ import type { Enforce, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import type { Generator } from './defineGenerator.ts'
 import type { BannerMeta, Resolver, ResolverPatch } from './Resolver.ts'
 import { Diagnostics } from './Diagnostics.ts'
+import type { StandardSchemaV1 } from './standardSchema.ts'
 import type { Config, FilesContext, KubbHooks } from './types.ts'
 
 /** Reads key `K` from a registry interface, or `{}` when no package has augmented it. @internal */
@@ -381,6 +382,15 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    */
   options?: TFactory['options']
   /**
+   * Validator for `options`, set through `definePlugin`.
+   */
+  schema?: StandardSchemaV1
+  /**
+   * JSON Schema of the accepted options, set through `definePlugin`. Kubb Studio renders it as
+   * the plugin's settings form.
+   */
+  jsonSchema?: Record<string, unknown>
+  /**
    * Lifecycle hook handlers for this plugin.
    * Any hook from the global `KubbHooks` map can be subscribed to here.
    */
@@ -422,12 +432,85 @@ export type KubbPluginEndContext = FilesContext & {
 }
 
 /**
+ * Describes the options a plugin accepts, passed as the second argument of `definePlugin`.
+ */
+export type PluginOptionsSchema<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
+  /**
+   * Any Standard Schema validator (Zod, Valibot, ArkType, ...). Options are validated when the
+   * plugin factory is called, and the factory receives the parsed value, defaults included.
+   * Invalid options throw `KUBB_INVALID_PLUGIN_OPTIONS`. Async validators are not supported.
+   */
+  schema?: StandardSchemaV1<unknown, TFactory['options']>
+  /**
+   * JSON Schema of the options. When omitted, Kubb asks `schema` for one through the
+   * Standard JSON Schema interface.
+   */
+  jsonSchema?: Record<string, unknown>
+}
+
+function formatIssuePath(path: StandardSchemaV1.Issue['path']): string {
+  return (path ?? []).map((segment) => String(typeof segment === 'object' ? segment.key : segment)).join('.')
+}
+
+/**
+ * Runs `schema` on raw plugin options and returns the parsed value.
+ *
+ * @throws `KUBB_INVALID_PLUGIN_OPTIONS` listing each issue, or an `Error` for an async validator.
+ */
+function validatePluginOptions<TOptions>(schema: StandardSchemaV1<unknown, TOptions>, options: unknown): TOptions {
+  const result = schema['~standard'].validate(options)
+  if (result instanceof Promise) {
+    throw new Error('Plugin options schemas must validate synchronously, because plugin factories are called synchronously.')
+  }
+  if (!result.issues) return result.value
+
+  const issues = result.issues.map((issue) => {
+    const path = formatIssuePath(issue.path)
+    return path ? `\`${path}\`: ${issue.message}` : issue.message
+  })
+
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.invalidPluginOptions,
+    severity: 'error',
+    message: `Invalid plugin options. ${issues.join('; ')}`,
+    help: 'Fix the listed options in your Kubb config. The plugin documentation lists the accepted values.',
+    location: { kind: 'config' },
+  })
+}
+
+/**
+ * Returns the JSON Schema of a plugin's options: `plugin.jsonSchema` when set, otherwise the
+ * input schema `plugin.schema` produces through the Standard JSON Schema interface. Values JSON
+ * Schema cannot describe, such as functions, come out as `{}`. Returns `undefined` when the plugin
+ * has neither, or the conversion fails.
+ *
+ * @example
+ * ```ts
+ * getPluginOptionsJsonSchema(pluginTs())
+ * // { type: 'object', properties: { output: { ... }, enum: { ... } } }
+ * ```
+ */
+export function getPluginOptionsJsonSchema(plugin: Pick<Plugin, 'schema' | 'jsonSchema'>): Record<string, unknown> | undefined {
+  if (plugin.jsonSchema) return plugin.jsonSchema
+
+  try {
+    // `unrepresentable: 'any'` is Zod's switch for emitting `{}` instead of throwing on a function.
+    return plugin.schema?.['~standard'].jsonSchema?.input({ target: 'draft-2020-12', libraryOptions: { unrepresentable: 'any' } })
+  } catch {
+    return undefined
+  }
+}
+
+/**
  * Wraps a plugin factory and returns a function that accepts user options and
  * yields a typed `Plugin`. Lifecycle handlers go inside a single `hooks` object.
  *
  * Pass a `PluginFactoryOptions` type parameter to get a typed `ctx` inside
  * `kubb:plugin:setup`. Plugin names should follow the `plugin-<feature>`
  * convention (`plugin-react-query`, `plugin-zod`, ...).
+ *
+ * Pass `{ schema }` to validate options and apply their defaults before the factory runs, and
+ * `{ jsonSchema }` to describe them to tools such as Kubb Studio.
  *
  * @example
  * ```ts
@@ -442,9 +525,28 @@ export type KubbPluginEndContext = FilesContext & {
  *   },
  * }))
  * ```
+ *
+ * @example With an options schema
+ * ```ts
+ * import { z } from 'zod'
+ *
+ * const optionsSchema = z.object({ prefix: z.string().default('Api') })
+ *
+ * export const pluginExample = definePlugin<PluginExample>((options) => ({ name: 'plugin-example', options, hooks: {} }), {
+ *   schema: optionsSchema,
+ * })
+ * ```
  */
 export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(
   factory: (options: TFactory['options']) => Plugin<TFactory>,
+  { schema, jsonSchema }: PluginOptionsSchema<TFactory> = {},
 ): (options?: TFactory['options']) => Plugin<TFactory> {
-  return (options) => factory((options ?? {}) as TFactory['options'])
+  return (options) => {
+    const raw = (options ?? {}) as TFactory['options']
+    if (!schema) return factory(raw)
+
+    const plugin = factory(validatePluginOptions(schema, raw))
+    // `options` stays what the user wrote: Kubb Studio and telemetry read it back.
+    return { ...plugin, options: raw, schema, jsonSchema }
+  }
 }

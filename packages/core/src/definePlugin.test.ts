@@ -3,7 +3,7 @@ import type { SchemaNode } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
-import { definePlugin, normalizeOutput } from './definePlugin.ts'
+import { definePlugin, getPluginOptionsJsonSchema, normalizeOutput } from './definePlugin.ts'
 import type { OutputOptions, Output, Plugin, PluginFactoryOptions, ResolvePluginOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -11,6 +11,7 @@ import type { Config, KubbHooks } from './types.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
+import type { StandardSchemaV1 } from './standardSchema.ts'
 
 // ---------------------------------------------------------------------------
 // Module-level declare global augmentations used by the type tests below.
@@ -96,6 +97,91 @@ describe('definePlugin', () => {
     }))
     const plugin = factory()
     expect(plugin.options).toStrictEqual({})
+  })
+})
+
+type TagOptions = { tag?: string }
+type TagPlugin = PluginFactoryOptions<'tag-plugin', TagOptions>
+
+/**
+ * A hand-written Standard Schema: `tag` must be a string and defaults to `'pets'`.
+ */
+function createTagSchema({ async = false, jsonSchema }: { async?: boolean; jsonSchema?: () => Record<string, unknown> } = {}): StandardSchemaV1<
+  unknown,
+  TagOptions
+> {
+  const validate = (value: unknown): StandardSchemaV1.Result<TagOptions> => {
+    const { tag = 'pets' } = value as { tag?: unknown }
+    if (typeof tag !== 'string') return { issues: [{ message: 'Expected a string', path: [{ key: 'tag' }] }] }
+    return { value: { tag } }
+  }
+
+  return {
+    '~standard': {
+      version: 1,
+      vendor: 'test',
+      validate: async ? (value) => Promise.resolve(validate(value)) : validate,
+      jsonSchema: jsonSchema ? { input: jsonSchema } : undefined,
+    },
+  }
+}
+
+describe('definePlugin with an options schema', () => {
+  const factory = (options: TagOptions): Plugin<TagPlugin> => ({ name: 'tag-plugin', options, hooks: {} })
+
+  it('hands the factory the parsed options and keeps the raw options on the plugin', () => {
+    const received = vi.fn(factory)
+    const schema = createTagSchema()
+
+    const plugin = definePlugin<TagPlugin>(received, { schema })()
+
+    expect(received).toHaveBeenCalledWith({ tag: 'pets' })
+    expect(plugin.options).toStrictEqual({})
+    expect(plugin.schema).toBe(schema)
+  })
+
+  it('throws KUBB_INVALID_PLUGIN_OPTIONS naming the option path', () => {
+    const create = definePlugin<TagPlugin>(factory, { schema: createTagSchema() })
+
+    expect(() => create({ tag: 1 as unknown as string })).toThrow(
+      expect.objectContaining({
+        diagnostic: expect.objectContaining({ code: Diagnostics.code.invalidPluginOptions, message: 'Invalid plugin options. `tag`: Expected a string' }),
+      }),
+    )
+  })
+
+  it('refuses an async validator', () => {
+    const create = definePlugin<TagPlugin>(factory, { schema: createTagSchema({ async: true }) })
+
+    expect(() => create()).toThrow('must validate synchronously')
+  })
+})
+
+describe('getPluginOptionsJsonSchema', () => {
+  const factory = (options: TagOptions): Plugin<TagPlugin> => ({ name: 'tag-plugin', options, hooks: {} })
+
+  it('prefers the jsonSchema passed to definePlugin', () => {
+    const jsonSchema = { type: 'object', properties: { tag: { type: 'string', default: 'pets' } } }
+    const plugin = definePlugin<TagPlugin>(factory, { schema: createTagSchema({ jsonSchema: () => ({}) }), jsonSchema })()
+
+    expect(getPluginOptionsJsonSchema(plugin)).toBe(jsonSchema)
+  })
+
+  it('asks the validator through the Standard JSON Schema interface', () => {
+    const input = vi.fn(() => ({ type: 'object' }))
+    const plugin = definePlugin<TagPlugin>(factory, { schema: createTagSchema({ jsonSchema: input }) })()
+
+    expect(getPluginOptionsJsonSchema(plugin)).toStrictEqual({ type: 'object' })
+    expect(input).toHaveBeenCalledWith({ target: 'draft-2020-12', libraryOptions: { unrepresentable: 'any' } })
+  })
+
+  it('returns undefined without a schema, or when the conversion throws', () => {
+    const throwing = () => {
+      throw new Error('Custom types cannot be represented in JSON Schema')
+    }
+
+    expect(getPluginOptionsJsonSchema(definePlugin<TagPlugin>(factory)())).toBeUndefined()
+    expect(getPluginOptionsJsonSchema(definePlugin<TagPlugin>(factory, { schema: createTagSchema({ jsonSchema: throwing }) })())).toBeUndefined()
   })
 })
 
