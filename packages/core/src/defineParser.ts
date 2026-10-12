@@ -85,12 +85,14 @@ export function defineParser<TOptions extends object = object, TMeta extends obj
 /**
  * Wraps a factory function that returns a `Parser`, and calls it with the user's options. Without
  * `meta`, the parser gets `{ name }`.
+ *
+ * @deprecated Pass a definition object with `meta` and `setup` instead. The factory form is removed in the next major.
  */
 export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(
   factory: (options: TOptions) => Parser<TMeta, TNode>,
 ): ((options?: TOptions) => Parser<TMeta, TNode>) & { kind: 'parser' }
 /**
- * Handles both forms: a function is a factory, an object is a definition.
+ * Handles both forms: a function is the deprecated factory, an object is a definition.
  */
 export function defineParser(input: ParserDefinition | ((options: object) => Parser)) {
   if (typeof input === 'function') {

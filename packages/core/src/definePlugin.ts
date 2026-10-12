@@ -499,11 +499,13 @@ export function definePlugin<TFactory extends PluginFactoryOptions = PluginFacto
  * Wraps a factory function that returns a `Plugin`, and calls it with the user's options. The
  * plugin can return `meta`, `dependencies`, and `setup` like the object form. Without `meta`, it
  * gets `{ name }`.
+ *
+ * @deprecated Pass a definition object with `meta` and `setup` instead. The factory form is removed in the next major.
  */
 export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(
   factory: (options: TFactory['options']) => Plugin<TFactory>,
 ): ((options?: TFactory['options']) => Plugin<TFactory>) & { kind: 'plugin' }
-/** Handles both forms: a function is a factory, an object is a definition. */
+/** Handles both forms: a function is the deprecated factory, an object is a definition. */
 export function definePlugin(input: PluginDefinition | ((options: object) => Plugin)) {
   if (typeof input === 'function') {
     return defineExtension({
