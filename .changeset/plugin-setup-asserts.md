@@ -1,6 +1,6 @@
 ---
-'@kubb/core': minor
-'@kubb/kit': minor
+'@kubb/core': patch
+'@kubb/kit': patch
 ---
 
 Add generic checks for plugin setup, so plugins no longer need their own helpers.
