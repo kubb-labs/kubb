@@ -308,7 +308,7 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   [diagnosticCode.noContext]: {
     title: 'No plugin context',
     cause: 'A `kubb/kit` composable such as `useKubb()` or `addGenerator()` ran outside `kubb:plugin:setup`, so there is no plugin to apply it to.',
-    fix: 'Call the composable inside `kubb:plugin:setup`, including in code that setup awaits. Outside setup, use the `ctx` argument that setup receives.',
+    fix: 'Call the composable inside `kubb:plugin:setup`, including in code that setup awaits.',
   },
   [diagnosticCode.unsupportedFormat]: {
     title: 'Unsupported format',

@@ -16,7 +16,7 @@ function requireContext(caller: string): KubbPluginSetupContext {
     code: Diagnostics.code.noContext,
     severity: 'error',
     message: `\`${caller}()\` was called outside a plugin setup.`,
-    help: `Call \`${caller}()\` inside \`kubb:plugin:setup\`, or use the \`ctx\` argument that setup receives.`,
+    help: `Call \`${caller}()\` inside \`kubb:plugin:setup\`, including in code that setup awaits.`,
   })
 }
 
@@ -25,7 +25,7 @@ function requireContext(caller: string): KubbPluginSetupContext {
  * Throws `KUBB_NO_CONTEXT` outside `kubb:plugin:setup`.
  */
 export function useKubb<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(): KubbPluginSetupContext<TFactory> {
-  return requireContext('useKubb') as unknown as KubbPluginSetupContext<TFactory>
+  return requireContext('useKubb') as KubbPluginSetupContext<TFactory>
 }
 
 /** Like {@link useKubb}, but returns `undefined` outside `kubb:plugin:setup`. */
@@ -46,12 +46,12 @@ export function tryUseKubb<TFactory extends PluginFactoryOptions = PluginFactory
 export function addGenerator<TFactory extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown>(
   ...generators: Array<Generator<TFactory, TElement>>
 ): void {
-  requireContext('addGenerator').addGenerator(...(generators as Array<Generator>))
+  requireContext('addGenerator').addGenerator(...generators)
 }
 
 /** Same as `ctx.setResolver`. */
 export function setResolver<TResolver extends Resolver = Resolver>(resolver: ResolverPatch<TResolver> | TResolver): void {
-  requireContext('setResolver').setResolver(resolver as ResolverPatch)
+  requireContext('setResolver').setResolver(resolver)
 }
 
 /** Same as `ctx.addMacro`. */
@@ -71,5 +71,5 @@ export function injectFile(file: UserFileNode): void {
 
 /** Returns another plugin, typed through `Kubb.PluginRegistry`. Same as `ctx.requirePlugin`. */
 export function usePlugin<TName extends PluginName>(name: TName): NormalizedPlugin<ResolvePluginOptions<TName>> {
-  return requireContext('usePlugin').requirePlugin(name) as unknown as NormalizedPlugin<ResolvePluginOptions<TName>>
+  return requireContext('usePlugin').requirePlugin(name) as NormalizedPlugin<ResolvePluginOptions<TName>>
 }

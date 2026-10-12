@@ -1,5 +1,5 @@
 import { setTimeout as delay } from 'node:timers/promises'
-import { ast, type SchemaNode } from '@kubb/ast'
+import { ast, type Macro, type SchemaNode } from '@kubb/ast'
 import { createMockedAdapter, createMockedSetupContext } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
 import { addGenerator, addMacro, injectFile, kubbContext, setMacros, setResolver, tryUseKubb, useKubb, usePlugin } from './composables.ts'
@@ -27,7 +27,7 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
 }
 
 const generator: Generator = { name: 'gen', schema: vi.fn() }
-const macro = { name: 'macro' } as unknown as Parameters<typeof addMacro>[0]
+const macro: Macro = { name: 'macro' }
 const file = { path: '/gen/raw.ts', baseName: 'raw.ts' } as const
 
 describe('composables', () => {
