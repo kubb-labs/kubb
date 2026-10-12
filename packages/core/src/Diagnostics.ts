@@ -357,6 +357,11 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
     cause: "A plugin was configured with options that cannot be honored, for example `output.mode: 'file'` paired with a `group` option.",
     fix: "Fix the plugin options. A single-file output has nothing to group, so remove the `group` option or use `output.mode: 'directory'`.",
   },
+  [diagnosticCode.invalidOptions]: {
+    title: 'Invalid options',
+    cause: 'A plugin, adapter, or parser declares an options `schema`, and the options passed to it in kubb.config.ts do not match it.',
+    fix: 'Fix each option the message lists by its path, such as `enum.type`. The extension documentation lists the accepted values.',
+  },
   [diagnosticCode.postGenerateFailed]: {
     title: 'Post-generate command failed',
     cause: 'A post-generate command (`output.postGenerate`) exited with a non-zero status.',

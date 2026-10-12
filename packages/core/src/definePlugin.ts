@@ -6,6 +6,7 @@ import { defineExtension, resolveMeta } from './defineExtension.ts'
 import type { ExtensionDependencies, ExtensionDependencyRecord, ExtensionFactory, ExtensionMeta, ExtensionNamed } from './defineExtension.ts'
 import type { BannerMeta, Resolver, ResolverPatch } from './Resolver.ts'
 import { Diagnostics } from './Diagnostics.ts'
+import type { StandardSchemaV1 } from './standardSchema.ts'
 import type { Config, FilesContext, KubbHooks } from './types.ts'
 
 /** Reads key `K` from a registry interface, or `{}` when no package has augmented it. @internal */
@@ -317,22 +318,56 @@ export type PluginFactoryOptions<
    * Define with `createResolver` and export alongside the plugin.
    */
   TResolver extends Resolver = Resolver,
+  /**
+   * Plugin options after the options `schema` parsed them, with its defaults applied.
+   */
+  TParsedOptions extends object = TOptions,
 > = {
   name: TName
   options: TOptions
+  parsedOptions: TParsedOptions
   resolvedOptions: TResolvedOptions
   resolver: TResolver
 }
 
 /**
- * Type parameter for the object form of `definePlugin`. Same shape as `PluginFactoryOptions`.
+ * Narrows a schema's input or output type to an object, as plugin options must be.
+ */
+type AsObject<T> = T extends object ? T : object
+
+/**
+ * The options type for a `TOptions` that is either an options type or a Standard Schema: the schema's input type, or `TOptions` itself.
+ */
+type InferOptionsInput<TOptions> = TOptions extends StandardSchemaV1 ? AsObject<StandardSchemaV1.InferInput<TOptions>> : TOptions
+
+/**
+ * The parsed options type for a `TOptions` that is either an options type or a Standard Schema: the schema's output type, or `TOptions` itself.
+ */
+type InferOptionsOutput<TOptions> = TOptions extends StandardSchemaV1 ? AsObject<StandardSchemaV1.InferOutput<TOptions>> : TOptions
+
+/**
+ * Type parameter for the object form of `definePlugin`. Same shape as `PluginFactoryOptions`, except that
+ * `TOptions` can also be the plugin's options schema. Then `options` is the schema's input type, and
+ * `parsedOptions` and the default `resolvedOptions` are its output type.
+ *
+ * @example
+ * ```ts
+ * const optionsSchema = z.object({ prefix: z.string().default('Api') })
+ *
+ * export type PluginExample = PluginType<'plugin-example', typeof optionsSchema>
+ * ```
  */
 export type PluginType<
   TName extends string = string,
   TOptions extends object = object,
-  TResolvedOptions extends object = TOptions,
+  TResolvedOptions extends object = InferOptionsOutput<TOptions>,
   TResolver extends Resolver = Resolver,
-> = PluginFactoryOptions<TName, TOptions, TResolvedOptions, TResolver>
+> = PluginFactoryOptions<TName, InferOptionsInput<TOptions>, TResolvedOptions, TResolver, InferOptionsOutput<TOptions>>
+
+/**
+ * The options a user passes to a plugin with options schema `TSchema`: the schema's input type, before defaults apply.
+ */
+export type PluginOptions<TSchema extends StandardSchemaV1> = StandardSchemaV1.InferInput<TSchema>
 
 /**
  * Context passed to a plugin's `kubb:plugin:setup` handler, where it registers generators and
@@ -387,9 +422,9 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
    */
   config: Config
   /**
-   * The plugin's user-provided options.
+   * The plugin's options, parsed by its options `schema` when it has one.
    */
-  options: TFactory['options']
+  options: TFactory['parsedOptions']
 }
 
 /**
@@ -401,7 +436,7 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    * Plugins this one builds on. They run first when the config has them. An array only orders
    * plugins. A record also fails the run when a required entry is missing or out of range.
    */
-  dependencies?: Array<PluginName> | ExtensionDependencies<TFactory['options']>
+  dependencies?: Array<PluginName> | ExtensionDependencies<TFactory['parsedOptions']>
   /**
    * Controls the execution order of this plugin relative to others.
    *
@@ -417,6 +452,10 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    */
   options?: TFactory['options']
   /**
+   * The options after the plugin's options `schema` parsed them, with its defaults applied. Set only when the plugin has a `schema`.
+   */
+  parsedOptions?: TFactory['parsedOptions']
+  /**
    * Lifecycle hook handlers for this plugin.
    * Any hook from the global `KubbHooks` map can be subscribed to here.
    */
@@ -426,9 +465,9 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
     'kubb:plugin:setup'?(ctx: KubbPluginSetupContext<TFactory>): void | Promise<void>
   }
   /**
-   * Runs before `kubb:plugin:setup`. Takes the user's options and returns the resolved options.
+   * Runs before `kubb:plugin:setup`. Takes the parsed options and returns the resolved options.
    */
-  setup?(options: TFactory['options'], kubb: KubbPluginSetupContext<TFactory>): TFactory['resolvedOptions'] | Promise<TFactory['resolvedOptions']>
+  setup?(options: TFactory['parsedOptions'], kubb: KubbPluginSetupContext<TFactory>): TFactory['resolvedOptions'] | Promise<TFactory['resolvedOptions']>
 }
 
 /**
@@ -436,6 +475,11 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
  */
 export type PluginDefinition<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = Pick<Plugin<TFactory>, 'dependencies' | 'enforce' | 'setup'> & {
   meta: ExtensionMeta<TFactory['name']>
+  /**
+   * Any Standard Schema, such as a Zod schema, that validates the options and applies their defaults
+   * when the factory is called. Invalid options throw `KUBB_INVALID_OPTIONS`. The schema must validate synchronously.
+   */
+  schema?: StandardSchemaV1<TFactory['options'], TFactory['parsedOptions']>
   hooks?: Plugin<TFactory>['hooks']
 }
 
@@ -446,7 +490,8 @@ export type PluginFactory<TFactory extends PluginFactoryOptions = PluginFactoryO
   'plugin',
   TFactory['options'],
   Plugin<TFactory>,
-  TFactory['name']
+  TFactory['name'],
+  TFactory['parsedOptions']
 >
 
 /**
@@ -484,7 +529,8 @@ export type KubbPluginEndContext = FilesContext & {
 
 /**
  * Defines a plugin from one object and returns a factory that takes the user's options.
- * Name plugins `plugin-<feature>`.
+ * Name plugins `plugin-<feature>`. Set `schema` to validate the options and apply their defaults
+ * before `setup` receives them.
  *
  * @example
  * ```ts
@@ -511,18 +557,28 @@ export function definePlugin(input: PluginDefinition | ((options: object) => Plu
   if (typeof input === 'function') {
     return defineExtension({
       kind: 'plugin',
-      build: (options: object): Plugin => {
+      build: ({ options }: { options: object }): Plugin => {
         const plugin = input(options)
         return { ...plugin, meta: resolveMeta(plugin) }
       },
     })
   }
 
-  const { meta, dependencies, enforce, hooks = {}, setup } = input
-  // Keeps the raw options: Studio and config merging read them back.
+  const { meta, schema, dependencies, enforce, hooks = {}, setup } = input
+  // Keeps the raw options next to the parsed ones: Studio and config merging read them back.
   return defineExtension({
     kind: 'plugin',
     meta,
-    build: (options: object): Plugin => ({ name: meta.name, meta, options, dependencies, enforce, hooks, setup }),
+    schema,
+    build: ({ options, parsedOptions }: { options: object; parsedOptions: object }): Plugin => ({
+      name: meta.name,
+      meta,
+      options,
+      ...(schema && { parsedOptions }),
+      dependencies,
+      enforce,
+      hooks,
+      setup,
+    }),
   })
 }

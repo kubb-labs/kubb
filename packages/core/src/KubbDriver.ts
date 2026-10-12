@@ -126,17 +126,17 @@ export class KubbDriver {
         if (rawPlugin.meta) checkCompatibility(rawPlugin.meta)
 
         const meta = resolveMeta(rawPlugin)
+        const options = rawPlugin.parsedOptions ?? rawPlugin.options
         const normalizedPlugin: NormalizedPlugin = {
           name: meta.name,
           meta,
-          dependencies:
-            typeof rawPlugin.dependencies === 'function' ? rawPlugin.dependencies(rawPlugin.options ?? {}, { config: this.config }) : rawPlugin.dependencies,
+          dependencies: typeof rawPlugin.dependencies === 'function' ? rawPlugin.dependencies(options ?? {}, { config: this.config }) : rawPlugin.dependencies,
           enforce: rawPlugin.enforce,
           hooks: rawPlugin.hooks,
           setup: rawPlugin.setup,
-          // `rawPlugin.options` is the user-supplied shape. The normalized `output`/`exclude`/`override`
-          // bag is filled in by the post-setup `normalizePluginOptions` pass, after `setOptions` runs.
-          options: (rawPlugin.options ?? defaultPluginOptions()) as NormalizedPlugin['options'],
+          // The user-supplied shape, parsed by the plugin's schema when it has one. The normalized
+          // `output`/`exclude`/`override` bag is filled in by the post-setup `normalizePluginOptions` pass.
+          options: (options ?? defaultPluginOptions()) as NormalizedPlugin['options'],
           resolver: createResolver<PluginFactoryOptions>({ pluginName: meta.name }),
         }
         return normalizedPlugin
