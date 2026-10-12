@@ -10,7 +10,7 @@ describe('resolveMeta', () => {
   })
 
   it('throws KUBB_INVALID_PLUGIN_OPTIONS when there is neither', () => {
-    expect(() => resolveMeta({})).toThrow(expect.objectContaining({ code: Diagnostics.code.invalidPluginOptions }))
+    expect(() => resolveMeta({})).toThrow(expect.objectContaining({ diagnostic: expect.objectContaining({ code: Diagnostics.code.invalidPluginOptions }) }))
   })
 })
 
