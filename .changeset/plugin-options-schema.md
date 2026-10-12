@@ -1,6 +1,6 @@
 ---
-'@kubb/core': minor
-'@kubb/kit': minor
+'@kubb/core': patch
+'@kubb/kit': patch
 '@kubb/cli': patch
 ---
 
