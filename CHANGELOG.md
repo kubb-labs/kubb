@@ -1,5 +1,31 @@
 # Changelog
 
+## v5.6.3 — Oct 12, 2026
+
+### @kubb/mcp
+
+#### Bug Fixes
+
+- Validate MCP tool arguments with Zod Mini instead of valibot, so Kubb uses one validation library. Tool input schemas stay the same. Invalid arguments now return Zod's error messages, such as `Too small: expected string to have >=1 characters`. ([#4234](https://github.com/kubb-labs/kubb/pull/4234), [`80825c4`](https://github.com/kubb-labs/kubb/commit/80825c4c0f14efaf71d55fc706a5b8ca2a83215e))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Harden the `kubb studio` agent with safer config edits, sandbox spec checks, and live reloads of JavaScript configs.
+  
+  - Send Studio a JSON copy of plugin options, so config functions are never callable from Studio, and accept only inline spec content in a sandbox agent.
+  - Validate each config edit on its own, refuse `__proto__`, `constructor`, and `prototype` keys, and rewrite only the text an edit targets, including in `module.exports` configs.
+  - Reload `kubb.config.js`, `.mjs`, and `.cjs` on every generation instead of keeping the first version.
+  - Warn with `KUBB_PLUGIN_NOT_FOUND` for a missing plugin dependency, count a throwing `kubb:plugin:setup` as a failed plugin, and keep the previous output when a run with `output.clean` fails early.
+  - Hash in-memory output the way it is written, and clarify the `kubb studio` log lines for in-memory runs, canceled runs, and a takeover. ([#4233](https://github.com/kubb-labs/kubb/pull/4233), [`e1e74ee`](https://github.com/kubb-labs/kubb/commit/e1e74ee3f78ff5430dcfc05bfe4062e35228b9b1))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.6.2 — Oct 11, 2026
 
 ### @kubb/studio
