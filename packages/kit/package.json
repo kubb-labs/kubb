@@ -56,6 +56,11 @@
       "import": "./dist/testing.js",
       "require": "./dist/testing.cjs"
     },
+    "./options": {
+      "types": "./dist/options.d.ts",
+      "import": "./dist/options.js",
+      "require": "./dist/options.cjs"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -72,7 +77,16 @@
     "@kubb/core": "workspace:*"
   },
   "devDependencies": {
-    "@internals/utils": "workspace:*"
+    "@internals/utils": "workspace:*",
+    "zod": "^4.6.5"
+  },
+  "peerDependencies": {
+    "zod": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "zod": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=22"
