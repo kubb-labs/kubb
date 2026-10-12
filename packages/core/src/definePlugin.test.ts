@@ -1,11 +1,13 @@
 import { ast } from '@kubb/ast'
-import type { SchemaNode } from '@kubb/ast'
-import { createMockedAdapter } from '@kubb/core/mocks'
+import type { OperationNode, SchemaNode } from '@kubb/ast'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, createMockedSetupContext, renderGeneratorOperation } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
-import { definePlugin, normalizeOutput } from './definePlugin.ts'
+import { defineGenerator } from './defineGenerator.ts'
+import { assertPluginOption, definePlugin, normalizeOutput } from './definePlugin.ts'
 import type { OutputOptions, Output, Plugin, PluginFactoryOptions, ResolvePluginOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
+import type { Resolver } from './Resolver.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, KubbHooks } from './types.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
@@ -366,5 +368,68 @@ describe('declare global augmentation', () => {
 
     expect(registered.dependencies).toStrictEqual(['plugin-registered'])
     expect(arbitrary.dependencies).toStrictEqual(['some-unregistered-plugin'])
+  })
+})
+
+describe('assertPluginOption', () => {
+  it('accepts an allowed value', () => {
+    expect(() => assertPluginOption({ plugin: 'plugin-ts', option: 'syntaxType', value: 'interface', allowed: ['type', 'interface'] })).not.toThrow()
+  })
+
+  it.each([
+    ['bogus', '"bogus"'],
+    [undefined, 'undefined'],
+    [1, '1'],
+    [1n, '1'],
+  ])('throws KUBB_INVALID_PLUGIN_OPTIONS with the allowed values for %s', (value, shown) => {
+    expect(() => assertPluginOption({ plugin: 'plugin-ts', option: 'syntaxType', value, allowed: ['type', 'interface'] })).toThrow(
+      expect.objectContaining({
+        diagnostic: expect.objectContaining({
+          code: Diagnostics.code.invalidPluginOptions,
+          severity: 'error',
+          plugin: 'plugin-ts',
+          message: `Plugin "plugin-ts" option \`syntaxType\` is ${shown}, but it must be one of "type", "interface".`,
+        }),
+      }),
+    )
+  })
+})
+
+describe('createMockedSetupContext', () => {
+  it('returns a registered plugin from requirePlugin and throws the core error for a missing one', () => {
+    const ctx = createMockedSetupContext({ plugins: ['plugin-ts'] })
+
+    expect(ctx.requirePlugin('plugin-ts')).toStrictEqual({ name: 'plugin-ts' })
+    expect(() => ctx.requirePlugin('plugin-zod')).toThrow('Plugin "plugin-zod" is required but not found.')
+  })
+})
+
+describe('renderGeneratorOperation', () => {
+  it('gives the generator a requirePlugin that finds the driver plugin and fails for a missing one', async () => {
+    const plugin = createMockedPlugin({ name: 'plugin-faker', options: {} })
+    const driver = createMockedPluginDriver({ plugin })
+    const found: Array<unknown> = []
+    const generator = defineGenerator({
+      name: 'probe',
+      operation(_node, ctx) {
+        found.push(ctx.requirePlugin('plugin-ts'))
+        return null
+      },
+    })
+    const render = () =>
+      renderGeneratorOperation(generator, {} as OperationNode, {
+        config: driver.config,
+        adapter: createMockedAdapter(),
+        driver,
+        plugin,
+        options: {},
+        resolver: {} as Resolver,
+      })
+
+    await render()
+    expect(found).toStrictEqual([plugin])
+
+    driver.getPlugin = () => undefined
+    await expect(render()).rejects.toThrow('Plugin "plugin-ts" is required by "plugin-faker" but not found.')
   })
 })

@@ -197,14 +197,34 @@ describe('createKubb', () => {
     expect(Diagnostics.failedPlugins(diagnostics)).toStrictEqual(['plugin-throws'])
   })
 
-  it('warns when a plugin depends on one that is not in the config', async () => {
+  it('does not report a dependency missing from the config', async () => {
     const dependent = definePlugin(() => ({ name: 'plugin-dependent', dependencies: ['plugin-missing'], hooks: {} }))()
 
     const { diagnostics } = await createKubb(makeConfig({ ...config, plugins: [dependent] }), { hooks: new Hookable<KubbHooks>() }).safeBuild()
 
-    expect(diagnostics.filter(Diagnostics.isProblem)).toContainEqual(
-      expect.objectContaining({ code: Diagnostics.code.pluginNotFound, severity: 'warning', plugin: 'plugin-dependent' }),
-    )
+    expect(diagnostics.filter(Diagnostics.isProblem)).toStrictEqual([])
+  })
+
+  it('fails the run when setup requires a plugin the config lacks, naming the plugin that needs it', async () => {
+    const dependent = definePlugin(() => ({
+      name: 'plugin-dependent',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.requirePlugin('plugin-missing')
+        },
+      },
+    }))()
+
+    const { diagnostics } = await createKubb(makeConfig({ ...config, plugins: [dependent] }), { hooks: new Hookable<KubbHooks>() }).safeBuild()
+
+    expect(diagnostics.filter(Diagnostics.isProblem)).toStrictEqual([
+      expect.objectContaining({
+        code: Diagnostics.code.pluginNotFound,
+        severity: 'error',
+        plugin: 'plugin-dependent',
+        message: 'Plugin "plugin-missing" is required by "plugin-dependent" but not found. Make sure it is included in your Kubb config.',
+      }),
+    ])
   })
 
   it('keeps the previous output when output.clean is set and the run fails before writing', async () => {

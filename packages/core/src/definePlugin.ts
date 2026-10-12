@@ -142,6 +142,32 @@ export function normalizeOutput({ output, group, pluginName }: { output: Output;
   return { ...output, mode }
 }
 
+/** Throws `KUBB_INVALID_PLUGIN_OPTIONS`, listing the allowed values, when `value` is not one of `allowed`. */
+export function assertPluginOption({
+  plugin,
+  option,
+  value,
+  allowed,
+}: {
+  plugin: string
+  option: string
+  value: unknown
+  allowed: ReadonlyArray<unknown>
+}): void {
+  if (allowed.includes(value)) return
+
+  const format = (item: unknown) => (typeof item === 'string' ? JSON.stringify(item) : String(item))
+  const expected = allowed.map(format).join(', ')
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.invalidPluginOptions,
+    severity: 'error',
+    message: `Plugin "${plugin}" option \`${option}\` is ${format(value)}, but it must be one of ${expected}.`,
+    help: `Set \`${option}\` to one of ${expected}.`,
+    location: { kind: 'config' },
+    plugin,
+  })
+}
+
 type ByTag = {
   /**
    * Filter by OpenAPI `tags` field. Matches one or more tags assigned to operations.
@@ -342,6 +368,8 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
    * generated folder, instead of building its content from `sources`.
    */
   injectFile(userFileNode: UserFileNode): void
+  /** Returns a plugin this one needs, or fails the run with `KUBB_PLUGIN_NOT_FOUND` when the config lacks it. */
+  requirePlugin<TName extends PluginName>(name: TName): Plugin<ResolvePluginOptions<TName>>
   /**
    * The resolved build configuration at setup time.
    */
@@ -362,8 +390,8 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    */
   name: string
   /**
-   * Plugins that must be registered before this plugin executes.
-   * An error is thrown at startup when any listed dependency is missing.
+   * Plugins this one builds on. They run first when the config has them; a missing one is skipped.
+   * Call `ctx.requirePlugin` in `kubb:plugin:setup` to fail the run when one is missing.
    */
   dependencies?: Array<PluginName>
   /**

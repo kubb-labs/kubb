@@ -2,16 +2,16 @@ import path, { resolve } from 'node:path'
 import { camelCase } from '@internals/utils'
 import type { FileNode, InputMeta, Macro, OperationNode, SchemaNode } from '@kubb/ast'
 import { applyMacros, ast } from '@kubb/ast'
-import { expect } from 'vitest'
+import { expect, vi } from 'vitest'
 import type { Parser } from './defineParser.ts'
 import { FileManager } from './FileManager.ts'
 import { Hookable } from './Hookable.ts'
 import { createNodeCache } from './nodeCache.ts'
-import type { KubbDriver } from './KubbDriver.ts'
+import { type KubbDriver, pluginNotFoundError } from './KubbDriver.ts'
 import type { Config, KubbHooks } from './types.ts'
 import type { Adapter, AdapterFactoryOptions } from './createAdapter.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
-import type { NormalizedPlugin, PluginFactoryOptions } from './definePlugin.ts'
+import type { KubbPluginSetupContext, NormalizedPlugin, Plugin, PluginFactoryOptions } from './definePlugin.ts'
 import type { RendererFactory } from './createRenderer.ts'
 
 /**
@@ -34,6 +34,30 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
     fileManager,
     dispatch: (params: { result: unknown; renderer?: RendererFactory | null }) => fileManager.dispatch(params),
   } as unknown as KubbDriver
+}
+
+/** Creates a `kubb:plugin:setup` context for unit tests. `requirePlugin` fails for names `plugins` does not list. */
+export function createMockedSetupContext<TFactory extends PluginFactoryOptions = PluginFactoryOptions>({
+  plugins = [],
+  options = {} as TFactory['options'],
+}: { plugins?: Array<string>; options?: TFactory['options'] } = {}): KubbPluginSetupContext<TFactory> {
+  const registered = plugins.map((name) => ({ name }) as unknown as Plugin)
+
+  return {
+    config: { plugins: registered } as unknown as Config,
+    options,
+    addGenerator: vi.fn(),
+    setResolver: vi.fn(),
+    addMacro: vi.fn(),
+    setMacros: vi.fn(),
+    setOptions: vi.fn(),
+    injectFile: vi.fn(),
+    requirePlugin: vi.fn((pluginName: string) => {
+      const plugin = registered.find((entry) => entry.name === pluginName)
+      if (!plugin) throw pluginNotFoundError({ pluginName })
+      return plugin
+    }) as KubbPluginSetupContext<TFactory>['requirePlugin'],
+  }
 }
 
 /**
@@ -101,6 +125,11 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     plugin: opts.plugin,
     driver: opts.driver,
     getResolver: (name: string) => opts.driver.getResolver(name),
+    requirePlugin: (pluginName: string) => {
+      const plugin = opts.driver.getPlugin(pluginName)
+      if (!plugin) throw pluginNotFoundError({ pluginName, requiredBy: opts.plugin.name })
+      return plugin
+    },
     meta: opts.meta ?? { circularNames: [], enumNames: [] },
     cache: createNodeCache(),
     addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),

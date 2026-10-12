@@ -5,7 +5,7 @@ import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnost
 import type { RendererFactory } from './createRenderer.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
-import type { Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginFactoryOptions } from './definePlugin.ts'
+import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginFactoryOptions } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
@@ -245,6 +245,7 @@ export class KubbDriver {
           injectFile: (userFileNode) => {
             this.fileManager.add(ast.factory.createFile(userFileNode))
           },
+          requirePlugin: ((name: string) => this.requirePlugin(name, { requiredBy: plugin.name })) as KubbPluginSetupContext['requirePlugin'],
         })
       } catch (caughtError) {
         // Attributed to the plugin, so the run summary counts it as a failed plugin.
@@ -307,22 +308,6 @@ export class KubbDriver {
         try {
           this.options.signal?.throwIfAborted()
           const outputRoot = resolve(config.root, config.output.path)
-
-          // A dependency missing from the config orders nothing in `#sortPlugins`, and a plugin that
-          // only reads it through `getPlugin` would quietly generate less, so report it up front.
-          for (const plugin of this.plugins.values()) {
-            for (const dependency of plugin.dependencies ?? []) {
-              if (this.plugins.has(dependency)) continue
-              Diagnostics.report({
-                code: Diagnostics.code.pluginNotFound,
-                severity: 'warning',
-                message: `Plugin "${dependency}" is required by "${plugin.name}" but not found, so "${plugin.name}" may generate less than expected.`,
-                help: `Add "${dependency}" to the \`plugins\` array in kubb.config.ts.`,
-                location: { kind: 'config' },
-                plugin: plugin.name,
-              })
-            }
-          }
 
           // Parse the adapter source into `this.inputNode`.
           await this.#parseInput()
@@ -734,16 +719,21 @@ export class KubbDriver {
     const plugin = this.getPlugin(pluginName)
     if (plugin) return plugin
 
-    const requiredBy = context?.requiredBy
-    const by = requiredBy ? ` by "${requiredBy}"` : ''
-    const help = requiredBy ? ` (required by "${requiredBy}")` : ''
-
-    throw new Diagnostics.Error({
-      code: Diagnostics.code.pluginNotFound,
-      severity: 'error',
-      message: `Plugin "${pluginName}" is required${by} but not found. Make sure it is included in your Kubb config.`,
-      help: `Add "${pluginName}" to the \`plugins\` array in kubb.config.ts${help}, or remove the dependency on it.`,
-      location: { kind: 'config' },
-    })
+    throw pluginNotFoundError({ pluginName, requiredBy: context?.requiredBy })
   }
+}
+
+/** The `KUBB_PLUGIN_NOT_FOUND` error `requirePlugin` throws, naming the plugin that needed it. */
+export function pluginNotFoundError({ pluginName, requiredBy }: { pluginName: string; requiredBy?: string }): InstanceType<typeof Diagnostics.Error> {
+  const by = requiredBy ? ` by "${requiredBy}"` : ''
+  const help = requiredBy ? ` (required by "${requiredBy}")` : ''
+
+  return new Diagnostics.Error({
+    code: Diagnostics.code.pluginNotFound,
+    severity: 'error',
+    message: `Plugin "${pluginName}" is required${by} but not found. Make sure it is included in your Kubb config.`,
+    help: `Add "${pluginName}" to the \`plugins\` array in kubb.config.ts${help}, or remove the dependency on it.`,
+    location: { kind: 'config' },
+    ...(requiredBy ? { plugin: requiredBy } : {}),
+  })
 }
