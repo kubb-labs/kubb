@@ -44,3 +44,32 @@ export declare namespace StandardSchemaV1 {
 
   type InferOutput<Schema extends StandardSchemaV1> = NonNullable<Schema['~standard']['types']>['output']
 }
+
+/**
+ * The parts of the Standard JSON Schema v1 interface (https://standardschema.dev/json-schema) that Kubb reads.
+ * Zod 4.2 and later implement it next to `validate`.
+ */
+export interface StandardJSONSchemaV1<Input = unknown, Output = Input> {
+  readonly '~standard': StandardJSONSchemaV1.Props<Input, Output>
+}
+
+export declare namespace StandardJSONSchemaV1 {
+  interface Props<Input = unknown, Output = Input> {
+    readonly version: 1
+    readonly vendor: string
+    readonly types?: StandardSchemaV1.Types<Input, Output> | undefined
+    readonly jsonSchema: Converter
+  }
+
+  interface Converter {
+    readonly input: (options: Options) => Record<string, unknown>
+    readonly output: (options: Options) => Record<string, unknown>
+  }
+
+  type Target = 'draft-2020-12' | 'draft-07' | 'openapi-3.0' | (string & {})
+
+  interface Options {
+    readonly target: Target
+    readonly libraryOptions?: Record<string, unknown> | undefined
+  }
+}

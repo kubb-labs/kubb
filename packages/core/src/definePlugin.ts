@@ -440,6 +440,10 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    */
   parsedOptions?: TFactory['parsedOptions']
   /**
+   * The options schema of the definition that built this plugin.
+   */
+  schema?: StandardSchemaV1<unknown, TFactory['parsedOptions']>
+  /**
    * Lifecycle hook handlers for this plugin.
    * Any hook from the global `KubbHooks` map can be subscribed to here.
    */
@@ -558,7 +562,7 @@ export function definePlugin(input: PluginDefinition | ((options: object) => Plu
       name: meta.name,
       meta,
       options,
-      ...(schema && { parsedOptions }),
+      ...(schema && { parsedOptions, schema }),
       dependencies,
       enforce,
       hooks,

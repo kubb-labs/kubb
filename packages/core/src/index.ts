@@ -30,6 +30,14 @@ export { createResolver } from './createResolver.ts'
 export { Resolver } from './Resolver.ts'
 export { KubbDriver } from './KubbDriver.ts'
 export { getInputKind } from './input.ts'
+export {
+  getExtensionManifest,
+  kubbManifestJsonSchema,
+  kubbManifestSchemaUrl,
+  readExtensionManifest,
+  toExtensionManifest,
+  toOptionsDocument,
+} from './manifest.ts'
 export { cacheStorage, resolveCacheDir } from './storages/cacheStorage.ts'
 export { fsStorage } from './storages/fsStorage.ts'
 export { kubbStorage, resolveKubbDir } from './storages/kubbStorage.ts'
@@ -69,6 +77,16 @@ export type {
   ExtensionMeta,
 } from './defineExtension.ts'
 export { resolveMeta } from './defineExtension.ts'
+export type {
+  ExtensionManifest,
+  ExtensionManifestMeta,
+  KubbManifest,
+  ManifestContributor,
+  ManifestSource,
+  OptionMeta,
+  OptionsDocument,
+  OptionWhenValue,
+} from './manifest.ts'
 export type { NodeCache } from './nodeCache.ts'
 export type { Parser, ParserDefinition, ParserFactory } from './defineParser.ts'
 export type {
@@ -93,7 +111,7 @@ export type {
   PluginType,
   ResolvePluginOptions,
 } from './definePlugin.ts'
-export type { StandardSchemaV1 } from './standardSchema.ts'
+export type { StandardJSONSchemaV1, StandardSchemaV1 } from './standardSchema.ts'
 export type {
   BannerMeta,
   ResolveBannerContext,
