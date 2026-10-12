@@ -2,7 +2,6 @@ export { adapterOas, adapterOasName } from './adapter.ts'
 export type {
   AdapterOas,
   AdapterOasOptions,
-  AdapterOasParsedOptions,
   AdapterOasResolvedOptions,
   ContentType,
   DiscriminatorObject,

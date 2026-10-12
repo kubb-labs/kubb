@@ -118,10 +118,6 @@ export const diagnosticCode = {
    */
   invalidPluginOptions: 'KUBB_INVALID_PLUGIN_OPTIONS',
   /**
-   * An extension's options fail its options `schema`.
-   */
-  invalidOptions: 'KUBB_INVALID_OPTIONS',
-  /**
    * A post-generate command (`output.postGenerate`) exited with a failure.
    */
   postGenerateFailed: 'KUBB_POST_GENERATE_FAILED',

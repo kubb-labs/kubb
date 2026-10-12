@@ -5,28 +5,14 @@ import type { Adapter, AdapterFactoryOptions } from './createAdapter.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { Hookable } from './Hookable.ts'
 import { KubbDriver } from './KubbDriver.ts'
-import type { StandardSchemaV1 } from './standardSchema.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import type { Config, KubbHooks } from './types.ts'
 
-type TextAdapter = AdapterFactoryOptions<'text', { strict?: boolean }, { strict: boolean; mode: 'strict' | 'loose' }, string, { strict: boolean }>
-
-const schema: StandardSchemaV1<{ strict?: boolean }, { strict: boolean }> = {
-  '~standard': {
-    version: 1,
-    vendor: 'test',
-    validate(value) {
-      const { strict = true } = value as { strict?: unknown }
-      if (typeof strict !== 'boolean') return { issues: [{ message: 'Expected a boolean', path: ['strict'] }] }
-      return { value: { strict } }
-    },
-  },
-}
+type TextAdapter = AdapterFactoryOptions<'text', { strict?: boolean }, { strict: boolean; mode: 'strict' | 'loose' }, string>
 
 const adapterText = createAdapter<TextAdapter>({
   meta: { name: 'text', version: '1.0.0' },
-  schema,
-  setup: (options) => ({ ...options, mode: options.strict ? 'strict' : 'loose' }),
+  setup: ({ strict = true }) => ({ strict, mode: strict ? 'strict' : 'loose' }),
   build(options) {
     let document: string | null = null
     return {
@@ -43,18 +29,17 @@ const adapterText = createAdapter<TextAdapter>({
 })
 
 describe('createAdapter object form', () => {
-  it('returns a factory with kind, meta and schema statics', () => {
+  it('returns a factory with kind and meta statics', () => {
     expect(adapterText.kind).toBe('adapter')
     expect(adapterText.meta).toStrictEqual({ name: 'text', version: '1.0.0' })
-    expect(adapterText.schema).toBe(schema)
     expectTypeOf(adapterText).parameter(0).toEqualTypeOf<{ strict?: boolean } | undefined>()
     expectTypeOf(adapterText()).toEqualTypeOf<Adapter<TextAdapter>>()
   })
 
-  it('parses the options, resolves them with setup, and exposes the resolved options', () => {
+  it('resolves the options with setup and exposes the resolved options', () => {
     const adapter = adapterText({ strict: false })
 
-    expect(adapter).toMatchObject({ name: 'text', meta: { name: 'text' }, schema, options: { strict: false, mode: 'loose' } })
+    expect(adapter).toMatchObject({ name: 'text', meta: { name: 'text' }, options: { strict: false, mode: 'loose' } })
     expect(adapterText().options).toStrictEqual({ strict: true, mode: 'strict' })
   })
 
@@ -66,25 +51,13 @@ describe('createAdapter object form', () => {
     expect(adapter.document).toBe('strict')
   })
 
-  it('uses the parsed options as the resolved options without setup', () => {
-    const adapter = createAdapter<AdapterFactoryOptions<'plain', { strict?: boolean }, { strict: boolean }, unknown, { strict: boolean }>>({
+  it("uses the user's options as the resolved options without setup", () => {
+    const adapter = createAdapter<AdapterFactoryOptions<'plain', { strict?: boolean }>>({
       meta: { name: 'plain' },
-      schema,
       build: () => ({ document: null, parse: () => ast.factory.createInput(), validate: async () => {} }),
-    })()
+    })({ strict: true })
 
     expect(adapter.options).toStrictEqual({ strict: true })
-  })
-
-  it('throws KUBB_INVALID_OPTIONS for options the schema rejects', () => {
-    expect(() => adapterText({ strict: 'yes' as never })).toThrow(
-      expect.objectContaining({
-        diagnostic: expect.objectContaining({
-          code: Diagnostics.code.invalidOptions,
-          message: 'Invalid options for adapter "text". `strict`: Expected a boolean',
-        }),
-      }),
-    )
   })
 
   it('gives the deprecated factory form kind and returns its adapter as built', () => {

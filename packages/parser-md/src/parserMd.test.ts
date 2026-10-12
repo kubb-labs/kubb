@@ -3,9 +3,8 @@ import { describe, expect, expectTypeOf, it } from 'vitest'
 import { parserMd } from './parserMd.ts'
 
 describe('parserMd', () => {
-  it('takes no options and has no options schema', () => {
+  it('takes no options', () => {
     expectTypeOf(parserMd).parameter(0).toEqualTypeOf<object | undefined>()
-    expect(parserMd.schema).toBeUndefined()
     expect(parserMd()).toMatchObject({ name: 'markdown', options: {}, extNames: ['.md', '.markdown'] })
   })
 

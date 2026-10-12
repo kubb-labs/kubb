@@ -88,10 +88,10 @@ export function injectFile(file: UserFileNode): void {
 }
 
 /**
- * Returns the options of the plugin being set up, parsed by its options `schema` when it has one, like `ctx.options`.
+ * Returns the options the user passed to the plugin being set up, like `ctx.options`.
  */
-export function useOptions<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(): TFactory['parsedOptions'] {
-  return requireContext('useOptions').options as TFactory['parsedOptions']
+export function useOptions<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(): TFactory['options'] {
+  return requireContext('useOptions').options as TFactory['options']
 }
 
 /**

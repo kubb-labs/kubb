@@ -66,20 +66,12 @@ describe('bootstrap configuration group', () => {
     expect(lines.at(-1)).toBe('exit 1')
   })
 
-  it('reports invalid plugin options thrown while the config file runs with their code and path', async () => {
-    const pluginExample = definePlugin({
-      meta: { name: 'plugin-example' },
-      schema: {
-        '~standard': {
-          version: 1,
-          vendor: 'test',
-          validate: () => ({ issues: [{ message: 'Invalid option', path: ['enum', 'type'] }] }),
-        },
-      },
-    })
+  it('reports a diagnostic thrown while the config file runs with its code', async () => {
+    // A factory-form plugin with neither `meta.name` nor `name` throws KUBB_INVALID_PLUGIN_OPTIONS when called.
+    const pluginNameless = definePlugin(() => ({ hooks: {} }))
     const cause = (() => {
       try {
-        pluginExample({ enum: { type: 'nope' } })
+        pluginNameless()
       } catch (error) {
         return error
       }
@@ -87,7 +79,7 @@ describe('bootstrap configuration group', () => {
 
     const lines = await bootstrap({ fail: new Error('Config failed loading', { cause }) })
 
-    expect(lines.some((line) => line.includes('[KUBB_INVALID_OPTIONS]') && line.includes('`enum.type`: Invalid option'))).toBe(true)
+    expect(lines.some((line) => line.includes('[KUBB_INVALID_PLUGIN_OPTIONS]') && line.includes('neither `meta.name` nor `name`'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })
 
