@@ -1,5 +1,7 @@
 import { ast, defineParser } from '@kubb/kit'
 import type * as ts from 'typescript'
+import { compatibility } from '../kubb-extension.json'
+import { version } from '../package.json'
 import { getRelativePath, print, printExport, printImport, printSource, resolveOutputPath, splitModuleDeclarations } from './utils.ts'
 
 const DEFAULT_EXTENSION: Record<ast.FileNode['extname'], ast.FileNode['extname'] | ''> = { '.ts': '' }
@@ -49,7 +51,7 @@ export type ParserTsOptions = {
  * ```
  */
 export const parserTs = defineParser<ParserTsOptions, object, ts.Node>({
-  meta: { name: 'typescript' },
+  meta: { name: 'typescript', version, compatibility },
   build({ extension = DEFAULT_EXTENSION }) {
     return {
       extNames: ['.ts', '.js'],

@@ -1,5 +1,7 @@
 import { ast, createAdapter } from '@kubb/kit'
 import type { AdapterSource } from '@kubb/kit'
+import { compatibility } from '../kubb-extension.json'
+import { version } from '../package.json'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './emit/discriminator/propagate.ts'
 import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
@@ -47,7 +49,7 @@ export const adapterOasName = 'oas' satisfies AdapterOas['name']
  * ```
  */
 export const adapterOas = createAdapter<AdapterOas>({
-  meta: { name: adapterOasName },
+  meta: { name: adapterOasName, version, compatibility },
   setup: ({
     validate = true,
     contentType,

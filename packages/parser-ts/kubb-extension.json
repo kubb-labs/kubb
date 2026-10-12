@@ -1,0 +1,18 @@
+{
+  "$schema": "https://kubb.dev/schemas/kubb-extension.json",
+  "kind": "parser",
+  "name": "typescript",
+  "export": "parserTs",
+  "displayName": "TypeScript",
+  "description": "Prints the Kubb AST to TypeScript source with the official TypeScript compiler.",
+  "category": "typescript",
+  "icon": {
+    "light": "https://kubb.dev/feature/typescript.svg"
+  },
+  "tags": ["typescript", "tsx", "parser", "printer", "ast"],
+  "docs": "https://kubb.dev/parsers/parser-ts",
+  "compatibility": {
+    "kubb": ">=5.8.0",
+    "node": ">=22"
+  }
+}

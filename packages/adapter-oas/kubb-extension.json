@@ -1,0 +1,181 @@
+{
+  "$schema": "https://kubb.dev/schemas/kubb-extension.json",
+  "kind": "adapter",
+  "name": "oas",
+  "export": "adapterOas",
+  "displayName": "OpenAPI",
+  "description": "Reads an OpenAPI 2.0, 3.0, or 3.1 spec and converts every schema and operation into the AST that Kubb plugins generate from.",
+  "category": "openapi",
+  "icon": {
+    "light": "https://kubb.dev/feature/openapi.svg"
+  },
+  "tags": ["openapi", "swagger", "api-spec", "parser", "converter"],
+  "docs": "https://kubb.dev/adapters/adapter-oas",
+  "compatibility": {
+    "kubb": ">=5.8.0",
+    "node": ">=22"
+  },
+  "options": [
+    {
+      "key": "validate",
+      "path": ["validate"],
+      "label": "Validate",
+      "description": "Validate the spec before parsing. Each problem is reported as a warning and generation continues. Turn it off to speed up a large spec.",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "key": "dateType",
+      "path": ["dateType"],
+      "label": "Date Type",
+      "description": "How date-time, date, and time schemas are represented.",
+      "type": "select",
+      "default": "string",
+      "choices": [
+        {
+          "label": "string (ISO 8601)",
+          "value": "string"
+        },
+        {
+          "label": "stringOffset (with timezone offset)",
+          "value": "stringOffset"
+        },
+        {
+          "label": "stringLocal (without timezone)",
+          "value": "stringLocal"
+        },
+        {
+          "label": "date (JavaScript Date)",
+          "value": "date"
+        },
+        {
+          "label": "false (plain string, no validation)",
+          "value": false
+        }
+      ]
+    },
+    {
+      "key": "integerType",
+      "path": ["integerType"],
+      "label": "Integer Type",
+      "description": "How integer and int64 schemas map to TypeScript.",
+      "type": "select",
+      "default": "bigint",
+      "choices": [
+        {
+          "label": "bigint (exact for 64-bit IDs)",
+          "value": "bigint"
+        },
+        {
+          "label": "number (fits most JSON APIs)",
+          "value": "number"
+        }
+      ]
+    },
+    {
+      "key": "unknownType",
+      "path": ["unknownType"],
+      "label": "Unknown Type",
+      "description": "Type used when a schema's type cannot be inferred from the spec.",
+      "type": "select",
+      "default": "unknown",
+      "choices": [
+        {
+          "label": "unknown",
+          "value": "unknown"
+        },
+        {
+          "label": "any",
+          "value": "any"
+        },
+        {
+          "label": "void",
+          "value": "void"
+        }
+      ]
+    },
+    {
+      "key": "emptySchemaType",
+      "path": ["emptySchemaType"],
+      "label": "Empty Schema Type",
+      "description": "Type used for empty schemas ({}). Follows Unknown Type when unset.",
+      "type": "select",
+      "choices": [
+        {
+          "label": "same as Unknown Type",
+          "value": null
+        },
+        {
+          "label": "unknown",
+          "value": "unknown"
+        },
+        {
+          "label": "any",
+          "value": "any"
+        },
+        {
+          "label": "void",
+          "value": "void"
+        }
+      ]
+    },
+    {
+      "key": "enumSuffix",
+      "path": ["enumSuffix"],
+      "label": "Enum Suffix",
+      "description": "Suffix for enum names Kubb derives, such as PetStatusEnum.",
+      "type": "text",
+      "default": "enum"
+    },
+    {
+      "key": "contentType",
+      "path": ["contentType"],
+      "label": "Content Type",
+      "description": "Preferred media type when an operation defines several. Defaults to the first JSON media type in the spec.",
+      "type": "text"
+    },
+    {
+      "key": "serverIndex",
+      "path": ["server", "index"],
+      "label": "Server Index",
+      "description": "Index in the spec's servers array that resolves the base URL. Leave empty for no base URL.",
+      "type": "number"
+    },
+    {
+      "key": "discriminator",
+      "path": ["discriminator"],
+      "label": "Discriminator",
+      "description": "How discriminator fields on oneOf and anyOf schemas are interpreted.",
+      "type": "select",
+      "default": "preserve",
+      "choices": [
+        {
+          "label": "preserve (keep child schemas as written)",
+          "value": "preserve"
+        },
+        {
+          "label": "propagate (add the literal value to each child)",
+          "value": "propagate"
+        }
+      ]
+    },
+    {
+      "key": "enums",
+      "path": ["enums"],
+      "label": "Enums",
+      "description": "Where inline enums live.",
+      "type": "select",
+      "default": "inline",
+      "choices": [
+        {
+          "label": "inline (on the property)",
+          "value": "inline"
+        },
+        {
+          "label": "root (reusable top-level schema)",
+          "value": "root"
+        }
+      ]
+    }
+  ]
+}

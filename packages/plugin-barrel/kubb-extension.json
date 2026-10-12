@@ -1,0 +1,18 @@
+{
+  "$schema": "https://kubb.dev/schemas/kubb-extension.json",
+  "kind": "plugin",
+  "name": "plugin-barrel",
+  "export": "pluginBarrel",
+  "displayName": "Barrel",
+  "description": "Generates index.ts barrel files for every plugin output and one root barrel.",
+  "category": "output",
+  "icon": {
+    "light": "https://kubb.dev/feature/plugins-light.svg"
+  },
+  "tags": ["barrel", "index", "exports", "output"],
+  "docs": "https://kubb.dev/plugins/plugin-barrel",
+  "compatibility": {
+    "kubb": ">=5.8.0",
+    "node": ">=22"
+  }
+}
