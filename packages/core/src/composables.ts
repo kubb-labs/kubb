@@ -6,10 +6,19 @@ import { Diagnostics } from './Diagnostics.ts'
 import type { Resolver, ResolverPatch } from './Resolver.ts'
 import type { Config } from './types.ts'
 
+const kubbContextKey = Symbol.for('kubb.context')
+
+type KubbContextHost = typeof globalThis & { [kubbContextKey]?: AsyncLocalStorage<KubbPluginSetupContext> }
+
+const host = globalThis as KubbContextHost
+
 /**
  * Holds the setup context of the plugin whose `setup` or `kubb:plugin:setup` is running. `KubbDriver` sets it for each plugin.
+ *
+ * The store lives on `globalThis`, so the ESM and CommonJS builds of `@kubb/core` share one. A plugin that a
+ * CommonJS config loads would otherwise read an empty store and fail with `KUBB_NO_CONTEXT`.
  */
-export const kubbContext = new AsyncLocalStorage<KubbPluginSetupContext>()
+export const kubbContext: AsyncLocalStorage<KubbPluginSetupContext> = (host[kubbContextKey] ??= new AsyncLocalStorage<KubbPluginSetupContext>())
 
 function requireContext(caller: string): KubbPluginSetupContext {
   const ctx = kubbContext.getStore()

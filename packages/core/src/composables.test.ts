@@ -204,3 +204,15 @@ describe('KubbDriver#setupHooks with composables', () => {
     expect(files.map((generated) => generated.path)).toStrictEqual(['/gen/Pet.ts'])
   })
 })
+
+describe('kubbContext', () => {
+  it('is shared by a second copy of the module, like the ESM and CommonJS builds of @kubb/core', async () => {
+    vi.resetModules()
+    const other = await import('./composables.ts')
+
+    expect(other.kubbContext).toBe(kubbContext)
+
+    const ctx = createMockedSetupContext()
+    kubbContext.run(ctx, () => expect(other.useKubb()).toBe(ctx))
+  })
+})
