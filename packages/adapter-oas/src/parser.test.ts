@@ -1,4 +1,4 @@
-import { ast } from '@kubb/kit'
+import { ast, type Diagnostic, Diagnostics } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
 import { adapterOas } from './adapter.ts'
@@ -646,6 +646,42 @@ describe('parseSchema metadata', () => {
     { title: 'null in the enum values (OAS 3.0 convention)', schema: { enum: ['a', 'b', null] } },
   ] satisfies Array<{ title: string; schema: SchemaObject }>)('sets nullable via $title', ({ schema }) => {
     expect(parseSchema(emptyCtx, { schema }).nullable).toBe(true)
+  })
+})
+
+describe('parseSchema x-kubb-type', () => {
+  it('maps the extension to an unknown node with a custom type, whatever its other keywords say', () => {
+    const schema = { oneOf: [{ type: 'string' }], description: 'Customize names', 'x-kubb-type': { name: 'ResolverPatch', import: 'kubb/kit' } } as SchemaObject
+
+    expect(parseSchema(emptyCtx, { schema })).toMatchObject({
+      type: 'unknown',
+      description: 'Customize names',
+      customType: { name: 'ResolverPatch', importPath: 'kubb/kit' },
+    })
+  })
+
+  it('omits importPath for a global type', () => {
+    const schema = { 'x-kubb-type': { name: 'RegExp' } } as SchemaObject
+
+    expect(parseSchema(emptyCtx, { schema }).customType).toStrictEqual({ name: 'RegExp' })
+  })
+
+  it.each([
+    { title: 'a name that is not a type name', value: { name: 'Foo; export {}' } },
+    { title: 'an import with a quote', value: { name: 'Foo', import: "kubb'/kit" } },
+    { title: 'a string instead of an object', value: 'Foo' },
+  ])('ignores $title and reports a warning', async ({ value }) => {
+    const diagnostics: Array<Diagnostic> = []
+    const schema = { type: 'string', 'x-kubb-type': value } as SchemaObject
+
+    const node = await Diagnostics.scope(
+      (diagnostic) => diagnostics.push(diagnostic),
+      () => parseSchema(emptyCtx, { schema }),
+    )
+
+    expect(node).toMatchObject({ type: 'string' })
+    expect(node.customType).toBeUndefined()
+    expect(diagnostics).toMatchObject([{ code: Diagnostics.code.invalidSpec, severity: 'warning' }])
   })
 })
 

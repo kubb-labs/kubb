@@ -14,6 +14,7 @@ export type { RequestBodyNode } from './nodes/requestBody.ts'
 export type { ResponseNode, StatusCode } from './nodes/response.ts'
 export type {
   ArraySchemaNode,
+  CustomType,
   DateSchemaNode,
   DatetimeSchemaNode,
   EnumSchemaNode,
