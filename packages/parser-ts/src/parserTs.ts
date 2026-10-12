@@ -48,45 +48,47 @@ export type ParserTsOptions = {
  * })
  * ```
  */
-export const parserTs = defineParser<ParserTsOptions, object, ts.Node>(({ extension = DEFAULT_EXTENSION } = {}) => {
-  return {
-    name: 'typescript',
-    extNames: ['.ts', '.js'],
-    print,
-    parse(file) {
-      const extname = extension[file.extname] || undefined
+export const parserTs = defineParser<ParserTsOptions, object, ts.Node>({
+  meta: { name: 'typescript' },
+  setup({ extension = DEFAULT_EXTENSION }) {
+    return {
+      extNames: ['.ts', '.js'],
+      print,
+      parse(file) {
+        const extname = extension[file.extname] || undefined
 
-      const source = file.sources
-        .map((item) => printSource(item))
-        .filter(Boolean)
-        .map((text) => text.trimEnd())
-        .join('\n\n')
+        const source = file.sources
+          .map((item) => printSource(item))
+          .filter(Boolean)
+          .map((text) => text.trimEnd())
+          .join('\n\n')
 
-      const importLines = file.imports.map((item) =>
-        printImport({
-          ...item,
-          path: resolveOutputPath(item.root ? getRelativePath(item.root, item.path) : item.path, { extname }, Boolean(item.root)),
-        }),
-      )
+        const importLines = file.imports.map((item) =>
+          printImport({
+            ...item,
+            path: resolveOutputPath(item.root ? getRelativePath(item.root, item.path) : item.path, { extname }, Boolean(item.root)),
+          }),
+        )
 
-      const exportLines = file.exports.map((item) => printExport({ ...item, path: resolveOutputPath(item.path, { extname }, item.path.startsWith('.')) }))
+        const exportLines = file.exports.map((item) => printExport({ ...item, path: resolveOutputPath(item.path, { extname }, item.path.startsWith('.')) }))
 
-      const importExportBlock = [...importLines, ...exportLines].join('\n')
+        const importExportBlock = [...importLines, ...exportLines].join('\n')
 
-      const parts = [file.banner, importExportBlock, source, file.footer].filter((segment): segment is string => Boolean(segment)).map((s) => s.trimEnd())
+        const parts = [file.banner, importExportBlock, source, file.footer].filter((segment): segment is string => Boolean(segment)).map((s) => s.trimEnd())
 
-      return parts.join('\n\n')
-    },
-    copy(file, source) {
-      const { header, imports, exports, body } = splitModuleDeclarations(source, file.path)
+        return parts.join('\n\n')
+      },
+      copy(file, source) {
+        const { header, imports, exports, body } = splitModuleDeclarations(source, file.path)
 
-      return {
-        ...file,
-        banner: [header, file.banner].filter(Boolean).join('\n') || undefined,
-        imports: [...file.imports, ...imports],
-        exports: [...file.exports, ...exports],
-        sources: [ast.factory.createSource({ nodes: [ast.factory.createText(body)] })],
-      }
-    },
-  }
+        return {
+          ...file,
+          banner: [header, file.banner].filter(Boolean).join('\n') || undefined,
+          imports: [...file.imports, ...imports],
+          exports: [...file.exports, ...exports],
+          sources: [ast.factory.createSource({ nodes: [ast.factory.createText(body)] })],
+        }
+      },
+    }
+  },
 })
