@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, fsStorage, type PostGenerateCommand, resolveCacheDir, type UserConfig } from '@kubb/core'
+import { type Config, definePlugin, fsStorage, type PostGenerateCommand, resolveCacheDir, type UserConfig } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as config from '../../config.ts'
 import * as env from '../../utils/env.ts'
@@ -11,9 +11,9 @@ import { run } from './run.ts'
 
 type BootstrapOptions = {
   /**
-   * Reject the config load, so the group has a failure to report.
+   * Reject the config load, with this error or a plain one, so the group has a failure to report.
    */
-  fail?: boolean
+  fail?: boolean | Error
   reporters?: Array<'cli' | 'json'>
   /**
    * Configs the mocked loader returns. Empty renders only the Configuration group.
@@ -39,7 +39,9 @@ async function bootstrap({ fail = false, reporters, configs = [] }: BootstrapOpt
   using _configs = vi
     .spyOn(config, 'getConfigs')
     .mockImplementation(() =>
-      fail ? Promise.reject(new Error('Config not defined')) : Promise.resolve({ configs, configPath: `${process.cwd()}/kubb.config.ts` }),
+      fail
+        ? Promise.reject(fail instanceof Error ? fail : new Error('Config not defined'))
+        : Promise.resolve({ configs, configPath: `${process.cwd()}/kubb.config.ts` }),
     )
 
   await run({ logLevel: 'info', watch: false, reporters }).catch((error: Error) => void lines.push(error.message))
@@ -61,6 +63,31 @@ describe('bootstrap configuration group', () => {
 
     expect(lines).toContain('✗ Config failed loading')
     expect(lines).toContain('✗ Configuration failed')
+    expect(lines.at(-1)).toBe('exit 1')
+  })
+
+  it('reports invalid plugin options thrown while the config file runs with their code and path', async () => {
+    const pluginExample = definePlugin({
+      meta: { name: 'plugin-example' },
+      schema: {
+        '~standard': {
+          version: 1,
+          vendor: 'test',
+          validate: () => ({ issues: [{ message: 'Invalid option', path: ['enum', 'type'] }] }),
+        },
+      },
+    })
+    const cause = (() => {
+      try {
+        pluginExample({ enum: { type: 'nope' } })
+      } catch (error) {
+        return error
+      }
+    })()
+
+    const lines = await bootstrap({ fail: new Error('Config failed loading', { cause }) })
+
+    expect(lines.some((line) => line.includes('[KUBB_INVALID_OPTIONS]') && line.includes('`enum.type`: Invalid option'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })
 
