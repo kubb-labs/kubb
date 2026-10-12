@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import path from 'node:path'
@@ -23,15 +24,12 @@ function dependencyNames(packageJSON: unknown): Array<string> {
   return [dependencies, devDependencies].flatMap((record) => (typeof record === 'object' && record !== null ? Object.keys(record) : []))
 }
 
+/** The installed package folder, found on disk because an `exports` map may hide its `package.json` and manifest. */
 function packageDir(require: NodeRequire, packageName: string): string | undefined {
-  for (const file of ['kubb-extension.json', 'package.json']) {
-    try {
-      return path.dirname(require.resolve(`${packageName}/${file}`))
-    } catch {
-      // Not exported or not installed, try the next file.
-    }
-  }
-  return undefined
+  return require.resolve
+    .paths(packageName)
+    ?.map((dir) => path.join(dir, packageName))
+    .find((dir) => existsSync(path.join(dir, 'package.json')))
 }
 
 /** Reads `<packageName>/kubb-extension.json`, or `undefined` when it is missing or invalid. */

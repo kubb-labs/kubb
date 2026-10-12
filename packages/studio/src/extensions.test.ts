@@ -54,6 +54,16 @@ describe('discoverExtensions', () => {
     expect(extensions.has('@acme/plugin-y')).toBe(false)
   })
 
+  it('finds the manifest of a package whose exports map hides it', async () => {
+    await writeFile(path.join(root, 'package.json'), JSON.stringify({ dependencies: { '@acme/plugin-x': '^1.0.0' } }))
+    await addPackage('@acme/plugin-x', {
+      'package.json': { name: '@acme/plugin-x', version: '1.0.0', exports: { '.': './index.js' } },
+      'kubb-extension.json': manifest,
+    })
+
+    expect((await discoverExtensions({ root })).get('@acme/plugin-x')).toStrictEqual({ package: '@acme/plugin-x', version: '1.0.0', manifest })
+  })
+
   it('returns an empty set for a root without a package.json', async () => {
     expect((await discoverExtensions({ root })).has('@acme/plugin-x')).toBe(false)
   })

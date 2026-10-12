@@ -18,11 +18,15 @@ export type AddOptions = {
   install: boolean
 }
 
-/** The lines to add to `kubb.config.ts` by hand. */
+/** The import and the `defineConfig` property to merge into `kubb.config.ts` by hand. */
 export function toSnippet({ artifact, manifest }: Pick<RegistryDetail, 'artifact' | 'manifest'>): string {
   const call = `${manifest.export}()`
-  const key: Record<ExtensionManifest['kind'], string> = { plugin: `plugins: [${call}]`, adapter: `adapter: ${call}`, parser: `parsers: [${call}]` }
-  return [`import { ${manifest.export} } from '${artifact.package}'`, '', 'export default defineConfig({', `  ${key[manifest.kind]},`, '})'].join('\n')
+  const property: Record<ExtensionManifest['kind'], string> = {
+    plugin: `plugins: [..., ${call}],`,
+    adapter: `adapter: ${call},`,
+    parser: `parsers: [..., ${call}],`,
+  }
+  return [`import { ${manifest.export} } from '${artifact.package}'`, '', property[manifest.kind]].join('\n')
 }
 
 /** Adds the plugin call and its import to the config file. Returns why it could not, or `undefined`. */
@@ -86,7 +90,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     const reason = configFile ? await addToConfig({ detail, configFile }) : `add the ${manifest.kind} to your config`
     if (reason) {
       if (configFile) logWarn(`Could not edit ${configFile}: ${reason}`)
-      logBlock(['Add this to your Kubb config:', '', toSnippet(detail)])
+      logBlock(['Add the import to your Kubb config and merge the property into its defineConfig call:', '', toSnippet(detail)])
     }
 
     logOutro(styleText('green', `Added ${spec}`))

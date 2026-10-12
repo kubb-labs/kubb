@@ -49,7 +49,7 @@ export async function run({ ids, check, yes }: UpdateOptions): Promise<void> {
     }
 
     if (!proposals.length) {
-      logOutro('Every installed extension is up to date.')
+      logOutro(ids.length ? `No updates for ${ids.join(', ')}.` : 'Every installed extension is up to date.')
       return
     }
 

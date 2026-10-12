@@ -58,6 +58,6 @@ describe('kubb update', () => {
     await run({ ids: ['acme/plugin-y'], check: false, yes: true })
 
     expect(installPackages).not.toHaveBeenCalled()
-    expect(output.join('\n')).toContain('Every installed extension is up to date.')
+    expect(output.join('\n')).toContain('No updates for acme/plugin-y.')
   })
 })

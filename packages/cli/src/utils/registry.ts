@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import path from 'node:path'
@@ -102,12 +103,12 @@ async function readJSON(file: string): Promise<unknown> {
   return JSON.parse(await readFile(file, 'utf8')) as unknown
 }
 
-function packageDir(require: NodeRequire, name: string): string {
-  try {
-    return path.dirname(require.resolve(`${name}/kubb-extension.json`))
-  } catch {
-    return path.dirname(require.resolve(`${name}/package.json`))
-  }
+/** The installed package folder, found on disk because an `exports` map may hide its `package.json` and manifest. */
+function packageDir(require: NodeRequire, name: string): string | undefined {
+  return require.resolve
+    .paths(name)
+    ?.map((dir) => path.join(dir, name))
+    .find((dir) => existsSync(path.join(dir, 'package.json')))
 }
 
 /**
@@ -125,6 +126,7 @@ export async function readInstalledPackages(cwd: string = process.cwd()): Promis
     [...new Set(names)].filter(isPackageName).map(async (name): Promise<InstalledPackage> => {
       try {
         const dir = packageDir(require, name)
+        if (!dir) return { package: name }
         const { version } = (await readJSON(path.join(dir, 'package.json'))) as { version?: unknown }
         const manifest = await readJSON(path.join(dir, 'kubb-extension.json')).catch(() => undefined)
         return { package: name, version: typeof version === 'string' ? version : undefined, manifest: isExtensionManifest(manifest) ? manifest : undefined }

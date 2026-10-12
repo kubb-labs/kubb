@@ -81,6 +81,7 @@ describe('kubb add', () => {
     expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toBe(configSource)
     expect(output.join('\n')).toContain(`import { adapterX } from '@acme/kubb-adapter-x'`)
     expect(output.join('\n')).toContain('adapter: adapterX(),')
+    expect(output.join('\n')).not.toContain('export default defineConfig(')
   })
 
   it('refuses an extension that needs another Kubb version', async () => {
