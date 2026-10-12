@@ -8,9 +8,7 @@ import { loadTypeScript, readOptionTypes } from './typescript.ts'
 
 type Person = string | { name?: string; email?: string; url?: string }
 
-/**
- * The `package.json` fields `kubb extension build` reads.
- */
+/** The `package.json` fields `kubb extension build` reads. */
 export type PackageJson = {
   name?: string
   version?: string
@@ -24,9 +22,7 @@ export type PackageJson = {
   engines?: { node?: string }
 }
 
-/**
- * A factory the package exports, as found on the imported entry.
- */
+/** A factory the package exports, as found on the imported entry. */
 export type ExportedExtension = {
   exportName: string
   kind: ExtensionKind
@@ -48,9 +44,7 @@ function pickExport(target: unknown): string | undefined {
   return undefined
 }
 
-/**
- * Returns the absolute path of the built entry: `exports['.']`, else `module`, else `main`.
- */
+/** Returns the absolute path of the built entry: `exports['.']`, else `module`, else `main`. */
 export function resolveBuiltEntry(packageJson: PackageJson, cwd: string): string {
   const { exports } = packageJson
   const rootExport = exports && typeof exports === 'object' && !Array.isArray(exports) && '.' in exports ? (exports as Record<string, unknown>)['.'] : exports
@@ -146,9 +140,7 @@ function toRepositoryUrl(url: string): string {
   return url.replace(/^git\+/, '').replace(/\.git$/, '')
 }
 
-/**
- * Returns the `package.json` fields a manifest carries next to its extensions.
- */
+/** Returns the `package.json` fields a manifest carries next to its extensions. */
 export function readPackageFields(packageJson: PackageJson): Omit<KubbManifest, 'extensions'> {
   const { name, version, repository, bugs, author, contributors = [], engines } = packageJson
   if (!name || !version) throw new Error('package.json needs a `name` and a `version` to build a manifest.')

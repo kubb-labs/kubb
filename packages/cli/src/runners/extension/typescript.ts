@@ -2,36 +2,22 @@ import path from 'node:path'
 import type { OptionsDocument } from '@kubb/core'
 import type * as TS from 'typescript'
 
-/**
- * What the TypeScript declaration of one option adds to its options document node.
- */
+/** What the TypeScript declaration of one option adds to its options document node. */
 export type OptionAnnotation = {
-  /**
-   * The JSDoc body.
-   */
+  /** The JSDoc body. */
   description?: string
   deprecated?: boolean
-  /**
-   * One entry per `@example` tag.
-   */
+  /** One entry per `@example` tag. */
   examples?: Array<string>
-  /**
-   * The first `@see` tag.
-   */
+  /** The first `@see` tag. */
   docs?: string
-  /**
-   * `checker.typeToString` of the option's type, without `undefined`.
-   */
+  /** `checker.typeToString` of the option's type, without `undefined`. */
   type: string
-  /**
-   * The `@default` tag, as a JSON value when it parses as one, else as text.
-   */
+  /** The `@default` tag, as a JSON value when it parses as one, else as text. */
   default?: { value: unknown } | { text: string }
 }
 
-/**
- * An export's options as TypeScript sees them: a JSON Schema built from the type, and the annotations of every option.
- */
+/** An export's options as TypeScript sees them: a JSON Schema built from the type, and the annotations of every option. */
 export type OptionTypes = {
   document: OptionsDocument
   annotations: Array<{ path: Array<string>; annotation: OptionAnnotation }>
@@ -40,9 +26,7 @@ export type OptionTypes = {
 type WalkContext = {
   path: Array<string>
   depth: number
-  /**
-   * Object types on the way down, to stop on recursive types.
-   */
+  /** Object types on the way down, to stop on recursive types. */
   seen: ReadonlyArray<TS.Type>
   annotations: OptionTypes['annotations']
 }
@@ -50,9 +34,7 @@ type WalkContext = {
 // Deep enough for `output.barrel.type`, shallow enough to stop on recursive types.
 const maxDepth = 6
 
-/**
- * Loads the optional `typescript` peer dependency.
- */
+/** Loads the optional `typescript` peer dependency. */
 export async function loadTypeScript(): Promise<typeof TS> {
   try {
     const ts = await import('typescript')
@@ -75,9 +57,7 @@ function parseDefault(raw: string): OptionAnnotation['default'] {
   return { text }
 }
 
-/**
- * Turns `{@link Foo}` into `` `Foo` ``, and `{@link target | label}` or `{@link target label}` into its label.
- */
+/** Turns `{@link Foo}` into `` `Foo` ``, and `{@link target | label}` or `{@link target label}` into its label. */
 function formatLinks(text: string): string {
   return text.replace(/\{@link(?:code|plain)?\s+([^\s|}]+)(?:\s*\|\s*|\s+)?([^}]*)\}/g, (_match, target: string, label: string) => {
     if (label.trim()) return label.trim()
@@ -95,9 +75,7 @@ function readCompilerOptions(ts: typeof TS, cwd: string): TS.CompilerOptions {
   return ts.parseJsonConfigFileContent(config, ts.sys, path.dirname(configPath)).options
 }
 
-/**
- * Reads the options type of each export in `exportNames` from `entry`: the first parameter of its call signature.
- */
+/** Reads the options type of each export in `exportNames` from `entry`: the first parameter of its call signature. */
 export function readOptionTypes(
   ts: typeof TS,
   { cwd, entry, exportNames }: { cwd: string; entry: string; exportNames: Array<string> },

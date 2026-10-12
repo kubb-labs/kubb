@@ -9,28 +9,18 @@ import { buildManifest } from './manifest.ts'
 
 type BuildOptions = {
   cwd: string
-  /**
-   * TypeScript source entry, relative to `cwd`.
-   */
+  /** TypeScript source entry, relative to `cwd`. */
   entry: string
-  /**
-   * Manifest path, relative to `cwd`.
-   */
+  /** Manifest path, relative to `cwd`. */
   out: string
-  /**
-   * Compare with the file at `out` instead of writing it.
-   */
+  /** Compare with the file at `out` instead of writing it. */
   check: boolean
 }
 
-/**
- * `written` after a write. With `check`, `up-to-date`, `outdated` or `missing`.
- */
+/** `written` after a write. With `check`, `up-to-date`, `outdated` or `missing`. */
 export type BuildStatus = 'written' | 'up-to-date' | 'outdated' | 'missing'
 
-/**
- * Returns one line per place where `manifest` does not match `kubbManifestJsonSchema`.
- */
+/** Returns one line per place where `manifest` does not match `kubbManifestJsonSchema`. */
 export function validateManifest(manifest: KubbManifest): Array<string> {
   const ajv = new Ajv2020({ allErrors: true, allowUnionTypes: true })
   const validate = ajv.compile(kubbManifestJsonSchema)

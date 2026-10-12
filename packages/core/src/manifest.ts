@@ -4,53 +4,31 @@ import path from 'node:path'
 import type { ExtensionKind, ExtensionMeta } from './defineExtension.ts'
 import type { StandardJSONSchemaV1, StandardSchemaV1 } from './standardSchema.ts'
 
-/**
- * URL of {@link kubbManifestJsonSchema}. Manifests set it as `$schema`.
- */
+/** URL of {@link kubbManifestJsonSchema}. Manifests set it as `$schema`. */
 export const kubbManifestSchemaUrl = 'https://kubb.dev/schemas/kubb.json'
 
-/**
- * A value an option is compared against in an `x-kubb-when` condition.
- */
+/** A value an option is compared against in an `x-kubb-when` condition. */
 export type OptionWhenValue = string | number | boolean | null
 
-/**
- * Kubb's `x-kubb-*` keys on an option. Studio and the docs read them next to the JSON Schema keywords.
- */
+/** Kubb's `x-kubb-*` keys on an option. Studio and the docs read them next to the JSON Schema keywords. */
 export type OptionMeta = {
-  /**
-   * The option's TypeScript type as written for users, such as `'inline' | 'root'`.
-   */
+  /** The option's TypeScript type as written for users, such as `'inline' | 'root'`. */
   'x-kubb-type'?: string
-  /**
-   * The default as display text, when it is not a JSON value, such as `unknownType` or a function.
-   */
+  /** The default as display text, when it is not a JSON value, such as `unknownType` or a function. */
   'x-kubb-default'?: string
-  /**
-   * Suggested values of an option that accepts any string.
-   */
+  /** Suggested values of an option that accepts any string. */
   'x-kubb-values'?: Array<string>
-  /**
-   * Shows the option only when every entry matches. Keys are dotted option paths, such as `'enum.type'`.
-   */
+  /** Shows the option only when every entry matches. Keys are dotted option paths, such as `'enum.type'`. */
   'x-kubb-when'?: Record<string, OptionWhenValue | Array<OptionWhenValue>>
-  /**
-   * Link to the option's documentation.
-   */
+  /** Link to the option's documentation. */
   'x-kubb-docs'?: string
-  /**
-   * Name of the section the option is listed under.
-   */
+  /** Name of the section the option is listed under. */
   'x-kubb-group'?: string
-  /**
-   * Position of the option within its section. Lower comes first.
-   */
+  /** Position of the option within its section. Lower comes first. */
   'x-kubb-order'?: number
 }
 
-/**
- * A JSON Schema (draft 2020-12) of an extension's options, with Kubb's `x-kubb-*` keys on each option.
- */
+/** A JSON Schema (draft 2020-12) of an extension's options, with Kubb's `x-kubb-*` keys on each option. */
 export type OptionsDocument = OptionMeta & {
   type?: string | Array<string>
   title?: string
@@ -73,32 +51,22 @@ export type OptionsDocument = OptionMeta & {
   [keyword: string]: unknown
 }
 
-/**
- * `ExtensionMeta` as JSON: `contributes` holds options documents instead of schemas.
- */
+/** `ExtensionMeta` as JSON: `contributes` holds options documents instead of schemas. */
 export type ExtensionManifestMeta = Omit<ExtensionMeta, 'contributes'> & {
   contributes?: Record<string, OptionsDocument>
 }
 
-/**
- * One extension in a {@link KubbManifest}: what it is, its `meta`, and its options.
- */
+/** One extension in a {@link KubbManifest}: what it is, its `meta`, and its options. */
 export type ExtensionManifest = {
   kind: ExtensionKind
-  /**
-   * Name of the package export that holds the factory, such as `'adapterOas'`.
-   */
+  /** Name of the package export that holds the factory, such as `'adapterOas'`. */
   export?: string
   meta: ExtensionManifestMeta
-  /**
-   * The options the factory accepts. `{}` when the extension describes none.
-   */
+  /** The options the factory accepts. `{}` when the extension describes none. */
   options: OptionsDocument
 }
 
-/**
- * A person from `package.json#author` or `package.json#contributors`.
- */
+/** A person from `package.json#author` or `package.json#contributors`. */
 export type ManifestContributor = {
   name: string
   email?: string
@@ -111,18 +79,14 @@ export type ManifestContributor = {
  */
 export type KubbManifest = {
   $schema?: string
-  /**
-   * npm package name.
-   */
+  /** npm package name. */
   name: string
   version: string
   repository?: {
     url: string
     directory?: string
   }
-  /**
-   * URL of the issue tracker.
-   */
+  /** URL of the issue tracker. */
   bugs?: string
   contributors?: Array<ManifestContributor>
   engines?: {
@@ -133,9 +97,7 @@ export type KubbManifest = {
 
 const optionsDocumentRef = { $ref: '#/$defs/optionsDocument' } as const
 
-/**
- * JSON Schema of {@link KubbManifest}, served at `https://kubb.dev/schemas/kubb.json`.
- */
+/** JSON Schema of {@link KubbManifest}, served at `https://kubb.dev/schemas/kubb.json`. */
 export const kubbManifestJsonSchema = {
   $schema: 'https://json-schema.org/draft/2020-12/schema',
   $id: kubbManifestSchemaUrl,
@@ -287,9 +249,7 @@ export function toOptionsDocument(schema: StandardSchemaV1 | undefined): Options
   return document as OptionsDocument
 }
 
-/**
- * Builds an extension's manifest entry from its `meta` and options schema.
- */
+/** Builds an extension's manifest entry from its `meta` and options schema. */
 export function toExtensionManifest({
   kind,
   meta,
@@ -339,9 +299,7 @@ export async function readExtensionManifest(packageName: string, { cwd }: { cwd:
   }
 }
 
-/**
- * An extension factory such as `pluginTs`, or the extension it returned.
- */
+/** An extension factory such as `pluginTs`, or the extension it returned. */
 export type ManifestSource = {
   kind?: ExtensionKind
   name?: string
