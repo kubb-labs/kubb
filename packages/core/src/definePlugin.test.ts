@@ -3,7 +3,7 @@ import type { SchemaNode } from '@kubb/ast'
 import { createMockedAdapter, createMockedSetupContext } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
-import { assertPluginOptionValue, definePlugin, normalizeOutput } from './definePlugin.ts'
+import { assertPluginOption, definePlugin, normalizeOutput } from './definePlugin.ts'
 import type { OutputOptions, Output, Plugin, PluginFactoryOptions, ResolvePluginOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -369,9 +369,9 @@ describe('declare global augmentation', () => {
   })
 })
 
-describe('assertPluginOptionValue', () => {
+describe('assertPluginOption', () => {
   it('accepts an allowed value', () => {
-    expect(() => assertPluginOptionValue({ plugin: 'plugin-ts', option: 'syntaxType', value: 'interface', allowed: ['type', 'interface'] })).not.toThrow()
+    expect(() => assertPluginOption({ plugin: 'plugin-ts', option: 'syntaxType', value: 'interface', allowed: ['type', 'interface'] })).not.toThrow()
   })
 
   it.each([
@@ -380,7 +380,7 @@ describe('assertPluginOptionValue', () => {
     [1, '1'],
     [1n, '1'],
   ])('throws KUBB_INVALID_PLUGIN_OPTIONS with the allowed values for %s', (value, shown) => {
-    expect(() => assertPluginOptionValue({ plugin: 'plugin-ts', option: 'syntaxType', value, allowed: ['type', 'interface'] })).toThrow(
+    expect(() => assertPluginOption({ plugin: 'plugin-ts', option: 'syntaxType', value, allowed: ['type', 'interface'] })).toThrow(
       expect.objectContaining({
         diagnostic: expect.objectContaining({
           code: Diagnostics.code.invalidPluginOptions,

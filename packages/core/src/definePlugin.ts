@@ -143,7 +143,7 @@ export function normalizeOutput({ output, group, pluginName }: { output: Output;
 }
 
 /** Throws `KUBB_INVALID_PLUGIN_OPTIONS`, listing the allowed values, when `value` is not one of `allowed`. */
-export function assertPluginOptionValue({
+export function assertPluginOption({
   plugin,
   option,
   value,
