@@ -72,7 +72,9 @@ export const diagnosticCode = {
    * A plugin reported an informational message through `ctx.info`.
    */
   pluginInfo: 'KUBB_PLUGIN_INFO',
-  /** A `kubb/kit` composable was called outside `kubb:plugin:setup`. */
+  /**
+   * A `kubb/kit` composable was called outside `kubb:plugin:setup`.
+   */
   noContext: 'KUBB_NO_CONTEXT',
   /**
    * A schema uses a `format` Kubb does not map to a specific type. Reserved for

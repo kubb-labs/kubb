@@ -5,7 +5,9 @@ import type { KubbPluginSetupContext, NormalizedPlugin, PluginFactoryOptions, Pl
 import { Diagnostics } from './Diagnostics.ts'
 import type { Resolver, ResolverPatch } from './Resolver.ts'
 
-/** The setup context of the plugin whose `kubb:plugin:setup` is running, entered by `KubbDriver`. */
+/**
+ * Holds the setup context of the plugin whose `kubb:plugin:setup` is running. `KubbDriver` sets it for each plugin.
+ */
 export const kubbContext = new AsyncLocalStorage<KubbPluginSetupContext>()
 
 function requireContext(caller: string): KubbPluginSetupContext {
@@ -21,27 +23,25 @@ function requireContext(caller: string): KubbPluginSetupContext {
 }
 
 /**
- * Returns the setup context of the plugin being set up, also after an `await` in setup.
- * Throws `KUBB_NO_CONTEXT` outside `kubb:plugin:setup`.
+ * Returns the context of the plugin whose `kubb:plugin:setup` is running. It stays available after an `await`.
+ * Throws `KUBB_NO_CONTEXT` outside setup.
  */
 export function useKubb<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(): KubbPluginSetupContext<TFactory> {
   return requireContext('useKubb') as KubbPluginSetupContext<TFactory>
 }
 
-/** Like {@link useKubb}, but returns `undefined` outside `kubb:plugin:setup`. */
+/**
+ * Returns the same context as {@link useKubb}, or `undefined` outside `kubb:plugin:setup`.
+ */
 export function tryUseKubb<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(): KubbPluginSetupContext<TFactory> | undefined {
   return kubbContext.getStore() as KubbPluginSetupContext<TFactory> | undefined
 }
 
 /**
- * Registers generators on the plugin being set up. Same as `ctx.addGenerator`.
+ * Registers generators on the plugin being set up, like `ctx.addGenerator`.
  *
  * @example
- * ```ts
- * 'kubb:plugin:setup'() {
- *   addGenerator(typeGenerator, enumGenerator)
- * }
- * ```
+ * `addGenerator(typeGenerator, enumGenerator)`
  */
 export function addGenerator<TFactory extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown>(
   ...generators: Array<Generator<TFactory, TElement>>
@@ -49,27 +49,37 @@ export function addGenerator<TFactory extends PluginFactoryOptions = PluginFacto
   requireContext('addGenerator').addGenerator(...generators)
 }
 
-/** Same as `ctx.setResolver`. */
+/**
+ * Sets the resolver of the plugin being set up, like `ctx.setResolver`.
+ */
 export function setResolver<TResolver extends Resolver = Resolver>(resolver: ResolverPatch<TResolver> | TResolver): void {
   requireContext('setResolver').setResolver(resolver)
 }
 
-/** Same as `ctx.addMacro`. */
+/**
+ * Adds a macro to the plugin being set up, like `ctx.addMacro`.
+ */
 export function addMacro(macro: Macro): void {
   requireContext('addMacro').addMacro(macro)
 }
 
-/** Same as `ctx.setMacros`. */
+/**
+ * Replaces the macros of the plugin being set up, like `ctx.setMacros`.
+ */
 export function setMacros(macros: ReadonlyArray<Macro>): void {
   requireContext('setMacros').setMacros(macros)
 }
 
-/** Same as `ctx.injectFile`. */
+/**
+ * Adds a raw file to the build output, like `ctx.injectFile`.
+ */
 export function injectFile(file: UserFileNode): void {
   requireContext('injectFile').injectFile(file)
 }
 
-/** Returns another plugin, typed through `Kubb.PluginRegistry`. Same as `ctx.requirePlugin`. */
+/**
+ * Returns another plugin from the config, typed through `Kubb.PluginRegistry`, like `ctx.requirePlugin`.
+ */
 export function usePlugin<TName extends PluginName>(name: TName): NormalizedPlugin<ResolvePluginOptions<TName>> {
   return requireContext('usePlugin').requirePlugin(name) as NormalizedPlugin<ResolvePluginOptions<TName>>
 }
