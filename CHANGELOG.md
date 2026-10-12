@@ -1,5 +1,30 @@
 # Changelog
 
+## v5.8.1 — Oct 12, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- `createAdapter` takes an object with `meta`, `setup`, and `build`, like `definePlugin`. Kubb checks the adapter's `meta.compatibility` too.
+  
+  ```ts
+  export const adapterGraphql = createAdapter<AdapterGraphql>({
+    meta: { name: 'graphql', compatibility: { kubb: '>=5.8.0' } },
+    setup: (options) => ({ ...options, scalars: options.scalars ?? {} }),
+    build: (options) => ({ document: null, parse, validate }),
+  })
+  ```
+  
+  `defineParser` takes `build` in place of `setup`, and the parser exposes its `options`. The factory form of `createAdapter` and the parser `setup` key are deprecated. ([#4249](https://github.com/kubb-labs/kubb/pull/4249), [`3139832`](https://github.com/kubb-labs/kubb/commit/31398322aacb1cb599662ae54b99cef0ddbdd6e6))
+- Remove the options `schema` from `definePlugin`, with `PluginOptions`, `StandardSchemaV1`, `plugin.parsedOptions`, the `KUBB_INVALID_OPTIONS` diagnostic, and `@kubb/kit/options`. Type plugin options with TypeScript and apply their defaults in `setup`. `@kubb/kit` no longer depends on `zod`. ([#4252](https://github.com/kubb-labs/kubb/pull/4252), [`2a73acb`](https://github.com/kubb-labs/kubb/commit/2a73acba5e59a0dbbec61c1cb6becb23eef379eb))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.8.0 — Oct 12, 2026
 
 ### @kubb/core
