@@ -330,32 +330,16 @@ export type PluginFactoryOptions<
   resolver: TResolver
 }
 
-/**
- * Narrows a schema's input or output type to an object, as plugin options must be.
- */
 type AsObject<T> = T extends object ? T : object
 
-/**
- * The options type for a `TOptions` that is either an options type or a Standard Schema: the schema's input type, or `TOptions` itself.
- */
 type InferOptionsInput<TOptions> = TOptions extends StandardSchemaV1 ? AsObject<StandardSchemaV1.InferInput<TOptions>> : TOptions
 
-/**
- * The parsed options type for a `TOptions` that is either an options type or a Standard Schema: the schema's output type, or `TOptions` itself.
- */
 type InferOptionsOutput<TOptions> = TOptions extends StandardSchemaV1 ? AsObject<StandardSchemaV1.InferOutput<TOptions>> : TOptions
 
 /**
  * Type parameter for the object form of `definePlugin`. Same shape as `PluginFactoryOptions`, except that
  * `TOptions` can also be the plugin's options schema. Then `options` is the schema's input type, and
  * `parsedOptions` and the default `resolvedOptions` are its output type.
- *
- * @example
- * ```ts
- * const optionsSchema = z.object({ prefix: z.string().default('Api') })
- *
- * export type PluginExample = PluginType<'plugin-example', typeof optionsSchema>
- * ```
  */
 export type PluginType<
   TName extends string = string,

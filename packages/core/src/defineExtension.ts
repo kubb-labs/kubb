@@ -159,9 +159,6 @@ export function checkDependencies({
   }
 }
 
-/**
- * Joins a Standard Schema issue path into a dotted option path, such as `enum.type`.
- */
 function formatIssuePath(path: StandardSchemaV1.Issue['path']): string {
   return (path ?? []).map((segment) => String(typeof segment === 'object' ? segment.key : segment)).join('.')
 }
