@@ -78,12 +78,6 @@ export function checkCompatibility(meta: ExtensionMeta): void {
   }
 }
 
-/** Plugin names listed in `dependencies`, from either the array or the record form. */
-export function dependencyNames(dependencies: Array<PluginName> | ExtensionDependencyRecord | undefined): Array<string> {
-  if (!dependencies) return []
-  return Array.isArray(dependencies) ? dependencies : Object.keys(dependencies)
-}
-
 /**
  * Throws `KUBB_MISSING_DEPENDENCY` for a missing required entry in a `dependencies` record, and
  * `KUBB_INCOMPATIBLE_DEPENDENCY` when an entry's `meta.version` is out of range. Arrays are not checked.

@@ -7,7 +7,7 @@ import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginFactoryOptions } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
-import { checkCompatibility, checkDependencies, dependencyNames } from './defineExtension.ts'
+import { checkCompatibility, checkDependencies } from './defineExtension.ts'
 import { kubbContext } from './composables.ts'
 import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
@@ -169,7 +169,10 @@ export class KubbDriver {
     const queue = [...plugins].sort((a, b) => enforceWeight(a) - enforceWeight(b))
     const names = new Set(queue.map((plugin) => plugin.name))
     const blockedBy = new Map(
-      queue.map((plugin) => [plugin.name, new Set(dependencyNames(plugin.dependencies).filter((name) => names.has(name) && name !== plugin.name))]),
+      queue.map((plugin) => {
+        const dependencies = Array.isArray(plugin.dependencies) ? plugin.dependencies : Object.keys(plugin.dependencies ?? {})
+        return [plugin.name, new Set(dependencies.filter((name) => names.has(name) && name !== plugin.name))]
+      }),
     )
 
     // One plugin leaves `queue` per pass, so iterating once per plugin drains it. Each pass takes

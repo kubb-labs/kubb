@@ -91,9 +91,6 @@ export function defineParser<TOptions extends object = object, TMeta extends obj
 export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(
   factory: (options: TOptions) => Parser<TMeta, TNode>,
 ): ((options?: TOptions) => Parser<TMeta, TNode>) & { kind: 'parser' }
-/**
- * Handles both forms: a function is the deprecated factory, an object is a definition.
- */
 export function defineParser(input: ParserDefinition | ((options: object) => Parser)) {
   if (typeof input === 'function') {
     return defineExtension({

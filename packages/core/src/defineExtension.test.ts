@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { version } from '../package.json'
-import { checkCompatibility, checkDependencies, defineExtension, dependencyNames } from './defineExtension.ts'
+import { checkCompatibility, checkDependencies, defineExtension } from './defineExtension.ts'
 import { Diagnostics } from './Diagnostics.ts'
 
 describe('checkCompatibility', () => {
@@ -58,14 +58,6 @@ describe('checkDependencies', () => {
     expect(() => checkDependencies({ name: 'plugin-a', dependencies: { 'plugin-versioned': { version: '^3.0.0', optional: true } }, plugins })).toThrow(
       expect.objectContaining({ diagnostic: expect.objectContaining({ code: Diagnostics.code.incompatibleDependency, plugin: 'plugin-a' }) }),
     )
-  })
-})
-
-describe('dependencyNames', () => {
-  it('reads names from both forms', () => {
-    expect(dependencyNames(['plugin-a'])).toStrictEqual(['plugin-a'])
-    expect(dependencyNames({ 'plugin-a': {}, 'plugin-b': { optional: true } })).toStrictEqual(['plugin-a', 'plugin-b'])
-    expect(dependencyNames(undefined)).toStrictEqual([])
   })
 })
 
