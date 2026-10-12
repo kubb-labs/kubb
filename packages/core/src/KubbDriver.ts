@@ -7,6 +7,7 @@ import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginFactoryOptions } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
+import { kubbContext } from './composables.ts'
 import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
@@ -223,30 +224,33 @@ export class KubbDriver {
       const setup = plugin.hooks?.['kubb:plugin:setup']
       if (!setup) continue
 
+      const ctx: KubbPluginSetupContext = {
+        config: this.config,
+        options: plugin.options ?? {},
+        addGenerator: (...generators) => {
+          plugin.generators = [...(plugin.generators ?? []), ...generators]
+        },
+        setResolver: (resolver) => {
+          plugin.resolver = Resolver.merge(createResolver<PluginFactoryOptions>({ pluginName: plugin.name }), resolver)
+        },
+        addMacro: (macro) => {
+          this.#transforms.add(plugin.name, macro)
+        },
+        setMacros: (macros) => {
+          this.#transforms.set(plugin.name, macros)
+        },
+        setOptions: (opts) => {
+          plugin.options = normalizePluginOptions({ ...plugin.options, ...opts }, plugin.name)
+        },
+        injectFile: (userFileNode) => {
+          this.fileManager.add(ast.factory.createFile(userFileNode))
+        },
+        requirePlugin: ((name: string) => this.requirePlugin(name, { requiredBy: plugin.name })) as KubbPluginSetupContext['requirePlugin'],
+      }
+
       try {
-        await setup({
-          config: this.config,
-          options: plugin.options ?? {},
-          addGenerator: (...generators) => {
-            plugin.generators = [...(plugin.generators ?? []), ...generators]
-          },
-          setResolver: (resolver) => {
-            plugin.resolver = Resolver.merge(createResolver<PluginFactoryOptions>({ pluginName: plugin.name }), resolver)
-          },
-          addMacro: (macro) => {
-            this.#transforms.add(plugin.name, macro)
-          },
-          setMacros: (macros) => {
-            this.#transforms.set(plugin.name, macros)
-          },
-          setOptions: (opts) => {
-            plugin.options = normalizePluginOptions({ ...plugin.options, ...opts }, plugin.name)
-          },
-          injectFile: (userFileNode) => {
-            this.fileManager.add(ast.factory.createFile(userFileNode))
-          },
-          requirePlugin: ((name: string) => this.requirePlugin(name, { requiredBy: plugin.name })) as KubbPluginSetupContext['requirePlugin'],
-        })
+        // Composables such as `addGenerator()` read `ctx` from `kubbContext`, also after an `await` in setup.
+        await kubbContext.run(ctx, () => setup(ctx))
       } catch (caughtError) {
         // Attributed to the plugin, so the run summary counts it as a failed plugin.
         const diagnostic = Diagnostics.from(caughtError)

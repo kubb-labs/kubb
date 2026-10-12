@@ -305,6 +305,11 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
     cause: 'A plugin reported an informational message through `ctx.info`.',
     fix: 'Informational only. No action is required.',
   },
+  [diagnosticCode.noContext]: {
+    title: 'No plugin context',
+    cause: 'A `kubb/kit` composable such as `useKubb()` or `addGenerator()` ran outside `kubb:plugin:setup`, so there is no plugin to apply it to.',
+    fix: 'Call the composable inside `kubb:plugin:setup`, including in code that setup awaits. Outside setup, use the `ctx` argument that setup receives.',
+  },
   [diagnosticCode.unsupportedFormat]: {
     title: 'Unsupported format',
     cause: 'A schema uses a `format` Kubb does not map to a specific type, so it falls back to the base type.',
