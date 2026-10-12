@@ -360,7 +360,7 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   [diagnosticCode.invalidOptions]: {
     title: 'Invalid options',
     cause: 'A plugin declares an options `schema`, and the options passed to it in kubb.config.ts do not match it.',
-    fix: 'Fix each option the message lists by its path, such as `enum.type`. The extension documentation lists the accepted values.',
+    fix: 'Fix each option the message lists by its path, such as `enum.type`. The plugin documentation lists the accepted values.',
   },
   [diagnosticCode.postGenerateFailed]: {
     title: 'Post-generate command failed',
