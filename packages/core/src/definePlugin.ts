@@ -2,7 +2,8 @@ import path from 'node:path'
 import type { LiteralUnion } from '@internals/utils'
 import type { Enforce, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import type { Generator } from './defineGenerator.ts'
-import type { ExtensionDependencies, ExtensionDependencyRecord, ExtensionMeta } from './defineExtension.ts'
+import { defineExtension } from './defineExtension.ts'
+import type { ExtensionDependencies, ExtensionDependencyRecord, ExtensionFactory, ExtensionMeta } from './defineExtension.ts'
 import type { BannerMeta, Resolver, ResolverPatch } from './Resolver.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Config, FilesContext, KubbHooks } from './types.ts'
@@ -439,11 +440,12 @@ export type PluginDefinition<TFactory extends PluginFactoryOptions = PluginFacto
 }
 
 /** The function `definePlugin` returns. Call it with user options to get a `Plugin`. */
-export type PluginFactory<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
-  (options?: TFactory['options']): Plugin<TFactory>
-  kind: 'plugin'
-  meta: ExtensionMeta<TFactory['name']>
-}
+export type PluginFactory<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = ExtensionFactory<
+  'plugin',
+  TFactory['options'],
+  Plugin<TFactory>,
+  TFactory['name']
+>
 
 /**
  * Normalized plugin after setup, with runtime fields populated. Internal only. Plugins use the
@@ -509,7 +511,9 @@ export function definePlugin(input: PluginDefinition | ((options: object) => Plu
 
   const { meta, dependencies, enforce, hooks = {}, setup } = input
   // Keeps the raw options: Studio and config merging read them back.
-  const factory = (options?: object): Plugin => ({ name: meta.name, meta, options: options ?? {}, dependencies, enforce, hooks, setup })
-
-  return Object.assign(factory, { kind: 'plugin' as const, meta })
+  return defineExtension({
+    kind: 'plugin',
+    meta,
+    build: (options: object): Plugin => ({ name: meta.name, meta, options, dependencies, enforce, hooks, setup }),
+  })
 }

@@ -116,6 +116,10 @@ export class KubbDriver {
    */
   async setup() {
     this.options.signal?.throwIfAborted()
+    for (const parser of this.config.parsers) {
+      if (parser.meta) checkCompatibility(parser.meta)
+    }
+
     const normalized = this.#sortPlugins(
       this.config.plugins.map((rawPlugin) => {
         if (rawPlugin.meta) checkCompatibility(rawPlugin.meta)

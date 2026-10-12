@@ -129,3 +129,31 @@ export function checkDependencies({
     })
   }
 }
+
+/**
+ * The function an extension definition returns. Call it with user options to get the extension.
+ */
+export type ExtensionFactory<TKind extends ExtensionKind, TOptions, TExtension, TName extends string = string> = {
+  (options?: TOptions): TExtension
+  kind: TKind
+  meta: ExtensionMeta<TName>
+}
+
+/**
+ * Builds the factory behind `definePlugin` and `defineParser`. It passes `{}` when called without
+ * options, and carries `kind` and `meta` so tools can read them without calling it.
+ *
+ * @internal
+ */
+export function defineExtension<TKind extends ExtensionKind, TOptions extends object, TExtension, TName extends string>({
+  kind,
+  meta,
+  build,
+}: {
+  kind: TKind
+  meta: ExtensionMeta<TName>
+  build: (options: TOptions) => TExtension
+}): ExtensionFactory<TKind, TOptions, TExtension, TName> {
+  const factory = (options?: TOptions) => build((options ?? {}) as TOptions)
+  return Object.assign(factory, { kind, meta })
+}

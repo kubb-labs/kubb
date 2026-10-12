@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { version } from '../package.json'
-import { checkCompatibility, checkDependencies, dependencyNames } from './defineExtension.ts'
+import { checkCompatibility, checkDependencies, defineExtension, dependencyNames } from './defineExtension.ts'
 import { Diagnostics } from './Diagnostics.ts'
 
 describe('checkCompatibility', () => {
@@ -66,5 +66,16 @@ describe('dependencyNames', () => {
     expect(dependencyNames(['plugin-a'])).toStrictEqual(['plugin-a'])
     expect(dependencyNames({ 'plugin-a': {}, 'plugin-b': { optional: true } })).toStrictEqual(['plugin-a', 'plugin-b'])
     expect(dependencyNames(undefined)).toStrictEqual([])
+  })
+})
+
+describe('defineExtension', () => {
+  it('builds a factory with kind and meta statics that passes {} when called without options', () => {
+    const factory = defineExtension({ kind: 'parser', meta: { name: 'json' }, build: (options: { pretty?: boolean }) => options })
+
+    expect(factory.kind).toBe('parser')
+    expect(factory.meta).toStrictEqual({ name: 'json' })
+    expect(factory()).toStrictEqual({})
+    expect(factory({ pretty: true })).toStrictEqual({ pretty: true })
   })
 })
