@@ -2,7 +2,7 @@ import { ast } from '@kubb/ast'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, createMockedSetupContext, renderGeneratorOperation } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { addGenerator, useKubb } from './composables.ts'
+import { addGenerator, useKubb, useOptions } from './composables.ts'
 import { createKubb } from './createKubb.ts'
 import { defineGenerator } from './defineGenerator.ts'
 import { assertPluginOption, definePlugin, normalizeOutput } from './definePlugin.ts'
@@ -261,6 +261,7 @@ describe('definePlugin with an options schema', () => {
         expectTypeOf(options).toEqualTypeOf<TagOutput>()
         expectTypeOf(kubb.options).toEqualTypeOf<TagOutput>()
         expectTypeOf(kubb.setOptions).parameter(0).toEqualTypeOf<TagOutput>()
+        expectTypeOf(useOptions<SchemaPlugin>()).toEqualTypeOf<TagOutput>()
         return options
       },
     })

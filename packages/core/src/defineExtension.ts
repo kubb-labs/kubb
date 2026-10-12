@@ -180,7 +180,7 @@ export function parseExtensionOptions<TOutput>({
   input: unknown
 }): TOutput {
   const validated = schema['~standard'].validate(input)
-  if (typeof (validated as { then?: unknown }).then === 'function') {
+  if (typeof validated === 'object' && validated !== null && typeof (validated as { then?: unknown }).then === 'function') {
     // Swallow a rejection so refusing the promise does not also leave it unhandled.
     void Promise.resolve(validated).catch(() => undefined)
     throw new Error(
