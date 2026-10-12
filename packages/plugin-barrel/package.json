@@ -63,7 +63,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@kubb/kit": "workspace:*"
+    "@kubb/kit": "workspace:*",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
