@@ -2,6 +2,7 @@ import { ast } from '@kubb/ast'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, createMockedSetupContext, renderGeneratorOperation } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
+import { addGenerator, useKubb } from './composables.ts'
 import { createKubb } from './createKubb.ts'
 import { defineGenerator } from './defineGenerator.ts'
 import { assertPluginOption, definePlugin, normalizeOutput } from './definePlugin.ts'
@@ -159,6 +160,23 @@ describe('definePlugin object form', () => {
     expect(order).toStrictEqual(['setup', 'hook'])
     expect(normalized?.options).toMatchObject({ tag: 'all', output: { path: '.', mode: 'directory' }, exclude: [], override: [] })
     expect(plugin.options).toStrictEqual({})
+  })
+
+  it('runs composables inside setup, also after an await', async () => {
+    const generator = { name: 'gen', schema: vi.fn() }
+    const plugin = definePlugin<ObjectPlugin>({
+      meta: { name: 'plugin-object' },
+      async setup(options) {
+        await Promise.resolve()
+        addGenerator(generator)
+        return { tag: useKubb<ObjectPlugin>().options.tag ?? options.tag ?? 'all' }
+      },
+    })({ tag: 'pets' })
+
+    const driver = await setupDriver([plugin])
+
+    expect(driver.plugins.get('plugin-object')?.generators).toStrictEqual([generator])
+    expect(driver.plugins.get('plugin-object')?.options).toMatchObject({ tag: 'pets' })
   })
 
   it('orders plugins by a dependencies record, resolving the function form from the options', async () => {
