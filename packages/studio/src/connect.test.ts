@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { createServer, type IncomingHttpHeaders } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { type Config, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
+import { type Config, definePlugin, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type ConnectAgentOptions, connectAgent, IncompatibleAgentError, InvalidAgentTokenError, type OpenRpc, runAgent } from './connect.ts'
 import { AGENT_INSTANCE_HEADER, type AgentApi, AgentCloseCode, type AgentConnectInfo, MAX_PAGE_LINES } from './protocol.ts'
@@ -158,6 +158,25 @@ describe('the handshake', () => {
       versions: { kubb: '5.0.0-test', agent: '2.0.0' },
       permissions: { allowWrite: false, allowExec: false, allowConfigEdit: false, allowRead: false },
     })
+  })
+
+  it('reports the installed extensions, and a plugin by the package its manifest is in', async () => {
+    const projectRoot = await mkdtemp(join(tmpdir(), 'kubb-agent-extensions-'))
+    cleanups.push(() => rm(projectRoot, { recursive: true, force: true }))
+    const manifest = { kind: 'plugin', name: 'plugin-x', export: 'pluginX', displayName: 'X', description: 'Generates X.' }
+    const packageDir = join(projectRoot, 'node_modules/@acme/plugin-x')
+    await mkdir(packageDir, { recursive: true })
+    await writeFile(join(projectRoot, 'package.json'), JSON.stringify({ devDependencies: { '@acme/plugin-x': '^1.0.0' } }))
+    await writeFile(join(packageDir, 'package.json'), JSON.stringify({ name: '@acme/plugin-x', version: '1.2.3' }))
+    await writeFile(join(packageDir, 'kubb-extension.json'), JSON.stringify(manifest))
+    const plugin = definePlugin({ meta: { name: 'plugin-x' }, hooks: {} })()
+    const { agent } = await connectStudio({ root: projectRoot, loadConfig: async () => ({ ...projectConfig({ projectRoot }), plugins: [plugin] }) })
+
+    const { config } = await agent.connect(info)
+
+    expect(config.plugins).toStrictEqual([{ name: '@acme/plugin-x', options: {} }])
+    // `pnpm test` puts the workspace on NODE_PATH, so Kubb's own extensions may resolve here too.
+    expect(config.extensions).toContainEqual({ package: '@acme/plugin-x', version: '1.2.3', manifest })
   })
 
   it('announces the connection once per socket, with what Studio sent', async () => {
@@ -354,9 +373,9 @@ describe('generation reports', () => {
     const { agent } = await connectStudio({ hooks })
 
     await expect(agent.startGeneration({ jobId: 'job-1', config: { plugins: [{ name: 'not-a-plugin' }] } }).result()).rejects.toThrow(
-      'is not a @kubb/plugin-* package',
+      'is not an installed Kubb plugin',
     )
-    expect(error).toHaveBeenCalledWith({ error: expect.objectContaining({ message: expect.stringContaining('is not a @kubb/plugin-* package') }) })
+    expect(error).toHaveBeenCalledWith({ error: expect.objectContaining({ message: expect.stringContaining('is not an installed Kubb plugin') }) })
   })
 })
 

@@ -354,6 +354,26 @@ describe('applyConfigEdits', () => {
       expect(result.changed).toBe(false)
       expect(result.source).not.toContain('evil')
     })
+
+    describe('a third-party plugin', () => {
+      const source = `import { defineConfig } from 'kubb/config'\n\nexport default defineConfig({\n  plugins: [],\n})\n`
+      const manifest = { kind: 'plugin', name: 'plugin-x', export: 'pluginX', displayName: 'X', description: 'X.' } as const
+      const extensions = new Map([['@acme/kubb-plugin-x', { package: '@acme/kubb-plugin-x', version: '1.0.0', manifest }]])
+
+      it('adds an installed extension with the import name its manifest names', () => {
+        const result = applyConfigEdits(source, [{ operation: 'add-plugin', plugin: '@acme/kubb-plugin-x', importName: 'other' }], extensions)
+        expect(result.source).toContain(`import { pluginX } from '@acme/kubb-plugin-x'`)
+        expect(result.source).toContain('plugins: [pluginX()]')
+      })
+
+      it('refuses a package that is not an installed extension', () => {
+        const result = applyConfigEdits(source, [{ operation: 'add-plugin', plugin: '@acme/kubb-plugin-x' }])
+        expect(result.outcomes[0]).toMatchObject({
+          applied: false,
+          reason: '"@acme/kubb-plugin-x" is not a @kubb/plugin-* package or an installed Kubb plugin',
+        })
+      })
+    })
   })
 
   describe('array configs', () => {

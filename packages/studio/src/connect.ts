@@ -8,7 +8,8 @@ import { getErrorMessage, read, toError } from '@internals/utils'
 import { cacheStorage, type Config, fsStorage, getInputKind, Hookable, type KubbHooks, memoryStorage, resolveCacheDir, resolveMeta } from '@kubb/core'
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { version as kubbVersion } from '../package.json'
-import { readConfig, writeConfigEdits } from './configFile.ts'
+import { readConfig, readImports, writeConfigEdits } from './configFile.ts'
+import { discoverExtensions, type InstalledExtensions } from './extensions.ts'
 import { createGenerationStream } from './generationEvents.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
 import {
@@ -258,10 +259,16 @@ class Agent extends RpcTarget implements AgentApi {
     }
   }
 
+  // Not cached either: the user can install a plugin while the agent runs.
+  async #installedExtensions(): Promise<InstalledExtensions> {
+    const source = await read(this.#options.configFile).catch(() => '')
+    return discoverExtensions({ root: this.#options.root, packages: readImports(source) })
+  }
+
   async connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
     this.#session.info = info
     const { configPath, root, version, loadConfig } = this.#options
-    const [config, file] = await Promise.all([loadConfig(), this.#readConfigFileView()])
+    const [config, file, extensions] = await Promise.all([loadConfig(), this.#readConfigFileView(), this.#installedExtensions()])
     this.#session.connected.resolve(info)
 
     return {
@@ -272,7 +279,11 @@ class Agent extends RpcTarget implements AgentApi {
       config: {
         path: configPath,
         file,
-        plugins: config.plugins.map((plugin) => ({ name: toStudioName({ name: resolveMeta(plugin).name, root }), options: toJSONOptions(plugin.options) })),
+        plugins: config.plugins.map((plugin) => ({
+          name: toStudioName({ name: resolveMeta(plugin).name, root, extensions }),
+          options: toJSONOptions(plugin.options),
+        })),
+        extensions: [...extensions.values()],
       },
       permissions: this.#permissions,
     }
@@ -331,14 +342,15 @@ class Agent extends RpcTarget implements AgentApi {
       return this.#refuse({ message: 'A sandbox agent generates only from the OpenAPI document content Studio sends, not from a file path or URL' })
     }
 
-    const config = await this.#options.loadConfig()
-    const [plugins, adapter] = await Promise.all([mergePlugins(config.plugins, patch?.plugins), mergeAdapter(config.adapter, patch?.adapter)]).catch(
-      async (error: unknown) => {
-        // Thrown before core runs, so nothing else reports it to the host.
-        await emit(this.#options.hooks, 'kubb:error', { error: toError(error) })
-        throw error
-      },
-    )
+    const [config, extensions] = await Promise.all([this.#options.loadConfig(), this.#installedExtensions()])
+    const [plugins, adapter] = await Promise.all([
+      mergePlugins(config.plugins, patch?.plugins, extensions),
+      mergeAdapter(config.adapter, patch?.adapter),
+    ]).catch(async (error: unknown) => {
+      // Thrown before core runs, so nothing else reports it to the host.
+      await emit(this.#options.hooks, 'kubb:error', { error: toError(error) })
+      throw error
+    })
 
     const activePlugins = plugins ?? config.plugins
 
@@ -412,7 +424,7 @@ class Agent extends RpcTarget implements AgentApi {
     if (this.#session.active) return { value: refuse('a generation is in progress') }
 
     try {
-      const { source, outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits })
+      const { source, outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits, extensions: await this.#installedExtensions() })
       const applied = outcomes.filter((outcome) => outcome.applied).length
 
       return {
