@@ -125,6 +125,11 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
     plugin: opts.plugin,
     driver: opts.driver,
     getResolver: (name: string) => opts.driver.getResolver(name),
+    requirePlugin: (pluginName: string) => {
+      const plugin = opts.driver.getPlugin(pluginName)
+      if (!plugin) throw pluginNotFoundError({ pluginName, requiredBy: opts.plugin.name })
+      return plugin
+    },
     meta: opts.meta ?? { circularNames: [], enumNames: [] },
     cache: createNodeCache(),
     addFile: async (...files: Array<FileNode>) => opts.driver.fileManager.add(...files),

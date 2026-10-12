@@ -1,11 +1,13 @@
 import { ast } from '@kubb/ast'
-import type { SchemaNode } from '@kubb/ast'
-import { createMockedAdapter, createMockedSetupContext } from '@kubb/core/mocks'
+import type { OperationNode, SchemaNode } from '@kubb/ast'
+import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, createMockedSetupContext, renderGeneratorOperation } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
+import { defineGenerator } from './defineGenerator.ts'
 import { assertPluginOption, definePlugin, normalizeOutput } from './definePlugin.ts'
 import type { OutputOptions, Output, Plugin, PluginFactoryOptions, ResolvePluginOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
+import type { Resolver } from './Resolver.ts'
 import { KubbDriver } from './KubbDriver.ts'
 import type { Config, KubbHooks } from './types.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
@@ -399,5 +401,35 @@ describe('createMockedSetupContext', () => {
 
     expect(ctx.requirePlugin('plugin-ts')).toStrictEqual({ name: 'plugin-ts' })
     expect(() => ctx.requirePlugin('plugin-zod')).toThrow('Plugin "plugin-zod" is required but not found.')
+  })
+})
+
+describe('renderGeneratorOperation', () => {
+  it('gives the generator a requirePlugin that finds the driver plugin and fails for a missing one', async () => {
+    const plugin = createMockedPlugin({ name: 'plugin-faker', options: {} })
+    const driver = createMockedPluginDriver({ plugin })
+    const found: Array<unknown> = []
+    const generator = defineGenerator({
+      name: 'probe',
+      operation(_node, ctx) {
+        found.push(ctx.requirePlugin('plugin-ts'))
+        return null
+      },
+    })
+    const render = () =>
+      renderGeneratorOperation(generator, {} as OperationNode, {
+        config: driver.config,
+        adapter: createMockedAdapter(),
+        driver,
+        plugin,
+        options: {},
+        resolver: {} as Resolver,
+      })
+
+    await render()
+    expect(found).toStrictEqual([plugin])
+
+    driver.getPlugin = () => undefined
+    await expect(render()).rejects.toThrow('Plugin "plugin-ts" is required by "plugin-faker" but not found.')
   })
 })
