@@ -379,8 +379,8 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    */
   name: string
   /**
-   * Plugins that run before this one when they are in the config; a missing one is skipped.
-   * Call `ctx.requirePlugin` in `kubb:plugin:setup` for a plugin this one cannot work without.
+   * Plugins this one builds on. They run first when the config has them; a missing one is skipped.
+   * Call `ctx.requirePlugin` in `kubb:plugin:setup` to fail the run when one is missing.
    */
   dependencies?: Array<PluginName>
   /**
