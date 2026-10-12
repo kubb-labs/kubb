@@ -497,6 +497,7 @@ export function definePlugin<TFactory extends PluginFactoryOptions = PluginFacto
 export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(
   factory: (options: TFactory['options']) => Plugin<TFactory>,
 ): (options?: TFactory['options']) => Plugin<TFactory>
+/** Handles both forms: a function is the deprecated factory, an object is a definition. */
 export function definePlugin(input: PluginDefinition | ((options: object) => Plugin)): PluginFactory | ((options?: object) => Plugin) {
   if (typeof input === 'function') {
     return (options) => input(options ?? {})
