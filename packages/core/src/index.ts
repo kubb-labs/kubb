@@ -1,5 +1,19 @@
 export { createAdapter } from './createAdapter.ts'
 export { applyConfigDefaults } from './applyConfigDefaults.ts'
+export {
+  addGenerator,
+  addMacro,
+  injectFile,
+  kubbContext,
+  requirePlugin,
+  setMacros,
+  setOptions,
+  setResolver,
+  tryUseKubb,
+  useConfig,
+  useKubb,
+  useOptions,
+} from './composables.ts'
 export { Diagnostics } from './Diagnostics.ts'
 export { createKubb } from './createKubb.ts'
 export { createReporter, logLevel, type ReporterPluginFiles } from './createReporter.ts'

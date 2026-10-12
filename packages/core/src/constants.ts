@@ -73,6 +73,10 @@ export const diagnosticCode = {
    */
   pluginInfo: 'KUBB_PLUGIN_INFO',
   /**
+   * A `kubb/kit` composable was called outside `kubb:plugin:setup`.
+   */
+  noContext: 'KUBB_NO_CONTEXT',
+  /**
    * A schema uses a `format` Kubb does not map to a specific type. Reserved for
    * adapters to emit as a `warning`.
    */
