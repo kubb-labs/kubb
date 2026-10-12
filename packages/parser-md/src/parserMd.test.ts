@@ -1,8 +1,14 @@
 import { ast } from '@kubb/kit'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 import { parserMd } from './parserMd.ts'
 
 describe('parserMd', () => {
+  it('takes no options and has no options schema', () => {
+    expectTypeOf(parserMd).parameter(0).toEqualTypeOf<object | undefined>()
+    expect(parserMd.schema).toBeUndefined()
+    expect(parserMd()).toMatchObject({ name: 'markdown', options: {}, extNames: ['.md', '.markdown'] })
+  })
+
   it('joins markdown source blocks separated by blank lines', () => {
     const file = ast.factory.createFile({
       baseName: 'post.md',
