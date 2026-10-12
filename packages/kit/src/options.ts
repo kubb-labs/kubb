@@ -44,6 +44,11 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+function isMacro(value: unknown): boolean {
+  if (!isObject(value) || typeof value.name !== 'string') return false
+  return Object.entries(value).every(([key, member]) => key === 'name' || key === 'enforce' || member === undefined || typeof member === 'function')
+}
+
 const bannerSchema = z.union([z.string(), functionSchema<(meta: BannerMeta) => string>()])
 
 /**
@@ -111,6 +116,22 @@ export const groupSchema = z
   })
   .meta({ description: 'Groups generated files into subdirectories based on an OpenAPI tag or path segment.' })
 
+type GroupedOptions = { output?: { path: string; mode?: 'directory' | 'file' }; group?: object }
+
+function refineGroup(options: GroupedOptions, ctx: z.RefinementCtx): void {
+  if (!options.output || !options.group) return
+
+  const mode = options.output.mode ?? (path.extname(options.output.path) ? 'file' : 'directory')
+  if (mode === 'file') {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['group'],
+      message:
+        "A single-file output has nothing to group. Remove the `group` option, give `output.path` an extensionless directory name, or set `output.mode: 'directory'` explicitly.",
+    })
+  }
+}
+
 /**
  * `output` and `group` together. Rejects `group` when `output.mode` resolves to `'file'`. `.extend()` keeps the check.
  * @see https://kubb.dev/docs/5.x/reference/plugin-options#output
@@ -120,19 +141,7 @@ export const outputOptionsSchema = z
     output: outputSchema.optional(),
     group: groupSchema.optional(),
   })
-  .superRefine((options, ctx) => {
-    if (!options.output || !options.group) return
-
-    const mode = options.output.mode ?? (path.extname(options.output.path) ? 'file' : 'directory')
-    if (mode === 'file') {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['group'],
-        message:
-          "A single-file output has nothing to group. Remove the `group` option, give `output.path` an extensionless directory name, or set `output.mode: 'directory'` explicitly.",
-      })
-    }
-  })
+  .superRefine(refineGroup)
 
 const patternSchema = z.union([z.string(), z.instanceof(RegExp)])
 
@@ -207,7 +216,11 @@ export function overrideSchema<TShape extends z.ZodRawShape>(options: z.ZodObjec
       z.intersection(
         filterSchema,
         z.object({
-          options: z.object(shape).partial().meta({ description: 'Options merged on top of the plugin options when the filter matches.' }),
+          options: z
+            .object(shape)
+            .partial()
+            .superRefine((options, ctx) => refineGroup(options as GroupedOptions, ctx))
+            .meta({ description: 'Options merged on top of the plugin options when the filter matches.' }),
         }),
       ),
     )
@@ -220,7 +233,10 @@ export function overrideSchema<TShape extends z.ZodRawShape>(options: z.ZodObjec
  */
 export function resolverSchema<T extends Resolver = Resolver>() {
   return z
-    .custom<ResolverPatch<T>>(isObject, { message: 'Expected a resolver object' })
+    .custom<ResolverPatch<T>>(
+      (value) => isObject(value) && Object.values(value).every((member) => member === undefined || typeof member === 'function' || isObject(member)),
+      { message: 'Expected a resolver object of methods and method namespaces' },
+    )
     .meta({ description: "Partial resolver whose methods replace the plugin's naming and path defaults." })
 }
 
@@ -228,5 +244,5 @@ export function resolverSchema<T extends Resolver = Resolver>() {
  * @see https://kubb.dev/docs/5.x/reference/plugin-options#macros
  */
 export const macrosSchema = z
-  .array(z.custom<Macro>((value) => isObject(value) && typeof value.name === 'string', { message: 'Expected a macro object' }))
+  .array(z.custom<Macro>(isMacro, { message: 'Expected a macro object with a name and function hooks' }))
   .meta({ description: 'Named AST transforms that run before the generators.' })

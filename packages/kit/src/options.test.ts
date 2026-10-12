@@ -142,6 +142,23 @@ describe('schemas', () => {
     expect(macrosSchema.safeParse([{ schema: () => undefined }]).success).toBe(false)
   })
 
+  it('rejects a resolver member that is neither a method nor a namespace', () => {
+    expect(resolverSchema().safeParse({ default: { name: (name: string) => name } }).success).toBe(true)
+    expect(resolverSchema().safeParse({ file: 3 }).success).toBe(false)
+  })
+
+  it('rejects a macro hook that is not a function', () => {
+    expect(macrosSchema.safeParse([{ name: 'x', enforce: 'pre', schema: () => undefined }]).success).toBe(true)
+    expect(macrosSchema.safeParse([{ name: 'x', schema: 1 }]).success).toBe(false)
+  })
+
+  it('rejects group with a file output inside an override entry', () => {
+    const schema = overrideSchema(outputOptionsSchema)
+    const result = schema.safeParse([{ type: 'tag', pattern: 'admin', options: { output: { path: 'admin.ts' }, group: { type: 'tag' } } }])
+
+    expect(result.error?.issues.map((issue) => issue.path)).toEqual([[0, 'options', 'group']])
+  })
+
   it('composes a plugin options schema', () => {
     const baseSchema = outputOptionsSchema.extend({
       exclude: excludeSchema.optional(),
