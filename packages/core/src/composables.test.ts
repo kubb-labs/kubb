@@ -58,7 +58,7 @@ describe('composables', () => {
 
   it('delegate to the context method of the same name', () => {
     const ctx = createMockedSetupContext({ plugins: ['plugin-ts'] })
-    const resolver = { default: () => 'name' }
+    const resolver = { name: (name: string) => name }
 
     kubbContext.run(ctx, () => {
       expect(useKubb()).toBe(ctx)
