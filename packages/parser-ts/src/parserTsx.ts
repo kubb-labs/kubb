@@ -25,7 +25,8 @@ import { parserTs, type ParserTsOptions } from './parserTs.ts'
  * })
  * ```
  */
-export const parserTsx = defineParser<ParserTsOptions, object, ts.Node>({
-  meta: { name: 'tsx' },
-  setup: (options) => ({ ...parserTs(options), extNames: ['.tsx', '.jsx'] }),
-})
+export const parserTsx = defineParser<ParserTsOptions, object, ts.Node>((options) => ({
+  ...parserTs(options),
+  name: 'tsx',
+  extNames: ['.tsx', '.jsx'],
+}))

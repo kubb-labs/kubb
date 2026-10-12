@@ -36,27 +36,25 @@ export type MdMeta = {
  * })
  * ```
  */
-export const parserMd = defineParser({
-  meta: { name: 'markdown' },
-  setup() {
-    return {
-      extNames: ['.md', '.markdown'],
-      print,
-      parse(file) {
-        const sourceParts: Array<string> = []
-        for (const source of file.sources) {
-          const text = ast.extractStringsFromNodes(source.nodes as Array<ast.CodeNode>)
-          if (text) sourceParts.push(text.trimEnd())
-        }
-        const body = sourceParts.join('\n\n')
+export const parserMd = defineParser(() => {
+  return {
+    name: 'markdown',
+    extNames: ['.md', '.markdown'],
+    print,
+    parse(file) {
+      const sourceParts: Array<string> = []
+      for (const source of file.sources) {
+        const text = ast.extractStringsFromNodes(source.nodes as Array<ast.CodeNode>)
+        if (text) sourceParts.push(text.trimEnd())
+      }
+      const body = sourceParts.join('\n\n')
 
-        const meta = file.meta as MdMeta | undefined
-        const frontmatter = print(meta?.frontmatter)
+      const meta = file.meta as MdMeta | undefined
+      const frontmatter = print(meta?.frontmatter)
 
-        const parts = [file.banner, frontmatter, body, file.footer].filter((segment): segment is string => Boolean(segment)).map((segment) => segment.trimEnd())
+      const parts = [file.banner, frontmatter, body, file.footer].filter((segment): segment is string => Boolean(segment)).map((segment) => segment.trimEnd())
 
-        return parts.join('\n\n')
-      },
-    }
-  },
+      return parts.join('\n\n')
+    },
+  }
 })
