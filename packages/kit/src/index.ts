@@ -28,6 +28,7 @@ export type {
   Exclude,
   ExtensionDependencies,
   ExtensionDependency,
+  ExtensionDependencyRecord,
   ExtensionKind,
   ExtensionMeta,
   Generator,
