@@ -35,8 +35,8 @@ describe('JSON Schema output', () => {
     ['overrideSchema', overrideSchema(baseSchema)],
     ['resolverSchema', resolverSchema()],
     ['macrosSchema', macrosSchema],
-  ])('%s', (_name, schema) => {
-    expect(toJSONSchema(schema)).toMatchSnapshot()
+  ])('%s', async (name, schema) => {
+    await expect(JSON.stringify(toJSONSchema(schema), null, 2)).toMatchFileSnapshot(`__snapshots__/options/${name}.json`)
   })
 
   it('suggest', () => {

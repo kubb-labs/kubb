@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "tag",
+          "description": "Filter by OpenAPI `tags` field. Matches one or more tags assigned to operations."
+        },
+        "pattern": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {}
+          ],
+          "description": "Tag name to match (case-sensitive). Can be a literal string or regex pattern."
+        }
+      },
+      "required": [
+        "type",
+        "pattern"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "operationId",
+          "description": "Filter by OpenAPI `operationId` field. Each operation (GET, POST, etc.) has a unique identifier."
+        },
+        "pattern": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {}
+          ],
+          "description": "Operation ID to match (case-sensitive). Can be a literal string or regex pattern."
+        }
+      },
+      "required": [
+        "type",
+        "pattern"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "path",
+          "description": "Filter by OpenAPI `path` (URL endpoint). Useful to group or filter by service segments like `/pets`, `/users`, etc."
+        },
+        "pattern": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {}
+          ],
+          "description": "URL path to match (case-sensitive). Can be a literal string or regex pattern. Matches against the full path."
+        }
+      },
+      "required": [
+        "type",
+        "pattern"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "method",
+          "description": "Filter by HTTP method."
+        },
+        "pattern": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+                "HEAD",
+                "OPTIONS",
+                "TRACE"
+              ]
+            },
+            {}
+          ],
+          "description": "HTTP method to match, as one of the `HttpMethod` values or a regex."
+        }
+      },
+      "required": [
+        "type",
+        "pattern"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "contentType",
+          "description": "Filter by response or request content type: `'application/json'`, `'application/xml'`, etc."
+        },
+        "pattern": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {}
+          ],
+          "description": "Content type to match (case-sensitive). Can be a literal string or regex pattern."
+        }
+      },
+      "required": [
+        "type",
+        "pattern"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "schemaName",
+          "description": "Filter by schema component name (TypeScript or JSON schema). Matches schemas in `#/components/schemas`."
+        },
+        "pattern": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {}
+          ],
+          "description": "Schema name to match (case-sensitive). Can be a literal string or regex pattern."
+        }
+      },
+      "required": [
+        "type",
+        "pattern"
+      ]
+    }
+  ],
+  "description": "Pattern filter that matches operations or schemas by tag, operationId, path, method, content type, or schema name."
+}
