@@ -1,8 +1,8 @@
 ---
-'@kubb/core': minor
-'@kubb/kit': minor
-'@kubb/adapter-oas': minor
-'@kubb/parser-ts': minor
+'@kubb/core': patch
+'@kubb/kit': patch
+'@kubb/adapter-oas': patch
+'@kubb/parser-ts': patch
 '@kubb/parser-md': patch
 '@kubb/plugin-barrel': patch
 ---
