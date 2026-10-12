@@ -18,7 +18,7 @@ export const pluginZod = definePlugin<PluginZod>({
 
 - `setup(options, kubb)` runs before `kubb:plugin:setup`. Its return value becomes the plugin's resolved options. `plugin.options` keeps the raw user options.
 - `meta.compatibility` sets semver ranges for Kubb and Node.js. A mismatch fails the run with `KUBB_INCOMPATIBLE_EXTENSION`.
-- `dependencies` takes a record, or a function that returns one from the user's options. A missing required entry fails with `KUBB_MISSING_DEPENDENCY`. A `version` range the dependency's `meta.version` does not satisfy fails with `KUBB_INCOMPATIBLE_DEPENDENCY`. Mark an entry `optional: true` to only order plugins. An array still only orders plugins.
+- `dependencies` takes a record, or a function that returns one from the user's options. A missing required entry fails with `KUBB_MISSING_DEPENDENCY`. A `version` range the dependency's `meta.version` does not satisfy fails with `KUBB_INCOMPATIBLE_DEPENDENCY`. With `optional: true`, a missing entry is skipped, but an installed one still has its version checked. An array still only orders plugins.
 - The returned factory carries `kind: 'plugin'` and `meta`, so tools can read them without calling it.
 - `PluginType<TName, TOptions, TResolvedOptions, TResolver>` types the definition. It is the same shape as `PluginFactoryOptions`.
 
