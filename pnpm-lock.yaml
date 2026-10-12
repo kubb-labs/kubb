@@ -217,9 +217,6 @@ importers:
       yaml:
         specifier: 'catalog:'
         version: 2.9.1
-      zod:
-        specifier: ^4.6.5
-        version: 4.6.5
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
@@ -316,13 +313,13 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
         version: link:../../internals/utils
-      zod:
-        specifier: ^4.6.5
-        version: 4.6.5
 
   packages/kubb:
     dependencies:
@@ -439,9 +436,6 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
-      zod:
-        specifier: ^4.6.5
-        version: 4.6.5
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
@@ -452,9 +446,6 @@ importers:
       '@kubb/kit':
         specifier: workspace:*
         version: link:../kit
-      zod:
-        specifier: ^4.6.5
-        version: 4.6.5
     devDependencies:
       '@internals/utils':
         specifier: workspace:*

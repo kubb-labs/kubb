@@ -51,15 +51,15 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./z": {
+      "types": "./dist/z.d.ts",
+      "import": "./dist/z.js",
+      "require": "./dist/z.cjs"
+    },
     "./testing": {
       "types": "./dist/testing.d.ts",
       "import": "./dist/testing.js",
       "require": "./dist/testing.cjs"
-    },
-    "./options": {
-      "types": "./dist/options.d.ts",
-      "import": "./dist/options.js",
-      "require": "./dist/options.cjs"
     },
     "./package.json": "./package.json"
   },
@@ -74,19 +74,11 @@
   },
   "dependencies": {
     "@kubb/ast": "workspace:*",
-    "@kubb/core": "workspace:*"
-  },
-  "devDependencies": {
-    "@internals/utils": "workspace:*",
+    "@kubb/core": "workspace:*",
     "zod": "^4.6.5"
   },
-  "peerDependencies": {
-    "zod": "^4.0.0"
-  },
-  "peerDependenciesMeta": {
-    "zod": {
-      "optional": true
-    }
+  "devDependencies": {
+    "@internals/utils": "workspace:*"
   },
   "engines": {
     "node": ">=22"
