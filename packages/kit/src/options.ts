@@ -5,64 +5,37 @@ import type { BannerMeta, Resolver, ResolverPatch } from '@kubb/core'
 import * as z from 'zod'
 
 /**
- * A value a `when` condition compares an option against.
+ * A value an option is compared against in a `when` condition.
  */
 export type WhenValue = string | number | boolean | null
 
 /**
- * Visibility rule for an option. Each key is a dotted path to another option, such as
- * `'enum.type'`. Each value is the value that option must have, or a list of allowed values.
- * The option shows only when every entry matches.
+ * Shows an option only when every entry matches. Keys are dotted option paths, such as `'enum.type'`.
  */
 export type WhenCondition = Record<string, WhenValue | ReadonlyArray<WhenValue>>
 
 declare module 'zod' {
   interface GlobalMeta {
-    /**
-     * Shows the option only when the condition matches. Set it with `when()`.
-     */
     'x-kubb-when'?: WhenCondition
-    /**
-     * Suggested values for an open string option. Set it with `suggest()`.
-     */
     'x-kubb-values'?: ReadonlyArray<string>
   }
 }
 
 /**
- * Builds the `x-kubb-when` metadata that shows an option only when other options match.
- * Pass the result to `.meta()`, or spread it next to a `description`.
- *
- * @example
- * ```ts
- * const constCasing = z
- *   .enum(['camelCase', 'PascalCase'])
- *   .meta({ description: 'Casing of const names.', ...when({ 'enum.type': ['asConst', 'asPascalConst'] }) })
- * ```
+ * Builds `x-kubb-when` metadata for `.meta()`, such as `.meta({ description, ...when({ 'enum.type': 'asConst' }) })`.
  */
 export function when(condition: WhenCondition): { 'x-kubb-when': WhenCondition } {
   return { 'x-kubb-when': condition }
 }
 
 /**
- * Creates an open string schema. It accepts any string, while its type autocompletes the
- * listed values, like `LiteralUnion`. JSON Schema exposes the values as `x-kubb-values`
- * next to `type: 'string'`.
- *
- * @example
- * ```ts
- * const importPath = suggest(['zod', 'zod/mini']).meta({ description: 'Module to import Zod from.' })
- * // type: 'zod' | 'zod/mini' | (string & {})
- * ```
+ * Accepts any string while its type autocompletes `values`. JSON Schema lists them as `x-kubb-values`.
  */
 export function suggest<const TValues extends ReadonlyArray<string>>(values: TValues): z.ZodType<LiteralUnion<TValues[number]>, LiteralUnion<TValues[number]>> {
   return z.string().meta({ 'x-kubb-values': values })
 }
 
-/**
- * Accepts any function without wrapping it, so a user callback keeps running as written.
- * JSON Schema cannot describe a function, so it maps to `{}` with `unrepresentable: 'any'`.
- */
+// `z.function()` would wrap user callbacks, so accept any function as written.
 function functionSchema<T>() {
   return z.custom<T>((value) => typeof value === 'function', { message: 'Expected a function' })
 }
@@ -74,12 +47,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
 const bannerSchema = z.union([z.string(), functionSchema<(meta: BannerMeta) => string>()])
 
 /**
- * Output settings shared by every plugin. Mirrors core's `Output` type, including the
- * `barrel` key that `@kubb/plugin-barrel` adds. Extend it with `.extend()` for plugin-specific keys.
- *
- * The `group` and `mode: 'file'` check lives in {@link outputOptionsSchema}, since `group` is a
- * sibling of `output`.
- *
+ * Mirrors core's `Output`, including `barrel`. The `group` check lives in {@link outputOptionsSchema}.
  * @see https://kubb.dev/docs/5.x/reference/plugin-options#output
  */
 export const outputSchema = z
@@ -126,9 +94,7 @@ export const outputSchema = z
   .meta({ description: 'Output configuration shared by every plugin.' })
 
 /**
- * Groups generated files into subdirectories based on an OpenAPI tag or path segment.
- * Mirrors core's `Group` type.
- *
+ * Mirrors core's `Group`.
  * @see https://kubb.dev/docs/5.x/reference/plugin-options#group
  */
 export const groupSchema = z
@@ -146,20 +112,7 @@ export const groupSchema = z
   .meta({ description: 'Groups generated files into subdirectories based on an OpenAPI tag or path segment.' })
 
 /**
- * The `output` and `group` options together. Rejects `group` when `output.mode` resolves to
- * `'file'`, since a single file has nothing to group. An omitted `mode` follows `output.path`
- * like core does: an extension means `'file'`, anything else `'directory'`.
- *
- * Use it as the base of a plugin's options schema. `.extend()` keeps the check as long as it
- * adds new keys. Mirrors core's `OutputOptions` type.
- *
- * @example
- * ```ts
- * const optionsSchema = outputOptionsSchema.extend({
- *   exclude: excludeSchema.optional(),
- * })
- * ```
- *
+ * `output` and `group` together. Rejects `group` when `output.mode` resolves to `'file'`. `.extend()` keeps the check.
  * @see https://kubb.dev/docs/5.x/reference/plugin-options#output
  */
 export const outputOptionsSchema = z
@@ -193,9 +146,7 @@ function byPattern<const TType extends string>(type: TType, typeDescription: str
 const httpMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS', 'TRACE'] as const satisfies ReadonlyArray<HttpMethod>
 
 /**
- * Pattern filter for include, exclude, and override rules. Matches operations or schemas by
- * tag, operationId, path, method, content type, or schema name. Mirrors core's `Filter` type.
- *
+ * Mirrors core's `Filter`: one include, exclude, or override rule.
  * @see https://kubb.dev/docs/5.x/reference/plugin-options#include
  */
 export const filterSchema = z
@@ -235,36 +186,17 @@ export const filterSchema = z
   .meta({ description: 'Pattern filter that matches operations or schemas by tag, operationId, path, method, content type, or schema name.' })
 
 /**
- * The `include` option: a list of filters. Generation is restricted to operations or schemas
- * matching at least one entry. Useful for partial builds (one tag, one API version).
- *
  * @see https://kubb.dev/docs/5.x/reference/plugin-options#include
  */
 export const includeSchema = z.array(filterSchema).meta({ description: 'Restricts generation to operations or schemas matching at least one entry.' })
 
 /**
- * The `exclude` option: a list of filters. Matching operations or schemas are skipped during
- * generation, for example deprecated endpoints or internal-only schemas.
- *
  * @see https://kubb.dev/docs/5.x/reference/plugin-options#exclude
  */
 export const excludeSchema = z.array(filterSchema).meta({ description: 'Skips matching operations or schemas during generation.' })
 
 /**
- * Creates the `override` option from a plugin's options schema: a list of filters, each with a
- * partial `options` object that is merged on top of the plugin options for matching operations.
- * The first matching entry wins. An `override` key in `options` is left out, like core's
- * `Override<TOptions>` type.
- *
- * Refinements on the options schema do not carry over, since each entry holds only a partial
- * set of options.
- *
- * @example
- * ```ts
- * const baseSchema = outputOptionsSchema.extend({ enumType: z.enum(['enum', 'literal']).optional() })
- * const optionsSchema = baseSchema.extend({ override: overrideSchema(baseSchema).optional() })
- * ```
- *
+ * Builds the `override` option from a plugin's options schema, with partial `options` and no `override` key.
  * @see https://kubb.dev/docs/5.x/reference/plugin-options#override
  */
 export function overrideSchema<TShape extends z.ZodRawShape>(options: z.ZodObject<TShape, z.core.$ZodObjectConfig>) {
@@ -283,15 +215,7 @@ export function overrideSchema<TShape extends z.ZodRawShape>(options: z.ZodObjec
 }
 
 /**
- * Creates the `resolver` option: a partial resolver whose methods replace the plugin's naming
- * and path defaults. Mirrors core's `ResolverPatch<T>` type. JSON Schema cannot describe the
- * methods, so it maps to `{}` with `unrepresentable: 'any'`.
- *
- * @example
- * ```ts
- * const optionsSchema = outputOptionsSchema.extend({ resolver: resolverSchema<ResolverTs>().optional() })
- * ```
- *
+ * Mirrors core's `ResolverPatch<T>`.
  * @see https://kubb.dev/docs/5.x/reference/plugin-options#resolver
  */
 export function resolverSchema<T extends Resolver = Resolver>() {
@@ -301,9 +225,6 @@ export function resolverSchema<T extends Resolver = Resolver>() {
 }
 
 /**
- * The `macros` option: a list of AST transforms that run before the plugin's generators.
- * JSON Schema cannot describe the callbacks, so each entry maps to `{}` with `unrepresentable: 'any'`.
- *
  * @see https://kubb.dev/docs/5.x/reference/plugin-options#macros
  */
 export const macrosSchema = z
