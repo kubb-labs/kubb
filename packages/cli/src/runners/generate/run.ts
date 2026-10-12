@@ -147,7 +147,10 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     if (!quiet) configSpinner.error('Config failed loading')
 
     setupReporters(hooks, { logLevel, reporters: [cliReporter] })
-    await hooks.callHook('kubb:error', { error: toError(error) })
+    // A plugin factory that rejects its options throws a diagnostic while the config file runs,
+    // so report it with its code and help instead of the wrapper's message.
+    const diagnostic = Diagnostics.from(error)
+    await (diagnostic.code === Diagnostics.code.unknown ? hooks.callHook('kubb:error', { error: toError(error) }) : Diagnostics.emit(hooks, diagnostic))
 
     if (!quiet) logOutro(styleText('red', '✗ Configuration failed'))
     process.exit(1)

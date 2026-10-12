@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, fsStorage, type PostGenerateCommand, resolveCacheDir, type UserConfig } from '@kubb/core'
+import { type Config, Diagnostics, fsStorage, type PostGenerateCommand, resolveCacheDir, type UserConfig } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as config from '../../config.ts'
 import * as env from '../../utils/env.ts'
@@ -11,9 +11,10 @@ import { run } from './run.ts'
 
 type BootstrapOptions = {
   /**
-   * Reject the config load, so the group has a failure to report.
+   * Reject the config load, so the group has a failure to report. An `Error` is the rejection
+   * reason, `true` a plain one.
    */
-  fail?: boolean
+  fail?: boolean | Error
   reporters?: Array<'cli' | 'json'>
   /**
    * Configs the mocked loader returns. Empty renders only the Configuration group.
@@ -39,7 +40,9 @@ async function bootstrap({ fail = false, reporters, configs = [] }: BootstrapOpt
   using _configs = vi
     .spyOn(config, 'getConfigs')
     .mockImplementation(() =>
-      fail ? Promise.reject(new Error('Config not defined')) : Promise.resolve({ configs, configPath: `${process.cwd()}/kubb.config.ts` }),
+      fail
+        ? Promise.reject(fail instanceof Error ? fail : new Error('Config not defined'))
+        : Promise.resolve({ configs, configPath: `${process.cwd()}/kubb.config.ts` }),
     )
 
   await run({ logLevel: 'info', watch: false, reporters }).catch((error: Error) => void lines.push(error.message))
@@ -61,6 +64,20 @@ describe('bootstrap configuration group', () => {
 
     expect(lines).toContain('✗ Config failed loading')
     expect(lines).toContain('✗ Configuration failed')
+    expect(lines.at(-1)).toBe('exit 1')
+  })
+
+  it('reports a diagnostic thrown while the config file runs with its code', async () => {
+    const cause = new Diagnostics.Error({
+      code: Diagnostics.code.invalidPluginOptions,
+      severity: 'error',
+      message: 'Invalid plugin options. `enum.type`: Invalid option',
+      location: { kind: 'config' },
+    })
+
+    const lines = await bootstrap({ fail: new Error('Config failed loading', { cause }) })
+
+    expect(lines.some((line) => line.includes('[KUBB_INVALID_PLUGIN_OPTIONS]') && line.includes('`enum.type`'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })
 
