@@ -82,6 +82,8 @@ describe('kubb add', () => {
     expect(output.join('\n')).toContain(`import { adapterX } from '@acme/kubb-adapter-x'`)
     expect(output.join('\n')).toContain('adapter: adapterX(),')
     expect(output.join('\n')).not.toContain('export default defineConfig(')
+    expect(output.join('\n')).toContain('Install @acme/kubb-adapter-x@')
+    expect(output.join('\n')).not.toContain('Added @acme/kubb-adapter-x')
   })
 
   it('refuses an extension that needs another Kubb version', async () => {

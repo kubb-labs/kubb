@@ -93,7 +93,15 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
       logBlock(['Add the import to your Kubb config and merge the property into its defineConfig call:', '', toSnippet(detail)])
     }
 
-    logOutro(styleText('green', `Added ${spec}`))
+    const edited = !reason
+    const done = install
+      ? edited
+        ? `Added ${spec}`
+        : `Installed ${spec}. Add it with the snippet above.`
+      : edited
+        ? `Added ${manifest.export}() to the config. Install ${spec} to use it.`
+        : `Install ${spec} and add the snippet above.`
+    logOutro(styleText('green', done))
   } catch (error) {
     logError(error instanceof Error ? error.message : String(error))
     process.exitCode = 1
