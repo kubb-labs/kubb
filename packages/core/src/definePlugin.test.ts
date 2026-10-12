@@ -374,14 +374,19 @@ describe('assertOneOf', () => {
     expect(() => assertOneOf({ plugin: 'plugin-ts', option: 'syntaxType', value: 'interface', allowed: ['type', 'interface'] })).not.toThrow()
   })
 
-  it.each([['bogus'], [undefined], [1]])('throws KUBB_INVALID_PLUGIN_OPTIONS with the allowed values for %s', (value) => {
+  it.each([
+    ['bogus', '"bogus"'],
+    [undefined, 'undefined'],
+    [1, '1'],
+    [1n, '1'],
+  ])('throws KUBB_INVALID_PLUGIN_OPTIONS with the allowed values for %s', (value, shown) => {
     expect(() => assertOneOf({ plugin: 'plugin-ts', option: 'syntaxType', value, allowed: ['type', 'interface'] })).toThrow(
       expect.objectContaining({
         diagnostic: expect.objectContaining({
           code: Diagnostics.code.invalidPluginOptions,
           severity: 'error',
           plugin: 'plugin-ts',
-          message: `Plugin "plugin-ts" option \`syntaxType\` is ${JSON.stringify(value) ?? 'undefined'}, but it must be one of "type", "interface".`,
+          message: `Plugin "plugin-ts" option \`syntaxType\` is ${shown}, but it must be one of "type", "interface".`,
         }),
       }),
     )

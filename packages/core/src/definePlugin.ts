@@ -146,12 +146,13 @@ export function normalizeOutput({ output, group, pluginName }: { output: Output;
 export function assertOneOf({ plugin, option, value, allowed }: { plugin: string; option: string; value: unknown; allowed: ReadonlyArray<unknown> }): void {
   if (allowed.includes(value)) return
 
-  const expected = allowed.map((item) => JSON.stringify(item)).join(', ')
+  const format = (item: unknown) => (typeof item === 'string' ? JSON.stringify(item) : String(item))
+  const expected = allowed.map(format).join(', ')
   throw new Diagnostics.Error({
     code: Diagnostics.code.invalidPluginOptions,
     severity: 'error',
-    message: `Plugin "${plugin}" option \`${option}\` is ${JSON.stringify(value) ?? String(value)}, but it must be one of ${expected}.`,
-    help: `Set \`${option}\` to one of ${expected}, or leave it out to use the default.`,
+    message: `Plugin "${plugin}" option \`${option}\` is ${format(value)}, but it must be one of ${expected}.`,
+    help: `Set \`${option}\` to one of ${expected}.`,
     location: { kind: 'config' },
     plugin,
   })
