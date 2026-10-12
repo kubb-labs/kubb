@@ -4,7 +4,9 @@ import { Diagnostics } from './Diagnostics.ts'
 import type { PluginName } from './definePlugin.ts'
 import type { Config } from './types.ts'
 
-/** What an extension extends: a plugin generates code, an adapter reads the input, a parser prints files. */
+/**
+ * What an extension extends: a plugin generates code, an adapter reads the input, a parser prints files.
+ */
 export type ExtensionKind = 'plugin' | 'adapter' | 'parser'
 
 /**
@@ -12,34 +14,60 @@ export type ExtensionKind = 'plugin' | 'adapter' | 'parser'
  * Studio, the kubb.dev registry, and the docs read the rest.
  */
 export type ExtensionMeta<TName extends string = string> = {
-  /** Unique name, such as `'plugin-ts'`. Becomes the plugin's `name`. */
+  /**
+   * Unique name, such as `'plugin-ts'`. Becomes the plugin's `name`.
+   */
   name: TName
-  /** Package version. Dependents check their `version` range against it. */
+  /**
+   * Package version. Dependents check their `version` range against it.
+   */
   version?: string
-  /** Human-readable name, such as `'TypeScript'`. */
   displayName?: string
-  /** One-sentence summary of what the extension generates or does. */
+  /**
+   * One-sentence summary of what the extension generates or does.
+   */
   description?: string
-  /** Registry category, such as `'types'` or `'client'`. */
   category?: string
-  /** Icon URLs, with an optional variant for dark backgrounds. */
   icon?: { light: string; dark?: string }
-  /** Search keywords for the registry. */
   tags?: Array<string>
-  /** Semver ranges the extension supports. A mismatch fails the run with `KUBB_INCOMPATIBLE_EXTENSION`. */
+  /**
+   * Semver ranges the extension supports. A mismatch fails the run with `KUBB_INCOMPATIBLE_EXTENSION`.
+   */
   compatibility?: {
-    /** Range for `@kubb/core`, such as `'>=5.7.0'`. */
     kubb?: string
-    /** Range for Node.js, such as `'>=22'`. */
     node?: string
   }
-  /** URL of the extension's docs page. */
   docs?: string
 }
 
-/** Sets how Kubb checks one entry in a `dependencies` record. */
+/**
+ * An extension's identity: `meta`, a `name`, or both. `name` is deprecated in favor of `meta.name`.
+ */
+export type ExtensionNamed = { name?: string; meta?: ExtensionMeta }
+
+/**
+ * Returns `meta`, or `{ name }` for an extension that only sets the deprecated `name`. Throws `KUBB_INVALID_PLUGIN_OPTIONS` when it has neither.
+ */
+export function resolveMeta({ name, meta }: ExtensionNamed): ExtensionMeta {
+  if (meta) return meta
+  if (name) return { name }
+
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.invalidPluginOptions,
+    severity: 'error',
+    message: 'An extension has neither `meta.name` nor `name`.',
+    help: 'Set `meta: { name }` on the plugin or parser.',
+    location: { kind: 'config' },
+  })
+}
+
+/**
+ * Sets how Kubb checks one entry in a `dependencies` record.
+ */
 export type ExtensionDependency = {
-  /** Semver range the dependency's `meta.version` must satisfy. Skipped when the dependency has no `meta.version`. */
+  /**
+   * Semver range the dependency's `meta.version` must satisfy. Skipped when the dependency has no `meta.version`.
+   */
   version?: string
   /**
    * When `true`, Kubb skips the entry if the plugin is missing, but still checks `version` on an installed one.
@@ -48,16 +76,22 @@ export type ExtensionDependency = {
   optional?: boolean
 }
 
-/** Plugins an extension builds on, keyed by name, or a function that picks them from the user's options. */
+/**
+ * Plugins an extension builds on, keyed by name, or a function that picks them from the user's options.
+ */
 export type ExtensionDependencies<TOptions = object> =
   | ExtensionDependencyRecord
   // Method syntax keeps `options` bivariant, so a `Plugin<PluginTs>` still fits `Config['plugins']`.
   | { resolve(options: TOptions, kubb: { config: Config }): ExtensionDependencyRecord }['resolve']
 
-/** Maps each dependency's plugin name to how Kubb checks it. */
+/**
+ * Maps each dependency's plugin name to how Kubb checks it.
+ */
 export type ExtensionDependencyRecord = Partial<Record<PluginName, ExtensionDependency>>
 
-/** Throws `KUBB_INCOMPATIBLE_EXTENSION` when the running Kubb or Node.js version is outside `meta.compatibility`. */
+/**
+ * Throws `KUBB_INCOMPATIBLE_EXTENSION` when the running Kubb or Node.js version is outside `meta.compatibility`.
+ */
 export function checkCompatibility(meta: ExtensionMeta): void {
   const checks = [
     { target: 'Kubb', range: meta.compatibility?.kubb, version: kubbVersion },

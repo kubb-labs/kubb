@@ -5,7 +5,24 @@
 '@kubb/parser-md': minor
 ---
 
-`definePlugin` and `defineParser` accept an object with `meta`, plus `dependencies` and `setup(options, kubb)` for plugins. The factory form is deprecated, and so is `name`: use `meta.name`.
+`definePlugin` and `defineParser` accept an object with `meta`. Plugins also take `dependencies` and `setup(options, kubb)`. The factory form and `name` are deprecated, and `name` is optional when `meta.name` is set.
+
+Before:
+
+```ts
+export const pluginZod = definePlugin<PluginZod>((options) => ({
+  name: 'plugin-zod',
+  dependencies: ['plugin-ts'],
+  hooks: {
+    'kubb:plugin:setup'(ctx) {
+      ctx.addGenerator(zodGenerator)
+      ctx.setOptions({ ...options, inferred: options.inferred ?? false })
+    },
+  },
+}))
+```
+
+After:
 
 ```ts
 export const pluginZod = definePlugin<PluginZod>({

@@ -1,23 +1,13 @@
 import type { FileNode, UserFileNode } from '@kubb/ast'
-import { defineExtension } from './defineExtension.ts'
-import type { ExtensionFactory, ExtensionMeta } from './defineExtension.ts'
+import { defineExtension, resolveMeta } from './defineExtension.ts'
+import type { ExtensionFactory, ExtensionMeta, ExtensionNamed } from './defineExtension.ts'
 
 /**
  * Converts a resolved {@link FileNode} into the final source string that gets
  * written to disk. Kubb ships with TypeScript and TSX parsers. Add your own
  * for new file types (JSON, Markdown, ...).
  */
-export type Parser<TMeta extends object = object, TNode = unknown> = {
-  /**
-   * Display name used in diagnostics and the parser registry. The object form of `defineParser` fills it from `meta.name`.
-   *
-   * @deprecated Read `meta.name` instead. `name` stays set until the next major so existing parsers keep working.
-   */
-  name: string
-  /**
-   * Identity and compatibility data. Set by the object form of `defineParser`.
-   */
-  meta?: ExtensionMeta
+export type Parser<TMeta extends object = object, TNode = unknown> = ExtensionNamed & {
   /**
    * File extensions this parser handles. The driver registers the parser for each
    * extension in this list. A parser with `undefined` here is not registered, so
@@ -63,30 +53,12 @@ export type ParserFactory<TOptions extends object = object, TMeta extends object
 /**
  * Defines a parser from one object and returns a factory that takes the user's options.
  * Register the result in the `parsers` array on `defineConfig`.
- *
- * @example
- * ```ts
- * export const parserJson = defineParser<{ pretty?: boolean }>({
- *   meta: { name: 'json', compatibility: { kubb: '>=5.7.0' } },
- *   setup(options) {
- *     return {
- *       extNames: ['.json'],
- *       parse(file) {
- *         const source = file.sources.map((source) => extractStringsFromNodes(source.nodes ?? [])).join('\n')
- *         return options.pretty ? JSON.stringify(JSON.parse(source), null, 2) : source
- *       },
- *       print: (...nodes) => nodes.map(String).join('\n'),
- *     }
- *   },
- * })
- * ```
  */
 export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(
   definition: ParserDefinition<TOptions, TMeta, TNode>,
 ): ParserFactory<TOptions, TMeta, TNode>
 /**
- * Wraps a factory function that returns a `Parser`, and calls it with the user's options. Without
- * `meta`, the parser gets `{ name }`.
+ * Wraps a factory function that returns a `Parser`. Without `meta`, the parser gets `{ name }`.
  *
  * @deprecated Pass a definition object with `meta` and `setup` instead. The factory form is removed in the next major.
  */
@@ -99,7 +71,7 @@ export function defineParser(input: ParserDefinition | ((options: object) => Par
       kind: 'parser',
       build: (options: object): Parser => {
         const parser = input(options)
-        return { ...parser, meta: parser.meta ?? { name: parser.name } }
+        return { ...parser, meta: resolveMeta(parser) }
       },
     })
   }

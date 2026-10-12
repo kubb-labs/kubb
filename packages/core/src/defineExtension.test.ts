@@ -1,7 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import { version } from '../package.json'
-import { checkCompatibility, checkDependencies, defineExtension } from './defineExtension.ts'
+import { checkCompatibility, checkDependencies, defineExtension, resolveMeta } from './defineExtension.ts'
 import { Diagnostics } from './Diagnostics.ts'
+
+describe('resolveMeta', () => {
+  it('returns meta, or { name } for an extension that only sets name', () => {
+    expect(resolveMeta({ meta: { name: 'plugin-a' } })).toEqual({ name: 'plugin-a' })
+    expect(resolveMeta({ name: 'plugin-b' })).toEqual({ name: 'plugin-b' })
+  })
+
+  it('throws KUBB_INVALID_PLUGIN_OPTIONS when there is neither', () => {
+    expect(() => resolveMeta({})).toThrow(expect.objectContaining({ code: Diagnostics.code.invalidPluginOptions }))
+  })
+})
 
 describe('checkCompatibility', () => {
   it('passes when no range is set or the running versions match', () => {

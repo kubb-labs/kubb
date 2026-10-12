@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { promisify } from 'node:util'
 import { gzip } from 'node:zlib'
-import { type Config, fsStorage, type Hookable, type KubbHooks } from '@kubb/core'
+import { type Config, fsStorage, type Hookable, type KubbHooks, resolveMeta } from '@kubb/core'
 import { ofetch } from 'ofetch'
 import { generate, hashOf } from './generations.ts'
 import { MAX_SNAPSHOT_BYTES, type PublishedSnapshot, type SnapshotUploadMetadata } from './protocol.ts'
@@ -172,7 +172,7 @@ export async function createSnapshot({
       }),
     ),
   )
-  const { peerDependencies, missingDependencies } = await resolvePeerDependencies(config.plugins.map(({ name }) => name))
+  const { peerDependencies, missingDependencies } = await resolvePeerDependencies(config.plugins.map((plugin) => resolveMeta(plugin).name))
   // The package would declare no version for a plugin that is not installed.
   const missing = missingDependencies.filter((dependency) => !BUNDLED_DEPENDENCIES.includes(dependency))
   if (missing.length) throw new Error(`Missing dependencies: ${missing.join(', ')}`)

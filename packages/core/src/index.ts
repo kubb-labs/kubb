@@ -68,6 +68,7 @@ export type {
   ExtensionKind,
   ExtensionMeta,
 } from './defineExtension.ts'
+export { resolveMeta } from './defineExtension.ts'
 export type { NodeCache } from './nodeCache.ts'
 export type { Parser, ParserDefinition, ParserFactory } from './defineParser.ts'
 export type {

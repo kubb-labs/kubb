@@ -7,7 +7,7 @@ import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginFactoryOptions } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
-import { checkCompatibility, checkDependencies } from './defineExtension.ts'
+import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext } from './composables.ts'
 import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
@@ -125,9 +125,10 @@ export class KubbDriver {
       this.config.plugins.map((rawPlugin) => {
         if (rawPlugin.meta) checkCompatibility(rawPlugin.meta)
 
+        const meta = resolveMeta(rawPlugin)
         const normalizedPlugin: NormalizedPlugin = {
-          name: rawPlugin.name,
-          meta: rawPlugin.meta,
+          name: meta.name,
+          meta,
           dependencies:
             typeof rawPlugin.dependencies === 'function' ? rawPlugin.dependencies(rawPlugin.options ?? {}, { config: this.config }) : rawPlugin.dependencies,
           enforce: rawPlugin.enforce,
@@ -136,7 +137,7 @@ export class KubbDriver {
           // `rawPlugin.options` is the user-supplied shape. The normalized `output`/`exclude`/`override`
           // bag is filled in by the post-setup `normalizePluginOptions` pass, after `setOptions` runs.
           options: (rawPlugin.options ?? defaultPluginOptions()) as NormalizedPlugin['options'],
-          resolver: createResolver<PluginFactoryOptions>({ pluginName: rawPlugin.name }),
+          resolver: createResolver<PluginFactoryOptions>({ pluginName: meta.name }),
         }
         return normalizedPlugin
       }),

@@ -2,8 +2,8 @@ import path from 'node:path'
 import type { LiteralUnion } from '@internals/utils'
 import type { Enforce, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import type { Generator } from './defineGenerator.ts'
-import { defineExtension } from './defineExtension.ts'
-import type { ExtensionDependencies, ExtensionDependencyRecord, ExtensionFactory, ExtensionMeta } from './defineExtension.ts'
+import { defineExtension, resolveMeta } from './defineExtension.ts'
+import type { ExtensionDependencies, ExtensionDependencyRecord, ExtensionFactory, ExtensionMeta, ExtensionNamed } from './defineExtension.ts'
 import type { BannerMeta, Resolver, ResolverPatch } from './Resolver.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Config, FilesContext, KubbHooks } from './types.ts'
@@ -324,7 +324,9 @@ export type PluginFactoryOptions<
   resolver: TResolver
 }
 
-/** Type parameter for the object form of `definePlugin`. Same shape as `PluginFactoryOptions`. */
+/**
+ * Type parameter for the object form of `definePlugin`. Same shape as `PluginFactoryOptions`.
+ */
 export type PluginType<
   TName extends string = string,
   TOptions extends object = object,
@@ -394,15 +396,7 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
  * A plugin object produced by `definePlugin`. Its lifecycle handlers live under a single
  * `hooks` property rather than flat methods.
  */
-export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
-  /**
-   * Unique name for the plugin. The object form of `definePlugin` fills it from `meta.name`.
-   *
-   * @deprecated Read `meta.name` instead. `name` stays set until the next major so existing plugins keep working.
-   */
-  name: string
-  /** Identity, compatibility, and registry data. Set by the object form of `definePlugin`. */
-  meta?: ExtensionMeta
+export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = ExtensionNamed & {
   /**
    * Plugins this one builds on. They run first when the config has them. An array only orders
    * plugins. A record also fails the run when a required entry is missing or out of range.
@@ -431,17 +425,23 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
   } & {
     'kubb:plugin:setup'?(ctx: KubbPluginSetupContext<TFactory>): void | Promise<void>
   }
-  /** Runs before `kubb:plugin:setup`. Takes the user's options and returns the resolved options. */
+  /**
+   * Runs before `kubb:plugin:setup`. Takes the user's options and returns the resolved options.
+   */
   setup?(options: TFactory['options'], kubb: KubbPluginSetupContext<TFactory>): TFactory['resolvedOptions'] | Promise<TFactory['resolvedOptions']>
 }
 
-/** The object passed to `definePlugin`. */
+/**
+ * The object passed to `definePlugin`.
+ */
 export type PluginDefinition<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = Pick<Plugin<TFactory>, 'dependencies' | 'enforce' | 'setup'> & {
   meta: ExtensionMeta<TFactory['name']>
   hooks?: Plugin<TFactory>['hooks']
 }
 
-/** The function `definePlugin` returns. Call it with user options to get a `Plugin`. */
+/**
+ * The function `definePlugin` returns. Call it with user options to get a `Plugin`.
+ */
 export type PluginFactory<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = ExtensionFactory<
   'plugin',
   TFactory['options'],
@@ -456,6 +456,8 @@ export type PluginFactory<TFactory extends PluginFactoryOptions = PluginFactoryO
  * @internal
  */
 export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Plugin<TOptions> & {
+  name: string
+  meta: ExtensionMeta
   dependencies?: Array<PluginName> | ExtensionDependencyRecord
   options: TOptions['resolvedOptions'] & {
     output: Output
@@ -498,9 +500,7 @@ export type KubbPluginEndContext = FilesContext & {
  */
 export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(definition: PluginDefinition<TFactory>): PluginFactory<TFactory>
 /**
- * Wraps a factory function that returns a `Plugin`, and calls it with the user's options. The
- * plugin can return `meta`, `dependencies`, and `setup` like the object form. Without `meta`, it
- * gets `{ name }`.
+ * Wraps a factory function that returns a `Plugin`. Without `meta`, the plugin gets `{ name }`.
  *
  * @deprecated Pass a definition object with `meta` and `setup` instead. The factory form is removed in the next major.
  */
@@ -513,7 +513,7 @@ export function definePlugin(input: PluginDefinition | ((options: object) => Plu
       kind: 'plugin',
       build: (options: object): Plugin => {
         const plugin = input(options)
-        return { ...plugin, meta: plugin.meta ?? { name: plugin.name } }
+        return { ...plugin, meta: resolveMeta(plugin) }
       },
     })
   }
