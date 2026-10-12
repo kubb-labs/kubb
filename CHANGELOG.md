@@ -1,5 +1,43 @@
 # Changelog
 
+## v5.6.3 — Oct 12, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Add generic checks for plugin setup, so plugins no longer need their own helpers.
+  
+  - `ctx.requirePlugin(name)` in `kubb:plugin:setup` returns the plugin, or fails the run with `KUBB_PLUGIN_NOT_FOUND`. The error names the plugin that needs it.
+  - `assertPluginOption({ plugin, option, value, allowed })` fails with `KUBB_INVALID_PLUGIN_OPTIONS` and lists the allowed values when an option holds anything else.
+  - `createMockedSetupContext()` in `@kubb/kit/testing` builds the setup context for unit tests. Its `requirePlugin` fails like the real one.
+  
+  A plugin listed in `dependencies` but missing from the config no longer logs a `KUBB_PLUGIN_NOT_FOUND` warning. `dependencies` still declares the plugins a plugin builds on; call `ctx.requirePlugin` as well when the plugin cannot work without one. ([#4238](https://github.com/kubb-labs/kubb/pull/4238), [`4cc8047`](https://github.com/kubb-labs/kubb/commit/4cc804767d48713c1aa3c09c8820827acbce1f81))
+
+### @kubb/mcp
+
+#### Bug Fixes
+
+- Validate MCP tool arguments with Zod Mini instead of valibot, so Kubb uses one validation library. Tool input schemas stay the same. Invalid arguments now return Zod's error messages, such as `Too small: expected string to have >=1 characters`. ([#4234](https://github.com/kubb-labs/kubb/pull/4234), [`80825c4`](https://github.com/kubb-labs/kubb/commit/80825c4c0f14efaf71d55fc706a5b8ca2a83215e))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Harden the `kubb studio` agent with safer config edits, sandbox spec checks, and live reloads of JavaScript configs.
+  
+  - Send Studio a JSON copy of plugin options, so config functions are never callable from Studio, and accept only inline spec content in a sandbox agent.
+  - Validate each config edit on its own, refuse `__proto__`, `constructor`, and `prototype` keys, and rewrite only the text an edit targets, including in `module.exports` configs.
+  - Reload `kubb.config.js`, `.mjs`, and `.cjs` on every generation instead of keeping the first version.
+  - Warn with `KUBB_PLUGIN_NOT_FOUND` for a missing plugin dependency, count a throwing `kubb:plugin:setup` as a failed plugin, and keep the previous output when a run with `output.clean` fails early.
+  - Hash in-memory output the way it is written, and clarify the `kubb studio` log lines for in-memory runs, canceled runs, and a takeover. ([#4233](https://github.com/kubb-labs/kubb/pull/4233), [`e1e74ee`](https://github.com/kubb-labs/kubb/commit/e1e74ee3f78ff5430dcfc05bfe4062e35228b9b1))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.6.2 — Oct 11, 2026
 
 ### @kubb/studio
