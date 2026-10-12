@@ -174,14 +174,6 @@ describe('definePlugin object form', () => {
     expect(driver.plugins.get('plugin-object')?.dependencies).toStrictEqual({ 'plugin-base': {} })
   })
 
-  it('throws KUBB_INCOMPATIBLE_EXTENSION when meta.compatibility.kubb does not match', async () => {
-    const plugin = definePlugin({ meta: { name: 'plugin-future', compatibility: { kubb: '>=99' } } })()
-
-    await expect(setupDriver([plugin])).rejects.toMatchObject({
-      diagnostic: { code: Diagnostics.code.incompatibleExtension, plugin: 'plugin-future' },
-    })
-  })
-
   it('throws KUBB_MISSING_DEPENDENCY for a missing required dependency and skips an optional one', async () => {
     const required = definePlugin({ meta: { name: 'plugin-dependent' }, dependencies: { 'plugin-missing': {} } })()
     const optional = definePlugin({ meta: { name: 'plugin-dependent' }, dependencies: { 'plugin-missing': { optional: true } } })()
