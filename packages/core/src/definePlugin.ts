@@ -142,15 +142,7 @@ export function normalizeOutput({ output, group, pluginName }: { output: Output;
   return { ...output, mode }
 }
 
-/**
- * Throws `KUBB_INVALID_PLUGIN_OPTIONS` when an option holds a value outside `allowed`, so a typo
- * fails the run with the allowed values instead of falling back to other output.
- *
- * @example
- * ```ts
- * assertOneOf({ plugin: 'plugin-ts', option: 'syntaxType', value: options.syntaxType, allowed: ['type', 'interface'] })
- * ```
- */
+/** Throws `KUBB_INVALID_PLUGIN_OPTIONS`, listing the allowed values, when `value` is not one of `allowed`. */
 export function assertOneOf({ plugin, option, value, allowed }: { plugin: string; option: string; value: unknown; allowed: ReadonlyArray<unknown> }): void {
   if (allowed.includes(value)) return
 
@@ -365,15 +357,7 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
    * generated folder, instead of building its content from `sources`.
    */
   injectFile(userFileNode: UserFileNode): void
-  /**
-   * Returns a plugin this one cannot work without, and fails the run with `KUBB_PLUGIN_NOT_FOUND`,
-   * naming this plugin, when the config does not register it.
-   *
-   * @example
-   * ```ts
-   * if (options.parser === 'faker') ctx.requirePlugin('plugin-faker')
-   * ```
-   */
+  /** Returns a plugin this one needs, or fails the run with `KUBB_PLUGIN_NOT_FOUND` when the config lacks it. */
   requirePlugin<TName extends PluginName>(name: TName): Plugin<ResolvePluginOptions<TName>>
   /**
    * The resolved build configuration at setup time.
@@ -395,9 +379,8 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
    */
   name: string
   /**
-   * Plugins that run before this one when they are in the config. Only orders the plugins: a
-   * dependency missing from the config is skipped. Call `ctx.requirePlugin` in
-   * `kubb:plugin:setup` for a plugin this one cannot work without.
+   * Plugins that run before this one when they are in the config; a missing one is skipped.
+   * Call `ctx.requirePlugin` in `kubb:plugin:setup` for a plugin this one cannot work without.
    */
   dependencies?: Array<PluginName>
   /**

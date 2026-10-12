@@ -723,9 +723,7 @@ export class KubbDriver {
   }
 }
 
-/**
- * The `KUBB_PLUGIN_NOT_FOUND` error `requirePlugin` throws, naming the plugin that needed it.
- */
+/** The `KUBB_PLUGIN_NOT_FOUND` error `requirePlugin` throws, naming the plugin that needed it. */
 export function pluginNotFoundError({ pluginName, requiredBy }: { pluginName: string; requiredBy?: string }): InstanceType<typeof Diagnostics.Error> {
   const by = requiredBy ? ` by "${requiredBy}"` : ''
   const help = requiredBy ? ` (required by "${requiredBy}")` : ''

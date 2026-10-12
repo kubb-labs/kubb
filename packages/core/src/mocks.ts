@@ -36,31 +36,17 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
   } as unknown as KubbDriver
 }
 
-/**
- * Creates the context a plugin's `kubb:plugin:setup` hook receives, for unit tests. Every method is
- * a `vi.fn()`, and `requirePlugin` fails like the real one for a plugin `plugins` does not list.
- *
- * @example
- * ```ts
- * const ctx = createMockedSetupContext<PluginMsw>({ plugins: ['plugin-ts', 'plugin-msw'] })
- * expect(() => pluginMsw({ parser: 'faker' }).hooks?.['kubb:plugin:setup']?.(ctx)).toThrow('plugin-faker')
- * ```
- */
+/** Creates a `kubb:plugin:setup` context for unit tests. `requirePlugin` fails for names `plugins` does not list. */
 export function createMockedSetupContext<TFactory extends PluginFactoryOptions = PluginFactoryOptions>({
   plugins = [],
   options = {} as TFactory['options'],
   config,
   requiredBy,
 }: {
-  /**
-   * Names of the plugins the config registers.
-   */
   plugins?: Array<string>
   options?: TFactory['options']
   config?: Partial<Config>
-  /**
-   * The plugin under test, named in the error `requirePlugin` throws.
-   */
+  /** The plugin under test, named in the error `requirePlugin` throws. */
   requiredBy?: string
 } = {}): KubbPluginSetupContext<TFactory> {
   const registered = plugins.map((name) => ({ name }) as unknown as Plugin)
