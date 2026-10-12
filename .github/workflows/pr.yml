@@ -62,6 +62,9 @@ jobs:
         name: Build
         run: pnpm run build
 
+      - name: Check extension manifests
+        run: pnpm -r --if-present run check:manifest
+
   typecheck:
     name: Typecheck
     timeout-minutes: 15

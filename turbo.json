@@ -24,6 +24,15 @@
         "tsconfig.json"
       ]
     },
+    "build:manifest": {
+      "dependsOn": [
+        "build",
+        "@kubb/cli#build"
+      ],
+      "outputs": [
+        "dist/kubb.json"
+      ]
+    },
     "start": {
       "dependsOn": [
         "^build"

@@ -49,6 +49,7 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./kubb.json": "./dist/kubb.json",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -57,6 +58,8 @@
   },
   "scripts": {
     "build": "tsdown",
+    "build:manifest": "node ../cli/bin/kubb.js extension build",
+    "check:manifest": "node ../cli/bin/kubb.js extension build --check",
     "start": "tsdown --watch",
     "typecheck": "tsc"
   },
@@ -69,5 +72,6 @@
   },
   "engines": {
     "node": ">=22"
-  }
+  },
+  "kubb": "./dist/kubb.json"
 }

@@ -17,7 +17,7 @@
     ]
   },
   "scripts": {
-    "build": "NODE_OPTIONS='--max-old-space-size=8192' turbo run build --filter=./packages/*",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' turbo run build build:manifest --filter=./packages/*",
     "changeset": "changeset",
     "clean": "pnpm -r exec node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
     "format": "oxfmt -c oxfmt.config.ts packages internals configs",
