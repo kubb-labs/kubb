@@ -313,9 +313,6 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
-      zod:
-        specifier: ^4.6.5
-        version: 4.6.5
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
