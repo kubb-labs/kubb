@@ -198,6 +198,16 @@ describe('definePlugin object form', () => {
 
     await expect(setupDriver([dependent])).resolves.toBeInstanceOf(KubbDriver)
   })
+
+  it('gives the factory form kind and a meta fallback, and checks a dependency record it returns', async () => {
+    const factory = definePlugin(() => ({ name: 'plugin-dependent', dependencies: { 'plugin-missing': {} }, hooks: {} }))
+    const withMeta = definePlugin(() => ({ name: 'plugin-versioned', meta: { name: 'plugin-versioned', version: '2.0.0' }, hooks: {} }))
+
+    expect(factory.kind).toBe('plugin')
+    expect(factory().meta).toStrictEqual({ name: 'plugin-dependent' })
+    expect(withMeta().meta).toStrictEqual({ name: 'plugin-versioned', version: '2.0.0' })
+    await expect(setupDriver([factory()])).rejects.toMatchObject({ diagnostic: { code: Diagnostics.code.missingDependency } })
+  })
 })
 
 describe('kubb:plugin:setup context', () => {

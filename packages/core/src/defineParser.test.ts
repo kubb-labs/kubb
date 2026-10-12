@@ -44,10 +44,12 @@ describe('defineParser object form', () => {
     expectTypeOf(parser).toEqualTypeOf<Parser<object, string>>()
   })
 
-  it('keeps the deprecated factory form working', () => {
-    const legacy = defineParser((options: { name?: string }) => ({ name: options.name ?? 'legacy', extNames: undefined, parse: () => '', print: () => '' }))
+  it('gives the factory form kind and a meta fallback', () => {
+    const factory = defineParser((options: { name?: string }) => ({ name: options.name ?? 'text', extNames: undefined, parse: () => '', print: () => '' }))
 
-    expect(legacy().name).toBe('legacy')
+    expect(factory.kind).toBe('parser')
+    expect(factory()).toMatchObject({ name: 'text', meta: { name: 'text' } })
+    expect(factory({ name: 'json' }).meta).toStrictEqual({ name: 'json' })
   })
 
   it('throws KUBB_INCOMPATIBLE_EXTENSION from KubbDriver.setup when a parser requires a newer Kubb', async () => {

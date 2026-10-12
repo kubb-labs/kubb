@@ -83,19 +83,24 @@ export function defineParser<TOptions extends object = object, TMeta extends obj
   definition: ParserDefinition<TOptions, TMeta, TNode>,
 ): ParserFactory<TOptions, TMeta, TNode>
 /**
- * Wraps a factory function that returns a `Parser`, and calls it with the user's options.
- *
- * @deprecated Pass a definition object with `meta` and `setup` instead. The factory form is removed in the next major.
+ * Wraps a factory function that returns a `Parser`, and calls it with the user's options. Without
+ * `meta`, the parser gets `{ name }`.
  */
 export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(
   factory: (options: TOptions) => Parser<TMeta, TNode>,
-): (options?: TOptions) => Parser<TMeta, TNode>
+): ((options?: TOptions) => Parser<TMeta, TNode>) & { kind: 'parser' }
 /**
- * Handles both forms: a function is the deprecated factory, an object is a definition.
+ * Handles both forms: a function is a factory, an object is a definition.
  */
-export function defineParser(input: ParserDefinition | ((options: object) => Parser)): ParserFactory | ((options?: object) => Parser) {
+export function defineParser(input: ParserDefinition | ((options: object) => Parser)) {
   if (typeof input === 'function') {
-    return (options) => input(options ?? {})
+    return defineExtension({
+      kind: 'parser',
+      build: (options: object): Parser => {
+        const parser = input(options)
+        return { ...parser, meta: parser.meta ?? { name: parser.name } }
+      },
+    })
   }
 
   const { meta, setup } = input

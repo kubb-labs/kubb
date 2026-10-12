@@ -496,17 +496,23 @@ export type KubbPluginEndContext = FilesContext & {
  */
 export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(definition: PluginDefinition<TFactory>): PluginFactory<TFactory>
 /**
- * Wraps a factory function that returns a `Plugin`, and calls it with the user's options.
- *
- * @deprecated Pass a definition object with `meta` and `setup` instead. The factory form is removed in the next major.
+ * Wraps a factory function that returns a `Plugin`, and calls it with the user's options. The
+ * plugin can return `meta`, `dependencies`, and `setup` like the object form. Without `meta`, it
+ * gets `{ name }`.
  */
 export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(
   factory: (options: TFactory['options']) => Plugin<TFactory>,
-): (options?: TFactory['options']) => Plugin<TFactory>
-/** Handles both forms: a function is the deprecated factory, an object is a definition. */
-export function definePlugin(input: PluginDefinition | ((options: object) => Plugin)): PluginFactory | ((options?: object) => Plugin) {
+): ((options?: TFactory['options']) => Plugin<TFactory>) & { kind: 'plugin' }
+/** Handles both forms: a function is a factory, an object is a definition. */
+export function definePlugin(input: PluginDefinition | ((options: object) => Plugin)) {
   if (typeof input === 'function') {
-    return (options) => input(options ?? {})
+    return defineExtension({
+      kind: 'plugin',
+      build: (options: object): Plugin => {
+        const plugin = input(options)
+        return { ...plugin, meta: plugin.meta ?? { name: plugin.name } }
+      },
+    })
   }
 
   const { meta, dependencies, enforce, hooks = {}, setup } = input

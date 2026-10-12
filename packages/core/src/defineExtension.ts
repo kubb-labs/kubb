@@ -141,19 +141,21 @@ export type ExtensionFactory<TKind extends ExtensionKind, TOptions, TExtension, 
 
 /**
  * Builds the factory behind `definePlugin` and `defineParser`. It passes `{}` when called without
- * options, and carries `kind` and `meta` so tools can read them without calling it.
+ * options, and carries `kind`, plus `meta` when the definition has it, so tools can read them
+ * without calling it.
  *
  * @internal
  */
-export function defineExtension<TKind extends ExtensionKind, TOptions extends object, TExtension, TName extends string>({
-  kind,
-  meta,
-  build,
-}: {
+export function defineExtension<TKind extends ExtensionKind, TOptions extends object, TExtension, TName extends string>(params: {
   kind: TKind
   meta: ExtensionMeta<TName>
   build: (options: TOptions) => TExtension
-}): ExtensionFactory<TKind, TOptions, TExtension, TName> {
-  const factory = (options?: TOptions) => build((options ?? {}) as TOptions)
-  return Object.assign(factory, { kind, meta })
+}): ExtensionFactory<TKind, TOptions, TExtension, TName>
+export function defineExtension<TKind extends ExtensionKind, TOptions extends object, TExtension>(params: {
+  kind: TKind
+  build: (options: TOptions) => TExtension
+}): ((options?: TOptions) => TExtension) & { kind: TKind }
+export function defineExtension({ kind, meta, build }: { kind: ExtensionKind; meta?: ExtensionMeta; build: (options: object) => unknown }) {
+  const factory = (options?: object) => build(options ?? {})
+  return Object.assign(factory, meta ? { kind, meta } : { kind })
 }
