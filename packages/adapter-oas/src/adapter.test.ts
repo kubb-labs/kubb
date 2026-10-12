@@ -1,6 +1,9 @@
-import { ast } from '@kubb/kit'
-import { describe, expect, it } from 'vitest'
+import { ast, Diagnostics } from '@kubb/kit'
+import { describe, expect, expectTypeOf, it } from 'vitest'
+import type * as z from 'zod'
 import { adapterOas } from './adapter.ts'
+import { optionsSchema } from './options.ts'
+import type { AdapterOasOptions, AdapterOasParsedOptions } from './types.ts'
 
 const minimalSpec = {
   openapi: '3.0.0',
@@ -184,6 +187,51 @@ describe('adapterOas options', () => {
     expect(node.meta?.enumNames).toStrictEqual([])
     const pet = ast.narrowSchema(node.schemas[0]!, 'object')
     expect(pet?.properties[0]?.schema).toMatchObject({ type: 'enum', name: 'PetStatusEnum', enumValues: ['available', 'sold'] })
+  })
+})
+
+describe('adapterOas options schema', () => {
+  it('types the schema input as AdapterOasOptions and its output as the parsed options', () => {
+    expectTypeOf<z.input<typeof optionsSchema>>().toExtend<AdapterOasOptions>()
+    expectTypeOf<AdapterOasOptions>().toExtend<z.input<typeof optionsSchema>>()
+    expectTypeOf<z.output<typeof optionsSchema>>().toExtend<AdapterOasParsedOptions>()
+    expectTypeOf<AdapterOasParsedOptions>().toExtend<z.output<typeof optionsSchema>>()
+    expect(adapterOas.schema).toBe(optionsSchema)
+  })
+
+  it('applies the defaults and resolves emptySchemaType from unknownType', () => {
+    expect(adapterOas().options).toStrictEqual({
+      validate: true,
+      contentType: undefined,
+      server: undefined,
+      discriminator: 'preserve',
+      enums: 'inline',
+      dateType: 'string',
+      integerType: 'bigint',
+      unknownType: 'unknown',
+      emptySchemaType: 'unknown',
+      enumSuffix: 'enum',
+    })
+    expect(adapterOas({ unknownType: 'any' }).options).toMatchObject({ unknownType: 'any', emptySchemaType: 'any' })
+    expect(adapterOas({ unknownType: 'any', emptySchemaType: 'void' }).options).toMatchObject({ emptySchemaType: 'void' })
+  })
+
+  it('accepts any contentType and enumSuffix', () => {
+    expect(adapterOas({ contentType: 'application/vnd.api+json', enumSuffix: 'Kind' }).options).toMatchObject({
+      contentType: 'application/vnd.api+json',
+      enumSuffix: 'Kind',
+    })
+  })
+
+  it('throws KUBB_INVALID_OPTIONS naming each invalid option', () => {
+    expect(() => adapterOas({ dateType: 'iso' as never, server: { index: -1 } })).toThrow(
+      expect.objectContaining({
+        diagnostic: expect.objectContaining({
+          code: Diagnostics.code.invalidOptions,
+          message: expect.stringMatching(/^Invalid options for adapter "oas"\. `dateType`: .+; `server\.index`: .+$/),
+        }),
+      }),
+    )
   })
 })
 

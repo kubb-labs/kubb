@@ -67,7 +67,8 @@
     "@readme/openapi-parser": "^9.1.0",
     "@scalar/openapi-upgrader": "^0.4.3",
     "api-ref-bundler": "0.5.1",
-    "yaml": "catalog:"
+    "yaml": "catalog:",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
