@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
-import type { Adapter, Plugin } from '@kubb/core'
+import { type Adapter, type Plugin, resolveMeta } from '@kubb/core'
 import { camelCase } from '@internals/utils'
 import type { JSONKubbConfig, OptionValue } from './protocol.ts'
 
@@ -333,7 +333,7 @@ export async function mergePlugins(
   // factory returns exactly that (`@kubb/plugin-ts` → `plugin-ts`), enforced by the `satisfies` on
   // each factory's name.
   const disabledNames = new Set((studioPlugins ?? []).filter((entry) => entry.disabled).map((entry) => toPluginName(entry.name)))
-  const activeDiskPlugins = disabledNames.size ? diskPlugins?.filter((plugin) => !disabledNames.has(plugin.name)) : diskPlugins
+  const activeDiskPlugins = disabledNames.size ? diskPlugins?.filter((plugin) => !disabledNames.has(resolveMeta(plugin).name)) : diskPlugins
   const activeStudioPlugins = studioPlugins?.filter((entry) => !entry.disabled)
 
   if (!activeDiskPlugins && !activeStudioPlugins?.length) return undefined
@@ -348,7 +348,7 @@ export async function mergePlugins(
   // just to read the names would build every overlapping plugin twice and discard the first.
   const merged = await Promise.all(
     activeDiskPlugins.map(async (diskPlugin) => {
-      const studioEntry = studioEntryByName.get(diskPlugin.name)
+      const studioEntry = studioEntryByName.get(resolveMeta(diskPlugin).name)
       if (!studioEntry) return diskPlugin
 
       // Disk as base, studio overrides, then re-instantiate so the plugin's closures reference the

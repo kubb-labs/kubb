@@ -4,6 +4,7 @@ import type { Adapter } from './createAdapter.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { KubbHooks } from './types.ts'
 import type { KubbDriver } from './KubbDriver.ts'
+import type { ExtensionMeta } from './defineExtension.ts'
 import type { Plugin, PluginFactoryOptions, PluginName, ResolvePluginOptions } from './definePlugin.ts'
 import type { NodeCache } from './nodeCache.ts'
 import type { Config } from './types.ts'
@@ -63,7 +64,7 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
   /**
    * The current plugin instance.
    */
-  plugin: Plugin<TOptions>
+  plugin: Plugin<TOptions> & { name: string; meta: ExtensionMeta }
   /**
    * The current plugin's resolver. It decides what every generated symbol and file path is
    * called. Kubb picks a `setResolver` registration first, then the plugin's static

@@ -182,6 +182,16 @@ describe('createKubb', () => {
     })
   })
 
+  it('raises a KUBB_INCOMPATIBLE_EXTENSION diagnostic when a plugin requires a newer Kubb', async () => {
+    const future = definePlugin({ meta: { name: 'plugin-future', compatibility: { kubb: '>=99' } } })()
+    const kubb = createKubb(makeConfig({ ...config, plugins: [future] }), { hooks: new Hookable<KubbHooks>() })
+
+    await expect(kubb.setup()).rejects.toMatchObject({
+      name: 'DiagnosticError',
+      diagnostic: { code: Diagnostics.code.incompatibleExtension, severity: 'error', plugin: 'plugin-future', location: { kind: 'config' } },
+    })
+  })
+
   it('names the plugin whose setup threw, so the summary counts it as failed', async () => {
     const throwingSetup = definePlugin(() => ({
       name: 'plugin-throws',

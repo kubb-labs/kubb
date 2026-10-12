@@ -294,6 +294,9 @@ importers:
       unstorage:
         specifier: ^1.17.5
         version: 1.17.5
+      verkit:
+        specifier: ^0.5.0
+        version: 0.5.0
     devDependencies:
       '@internals/utils':
         specifier: workspace:*

@@ -60,8 +60,17 @@ export type { Storage } from './createStorage.ts'
 export type { FileManagerHooks } from './FileManager.ts'
 export type { Generator, GeneratorContext } from './defineGenerator.ts'
 export type { InputKind } from './input.ts'
+export type {
+  ExtensionDependencies,
+  ExtensionDependency,
+  ExtensionDependencyRecord,
+  ExtensionFactory,
+  ExtensionKind,
+  ExtensionMeta,
+} from './defineExtension.ts'
+export { resolveMeta } from './defineExtension.ts'
 export type { NodeCache } from './nodeCache.ts'
-export type { Parser } from './defineParser.ts'
+export type { Parser, ParserDefinition, ParserFactory } from './defineParser.ts'
 export type {
   Exclude,
   Filter,
@@ -76,8 +85,11 @@ export type {
   OutputOptions,
   Override,
   Plugin,
+  PluginDefinition,
+  PluginFactory,
   PluginFactoryOptions,
   PluginName,
+  PluginType,
   ResolvePluginOptions,
 } from './definePlugin.ts'
 export type {

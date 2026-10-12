@@ -61,6 +61,18 @@ export const diagnosticCode = {
    */
   pluginNotFound: 'KUBB_PLUGIN_NOT_FOUND',
   /**
+   * The running Kubb or Node.js version is outside a plugin's `meta.compatibility`.
+   */
+  incompatibleExtension: 'KUBB_INCOMPATIBLE_EXTENSION',
+  /**
+   * A required entry in a plugin's `dependencies` record is missing from the config.
+   */
+  missingDependency: 'KUBB_MISSING_DEPENDENCY',
+  /**
+   * A dependency's `meta.version` is outside the range a plugin's `dependencies` record declares.
+   */
+  incompatibleDependency: 'KUBB_INCOMPATIBLE_DEPENDENCY',
+  /**
    * A plugin threw while generating.
    */
   pluginFailed: 'KUBB_PLUGIN_FAILED',
@@ -73,7 +85,7 @@ export const diagnosticCode = {
    */
   pluginInfo: 'KUBB_PLUGIN_INFO',
   /**
-   * A `kubb/kit` composable was called outside `kubb:plugin:setup`.
+   * A `kubb/kit` composable was called outside a plugin's `setup` and `kubb:plugin:setup`.
    */
   noContext: 'KUBB_NO_CONTEXT',
   /**

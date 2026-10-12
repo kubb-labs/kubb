@@ -40,6 +40,20 @@ type PendingBarrel = {
   nested: boolean
 }
 
+type BarrelState = {
+  excludedTargets: Array<string>
+  pendingBarrels: Array<PendingBarrel>
+}
+
+// One state per build, keyed by the build's `config`. The object form has no factory closure to hold it.
+const states = new WeakMap<Config, BarrelState>()
+
+function getState(config: Config): BarrelState {
+  const state = states.get(config) ?? { excludedTargets: [], pendingBarrels: [] }
+  states.set(config, state)
+  return state
+}
+
 /**
  * Generates an `index.ts` for every plugin output directory and one root
  * barrel at `config.output.path/index.ts` after the build completes. Ships
@@ -73,74 +87,72 @@ type PendingBarrel = {
  * })
  * ```
  */
-export const pluginBarrel = definePlugin(() => {
-  const excludedTargets: Array<string> = []
-  const pendingBarrels: Array<PendingBarrel> = []
+export const pluginBarrel = definePlugin({
+  meta: { name: pluginBarrelName },
+  enforce: 'post',
+  hooks: {
+    'kubb:plugin:end'({ plugin, config }) {
+      // Skip reactions to the barrel plugin's own lifecycle hook
+      if (plugin.name === pluginBarrelName) return
 
-  return {
-    name: pluginBarrelName,
-    enforce: 'post' as const,
-    hooks: {
-      'kubb:plugin:end'({ plugin, config }) {
-        // Skip reactions to the barrel plugin's own lifecycle hook
-        if (plugin.name === pluginBarrelName) return
+      const { excludedTargets, pendingBarrels } = getState(config)
 
-        // A plugin-level `false` wins over an enabled root barrel.
-        const barrelConfig: PluginBarrelConfig | false = plugin.options.output?.barrel ?? config.output.barrel ?? false
-        const base = path.resolve(config.root, config.output.path)
-        const target = path.resolve(base, plugin.options.output.path)
+      // A plugin-level `false` wins over an enabled root barrel.
+      const barrelConfig: PluginBarrelConfig | false = plugin.options.output?.barrel ?? config.output.barrel ?? false
+      const base = path.resolve(config.root, config.output.path)
+      const target = path.resolve(base, plugin.options.output.path)
 
-        if (barrelConfig === false) {
-          excludedTargets.push(target)
-          return
-        }
+      if (barrelConfig === false) {
+        excludedTargets.push(target)
+        return
+      }
 
-        // `mode: 'file'` writes a single file, so there is no directory to barrel. The root barrel
-        // re-exports that file as a direct leaf of `config.output.path`.
-        if (plugin.options.output.mode === 'file') {
-          return
-        }
+      // `mode: 'file'` writes a single file, so there is no directory to barrel. The root barrel
+      // re-exports that file as a direct leaf of `config.output.path`.
+      if (plugin.options.output.mode === 'file') {
+        return
+      }
 
-        if (!isPathInside(target, base)) {
-          throw new Diagnostics.Error({
-            code: Diagnostics.code.pathTraversal,
-            severity: 'error',
-            message: `Output path "${plugin.options.output.path}" of plugin "${plugin.name}" resolves outside the output directory "${base}".`,
-            help: 'Keep the plugin `output.path` within `config.output.path`.',
-            location: { kind: 'config' },
-          })
-        }
+      if (!isPathInside(target, base)) {
+        throw new Diagnostics.Error({
+          code: Diagnostics.code.pathTraversal,
+          severity: 'error',
+          message: `Output path "${plugin.options.output.path}" of plugin "${plugin.name}" resolves outside the output directory "${base}".`,
+          help: 'Keep the plugin `output.path` within `config.output.path`.',
+          location: { kind: 'config' },
+        })
+      }
 
-        // Only the target directory and barrel strategy are recorded here. The actual file-set
-        // scan and directory-tree build happen once, in `kubb:plugins:end`, and are shared by
-        // every plugin barrel plus the root barrel instead of repeating per plugin.
-        pendingBarrels.push({ plugin, target, barrelType: barrelConfig.type, nested: barrelConfig.nested ?? false })
-      },
-      'kubb:plugins:end'({ files, config, upsertFile }) {
-        const rootBarrelConfig = config.output.barrel ?? false
-        const outputPath = path.resolve(config.root, config.output.path)
-
-        // A `barrel: false` plugin gets no barrel and stays out of the root, so drop its files
-        // once here. Every barrel below then derives from a single index of what remains.
-        const relevantFiles = files.filter((file) => !excludedTargets.some((target) => isPathInside(file.path, target)))
-        excludedTargets.length = 0
-
-        const index = buildBarrelIndex(outputPath, relevantFiles)
-        const reportedCollisions = new Set<string>()
-
-        for (const { plugin, target, barrelType, nested } of pendingBarrels) {
-          for (const file of getBarrelFiles({ index, targetPath: target, barrelType, nested, recursive: true, reportedCollisions })) {
-            upsertFile(withBarrelBannerFooter({ file, plugin, config }))
-          }
-        }
-        pendingBarrels.length = 0
-
-        if (rootBarrelConfig === false) return
-
-        for (const file of getBarrelFiles({ index, barrelType: rootBarrelConfig.type, reportedCollisions })) {
-          upsertFile(file)
-        }
-      },
+      // Only the target directory and barrel strategy are recorded here. The actual file-set
+      // scan and directory-tree build happen once, in `kubb:plugins:end`, and are shared by
+      // every plugin barrel plus the root barrel instead of repeating per plugin.
+      pendingBarrels.push({ plugin, target, barrelType: barrelConfig.type, nested: barrelConfig.nested ?? false })
     },
-  }
+    'kubb:plugins:end'({ files, config, upsertFile }) {
+      const { excludedTargets, pendingBarrels } = getState(config)
+      const rootBarrelConfig = config.output.barrel ?? false
+      const outputPath = path.resolve(config.root, config.output.path)
+
+      // A `barrel: false` plugin gets no barrel and stays out of the root, so drop its files
+      // once here. Every barrel below then derives from a single index of what remains.
+      const relevantFiles = files.filter((file) => !excludedTargets.some((target) => isPathInside(file.path, target)))
+      excludedTargets.length = 0
+
+      const index = buildBarrelIndex(outputPath, relevantFiles)
+      const reportedCollisions = new Set<string>()
+
+      for (const { plugin, target, barrelType, nested } of pendingBarrels) {
+        for (const file of getBarrelFiles({ index, targetPath: target, barrelType, nested, recursive: true, reportedCollisions })) {
+          upsertFile(withBarrelBannerFooter({ file, plugin, config }))
+        }
+      }
+      pendingBarrels.length = 0
+
+      if (rootBarrelConfig === false) return
+
+      for (const file of getBarrelFiles({ index, barrelType: rootBarrelConfig.type, reportedCollisions })) {
+        upsertFile(file)
+      }
+    },
+  },
 })

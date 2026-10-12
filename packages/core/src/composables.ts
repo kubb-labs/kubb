@@ -7,7 +7,7 @@ import type { Resolver, ResolverPatch } from './Resolver.ts'
 import type { Config } from './types.ts'
 
 /**
- * Holds the setup context of the plugin whose `kubb:plugin:setup` is running. `KubbDriver` sets it for each plugin.
+ * Holds the setup context of the plugin whose `setup` or `kubb:plugin:setup` is running. `KubbDriver` sets it for each plugin.
  */
 export const kubbContext = new AsyncLocalStorage<KubbPluginSetupContext>()
 
@@ -19,7 +19,7 @@ function requireContext(caller: string): KubbPluginSetupContext {
     code: Diagnostics.code.noContext,
     severity: 'error',
     message: `\`${caller}()\` was called outside a plugin setup.`,
-    help: `Call \`${caller}()\` inside \`kubb:plugin:setup\`, including in code that setup awaits.`,
+    help: `Call \`${caller}()\` inside \`setup\` or \`kubb:plugin:setup\`, including in code that setup awaits.`,
   })
 }
 
@@ -32,7 +32,7 @@ export function useKubb<TFactory extends PluginFactoryOptions = PluginFactoryOpt
 }
 
 /**
- * Returns the same context as {@link useKubb}, or `undefined` outside `kubb:plugin:setup`.
+ * Returns the same context as {@link useKubb}, or `undefined` outside `setup` and `kubb:plugin:setup`.
  */
 export function tryUseKubb<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(): KubbPluginSetupContext<TFactory> | undefined {
   return kubbContext.getStore() as KubbPluginSetupContext<TFactory> | undefined
