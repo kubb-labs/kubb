@@ -1,13 +1,22 @@
 import type { FileNode, UserFileNode } from '@kubb/ast'
 import { defineExtension, resolveMeta } from './defineExtension.ts'
 import type { ExtensionFactory, ExtensionMeta, ExtensionNamed } from './defineExtension.ts'
+import type { StandardSchemaV1 } from './standardSchema.ts'
 
 /**
  * Converts a resolved {@link FileNode} into the final source string that gets
  * written to disk. Kubb ships with TypeScript and TSX parsers. Add your own
  * for new file types (JSON, Markdown, ...).
  */
-export type Parser<TMeta extends object = object, TNode = unknown> = ExtensionNamed & {
+export type Parser<TMeta extends object = object, TNode = unknown, TOptions extends object = object> = ExtensionNamed & {
+  /**
+   * The options passed to the parser factory, parsed by its options `schema` when it has one.
+   */
+  options?: TOptions
+  /**
+   * The options schema of the definition that built this parser.
+   */
+  schema?: StandardSchemaV1<unknown, TOptions>
   /**
    * File extensions this parser handles. The driver registers the parser for each
    * extension in this list. A parser with `undefined` here is not registered, so
@@ -33,34 +42,51 @@ export type Parser<TMeta extends object = object, TNode = unknown> = ExtensionNa
   print(...nodes: Array<TNode>): string
 }
 
+type ParserBuild<TOptions extends object, TMeta extends object, TNode> = (
+  options: TOptions,
+) => Omit<Parser<TMeta, TNode>, 'name' | 'meta' | 'options' | 'schema'>
+
 /**
- * The object passed to `defineParser`. `setup` receives the user's options and returns the parser methods.
+ * The object passed to `defineParser`. `build` receives the parsed options and returns the parser methods.
  */
-export type ParserDefinition<TOptions extends object = object, TMeta extends object = object, TNode = unknown> = {
+export type ParserDefinition<TOptions extends object = object, TMeta extends object = object, TNode = unknown, TParsedOptions extends object = TOptions> = {
   meta: ExtensionMeta
-  setup(options: TOptions): Omit<Parser<TMeta, TNode>, 'name' | 'meta'>
-}
+  /**
+   * Any Standard Schema, such as a Zod schema, that validates the options and applies their defaults
+   * when the factory is called. Invalid options throw `KUBB_INVALID_OPTIONS`. The schema must validate synchronously.
+   */
+  schema?: StandardSchemaV1<TOptions, TParsedOptions>
+} & (
+  | { build: ParserBuild<TParsedOptions, TMeta, TNode> }
+  | {
+      /**
+       * @deprecated Renamed to `build`.
+       */
+      setup: ParserBuild<TParsedOptions, TMeta, TNode>
+    }
+)
 
 /**
  * The function `defineParser` returns. Call it with user options to get a `Parser`.
  */
-export type ParserFactory<TOptions extends object = object, TMeta extends object = object, TNode = unknown> = ExtensionFactory<
-  'parser',
-  TOptions,
-  Parser<TMeta, TNode>
->
+export type ParserFactory<
+  TOptions extends object = object,
+  TMeta extends object = object,
+  TNode = unknown,
+  TParsedOptions extends object = TOptions,
+> = ExtensionFactory<'parser', TOptions, Parser<TMeta, TNode, TParsedOptions>, string, TParsedOptions>
 
 /**
  * Defines a parser from one object and returns a factory that takes the user's options.
  * Register the result in the `parsers` array on `defineConfig`.
  */
-export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(
-  definition: ParserDefinition<TOptions, TMeta, TNode>,
-): ParserFactory<TOptions, TMeta, TNode>
+export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown, TParsedOptions extends object = TOptions>(
+  definition: ParserDefinition<TOptions, TMeta, TNode, TParsedOptions>,
+): ParserFactory<TOptions, TMeta, TNode, TParsedOptions>
 /**
  * Wraps a factory function that returns a `Parser`. Without `meta`, the parser gets `{ name }`.
  *
- * @deprecated Pass a definition object with `meta` and `setup` instead. The factory form is removed in the next major.
+ * @deprecated Pass a definition object with `meta` and `build` instead. The factory form is removed in the next major.
  */
 export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(
   factory: (options: TOptions) => Parser<TMeta, TNode>,
@@ -76,6 +102,18 @@ export function defineParser(input: ParserDefinition | ((options: object) => Par
     })
   }
 
-  const { meta, setup } = input
-  return defineExtension({ kind: 'parser', meta, build: ({ options }: { options: object }): Parser => ({ ...setup(options), name: meta.name, meta }) })
+  const { meta, schema } = input
+  const build = 'build' in input ? input.build : input.setup
+  return defineExtension({
+    kind: 'parser',
+    meta,
+    schema,
+    build: ({ parsedOptions }: { options: object; parsedOptions: object }): Parser => ({
+      ...build(parsedOptions),
+      name: meta.name,
+      meta,
+      options: parsedOptions,
+      ...(schema && { schema }),
+    }),
+  })
 }

@@ -110,15 +110,15 @@ export class KubbDriver {
   }
 
   /**
-   * Normalizes and checks every configured plugin, orders them, and registers their lifecycle handlers.
+   * Checks the adapter's and parsers' `meta.compatibility`, then normalizes and checks every configured plugin, orders them, and registers their lifecycle handlers.
    * A plugin that another lists as a dependency runs first, then `enforce: 'pre'` before
    * `'post'`. When the config has an adapter, the adapter source is resolved from the input
    * so `run` can parse it later.
    */
   async setup() {
     this.options.signal?.throwIfAborted()
-    for (const parser of this.config.parsers) {
-      if (parser.meta) checkCompatibility(parser.meta)
+    for (const extension of [this.config.adapter, ...this.config.parsers]) {
+      if (extension?.meta) checkCompatibility(extension.meta)
     }
 
     const normalized = this.#sortPlugins(

@@ -34,6 +34,8 @@ export { fsStorage } from '@kubb/core'
 export { memoryStorage } from '@kubb/core'
 export type {
   Adapter,
+  AdapterDefinition,
+  AdapterFactory,
   AdapterFactoryOptions,
   AdapterSource,
   BannerMeta,

@@ -39,6 +39,11 @@ export type ExtensionMeta<TName extends string = string> = {
     node?: string
   }
   docs?: string
+  /**
+   * Schemas of the keys this extension adds to the options of every plugin, keyed by the option they extend,
+   * such as `{ output: barrelSchema }`. Studio and the docs read them.
+   */
+  contributes?: Record<string, StandardSchemaV1>
 }
 
 /**
@@ -220,7 +225,7 @@ export type ExtensionFactory<TKind extends ExtensionKind, TOptions, TExtension, 
 }
 
 /**
- * Builds the factory behind `definePlugin` and `defineParser`. It passes `{}` when called without
+ * Builds the factory behind `definePlugin`, `defineParser`, and `createAdapter`. It passes `{}` when called without
  * options, parses them with `schema` when set, and carries `kind`, plus `meta` and `schema` when
  * the definition has them, so tools can read them without calling it.
  *
