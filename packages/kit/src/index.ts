@@ -1,7 +1,6 @@
 export { ast } from '@kubb/ast'
 export { Url } from './Url.ts'
-// Through the package's own `./z` entry, so the bundled types keep Zod's star export.
-export * as z from '@kubb/kit/z'
+export * as z from './z.ts'
 export { macroDiscriminatorEnum } from './macros/macroDiscriminatorEnum.ts'
 export { macroEnumName } from './macros/macroEnumName.ts'
 export { macroRenameSchema } from './macros/macroRenameSchema.ts'

@@ -51,11 +51,6 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./z": {
-      "types": "./dist/z.d.ts",
-      "import": "./dist/z.js",
-      "require": "./dist/z.cjs"
-    },
     "./testing": {
       "types": "./dist/testing.d.ts",
       "import": "./dist/testing.js",
