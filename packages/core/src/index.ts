@@ -89,9 +89,11 @@ export type {
   PluginFactory,
   PluginFactoryOptions,
   PluginName,
+  PluginOptions,
   PluginType,
   ResolvePluginOptions,
 } from './definePlugin.ts'
+export type { StandardSchemaV1 } from './standardSchema.ts'
 export type {
   BannerMeta,
   ResolveBannerContext,

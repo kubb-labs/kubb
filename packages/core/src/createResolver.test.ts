@@ -13,6 +13,7 @@ type TestResolver = Resolver & {
 type TestPluginFactory = {
   name: 'test'
   options: {}
+  parsedOptions: {}
   resolvedOptions: {}
   resolver: TestResolver
 }
@@ -47,7 +48,7 @@ describe('createResolver', () => {
 
   it('a namespace method reaches the resolver root through `this`', () => {
     type SchemaResolver = Resolver & { schema: { name(name: string): string; typeName(name: string): string } }
-    type SchemaFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: SchemaResolver }
+    type SchemaFactory = { name: 'test'; options: {}; parsedOptions: {}; resolvedOptions: {}; resolver: SchemaResolver }
 
     const resolver = createResolver<SchemaFactory>({
       pluginName: 'test',
@@ -191,7 +192,7 @@ describe('createResolver', () => {
 
   it('Resolver.merge() rebuilds helpers on a new instance', () => {
     type SchemaResolver = Resolver & { schema: { label(name: string): string } }
-    type SchemaFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: SchemaResolver }
+    type SchemaFactory = { name: 'test'; options: {}; parsedOptions: {}; resolvedOptions: {}; resolver: SchemaResolver }
 
     const base = createResolver<SchemaFactory>({
       pluginName: 'test',
@@ -221,7 +222,7 @@ describe('createResolver', () => {
         keyName(node: { operationId: string }): string
       }
     }
-    type QueryFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: QueryResolver }
+    type QueryFactory = { name: 'test'; options: {}; parsedOptions: {}; resolvedOptions: {}; resolver: QueryResolver }
 
     const base = createResolver<QueryFactory>({
       pluginName: 'test',
@@ -249,7 +250,7 @@ describe('createResolver', () => {
 
   it('Resolver.merge() folds multiple overrides left to right, last wins per key', () => {
     type NameResolver = Resolver & { greet(name: string): string }
-    type NameFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: NameResolver }
+    type NameFactory = { name: 'test'; options: {}; parsedOptions: {}; resolvedOptions: {}; resolver: NameResolver }
 
     const base = createResolver<NameFactory>({
       pluginName: 'test',
@@ -283,7 +284,7 @@ describe('createResolver', () => {
         typeName(node: { operationId: string }): string
       }
     }
-    type MutationFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: MutationResolver }
+    type MutationFactory = { name: 'test'; options: {}; parsedOptions: {}; resolvedOptions: {}; resolver: MutationResolver }
 
     const base = createResolver<MutationFactory>({
       pluginName: 'test',
@@ -324,7 +325,7 @@ describe('createResolver', () => {
   })
 
   it('Resolver.merge() keeps a file override from a resolver in another @kubb/core copy, anywhere in the fold', () => {
-    type TestFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: Resolver }
+    type TestFactory = { name: 'test'; options: {}; parsedOptions: {}; resolvedOptions: {}; resolver: Resolver }
     const base = createResolver<TestFactory>({ pluginName: 'test' })
 
     // A resolver loaded from a second @kubb/core copy (a CommonJS config next to the ESM CLI) is not
@@ -348,7 +349,7 @@ describe('createResolver', () => {
 
   it('supports top-level helpers like typeName', () => {
     type TypeResolver = Resolver & { typeName(name: string): string }
-    type TypeFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: TypeResolver }
+    type TypeFactory = { name: 'test'; options: {}; parsedOptions: {}; resolvedOptions: {}; resolver: TypeResolver }
 
     const resolver = createResolver<TypeFactory>({
       pluginName: 'test',

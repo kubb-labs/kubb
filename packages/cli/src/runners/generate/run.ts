@@ -147,7 +147,9 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
     if (!quiet) configSpinner.error('Config failed loading')
 
     setupReporters(hooks, { logLevel, reporters: [cliReporter] })
-    await hooks.callHook('kubb:error', { error: toError(error) })
+    // A diagnostic thrown while the config file runs, such as invalid extension options, sits in the cause chain.
+    const diagnostic = Diagnostics.from(error)
+    await (diagnostic.code === Diagnostics.code.unknown ? hooks.callHook('kubb:error', { error: toError(error) }) : Diagnostics.emit(hooks, diagnostic))
 
     if (!quiet) logOutro(styleText('red', '✗ Configuration failed'))
     process.exit(1)

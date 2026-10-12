@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { version } from '../package.json'
-import { checkCompatibility, checkDependencies, defineExtension, resolveMeta } from './defineExtension.ts'
+import { checkCompatibility, checkDependencies, defineExtension, parseExtensionOptions, resolveMeta } from './defineExtension.ts'
 import { Diagnostics } from './Diagnostics.ts'
+import type { StandardSchemaV1 } from './standardSchema.ts'
 
 describe('resolveMeta', () => {
   it('returns meta, or { name } for an extension that only sets name', () => {
@@ -72,13 +73,53 @@ describe('checkDependencies', () => {
   })
 })
 
+const schema: StandardSchemaV1<{ pretty?: boolean }, { pretty: boolean }> = {
+  '~standard': {
+    version: 1,
+    vendor: 'test',
+    validate(value) {
+      const { pretty = false } = value as { pretty?: unknown }
+      if (typeof pretty !== 'boolean') return { issues: [{ message: 'Expected a boolean', path: ['pretty'] }, { message: 'Unknown key' }] }
+      return { value: { pretty } }
+    },
+  },
+}
+
+describe('parseExtensionOptions', () => {
+  it('returns the parsed options with the schema defaults', () => {
+    expect(parseExtensionOptions({ kind: 'parser', meta: { name: 'json' }, schema, input: {} })).toStrictEqual({ pretty: false })
+  })
+
+  it('throws KUBB_INVALID_OPTIONS listing each issue, without a plugin for other kinds', () => {
+    let thrown: unknown
+    try {
+      parseExtensionOptions({ kind: 'parser', meta: { name: 'json' }, schema, input: { pretty: 'yes' } })
+    } catch (error) {
+      thrown = error
+    }
+
+    expect(Diagnostics.from(thrown)).toMatchObject({
+      code: Diagnostics.code.invalidOptions,
+      message: 'Invalid options for parser "json". `pretty`: Expected a boolean; Unknown key',
+    })
+    expect(Diagnostics.from(thrown)).not.toHaveProperty('plugin')
+  })
+})
+
 describe('defineExtension', () => {
   it('builds a factory with kind and meta statics that passes {} when called without options', () => {
-    const factory = defineExtension({ kind: 'parser', meta: { name: 'json' }, build: (options: { pretty?: boolean }) => options })
+    const factory = defineExtension({ kind: 'parser', meta: { name: 'json' }, build: ({ options }: { options: { pretty?: boolean } }) => options })
 
     expect(factory.kind).toBe('parser')
     expect(factory.meta).toStrictEqual({ name: 'json' })
     expect(factory()).toStrictEqual({})
     expect(factory({ pretty: true })).toStrictEqual({ pretty: true })
+  })
+
+  it('parses the options with schema and carries it as a static', () => {
+    const factory = defineExtension({ kind: 'parser', meta: { name: 'json' }, schema, build: ({ options, parsedOptions }) => ({ options, parsedOptions }) })
+
+    expect(factory.schema).toBe(schema)
+    expect(factory()).toStrictEqual({ options: {}, parsedOptions: { pretty: false } })
   })
 })

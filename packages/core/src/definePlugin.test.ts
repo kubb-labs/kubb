@@ -2,11 +2,11 @@ import { ast } from '@kubb/ast'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, createMockedSetupContext, renderGeneratorOperation } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { addGenerator, useKubb } from './composables.ts'
+import { addGenerator, useKubb, useOptions } from './composables.ts'
 import { createKubb } from './createKubb.ts'
 import { defineGenerator } from './defineGenerator.ts'
 import { assertPluginOption, definePlugin, normalizeOutput } from './definePlugin.ts'
-import type { OutputOptions, Output, Plugin, PluginFactoryOptions, PluginType, ResolvePluginOptions } from './definePlugin.ts'
+import type { OutputOptions, Output, Plugin, PluginFactoryOptions, PluginOptions, PluginType, ResolvePluginOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Resolver } from './Resolver.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -14,6 +14,7 @@ import type { Config, KubbHooks } from './types.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
+import type { StandardSchemaV1 } from './standardSchema.ts'
 
 // ---------------------------------------------------------------------------
 // Module-level declare global augmentations used by the type tests below.
@@ -225,6 +226,105 @@ describe('definePlugin object form', () => {
     expect(factory().meta).toStrictEqual({ name: 'plugin-dependent' })
     expect(withMeta().meta).toStrictEqual({ name: 'plugin-versioned', version: '2.0.0' })
     await expect(setupDriver([factory()])).rejects.toMatchObject({ diagnostic: { code: Diagnostics.code.missingDependency } })
+  })
+})
+
+type TagInput = { tag?: string }
+type TagOutput = { tag: string }
+
+/**
+ * A hand-written Standard Schema where `tag` is a string that defaults to `'pets'`.
+ */
+function createTagSchema(): StandardSchemaV1<TagInput, TagOutput> {
+  return {
+    '~standard': {
+      version: 1,
+      vendor: 'test',
+      validate(value) {
+        const { tag = 'pets' } = value as { tag?: unknown }
+        if (typeof tag !== 'string') return { issues: [{ message: 'Expected a string', path: [{ key: 'filter' }, 'tag'] }] }
+        return { value: { tag } }
+      },
+    },
+  }
+}
+
+describe('definePlugin with an options schema', () => {
+  const schema = createTagSchema()
+  type SchemaPlugin = PluginType<'plugin-schema', typeof schema>
+
+  it('types options as the schema input and setup options as its output', () => {
+    const factory = definePlugin<SchemaPlugin>({
+      meta: { name: 'plugin-schema' },
+      schema,
+      setup(options, kubb) {
+        expectTypeOf(options).toEqualTypeOf<TagOutput>()
+        expectTypeOf(kubb.options).toEqualTypeOf<TagOutput>()
+        expectTypeOf(kubb.setOptions).parameter(0).toEqualTypeOf<TagOutput>()
+        expectTypeOf(useOptions<SchemaPlugin>()).toEqualTypeOf<TagOutput>()
+        return options
+      },
+    })
+
+    expectTypeOf(factory).parameter(0).toEqualTypeOf<TagInput | undefined>()
+    expectTypeOf(factory().options).toEqualTypeOf<TagInput | undefined>()
+    expectTypeOf(factory().parsedOptions).toEqualTypeOf<TagOutput | undefined>()
+    expectTypeOf<PluginOptions<typeof schema>>().toEqualTypeOf<TagInput>()
+    expectTypeOf(factory()).toExtend<Config['plugins'][number]>()
+    expectTypeOf<PluginType<'plugin-schema', TagInput>['parsedOptions']>().toEqualTypeOf<TagInput>()
+
+    const numberSchema = createTagSchema() as unknown as StandardSchemaV1<TagInput, number>
+    // @ts-expect-error the schema must produce the plugin's parsed options
+    definePlugin<PluginType<'plugin-schema', TagInput>>({ meta: { name: 'plugin-schema' }, schema: numberSchema })
+  })
+
+  it('exposes the schema on the factory and keeps the raw options next to the parsed ones', () => {
+    const factory = definePlugin<SchemaPlugin>({ meta: { name: 'plugin-schema' }, schema })
+    const plugin = factory()
+
+    expect(factory.schema).toBe(schema)
+    expect(plugin.options).toStrictEqual({})
+    expect(plugin.parsedOptions).toStrictEqual({ tag: 'pets' })
+  })
+
+  it('hands the schema defaults to setup and dependencies', async () => {
+    const setup = vi.fn((options: TagOutput) => options)
+    const dependencies = vi.fn(() => ({}))
+    const plugin = definePlugin<SchemaPlugin>({ meta: { name: 'plugin-schema' }, schema, dependencies, setup })()
+
+    const driver = await setupDriver([plugin])
+
+    expect(setup).toHaveBeenCalledWith({ tag: 'pets' }, expect.anything())
+    expect(dependencies).toHaveBeenCalledWith({ tag: 'pets' }, expect.anything())
+    expect(driver.plugins.get('plugin-schema')?.options).toMatchObject({ tag: 'pets' })
+  })
+
+  it('throws KUBB_INVALID_OPTIONS naming the plugin and the option path when the factory is called', () => {
+    const factory = definePlugin<SchemaPlugin>({ meta: { name: 'plugin-schema' }, schema })
+
+    expect(() => factory({ tag: 1 as unknown as string })).toThrow(
+      expect.objectContaining({
+        diagnostic: expect.objectContaining({
+          code: Diagnostics.code.invalidOptions,
+          plugin: 'plugin-schema',
+          message: 'Invalid options for plugin "plugin-schema". `filter.tag`: Expected a string',
+        }),
+      }),
+    )
+  })
+
+  it('refuses an async validator without leaving its promise unhandled', async () => {
+    const unhandled = vi.fn()
+    process.on('unhandledRejection', unhandled)
+    const asyncSchema: StandardSchemaV1<TagInput, TagOutput> = {
+      '~standard': { ...schema['~standard'], validate: () => Promise.reject(new Error('rejected')) },
+    }
+    const factory = definePlugin<SchemaPlugin>({ meta: { name: 'plugin-schema' }, schema: asyncSchema })
+
+    expect(() => factory()).toThrow('The options schema of plugin "plugin-schema" validates asynchronously.')
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    process.off('unhandledRejection', unhandled)
+    expect(unhandled).not.toHaveBeenCalled()
   })
 })
 

@@ -69,7 +69,7 @@ export function defineParser(input: ParserDefinition | ((options: object) => Par
   if (typeof input === 'function') {
     return defineExtension({
       kind: 'parser',
-      build: (options: object): Parser => {
+      build: ({ options }: { options: object }): Parser => {
         const parser = input(options)
         return { ...parser, meta: resolveMeta(parser) }
       },
@@ -77,5 +77,5 @@ export function defineParser(input: ParserDefinition | ((options: object) => Par
   }
 
   const { meta, setup } = input
-  return defineExtension({ kind: 'parser', meta, build: (options: object): Parser => ({ ...setup(options), name: meta.name, meta }) })
+  return defineExtension({ kind: 'parser', meta, build: ({ options }: { options: object }): Parser => ({ ...setup(options), name: meta.name, meta }) })
 }

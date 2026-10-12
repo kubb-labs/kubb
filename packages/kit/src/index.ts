@@ -66,6 +66,7 @@ export type {
   PluginDefinition,
   PluginFactory,
   PluginFactoryOptions,
+  PluginOptions,
   PluginType,
   Renderer,
   RendererFactory,
@@ -76,5 +77,6 @@ export type {
   ResolverFileParams,
   ResolverFilePathParams,
   ResolverPatch,
+  StandardSchemaV1,
   Storage,
 } from '@kubb/core'
