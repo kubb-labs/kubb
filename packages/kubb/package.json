@@ -98,11 +98,6 @@
       "import": "./dist/kit.js",
       "require": "./dist/kit.cjs"
     },
-    "./kit/options": {
-      "types": "./dist/kit/options.d.ts",
-      "import": "./dist/kit/options.js",
-      "require": "./dist/kit/options.cjs"
-    },
     "./kit/testing": {
       "types": "./dist/kit/testing.d.ts",
       "import": "./dist/kit/testing.js",
@@ -173,14 +168,6 @@
     "typescript": "catalog:",
     "vite": "^8.3.4",
     "webpack": "^5.111.1"
-  },
-  "peerDependencies": {
-    "zod": "^4.0.0"
-  },
-  "peerDependenciesMeta": {
-    "zod": {
-      "optional": true
-    }
   },
   "preferGlobal": true,
   "engines": {
