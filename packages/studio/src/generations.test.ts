@@ -34,6 +34,13 @@ describe('createGenerationStore', () => {
     expect(output.hashes['a.ts']).toBe(disk.hashes['a.ts'])
   })
 
+  it('leaves out an output file that writing would skip because it is empty once trimmed', async () => {
+    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
+    const output = await store.keep({ jobId: 'job-1', source: 'output', files: sourceFiles({ 'a.ts': 'export const a = 1', 'empty.ts': ' \n ' }), maxSetMb: 1 })
+
+    expect(output.paths).toStrictEqual(['a.ts'])
+  })
+
   it('pages through a file split on any line ending until nextCursor is null', async () => {
     const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
     await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'l0\r\nl1\rl2\nl3\nl4' } })
