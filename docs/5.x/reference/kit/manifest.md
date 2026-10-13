@@ -132,7 +132,7 @@ Names of the extensions that must be in the same config, such as `["plugin-ts"]`
 ### `optionalDependencies`
 
 :::field{type="Array<string>"}
-Names of the extensions the plugin uses when they are in the same config, or needs only for some option values. `@kubb/plugin-msw` lists `["plugin-faker"]`, because it needs `@kubb/plugin-faker` only with `parser: 'faker'`. They match the entries marked `optional: true` or picked from the options in the plugin's runtime [`dependencies`](./extensions#dependencies). `kubb init` does not require them.
+Names of the extensions the plugin uses when they are in the same config, or needs only for some option values. `@kubb/plugin-msw` lists `["plugin-faker"]`, because it needs `@kubb/plugin-faker` only with `parser: 'faker'`. They match the entries marked `optional: true` or picked from the options in the plugin's runtime [`dependencies`](./extensions#dependencies). kubb.dev lists them below the dependencies. `kubb init` does not require them.
 :::
 
 ### `compatibility`
