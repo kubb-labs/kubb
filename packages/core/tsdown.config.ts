@@ -16,7 +16,6 @@ const vueSfc = {
 const entry = {
   index: 'src/index.ts',
   mocks: 'src/mocks.ts',
-  manifest: 'src/manifest.ts',
 }
 
 const shared: Partial<UserConfig> = {
@@ -47,6 +46,16 @@ export default defineConfig([
     format: 'cjs',
     dts: false,
     ...shared,
+  },
+  {
+    // Built apart from the Node entries, so no shared chunk or shim adds a `node:` import to this browser-safe subpath.
+    entry: { manifest: 'src/manifest.ts' },
+    format: ['esm', 'cjs'],
+    dts: true,
+    platform: 'neutral',
+    sourcemap: true,
+    deps: { neverBundle: [/^@kubb\//, 'verkit'] },
+    fixedExtension: false,
   },
   {
     entry: { 'html/ui': 'src/reporters/html/ui.ts' },

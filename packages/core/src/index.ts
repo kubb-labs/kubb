@@ -60,17 +60,11 @@ export type { Storage } from './createStorage.ts'
 export type { FileManagerHooks } from './FileManager.ts'
 export type { Generator, GeneratorContext } from './defineGenerator.ts'
 export type { InputKind } from './input.ts'
-export type {
-  ExtensionDependencies,
-  ExtensionDependency,
-  ExtensionDependencyRecord,
-  ExtensionFactory,
-  ExtensionKind,
-  ExtensionMeta,
-} from './defineExtension.ts'
+export type { ExtensionDependencies, ExtensionDependency, ExtensionDependencyRecord, ExtensionFactory, ExtensionMeta } from './defineExtension.ts'
 export { checkCompatibility, resolveMeta } from './defineExtension.ts'
+export { type InstalledPackage, readInstalledPackages } from './installedPackages.ts'
 export { isExtensionManifest, isPackageName, isRegistryEntry, manifestProblems } from './manifest.ts'
-export type { ExtensionManifest, ExtensionManifestOption, JSONValue, RegistryDetail, RegistryEntry, RegistryIndex } from './manifest.ts'
+export type { ExtensionKind, ExtensionManifest, ExtensionManifestOption, JSONValue, RegistryDetail, RegistryEntry, RegistryIndex } from './manifest.ts'
 export type { NodeCache } from './nodeCache.ts'
 export type { Parser, ParserDefinition, ParserFactory } from './defineParser.ts'
 export type {

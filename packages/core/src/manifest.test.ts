@@ -8,8 +8,8 @@ const select = {
   path: ['output', 'mode'],
   label: 'Mode',
   type: 'select',
-  default: { type: 'named' },
-  choices: [{ value: null }, { value: { type: 'named' } }],
+  default: { type: 'named', casing: null },
+  choices: [{ value: null }, { value: { casing: null, type: 'named' } }],
 }
 
 describe('isPackageName', () => {
@@ -45,7 +45,7 @@ describe('isExtensionManifest', () => {
     expect(isExtensionManifest(value)).toBe(false)
   })
 
-  it('accepts a select whose object default equals a choice', () => {
+  it('accepts a select whose object default equals a choice in another key order', () => {
     expect(isExtensionManifest({ ...manifest, options: [select] })).toBe(true)
   })
 })

@@ -1,5 +1,9 @@
 import { isValid } from 'verkit'
-import type { ExtensionKind } from './defineExtension.ts'
+
+/**
+ * What an extension extends: a plugin generates code, an adapter reads the input, a parser prints files.
+ */
+export type ExtensionKind = 'plugin' | 'adapter' | 'parser'
 
 /** A value that survives `JSON.stringify` and `JSON.parse` unchanged. */
 export type JSONValue = string | number | boolean | null | Array<JSONValue> | { [key: string]: JSONValue }
@@ -87,6 +91,18 @@ const UNSAFE_KEYS = new Set<unknown>(['__proto__', 'constructor', 'prototype'])
 
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
 const isOptionalString = (value: unknown) => value === undefined || typeof value === 'string'
+const isFilledString = (value: unknown) => typeof value === 'string' && value !== ''
+/** Serializes with sorted object keys, so equal JSON values give equal strings whatever their key order. */
+const canonicalJSON = (value: unknown) =>
+  JSON.stringify(value, (_key, item: unknown) =>
+    isObject(item)
+      ? Object.fromEntries(
+          Object.keys(item)
+            .sort()
+            .map((key) => [key, item[key]]),
+        )
+      : item,
+  )
 
 /**
  * Whether `name` is a valid npm package name, such as `@kubb/plugin-ts`. Rejects paths, URLs,
@@ -97,50 +113,19 @@ export function isPackageName(name: unknown): name is string {
   return typeof name === 'string' && name.length <= 214 && PACKAGE_NAME.test(name)
 }
 
-/**
- * Structural equality for JSON values.
- */
-function isJSONEqual({ a, b }: { a: unknown; b: unknown }): boolean {
-  if (a === b) return true
-  if (Array.isArray(a) || Array.isArray(b)) {
-    return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((item, index) => isJSONEqual({ a: item, b: b[index] }))
-  }
-  if (!isObject(a) || !isObject(b)) return false
-  const keys = Object.keys(a)
-  return keys.length === Object.keys(b).length && keys.every((key) => Object.hasOwn(b, key) && isJSONEqual({ a: a[key], b: b[key] }))
-}
-
 function isOption(value: unknown): value is ExtensionManifestOption {
   if (!isObject(value)) return false
   const { key, path, label, description, type, choices, itemCase } = value
   return (
-    typeof key === 'string' &&
-    key.length > 0 &&
+    isFilledString(key) &&
     Array.isArray(path) &&
     path.length > 0 &&
-    path.every((segment) => typeof segment === 'string' && segment.length > 0 && !UNSAFE_KEYS.has(segment)) &&
-    typeof label === 'string' &&
-    label.length > 0 &&
+    path.every((segment) => isFilledString(segment) && !UNSAFE_KEYS.has(segment)) &&
+    isFilledString(label) &&
     isOptionalString(description) &&
     OPTION_TYPES.has(type) &&
     (choices === undefined || (Array.isArray(choices) && choices.every((choice) => isObject(choice) && 'value' in choice && isOptionalString(choice.label)))) &&
     (itemCase === undefined || itemCase === 'upper')
-  )
-}
-
-function hasManifestShape(value: unknown): value is ExtensionManifest {
-  if (!isObject(value)) return false
-  const { kind, name, export: exportName, displayName, description, compatibility, options } = value
-  return (
-    EXTENSION_KINDS.has(kind) &&
-    isPackageName(name) &&
-    typeof exportName === 'string' &&
-    IDENTIFIER.test(exportName) &&
-    typeof displayName === 'string' &&
-    typeof description === 'string' &&
-    (compatibility === undefined ||
-      (isObject(compatibility) && Object.entries(compatibility).every(([key, range]) => (key === 'kubb' || key === 'node') && typeof range === 'string'))) &&
-    (options === undefined || (Array.isArray(options) && options.every(isOption)))
   )
 }
 
@@ -155,7 +140,7 @@ export function manifestProblems({ options = [] }: ExtensionManifest): Array<str
     seen.add(option.key)
     if (option.type !== 'select') return problems
     if (!option.choices?.length) return [...problems, `option "${option.key}" is a select without choices`]
-    const knownDefault = !('default' in option) || option.choices.some((choice) => isJSONEqual({ a: choice.value, b: option.default }))
+    const knownDefault = !('default' in option) || option.choices.some((choice) => canonicalJSON(choice.value) === canonicalJSON(option.default))
     return knownDefault ? problems : [...problems, `option "${option.key}" has a default that is not one of its choices`]
   })
 }
@@ -166,7 +151,20 @@ export function manifestProblems({ options = [] }: ExtensionManifest): Array<str
  * and `manifestProblems`. A malformed manifest is skipped instead of trusted.
  */
 export function isExtensionManifest(value: unknown): value is ExtensionManifest {
-  return hasManifestShape(value) && manifestProblems(value).length === 0
+  if (!isObject(value)) return false
+  const { kind, name, export: exportName, displayName, description, compatibility, options } = value
+  return (
+    EXTENSION_KINDS.has(kind) &&
+    isPackageName(name) &&
+    typeof exportName === 'string' &&
+    IDENTIFIER.test(exportName) &&
+    typeof displayName === 'string' &&
+    typeof description === 'string' &&
+    (compatibility === undefined ||
+      (isObject(compatibility) && Object.entries(compatibility).every(([key, range]) => (key === 'kubb' || key === 'node') && typeof range === 'string'))) &&
+    (options === undefined || (Array.isArray(options) && options.every(isOption))) &&
+    manifestProblems(value as ExtensionManifest).length === 0
+  )
 }
 
 /**
