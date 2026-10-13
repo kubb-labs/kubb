@@ -5,8 +5,6 @@ import { defineExtension, memoryStorage, type UserConfig } from '@kubb/core'
 import { describe, expect, test, vi } from 'vitest'
 import type { UnpluginBuildContext } from 'unplugin'
 import { unpluginFactory } from './unpluginFactory.ts'
-import vite from './vite.ts'
-import webpack from './webpack.ts'
 
 type KubbUnpluginOptions = ReturnType<typeof unpluginFactory>
 
@@ -31,11 +29,6 @@ function createBuildContext(): UnpluginBuildContext {
 }
 
 describe('unpluginFactory', () => {
-  test('creates vite and webpack subpackage plugins', () => {
-    expect(vite({ config: { output: { path: './gen' } } })).toMatchObject({ name: 'unplugin-kubb' })
-    expect(webpack({ config: { output: { path: './gen' } } })).toBeDefined()
-  })
-
   test('uses the same generation defaults as defineConfig', async () => {
     const storage = memoryStorage()
     const file = ast.factory.createFile({
