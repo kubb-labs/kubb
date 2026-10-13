@@ -60,7 +60,7 @@ The JSON Schema URL, `https://kubb.dev/schemas/kubb-extension.json`. Only editor
 ### `kind`
 
 :::field{type="'plugin' | 'adapter' | 'parser'" required}
-What the package extends. `kubb add` adds a `plugin` to the config and prints the code for an `adapter` or `parser`. Studio builds forms only for plugins.
+What the package extends. `kubb add` adds a `plugin` to the config and prints the code for an `adapter` or `parser`. Studio builds a form for every kind: plugins can be switched on and off, while the adapter and the parsers are the ones the config registers.
 :::
 
 ### `name`
