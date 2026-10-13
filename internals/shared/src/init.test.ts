@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { availablePlugins } from './constants.ts'
-import { generateConfigFile, resolveInstallVersions, resolvePlugins } from './init.ts'
+import { generateConfigFile, resolvePlugins } from './init.ts'
 
 describe('resolvePlugins', () => {
   it('returns an empty list when no flag is given', () => {
@@ -126,7 +126,6 @@ describe('generateConfigFile', () => {
     expect(result).toMatchInlineSnapshot(`
       "import { defineConfig } from 'kubb/config'
 
-
       export default defineConfig({
         input: './api.yaml',
         output: {
@@ -139,22 +138,5 @@ describe('generateConfigFile', () => {
       })
       "
     `)
-  })
-})
-
-describe('resolveInstallVersions', () => {
-  it('pins kubb to the CLI version and plugins to the beta tag for a beta CLI version', () => {
-    const result = resolveInstallVersions({ packages: ['kubb', '@kubb/plugin-ts'], version: '5.0.0-beta.94' })
-    expect(result).toStrictEqual(['kubb@5.0.0-beta.94', '@kubb/plugin-ts@beta'])
-  })
-
-  it('pins plugins to another prerelease tag when the version carries one', () => {
-    const result = resolveInstallVersions({ packages: ['kubb', '@kubb/plugin-zod'], version: '5.0.0-alpha.1' })
-    expect(result).toStrictEqual(['kubb@5.0.0-alpha.1', '@kubb/plugin-zod@alpha'])
-  })
-
-  it('pins plugins to latest for a stable CLI version', () => {
-    const result = resolveInstallVersions({ packages: ['kubb', '@kubb/plugin-zod'], version: '5.0.0' })
-    expect(result).toStrictEqual(['kubb@5.0.0', '@kubb/plugin-zod@latest'])
   })
 })

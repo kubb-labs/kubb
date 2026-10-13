@@ -35,8 +35,7 @@ export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
     },
     plugins: {
       type: 'string',
-      description:
-        'Comma-separated list of plugins to use (plugin-ts, plugin-axios, plugin-fetch, plugin-react-query, plugin-vue-query, plugin-zod, plugin-faker, plugin-msw, plugin-cypress, plugin-mcp, plugin-redoc)',
+      description: 'Comma-separated Kubb registry ids of the plugins to add, the same ids `kubb add` takes (plugin-ts, plugin-zod, acme/plugin-x)',
       metavar: 'plugin-ts,plugin-zod,...',
     },
   },
