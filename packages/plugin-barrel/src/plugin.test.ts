@@ -4,10 +4,11 @@ import type { Config, Plugin } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { pluginBarrel } from './plugin.ts'
 
-function makeFile(filePath: string, name: string) {
+function makeFile(filePath: string, name: string, meta?: Record<string, unknown>) {
   return ast.factory.createFile({
     path: filePath,
     baseName: filePath.split('/').pop() as `${string}.${string}`,
+    meta,
     sources: [ast.factory.createSource({ name, isIndexable: true, nodes: [ast.factory.createText(`export const ${name} = null`)] })],
     imports: [],
     exports: [],
@@ -20,12 +21,15 @@ function makePlugin({
   filePath,
   exportName,
   output,
+  meta = { pluginName: name },
 }: {
   name: string
   outputPath: string
   filePath: string
   exportName: string
   output?: Record<string, unknown>
+  // Resolver-built files record their owning plugin in `meta.pluginName`. Pass `{}` for a file that does not.
+  meta?: Record<string, unknown>
 }) {
   return definePlugin(() => ({
     name,
@@ -33,7 +37,7 @@ function makePlugin({
       'kubb:plugin:setup'(ctx) {
         ctx.setOptions({ output: { path: outputPath, ...output } })
         ctx.setResolver({})
-        ctx.injectFile(makeFile(filePath, exportName))
+        ctx.injectFile(makeFile(filePath, exportName, meta))
       },
     },
   }))()
@@ -133,6 +137,17 @@ describe('pluginBarrel', () => {
       }),
     },
     { scenario: 'directory-mode', plugin: typesPlugin({ barrel: false }) },
+    {
+      scenario: 'directory-mode without an owning plugin on its files',
+      plugin: makePlugin({
+        name: 'plugin-types',
+        outputPath: 'types',
+        filePath: '/workspace/src/gen/types/pet.ts',
+        exportName: 'Pet',
+        output: { mode: 'directory', barrel: false },
+        meta: {},
+      }),
+    },
   ])('excludes a barrel:false $scenario plugin from the root barrel', async ({ plugin }) => {
     const { paths, rootExportNames } = await build({ plugins: [plugin, schemasPlugin()] })
 
@@ -165,5 +180,25 @@ describe('pluginBarrel', () => {
 
     expect(rootExportNames).not.toContain('Pet')
     expect(rootExportNames).toContain('PetExtra')
+  })
+
+  it.each([
+    { scenario: "'.'", output: { path: '.' } },
+    { scenario: 'an empty string', output: { path: '' } },
+    { scenario: 'missing', output: { path: undefined } },
+  ])('keeps the other barrels when a barrel:false plugin output path is $scenario', async ({ output }) => {
+    const rootPlugin = makePlugin({
+      name: 'plugin-root',
+      outputPath: '.',
+      filePath: '/workspace/src/gen/client.ts',
+      exportName: 'client',
+      output: { mode: 'directory', barrel: false, ...output },
+    })
+    const { paths, rootExportNames } = await build({ plugins: [typesPlugin(), rootPlugin] })
+
+    expect(paths).toContain('/workspace/src/gen/types/index.ts')
+    expect(paths).toContain('/workspace/src/gen/index.ts')
+    expect(rootExportNames).toContain('Pet')
+    expect(rootExportNames).not.toContain('client')
   })
 })
