@@ -100,6 +100,29 @@ describe('unpluginFactory', () => {
     await expect(pluginOptions.buildStart?.call(createBuildContext())).rejects.toThrow('[unplugin-kubb]')
   })
 
+  test('logs a failed generation when the input cannot be read', async () => {
+    using log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    using _error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const config = {
+      input: './missing.yaml',
+      output: { path: './gen' },
+      adapter: createMockedAdapter({
+        async parse() {
+          throw new Error('Cannot read the file set as `input`')
+        },
+      }),
+      storage: memoryStorage(),
+    } satisfies UserConfig
+    const pluginOptions = getPluginOptions(unpluginFactory({ config }, viteMeta))
+
+    await expect(pluginOptions.buildStart?.call(createBuildContext())).rejects.toThrow('[unplugin-kubb]')
+
+    const lines = log.mock.calls.map(([line]) => String(line))
+    expect(lines).toContain('✗ Generation failed')
+    expect(lines).not.toContain('✓ Generation succeeded')
+    expect(lines.find((line) => line.startsWith('Kubb Summary:'))).toBe('Kubb Summary: ✗ 1 passed | 0 failed (1) | 1 error')
+  })
+
   test('fails the host build when the config is missing', async () => {
     const pluginOptions = getPluginOptions(unpluginFactory(undefined, viteMeta))
 

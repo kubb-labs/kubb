@@ -57,18 +57,22 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
   })
 
   hooks.hook('kubb:generation:end', ({ config, status, diagnostics }) => {
-    console.log(config.name ? `✓ Generation completed for ${config.name}` : '✓ Generation completed')
+    const result = status === 'failed' ? '✗ Generation failed' : '✓ Generation succeeded'
+    console.log(config.name ? `${result} for ${config.name}` : result)
 
     if (!diagnostics || !status) return
 
     const failedCount = Diagnostics.failedPlugins(diagnostics).length
     const pluginsCount = config.plugins.length
-    const successCount = pluginsCount - failedCount
+    const passedCount = pluginsCount - failedCount
+    const { errors } = Diagnostics.count(diagnostics)
 
+    // Same counts as the CLI summary. A run that fails before any plugin runs, such as on a
+    // missing input, has no failed plugins, so the error count is what shows the failure.
     console.log(
       status === 'success'
-        ? `Kubb Summary: ✓ ${successCount} successful, ${pluginsCount} total`
-        : `Kubb Summary: ✓ ${successCount} successful, ✗ ${failedCount} failed, ${pluginsCount} total`,
+        ? `Kubb Summary: ✓ ${passedCount} passed (${pluginsCount})`
+        : `Kubb Summary: ✗ ${passedCount} passed | ${failedCount} failed (${pluginsCount}) | ${errors} ${errors === 1 ? 'error' : 'errors'}`,
     )
   })
 
