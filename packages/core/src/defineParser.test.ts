@@ -1,5 +1,6 @@
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it } from 'vitest'
+import { defineExtension } from './defineExtension.ts'
 import { defineParser } from './defineParser.ts'
 import type { Parser } from './defineParser.ts'
 import { Diagnostics } from './Diagnostics.ts'
@@ -8,7 +9,8 @@ import { KubbDriver } from './KubbDriver.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import type { Config, KubbHooks } from './types.ts'
 
-const parserJson = defineParser<{ pretty?: boolean }, object, string>({
+const parserJson = defineExtension<{ pretty?: boolean }, object, string>({
+  kind: 'parser',
   meta: { name: 'json', version: '1.0.0' },
   build(options) {
     return {
@@ -32,7 +34,7 @@ function makeConfig(parsers: Config['parsers']): Config {
   }
 }
 
-describe('defineParser object form', () => {
+describe('defineExtension parser', () => {
   it('returns a factory with kind and meta statics that passes the options to build', () => {
     const parser = parserJson({ pretty: true })
 
@@ -61,9 +63,10 @@ describe('defineParser object form', () => {
   })
 
   it('throws KUBB_INCOMPATIBLE_EXTENSION from KubbDriver.setup when a parser requires a newer Kubb', async () => {
-    const future = defineParser({
+    const future = defineExtension({
+      kind: 'parser',
       meta: { name: 'future', compatibility: { kubb: '>=99' } },
-      setup: () => ({ extNames: undefined, parse: () => '', print: () => '' }),
+      build: () => ({ extNames: undefined, parse: () => '', print: () => '' }),
     })
     const driver = new KubbDriver(makeConfig([future()]), { hooks: new Hookable<KubbHooks>() })
 

@@ -1,6 +1,7 @@
 import { ast } from '@kubb/ast'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 import { createAdapter } from './createAdapter.ts'
+import { defineExtension } from './defineExtension.ts'
 import type { Adapter, AdapterFactoryOptions } from './createAdapter.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { Hookable } from './Hookable.ts'
@@ -10,7 +11,8 @@ import type { Config, KubbHooks } from './types.ts'
 
 type TextAdapter = AdapterFactoryOptions<'text', { strict?: boolean }, { strict: boolean; mode: 'strict' | 'loose' }, string>
 
-const adapterText = createAdapter<TextAdapter>({
+const adapterText = defineExtension<TextAdapter>({
+  kind: 'adapter',
   meta: { name: 'text', version: '1.0.0' },
   setup: ({ strict = true }) => ({ strict, mode: strict ? 'strict' : 'loose' }),
   build(options) {
@@ -28,7 +30,7 @@ const adapterText = createAdapter<TextAdapter>({
   },
 })
 
-describe('createAdapter object form', () => {
+describe('defineExtension adapter', () => {
   it('returns a factory with kind and meta statics', () => {
     expect(adapterText.kind).toBe('adapter')
     expect(adapterText.meta).toStrictEqual({ name: 'text', version: '1.0.0' })
@@ -52,7 +54,8 @@ describe('createAdapter object form', () => {
   })
 
   it("uses the user's options as the resolved options without setup", () => {
-    const adapter = createAdapter<AdapterFactoryOptions<'plain', { strict?: boolean }>>({
+    const adapter = defineExtension<AdapterFactoryOptions<'plain', { strict?: boolean }>>({
+      kind: 'adapter',
       meta: { name: 'plain' },
       build: () => ({ document: null, parse: () => ast.factory.createInput(), validate: async () => {} }),
     })({ strict: true })
@@ -75,7 +78,8 @@ describe('createAdapter object form', () => {
   })
 
   it('throws KUBB_INCOMPATIBLE_EXTENSION from KubbDriver.setup when the adapter requires a newer Kubb', async () => {
-    const future = createAdapter({
+    const future = defineExtension({
+      kind: 'adapter',
       meta: { name: 'future', compatibility: { kubb: '>=99' } },
       build: () => ({ document: null, parse: () => ast.factory.createInput(), validate: async () => {} }),
     })

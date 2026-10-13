@@ -1,6 +1,13 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 import { version } from '../package.json'
-import { checkCompatibility, checkDependencies, defineExtension, resolveMeta } from './defineExtension.ts'
+import { ast } from '@kubb/ast'
+import { checkCompatibility, checkDependencies, createExtensionFactory, defineExtension, resolveMeta } from './defineExtension.ts'
+import { createAdapter } from './createAdapter.ts'
+import type { Adapter, AdapterFactoryOptions } from './createAdapter.ts'
+import { defineParser } from './defineParser.ts'
+import type { Parser } from './defineParser.ts'
+import { definePlugin } from './definePlugin.ts'
+import type { Plugin, PluginType } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 
 describe('resolveMeta', () => {
@@ -72,13 +79,96 @@ describe('checkDependencies', () => {
   })
 })
 
-describe('defineExtension', () => {
+describe('createExtensionFactory', () => {
   it('builds a factory with kind and meta statics that passes {} when called without options', () => {
-    const factory = defineExtension({ kind: 'parser', meta: { name: 'json' }, build: (options: { pretty?: boolean }) => options })
+    const factory = createExtensionFactory({ kind: 'parser', meta: { name: 'json' }, build: (options: { pretty?: boolean }) => options })
 
     expect(factory.kind).toBe('parser')
     expect(factory.meta).toStrictEqual({ name: 'json' })
     expect(factory()).toStrictEqual({})
     expect(factory({ pretty: true })).toStrictEqual({ pretty: true })
+  })
+})
+
+describe('defineExtension', () => {
+  type PluginText = PluginType<'plugin-text', { tag?: string }, { tag: string }>
+  type AdapterText = AdapterFactoryOptions<'text', { strict?: boolean }, { strict: boolean }, string>
+
+  it('defines a plugin when kind is plugin', () => {
+    const factory = defineExtension<PluginText>({
+      kind: 'plugin',
+      meta: { name: 'plugin-text', version: '1.0.0' },
+      setup: (options) => ({ tag: options.tag ?? 'all' }),
+    })
+    const plugin = factory({ tag: 'pets' })
+
+    expect(factory.kind).toBe('plugin')
+    expect(factory.meta).toStrictEqual({ name: 'plugin-text', version: '1.0.0' })
+    expect(plugin).toMatchObject({ name: 'plugin-text', meta: { name: 'plugin-text' }, options: { tag: 'pets' }, hooks: {} })
+    expectTypeOf(factory()).toEqualTypeOf<Plugin<PluginText>>()
+  })
+
+  it('defines an adapter when kind is adapter, resolving options with setup', () => {
+    const factory = defineExtension<AdapterText>({
+      kind: 'adapter',
+      meta: { name: 'text' },
+      setup: ({ strict = true }) => ({ strict }),
+      build: () => ({ document: null, parse: () => ast.factory.createInput(), validate: async () => {} }),
+    })
+
+    expect(factory.kind).toBe('adapter')
+    expect(factory.meta).toStrictEqual({ name: 'text' })
+    expect(factory({ strict: false })).toMatchObject({ name: 'text', meta: { name: 'text' }, options: { strict: false } })
+    expectTypeOf(factory()).toEqualTypeOf<Adapter<AdapterText>>()
+  })
+
+  it('defines a parser when kind is parser', () => {
+    const factory = defineExtension<{ pretty?: boolean }, object, string>({
+      kind: 'parser',
+      meta: { name: 'json' },
+      build: (options) => ({ extNames: ['.json'], parse: () => (options.pretty ? 'pretty' : 'compact'), print: (...nodes) => nodes.join('\n') }),
+    })
+    const parser = factory({ pretty: true })
+
+    expect(factory.kind).toBe('parser')
+    expect(factory.meta).toStrictEqual({ name: 'json' })
+    expect(parser).toMatchObject({ name: 'json', extNames: ['.json'], options: { pretty: true } })
+    expect(parser.parse({} as never)).toBe('pretty')
+    expectTypeOf(parser).toEqualTypeOf<Parser<object, string, { pretty?: boolean }>>()
+  })
+
+  it('keeps the literal extNames of a parser whose build takes no options', () => {
+    const parser = defineExtension({
+      kind: 'parser',
+      meta: { name: 'text' },
+      build() {
+        return { extNames: ['.txt'], parse: () => '', print: () => '' }
+      },
+    })()
+
+    expect(parser.extNames).toStrictEqual(['.txt'])
+  })
+
+  it('rejects a definition whose fields belong to another kind', () => {
+    // @ts-expect-error a plugin has no `build`
+    defineExtension({ kind: 'plugin', meta: { name: 'plugin-text' }, build: () => ({}) })
+    // @ts-expect-error an adapter needs `build`
+    defineExtension({ kind: 'adapter', meta: { name: 'text' } })
+  })
+})
+
+describe('deprecated definers', () => {
+  it('definePlugin, defineParser, and createAdapter return the same factory as defineExtension', () => {
+    const plugin = definePlugin({ meta: { name: 'plugin-text' } })
+    const parser = defineParser({ meta: { name: 'text' }, build: () => ({ extNames: undefined, parse: () => '', print: () => '' }) })
+    const adapter = createAdapter({
+      meta: { name: 'text' },
+      build: () => ({ document: null, parse: () => ast.factory.createInput(), validate: async () => {} }),
+    })
+
+    expect([plugin.kind, parser.kind, adapter.kind]).toStrictEqual(['plugin', 'parser', 'adapter'])
+    expect(plugin().meta).toStrictEqual(defineExtension({ kind: 'plugin', meta: { name: 'plugin-text' } })().meta)
+    expect(parser()).toMatchObject({ name: 'text', meta: { name: 'text' } })
+    expect(adapter()).toMatchObject({ name: 'text', meta: { name: 'text' } })
   })
 })

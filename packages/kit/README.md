@@ -24,7 +24,7 @@
 
 ### Authoring toolkit for Kubb plugins
 
-`@kubb/kit` gathers the helpers you call when you author a plugin, generator, adapter, resolver, or renderer: `definePlugin`, `defineGenerator`, `defineResolver`, `defineParser`, `createAdapter`, `createRenderer`, the `ast` namespace and `factory` node builders, and the option and hook types that go with them. It sits next to the `kubb` package, which is where end users configure and run builds. `kubb/kit` re-exports this package, so most consumers reach it through `kubb/kit` rather than installing `@kubb/kit` directly.
+`@kubb/kit` gathers the helpers you call when you author a plugin, generator, adapter, resolver, parser, or renderer: `defineExtension`, `defineGenerator`, `createResolver`, `createRenderer`, the `ast` namespace and `factory` node builders, and the option and hook types that go with them. It sits next to the `kubb` package, which is where end users configure and run builds. `kubb/kit` re-exports this package, so most consumers reach it through `kubb/kit` rather than installing `@kubb/kit` directly.
 
 ## Installation
 
@@ -41,25 +41,28 @@ npm install kubb
 ## Usage
 
 ```typescript
-import { ast, definePlugin, defineGenerator } from 'kubb/kit'
+import { ast, defineExtension, defineGenerator } from 'kubb/kit'
 
-export const pluginExample = definePlugin(() => {
-  return {
-    name: 'example',
-    generators: [
+export const pluginExample = defineExtension({
+  kind: 'plugin',
+  meta: { name: 'plugin-example' },
+  setup(_options, kubb) {
+    kubb.addGenerator(
       defineGenerator({
-        schema({ schema }) {
-          return ast.factory.createSchema(schema)
+        name: 'example',
+        schema(node) {
+          return ast.factory.createFile({ path: `${node.name}.ts`, baseName: `${node.name}.ts`, sources: [], imports: [], exports: [] })
         },
       }),
-    ],
-  }
+    )
+    return {}
+  },
 })
 ```
 
 ## What is in the box
 
-`definePlugin`, `defineGenerator`, `defineResolver`, and `defineParser` wrap a plugin, a generator, a resolver, or a parser into the shape the build engine expects. `createAdapter`, `createRenderer`, and `createStorage` are the matching factories for a custom spec adapter, output renderer, or storage backend.
+`defineExtension` wraps a plugin, an adapter, or a parser into the shape the build engine expects. Set `kind` to `'plugin'`, `'adapter'`, or `'parser'`. `definePlugin`, `defineParser`, and `createAdapter` still work but are deprecated in favor of it. `defineGenerator` and `createResolver` wrap a generator or a resolver. `createRenderer` and `createStorage` are the matching factories for a custom output renderer or storage backend.
 
 `ast` and `factory` are the node builders a generator calls to construct the file, schema, and operation nodes it returns. `Diagnostics` is the structured error a plugin throws to report a problem with a location and a fix suggestion, and `memoryStorage` and `fsStorage` are the built-in storage backends, useful in tests and custom configs.
 

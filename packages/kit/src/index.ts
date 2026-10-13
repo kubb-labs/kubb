@@ -24,6 +24,7 @@ export {
 export { createAdapter } from '@kubb/core'
 export { createRenderer } from '@kubb/core'
 export { createStorage } from '@kubb/core'
+export { defineExtension } from '@kubb/core'
 export { defineGenerator } from '@kubb/core'
 export { defineParser } from '@kubb/core'
 export { assertPluginOption, definePlugin } from '@kubb/core'

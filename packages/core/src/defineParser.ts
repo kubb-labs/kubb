@@ -1,5 +1,5 @@
 import type { FileNode, UserFileNode } from '@kubb/ast'
-import { defineExtension, resolveMeta } from './defineExtension.ts'
+import { createExtensionFactory, defineExtension, resolveMeta } from './defineExtension.ts'
 import type { ExtensionFactory, ExtensionMeta, ExtensionNamed } from './defineExtension.ts'
 
 /**
@@ -37,10 +37,15 @@ export type Parser<TMeta extends object = object, TNode = unknown, TOptions exte
   print(...nodes: Array<TNode>): string
 }
 
-type ParserBuild<TOptions extends object, TMeta extends object, TNode> = (options: TOptions) => Omit<Parser<TMeta, TNode>, 'name' | 'meta' | 'options'>
+/**
+ * Takes the user's options and returns the parser methods.
+ *
+ * @internal
+ */
+export type ParserBuild<TOptions extends object, TMeta extends object, TNode> = (options: TOptions) => Omit<Parser<TMeta, TNode>, 'name' | 'meta' | 'options'>
 
 /**
- * The object passed to `defineParser`. `build` receives the user's options and returns the parser methods.
+ * The object passed to `defineExtension` with `kind: 'parser'`. `build` receives the user's options and returns the parser methods.
  */
 export type ParserDefinition<TOptions extends object = object, TMeta extends object = object, TNode = unknown> = {
   meta: ExtensionMeta
@@ -55,7 +60,7 @@ export type ParserDefinition<TOptions extends object = object, TMeta extends obj
 )
 
 /**
- * The function `defineParser` returns. Call it with user options to get a `Parser`.
+ * The function `defineExtension` returns for a parser. Call it with user options to get a `Parser`.
  */
 export type ParserFactory<TOptions extends object = object, TMeta extends object = object, TNode = unknown> = ExtensionFactory<
   'parser',
@@ -66,6 +71,8 @@ export type ParserFactory<TOptions extends object = object, TMeta extends object
 /**
  * Defines a parser from one object and returns a factory that takes the user's options.
  * Register the result in the `parsers` array on `defineConfig`.
+ *
+ * @deprecated Use `defineExtension` with `kind: 'parser'` instead.
  */
 export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(
   definition: ParserDefinition<TOptions, TMeta, TNode>,
@@ -73,14 +80,14 @@ export function defineParser<TOptions extends object = object, TMeta extends obj
 /**
  * Wraps a factory function that returns a `Parser`. Without `meta`, the parser gets `{ name }`.
  *
- * @deprecated Pass a definition object with `meta` and `build` instead. The factory form is removed in the next major.
+ * @deprecated Pass a definition object with `kind: 'parser'`, `meta`, and `build` to `defineExtension` instead. The factory form is removed in the next major.
  */
 export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(
   factory: (options: TOptions) => Parser<TMeta, TNode>,
 ): ((options?: TOptions) => Parser<TMeta, TNode>) & { kind: 'parser' }
 export function defineParser(input: ParserDefinition | ((options: object) => Parser)) {
   if (typeof input === 'function') {
-    return defineExtension({
+    return createExtensionFactory({
       kind: 'parser',
       build: (options: object): Parser => {
         const parser = input(options)
@@ -89,11 +96,5 @@ export function defineParser(input: ParserDefinition | ((options: object) => Par
     })
   }
 
-  const { meta } = input
-  const build = 'build' in input ? input.build : input.setup
-  return defineExtension({
-    kind: 'parser',
-    meta,
-    build: (options: object): Parser => ({ ...build(options), name: meta.name, meta, options }),
-  })
+  return defineExtension({ kind: 'parser', meta: input.meta, build: 'build' in input ? input.build : input.setup })
 }

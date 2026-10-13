@@ -2,7 +2,7 @@ import path from 'node:path'
 import type { LiteralUnion } from '@internals/utils'
 import type { Enforce, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import type { Generator } from './defineGenerator.ts'
-import { defineExtension, resolveMeta } from './defineExtension.ts'
+import { createExtensionFactory, defineExtension, resolveMeta } from './defineExtension.ts'
 import type { ExtensionDependencies, ExtensionDependencyRecord, ExtensionFactory, ExtensionMeta, ExtensionNamed } from './defineExtension.ts'
 import type { BannerMeta, Resolver, ResolverPatch } from './Resolver.ts'
 import { Diagnostics } from './Diagnostics.ts'
@@ -325,7 +325,7 @@ export type PluginFactoryOptions<
 }
 
 /**
- * Type parameter for the object form of `definePlugin`. Same shape as `PluginFactoryOptions`.
+ * Type parameter for the object form of `defineExtension` with `kind: 'plugin'`. Same shape as `PluginFactoryOptions`.
  */
 export type PluginType<
   TName extends string = string,
@@ -393,7 +393,7 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
 }
 
 /**
- * A plugin object produced by `definePlugin`. Its lifecycle handlers live under a single
+ * A plugin object produced by `defineExtension`. Its lifecycle handlers live under a single
  * `hooks` property rather than flat methods.
  */
 export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = ExtensionNamed & {
@@ -432,7 +432,7 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
 }
 
 /**
- * The object passed to `definePlugin`.
+ * The object passed to `defineExtension` with `kind: 'plugin'`.
  */
 export type PluginDefinition<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = Pick<Plugin<TFactory>, 'dependencies' | 'enforce' | 'setup'> & {
   meta: ExtensionMeta<TFactory['name']>
@@ -440,7 +440,7 @@ export type PluginDefinition<TFactory extends PluginFactoryOptions = PluginFacto
 }
 
 /**
- * The function `definePlugin` returns. Call it with user options to get a `Plugin`.
+ * The function `defineExtension` returns for a plugin. Call it with user options to get a `Plugin`.
  */
 export type PluginFactory<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = ExtensionFactory<
   'plugin',
@@ -484,32 +484,21 @@ export type KubbPluginEndContext = FilesContext & {
 
 /**
  * Defines a plugin from one object and returns a factory that takes the user's options.
- * Name plugins `plugin-<feature>`.
  *
- * @example
- * ```ts
- * export const pluginZod = definePlugin<PluginZod>({
- *   meta: { name: 'plugin-zod', compatibility: { kubb: '>=5.7.0' } },
- *   dependencies: { 'plugin-ts': { optional: true } },
- *   setup(options, kubb) {
- *     kubb.addGenerator(zodGenerator)
- *     return { ...options, inferred: options.inferred ?? false }
- *   },
- * })
- * ```
+ * @deprecated Use `defineExtension` with `kind: 'plugin'` instead.
  */
 export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(definition: PluginDefinition<TFactory>): PluginFactory<TFactory>
 /**
  * Wraps a factory function that returns a `Plugin`. Without `meta`, the plugin gets `{ name }`.
  *
- * @deprecated Pass a definition object with `meta` and `setup` instead. The factory form is removed in the next major.
+ * @deprecated Pass a definition object with `kind: 'plugin'`, `meta`, and `setup` to `defineExtension` instead. The factory form is removed in the next major.
  */
 export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(
   factory: (options: TFactory['options']) => Plugin<TFactory>,
 ): ((options?: TFactory['options']) => Plugin<TFactory>) & { kind: 'plugin' }
 export function definePlugin(input: PluginDefinition | ((options: object) => Plugin)) {
   if (typeof input === 'function') {
-    return defineExtension({
+    return createExtensionFactory({
       kind: 'plugin',
       build: (options: object): Plugin => {
         const plugin = input(options)
@@ -518,11 +507,5 @@ export function definePlugin(input: PluginDefinition | ((options: object) => Plu
     })
   }
 
-  const { meta, dependencies, enforce, hooks = {}, setup } = input
-  // Keeps the raw options: Studio and config merging read them back.
-  return defineExtension({
-    kind: 'plugin',
-    meta,
-    build: (options: object): Plugin => ({ name: meta.name, meta, options, dependencies, enforce, hooks, setup }),
-  })
+  return defineExtension({ kind: 'plugin', ...input })
 }

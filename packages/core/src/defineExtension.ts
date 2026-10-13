@@ -1,7 +1,9 @@
 import { satisfies } from 'verkit'
 import { version as kubbVersion } from '../package.json'
 import { Diagnostics } from './Diagnostics.ts'
-import type { PluginName } from './definePlugin.ts'
+import type { Adapter, AdapterDefinition, AdapterFactory, AdapterFactoryOptions } from './createAdapter.ts'
+import type { Parser, ParserBuild, ParserFactory } from './defineParser.ts'
+import type { Plugin, PluginDefinition, PluginFactory, PluginFactoryOptions, PluginName } from './definePlugin.ts'
 import type { Config } from './types.ts'
 
 /**
@@ -170,22 +172,136 @@ export type ExtensionFactory<TKind extends ExtensionKind, TOptions, TExtension, 
 }
 
 /**
- * Builds the factory behind `definePlugin`, `defineParser`, and `createAdapter`. It passes `{}` when called without
- * options, and carries `kind`, plus `meta` when the definition has it, so tools can read them
- * without calling it.
+ * Builds the factory behind `defineExtension` and the deprecated factory forms of `definePlugin`, `defineParser`,
+ * and `createAdapter`. It passes `{}` when called without options, and carries `kind`, plus `meta` when the
+ * definition has it, so tools can read them without calling it.
  *
  * @internal
  */
-export function defineExtension<TKind extends ExtensionKind, TOptions extends object, TExtension, TName extends string>(params: {
+export function createExtensionFactory<TKind extends ExtensionKind, TOptions extends object, TExtension, TName extends string>(params: {
   kind: TKind
   meta: ExtensionMeta<TName>
   build: (options: TOptions) => TExtension
 }): ExtensionFactory<TKind, TOptions, TExtension, TName>
-export function defineExtension<TKind extends ExtensionKind, TOptions extends object, TExtension>(params: {
+export function createExtensionFactory<TKind extends ExtensionKind, TOptions extends object, TExtension>(params: {
   kind: TKind
   build: (options: TOptions) => TExtension
 }): ((options?: TOptions) => TExtension) & { kind: TKind }
-export function defineExtension({ kind, meta, build }: { kind: ExtensionKind; meta?: ExtensionMeta; build: (options: object) => unknown }) {
+export function createExtensionFactory({ kind, meta, build }: { kind: ExtensionKind; meta?: ExtensionMeta; build: (options: object) => unknown }) {
   const factory = (options?: object) => build(options ?? {})
   return Object.assign(factory, meta ? { kind, meta } : { kind })
+}
+
+// The parser overload comes first and takes only `build`. TypeScript fixes the return type of a parameterless `build()`
+// or `setup()` from the first overload that gives it a contextual signature, and `extNames` keeps its literal types
+// only under the parser's.
+
+/**
+ * Defines a parser from one object and returns a factory that takes the user's options.
+ * `kind: 'parser'` picks the parser form. Register the result in the `parsers` array on `defineConfig`.
+ *
+ * @example
+ * ```ts
+ * export const parserText = defineExtension({
+ *   kind: 'parser',
+ *   meta: { name: 'text' },
+ *   build: () => ({
+ *     extNames: ['.txt'],
+ *     parse: (file) =>
+ *       file.sources
+ *         .flatMap((source) => source.nodes ?? [])
+ *         .map((node) => (node.kind === 'Text' ? node.value : ''))
+ *         .join('\n'),
+ *     print: (...nodes) => nodes.map(String).join('\n'),
+ *   }),
+ * })
+ * ```
+ */
+export function defineExtension<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(definition: {
+  kind: 'parser'
+  meta: ExtensionMeta
+  build: ParserBuild<TOptions, TMeta, TNode>
+}): ParserFactory<TOptions, TMeta, TNode>
+/**
+ * Defines an adapter that translates a spec format into Kubb's universal AST and returns a factory that takes
+ * the user's options. `kind: 'adapter'` picks the adapter form. `parse` must return an `InputNode`.
+ *
+ * @example
+ * ```ts
+ * type MyAdapter = AdapterFactoryOptions<'my-adapter', { validate?: boolean }, { validate: boolean }>
+ *
+ * export const myAdapter = defineExtension<MyAdapter>({
+ *   kind: 'adapter',
+ *   meta: { name: 'my-adapter' },
+ *   setup: (options) => ({ validate: options.validate ?? true }),
+ *   build: () => ({
+ *     document: null,
+ *     async parse(_source) {
+ *       return ast.factory.createInput()
+ *     },
+ *     async validate() {},
+ *   }),
+ * })
+ * ```
+ */
+export function defineExtension<T extends AdapterFactoryOptions = AdapterFactoryOptions>(
+  definition: { kind: 'adapter' } & AdapterDefinition<T>,
+): AdapterFactory<T>
+/**
+ * Defines a plugin from one object and returns a factory that takes the user's options.
+ * `kind: 'plugin'` picks the plugin form. Name plugins `plugin-<feature>`.
+ *
+ * @example
+ * ```ts
+ * export const pluginZod = defineExtension<PluginZod>({
+ *   kind: 'plugin',
+ *   meta: { name: 'plugin-zod', compatibility: { kubb: '>=5.9.0' } },
+ *   dependencies: { 'plugin-ts': { optional: true } },
+ *   setup(options, kubb) {
+ *     kubb.addGenerator(zodGenerator)
+ *     return { ...options, inferred: options.inferred ?? false }
+ *   },
+ * })
+ * ```
+ */
+export function defineExtension<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(
+  definition: { kind: 'plugin' } & PluginDefinition<TFactory>,
+): PluginFactory<TFactory>
+export function defineExtension(
+  definition:
+    | ({ kind: 'plugin' } & PluginDefinition)
+    | ({ kind: 'adapter' } & AdapterDefinition)
+    | { kind: 'parser'; meta: ExtensionMeta; build: ParserBuild<object, object, unknown> },
+) {
+  switch (definition.kind) {
+    case 'plugin': {
+      const { meta, dependencies, enforce, hooks = {}, setup } = definition
+      // Keeps the raw options: Studio and config merging read them back.
+      return createExtensionFactory({
+        kind: 'plugin',
+        meta,
+        build: (options: object): Plugin => ({ name: meta.name, meta, options, dependencies, enforce, hooks, setup }),
+      })
+    }
+    case 'adapter': {
+      const { meta, setup, build } = definition
+      return createExtensionFactory({
+        kind: 'adapter',
+        meta,
+        build: (raw: object): Adapter => {
+          const options = setup ? setup(raw) : raw
+          // Assigned onto the built object instead of spread, so getters such as `document` stay live.
+          return Object.assign(build(options), { name: meta.name, meta, options })
+        },
+      })
+    }
+    case 'parser': {
+      const { meta, build } = definition
+      return createExtensionFactory({
+        kind: 'parser',
+        meta,
+        build: (options: object): Parser => ({ ...build(options), name: meta.name, meta, options }),
+      })
+    }
+  }
 }
