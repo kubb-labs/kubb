@@ -39,8 +39,3 @@ export default defineConfig({
   ],
 })
 ```
-
-## See also
-
-- [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [`adapter` in the Kubb configuration](https://kubb.dev/docs/5.x/reference/configuration#adapter)

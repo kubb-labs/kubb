@@ -35,8 +35,3 @@ export default defineConfig({
   ],
 })
 ```
-
-## See also
-
-- [`parsers` in the Kubb configuration](https://kubb.dev/docs/5.x/reference/configuration#parsers)
-- [`@kubb/parser-ts`](https://kubb.dev/extensions/kubb-labs/parser-ts)

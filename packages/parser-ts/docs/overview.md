@@ -39,9 +39,3 @@ export default defineConfig({
   ],
 })
 ```
-
-## See also
-
-- [TypeScript](https://www.typescriptlang.org/)
-- [`parsers` in the Kubb configuration](https://kubb.dev/docs/5.x/reference/configuration#parsers)
-- [`@kubb/parser-md`](https://kubb.dev/extensions/kubb-labs/parser-md)

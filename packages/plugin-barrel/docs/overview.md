@@ -34,7 +34,3 @@ export default defineConfig({
   ],
 })
 ```
-
-## See also
-
-- [`output.barrel` in the Kubb configuration](https://kubb.dev/docs/5.x/reference/configuration#outputbarrel)
