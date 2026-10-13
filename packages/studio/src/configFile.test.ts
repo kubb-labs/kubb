@@ -331,13 +331,15 @@ describe('applyConfigEdits', () => {
       expect(removed.source).toBe(source.replace('parserTs()', 'parserTs({})'))
     })
 
-    it('edits the factory the package is known by when it ships several', () => {
+    it('edits the factory the package is known by when it ships several, under any local name', () => {
+      const edits: Array<ConfigEdit> = [{ operation: 'set', kind: 'parser', plugin: '@kubb/parser-ts', path: ['extension'], value: '.js' }]
       const two = source.replace('parsers: [parserTs()]', 'parsers: [parserTsx(), parserTs()]').replace(`import { parserTs }`, `import { parserTs, parserTsx }`)
-      const result = applyConfigEdits({
-        source: two,
-        edits: [{ operation: 'set', kind: 'parser', plugin: '@kubb/parser-ts', path: ['extension'], value: '.js' }],
-      })
-      expect(result.source).toBe(two.replace('parserTs()', `parserTs({ extension: '.js' })`))
+      expect(applyConfigEdits({ source: two, edits }).source).toBe(two.replace('parserTs()', `parserTs({ extension: '.js' })`))
+
+      const aliased = source
+        .replace('parsers: [parserTs()]', 'parsers: [parserTsx(), ts()]')
+        .replace(`import { parserTs }`, `import { parserTs as ts, parserTsx }`)
+      expect(applyConfigEdits({ source: aliased, edits }).source).toBe(aliased.replace('ts()', `ts({ extension: '.js' })`))
     })
 
     it('refuses a factory the config does not register under that kind', () => {

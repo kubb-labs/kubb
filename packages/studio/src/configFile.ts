@@ -285,13 +285,20 @@ function requiredModule(node: ASTNode | null | undefined): string | undefined {
   return argument?.type === 'StringLiteral' ? argument.value : undefined
 }
 
+/** Where an identifier the file imports comes from: its module and the name it is exported under. */
+type Import = { from: string; exported: string }
+
 /** Maps each identifier the file imports, through `import { x } from` or `const { x } = require(...)`, to its module. */
-function importedFrom(mod: ProxifiedModule): Map<string, string> {
-  const imports = new Map<string, string>()
+function importedFrom(mod: ProxifiedModule): Map<string, Import> {
+  const imports = new Map<string, Import>()
 
   for (const statement of bodyOf(mod)) {
     if (statement.type === 'ImportDeclaration') {
-      for (const specifier of statement.specifiers) imports.set(specifier.local.name, statement.source.value)
+      for (const specifier of statement.specifiers) {
+        // A default or namespace import has no exported name of its own, so its local name stands in.
+        const imported = specifier.type === 'ImportSpecifier' ? specifier.imported : specifier.local
+        imports.set(specifier.local.name, { from: statement.source.value, exported: imported.type === 'Identifier' ? imported.name : imported.value })
+      }
       continue
     }
     if (statement.type !== 'VariableDeclaration') continue
@@ -299,7 +306,9 @@ function importedFrom(mod: ProxifiedModule): Map<string, string> {
       const from = requiredModule(declarator.init)
       if (from === undefined || declarator.id.type !== 'ObjectPattern') continue
       for (const entry of declarator.id.properties) {
-        if (entry.type === 'ObjectProperty' && entry.value.type === 'Identifier') imports.set(entry.value.name, from)
+        if (entry.type === 'ObjectProperty' && entry.value.type === 'Identifier') {
+          imports.set(entry.value.name, { from, exported: memberKey(entry) ?? entry.value.name })
+        }
       }
     }
   }
@@ -314,15 +323,15 @@ function factoryCalls(
   mod: ProxifiedModule,
   config: ObjectNode,
   kind: ExtensionKind = 'plugin',
-): Array<{ importName: string; packageName: string; call: CallNode }> {
+): Array<{ importName: string; exportName: string; packageName: string; call: CallNode }> {
   const node = property(config, kind === 'adapter' ? 'adapter' : `${kind}s`)
   const elements = kind === 'adapter' ? [node] : node?.type === 'ArrayExpression' ? node.elements : []
 
   const imports = importedFrom(mod)
   return elements.flatMap((element) => {
     if (element?.type !== 'CallExpression' || element.callee.type !== 'Identifier') return []
-    const packageName = imports.get(element.callee.name)
-    return packageName ? [{ importName: element.callee.name, packageName, call: element }] : []
+    const imported = imports.get(element.callee.name)
+    return imported ? [{ importName: element.callee.name, exportName: imported.exported, packageName: imported.from, call: element }] : []
   })
 }
 
@@ -389,7 +398,7 @@ export function readConfig(source: string): ConfigFileView {
   if ('reason' in parsed) return { managed: false, reason: parsed.reason }
 
   const { mod, configs } = parsed
-  const importNames = new Map([...importedFrom(mod)].map(([local, from]) => [from, local]))
+  const importNames = new Map([...importedFrom(mod)].map(([local, { from }]) => [from, local]))
 
   return {
     managed: true,
@@ -425,7 +434,7 @@ export function readConfig(source: string): ConfigFileView {
 /** The modules the config file imports, in source order. Empty when the file cannot be parsed. */
 export function readImports(source: string): Array<string> {
   try {
-    return [...new Set(importedFrom(parseModule(source)).values())]
+    return [...new Set([...importedFrom(parseModule(source)).values()].map(({ from }) => from))]
   } catch {
     return []
   }
@@ -550,7 +559,7 @@ function applyAddPlugin({
   if (!IDENTIFIER.test(importName)) return { reason: `"${importName}" is not a valid import name` }
   if (factoryCalls(parsed.mod, config).some((plugin) => plugin.packageName === edit.plugin)) return { source }
 
-  const taken = importedFrom(parsed.mod).get(importName)
+  const taken = importedFrom(parsed.mod).get(importName)?.from
   if (taken && taken !== edit.plugin) return { reason: `${importName} is already imported from ${taken}` }
 
   const options = edit.options ?? {}
@@ -612,10 +621,10 @@ function applyEdit({ source, edit, quote, extensions }: { source: string; edit: 
 
   const kind = edit.kind ?? 'plugin'
   // A package can ship several factories (`parserTs` and `parserTsx`), so among its calls prefer the
-  // export its manifest names: that is the one Studio knows the package by.
+  // export its manifest names: that is the one Studio knows the package by, whatever the file calls it.
   const calls = factoryCalls(parsed.mod, config, kind).filter((entry) => entry.packageName === edit.plugin)
   const exportName = extensions.get(edit.plugin)?.manifest.export ?? toExportName(edit.plugin)
-  const call = (calls.find((entry) => entry.importName === exportName) ?? calls[0])?.call
+  const call = (calls.find((entry) => entry.exportName === exportName) ?? calls[0])?.call
   if (!call) {
     if (kind === 'adapter') return { reason: `${edit.plugin} is not the config's adapter` }
     const disabled = kind === 'plugin' && disabledBlocks(source, config).some((block) => block.packageName === edit.plugin)
