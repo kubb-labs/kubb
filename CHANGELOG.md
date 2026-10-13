@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.9.2 — Oct 13, 2026
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Fix `readInstalledPackages` throwing when `root` is a relative path, which made CI snapshots fail with `The argument 'filename' must be a file URL object, file URL string, or absolute path string`. ([#4288](https://github.com/kubb-labs/kubb/pull/4288), [`705ab2e`](https://github.com/kubb-labs/kubb/commit/705ab2e4d208c2399af26e58e814a8fa987d5fcc))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.9.1 — Oct 13, 2026
 
 ### @kubb/adapter-oas
