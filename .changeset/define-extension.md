@@ -1,6 +1,6 @@
 ---
-'@kubb/core': minor
-'@kubb/kit': minor
+'@kubb/core': patch
+'@kubb/kit': patch
 ---
 
 Add `defineExtension` to define a plugin, an adapter, or a parser, and deprecate `definePlugin`, `defineParser`, and `createAdapter` in favor of it.
