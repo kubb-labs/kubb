@@ -99,7 +99,7 @@ A config function can return an array to combine both forms.
 | `output.lint`    | `false` |
 | `output.defaultBanner` | `'simple'` |
 
-Bundler integrations apply a smaller set: no `parserMd` and no reporters. See [Build tools](/docs/5.x/integrations/build-tools).
+Bundler integrations apply a smaller set: no `parserMd` and no reporters. See [Build tools](/docs/5.x/integrations/overview#build-tools).
 
 ## Top-level options
 

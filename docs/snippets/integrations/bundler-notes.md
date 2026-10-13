@@ -5,5 +5,5 @@
 
 ## See also
 
-- [Build tools](/docs/5.x/integrations/build-tools) for every supported bundler
+- [Build tools](/docs/5.x/integrations/overview#build-tools) for every supported bundler
 - [Configuration](/docs/5.x/reference/configuration)
