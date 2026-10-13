@@ -26,8 +26,9 @@ export const SCHEMA_REF_PREFIX = '#/components/schemas/' as const
 /**
  * HTTP methods that count as operations on an OpenAPI path item. Other keys
  * (`parameters`, `summary`, `$ref`, vendor extensions) are skipped when iterating operations.
+ * `query` is the OpenAPI 3.2 field for the HTTP QUERY method (RFC 10008).
  */
-export const SUPPORTED_METHODS: ReadonlySet<string> = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
+export const SUPPORTED_METHODS: ReadonlySet<string> = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', 'query'])
 
 /**
  * Set of JSON Schema keywords that prevent a schema fragment from being inlined during `allOf` flattening.

@@ -4,9 +4,10 @@ import { createRequestBody, type RequestBodyNode } from './requestBody.ts'
 import type { ResponseNode } from './response.ts'
 
 /**
- * HTTP method an operation responds to.
+ * HTTP method an operation responds to. `QUERY` is the safe, idempotent method with a request body
+ * from RFC 10008, declared with the `query` field of an OpenAPI 3.2 path item.
  */
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE'
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE' | 'QUERY'
 
 /**
  * Transport an operation belongs to.
