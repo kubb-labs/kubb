@@ -142,6 +142,7 @@
     "@kubb/ast": "workspace:*",
     "@nuxt/kit": "^4.6.1",
     "@nuxt/schema": "^4.6.1",
+    "@rspack/core": "^2.2.8",
     "esbuild": "^0.28.2",
     "rolldown": "^1.2.13",
     "rollup": "^4.64.5",
