@@ -611,7 +611,11 @@ function applyEdit({ source, edit, quote, extensions }: { source: string; edit: 
   if (edit.operation === 'add-plugin') return applyAddPlugin({ source, parsed, config, edit, quote, extensions })
 
   const kind = edit.kind ?? 'plugin'
-  const call = factoryCalls(parsed.mod, config, kind).find((entry) => entry.packageName === edit.plugin)?.call
+  // A package can ship several factories (`parserTs` and `parserTsx`), so among its calls prefer the
+  // export its manifest names: that is the one Studio knows the package by.
+  const calls = factoryCalls(parsed.mod, config, kind).filter((entry) => entry.packageName === edit.plugin)
+  const exportName = extensions.get(edit.plugin)?.manifest.export ?? toExportName(edit.plugin)
+  const call = (calls.find((entry) => entry.importName === exportName) ?? calls[0])?.call
   if (!call) {
     if (kind === 'adapter') return { reason: `${edit.plugin} is not the config's adapter` }
     const disabled = kind === 'plugin' && disabledBlocks(source, config).some((block) => block.packageName === edit.plugin)

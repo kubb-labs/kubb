@@ -331,6 +331,15 @@ describe('applyConfigEdits', () => {
       expect(removed.source).toBe(source.replace('parserTs()', 'parserTs({})'))
     })
 
+    it('edits the factory the package is known by when it ships several', () => {
+      const two = source.replace('parsers: [parserTs()]', 'parsers: [parserTsx(), parserTs()]').replace(`import { parserTs }`, `import { parserTs, parserTsx }`)
+      const result = applyConfigEdits({
+        source: two,
+        edits: [{ operation: 'set', kind: 'parser', plugin: '@kubb/parser-ts', path: ['extension'], value: '.js' }],
+      })
+      expect(result.source).toBe(two.replace('parserTs()', `parserTs({ extension: '.js' })`))
+    })
+
     it('refuses a factory the config does not register under that kind', () => {
       const { outcomes } = applyConfigEdits({
         source,
