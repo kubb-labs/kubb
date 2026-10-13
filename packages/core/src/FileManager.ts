@@ -40,9 +40,7 @@ function joinSources(file: FileNode): string {
     .join('\n\n')
 }
 
-/**
- * Runs a parser call and turns a crash into a `KUBB_PARSER_FAILED` diagnostic that names the parser.
- */
+/** Runs a parser call and turns a crash into a `KUBB_PARSER_FAILED` diagnostic that names the parser. */
 function runParser(parser: Parser, print: () => string): string {
   try {
     return print()

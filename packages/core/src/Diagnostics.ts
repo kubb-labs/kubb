@@ -105,9 +105,7 @@ export type ProblemDiagnostic = {
    * Name of the plugin or subsystem that produced the diagnostic.
    */
   plugin?: string
-  /**
-   * Issue tracker URL of the extension that crashed, from its `meta.issues`.
-   */
+  /** Issue tracker URL of the extension that crashed, from its `meta.issues`. */
   issues?: string
   /**
    * The underlying error, when the diagnostic wraps a thrown one.
