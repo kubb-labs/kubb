@@ -1,4 +1,5 @@
 import { writeFile } from 'node:fs/promises'
+import type { ExtensionKind } from '@kubb/core'
 import { getErrorMessage, read } from '@internals/utils'
 import { detectCodeFormat, parseExpression, parseModule } from 'magicast'
 import type { ASTNode, ProxifiedModule } from 'magicast'
@@ -18,6 +19,7 @@ const IDENTIFIER = /^[A-Za-z_$][\w$]*$/
 const DISABLED_MARKER = /^\/\/ kubb:disabled (.+)\s+(\d+)$/
 
 const OPERATIONS = new Set<string>(['set', 'remove', 'add-plugin', 'disable-plugin', 'enable-plugin'])
+const KINDS = new Set<string>(['plugin', 'adapter', 'parser'])
 
 type ObjectNode = Extract<ASTNode, { type: 'ObjectExpression' }>
 type ArrayNode = Extract<ASTNode, { type: 'ArrayExpression' }>
@@ -36,10 +38,11 @@ type ParsedConfig = { mod: ProxifiedModule; configs: Array<ObjectNode>; kind: Mo
  * The edit crossed the wire, so its declared type is a promise the sender may not have kept.
  */
 function invalidEdit(edit: ConfigEdit): string | undefined {
-  const { operation, plugin, config, path } = (typeof edit === 'object' && edit !== null ? edit : {}) as Record<string, unknown>
+  const { operation, plugin, config, path, kind } = (typeof edit === 'object' && edit !== null ? edit : {}) as Record<string, unknown>
 
   if (typeof operation !== 'string' || !OPERATIONS.has(operation)) return `unknown operation ${JSON.stringify(operation)}`
   if (typeof plugin !== 'string' || !plugin) return 'the edit names no plugin'
+  if (kind !== undefined && (typeof kind !== 'string' || !KINDS.has(kind))) return `unknown kind ${JSON.stringify(kind)}`
   if (config !== undefined && typeof config !== 'string' && !Number.isSafeInteger(config)) return 'config must name an entry or give its index'
   if (operation === 'set' || operation === 'remove') {
     if (!Array.isArray(path) || !path.every((key) => typeof key === 'string' && key)) return 'path must be a list of option names'
@@ -303,13 +306,20 @@ function importedFrom(mod: ProxifiedModule): Map<string, string> {
   return imports
 }
 
-/** Every `pluginX(...)` element of a config's plugins array that resolves to an import. */
-function pluginCalls(mod: ProxifiedModule, config: ObjectNode): Array<{ importName: string; packageName: string; call: CallNode }> {
-  const plugins = property(config, 'plugins')
-  if (plugins?.type !== 'ArrayExpression') return []
+/**
+ * Every factory call of one kind that resolves to an import: the `pluginX(...)` elements of the
+ * `plugins` array, the `adapter` value, or the elements of the `parsers` array.
+ */
+function factoryCalls(
+  mod: ProxifiedModule,
+  config: ObjectNode,
+  kind: ExtensionKind = 'plugin',
+): Array<{ importName: string; packageName: string; call: CallNode }> {
+  const node = property(config, kind === 'adapter' ? 'adapter' : `${kind}s`)
+  const elements = kind === 'adapter' ? [node] : node?.type === 'ArrayExpression' ? node.elements : []
 
   const imports = importedFrom(mod)
-  return plugins.elements.flatMap((element) => {
+  return elements.flatMap((element) => {
     if (element?.type !== 'CallExpression' || element.callee.type !== 'Identifier') return []
     const packageName = imports.get(element.callee.name)
     return packageName ? [{ importName: element.callee.name, packageName, call: element }] : []
@@ -384,7 +394,7 @@ export function readConfig(source: string): ConfigFileView {
   return {
     managed: true,
     configs: configs.map((config): ConfigView => {
-      const active = pluginCalls(mod, config).map(({ importName, packageName, call }) => ({
+      const active = factoryCalls(mod, config).map(({ importName, packageName, call }) => ({
         line: call.loc?.start.line ?? 0,
         plugin: { importName, packageName, options: readOptions(call) },
       }))
@@ -400,7 +410,14 @@ export function readConfig(source: string): ConfigFileView {
 
       // In source order, so a disabled plugin keeps its place in the list.
       const plugins = [...active, ...disabled].sort((a, b) => a.line - b.line).map(({ plugin }) => plugin)
-      return { name: configName(config), plugins }
+      const toView = ({ importName, packageName, call }: ReturnType<typeof factoryCalls>[number]): PluginView => ({
+        importName,
+        packageName,
+        options: readOptions(call),
+      })
+      const [adapter] = factoryCalls(mod, config, 'adapter').map(toView)
+      const parsers = factoryCalls(mod, config, 'parser').map(toView)
+      return { name: configName(config), plugins, ...(adapter && { adapter }), ...(parsers.length ? { parsers } : {}) }
     }),
   }
 }
@@ -453,10 +470,10 @@ function applySet(source: string, call: CallNode, path: Array<string>, value: un
   const options = call.arguments[0]
   if (!options) {
     const closing = rangeOf(call).end - 1
-    if (source[closing] !== ')') return { reason: 'the plugin call could not be located in the file' }
+    if (source[closing] !== ')') return { reason: 'the factory call could not be located in the file' }
     return { source: splice(source, closing, closing, printValue(nest(path, value), quote)) }
   }
-  if (options.type !== 'ObjectExpression') return { reason: 'the plugin was not called with an object literal' }
+  if (options.type !== 'ObjectExpression') return { reason: 'the factory was not called with an object literal' }
 
   const target = walk(options, path)
   if ('reason' in target) return target
@@ -470,7 +487,7 @@ function applySet(source: string, call: CallNode, path: Array<string>, value: un
 /** Deletes the option at `path`, falling the plugin back to its default for it. */
 function applyRemove(source: string, call: CallNode, path: Array<string>): EditResult {
   const options = call.arguments[0]
-  if (options?.type !== 'ObjectExpression') return { reason: 'the plugin has no options to remove' }
+  if (options?.type !== 'ObjectExpression') return { reason: 'the factory call has no options to remove' }
 
   const target = walk(options, path)
   if ('reason' in target) return target
@@ -531,7 +548,7 @@ function applyAddPlugin({
 
   const importName = extensions.get(edit.plugin)?.manifest.export ?? toExportName(edit.plugin)
   if (!IDENTIFIER.test(importName)) return { reason: `"${importName}" is not a valid import name` }
-  if (pluginCalls(parsed.mod, config).some((plugin) => plugin.packageName === edit.plugin)) return { source }
+  if (factoryCalls(parsed.mod, config).some((plugin) => plugin.packageName === edit.plugin)) return { source }
 
   const taken = importedFrom(parsed.mod).get(importName)
   if (taken && taken !== edit.plugin) return { reason: `${importName} is already imported from ${taken}` }
@@ -549,7 +566,7 @@ function applyAddPlugin({
 
 /** Comments out a plugin call in place, keeping its options on disk so `enable-plugin` can restore them exactly. */
 function disablePlugin(source: string, mod: ProxifiedModule, config: ObjectNode, plugin: string): EditResult {
-  const loc = pluginCalls(mod, config).find((entry) => entry.packageName === plugin)?.call.loc
+  const loc = factoryCalls(mod, config).find((entry) => entry.packageName === plugin)?.call.loc
   if (!loc) return { reason: `${plugin} is not in the plugins array` }
 
   const lines = source.split('\n')
@@ -593,10 +610,12 @@ function applyEdit({ source, edit, quote, extensions }: { source: string; edit: 
   if (edit.operation === 'enable-plugin') return enablePlugin(source, config, edit.plugin)
   if (edit.operation === 'add-plugin') return applyAddPlugin({ source, parsed, config, edit, quote, extensions })
 
-  const call = pluginCalls(parsed.mod, config).find((plugin) => plugin.packageName === edit.plugin)?.call
+  const kind = edit.kind ?? 'plugin'
+  const call = factoryCalls(parsed.mod, config, kind).find((entry) => entry.packageName === edit.plugin)?.call
   if (!call) {
-    const disabled = disabledBlocks(source, config).some((block) => block.packageName === edit.plugin)
-    return { reason: disabled ? `${edit.plugin} is disabled, enable it first` : `${edit.plugin} is not in the plugins array` }
+    if (kind === 'adapter') return { reason: `${edit.plugin} is not the config's adapter` }
+    const disabled = kind === 'plugin' && disabledBlocks(source, config).some((block) => block.packageName === edit.plugin)
+    return { reason: disabled ? `${edit.plugin} is disabled, enable it first` : `${edit.plugin} is not in the ${kind}s array` }
   }
   return edit.operation === 'set' ? applySet(source, call, edit.path, edit.value, quote) : applyRemove(source, call, edit.path)
 }
