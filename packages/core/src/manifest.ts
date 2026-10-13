@@ -113,6 +113,7 @@ export function isPackageName(name: unknown): name is string {
   return typeof name === 'string' && name.length <= 214 && PACKAGE_NAME.test(name)
 }
 
+/** Checks the shape of one manifest option, including that its path cannot reach a prototype. */
 function isOption(value: unknown): value is ExtensionManifestOption {
   if (!isObject(value)) return false
   const { key, path, label, description, type, choices, itemCase } = value

@@ -25,6 +25,7 @@ export function toRegistryId(input: string): string {
   return input.includes('/') ? input : `kubb-labs/${input}`
 }
 
+/** GETs `url` as JSON. A non-2xx answer returns only its status; a network error throws with the URL. */
 async function fetchJSON(url: string): Promise<{ status: number; body?: unknown }> {
   try {
     const response = await globalThis.fetch(url, { headers: { accept: 'application/json' } })
@@ -66,7 +67,11 @@ export function incompatibility(manifest: ExtensionManifest): string | undefined
   }
 }
 
-/** Whether `latest` is newer than `installed`. An unknown installed version counts as outdated. */
+/**
+ * Whether `latest` is newer than `installed`. An unknown installed version counts as outdated, and an
+ * invalid `latest` never does.
+ */
 export function isOutdated({ installed, latest }: { installed: string | undefined; latest: string }): boolean {
+  if (!isValid(latest)) return false
   return !installed || !isValid(installed) || isLessThan(installed, latest)
 }

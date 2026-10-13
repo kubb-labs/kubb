@@ -6,6 +6,7 @@ import { type ExtensionManifest, isExtensionManifest, isPackageName } from './ma
 
 export type InstalledPackage = { package: string; version?: string; manifest?: ExtensionManifest }
 
+/** Reads and parses a JSON file. Throws when it is missing or not JSON. */
 const readJSON = async (file: string): Promise<unknown> => JSON.parse(await readFile(file, 'utf8'))
 
 /**

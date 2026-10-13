@@ -26,11 +26,12 @@ describe('registryUrl', () => {
 })
 
 describe('isOutdated', () => {
-  it('compares semver, and treats an unknown installed version as outdated', () => {
+  it('compares semver, treats an unknown installed version as outdated, and an invalid latest as not newer', () => {
     expect([
       isOutdated({ installed: '1.9.0', latest: '1.10.0' }),
       isOutdated({ installed: '1.10.0', latest: '1.10.0' }),
       isOutdated({ installed: undefined, latest: '1.0.0' }),
-    ]).toStrictEqual([true, false, true])
+      isOutdated({ installed: '1.0.0', latest: 'latest' }),
+    ]).toStrictEqual([true, false, true, false])
   })
 })
