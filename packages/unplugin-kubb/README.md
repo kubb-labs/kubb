@@ -24,7 +24,9 @@
 
 ### Universal build integration for Kubb
 
-Integration of Kubb for Vite, Webpack, Rollup, esbuild, Rspack, Nuxt, and Astro powered by [unplugin](https://github.com/unjs/unplugin).
+Integration of Kubb for Vite, webpack, Rollup, Rolldown, Rspack, esbuild, Farm, Nuxt, and Astro powered by [unplugin](https://github.com/unjs/unplugin).
+
+Kubb generates once, when the first build starts. Watch rebuilds and later builds that share the plugin reuse that output, so restart the build after you change your spec. Vite, Nuxt, and Astro generate during builds only, not in their development servers. A missing `config` or a failed generation fails the build.
 
 ## Installation
 
@@ -36,41 +38,71 @@ pnpm add -D unplugin-kubb @kubb/core
 npm install -D unplugin-kubb @kubb/core
 ```
 
+Each example imports your `kubb.config.ts` as `config`.
+
 ```typescript
+// vite.config.ts
 import kubb from 'unplugin-kubb/vite'
 
 export default defineConfig({
-  plugins: [kubb({/* options */})],
+  plugins: [kubb({ config })],
 })
 ```
 
 ```typescript
-import kubb from 'unplugin-kubb/rollup'
+// rollup.config.ts, rolldown.config.ts
+import kubb from 'unplugin-kubb/rollup' // or 'unplugin-kubb/rolldown'
 
 export default {
-  plugins: [kubb({/* options */})],
+  input: 'src/index.ts',
+  plugins: [kubb({ config })],
 }
 ```
 
 ```typescript
-module.exports = {
-  /* ... */
-  plugins: [require('unplugin-kubb/webpack')({/* options */})],
+// webpack.config.ts, rspack.config.ts
+import kubb from 'unplugin-kubb/webpack' // or 'unplugin-kubb/rspack'
+
+export default {
+  plugins: [kubb({ config })],
 }
 ```
 
 ```typescript
-export default defineNuxtConfig({
-  modules: [['unplugin-kubb/nuxt', {/* options */}]],
-})
-```
-
-```typescript
+// build.ts
 import { build } from 'esbuild'
 import kubb from 'unplugin-kubb/esbuild'
 
-build({
-  plugins: [kubb()],
+await build({
+  entryPoints: ['src/index.ts'],
+  bundle: true,
+  outfile: 'dist/bundle.js',
+  plugins: [kubb({ config })],
+})
+```
+
+```typescript
+// farm.config.ts
+import kubb from 'unplugin-kubb/farm'
+
+export default defineConfig({
+  plugins: [kubb({ config })],
+})
+```
+
+```typescript
+// nuxt.config.ts: works with the Vite, webpack, and Rspack builders
+export default defineNuxtConfig({
+  modules: [['unplugin-kubb/nuxt', { config }]],
+})
+```
+
+```typescript
+// astro.config.mjs
+import kubb from 'unplugin-kubb/astro'
+
+export default defineConfig({
+  integrations: [kubb({ config })],
 })
 ```
 
