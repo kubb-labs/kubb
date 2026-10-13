@@ -41,14 +41,8 @@ type PendingBarrel = {
 }
 
 type BarrelState = {
-  /**
-   * Names of the `barrel: false` plugins. Their files are matched by `meta.pluginName`.
-   */
   excludedPlugins: Set<string>
-  /**
-   * Output directories of the `barrel: false` plugins that sit below `config.output.path`.
-   * Catches their files that do not record an owning plugin.
-   */
+  // Subdirectories of `barrel: false` plugins, for files without a `meta.pluginName` owner.
   excludedTargets: Array<string>
   pendingBarrels: Array<PendingBarrel>
 }
@@ -108,13 +102,11 @@ export const pluginBarrel = definePlugin({
       // A plugin-level `false` wins over an enabled root barrel.
       const barrelConfig: PluginBarrelConfig | false = plugin.options.output?.barrel ?? config.output.barrel ?? false
       const base = path.resolve(config.root, config.output.path)
-      // A missing `output.path` falls back to the output root, matching the driver's default.
       const target = path.resolve(base, plugin.options.output?.path ?? '.')
 
       if (barrelConfig === false) {
         excludedPlugins.add(plugin.name)
-        // At the output root (`'.'` or `''`) the directory holds every plugin's files, so only the
-        // owning-plugin match applies there.
+        // The output root holds every plugin's files, so there only the owner match applies.
         if (target !== base && isPathInside(target, base)) {
           excludedTargets.push(target)
         }
