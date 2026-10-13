@@ -11,10 +11,13 @@ const DEFAULT_EXTENSION: Record<ast.FileNode['extname'], ast.FileNode['extname']
  */
 export type ParserTsOptions = {
   /**
-   * Rewrite extensions on relative `import`/`export` statements, e.g. emit `.js` imports from
-   * `.ts` sources for ESM dual packages, or keep the source extension for Node16/NodeNext
-   * resolution. Package specifiers stay unchanged. Keys are the source extension, values the
-   * output, and `''` drops it. Also applies to relative paths in `copy` templates.
+   * Rewrite extensions on relative `import`/`export` statements. Each key is the extension of a
+   * generated file, and its value is the extension written on the relative specifiers in that
+   * file. `''` drops it, and so does a generated file whose extension has no key. Package
+   * specifiers stay unchanged. Also applies to relative paths in `copy` templates.
+   *
+   * Use `{ '.ts': '.js' }` for ESM output compiled to JavaScript, or `{ '.ts': '.ts' }` to run the
+   * `.ts` files directly in Node.js or compile them with `rewriteRelativeImportExtensions`.
    *
    * @default { '.ts': '' }
    * @example
@@ -28,9 +31,9 @@ export type ParserTsOptions = {
 
 /**
  * Default Kubb parser for `.ts` and `.js` files. Takes the universal AST
- * produced by an adapter and prints it as TypeScript source using the official
- * TypeScript compiler. Imports and exports are rewritten based on each file's
- * metadata and the `extension` option.
+ * produced by an adapter and prints it as TypeScript source. Imports and exports
+ * are rewritten based on each file's metadata and the `extension` option. The
+ * `print` helper renders TypeScript compiler nodes with the TypeScript printer.
  *
  * Used automatically when no `parsers` option is set on `defineConfig`. Use
  * `parserTsx` instead for React projects that emit JSX.

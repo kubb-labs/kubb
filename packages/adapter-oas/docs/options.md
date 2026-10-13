@@ -12,7 +12,7 @@ Pass these options to `adapterOas()`. All of them are optional.
 | [`discriminator`](#discriminator)     | How `discriminator` fields are interpreted.                  |
 | [`enums`](#enums)                     | Where inline enums live.                                     |
 | [`dateType`](#datetype)               | How `date-time`, `date`, and `time` schemas are represented. |
-| [`integerType`](#integertype)         | How integers map to TypeScript.                              |
+| [`integerType`](#integertype)         | How `int64` and `uint64` integers map to TypeScript.         |
 | [`unknownType`](#unknowntype)         | Type for schemas Kubb cannot infer.                          |
 | [`emptySchemaType`](#emptyschematype) | Type for empty schemas.                                      |
 | [`enumSuffix`](#enumsuffix)           | Suffix for derived enum names.                               |
@@ -205,7 +205,7 @@ adapterOas({
 
 ### integerType
 
-How `type: integer` (and `format: int64`) maps to TypeScript.
+How a schema with `format: int64` or `format: uint64` maps to TypeScript. Other integers, such as `type: integer` without a format or with `format: int32`, always map to `number`.
 
 |          |                        |
 | -------- | ---------------------- |

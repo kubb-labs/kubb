@@ -25,7 +25,7 @@ const file = ast.factory.createFile({
   meta: {
     frontmatter: { title: 'API Reference', layout: 'doc' },
   },
-  sources: [ast.factory.createSource({ nodes: [ast.factory.createText('# API Reference')] })],
+  sources: [ast.factory.createSource({ nodes: [ast.factory.createText('Endpoints generated from the OpenAPI spec.')] })],
 })
 ```
 
@@ -35,7 +35,7 @@ title: API Reference
 layout: doc
 ---
 
-# API Reference
+Endpoints generated from the OpenAPI spec.
 ```
 
 ::

@@ -59,7 +59,7 @@
       "key": "integerType",
       "path": ["integerType"],
       "label": "Integer Type",
-      "description": "How integer and int64 schemas map to TypeScript.",
+      "description": "How int64 and uint64 schemas map to TypeScript. Other integers stay numbers.",
       "type": "select",
       "default": "bigint",
       "choices": [
@@ -132,7 +132,7 @@
       "key": "contentType",
       "path": ["contentType"],
       "label": "Content Type",
-      "description": "Preferred media type when an operation defines several. Defaults to the first JSON media type in the spec.",
+      "description": "Media type to keep for request bodies and responses. Leave empty to keep every media type an operation declares.",
       "type": "text"
     },
     {

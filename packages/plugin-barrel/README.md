@@ -24,7 +24,7 @@
 
 ### Barrel-file plugin for Kubb
 
-Automatically generates `index.ts` re-export files for each plugin output directory.
+Generates `index.ts` re-export files for each plugin output directory, and a root `index.ts` when `output.barrel` is set on `defineConfig`.
 
 ## Installation
 
@@ -38,42 +38,42 @@ npm install @kubb/plugin-barrel
 
 ## Usage
 
-Add `pluginBarrel` to the `plugins` array in your `kubb.config.ts`:
+`defineConfig` adds `pluginBarrel()` to `plugins` for you, so you do not add it yourself. Set `output.barrel` on `defineConfig` to write a root barrel and to give every plugin without its own `output.barrel` the same setting:
 
 ```typescript
 import { defineConfig } from 'kubb'
-import { pluginBarrel } from '@kubb/plugin-barrel'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: './openapi.yaml',
   output: {
     path: './src/gen',
+    barrel: { type: 'named' },
   },
-  plugins: [
-    pluginBarrel({
-      type: 'named',
-    }),
-  ],
+  plugins: [pluginTs()],
 })
 ```
 
 ## Options
 
-| Option | Type                              | Default   | Description                                 |
-| ------ | --------------------------------- | --------- | ------------------------------------------- |
-| `type` | `'all' \| 'named' \| 'propagate'` | `'named'` | Export style for the generated barrel files |
+`pluginBarrel()` takes no arguments. You configure it through `output.barrel`, on `defineConfig` or on a single plugin.
+
+| Option                 | Type                                                    | Default                   | Description                                                                                        |
+| ---------------------- | ------------------------------------------------------- | ------------------------- | -------------------------------------------------------------------------------------------------- |
+| `output.barrel`        | `{ type: 'all' \| 'named', nested?: boolean } \| false` | `false` on `defineConfig` | Barrel settings. `false` on a plugin turns its barrel off and leaves its files out of the root one |
+| `output.barrel.type`   | `'all' \| 'named'`                                      | None                      | Export style for the generated barrel files                                                        |
+| `output.barrel.nested` | `boolean`                                               | `false`                   | Plugin only. Each barrel re-exports its own directory and the barrels below it                     |
 
 ### Export types
 
-| Value         | Output                                                                          |
-| ------------- | ------------------------------------------------------------------------------- |
-| `'all'`       | `export * from './...'` — wildcard re-exports                                   |
-| `'named'`     | `export { ... } from './...'` — named re-exports, tree-shaking friendly         |
-| `'propagate'` | `export * from './...'` on index files only, propagating up through directories |
+| Value     | Output                                                                  |
+| --------- | ----------------------------------------------------------------------- |
+| `'all'`   | `export * from './...'` — wildcard re-exports                           |
+| `'named'` | `export { ... } from './...'` — named re-exports, tree-shaking friendly |
 
 ## How it works
 
-After every plugin finishes generating files, `@kubb/plugin-barrel` walks the output tree and creates an `index.ts` in each directory, re-exporting everything inside. It then creates a root `index.ts` at the top of the output path that re-exports from all plugin directories.
+After every plugin finishes generating files, `@kubb/plugin-barrel` walks the output tree and creates an `index.ts` in each directory of every plugin output with a barrel enabled. When `output.barrel` is set on `defineConfig`, it also creates a root `index.ts` at the top of the output path that re-exports the files of every plugin that does not set `output.barrel: false`.
 
 `@kubb/plugin-barrel` uses `enforce: 'post'` so it always runs after all regular plugins complete, giving it access to the full set of generated files.
 

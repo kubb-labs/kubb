@@ -167,8 +167,8 @@ export type AdapterOasOptions = {
    */
   validate?: boolean
   /**
-   * Preferred media type when an operation defines several. Defaults to the
-   * first JSON-compatible media type found in the spec.
+   * Media type to keep for request bodies and responses. Omit to keep every
+   * media type an operation declares.
    */
   contentType?: ContentType
   /**

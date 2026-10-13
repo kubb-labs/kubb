@@ -12,9 +12,9 @@
 
 ### extension
 
-Rewrites the extensions emitted in `import`/`export` statements. Keys are the source extension, values the output, and `''` drops it. Only the module-specifier string changes, never the on-disk filename.
+Rewrites the extensions emitted in relative `import`/`export` statements. Each key is the extension of a generated file, and its value is the extension written on the relative specifiers in that file. `''` drops it, and so does a generated file whose extension has no key. Package specifiers and the on-disk filenames never change.
 
-Use it to emit `.js` imports from `.ts` sources for an ESM dual package, or to keep the source extension for Node16/NodeNext resolution.
+Use `{ '.ts': '.js' }` to emit `.js` specifiers for ESM output compiled to JavaScript. Use `{ '.ts': '.ts' }` to keep `.ts` specifiers when you run the `.ts` files directly in Node.js or compile them with `rewriteRelativeImportExtensions`.
 
 The same mapping applies to runtime templates a plugin copies into the output, such as the `.kubb/` runtime files of `@kubb/plugin-fetch`. Their top-level `import` and `export … from` statements become import and export nodes, so the whole output follows one convention.
 
