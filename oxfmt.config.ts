@@ -21,4 +21,11 @@ export default defineConfig({
     '**/.nitro/**',
     '**/CHANGELOG.md',
   ],
+  overrides: [
+    {
+      // Extension docs render on kubb.dev as written, so keep their code samples as authored.
+      files: ['packages/*/docs/**/*.md'],
+      options: { embeddedLanguageFormatting: 'off' },
+    },
+  ],
 })
