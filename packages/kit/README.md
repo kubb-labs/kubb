@@ -51,7 +51,15 @@ export const pluginExample = defineExtension({
       defineGenerator({
         name: 'example',
         schema(node) {
-          return ast.factory.createFile({ path: `${node.name}.ts`, baseName: `${node.name}.ts`, sources: [], imports: [], exports: [] })
+          return [
+            ast.factory.createFile({
+              path: `${node.name}.ts`,
+              baseName: `${node.name}.ts`,
+              sources: [ast.factory.createSource({ nodes: [ast.factory.createText(`// ${node.name}\n`)] })],
+              imports: [],
+              exports: [],
+            }),
+          ]
         },
       }),
     )

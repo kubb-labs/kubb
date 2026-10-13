@@ -5,7 +5,7 @@
 
 Add `defineExtension` to define a plugin, an adapter, or a parser, and deprecate `definePlugin`, `defineParser`, and `createAdapter` in favor of it.
 
-- Set `kind` to `'plugin'`, `'adapter'`, or `'parser'`. The rest of the object is the same as before.
+- Set `kind` to `'plugin'`, `'adapter'`, or `'parser'`. The rest of the object is the same as before, except that a parser takes `build`. `defineParser` still accepts the deprecated `setup` alias, but `defineExtension` does not.
 - Export `defineExtension` from `@kubb/core` and `@kubb/kit`.
 - Keep `definePlugin`, `defineParser`, and `createAdapter` working, now marked `@deprecated`.
 
