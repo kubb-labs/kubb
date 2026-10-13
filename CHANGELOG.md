@@ -1,5 +1,57 @@
 # Changelog
 
+## v5.9.0 — Oct 13, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Fix extension docs and registry descriptions that did not match the code, and give each extension page on kubb.dev the same sections: Setup, Options worth knowing, and Example.
+  
+  - `adapterOas`: without `contentType`, Kubb keeps every media type an operation declares. `integerType` applies only to `int64` and `uint64` schemas. The page also says when the adapter downloads a remote spec or reads files outside the spec's folder.
+  - `parserTs`: each `extension` key is the extension of the generated file, so `parserTsx` needs its own `.tsx` key.
+  - `parserMd`: the frontmatter example no longer adds a second `# API Reference` H1.
+  - `pluginBarrel`: generator plugins write their own barrels, and the root barrel is written only when `output.barrel` is set. `pluginBarrel()` takes no arguments, and the README no longer shows `type: 'named'` or `'propagate'`. ([#4268](https://github.com/kubb-labs/kubb/pull/4268), [`5fc79da`](https://github.com/kubb-labs/kubb/commit/5fc79da61733edd9add6639db077e2494ee7ce67))
+
+### @kubb/cli
+
+#### Features
+
+- Install, update, and list reviewed plugins, adapters, and parsers from the Kubb registry at `https://kubb.dev/registry`. Registry support landed across 5.8.1 to 5.8.4 and is stable from this release.
+  
+  - `kubb add <id>` installs an extension at the version the registry pins, after it checks that the extension supports your Kubb version. It also adds a plugin to `kubb.config.ts`.
+  - `kubb update` moves installed extensions to the registry version, and `kubb update --check` only lists the updates. `kubb list` shows each installed extension and whether an update exists.
+  - A package joins the registry with a `kubb-extension.json` manifest. Each entry pins one npm version or one GitHub release, and Studio runs installed third-party plugins that ship a manifest.
+  - `defineExtension` defines a plugin, an adapter, or a parser. `definePlugin`, `defineParser`, and `createAdapter` still work but are deprecated.
+  - `KUBB_REGISTRY` points the CLI at another registry.
+  
+  ```shell
+  kubb add plugin-zod
+  kubb update --check
+  kubb list
+  ``` ([#4271](https://github.com/kubb-labs/kubb/pull/4271), [`329b478`](https://github.com/kubb-labs/kubb/commit/329b478aeebc9fb416615b4f3012e2d24ec15b38))
+
+#### Bug Fixes
+
+- Keep `kubb mcp` stdout free of the CLI header, so MCP clients receive only JSON-RPC messages. The header line and the blank line after it broke the MCP stdio rule that stdout carries only protocol messages. ([#4270](https://github.com/kubb-labs/kubb/pull/4270), [`193b67a`](https://github.com/kubb-labs/kubb/commit/193b67abeabe348c6ab977d424ae53a822788144))
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- Make every bundler integration generate once per build, and fail the build when generation cannot run.
+  
+  - Generate once per plugin instance. webpack and Rspack no longer rebuild forever in watch mode with `output.clean`, and Astro no longer generates twice.
+  - Register the Nuxt module with the Rspack builder too, and generate only in the client build of `nuxt build`. The module now needs `@nuxt/kit` 3.14 or later.
+  - Fail the build when `config` is missing. webpack, Rspack, esbuild, and Farm used to log and continue, and Vite and Rolldown threw a `TypeError`.
+  - Log `✗ Generation failed` and an error count when generation fails, matching the CLI, instead of `✓ Generation completed`. ([#4266](https://github.com/kubb-labs/kubb/pull/4266), [`3f0d5ed`](https://github.com/kubb-labs/kubb/commit/3f0d5ed496c5236b8d321eb5cc7398d81e7da902))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.8.4 — Oct 13, 2026
 
 ### @kubb/adapter-oas
