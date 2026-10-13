@@ -54,7 +54,7 @@ Rules that matter:
 - `pluginTs` is the base. The client plugins (`pluginAxios`, `pluginFetch`) need it, the framework plugins (`pluginReactQuery`,
   `pluginVueQuery`, `pluginSwr`) need `pluginTs` and a client plugin, and `pluginMsw` needs
   `pluginTs` and `pluginFaker`. Check the plugin's docs page on kubb.dev
-  (`https://kubb.dev/plugins/plugin-<name>`) for the full dependency list.
+  (`https://kubb.dev/extensions/kubb-labs/plugin-<name>`) for the full dependency list.
 - Each generator plugin takes its own `output.path`, resolved relative to the top-level
   `output.path`. Keep generated kinds in separate folders (`models`, `clients`, `hooks`, ...).
 - `input` accepts `{ path }` for a file or URL. Validate untrusted specs with `kubb validate`
@@ -85,7 +85,7 @@ Pick plugins by what the consumer needs, then install `kubb` plus each package.
 
 For an installed plugin's exact options, read its `Options` type from the installed package
 (`node_modules/@kubb/plugin-<name>/src/types.ts` or the published type declarations) and the
-plugin's docs page (`https://kubb.dev/plugins/plugin-<name>`), which lists every option with
+plugin's docs page (`https://kubb.dev/extensions/kubb-labs/plugin-<name>/options`), which lists every option with
 defaults, the plugin dependencies, and the default `output.path`. Use those as the source of
 truth instead of guessing an option name.
 
