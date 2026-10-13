@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.8.3 — Oct 13, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Ship the overview, options page, and how-to guides in a `docs/` folder instead of `OVERVIEW.md`. ([#4260](https://github.com/kubb-labs/kubb/pull/4260), [`fcd208d`](https://github.com/kubb-labs/kubb/commit/fcd208d9f96d1a5d3feb24c9d0a1bbcbc54f7055))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Add `maintainers` and `dependencies` to `kubb-extension.json`. Add optional `options` and `guides` fields to `RegistryDetail`, and export the new `RegistryGuide` type. ([#4260](https://github.com/kubb-labs/kubb/pull/4260), [`fcd208d`](https://github.com/kubb-labs/kubb/commit/fcd208d9f96d1a5d3feb24c9d0a1bbcbc54f7055))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.8.2 — Oct 13, 2026
 
 ### @kubb/adapter-oas
