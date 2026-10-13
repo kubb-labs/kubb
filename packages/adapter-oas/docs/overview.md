@@ -11,7 +11,7 @@ Kubb uses `adapterOas()` by default, so no setup is needed. Set `adapter` in `de
 ## Options worth knowing
 
 - `validate` checks the spec before parsing and reports each problem as a warning. Turn it off to speed up a large spec. Run `kubb validate` to list every error.
-- `dateType` sets how `date-time`, `date`, and `time` schemas are typed: ISO strings (the default), `date-time` strings with or without a timezone offset, or JavaScript `Date` objects. Pass an object to set each format on its own.
+- `dateType` sets how `date-time`, `date`, and `time` schemas are typed. Choose ISO strings (the default), `date-time` strings with or without a timezone offset, or JavaScript `Date` objects. Pass an object to set each format on its own.
 - `integerType` sets how `int64` and `uint64` schemas are typed. The default `'bigint'` is exact for 64-bit IDs but does not survive `JSON.stringify`. Choose `'number'` for most JSON APIs.
 - `unknownType` and `emptySchemaType` set the type for schemas Kubb cannot infer and for empty schemas (`{}`).
 - `discriminator: 'propagate'` writes the discriminator's literal value into each child schema, so each branch is typed precisely.
