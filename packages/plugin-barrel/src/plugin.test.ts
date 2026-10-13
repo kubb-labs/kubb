@@ -53,20 +53,20 @@ function typesPlugin(output: Record<string, unknown> = {}) {
   })
 }
 
-function schemasPlugin() {
+function schemasPlugin(output: Record<string, unknown> = {}) {
   return makePlugin({
     name: 'plugin-schemas',
     outputPath: 'schemas',
     filePath: '/workspace/src/gen/schemas/petSchema.ts',
     exportName: 'PetSchema',
-    output: { mode: 'directory' },
+    output: { mode: 'directory', ...output },
   })
 }
 
-async function build({ plugins }: { plugins: Array<Plugin> }) {
+async function build({ plugins, barrel = { type: 'named' } }: { plugins: Array<Plugin>; barrel?: { type: 'named' } | false }) {
   const config = {
     root: '/workspace',
-    output: { path: 'src/gen', barrel: { type: 'named' } },
+    output: { path: 'src/gen', barrel },
     parsers: [],
     reporters: [],
     plugins: [...plugins, pluginBarrel()] as unknown as Array<Plugin>,
@@ -166,6 +166,29 @@ describe('pluginBarrel', () => {
     })
 
     await expect(build({ plugins: [escapingPlugin] })).rejects.toMatchObject({ errors: [{ diagnostic: { code: Diagnostics.code.pathTraversal } }] })
+  })
+
+  it.each([
+    { scenario: 'disabled', barrel: false as const, rootExports: undefined },
+    { scenario: 'enabled', barrel: { type: 'named' as const }, rootExports: expect.arrayContaining(['Hello', 'Pet', 'PetSchema']) },
+  ])('keeps the per-plugin barrels next to a plugin without output.path when the root barrel is $scenario', async ({ barrel, rootExports }) => {
+    const helloPlugin = definePlugin(() => ({
+      name: 'plugin-hello',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.injectFile(makeFile('/workspace/src/gen/hello.ts', 'Hello'))
+        },
+      },
+    }))()
+    const { paths, rootExportNames } = await build({
+      plugins: [typesPlugin({ barrel: { type: 'named' } }), helloPlugin, schemasPlugin({ barrel: { type: 'named' } })],
+      barrel,
+    })
+
+    expect(paths).toStrictEqual(
+      expect.arrayContaining(['/workspace/src/gen/hello.ts', '/workspace/src/gen/types/index.ts', '/workspace/src/gen/schemas/index.ts']),
+    )
+    expect(rootExportNames).toStrictEqual(rootExports)
   })
 
   it('keeps a plugin whose output path only shares a prefix with an excluded one', async () => {
