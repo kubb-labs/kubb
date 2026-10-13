@@ -42,6 +42,15 @@ Plugins are maintained in a separate monorepo at [kubb-labs/plugins](https://git
 
 When an extension's options change here, update its `docs/options.md` in the same PR.
 
+## Docs
+
+The Kubb core docs live in [docs/](docs), and [kubb.dev](https://kubb.dev) renders them from `main` at `/docs/5.x/`. When a change here alters behavior the docs describe, such as a CLI flag, a config option, or a `kubb/kit` API, update the page in the same PR. [docs/README.md](docs/README.md) has the layout, the sidebar rules, and the writing guidelines.
+
+- Each page sits in one [Diátaxis](https://diataxis.fr) quadrant: `5.x/tutorials/` teaches by doing, `5.x/how-to/` gets one task done, `5.x/reference/` states facts, and `5.x/explanation/` builds understanding. Keep them apart.
+- Options every generator plugin shares (`output`, `group`, `include`, `exclude`, `override`, `resolver`, `macros`) are documented once in `docs/5.x/reference/plugin-options.md`.
+- `docs/5.x/changelog.md` is written by hand. In each release, add one line per user-facing change with its PR link.
+- Blog posts live in [kubb-labs/platform](https://github.com/kubb-labs/platform) under `apps/kubb.dev/content/blog/`.
+
 ## How agents read this repo
 
 `AGENTS.md` is the canonical instruction file. Local skills live in `.agents/skills/` (open
