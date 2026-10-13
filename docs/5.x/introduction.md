@@ -23,7 +23,7 @@ Choose the outputs you need with plugins in one `kubb.config.ts` file. Generated
 - Generate [TypeScript types](/extensions/kubb-labs/plugin-ts), typed [Axios](/extensions/kubb-labs/plugin-axios) or [Fetch](/extensions/kubb-labs/plugin-fetch) clients, [React Query](/extensions/kubb-labs/plugin-react-query), [Vue Query](/extensions/kubb-labs/plugin-vue-query), and [SWR](/extensions/kubb-labs/plugin-swr) hooks.
 - Validate data with [Zod](/extensions/kubb-labs/plugin-zod), create [Faker](/extensions/kubb-labs/plugin-faker) data and [MSW](/extensions/kubb-labs/plugin-msw) handlers, generate [Cypress](/extensions/kubb-labs/plugin-cypress) tests, or expose your API through a generated [MCP server](/extensions/kubb-labs/plugin-mcp).
 - Customize the pipeline with adapters, plugins, parsers, macros, and resolvers, or write output to disk, memory, or a custom storage backend.
-- Run generation with [Vite and webpack](/docs/5.x/integrations/build-tools), other bundlers, or in CI. Connect AI tools through [MCP](/docs/5.x/ai/mcp) or use the [Claude Code integration](/docs/5.x/ai/claude).
+- Run generation with [Vite and webpack](/docs/5.x/integrations/overview#build-tools), other bundlers, or in CI. Connect AI tools through [MCP](/docs/5.x/ai/mcp) or use the [Claude Code integration](/docs/5.x/ai/claude).
 
 ## See it work
 
@@ -54,7 +54,7 @@ See the [architecture guide](/docs/5.x/explanation/architecture) for details abo
 | Generate your first client | [Generate your first client](/docs/5.x/tutorials/quickstart) |
 | Configure a stack or workflow | [Configure generation](/docs/5.x/how-to/recipes) |
 | Rename files or customize generated code | [Resolvers](/docs/5.x/how-to/resolvers), [macros](/docs/5.x/how-to/macros), and [printers](/docs/5.x/how-to/printers) |
-| Run generation during a build or in CI | [Build tools](/docs/5.x/integrations/build-tools) and [CI](/docs/5.x/integrations/ci) |
+| Run generation during a build or in CI | [Build tools](/docs/5.x/integrations/overview#build-tools) and [CI](/docs/5.x/integrations/ci) |
 | Use Kubb with a browser or AI assistant | [Studio](/docs/5.x/integrations/studio) and [AI assistants](/docs/5.x/ai) |
 | Build a plugin | [Plugin tutorial](/docs/5.x/tutorials/creating-plugins) |
 | Look up an option or API | [Configuration](/docs/5.x/reference/configuration), [commands](/docs/5.x/reference/commands/), and [Kit API](/docs/5.x/reference/kit) |
