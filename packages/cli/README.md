@@ -233,9 +233,9 @@ npx kubb validate https://petstore3.swagger.io/api/v3/openapi.json
 
 ### `kubb mcp`
 
-Start a Model Context Protocol (MCP) server that exposes Kubb code generation as a tool for AI assistants. Once running, configure your AI client (Claude, Cursor, Windsurf, etc.) to connect — the assistant can then call `kubb generate` directly without leaving the chat.
+Start a Model Context Protocol (MCP) server with three tools for AI assistants: `generate`, `validate`, and `init`. Once your AI client connects, the assistant can validate a spec, scaffold a `kubb.config.ts`, and run generation without leaving the chat.
 
-Runs over **stdio**, which is compatible with local MCP clients such as Claude Desktop and Cursor.
+The server uses stdio, so the client starts it as a local process. It looks for `kubb.config.*` in the folder the client starts it in.
 
 ```bash
 npx kubb mcp
@@ -243,7 +243,13 @@ npx kubb mcp
 
 #### MCP client configuration
 
-Add the following to your MCP client config (e.g. Claude Desktop's `claude_desktop_config.json`):
+In Claude Code, run this from your project root:
+
+```bash
+claude mcp add kubb -- npx kubb mcp
+```
+
+For other clients, add the following to your MCP client config, such as `claude_desktop_config.json` for Claude Desktop:
 
 ```json
 {

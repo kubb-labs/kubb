@@ -24,9 +24,9 @@
 
 ### Model Context Protocol server for Kubb
 
-MCP server for Kubb. Exposes code generation as a tool over the [Model Context Protocol](https://modelcontextprotocol.io) so AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible clients can generate TypeScript types, API clients, and more using natural language.
+`@kubb/mcp` is the MCP server for Kubb. It exposes Kubb code generation as tools over the [Model Context Protocol](https://modelcontextprotocol.io), so AI assistants such as [Claude](https://claude.ai) and [Cursor](https://cursor.sh) can validate a spec and generate TypeScript types and API clients from the chat.
 
-The server exposes a `generate` tool that runs a full Kubb build from a `kubb.config.ts`. It streams build events back to the client as real-time progress notifications. The server communicates over stdio and works with any MCP-compatible client.
+The server has three tools. `generate` runs a full Kubb build from a `kubb.config.ts` and returns its build events when the build succeeds. A failed build returns its diagnostics instead. `validate` checks an OpenAPI spec, and `init` scaffolds a `kubb.config.ts`.
 
 ## Installation
 
@@ -41,11 +41,11 @@ npm install -D @kubb/mcp
 ```
 
 > [!IMPORTANT]
-> You also need to install `@kubb/cli` to use the `kubb mcp` command.
+> The `kubb mcp` command comes from `@kubb/cli`, which the `kubb` package includes. Install `kubb` to use it.
 
 ## Usage
 
-### Start the MCP Server
+### Start the MCP server
 
 Start the server using the Kubb CLI:
 
@@ -59,11 +59,11 @@ Or run it directly as a standalone package:
 npx @kubb/mcp
 ```
 
-This starts an MCP server that communicates via stdio (standard input/output), making it compatible with MCP clients.
+Both commands start the same server over stdio.
 
-### Configure MCP Client
+### Configure an MCP client
 
-Add to your MCP client configuration (e.g., [Claude Desktop](https://claude.ai/download)'s `claude_desktop_config.json`):
+Add one of these entries to your MCP client's config, such as `claude_desktop_config.json` for [Claude Desktop](https://claude.ai/download).
 
 Using `kubb mcp`:
 
@@ -91,34 +91,39 @@ Using the standalone package:
 }
 ```
 
-For project-specific configurations, you can specify the working directory:
+The server looks for `kubb.config.*` in the directory the client starts it in, and rejects a `config` path outside that directory. Claude Code starts it in the folder you run `claude` from, so register it from the project root:
+
+```bash
+claude mcp add kubb -- npx kubb mcp
+```
+
+Clients such as Claude Code ignore a `cwd` key in this config. When a client starts the server in another directory, change into the project first (macOS and Linux):
 
 ```json
 {
   "mcpServers": {
     "kubb-petstore": {
-      "command": "npx",
-      "args": ["@kubb/mcp"],
-      "cwd": "/path/to/your/project"
+      "command": "sh",
+      "args": ["-c", "cd '/path/to/your/project' && npx kubb mcp"]
     }
   }
 }
 ```
 
-### Available Tools
+### Available tools
 
 #### `generate`
 
-Generate code from OpenAPI/Swagger specifications using Kubb configuration.
+Runs a Kubb build from your config. A successful build returns the build events, and a failed build returns its diagnostics.
 
-**Parameters:**
+Parameters:
 
-- `config` (string, optional): Path to kubb.config.ts file. If not provided, looks for kubb.config.ts in current directory
+- `config` (string, optional): Path to a config file inside the working directory. Defaults to `kubb.config.ts` (or `.mts`, `.cts`, `.js`, `.mjs`, `.cjs`) in the working directory
 - `input` (string, optional): Path to OpenAPI/Swagger spec file (overrides config file setting)
 - `output` (string, optional): Output directory path (overrides config file setting)
-- `logLevel` (enum, optional): Control logging verbosity, one of `'silent'`, `'info'`, `'verbose'` (default: 'info')
+- `logLevel` (enum, optional): One of `'silent'`, `'info'`, `'verbose'` (default: 'info'), passed to a config that exports a function
 
-**Examples:**
+Examples:
 
 Using default config file:
 
@@ -147,9 +152,27 @@ With verbose logging:
 }
 ```
 
+#### `validate`
+
+Validates an OpenAPI/Swagger specification from a path or URL.
+
+Parameters:
+
+- `input` (string, required): Path or URL to the OpenAPI/Swagger specification
+
+#### `init`
+
+Writes a `kubb.config.ts` in the working directory without prompts. It does not install packages, and it fails when `kubb.config.ts` already exists.
+
+Parameters:
+
+- `input` (string, optional): Path to the OpenAPI spec (default: `./openapi.yaml`)
+- `output` (string, optional): Output directory (default: `./src/gen`)
+- `plugins` (string, optional): Comma-separated list of plugins, such as `plugin-ts,plugin-zod`
+
 ## Configuration
 
-The build tool looks for `kubb.config.ts` in the current directory by default. You can also provide an inline configuration or path to a config file.
+The `generate` tool looks for `kubb.config.ts` in the working directory by default. Pass `config` to use another config file in that directory.
 
 Example `kubb.config.ts`:
 
