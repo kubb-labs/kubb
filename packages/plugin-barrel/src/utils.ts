@@ -24,9 +24,6 @@ function compareSegments(a: ReadonlyArray<string>, b: ReadonlyArray<string>): nu
   return a[index]! < b[index]! ? -1 : 1
 }
 
-/**
- * Returns the `./`-prefixed import path from `fromDir` to `filePath`.
- */
 function toRelativeModulePath(fromDir: string, filePath: string): string {
   return `./${posix.relative(fromDir, filePath)}`
 }
@@ -76,9 +73,6 @@ function makeBarrel(dirPath: string, exports: Array<ast.ExportNode>, { sourceFil
 
 type LeafStrategy = (path: string, sourceFile: ast.FileNode | undefined) => Array<ast.ExportNode>
 
-/**
- * Returns the sorted, unique names of the indexable sources that match `isTypeOnly`.
- */
 function indexableNames(sources: ReadonlyArray<ast.SourceNode>, isTypeOnly: boolean): Array<string> {
   const names = sources.flatMap((source) => (source.isIndexable && source.name && Boolean(source.isTypeOnly) === isTypeOnly ? [source.name] : []))
   return [...new Set(names)].sort()

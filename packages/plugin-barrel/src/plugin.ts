@@ -50,9 +50,6 @@ type BarrelState = {
 // One state per build, keyed by the build's `config`. The object form has no factory closure to hold it.
 const states = new WeakMap<Config, BarrelState>()
 
-/**
- * Returns the barrel state for this build, creating it on first use.
- */
 function getState(config: Config): BarrelState {
   const state = states.get(config) ?? { excludedPlugins: new Set(), excludedTargets: [], pendingBarrels: [] }
   states.set(config, state)
@@ -105,7 +102,7 @@ export const pluginBarrel = definePlugin({
       // A plugin-level `false` wins over an enabled root barrel.
       const barrelConfig: PluginBarrelConfig | false = plugin.options.output?.barrel ?? config.output.barrel ?? false
       const base = path.resolve(config.root, config.output.path)
-      const target = path.resolve(base, plugin.options.output?.path ?? '.')
+      const target = path.resolve(base, plugin.options.output.path ?? '.')
 
       if (barrelConfig === false) {
         excludedPlugins.add(plugin.name)
@@ -124,7 +121,7 @@ export const pluginBarrel = definePlugin({
 
       // `mode: 'file'` writes a single file, so there is no directory to barrel. The root barrel
       // re-exports that file as a direct leaf of `config.output.path`.
-      if (plugin.options.output?.mode === 'file') {
+      if (plugin.options.output.mode === 'file') {
         return
       }
 
@@ -151,8 +148,8 @@ export const pluginBarrel = definePlugin({
       // A `barrel: false` plugin gets no barrel and stays out of the root, so drop its files
       // once here. Every barrel below then derives from a single index of what remains.
       const relevantFiles = files.filter((file) => {
-        const owner = (file.meta as { pluginName?: unknown } | undefined)?.pluginName
-        if (typeof owner === 'string') return !excludedPlugins.has(owner)
+        const owner = (file.meta as { pluginName?: string } | undefined)?.pluginName
+        if (owner) return !excludedPlugins.has(owner)
 
         return !excludedTargets.some((target) => isPathInside(file.path, target))
       })
