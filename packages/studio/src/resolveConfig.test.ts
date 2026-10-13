@@ -115,6 +115,10 @@ describe('mergeOptions', () => {
     })
   })
 
+  it('unsets a disk value when studio sends null, so the factory default applies', () => {
+    expect(mergeOptions({ emptySchemaType: 'any', unknownType: 'void' }, { emptySchemaType: null })).toStrictEqual({ unknownType: 'void' })
+  })
+
   it('ignores keys that would reach the prototype', () => {
     const studio = JSON.parse('{ "__proto__": { "polluted": true }, "output": { "constructor": { "x": 1 }, "path": "models" } }') as Record<string, unknown>
     const merged = mergeOptions({ output: { path: 'types' } }, studio)

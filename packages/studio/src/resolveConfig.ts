@@ -247,6 +247,7 @@ export function isOptionValue(value: unknown): value is OptionValue {
  * ```ts
  * mergeOptions({ macros: [camelCaseMacro], syntaxType: 'type' }, { macros: [{ name: 'camelCase' }], syntaxType: 'interface' })
  * // { macros: [camelCaseMacro], syntaxType: 'interface' }
+ * mergeOptions({ emptySchemaType: 'any' }, { emptySchemaType: null }) // {}
  * ```
  */
 export function mergeOptions(disk: Record<string, unknown>, studio: Record<string, unknown>): Record<string, unknown> {
@@ -255,6 +256,12 @@ export function mergeOptions(disk: Record<string, unknown>, studio: Record<strin
   for (const [key, value] of Object.entries(studio)) {
     if (!isSafeKey(key)) continue
     const current = disk[key]
+
+    // A `null` from Studio is a field set back to "unset", so the factory default applies again.
+    if (value === null) {
+      if (current === undefined || isOptionValue(current)) delete merged[key]
+      continue
+    }
 
     if (isPlainObject(current) && isPlainObject(value)) {
       merged[key] = mergeOptions(current, value)
