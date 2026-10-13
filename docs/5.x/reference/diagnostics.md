@@ -36,7 +36,7 @@ An error fails the run with a non-zero exit code.
 
 The adapter threw an unexpected error while parsing the input. Errors the adapter reports on purpose, such as `KUBB_REF_NOT_FOUND`, keep their own code.
 
-This is likely a bug in the adapter. Rerun with `--verbose` to print the stack trace, then report it at the `report:` link. That link comes from the adapter's [`meta.issues`](/docs/5.x/reference/kit/extensions#meta), so it points to the adapter's maintainers.
+This is likely a bug in the adapter. Rerun with `--verbose` to print the stack trace, then report it to the adapter's maintainers. When the adapter sets [`meta.issues`](/docs/5.x/reference/kit/extensions#meta), Kubb prints its issue tracker as a `report:` link.
 
 ### KUBB_ADAPTER_REQUIRED: Adapter required {#kubb-adapter-required}
 
@@ -144,7 +144,7 @@ Call the composable inside `setup` or `kubb:plugin:setup`. Code that setup await
 
 A parser threw an unexpected error while printing a generated file.
 
-This is likely a bug in the parser. Rerun with `--verbose` to print the stack trace, then report it at the `report:` link. That link comes from the parser's [`meta.issues`](/docs/5.x/reference/kit/extensions#meta), so it points to the parser's maintainers.
+This is likely a bug in the parser. Rerun with `--verbose` to print the stack trace, then report it to the parser's maintainers. When the parser sets [`meta.issues`](/docs/5.x/reference/kit/extensions#meta), Kubb prints its issue tracker as a `report:` link.
 
 ### KUBB_PATH_TRAVERSAL: Path traversal {#kubb-path-traversal}
 
@@ -156,7 +156,7 @@ Keep generated paths within `output.path` and resolver `file.path` overrides wit
 
 A plugin threw while generating, or reported an error through `ctx.error`. The diagnostic is attributed to the plugin and fails the run.
 
-Check the plugin options and the schema or operation named in the message. When the plugin crashed, rerun with `--verbose` to print the stack trace and report it at the `report:` link, which comes from the plugin's [`meta.issues`](/docs/5.x/reference/kit/extensions#meta). Include a spec fragment that reproduces it. The diagnostic preserves an underlying error as its cause. For structured errors, plugin authors can use [`Diagnostics.Error` or `Diagnostics.report`](/docs/5.x/reference/kit/engine#diagnostics).
+Check the plugin options and the schema or operation named in the message. When the plugin crashed, rerun with `--verbose` to print the stack trace and report it to the plugin's maintainers. When the plugin sets [`meta.issues`](/docs/5.x/reference/kit/extensions#meta), Kubb prints its issue tracker as a `report:` link. Include a spec fragment that reproduces it. The diagnostic preserves an underlying error as its cause. For structured errors, plugin authors can use [`Diagnostics.Error` or `Diagnostics.report`](/docs/5.x/reference/kit/engine#diagnostics).
 
 ### KUBB_PLUGIN_NOT_FOUND: Plugin not found {#kubb-plugin-not-found}
 

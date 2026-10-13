@@ -318,17 +318,17 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   [diagnosticCode.pluginFailed]: {
     title: 'Plugin failed',
     cause: 'A plugin threw while generating, or reported an error through `ctx.error`.',
-    fix: 'Read the underlying error and check the plugin options and the schema or operation it failed on. If the plugin crashed, rerun with `--verbose` for the stack trace and report it at the `report:` link.',
+    fix: 'Read the underlying error and check the plugin options and the schema or operation it failed on. If the plugin crashed, rerun with `--verbose` for the stack trace and report it to the plugin maintainers, at the `report:` link when one is shown.',
   },
   [diagnosticCode.adapterFailed]: {
     title: 'Adapter failed',
     cause: 'The adapter threw an unexpected error while parsing the input.',
-    fix: 'This is likely a bug in the adapter. Rerun with `--verbose` for the stack trace and report it at the `report:` link, or to the adapter maintainers.',
+    fix: 'This is likely a bug in the adapter. Rerun with `--verbose` for the stack trace and report it to the adapter maintainers, at the `report:` link when one is shown.',
   },
   [diagnosticCode.parserFailed]: {
     title: 'Parser failed',
     cause: 'A parser threw an unexpected error while printing a generated file.',
-    fix: 'This is likely a bug in the parser. Rerun with `--verbose` for the stack trace and report it at the `report:` link, or to the parser maintainers.',
+    fix: 'This is likely a bug in the parser. Rerun with `--verbose` for the stack trace and report it to the parser maintainers, at the `report:` link when one is shown.',
   },
   [diagnosticCode.pluginWarning]: {
     title: 'Plugin warning',
