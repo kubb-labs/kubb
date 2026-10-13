@@ -1,8 +1,9 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
-import type { RegistryEntry } from '@kubb/core'
+import { getErrorMessage } from '@internals/utils'
+import { readInstalledPackages, type RegistryEntry } from '@kubb/core'
 import { logBlock, logError, logOutro, logWarn } from '../../loggers/output.ts'
-import { fetchRegistryIndex, isOutdated, readInstalledPackages, registryUrl } from '../../utils/registry.ts'
+import { fetchRegistryIndex, isOutdated, registryUrl } from '../../utils/registry.ts'
 
 export type ListRow = {
   id?: string
@@ -18,9 +19,9 @@ export type ListRow = {
  */
 export async function listExtensions({ cwd, registry }: { cwd: string; registry: string }): Promise<Array<ListRow>> {
   const [installed, entries] = await Promise.all([
-    readInstalledPackages(cwd),
+    readInstalledPackages({ root: cwd }),
     fetchRegistryIndex({ registry }).catch((error: unknown): Array<RegistryEntry> => {
-      logWarn(`Showing installed extensions only: ${error instanceof Error ? error.message : String(error)}`)
+      logWarn(`Showing installed extensions only: ${getErrorMessage(error)}`)
       return []
     }),
   ])
@@ -30,7 +31,7 @@ export async function listExtensions({ cwd, registry }: { cwd: string; registry:
     const entry = byPackage.get(name)
     if (!entry && !manifest) return []
     const latest = entry?.artifact.version
-    return [{ id: entry?.id, package: name, installed: version, registry: latest, update: latest ? isOutdated({ installed: version, latest }) : false }]
+    return [{ id: entry?.id, package: name, installed: version, registry: latest, update: !!latest && isOutdated({ installed: version, latest }) }]
   })
 }
 
@@ -54,7 +55,7 @@ export async function run(): Promise<void> {
 
     logBlock([styleText('dim', line(header)), ...cells.map(line)])
   } catch (error) {
-    logError(error instanceof Error ? error.message : String(error))
+    logError(getErrorMessage(error))
     process.exitCode = 1
   }
 }

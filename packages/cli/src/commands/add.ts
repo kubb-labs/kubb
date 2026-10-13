@@ -1,5 +1,5 @@
 import { define } from 'gunshi'
-import { configArg } from './shared.ts'
+import { configArg, yesArg } from './shared.ts'
 
 export const command = define({
   name: 'add',
@@ -14,12 +14,7 @@ export const command = define({
       required: true,
     },
     ...configArg,
-    yes: {
-      type: 'boolean',
-      description: 'Skip the confirmation',
-      short: 'y',
-      default: false,
-    },
+    ...yesArg,
     install: {
       type: 'boolean',
       description: 'Install the package. Pass --no-install to only edit the config',

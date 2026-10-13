@@ -1,7 +1,7 @@
 import { rm } from 'node:fs/promises'
 import * as clack from '@clack/prompts'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createProject, registryEntry } from '../../utils/registryFixture.ts'
+import { createProject, registryEntry, registryIndex, stubFetch } from '../../utils/registryFixture.ts'
 import { installPackages } from '../init/utils.ts'
 import { run } from './run.ts'
 
@@ -19,15 +19,7 @@ beforeEach(async () => {
   vi.spyOn(process, 'cwd').mockReturnValue(cwd)
   output = []
   for (const method of ['log', 'warn', 'error'] as const) vi.spyOn(console, method).mockImplementation((...args) => void output.push(args.join(' ')))
-  const index = {
-    version: 1,
-    generatedAt: '2026-10-12T20:00:00Z',
-    extensions: [registryEntry({ name: 'plugin-x', version: '1.1.0' }), registryEntry({ name: 'plugin-y', version: '2.0.0' })],
-  }
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(async () => new Response(JSON.stringify(index))),
-  )
+  stubFetch({ body: registryIndex([registryEntry({ name: 'plugin-x', version: '1.1.0' }), registryEntry({ name: 'plugin-y', version: '2.0.0' })]) })
 })
 
 afterEach(async () => {

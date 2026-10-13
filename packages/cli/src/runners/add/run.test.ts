@@ -2,6 +2,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { registryEntry, stubFetch } from '../../utils/registryFixture.ts'
 import { installPackages } from '../init/utils.ts'
 import { run } from './run.ts'
 
@@ -12,31 +13,7 @@ vi.mock('../init/utils.ts', () => ({
 
 const configSource = `import { defineConfig } from 'kubb/config'\n\nexport default defineConfig({\n  input: './petStore.yaml',\n  plugins: [],\n})\n`
 
-function detail({
-  kind = 'plugin',
-  name = 'plugin-x',
-  exportName = 'pluginX',
-  compatibility,
-}: { kind?: string; name?: string; exportName?: string; compatibility?: object } = {}) {
-  return {
-    id: `acme/${name}`,
-    kind,
-    type: 'community',
-    artifact: { kind: 'npm', package: `@acme/kubb-${name}`, version: '1.2.0' },
-    manifest: { kind, name, export: exportName, displayName: 'X', description: 'Generates X.', compatibility },
-    submittedAt: '2026-10-12T20:00:00Z',
-    publishedAt: '2026-10-12T20:00:00Z',
-    reviewedAt: '2026-10-12T20:00:00Z',
-    overview: null,
-  }
-}
-
-function respond(status: number, body?: unknown) {
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(async () => new Response(body === undefined ? null : JSON.stringify(body), { status })),
-  )
-}
+const pluginX = registryEntry({ name: 'plugin-x', version: '1.2.0', manifest: { export: 'pluginX' } })
 
 let cwd: string
 let output: Array<string>
@@ -60,7 +37,7 @@ afterEach(async () => {
 
 describe('kubb add', () => {
   it('installs the pinned version and adds the plugin to the config', async () => {
-    respond(200, detail())
+    stubFetch({ body: pluginX })
 
     await run({ id: 'acme/plugin-x', yes: true, install: true })
 
@@ -73,21 +50,21 @@ describe('kubb add', () => {
   })
 
   it('prints the snippet for an adapter instead of editing the config', async () => {
-    respond(200, detail({ kind: 'adapter', name: 'adapter-x', exportName: 'adapterX' }))
+    stubFetch({ body: registryEntry({ name: 'adapter-x', version: '1.2.0', kind: 'adapter', manifest: { export: 'adapterX' } }) })
 
     await run({ id: 'acme/adapter-x', yes: true, install: false })
 
+    const printed = output.join('\n')
     expect(installPackages).not.toHaveBeenCalled()
     expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toBe(configSource)
-    expect(output.join('\n')).toContain(`import { adapterX } from '@acme/kubb-adapter-x'`)
-    expect(output.join('\n')).toContain('adapter: adapterX(),')
-    expect(output.join('\n')).not.toContain('export default defineConfig(')
-    expect(output.join('\n')).toContain('Install @acme/kubb-adapter-x@')
-    expect(output.join('\n')).not.toContain('Added @acme/kubb-adapter-x')
+    expect(printed).toContain(`import { adapterX } from '@acme/kubb-adapter-x'\n\nadapter: adapterX(),`)
+    expect(printed).not.toContain('export default defineConfig(')
+    expect(printed).toContain('Install @acme/kubb-adapter-x@1.2.0 and add the snippet above.')
+    expect(printed).not.toContain('Added @acme/kubb-adapter-x')
   })
 
   it('refuses an extension that needs another Kubb version', async () => {
-    respond(200, detail({ compatibility: { kubb: '>=99.0.0' } }))
+    stubFetch({ body: { ...pluginX, manifest: { ...pluginX.manifest, compatibility: { kubb: '>=99.0.0' } } } })
 
     await run({ id: 'acme/plugin-x', yes: true, install: true })
 
@@ -97,7 +74,7 @@ describe('kubb add', () => {
   })
 
   it('names the id and the registry when the extension is unknown', async () => {
-    respond(404)
+    stubFetch({ status: 404 })
 
     await run({ id: 'plugin-missing', yes: true, install: true })
 
@@ -109,7 +86,7 @@ describe('kubb add', () => {
     ['an id with another shape', '../etc/passwd', 'is not a registry id'],
     ['a package name that is not one', 'acme/plugin-x', 'sent an invalid entry'],
   ])('refuses %s before installing', async (_label, id, message) => {
-    respond(200, { ...detail(), artifact: { kind: 'npm', package: '--registry=https://evil.test', version: '1.2.0' } })
+    stubFetch({ body: { ...pluginX, artifact: { kind: 'npm', package: '--registry=https://evil.test', version: '1.2.0' } } })
 
     await run({ id, yes: true, install: true })
 

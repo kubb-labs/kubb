@@ -1,4 +1,5 @@
 import { define } from 'gunshi'
+import { yesArg } from './shared.ts'
 
 export const command = define({
   name: 'update',
@@ -16,12 +17,7 @@ export const command = define({
       description: 'List the available updates without installing them',
       default: false,
     },
-    yes: {
-      type: 'boolean',
-      description: 'Skip the confirmation',
-      short: 'y',
-      default: false,
-    },
+    ...yesArg,
   },
   async run({ values }) {
     const { run } = await import('../runners/update/run.ts')

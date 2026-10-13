@@ -28,8 +28,7 @@ function stripExecArgs(argv: Array<string>): Array<string> {
 
 /**
  * Entry point for the `kubb` CLI. Prints the telemetry notice unless telemetry is disabled or a
- * quiet flag is passed, then runs the generate, validate, mcp, studio, init, add, update, and list commands. Defaults to
- * `generate` when no command is given.
+ * quiet flag is passed, then runs the given command, or `generate` when none is given.
  */
 export async function run(argv: Array<string> = process.argv): Promise<void> {
   const args = routeStudioFlags(resolveDeprecatedFlags(stripExecArgs(argv)))

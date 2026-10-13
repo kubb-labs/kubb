@@ -2,6 +2,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
+import { getErrorMessage } from '@internals/utils'
 import type { ExtensionManifest, RegistryDetail } from '@kubb/core'
 import { findConfigFile } from '../../config.ts'
 import { logBlock, logError, logInfo, logIntro, logOutro, logStep, logWarn } from '../../loggers/output.ts'
@@ -41,7 +42,7 @@ async function addToConfig({ detail, configFile }: { detail: RegistryDetail; con
     })
     return outcomes[0]?.applied ? undefined : (outcomes[0]?.reason ?? 'the config file was not changed')
   } catch (error) {
-    return error instanceof Error ? error.message : String(error)
+    return getErrorMessage(error)
   }
 }
 
@@ -73,12 +74,10 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
         : `Print the ${manifest.kind} snippet to add`,
     ])
 
-    if (!yes) {
-      const confirmed = await clack.confirm({ message: 'Continue?', initialValue: true })
-      if (clack.isCancel(confirmed) || !confirmed) {
-        clack.cancel('Operation canceled.')
-        return
-      }
+    const confirmed = yes || (await clack.confirm({ message: 'Continue?', initialValue: true }))
+    if (clack.isCancel(confirmed) || !confirmed) {
+      clack.cancel('Operation canceled.')
+      return
     }
 
     if (install) {
@@ -88,22 +87,16 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     }
 
     const reason = configFile ? await addToConfig({ detail, configFile }) : `add the ${manifest.kind} to your config`
-    if (reason) {
-      if (configFile) logWarn(`Could not edit ${configFile}: ${reason}`)
-      logBlock(['Add the import to your Kubb config and merge the property into its defineConfig call:', '', toSnippet(detail)])
+    if (!reason) {
+      logOutro(styleText('green', install ? `Added ${spec}` : `Added ${manifest.export}() to the config. Install ${spec} to use it.`))
+      return
     }
 
-    const edited = !reason
-    const done = install
-      ? edited
-        ? `Added ${spec}`
-        : `Installed ${spec}. Add it with the snippet above.`
-      : edited
-        ? `Added ${manifest.export}() to the config. Install ${spec} to use it.`
-        : `Install ${spec} and add the snippet above.`
-    logOutro(styleText('green', done))
+    if (configFile) logWarn(`Could not edit ${configFile}: ${reason}`)
+    logBlock(['Add the import to your Kubb config and merge the property into its defineConfig call:', '', toSnippet(detail)])
+    logOutro(styleText('green', install ? `Installed ${spec}. Add it with the snippet above.` : `Install ${spec} and add the snippet above.`))
   } catch (error) {
-    logError(error instanceof Error ? error.message : String(error))
+    logError(getErrorMessage(error))
     process.exitCode = 1
   }
 }

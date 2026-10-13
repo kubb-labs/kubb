@@ -94,7 +94,7 @@ describe('getConfigs', () => {
     await expect(getConfigs({})).resolves.toMatchObject({ configPath })
   })
 
-  it('walks up to a parent directory', async () => {
+  it('walks up to a parent directory, and so does findConfigFile', async () => {
     dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
     const configPath = await writeConfig(join(dir, 'kubb.config.mjs'))
     const cwd = join(dir, 'packages', 'api')
@@ -102,6 +102,7 @@ describe('getConfigs', () => {
     using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(cwd)
 
     await expect(getConfigs({})).resolves.toMatchObject({ configPath })
+    expect(findConfigFile(cwd)).toBe(configPath)
   })
 
   it('prefers the nearest directory, then .kubbrc over kubb.config, then the extension order', async () => {
@@ -119,17 +120,5 @@ describe('getConfigs', () => {
 
     const ts = await writeConfig(join(cwd, '.kubbrc.ts'), 'ts')
     await expect(getConfigs({})).resolves.toMatchObject({ configPath: ts })
-  })
-})
-
-describe('findConfigFile', () => {
-  it('finds the config in a parent folder, like getConfigs', async () => {
-    const dir = await mkdtemp(join(tmpdir(), 'kubb-find-'))
-    const cwd = join(dir, 'packages', 'api')
-    await mkdir(cwd, { recursive: true })
-    await writeFile(join(dir, 'kubb.config.ts'), 'export default {}')
-
-    expect(findConfigFile(cwd)).toBe(join(dir, 'kubb.config.ts'))
-    await rm(dir, { recursive: true, force: true })
   })
 })
