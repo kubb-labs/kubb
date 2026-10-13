@@ -43,6 +43,7 @@ describe('isExtensionManifest', () => {
     ['an unknown compatibility key', { ...manifest, compatibility: { kubbb: '>=5' } }],
     ['a maintainer without a name', { ...manifest, maintainers: [{ github: 'stijnvanhulle' }] }],
     ['a maintainer with an empty GitHub name', { ...manifest, maintainers: [{ name: 'Acme', github: '' }] }],
+    ['a maintainer with an unknown property', { ...manifest, maintainers: [{ name: 'Acme', githubUrl: 'https://github.com/acme' }] }],
     ['a dependency that is not an extension name', { ...manifest, dependencies: ['../plugin-ts'] }],
     ['options that are not a list', { ...manifest, options: {} }],
     ['an option without a label', { ...manifest, options: [{ ...select, label: '' }] }],
