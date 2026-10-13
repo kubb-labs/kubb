@@ -123,7 +123,7 @@ export function isPackageName(name: unknown): name is string {
 
 /** Checks one entry of a manifest's `maintainers`. */
 function isMaintainer(value: unknown): boolean {
-  return isObject(value) && isFilledString(value.name) && isOptionalString(value.github)
+  return isObject(value) && isFilledString(value.name) && (value.github === undefined || isFilledString(value.github))
 }
 
 /** Checks the shape of one manifest option, including that its path cannot reach a prototype. */

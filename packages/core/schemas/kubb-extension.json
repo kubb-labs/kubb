@@ -79,7 +79,7 @@
     "dependencies": {
       "type": "array",
       "description": "Names of the extensions that must be in the same config, e.g. ['plugin-ts'].",
-      "items": { "type": "string", "minLength": 1 }
+      "items": { "type": "string", "maxLength": 214, "pattern": "^(?:@[a-z0-9~][a-z0-9._~-]*/)?[a-z0-9~][a-z0-9._~-]*$" }
     },
     "compatibility": {
       "type": "object",

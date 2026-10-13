@@ -36,7 +36,7 @@ Validates the OpenAPI spec with `@readme/openapi-parser` before parsing. Each pr
 
 ### contentType
 
-Preferred media type when an operation defines several. Without a value, Kubb falls back to the first JSON-like media type in the spec (`application/json`, `application/x-json`, `text/json`, `text/x-json`, or any `*+json`), and to the first media type overall when none is JSON-like.
+Preferred media type when an operation defines several. Without a value, Kubb picks the last JSON-like media type the operation declares (`application/json`, `application/x-json`, `text/json`, `text/x-json`, or any `*+json`), or the first media type when none is JSON-like.
 
 |          |                                |
 | -------- | ------------------------------ |

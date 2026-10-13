@@ -34,6 +34,8 @@ const file = ast.factory.createFile({
 title: API Reference
 layout: doc
 ---
+
+# API Reference
 ```
 
 ::
