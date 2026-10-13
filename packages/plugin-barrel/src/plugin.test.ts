@@ -182,6 +182,20 @@ describe('pluginBarrel', () => {
     expect(rootExportNames).toContain('PetExtra')
   })
 
+  it("keeps another plugin's file that sits in a barrel:false plugin's directory", async () => {
+    const extraPlugin = makePlugin({
+      name: 'plugin-extra',
+      outputPath: 'extra',
+      filePath: '/workspace/src/gen/types/extra.ts',
+      exportName: 'Extra',
+      output: { mode: 'directory' },
+    })
+    const { rootExportNames } = await build({ plugins: [typesPlugin({ barrel: false }), extraPlugin] })
+
+    expect(rootExportNames).not.toContain('Pet')
+    expect(rootExportNames).toContain('Extra')
+  })
+
   it.each([
     { scenario: "'.'", output: { path: '.' } },
     { scenario: 'an empty string', output: { path: '' } },

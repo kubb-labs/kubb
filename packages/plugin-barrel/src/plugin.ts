@@ -50,6 +50,9 @@ type BarrelState = {
 // One state per build, keyed by the build's `config`. The object form has no factory closure to hold it.
 const states = new WeakMap<Config, BarrelState>()
 
+/**
+ * Returns the barrel state for this build, creating it on first use.
+ */
 function getState(config: Config): BarrelState {
   const state = states.get(config) ?? { excludedPlugins: new Set(), excludedTargets: [], pendingBarrels: [] }
   states.set(config, state)
@@ -143,7 +146,7 @@ export const pluginBarrel = definePlugin({
       // once here. Every barrel below then derives from a single index of what remains.
       const relevantFiles = files.filter((file) => {
         const owner = (file.meta as { pluginName?: unknown } | undefined)?.pluginName
-        if (typeof owner === 'string' && excludedPlugins.has(owner)) return false
+        if (typeof owner === 'string') return !excludedPlugins.has(owner)
 
         return !excludedTargets.some((target) => isPathInside(file.path, target))
       })

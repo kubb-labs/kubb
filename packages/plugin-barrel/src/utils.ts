@@ -13,6 +13,9 @@ const BARREL_SUFFIX = `/index.ts`
 type TreeNode = { path: string; children?: undefined } | DirectoryNode
 type DirectoryNode = { path: string; children: Map<string, TreeNode> }
 
+/**
+ * Orders paths split into segments the way a directory listing sorts them: by name at each level.
+ */
 function compareSegments(a: ReadonlyArray<string>, b: ReadonlyArray<string>): number {
   for (let i = 0; i < Math.min(a.length, b.length); i++) {
     if (a[i] !== b[i]) return a[i]! < b[i]! ? -1 : 1
@@ -20,6 +23,9 @@ function compareSegments(a: ReadonlyArray<string>, b: ReadonlyArray<string>): nu
   return a.length - b.length
 }
 
+/**
+ * Returns the `./`-prefixed import path from `fromDir` to `filePath`.
+ */
 function toRelativeModulePath(fromDir: string, filePath: string): string {
   return `./${posix.relative(fromDir, filePath)}`
 }
@@ -31,6 +37,9 @@ type WalkContext = {
   leafExports: (dirPath: string, leafPath: string) => Array<ast.ExportNode>
 }
 
+/**
+ * Builds the `index.ts` for `dirPath`. Keeps the first export of each name and reports later duplicates once per build.
+ */
 function makeBarrel(dirPath: string, exports: Array<ast.ExportNode>, { sourceFiles, reportedCollisions }: WalkContext): ast.FileNode {
   const owners = new Map<string, string>()
   const uniqueExports: Array<ast.ExportNode> = []
@@ -71,16 +80,25 @@ function makeBarrel(dirPath: string, exports: Array<ast.ExportNode>, { sourceFil
 
 type LeafStrategy = (path: string, sourceFile: ast.FileNode | undefined) => Array<ast.ExportNode>
 
+/**
+ * Returns the sorted, unique names of the indexable sources that match `isTypeOnly`.
+ */
 function indexableNames(sources: ReadonlyArray<ast.SourceNode>, isTypeOnly: boolean): Array<string> {
   const names = sources.flatMap((source) => (source.isIndexable && source.name && Boolean(source.isTypeOnly) === isTypeOnly ? [source.name] : []))
   return [...new Set(names)].sort()
 }
 
+/**
+ * Re-exports the whole module, unless it has sources and none of them is indexable.
+ */
 const allStrategy: LeafStrategy = (path, sourceFile) => {
   const sources = sourceFile?.sources ?? []
   return sources.length > 0 && !sources.some((source) => source.isIndexable) ? [] : [ast.factory.createExport({ path })]
 }
 
+/**
+ * Re-exports the indexable names, values and types separately, or the whole module when it has no sources.
+ */
 const namedStrategy: LeafStrategy = (path, sourceFile) => {
   if (!sourceFile?.sources.length) return [ast.factory.createExport({ path })]
 
