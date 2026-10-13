@@ -212,7 +212,11 @@ export class KubbDriver {
     if (this.inputNode || !this.adapter || !this.#adapterSource) return
 
     this.options.signal?.throwIfAborted()
-    this.inputNode = await this.adapter.parse(this.#adapterSource, { signal: this.options.signal })
+    try {
+      this.inputNode = await this.adapter.parse(this.#adapterSource, { signal: this.options.signal })
+    } catch (caughtError) {
+      throw new Diagnostics.Error(Diagnostics.fromExtension(caughtError, { kind: 'adapter', extension: this.adapter }))
+    }
   }
 
   /**
@@ -278,8 +282,7 @@ export class KubbDriver {
         })
       } catch (caughtError) {
         // Attributed to the plugin, so the run summary counts it as a failed plugin.
-        const diagnostic = Diagnostics.from(caughtError)
-        throw new Diagnostics.Error({ ...diagnostic, plugin: diagnostic.plugin ?? plugin.name })
+        throw new Diagnostics.Error(Diagnostics.fromExtension(caughtError, { kind: 'plugin', extension: plugin }))
       }
     }
   }
@@ -370,7 +373,10 @@ export class KubbDriver {
 
               await this.#emitPluginEnd({ plugin, duration, success: false, error })
 
-              diagnostics.push({ ...Diagnostics.from(error), plugin: plugin.name }, Diagnostics.performance({ plugin: plugin.name, duration }))
+              diagnostics.push(
+                Diagnostics.fromExtension(error, { kind: 'plugin', extension: plugin }),
+                Diagnostics.performance({ plugin: plugin.name, duration }),
+              )
 
               continue
             }
@@ -617,7 +623,7 @@ export class KubbDriver {
       await this.#emitPluginEnd({ plugin: state.plugin, duration, success: !state.error, error: state.error ?? undefined })
 
       if (state.error) {
-        diagnostics.push({ ...Diagnostics.from(state.error), plugin: state.plugin.name })
+        diagnostics.push(Diagnostics.fromExtension(state.error, { kind: 'plugin', extension: state.plugin }))
       }
       diagnostics.push(Diagnostics.performance({ plugin: state.plugin.name, duration }))
     }

@@ -299,6 +299,18 @@ export function createLogger(writer: LoggerWriter): Logger {
       state.groupOpen = false
     }
 
+    function writeErrorFrames(error: Error) {
+      const frames = logLevel >= logLevelMap.verbose ? formatErrorFrames(error) : null
+      if (!frames) {
+        return
+      }
+
+      writer.block(frames.frames.map((frame) => text(styleText('dim', frame))))
+      if (frames.cause) {
+        writer.block([styleText('dim', frames.cause.header), ...frames.cause.frames.map((frame) => text(`    ${styleText('dim', frame)}`))])
+      }
+    }
+
     function formatLine(symbol: string, message: string, info?: string): string {
       return text([symbol, message, info && styleText('dim', info)].filter(Boolean).join(' '))
     }
@@ -324,15 +336,7 @@ export function createLogger(writer: LoggerWriter): Logger {
         writer.error(text(error.message))
       }
 
-      const frames = logLevel >= logLevelMap.verbose ? formatErrorFrames(error) : null
-      if (!frames) {
-        return
-      }
-
-      writer.block(frames.frames.map((frame) => text(styleText('dim', frame))))
-      if (frames.cause) {
-        writer.block([styleText('dim', frames.cause.header), ...frames.cause.frames.map((frame) => text(`    ${styleText('dim', frame)}`))])
-      }
+      writeErrorFrames(error)
     })
 
     context.hook('kubb:diagnostic', ({ diagnostic }) => {
@@ -354,6 +358,10 @@ export function createLogger(writer: LoggerWriter): Logger {
 
       const { headline, details } = Diagnostics.format(diagnostic)
       writer.diagnostic([headline, ...details])
+      // The stack of a crash is what its maintainers need in a bug report.
+      if (Diagnostics.isProblem(diagnostic) && diagnostic.cause) {
+        writeErrorFrames(diagnostic.cause)
+      }
     })
 
     // A `kubb studio` session emits these on the same emitter as its generations, so one logger

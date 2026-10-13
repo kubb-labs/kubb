@@ -3,6 +3,7 @@ import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
 import { version } from '../package.json'
 import { type DiagnosticCode, diagnosticCode } from './constants.ts'
+import type { ExtensionKind, ExtensionNamed } from './defineExtension.ts'
 import type { KubbHooks } from './types.ts'
 import type { Hookable } from './Hookable.ts'
 
@@ -104,6 +105,10 @@ export type ProblemDiagnostic = {
    * Name of the plugin or subsystem that produced the diagnostic.
    */
   plugin?: string
+  /**
+   * Issue tracker URL of the extension that crashed, from its `meta.issues`.
+   */
+  issues?: string
   /**
    * The underlying error, when the diagnostic wraps a thrown one.
    */
@@ -208,6 +213,12 @@ const severityStyle: Record<DiagnosticSeverity, 'red' | 'yellow' | 'blue'> = {
   info: 'blue',
 }
 
+const failedCode = {
+  plugin: diagnosticCode.pluginFailed,
+  adapter: diagnosticCode.adapterFailed,
+  parser: diagnosticCode.parserFailed,
+} as const satisfies Record<ExtensionKind, ProblemCode>
+
 const countKey = { error: 'errors', warning: 'warnings', info: 'infos' } as const satisfies Record<DiagnosticSeverity, string>
 
 /**
@@ -222,6 +233,7 @@ export type SerializedDiagnostic = {
   location?: DiagnosticLocation
   help?: string
   plugin?: string
+  issues?: string
   /**
    * The kubb.dev docs link for the code, omitted for the unknown fallback.
    */
@@ -308,7 +320,17 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   [diagnosticCode.pluginFailed]: {
     title: 'Plugin failed',
     cause: 'A plugin threw while generating, or reported an error through `ctx.error`.',
-    fix: 'Read the underlying error and check the plugin options and the schema or operation it failed on.',
+    fix: 'Read the underlying error and check the plugin options and the schema or operation it failed on. If the plugin crashed, rerun with `--verbose` for the stack trace and report it at the `report:` link.',
+  },
+  [diagnosticCode.adapterFailed]: {
+    title: 'Adapter failed',
+    cause: 'The adapter threw an unexpected error while parsing the input.',
+    fix: 'This is likely a bug in the adapter. Rerun with `--verbose` for the stack trace and report it at the `report:` link, or to the adapter maintainers.',
+  },
+  [diagnosticCode.parserFailed]: {
+    title: 'Parser failed',
+    cause: 'A parser threw an unexpected error while printing a generated file.',
+    fix: 'This is likely a bug in the parser. Rerun with `--verbose` for the stack trace and report it at the `report:` link, or to the parser maintainers.',
   },
   [diagnosticCode.pluginWarning]: {
     title: 'Plugin warning',
@@ -517,6 +539,32 @@ export class Diagnostics {
   }
 
   /**
+   * Coerces an error thrown by a plugin, adapter, or parser into a diagnostic attributed to it.
+   * A structured {@link Diagnostics.Error} keeps its code. Any other error is a crash: it gets the
+   * kind's `*_FAILED` code and the extension's `meta.issues` link, so the user reports it to the
+   * extension's maintainers instead of to Kubb.
+   */
+  static fromExtension(error: unknown, { kind, extension }: { kind: ExtensionKind; extension: ExtensionNamed }): ProblemDiagnostic {
+    const diagnostic = Diagnostics.from(error)
+    const name = extension.meta?.name ?? extension.name
+    // `plugin` feeds the failed-plugin count, so an adapter or parser is named in the message instead.
+    const owner = kind === 'plugin' ? { plugin: diagnostic.plugin ?? name } : {}
+    // An abort is the user canceling the run, not a crash.
+    if (diagnostic.code !== diagnosticCode.unknown || diagnostic.cause?.name === 'AbortError') {
+      return { ...diagnostic, ...owner }
+    }
+
+    const issues = extension.meta?.issues
+    return {
+      ...diagnostic,
+      ...owner,
+      code: failedCode[kind],
+      message: kind === 'plugin' ? diagnostic.message : `${kind} "${name}" crashed: ${diagnostic.message}`,
+      ...(issues ? { issues } : {}),
+    }
+  }
+
+  /**
    * Builds a per-plugin performance record. Reporters sum these into the run total.
    */
   static performance({ plugin, duration }: { plugin: string; duration: number }): PerformanceDiagnostic {
@@ -627,6 +675,7 @@ export class Diagnostics {
       ...(problem?.location ? { location: problem.location } : {}),
       ...(problem?.help ? { help: problem.help } : {}),
       ...(problem?.plugin ? { plugin: problem.plugin } : {}),
+      ...(problem?.issues ? { issues: problem.issues } : {}),
       ...(diagnostic.code === diagnosticCode.unknown ? {} : { docsUrl: Diagnostics.docsUrl(diagnostic.code) }),
     }
   }
@@ -634,7 +683,7 @@ export class Diagnostics {
   /**
    * Renders a {@link Diagnostic} for terminal output as its parts: the `headline`
    * (`[CODE] plugin: message`, with the code in the severity color) and the indented `details`
-   * rows (`at:` pointer, `fix:` help, `see:` docs link).
+   * rows (`at:` pointer, `fix:` help, `see:` docs link, `report:` issue tracker).
    *
    * Hosts compose these to fit their gutter: a clack logger passes `[headline, ...details]` as the
    * message with no gutter symbol, while plain text outputs use {@link Diagnostics.formatLines}.
@@ -656,6 +705,9 @@ export class Diagnostics {
     }
     if (code !== diagnosticCode.unknown) {
       details.push(`  ${styleText('dim', 'see:')} ${styleText('cyan', Diagnostics.docsUrl(code))}`)
+    }
+    if (problem?.issues) {
+      details.push(`  ${styleText('dim', 'report:')} ${styleText('cyan', problem.issues)}`)
     }
 
     return { headline, details }

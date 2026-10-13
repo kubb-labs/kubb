@@ -3,6 +3,7 @@ import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kub
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'
+import { Diagnostics } from './Diagnostics.ts'
 import type { OutputManifest } from './outputManifest.ts'
 import { Hookable } from './Hookable.ts'
 
@@ -40,6 +41,17 @@ function joinSources(file: FileNode): string {
 }
 
 /**
+ * Runs a parser call and turns a crash into a `KUBB_PARSER_FAILED` diagnostic that names the parser.
+ */
+function runParser(parser: Parser, print: () => string): string {
+  try {
+    return print()
+  } catch (error) {
+    throw new Diagnostics.Error(Diagnostics.fromExtension(error, { kind: 'parser', extension: parser }))
+  }
+}
+
+/**
  * Reads a `copy` file and prints it through the parser's `copy` hook, or verbatim with `banner`/`footer` when there is none.
  */
 async function parseCopy(file: FileNode, parser: Parser | undefined): Promise<string> {
@@ -51,7 +63,7 @@ async function parseCopy(file: FileNode, parser: Parser | undefined): Promise<st
   }
 
   if (parser?.copy) {
-    return parser.parse(ast.factory.createFile(parser.copy(file, content)))
+    return runParser(parser, () => parser.parse(ast.factory.createFile(parser.copy!(file, content))))
   }
 
   return [file.banner, content, file.footer]
@@ -203,7 +215,7 @@ export class FileManager {
       return joinSources(file)
     }
 
-    return parser.parse(file)
+    return runParser(parser, () => parser.parse(file))
   }
 
   /**
