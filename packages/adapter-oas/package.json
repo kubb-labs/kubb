@@ -12,7 +12,7 @@
     "swagger",
     "typescript"
   ],
-  "homepage": "https://kubb.dev/adapters/adapter-oas",
+  "homepage": "https://kubb.dev/extensions/kubb-labs/adapter-oas",
   "license": "MIT",
   "author": "stijnvanhulle",
   "repository": {
@@ -37,7 +37,7 @@
   "files": [
     "dist",
     "kubb-extension.json",
-    "OVERVIEW.md",
+    "docs",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"

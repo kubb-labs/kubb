@@ -10,7 +10,8 @@
     "light": "https://kubb.dev/feature/typescript.svg"
   },
   "tags": ["typescript", "tsx", "parser", "printer", "ast"],
-  "docs": "https://kubb.dev/parsers/parser-ts",
+  "docs": "https://kubb.dev/extensions/kubb-labs/parser-ts",
+  "maintainers": [{ "name": "Stijn Van Hulle", "github": "stijnvanhulle" }],
   "compatibility": {
     "kubb": ">=5.8.0",
     "node": ">=22"

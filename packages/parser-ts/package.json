@@ -10,7 +10,7 @@
     "tsx",
     "typescript"
   ],
-  "homepage": "https://kubb.dev/parsers/parser-ts",
+  "homepage": "https://kubb.dev/extensions/kubb-labs/parser-ts",
   "license": "MIT",
   "author": "stijnvanhulle",
   "repository": {
@@ -35,7 +35,7 @@
   "files": [
     "dist",
     "kubb-extension.json",
-    "OVERVIEW.md",
+    "docs",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"

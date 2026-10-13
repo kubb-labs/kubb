@@ -10,7 +10,7 @@
 [![Node][node-src]][node-href]
 
 <h4>
-<a href="https://kubb.dev" target="_blank">Documentation</a>
+<a href="https://kubb.dev/extensions/kubb-labs/parser-ts" target="_blank">Documentation</a>
 <span> · </span>
 <a href="https://github.com/kubb-labs/kubb/issues/" target="_blank">Report Bug</a>
 <span> · </span>

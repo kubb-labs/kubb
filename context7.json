@@ -7,7 +7,7 @@
   "folders": ["packages"],
   "excludeFiles": ["AGENTS.md", "CHANGELOG.md"],
   "rules": [
-    "This repository holds the core packages, not the documentation. Guides, the configuration reference and plugin options are on https://kubb.dev, indexed on Context7 as /kubb-labs/docs.",
+    "This repository holds the core packages. Guides and the configuration reference are on https://kubb.dev, indexed on Context7 as /kubb-labs/docs. Each extension here ships its overview and options in `packages/<name>/docs/`.",
     "Import `defineConfig` from `kubb/config`, not from `kubb`.",
     "Kubb v5 has no `pluginOas()`. The OpenAPI adapter is a top-level `adapter` key that defaults to `adapterOas()` from `@kubb/adapter-oas`, which ships with `kubb`. Set it only when you need to pass options.",
     "Each output format is its own `@kubb/plugin-*` package, listed in `plugins: []`. They are maintained in kubb-labs/plugins, except `@kubb/plugin-barrel`, which lives here, ships with `kubb`, and is registered automatically.",

@@ -11,7 +11,7 @@
     "parser",
     "yaml"
   ],
-  "homepage": "https://kubb.dev/parsers/parser-md",
+  "homepage": "https://kubb.dev/extensions/kubb-labs/parser-md",
   "license": "MIT",
   "author": "stijnvanhulle",
   "repository": {
@@ -36,7 +36,7 @@
   "files": [
     "dist",
     "kubb-extension.json",
-    "OVERVIEW.md",
+    "docs",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"

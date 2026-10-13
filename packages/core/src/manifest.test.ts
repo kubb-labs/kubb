@@ -30,11 +30,21 @@ describe('isExtensionManifest', () => {
     expect(isExtensionManifest({ ...manifest, compatibility: { kubb: '>=5.8.0', node: '>=22' }, options: [] })).toBe(true)
   })
 
+  it('accepts maintainers and dependencies', () => {
+    expect(
+      isExtensionManifest({ ...manifest, maintainers: [{ name: 'Stijn Van Hulle', github: 'stijnvanhulle' }, { name: 'Acme' }], dependencies: ['plugin-ts'] }),
+    ).toBe(true)
+  })
+
   it.each([
     ['an unknown kind', { ...manifest, kind: 'theme' }],
     ['a missing export', { ...manifest, export: undefined }],
     ['an export that is not an identifier', { ...manifest, export: 'x } from "y"' }],
     ['an unknown compatibility key', { ...manifest, compatibility: { kubbb: '>=5' } }],
+    ['a maintainer without a name', { ...manifest, maintainers: [{ github: 'stijnvanhulle' }] }],
+    ['a maintainer with an empty GitHub name', { ...manifest, maintainers: [{ name: 'Acme', github: '' }] }],
+    ['a maintainer with an unknown property', { ...manifest, maintainers: [{ name: 'Acme', githubUrl: 'https://github.com/acme' }] }],
+    ['a dependency that is not an extension name', { ...manifest, dependencies: ['../plugin-ts'] }],
     ['options that are not a list', { ...manifest, options: {} }],
     ['an option without a label', { ...manifest, options: [{ ...select, label: '' }] }],
     ['an option of an unknown type', { ...manifest, options: [{ ...select, type: 'color' }] }],

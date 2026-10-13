@@ -8,19 +8,24 @@ The package also exports `parserTsx`, which handles `.tsx` and `.jsx` files with
 
 Set `defineConfig.parsers` only to change an option. A custom `parsers` array replaces the default set, so list every parser your plugins need. Files no parser claims are written as their source text.
 
-```ts
+## Options
+
+`extension` rewrites the extension of relative imports and exports. Keys are the source extension and values the output, and `''` drops it. By default `.ts` imports have no extension. Use `{ '.ts': '.js' }` for ESM packages, or `{ '.ts': '.ts' }` for Node.js `NodeNext` resolution. Package imports stay unchanged. See [Options](https://kubb.dev/extensions/kubb-labs/parser-ts/options) for its type and default.
+
+## Example
+
+Override import extensions while keeping every default parser registered.
+
+```typescript [kubb.config.ts]
 import { defineConfig } from 'kubb/config'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
 import { parserMd } from '@kubb/parser-md'
+import { pluginTs } from '@kubb/plugin-ts'
 
 export default defineConfig({
   input: './petStore.yaml',
   output: { path: './src/gen' },
   parsers: [parserTs({ extension: { '.ts': '.js' } }), parserTsx(), parserMd()],
-  plugins: [],
+  plugins: [pluginTs()],
 })
 ```
-
-## Options
-
-`extension` rewrites the extension of relative imports and exports. Keys are the source extension and values the output, and `''` drops it. By default `.ts` imports have no extension. Use `{ '.ts': '.js' }` for ESM packages, or `{ '.ts': '.ts' }` for Node.js `NodeNext` resolution. Package imports stay unchanged.

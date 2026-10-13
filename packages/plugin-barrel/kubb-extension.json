@@ -10,7 +10,8 @@
     "light": "https://kubb.dev/feature/plugins-light.svg"
   },
   "tags": ["barrel", "index", "exports", "output"],
-  "docs": "https://kubb.dev/plugins/plugin-barrel",
+  "docs": "https://kubb.dev/extensions/kubb-labs/plugin-barrel",
+  "maintainers": [{ "name": "Stijn Van Hulle", "github": "stijnvanhulle" }],
   "compatibility": {
     "kubb": ">=5.8.0",
     "node": ">=22"

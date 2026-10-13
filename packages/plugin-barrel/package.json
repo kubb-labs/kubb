@@ -10,7 +10,7 @@
     "plugin",
     "typescript"
   ],
-  "homepage": "https://kubb.dev/plugins/plugin-barrel",
+  "homepage": "https://kubb.dev/extensions/kubb-labs/plugin-barrel",
   "license": "MIT",
   "author": "stijnvanhulle",
   "repository": {
@@ -35,7 +35,7 @@
   "files": [
     "dist",
     "kubb-extension.json",
-    "OVERVIEW.md",
+    "docs",
     "*.d.ts",
     "*.d.cts",
     "!/**/**.test.**",

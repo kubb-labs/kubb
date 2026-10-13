@@ -63,6 +63,24 @@
       "$ref": "#/definitions/httpsUrl",
       "description": "Documentation URL."
     },
+    "maintainers": {
+      "type": "array",
+      "description": "People who maintain the extension, shown on its kubb.dev page.",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "description": "Display name, e.g. 'Stijn Van Hulle'." },
+          "github": { "type": "string", "minLength": 1, "description": "GitHub username, e.g. 'stijnvanhulle'." }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "Names of the extensions that must be in the same config, e.g. ['plugin-ts'].",
+      "items": { "type": "string", "maxLength": 214, "pattern": "^(?:@[a-z0-9~][a-z0-9._~-]*/)?[a-z0-9~][a-z0-9._~-]*$" }
+    },
     "compatibility": {
       "type": "object",
       "description": "Version ranges the extension supports. Only these two keys are allowed, so a typo cannot skip a check.",
