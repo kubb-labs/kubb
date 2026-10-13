@@ -1,8 +1,8 @@
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { gunzipSync } from 'node:zlib'
-import { type Config, resolveCacheDir } from '@kubb/core'
+import { type Config, defineExtension, resolveCacheDir } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import { hashOf } from './generations.ts'
 import type { SnapshotUploadMetadata } from './protocol.ts'
@@ -125,6 +125,33 @@ describe('createSnapshot', () => {
       peerDependencies: { '@kubb/plugin-barrel': expect.any(String) },
     })
     expect(readManifest(Buffer.from(await (body.get('tarball') as Blob).arrayBuffer()))).toMatchObject({ name: '@acme/api', version: '1.0.0' })
+  })
+
+  it('declares a third-party plugin by the package that ships its manifest', async () => {
+    const projectRoot = await mkdtemp(join(tmpdir(), 'kubb-snapshot-project-'))
+    const dir = join(projectRoot, 'node_modules', '@acme', 'kubb-plugin-x')
+    await mkdir(dir, { recursive: true })
+    await writeFile(join(projectRoot, 'package.json'), JSON.stringify({ devDependencies: { '@acme/kubb-plugin-x': '^1.0.0' } }))
+    await writeFile(join(dir, 'package.json'), JSON.stringify({ name: '@acme/kubb-plugin-x', version: '1.2.3' }))
+    await writeFile(
+      join(dir, 'kubb-extension.json'),
+      JSON.stringify({ kind: 'plugin', name: 'plugin-x', export: 'pluginX', displayName: 'X', description: 'Generates X.' }),
+    )
+    const config = projectConfig({ projectRoot })
+    const pluginX = defineExtension({ kind: 'plugin', meta: { name: 'plugin-x' }, hooks: {} })()
+    using fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ snapshot: { id: 'snap-1' } }, { status: 201 }))
+
+    try {
+      await createSnapshot({ ...options, studioUrl: 'https://studio.test', config: { ...config, plugins: [...config.plugins, pluginX] } })
+    } finally {
+      await Promise.all([rm(projectRoot, { recursive: true, force: true }), rm(resolveCacheDir(projectRoot), { recursive: true, force: true })])
+    }
+
+    const body = fetchMock.mock.calls[0]![1]!.body as FormData
+    expect((JSON.parse(String(body.get('metadata'))) as SnapshotUploadMetadata).peerDependencies).toStrictEqual({
+      '@kubb/plugin-barrel': expect.any(String),
+      '@acme/kubb-plugin-x': '1.2.3',
+    })
   })
 
   it('packs the output after output.postGenerate ran, like kubb generate', async () => {

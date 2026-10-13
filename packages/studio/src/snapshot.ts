@@ -172,8 +172,11 @@ export async function createSnapshot({
       }),
     ),
   )
-  const names = [...new Set(config.plugins.map((plugin) => toPackageName(resolveMeta(plugin).name)))]
-  const installed = await readInstalledPackages({ root: config.root, packages: names, resolveFrom: ['kubb'] })
+  const pluginNames = config.plugins.map((plugin) => resolveMeta(plugin).name)
+  const installed = await readInstalledPackages({ root: config.root, packages: pluginNames.map(toPackageName), resolveFrom: ['kubb'] })
+  // A third-party plugin is found by the manifest its package ships, as `@kubb/plugin-x` only names a built-in.
+  const packageOf = (name: string) => installed.find(({ manifest }) => manifest?.kind === 'plugin' && manifest.name === name)?.package ?? toPackageName(name)
+  const names = [...new Set(pluginNames.map(packageOf))]
   const peerDependencies = Object.fromEntries(installed.flatMap(({ package: name, version }) => (names.includes(name) && version ? [[name, version]] : [])))
   // The package would declare no version for a plugin that is not installed.
   const missing = names.filter((name) => !(name in peerDependencies) && !BUNDLED_DEPENDENCIES.includes(name))

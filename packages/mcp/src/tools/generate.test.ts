@@ -48,4 +48,25 @@ export default {
       docsUrl: expect.stringContaining('/diagnostics#kubb-input-not-found'),
     })
   })
+
+  it('generates the first entry of an array config', async () => {
+    const configPath = join(dir, 'kubb.array.config.ts')
+    await writeFile(
+      configPath,
+      `import { adapterOas } from '@kubb/adapter-oas'
+export default [{
+  root: '.',
+  input: './does-not-exist.yaml',
+  output: { path: './gen' },
+  adapter: adapterOas({ validate: false }),
+  plugins: [],
+}]
+`,
+    )
+
+    const { isError, text } = await run({ config: configPath })
+
+    expect(isError).toBe(true)
+    expect(text).toContain('KUBB_INPUT_NOT_FOUND')
+  })
 })

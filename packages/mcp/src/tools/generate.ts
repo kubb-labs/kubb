@@ -64,10 +64,9 @@ export const generateTool = defineTool(
         cwd = configResult.cwd
 
         const resolved = await (typeof loaded === 'function' ? loaded({ logLevel, config: configPath }) : loaded)
-        if (Array.isArray(resolved)) {
-          throw new Error('Array type in kubb.config.ts is not supported in this tool. Please provide a single configuration object.')
-        }
-        userConfig = resolved
+        const first = Array.isArray(resolved) ? resolved[0] : resolved
+        if (!first) throw new Error('The config file exports an empty array of configurations')
+        userConfig = first
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
         return tool.error(errorMessage)
