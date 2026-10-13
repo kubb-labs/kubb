@@ -1,5 +1,70 @@
 # Changelog
 
+## v5.9.1 — Oct 13, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Parse OpenAPI 3.2 `query` operations (the HTTP QUERY method, RFC 10008) instead of dropping them. They become operation nodes with method `QUERY`, so plugins generate types and clients for them, and `HttpMethod` includes `'QUERY'`. ([#4285](https://github.com/kubb-labs/kubb/pull/4285), [`3430612`](https://github.com/kubb-labs/kubb/commit/3430612fa4fcd35933bd493140e6f38a562361f4))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Remove `defineNode`, `NodeDef`, `nodeDefs` and the `*Def` objects from `@kubb/ast`. Node factories are plain functions, `createOutput` no longer shares one `files` array between outputs, and `StatusCode` accepts any three-digit HTTP status string. ([#4278](https://github.com/kubb-labs/kubb/pull/4278), [`75c37f3`](https://github.com/kubb-labs/kubb/commit/75c37f34190b41563b259761ab34b5dbf13fec77))
+
+### @kubb/claude-plugin
+
+#### Bug Fixes
+
+- Read plugin dependencies from each plugin's `kubb-extension.json`, so framework plugins get a client plugin. ([#4275](https://github.com/kubb-labs/kubb/pull/4275), [`1814075`](https://github.com/kubb-labs/kubb/commit/1814075f207a44048e700c1faf73423b03e9834d))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- The `kubb` bins pass `process.argv.slice(2)` to `run`, whose `argv` parameter now takes the command arguments without the executable and script entries. ([#4278](https://github.com/kubb-labs/kubb/pull/4278), [`75c37f3`](https://github.com/kubb-labs/kubb/commit/75c37f34190b41563b259761ab34b5dbf13fec77))
+- `kubb init` takes its plugins from the Kubb registry, adds them like `kubb add`, and stops before installing when a plugin's dependencies or client plugin are missing. ([#4275](https://github.com/kubb-labs/kubb/pull/4275), [`1814075`](https://github.com/kubb-labs/kubb/commit/1814075f207a44048e700c1faf73423b03e9834d))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Report extension crashes with their own diagnostic code and a link to the extension's issue tracker. A plugin crash is now `KUBB_PLUGIN_FAILED` instead of `KUBB_UNKNOWN`, and adapter and parser crashes are the new `KUBB_ADAPTER_FAILED` and `KUBB_PARSER_FAILED`. Set `meta.issues` on an extension and Kubb prints it as a `report:` line under the error, so users report bugs to the extension's maintainers instead of to Kubb. Run with `--verbose` to print the crash's stack trace. ([#4279](https://github.com/kubb-labs/kubb/pull/4279), [`30d7339`](https://github.com/kubb-labs/kubb/commit/30d7339d9d9cb16a079ef844def2a058db26a174))
+- Rename `PluginFactoryOptions` to `PluginType`. Remove `KubbDriver.dispatch` (use `driver.fileManager.dispatch`) and `KubbDriver.hasHookGenerators`. The `file` reporter now prints the same summary as the cli reporter, with timings under `## Summary`. ([#4278](https://github.com/kubb-labs/kubb/pull/4278), [`75c37f3`](https://github.com/kubb-labs/kubb/commit/75c37f34190b41563b259761ab34b5dbf13fec77))
+- Add `optionalDependencies` to `kubb-extension.json` and reject an unknown `role`. ([#4275](https://github.com/kubb-labs/kubb/pull/4275), [`1814075`](https://github.com/kubb-labs/kubb/commit/1814075f207a44048e700c1faf73423b03e9834d))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- Rename `PluginFactoryOptions` to `PluginType`. ([#4278](https://github.com/kubb-labs/kubb/pull/4278), [`75c37f3`](https://github.com/kubb-labs/kubb/commit/75c37f34190b41563b259761ab34b5dbf13fec77))
+- Remove `Url.toTemplateString` and `Url.toObject`, which no generator used. `Url.toPath` and `Url.toGroupedTemplateString` stay. ([#4278](https://github.com/kubb-labs/kubb/pull/4278), [`75c37f3`](https://github.com/kubb-labs/kubb/commit/75c37f34190b41563b259761ab34b5dbf13fec77))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- A `set` or `remove` config edit can name the config's `adapter` or one of its `parsers` through `kind`, and `readConfig` reports their factory calls next to the plugins, so Studio can save adapter and parser options to `kubb.config.ts`. ([#4282](https://github.com/kubb-labs/kubb/pull/4282), [`d1f4a8e`](https://github.com/kubb-labs/kubb/commit/d1f4a8e5fa94051c84d7397d4091c3057100c054))
+- Report the adapter and the parsers in the connect payload, named like plugins with a JSON copy of their options, and accept parser option overrides in a generate request so Studio can render and edit them from their manifests. ([#4276](https://github.com/kubb-labs/kubb/pull/4276), [`ba3a367`](https://github.com/kubb-labs/kubb/commit/ba3a3672f554847c3b768d01fe93ca0db2cc7434))
+- `createSnapshot` declares a third-party plugin by the package that ships its manifest instead of failing with `Missing dependencies: @kubb/plugin-x`. ([#4278](https://github.com/kubb-labs/kubb/pull/4278), [`75c37f3`](https://github.com/kubb-labs/kubb/commit/75c37f34190b41563b259761ab34b5dbf13fec77))
+- Drop the unused `importName` field of the `add-plugin` config edit, the `file` field of `SaveResult`, the `InstalledExtensions` export of the package root (now in `@kubb/studio/protocol`), and the `@kubb/core` type re-exports from `@kubb/studio/protocol`. Import those types from `@kubb/core`.
+  
+  A `null` option value from Studio now unsets the value from `kubb.config.ts` for that generate, so the extension's default applies again. ([#4278](https://github.com/kubb-labs/kubb/pull/4278), [`75c37f3`](https://github.com/kubb-labs/kubb/commit/75c37f34190b41563b259761ab34b5dbf13fec77))
+
+### kubb
+
+#### Bug Fixes
+
+- Remove the "See also" sections from the docs. Each page links what it needs inline. ([#4276](https://github.com/kubb-labs/kubb/pull/4276), [`ba3a367`](https://github.com/kubb-labs/kubb/commit/ba3a3672f554847c3b768d01fe93ca0db2cc7434))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@mohammad-naji7](https://github.com/mohammad-naji7), [@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.9.0 — Oct 13, 2026
 
 ### @kubb/adapter-oas
