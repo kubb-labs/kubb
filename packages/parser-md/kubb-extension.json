@@ -10,7 +10,8 @@
     "light": "https://kubb.dev/feature/markdown.svg"
   },
   "tags": ["markdown", "frontmatter", "parser", "docs", "yaml"],
-  "docs": "https://kubb.dev/parsers/parser-md",
+  "docs": "https://kubb.dev/extensions/kubb-labs/parser-md",
+  "maintainers": [{ "name": "Stijn Van Hulle", "github": "stijnvanhulle" }],
   "compatibility": {
     "kubb": ">=5.8.0",
     "node": ">=22"

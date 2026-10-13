@@ -10,7 +10,8 @@
     "light": "https://kubb.dev/feature/openapi.svg"
   },
   "tags": ["openapi", "swagger", "api-spec", "parser", "converter"],
-  "docs": "https://kubb.dev/adapters/adapter-oas",
+  "docs": "https://kubb.dev/extensions/kubb-labs/adapter-oas",
+  "maintainers": [{ "name": "Stijn Van Hulle", "github": "stijnvanhulle" }],
   "compatibility": {
     "kubb": ">=5.8.0",
     "node": ">=22"
