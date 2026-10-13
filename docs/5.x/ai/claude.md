@@ -52,7 +52,7 @@ A typical first run:
 
 ```text [Terminal]
 /kubb:validate ./petStore.yaml
-/kubb:init ./petStore.yaml ./src/gen plugin-ts,plugin-zod,plugin-react-query
+/kubb:init ./petStore.yaml ./src/gen plugin-ts,plugin-axios,plugin-zod,plugin-react-query
 /kubb:generate
 ```
 

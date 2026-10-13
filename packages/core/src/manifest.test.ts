@@ -30,7 +30,7 @@ describe('isExtensionManifest', () => {
     expect(isExtensionManifest({ ...manifest, compatibility: { kubb: '>=5.8.0', node: '>=22' }, options: [] })).toBe(true)
   })
 
-  it('accepts maintainers, dependencies, and optional dependencies', () => {
+  it('accepts maintainers and dependencies', () => {
     expect(
       isExtensionManifest({
         ...manifest,
@@ -50,7 +50,8 @@ describe('isExtensionManifest', () => {
     ['a maintainer with an empty GitHub name', { ...manifest, maintainers: [{ name: 'Acme', github: '' }] }],
     ['a maintainer with an unknown property', { ...manifest, maintainers: [{ name: 'Acme', githubUrl: 'https://github.com/acme' }] }],
     ['a dependency that is not an extension name', { ...manifest, dependencies: ['../plugin-ts'] }],
-    ['an optional dependency that is not an extension name', { ...manifest, optionalDependencies: ['../plugin-zod'] }],
+    ['an optional dependency that is not an extension name', { ...manifest, optionalDependencies: ['../plugin-faker'] }],
+    ['an unknown role', { ...manifest, role: 'consmer' }],
     ['options that are not a list', { ...manifest, options: {} }],
     ['an option without a label', { ...manifest, options: [{ ...select, label: '' }] }],
     ['an option of an unknown type', { ...manifest, options: [{ ...select, type: 'color' }] }],

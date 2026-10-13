@@ -51,10 +51,16 @@ Rules that matter:
 - Set adapter options only when you need them, through a top-level
   `adapter: adapterOas({ ... })` from `@kubb/adapter-oas` (for `validate`, `serverIndex`,
   `serverVariables`, `discriminator` or `contentType`).
-- `pluginTs` is the base. The client plugins (`pluginAxios`, `pluginFetch`) need it, the framework plugins (`pluginReactQuery`,
-  `pluginVueQuery`, `pluginSwr`) need `pluginTs` and a client plugin, and `pluginMsw` needs
-  `pluginTs` and `pluginFaker`. Check the plugin's docs page on kubb.dev
-  (`https://kubb.dev/extensions/kubb-labs/plugin-<name>`) for the full dependency list.
+- `pluginTs` is the base. Each installed plugin's
+  `node_modules/@kubb/plugin-<name>/kubb-extension.json` says what else it needs:
+  - Add every name in `dependencies`.
+  - A plugin with `"role": "consumer"` (the framework plugins and `pluginMcp`) also needs a plugin
+    with `"role": "client"`: `pluginAxios` or `pluginFetch`.
+  - Names in `optionalDependencies` are needed only for some option values, such as `pluginFaker`
+    for `pluginMsw({ parser: 'faker' })`. The plugin's docs page names the option.
+
+  Before install, read the same lists on the plugin's docs page
+  (`https://kubb.dev/extensions/kubb-labs/plugin-<name>`).
 - Each generator plugin takes its own `output.path`, resolved relative to the top-level
   `output.path`. Keep generated kinds in separate folders (`models`, `clients`, `hooks`, ...).
 - `input` accepts `{ path }` for a file or URL. Validate untrusted specs with `kubb validate`
@@ -92,8 +98,8 @@ truth instead of guessing an option name.
 Common combinations:
 
 - Types only: `pluginTs()`.
-- Typed data fetching: add `pluginAxios()` or `pluginFetch()`, or a framework plugin (`pluginReactQuery`,
-  `pluginVueQuery` or `pluginSwr`) which pulls in client generation.
+- Typed data fetching: add `pluginAxios()` or `pluginFetch()`. For hooks, add a framework plugin
+  (`pluginReactQuery`, `pluginVueQuery` or `pluginSwr`) next to that client plugin.
 - Runtime validation: add `pluginZod()` and point the client at it for typed, validated responses.
 - Testing and mocks: add `pluginFaker()` and `pluginMsw()`.
 

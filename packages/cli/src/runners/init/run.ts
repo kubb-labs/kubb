@@ -4,18 +4,12 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { DryRunExtension } from '@gunshi/plugin-dryrun'
-import {
-  availablePlugins,
-  generateConfigFile,
-  initDefaults,
-  KUBB_CONFIG_FILENAME,
-  KUBB_PACKAGE_NAME,
-  type PluginOption,
-  resolveInstallVersions,
-  resolvePlugins,
-} from '@internals/shared'
-import { createSpinner, logError, logInfo, logIntro, logOutro, logWarn } from '../../loggers/output.ts'
-import { detectPackageManager, hasPackageJson, initPackageJson, installPackages } from './utils.ts'
+import { generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, KUBB_PACKAGE_NAME } from '@internals/shared'
+import type { RegistryEntry } from '@kubb/core'
+import { createSpinner, logError, logInfo, logIntro, logOutro } from '../../loggers/output.ts'
+import { addToConfig } from '../add/run.ts'
+import { fetchRegistryIndex, incompatibility, installSpec, registryUrl, toRegistryId } from '../../utils/registry.ts'
+import { detectPackageManager, hasPackageJson, initPackageJson, installPackages, missingPluginDependencies } from './utils.ts'
 
 function cancelAndExit(message = 'Operation canceled.'): never {
   clack.cancel(message)
@@ -79,6 +73,10 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
   }
 
   try {
+    // The plugins come from the Kubb registry, like `kubb add`, so read it before changing anything
+    const plugins = (await fetchRegistryIndex({ registry: registryUrl() })).filter((entry) => entry.kind === 'plugin' && !incompatibility(entry.manifest))
+    const byId = new Map(plugins.map((entry) => [entry.id, entry]))
+
     // Check/create package.json, detect package manager once after the block
     if (!hasPackageJson(cwd)) {
       if (!yes) {
@@ -129,18 +127,20 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     )
 
     // Plugin selection
-    const defaultPlugins = availablePlugins.filter((p) => (initDefaults.plugins as ReadonlyArray<string>).includes(p.value))
-    const pluginLabel = (plugins: Array<PluginOption>) => styleText('cyan', plugins.map((p) => p.label).join(', '))
+    const defaultPlugins = initDefaults.plugins.flatMap((slug) => byId.get(toRegistryId(slug)) ?? [])
+    const pluginLabel = (entries: Array<RegistryEntry>) => styleText('cyan', entries.map((entry) => entry.manifest.displayName).join(', '))
 
-    const selectedPlugins: Array<PluginOption> = await (async () => {
+    const selectedPlugins: Array<RegistryEntry> = await (async () => {
       if (pluginsFlag) {
-        const plugins = resolvePlugins(pluginsFlag)
-        if (plugins.length === 0) {
-          logWarn(`No valid plugins found in --plugins value; falling back to default: ${pluginLabel(defaultPlugins)}`)
-          return defaultPlugins
-        }
-        logInfo(`Using plugins: ${pluginLabel(plugins)}`)
-        return plugins
+        const ids = pluginsFlag
+          .split(',')
+          .map((id) => id.trim())
+          .filter(Boolean)
+        const unknown = ids.filter((id) => !byId.has(toRegistryId(id)))
+        if (unknown.length) throw new Error(`Not in the Kubb registry: ${unknown.join(', ')}. Browse the plugins at https://kubb.dev/extensions.`)
+        const entries = ids.map((id) => byId.get(toRegistryId(id))!)
+        logInfo(`Using plugins: ${pluginLabel(entries)}`)
+        return entries
       }
       if (yes) {
         logInfo(`Using plugins: ${pluginLabel(defaultPlugins)}`)
@@ -148,16 +148,25 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
       }
       const values = await clack.multiselect({
         message: 'Select plugins to use:',
-        options: availablePlugins.map(({ value, label, hint }) => ({ value, label, hint })),
-        initialValues: [...initDefaults.plugins],
+        options: plugins.map(({ id, manifest }) => ({ value: id, label: manifest.displayName, hint: manifest.category })),
+        initialValues: defaultPlugins.map((entry) => entry.id),
         required: true,
       })
       if (clack.isCancel(values)) cancelAndExit()
-      return availablePlugins.filter((p) => (values as Array<string>).includes(p.value))
+      return plugins.filter((entry) => (values as Array<string>).includes(entry.id))
     })()
 
-    // Install packages, matching the release of the running CLI
-    const packagesToInstall = resolveInstallVersions({ packages: [KUBB_PACKAGE_NAME, ...selectedPlugins.map((p) => p.packageName)], version })
+    // Check the selection against the plugins' manifests before installing anything
+    const missing = missingPluginDependencies({
+      selected: selectedPlugins.map((entry) => entry.manifest.name),
+      manifests: selectedPlugins.map((entry) => entry.manifest),
+    })
+    if (missing.length) {
+      throw new Error(`${missing.join('\n')}\nAdd the missing plugins and run kubb init again.`)
+    }
+
+    // Install `kubb` at the running CLI's version and each plugin at the version the registry pins
+    const packagesToInstall = [`${KUBB_PACKAGE_NAME}@${version}`, ...selectedPlugins.map((entry) => installSpec(entry.artifact))]
 
     const spinner = createSpinner()
     spinner.start(`Installing ${packagesToInstall.length} packages with ${packageManager.name}`)
@@ -176,7 +185,7 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     const configSpinner = createSpinner()
     configSpinner.start(`Creating ${KUBB_CONFIG_FILENAME}`)
 
-    const configContent = generateConfigFile({ selectedPlugins, inputPath, outputPath })
+    const configContent = generateConfigFile({ selectedPlugins: [], inputPath, outputPath })
     const configPath = path.join(cwd, KUBB_CONFIG_FILENAME)
 
     if (fs.existsSync(configPath)) {
@@ -197,6 +206,15 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     }
 
     await dryRun.run(() => fs.promises.writeFile(configPath, configContent, 'utf-8'), { message: `write ${KUBB_CONFIG_FILENAME}` })
+
+    // Add each plugin the way `kubb add` does
+    for (const entry of selectedPlugins) {
+      const reason = await dryRun.run(() => addToConfig({ detail: entry, configFile: configPath }), {
+        message: `add ${entry.manifest.export}() to ${KUBB_CONFIG_FILENAME}`,
+        resolve: () => undefined,
+      })
+      if (reason) throw new Error(`Could not add ${entry.manifest.export}() to ${KUBB_CONFIG_FILENAME}: ${reason}`)
+    }
 
     configSpinner.stop(`Created ${KUBB_CONFIG_FILENAME}`)
 
