@@ -192,30 +192,11 @@ export function createExtensionFactory({ kind, meta, build }: { kind: ExtensionK
   return Object.assign(factory, meta ? { kind, meta } : { kind })
 }
 
-// The parser overload comes first and takes only `build`. TypeScript fixes the return type of a parameterless `build()`
-// or `setup()` from the first overload that gives it a contextual signature, and `extNames` keeps its literal types
-// only under the parser's.
+// Parser comes first and takes only `build`: TypeScript fixes a parameterless `build()` return type from the first
+// overload that types it, and `extNames` only keeps its literal types under the parser's.
 
 /**
- * Defines a parser from one object and returns a factory that takes the user's options.
- * `kind: 'parser'` picks the parser form. Register the result in the `parsers` array on `defineConfig`.
- *
- * @example
- * ```ts
- * export const parserText = defineExtension({
- *   kind: 'parser',
- *   meta: { name: 'text' },
- *   build: () => ({
- *     extNames: ['.txt'],
- *     parse: (file) =>
- *       file.sources
- *         .flatMap((source) => source.nodes ?? [])
- *         .map((node) => (node.kind === 'Text' ? node.value : ''))
- *         .join('\n'),
- *     print: (...nodes) => nodes.map(String).join('\n'),
- *   }),
- * })
- * ```
+ * Defines a parser and returns a factory that takes the user's options. `build` returns the parser methods.
  */
 export function defineExtension<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(definition: {
   kind: 'parser'
@@ -223,45 +204,17 @@ export function defineExtension<TOptions extends object = object, TMeta extends 
   build: ParserBuild<TOptions, TMeta, TNode>
 }): ParserFactory<TOptions, TMeta, TNode>
 /**
- * Defines an adapter that translates a spec format into Kubb's universal AST and returns a factory that takes
- * the user's options. `kind: 'adapter'` picks the adapter form. `parse` must return an `InputNode`.
- *
- * @example
- * ```ts
- * type MyAdapter = AdapterFactoryOptions<'my-adapter', { validate?: boolean }, { validate: boolean }>
- *
- * export const myAdapter = defineExtension<MyAdapter>({
- *   kind: 'adapter',
- *   meta: { name: 'my-adapter' },
- *   setup: (options) => ({ validate: options.validate ?? true }),
- *   build: () => ({
- *     document: null,
- *     async parse(_source) {
- *       return ast.factory.createInput()
- *     },
- *     async validate() {},
- *   }),
- * })
- * ```
+ * Defines an adapter and returns a factory that takes the user's options. `parse` must return an `InputNode`.
  */
 export function defineExtension<T extends AdapterFactoryOptions = AdapterFactoryOptions>(
   definition: { kind: 'adapter' } & AdapterDefinition<T>,
 ): AdapterFactory<T>
 /**
- * Defines a plugin from one object and returns a factory that takes the user's options.
- * `kind: 'plugin'` picks the plugin form. Name plugins `plugin-<feature>`.
+ * Defines a plugin and returns a factory that takes the user's options. Name plugins `plugin-<feature>`.
  *
  * @example
  * ```ts
- * export const pluginZod = defineExtension<PluginZod>({
- *   kind: 'plugin',
- *   meta: { name: 'plugin-zod', compatibility: { kubb: '>=5.9.0' } },
- *   dependencies: { 'plugin-ts': { optional: true } },
- *   setup(options, kubb) {
- *     kubb.addGenerator(zodGenerator)
- *     return { ...options, inferred: options.inferred ?? false }
- *   },
- * })
+ * defineExtension<PluginZod>({ kind: 'plugin', meta: { name: 'plugin-zod' }, setup: (options) => options })
  * ```
  */
 export function defineExtension<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(

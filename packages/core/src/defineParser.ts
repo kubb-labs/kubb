@@ -39,8 +39,6 @@ export type Parser<TMeta extends object = object, TNode = unknown, TOptions exte
 
 /**
  * Takes the user's options and returns the parser methods.
- *
- * @internal
  */
 export type ParserBuild<TOptions extends object, TMeta extends object, TNode> = (options: TOptions) => Omit<Parser<TMeta, TNode>, 'name' | 'meta' | 'options'>
 
