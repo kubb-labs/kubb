@@ -1,6 +1,6 @@
 # OpenAPI adapter
 
-The OpenAPI adapter reads an OpenAPI 2.0, 3.0, or 3.1 document and converts every schema and operation into Kubb's AST. Every plugin in the build generates from that AST, so one adapter feeds them all.
+The OpenAPI adapter reads an OpenAPI 2.0, 3.0, or 3.1 document and converts every schema and operation into Kubb's AST. Every plugin in the build generates code from that AST.
 
 Kubb uses `adapterOas()` by default. Set it on `defineConfig.adapter` only to change its [options](https://kubb.dev/extensions/kubb-labs/adapter-oas/options). The options apply to every plugin in the build.
 

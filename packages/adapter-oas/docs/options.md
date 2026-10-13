@@ -1,6 +1,6 @@
 # Options
 
-Pass these options to `adapterOas()` to control spec validation, the preferred content type, the server base URL, discriminators, enums, and how OpenAPI types map to TypeScript. All of them are optional.
+Pass these options to `adapterOas()`. All of them are optional.
 
 ## Options overview
 
@@ -9,14 +9,9 @@ Pass these options to `adapterOas()` to control spec validation, the preferred c
 | [`validate`](#validate)               | Validate the spec before parsing.                            |
 | [`contentType`](#contenttype)         | Preferred media type for request and response schemas.       |
 | [`server`](#server)                   | Which spec server Kubb resolves into the document `baseURL`. |
-| ↳ [`server.index`](#server)           | Select an entry in the spec's servers array.                 |
-| ↳ [`server.variables`](#server)       | Supply values for server URL variables.                      |
 | [`discriminator`](#discriminator)     | How `discriminator` fields are interpreted.                  |
 | [`enums`](#enums)                     | Where inline enums live.                                     |
 | [`dateType`](#datetype)               | How `date-time`, `date`, and `time` schemas are represented. |
-| ↳ [`dateType.dateTime`](#datetype)    | Configure the representation of timestamps.                  |
-| ↳ [`dateType.date`](#datetype)        | Configure the representation of date-only values.            |
-| ↳ [`dateType.time`](#datetype)        | Configure the representation of time-only values.            |
 | [`integerType`](#integertype)         | How integers map to TypeScript.                              |
 | [`unknownType`](#unknowntype)         | Type for schemas Kubb cannot infer.                          |
 | [`emptySchemaType`](#emptyschematype) | Type for empty schemas.                                      |
@@ -36,7 +31,7 @@ Validates the OpenAPI spec with `@readme/openapi-parser` before parsing. Each pr
 
 ### contentType
 
-Preferred media type when an operation defines several. Without a value, Kubb picks the last JSON-like media type the operation declares (`application/json`, `application/x-json`, `text/json`, `text/x-json`, or any `*+json`), or the first media type when none is JSON-like.
+Media type to keep when an operation declares several, for both request bodies and responses. Without a value, Kubb keeps every media type the operation declares.
 
 |          |                                |
 | -------- | ------------------------------ |
@@ -69,7 +64,7 @@ How `discriminator` fields on `oneOf`/`anyOf` schemas are interpreted.
 ::field-group
 
 :::field{name="'preserve'"}
-Default value. Keeps child schemas exactly as written, though the discriminator still narrows types at the call site.
+Keeps child schemas exactly as written, though the discriminator still narrows types at the call site.
 :::
 
 :::field{name="'propagate'"}
@@ -134,7 +129,7 @@ Where inline enums live.
 ::field-group
 
 :::field{name="'inline'"}
-Default value. Keeps each enum on the property that declares it.
+Keeps each enum on the property that declares it.
 :::
 
 :::field{name="'root'"}
@@ -177,7 +172,7 @@ Represents date and time values as plain strings without format validation.
 :::
 
 :::field{name="'string'"}
-Default value. Represents `date-time`, `date`, and `time` as ISO 8601 strings. The generated TypeScript type is `string`.
+Represents `date-time`, `date`, and `time` as ISO 8601 strings. The generated TypeScript type is `string`.
 :::
 
 :::field{name="'stringOffset'"}
@@ -194,7 +189,7 @@ Represents date and time values as JavaScript `Date` objects. JSON values need p
 
 ::
 
-The string variants all emit `string` at the TypeScript type level. The offset and local distinction surfaces in schema output such as Zod.
+The string variants all emit `string` at the TypeScript type level. Schema plugins such as `@kubb/plugin-zod` validate the offset or local format.
 
 Pass an object to set `dateTime`, `date`, and `time` independently. A key you leave out defaults to `'string'`, regardless of the other keys.
 
@@ -202,7 +197,7 @@ Pass an object to set `dateTime`, `date`, and `time` independently. A key you le
 adapterOas({
   dateType: {
     dateTime: 'date', // Date object for timestamps
-    date: 'string', // plain string for date-only values, since Date can't represent them safely
+    date: 'string',
     time: 'string',
   },
 })
@@ -221,7 +216,7 @@ How `type: integer` (and `format: int64`) maps to TypeScript.
 ::field-group
 
 :::field{name="'bigint'"}
-Default value. Represents 64-bit IDs exactly, but `JSON.stringify` and `JSON.parse` cannot round-trip it. Use it only when you handle bigint serialization yourself.
+Represents 64-bit IDs exactly, but `JSON.stringify` and `JSON.parse` cannot round-trip it. Use it only when you handle bigint serialization yourself.
 :::
 
 :::field{name="'number'"}
@@ -230,7 +225,7 @@ Fits most JSON APIs. It loses precision above `Number.MAX_SAFE_INTEGER`.
 
 ::
 
-This option only applies to schemas that declare a numeric type. A schema that declares `type: string` stays a `string` whatever its format, so the `{ type: 'string', format: 'int64' }` that gRPC-gateway and other [ProtoJSON](https://protobuf.dev/programming-guides/json/#int64-strings) producers emit generates a `string`. `@kubb/plugin-zod` validates those fields with a digits `.regex(...)` and `@kubb/plugin-faker` mocks them with a numeric string.
+A schema with `type: string` stays a `string` whatever its `format`, so the [ProtoJSON](https://protobuf.dev/programming-guides/json/#int64-strings) `int64` strings that gRPC-gateway emits stay strings. `@kubb/plugin-zod` validates them with a digits regex, and `@kubb/plugin-faker` mocks them as numeric strings.
 
 ### unknownType
 
@@ -260,7 +255,7 @@ Represents a value callers should not use. Choose it when matching a legacy API 
 
 ### emptySchemaType
 
-AST type used for fully empty schemas (`{}`). It follows `unknownType` unless you set it. Override it only when empty schemas should be treated differently from unresolvable ones.
+AST type used for empty schemas (`{}`). It takes the same values as [`unknownType`](#unknowntype) and follows it unless you set it.
 
 |          |                                        |
 | -------- | -------------------------------------- |
@@ -268,28 +263,12 @@ AST type used for fully empty schemas (`{}`). It follows `unknownType` unless yo
 | Required | `false`                                |
 | Default  | `unknownType` (`'unknown'` by default) |
 
-::field-group
-
-:::field{name="'unknown'"}
-Requires callers to narrow the value before using it.
-:::
-
-:::field{name="'any'"}
-Allows callers to use the value without type checking.
-:::
-
-:::field{name="'void'"}
-Represents a value callers should not use. Choose it when matching a legacy API that uses `void`.
-:::
-
-::
-
 > [!TIP]
 > A common pairing sets `unknownType: 'unknown'` for safety and `emptySchemaType: 'any'` so empty 204 response bodies stay easy to use.
 
 ### enumSuffix
 
-Suffix appended to derived enum names when Kubb has to invent one, typically for inline enums on object properties. The derived name joins the parent schema name, the property name, and the suffix in PascalCase, so an inline enum on the `status` property of the `Pet` schema derives `PetStatusEnum`. Set it to `'type'` and the same enum derives `PetStatusType`.
+Suffix for the names Kubb gives inline enums: schema name, property name, and suffix, in PascalCase. The `status` enum on `Pet` becomes `PetStatusEnum`, or `PetStatusType` with `enumSuffix: 'type'`.
 
 |          |          |
 | -------- | -------- |

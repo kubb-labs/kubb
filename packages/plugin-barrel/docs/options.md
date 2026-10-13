@@ -41,7 +41,7 @@ src/gen
 
 The `type` field picks the export style. A plugin's `output.barrel` also accepts `nested`, so each barrel re-exports the barrels below it instead of the leaf files. The root `output.barrel` has no `nested` field and always stays flat.
 
-Call a plugin with no `output` at all and it uses its own default, which already sets `barrel: { type: 'named' }`. The moment you pass an `output` object of your own, that default is replaced whole, so a plugin configured as `pluginTs({ output: { path: 'types' } })` has no `barrel` of its own and falls back to `config.output.barrel`, which is `false` unless you set it.
+A plugin called without `output` uses its own default, which sets `barrel: { type: 'named' }`. If you pass your own `output` object, it replaces that default. `pluginTs({ output: { path: 'types' } })` then has no `barrel` and uses `config.output.barrel`, which is `false` unless you set it.
 
 Set `barrel: { type: 'named' | 'all' }` on `defineConfig` to enable barrels everywhere: a root barrel, and the default every plugin without its own `output.barrel` inherits. A plugin that sets its own `output.barrel` overrides that inherited value, including back to `false`, which also drops its files from the root barrel. A plugin with `output.mode: 'file'` gets no barrel of its own, and the root barrel re-exports that file directly.
 
@@ -70,7 +70,7 @@ Uses `export *`, a smaller barrel that re-exports everything.
 
 ```typescript ['named']
 // src/gen/index.ts
-export { getUser, User } from './api/user'
+export { getUser } from './api/user'
 export { getPost, Post } from './api/post'
 export { User } from './api/types/User'
 ```
