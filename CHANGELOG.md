@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.8.4 — Oct 13, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Require Kubb 5.8.3 or later in `kubb-extension.json`. ([#4262](https://github.com/kubb-labs/kubb/pull/4262), [`92f9e12`](https://github.com/kubb-labs/kubb/commit/92f9e12ef22bd541df9450e115108551ba467935))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Registry entries can pin a GitHub release. `RegistryArtifact` adds `{ kind: 'github', package, version, owner, repo, tag, commit }`, and `isRegistryEntry` accepts it. `kubb add` and `kubb update` install it as `github:<owner>/<repo>#<commit>`. ([#4264](https://github.com/kubb-labs/kubb/pull/4264), [`68381fd`](https://github.com/kubb-labs/kubb/commit/68381fd34c6d1667024a8a06e7bdf8b392045f88))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.8.3 — Oct 13, 2026
 
 ### @kubb/adapter-oas
