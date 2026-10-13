@@ -104,7 +104,7 @@ Clients such as Claude Code ignore a `cwd` key in this config. When a client sta
   "mcpServers": {
     "kubb-petstore": {
       "command": "sh",
-      "args": ["-c", "cd /path/to/your/project && npx kubb mcp"]
+      "args": ["-c", "cd '/path/to/your/project' && npx kubb mcp"]
     }
   }
 }
