@@ -1,16 +1,16 @@
 # TypeScript
 
-The TypeScript parser writes `.ts` and `.js` files. It turns each file's AST into source text with imports, exports, declarations, and JSDoc, and resolves relative import paths. Its `print` helper uses the official TypeScript printer, which plugins such as `@kubb/plugin-ts` call to print TypeScript nodes.
+The TypeScript parser writes `.ts` and `.js` files. It turns each file's AST into source text with imports, exports, declarations, and JSDoc, and resolves relative import paths. Plugins such as `@kubb/plugin-ts` print TypeScript nodes with its `print` helper, which uses the official TypeScript printer.
 
 The package also exports `parserTsx`, which writes `.tsx` and `.jsx` files with the same options.
 
 ## Setup
 
-Kubb registers `parserTs`, `parserTsx`, and `parserMd` by default. Set `defineConfig.parsers` only to change an option or add a parser. A custom `parsers` array replaces the default set, so list every parser your plugins need. Files that no parser claims are written as their source text only, without imports or exports.
+Kubb registers `parserTs`, `parserTsx`, and `parserMd` by default, so no setup is needed. Set `parsers` in `defineConfig` only to change an option or add a parser. A custom `parsers` array replaces the default set, so list every parser your plugins need. Files that no parser claims are written as their source text only, without imports, exports, banner, or footer.
 
 ## Options worth knowing
 
-- `extension` rewrites the extension of relative imports and exports. Keys are the extension of the generated file, and values the extension its relative imports and exports get. `''` drops it. By default, imports in `.ts` files have no extension. Use `{ '.ts': '.js' }` for ESM packages, or `{ '.ts': '.ts' }` when you run the `.ts` files directly in Node.js or compile with `rewriteRelativeImportExtensions`. Package imports stay unchanged.
+- `extension` rewrites the extension of relative imports and exports. Each key is a generated file's extension, and each value is the extension its relative imports and exports get. `''` drops it. By default, imports in `.ts` files have no extension. Use `{ '.ts': '.js' }` for ESM packages. Use `{ '.ts': '.ts' }` when Node.js runs the `.ts` files directly, or when you compile with `rewriteRelativeImportExtensions`. Package imports stay unchanged.
 
 `parserTsx` reads its own `extension` map, so set the `.tsx` key on it as well.
 

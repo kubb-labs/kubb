@@ -1,14 +1,14 @@
 # Markdown
 
-The Markdown parser writes `.md` and `.markdown` files. It joins a file's source blocks as plain Markdown, separated by blank lines. When the file sets `meta.frontmatter`, it adds that object as YAML frontmatter above the content, after the file banner if one is set.
+The Markdown parser joins a file's source blocks as plain Markdown, separated by blank lines. When a file sets `meta.frontmatter`, the parser writes that object as YAML frontmatter above the content, after the file banner if one is set.
 
 ## Setup
 
-Kubb registers the parser by default, next to `parserTs` and `parserTsx`. Add it yourself only when you set a custom `parsers` array, since that array replaces the default set. List every parser your plugins need. Files that no parser claims are written as their source text only, without imports, exports, banner, or footer.
+Kubb registers the parser by default, next to `parserTs` and `parserTsx`, so no setup is needed. Add it yourself only when you set a custom `parsers` array, because that array replaces the default set. List every parser your plugins need. Files that no parser claims are written as their source text only, without imports, exports, banner, or footer.
 
 ## Options worth knowing
 
-The parser takes no options. A plugin sets [`meta.frontmatter`](https://kubb.dev/extensions/kubb-labs/parser-md/options#frontmatter) on a file to add YAML frontmatter, and an empty object writes none.
+The parser takes no options. Plugins control the output through `meta.frontmatter` on each file, and an empty object writes none.
 
 See [Options](https://kubb.dev/extensions/kubb-labs/parser-md/options) for how a plugin sets frontmatter.
 

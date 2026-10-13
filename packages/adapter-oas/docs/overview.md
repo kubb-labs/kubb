@@ -1,12 +1,12 @@
 # OpenAPI
 
-The OpenAPI adapter reads an OpenAPI 2.0, 3.0, or 3.1 document and converts every schema and operation into Kubb's AST. Every plugin in the build generates code from that AST.
+The OpenAPI adapter is the first step of every build. It converts your spec into Kubb's AST, and every plugin generates code from that AST, so the adapter's options apply to all of them.
 
-When `input` is an `http(s)` URL, or the spec has `$ref`s to remote files, the adapter downloads them with a plain GET request and sends no credentials. It also reads the local files that external `$ref`s point to, even outside the spec's folder. It never writes files.
+The adapter downloads a remote `input` URL and any remote `$ref`s with a plain GET request, without credentials. It also reads the local files that external `$ref`s point to, even outside the spec's folder, and never writes files.
 
 ## Setup
 
-Kubb uses `adapterOas()` by default, so no setup is needed. Set it on `defineConfig.adapter` only to change its options. The options apply to every plugin in the build.
+Kubb uses `adapterOas()` by default, so no setup is needed. Set `adapter` in `defineConfig` only to change its options.
 
 ## Options worth knowing
 
