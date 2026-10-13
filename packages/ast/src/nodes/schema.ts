@@ -1,6 +1,4 @@
-import type { InferSchemaNode } from '../infer.ts'
-import { defineNode, type DistributiveOmit } from '../defineNode.ts'
-import type { BaseNode } from './base.ts'
+import type { BaseNode, DistributiveOmit } from './base.ts'
 import type { PropertyNode } from './property.ts'
 
 export type PrimitiveSchemaType =
@@ -647,9 +645,7 @@ export type SchemaNode =
 
 type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties' | 'primitive'> & { properties?: Array<PropertyNode>; primitive?: 'object' }
 type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>
-type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & {
-  kind: 'Schema'
-}
+type CreateSchemaOutput<T extends CreateSchemaInput> = SchemaNodeByType[T['type']]
 
 /**
  * Maps schema `type` to its underlying `primitive`.
@@ -678,24 +674,8 @@ const TYPE_TO_PRIMITIVE: Partial<Record<SchemaNode['type'], PrimitiveSchemaType>
 }
 
 /**
- * Definition for the {@link SchemaNode}. Object schemas default `properties` to an
- * empty array, and `primitive` is inferred from `type` when not explicitly provided.
- */
-export const schemaDef = defineNode<SchemaNode, CreateSchemaInput>({
-  kind: 'Schema',
-  build: (props) => {
-    if (props.type === 'object') {
-      return { properties: [], primitive: 'object' as const, ...props }
-    }
-
-    return { primitive: TYPE_TO_PRIMITIVE[props.type as keyof typeof TYPE_TO_PRIMITIVE], ...props }
-  },
-  children: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'rest'],
-  visitorKey: 'schema',
-})
-
-/**
- * Creates a `SchemaNode`, narrowed to the variant of `props.type`.
+ * Creates a `SchemaNode`, narrowed to the variant of `props.type`. Object schemas default
+ * `properties` to an empty array, and `primitive` is inferred from `type` when not explicitly provided.
  *
  * @example
  * ```ts
@@ -712,5 +692,11 @@ export const schemaDef = defineNode<SchemaNode, CreateSchemaInput>({
 export function createSchema<T extends CreateSchemaInput>(props: T): CreateSchemaOutput<T>
 export function createSchema(props: CreateSchemaInput): SchemaNode
 export function createSchema(props: CreateSchemaInput): SchemaNode {
-  return schemaDef.create(props)
+  if (props.type === 'object') {
+    return { kind: 'Schema', properties: [], primitive: 'object', ...props }
+  }
+
+  const node: SchemaNode = { kind: 'Schema', primitive: TYPE_TO_PRIMITIVE[props.type as keyof typeof TYPE_TO_PRIMITIVE], ...props }
+
+  return node
 }

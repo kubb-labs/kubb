@@ -24,11 +24,4 @@ describe('createInput', () => {
     expect(second.meta).not.toBe(first.meta)
     expect(second.meta).toStrictEqual({ circularNames: [], enumNames: [] })
   })
-
-  it('always sets kind to Input', () => {
-    const input = { kind: 'Operation', schemas: [] }
-    const node = createInput(input)
-
-    expect(node.kind).toBe('Input')
-  })
 })

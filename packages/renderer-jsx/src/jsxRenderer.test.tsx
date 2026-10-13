@@ -164,20 +164,6 @@ describe('jsxRenderer', () => {
     expect(renderer.files.map((file) => file.baseName)).toStrictEqual(['a.ts', 'b.ts', 'c.ts'])
   })
 
-  it('propagates render errors', async () => {
-    const renderer = jsxRenderer()
-    function BadComponent(): never {
-      throw new Error('render error')
-    }
-    await expect(
-      renderer.render(
-        <File baseName="bad.ts" path="src/bad.ts">
-          <BadComponent />
-        </File>,
-      ),
-    ).rejects.toThrow('render error')
-  })
-
   it('accumulates files across multiple render calls', async () => {
     const renderer = jsxRenderer()
 

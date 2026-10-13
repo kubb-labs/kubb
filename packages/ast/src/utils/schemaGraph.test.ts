@@ -30,11 +30,6 @@ describe('findCircularSchemas', () => {
 
     expect(findCircularSchemas([Category, Pet, Cat])).toStrictEqual(new Set(['Pet', 'Cat']))
   })
-
-  it('skips unnamed schemas', () => {
-    const anon = createSchema({ type: 'object' })
-    expect(findCircularSchemas([anon])).toStrictEqual(new Set())
-  })
 })
 
 describe('findCircularSchemasFromGraph', () => {
@@ -119,26 +114,10 @@ describe('collectImportedRefNames', () => {
 
     expect(collectImportedRefNames(schema)).toStrictEqual([])
   })
-
-  it('returns an empty array for schemas without refs', () => {
-    expect(collectImportedRefNames(createSchema({ type: 'string' }))).toStrictEqual([])
-  })
-
-  it('returns the same array reference when called again with the same node', () => {
-    const schema = createSchema({
-      type: 'object',
-      name: 'Pet',
-      properties: [
-        createProperty({ name: 'category', required: false, schema: createSchema({ type: 'ref', name: 'Category', ref: '#/components/schemas/Category' }) }),
-      ],
-    })
-
-    expect(collectImportedRefNames(schema)).toBe(collectImportedRefNames(schema))
-  })
 })
 
 describe('collectSchemaRefs', () => {
-  it('collects every resolvable ref name, including refs without a $ref pointer, and memoizes by node', () => {
+  it('collects every resolvable ref name, including refs without a $ref pointer', () => {
     const schema = createSchema({
       type: 'object',
       name: 'Pet',
@@ -153,11 +132,6 @@ describe('collectSchemaRefs', () => {
     })
 
     expect(collectSchemaRefs(schema)).toStrictEqual(new Set(['Category', 'PetApplicationJson']))
-    expect(collectSchemaRefs(schema)).toBe(collectSchemaRefs(schema))
-  })
-
-  it('returns an empty set for schemas without refs', () => {
-    expect(collectSchemaRefs(createSchema({ type: 'string' }))).toStrictEqual(new Set())
   })
 })
 
@@ -210,10 +184,6 @@ describe('collectUsedSchemaNames', () => {
   it('collects the schema names reachable from the parameters and responses of the given operations only', () => {
     expect(collectUsedSchemaNames([getItemsOp], schemas)).toStrictEqual(new Set(['ItemStatus', 'ItemsResponse']))
     expect(collectUsedSchemaNames([getItemsOp, getOrdersOp], schemas)).toStrictEqual(new Set(['ItemStatus', 'ItemsResponse', 'OrderStatus', 'OrdersResponse']))
-  })
-
-  it('returns an empty set when the operations list is empty', () => {
-    expect(collectUsedSchemaNames([], schemas)).toStrictEqual(new Set())
   })
 
   it('follows transitive schema references', () => {

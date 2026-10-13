@@ -112,11 +112,11 @@ const types = collectSync<string>(root, {
 ### Guards
 
 ```ts
-import { narrowSchema, schemaDef } from '@kubb/ast'
+import { narrowSchema } from '@kubb/ast'
 import type { Node } from '@kubb/ast/types'
 
 function process(node: Node) {
-  if (schemaDef.is(node)) {
+  if (node.kind === 'Schema') {
     const obj = narrowSchema(node, 'object')
     obj?.properties?.forEach((p) => console.log(p.name))
   }
@@ -133,13 +133,12 @@ resolveRefName({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Pet' })
 
 ## Adding a node
 
-Adding a node touches three files. The barrels and visitor tables derive the rest.
+Adding a node touches four files.
 
-1. Define the node in its own `src/nodes/*.ts` file. Call `defineNode` and export the resulting `fooDef`, the `createFoo` constructor, and the node's type.
-2. Add `fooDef` to the `nodeDefs` array in `src/registry.ts`.
+1. Define the node type and its `createFoo` function in its own `src/nodes/*.ts` file, and add the kind to `NodeKind` in `src/nodes/base.ts`.
+2. Add the type to the `Node` union in `src/nodes/index.ts` and export it from `src/types.ts`.
 3. Re-export `createFoo` from `src/factory.ts`.
-
-Everything else follows from there. `@kubb/ast/types` picks up the node type through `export type *`, the `@kubb/ast` barrel picks up `fooDef` through `export * from './registry.ts'`, and the visitor tables (`VISITOR_KEYS`, `VISITOR_KEY_BY_KIND`, `nodeRebuilders`) come from the def's `children`, `visitorKey`, and `rebuild` fields. `registry.test.ts` fails when a def has no matching `factory.create*`, so missing wiring is caught in CI.
+4. When the node has children or a visitor callback, add it to `VISITOR_KEYS` and `VISITOR_KEY_BY_KIND` in `src/visitor.ts`.
 
 ## Supporting Kubb
 

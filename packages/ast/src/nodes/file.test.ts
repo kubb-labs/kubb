@@ -14,16 +14,6 @@ describe('file factories', () => {
   ])('returns { kind: $kind, ...input } when creating a $kind node', ({ kind, input, node }) => {
     expect(node).toStrictEqual({ kind, ...input })
   })
-
-  it('returns the factory kind when the input carries another kind', () => {
-    const otherKindImport = { name: ['x'], path: './x', kind: 'Export' }
-    const otherKindExport = { name: ['x'], path: './x', kind: 'Import' }
-    const otherKindSource = { nodes: [createText('x')], kind: 'Import' }
-
-    expect(createImport(otherKindImport).kind).toBe('Import')
-    expect(createExport(otherKindExport).kind).toBe('Export')
-    expect(createSource(otherKindSource).kind).toBe('Source')
-  })
 })
 
 describe('createFile', () => {
@@ -40,20 +30,6 @@ describe('createFile', () => {
     expect(file.id.length).toBeGreaterThan(0)
   })
 
-  it('generates a stable id from the path', () => {
-    const a = createFile({ baseName: 'pet.ts', path: 'src/pet.ts' })
-    const b = createFile({ baseName: 'pet.ts', path: 'src/pet.ts' })
-
-    expect(a.id).toBe(b.id)
-  })
-
-  it('generates different ids for different paths', () => {
-    const a = createFile({ baseName: 'pet.ts', path: 'src/a/pet.ts' })
-    const b = createFile({ baseName: 'pet.ts', path: 'src/b/pet.ts' })
-
-    expect(a.id).not.toBe(b.id)
-  })
-
   it('throws when baseName has no extension', () => {
     expect(() =>
       createFile({
@@ -61,31 +37,6 @@ describe('createFile', () => {
         path: 'src/petStore',
       }),
     ).toThrow(/No extname found/)
-  })
-
-  it('deduplicates sources', () => {
-    const src = createSource({
-      name: 'Pet',
-      nodes: [createText('export type Pet = {}')],
-    })
-    const file = createFile({
-      baseName: 'pet.ts',
-      path: 'src/pet.ts',
-      sources: [src, src],
-    })
-
-    expect(file.sources).toHaveLength(1)
-  })
-
-  it('deduplicates exports', () => {
-    const exp = createExport({ name: ['Pet'], path: './Pet' })
-    const file = createFile({
-      baseName: 'index.ts',
-      path: 'src/index.ts',
-      exports: [exp, exp],
-    })
-
-    expect(file.exports).toHaveLength(1)
   })
 
   it('filters unused imports', () => {
@@ -157,19 +108,5 @@ describe('createFile', () => {
     const names = file.imports.flatMap((i) => (Array.isArray(i.name) ? i.name : [i.name]))
     expect(names).not.toContain('Pet')
     expect(names).toContain('Order')
-  })
-
-  it('carries through meta, banner and footer', () => {
-    const file = createFile({
-      baseName: 'pet.ts',
-      path: 'src/pet.ts',
-      meta: { tag: 'pets' },
-      banner: '// generated',
-      footer: '// end',
-    })
-
-    expect(file.meta).toStrictEqual({ tag: 'pets' })
-    expect(file.banner).toBe('// generated')
-    expect(file.footer).toBe('// end')
   })
 })

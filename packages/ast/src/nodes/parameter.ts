@@ -1,4 +1,3 @@
-import { defineNode } from '../defineNode.ts'
 import { withRequired } from '../optionality.ts'
 import type { BaseNode } from './base.ts'
 import type { SchemaNode } from './schema.ts'
@@ -57,18 +56,8 @@ export type ParameterNode = BaseNode & {
 type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial<Omit<ParameterNode, 'kind' | 'name' | 'in' | 'schema'>>
 
 /**
- * Definition for the {@link ParameterNode}. `required` defaults to `false`, and the schema's
+ * Creates a `ParameterNode`. `required` defaults to `false`, and the schema's
  * `optional`/`nullish` flags are derived from it through {@link withRequired}.
- */
-export const parameterDef = defineNode<ParameterNode, UserParameterNode>({
-  kind: 'Parameter',
-  build: withRequired,
-  children: ['schema'],
-  visitorKey: 'parameter',
-})
-
-/**
- * Creates a `ParameterNode`.
  *
  * @example
  * ```ts
@@ -80,4 +69,6 @@ export const parameterDef = defineNode<ParameterNode, UserParameterNode>({
  * })
  * ```
  */
-export const createParameter = parameterDef.create
+export function createParameter(input: UserParameterNode): ParameterNode {
+  return { kind: 'Parameter', ...withRequired(input) }
+}

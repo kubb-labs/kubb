@@ -1,4 +1,3 @@
-import { defineNode } from '../defineNode.ts'
 import type { BaseNode } from './base.ts'
 import type { OperationNode } from './operation.ts'
 import type { SchemaNode } from './schema.ts'
@@ -96,20 +95,8 @@ export type InputNode = BaseNode & {
 }
 
 /**
- * Definition for the {@link InputNode}.
- */
-export const inputDef = defineNode<InputNode, Partial<Omit<InputNode, 'kind'>>>({
-  kind: 'Input',
-  // A build hook, not `defaults`: a shared default object would let every InputNode mutate the same
-  // `schemas`, `operations` and `meta` instances.
-  build: (props) => ({ schemas: [], operations: [], meta: { circularNames: [], enumNames: [] }, ...props }),
-  children: ['schemas', 'operations'],
-  visitorKey: 'input',
-})
-
-/**
- * Creates an `InputNode`, defaulting `schemas`/`operations` to empty arrays and `meta` per
- * {@link inputDef}.
+ * Creates an `InputNode`, defaulting `schemas`/`operations` to empty arrays and `meta` to empty
+ * name lists. Every call allocates fresh defaults so no two inputs share them.
  *
  * @example
  * ```ts
@@ -118,5 +105,5 @@ export const inputDef = defineNode<InputNode, Partial<Omit<InputNode, 'kind'>>>(
  * ```
  */
 export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): InputNode {
-  return inputDef.create(overrides)
+  return { kind: 'Input', schemas: [], operations: [], meta: { circularNames: [], enumNames: [] }, ...overrides }
 }

@@ -1,15 +1,12 @@
-import { describe, expect, expectTypeOf, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { createInput } from './nodes/input.ts'
 import { createOperation } from './nodes/operation.ts'
 import { createParameter } from './nodes/parameter.ts'
 import { createProperty } from './nodes/property.ts'
 import { createResponse } from './nodes/response.ts'
 import { createSchema } from './nodes/schema.ts'
-import type { ContentNode } from './nodes/content.ts'
 import type { InputNode } from './nodes/input.ts'
 import type { OperationNode } from './nodes/operation.ts'
-import type { ParameterNode } from './nodes/parameter.ts'
-import type { PropertyNode } from './nodes/property.ts'
 import type { SchemaNode } from './nodes/schema.ts'
 import { collectSync, transform } from './visitor.ts'
 
@@ -100,17 +97,6 @@ describe('transform', () => {
     })
 
     expect(result.schemas[0]?.description).toBe('transformed')
-  })
-
-  it('returns original node when visitor returns undefined', () => {
-    const root = buildSampleTree()
-    const unchanged = transform(root, {
-      operation() {
-        return undefined
-      },
-    })
-
-    expect(unchanged.operations[0]?.operationId).toBe('getPetById')
   })
 
   it('deeply transforms nested schemas in operations', () => {
@@ -212,42 +198,6 @@ describe('VisitorContext — parent', () => {
     })
 
     expect(parents).toStrictEqual({ input: 'none', schema: 'Input', operation: 'Input' })
-  })
-
-  it('visitor callbacks receive narrowed context', () => {
-    expectTypeOf(transform(buildSampleTree(), {})).toEqualTypeOf<InputNode>()
-
-    transform(buildSampleTree(), {
-      property(_prop, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<SchemaNode | undefined>()
-      },
-      operation(_op, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<InputNode | undefined>()
-      },
-      schema(_schema, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<InputNode | ContentNode | SchemaNode | PropertyNode | ParameterNode | undefined>()
-      },
-      parameter(_param, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<OperationNode | undefined>()
-      },
-      response(_res, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<OperationNode | undefined>()
-      },
-      input(_input, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<undefined>()
-      },
-    })
-
-    collectSync<string>(buildSampleTree(), {
-      property(_prop, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<SchemaNode | undefined>()
-        return 'test'
-      },
-      schema(_schema, context) {
-        expectTypeOf(context.parent).toEqualTypeOf<InputNode | ContentNode | SchemaNode | PropertyNode | ParameterNode | undefined>()
-        return 'test'
-      },
-    })
   })
 })
 

@@ -1,4 +1,3 @@
-import { defineNode } from '../defineNode.ts'
 import type { BaseNode } from './base.ts'
 import type { ContentNode } from './content.ts'
 
@@ -40,15 +39,8 @@ export type RequestBodyNode = BaseNode & {
 }
 
 /**
- * Definition for the {@link RequestBodyNode}. Content entries are built upfront with
- * {@link createContent}, mirroring how `parameters` and `responses` take prebuilt nodes.
- */
-export const requestBodyDef = defineNode<RequestBodyNode>({
-  kind: 'RequestBody',
-  children: ['content'],
-})
-
-/**
  * Creates a `RequestBodyNode`.
  */
-export const createRequestBody = requestBodyDef.create
+export function createRequestBody(input: Omit<RequestBodyNode, 'kind'>): RequestBodyNode {
+  return { kind: 'RequestBody', ...input }
+}

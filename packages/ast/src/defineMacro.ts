@@ -1,6 +1,5 @@
-import type { VisitorDepth } from './constants.ts'
-import type { VisitorKey } from './defineNode.ts'
-import { visitorKeys } from './defineNode.ts'
+import type { VisitorDepth, VisitorKey } from './constants.ts'
+import { visitorKeys } from './constants.ts'
 import type { Node } from './nodes/index.ts'
 import type { Visitor, VisitorContext } from './visitor.ts'
 import { transform } from './visitor.ts'
