@@ -205,12 +205,12 @@ type ByPath = {
 
 type ByMethod = {
   /**
-   * Filter by HTTP method: `'GET'`, `'POST'`, `'PUT'`, `'PATCH'`, `'DELETE'`, `'HEAD'`, `'OPTIONS'`, `'TRACE'`.
+   * Filter by HTTP method: `'GET'`, `'POST'`, `'PUT'`, `'PATCH'`, `'DELETE'`, `'HEAD'`, `'OPTIONS'`, `'TRACE'`, `'QUERY'`.
    */
   type: 'method'
   /**
    * HTTP method to match, as one of the `HttpMethod` values (`'GET'`, `'POST'`, `'PUT'`,
-   * `'PATCH'`, `'DELETE'`, `'HEAD'`, `'OPTIONS'`, `'TRACE'`) or a regex.
+   * `'PATCH'`, `'DELETE'`, `'HEAD'`, `'OPTIONS'`, `'TRACE'`, `'QUERY'`) or a regex.
    */
   pattern: HttpMethod | RegExp
 }

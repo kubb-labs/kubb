@@ -44,6 +44,36 @@ describe('adapterOas.parse', () => {
     expect(node.operations.map((operation) => operation.operationId)).toStrictEqual(['listPets'])
   })
 
+  it('parses OpenAPI 3.2 query operations as QUERY', async () => {
+    const spec = {
+      openapi: '3.2.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/pets/search': {
+          query: {
+            operationId: 'searchPets',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: { type: 'object', properties: { name: { type: 'string' } } },
+                },
+              },
+            },
+            responses: { '200': { description: 'ok' } },
+          },
+        },
+      },
+    } as const
+    const adapter = adapterOas({ validate: false })
+
+    const node = await adapter.parse({ type: 'data', data: spec })
+
+    expect(node.operations).toHaveLength(1)
+    expect(node.operations[0]).toMatchObject({ operationId: 'searchPets', method: 'QUERY', path: '/pets/search' })
+    expect(node.operations[0]?.requestBody?.content?.[0]?.schema).toBeDefined()
+  })
+
   it('parses each source when one adapter instance is reused across configs', async () => {
     const other = {
       openapi: '3.0.0',
