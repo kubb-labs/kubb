@@ -107,6 +107,22 @@ describe('readConfig', () => {
     })
   })
 
+  it('reads the adapter call and its literal options', () => {
+    const view = readConfig(advanced)
+    expect(view.managed && view.configs[0]!.adapter).toStrictEqual({
+      importName: 'adapterOas',
+      packageName: '@kubb/adapter-oas',
+      options: {
+        unknownType: { literal: true, value: 'unknown' },
+        validate: { literal: true, value: true },
+        discriminator: { literal: true, value: 'preserve' },
+        integerType: { literal: true, value: 'number' },
+        enums: { literal: true, value: 'root' },
+      },
+    })
+    expect(view.managed && view.configs[0]!.parsers).toBeUndefined()
+  })
+
   describe('every defineConfig format', () => {
     const imports = `import { pluginTs } from '@kubb/plugin-ts'\nimport { pluginZod } from '@kubb/plugin-zod'`
     const config = `{ plugins: [pluginTs({ arrayType: 'generic' }), pluginZod()] }`
@@ -281,6 +297,68 @@ describe('applyConfigEdits', () => {
     })
   })
 
+  describe('kind', () => {
+    const source = [
+      `import { adapterOas } from '@kubb/adapter-oas'`,
+      `import { parserTs } from '@kubb/parser-ts'`,
+      `import { defineConfig } from 'kubb/config'`,
+      ``,
+      `export default defineConfig({`,
+      `  adapter: adapterOas({ server: { url: 'https://api.example.com', index: 0 } }),`,
+      `  parsers: [parserTs()],`,
+      `  plugins: [],`,
+      `})`,
+      ``,
+    ].join('\n')
+
+    it('sets a nested adapter option without touching its siblings', () => {
+      const result = applyConfigEdits({
+        source,
+        edits: [{ operation: 'set', kind: 'adapter', plugin: '@kubb/adapter-oas', path: ['server', 'index'], value: 1 }],
+      })
+      expect(result.source).toBe(source.replace('index: 0', 'index: 1'))
+    })
+
+    it('sets and removes a parser option', () => {
+      const set = applyConfigEdits({ source, edits: [{ operation: 'set', kind: 'parser', plugin: '@kubb/parser-ts', path: ['extension'], value: '.js' }] })
+      expect(set.source).toBe(source.replace('parserTs()', `parserTs({ extension: '.js' })`))
+      const view = readConfig(set.source)
+      expect(view.managed && view.configs[0]!.parsers).toStrictEqual([
+        { importName: 'parserTs', packageName: '@kubb/parser-ts', options: { extension: { literal: true, value: '.js' } } },
+      ])
+
+      const removed = applyConfigEdits({ source: set.source, edits: [{ operation: 'remove', kind: 'parser', plugin: '@kubb/parser-ts', path: ['extension'] }] })
+      expect(removed.source).toBe(source.replace('parserTs()', 'parserTs({})'))
+    })
+
+    it('edits the factory the package is known by when it ships several, under any local name', () => {
+      const edits: Array<ConfigEdit> = [{ operation: 'set', kind: 'parser', plugin: '@kubb/parser-ts', path: ['extension'], value: '.js' }]
+      const two = source.replace('parsers: [parserTs()]', 'parsers: [parserTsx(), parserTs()]').replace(`import { parserTs }`, `import { parserTs, parserTsx }`)
+      expect(applyConfigEdits({ source: two, edits }).source).toBe(two.replace('parserTs()', `parserTs({ extension: '.js' })`))
+
+      const aliased = source
+        .replace('parsers: [parserTs()]', 'parsers: [parserTsx(), ts()]')
+        .replace(`import { parserTs }`, `import { parserTs as ts, parserTsx }`)
+      expect(applyConfigEdits({ source: aliased, edits }).source).toBe(aliased.replace('ts()', `ts({ extension: '.js' })`))
+    })
+
+    it('refuses a factory the config does not register under that kind', () => {
+      const { outcomes } = applyConfigEdits({
+        source,
+        edits: [
+          { operation: 'set', kind: 'adapter', plugin: '@kubb/adapter-other', path: ['validate'], value: true },
+          { operation: 'set', kind: 'parser', plugin: '@kubb/parser-md', path: ['extension'], value: '.md' },
+          { operation: 'set', plugin: '@kubb/adapter-oas', path: ['validate'], value: true },
+        ],
+      })
+      expect(outcomes.map((outcome) => outcome.reason)).toStrictEqual([
+        `@kubb/adapter-other is not the config's adapter`,
+        '@kubb/parser-md is not in the parsers array',
+        '@kubb/adapter-oas is not in the plugins array',
+      ])
+    })
+  })
+
   describe('remove', () => {
     it('drops a literal option so the plugin falls back to its default', () => {
       const result = applyConfigEdits({ source: advanced, edits: [{ operation: 'remove', plugin: '@kubb/plugin-zod', path: ['inferred'] }] })
@@ -445,6 +523,12 @@ describe('applyConfigEdits', () => {
       ['a path that is a string', { operation: 'remove', plugin: '@kubb/plugin-ts', path: 'arrayType' }, 'path must be a list of option names'],
       ['an empty path', { operation: 'set', plugin: '@kubb/plugin-ts', path: [], value: 1 }, 'no option path given'],
       ['a missing plugin', { operation: 'disable-plugin' }, 'the edit names no plugin'],
+      ['an unknown kind', { operation: 'set', kind: 'macro', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: 1 }, 'unknown kind "macro"'],
+      [
+        'a kind on a plugin-only operation',
+        { operation: 'add-plugin', kind: 'adapter', plugin: '@kubb/plugin-ts' },
+        'add-plugin edits the plugins array, so it takes no kind',
+      ],
       [
         'a config ref that is not a name or index',
         { operation: 'disable-plugin', plugin: '@kubb/plugin-ts', config: { x: 1 } },

@@ -1,4 +1,4 @@
-import type { ExtensionManifest, KubbHooks } from '@kubb/core'
+import type { ExtensionKind, ExtensionManifest, KubbHooks } from '@kubb/core'
 
 /**
  * JSON-serializable Kubb config exchanged over RPC. A live `kubb/kit` config holds
@@ -63,13 +63,14 @@ export type OptionValue = string | number | boolean | null | Array<OptionValue> 
 export type ConfigEdit =
   /**
    * Write a literal option value. `path` walks nested objects, so `['enum', 'type']` targets
-   * `pluginTs({ enum: { type } })`.
+   * `pluginTs({ enum: { type } })`. `kind` names which factory call `plugin` is: one in `plugins`
+   * when left out, the config's `adapter`, or one in `parsers`.
    */
-  | { operation: 'set'; config?: ConfigRef; plugin: string; path: Array<string>; value: unknown }
+  | { operation: 'set'; config?: ConfigRef; kind?: ExtensionKind; plugin: string; path: Array<string>; value: unknown }
   /**
-   * Drop an option so the plugin falls back to its default.
+   * Drop an option so the extension falls back to its default. `kind` as for `set`.
    */
-  | { operation: 'remove'; config?: ConfigRef; plugin: string; path: Array<string> }
+  | { operation: 'remove'; config?: ConfigRef; kind?: ExtensionKind; plugin: string; path: Array<string> }
   /**
    * Add a plugin factory call and its import to the `plugins` array.
    */
@@ -84,7 +85,8 @@ export type ConfigEdit =
   | { operation: 'enable-plugin'; config?: ConfigRef; plugin: string }
 
 /**
- * A plugin factory call the agent found in the `plugins` array of a `defineConfig(...)`.
+ * A factory call the agent found in a `defineConfig(...)`: a plugin in `plugins`, the `adapter`, or
+ * a parser in `parsers`.
  */
 export type PluginView = {
   /**
@@ -122,6 +124,14 @@ export type ConfigView = {
    * Each plugin call in the entry, with its top-level option keys.
    */
   plugins: Array<PluginView>
+  /**
+   * The `adapter` call, when the entry sets one through an imported factory.
+   */
+  adapter?: PluginView
+  /**
+   * The parser calls in `parsers`, when the entry lists any through imported factories.
+   */
+  parsers?: Array<PluginView>
 }
 
 /**
