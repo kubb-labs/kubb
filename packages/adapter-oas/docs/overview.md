@@ -13,7 +13,7 @@ Kubb uses `adapterOas()` by default. Set it on `defineConfig.adapter` only to ch
 - `discriminator: 'propagate'` writes the discriminator's literal value into each child schema, so each branch is typed precisely.
 - `enums: 'root'` lifts inline enums to reusable top-level schemas, named with `enumSuffix` (`PetStatusEnum`).
 - `server` picks the entry in the spec's `servers` array that becomes the base URL and fills in its variables. It does not change where a generated client sends requests. Use the client plugin's own `baseURL` for that.
-- `contentType` picks the media type when an operation defines several. Without it, Kubb uses the first JSON media type.
+- `contentType` picks the media type to keep when an operation defines several. Without it, Kubb keeps every media type the operation declares.
 
 ## Example
 

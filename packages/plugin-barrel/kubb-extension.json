@@ -4,7 +4,7 @@
   "name": "plugin-barrel",
   "export": "pluginBarrel",
   "displayName": "Barrel",
-  "description": "Generates index.ts barrel files for every plugin output and one root barrel.",
+  "description": "Generates index.ts barrel files for every plugin output, plus a root barrel when output.barrel is set on defineConfig.",
   "category": "output",
   "icon": {
     "light": "https://kubb.dev/feature/plugins-light.svg"

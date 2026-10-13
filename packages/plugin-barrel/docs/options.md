@@ -14,7 +14,7 @@
 
 ### output.barrel
 
-Kubb writes one root barrel and an `index.ts` in every directory of a plugin's output. For two plugins that write to `models` and `clients`:
+Kubb writes an `index.ts` in every directory of a plugin's output, and a root barrel when `output.barrel` is set on `defineConfig`. For two plugins that write to `models` and `clients`, with `output.barrel` set on `defineConfig`:
 
 ```text
 src/gen

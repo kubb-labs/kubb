@@ -61,7 +61,8 @@ export type ParserOptions = {
    */
   dateType: DateTimeTypeValue | DateTypeOptions
   /**
-   * How `type: 'integer'` (and `format: 'int64'`) maps to TypeScript.
+   * How a schema with `format: 'int64'` or `format: 'uint64'` maps to TypeScript. Other
+   * integers always map to `number`.
    * - `'bigint'` is exact for 64-bit IDs, but does not round-trip through JSON.
    * - `'number'` fits most JSON APIs. Loses precision above `Number.MAX_SAFE_INTEGER`.
    *

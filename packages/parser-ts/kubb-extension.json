@@ -4,7 +4,7 @@
   "name": "typescript",
   "export": "parserTs",
   "displayName": "TypeScript",
-  "description": "Prints the Kubb AST to TypeScript source with the official TypeScript compiler.",
+  "description": "Prints the Kubb AST as TypeScript source and rewrites the extensions of relative imports and exports.",
   "category": "typescript",
   "icon": {
     "light": "https://kubb.dev/feature/typescript.svg"

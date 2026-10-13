@@ -1,6 +1,6 @@
 # Barrel plugin
 
-The barrel plugin writes `index.ts` files that re-export generated code, one for each plugin's output and one root barrel, so you can import everything from a single entry point.
+The barrel plugin writes `index.ts` files that re-export generated code, one for each plugin's output and a root barrel when you set `output.barrel` on `defineConfig`, so you can import everything from a single entry point.
 
 Kubb adds it to `plugins` for you. Do not add it yourself. It generates nothing until you configure `output.barrel`.
 

@@ -24,7 +24,7 @@
 
 ### TypeScript source file parser for Kubb
 
-Converts AST nodes and raw TypeScript code into formatted source strings using the TypeScript compiler API. Handles both `.ts` and `.tsx` output.
+Prints Kubb AST nodes as TypeScript source strings, and renders TypeScript compiler nodes through the `print` helper. Handles both `.ts` and `.tsx` output.
 
 ## Installation
 
@@ -49,7 +49,7 @@ export default defineConfig({
 })
 ```
 
-Pass an `extension` map to rewrite the extensions emitted in `import`/`export` statements. Keys are the source extension, values the output, and an empty string drops it. Parsers drop the extension by default. Use `{ '.ts': '.js' }` for ESM when the consumer transpiles to JavaScript, or `{ '.ts': '.ts' }` to keep it for Node16/NodeNext resolution:
+Pass an `extension` map to rewrite the extensions emitted in `import`/`export` statements. Each key is the extension of a generated file, and its value is the extension written on the relative specifiers in that file. An empty string drops it. Parsers drop the extension by default. Use `{ '.ts': '.js' }` for ESM output compiled to JavaScript, or `{ '.ts': '.ts' }` to run the `.ts` files directly in Node.js or compile them with `rewriteRelativeImportExtensions`:
 
 ```typescript
 export default defineConfig({
