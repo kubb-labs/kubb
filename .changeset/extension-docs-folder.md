@@ -5,4 +5,4 @@
 '@kubb/plugin-barrel': patch
 ---
 
-Ship the extension's overview, options page and how-to guides in a `docs/` folder.
+Ship the overview, options page, and how-to guides in a `docs/` folder instead of `OVERVIEW.md`.
