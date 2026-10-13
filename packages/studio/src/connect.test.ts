@@ -179,6 +179,20 @@ describe('the handshake', () => {
     expect(config.extensions).toContainEqual({ package: '@acme/plugin-x', version: '1.2.3', manifest })
   })
 
+  it('reports the adapter and the parsers by the package their manifest is in, with a JSON copy of their options', async () => {
+    const parser = defineExtension({
+      kind: 'parser',
+      meta: { name: 'typescript' },
+      build: () => ({ extNames: ['.ts'], parse: () => '', print: () => '' }),
+    })({ indent: 2, format: () => '' })
+    const { agent } = await connectStudio({ loadConfig: async () => ({ ...projectConfig(), parsers: [parser] }) })
+
+    const { config } = await agent.connect(info)
+
+    expect(config.adapter).toStrictEqual({ name: '@kubb/adapter-oas', options: {} })
+    expect(config.parsers).toStrictEqual([{ name: '@kubb/parser-ts', options: { indent: 2 } }])
+  })
+
   it('announces the connection once per socket, with what Studio sent', async () => {
     const { hooks, heard } = withHooks()
     const connected = heard('studio:connected')

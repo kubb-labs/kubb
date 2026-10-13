@@ -34,7 +34,7 @@ import {
   type SaveResult,
   type StudioApi,
 } from './protocol.ts'
-import { mergeAdapter, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
+import { mergeAdapter, mergeParsers, mergePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const HEARTBEAT_INTERVAL_MS = 30_000
@@ -283,6 +283,14 @@ class Agent extends RpcTarget implements AgentApi {
           name: toStudioName({ name: resolveMeta(plugin).name, root, extensions }),
           options: toJSONOptions(plugin.options),
         })),
+        adapter: config.adapter && {
+          name: toStudioName({ name: resolveMeta(config.adapter).name, root, extensions, kind: 'adapter' }),
+          options: toJSONOptions(config.adapter.options),
+        },
+        parsers: config.parsers.map((parser) => ({
+          name: toStudioName({ name: resolveMeta(parser).name, root, extensions, kind: 'parser' }),
+          options: toJSONOptions(parser.options),
+        })),
         extensions: [...extensions.values()],
       },
       permissions: this.#permissions,
@@ -343,9 +351,10 @@ class Agent extends RpcTarget implements AgentApi {
     }
 
     const [config, extensions] = await Promise.all([this.#options.loadConfig(), this.#installedExtensions()])
-    const [plugins, adapter] = await Promise.all([
+    const [plugins, adapter, parsers] = await Promise.all([
       mergePlugins({ diskPlugins: config.plugins, studioPlugins: patch?.plugins, extensions }),
-      mergeAdapter(config.adapter, patch?.adapter),
+      mergeAdapter(config.adapter, patch?.adapter, extensions),
+      mergeParsers({ diskParsers: config.parsers, studioParsers: patch?.parsers, root, extensions }),
     ]).catch(async (error: unknown) => {
       // Thrown before core runs, so nothing else reports it to the host.
       await emit(this.#options.hooks, 'kubb:error', { error: toError(error) })
@@ -373,6 +382,7 @@ class Agent extends RpcTarget implements AgentApi {
         storage: this.#permissions.allowWrite ? fsStorage() : memoryStorage(),
         plugins: activePlugins,
         adapter,
+        parsers,
       },
       hooks: this.#options.hooks,
       signal,

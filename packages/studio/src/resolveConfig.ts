@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
-import { type Adapter, isPackageName, type Plugin, resolveMeta } from '@kubb/core'
+import { type Adapter, type ExtensionKind, isPackageName, type Parser, type Plugin, resolveMeta } from '@kubb/core'
 import { camelCase } from '@internals/utils'
 import type { InstalledExtensions } from './extensions.ts'
 import type { JSONKubbConfig, OptionValue } from './protocol.ts'
@@ -104,8 +104,18 @@ function isInstalled({ packageName, root }: { packageName: string; root: string 
  * toStudioName({ name: 'plugin-zod-operations', root })  // 'plugin-zod-operations', a local plugin
  * ```
  */
-export function toStudioName({ name, root, extensions = new Map() }: { name: string; root: string; extensions?: InstalledExtensions }): string {
-  const installed = [...extensions.values()].find(({ manifest }) => manifest.kind === 'plugin' && manifest.name === name)
+export function toStudioName({
+  name,
+  root,
+  extensions = new Map(),
+  kind = 'plugin',
+}: {
+  name: string
+  root: string
+  extensions?: InstalledExtensions
+  kind?: ExtensionKind
+}): string {
+  const installed = [...extensions.values()].find(({ manifest }) => manifest.kind === kind && manifest.name === name)
   if (installed) return installed.package
 
   const packageName = toPackageName(name)
@@ -398,28 +408,74 @@ export async function mergePlugins({
 }
 
 /**
- * Merges Studio-provided adapter option overrides into the disk config's adapter.
- *
- * Adapter instances carry live functions (`parse`, `getImports`, ...) that can't survive
- * JSON serialization over the WebSocket, so `studioOptions` is treated as an options patch
- * rather than a replacement adapter. Re-invokes the same `@kubb/adapter-<name>` factory the
- * disk config used, with the merged options, so the resulting instance has fresh closures
- * over the merged values instead of a plain object missing `parse`.
+ * Re-invokes the factory behind a disk adapter or parser with Studio's options merged over its own.
+ * An instance carries live functions (`parse`, `print`, ...) that cannot survive JSON, so Studio's
+ * options are a patch, not a replacement, and the factory is found from the disk instance itself: the
+ * installed extension whose manifest names it, or the `@kubb/<kind>-<name>` package for a built-in
+ * one. The instance is kept as is when no factory resolves, such as `parserTsx`, which shares the
+ * `@kubb/parser-ts` package with the parser its manifest names.
  */
-export async function mergeAdapter(diskAdapter: Adapter | undefined, studioOptions: object | undefined): Promise<Adapter | undefined> {
-  if (!studioOptions || !diskAdapter) {
-    return diskAdapter
-  }
+async function rebuildExtension<T extends Adapter | Parser>({
+  disk,
+  studioOptions,
+  kind,
+  extensions,
+}: {
+  disk: T
+  studioOptions: object | undefined
+  kind: ExtensionKind
+  extensions: InstalledExtensions
+}): Promise<T> {
+  if (!studioOptions) return disk
 
-  const packageName = `@kubb/adapter-${diskAdapter.name}`
-  const mod = await importFromProject(packageName)
-  const factory = mod[toExportName(packageName)]
+  const { name } = resolveMeta(disk)
+  const installed = [...extensions.values()].find(({ manifest }) => manifest.kind === kind && manifest.name === name)
+  const packageName = installed?.package ?? `@kubb/${kind}-${name}`
+  const factory = await importFromProject(packageName)
+    .then((mod) => mod[installed?.manifest.export ?? toExportName(packageName)])
+    .catch(() => undefined)
 
-  if (typeof factory !== 'function') {
-    return diskAdapter
-  }
+  if (typeof factory !== 'function') return disk
 
-  const mergedOptions = mergeOptions((diskAdapter.options as Record<string, unknown>) ?? {}, studioOptions as Record<string, unknown>)
+  return factory(mergeOptions((disk.options as Record<string, unknown>) ?? {}, studioOptions as Record<string, unknown>)) as T
+}
 
-  return factory(mergedOptions) as Adapter
+/**
+ * Merges Studio-provided adapter option overrides into the disk config's adapter, see {@link rebuildExtension}.
+ */
+export async function mergeAdapter(diskAdapter: Adapter | undefined, studioOptions: object | undefined, extensions: InstalledExtensions = new Map()) {
+  if (!diskAdapter) return diskAdapter
+
+  return rebuildExtension({ disk: diskAdapter, studioOptions, kind: 'adapter', extensions })
+}
+
+/**
+ * Merges Studio-provided parser option overrides into the disk config's parsers, matched by the name
+ * Studio knows each parser by, see {@link rebuildExtension}. Parsers Studio does not name are kept as is.
+ */
+export async function mergeParsers({
+  diskParsers,
+  studioParsers,
+  root,
+  extensions = new Map(),
+}: {
+  diskParsers: Array<Parser>
+  studioParsers: JSONKubbConfig['parsers'] | undefined
+  root: string
+  extensions?: InstalledExtensions
+}): Promise<Array<Parser>> {
+  if (!studioParsers?.length) return diskParsers
+
+  const studioOptions = new Map(studioParsers.map((entry) => [entry.name, entry.options]))
+
+  return Promise.all(
+    diskParsers.map((parser) =>
+      rebuildExtension({
+        disk: parser,
+        studioOptions: studioOptions.get(toStudioName({ name: resolveMeta(parser).name, root, extensions, kind: 'parser' })),
+        kind: 'parser',
+        extensions,
+      }),
+    ),
+  )
 }

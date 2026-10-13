@@ -1,5 +1,5 @@
 import { join } from 'node:path'
-import type { Adapter, ExtensionManifest, Plugin } from '@kubb/core'
+import type { Adapter, ExtensionManifest, Parser, Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtensionEntry, JSONKubbConfig } from './protocol.ts'
 import { mergeAdapter, mergeOptions, mergePlugins, resolvePlugins, toExportName, toJSONOptions, toPackageName, toStudioName } from './resolveConfig.ts'
@@ -202,6 +202,34 @@ describe('mergeAdapter', () => {
 
     expect(mockAdapterOas).toHaveBeenCalledWith({ validate: true, server: { index: 1 } })
     expect(result).toStrictEqual({ name: 'oas', options: { validate: true, server: { index: 1 } }, parse: expect.any(Function) })
+  })
+})
+
+describe('mergeParsers', () => {
+  it('re-invokes the factory of the parser Studio names, found through its manifest, and keeps the others', async () => {
+    const mockParserY = vi.fn((options: unknown) => ({ meta: { name: 'parser-y' }, options, extNames: ['.y'], parse: vi.fn(), print: vi.fn() }))
+    vi.doMock('@acme/kubb-parser-y', () => ({ parserY: mockParserY }))
+    const { mergeParsers: merge } = await import('./resolveConfig.ts')
+    const parserY = {
+      meta: { name: 'parser-y' },
+      options: { indent: 2, quote: 'single' },
+      extNames: ['.y'],
+      parse: vi.fn(),
+      print: vi.fn(),
+    } as unknown as Parser
+    const parserTsx = { meta: { name: 'tsx' }, extNames: ['.tsx'], parse: vi.fn(), print: vi.fn() } as unknown as Parser
+    const extensions = new Map([['@acme/kubb-parser-y', extension('@acme/kubb-parser-y', { kind: 'parser', name: 'parser-y', export: 'parserY' })]])
+
+    const result = await merge({
+      diskParsers: [parserY, parserTsx],
+      studioParsers: [{ name: '@acme/kubb-parser-y', options: { indent: 4 } }],
+      root: '/project',
+      extensions,
+    })
+
+    expect(mockParserY).toHaveBeenCalledWith({ indent: 4, quote: 'single' })
+    expect(result[0]).toMatchObject({ options: { indent: 4, quote: 'single' } })
+    expect(result[1]).toBe(parserTsx)
   })
 })
 
