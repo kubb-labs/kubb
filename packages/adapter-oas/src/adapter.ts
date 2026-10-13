@@ -78,15 +78,13 @@ export const adapterOas = defineExtension<AdapterOas>({
       document,
       refs,
       schemas,
-      parser,
+      parseSchema,
     }: {
       document: Document
       refs: ReturnType<typeof createRefs>
       schemas: Record<string, SchemaObject>
-      parser: ReturnType<typeof createSchemaParser>
+      parseSchema: ReturnType<typeof createSchemaParser>
     }): ast.InputNode {
-      const { parseSchema } = parser
-
       const parsedByName = new Map<string, ast.SchemaNode>()
       const refAliasMap = new Map<string, ast.SchemaNode>()
       const enumNames: Array<string> = []
@@ -176,9 +174,9 @@ export const adapterOas = defineExtension<AdapterOas>({
 
           const refs = createRefs(document)
           const { schemas, renames } = getSchemas(document, { contentType }, refs)
-          const parser = createSchemaParser({ document, refs, renames, options: parserOptions })
+          const parseSchema = createSchemaParser({ document, refs, renames, options: parserOptions })
 
-          return parseInput({ document, refs, schemas, parser })
+          return parseInput({ document, refs, schemas, parseSchema })
         })()
         inputCache.set(source, promise)
         return promise.catch((error: unknown) => {

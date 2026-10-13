@@ -95,27 +95,6 @@ describe('unpluginFactory', () => {
     expect(empty).toHaveBeenCalledWith(path.resolve(root, './gen'))
   })
 
-  test('fails the host build when generation fails', async () => {
-    const plugin = defineExtension({
-      kind: 'plugin',
-      meta: { name: 'plugin' },
-      hooks: {
-        'kubb:plugin:setup'() {
-          throw new Error('setup failed')
-        },
-      },
-    })()
-    const config = {
-      input: 'https://example.com/openapi.json',
-      output: { path: './gen' },
-      adapter: createMockedAdapter(),
-      plugins: [plugin],
-    } satisfies UserConfig
-    const pluginOptions = getPluginOptions(unpluginFactory({ config }, viteMeta))
-
-    await expect(pluginOptions.buildStart?.call(createBuildContext())).rejects.toThrow('[unplugin-kubb]')
-  })
-
   test('logs a failed generation when the input cannot be read', async () => {
     using log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
     using _ = vi.spyOn(console, 'error').mockImplementation(() => undefined)

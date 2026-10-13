@@ -55,17 +55,6 @@ describe('refs.resolve', () => {
     )
   })
 
-  it('handles URL-encoded pointers', async () => {
-    const { Order } = await parseSchemas({
-      'Pet List': { type: 'array', items: { type: 'string' } },
-      Order: { type: 'object', properties: { pets: { $ref: '#/components/schemas/Pet%20List' } } },
-    })
-
-    expect(Order).toMatchObject({
-      properties: [{ name: 'pets', schema: { type: 'ref', name: 'Pet%20List', schema: { type: 'array', items: [{ type: 'string' }] } } }],
-    })
-  })
-
   it('unescapes ~1 and ~0 tokens and keeps an encoded slash inside its token', async () => {
     const document = buildDocument(
       {

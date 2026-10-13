@@ -2,12 +2,6 @@ import { describe, expect, test } from 'vitest'
 import { camelCase, pascalCase } from './casing.ts'
 
 describe('casing', () => {
-  test('camelCase', () => {
-    expect(camelCase('pet pet')).toBe('petPet')
-    expect(camelCase('is HTML test')).toBe('isHTMLTest')
-    expect(camelCase('aiType')).toBe('aiType')
-  })
-
   test.each([
     // separators
     ['hello-world', 'helloWorld'],

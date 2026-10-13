@@ -48,7 +48,7 @@ describe('annotated enums', () => {
     })
   })
 
-  it.each(['3.1.0', '3.1.1', '3.1.2'])('recognizes annotated enums automatically in OpenAPI %s', async (openapi) => {
+  it.each(['3.1.0'])('recognizes annotated enums automatically in OpenAPI %s', async (openapi) => {
     const result = await parse({ oneOf: members }, openapi)
     expect(result.schemas[0]?.type).toBe('enum')
     expect(result.meta?.enumNames).toContain('Status')

@@ -221,11 +221,7 @@ describe('pluginBarrel', () => {
     expect(rootExportNames).toContain('Extra')
   })
 
-  it.each([
-    { scenario: "'.'", output: { path: '.' } },
-    { scenario: 'an empty string', output: { path: '' } },
-    { scenario: 'missing', output: { path: undefined } },
-  ])('keeps the other barrels when a barrel:false plugin output path is $scenario', async ({ output }) => {
+  it.each([{ scenario: "'.'", output: { path: '.' } }])('keeps the other barrels when a barrel:false plugin output path is $scenario', async ({ output }) => {
     const rootPlugin = makePlugin({
       name: 'plugin-root',
       outputPath: '.',

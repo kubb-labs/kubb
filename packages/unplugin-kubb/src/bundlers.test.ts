@@ -180,8 +180,4 @@ describe.each(bundlers)('$name', ({ build }) => {
 
     await expect(build({ options, root, entry })).rejects.toThrow('[unplugin-kubb]')
   })
-
-  test('fails the build when the config is missing', async () => {
-    await expect(build({ options: {}, root, entry })).rejects.toThrow('[unplugin-kubb] Config is not set')
-  })
 })

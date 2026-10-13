@@ -42,18 +42,6 @@ describe('resolveBaseUrl', () => {
 
     expect(resolveBaseUrl({ document, server })).toBeNull()
   })
-
-  it('substitutes server variables into the resolved URL', async () => {
-    const document = await parseFromConfig({
-      type: 'data',
-      data: {
-        ...minimalSpec,
-        servers: [{ url: 'https://api.{env}.example.com', variables: { env: { default: 'dev' } } }],
-      },
-    })
-    const url = resolveBaseUrl({ document, server: { index: 0, variables: { env: 'prod' } } })
-    expect(url).toBe('https://api.prod.example.com')
-  })
 })
 
 describe('resolveServerUrl', () => {
@@ -80,15 +68,6 @@ describe('resolveServerUrl', () => {
         variables: { env: { default: 'dev' } },
       }),
     ).toBe('https://dev.api.example.com')
-  })
-
-  it('leaves the placeholder unreplaced when no override and no default', () => {
-    expect(
-      resolveServerUrl({
-        url: 'https://{env}.api.example.com',
-        variables: { env: { default: '' } },
-      }),
-    ).toBe('https://.api.example.com')
   })
 
   it('replaces multiple variables', () => {

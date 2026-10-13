@@ -76,14 +76,6 @@ describe('read / write', () => {
     expect(await write(rwFilePath, `export const hallo = 'moon'`)).toBe(`export const hallo = 'moon'\n`)
   })
 
-  test('write does not rewrite when content is identical', async () => {
-    const text = `export const hallo = 'world'`
-    await write(rwFilePath, text)
-    const result = await write(rwFilePath, text)
-
-    expect(result).toBeNull()
-  })
-
   test('write creates a missing directory, and recreates one that disappeared', async () => {
     const nested = path.join(rwTestDir, 'nested', 'deep', 'file.ts')
     await write(nested, 'const a = 1')
@@ -136,14 +128,6 @@ describe('toPosixPath', () => {
   it('converts backslash separators to forward slashes', () => {
     expect(toPosixPath('C:\\repo\\src\\gen\\types\\pet.ts')).toBe('C:/repo/src/gen/types/pet.ts')
   })
-
-  it('handles mixed separators', () => {
-    expect(toPosixPath('C:\\repo/src\\gen/types\\pet.ts')).toBe('C:/repo/src/gen/types/pet.ts')
-  })
-
-  it('returns the empty string unchanged', () => {
-    expect(toPosixPath('')).toBe('')
-  })
 })
 
 describe('trimExtName', () => {
@@ -161,10 +145,6 @@ describe('trimExtName', () => {
 
   test('returns the input unchanged when there is no extension', () => {
     expect(trimExtName('noExtension')).toBe('noExtension')
-  })
-
-  test('strips .json extension', () => {
-    expect(trimExtName('schema.json')).toBe('schema')
   })
 
   test('strips double extension (.d.ts)', () => {

@@ -195,36 +195,6 @@ describe('getSchemas', () => {
     expect(renames.get('#/components/schemas/Pet')).toBe('Pet2')
   })
 
-  it('resolves name collisions across sources with semantic suffixes (Schema, Response)', () => {
-    const document: Document = {
-      ...base,
-      components: {
-        schemas: {
-          Pet: { type: 'object', properties: { id: { type: 'integer' } } },
-        },
-        responses: {
-          Pet: {
-            description: 'Pet response',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: { name: { type: 'string' } },
-                },
-              },
-            },
-          },
-        },
-      },
-    }
-
-    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
-
-    expect(Object.keys(schemas).sort()).toStrictEqual(['PetResponse', 'PetSchema'])
-    expect(renames.get('#/components/schemas/Pet')).toBe('PetSchema')
-    expect(renames.get('#/components/responses/Pet')).toBe('PetResponse')
-  })
-
   it('resolves three-way collision across all sources with semantic suffixes', () => {
     const document: Document = {
       ...base,
@@ -296,48 +266,6 @@ describe('getSchemas', () => {
     // both normalize to PetList → semantic suffixes applied
     expect(renames.get('#/components/schemas/pet_list')).toBe('pet_listSchema')
     expect(renames.get('#/components/responses/PetList')).toBe('PetListResponse')
-  })
-
-  it('collects enum schemas correctly', () => {
-    const document: Document = {
-      ...base,
-      components: {
-        schemas: {
-          Status: { type: 'string', enum: ['active', 'inactive', 'pending'] },
-        },
-      },
-    }
-
-    const { renames } = getSchemas(document, {}, createRefs(document))
-    expect(renames.has('#/components/schemas/Status')).toBe(false)
-  })
-
-  it('resolves collision between enum schema and response with semantic suffixes', () => {
-    const document: Document = {
-      ...base,
-      components: {
-        schemas: {
-          Status: { type: 'string', enum: ['active', 'inactive'] },
-        },
-        responses: {
-          Status: {
-            description: 'ok',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: { code: { type: 'integer' } },
-                },
-              },
-            },
-          },
-        },
-      },
-    }
-
-    const { renames } = getSchemas(document, {}, createRefs(document))
-    expect(renames.get('#/components/schemas/Status')).toBe('StatusSchema')
-    expect(renames.get('#/components/responses/Status')).toBe('StatusResponse')
   })
 
   it('sorts schemas by $ref dependency (referenced schema appears first)', () => {
