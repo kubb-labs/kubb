@@ -2,15 +2,18 @@
   "$schema": "https://context7.com/schema/context7.json",
   "url": "https://context7.com/kubb-labs/kubb",
   "public_key": "pk_E3UkJR9X5FvhME9wB1sCS",
-  "projectTitle": "Kubb Core",
-  "description": "Turn your API spec into type-safe code. Generate TypeScript types, API clients, hooks, validators and mocks from a spec such as OpenAPI. This repository holds the core engine, CLI, authoring kit, OpenAPI adapter, parsers and renderers. The documentation is at https://kubb.dev, indexed on Context7 as /kubb-labs/docs.",
-  "folders": ["packages"],
-  "excludeFiles": ["AGENTS.md", "CHANGELOG.md"],
+  "projectTitle": "Kubb",
+  "description": "Turn your API spec into type-safe code. Point Kubb at an OpenAPI specification and it generates TypeScript types, typed Axios or Fetch clients, TanStack Query and SWR hooks, Zod schemas, Faker mocks, and MSW handlers. This repository holds the docs, the core engine, CLI, authoring kit, OpenAPI adapter, parsers and renderers.",
+  "folders": ["docs/5.x", "docs/snippets", "packages"],
+  "excludeFiles": ["AGENTS.md", "CHANGELOG.md", "changelog.md"],
   "rules": [
-    "This repository holds the core packages. Guides and the configuration reference are on https://kubb.dev, indexed on Context7 as /kubb-labs/docs. Each extension here ships its overview and options in `packages/<name>/docs/`.",
     "Import `defineConfig` from `kubb/config`, not from `kubb`.",
     "Kubb v5 has no `pluginOas()`. The OpenAPI adapter is a top-level `adapter` key that defaults to `adapterOas()` from `@kubb/adapter-oas`, which ships with `kubb`. Set it only when you need to pass options.",
-    "Each output format is its own `@kubb/plugin-*` package, listed in `plugins: []`. They are maintained in kubb-labs/plugins, except `@kubb/plugin-barrel`, which lives here, ships with `kubb`, and is registered automatically.",
-    "Register `pluginAxios` or `pluginFetch` for an HTTP client, then point the query and MCP plugins at it with `client: 'axios' | 'fetch'`. `@kubb/plugin-client` is the bring-your-own-client plugin for a client module you write yourself, not a `client` value."
+    "Each output format is its own `@kubb/plugin-*` package, listed in `plugins: []` and maintained in kubb-labs/plugins, except `@kubb/plugin-barrel`, which lives here, ships with `kubb`, and is registered automatically.",
+    "Register `pluginAxios` or `pluginFetch` for an HTTP client, then point the query and MCP plugins at it with `client: 'axios' | 'fetch'`. `@kubb/plugin-client` is the bring-your-own-client plugin for a client module you write yourself, not a `client` value.",
+    "`@kubb/plugin-solid-query` and `@kubb/plugin-svelte-query` were removed in v5 with no equivalent. The query plugins are `pluginReactQuery`, `pluginVueQuery` and `pluginSwr`.",
+    "Passing your own `output` to a plugin replaces the plugin's default `output` wholesale. Repeat `barrel` inside it or you lose that plugin's barrel file.",
+    "The options every generator plugin shares (`output`, `group`, `include`, `exclude`, `override`, `resolver`, `macros`) are documented once at docs/5.x/reference/plugin-options.md.",
+    "Each extension in `packages/` ships its overview and options in `packages/<name>/docs/`."
   ]
 }
