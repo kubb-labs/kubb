@@ -1,11 +1,9 @@
 import { existsSync } from 'node:fs'
-import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import { type Adapter, type ExtensionKind, isPackageName, type Parser, type Plugin, resolveMeta } from '@kubb/core'
 import { camelCase } from '@internals/utils'
-import type { InstalledExtensions } from './extensions.ts'
-import type { JSONKubbConfig, OptionValue } from './protocol.ts'
+import type { InstalledExtensions, JSONKubbConfig, OptionValue } from './protocol.ts'
 
 /**
  * Turns the JSON config Studio sends back into live Kubb objects.
@@ -67,59 +65,27 @@ export function toPackageName(name: string): string {
   return name.startsWith('plugin-') ? `@kubb/${name}` : name
 }
 
-function resolvesFrom(base: string | URL, packageName: string): boolean {
-  try {
-    // Every Kubb package exports its `package.json`, which resolves even before a build exists.
-    createRequire(base).resolve(`${packageName}/package.json`)
-    return true
-  } catch {
-    return false
-  }
-}
-
 /**
- * Whether `packageName` resolves from the project at `root`, from this package, or from the `kubb`
- * package the project installs, which brings the plugins Kubb adds on its own such as
- * `@kubb/plugin-barrel`. Only resolves the package, it never runs it.
- */
-function isInstalled({ packageName, root }: { packageName: string; root: string }): boolean {
-  const project = pathToFileURL(`${root}/`)
-  if (resolvesFrom(project, packageName) || resolvesFrom(import.meta.url, packageName)) return true
-
-  try {
-    return resolvesFrom(createRequire(project).resolve('kubb/package.json'), packageName)
-  } catch {
-    return false
-  }
-}
-
-/**
- * The name Studio knows a plugin by: its `@kubb/plugin-*` package when one is installed, otherwise
- * the plugin's own `name`, so a plugin defined in the user's project is never reported as a Kubb
- * package that does not exist. An installed extension whose manifest `name` matches wins.
+ * The name Studio knows an extension by: the package of the installed extension whose manifest
+ * `name` matches, otherwise its own `name`, so a plugin defined in the user's project is never
+ * reported as a Kubb package that does not exist.
  *
  * @example
  * ```ts
- * toStudioName({ name: 'plugin-ts', root })              // '@kubb/plugin-ts'
- * toStudioName({ name: 'plugin-zod-operations', root })  // 'plugin-zod-operations', a local plugin
+ * toStudioName({ name: 'plugin-ts', extensions })              // '@kubb/plugin-ts'
+ * toStudioName({ name: 'plugin-zod-operations', extensions })  // 'plugin-zod-operations', a local plugin
  * ```
  */
 export function toStudioName({
   name,
-  root,
   extensions = new Map(),
   kind = 'plugin',
 }: {
   name: string
-  root: string
   extensions?: InstalledExtensions
   kind?: ExtensionKind
 }): string {
-  const installed = [...extensions.values()].find(({ manifest }) => manifest.kind === kind && manifest.name === name)
-  if (installed) return installed.package
-
-  const packageName = toPackageName(name)
-  return packageName !== name && isInstalled({ packageName, root }) ? packageName : name
+  return [...extensions.values()].find(({ manifest }) => manifest.kind === kind && manifest.name === name)?.package ?? name
 }
 
 /**
@@ -213,44 +179,6 @@ export async function resolvePlugins({
       return factory(options ?? {}) as Plugin
     }),
   )
-}
-
-type PackageJSON = {
-  version?: string
-}
-
-/** The installed version of each plugin's package, plus the names that could not be resolved. */
-export async function resolvePeerDependencies(names: Array<string>): Promise<{
-  peerDependencies: Record<string, string>
-  missingDependencies: Array<string>
-}> {
-  const require = createRequire(import.meta.url)
-  const uniqueNames = [...new Set(names.map(toPackageName))]
-  const peerDependencies: Record<string, string> = {}
-  const missingDependencies: Array<string> = []
-
-  const versions = await Promise.all(
-    uniqueNames.map(async (name) => {
-      try {
-        const path = require.resolve(`${name}/package.json`)
-        const packageJSON = JSON.parse(await readFile(path, 'utf8')) as PackageJSON
-        return packageJSON.version
-      } catch {
-        return undefined
-      }
-    }),
-  )
-
-  for (const [index, name] of uniqueNames.entries()) {
-    const version = versions[index]
-    if (version) {
-      peerDependencies[name] = version
-      continue
-    }
-    missingDependencies.push(name)
-  }
-
-  return { peerDependencies, missingDependencies }
 }
 
 /**
@@ -461,12 +389,10 @@ export async function mergeAdapter(diskAdapter: Adapter | undefined, studioOptio
 export async function mergeParsers({
   diskParsers,
   studioParsers,
-  root,
   extensions = new Map(),
 }: {
   diskParsers: Array<Parser>
   studioParsers: JSONKubbConfig['parsers'] | undefined
-  root: string
   extensions?: InstalledExtensions
 }): Promise<Array<Parser>> {
   if (!studioParsers?.length) return diskParsers
@@ -477,7 +403,7 @@ export async function mergeParsers({
     diskParsers.map((parser) =>
       rebuildExtension({
         disk: parser,
-        studioOptions: studioOptions.get(toStudioName({ name: resolveMeta(parser).name, root, extensions, kind: 'parser' })),
+        studioOptions: studioOptions.get(toStudioName({ name: resolveMeta(parser).name, extensions, kind: 'parser' })),
         kind: 'parser',
         extensions,
       }),

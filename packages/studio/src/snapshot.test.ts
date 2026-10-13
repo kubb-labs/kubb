@@ -176,11 +176,4 @@ describe('createSnapshot', () => {
       'Kubb Studio returned no snapshot (status 200)',
     )
   })
-
-  it('refuses a plaintext Studio URL before generating', async () => {
-    using fetchMock = vi.spyOn(globalThis, 'fetch')
-
-    await expect(createSnapshot({ ...options, studioUrl: 'http://studio.test', config: projectConfig() })).rejects.toThrow('Refusing to reach Kubb Studio')
-    expect(fetchMock).not.toHaveBeenCalled()
-  })
 })

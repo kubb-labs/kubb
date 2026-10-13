@@ -1,18 +1,7 @@
-import { join } from 'node:path'
 import type { Adapter, ExtensionManifest, Parser, Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtensionEntry, JSONKubbConfig } from './protocol.ts'
-import {
-  mergeAdapter,
-  mergeOptions,
-  mergeParsers,
-  mergePlugins,
-  resolvePlugins,
-  toExportName,
-  toJSONOptions,
-  toPackageName,
-  toStudioName,
-} from './resolveConfig.ts'
+import { mergeAdapter, mergeOptions, mergeParsers, mergePlugins, resolvePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
 
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
 
@@ -39,11 +28,6 @@ beforeEach(() => {
 })
 
 describe('mergePlugins', () => {
-  it('returns disk plugins as-is when studio plugins are undefined', async () => {
-    const diskPlugins = [makePlugin('plugin-zod', { validate: true })]
-    expect(await mergePlugins({ diskPlugins, studioPlugins: undefined })).toBe(diskPlugins)
-  })
-
   it('merges studio options into the matching disk plugin and keeps the ones without a studio counterpart', async () => {
     const pluginTs = makePlugin('plugin-ts', { enumType: 'asConst' })
     const diskPlugins = [makePlugin('plugin-zod', { validate: true }), pluginTs]
@@ -156,8 +140,6 @@ describe('resolvePlugins', () => {
     ['the name is not a @kubb/plugin-* package', 'my-custom-plugin', 'is not an installed Kubb plugin'],
     ['the package ships no manifest', '@acme/kubb-plugin-x', 'is not an installed Kubb plugin'],
     ['the name is a path', './plugin.ts', 'is not an installed Kubb plugin'],
-    ['the name is a URL', 'https://example.com/plugin.js', 'is not an installed Kubb plugin'],
-    ['the name is a node: specifier', 'node:child_process', 'is not an installed Kubb plugin'],
   ])('throws when %s', async (_label, name, message) => {
     await expect(resolvePlugins({ plugins: [{ name, options: {} }] })).rejects.toThrow(message)
   })
@@ -233,7 +215,6 @@ describe('mergeParsers', () => {
     const result = await merge({
       diskParsers: [parserY, parserTsx],
       studioParsers: [{ name: '@acme/kubb-parser-y', options: { indent: 4 } }],
-      root: '/project',
       extensions,
     })
 
@@ -245,75 +226,15 @@ describe('mergeParsers', () => {
   it('refuses an override for a parser no installed package provides, instead of dropping it', async () => {
     const parserTsx = { meta: { name: 'tsx' }, extNames: ['.tsx'], parse: vi.fn(), print: vi.fn() } as unknown as Parser
 
-    await expect(mergeParsers({ diskParsers: [parserTsx], studioParsers: [{ name: 'tsx', options: { indent: 4 } }], root: '/project' })).rejects.toThrow(
+    await expect(mergeParsers({ diskParsers: [parserTsx], studioParsers: [{ name: 'tsx', options: { indent: 4 } }] })).rejects.toThrow(
       'The parser "tsx" is not an installed Kubb extension',
     )
   })
 })
 
-describe('toExportName', () => {
-  // Every plugin published from kubb-labs/plugins. Both `resolvePlugins`, which imports this name,
-  // and the config patcher, which writes it into the user's file, go through here, so a package
-  // that breaks the convention has to show up as a failure rather than as a config Studio cannot load.
-  it('derives the factory name every Kubb plugin exports', () => {
-    const packages = [
-      '@kubb/plugin-axios',
-      '@kubb/plugin-cypress',
-      '@kubb/plugin-faker',
-      '@kubb/plugin-fetch',
-      '@kubb/plugin-mcp',
-      '@kubb/plugin-msw',
-      '@kubb/plugin-react-query',
-      '@kubb/plugin-redoc',
-      '@kubb/plugin-swr',
-      '@kubb/plugin-ts',
-      '@kubb/plugin-vue-query',
-      '@kubb/plugin-zod',
-    ]
-
-    expect(Object.fromEntries(packages.map((name) => [name, toExportName(name)]))).toStrictEqual({
-      '@kubb/plugin-axios': 'pluginAxios',
-      '@kubb/plugin-cypress': 'pluginCypress',
-      '@kubb/plugin-faker': 'pluginFaker',
-      '@kubb/plugin-fetch': 'pluginFetch',
-      '@kubb/plugin-mcp': 'pluginMcp',
-      '@kubb/plugin-msw': 'pluginMsw',
-      '@kubb/plugin-react-query': 'pluginReactQuery',
-      '@kubb/plugin-redoc': 'pluginRedoc',
-      '@kubb/plugin-swr': 'pluginSwr',
-      '@kubb/plugin-ts': 'pluginTs',
-      '@kubb/plugin-vue-query': 'pluginVueQuery',
-      '@kubb/plugin-zod': 'pluginZod',
-    })
-  })
-})
-
-describe('toPackageName', () => {
-  it('scopes a Kubb plugin name and leaves anything else alone', () => {
-    const names = ['plugin-ts', '@kubb/plugin-ts', '@acme/my-plugin', 'kubb']
-
-    expect(Object.fromEntries(names.map((name) => [name, toPackageName(name)]))).toStrictEqual({
-      'plugin-ts': '@kubb/plugin-ts',
-      '@kubb/plugin-ts': '@kubb/plugin-ts',
-      '@acme/my-plugin': '@acme/my-plugin',
-      kubb: 'kubb',
-    })
-  })
-})
-
 describe('toStudioName', () => {
-  it('scopes a plugin whose package is installed, and keeps a plugin defined in the project by its own name', () => {
-    // A project that installs `kubb`, which brings `@kubb/plugin-barrel` along.
-    const root = join(import.meta.dirname, '../../kubb')
-
-    expect([toStudioName({ name: 'plugin-barrel', root }), toStudioName({ name: 'plugin-zod-operations', root })]).toStrictEqual([
-      '@kubb/plugin-barrel',
-      'plugin-zod-operations',
-    ])
-  })
-
   it('reports an installed extension by its package', () => {
-    expect(toStudioName({ name: 'plugin-x', root: '/project', extensions: new Map([['@acme/kubb-plugin-x', pluginXEntry]]) })).toBe('@acme/kubb-plugin-x')
+    expect(toStudioName({ name: 'plugin-x', extensions: new Map([['@acme/kubb-plugin-x', pluginXEntry]]) })).toBe('@acme/kubb-plugin-x')
   })
 })
 

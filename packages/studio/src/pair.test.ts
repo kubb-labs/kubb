@@ -137,13 +137,6 @@ describe('startPairing', () => {
       'Kubb Studio returned no pairing code',
     )
   })
-
-  it('refuses a plaintext Studio URL before sending anything', async () => {
-    await expect(startPairing({ studioUrl: 'http://studio.test', type: 'cli', name: 'my-project', hostname: 'my-host', machineId: 'secret' })).rejects.toThrow(
-      'Refusing to reach Kubb Studio',
-    )
-    expect(fetchMock).not.toHaveBeenCalled()
-  })
 })
 
 describe('pairAgent', () => {

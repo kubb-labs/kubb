@@ -3,11 +3,11 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { promisify } from 'node:util'
 import { gzip } from 'node:zlib'
-import { type Config, fsStorage, type Hookable, type KubbHooks, resolveMeta } from '@kubb/core'
+import { type Config, fsStorage, type Hookable, type KubbHooks, readInstalledPackages, resolveMeta } from '@kubb/core'
 import { ofetch } from 'ofetch'
 import { generate, hashOf } from './generations.ts'
 import { MAX_SNAPSHOT_BYTES, type PublishedSnapshot, type SnapshotUploadMetadata } from './protocol.ts'
-import { resolvePeerDependencies } from './resolveConfig.ts'
+import { toPackageName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
 const gzipAsync = promisify(gzip)
@@ -172,9 +172,11 @@ export async function createSnapshot({
       }),
     ),
   )
-  const { peerDependencies, missingDependencies } = await resolvePeerDependencies(config.plugins.map((plugin) => resolveMeta(plugin).name))
+  const names = [...new Set(config.plugins.map((plugin) => toPackageName(resolveMeta(plugin).name)))]
+  const installed = await readInstalledPackages({ root: config.root, packages: names, resolveFrom: ['kubb'] })
+  const peerDependencies = Object.fromEntries(installed.flatMap(({ package: name, version }) => (names.includes(name) && version ? [[name, version]] : [])))
   // The package would declare no version for a plugin that is not installed.
-  const missing = missingDependencies.filter((dependency) => !BUNDLED_DEPENDENCIES.includes(dependency))
+  const missing = names.filter((name) => !(name in peerDependencies) && !BUNDLED_DEPENDENCIES.includes(name))
   if (missing.length) throw new Error(`Missing dependencies: ${missing.join(', ')}`)
 
   const bytes = await createSnapshotPackage({ files, packageInfo: { name: metadata.packageName, version: metadata.version, peerDependencies } })
