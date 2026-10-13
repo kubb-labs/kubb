@@ -26,7 +26,7 @@
 
 MCP server for Kubb. Exposes code generation as a tool over the [Model Context Protocol](https://modelcontextprotocol.io) so AI assistants like [Claude](https://claude.ai), [Cursor](https://cursor.sh), and other MCP-compatible clients can generate TypeScript types, API clients, and more using natural language.
 
-The server exposes a `generate` tool that runs a full Kubb build from a `kubb.config.ts`. It streams build events back to the client as real-time progress notifications. The server communicates over stdio and works with any MCP-compatible client.
+The server exposes a `generate` tool that runs a full Kubb build from a `kubb.config.ts`. When the build finishes, the tool returns its build events with the result. The server communicates over stdio and works with any MCP-compatible client.
 
 ## Installation
 
@@ -91,15 +91,20 @@ Using the standalone package:
 }
 ```
 
-For project-specific configurations, you can specify the working directory:
+The server looks for `kubb.config.*` in the directory the client starts it in, and rejects a `config` path outside that directory. Claude Code starts it in the folder you run `claude` from, so register it from the project root:
+
+```bash
+claude mcp add kubb -- npx kubb mcp
+```
+
+Clients such as Claude Code ignore a `cwd` key in this config. When a client starts the server in another directory, change into the project first (macOS and Linux):
 
 ```json
 {
   "mcpServers": {
     "kubb-petstore": {
-      "command": "npx",
-      "args": ["@kubb/mcp"],
-      "cwd": "/path/to/your/project"
+      "command": "sh",
+      "args": ["-c", "cd /path/to/your/project && npx kubb mcp"]
     }
   }
 }
