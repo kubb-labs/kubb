@@ -67,8 +67,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     const passedCount = pluginsCount - failedCount
     const { errors } = Diagnostics.count(diagnostics)
 
-    // Same counts as the CLI summary. A run that fails before any plugin runs, such as on a
-    // missing input, has no failed plugins, so the error count is what shows the failure.
+    // A run that fails before any plugin runs has 0 failed plugins, so show the error count.
     console.log(
       status === 'success'
         ? `Kubb Summary: ✓ ${passedCount} passed (${pluginsCount})`
@@ -76,8 +75,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     )
   })
 
-  // Throw instead of calling `this.error`: webpack, Rspack, esbuild, and Farm contexts have no
-  // `error`, and every host turns an error thrown from `buildStart` into a failed build.
+  // Throw: webpack, Rspack, esbuild, and Farm contexts have no `this.error`.
   async function runBuild() {
     if (!options?.config) {
       throw new Error(`[${name}] Config is not set`)
@@ -115,9 +113,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     }
   }
 
-  // Hosts call `buildStart` again for every watch rebuild and for each build that shares this
-  // instance, such as Astro's server and client builds. Generate once: with `output.clean`, every
-  // rerun rewrites watched files and webpack and Rspack rebuild forever. A failed run is retried.
+  // A rerun with `output.clean` loops webpack and Rspack watchers, so generate once per instance.
   let generation: Promise<void> | undefined
 
   return {

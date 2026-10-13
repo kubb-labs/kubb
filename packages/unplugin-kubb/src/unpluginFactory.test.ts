@@ -28,6 +28,22 @@ function createBuildContext(): UnpluginBuildContext {
   }
 }
 
+function createConfig(setup: () => void) {
+  const plugin = defineExtension({
+    kind: 'plugin',
+    meta: { name: 'plugin' },
+    hooks: { 'kubb:plugin:setup': setup },
+  })()
+
+  return {
+    input: 'https://example.com/openapi.json',
+    output: { path: './gen' },
+    adapter: createMockedAdapter(),
+    plugins: [plugin],
+    storage: memoryStorage(),
+  } satisfies UserConfig
+}
+
 describe('unpluginFactory', () => {
   test('uses the same generation defaults as defineConfig', async () => {
     const storage = memoryStorage()
@@ -102,7 +118,7 @@ describe('unpluginFactory', () => {
 
   test('logs a failed generation when the input cannot be read', async () => {
     using log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
-    using _error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    using _ = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const config = {
       input: './missing.yaml',
       output: { path: './gen' },
@@ -131,19 +147,7 @@ describe('unpluginFactory', () => {
 
   test('generates once when the host starts several builds with one instance', async () => {
     const setup = vi.fn()
-    const plugin = defineExtension({
-      kind: 'plugin',
-      meta: { name: 'plugin' },
-      hooks: { 'kubb:plugin:setup': setup },
-    })()
-    const config = {
-      input: 'https://example.com/openapi.json',
-      output: { path: './gen' },
-      adapter: createMockedAdapter(),
-      plugins: [plugin],
-      storage: memoryStorage(),
-    } satisfies UserConfig
-    const pluginOptions = getPluginOptions(unpluginFactory({ config }, viteMeta))
+    const pluginOptions = getPluginOptions(unpluginFactory({ config: createConfig(setup) }, viteMeta))
     const buildStart = () => pluginOptions.buildStart?.call(createBuildContext())
 
     await Promise.all([buildStart(), buildStart()])
@@ -156,19 +160,7 @@ describe('unpluginFactory', () => {
     const setup = vi.fn().mockImplementationOnce(() => {
       throw new Error('setup failed')
     })
-    const plugin = defineExtension({
-      kind: 'plugin',
-      meta: { name: 'plugin' },
-      hooks: { 'kubb:plugin:setup': setup },
-    })()
-    const config = {
-      input: 'https://example.com/openapi.json',
-      output: { path: './gen' },
-      adapter: createMockedAdapter(),
-      plugins: [plugin],
-      storage: memoryStorage(),
-    } satisfies UserConfig
-    const pluginOptions = getPluginOptions(unpluginFactory({ config }, viteMeta))
+    const pluginOptions = getPluginOptions(unpluginFactory({ config: createConfig(setup) }, viteMeta))
 
     await expect(pluginOptions.buildStart?.call(createBuildContext())).rejects.toThrow('[unplugin-kubb]')
     await pluginOptions.buildStart?.call(createBuildContext())
