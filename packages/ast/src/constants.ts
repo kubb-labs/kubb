@@ -14,15 +14,9 @@ export const visitorDepths = {
   deep: 'deep',
 } as const satisfies Record<VisitorDepth, VisitorDepth>
 
-/**
- * Visitor callback names, one per traversable node kind, in traversal order.
- * Kept in sync with the keys of `Visitor` in `visitor.ts`.
- */
+/** Visitor callback names in traversal order, the keys of `Visitor` in `visitor.ts`. */
 export const visitorKeys = ['input', 'output', 'operation', 'schema', 'property', 'parameter', 'response'] as const
 
-/**
- * One of the {@link visitorKeys} callback names.
- */
 export type VisitorKey = (typeof visitorKeys)[number]
 
 /**

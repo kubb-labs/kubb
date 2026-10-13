@@ -502,10 +502,7 @@ export type ConnectMessagePayload = {
 /** An installed extension package and the manifest it ships. */
 export type ExtensionEntry = { package: string; version: string; manifest: ExtensionManifest }
 
-/**
- * The extension packages installed in a project, keyed by package name. Only these, besides
- * `@kubb/plugin-*` packages, may be imported on behalf of Studio.
- */
+/** Installed extension packages by package name, the only ones Studio may import besides `@kubb/plugin-*`. */
 export type InstalledExtensions = ReadonlyMap<string, ExtensionEntry>
 
 /**
