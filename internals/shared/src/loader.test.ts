@@ -2,7 +2,7 @@ import { mkdir, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
-import { createModuleLoader } from './loader.ts'
+import { loadModule } from './loader.ts'
 
 const testDir = path.join(os.tmpdir(), 'kubb-test-loader')
 const tsConfigPath = path.join(testDir, 'kubb.config.ts')
@@ -20,41 +20,35 @@ afterAll(async () => {
   await rm(testDir, { recursive: true, force: true })
 })
 
-describe('createModuleLoader', () => {
+describe('loadModule', () => {
   test('returns the default export when default is set', async () => {
-    const loader = createModuleLoader()
-
-    expect(await loader.load(tsConfigPath, { default: true })).toStrictEqual({ name: 'loaded' })
+    expect(await loadModule(tsConfigPath, { default: true })).toStrictEqual({ name: 'loaded' })
   })
 
   test('returns the namespace when default is not set', async () => {
-    const loader = createModuleLoader()
-
-    expect(await loader.load(namedExportPath)).toMatchObject({ value: 42, default: 'fallback' })
+    expect(await loadModule(namedExportPath)).toMatchObject({ value: 42, default: 'fallback' })
   })
 
   test.each(['js', 'mjs', 'cjs', 'ts'])('picks up an edit to a .%s config on the next load', async (extension) => {
-    const loader = createModuleLoader()
     const filePath = path.join(testDir, `reload.config.${extension}`)
     const source = (name: string) => (extension === 'cjs' ? `module.exports = { name: '${name}' }\n` : `export default { name: '${name}' }\n`)
 
     await writeFile(filePath, source('before'))
-    expect(await loader.load(filePath, { default: true })).toStrictEqual({ name: 'before' })
+    expect(await loadModule(filePath, { default: true })).toStrictEqual({ name: 'before' })
 
     await writeFile(filePath, source('after'))
-    expect(await loader.load(filePath, { default: true })).toStrictEqual({ name: 'after' })
+    expect(await loadModule(filePath, { default: true })).toStrictEqual({ name: 'after' })
   })
 
   test('picks up an edit to a TypeScript file the config imports', async () => {
-    const loader = createModuleLoader()
     const helperPath = path.join(testDir, 'helper.ts')
     const filePath = path.join(testDir, 'imports.config.js')
 
     await writeFile(helperPath, `export const name = 'before'\n`)
     await writeFile(filePath, `import { name } from './helper.ts'\n\nexport default { name }\n`)
-    expect(await loader.load(filePath, { default: true })).toStrictEqual({ name: 'before' })
+    expect(await loadModule(filePath, { default: true })).toStrictEqual({ name: 'before' })
 
     await writeFile(helperPath, `export const name = 'after'\n`)
-    expect(await loader.load(filePath, { default: true })).toStrictEqual({ name: 'after' })
+    expect(await loadModule(filePath, { default: true })).toStrictEqual({ name: 'after' })
   })
 })

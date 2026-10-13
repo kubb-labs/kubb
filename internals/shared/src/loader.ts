@@ -17,7 +17,7 @@ const JITI_OPTIONS = {
 const JAVASCRIPT_EXTENSION = /\.[cm]?jsx?$/
 
 /**
- * Per-call options for {@link ModuleLoader.load}.
+ * Per-call options for {@link loadModule}.
  */
 type LoadModuleOptions = {
   /**
@@ -26,40 +26,31 @@ type LoadModuleOptions = {
   default?: boolean
 }
 
-/**
- * Loads `.ts`/`.js` modules via jiti.
- */
-type ModuleLoader = {
-  load<T = unknown>(filePath: string, options?: LoadModuleOptions): Promise<T>
-}
+let jiti: ReturnType<typeof createJiti> | undefined
 
 /**
- * Creates a jiti-based loader for Kubb's TypeScript and JavaScript config modules.
+ * Loads a Kubb TypeScript or JavaScript config module via jiti.
  *
  * jiti transpiles TypeScript and the `@kubb/renderer-jsx` JSX runtime on the fly. Every load
  * re-evaluates the file, so a config edited on disk is picked up by the next load.
  *
  * @example
  * ```ts
- * const config = await createModuleLoader().load('/abs/kubb.config.ts', { default: true })
+ * const config = await loadModule('/abs/kubb.config.ts', { default: true })
  * ```
  */
-export function createModuleLoader(): ModuleLoader {
-  const jiti = createJiti(import.meta.url, JITI_OPTIONS)
+export async function loadModule<T = unknown>(filePath: string, options?: LoadModuleOptions): Promise<T> {
+  jiti ??= createJiti(import.meta.url, JITI_OPTIONS)
 
-  return {
-    async load<T>(filePath: string, options?: LoadModuleOptions) {
-      if (!JAVASCRIPT_EXTENSION.test(filePath)) {
-        return (options?.default ? jiti.import(filePath, { default: true }) : jiti.import(filePath)) as Promise<T>
-      }
-
-      // Transpiled through jiti instead, so every load re-evaluates the file as it is on disk now.
-      // A TypeScript file it imports reloads too. A plain JavaScript file it imports still goes
-      // through Node's `import()` and stays cached until the process restarts.
-      const mod = (await jiti.evalModule(await readFile(filePath, 'utf8'), { filename: filePath, async: true, forceTranspile: true })) as
-        | { default?: unknown }
-        | undefined
-      return (options?.default ? (mod?.default ?? mod) : mod) as T
-    },
+  if (!JAVASCRIPT_EXTENSION.test(filePath)) {
+    return (options?.default ? jiti.import(filePath, { default: true }) : jiti.import(filePath)) as Promise<T>
   }
+
+  // Transpiled through jiti instead, so every load re-evaluates the file as it is on disk now.
+  // A TypeScript file it imports reloads too. A plain JavaScript file it imports still goes
+  // through Node's `import()` and stays cached until the process restarts.
+  const mod = (await jiti.evalModule(await readFile(filePath, 'utf8'), { filename: filePath, async: true, forceTranspile: true })) as
+    | { default?: unknown }
+    | undefined
+  return (options?.default ? (mod?.default ?? mod) : mod) as T
 }

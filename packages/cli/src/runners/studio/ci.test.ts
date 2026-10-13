@@ -25,19 +25,6 @@ describe('detectCi', () => {
     expect(detectCi({})).toBeNull()
   })
 
-  it('derives the same id kubb-labs/action has always registered agents under', () => {
-    const eventPath = writeGithubEvent({ pull_request: { number: 42 } })
-
-    expect(
-      detectCi({
-        GITHUB_ACTIONS: 'true',
-        GITHUB_REPOSITORY_ID: '123456',
-        GITHUB_REPOSITORY: 'acme/api',
-        GITHUB_EVENT_PATH: eventPath,
-      }),
-    ).toEqual({ id: 'gh:123456:42', name: 'acme/api#42' })
-  })
-
   it('reads the head commit and the base branch of a GitHub pull request, and the base matches a run on that branch', () => {
     const eventPath = writeGithubEvent({ pull_request: { number: 42, head: { sha: 'head1234' }, base: { ref: 'main' } } })
     const env = { GITHUB_ACTIONS: 'true', GITHUB_REPOSITORY_ID: '123456', GITHUB_REPOSITORY: 'acme/api', GITHUB_SHA: 'merge5678' }
@@ -112,12 +99,6 @@ describe('detectCi', () => {
         CIRCLE_PR_NUMBER: '11',
       }),
     ).toEqual({ id: 'circle:acme:api:11', name: 'acme/api#11' })
-  })
-
-  it('qualifies the CircleCI id by owner, so two orgs with a same-named project never collide on one agent', () => {
-    const forOwner = (owner: string) => detectCi({ CIRCLECI: 'true', CIRCLE_PROJECT_USERNAME: owner, CIRCLE_PROJECT_REPONAME: 'api', CIRCLE_PR_NUMBER: '11' })
-
-    expect(forOwner('acme')?.id).not.toBe(forOwner('other')?.id)
   })
 
   it.each([

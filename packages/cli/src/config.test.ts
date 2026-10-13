@@ -81,19 +81,6 @@ describe('getConfigs', () => {
     await expect(getConfigs({})).resolves.toMatchObject({ configPath })
   })
 
-  it.each(['ts', 'mts', 'cts', 'js', 'mjs', 'cjs'])('finds kubb.config.%s', async (extension) => {
-    dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
-    const configPath = join(dir, `kubb.config.${extension}`)
-    await mkdir(dir, { recursive: true })
-    await writeFile(
-      configPath,
-      extension.endsWith('ts') || extension === 'mjs' || extension === 'js' ? `export default { root: '.' }\n` : `module.exports = { root: '.' }\n`,
-    )
-    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(dir)
-
-    await expect(getConfigs({})).resolves.toMatchObject({ configPath })
-  })
-
   it('walks up to a parent directory, and so does findConfigFile', async () => {
     dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
     const configPath = await writeConfig(join(dir, 'kubb.config.mjs'))

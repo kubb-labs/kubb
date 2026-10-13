@@ -1,5 +1,4 @@
-import { availablePlugins } from './constants.ts'
-import type { PluginOption } from './types.ts'
+import { availablePlugins, type PluginOption } from './constants.ts'
 
 /**
  * Resolves a comma-separated plugin flag (e.g. `--plugins plugin-ts,plugin-zod`) into the

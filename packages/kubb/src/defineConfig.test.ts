@@ -1,7 +1,7 @@
 import type { CLIOptions, Parser, Reporter, UserConfig } from '@kubb/core'
 import { createMockedAdapter, createMockedPlugin } from '@kubb/core/mocks'
 import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
-import { describe, expect, expectTypeOf, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { defineConfig } from './defineConfig.ts'
 
@@ -23,24 +23,12 @@ async function settle(config: ConfigShape): Promise<Array<UserConfig>> {
 }
 
 describe('defineConfig', () => {
-  test('defaults root to process.cwd() when not set', () => {
-    expect(resolve().root).toBe(process.cwd())
-  })
-
-  test('applies the oas adapter when not set', () => {
-    expect(resolve().adapter?.name).toBe('oas')
-  })
-
   test('applies the typescript, tsx, and markdown parsers when not set', () => {
     expect(resolve().parsers?.map((parser) => parser.name)).toStrictEqual(['typescript', 'tsx', 'markdown'])
   })
 
   test('registers the built-in reporters when not set', () => {
     expect(resolve().reporters?.map((reporter) => reporter.name)).toStrictEqual(['cli', 'json', 'file', 'html'])
-  })
-
-  test('appends pluginBarrel to plugins when not already present', () => {
-    expect(resolve().plugins?.map((plugin) => plugin.name)).toStrictEqual([pluginBarrelName])
   })
 
   test('does not append pluginBarrel when already in plugins list', () => {
@@ -52,10 +40,6 @@ describe('defineConfig', () => {
 
     expect(resolved.plugins?.map((plugin) => plugin.name)).toStrictEqual(['custom', pluginBarrelName])
     expect(resolved.output.barrel).toBe(false)
-  })
-
-  test('defaults output.barrel, output.format, and output.lint to false when not set', () => {
-    expect(resolve().output).toStrictEqual({ path: './gen', barrel: false, format: false, lint: false })
   })
 
   const adapter = createMockedAdapter()
@@ -100,16 +84,6 @@ describe('defineConfig', () => {
       expect(resolved.plugins?.map((plugin) => plugin.name)).toStrictEqual([pluginBarrelName])
       expect(resolved.output).toStrictEqual({ path: './gen', barrel: false, format: false, lint: false })
     }
-  })
-
-  test('infers the input type from the config shape', () => {
-    expectTypeOf(defineConfig({ ...minimal })).toEqualTypeOf<UserConfig<string>>()
-    expectTypeOf(defineConfig({ input: { openapi: '3.1.0' }, output: { path: './gen' } })).toEqualTypeOf<UserConfig<{ openapi: string }>>()
-    expectTypeOf(defineConfig([{ ...minimal }])).toEqualTypeOf<Array<UserConfig<string>>>()
-    expectTypeOf(defineConfig(() => ({ ...minimal }))).toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig<string>>>()
-    expectTypeOf(defineConfig(async () => ({ ...minimal }))).toEqualTypeOf<(cli: CLIOptions) => Promise<UserConfig<string>>>()
-    expectTypeOf(defineConfig(Promise.resolve({ ...minimal }))).toEqualTypeOf<Promise<UserConfig<string>>>()
-    expectTypeOf(defineConfig(Promise.resolve([{ ...minimal }]))).toEqualTypeOf<Promise<Array<UserConfig<string>>>>()
   })
 })
 

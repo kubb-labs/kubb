@@ -20,12 +20,7 @@ export async function run({ input }: ValidateOptions): Promise<void> {
   try {
     const { adapterOas } = await import('@kubb/adapter-oas')
 
-    const adapter = adapterOas()
-    if (!adapter.validate) {
-      throw new Error('The loaded adapter does not support validation.')
-    }
-
-    await adapter.validate(input, { throwOnError: true })
+    await adapterOas().validate(input, { throwOnError: true })
     await report({ status: 'success' })
 
     console.log('✅ Validation success')

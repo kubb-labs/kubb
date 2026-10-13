@@ -30,17 +30,7 @@ export const clackWriter: LoggerWriter = {
       contentAlign: 'center',
       titleAlign: 'center',
     }),
-  spinner() {
-    const spinner = clack.spinner()
-
-    return {
-      start: (text) => spinner.start(text),
-      message: (text) => spinner.message(text),
-      clear: () => spinner.clear(),
-      stop: (text) => spinner.stop(text),
-      error: (text) => spinner.error(text),
-    }
-  },
+  spinner: () => clack.spinner(),
   progress(max) {
     const bar = clack.progress({ style: 'block', max, size: 30 })
 

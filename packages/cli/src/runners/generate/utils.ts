@@ -1,7 +1,6 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { toError } from '@internals/utils'
-import { isGreaterThan, isValid, truncate } from 'verkit'
 
 /** Glob pattern for paths the file watcher ignores. */
 const WATCHER_IGNORED_PATHS = '**/{.git,node_modules}/**' as const
@@ -17,23 +16,6 @@ const URL_WATCHER_INTERVAL_MS = 2_000
 
 /** Upper bound in milliseconds for one URL watcher request, headers and body read, so a hung server never stalls polling. */
 const URL_WATCHER_TIMEOUT_MS = 10_000
-
-/**
- * Returns `true` when `latest` is a newer semver version than `current`. Compares each numeric
- * part, so `5.10.0` beats `5.9.0` where a plain string comparison would not. Prerelease
- * suffixes are ignored, and a malformed version never reports an update.
- *
- * @example Double-digit minor
- * `isNewerVersion('5.9.0', '5.10.0') // true`
- *
- * @example String comparison would get this wrong the other way
- * `isNewerVersion('5.10.0', '5.9.0') // false`
- */
-export function isNewerVersion(current: string, latest: string): boolean {
-  if (!isValid(current) || !isValid(latest)) return false
-
-  return isGreaterThan(truncate(latest, 'patch') as string, truncate(current, 'patch') as string)
-}
 
 type SerialRunnerOptions = {
   /**

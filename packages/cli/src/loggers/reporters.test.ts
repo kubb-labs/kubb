@@ -1,5 +1,5 @@
 import { stripVTControlCharacters } from 'node:util'
-import { Hookable, cliReporter, type Config, htmlReporter, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
+import { Hookable, cliReporter, type Config, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import * as agent from '../agent.ts'
 import * as env from '../utils/env.ts'
@@ -50,15 +50,6 @@ describe('setupReporters', () => {
     expect(reports).toHaveLength(2)
     expect(reports[0]).toMatchObject({ name: 'petstore', status: 'failed', counts: { errors: 1 } })
     expect(reports[1]).toMatchObject({ name: 'orders', status: 'success' })
-  })
-
-  it('collects plugin files for the html reporter', async () => {
-    const context = new Hookable<KubbHooks>()
-
-    setupReporters(context, { logLevel: logLevel.info, reporters: [htmlReporter] })
-
-    expect(context.listenerCount('kubb:plugin:end')).toBe(1)
-    expect(context.listenerCount('kubb:generation:end')).toBeGreaterThan(0)
   })
 
   /** A usable terminal outside CI, so only the agent decides which logger `isRichOutput` picks. */

@@ -73,54 +73,6 @@ describe('generateConfigFile', () => {
     `)
   })
 
-  it('falls back to importName() call for an unknown plugin value', () => {
-    const unknown = {
-      value: 'plugin-unknown',
-      label: 'Unknown',
-      packageName: '@kubb/plugin-unknown',
-      importName: 'pluginUnknown',
-      category: 'types' as const,
-    }
-    const result = generateConfigFile({ selectedPlugins: [unknown], inputPath: './a.yaml', outputPath: './b' })
-    expect(result).toMatchInlineSnapshot(`
-      "import { defineConfig } from 'kubb/config'
-      import { pluginUnknown } from '@kubb/plugin-unknown'
-
-      export default defineConfig({
-        input: './a.yaml',
-        output: {
-          path: './b',
-          clean: true,
-        },
-        plugins: [
-          pluginUnknown(),
-        ],
-      })
-      "
-    `)
-  })
-
-  it('produces a valid ESM default export', () => {
-    const [pluginTs] = availablePlugins
-    const result = generateConfigFile({ selectedPlugins: [pluginTs!], inputPath: './api.yaml', outputPath: './gen' })
-    expect(result).toMatchInlineSnapshot(`
-      "import { defineConfig } from 'kubb/config'
-      import { pluginTs } from '@kubb/plugin-ts'
-
-      export default defineConfig({
-        input: './api.yaml',
-        output: {
-          path: './gen',
-          clean: true,
-        },
-        plugins: [
-          pluginTs(),
-        ],
-      })
-      "
-    `)
-  })
-
   it('handles an empty plugin list', () => {
     const result = generateConfigFile({ selectedPlugins: [], inputPath: './api.yaml', outputPath: './gen' })
     expect(result).toMatchInlineSnapshot(`

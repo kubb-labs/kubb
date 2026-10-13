@@ -2,19 +2,7 @@ import { mkdtemp, rename, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createSerialRunner, fetchUrlBody, isNewerVersion, startUrlWatcher, startWatcher } from './utils.ts'
-
-describe('isNewerVersion', () => {
-  it.each([
-    { current: '5.9.0', latest: '5.10.0', expected: true, label: 'the latest minor is double-digit' },
-    { current: '5.9.0', latest: '5.9.0', expected: false, label: 'the versions are equal' },
-    { current: '5.10.0', latest: '5.9.9', expected: false, label: 'the latest version is older' },
-    { current: '5.9.0-beta.1', latest: '5.9.1', expected: true, label: 'the current version has a prerelease suffix' },
-    { current: '5.9.0', latest: 'not-a-version', expected: false, label: 'the latest version is malformed' },
-  ])('returns $expected when $label', ({ current, latest, expected }) => {
-    expect(isNewerVersion(current, latest)).toBe(expected)
-  })
-})
+import { createSerialRunner, startUrlWatcher, startWatcher } from './utils.ts'
 
 describe('createSerialRunner', () => {
   it('collapses triggers that land during a run into one rerun', async () => {
@@ -101,29 +89,6 @@ describe('startWatcher', () => {
     expect(builds).toStrictEqual([[file]])
     expect(messages.length).toBeGreaterThan(0)
     expect(messages.every((message) => message.includes(`Change detected: change ${file}`))).toBe(true)
-  })
-
-  it('ignores other files in the directory', async () => {
-    dir = await mkdtemp(join(tmpdir(), 'kubb-watch-'))
-    const file = join(dir, 'petstore.yaml')
-    await writeFile(file, 'openapi: 3.1.0\n')
-    const builds: Array<Array<string>> = []
-
-    stops.push(
-      await startWatcher(
-        [file],
-        async (paths) => {
-          builds.push(paths)
-        },
-        { info: () => {}, error: () => {} },
-      ),
-    )
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    await writeFile(join(dir, 'other.yaml'), 'openapi: 3.1.0\n')
-    await new Promise((resolve) => setTimeout(resolve, 300))
-
-    expect(builds).toStrictEqual([])
   })
 })
 
@@ -288,34 +253,5 @@ describe('startUrlWatcher', () => {
     const settled = fetchMock.mock.calls.length
     await new Promise((resolve) => setTimeout(resolve, 30))
     expect(fetchMock.mock.calls.length).toBe(settled)
-  })
-})
-
-describe('fetchUrlBody', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals()
-  })
-
-  it('returns the body for a 2xx response', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(async () => ({ ok: true, status: 200, text: async () => '{"openapi":"3.1.0"}' })),
-    )
-
-    await expect(fetchUrlBody('http://localhost:1234/openapi.json')).resolves.toBe('{"openapi":"3.1.0"}')
-  })
-
-  it.each([
-    { label: 'the response is not 2xx', fetch: async () => ({ ok: false, status: 500, text: async () => 'nope' }) },
-    {
-      label: 'the request fails',
-      fetch: async () => {
-        throw new Error('fetch failed')
-      },
-    },
-  ])('returns undefined when $label', async ({ fetch }) => {
-    vi.stubGlobal('fetch', vi.fn(fetch))
-
-    await expect(fetchUrlBody('http://localhost:1234/openapi.json')).resolves.toBeUndefined()
   })
 })

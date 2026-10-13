@@ -5,7 +5,7 @@ process.title = 'Kubb'
 
 try {
   const { run } = await import('@kubb/cli')
-  await run(process.argv)
+  await run(process.argv.slice(2))
 } catch (err) {
   console.error(err)
   process.exit(1)
