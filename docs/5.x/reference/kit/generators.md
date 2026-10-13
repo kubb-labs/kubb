@@ -92,10 +92,3 @@ const getOnlyGenerator = defineGenerator({
 | `ctx.info()`          | `(message: string) => void`                         | Emit an info message via the build event system                      |
 | `ctx.warn()`          | `(message: string) => void`                         | Emit a warning via the build event system                            |
 | `ctx.error()`         | `(error: string \| Error) => void`                  | Emit an error via the build event system                             |
-
-
-## See also
-
-- [Generator concepts](/docs/5.x/explanation/extensions#generators)
-- [AST concepts](/docs/5.x/explanation/architecture#ast) for node types and traversal
-- [Creating plugins](/docs/5.x/tutorials/creating-plugins)

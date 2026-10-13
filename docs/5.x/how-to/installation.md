@@ -75,8 +75,3 @@ npx kubb add plugin-zod
 ```
 
 Run [`kubb list`](/docs/5.x/reference/commands/list) to see your extensions and [`kubb update`](/docs/5.x/reference/commands/update) to move them to the pinned versions.
-
-## See also
-
-- [Generate your first client](/docs/5.x/tutorials/quickstart): a complete example with a supplied specification
-- [Configuration reference](/docs/5.x/reference/configuration): every option and default

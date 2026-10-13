@@ -61,9 +61,3 @@ npx kubb init --input ./openapi.yaml --output ./src/gen --plugins plugin-ts,plug
 ```
 
 Add `--dry-run` to preview what the wizard would install and write.
-
-## See also
-
-- [Installation](/docs/5.x/how-to/installation): manual setup guide
-- [Configuration](/docs/5.x/reference/configuration): full `kubb.config.ts` reference
-- [Plugins](/extensions/kind/plugins): browse available plugins

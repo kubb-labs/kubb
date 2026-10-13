@@ -88,10 +88,3 @@ When the config cannot be edited, the CLI prints `Could not edit <file>: <reason
 ## Exit codes
 
 `kubb add` exits with code 1 when the id is invalid, the registry cannot be read or sends an invalid entry, the extension is incompatible, no config is found for a plugin, or the install fails. It exits with code 0 when you cancel at the prompt, and when it prints the snippet because the config could not be edited.
-
-## See also
-
-- [`kubb update`](/docs/5.x/reference/commands/update): move installed extensions to the pinned version
-- [`kubb list`](/docs/5.x/reference/commands/list): show installed extensions and available updates
-- [Extension registry](/docs/5.x/reference/registry): ids, documents, and pinning
-- [Plugins](/extensions/kind/plugins): every official plugin

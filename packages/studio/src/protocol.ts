@@ -30,6 +30,14 @@ export type JSONKubbConfig = {
    * (`parse`, `getImports`, ...) can't survive JSON serialization over the WebSocket.
    */
   adapter?: object
+  /**
+   * Parser option overrides from Studio, matched to the disk config's parsers by `name` and
+   * re-applied through each parser's factory, the same way `adapter` is.
+   */
+  parsers?: Array<{
+    name: string
+    options?: object
+  }>
 }
 
 /**
@@ -473,6 +481,18 @@ export type ConnectMessagePayload = {
      * `@kubb/plugin-*` package keeps its own `name`.
      */
     plugins?: Array<{
+      name: string
+      options?: object
+    }>
+    /**
+     * The adapter and the parsers the config registers, named like `plugins` and with the same JSON
+     * copy of their options, so Studio can render their manifest options.
+     */
+    adapter?: {
+      name: string
+      options?: object
+    }
+    parsers?: Array<{
       name: string
       options?: object
     }>

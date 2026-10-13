@@ -23,8 +23,3 @@ Publish an installable Kubb Studio snapshot from GitHub Actions so reviewers can
 <!--@include: ../../snippets/integrations/ci-review.md-->
 
 ::
-
-## See also
-
-- [GitHub Actions inputs and outputs](/docs/5.x/reference/github-actions)
-- [Publish snapshots from other CI providers](/docs/5.x/integrations/ci#other-ci-providers)

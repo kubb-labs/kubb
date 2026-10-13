@@ -41,9 +41,3 @@ The server uses the stdio transport, so the client starts it as a local process.
 ## Working directory
 
 The server runs in the folder the client starts it in. `generate` looks for its config there and rejects a `config` path outside it, and `init` writes `kubb.config.ts` there. [Set up the MCP server](/docs/5.x/ai/mcp#working-directory) shows how to start the server in your project.
-
-## See also
-
-- [Set up the MCP server](/docs/5.x/ai/mcp): connect the server to Claude Code, Claude Desktop, Cursor, and VS Code
-- [`@kubb/plugin-mcp`](/extensions/kubb-labs/plugin-mcp), a different package that generates an MCP server from your OpenAPI spec
-- [Concepts: Plugins](/docs/5.x/explanation/extensions#plugins): how plugins integrate with the Kubb pipeline

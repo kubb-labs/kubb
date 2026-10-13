@@ -78,8 +78,3 @@ Every method is required. `readItem` returns `null` for a missing key. Kubb can 
 `memoryStorage` writes nothing to disk, so it suits plugin tests, CI validation, and dry runs.
 
 Both ship from `kubb/kit` and go straight into the config's `storage` field.
-
-## See also
-
-- [Storage concepts](/docs/5.x/explanation/architecture#storage)
-- [Configuration reference](/docs/5.x/reference/configuration)

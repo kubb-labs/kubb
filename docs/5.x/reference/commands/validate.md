@@ -34,8 +34,3 @@ The input can also be a URL, such as `https://petstore3.swagger.io/api/v3/openap
 
 > [!TIP]
 > `kubb validate` exits with a non-zero status code when the spec is invalid. Use it as a pre-commit hook or CI step to fail the build.
-
-## See also
-
-- [Adapters](/extensions/kind/adapters): OAS adapter that parses the validated spec
-- [Generate your first client](/docs/5.x/tutorials/quickstart): end-to-end walkthrough

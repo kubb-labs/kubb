@@ -178,9 +178,3 @@ Register TypeScript, Zod, and an Axios or Fetch client. `client` selects the reg
 ## Verify the upgrade {#verify-the-upgrade}
 
 Run `kubb generate`, review generated-file changes, and type-check your application. Update response imports for `Status<code>` names, Zod inferred-type imports for `Type`, and imports from renamed tag folders. Enable formatting, linting, and barrels explicitly if needed.
-
-## See also
-
-- [Configuration](/docs/5.x/reference/configuration)
-- [Generate your first client](/docs/5.x/tutorials/quickstart)
-- [Plugin catalogue](/extensions/kind/plugins)

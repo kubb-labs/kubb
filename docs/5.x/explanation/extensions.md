@@ -77,9 +77,3 @@ Use a macro when the schema meaning changes. Override a printer when one target 
 Generators can build `FileNode`s with `ast.factory` or return elements that a renderer converts into files. `kubb/jsx` provides the JSX renderer without React. Enable it per generator through `renderer`.
 
 A custom renderer is useful for another templating format. Direct node builders need no renderer. See [JSX reference](/docs/5.x/reference/jsx#renderers).
-
-## See also
-
-- [Create, extend, and publish a plugin](/docs/5.x/tutorials/creating-plugins)
-- [Architecture](/docs/5.x/explanation/architecture)
-- [Kit API](/docs/5.x/reference/kit)

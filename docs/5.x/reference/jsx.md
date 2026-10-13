@@ -356,9 +356,3 @@ Embeds a raw JSX string in the generated source, including fragments. Use it ins
   <Jsx>{'return (\n  <>\n    <div>Hello</div>\n  </>\n)'}</Jsx>
 </Function>
 ```
-
-## See also
-
-- [Kit API](/docs/5.x/reference/kit) for `defineGenerator`'s `renderer` field and the `ast.factory` alternative to JSX
-- [Creating plugins](/docs/5.x/tutorials/creating-plugins) for how a generator wires a renderer into its output
-- [Renderer concepts](/docs/5.x/explanation/extensions#renderers) for when a custom renderer is worth writing

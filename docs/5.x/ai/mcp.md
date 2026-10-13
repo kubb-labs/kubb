@@ -83,8 +83,3 @@ If `generate` returns `No config file found`, the client started the server in a
   }
 }
 ```
-
-## See also
-
-- [`kubb mcp` command](/docs/5.x/reference/commands/mcp): the tools, their parameters, and the working directory
-- [`@kubb/plugin-mcp`](/extensions/kubb-labs/plugin-mcp) generates an MCP server from your OpenAPI spec

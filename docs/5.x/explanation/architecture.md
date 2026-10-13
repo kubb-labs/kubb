@@ -82,9 +82,3 @@ A printer inside a generator handles schema-specific output. A parser handles th
 ## Storage {#storage}
 
 Storage separates generation from its destination, so the same build runs on disk for the CLI or in memory for tests. `fsStorage()` writes to disk and `memoryStorage()` keeps results in a `Map`. A custom driver implements the [Storage interface](/docs/5.x/reference/kit/storage#storage-interface) to target another backend.
-
-## See also
-
-- [Extension model](/docs/5.x/explanation/extensions)
-- [Generate your first client](/docs/5.x/tutorials/quickstart)
-- [Kit API](/docs/5.x/reference/kit)

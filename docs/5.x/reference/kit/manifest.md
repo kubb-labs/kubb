@@ -187,9 +187,3 @@ export const pluginExample = defineExtension({
 ```
 
 Keep `name` as a typed constant. A JSON import widens it to `string`. Named imports from JSON need a bundler, such as tsdown, that inlines them. With plain `tsc` and `"module": "NodeNext"`, write the same ranges in `meta.compatibility` instead.
-
-## See also
-
-- [Extensions](./extensions): `meta` and compatibility checks at runtime
-- [Publish a plugin](/docs/5.x/how-to/publish-a-plugin): ship the manifest and submit to the registry
-- [Extension registry](/docs/5.x/reference/registry): how the registry serves manifests

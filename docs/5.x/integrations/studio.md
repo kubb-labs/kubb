@@ -72,8 +72,3 @@ kubb add acme/plugin-graphql
 ```
 
 Then reconnect, so the agent reports the new plugin. Stop `kubb studio` and run it again, or run `kubb studio stop` and `kubb studio start` for a background connection. Any installed plugin that ships a `kubb-extension.json` works, with or without a registry entry. See [Plugins in Studio](/docs/5.x/reference/commands/studio#plugins-in-studio).
-
-## See also
-
-- [Publish snapshots from CI](/docs/5.x/integrations/ci): installable packages and generated-file diffs on pull requests
-- [`kubb studio` command](/docs/5.x/reference/commands/studio): actions, flags, environment variables, and snapshot results

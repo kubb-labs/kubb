@@ -37,9 +37,3 @@ Replace the example path with your project path. In Windows JSON paths, escape e
 Quit Claude Desktop completely and reopen it. Open `Manage connectors`, select your server, and check that the tools match the operations in your specification. Ask Claude to run one of those operations and review its request before approving the API call.
 
 ::
-
-## See also
-
-- [Run an MCP server](/extensions/kubb-labs/plugin-mcp/guides/server): generation, dependencies, and the entry point
-- [MCP local-server setup](https://modelcontextprotocol.io/docs/develop/connect-local-servers): Claude Desktop configuration and connection checks
-- [Set up the Kubb MCP server](/docs/5.x/ai/mcp): generate and configure Kubb projects from an AI editor

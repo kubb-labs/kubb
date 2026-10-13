@@ -110,9 +110,3 @@ throw new Diagnostics.Error({
   location: { kind: 'schema', pointer: '#/components/schemas/Pet', ref: '#/components/schemas/Pet' },
 })
 ```
-
-## See also
-
-- [Configuration reference](/docs/5.x/reference/configuration)
-- [Lifecycle hooks](./hooks)
-- [Diagnostics reference](/docs/5.x/reference/diagnostics)

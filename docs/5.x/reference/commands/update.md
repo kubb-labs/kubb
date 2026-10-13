@@ -66,9 +66,3 @@ An id that matches no installed extension prints `<id> is not installed, or not 
 ## Exit codes
 
 `kubb update` exits with code 1 when an id is invalid, the registry index cannot be read or is invalid, or the install fails. It exits with code 0 when there is nothing to update, with `--check`, and when you cancel at the prompt.
-
-## See also
-
-- [`kubb add`](/docs/5.x/reference/commands/add): install an extension from the registry
-- [`kubb list`](/docs/5.x/reference/commands/list): show installed extensions and available updates
-- [Extension registry](/docs/5.x/reference/registry): how a record pins one npm version

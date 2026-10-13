@@ -23,8 +23,3 @@ Publish an installable Kubb Studio snapshot from GitLab CI so reviewers can comp
 <!--@include: ../../snippets/integrations/ci-review.md-->
 
 ::
-
-## See also
-
-- [Studio command reference](/docs/5.x/reference/commands/studio#gitlab-ci)
-- [Publish snapshots from other CI providers](/docs/5.x/integrations/ci#other-ci-providers)
