@@ -191,7 +191,7 @@ export function manifestProblems({ options = [] }: ExtensionManifest): Array<str
  */
 export function isExtensionManifest(value: unknown): value is ExtensionManifest {
   if (!isObject(value)) return false
-  const { kind, name, export: exportName, displayName, description, maintainers, dependencies, optionalDependencies, compatibility, options } = value
+  const { kind, name, export: exportName, displayName, description, maintainers, dependencies, optionalDependencies, compatibility, role, options } = value
   return (
     EXTENSION_KINDS.has(kind) &&
     isPackageName(name) &&
@@ -204,6 +204,7 @@ export function isExtensionManifest(value: unknown): value is ExtensionManifest 
     (optionalDependencies === undefined || (Array.isArray(optionalDependencies) && optionalDependencies.every(isPackageName))) &&
     (compatibility === undefined ||
       (isObject(compatibility) && Object.entries(compatibility).every(([key, range]) => (key === 'kubb' || key === 'node') && typeof range === 'string'))) &&
+    (role === undefined || role === 'client' || role === 'consumer') &&
     (options === undefined || (Array.isArray(options) && options.every(isOption))) &&
     manifestProblems(value as ExtensionManifest).length === 0
   )

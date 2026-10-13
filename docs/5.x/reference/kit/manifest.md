@@ -163,7 +163,7 @@ Kubb and the registry check a manifest at different points:
 
 | Reader | Checks | On failure |
 | --- | --- | --- |
-| `kubb add`, `kubb init`, `kubb update`, `kubb list`, the Studio agent | The required fields are set and well formed. Each `maintainers` entry has a `name`. Each `dependencies` and `optionalDependencies` entry is an extension name. `compatibility` holds only `kubb` and `node` string ranges. `options` is an array. | The manifest is skipped. |
+| `kubb add`, `kubb init`, `kubb update`, `kubb list`, the Studio agent | The required fields are set and well formed. Each `maintainers` entry has a `name`. Each `dependencies` and `optionalDependencies` entry is an extension name. `role` is `client` or `consumer`. `compatibility` holds only `kubb` and `node` string ranges. `options` is an array. | The manifest is skipped. |
 | The registry | The JSON Schema, unique option keys, `choices` on every `select`, and a `select` default that equals one of its choices. | The review pull request lists the problem, and the weekly bump keeps the previous pin. |
 
 ## Import `compatibility` into `meta` {#import-compatibility-into-meta}
