@@ -3,7 +3,8 @@ import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { createNode } from './emit/createNode.ts'
 import { type ConvertContext, schemaRules } from './emit/parseSchema.ts'
 import { flattenSchema } from './emit/schemaShape.ts'
-import { isNullable } from './oas.ts'
+import { resolveUnionMembers } from './emit/converters/composition.ts'
+import { isNullable, isReference } from './oas.ts'
 import type { Refs } from './refs.ts'
 import type { Document, SchemaObject } from './types.ts'
 
@@ -33,6 +34,17 @@ export function createSchemaParser(ctx: OasParserContext) {
   const options: ast.ParserOptions = { ...DEFAULT_PARSER_OPTIONS, ...ctx.options }
 
   function parseSchema({ schema, name }: { schema: SchemaObject; name?: string | null }): ast.SchemaNode {
+    // Parse `not` once, apart from the rest: converters that re-parse a copy of the schema (the shared
+    // properties of a union, the own properties of an `allOf`) would otherwise attach it again.
+    if (schema.not && typeof schema.not === 'object') {
+      const { not: negated, ...rest } = schema
+      const node = parseSchema({ schema: rest as SchemaObject, name })
+      // `derefKeepingRef` copies the target's keywords next to a `$ref`, and the target already carries its own `not`.
+      if (isReference(schema)) return node
+
+      return { ...node, not: parseSchema({ schema: completeRequiredKeys(negated as SchemaObject) }) }
+    }
+
     const flattenedSchema = flattenSchema(schema)
     if (flattenedSchema !== schema) {
       return parseSchema({ schema: flattenedSchema, name })
@@ -63,4 +75,20 @@ export function createSchemaParser(ctx: OasParserContext) {
   }
 
   return parseSchema
+}
+
+/**
+ * Declares every `required` key that has no property schema as `{}`, on the schema and its `allOf` members.
+ * `oneOf`/`anyOf` members already get this from `convertUnion`.
+ *
+ * A schema inside `not` is negated, so it must not match more than the spec says: a required key that is
+ * dropped during conversion would turn `not: { required: [a] }` into "reject everything".
+ */
+function completeRequiredKeys(schema: SchemaObject): SchemaObject {
+  const completed = (resolveUnionMembers([schema], {})[0] as SchemaObject) ?? schema
+  if (!Array.isArray(completed.allOf)) return completed
+
+  const next = { ...completed }
+  next.allOf = completed.allOf.map((member) => completeRequiredKeys(member as SchemaObject)) as typeof completed.allOf
+  return next
 }

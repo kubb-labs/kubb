@@ -130,6 +130,12 @@ type SchemaNodeBase = BaseNode & {
    * Schema `format` value.
    */
   format?: string
+  /**
+   * Schema that a valid value must not match, from the `not` keyword.
+   * Printers that can't express negation (for example TypeScript types) ignore it.
+   * Visitors don't walk it, so a `$ref` used only here isn't imported by printers that ignore it.
+   */
+  not?: SchemaNode
 }
 
 /**

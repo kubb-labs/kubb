@@ -1486,6 +1486,173 @@ describe('parseSchema discriminator on union', () => {
   })
 })
 
+describe('parseSchema not', () => {
+  it('leaves `not` unset when the schema has no `not` keyword', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'string' } })
+
+    expect(node).not.toHaveProperty('not')
+  })
+
+  it('attaches a negated enum to a string schema', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'string', not: { enum: ['admin', 'root'] } } })
+
+    expect(node).toMatchObject({ type: 'string', not: { type: 'enum', enumValues: ['admin', 'root'] } })
+  })
+
+  it('attaches a negated object to an object schema', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        type: 'object',
+        properties: { query: { type: 'string' }, id: { type: 'string' } },
+        not: { required: ['query', 'id'], properties: { query: { minLength: 1 } } },
+      },
+    })
+
+    expect(node.type).toBe('object')
+    const negated = ast.narrowSchema(node.not, 'object')
+    expect(negated?.properties).toMatchObject([
+      { name: 'query', required: true, schema: { type: 'string', min: 1 } },
+      { name: 'id', required: true, schema: { type: 'unknown' } },
+    ])
+  })
+
+  it('keeps required-only keys inside `not` so the negation does not match every value', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'object', not: { required: ['query', 'id'] } } })
+
+    const negated = ast.narrowSchema(node.not, 'object')
+    expect(negated?.properties?.map((property) => [property.name, property.required])).toEqual([
+      ['query', true],
+      ['id', true],
+    ])
+  })
+
+  it('keeps required-only keys in union members inside `not`', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        type: 'object',
+        not: { anyOf: [{ required: ['query', 'id'] }, { required: ['query', 'tags'] }] },
+      },
+    })
+
+    const union = ast.narrowSchema(node.not, 'union')
+    expect(union?.strategy).toBe('any')
+    expect(union?.members?.map((member) => ast.narrowSchema(member, 'object')?.properties?.map((property) => property.name))).toEqual([
+      ['query', 'id'],
+      ['query', 'tags'],
+    ])
+  })
+
+  it('keeps required-only keys in allOf members inside `not`', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: { type: 'object', not: { allOf: [{ required: ['query'] }, { required: ['id'] }] } },
+    })
+
+    const required = ast.collectSync<string>(node.not!, { property: (property) => (property.required ? property.name : undefined) }).sort()
+    expect(required).toEqual(['id', 'query'])
+  })
+
+  it('attaches `not` to a schema without a type', () => {
+    const node = parseSchema(emptyCtx, { schema: { not: { type: 'null' } } })
+
+    expect(node).toMatchObject({ type: 'unknown', not: { type: 'null' } })
+  })
+
+  it('attaches `not` to an allOf member', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        allOf: [{ type: 'object', properties: { query: { type: 'string' } } }, { not: { required: ['query'] } }],
+      },
+    })
+
+    const intersection = ast.narrowSchema(node, 'intersection')
+    expect(intersection?.members?.[1]?.not).toMatchObject({ type: 'object', properties: [{ name: 'query', required: true }] })
+  })
+
+  it('keeps a $ref inside `not` as a ref node', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'object', not: { $ref: '#/components/schemas/Banned' } } })
+
+    expect(node.not).toMatchObject({ type: 'ref', name: 'Banned' })
+  })
+
+  it('does not walk `not` when collecting nodes, so printers that ignore negation do not import its refs', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        type: 'object',
+        properties: { owner: { $ref: '#/components/schemas/Owner' } },
+        not: { $ref: '#/components/schemas/Banned' },
+      },
+    })
+
+    const refNames = ast.collectSync<string>(node, { schema: (schemaNode) => (schemaNode.type === 'ref' ? schemaNode.name : undefined) })
+    expect(refNames).toEqual(['Owner'])
+  })
+
+  it('attaches `not` once when the union converter re-parses the shared properties', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        type: 'object',
+        properties: { email: { type: 'string' }, phone: { type: 'string' } },
+        anyOf: [{ required: ['email'] }, { required: ['phone'] }],
+        not: { required: ['email', 'phone'] },
+      },
+    })
+
+    const notNodes = ast.collectSync<ast.SchemaNode>(node, { schema: (schemaNode) => (schemaNode.not ? schemaNode : undefined) })
+    expect(notNodes).toEqual([node])
+  })
+
+  it('does not attach the target `not` that a dereferenced `$ref` carries', async () => {
+    const root = await parseOas({
+      openapi: '3.0.3',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/search': {
+          post: {
+            operationId: 'search',
+            requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/Search' } } } },
+            responses: { '204': { description: 'No content' } },
+          },
+        },
+      },
+      components: {
+        schemas: {
+          Search: { type: 'object', properties: { query: { type: 'string' }, id: { type: 'string' } }, not: { required: ['query', 'id'] } },
+        },
+      },
+    })
+
+    const body = findOperation(root, 'search')?.requestBody?.content?.[0]?.schema
+    expect(body).toMatchObject({ type: 'ref', name: 'Search' })
+    expect(body).not.toHaveProperty('not')
+    expect(findSchema(root, 'Search')?.not).toBeDefined()
+  })
+
+  it('keeps `not` on a component schema parsed through the adapter', async () => {
+    const root = await parseOas({
+      openapi: '3.0.3',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          Search: {
+            type: 'object',
+            properties: { query: { type: 'string' }, id: { type: 'string' } },
+            not: { required: ['query', 'id'] },
+          },
+        },
+      },
+    })
+
+    expect(findSchema(root, 'Search')?.not).toMatchObject({
+      type: 'object',
+      properties: [
+        { name: 'query', required: true },
+        { name: 'id', required: true },
+      ],
+    })
+  })
+})
+
 describe('parseSchema const (OAS 3.1)', () => {
   it.each([{ value: 'active' }, { value: 42 }, { value: true }])('maps const $value to a single-value enum', ({ value }) => {
     const node = parseSchema(emptyCtx, { schema: { const: value } })
