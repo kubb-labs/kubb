@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.8.4 — Oct 13, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Require Kubb 5.8.3 or later in `kubb-extension.json`. ([#4262](https://github.com/kubb-labs/kubb/pull/4262), [`92f9e12`](https://github.com/kubb-labs/kubb/commit/92f9e12ef22bd541df9450e115108551ba467935))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.8.3 — Oct 13, 2026
 
 ### @kubb/adapter-oas
