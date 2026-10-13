@@ -69,7 +69,7 @@ export type {
   ExtensionMeta,
 } from './defineExtension.ts'
 export { checkCompatibility, resolveMeta } from './defineExtension.ts'
-export { isExtensionManifest, isPackageName } from './manifest.ts'
+export { isExtensionManifest, isPackageName, isRegistryEntry, manifestProblems } from './manifest.ts'
 export type { ExtensionManifest, ExtensionManifestOption, JSONValue, RegistryDetail, RegistryEntry, RegistryIndex } from './manifest.ts'
 export type { NodeCache } from './nodeCache.ts'
 export type { Parser, ParserDefinition, ParserFactory } from './defineParser.ts'

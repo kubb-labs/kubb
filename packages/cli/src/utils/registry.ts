@@ -3,15 +3,21 @@ import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import process from 'node:process'
-import { checkCompatibility, type ExtensionManifest, isExtensionManifest, isPackageName, type RegistryDetail, type RegistryEntry } from '@kubb/core'
+import {
+  checkCompatibility,
+  type ExtensionManifest,
+  isExtensionManifest,
+  isPackageName,
+  isRegistryEntry,
+  type RegistryDetail,
+  type RegistryEntry,
+} from '@kubb/core'
 import { isLessThan, isValid } from 'verkit'
 
 export const DEFAULT_REGISTRY = 'https://kubb.dev/registry'
 
 const SLUG = '[a-z0-9]+(?:-[a-z0-9]+)*'
 const ID = new RegExp(`^${SLUG}(\\/${SLUG})?$`)
-const KINDS = new Set<unknown>(['plugin', 'adapter', 'parser'])
-const TYPES = new Set<unknown>(['official', 'community'])
 
 /** The registry base URL: `KUBB_REGISTRY`, or kubb.dev. */
 export function registryUrl(): string {
@@ -28,27 +34,6 @@ export function registryUrl(): string {
 export function toRegistryId(input: string): string {
   if (!ID.test(input)) throw new Error(`"${input}" is not a registry id. Use owner/slug, such as kubb-labs/plugin-zod, or a slug, such as plugin-zod.`)
   return input.includes('/') ? input : `kubb-labs/${input}`
-}
-
-/** Checks the fields the CLI reads from a registry entry, since the response is untrusted. */
-export function isRegistryEntry(value: unknown): value is RegistryEntry {
-  if (typeof value !== 'object' || value === null) return false
-  const { id, kind, type, artifact, manifest } = value as Record<string, unknown>
-  const { kind: artifactKind, package: packageName, version } = (artifact ?? {}) as Record<string, unknown>
-
-  return (
-    typeof id === 'string' &&
-    ID.test(id) &&
-    id.includes('/') &&
-    KINDS.has(kind) &&
-    TYPES.has(type) &&
-    artifactKind === 'npm' &&
-    isPackageName(packageName) &&
-    typeof version === 'string' &&
-    isValid(version) &&
-    isExtensionManifest(manifest) &&
-    manifest.kind === kind
-  )
 }
 
 async function fetchJSON(url: string): Promise<{ status: number; body?: unknown }> {

@@ -16,6 +16,7 @@ const vueSfc = {
 const entry = {
   index: 'src/index.ts',
   mocks: 'src/mocks.ts',
+  manifest: 'src/manifest.ts',
 }
 
 const shared: Partial<UserConfig> = {

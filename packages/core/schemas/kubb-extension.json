@@ -1,0 +1,168 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://kubb.dev/schemas/kubb-extension.json",
+  "title": "Kubb Extension Manifest",
+  "description": "The kubb-extension.json file at the root of a Kubb plugin, adapter, or parser package. It ships on npm, and the Kubb extension registry, the Kubb CLI, and Kubb Studio read it. Readers ignore unknown top-level keys.",
+  "type": "object",
+  "required": ["kind", "name", "export", "displayName", "description"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference to this schema for editor validation."
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["plugin", "adapter", "parser"],
+      "description": "Extension kind."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The extension's meta.name, e.g. 'plugin-zod'."
+    },
+    "export": {
+      "type": "string",
+      "pattern": "^[A-Za-z_$][A-Za-z0-9_$]*$",
+      "description": "The factory export users call in kubb.config.ts, e.g. 'pluginZod'."
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable name, e.g. 'Zod'."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One sentence on what the extension does."
+    },
+    "category": {
+      "type": "string",
+      "description": "Category for organization and filtering, e.g. 'validation'."
+    },
+    "icon": {
+      "type": "object",
+      "description": "Icon URLs per color scheme.",
+      "required": ["light"],
+      "additionalProperties": false,
+      "properties": {
+        "light": { "$ref": "#/definitions/httpsUrl", "description": "Icon for light mode." },
+        "dark": { "$ref": "#/definitions/httpsUrl", "description": "Icon for dark mode. Falls back to light when omitted." }
+      }
+    },
+    "media": {
+      "type": "array",
+      "description": "Screenshots or videos, as HTTPS URLs.",
+      "items": { "$ref": "#/definitions/httpsUrl" }
+    },
+    "tags": {
+      "type": "array",
+      "description": "Search keywords.",
+      "items": { "type": "string" }
+    },
+    "docs": {
+      "$ref": "#/definitions/httpsUrl",
+      "description": "Documentation URL."
+    },
+    "compatibility": {
+      "type": "object",
+      "description": "Version ranges the extension supports. Only these two keys are allowed, so a typo cannot skip a check.",
+      "additionalProperties": false,
+      "properties": {
+        "kubb": { "type": "string", "description": "Supported Kubb version range, e.g. '>=5.8.0'." },
+        "node": { "type": "string", "description": "Supported Node.js version range, e.g. '>=22'." }
+      }
+    },
+    "role": {
+      "type": "string",
+      "enum": ["client", "consumer"],
+      "description": "Plugins only. 'client' provides the HTTP client runtime, 'consumer' calls one but ships none."
+    },
+    "options": {
+      "type": "array",
+      "description": "Form fields Kubb Studio renders. Each field edits the value at `path` inside the options object passed to the factory.",
+      "items": { "$ref": "#/definitions/option" }
+    }
+  },
+  "definitions": {
+    "httpsUrl": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "jsonValue": {
+      "description": "Any JSON value."
+    },
+    "option": {
+      "type": "object",
+      "required": ["key", "path", "label", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable UI key, unique within the manifest, e.g. 'enumType'."
+        },
+        "path": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1, "not": { "enum": ["__proto__", "constructor", "prototype"] } },
+          "description": "Where the value lives in the options object, e.g. ['enum', 'type']."
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Field label, e.g. 'Enum Type'."
+        },
+        "description": {
+          "type": "string",
+          "description": "Help text shown under the field."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["select", "boolean", "text", "number", "list"],
+          "description": "Field type."
+        },
+        "default": {
+          "$ref": "#/definitions/jsonValue",
+          "description": "The plugin's runtime default, shown when unset. A value equal to it is not written."
+        },
+        "choices": {
+          "type": "array",
+          "description": "Select only. A choice with value null means 'leave unset'.",
+          "items": {
+            "type": "object",
+            "required": ["value"],
+            "additionalProperties": false,
+            "properties": {
+              "label": { "type": "string" },
+              "value": { "$ref": "#/definitions/jsonValue" }
+            }
+          }
+        },
+        "trueValue": {
+          "$ref": "#/definitions/jsonValue",
+          "description": "Boolean only. Value written for true. Defaults to true."
+        },
+        "falseValue": {
+          "$ref": "#/definitions/jsonValue",
+          "description": "Boolean only. Value written for false. Defaults to false."
+        },
+        "item": {
+          "$ref": "#/definitions/jsonValue",
+          "description": "List only. Template for each entry, where every string '$item' is replaced by the entry. Without it, entries are plain strings."
+        },
+        "itemCase": {
+          "type": "string",
+          "enum": ["upper"],
+          "description": "List only. Upper-case each entry before writing."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "select" } } },
+          "then": { "required": ["choices"], "properties": { "choices": { "type": "array", "minItems": 1 } } }
+        }
+      ]
+    }
+  }
+}
