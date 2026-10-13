@@ -6,18 +6,13 @@ import type { UnpluginFactory } from 'unplugin'
 import { version as unpluginVersion } from '../package.json'
 import type { Options } from './types.ts'
 
-type RollupContext = {
-  info?: (message: string) => void
-  warn?: (message: string) => void
-  error?: (message: string) => void
-}
-
 /**
  * Builds the Kubb unplugin for any unplugin-supported bundler (Vite, Rollup, Webpack, esbuild).
  *
  * Registers hook handlers that log lifecycle, diagnostics, and a per-plugin summary, then runs
- * the Kubb build during `buildStart`. When the config omits them, it fills in defaults: the OAS
- * adapter, the TS and TSX parsers, and a barrel plugin. Under Vite it only applies during `build`.
+ * the Kubb build during the first `buildStart`. When the config omits them, it fills in defaults:
+ * the OAS adapter, the TS and TSX parsers, and a barrel plugin. Under Vite it only applies during
+ * `build`. A missing config or a failed generation fails the host build.
  */
 export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, meta) => {
   const name = 'unplugin-kubb' as const
@@ -77,10 +72,11 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
     )
   })
 
-  async function runBuild(ctx: RollupContext) {
+  // Throw instead of calling `this.error`: webpack, Rspack, esbuild, and Farm contexts have no
+  // `error`, and every host turns an error thrown from `buildStart` into a failed build.
+  async function runBuild() {
     if (!options?.config) {
-      ;(ctx.error ?? console.error)(`[${name}] Config is not set`)
-      return
+      throw new Error(`[${name}] Config is not set`)
     }
 
     const { adapter, output, plugins } = applyConfigDefaults(options.config, {
@@ -110,21 +106,26 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       const failedCount = Diagnostics.failedPlugins(result.diagnostics).length
       const firstError = result.diagnostics.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
       const message = failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed')
-      if (ctx.error) {
-        ctx.error(`[${name}] ${message}`)
-        return
-      }
 
       throw new Error(`[${name}] ${message}`, { cause: firstError?.cause })
     }
   }
+
+  // Hosts call `buildStart` again for every watch rebuild and for each build that shares this
+  // instance, such as Astro's server and client builds. Generate once: with `output.clean`, every
+  // rerun rewrites watched files and webpack and Rspack rebuild forever. A failed run is retried.
+  let generation: Promise<void> | undefined
 
   return {
     name,
     enforce: 'pre',
     apply: isVite ? 'build' : undefined,
     async buildStart() {
-      await runBuild(this as unknown as RollupContext)
+      generation ??= runBuild().catch((error: unknown) => {
+        generation = undefined
+        throw error
+      })
+      await generation
     },
     vite: {},
   }
