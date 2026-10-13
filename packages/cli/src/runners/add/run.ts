@@ -6,7 +6,7 @@ import { getErrorMessage } from '@internals/utils'
 import type { ExtensionManifest, RegistryDetail } from '@kubb/core'
 import { findConfigFile } from '../../config.ts'
 import { logBlock, logError, logInfo, logIntro, logOutro, logStep, logWarn } from '../../loggers/output.ts'
-import { fetchRegistryDetail, incompatibility, registryUrl, toRegistryId } from '../../utils/registry.ts'
+import { fetchRegistryDetail, incompatibility, installSpec, registryUrl, toRegistryId } from '../../utils/registry.ts'
 import { detectPackageManager, installPackages } from '../init/utils.ts'
 
 export type AddOptions = {
@@ -62,7 +62,7 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     const problem = incompatibility(manifest)
     if (problem) throw new Error(problem)
 
-    const spec = `${artifact.package}@${artifact.version}`
+    const spec = installSpec(artifact)
     const configFile = manifest.kind === 'plugin' ? (configPath ? path.resolve(configPath) : findConfigFile(cwd)) : undefined
     if (manifest.kind === 'plugin' && !configFile) throw new Error('No kubb.config.ts found. Run `kubb init` first, or pass --config.')
 

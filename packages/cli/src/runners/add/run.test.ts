@@ -49,6 +49,17 @@ describe('kubb add', () => {
     expect(process.exitCode).toBeUndefined()
   })
 
+  it('installs a GitHub release from its commit and imports it by package name', async () => {
+    const commit = '0123456789abcdef0123456789abcdef01234567'
+    stubFetch({ body: { ...pluginX, artifact: { ...pluginX.artifact, kind: 'github', owner: 'acme', repo: 'kubb-plugin-x', tag: 'v1.2.0', commit } } })
+
+    await run({ id: 'acme/plugin-x', yes: true, install: true })
+
+    expect(installPackages).toHaveBeenCalledWith([`github:acme/kubb-plugin-x#${commit}`], expect.objectContaining({ name: 'pnpm' }), cwd)
+    expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toContain(`import { pluginX } from '@acme/kubb-plugin-x'`)
+    expect(process.exitCode).toBeUndefined()
+  })
+
   it('prints the snippet for an adapter instead of editing the config', async () => {
     stubFetch({ body: registryEntry({ name: 'adapter-x', version: '1.2.0', kind: 'adapter', manifest: { export: 'adapterX' } }) })
 

@@ -59,14 +59,29 @@ export type ExtensionManifest = {
   options?: Array<ExtensionManifestOption>
 }
 
+/** What `kubb add` installs: a reviewed npm version, or a GitHub release tag and the commit it points to. */
+export type RegistryArtifact =
+  | { kind: 'npm'; package: string; version: string }
+  | {
+      kind: 'github'
+      /** The `name` in the root `package.json`, so the package installs under this name. */
+      package: string
+      /** The release version, equal to `tag` without a leading `v`. */
+      version: string
+      owner: string
+      repo: string
+      tag: string
+      /** The full commit SHA the tag points to. */
+      commit: string
+    }
+
 /** One extension in a registry's `index.json`. */
 export type RegistryEntry = {
   /** `<owner>/<slug>`, such as `kubb-labs/plugin-zod`. */
   id: string
   kind: ExtensionKind
   type: 'official' | 'community'
-  /** The reviewed npm version to install. */
-  artifact: { kind: 'npm'; package: string; version: string }
+  artifact: RegistryArtifact
   repository?: { url: string }
   manifest: ExtensionManifest
   stats?: { downloads?: number; weekly?: number; stars?: number }
@@ -94,12 +109,16 @@ const OPTION_TYPES = new Set<unknown>(['select', 'boolean', 'text', 'number', 'l
 const PACKAGE_NAME = /^(?:@[a-z0-9~][a-z0-9._~-]*\/)?[a-z0-9~][a-z0-9._~-]*$/
 const IDENTIFIER = /^[A-Za-z_$][\w$]*$/
 const REGISTRY_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*\/[a-z0-9]+(?:-[a-z0-9]+)*$/
+const GITHUB_OWNER = /^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$/
+const GITHUB_REPO = /^(?!\.\.?$)[A-Za-z0-9._-]{1,100}$/
+const COMMIT = /^[0-9a-f]{40}$/
 /** Option path segments that would reach an object's prototype when Studio writes the value by path. */
 const UNSAFE_KEYS = new Set<unknown>(['__proto__', 'constructor', 'prototype'])
 
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value)
 const isOptionalString = (value: unknown) => value === undefined || typeof value === 'string'
 const isFilledString = (value: unknown) => typeof value === 'string' && value !== ''
+const matches = (pattern: RegExp, value: unknown) => typeof value === 'string' && pattern.test(value)
 /** Serializes with sorted object keys, so equal JSON values give equal strings whatever their key order. */
 const canonicalJSON = (value: unknown) =>
   JSON.stringify(value, (_key, item: unknown) =>
@@ -187,9 +206,22 @@ export function isExtensionManifest(value: unknown): value is ExtensionManifest 
   )
 }
 
+/** Checks that no artifact field can reach a package manager as a flag or path, and that a GitHub tag names the version. */
+function isRegistryArtifact(value: unknown): value is RegistryArtifact {
+  if (!isObject(value) || !isPackageName(value.package) || typeof value.version !== 'string' || !isValid(value.version)) return false
+  if (value.kind === 'npm') return true
+  return (
+    value.kind === 'github' &&
+    matches(GITHUB_OWNER, value.owner) &&
+    matches(GITHUB_REPO, value.repo) &&
+    (value.tag === value.version || value.tag === `v${value.version}`) &&
+    matches(COMMIT, value.commit)
+  )
+}
+
 /**
  * Checks one entry of a registry's `index.json` or `<owner>/<slug>.json`: a full `<owner>/<slug>` id,
- * an npm artifact pinned to a valid version, and a valid manifest of the entry's kind.
+ * an npm or GitHub artifact pinned to a valid version, and a valid manifest of the entry's kind.
  */
 export function isRegistryEntry(value: unknown): value is RegistryEntry {
   if (!isObject(value)) return false
@@ -199,11 +231,7 @@ export function isRegistryEntry(value: unknown): value is RegistryEntry {
     REGISTRY_ID.test(id) &&
     EXTENSION_KINDS.has(kind) &&
     (type === 'official' || type === 'community') &&
-    isObject(artifact) &&
-    artifact.kind === 'npm' &&
-    isPackageName(artifact.package) &&
-    typeof artifact.version === 'string' &&
-    isValid(artifact.version) &&
+    isRegistryArtifact(artifact) &&
     isExtensionManifest(manifest) &&
     manifest.kind === kind
   )

@@ -3,13 +3,25 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { vi } from 'vitest'
 
-/** A registry entry for `@acme/kubb-<name>` pinned at `version`, with `manifest` merged over the default one. */
-export function registryEntry({ name, version, kind = 'plugin', manifest }: { name: string; version: string; kind?: string; manifest?: object }) {
+/** A registry entry for `@acme/kubb-<name>` pinned at `version`, with `manifest` and `artifact` merged over the defaults. */
+export function registryEntry({
+  name,
+  version,
+  kind = 'plugin',
+  manifest,
+  artifact,
+}: {
+  name: string
+  version: string
+  kind?: string
+  manifest?: object
+  artifact?: object
+}) {
   return {
     id: `acme/${name}`,
     kind,
     type: 'community',
-    artifact: { kind: 'npm', package: `@acme/kubb-${name}`, version },
+    artifact: { kind: 'npm', package: `@acme/kubb-${name}`, version, ...artifact },
     manifest: { kind, name, export: 'factory', displayName: name, description: 'An extension.', ...manifest },
     submittedAt: '2026-10-12T20:00:00Z',
     publishedAt: '2026-10-12T20:00:00Z',

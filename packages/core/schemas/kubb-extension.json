@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://kubb.dev/schemas/kubb-extension.json",
   "title": "Kubb Extension Manifest",
-  "description": "The kubb-extension.json file at the root of a Kubb plugin, adapter, or parser package. It ships on npm, and the Kubb extension registry, the Kubb CLI, and Kubb Studio read it. Readers ignore unknown top-level keys.",
+  "description": "The kubb-extension.json file at the root of a Kubb plugin, adapter, or parser package. It ships with the package on npm or GitHub, and the Kubb extension registry, the Kubb CLI, and Kubb Studio read it. Readers ignore unknown top-level keys.",
   "type": "object",
   "required": ["kind", "name", "export", "displayName", "description"],
   "properties": {
