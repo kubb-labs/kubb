@@ -476,19 +476,13 @@ export type ConnectMessagePayload = {
       name: string
       options?: object
     }>
-    /**
-     * The extensions installed in the project that ship a `kubb-extension.json`: its plugins,
-     * adapter, and parsers, plus installed plugins the config does not use yet. Studio renders the
-     * plugin list and option forms from these.
-     */
+    /** Installed packages that ship a `kubb-extension.json`, including plugins the config does not use yet. */
     extensions?: Array<ExtensionEntry>
   }
   permissions: AgentPermissions
 }
 
-/**
- * An installed extension package and the manifest it ships.
- */
+/** An installed extension package and the manifest it ships. */
 export type ExtensionEntry = { package: string; version: string; manifest: ExtensionManifest }
 
 /**

@@ -174,7 +174,7 @@ describe('readConfig', () => {
 describe('applyConfigEdits', () => {
   describe('set', () => {
     it('changes only the targeted option, leaving the rest of the config the same', () => {
-      const result = applyConfigEdits(advanced, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
+      const result = applyConfigEdits({ source: advanced, edits: [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }] })
       expect(readConfig(result.source)).toStrictEqual(
         withOption({ view: readConfig(advanced), packageName: '@kubb/plugin-ts', key: 'enum', option: { literal: true, value: { type: 'enum' } } }),
       )
@@ -201,7 +201,7 @@ describe('applyConfigEdits', () => {
         `})`,
         ``,
       ].join('\n')
-      const result = applyConfigEdits(source, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }])
+      const result = applyConfigEdits({ source, edits: [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }] })
       expect(result.source).toMatchInlineSnapshot(`
         "import { defineConfig } from 'kubb/config'
         import { pluginTs } from '@kubb/plugin-ts'
@@ -225,11 +225,14 @@ describe('applyConfigEdits', () => {
     })
 
     it('applies the good edits in a batch, reports the bad one, and touches nothing else', () => {
-      const result = applyConfigEdits(advanced, [
-        { operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: 'array' },
-        { operation: 'set', plugin: '@kubb/plugin-axios', path: ['group'], value: { type: 'path' } },
-        { operation: 'set', plugin: '@kubb/plugin-msw', path: ['handlers'], value: false },
-      ])
+      const result = applyConfigEdits({
+        source: advanced,
+        edits: [
+          { operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: 'array' },
+          { operation: 'set', plugin: '@kubb/plugin-axios', path: ['group'], value: { type: 'path' } },
+          { operation: 'set', plugin: '@kubb/plugin-msw', path: ['handlers'], value: false },
+        ],
+      })
       expect({
         applied: result.outcomes.filter((outcome) => outcome.applied).length,
         reasons: result.outcomes.filter((outcome) => !outcome.applied).map((outcome) => outcome.reason),
@@ -269,7 +272,7 @@ describe('applyConfigEdits', () => {
       ]
 
       it.each(values)('writes %s into the file only when it is a literal', (_label, value, applied) => {
-        const result = applyConfigEdits(base, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value }])
+        const result = applyConfigEdits({ source: base, edits: [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value }] })
         expect({ changed: result.changed, applied: result.outcomes[0]?.applied, reason: result.outcomes[0]?.reason }).toStrictEqual({
           changed: applied,
           applied,
@@ -279,7 +282,7 @@ describe('applyConfigEdits', () => {
 
       it('escapes a string that would otherwise break out of the literal', () => {
         const value = "generic',\n      dangerous: true,\n      x: '"
-        const result = applyConfigEdits(base, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value }])
+        const result = applyConfigEdits({ source: base, edits: [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value }] })
         // The injected text must be inert: the plugin still has exactly the one option.
         const view = readConfig(result.source)
         expect(view.managed && Object.keys(view.configs[0]!.plugins[0]!.options)).toStrictEqual(['arrayType'])
@@ -289,7 +292,7 @@ describe('applyConfigEdits', () => {
 
   describe('remove', () => {
     it('drops a literal option so the plugin falls back to its default', () => {
-      const result = applyConfigEdits(advanced, [{ operation: 'remove', plugin: '@kubb/plugin-zod', path: ['inferred'] }])
+      const result = applyConfigEdits({ source: advanced, edits: [{ operation: 'remove', plugin: '@kubb/plugin-zod', path: ['inferred'] }] })
       expect(readConfig(result.source)).toStrictEqual(
         withOption({ view: readConfig(advanced), packageName: '@kubb/plugin-zod', key: 'inferred', option: undefined }),
       )
@@ -298,7 +301,10 @@ describe('applyConfigEdits', () => {
 
   describe('add-plugin', () => {
     it('adds the call on its own line and the import, leaving everything else untouched', () => {
-      const result = applyConfigEdits(advanced, [{ operation: 'add-plugin', plugin: '@kubb/plugin-swr', options: { group: { type: 'tag' } } }])
+      const result = applyConfigEdits({
+        source: advanced,
+        edits: [{ operation: 'add-plugin', plugin: '@kubb/plugin-swr', options: { group: { type: 'tag' } } }],
+      })
       const importLines = result.source.split('\n').filter((line) => line.startsWith('import'))
       expect(importLines.filter((line) => !line.includes('pluginSwr'))).toEqual(advanced.split('\n').filter((line) => line.startsWith('import')))
       expect(importLines).toContain(`import { pluginSwr } from '@kubb/plugin-swr'`)
@@ -311,11 +317,14 @@ describe('applyConfigEdits', () => {
     })
 
     it('leaves every plugin in a multi-line array free to be disabled afterwards', () => {
-      const added = applyConfigEdits(advanced, [{ operation: 'add-plugin', plugin: '@kubb/plugin-swr' }]).source
-      const result = applyConfigEdits(added, [
-        { operation: 'disable-plugin', plugin: '@kubb/plugin-ts' },
-        { operation: 'disable-plugin', plugin: '@kubb/plugin-swr' },
-      ])
+      const added = applyConfigEdits({ source: advanced, edits: [{ operation: 'add-plugin', plugin: '@kubb/plugin-swr' }] }).source
+      const result = applyConfigEdits({
+        source: added,
+        edits: [
+          { operation: 'disable-plugin', plugin: '@kubb/plugin-ts' },
+          { operation: 'disable-plugin', plugin: '@kubb/plugin-swr' },
+        ],
+      })
       expect(result.outcomes.map((outcome) => outcome.applied)).toStrictEqual([true, true])
     })
 
@@ -327,12 +336,12 @@ describe('applyConfigEdits', () => {
       ['a multi-line array without a trailing comma', `plugins: [\n    pluginTs()\n  ]`, `plugins: [\n    pluginTs(),\n    pluginZod()\n  ]`],
     ])('follows the layout of %s', (_label, before, after) => {
       const source = (plugins: string) => `import { pluginTs } from '@kubb/plugin-ts'\n\nexport default defineConfig({\n  ${plugins},\n})\n`
-      const result = applyConfigEdits(source(before), [{ operation: 'add-plugin', plugin: '@kubb/plugin-zod' }])
+      const result = applyConfigEdits({ source: source(before), edits: [{ operation: 'add-plugin', plugin: '@kubb/plugin-zod' }] })
       expect(result.source).toBe(source(after).replace(`'@kubb/plugin-ts'\n`, `'@kubb/plugin-ts'\nimport { pluginZod } from '@kubb/plugin-zod'\n`))
     })
 
     it('treats adding an existing plugin as a no-op', () => {
-      const result = applyConfigEdits(advanced, [{ operation: 'add-plugin', plugin: '@kubb/plugin-ts' }])
+      const result = applyConfigEdits({ source: advanced, edits: [{ operation: 'add-plugin', plugin: '@kubb/plugin-ts' }] })
       expect({ changed: result.changed, applied: result.outcomes[0]?.applied }).toStrictEqual({ changed: false, applied: true })
     })
 
@@ -350,7 +359,7 @@ describe('applyConfigEdits', () => {
 
     it.each(addPluginInjectionRefusals)('refuses %s instead of printing it into the file', (_label, edit) => {
       const source = `import { defineConfig } from 'kubb/config'\n\nexport default defineConfig({\n  input: './api.yaml',\n  plugins: [],\n})\n`
-      const result = applyConfigEdits(source, [edit])
+      const result = applyConfigEdits({ source, edits: [edit] })
       expect(result.changed).toBe(false)
       expect(result.source).not.toContain('evil')
     })
@@ -361,13 +370,13 @@ describe('applyConfigEdits', () => {
       const extensions = new Map([['@acme/kubb-plugin-x', { package: '@acme/kubb-plugin-x', version: '1.0.0', manifest }]])
 
       it('adds an installed extension with the import name its manifest names', () => {
-        const result = applyConfigEdits(source, [{ operation: 'add-plugin', plugin: '@acme/kubb-plugin-x', importName: 'other' }], extensions)
+        const result = applyConfigEdits({ source, edits: [{ operation: 'add-plugin', plugin: '@acme/kubb-plugin-x', importName: 'other' }], extensions })
         expect(result.source).toContain(`import { pluginX } from '@acme/kubb-plugin-x'`)
         expect(result.source).toContain('plugins: [pluginX()]')
       })
 
       it('refuses a package that is not an installed extension', () => {
-        const result = applyConfigEdits(source, [{ operation: 'add-plugin', plugin: '@acme/kubb-plugin-x' }])
+        const result = applyConfigEdits({ source, edits: [{ operation: 'add-plugin', plugin: '@acme/kubb-plugin-x' }] })
         expect(result.outcomes[0]).toMatchObject({
           applied: false,
           reason: '"@acme/kubb-plugin-x" is not a @kubb/plugin-* package or an installed Kubb plugin',
@@ -397,7 +406,10 @@ describe('applyConfigEdits', () => {
     })
 
     it('targets an entry by index', () => {
-      const result = applyConfigEdits(arraySource, [{ operation: 'set', config: 1, plugin: '@kubb/plugin-zod', path: ['inferred'], value: true }])
+      const result = applyConfigEdits({
+        source: arraySource,
+        edits: [{ operation: 'set', config: 1, plugin: '@kubb/plugin-zod', path: ['inferred'], value: true }],
+      })
       expect(readConfig(result.source)).toStrictEqual(
         withOption({ view: readConfig(arraySource), packageName: '@kubb/plugin-zod', key: 'inferred', option: { literal: true, value: true } }),
       )
@@ -408,7 +420,7 @@ describe('applyConfigEdits', () => {
     const source = `import { pluginTs } from '@kubb/plugin-ts'\nimport { pluginZod } from '@kubb/plugin-zod'\n\nexport default defineConfig({\n  plugins: [\n    pluginTs({ arrayType: 'generic' }),\n    pluginZod({\n      // keep me\n      inferred: true,\n    }),\n  ],\n})\n`
 
     it('comments the plugin call out, keeping its options', () => {
-      const result = applyConfigEdits(source, [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }])
+      const result = applyConfigEdits({ source, edits: [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }] })
       expect(result.source).toMatchInlineSnapshot(`
         "import { pluginTs } from '@kubb/plugin-ts'
         import { pluginZod } from '@kubb/plugin-zod'
@@ -428,8 +440,8 @@ describe('applyConfigEdits', () => {
     })
 
     it('enabling returns the source byte-for-byte', () => {
-      const disabled = applyConfigEdits(source, [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }]).source
-      const enabled = applyConfigEdits(disabled, [{ operation: 'enable-plugin', plugin: '@kubb/plugin-zod' }]).source
+      const disabled = applyConfigEdits({ source, edits: [{ operation: 'disable-plugin', plugin: '@kubb/plugin-zod' }] }).source
+      const enabled = applyConfigEdits({ source: disabled, edits: [{ operation: 'enable-plugin', plugin: '@kubb/plugin-zod' }] }).source
       expect(enabled).toBe(source)
     })
   })
@@ -460,7 +472,7 @@ describe('applyConfigEdits', () => {
     ]
 
     it.each(malformed)('refuses %s on its own and still applies the rest of the batch', (_label, edit, reason) => {
-      const result = applyConfigEdits(source, [edit as ConfigEdit, good])
+      const result = applyConfigEdits({ source, edits: [edit as ConfigEdit, good] })
       expect(result.outcomes.map(({ applied, reason }) => ({ applied, reason }))).toStrictEqual([
         { applied: false, reason },
         { applied: true, reason: undefined },
@@ -470,7 +482,7 @@ describe('applyConfigEdits', () => {
 
     it('refuses a value that carries a __proto__ key', () => {
       const value = JSON.parse('{ "__proto__": { "polluted": true } }') as unknown
-      const result = applyConfigEdits(source, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value }])
+      const result = applyConfigEdits({ source, edits: [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value }] })
       expect(result.outcomes[0]).toMatchObject({ applied: false, reason: 'the value is not a literal that can be written to a config file' })
     })
 
@@ -525,12 +537,12 @@ describe('applyConfigEdits', () => {
         'importPath can be overridden by a spread after it, so it is customized in code',
       ],
     ])('refuses to overwrite %s', (_label, edit, reason) => {
-      const result = applyConfigEdits(source, [edit])
+      const result = applyConfigEdits({ source, edits: [edit] })
       expect({ changed: result.changed, outcome: result.outcomes[0] }).toStrictEqual({ changed: false, outcome: { edit, applied: false, reason } })
     })
 
     it('adds a new option after the spread, where it takes effect', () => {
-      const result = applyConfigEdits(source, [{ operation: 'set', plugin: '@kubb/plugin-zod', path: ['mini'], value: true }])
+      const result = applyConfigEdits({ source, edits: [{ operation: 'set', plugin: '@kubb/plugin-zod', path: ['mini'], value: true }] })
       expect(result.source).toBe(source.replace(`      },\n    }),`, `      },\n      mini: true,\n    }),`))
     })
   })
@@ -557,33 +569,36 @@ describe('applyConfigEdits', () => {
     ].join('\n')
 
     it('adds a nested option on its own line with the object indentation, and no semicolon', () => {
-      const result = applyConfigEdits(source, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['output', 'path'], value: 'types' }])
+      const result = applyConfigEdits({ source, edits: [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['output', 'path'], value: 'types' }] })
       expect(result.source).toBe(source.replace(`        syntaxType: 'type',\n`, `        syntaxType: 'type',\n        output: { path: 'types' },\n`))
     })
 
     it('adds to an existing nested object inline when it is written on one line', () => {
-      const result = applyConfigEdits(source, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'keyCasing'], value: 'camelCase' }])
+      const result = applyConfigEdits({ source, edits: [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'keyCasing'], value: 'camelCase' }] })
       expect(result.source).toBe(source.replace(`enum: { type: 'asConst' }`, `enum: { type: 'asConst', keyCasing: 'camelCase' }`))
     })
 
     it('removes an option with its whole line, keeping the comments around it', () => {
-      const result = applyConfigEdits(source, [{ operation: 'remove', plugin: '@kubb/plugin-ts', path: ['arrayType'] }])
+      const result = applyConfigEdits({ source, edits: [{ operation: 'remove', plugin: '@kubb/plugin-ts', path: ['arrayType'] }] })
       expect(result.source).toBe(source.replace(`        arrayType: 'generic', // array syntax\n`, ''))
     })
 
     it('removes the last option inline, leaving an empty object', () => {
-      const result = applyConfigEdits(source, [{ operation: 'remove', plugin: '@kubb/plugin-ts', path: ['enum', 'type'] }])
+      const result = applyConfigEdits({ source, edits: [{ operation: 'remove', plugin: '@kubb/plugin-ts', path: ['enum', 'type'] }] })
       expect(result.source).toBe(source.replace(`enum: { type: 'asConst' }`, `enum: {}`))
     })
 
     it('gives a plugin called without options its first one', () => {
-      const result = applyConfigEdits(source, [{ operation: 'set', plugin: '@kubb/plugin-zod', path: ['coercion', 'dates'], value: true }])
+      const result = applyConfigEdits({ source, edits: [{ operation: 'set', plugin: '@kubb/plugin-zod', path: ['coercion', 'dates'], value: true }] })
       expect(result.source).toBe(source.replace(`pluginZod()`, `pluginZod({ coercion: { dates: true } })`))
     })
 
     it('writes strings with the quote style of the file', () => {
       const doubleQuoted = source.replaceAll(`'`, `"`)
-      const result = applyConfigEdits(doubleQuoted, [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: `it's "x"` }])
+      const result = applyConfigEdits({
+        source: doubleQuoted,
+        edits: [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: `it's "x"` }],
+      })
       expect(result.source).toContain(`arrayType: "it's \\"x\\"", // array syntax`)
     })
   })
@@ -614,10 +629,13 @@ describe('applyConfigEdits', () => {
       `])`,
       ``,
     ].join('\n')
-    const disabled = applyConfigEdits(source, [
-      { operation: 'disable-plugin', config: 'a', plugin: '@kubb/plugin-zod' },
-      { operation: 'disable-plugin', config: 'b', plugin: '@kubb/plugin-zod' },
-    ]).source
+    const disabled = applyConfigEdits({
+      source,
+      edits: [
+        { operation: 'disable-plugin', config: 'a', plugin: '@kubb/plugin-zod' },
+        { operation: 'disable-plugin', config: 'b', plugin: '@kubb/plugin-zod' },
+      ],
+    }).source
 
     it('keeps a disabled plugin in its place with the options it holds', () => {
       const view = readConfig(disabled)
@@ -633,7 +651,7 @@ describe('applyConfigEdits', () => {
     })
 
     it('enables the plugin only in the entry the edit names', () => {
-      const result = applyConfigEdits(disabled, [{ operation: 'enable-plugin', config: 'b', plugin: '@kubb/plugin-zod' }])
+      const result = applyConfigEdits({ source: disabled, edits: [{ operation: 'enable-plugin', config: 'b', plugin: '@kubb/plugin-zod' }] })
       const view = readConfig(result.source)
       expect(view.managed && view.configs.map((config) => config.plugins.find((plugin) => plugin.importName === 'pluginZod')?.disabled)).toStrictEqual([
         true,
@@ -642,15 +660,21 @@ describe('applyConfigEdits', () => {
     })
 
     it('restores blank lines without the indentation the comment carried', () => {
-      const result = applyConfigEdits(disabled, [
-        { operation: 'enable-plugin', config: 'a', plugin: '@kubb/plugin-zod' },
-        { operation: 'enable-plugin', config: 'b', plugin: '@kubb/plugin-zod' },
-      ])
+      const result = applyConfigEdits({
+        source: disabled,
+        edits: [
+          { operation: 'enable-plugin', config: 'a', plugin: '@kubb/plugin-zod' },
+          { operation: 'enable-plugin', config: 'b', plugin: '@kubb/plugin-zod' },
+        ],
+      })
       expect(result.source).toBe(source)
     })
 
     it('asks to enable a disabled plugin before editing its options', () => {
-      const result = applyConfigEdits(disabled, [{ operation: 'set', config: 'a', plugin: '@kubb/plugin-zod', path: ['inferred'], value: false }])
+      const result = applyConfigEdits({
+        source: disabled,
+        edits: [{ operation: 'set', config: 'a', plugin: '@kubb/plugin-zod', path: ['inferred'], value: false }],
+      })
       expect(result.outcomes[0]?.reason).toBe('@kubb/plugin-zod is disabled, enable it first')
     })
   })
@@ -684,10 +708,13 @@ describe('applyConfigEdits', () => {
     })
 
     it('adds a plugin with a require, not an import', () => {
-      const result = applyConfigEdits(source, [
-        { operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'literal' },
-        { operation: 'add-plugin', plugin: '@kubb/plugin-zod' },
-      ])
+      const result = applyConfigEdits({
+        source,
+        edits: [
+          { operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'literal' },
+          { operation: 'add-plugin', plugin: '@kubb/plugin-zod' },
+        ],
+      })
       expect(result.source).toBe(
         source
           .replace(

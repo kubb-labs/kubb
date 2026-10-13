@@ -344,7 +344,7 @@ class Agent extends RpcTarget implements AgentApi {
 
     const [config, extensions] = await Promise.all([this.#options.loadConfig(), this.#installedExtensions()])
     const [plugins, adapter] = await Promise.all([
-      mergePlugins(config.plugins, patch?.plugins, extensions),
+      mergePlugins({ diskPlugins: config.plugins, studioPlugins: patch?.plugins, extensions }),
       mergeAdapter(config.adapter, patch?.adapter),
     ]).catch(async (error: unknown) => {
       // Thrown before core runs, so nothing else reports it to the host.
