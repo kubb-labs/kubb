@@ -7,251 +7,134 @@ const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx'])
 const BARREL_SUFFIX = `/index.ts`
 
 /**
- * A node in the directory tree used to compute barrel file exports.
- * Either represents a directory (with `children`) or a file (`isFile: true`, empty `children`).
+ * A file (no `children`) or directory in the tree barrels are computed from. `path` is absolute and
+ * POSIX-normalized, and a directory's `children` are keyed by entry name in sorted order.
  */
-type BuildTree = {
-  /**
-   * Absolute filesystem path of this directory or file. Always normalized to POSIX (`/`) separators.
-   */
-  path: string
-  /**
-   * Sub-directories and files contained within this directory.
-   * Always empty for file nodes.
-   */
-  children: Array<BuildTree>
-  /**
-   * `true` when this node represents a file (leaf), `false` for directory nodes.
-   */
-  isFile: boolean
-}
+type TreeNode = { path: string; children?: undefined } | DirectoryNode
+type DirectoryNode = { path: string; children: Map<string, TreeNode> }
 
 /**
- * Builds a directory tree rooted at `rootPath` from a list of absolute file paths.
- * Paths outside `rootPath` are silently ignored. Children are sorted alphabetically
- * by path so consumers (barrel exports, propagated indexes) emit a deterministic order.
- *
- * Both POSIX (`/`) and Windows (`\`) separators are accepted in input paths; emitted node
- * paths are always POSIX-normalized so downstream prefix/lookup operations behave the same
- * across platforms.
- *
- * @example
- * ```ts
- * buildTree('/src/gen/types', [
- *   '/src/gen/types/pet.ts',
- *   '/src/gen/types/pets/listPets.ts',
- * ])
- * ```
+ * Orders paths split into segments the way a directory listing sorts them: by name at each level.
  */
-function buildTree(rootPath: string, filePaths: ReadonlyArray<string>): BuildTree {
-  const normalizedRoot = toPosixPath(rootPath)
-  const root: BuildTree = { path: normalizedRoot, children: [], isFile: false }
-  // Per-directory child lookup avoids the O(N) `Array.find` scan during insertion.
-  // WeakMap keyed by object identity so directory nodes are GC-eligible once the tree is discarded.
-  const childIndex = new WeakMap<BuildTree, Map<string, BuildTree>>()
-  childIndex.set(root, new Map())
+function compareSegments(a: ReadonlyArray<string>, b: ReadonlyArray<string>): number {
+  const index = a.findIndex((segment, i) => segment !== b[i])
+  if (index === -1) return a.length - b.length
+  if (index >= b.length) return 1
 
-  const rootPrefix = `${normalizedRoot}/`
-
-  for (const filePath of filePaths) {
-    const normalized = toPosixPath(filePath)
-    if (!normalized.startsWith(rootPrefix)) continue
-
-    const parts = normalized.slice(rootPrefix.length).split('/')
-    let current = root
-    const lastIndex = parts.length - 1
-    for (const [i, part] of parts.entries()) {
-      if (!part) continue
-
-      const isLast = i === lastIndex
-      const siblings = childIndex.get(current)!
-      let child = siblings.get(part)
-      if (!child) {
-        child = { path: `${current.path}/${part}`, children: [], isFile: isLast }
-        current.children.push(child)
-        siblings.set(part, child)
-        if (!isLast) childIndex.set(child, new Map())
-      }
-      current = child
-    }
-  }
-
-  sortTree(root)
-
-  return root
+  return a[index]! < b[index]! ? -1 : 1
 }
 
-function sortTree(node: BuildTree): void {
-  if (node.children.length === 0) return
-  node.children.sort(compareByPath)
-
-  for (const child of node.children) {
-    if (!child.isFile) sortTree(child)
-  }
-}
-
-function compareByPath(a: BuildTree, b: BuildTree): number {
-  return a.path < b.path ? -1 : a.path > b.path ? 1 : 0
-}
-
-function toRelativeModulePath({ fromDir, filePath }: { fromDir: string; filePath: string }): string {
+function toRelativeModulePath(fromDir: string, filePath: string): string {
   return `./${posix.relative(fromDir, filePath)}`
 }
 
-function isBarrelPath(path: string): boolean {
-  return path.endsWith(BARREL_SUFFIX)
-}
-
-type MakeBarrelParams = {
-  dirPath: string
-  exports: Array<ast.ExportNode>
+type WalkContext = {
   sourceFiles: ReadonlyMap<string, ast.FileNode>
   reportedCollisions: Set<string>
+  recursive: boolean
+  leafExports: (dirPath: string, leafPath: string) => Array<ast.ExportNode>
 }
 
-function makeBarrel({ dirPath, exports, sourceFiles, reportedCollisions }: MakeBarrelParams): ast.FileNode {
-  const names = new Map<string, string>()
-  const uniqueExports: Array<ast.ExportNode> = []
-
-  for (const item of exports) {
+/**
+ * Builds the `index.ts` for `dirPath`. Keeps the first export of each name and reports later duplicates once per build.
+ */
+function makeBarrel(dirPath: string, exports: Array<ast.ExportNode>, { sourceFiles, reportedCollisions }: WalkContext): ast.FileNode {
+  const owners = new Map<string, string>()
+  const uniqueExports = exports.flatMap((item) => {
     const itemPath = posix.join(dirPath, item.path)
-    const itemNames = Array.isArray(item.name)
-      ? item.name
-      : item.name
-        ? [item.name]
-        : sourceFiles.get(itemPath)?.sources.flatMap((source) => (source.name ? [source.name] : []))
-    const uniqueNames: Array<string> = []
-
-    for (const name of itemNames ?? []) {
-      const first = names.get(name)
+    // A wildcard export carries no names, so collisions are checked against its source file.
+    const names = item.name == null ? (sourceFiles.get(itemPath)?.sources.flatMap((source) => source.name || []) ?? []) : [item.name].flat()
+    const uniqueNames = names.filter((name) => {
+      const first = owners.get(name)
       if (!first) {
-        names.set(name, item.path)
-        uniqueNames.push(name)
-        continue
+        owners.set(name, item.path)
+        return true
       }
 
       const key = [name, posix.join(dirPath, first), itemPath].join('\0')
-      if (reportedCollisions.has(key)) continue
-      reportedCollisions.add(key)
-      Diagnostics.report({
-        code: Diagnostics.code.barrelDuplicateExport,
-        severity: 'error',
-        message: `"${name}" is exported by both "${first}" and "${item.path}", so "${dirPath}${BARREL_SUFFIX}" cannot re-export both.`,
-        help: 'Rename one of the colliding declarations, or configure the plugin resolver to produce distinct names.',
-      })
-    }
+      if (!reportedCollisions.has(key)) {
+        reportedCollisions.add(key)
+        Diagnostics.report({
+          code: Diagnostics.code.barrelDuplicateExport,
+          severity: 'error',
+          message: `"${name}" is exported by both "${first}" and "${item.path}", so "${dirPath}${BARREL_SUFFIX}" cannot re-export both.`,
+          help: 'Rename one of the colliding declarations, or configure the plugin resolver to produce distinct names.',
+        })
+      }
+      return false
+    })
 
-    if (!itemNames || item.name == null || uniqueNames.length > 0) {
-      uniqueExports.push(item.name == null ? item : ast.factory.createExport({ ...item, name: Array.isArray(item.name) ? uniqueNames : uniqueNames[0] }))
-    }
-  }
+    if (item.name == null) return [item]
+    return uniqueNames.length > 0 ? [ast.factory.createExport({ ...item, name: Array.isArray(item.name) ? uniqueNames : uniqueNames[0] })] : []
+  })
 
   return ast.factory.createFile({ baseName: 'index.ts', path: `${dirPath}${BARREL_SUFFIX}`, exports: uniqueExports })
 }
 
-type LeafStrategy = (params: { dirPath: string; leafPath: string; sourceFile: ast.FileNode | undefined }) => Array<ast.ExportNode>
+type LeafStrategy = (path: string, sourceFile: ast.FileNode | undefined) => Array<ast.ExportNode>
 
-function indexableNames({ sources, isTypeOnly }: { sources: ReadonlyArray<ast.SourceNode>; isTypeOnly: boolean }): Array<string> {
+function indexableNames(sources: ReadonlyArray<ast.SourceNode>, isTypeOnly: boolean): Array<string> {
   const names = sources.flatMap((source) => (source.isIndexable && source.name && Boolean(source.isTypeOnly) === isTypeOnly ? [source.name] : []))
   return [...new Set(names)].sort()
 }
 
-const allStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
-  const sources = sourceFile?.sources ?? []
-  if (sources.length > 0 && !sources.some((source) => source.isIndexable)) return []
-  return [ast.factory.createExport({ path: toRelativeModulePath({ fromDir: dirPath, filePath: leafPath }) })]
-}
-
-const namedStrategy: LeafStrategy = ({ dirPath, leafPath, sourceFile }) => {
-  const modulePath = toRelativeModulePath({ fromDir: dirPath, filePath: leafPath })
-
-  if (!sourceFile) return [ast.factory.createExport({ path: modulePath })]
-
-  const valueNames = indexableNames({ sources: sourceFile.sources, isTypeOnly: false })
-  const typeNames = indexableNames({ sources: sourceFile.sources, isTypeOnly: true })
-
-  if (valueNames.length === 0 && typeNames.length === 0) {
-    if (sourceFile.sources.length > 0) return []
-    return [ast.factory.createExport({ path: modulePath })]
-  }
-
-  const exports: Array<ast.ExportNode> = []
-  if (valueNames.length > 0) {
-    exports.push(ast.factory.createExport({ name: valueNames, path: modulePath }))
-  }
-  if (typeNames.length > 0) {
-    exports.push(ast.factory.createExport({ name: typeNames, path: modulePath, isTypeOnly: true }))
-  }
-  return exports
-}
-
-type WalkParams = {
-  sourceFiles: ReadonlyMap<string, ast.FileNode>
-  strategy: LeafStrategy
-  reportedCollisions: Set<string>
-}
-
 /**
- * Post-order walk that yields a barrel per visited directory.
- * Returns the list of leaf file paths collected in this subtree (used by the parent call).
+ * Re-exports the whole module, unless it has sources and none of them is indexable.
  */
-function* walkAllOrNamed(
-  node: BuildTree,
-  params: WalkParams,
-  { isRoot, recursive }: { isRoot: boolean; recursive: boolean },
-): Generator<ast.FileNode, Array<string>> {
-  const subtreeLeaves: Array<string> = []
-
-  for (const child of node.children) {
-    if (child.isFile) {
-      if (!isBarrelPath(child.path)) subtreeLeaves.push(child.path)
-      continue
-    }
-
-    const childLeaves = yield* walkAllOrNamed(child, params, { isRoot: false, recursive })
-    for (const leaf of childLeaves) subtreeLeaves.push(leaf)
-  }
-
-  if (!isRoot && !recursive) return subtreeLeaves
-
-  const exports = subtreeLeaves.flatMap((leafPath) => params.strategy({ dirPath: node.path, leafPath, sourceFile: params.sourceFiles.get(leafPath) }))
-
-  if (exports.length > 0) {
-    yield makeBarrel({ dirPath: node.path, exports, sourceFiles: params.sourceFiles, reportedCollisions: params.reportedCollisions })
-  }
-
-  return subtreeLeaves
+const allStrategy: LeafStrategy = (path, sourceFile) => {
+  const sources = sourceFile?.sources ?? []
+  return sources.length > 0 && !sources.some((source) => source.isIndexable) ? [] : [ast.factory.createExport({ path })]
 }
 
 /**
- * Recursive walk that yields one barrel per directory, re-exporting files and sub-barrels.
+ * Re-exports the indexable names, values and types separately, or the whole module when it has no sources.
+ */
+const namedStrategy: LeafStrategy = (path, sourceFile) => {
+  if (!sourceFile?.sources.length) return [ast.factory.createExport({ path })]
+
+  const valueNames = indexableNames(sourceFile.sources, false)
+  const typeNames = indexableNames(sourceFile.sources, true)
+  return [
+    ...(valueNames.length > 0 ? [ast.factory.createExport({ name: valueNames, path })] : []),
+    ...(typeNames.length > 0 ? [ast.factory.createExport({ name: typeNames, path, isTypeOnly: true })] : []),
+  ]
+}
+
+type FlatWalk = { barrels: Array<ast.FileNode>; leaves: Array<string> }
+
+/**
+ * Post-order walk that builds a barrel re-exporting every leaf below the visited directory, for
+ * the start node and, with `recursive`, every sub-directory. Also returns the subtree's leaf paths.
+ */
+function walkFlat(node: DirectoryNode, ctx: WalkContext, isRoot = true): FlatWalk {
+  const results = [...node.children.values()].map((child): FlatWalk => (child.children ? walkFlat(child, ctx, false) : { barrels: [], leaves: [child.path] }))
+  const barrels = results.flatMap((result) => result.barrels)
+  const leaves = results.flatMap((result) => result.leaves)
+  const exports = isRoot || ctx.recursive ? leaves.flatMap((leaf) => ctx.leafExports(node.path, leaf)) : []
+
+  return { barrels: exports.length > 0 ? [...barrels, makeBarrel(node.path, exports, ctx)] : barrels, leaves }
+}
+
+/**
+ * Recursive walk that builds one barrel per directory, re-exporting files and sub-barrels.
  * Used when nested: true. Leaf files honor the barrel `strategy`, so `named` emits explicit
  * named exports instead of wildcards. Sub-directory barrels are chained with a wildcard
- * re-export, which forwards the names the child barrel already curated. Returns whether this
- * node yielded a barrel, so a parent never re-exports a sub-directory that produced nothing.
+ * re-export, which forwards the names the child barrel already curated. A sub-directory that
+ * produced no barrel is never re-exported.
  */
-function* walkNested(node: BuildTree, params: WalkParams): Generator<ast.FileNode, boolean> {
-  const exports: Array<ast.ExportNode> = []
+function walkNested(node: DirectoryNode, ctx: WalkContext): Array<ast.FileNode> {
+  const results = [...node.children.values()].map((child) => {
+    if (!child.children) return { barrels: [], exports: ctx.leafExports(node.path, child.path) }
 
-  for (const child of node.children) {
-    if (child.isFile) {
-      if (isBarrelPath(child.path)) continue
-      exports.push(...params.strategy({ dirPath: node.path, leafPath: child.path, sourceFile: params.sourceFiles.get(child.path) }))
-      continue
-    }
+    // A sub-directory has barrels only when it has its own `index.ts`.
+    const barrels = walkNested(child, ctx)
+    const exports = barrels.length > 0 ? [ast.factory.createExport({ path: toRelativeModulePath(node.path, `${child.path}${BARREL_SUFFIX}`) })] : []
+    return { barrels, exports }
+  })
+  const barrels = results.flatMap((result) => result.barrels)
+  const exports = results.flatMap((result) => result.exports)
 
-    const childYieldedBarrel = yield* walkNested(child, params)
-    if (childYieldedBarrel) {
-      exports.push(ast.factory.createExport({ path: toRelativeModulePath({ fromDir: node.path, filePath: `${child.path}${BARREL_SUFFIX}` }) }))
-    }
-  }
-
-  if (exports.length > 0) {
-    yield makeBarrel({ dirPath: node.path, exports, sourceFiles: params.sourceFiles, reportedCollisions: params.reportedCollisions })
-    return true
-  }
-
-  return false
+  return exports.length > 0 ? [...barrels, makeBarrel(node.path, exports, ctx)] : barrels
 }
 
 /**
@@ -260,7 +143,7 @@ function* walkNested(node: BuildTree, params: WalkParams): Generator<ast.FileNod
  * it via {@link getBarrelFiles}, instead of re-scanning the full file set once per barrel.
  */
 type BarrelIndex = {
-  tree: BuildTree
+  tree: DirectoryNode
   sourceFiles: ReadonlyMap<string, ast.FileNode>
 }
 
@@ -270,36 +153,49 @@ type BarrelIndex = {
  * derived from the same root rather than re-filtering and re-building per barrel.
  */
 export function buildBarrelIndex(outputPath: string, files: ReadonlyArray<ast.FileNode>): BarrelIndex {
-  const outputPrefix = `${toPosixPath(outputPath)}/`
-  const sourceFiles = new Map<string, ast.FileNode>()
+  const tree: DirectoryNode = { path: toPosixPath(outputPath), children: new Map() }
+  const sourceFiles = new Map(
+    files.flatMap((file) => {
+      const filePath = toPosixPath(file.path)
+      const isSource = filePath.startsWith(`${tree.path}/`) && !filePath.endsWith(BARREL_SUFFIX) && SOURCE_EXTENSIONS.has(extname(filePath))
+      return isSource ? [[filePath, file] as const] : []
+    }),
+  )
 
-  for (const file of files) {
-    const normalized = toPosixPath(file.path)
-    if (!normalized.startsWith(outputPrefix)) continue
-    if (isBarrelPath(normalized)) continue
-    if (!SOURCE_EXTENSIONS.has(extname(normalized))) continue
+  // Inserting paths in per-segment order keeps every directory's children sorted by name.
+  const entries = [...sourceFiles.keys()]
+    .map((filePath) =>
+      filePath
+        .slice(tree.path.length + 1)
+        .split('/')
+        .filter(Boolean),
+    )
+    .sort(compareSegments)
+  entries.forEach((parts) => {
+    parts.reduce<DirectoryNode>((dir, part, i) => {
+      const path = `${dir.path}/${part}`
+      const child: TreeNode = dir.children.get(part) ?? (i === parts.length - 1 ? { path } : { path, children: new Map() })
+      dir.children.set(part, child)
+      return child.children ? child : dir
+    }, tree)
+  })
 
-    sourceFiles.set(normalized, file)
-  }
-
-  return { tree: buildTree(outputPath, [...sourceFiles.keys()]), sourceFiles }
+  return { tree, sourceFiles }
 }
 
 /**
- * Locates the node for `targetPath` within an index tree, walking down through directory nodes
- * only. Returns `undefined` when no file exists at or under `targetPath` (nothing to barrel).
+ * Locates the directory node for `targetPath` within an index tree. Returns `undefined` when no
+ * file exists under `targetPath` (nothing to barrel).
  */
-function findNode(node: BuildTree, targetPath: string): BuildTree | undefined {
-  if (node.path === targetPath) return node
-  if (node.isFile || !targetPath.startsWith(`${node.path}/`)) return undefined
+function findDirectory(tree: DirectoryNode, targetPath: string): DirectoryNode | undefined {
+  if (targetPath === tree.path) return tree
+  if (!targetPath.startsWith(`${tree.path}/`)) return undefined
 
-  for (const child of node.children) {
-    if (!child.isFile && (child.path === targetPath || targetPath.startsWith(`${child.path}/`))) {
-      return findNode(child, targetPath)
-    }
-  }
-
-  return undefined
+  const node = targetPath
+    .slice(tree.path.length + 1)
+    .split('/')
+    .reduce<TreeNode | undefined>((current, part) => current?.children?.get(part), tree)
+  return node?.children ? node : undefined
 }
 
 type GetBarrelFilesParams = {
@@ -335,35 +231,34 @@ type GetBarrelFilesParams = {
 }
 
 /**
- * Yields barrel `ast.FileNode`s for `targetPath` (or the index root), derived from a shared index.
+ * Returns the barrel `ast.FileNode`s for `targetPath` (or the index root), derived from a shared index.
  * Locating the subtree is a bounded walk down from the root, so deriving many barrels (one per
  * plugin, plus the root) from one index avoids re-scanning the full file set for each.
  *
  * @example
  * ```ts
  * const index = buildBarrelIndex(outputPath, files)
- * for (const file of getBarrelFiles({ index, targetPath, barrelType })) {
- *   upsertFile(file)
- * }
+ * getBarrelFiles({ index, targetPath, barrelType }).forEach((file) => upsertFile(file))
  * ```
  */
-export function* getBarrelFiles({
+export function getBarrelFiles({
   index,
   targetPath,
   barrelType,
   nested = false,
   recursive = false,
   reportedCollisions = new Set(),
-}: GetBarrelFilesParams): Generator<ast.FileNode> {
-  const node = targetPath ? findNode(index.tree, toPosixPath(targetPath)) : index.tree
-  if (!node) return
+}: GetBarrelFilesParams): Array<ast.FileNode> {
+  const node = targetPath ? findDirectory(index.tree, toPosixPath(targetPath)) : index.tree
+  if (!node) return []
 
   const strategy = barrelType === 'named' ? namedStrategy : allStrategy
-
-  if (nested) {
-    yield* walkNested(node, { sourceFiles: index.sourceFiles, strategy, reportedCollisions })
-    return
+  const ctx: WalkContext = {
+    sourceFiles: index.sourceFiles,
+    reportedCollisions,
+    recursive,
+    leafExports: (dirPath, leafPath) => strategy(toRelativeModulePath(dirPath, leafPath), index.sourceFiles.get(leafPath)),
   }
 
-  yield* walkAllOrNamed(node, { sourceFiles: index.sourceFiles, strategy, reportedCollisions }, { isRoot: true, recursive })
+  return nested ? walkNested(node, ctx) : walkFlat(node, ctx).barrels
 }

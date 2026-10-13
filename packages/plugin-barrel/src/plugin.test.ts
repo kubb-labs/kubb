@@ -4,10 +4,11 @@ import type { Config, Plugin } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { pluginBarrel } from './plugin.ts'
 
-function makeFile(filePath: string, name: string) {
+function makeFile(filePath: string, name: string, meta?: Record<string, unknown>) {
   return ast.factory.createFile({
     path: filePath,
     baseName: filePath.split('/').pop() as `${string}.${string}`,
+    meta,
     sources: [ast.factory.createSource({ name, isIndexable: true, nodes: [ast.factory.createText(`export const ${name} = null`)] })],
     imports: [],
     exports: [],
@@ -20,12 +21,15 @@ function makePlugin({
   filePath,
   exportName,
   output,
+  meta = { pluginName: name },
 }: {
   name: string
   outputPath: string
   filePath: string
   exportName: string
   output?: Record<string, unknown>
+  // Resolver-built files record their owning plugin in `meta.pluginName`. Pass `{}` for a file that does not.
+  meta?: Record<string, unknown>
 }) {
   return definePlugin(() => ({
     name,
@@ -33,7 +37,7 @@ function makePlugin({
       'kubb:plugin:setup'(ctx) {
         ctx.setOptions({ output: { path: outputPath, ...output } })
         ctx.setResolver({})
-        ctx.injectFile(makeFile(filePath, exportName))
+        ctx.injectFile(makeFile(filePath, exportName, meta))
       },
     },
   }))()
@@ -49,20 +53,20 @@ function typesPlugin(output: Record<string, unknown> = {}) {
   })
 }
 
-function schemasPlugin() {
+function schemasPlugin(output: Record<string, unknown> = {}) {
   return makePlugin({
     name: 'plugin-schemas',
     outputPath: 'schemas',
     filePath: '/workspace/src/gen/schemas/petSchema.ts',
     exportName: 'PetSchema',
-    output: { mode: 'directory' },
+    output: { mode: 'directory', ...output },
   })
 }
 
-async function build({ plugins }: { plugins: Array<Plugin> }) {
+async function build({ plugins, barrel = { type: 'named' } }: { plugins: Array<Plugin>; barrel?: { type: 'named' } | false }) {
   const config = {
     root: '/workspace',
-    output: { path: 'src/gen', barrel: { type: 'named' } },
+    output: { path: 'src/gen', barrel },
     parsers: [],
     reporters: [],
     plugins: [...plugins, pluginBarrel()] as unknown as Array<Plugin>,
@@ -133,6 +137,17 @@ describe('pluginBarrel', () => {
       }),
     },
     { scenario: 'directory-mode', plugin: typesPlugin({ barrel: false }) },
+    {
+      scenario: 'directory-mode without an owning plugin on its files',
+      plugin: makePlugin({
+        name: 'plugin-types',
+        outputPath: 'types',
+        filePath: '/workspace/src/gen/types/pet.ts',
+        exportName: 'Pet',
+        output: { mode: 'directory', barrel: false },
+        meta: {},
+      }),
+    },
   ])('excludes a barrel:false $scenario plugin from the root barrel', async ({ plugin }) => {
     const { paths, rootExportNames } = await build({ plugins: [plugin, schemasPlugin()] })
 
@@ -153,6 +168,29 @@ describe('pluginBarrel', () => {
     await expect(build({ plugins: [escapingPlugin] })).rejects.toMatchObject({ errors: [{ diagnostic: { code: Diagnostics.code.pathTraversal } }] })
   })
 
+  it.each([
+    { scenario: 'disabled', barrel: false as const, rootExports: undefined },
+    { scenario: 'enabled', barrel: { type: 'named' as const }, rootExports: expect.arrayContaining(['Hello', 'Pet', 'PetSchema']) },
+  ])('keeps the per-plugin barrels next to a plugin without output.path when the root barrel is $scenario', async ({ barrel, rootExports }) => {
+    const helloPlugin = definePlugin(() => ({
+      name: 'plugin-hello',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.injectFile(makeFile('/workspace/src/gen/hello.ts', 'Hello'))
+        },
+      },
+    }))()
+    const { paths, rootExportNames } = await build({
+      plugins: [typesPlugin({ barrel: { type: 'named' } }), helloPlugin, schemasPlugin({ barrel: { type: 'named' } })],
+      barrel,
+    })
+
+    expect(paths).toStrictEqual(
+      expect.arrayContaining(['/workspace/src/gen/hello.ts', '/workspace/src/gen/types/index.ts', '/workspace/src/gen/schemas/index.ts']),
+    )
+    expect(rootExportNames).toStrictEqual(rootExports)
+  })
+
   it('keeps a plugin whose output path only shares a prefix with an excluded one', async () => {
     const extraPlugin = makePlugin({
       name: 'plugin-types-extra',
@@ -165,5 +203,39 @@ describe('pluginBarrel', () => {
 
     expect(rootExportNames).not.toContain('Pet')
     expect(rootExportNames).toContain('PetExtra')
+  })
+
+  it("keeps another plugin's file that sits in a barrel:false plugin's directory", async () => {
+    const extraPlugin = makePlugin({
+      name: 'plugin-extra',
+      outputPath: 'extra',
+      filePath: '/workspace/src/gen/types/extra.ts',
+      exportName: 'Extra',
+      output: { mode: 'directory' },
+    })
+    const { rootExportNames } = await build({ plugins: [typesPlugin({ barrel: false }), extraPlugin] })
+
+    expect(rootExportNames).not.toContain('Pet')
+    expect(rootExportNames).toContain('Extra')
+  })
+
+  it.each([
+    { scenario: "'.'", output: { path: '.' } },
+    { scenario: 'an empty string', output: { path: '' } },
+    { scenario: 'missing', output: { path: undefined } },
+  ])('keeps the other barrels when a barrel:false plugin output path is $scenario', async ({ output }) => {
+    const rootPlugin = makePlugin({
+      name: 'plugin-root',
+      outputPath: '.',
+      filePath: '/workspace/src/gen/client.ts',
+      exportName: 'client',
+      output: { mode: 'directory', barrel: false, ...output },
+    })
+    const { paths, rootExportNames } = await build({ plugins: [typesPlugin(), rootPlugin] })
+
+    expect(paths).toContain('/workspace/src/gen/types/index.ts')
+    expect(paths).toContain('/workspace/src/gen/index.ts')
+    expect(rootExportNames).toContain('Pet')
+    expect(rootExportNames).not.toContain('client')
   })
 })
