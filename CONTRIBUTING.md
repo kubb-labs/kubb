@@ -33,6 +33,7 @@ Kubb spans a few repositories. Knowing where code lives saves time:
 
 - [kubb-labs/kubb](https://github.com/kubb-labs/kubb) (this repo) is the core. It holds the engine that runs the plugin system, the OpenAPI adapter, the AST and JSX renderer, the CLI, and the MCP server. Work here on generation internals, plugin APIs, the command line, or the MCP integration.
 - [kubb-labs/plugins](https://github.com/kubb-labs/plugins) holds the official plugins (TypeScript, client, React Query, Vue Query, SWR, Zod, Faker, MSW, Cypress, ReDoc, MCP) and a runnable example per plugin. Work here on a specific generator or to add a new plugin.
+- [kubb-labs/platform](https://github.com/kubb-labs/platform) holds the kubb.dev site, its blog, and Kubb Studio. kubb.dev renders the docs from this repo's `docs/` folder.
 
 ## What is inside this repo
 
@@ -53,6 +54,7 @@ kubb/
 │   └── kubb/                # Main package, re-exports the public APIs
 ├── internals/               # Non-published helpers (changelog, shared logic, utils)
 ├── configs/                 # Shared build and test configuration
+├── docs/                    # The kubb.dev docs (see docs/README.md)
 └── .agents/skills/          # Cross-provider agent skills
 ```
 
@@ -138,7 +140,7 @@ To approve a release:
 
 1. A maintainer with npm publish access and 2FA runs `npm stage approve` (or approves on npmjs.com) for each staged package.
 2. The same maintainer approves the `promote` job's environment review in the Actions tab.
-3. `promote` verifies the versions are live on npm, tags them, creates a GitHub Release, then triggers the Discord announcement and the changelog sync to [kubb-labs/docs](https://github.com/kubb-labs/docs).
+3. `promote` verifies the versions are live on npm, tags them, creates a GitHub Release, then triggers the Discord announcement. Add the release to `docs/5.x/changelog.md` by hand.
 
 To reject a bad version instead, run `npm stage reject`. Nothing downstream fires.
 
