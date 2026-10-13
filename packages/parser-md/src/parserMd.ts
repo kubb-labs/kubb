@@ -40,7 +40,7 @@ export type MdMeta = {
  */
 export const parserMd = defineExtension({
   kind: 'parser',
-  meta: { name: 'markdown', version, compatibility },
+  meta: { name: 'markdown', version, compatibility, issues: 'https://github.com/kubb-labs/kubb/issues' },
   build() {
     return {
       extNames: ['.md', '.markdown'],

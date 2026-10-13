@@ -90,6 +90,45 @@ describe('Diagnostics.from', () => {
   })
 })
 
+describe('Diagnostics.fromExtension', () => {
+  const extension = { meta: { name: 'plugin-acme', issues: 'https://github.com/acme/plugin/issues' } }
+
+  it('reports a plugin crash as KUBB_PLUGIN_FAILED with the plugin and its issue tracker', () => {
+    const cause = new Error('boom')
+
+    expect(Diagnostics.fromExtension(cause, { kind: 'plugin', extension })).toStrictEqual({
+      code: 'KUBB_PLUGIN_FAILED',
+      severity: 'error',
+      message: 'boom',
+      cause,
+      plugin: 'plugin-acme',
+      issues: 'https://github.com/acme/plugin/issues',
+    })
+  })
+
+  it('names an adapter or parser in the message, not in `plugin`, so it is not counted as a failed plugin', () => {
+    const adapter = Diagnostics.fromExtension(new Error('boom'), { kind: 'adapter', extension: { name: 'oas' } })
+    const parser = Diagnostics.fromExtension(new Error('boom'), { kind: 'parser', extension: { name: 'typescript' } })
+
+    expect(adapter).toMatchObject({ code: 'KUBB_ADAPTER_FAILED', message: 'adapter "oas" crashed: boom' })
+    expect(parser).toMatchObject({ code: 'KUBB_PARSER_FAILED', message: 'parser "typescript" crashed: boom' })
+    expect(adapter).not.toHaveProperty('plugin')
+    expect(adapter).not.toHaveProperty('issues')
+  })
+
+  it('keeps the code of a structured error and adds no issue link', () => {
+    const error = new Diagnostics.Error({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'missing' })
+
+    expect(Diagnostics.fromExtension(error, { kind: 'plugin', extension })).toStrictEqual({ ...error.diagnostic, plugin: 'plugin-acme' })
+  })
+
+  it('does not treat an abort as a crash', () => {
+    const abort = new DOMException('aborted', 'AbortError')
+
+    expect(Diagnostics.fromExtension(abort, { kind: 'adapter', extension })).toMatchObject({ code: 'KUBB_UNKNOWN' })
+  })
+})
+
 describe('Diagnostics.count', () => {
   it('counts problems by severity and ignores performance', () => {
     const counts = Diagnostics.count([
@@ -138,6 +177,12 @@ describe('Diagnostics.format', () => {
     expect(Diagnostics.format({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', plugin: '@kubb/plugin-zod' }).headline).toContain(
       '@kubb/plugin-zod:',
     )
+  })
+
+  it('adds a report line with the issue tracker of a crashed extension', () => {
+    const { details } = Diagnostics.format({ code: 'KUBB_PLUGIN_FAILED', severity: 'error', message: 'boom', issues: 'https://github.com/acme/plugin/issues' })
+
+    expect(details.some((line) => line.includes('report: https://github.com/acme/plugin/issues'))).toBe(true)
   })
 
   it('omits the see line for KUBB_UNKNOWN', () => {
