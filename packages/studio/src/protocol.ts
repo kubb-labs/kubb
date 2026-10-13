@@ -1,6 +1,6 @@
 import type { ExtensionManifest, KubbHooks } from '@kubb/core'
 
-export type { ExtensionManifest, ExtensionManifestOption, RegistryDetail, RegistryEntry } from '@kubb/core'
+export type { ExtensionManifest, ExtensionManifestOption, RegistryArtifact, RegistryDetail, RegistryEntry } from '@kubb/core'
 
 /**
  * JSON-serializable Kubb config exchanged over RPC. A live `kubb/kit` config holds

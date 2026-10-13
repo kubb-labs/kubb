@@ -4,7 +4,7 @@ import * as clack from '@clack/prompts'
 import { getErrorMessage } from '@internals/utils'
 import { readInstalledPackages } from '@kubb/core'
 import { logBlock, logError, logInfo, logIntro, logOutro, logStep, logWarn } from '../../loggers/output.ts'
-import { fetchRegistryIndex, incompatibility, isOutdated, registryUrl, toRegistryId } from '../../utils/registry.ts'
+import { fetchRegistryIndex, incompatibility, installSpec, isOutdated, registryUrl, toRegistryId } from '../../utils/registry.ts'
 import { detectPackageManager, installPackages } from '../init/utils.ts'
 
 export type UpdateOptions = {
@@ -63,7 +63,7 @@ export async function run({ ids, check, yes }: UpdateOptions): Promise<void> {
     }
 
     const packageManager = detectPackageManager(cwd)
-    const specs = proposals.map(({ artifact }) => `${artifact.package}@${artifact.version}`)
+    const specs = proposals.map(({ artifact }) => installSpec(artifact))
     logStep(`Installing ${specs.join(', ')} with ${packageManager.name}`)
     await installPackages(specs, packageManager, cwd)
 

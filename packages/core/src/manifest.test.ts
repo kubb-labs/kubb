@@ -88,8 +88,25 @@ describe('isRegistryEntry', () => {
     reviewedAt: '2026-10-12T20:00:00Z',
   }
 
+  const github = {
+    kind: 'github',
+    package: '@acme/kubb-plugin-x',
+    version: '1.2.0',
+    owner: 'Acme',
+    repo: 'kubb-plugin-x',
+    tag: 'v1.2.0',
+    commit: '0123456789abcdef0123456789abcdef01234567',
+  }
+
   it('accepts a pinned entry with a valid manifest of its kind', () => {
     expect(isRegistryEntry(entry)).toBe(true)
+  })
+
+  it.each([
+    ['a tag with a leading v', github],
+    ['a tag equal to the version', { ...github, tag: '1.2.0' }],
+  ])('accepts a GitHub artifact with %s', (_label, artifact) => {
+    expect(isRegistryEntry({ ...entry, artifact })).toBe(true)
   })
 
   it.each([
@@ -97,6 +114,12 @@ describe('isRegistryEntry', () => {
     ['an unknown type', { ...entry, type: 'verified' }],
     ['a package name that is a flag', { ...entry, artifact: { ...entry.artifact, package: '--registry=https://evil.test' } }],
     ['a version that is not semver', { ...entry, artifact: { ...entry.artifact, version: 'latest' } }],
+    ['an unknown artifact kind', { ...entry, artifact: { ...entry.artifact, kind: 'git' } }],
+    ['a GitHub owner that starts with a dash', { ...entry, artifact: { ...github, owner: '-acme' } }],
+    ['a GitHub repo of ..', { ...entry, artifact: { ...github, repo: '..' } }],
+    ['a short commit', { ...entry, artifact: { ...github, commit: '0123456' } }],
+    ['an upper-case commit', { ...entry, artifact: { ...github, commit: github.commit.toUpperCase() } }],
+    ['a tag that names another version', { ...entry, artifact: { ...github, tag: 'v1.3.0' } }],
     ['a manifest of another kind', { ...entry, kind: 'adapter' }],
     ['an invalid manifest', { ...entry, manifest: { ...manifest, export: '' } }],
   ])('rejects %s', (_label, value) => {

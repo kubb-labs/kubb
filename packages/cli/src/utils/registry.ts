@@ -1,6 +1,6 @@
 import process from 'node:process'
 import { getErrorMessage } from '@internals/utils'
-import { checkCompatibility, type ExtensionManifest, isRegistryEntry, type RegistryDetail, type RegistryEntry } from '@kubb/core'
+import { checkCompatibility, type ExtensionManifest, isRegistryEntry, type RegistryArtifact, type RegistryDetail, type RegistryEntry } from '@kubb/core'
 import { isLessThan, isValid } from 'verkit'
 
 export const DEFAULT_REGISTRY = 'https://kubb.dev/registry'
@@ -55,6 +55,11 @@ export async function fetchRegistryIndex({ registry }: { registry: string }): Pr
     throw new Error(`The registry at ${registry} sent an invalid index (HTTP ${status}).`)
   }
   return index.extensions.filter(isRegistryEntry)
+}
+
+/** What the package manager installs: `<package>@<version>`, or a GitHub release's commit, so the install cannot move with the tag. */
+export function installSpec(artifact: RegistryArtifact): string {
+  return artifact.kind === 'github' ? `github:${artifact.owner}/${artifact.repo}#${artifact.commit}` : `${artifact.package}@${artifact.version}`
 }
 
 /** Why the running Kubb or Node.js version cannot use this extension, or `undefined` when it can. */
