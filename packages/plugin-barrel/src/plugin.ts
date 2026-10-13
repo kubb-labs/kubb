@@ -41,6 +41,8 @@ type PendingBarrel = {
 }
 
 type BarrelState = {
+  excludedPlugins: Set<string>
+  // Subdirectories of `barrel: false` plugins, for files without a `meta.pluginName` owner.
   excludedTargets: Array<string>
   pendingBarrels: Array<PendingBarrel>
 }
@@ -49,7 +51,7 @@ type BarrelState = {
 const states = new WeakMap<Config, BarrelState>()
 
 function getState(config: Config): BarrelState {
-  const state = states.get(config) ?? { excludedTargets: [], pendingBarrels: [] }
+  const state = states.get(config) ?? { excludedPlugins: new Set(), excludedTargets: [], pendingBarrels: [] }
   states.set(config, state)
   return state
 }
@@ -95,22 +97,25 @@ export const pluginBarrel = definePlugin({
       // Skip reactions to the barrel plugin's own lifecycle hook
       if (plugin.name === pluginBarrelName) return
 
-      const { excludedTargets, pendingBarrels } = getState(config)
+      const { excludedPlugins, excludedTargets, pendingBarrels } = getState(config)
 
       // A plugin-level `false` wins over an enabled root barrel.
       const barrelConfig: PluginBarrelConfig | false = plugin.options.output?.barrel ?? config.output.barrel ?? false
       const base = path.resolve(config.root, config.output.path)
-      const target = path.resolve(base, plugin.options.output.path)
+      const target = path.resolve(base, plugin.options.output.path ?? '.')
 
-      // A plugin without its own `output.path` defaults to `'.'`, the output root itself. Recording it
-      // would claim every other plugin's directory, so it gets no per-plugin barrel and only the root
-      // barrel picks up its files.
-      if (target === base) {
+      if (barrelConfig === false) {
+        excludedPlugins.add(plugin.name)
+        // The output root holds every plugin's files, so there only the owner match applies.
+        if (target !== base && isPathInside(target, base)) {
+          excludedTargets.push(target)
+        }
         return
       }
 
-      if (barrelConfig === false) {
-        excludedTargets.push(target)
+      // A plugin at the output root (no own `output.path`) gets no per-plugin barrel, which would
+      // claim every other plugin's directory. The root barrel picks up its files.
+      if (target === base) {
         return
       }
 
@@ -136,30 +141,36 @@ export const pluginBarrel = definePlugin({
       pendingBarrels.push({ plugin, target, barrelType: barrelConfig.type, nested: barrelConfig.nested ?? false })
     },
     'kubb:plugins:end'({ files, config, upsertFile }) {
-      const { excludedTargets, pendingBarrels } = getState(config)
+      const { excludedPlugins, excludedTargets, pendingBarrels } = getState(config)
       const rootBarrelConfig = config.output.barrel ?? false
       const outputPath = path.resolve(config.root, config.output.path)
 
       // A `barrel: false` plugin gets no barrel and stays out of the root, so drop its files
       // once here. Every barrel below then derives from a single index of what remains.
-      const relevantFiles = files.filter((file) => !excludedTargets.some((target) => isPathInside(file.path, target)))
+      const relevantFiles = files.filter((file) => {
+        const owner = (file.meta as { pluginName?: string } | undefined)?.pluginName
+        if (owner) return !excludedPlugins.has(owner)
+
+        return !excludedTargets.some((target) => isPathInside(file.path, target))
+      })
+      excludedPlugins.clear()
       excludedTargets.length = 0
 
       const index = buildBarrelIndex(outputPath, relevantFiles)
       const reportedCollisions = new Set<string>()
 
-      for (const { plugin, target, barrelType, nested } of pendingBarrels) {
-        for (const file of getBarrelFiles({ index, targetPath: target, barrelType, nested, recursive: true, reportedCollisions })) {
+      pendingBarrels.forEach(({ plugin, target, barrelType, nested }) => {
+        getBarrelFiles({ index, targetPath: target, barrelType, nested, recursive: true, reportedCollisions }).forEach((file) => {
           upsertFile(withBarrelBannerFooter({ file, plugin, config }))
-        }
-      }
+        })
+      })
       pendingBarrels.length = 0
 
       if (rootBarrelConfig === false) return
 
-      for (const file of getBarrelFiles({ index, barrelType: rootBarrelConfig.type, reportedCollisions })) {
+      getBarrelFiles({ index, barrelType: rootBarrelConfig.type, reportedCollisions }).forEach((file) => {
         upsertFile(file)
-      }
+      })
     },
   },
 })
