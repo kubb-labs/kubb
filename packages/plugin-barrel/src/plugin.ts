@@ -102,6 +102,13 @@ export const pluginBarrel = definePlugin({
       const base = path.resolve(config.root, config.output.path)
       const target = path.resolve(base, plugin.options.output.path)
 
+      // A plugin without its own `output.path` defaults to `'.'`, the output root itself. Recording it
+      // would claim every other plugin's directory, so it gets no per-plugin barrel and only the root
+      // barrel picks up its files.
+      if (target === base) {
+        return
+      }
+
       if (barrelConfig === false) {
         excludedTargets.push(target)
         return
