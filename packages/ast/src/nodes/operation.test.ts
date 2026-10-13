@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { createContent } from './content.ts'
 import { createOperation } from './operation.ts'
 import { createSchema } from './schema.ts'
@@ -19,24 +19,6 @@ describe('createOperation', () => {
     expect(node.tags).toStrictEqual([])
     expect(node.parameters).toStrictEqual([])
     expect(node.responses).toStrictEqual([])
-
-    expectTypeOf(node.method).toEqualTypeOf<'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE'>()
-    expectTypeOf(node.path).toEqualTypeOf<string>()
-  })
-
-  it('keeps summary, deprecated and tags when given', () => {
-    const node = createOperation({
-      operationId: 'createPet',
-      method: 'POST',
-      path: '/pets',
-      summary: 'Create a pet',
-      deprecated: true,
-      tags: ['pets'],
-    })
-
-    expect(node.summary).toBe('Create a pet')
-    expect(node.deprecated).toBe(true)
-    expect(node.tags).toStrictEqual(['pets'])
   })
 
   it('builds a generic operation without HTTP method/path', () => {

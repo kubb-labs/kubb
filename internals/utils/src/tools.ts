@@ -67,7 +67,7 @@ export const LINTER_PREFERENCE = ['oxlint', 'biome', 'eslint'] as const
 /**
  * Whether `name` is on PATH or in a `node_modules/.bin` above `cwd` and answers `--version` with a zero exit.
  */
-export async function isToolAvailable(name: string, cwd?: string): Promise<boolean> {
+async function isToolAvailable(name: string, cwd?: string): Promise<boolean> {
   return x(name, ['--version'], { throwOnError: false, nodeOptions: { cwd, stdio: 'ignore' } }).then(
     ({ exitCode }) => exitCode === 0,
     () => false,

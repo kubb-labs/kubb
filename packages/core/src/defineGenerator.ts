@@ -5,7 +5,7 @@ import type { RendererFactory } from './createRenderer.ts'
 import type { KubbHooks } from './types.ts'
 import type { KubbDriver } from './KubbDriver.ts'
 import type { ExtensionMeta } from './defineExtension.ts'
-import type { Plugin, PluginFactoryOptions, PluginName, ResolvePluginOptions } from './definePlugin.ts'
+import type { Plugin, PluginType, PluginName, ResolvePluginOptions } from './definePlugin.ts'
 import type { NodeCache } from './nodeCache.ts'
 import type { Config } from './types.ts'
 import type { Hookable } from './Hookable.ts'
@@ -17,7 +17,7 @@ import type { Hookable } from './Hookable.ts'
  * without a null check. `ctx.options` carries the per-node options after exclude/include/override
  * filtering for `schema` and `operation`, or the plugin-level options for `operations`.
  */
-export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = {
+export type GeneratorContext<TOptions extends PluginType = PluginType> = {
   /**
    * Stops cooperative generation work at the next safe checkpoint.
    */
@@ -141,7 +141,7 @@ export type GeneratorContext<TOptions extends PluginFactoryOptions = PluginFacto
  * })
  * ```
  */
-export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown> = {
+export type Generator<TOptions extends PluginType = PluginType, TElement = unknown> = {
   /**
    * Used in diagnostic messages and debug output.
    */
@@ -211,7 +211,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
  *
  * The returned object is the input as-is, but with `this` types preserved so
  * `schema`/`operation`/`operations` methods are correctly typed against the
- * plugin's `PluginFactoryOptions`. Renderer elements and `FileNode[]` returns
+ * plugin's `PluginType`. Renderer elements and `FileNode[]` returns
  * are both handled by the runtime, so pick whichever style fits.
  *
  * @example JSX-based schema generator
@@ -232,7 +232,7 @@ export type Generator<TOptions extends PluginFactoryOptions = PluginFactoryOptio
  * })
  * ```
  */
-export function defineGenerator<TOptions extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown>(
+export function defineGenerator<TOptions extends PluginType = PluginType, TElement = unknown>(
   generator: Generator<TOptions, TElement>,
 ): Generator<TOptions, TElement> {
   return generator

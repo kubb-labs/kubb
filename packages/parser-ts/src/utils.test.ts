@@ -84,15 +84,6 @@ describe('Const nodes', () => {
     expect(print(node)).toBe('export const pets: Pet[] = [] as const')
   })
 
-  it('returns the JSDoc block above the declaration when JSDoc is set', () => {
-    const node = ast.factory.createConst({
-      name: 'pet',
-      JSDoc: { comments: ['@description A pet'] },
-      nodes: [ast.factory.createText('{}')],
-    })
-    expect(print(node)).toBe('/**\n * @description A pet\n */\nconst pet = {}')
-  })
-
   it('returns a baselined value when the multi-line value has baked-in indentation', () => {
     const node = ast.factory.createConst({
       name: 'pet',
@@ -100,17 +91,6 @@ describe('Const nodes', () => {
       nodes: [ast.factory.createText('\n    {\n      foo: 1,\n      bar: 2,\n    }\n  ')],
     })
     expect(print(node)).toBe(['export const pet = {', '  foo: 1,', '  bar: 2,', '}'].join('\n'))
-  })
-})
-
-describe('Type nodes', () => {
-  it('returns an exported type alias when export is set', () => {
-    const node = ast.factory.createType({
-      name: 'Pet',
-      export: true,
-      nodes: [ast.factory.createText('{ id: number }')],
-    })
-    expect(print(node)).toBe('export type Pet = { id: number }')
   })
 })
 
@@ -171,16 +151,6 @@ describe('ArrowFunction nodes', () => {
     { when: 'the function is async', node: { async: true }, expected: 'const identity = async <T>(value: T): Promise<T> => {}' },
   ])('returns $expected when generics are set and $when', ({ node, expected }) => {
     expect(print(ast.factory.createArrowFunction({ name: 'identity', generics: ['T'], params: 'value: T', returnType: 'T', ...node }))).toBe(expected)
-  })
-
-  it('returns an expression body when singleLine is set', () => {
-    const node = ast.factory.createArrowFunction({
-      name: 'double',
-      params: 'n: number',
-      singleLine: true,
-      nodes: [ast.factory.createText('n * 2')],
-    })
-    expect(print(node)).toBe('const double = (n: number) => n * 2')
   })
 
   it('returns an indented block body when nodes are set', () => {

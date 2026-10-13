@@ -2,8 +2,7 @@ import { writeFile } from 'node:fs/promises'
 import { getErrorMessage, read } from '@internals/utils'
 import { detectCodeFormat, parseExpression, parseModule } from 'magicast'
 import type { ASTNode, ProxifiedModule } from 'magicast'
-import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigView, OptionValue, PluginView } from './protocol.ts'
-import type { InstalledExtensions } from './extensions.ts'
+import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigView, InstalledExtensions, OptionValue, PluginView } from './protocol.ts'
 import { isAllowedPlugin, isOptionValue, isSafeKey, toExportName } from './resolveConfig.ts'
 
 /**
@@ -37,7 +36,7 @@ type ParsedConfig = { mod: ProxifiedModule; configs: Array<ObjectNode>; kind: Mo
  * The edit crossed the wire, so its declared type is a promise the sender may not have kept.
  */
 function invalidEdit(edit: ConfigEdit): string | undefined {
-  const { operation, plugin, config, path, importName } = (typeof edit === 'object' && edit !== null ? edit : {}) as Record<string, unknown>
+  const { operation, plugin, config, path } = (typeof edit === 'object' && edit !== null ? edit : {}) as Record<string, unknown>
 
   if (typeof operation !== 'string' || !OPERATIONS.has(operation)) return `unknown operation ${JSON.stringify(operation)}`
   if (typeof plugin !== 'string' || !plugin) return 'the edit names no plugin'
@@ -48,7 +47,6 @@ function invalidEdit(edit: ConfigEdit): string | undefined {
     const unsafe = path.find((key: string) => !isSafeKey(key))
     if (unsafe !== undefined) return `${unsafe} cannot be used as an option name`
   }
-  if (operation === 'add-plugin' && importName !== undefined && typeof importName !== 'string') return 'importName must be a string'
   return undefined
 }
 
@@ -531,7 +529,7 @@ function applyAddPlugin({
     return { reason: `"${edit.plugin}" is not a @kubb/plugin-* package or an installed Kubb plugin` }
   }
 
-  const importName = extensions.get(edit.plugin)?.manifest.export ?? edit.importName ?? toExportName(edit.plugin)
+  const importName = extensions.get(edit.plugin)?.manifest.export ?? toExportName(edit.plugin)
   if (!IDENTIFIER.test(importName)) return { reason: `"${importName}" is not a valid import name` }
   if (pluginCalls(parsed.mod, config).some((plugin) => plugin.packageName === edit.plugin)) return { source }
 

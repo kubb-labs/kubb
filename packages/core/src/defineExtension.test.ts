@@ -4,12 +4,12 @@ import { describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { version } from '../package.json'
 import { addGenerator, useKubb } from './composables.ts'
 import { createAdapter } from './createAdapter.ts'
-import type { Adapter, AdapterFactoryOptions } from './createAdapter.ts'
-import { checkCompatibility, checkDependencies, createExtensionFactory, defineExtension, resolveMeta } from './defineExtension.ts'
+import type { AdapterFactoryOptions } from './createAdapter.ts'
+import { checkCompatibility, checkDependencies, defineExtension, resolveMeta } from './defineExtension.ts'
 import { defineParser } from './defineParser.ts'
 import type { Parser } from './defineParser.ts'
 import { definePlugin } from './definePlugin.ts'
-import type { Plugin, PluginFactoryOptions, PluginType } from './definePlugin.ts'
+import type { PluginType } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { Hookable } from './Hookable.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -110,17 +110,6 @@ describe('checkDependencies', () => {
   })
 })
 
-describe('createExtensionFactory', () => {
-  it('builds a factory with kind and meta statics that passes {} when called without options', () => {
-    const factory = createExtensionFactory({ kind: 'parser', meta: { name: 'json' }, build: (options: { pretty?: boolean }) => options })
-
-    expect(factory.kind).toBe('parser')
-    expect(factory.meta).toStrictEqual({ name: 'json' })
-    expect(factory()).toStrictEqual({})
-    expect(factory({ pretty: true })).toStrictEqual({ pretty: true })
-  })
-})
-
 describe('defineExtension', () => {
   it('keeps the literal extNames of a parser whose build takes no options', () => {
     const parser = defineExtension({
@@ -132,13 +121,6 @@ describe('defineExtension', () => {
     })()
 
     expect(parser.extNames).toStrictEqual(['.txt'])
-  })
-
-  it('rejects a definition whose fields belong to another kind', () => {
-    // @ts-expect-error a plugin has no `build`
-    defineExtension({ kind: 'plugin', meta: { name: 'plugin-text' }, build: () => ({}) })
-    // @ts-expect-error an adapter needs `build`
-    defineExtension({ kind: 'adapter', meta: { name: 'text' } })
   })
 })
 
@@ -158,36 +140,6 @@ describe('defineExtension plugin', () => {
     expect(factory.meta).toBe(meta)
     expect(plugin).toMatchObject({ name: 'plugin-object', meta, options: { tag: 'pets' }, hooks: {} })
     expect(factory().options).toStrictEqual({})
-  })
-
-  it('infers options, resolved options, and the setup context from the type parameter', () => {
-    const factory = defineExtension<ObjectPlugin>({
-      kind: 'plugin',
-      meta: { name: 'plugin-object' },
-      setup(options, kubb) {
-        expectTypeOf(options).toEqualTypeOf<{ tag?: string }>()
-        expectTypeOf(kubb.setOptions).parameter(0).toEqualTypeOf<{ tag: string }>()
-        return { tag: options.tag ?? 'all' }
-      },
-    })
-
-    expectTypeOf(factory).parameter(0).toEqualTypeOf<{ tag?: string } | undefined>()
-    expectTypeOf(factory.meta.name).toEqualTypeOf<'plugin-object'>()
-    expectTypeOf(factory()).toEqualTypeOf<Plugin<ObjectPlugin>>()
-    expectTypeOf<PluginType<'plugin-object', { tag?: string }>>().toExtend<PluginFactoryOptions>()
-    expectTypeOf(factory()).toExtend<Config['plugins'][number]>()
-
-    // @ts-expect-error setup must return the resolved options
-    defineExtension<ObjectPlugin>({
-      kind: 'plugin',
-      meta: { name: 'plugin-object' },
-      setup: () => ({}),
-    })
-    // @ts-expect-error meta.name must match the plugin name
-    defineExtension<ObjectPlugin>({
-      kind: 'plugin',
-      meta: { name: 'plugin-other' },
-    })
   })
 
   it('stores the value setup returns as the resolved options, then runs kubb:plugin:setup', async () => {
@@ -256,15 +208,6 @@ describe('defineExtension plugin', () => {
     })
     await expect(setupDriver([optional])).resolves.toBeInstanceOf(KubbDriver)
   })
-
-  it('throws KUBB_INCOMPATIBLE_DEPENDENCY when a dependency version is out of range', async () => {
-    const base = defineExtension({ kind: 'plugin', meta: { name: 'plugin-base', version: '1.2.0' } })()
-    const dependent = defineExtension({ kind: 'plugin', meta: { name: 'plugin-dependent' }, dependencies: { 'plugin-base': { version: '^2.0.0' } } })()
-
-    await expect(setupDriver([base, dependent])).rejects.toMatchObject({
-      diagnostic: { code: Diagnostics.code.incompatibleDependency, plugin: 'plugin-dependent' },
-    })
-  })
 })
 
 const parserJson = defineExtension<{ pretty?: boolean }, object, string>({
@@ -326,13 +269,6 @@ const adapterText = defineExtension<TextAdapter>({
 })
 
 describe('defineExtension adapter', () => {
-  it('returns a factory with kind and meta statics', () => {
-    expect(adapterText.kind).toBe('adapter')
-    expect(adapterText.meta).toStrictEqual({ name: 'text', version: '1.0.0' })
-    expectTypeOf(adapterText).parameter(0).toEqualTypeOf<{ strict?: boolean } | undefined>()
-    expectTypeOf(adapterText()).toEqualTypeOf<Adapter<TextAdapter>>()
-  })
-
   it('resolves the options with setup and exposes the resolved options', () => {
     const adapter = adapterText({ strict: false })
 
@@ -356,17 +292,6 @@ describe('defineExtension adapter', () => {
     })({ strict: true })
 
     expect(adapter.options).toStrictEqual({ strict: true })
-  })
-
-  it('throws KUBB_INCOMPATIBLE_EXTENSION from KubbDriver.setup when the adapter requires a newer Kubb', async () => {
-    const future = defineExtension({
-      kind: 'adapter',
-      meta: { name: 'future', compatibility: { kubb: '>=99' } },
-      build: () => ({ document: null, parse: () => ast.factory.createInput(), validate: async () => {} }),
-    })
-    const driver = new KubbDriver(makeConfig({ adapter: future() }), { hooks: new Hookable<KubbHooks>() })
-
-    await expect(driver.setup()).rejects.toMatchObject({ diagnostic: { code: Diagnostics.code.incompatibleExtension, plugin: 'future' } })
   })
 })
 

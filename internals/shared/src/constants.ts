@@ -1,4 +1,11 @@
-import type { PluginOption } from './types.ts'
+export type PluginOption = {
+  value: string
+  label: string
+  hint?: string
+  packageName: string
+  importName: string
+  category: 'types' | 'client' | 'framework' | 'validation' | 'testing' | 'mocks' | 'documentation' | 'ai'
+}
 
 export const KUBB_CONFIG_FILENAME = 'kubb.config.ts' as const
 

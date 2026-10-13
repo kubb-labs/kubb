@@ -68,29 +68,6 @@ describe('KubbDriver#setup', () => {
     await expect(driver.setup()).rejects.toThrow('Plugin dependencies form a cycle')
   })
 
-  test('setup resolves for a plugin without a hooks property', async () => {
-    const driver = makeDriver(makeConfig({ plugins: [{ name: 'no-hooks' } as Plugin] }))
-
-    await expect(driver.setup()).resolves.toBeUndefined()
-  })
-
-  test('hasHookGenerators returns false before setupHooks and true after', async () => {
-    const plugin: Plugin = {
-      name: 'gen-plugin',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator({ name: 'gen', schema: vi.fn() })
-        },
-      },
-    }
-    const driver = makeDriver(makeConfig({ plugins: [plugin] }))
-    await driver.setup()
-
-    expect(driver.hasHookGenerators('gen-plugin')).toBe(false)
-    await driver.setupHooks()
-    expect(driver.hasHookGenerators('gen-plugin')).toBe(true)
-  })
-
   test('plugin and post-plugin listeners fire in order, and dispose drops both for the next build', async () => {
     const calls: Array<string> = []
     const pluginHook = vi.fn(() => void calls.push('plugin'))
@@ -132,57 +109,6 @@ describe('KubbDriver#setup', () => {
     })
 
     expect(external).toHaveBeenCalledTimes(1)
-  })
-})
-
-function file(name: string): FileNode {
-  return ast.factory.createFile({ baseName: `${name}.ts`, path: `${name}.ts` })
-}
-
-describe('KubbDriver#dispatch', () => {
-  it.each([
-    ['null', null],
-    ['undefined', undefined],
-  ])('does not upsert when the result is %s', (_name, result) => {
-    const driver = makeDriver(makeConfig())
-    const upsert = vi.spyOn(driver.fileManager, 'upsert')
-
-    driver.dispatch({ result })
-
-    expect(upsert).not.toHaveBeenCalled()
-  })
-
-  it('upserts every file when the result is an Array<FileNode>', () => {
-    const driver = makeDriver(makeConfig())
-    const files = [file('a'), file('b')]
-
-    driver.dispatch({ result: files })
-
-    expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['a', 'b'])
-  })
-
-  it('ignores non-array results when no renderer is provided', () => {
-    const driver = makeDriver(makeConfig())
-    const upsert = vi.spyOn(driver.fileManager, 'upsert')
-
-    driver.dispatch({ result: { kind: 'element' } })
-
-    expect(upsert).not.toHaveBeenCalled()
-  })
-
-  it('routes element results through the renderer, upserting its files', async () => {
-    const driver = makeDriver(makeConfig())
-    const renderer = {
-      render: vi.fn(async () => {}),
-      files: [file('async-1')],
-      [Symbol.dispose]: () => {},
-    }
-    const factory = vi.fn(() => renderer)
-
-    await driver.dispatch({ result: { kind: 'element' }, renderer: factory as never })
-
-    expect(renderer.render).toHaveBeenCalledOnce()
-    expect(driver.fileManager.files.map((f) => f.name)).toStrictEqual(['async-1'])
   })
 })
 

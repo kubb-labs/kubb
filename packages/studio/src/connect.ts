@@ -5,11 +5,21 @@ import path from 'node:path'
 import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
 import { getErrorMessage, read, toError } from '@internals/utils'
-import { cacheStorage, type Config, fsStorage, getInputKind, Hookable, type KubbHooks, memoryStorage, resolveCacheDir, resolveMeta } from '@kubb/core'
+import {
+  cacheStorage,
+  type Config,
+  fsStorage,
+  getInputKind,
+  Hookable,
+  type KubbHooks,
+  memoryStorage,
+  readInstalledPackages,
+  resolveCacheDir,
+  resolveMeta,
+} from '@kubb/core'
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { version as kubbVersion } from '../package.json'
 import { readConfig, readImports, writeConfigEdits } from './configFile.ts'
-import { discoverExtensions, type InstalledExtensions } from './extensions.ts'
 import { createGenerationStream } from './generationEvents.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
 import {
@@ -26,6 +36,7 @@ import {
   type GenerationEvent,
   type GenerationRun,
   GENERATION_GONE_MESSAGE,
+  type InstalledExtensions,
   MAX_FILES_PER_REQUEST,
   MAX_PAGE_LINES,
   type ReadFilesInput,
@@ -46,6 +57,8 @@ const MAX_RETRY_DELAY_MS = 30_000
 const DISK_SNAPSHOT_MAX_FILES = 10_000
 // A sandbox shares one in-memory store across tenants, so old generations expire.
 const SANDBOX_GENERATION_TTL_MS = 15 * 60_000
+/** Extensions `kubb` ships with, so they count as installed without being a direct dependency. */
+const BUILT_IN_PACKAGES = ['@kubb/adapter-oas', '@kubb/parser-ts', '@kubb/parser-md', '@kubb/plugin-barrel']
 
 /**
  * Studio closed with {@link AgentCloseCode.UNAUTHORIZED}. Hosts forget the token and pair again.
@@ -248,21 +261,28 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   // Not cached: the user can edit the file between two Studio actions.
-  async #readConfigFileView(source?: string): Promise<ConfigFileView | undefined> {
+  async #readConfigFileView(): Promise<ConfigFileView | undefined> {
     if (!this.#permissions.allowConfigEdit) return undefined
 
     try {
-      return readConfig(source ?? (await read(this.#options.configFile)))
+      return readConfig(await read(this.#options.configFile))
     } catch (error) {
       await this.#warn({ message: `Could not read ${this.#options.configFile}: ${getErrorMessage(error)}` })
       return undefined
     }
   }
 
-  // Not cached either: the user can install a plugin while the agent runs.
+  // Not cached either: the user can install a plugin while the agent runs. Keeps each project
+  // dependency, config import and built-in that resolves and ships a valid `kubb-extension.json`.
   async #installedExtensions(): Promise<InstalledExtensions> {
     const source = await read(this.#options.configFile).catch(() => '')
-    return discoverExtensions({ root: this.#options.root, packages: readImports(source) })
+    const installed = await readInstalledPackages({ root: this.#options.root, packages: [...readImports(source), ...BUILT_IN_PACKAGES], resolveFrom: ['kubb'] })
+
+    return new Map(
+      installed.flatMap(({ package: name, version, manifest }) =>
+        version !== undefined && manifest ? [[name, { package: name, version, manifest }] as const] : [],
+      ),
+    )
   }
 
   async connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
@@ -280,15 +300,15 @@ class Agent extends RpcTarget implements AgentApi {
         path: configPath,
         file,
         plugins: config.plugins.map((plugin) => ({
-          name: toStudioName({ name: resolveMeta(plugin).name, root, extensions }),
+          name: toStudioName({ name: resolveMeta(plugin).name, extensions }),
           options: toJSONOptions(plugin.options),
         })),
         adapter: config.adapter && {
-          name: toStudioName({ name: resolveMeta(config.adapter).name, root, extensions, kind: 'adapter' }),
+          name: toStudioName({ name: resolveMeta(config.adapter).name, extensions, kind: 'adapter' }),
           options: toJSONOptions(config.adapter.options),
         },
         parsers: config.parsers.map((parser) => ({
-          name: toStudioName({ name: resolveMeta(parser).name, root, extensions, kind: 'parser' }),
+          name: toStudioName({ name: resolveMeta(parser).name, extensions, kind: 'parser' }),
           options: toJSONOptions(parser.options),
         })),
         extensions: [...extensions.values()],
@@ -354,7 +374,7 @@ class Agent extends RpcTarget implements AgentApi {
     const [plugins, adapter, parsers] = await Promise.all([
       mergePlugins({ diskPlugins: config.plugins, studioPlugins: patch?.plugins, extensions }),
       mergeAdapter(config.adapter, patch?.adapter, extensions),
-      mergeParsers({ diskParsers: config.parsers, studioParsers: patch?.parsers, root, extensions }),
+      mergeParsers({ diskParsers: config.parsers, studioParsers: patch?.parsers, extensions }),
     ]).catch(async (error: unknown) => {
       // Thrown before core runs, so nothing else reports it to the host.
       await emit(this.#options.hooks, 'kubb:error', { error: toError(error) })
@@ -434,13 +454,10 @@ class Agent extends RpcTarget implements AgentApi {
     if (this.#session.active) return { value: refuse('a generation is in progress') }
 
     try {
-      const { source, outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits, extensions: await this.#installedExtensions() })
+      const { outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits, extensions: await this.#installedExtensions() })
       const applied = outcomes.filter((outcome) => outcome.applied).length
 
-      return {
-        value: { outcomes, changed, file: changed ? await this.#readConfigFileView(source) : undefined },
-        info: `applied ${applied}/${outcomes.length} edits to ${configPath}`,
-      }
+      return { value: { outcomes, changed }, info: `applied ${applied}/${outcomes.length} edits to ${configPath}` }
     } catch (error) {
       // Refuse every edit so Studio hears back instead of waiting.
       await emit(this.#options.hooks, 'studio:error', { error: toError(error) })

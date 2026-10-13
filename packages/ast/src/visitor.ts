@@ -1,6 +1,5 @@
 import type { VisitorDepth } from './constants.ts'
 import { visitorDepths } from './constants.ts'
-import type { NodeDef } from './defineNode.ts'
 import type { Node } from './nodes/index.ts'
 import type { ContentNode } from './nodes/content.ts'
 import type { InputNode } from './nodes/input.ts'
@@ -12,23 +11,38 @@ import type { PropertyNode } from './nodes/property.ts'
 import type { RequestBodyNode } from './nodes/requestBody.ts'
 import type { ResponseNode } from './nodes/response.ts'
 import type { SchemaNode } from './nodes/schema.ts'
-import { nodeDefs } from './registry.ts'
 
 /**
  * Child node fields per node kind, in traversal order (Babel's `VISITOR_KEYS`).
- * Derived from each definition's `children`.
  */
-const VISITOR_KEYS = Object.fromEntries(nodeDefs.flatMap((def) => (def.children ? [[def.kind, def.children] as const] : []))) as Partial<
-  Record<NodeKind, ReadonlyArray<string>>
->
+const VISITOR_KEYS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
+  Input: ['schemas', 'operations'],
+  Operation: ['parameters', 'requestBody', 'responses'],
+  RequestBody: ['content'],
+  Content: ['schema'],
+  Response: ['content'],
+  Schema: ['properties', 'items', 'members', 'additionalProperties', 'patternProperties', 'rest'],
+  Property: ['schema'],
+  Parameter: ['schema'],
+}
+
+/** Visitor callback names in traversal order, the keys of {@link Visitor}. */
+export const visitorKeys = ['input', 'output', 'operation', 'schema', 'property', 'parameter', 'response'] as const
+
+export type VisitorKey = (typeof visitorKeys)[number]
 
 /**
- * Maps a node kind to the matching visitor callback name. Derived from each
- * definition's `visitorKey`.
+ * Maps a node kind to the matching visitor callback name.
  */
-const VISITOR_KEY_BY_KIND = Object.fromEntries(nodeDefs.flatMap((def) => (def.visitorKey ? [[def.kind, def.visitorKey] as const] : []))) as Partial<
-  Record<NodeKind, NonNullable<NodeDef['visitorKey']>>
->
+const VISITOR_KEY_BY_KIND: Partial<Record<NodeKind, VisitorKey>> = {
+  Input: 'input',
+  Output: 'output',
+  Operation: 'operation',
+  Schema: 'schema',
+  Property: 'property',
+  Parameter: 'parameter',
+  Response: 'response',
+}
 
 /**
  * Ordered mapping of `[NodeType, ParentType]` pairs.

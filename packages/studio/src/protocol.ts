@@ -1,7 +1,5 @@
 import type { ExtensionManifest, KubbHooks } from '@kubb/core'
 
-export type { ExtensionManifest, ExtensionManifestOption, RegistryArtifact, RegistryDetail, RegistryEntry } from '@kubb/core'
-
 /**
  * JSON-serializable Kubb config exchanged over RPC. A live `kubb/kit` config holds
  * functions and class instances that cannot survive JSON, so both sides pass this flattened shape
@@ -75,7 +73,7 @@ export type ConfigEdit =
   /**
    * Add a plugin factory call and its import to the `plugins` array.
    */
-  | { operation: 'add-plugin'; config?: ConfigRef; plugin: string; importName?: string; options?: Record<string, unknown> }
+  | { operation: 'add-plugin'; config?: ConfigRef; plugin: string; options?: Record<string, unknown> }
   /**
    * Comment the plugin call out, keeping its options in the file so enabling it again restores them.
    */
@@ -306,10 +304,9 @@ export type GenerateResult = {
 export type SaveConfigInput = { edits: Array<ConfigEdit> }
 
 /**
- * Per-edit outcomes plus the rewritten file. `changed` is false when every edit was a no-op, so a
- * caller can skip reloading.
+ * Per-edit outcomes. `changed` is false when every edit was a no-op, so a caller can skip reloading.
  */
-export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean; file?: ConfigFileView }
+export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean }
 
 /**
  * What a file read returns for a job: the files that job generated (`output`), or what the output
@@ -504,6 +501,9 @@ export type ConnectMessagePayload = {
 
 /** An installed extension package and the manifest it ships. */
 export type ExtensionEntry = { package: string; version: string; manifest: ExtensionManifest }
+
+/** Installed extension packages by package name, the only ones Studio may import besides `@kubb/plugin-*`. */
+export type InstalledExtensions = ReadonlyMap<string, ExtensionEntry>
 
 /**
  * What an agent may do in the project it serves. Every one is off unless the host granted it, and

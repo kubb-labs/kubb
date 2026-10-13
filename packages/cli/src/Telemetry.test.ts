@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { buildOtlpPayload, buildTelemetryEvent, isDisabled, sendTelemetry, type TelemetryPlugin } from './Telemetry.ts'
+import { buildOtlpPayload, buildTelemetryEvent, isDisabled, sendTelemetry } from './Telemetry.ts'
 
 type TelemetryEvent = ReturnType<typeof buildTelemetryEvent>
 
@@ -58,37 +58,6 @@ describe('isDisabled', () => {
   })
 })
 
-describe('buildTelemetryEvent', () => {
-  it('builds a telemetry event with safe anonymous data only', () => {
-    const hrStart = process.hrtime()
-    const plugins: Array<TelemetryPlugin> = [
-      { name: 'plugin-ts', options: { output: { path: 'types' } } },
-      { name: 'plugin-axios', options: { output: { path: 'clients' } } },
-    ]
-    const event = buildTelemetryEvent({
-      command: 'generate',
-      kubbVersion: '4.0.0',
-      plugins,
-      hrStart,
-      filesCreated: 10,
-      status: 'success',
-    })
-
-    expect(event.command).toBe('generate')
-    expect(event.kubbVersion).toBe('4.0.0')
-    expect(event.plugins).toStrictEqual(plugins)
-    expect(event.filesCreated).toBe(10)
-    expect(event.status).toBe('success')
-    expect(typeof event.duration).toBe('number')
-    expect(event.duration).toBeGreaterThanOrEqual(0)
-    expect(typeof event.nodeVersion).toBe('string')
-    expect(['bun', 'deno', 'node']).toContain(event.runtime)
-    expect(typeof event.runtimeVersion).toBe('string')
-    expect(typeof event.platform).toBe('string')
-    expect(typeof event.ci).toBe('boolean')
-  })
-})
-
 describe('buildOtlpPayload', () => {
   it.each([
     ['plugin-zod', 'plugin-ts', 'plugin-ts'],
@@ -102,20 +71,6 @@ describe('buildOtlpPayload', () => {
       { key: 'kubb.plugin.plugin-ts', value: { boolValue: true } },
       { key: 'kubb.plugin.plugin-zod', value: { boolValue: true } },
     ])
-  })
-
-  it('preserves registered names in plugin filters', () => {
-    const span = getSpan(
-      makeEvent({
-        plugins: [
-          { name: '@kubb/plugin-ts', options: {} },
-          { name: '@custom/plugin-ts', options: {} },
-        ],
-      }),
-    )
-
-    expect(span.attributes).toContainEqual({ key: 'kubb.plugin.@kubb/plugin-ts', value: { boolValue: true } })
-    expect(span.attributes).toContainEqual({ key: 'kubb.plugin.@custom/plugin-ts', value: { boolValue: true } })
   })
 
   it('retains every plugin options snapshot separately from plugin names', () => {

@@ -71,7 +71,6 @@ export type {
   Plugin,
   PluginDefinition,
   PluginFactory,
-  PluginFactoryOptions,
   PluginType,
   Renderer,
   RendererFactory,

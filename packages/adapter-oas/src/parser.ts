@@ -62,5 +62,5 @@ export function createSchemaParser(ctx: OasParserContext) {
     return createNode(context, { type: options.emptySchemaType as ast.ScalarSchemaType })
   }
 
-  return { parseSchema }
+  return parseSchema
 }

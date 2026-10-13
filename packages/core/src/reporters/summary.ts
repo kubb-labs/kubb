@@ -1,7 +1,6 @@
 import { styleText } from 'node:util'
 import { formatMs } from '@internals/utils'
 import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
-import { randomCliColor } from './colors.ts'
 import type { Report } from './report.ts'
 
 /**
@@ -29,7 +28,7 @@ export function formatSummary(report: Report, { showTimings }: { showTimings: bo
   ])
 
   if (status === 'failed' && plugins.failed.length > 0) {
-    rows.push(['Failed', plugins.failed.map((name) => randomCliColor(name)).join(', ')])
+    rows.push(['Failed', plugins.failed.map((name) => styleText('red', name)).join(', ')])
   }
 
   if (counts.errors > 0 || counts.warnings > 0) {

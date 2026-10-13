@@ -113,6 +113,8 @@ Studio builds its plugin list and option forms from [extension manifests](/docs/
 
 A third-party plugin works in Studio once it is installed in the project and ships a manifest with `kind: "plugin"`. It needs no registry entry. Install it with [`kubb add`](/docs/5.x/reference/commands/add) or your package manager, then reconnect so Studio sees it.
 
+The adapter and the parsers the config registers get a settings form the same way, from the `options` in their manifest. The agent reports them on connect with a JSON copy of their options, and the edits Studio sends on generate are merged over the options in `kubb.config.ts`. A `null` value unsets an option for that run, so the extension's default applies. An extension without a manifest, such as `parserTsx`, is listed without fields.
+
 The agent imports a plugin package only when it is a `@kubb/plugin-*` package, or an installed package whose manifest has `kind: "plugin"`. It calls the factory the manifest names in `export`. The agent refuses any other package name before it imports anything, and config edits follow the same rule.
 
 | Agent | Plugins it can run |

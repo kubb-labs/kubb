@@ -1,15 +1,13 @@
 import { existsSync } from 'node:fs'
 import { basename, dirname, join, resolve } from 'node:path'
 import process from 'node:process'
-import { createModuleLoader } from '@internals/shared'
+import { loadModule } from '@internals/shared'
 import type { CLIOptions, Config, PossibleConfig } from '@kubb/core'
 import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
 
-const loader = createModuleLoader()
-
 // Kubb configs are JS/TS modules (they call `defineConfig`/`pluginX()`), so YAML and JSON are not
 // supported. The jiti loader handles every module format and the JSX runtime, returning the default export.
-const tsLoader = (configFile: string) => loader.load(configFile, { default: true })
+const tsLoader = (configFile: string) => loadModule(configFile, { default: true })
 
 const MODULE_NAME = 'kubb'
 

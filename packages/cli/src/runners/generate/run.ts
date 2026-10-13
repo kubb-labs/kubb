@@ -24,7 +24,8 @@ import { pluralize } from '../../loggers/createLogger.ts'
 import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
 import { createSpinner, logBanner, logError, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'
 import { getConfigs } from '../../config.ts'
-import { fetchUrlBody, isNewerVersion, startUrlWatcher, startWatcher } from './utils.ts'
+import { isOutdated } from '../../utils/registry.ts'
+import { fetchUrlBody, startUrlWatcher, startWatcher } from './utils.ts'
 
 /** NPM registry endpoint used to check for @kubb/cli updates. */
 const KUBB_NPM_PACKAGE_URL = 'https://registry.npmjs.org/@kubb/cli/latest' as const
@@ -96,7 +97,7 @@ async function checkForUpdate(hooks: Hookable<KubbHooks>): Promise<void> {
   try {
     const res = await fetch(KUBB_NPM_PACKAGE_URL, { signal: AbortSignal.timeout(UPDATE_CHECK_TIMEOUT_MS) })
     const data = (await res.json()) as { version: string }
-    if (data.version && isNewerVersion(version, data.version)) {
+    if (data.version && isOutdated({ installed: version, latest: data.version })) {
       await Diagnostics.emit(hooks, Diagnostics.update({ currentVersion: version, latestVersion: data.version }))
     }
   } catch {

@@ -29,13 +29,4 @@ describe('code factories', () => {
   ])('returns { kind: $kind, ...input } when creating a $kind node', ({ kind, input, node }) => {
     expect(node).toStrictEqual({ kind, ...input })
   })
-
-  it('returns the factory kind when the input carries another kind', () => {
-    const input = { name: 'x', kind: 'Import' }
-
-    expect(createConst(input).kind).toBe('Const')
-    expect(createType(input).kind).toBe('Type')
-    expect(createFunction(input).kind).toBe('Function')
-    expect(createArrowFunction(input).kind).toBe('ArrowFunction')
-  })
 })

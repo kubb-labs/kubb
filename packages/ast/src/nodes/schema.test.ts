@@ -1,7 +1,6 @@
-import { describe, expect, expectTypeOf, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { createProperty } from './property.ts'
 import { createSchema } from './schema.ts'
-import type { ObjectSchemaNode, StringSchemaNode } from './schema.ts'
 
 describe('createSchema', () => {
   it('returns { kind, type, primitive, ...input } when creating a scalar schema', () => {
@@ -32,10 +31,5 @@ describe('createSchema', () => {
     { type: 'ipv4', primitive: undefined, node: createSchema({ type: 'ipv4' }) },
   ])('returns primitive $primitive when type is $type', ({ primitive, node }) => {
     expect(node.primitive).toBe(primitive)
-  })
-
-  it('narrows the return type to the variant of the given type', () => {
-    expectTypeOf(createSchema({ type: 'string' })).toMatchTypeOf<StringSchemaNode & { kind: 'Schema' }>()
-    expectTypeOf(createSchema({ type: 'object' })).toMatchTypeOf<ObjectSchemaNode & { kind: 'Schema' }>()
   })
 })

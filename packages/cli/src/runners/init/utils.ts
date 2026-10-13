@@ -80,13 +80,6 @@ export function detectPackageManager(cwd: string = process.cwd()): PackageManage
 }
 
 /**
- * Returns `true` when a `package.json` exists at `cwd`.
- */
-export function hasPackageJson(cwd: string = process.cwd()): boolean {
-  return fs.existsSync(path.join(cwd, 'package.json'))
-}
-
-/**
  * Initializes a new `package.json` at `cwd` using the detected package manager.
  */
 export async function initPackageJson(cwd: string, packageManager: PackageManagerInfo): Promise<void> {

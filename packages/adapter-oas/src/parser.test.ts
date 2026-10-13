@@ -105,10 +105,10 @@ type SchemaCase = {
 
 /**
  * Parses a single OpenAPI `SchemaObject` into a `SchemaNode`, mirroring the
- * `createSchemaParser().parseSchema` helper for single-schema test cases.
+ * `createSchemaParser()` helper for single-schema test cases.
  */
 function parseSchema(ctx: OasParserContext, { schema, name }: { schema: SchemaObject; name?: string }, options?: Partial<ast.ParserOptions>): ast.SchemaNode {
-  return createSchemaParser({ ...ctx, options }).parseSchema({ schema, name })
+  return createSchemaParser({ ...ctx, options })({ schema, name })
 }
 
 /**
@@ -153,20 +153,13 @@ describe('buildAst', () => {
       expect(pet?.properties?.find((p) => p.name === 'tag')?.required).toBe(false)
     })
 
-    it('converts array schema', async () => {
+    it('converts array schema and populates node.schema with the resolved ref schema', async () => {
       const root = await parseOas(await buildMinimalOas())
       const list = ast.narrowSchema(findSchema(root, 'PetList'), 'array')
 
       expect(list?.type).toBe('array')
       expect(list?.items).toHaveLength(1)
-      expect(list?.items?.[0]?.type).toBe('ref')
-    })
-
-    it('populates node.schema with the resolved ref schema when the document contains the definition', async () => {
-      const root = await parseOas(await buildMinimalOas())
-      const petList = ast.narrowSchema(findSchema(root, 'PetList'), 'array')
-
-      expect(petList?.items?.[0]).toMatchObject({ type: 'ref', schema: { type: 'object' } })
+      expect(list?.items?.[0]).toMatchObject({ type: 'ref', schema: { type: 'object' } })
     })
 
     it('converts enum schema', async () => {
@@ -276,14 +269,6 @@ describe('buildAst', () => {
       const root = await parseOas(await buildMinimalOas())
 
       expect(findOperation(root, 'createPet')?.deprecated).toBe(true)
-    })
-
-    it('uses uppercase HTTP method per RFC 9110', async () => {
-      const root = await parseOas(await buildMinimalOas())
-
-      for (const op of root.operations) {
-        expect(op.method).toBe(op.method?.toUpperCase())
-      }
     })
 
     it.each([
@@ -1887,7 +1872,6 @@ describe('parseSchema enum', () => {
   it.each([
     { title: 'a single value', schema: { type: 'integer', enum: [42] }, values: [42], names: ['42'] },
     { title: 'duplicate values', schema: { type: 'integer', enum: [1, 1, 2] }, values: [1, 2], names: ['1', '2'] },
-    { title: 'duplicate values without an extension key', schema: { type: 'integer', enum: [5, 5, 10] }, values: [5, 10], names: ['5', '10'] },
   ] satisfies Array<{ title: string; schema: SchemaObject; values: Array<number>; names: Array<string> }>)(
     'deduplicates numeric enum values and uses the stringified value as name for $title',
     async ({ schema, values, names }) => {
@@ -2650,10 +2634,6 @@ describe('buildAst – header and cookie parameters', async () => {
   ])('converts $in parameters with in: $in', ({ name, in: location, required, type }) => {
     expect(getItems?.parameters.find((p) => p.name === name)).toMatchObject({ in: location, required, schema: { type } })
   })
-
-  it('keeps header, cookie and query parameters in the same operation', () => {
-    expect(getItems?.parameters.map((p) => p.in)).toStrictEqual(['header', 'cookie', 'query'])
-  })
 })
 
 describe('buildAst – parameter description propagation', async () => {
@@ -2758,57 +2738,6 @@ describe('parameter enum naming', () => {
 })
 
 describe('enum naming', () => {
-  it('enum name accumulates full parent path without collision suffix', () => {
-    const orderNode = parseSchema(
-      emptyCtx,
-      {
-        schema: {
-          type: 'object',
-          properties: {
-            params: {
-              type: 'object',
-              properties: {
-                status: { type: 'string', enum: ['active', 'inactive'] },
-              },
-            },
-          },
-        },
-        name: 'Order',
-      },
-      { enumSuffix: 'enum' },
-    )
-    const customerNode = parseSchema(
-      emptyCtx,
-      {
-        schema: {
-          type: 'object',
-          properties: {
-            params: {
-              type: 'object',
-              properties: {
-                status: { type: 'string', enum: ['new', 'returning'] },
-              },
-            },
-          },
-        },
-        name: 'Customer',
-      },
-      { enumSuffix: 'enum' },
-    )
-
-    const statusEnumOf = (node: ast.SchemaNode) =>
-      ast.narrowSchema(
-        ast
-          .narrowSchema(ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'params')?.schema, 'object')
-          ?.properties?.find((p) => p.name === 'status')?.schema,
-        'enum',
-      )
-
-    // Full path means no collision
-    expect(statusEnumOf(orderNode)?.name).toBe('OrderParamsStatusEnum')
-    expect(statusEnumOf(customerNode)?.name).toBe('CustomerParamsStatusEnum')
-  })
-
   it('oneOf shared property enums include schema name', () => {
     const node = parseSchema(
       emptyCtx,

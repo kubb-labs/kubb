@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { getBinaryFallbackSchema, isDiscriminator, isNullable } from './oas.ts'
 import type { SchemaObject } from './types.ts'
 
@@ -23,10 +23,6 @@ describe('isDiscriminator', () => {
       },
     }
     expect(isDiscriminator(schema)).toBe(true)
-
-    if (isDiscriminator(schema)) {
-      expectTypeOf(schema.discriminator.propertyName).toEqualTypeOf<string>()
-    }
   })
 
   it('returns false for a Swagger 2 string-form discriminator', () => {

@@ -3,7 +3,7 @@ import { version as kubbVersion } from '../package.json'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Adapter, AdapterDefinition, AdapterFactory, AdapterFactoryOptions } from './createAdapter.ts'
 import type { Parser, ParserBuild, ParserFactory } from './defineParser.ts'
-import type { Plugin, PluginDefinition, PluginFactory, PluginFactoryOptions, PluginName } from './definePlugin.ts'
+import type { Plugin, PluginDefinition, PluginFactory, PluginType, PluginName } from './definePlugin.ts'
 import type { Config } from './types.ts'
 
 /**
@@ -217,9 +217,7 @@ export function defineExtension<T extends AdapterFactoryOptions = AdapterFactory
  * defineExtension<PluginZod>({ kind: 'plugin', meta: { name: 'plugin-zod' }, setup: (options) => options })
  * ```
  */
-export function defineExtension<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(
-  definition: { kind: 'plugin' } & PluginDefinition<TFactory>,
-): PluginFactory<TFactory>
+export function defineExtension<TFactory extends PluginType = PluginType>(definition: { kind: 'plugin' } & PluginDefinition<TFactory>): PluginFactory<TFactory>
 export function defineExtension(
   definition:
     | ({ kind: 'plugin' } & PluginDefinition)

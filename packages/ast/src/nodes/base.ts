@@ -42,3 +42,6 @@ export type BaseNode = {
    */
   kind: NodeKind
 }
+
+/** `Omit` applied to each member of a union, so the union survives. */
+export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never

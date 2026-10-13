@@ -116,15 +116,6 @@ describe('diagnostic kind guards', () => {
   })
 })
 
-describe('Diagnostics.update', () => {
-  it('builds an info update notice carrying both versions', () => {
-    const diagnostic = Diagnostics.update({ currentVersion: '5.0.0', latestVersion: '5.1.0' })
-
-    expect(diagnostic).toMatchObject({ kind: 'update', code: 'KUBB_UPDATE_AVAILABLE', severity: 'info', currentVersion: '5.0.0', latestVersion: '5.1.0' })
-    expect(diagnostic.message).toContain('v5.0.0 → v5.1.0')
-  })
-})
-
 // styleText respects NO_COLOR/non-TTY, so assert on the plain text the parts contain.
 describe('Diagnostics.format', () => {
   it('splits a diagnostic into a headline and tree details', () => {

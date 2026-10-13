@@ -43,7 +43,7 @@ export async function addToConfig({
     const { writeConfigEdits } = await import('@kubb/studio')
     const { outcomes } = await writeConfigEdits({
       filePath: configFile,
-      edits: [{ operation: 'add-plugin', plugin: artifact.package, importName: manifest.export }],
+      edits: [{ operation: 'add-plugin', plugin: artifact.package }],
       extensions: new Map([[artifact.package, { package: artifact.package, version: artifact.version, manifest }]]),
     })
     return outcomes[0]?.applied ? undefined : (outcomes[0]?.reason ?? 'the config file was not changed')

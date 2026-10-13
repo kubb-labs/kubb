@@ -1,17 +1,6 @@
 import path from 'node:path'
 import { camelCase } from '@internals/utils'
-import {
-  ast,
-  collectImportedRefNames,
-  operationDef,
-  schemaDef,
-  type FileNode,
-  type ImportNode,
-  type InputMeta,
-  type Node,
-  type OperationNode,
-  type SchemaNode,
-} from '@kubb/ast'
+import { ast, collectImportedRefNames, type FileNode, type ImportNode, type InputMeta, type Node, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { Diagnostics } from './Diagnostics.ts'
 import { getInputKind } from './input.ts'
 import type { Filter, Override, Group, Output } from './definePlugin.ts'
@@ -501,14 +490,14 @@ export class Resolver {
   }
 
   static #computeOptions<TOptions>(node: Node, { options, exclude = [], include, override = [] }: ResolveOptionsContext<TOptions>): TOptions | null {
-    if (operationDef.is(node)) {
+    if (node.kind === 'Operation') {
       if (exclude.some((filter) => Resolver.#matchesOperation(node, filter))) return null
       if (include && !include.some((filter) => Resolver.#matchesOperation(node, filter))) return null
 
       return { ...options, ...override.find((filter) => Resolver.#matchesOperation(node, filter))?.options }
     }
 
-    if (schemaDef.is(node)) {
+    if (node.kind === 'Schema') {
       if (exclude.some((filter) => Resolver.#matchesSchema(node, filter) === true)) return null
       if (include) {
         const applicable = include.map((filter) => Resolver.#matchesSchema(node, filter)).filter((result) => result !== null)

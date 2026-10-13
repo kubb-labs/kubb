@@ -1,4 +1,3 @@
-import { defineNode } from '../defineNode.ts'
 import type { BaseNode } from './base.ts'
 
 /**
@@ -241,41 +240,6 @@ export type JsxNode = BaseNode & {
 export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode | TextNode | BreakNode | JsxNode
 
 /**
- * Definition for the {@link ConstNode}.
- */
-export const constDef = defineNode<ConstNode>({ kind: 'Const' })
-
-/**
- * Definition for the {@link TypeNode}.
- */
-export const typeDef = defineNode<TypeNode>({ kind: 'Type' })
-
-/**
- * Definition for the {@link FunctionNode}.
- */
-export const functionDef = defineNode<FunctionNode>({ kind: 'Function' })
-
-/**
- * Definition for the {@link ArrowFunctionNode}.
- */
-export const arrowFunctionDef = defineNode<ArrowFunctionNode>({ kind: 'ArrowFunction' })
-
-/**
- * Definition for the {@link TextNode}.
- */
-export const textDef = defineNode<TextNode, string>({ kind: 'Text', build: (value) => ({ value }) })
-
-/**
- * Definition for the {@link BreakNode}.
- */
-export const breakDef = defineNode<BreakNode, void>({ kind: 'Break', build: () => ({}) })
-
-/**
- * Definition for the {@link JsxNode}.
- */
-export const jsxDef = defineNode<JsxNode, string>({ kind: 'Jsx', build: (value) => ({ value }) })
-
-/**
  * Creates a `ConstNode` representing a TypeScript `const` declaration.
  *
  * @example Exported constant with type and `as const`
@@ -284,7 +248,9 @@ export const jsxDef = defineNode<JsxNode, string>({ kind: 'Jsx', build: (value) 
  * // export const pets: Pet[] = ... as const
  * ```
  */
-export const createConst = constDef.create
+export function createConst(input: Omit<ConstNode, 'kind'>): ConstNode {
+  return { ...input, kind: 'Const' }
+}
 
 /**
  * Creates a `TypeNode` representing a TypeScript `type` alias declaration.
@@ -295,7 +261,9 @@ export const createConst = constDef.create
  * // export type Pet = ...
  * ```
  */
-export const createType = typeDef.create
+export function createType(input: Omit<TypeNode, 'kind'>): TypeNode {
+  return { ...input, kind: 'Type' }
+}
 
 /**
  * Creates a `FunctionNode` representing a TypeScript `function` declaration.
@@ -306,7 +274,9 @@ export const createType = typeDef.create
  * // export async function fetchPet(): Promise<Pet> { ... }
  * ```
  */
-export const createFunction = functionDef.create
+export function createFunction(input: Omit<FunctionNode, 'kind'>): FunctionNode {
+  return { ...input, kind: 'Function' }
+}
 
 /**
  * Creates an `ArrowFunctionNode` representing a TypeScript arrow function.
@@ -317,7 +287,9 @@ export const createFunction = functionDef.create
  * // export const double = (n: number) => ...
  * ```
  */
-export const createArrowFunction = arrowFunctionDef.create
+export function createArrowFunction(input: Omit<ArrowFunctionNode, 'kind'>): ArrowFunctionNode {
+  return { ...input, kind: 'ArrowFunction' }
+}
 
 /**
  * Creates a {@link TextNode} representing a raw string fragment in the source output.
@@ -328,7 +300,9 @@ export const createArrowFunction = arrowFunctionDef.create
  * // { kind: 'Text', value: 'return fetch(id)' }
  * ```
  */
-export const createText = textDef.create
+export function createText(value: string): TextNode {
+  return { kind: 'Text', value }
+}
 
 /**
  * Creates a {@link BreakNode} representing a line break in the source output.
@@ -340,7 +314,7 @@ export const createText = textDef.create
  * ```
  */
 export function createBreak(): BreakNode {
-  return breakDef.create()
+  return { kind: 'Break' }
 }
 
 /**
@@ -352,4 +326,6 @@ export function createBreak(): BreakNode {
  * // { kind: 'Jsx', value: '<>\n  <a href={href}>Open</a>\n</>' }
  * ```
  */
-export const createJsx = jsxDef.create
+export function createJsx(value: string): JsxNode {
+  return { kind: 'Jsx', value }
+}

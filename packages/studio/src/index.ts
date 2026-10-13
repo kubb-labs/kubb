@@ -3,4 +3,3 @@ export { pairAgent, PairingCanceledError, PairingDeniedError, PairingExpiredErro
 export { createSnapshot } from './snapshot.ts'
 export { defaultStudioUrl } from './url.ts'
 export { writeConfigEdits } from './configFile.ts'
-export type { InstalledExtensions } from './extensions.ts'

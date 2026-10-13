@@ -127,6 +127,5 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       })
       await generation
     },
-    vite: {},
   }
 }

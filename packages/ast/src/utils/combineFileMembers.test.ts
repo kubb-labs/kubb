@@ -14,20 +14,6 @@ describe('combineSources', () => {
     expect(result).toHaveLength(1)
   })
 
-  it('keeps sources with different names', () => {
-    const a = createSource({
-      name: 'Pet',
-      nodes: [createText('export type Pet = {}')],
-    })
-    const b = createSource({
-      name: 'Order',
-      nodes: [createText('export type Order = {}')],
-    })
-    const result = combineSources([a, b])
-
-    expect(result).toHaveLength(2)
-  })
-
   it('deduplicates by reference when name is absent', () => {
     const src = createSource({ nodes: [createText('const x = 1')] })
     const result = combineSources([src, src])
@@ -35,45 +21,11 @@ describe('combineSources', () => {
     expect(result).toHaveLength(1)
   })
 
-  it('treats sources with the same name but different isExportable as distinct', () => {
-    const a = createSource({
-      name: 'Pet',
-      nodes: [createText('export type Pet = {}')],
-      isExportable: true,
-    })
-    const b = createSource({
-      name: 'Pet',
-      nodes: [createText('export type Pet = {}')],
-      isExportable: false,
-    })
-    const result = combineSources([a, b])
+  it.each(['isExportable', 'isTypeOnly'] as const)('treats sources with the same name but different %s as distinct', (flag) => {
+    const a = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')], [flag]: true })
+    const b = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')], [flag]: false })
 
-    expect(result).toHaveLength(2)
-  })
-
-  it('treats sources with the same name but different isTypeOnly as distinct', () => {
-    const a = createSource({
-      name: 'Pet',
-      nodes: [createText('export type Pet = {}')],
-      isTypeOnly: true,
-    })
-    const b = createSource({
-      name: 'Pet',
-      nodes: [createText('export type Pet = {}')],
-      isTypeOnly: false,
-    })
-    const result = combineSources([a, b])
-
-    expect(result).toHaveLength(2)
-  })
-
-  it('preserves insertion order for unique sources', () => {
-    const a = createSource({ name: 'Z', nodes: [createText('z')] })
-    const b = createSource({ name: 'A', nodes: [createText('a')] })
-    const result = combineSources([a, b])
-
-    expect(result[0]!.name).toBe('Z')
-    expect(result[1]!.name).toBe('A')
+    expect(combineSources([a, b])).toHaveLength(2)
   })
 })
 

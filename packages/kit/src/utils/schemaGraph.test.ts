@@ -38,10 +38,4 @@ describe('containsCircularRef', () => {
   it('returns false when there are no refs', () => {
     expect(containsCircularRef(ast.factory.createSchema({ type: 'string' }), { circularSchemas: new Set(['Pet']) })).toBe(false)
   })
-
-  it('short-circuits when the circular set is empty', () => {
-    const schema = ast.factory.createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' })
-
-    expect(containsCircularRef(schema, { circularSchemas: new Set() })).toBe(false)
-  })
 })

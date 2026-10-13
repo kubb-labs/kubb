@@ -17,21 +17,11 @@ import { resolveDeprecatedFlags } from './deprecatedFlags.ts'
 const QUIET_FLAGS = new Set<string>(['--help', '-h', '--version', '-v', '--json'])
 
 /**
- * Strips the leading executable + script entries when `process.argv` is passed directly.
- * Handles Node.js (`/usr/bin/node`), Bun (`/usr/local/bin/bun`), Deno, tsx, etc. All runtime
- * executable paths contain a path separator; bare command names do not.
- */
-function stripExecArgs(argv: Array<string>): Array<string> {
-  const firstArgIsExecutablePath = (argv[0]?.includes('/') || argv[0]?.includes('\\')) ?? false
-  return argv.length >= 2 && firstArgIsExecutablePath ? argv.slice(2) : argv
-}
-
-/**
  * Entry point for the `kubb` CLI. Prints the telemetry notice unless telemetry is disabled or a
  * quiet flag is passed, then runs the given command, or `generate` when none is given.
  */
-export async function run(argv: Array<string> = process.argv): Promise<void> {
-  const args = routeStudioFlags(resolveDeprecatedFlags(stripExecArgs(argv)))
+export async function run(argv: Array<string> = process.argv.slice(2)): Promise<void> {
+  const args = routeStudioFlags(resolveDeprecatedFlags(argv))
   const isQuietFlag = args.some((arg) => QUIET_FLAGS.has(arg))
 
   // stderr, so the notice never lands in a stream a client parses, such as `kubb mcp` stdio.

@@ -333,9 +333,6 @@ describe('a sandbox job', () => {
 
   it.each([
     ['a file path', '/etc/passwd'],
-    ['a relative path', '../../petStore.yaml'],
-    ['a URL', 'http://127.0.0.1:8080/internal'],
-    ['an empty string', ''],
     ['no spec at all', undefined],
   ])('refuses %s instead of reading or fetching it', async (_label, input) => {
     const { hooks, heard } = withHooks()

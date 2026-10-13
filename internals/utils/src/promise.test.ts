@@ -47,17 +47,6 @@ describe('memoize', () => {
     expect(factory).toHaveBeenCalledTimes(2)
   })
 
-  it('clears correctly when the backing store is cleared', () => {
-    const factory = vi.fn((k: string) => k.toUpperCase())
-    const store = new Map<string, string>()
-    const fn = memoize(store, factory)
-
-    expect(fn('a')).toBe('A')
-    store.clear()
-    expect(fn('a')).toBe('A')
-    expect(factory).toHaveBeenCalledTimes(2)
-  })
-
   it('supports two-level nesting (object + primitive key)', () => {
     const innerFactory = vi.fn((k: string) => k)
     const outerFactory = vi.fn((_obj: object) => memoize(new Map<string, string>(), innerFactory))

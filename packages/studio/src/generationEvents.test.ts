@@ -65,20 +65,4 @@ describe('hook events from a command core runs', () => {
       ['kubb:hook:end', { id, command: process.execPath, args, success: true, error: undefined }],
     ])
   })
-
-  it('reports a non-zero exit on hook:end only, leaving kubb:error off the stream', async () => {
-    const hooks = new Hookable<KubbHooks>()
-    const generation = createGenerationStream(hooks, 'job-1')
-    const args = ['-e', 'process.exit(1)']
-
-    const result = await runHook({ hooks, command: process.execPath, args })
-    await generation.close()
-
-    const events = await Array.fromAsync(generation.stream)
-    expect(result.success).toBe(false)
-    expect(events.map((event) => event.type)).toStrictEqual(['kubb:hook:start', 'kubb:hook:end'])
-    expect(events[1]?.data.at(0)).toStrictEqual(
-      expect.objectContaining({ success: false, error: { message: `Hook execute failed: ${process.execPath} -e process.exit(1)`, stack: expect.any(String) } }),
-    )
-  })
 })

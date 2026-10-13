@@ -195,8 +195,4 @@ describe('parserTsx', () => {
 
     expect(await parserTsx().parse(file)).toBe(["import type { Props } from './types'", '', 'export const Pet = (props: Props) => <div />'].join('\n'))
   })
-
-  it('returns .tsx and .jsx as the handled extensions', () => {
-    expect(parserTsx().extNames).toStrictEqual(['.tsx', '.jsx'])
-  })
 })

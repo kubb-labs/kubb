@@ -9,7 +9,7 @@ import type { RegistryEntry } from '@kubb/core'
 import { createSpinner, logError, logInfo, logIntro, logOutro } from '../../loggers/output.ts'
 import { addToConfig } from '../add/run.ts'
 import { fetchRegistryIndex, incompatibility, installSpec, registryUrl, toRegistryId } from '../../utils/registry.ts'
-import { detectPackageManager, hasPackageJson, initPackageJson, installPackages, missingPluginDependencies } from './utils.ts'
+import { detectPackageManager, initPackageJson, installPackages, missingPluginDependencies } from './utils.ts'
 
 function cancelAndExit(message = 'Operation canceled.'): never {
   clack.cancel(message)
@@ -78,7 +78,7 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     const byId = new Map(plugins.map((entry) => [entry.id, entry]))
 
     // Check/create package.json, detect package manager once after the block
-    if (!hasPackageJson(cwd)) {
+    if (!fs.existsSync(path.join(cwd, 'package.json'))) {
       if (!yes) {
         const shouldInit = await clack.confirm({
           message: 'No package.json found. Would you like to create one?',
@@ -98,9 +98,7 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     }
 
     const packageManager = detectPackageManager(cwd)
-    if (hasPackageJson(cwd)) {
-      logInfo(`Detected package manager: ${styleText('cyan', packageManager.name)}`)
-    }
+    logInfo(`Detected package manager: ${styleText('cyan', packageManager.name)}`)
 
     // Prompt for OpenAPI spec path
     const inputPath = await resolveOrPrompt(inputFlag, initDefaults.inputPath, 'Using input path', () =>

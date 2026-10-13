@@ -1,6 +1,5 @@
 import { hash } from 'node:crypto'
 import path from 'node:path'
-import { defineNode } from '../defineNode.ts'
 import { combineExports, combineImports, combineSources, importLocalName } from '../utils/combineFileMembers.ts'
 import { extractStringsFromNodes } from '../utils/extractStringsFromNodes.ts'
 import type { BaseNode } from './base.ts'
@@ -252,27 +251,6 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
 }
 
 /**
- * Definition for the {@link ImportNode}.
- */
-export const importDef = defineNode<ImportNode>({ kind: 'Import' })
-
-/**
- * Definition for the {@link ExportNode}.
- */
-export const exportDef = defineNode<ExportNode>({ kind: 'Export' })
-
-/**
- * Definition for the {@link SourceNode}.
- */
-export const sourceDef = defineNode<SourceNode>({ kind: 'Source' })
-
-/**
- * Definition for the {@link FileNode}. The fully resolved builder lives in
- * `createFile`, so this definition only supplies the guard.
- */
-export const fileDef = defineNode<FileNode>({ kind: 'File' })
-
-/**
  * Creates an `ImportNode` representing a language-agnostic import/dependency declaration.
  *
  * @example Named import
@@ -281,7 +259,9 @@ export const fileDef = defineNode<FileNode>({ kind: 'File' })
  * // import { useState } from 'react'
  * ```
  */
-export const createImport = importDef.create
+export function createImport(input: Omit<ImportNode, 'kind'>): ImportNode {
+  return { ...input, kind: 'Import' }
+}
 
 /**
  * Creates an `ExportNode` representing a language-agnostic export/public API declaration.
@@ -292,7 +272,9 @@ export const createImport = importDef.create
  * // export { Pet } from './Pet'
  * ```
  */
-export const createExport = exportDef.create
+export function createExport(input: Omit<ExportNode, 'kind'>): ExportNode {
+  return { ...input, kind: 'Export' }
+}
 
 /**
  * Creates a `SourceNode` representing a fragment of source code within a file.
@@ -302,7 +284,9 @@ export const createExport = exportDef.create
  * createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], isExportable: true })
  * ```
  */
-export const createSource = sourceDef.create
+export function createSource(input: Omit<SourceNode, 'kind'>): SourceNode {
+  return { ...input, kind: 'Source' }
+}
 
 /**
  * Input descriptor for {@link createFile}, before `id`, `name`, and `extname` are computed
@@ -386,8 +370,8 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
   const resolvedSources = input.sources?.length ? combineSources(input.sources) : []
 
   return {
-    kind: 'File',
     ...input,
+    kind: 'File',
     id: hash('sha256', input.path, 'hex'),
     name: path.basename(input.baseName, extname),
     extname,

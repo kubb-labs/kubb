@@ -1,4 +1,3 @@
-import { defineNode } from '../defineNode.ts'
 import type { BaseNode } from './base.ts'
 import type { SchemaNode } from './schema.ts'
 
@@ -38,14 +37,8 @@ export type ContentNode = BaseNode & {
 }
 
 /**
- * Definition for the {@link ContentNode}.
- */
-export const contentDef = defineNode<ContentNode>({
-  kind: 'Content',
-  children: ['schema'],
-})
-
-/**
  * Creates a `ContentNode` for a single request-body or response content type.
  */
-export const createContent = contentDef.create
+export function createContent(input: Omit<ContentNode, 'kind'>): ContentNode {
+  return { ...input, kind: 'Content' }
+}

@@ -1,4 +1,3 @@
-import { defineNode } from '../defineNode.ts'
 import { withRequired } from '../optionality.ts'
 import type { BaseNode } from './base.ts'
 import type { SchemaNode } from './schema.ts'
@@ -38,18 +37,8 @@ export type PropertyNode = BaseNode & {
 type UserPropertyNode = Pick<PropertyNode, 'name' | 'schema'> & Partial<Omit<PropertyNode, 'kind' | 'name' | 'schema'>>
 
 /**
- * Definition for the {@link PropertyNode}. `required` defaults to `false`, and the schema's
+ * Creates a `PropertyNode`. `required` defaults to `false`, and the schema's
  * `optional`/`nullish` flags are derived from it through {@link withRequired}.
- */
-export const propertyDef = defineNode<PropertyNode, UserPropertyNode>({
-  kind: 'Property',
-  build: withRequired,
-  children: ['schema'],
-  visitorKey: 'property',
-})
-
-/**
- * Creates a `PropertyNode`.
  *
  * @example
  * ```ts
@@ -61,4 +50,6 @@ export const propertyDef = defineNode<PropertyNode, UserPropertyNode>({
  * // required=true, no optional/nullish
  * ```
  */
-export const createProperty = propertyDef.create
+export function createProperty(input: UserPropertyNode): PropertyNode {
+  return { ...withRequired(input), kind: 'Property' }
+}

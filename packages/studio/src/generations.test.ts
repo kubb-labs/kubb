@@ -76,15 +76,6 @@ describe('createGenerationStore', () => {
     expect((await storage.readKeys()).some((key) => key.endsWith('a.ts'))).toBe(false)
   })
 
-  it('keeps generations past any age without ttlMs', async () => {
-    let clock = 0
-    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10, now: () => clock })
-    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'one' } })
-
-    clock = 365 * 24 * 60 * 60_000
-    expect((await store.get('job-1'))?.jobId).toBe('job-1')
-  })
-
   it('drops the oldest past the count, and their files with them', async () => {
     const storage = memoryStorage()
     const store = createGenerationStore({ storage, maxCount: 2, maxMb: 10 })

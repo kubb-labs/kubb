@@ -1,4 +1,3 @@
-import { defineNode } from '../defineNode.ts'
 import type { BaseNode } from './base.ts'
 import type { ParameterNode } from './parameter.ts'
 import { createRequestBody, type RequestBodyNode } from './requestBody.ts'
@@ -118,31 +117,9 @@ type OperationInput = {
 }
 
 /**
- * Definition for the {@link OperationNode}. HTTP operations (those carrying both
- * `method` and `path`) are tagged with `protocol: 'http'`, and the request body is
- * normalized into a `RequestBodyNode`.
- */
-export const operationDef = defineNode<OperationNode, OperationInput>({
-  kind: 'Operation',
-  build: (props) => {
-    const { requestBody, ...rest } = props
-    const isHttp = rest.method !== undefined && rest.path !== undefined
-
-    return {
-      tags: [],
-      parameters: [],
-      responses: [],
-      ...rest,
-      ...(isHttp ? { protocol: 'http' as const } : {}),
-      requestBody: requestBody ? createRequestBody(requestBody) : undefined,
-    }
-  },
-  children: ['parameters', 'requestBody', 'responses'],
-  visitorKey: 'operation',
-})
-
-/**
  * Creates an `OperationNode` with default empty arrays for `tags`, `parameters`, and `responses`.
+ * HTTP operations (those carrying both `method` and `path`) are tagged with `protocol: 'http'`,
+ * and the request body is normalized into a `RequestBodyNode`.
  *
  * @example
  * ```ts
@@ -163,5 +140,18 @@ export function createOperation(
     },
 ): GenericOperationNode
 export function createOperation(props: OperationInput): OperationNode {
-  return operationDef.create(props)
+  const { requestBody, ...rest } = props
+  const isHttp = rest.method !== undefined && rest.path !== undefined
+
+  const node = {
+    tags: [],
+    parameters: [],
+    responses: [],
+    ...rest,
+    kind: 'Operation' as const,
+    ...(isHttp ? { protocol: 'http' as const } : {}),
+    requestBody: requestBody ? createRequestBody(requestBody) : undefined,
+  }
+
+  return node as OperationNode
 }
