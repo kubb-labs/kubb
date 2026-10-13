@@ -93,7 +93,7 @@ function getState(config: Config): BarrelState {
  */
 export const pluginBarrel = defineExtension({
   kind: 'plugin',
-  meta: { name: pluginBarrelName, version, compatibility },
+  meta: { name: pluginBarrelName, version, compatibility, issues: 'https://github.com/kubb-labs/kubb/issues' },
   enforce: 'post',
   hooks: {
     'kubb:plugin:end'({ plugin, config }) {

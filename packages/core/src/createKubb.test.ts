@@ -598,11 +598,11 @@ describe('Kubb#generate', () => {
     expect(processOutput).toHaveBeenCalledTimes(1)
   })
 
-  it('routes a build error to the kubb:error hook and stops without running processOutput', async () => {
+  it('reports an adapter crash as KUBB_ADAPTER_FAILED and stops without running processOutput', async () => {
     hooks = new Hookable<KubbHooks>()
     const messages: Array<string> = []
-    hooks.hook('kubb:error', ({ error }) => {
-      messages.push(error.message)
+    hooks.hook('kubb:diagnostic', ({ diagnostic }) => {
+      messages.push(`${diagnostic.code} ${diagnostic.message}`)
     })
     let ranProcessOutput = false
 
@@ -614,7 +614,7 @@ describe('Kubb#generate', () => {
     })
 
     expect(result.success).toBe(false)
-    expect(messages).toStrictEqual(['boom'])
+    expect(messages).toStrictEqual(['KUBB_ADAPTER_FAILED adapter "oas" crashed: boom'])
     expect(ranProcessOutput).toBe(false)
   })
 

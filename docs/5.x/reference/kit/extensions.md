@@ -71,6 +71,7 @@ export const pluginExample = defineExtension({
 | `tags`          | `Array<string>`                     | Search keywords for the registry. |
 | `compatibility` | `{ kubb?: string; node?: string }`  | Semver ranges for `@kubb/core` and Node.js. |
 | `docs`          | `string`                            | URL of the extension's docs page. |
+| `issues`        | `string`                            | URL of the extension's issue tracker. When the extension crashes, Kubb prints it as the `report:` link, so users report the bug to you instead of to Kubb. |
 
 Read `version` from your `package.json` so it stays in sync with what you publish:
 

@@ -42,6 +42,8 @@ export type ExtensionMeta<TName extends string = string> = {
     node?: string
   }
   docs?: string
+  /** Issue tracker URL. Kubb prints it when the extension crashes, so users report the bug to its maintainers. */
+  issues?: string
 }
 
 /**

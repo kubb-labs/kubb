@@ -55,7 +55,7 @@ export type ParserTsOptions = {
  */
 export const parserTs = defineExtension<ParserTsOptions, object, ts.Node>({
   kind: 'parser',
-  meta: { name: 'typescript', version, compatibility },
+  meta: { name: 'typescript', version, compatibility, issues: 'https://github.com/kubb-labs/kubb/issues' },
   build({ extension = DEFAULT_EXTENSION }) {
     return {
       extNames: ['.ts', '.js'],

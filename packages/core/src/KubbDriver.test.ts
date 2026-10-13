@@ -329,6 +329,7 @@ describe('KubbDriver generator dispatch', () => {
     rec = { schema: [], operation: [], operations: [], pairs: [] }
     const boomPlugin: Plugin = {
       name: 'boom',
+      meta: { name: 'boom', issues: 'https://github.com/example/boom/issues' },
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.addGenerator({
@@ -347,7 +348,11 @@ describe('KubbDriver generator dispatch', () => {
 
     // The plugin after the failing one still runs every node.
     expect(rec.schema.map((entry) => entry.name)).toStrictEqual(['Pet', 'Store'])
-    expect(diagnostics.some((diagnostic) => 'plugin' in diagnostic && diagnostic.plugin === 'boom')).toBe(true)
+    expect(diagnostics.find((diagnostic) => 'plugin' in diagnostic && diagnostic.plugin === 'boom' && diagnostic.severity === 'error')).toMatchObject({
+      code: 'KUBB_PLUGIN_FAILED',
+      message: 'boom in schema',
+      issues: 'https://github.com/example/boom/issues',
+    })
   })
 
   it('shares one cache per node across plugins and gives each node a fresh one', async () => {

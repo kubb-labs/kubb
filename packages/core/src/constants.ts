@@ -76,6 +76,10 @@ export const diagnosticCode = {
    * A plugin threw while generating.
    */
   pluginFailed: 'KUBB_PLUGIN_FAILED',
+  /** An adapter threw while parsing the input. */
+  adapterFailed: 'KUBB_ADAPTER_FAILED',
+  /** A parser threw while printing a generated file. */
+  parserFailed: 'KUBB_PARSER_FAILED',
   /**
    * A plugin reported a non-fatal warning through `ctx.warn`.
    */

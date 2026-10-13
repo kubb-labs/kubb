@@ -50,7 +50,7 @@ export const adapterOasName = 'oas' satisfies AdapterOas['name']
  */
 export const adapterOas = defineExtension<AdapterOas>({
   kind: 'adapter',
-  meta: { name: adapterOasName, version, compatibility },
+  meta: { name: adapterOasName, version, compatibility, issues: 'https://github.com/kubb-labs/kubb/issues' },
   setup: ({
     validate = true,
     contentType,
