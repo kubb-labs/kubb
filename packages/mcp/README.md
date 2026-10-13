@@ -26,7 +26,7 @@
 
 `@kubb/mcp` is the MCP server for Kubb. It exposes Kubb code generation as tools over the [Model Context Protocol](https://modelcontextprotocol.io), so AI assistants such as [Claude](https://claude.ai) and [Cursor](https://cursor.sh) can validate a spec and generate TypeScript types and API clients from the chat.
 
-The server has three tools. `generate` runs a full Kubb build from a `kubb.config.ts` and returns its build events when the build finishes. `validate` checks an OpenAPI spec, and `init` scaffolds a `kubb.config.ts`.
+The server has three tools. `generate` runs a full Kubb build from a `kubb.config.ts` and returns its build events when the build succeeds. A failed build returns its diagnostics instead. `validate` checks an OpenAPI spec, and `init` scaffolds a `kubb.config.ts`.
 
 ## Installation
 
@@ -114,7 +114,7 @@ Clients such as Claude Code ignore a `cwd` key in this config. When a client sta
 
 #### `generate`
 
-Runs a Kubb build from your config and returns the build events when it finishes.
+Runs a Kubb build from your config. A successful build returns the build events, and a failed build returns its diagnostics.
 
 Parameters:
 
