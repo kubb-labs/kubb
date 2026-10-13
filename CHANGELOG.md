@@ -1,5 +1,50 @@
 # Changelog
 
+## v5.8.1 — Oct 13, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Ship a `kubb-extension.json` manifest and an `OVERVIEW.md` with each package. ([#4253](https://github.com/kubb-labs/kubb/pull/4253), [`b5f137e`](https://github.com/kubb-labs/kubb/commit/b5f137e206d102a29cc3f508d69d50c2305a26e3))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Add `kubb add`, `kubb update`, and `kubb list` to install and update extensions from the Kubb registry. ([#4253](https://github.com/kubb-labs/kubb/pull/4253), [`b5f137e`](https://github.com/kubb-labs/kubb/commit/b5f137e206d102a29cc3f508d69d50c2305a26e3))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- `createAdapter` takes an object with `meta`, `setup`, and `build`, like `definePlugin`. Kubb checks the adapter's `meta.compatibility` too.
+  
+  ```ts
+  export const adapterGraphql = createAdapter<AdapterGraphql>({
+    meta: { name: 'graphql', compatibility: { kubb: '>=5.8.0' } },
+    setup: (options) => ({ ...options, scalars: options.scalars ?? {} }),
+    build: (options) => ({ document: null, parse, validate }),
+  })
+  ```
+  
+  `defineParser` takes `build` in place of `setup`, and the parser exposes its `options`. The factory form of `createAdapter` and the parser `setup` key are deprecated. ([#4249](https://github.com/kubb-labs/kubb/pull/4249), [`3139832`](https://github.com/kubb-labs/kubb/commit/31398322aacb1cb599662ae54b99cef0ddbdd6e6))
+- Add the `kubb-extension.json` manifest types and checks, exported from `@kubb/core` and `@kubb/kit`, and let Studio run installed third-party plugins that ship one. ([#4253](https://github.com/kubb-labs/kubb/pull/4253), [`b5f137e`](https://github.com/kubb-labs/kubb/commit/b5f137e206d102a29cc3f508d69d50c2305a26e3))
+- Remove the options `schema` from `definePlugin`, with `PluginOptions`, `StandardSchemaV1`, `plugin.parsedOptions`, the `KUBB_INVALID_OPTIONS` diagnostic, and `@kubb/kit/options`. Type plugin options with TypeScript and apply their defaults in `setup`. `@kubb/kit` no longer depends on `zod`. ([#4252](https://github.com/kubb-labs/kubb/pull/4252), [`2a73acb`](https://github.com/kubb-labs/kubb/commit/2a73acba5e59a0dbbec61c1cb6becb23eef379eb))
+
+### @kubb/plugin-barrel
+
+#### Bug Fixes
+
+- A `barrel: false` plugin that writes to the output root (`output.path` of `'.'` or `''`) no longer removes every other plugin's barrel or empties the root barrel. The barrel plugin now excludes only the files that plugin owns, matched by `meta.pluginName`. Files without an owner are still excluded by the `barrel: false` plugin's subdirectory, as before. A plugin without an `output.path` no longer throws a `TypeError`. ([#4254](https://github.com/kubb-labs/kubb/pull/4254), [`1bfc37a`](https://github.com/kubb-labs/kubb/commit/1bfc37ae6ad637187a4597117ec152c2f73c38da))
+- Keep the per-plugin barrels of other plugins when a plugin has no `output.path`. A plugin whose output resolves to the output root, such as a third-party plugin without an `output` option, no longer gets a barrel of its own or claims the other plugins' directories. The root barrel still re-exports its files. ([#4255](https://github.com/kubb-labs/kubb/pull/4255), [`eea0d0d`](https://github.com/kubb-labs/kubb/commit/eea0d0d63a1b6e42b8cc7238e41b75b0393f425d))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.8.0 — Oct 12, 2026
 
 ### @kubb/core
