@@ -43,6 +43,7 @@ function invalidEdit(edit: ConfigEdit): string | undefined {
   if (typeof operation !== 'string' || !OPERATIONS.has(operation)) return `unknown operation ${JSON.stringify(operation)}`
   if (typeof plugin !== 'string' || !plugin) return 'the edit names no plugin'
   if (kind !== undefined && (typeof kind !== 'string' || !KINDS.has(kind))) return `unknown kind ${JSON.stringify(kind)}`
+  if (kind !== undefined && operation !== 'set' && operation !== 'remove') return `${operation} edits the plugins array, so it takes no kind`
   if (config !== undefined && typeof config !== 'string' && !Number.isSafeInteger(config)) return 'config must name an entry or give its index'
   if (operation === 'set' || operation === 'remove') {
     if (!Array.isArray(path) || !path.every((key) => typeof key === 'string' && key)) return 'path must be a list of option names'

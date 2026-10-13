@@ -525,6 +525,11 @@ describe('applyConfigEdits', () => {
       ['a missing plugin', { operation: 'disable-plugin' }, 'the edit names no plugin'],
       ['an unknown kind', { operation: 'set', kind: 'macro', plugin: '@kubb/plugin-ts', path: ['arrayType'], value: 1 }, 'unknown kind "macro"'],
       [
+        'a kind on a plugin-only operation',
+        { operation: 'add-plugin', kind: 'adapter', plugin: '@kubb/plugin-ts' },
+        'add-plugin edits the plugins array, so it takes no kind',
+      ],
+      [
         'a config ref that is not a name or index',
         { operation: 'disable-plugin', plugin: '@kubb/plugin-ts', config: { x: 1 } },
         'config must name an entry or give its index',
