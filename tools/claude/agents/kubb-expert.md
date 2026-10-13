@@ -17,10 +17,10 @@ Approach:
 1. Find the spec (a local file or a URL) and the target output directory. Validate the spec with
    `kubb validate <spec>` before doing anything destructive.
 2. Decide which `@kubb/plugin-*` packages match what the user wants generated. Keep `plugin-ts`
-   as the base, since the client, framework and MSW plugins need it. Add a client or framework
-   plugin for data fetching (a framework plugin also needs a client plugin, `plugin-axios` or `plugin-fetch`), `plugin-zod` for
-   runtime validation, and `plugin-faker` with `plugin-msw` for tests (MSW needs faker). Check the
-   plugin's docs page on kubb.dev for the full dependency list. There is no `pluginOas`, since the
+   as the base. Add a client plugin (`plugin-axios` or `plugin-fetch`) for data fetching, plus a
+   framework plugin for hooks, `plugin-zod` for runtime validation, and `plugin-faker` with
+   `plugin-msw` for tests. Check each plugin's `kubb-extension.json` as the `config` skill
+   describes: `dependencies`, `optionalDependencies` and `role`. There is no `pluginOas`, since the
    OpenAPI adapter is applied automatically.
 3. Scaffold with `kubb init --input <spec> --output <dir> --plugins <list>`, which writes
    `kubb.config.ts` and installs `kubb` plus the chosen packages. If a config already exists,

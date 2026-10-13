@@ -14,8 +14,9 @@ import {
   resolveInstallVersions,
   resolvePlugins,
 } from '@internals/shared'
+import { readInstalledPackages } from '@kubb/core'
 import { createSpinner, logError, logInfo, logIntro, logOutro, logWarn } from '../../loggers/output.ts'
-import { detectPackageManager, hasPackageJson, initPackageJson, installPackages } from './utils.ts'
+import { detectPackageManager, hasPackageJson, initPackageJson, installPackages, missingPluginDependencies } from './utils.ts'
 
 function cancelAndExit(message = 'Operation canceled.'): never {
   clack.cancel(message)
@@ -170,6 +171,17 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     } catch (error) {
       spinner.stop('Installation failed')
       throw error
+    }
+
+    // Check the selection against the installed manifests before writing a config that cannot generate
+    const selectedPackages = selectedPlugins.map((p) => p.packageName)
+    const installed = await readInstalledPackages({ root: cwd, packages: selectedPackages })
+    const missing = missingPluginDependencies({
+      selected: selectedPlugins.map((p) => p.value),
+      manifests: installed.flatMap((p) => (p.manifest && selectedPackages.includes(p.package) ? [p.manifest] : [])),
+    })
+    if (missing.length) {
+      throw new Error(`${missing.join('\n')}\nAdd the missing plugins and run kubb init again.`)
     }
 
     // Generate config file

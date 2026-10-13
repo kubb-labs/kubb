@@ -32,6 +32,8 @@ The wizard prompts for three things:
 
 Kubb detects the package manager (`bun`, `pnpm`, `npm`, or `yarn`) from your project. It installs `kubb` at the exact version of the CLI you ran and the plugins from the same release channel, so `npx kubb@beta init` scaffolds a beta project.
 
+After the install, Kubb reads the [manifest](/docs/5.x/reference/kit/manifest) of each chosen plugin. If a plugin's `dependencies` are not all chosen, or a plugin with `role: "consumer"` (such as `plugin-react-query`) has no client plugin next to it, `kubb init` names what is missing and exits without writing `kubb.config.ts`.
+
 ## Options
 
 | Option           | Default | Description                                                                                                                                                                                                                                                         |

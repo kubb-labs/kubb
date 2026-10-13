@@ -53,6 +53,8 @@ export type ExtensionManifest = {
   maintainers?: Array<{ name: string; github?: string }>
   /** Names of the extensions that must be in the same config, such as `['plugin-ts']`. */
   dependencies?: Array<string>
+  /** Names of the extensions used when they are in the config, or needed only for some option values, such as `['plugin-faker']`. */
+  optionalDependencies?: Array<string>
   compatibility?: { kubb?: string; node?: string }
   /** Plugins only: `client` ships the HTTP client runtime, `consumer` calls one but ships none. */
   role?: 'client' | 'consumer'
@@ -189,7 +191,7 @@ export function manifestProblems({ options = [] }: ExtensionManifest): Array<str
  */
 export function isExtensionManifest(value: unknown): value is ExtensionManifest {
   if (!isObject(value)) return false
-  const { kind, name, export: exportName, displayName, description, maintainers, dependencies, compatibility, options } = value
+  const { kind, name, export: exportName, displayName, description, maintainers, dependencies, optionalDependencies, compatibility, options } = value
   return (
     EXTENSION_KINDS.has(kind) &&
     isPackageName(name) &&
@@ -199,6 +201,7 @@ export function isExtensionManifest(value: unknown): value is ExtensionManifest 
     typeof description === 'string' &&
     (maintainers === undefined || (Array.isArray(maintainers) && maintainers.every(isMaintainer))) &&
     (dependencies === undefined || (Array.isArray(dependencies) && dependencies.every(isPackageName))) &&
+    (optionalDependencies === undefined || (Array.isArray(optionalDependencies) && optionalDependencies.every(isPackageName))) &&
     (compatibility === undefined ||
       (isObject(compatibility) && Object.entries(compatibility).every(([key, range]) => (key === 'kubb' || key === 'node') && typeof range === 'string'))) &&
     (options === undefined || (Array.isArray(options) && options.every(isOption))) &&

@@ -13,7 +13,7 @@ Parsed from **$ARGUMENTS** (ask only for what is missing):
    skill. Valid values: `plugin-ts`, `plugin-axios`, `plugin-fetch`, `plugin-react-query`, `plugin-vue-query`,
    `plugin-zod`, `plugin-faker`, `plugin-msw`, `plugin-cypress`, `plugin-mcp`, `plugin-redoc`.
    Default to `plugin-ts` when the user is unsure. A framework plugin (`plugin-react-query`,
-   `plugin-vue-query`) also needs `plugin-axios` or `plugin-fetch`, or `kubb generate` fails.
+   `plugin-vue-query`) also needs `plugin-axios` or `plugin-fetch`.
 2. Run init with `--yes` and the chosen values so it never prompts:
 
    ```shell
@@ -23,4 +23,6 @@ Parsed from **$ARGUMENTS** (ask only for what is missing):
    This writes `kubb.config.ts` and installs `kubb` plus the selected packages (`--yes` also
    creates a `package.json` if the project has none). For a default setup, `npx kubb init --yes`
    works without flags. If a config already exists, edit it by hand rather than rerunning init.
+   If init stops because a plugin needs another plugin, add that plugin to `--plugins` and run it
+   again.
 3. Suggest running `/kubb:generate` next.

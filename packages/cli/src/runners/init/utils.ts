@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import type { ExtensionManifest } from '@kubb/core'
 import { x } from 'tinyexec'
 
 export type PackageManagerName = 'npm' | 'pnpm' | 'yarn' | 'bun'
@@ -103,4 +104,17 @@ export async function installPackages(packages: Array<string>, packageManager: P
     nodeOptions: { cwd, stdio: 'inherit' },
     throwOnError: true,
   })
+}
+
+/**
+ * What the installed manifests of the `selected` plugins say is missing from the selection: a
+ * `dependencies` entry, or a `client` plugin next to a `consumer`. Empty when nothing is missing.
+ * `optionalDependencies` are skipped, since `kubb init` writes the default options.
+ */
+export function missingPluginDependencies({ selected, manifests }: { selected: Array<string>; manifests: Array<ExtensionManifest> }): Array<string> {
+  const hasClient = manifests.some((manifest) => manifest.role === 'client')
+  return manifests.flatMap((manifest) => [
+    ...(manifest.dependencies ?? []).filter((name) => !selected.includes(name)).map((name) => `${manifest.name} needs ${name}.`),
+    ...(manifest.role === 'consumer' && !hasClient ? [`${manifest.name} needs a client plugin, such as plugin-axios or plugin-fetch.`] : []),
+  ])
 }

@@ -15,7 +15,7 @@ navigation:
 
 # Extension manifest
 
-`kubb-extension.json` describes an extension package. It sits at the package root and ships on npm. The [Kubb registry](/docs/5.x/reference/registry), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb list`](/docs/5.x/reference/commands/list), and the [Studio](/docs/5.x/reference/commands/studio#plugins-in-studio) agent read it. Generation does not: at runtime Kubb reads the extension's [`meta`](./extensions#meta).
+`kubb-extension.json` describes an extension package. It sits at the package root and ships on npm. The [Kubb registry](/docs/5.x/reference/registry), [`kubb add`](/docs/5.x/reference/commands/add), [`kubb init`](/docs/5.x/reference/commands/init), [`kubb list`](/docs/5.x/reference/commands/list), and the [Studio](/docs/5.x/reference/commands/studio#plugins-in-studio) agent read it. Generation does not: at runtime Kubb reads the extension's [`meta`](./extensions#meta).
 
 The JSON Schema is [`https://kubb.dev/schemas/kubb-extension.json`](https://kubb.dev/schemas/kubb-extension.json). Set it as `$schema` to get validation and completion in your editor.
 
@@ -126,7 +126,13 @@ The people who maintain the extension, shown on its kubb.dev page. Each entry ne
 ### `dependencies`
 
 :::field{type="Array<string>"}
-Names of the extensions that must be in the same config, such as `["plugin-ts"]`. kubb.dev lists them on the extension's page. Generation does not read them: at runtime Kubb uses the plugin's own [`dependencies`](./extensions#dependencies).
+Names of the extensions that must be in the same config, such as `["plugin-ts"]`. kubb.dev lists them on the extension's page, and `kubb init` checks that each one is chosen. Generation does not read them: at runtime Kubb uses the plugin's own [`dependencies`](./extensions#dependencies).
+:::
+
+### `optionalDependencies`
+
+:::field{type="Array<string>"}
+Names of the extensions the plugin uses when they are in the same config, or needs only for some option values. `@kubb/plugin-msw` lists `["plugin-faker"]`, because it needs `@kubb/plugin-faker` only with `parser: 'faker'`. They match the entries marked `optional: true` or picked from the options in the plugin's runtime [`dependencies`](./extensions#dependencies). `kubb init` does not require them.
 :::
 
 ### `compatibility`
@@ -140,7 +146,7 @@ Semver ranges for Kubb (`@kubb/core`) and Node.js, such as `{ "kubb": ">=5.8.3",
 ### `role`
 
 :::field{type="'client' | 'consumer'"}
-Plugins only. `client` provides the HTTP client runtime, like `@kubb/plugin-fetch`. `consumer` generates code that calls a client but ships none, like `@kubb/plugin-react-query`. Studio uses it to require a client plugin next to a consumer before it generates.
+Plugins only. `client` provides the HTTP client runtime, like `@kubb/plugin-fetch`. `consumer` generates code that calls a client but ships none, like `@kubb/plugin-react-query`. Studio and `kubb init` use it to require a client plugin next to a consumer.
 :::
 
 ### `options`
@@ -157,7 +163,7 @@ Kubb and the registry check a manifest at different points:
 
 | Reader | Checks | On failure |
 | --- | --- | --- |
-| `kubb add`, `kubb update`, `kubb list`, the Studio agent | The required fields are set and well formed. Each `maintainers` entry has a `name`. Each `dependencies` entry is an extension name. `compatibility` holds only `kubb` and `node` string ranges. `options` is an array. | The manifest is skipped. |
+| `kubb add`, `kubb init`, `kubb update`, `kubb list`, the Studio agent | The required fields are set and well formed. Each `maintainers` entry has a `name`. Each `dependencies` and `optionalDependencies` entry is an extension name. `compatibility` holds only `kubb` and `node` string ranges. `options` is an array. | The manifest is skipped. |
 | The registry | The JSON Schema, unique option keys, `choices` on every `select`, and a `select` default that equals one of its choices. | The review pull request lists the problem, and the weekly bump keeps the previous pin. |
 
 ## Import `compatibility` into `meta` {#import-compatibility-into-meta}
