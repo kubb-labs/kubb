@@ -1,6 +1,6 @@
 # Barrel
 
-The Barrel plugin writes `index.ts` files that re-export generated code, so you can import everything from a single entry point. It writes a barrel in every folder of each plugin's output, plus a root barrel when you set `output.barrel` on `defineConfig`.
+The Barrel plugin writes `index.ts` files that re-export generated code, so you can import everything from a single entry point. It writes a barrel in every folder of each plugin output that has a barrel setting, plus a root barrel when you set `output.barrel` on `defineConfig`.
 
 ## Setup
 
@@ -14,7 +14,7 @@ Kubb adds the plugin to `plugins` for you, so no setup is needed. Generator plug
 - `nested: true`, on a plugin only, makes each barrel re-export just its own folder and the barrels below it. The root barrel is always flat.
 - `false` on a plugin turns its barrel off and leaves its files out of the root barrel.
 
-A plugin with `output.mode: 'file'` gets no barrel of its own, and the root barrel re-exports that file directly. Passing your own `output` object to a plugin replaces its default `barrel: { type: 'named' }`, so that plugin falls back to the root setting. When two files export the same name, the barrel keeps the first one and reports an error.
+A plugin with `output.mode: 'file'` gets no barrel of its own, and the root barrel re-exports that file directly. Passing your own `output` object to a plugin replaces its default `barrel: { type: 'named' }`, so that plugin falls back to the root setting. When two files export the same name, Kubb reports an error, and a `named` barrel keeps only the first one.
 
 See [Options](https://kubb.dev/extensions/kubb-labs/plugin-barrel/options) for every option and its default.
 

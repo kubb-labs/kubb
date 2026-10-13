@@ -6,7 +6,7 @@ The package also exports `parserTsx`, which writes `.tsx` and `.jsx` files with 
 
 ## Setup
 
-Kubb registers `parserTs`, `parserTsx`, and `parserMd` by default, so no setup is needed. Set `parsers` in `defineConfig` only to change an option or add a parser. A custom `parsers` array replaces the default set, so list every parser your plugins need. Files that no parser claims are written as their source text only, without imports, exports, banner, or footer.
+With `defineConfig` from `kubb/config`, Kubb registers `parserTs`, `parserTsx`, and `parserMd` by default, so no setup is needed. Bundler integrations register only `parserTs` and `parserTsx`. Set `parsers` in `defineConfig` only to change an option or add a parser. A custom `parsers` array replaces the default set, so list every parser your plugins need. Files that no parser claims are written as their source text only, without imports, exports, banner, or footer.
 
 ## Options worth knowing
 

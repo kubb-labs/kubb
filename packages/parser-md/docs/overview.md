@@ -4,7 +4,7 @@ The Markdown parser joins a file's source blocks as plain Markdown, separated by
 
 ## Setup
 
-Kubb registers the parser by default, next to `parserTs` and `parserTsx`, so no setup is needed. Add it yourself only when you set a custom `parsers` array, because that array replaces the default set. List every parser your plugins need. Files that no parser claims are written as their source text only, without imports, exports, banner, or footer.
+With `defineConfig` from `kubb/config`, Kubb registers the parser by default, next to `parserTs` and `parserTsx`, so no setup is needed. Bundler integrations leave it out. Add it yourself only when you set a custom `parsers` array, because that array replaces the default set. List every parser your plugins need. Files that no parser claims are written as their source text only, without imports, exports, banner, or footer.
 
 ## Options worth knowing
 
