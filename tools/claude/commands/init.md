@@ -12,7 +12,8 @@ Parsed from **$ARGUMENTS** (ask only for what is missing):
 1. Choose plugins. Map the requested outputs to `@kubb/plugin-*` packages with the `config`
    skill. Valid values: `plugin-ts`, `plugin-axios`, `plugin-fetch`, `plugin-react-query`, `plugin-vue-query`,
    `plugin-zod`, `plugin-faker`, `plugin-msw`, `plugin-cypress`, `plugin-mcp`, `plugin-redoc`.
-   Default to `plugin-ts` when the user is unsure.
+   Default to `plugin-ts` when the user is unsure. A framework plugin (`plugin-react-query`,
+   `plugin-vue-query`) also needs `plugin-axios` or `plugin-fetch`, or `kubb generate` fails.
 2. Run init with `--yes` and the chosen values so it never prompts:
 
    ```shell

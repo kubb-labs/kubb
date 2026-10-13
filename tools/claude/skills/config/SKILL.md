@@ -92,8 +92,8 @@ truth instead of guessing an option name.
 Common combinations:
 
 - Types only: `pluginTs()`.
-- Typed data fetching: add `pluginAxios()` or `pluginFetch()`, or a framework plugin (`pluginReactQuery`,
-  `pluginVueQuery` or `pluginSwr`) which pulls in client generation.
+- Typed data fetching: add `pluginAxios()` or `pluginFetch()`. For hooks, add a framework plugin
+  (`pluginReactQuery`, `pluginVueQuery` or `pluginSwr`) next to that client plugin.
 - Runtime validation: add `pluginZod()` and point the client at it for typed, validated responses.
 - Testing and mocks: add `pluginFaker()` and `pluginMsw()`.
 
