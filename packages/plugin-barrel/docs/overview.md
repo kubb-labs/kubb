@@ -8,17 +8,6 @@ Kubb adds it to `plugins` for you. Do not add it yourself. It generates nothing 
 
 Set `output.barrel` on `defineConfig` to write a root barrel. Plugins without a barrel setting of their own inherit it.
 
-```ts
-import { defineConfig } from 'kubb/config'
-import { pluginTs } from '@kubb/plugin-ts'
-
-export default defineConfig({
-  input: './petStore.yaml',
-  output: { path: './src/gen', barrel: { type: 'named' } },
-  plugins: [pluginTs()],
-})
-```
-
 ## Options
 
 The plugin takes no arguments. You configure it through `output.barrel`, on `defineConfig` or on a single plugin.
@@ -28,3 +17,18 @@ The plugin takes no arguments. You configure it through `output.barrel`, on `def
 - `false` on a plugin turns its barrel off and leaves its files out of the root barrel.
 
 A plugin with `output.mode: 'file'` gets no barrel of its own. The root barrel re-exports that file directly. Passing your own `output` object to a plugin replaces its default `barrel: { type: 'named' }`, so it falls back to the root setting.
+
+See [Options](https://kubb.dev/extensions/kubb-labs/plugin-barrel/options) for the export `type`, `nested` barrels, and per-plugin overrides.
+
+## Example
+
+```typescript [kubb.config.ts]
+import { defineConfig } from 'kubb/config'
+import { pluginTs } from '@kubb/plugin-ts'
+
+export default defineConfig({
+  input: './petStore.yaml',
+  output: { path: './src/gen', barrel: { type: 'named' } },
+  plugins: [pluginTs()],
+})
+```

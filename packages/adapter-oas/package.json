@@ -37,7 +37,7 @@
   "files": [
     "dist",
     "kubb-extension.json",
-    "OVERVIEW.md",
+    "docs",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
