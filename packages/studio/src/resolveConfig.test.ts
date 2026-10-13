@@ -2,7 +2,17 @@ import { join } from 'node:path'
 import type { Adapter, ExtensionManifest, Parser, Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtensionEntry, JSONKubbConfig } from './protocol.ts'
-import { mergeAdapter, mergeOptions, mergePlugins, resolvePlugins, toExportName, toJSONOptions, toPackageName, toStudioName } from './resolveConfig.ts'
+import {
+  mergeAdapter,
+  mergeOptions,
+  mergeParsers,
+  mergePlugins,
+  resolvePlugins,
+  toExportName,
+  toJSONOptions,
+  toPackageName,
+  toStudioName,
+} from './resolveConfig.ts'
 
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
 
@@ -230,6 +240,14 @@ describe('mergeParsers', () => {
     expect(mockParserY).toHaveBeenCalledWith({ indent: 4, quote: 'single' })
     expect(result[0]).toMatchObject({ options: { indent: 4, quote: 'single' } })
     expect(result[1]).toBe(parserTsx)
+  })
+
+  it('refuses an override for a parser no installed package provides, instead of dropping it', async () => {
+    const parserTsx = { meta: { name: 'tsx' }, extNames: ['.tsx'], parse: vi.fn(), print: vi.fn() } as unknown as Parser
+
+    await expect(mergeParsers({ diskParsers: [parserTsx], studioParsers: [{ name: 'tsx', options: { indent: 4 } }], root: '/project' })).rejects.toThrow(
+      'The parser "tsx" is not an installed Kubb extension',
+    )
   })
 })
 

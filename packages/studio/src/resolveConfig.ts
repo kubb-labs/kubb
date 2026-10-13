@@ -412,8 +412,9 @@ export async function mergePlugins({
  * An instance carries live functions (`parse`, `print`, ...) that cannot survive JSON, so Studio's
  * options are a patch, not a replacement, and the factory is found from the disk instance itself: the
  * installed extension whose manifest names it, or the `@kubb/<kind>-<name>` package for a built-in
- * one. The instance is kept as is when no factory resolves, such as `parserTsx`, which shares the
- * `@kubb/parser-ts` package with the parser its manifest names.
+ * one. Throws when no factory resolves, as `mergePlugins` does, so an override Studio sent is never
+ * dropped without a word. An extension without a manifest, such as `parserTsx`, has no options in
+ * Studio, so Studio never sends one for it.
  */
 async function rebuildExtension<T extends Adapter | Parser>({
   disk,
@@ -426,16 +427,20 @@ async function rebuildExtension<T extends Adapter | Parser>({
   kind: ExtensionKind
   extensions: InstalledExtensions
 }): Promise<T> {
-  if (!studioOptions) return disk
+  if (!studioOptions || !Object.keys(studioOptions).length) return disk
 
   const { name } = resolveMeta(disk)
   const installed = [...extensions.values()].find(({ manifest }) => manifest.kind === kind && manifest.name === name)
   const packageName = installed?.package ?? `@kubb/${kind}-${name}`
   const factory = await importFromProject(packageName)
     .then((mod) => mod[installed?.manifest.export ?? toExportName(packageName)])
-    .catch(() => undefined)
+    .catch((cause: unknown) => {
+      throw new Error(`The ${kind} "${name}" is not an installed Kubb extension, so Studio cannot change its options. Edit it in the config file.`, { cause })
+    })
 
-  if (typeof factory !== 'function') return disk
+  if (typeof factory !== 'function') {
+    throw new Error(`The ${kind} "${name}" is not an installed Kubb extension, so Studio cannot change its options. Edit it in the config file.`)
+  }
 
   return factory(mergeOptions((disk.options as Record<string, unknown>) ?? {}, studioOptions as Record<string, unknown>)) as T
 }
