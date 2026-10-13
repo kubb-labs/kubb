@@ -14,11 +14,6 @@ export const visitorDepths = {
   deep: 'deep',
 } as const satisfies Record<VisitorDepth, VisitorDepth>
 
-/** Visitor callback names in traversal order, the keys of `Visitor` in `visitor.ts`. */
-export const visitorKeys = ['input', 'output', 'operation', 'schema', 'property', 'parameter', 'response'] as const
-
-export type VisitorKey = (typeof visitorKeys)[number]
-
 /**
  * Schema type discriminators used by all AST schema nodes.
  *

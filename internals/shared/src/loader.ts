@@ -26,7 +26,7 @@ type LoadModuleOptions = {
   default?: boolean
 }
 
-let jiti: ReturnType<typeof createJiti> | undefined
+const jiti = createJiti(import.meta.url, JITI_OPTIONS)
 
 /**
  * Loads a Kubb TypeScript or JavaScript config module via jiti.
@@ -40,8 +40,6 @@ let jiti: ReturnType<typeof createJiti> | undefined
  * ```
  */
 export async function loadModule<T = unknown>(filePath: string, options?: LoadModuleOptions): Promise<T> {
-  jiti ??= createJiti(import.meta.url, JITI_OPTIONS)
-
   if (!JAVASCRIPT_EXTENSION.test(filePath)) {
     return (options?.default ? jiti.import(filePath, { default: true }) : jiti.import(filePath)) as Promise<T>
   }

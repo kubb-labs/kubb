@@ -1,4 +1,4 @@
-import type { VisitorDepth, VisitorKey } from './constants.ts'
+import type { VisitorDepth } from './constants.ts'
 import { visitorDepths } from './constants.ts'
 import type { Node } from './nodes/index.ts'
 import type { ContentNode } from './nodes/content.ts'
@@ -25,6 +25,11 @@ const VISITOR_KEYS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
   Property: ['schema'],
   Parameter: ['schema'],
 }
+
+/** Visitor callback names in traversal order, the keys of {@link Visitor}. */
+export const visitorKeys = ['input', 'output', 'operation', 'schema', 'property', 'parameter', 'response'] as const
+
+export type VisitorKey = (typeof visitorKeys)[number]
 
 /**
  * Maps a node kind to the matching visitor callback name.

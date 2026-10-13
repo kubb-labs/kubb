@@ -10,12 +10,10 @@ const isDeno = 'Deno' in globalThis
  * runtime.name // 'bun' when run with `bun kubb`, 'node' otherwise
  * ```
  */
-export const runtime = {
-  isBun,
-  name: isBun ? 'bun' : isDeno ? 'deno' : 'node',
-  version: isBun
-    ? (process.versions.bun ?? '')
-    : isDeno
-      ? ((globalThis as { Deno?: { version?: { deno?: string } } }).Deno?.version?.deno ?? '')
-      : (process.versions?.node ?? ''),
-} as const
+export const runtime = { isBun, ...detect() } as const
+
+function detect(): { name: 'bun' | 'deno' | 'node'; version: string } {
+  if (isBun) return { name: 'bun', version: process.versions.bun ?? '' }
+  if (isDeno) return { name: 'deno', version: (globalThis as { Deno?: { version?: { deno?: string } } }).Deno?.version?.deno ?? '' }
+  return { name: 'node', version: process.versions?.node ?? '' }
+}

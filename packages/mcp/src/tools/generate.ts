@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { CONFIG_EXTENSIONS } from '@internals/shared'
-import { type Config, createKubb, Diagnostics, type KubbHooks, Hookable, type PossibleConfig, type CLIOptions } from '@kubb/core'
+import { type Config, createKubb, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import * as z from 'zod/mini'
@@ -60,7 +60,7 @@ export const generateTool = defineTool(
 
       try {
         const configResult = await loadUserConfig(configPath, { notify })
-        const loaded = configResult.userConfig as PossibleConfig<CLIOptions>
+        const loaded = configResult.userConfig
         cwd = configResult.cwd
 
         const resolved = await (typeof loaded === 'function' ? loaded({ logLevel, config: configPath }) : loaded)

@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { CONFIG_EXTENSIONS, loadModule } from '@internals/shared'
 import { isPathInside } from '@internals/utils'
-import type { Config, SerializedDiagnostic } from '@kubb/core'
+import type { CLIOptions, PossibleConfig, SerializedDiagnostic } from '@kubb/core'
 
 const CONFIG_FILE_NAMES = CONFIG_EXTENSIONS.map((extension) => `kubb.config${extension}`)
 
@@ -43,7 +43,10 @@ type NotifyFunction = (type: string, message: string, data?: Record<string, unkn
  * known `kubb.config.*` file names are tried in the current directory. Every
  * outcome is reported through `notify` before the function returns or throws.
  */
-export async function loadUserConfig(configPath: string | undefined, { notify }: { notify: NotifyFunction }): Promise<{ userConfig: Config; cwd: string }> {
+export async function loadUserConfig(
+  configPath: string | undefined,
+  { notify }: { notify: NotifyFunction },
+): Promise<{ userConfig: PossibleConfig<CLIOptions>; cwd: string }> {
   if (configPath) {
     const ext = path.extname(configPath)
     if (!CONFIG_EXTENSIONS.some((extension) => extension === ext)) {
@@ -60,7 +63,7 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
     }
     const cwd = path.dirname(resolvedConfigPath)
     try {
-      const userConfig = (await loadModule(resolvedConfigPath, { default: true })) as Config
+      const userConfig = await loadModule<PossibleConfig<CLIOptions>>(resolvedConfigPath, { default: true })
       notify('CONFIG_LOADED', `Loaded config from ${resolvedConfigPath}`)
       return { userConfig, cwd }
     } catch (error) {
@@ -76,7 +79,7 @@ export async function loadUserConfig(configPath: string | undefined, { notify }:
     const configFilePath = path.resolve(process.cwd(), configFileName)
     if (!existsSync(configFilePath)) continue
     try {
-      const userConfig = (await loadModule(configFilePath, { default: true })) as Config
+      const userConfig = await loadModule<PossibleConfig<CLIOptions>>(configFilePath, { default: true })
       notify('CONFIG_LOADED', `Loaded ${configFileName} from current directory`)
       return { userConfig, cwd }
     } catch (err) {

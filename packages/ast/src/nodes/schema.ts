@@ -696,7 +696,5 @@ export function createSchema(props: CreateSchemaInput): SchemaNode {
     return { kind: 'Schema', properties: [], primitive: 'object', ...props }
   }
 
-  const node: SchemaNode = { kind: 'Schema', primitive: TYPE_TO_PRIMITIVE[props.type as keyof typeof TYPE_TO_PRIMITIVE], ...props }
-
-  return node
+  return { kind: 'Schema', primitive: TYPE_TO_PRIMITIVE[props.type], ...props }
 }
