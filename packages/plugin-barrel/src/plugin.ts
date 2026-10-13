@@ -107,19 +107,18 @@ export const pluginBarrel = definePlugin({
       const base = path.resolve(config.root, config.output.path)
       const target = path.resolve(base, plugin.options.output?.path ?? '.')
 
-      // A plugin without its own `output.path` defaults to `'.'`, the output root itself. Recording it
-      // would claim every other plugin's directory, so it gets no per-plugin barrel and only the root
-      // barrel picks up its files.
-      if (target === base) {
-        return
-      }
-
       if (barrelConfig === false) {
         excludedPlugins.add(plugin.name)
         // The output root holds every plugin's files, so there only the owner match applies.
         if (target !== base && isPathInside(target, base)) {
           excludedTargets.push(target)
         }
+        return
+      }
+
+      // A plugin at the output root (no own `output.path`) gets no per-plugin barrel, which would
+      // claim every other plugin's directory. The root barrel picks up its files.
+      if (target === base) {
         return
       }
 
@@ -163,18 +162,18 @@ export const pluginBarrel = definePlugin({
       const index = buildBarrelIndex(outputPath, relevantFiles)
       const reportedCollisions = new Set<string>()
 
-      for (const { plugin, target, barrelType, nested } of pendingBarrels) {
-        for (const file of getBarrelFiles({ index, targetPath: target, barrelType, nested, recursive: true, reportedCollisions })) {
+      pendingBarrels.forEach(({ plugin, target, barrelType, nested }) => {
+        getBarrelFiles({ index, targetPath: target, barrelType, nested, recursive: true, reportedCollisions }).forEach((file) => {
           upsertFile(withBarrelBannerFooter({ file, plugin, config }))
-        }
-      }
+        })
+      })
       pendingBarrels.length = 0
 
       if (rootBarrelConfig === false) return
 
-      for (const file of getBarrelFiles({ index, barrelType: rootBarrelConfig.type, reportedCollisions })) {
+      getBarrelFiles({ index, barrelType: rootBarrelConfig.type, reportedCollisions }).forEach((file) => {
         upsertFile(file)
-      }
+      })
     },
   },
 })
