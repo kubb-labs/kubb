@@ -1,5 +1,5 @@
 import { ast } from '@kubb/ast'
-import { type Config, definePlugin, fsStorage, memoryStorage, type Plugin } from '@kubb/core'
+import { type Config, defineExtension, fsStorage, memoryStorage, type Plugin } from '@kubb/core'
 import { createMockedAdapter } from '@kubb/core/mocks'
 
 export const root = '/project'
@@ -16,7 +16,8 @@ export function projectConfig({ content = 'export const pet = 1', projectRoot }:
     imports: [],
     exports: [],
   })
-  const plugin: Plugin = definePlugin({
+  const plugin: Plugin = defineExtension({
+    kind: 'plugin',
     meta: { name: 'plugin-barrel' },
     hooks: {
       'kubb:plugin:setup'(ctx) {

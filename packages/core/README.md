@@ -24,7 +24,7 @@
 
 ### Core engine for Kubb
 
-Core engine for Kubb's plugin-based code generation system. Provides the plugin driver, file manager, `defineConfig`, `definePlugin`, `defineMiddleware`, and the build orchestration layer used by every Kubb plugin.
+Core engine for Kubb's plugin-based code generation system. Provides the plugin driver, file manager, `defineConfig`, `defineExtension`, `defineMiddleware`, and the build orchestration layer used by every Kubb plugin.
 
 > **Note:** `@kubb/core` is an internal library. Install the [`kubb`](https://npmx.dev/package/kubb) meta-package instead and author plugins, generators, resolvers, parsers, and adapters through its `kubb/kit` subpath, which re-exports the authoring surface of this package.
 

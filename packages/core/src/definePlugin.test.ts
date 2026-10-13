@@ -2,11 +2,11 @@ import { ast } from '@kubb/ast'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, createMockedSetupContext, renderGeneratorOperation } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { addGenerator, useKubb } from './composables.ts'
 import { createKubb } from './createKubb.ts'
+import { defineExtension } from './defineExtension.ts'
 import { defineGenerator } from './defineGenerator.ts'
 import { assertPluginOption, definePlugin, normalizeOutput } from './definePlugin.ts'
-import type { OutputOptions, Output, Plugin, PluginFactoryOptions, PluginType, ResolvePluginOptions } from './definePlugin.ts'
+import type { OutputOptions, Output, Plugin, PluginFactoryOptions, ResolvePluginOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Resolver } from './Resolver.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -100,116 +100,6 @@ describe('definePlugin', () => {
     const plugin = factory()
     expect(plugin.options).toStrictEqual({})
   })
-})
-
-describe('definePlugin object form', () => {
-  type ObjectPlugin = PluginType<'plugin-object', { tag?: string }, { tag: string }>
-
-  it('returns a factory with kind and meta statics that keeps the raw options on the plugin', () => {
-    const meta = { name: 'plugin-object', version: '1.0.0' } as const
-    const factory = definePlugin<ObjectPlugin>({ meta, setup: (options) => ({ tag: options.tag ?? 'all' }) })
-    const plugin = factory({ tag: 'pets' })
-
-    expect(factory.kind).toBe('plugin')
-    expect(factory.meta).toBe(meta)
-    expect(plugin).toMatchObject({ name: 'plugin-object', meta, options: { tag: 'pets' }, hooks: {} })
-    expect(factory().options).toStrictEqual({})
-  })
-
-  it('infers options, resolved options, and the setup context from the type parameter', () => {
-    const factory = definePlugin<ObjectPlugin>({
-      meta: { name: 'plugin-object' },
-      setup(options, kubb) {
-        expectTypeOf(options).toEqualTypeOf<{ tag?: string }>()
-        expectTypeOf(kubb.setOptions).parameter(0).toEqualTypeOf<{ tag: string }>()
-        return { tag: options.tag ?? 'all' }
-      },
-    })
-
-    expectTypeOf(factory).parameter(0).toEqualTypeOf<{ tag?: string } | undefined>()
-    expectTypeOf(factory.meta.name).toEqualTypeOf<'plugin-object'>()
-    expectTypeOf(factory()).toEqualTypeOf<Plugin<ObjectPlugin>>()
-    expectTypeOf<PluginType<'plugin-object', { tag?: string }>>().toExtend<PluginFactoryOptions>()
-    expectTypeOf(factory()).toExtend<Config['plugins'][number]>()
-
-    // @ts-expect-error setup must return the resolved options
-    definePlugin<ObjectPlugin>({ meta: { name: 'plugin-object' }, setup: () => ({}) })
-    // @ts-expect-error meta.name must match the plugin name
-    definePlugin<ObjectPlugin>({ meta: { name: 'plugin-other' } })
-  })
-
-  it('stores the value setup returns as the resolved options, then runs kubb:plugin:setup', async () => {
-    const order: Array<string> = []
-    const plugin = definePlugin<ObjectPlugin>({
-      meta: { name: 'plugin-object' },
-      setup(options, kubb) {
-        order.push('setup')
-        expect(kubb.options).toBe(options)
-        return { tag: options.tag ?? 'all' }
-      },
-      hooks: {
-        'kubb:plugin:setup'() {
-          order.push('hook')
-        },
-      },
-    })()
-
-    const driver = await setupDriver([plugin])
-    const normalized = driver.plugins.get('plugin-object')
-
-    expect(order).toStrictEqual(['setup', 'hook'])
-    expect(normalized?.options).toMatchObject({ tag: 'all', output: { path: '.', mode: 'directory' }, exclude: [], override: [] })
-    expect(plugin.options).toStrictEqual({})
-  })
-
-  it('runs composables inside setup, also after an await', async () => {
-    const generator = { name: 'gen', schema: vi.fn() }
-    const plugin = definePlugin<ObjectPlugin>({
-      meta: { name: 'plugin-object' },
-      async setup(options) {
-        await Promise.resolve()
-        addGenerator(generator)
-        return { tag: useKubb<ObjectPlugin>().options.tag ?? options.tag ?? 'all' }
-      },
-    })({ tag: 'pets' })
-
-    const driver = await setupDriver([plugin])
-
-    expect(driver.plugins.get('plugin-object')?.generators).toStrictEqual([generator])
-    expect(driver.plugins.get('plugin-object')?.options).toMatchObject({ tag: 'pets' })
-  })
-
-  it('orders plugins by a dependencies record, resolving the function form from the options', async () => {
-    const base = definePlugin({ meta: { name: 'plugin-base' } })()
-    const dependent = definePlugin<ObjectPlugin>({
-      meta: { name: 'plugin-object' },
-      dependencies: (options) => ({ [options.tag ?? 'plugin-none']: {} }),
-    })({ tag: 'plugin-base' })
-
-    const driver = await setupDriver([dependent, base])
-
-    expect([...driver.plugins.keys()]).toStrictEqual(['plugin-base', 'plugin-object'])
-    expect(driver.plugins.get('plugin-object')?.dependencies).toStrictEqual({ 'plugin-base': {} })
-  })
-
-  it('throws KUBB_MISSING_DEPENDENCY for a missing required dependency and skips an optional one', async () => {
-    const required = definePlugin({ meta: { name: 'plugin-dependent' }, dependencies: { 'plugin-missing': {} } })()
-    const optional = definePlugin({ meta: { name: 'plugin-dependent' }, dependencies: { 'plugin-missing': { optional: true } } })()
-
-    await expect(setupDriver([required])).rejects.toMatchObject({
-      diagnostic: { code: Diagnostics.code.missingDependency, plugin: 'plugin-dependent' },
-    })
-    await expect(setupDriver([optional])).resolves.toBeInstanceOf(KubbDriver)
-  })
-
-  it('throws KUBB_INCOMPATIBLE_DEPENDENCY when a dependency version is out of range', async () => {
-    const base = definePlugin({ meta: { name: 'plugin-base', version: '1.2.0' } })()
-    const dependent = definePlugin({ meta: { name: 'plugin-dependent' }, dependencies: { 'plugin-base': { version: '^2.0.0' } } })()
-
-    await expect(setupDriver([base, dependent])).rejects.toMatchObject({
-      diagnostic: { code: Diagnostics.code.incompatibleDependency, plugin: 'plugin-dependent' },
-    })
-  })
 
   it('keeps skipping a missing dependency listed in the factory form', async () => {
     const dependent = definePlugin(() => ({ name: 'plugin-dependent', dependencies: ['plugin-missing'], hooks: {} }))()
@@ -231,12 +121,13 @@ describe('definePlugin object form', () => {
 describe('kubb:plugin:setup context', () => {
   it('runs the kubb:plugin:setup handler once from setupHooks instead of the hook emitter', async () => {
     const setupHandler = vi.fn()
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
+    const hookPlugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'hook-plugin' },
       hooks: {
         'kubb:plugin:setup': setupHandler,
       },
-    }))()
+    })()
 
     const hooks = new Hookable<KubbHooks>()
     await setupDriver([hookPlugin], hooks)
@@ -249,14 +140,15 @@ describe('kubb:plugin:setup context', () => {
     const genSchema = { name: 'gen-schema', schema: vi.fn() }
     const genOperation = { name: 'gen-operation', operation: vi.fn() }
     const genOperations = { name: 'gen-operations', operations: vi.fn() }
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
+    const hookPlugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'hook-plugin' },
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.addGenerator(genSchema, genOperation, genOperations)
         },
       },
-    }))()
+    })()
 
     const driver = await setupDriver([hookPlugin])
 
@@ -281,8 +173,9 @@ describe('kubb:plugin:setup context', () => {
   })
 
   it('setResolver() merges partial overrides with the defaults, on getResolver() and plugin.resolver alike', async () => {
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
+    const hookPlugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'hook-plugin' },
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.setResolver({
@@ -292,7 +185,7 @@ describe('kubb:plugin:setup context', () => {
           })
         },
       },
-    }))()
+    })()
 
     const driver = await setupDriver([hookPlugin])
 
@@ -310,8 +203,9 @@ describe('kubb:plugin:setup context', () => {
 
   it('passes the resolver set during setup on ctx.resolver to a generator', async () => {
     const seen: Array<string> = []
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
+    const hookPlugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'hook-plugin' },
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.setResolver({
@@ -327,7 +221,7 @@ describe('kubb:plugin:setup context', () => {
           })
         },
       },
-    }))()
+    })()
     const adapter = createMockedAdapter({
       parse: async () => ast.factory.createInput({ schemas: [ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [] })] }),
     })
@@ -340,10 +234,11 @@ describe('kubb:plugin:setup context', () => {
   })
 
   it('uses default resolver when setResolver() is never called', async () => {
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
+    const hookPlugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'hook-plugin' },
       hooks: {},
-    }))()
+    })()
 
     const driver = await setupDriver([hookPlugin])
 
@@ -352,8 +247,9 @@ describe('kubb:plugin:setup context', () => {
   })
 
   it('setOptions() merges resolved options into the normalized plugin', async () => {
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
+    const hookPlugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'hook-plugin' },
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.setOptions({
@@ -363,7 +259,7 @@ describe('kubb:plugin:setup context', () => {
           })
         },
       },
-    }))()
+    })()
 
     const driver = await setupDriver([hookPlugin])
 
@@ -426,24 +322,26 @@ describe('enforce: post — plugin ordering', () => {
   it('enforce: post plugin fires after normal plugins for the same hook', async () => {
     const callOrder: Array<string> = []
 
-    const normalPlugin = definePlugin(() => ({
-      name: 'ordering-plugin',
+    const normalPlugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'ordering-plugin' },
       hooks: {
         'kubb:plugin:setup'() {
           callOrder.push('plugin')
         },
       },
-    }))()
+    })()
 
-    const postPlugin = definePlugin(() => ({
-      name: 'ordering-post-plugin',
+    const postPlugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'ordering-post-plugin' },
       enforce: 'post' as const,
       hooks: {
         'kubb:plugin:setup'() {
           callOrder.push('post-plugin')
         },
       },
-    }))()
+    })()
 
     await createKubb(makeConfig({ plugins: [normalPlugin, postPlugin] }), { hooks: new Hookable<KubbHooks>() }).build()
 

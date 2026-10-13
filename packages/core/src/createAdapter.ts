@@ -1,6 +1,6 @@
 import type { PossiblePromise } from '@internals/utils'
 import type { InputNode } from '@kubb/ast'
-import { defineExtension } from './defineExtension.ts'
+import { createExtensionFactory, defineExtension } from './defineExtension.ts'
 import type { ExtensionFactory, ExtensionMeta } from './defineExtension.ts'
 
 /**
@@ -13,7 +13,7 @@ import type { ExtensionFactory, ExtensionMeta } from './defineExtension.ts'
 export type AdapterSource = { type: 'path'; path: string } | { type: 'data'; data: string | unknown }
 
 /**
- * Generic parameters used by `createAdapter` and the resulting `Adapter` type.
+ * Generic parameters used by `defineExtension` with `kind: 'adapter'` and the resulting `Adapter` type.
  *
  * - `TName`: unique adapter identifier (`'oas'`, `'asyncapi'`, ...).
  * - `TOptions`: user-facing options accepted by the adapter factory.
@@ -85,7 +85,7 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
 type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) => Adapter<T>
 
 /**
- * The object passed to `createAdapter`.
+ * The object passed to `defineExtension` with `kind: 'adapter'`.
  */
 export type AdapterDefinition<T extends AdapterFactoryOptions = AdapterFactoryOptions> = {
   meta: ExtensionMeta<T['name']>
@@ -101,7 +101,7 @@ export type AdapterDefinition<T extends AdapterFactoryOptions = AdapterFactoryOp
 }
 
 /**
- * The function `createAdapter` returns. Call it with user options to get an `Adapter`.
+ * The function `defineExtension` returns for an adapter. Call it with user options to get an `Adapter`.
  */
 export type AdapterFactory<T extends AdapterFactoryOptions = AdapterFactoryOptions> = ExtensionFactory<'adapter', T['options'], Adapter<T>, T['name']>
 
@@ -113,51 +113,21 @@ export type AdapterFactory<T extends AdapterFactoryOptions = AdapterFactoryOptio
  * Adapters must return an `InputNode` from `parse`. That node is what every
  * plugin in the build consumes.
  *
- * @example
- * ```ts
- * import { createAdapter, type AdapterFactoryOptions } from '@kubb/core'
- * import { ast } from '@kubb/ast'
- *
- * type MyAdapter = AdapterFactoryOptions<'my-adapter', { validate?: boolean }, { validate: boolean }>
- *
- * export const myAdapter = createAdapter<MyAdapter>({
- *   meta: { name: 'my-adapter', compatibility: { kubb: '>=5.7.0' } },
- *   setup: (options) => ({ validate: options.validate ?? true }),
- *   build: (options) => ({
- *     document: null,
- *     async parse(_source) {
- *       // Convert the source (path or inline data) into an InputNode.
- *       return ast.factory.createInput()
- *     },
- *     async validate() {
- *       // Throw here when `options.validate` is set and the spec is invalid.
- *     },
- *   }),
- * })
- * ```
+ * @deprecated Use `defineExtension` with `kind: 'adapter'` instead.
  */
 export function createAdapter<T extends AdapterFactoryOptions = AdapterFactoryOptions>(definition: AdapterDefinition<T>): AdapterFactory<T>
 /**
  * Wraps a factory function that returns an `Adapter`.
  *
- * @deprecated Pass a definition object with `meta` and `build` instead. The factory form is removed in the next major.
+ * @deprecated Pass a definition object with `kind: 'adapter'`, `meta`, and `build` to `defineExtension` instead. The factory form is removed in the next major.
  */
 export function createAdapter<T extends AdapterFactoryOptions = AdapterFactoryOptions>(
   build: AdapterBuilder<T>,
 ): ((options?: T['options']) => Adapter<T>) & { kind: 'adapter' }
 export function createAdapter(input: AdapterDefinition | AdapterBuilder<AdapterFactoryOptions>) {
   if (typeof input === 'function') {
-    return defineExtension({ kind: 'adapter', build: (options: object): Adapter => input(options) })
+    return createExtensionFactory({ kind: 'adapter', build: (options: object): Adapter => input(options) })
   }
 
-  const { meta, setup, build } = input
-  return defineExtension({
-    kind: 'adapter',
-    meta,
-    build: (raw: object): Adapter => {
-      const options = setup ? setup(raw) : raw
-      // Assigned onto the built object instead of spread, so getters such as `document` stay live.
-      return Object.assign(build(options), { name: meta.name, meta, options })
-    },
-  })
+  return defineExtension({ kind: 'adapter', ...input })
 }

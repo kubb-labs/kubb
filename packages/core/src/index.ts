@@ -68,7 +68,7 @@ export type {
   ExtensionKind,
   ExtensionMeta,
 } from './defineExtension.ts'
-export { checkCompatibility, resolveMeta } from './defineExtension.ts'
+export { checkCompatibility, defineExtension, resolveMeta } from './defineExtension.ts'
 export { type InstalledPackage, readInstalledPackages } from './installedPackages.ts'
 export { isExtensionManifest, isPackageName, isRegistryEntry, manifestProblems } from './manifest.ts'
 export type { ExtensionManifest, ExtensionManifestOption, JSONValue, RegistryDetail, RegistryEntry, RegistryIndex } from './manifest.ts'

@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { ast } from '@kubb/ast'
 import { createMockedAdapter } from '@kubb/core/mocks'
-import { definePlugin, memoryStorage, type UserConfig } from '@kubb/core'
+import { defineExtension, memoryStorage, type UserConfig } from '@kubb/core'
 import { describe, expect, test, vi } from 'vitest'
 import type { UnpluginBuildContext } from 'unplugin'
 import nuxtModule from './nuxt.ts'
@@ -52,14 +52,15 @@ describe('unpluginFactory', () => {
       imports: [ast.factory.createImport({ name: ['jsx'], path: 'react/jsx-runtime' })],
       sources: [ast.factory.createSource({ nodes: [ast.factory.createText('export const Component = jsx("div", {})')] })],
     })
-    const plugin = definePlugin(() => ({
-      name: 'plugin',
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin' },
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.injectFile(file)
         },
       },
-    }))()
+    })()
     const config = {
       input: 'https://example.com/openapi.json',
       output: { path: './gen' },
@@ -94,14 +95,15 @@ describe('unpluginFactory', () => {
   })
 
   test('fails the host build when generation fails', async () => {
-    const plugin = definePlugin(() => ({
-      name: 'plugin',
+    const plugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin' },
       hooks: {
         'kubb:plugin:setup'() {
           throw new Error('setup failed')
         },
       },
-    }))()
+    })()
     const config = {
       input: 'https://example.com/openapi.json',
       output: { path: './gen' },

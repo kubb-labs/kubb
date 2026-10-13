@@ -1,5 +1,5 @@
 import { ast } from '@kubb/kit'
-import { createKubb, definePlugin, Diagnostics, memoryStorage } from '@kubb/core'
+import { createKubb, defineExtension, Diagnostics, memoryStorage } from '@kubb/core'
 import type { Config, Plugin } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { pluginBarrel } from './plugin.ts'
@@ -31,8 +31,9 @@ function makePlugin({
   // Resolver-built files record their owning plugin in `meta.pluginName`. Pass `{}` for a file that does not.
   meta?: Record<string, unknown>
 }) {
-  return definePlugin(() => ({
-    name,
+  return defineExtension({
+    kind: 'plugin',
+    meta: { name },
     hooks: {
       'kubb:plugin:setup'(ctx) {
         ctx.setOptions({ output: { path: outputPath, ...output } })
@@ -40,7 +41,7 @@ function makePlugin({
         ctx.injectFile(makeFile(filePath, exportName, meta))
       },
     },
-  }))()
+  })()
 }
 
 function typesPlugin(output: Record<string, unknown> = {}) {
@@ -172,14 +173,15 @@ describe('pluginBarrel', () => {
     { scenario: 'disabled', barrel: false as const, rootExports: undefined },
     { scenario: 'enabled', barrel: { type: 'named' as const }, rootExports: expect.arrayContaining(['Hello', 'Pet', 'PetSchema']) },
   ])('keeps the per-plugin barrels next to a plugin without output.path when the root barrel is $scenario', async ({ barrel, rootExports }) => {
-    const helloPlugin = definePlugin(() => ({
-      name: 'plugin-hello',
+    const helloPlugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-hello' },
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.injectFile(makeFile('/workspace/src/gen/hello.ts', 'Hello'))
         },
       },
-    }))()
+    })()
     const { paths, rootExportNames } = await build({
       plugins: [typesPlugin({ barrel: { type: 'named' } }), helloPlugin, schemasPlugin({ barrel: { type: 'named' } })],
       barrel,

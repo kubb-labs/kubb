@@ -1,4 +1,4 @@
-import { ast, createAdapter } from '@kubb/kit'
+import { ast, defineExtension } from '@kubb/kit'
 import type { AdapterSource } from '@kubb/kit'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
@@ -48,7 +48,8 @@ export const adapterOasName = 'oas' satisfies AdapterOas['name']
  * })
  * ```
  */
-export const adapterOas = createAdapter<AdapterOas>({
+export const adapterOas = defineExtension<AdapterOas>({
+  kind: 'adapter',
   meta: { name: adapterOasName, version, compatibility },
   setup: ({
     validate = true,

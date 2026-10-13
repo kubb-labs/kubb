@@ -4,7 +4,7 @@ import { createServer, type IncomingHttpHeaders } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { type Config, definePlugin, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
+import { type Config, defineExtension, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type ConnectAgentOptions, connectAgent, IncompatibleAgentError, InvalidAgentTokenError, type OpenRpc, runAgent } from './connect.ts'
 import { AGENT_INSTANCE_HEADER, type AgentApi, AgentCloseCode, type AgentConnectInfo, MAX_PAGE_LINES } from './protocol.ts'
@@ -169,7 +169,7 @@ describe('the handshake', () => {
     await writeFile(join(projectRoot, 'package.json'), JSON.stringify({ devDependencies: { '@acme/plugin-x': '^1.0.0' } }))
     await writeFile(join(packageDir, 'package.json'), JSON.stringify({ name: '@acme/plugin-x', version: '1.2.3' }))
     await writeFile(join(packageDir, 'kubb-extension.json'), JSON.stringify(manifest))
-    const plugin = definePlugin({ meta: { name: 'plugin-x' }, hooks: {} })()
+    const plugin = defineExtension({ kind: 'plugin', meta: { name: 'plugin-x' }, hooks: {} })()
     const { agent } = await connectStudio({ root: projectRoot, loadConfig: async () => ({ ...projectConfig({ projectRoot }), plugins: [plugin] }) })
 
     const { config } = await agent.connect(info)

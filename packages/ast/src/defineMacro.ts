@@ -45,7 +45,7 @@ export type Macro = Visitor & {
 }
 
 /**
- * Types a macro for inference and a single construction site, mirroring `definePlugin`.
+ * Types a macro for inference and a single construction site, mirroring `defineExtension`.
  * Adds no runtime behavior.
  *
  * @example

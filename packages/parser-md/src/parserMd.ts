@@ -1,4 +1,4 @@
-import { ast, defineParser } from '@kubb/kit'
+import { ast, defineExtension } from '@kubb/kit'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
 
@@ -38,7 +38,8 @@ export type MdMeta = {
  * })
  * ```
  */
-export const parserMd = defineParser({
+export const parserMd = defineExtension({
+  kind: 'parser',
   meta: { name: 'markdown', version, compatibility },
   build() {
     return {

@@ -7,7 +7,7 @@ import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
-import { definePlugin } from './definePlugin.ts'
+import { defineExtension } from './defineExtension.ts'
 import type { Config, KubbHooks, UserConfig } from './types.ts'
 import type { Adapter } from './createAdapter.ts'
 import type { Plugin } from './definePlugin.ts'
@@ -55,8 +55,9 @@ function makeFile(filePath: string, source: string) {
  * A plugin whose generator emits one file per schema node, under `/gen/<plugin>/`.
  */
 function makeSchemaPlugin(name: string, onSchema?: (node: SchemaNode) => void): Plugin {
-  return definePlugin(() => ({
-    name,
+  return defineExtension({
+    kind: 'plugin',
+    meta: { name },
     hooks: {
       'kubb:plugin:setup'(ctx) {
         ctx.addGenerator({
@@ -68,7 +69,7 @@ function makeSchemaPlugin(name: string, onSchema?: (node: SchemaNode) => void): 
         })
       },
     },
-  }))()
+  })()
 }
 
 function makeSchemas(count: number, prefix = 'Schema'): Array<SchemaNode> {
@@ -82,15 +83,16 @@ describe('createKubb', () => {
   } as const
 
   const file = makeFile('hello/world.json', `{ "hello": "world" }`)
-  const plugin = definePlugin(() => ({
-    name: 'plugin',
+  const plugin = defineExtension({
+    kind: 'plugin',
+    meta: { name: 'plugin' },
     hooks: {
       'kubb:plugin:setup'(ctx) {
         pluginMocks.buildStart()
         ctx.injectFile(file)
       },
     },
-  }))()
+  })()
 
   const config = makeConfig({ output: { path: './gen', clean: true }, plugins: [plugin] as unknown as Array<Plugin> })
 
@@ -183,7 +185,7 @@ describe('createKubb', () => {
   })
 
   it('raises a KUBB_INCOMPATIBLE_EXTENSION diagnostic when a plugin requires a newer Kubb', async () => {
-    const future = definePlugin({ meta: { name: 'plugin-future', compatibility: { kubb: '>=99' } } })()
+    const future = defineExtension({ kind: 'plugin', meta: { name: 'plugin-future', compatibility: { kubb: '>=99' } } })()
     const kubb = createKubb(makeConfig({ ...config, plugins: [future] }), { hooks: new Hookable<KubbHooks>() })
 
     await expect(kubb.setup()).rejects.toMatchObject({
@@ -193,14 +195,15 @@ describe('createKubb', () => {
   })
 
   it('names the plugin whose setup threw, so the summary counts it as failed', async () => {
-    const throwingSetup = definePlugin(() => ({
-      name: 'plugin-throws',
+    const throwingSetup = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-throws' },
       hooks: {
         'kubb:plugin:setup'() {
           throw new Error('query.methods.some is not a function')
         },
       },
-    }))()
+    })()
 
     const { diagnostics } = await createKubb(makeConfig({ ...config, plugins: [throwingSetup] }), { hooks: new Hookable<KubbHooks>() }).safeBuild()
 
@@ -208,7 +211,7 @@ describe('createKubb', () => {
   })
 
   it('does not report a dependency missing from the config', async () => {
-    const dependent = definePlugin(() => ({ name: 'plugin-dependent', dependencies: ['plugin-missing'], hooks: {} }))()
+    const dependent = defineExtension({ kind: 'plugin', meta: { name: 'plugin-dependent' }, dependencies: ['plugin-missing'], hooks: {} })()
 
     const { diagnostics } = await createKubb(makeConfig({ ...config, plugins: [dependent] }), { hooks: new Hookable<KubbHooks>() }).safeBuild()
 
@@ -216,14 +219,15 @@ describe('createKubb', () => {
   })
 
   it('fails the run when setup requires a plugin the config lacks, naming the plugin that needs it', async () => {
-    const dependent = definePlugin(() => ({
-      name: 'plugin-dependent',
+    const dependent = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'plugin-dependent' },
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.requirePlugin('plugin-missing')
         },
       },
-    }))()
+    })()
 
     const { diagnostics } = await createKubb(makeConfig({ ...config, plugins: [dependent] }), { hooks: new Hookable<KubbHooks>() }).safeBuild()
 
@@ -256,14 +260,15 @@ describe('createKubb', () => {
   })
 
   it('returns a failed plugin as one error diagnostic naming the plugin from safeBuild', async () => {
-    const errorPlugin = definePlugin(() => ({
-      name: 'errorPlugin',
+    const errorPlugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'errorPlugin' },
       hooks: {
         'kubb:plugin:start'() {
           throw new Error('Installation failed')
         },
       },
-    }))()
+    })()
 
     const { diagnostics } = await createKubb(makeConfig({ ...config, plugins: [errorPlugin] }), { hooks: new Hookable<KubbHooks>() }).safeBuild()
 
@@ -344,8 +349,9 @@ describe('createKubb', () => {
 
   it('cleans up hook-style plugin listeners between builds on shared hooks', async () => {
     const hooks = new Hookable<KubbHooks>()
-    const hookPlugin = definePlugin(() => ({
-      name: 'hook-plugin',
+    const hookPlugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'hook-plugin' },
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.addGenerator({
@@ -354,7 +360,7 @@ describe('createKubb', () => {
           })
         },
       },
-    }))()
+    })()
     const hookConfig = makeConfig({ ...config, plugins: [hookPlugin] })
 
     await createKubb(hookConfig, { hooks }).build()
@@ -378,8 +384,9 @@ describe('createKubb', () => {
     )
     const receivedOrder: Array<string> = []
 
-    const orderPlugin = definePlugin(() => ({
-      name: 'order-plugin',
+    const orderPlugin = defineExtension({
+      kind: 'plugin',
+      meta: { name: 'order-plugin' },
       hooks: {
         'kubb:plugin:setup'(ctx) {
           ctx.addGenerator({
@@ -391,7 +398,7 @@ describe('createKubb', () => {
           })
         },
       },
-    }))()
+    })()
 
     await createKubb(makeConfig({ adapter: makeAdapter({ operations }), plugins: [orderPlugin] }), { hooks: new Hookable<KubbHooks>() }).build()
 
@@ -401,15 +408,16 @@ describe('createKubb', () => {
   describe('per-node options and transform reuse', () => {
     it('resolves per-node options when an override matches', async () => {
       const seen: Array<{ name: string | null | undefined; options: { marker?: string } }> = []
-      const overridePlugin = definePlugin(() => ({
-        name: 'override-plugin',
-        options: {
-          output: { path: '.' },
-          exclude: [],
-          override: [{ type: 'schemaName' as const, pattern: 'B', options: { marker: 'overridden' } }],
-        },
+      const overridePlugin = defineExtension({
+        kind: 'plugin',
+        meta: { name: 'override-plugin' },
         hooks: {
           'kubb:plugin:setup'(ctx) {
+            ctx.setOptions({
+              output: { path: '.' },
+              exclude: [],
+              override: [{ type: 'schemaName' as const, pattern: 'B', options: { marker: 'overridden' } }],
+            })
             ctx.addGenerator({
               name: 'override-gen',
               schema(node, generatorCtx) {
@@ -418,7 +426,7 @@ describe('createKubb', () => {
             })
           },
         },
-      }))()
+      })()
 
       await createKubb(
         makeConfig({
@@ -436,8 +444,9 @@ describe('createKubb', () => {
     it('passes the same transformed node to operation and operations generators', async () => {
       const perNode: Array<OperationNode> = []
       let batch: Array<OperationNode> = []
-      const transformPlugin = definePlugin(() => ({
-        name: 'transform-plugin',
+      const transformPlugin = defineExtension({
+        kind: 'plugin',
+        meta: { name: 'transform-plugin' },
         hooks: {
           'kubb:plugin:setup'(ctx) {
             ctx.setMacros([{ name: 'suffix-operation-id', operation: (node) => ({ ...node, operationId: `${node.operationId}X` }) }])
@@ -452,7 +461,7 @@ describe('createKubb', () => {
             })
           },
         },
-      }))()
+      })()
 
       await createKubb(
         makeConfig({
@@ -482,8 +491,9 @@ describe('createKubb', () => {
         return originalWriteItem(key, value)
       }
 
-      const plugin = definePlugin(() => ({
-        name: 'write-plugin',
+      const plugin = defineExtension({
+        kind: 'plugin',
+        meta: { name: 'write-plugin' },
         hooks: {
           'kubb:plugin:setup'(ctx) {
             for (let i = 0; i < fileCount; i++) {
@@ -491,7 +501,7 @@ describe('createKubb', () => {
             }
           },
         },
-      }))()
+      })()
 
       const { files } = await createKubb(makeConfig({ storage, plugins: [plugin] }), { hooks: new Hookable<KubbHooks>() }).build()
 
@@ -629,14 +639,15 @@ describe('Kubb#generate', () => {
     const storage = fsStorage()
 
     const generate = ({ source = `export const hello = 'world'`, processOutput = async () => [] }: ProjectBuild = {}) => {
-      const plugin = definePlugin(() => ({
-        name: 'plugin',
+      const plugin = defineExtension({
+        kind: 'plugin',
+        meta: { name: 'plugin' },
         hooks: {
           'kubb:plugin:setup'(ctx) {
             ctx.injectFile(makeFile(filePath, source))
           },
         },
-      }))()
+      })()
 
       const config = makeConfig({ root, output: { path: './gen', format }, storage, plugins: [plugin] })
       return createKubb(config, { hooks: new Hookable<KubbHooks>() }).generate({ processOutput })
