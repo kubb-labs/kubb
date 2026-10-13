@@ -78,22 +78,15 @@ export type RegistryEntry = {
 /** The registry's `index.json`. */
 export type RegistryIndex = { version: 1; generatedAt: string; extensions: Array<RegistryEntry> }
 
-/** One how-to guide from an extension's `docs/guides/<id>.md`. */
+/** One `docs/guides/<id>.md`: `id` is the file name, `title` its `#` heading, `description` the first paragraph. */
 export type RegistryGuide = {
-  /** The file name without `.md`, such as `authentication`. */
   id: string
-  /** The guide's first `#` heading. */
   title: string
-  /** The first paragraph after the title. */
   description: string
-  /** The whole Markdown file. */
   content: string
 }
 
-/**
- * The registry's `<owner>/<slug>.json`: an entry plus the Markdown docs its pinned version ships.
- * `options` and `guides` are absent in registries built before they existed.
- */
+/** The registry's `<owner>/<slug>.json`: an entry plus the Markdown docs its pinned version ships. */
 export type RegistryDetail = RegistryEntry & { overview: string | null; options?: string | null; guides?: Array<RegistryGuide> }
 
 const EXTENSION_KINDS = new Set<unknown>(['plugin', 'adapter', 'parser'] satisfies Array<ExtensionKind>)
