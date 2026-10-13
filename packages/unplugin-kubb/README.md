@@ -38,11 +38,11 @@ pnpm add -D unplugin-kubb @kubb/core
 npm install -D unplugin-kubb @kubb/core
 ```
 
-Each example imports your `kubb.config.ts` as `config`.
-
 ```typescript
 // vite.config.ts
 import kubb from 'unplugin-kubb/vite'
+import { defineConfig } from 'vite'
+import config from './kubb.config'
 
 export default defineConfig({
   plugins: [kubb({ config })],
@@ -52,6 +52,7 @@ export default defineConfig({
 ```typescript
 // rollup.config.ts, rolldown.config.ts
 import kubb from 'unplugin-kubb/rollup' // or 'unplugin-kubb/rolldown'
+import config from './kubb.config'
 
 export default {
   input: 'src/index.ts',
@@ -62,6 +63,7 @@ export default {
 ```typescript
 // webpack.config.ts, rspack.config.ts
 import kubb from 'unplugin-kubb/webpack' // or 'unplugin-kubb/rspack'
+import config from './kubb.config'
 
 export default {
   plugins: [kubb({ config })],
@@ -72,6 +74,7 @@ export default {
 // build.ts
 import { build } from 'esbuild'
 import kubb from 'unplugin-kubb/esbuild'
+import config from './kubb.config'
 
 await build({
   entryPoints: ['src/index.ts'],
@@ -83,7 +86,9 @@ await build({
 
 ```typescript
 // farm.config.ts
+import { defineConfig } from '@farmfe/core'
 import kubb from 'unplugin-kubb/farm'
+import config from './kubb.config'
 
 export default defineConfig({
   plugins: [kubb({ config })],
@@ -92,6 +97,8 @@ export default defineConfig({
 
 ```typescript
 // nuxt.config.ts: works with the Vite, webpack, and Rspack builders
+import config from './kubb.config'
+
 export default defineNuxtConfig({
   modules: [['unplugin-kubb/nuxt', { config }]],
 })
@@ -99,7 +106,9 @@ export default defineNuxtConfig({
 
 ```typescript
 // astro.config.mjs
+import { defineConfig } from 'astro/config'
 import kubb from 'unplugin-kubb/astro'
+import config from './kubb.config'
 
 export default defineConfig({
   integrations: [kubb({ config })],
