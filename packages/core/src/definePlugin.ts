@@ -325,16 +325,6 @@ export type PluginFactoryOptions<
 }
 
 /**
- * Type parameter for the object form of `defineExtension` with `kind: 'plugin'`. Same shape as `PluginFactoryOptions`.
- */
-export type PluginType<
-  TName extends string = string,
-  TOptions extends object = object,
-  TResolvedOptions extends object = TOptions,
-  TResolver extends Resolver = Resolver,
-> = PluginFactoryOptions<TName, TOptions, TResolvedOptions, TResolver>
-
-/**
  * Context passed to a plugin's `kubb:plugin:setup` handler, where it registers generators and
  * sets its resolver, transformer, and options.
  */

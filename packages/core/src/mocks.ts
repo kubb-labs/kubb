@@ -12,7 +12,6 @@ import type { Config, KubbHooks } from './types.ts'
 import type { Adapter, AdapterFactoryOptions } from './createAdapter.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { KubbPluginSetupContext, NormalizedPlugin, Plugin, PluginFactoryOptions } from './definePlugin.ts'
-import type { RendererFactory } from './createRenderer.ts'
 
 /**
  * Creates a minimal `KubbDriver` mock for unit tests.
@@ -32,7 +31,6 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
     },
     getResolver: (_pluginName: string) => options?.plugin?.resolver,
     fileManager,
-    dispatch: (params: { result: unknown; renderer?: RendererFactory | null }) => fileManager.dispatch(params),
   } as unknown as KubbDriver
 }
 
@@ -156,7 +154,7 @@ async function renderNode<TOptions extends PluginFactoryOptions, TNode extends S
   const transformedNode = opts.plugin.macros?.length ? applyMacros(node, opts.plugin.macros) : node
   const matches = generator.match ? await generator.match(transformedNode, ctx) : true
   if (!matches) return
-  await opts.driver.dispatch({ result: await generate(transformedNode, ctx), renderer: generator.renderer })
+  await opts.driver.fileManager.dispatch({ result: await generate(transformedNode, ctx), renderer: generator.renderer })
 }
 
 /**
@@ -216,7 +214,7 @@ export async function renderGeneratorOperations<TOptions extends PluginFactoryOp
     ...context,
     options: opts.options,
   })
-  await opts.driver.dispatch({ result, renderer: generator.renderer })
+  await opts.driver.fileManager.dispatch({ result, renderer: generator.renderer })
 }
 
 type MatchFilesOptions = {

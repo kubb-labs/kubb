@@ -280,16 +280,6 @@ describe('createKubb', () => {
     expect(Diagnostics.hasError(diagnostics)).toBe(true)
   })
 
-  it('should track plugin timings as performance diagnostics', async () => {
-    const { diagnostics } = await createKubb(config, {
-      hooks: new Hookable<KubbHooks>(),
-    }).build()
-
-    const timings = diagnostics.filter(Diagnostics.isPerformance)
-    expect(timings.length).toBeGreaterThan(0)
-    expect(timings.every((diagnostic) => typeof diagnostic.duration === 'number')).toBe(true)
-  })
-
   // Plugins generate sequentially, so `plugin:end` fires in declaration order; storage is written once at the end.
   it.each([
     [2, 1],

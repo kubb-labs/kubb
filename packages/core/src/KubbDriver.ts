@@ -2,7 +2,6 @@ import { resolve } from 'node:path'
 import { getElapsedMs, toError } from '@internals/utils'
 import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
-import type { RendererFactory } from './createRenderer.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginFactoryOptions } from './definePlugin.ts'
@@ -285,11 +284,6 @@ export class KubbDriver {
     }
   }
 
-  /** `true` once `addGenerator()` in `kubb:plugin:setup` registered a generator for the plugin. */
-  hasHookGenerators(pluginName: string): boolean {
-    return (this.plugins.get(pluginName)?.generators?.length ?? 0) > 0
-  }
-
   /**
    * Runs the full plugin pipeline. Returns the diagnostics collected so far even
    * when an outer hook throws, since the orchestrator preserves partial state by capturing
@@ -381,7 +375,7 @@ export class KubbDriver {
               continue
             }
 
-            if (this.hasHookGenerators(plugin.name)) {
+            if ((plugin.generators?.length ?? 0) > 0) {
               generatorPlugins.push({ plugin, context, hrStart })
 
               continue
@@ -608,7 +602,7 @@ export class KubbDriver {
       try {
         const ctx = { ...state.generatorContext, options: state.plugin.options, cache: createNodeCache() }
         for (const generator of state.operationsGenerators) {
-          await this.dispatch({ result: await generator.operations!(state.pluginOperations, ctx), renderer: generator.renderer })
+          await this.fileManager.dispatch({ result: await generator.operations!(state.pluginOperations, ctx), renderer: generator.renderer })
         }
         await this.hooks.callHook('kubb:generate:operations', state.pluginOperations, ctx)
       } catch (caughtError) {
@@ -646,13 +640,8 @@ export class KubbDriver {
     for (const generator of generators) {
       const matches = generator.match ? await generator.match(node, ctx) : true
       if (!matches) continue
-      await this.dispatch({ result: await generate(generator), renderer: generator.renderer })
+      await this.fileManager.dispatch({ result: await generate(generator), renderer: generator.renderer })
     }
-  }
-
-  /** Stores whatever a generator method or `kubb:generate:*` hook returned, see {@link FileManager.dispatch}. */
-  dispatch<TElement = unknown>(params: { result: TElement | Array<FileNode> | undefined | null; renderer?: RendererFactory<TElement> | null }): Promise<void> {
-    return this.fileManager.dispatch(params)
   }
 
   /**

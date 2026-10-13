@@ -1,41 +1,11 @@
 import { join, relative, resolve } from 'node:path'
 import process from 'node:process'
 import { stripVTControlCharacters } from 'node:util'
-import { formatMs } from '@internals/utils'
 import { createReporter } from '../createReporter.ts'
 import { type Diagnostic, Diagnostics } from '../Diagnostics.ts'
 import { kubbStorage, resolveKubbDir } from '../storages/kubbStorage.ts'
-import { buildReport, type Report } from './report.ts'
-
-/**
- * Builds the `## Summary` section: the same counts the cli and json reporters expose, as a list of
- * `label  value` rows with the labels padded to a common width.
- */
-function buildSummarySection(report: Report): Array<string> {
-  const { status, plugins, counts, filesCreated, durationMs, output } = report
-
-  const rows: Array<[label: string, value: string]> = [
-    ['Status', status],
-    [
-      'Plugins',
-      status === 'success' ? `${plugins.passed} passed (${plugins.total})` : `${plugins.passed} passed | ${plugins.failed.length} failed (${plugins.total})`,
-    ],
-  ]
-
-  if (plugins.failed.length > 0) {
-    rows.push(['Failed', plugins.failed.join(', ')])
-  }
-
-  rows.push(['Issues', `${counts.errors} errors | ${counts.warnings} warnings | ${counts.infos} infos`])
-  rows.push(['Files', `${filesCreated} generated`])
-  rows.push(['Duration', formatMs(durationMs)])
-  rows.push(['Output', output])
-
-  const labelWidth = Math.max(...rows.map(([label]) => label.length))
-  const lines = rows.map(([label, value]) => `  ${label.padEnd(labelWidth)}  ${value}`)
-
-  return ['## Summary', '', ...lines]
-}
+import { buildReport } from './report.ts'
+import { formatSummary } from './summary.ts'
 
 /**
  * Builds the `## Problems` section: each problem rendered in the miette block format, blocks
@@ -53,29 +23,10 @@ function buildProblemSection(diagnostics: ReadonlyArray<Diagnostic>): Array<stri
 }
 
 /**
- * Builds the `## Timings` section from a {@link Report}: one `plugin   duration` row per record,
- * slowest first with the plugin names left-aligned and the durations right-aligned. Returns an
- * empty array when there are no timings.
- */
-function buildTimingSection(report: Report): Array<string> {
-  const { timings } = report
-  if (timings.length === 0) {
-    return []
-  }
-
-  const nameWidth = Math.max(...timings.map((timing) => timing.plugin.length))
-  const durations = timings.map((timing) => formatMs(timing.durationMs))
-  const durationWidth = Math.max(...durations.map((duration) => duration.length))
-  const rows = timings.map((timing, index) => `  ${timing.plugin.padEnd(nameWidth)}  ${durations[index]!.padStart(durationWidth)}`)
-
-  return ['## Timings', '', ...rows]
-}
-
-/**
  * The `file` reporter. Writes a config's {@link Report} to `.kubb/kubb-<name>-<timestamp>.log` as a
- * plain-text document: a `# <name> — <timestamp>` header, a `## Summary` with the same counts the
- * cli and json reporters expose, a `## Problems` section in the miette block format, and a
- * `## Timings` section. Selected with `--reporter file` (or `reporters: ['file']`).
+ * plain-text document: a `# <name> — <timestamp>` header, a `## Summary` with the same lines the
+ * cli reporter prints (timings included), and a `## Problems` section in the miette block format.
+ * Selected with `--reporter file` (or `reporters: ['file']`).
  *
  * @note It captures the collected diagnostics once a config finishes, not the live
  * `kubb:info`/`kubb:plugin` hook stream. Color is stripped so the file stays plain text even when
@@ -91,7 +42,8 @@ export const fileReporter = createReporter({
 
     const report = buildReport(result)
     const header = config.name ? `# ${config.name} — ${new Date().toISOString()}` : `# ${new Date().toISOString()}`
-    const sections = [buildSummarySection(report), buildProblemSection(diagnostics), buildTimingSection(report)].filter((section) => section.length > 0)
+    const summary = ['## Summary', '', ...formatSummary(report, { showTimings: true })]
+    const sections = [summary, buildProblemSection(diagnostics)].filter((section) => section.length > 0)
     const content = stripVTControlCharacters([header, ...sections.map((section) => section.join('\n'))].join('\n\n'))
 
     const name = config.name?.replace(/[^a-zA-Z0-9_-]+/g, '-').replace(/^-+|-+$/g, '')

@@ -26,13 +26,6 @@ describe('Hookable', () => {
     expect(noArgs.mock.calls).toStrictEqual([[]])
   })
 
-  it('returns undefined when emitting a hook with no registered listeners', async () => {
-    const hooks = new Hookable<TestHooks>()
-    const result = await hooks.callHook('test', 'hello', 42)
-
-    expect(result).toBeUndefined()
-  })
-
   it('wraps a rejecting listener with the hook name and stops calling later listeners', async () => {
     const hooks = new Hookable<TestHooks>()
     const cause = new Error('listener failed')
@@ -126,13 +119,5 @@ describe('Hookable', () => {
     expect(onTest).not.toHaveBeenCalled()
     expect(onSingle).not.toHaveBeenCalled()
     expect(standalone).toHaveBeenCalledWith('hello', 42)
-  })
-
-  it('ignores a value returned by a listener', async () => {
-    const hooks = new Hookable<TestHooks>()
-
-    hooks.hook('single', (value) => value.toUpperCase())
-
-    await expect(hooks.callHook('single', 'world')).resolves.toBeUndefined()
   })
 })

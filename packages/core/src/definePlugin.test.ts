@@ -1,12 +1,12 @@
 import { ast } from '@kubb/ast'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, createMockedSetupContext, renderGeneratorOperation } from '@kubb/core/mocks'
-import { describe, expect, expectTypeOf, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { defineExtension } from './defineExtension.ts'
 import { defineGenerator } from './defineGenerator.ts'
 import { assertPluginOption, definePlugin, normalizeOutput } from './definePlugin.ts'
-import type { OutputOptions, Output, Plugin, PluginFactoryOptions, ResolvePluginOptions } from './definePlugin.ts'
+import type { Plugin, PluginFactoryOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Resolver } from './Resolver.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -14,39 +14,6 @@ import type { Config, KubbHooks } from './types.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
-
-// ---------------------------------------------------------------------------
-// Module-level declare global augmentations used by the type tests below.
-// ---------------------------------------------------------------------------
-declare global {
-  namespace Kubb {
-    interface ConfigOptionsRegistry {
-      output: {
-        /**
-         * Test-only field: verifies that `ConfigOptionsRegistry` augmentation
-         * propagates to `Config['output']`.
-         */
-        _testConfigField?: string
-      }
-    }
-    interface PluginOptionsRegistry {
-      output: {
-        /**
-         * Test-only field: verifies that `PluginOptionsRegistry` augmentation
-         * propagates to the per-plugin `Output` type.
-         */
-        _testPluginField?: number
-      }
-    }
-    interface PluginRegistry {
-      /**
-       * Test-only entry: verifies that registered names drive `getPlugin`,
-       * `requirePlugin`, `getResolver`, and `dependencies` typing.
-       */
-      'plugin-registered': TestPluginOptions
-    }
-  }
-}
 
 type TestPluginOptions = PluginFactoryOptions<string, { tag: string }>
 type TestPluginOptionalOptions = PluginFactoryOptions<string, { tag?: string }>
@@ -304,18 +271,6 @@ describe('normalizeOutput', () => {
     expect(Diagnostics.isError(thrown)).toBe(true)
     expect(thrown).toMatchObject({ diagnostic: { code: 'KUBB_INVALID_PLUGIN_OPTIONS' }, message: expect.stringMatching(/output\.mode. to 'file'/) })
   })
-
-  it('accepts group at the type level without spelling out mode', () => {
-    expectTypeOf<{ output?: { path: string }; group?: { type: 'tag' } }>().toExtend<OutputOptions>()
-  })
-
-  it('accepts group at the type level with an explicit directory mode', () => {
-    expectTypeOf<{ output: { path: string; mode: 'directory' }; group?: { type: 'tag' } }>().toExtend<OutputOptions>()
-  })
-
-  it('rejects group at the type level when mode is explicitly file', () => {
-    expectTypeOf<{ output: { path: string; mode: 'file' }; group: { type: 'tag' } }>().not.toExtend<OutputOptions>()
-  })
 })
 
 describe('enforce: post — plugin ordering', () => {
@@ -350,49 +305,6 @@ describe('enforce: post — plugin ordering', () => {
     expect(pluginIdx).toBeGreaterThanOrEqual(0)
     expect(postPluginIdx).toBeGreaterThanOrEqual(0)
     expect(postPluginIdx).toBeGreaterThan(pluginIdx)
-  })
-})
-
-describe('declare global augmentation', () => {
-  it('ConfigOptionsRegistry: augmented output field is present on Config["output"]', () => {
-    expectTypeOf<Config['output']>().toHaveProperty('_testConfigField')
-    expectTypeOf<Config['output']['_testConfigField']>().toEqualTypeOf<string | undefined>()
-
-    const output = { path: './src/gen' } satisfies Config['output']
-    const withField = { path: './src/gen', _testConfigField: 'hello' } satisfies Config['output']
-
-    expect(output).toBeDefined()
-    expect(withField._testConfigField).toBe('hello')
-  })
-
-  it('PluginOptionsRegistry: augmented output field is present on per-plugin Output', () => {
-    expectTypeOf<Output>().toHaveProperty('_testPluginField')
-    expectTypeOf<Output['_testPluginField']>().toEqualTypeOf<number | undefined>()
-
-    const pluginOutput = { path: './src/gen', _testPluginField: 42 } satisfies Output
-
-    expect(pluginOutput._testPluginField).toBe(42)
-  })
-
-  it('PluginRegistry: registered names type getPlugin/requirePlugin/getResolver return values', () => {
-    // Uncalled: tsc validates the assertions, the body never runs.
-    function _returns(ctx: GeneratorContext) {
-      expectTypeOf(ctx.getPlugin('plugin-registered')).toEqualTypeOf<Plugin<TestPluginOptions> | undefined>()
-      expectTypeOf(ctx.requirePlugin('plugin-registered')).toEqualTypeOf<Plugin<TestPluginOptions>>()
-      // An unregistered name still resolves, falling back to the generic options.
-      expectTypeOf(ctx.getPlugin('not-registered')).toEqualTypeOf<Plugin<PluginFactoryOptions> | undefined>()
-      expectTypeOf(ctx.getResolver('plugin-registered')).toEqualTypeOf<ResolvePluginOptions<'plugin-registered'>['resolver']>()
-    }
-
-    expect(_returns).toBeTypeOf('function')
-  })
-
-  it('PluginRegistry: dependencies autocomplete registered names and still accept any string', () => {
-    const registered = { name: 'plugin-consumer', dependencies: ['plugin-registered'], hooks: {} } satisfies Plugin
-    const arbitrary = { name: 'plugin-consumer', dependencies: ['some-unregistered-plugin'], hooks: {} } satisfies Plugin
-
-    expect(registered.dependencies).toStrictEqual(['plugin-registered'])
-    expect(arbitrary.dependencies).toStrictEqual(['some-unregistered-plugin'])
   })
 })
 

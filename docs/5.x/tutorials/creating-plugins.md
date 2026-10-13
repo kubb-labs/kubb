@@ -164,14 +164,14 @@ Vitest reports one passing test. It checks the generated file in memory without 
 
 ## Extend the plugin {#extend-the-plugin}
 
-Add a `prefix` option so users can label the generated comment. Type the plugin with `PluginType`, return the resolved option from `setup`, and read it back from `ctx.options` in the generator. Apply these changes to `src/plugin.ts`:
+Add a `prefix` option so users can label the generated comment. Type the plugin with `PluginFactoryOptions`, return the resolved option from `setup`, and read it back from `ctx.options` in the generator. Apply these changes to `src/plugin.ts`:
 
 ```diff [src/plugin.ts]
  import { addGenerator, ast, createResolver, defineExtension, defineGenerator, setResolver } from 'kubb/kit'
-+import type { PluginType } from 'kubb/kit'
++import type { PluginFactoryOptions } from 'kubb/kit'
 
 -const resolver = createResolver({ pluginName: 'plugin-example' })
-+type ExamplePlugin = PluginType<'plugin-example', { prefix?: string }, { prefix: string }>
++type ExamplePlugin = PluginFactoryOptions<'plugin-example', { prefix?: string }, { prefix: string }>
 +
 +const resolver = createResolver<ExamplePlugin>({ pluginName: 'plugin-example' })
 

@@ -101,7 +101,6 @@ export type {
   PluginFactory,
   PluginFactoryOptions,
   PluginName,
-  PluginType,
   ResolvePluginOptions,
 } from './definePlugin.ts'
 export type {

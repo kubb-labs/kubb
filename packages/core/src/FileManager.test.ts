@@ -459,3 +459,50 @@ describe('FileManager', () => {
     })
   })
 })
+
+describe('FileManager#dispatch', () => {
+  it.each([
+    ['null', null],
+    ['undefined', undefined],
+  ])('does not upsert when the result is %s', (_name, result) => {
+    const fileManager = new FileManager()
+    const upsert = vi.spyOn(fileManager, 'upsert')
+
+    fileManager.dispatch({ result })
+
+    expect(upsert).not.toHaveBeenCalled()
+  })
+
+  it('upserts every file when the result is an Array<FileNode>', () => {
+    const fileManager = new FileManager()
+    const files = [makeFile('a.ts'), makeFile('b.ts')]
+
+    fileManager.dispatch({ result: files })
+
+    expect(fileManager.files.map((f) => f.name)).toStrictEqual(['a', 'b'])
+  })
+
+  it('ignores non-array results when no renderer is provided', () => {
+    const fileManager = new FileManager()
+    const upsert = vi.spyOn(fileManager, 'upsert')
+
+    fileManager.dispatch({ result: { kind: 'element' } })
+
+    expect(upsert).not.toHaveBeenCalled()
+  })
+
+  it('routes element results through the renderer, upserting its files', async () => {
+    const fileManager = new FileManager()
+    const renderer = {
+      render: vi.fn(async () => {}),
+      files: [makeFile('async-1.ts')],
+      [Symbol.dispose]: () => {},
+    }
+    const factory = vi.fn(() => renderer)
+
+    await fileManager.dispatch({ result: { kind: 'element' }, renderer: factory as never })
+
+    expect(renderer.render).toHaveBeenCalledOnce()
+    expect(fileManager.files.map((f) => f.name)).toStrictEqual(['async-1'])
+  })
+})
