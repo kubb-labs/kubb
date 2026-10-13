@@ -51,9 +51,6 @@
     "*": {
       "mocks": [
         "./dist/mocks.d.ts"
-      ],
-      "manifest": [
-        "./dist/manifest.d.ts"
       ]
     }
   },
@@ -67,11 +64,6 @@
       "types": "./dist/mocks.d.ts",
       "import": "./dist/mocks.js",
       "require": "./dist/mocks.cjs"
-    },
-    "./manifest": {
-      "types": "./dist/manifest.d.ts",
-      "import": "./dist/manifest.js",
-      "require": "./dist/manifest.cjs"
     },
     "./schemas/*": "./schemas/*",
     "./package.json": "./package.json"

@@ -2,8 +2,12 @@ import { satisfies } from 'verkit'
 import { version as kubbVersion } from '../package.json'
 import { Diagnostics } from './Diagnostics.ts'
 import type { PluginName } from './definePlugin.ts'
-import type { ExtensionKind } from './manifest.ts'
 import type { Config } from './types.ts'
+
+/**
+ * What an extension extends: a plugin generates code, an adapter reads the input, a parser prints files.
+ */
+export type ExtensionKind = 'plugin' | 'adapter' | 'parser'
 
 /**
  * Identity and registry data for an extension. Kubb reads `name` and `compatibility` at runtime.

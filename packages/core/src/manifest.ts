@@ -1,9 +1,5 @@
 import { isValid } from 'verkit'
-
-/**
- * What an extension extends: a plugin generates code, an adapter reads the input, a parser prints files.
- */
-export type ExtensionKind = 'plugin' | 'adapter' | 'parser'
+import type { ExtensionKind } from './defineExtension.ts'
 
 /** A value that survives `JSON.stringify` and `JSON.parse` unchanged. */
 export type JSONValue = string | number | boolean | null | Array<JSONValue> | { [key: string]: JSONValue }

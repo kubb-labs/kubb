@@ -4,4 +4,4 @@
 '@kubb/studio': patch
 ---
 
-Add the `kubb-extension.json` manifest types and checks, also available from the browser-safe `@kubb/core/manifest`, and let Studio run installed third-party plugins that ship one.
+Add the `kubb-extension.json` manifest types and checks, exported from `@kubb/core` and `@kubb/kit`, and let Studio run installed third-party plugins that ship one.

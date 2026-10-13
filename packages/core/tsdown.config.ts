@@ -48,16 +48,6 @@ export default defineConfig([
     ...shared,
   },
   {
-    // Built apart from the Node entries, so no shared chunk or shim adds a `node:` import to this browser-safe subpath.
-    entry: { manifest: 'src/manifest.ts' },
-    format: ['esm', 'cjs'],
-    dts: true,
-    platform: 'neutral',
-    sourcemap: true,
-    deps: { neverBundle: [/^@kubb\//, 'verkit'] },
-    fixedExtension: false,
-  },
-  {
     entry: { 'html/ui': 'src/reporters/html/ui.ts' },
     format: 'iife',
     dts: false,
