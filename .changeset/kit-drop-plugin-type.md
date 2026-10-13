@@ -1,5 +1,5 @@
 ---
-'@kubb/kit': minor
+'@kubb/kit': patch
 ---
 
 Rename `PluginFactoryOptions` to `PluginType`.
