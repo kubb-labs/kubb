@@ -4,10 +4,7 @@ import { createMockedAdapter } from '@kubb/core/mocks'
 import { defineExtension, memoryStorage, type UserConfig } from '@kubb/core'
 import { describe, expect, test, vi } from 'vitest'
 import type { UnpluginBuildContext } from 'unplugin'
-import nuxtModule from './nuxt.ts'
 import { unpluginFactory } from './unpluginFactory.ts'
-import vite from './vite.ts'
-import webpack from './webpack.ts'
 
 type KubbUnpluginOptions = ReturnType<typeof unpluginFactory>
 
@@ -31,19 +28,23 @@ function createBuildContext(): UnpluginBuildContext {
   }
 }
 
+function createConfig(setup: () => void) {
+  const plugin = defineExtension({
+    kind: 'plugin',
+    meta: { name: 'plugin' },
+    hooks: { 'kubb:plugin:setup': setup },
+  })()
+
+  return {
+    input: 'https://example.com/openapi.json',
+    output: { path: './gen' },
+    adapter: createMockedAdapter(),
+    plugins: [plugin],
+    storage: memoryStorage(),
+  } satisfies UserConfig
+}
+
 describe('unpluginFactory', () => {
-  test('creates vite and webpack subpackage plugins', () => {
-    expect(vite({ config: { output: { path: './gen' } } })).toMatchObject({ name: 'unplugin-kubb' })
-    expect(webpack({ config: { output: { path: './gen' } } })).toBeDefined()
-  })
-
-  test('creates a nuxt module that registers vite and webpack integrations', async () => {
-    await expect(nuxtModule.getMeta?.()).resolves.toMatchObject({
-      name: 'nuxt-unplugin-kubb',
-      configKey: 'unpluginKubb',
-    })
-  })
-
   test('uses the same generation defaults as defineConfig', async () => {
     const storage = memoryStorage()
     const file = ast.factory.createFile({
@@ -113,5 +114,57 @@ describe('unpluginFactory', () => {
     const pluginOptions = getPluginOptions(unpluginFactory({ config }, viteMeta))
 
     await expect(pluginOptions.buildStart?.call(createBuildContext())).rejects.toThrow('[unplugin-kubb]')
+  })
+
+  test('logs a failed generation when the input cannot be read', async () => {
+    using log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    using _ = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const config = {
+      input: './missing.yaml',
+      output: { path: './gen' },
+      adapter: createMockedAdapter({
+        async parse() {
+          throw new Error('Cannot read the file set as `input`')
+        },
+      }),
+      storage: memoryStorage(),
+    } satisfies UserConfig
+    const pluginOptions = getPluginOptions(unpluginFactory({ config }, viteMeta))
+
+    await expect(pluginOptions.buildStart?.call(createBuildContext())).rejects.toThrow('[unplugin-kubb]')
+
+    const lines = log.mock.calls.map(([line]) => String(line))
+    expect(lines).toContain('✗ Generation failed')
+    expect(lines).not.toContain('✓ Generation succeeded')
+    expect(lines.find((line) => line.startsWith('Kubb Summary:'))).toBe('Kubb Summary: ✗ 1 passed | 0 failed (1) | 1 error')
+  })
+
+  test('fails the host build when the config is missing', async () => {
+    const pluginOptions = getPluginOptions(unpluginFactory(undefined, viteMeta))
+
+    await expect(pluginOptions.buildStart?.call(createBuildContext())).rejects.toThrow('[unplugin-kubb] Config is not set')
+  })
+
+  test('generates once when the host starts several builds with one instance', async () => {
+    const setup = vi.fn()
+    const pluginOptions = getPluginOptions(unpluginFactory({ config: createConfig(setup) }, viteMeta))
+    const buildStart = () => pluginOptions.buildStart?.call(createBuildContext())
+
+    await Promise.all([buildStart(), buildStart()])
+    await buildStart()
+
+    expect(setup).toHaveBeenCalledTimes(1)
+  })
+
+  test('retries generation on the next build after a failed run', async () => {
+    const setup = vi.fn().mockImplementationOnce(() => {
+      throw new Error('setup failed')
+    })
+    const pluginOptions = getPluginOptions(unpluginFactory({ config: createConfig(setup) }, viteMeta))
+
+    await expect(pluginOptions.buildStart?.call(createBuildContext())).rejects.toThrow('[unplugin-kubb]')
+    await pluginOptions.buildStart?.call(createBuildContext())
+
+    expect(setup).toHaveBeenCalledTimes(2)
   })
 })

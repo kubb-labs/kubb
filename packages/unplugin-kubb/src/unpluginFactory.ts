@@ -6,18 +6,13 @@ import type { UnpluginFactory } from 'unplugin'
 import { version as unpluginVersion } from '../package.json'
 import type { Options } from './types.ts'
 
-type RollupContext = {
-  info?: (message: string) => void
-  warn?: (message: string) => void
-  error?: (message: string) => void
-}
-
 /**
  * Builds the Kubb unplugin for any unplugin-supported bundler (Vite, Rollup, Webpack, esbuild).
  *
  * Registers hook handlers that log lifecycle, diagnostics, and a per-plugin summary, then runs
- * the Kubb build during `buildStart`. When the config omits them, it fills in defaults: the OAS
- * adapter, the TS and TSX parsers, and a barrel plugin. Under Vite it only applies during `build`.
+ * the Kubb build during the first `buildStart`. When the config omits them, it fills in defaults:
+ * the OAS adapter, the TS and TSX parsers, and a barrel plugin. Under Vite it only applies during
+ * `build`. A missing config or a failed generation fails the host build.
  */
 export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, meta) => {
   const name = 'unplugin-kubb' as const
@@ -62,25 +57,28 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
   })
 
   hooks.hook('kubb:generation:end', ({ config, status, diagnostics }) => {
-    console.log(config.name ? `✓ Generation completed for ${config.name}` : '✓ Generation completed')
+    const result = status === 'failed' ? '✗ Generation failed' : '✓ Generation succeeded'
+    console.log(config.name ? `${result} for ${config.name}` : result)
 
     if (!diagnostics || !status) return
 
     const failedCount = Diagnostics.failedPlugins(diagnostics).length
     const pluginsCount = config.plugins.length
-    const successCount = pluginsCount - failedCount
+    const passedCount = pluginsCount - failedCount
+    const { errors } = Diagnostics.count(diagnostics)
 
+    // A run that fails before any plugin runs has 0 failed plugins, so show the error count.
     console.log(
       status === 'success'
-        ? `Kubb Summary: ✓ ${successCount} successful, ${pluginsCount} total`
-        : `Kubb Summary: ✓ ${successCount} successful, ✗ ${failedCount} failed, ${pluginsCount} total`,
+        ? `Kubb Summary: ✓ ${passedCount} passed (${pluginsCount})`
+        : `Kubb Summary: ✗ ${passedCount} passed | ${failedCount} failed (${pluginsCount}) | ${errors} ${errors === 1 ? 'error' : 'errors'}`,
     )
   })
 
-  async function runBuild(ctx: RollupContext) {
+  // Throw: webpack, Rspack, esbuild, and Farm contexts have no `this.error`.
+  async function runBuild() {
     if (!options?.config) {
-      ;(ctx.error ?? console.error)(`[${name}] Config is not set`)
-      return
+      throw new Error(`[${name}] Config is not set`)
     }
 
     const { adapter, output, plugins } = applyConfigDefaults(options.config, {
@@ -110,21 +108,24 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       const failedCount = Diagnostics.failedPlugins(result.diagnostics).length
       const firstError = result.diagnostics.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
       const message = failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed')
-      if (ctx.error) {
-        ctx.error(`[${name}] ${message}`)
-        return
-      }
 
       throw new Error(`[${name}] ${message}`, { cause: firstError?.cause })
     }
   }
+
+  // A rerun with `output.clean` loops webpack and Rspack watchers, so generate once per instance.
+  let generation: Promise<void> | undefined
 
   return {
     name,
     enforce: 'pre',
     apply: isVite ? 'build' : undefined,
     async buildStart() {
-      await runBuild(this as unknown as RollupContext)
+      generation ??= runBuild().catch((error: unknown) => {
+        generation = undefined
+        throw error
+      })
+      await generation
     },
     vite: {},
   }
