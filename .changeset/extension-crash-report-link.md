@@ -1,5 +1,5 @@
 ---
-'@kubb/core': minor
+'@kubb/core': patch
 '@kubb/cli': patch
 '@kubb/adapter-oas': patch
 '@kubb/parser-ts': patch
