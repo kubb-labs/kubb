@@ -150,8 +150,8 @@
   },
   "peerDependencies": {
     "@farmfe/core": "^1.7.0",
-    "@nuxt/kit": "^3 || ^4",
-    "@nuxt/schema": "^3 || ^4",
+    "@nuxt/kit": "^3.14.0 || ^4",
+    "@nuxt/schema": "^3.14.0 || ^4",
     "esbuild": "*",
     "rolldown": ">=1",
     "rollup": "^3 || ^4",

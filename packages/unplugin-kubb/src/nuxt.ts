@@ -1,6 +1,7 @@
-import { addVitePlugin, addWebpackPlugin, defineNuxtModule } from '@nuxt/kit'
+import { addRspackPlugin, addVitePlugin, addWebpackPlugin, defineNuxtModule } from '@nuxt/kit'
 import '@nuxt/schema'
 
+import rspack from './rspack.ts'
 import type { Options } from './types.ts'
 import vite from './vite.ts'
 import webpack from './webpack.ts'
@@ -14,7 +15,12 @@ export default defineNuxtModule<ModuleOptions>({
   },
   defaults: undefined,
   setup(options, _nuxt) {
-    addVitePlugin(() => vite(options))
-    addWebpackPlugin(() => webpack(options))
+    // Nuxt builds the client before the server, so generating in the client build alone gives
+    // the server build the files too. Skip the dev server, as the Vite integration does.
+    const buildOptions = { dev: false, server: false }
+
+    addVitePlugin(() => vite(options), buildOptions)
+    addWebpackPlugin(() => webpack(options), buildOptions)
+    addRspackPlugin(() => rspack(options), buildOptions)
   },
 })
