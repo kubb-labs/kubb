@@ -693,8 +693,8 @@ export function createSchema<T extends CreateSchemaInput>(props: T): CreateSchem
 export function createSchema(props: CreateSchemaInput): SchemaNode
 export function createSchema(props: CreateSchemaInput): SchemaNode {
   if (props.type === 'object') {
-    return { kind: 'Schema', properties: [], primitive: 'object', ...props }
+    return { properties: [], primitive: 'object', ...props, kind: 'Schema' }
   }
 
-  return { kind: 'Schema', primitive: TYPE_TO_PRIMITIVE[props.type], ...props }
+  return { primitive: TYPE_TO_PRIMITIVE[props.type], ...props, kind: 'Schema' }
 }

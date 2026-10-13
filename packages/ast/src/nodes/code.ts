@@ -249,7 +249,7 @@ export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode |
  * ```
  */
 export function createConst(input: Omit<ConstNode, 'kind'>): ConstNode {
-  return { kind: 'Const', ...input }
+  return { ...input, kind: 'Const' }
 }
 
 /**
@@ -262,7 +262,7 @@ export function createConst(input: Omit<ConstNode, 'kind'>): ConstNode {
  * ```
  */
 export function createType(input: Omit<TypeNode, 'kind'>): TypeNode {
-  return { kind: 'Type', ...input }
+  return { ...input, kind: 'Type' }
 }
 
 /**
@@ -275,7 +275,7 @@ export function createType(input: Omit<TypeNode, 'kind'>): TypeNode {
  * ```
  */
 export function createFunction(input: Omit<FunctionNode, 'kind'>): FunctionNode {
-  return { kind: 'Function', ...input }
+  return { ...input, kind: 'Function' }
 }
 
 /**
@@ -288,7 +288,7 @@ export function createFunction(input: Omit<FunctionNode, 'kind'>): FunctionNode 
  * ```
  */
 export function createArrowFunction(input: Omit<ArrowFunctionNode, 'kind'>): ArrowFunctionNode {
-  return { kind: 'ArrowFunction', ...input }
+  return { ...input, kind: 'ArrowFunction' }
 }
 
 /**

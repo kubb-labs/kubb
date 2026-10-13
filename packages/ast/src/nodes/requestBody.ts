@@ -42,5 +42,5 @@ export type RequestBodyNode = BaseNode & {
  * Creates a `RequestBodyNode`.
  */
 export function createRequestBody(input: Omit<RequestBodyNode, 'kind'>): RequestBodyNode {
-  return { kind: 'RequestBody', ...input }
+  return { ...input, kind: 'RequestBody' }
 }

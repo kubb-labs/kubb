@@ -105,5 +105,5 @@ export type InputNode = BaseNode & {
  * ```
  */
 export function createInput(overrides: Partial<Omit<InputNode, 'kind'>> = {}): InputNode {
-  return { kind: 'Input', schemas: [], operations: [], meta: { circularNames: [], enumNames: [] }, ...overrides }
+  return { schemas: [], operations: [], meta: { circularNames: [], enumNames: [] }, ...overrides, kind: 'Input' }
 }

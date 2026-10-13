@@ -70,5 +70,5 @@ type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial
  * ```
  */
 export function createParameter(input: UserParameterNode): ParameterNode {
-  return { kind: 'Parameter', ...withRequired(input) }
+  return { ...withRequired(input), kind: 'Parameter' }
 }

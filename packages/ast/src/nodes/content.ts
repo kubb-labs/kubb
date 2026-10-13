@@ -40,5 +40,5 @@ export type ContentNode = BaseNode & {
  * Creates a `ContentNode` for a single request-body or response content type.
  */
 export function createContent(input: Omit<ContentNode, 'kind'>): ContentNode {
-  return { kind: 'Content', ...input }
+  return { ...input, kind: 'Content' }
 }

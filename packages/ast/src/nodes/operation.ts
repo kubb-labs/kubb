@@ -144,11 +144,11 @@ export function createOperation(props: OperationInput): OperationNode {
   const isHttp = rest.method !== undefined && rest.path !== undefined
 
   const node = {
-    kind: 'Operation' as const,
     tags: [],
     parameters: [],
     responses: [],
     ...rest,
+    kind: 'Operation' as const,
     ...(isHttp ? { protocol: 'http' as const } : {}),
     requestBody: requestBody ? createRequestBody(requestBody) : undefined,
   }

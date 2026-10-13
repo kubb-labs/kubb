@@ -260,7 +260,7 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
  * ```
  */
 export function createImport(input: Omit<ImportNode, 'kind'>): ImportNode {
-  return { kind: 'Import', ...input }
+  return { ...input, kind: 'Import' }
 }
 
 /**
@@ -273,7 +273,7 @@ export function createImport(input: Omit<ImportNode, 'kind'>): ImportNode {
  * ```
  */
 export function createExport(input: Omit<ExportNode, 'kind'>): ExportNode {
-  return { kind: 'Export', ...input }
+  return { ...input, kind: 'Export' }
 }
 
 /**
@@ -285,7 +285,7 @@ export function createExport(input: Omit<ExportNode, 'kind'>): ExportNode {
  * ```
  */
 export function createSource(input: Omit<SourceNode, 'kind'>): SourceNode {
-  return { kind: 'Source', ...input }
+  return { ...input, kind: 'Source' }
 }
 
 /**
@@ -370,8 +370,8 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
   const resolvedSources = input.sources?.length ? combineSources(input.sources) : []
 
   return {
-    kind: 'File',
     ...input,
+    kind: 'File',
     id: hash('sha256', input.path, 'hex'),
     name: path.basename(input.baseName, extname),
     extname,

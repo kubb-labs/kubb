@@ -51,5 +51,5 @@ type UserPropertyNode = Pick<PropertyNode, 'name' | 'schema'> & Partial<Omit<Pro
  * ```
  */
 export function createProperty(input: UserPropertyNode): PropertyNode {
-  return { kind: 'Property', ...withRequired(input) }
+  return { ...withRequired(input), kind: 'Property' }
 }

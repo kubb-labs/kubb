@@ -88,5 +88,5 @@ export function createResponse(props: ResponseInput): ResponseNode {
   const { schema, mediaType, keysToOmit, content, ...rest } = props
   const entries = content ?? (schema ? [createContent({ contentType: mediaType ?? 'application/json', schema, keysToOmit: keysToOmit ?? null })] : undefined)
 
-  return { kind: 'Response', ...rest, content: entries }
+  return { ...rest, content: entries, kind: 'Response' }
 }

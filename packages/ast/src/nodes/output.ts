@@ -35,5 +35,5 @@ export type OutputNode = BaseNode & {
  * ```
  */
 export function createOutput(overrides: Partial<Omit<OutputNode, 'kind'>> = {}): OutputNode {
-  return { kind: 'Output', files: [], ...overrides }
+  return { files: [], ...overrides, kind: 'Output' }
 }
