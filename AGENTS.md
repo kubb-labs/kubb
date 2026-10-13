@@ -34,7 +34,13 @@ The full folder structure, repository setup, and commands live in
 
 ## Plugin ecosystem
 
-Plugins are maintained in a separate monorepo at [kubb-labs/plugins](https://github.com/kubb-labs/plugins). Extension metadata and the docs pages live in the docs repo ([kubb-labs/docs](https://github.com/kubb-labs/docs), `plugins/<id>/index.md`, `adapters/<id>/index.md`, and `parsers/<id>/index.md` with their `reference/options.md`), published on [kubb.dev](https://kubb.dev). When an extension's options change here, update its kubb.dev docs page there.
+Plugins are maintained in a separate monorepo at [kubb-labs/plugins](https://github.com/kubb-labs/plugins). Each extension ships its metadata in `kubb-extension.json` and its docs in `packages/<name>/docs/`. The registry reads both from the npm tarball, and [kubb.dev](https://kubb.dev) renders them at `/extensions/kubb-labs/<name>`.
+
+- `docs/overview.md` is required. `docs/options.md` and `docs/guides/<id>.md` are optional.
+- Every file starts with a `# Title` and a paragraph that serves as its description. No frontmatter, no raw HTML, and links are absolute `https://` URLs.
+- `overview.md` has no install commands. kubb.dev renders installation and dependencies from the manifest.
+
+When an extension's options change here, update its `docs/options.md` in the same PR.
 
 ## How agents read this repo
 
