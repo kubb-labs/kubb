@@ -129,6 +129,12 @@ The people who maintain the extension, shown on its kubb.dev page. Each entry ne
 Names of the extensions that must be in the same config, such as `["plugin-ts"]`. kubb.dev lists them on the extension's page. Generation does not read them: at runtime Kubb uses the plugin's own [`dependencies`](./extensions#dependencies).
 :::
 
+### `optionalDependencies`
+
+:::field{type="Array<string>"}
+Names of the extensions the extension works with when they are in the same config, such as `["plugin-zod"]` for a client plugin that validates with Zod schemas when the Zod plugin is on. kubb.dev lists them on the extension's page under "Optional dependencies". Like `dependencies`, generation does not read them.
+:::
+
 ### `compatibility`
 
 :::field{type="{ kubb?: string; node?: string }"}
@@ -181,9 +187,3 @@ export const pluginExample = defineExtension({
 ```
 
 Keep `name` as a typed constant. A JSON import widens it to `string`. Named imports from JSON need a bundler, such as tsdown, that inlines them. With plain `tsc` and `"module": "NodeNext"`, write the same ranges in `meta.compatibility` instead.
-
-## See also
-
-- [Extensions](./extensions): `meta` and compatibility checks at runtime
-- [Publish a plugin](/docs/5.x/how-to/publish-a-plugin): ship the manifest and submit to the registry
-- [Extension registry](/docs/5.x/reference/registry): how the registry serves manifests

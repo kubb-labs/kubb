@@ -73,10 +73,3 @@ Print a JSON report for CI. The exit code is non-zero on any error:
 ```shell [Terminal]
 kubb generate --reporter json
 ```
-
-
-## See also
-
-- [Configuration](/docs/5.x/reference/configuration): full reference for `kubb.config.ts`
-- [Generate your first client](/docs/5.x/tutorials/quickstart): end-to-end walkthrough
-- [Plugins](/extensions/kind/plugins): available plugins for code generation

@@ -37,8 +37,3 @@ For a small context window, use the index and let the assistant fetch pages on d
 ```text [Prompt]
 Use https://kubb.dev/llms.txt to find relevant pages, then read them.
 ```
-
-## See also
-
-- [llms.txt standard](https://llmstxt.org/): specification for LLM-friendly documentation
-- [MCP](/docs/5.x/ai/mcp): connect AI editors directly to Kubb's MCP server

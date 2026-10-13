@@ -137,10 +137,3 @@ type ResolverPatch = {
 Methods run with a `this` context bound to the full, merged resolver, so write them as regular functions rather than arrow functions. `this.default.name(name)` always applies Kubb's core `camelCase` default. The plugin preset's `name` method remains separate.
 
 From a namespaced method, `this.name(name)` calls the active top-level `name` method and follows any user override. Calling `this.name` from the top-level `name` method itself recurses, so call an exported preset resolver such as `resolverTs.name` when you want to wrap its casing.
-
-
-## See also
-
-- [Resolver concepts](/docs/5.x/explanation/extensions#resolvers)
-- [Override a resolver](/docs/5.x/how-to/resolvers)
-- [Creating plugins](/docs/5.x/tutorials/creating-plugins)

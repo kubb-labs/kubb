@@ -121,9 +121,3 @@ The agent imports a plugin package only when it is a `@kubb/plugin-*` package, o
 | Docker agent and hosted sandbox | Only the packages installed in their image. They install nothing at runtime. |
 
 Studio also lists plugins from the [kubb.dev registry](/docs/5.x/reference/registry). A plugin that the agent cannot run shows as not installed, with a `kubb add <id>` hint to install it.
-
-## See also
-
-- [Kubb Studio guide](/docs/5.x/integrations/studio): connect a project and run headless
-- [Commands](/docs/5.x/reference/commands/): every command the CLI exposes
-- [Configuration](/docs/5.x/reference/configuration): the `kubb.config.ts` Studio reads

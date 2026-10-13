@@ -52,8 +52,3 @@ export default defineConfig({
   ],
 })
 ```
-
-## See also
-
-- [`@kubb/plugin-barrel` options](/extensions/kubb-labs/plugin-barrel/options) for every `barrel` field
-- [`output.barrel`](/docs/5.x/reference/configuration#outputbarrel) in the configuration reference

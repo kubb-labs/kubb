@@ -206,9 +206,3 @@ KUBB_REGISTRY=https://registry.example.com kubb add acme/plugin-graphql
 With that base URL, the CLI reads `https://registry.example.com/index.json` and `https://registry.example.com/acme/plugin-graphql.json`. `KUBB_REGISTRY` must start with `http://` or `https://`, and trailing slashes are removed.
 
 Your documents must follow the shapes on this page, and `index.json` must set `version: 1`. Answer 404 for an unknown id. Studio always reads the kubb.dev index, so a private registry changes what the CLI installs, not what Studio lists.
-
-## See also
-
-- [Extension manifest](/docs/5.x/reference/kit/manifest): the `manifest` field in every entry
-- [Publish a plugin](/docs/5.x/how-to/publish-a-plugin): submit an extension for review
-- [`kubb add`](/docs/5.x/reference/commands/add): install from the registry

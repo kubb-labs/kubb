@@ -147,12 +147,3 @@ npm publish --access public
 Submit the package so users can install it with `kubb add`. [Submit to the registry](/docs/5.x/how-to/submit-to-the-registry) covers the submission issue, the review, how new versions reach users, and publishing from a GitHub release instead of npm.
 
 ::
-
-## See also
-
-- [Create and extend a plugin](/docs/5.x/tutorials/creating-plugins)
-- [Extension manifest](/docs/5.x/reference/kit/manifest): every `kubb-extension.json` field
-- [Extension docs](/docs/5.x/reference/kit/extension-docs): the `docs/` folder rules
-- [Submit to the registry](/docs/5.x/how-to/submit-to-the-registry): the submission issue and the review
-- [Extension registry](/docs/5.x/reference/registry): ids, records, and the protocol
-- [Plugin API](/docs/5.x/reference/kit/plugins)

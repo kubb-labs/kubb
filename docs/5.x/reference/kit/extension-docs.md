@@ -56,9 +56,3 @@ kubb.dev does not render raw HTML, `<!--@include-->` lines, twoslash code fences
 When the package runs an install script, uses the network, or touches files outside its output path, say so in the overview.
 
 Use sentence case, plain language, and no em dashes. Leave out install commands, badges, a changelog, license text, and marketing. The page already shows how to install, and validation fails for an overview that contains `kubb add`, `npm install`, `npm i`, `pnpm add`, or `yarn add`.
-
-## See also
-
-- [Publish a plugin](/docs/5.x/how-to/publish-a-plugin#write-the-docs): write the docs and ship them
-- [Extension manifest](./manifest): the metadata kubb.dev shows next to the docs
-- [Extension registry](/docs/5.x/reference/registry#detail): how the registry serves the docs

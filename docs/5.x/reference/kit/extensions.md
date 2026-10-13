@@ -141,11 +141,3 @@ pluginExample.meta.name // 'plugin-example'
 ```
 
 A factory built from a deprecated factory function has no `meta` on it, because Kubb only learns it by calling the factory. The plugin or parser it returns still has `meta`, which falls back to `{ name }`.
-
-## See also
-
-- [Plugins](./plugins)
-- [Adapters](./adapters)
-- [Parsers](./parsers)
-- [Extension manifest](./manifest)
-- [Diagnostics](/docs/5.x/reference/diagnostics)

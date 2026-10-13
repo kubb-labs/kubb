@@ -42,9 +42,3 @@ from ./petStore.yaml. Use Context7 library /kubb-labs/kubb.
 A rule in your assistant's instructions can make it use Context7 for every Kubb question.
 
 ::
-
-## See also
-
-- [Kubb on Context7](https://context7.com/kubb-labs/kubb)
-- [Context7 setup](https://context7.com/docs/clients/cli)
-- [Kubb MCP server](/docs/5.x/ai/mcp)

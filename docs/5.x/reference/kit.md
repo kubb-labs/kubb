@@ -40,9 +40,3 @@ Import authoring APIs from `kubb/kit`, included with the `kubb` package.
 | [Testing](./kit/testing)                       | `kubb/kit/testing`         | Vitest-backed helpers for testing plugins, generators, and adapters. |
 | [Extension manifest](./kit/manifest)           | `kubb-extension.json`      | The file an extension package ships for the registry, `kubb add`, and Studio. |
 | [Extension docs](./kit/extension-docs)         | `docs/`                    | The Markdown pages an extension ships for kubb.dev. |
-
-## See also
-
-- [Extension model](/docs/5.x/explanation/extensions)
-- [Create your first plugin](/docs/5.x/tutorials/creating-plugins)
-- [JSX reference](/docs/5.x/reference/jsx)

@@ -52,8 +52,3 @@ Configure the registry API key, then run the install command from the snapshot r
 ```shell [Terminal]
 npm i https://kubb.studio/packages/<agent>/<package>.tgz
 ```
-
-## See also
-
-- [Studio setup](/docs/5.x/integrations/studio)
-- [Studio command reference](/docs/5.x/reference/commands/studio)

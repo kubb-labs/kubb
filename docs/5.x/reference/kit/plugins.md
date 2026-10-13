@@ -160,10 +160,3 @@ Composables read the context of the plugin whose setup is running, also after an
 
 > [!IMPORTANT]
 > Plugin names follow the convention `plugin-<feature>`, such as `plugin-react-query` or `plugin-zod`.
-
-## See also
-
-- [Extensions: meta, dependencies, and compatibility](./extensions)
-- [Extension manifest](./manifest)
-- [Plugin concepts](/docs/5.x/explanation/extensions#plugins)
-- [Creating your first plugin](/docs/5.x/tutorials/creating-plugins)

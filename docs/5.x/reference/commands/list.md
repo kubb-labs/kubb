@@ -56,8 +56,3 @@ When the registry cannot be read, the CLI prints `Showing installed extensions o
 ## Exit codes
 
 `kubb list` exits with code 1 when `KUBB_REGISTRY` is not an `http://` or `https://` URL. A registry that cannot be reached does not fail the command.
-
-## See also
-
-- [`kubb add`](/docs/5.x/reference/commands/add): install an extension from the registry
-- [`kubb update`](/docs/5.x/reference/commands/update): move installed extensions to the pinned version

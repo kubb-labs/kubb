@@ -219,21 +219,3 @@ Add a second test inside the existing `describe` block that passes `pluginExampl
 You now have a tested plugin with one option. To ship it, follow [Publish a plugin](/docs/5.x/how-to/publish-a-plugin). For further extensions, use the [Plugin reference](/docs/5.x/reference/kit/plugins) and [Generator reference](/docs/5.x/reference/kit/generators). A dependency on another plugin lets your generator reuse its resolver rather than guessing generated names. See [Dependencies and ordering](/docs/5.x/explanation/extensions#dependencies).
 
 ::
-
-## See also
-
-::card-group
-
-:::card{title="Publish a plugin" icon="i-iconoir-upload" to="/docs/5.x/how-to/publish-a-plugin"}
-Build, pack, and publish the plugin to npm.
-:::
-
-:::card{title="Extension model" icon="i-iconoir-ev-plug" to="/docs/5.x/explanation/extensions"}
-Understand how adapters, plugins, and parsers fit together.
-:::
-
-:::card{title="Plugin API" icon="i-iconoir-code" to="/docs/5.x/reference/kit/plugins"}
-Look up plugin options and authoring APIs.
-:::
-
-::
