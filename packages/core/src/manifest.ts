@@ -49,6 +49,10 @@ export type ExtensionManifest = {
   media?: Array<string>
   tags?: Array<string>
   docs?: string
+  /** People who maintain the extension, shown on its kubb.dev page. */
+  maintainers?: Array<{ name: string; github?: string }>
+  /** Names of the extensions that must be in the same config, such as `['plugin-ts']`. */
+  dependencies?: Array<string>
   compatibility?: { kubb?: string; node?: string }
   /** Plugins only: `client` ships the HTTP client runtime, `consumer` calls one but ships none. */
   role?: 'client' | 'consumer'
@@ -74,8 +78,23 @@ export type RegistryEntry = {
 /** The registry's `index.json`. */
 export type RegistryIndex = { version: 1; generatedAt: string; extensions: Array<RegistryEntry> }
 
-/** The registry's `<owner>/<slug>.json`: an entry plus its `OVERVIEW.md`. */
-export type RegistryDetail = RegistryEntry & { overview: string | null }
+/** One how-to guide from an extension's `docs/guides/<id>.md`. */
+export type RegistryGuide = {
+  /** The file name without `.md`, such as `authentication`. */
+  id: string
+  /** The guide's first `#` heading. */
+  title: string
+  /** The first paragraph after the title. */
+  description: string
+  /** The whole Markdown file. */
+  content: string
+}
+
+/**
+ * The registry's `<owner>/<slug>.json`: an entry plus the Markdown docs its pinned version ships.
+ * `options` and `guides` are absent in registries built before they existed.
+ */
+export type RegistryDetail = RegistryEntry & { overview: string | null; options?: string | null; guides?: Array<RegistryGuide> }
 
 const EXTENSION_KINDS = new Set<unknown>(['plugin', 'adapter', 'parser'] satisfies Array<ExtensionKind>)
 const OPTION_TYPES = new Set<unknown>(['select', 'boolean', 'text', 'number', 'list'] satisfies Array<ExtensionManifestOption['type']>)
@@ -107,6 +126,11 @@ const canonicalJSON = (value: unknown) =>
  */
 export function isPackageName(name: unknown): name is string {
   return typeof name === 'string' && name.length <= 214 && PACKAGE_NAME.test(name)
+}
+
+/** Checks one entry of a manifest's `maintainers`. */
+function isMaintainer(value: unknown): boolean {
+  return isObject(value) && isFilledString(value.name) && isOptionalString(value.github)
 }
 
 /** Checks the shape of one manifest option, including that its path cannot reach a prototype. */
@@ -149,7 +173,7 @@ export function manifestProblems({ options = [] }: ExtensionManifest): Array<str
  */
 export function isExtensionManifest(value: unknown): value is ExtensionManifest {
   if (!isObject(value)) return false
-  const { kind, name, export: exportName, displayName, description, compatibility, options } = value
+  const { kind, name, export: exportName, displayName, description, maintainers, dependencies, compatibility, options } = value
   return (
     EXTENSION_KINDS.has(kind) &&
     isPackageName(name) &&
@@ -157,6 +181,8 @@ export function isExtensionManifest(value: unknown): value is ExtensionManifest 
     IDENTIFIER.test(exportName) &&
     typeof displayName === 'string' &&
     typeof description === 'string' &&
+    (maintainers === undefined || (Array.isArray(maintainers) && maintainers.every(isMaintainer))) &&
+    (dependencies === undefined || (Array.isArray(dependencies) && dependencies.every(isPackageName))) &&
     (compatibility === undefined ||
       (isObject(compatibility) && Object.entries(compatibility).every(([key, range]) => (key === 'kubb' || key === 'node') && typeof range === 'string'))) &&
     (options === undefined || (Array.isArray(options) && options.every(isOption))) &&
