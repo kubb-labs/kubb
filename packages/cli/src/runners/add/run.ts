@@ -31,7 +31,13 @@ export function toSnippet({ artifact, manifest }: Pick<RegistryDetail, 'artifact
 }
 
 /** Adds the plugin call and its import to the config file. Returns why it could not, or `undefined`. */
-async function addToConfig({ detail, configFile }: { detail: RegistryDetail; configFile: string }): Promise<string | undefined> {
+export async function addToConfig({
+  detail,
+  configFile,
+}: {
+  detail: Pick<RegistryDetail, 'artifact' | 'manifest'>
+  configFile: string
+}): Promise<string | undefined> {
   const { artifact, manifest } = detail
   try {
     const { writeConfigEdits } = await import('@kubb/studio')

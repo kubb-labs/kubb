@@ -10,8 +10,8 @@ comma-separated plugin list (`--plugins`). Read the `config` skill before choosi
 Parsed from **$ARGUMENTS** (ask only for what is missing):
 
 1. Choose plugins. Map the requested outputs to `@kubb/plugin-*` packages with the `config`
-   skill. Valid values: `plugin-ts`, `plugin-axios`, `plugin-fetch`, `plugin-react-query`, `plugin-vue-query`,
-   `plugin-zod`, `plugin-faker`, `plugin-msw`, `plugin-cypress`, `plugin-mcp`, `plugin-redoc`.
+   skill. Values are Kubb registry ids, the same ones `kubb add` takes, such as `plugin-ts` or
+   `plugin-zod`. Browse them at https://kubb.dev/extensions.
    Default to `plugin-ts` when the user is unsure. A framework plugin (`plugin-react-query`,
    `plugin-vue-query`) also needs `plugin-axios` or `plugin-fetch`.
 2. Run init with `--yes` and the chosen values so it never prompts:
