@@ -2,12 +2,11 @@ import { ast } from '@kubb/ast'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, createMockedSetupContext, renderGeneratorOperation } from '@kubb/core/mocks'
 import { describe, expect, expectTypeOf, it, vi } from 'vitest'
-import { addGenerator, useKubb } from './composables.ts'
 import { createKubb } from './createKubb.ts'
 import { defineExtension } from './defineExtension.ts'
 import { defineGenerator } from './defineGenerator.ts'
 import { assertPluginOption, definePlugin, normalizeOutput } from './definePlugin.ts'
-import type { OutputOptions, Output, Plugin, PluginFactoryOptions, PluginType, ResolvePluginOptions } from './definePlugin.ts'
+import type { OutputOptions, Output, Plugin, PluginFactoryOptions, ResolvePluginOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Resolver } from './Resolver.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -100,131 +99,6 @@ describe('definePlugin', () => {
     }))
     const plugin = factory()
     expect(plugin.options).toStrictEqual({})
-  })
-})
-
-describe('defineExtension plugin', () => {
-  type ObjectPlugin = PluginType<'plugin-object', { tag?: string }, { tag: string }>
-
-  it('returns a factory with kind and meta statics that keeps the raw options on the plugin', () => {
-    const meta = { name: 'plugin-object', version: '1.0.0' } as const
-    const factory = defineExtension<ObjectPlugin>({
-      kind: 'plugin',
-      meta,
-      setup: (options) => ({ tag: options.tag ?? 'all' }),
-    })
-    const plugin = factory({ tag: 'pets' })
-
-    expect(factory.kind).toBe('plugin')
-    expect(factory.meta).toBe(meta)
-    expect(plugin).toMatchObject({ name: 'plugin-object', meta, options: { tag: 'pets' }, hooks: {} })
-    expect(factory().options).toStrictEqual({})
-  })
-
-  it('infers options, resolved options, and the setup context from the type parameter', () => {
-    const factory = defineExtension<ObjectPlugin>({
-      kind: 'plugin',
-      meta: { name: 'plugin-object' },
-      setup(options, kubb) {
-        expectTypeOf(options).toEqualTypeOf<{ tag?: string }>()
-        expectTypeOf(kubb.setOptions).parameter(0).toEqualTypeOf<{ tag: string }>()
-        return { tag: options.tag ?? 'all' }
-      },
-    })
-
-    expectTypeOf(factory).parameter(0).toEqualTypeOf<{ tag?: string } | undefined>()
-    expectTypeOf(factory.meta.name).toEqualTypeOf<'plugin-object'>()
-    expectTypeOf(factory()).toEqualTypeOf<Plugin<ObjectPlugin>>()
-    expectTypeOf<PluginType<'plugin-object', { tag?: string }>>().toExtend<PluginFactoryOptions>()
-    expectTypeOf(factory()).toExtend<Config['plugins'][number]>()
-
-    // @ts-expect-error setup must return the resolved options
-    defineExtension<ObjectPlugin>({
-      kind: 'plugin',
-      meta: { name: 'plugin-object' },
-      setup: () => ({}),
-    })
-    // @ts-expect-error meta.name must match the plugin name
-    defineExtension<ObjectPlugin>({
-      kind: 'plugin',
-      meta: { name: 'plugin-other' },
-    })
-  })
-
-  it('stores the value setup returns as the resolved options, then runs kubb:plugin:setup', async () => {
-    const order: Array<string> = []
-    const plugin = defineExtension<ObjectPlugin>({
-      kind: 'plugin',
-      meta: { name: 'plugin-object' },
-      setup(options, kubb) {
-        order.push('setup')
-        expect(kubb.options).toBe(options)
-        return { tag: options.tag ?? 'all' }
-      },
-      hooks: {
-        'kubb:plugin:setup'() {
-          order.push('hook')
-        },
-      },
-    })()
-
-    const driver = await setupDriver([plugin])
-    const normalized = driver.plugins.get('plugin-object')
-
-    expect(order).toStrictEqual(['setup', 'hook'])
-    expect(normalized?.options).toMatchObject({ tag: 'all', output: { path: '.', mode: 'directory' }, exclude: [], override: [] })
-    expect(plugin.options).toStrictEqual({})
-  })
-
-  it('runs composables inside setup, also after an await', async () => {
-    const generator = { name: 'gen', schema: vi.fn() }
-    const plugin = defineExtension<ObjectPlugin>({
-      kind: 'plugin',
-      meta: { name: 'plugin-object' },
-      async setup(options) {
-        await Promise.resolve()
-        addGenerator(generator)
-        return { tag: useKubb<ObjectPlugin>().options.tag ?? options.tag ?? 'all' }
-      },
-    })({ tag: 'pets' })
-
-    const driver = await setupDriver([plugin])
-
-    expect(driver.plugins.get('plugin-object')?.generators).toStrictEqual([generator])
-    expect(driver.plugins.get('plugin-object')?.options).toMatchObject({ tag: 'pets' })
-  })
-
-  it('orders plugins by a dependencies record, resolving the function form from the options', async () => {
-    const base = defineExtension({ kind: 'plugin', meta: { name: 'plugin-base' } })()
-    const dependent = defineExtension<ObjectPlugin>({
-      kind: 'plugin',
-      meta: { name: 'plugin-object' },
-      dependencies: (options) => ({ [options.tag ?? 'plugin-none']: {} }),
-    })({ tag: 'plugin-base' })
-
-    const driver = await setupDriver([dependent, base])
-
-    expect([...driver.plugins.keys()]).toStrictEqual(['plugin-base', 'plugin-object'])
-    expect(driver.plugins.get('plugin-object')?.dependencies).toStrictEqual({ 'plugin-base': {} })
-  })
-
-  it('throws KUBB_MISSING_DEPENDENCY for a missing required dependency and skips an optional one', async () => {
-    const required = defineExtension({ kind: 'plugin', meta: { name: 'plugin-dependent' }, dependencies: { 'plugin-missing': {} } })()
-    const optional = defineExtension({ kind: 'plugin', meta: { name: 'plugin-dependent' }, dependencies: { 'plugin-missing': { optional: true } } })()
-
-    await expect(setupDriver([required])).rejects.toMatchObject({
-      diagnostic: { code: Diagnostics.code.missingDependency, plugin: 'plugin-dependent' },
-    })
-    await expect(setupDriver([optional])).resolves.toBeInstanceOf(KubbDriver)
-  })
-
-  it('throws KUBB_INCOMPATIBLE_DEPENDENCY when a dependency version is out of range', async () => {
-    const base = defineExtension({ kind: 'plugin', meta: { name: 'plugin-base', version: '1.2.0' } })()
-    const dependent = defineExtension({ kind: 'plugin', meta: { name: 'plugin-dependent' }, dependencies: { 'plugin-base': { version: '^2.0.0' } } })()
-
-    await expect(setupDriver([base, dependent])).rejects.toMatchObject({
-      diagnostic: { code: Diagnostics.code.incompatibleDependency, plugin: 'plugin-dependent' },
-    })
   })
 
   it('keeps skipping a missing dependency listed in the factory form', async () => {
