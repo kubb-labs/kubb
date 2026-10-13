@@ -35,6 +35,8 @@
   ],
   "files": [
     "dist",
+    "kubb-extension.json",
+    "OVERVIEW.md",
     "!/**/**.test.**",
     "!/**/__tests__/**",
     "!/**/__snapshots__/**"
@@ -50,6 +52,7 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./kubb-extension.json": "./kubb-extension.json",
     "./package.json": "./package.json"
   },
   "publishConfig": {

@@ -65,6 +65,7 @@
       "import": "./dist/mocks.js",
       "require": "./dist/mocks.cjs"
     },
+    "./schemas/*": "./schemas/*",
     "./package.json": "./package.json"
   },
   "publishConfig": {

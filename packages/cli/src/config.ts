@@ -1,4 +1,5 @@
-import { basename, dirname, resolve } from 'node:path'
+import { existsSync } from 'node:fs'
+import { basename, dirname, join, resolve } from 'node:path'
 import process from 'node:process'
 import { createModuleLoader } from '@internals/shared'
 import type { CLIOptions, Config, PossibleConfig } from '@kubb/core'
@@ -14,6 +15,17 @@ const MODULE_NAME = 'kubb'
 
 const SEARCH_FILES = ['', '.config/', 'configs/'].flatMap((prefix) => [`${prefix}.${MODULE_NAME}rc`, `${prefix}${MODULE_NAME}.config`])
 const SEARCH_EXTENSIONS = ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs']
+
+/**
+ * The first Kubb config file in `cwd` or the nearest parent folder that has one, searched in the same
+ * order as {@link getConfigs}, without loading it.
+ */
+export function findConfigFile(cwd: string = process.cwd()): string | undefined {
+  for (let dir = resolve(cwd); ; dir = dirname(dir)) {
+    const found = SEARCH_FILES.flatMap((file) => SEARCH_EXTENSIONS.map((extension) => join(dir, `${file}.${extension}`))).find((file) => existsSync(file))
+    if (found || dirname(dir) === dir) return found
+  }
+}
 
 type GetConfigsOptions = {
   /** Explicit path to the Kubb config file. When omitted, the loader searches up from `process.cwd()`. */

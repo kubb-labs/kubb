@@ -1,10 +1,16 @@
 import { join } from 'node:path'
-import type { Adapter, Plugin } from '@kubb/core'
+import type { Adapter, ExtensionManifest, Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { JSONKubbConfig } from './protocol.ts'
+import type { ExtensionEntry, JSONKubbConfig } from './protocol.ts'
 import { mergeAdapter, mergeOptions, mergePlugins, resolvePlugins, toExportName, toJSONOptions, toPackageName, toStudioName } from './resolveConfig.ts'
 
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
+
+function extension(packageName: string, manifest: Pick<ExtensionManifest, 'kind' | 'name' | 'export'>): ExtensionEntry {
+  return { package: packageName, version: '1.0.0', manifest: { displayName: 'X', description: 'X.', ...manifest } }
+}
+
+const pluginXEntry = extension('@acme/kubb-plugin-x', { kind: 'plugin', name: 'plugin-x', export: 'pluginX' })
 
 const mockPluginTs = vi.fn((options: unknown) => ({ name: 'plugin-ts', options }))
 
@@ -25,7 +31,7 @@ beforeEach(() => {
 describe('mergePlugins', () => {
   it('returns disk plugins as-is when studio plugins are undefined', async () => {
     const diskPlugins = [makePlugin('plugin-zod', { validate: true })]
-    expect(await mergePlugins(diskPlugins, undefined)).toBe(diskPlugins)
+    expect(await mergePlugins({ diskPlugins, studioPlugins: undefined })).toBe(diskPlugins)
   })
 
   it('merges studio options into the matching disk plugin and keeps the ones without a studio counterpart', async () => {
@@ -33,7 +39,7 @@ describe('mergePlugins', () => {
     const diskPlugins = [makePlugin('plugin-zod', { validate: true }), pluginTs]
     const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-zod', options: { validate: false } }]
 
-    const result = await mergePlugins(diskPlugins, studioPlugins)
+    const result = await mergePlugins({ diskPlugins, studioPlugins })
 
     expect(result).toStrictEqual([{ name: 'plugin-zod', options: { validate: false } }, pluginTs])
   })
@@ -45,7 +51,7 @@ describe('mergePlugins', () => {
       { name: '@kubb/plugin-ts', options: { enumType: 'enum' } },
     ]
 
-    const result = await mergePlugins(diskPlugins, studioPlugins)
+    const result = await mergePlugins({ diskPlugins, studioPlugins })
 
     expect(result).toHaveLength(2)
     expect(result?.[0]).toMatchObject({ name: 'plugin-zod' })
@@ -60,7 +66,7 @@ describe('mergePlugins', () => {
       { name: '@kubb/plugin-ts', options: { macros: [{ name: 'camelCaseSchemaProperties' }], resolver: { file: {} }, syntaxType: 'interface' } },
     ]
 
-    const [plugin] = (await mergePlugins(diskPlugins, studioPlugins)) ?? []
+    const [plugin] = (await mergePlugins({ diskPlugins, studioPlugins })) ?? []
 
     expect(plugin?.options).toStrictEqual({ macros: [macro], resolver: { file: { baseName } }, syntaxType: 'interface' })
   })
@@ -68,15 +74,28 @@ describe('mergePlugins', () => {
   it('keeps a plugin defined in the project when Studio echoes its options back unchanged', async () => {
     const local = makePlugin('plugin-zod-operations', { tag: 'pet', name: () => 'x' })
 
-    expect(await mergePlugins([local], [{ name: 'plugin-zod-operations', options: { tag: 'pet' } }])).toStrictEqual([local])
+    expect(await mergePlugins({ diskPlugins: [local], studioPlugins: [{ name: 'plugin-zod-operations', options: { tag: 'pet' } }] })).toStrictEqual([local])
   })
 
   it('explains that a plugin defined in the project can only be changed on disk', async () => {
     const local = makePlugin('plugin-zod-operations', { tag: 'pet' })
 
-    await expect(mergePlugins([local], [{ name: '@kubb/plugin-zod-operations', options: { tag: 'store' } }])).rejects.toThrow(
-      'Plugin "plugin-zod-operations" is not an installed @kubb/plugin-* package, so Studio cannot change its options.',
+    await expect(mergePlugins({ diskPlugins: [local], studioPlugins: [{ name: '@kubb/plugin-zod-operations', options: { tag: 'store' } }] })).rejects.toThrow(
+      'Plugin "plugin-zod-operations" is not an installed @kubb/plugin-* package or Kubb extension, so Studio cannot change its options.',
     )
+  })
+
+  it('matches a third-party plugin by its manifest name and re-creates it with the merged options', async () => {
+    vi.doMock('@acme/kubb-plugin-x', () => ({ pluginX: (options: unknown) => ({ name: 'plugin-x', options }) }))
+    const { mergePlugins: merge } = await import('./resolveConfig.ts')
+
+    const result = await merge({
+      diskPlugins: [makePlugin('plugin-x', { mode: 'a' })],
+      studioPlugins: [{ name: '@acme/kubb-plugin-x', options: { mode: 'b' } }],
+      extensions: new Map([['@acme/kubb-plugin-x', pluginXEntry]]),
+    })
+
+    expect(result).toStrictEqual([{ name: 'plugin-x', options: { mode: 'b' } }])
   })
 
   describe('disabled plugin entries', () => {
@@ -84,7 +103,7 @@ describe('mergePlugins', () => {
       const diskPlugins = [makePlugin('plugin-zod', { validate: true }), makePlugin('plugin-ts', { enumType: 'asConst' })]
       const studioPlugins: JSONKubbConfig['plugins'] = [{ name: '@kubb/plugin-ts', disabled: true }]
 
-      const result = await mergePlugins(diskPlugins, studioPlugins)
+      const result = await mergePlugins({ diskPlugins, studioPlugins })
 
       expect(result).toHaveLength(1)
       expect(result?.[0]?.name).toBe('plugin-zod')
@@ -124,16 +143,39 @@ describe('mergeOptions', () => {
 describe('resolvePlugins', () => {
   it.each([
     ['the package cannot be imported', '@kubb/plugin-missing', 'Plugin "@kubb/plugin-missing" could not be loaded'],
-    ['the name is not a @kubb/plugin-* package', 'my-custom-plugin', 'is not a @kubb/plugin-* package'],
+    ['the name is not a @kubb/plugin-* package', 'my-custom-plugin', 'is not an installed Kubb plugin'],
+    ['the package ships no manifest', '@acme/kubb-plugin-x', 'is not an installed Kubb plugin'],
+    ['the name is a path', './plugin.ts', 'is not an installed Kubb plugin'],
+    ['the name is a URL', 'https://example.com/plugin.js', 'is not an installed Kubb plugin'],
+    ['the name is a node: specifier', 'node:child_process', 'is not an installed Kubb plugin'],
   ])('throws when %s', async (_label, name, message) => {
-    await expect(resolvePlugins([{ name, options: {} }])).rejects.toThrow(message)
+    await expect(resolvePlugins({ plugins: [{ name, options: {} }] })).rejects.toThrow(message)
+  })
+
+  it('refuses an installed extension that is not a plugin', async () => {
+    const extensions = new Map([['@acme/kubb-adapter-x', extension('@acme/kubb-adapter-x', { kind: 'adapter', name: 'adapter-x', export: 'adapterX' })]])
+
+    await expect(resolvePlugins({ plugins: [{ name: '@acme/kubb-adapter-x' }], extensions })).rejects.toThrow('is not an installed Kubb plugin')
+  })
+
+  it('loads an installed third-party plugin through the export its manifest names', async () => {
+    const pluginX = vi.fn((options: unknown) => ({ name: 'plugin-x', options }))
+    vi.doMock('@acme/kubb-plugin-x', () => ({ pluginX, default: () => ({ name: 'wrong' }) }))
+    const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
+
+    const [plugin] = await resolve({
+      plugins: [{ name: '@acme/kubb-plugin-x', options: { mode: 'a' } }],
+      extensions: new Map([['@acme/kubb-plugin-x', pluginXEntry]]),
+    })
+
+    expect(plugin).toStrictEqual({ name: 'plugin-x', options: { mode: 'a' } })
   })
 
   it('resolves a @kubb plugin by its camelCase named export', async () => {
     vi.doMock('@kubb/plugin-ts', () => ({ pluginTs: mockPluginTs }))
     const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
 
-    const result = await resolve([{ name: '@kubb/plugin-ts', options: { output: { path: './types' } } }])
+    const result = await resolve({ plugins: [{ name: '@kubb/plugin-ts', options: { output: { path: './types' } } }] })
 
     expect(result).toHaveLength(1)
     expect(mockPluginTs).toHaveBeenCalledWith({ output: { path: './types' } })
@@ -222,6 +264,10 @@ describe('toStudioName', () => {
       '@kubb/plugin-barrel',
       'plugin-zod-operations',
     ])
+  })
+
+  it('reports an installed extension by its package', () => {
+    expect(toStudioName({ name: 'plugin-x', root: '/project', extensions: new Map([['@acme/kubb-plugin-x', pluginXEntry]]) })).toBe('@acme/kubb-plugin-x')
   })
 })
 

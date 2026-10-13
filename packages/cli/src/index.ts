@@ -3,10 +3,13 @@ import dryrun from '@gunshi/plugin-dryrun'
 import { cli } from 'gunshi'
 import { isDisabled as isTelemetryDisabled } from './Telemetry.ts'
 import { version } from '../package.json'
+import { command as addCommand } from './commands/add.ts'
 import { command as generateCommand } from './commands/generate.ts'
 import { command as initCommand } from './commands/init.ts'
+import { command as listCommand } from './commands/list.ts'
 import { command as mcpCommand } from './commands/mcp.ts'
 import { command as studioCommand, routeStudioFlags } from './commands/studio/index.ts'
+import { command as updateCommand } from './commands/update.ts'
 import { command as validateCommand } from './commands/validate.ts'
 import { resolveDeprecatedFlags } from './deprecatedFlags.ts'
 
@@ -25,8 +28,7 @@ function stripExecArgs(argv: Array<string>): Array<string> {
 
 /**
  * Entry point for the `kubb` CLI. Prints the telemetry notice unless telemetry is disabled or a
- * quiet flag is passed, then runs the generate, validate, mcp, studio, and init commands. Defaults to
- * `generate` when no command is given.
+ * quiet flag is passed, then runs the given command, or `generate` when none is given.
  */
 export async function run(argv: Array<string> = process.argv): Promise<void> {
   const args = routeStudioFlags(resolveDeprecatedFlags(stripExecArgs(argv)))
@@ -45,13 +47,16 @@ export async function run(argv: Array<string> = process.argv): Promise<void> {
     version,
     // Not `generateCommand.description`: gunshi prints this on every subcommand's help too, so
     // `kubb studio --help` would open with a paragraph about generating types.
-    description: 'Generate code from an OpenAPI specification, or connect the project to Kubb Studio.',
+    description: 'Generate code from an OpenAPI specification, manage Kubb extensions, or connect the project to Kubb Studio.',
     subCommands: {
       generate: generateCommand,
       init: initCommand,
       validate: validateCommand,
       mcp: mcpCommand,
       studio: studioCommand,
+      add: addCommand,
+      update: updateCommand,
+      list: listCommand,
     },
     fallbackToEntry: true,
     strict: true,

@@ -3,7 +3,8 @@ import { getErrorMessage, read } from '@internals/utils'
 import { detectCodeFormat, parseExpression, parseModule } from 'magicast'
 import type { ASTNode, ProxifiedModule } from 'magicast'
 import type { ConfigEdit, ConfigEditOutcome, ConfigFileView, ConfigView, OptionValue, PluginView } from './protocol.ts'
-import { isKubbPluginSpecifier, isOptionValue, isSafeKey, toExportName } from './resolveConfig.ts'
+import type { InstalledExtensions } from './extensions.ts'
+import { isAllowedPlugin, isOptionValue, isSafeKey, toExportName } from './resolveConfig.ts'
 
 /**
  * A valid JavaScript identifier, so an import name can only ever print as `import { name } from`,
@@ -406,6 +407,15 @@ export function readConfig(source: string): ConfigFileView {
   }
 }
 
+/** The modules the config file imports, in source order. Empty when the file cannot be parsed. */
+export function readImports(source: string): Array<string> {
+  try {
+    return [...new Set(importedFrom(parseModule(source)).values())]
+  } catch {
+    return []
+  }
+}
+
 /**
  * Walks `path` through a plugin's options to the literal at its last key. Returns `missing` with
  * the index of the first key that is not there yet, so `set` can write the rest of the path as one
@@ -502,16 +512,26 @@ function insertImport(source: string, { mod, kind }: ParsedConfig, importName: s
  * Adds a `pluginX(...)` call to a config's plugins array, and its import. Replaying the same add is
  * a no-op, while an import name collision with an unrelated package remains an error.
  */
-function applyAddPlugin(
-  source: string,
-  parsed: ParsedConfig,
-  config: ObjectNode,
-  edit: Extract<ConfigEdit, { operation: 'add-plugin' }>,
-  quote: Quote,
-): EditResult {
-  if (!isKubbPluginSpecifier(edit.plugin)) return { reason: `"${edit.plugin}" is not a @kubb/plugin-* package` }
+function applyAddPlugin({
+  source,
+  parsed,
+  config,
+  edit,
+  quote,
+  extensions,
+}: {
+  source: string
+  parsed: ParsedConfig
+  config: ObjectNode
+  edit: Extract<ConfigEdit, { operation: 'add-plugin' }>
+  quote: Quote
+  extensions: InstalledExtensions
+}): EditResult {
+  if (!isAllowedPlugin({ packageName: edit.plugin, extensions })) {
+    return { reason: `"${edit.plugin}" is not a @kubb/plugin-* package or an installed Kubb plugin` }
+  }
 
-  const importName = edit.importName ?? toExportName(edit.plugin)
+  const importName = extensions.get(edit.plugin)?.manifest.export ?? edit.importName ?? toExportName(edit.plugin)
   if (!IDENTIFIER.test(importName)) return { reason: `"${importName}" is not a valid import name` }
   if (pluginCalls(parsed.mod, config).some((plugin) => plugin.packageName === edit.plugin)) return { source }
 
@@ -563,7 +583,7 @@ function enablePlugin(source: string, config: ObjectNode, plugin: string): EditR
 }
 
 /** Applies one edit to `source`. Every edit re-parses the file, since the previous one rewrote it. */
-function applyEdit(source: string, edit: ConfigEdit, quote: Quote): EditResult {
+function applyEdit({ source, edit, quote, extensions }: { source: string; edit: ConfigEdit; quote: Quote; extensions: InstalledExtensions }): EditResult {
   const parsed = parseConfigs(source)
   if ('reason' in parsed) return parsed
 
@@ -573,7 +593,7 @@ function applyEdit(source: string, edit: ConfigEdit, quote: Quote): EditResult {
 
   if (edit.operation === 'disable-plugin') return disablePlugin(source, parsed.mod, config, edit.plugin)
   if (edit.operation === 'enable-plugin') return enablePlugin(source, config, edit.plugin)
-  if (edit.operation === 'add-plugin') return applyAddPlugin(source, parsed, config, edit, quote)
+  if (edit.operation === 'add-plugin') return applyAddPlugin({ source, parsed, config, edit, quote, extensions })
 
   const call = pluginCalls(parsed.mod, config).find((plugin) => plugin.packageName === edit.plugin)?.call
   if (!call) {
@@ -591,12 +611,17 @@ function applyEdit(source: string, edit: ConfigEdit, quote: Quote): EditResult {
  *
  * @example
  * ```ts
- * const { source, outcomes } = applyConfigEdits(current, [
- *   { operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' },
- * ])
+ * const { source, outcomes } = applyConfigEdits({
+ *   source: current,
+ *   edits: [{ operation: 'set', plugin: '@kubb/plugin-ts', path: ['enum', 'type'], value: 'enum' }],
+ * })
  * ```
  */
-export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): { source: string; outcomes: Array<ConfigEditOutcome>; changed: boolean } {
+export function applyConfigEdits({ source, edits, extensions = new Map() }: { source: string; edits: Array<ConfigEdit>; extensions?: InstalledExtensions }): {
+  source: string
+  outcomes: Array<ConfigEditOutcome>
+  changed: boolean
+} {
   let current = source
   const quote: Quote = detectCodeFormat(source).quote === 'double' ? `"` : `'`
 
@@ -605,7 +630,7 @@ export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): { so
     if (invalid) return { edit, applied: false, reason: invalid }
 
     try {
-      const result = applyEdit(current, edit, quote)
+      const result = applyEdit({ source: current, edit, quote, extensions })
       if ('reason' in result) return { edit, applied: false, reason: result.reason }
       current = result.source
       return { edit, applied: true }
@@ -617,10 +642,13 @@ export function applyConfigEdits(source: string, edits: Array<ConfigEdit>): { so
   return { source: current, outcomes, changed: current !== source }
 }
 
-/** Applies `edits` to the config file at `filePath`, writing it only when something changed. */
-export async function writeConfigEdits({ filePath, edits }: { filePath: string; edits: Array<ConfigEdit> }): Promise<ReturnType<typeof applyConfigEdits>> {
+/**
+ * Applies `edits` to the config file at `filePath`, writing it only when something changed.
+ * `add-plugin` accepts `@kubb/plugin-*` packages and the plugins in `extensions`.
+ */
+export async function writeConfigEdits({ filePath, edits, extensions }: { filePath: string; edits: Array<ConfigEdit>; extensions?: InstalledExtensions }) {
   const current = await read(filePath)
-  const result = applyConfigEdits(current, edits)
+  const result = applyConfigEdits({ source: current, edits, extensions })
   if (result.changed) await writeFile(filePath, result.source, 'utf-8')
   return result
 }

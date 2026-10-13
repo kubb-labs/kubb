@@ -30,6 +30,7 @@ export { assertPluginOption, definePlugin } from '@kubb/core'
 export { createResolver, Resolver } from '@kubb/core'
 export { Diagnostics } from '@kubb/core'
 export { Hookable } from '@kubb/core'
+export { isExtensionManifest, manifestProblems } from '@kubb/core'
 export { fsStorage } from '@kubb/core'
 export { memoryStorage } from '@kubb/core'
 export type {
@@ -47,6 +48,8 @@ export type {
   ExtensionDependencyRecord,
   ExtensionFactory,
   ExtensionKind,
+  ExtensionManifest,
+  ExtensionManifestOption,
   ExtensionMeta,
   Generator,
   GeneratorContext,

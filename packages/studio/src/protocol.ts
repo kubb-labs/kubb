@@ -1,4 +1,6 @@
-import type { KubbHooks } from '@kubb/core'
+import type { ExtensionManifest, KubbHooks } from '@kubb/core'
+
+export type { ExtensionManifest, ExtensionManifestOption, RegistryDetail, RegistryEntry } from '@kubb/core'
 
 /**
  * JSON-serializable Kubb config exchanged over RPC. A live `kubb/kit` config holds
@@ -474,9 +476,14 @@ export type ConnectMessagePayload = {
       name: string
       options?: object
     }>
+    /** Installed packages that ship a `kubb-extension.json`, including plugins the config does not use yet. */
+    extensions?: Array<ExtensionEntry>
   }
   permissions: AgentPermissions
 }
+
+/** An installed extension package and the manifest it ships. */
+export type ExtensionEntry = { package: string; version: string; manifest: ExtensionManifest }
 
 /**
  * What an agent may do in the project it serves. Every one is off unless the host granted it, and

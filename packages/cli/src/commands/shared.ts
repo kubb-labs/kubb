@@ -16,6 +16,15 @@ export const configArg = {
   },
 } as const
 
+export const yesArg = {
+  yes: {
+    type: 'boolean',
+    description: 'Skip the confirmation',
+    short: 'y',
+    default: false,
+  },
+} as const
+
 export const logLevelArg = {
   logLevel: {
     type: 'enum',

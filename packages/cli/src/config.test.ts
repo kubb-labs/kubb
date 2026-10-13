@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { getConfigs } from './config.ts'
+import { findConfigFile, getConfigs } from './config.ts'
 
 describe('getConfigs', () => {
   let dir: string
@@ -94,7 +94,7 @@ describe('getConfigs', () => {
     await expect(getConfigs({})).resolves.toMatchObject({ configPath })
   })
 
-  it('walks up to a parent directory', async () => {
+  it('walks up to a parent directory, and so does findConfigFile', async () => {
     dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
     const configPath = await writeConfig(join(dir, 'kubb.config.mjs'))
     const cwd = join(dir, 'packages', 'api')
@@ -102,6 +102,7 @@ describe('getConfigs', () => {
     using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(cwd)
 
     await expect(getConfigs({})).resolves.toMatchObject({ configPath })
+    expect(findConfigFile(cwd)).toBe(configPath)
   })
 
   it('prefers the nearest directory, then .kubbrc over kubb.config, then the extension order', async () => {

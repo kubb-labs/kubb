@@ -2,8 +2,9 @@ import { existsSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
-import { type Adapter, type Plugin, resolveMeta } from '@kubb/core'
+import { type Adapter, isPackageName, type Plugin, resolveMeta } from '@kubb/core'
 import { camelCase } from '@internals/utils'
+import type { InstalledExtensions } from './extensions.ts'
 import type { JSONKubbConfig, OptionValue } from './protocol.ts'
 
 /**
@@ -11,8 +12,8 @@ import type { JSONKubbConfig, OptionValue } from './protocol.ts'
  *
  * A plugin or adapter instance carries closures (`parse`, `getImports`, ...) that cannot survive
  * JSON, so both sides pass options over the wire and the factory is re-invoked here with the merged
- * result. Only `@kubb/plugin-*` packages are resolved this way, so the reinstantiated factory is
- * always one Kubb ships, never an arbitrary module the payload names.
+ * result. Only packages {@link isAllowedPlugin} accepts are resolved this way, never an arbitrary
+ * module the payload names.
  */
 
 type PluginFactory = (options: unknown) => Plugin
@@ -95,7 +96,7 @@ function isInstalled({ packageName, root }: { packageName: string; root: string 
 /**
  * The name Studio knows a plugin by: its `@kubb/plugin-*` package when one is installed, otherwise
  * the plugin's own `name`, so a plugin defined in the user's project is never reported as a Kubb
- * package that does not exist.
+ * package that does not exist. An installed extension whose manifest `name` matches wins.
  *
  * @example
  * ```ts
@@ -103,7 +104,10 @@ function isInstalled({ packageName, root }: { packageName: string; root: string 
  * toStudioName({ name: 'plugin-zod-operations', root })  // 'plugin-zod-operations', a local plugin
  * ```
  */
-export function toStudioName({ name, root }: { name: string; root: string }): string {
+export function toStudioName({ name, root, extensions = new Map() }: { name: string; root: string; extensions?: InstalledExtensions }): string {
+  const installed = [...extensions.values()].find(({ manifest }) => manifest.kind === 'plugin' && manifest.name === name)
+  if (installed) return installed.package
+
   const packageName = toPackageName(name)
   return packageName !== name && isInstalled({ packageName, root }) ? packageName : name
 }
@@ -121,35 +125,35 @@ export function toExportName(packageName: string): string {
   return camelCase(toPluginName(packageName))
 }
 
-/**
- * A `@kubb/plugin-*` package specifier. Nothing else may reach `import()`: only Kubb's own
- * plugins are supported, so a payload naming anything else, a third-party package or a path, is
- * refused before it can execute.
- */
 const KUBB_PLUGIN_SPECIFIER = /^@kubb\/plugin-[\w.-]+$/
 
 /**
- * Whether `name` is a `@kubb/plugin-*` specifier. Exported so `configFile.ts` can refuse the same
- * shape before printing a Studio-supplied plugin name into the config file's source text.
+ * Whether Studio may import `packageName` as a plugin: a `@kubb/plugin-*` package, or an installed
+ * package whose `kubb-extension.json` has `kind: "plugin"`. A path, URL or arbitrary package is
+ * refused before it can execute. `configFile.ts` applies the same rule before printing a plugin name.
  */
-export function isKubbPluginSpecifier(name: string): boolean {
-  return KUBB_PLUGIN_SPECIFIER.test(name)
+export function isAllowedPlugin({ packageName, extensions }: { packageName: string; extensions: InstalledExtensions }): boolean {
+  if (!isPackageName(packageName)) return false
+  return KUBB_PLUGIN_SPECIFIER.test(packageName) || extensions.get(packageName)?.manifest.kind === 'plugin'
 }
 
 /**
- * Dynamically imports a `@kubb/plugin-*` package and returns its factory function.
+ * Dynamically imports a plugin package and returns its factory. Only packages
+ * {@link isAllowedPlugin} accepts reach `import()`.
  *
  * Packages must be pre-installed in the Docker image at build time via the `KUBB_PACKAGES`
  * build ARG, no runtime installation is possible in the distroless container.
  *
- * Resolution order: the camelCase named export the package name implies (e.g. `pluginTs`), then
- * the default export.
+ * Resolution order: the manifest's `export`, else the camelCase named export the package name
+ * implies (e.g. `pluginTs`), then the default export.
  *
- * @throws if the package cannot be imported or exports no callable factory.
+ * @throws if the package is not allowed, cannot be imported, or exports no callable factory.
  */
-async function loadPluginFactory(packageName: string): Promise<PluginFactory> {
-  if (!isKubbPluginSpecifier(packageName)) {
-    throw new Error(`Plugin "${packageName}" is not a @kubb/plugin-* package. Kubb Studio only supports Kubb's own plugins.`)
+async function loadPluginFactory({ packageName, extensions }: { packageName: string; extensions: InstalledExtensions }): Promise<PluginFactory> {
+  if (!isAllowedPlugin({ packageName, extensions })) {
+    throw new Error(
+      `Plugin "${packageName}" is not an installed Kubb plugin. Studio loads @kubb/plugin-* packages and installed packages that ship a kubb-extension.json with kind "plugin".`,
+    )
   }
 
   let mod: Record<string, unknown>
@@ -159,32 +163,43 @@ async function loadPluginFactory(packageName: string): Promise<PluginFactory> {
     throw new Error(`Plugin "${packageName}" could not be loaded. Make sure it is installed: \`npm install ${packageName}\``, { cause })
   }
 
+  const manifestExport = extensions.get(packageName)?.manifest.export
+  if (manifestExport) {
+    if (typeof mod[manifestExport] === 'function') return mod[manifestExport] as PluginFactory
+    throw new Error(`Plugin "${packageName}" does not export "${manifestExport}", the factory its kubb-extension.json names.`)
+  }
+
   const exportName = toExportName(packageName)
-
   if (typeof mod[exportName] === 'function') return mod[exportName] as PluginFactory
-
   if (typeof mod['default'] === 'function') return mod['default'] as PluginFactory
 
   throw new Error(`Plugin "${packageName}" does not export a callable factory. Tried the named export "${exportName}" and "default".`)
 }
 
 /**
- * Resolves each plugin entry by dynamically importing the `@kubb/plugin-*` package and
- * calling its factory with the provided options.
- *
- * Packages must be pre-installed in the Docker image at build time, use the `KUBB_PACKAGES`
- * build ARG to control which ones are available at runtime.
+ * Resolves each plugin entry by dynamically importing its package and calling its factory with the
+ * provided options. See {@link loadPluginFactory} for which packages are allowed.
  *
  * @example
  * ```ts
- * { name: '@kubb/plugin-react-query', options: { output: { path: './hooks' } } }
- * { name: '@kubb/plugin-ts', options: { output: { path: './types' } } }
+ * const plugins = await resolvePlugins({
+ *   plugins: [
+ *     { name: '@kubb/plugin-react-query', options: { output: { path: './hooks' } } },
+ *     { name: '@kubb/plugin-ts', options: { output: { path: './types' } } },
+ *   ],
+ * })
  * ```
  */
-export async function resolvePlugins(plugins: NonNullable<JSONKubbConfig['plugins']>): Promise<Array<Plugin>> {
+export async function resolvePlugins({
+  plugins,
+  extensions = new Map(),
+}: {
+  plugins: NonNullable<JSONKubbConfig['plugins']>
+  extensions?: InstalledExtensions
+}): Promise<Array<Plugin>> {
   return Promise.all(
     plugins.map(async ({ name, options }) => {
-      const factory = await loadPluginFactory(name)
+      const factory = await loadPluginFactory({ packageName: name, extensions })
       return factory(options ?? {}) as Plugin
     }),
   )
@@ -325,23 +340,29 @@ export function mergeOptions(disk: Record<string, unknown>, studio: Record<strin
  * For plugins present in both configs, the plugin is re-instantiated with merged options
  * so that all internal closures correctly reference the merged values.
  */
-export async function mergePlugins(
-  diskPlugins: Array<Plugin> | undefined,
-  studioPlugins: JSONKubbConfig['plugins'] | undefined,
-): Promise<Array<Plugin> | undefined> {
+export async function mergePlugins({
+  diskPlugins,
+  studioPlugins,
+  extensions = new Map(),
+}: {
+  diskPlugins: Array<Plugin> | undefined
+  studioPlugins: JSONKubbConfig['plugins'] | undefined
+  extensions?: InstalledExtensions
+}): Promise<Array<Plugin> | undefined> {
+  const pluginNameOf = (packageName: string) => extensions.get(packageName)?.manifest.name ?? toPluginName(packageName)
   // Matched on the package's base name rather than by instantiating first. Every Kubb plugin
   // factory returns exactly that (`@kubb/plugin-ts` → `plugin-ts`), enforced by the `satisfies` on
   // each factory's name.
-  const disabledNames = new Set((studioPlugins ?? []).filter((entry) => entry.disabled).map((entry) => toPluginName(entry.name)))
+  const disabledNames = new Set((studioPlugins ?? []).filter((entry) => entry.disabled).map((entry) => pluginNameOf(entry.name)))
   const activeDiskPlugins = disabledNames.size ? diskPlugins?.filter((plugin) => !disabledNames.has(resolveMeta(plugin).name)) : diskPlugins
   const activeStudioPlugins = studioPlugins?.filter((entry) => !entry.disabled)
 
   if (!activeDiskPlugins && !activeStudioPlugins?.length) return undefined
   if (!activeStudioPlugins?.length) return activeDiskPlugins
 
-  if (!activeDiskPlugins) return resolvePlugins(activeStudioPlugins)
+  if (!activeDiskPlugins) return resolvePlugins({ plugins: activeStudioPlugins, extensions })
 
-  const studioEntryByName = new Map(activeStudioPlugins.map((entry) => [toPluginName(entry.name), entry] as const))
+  const studioEntryByName = new Map(activeStudioPlugins.map((entry) => [pluginNameOf(entry.name), entry] as const))
   const diskNames = new Set(activeDiskPlugins.map((plugin) => plugin.name))
 
   // Each plugin is instantiated once, with its final options. Resolving the whole payload first
@@ -359,10 +380,10 @@ export async function mergePlugins(
       // A plugin defined in the user's project has no package to re-instantiate it from. Studio
       // echoing its options back unchanged is fine, any real change can only be made on disk.
       const unchanged = JSON.stringify(toJSONOptions(options)) === JSON.stringify(toJSONOptions(diskOptions))
-      const [resolved] = await resolvePlugins([{ name: studioEntry.name, options }]).catch((cause: unknown) => {
+      const [resolved] = await resolvePlugins({ plugins: [{ name: studioEntry.name, options }], extensions }).catch((cause: unknown) => {
         if (unchanged) return [diskPlugin]
         throw new Error(
-          `Plugin "${diskPlugin.name}" is not an installed @kubb/plugin-* package, so Studio cannot change its options. Edit it in the config file, or only enable or disable it from Studio.`,
+          `Plugin "${diskPlugin.name}" is not an installed @kubb/plugin-* package or Kubb extension, so Studio cannot change its options. Edit it in the config file, or only enable or disable it from Studio.`,
           { cause },
         )
       })
@@ -371,9 +392,9 @@ export async function mergePlugins(
     }),
   )
 
-  const studioOnly = activeStudioPlugins.filter((entry) => !diskNames.has(toPluginName(entry.name)))
+  const studioOnly = activeStudioPlugins.filter((entry) => !diskNames.has(pluginNameOf(entry.name)))
 
-  return [...merged, ...(await resolvePlugins(studioOnly))]
+  return [...merged, ...(await resolvePlugins({ plugins: studioOnly, extensions }))]
 }
 
 /**

@@ -29,6 +29,8 @@ export type ExtensionMeta<TName extends string = string> = {
   description?: string
   category?: string
   icon?: { light: string; dark?: string }
+  /** HTTPS image or video URLs. */
+  media?: Array<string>
   tags?: Array<string>
   /**
    * Semver ranges the extension supports. A mismatch fails the run with `KUBB_INCOMPATIBLE_EXTENSION`.

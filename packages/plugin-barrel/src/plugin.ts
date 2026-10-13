@@ -2,6 +2,8 @@ import path from 'node:path'
 import { isPathInside } from '@internals/utils'
 import { definePlugin, Diagnostics } from '@kubb/kit'
 import type { ast, Config, NormalizedPlugin, Plugin } from '@kubb/kit'
+import { compatibility } from '../kubb-extension.json'
+import { version } from '../package.json'
 import type { BarrelType, PluginBarrelConfig } from './types.ts'
 import { buildBarrelIndex, getBarrelFiles } from './utils.ts'
 
@@ -90,7 +92,7 @@ function getState(config: Config): BarrelState {
  * ```
  */
 export const pluginBarrel = definePlugin({
-  meta: { name: pluginBarrelName },
+  meta: { name: pluginBarrelName, version, compatibility },
   enforce: 'post',
   hooks: {
     'kubb:plugin:end'({ plugin, config }) {

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://kubb.dev/schemas/kubb-extension.json",
+  "kind": "parser",
+  "name": "markdown",
+  "export": "parserMd",
+  "displayName": "Markdown",
+  "description": "Writes .md and .markdown files from the Kubb AST, with YAML frontmatter from a file's meta.",
+  "category": "docs",
+  "icon": {
+    "light": "https://kubb.dev/feature/markdown.svg"
+  },
+  "tags": ["markdown", "frontmatter", "parser", "docs", "yaml"],
+  "docs": "https://kubb.dev/parsers/parser-md",
+  "compatibility": {
+    "kubb": ">=5.8.0",
+    "node": ">=22"
+  }
+}
