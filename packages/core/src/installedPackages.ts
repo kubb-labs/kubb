@@ -24,7 +24,7 @@ export async function readInstalledPackages({
   packages?: Iterable<string>
   resolveFrom?: Array<string>
 }): Promise<Array<InstalledPackage>> {
-  const project = createRequire(path.join(root, 'package.json'))
+  const project = createRequire(path.resolve(root, 'package.json'))
   const requires = [
     project,
     ...resolveFrom.flatMap((name) => {
