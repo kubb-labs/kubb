@@ -1,5 +1,53 @@
 # Changelog
 
+## v5.8.5 — Oct 13, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- The `contentType` docs no longer claim a default of the first JSON media type. Without it, Kubb keeps every media type an operation declares. The `integerType` docs now say it applies only to `int64` and `uint64` schemas, and other integers stay `number`. ([#4269](https://github.com/kubb-labs/kubb/pull/4269), [`a2af11d`](https://github.com/kubb-labs/kubb/commit/a2af11d33857be5275eaef72aedccd2d7fcd63a6))
+- Give each extension page on kubb.dev the same sections as every other extension (Setup, Options worth knowing, and Example), and fix claims that did not match the code.
+  
+  - `adapterOas`: without `contentType`, every media type an operation declares is kept. The page also says when the adapter downloads a remote spec or reads files outside the spec's folder.
+  - `parserTs`: `extension` keys are the extension of the generated file, so `parserTsx` needs its own `.tsx` key.
+  - `pluginBarrel`: generator plugins write their own barrels by default. Only the root barrel waits for `output.barrel`. ([#4268](https://github.com/kubb-labs/kubb/pull/4268), [`5fc79da`](https://github.com/kubb-labs/kubb/commit/5fc79da61733edd9add6639db077e2494ee7ce67))
+
+### @kubb/parser-md
+
+#### Bug Fixes
+
+- The frontmatter example in the options docs no longer adds a second `# API Reference` H1 to the page. ([#4269](https://github.com/kubb-labs/kubb/pull/4269), [`a2af11d`](https://github.com/kubb-labs/kubb/commit/a2af11d33857be5275eaef72aedccd2d7fcd63a6))
+
+### @kubb/parser-ts
+
+#### Bug Fixes
+
+- The `extension` docs now say each key is the extension of the generated file, which matches how `parse` reads the map. They also say `{ '.ts': '.ts' }` suits running `.ts` files directly in Node.js or compiling with `rewriteRelativeImportExtensions`. The description no longer claims the parser prints with the TypeScript compiler, since only the `print` helper uses the TypeScript printer. ([#4269](https://github.com/kubb-labs/kubb/pull/4269), [`a2af11d`](https://github.com/kubb-labs/kubb/commit/a2af11d33857be5275eaef72aedccd2d7fcd63a6))
+
+### @kubb/plugin-barrel
+
+#### Bug Fixes
+
+- The registry description and README now say the root barrel is written only when `output.barrel` is set on `defineConfig`. The README drops `pluginBarrel({ type: 'named' })` and the `'propagate'` type, neither of which exists. `pluginBarrel()` takes no arguments and is configured through `output.barrel`. ([#4269](https://github.com/kubb-labs/kubb/pull/4269), [`a2af11d`](https://github.com/kubb-labs/kubb/commit/a2af11d33857be5275eaef72aedccd2d7fcd63a6))
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- Log `✗ Generation failed` and an error count when generation fails, matching the CLI, instead of `✓ Generation completed` and a summary that read as all passed. ([#4266](https://github.com/kubb-labs/kubb/pull/4266), [`3f0d5ed`](https://github.com/kubb-labs/kubb/commit/3f0d5ed496c5236b8d321eb5cc7398d81e7da902))
+- Make every bundler integration generate once per build and fail the build when generation cannot run.
+  
+  - Generate once per plugin instance. webpack and Rspack no longer rebuild forever in watch mode with `output.clean`, and Astro no longer generates twice.
+  - Register the Nuxt module with the Rspack builder too, and generate only in the client build of `nuxt build`. The module now needs `@nuxt/kit` 3.14 or later.
+  - Fail the build when `config` is missing. webpack, Rspack, esbuild, and Farm used to log and continue, and Vite and Rolldown threw a `TypeError`. ([#4266](https://github.com/kubb-labs/kubb/pull/4266), [`3f0d5ed`](https://github.com/kubb-labs/kubb/commit/3f0d5ed496c5236b8d321eb5cc7398d81e7da902))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.8.4 — Oct 13, 2026
 
 ### @kubb/adapter-oas
