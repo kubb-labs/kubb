@@ -4,7 +4,7 @@ import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMet
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
-import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginFactoryOptions } from './definePlugin.ts'
+import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginType } from './definePlugin.ts'
 import { normalizeOutput } from './definePlugin.ts'
 import { checkCompatibility, checkDependencies, resolveMeta } from './defineExtension.ts'
 import { kubbContext } from './composables.ts'
@@ -136,7 +136,7 @@ export class KubbDriver {
           // `rawPlugin.options` is the user-supplied shape. The normalized `output`/`exclude`/`override`
           // bag is filled in by the post-setup `normalizePluginOptions` pass, after `setOptions` runs.
           options: (rawPlugin.options ?? defaultPluginOptions()) as NormalizedPlugin['options'],
-          resolver: createResolver<PluginFactoryOptions>({ pluginName: meta.name }),
+          resolver: createResolver<PluginType>({ pluginName: meta.name }),
         }
         return normalizedPlugin
       }),
@@ -251,7 +251,7 @@ export class KubbDriver {
           plugin.generators = [...(plugin.generators ?? []), ...generators]
         },
         setResolver: (resolver) => {
-          plugin.resolver = Resolver.merge(createResolver<PluginFactoryOptions>({ pluginName: plugin.name }), resolver)
+          plugin.resolver = Resolver.merge(createResolver<PluginType>({ pluginName: plugin.name }), resolver)
         },
         addMacro: (macro) => {
           this.#transforms.add(plugin.name, macro)
@@ -669,10 +669,10 @@ export class KubbDriver {
   /** Reads `plugin.resolver`, falling back to a fresh default for a name that is not a registered plugin. */
   getResolver<TName extends PluginName>(pluginName: TName): ResolvePluginOptions<TName>['resolver']
   getResolver(pluginName: string): Resolver {
-    return this.plugins.get(pluginName)?.resolver ?? createResolver<PluginFactoryOptions>({ pluginName })
+    return this.plugins.get(pluginName)?.resolver ?? createResolver<PluginType>({ pluginName })
   }
 
-  getContext<TOptions extends PluginFactoryOptions>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options' | 'cache'> {
+  getContext<TOptions extends PluginType>(plugin: NormalizedPlugin<TOptions>): Omit<GeneratorContext<TOptions>, 'options' | 'cache'> {
     const driver = this
 
     // Collect into the active build only. The host renders each collected diagnostic once after the

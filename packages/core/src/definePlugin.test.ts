@@ -6,7 +6,7 @@ import { createKubb } from './createKubb.ts'
 import { defineExtension } from './defineExtension.ts'
 import { defineGenerator } from './defineGenerator.ts'
 import { assertPluginOption, definePlugin, normalizeOutput } from './definePlugin.ts'
-import type { Plugin, PluginFactoryOptions } from './definePlugin.ts'
+import type { Plugin, PluginType } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Resolver } from './Resolver.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -15,8 +15,8 @@ import type { GeneratorContext } from './defineGenerator.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
 
-type TestPluginOptions = PluginFactoryOptions<string, { tag: string }>
-type TestPluginOptionalOptions = PluginFactoryOptions<string, { tag?: string }>
+type TestPluginOptions = PluginType<string, { tag: string }>
+type TestPluginOptionalOptions = PluginType<string, { tag?: string }>
 
 function makeConfig(overrides: Partial<Config> = {}): Config {
   return {

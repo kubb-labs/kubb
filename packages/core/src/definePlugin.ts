@@ -18,10 +18,10 @@ export type ExtractRegistryKey<T, K extends PropertyKey> = K extends keyof T ? T
 export type PluginName = LiteralUnion<keyof Kubb.PluginRegistry>
 
 /**
- * Resolves a plugin name to its `PluginFactoryOptions`. A name registered in `Kubb.PluginRegistry`
+ * Resolves a plugin name to its `PluginType`. A name registered in `Kubb.PluginRegistry`
  * maps to its exact factory options, any other string falls back to the generic options.
  */
-export type ResolvePluginOptions<TName> = TName extends keyof Kubb.PluginRegistry ? Kubb.PluginRegistry[TName] : PluginFactoryOptions
+export type ResolvePluginOptions<TName> = TName extends keyof Kubb.PluginRegistry ? Kubb.PluginRegistry[TName] : PluginType
 
 /**
  * How a plugin consolidates its generated code into files.
@@ -299,7 +299,7 @@ export type Override<TOptions> = Filter & {
   options: Omit<Partial<TOptions>, 'override'>
 }
 
-export type PluginFactoryOptions<
+export type PluginType<
   /**
    * Unique plugin name.
    */
@@ -325,10 +325,20 @@ export type PluginFactoryOptions<
 }
 
 /**
+ * @deprecated Renamed to {@link PluginType}. Removed in the next major.
+ */
+export type PluginFactoryOptions<
+  TName extends string = string,
+  TOptions extends object = object,
+  TResolvedOptions extends object = TOptions,
+  TResolver extends Resolver = Resolver,
+> = PluginType<TName, TOptions, TResolvedOptions, TResolver>
+
+/**
  * Context passed to a plugin's `kubb:plugin:setup` handler, where it registers generators and
  * sets its resolver, transformer, and options.
  */
-export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = {
+export type KubbPluginSetupContext<TFactory extends PluginType = PluginType> = {
   /**
    * Register one or more generators dynamically. Generators fire during the AST walk
    * (schema/operation/operations) just like generators declared statically on `createPlugin`.
@@ -386,7 +396,7 @@ export type KubbPluginSetupContext<TFactory extends PluginFactoryOptions = Plugi
  * A plugin object produced by `defineExtension`. Its lifecycle handlers live under a single
  * `hooks` property rather than flat methods.
  */
-export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = ExtensionNamed & {
+export type Plugin<TFactory extends PluginType = PluginType> = ExtensionNamed & {
   /**
    * Plugins this one builds on. They run first when the config has them. An array only orders
    * plugins. A record also fails the run when a required entry is missing or out of range.
@@ -424,7 +434,7 @@ export type Plugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>
 /**
  * The object passed to `defineExtension` with `kind: 'plugin'`.
  */
-export type PluginDefinition<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = Pick<Plugin<TFactory>, 'dependencies' | 'enforce' | 'setup'> & {
+export type PluginDefinition<TFactory extends PluginType = PluginType> = Pick<Plugin<TFactory>, 'dependencies' | 'enforce' | 'setup'> & {
   meta: ExtensionMeta<TFactory['name']>
   hooks?: Plugin<TFactory>['hooks']
 }
@@ -432,12 +442,7 @@ export type PluginDefinition<TFactory extends PluginFactoryOptions = PluginFacto
 /**
  * The function `defineExtension` returns for a plugin. Call it with user options to get a `Plugin`.
  */
-export type PluginFactory<TFactory extends PluginFactoryOptions = PluginFactoryOptions> = ExtensionFactory<
-  'plugin',
-  TFactory['options'],
-  Plugin<TFactory>,
-  TFactory['name']
->
+export type PluginFactory<TFactory extends PluginType = PluginType> = ExtensionFactory<'plugin', TFactory['options'], Plugin<TFactory>, TFactory['name']>
 
 /**
  * Normalized plugin after setup, with runtime fields populated. Internal only. Plugins use the
@@ -445,7 +450,7 @@ export type PluginFactory<TFactory extends PluginFactoryOptions = PluginFactoryO
  *
  * @internal
  */
-export type NormalizedPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions> = Plugin<TOptions> & {
+export type NormalizedPlugin<TOptions extends PluginType = PluginType> = Plugin<TOptions> & {
   name: string
   meta: ExtensionMeta
   dependencies?: Array<PluginName> | ExtensionDependencyRecord
@@ -477,13 +482,13 @@ export type KubbPluginEndContext = FilesContext & {
  *
  * @deprecated Use `defineExtension` with `kind: 'plugin'` instead.
  */
-export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(definition: PluginDefinition<TFactory>): PluginFactory<TFactory>
+export function definePlugin<TFactory extends PluginType = PluginType>(definition: PluginDefinition<TFactory>): PluginFactory<TFactory>
 /**
  * Wraps a factory function that returns a `Plugin`. Without `meta`, the plugin gets `{ name }`.
  *
  * @deprecated Pass a definition object with `kind: 'plugin'`, `meta`, and `setup` to `defineExtension` instead. The factory form is removed in the next major.
  */
-export function definePlugin<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(
+export function definePlugin<TFactory extends PluginType = PluginType>(
   factory: (options: TFactory['options']) => Plugin<TFactory>,
 ): ((options?: TFactory['options']) => Plugin<TFactory>) & { kind: 'plugin' }
 export function definePlugin(input: PluginDefinition | ((options: object) => Plugin)) {

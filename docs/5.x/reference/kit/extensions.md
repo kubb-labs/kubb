@@ -114,9 +114,9 @@ Kubb checks the record before any plugin runs:
 When a dependency depends on the user's options, pass a function. It receives the options and returns the record:
 
 ```typescript twoslash [plugin-example.ts]
-import { defineExtension, type PluginFactoryOptions } from 'kubb/kit'
+import { defineExtension, type PluginType } from 'kubb/kit'
 
-type PluginExample = PluginFactoryOptions<'plugin-example', { parser?: 'data' | 'faker' }>
+type PluginExample = PluginType<'plugin-example', { parser?: 'data' | 'faker' }>
 
 export const pluginExample = defineExtension<PluginExample>({
   kind: 'plugin',

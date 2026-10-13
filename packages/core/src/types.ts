@@ -294,7 +294,7 @@ export type UserConfig<TInput = Input> = Omit<Config<TInput>, 'root' | 'plugins'
 declare global {
   namespace Kubb {
     /**
-     * Registry that maps plugin names to their `PluginFactoryOptions`.
+     * Registry that maps plugin names to their `PluginType`.
      * Augment this interface in each plugin's `types.ts` to enable automatic
      * typing for `getPlugin` and `requirePlugin`.
      *

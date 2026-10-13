@@ -78,7 +78,7 @@ export const pluginExample = defineExtension({
 
 `childName`, `enumPropName`, `extractRefName`, `isStringType`, `mergeAdjacentObjectsLazy`, `syncSchemaRef`, and `containsCircularRef` are schema-name and schema-graph helpers a generator or macro calls while shaping output, complementing the ref and graph helpers (`resolveRefName`, `findCircularSchemas`, `collectUsedSchemaNames`) that stay on `ast`.
 
-Rounding out the package are the option and hook types every plugin, generator, adapter, resolver, and renderer author references, among them `PluginFactoryOptions`, `GeneratorContext`, `ResolveFileOptions`, `AdapterFactoryOptions`, `RendererFactory`, and `KubbHooks`.
+Rounding out the package are the option and hook types every plugin, generator, adapter, resolver, and renderer author references, among them `PluginType`, `GeneratorContext`, `ResolveFileOptions`, `AdapterFactoryOptions`, `RendererFactory`, and `KubbHooks`.
 
 ## Testing helpers
 

@@ -23,7 +23,7 @@ Provide `pluginName`. Methods use `this` to reach the merged resolver, so namesp
 
 ```typescript twoslash [resolver.ts]
 import { createResolver } from 'kubb/kit'
-import type { PluginFactoryOptions, Resolver } from 'kubb/kit'
+import type { PluginType, Resolver } from 'kubb/kit'
 
 // Extend the base Resolver with plugin-specific naming namespaces.
 type MyResolver = Resolver & {
@@ -32,7 +32,7 @@ type MyResolver = Resolver & {
   }
 }
 
-type MyPlugin = PluginFactoryOptions<'plugin-example', object, object, MyResolver>
+type MyPlugin = PluginType<'plugin-example', object, object, MyResolver>
 
 export const resolver = createResolver<MyPlugin>({
   pluginName: 'plugin-example',
@@ -68,9 +68,9 @@ The resulting names and paths go through the resolver's own `name` and `file` co
 
 ```typescript twoslash [imports.ts]
 import { ast } from 'kubb/kit'
-import type { GeneratorContext, PluginFactoryOptions } from 'kubb/kit'
+import type { GeneratorContext, PluginType } from 'kubb/kit'
 
-declare const ctx: GeneratorContext<PluginFactoryOptions>
+declare const ctx: GeneratorContext<PluginType>
 const { resolver, root, output } = { ...ctx, output: { path: 'types' } }
 const node = ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Pet' })
 // ---cut---
@@ -82,9 +82,9 @@ Pass `name` to override how a referenced schema name becomes the imported identi
 
 ```typescript twoslash [importsName.ts]
 import { ast } from 'kubb/kit'
-import type { GeneratorContext, PluginFactoryOptions } from 'kubb/kit'
+import type { GeneratorContext, PluginType } from 'kubb/kit'
 
-declare const ctx: GeneratorContext<PluginFactoryOptions>
+declare const ctx: GeneratorContext<PluginType>
 const { resolver, root, output } = { ...ctx, output: { path: 'types' } }
 const node = ast.factory.createSchema({ type: 'ref', ref: '#/components/schemas/Pet' })
 // ---cut---
@@ -107,9 +107,9 @@ Use it to compose resolvers or apply partial overrides.
 
 ```typescript twoslash [merge.ts]
 import { createResolver, Resolver } from 'kubb/kit'
-import type { PluginFactoryOptions } from 'kubb/kit'
+import type { PluginType } from 'kubb/kit'
 
-const resolver = createResolver<PluginFactoryOptions>({ pluginName: 'plugin-example' })
+const resolver = createResolver<PluginType>({ pluginName: 'plugin-example' })
 // ---cut---
 const patched = Resolver.merge(resolver, {
   name(name) {

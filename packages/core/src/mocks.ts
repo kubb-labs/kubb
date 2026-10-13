@@ -11,7 +11,7 @@ import { type KubbDriver, pluginNotFoundError } from './KubbDriver.ts'
 import type { Config, KubbHooks } from './types.ts'
 import type { Adapter, AdapterFactoryOptions } from './createAdapter.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
-import type { KubbPluginSetupContext, NormalizedPlugin, Plugin, PluginFactoryOptions } from './definePlugin.ts'
+import type { KubbPluginSetupContext, NormalizedPlugin, Plugin, PluginType } from './definePlugin.ts'
 
 /**
  * Creates a minimal `KubbDriver` mock for unit tests.
@@ -35,7 +35,7 @@ export function createMockedPluginDriver(options: { name?: string; plugin?: Norm
 }
 
 /** Creates a `kubb:plugin:setup` context for unit tests. `requirePlugin` fails for names `plugins` does not list. */
-export function createMockedSetupContext<TFactory extends PluginFactoryOptions = PluginFactoryOptions>({
+export function createMockedSetupContext<TFactory extends PluginType = PluginType>({
   plugins = [],
   options = {} as TFactory['options'],
 }: { plugins?: Array<string>; options?: TFactory['options'] } = {}): KubbPluginSetupContext<TFactory> {
@@ -85,7 +85,7 @@ export function createMockedAdapter<TOptions extends AdapterFactoryOptions = Ada
  * @example
  * `const plugin = createMockedPlugin<PluginTs>({ name: '@kubb/plugin-ts', options })`
  */
-export function createMockedPlugin<TOptions extends PluginFactoryOptions = PluginFactoryOptions>(params: {
+export function createMockedPlugin<TOptions extends PluginType = PluginType>(params: {
   name: TOptions['name']
   options: TOptions['resolvedOptions']
   resolver?: TOptions['resolver']
@@ -102,7 +102,7 @@ export function createMockedPlugin<TOptions extends PluginFactoryOptions = Plugi
   } as unknown as NormalizedPlugin<TOptions>
 }
 
-type RenderGeneratorOptions<TOptions extends PluginFactoryOptions> = {
+type RenderGeneratorOptions<TOptions extends PluginType> = {
   config: Config
   adapter: Adapter
   meta?: InputMeta
@@ -112,7 +112,7 @@ type RenderGeneratorOptions<TOptions extends PluginFactoryOptions> = {
   resolver: TOptions['resolver']
 }
 
-function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: RenderGeneratorOptions<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
+function createMockedPluginContext<TOptions extends PluginType>(opts: RenderGeneratorOptions<TOptions>): Omit<GeneratorContext<TOptions>, 'options'> {
   const root = resolve(opts.config.root, opts.config.output.path)
 
   return {
@@ -139,7 +139,7 @@ function createMockedPluginContext<TOptions extends PluginFactoryOptions>(opts: 
   } as unknown as Omit<GeneratorContext<TOptions>, 'options'>
 }
 
-async function renderNode<TOptions extends PluginFactoryOptions, TNode extends SchemaNode | OperationNode>({
+async function renderNode<TOptions extends PluginType, TNode extends SchemaNode | OperationNode>({
   generator,
   node,
   opts,
@@ -166,7 +166,7 @@ async function renderNode<TOptions extends PluginFactoryOptions, TNode extends S
  * await matchFiles(driver.fileManager.files)
  * ```
  */
-export async function renderGeneratorSchema<TOptions extends PluginFactoryOptions>(
+export async function renderGeneratorSchema<TOptions extends PluginType>(
   generator: Generator<TOptions>,
   node: SchemaNode,
   opts: RenderGeneratorOptions<TOptions>,
@@ -184,7 +184,7 @@ export async function renderGeneratorSchema<TOptions extends PluginFactoryOption
  * await matchFiles(driver.fileManager.files)
  * ```
  */
-export async function renderGeneratorOperation<TOptions extends PluginFactoryOptions>(
+export async function renderGeneratorOperation<TOptions extends PluginType>(
   generator: Generator<TOptions>,
   node: OperationNode,
   opts: RenderGeneratorOptions<TOptions>,
@@ -202,7 +202,7 @@ export async function renderGeneratorOperation<TOptions extends PluginFactoryOpt
  * await matchFiles(driver.fileManager.files)
  * ```
  */
-export async function renderGeneratorOperations<TOptions extends PluginFactoryOptions>(
+export async function renderGeneratorOperations<TOptions extends PluginType>(
   generator: Generator<TOptions>,
   nodes: Array<OperationNode>,
   opts: RenderGeneratorOptions<TOptions>,

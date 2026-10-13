@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import type { Macro, UserFileNode } from '@kubb/ast'
 import type { Generator } from './defineGenerator.ts'
-import type { KubbPluginSetupContext, NormalizedPlugin, PluginFactoryOptions, PluginName, ResolvePluginOptions } from './definePlugin.ts'
+import type { KubbPluginSetupContext, NormalizedPlugin, PluginType, PluginName, ResolvePluginOptions } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Resolver, ResolverPatch } from './Resolver.ts'
 import type { Config } from './types.ts'
@@ -36,14 +36,14 @@ function requireContext(caller: string): KubbPluginSetupContext {
  * Returns the context of the plugin whose `kubb:plugin:setup` is running. It stays available after an `await`.
  * Throws `KUBB_NO_CONTEXT` outside setup.
  */
-export function useKubb<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(): KubbPluginSetupContext<TFactory> {
+export function useKubb<TFactory extends PluginType = PluginType>(): KubbPluginSetupContext<TFactory> {
   return requireContext('useKubb') as KubbPluginSetupContext<TFactory>
 }
 
 /**
  * Returns the same context as {@link useKubb}, or `undefined` outside `setup` and `kubb:plugin:setup`.
  */
-export function tryUseKubb<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(): KubbPluginSetupContext<TFactory> | undefined {
+export function tryUseKubb<TFactory extends PluginType = PluginType>(): KubbPluginSetupContext<TFactory> | undefined {
   return kubbContext.getStore() as KubbPluginSetupContext<TFactory> | undefined
 }
 
@@ -53,9 +53,7 @@ export function tryUseKubb<TFactory extends PluginFactoryOptions = PluginFactory
  * @example
  * `addGenerator(typeGenerator, enumGenerator)`
  */
-export function addGenerator<TFactory extends PluginFactoryOptions = PluginFactoryOptions, TElement = unknown>(
-  ...generators: Array<Generator<TFactory, TElement>>
-): void {
+export function addGenerator<TFactory extends PluginType = PluginType, TElement = unknown>(...generators: Array<Generator<TFactory, TElement>>): void {
   requireContext('addGenerator').addGenerator(...generators)
 }
 
@@ -90,14 +88,14 @@ export function injectFile(file: UserFileNode): void {
 /**
  * Returns the options the user passed to the plugin being set up, like `ctx.options`.
  */
-export function useOptions<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(): TFactory['options'] {
+export function useOptions<TFactory extends PluginType = PluginType>(): TFactory['options'] {
   return requireContext('useOptions').options as TFactory['options']
 }
 
 /**
  * Sets the resolved options of the plugin being set up, like `ctx.setOptions`.
  */
-export function setOptions<TFactory extends PluginFactoryOptions = PluginFactoryOptions>(options: TFactory['resolvedOptions']): void {
+export function setOptions<TFactory extends PluginType = PluginType>(options: TFactory['resolvedOptions']): void {
   requireContext('setOptions').setOptions(options)
 }
 

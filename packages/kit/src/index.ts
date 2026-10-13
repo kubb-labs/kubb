@@ -72,6 +72,7 @@ export type {
   PluginDefinition,
   PluginFactory,
   PluginFactoryOptions,
+  PluginType,
   Renderer,
   RendererFactory,
   ResolveFileOptions,

@@ -1,4 +1,4 @@
-import type { PluginFactoryOptions } from './definePlugin.ts'
+import type { PluginType } from './definePlugin.ts'
 import { Resolver, type ResolverBuildOptions, type ResolverFile } from './Resolver.ts'
 
 /**
@@ -6,7 +6,7 @@ import { Resolver, type ResolverBuildOptions, type ResolverFile } from './Resolv
  * back to the built-ins when omitted. Every method reaches sibling helpers through `this`,
  * which `ThisType` types as the full resolver.
  */
-type ResolverOptions<T extends PluginFactoryOptions> = Omit<T['resolver'], keyof Resolver> & {
+type ResolverOptions<T extends PluginType> = Omit<T['resolver'], keyof Resolver> & {
   pluginName: T['name']
   name?: T['resolver']['name']
   file?: ResolverFile
@@ -56,6 +56,6 @@ type ResolverOptions<T extends PluginFactoryOptions> = Omit<T['resolver'], keyof
  * })
  * ```
  */
-export function createResolver<T extends PluginFactoryOptions>(options: ResolverOptions<T>): T['resolver'] {
+export function createResolver<T extends PluginType>(options: ResolverOptions<T>): T['resolver'] {
   return new Resolver(options as unknown as ResolverBuildOptions) as T['resolver']
 }

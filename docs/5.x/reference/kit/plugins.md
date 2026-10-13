@@ -23,9 +23,9 @@ Plugins are the main extension point in Kubb. A plugin owns its file naming, its
 `defineExtension` with `kind: 'plugin'` takes a definition object and returns a factory. Call it with the user's options to get a `Plugin`. Kubb runs `setup` before the plugin's generators, and the value `setup` returns becomes the plugin's resolved options.
 
 ```typescript twoslash [plugin-example.ts]
-import { defineExtension, type PluginFactoryOptions } from 'kubb/kit'
+import { defineExtension, type PluginType } from 'kubb/kit'
 
-type PluginExample = PluginFactoryOptions<'plugin-example', { prefix?: string }, { prefix: string }>
+type PluginExample = PluginType<'plugin-example', { prefix?: string }, { prefix: string }>
 
 export const pluginExample = defineExtension<PluginExample>({
   kind: 'plugin',
@@ -38,7 +38,7 @@ export const pluginExample = defineExtension<PluginExample>({
 })
 ```
 
-`PluginFactoryOptions<TName, TOptions, TResolvedOptions, TResolver>` types the plugin. `TOptions` is what users pass, and `TResolvedOptions` is what `setup` returns and generators read. `meta` and `dependencies` are shared with parsers and described in [Extensions](./extensions).
+`PluginType<TName, TOptions, TResolvedOptions, TResolver>` types the plugin. `TOptions` is what users pass, and `TResolvedOptions` is what `setup` returns and generators read. `meta` and `dependencies` are shared with parsers and described in [Extensions](./extensions).
 
 ### Definition shape
 

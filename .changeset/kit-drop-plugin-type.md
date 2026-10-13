@@ -2,4 +2,4 @@
 '@kubb/kit': minor
 ---
 
-Remove the `PluginType` re-export; use `PluginFactoryOptions`.
+`PluginType` is the name of the plugin type parameter bundle; `PluginFactoryOptions` stays as a deprecated alias.

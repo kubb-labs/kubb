@@ -9,7 +9,7 @@ import { checkCompatibility, checkDependencies, defineExtension, resolveMeta } f
 import { defineParser } from './defineParser.ts'
 import type { Parser } from './defineParser.ts'
 import { definePlugin } from './definePlugin.ts'
-import type { PluginFactoryOptions } from './definePlugin.ts'
+import type { PluginType } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { Hookable } from './Hookable.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -125,7 +125,7 @@ describe('defineExtension', () => {
 })
 
 describe('defineExtension plugin', () => {
-  type ObjectPlugin = PluginFactoryOptions<'plugin-object', { tag?: string }, { tag: string }>
+  type ObjectPlugin = PluginType<'plugin-object', { tag?: string }, { tag: string }>
 
   it('returns a factory with kind and meta statics that keeps the raw options on the plugin', () => {
     const meta = { name: 'plugin-object', version: '1.0.0' } as const
