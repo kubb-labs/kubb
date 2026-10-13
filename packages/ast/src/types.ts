@@ -1,4 +1,4 @@
-export type { DateOnlyTypeValue, DateTimeTypeValue, DateTypeOptions, ParserOptions } from './infer.ts'
+export type { DateOnlyTypeValue, DateTimeTypeValue, DateTypeOptions, InferSchemaNode, ParserOptions } from './infer.ts'
 export type { Node } from './nodes/index.ts'
 export type { DistributiveOmit, NodeKind } from './nodes/base.ts'
 export type { ArrowFunctionNode, BreakNode, CodeNode, ConstNode, FunctionNode, JSDocNode, JsxNode, TextNode, TypeNode } from './nodes/code.ts'

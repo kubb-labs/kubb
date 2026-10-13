@@ -1,3 +1,4 @@
+import type { InferSchemaNode } from '../infer.ts'
 import type { BaseNode, DistributiveOmit } from './base.ts'
 import type { PropertyNode } from './property.ts'
 
@@ -645,7 +646,9 @@ export type SchemaNode =
 
 type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties' | 'primitive'> & { properties?: Array<PropertyNode>; primitive?: 'object' }
 type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>
-type CreateSchemaOutput<T extends CreateSchemaInput> = SchemaNodeByType[T['type']]
+type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & {
+  kind: 'Schema'
+}
 
 /**
  * Maps schema `type` to its underlying `primitive`.

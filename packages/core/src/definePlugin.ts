@@ -325,16 +325,6 @@ export type PluginType<
 }
 
 /**
- * @deprecated Renamed to {@link PluginType}. Removed in the next major.
- */
-export type PluginFactoryOptions<
-  TName extends string = string,
-  TOptions extends object = object,
-  TResolvedOptions extends object = TOptions,
-  TResolver extends Resolver = Resolver,
-> = PluginType<TName, TOptions, TResolvedOptions, TResolver>
-
-/**
  * Context passed to a plugin's `kubb:plugin:setup` handler, where it registers generators and
  * sets its resolver, transformer, and options.
  */

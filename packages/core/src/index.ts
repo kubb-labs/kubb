@@ -99,7 +99,6 @@ export type {
   Plugin,
   PluginDefinition,
   PluginFactory,
-  PluginFactoryOptions,
   PluginType,
   PluginName,
   ResolvePluginOptions,
