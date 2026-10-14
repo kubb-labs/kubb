@@ -24,6 +24,18 @@ Update every installed extension the registry lists:
 kubb update
 ```
 
+```text [Output]
+@kubb/plugin-ts  plugin  5.0.0 -> 5.2.0
+@kubb/plugin-zod  plugin  5.1.0 -> 5.2.0
+│
+◆  Select the updates to install:
+│  ◼ @kubb/plugin-ts (plugin  5.0.0 -> 5.2.0)
+│  ◼ @kubb/plugin-zod (plugin  5.1.0 -> 5.2.0)
+│  ↑/↓ to navigate • Space: select • Enter: confirm
+```
+
+Every update starts selected. Press Space to leave one out, and Enter to install the rest.
+
 List the updates without installing them:
 
 ```shell [Terminal]

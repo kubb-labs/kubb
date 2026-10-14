@@ -26,6 +26,19 @@ Search the registry and pick an extension:
 kubb add
 ```
 
+```text [Output]
+◆  Select an extension to add:
+│  Search: Type to search
+│  ● React Query (kubb-labs/plugin-react-query · plugin 5.2.0 · Generates TanStack Query hooks for React.)
+│  ○ TypeScript
+│  ○ Zod
+│  ○ OpenAPI
+│  ○ TypeScript parser
+│  ↑/↓ to select • Enter: confirm • Type: to search
+```
+
+Each row is the extension's display name. The focused row also shows its id, kind, pinned version, and description. Typing filters the rows on all of those, so `zod` keeps the Zod plugin and `adapter` keeps the adapters. Press Enter to continue with the usual confirmation.
+
 Add an official plugin by its slug:
 
 ```shell [Terminal]
