@@ -1,5 +1,6 @@
 import type { ast } from '@kubb/kit'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
+import { convertKeywords, omitKeywords } from './emit/converters/keywords.ts'
 import { createNode } from './emit/createNode.ts'
 import { type ConvertContext, schemaRules } from './emit/parseSchema.ts'
 import { flattenSchema } from './emit/schemaShape.ts'
@@ -36,6 +37,12 @@ export function createSchemaParser(ctx: OasParserContext) {
     const flattenedSchema = flattenSchema(schema)
     if (flattenedSchema !== schema) {
       return parseSchema({ schema: flattenedSchema, name })
+    }
+
+    const keywords = convertKeywords({ schema, parse: parseSchema })
+    if (keywords) {
+      const node = parseSchema({ schema: omitKeywords(schema), name })
+      return { ...node, keywords }
     }
 
     const nullable = isNullable(schema) || undefined

@@ -36,7 +36,24 @@ export const SUPPORTED_METHODS: ReadonlySet<string> = new Set(['get', 'put', 'po
  * A fragment that contains any of these keys carries structural meaning of its own and must stay as a separate
  * intersection member rather than being merged into the parent.
  */
-export const structuralKeys = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', 'not'] as const)
+export const structuralKeys = new Set([
+  'properties',
+  'items',
+  'additionalProperties',
+  'oneOf',
+  'anyOf',
+  'allOf',
+  'not',
+  'if',
+  'then',
+  'else',
+  'dependentRequired',
+  'dependentSchemas',
+  'propertyNames',
+  'contains',
+  'unevaluatedProperties',
+  'unevaluatedItems',
+] as const)
 
 /**
  * Formats `convertFormat` maps to a dedicated type without going through `formatMap`:

@@ -22,6 +22,7 @@ export type {
   RefSchemaNode,
   ScalarSchemaNode,
   ScalarSchemaType,
+  SchemaKeywords,
   SchemaNode,
   SchemaNodeByType,
   SchemaType,

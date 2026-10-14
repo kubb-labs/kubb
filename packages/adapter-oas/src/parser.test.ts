@@ -2110,12 +2110,90 @@ describe('parser options', () => {
   })
 })
 
-describe('parseSchema not keyword', () => {
-  // JSON Schema `not` has no direct equivalent in most code generators.
-  // The parser intentionally does not handle it and falls through to the configured emptySchemaType.
-  // Cast required: `not` is valid JSON Schema / OAS 3.1 but not in the TS SchemaObject type.
-  it('falls through to emptySchemaType since "not" is not supported', () => {
-    expect(parseSchema(emptyCtx, { schema: { not: { type: 'string' } } as SchemaObject }).type).toBe('unknown')
+describe('parseSchema JSON Schema keywords', () => {
+  // Cast required: these keywords are valid JSON Schema / OAS 3.1 but typed differently per draft in `SchemaObject`.
+  it('keeps `not` with a ref on the node', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: { type: 'string', minLength: 3, not: { $ref: '#/components/schemas/ReservedName' } } as SchemaObject,
+    })
+
+    expect(node).toMatchObject({ type: 'string', min: 3, keywords: { not: { type: 'ref', ref: '#/components/schemas/ReservedName' } } })
+  })
+
+  it('turns a bare `required` list inside `not` into an object with those properties', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: { type: 'object', properties: { query: { type: 'string' }, id: { type: 'string' } }, not: { required: ['query', 'id'] } } as SchemaObject,
+    })
+    const not = node.keywords?.not as ast.ObjectSchemaNode
+
+    expect(not.type).toBe('object')
+    expect(not.properties.map((p) => [p.name, p.required, p.schema.type])).toStrictEqual([
+      ['query', true, 'unknown'],
+      ['id', true, 'unknown'],
+    ])
+  })
+
+  it('keeps a keyword-only schema as emptySchemaType with its keywords', () => {
+    const node = parseSchema(emptyCtx, { schema: { not: { type: 'string' } } as SchemaObject })
+
+    expect(node).toMatchObject({ type: 'unknown', keywords: { not: { type: 'string' } } })
+  })
+
+  it('reads the other applicator and validation keywords', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        type: 'object',
+        if: { properties: { kind: { const: 'a' } } },
+        then: { required: ['a'] },
+        else: false,
+        dependentRequired: { card: ['billing'] },
+        dependentSchemas: { card: { properties: { billing: { type: 'string' } } } },
+        propertyNames: { pattern: '^[a-z]+$' },
+        unevaluatedProperties: false,
+      } as SchemaObject,
+    })
+
+    expect(node.keywords).toMatchObject({
+      if: { type: 'object' },
+      then: { type: 'object', properties: [{ name: 'a', required: true }] },
+      else: false,
+      dependentRequired: { card: ['billing'] },
+      dependentSchemas: { card: { type: 'object' } },
+      propertyNames: { type: 'string', pattern: '^[a-z]+$' },
+      unevaluatedProperties: false,
+    })
+  })
+
+  it('reads the array keywords', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: {
+        type: 'array',
+        items: { type: 'integer' },
+        contains: { type: 'integer', minimum: 10 },
+        minContains: 1,
+        maxContains: 2,
+        unevaluatedItems: true,
+      } as SchemaObject,
+    })
+
+    expect(node.keywords).toStrictEqual({
+      contains: expect.objectContaining({ type: 'integer', min: 10 }),
+      minContains: 1,
+      maxContains: 2,
+      unevaluatedItems: true,
+    })
+  })
+
+  it('sets keywords on the outer node only, not on multi-type members', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: ['string', 'number'], not: { const: 0 } } as SchemaObject })
+    const union = ast.narrowSchema(node, 'union')
+
+    expect(node.keywords?.not).toMatchObject({ type: 'enum' })
+    expect(union?.members?.map((member) => member.keywords)).toStrictEqual([undefined, undefined])
+  })
+
+  it('leaves `keywords` unset when no keyword is present', () => {
+    expect(parseSchema(emptyCtx, { schema: { type: 'string' } })).not.toHaveProperty('keywords')
   })
 })
 

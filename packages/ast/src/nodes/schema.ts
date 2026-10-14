@@ -129,6 +129,72 @@ type SchemaNodeBase = BaseNode & {
    * Schema `format` value.
    */
   format?: string
+  /**
+   * JSON Schema applicator keywords: `not`, `if`/`then`/`else`, `dependentRequired`,
+   * `dependentSchemas`, `propertyNames`, `contains`/`minContains`/`maxContains`,
+   * `unevaluatedProperties`/`unevaluatedItems`. They sit on every schema type because they
+   * apply regardless of `type`.
+   *
+   * Visitors do not walk into these schemas, so refs found only here are not part of
+   * `collectImportedRefNames`. A printer that can't express a keyword ignores it and adds no
+   * import, and a printer that does use one collects its imports from these nodes itself.
+   */
+  keywords?: SchemaKeywords
+}
+
+/**
+ * JSON Schema applicator and validation keywords that have no dedicated node shape.
+ * A boolean schema (`true`/`false`) stays a boolean.
+ */
+export type SchemaKeywords = {
+  /**
+   * The value must not match this schema.
+   */
+  not?: SchemaNode | boolean
+  /**
+   * Condition schema, paired with `then` and `else`.
+   */
+  if?: SchemaNode | boolean
+  /**
+   * Schema the value must match when it matches `if`.
+   */
+  then?: SchemaNode | boolean
+  /**
+   * Schema the value must match when it does not match `if`.
+   */
+  else?: SchemaNode | boolean
+  /**
+   * Property names that become required when the key property is present.
+   */
+  dependentRequired?: Record<string, Array<string>>
+  /**
+   * Schemas the object must match when the key property is present.
+   */
+  dependentSchemas?: Record<string, SchemaNode | boolean>
+  /**
+   * Schema every property name must match.
+   */
+  propertyNames?: SchemaNode | boolean
+  /**
+   * Schema at least one array item must match.
+   */
+  contains?: SchemaNode | boolean
+  /**
+   * Minimum number of items that match `contains`.
+   */
+  minContains?: number
+  /**
+   * Maximum number of items that match `contains`.
+   */
+  maxContains?: number
+  /**
+   * Schema for properties no other keyword evaluated, `false` rejects them.
+   */
+  unevaluatedProperties?: SchemaNode | boolean
+  /**
+   * Schema for items no other keyword evaluated, `false` rejects them.
+   */
+  unevaluatedItems?: SchemaNode | boolean
 }
 
 /**
