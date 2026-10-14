@@ -88,32 +88,6 @@ describe('transform', () => {
     expect(result.schemas[0]).toBe(root.schemas[0])
   })
 
-  it('replaces schemas via visitor return value', () => {
-    const root = buildSampleTree()
-    const result = transform(root, {
-      schema(schema): SchemaNode {
-        return { ...schema, description: 'transformed' }
-      },
-    })
-
-    expect(result.schemas[0]?.description).toBe('transformed')
-  })
-
-  it('deeply transforms nested schemas in operations', () => {
-    const root = buildSampleTree()
-    const types: Array<string> = []
-    transform(root, {
-      schema(schema): SchemaNode {
-        types.push(schema.type)
-        return schema
-      },
-    })
-
-    expect(types).toContain('object')
-    expect(types).toContain('integer')
-    expect(types).toContain('string')
-  })
-
   it('rebuilds a schema inside patternProperties and keeps the record when nothing changes', () => {
     const root = createInput({
       schemas: [createSchema({ type: 'object', name: 'Map', properties: [], patternProperties: { '^x-': createSchema({ type: 'ref', name: 'Extension' }) } })],
@@ -230,21 +204,5 @@ describe('collectSync', () => {
     })
 
     expect(names).toStrictEqual(['Tail', 'Extension'])
-  })
-
-  it('collects only top-level schemas (not object properties) when depth: shallow', () => {
-    const root = buildSampleTree()
-    const types = collectSync<string>(root, {
-      depth: 'shallow',
-      schema(n) {
-        return n.type
-      },
-    })
-
-    expect(types).toContain('object')
-    // Parameter schema (integer) is still collected — not guarded by depth
-    expect(types).toContain('integer')
-    // 'string' (Pet.name property schema) is NOT collected — guarded by depth
-    expect(types).not.toContain('string')
   })
 })

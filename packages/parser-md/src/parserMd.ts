@@ -1,8 +1,8 @@
-import { ast, defineExtension } from '@kubb/kit'
+import { ast } from '@kubb/ast'
+import { defineExtension } from '@kubb/core'
+import { stringify } from 'yaml'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
-
-import { print } from './utils.ts'
 
 /**
  * Metadata accepted by `parserMd`. Set `frontmatter` on a `<File meta={...}>` and
@@ -15,7 +15,7 @@ export type MdMeta = {
 /**
  * Kubb parser for `.md` and `.markdown` files. Joins source blocks as plain
  * markdown (separated by blank lines) and, when `file.meta.frontmatter` is set,
- * prepends a YAML frontmatter envelope produced by `parserMd.print`.
+ * prepends a YAML frontmatter envelope.
  *
  * Runs by default next to `parserTs` and `parserTsx`. Add it to a custom
  * `parsers` array yourself, since a custom list replaces the default set.
@@ -44,21 +44,21 @@ export const parserMd = defineExtension({
   build() {
     return {
       extNames: ['.md', '.markdown'],
-      print,
+      print: (...parts: Array<string>) => parts.filter(Boolean).join('\n\n'),
       parse(file) {
-        const sourceParts: Array<string> = []
-        for (const source of file.sources) {
-          const text = ast.extractStringsFromNodes(source.nodes as Array<ast.CodeNode>)
-          if (text) sourceParts.push(text.trimEnd())
-        }
-        const body = sourceParts.join('\n\n')
+        const body = file.sources
+          .map((source) => ast.extractStringsFromNodes(source.nodes))
+          .filter(Boolean)
+          .map((text) => text.trimEnd())
+          .join('\n\n')
 
-        const meta = file.meta as MdMeta | undefined
-        const frontmatter = print(meta?.frontmatter)
+        const frontmatter = (file.meta as MdMeta | undefined)?.frontmatter
+        const envelope = frontmatter && Object.keys(frontmatter).length ? `---\n${stringify(frontmatter).trimEnd()}\n---` : ''
 
-        const parts = [file.banner, frontmatter, body, file.footer].filter((segment): segment is string => Boolean(segment)).map((segment) => segment.trimEnd())
-
-        return parts.join('\n\n')
+        return [file.banner, envelope, body, file.footer]
+          .filter((segment): segment is string => Boolean(segment))
+          .map((segment) => segment.trimEnd())
+          .join('\n\n')
       },
     }
   },

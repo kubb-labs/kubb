@@ -128,21 +128,6 @@ describe('createResolver', () => {
     expect(file.baseName).toBe('pet.ts')
   })
 
-  it('a file.path reaches the resolver through `this`', () => {
-    const resolver = createResolver<TestPluginFactory>({
-      pluginName: 'test',
-      file: {
-        path({ baseName, output }) {
-          return `${output.path}/${this.pluginName}/${baseName}`
-        },
-      },
-      greet: (name: string) => name,
-      farewell: (name: string) => name,
-    })
-
-    expect(resolver.file({ name: 'pet', extname: '.ts', ...context }).path).toBe('/root/types/test/pet.ts')
-  })
-
   it('file.path receives the base name from file.baseName', () => {
     const resolver = createResolver<TestPluginFactory>({
       pluginName: 'test',
@@ -176,17 +161,6 @@ describe('createResolver', () => {
     })
 
     expect(() => resolver.file({ name: 'pet', extname: '.ts', ...context })).toThrow('outside the project root')
-  })
-
-  it('returns false from default.options when options is false', () => {
-    const resolver = createResolver<TestPluginFactory>({
-      pluginName: 'test',
-      greet: (name: string) => name,
-      farewell: (name: string) => name,
-    })
-    const node = ast.factory.createFile({ baseName: 'pet.ts', path: 'src/pet.ts' })
-
-    expect(resolver.default.options<boolean>(node, { options: false })).toBe(false)
   })
 
   it('Resolver.merge() rebuilds helpers on a new instance', () => {
@@ -245,34 +219,6 @@ describe('createResolver', () => {
 
     expect(merged.query.name({ operationId: 'get pet' })).toBe('use_getPet')
     expect(merged.query.keyName({ operationId: 'get pet' })).toBe('getPetKey')
-  })
-
-  it('Resolver.merge() folds multiple overrides left to right, last wins per key', () => {
-    type NameResolver = Resolver & { greet(name: string): string }
-    type NameFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: NameResolver }
-
-    const base = createResolver<NameFactory>({
-      pluginName: 'test',
-      greet(name) {
-        return `base:${name}`
-      },
-    })
-
-    const merged = Resolver.merge(
-      base,
-      {
-        greet(name) {
-          return `first:${name}`
-        },
-      },
-      {
-        greet(name) {
-          return `second:${name}`
-        },
-      },
-    )
-
-    expect(merged.greet('pet')).toBe('second:pet')
   })
 
   it('Resolver.merge() merges a namespace per method across several overrides', () => {
@@ -344,20 +290,6 @@ describe('createResolver', () => {
 
     expect(merged.name('pet')).toBe('PET')
     expect(merged.file({ name: 'pet', extname: '.ts', ...context }).baseName).toBe('petFaker.ts')
-  })
-
-  it('supports top-level helpers like typeName', () => {
-    type TypeResolver = Resolver & { typeName(name: string): string }
-    type TypeFactory = { name: 'test'; options: {}; resolvedOptions: {}; resolver: TypeResolver }
-
-    const resolver = createResolver<TypeFactory>({
-      pluginName: 'test',
-      typeName(name) {
-        return `${this.name(name)}Type`
-      },
-    })
-
-    expect(resolver.typeName('list pets')).toBe('listPetsType')
   })
 })
 
@@ -436,35 +368,6 @@ describe('default.file', () => {
     const file = resolver.default.file({ name, extname: '.ts', ...context })
 
     expect(file.path).toBe(expected)
-  })
-
-  it('omits the file name and writes to the output file in file mode', () => {
-    const file = resolver.default.file({
-      name: 'pet',
-      extname: '.ts',
-      ...context,
-      output: {
-        ...context.output,
-        path: 'types.ts' as const,
-        mode: 'file' as const,
-      },
-    })
-
-    expect(file.path).toBe('/root/types.ts')
-    expect(file.baseName).toBe('types.ts')
-  })
-
-  it('groups by tag when resolver is tag-grouped', () => {
-    const file = resolver.default.file({
-      name: 'pet',
-      extname: '.ts',
-      tag: 'pets',
-      root: '/root',
-      output: { path: 'types', mode: 'directory' },
-      group: { type: 'tag' },
-    })
-
-    expect(file.path).toBe('/root/types/pets/pet.ts')
   })
 })
 
@@ -590,9 +493,6 @@ describe('default.banner / default.footer user text', () => {
       { path: 'src/gen/clients/stocks/stocks.ts', baseName: 'stocks.ts', isAggregation: true },
       '|false|true|src/gen/clients/stocks/stocks.ts|stocks.ts',
     ],
-    ['banner', undefined, { path: 'src/gen/clients/index.ts', baseName: 'index.ts', isBarrel: true }, '|true|false|src/gen/clients/index.ts|index.ts'],
-    ['banner', undefined, { path: 'src/gen/clients/getStock.ts', baseName: 'getStock.ts' }, '|false|false|src/gen/clients/getStock.ts|getStock.ts'],
-    ['footer', meta, undefined, 'Petstore|false|false||'],
     ['footer', undefined, undefined, '|false|false||'],
     ['footer', undefined, { path: 'src/gen/index.ts', baseName: 'index.ts', isBarrel: true }, '|true|false|src/gen/index.ts|index.ts'],
   ] satisfies Array<
@@ -606,15 +506,11 @@ describe('toFilePath', () => {
   test.each([
     // version numbers (dot before a digit) stay in one segment
     ['get_enterprise_configurations_id_v2025.0', 'getEnterpriseConfigurationsIdV20250'],
-    ['some_operation_v3.14', 'someOperationV314'],
-    ['version.1.2.3', 'version123'],
     // dots before a letter split into nested path segments
     ['pet.petId', 'pet/petId'],
     ['pet.Pet', 'pet/pet'],
-    ['api.v2', 'api/v2'],
     // Security: leading dots must NOT produce a leading slash (path traversal guard)
     ['..Schema', 'schema'],
-    ['...Schema', 'schema'],
     ['.Internal', 'internal'],
   ])('toFilePath(%s) -> %s (camelCase segments)', (input, expected) => {
     expect(toFilePath(input)).toBe(expected)

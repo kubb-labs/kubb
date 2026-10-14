@@ -1,4 +1,4 @@
-import type { BaseNode } from './base.ts'
+import { type BaseNode, nodeFactory } from './base.ts'
 
 /**
  * JSDoc documentation metadata attached to code declarations.
@@ -248,9 +248,7 @@ export type CodeNode = ConstNode | TypeNode | FunctionNode | ArrowFunctionNode |
  * // export const pets: Pet[] = ... as const
  * ```
  */
-export function createConst(input: Omit<ConstNode, 'kind'>): ConstNode {
-  return { ...input, kind: 'Const' }
-}
+export const createConst = nodeFactory<ConstNode>('Const')
 
 /**
  * Creates a `TypeNode` representing a TypeScript `type` alias declaration.
@@ -261,9 +259,7 @@ export function createConst(input: Omit<ConstNode, 'kind'>): ConstNode {
  * // export type Pet = ...
  * ```
  */
-export function createType(input: Omit<TypeNode, 'kind'>): TypeNode {
-  return { ...input, kind: 'Type' }
-}
+export const createType = nodeFactory<TypeNode>('Type')
 
 /**
  * Creates a `FunctionNode` representing a TypeScript `function` declaration.
@@ -274,9 +270,7 @@ export function createType(input: Omit<TypeNode, 'kind'>): TypeNode {
  * // export async function fetchPet(): Promise<Pet> { ... }
  * ```
  */
-export function createFunction(input: Omit<FunctionNode, 'kind'>): FunctionNode {
-  return { ...input, kind: 'Function' }
-}
+export const createFunction = nodeFactory<FunctionNode>('Function')
 
 /**
  * Creates an `ArrowFunctionNode` representing a TypeScript arrow function.
@@ -287,9 +281,7 @@ export function createFunction(input: Omit<FunctionNode, 'kind'>): FunctionNode 
  * // export const double = (n: number) => ...
  * ```
  */
-export function createArrowFunction(input: Omit<ArrowFunctionNode, 'kind'>): ArrowFunctionNode {
-  return { ...input, kind: 'ArrowFunction' }
-}
+export const createArrowFunction = nodeFactory<ArrowFunctionNode>('ArrowFunction')
 
 /**
  * Creates a {@link TextNode} representing a raw string fragment in the source output.

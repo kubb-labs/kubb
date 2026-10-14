@@ -28,9 +28,6 @@ export const memoryStorage = createStorage(() => {
   const store = new Map<string, string>()
   return {
     name: 'memory',
-    async existsItem(key) {
-      return store.has(key)
-    },
     async readItem(key) {
       return store.get(key) ?? null
     },
@@ -58,7 +55,6 @@ The engine consumes this interface and exposes the backend through the build res
 
 | Method         | Params                       | Returns                   | Purpose                                       |
 | -------------- | ---------------------------- | ------------------------- | --------------------------------------------- |
-| `existsItem()` | `key: string`                | `Promise<boolean>`        | Check whether an item exists                  |
 | `readItem()`   | `key: string`                | `Promise<string \| null>` | Retrieve an item's content                    |
 | `writeItem()`  | `key: string, value: string` | `Promise<void>`           | Write an item                                 |
 | `removeItem()` | `key: string`                | `Promise<void>`           | Delete an item                                |

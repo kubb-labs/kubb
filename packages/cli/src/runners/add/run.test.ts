@@ -76,13 +76,6 @@ describe('kubb add', () => {
     expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toContain('plugins: [pluginX()]')
   })
 
-  it('needs an id with --yes', async () => {
-    await run({ yes: true, install: true })
-
-    expect(output.join('\n')).toContain('Pass a registry id, such as plugin-zod, when using --yes.')
-    expect(process.exitCode).toBe(1)
-  })
-
   it('installs a GitHub release from its commit and imports it by package name', async () => {
     const commit = '0123456789abcdef0123456789abcdef01234567'
     stubFetch({ body: { ...pluginX, artifact: { ...pluginX.artifact, kind: 'github', owner: 'acme', repo: 'kubb-plugin-x', tag: 'v1.2.0', commit } } })
@@ -130,6 +123,7 @@ describe('kubb add', () => {
   it.each([
     ['an id with another shape', '../etc/passwd', 'is not a registry id'],
     ['a package name that is not one', 'acme/plugin-x', 'sent an invalid entry'],
+    ['no id with --yes', undefined, 'Pass a registry id, such as plugin-zod, when using --yes.'],
   ])('refuses %s before installing', async (_label, id, message) => {
     stubFetch({ body: { ...pluginX, artifact: { kind: 'npm', package: '--registry=https://evil.test', version: '1.2.0' } } })
 

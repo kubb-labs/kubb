@@ -174,24 +174,21 @@ export type ExtensionFactory<TKind extends ExtensionKind, TOptions, TExtension, 
 }
 
 /**
- * Builds the factory behind `defineExtension` and the deprecated factory forms of `definePlugin`, `defineParser`,
- * and `createAdapter`. It passes `{}` when called without options, and carries `kind`, plus `meta` when the
- * definition has it, so tools can read them without calling it.
+ * Builds the factory behind `defineExtension`. It passes `{}` when called without options, and carries `kind` and
+ * `meta` so tools can read them without calling it.
  *
  * @internal
  */
-export function createExtensionFactory<TKind extends ExtensionKind, TOptions extends object, TExtension, TName extends string>(params: {
+export function createExtensionFactory<TKind extends ExtensionKind, TOptions extends object, TExtension, TName extends string>({
+  kind,
+  meta,
+  build,
+}: {
   kind: TKind
   meta: ExtensionMeta<TName>
   build: (options: TOptions) => TExtension
-}): ExtensionFactory<TKind, TOptions, TExtension, TName>
-export function createExtensionFactory<TKind extends ExtensionKind, TOptions extends object, TExtension>(params: {
-  kind: TKind
-  build: (options: TOptions) => TExtension
-}): ((options?: TOptions) => TExtension) & { kind: TKind }
-export function createExtensionFactory({ kind, meta, build }: { kind: ExtensionKind; meta?: ExtensionMeta; build: (options: object) => unknown }) {
-  const factory = (options?: object) => build(options ?? {})
-  return Object.assign(factory, meta ? { kind, meta } : { kind })
+}): ExtensionFactory<TKind, TOptions, TExtension, TName> {
+  return Object.assign((options: TOptions = {} as TOptions) => build(options), { kind, meta })
 }
 
 // Parser comes first and takes only `build`: TypeScript fixes a parameterless `build()` return type from the first

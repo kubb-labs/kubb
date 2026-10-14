@@ -1,14 +1,4 @@
 /**
- * Maximum number of █ characters in a plugin timing bar.
- */
-export const SUMMARY_MAX_BAR_LENGTH = 10 as const
-
-/**
- * Divides elapsed milliseconds into bar-length units (1 block per 100 ms).
- */
-export const SUMMARY_TIME_SCALE_DIVISOR = 100 as const
-
-/**
  * Stable codes Kubb attaches to a `Diagnostic`. Each maps to a known failure mode
  * and stays stable so it can be referenced in tooling and (later) docs. Reference
  * these instead of inlining the string at a throw site.

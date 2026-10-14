@@ -2,7 +2,7 @@ import { hash } from 'node:crypto'
 import path from 'node:path'
 import { combineExports, combineImports, combineSources, importLocalName } from '../utils/combineFileMembers.ts'
 import { extractStringsFromNodes } from '../utils/extractStringsFromNodes.ts'
-import type { BaseNode } from './base.ts'
+import { type BaseNode, nodeFactory } from './base.ts'
 import type { CodeNode } from './code.ts'
 
 /**
@@ -259,9 +259,7 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
  * // import { useState } from 'react'
  * ```
  */
-export function createImport(input: Omit<ImportNode, 'kind'>): ImportNode {
-  return { ...input, kind: 'Import' }
-}
+export const createImport = nodeFactory<ImportNode>('Import')
 
 /**
  * Creates an `ExportNode` representing a language-agnostic export/public API declaration.
@@ -272,9 +270,7 @@ export function createImport(input: Omit<ImportNode, 'kind'>): ImportNode {
  * // export { Pet } from './Pet'
  * ```
  */
-export function createExport(input: Omit<ExportNode, 'kind'>): ExportNode {
-  return { ...input, kind: 'Export' }
-}
+export const createExport = nodeFactory<ExportNode>('Export')
 
 /**
  * Creates a `SourceNode` representing a fragment of source code within a file.
@@ -284,9 +280,7 @@ export function createExport(input: Omit<ExportNode, 'kind'>): ExportNode {
  * createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], isExportable: true })
  * ```
  */
-export function createSource(input: Omit<SourceNode, 'kind'>): SourceNode {
-  return { ...input, kind: 'Source' }
-}
+export const createSource = nodeFactory<SourceNode>('Source')
 
 /**
  * Input descriptor for {@link createFile}, before `id`, `name`, and `extname` are computed

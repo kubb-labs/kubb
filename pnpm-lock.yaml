@@ -263,9 +263,6 @@ importers:
       tinyexec:
         specifier: 'catalog:'
         version: 1.3.1
-      unconfig:
-        specifier: ^7.5.0
-        version: 7.5.0
       verkit:
         specifier: ^0.5.0
         version: 0.5.0
@@ -418,25 +415,27 @@ importers:
 
   packages/parser-md:
     dependencies:
-      '@kubb/kit':
+      '@kubb/ast':
         specifier: workspace:*
-        version: link:../kit
+        version: link:../ast
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
       yaml:
         specifier: 'catalog:'
         version: 2.9.1
 
   packages/parser-ts:
     dependencies:
-      '@kubb/kit':
+      '@kubb/ast':
         specifier: workspace:*
-        version: link:../kit
+        version: link:../ast
+      '@kubb/core':
+        specifier: workspace:*
+        version: link:../core
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
-    devDependencies:
-      '@internals/utils':
-        specifier: workspace:*
-        version: link:../../internals/utils
 
   packages/plugin-barrel:
     dependencies:
@@ -453,9 +452,9 @@ importers:
 
   packages/renderer-jsx:
     dependencies:
-      '@kubb/kit':
+      '@kubb/ast':
         specifier: workspace:*
-        version: link:../kit
+        version: link:../ast
       yaml:
         specifier: 'catalog:'
         version: 2.9.1
@@ -496,6 +495,9 @@ importers:
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
+      '@kubb/parser-md':
+        specifier: workspace:*
+        version: link:../parser-md
       '@kubb/parser-ts':
         specifier: workspace:*
         version: link:../parser-ts

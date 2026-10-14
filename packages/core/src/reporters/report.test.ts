@@ -25,7 +25,7 @@ describe('buildReport', () => {
     hrStart: process.hrtime(),
   }
 
-  it('normalizes plugin, issue, and timing data shared by every reporter', () => {
+  it('normalizes plugin, issue, and timing data shared by every reporter, timings slowest first and problems only', () => {
     const report = buildReport(result)
 
     expect(report.name).toBe('petstore')
@@ -35,11 +35,6 @@ describe('buildReport', () => {
     expect(report.filesCreated).toBe(3)
     expect(report.output).toMatch(/src\/gen$/)
     expect(typeof report.durationMs).toBe('number')
-  })
-
-  it('lists timings slowest first and keeps only problem diagnostics', () => {
-    const report = buildReport(result)
-
     expect(report.timings).toStrictEqual([
       { plugin: '@kubb/plugin-zod', durationMs: 88 },
       { plugin: '@kubb/plugin-ts', durationMs: 12 },

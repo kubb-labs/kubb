@@ -1,22 +1,13 @@
 import { ast } from '@kubb/ast'
 import type { SchemaNode } from '@kubb/ast'
 
-type ScalarPrimitive = 'string' | 'number' | 'integer' | 'bigint' | 'boolean'
-
-/**
- * Scalar primitive schema types used for union simplification and type narrowing.
- */
-const SCALAR_PRIMITIVE_TYPES = new Set<ScalarPrimitive>(['string', 'number', 'integer', 'bigint', 'boolean'])
-
-function isScalarPrimitive(type: string): type is ScalarPrimitive {
-  return SCALAR_PRIMITIVE_TYPES.has(type as ScalarPrimitive)
-}
+const SCALAR_PRIMITIVE_TYPES = new Set<string>(['string', 'number', 'integer', 'bigint', 'boolean'])
 
 /**
  * Filters union members, dropping enum members that a broader scalar primitive already covers.
  */
 function simplifyUnionMembers(members: Array<SchemaNode>): Array<SchemaNode> {
-  const scalarPrimitives = new Set(members.filter((member) => isScalarPrimitive(member.type)).map((m) => m.type))
+  const scalarPrimitives = new Set<string>(members.filter((member) => SCALAR_PRIMITIVE_TYPES.has(member.type)).map((m) => m.type))
   if (!scalarPrimitives.size) return members
 
   return members.filter((member) => {

@@ -1,5 +1,5 @@
 import type { FileNode, UserFileNode } from '@kubb/ast'
-import { createExtensionFactory, defineExtension, resolveMeta } from './defineExtension.ts'
+import { defineExtension } from './defineExtension.ts'
 import type { ExtensionFactory, ExtensionMeta, ExtensionNamed } from './defineExtension.ts'
 
 /**
@@ -47,15 +47,8 @@ export type ParserBuild<TOptions extends object, TMeta extends object, TNode> = 
  */
 export type ParserDefinition<TOptions extends object = object, TMeta extends object = object, TNode = unknown> = {
   meta: ExtensionMeta
-} & (
-  | { build: ParserBuild<TOptions, TMeta, TNode> }
-  | {
-      /**
-       * @deprecated Renamed to `build`.
-       */
-      setup: ParserBuild<TOptions, TMeta, TNode>
-    }
-)
+  build: ParserBuild<TOptions, TMeta, TNode>
+}
 
 /**
  * The function `defineExtension` returns for a parser. Call it with user options to get a `Parser`.
@@ -74,25 +67,6 @@ export type ParserFactory<TOptions extends object = object, TMeta extends object
  */
 export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(
   definition: ParserDefinition<TOptions, TMeta, TNode>,
-): ParserFactory<TOptions, TMeta, TNode>
-/**
- * Wraps a factory function that returns a `Parser`. Without `meta`, the parser gets `{ name }`.
- *
- * @deprecated Pass a definition object with `kind: 'parser'`, `meta`, and `build` to `defineExtension` instead. The factory form is removed in the next major.
- */
-export function defineParser<TOptions extends object = object, TMeta extends object = object, TNode = unknown>(
-  factory: (options: TOptions) => Parser<TMeta, TNode>,
-): ((options?: TOptions) => Parser<TMeta, TNode>) & { kind: 'parser' }
-export function defineParser(input: ParserDefinition | ((options: object) => Parser)) {
-  if (typeof input === 'function') {
-    return createExtensionFactory({
-      kind: 'parser',
-      build: (options: object): Parser => {
-        const parser = input(options)
-        return { ...parser, meta: resolveMeta(parser) }
-      },
-    })
-  }
-
-  return defineExtension({ kind: 'parser', meta: input.meta, build: 'build' in input ? input.build : input.setup })
+): ParserFactory<TOptions, TMeta, TNode> {
+  return defineExtension({ kind: 'parser', ...definition })
 }

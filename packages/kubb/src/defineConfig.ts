@@ -1,9 +1,6 @@
-import { isPromise, type PossiblePromise } from '@internals/utils'
-import { adapterOas } from '@kubb/adapter-oas'
-import { applyConfigDefaults, cliReporter, type CLIOptions, fileReporter, htmlReporter, jsonReporter, type UserConfig } from '@kubb/core'
-import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
-import { parserTs, parserTsx } from '@kubb/parser-ts'
-import { parserMd } from '@kubb/parser-md'
+import type { PossiblePromise } from '@internals/utils'
+import type { CLIOptions, UserConfig } from '@kubb/core'
+import { applyDefaults } from 'unplugin-kubb'
 
 type AnyConfigResult = UserConfig<unknown> | Array<UserConfig<unknown>>
 type ConfigInput = AnyConfigResult | Promise<AnyConfigResult> | ((cli: CLIOptions) => PossiblePromise<AnyConfigResult>)
@@ -14,37 +11,6 @@ type DefinedConfig<TConfig extends ConfigInput> = TConfig extends (cli: CLIOptio
   : TConfig extends Promise<infer TResult>
     ? Promise<NormalizeConfig<TResult>>
     : NormalizeConfig<TConfig>
-
-/**
- * Applies default `root`, adapter, parsers, plugins, `output.barrel`, `output.format`, and `output.lint` to a single user config when not set.
- *
- * - `root` defaults to `process.cwd()`
- * - `adapter` defaults to `adapterOas()`
- * - `parsers` defaults to `[parserTs(), parserTsx(), parserMd()]`
- * - `reporters` defaults to `[cliReporter, jsonReporter, fileReporter, htmlReporter]`
- * - `plugins` gets `pluginBarrel()` appended when none is already present
- * - `output.barrel` defaults to `false` when not set (`pluginBarrel` is always present after the step above, but generates nothing until configured)
- * - `output.format` defaults to `false`
- * - `output.lint` defaults to `false`
- */
-function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
-  const { adapter, output, plugins } = applyConfigDefaults(config, {
-    defaultAdapter: adapterOas(),
-    barrelPlugin: pluginBarrel(),
-    barrelPluginName: pluginBarrelName,
-    defaultOutput: { barrel: false, format: false, lint: false },
-  })
-
-  return {
-    ...config,
-    root: config.root || process.cwd(),
-    adapter,
-    parsers: config.parsers?.length ? config.parsers : [parserTs(), parserTsx(), parserMd()],
-    reporters: config.reporters?.length ? config.reporters : [cliReporter, jsonReporter, fileReporter, htmlReporter],
-    plugins,
-    output,
-  }
-}
 
 function normalizeConfig<TInput>(config: UserConfig<TInput> | Array<UserConfig<TInput>>): UserConfig<TInput> | Array<UserConfig<TInput>> {
   if (Array.isArray(config)) {
@@ -99,8 +65,8 @@ export function defineConfig<TConfig extends ConfigInput>(config: TConfig): Defi
     }) as DefinedConfig<TConfig>
   }
 
-  if (isPromise(config)) {
-    return config.then((resolved) => normalizeConfig(resolved)) as DefinedConfig<TConfig>
+  if (config instanceof Promise) {
+    return config.then(normalizeConfig) as DefinedConfig<TConfig>
   }
 
   return normalizeConfig(config) as DefinedConfig<TConfig>

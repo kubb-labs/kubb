@@ -1,7 +1,6 @@
 import { createRequire } from 'node:module'
-import { dirname, relative, resolve } from 'node:path'
-import { toPosixPath, trimExtName } from '@internals/utils'
-import { ast } from '@kubb/kit'
+import { dirname, extname as getExtname, relative, resolve } from 'node:path'
+import { ast } from '@kubb/ast'
 import type * as ts from 'typescript'
 
 type Compiler = {
@@ -42,19 +41,17 @@ function loadCompiler(): Compiler {
  * Module specifier that imports `filePath` from the file at `root`: POSIX, relative to that file's directory, `./`-prefixed unless it climbs with `../`.
  */
 export function getRelativePath(root: string, filePath: string): string {
-  const slashed = toPosixPath(relative(dirname(root), filePath))
+  const slashed = relative(dirname(root), filePath).replaceAll('\\', '/')
   return slashed.startsWith('../') ? slashed : `./${slashed}`
 }
 
 /**
- * Swaps the extension of a relative import/export path for `options.extname`; package specifiers and extension-less paths stay as-is.
+ * Swaps the extension of a relative import/export path for `extname`. Package specifiers and extension-less paths stay as-is.
  */
-export function resolveOutputPath(path: string, options: { extname?: string } | undefined, rootAware: boolean): string {
-  const hasExtname = /\.[^/.]+$/.test(path)
-  if (rootAware && options?.extname && hasExtname) {
-    return `${trimExtName(path)}${options.extname}`
-  }
-  return rootAware ? trimExtName(path) : path
+export function resolveOutputPath(path: string, extname: string | undefined, rootAware: boolean): string {
+  if (!rootAware) return path
+  const current = getExtname(path)
+  return current ? `${path.slice(0, -current.length)}${extname ?? ''}` : path
 }
 
 /**
@@ -119,17 +116,13 @@ function toExportNodes(statement: ts.Statement): Array<ast.ExportNode> {
   return [ast.factory.createExport({ name: exportClause.elements.map((element) => element.name.text), path, isTypeOnly })]
 }
 
-type ModuleDeclarations = {
-  header: string
-  imports: Array<ast.ImportNode>
-  exports: Array<ast.ExportNode>
-  body: string
-}
-
 /**
  * Splits `source` into its lifted `import`/`export … from` nodes, the `header` above the first one (shebang, directives, comments) and the rest as `body`.
  */
-export function splitModuleDeclarations(source: string, filePath: string): ModuleDeclarations {
+export function splitModuleDeclarations(
+  source: string,
+  filePath: string,
+): { header: string; imports: Array<ast.ImportNode>; exports: Array<ast.ExportNode>; body: string } {
   const { typescript } = loadCompiler()
   const sourceFile = typescript.createSourceFile(filePath, source, typescript.ScriptTarget.Latest)
   const imports: Array<ast.ImportNode> = []
@@ -215,17 +208,10 @@ function dedent(text: string): string {
   return trimmed.map((line) => (isBlank(line) ? '' : line.slice(min))).join('\n')
 }
 
-type Signature = {
-  async?: boolean | null
-  generics?: ast.FunctionNode['generics'] | ast.ArrowFunctionNode['generics']
-  params?: string | null
-  returnType?: string | null
-}
-
 /**
  * Renders `<T>(params): ReturnType`; an async function wraps its return type in `Promise<>`.
  */
-function signature({ async: isAsync, generics, params, returnType }: Signature): string {
+function signature({ async: isAsync, generics, params, returnType }: Pick<ast.FunctionNode, 'async' | 'generics' | 'params' | 'returnType'>): string {
   const genericsStr = generics ? `<${Array.isArray(generics) ? generics.join(', ') : generics}>` : ''
   const wrapped = isAsync ? `Promise<${returnType}>` : returnType
   const returnTypeStr = returnType ? `: ${wrapped}` : ''
@@ -250,9 +236,7 @@ export function print(...elements: Array<ts.Node>): string {
   if (filtered.length === 0) return ''
 
   const { typescript, printer, sourceFile } = loadCompiler()
-  const output = printer.printList(typescript.ListFormat.MultiLine, typescript.factory.createNodeArray(filtered), sourceFile)
-
-  return output.replace(/\r\n/g, '\n')
+  return printer.printList(typescript.ListFormat.MultiLine, typescript.factory.createNodeArray(filtered), sourceFile)
 }
 
 /**

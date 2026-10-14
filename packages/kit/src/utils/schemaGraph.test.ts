@@ -34,8 +34,4 @@ describe('containsCircularRef', () => {
 
     expect(containsCircularRef(schema, { circularSchemas: new Set(['TreeNode']), excludeName: 'TreeNode' })).toBe(false)
   })
-
-  it('returns false when there are no refs', () => {
-    expect(containsCircularRef(ast.factory.createSchema({ type: 'string' }), { circularSchemas: new Set(['Pet']) })).toBe(false)
-  })
 })

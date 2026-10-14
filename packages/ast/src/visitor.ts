@@ -1,11 +1,9 @@
 import type { VisitorDepth } from './constants.ts'
-import { visitorDepths } from './constants.ts'
 import type { Node } from './nodes/index.ts'
 import type { ContentNode } from './nodes/content.ts'
 import type { InputNode } from './nodes/input.ts'
 import type { NodeKind } from './nodes/base.ts'
 import type { OperationNode } from './nodes/operation.ts'
-import type { OutputNode } from './nodes/output.ts'
 import type { ParameterNode } from './nodes/parameter.ts'
 import type { PropertyNode } from './nodes/property.ts'
 import type { RequestBodyNode } from './nodes/requestBody.ts'
@@ -27,7 +25,7 @@ const VISITOR_KEYS: Partial<Record<NodeKind, ReadonlyArray<string>>> = {
 }
 
 /** Visitor callback names in traversal order, the keys of {@link Visitor}. */
-export const visitorKeys = ['input', 'output', 'operation', 'schema', 'property', 'parameter', 'response'] as const
+export const visitorKeys = ['input', 'operation', 'schema', 'property', 'parameter', 'response'] as const
 
 export type VisitorKey = (typeof visitorKeys)[number]
 
@@ -36,7 +34,6 @@ export type VisitorKey = (typeof visitorKeys)[number]
  */
 const VISITOR_KEY_BY_KIND: Partial<Record<NodeKind, VisitorKey>> = {
   Input: 'input',
-  Output: 'output',
   Operation: 'operation',
   Schema: 'schema',
   Property: 'property',
@@ -51,7 +48,6 @@ const VISITOR_KEY_BY_KIND: Partial<Record<NodeKind, VisitorKey>> = {
  */
 type ParentNodeMap = [
   [InputNode, undefined],
-  [OutputNode, undefined],
   [OperationNode, InputNode],
   [RequestBodyNode, OperationNode],
   [ContentNode, RequestBodyNode | ResponseNode],
@@ -142,7 +138,6 @@ export type VisitorContext<T extends Node = Node> = {
  */
 export type Visitor = {
   input?(node: InputNode, context: VisitorContext<InputNode>): undefined | null | InputNode
-  output?(node: OutputNode, context: VisitorContext<OutputNode>): undefined | null | OutputNode
   operation?(node: OperationNode, context: VisitorContext<OperationNode>): undefined | null | OperationNode
   schema?(node: SchemaNode, context: VisitorContext<SchemaNode>): undefined | null | SchemaNode
   property?(node: PropertyNode, context: VisitorContext<PropertyNode>): undefined | null | PropertyNode
@@ -205,8 +200,6 @@ type TransformOptions = Visitor & TraversalOptions
  */
 type CollectOptions<T> = VisitorOf<T> & TraversalOptions
 
-const visitorKeysByKind = VISITOR_KEYS as Record<string, ReadonlyArray<string> | undefined>
-
 /**
  * Returns `true` when `value` is an AST node (an object carrying a `kind`).
  */
@@ -222,16 +215,6 @@ function isNodeRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Returns the child fields of `node` to walk, from {@link VISITOR_KEYS}, or `undefined` when there
- * is nothing to walk. `Schema` children are only walked when `recurse` is `true`.
- */
-function childKeys(node: Node, recurse: boolean): ReadonlyArray<string> | undefined {
-  if (node.kind === 'Schema' && !recurse) return undefined
-
-  return visitorKeysByKind[node.kind]
-}
-
-/**
  * Returns the immediate traversable children of `node`.
  *
  * @example
@@ -241,7 +224,8 @@ function childKeys(node: Node, recurse: boolean): ReadonlyArray<string> | undefi
  * ```
  */
 function* getChildren(node: Node, recurse: boolean): Generator<Node, void, undefined> {
-  const keys = childKeys(node, recurse)
+  // `Schema` children are only walked when `recurse` is `true`.
+  const keys = node.kind === 'Schema' && !recurse ? undefined : VISITOR_KEYS[node.kind]
   if (!keys) return
 
   const record = node as unknown as Record<string, unknown>
@@ -305,7 +289,7 @@ function applyVisitor<TResult>(node: Node, visitor: Visitor | VisitorOf<unknown>
  */
 export function transform<T extends Node>(node: T, options: TransformOptions): T {
   const { depth, parent, ...visitor } = options
-  const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
+  const recurse = (depth ?? 'deep') === 'deep'
 
   // Split the visitor object out once here, then thread it plus `recurse`/`parent` as plain
   // arguments through the recursion. The previous code re-ran the `...visitor` rest-destructure on
@@ -329,7 +313,7 @@ function transformNode(node: Node, visitor: Visitor, recurse: boolean, parent: N
  * (e.g. `additionalProperties: true`) intact.
  */
 function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node {
-  const keys = childKeys(node, recurse)
+  const keys = node.kind === 'Schema' && !recurse ? undefined : VISITOR_KEYS[node.kind]
   if (!keys) return node
 
   const record = node as unknown as Record<string, unknown>
@@ -392,7 +376,7 @@ function transformChildren(node: Node, visitor: Visitor, recurse: boolean): Node
  */
 export function* collect<T>(node: Node, options: CollectOptions<T>): Generator<T, void, undefined> {
   const { depth, parent, ...visitor } = options
-  const recurse = (depth ?? visitorDepths.deep) === visitorDepths.deep
+  const recurse = (depth ?? 'deep') === 'deep'
 
   // Thread the split-out visitor through the recursion instead of rebuilding `{ ...options, parent }`
   // for every child, mirroring `transform`. Keeps the recursive object shape stable.

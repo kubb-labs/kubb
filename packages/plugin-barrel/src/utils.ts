@@ -8,20 +8,14 @@ const BARREL_SUFFIX = `/index.ts`
 
 /**
  * A file (no `children`) or directory in the tree barrels are computed from. `path` is absolute and
- * POSIX-normalized, and a directory's `children` are keyed by entry name in sorted order.
+ * POSIX-normalized, and a directory's `children` are keyed by entry name.
  */
 type TreeNode = { path: string; children?: undefined } | DirectoryNode
 type DirectoryNode = { path: string; children: Map<string, TreeNode> }
 
-/**
- * Orders paths split into segments the way a directory listing sorts them: by name at each level.
- */
-function compareSegments(a: ReadonlyArray<string>, b: ReadonlyArray<string>): number {
-  const index = a.findIndex((segment, i) => segment !== b[i])
-  if (index === -1) return a.length - b.length
-  if (index >= b.length) return 1
-
-  return a[index]! < b[index]! ? -1 : 1
+/** A directory's children in name order, the way a directory listing sorts them. */
+function sortedChildren(node: DirectoryNode): Array<TreeNode> {
+  return [...node.children.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([, child]) => child)
 }
 
 function toRelativeModulePath(fromDir: string, filePath: string): string {
@@ -107,7 +101,7 @@ type FlatWalk = { barrels: Array<ast.FileNode>; leaves: Array<string> }
  * the start node and, with `recursive`, every sub-directory. Also returns the subtree's leaf paths.
  */
 function walkFlat(node: DirectoryNode, ctx: WalkContext, isRoot = true): FlatWalk {
-  const results = [...node.children.values()].map((child): FlatWalk => (child.children ? walkFlat(child, ctx, false) : { barrels: [], leaves: [child.path] }))
+  const results = sortedChildren(node).map((child): FlatWalk => (child.children ? walkFlat(child, ctx, false) : { barrels: [], leaves: [child.path] }))
   const barrels = results.flatMap((result) => result.barrels)
   const leaves = results.flatMap((result) => result.leaves)
   const exports = isRoot || ctx.recursive ? leaves.flatMap((leaf) => ctx.leafExports(node.path, leaf)) : []
@@ -123,7 +117,7 @@ function walkFlat(node: DirectoryNode, ctx: WalkContext, isRoot = true): FlatWal
  * produced no barrel is never re-exported.
  */
 function walkNested(node: DirectoryNode, ctx: WalkContext): Array<ast.FileNode> {
-  const results = [...node.children.values()].map((child) => {
+  const results = sortedChildren(node).map((child) => {
     if (!child.children) return { barrels: [], exports: ctx.leafExports(node.path, child.path) }
 
     // A sub-directory has barrels only when it has its own `index.ts`.
@@ -162,23 +156,18 @@ export function buildBarrelIndex(outputPath: string, files: ReadonlyArray<ast.Fi
     }),
   )
 
-  // Inserting paths in per-segment order keeps every directory's children sorted by name.
-  const entries = [...sourceFiles.keys()]
-    .map((filePath) =>
-      filePath
-        .slice(tree.path.length + 1)
-        .split('/')
-        .filter(Boolean),
-    )
-    .sort(compareSegments)
-  entries.forEach((parts) => {
+  for (const filePath of sourceFiles.keys()) {
+    const parts = filePath
+      .slice(tree.path.length + 1)
+      .split('/')
+      .filter(Boolean)
     parts.reduce<DirectoryNode>((dir, part, i) => {
       const path = `${dir.path}/${part}`
       const child: TreeNode = dir.children.get(part) ?? (i === parts.length - 1 ? { path } : { path, children: new Map() })
       dir.children.set(part, child)
       return child.children ? child : dir
     }, tree)
-  })
+  }
 
   return { tree, sourceFiles }
 }
@@ -203,26 +192,13 @@ type GetBarrelFilesParams = {
    * Index built once via {@link buildBarrelIndex} for the shared output root.
    */
   index: BarrelIndex
-  /**
-   * Absolute directory the barrel(s) should be rooted at, a subtree of the index root.
-   * Defaults to the index root.
-   */
+  /** Absolute directory to root the barrel(s) at, a subtree of the index root. Defaults to the index root. */
   targetPath?: string
-  /**
-   * Export strategy used when emitting each barrel.
-   * - `'all'` re-exports the whole module (`export * from './x'`)
-   * - `'named'` re-exports only the indexable named symbols
-   */
+  /** `'all'` re-exports whole modules (`export * from './x'`), `'named'` only the indexable named symbols. */
   barrelType: BarrelType
-  /**
-   * Generate an `index.ts` in every sub-directory, each re-exporting only what's directly inside it (hierarchical).
-   * When false, uses flat generation strategy with optional recursive subdirectory barrels.
-   */
+  /** One `index.ts` per sub-directory, each re-exporting only what is directly inside it. */
   nested?: boolean
-  /**
-   * Also generate a barrel for each sub-directory when nested is false.
-   * No effect when nested is true (always generates hierarchical structure).
-   */
+  /** Also generate a barrel for each sub-directory when `nested` is false. */
   recursive?: boolean
   /**
    * Collision identities reported by related barrel generations in the same build.

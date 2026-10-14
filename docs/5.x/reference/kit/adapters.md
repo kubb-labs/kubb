@@ -51,30 +51,9 @@ export const adapterCustom = defineExtension<AdapterCustom>({
 ### `createAdapter` (deprecated)
 
 > [!WARNING]
-> `createAdapter` is deprecated. Use `defineExtension` with `kind: 'adapter'` instead. The factory form below is removed in the next major.
+> `createAdapter` is deprecated. Use `defineExtension` with `kind: 'adapter'` instead.
 
 `createAdapter` takes the same definition object as `defineExtension`, without `kind`. To move over, rename the call and add `kind: 'adapter'`. See [Extensions](./extensions#define-extension).
-
-Older adapters pass a function that returns the whole adapter, `name` included. To move over, copy `name` into `meta.name`, move the options defaults into `setup`, and return `document`, `parse`, and `validate` from `build`:
-
-```typescript twoslash [adapterCustom.ts]
-import { ast, createAdapter } from 'kubb/kit'
-import type { AdapterFactoryOptions } from 'kubb/kit'
-
-type AdapterCustom = AdapterFactoryOptions<'adapter-custom', { strict?: boolean }, { strict: boolean }>
-
-export const adapterCustom = createAdapter<AdapterCustom>((options) => ({
-  name: 'adapter-custom',
-  options: { strict: options?.strict ?? false },
-  document: null,
-  async parse(_source) {
-    return ast.factory.createInput({ schemas: [], operations: [] })
-  },
-  async validate() {
-    // Throw or call ctx.error here when the spec is invalid.
-  },
-}))
-```
 
 Pass the adapter to your config:
 
@@ -94,13 +73,13 @@ export default defineConfig({
 
 Every adapter the factory returns matches the `Adapter` interface from [`kubb/kit`](/docs/5.x/reference/kit):
 
-| Property     | Type                                                                                                  | Required | Purpose                                                                                                                                            |
-| ------------ | ----------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`       | `string`                                                                                              | Yes      | Unique adapter identifier, filled from `meta.name`. Convention is `adapter-<id>`.                                                                  |
-| `options`    | `TResolvedOptions`                                                                                    | Yes      | Adapter options after defaults are applied.                                                                                  |
-| `document`   | `TDocument \| null`                                                                                   | Yes      | The raw parsed source document, for plugins that need direct access. `null` before `parse()`.                                              |
-| `parse`      | `(source: AdapterSource) => InputNode \| Promise<InputNode>`                                          | Yes      | Convert the spec into the [universal AST](/docs/5.x/explanation/architecture#ast).              |
-| `validate`   | `(input: string, options?: { throwOnError?: boolean }) => Promise<void>`                              | Yes      | Validate the document at a path or URL without running the full pipeline.                                                                  |
+| Property   | Type                                                                     | Required | Purpose                                                                                       |
+| ---------- | ------------------------------------------------------------------------ | -------- | --------------------------------------------------------------------------------------------- |
+| `name`     | `string`                                                                 | Yes      | Unique adapter identifier, filled from `meta.name`. Convention is `adapter-<id>`.             |
+| `options`  | `TResolvedOptions`                                                       | Yes      | Adapter options after defaults are applied.                                                   |
+| `document` | `TDocument \| null`                                                      | Yes      | The raw parsed source document, for plugins that need direct access. `null` before `parse()`. |
+| `parse`    | `(source: AdapterSource) => InputNode \| Promise<InputNode>`             | Yes      | Convert the spec into the [universal AST](/docs/5.x/explanation/architecture#ast).            |
+| `validate` | `(input: string, options?: { throwOnError?: boolean }) => Promise<void>` | Yes      | Validate the document at a path or URL without running the full pipeline.                     |
 
 Cross-references need no adapter hook: every plugin resolves `$ref` imports through [`resolver.imports`](/docs/5.x/reference/kit/resolvers#imports), which defaults each ref to its pointer's last segment. An adapter that renames a schema (for example to break a name collision) stamps `targetName` on every ref node pointing at it, so those imports pick up the emitted name. Refs that keep their segment name need no stamp.
 

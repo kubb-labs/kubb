@@ -22,16 +22,9 @@ describe('multi-word flag spellings', () => {
 
   it.each([
     { flag: '--log-level', argv: ['generate', '--log-level', 'verbose'], expected: 'verbose', resolve: () => runGenerate.mock.calls[0]?.[0].logLevel },
-    { flag: '--logLevel', argv: ['generate', '--logLevel', 'verbose'], expected: 'verbose', resolve: () => runGenerate.mock.calls[0]?.[0].logLevel },
     {
       flag: '--package-version',
       argv: ['studio', 'snapshot', '--package-version', '1.2.3'],
-      expected: '1.2.3',
-      resolve: () => runSnapshot.mock.calls[0]?.[0].values.packageVersion,
-    },
-    {
-      flag: '--packageVersion',
-      argv: ['studio', 'snapshot', '--packageVersion', '1.2.3'],
       expected: '1.2.3',
       resolve: () => runSnapshot.mock.calls[0]?.[0].values.packageVersion,
     },

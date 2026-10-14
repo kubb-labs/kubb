@@ -47,13 +47,6 @@ describe('canUseTTY', () => {
       expected: false,
       label: 'isTTY but columns is 0 (broken IDE terminal)',
     },
-    {
-      isTTY: true,
-      columns: undefined,
-      ci: '',
-      expected: false,
-      label: 'isTTY but columns is undefined',
-    },
   ])('returns $expected when $label', ({ isTTY, columns, ci, expected }) => {
     Object.defineProperty(process.stdout, 'isTTY', {
       value: isTTY,

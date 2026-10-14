@@ -1,7 +1,6 @@
-import { ast } from '@kubb/kit'
+import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { parserTs } from './parserTs.ts'
-import { parserTsx } from './parserTsx.ts'
 
 describe('parserTs', () => {
   it('returns the declarations separated by blank lines when a source has several nodes', async () => {
@@ -176,23 +175,5 @@ describe('parserTs', () => {
 
       expect(copy(parserTs(), source)).toBe([header, "import { api } from './api'", 'api()'].join('\n\n'))
     })
-  })
-})
-
-describe('parserTsx', () => {
-  it('returns the same output as parserTs when parsing a tsx file', async () => {
-    const file = ast.factory.createFile({
-      baseName: 'Pet.tsx',
-      path: '/src/Pet.tsx',
-      sources: [
-        ast.factory.createSource({
-          nodes: [ast.factory.createConst({ name: 'Pet', export: true, nodes: [ast.factory.createText('(props: Props) => <div />')] })],
-        }),
-      ],
-      imports: [ast.factory.createImport({ name: ['Props'], path: '/src/types.ts', root: '/src/Pet.tsx', isTypeOnly: true })],
-      exports: [],
-    })
-
-    expect(await parserTsx().parse(file)).toBe(["import type { Props } from './types'", '', 'export const Pet = (props: Props) => <div />'].join('\n'))
   })
 })

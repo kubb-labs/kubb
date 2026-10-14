@@ -2,7 +2,7 @@ import { addRspackPlugin, addVitePlugin, addWebpackPlugin, defineNuxtModule } fr
 import '@nuxt/schema'
 
 import rspack from './rspack.ts'
-import type { Options } from './types.ts'
+import type { Options } from './unpluginFactory.ts'
 import vite from './vite.ts'
 import webpack from './webpack.ts'
 

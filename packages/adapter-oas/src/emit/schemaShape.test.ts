@@ -27,28 +27,19 @@ describe('flattenSchema', () => {
     expect(flattenSchema(schema)).toBe(schema)
   })
 
-  it('merges plain allOf fragments into the parent schema', () => {
+  it('merges plain allOf fragments into the parent schema without overwriting existing keys', () => {
     const schema = {
       type: 'object' as const,
-      allOf: [{ description: 'A pet' }, { example: 'Fido' }],
+      description: 'existing',
+      allOf: [{ description: 'from allOf' }, { example: 'Fido' }],
     }
     const result = flattenSchema(schema)
 
     expect(result).not.toHaveProperty('allOf')
     expect(result).toMatchObject({
       type: 'object',
-      description: 'A pet',
+      description: 'existing',
       example: 'Fido',
     })
-  })
-
-  it('does not overwrite existing keys during merge', () => {
-    const schema = {
-      description: 'existing',
-      allOf: [{ description: 'from allOf' }],
-    }
-    const result = flattenSchema(schema)
-
-    expect(result?.description).toBe('existing')
   })
 })

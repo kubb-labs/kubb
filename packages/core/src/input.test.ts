@@ -63,9 +63,7 @@ describe('inputToAdapterSource', () => {
   })
 
   it.each([
-    ['a v4 path wrapper', { path: './petStore.yaml' }],
     ['a v4 data wrapper', { data: { openapi: '3.1.0' } }],
-    ['a v4 wrapper carrying both keys', { path: './petStore.yaml', data: { openapi: '3.1.0' } }],
     ['a v4 array of path wrappers', [{ path: './petStore.yaml' }]],
   ])('throws a legacy diagnostic for %s', (_name, input) => {
     expect(diagnosticCode(() => inputToAdapterSource(createConfig(input as Config['input'])))).toBe(Diagnostics.code.legacyInput)

@@ -53,31 +53,9 @@ The parser's `name` comes from `meta.name`. Kubb checks `meta.compatibility` bef
 ### `defineParser` (deprecated)
 
 > [!WARNING]
-> `defineParser` is deprecated. Use `defineExtension` with `kind: 'parser'` instead. The factory form below is removed in the next major.
+> `defineParser` is deprecated. Use `defineExtension` with `kind: 'parser'` instead.
 
 `defineParser` takes the same definition object as `defineExtension`, without `kind`. To move over, rename the call and add `kind: 'parser'`. See [Extensions](./extensions#define-extension).
-
-Older parsers pass a function that returns the whole parser, `name` included. A parser without `meta` gets `{ name }`. To move over, copy `name` into `meta.name` and return the other fields from `build`:
-
-```typescript twoslash [parserText.ts]
-import { defineParser } from 'kubb/kit'
-
-export const parserText = defineParser(() => ({
-  name: 'text',
-  extNames: ['.txt'],
-  parse(file) {
-    return file.sources
-      .flatMap((source) => source.nodes ?? [])
-      .map((node) => (node.kind === 'Text' ? node.value : ''))
-      .join('\n')
-  },
-  print(...nodes) {
-    return nodes.map(String).join('\n')
-  },
-}))
-```
-
-The definition object also accepts `setup` as a deprecated alias of `build` when passed to `defineParser`. `defineExtension` takes only `build`.
 
 Wire it into your config:
 
@@ -97,13 +75,13 @@ export default defineConfig({
 
 Every parser the factory returns matches the `Parser` interface from [`kubb/kit`](/docs/5.x/reference/kit). `build` returns every field except `name` and `meta`:
 
-| Property   | Type                                                                      | Required | When called                                  | Purpose                                                                                                                                              |
-| ---------- | ------------------------------------------------------------------------- | -------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `name`     | `string`                                                                  | Yes      |                                              | Unique parser identifier, filled from `meta.name`. Use the output language or format, such as `'typescript'`. |
-| `extNames` | `Array<FileNode['extname']> \| undefined`                                 | Yes      |                                              | File extensions this parser handles. Set to `undefined` to register a catch-all fallback.                                                            |
-| `parse`    | `(file: FileNode) => string`                                             | Yes      | After all plugins run                        | Serializes the file's sources into the final output string. Must return synchronously.                                                                |
-| `print`    | `(...nodes: TNode[]) => string`                                           | Yes      | By plugins, while they generate files        | Renders compiler AST nodes to source text. The node type is parser-specific, for example `ts.Node` for `parserTs`. |
-| `copy`     | `(file: FileNode, source: string) => UserFileNode`                        | No       | For each `copy` file                         | Describes a copied template's raw content as nodes, for example its imports as `ImportNode`s, in the same shape `injectFile` takes. Kubb prints the result with `parse`. Omit it to write copied files verbatim. |
+| Property   | Type                                               | Required | When called                           | Purpose                                                                                                                                                                                                          |
+| ---------- | -------------------------------------------------- | -------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`     | `string`                                           | Yes      |                                       | Unique parser identifier, filled from `meta.name`. Use the output language or format, such as `'typescript'`.                                                                                                    |
+| `extNames` | `Array<FileNode['extname']> \| undefined`          | Yes      |                                       | File extensions this parser handles. Set to `undefined` to register a catch-all fallback.                                                                                                                        |
+| `parse`    | `(file: FileNode) => string`                       | Yes      | After all plugins run                 | Serializes the file's sources into the final output string. Must return synchronously.                                                                                                                           |
+| `print`    | `(...nodes: TNode[]) => string`                    | Yes      | By plugins, while they generate files | Renders compiler AST nodes to source text. The node type is parser-specific, for example `ts.Node` for `parserTs`.                                                                                               |
+| `copy`     | `(file: FileNode, source: string) => UserFileNode` | No       | For each `copy` file                  | Describes a copied template's raw content as nodes, for example its imports as `ImportNode`s, in the same shape `injectFile` takes. Kubb prints the result with `parse`. Omit it to write copied files verbatim. |
 
 > [!IMPORTANT]
 > If two parsers register the same extension, the last one in the `parsers` array wins. Order matters.
@@ -114,11 +92,11 @@ When no parser matches a file's extension, Kubb writes the file's source strings
 
 Parsers share the layout of [plugins](/docs/5.x/explanation/extensions#plugins) and [adapters](/docs/5.x/explanation/architecture#adapters):
 
-| Surface             | Pattern                                          | Example                          |
-| ------------------- | ------------------------------------------------ | -------------------------------- |
-| npm package         | `@<scope>/parser-<name>` or `kubb-parser-<name>` | `@kubb/parser-ts`                |
-| Parser runtime name | The output language or format (lowercase)        | `'typescript'`, `'markdown'`     |
-| Factory export      | `parser<Name>` (camelCase)                       | `parserTs`, `parserMd`           |
+| Surface             | Pattern                                          | Example                      |
+| ------------------- | ------------------------------------------------ | ---------------------------- |
+| npm package         | `@<scope>/parser-<name>` or `kubb-parser-<name>` | `@kubb/parser-ts`            |
+| Parser runtime name | The output language or format (lowercase)        | `'typescript'`, `'markdown'` |
+| Factory export      | `parser<Name>` (camelCase)                       | `parserTs`, `parserMd`       |
 
 Call the parser factory when registering it in `parsers`.
 

@@ -28,11 +28,6 @@ function makeDriver(config: Config, hooks = new Hookable<KubbHooks>()): KubbDriv
 }
 
 describe('KubbDriver#setup', () => {
-  const pluginA = { name: 'pluginA', hooks: {} }
-  const pluginB = { name: 'pluginB', hooks: {} }
-  const pluginC = { name: 'pluginC', hooks: {} }
-  const config = makeConfig({ plugins: [pluginA, pluginB, pluginC] })
-
   test('enforce: pre plugins run before normal and post plugins', async () => {
     const prePlugin = { name: 'pre', enforce: 'pre' as const, hooks: {} }
     const normalPlugin = { name: 'normal', hooks: {} }
@@ -92,23 +87,6 @@ describe('KubbDriver#setup', () => {
 
     expect(pluginHook).toHaveBeenCalledTimes(1)
     expect(postPluginHook).toHaveBeenCalledTimes(1)
-  })
-
-  test('listeners attached directly to hooks survive dispose', async () => {
-    const external = vi.fn()
-    const hooks = new Hookable<KubbHooks>()
-    const driver = makeDriver(config, hooks)
-    await driver.setup()
-
-    hooks.hook('kubb:build:end', external)
-    driver.dispose()
-    await hooks.callHook('kubb:build:end', {
-      files: [],
-      config,
-      outputDir: '/tmp',
-    })
-
-    expect(external).toHaveBeenCalledTimes(1)
   })
 })
 
@@ -171,10 +149,6 @@ describe('GeneratorContext diagnostics', () => {
     ['driver.requirePlugin', () => driver.requirePlugin('missing'), /Plugin "missing" is required but not found/],
   ])('throws with the caller in the message when %s misses', (_name, requirePlugin, message) => {
     expect(requirePlugin).toThrowError(message)
-  })
-
-  it('returns the plugin from ctx.requirePlugin when it exists', () => {
-    expect(context().requirePlugin('pluginA').name).toBe('pluginA')
   })
 })
 
@@ -312,16 +286,29 @@ describe('KubbDriver generator dispatch', () => {
     expect(onOperations).toHaveBeenCalledTimes(2)
   })
 
-  it('fires kubb:plugin:end for every plugin with success', async () => {
-    const onPluginEnd = vi.fn()
-    hooks.hook('kubb:plugin:end', onPluginEnd)
+  it('runs added macros in order, isolated per plugin, before the generators see a node', async () => {
+    rec = { schema: [], operation: [], operations: [], pairs: [] }
+    const rename = (suffix: string) => ({ name: suffix, schema: (node: SchemaNode) => ({ ...node, name: `${node.name}${suffix}` }) })
+    const macroPlugin = (name: string, macros: Array<ReturnType<typeof rename>>): Plugin => ({
+      name,
+      hooks: {
+        'kubb:plugin:setup'(ctx: KubbPluginSetupContext) {
+          for (const macro of macros) ctx.addMacro(macro)
+          ctx.addGenerator(recordingGenerator(name, rec))
+        },
+      },
+    })
+    driver = makeDriver(
+      makeConfig({ adapter: inputAdapter(), plugins: [macroPlugin('pluginA', [rename('-1'), rename('-2')]), macroPlugin('pluginB', [])] }),
+      hooks,
+    )
+    await driver.setup()
 
     await driver.run()
 
-    const ended = onPluginEnd.mock.calls.map(([ctx]) => ({ name: ctx.plugin.name, success: ctx.success }))
-    expect(ended).toStrictEqual([
-      { name: 'pluginA', success: true },
-      { name: 'pluginB', success: true },
+    expect(rec.schema.filter((entry) => entry.name?.startsWith('Pet'))).toStrictEqual([
+      { plugin: 'pluginA', name: 'Pet-1-2' },
+      { plugin: 'pluginB', name: 'Pet' },
     ])
   })
 

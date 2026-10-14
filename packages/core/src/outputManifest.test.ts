@@ -39,7 +39,7 @@ describe('createOutputManifest', () => {
     expect(next.isUpToDate(entry)).toBe(expected)
   })
 
-  it('keeps entries from another config generating into the same root', async () => {
+  it('keeps entries from another config, or a run with a different storage, generating into the same root', async () => {
     const storage = memoryStorage()
     const cache = memoryStorage()
     await storage.writeItem('first.ts', formatted)
@@ -53,29 +53,15 @@ describe('createOutputManifest', () => {
     second.track({ key: 'second.ts', source: 'const b = 2' })
     await second.commit()
 
+    // A dry run against an empty storage in the same root must not evict what the real builds recorded.
+    const dryRun = await createOutputManifest({ storage: memoryStorage(), cache })
+    dryRun.track({ key: 'dry.ts', source: 'const c = 3' })
+    await dryRun.commit()
+
     const third = await createOutputManifest({ storage, cache })
 
     expect(third.isUpToDate({ key: 'first.ts', source: 'const a = 1', disk: formatted })).toBe(true)
     expect(third.isUpToDate({ key: 'second.ts', source: 'const b = 2', disk: 'const b = 2;\n' })).toBe(true)
-  })
-
-  it('keeps entries a run with a different storage cannot see', async () => {
-    const cache = memoryStorage()
-    const real = memoryStorage()
-    await real.writeItem('a.ts', formatted)
-
-    const build = await createOutputManifest({ storage: real, cache })
-    build.track({ key: 'a.ts', source: 'const a = 1' })
-    await build.commit()
-
-    // A dry run against an empty storage in the same root must not evict what the real build recorded.
-    const dryRun = await createOutputManifest({ storage: memoryStorage(), cache })
-    dryRun.track({ key: 'b.ts', source: 'const b = 2' })
-    await dryRun.commit()
-
-    const next = await createOutputManifest({ storage: real, cache })
-
-    expect(next.isUpToDate({ key: 'a.ts', source: 'const a = 1', disk: formatted })).toBe(true)
   })
 
   it.each([

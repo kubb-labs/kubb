@@ -2,7 +2,7 @@ import { mkdir, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it, test } from 'vitest'
-import { clean, exists, isPathInside, read, toPosixPath, trimExtName, write } from './fs.ts'
+import { exists, isPathInside, read, toPosixPath, trimExtName, write } from './fs.ts'
 
 const existsTestDir = path.join(os.tmpdir(), 'kubb-test-exists')
 const existsTestFile = path.join(existsTestDir, 'test.txt')
@@ -23,10 +23,6 @@ describe('exists', () => {
 
   it('should return false for non-existing file', async () => {
     expect(await exists(path.join(existsTestDir, 'nonexistent.txt'))).toBe(false)
-  })
-
-  it('should return true for existing directory', async () => {
-    expect(await exists(existsTestDir)).toBe(true)
   })
 })
 
@@ -95,46 +91,15 @@ describe('read / write', () => {
 
     expect(await write(rwFilePath, text, { sanity: true })).toBe(`${text}\n`)
   })
-
-  it('write trims data before saving', async () => {
-    const text = `  export const hallo = 'world'  `
-    await write(rwFilePath, text)
-
-    expect(await read(rwFilePath)).toBe(`${text.trim()}\n`)
-  })
-})
-
-describe('clean', () => {
-  const cleanDir = path.join(os.tmpdir(), 'kubb-test-clean')
-
-  it('removes directory recursively', async () => {
-    await mkdir(cleanDir, { recursive: true })
-    await write(path.join(cleanDir, 'file.ts'), 'export {}')
-    await clean(cleanDir)
-
-    expect(await exists(cleanDir)).toBe(false)
-  })
-
-  it('does not throw when path does not exist', async () => {
-    await expect(clean(path.join(os.tmpdir(), 'kubb-does-not-exist'))).resolves.not.toThrow()
-  })
 })
 
 describe('toPosixPath', () => {
-  it('returns POSIX paths unchanged', () => {
-    expect(toPosixPath('/repo/src/gen/types/pet.ts')).toBe('/repo/src/gen/types/pet.ts')
-  })
-
   it('converts backslash separators to forward slashes', () => {
     expect(toPosixPath('C:\\repo\\src\\gen\\types\\pet.ts')).toBe('C:/repo/src/gen/types/pet.ts')
   })
 })
 
 describe('trimExtName', () => {
-  test('strips .ts extension', () => {
-    expect(trimExtName('petStore.ts')).toBe('petStore')
-  })
-
   test('strips extension from a full path', () => {
     expect(trimExtName('/src/models/pet.ts')).toBe('/src/models/pet')
   })

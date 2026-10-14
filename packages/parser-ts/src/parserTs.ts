@@ -1,4 +1,5 @@
-import { ast, defineExtension } from '@kubb/kit'
+import { ast } from '@kubb/ast'
+import { defineExtension } from '@kubb/core'
 import type * as ts from 'typescript'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
@@ -72,11 +73,11 @@ export const parserTs = defineExtension<ParserTsOptions, object, ts.Node>({
         const importLines = file.imports.map((item) =>
           printImport({
             ...item,
-            path: resolveOutputPath(item.root ? getRelativePath(item.root, item.path) : item.path, { extname }, Boolean(item.root)),
+            path: resolveOutputPath(item.root ? getRelativePath(item.root, item.path) : item.path, extname, Boolean(item.root)),
           }),
         )
 
-        const exportLines = file.exports.map((item) => printExport({ ...item, path: resolveOutputPath(item.path, { extname }, item.path.startsWith('.')) }))
+        const exportLines = file.exports.map((item) => printExport({ ...item, path: resolveOutputPath(item.path, extname, item.path.startsWith('.')) }))
 
         const importExportBlock = [...importLines, ...exportLines].join('\n')
 

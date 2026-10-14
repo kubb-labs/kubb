@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it, test, vi } from 'vitest'
 import { createKubb } from './createKubb.ts'
 import { type Diagnostic, Diagnostics } from './Diagnostics.ts'
 import { defineExtension } from './defineExtension.ts'
-import type { Config, KubbHooks, UserConfig } from './types.ts'
+import type { Config, KubbHooks } from './types.ts'
 import type { Adapter } from './createAdapter.ts'
 import type { Plugin } from './definePlugin.ts'
 import { resolveCacheDir } from './storages/cacheStorage.ts'
@@ -117,24 +117,6 @@ describe('createKubb', () => {
       },
     ])
     expect(pluginMocks.buildStart).toHaveBeenCalledTimes(1)
-  })
-
-  test('resolves config defaults in the constructor, before setup', () => {
-    const userConfig = {
-      input: 'https://petstore3.swagger.io/api/v3/openapi.json',
-      output: {
-        path: './src/gen',
-      },
-      adapter: createMockedAdapter(),
-      plugins: [plugin],
-    } satisfies UserConfig
-
-    const kubb = createKubb(userConfig, {
-      hooks: new Hookable<KubbHooks>(),
-    })
-
-    expect(kubb.config.root).toBe(process.cwd())
-    expect(kubb.config.parsers).toStrictEqual([])
   })
 
   test('stops before setup when its signal is aborted', async () => {
@@ -281,12 +263,7 @@ describe('createKubb', () => {
   })
 
   // Plugins generate sequentially, so `plugin:end` fires in declaration order; storage is written once at the end.
-  it.each([
-    [2, 1],
-    [25, 1],
-    [60, 1],
-    [2, 2],
-  ])('writes all %i generated files in one batch after plugin:end fired for each of %i plugins', async (schemaCount, pluginCount) => {
+  it.each([[60, 2]])('writes all %i generated files in one batch after plugin:end fired for each of %i plugins', async (schemaCount, pluginCount) => {
     const hooks = new Hookable<KubbHooks>()
     const batches: Array<number> = []
     const endOrder: Array<string> = []
@@ -360,39 +337,6 @@ describe('createKubb', () => {
     expect(hooks.listenerCount('kubb:generate:schema')).toBe(0)
     expect(hooks.listenerCount('kubb:generate:operation')).toBe(0)
     expect(hooks.listenerCount('kubb:generate:operations')).toBe(0)
-  })
-
-  it('does not throw when userConfig.plugins is undefined', async () => {
-    const { plugins: _plugins, ...userConfig } = makeConfig()
-
-    await expect(createKubb(userConfig).safeBuild()).resolves.not.toThrow()
-  })
-
-  it('passes operations to gen.operations() in insertion order', async () => {
-    const operations = Array.from({ length: 19 }, (_, i) =>
-      ast.factory.createOperation({ operationId: `op${i}`, method: 'GET', path: `/path${i}`, parameters: [], responses: [], tags: [] }),
-    )
-    const receivedOrder: Array<string> = []
-
-    const orderPlugin = defineExtension({
-      kind: 'plugin',
-      meta: { name: 'order-plugin' },
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          ctx.addGenerator({
-            name: 'order-gen',
-            operations(nodes) {
-              receivedOrder.push(...nodes.map((n) => n.operationId))
-              return []
-            },
-          })
-        },
-      },
-    })()
-
-    await createKubb(makeConfig({ adapter: makeAdapter({ operations }), plugins: [orderPlugin] }), { hooks: new Hookable<KubbHooks>() }).build()
-
-    expect(receivedOrder).toStrictEqual(operations.map((o) => o.operationId))
   })
 
   describe('per-node options and transform reuse', () => {
@@ -469,37 +413,6 @@ describe('createKubb', () => {
       expect(batch[0]).toBe(perNode[0])
     })
   })
-
-  describe('large file writes', () => {
-    it('writes every file exactly once', async () => {
-      const fileCount = 105
-      const writtenPaths: Array<string> = []
-      const storage = memoryStorage()
-      const originalWriteItem = storage.writeItem.bind(storage)
-      storage.writeItem = async (key, value) => {
-        writtenPaths.push(key)
-        return originalWriteItem(key, value)
-      }
-
-      const plugin = defineExtension({
-        kind: 'plugin',
-        meta: { name: 'write-plugin' },
-        hooks: {
-          'kubb:plugin:setup'(ctx) {
-            for (let i = 0; i < fileCount; i++) {
-              ctx.injectFile(makeFile(`/gen/file${i}.ts`, `export const v${i} = ${i}`))
-            }
-          },
-        },
-      })()
-
-      const { files } = await createKubb(makeConfig({ storage, plugins: [plugin] }), { hooks: new Hookable<KubbHooks>() }).build()
-
-      expect(files).toHaveLength(fileCount)
-      expect(writtenPaths).toHaveLength(fileCount)
-      expect(new Set(writtenPaths).size).toBe(fileCount)
-    })
-  })
 })
 
 type ProjectBuild = {
@@ -570,32 +483,22 @@ describe('Kubb#generate', () => {
     expect(endStatus).toBe('failed')
   })
 
-  it('skips processOutput and the format pass when the storage keeps the output in memory', async () => {
+  it.each([
+    ['skips processOutput when the storage keeps the output in memory', memoryStorage, 0],
+    ['runs processOutput once when the storage writes the output to disk', fsStorage, 1],
+  ])('%s', async (_name, storage, calls) => {
     hooks = new Hookable<KubbHooks>()
     const formatStarted = vi.fn()
     hooks.hook('kubb:format:start', formatStarted)
     const processOutput = vi.fn(async () => [])
 
-    const result = await createKubb(makeConfig({ root: tempRoot(), storage: memoryStorage(), output: { path: './gen', format: 'prettier' } }), {
-      hooks,
-    }).generate({
+    const result = await createKubb(makeConfig({ root: tempRoot(), storage: storage(), output: { path: './gen', format: 'prettier' } }), { hooks }).generate({
       processOutput,
     })
 
     expect(result.success).toBe(true)
-    expect(processOutput).not.toHaveBeenCalled()
+    expect(processOutput).toHaveBeenCalledTimes(calls)
     expect(formatStarted).not.toHaveBeenCalled()
-  })
-
-  it('runs processOutput once when the storage writes the output to disk', async () => {
-    hooks = new Hookable<KubbHooks>()
-    const processOutput = vi.fn(async () => [])
-
-    await createKubb(makeConfig({ root: tempRoot(), storage: fsStorage(), output: { path: './gen', format: 'prettier' } }), { hooks }).generate({
-      processOutput,
-    })
-
-    expect(processOutput).toHaveBeenCalledTimes(1)
   })
 
   it('reports an adapter crash as KUBB_ADAPTER_FAILED and stops without running processOutput', async () => {

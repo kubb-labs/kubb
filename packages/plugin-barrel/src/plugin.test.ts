@@ -221,13 +221,13 @@ describe('pluginBarrel', () => {
     expect(rootExportNames).toContain('Extra')
   })
 
-  it.each([{ scenario: "'.'", output: { path: '.' } }])('keeps the other barrels when a barrel:false plugin output path is $scenario', async ({ output }) => {
+  it("keeps the other barrels when a barrel:false plugin output path is '.'", async () => {
     const rootPlugin = makePlugin({
       name: 'plugin-root',
       outputPath: '.',
       filePath: '/workspace/src/gen/client.ts',
       exportName: 'client',
-      output: { mode: 'directory', barrel: false, ...output },
+      output: { mode: 'directory', barrel: false, path: '.' },
     })
     const { paths, rootExportNames } = await build({ plugins: [typesPlugin(), rootPlugin] })
 

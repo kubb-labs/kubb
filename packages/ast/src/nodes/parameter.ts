@@ -1,4 +1,4 @@
-import { withRequired } from '../optionality.ts'
+import { optionality } from '../optionality.ts'
 import type { BaseNode } from './base.ts'
 import type { SchemaNode } from './schema.ts'
 
@@ -57,7 +57,7 @@ type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial
 
 /**
  * Creates a `ParameterNode`. `required` defaults to `false`, and the schema's
- * `optional`/`nullish` flags are derived from it through {@link withRequired}.
+ * `optional`/`nullish` flags are derived from it.
  *
  * @example
  * ```ts
@@ -70,5 +70,7 @@ type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial
  * ```
  */
 export function createParameter(input: UserParameterNode): ParameterNode {
-  return { ...withRequired(input), kind: 'Parameter' }
+  const required = input.required ?? false
+
+  return { ...input, required, schema: optionality(input.schema, required), kind: 'Parameter' }
 }

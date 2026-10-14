@@ -1,20 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createText } from './code.ts'
-import { createExport, createFile, createImport, createSource } from './file.ts'
-
-const importInput = { name: ['FC'], path: 'react', isTypeOnly: true }
-const exportInput = { name: ['default'], path: './Pet', isTypeOnly: true, asAlias: true }
-const sourceInput = { name: 'Pet', nodes: [createText('export type Pet = {}')], isExportable: true, isTypeOnly: true }
-
-describe('file factories', () => {
-  it.each([
-    { kind: 'Import', input: importInput, node: createImport(importInput) },
-    { kind: 'Export', input: exportInput, node: createExport(exportInput) },
-    { kind: 'Source', input: sourceInput, node: createSource(sourceInput) },
-  ])('returns { kind: $kind, ...input } when creating a $kind node', ({ kind, input, node }) => {
-    expect(node).toStrictEqual({ kind, ...input })
-  })
-})
+import { createFile, createImport, createSource } from './file.ts'
 
 describe('createFile', () => {
   it('creates a FileNode with correct kind, id, name and extname', () => {
@@ -76,33 +62,17 @@ describe('createFile', () => {
     expect(paths).toContain('zod')
   })
 
-  it('drops imports of names defined locally even when the path differs', () => {
+  it('drops imports of locally defined names even when the path differs and keeps the non-local names of a grouped import', () => {
     // When output is consolidated the file can live at one path while the import for `Pet`
     // resolves to the per-schema path, so the strings differ and the path filter cannot match.
     const selfNamedImport = createImport({ name: ['Pet'], path: 'src/models/Pet.ts' })
-    const crossFileImport = createImport({ name: ['Order'], path: 'src/models/Order.ts' })
+    const mixedImport = createImport({ name: ['Pet', 'Order'], path: 'src/models/Order.ts' })
     const petSource = createSource({ name: 'Pet', nodes: [createText('export type Pet = { order: Order }')], isExportable: true })
     const file = createFile({
       baseName: 'pet.ts',
       path: 'src/models/pet.ts',
       sources: [petSource],
-      imports: [selfNamedImport, crossFileImport],
-    })
-
-    const names = file.imports.flatMap((i) => (Array.isArray(i.name) ? i.name : [i.name]))
-    expect(names).not.toContain('Pet')
-    expect(names).toContain('Order')
-    expect(file.sources.some((s) => s.name === 'Pet')).toBe(true)
-  })
-
-  it('keeps non-local names when a grouped import mixes local and cross-file bindings', () => {
-    const mixedImport = createImport({ name: ['Pet', 'Order'], path: 'src/models/Pet.ts' })
-    const petSource = createSource({ name: 'Pet', nodes: [createText('export type Pet = { order: Order }')], isExportable: true })
-    const file = createFile({
-      baseName: 'pet.ts',
-      path: 'src/models/pet.ts',
-      sources: [petSource],
-      imports: [mixedImport],
+      imports: [selfNamedImport, mixedImport],
     })
 
     const names = file.imports.flatMap((i) => (Array.isArray(i.name) ? i.name : [i.name]))

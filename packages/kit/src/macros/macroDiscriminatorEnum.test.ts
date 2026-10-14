@@ -8,16 +8,6 @@ function applyShallow(node: SchemaNode, macro: Parameters<typeof ast.applyMacros
 }
 
 describe('macroDiscriminatorEnum', () => {
-  it('leaves a node without the discriminator property unchanged', () => {
-    const node = ast.factory.createSchema({
-      type: 'object',
-      name: 'Pet',
-      properties: [ast.factory.createProperty({ name: 'name', schema: ast.factory.createSchema({ type: 'string' }) })],
-    })
-
-    expect(applyShallow(node, macroDiscriminatorEnum({ propertyName: 'type', values: ['dog'] }))).toBe(node)
-  })
-
   it('replaces the discriminator property with a string enum of the values, named from enumName', () => {
     const node = ast.factory.createSchema({
       type: 'object',

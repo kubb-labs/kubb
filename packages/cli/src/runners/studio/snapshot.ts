@@ -3,13 +3,13 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import { read } from '@internals/utils'
 import { cliReporter, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
-import { createSnapshot, defaultStudioUrl } from '@kubb/studio'
+import { createSnapshot } from '@kubb/studio'
 import type { BranchSnapshotChanges, PublishedSnapshot, SnapshotChanges } from '@kubb/studio/protocol'
 import { logBlock } from '../../loggers/output.ts'
 import { createPlainLogger } from '../../loggers/plainLogger.ts'
 import setupReporters from '../../loggers/reporters.ts'
 import { type CiContext, detectCi } from './ci.ts'
-import { loadConfigs, run, type SnapshotOptions } from './run.ts'
+import { loadConfigs, runStudio, type SnapshotOptions } from './run.ts'
 import type { command } from '../../commands/studio/snapshot.ts'
 import type { CommandRunner } from 'gunshi'
 
@@ -180,17 +180,18 @@ export async function snapshot(options: SnapshotOptions): Promise<void> {
   }
 }
 
-export const runner: CommandRunner<{ args: typeof command.args; extensions: {} }> = async ({ values }) => {
-  const options: SnapshotOptions = {
-    configPath: values.config,
-    studioUrl: values.url ?? defaultStudioUrl,
-    logLevel: values.logLevel,
-    token: values.token,
-    id: values.id,
-    baseId: values.baseId,
-    name: values.name,
-    packageVersion: values.packageVersion,
-    json: values.json,
-  }
-  await run({ options, action: () => snapshot(options), json: options.json })
-}
+export const runner: CommandRunner<{ args: typeof command.args; extensions: {} }> = ({ values }) =>
+  runStudio(
+    values,
+    (options) =>
+      snapshot({
+        ...options,
+        token: values.token,
+        id: values.id,
+        baseId: values.baseId,
+        name: values.name,
+        packageVersion: values.packageVersion,
+        json: values.json,
+      }),
+    { json: values.json },
+  )

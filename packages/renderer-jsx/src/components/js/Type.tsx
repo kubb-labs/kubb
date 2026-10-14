@@ -1,26 +1,8 @@
-import type { JSDoc, Key, KubbReactElement, KubbReactNode } from '../../types.ts'
+import type { ast } from '@kubb/ast'
+import type { Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
-type TypeProps = {
+type TypeProps = Omit<ast.TypeNode, 'kind' | 'nodes'> & {
   key?: Key
-  /**
-   * Identifier of the generated type alias.
-   * Must start with an uppercase letter to follow TypeScript naming conventions.
-   *
-   * @example
-   * `name: 'Pet'`
-   */
-  name: string
-  /**
-   * Emit the `export` keyword before the type alias declaration.
-   * - `true` generates `export type Name = …`
-   * - `false` generates `type Name = …`
-   */
-  export?: boolean | null
-  /**
-   * JSDoc block to prepend to the type alias declaration.
-   * Each entry in `comments` becomes one line inside the emitted `/** … *\/` block.
-   */
-  JSDoc?: JSDoc | null
   /**
    * Child nodes rendered as the type expression on the right-hand side of the alias.
    */
@@ -48,14 +30,10 @@ type TypeProps = {
  * </Type>
  * ```
  */
-export function Type({ children, name, export: canExport, JSDoc }: TypeProps): KubbReactElement {
-  if (name.charAt(0).toUpperCase() !== name.charAt(0)) {
+export function Type({ children, ...props }: TypeProps): KubbReactElement {
+  if (props.name.charAt(0).toUpperCase() !== props.name.charAt(0)) {
     throw new Error('Name should start with a capital letter(see TypeScript types)')
   }
 
-  return (
-    <kubb-type name={name} export={canExport} JSDoc={JSDoc}>
-      {children}
-    </kubb-type>
-  )
+  return <kubb-type {...props}>{children}</kubb-type>
 }

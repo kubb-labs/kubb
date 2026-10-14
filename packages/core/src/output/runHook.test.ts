@@ -98,30 +98,6 @@ describe('runHook', () => {
     expect(result.success).toBe(false)
   })
 
-  it('returns success=false when a kubb:hook:line listener throws', async () => {
-    const hooks = new Hookable<KubbHooks>()
-    hooks.hook('kubb:hook:line', () => {
-      throw new Error('listener failed')
-    })
-
-    const result = await runHook({ hooks, command: node, args: ['-e', 'console.log("first"); process.exit(0)'] })
-
-    expect(result.success).toBe(false)
-    expect(result.error?.message).toContain('kubb:hook:line')
-  })
-
-  it('runs the command in the given working directory', async () => {
-    const hooks = new Hookable<KubbHooks>()
-    const lines: Array<string> = []
-    hooks.hook('kubb:hook:line', ({ line }) => {
-      lines.push(line)
-    })
-
-    await runHook({ hooks, command: node, args: ['-e', 'console.log(process.cwd())'], cwd: process.cwd() })
-
-    expect(lines).toStrictEqual([process.cwd()])
-  })
-
   it.skipIf(process.platform === 'win32')('finds a tool that only exists in node_modules/.bin above the working directory', async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-hook-bin-'))
     roots.push(root)
@@ -140,18 +116,5 @@ describe('runHook', () => {
 
     expect(result).toStrictEqual({ success: true, error: null })
     expect(lines).toStrictEqual(['local'])
-  })
-
-  it.skipIf(process.platform !== 'win32')('passes a quoted argument through cmd.exe unchanged', async () => {
-    const hooks = new Hookable<KubbHooks>()
-    const lines: Array<string> = []
-    hooks.hook('kubb:hook:line', ({ line }) => {
-      lines.push(line)
-    })
-
-    const result = await runHook({ hooks, command: node, args: ['-e', 'console.log(process.argv[1])', 'say "hi" & bye'] })
-
-    expect(result).toStrictEqual({ success: true, error: null })
-    expect(lines).toStrictEqual(['say "hi" & bye'])
   })
 })

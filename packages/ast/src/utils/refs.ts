@@ -1,5 +1,10 @@
 import type { RefSchemaNode, SchemaNode } from '../nodes/schema.ts'
 
+/** Returns the last segment of a `$ref` pointer, for example `'Pet'` for `#/components/schemas/Pet`. */
+export function refName(ref: string): string {
+  return ref.split('/').at(-1) ?? ref
+}
+
 /**
  * Resolves the emitted name of the schema a ref node points at. Prefers `targetName` (set when
  * the referenced schema was renamed, e.g. to break a collision), then the last segment of `ref`,
@@ -16,7 +21,7 @@ import type { RefSchemaNode, SchemaNode } from '../nodes/schema.ts'
 export function resolveRefName(node: SchemaNode | null | undefined): string | null {
   if (!node || node.type !== 'ref') return null
   if (node.targetName) return node.targetName
-  if (node.ref) return node.ref.split('/').at(-1) ?? node.ref
+  if (node.ref) return refName(node.ref)
 
   return node.name ?? node.schema?.name ?? null
 }

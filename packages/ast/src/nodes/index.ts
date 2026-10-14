@@ -3,12 +3,23 @@ import type { ContentNode } from './content.ts'
 import type { ExportNode, FileNode, ImportNode, SourceNode } from './file.ts'
 import type { InputNode } from './input.ts'
 import type { OperationNode } from './operation.ts'
-import type { OutputNode } from './output.ts'
 import type { ParameterNode } from './parameter.ts'
 import type { PropertyNode } from './property.ts'
 import type { RequestBodyNode } from './requestBody.ts'
 import type { ResponseNode } from './response.ts'
 import type { SchemaNode } from './schema.ts'
+
+export { createArrowFunction, createBreak, createConst, createFunction, createJsx, createText, createType } from './code.ts'
+export { createContent } from './content.ts'
+export { createExport, createFile, createImport, createSource } from './file.ts'
+export type { UserFileNode } from './file.ts'
+export { createInput } from './input.ts'
+export { createOperation } from './operation.ts'
+export { createParameter } from './parameter.ts'
+export { createProperty } from './property.ts'
+export { createRequestBody } from './requestBody.ts'
+export { createResponse } from './response.ts'
+export { createSchema } from './schema.ts'
 
 /**
  * Union of all AST node types.
@@ -21,8 +32,6 @@ import type { SchemaNode } from './schema.ts'
  *   switch (node.kind) {
  *     case 'Input':
  *       return 'input'
- *     case 'Output':
- *       return 'output'
  *     default:
  *       return 'other'
  *   }
@@ -31,7 +40,6 @@ import type { SchemaNode } from './schema.ts'
  */
 export type Node =
   | InputNode
-  | OutputNode
   | OperationNode
   | SchemaNode
   | PropertyNode

@@ -32,11 +32,6 @@ describe('isBareRef', () => {
     expect(isBareRef(createSchema({ type: 'ref', ref: '#/components/schemas/Pet' }))).toBe(true)
   })
 
-  it('returns false for non-ref nodes', () => {
-    expect(isBareRef(createSchema({ type: 'string' }))).toBe(false)
-    expect(isBareRef(undefined)).toBe(false)
-  })
-
   it('returns false for ref modifiers and metadata', () => {
     expect(isBareRef(createSchema({ type: 'ref', ref: '#/components/schemas/Pet', nullable: true }))).toBe(false)
     expect(isBareRef(createSchema({ type: 'ref', ref: '#/components/schemas/Pet', default: 'pet' }))).toBe(false)

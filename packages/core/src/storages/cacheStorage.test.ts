@@ -34,10 +34,6 @@ describe('resolveCacheDir', () => {
 })
 
 describe('cacheStorage', () => {
-  it('reports the driver name', () => {
-    expect(cacheStorage({ root: makeDir() }).name).toBe('cache')
-  })
-
   it('passes reads, writes and removes through to plain keys inside the cache directory', async () => {
     const dir = makeDir()
     mkdirSync(join(dir, 'node_modules'))
@@ -48,10 +44,9 @@ describe('cacheStorage', () => {
     await storage.writeItem('manifest.json', '{"a":1}')
 
     expect(await storage.readItem('manifest.json')).toBe('{"a":1}\n')
-    expect(await storage.existsItem('manifest.json')).toBe(true)
 
     await storage.removeItem('manifest.json')
 
-    expect(await storage.existsItem('manifest.json')).toBe(false)
+    expect(await storage.readItem('manifest.json')).toBeNull()
   })
 })

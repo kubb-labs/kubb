@@ -9,9 +9,6 @@ import { memoryStorage } from './storages/memoryStorage.ts'
 function createMapStorage(map: Map<string, string>) {
   return {
     name: 'memory',
-    async existsItem(key: string) {
-      return map.has(key)
-    },
     async readItem(key: string) {
       return map.get(key) ?? null
     },
@@ -41,23 +38,11 @@ describe('createStorage', () => {
 
     expect(storage.name).toBe('custom-test')
   })
-
-  it('uses empty object when options are omitted', () => {
-    const factory = createStorage((_options: Record<string, never>) => ({
-      ...createMapStorage(new Map()),
-      name: 'no-options',
-    }))
-
-    expect(() => factory()).not.toThrow()
-    expect(factory().name).toBe('no-options')
-  })
 })
 
 type StorageCase = {
   name: string
   create(): Storage
-  /** The `name` the driver reports on its instances. */
-  driverName: string
   /** What `readItem` returns after `writeItem(key, value)`; the filesystem driver appends a newline. */
   written(value: string): string
   /** What `readKeys(base)` returns for `names` under `base`: relative on disk, full keys in memory. */
@@ -68,21 +53,19 @@ const storages: Array<StorageCase> = [
   {
     name: 'memoryStorage',
     create: memoryStorage,
-    driverName: 'memory',
     written: (value) => value,
     keysUnder: (base, names) => names.map((name) => join(base, name)),
   },
   {
     name: 'fsStorage',
     create: fsStorage,
-    driverName: 'fs',
     written: (value) => `${value}\n`,
     keysUnder: (_base, names) => names,
   },
 ]
 
 // Every key lives under a temp dir that is removed afterwards, so the filesystem driver never touches the package.
-describe.each(storages)('Storage contract: $name', ({ create, driverName, written, keysUnder }) => {
+describe.each(storages)('Storage contract: $name', ({ create, written, keysUnder }) => {
   let dir: string
   let storage: Storage
 
@@ -93,10 +76,6 @@ describe.each(storages)('Storage contract: $name', ({ create, driverName, writte
 
   afterEach(() => {
     rmSync(dir, { recursive: true, force: true })
-  })
-
-  it('reports the driver name', () => {
-    expect(storage.name).toBe(driverName)
   })
 
   it('returns null from readItem for a missing key', async () => {
@@ -111,25 +90,13 @@ describe.each(storages)('Storage contract: $name', ({ create, driverName, writte
     expect(await storage.readItem(key)).toBe(written('export const x = 1'))
   })
 
-  it('returns false from existsItem before a write and true after', async () => {
-    const key = join(dir, 'check.ts')
-
-    expect(await storage.existsItem(key)).toBe(false)
-    await storage.writeItem(key, 'const a = 1')
-    expect(await storage.existsItem(key)).toBe(true)
-  })
-
   it('removes an existing key with removeItem', async () => {
     const key = join(dir, 'remove.ts')
 
     await storage.writeItem(key, 'const b = 2')
     await storage.removeItem(key)
 
-    expect(await storage.existsItem(key)).toBe(false)
-  })
-
-  it('resolves removeItem for a missing key', async () => {
-    await expect(storage.removeItem(join(dir, 'ghost.ts'))).resolves.toBeUndefined()
+    expect(await storage.readItem(key)).toBeNull()
   })
 
   it('returns every key under a base from readKeys', async () => {
@@ -153,6 +120,6 @@ describe.each(storages)('Storage contract: $name', ({ create, driverName, writte
     await storage.empty(join(dir, 'gen'))
 
     expect(await storage.readKeys(join(dir, 'gen'))).toStrictEqual([])
-    expect(await storage.existsItem(other)).toBe(true)
+    expect(await storage.readItem(other)).toBe(written('const c = 3'))
   })
 })

@@ -1,5 +1,4 @@
 export { createAdapter } from './createAdapter.ts'
-export { applyConfigDefaults } from './applyConfigDefaults.ts'
 export {
   addGenerator,
   addMacro,
@@ -57,7 +56,6 @@ export type { GenerationResult, Reporter, ReporterContext, ReporterName, UserRep
 export type { SummaryRenderer } from './reporters/summary.ts'
 export type { Renderer, RendererFactory } from './createRenderer.ts'
 export type { Storage } from './createStorage.ts'
-export type { FileManagerHooks } from './FileManager.ts'
 export type { Generator, GeneratorContext } from './defineGenerator.ts'
 export type { InputKind } from './input.ts'
 export type {

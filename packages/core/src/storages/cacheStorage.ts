@@ -43,31 +43,16 @@ export function resolveCacheDir(root: string): string {
  */
 export const cacheStorage = createStorage(({ root = process.cwd() }: CacheStorageOptions) => {
   const dir = resolveCacheDir(root)
-  const storage = fsStorage()
+  const fs = fsStorage()
   const toPath = (key: string) => join(dir, key)
 
   return {
     name: 'cache',
-    async existsItem(key: string) {
-      return storage.existsItem(toPath(key))
-    },
-    async readItem(key: string) {
-      return storage.readItem(toPath(key))
-    },
-    async writeItem(key: string, value: string) {
-      return storage.writeItem(toPath(key), value)
-    },
-    async removeItem(key: string) {
-      return storage.removeItem(toPath(key))
-    },
-    async readKeys(base?: string) {
-      return storage.readKeys(base ? toPath(base) : dir)
-    },
-    async empty(base?: string) {
-      // Same rule as `fsStorage`: a bare `empty()` deletes nothing, so storage-generic code cannot
-      // wipe the cache directory by accident.
-      if (!base) return
-      return storage.empty(toPath(base))
-    },
+    readItem: (key) => fs.readItem(toPath(key)),
+    writeItem: (key, value) => fs.writeItem(toPath(key), value),
+    removeItem: (key) => fs.removeItem(toPath(key)),
+    readKeys: (base) => fs.readKeys(base ? toPath(base) : dir),
+    // Same rule as `fsStorage`: a bare `empty()` deletes nothing, so storage-generic code cannot wipe the cache directory by accident.
+    empty: async (base) => (base ? fs.empty(toPath(base)) : undefined),
   }
 })

@@ -12,10 +12,6 @@ export type Storage = {
    */
   readonly name: string
   /**
-   * Returns `true` when an entry for `key` exists.
-   */
-  existsItem(key: string): Promise<boolean>
-  /**
    * Reads the stored string. Returns `null` when the key is missing.
    */
   readItem(key: string): Promise<string | null>
@@ -60,9 +56,6 @@ export type Storage = {
  *
  *   return {
  *     name: 'memory',
- *     async existsItem(key) {
- *       return store.has(key)
- *     },
  *     async readItem(key) {
  *       return store.get(key) ?? null
  *     },
@@ -83,6 +76,7 @@ export type Storage = {
  * })
  * ```
  */
-export function createStorage<TOptions = Record<string, never>>(build: (options: TOptions) => Storage): (options?: TOptions) => Storage {
-  return (options) => build((options ?? {}) as TOptions)
-}
+export const createStorage =
+  <TOptions = Record<string, never>>(build: (options: TOptions) => Storage) =>
+  (options?: TOptions): Storage =>
+    build((options ?? {}) as TOptions)

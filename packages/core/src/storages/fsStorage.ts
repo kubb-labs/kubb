@@ -1,6 +1,6 @@
 import { glob, readFile, rm } from 'node:fs/promises'
 import { join, relative, resolve } from 'node:path'
-import { clean, exists, toPosixPath, write } from '@internals/utils'
+import { toPosixPath, write } from '@internals/utils'
 import { createStorage } from '../createStorage.ts'
 
 /**
@@ -15,7 +15,6 @@ import { createStorage } from '../createStorage.ts'
  * - the write is skipped when the file already holds that content, ignoring any trailing newline
  *   a formatter left behind
  * - missing parent directories are created automatically
- * - Bun's native file API is used when running under Bun
  * - `FileManager.write` bounds in-flight writes, so this driver does not pace itself
  *
  * @example
@@ -32,9 +31,6 @@ import { createStorage } from '../createStorage.ts'
  */
 export const fsStorage = createStorage(() => ({
   name: 'fs',
-  async existsItem(key: string) {
-    return exists(resolve(key))
-  },
   async readItem(key: string) {
     try {
       return await readFile(resolve(key), 'utf8')
@@ -69,6 +65,6 @@ export const fsStorage = createStorage(() => ({
       return
     }
 
-    await clean(resolve(base))
+    await rm(resolve(base), { recursive: true, force: true })
   },
 }))

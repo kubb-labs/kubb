@@ -9,11 +9,6 @@ import type { SchemaType } from './nodes/schema.ts'
  */
 export type VisitorDepth = 'shallow' | 'deep'
 
-export const visitorDepths = {
-  shallow: 'shallow',
-  deep: 'deep',
-} as const satisfies Record<VisitorDepth, VisitorDepth>
-
 /**
  * Schema type discriminators used by all AST schema nodes.
  *

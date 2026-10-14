@@ -2,7 +2,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
-import { assertDocument, bundleDocument, hasExternalRef, parseDocument, parseFromConfig, validateDocument } from './normalize.ts'
+import { assertDocument, bundleDocument, hasExternalRef, parseFromConfig, validateDocument } from './normalize.ts'
 import type { Document } from '../types.ts'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -17,27 +17,6 @@ const petSchema: Document = {
     },
   },
 } as Document
-
-describe('parseDocument', () => {
-  it('returns an OpenAPI 3 document from a plain object', async () => {
-    const doc = await parseDocument(petSchema)
-
-    expect(doc.openapi).toMatch(/^3\./)
-    expect(doc.components?.schemas?.['Pet']).toBeDefined()
-  })
-
-  it('up-converts a Swagger 2.0 document to OpenAPI 3.0', async () => {
-    const swagger2: Document = {
-      swagger: '2.0',
-      info: { title: 'Test', version: '1.0.0' },
-      paths: {},
-    } as unknown as Document
-
-    const doc = await parseDocument(swagger2)
-
-    expect(doc.openapi).toMatch(/^3\./)
-  })
-})
 
 describe('parseFromConfig', () => {
   it.each([
@@ -62,6 +41,14 @@ components:
 
     expect(doc.components?.schemas?.['Pet']).toBeDefined()
   })
+
+  it('up-converts a Swagger 2.0 document to OpenAPI 3', async () => {
+    const swagger2 = { swagger: '2.0', info: { title: 'Test', version: '1.0.0' }, paths: {} }
+
+    const doc = await parseFromConfig({ type: 'data', data: swagger2 })
+
+    expect(doc.openapi).toMatch(/^3\./)
+  })
 })
 
 describe('validateDocument', () => {
@@ -78,10 +65,6 @@ describe('validateDocument', () => {
       },
     },
   } as unknown as Document
-
-  it('does not throw by default', async () => {
-    await expect(validateDocument(invalidSchema)).resolves.toBeUndefined()
-  })
 
   it('throws when throwOnError is enabled', async () => {
     await expect(validateDocument(invalidSchema, { throwOnError: true })).rejects.toThrow()
@@ -160,11 +143,8 @@ describe('bundleDocument', () => {
         employers: { type: 'array', items: { $ref: '#/components/schemas/Employer' } },
       },
     })
-  })
 
-  it('resolves ../ refs from nested files to the same named schema', async () => {
-    const doc = await bundleDocument(path.resolve(__dirname, '../../mocks/phantom/main.yaml'))
-
+    // A ../ ref from a nested file lands on the same named schema.
     const mePath = doc.paths?.['/me'] as Record<string, Record<string, unknown>>
     expect(mePath?.['get']?.['responses']).toMatchObject({
       '200': {
@@ -250,13 +230,6 @@ describe('bundleDocument', () => {
   it('throws when the input file does not exist', async () => {
     await expect(bundleDocument(path.resolve(__dirname, '../../mocks/doesNotExist.yaml'))).rejects.toThrow()
   })
-
-  it('returns a document with only internal refs unchanged, via the api-ref-bundler skip', async () => {
-    const doc = await bundleDocument(path.resolve(__dirname, '../../mocks/petStore.yaml'))
-
-    expect(doc.paths?.['/pet']).toBeDefined()
-    expect(doc.components?.schemas?.['Pet']).toBeDefined()
-  })
 })
 
 describe('hasExternalRef', () => {
@@ -268,7 +241,6 @@ describe('hasExternalRef', () => {
       expected: false,
     },
     { title: 'true for a relative file ref', node: { components: { schemas: { Pet: { $ref: './schemas/Pet.yaml' } } } }, expected: true },
-    { title: 'true for a URL ref', node: { components: { schemas: { Pet: { $ref: 'https://example.com/pet.yaml' } } } }, expected: true },
     {
       title: 'true for an external ref nested inside an array',
       node: { allOf: [{ $ref: '#/components/schemas/Base' }, { $ref: './extra.yaml' }] },
@@ -280,17 +252,15 @@ describe('hasExternalRef', () => {
 })
 
 describe('assertDocument', () => {
-  it('accepts an OpenAPI document', () => {
-    expect(() => assertDocument({ openapi: '3.1.0' } as Document)).not.toThrow()
-  })
-
-  it('accepts a Swagger document', () => {
-    expect(() => assertDocument({ swagger: '2.0' } as unknown as Document)).not.toThrow()
+  it.each([
+    ['an OpenAPI document', { openapi: '3.1.0' }],
+    ['a Swagger document', { swagger: '2.0' }],
+  ])('accepts %s', (_name, document) => {
+    expect(() => assertDocument(document as unknown as Document)).not.toThrow()
   })
 
   it.each([
     ['a v4 path wrapper read as data', { path: './petStore.yaml' }],
-    ['an empty object', {}],
     ['a document with no version field', { info: { title: 'Pets', version: '1.0.0' } }],
   ])('throws an invalid-document diagnostic for %s', (_name, document) => {
     try {

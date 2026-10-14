@@ -4,12 +4,15 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import type { DryRunExtension } from '@gunshi/plugin-dryrun'
+import { defineWithTypes } from 'gunshi'
 import { generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, KUBB_PACKAGE_NAME } from '@internals/shared'
 import type { RegistryEntry } from '@kubb/core'
+import { dryRunId, type DryRunExtensions } from '../../commands/shared.ts'
 import { createSpinner, logError, logInfo, logIntro, logOutro } from '../../loggers/output.ts'
 import { addToConfig } from '../add/run.ts'
 import { fetchRegistryIndex, incompatibility, installSpec, registryUrl, toRegistryId } from '../../utils/registry.ts'
 import { detectPackageManager, initPackageJson, installPackages, missingPluginDependencies } from './utils.ts'
+import { version } from '../../../package.json'
 
 function cancelAndExit(message = 'Operation canceled.'): never {
   clack.cancel(message)
@@ -21,10 +24,6 @@ type InitOptions = {
    * When `true`, skips all interactive prompts and uses default values.
    */
   yes: boolean
-  /**
-   * Current `@kubb/cli` version string, shown in the closing outro.
-   */
-  version: string
   /**
    * Input path flag value from `--input`. When provided, skips the input prompt.
    */
@@ -49,7 +48,7 @@ type InitOptions = {
  * Detects the package manager, prompts for input/output paths and plugins, installs packages, and writes `kubb.config.ts`.
  * Pass `yes: true` to skip all prompts and use defaults.
  */
-export async function run({ yes, version, input: inputFlag, output: outputFlag, plugins: pluginsFlag, dryRun }: InitOptions): Promise<void> {
+export async function run({ yes, input: inputFlag, output: outputFlag, plugins: pluginsFlag, dryRun }: InitOptions): Promise<void> {
   const cwd = process.cwd()
 
   logIntro({ title: styleText('bgCyan', styleText('black', ' Kubb Init ')) })
@@ -183,7 +182,7 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     const configSpinner = createSpinner()
     configSpinner.start(`Creating ${KUBB_CONFIG_FILENAME}`)
 
-    const configContent = generateConfigFile({ selectedPlugins: [], inputPath, outputPath })
+    const configContent = generateConfigFile({ inputPath, outputPath })
     const configPath = path.join(cwd, KUBB_CONFIG_FILENAME)
 
     if (fs.existsSync(configPath)) {
@@ -237,3 +236,43 @@ export async function run({ yes, version, input: inputFlag, output: outputFlag, 
     process.exit(1)
   }
 }
+
+export const command = defineWithTypes<{ extensions: DryRunExtensions }>()({
+  name: 'init',
+  description:
+    'Scaffold a kubb.config.ts and install plugins for code generation from an OpenAPI spec. Run without flags for interactive setup, or pass --input, --output, and --plugins to skip the prompts.',
+  examples: [
+    'kubb init',
+    'kubb init --yes',
+    'kubb init --input ./openapi.yaml --output ./src/gen --plugins plugin-ts,plugin-zod',
+    'kubb init --plugins plugin-ts,plugin-axios,plugin-react-query',
+    'kubb init --yes --dry-run',
+  ].join('\n'),
+  toKebab: true,
+  args: {
+    yes: {
+      type: 'boolean',
+      description: 'Skip prompts and use default options',
+      short: 'y',
+      default: false,
+    },
+    input: {
+      type: 'string',
+      description: 'Path to the OpenAPI specification',
+      short: 'i',
+      metavar: 'path',
+    },
+    output: {
+      type: 'string',
+      description: 'Output directory for generated files',
+      short: 'o',
+      metavar: 'path',
+    },
+    plugins: {
+      type: 'string',
+      description: 'Comma-separated Kubb registry ids of the plugins to add, the same ids `kubb add` takes (plugin-ts, plugin-zod, acme/plugin-x)',
+      metavar: 'plugin-ts,plugin-zod,...',
+    },
+  },
+  run: ({ values, extensions }) => run({ yes: values.yes, input: values.input, output: values.output, plugins: values.plugins, dryRun: extensions[dryRunId] }),
+})

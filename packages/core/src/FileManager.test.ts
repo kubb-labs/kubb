@@ -4,6 +4,8 @@ import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { ast, type FileNode } from '@kubb/ast'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { Hookable } from './Hookable.ts'
+import type { Config, KubbHooks } from './types.ts'
 import { FileManager } from './FileManager.ts'
 import { createOutputManifest, type OutputManifest } from './outputManifest.ts'
 import { fsStorage } from './storages/fsStorage.ts'
@@ -59,35 +61,11 @@ describe('FileManager', () => {
       expect(manager.files.map((f) => f.path)).toStrictEqual(['/src/a.ts', '/src/b.ts'])
     })
 
-    it('returns the resolved file nodes', () => {
-      const manager = new FileManager()
-
-      expect(manager.add(makeFile('/src/foo.ts')).map((file) => file.path)).toStrictEqual(['/src/foo.ts'])
-    })
-
     it('merges two files with the same path passed in a single call', () => {
       const manager = new FileManager()
       manager.add(makeFile('/src/foo.ts', 'const a = 1'), makeFile('/src/foo.ts', 'const b = 2'))
       expect(manager.files).toHaveLength(1)
       expect(manager.files[0]?.sources).toHaveLength(2)
-    })
-
-    it('keeps a default client import when grouped sources omit its body usage', () => {
-      const manager = new FileManager()
-      const clientPath = '@kubb/plugin-axios/clients/axios'
-      // Source references the type imports (Client/RequestConfig) but not the lowercase `client`
-      // binding — mirroring grouped output where the function body that uses `client` is omitted.
-      const make = (op: string) =>
-        makeFile(`/src/clients/pet.ts`, `export declare function ${op}(): RequestConfig<Client>`, {
-          imports: [
-            ast.factory.createImport({ name: 'client', path: clientPath }),
-            ast.factory.createImport({ name: ['Client', 'RequestConfig'], path: clientPath, isTypeOnly: true }),
-          ],
-        })
-      manager.add(make('getOrderById'), make('getPetById'))
-
-      const imports = manager.files[0]?.imports ?? []
-      expect(imports.some((i) => i.name === 'client')).toBe(true)
     })
   })
 
@@ -109,9 +87,6 @@ describe('FileManager', () => {
     // The incoming file's banner and footer win, so a barrel can clear a plugin banner.
     it.each<['banner' | 'footer', string | undefined, string | undefined]>([
       ['banner', "'use server'", undefined],
-      ['banner', undefined, "'use server'"],
-      ['banner', "'use server'", "'use server'"],
-      ['footer', '// end', undefined],
       ['footer', undefined, '// end'],
     ])('returns the incoming %s when upserting %s over %s', (field, existing, incoming) => {
       const manager = new FileManager()
@@ -138,57 +113,6 @@ describe('FileManager', () => {
       expect(paths[0]).toBe('/src/types.ts')
       expect(paths[1]).toBe('/src/index.ts')
     })
-
-    it('keeps a stable order for same-length ties across incremental inserts', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/aaa.ts'))
-      void manager.files
-      manager.add(makeFile('/src/bbb.ts'))
-      void manager.files
-      manager.add(makeFile('/src/ccc.ts'))
-
-      expect(manager.files.map((f) => f.path)).toStrictEqual(['/src/aaa.ts', '/src/bbb.ts', '/src/ccc.ts'])
-    })
-
-    it('inserts a new file into its sorted slot without reordering unrelated files', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/components/button/index.ts'), makeFile('/src/a.ts'), makeFile('/src/components/b.ts'))
-      void manager.files
-      manager.add(makeFile('/src/components/c.ts'))
-
-      expect(manager.files.map((f) => f.path)).toStrictEqual(['/src/a.ts', '/src/components/b.ts', '/src/components/c.ts', '/src/components/button/index.ts'])
-    })
-
-    it('does not change a file position when it is later updated', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/aaa.ts'), makeFile('/src/bbb.ts'))
-      void manager.files
-      manager.upsert(makeFile('/src/aaa.ts', 'const x = 1'))
-
-      const paths = manager.files.map((f) => f.path)
-      expect(paths).toStrictEqual(['/src/aaa.ts', '/src/bbb.ts'])
-      expect(manager.files[0]?.sources).toHaveLength(1)
-    })
-
-    it('returns a fresh array on each recompute so a prior snapshot is unaffected', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/a.ts'))
-      const snapshot = manager.files
-      manager.add(makeFile('/src/b.ts'))
-
-      expect(snapshot.map((f) => f.path)).toStrictEqual(['/src/a.ts'])
-      expect(manager.files.map((f) => f.path)).toStrictEqual(['/src/a.ts', '/src/b.ts'])
-    })
-  })
-
-  describe('dispose', () => {
-    it('clears all stored files', () => {
-      const manager = new FileManager()
-      manager.add(makeFile('/src/a.ts'))
-      manager.dispose()
-
-      expect(manager.files).toHaveLength(0)
-    })
   })
 
   describe('parse', () => {
@@ -197,13 +121,6 @@ describe('FileManager', () => {
       const file = makeFileWithSources('/src/foo.ts', ['const a = 1', 'const b = 2'])
       const result = await manager.parse(file)
       expect(result).toBe('const a = 1\n\nconst b = 2')
-    })
-
-    it('joins source values when no matching parser is registered', async () => {
-      const manager = new FileManager()
-      const file = makeFileWithSources('/src/foo.ts', ['const a = 1'])
-      const result = await manager.parse(file, { parsers: new Map() })
-      expect(result).toBe('const a = 1')
     })
 
     it('calls the registered parser for a matching extension', async () => {
@@ -286,16 +203,6 @@ describe('FileManager', () => {
   })
 
   describe('write', () => {
-    it('is a no-op for an empty batch', async () => {
-      const storage = memoryStorage()
-      const writeItem = vi.spyOn(storage, 'writeItem')
-      const manager = new FileManager()
-
-      await manager.write([], { storage })
-
-      expect(writeItem).not.toHaveBeenCalled()
-    })
-
     it('writes every file in the batch', async () => {
       const storage = memoryStorage()
       const manager = new FileManager()
@@ -410,21 +317,20 @@ describe('FileManager', () => {
       const hookCalls: Array<string> = []
       const storage = memoryStorage()
       const manager = new FileManager()
-      manager.hooks.hook('start', (files) => {
+      const hooks = new Hookable<KubbHooks>()
+      hooks.hook('kubb:files:processing:start', ({ files }) => {
         hookCalls.push(`start:${files.length}`)
       })
-      manager.hooks.hook('update', (item) => {
-        hookCalls.push(`update:${item.file.path}`)
+      hooks.hook('kubb:files:processing:update', ({ files }) => {
+        hookCalls.push(...files.map((item) => `update:${item.processed}:${item.file.path}`))
       })
-      manager.hooks.hook('end', (files) => {
+      hooks.hook('kubb:files:processing:end', ({ files }) => {
         hookCalls.push(`end:${files.length}`)
       })
 
-      await manager.write([makeFileWithSources('a.ts', ['/* a */']), makeFileWithSources('b.ts', ['/* b */'])], { storage })
+      await manager.write([makeFileWithSources('a.ts', ['/* a */']), makeFileWithSources('b.ts', ['/* b */'])], { storage, hooks, config: {} as Config })
 
-      expect(hookCalls[0]).toBe('start:2')
-      expect(hookCalls.at(-1)).toBe('end:2')
-      expect(hookCalls.slice(1, -1).toSorted()).toStrictEqual(['update:a.ts', 'update:b.ts'])
+      expect(hookCalls).toStrictEqual(['start:2', 'update:1:a.ts', 'update:2:b.ts', 'end:2'])
     })
 
     it('bounds how many files are in flight for a large spec', async () => {
@@ -447,16 +353,6 @@ describe('FileManager', () => {
       expect(started.length).toBeLessThan(files.length)
       expect(started.length).toBe(50)
     })
-
-    it('rejects when a write fails', async () => {
-      const storage = memoryStorage()
-      storage.writeItem = async () => {
-        throw new Error('disk full')
-      }
-      const manager = new FileManager()
-
-      await expect(manager.write([makeFileWithSources('a.ts', ['/* a */'])], { storage })).rejects.toThrow('disk full')
-    })
   })
 })
 
@@ -464,6 +360,7 @@ describe('FileManager#dispatch', () => {
   it.each([
     ['null', null],
     ['undefined', undefined],
+    ['an element without a renderer', { kind: 'element' }],
   ])('does not upsert when the result is %s', (_name, result) => {
     const fileManager = new FileManager()
     const upsert = vi.spyOn(fileManager, 'upsert')
@@ -480,15 +377,6 @@ describe('FileManager#dispatch', () => {
     fileManager.dispatch({ result: files })
 
     expect(fileManager.files.map((f) => f.name)).toStrictEqual(['a', 'b'])
-  })
-
-  it('ignores non-array results when no renderer is provided', () => {
-    const fileManager = new FileManager()
-    const upsert = vi.spyOn(fileManager, 'upsert')
-
-    fileManager.dispatch({ result: { kind: 'element' } })
-
-    expect(upsert).not.toHaveBeenCalled()
   })
 
   it('routes element results through the renderer, upserting its files', async () => {

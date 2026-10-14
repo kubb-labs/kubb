@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
-import * as prompts from '@clack/prompts'
 import * as env from '../utils/env.ts'
-import { createSpinner, logIntro, logInfo, logTip } from './output.ts'
+import { createSpinner, logIntro, logInfo } from './output.ts'
 
 vi.mock('@clack/prompts', () => ({
   intro: vi.fn(),
@@ -25,10 +24,6 @@ function capturePlain(run: () => void): Array<string> {
 }
 
 describe('plain output', () => {
-  it('prints a text-only tip in plain and CI output', () => {
-    expect(capturePlain(() => logTip())).toEqual([expect.stringMatching(/^Tip: .+https:\/\//)])
-  })
-
   it('prefixes a message with the same symbol the plain logger uses', () => {
     expect(capturePlain(() => logInfo('Detected pnpm'))).toEqual(['ℹ Detected pnpm'])
   })
@@ -58,18 +53,5 @@ describe('plain output', () => {
     })
 
     expect(lines).toEqual(['Linting', '✗ Linting failed'])
-  })
-})
-
-describe('rich output', () => {
-  // A tip sits outside every group, so it is written without clack's gutter bar.
-  it('renders a highlighted random tip without a gutter bar', () => {
-    using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(true)
-    using log = vi.spyOn(console, 'log').mockImplementation(() => {})
-
-    logTip()
-
-    expect(log).toHaveBeenCalledWith(expect.stringContaining('Tip'))
-    expect(prompts.log.message).not.toHaveBeenCalled()
   })
 })

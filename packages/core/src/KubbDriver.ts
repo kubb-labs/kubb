@@ -11,12 +11,11 @@ import { kubbContext } from './composables.ts'
 import { createResolver } from './createResolver.ts'
 import { Resolver } from './Resolver.ts'
 import { FileManager } from './FileManager.ts'
-import { Transform } from './Transform.ts'
 import { createNodeCache } from './nodeCache.ts'
 import type { OutputManifest } from './outputManifest.ts'
 import { inputToAdapterSource } from './input.ts'
 
-import type { Config, KubbFileProcessingUpdate, KubbHooks } from './types.ts'
+import type { Config, KubbHooks } from './types.ts'
 import type { Adapter, AdapterSource } from './createAdapter.ts'
 import type { Hookable } from './Hookable.ts'
 
@@ -95,12 +94,6 @@ export class KubbDriver {
    * them in one pass. External `hooks.hook(...)` listeners are not tracked.
    */
   readonly #unhooks: Array<() => void> = []
-
-  /**
-   * Transform registry. Plugins populate it during `kubb:plugin:setup` via `addMacro`/`setMacros`,
-   * and `#runGenerators` reads it once per `(plugin, node)` pair through `applyTo`.
-   */
-  readonly #transforms = new Transform()
 
   constructor(config: Config, options: Options) {
     this.config = config
@@ -258,10 +251,10 @@ export class KubbDriver {
           plugin.resolver = Resolver.merge(createResolver<PluginType>({ pluginName: plugin.name }), resolver)
         },
         addMacro: (macro) => {
-          this.#transforms.add(plugin.name, macro)
+          plugin.macros = [...(plugin.macros ?? []), macro]
         },
         setMacros: (macros) => {
-          this.#transforms.set(plugin.name, macros)
+          plugin.macros = [...macros]
         },
         setOptions: (opts) => {
           plugin.options = normalizePluginOptions({ ...plugin.options, ...opts }, plugin.name)
@@ -304,29 +297,6 @@ export class KubbDriver {
       }
     }
 
-    const updateBuffer: Array<KubbFileProcessingUpdate> = []
-
-    const unhookWrites = fileManager.hooks.addHooks({
-      start: async (files) => {
-        await hooks.callHook('kubb:files:processing:start', { files })
-      },
-      update: ({ file, processed, total, percentage }) => {
-        // The row deliberately leaves `source` behind. It is the only heavy field, and buffering it
-        // holds every generated file in memory until the batch ends, undoing the bound
-        // `fileManager.write` puts on how many sources exist at once.
-        updateBuffer.push({ file, processed, total, percentage, config })
-      },
-      end: async (files: Array<FileNode>) => {
-        // Files parse concurrently, so the buffer arrives in completion order. `processed` is each
-        // file's input position, so sorting by it restores generation order for the streamed rows.
-        updateBuffer.sort((a, b) => a.processed - b.processed)
-
-        await hooks.callHook('kubb:files:processing:update', { files: updateBuffer })
-        updateBuffer.length = 0
-        await hooks.callHook('kubb:files:processing:end', { files })
-      },
-    })
-
     // Make `diagnostics` the active sink so deep code (adapter parse, generators) can
     // report into this run via `Diagnostics.report`.
     return Diagnostics.scope(
@@ -339,8 +309,6 @@ export class KubbDriver {
           // Parse the adapter source into `this.inputNode`.
           await this.#parseInput()
           // Emit `kubb:plugin:setup` so plugins can register macros via `addMacro`/`setMacros`.
-          // Each call writes into `this.#transforms`, which `#runGenerators` later reads through
-          // `transforms.applyTo`.
           await this.setupHooks()
 
           // Normalize each plugin's options once setup hooks have run, so the generate loop always
@@ -393,7 +361,7 @@ export class KubbDriver {
             await this.#emitPluginEnd({ plugin, duration, success: true })
           }
 
-          // Run every node through the transform registry and into each plugin's generators.
+          // Run every node through each plugin's macros and generators.
           diagnostics.push(...(await this.#runGenerators(generatorPlugins)))
 
           await hooks.callHook('kubb:plugins:end', this.#withFiles({ config }))
@@ -408,6 +376,8 @@ export class KubbDriver {
             parsers: parsersMap,
             manifest: this.options.manifest,
             signal: this.options.signal,
+            hooks,
+            config,
           })
 
           await hooks.callHook('kubb:build:end', { files: this.fileManager.files, config, outputDir: outputRoot })
@@ -416,8 +386,6 @@ export class KubbDriver {
         } catch (caughtError) {
           diagnostics.push(Diagnostics.from(caughtError))
           return { diagnostics: Diagnostics.dedupe(diagnostics) }
-        } finally {
-          unhookWrites()
         }
       },
     )
@@ -446,7 +414,7 @@ export class KubbDriver {
    * generators of every plugin in dependency order. A per-node cache (`createNodeCache`) is created
    * once per node and shared by all of that node's plugins, so node-derived work is computed once
    * and reused instead of recomputed per plugin. Each node still runs through the plugin's macros
-   * (from `this.#transforms`) and its exclude/include/override filters before that plugin's
+   * and its exclude/include/override filters before that plugin's
    * generator sees it, so plugins stay isolated. Schemas run before operations so file output
    * stays deterministic across runs. A generator with a `match` predicate that resolves `false`
    * for a node is skipped for that node, without calling `schema`/`operation`.
@@ -475,7 +443,6 @@ export class KubbDriver {
       return diagnostics
     }
 
-    const transforms = this.#transforms
     const { schemas, operations } = this.inputNode
 
     // Pre-scan: plugins with operation-based includes (but no schemaName include) need
@@ -528,7 +495,7 @@ export class KubbDriver {
       state: PluginState,
       node: TNode,
     ): { transformedNode: TNode; options: NormalizedPlugin['options'] } | null => {
-      const transformedNode = transforms.applyTo(state.plugin.name, node)
+      const transformedNode = ast.applyMacros(node, state.plugin.macros ?? [])
       if (state.optionsAreStatic) return { transformedNode, options: state.plugin.options }
 
       const options = state.generatorContext.resolver.default.options<NormalizedPlugin['options']>(transformedNode, {
@@ -659,7 +626,6 @@ export class KubbDriver {
   dispose(): void {
     for (const unhook of this.#unhooks) unhook()
     this.#unhooks.length = 0
-    this.#transforms.dispose()
     // Release the FileNode cache and parsed adapter graph so memory is reclaimed
     // between builds. The returned `BuildOutput.files` array still references any
     // FileNodes the caller needs to inspect.

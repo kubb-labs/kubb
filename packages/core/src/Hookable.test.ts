@@ -85,39 +85,17 @@ describe('Hookable', () => {
     const onTest = vi.fn()
     const onSingle = vi.fn()
 
-    hooks.addHooks({ test: onTest, single: onSingle })
+    const unhook = hooks.addHooks({ test: onTest, single: onSingle })
     await hooks.callHook('test', 'hello', 42)
     await hooks.callHook('single', 'world')
 
     expect(onTest).toHaveBeenCalledWith('hello', 42)
     expect(onSingle).toHaveBeenCalledWith('world')
-  })
 
-  it('skips undefined entries in addHooks', async () => {
-    const hooks = new Hookable<TestHooks>()
-    const onTest = vi.fn()
-
-    hooks.addHooks({ test: onTest, single: undefined })
-    await hooks.callHook('test', 'hello', 42)
-    await hooks.callHook('single', 'world')
-
-    expect(onTest).toHaveBeenCalledTimes(1)
-  })
-
-  it('removes only the handlers added by addHooks when its remover runs', async () => {
-    const hooks = new Hookable<TestHooks>()
-    const standalone = vi.fn()
-    const onTest = vi.fn()
-    const onSingle = vi.fn()
-
-    hooks.hook('test', standalone)
-    const unhook = hooks.addHooks({ test: onTest, single: onSingle })
     unhook()
     await hooks.callHook('test', 'hello', 42)
-    await hooks.callHook('single', 'world')
 
-    expect(onTest).not.toHaveBeenCalled()
-    expect(onSingle).not.toHaveBeenCalled()
-    expect(standalone).toHaveBeenCalledWith('hello', 42)
+    expect(onTest).toHaveBeenCalledTimes(1)
+    expect(hooks.listenerCount('test')).toBe(0)
   })
 })

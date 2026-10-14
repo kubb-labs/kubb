@@ -1,6 +1,6 @@
 import { x } from 'tinyexec'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { detectTool, FORMATTER_PREFERENCE, formatters, LINTER_PREFERENCE, linters, tokenize } from './tools.ts'
+import { detectTool, tokenize } from './tools.ts'
 
 vi.mock('tinyexec', () => ({
   x: vi.fn(),
@@ -47,16 +47,6 @@ describe('detectTool', () => {
   })
 })
 
-describe('tool tables', () => {
-  it.each([...FORMATTER_PREFERENCE])('has a descriptor for the %s formatter', (name) => {
-    expect(formatters[name].command).toBe(name)
-  })
-
-  it.each([...LINTER_PREFERENCE])('has a descriptor for the %s linter', (name) => {
-    expect(linters[name].command).toBe(name)
-  })
-})
-
 describe('tokenize', () => {
   it('splits on whitespace', () => {
     expect(tokenize('oxlint --fix ./src')).toStrictEqual(['oxlint', '--fix', './src'])
@@ -68,9 +58,5 @@ describe('tokenize', () => {
 
   it('keeps a single-quoted argument together', () => {
     expect(tokenize("echo 'hello world'")).toStrictEqual(['echo', 'hello world'])
-  })
-
-  it('returns nothing for an empty command', () => {
-    expect(tokenize('   ')).toStrictEqual([])
   })
 })

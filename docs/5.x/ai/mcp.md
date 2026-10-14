@@ -69,7 +69,7 @@ VS Code uses a `servers` key instead. Add this to `.vscode/mcp.json` for the wor
 
 ## Working directory {#working-directory}
 
-The server looks for `kubb.config.*` in the folder the client starts it in, and rejects a `config` path outside that folder. Claude Code starts it in the folder you run `claude` from.
+The server looks for `kubb.config.*` or `.kubbrc.*` in the folder the client starts it in, then in its parent folders, and rejects a `config` path outside that folder. Claude Code starts it in the folder you run `claude` from.
 
 If `generate` returns `No config file found`, the client started the server in another folder. Clients such as Claude Code ignore a `cwd` key, so change into the project in the command instead (macOS and Linux):
 
