@@ -1,4 +1,5 @@
 import type { ast } from '@kubb/kit'
+import { keywordKeys } from '../../constants.ts'
 import type { SchemaObject } from '../../types.ts'
 import type { ConvertContext } from '../parseSchema.ts'
 
@@ -31,11 +32,11 @@ const subschemaKeys = ['not', 'if', 'then', 'else', 'propertyNames', 'contains',
  */
 function parseSubschema(subschema: Subschema, parse: ConvertContext['parse']): ast.SchemaNode | boolean {
   if (typeof subschema === 'boolean') return subschema
-  if (!Array.isArray(subschema.required) || !subschema.required.length || subschema.type || subschema.properties) {
-    return parse({ schema: subschema })
-  }
+  const { required } = subschema
+  const isRequiredOnly = Array.isArray(required) && required.length > 0 && !subschema.type && !subschema.properties
+  if (!isRequiredOnly) return parse({ schema: subschema })
 
-  const objectSchema: SchemaObject = { ...subschema, type: 'object', properties: Object.fromEntries(subschema.required.map((key) => [key, {}])) }
+  const objectSchema: SchemaObject = { ...subschema, type: 'object', properties: Object.fromEntries(required.map((key) => [key, {}])) }
   return parse({ schema: objectSchema })
 }
 
@@ -63,7 +64,7 @@ export function convertKeywords({ schema, parse }: Pick<ConvertContext, 'schema'
   return Object.keys(keywords).length ? keywords : undefined
 }
 
-const keywordKeys: ReadonlySet<string> = new Set([...subschemaKeys, 'dependentRequired', 'dependentSchemas', 'minContains', 'maxContains'])
+const keywordKeySet: ReadonlySet<string> = new Set(keywordKeys)
 
 /**
  * Returns `schema` without the keywords {@link convertKeywords} reads. The parser attaches them to
@@ -71,5 +72,5 @@ const keywordKeys: ReadonlySet<string> = new Set([...subschemaKeys, 'dependentRe
  * base properties, `allOf` siblings) don't copy them onto every member.
  */
 export function omitKeywords(schema: SchemaObject): SchemaObject {
-  return Object.fromEntries(Object.entries(schema).filter(([key]) => !keywordKeys.has(key))) as SchemaObject
+  return Object.fromEntries(Object.entries(schema).filter(([key]) => !keywordKeySet.has(key))) as SchemaObject
 }

@@ -31,29 +31,30 @@ export const SCHEMA_REF_PREFIX = '#/components/schemas/' as const
 export const SUPPORTED_METHODS: ReadonlySet<string> = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', 'query'])
 
 /**
+ * JSON Schema keywords kept on `SchemaNode.keywords` instead of being converted by a schema rule.
+ */
+export const keywordKeys = [
+  'not',
+  'if',
+  'then',
+  'else',
+  'propertyNames',
+  'contains',
+  'unevaluatedProperties',
+  'unevaluatedItems',
+  'dependentRequired',
+  'dependentSchemas',
+  'minContains',
+  'maxContains',
+] as const
+
+/**
  * Set of JSON Schema keywords that prevent a schema fragment from being inlined during `allOf` flattening.
  *
  * A fragment that contains any of these keys carries structural meaning of its own and must stay as a separate
  * intersection member rather than being merged into the parent.
  */
-export const structuralKeys = new Set([
-  'properties',
-  'items',
-  'additionalProperties',
-  'oneOf',
-  'anyOf',
-  'allOf',
-  'not',
-  'if',
-  'then',
-  'else',
-  'dependentRequired',
-  'dependentSchemas',
-  'propertyNames',
-  'contains',
-  'unevaluatedProperties',
-  'unevaluatedItems',
-] as const)
+export const structuralKeys = new Set(['properties', 'items', 'additionalProperties', 'oneOf', 'anyOf', 'allOf', ...keywordKeys] as const)
 
 /**
  * Formats `convertFormat` maps to a dedicated type without going through `formatMap`:

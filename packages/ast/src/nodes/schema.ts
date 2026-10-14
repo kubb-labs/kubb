@@ -130,14 +130,10 @@ type SchemaNodeBase = BaseNode & {
    */
   format?: string
   /**
-   * JSON Schema applicator keywords: `not`, `if`/`then`/`else`, `dependentRequired`,
-   * `dependentSchemas`, `propertyNames`, `contains`/`minContains`/`maxContains`,
-   * `unevaluatedProperties`/`unevaluatedItems`. They sit on every schema type because they
-   * apply regardless of `type`.
+   * JSON Schema keywords such as `not` and `if`/`then`/`else`, set regardless of `type`.
    *
    * Visitors do not walk into these schemas, so refs found only here are not part of
-   * `collectImportedRefNames`. A printer that can't express a keyword ignores it and adds no
-   * import, and a printer that does use one collects its imports from these nodes itself.
+   * `collectImportedRefNames`. A printer that uses a keyword collects its imports from these nodes itself.
    */
   keywords?: SchemaKeywords
 }
