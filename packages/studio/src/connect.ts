@@ -415,11 +415,11 @@ class Agent extends RpcTarget implements AgentApi {
     })
 
     const output = await this.#generations.keep({ jobId, source: 'output', files, maxSetMb: this.#limits.maxMb })
-    await this.#generations.keepDocument({ jobId, document: files.document })
+    const documentBytes = await this.#generations.keepDocument({ jobId, document: files.document })
     if (!output.paths.length && Object.keys(output.hashes).length) {
       await this.#warn({ message: 'Kept only the hashes of this generation: its output is too large to keep' })
     }
-    await this.#generations.add({ jobId, output, disk })
+    await this.#generations.add({ jobId, output, disk, documentBytes })
 
     return {
       value: {

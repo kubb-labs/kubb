@@ -28,6 +28,26 @@ describe('createGenerationStore', () => {
     await expect(restarted.readDocument('job-1')).resolves.toBeUndefined()
   })
 
+  it('skips a document JSON cannot hold instead of failing the run', async () => {
+    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
+    const document: Record<string, unknown> = { openapi: '3.1.0' }
+    document.self = document
+
+    await expect(store.keepDocument({ jobId: 'job-1', document })).resolves.toBe(0)
+    await expect(store.readDocument('job-1')).resolves.toBeUndefined()
+  })
+
+  it('counts a kept document toward the size limit', async () => {
+    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 100 / (1024 * 1024) })
+    const documentBytes = await store.keepDocument({ jobId: 'job-1', document: { description: 'x'.repeat(200) } })
+    const output = await store.keep({ jobId: 'job-1', source: 'output', files: sourceFiles({ 'a.ts': 'one' }), maxSetMb: 1 })
+    await store.add({ jobId: 'job-1', output, documentBytes })
+    await addRun({ store, jobId: 'job-2', files: { 'b.ts': 'two' } })
+
+    expect(await store.get('job-1')).toBeUndefined()
+    await expect(store.readDocument('job-1')).resolves.toBeUndefined()
+  })
+
   it('reads a generation back by its job id only, including after a restart', async () => {
     const storage = memoryStorage()
     await addRun({ store: createGenerationStore({ storage, maxCount: 4, maxMb: 10 }), jobId: 'job-1', files: { 'a.ts': 'one' } })

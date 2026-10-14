@@ -39,6 +39,8 @@ type KeptGeneration = {
   keptAt?: number
   output: KeptSet
   disk?: KeptSet
+  /** Size of the kept `document.json`. Absent when no document was kept. */
+  documentBytes?: number
 }
 
 /**
@@ -46,7 +48,8 @@ type KeptGeneration = {
  */
 export const hashOf = (content: string) => createHash('sha1').update(content).digest('hex').slice(0, 16)
 
-const totalBytes = (entries: Array<KeptGeneration>) => entries.reduce((sum, { output, disk }) => sum + output.bytes + (disk?.bytes ?? 0), 0)
+const totalBytes = (entries: Array<KeptGeneration>) =>
+  entries.reduce((sum, { output, disk, documentBytes }) => sum + output.bytes + (disk?.bytes ?? 0) + (documentBytes ?? 0), 0)
 
 function positiveNumber(value: string | undefined): number | undefined {
   const parsed = Number(value)
@@ -207,11 +210,19 @@ export function createGenerationStore({
     keep,
     drop,
     /**
-     * Keeps the parsed source document of `jobId` next to its files. Nothing is kept for `null`.
+     * Keeps the parsed source document of `jobId` next to its files and returns its size in bytes.
+     * Nothing is kept for `null` or a document JSON cannot hold, such as one with circular references.
      */
-    async keepDocument({ jobId, document }: { jobId: string; document: unknown }): Promise<void> {
-      if (document === null || document === undefined) return
-      await storage.writeItem(`${dirOf(jobId)}document.json`, JSON.stringify(document))
+    async keepDocument({ jobId, document }: { jobId: string; document: unknown }): Promise<number> {
+      if (document === null || document === undefined) return 0
+      let serialized: string
+      try {
+        serialized = JSON.stringify(document)
+      } catch {
+        return 0
+      }
+      await storage.writeItem(`${dirOf(jobId)}document.json`, serialized)
+      return Buffer.byteLength(serialized)
     },
     /**
      * The document {@link keepDocument} kept for `jobId`, or `undefined` when there is none.
