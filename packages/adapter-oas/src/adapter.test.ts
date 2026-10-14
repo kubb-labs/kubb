@@ -104,7 +104,28 @@ describe('adapterOas.parse', () => {
       enumNames: [],
       title: 'Test API',
       version: '1.0.0',
+      servers: [],
+      securitySchemes: [],
     })
+  })
+
+  it('lists the servers and security schemes of a Swagger 2.0 document', async () => {
+    const adapter = adapterOas({ validate: false })
+    const node = await adapter.parse({
+      type: 'data',
+      data: {
+        swagger: '2.0',
+        info: { title: 'Legacy', version: '1' },
+        host: 'api.example.com',
+        basePath: '/v2',
+        schemes: ['https'],
+        securityDefinitions: { api_key: { type: 'apiKey', in: 'header', name: 'X-API-Key' } },
+        paths: {},
+      },
+    })
+
+    expect(node.meta.servers).toStrictEqual([{ url: 'https://api.example.com/v2' }])
+    expect(node.meta.securitySchemes).toMatchObject([{ name: 'api_key', type: 'apiKey', in: 'header', parameterName: 'X-API-Key' }])
   })
 })
 

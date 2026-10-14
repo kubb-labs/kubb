@@ -7,8 +7,8 @@ import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './emit/discr
 import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
 import { assertInputExists } from './load/source.ts'
 import { assertDocument, parseDocument, parseFromConfig, validateDocument } from './load/normalize.ts'
-import { getSchemas } from './model/components.ts'
-import { resolveBaseUrl } from './model/server.ts'
+import { getSchemas, listSecuritySchemes } from './model/components.ts'
+import { listServers, resolveBaseUrl } from './model/server.ts'
 import { getOperations, parseOperation } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
@@ -144,6 +144,8 @@ export const adapterOas = defineExtension<AdapterOas>({
           description: document.info?.description,
           version: document.info?.version,
           baseURL: resolveBaseUrl({ document, server }),
+          servers: listServers(document),
+          securitySchemes: listSecuritySchemes(document),
           circularNames,
           enumNames,
         },

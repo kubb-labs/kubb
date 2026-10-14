@@ -1,4 +1,5 @@
 import { pascalCase } from '@internals/utils'
+import type { ast } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from '../constants.ts'
 import { isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
@@ -218,4 +219,32 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
   }
 
   return { schemas: sortSchemas(schemas), renames }
+}
+
+/**
+ * Every authentication scheme in `components.securitySchemes`, by its key. A Swagger 2.0
+ * `securityDefinitions` map arrives here too, since the document is up-converted first.
+ *
+ * @example
+ * `listSecuritySchemes(document) // [{ name: 'api_key', type: 'apiKey', in: 'header', parameterName: 'X-API-Key' }]`
+ */
+export function listSecuritySchemes(document: Document): Array<ast.InputSecurityScheme> {
+  return Object.entries(document.components?.securitySchemes ?? {}).flatMap(([name, value]) => {
+    if (!value || typeof value !== 'object' || isReference(value)) return []
+    const scheme: Record<string, unknown> = { ...value }
+    if (typeof scheme.type !== 'string') return []
+    const optional = (key: string) => (typeof scheme[key] === 'string' && scheme[key] ? (scheme[key] as string) : undefined)
+
+    return [
+      {
+        name,
+        type: scheme.type,
+        description: optional('description'),
+        scheme: optional('scheme'),
+        bearerFormat: optional('bearerFormat'),
+        in: optional('in'),
+        parameterName: optional('name'),
+      },
+    ]
+  })
 }

@@ -1,4 +1,4 @@
-import { Diagnostics } from '@kubb/kit'
+import { type ast, Diagnostics } from '@kubb/kit'
 import type { Document, ServerObject, ServerOptions } from '../types.ts'
 
 /**
@@ -60,4 +60,25 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
   }
 
   return url
+}
+
+/**
+ * Every server the document declares, in order, with `{variable}` placeholders filled from their
+ * defaults. A server whose default is outside its `enum` keeps its template URL instead of failing
+ * the run.
+ *
+ * @example
+ * `listServers(document) // [{ url: 'https://api.example.com/v1', description: 'Production' }]`
+ */
+export function listServers(document: Document): Array<ast.InputServer> {
+  return (document.servers ?? []).flatMap((server) => {
+    if (typeof server?.url !== 'string' || !server.url) return []
+    let url = server.url
+    try {
+      url = resolveServerUrl(server)
+    } catch {
+      // Listing servers is informational, so a bad variable default never fails the run.
+    }
+    return [server.description ? { url, description: server.description } : { url }]
+  })
 }
