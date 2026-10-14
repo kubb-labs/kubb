@@ -14,11 +14,30 @@ navigation:
 
 # kubb add
 
-Run `kubb add` to install an extension from the [Kubb registry](/docs/5.x/reference/registry) at the version the registry pins. It checks that the extension supports your Kubb and Node.js versions, asks for confirmation, and installs the package as a dev dependency. For a plugin, it also adds the plugin to `kubb.config.ts`. For an adapter or parser, it prints the code to add.
+Run `kubb add` to install an extension from the [Kubb registry](/docs/5.x/reference/registry) at the version the registry pins. Without an id, it asks which extension to add. It checks that the extension supports your Kubb and Node.js versions, asks for confirmation, and installs the package as a dev dependency. For a plugin, it also adds the plugin to `kubb.config.ts`. For an adapter or parser, it prints the code to add.
 
 Kubb detects the package manager (`npm`, `pnpm`, `yarn`, or `bun`) from your project.
 
 ## Usage
+
+Search the registry and pick an extension:
+
+```shell [Terminal]
+kubb add
+```
+
+```text [Output]
+◆  Select an extension to add:
+│  Search: _
+│  ● OpenAPI (kubb-labs/adapter-oas · adapter 5.2.0 · Reads OpenAPI and Swagger documents.)
+│  ○ TypeScript parser
+│  ○ React Query
+│  ○ TypeScript
+│  ○ Zod
+│  ↑/↓ to select • Enter: confirm • Type: to search
+```
+
+Each row is the extension's display name. The focused row also shows its id, kind, pinned version, and description. Typing filters the rows on all of those, so `zod` keeps the Zod plugin and `adapter` keeps the adapters. Press Enter to continue with the usual confirmation.
 
 Add an official plugin by its slug:
 
@@ -60,14 +79,14 @@ npx kubb add acme/kubb-plugin-example
 
 | Argument | Required | Description |
 | -------- | -------- | ----------- |
-| `<id>`   | `true`   | Registry id as `<owner>/<slug>`, such as `kubb-labs/plugin-react-query`. A bare `<slug>` means `kubb-labs/<slug>`. Both parts use lowercase letters and digits joined by single hyphens. |
+| `<id>`   | `false`  | Registry id as `<owner>/<slug>`, such as `kubb-labs/plugin-react-query`. A bare `<slug>` means `kubb-labs/<slug>`. Both parts use lowercase letters and digits joined by single hyphens. Without it, the CLI asks which extension to add. |
 
 ## Options
 
 | Option                         | Default | Description |
 | ------------------------------ | ------- | ----------- |
 | `--config=<path>`, `-c <path>` |         | Path to the Kubb config to edit. Only used for plugins. Without it, the CLI looks for the same config files as `kubb generate`, in the current directory and then in each parent directory. |
-| `--yes`, `-y`                  | `false` | Skip the confirmation. |
+| `--yes`, `-y`                  | `false` | Skip the confirmation. Needs an id. |
 | `--no-install`                 |         | Do not install the package. A plugin is still added to the config. |
 
 > [!TIP]
@@ -87,4 +106,4 @@ When the config cannot be edited, the CLI prints `Could not edit <file>: <reason
 
 ## Exit codes
 
-`kubb add` exits with code 1 when the id is invalid, the registry cannot be read or sends an invalid entry, the extension is incompatible, no config is found for a plugin, or the install fails. It exits with code 0 when you cancel at the prompt, and when it prints the snippet because the config could not be edited.
+`kubb add` exits with code 1 when the id is invalid or missing with `--yes`, the registry cannot be read or sends an invalid entry, the extension is incompatible, no config is found for a plugin, or the install fails. It exits with code 0 when you cancel at the prompt, and when it prints the snippet because the config could not be edited.

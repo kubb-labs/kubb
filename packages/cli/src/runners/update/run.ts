@@ -2,7 +2,7 @@ import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
 import { getErrorMessage } from '@internals/utils'
-import { readInstalledPackages } from '@kubb/core'
+import { readInstalledPackages, type RegistryEntry } from '@kubb/core'
 import { logBlock, logError, logInfo, logIntro, logOutro, logStep, logWarn } from '../../loggers/output.ts'
 import { fetchRegistryIndex, incompatibility, installSpec, isOutdated, registryUrl, toRegistryId } from '../../utils/registry.ts'
 import { detectPackageManager, installPackages } from '../init/utils.ts'
@@ -46,24 +46,34 @@ export async function run({ ids, check, yes }: UpdateOptions): Promise<void> {
       return
     }
 
-    const plural = proposals.length === 1 ? '' : 's'
-    logBlock(
-      proposals.map(({ artifact }) => `${artifact.package}  ${versions.get(artifact.package) ?? 'not installed'} -> ${styleText('green', artifact.version)}`),
-    )
+    const change = ({ kind, artifact }: RegistryEntry) =>
+      `${kind}  ${versions.get(artifact.package) ?? 'not installed'} -> ${styleText('green', artifact.version)}`
+    logBlock(proposals.map((entry) => `${entry.artifact.package}  ${change(entry)}`))
 
     if (check) {
+      const plural = proposals.length === 1 ? '' : 's'
       logOutro(`${proposals.length} update${plural} available. Run \`kubb update\` to install.`)
       return
     }
 
-    const confirmed = yes || (await clack.confirm({ message: `Install ${proposals.length} update${plural}?`, initialValue: true }))
-    if (clack.isCancel(confirmed) || !confirmed) {
-      clack.cancel('Operation canceled.')
-      return
+    let selected = proposals
+    if (!yes) {
+      const chosen = await clack.multiselect({
+        message: 'Select the updates to install:',
+        options: proposals.map((entry) => ({ value: entry.id, label: entry.artifact.package, hint: change(entry) })),
+        initialValues: proposals.map((entry) => entry.id),
+        required: true,
+      })
+      if (clack.isCancel(chosen)) {
+        clack.cancel('Operation canceled.')
+        return
+      }
+      selected = proposals.filter((entry) => chosen.includes(entry.id))
     }
 
+    const plural = selected.length === 1 ? '' : 's'
     const packageManager = detectPackageManager(cwd)
-    const specs = proposals.map(({ artifact }) => installSpec(artifact))
+    const specs = selected.map(({ artifact }) => installSpec(artifact))
     logStep(`Installing ${specs.join(', ')} with ${packageManager.name}`)
     await installPackages(specs, packageManager, cwd)
 
