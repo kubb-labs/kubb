@@ -47,12 +47,26 @@ On the Pro plan, Studio turns an agent's OpenAPI spec into a plugin for Claude C
 3. Create a registry key under **Settings › Developers › Tokens**. Git asks for it as the password the first time; any username works.
 4. Add the marketplace once with your tool, then install the plugin for each API:
 
-```shell [Terminal]
+:::code-group{sync="ai-tool"}
+
+```shell [Claude Code]
 claude plugin marketplace add https://kubb.studio/plugins/<organization>.git
 claude plugin install <plugin>@<organization>
 ```
 
-Cursor uses `agent plugin marketplace add` and `agent plugin install`, and Codex uses `codex plugin marketplace add` and `codex plugin install`. Studio shows the exact commands for each plugin. Republish the agent after the spec changes, then update the marketplace in your tool.
+```shell [Cursor]
+agent plugin marketplace add https://kubb.studio/plugins/<organization>.git
+agent plugin install <plugin>@<organization>
+```
+
+```shell [Codex]
+codex plugin marketplace add https://kubb.studio/plugins/<organization>.git
+codex plugin install <plugin>@<organization>
+```
+
+:::
+
+Studio shows the exact commands for each plugin. Republish the agent after the spec changes, then update the marketplace in your tool.
 
 > [!NOTE]
 > Plans without AI plugins see the AI page locked. A registry key in the URL, such as `https://kubb:<key>@kubb.studio/...`, works in CI but ends up in shell history and logs.
