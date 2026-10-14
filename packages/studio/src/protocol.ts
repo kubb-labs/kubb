@@ -363,14 +363,9 @@ export type FilePage = { nextCursor: number | null; totalLines: number }
 export type ReadFilesResult = { files: Record<string, string>; pages?: Record<string, FilePage> }
 
 /**
- * Asks the agent for the Kubb AST one generation job parsed its spec into, so Studio describes the API in Kubb's names.
+ * Asks for the Kubb AST one job parsed its spec into. A job the agent no longer keeps fails with {@link GENERATION_GONE_MESSAGE}.
  */
-export type ReadInputInput = {
-  /**
-   * A job the agent no longer keeps fails with {@link GENERATION_GONE_MESSAGE}.
-   */
-  jobId: string
-}
+export type ReadInputInput = { jobId: string }
 
 /**
  * The job's `InputNode`, as JSON. A ref schema names its target, which `input.schemas` holds, without a copy.

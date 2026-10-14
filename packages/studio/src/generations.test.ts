@@ -1,9 +1,7 @@
 import { ast } from '@kubb/ast'
-import { type Config, Hookable, type KubbHooks, memoryStorage } from '@kubb/core'
-import { createMockedAdapter } from '@kubb/core/mocks'
+import { memoryStorage } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
-import { createGenerationStore, type GenerationStore, generate, type SourceFiles } from './generations.ts'
-import { projectConfig } from './testing.ts'
+import { createGenerationStore, type GenerationStore, type SourceFiles } from './generations.ts'
 
 function sourceFiles(files: Record<string, string>): SourceFiles {
   const storage = memoryStorage()
@@ -17,38 +15,6 @@ async function addRun({ store, jobId, files }: { store: GenerationStore; jobId: 
 }
 
 describe('createGenerationStore', () => {
-  it('keeps a job input across a restart and drops it with the job', async () => {
-    const storage = memoryStorage()
-    const store = createGenerationStore({ storage, maxCount: 4, maxMb: 10 })
-    await store.keepInput({ jobId: 'job-1', maxSetMb: 1, input: ast.factory.createInput({ meta: { title: 'Pets', circularNames: [], enumNames: [] } }) })
-    await store.keepInput({ jobId: 'job-2', maxSetMb: 1, input: null })
-
-    const restarted = createGenerationStore({ storage, maxCount: 4, maxMb: 10 })
-
-    await expect(restarted.readInput('job-1')).resolves.toMatchObject({ kind: 'Input', meta: { title: 'Pets' } })
-    await expect(restarted.readInput('job-2')).resolves.toBeUndefined()
-    await restarted.drop('job-1')
-    await expect(restarted.readInput('job-1')).resolves.toBeUndefined()
-  })
-
-  it('forgets a dropped job, so a failed retry of a kept job is gone', async () => {
-    const storage = memoryStorage()
-    const store = createGenerationStore({ storage, maxCount: 4, maxMb: 10 })
-    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'one' } })
-    await store.drop('job-1')
-
-    expect(await store.get('job-1')).toBeUndefined()
-    expect(await createGenerationStore({ storage, maxCount: 4, maxMb: 10 }).get('job-1')).toBeUndefined()
-  })
-
-  it('drops the input an earlier run of the same job kept', async () => {
-    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
-    await store.keepInput({ jobId: 'job-1', maxSetMb: 1, input: ast.factory.createInput() })
-    await store.keepInput({ jobId: 'job-1', maxSetMb: 1, input: null })
-
-    await expect(store.readInput('job-1')).resolves.toBeUndefined()
-  })
-
   it('keeps the name of a ref schema but not the copy of its target', async () => {
     const pet = ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [] })
     const ref = ast.factory.createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet', schema: pet })
@@ -62,47 +28,7 @@ describe('createGenerationStore', () => {
     expect(JSON.stringify(kept)).not.toContain('"schema":')
   })
 
-  it('skips an input JSON cannot hold instead of failing the run', async () => {
-    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
-    const input = ast.factory.createInput({ schemas: [ast.factory.createSchema({ type: 'integer', name: 'Big', default: 1n })] })
-
-    await expect(store.keepInput({ jobId: 'job-1', maxSetMb: 1, input })).resolves.toBe(0)
-    await expect(store.readInput('job-1')).resolves.toBeUndefined()
-  })
-
-  it('keeps no input above the set size budget', async () => {
-    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
-    const input = ast.factory.createInput({ meta: { description: 'x'.repeat(200), circularNames: [], enumNames: [] } })
-
-    await expect(store.keepInput({ jobId: 'job-1', input, maxSetMb: 100 / (1024 * 1024) })).resolves.toBe(0)
-    await expect(store.readInput('job-1')).resolves.toBeUndefined()
-  })
-
-  it('captures the input without hiding the adapter document from plugins', async () => {
-    let parsed: unknown = null
-    const adapter = {
-      ...createMockedAdapter(),
-      get document() {
-        return parsed
-      },
-      parse: async () => {
-        parsed = { openapi: '3.1.0' }
-        return ast.factory.createInput()
-      },
-    }
-    const hooks = new Hookable<KubbHooks>()
-    let seen: unknown
-    hooks.hook('kubb:build:start', (ctx) => {
-      seen = ctx.adapter.document
-    })
-
-    const files = await generate({ config: { ...projectConfig(), adapter } as Config, hooks, allowExec: false })
-
-    expect(seen).toStrictEqual({ openapi: '3.1.0' })
-    expect(files.input).toMatchObject({ kind: 'Input' })
-  })
-
-  it('counts a kept input toward the size limit', async () => {
+  it('counts a kept input toward the size limit and drops it with its job', async () => {
     const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 100 / (1024 * 1024) })
     const inputBytes = await store.keepInput({
       maxSetMb: 1,

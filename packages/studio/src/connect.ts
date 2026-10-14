@@ -368,9 +368,6 @@ class Agent extends RpcTarget implements AgentApi {
     }
   }
 
-  /**
-   * Runs one generation for Studio and keeps its output, and its input with `allowRead`.
-   */
   async #generate({ input, root, signal }: { input: GenerateInput; root: string; signal: AbortSignal }): Promise<GenerateResult> {
     const { jobId, config: patch } = input
     // A sandbox has no spec on disk, so it only ever generates from the content Studio sends. A path
@@ -476,9 +473,6 @@ class Agent extends RpcTarget implements AgentApi {
     }
   }
 
-  /**
-   * Returns the Kubb AST a kept job parsed its spec into. Refused without `allowRead`.
-   */
   async readInput(input: ReadInputInput): Promise<ReadInputResult> {
     this.#assertConnected()
     if (!this.#permissions.allowRead) return this.#refuse({ message: READ_NOT_ALLOWED_MESSAGE, permission: 'allowRead' })

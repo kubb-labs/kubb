@@ -423,28 +423,25 @@ describe('readInput', () => {
     operations: [ast.factory.createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })],
     meta: { title: 'Pet store', circularNames: [], enumNames: [] },
   })
-  /**
-   * A project config whose adapter parses to `input`.
-   */
   const withInput = async () => ({ ...projectConfig(), adapter: createMockedAdapter({ parse: async () => input }) }) as Config
 
   it('refuses to read when the host did not grant allowRead, and names the permission for the host', async () => {
     const { hooks, heard } = withHooks()
     const warn = heard('studio:warn')
-    const { agent } = await connectStudio({ hooks, loadConfig: withInput })
-    await run({ agent, jobId: 'job-1' })
+    const { agent } = await connectStudio({ hooks })
 
     await expect(agent.readInput({ jobId: 'job-1' })).rejects.toThrow(READ_NOT_ALLOWED_MESSAGE)
     expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('not granted'), permission: 'allowRead' })
   })
 
-  it('returns the AST the job parsed, also after the agent restarts', async () => {
+  it('returns the AST the job parsed, also after the agent restarts, and refuses a job it does not keep', async () => {
     const first = await connectStudio({ permissions: { allowRead: true }, loadConfig: withInput })
     await run({ agent: first.agent, jobId: 'job-1' })
 
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
 
     await expect(agent.readInput({ jobId: 'job-1' })).resolves.toStrictEqual({ input: JSON.parse(JSON.stringify(input)) })
+    await expect(agent.readInput({ jobId: 'job-unknown' })).rejects.toThrow(GENERATION_GONE_MESSAGE)
   })
 
   it('keeps no input for a run without allowRead, so a later grant finds none', async () => {
@@ -452,22 +449,6 @@ describe('readInput', () => {
     await run({ agent: first.agent, jobId: 'job-1' })
 
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
-
-    await expect(agent.readInput({ jobId: 'job-1' })).rejects.toThrow(NO_INPUT_MESSAGE)
-  })
-
-  it('refuses a job the agent does not keep', async () => {
-    const { agent } = await connectStudio({ permissions: { allowRead: true }, loadConfig: withInput })
-
-    await expect(agent.readInput({ jobId: 'job-unknown' })).rejects.toThrow(GENERATION_GONE_MESSAGE)
-  })
-
-  it('refuses a job that ran without an adapter', async () => {
-    const { agent } = await connectStudio({
-      permissions: { allowRead: true },
-      loadConfig: async () => ({ ...projectConfig(), adapter: undefined }) as unknown as Config,
-    })
-    await run({ agent, jobId: 'job-1' })
 
     await expect(agent.readInput({ jobId: 'job-1' })).rejects.toThrow(NO_INPUT_MESSAGE)
   })

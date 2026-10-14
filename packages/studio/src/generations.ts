@@ -3,7 +3,7 @@ import { isAbsolute, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { inParallel } from '@internals/utils'
 import { ast, type InputNode } from '@kubb/ast'
-import { type Adapter, type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
+import { type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
 import type { FilePage, FileSource, ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
@@ -40,9 +40,6 @@ type KeptGeneration = {
   keptAt?: number
   output: KeptSet
   disk?: KeptSet
-  /**
-   * Size of the kept `input.json`. Absent when no input was kept.
-   */
   inputBytes?: number
 }
 
@@ -51,9 +48,6 @@ type KeptGeneration = {
  */
 export const hashOf = (content: string) => createHash('sha1').update(content).digest('hex').slice(0, 16)
 
-/**
- * The bytes `entries` hold on disk: output, written files, and kept input.
- */
 const totalBytes = (entries: Array<KeptGeneration>) =>
   entries.reduce((sum, { output, disk, inputBytes }) => sum + output.bytes + (disk?.bytes ?? 0) + (inputBytes ?? 0), 0)
 
@@ -105,16 +99,13 @@ export async function generate({
   allowExec: boolean
 }): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
+  const kubb = createKubb({ ...config, output }, { hooks, signal })
   let input: InputNode | null = null
-  /**
-   * Keeps the `InputNode` the adapter returns, since the driver drops its own once the build ends.
-   */
-  const parse = async (...args: Parameters<Adapter['parse']>) => (input = await config.adapter!.parse(...args))
-  // A proxy, not a copy, so getters such as `document` keep reading the live adapter.
-  const adapter =
-    config.adapter && new Proxy(config.adapter, { get: (target, key, receiver) => (key === 'parse' ? parse : Reflect.get(target, key, receiver)) })
-  const kubb = createKubb({ ...config, output, adapter }, { hooks, signal })
-  const result = await kubb.generate()
+  // The driver drops its `inputNode` once the build is over, so read it as the build ends.
+  const unhook = kubb.hooks.hook('kubb:build:end', (ctx) => {
+    if (ctx.config === kubb.config) input = kubb.driver.inputNode
+  })
+  const result = await kubb.generate().finally(unhook)
   if (!result.success) throw generationFailure(result.diagnostics)
 
   // `kubb.config` carries the defaults, such as the fs storage a config loaded by the CLI leaves unset.
@@ -216,59 +207,43 @@ export function createGenerationStore({
     return { paths: Object.keys(hashes), hashes, bytes }
   }
 
-  async function dropFiles(jobId: string): Promise<void> {
+  async function drop(jobId: string): Promise<void> {
     await storage.empty(dirOf(jobId))
   }
 
   return {
     keep,
+    drop,
     /**
-     * Removes the files of `jobId` and its index entry, so `get` no longer finds it.
-     */
-    async drop(jobId: string): Promise<void> {
-      await dropFiles(jobId)
-      const current = await load()
-      if (!current.some((entry) => entry.jobId === jobId)) return
-      index = current.filter((entry) => entry.jobId !== jobId)
-      await storage.writeItem(INDEX_KEY, JSON.stringify(index))
-    },
-    /**
-     * Keeps the `InputNode` of `jobId` and returns its size in bytes. Ref schemas drop the copy of their target, which
-     * `input.schemas` holds. Nothing is kept for `null`, an input that fails to transform or serialize, or one above
-     * `maxSetMb`. An input an earlier run of `jobId` kept is removed first.
+     * Keeps the `InputNode` of `jobId` and returns its size in bytes, or 0 when it keeps none. A ref schema loses
+     * the copy of its target, which `input.schemas` holds: with it, a large spec outgrows what `JSON.stringify` can return.
      */
     async keepInput({ jobId, input, maxSetMb }: { jobId: string; input: InputNode | null; maxSetMb: number }): Promise<number> {
-      await storage.removeItem(`${dirOf(jobId)}input.json`)
       if (!input) return 0
-      let serialized: string
+      let json: string
       try {
-        const slim = ast.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) })
-        serialized = JSON.stringify(slim)
+        json = JSON.stringify(ast.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) }))
       } catch {
+        // An adapter can return what JSON cannot hold, which must not fail a finished generation.
         return 0
       }
-      if (Buffer.byteLength(serialized) > maxSetMb * MB) return 0
-      await storage.writeItem(`${dirOf(jobId)}input.json`, serialized)
-      return Buffer.byteLength(serialized)
+      const bytes = Buffer.byteLength(json)
+      if (bytes > maxSetMb * MB) return 0
+      await storage.writeItem(`${dirOf(jobId)}input.json`, json)
+      return bytes
     },
-    /**
-     * The input {@link keepInput} kept for `jobId`, or `undefined` when there is none.
-     */
     async readInput(jobId: string): Promise<InputNode | undefined> {
       const stored = await storage.readItem(`${dirOf(jobId)}input.json`)
       return stored === null ? undefined : (JSON.parse(stored) as InputNode)
     },
     get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId && isLive(generation)),
-    /**
-     * Indexes `generation` and drops expired ones, then the oldest past `maxCount` or `maxMb`.
-     */
     async add(generation: KeptGeneration): Promise<void> {
       const current = await load()
-      for (const expired of current.filter((entry) => !isLive(entry))) await dropFiles(expired.jobId)
+      for (const expired of current.filter((entry) => !isLive(entry))) await drop(expired.jobId)
       const entries = current.filter((entry) => entry.jobId !== generation.jobId && isLive(entry))
       entries.push({ ...generation, keptAt: now() })
       while (entries.length > 1 && (entries.length > maxCount || totalBytes(entries) > maxMb * MB)) {
-        await dropFiles(entries.shift()!.jobId)
+        await drop(entries.shift()!.jobId)
       }
       index = entries
       await storage.writeItem(INDEX_KEY, JSON.stringify(entries))
