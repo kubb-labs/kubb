@@ -1,5 +1,5 @@
 ---
-'unplugin-kubb': minor
+'unplugin-kubb': patch
 ---
 
 Report builds the same way `kubb generate` does and apply the same config defaults.

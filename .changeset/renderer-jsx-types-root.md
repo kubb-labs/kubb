@@ -1,5 +1,5 @@
 ---
-'@kubb/renderer-jsx': minor
+'@kubb/renderer-jsx': patch
 ---
 
 Export types from the package root and derive component props from the AST nodes.

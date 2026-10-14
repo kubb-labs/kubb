@@ -1,5 +1,5 @@
 ---
-'@kubb/core': minor
+'@kubb/core': patch
 ---
 
 Remove unused core surface so plugins build on a smaller API.

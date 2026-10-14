@@ -1,5 +1,5 @@
 ---
-'@kubb/kit': minor
+'@kubb/kit': patch
 ---
 
 `Url.toGroupedTemplateString` uses dot access for path parameters named like reserved words.

@@ -1,5 +1,5 @@
 ---
-'@kubb/ast': minor
+'@kubb/ast': patch
 ---
 
 Trim the AST package to the nodes and helpers that are used.

@@ -1,5 +1,5 @@
 ---
-'@kubb/mcp': minor
+'@kubb/mcp': patch
 ---
 
 Find the config the way `kubb generate` does and hand plugin installs to `kubb add`.
