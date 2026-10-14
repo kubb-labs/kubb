@@ -1,10 +1,8 @@
-import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, isAbsolute, relative, resolve } from 'node:path'
-import { runtime } from './runtime.ts'
 
 /**
  * Resolves to `true` when the file or directory at `path` exists.
- * Uses `Bun.file().exists()` when running under Bun, `fs.access` otherwise.
  *
  * @example
  * ```ts
@@ -14,9 +12,6 @@ import { runtime } from './runtime.ts'
  * ```
  */
 export async function exists(path: string): Promise<boolean> {
-  if (runtime.isBun) {
-    return Bun.file(path).exists()
-  }
   return access(path).then(
     () => true,
     () => false,
@@ -25,7 +20,6 @@ export async function exists(path: string): Promise<boolean> {
 
 /**
  * Reads the file at `path` as a UTF-8 string.
- * Uses `Bun.file().text()` when running under Bun, `fs.readFile` otherwise.
  *
  * @example
  * ```ts
@@ -33,9 +27,6 @@ export async function exists(path: string): Promise<boolean> {
  * ```
  */
 export async function read(path: string): Promise<string> {
-  if (runtime.isBun) {
-    return Bun.file(path).text()
-  }
   return readFile(path, { encoding: 'utf8' })
 }
 
@@ -89,24 +80,14 @@ export async function write(path: string, data: string, options: WriteOptions = 
   let stored = options.stored
 
   if (stored === undefined) {
-    if (runtime.isBun) {
-      const file = Bun.file(resolved)
-      stored = (await file.exists()) ? await file.text() : null
-    } else {
-      try {
-        stored = await readFile(resolved, { encoding: 'utf-8' })
-      } catch {
-        /* file doesn't exist yet */
-        stored = null
-      }
+    try {
+      stored = await readFile(resolved, { encoding: 'utf-8' })
+    } catch {
+      /* file doesn't exist yet */
+      stored = null
     }
   }
   if (matchesStored({ stored: stored ?? '', source: trimmed })) return null
-
-  if (runtime.isBun) {
-    await Bun.write(resolved, content)
-    return content
-  }
 
   // Creating the directory up front costs a syscall per file, and every file after the first in a
   // directory pays it for nothing. Write first and only fall back when the directory is missing,
@@ -129,18 +110,6 @@ export async function write(path: string, data: string, options: WriteOptions = 
   }
 
   return content
-}
-
-/**
- * Recursively removes `path`. Silently succeeds when `path` does not exist.
- *
- * @example
- * ```ts
- * await clean('./dist')
- * ```
- */
-export async function clean(path: string): Promise<void> {
-  return rm(path, { recursive: true, force: true })
 }
 
 /**

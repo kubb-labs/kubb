@@ -253,19 +253,20 @@ class Agent extends RpcTarget implements AgentApi {
     throw new Error(message)
   }
 
-  async #command<T>({ command, run }: { command: KubbHooks['studio:command'][0]['command']; run: () => Promise<{ value: T; info?: string }> }): Promise<T> {
+  #assertConnected(): void {
     if (!this.#session.info) throw new Error('Studio must call connect() before any other command')
-    const { value, info } = await run()
-    if (info !== undefined) await emit(this.#options.hooks, 'studio:command', { command, info })
-    return value
+  }
+
+  #logCommand(command: KubbHooks['studio:command'][0]['command'], info: string): Promise<void> {
+    return emit(this.#options.hooks, 'studio:command', { command, info })
   }
 
   // Not cached: the user can edit the file between two Studio actions.
-  async #readConfigFileView(): Promise<ConfigFileView | undefined> {
+  async #readConfigFileView(source: Promise<string>): Promise<ConfigFileView | undefined> {
     if (!this.#permissions.allowConfigEdit) return undefined
 
     try {
-      return readConfig(await read(this.#options.configFile))
+      return readConfig(await source)
     } catch (error) {
       await this.#warn({ message: `Could not read ${this.#options.configFile}: ${getErrorMessage(error)}` })
       return undefined
@@ -274,9 +275,9 @@ class Agent extends RpcTarget implements AgentApi {
 
   // Not cached either: the user can install a plugin while the agent runs. Keeps each project
   // dependency, config import and built-in that resolves and ships a valid `kubb-extension.json`.
-  async #installedExtensions(): Promise<InstalledExtensions> {
-    const source = await read(this.#options.configFile).catch(() => '')
-    const installed = await readInstalledPackages({ root: this.#options.root, packages: [...readImports(source), ...BUILT_IN_PACKAGES], resolveFrom: ['kubb'] })
+  async #installedExtensions(source = read(this.#options.configFile)): Promise<InstalledExtensions> {
+    const imports = await source.then(readImports, () => [])
+    const installed = await readInstalledPackages({ root: this.#options.root, packages: [...imports, ...BUILT_IN_PACKAGES], resolveFrom: ['kubb'] })
 
     return new Map(
       installed.flatMap(({ package: name, version, manifest }) =>
@@ -287,8 +288,9 @@ class Agent extends RpcTarget implements AgentApi {
 
   async connect(info: AgentConnectInfo): Promise<ConnectMessagePayload> {
     this.#session.info = info
-    const { configPath, root, version, loadConfig } = this.#options
-    const [config, file, extensions] = await Promise.all([loadConfig(), this.#readConfigFileView(), this.#installedExtensions()])
+    const { configPath, root, version, loadConfig, configFile } = this.#options
+    const source = read(configFile)
+    const [config, file, extensions] = await Promise.all([loadConfig(), this.#readConfigFileView(source), this.#installedExtensions(source)])
     this.#session.connected.resolve(info)
 
     return {
@@ -335,12 +337,13 @@ class Agent extends RpcTarget implements AgentApi {
       result,
       stop: () => {
         controller.abort(new Error('Generation canceled'))
-        stream.dispose()
+        stream.fail()
       },
     })
   }
 
   async #runGeneration(input: GenerateInput, controller: AbortController): Promise<GenerateResult> {
+    this.#assertConnected()
     // Checked before the first `await`, so two calls in the same tick can't both pass.
     if (this.#session.closed) throw new Error('Connection is closed')
     if (this.#session.active) return this.#refuse({ message: 'A generation is already in progress, please wait for it to finish' })
@@ -351,7 +354,7 @@ class Agent extends RpcTarget implements AgentApi {
     try {
       // Kubb keys its manifest cache by root, so sandbox tenants sharing one root would read each other's.
       if (this.#sandbox) root = await mkdtemp(path.join(tmpdir(), 'kubb-job-'))
-      return await this.#command({ command: 'generate', run: () => this.#generate({ input, root, signal: controller.signal }) })
+      return await this.#generate({ input, root, signal: controller.signal })
     } finally {
       if (root !== this.#options.root) {
         await Promise.all([rm(root, { recursive: true, force: true }), rm(resolveCacheDir(root), { recursive: true, force: true })]).catch(() => {})
@@ -361,7 +364,7 @@ class Agent extends RpcTarget implements AgentApi {
     }
   }
 
-  async #generate({ input, root, signal }: { input: GenerateInput; root: string; signal: AbortSignal }): Promise<{ value: GenerateResult; info: string }> {
+  async #generate({ input, root, signal }: { input: GenerateInput; root: string; signal: AbortSignal }): Promise<GenerateResult> {
     const { jobId, config: patch } = input
     // A sandbox has no spec on disk, so it only ever generates from the content Studio sends. A path
     // or URL would make it read host files or fetch internal addresses on behalf of any tenant.
@@ -417,29 +420,27 @@ class Agent extends RpcTarget implements AgentApi {
       await this.#warn({ message: 'Kept only the hashes of this generation: its output is too large to keep' })
     }
     await this.#generations.add({ jobId, output, disk })
+    await this.#logCommand(
+      'generate',
+      `${activePlugins.length} plugin${activePlugins.length === 1 ? '' : 's'}, ${this.#permissions.allowWrite ? 'written to disk' : 'in memory'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
+    )
 
     return {
-      value: {
-        status: 'success',
-        files: [...files.paths],
-        fileCount: files.paths.size,
-        hashes: output.hashes,
-        disk: disk ? { hashes: disk.hashes } : undefined,
-      },
-      info: `${activePlugins.length} plugin${activePlugins.length === 1 ? '' : 's'}, ${this.#permissions.allowWrite ? 'written to disk' : 'in memory'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
+      status: 'success',
+      files: [...files.paths],
+      fileCount: files.paths.size,
+      hashes: output.hashes,
+      disk: disk ? { hashes: disk.hashes } : undefined,
     }
   }
 
-  saveConfig(input: SaveConfigInput): Promise<SaveResult> {
-    return this.#command({ command: 'saveConfig', run: () => this.#saveConfig(input) })
-  }
-
-  async #saveConfig(input: SaveConfigInput): Promise<{ value: SaveResult; info?: string }> {
+  async saveConfig(input: SaveConfigInput): Promise<SaveResult> {
+    this.#assertConnected()
     const { configPath, configFile } = this.#options
 
     if (!Array.isArray(input.edits)) {
       await this.#warn({ message: 'Ignored save: the message carried no edits' })
-      return { value: { outcomes: [], changed: false } }
+      return { outcomes: [], changed: false }
     }
 
     const edits = input.edits
@@ -447,29 +448,27 @@ class Agent extends RpcTarget implements AgentApi {
 
     if (!this.#permissions.allowConfigEdit) {
       await this.#warn({ message: 'Ignored save: editing kubb.config.ts was not granted' })
-      return { value: refuse('the agent was not granted permission to edit kubb.config.ts') }
+      return refuse('the agent was not granted permission to edit kubb.config.ts')
     }
 
     // A running generation reloads the config, so it would see half the change.
-    if (this.#session.active) return { value: refuse('a generation is in progress') }
+    if (this.#session.active) return refuse('a generation is in progress')
 
     try {
       const { outcomes, changed } = await writeConfigEdits({ filePath: configFile, edits, extensions: await this.#installedExtensions() })
       const applied = outcomes.filter((outcome) => outcome.applied).length
+      await this.#logCommand('saveConfig', `applied ${applied}/${outcomes.length} edits to ${configPath}`)
 
-      return { value: { outcomes, changed }, info: `applied ${applied}/${outcomes.length} edits to ${configPath}` }
+      return { outcomes, changed }
     } catch (error) {
       // Refuse every edit so Studio hears back instead of waiting.
       await emit(this.#options.hooks, 'studio:error', { error: toError(error) })
-      return { value: refuse(getErrorMessage(error)) }
+      return refuse(getErrorMessage(error))
     }
   }
 
-  readFiles(input: ReadFilesInput): Promise<ReadFilesResult> {
-    return this.#command({ command: 'readFiles', run: () => this.#readFiles(input) })
-  }
-
-  async #readFiles(input: ReadFilesInput): Promise<{ value: ReadFilesResult; info: string }> {
+  async readFiles(input: ReadFilesInput): Promise<ReadFilesResult> {
+    this.#assertConnected()
     if (!this.#permissions.allowRead) return this.#refuse({ message: 'The agent was not granted permission to read generated files', permission: 'allowRead' })
     if (!Array.isArray(input.paths) || typeof input.jobId !== 'string' || !input.jobId) {
       return this.#refuse({ message: 'The request must name a job and carry paths' })
@@ -486,8 +485,9 @@ class Agent extends RpcTarget implements AgentApi {
 
     // Only paths the set holds are read, never an arbitrary path.
     const result = await this.#generations.read({ generation, source, paths, cursor: input.cursor, limit: input.limit })
+    await this.#logCommand('readFiles', `read ${Object.keys(result.files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}`)
 
-    return { value: result, info: `read ${Object.keys(result.files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}` }
+    return result
   }
 }
 

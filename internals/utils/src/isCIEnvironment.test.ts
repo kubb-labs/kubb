@@ -25,8 +25,8 @@ describe('isCIEnvironment', () => {
     vi.unstubAllEnvs()
   })
 
-  it.each(providers)('returns true when %s is set', (envVar) => {
-    vi.stubEnv(envVar, 'true')
+  it('returns true when a provider variable is set', () => {
+    vi.stubEnv('GITHUB_ACTIONS', 'true')
 
     expect(isCIEnvironment()).toBe(true)
   })

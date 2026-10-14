@@ -14,8 +14,6 @@ import type { InstalledExtensions, JSONKubbConfig, OptionValue } from './protoco
  * module the payload names.
  */
 
-type PluginFactory = (options: unknown) => Plugin
-
 /**
  * Imports a package, falling back to how the user's project would resolve it.
  *
@@ -114,8 +112,9 @@ export function isAllowedPlugin({ packageName, extensions }: { packageName: stri
 }
 
 /**
- * Dynamically imports a plugin package and returns its factory. Only packages
- * {@link isAllowedPlugin} accepts reach `import()`.
+ * Dynamically imports an extension package and returns its factory. Callers check
+ * {@link isAllowedPlugin} or derive the package from a disk instance first, so an arbitrary module
+ * never reaches `import()`.
  *
  * Packages must be pre-installed in the Docker image at build time via the `KUBB_PACKAGES`
  * build ARG, no runtime installation is possible in the distroless container.
@@ -123,15 +122,9 @@ export function isAllowedPlugin({ packageName, extensions }: { packageName: stri
  * Resolution order: the manifest's `export`, else the camelCase named export the package name
  * implies (e.g. `pluginTs`), then the default export.
  *
- * @throws if the package is not allowed, cannot be imported, or exports no callable factory.
+ * @throws if the package cannot be imported or exports no callable factory.
  */
-async function loadPluginFactory({ packageName, extensions }: { packageName: string; extensions: InstalledExtensions }): Promise<PluginFactory> {
-  if (!isAllowedPlugin({ packageName, extensions })) {
-    throw new Error(
-      `Plugin "${packageName}" is not an installed Kubb plugin. Studio loads @kubb/plugin-* packages and installed packages that ship a kubb-extension.json with kind "plugin".`,
-    )
-  }
-
+async function loadFactory({ packageName, extensions }: { packageName: string; extensions: InstalledExtensions }): Promise<(options: unknown) => unknown> {
   let mod: Record<string, unknown>
   try {
     mod = await importFromProject(packageName)
@@ -141,20 +134,20 @@ async function loadPluginFactory({ packageName, extensions }: { packageName: str
 
   const manifestExport = extensions.get(packageName)?.manifest.export
   if (manifestExport) {
-    if (typeof mod[manifestExport] === 'function') return mod[manifestExport] as PluginFactory
+    if (typeof mod[manifestExport] === 'function') return mod[manifestExport] as (options: unknown) => unknown
     throw new Error(`Plugin "${packageName}" does not export "${manifestExport}", the factory its kubb-extension.json names.`)
   }
 
   const exportName = toExportName(packageName)
-  if (typeof mod[exportName] === 'function') return mod[exportName] as PluginFactory
-  if (typeof mod['default'] === 'function') return mod['default'] as PluginFactory
+  const factory = mod[exportName] ?? mod['default']
+  if (typeof factory === 'function') return factory as (options: unknown) => unknown
 
   throw new Error(`Plugin "${packageName}" does not export a callable factory. Tried the named export "${exportName}" and "default".`)
 }
 
 /**
  * Resolves each plugin entry by dynamically importing its package and calling its factory with the
- * provided options. See {@link loadPluginFactory} for which packages are allowed.
+ * provided options. Only packages {@link isAllowedPlugin} accepts are loaded.
  *
  * @example
  * ```ts
@@ -175,7 +168,12 @@ export async function resolvePlugins({
 }): Promise<Array<Plugin>> {
   return Promise.all(
     plugins.map(async ({ name, options }) => {
-      const factory = await loadPluginFactory({ packageName: name, extensions })
+      if (!isAllowedPlugin({ packageName: name, extensions })) {
+        throw new Error(
+          `Plugin "${name}" is not an installed Kubb plugin. Studio loads @kubb/plugin-* packages and installed packages that ship a kubb-extension.json with kind "plugin".`,
+        )
+      }
+      const factory = await loadFactory({ packageName: name, extensions })
       return factory(options ?? {}) as Plugin
     }),
   )
@@ -367,15 +365,9 @@ async function rebuildExtension<T extends Adapter | Parser>({
   const { name } = resolveMeta(disk)
   const installed = [...extensions.values()].find(({ manifest }) => manifest.kind === kind && manifest.name === name)
   const packageName = installed?.package ?? `@kubb/${kind}-${name}`
-  const factory = await importFromProject(packageName)
-    .then((mod) => mod[installed?.manifest.export ?? toExportName(packageName)])
-    .catch((cause: unknown) => {
-      throw new Error(`The ${kind} "${name}" is not an installed Kubb extension, so Studio cannot change its options. Edit it in the config file.`, { cause })
-    })
-
-  if (typeof factory !== 'function') {
-    throw new Error(`The ${kind} "${name}" is not an installed Kubb extension, so Studio cannot change its options. Edit it in the config file.`)
-  }
+  const factory = await loadFactory({ packageName, extensions }).catch((cause: unknown) => {
+    throw new Error(`The ${kind} "${name}" is not an installed Kubb extension, so Studio cannot change its options. Edit it in the config file.`, { cause })
+  })
 
   return factory(mergeOptions((disk.options as Record<string, unknown>) ?? {}, studioOptions as Record<string, unknown>)) as T
 }

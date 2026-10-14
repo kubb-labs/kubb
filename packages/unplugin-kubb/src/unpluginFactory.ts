@@ -1,79 +1,70 @@
 import { adapterOas } from '@kubb/adapter-oas'
-import { applyConfigDefaults, type Config, createKubb, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
-import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
+import {
+  cliReporter,
+  type Config,
+  createCliReporter,
+  createKubb,
+  Diagnostics,
+  fileReporter,
+  Hookable,
+  htmlReporter,
+  jsonReporter,
+  type KubbHooks,
+  logLevel,
+  type UserConfig,
+} from '@kubb/core'
+import { parserMd } from '@kubb/parser-md'
 import { parserTs, parserTsx } from '@kubb/parser-ts'
+import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import type { UnpluginFactory } from 'unplugin'
-import { version as unpluginVersion } from '../package.json'
-import type { Options } from './types.ts'
+
+export type Options = {
+  /**
+   * Kubb config passed to the unplugin entry point.
+   */
+  config?: UserConfig
+}
+
+/**
+ * Applies the defaults `defineConfig` and the unplugin share to a single user config when not set.
+ *
+ * - `root` defaults to `process.cwd()`
+ * - `adapter` defaults to `adapterOas()`
+ * - `parsers` defaults to `[parserTs(), parserTsx(), parserMd()]`
+ * - `reporters` defaults to `[cliReporter, jsonReporter, fileReporter, htmlReporter]`
+ * - `plugins` gets `pluginBarrel()` appended when none is already present
+ * - `output.barrel` defaults to `false` when not set (`pluginBarrel` is always present after the step above, but generates nothing until configured)
+ * - `output.format` and `output.lint` default to `false`
+ */
+export function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
+  const plugins = config.plugins ?? []
+
+  return {
+    ...config,
+    root: config.root || process.cwd(),
+    adapter: config.adapter ?? adapterOas(),
+    parsers: config.parsers?.length ? config.parsers : [parserTs(), parserTsx(), parserMd()],
+    reporters: config.reporters?.length ? config.reporters : [cliReporter, jsonReporter, fileReporter, htmlReporter],
+    plugins: plugins.some((plugin) => plugin.name === pluginBarrelName) ? plugins : [...plugins, pluginBarrel()],
+    output: { barrel: false, format: false, lint: false, ...config.output },
+  }
+}
 
 /**
  * Builds the Kubb unplugin for any unplugin-supported bundler (Vite, Rollup, Webpack, esbuild).
  *
- * Registers hook handlers that log lifecycle, diagnostics, and a per-plugin summary, then runs
- * the Kubb build during the first `buildStart`. When the config omits them, it fills in defaults:
- * the OAS adapter, the TS and TSX parsers, and a barrel plugin. Under Vite it only applies during
+ * Runs the Kubb build during the first `buildStart` with {@link applyDefaults} applied to the
+ * config and prints the same summary `kubb generate` does. Under Vite it only applies during
  * `build`. A missing config or a failed generation fails the host build.
  */
 export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, meta) => {
   const name = 'unplugin-kubb' as const
   const hooks = new Hookable<KubbHooks>()
-  const isVite = meta.framework === 'vite'
+  const reporter = createCliReporter()
 
-  hooks.hook('kubb:lifecycle:start', ({ version }) => {
-    console.log(`Kubb Unplugin ${version} 🧩`)
-  })
-
-  hooks.hook('kubb:error', ({ error }) => {
-    console.error(`✗ ${error?.message || 'failed'}`)
-  })
-
-  hooks.hook('kubb:warn', ({ message }) => {
-    console.warn(`⚠ ${message}`)
-  })
-
-  hooks.hook('kubb:info', ({ message }) => {
-    console.info(`ℹ ${message}`)
-  })
-
-  // Unplugin has no diagnostic renderer, so route each problem by severity to a channel it logs on.
-  hooks.hook('kubb:diagnostic', ({ diagnostic }) => {
-    if (diagnostic.severity === 'error') return hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
-    if (diagnostic.severity === 'warning') return hooks.callHook('kubb:warn', { message: diagnostic.message })
-    return hooks.callHook('kubb:info', { message: diagnostic.message })
-  })
-
-  hooks.hook('kubb:success', ({ message }) => {
-    console.log(`✓ ${message}`)
-  })
-
-  hooks.hook('kubb:plugin:end', ({ plugin, duration }) => {
-    const durationStr = duration >= 1000 ? `${(duration / 1000).toFixed(2)}s` : `${duration}ms`
-
-    console.log(`✓ ${plugin.name} completed in ${durationStr}`)
-  })
-
-  hooks.hook('kubb:files:processing:end', () => {
-    console.log('✓ Files written successfully')
-  })
-
-  hooks.hook('kubb:generation:end', ({ config, status, diagnostics }) => {
-    const result = status === 'failed' ? '✗ Generation failed' : '✓ Generation succeeded'
-    console.log(config.name ? `${result} for ${config.name}` : result)
-
-    if (!diagnostics || !status) return
-
-    const failedCount = Diagnostics.failedPlugins(diagnostics).length
-    const pluginsCount = config.plugins.length
-    const passedCount = pluginsCount - failedCount
-    const { errors } = Diagnostics.count(diagnostics)
-
-    // A run that fails before any plugin runs has 0 failed plugins, so show the error count.
-    console.log(
-      status === 'success'
-        ? `Kubb Summary: ✓ ${passedCount} passed (${pluginsCount})`
-        : `Kubb Summary: ✗ ${passedCount} passed | ${failedCount} failed (${pluginsCount}) | ${errors} ${errors === 1 ? 'error' : 'errors'}`,
-    )
-  })
+  hooks.hook('kubb:generation:end', ({ config, diagnostics = [], filesCreated = 0, status = 'success', hrStart = process.hrtime() }) =>
+    reporter.report({ config, diagnostics, filesCreated, status, hrStart }, { logLevel: logLevel.info }),
+  )
 
   // Throw: webpack, Rspack, esbuild, and Farm contexts have no `this.error`.
   async function runBuild() {
@@ -81,28 +72,8 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       throw new Error(`[${name}] Config is not set`)
     }
 
-    const { adapter, output, plugins } = applyConfigDefaults(options.config, {
-      defaultAdapter: adapterOas(),
-      barrelPlugin: pluginBarrel(),
-      barrelPluginName: pluginBarrelName,
-      defaultOutput: { barrel: false, format: false, lint: false },
-    })
-
-    const config = {
-      ...options.config,
-      adapter,
-      parsers: options.config.parsers?.length ? options.config.parsers : [parserTs(), parserTsx()],
-      plugins,
-      output,
-    }
-    const userConfig = config as Config
-
-    await hooks.callHook('kubb:lifecycle:start', { version: unpluginVersion })
-
-    const kubb = createKubb(userConfig, { hooks })
+    const kubb = createKubb(applyDefaults(options.config) as Config, { hooks })
     const result = await kubb.generate()
-
-    await hooks.callHook('kubb:lifecycle:end')
 
     if (!result.success) {
       const failedCount = Diagnostics.failedPlugins(result.diagnostics).length
@@ -119,7 +90,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
   return {
     name,
     enforce: 'pre',
-    apply: isVite ? 'build' : undefined,
+    apply: meta.framework === 'vite' ? 'build' : undefined,
     async buildStart() {
       generation ??= runBuild().catch((error: unknown) => {
         generation = undefined

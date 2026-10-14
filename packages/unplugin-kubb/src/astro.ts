@@ -1,29 +1,11 @@
-import type { Options } from './types.ts'
+import type { Options } from './unpluginFactory.ts'
 import vitePlugin from './vite.ts'
 
-/**
- * Minimal shape of the params Astro passes to its `astro:config:setup` hook.
- * Kept local rather than depending on `astro` for a single hook signature.
- */
-type AstroConfigSetupParams = {
-  config: {
-    vite: {
-      plugins?: Array<unknown>
-    }
-  }
-}
-
-type AstroIntegration = {
-  name: string
-  hooks: {
-    'astro:config:setup': (params: AstroConfigSetupParams) => void | Promise<void>
-  }
-}
-
-export default (options: Options): AstroIntegration => ({
+export default (options: Options) => ({
   name: 'unplugin-kubb',
   hooks: {
-    'astro:config:setup': async (astro) => {
+    // Only the slice of Astro's `astro:config:setup` params the integration touches, so `astro` is not a dependency.
+    'astro:config:setup': (astro: { config: { vite: { plugins?: Array<unknown> } } }) => {
       astro.config.vite.plugins ||= []
       astro.config.vite.plugins.push(vitePlugin(options))
     },

@@ -17,7 +17,7 @@ import farmPlugin from './farm.ts'
 import rolldownPlugin from './rolldown.ts'
 import rollupPlugin from './rollup.ts'
 import rspackPlugin from './rspack.ts'
-import type { Options } from './types.ts'
+import type { Options } from './unpluginFactory.ts'
 import vitePlugin from './vite.ts'
 import webpackPlugin from './webpack.ts'
 

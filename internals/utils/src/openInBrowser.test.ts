@@ -16,20 +16,7 @@ describe('openInBrowser', () => {
   })
 
   it('opens the URL with the platform browser command', () => {
-    for (const key of [
-      'CI',
-      'GITHUB_ACTIONS',
-      'GITLAB_CI',
-      'BITBUCKET_BUILD_NUMBER',
-      'JENKINS_URL',
-      'CIRCLECI',
-      'TRAVIS',
-      'TEAMCITY_VERSION',
-      'BUILDKITE',
-      'TF_BUILD',
-    ]) {
-      vi.stubEnv(key, '')
-    }
+    vi.stubEnv('CI', '')
 
     openInBrowser('https://kubb.dev')
 

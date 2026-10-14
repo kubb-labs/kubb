@@ -69,6 +69,8 @@ The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, whic
 
 `snapshot` takes no `--allow-*` flag. It generates like `kubb generate`: it writes to `output.path`, then runs the formatter, the linter, and `output.postGenerate`. It refuses a tarball over 50 MB.
 
+`snapshot` builds the package with [tsdown](https://tsdown.dev), an optional peer dependency of `@kubb/studio`. Install it in the project (`npm install --save-dev tsdown`), or the command fails with an install hint. The other `kubb studio` actions do not need it.
+
 Without `--allow-read`, a session still generates and reports file paths, but Studio cannot display their contents. The CLI asks about permissions not supplied as flags and remembers answers per project directory. Without a TTY it skips the permission prompts, so pass the flags the run needs. In CI it also refuses to pair interactively and needs stored credentials or `KUBB_AGENT_TOKEN`.
 
 Each action exits with code 1 when it fails.
