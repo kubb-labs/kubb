@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.9.3 — Oct 14, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- `kubb add` without an id asks which plugin, adapter, or parser to add from the registry, with a search on the name, id, kind, and description. `kubb update` shows the kind and the version change of each update and asks which ones to install. ([#4291](https://github.com/kubb-labs/kubb/pull/4291), [`0e1c033`](https://github.com/kubb-labs/kubb/commit/0e1c033d12942682c12393ee0fb40dc6c0be8ee4))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.9.2 — Oct 13, 2026
 
 ### @kubb/core
