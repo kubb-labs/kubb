@@ -52,7 +52,7 @@ export async function addToConfig({
   }
 }
 
-/** Asks which registry extension to add, listing every entry with its kind and pinned version. `undefined` when canceled. */
+/** Asks which registry extension to add, searchable by id or kind, listing its pinned version. `undefined` when canceled. */
 async function selectExtension(registry: string): Promise<string | undefined> {
   const entries = await fetchRegistryIndex({ registry })
   const kinds: Array<ExtensionManifest['kind']> = ['plugin', 'adapter', 'parser']
@@ -61,7 +61,13 @@ async function selectExtension(registry: string): Promise<string | undefined> {
     .map((entry) => ({ value: entry.id, label: entry.id, hint: `${entry.kind} ${entry.artifact.version}` }))
   if (!options.length) throw new Error(`The registry at ${registry} lists no extensions.`)
 
-  const id = await clack.select({ message: 'Select an extension to add:', options })
+  const id = await clack.autocomplete({
+    message: 'Select an extension to add:',
+    placeholder: 'Type to search by id or kind',
+    options,
+    maxItems: 10,
+    filter: (search, option) => `${option.label} ${option.hint}`.toLowerCase().includes(search.toLowerCase()),
+  })
   return clack.isCancel(id) ? undefined : id
 }
 
