@@ -7,15 +7,10 @@ import { command as startCommand, stopCommand } from './background.ts'
 import { command as statusCommand } from './status.ts'
 
 export const command = define({
+  ...connectCommand,
   name: 'studio',
   description: 'Connect this project to Kubb Studio, or manage its pairing and snapshots.',
   examples: ['kubb studio', 'kubb studio --allow-read', 'kubb studio login', 'kubb studio status', 'kubb studio logout', 'kubb studio snapshot'].join('\n'),
-  toKebab: true,
-  args: connectCommand.args,
-  async run(ctx) {
-    const { connectRunner } = await import('../../runners/studio/commands.ts')
-    await connectRunner(ctx)
-  },
   subCommands: {
     start: startCommand,
     stop: stopCommand,

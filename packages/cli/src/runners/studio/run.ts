@@ -67,31 +67,16 @@ export type SnapshotOptions = Pick<StudioOptions, 'configPath' | 'studioUrl' | '
   json?: boolean
 }
 
-type StudioValues = {
+/** The flags a `kubb studio` subcommand parsed; each one is optional since a subcommand declares only the flags it uses. */
+export type StudioValues = {
   config?: string
   url?: string
-  allowRead: boolean
-  allowWrite: boolean
-  allowConfigEdit: boolean
-  allowExec: boolean
+  allowRead?: boolean
+  allowWrite?: boolean
+  allowConfigEdit?: boolean
+  allowExec?: boolean
   open?: boolean
   logLevel?: CLIOptions['logLevel']
-}
-
-export function createStudioOptions(values: StudioValues): StudioOptions {
-  return {
-    version,
-    configPath: values.config,
-    studioUrl: values.url ?? defaultStudioUrl,
-    permission: {
-      allowRead: values.allowRead,
-      allowWrite: values.allowWrite,
-      allowConfigEdit: values.allowConfigEdit,
-      allowExec: values.allowExec,
-    },
-    autoOpen: values.open ?? true,
-    logLevel: values.logLevel,
-  }
 }
 
 type LoginOptions = {
@@ -397,19 +382,27 @@ export async function connect(
 }
 
 /**
- * Runs a Studio command with shared setup and telemetry reporting.
+ * Runs a Studio command from its parsed flags: builds the {@link StudioOptions}, prints the intro,
+ * and reports the run to telemetry. A failure is printed and sets the exit code instead of throwing.
  */
-export async function run({
-  options,
-  action,
-  block = false,
-  json = false,
-}: {
-  options: Pick<StudioOptions, 'logLevel'>
-  action: () => Promise<unknown>
-  block?: boolean
-  json?: boolean
-}): Promise<void> {
+export async function runStudio(
+  values: StudioValues,
+  action: (options: StudioOptions) => Promise<unknown>,
+  { block = false, json = false }: { block?: boolean; json?: boolean } = {},
+): Promise<void> {
+  const options: StudioOptions = {
+    version,
+    configPath: values.config,
+    studioUrl: values.url ?? defaultStudioUrl,
+    permission: {
+      allowRead: values.allowRead ?? false,
+      allowWrite: values.allowWrite ?? false,
+      allowConfigEdit: values.allowConfigEdit ?? false,
+      allowExec: values.allowExec ?? false,
+    },
+    autoOpen: values.open ?? true,
+    logLevel: values.logLevel,
+  }
   const report = trackRun({ command: 'studio', hrStart: process.hrtime() })
 
   try {
@@ -420,7 +413,7 @@ export async function run({
       })
     }
 
-    await action()
+    await action(options)
 
     await report({ status: 'success' })
   } catch (error) {

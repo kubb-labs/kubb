@@ -1,29 +1,6 @@
-import { existsSync } from 'node:fs'
-import { basename, dirname, join, resolve } from 'node:path'
-import process from 'node:process'
-import { loadModule } from '@internals/shared'
-import type { CLIOptions, Config, PossibleConfig } from '@kubb/core'
-import { type LoadConfigResult, type LoadConfigSource, loadConfig } from 'unconfig'
-
-// Kubb configs are JS/TS modules (they call `defineConfig`/`pluginX()`), so YAML and JSON are not
-// supported. The jiti loader handles every module format and the JSX runtime, returning the default export.
-const tsLoader = (configFile: string) => loadModule(configFile, { default: true })
-
-const MODULE_NAME = 'kubb'
-
-const SEARCH_FILES = ['', '.config/', 'configs/'].flatMap((prefix) => [`${prefix}.${MODULE_NAME}rc`, `${prefix}${MODULE_NAME}.config`])
-const SEARCH_EXTENSIONS = ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs']
-
-/**
- * The first Kubb config file in `cwd` or the nearest parent folder that has one, searched in the same
- * order as {@link getConfigs}, without loading it.
- */
-export function findConfigFile(cwd: string = process.cwd()): string | undefined {
-  for (let dir = resolve(cwd); ; dir = dirname(dir)) {
-    const found = SEARCH_FILES.flatMap((file) => SEARCH_EXTENSIONS.map((extension) => join(dir, `${file}.${extension}`))).find((file) => existsSync(file))
-    if (found || dirname(dir) === dir) return found
-  }
-}
+import { resolve } from 'node:path'
+import { findConfigFile, loadConfigFile } from '@internals/shared'
+import type { CLIOptions, Config } from '@kubb/core'
 
 type GetConfigsOptions = {
   /** Explicit path to the Kubb config file. When omitted, the loader searches up from `process.cwd()`. */
@@ -45,33 +22,17 @@ type GetConfigsResult = {
 
 /** Discovers the Kubb config and resolves it into normalized configs, each guaranteed to have a `plugins` array. */
 export async function getConfigs({ configPath, input, watch, logLevel }: GetConfigsOptions): Promise<GetConfigsResult> {
-  const abs = configPath ? resolve(configPath) : undefined
-  const sources: Array<LoadConfigSource<unknown>> = abs
-    ? [{ files: [basename(abs)], extensions: [], parser: tsLoader }]
-    : [{ files: SEARCH_FILES, extensions: SEARCH_EXTENSIONS, parser: tsLoader }]
+  const file = configPath ? resolve(configPath) : findConfigFile()
+  if (!file) {
+    throw new Error('Config not defined, create a kubb.config.js or pass through your config with the option --config')
+  }
 
-  let result: LoadConfigResult<unknown>
+  let configs: Array<Config>
   try {
-    result = await loadConfig<unknown>({ cwd: abs ? dirname(abs) : process.cwd(), sources, merge: false })
+    configs = await loadConfigFile<Config>(file, { config: configPath, input, watch, logLevel } satisfies CLIOptions)
   } catch (error) {
     throw new Error('Config failed loading', { cause: error })
   }
 
-  const [filepath] = result.sources
-  if (!result.config || !filepath) {
-    throw new Error('Config not defined, create a kubb.config.js or pass through your config with the option --config')
-  }
-
-  const config = result.config as PossibleConfig<CLIOptions>
-  const cli: CLIOptions = { config: configPath, input, watch, logLevel }
-  const resolved = await (typeof config === 'function' ? config(cli) : config)
-  const userConfigs = Array.isArray(resolved) ? resolved : [resolved]
-
-  return {
-    configPath: filepath,
-    configs: userConfigs.map((item) => {
-      const config: Config = { ...item, plugins: item.plugins ?? [] }
-      return config
-    }),
-  }
+  return { configPath: file, configs: configs.map((item) => ({ ...item, plugins: item.plugins ?? [] })) }
 }

@@ -1,9 +1,11 @@
 import { stripVTControlCharacters } from 'node:util'
 import { Hookable, cliReporter, type Config, jsonReporter, type KubbHooks, logLevel, type Storage } from '@kubb/core'
+import { getAgentProfile } from 'gunshi/agent'
 import { describe, expect, it, vi } from 'vitest'
-import * as agent from '../agent.ts'
 import * as env from '../utils/env.ts'
 import setupReporters from './reporters.ts'
+
+vi.mock('gunshi/agent', () => ({ getAgentProfile: vi.fn(() => ({ isAgent: false })) }))
 
 describe('setupReporters', () => {
   it('lets json own stdout without installing the live logger when json is selected', async () => {
@@ -91,7 +93,7 @@ describe('setupReporters', () => {
     { agentName: undefined, plain: false, label: 'no AI agent is detected' },
   ])('installs the plain logger: $plain when a TTY is available and $label', async ({ agentName, plain }) => {
     using _stdout = withInteractiveStdout()
-    using _agent = vi.spyOn(agent, 'getAgentName').mockReturnValue(agentName)
+    using _agent = vi.mocked(getAgentProfile).mockReturnValue({ isAgent: Boolean(agentName), name: agentName })
 
     expect((await renderGroup()).includes('petstore')).toBe(plain)
   })
@@ -115,44 +117,30 @@ describe('studio session events', () => {
     return lines
   }
 
-  it('names both sides on connect, so a version mismatch is visible, then waits for jobs', async () => {
-    const lines = await render((context) =>
-      context.callHook('studio:connected', {
+  it('reports the connection, a command, a retry, a refused permission, and a takeover, in order', async () => {
+    const lines = await render(async (context) => {
+      await context.callHook('studio:connected', {
         url: 'http://localhost:3000',
         versions: { studio: '5.1.0', kubb: '5.0.6', agent: '5.0.6' },
         sandbox: false,
         agentSlug: 'brave-otter',
         studioVersion: '5.1.0',
-      }),
-    )
+      })
+      await context.callHook('studio:command', { command: 'saveConfig', info: 'applied 2/3 edits to kubb.config.ts' })
+      await context.callHook('studio:reconnecting', { delayMs: 30_000 })
+      await context.callHook('studio:warn', { message: 'Ignored save: editing kubb.config.ts was not granted', permission: 'allowConfigEdit' })
+      await context.callHook('studio:disconnected', { code: 4002, reason: '' })
+    })
 
-    expect(lines).toStrictEqual(['✓ Connected to http://localhost:3000 (v5.0.6, Studio v5.1.0)', '✓ Ready to receive jobs'])
-  })
-
-  it('reports a command and what it did', async () => {
-    const lines = await render((context) => context.callHook('studio:command', { command: 'saveConfig', info: 'applied 2/3 edits to kubb.config.ts' }))
-
-    expect(lines).toStrictEqual(['✓ Finished saveConfig (applied 2/3 edits to kubb.config.ts)', '✓ Ready to receive jobs'])
-  })
-
-  it('announces a retry instead of leaving the runtime to print it', async () => {
-    const lines = await render((context) => context.callHook('studio:reconnecting', { delayMs: 30_000 }))
-
-    expect(lines).toStrictEqual(['Retrying connection to Kubb Studio in 30.00s'])
-  })
-
-  it('names the flag that grants a refused permission', async () => {
-    const lines = await render((context) =>
-      context.callHook('studio:warn', { message: 'Ignored save: editing kubb.config.ts was not granted', permission: 'allowConfigEdit' }),
-    )
-
-    expect(lines).toStrictEqual(['⚠ Ignored save: editing kubb.config.ts was not granted; pass --allow-config-edit to allow it'])
-  })
-
-  it('says another process took over instead of printing the close code', async () => {
-    const lines = await render((context) => context.callHook('studio:disconnected', { code: 4002, reason: '' }))
-
-    expect(lines).toStrictEqual(['⚠ Another process connected to Kubb Studio as this agent, so this one stopped'])
+    expect(lines).toStrictEqual([
+      '✓ Connected to http://localhost:3000 (v5.0.6, Studio v5.1.0)',
+      '✓ Ready to receive jobs',
+      '✓ Finished saveConfig (applied 2/3 edits to kubb.config.ts)',
+      '✓ Ready to receive jobs',
+      'Retrying connection to Kubb Studio in 30.00s',
+      '⚠ Ignored save: editing kubb.config.ts was not granted; pass --allow-config-edit to allow it',
+      '⚠ Another process connected to Kubb Studio as this agent, so this one stopped',
+    ])
   })
 
   it('drops everything but errors at silent', async () => {

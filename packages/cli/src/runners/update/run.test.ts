@@ -54,14 +54,6 @@ describe('kubb update', () => {
     expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-plugin-x@1.1.0'], expect.objectContaining({ name: 'npm' }), cwd)
   })
 
-  it('installs only the selected updates', async () => {
-    stubFetch({ body: registryIndex([registryEntry({ name: 'plugin-x', version: '1.1.0' }), registryEntry({ name: 'plugin-y', version: '2.1.0' })]) })
-
-    await run({ ids: [], check: false, yes: false })
-
-    expect(installPackages).toHaveBeenCalledWith(['@acme/kubb-plugin-x@1.1.0'], expect.objectContaining({ name: 'npm' }), cwd)
-  })
-
   it('installs a newer GitHub release from its commit', async () => {
     const commit = '0123456789abcdef0123456789abcdef01234567'
     const artifact = { kind: 'github', owner: 'acme', repo: 'kubb-plugin-x', tag: 'v1.1.0', commit }

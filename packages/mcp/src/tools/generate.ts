@@ -1,10 +1,12 @@
 import path from 'node:path'
-import { CONFIG_EXTENSIONS } from '@internals/shared'
+import process from 'node:process'
+import { CONFIG_EXTENSIONS, findConfigFile, loadConfigFile } from '@internals/shared'
+import { isPathInside } from '@internals/utils'
 import { type Config, createKubb, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import * as z from 'zod/mini'
-import { formatDiagnostics, loadUserConfig } from '../utils.ts'
+import { formatDiagnostics } from '../utils.ts'
 
 const generateSchema = z.object({
   config: z.optional(
@@ -12,7 +14,9 @@ const generateSchema = z.object({
       .string()
       .check(
         z.minLength(1),
-        z.describe(`Path to kubb.config file (supports ${CONFIG_EXTENSIONS.join(', ')}). If not provided, will look for kubb.config.* in current directory`),
+        z.describe(
+          `Path to kubb.config file (supports ${CONFIG_EXTENSIONS.join(', ')}). If not provided, will look for kubb.config.* or .kubbrc.* in the current directory, its .config/ and configs/ folders, then each parent directory`,
+        ),
       ),
   ),
   input: z.optional(z.string().check(z.minLength(1), z.describe('Path to OpenAPI/Swagger spec file (overrides config)'))),
@@ -37,41 +41,41 @@ export const generateTool = defineTool(
         messages.push(data ? `${type}: ${message} ${JSON.stringify(data)}` : `${type}: ${message}`)
       }
 
-      hooks.hook('kubb:info', ({ message }) => notify('INFO', message))
-      hooks.hook('kubb:success', ({ message }) => notify('SUCCESS', message))
       hooks.hook('kubb:error', ({ error }) => notify('ERROR', error.message))
       hooks.hook('kubb:warn', ({ message }) => notify('WARN', message))
       hooks.hook('kubb:diagnostic', ({ diagnostic }) => notify('DIAGNOSTIC', diagnostic.message, Diagnostics.serialize(diagnostic)))
-      hooks.hook('kubb:plugin:start', ({ plugin }) => notify('PLUGIN_START', `Plugin starting: ${plugin.name}`))
-      hooks.hook('kubb:plugin:end', ({ plugin, duration }) => notify('PLUGIN_END', `Plugin finished: ${plugin.name}`, { duration }))
-      hooks.hook('kubb:files:processing:start', () => notify('FILES_START', 'Starting file processing'))
-      hooks.hook('kubb:files:processing:update', ({ files }) => notify('FILES_UPDATE', `Processing ${files.length} files`))
-      hooks.hook('kubb:files:processing:end', () => notify('FILES_END', 'File processing complete'))
-      hooks.hook('kubb:generation:start', () => notify('GENERATION_START', 'Generation started'))
-      hooks.hook('kubb:setup:start', () => notify('SETUP_START', 'Setting up Kubb'))
-      hooks.hook('kubb:setup:end', () => {
-        notify('SETUP_END', 'Kubb setup complete')
-        notify('BUILD_START', 'Starting build')
-      })
-      hooks.hook('kubb:generation:end', () => notify('GENERATION_END', 'Generation ended'))
+
+      // The AI client supplies the path, so it must carry a config extension and stay inside the working directory.
+      const base = path.resolve(process.cwd())
+      let file: string | undefined
+      if (configPath) {
+        const ext = path.extname(configPath)
+        if (!CONFIG_EXTENSIONS.some((extension) => extension === ext)) {
+          return tool.error(`Invalid config file extension "${ext}". Allowed: ${CONFIG_EXTENSIONS.join(', ')}`)
+        }
+        file = path.resolve(base, configPath)
+        if (!isPathInside(file, base)) {
+          return tool.error('Invalid config file path: must be within the current working directory')
+        }
+      } else {
+        file = findConfigFile(base)
+        if (!file) {
+          return tool.error(
+            `No config file found. Please provide a config path or create one of: ${CONFIG_EXTENSIONS.map((extension) => `kubb.config${extension}`).join(', ')}`,
+          )
+        }
+      }
 
       let userConfig: Config
-      let cwd: string
-
       try {
-        const configResult = await loadUserConfig(configPath, { notify })
-        const loaded = configResult.userConfig
-        cwd = configResult.cwd
-
-        const resolved = await (typeof loaded === 'function' ? loaded({ logLevel, config: configPath }) : loaded)
-        const first = Array.isArray(resolved) ? resolved[0] : resolved
+        const [first] = await loadConfigFile<Config>(file, { logLevel, config: configPath })
         if (!first) throw new Error('The config file exports an empty array of configurations')
         userConfig = first
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return tool.error(errorMessage)
+        return tool.error(`Failed to load config: ${error instanceof Error ? error.message : String(error)}`)
       }
 
+      const cwd = path.dirname(file)
       const config: Config = {
         ...userConfig,
         root: path.resolve(cwd, userConfig.root ?? '.'),

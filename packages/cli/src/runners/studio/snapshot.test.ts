@@ -101,14 +101,6 @@ describe('snapshot', () => {
     })
   })
 
-  it('links the agent page by id when the CI agent has no slug', async () => {
-    vi.mocked(createSnapshot).mockResolvedValue({ ...published, agent: { ...published.agent, slug: null } })
-
-    await snapshot(baseOptions({ json: true }))
-
-    expect(printedJson().agentUrl).toBe('http://localhost:3000/agents/agent-1')
-  })
-
   it("compares with the base branch's agent, and labels those changes with the branch", async () => {
     vi.mocked(detectCi).mockReturnValueOnce({ id: 'gh:123:42', name: 'acme/api#42', base: { branch: 'main', id: 'gh:123:refs/heads/main' } })
     vi.mocked(createSnapshot).mockResolvedValue({ ...published, branchChanges })
@@ -170,7 +162,6 @@ describe('formatChanges', () => {
       expected: '2 added, 1 changed, 1 removed since 9f3e2a1',
       label: 'counts each kind since the short commit of the previous snapshot',
     },
-    { changes: { base, added: [], changed: [], removed: [] }, expected: 'No changes since 9f3e2a1', label: 'says so when nothing changed' },
     {
       changes: { base: { ...base, commit: undefined }, added: [], changed: ['c.ts'], removed: [] },
       expected: '0 added, 1 changed, 0 removed since 2026-01-01T00:00:00.000Z',

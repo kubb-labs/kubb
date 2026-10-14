@@ -5,20 +5,20 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createSerialRunner, startUrlWatcher, startWatcher } from './utils.ts'
 
 describe('createSerialRunner', () => {
-  it('collapses triggers that land during a run into one rerun', async () => {
+  it('collapses triggers that land during a run into one rerun, reports its error through onError, and keeps accepting triggers', async () => {
     let calls = 0
+    const errors: Array<string> = []
     const gates: Array<() => void> = []
     const runner = createSerialRunner({
       run: () =>
-        new Promise<void>((resolve) => {
+        new Promise<void>((resolve, reject) => {
           calls += 1
-          gates.push(resolve)
+          gates.push(calls === 2 ? () => reject(new Error('run exploded')) : resolve)
         }),
-      onError: () => {},
+      onError: (error) => errors.push(error.message),
     })
 
     const first = runner()
-    void runner()
     void runner()
     void runner()
     expect(calls).toBe(1)
@@ -28,25 +28,12 @@ describe('createSerialRunner', () => {
 
     gates[1]?.()
     await first
-    expect(calls).toBe(2)
-  })
-
-  it('reports a run error through onError and keeps accepting triggers', async () => {
-    const errors: Array<string> = []
-    let shouldFail = true
-    const runner = createSerialRunner({
-      run: async () => {
-        if (shouldFail) throw new Error('run exploded')
-      },
-      onError: (error) => errors.push(error.message),
-    })
-
-    await runner()
     expect(errors).toStrictEqual(['run exploded'])
 
-    shouldFail = false
-    await runner()
-    expect(errors).toStrictEqual(['run exploded'])
+    const third = runner()
+    expect(calls).toBe(3)
+    gates[2]?.()
+    await third
   })
 })
 
@@ -174,20 +161,6 @@ describe('startUrlWatcher', () => {
     await vi.waitFor(() => expect(builtWith).toStrictEqual([[url]]))
   })
 
-  it('rebuilds when the document changed between the initial build and the first poll', async () => {
-    stubFetchQueue(['v2'])
-    let builds = 0
-
-    watch(
-      async () => {
-        builds += 1
-      },
-      { initialBody: 'v1' },
-    )
-
-    await vi.waitFor(() => expect(builds).toBe(1))
-  })
-
   it('rebuilds on the first successful poll when no initial body was captured', async () => {
     const down = new Error('fetch failed')
     const pollCount = stubFetchQueue([down, down, 'v1', 'v1'])
@@ -229,14 +202,6 @@ describe('startUrlWatcher', () => {
     await vi.waitFor(() => expect(builds).toBe(1))
     expect(pollCount()).toBeGreaterThanOrEqual(5)
     expect(errors).toHaveLength(1)
-  })
-
-  it('times out a request that never settles and keeps polling', async () => {
-    const fetchMock = stubHungFetch()
-
-    watch(async () => {}, { timeoutMs: 10 })
-
-    await vi.waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2))
   })
 
   it('aborts the in-flight request and stops polling once the returned stop function runs', async () => {

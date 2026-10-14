@@ -3,7 +3,8 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { findConfigFile, getConfigs } from './config.ts'
+import { findConfigFile } from '@internals/shared'
+import { getConfigs } from './config.ts'
 
 describe('getConfigs', () => {
   let dir: string
@@ -28,15 +29,6 @@ describe('getConfigs', () => {
     expect(resolved).toBe(configPath)
     expect(configs).toHaveLength(1)
     expect(configs[0]?.plugins).toStrictEqual([])
-  })
-
-  it('resolves an explicit relative path against cwd', async () => {
-    dir = await mkdtemp(join(tmpdir(), 'kubb-cfg-'))
-    const configPath = await writeConfig(join(dir, 'custom.config.mjs'))
-
-    using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(dir)
-
-    await expect(getConfigs({ configPath: './custom.config.mjs' })).resolves.toMatchObject({ configPath })
   })
 
   it('calls a config function with the CLI options', async () => {

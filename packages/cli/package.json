@@ -73,7 +73,6 @@
     "gunshi": "^0.37.3",
     "jiti": "^2.7.0",
     "tinyexec": "catalog:",
-    "unconfig": "^7.5.0",
     "verkit": "^0.5.0"
   },
   "devDependencies": {

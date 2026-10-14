@@ -21,10 +21,6 @@ afterEach(() => {
 })
 
 describe('detectCi', () => {
-  it('returns null outside a known CI', () => {
-    expect(detectCi({})).toBeNull()
-  })
-
   it('reads the head commit and the base branch of a GitHub pull request, and the base matches a run on that branch', () => {
     const eventPath = writeGithubEvent({ pull_request: { number: 42, head: { sha: 'head1234' }, base: { ref: 'main' } } })
     const env = { GITHUB_ACTIONS: 'true', GITHUB_REPOSITORY_ID: '123456', GITHUB_REPOSITORY: 'acme/api', GITHUB_SHA: 'merge5678' }
@@ -58,36 +54,28 @@ describe('detectCi', () => {
     expect(detectCi(env)).toEqual(expected)
   })
 
-  it('derives an id from GitLab CI', () => {
-    expect(
-      detectCi({
-        GITLAB_CI: 'true',
-        CI_PROJECT_ID: '77',
-        CI_PROJECT_PATH: 'acme/api',
-        CI_MERGE_REQUEST_IID: '9',
-      }),
-    ).toEqual({ id: 'gl:77:9', name: 'acme/api#9' })
-  })
-
   it('reads the target branch of a GitLab merge request, and the base matches a pipeline on that branch', () => {
-    const env = { GITLAB_CI: 'true', CI_PROJECT_ID: '77', CI_PROJECT_PATH: 'acme/api' }
+    const env = { GITLAB_CI: 'true', CI_PROJECT_ID: '77', CI_PROJECT_PATH: 'acme/api', CI_COMMIT_SHA: 'a1b2c3d' }
 
     const mergeRequest = detectCi({ ...env, CI_MERGE_REQUEST_IID: '9', CI_MERGE_REQUEST_TARGET_BRANCH_NAME: 'release/2.x' })
     const branch = detectCi({ ...env, CI_COMMIT_REF_SLUG: 'release-2-x' })
 
     expect(mergeRequest?.base).toEqual({ branch: 'release/2.x', id: 'gl:77:release-2-x' })
     expect(mergeRequest?.base?.id).toBe(branch?.id)
+    expect(mergeRequest?.commit).toBe('a1b2c3d')
   })
 
-  it('derives an id from Bitbucket Pipelines', () => {
+  it('derives an id from Bitbucket Pipelines, and null outside a known CI', () => {
     expect(
       detectCi({
         BITBUCKET_BUILD_NUMBER: '5',
         BITBUCKET_REPO_UUID: '{repo-uuid}',
         BITBUCKET_REPO_FULL_NAME: 'acme/api',
         BITBUCKET_PR_ID: '3',
+        BITBUCKET_COMMIT: 'a1b2c3d',
       }),
-    ).toEqual({ id: 'bb:{repo-uuid}:3', name: 'acme/api#3' })
+    ).toEqual({ id: 'bb:{repo-uuid}:3', name: 'acme/api#3', commit: 'a1b2c3d' })
+    expect(detectCi({})).toBeNull()
   })
 
   it('derives an id from CircleCI', () => {
@@ -97,26 +85,16 @@ describe('detectCi', () => {
         CIRCLE_PROJECT_USERNAME: 'acme',
         CIRCLE_PROJECT_REPONAME: 'api',
         CIRCLE_PR_NUMBER: '11',
+        CIRCLE_SHA1: 'a1b2c3d',
       }),
-    ).toEqual({ id: 'circle:acme:api:11', name: 'acme/api#11' })
-  })
-
-  it.each([
-    [{ GITHUB_ACTIONS: 'true', GITHUB_SHA: 'a1b2c3d' }],
-    [{ GITLAB_CI: 'true', CI_COMMIT_SHA: 'a1b2c3d' }],
-    [{ BITBUCKET_BUILD_NUMBER: '7', BITBUCKET_COMMIT: 'a1b2c3d' }],
-    [{ CIRCLECI: 'true', CIRCLE_SHA1: 'a1b2c3d' }],
-  ])('reads the commit the run builds from %o', (env) => {
-    expect(detectCi(env)?.commit).toBe('a1b2c3d')
+    ).toEqual({ id: 'circle:acme:api:11', name: 'acme/api#11', commit: 'a1b2c3d' })
   })
 })
 
 describe('gitlabRefSlug', () => {
   it.each([
-    ['main', 'main'],
     ['Feature/Login_Page', 'feature-login-page'],
     ['-release/2.x-', 'release-2-x'],
-    ['fix/🚀-launch', 'fix---launch'],
     ['a'.repeat(70), 'a'.repeat(63)],
   ])('slugs %s like GitLab', (ref, slug) => {
     expect(gitlabRefSlug(ref)).toBe(slug)

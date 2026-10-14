@@ -21,11 +21,8 @@ afterAll(async () => {
 })
 
 describe('loadModule', () => {
-  test('returns the default export when default is set', async () => {
+  test('returns the default export when default is set, and the namespace otherwise', async () => {
     expect(await loadModule(tsConfigPath, { default: true })).toStrictEqual({ name: 'loaded' })
-  })
-
-  test('returns the namespace when default is not set', async () => {
     expect(await loadModule(namedExportPath)).toMatchObject({ value: 42, default: 'fallback' })
   })
 

@@ -1,6 +1,7 @@
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { getErrorMessage } from '@internals/utils'
+import { define } from 'gunshi'
 import { readInstalledPackages, type RegistryEntry } from '@kubb/core'
 import { logBlock, logError, logOutro, logWarn } from '../../loggers/output.ts'
 import { fetchRegistryIndex, isOutdated, registryUrl } from '../../utils/registry.ts'
@@ -59,3 +60,11 @@ export async function run(): Promise<void> {
     process.exitCode = 1
   }
 }
+
+export const command = define({
+  name: 'list',
+  description:
+    'List the installed Kubb extensions: their registry id, package, installed version, the version the Kubb registry pins, and whether an update exists.',
+  examples: 'kubb list',
+  run: () => run(),
+})

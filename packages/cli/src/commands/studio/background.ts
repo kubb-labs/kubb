@@ -1,14 +1,14 @@
 import { define } from 'gunshi'
 import { command as connectCommand } from './connect.ts'
+import { studioCommand } from './studioCommand.ts'
 
-export const command = define({
+export const command = studioCommand({
   name: 'start',
   description: 'Keep this project connected to Kubb Studio in the background.',
-  toKebab: true,
   args: connectCommand.args,
-  async run(ctx) {
-    const { startRunner } = await import('../../runners/studio/commands.ts')
-    await startRunner(ctx)
+  async action(options) {
+    const { startWorker } = await import('../../runners/studio/background.ts')
+    await startWorker(options)
   },
 })
 
@@ -16,7 +16,8 @@ export const stopCommand = define({
   name: 'stop',
   description: "Stop this project's background connection and keep its pairing.",
   async run() {
-    const { stopRunner } = await import('../../runners/studio/commands.ts')
-    await stopRunner()
+    const { stopWorker } = await import('../../runners/studio/background.ts')
+    await stopWorker()
+    console.log('Background connection stopped.')
   },
 })

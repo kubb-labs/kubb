@@ -2,77 +2,33 @@ import { styleText } from 'node:util'
 import { formatMs } from '@internals/utils'
 
 /**
- * Parsed RGB channels from a CSS hex color string.
- */
-type RGB = { r: number; g: number; b: number }
-
-/**
- * Parses a CSS hex color string (`#RGB`) into its RGB channels.
- * Falls back to `255` for any channel that cannot be parsed.
- */
-function parseHex(color: string): RGB {
-  const int = Number.parseInt(color.replace('#', ''), 16)
-  return Number.isNaN(int) ? { r: 255, g: 255, b: 255 } : { r: (int >> 16) & 0xff, g: (int >> 8) & 0xff, b: int & 0xff }
-}
-
-/**
- * Returns a function that wraps a string in a 24-bit ANSI true-color escape sequence
- * for the given hex color.
- */
-function hex(color: string): (text: string) => string {
-  const { r, g, b } = parseHex(color)
-  return (text: string) => `\x1b[38;2;${r};${g};${b}m${text}\x1b[0m`
-}
-
-function gradient(colorStops: Array<string>, text: string): string {
-  const chars = text.split('')
-  return chars
-    .map((char, i) => {
-      const t = chars.length <= 1 ? 0 : i / (chars.length - 1)
-      const seg = Math.min(Math.floor(t * (colorStops.length - 1)), colorStops.length - 2)
-      const lt = t * (colorStops.length - 1) - seg
-      const from = parseHex(colorStops[seg]!)
-      const to = parseHex(colorStops[seg + 1]!)
-      const r = Math.round(from.r + (to.r - from.r) * lt)
-      const g = Math.round(from.g + (to.g - from.g) * lt)
-      const b = Math.round(from.b + (to.b - from.b) * lt)
-      return `\x1b[38;2;${r};${g};${b}m${char}\x1b[0m`
-    })
-    .join('')
-}
-
-/**
- * ANSI color functions for each part of the Kubb mascot illustration.
+ * Colors for each part of the Kubb mascot illustration.
  */
 const palette = {
   /**
    * Top cap of the skittle.
    */
-  lid: hex('#F55A17'),
+  lid: (text: string) => styleText('red', text),
   /**
-   * Upper wood body.
+   * Wood body.
    */
-  woodTop: hex('#F5A217'),
-  /**
-   * Middle wood body.
-   */
-  woodMid: hex('#F58517'),
+  wood: (text: string) => styleText('yellow', text),
   /**
    * Base wood body.
    */
-  woodBase: hex('#B45309'),
+  woodBase: (text: string) => styleText(['dim', 'yellow'], text),
   /**
    * Eye whites.
    */
-  eye: hex('#FFFFFF'),
+  eye: (text: string) => styleText('white', text),
   /**
    * Highlight accent.
    */
-  highlight: hex('#adadc6'),
+  highlight: (text: string) => styleText('gray', text),
   /**
    * Cheek blush.
    */
-  blush: hex('#FDA4AF'),
+  blush: (text: string) => styleText('magenta', text),
 }
 
 /**
@@ -98,7 +54,7 @@ export function getIntro({
    */
   description: string
   /**
-   * Kubb version string rendered in the gradient header.
+   * Kubb version string rendered in the header.
    */
   version: string
   /**
@@ -106,16 +62,16 @@ export function getIntro({
    */
   areEyesOpen: boolean
 }): string {
-  const kubbVersion = gradient(['#F58517', '#F5A217', '#F55A17'], `KUBB v${version}`)
+  const kubbVersion = styleText(['bold', 'yellow'], `KUBB v${version}`)
 
   const eyeTop = areEyesOpen ? palette.eye('█▀█') : palette.eye('───')
   const eyeBottom = areEyesOpen ? palette.eye('▀▀▀') : palette.eye('───')
 
   return [
     `   ${palette.lid('▄▄▄▄▄▄▄▄▄▄▄▄▄')}`,
-    `  ${palette.woodTop('█  ')}${palette.highlight('▄▄')}${palette.woodTop('     ')}${palette.highlight('▄▄')}${palette.woodTop('  █')} ${kubbVersion}`,
-    `  ${palette.woodMid('█ ')}${eyeTop}${palette.woodMid('     ')}${eyeTop}${palette.woodMid(' █')} ${styleText('gray', title)}`,
-    `  ${palette.woodMid('█ ')}${eyeBottom}${palette.woodMid('  ')}${palette.blush('◡')}${palette.woodMid('  ')}${eyeBottom}${palette.woodMid(' █')} ${styleText('yellow', '➜')} ${styleText('white', description)}`,
+    `  ${palette.wood('█  ')}${palette.highlight('▄▄')}${palette.wood('     ')}${palette.highlight('▄▄')}${palette.wood('  █')} ${kubbVersion}`,
+    `  ${palette.wood('█ ')}${eyeTop}${palette.wood('     ')}${eyeTop}${palette.wood(' █')} ${styleText('gray', title)}`,
+    `  ${palette.wood('█ ')}${eyeBottom}${palette.wood('  ')}${palette.blush('◡')}${palette.wood('  ')}${eyeBottom}${palette.wood(' █')} ${styleText('yellow', '➜')} ${styleText('white', description)}`,
     `   ${palette.woodBase('▀▀▀▀▀▀▀▀▀▀▀▀▀')}`,
   ].join('\n')
 }

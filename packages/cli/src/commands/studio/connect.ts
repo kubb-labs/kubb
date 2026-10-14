@@ -1,7 +1,7 @@
-import { define } from 'gunshi'
 import { configArg, logLevelArg, studioConnectionArgs, studioPermissionArgs } from '../shared.ts'
+import { studioCommand } from './studioCommand.ts'
 
-export const command = define({
+export const command = studioCommand({
   name: 'connect',
   description: 'Connect this project to Kubb Studio and generate from the browser.',
   examples: [
@@ -10,7 +10,6 @@ export const command = define({
     'kubb studio connect --allow-write --allow-exec',
     'kubb studio connect --url http://localhost:3000',
   ].join('\n'),
-  toKebab: true,
   args: {
     ...configArg,
     ...studioConnectionArgs,
@@ -23,8 +22,9 @@ export const command = define({
     },
     ...logLevelArg,
   },
-  async run(ctx) {
-    const { connectRunner } = await import('../../runners/studio/commands.ts')
-    await connectRunner(ctx)
+  block: true,
+  async action(options) {
+    const { connect } = await import('../../runners/studio/run.ts')
+    await connect(options)
   },
 })
