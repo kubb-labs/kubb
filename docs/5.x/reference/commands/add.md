@@ -14,7 +14,7 @@ navigation:
 
 # kubb add
 
-Run `kubb add` to install an extension from the [Kubb registry](/docs/5.x/reference/registry) at the version the registry pins. Without an id, it lists every plugin, adapter, and parser in the registry with its kind and pinned version, and asks which one to add. Type to search the list by id or kind. It checks that the extension supports your Kubb and Node.js versions, asks for confirmation, and installs the package as a dev dependency. For a plugin, it also adds the plugin to `kubb.config.ts`. For an adapter or parser, it prints the code to add.
+Run `kubb add` to install an extension from the [Kubb registry](/docs/5.x/reference/registry) at the version the registry pins. Without an id, it lists every plugin, adapter, and parser in the registry with its name, id, kind, pinned version, and description, and asks which one to add. Type to search the list on any of those. It checks that the extension supports your Kubb and Node.js versions, asks for confirmation, and installs the package as a dev dependency. For a plugin, it also adds the plugin to `kubb.config.ts`. For an adapter or parser, it prints the code to add.
 
 Kubb detects the package manager (`npm`, `pnpm`, `yarn`, or `bun`) from your project.
 

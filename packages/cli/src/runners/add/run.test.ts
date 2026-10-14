@@ -56,7 +56,12 @@ describe('kubb add', () => {
   })
 
   it('asks which extension to add when no id is given', async () => {
-    const adapterX = registryEntry({ name: 'adapter-x', version: '2.0.0', kind: 'adapter' })
+    const adapterX = registryEntry({
+      name: 'adapter-x',
+      version: '2.0.0',
+      kind: 'adapter',
+      manifest: { displayName: 'Adapter X', description: 'Reads X files.' },
+    })
     const fetch = vi.fn(async (url: string) => new Response(JSON.stringify(url.endsWith('/index.json') ? registryIndex([adapterX, pluginX]) : pluginX)))
     vi.stubGlobal('fetch', fetch)
 
@@ -64,13 +69,14 @@ describe('kubb add', () => {
 
     const prompt = vi.mocked(clack.autocomplete).mock.calls[0]![0]
     expect(prompt.options).toEqual([
-      { value: 'acme/plugin-x', label: 'acme/plugin-x', hint: 'plugin 1.2.0' },
-      { value: 'acme/adapter-x', label: 'acme/adapter-x', hint: 'adapter 2.0.0' },
+      { value: 'acme/plugin-x', label: 'plugin-x', hint: 'acme/plugin-x · plugin 1.2.0 · An extension.' },
+      { value: 'acme/adapter-x', label: 'Adapter X', hint: 'acme/adapter-x · adapter 2.0.0 · Reads X files.' },
     ])
     const matches = (search: string) =>
       (prompt.options as Array<{ value: string; label: string; hint: string }>).filter((option) => prompt.filter!(search, option)).map((option) => option.value)
     expect(matches('Adapter')).toEqual(['acme/adapter-x'])
     expect(matches('plugin-x')).toEqual(['acme/plugin-x'])
+    expect(matches('x files')).toEqual(['acme/adapter-x'])
     expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toContain('plugins: [pluginX()]')
   })
 
