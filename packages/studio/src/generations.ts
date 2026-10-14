@@ -40,7 +40,9 @@ type KeptGeneration = {
   keptAt?: number
   output: KeptSet
   disk?: KeptSet
-  /** Size of the kept `input.json`. Absent when no input was kept. */
+  /**
+   * Size of the kept `input.json`. Absent when no input was kept.
+   */
   inputBytes?: number
 }
 
@@ -49,7 +51,9 @@ type KeptGeneration = {
  */
 export const hashOf = (content: string) => createHash('sha1').update(content).digest('hex').slice(0, 16)
 
-/** The bytes `entries` hold on disk: output, written files, and kept input. */
+/**
+ * The bytes `entries` hold on disk: output, written files, and kept input.
+ */
 const totalBytes = (entries: Array<KeptGeneration>) =>
   entries.reduce((sum, { output, disk, inputBytes }) => sum + output.bytes + (disk?.bytes ?? 0) + (inputBytes ?? 0), 0)
 
@@ -102,7 +106,9 @@ export async function generate({
 }): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
   let input: InputNode | null = null
-  /** Keeps the `InputNode` the adapter returns, since the driver drops its own once the build ends. */
+  /**
+   * Keeps the `InputNode` the adapter returns, since the driver drops its own once the build ends.
+   */
   const parse = async (...args: Parameters<Adapter['parse']>) => (input = await config.adapter!.parse(...args))
   // A proxy, not a copy, so getters such as `document` keep reading the live adapter.
   const adapter =
@@ -216,7 +222,9 @@ export function createGenerationStore({
 
   return {
     keep,
-    /** Removes the files of `jobId` and its index entry, so `get` no longer finds it. */
+    /**
+     * Removes the files of `jobId` and its index entry, so `get` no longer finds it.
+     */
     async drop(jobId: string): Promise<void> {
       await dropFiles(jobId)
       const current = await load()
@@ -251,7 +259,9 @@ export function createGenerationStore({
       return stored === null ? undefined : (JSON.parse(stored) as InputNode)
     },
     get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId && isLive(generation)),
-    /** Indexes `generation` and drops expired ones, then the oldest past `maxCount` or `maxMb`. */
+    /**
+     * Indexes `generation` and drops expired ones, then the oldest past `maxCount` or `maxMb`.
+     */
     async add(generation: KeptGeneration): Promise<void> {
       const current = await load()
       for (const expired of current.filter((entry) => !isLive(entry))) await dropFiles(expired.jobId)

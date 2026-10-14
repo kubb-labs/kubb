@@ -366,7 +366,9 @@ export type ReadFilesResult = { files: Record<string, string>; pages?: Record<st
  * Asks the agent for the Kubb AST one generation job parsed its spec into, so Studio describes the API in Kubb's names.
  */
 export type ReadInputInput = {
-  /** A job the agent no longer keeps fails with {@link GENERATION_GONE_MESSAGE}. */
+  /**
+   * A job the agent no longer keeps fails with {@link GENERATION_GONE_MESSAGE}.
+   */
   jobId: string
 }
 
