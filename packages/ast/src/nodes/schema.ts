@@ -2,116 +2,357 @@ import type { BaseNode, DistributiveOmit } from './base.ts'
 import type { PropertyNode } from './property.ts'
 
 export type PrimitiveSchemaType =
+  /**
+   * Text value.
+   */
   | 'string'
+  /**
+   * Floating-point number.
+   */
   | 'number'
+  /**
+   * Integer number.
+   */
   | 'integer'
+  /**
+   * Big integer number.
+   */
   | 'bigint'
+  /**
+   * Boolean value.
+   */
   | 'boolean'
+  /**
+   * Null value.
+   */
   | 'null'
+  /**
+   * Any value.
+   */
   | 'any'
+  /**
+   * Unknown value.
+   */
   | 'unknown'
+  /**
+   * No value (`void`).
+   */
   | 'void'
+  /**
+   * Never value.
+   */
   | 'never'
+  /**
+   * Object value.
+   */
   | 'object'
+  /**
+   * Array value.
+   */
   | 'array'
+  /**
+   * Date value.
+   */
   | 'date'
 
-/** All schema type strings, one per key of {@link SchemaNodeByType}. */
+/**
+ * All schema type strings, one per key of {@link SchemaNodeByType}.
+ */
 export type SchemaType = keyof SchemaNodeByType
 
-/** Scalar schema types without extra object/array/ref structure or constraints. */
+/**
+ * Scalar schema types without extra object/array/ref structure or constraints.
+ */
 export type ScalarSchemaType = 'boolean' | 'null' | 'any' | 'unknown' | 'void' | 'never' | 'blob' | 'ipv4' | 'ipv6'
 
-/** Fields shared by all schema nodes. */
+/**
+ * Fields shared by all schema nodes.
+ */
 type SchemaNodeBase = BaseNode & {
+  /**
+   * Node kind.
+   */
   kind: 'Schema'
   /**
-   * Schema name for named definitions (for example `"Pet"`); inline schemas omit it. `null` means
-   * Kubb determined there is no applicable name, `undefined` means the name has not been set yet.
+   * Schema name for named definitions (for example, `"Pet"`).
+   * Inline schemas omit this field.
+   * `null` means Kubb has processed this and determined there is no applicable name.
+   * `undefined` means the name has not been set yet.
    */
   name?: string | null
+  /**
+   * Short schema title.
+   */
   title?: string
+  /**
+   * Schema description text.
+   */
   description?: string
+  /**
+   * Whether `null` is allowed.
+   */
   nullable?: boolean
+  /**
+   * Whether the field is optional.
+   */
   optional?: boolean
-  /** Both optional and nullable. */
+  /**
+   * Both optional and nullable (`optional` + `nullable`).
+   */
   nullish?: boolean
+  /**
+   * Whether the schema is deprecated.
+   */
   deprecated?: boolean
+  /**
+   * Whether the schema is read-only.
+   */
   readOnly?: boolean
+  /**
+   * Whether the schema is write-only.
+   */
   writeOnly?: boolean
+  /**
+   * Default value.
+   */
   default?: unknown
+  /**
+   * Example values from an `examples` array.
+   */
   examples?: Array<unknown>
-  /** Base primitive type, for example `'string'` for a `uuid` schema. */
+  /**
+   * Base primitive type.
+   * For example, this is `'string'` for a `uuid` schema.
+   */
   primitive?: PrimitiveSchemaType
-  /** Schema `format` value. */
+  /**
+   * Schema `format` value.
+   */
   format?: string
 }
 
-/** Object schema with ordered properties. */
+/**
+ * Object schema with ordered properties.
+ *
+ * @example
+ * ```ts
+ * const objectSchema: ObjectSchemaNode = {
+ *   kind: 'Schema',
+ *   type: 'object',
+ *   properties: [],
+ * }
+ * ```
+ */
 export type ObjectSchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
   type: 'object'
+  /**
+   * Primitive type, always `'object'` for object schemas.
+   */
   primitive: 'object'
+  /**
+   * Ordered object properties.
+   */
   properties: Array<PropertyNode>
-  /** `true` allows any value, `false` rejects unknown properties, a schema constrains them, `undefined` leaves the object open. */
+  /**
+   * Additional object properties behavior:
+   * - `true`: allow any value
+   * - `false`: reject unknown properties
+   * - `SchemaNode`: allow values that match that schema
+   * - `undefined`: no additional properties constraint (open object)
+   */
   additionalProperties?: SchemaNode | boolean
+  /**
+   * Pattern-based property schemas.
+   */
   patternProperties?: Record<string, SchemaNode>
+  /**
+   * Minimum number of properties allowed.
+   */
   minProperties?: number
+  /**
+   * Maximum number of properties allowed.
+   */
   maxProperties?: number
 }
 
-/** Array-like schema (`array` or `tuple`). */
+/**
+ * Array-like schema (`array` or `tuple`).
+ *
+ * @example
+ * ```ts
+ * const arraySchema: ArraySchemaNode = {
+ *   kind: 'Schema',
+ *   type: 'array',
+ *   items: [],
+ * }
+ * ```
+ */
 export type ArraySchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator (`array` or `tuple`).
+   */
   type: 'array' | 'tuple'
+  /**
+   * Item schemas.
+   */
   items?: Array<SchemaNode>
-  /** Tuple rest-item schema for elements beyond positional `items`. */
+  /**
+   * Tuple rest-item schema for elements beyond positional `items`.
+   */
   rest?: SchemaNode
-  /** Minimum item count (or tuple length). */
+  /**
+   * Minimum item count (or tuple length).
+   */
   min?: number
-  /** Maximum item count (or tuple length). */
+  /**
+   * Maximum item count (or tuple length).
+   */
   max?: number
+  /**
+   * Whether all items must be unique.
+   */
   unique?: boolean
 }
 
+/**
+ * Shared shape for union and intersection schemas.
+ */
 type CompositeSchemaNodeBase = SchemaNodeBase & {
+  /**
+   * Member schemas.
+   */
   members?: Array<SchemaNode>
 }
 
-/** Union schema, often from `oneOf` or `anyOf`. */
+/**
+ * Union schema, often from `oneOf` or `anyOf`.
+ *
+ * @example
+ * ```ts
+ * const unionSchema: UnionSchemaNode = {
+ *   kind: 'Schema',
+ *   type: 'union',
+ *   members: [],
+ * }
+ * ```
+ */
 export type UnionSchemaNode = CompositeSchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
   type: 'union'
-  /** Discriminator property name for a polymorphic union. */
+  /**
+   * Discriminator property name for a polymorphic union.
+   */
   discriminatorPropertyName?: string
-  /** `'one'` requires exactly one valid member (`oneOf`), `'any'` any number (`anyOf`). */
+  /**
+   * How many union members must be valid.
+   * - `'one'`: exactly one member, from `oneOf`
+   * - `'any'`: any number of members, from `anyOf`
+   */
   strategy?: 'one' | 'any'
 }
 
-/** Intersection schema, often from `allOf`. */
+/**
+ * Intersection schema, often from `allOf`.
+ *
+ * @example
+ * ```ts
+ * const intersectionSchema: IntersectionSchemaNode = {
+ *   kind: 'Schema',
+ *   type: 'intersection',
+ *   members: [],
+ * }
+ * ```
+ */
 export type IntersectionSchemaNode = CompositeSchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
   type: 'intersection'
 }
 
-/** One named enum item. */
+/**
+ * One named enum item.
+ */
 type EnumValueNode = {
+  /**
+   * Enum item name.
+   */
   name: string
+  /**
+   * Enum item value.
+   */
   value: string | number | boolean
+  /**
+   * Primitive type of the enum value.
+   */
   primitive: Extract<PrimitiveSchemaType, 'string' | 'number' | 'boolean'>
-  /** From the `x-enumDescriptions` or `x-enum-descriptions` vendor extension; `@kubb/plugin-ts` renders it as JSDoc on the member. */
+  /**
+   * Label for the enum item, taken from the `x-enumDescriptions` or
+   * `x-enum-descriptions` vendor extension. `@kubb/plugin-ts` renders it as
+   * JSDoc on the matching enum member.
+   */
   description?: string
 }
 
+/**
+ * Enum schema node.
+ *
+ * @example
+ * ```ts
+ * const enumSchema: EnumSchemaNode = {
+ *   kind: 'Schema',
+ *   type: 'enum',
+ *   enumValues: ['a', 'b'],
+ * }
+ * ```
+ */
 export type EnumSchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
   type: 'enum'
+  /**
+   * Enum values in simple form.
+   */
   enumValues?: Array<string | number | boolean | null>
-  /** Named form. If present, this is used instead of `enumValues`. */
+  /**
+   * Enum values in named form.
+   * If present, this is used instead of `enumValues`.
+   */
   namedEnumValues?: Array<EnumValueNode>
 }
 
-/** Reference schema that points to another schema definition. */
+/**
+ * Reference schema that points to another schema definition.
+ *
+ * @example
+ * ```ts
+ * const refSchema: RefSchemaNode = {
+ *   kind: 'Schema',
+ *   type: 'ref',
+ *   ref: '#/components/schemas/Pet',
+ * }
+ * ```
+ */
 export type RefSchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
   type: 'ref'
-  /** Referenced schema name. `null` means Kubb determined there is no applicable name. */
+  /**
+   * Referenced schema name.
+   * `null` means Kubb has processed this and determined there is no applicable name.
+   */
   name?: string | null
-  /** Original `$ref` path, for example `#/components/schemas/Order`. */
+  /**
+   * Original `$ref` path, for example, `#/components/schemas/Order`.
+   * Used to resolve names later.
+   */
   ref?: string
   /**
    * Emitted name of the referenced schema when it differs from the pointer's last segment,
@@ -120,7 +361,9 @@ export type RefSchemaNode = SchemaNodeBase & {
    * falls back to the pointer segment, then `name`.
    */
   targetName?: string
-  /** Pattern copied from a sibling `pattern` field. */
+  /**
+   * Pattern copied from a sibling `pattern` field.
+   */
   pattern?: string
   /**
    * The fully-parsed schema this ref resolves to, so its structure (`primitive`, `properties`)
@@ -131,70 +374,195 @@ export type RefSchemaNode = SchemaNodeBase & {
   schema?: SchemaNode | null
 }
 
+/**
+ * Datetime schema.
+ *
+ * @example
+ * ```ts
+ * const datetimeSchema: DatetimeSchemaNode = { kind: 'Schema', type: 'datetime' }
+ * ```
+ */
 export type DatetimeSchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
   type: 'datetime'
-  /** Includes a timezone offset (`dateType: 'stringOffset'`). */
+  /**
+   * Whether the datetime includes a timezone offset (`dateType: 'stringOffset'`).
+   */
   offset?: boolean
-  /** Local datetime without timezone (`dateType: 'stringLocal'`). */
+  /**
+   * Whether the datetime is local (no timezone, `dateType: 'stringLocal'`).
+   */
   local?: boolean
 }
 
+/**
+ * Shared base for `date` and `time` schemas.
+ */
 type TemporalSchemaNodeBase<T extends 'date' | 'time'> = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
   type: T
-  /** Output representation in generated code. */
+  /**
+   * Output representation in generated code.
+   */
   representation: 'date' | 'string'
 }
 
+/**
+ * Date schema node.
+ *
+ * @example
+ * ```ts
+ * const dateSchema: DateSchemaNode = { kind: 'Schema', type: 'date', representation: 'string' }
+ * ```
+ */
 export type DateSchemaNode = TemporalSchemaNodeBase<'date'>
 
+/**
+ * Time schema node.
+ *
+ * @example
+ * ```ts
+ * const timeSchema: TimeSchemaNode = { kind: 'Schema', type: 'time', representation: 'string' }
+ * ```
+ */
 export type TimeSchemaNode = TemporalSchemaNodeBase<'time'>
 
+/**
+ * String schema node.
+ *
+ * @example
+ * ```ts
+ * const stringSchema: StringSchemaNode = { kind: 'Schema', type: 'string' }
+ * ```
+ */
 export type StringSchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
   type: 'string'
-  /** Minimum string length. */
+  /**
+   * Minimum string length.
+   */
   min?: number
-  /** Maximum string length. */
+  /**
+   * Maximum string length.
+   */
   max?: number
-  /** Regex pattern. */
+  /**
+   * Regex pattern.
+   */
   pattern?: string
 }
 
-/** Numeric schema (`number`, `integer`, or `bigint`). */
+/**
+ * Numeric schema (`number`, `integer`, or `bigint`).
+ *
+ * @example
+ * ```ts
+ * const numberSchema: NumberSchemaNode = { kind: 'Schema', type: 'number' }
+ * ```
+ */
 export type NumberSchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
   type: 'number' | 'integer' | 'bigint'
+  /**
+   * Minimum value.
+   */
   min?: number
+  /**
+   * Maximum value.
+   */
   max?: number
+  /**
+   * Exclusive minimum value.
+   */
   exclusiveMinimum?: number
+  /**
+   * Exclusive maximum value.
+   */
   exclusiveMaximum?: number
+  /**
+   * The value must be a multiple of this number.
+   */
   multipleOf?: number
 }
 
-/** Scalar schema with no extra constraints. */
+/**
+ * Scalar schema with no extra constraints.
+ *
+ * @example
+ * ```ts
+ * const anySchema: ScalarSchemaNode = { kind: 'Schema', type: 'any' }
+ * ```
+ */
 export type ScalarSchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
   type: ScalarSchemaType
 }
 
-/** URL schema; `path` is a template for template literal types. */
+/**
+ * URL schema node.
+ * Can include a path template for template literal types.
+ *
+ * @example
+ * ```ts
+ * const urlSchema: UrlSchemaNode = { kind: 'Schema', type: 'url', path: '/pets/{petId}' }
+ * ```
+ */
 export type UrlSchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
   type: 'url'
-  /** Path template, for example `'/pets/{petId}'`. */
+  /**
+   * Path template, for example, `'/pets/{petId}'`.
+   */
   path?: string
-  /** Minimum string length. */
+  /**
+   * Minimum string length.
+   */
   min?: number
-  /** Maximum string length. */
+  /**
+   * Maximum string length.
+   */
   max?: number
 }
 
-/** String-based formats that support length constraints. */
+/**
+ * Format-string schema for string-based formats that support length constraints.
+ *
+ * @example
+ * ```ts
+ * const uuidSchema: FormatStringSchemaNode = { kind: 'Schema', type: 'uuid', min: 36, max: 36 }
+ * ```
+ */
 type FormatStringSchemaNode = SchemaNodeBase & {
+  /**
+   * Schema type discriminator.
+   */
   type: 'uuid' | 'email'
-  /** Minimum string length. */
+  /**
+   * Minimum string length.
+   */
   min?: number
-  /** Maximum string length. */
+  /**
+   * Maximum string length.
+   */
   max?: number
 }
 
-/** Mapping from schema type literals to concrete schema node types. Used by `narrowSchema`. */
+/**
+ * Mapping from schema type literals to concrete schema node types.
+ * Used by `narrowSchema`.
+ */
 export type SchemaNodeByType = {
   object: ObjectSchemaNode
   array: ArraySchemaNode
@@ -224,7 +592,9 @@ export type SchemaNodeByType = {
   blob: ScalarSchemaNode
 }
 
-/** Union of all schema node types. */
+/**
+ * Union of all schema node types.
+ */
 export type SchemaNode =
   | ObjectSchemaNode
   | ArraySchemaNode
@@ -277,8 +647,14 @@ const TYPE_TO_PRIMITIVE: Partial<Record<SchemaNode['type'], PrimitiveSchemaType>
  *
  * @example
  * ```ts
- * createSchema({ type: 'string' }) // { kind: 'Schema', type: 'string', primitive: 'string' }
- * createSchema({ type: 'object' }) // { kind: 'Schema', type: 'object', primitive: 'object', properties: [] }
+ * const scalar = createSchema({ type: 'string' })
+ * // { kind: 'Schema', type: 'string', primitive: 'string' }
+ * ```
+ *
+ * @example
+ * ```ts
+ * const object = createSchema({ type: 'object' })
+ * // { kind: 'Schema', type: 'object', primitive: 'object', properties: [] }
  * ```
  */
 export function createSchema<T extends CreateSchemaInput>(props: T): CreateSchemaOutput<T>

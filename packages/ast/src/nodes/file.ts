@@ -5,94 +5,239 @@ import { extractStringsFromNodes } from '../utils/extractStringsFromNodes.ts'
 import { type BaseNode, nodeFactory } from './base.ts'
 import type { CodeNode } from './code.ts'
 
+/**
+ * Supported file extensions.
+ */
 type Extname = '.ts' | '.js' | '.tsx' | '.json' | `.${string}`
 
 type ImportName = string | Array<string | { propertyName: string; name?: string }>
 
 /**
- * A language-agnostic import declaration.
+ * Represents a language-agnostic import/dependency declaration.
  *
- * @example Named, default, type-only, and namespace imports
+ * @example Named import (TypeScript: `import { useState } from 'react'`)
  * ```ts
  * createImport({ name: ['useState'], path: 'react' })
+ * ```
+ *
+ * @example Default import (TypeScript: `import React from 'react'`)
+ * ```ts
  * createImport({ name: 'React', path: 'react' })
+ * ```
+ *
+ * @example Type-only import (TypeScript: `import type { FC } from 'react'`)
+ * ```ts
  * createImport({ name: ['FC'], path: 'react', isTypeOnly: true })
+ * ```
+ *
+ * @example Namespace import (TypeScript: `import * as React from 'react'`)
+ * ```ts
  * createImport({ name: 'React', path: 'react', isNameSpace: true })
  * ```
  */
 export type ImportNode = BaseNode & {
   kind: 'Import'
-  /** Named imports as an array, a default import as a string. */
+  /**
+   * Import name(s) to be used.
+   *
+   * @example Named imports
+   * `['useState']`
+   *
+   * @example Default import
+   * `'React'`
+   */
   name: ImportName
+  /**
+   * Path for the import.
+   *
+   * @example
+   * `'@kubb/core'`
+   */
   path: string
-  /** `import type { Type } from './path'`. */
+  /**
+   * Add a type-only import prefix.
+   * - `true` generates `import type { Type } from './path'`
+   * - `false` generates `import { Type } from './path'`
+   */
   isTypeOnly?: boolean | null
-  /** `import * as Name from './path'`. */
+  /**
+   * Import the entire module as a namespace.
+   * - `true` generates `import * as Name from './path'`
+   * - `false` generates a standard import
+   */
   isNameSpace?: boolean | null
-  /** When set, the import path is resolved relative to this root. */
+  /**
+   * When set, the import path is resolved relative to this root.
+   */
   root?: string | null
 }
 
 /**
- * A language-agnostic export declaration.
+ * Represents a language-agnostic export/public API declaration.
  *
- * @example Named, type-only, wildcard, and namespace-alias exports
+ * @example Named export (TypeScript: `export { Pets } from './Pets'`)
  * ```ts
  * createExport({ name: ['Pets'], path: './Pets' })
+ * ```
+ *
+ * @example Type-only export (TypeScript: `export type { Pet } from './Pet'`)
+ * ```ts
  * createExport({ name: ['Pet'], path: './Pet', isTypeOnly: true })
+ * ```
+ *
+ * @example Wildcard export (TypeScript: `export * from './utils'`)
+ * ```ts
  * createExport({ path: './utils' })
+ * ```
+ *
+ * @example Namespace alias (TypeScript: `export * as utils from './utils'`)
+ * ```ts
  * createExport({ name: 'utils', path: './utils', asAlias: true })
  * ```
  */
 export type ExportNode = BaseNode & {
   kind: 'Export'
-  /** Export name(s). When omitted, generates a wildcard export. */
+  /**
+   * Export name(s) to be used. When omitted, generates a wildcard export.
+   *
+   * @example Named exports
+   * `['useState']`
+   *
+   * @example Single export
+   * `'React'`
+   */
   name?: string | Array<string> | null
+  /**
+   * Path for the export.
+   *
+   * @example
+   * `'@kubb/core'`
+   */
   path: string
-  /** `export type { Type } from './path'`. */
+  /**
+   * Add a type-only export prefix.
+   * - `true` generates `export type { Type } from './path'`
+   * - `false` generates `export { Type } from './path'`
+   */
   isTypeOnly?: boolean | null
-  /** `export * as aliasName from './path'`. */
+  /**
+   * Export as an aliased namespace.
+   * - `true` generates `export * as aliasName from './path'`
+   * - `false` generates a standard export
+   */
   asAlias?: boolean | null
 }
 
-/** A fragment of source code within a file. */
+/**
+ * Represents a fragment of source code within a file.
+ *
+ * @example Named exportable source
+ * ```ts
+ * createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], isExportable: true, isIndexable: true })
+ * ```
+ *
+ * @example Inline unnamed code block
+ * ```ts
+ * createSource({ nodes: [createText('const x = 1')] })
+ * ```
+ */
 export type SourceNode = BaseNode & {
   kind: 'Source'
-  /** Used for deduplication and barrel generation. */
+  /**
+   * Optional name identifying this source (used for deduplication and barrel generation).
+   */
   name?: string | null
+  /**
+   * Mark this source as a type-only export.
+   */
   isTypeOnly?: boolean | null
-  /** Include the `export` keyword in the generated source. */
+  /**
+   * Include the `export` keyword in the generated source.
+   */
   isExportable?: boolean | null
-  /** Include this source in barrel/index file generation. */
+  /**
+   * Include this source in barrel/index file generation.
+   */
   isIndexable?: boolean | null
-  /** Child nodes in DOM order. Use a {@link TextNode} for raw string content. */
+  /**
+   * Child nodes that make up this source fragment, in DOM order.
+   * Use a {@link TextNode} for raw string content.
+   */
   nodes?: Array<CodeNode>
 }
 
 /**
- * A fully resolved file. Created via `createFile()`, which computes `id`, `name`, and `extname`
- * from the input and deduplicates `imports`, `exports`, and `sources`.
+ * Represents a fully resolved file in the AST.
+ *
+ * Created via `createFile()`, which computes the `id`, `name`, and `extname` from the input
+ * and deduplicates `imports`, `exports`, and `sources`.
+ *
+ * @example
+ * ```ts
+ * const file = createFile({
+ *   baseName: 'petStore.ts',
+ *   path: 'src/models/petStore.ts',
+ *   sources: [createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], isExportable: true })],
+ *   imports: [createImport({ name: ['z'], path: 'zod' })],
+ *   exports: [createExport({ name: ['Pet'], path: './petStore' })],
+ * })
+ * // file.id   = SHA256 hash of the path
+ * // file.name = 'petStore'
+ * // file.extname = '.ts'
+ * ```
  */
 export type FileNode<TMeta extends object = object> = BaseNode & {
   kind: 'File'
-  /** SHA256 hash of the file path, computed by `createFile`. */
+  /**
+   * Unique identifier derived from a SHA256 hash of the file path. `createFile`
+   * computes it, so callers do not need to provide it.
+   */
   id: string
-  /** File name without extension, derived from `baseName`. */
+  /**
+   * File name without extension, derived from `baseName`.
+   *
+   * @see https://nodejs.org/api/path.html#pathformatpathobject
+   */
   name: string
-  /** File base name including extension, shaped like `${name}${extname}`. */
+  /**
+   * File base name, including extension, shaped like `${name}${extname}`.
+   *
+   * @see https://nodejs.org/api/path.html#pathbasenamepath-suffix
+   */
   baseName: `${string}.${string}`
-  /** Full qualified path to the file. */
+  /**
+   * Full qualified path to the file.
+   */
   path: string
-  /** Extension extracted from `baseName`. */
+  /**
+   * File extension extracted from `baseName`.
+   */
   extname: Extname
+  /**
+   * Deduplicated list of source code fragments.
+   */
   sources: Array<SourceNode>
+  /**
+   * Deduplicated list of import declarations.
+   */
   imports: Array<ImportNode>
+  /**
+   * Deduplicated list of export declarations.
+   */
   exports: Array<ExportNode>
-  /** Read by plugins during barrel generation. */
+  /**
+   * Optional metadata attached to this file, read by plugins during barrel generation.
+   */
   meta?: TMeta
-  /** Prepended to the generated file. Accepts `null` so `resolver.default.banner()` results can be passed directly. */
+  /**
+   * Optional banner prepended to the generated file content.
+   * Accepts `null` so `resolver.default.banner()` results can be passed directly.
+   */
   banner?: string | null
-  /** Appended to the generated file. Accepts `null` so `resolver.default.footer()` results can be passed directly. */
+  /**
+   * Optional footer appended to the generated file content.
+   * Accepts `null` so `resolver.default.footer()` results can be passed directly.
+   */
   footer?: string | null
   /**
    * Absolute on-disk path to copy into the output, through the parser's `copy` hook when it has one.
@@ -105,17 +250,57 @@ export type FileNode<TMeta extends object = object> = BaseNode & {
   copy?: string | null
 }
 
+/**
+ * Creates an `ImportNode` representing a language-agnostic import/dependency declaration.
+ *
+ * @example Named import
+ * ```ts
+ * createImport({ name: ['useState'], path: 'react' })
+ * // import { useState } from 'react'
+ * ```
+ */
 export const createImport = nodeFactory<ImportNode>('Import')
+
+/**
+ * Creates an `ExportNode` representing a language-agnostic export/public API declaration.
+ *
+ * @example Named export
+ * ```ts
+ * createExport({ name: ['Pet'], path: './Pet' })
+ * // export { Pet } from './Pet'
+ * ```
+ */
 export const createExport = nodeFactory<ExportNode>('Export')
+
+/**
+ * Creates a `SourceNode` representing a fragment of source code within a file.
+ *
+ * @example
+ * ```ts
+ * createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')], isExportable: true })
+ * ```
+ */
 export const createSource = nodeFactory<SourceNode>('Source')
 
-/** Input descriptor for {@link createFile}, before `id`, `name`, and `extname` are computed. */
+/**
+ * Input descriptor for {@link createFile}, before `id`, `name`, and `extname` are computed
+ * and `imports`/`exports`/`sources` are deduplicated.
+ */
 export type UserFileNode<TMeta extends object = object> = Omit<FileNode<TMeta>, 'kind' | 'id' | 'name' | 'extname' | 'imports' | 'exports' | 'sources'> &
   Pick<Partial<FileNode<TMeta>>, 'imports' | 'exports' | 'sources'>
 
 /**
- * Creates a fully resolved `FileNode`: computes `id` (SHA256 of the path), `name`, and `extname`
- * from `baseName`, and deduplicates `sources`, `exports`, and `imports` (dropping unused imports).
+ * Creates a fully resolved `FileNode` from a file input descriptor.
+ *
+ * Computes:
+ * - `id` SHA256 hash of the file path
+ * - `name` `baseName` without extension
+ * - `extname` extension extracted from `baseName`
+ *
+ * Deduplicates:
+ * - `sources` via `combineSources`
+ * - `exports` via `combineExports`
+ * - `imports` via `combineImports` (also filters unused imports)
  *
  * @throws {Error} when `baseName` has no extension.
  *
@@ -126,8 +311,20 @@ export type UserFileNode<TMeta extends object = object> = Omit<FileNode<TMeta>, 
  *   path: 'src/models/petStore.ts',
  *   sources: [createSource({ name: 'Pet', nodes: [createText('export type Pet = { id: number }')] })],
  *   imports: [createImport({ name: ['z'], path: 'zod' })],
+ *   exports: [createExport({ name: ['Pet'], path: './petStore' })],
  * })
- * // file.name = 'petStore', file.extname = '.ts'
+ * // file.id      = SHA256 hash of 'src/models/petStore.ts'
+ * // file.name    = 'petStore'
+ * // file.extname = '.ts'
+ * ```
+ *
+ * @example Copy a real file into the output
+ * ```ts
+ * const file = createFile({
+ *   baseName: 'client.ts',
+ *   path: 'src/gen/client.ts',
+ *   copy: '/abs/path/to/templates/client.ts',
+ * })
  * ```
  */
 export function createFile<TMeta extends object = object>(input: UserFileNode<TMeta>): FileNode<TMeta> {

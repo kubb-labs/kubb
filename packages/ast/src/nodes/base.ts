@@ -1,4 +1,11 @@
-/** `kind` values used by AST nodes. */
+/**
+ * `kind` values used by AST nodes.
+ *
+ * @example
+ * ```ts
+ * const kind: NodeKind = 'Schema'
+ * ```
+ */
 export type NodeKind =
   | 'Input'
   | 'Operation'
@@ -20,8 +27,18 @@ export type NodeKind =
   | 'Break'
   | 'Jsx'
 
-/** Base shape shared by all AST nodes. */
+/**
+ * Base shape shared by all AST nodes.
+ *
+ * @example
+ * ```ts
+ * const base: BaseNode = { kind: 'Input' }
+ * ```
+ */
 export type BaseNode = {
+  /**
+   * Node discriminator.
+   */
   kind: NodeKind
 }
 

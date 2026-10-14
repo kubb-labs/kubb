@@ -4,25 +4,71 @@ import type { SchemaNode } from './schema.ts'
 
 export type ParameterLocation = 'path' | 'query' | 'header' | 'cookie'
 
-/** How a parameter value is serialized into the request. */
+/**
+ * Parameter serialization style, controlling how a parameter value is rendered into the request.
+ */
 export type ParameterStyle = 'matrix' | 'label' | 'form' | 'simple' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject'
 
-/** One operation parameter. */
+/**
+ * AST node representing one operation parameter.
+ *
+ * @example
+ * ```ts
+ * const param: ParameterNode = {
+ *   kind: 'Parameter',
+ *   name: 'petId',
+ *   in: 'path',
+ *   schema: createSchema({ type: 'string' }),
+ *   required: true,
+ * }
+ * ```
+ */
 export type ParameterNode = BaseNode & {
   kind: 'Parameter'
+  /**
+   * Parameter name.
+   */
   name: string
+  /**
+   * Parameter location (`path`, `query`, `header`, or `cookie`).
+   */
   in: ParameterLocation
+  /**
+   * Parameter schema.
+   */
   schema: SchemaNode
+  /**
+   * Whether the parameter is required.
+   */
   required: boolean
-  /** Absent when the source omits it, leaving consumers to apply the per-location default. */
+  /**
+   * Serialization style. Absent when the source omits it, leaving consumers to apply the
+   * per-location default.
+   */
   style?: ParameterStyle
-  /** Whether array and object values expand into separate values. Absent when the source omits it. */
+  /**
+   * Whether array and object values expand into separate values. Absent when the source omits it,
+   * leaving consumers to apply the default for the style.
+   */
   explode?: boolean
 }
 
 type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial<Omit<ParameterNode, 'kind' | 'name' | 'in' | 'schema'>>
 
-/** Creates a `ParameterNode`. `required` defaults to `false` and derives the schema's `optional`/`nullish` flags. */
+/**
+ * Creates a `ParameterNode`. `required` defaults to `false`, and the schema's
+ * `optional`/`nullish` flags are derived from it.
+ *
+ * @example
+ * ```ts
+ * const param = createParameter({
+ *   name: 'petId',
+ *   in: 'path',
+ *   required: true,
+ *   schema: createSchema({ type: 'string' }),
+ * })
+ * ```
+ */
 export function createParameter(input: UserParameterNode): ParameterNode {
   const required = input.required ?? false
 

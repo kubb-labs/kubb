@@ -99,10 +99,3 @@ export const parserTs = defineExtension<ParserTsOptions, object, ts.Node>({
     }
   },
 })
-
-/** Parser for `.tsx` and `.jsx` files; `parserTs` with the JSX extensions. */
-export const parserTsx = defineExtension<ParserTsOptions, object, ts.Node>({
-  kind: 'parser',
-  meta: { name: 'tsx', issues: 'https://github.com/kubb-labs/kubb/issues' },
-  build: (options) => ({ ...parserTs(options), extNames: ['.tsx', '.jsx'] }),
-})

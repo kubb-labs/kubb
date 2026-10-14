@@ -21,7 +21,23 @@ export { createRequestBody } from './requestBody.ts'
 export { createResponse } from './response.ts'
 export { createSchema } from './schema.ts'
 
-/** Union of all AST node types, so TypeScript narrows in `switch (node.kind)` blocks. */
+/**
+ * Union of all AST node types.
+ *
+ * This lets TypeScript narrow types in `switch (node.kind)` blocks.
+ *
+ * @example
+ * ```ts
+ * function getKind(node: Node): string {
+ *   switch (node.kind) {
+ *     case 'Input':
+ *       return 'input'
+ *     default:
+ *       return 'other'
+ *   }
+ * }
+ * ```
+ */
 export type Node =
   | InputNode
   | OperationNode

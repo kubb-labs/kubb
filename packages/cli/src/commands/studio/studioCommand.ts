@@ -1,7 +1,10 @@
 import { type Args, define } from 'gunshi'
 import type { StudioOptions, StudioValues } from '../../runners/studio/run.ts'
 
-/** Defines a `kubb studio` subcommand; the runner and `@kubb/studio` load only when it runs, never for `kubb --help`. */
+/**
+ * Defines a `kubb studio` subcommand. The runner, and with it `@kubb/studio`, loads only when the
+ * command runs, so `kubb --help` never does.
+ */
 export function studioCommand({
   action,
   block,

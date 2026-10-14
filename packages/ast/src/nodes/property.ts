@@ -2,17 +2,54 @@ import { optionality } from '../optionality.ts'
 import type { BaseNode } from './base.ts'
 import type { SchemaNode } from './schema.ts'
 
-/** One named object property. */
+/**
+ * AST node representing one named object property.
+ *
+ * @example
+ * ```ts
+ * const property: PropertyNode = {
+ *   kind: 'Property',
+ *   name: 'id',
+ *   schema: createSchema({ type: 'integer' }),
+ *   required: true,
+ * }
+ * ```
+ */
 export type PropertyNode = BaseNode & {
   kind: 'Property'
+  /**
+   * Property key.
+   */
   name: string
+  /**
+   * Property schema.
+   */
   schema: SchemaNode
+  /**
+   * Whether the property is required.
+   */
   required: boolean
 }
 
+/**
+ * Loosely-typed property accepted by `createProperty`, with `required` optional.
+ */
 type UserPropertyNode = Pick<PropertyNode, 'name' | 'schema'> & Partial<Omit<PropertyNode, 'kind' | 'name' | 'schema'>>
 
-/** Creates a `PropertyNode`. `required` defaults to `false` and derives the schema's `optional`/`nullish` flags. */
+/**
+ * Creates a `PropertyNode`. `required` defaults to `false`, and the schema's
+ * `optional`/`nullish` flags are derived from it.
+ *
+ * @example
+ * ```ts
+ * const property = createProperty({
+ *   name: 'status',
+ *   required: true,
+ *   schema: createSchema({ type: 'string', nullable: true }),
+ * })
+ * // required=true, no optional/nullish
+ * ```
+ */
 export function createProperty(input: UserPropertyNode): PropertyNode {
   const required = input.required ?? false
 
