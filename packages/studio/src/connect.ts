@@ -420,7 +420,7 @@ class Agent extends RpcTarget implements AgentApi {
 
     const output = await this.#generations.keep({ jobId, source: 'output', files, maxSetMb: this.#limits.maxMb })
     // Only `readInput` reads it, which needs `allowRead`.
-    const inputBytes = this.#permissions.allowRead ? await this.#generations.keepInput({ jobId, input: files.input, maxSetMb: this.#limits.maxMb }) : 0
+    const inputBytes = await this.#generations.keepInput({ jobId, input: this.#permissions.allowRead ? files.input : null, maxSetMb: this.#limits.maxMb })
     if (!output.paths.length && Object.keys(output.hashes).length) {
       await this.#warn({ message: 'Kept only the hashes of this generation: its output is too large to keep' })
     }

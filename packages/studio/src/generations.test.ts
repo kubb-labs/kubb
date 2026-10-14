@@ -31,6 +31,14 @@ describe('createGenerationStore', () => {
     await expect(restarted.readInput('job-1')).resolves.toBeUndefined()
   })
 
+  it('drops the input an earlier run of the same job kept', async () => {
+    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
+    await store.keepInput({ jobId: 'job-1', maxSetMb: 1, input: ast.factory.createInput() })
+    await store.keepInput({ jobId: 'job-1', maxSetMb: 1, input: null })
+
+    await expect(store.readInput('job-1')).resolves.toBeUndefined()
+  })
+
   it('keeps the name of a ref schema but not the copy of its target', async () => {
     const pet = ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [] })
     const ref = ast.factory.createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet', schema: pet })

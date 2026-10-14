@@ -219,9 +219,11 @@ export function createGenerationStore({
     drop,
     /**
      * Keeps the `InputNode` of `jobId` and returns its size in bytes. Ref schemas drop the copy of their target, which
-     * `input.schemas` holds. Nothing is kept for `null`, an input JSON cannot hold, or one above `maxSetMb`.
+     * `input.schemas` holds. Nothing is kept for `null`, an input JSON cannot hold, or one above `maxSetMb`. An input an
+     * earlier run of `jobId` kept is removed first.
      */
     async keepInput({ jobId, input, maxSetMb }: { jobId: string; input: InputNode | null; maxSetMb: number }): Promise<number> {
+      await storage.removeItem(`${dirOf(jobId)}input.json`)
       if (!input) return 0
       const slim = ast.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) })
       let serialized: string
