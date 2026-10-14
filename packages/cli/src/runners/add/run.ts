@@ -6,14 +6,14 @@ import { getErrorMessage } from '@internals/utils'
 import type { ExtensionManifest, RegistryDetail } from '@kubb/core'
 import { findConfigFile } from '../../config.ts'
 import { logBlock, logError, logInfo, logIntro, logOutro, logStep, logWarn } from '../../loggers/output.ts'
-import { fetchRegistryDetail, incompatibility, installSpec, registryUrl, toRegistryId } from '../../utils/registry.ts'
+import { fetchRegistryDetail, fetchRegistryIndex, incompatibility, installSpec, registryUrl, toRegistryId } from '../../utils/registry.ts'
 import { detectPackageManager, installPackages } from '../init/utils.ts'
 
 export type AddOptions = {
   /**
-   * `owner/slug`, or a bare `slug` for an official extension.
+   * `owner/slug`, or a bare `slug` for an official extension. Asked for when omitted.
    */
-  id: string
+  id?: string
   configPath?: string
   yes: boolean
   install: boolean
@@ -52,9 +52,23 @@ export async function addToConfig({
   }
 }
 
+/** Asks which registry extension to add, listing every entry with its kind and pinned version. `undefined` when canceled. */
+async function selectExtension(registry: string): Promise<string | undefined> {
+  const entries = await fetchRegistryIndex({ registry })
+  const kinds: Array<ExtensionManifest['kind']> = ['plugin', 'adapter', 'parser']
+  const options = entries
+    .toSorted((a, b) => kinds.indexOf(a.kind) - kinds.indexOf(b.kind) || a.id.localeCompare(b.id))
+    .map((entry) => ({ value: entry.id, label: entry.id, hint: `${entry.kind} ${entry.artifact.version}` }))
+  if (!options.length) throw new Error(`The registry at ${registry} lists no extensions.`)
+
+  const id = await clack.select({ message: 'Select an extension to add:', options })
+  return clack.isCancel(id) ? undefined : id
+}
+
 /**
  * Installs an extension from the Kubb registry at its reviewed version and, for a plugin, adds it to
- * `kubb.config.ts`. Refuses when the running Kubb or Node.js version is outside its compatibility.
+ * `kubb.config.ts`. Without an id, asks which one. Refuses when the running Kubb or Node.js version
+ * is outside its compatibility.
  */
 export async function run({ id: input, configPath, yes, install }: AddOptions): Promise<void> {
   const cwd = process.cwd()
@@ -62,7 +76,13 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
 
   try {
     const registry = registryUrl()
-    const detail = await fetchRegistryDetail({ id: toRegistryId(input), registry })
+    if (!input && yes) throw new Error('Pass a registry id, such as plugin-zod, when using --yes.')
+    const id = input ? toRegistryId(input) : await selectExtension(registry)
+    if (!id) {
+      clack.cancel('Operation canceled.')
+      return
+    }
+    const detail = await fetchRegistryDetail({ id, registry })
     const { artifact, manifest } = detail
 
     const problem = incompatibility(manifest)

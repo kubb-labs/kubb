@@ -2,13 +2,19 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { registryEntry, stubFetch } from '../../utils/registryFixture.ts'
+import * as clack from '@clack/prompts'
+import { registryEntry, registryIndex, stubFetch } from '../../utils/registryFixture.ts'
 import { installPackages } from '../init/utils.ts'
 import { run } from './run.ts'
 
 vi.mock('../init/utils.ts', () => ({
   detectPackageManager: vi.fn(() => ({ name: 'pnpm', lockFiles: [], initCommand: [], installCommand: ['add', '-D'] })),
   installPackages: vi.fn(async () => {}),
+}))
+vi.mock('@clack/prompts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@clack/prompts')>()),
+  select: vi.fn(async () => 'acme/plugin-x'),
+  confirm: vi.fn(async () => true),
 }))
 
 const configSource = `import { defineConfig } from 'kubb/config'\n\nexport default defineConfig({\n  input: './petStore.yaml',\n  plugins: [],\n})\n`
@@ -47,6 +53,31 @@ describe('kubb add', () => {
     expect(config).toContain(`import { pluginX } from '@acme/kubb-plugin-x'`)
     expect(config).toContain('plugins: [pluginX()]')
     expect(process.exitCode).toBeUndefined()
+  })
+
+  it('asks which extension to add when no id is given', async () => {
+    const adapterX = registryEntry({ name: 'adapter-x', version: '2.0.0', kind: 'adapter' })
+    const fetch = vi.fn(async (url: string) => new Response(JSON.stringify(url.endsWith('/index.json') ? registryIndex([adapterX, pluginX]) : pluginX)))
+    vi.stubGlobal('fetch', fetch)
+
+    await run({ yes: false, install: false })
+
+    expect(clack.select).toHaveBeenCalledWith(
+      expect.objectContaining({
+        options: [
+          { value: 'acme/plugin-x', label: 'acme/plugin-x', hint: 'plugin 1.2.0' },
+          { value: 'acme/adapter-x', label: 'acme/adapter-x', hint: 'adapter 2.0.0' },
+        ],
+      }),
+    )
+    expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toContain('plugins: [pluginX()]')
+  })
+
+  it('needs an id with --yes', async () => {
+    await run({ yes: true, install: true })
+
+    expect(output.join('\n')).toContain('Pass a registry id, such as plugin-zod, when using --yes.')
+    expect(process.exitCode).toBe(1)
   })
 
   it('installs a GitHub release from its commit and imports it by package name', async () => {

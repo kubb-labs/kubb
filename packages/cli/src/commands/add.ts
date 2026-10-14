@@ -4,14 +4,20 @@ import { configArg, yesArg } from './shared.ts'
 export const command = define({
   name: 'add',
   description:
-    'Install a plugin, adapter, or parser from the Kubb registry at its reviewed version. A plugin is added to kubb.config.ts, an adapter or parser prints the code to add. Reads KUBB_REGISTRY to use another registry.',
-  examples: ['kubb add plugin-zod', 'kubb add kubb-labs/plugin-react-query', 'kubb add acme/plugin-x --yes', 'kubb add plugin-zod --no-install'].join('\n'),
+    'Install a plugin, adapter, or parser from the Kubb registry at its reviewed version. Without an id, pick one from the registry. A plugin is added to kubb.config.ts, an adapter or parser prints the code to add. Reads KUBB_REGISTRY to use another registry.',
+  examples: [
+    'kubb add',
+    'kubb add plugin-zod',
+    'kubb add kubb-labs/plugin-react-query',
+    'kubb add acme/plugin-x --yes',
+    'kubb add plugin-zod --no-install',
+  ].join('\n'),
   toKebab: true,
   args: {
     id: {
       type: 'positional',
-      description: 'Registry id: owner/slug, or a slug for an official extension',
-      required: true,
+      description: 'Registry id: owner/slug, or a slug for an official extension. Asked for when omitted',
+      required: false,
     },
     ...configArg,
     ...yesArg,

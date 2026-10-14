@@ -14,7 +14,7 @@ navigation:
 
 # kubb update
 
-Run `kubb update` to move installed extensions to the version the [Kubb registry](/docs/5.x/reference/registry) pins. It lists the updates, asks for confirmation, and installs them with your project's package manager. It does not change `kubb.config.ts`.
+Run `kubb update` to move installed extensions to the version the [Kubb registry](/docs/5.x/reference/registry) pins. It lists the updates with the kind and the version change of each extension, asks which ones to install, and installs them with your project's package manager. With `--yes`, it installs all of them. It does not change `kubb.config.ts`.
 
 ## Usage
 
@@ -47,7 +47,7 @@ kubb update plugin-zod plugin-ts --yes
 | Option        | Default | Description |
 | ------------- | ------- | ----------- |
 | `--check`     | `false` | List the available updates without installing them. |
-| `--yes`, `-y` | `false` | Skip the confirmation. |
+| `--yes`, `-y` | `false` | Install every update without asking. |
 
 ## Which extensions it updates
 
