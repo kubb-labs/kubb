@@ -6,8 +6,8 @@ import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './emit/discriminator/propagate.ts'
 import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
 import { assertDocument, parseFromConfig, validateDocument } from './load/normalize.ts'
-import { getSchemas, listSecuritySchemes } from './model/components.ts'
-import { listServers, resolveBaseUrl } from './model/server.ts'
+import { getSchemas } from './model/components.ts'
+import { resolveBaseUrl, resolveServerUrl } from './model/server.ts'
 import { getOperations, parseOperation } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
@@ -139,8 +139,31 @@ export const adapterOas = defineExtension<AdapterOas>({
           description: document.info?.description,
           version: document.info?.version,
           baseURL: resolveBaseUrl({ document, server }),
-          servers: listServers(document),
-          securitySchemes: listSecuritySchemes(document, refs),
+          servers: (document.servers ?? [])
+            .filter((entry) => entry.url)
+            .map(({ url, description, variables }) => {
+              try {
+                return { url: resolveServerUrl({ url, variables }), description }
+              } catch {
+                return { url, description }
+              }
+            }),
+          securitySchemes: Object.entries(document.components?.securitySchemes ?? {}).flatMap(([name, value]) => {
+            const scheme = refs.deref<Record<string, string>>(value)
+            return scheme?.type
+              ? [
+                  {
+                    name,
+                    type: scheme.type,
+                    description: scheme.description,
+                    scheme: scheme.scheme,
+                    bearerFormat: scheme.bearerFormat,
+                    in: scheme.in,
+                    parameterName: scheme.name,
+                  },
+                ]
+              : []
+          }),
           circularNames,
           enumNames,
         },

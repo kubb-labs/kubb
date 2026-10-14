@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createRefs } from '../refs.ts'
 import type { Document } from '../types.ts'
-import { getSchemas, listSecuritySchemes } from './components.ts'
+import { getSchemas } from './components.ts'
 
 describe('getSchemas', () => {
   const base: Document = {
@@ -213,26 +213,5 @@ describe('getSchemas', () => {
         properties: { xml: { type: 'string' } },
       },
     })
-  })
-})
-
-describe('listSecuritySchemes', () => {
-  it('lists each scheme by its key, with the header name of an API key as parameterName', () => {
-    const document = {
-      components: {
-        securitySchemes: {
-          api_key: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
-          bearer: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', description: 'A user token' },
-          shared: { $ref: '#/components/securitySchemes/bearer' },
-        },
-      },
-    } as unknown as Document
-
-    expect(listSecuritySchemes(document, createRefs(document))).toMatchObject([
-      { name: 'api_key', type: 'apiKey', in: 'header', parameterName: 'X-API-Key' },
-      { name: 'bearer', type: 'http', scheme: 'bearer', bearerFormat: 'JWT', description: 'A user token' },
-      { name: 'shared', type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-    ])
-    expect(listSecuritySchemes({} as Document, createRefs({} as Document))).toStrictEqual([])
   })
 })

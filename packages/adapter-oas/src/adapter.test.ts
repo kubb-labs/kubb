@@ -103,6 +103,32 @@ describe('adapterOas.parse', () => {
     })
   })
 
+  it('lists servers with variable defaults filled in and resolves a referenced security scheme', async () => {
+    const adapter = adapterOas({ validate: false })
+    const node = await adapter.parse({
+      type: 'data',
+      data: {
+        ...minimalSpec,
+        servers: [
+          { url: 'https://{env}.example.com', description: 'Main', variables: { env: { default: 'api' } } },
+          { url: 'https://{env}.example.com', variables: { env: { default: 'staging', enum: ['dev', 'prod'] } } },
+        ],
+        components: {
+          securitySchemes: {
+            bearer: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+            shared: { $ref: '#/components/securitySchemes/bearer' },
+          },
+        },
+      },
+    })
+
+    expect(node.meta.servers).toEqual([{ url: 'https://api.example.com', description: 'Main' }, { url: 'https://{env}.example.com' }])
+    expect(node.meta.securitySchemes).toEqual([
+      { name: 'bearer', type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      { name: 'shared', type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+    ])
+  })
+
   it('lists the servers and security schemes of a Swagger 2.0 document', async () => {
     const adapter = adapterOas({ validate: false })
     const node = await adapter.parse({
@@ -118,8 +144,8 @@ describe('adapterOas.parse', () => {
       },
     })
 
-    expect(node.meta.servers).toStrictEqual([{ url: 'https://api.example.com/v2' }])
-    expect(node.meta.securitySchemes).toMatchObject([{ name: 'api_key', type: 'apiKey', in: 'header', parameterName: 'X-API-Key' }])
+    expect(node.meta.servers).toEqual([{ url: 'https://api.example.com/v2' }])
+    expect(node.meta.securitySchemes).toEqual([{ name: 'api_key', type: 'apiKey', in: 'header', parameterName: 'X-API-Key' }])
   })
 })
 

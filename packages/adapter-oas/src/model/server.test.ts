@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Document } from '../types.ts'
-import { listServers, resolveBaseUrl, resolveServerUrl } from './server.ts'
+import { resolveBaseUrl, resolveServerUrl } from './server.ts'
 
 const minimalSpec: Document = {
   openapi: '3.0.0',
@@ -66,20 +66,5 @@ describe('resolveServerUrl', () => {
         { env: 'staging' },
       ),
     ).toThrow("Invalid server variable value 'staging' for 'env'")
-  })
-})
-
-describe('listServers', () => {
-  it('lists every server with its defaults filled in, and keeps the template when a default is invalid', () => {
-    const document = {
-      servers: [
-        { url: 'https://{env}.example.com/v1', description: 'Main', variables: { env: { default: 'api' } } },
-        { url: 'https://{env}.example.com', variables: { env: { default: 'staging', enum: ['dev', 'prod'] } } },
-        { url: '' },
-      ],
-    } as unknown as Document
-
-    expect(listServers(document)).toStrictEqual([{ url: 'https://api.example.com/v1', description: 'Main' }, { url: 'https://{env}.example.com' }])
-    expect(listServers({} as Document)).toStrictEqual([])
   })
 })

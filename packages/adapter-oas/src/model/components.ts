@@ -1,5 +1,4 @@
 import { pascalCase } from '@internals/utils'
-import type { ast } from '@kubb/kit'
 import { SCHEMA_REF_PREFIX } from '../constants.ts'
 import { isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
@@ -198,33 +197,4 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
   }
 
   return { schemas: sortSchemas(schemas), renames }
-}
-
-/**
- * Every scheme in `components.securitySchemes` by its key, Swagger 2.0 `securityDefinitions` included after up-conversion.
- * A `$ref` entry resolves to its target but keeps its own key.
- */
-export function listSecuritySchemes(document: Document, refs: Refs): Array<ast.InputSecurityScheme> {
-  return Object.entries(document.components?.securitySchemes ?? {}).flatMap(([name, value]) => {
-    const resolved = refs.deref<object>(value)
-    if (!resolved || typeof resolved !== 'object') return []
-    const scheme: Record<string, unknown> = { ...resolved }
-    if (typeof scheme.type !== 'string') return []
-    /**
-     * The string at `key`, or `undefined` when it is missing or empty.
-     */
-    const optional = (key: string) => (typeof scheme[key] === 'string' && scheme[key] ? (scheme[key] as string) : undefined)
-
-    return [
-      {
-        name,
-        type: scheme.type,
-        description: optional('description'),
-        scheme: optional('scheme'),
-        bearerFormat: optional('bearerFormat'),
-        in: optional('in'),
-        parameterName: optional('name'),
-      },
-    ]
-  })
 }
