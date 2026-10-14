@@ -423,7 +423,7 @@ describe('readInput', () => {
     operations: [ast.factory.createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })],
     meta: { title: 'Pet store', circularNames: [], enumNames: [] },
   })
-  const withInput = async () => ({ ...projectConfig(), adapter: createMockedAdapter({ parse: async () => input }) }) as Config
+  const withInput = async () => ({ ...projectConfig(), adapter: createMockedAdapter({ parse: async () => input }) })
 
   it('refuses to read when the host did not grant allowRead, and names the permission for the host', async () => {
     const { hooks, heard } = withHooks()
