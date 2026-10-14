@@ -1,7 +1,7 @@
 ---
-"@kubb/studio": minor
-"@kubb/ast": minor
-"@kubb/adapter-oas": minor
+"@kubb/studio": patch
+"@kubb/ast": patch
+"@kubb/adapter-oas": patch
 "@kubb/cli": patch
 ---
 
