@@ -6,178 +6,90 @@ import type { ExtensionKind, ExtensionNamed } from './defineExtension.ts'
 import type { KubbHooks } from './types.ts'
 import type { Hookable } from './Hookable.ts'
 
-/**
- * Stable codes Kubb attaches to a `Diagnostic`. Each maps to a known failure mode
- * and stays stable so it can be referenced in tooling and (later) docs. Reference
- * these instead of inlining the string at a throw site.
- */
+/** Stable codes attached to a `Diagnostic`; reference these instead of inlining the string at a throw site. */
 export const diagnosticCode = {
-  /**
-   * Fallback for an unstructured error with no specific code.
-   */
+  /** Fallback for an unstructured error with no specific code. */
   unknown: 'KUBB_UNKNOWN',
-  /**
-   * The file or URL set as `input` could not be read.
-   */
+  /** The file or URL set as `input` could not be read. */
   inputNotFound: 'KUBB_INPUT_NOT_FOUND',
-  /**
-   * A URL set as `input` (or referenced by a `$ref`) answered with a 4xx or 5xx status
-   * instead of the document.
-   */
+  /** A URL set as `input` (or referenced by a `$ref`) answered with a 4xx or 5xx status instead of the document. */
   inputRequestFailed: 'KUBB_INPUT_REQUEST_FAILED',
-  /**
-   * A URL set as `input` (or referenced by a `$ref`) never answered, so the request failed
-   * before a status was returned.
-   */
+  /** A URL set as `input` (or referenced by a `$ref`) never answered, so the request failed before a status was returned. */
   inputUnreachable: 'KUBB_INPUT_UNREACHABLE',
-  /**
-   * An adapter was configured without an `input`.
-   */
+  /** An adapter was configured without an `input`. */
   inputRequired: 'KUBB_INPUT_REQUIRED',
-  /**
-   * `input` uses the v4 `{ path }` / `{ data }` wrapper, which v5 reads as a parsed
-   * document instead of a pointer to one.
-   */
+  /** `input` uses the v4 `{ path }` / `{ data }` wrapper, which v5 reads as a parsed document instead of a pointer to one. */
   legacyInput: 'KUBB_LEGACY_INPUT',
-  /**
-   * The parsed `input` carries no `openapi` or `swagger` version, so it is not a
-   * document the adapter can read.
-   */
+  /** The parsed `input` carries no `openapi` or `swagger` version, so it is not a document the adapter can read. */
   invalidDocument: 'KUBB_INVALID_DOCUMENT',
   /** The document fails OpenAPI schema validation. Reported as a warning. */
   invalidSpec: 'KUBB_INVALID_SPEC',
-  /**
-   * A `$ref` (or equivalent reference) could not be resolved in the source document.
-   */
+  /** A `$ref` (or equivalent reference) could not be resolved in the source document. */
   refNotFound: 'KUBB_REF_NOT_FOUND',
-  /**
-   * A server variable value is not allowed by its `enum`.
-   */
+  /** A server variable value is not allowed by its `enum`. */
   invalidServerVariable: 'KUBB_INVALID_SERVER_VARIABLE',
-  /**
-   * A required plugin is missing from the config.
-   */
+  /** A required plugin is missing from the config. */
   pluginNotFound: 'KUBB_PLUGIN_NOT_FOUND',
-  /**
-   * The running Kubb or Node.js version is outside a plugin's `meta.compatibility`.
-   */
+  /** The running Kubb or Node.js version is outside a plugin's `meta.compatibility`. */
   incompatibleExtension: 'KUBB_INCOMPATIBLE_EXTENSION',
-  /**
-   * A required entry in a plugin's `dependencies` record is missing from the config.
-   */
+  /** A required entry in a plugin's `dependencies` record is missing from the config. */
   missingDependency: 'KUBB_MISSING_DEPENDENCY',
-  /**
-   * A dependency's `meta.version` is outside the range a plugin's `dependencies` record declares.
-   */
+  /** A dependency's `meta.version` is outside the range a plugin's `dependencies` record declares. */
   incompatibleDependency: 'KUBB_INCOMPATIBLE_DEPENDENCY',
-  /**
-   * A plugin threw while generating.
-   */
+  /** A plugin threw while generating. */
   pluginFailed: 'KUBB_PLUGIN_FAILED',
   /** An adapter threw while parsing the input. */
   adapterFailed: 'KUBB_ADAPTER_FAILED',
   /** A parser threw while printing a generated file. */
   parserFailed: 'KUBB_PARSER_FAILED',
-  /**
-   * A plugin reported a non-fatal warning through `ctx.warn`.
-   */
+  /** A plugin reported a non-fatal warning through `ctx.warn`. */
   pluginWarning: 'KUBB_PLUGIN_WARNING',
-  /**
-   * A plugin reported an informational message through `ctx.info`.
-   */
+  /** A plugin reported an informational message through `ctx.info`. */
   pluginInfo: 'KUBB_PLUGIN_INFO',
-  /**
-   * A `kubb/kit` composable was called outside a plugin's `setup` and `kubb:plugin:setup`.
-   */
+  /** A `kubb/kit` composable was called outside a plugin's `setup` and `kubb:plugin:setup`. */
   noContext: 'KUBB_NO_CONTEXT',
-  /**
-   * A schema uses a `format` Kubb does not map to a specific type. Reserved for
-   * adapters to emit as a `warning`.
-   */
+  /** A schema uses a `format` Kubb does not map to a specific type. Reserved for adapters to emit as a `warning`. */
   unsupportedFormat: 'KUBB_UNSUPPORTED_FORMAT',
-  /**
-   * A referenced schema or operation is marked `deprecated`. Reserved for adapters
-   * to emit as an `info`.
-   */
+  /** A referenced schema or operation is marked `deprecated`. Reserved for adapters to emit as an `info`. */
   deprecated: 'KUBB_DEPRECATED',
-  /**
-   * An adapter is required but the config has none. The build cannot read the input
-   * without one.
-   */
+  /** An adapter is required but the config has none. The build cannot read the input without one. */
   adapterRequired: 'KUBB_ADAPTER_REQUIRED',
-  /**
-   * A resolved output path escapes the output directory, which can stem from a path
-   * traversal in the spec or a misconfigured `group.name`.
-   */
+  /** A resolved output path escapes the output directory, which can stem from a path traversal in the spec or a misconfigured `group.name`. */
   pathTraversal: 'KUBB_PATH_TRAVERSAL',
-  /**
-   * `output.clean` is enabled but `output.path` resolves to the project root or a parent of it,
-   * so cleaning would delete kubb.config and every source file.
-   */
+  /** `output.clean` is enabled but `output.path` resolves to the project root or a parent of it, so cleaning would delete kubb.config and every source file. */
   cleanRoot: 'KUBB_CLEAN_ROOT',
-  /**
-   * A plugin's options are invalid, for example `output.mode: 'file'` paired with a `group` option.
-   */
+  /** A plugin's options are invalid, for example `output.mode: 'file'` paired with a `group` option. */
   invalidPluginOptions: 'KUBB_INVALID_PLUGIN_OPTIONS',
-  /**
-   * A post-generate command (`output.postGenerate`) exited with a failure.
-   */
+  /** A post-generate command (`output.postGenerate`) exited with a failure. */
   postGenerateFailed: 'KUBB_POST_GENERATE_FAILED',
-  /**
-   * The formatter pass over the generated files failed.
-   */
+  /** The formatter pass over the generated files failed. */
   formatFailed: 'KUBB_FORMAT_FAILED',
-  /**
-   * The linter pass over the generated files failed.
-   */
+  /** The linter pass over the generated files failed. */
   lintFailed: 'KUBB_LINT_FAILED',
-  /**
-   * A barrel tries to re-export the same name from more than one module.
-   */
+  /** A barrel tries to re-export the same name from more than one module. */
   barrelDuplicateExport: 'KUBB_BARREL_DUPLICATE_EXPORT',
-  /**
-   * Not a failure. Carries a plugin's elapsed time, summed into the run total.
-   */
+  /** Not a failure. Carries a plugin's elapsed time, summed into the run total. */
   performance: 'KUBB_PERFORMANCE',
-  /**
-   * Not a failure. A newer Kubb version is available on npm.
-   */
+  /** Not a failure. A newer Kubb version is available on npm. */
   updateAvailable: 'KUBB_UPDATE_AVAILABLE',
 } as const
 
-/**
- * Union of the stable {@link diagnosticCode} values.
- */
+/** Union of the stable {@link diagnosticCode} values. */
 export type DiagnosticCode = (typeof diagnosticCode)[keyof typeof diagnosticCode]
 
-/**
- * Docs major version, derived from the package version so the link tracks the published major.
- */
+/** Docs major version, derived from the package version so the link tracks the published major. */
 const docsMajor = version.split('.')[0] ?? '5'
 
-/**
- * How serious a diagnostic is. `error` fails the build, `warning` and `info`
- * are reported but do not.
- */
+/** How serious a diagnostic is. `error` fails the build, `warning` and `info` are reported but do not. */
 export type DiagnosticSeverity = 'error' | 'warning' | 'info'
 
-/**
- * A human-readable explanation of a diagnostic code: a short title, what triggers it, and how
- * to resolve it. This is the source of truth the kubb.dev `/reference/diagnostics#<slug>` sections mirror, so
- * every code stays documented in one place. Adding a code without documenting it fails the build.
- */
+/** A human-readable explanation of a diagnostic code: a short title, what triggers it, and how to resolve it. This is the source of truth the kubb.dev `/reference/diagnostics#<slug>` sections mirror, so every code stays documented in one place. Adding a code without documenting it fails the build. */
 export type DiagnosticDoc = {
-  /**
-   * Short title shown as the docs heading.
-   */
+  /** Short title shown as the docs heading. */
   title: string
-  /**
-   * What triggers the diagnostic.
-   */
+  /** What triggers the diagnostic. */
   cause: string
-  /**
-   * The action that resolves it.
-   */
+  /** The action that resolves it. */
   fix: string
 }
 

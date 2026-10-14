@@ -19,23 +19,11 @@ import { pluginBarrel, pluginBarrelName } from '@kubb/plugin-barrel'
 import type { UnpluginFactory } from 'unplugin'
 
 export type Options = {
-  /**
-   * Kubb config passed to the unplugin entry point.
-   */
+  /** Kubb config passed to the unplugin entry point. */
   config?: UserConfig
 }
 
-/**
- * Applies the defaults `defineConfig` and the unplugin share to a single user config when not set.
- *
- * - `root` defaults to `process.cwd()`
- * - `adapter` defaults to `adapterOas()`
- * - `parsers` defaults to `[parserTs(), parserTsx(), parserMd()]`
- * - `reporters` defaults to `[cliReporter, jsonReporter, fileReporter, htmlReporter]`
- * - `plugins` gets `pluginBarrel()` appended when none is already present
- * - `output.barrel` defaults to `false` when not set (`pluginBarrel` is always present after the step above, but generates nothing until configured)
- * - `output.format` and `output.lint` default to `false`
- */
+/** Applies the `defineConfig` defaults (`root`, `adapterOas`, the ts/tsx/md parsers, the built-in reporters, `pluginBarrel`, `output.barrel/format/lint: false`) when not set. */
 export function applyDefaults<TInput>(config: UserConfig<TInput>): UserConfig<TInput> {
   const plugins = config.plugins ?? []
 
