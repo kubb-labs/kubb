@@ -462,6 +462,9 @@ importers:
 
   packages/studio:
     dependencies:
+      '@kubb/ast':
+        specifier: workspace:*
+        version: link:../ast
       '@kubb/core':
         specifier: workspace:*
         version: link:../core
@@ -484,9 +487,6 @@ importers:
       '@kubb/adapter-oas':
         specifier: workspace:*
         version: link:../adapter-oas
-      '@kubb/ast':
-        specifier: workspace:*
-        version: link:../ast
 
   packages/unplugin-kubb:
     dependencies:

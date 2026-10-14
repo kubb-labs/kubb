@@ -1,3 +1,4 @@
+import { ast } from '@kubb/ast'
 import { memoryStorage } from '@kubb/core'
 import { describe, expect, it } from 'vitest'
 import { createGenerationStore, type GenerationStore, type SourceFiles } from './generations.ts'
@@ -14,38 +15,53 @@ async function addRun({ store, jobId, files }: { store: GenerationStore; jobId: 
 }
 
 describe('createGenerationStore', () => {
-  it('keeps a job document across a restart and drops it with the job', async () => {
+  it('keeps a job input across a restart and drops it with the job', async () => {
     const storage = memoryStorage()
     const store = createGenerationStore({ storage, maxCount: 4, maxMb: 10 })
-    await store.keepDocument({ jobId: 'job-1', document: { openapi: '3.1.0' } })
-    await store.keepDocument({ jobId: 'job-2', document: null })
+    await store.keepInput({ jobId: 'job-1', input: ast.factory.createInput({ meta: { title: 'Pets', circularNames: [], enumNames: [] } }) })
+    await store.keepInput({ jobId: 'job-2', input: null })
 
     const restarted = createGenerationStore({ storage, maxCount: 4, maxMb: 10 })
 
-    await expect(restarted.readDocument('job-1')).resolves.toStrictEqual({ openapi: '3.1.0' })
-    await expect(restarted.readDocument('job-2')).resolves.toBeUndefined()
+    await expect(restarted.readInput('job-1')).resolves.toMatchObject({ kind: 'Input', meta: { title: 'Pets' } })
+    await expect(restarted.readInput('job-2')).resolves.toBeUndefined()
     await restarted.drop('job-1')
-    await expect(restarted.readDocument('job-1')).resolves.toBeUndefined()
+    await expect(restarted.readInput('job-1')).resolves.toBeUndefined()
   })
 
-  it('skips a document JSON cannot hold instead of failing the run', async () => {
+  it('keeps the name of a ref schema but not the copy of its target', async () => {
+    const pet = ast.factory.createSchema({ type: 'object', name: 'Pet', properties: [] })
+    const ref = ast.factory.createSchema({ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet', schema: pet })
+    const input = ast.factory.createInput({ schemas: [pet, ast.factory.createSchema({ type: 'array', name: 'Pets', items: [ref] })] })
     const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
-    const document: Record<string, unknown> = { openapi: '3.1.0' }
-    document.self = document
 
-    await expect(store.keepDocument({ jobId: 'job-1', document })).resolves.toBe(0)
-    await expect(store.readDocument('job-1')).resolves.toBeUndefined()
+    await store.keepInput({ jobId: 'job-1', input })
+    const kept = await store.readInput('job-1')
+
+    expect(kept?.schemas[1]).toMatchObject({ type: 'array', items: [{ type: 'ref', name: 'Pet', ref: '#/components/schemas/Pet' }] })
+    expect(JSON.stringify(kept)).not.toContain('"schema":')
   })
 
-  it('counts a kept document toward the size limit', async () => {
+  it('skips an input JSON cannot hold instead of failing the run', async () => {
+    const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
+    const input = ast.factory.createInput({ schemas: [ast.factory.createSchema({ type: 'integer', name: 'Big', default: 1n })] })
+
+    await expect(store.keepInput({ jobId: 'job-1', input })).resolves.toBe(0)
+    await expect(store.readInput('job-1')).resolves.toBeUndefined()
+  })
+
+  it('counts a kept input toward the size limit', async () => {
     const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 100 / (1024 * 1024) })
-    const documentBytes = await store.keepDocument({ jobId: 'job-1', document: { description: 'x'.repeat(200) } })
+    const inputBytes = await store.keepInput({
+      jobId: 'job-1',
+      input: ast.factory.createInput({ meta: { description: 'x'.repeat(200), circularNames: [], enumNames: [] } }),
+    })
     const output = await store.keep({ jobId: 'job-1', source: 'output', files: sourceFiles({ 'a.ts': 'one' }), maxSetMb: 1 })
-    await store.add({ jobId: 'job-1', output, documentBytes })
+    await store.add({ jobId: 'job-1', output, inputBytes })
     await addRun({ store, jobId: 'job-2', files: { 'b.ts': 'two' } })
 
     expect(await store.get('job-1')).toBeUndefined()
-    await expect(store.readDocument('job-1')).resolves.toBeUndefined()
+    await expect(store.readInput('job-1')).resolves.toBeUndefined()
   })
 
   it('reads a generation back by its job id only, including after a restart', async () => {

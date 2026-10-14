@@ -2,7 +2,8 @@ import { createHash } from 'node:crypto'
 import { isAbsolute, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { inParallel } from '@internals/utils'
-import { type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
+import { ast, type InputNode } from '@kubb/ast'
+import { type Adapter, type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
 import type { FilePage, FileSource, ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
@@ -39,8 +40,8 @@ type KeptGeneration = {
   keptAt?: number
   output: KeptSet
   disk?: KeptSet
-  /** Size of the kept `document.json`. Absent when no document was kept. */
-  documentBytes?: number
+  /** Size of the kept `input.json`. Absent when no input was kept. */
+  inputBytes?: number
 }
 
 /**
@@ -49,7 +50,7 @@ type KeptGeneration = {
 export const hashOf = (content: string) => createHash('sha1').update(content).digest('hex').slice(0, 16)
 
 const totalBytes = (entries: Array<KeptGeneration>) =>
-  entries.reduce((sum, { output, disk, documentBytes }) => sum + output.bytes + (disk?.bytes ?? 0) + (documentBytes ?? 0), 0)
+  entries.reduce((sum, { output, disk, inputBytes }) => sum + output.bytes + (disk?.bytes ?? 0) + (inputBytes ?? 0), 0)
 
 function positiveNumber(value: string | undefined): number | undefined {
   const parsed = Number(value)
@@ -97,9 +98,15 @@ export async function generate({
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
   allowExec: boolean
-}): Promise<SourceFiles & { document: unknown }> {
+}): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
-  const kubb = createKubb({ ...config, output }, { hooks, signal })
+  // The driver drops its `InputNode` once the build ends, so keep the one the adapter returns.
+  let input: InputNode | null = null
+  const adapter = config.adapter && {
+    ...config.adapter,
+    parse: async (...args: Parameters<Adapter['parse']>) => (input = await config.adapter!.parse(...args)),
+  }
+  const kubb = createKubb({ ...config, output, adapter }, { hooks, signal })
   const result = await kubb.generate()
   if (!result.success) throw generationFailure(result.diagnostics)
 
@@ -109,7 +116,7 @@ export async function generate({
     storage,
     root,
     paths: new Set(result.files.map((file) => relativeStoragePath({ root, filePath: file.path }))),
-    document: kubb.config.adapter?.document ?? null,
+    input,
   }
 }
 
@@ -210,26 +217,29 @@ export function createGenerationStore({
     keep,
     drop,
     /**
-     * Keeps the parsed source document of `jobId` next to its files and returns its size in bytes.
-     * Nothing is kept for `null` or a document JSON cannot hold, such as one with circular references.
+     * Keeps the `InputNode` of `jobId` next to its files and returns its size in bytes. A ref schema
+     * keeps its name but not the copy of its target, which `input.schemas` already holds, so the
+     * kept input stays close to the size of the spec. Nothing is kept for `null` or an input JSON
+     * cannot hold.
      */
-    async keepDocument({ jobId, document }: { jobId: string; document: unknown }): Promise<number> {
-      if (document === null || document === undefined) return 0
+    async keepInput({ jobId, input }: { jobId: string; input: InputNode | null }): Promise<number> {
+      if (!input) return 0
+      const slim = ast.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) })
       let serialized: string
       try {
-        serialized = JSON.stringify(document)
+        serialized = JSON.stringify(slim)
       } catch {
         return 0
       }
-      await storage.writeItem(`${dirOf(jobId)}document.json`, serialized)
+      await storage.writeItem(`${dirOf(jobId)}input.json`, serialized)
       return Buffer.byteLength(serialized)
     },
     /**
-     * The document {@link keepDocument} kept for `jobId`, or `undefined` when there is none.
+     * The input {@link keepInput} kept for `jobId`, or `undefined` when there is none.
      */
-    async readDocument(jobId: string): Promise<unknown> {
-      const stored = await storage.readItem(`${dirOf(jobId)}document.json`)
-      return stored === null ? undefined : JSON.parse(stored)
+    async readInput(jobId: string): Promise<InputNode | undefined> {
+      const stored = await storage.readItem(`${dirOf(jobId)}input.json`)
+      return stored === null ? undefined : (JSON.parse(stored) as InputNode)
     },
     get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId && isLive(generation)),
     async add(generation: KeptGeneration): Promise<void> {

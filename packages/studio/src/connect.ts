@@ -39,8 +39,8 @@ import {
   type InstalledExtensions,
   MAX_FILES_PER_REQUEST,
   MAX_PAGE_LINES,
-  type ReadDocumentInput,
-  type ReadDocumentResult,
+  type ReadInputInput,
+  type ReadInputResult,
   type ReadFilesInput,
   type ReadFilesResult,
   type SaveConfigInput,
@@ -102,7 +102,7 @@ declare global {
       /**
        * A finished command and what it did, such as `applied 2/3 edits to kubb.config.ts`.
        */
-      'studio:command': [ctx: { command: 'generate' | 'saveConfig' | 'readFiles' | 'readDocument'; info: string }]
+      'studio:command': [ctx: { command: 'generate' | 'saveConfig' | 'readFiles' | 'readInput'; info: string }]
       /**
        * A refused or ignored request, with the missing permission so the host can add a remedy.
        */
@@ -415,11 +415,11 @@ class Agent extends RpcTarget implements AgentApi {
     })
 
     const output = await this.#generations.keep({ jobId, source: 'output', files, maxSetMb: this.#limits.maxMb })
-    const documentBytes = await this.#generations.keepDocument({ jobId, document: files.document })
+    const inputBytes = await this.#generations.keepInput({ jobId, input: files.input })
     if (!output.paths.length && Object.keys(output.hashes).length) {
       await this.#warn({ message: 'Kept only the hashes of this generation: its output is too large to keep' })
     }
-    await this.#generations.add({ jobId, output, disk, documentBytes })
+    await this.#generations.add({ jobId, output, disk, inputBytes })
 
     return {
       value: {
@@ -472,19 +472,19 @@ class Agent extends RpcTarget implements AgentApi {
     return this.#command({ command: 'readFiles', run: () => this.#readFiles(input) })
   }
 
-  readDocument(input: ReadDocumentInput): Promise<ReadDocumentResult> {
-    return this.#command({ command: 'readDocument', run: () => this.#readDocument(input) })
+  readInput(input: ReadInputInput): Promise<ReadInputResult> {
+    return this.#command({ command: 'readInput', run: () => this.#readInput(input) })
   }
 
-  async #readDocument(input: ReadDocumentInput): Promise<{ value: ReadDocumentResult; info: string }> {
+  async #readInput(input: ReadInputInput): Promise<{ value: ReadInputResult; info: string }> {
     if (!this.#permissions.allowRead) return this.#refuse({ message: 'The agent was not granted permission to read generated files', permission: 'allowRead' })
     if (typeof input.jobId !== 'string' || !input.jobId) return this.#refuse({ message: 'The request must name a job' })
 
     if (!(await this.#generations.get(input.jobId))) return this.#refuse({ message: GENERATION_GONE_MESSAGE })
-    const document = await this.#generations.readDocument(input.jobId)
-    if (document === undefined) return this.#refuse({ message: 'This job kept no source document' })
+    const kept = await this.#generations.readInput(input.jobId)
+    if (!kept) return this.#refuse({ message: 'This job kept no API input' })
 
-    return { value: { document }, info: 'read the source document' }
+    return { value: { input: kept }, info: 'read the API input' }
   }
 
   async #readFiles(input: ReadFilesInput): Promise<{ value: ReadFilesResult; info: string }> {

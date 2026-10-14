@@ -1,4 +1,5 @@
 import type { ExtensionKind, ExtensionManifest, KubbHooks } from '@kubb/core'
+import type { InputNode } from '@kubb/ast'
 
 /**
  * JSON-serializable Kubb config exchanged over RPC. A live `kubb/kit` config holds
@@ -362,20 +363,21 @@ export type FilePage = { nextCursor: number | null; totalLines: number }
 export type ReadFilesResult = { files: Record<string, string>; pages?: Record<string, FilePage> }
 
 /**
- * Asks the agent for the parsed source document of one generation job, such as the OpenAPI
- * document, so Studio can describe the API without reading the spec itself.
+ * Asks the agent for the Kubb AST one generation job parsed its spec into, so Studio can describe
+ * the API in Kubb's own names without reading the spec itself.
  */
-export type ReadDocumentInput = {
+export type ReadInputInput = {
   /**
-   * The job whose document to read. A job the agent no longer keeps fails with {@link GENERATION_GONE_MESSAGE}.
+   * The job whose input to read. A job the agent no longer keeps fails with {@link GENERATION_GONE_MESSAGE}.
    */
   jobId: string
 }
 
 /**
- * The parsed document the job's adapter produced, as JSON.
+ * The job's `InputNode`, as JSON. A ref schema names its target without a copy of it; the target
+ * is in `input.schemas`.
  */
-export type ReadDocumentResult = { document: unknown }
+export type ReadInputResult = { input: InputNode }
 
 /**
  * The error a file read fails with once the agent no longer keeps the job's files.
@@ -424,7 +426,7 @@ export type AgentApi = {
   /**
    * Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}.
    */
-  readDocument: (input: ReadDocumentInput) => Promise<ReadDocumentResult>
+  readInput: (input: ReadInputInput) => Promise<ReadInputResult>
 }
 
 /**
