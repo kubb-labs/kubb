@@ -1,4 +1,4 @@
-import type { ast } from '@kubb/kit'
+import { ast } from '@kubb/kit'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { convertKeywords, omitKeywords } from './emit/converters/keywords.ts'
 import { createNode } from './emit/createNode.ts'
@@ -42,6 +42,12 @@ export function createSchemaParser(ctx: OasParserContext) {
     const keywords = convertKeywords({ schema, parse: parseSchema })
     if (keywords) {
       const node = parseSchema({ schema: omitKeywords(schema), name })
+      // A sole `allOf` member already carrying keywords can't share one keywords object with the outer
+      // schema (two `not`s don't merge), so keep them as separate intersection members.
+      if (node.keywords) {
+        const outer = ast.factory.createSchema({ type: options.emptySchemaType as ast.ScalarSchemaType, keywords })
+        return ast.factory.createSchema({ type: 'intersection', members: [node, outer] })
+      }
       return { ...node, keywords }
     }
 

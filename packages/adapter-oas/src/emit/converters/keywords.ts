@@ -27,17 +27,20 @@ type KeywordsObject = {
 const subschemaKeys = ['not', 'if', 'then', 'else', 'propertyNames', 'contains', 'unevaluatedProperties', 'unevaluatedItems'] as const
 
 /**
- * Parses a subschema. A bare `required` list (as in `not: { required: ['a', 'b'] }`) becomes an
- * object with those properties, since `convertObject` only keeps `required` for listed properties.
+ * Parses a subschema. `required` names without a matching property (as in `not: { required: ['a', 'b'] }`)
+ * are added as untyped properties, since `convertObject` only keeps `required` for listed properties.
+ * Skipped under `additionalProperties: false` or a non-object `type`, where a synthetic property
+ * would change the constraint.
  */
 function parseSubschema(subschema: Subschema, parse: ConvertContext['parse']): ast.SchemaNode | boolean {
   if (typeof subschema === 'boolean') return subschema
   const { required } = subschema
-  const isRequiredOnly = Array.isArray(required) && required.length > 0 && !subschema.type && !subschema.properties
-  if (!isRequiredOnly) return parse({ schema: subschema })
+  const missing = Array.isArray(required) ? required.filter((key) => !subschema.properties?.[key]) : []
+  const isObject = !subschema.type || subschema.type === 'object'
+  if (!missing.length || !isObject || subschema.additionalProperties === false) return parse({ schema: subschema })
 
-  const objectSchema: SchemaObject = { ...subschema, type: 'object', properties: Object.fromEntries(required.map((key) => [key, {}])) }
-  return parse({ schema: objectSchema })
+  const properties = { ...subschema.properties, ...Object.fromEntries(missing.map((key) => [key, {}])) }
+  return parse({ schema: { ...subschema, type: 'object', properties } })
 }
 
 /**
