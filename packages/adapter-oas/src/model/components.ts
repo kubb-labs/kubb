@@ -210,6 +210,7 @@ export function listSecuritySchemes(document: Document, refs: Refs): Array<ast.I
     if (!resolved || typeof resolved !== 'object') return []
     const scheme: Record<string, unknown> = { ...resolved }
     if (typeof scheme.type !== 'string') return []
+    /** The string at `key`, or `undefined` when it is missing or empty. */
     const optional = (key: string) => (typeof scheme[key] === 'string' && scheme[key] ? (scheme[key] as string) : undefined)
 
     return [
