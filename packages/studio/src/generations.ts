@@ -101,10 +101,10 @@ export async function generate({
   allowExec: boolean
 }): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
-  // The driver drops its `InputNode` once the build ends, so keep the one the adapter returns. A proxy, not a
-  // copy, so getters such as `document` keep reading the live adapter.
   let input: InputNode | null = null
+  /** Keeps the `InputNode` the adapter returns, since the driver drops its own once the build ends. */
   const parse = async (...args: Parameters<Adapter['parse']>) => (input = await config.adapter!.parse(...args))
+  // A proxy, not a copy, so getters such as `document` keep reading the live adapter.
   const adapter =
     config.adapter && new Proxy(config.adapter, { get: (target, key, receiver) => (key === 'parse' ? parse : Reflect.get(target, key, receiver)) })
   const kubb = createKubb({ ...config, output, adapter }, { hooks, signal })
@@ -219,15 +219,15 @@ export function createGenerationStore({
     drop,
     /**
      * Keeps the `InputNode` of `jobId` and returns its size in bytes. Ref schemas drop the copy of their target, which
-     * `input.schemas` holds. Nothing is kept for `null`, an input JSON cannot hold, or one above `maxSetMb`. An input an
-     * earlier run of `jobId` kept is removed first.
+     * `input.schemas` holds. Nothing is kept for `null`, an input that fails to transform or serialize, or one above
+     * `maxSetMb`. An input an earlier run of `jobId` kept is removed first.
      */
     async keepInput({ jobId, input, maxSetMb }: { jobId: string; input: InputNode | null; maxSetMb: number }): Promise<number> {
       await storage.removeItem(`${dirOf(jobId)}input.json`)
       if (!input) return 0
-      const slim = ast.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) })
       let serialized: string
       try {
+        const slim = ast.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) })
         serialized = JSON.stringify(slim)
       } catch {
         return 0
