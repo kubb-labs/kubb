@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
-import { getElapsedMs, isCIEnvironment } from '@internals/utils'
+import { getElapsedMs, isCIEnvironment, runtime } from '@internals/utils'
 import { getAgentProfile } from 'gunshi/agent'
 import { version } from '../package.json'
 
@@ -61,8 +61,8 @@ export function buildOtlpPayload({ command, duration, status, plugins = [], file
     { key: 'kubb.command', value: { stringValue: command } },
     { key: 'kubb.version', value: { stringValue: version } },
     { key: 'kubb.node_version', value: { stringValue: process.versions.node.split('.')[0] as string } },
-    { key: 'kubb.runtime', value: { stringValue: process.versions.bun ? 'bun' : 'node' } },
-    { key: 'kubb.runtime_version', value: { stringValue: (process.versions.bun ?? process.versions.node).split('.')[0] as string } },
+    { key: 'kubb.runtime', value: { stringValue: runtime.name } },
+    { key: 'kubb.runtime_version', value: { stringValue: runtime.version.split('.')[0] as string } },
     { key: 'kubb.platform', value: { stringValue: os.platform() } },
     { key: 'kubb.ci', value: { boolValue: isCIEnvironment() } },
     ...(agent.isAgent && agent.name ? [{ key: 'kubb.agent', value: { stringValue: agent.name } }] : []),
