@@ -56,17 +56,17 @@ claude plugin install <plugin>@<organization>
 
 ```shell [Cursor]
 agent plugin marketplace add https://kubb.studio/plugins/<organization>.git
-agent plugin install <plugin>@<organization>
+# Then start the Cursor CLI, run /plugin, and install the plugin from the Marketplace tab.
 ```
 
 ```shell [Codex]
 codex plugin marketplace add https://kubb.studio/plugins/<organization>.git
-codex plugin install <plugin>@<organization>
+# Then start codex, run /plugins, and select Install plugin.
 ```
 
 :::
 
-Studio shows the exact commands for each plugin. Republish the agent after the spec changes, then update the marketplace in your tool.
+Cursor and Codex install a plugin from their plugin browser, not with a command. Studio shows the exact commands for each plugin. Republish the agent after the spec changes, then update the marketplace in your tool.
 
 > [!NOTE]
 > Plans without AI plugins see the AI page locked. A registry key in the URL, such as `https://kubb:<key>@kubb.studio/...`, works in CI but ends up in shell history and logs.
