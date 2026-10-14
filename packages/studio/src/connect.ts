@@ -489,6 +489,9 @@ class Agent extends RpcTarget implements AgentApi {
     return { input: kept }
   }
 
+  /**
+   * Returns the requested files of a kept job, one page of lines at a time. Refused without `allowRead`.
+   */
   async readFiles(input: ReadFilesInput): Promise<ReadFilesResult> {
     this.#assertConnected()
     if (!this.#permissions.allowRead) return this.#refuse({ message: READ_NOT_ALLOWED_MESSAGE, permission: 'allowRead' })

@@ -48,6 +48,9 @@ type KeptGeneration = {
  */
 export const hashOf = (content: string) => createHash('sha1').update(content).digest('hex').slice(0, 16)
 
+/**
+ * The bytes `entries` keep on disk: output, written files, and kept input.
+ */
 const totalBytes = (entries: Array<KeptGeneration>) =>
   entries.reduce((sum, { output, disk, inputBytes }) => sum + output.bytes + (disk?.bytes ?? 0) + (inputBytes ?? 0), 0)
 
@@ -232,6 +235,9 @@ export function createGenerationStore({
       await storage.writeItem(`${dirOf(jobId)}input.json`, json)
       return bytes
     },
+    /**
+     * The input `keepInput` kept for `jobId`, or `undefined` when there is none.
+     */
     async readInput(jobId: string): Promise<InputNode | undefined> {
       const stored = await storage.readItem(`${dirOf(jobId)}input.json`)
       return stored === null ? undefined : (JSON.parse(stored) as InputNode)

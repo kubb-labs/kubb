@@ -377,14 +377,8 @@ export type ReadInputResult = { input: InputNode }
  */
 export const GENERATION_GONE_MESSAGE = 'The files of this generation are no longer kept on the agent, run the generation again'
 
-/**
- * The error a read fails with when the agent was not granted `allowRead`.
- */
 export const READ_NOT_ALLOWED_MESSAGE = 'The agent was not granted permission to read generated files'
 
-/**
- * The error `readInput` fails with when the job kept no `InputNode`.
- */
 export const NO_INPUT_MESSAGE = 'This job kept no API input'
 
 /**
