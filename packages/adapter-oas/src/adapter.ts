@@ -140,7 +140,7 @@ export const adapterOas = defineExtension<AdapterOas>({
           version: document.info?.version,
           baseURL: resolveBaseUrl({ document, server }),
           servers: listServers(document),
-          securitySchemes: listSecuritySchemes(document),
+          securitySchemes: listSecuritySchemes(document, refs),
           circularNames,
           enumNames,
         },

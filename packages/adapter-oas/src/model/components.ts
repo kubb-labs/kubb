@@ -200,11 +200,15 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
   return { schemas: sortSchemas(schemas), renames }
 }
 
-/** Every scheme in `components.securitySchemes` by its key, Swagger 2.0 `securityDefinitions` included after up-conversion. */
-export function listSecuritySchemes(document: Document): Array<ast.InputSecurityScheme> {
+/**
+ * Every scheme in `components.securitySchemes` by its key, Swagger 2.0 `securityDefinitions` included after up-conversion.
+ * A `$ref` entry resolves to its target but keeps its own key.
+ */
+export function listSecuritySchemes(document: Document, refs: Refs): Array<ast.InputSecurityScheme> {
   return Object.entries(document.components?.securitySchemes ?? {}).flatMap(([name, value]) => {
-    if (!value || typeof value !== 'object' || isReference(value)) return []
-    const scheme: Record<string, unknown> = { ...value }
+    const resolved = refs.deref<object>(value)
+    if (!resolved || typeof resolved !== 'object') return []
+    const scheme: Record<string, unknown> = { ...resolved }
     if (typeof scheme.type !== 'string') return []
     const optional = (key: string) => (typeof scheme[key] === 'string' && scheme[key] ? (scheme[key] as string) : undefined)
 

@@ -228,10 +228,11 @@ describe('listSecuritySchemes', () => {
       },
     } as unknown as Document
 
-    expect(listSecuritySchemes(document)).toMatchObject([
+    expect(listSecuritySchemes(document, createRefs(document))).toMatchObject([
       { name: 'api_key', type: 'apiKey', in: 'header', parameterName: 'X-API-Key' },
       { name: 'bearer', type: 'http', scheme: 'bearer', bearerFormat: 'JWT', description: 'A user token' },
+      { name: 'shared', type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
     ])
-    expect(listSecuritySchemes({} as Document)).toStrictEqual([])
+    expect(listSecuritySchemes({} as Document, createRefs({} as Document))).toStrictEqual([])
   })
 })
