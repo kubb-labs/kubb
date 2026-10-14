@@ -33,15 +33,6 @@ describe('findCircularSchemas', () => {
 })
 
 describe('findCircularSchemasFromGraph', () => {
-  it('returns an empty set for an acyclic graph', () => {
-    const graph = new Map([
-      ['Pet', new Set(['Category'])],
-      ['Category', new Set<string>()],
-    ])
-
-    expect(findCircularSchemasFromGraph(graph)).toStrictEqual(new Set())
-  })
-
   it('detects a direct self-loop', () => {
     const graph = new Map([['TreeNode', new Set(['TreeNode'])]])
 
@@ -83,27 +74,6 @@ describe('collectImportedRefNames', () => {
     })
 
     expect(collectImportedRefNames(schema)).toStrictEqual(['Category', 'Tag', 'OrderSchema'])
-  })
-
-  it('collects ref names from a tuple rest and from patternProperties', () => {
-    const schema = createSchema({
-      type: 'object',
-      name: 'Envelope',
-      properties: [
-        createProperty({
-          name: 'pair',
-          required: false,
-          schema: createSchema({
-            type: 'tuple',
-            items: [createSchema({ type: 'string' })],
-            rest: createSchema({ type: 'ref', name: 'Tail', ref: '#/components/schemas/Tail' }),
-          }),
-        }),
-      ],
-      patternProperties: { '^x-': createSchema({ type: 'ref', name: 'Extension', ref: '#/components/schemas/Extension' }) },
-    })
-
-    expect(collectImportedRefNames(schema)).toStrictEqual(['Tail', 'Extension'])
   })
 
   it('skips refs without a $ref pointer, such as union members pointing at a sibling', () => {

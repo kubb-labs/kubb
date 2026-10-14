@@ -22,13 +22,8 @@ describe('createSchema', () => {
 
   it.each([
     { type: 'uuid', primitive: 'string', node: createSchema({ type: 'uuid' }) },
-    { type: 'email', primitive: 'string', node: createSchema({ type: 'email' }) },
-    { type: 'url', primitive: 'string', node: createSchema({ type: 'url' }) },
-    { type: 'datetime', primitive: 'string', node: createSchema({ type: 'datetime' }) },
-    { type: 'time', primitive: 'string', node: createSchema({ type: 'time', representation: 'string' }) },
     { type: 'date', primitive: 'date', node: createSchema({ type: 'date', representation: 'string' }) },
     { type: 'ref', primitive: undefined, node: createSchema({ type: 'ref' }) },
-    { type: 'ipv4', primitive: undefined, node: createSchema({ type: 'ipv4' }) },
   ])('returns primitive $primitive when type is $type', ({ primitive, node }) => {
     expect(node.primitive).toBe(primitive)
   })

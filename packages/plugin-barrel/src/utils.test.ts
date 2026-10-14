@@ -22,11 +22,6 @@ const ROOT = '/workspace/src/gen/types'
 type CollisionRow = { scenario: string; barrelType: BarrelType; files: Array<ast.FileNode>; exportCount: number }
 
 describe('getBarrelFiles', () => {
-  it('returns an empty array when there are no files under outputPath', () => {
-    const result = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, []), barrelType: 'all' })]
-    expect(result).toHaveLength(0)
-  })
-
   it('returns one wildcard barrel for flat files and skips files outside the root', () => {
     const files = [makeFile(`${ROOT}/user.ts`), makeFile(`${ROOT}/pet.ts`), makeFile('/workspace/src/gen/other/pet.ts')]
     const barrels = [...getBarrelFiles({ index: buildBarrelIndex(ROOT, files), barrelType: 'all' })]

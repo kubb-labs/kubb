@@ -87,13 +87,12 @@ Factories return defaulted, fully typed nodes for adapters and generator handler
 | `createConst`, `createFunction`, `createArrowFunction`, `createJsx` | Emit TypeScript declarations and JSX.                    |
 | `createParameter`                                                   | Describe operation parameters.                           |
 | `createProperty`, `createType`                                      | Compose object properties and TypeScript types.          |
-| `createResponse`, `createRequestBody`, `createContent`, `createOutput` | Model responses, request bodies, content entries, and generator outputs. |
+| `createResponse`, `createRequestBody`, `createContent`              | Model responses, request bodies, and content entries.    |
 | `createBreak`                                                       | Emit line breaks between nodes.                          |
-| `update`                                                            | Apply an identity-preserving shallow update to any node. |
 
 ## Visitors {#visitors}
 
-Two visitor functions cover the common traversal patterns: `transform` rewrites the tree and `collect` gathers nodes. Visitor objects use lowercase, kind-style keys (`input`, `output`, `operation`, `schema`, `property`, `parameter`, `response`). To rewrite nodes inside a plugin, reach for [macros](/docs/5.x/how-to/macros), which add names, ordering, and composition on top of `transform`. For logging, validation, or statistics, `collect` the nodes you care about.
+Two visitor functions cover the common traversal patterns: `transform` rewrites the tree and `collect` gathers nodes. Visitor objects use lowercase, kind-style keys (`input`, `operation`, `schema`, `property`, `parameter`, `response`). To rewrite nodes inside a plugin, reach for [macros](/docs/5.x/how-to/macros), which add names, ordering, and composition on top of `transform`. For logging, validation, or statistics, `collect` the nodes you care about.
 
 ### `transform`: synchronous, returns a new tree
 
@@ -116,17 +115,6 @@ const enhanced = ast.transform(root, {
 ```
 
 Use `transform` to change AST structure, normalize inconsistencies, or annotate nodes.
-
-To apply a change and keep that guarantee, use the `update` factory instead of spreading by hand. It returns the same node when every field you pass already matches:
-
-```typescript twoslash [update.ts]
-import { ast } from 'kubb/kit'
-
-const node = ast.factory.createSchema({ name: 'Pet', type: 'object', properties: [] })
-
-ast.factory.update(node, { name: 'Pet' }) // -> same `node` reference (no change)
-ast.factory.update(node, { name: 'Animal' }) // -> new node with `name` replaced
-```
 
 ### `collect`: gather matching nodes
 

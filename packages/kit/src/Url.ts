@@ -1,16 +1,3 @@
-import { isValidVarName } from './utils/reserved.ts'
-
-/**
- * `path-to-regexp` (used by MSW/Express) only accepts `[A-Za-z0-9_]` in a parameter name — it
- * stops reading the name at the first other character (a hyphen, a dot, a `$`, ...), which either
- * misparses the route or throws "Missing parameter name". This is a narrower check than
- * {@link isValidVarName}: a `$`-prefixed name is a valid JS identifier but not a valid
- * `path-to-regexp` name.
- */
-function isPathToRegexpSafe(name: string): boolean {
-  return /^[A-Za-z0-9_]+$/.test(name)
-}
-
 /**
  * Sanitizes a parameter name so it is safe to use as a `path-to-regexp` capture name, without
  * routing through {@link camelCase} (which keeps a leading `$` since it is a valid JS identifier
@@ -18,7 +5,10 @@ function isPathToRegexpSafe(name: string): boolean {
  * very start of the name (e.g. the `$` in `$id`) still capitalizes the word that follows it.
  */
 function transformPathParam(raw: string): string {
-  if (isPathToRegexpSafe(raw)) {
+  // `path-to-regexp` (used by MSW/Express) only accepts `[A-Za-z0-9_]` in a parameter name; it stops
+  // reading at the first other character (a hyphen, a dot, a `$`, ...), which misparses the route or
+  // throws "Missing parameter name".
+  if (/^[A-Za-z0-9_]+$/.test(raw)) {
     return raw
   }
 
@@ -34,11 +24,11 @@ function transformPathParam(raw: string): string {
 }
 
 /**
- * Renders how a grouped `path` object's member is accessed: dot access for a valid
- * identifier, bracket access with the raw name otherwise.
+ * Renders how a grouped `path` object's member is accessed: dot access for an identifier (reserved
+ * words are valid property names), bracket access with the raw name otherwise.
  */
 function groupedAccessor(name: string): string {
-  return isValidVarName(name) ? `.${name}` : `[${JSON.stringify(name)}]`
+  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(name) ? `.${name}` : `[${JSON.stringify(name)}]`
 }
 
 /**

@@ -32,15 +32,14 @@ Defines the node tree, visitor pattern, factory functions, and type guards used 
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `@kubb/ast`                     | Runtime: node definitions, guards, visitor, macro engine, constants                                               |
 | `ast.factory` (via `@kubb/ast`) | Node constructors (`createSchema`, `createFile`, and friends), the `ts.factory` analogue                          |
-| `@kubb/ast/types`               | Types only: all node interfaces, type aliases, visitor types                                                      |
 | `kubb/kit`                      | Re-exports the `ast` and `factory` namespaces, the way most Kubb code reaches the AST without a direct dependency |
 
-`@kubb/ast` is an internal library. Inside the Kubb ecosystem the whole surface travels on the `ast` namespace from `kubb/kit`, so plugins and generators reach it there instead of depending on this package directly. The examples below import from `@kubb/ast` for clarity; through `kubb/kit` the same calls read as `ast.walk`, `ast.factory.createSchema`, and so on.
+`@kubb/ast` is an internal library. Inside the Kubb ecosystem the whole surface travels on the `ast` namespace from `kubb/kit`, so plugins and generators reach it there instead of depending on this package directly. The examples below import from `@kubb/ast` for clarity; through `kubb/kit` the same calls read as `ast.transform`, `ast.factory.createSchema`, and so on.
 
 ## Node tree
 
 ```
-RootNode
+InputNode
 ├── schemas: SchemaNode[]
 └── operations: OperationNode[]
     ├── parameters: ParameterNode[]   → SchemaNode
@@ -113,7 +112,7 @@ const types = collectSync<string>(root, {
 
 ```ts
 import { narrowSchema } from '@kubb/ast'
-import type { Node } from '@kubb/ast/types'
+import type { Node } from '@kubb/ast'
 
 function process(node: Node) {
   if (node.kind === 'Schema') {
@@ -133,12 +132,11 @@ resolveRefName({ kind: 'Schema', type: 'ref', ref: '#/components/schemas/Pet' })
 
 ## Adding a node
 
-Adding a node touches four files.
+Adding a node touches three files.
 
 1. Define the node type and its `createFoo` function in its own `src/nodes/*.ts` file, and add the kind to `NodeKind` in `src/nodes/base.ts`.
-2. Add the type to the `Node` union in `src/nodes/index.ts` and export it from `src/types.ts`.
-3. Re-export `createFoo` from `src/factory.ts`.
-4. When the node has children or a visitor callback, add it to `VISITOR_KEYS` and `VISITOR_KEY_BY_KIND` in `src/visitor.ts`.
+2. Add the type to the `Node` union and re-export `createFoo` in `src/nodes/index.ts`, and export the type from `src/types.ts`.
+3. When the node has children or a visitor callback, add it to `VISITOR_KEYS` and `VISITOR_KEY_BY_KIND` in `src/visitor.ts`.
 
 ## Supporting Kubb
 

@@ -4,15 +4,8 @@ import { pascalCase } from '@internals/utils'
 
 const plainStringTypes = new Set<SchemaType>(['string', 'uuid', 'email', 'url', 'datetime'] as const)
 
-/**
- * Returns the last path segment of a reference string.
- *
- * @example
- * `extractRefName('#/components/schemas/Pet') // 'Pet'`
- */
-export function extractRefName(ref: string): string {
-  return ref.split('/').at(-1) ?? ref
-}
+/** Returns the last path segment of a reference string, for example `'Pet'` for `#/components/schemas/Pet`. */
+export const extractRefName = ast.refName
 
 /**
  * Builds a PascalCase child schema name by joining a parent name and property name.

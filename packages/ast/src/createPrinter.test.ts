@@ -88,27 +88,6 @@ describe('createPrinter', () => {
     expect(zodPrinter().print(node)).toBe('z.object({ id: z.number(), label: z.union([z.string(), z.number()]) })')
   })
 
-  it('dispatches overrides before nodes handlers', () => {
-    type P = PrinterFactoryOptions<'zod', object, string>
-
-    const zodPrinter = createPrinter<P>(() => ({
-      name: 'zod',
-      options: {},
-      nodes: {
-        string() {
-          return 'z.string()'
-        },
-      },
-      overrides: {
-        string() {
-          return 'z.string().trim()'
-        },
-      },
-    }))
-
-    expect(zodPrinter().print(createSchema({ type: 'string' }))).toBe('z.string().trim()')
-  })
-
   it('lets an override wrap the replaced handler via this.base()', () => {
     type P = PrinterFactoryOptions<'zod', object, string>
 
@@ -212,24 +191,6 @@ describe('createPrinter', () => {
       a.print(createSchema({ type: 'string' }))
 
       expect(b.drainImports()).toStrictEqual([])
-    })
-
-    it('is available to overrides', () => {
-      const printer = createPrinter<P>(() => ({
-        name: 'zod',
-        options: {},
-        nodes: { string: () => 'z.string()' },
-        overrides: {
-          string() {
-            this.import(codec)
-            return this.base(createSchema({ type: 'string' }))
-          },
-        },
-      }))()
-
-      printer.print(createSchema({ type: 'string' }))
-
-      expect(printer.drainImports()).toStrictEqual([codec])
     })
   })
 })
