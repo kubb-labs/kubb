@@ -1,38 +1,8 @@
-import type { JSDoc, Key, KubbReactElement, KubbReactNode } from '../../types.ts'
+import type { ast } from '@kubb/ast'
+import type { Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
-type ConstProps = {
+type ConstProps = Omit<ast.ConstNode, 'kind' | 'nodes'> & {
   key?: Key
-  /**
-   * Identifier of the generated constant declaration.
-   *
-   * @example
-   * `name: 'petSchema'`
-   */
-  name: string
-  /**
-   * Emit the `export` keyword before the `const` declaration.
-   * - `true` generates `export const name = …`
-   * - `false` generates `const name = …`
-   */
-  export?: boolean | null
-  /**
-   * TypeScript type annotation for the constant, written verbatim after `const name:`.
-   *
-   * @example
-   * `type: 'Pet'` → `const pet: Pet = …`
-   */
-  type?: string | null
-  /**
-   * JSDoc block to prepend to the constant declaration.
-   * Each entry in `comments` becomes one line inside the emitted `/** … *\/` block.
-   */
-  JSDoc?: JSDoc | null
-  /**
-   * Append `as const` after the initializer, enabling TypeScript const assertions.
-   * - `true` generates `const name = … as const`
-   * - `false` generates `const name = …`
-   */
-  asConst?: boolean | null
   /**
    * Child nodes rendered as the initializer expression of the constant.
    */
@@ -57,10 +27,6 @@ type ConstProps = {
  * </Const>
  * ```
  */
-export function Const({ children, name, export: canExport, type, JSDoc, asConst }: ConstProps): KubbReactElement {
-  return (
-    <kubb-const name={name} type={type} export={canExport} asConst={asConst} JSDoc={JSDoc}>
-      {children}
-    </kubb-const>
-  )
+export function Const({ children, ...props }: ConstProps): KubbReactElement {
+  return <kubb-const {...props}>{children}</kubb-const>
 }

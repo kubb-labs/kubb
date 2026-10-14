@@ -45,22 +45,6 @@ function getNumericConstraints(schema: SchemaObject): Pick<ast.NumberSchemaNode,
   }
 }
 
-function getDateType(
-  options: ast.ParserOptions,
-  format: 'date-time' | 'date' | 'time',
-): { type: 'datetime'; offset?: boolean; local?: boolean } | { type: 'date' | 'time'; representation: 'date' | 'string' } {
-  const value = resolveDateTypeValue(options.dateType, format)
-
-  if (format !== 'date-time') {
-    return { type: format, representation: value === 'date' ? 'date' : 'string' }
-  }
-  if (value === 'date') return { type: 'date', representation: 'date' }
-  if (value === 'stringOffset') return { type: 'datetime', offset: true }
-  if (value === 'stringLocal') return { type: 'datetime', local: true }
-
-  return { type: 'datetime', offset: false }
-}
-
 /**
  * Builds a `null` scalar node carrying the schema's documentation. Shared by the `const: null`
  * and the drf-spectacular `NullEnum` (`{ enum: [null] }`) branches, which render identically.
@@ -120,20 +104,15 @@ export function convertFormat(context: ConvertContext): ast.SchemaNode {
   }
 
   if (schema.format === 'date-time' || schema.format === 'date' || schema.format === 'time') {
-    const dateType = getDateType(options, schema.format)
+    const value = resolveDateTypeValue(options.dateType, schema.format)
 
-    if (dateType.type === 'datetime') {
-      return createNode(context, {
-        primitive: 'string' as const,
-        type: 'datetime',
-        offset: dateType.offset,
-        local: dateType.local,
-      })
+    if (schema.format === 'date-time' && value !== 'date') {
+      return createNode(context, { primitive: 'string', type: 'datetime', offset: value === 'stringOffset', local: value === 'stringLocal' })
     }
     return createNode(context, {
-      primitive: 'string' as const,
-      type: dateType.type,
-      representation: dateType.representation,
+      primitive: 'string',
+      type: schema.format === 'date-time' ? 'date' : schema.format,
+      representation: value === 'date' ? 'date' : 'string',
     })
   }
 
@@ -171,48 +150,36 @@ export function convertEnum({ schema, name, nullable, type, parse }: ConvertCont
 
   const enumNullable = nullable || nullInEnum || undefined
   const enumDefault = schema.default === null && enumNullable ? undefined : schema.default
-  const enumPrimitive = getPrimitiveType(type)
+  const primitive: 'number' | 'boolean' | 'string' = type === 'boolean' ? 'boolean' : type === 'number' || type === 'integer' ? 'number' : 'string'
+  const uniqueValues = [...new Set(filteredValues)]
 
   const ctx = { schema, name, nullable: enumNullable as true | undefined, defaultValue: enumDefault }
-  const enumExtras = {
-    type: 'enum' as const,
-    primitive: enumPrimitive,
-  }
 
   const extensionKey = enumExtensionKeys.find((key) => key in schema)
   const descriptionKey = enumDescriptionKeys.find((key) => key in schema)
-  if (extensionKey || descriptionKey || enumPrimitive === 'number' || enumPrimitive === 'integer' || enumPrimitive === 'boolean') {
-    const enumPrimitiveType: 'number' | 'boolean' | 'string' = (() => {
-      if (enumPrimitive === 'boolean') return 'boolean'
-      if (enumPrimitive === 'number' || enumPrimitive === 'integer') return 'number'
-      return 'string'
-    })()
-    const rawEnumNames = extensionKey ? ((schema as Record<string, unknown>)[extensionKey] as Array<string | number>) : undefined
-    const rawEnumDescriptions = descriptionKey ? ((schema as Record<string, unknown>)[descriptionKey] as Array<string>) : undefined
-    const uniqueValues = [...new Set(filteredValues)]
-    const seenNames = new Set<string>()
-
-    return createNode(ctx, {
-      ...enumExtras,
-      primitive: enumPrimitiveType,
-      namedEnumValues: uniqueValues
-        .map((value, index) => ({
-          name: String(rawEnumNames?.[index] ?? value),
-          value,
-          primitive: enumPrimitiveType,
-          description: rawEnumDescriptions?.[index],
-        }))
-        .filter((entry) => {
-          if (seenNames.has(entry.name)) return false
-          seenNames.add(entry.name)
-          return true
-        }),
-    })
+  if (!extensionKey && !descriptionKey && primitive === 'string') {
+    return createNode(ctx, { type: 'enum', primitive, enumValues: uniqueValues })
   }
 
+  const rawEnumNames = extensionKey ? ((schema as Record<string, unknown>)[extensionKey] as Array<string | number>) : undefined
+  const rawEnumDescriptions = descriptionKey ? ((schema as Record<string, unknown>)[descriptionKey] as Array<string>) : undefined
+  const seenNames = new Set<string>()
+
   return createNode(ctx, {
-    ...enumExtras,
-    enumValues: [...new Set(filteredValues)],
+    type: 'enum',
+    primitive,
+    namedEnumValues: uniqueValues
+      .map((value, index) => ({
+        name: String(rawEnumNames?.[index] ?? value),
+        value,
+        primitive,
+        description: rawEnumDescriptions?.[index],
+      }))
+      .filter((entry) => {
+        if (seenNames.has(entry.name)) return false
+        seenNames.add(entry.name)
+        return true
+      }),
   })
 }
 

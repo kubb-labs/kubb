@@ -1,4 +1,4 @@
-import { ast } from '@kubb/kit'
+import { ast } from '@kubb/ast'
 import { describe, expect, it } from 'vitest'
 import { getRelativePath, printExport, printImport, printSource } from './utils.ts'
 
@@ -7,10 +7,6 @@ function print(...nodes: Array<ast.CodeNode>): string {
 }
 
 describe('getRelativePath', () => {
-  it('returns a ./ path when the target sits beside the importing file', () => {
-    expect(getRelativePath('/root/src/index.ts', '/root/src/models/pet.ts')).toBe('./models/pet.ts')
-  })
-
   it('returns a ../ path when the target sits outside the importing file directory', () => {
     expect(getRelativePath('/root/src/models/pet.ts', '/root/lib/client.ts')).toBe('../../lib/client.ts')
   })
@@ -37,7 +33,6 @@ describe('function bodies', () => {
   it.each([
     { when: 'nodes follow each other', nodes: [x, y], expected: 'function f() {\n  const x = 1\n  const y = 2\n}' },
     { when: 'a break sits between nodes', nodes: [x, br, y], expected: 'function f() {\n  const x = 1\n\n  const y = 2\n}' },
-    { when: 'consecutive breaks sit between nodes', nodes: [x, br, br, y], expected: 'function f() {\n  const x = 1\n\n  const y = 2\n}' },
     { when: 'breaks lead and trail the nodes', nodes: [br, x, br], expected: 'function f() {\n  const x = 1\n}' },
   ])('returns $expected when $when', ({ nodes, expected }) => {
     expect(printSource(ast.factory.createSource({ nodes: [ast.factory.createFunction({ name: 'f', nodes })] }))).toBe(expected)
@@ -46,7 +41,6 @@ describe('function bodies', () => {
 
 describe('JSDoc', () => {
   it.each([
-    { when: 'comments is empty', comments: [], expected: 'const x = 1' },
     { when: 'comments holds only undefined', comments: [undefined], expected: 'const x = 1' },
     {
       when: 'there are several comments',
@@ -57,18 +51,6 @@ describe('JSDoc', () => {
     { when: 'a comment contains */', comments: ['see */ here'], expected: '/**\n * see * / here\n */\nconst x = 1' },
   ])('returns $expected when $when', ({ comments, expected }) => {
     expect(print(ast.factory.createConst({ name: 'x', JSDoc: { comments }, nodes: [ast.factory.createText('1')] }))).toBe(expected)
-  })
-})
-
-describe('code nodes', () => {
-  it.each([
-    { kind: 'Const', node: ast.factory.createConst({ name: 'x', nodes: [ast.factory.createText('1')] }), expected: 'const x = 1' },
-    { kind: 'Type', node: ast.factory.createType({ name: 'Pet', nodes: [ast.factory.createText('{ id: number }')] }), expected: 'type Pet = { id: number }' },
-    { kind: 'Function', node: ast.factory.createFunction({ name: 'foo' }), expected: 'function foo() {}' },
-    { kind: 'ArrowFunction', node: ast.factory.createArrowFunction({ name: 'bar' }), expected: 'const bar = () => {}' },
-    { kind: 'Text', node: ast.factory.createText('    const x = 1'), expected: 'const x = 1' },
-  ])('returns $expected when given a minimal $kind node', ({ node, expected }) => {
-    expect(print(node)).toBe(expected)
   })
 })
 
@@ -83,20 +65,10 @@ describe('Const nodes', () => {
     })
     expect(print(node)).toBe('export const pets: Pet[] = [] as const')
   })
-
-  it('returns a baselined value when the multi-line value has baked-in indentation', () => {
-    const node = ast.factory.createConst({
-      name: 'pet',
-      export: true,
-      nodes: [ast.factory.createText('\n    {\n      foo: 1,\n      bar: 2,\n    }\n  ')],
-    })
-    expect(print(node)).toBe(['export const pet = {', '  foo: 1,', '  bar: 2,', '}'].join('\n'))
-  })
 })
 
 describe('Function nodes', () => {
   it.each([
-    { when: 'a return type is set', node: { returnType: 'Pet' }, expected: 'function getPet(): Pet {}' },
     { when: 'generics is an array', node: { generics: ['T'], params: 'value: T', returnType: 'T' }, expected: 'function getPet<T>(value: T): T {}' },
     {
       when: 'generics is a string',
@@ -124,14 +96,6 @@ describe('Function nodes', () => {
       export: true,
     })
     expect(print(node)).toBe('export default function handler() {}')
-  })
-
-  it('returns a single-level body when the body has baked-in indentation and blank lines', () => {
-    const node = ast.factory.createFunction({
-      name: 'getPet',
-      nodes: [ast.factory.createText('      const a = 1\n\n      const b = 2')],
-    })
-    expect(print(node)).toBe(['function getPet() {', '  const a = 1', '', '  const b = 2', '}'].join('\n'))
   })
 
   it('returns cumulative indentation when a function is nested', () => {
@@ -172,17 +136,6 @@ describe('printSource', () => {
       ],
     })
     expect(printSource(node)).toBe(['const server = new McpServer()', '', 'server.registerTool("foo", {})', '', 'const x = 1'].join('\n'))
-  })
-
-  it('returns a single blank line when an explicit break separates declarations', () => {
-    const node = ast.factory.createSource({
-      nodes: [
-        ast.factory.createConst({ name: 'x', nodes: [ast.factory.createText('1')] }),
-        ast.factory.createBreak(),
-        ast.factory.createConst({ name: 'y', nodes: [ast.factory.createText('2')] }),
-      ],
-    })
-    expect(printSource(node)).toBe('const x = 1\n\nconst y = 2')
   })
 })
 

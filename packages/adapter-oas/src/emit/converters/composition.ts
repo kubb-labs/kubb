@@ -68,7 +68,7 @@ function resolveUnionMembers(members: Array<unknown>, siblingProperties: Record<
     }
 
     const existingProps = (obj.properties ?? {}) as Record<string, unknown>
-    const missingKeys = obj.required.filter((key) => !Object.prototype.hasOwnProperty.call(existingProps, key))
+    const missingKeys = obj.required.filter((key) => !Object.hasOwn(existingProps, key))
 
     if (missingKeys.length === 0) {
       return member
@@ -76,8 +76,7 @@ function resolveUnionMembers(members: Array<unknown>, siblingProperties: Record<
 
     const newProperties: Record<string, unknown> = { ...existingProps }
     for (const key of missingKeys) {
-      const value = Object.prototype.hasOwnProperty.call(siblingProperties, key) ? siblingProperties[key] : {}
-      Object.defineProperty(newProperties, key, { value, enumerable: true, writable: true, configurable: true })
+      newProperties[key] = Object.hasOwn(siblingProperties, key) ? siblingProperties[key] : {}
     }
 
     return {
@@ -123,7 +122,8 @@ export function convertRef({ schema, name, nullable, defaultValue, document, par
   // `unknown` so the rest of the schema still resolves. Only do this for a document that declares a
   // component registry — a registry-less fragment (e.g. a minimal `parse` call) parses refs
   // leniently, since the target is expected to live outside the fragment.
-  if (refPath && document.components && !refs.exists(refPath)) {
+  // A circular ref still resolves, so only a `$ref` to a component the spec never declares is missing.
+  if (refPath && document.components && !refs.resolve(refPath, { report: false })) {
     return createNode(ctx, { type: 'unknown' })
   }
 

@@ -1,4 +1,4 @@
-import { ast } from '@kubb/kit'
+import { ast } from '@kubb/ast'
 import { Fragment, isKubbElement, type JSX } from './jsx-runtime.ts'
 import type { KubbReactElement } from './types.ts'
 

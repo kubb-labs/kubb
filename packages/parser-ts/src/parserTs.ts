@@ -1,4 +1,5 @@
-import { ast, defineExtension } from '@kubb/kit'
+import { ast } from '@kubb/ast'
+import { defineExtension } from '@kubb/core'
 import type * as ts from 'typescript'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
@@ -72,11 +73,11 @@ export const parserTs = defineExtension<ParserTsOptions, object, ts.Node>({
         const importLines = file.imports.map((item) =>
           printImport({
             ...item,
-            path: resolveOutputPath(item.root ? getRelativePath(item.root, item.path) : item.path, { extname }, Boolean(item.root)),
+            path: resolveOutputPath(item.root ? getRelativePath(item.root, item.path) : item.path, extname, Boolean(item.root)),
           }),
         )
 
-        const exportLines = file.exports.map((item) => printExport({ ...item, path: resolveOutputPath(item.path, { extname }, item.path.startsWith('.')) }))
+        const exportLines = file.exports.map((item) => printExport({ ...item, path: resolveOutputPath(item.path, extname, item.path.startsWith('.')) }))
 
         const importExportBlock = [...importLines, ...exportLines].join('\n')
 
@@ -97,4 +98,33 @@ export const parserTs = defineExtension<ParserTsOptions, object, ts.Node>({
       },
     }
   },
+})
+
+/**
+ * Kubb parser for `.tsx` and `.jsx` files. Delegates to `parserTs` because the
+ * TypeScript compiler handles JSX natively via `ScriptKind.TSX`, so it shares the
+ * same `extension` option.
+ *
+ * Add to the `parsers` array on `defineConfig` when generating components for
+ * React (or any framework that emits JSX).
+ *
+ * @example
+ * ```ts
+ * import { defineConfig } from 'kubb'
+ * import { adapterOas } from '@kubb/adapter-oas'
+ * import { parserTsx } from '@kubb/parser-ts'
+ *
+ * export default defineConfig({
+ *   input: './petStore.yaml',
+ *   output: { path: './src/gen' },
+ *   adapter: adapterOas(),
+ *   parsers: [parserTsx()],
+ *   plugins: [],
+ * })
+ * ```
+ */
+export const parserTsx = defineExtension<ParserTsOptions, object, ts.Node>({
+  kind: 'parser',
+  meta: { name: 'tsx', issues: 'https://github.com/kubb-labs/kubb/issues' },
+  build: (options) => ({ ...parserTs(options), extNames: ['.tsx', '.jsx'] }),
 })

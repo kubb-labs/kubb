@@ -1,17 +1,12 @@
 import { type Diagnostic, Diagnostics } from '@kubb/kit'
 import type { ast } from '@kubb/kit'
+import type { ParseFn } from './emit/parseSchema.ts'
 import { isReference } from './oas.ts'
 import type { Document, SchemaObject } from './types.ts'
 
 /**
- * Parses a schema for a resolved `$ref` target. Passed in at call time (rather than imported)
- * so `refs.ts` stays independent of the parser/converter layer.
- */
-type RefNodeParser = (entry: { schema: SchemaObject; name?: string | null }) => ast.SchemaNode
-
-/**
- * The `$ref` service bound to one document: pointer resolution, existence checks, and
- * resolved-node parsing, each with its own instance-scoped memoization.
+ * The `$ref` service bound to one document: pointer resolution and resolved-node parsing, each
+ * with its own instance-scoped memoization.
  */
 export type Refs = ReturnType<typeof createRefs>
 
@@ -23,7 +18,6 @@ export type Refs = ReturnType<typeof createRefs>
  * const refs = createRefs(document)
  * refs.resolve<SchemaObject>('#/components/schemas/Pet')
  * refs.resolve<SchemaObject>('#/components/schemas/Pet', { report: false })
- * refs.exists('#/components/schemas/Pet')
  * refs.resolveNode('#/components/schemas/Pet', parseSchema)
  * refs.deref<ResponseObject>(operation.schema.responses?.['200'])
  * refs.derefKeepingRef(parameter)
@@ -83,20 +77,11 @@ export function createRefs(document: Document) {
   }
 
   /**
-   * Returns `true` when a `$ref` path resolves to a component the document actually defines.
-   * A circular ref still resolves to an existing target, so this stays `true` for cycles and only
-   * goes `false` for a `$ref` that points at a component the spec never declares.
-   */
-  function exists(refPath: string): boolean {
-    return !!resolve(refPath, { report: false })
-  }
-
-  /**
    * Resolves a `$ref` to its parsed node via `parse`, guarding against cycles and memoizing per
    * instance. Returns `null` when the ref is currently being resolved (a cycle) or cannot be
    * resolved (e.g. a minimal document in a unit test).
    */
-  function resolveNode(refPath: string, parse: RefNodeParser): ast.SchemaNode | null {
+  function resolveNode(refPath: string, parse: ParseFn): ast.SchemaNode | null {
     if (resolvingRefs.has(refPath)) return null
 
     if (!resolvedNodeCache.has(refPath)) {
@@ -141,5 +126,5 @@ export function createRefs(document: Document) {
     return value as T
   }
 
-  return { resolve, exists, resolveNode, deref, derefKeepingRef }
+  return { resolve, resolveNode, deref, derefKeepingRef }
 }

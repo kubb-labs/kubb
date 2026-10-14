@@ -1,2 +1,1 @@
-export { parserTs, type ParserTsOptions } from './parserTs.ts'
-export { parserTsx } from './parserTsx.ts'
+export { parserTs, type ParserTsOptions, parserTsx } from './parserTs.ts'

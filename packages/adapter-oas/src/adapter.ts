@@ -5,8 +5,7 @@ import { version } from '../package.json'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
 import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './emit/discriminator/propagate.ts'
 import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
-import { assertInputExists } from './load/source.ts'
-import { assertDocument, parseDocument, parseFromConfig, validateDocument } from './load/normalize.ts'
+import { assertDocument, parseFromConfig, validateDocument } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
 import { resolveBaseUrl } from './model/server.ts'
 import { getOperations, parseOperation } from './operation.ts'
@@ -89,15 +88,11 @@ export const adapterOas = defineExtension<AdapterOas>({
       const refAliasMap = new Map<string, ast.SchemaNode>()
       const enumNames: Array<string> = []
       const discriminatorParentNodes: Array<ast.SchemaNode> = []
-      // Built from the same walk that reports diagnostics: each schema maps to the names it references,
-      // so circular detection reads this graph instead of sweeping the nodes again.
-      const refGraph = new Map<string, Set<string>>()
 
       for (const [name, schema] of Object.entries(schemas)) {
         const node = parseSchema({ schema, name })
         parsedByName.set(name, node)
-        const refs = scanSchema({ node, name })
-        if (node.name) refGraph.set(node.name, refs)
+        scanSchema({ node, name })
         if (node.type === 'ref' && node.name && node.name !== name) {
           refAliasMap.set(name, node)
         }
@@ -109,7 +104,7 @@ export const adapterOas = defineExtension<AdapterOas>({
         }
       }
 
-      const circularNames = [...ast.findCircularSchemasFromGraph(refGraph)]
+      const circularNames = [...ast.findCircularSchemas([...parsedByName.values()])]
       const discriminatorChildMap: Map<string, DiscriminatorTarget> | null =
         discriminatorParentNodes.length > 0 ? buildDiscriminatorChildMap(discriminatorParentNodes) : null
 
@@ -155,8 +150,7 @@ export const adapterOas = defineExtension<AdapterOas>({
         return parsedDocument
       },
       async validate(input, options) {
-        await assertInputExists(input)
-        const document = await parseDocument(input)
+        const document = await parseFromConfig({ type: 'path', path: input })
         assertDocument(document)
         await validateDocument(document, options)
       },

@@ -75,35 +75,14 @@ export async function bundleDocument(pathOrUrl: string): Promise<Document> {
 }
 
 /**
- * Loads and bundles an OpenAPI document, returning the raw `Document`.
- *
- * A string is a file path or URL: it is bundled via `api-ref-bundler`, hoisting external file
- * schemas into named `components.schemas` entries so generators can emit named types and imports.
- * An object is treated as an already-parsed document. Swagger 2.0 and OpenAPI 3.0 documents are
- * up-converted to OpenAPI 3.1 via `@scalar/openapi-upgrader`.
- *
- * @example
- * ```ts
- * const document = await parseDocument('./openapi.yaml')
- * const document = await parseDocument(rawDocumentObject)
- * ```
- */
-export async function parseDocument(pathOrApi: string | Document): Promise<Document> {
-  if (typeof pathOrApi === 'string') {
-    const bundled = await bundleDocument(pathOrApi)
-
-    return parseDocument(bundled)
-  }
-
-  // `upgrade` chains Swagger 2.0 -> 3.0 -> 3.1, leaving documents already on 3.1 untouched.
-  return upgrade(pathOrApi, '3.1') as Document
-}
-
-/**
  * Creates a `Document` from an `AdapterSource`.
  *
- * - `{ type: 'path' }` bundles an absolute file path (core resolves `input`) or remote URL.
+ * - `{ type: 'path' }` bundles an absolute file path (core resolves `input`) or remote URL via
+ *   `api-ref-bundler`, hoisting external file schemas into named `components.schemas` entries so
+ *   generators can emit named types and imports.
  * - `{ type: 'data' }` parses an inline string (YAML/JSON) or raw object.
+ *
+ * Swagger 2.0 and OpenAPI 3.0 documents are up-converted to OpenAPI 3.1 via `@scalar/openapi-upgrader`.
  *
  * @example
  * ```ts
@@ -112,15 +91,17 @@ export async function parseDocument(pathOrApi: string | Document): Promise<Docum
  * ```
  */
 export async function parseFromConfig(source: AdapterSource): Promise<Document> {
+  let raw: Document
   if (source.type === 'data') {
-    // Inline data is a parsed object or a raw YAML/JSON string. Parse the string here so
-    // `parseDocument` never mistakes inline content for a file path. `parse` also handles JSON.
-    const data = typeof source.data === 'string' ? parse(source.data) : structuredClone(source.data)
-    return parseDocument(data as Document)
+    // `parse` also handles JSON.
+    raw = typeof source.data === 'string' ? parse(source.data) : structuredClone(source.data as Document)
+  } else {
+    await assertInputExists(source.path)
+    raw = await bundleDocument(source.path)
   }
 
-  await assertInputExists(source.path)
-  return parseDocument(source.path)
+  // `upgrade` chains Swagger 2.0 -> 3.0 -> 3.1, leaving documents already on 3.1 untouched.
+  return upgrade(raw, '3.1') as Document
 }
 
 /**

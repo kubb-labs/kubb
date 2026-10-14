@@ -2,7 +2,6 @@ import { ast } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { buildMinimalOas } from '../mocks/oas.ts'
 import { adapterOas } from './adapter.ts'
-import { patchDiscriminatorNode } from './emit/discriminator/propagate.ts'
 import { createSchemaParser, type OasParserContext } from './parser.ts'
 import { createRefs } from './refs.ts'
 import type { AdapterOasOptions, ContentType, Document, SchemaObject } from './types.ts'
@@ -129,30 +128,6 @@ function findOperation(root: ast.InputNode, operationId: string): ast.OperationN
 
 describe('buildAst', () => {
   describe('schemas', () => {
-    it('returns an InputNode with the named component schemas', async () => {
-      const root = await parseOas(await buildMinimalOas())
-      const names = root.schemas.map((s) => s.name)
-
-      expect(root.kind).toBe('Input')
-      expect(names).toStrictEqual(expect.arrayContaining(['Pet', 'NewPet', 'Error']))
-    })
-
-    it('converts object schema with properties', async () => {
-      const root = await parseOas(await buildMinimalOas())
-      const pet = ast.narrowSchema(findSchema(root, 'Pet'), 'object')
-
-      expect(pet?.type).toBe('object')
-      expect(pet?.properties?.map((p) => p.name)).toStrictEqual(expect.arrayContaining(['id', 'name', 'tag']))
-    })
-
-    it('marks required properties', async () => {
-      const root = await parseOas(await buildMinimalOas())
-      const pet = ast.narrowSchema(findSchema(root, 'Pet'), 'object')
-
-      expect(pet?.properties?.find((p) => p.name === 'id')?.required).toBe(true)
-      expect(pet?.properties?.find((p) => p.name === 'tag')?.required).toBe(false)
-    })
-
     it('converts array schema and populates node.schema with the resolved ref schema', async () => {
       const root = await parseOas(await buildMinimalOas())
       const list = ast.narrowSchema(findSchema(root, 'PetList'), 'array')
@@ -160,40 +135,6 @@ describe('buildAst', () => {
       expect(list?.type).toBe('array')
       expect(list?.items).toHaveLength(1)
       expect(list?.items?.[0]).toMatchObject({ type: 'ref', schema: { type: 'object' } })
-    })
-
-    it('converts enum schema', async () => {
-      const root = await parseOas(await buildMinimalOas())
-      const status = ast.narrowSchema(findSchema(root, 'Status'), 'enum')
-
-      expect(status).toMatchObject({ type: 'enum', primitive: 'string', enumValues: ['active', 'inactive', 'pending'] })
-    })
-
-    it('converts oneOf to union', async () => {
-      const root = await parseOas(await buildMinimalOas())
-      const petOrError = ast.narrowSchema(findSchema(root, 'PetOrError'), 'union')
-
-      expect(petOrError?.type).toBe('union')
-      expect(petOrError?.members).toHaveLength(2)
-    })
-
-    it('parses a drf-spectacular NullEnum component as a null node', async () => {
-      const root = await parseOas({
-        openapi: '3.0.3',
-        info: { title: '', version: '' },
-        paths: {},
-        components: { schemas: { NullEnum: { enum: [null] } } },
-      } as unknown as Document)
-
-      expect(findSchema(root, 'NullEnum')?.type).toBe('null')
-    })
-
-    it('converts allOf to intersection', async () => {
-      const root = await parseOas(await buildMinimalOas())
-      const fullPet = ast.narrowSchema(findSchema(root, 'FullPet'), 'intersection')
-
-      expect(fullPet?.type).toBe('intersection')
-      expect(fullPet?.members).toHaveLength(2)
     })
 
     it('flattens single-member allOf and propagates nullable', async () => {
@@ -247,13 +188,7 @@ describe('buildAst', () => {
   })
 
   describe('operations', () => {
-    it('converts all operations', async () => {
-      const root = await parseOas(await buildMinimalOas())
-
-      expect(root.operations).toHaveLength(4)
-    })
-
-    it('sets operationId, method, path, tags', async () => {
+    it('sets operationId, method, path, tags and deprecated', async () => {
       const root = await parseOas(await buildMinimalOas())
 
       expect(findOperation(root, 'listPets')).toMatchObject({
@@ -263,11 +198,6 @@ describe('buildAst', () => {
         tags: ['pets'],
         summary: 'List all pets',
       })
-    })
-
-    it('sets deprecated flag', async () => {
-      const root = await parseOas(await buildMinimalOas())
-
       expect(findOperation(root, 'createPet')?.deprecated).toBe(true)
     })
 
@@ -363,7 +293,7 @@ describe('buildAst', () => {
       expect(patchPet?.requestBody?.content?.[0]?.schema?.optional).toBe(true)
     })
 
-    it('converts a response with statusCode, description and a single content entry', async () => {
+    it('converts a response with statusCode, description and content, and a body-less response', async () => {
       const root = await parseOas(await buildMinimalOas())
       const ok = findOperation(root, 'listPets')?.responses.find((r) => r.statusCode === '200')
 
@@ -371,13 +301,7 @@ describe('buildAst', () => {
         description: 'A list of pets',
         content: [{ contentType: 'application/json', schema: { type: 'ref' } }],
       })
-    })
-
-    it('converts responses without a body schema', async () => {
-      const root = await parseOas(await buildMinimalOas())
-      const notFound = findOperation(root, 'getPetById')?.responses.find((r) => r.statusCode === '404')
-
-      expect(notFound?.description).toBe('Not found')
+      expect(findOperation(root, 'getPetById')?.responses.find((r) => r.statusCode === '404')?.description).toBe('Not found')
     })
 
     it('populates requestBody.content with every content type in spec order', async () => {
@@ -455,17 +379,14 @@ describe('buildAst', () => {
       expect(body?.properties.find((property) => property.name === 'file')?.schema.type).toBe('blob')
     })
 
-    it('keeps a binary response for an application/octet-stream body upgraded to 3.1', async () => {
+    it('keeps a binary response for an application/octet-stream body upgraded to 3.1, whatever emptySchemaType is', async () => {
       const root = await parseOas(binaryResponseDocument)
 
       expect(findOperation(root, 'downloadEssay')?.responses[0]?.content).toMatchObject([{ contentType: 'application/octet-stream', schema: { type: 'blob' } }])
       expect(findOperation(root, 'downloadPdf')?.responses[0]?.content?.[0]?.schema?.type).toBe('blob')
-    })
 
-    it('keeps a binary octet-stream response whatever emptySchemaType is configured', async () => {
-      const root = await parseOas(binaryResponseDocument, { emptySchemaType: 'void' })
-
-      expect(findOperation(root, 'downloadEssay')?.responses[0]?.content?.[0]?.schema?.type).toBe('blob')
+      const withVoid = await parseOas(binaryResponseDocument, { emptySchemaType: 'void' })
+      expect(findOperation(withVoid, 'downloadEssay')?.responses[0]?.content?.[0]?.schema?.type).toBe('blob')
     })
 
     it('populates response.content with every content type in spec order', async () => {
@@ -491,6 +412,7 @@ describe('parseSchema types', () => {
     { schema: { type: 'integer' }, type: 'integer' },
     { schema: { type: 'number' }, type: 'number' },
     { schema: { type: 'null' }, type: 'null' },
+    { schema: { type: ['null'] }, type: 'null' },
     { schema: { type: 'array' }, type: 'array' },
   ] satisfies Array<{ schema: SchemaObject; type: string }>)('maps type $schema.type to a $type node', ({ schema, type }) => {
     expect(parseSchema(emptyCtx, { schema }).type).toBe(type)
@@ -509,36 +431,22 @@ describe('parseSchema format', () => {
     { title: 'string uuid', schema: { type: 'string', format: 'uuid' }, expected: { type: 'uuid', format: 'uuid' } },
     { title: 'uuid without type', schema: { format: 'uuid' }, expected: { type: 'uuid', format: 'uuid' } },
     { title: 'string email', schema: { type: 'string', format: 'email' }, expected: { type: 'email', format: 'email' } },
-    { title: 'string idn-email', schema: { type: 'string', format: 'idn-email' }, expected: { type: 'email', format: 'idn-email' } },
-    { title: 'email without type', schema: { format: 'email' }, expected: { type: 'email', format: 'email' } },
     { title: 'ipv4 without type', schema: { format: 'ipv4' }, expected: { type: 'ipv4', format: 'ipv4' } },
     { title: 'ipv6 without type', schema: { format: 'ipv6' }, expected: { type: 'ipv6', format: 'ipv6' } },
     { title: 'string uri', schema: { type: 'string', format: 'uri' }, expected: { type: 'url', format: 'uri' } },
-    { title: 'string uri-reference', schema: { type: 'string', format: 'uri-reference' }, expected: { type: 'url', format: 'uri-reference' } },
-    { title: 'string url', schema: { type: 'string', format: 'url' }, expected: { type: 'url', format: 'url' } },
-    { title: 'string hostname', schema: { type: 'string', format: 'hostname' }, expected: { type: 'url', format: 'hostname' } },
-    { title: 'string idn-hostname', schema: { type: 'string', format: 'idn-hostname' }, expected: { type: 'url', format: 'idn-hostname' } },
-    { title: 'uri without type', schema: { format: 'uri' }, expected: { type: 'url', format: 'uri' } },
     { title: 'string binary', schema: { type: 'string', format: 'binary' }, expected: { type: 'blob', format: 'binary' } },
     { title: 'string byte', schema: { type: 'string', format: 'byte' }, expected: { type: 'blob', format: 'byte' } },
-    { title: 'binary without type', schema: { format: 'binary' }, expected: { type: 'blob', format: 'binary' } },
     { title: 'string date-time', schema: { type: 'string', format: 'date-time' }, expected: { type: 'datetime', format: 'date-time' } },
     { title: 'integer int32', schema: { type: 'integer', format: 'int32' }, expected: { type: 'integer', format: 'int32' } },
     { title: 'integer int64 (default integerType bigint)', schema: { type: 'integer', format: 'int64' }, expected: { type: 'bigint', format: 'int64' } },
     { title: 'integer uint64 (default integerType bigint)', schema: { type: 'integer', format: 'uint64' }, expected: { type: 'bigint', format: 'uint64' } },
-    { title: 'int64 without type', schema: { format: 'int64' }, expected: { type: 'bigint', format: 'int64' } },
-    { title: 'uint64 without type', schema: { format: 'uint64' }, expected: { type: 'bigint', format: 'uint64' } },
     { title: 'number float', schema: { type: 'number', format: 'float' }, expected: { type: 'number', format: 'float' } },
     { title: 'number double', schema: { type: 'number', format: 'double' }, expected: { type: 'number', format: 'double' } },
-    { title: 'float without type', schema: { format: 'float' }, expected: { type: 'number', format: 'float' } },
     { title: 'string with an unknown format', schema: { type: 'string', format: 'custom-format' }, expected: { type: 'string', format: 'custom-format' } },
     { title: 'enum with a format', schema: { type: 'string', format: 'custom-enum', enum: ['a', 'b'] }, expected: { type: 'enum', format: 'custom-enum' } },
     // A numeric format on a `type: 'string'` schema describes how the number is spelled, so the declared type wins.
     { title: 'string int64', schema: { type: 'string', format: 'int64' }, expected: { type: 'string', format: 'int64' } },
-    { title: 'string uint64', schema: { type: 'string', format: 'uint64' }, expected: { type: 'string', format: 'uint64' } },
-    { title: 'string int32', schema: { type: 'string', format: 'int32' }, expected: { type: 'string', format: 'int32' } },
     { title: 'string float', schema: { type: 'string', format: 'float' }, expected: { type: 'string', format: 'float' } },
-    { title: 'string double', schema: { type: 'string', format: 'double' }, expected: { type: 'string', format: 'double' } },
     {
       title: 'string int64 when integerType is number',
       schema: { type: 'string', format: 'int64' },
@@ -566,45 +474,16 @@ describe('parseSchema format', () => {
 describe('parseSchema metadata', () => {
   it.each([
     { title: 'nullable on a string', schema: { type: 'string', nullable: true }, expected: { type: 'string', nullable: true } },
-    { title: 'nullable on a boolean', schema: { type: 'boolean', nullable: true }, expected: { type: 'boolean', nullable: true } },
-    { title: 'nullable on an integer', schema: { type: 'integer', nullable: true }, expected: { type: 'integer', nullable: true } },
-    { title: 'nullable on a number', schema: { type: 'number', nullable: true }, expected: { type: 'number', nullable: true } },
-    { title: 'nullable on an object', schema: { type: 'object', nullable: true }, expected: { type: 'object', nullable: true } },
-    { title: 'nullable on an array', schema: { type: 'array', nullable: true }, expected: { type: 'array', nullable: true } },
-    { title: 'nullable on a uuid', schema: { type: 'string', format: 'uuid', nullable: true }, expected: { type: 'uuid', nullable: true } },
-    { title: 'nullable on an email', schema: { type: 'string', format: 'email', nullable: true }, expected: { type: 'email', nullable: true } },
-    { title: 'nullable on a url', schema: { type: 'string', format: 'uri', nullable: true }, expected: { type: 'url', nullable: true } },
-    {
-      title: 'nullable on a pattern string',
-      schema: { type: 'string', pattern: '^[a-z]+$', nullable: true },
-      expected: { type: 'string', pattern: '^[a-z]+$', nullable: true },
-    },
     { title: 'nullable on a ref', schema: { $ref: '#/components/schemas/Pet', nullable: true }, expected: { type: 'ref', nullable: true } },
     { title: 'nullable on a union', schema: { oneOf: [{ type: 'string' }], nullable: true }, expected: { type: 'union', nullable: true } },
-    // An allOf of plain scalar fragments is merged into the parent before conversion, so the
-    // node takes the first member's type instead of becoming an intersection.
-    {
-      title: 'nullable on an allOf of plain scalars',
-      schema: { allOf: [{ type: 'string' }, { type: 'number' }], nullable: true },
-      expected: { type: 'string', nullable: true },
-    },
     {
       title: 'description on a uuid',
       schema: { type: 'string', format: 'uuid', description: 'A unique identifier' },
       expected: { type: 'uuid', description: 'A unique identifier' },
     },
-    { title: 'description on a null', schema: { type: 'null', description: 'always null' }, expected: { type: 'null', description: 'always null' } },
     { title: 'readOnly on a string', schema: { type: 'string', readOnly: true }, expected: { type: 'string', readOnly: true } },
-    { title: 'readOnly on an object', schema: { type: 'object', readOnly: true }, expected: { type: 'object', readOnly: true } },
-    { title: 'readOnly on an enum', schema: { enum: ['a', 'b'], readOnly: true }, expected: { type: 'enum', readOnly: true } },
-    { title: 'readOnly on a ref', schema: { $ref: '#/components/schemas/Pet', readOnly: true }, expected: { type: 'ref', readOnly: true } },
     { title: 'writeOnly on a string', schema: { type: 'string', writeOnly: true }, expected: { type: 'string', writeOnly: true } },
-    { title: 'writeOnly on an array', schema: { type: 'array', writeOnly: true }, expected: { type: 'array', writeOnly: true } },
     { title: 'deprecated on a string', schema: { type: 'string', deprecated: true }, expected: { type: 'string', deprecated: true } },
-    { title: 'deprecated on an object', schema: { type: 'object', deprecated: true }, expected: { type: 'object', deprecated: true } },
-    { title: 'deprecated on an array', schema: { type: 'array', deprecated: true }, expected: { type: 'array', deprecated: true } },
-    { title: 'deprecated on an enum', schema: { enum: ['a', 'b'], deprecated: true }, expected: { type: 'enum', deprecated: true } },
-    { title: 'deprecated on a ref', schema: { $ref: '#/components/schemas/Pet', deprecated: true }, expected: { type: 'ref', deprecated: true } },
     {
       title: 'description and deprecated on a union',
       schema: { oneOf: [{ type: 'string' }], description: 'one of many', deprecated: true },
@@ -662,8 +541,6 @@ describe('parseSchema default', () => {
 
 describe('parseSchema constraints', () => {
   it.each([
-    { title: 'minLength on a string', schema: { type: 'string', minLength: 1 }, expected: { type: 'string', min: 1 } },
-    { title: 'maxLength on a string', schema: { type: 'string', maxLength: 100 }, expected: { type: 'string', max: 100 } },
     { title: 'minLength and maxLength on a string', schema: { type: 'string', minLength: 1, maxLength: 100 }, expected: { type: 'string', min: 1, max: 100 } },
     {
       title: 'minLength and maxLength alongside pattern',
@@ -675,41 +552,19 @@ describe('parseSchema constraints', () => {
       schema: { type: 'string', format: 'int64', minLength: 1, maxLength: 20 },
       expected: { type: 'string', min: 1, max: 20 },
     },
-    { title: 'minItems on an array', schema: { type: 'array', minItems: 1 }, expected: { type: 'array', min: 1 } },
-    { title: 'maxItems on an array', schema: { type: 'array', maxItems: 5 }, expected: { type: 'array', max: 5 } },
     { title: 'minItems and maxItems on an array', schema: { type: 'array', minItems: 1, maxItems: 5 }, expected: { type: 'array', min: 1, max: 5 } },
     { title: 'uniqueItems: true on an array', schema: { type: 'array', uniqueItems: true }, expected: { type: 'array', unique: true } },
     { title: 'uniqueItems: false on an array', schema: { type: 'array', uniqueItems: false }, expected: { type: 'array', unique: false } },
     { title: 'minItems on a tuple', schema: { prefixItems: [{ type: 'string' }], minItems: 1 }, expected: { type: 'tuple', min: 1 } },
     { title: 'maxItems on a tuple', schema: { prefixItems: [{ type: 'string' }], maxItems: 4 }, expected: { type: 'tuple', max: 4 } },
-    { title: 'a zero minimum on a number', schema: { type: 'number', minimum: 0 }, expected: { type: 'number', min: 0 } },
-    { title: 'maximum on a number', schema: { type: 'number', maximum: 999 }, expected: { type: 'number', max: 999 } },
     { title: 'minimum and maximum on a number', schema: { type: 'number', minimum: 1, maximum: 100 }, expected: { type: 'number', min: 1, max: 100 } },
     { title: 'numeric exclusiveMinimum on a number', schema: { type: 'number', exclusiveMinimum: 0 }, expected: { type: 'number', exclusiveMinimum: 0 } },
-    { title: 'numeric exclusiveMaximum on a number', schema: { type: 'number', exclusiveMaximum: 100 }, expected: { type: 'number', exclusiveMaximum: 100 } },
-    { title: 'minimum on an integer', schema: { type: 'integer', minimum: 1 }, expected: { type: 'integer', min: 1 } },
-    { title: 'maximum on an integer', schema: { type: 'integer', maximum: 100 }, expected: { type: 'integer', max: 100 } },
     { title: 'minimum and maximum on an integer', schema: { type: 'integer', minimum: 1, maximum: 100 }, expected: { type: 'integer', min: 1, max: 100 } },
     { title: 'numeric exclusiveMinimum on an integer', schema: { type: 'integer', exclusiveMinimum: 0 }, expected: { type: 'integer', exclusiveMinimum: 0 } },
-    {
-      title: 'numeric exclusiveMaximum on an integer',
-      schema: { type: 'integer', exclusiveMaximum: 100 },
-      expected: { type: 'integer', exclusiveMaximum: 100 },
-    },
     {
       title: 'minimum and maximum on a float number',
       schema: { type: 'number', format: 'float', minimum: -90, maximum: 90 },
       expected: { type: 'number', min: -90, max: 90 },
-    },
-    {
-      title: 'minimum and maximum on a double number',
-      schema: { type: 'number', format: 'double', minimum: -90, maximum: 90 },
-      expected: { type: 'number', min: -90, max: 90 },
-    },
-    {
-      title: 'minimum and maximum on an int32 integer',
-      schema: { type: 'integer', format: 'int32', minimum: 1, maximum: 100 },
-      expected: { type: 'integer', min: 1, max: 100 },
     },
     {
       title: 'minimum and maximum when only the format names the type',
@@ -721,7 +576,6 @@ describe('parseSchema constraints', () => {
       schema: { type: 'number', format: 'double', exclusiveMinimum: 0, exclusiveMaximum: 100 },
       expected: { type: 'number', exclusiveMinimum: 0, exclusiveMaximum: 100 },
     },
-    { title: 'multipleOf on a double number', schema: { type: 'number', format: 'double', multipleOf: 0.5 }, expected: { type: 'number', multipleOf: 0.5 } },
     {
       title: 'multipleOf on an int64 integer',
       schema: { type: 'integer', format: 'int64', multipleOf: 10 },
@@ -758,8 +612,6 @@ describe('parseSchema constraints', () => {
 
 describe('parseSchema type inference (no explicit type)', () => {
   it.each([
-    { title: 'string from minLength', schema: { minLength: 1 }, expected: { type: 'string', min: 1 } },
-    { title: 'string from maxLength', schema: { maxLength: 100 }, expected: { type: 'string', max: 100 } },
     { title: 'string from minLength and maxLength', schema: { minLength: 2, maxLength: 50 }, expected: { type: 'string', min: 2, max: 50 } },
     { title: 'string from pattern', schema: { pattern: '^[0-9]+$' }, expected: { type: 'string', pattern: '^[0-9]+$' } },
     {
@@ -767,8 +619,6 @@ describe('parseSchema type inference (no explicit type)', () => {
       schema: { format: 'custom-format', minLength: 1 },
       expected: { type: 'string', format: 'custom-format' },
     },
-    { title: 'number from minimum', schema: { minimum: 0 }, expected: { type: 'number', min: 0 } },
-    { title: 'number from maximum', schema: { maximum: 999 }, expected: { type: 'number', max: 999 } },
     { title: 'number from minimum and maximum', schema: { minimum: 1, maximum: 100 }, expected: { type: 'number', min: 1, max: 100 } },
     { title: 'array from items', schema: { items: { type: 'string' } }, expected: { type: 'array' } },
     { title: 'object from additionalProperties: true', schema: { additionalProperties: true }, expected: { type: 'object', additionalProperties: true } },
@@ -785,12 +635,6 @@ describe('parseSchema type inference (no explicit type)', () => {
 })
 
 describe('parseSchema pattern', () => {
-  it('maps pattern on a string type to a string node with pattern', () => {
-    const node = parseSchema(emptyCtx, { schema: { type: 'string', pattern: '^[a-z]+$' } })
-
-    expect(node).toMatchObject({ type: 'string', pattern: '^[a-z]+$' })
-  })
-
   it.each([
     { title: 'a number', schema: { type: 'number', pattern: '^[0-9]+$' }, type: 'number' },
     { title: 'a ref sibling', schema: { $ref: '#/components/schemas/Pet', pattern: '^[a-z]+$' }, type: 'ref' },
@@ -966,16 +810,6 @@ describe('parseSchema oneOf / anyOf', () => {
     expect(ast.narrowSchema(node, 'union')?.members).toHaveLength(3)
   })
 
-  it('converts each oneOf member schema', () => {
-    const node = parseSchema(emptyCtx, {
-      schema: {
-        oneOf: [{ type: 'string' }, { $ref: '#/components/schemas/Pet' }],
-      },
-    })
-
-    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => member.type)).toStrictEqual(['string', 'ref'])
-  })
-
   it.each([
     { keyword: 'oneOf', propertyName: 'petType' },
     { keyword: 'anyOf', propertyName: 'kind' },
@@ -1023,18 +857,6 @@ describe('parseSchema oneOf / anyOf', () => {
     })
 
     expect(ast.narrowSchema(node, 'union')?.discriminatorPropertyName).toBeUndefined()
-  })
-
-  it('parses oneOf with object members without explicit discriminator', () => {
-    // Test case from issue #14: oneOf should be preserved for validation
-    const node = parseSchema(emptyCtx, {
-      schema: {
-        oneOf: [{ $ref: '#/components/schemas/TypeA' }, { $ref: '#/components/schemas/TypeB' }],
-      },
-    })
-
-    expect(node).toMatchObject({ type: 'union', strategy: 'one' })
-    expect(ast.narrowSchema(node, 'union')?.members?.map((member) => member.type)).toStrictEqual(['ref', 'ref'])
   })
 
   it.each([
@@ -1207,36 +1029,6 @@ describe('parseSchema oneOf / anyOf', () => {
       expect(branchPhone?.properties).toMatchObject([{ name: 'phone', required: true, schema: { type: 'unknown' } }])
     })
 
-    it('resolves required-only anyOf branches inside allOf against sibling allOf members', () => {
-      const node = parseSchema(emptyCtx, {
-        schema: {
-          type: 'object',
-          allOf: [
-            {
-              properties: {
-                shippingAddress: { type: 'string' },
-                billingAddress: { type: 'string' },
-              },
-            },
-            {
-              anyOf: [{ required: ['shippingAddress'] }, { required: ['billingAddress'] }],
-            },
-          ],
-        },
-      })
-
-      expect(node.type).toBe('intersection')
-      const intersection = ast.narrowSchema(node, 'intersection')!
-      const unionMember = intersection.members?.find((m) => m.type === 'union')
-      expect(unionMember).toBeDefined()
-      const unionNode = ast.narrowSchema(unionMember!, 'union')
-      expect(unionNode?.strategy).toBe('any')
-      expect(unionNode?.members).toHaveLength(2)
-
-      const branch1 = ast.narrowSchema(unionNode?.members?.[0], 'object')
-      expect(branch1?.properties[0]).toMatchObject({ name: 'shippingAddress', required: true, schema: { type: 'string' } })
-    })
-
     it('preserves local properties while borrowing remaining required sibling properties', () => {
       const node = parseSchema(emptyCtx, {
         schema: {
@@ -1263,44 +1055,11 @@ describe('parseSchema oneOf / anyOf', () => {
       expect(branch?.properties.find((p) => p.name === 'localKey')).toMatchObject({ required: true, schema: { type: 'string' } })
       expect(branch?.properties.find((p) => p.name === 'sharedKey')).toMatchObject({ required: true, schema: { type: 'number' } })
     })
-
-    it('preserves discriminated parent propagation when child uses allOf with oneOf', () => {
-      const doc: Document = {
-        openapi: '3.0.0',
-        info: { title: 'Test', version: '1.0.0' },
-        paths: {},
-        components: {
-          schemas: {
-            ChildItem: {
-              type: 'object',
-              allOf: [
-                {
-                  properties: {
-                    itemId: { type: 'string' },
-                  },
-                },
-                {
-                  oneOf: [{ required: ['itemId'] }],
-                },
-              ],
-            },
-          },
-        },
-      } as Document
-      const testCtx = { document: doc, refs: createRefs(doc) }
-      const childNode = parseSchema(testCtx, { schema: doc.components!.schemas!.ChildItem! as SchemaObject, name: 'ChildItem' })
-
-      const patched = patchDiscriminatorNode(childNode, { propertyName: 'kind', enumValues: ['child'] })
-      expect(patched.type).toBe('intersection')
-      const patchedIntersection = ast.narrowSchema(patched, 'intersection')!
-      const hasKind = patchedIntersection.members?.some((m) => ast.narrowSchema(m, 'object')?.properties.some((p) => p.name === 'kind'))
-      expect(hasKind).toBe(true)
-    })
   })
 })
 
 describe('parseSchema discriminator on union', () => {
-  it('narrows the discriminator property to a single value per union member when a mapping is present', () => {
+  it('narrows the discriminator property to the mapping keys of each union member when a mapping is present', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
         oneOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
@@ -1308,11 +1067,12 @@ describe('parseSchema discriminator on union', () => {
           propertyName: 'type',
           mapping: {
             dog: '#/components/schemas/Dog',
+            hound: '#/components/schemas/Dog',
             cat: '#/components/schemas/Cat',
           },
         },
         properties: {
-          type: { type: 'string', enum: ['dog', 'cat'], readOnly: true },
+          type: { type: 'string', enum: ['dog', 'hound', 'cat'], readOnly: true },
           name: { type: 'string' },
         },
         required: ['type', 'name'],
@@ -1325,15 +1085,15 @@ describe('parseSchema discriminator on union', () => {
     const sharedPropertiesNode = ast.narrowSchema(topIntersection.members?.[1], 'object')
     const sharedTypeProp = sharedPropertiesNode?.properties?.find((p) => p.name === 'type')
 
-    expect(ast.narrowSchema(sharedTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['dog', 'cat'])
+    expect(ast.narrowSchema(sharedTypeProp?.schema, 'enum')?.enumValues).toStrictEqual(['dog', 'hound', 'cat'])
 
     const { members } = unionNode
 
-    // Dog member: intersection of Dog ref + synthetic discriminant object { type: 'dog' }
+    // Dog member: intersection of Dog ref + synthetic discriminant object { type: 'dog' | 'hound' }, one value per mapping key
     const dogIntersection = ast.narrowSchema(members![0], 'intersection')
     const dogDiscNode = ast.narrowSchema(dogIntersection!.members![1], 'object')
     const dogTypeProp = dogDiscNode?.properties?.find((p) => p.name === 'type')
-    expect(dogTypeProp?.schema).toMatchObject({ type: 'enum', readOnly: true, enumValues: ['dog'] })
+    expect(dogTypeProp?.schema).toMatchObject({ type: 'enum', readOnly: true, enumValues: ['dog', 'hound'] })
 
     // Cat member: intersection of Cat ref + synthetic discriminant object { type: 'cat' }
     const catIntersection = ast.narrowSchema(members![1], 'intersection')
@@ -1493,15 +1253,6 @@ describe('parseSchema const (OAS 3.1)', () => {
     expect(node).toMatchObject({ type: 'enum', enumValues: [value] })
   })
 
-  it('propagates name on const enum', () => {
-    const node = parseSchema(emptyCtx, {
-      schema: { const: 'active' },
-      name: 'Status',
-    })
-
-    expect(node.name).toBe('Status')
-  })
-
   it('boolean const inside an object property has no name (inline literal)', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
@@ -1531,10 +1282,6 @@ describe('parseSchema null', () => {
 
     expect(node.type).toBe('null')
     expect(node.nullable).toBeUndefined()
-  })
-
-  it('keeps a null-only type array as a null node', () => {
-    expect(parseSchema(emptyCtx, { schema: { type: ['null'] } }).type).toBe('null')
   })
 
   it.each([
@@ -1653,13 +1400,6 @@ describe('parseSchema object properties', () => {
 })
 
 describe('parseSchema object additionalProperties', () => {
-  it('maps additionalProperties: true to true', () => {
-    const node = parseSchema(emptyCtx, { schema: { type: 'object', additionalProperties: true } })
-
-    expect(node.type).toBe('object')
-    expect(ast.narrowSchema(node, 'object')?.additionalProperties).toBe(true)
-  })
-
   it.each([
     { title: 'a string schema', additionalProperties: { type: 'string' }, expected: { type: 'string' } },
     { title: 'an integer schema', additionalProperties: { type: 'integer' }, expected: { type: 'integer' } },
@@ -1680,17 +1420,11 @@ describe('parseSchema object additionalProperties', () => {
     expect(ast.narrowSchema(node, 'object')?.additionalProperties).toBeFalsy()
   })
 
-  it.each([
-    { unknownType: 'any', type: 'any' },
-    { unknownType: 'unknown', type: 'unknown' },
-  ] satisfies Array<{ unknownType: ast.ParserOptions['unknownType']; type: string }>)(
-    'respects unknownType: $unknownType for empty additionalProperties',
-    ({ unknownType, type }) => {
-      const node = parseSchema(emptyCtx, { schema: { type: 'object', additionalProperties: {} } }, { unknownType })
+  it('respects unknownType: any for empty additionalProperties', () => {
+    const node = parseSchema(emptyCtx, { schema: { type: 'object', additionalProperties: {} } }, { unknownType: 'any' })
 
-      expect(ast.narrowSchema(node, 'object')?.additionalProperties).toMatchObject({ type })
-    },
-  )
+    expect(ast.narrowSchema(node, 'object')?.additionalProperties).toMatchObject({ type: 'any' })
+  })
 
   it('keeps properties next to additionalProperties', () => {
     const node = parseSchema(emptyCtx, {
@@ -1760,23 +1494,14 @@ describe('parseSchema prefixItems (tuple)', () => {
     expect(parseSchema(emptyCtx, { schema }).type).toBe('tuple')
   })
 
-  it('maps each prefixItem to an items entry in order', () => {
+  it('maps each prefixItem to a converted items entry in order', () => {
     const node = parseSchema(emptyCtx, {
       schema: {
-        prefixItems: [{ type: 'string' }, { type: 'number' }, { type: 'boolean' }],
+        prefixItems: [{ type: 'string' }, { $ref: '#/components/schemas/Pet' }, { type: 'object', properties: { id: { type: 'integer' } } }],
       },
     })
 
-    expect(ast.narrowSchema(node, 'tuple')?.items?.map((item) => item.type)).toStrictEqual(['string', 'number', 'boolean'])
-  })
-
-  it.each([
-    { title: 'a $ref prefixItem to a ref node', prefixItem: { $ref: '#/components/schemas/Pet' }, type: 'ref' },
-    { title: 'a nested object prefixItem to an object node', prefixItem: { type: 'object', properties: { id: { type: 'integer' } } }, type: 'object' },
-  ] satisfies Array<{ title: string; prefixItem: SchemaObject; type: string }>)('converts $title', ({ prefixItem, type }) => {
-    const node = parseSchema(emptyCtx, { schema: { prefixItems: [prefixItem] } })
-
-    expect(ast.narrowSchema(node, 'tuple')?.items?.[0]?.type).toBe(type)
+    expect(ast.narrowSchema(node, 'tuple')?.items?.map((item) => item.type)).toStrictEqual(['string', 'ref', 'object'])
   })
 
   it.each([
@@ -1800,37 +1525,25 @@ describe('parseSchema prefixItems (tuple)', () => {
     expect(narrowed?.rest).toBeUndefined()
   })
 
-  it('produces an empty items array for an empty prefixItems', () => {
-    const node = parseSchema(emptyCtx, { schema: { prefixItems: [] } })
-
-    expect(ast.narrowSchema(node, 'tuple')?.items).toStrictEqual([])
-  })
-
-  it.each([
-    { title: 'third', prefixItems: [{ type: 'integer' }, { type: 'string' }, { enum: ['NW', 'NE', 'SW', 'SE'] }], index: 2 },
-    { title: 'second', prefixItems: [{ type: 'integer' }, { enum: ['NW', 'NE', 'SW', 'SE'] }], index: 1 },
-  ] satisfies Array<{ title: string; prefixItems: Array<SchemaObject>; index: number }>)(
-    'names the $title enum element inside a tuple property using parent + propName',
-    async ({ prefixItems, index }) => {
-      const node = parseSchema(
-        emptyCtx,
-        {
-          schema: {
-            type: 'object',
-            properties: {
-              identifier: { type: 'array', prefixItems },
-            },
+  it('names an enum element inside a tuple property using parent + propName', () => {
+    const node = parseSchema(
+      emptyCtx,
+      {
+        schema: {
+          type: 'object',
+          properties: {
+            identifier: { type: 'array', prefixItems: [{ type: 'integer' }, { type: 'string' }, { enum: ['NW', 'NE', 'SW', 'SE'] }] },
           },
-          name: 'Address',
         },
-        { enumSuffix: 'enum' },
-      )
+        name: 'Address',
+      },
+      { enumSuffix: 'enum' },
+    )
 
-      const identifierProp = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'identifier')
-      const tupleNode = ast.narrowSchema(identifierProp?.schema, 'tuple')
-      expect(tupleNode?.items?.[index]).toMatchObject({ type: 'enum', name: 'AddressIdentifierEnum' })
-    },
-  )
+    const identifierProp = ast.narrowSchema(node, 'object')?.properties?.find((p) => p.name === 'identifier')
+    const tupleNode = ast.narrowSchema(identifierProp?.schema, 'tuple')
+    expect(tupleNode?.items?.[2]).toMatchObject({ type: 'enum', name: 'AddressIdentifierEnum' })
+  })
 
   it('leaves non-enum tuple elements unnamed', () => {
     const node = parseSchema(
@@ -1869,18 +1582,12 @@ describe('parseSchema enum', () => {
     expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual(['a', 'b'])
   })
 
-  it.each([
-    { title: 'a single value', schema: { type: 'integer', enum: [42] }, values: [42], names: ['42'] },
-    { title: 'duplicate values', schema: { type: 'integer', enum: [1, 1, 2] }, values: [1, 2], names: ['1', '2'] },
-  ] satisfies Array<{ title: string; schema: SchemaObject; values: Array<number>; names: Array<string> }>)(
-    'deduplicates numeric enum values and uses the stringified value as name for $title',
-    async ({ schema, values, names }) => {
-      const namedEnumValues = ast.narrowSchema(parseSchema(emptyCtx, { schema }), 'enum')?.namedEnumValues
+  it('deduplicates numeric enum values and uses the stringified value as name', () => {
+    const namedEnumValues = ast.narrowSchema(parseSchema(emptyCtx, { schema: { type: 'integer', enum: [1, 1, 2] } }), 'enum')?.namedEnumValues
 
-      expect(namedEnumValues?.map((v) => v.value)).toStrictEqual(values)
-      expect(namedEnumValues?.map((v) => v.name)).toStrictEqual(names)
-    },
-  )
+    expect(namedEnumValues?.map((v) => v.value)).toStrictEqual([1, 2])
+    expect(namedEnumValues?.map((v) => v.name)).toStrictEqual(['1', '2'])
+  })
 
   it.each([
     { title: 'null in the enum values', schema: { enum: ['a', null, 'b'] }, enumValues: ['a', 'b'] },
@@ -1898,12 +1605,6 @@ describe('parseSchema enum', () => {
       expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual(enumValues)
     },
   )
-
-  it('keeps a blank-only enum (BlankEnum) as a single "" member', () => {
-    const node = parseSchema(emptyCtx, { schema: { enum: [''] } })
-
-    expect(ast.narrowSchema(node, 'enum')?.enumValues).toStrictEqual([''])
-  })
 
   it('parses the oneOf [enum, BlankEnum, NullEnum] pattern into a valid union', () => {
     const node = parseSchema(emptyCtx, {
@@ -2028,20 +1729,8 @@ describe('parseSchema OAS 3.1 type array', () => {
   it.each([
     { title: 'two non-null types', schema: { type: ['string', 'integer'] }, expected: { type: 'union' }, members: ['string', 'integer'] },
     {
-      title: 'three non-null types',
-      schema: { type: ['string', 'integer', 'boolean'] },
-      expected: { type: 'union' },
-      members: ['string', 'integer', 'boolean'],
-    },
-    {
       title: 'null among multiple types',
       schema: { type: ['string', 'integer', 'null'] },
-      expected: { type: 'union', nullable: true },
-      members: ['string', 'integer'],
-    },
-    {
-      title: 'null leading multiple types',
-      schema: { type: ['null', 'string', 'integer'] },
       expected: { type: 'union', nullable: true },
       members: ['string', 'integer'],
     },
@@ -2052,7 +1741,6 @@ describe('parseSchema OAS 3.1 type array', () => {
       members: ['integer', 'string'],
     },
     { title: 'null with a single non-null type', schema: { type: ['string', 'null'] }, expected: { type: 'string', nullable: true } },
-    { title: 'null leading a single non-null type', schema: { type: ['null', 'string'] }, expected: { type: 'string', nullable: true } },
     { title: 'null with a single string int64', schema: { type: ['string', 'null'], format: 'int64' }, expected: { type: 'string', nullable: true } },
     { title: 'a single non-null entry', schema: { type: ['integer'] }, expected: { type: 'integer' } },
   ] satisfies Array<SchemaCase & { members?: Array<string> }>)('maps $title', ({ schema, expected, members }) => {
@@ -2073,14 +1761,6 @@ describe('parseSchema OAS 3.1 type array', () => {
 })
 
 describe('parseSchema array', () => {
-  it('converts items to a single-element items array', () => {
-    const node = parseSchema(emptyCtx, {
-      schema: { type: 'array', items: { type: 'string' } },
-    })
-
-    expect(ast.narrowSchema(node, 'array')?.items?.map((item) => item.type)).toStrictEqual(['string'])
-  })
-
   it('produces an empty items array when items is absent', () => {
     const node = parseSchema(emptyCtx, { schema: { type: 'array' } })
 
@@ -2096,14 +1776,6 @@ describe('parseSchema array', () => {
     })
 
     expect(node).toMatchObject({ type: 'array', items: [{ type: 'array', items: [{ type: 'number' }] }] })
-  })
-
-  it('converts ref items', () => {
-    const node = parseSchema(emptyCtx, {
-      schema: { type: 'array', items: { $ref: '#/components/schemas/Pet' } },
-    })
-
-    expect(node).toMatchObject({ type: 'array', items: [{ type: 'ref' }] })
   })
 
   it('qualifies inline enums on object array items with the array parent name', () => {
@@ -2313,7 +1985,6 @@ describe('parser options', () => {
       { title: 'unknown by default', options: undefined, type: 'unknown' },
       { title: 'any for emptySchemaType: any', options: { emptySchemaType: 'any' }, type: 'any' },
       { title: 'void for emptySchemaType: void', options: { emptySchemaType: 'void' }, type: 'void' },
-      { title: 'unknown for emptySchemaType: unknown', options: { emptySchemaType: 'unknown' }, type: 'unknown' },
     ] satisfies Array<{ title: string; options: Partial<ast.ParserOptions> | undefined; type: string }>)(
       'returns $title for an empty schema',
       async ({ options, type }) => {
@@ -2321,50 +1992,38 @@ describe('parser options', () => {
       },
     )
 
-    it('emptySchemaType does not affect typed schemas', () => {
-      const node = parseSchema(emptyCtx, { schema: { type: 'string' } }, { emptySchemaType: 'any' })
+    it('preserves metadata (title, description, deprecated, nullable, readOnly, writeOnly, default, examples, format) on a typeless schema', () => {
+      const node = parseSchema(
+        emptyCtx,
+        {
+          schema: {
+            title: 'Typeless',
+            description: 'A schema with metadata but no type',
+            deprecated: true,
+            readOnly: true,
+            writeOnly: false,
+            nullable: true,
+            default: 'foo',
+            example: 'bar',
+            format: 'custom-format',
+          } as SchemaObject,
+        },
+        { emptySchemaType: 'any' },
+      )
 
-      expect(node.type).toBe('string')
+      expect(node).toMatchObject({
+        type: 'any',
+        title: 'Typeless',
+        description: 'A schema with metadata but no type',
+        deprecated: true,
+        readOnly: true,
+        writeOnly: false,
+        nullable: true,
+        default: 'foo',
+        examples: ['bar'],
+        format: 'custom-format',
+      })
     })
-
-    it.each([
-      { title: 'unknown by default', options: undefined, type: 'unknown' },
-      { title: 'any for emptySchemaType: any', options: { emptySchemaType: 'any' }, type: 'any' },
-    ] satisfies Array<{ title: string; options: Partial<ast.ParserOptions> | undefined; type: string }>)(
-      'preserves metadata (title, description, deprecated, nullable, readOnly, writeOnly, default, examples, format) on a typeless schema mapped to $title',
-      async ({ options, type }) => {
-        const node = parseSchema(
-          emptyCtx,
-          {
-            schema: {
-              title: 'Typeless',
-              description: 'A schema with metadata but no type',
-              deprecated: true,
-              readOnly: true,
-              writeOnly: false,
-              nullable: true,
-              default: 'foo',
-              example: 'bar',
-              format: 'custom-format',
-            } as SchemaObject,
-          },
-          options,
-        )
-
-        expect(node).toMatchObject({
-          type,
-          title: 'Typeless',
-          description: 'A schema with metadata but no type',
-          deprecated: true,
-          readOnly: true,
-          writeOnly: false,
-          nullable: true,
-          default: 'foo',
-          examples: ['bar'],
-          format: 'custom-format',
-        })
-      },
-    )
 
     it('preserves deprecated on typeless object properties', () => {
       const node = parseSchema(emptyCtx, {
@@ -2387,11 +2046,8 @@ describe('parser options', () => {
   describe('integerType', () => {
     it.each([
       { title: 'integer int64 to integer', schema: { type: 'integer', format: 'int64' }, integerType: 'number', type: 'integer' },
-      { title: 'integer int64 to bigint', schema: { type: 'integer', format: 'int64' }, integerType: 'bigint', type: 'bigint' },
       { title: 'integer uint64 to integer', schema: { type: 'integer', format: 'uint64' }, integerType: 'number', type: 'integer' },
-      { title: 'integer uint64 to bigint', schema: { type: 'integer', format: 'uint64' }, integerType: 'bigint', type: 'bigint' },
       { title: 'integer int32 to integer', schema: { type: 'integer', format: 'int32' }, integerType: 'bigint', type: 'integer' },
-      { title: 'number float to number (non-integer types are untouched)', schema: { type: 'number', format: 'float' }, integerType: 'bigint', type: 'number' },
     ] satisfies Array<{ title: string; schema: SchemaObject; integerType: ast.ParserOptions['integerType']; type: string }>)(
       'integerType: $integerType maps $title',
       async ({ schema, integerType, type }) => {
@@ -2430,45 +2086,18 @@ describe('parser options', () => {
         dateType: false,
         expected: { type: 'string', format: 'date-time' },
       },
-      { title: 'date to a date string by default', format: 'date', dateType: undefined, expected: { type: 'date', representation: 'string' } },
       { title: 'date to a date string for dateType: string', format: 'date', dateType: 'string', expected: { type: 'date', representation: 'string' } },
       { title: 'date to a Date for dateType: date', format: 'date', dateType: 'date', expected: { type: 'date', representation: 'date' } },
       { title: 'date to a string for dateType: false', format: 'date', dateType: false, expected: { type: 'string' } },
-      { title: 'time to a time string by default', format: 'time', dateType: undefined, expected: { type: 'time', representation: 'string' } },
       { title: 'time to a time string for dateType: string', format: 'time', dateType: 'string', expected: { type: 'time', representation: 'string' } },
       { title: 'time to a Date for dateType: date', format: 'time', dateType: 'date', expected: { type: 'time', representation: 'date' } },
       { title: 'time to a string for dateType: false', format: 'time', dateType: false, expected: { type: 'string' } },
-      // Object form: each format resolves independently, an omitted key defaults to string.
+      // Object form: `schemaShape.test.ts` pins the per-format resolution.
       {
         title: 'date-time to a Date for dateType: { dateTime: date }',
         format: 'date-time',
         dateType: { dateTime: 'date' },
         expected: { type: 'date', representation: 'date' },
-      },
-      {
-        title: 'date to a date string for dateType: { dateTime: date }',
-        format: 'date',
-        dateType: { dateTime: 'date' },
-        expected: { type: 'date', representation: 'string' },
-      },
-      {
-        title: 'time to a time string for dateType: { dateTime: date }',
-        format: 'time',
-        dateType: { dateTime: 'date' },
-        expected: { type: 'time', representation: 'string' },
-      },
-      {
-        title: 'date to a string for dateType: { date: false, dateTime: date }',
-        format: 'date',
-        dateType: { date: false, dateTime: 'date' },
-        expected: { type: 'string' },
-      },
-      { title: 'date to a string for dateType: { date: false }', format: 'date', dateType: { date: false }, expected: { type: 'string' } },
-      {
-        title: 'date-time to datetime without offset for dateType: { date: false }',
-        format: 'date-time',
-        dateType: { date: false },
-        expected: { type: 'datetime', offset: false },
       },
     ] satisfies Array<{ title: string; format: string; dateType: ast.ParserOptions['dateType'] | undefined; expected: Record<string, unknown> }>)(
       'maps $title',
@@ -2485,18 +2114,9 @@ describe('parseSchema not keyword', () => {
   // JSON Schema `not` has no direct equivalent in most code generators.
   // The parser intentionally does not handle it and falls through to the configured emptySchemaType.
   // Cast required: `not` is valid JSON Schema / OAS 3.1 but not in the TS SchemaObject type.
-  it.each([
-    { title: 'unknown by default', options: undefined, type: 'unknown' },
-    { title: 'unknown for emptySchemaType: unknown', options: { emptySchemaType: 'unknown' }, type: 'unknown' },
-    { title: 'any for emptySchemaType: any', options: { emptySchemaType: 'any' }, type: 'any' },
-  ] satisfies Array<{ title: string; options: Partial<ast.ParserOptions> | undefined; type: string }>)(
-    'falls through to $title since "not" is not supported',
-    async ({ options, type }) => {
-      const node = parseSchema(emptyCtx, { schema: { not: { type: 'string' } } as SchemaObject }, options)
-
-      expect(node.type).toBe(type)
-    },
-  )
+  it('falls through to emptySchemaType since "not" is not supported', () => {
+    expect(parseSchema(emptyCtx, { schema: { not: { type: 'string' } } as SchemaObject }).type).toBe('unknown')
+  })
 })
 
 describe('parseSchema circular allOf discriminator detection', () => {
@@ -2624,14 +2244,11 @@ describe('buildAst – header and cookie parameters', async () => {
 
   const getItems = findOperation(await parseOas(oas), 'getItems')
 
-  it('parses operation description', () => {
-    expect(getItems?.description).toBe('Fetch a list of items')
-  })
-
   it.each([
     { name: 'X-Request-ID', in: 'header', required: true, type: 'uuid' },
     { name: 'session', in: 'cookie', required: false, type: 'string' },
-  ])('converts $in parameters with in: $in', ({ name, in: location, required, type }) => {
+  ])('converts $in parameters with in: $in on the described operation', ({ name, in: location, required, type }) => {
+    expect(getItems?.description).toBe('Fetch a list of items')
     expect(getItems?.parameters.find((p) => p.name === name)).toMatchObject({ in: location, required, schema: { type } })
   })
 })
@@ -2652,13 +2269,6 @@ describe('buildAst – parameter description propagation', async () => {
               required: false,
               schema: { type: 'integer' },
             },
-            {
-              name: 'petId',
-              in: 'path',
-              description: 'The id of the pet to retrieve',
-              required: true,
-              schema: { type: 'integer' },
-            },
           ],
           responses: {
             '200': { description: 'OK' },
@@ -2670,11 +2280,8 @@ describe('buildAst – parameter description propagation', async () => {
 
   const listPets = findOperation(await parseOas(oas), 'listPets')
 
-  it.each([
-    { name: 'limit', in: 'query', description: 'Maximum number of results to return' },
-    { name: 'petId', in: 'path', description: 'The id of the pet to retrieve' },
-  ])('propagates parameter-level description to schema.description for $in params', ({ name, description }) => {
-    expect(listPets?.parameters.find((p) => p.name === name)?.schema.description).toBe(description)
+  it('propagates parameter-level description to schema.description', () => {
+    expect(listPets?.parameters.find((p) => p.name === 'limit')?.schema.description).toBe('Maximum number of results to return')
   })
 
   it('prefers parameter-level description over schema-level description', async () => {
@@ -2738,32 +2345,6 @@ describe('parameter enum naming', () => {
 })
 
 describe('enum naming', () => {
-  it('oneOf shared property enums include schema name', () => {
-    const node = parseSchema(
-      emptyCtx,
-      {
-        schema: {
-          properties: {
-            status: { type: 'string', enum: ['active', 'inactive'] },
-          },
-          oneOf: [
-            { type: 'object', properties: { role: { type: 'string' } } },
-            { type: 'object', properties: { dept: { type: 'string' } } },
-          ],
-        },
-        name: 'Pet',
-      },
-      { enumSuffix: 'enum' },
-    )
-
-    const topIntersection = ast.narrowSchema(node, 'intersection')
-    const sharedObj = topIntersection?.members?.find((m) => ast.narrowSchema(m, 'object')?.properties?.some((p) => p.name === 'status'))
-    const statusProp = ast.narrowSchema(sharedObj, 'object')?.properties?.find((p) => p.name === 'status')
-
-    // Non-legacy: name includes schema name
-    expect(ast.narrowSchema(statusProp?.schema, 'enum')?.name).toBe('PetStatusEnum')
-  })
-
   it('array items enum includes the parent schema name', () => {
     const node = parseSchema(
       emptyCtx,

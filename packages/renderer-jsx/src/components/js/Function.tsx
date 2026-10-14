@@ -1,62 +1,8 @@
-import type { JSDoc, Key, KubbReactElement, KubbReactNode } from '../../types.ts'
+import type { ast } from '@kubb/ast'
+import type { Key, KubbReactElement, KubbReactNode } from '../../types.ts'
 
-type Props = {
+type Props = Omit<ast.FunctionNode, 'kind' | 'nodes'> & {
   key?: Key
-  /**
-   * Identifier of the generated function declaration.
-   *
-   * @example
-   * `name: 'getPet'`
-   */
-  name: string
-  /**
-   * Emit `default` after the `export` keyword, making this the module's default export.
-   * Requires `export` to also be `true`.
-   */
-  default?: boolean | null
-  /**
-   * Parameter list written verbatim between the function's parentheses.
-   *
-   * @example
-   * `params: 'petId: string, options?: RequestOptions'`
-   */
-  params?: string | null
-  /**
-   * Emit the `export` keyword before the function declaration.
-   * - `true` generates `export function name(…) { … }`
-   * - `false` generates `function name(…) { … }`
-   */
-  export?: boolean | null
-  /**
-   * Emit the `async` keyword, making this an async function.
-   * The return type is automatically wrapped in `Promise<returnType>` when both
-   * `async` and `returnType` are set.
-   */
-  async?: boolean | null
-  /**
-   * TypeScript generic type parameters written verbatim between `<` and `>`.
-   * Pass an array to emit multiple parameters separated by commas.
-   *
-   * @example Single generic
-   * `generics: 'TData'`
-   *
-   * @example Multiple generics
-   * `generics: ['TData', 'TError = unknown']`
-   */
-  generics?: string | Array<string> | null
-  /**
-   * TypeScript return type annotation written verbatim after `:`.
-   * When `async` is `true`, the value is automatically wrapped in `Promise<…>`.
-   *
-   * @example
-   * `returnType: 'Pet'`
-   */
-  returnType?: string | null
-  /**
-   * JSDoc block to prepend to the function declaration.
-   * Each entry in `comments` becomes one line inside the emitted `/** … *\/` block.
-   */
-  JSDoc?: JSDoc | null
   /**
    * Child nodes rendered as the body of the function.
    */
@@ -76,42 +22,16 @@ type Props = {
  * // }
  * ```
  */
-export function Function({
-  children,
-  name,
-  default: isDefault,
-  export: canExport,
-  async: isAsync,
-  generics,
-  params,
-  returnType,
-  JSDoc,
-}: Props): KubbReactElement {
-  const genericsString = Array.isArray(generics) ? generics.join(', ').trim() : generics
-
-  return (
-    <kubb-function
-      name={name}
-      params={params}
-      export={canExport}
-      default={isDefault}
-      async={isAsync}
-      generics={genericsString}
-      returnType={returnType}
-      JSDoc={JSDoc}
-    >
-      {children}
-    </kubb-function>
-  )
+export function Function({ children, ...props }: Props): KubbReactElement {
+  return <kubb-function {...props}>{children}</kubb-function>
 }
 
-type ArrowFunctionProps = Props & {
+type ArrowFunctionProps = Omit<ast.ArrowFunctionNode, 'kind' | 'nodes'> & {
+  key?: Key
   /**
-   * Render the arrow function as a single-line expression (no braces around the body).
-   * - `true` generates `const name = (…) => expression`
-   * - `false` generates `const name = (…) => { … }`
+   * Child nodes rendered as the body of the function.
    */
-  singleLine?: boolean | null
+  children?: KubbReactNode
 }
 
 /**
@@ -127,24 +47,8 @@ type ArrowFunctionProps = Props & {
  * // export const double = (n: number): number => n * 2
  * ```
  */
-function ArrowFunction({ children, name, default: isDefault, export: canExport, async, generics, params, returnType, JSDoc, singleLine }: ArrowFunctionProps) {
-  const genericsString = Array.isArray(generics) ? generics.join(', ').trim() : generics
-
-  return (
-    <kubb-arrow-function
-      name={name}
-      params={params}
-      export={canExport}
-      default={isDefault}
-      async={async}
-      generics={genericsString}
-      returnType={returnType}
-      singleLine={singleLine}
-      JSDoc={JSDoc}
-    >
-      {children}
-    </kubb-arrow-function>
-  )
+function ArrowFunction({ children, ...props }: ArrowFunctionProps): KubbReactElement {
+  return <kubb-arrow-function {...props}>{children}</kubb-arrow-function>
 }
 
 Function.Arrow = ArrowFunction

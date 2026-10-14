@@ -1,88 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createRefs } from '../refs.ts'
 import type { Document } from '../types.ts'
-import { extractSchemaFromContent, getSchemas, sortSchemas } from './components.ts'
-
-describe('extractSchemaFromContent', () => {
-  const schema = { type: 'object' as const }
-
-  it.each([
-    {
-      title: 'the schema for the preferred content type',
-      content: { 'application/json': { schema }, 'application/xml': { schema: { type: 'string' as const } } },
-      contentType: 'application/json' as const,
-      expected: schema,
-    },
-    {
-      title: 'the first content type schema when no preference is given',
-      content: { 'application/json': { schema } },
-      contentType: undefined,
-      expected: schema,
-    },
-    {
-      title: 'null when the schema is a $ref',
-      content: { 'application/json': { schema: { $ref: '#/components/schemas/Pet' } } },
-      contentType: 'application/json' as const,
-      expected: null,
-    },
-    {
-      title: 'null when the preferred content type is absent',
-      content: { 'application/xml': { schema: { type: 'string' as const } } },
-      contentType: 'application/json' as const,
-      expected: null,
-    },
-  ])('returns $title', ({ content, contentType, expected }) => {
-    expect(extractSchemaFromContent(content, contentType)).toBe(expected)
-  })
-})
-
-describe('sortSchemas', () => {
-  it('preserves order when there are no dependencies', () => {
-    const schemas = {
-      A: { type: 'string' as const },
-      B: { type: 'integer' as const },
-    }
-    const result = sortSchemas(schemas)
-
-    expect(Object.keys(result)).toStrictEqual(['A', 'B'])
-  })
-
-  it('places referenced schemas before their dependents', () => {
-    const schemas = {
-      Order: {
-        type: 'object' as const,
-        properties: { pet: { $ref: '#/components/schemas/Pet' } },
-      },
-      Pet: { type: 'object' as const },
-    }
-    const result = sortSchemas(schemas)
-    const keys = Object.keys(result)
-
-    expect(keys.indexOf('Pet')).toBeLessThan(keys.indexOf('Order'))
-  })
-
-  it('handles chains: C depends on B, B depends on A', () => {
-    const schemas = {
-      C: { properties: { b: { $ref: '#/components/schemas/B' } } },
-      B: { properties: { a: { $ref: '#/components/schemas/A' } } },
-      A: { type: 'string' as const },
-    }
-    const result = sortSchemas(schemas)
-    const keys = Object.keys(result)
-
-    expect(keys.indexOf('A')).toBeLessThan(keys.indexOf('B'))
-    expect(keys.indexOf('B')).toBeLessThan(keys.indexOf('C'))
-  })
-
-  it('handles cycles without throwing', () => {
-    const schemas = {
-      A: { properties: { b: { $ref: '#/components/schemas/B' } } },
-      B: { properties: { a: { $ref: '#/components/schemas/A' } } },
-    }
-
-    expect(() => sortSchemas(schemas)).not.toThrow()
-  })
-})
+import { getSchemas } from './components.ts'
 
 describe('getSchemas', () => {
   const base: Document = {
@@ -97,83 +16,37 @@ describe('getSchemas', () => {
     expect(renames.size).toBe(0)
   })
 
-  it('returns component schemas', () => {
-    const document: Document = {
-      ...base,
-      components: {
-        schemas: {
-          Pet: { type: 'object', properties: { name: { type: 'string' } } },
-        },
-      },
-    }
-
-    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
-    expect(schemas).toMatchObject({
-      Pet: {
-        type: 'object',
-        properties: { name: { type: 'string' } },
-      },
-    })
-    expect(renames.has('#/components/schemas/Pet')).toBe(false)
-  })
-
-  it('includes response schemas', () => {
-    const document: Document = {
-      ...base,
+  it.each([
+    {
+      title: 'component schemas',
+      components: { schemas: { Pet: { type: 'object', properties: { name: { type: 'string' } } } } },
+      pointer: '#/components/schemas/Pet',
+      expected: { Pet: { type: 'object', properties: { name: { type: 'string' } } } },
+    },
+    {
+      title: 'response schemas',
       components: {
         responses: {
-          PetResponse: {
-            description: 'A pet',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: { id: { type: 'integer' } },
-                },
-              },
-            },
-          },
+          PetResponse: { description: 'A pet', content: { 'application/json': { schema: { type: 'object', properties: { id: { type: 'integer' } } } } } },
         },
       },
-    }
-
-    const { schemas, renames } = getSchemas(document, {}, createRefs(document))
-    expect(schemas).toMatchObject({
-      PetResponse: {
-        type: 'object',
-        properties: { id: { type: 'integer' } },
-      },
-    })
-    expect(renames.has('#/components/responses/PetResponse')).toBe(false)
-  })
-
-  it('includes requestBody schemas', () => {
-    const document: Document = {
-      ...base,
+      pointer: '#/components/responses/PetResponse',
+      expected: { PetResponse: { type: 'object', properties: { id: { type: 'integer' } } } },
+    },
+    {
+      title: 'requestBody schemas',
       components: {
-        requestBodies: {
-          CreatePet: {
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  properties: { name: { type: 'string' } },
-                },
-              },
-            },
-          },
-        },
+        requestBodies: { CreatePet: { content: { 'application/json': { schema: { type: 'object', properties: { name: { type: 'string' } } } } } } },
       },
-    }
+      pointer: '#/components/requestBodies/CreatePet',
+      expected: { CreatePet: { type: 'object', properties: { name: { type: 'string' } } } },
+    },
+  ])('returns $title without renaming', ({ components, pointer, expected }) => {
+    const document = { ...base, components } as Document
 
     const { schemas, renames } = getSchemas(document, {}, createRefs(document))
-    expect(schemas).toMatchObject({
-      CreatePet: {
-        type: 'object',
-        properties: { name: { type: 'string' } },
-      },
-    })
-    expect(renames.has('#/components/requestBodies/CreatePet')).toBe(false)
+    expect(schemas).toMatchObject(expected)
+    expect(renames.has(pointer)).toBe(false)
   })
 
   it('resolves same-source collisions with numeric suffixes', () => {
@@ -285,6 +158,20 @@ describe('getSchemas', () => {
     const { schemas } = getSchemas(document, {}, createRefs(document))
     const keys = Object.keys(schemas)
     expect(keys.indexOf('Pet')).toBeLessThan(keys.indexOf('Order'))
+  })
+
+  it('handles $ref cycles without throwing', () => {
+    const document: Document = {
+      ...base,
+      components: {
+        schemas: {
+          A: { properties: { b: { $ref: '#/components/schemas/B' } } },
+          B: { properties: { a: { $ref: '#/components/schemas/A' } } },
+        },
+      },
+    }
+
+    expect(Object.keys(getSchemas(document, {}, createRefs(document)).schemas).sort()).toStrictEqual(['A', 'B'])
   })
 
   it('respects contentType when extracting response schemas', () => {
