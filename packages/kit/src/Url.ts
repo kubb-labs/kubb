@@ -5,7 +5,7 @@
  * very start of the name (e.g. the `$` in `$id`) still capitalizes the word that follows it.
  */
 function transformPathParam(raw: string): string {
-  // `path-to-regexp` (used by MSW/Express) only accepts `[A-Za-z0-9_]` in a parameter name; it stops
+  // `path-to-regexp` (used by MSW/Express) only accepts `[A-Za-z0-9_]` in a parameter name. It stops
   // reading at the first other character (a hyphen, a dot, a `$`, ...), which misparses the route or
   // throws "Missing parameter name".
   if (/^[A-Za-z0-9_]+$/.test(raw)) {

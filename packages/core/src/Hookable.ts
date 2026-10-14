@@ -108,7 +108,7 @@ export class Hookable<THooks extends { [K in keyof THooks]: Array<unknown> }> {
   }
 
   /**
-   * No-op kept for callers written against the `EventEmitter`-backed version; listeners are unbounded.
+   * No-op kept for callers written against the `EventEmitter`-backed version. Listeners are unbounded.
    *
    * @deprecated There is no listener ceiling anymore.
    */

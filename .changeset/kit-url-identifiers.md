@@ -6,8 +6,7 @@
 
 ```typescript
 // Before
-`${path["class"]}`
-
+;`${path['class']}`
 // After
 `${path.class}`
 ```

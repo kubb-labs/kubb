@@ -188,7 +188,7 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
     const hasMultipleSources = !isSingle && new Set(items.map((item) => item.source)).size > 1
 
     items.forEach((item, index) => {
-      // Unique names keep theirs; a collision across sources gets a semantic suffix, within one source a numeric one.
+      // Unique names keep theirs. A collision across sources gets a semantic suffix, within one source a numeric one.
       const suffix = isSingle ? '' : hasMultipleSources ? semanticSuffixes[item.source] : index ? String(index + 1) : ''
       const uniqueName = item.originalName + suffix
       schemas[uniqueName] = item.schema

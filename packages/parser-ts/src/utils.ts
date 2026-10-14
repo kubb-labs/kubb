@@ -46,7 +46,7 @@ export function getRelativePath(root: string, filePath: string): string {
 }
 
 /**
- * Swaps the extension of a relative import/export path for `extname`; package specifiers and extension-less paths stay as-is.
+ * Swaps the extension of a relative import/export path for `extname`. Package specifiers and extension-less paths stay as-is.
  */
 export function resolveOutputPath(path: string, extname: string | undefined, rootAware: boolean): string {
   if (!rootAware) return path
