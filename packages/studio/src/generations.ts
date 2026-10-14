@@ -210,13 +210,20 @@ export function createGenerationStore({
     return { paths: Object.keys(hashes), hashes, bytes }
   }
 
-  async function drop(jobId: string): Promise<void> {
+  async function dropFiles(jobId: string): Promise<void> {
     await storage.empty(dirOf(jobId))
   }
 
   return {
     keep,
-    drop,
+    /** Removes the files of `jobId` and its index entry, so `get` no longer finds it. */
+    async drop(jobId: string): Promise<void> {
+      await dropFiles(jobId)
+      const current = await load()
+      if (!current.some((entry) => entry.jobId === jobId)) return
+      index = current.filter((entry) => entry.jobId !== jobId)
+      await storage.writeItem(INDEX_KEY, JSON.stringify(index))
+    },
     /**
      * Keeps the `InputNode` of `jobId` and returns its size in bytes. Ref schemas drop the copy of their target, which
      * `input.schemas` holds. Nothing is kept for `null`, an input that fails to transform or serialize, or one above
@@ -245,11 +252,11 @@ export function createGenerationStore({
     /** Indexes `generation` and drops expired ones, then the oldest past `maxCount` or `maxMb`. */
     async add(generation: KeptGeneration): Promise<void> {
       const current = await load()
-      for (const expired of current.filter((entry) => !isLive(entry))) await drop(expired.jobId)
+      for (const expired of current.filter((entry) => !isLive(entry))) await dropFiles(expired.jobId)
       const entries = current.filter((entry) => entry.jobId !== generation.jobId && isLive(entry))
       entries.push({ ...generation, keptAt: now() })
       while (entries.length > 1 && (entries.length > maxCount || totalBytes(entries) > maxMb * MB)) {
-        await drop(entries.shift()!.jobId)
+        await dropFiles(entries.shift()!.jobId)
       }
       index = entries
       await storage.writeItem(INDEX_KEY, JSON.stringify(entries))

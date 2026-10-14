@@ -31,6 +31,16 @@ describe('createGenerationStore', () => {
     await expect(restarted.readInput('job-1')).resolves.toBeUndefined()
   })
 
+  it('forgets a dropped job, so a failed retry of a kept job is gone', async () => {
+    const storage = memoryStorage()
+    const store = createGenerationStore({ storage, maxCount: 4, maxMb: 10 })
+    await addRun({ store, jobId: 'job-1', files: { 'a.ts': 'one' } })
+    await store.drop('job-1')
+
+    expect(await store.get('job-1')).toBeUndefined()
+    expect(await createGenerationStore({ storage, maxCount: 4, maxMb: 10 }).get('job-1')).toBeUndefined()
+  })
+
   it('drops the input an earlier run of the same job kept', async () => {
     const store = createGenerationStore({ storage: memoryStorage(), maxCount: 4, maxMb: 10 })
     await store.keepInput({ jobId: 'job-1', maxSetMb: 1, input: ast.factory.createInput() })
