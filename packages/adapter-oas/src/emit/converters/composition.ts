@@ -76,7 +76,9 @@ function resolveUnionMembers(members: Array<unknown>, siblingProperties: Record<
 
     const newProperties: Record<string, unknown> = { ...existingProps }
     for (const key of missingKeys) {
-      newProperties[key] = Object.hasOwn(siblingProperties, key) ? siblingProperties[key] : {}
+      const value = Object.hasOwn(siblingProperties, key) ? siblingProperties[key] : {}
+      // defineProperty: a plain assignment of a `__proto__` key would hit the prototype setter.
+      Object.defineProperty(newProperties, key, { value, enumerable: true, writable: true, configurable: true })
     }
 
     return {

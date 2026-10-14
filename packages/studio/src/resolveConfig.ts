@@ -139,8 +139,8 @@ async function loadFactory({ packageName, extensions }: { packageName: string; e
   }
 
   const exportName = toExportName(packageName)
-  const factory = mod[exportName] ?? mod['default']
-  if (typeof factory === 'function') return factory as (options: unknown) => unknown
+  if (typeof mod[exportName] === 'function') return mod[exportName] as (options: unknown) => unknown
+  if (typeof mod['default'] === 'function') return mod['default'] as (options: unknown) => unknown
 
   throw new Error(`Plugin "${packageName}" does not export a callable factory. Tried the named export "${exportName}" and "default".`)
 }

@@ -188,8 +188,7 @@ export function createExtensionFactory<TKind extends ExtensionKind, TOptions ext
   meta: ExtensionMeta<TName>
   build: (options: TOptions) => TExtension
 }): ExtensionFactory<TKind, TOptions, TExtension, TName> {
-  const empty = {}
-  return Object.assign((options?: TOptions) => build(options ?? (empty as TOptions)), { kind, meta })
+  return Object.assign((options: TOptions = {} as TOptions) => build(options), { kind, meta })
 }
 
 // Parser comes first and takes only `build`: TypeScript fixes a parameterless `build()` return type from the first
