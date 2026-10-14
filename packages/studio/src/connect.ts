@@ -346,6 +346,7 @@ class Agent extends RpcTarget implements AgentApi {
     })
   }
 
+  /** Runs one job and keeps its output, and its input with `allowRead`, for later reads. */
   async #runGeneration(input: GenerateInput, controller: AbortController): Promise<GenerateResult> {
     this.#assertConnected()
     // Checked before the first `await`, so two calls in the same tick can't both pass.

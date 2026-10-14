@@ -71,8 +71,9 @@ export const adapterOas = defineExtension<AdapterOas>({
     // fresh for each document, scoped to this one pass.
     const inputCache = new WeakMap<AdapterSource, Promise<ast.InputNode>>()
 
-    // Parses every schema and operation once. Ref aliases and discriminator children are
-    // resolved from the schemas already parsed in this same pass rather than re-parsed.
+    /**
+     * Parses every schema and operation once, resolving ref aliases and discriminator children from that same pass.
+     */
     function parseInput({
       document,
       refs,
