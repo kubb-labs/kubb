@@ -471,6 +471,7 @@ class Agent extends RpcTarget implements AgentApi {
     }
   }
 
+  /** Returns the Kubb AST a kept job parsed its spec into. Refused without `allowRead`. */
   async readInput(input: ReadInputInput): Promise<ReadInputResult> {
     this.#assertConnected()
     if (!this.#permissions.allowRead) return this.#refuse({ message: 'The agent was not granted permission to read generated files', permission: 'allowRead' })
