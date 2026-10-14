@@ -42,14 +42,14 @@ export const pluginExample = defineExtension<PluginExample>({
 
 ### Definition shape
 
-| Property       | Type                                                          | Required | Description |
-| -------------- | ------------------------------------------------------------- | -------- | ----------- |
-| `kind`         | `'plugin'`                                                    | Yes      | Tells `defineExtension` to define a plugin. |
+| Property       | Type                                                          | Required | Description                                                                                                                                                           |
+| -------------- | ------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `kind`         | `'plugin'`                                                    | Yes      | Tells `defineExtension` to define a plugin.                                                                                                                           |
 | `meta`         | [`ExtensionMeta`](./extensions#meta)                          | Yes      | Name, version, and compatibility. `meta.name` follows `plugin-<feature>`. The plugin's own `name` is deprecated in favor of it, and optional when `meta.name` is set. |
-| `setup`        | `(options, kubb: KubbPluginSetupContext) => TResolvedOptions` | No       | Main plugin logic. Receives the user's options and returns the resolved options. Can be `async`. |
-| `dependencies` | [`ExtensionDependencies`](./extensions#dependencies)          | No       | Plugins this one builds on. They run first, and a missing required one fails the run. |
-| `enforce`      | `'pre' \| 'post'`                                             | No       | Run this plugin before (`'pre'`) or after (`'post'`) the normal plugins. Dependency order still wins. |
-| `hooks`        | `{ 'kubb:plugin:setup'?: ...; ... }`                          | No       | Lifecycle handlers (see [Plugin API](/docs/5.x/explanation/extensions#plugins)). `kubb:plugin:setup` runs after `setup`. |
+| `setup`        | `(options, kubb: KubbPluginSetupContext) => TResolvedOptions` | No       | Main plugin logic. Receives the user's options and returns the resolved options. Can be `async`.                                                                      |
+| `dependencies` | [`ExtensionDependencies`](./extensions#dependencies)          | No       | Plugins this one builds on. They run first, and a missing required one fails the run.                                                                                 |
+| `enforce`      | `'pre' \| 'post'`                                             | No       | Run this plugin before (`'pre'`) or after (`'post'`) the normal plugins. Dependency order still wins.                                                                 |
+| `hooks`        | `{ 'kubb:plugin:setup'?: ...; ... }`                          | No       | Lifecycle handlers (see [Plugin API](/docs/5.x/explanation/extensions#plugins)). `kubb:plugin:setup` runs after `setup`.                                              |
 
 The `Plugin` the factory returns keeps the user's raw options in `plugin.options`.
 
@@ -73,27 +73,9 @@ Named imports from JSON need a bundler that inlines them. See [Extension manifes
 ### `definePlugin` (deprecated)
 
 > [!WARNING]
-> `definePlugin` is deprecated. Use `defineExtension` with `kind: 'plugin'` instead. The factory form below is removed in the next major.
+> `definePlugin` is deprecated. Use `defineExtension` with `kind: 'plugin'` instead.
 
 `definePlugin` takes the same definition object as `defineExtension`, without `kind`. To move over, rename the call and add `kind: 'plugin'`. See [Extensions](./extensions#define-extension).
-
-Older plugins pass a function that returns the `Plugin` directly, with lifecycle handlers in `hooks`:
-
-```typescript twoslash [plugin-example.ts]
-import { definePlugin } from 'kubb/kit'
-
-export const pluginExample = definePlugin((options: { prefix?: string } = {}) => ({
-  name: 'plugin-example',
-  options,
-  hooks: {
-    'kubb:plugin:setup'(ctx) {
-      ctx.setOptions({ prefix: options.prefix ?? '' })
-    },
-  },
-}))
-```
-
-To move this form over, copy the plugin's name into `meta.name`, move the body of `kubb:plugin:setup` into `setup`, return the object you passed to `ctx.setOptions`, and pass the definition to `defineExtension` with `kind: 'plugin'`. While you migrate, the returned plugin can also carry `meta`, `dependencies`, and `setup`, with the same meaning as in the definition object. A plugin without `meta` gets `{ name }`.
 
 ## Setup context {#setup-context}
 
@@ -142,17 +124,17 @@ export const pluginExample = defineExtension({
 
 ::::
 
-| `kubb` member   | Composable        | Signature                                                 | Purpose                                                             |
-| --------------- | ----------------- | --------------------------------------------------------- | ------------------------------------------------------------------- |
-| `addGenerator`  | `addGenerator()`  | `(...generators: Array<Generator>) => void`               | Register one or more generators for this plugin                     |
-| `setResolver`   | `setResolver()`   | `(resolver: ResolverPatch<Resolver> \| Resolver) => void` | Set or partially override the file naming resolver                  |
-| `addMacro`      | `addMacro()`      | `(macro: Macro) => void`                                  | Add a macro that rewrites AST nodes before generators               |
-| `setMacros`     | `setMacros()`     | `(macros: Array<Macro>) => void`                          | Replace this plugin's macros with a new list                        |
+| `kubb` member   | Composable        | Signature                                                 | Purpose                                                                       |
+| --------------- | ----------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `addGenerator`  | `addGenerator()`  | `(...generators: Array<Generator>) => void`               | Register one or more generators for this plugin                               |
+| `setResolver`   | `setResolver()`   | `(resolver: ResolverPatch<Resolver> \| Resolver) => void` | Set or partially override the file naming resolver                            |
+| `addMacro`      | `addMacro()`      | `(macro: Macro) => void`                                  | Add a macro that rewrites AST nodes before generators                         |
+| `setMacros`     | `setMacros()`     | `(macros: Array<Macro>) => void`                          | Replace this plugin's macros with a new list                                  |
 | `setOptions`    | `setOptions()`    | `(options: ResolvedOptions) => void`                      | Set the resolved options used by generators. In `setup`, return them instead. |
-| `injectFile`    | `injectFile()`    | `(file: UserFileNode) => void`                            | Inject a raw file into the build output, bypassing generation       |
-| `requirePlugin` | `requirePlugin()` | `(name: string) => Plugin`                                | Return another plugin, or fail the run with `KUBB_PLUGIN_NOT_FOUND` |
-| `config`        | `useConfig()`     | `Config`                                                  | The resolved build configuration at setup time                      |
-| `options`       | `useOptions()`    | `TOptions`                                                | The plugin's own options as passed by the user                      |
+| `injectFile`    | `injectFile()`    | `(file: UserFileNode) => void`                            | Inject a raw file into the build output, bypassing generation                 |
+| `requirePlugin` | `requirePlugin()` | `(name: string) => Plugin`                                | Return another plugin, or fail the run with `KUBB_PLUGIN_NOT_FOUND`           |
+| `config`        | `useConfig()`     | `Config`                                                  | The resolved build configuration at setup time                                |
+| `options`       | `useOptions()`    | `TOptions`                                                | The plugin's own options as passed by the user                                |
 
 `useKubb()` returns the whole setup context. `tryUseKubb()` does the same, but returns `undefined` outside setup instead of throwing.
 

@@ -11,9 +11,6 @@ import type { BuildOutput, Config, KubbHooks, UserConfig } from './types.ts'
 import { Hookable } from './Hookable.ts'
 import { runOutputPasses, type RunOutputPassesOptions } from './output/runOutputPasses.ts'
 
-/** Upper bound of listeners one plugin adds to a hook, sizing the emitter ceiling for large plugin sets. */
-const HOOK_LISTENERS_PER_PLUGIN = 4
-
 function resolveConfig(userConfig: UserConfig): Config {
   return {
     ...userConfig,
@@ -136,9 +133,6 @@ export class Kubb {
     signal?.throwIfAborted()
     const config = this.config
     const manifest = hasOutputPasses(config) ? await createOutputManifest({ storage: config.storage, cache: cacheStorage({ root: config.root }) }) : undefined
-
-    // Every plugin registers its lifecycle handlers on the shared emitter, so size the ceiling to the plugin count.
-    this.hooks.setMaxListeners(Math.max(10, config.plugins.length * HOOK_LISTENERS_PER_PLUGIN))
 
     const cleanPath = config.output.clean ? resolve(config.root, config.output.path) : undefined
 

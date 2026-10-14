@@ -12,10 +12,6 @@ export type Storage = {
    */
   readonly name: string
   /**
-   * Returns `true` when an entry for `key` exists.
-   */
-  existsItem(key: string): Promise<boolean>
-  /**
    * Reads the stored string. Returns `null` when the key is missing.
    */
   readItem(key: string): Promise<string | null>
@@ -46,43 +42,9 @@ export type Storage = {
 }
 
 /**
- * Defines a custom storage backend. The builder receives user options and
- * returns a `Storage` implementation. Kubb ships with filesystem and in-memory
- * storages. A custom backend writes generated files elsewhere, such as cloud
- * storage or a database.
- *
- * @example In-memory storage (the built-in implementation)
- * ```ts
- * import { createStorage } from '@kubb/core'
- *
- * export const memoryStorage = createStorage(() => {
- *   const store = new Map<string, string>()
- *
- *   return {
- *     name: 'memory',
- *     async existsItem(key) {
- *       return store.has(key)
- *     },
- *     async readItem(key) {
- *       return store.get(key) ?? null
- *     },
- *     async writeItem(key, value) {
- *       store.set(key, value)
- *     },
- *     async removeItem(key) {
- *       store.delete(key)
- *     },
- *     async readKeys(base) {
- *       const keys = [...store.keys()]
- *       return base ? keys.filter((k) => k.startsWith(base)) : keys
- *     },
- *     async empty(base) {
- *       if (!base) store.clear()
- *     },
- *   }
- * })
- * ```
+ * Defines a custom storage backend: `build` takes the user's options and returns a `Storage`. See `memoryStorage` for the built-in in-memory implementation.
  */
-export function createStorage<TOptions = Record<string, never>>(build: (options: TOptions) => Storage): (options?: TOptions) => Storage {
-  return (options) => build((options ?? {}) as TOptions)
-}
+export const createStorage =
+  <TOptions = Record<string, never>>(build: (options: TOptions) => Storage) =>
+  (options?: TOptions): Storage =>
+    build((options ?? {}) as TOptions)

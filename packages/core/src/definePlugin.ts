@@ -2,7 +2,7 @@ import path from 'node:path'
 import type { LiteralUnion } from '@internals/utils'
 import type { Enforce, HttpMethod, Macro, UserFileNode } from '@kubb/ast'
 import type { Generator } from './defineGenerator.ts'
-import { createExtensionFactory, defineExtension, resolveMeta } from './defineExtension.ts'
+import { defineExtension } from './defineExtension.ts'
 import type { ExtensionDependencies, ExtensionDependencyRecord, ExtensionFactory, ExtensionMeta, ExtensionNamed } from './defineExtension.ts'
 import type { BannerMeta, Resolver, ResolverPatch } from './Resolver.ts'
 import { Diagnostics } from './Diagnostics.ts'
@@ -472,25 +472,6 @@ export type KubbPluginEndContext = FilesContext & {
  *
  * @deprecated Use `defineExtension` with `kind: 'plugin'` instead.
  */
-export function definePlugin<TFactory extends PluginType = PluginType>(definition: PluginDefinition<TFactory>): PluginFactory<TFactory>
-/**
- * Wraps a factory function that returns a `Plugin`. Without `meta`, the plugin gets `{ name }`.
- *
- * @deprecated Pass a definition object with `kind: 'plugin'`, `meta`, and `setup` to `defineExtension` instead. The factory form is removed in the next major.
- */
-export function definePlugin<TFactory extends PluginType = PluginType>(
-  factory: (options: TFactory['options']) => Plugin<TFactory>,
-): ((options?: TFactory['options']) => Plugin<TFactory>) & { kind: 'plugin' }
-export function definePlugin(input: PluginDefinition | ((options: object) => Plugin)) {
-  if (typeof input === 'function') {
-    return createExtensionFactory({
-      kind: 'plugin',
-      build: (options: object): Plugin => {
-        const plugin = input(options)
-        return { ...plugin, meta: resolveMeta(plugin) }
-      },
-    })
-  }
-
-  return defineExtension({ kind: 'plugin', ...input })
+export function definePlugin<TFactory extends PluginType = PluginType>(definition: PluginDefinition<TFactory>): PluginFactory<TFactory> {
+  return defineExtension({ kind: 'plugin', ...definition })
 }

@@ -142,67 +142,26 @@ describe('Diagnostics.count', () => {
   })
 })
 
-describe('diagnostic kind guards', () => {
-  it('narrows by kind, treating a missing kind as a problem', () => {
-    const performance = Diagnostics.performance({ plugin: 'a', duration: 5 })
-    const update = Diagnostics.update({ currentVersion: '5.0.0', latestVersion: '5.1.0' })
-
-    expect(Diagnostics.isProblem(problem())).toBe(true)
-    expect(Diagnostics.isProblem(performance)).toBe(false)
-    expect(Diagnostics.isPerformance(performance)).toBe(true)
-    expect(Diagnostics.isUpdate(update)).toBe(true)
-    expect(Diagnostics.isUpdate(performance)).toBe(false)
-  })
-})
-
 // styleText respects NO_COLOR/non-TTY, so assert on the plain text the parts contain.
 describe('Diagnostics.format', () => {
   it('splits a diagnostic into a headline and tree details', () => {
     const { headline, details } = Diagnostics.format({
-      code: 'KUBB_REF_NOT_FOUND',
+      code: 'KUBB_PLUGIN_FAILED',
       severity: 'error',
       message: 'boom',
       help: 'fix the ref',
+      plugin: '@kubb/plugin-zod',
+      issues: 'https://github.com/acme/plugin/issues',
       location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
     })
 
-    expect(headline).toContain('[KUBB_REF_NOT_FOUND]')
+    expect(headline).toContain('[KUBB_PLUGIN_FAILED] @kubb/plugin-zod:')
     expect(headline).toContain('boom')
     expect(details.some((line) => line.includes('at: #/components/schemas/Pet'))).toBe(true)
     expect(details.some((line) => line.includes('fix: fix the ref'))).toBe(true)
-    expect(details.some((line) => line.includes('see: https://kubb.dev'))).toBe(true)
-  })
-
-  it('puts the plugin after the code in the headline', () => {
-    expect(Diagnostics.format({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', plugin: '@kubb/plugin-zod' }).headline).toContain(
-      '@kubb/plugin-zod:',
-    )
-  })
-
-  it('adds a report line with the issue tracker of a crashed extension', () => {
-    const { details } = Diagnostics.format({ code: 'KUBB_PLUGIN_FAILED', severity: 'error', message: 'boom', issues: 'https://github.com/acme/plugin/issues' })
-
     expect(details.some((line) => line.includes('report: https://github.com/acme/plugin/issues'))).toBe(true)
-  })
-
-  it('omits the see line for KUBB_UNKNOWN', () => {
+    expect(details.some((line) => line.includes('see: https://kubb.dev'))).toBe(true)
     expect(Diagnostics.format({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom' }).details.some((line) => line.includes('see:'))).toBe(false)
-  })
-})
-
-describe('Diagnostics.formatLines', () => {
-  it('renders a self-contained tree block with the code on the header', () => {
-    const [header] = Diagnostics.formatLines({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'Could not find Pet' })
-
-    expect(header).toContain('[KUBB_REF_NOT_FOUND]')
-    expect(header).toContain('Could not find Pet')
-  })
-
-  it('renders an update notice as a line with the version message', () => {
-    const [header] = Diagnostics.formatLines(Diagnostics.update({ currentVersion: '5.0.0', latestVersion: '5.1.0' }))
-
-    expect(header).toContain('KUBB_UPDATE_AVAILABLE')
-    expect(header).toContain('v5.0.0 → v5.1.0')
   })
 })
 

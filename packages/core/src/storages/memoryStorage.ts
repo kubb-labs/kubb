@@ -24,9 +24,6 @@ export const memoryStorage = createStorage(() => {
 
   return {
     name: 'memory',
-    async existsItem(key: string) {
-      return store.has(key)
-    },
     async readItem(key: string) {
       return store.get(key) ?? null
     },

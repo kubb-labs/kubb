@@ -25,24 +25,16 @@ describe('fsStorage', () => {
     expect(await storage.readItem(key)).toBe('const y = 2\n')
   })
 
-  it('skips the write when the content is unchanged', async () => {
-    const storage = fsStorage()
-    const key = join(dir, 'same.ts')
-
-    await storage.writeItem(key, 'const z = 3')
-    const mtime1 = (await stat(key)).mtimeMs
-
-    await storage.writeItem(key, 'const z = 3')
-    const mtime2 = (await stat(key)).mtimeMs
-
-    expect(mtime1).toBe(mtime2)
-  })
-
-  it('skips the write when a formatter has been over the file', async () => {
+  it('skips the write when the content is unchanged or a formatter has been over the file', async () => {
     const storage = fsStorage()
     const key = join(dir, 'formatted.ts')
 
     await storage.writeItem(key, 'const z = 3')
+    const mtime0 = (await stat(key)).mtimeMs
+    await storage.writeItem(key, 'const z = 3')
+
+    expect((await stat(key)).mtimeMs).toBe(mtime0)
+
     await writeFile(key, 'const z = 3\n\n', { encoding: 'utf-8' })
     const mtime1 = (await stat(key)).mtimeMs
 
@@ -57,6 +49,6 @@ describe('fsStorage', () => {
 
     await fsStorage().empty(undefined)
 
-    expect(await fsStorage().existsItem(key)).toBe(true)
+    expect(await fsStorage().readItem(key)).toBe('const s = 1')
   })
 })

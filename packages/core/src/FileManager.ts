@@ -1,20 +1,13 @@
-import { inParallel, matchesStored, read } from '@internals/utils'
+import { readFile } from 'node:fs/promises'
+import { inParallel, matchesStored } from '@internals/utils'
 import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
 import type { Parser } from './defineParser.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { OutputManifest } from './outputManifest.ts'
-import { Hookable } from './Hookable.ts'
-
-/**
- * Hooks fired around a `FileManager#write` batch: `start` before it, `update` per file, `end` after.
- */
-export type FileManagerHooks = {
-  start: [files: Array<FileNode>]
-  update: [params: { file: FileNode; source?: string; processed: number; total: number; percentage: number }]
-  end: [files: Array<FileNode>]
-}
+import type { Hookable } from './Hookable.ts'
+import type { Config, KubbFileProcessingUpdate, KubbHooks } from './types.ts'
 
 /** Files kept in flight at once, writing the output and reading it back for the manifest. */
 export const FILE_CONCURRENCY = 50
@@ -31,6 +24,11 @@ type WriteOptions = ParseOptions & {
    * unchanged. Omitted when no formatter, linter, or `postGenerate` step is configured.
    */
   manifest?: OutputManifest
+  /**
+   * Receives `kubb:files:processing:start`, `:update` (one batch, in input order) and `:end` for the write. `config` fills the update rows.
+   */
+  hooks?: Hookable<KubbHooks>
+  config?: Config
 }
 
 function joinSources(file: FileNode): string {
@@ -55,7 +53,7 @@ function runParser(parser: Parser, print: () => string): string {
 async function parseCopy(file: FileNode, parser: Parser | undefined): Promise<string> {
   let content: string
   try {
-    content = await read(file.copy as string)
+    content = await readFile(file.copy as string, 'utf8')
   } catch (err) {
     throw new Error(`[kubb] Could not copy file into output: ${file.copy}`, { cause: err })
   }
@@ -119,7 +117,6 @@ function isUnchanged({ stored, source, key, manifest }: { stored: string | null;
  * ```
  */
 export class FileManager {
-  readonly hooks = new Hookable<FileManagerHooks>()
   readonly #cache = new Map<string, FileNode>()
   // Cached sorted view, rebuilt lazily on the next `files` read. Nulled (not mutated) on every
   // write so callers holding a prior reference keep their snapshot, `dispose()` included.
@@ -182,13 +179,11 @@ export class FileManager {
   }
 
   /**
-   * Releases all stored files and clears every `hooks` listener. Called by the core after
-   * `kubb:build:end`.
+   * Releases all stored files. Called by the core after `kubb:build:end`.
    */
   dispose(): void {
     this.#cache.clear()
     this.#sorted = null
-    this.hooks.removeAllHooks()
   }
 
   /**
@@ -220,18 +215,20 @@ export class FileManager {
    * Parses and writes every file through a bounded pool of workers. A small spec runs all its files
    * at once; a spec with thousands of files keeps at most {@link FILE_CONCURRENCY} parsed sources in
    * memory rather than holding every source, while still overlapping each file's write with the
-   * next file's parse. Each `update` carries the file's input position, so a consumer can present
-   * the files in generation order even though they finish in whatever order they parse.
+   * next file's parse. Files finish in whatever order they parse, so the update rows are sorted back
+   * into input order before `kubb:files:processing:update` fires once with the whole batch.
    *
    * A file the storage already holds is skipped, so a rebuild that generates identical output
    * writes nothing and leaves every mtime where it was.
    */
-  async write(files: Array<FileNode>, { storage, parsers, manifest, signal }: WriteOptions): Promise<void> {
+  async write(files: Array<FileNode>, { storage, parsers, manifest, signal, hooks, config }: WriteOptions): Promise<void> {
     if (files.length === 0) return
 
-    await this.hooks.callHook('start', files)
+    await hooks?.callHook('kubb:files:processing:start', { files })
 
     const total = files.length
+    // Rows leave `source` out: buffering it would hold every generated file in memory until the batch ends.
+    const updates: Array<KubbFileProcessingUpdate> = []
 
     await inParallel({
       items: files,
@@ -239,7 +236,7 @@ export class FileManager {
       run: async (file, index) => {
         signal?.throwIfAborted()
         const source = await this.parse(file, { parsers })
-        await this.hooks.callHook('update', { file, source, processed: index + 1, total, percentage: ((index + 1) / total) * 100 })
+        if (config) updates.push({ file, processed: index + 1, total, percentage: ((index + 1) / total) * 100, config })
         if (!source) return
 
         signal?.throwIfAborted()
@@ -257,6 +254,8 @@ export class FileManager {
       },
     })
 
-    await this.hooks.callHook('end', files)
+    updates.sort((a, b) => a.processed - b.processed)
+    await hooks?.callHook('kubb:files:processing:update', { files: updates })
+    await hooks?.callHook('kubb:files:processing:end', { files })
   }
 }

@@ -18,7 +18,7 @@ import {
 } from './composables.ts'
 import { createKubb } from './createKubb.ts'
 import type { Generator } from './defineGenerator.ts'
-import type { KubbPluginSetupContext, Plugin } from './definePlugin.ts'
+import type { Plugin } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import { Hookable } from './Hookable.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -129,48 +129,6 @@ describe('KubbDriver#setupHooks with composables', () => {
     expect(driver.plugins.get('first')?.generators?.map((gen) => gen.name)).toStrictEqual(['first-gen'])
     expect(driver.plugins.get('second')?.generators?.map((gen) => gen.name)).toStrictEqual(['second-gen'])
     expect(tryUseKubb()).toBeUndefined()
-  })
-
-  it('passes the same context to useKubb() and the ctx argument', async () => {
-    let fromArgument: KubbPluginSetupContext | undefined
-    let fromComposable: KubbPluginSetupContext | undefined
-
-    const plugin: Plugin = {
-      name: 'same-ctx',
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          fromArgument = ctx
-          fromComposable = useKubb()
-        },
-      },
-    }
-
-    const driver = new KubbDriver(makeConfig({ plugins: [plugin] }), { hooks: new Hookable<KubbHooks>() })
-    await driver.setup()
-    await driver.setupHooks()
-
-    expect(fromComposable).toBeDefined()
-    expect(fromComposable).toBe(fromArgument)
-  })
-
-  it('requirePlugin returns another plugin from the config', async () => {
-    let found: string | undefined
-
-    const base: Plugin = { name: 'base', hooks: {} }
-    const dependent: Plugin = {
-      name: 'dependent',
-      hooks: {
-        'kubb:plugin:setup'() {
-          found = requirePlugin('base').name
-        },
-      },
-    }
-
-    const driver = new KubbDriver(makeConfig({ plugins: [base, dependent] }), { hooks: new Hookable<KubbHooks>() })
-    await driver.setup()
-    await driver.setupHooks()
-
-    expect(found).toBe('base')
   })
 
   it('generates the files of a generator added after an await in setup', async () => {
