@@ -2,13 +2,17 @@ import type { BaseNode } from './base.ts'
 import type { OperationNode } from './operation.ts'
 import type { SchemaNode } from './schema.ts'
 
-/** A server the API document declares, with its `{variable}` placeholders filled from their defaults. */
+/**
+ * A server the API document declares, with its `{variable}` placeholders filled from their defaults.
+ */
 export type InputServer = {
   url: string
   description?: string
 }
 
-/** An authentication scheme the API document declares, such as a bearer token or an API key header. */
+/**
+ * An authentication scheme the API document declares, such as a bearer token or an API key header.
+ */
 export type InputSecurityScheme = {
   /** The scheme's key in the source document, such as `api_key`. */
   name: string

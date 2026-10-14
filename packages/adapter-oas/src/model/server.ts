@@ -62,7 +62,9 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
   return url
 }
 
-/** Every server the document declares, with `{variable}` defaults filled in. An invalid default keeps the template URL. */
+/**
+ * Every server the document declares, with `{variable}` defaults filled in. An invalid default keeps the template URL.
+ */
 export function listServers(document: Document): Array<ast.InputServer> {
   return (document.servers ?? []).flatMap((server) => {
     if (typeof server?.url !== 'string' || !server.url) return []

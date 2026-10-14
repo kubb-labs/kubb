@@ -362,13 +362,17 @@ export type FilePage = { nextCursor: number | null; totalLines: number }
  */
 export type ReadFilesResult = { files: Record<string, string>; pages?: Record<string, FilePage> }
 
-/** Asks the agent for the Kubb AST one generation job parsed its spec into, so Studio describes the API in Kubb's names. */
+/**
+ * Asks the agent for the Kubb AST one generation job parsed its spec into, so Studio describes the API in Kubb's names.
+ */
 export type ReadInputInput = {
   /** A job the agent no longer keeps fails with {@link GENERATION_GONE_MESSAGE}. */
   jobId: string
 }
 
-/** The job's `InputNode`, as JSON. A ref schema names its target, which `input.schemas` holds, without a copy. */
+/**
+ * The job's `InputNode`, as JSON. A ref schema names its target, which `input.schemas` holds, without a copy.
+ */
 export type ReadInputResult = { input: InputNode }
 
 /**
@@ -415,7 +419,9 @@ export type AgentApi = {
   startGeneration: (input: GenerateInput) => GenerationRun
   saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
   readFiles: (input: ReadFilesInput) => Promise<ReadFilesResult>
-  /** Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}. */
+  /**
+   * Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}.
+   */
   readInput: (input: ReadInputInput) => Promise<ReadInputResult>
 }
 
