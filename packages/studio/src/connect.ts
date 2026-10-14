@@ -481,8 +481,10 @@ class Agent extends RpcTarget implements AgentApi {
     if (!this.#permissions.allowRead) return this.#refuse({ message: READ_NOT_ALLOWED_MESSAGE, permission: 'allowRead' })
     if (typeof input.jobId !== 'string' || !input.jobId) return this.#refuse({ message: 'The request must name a job' })
 
-    if (!(await this.#generations.get(input.jobId))) return this.#refuse({ message: GENERATION_GONE_MESSAGE })
-    const kept = await this.#generations.readInput(input.jobId)
+    const generation = await this.#generations.get(input.jobId)
+    if (!generation) return this.#refuse({ message: GENERATION_GONE_MESSAGE })
+    // A rerun of the job can leave an earlier run's input on disk, so trust only what this run kept.
+    const kept = generation.inputBytes ? await this.#generations.readInput(input.jobId) : undefined
     if (!kept) return this.#refuse({ message: NO_INPUT_MESSAGE })
     await this.#logCommand('readInput', 'read the API input')
 

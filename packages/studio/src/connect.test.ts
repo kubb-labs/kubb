@@ -444,9 +444,11 @@ describe('readInput', () => {
     await expect(agent.readInput({ jobId: 'job-unknown' })).rejects.toThrow(GENERATION_GONE_MESSAGE)
   })
 
-  it('keeps no input for a run without allowRead, so a later grant finds none', async () => {
-    const first = await connectStudio({ loadConfig: withInput })
+  it('keeps no input for a run without allowRead, so a later grant finds none, not even an earlier run of the job', async () => {
+    const first = await connectStudio({ permissions: { allowRead: true }, loadConfig: withInput })
     await run({ agent: first.agent, jobId: 'job-1' })
+    const rerun = await connectStudio({ loadConfig: withInput })
+    await run({ agent: rerun.agent, jobId: 'job-1' })
 
     const { agent } = await connectStudio({ permissions: { allowRead: true } })
 
