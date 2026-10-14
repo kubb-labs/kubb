@@ -130,66 +130,37 @@ type SchemaNodeBase = BaseNode & {
    */
   format?: string
   /**
-   * JSON Schema keywords such as `not` and `if`/`then`/`else`, set regardless of `type`.
-   *
-   * Visitors do not walk into these schemas, so refs found only here are not part of
-   * `collectImportedRefNames`. A printer that uses a keyword collects its imports from these nodes itself.
+   * Type-independent JSON Schema keywords. Visitors skip these schemas and their refs;
+   * printers using them must collect their own imports.
    */
   keywords?: SchemaKeywords
 }
 
-/**
- * JSON Schema applicator and validation keywords that have no dedicated node shape.
- * A boolean schema (`true`/`false`) stays a boolean.
- */
+/** JSON Schema applicator and validation keywords, preserving boolean schemas as booleans. */
 export type SchemaKeywords = {
-  /**
-   * The value must not match this schema.
-   */
+  /** The value must not match this schema. */
   not?: SchemaNode | boolean
-  /**
-   * Condition schema, paired with `then` and `else`.
-   */
+  /** Condition schema, paired with `then` and `else`. */
   if?: SchemaNode | boolean
-  /**
-   * Schema the value must match when it matches `if`.
-   */
+  /** Schema the value must match when it matches `if`. */
   then?: SchemaNode | boolean
-  /**
-   * Schema the value must match when it does not match `if`.
-   */
+  /** Schema the value must match when it does not match `if`. */
   else?: SchemaNode | boolean
-  /**
-   * Property names that become required when the key property is present.
-   */
+  /** Property names that become required when the key property is present. */
   dependentRequired?: Record<string, Array<string>>
-  /**
-   * Schemas the object must match when the key property is present.
-   */
+  /** Schemas the object must match when the key property is present. */
   dependentSchemas?: Record<string, SchemaNode | boolean>
-  /**
-   * Schema every property name must match.
-   */
+  /** Schema every property name must match. */
   propertyNames?: SchemaNode | boolean
-  /**
-   * Schema at least one array item must match.
-   */
+  /** Schema at least one array item must match. */
   contains?: SchemaNode | boolean
-  /**
-   * Minimum number of items that match `contains`.
-   */
+  /** Minimum number of items that match `contains`. */
   minContains?: number
-  /**
-   * Maximum number of items that match `contains`.
-   */
+  /** Maximum number of items that match `contains`. */
   maxContains?: number
-  /**
-   * Schema for properties no other keyword evaluated, `false` rejects them.
-   */
+  /** Schema for properties no other keyword evaluated, `false` rejects them. */
   unevaluatedProperties?: SchemaNode | boolean
-  /**
-   * Schema for items no other keyword evaluated, `false` rejects them.
-   */
+  /** Schema for items no other keyword evaluated, `false` rejects them. */
   unevaluatedItems?: SchemaNode | boolean
 }
 

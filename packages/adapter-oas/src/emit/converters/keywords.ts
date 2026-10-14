@@ -7,10 +7,7 @@ type Subschema = SchemaObject | boolean
 
 const subschemaKeys = ['not', 'if', 'then', 'else', 'propertyNames', 'contains', 'unevaluatedProperties', 'unevaluatedItems'] as const
 
-/**
- * The JSON Schema 2020-12 keywords read by {@link convertKeywords}. `SchemaObject` unions several
- * JSON Schema drafts that type these differently, so they are read through this view.
- */
+// Normalize keyword types across the JSON Schema drafts in SchemaObject.
 type KeywordsObject = {
   [key in (typeof subschemaKeys)[number]]?: Subschema
 } & {
@@ -20,12 +17,7 @@ type KeywordsObject = {
   maxContains?: number
 }
 
-/**
- * Parses a subschema. `required` names without a matching property (as in `not: { required: ['a', 'b'] }`)
- * are added as untyped properties, since `convertObject` only keeps `required` for listed properties.
- * Skipped under `additionalProperties: false` or a non-object `type`, where a synthetic property
- * would change the constraint.
- */
+// Synthesize missing required properties only for open object schemas, so convertObject keeps them.
 function parseSubschema(subschema: Subschema, parse: ConvertContext['parse']): ast.SchemaNode | boolean {
   if (typeof subschema === 'boolean') return subschema
   const { required } = subschema
@@ -37,12 +29,7 @@ function parseSubschema(subschema: Subschema, parse: ConvertContext['parse']): a
   return parse({ schema: { ...subschema, type: 'object', properties } })
 }
 
-/**
- * Reads the JSON Schema applicator keywords on `schema` (`not`, `if`/`then`/`else`,
- * `dependentRequired`, `dependentSchemas`, `propertyNames`, `contains`/`minContains`/`maxContains`,
- * `unevaluatedProperties`/`unevaluatedItems`). Returns `undefined` when none is set, so nodes
- * without them keep their current shape.
- */
+/** Preserves applicator keywords; absent keywords leave the node shape unchanged. */
 export function convertKeywords({ schema, parse }: Pick<ConvertContext, 'schema' | 'parse'>): ast.SchemaKeywords | undefined {
   const raw = schema as KeywordsObject
   const keywords: ast.SchemaKeywords = {}
@@ -63,11 +50,7 @@ export function convertKeywords({ schema, parse }: Pick<ConvertContext, 'schema'
 
 const keywordKeySet: ReadonlySet<string> = new Set(keywordKeys)
 
-/**
- * Returns `schema` without the keywords {@link convertKeywords} reads. The parser attaches them to
- * the outer node only, so converters that re-parse the parent schema (multi-type members, union
- * base properties, `allOf` siblings) don't copy them onto every member.
- */
+/** Keeps keywords on the outer node when converters re-parse the parent schema. */
 export function omitKeywords(schema: SchemaObject): SchemaObject {
   return Object.fromEntries(Object.entries(schema).filter(([key]) => !keywordKeySet.has(key))) as SchemaObject
 }
