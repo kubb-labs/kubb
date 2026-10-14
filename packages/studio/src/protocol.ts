@@ -1,5 +1,5 @@
-import type { ExtensionKind, ExtensionManifest, KubbHooks } from '@kubb/core'
 import type { InputNode } from '@kubb/ast'
+import type { ExtensionKind, ExtensionManifest, KubbHooks } from '@kubb/core'
 
 /**
  * JSON-serializable Kubb config exchanged over RPC. A live `kubb/kit` config holds
