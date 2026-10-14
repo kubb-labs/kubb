@@ -6,7 +6,8 @@
 
 ```typescript
 // Before
-;`${path['class']}`
+const before = `/pets/${path['class']}`
+
 // After
-`${path.class}`
+const after = `/pets/${path.class}`
 ```
