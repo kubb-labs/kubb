@@ -39,6 +39,8 @@ import {
   type InstalledExtensions,
   MAX_FILES_PER_REQUEST,
   MAX_PAGE_LINES,
+  NO_INPUT_MESSAGE,
+  READ_NOT_ALLOWED_MESSAGE,
   type ReadFilesInput,
   type ReadFilesResult,
   type ReadInputInput,
@@ -479,12 +481,12 @@ class Agent extends RpcTarget implements AgentApi {
    */
   async readInput(input: ReadInputInput): Promise<ReadInputResult> {
     this.#assertConnected()
-    if (!this.#permissions.allowRead) return this.#refuse({ message: 'The agent was not granted permission to read generated files', permission: 'allowRead' })
+    if (!this.#permissions.allowRead) return this.#refuse({ message: READ_NOT_ALLOWED_MESSAGE, permission: 'allowRead' })
     if (typeof input.jobId !== 'string' || !input.jobId) return this.#refuse({ message: 'The request must name a job' })
 
     if (!(await this.#generations.get(input.jobId))) return this.#refuse({ message: GENERATION_GONE_MESSAGE })
     const kept = await this.#generations.readInput(input.jobId)
-    if (!kept) return this.#refuse({ message: 'This job kept no API input' })
+    if (!kept) return this.#refuse({ message: NO_INPUT_MESSAGE })
     await this.#logCommand('readInput', 'read the API input')
 
     return { input: kept }
@@ -492,7 +494,7 @@ class Agent extends RpcTarget implements AgentApi {
 
   async readFiles(input: ReadFilesInput): Promise<ReadFilesResult> {
     this.#assertConnected()
-    if (!this.#permissions.allowRead) return this.#refuse({ message: 'The agent was not granted permission to read generated files', permission: 'allowRead' })
+    if (!this.#permissions.allowRead) return this.#refuse({ message: READ_NOT_ALLOWED_MESSAGE, permission: 'allowRead' })
     if (!Array.isArray(input.paths) || typeof input.jobId !== 'string' || !input.jobId) {
       return this.#refuse({ message: 'The request must name a job and carry paths' })
     }
