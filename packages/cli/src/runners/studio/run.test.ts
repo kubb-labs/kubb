@@ -147,7 +147,7 @@ describe('resolvePermissions', () => {
     // The project path is machine-specific, so it is stood in for rather than snapshotted.
     const questions = confirm.mock.calls.map(([call]) => call?.message?.replace(process.cwd(), '<project>'))
     expect(questions).toStrictEqual([
-      'Let Kubb Studio read the files a generation produced?',
+      'Let Kubb Studio read the files a generation produced and its parsed spec?',
       'Let Kubb Studio write generated files into <project>?',
       'Let Kubb Studio change plugin options in kubb.config.ts?',
       'Let Kubb Studio run the formatter, the linter, and output.postGenerate?',

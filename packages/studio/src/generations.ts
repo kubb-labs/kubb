@@ -94,7 +94,7 @@ export async function generate({
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
   allowExec: boolean
-}): Promise<SourceFiles> {
+}): Promise<SourceFiles & { document: unknown }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
   const kubb = createKubb({ ...config, output }, { hooks, signal })
   const result = await kubb.generate()
@@ -106,6 +106,7 @@ export async function generate({
     storage,
     root,
     paths: new Set(result.files.map((file) => relativeStoragePath({ root, filePath: file.path }))),
+    document: kubb.config.adapter?.document ?? null,
   }
 }
 
@@ -205,6 +206,20 @@ export function createGenerationStore({
   return {
     keep,
     drop,
+    /**
+     * Keeps the parsed source document of `jobId` next to its files. Nothing is kept for `null`.
+     */
+    async keepDocument({ jobId, document }: { jobId: string; document: unknown }): Promise<void> {
+      if (document === null || document === undefined) return
+      await storage.writeItem(`${dirOf(jobId)}document.json`, JSON.stringify(document))
+    },
+    /**
+     * The document {@link keepDocument} kept for `jobId`, or `undefined` when there is none.
+     */
+    async readDocument(jobId: string): Promise<unknown> {
+      const stored = await storage.readItem(`${dirOf(jobId)}document.json`)
+      return stored === null ? undefined : JSON.parse(stored)
+    },
     get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId && isLive(generation)),
     async add(generation: KeptGeneration): Promise<void> {
       const current = await load()

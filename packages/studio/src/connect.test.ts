@@ -7,7 +7,7 @@ import { join } from 'node:path'
 import { type Config, defineExtension, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type ConnectAgentOptions, connectAgent, IncompatibleAgentError, InvalidAgentTokenError, type OpenRpc, runAgent } from './connect.ts'
-import { AGENT_INSTANCE_HEADER, type AgentApi, AgentCloseCode, type AgentConnectInfo, MAX_PAGE_LINES } from './protocol.ts'
+import { AGENT_INSTANCE_HEADER, type AgentApi, AgentCloseCode, type AgentConnectInfo, GENERATION_GONE_MESSAGE, MAX_PAGE_LINES } from './protocol.ts'
 import { projectConfig, root } from './testing.ts'
 
 vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
@@ -419,6 +419,43 @@ describe('readFiles', () => {
       await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], ...page })).rejects.toThrow('The cursor must be')
     },
   )
+})
+
+describe('readDocument', () => {
+  const document = { openapi: '3.1.0', info: { title: 'Pet store', version: '1.0.0' }, paths: {} }
+  const withDocument = async () => ({ ...projectConfig(), adapter: { ...projectConfig().adapter!, document } }) as Config
+
+  it('refuses to read when the host did not grant allowRead, and names the permission for the host', async () => {
+    const { hooks, heard } = withHooks()
+    const warn = heard('studio:warn')
+    const { agent } = await connectStudio({ hooks, loadConfig: withDocument })
+    await run({ agent, jobId: 'job-1' })
+
+    await expect(agent.readDocument({ jobId: 'job-1' })).rejects.toThrow('The agent was not granted permission to read generated files')
+    expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('not granted'), permission: 'allowRead' })
+  })
+
+  it('returns the document the job parsed, also after the agent restarts', async () => {
+    const first = await connectStudio({ permissions: { allowRead: true }, loadConfig: withDocument })
+    await run({ agent: first.agent, jobId: 'job-1' })
+
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+
+    await expect(agent.readDocument({ jobId: 'job-1' })).resolves.toStrictEqual({ document })
+  })
+
+  it('refuses a job the agent does not keep', async () => {
+    const { agent } = await connectStudio({ permissions: { allowRead: true }, loadConfig: withDocument })
+
+    await expect(agent.readDocument({ jobId: 'job-unknown' })).rejects.toThrow(GENERATION_GONE_MESSAGE)
+  })
+
+  it('refuses a job whose adapter produced no document', async () => {
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+    await run({ agent, jobId: 'job-1' })
+
+    await expect(agent.readDocument({ jobId: 'job-1' })).rejects.toThrow('This job kept no source document')
+  })
 })
 
 describe('generation history', () => {

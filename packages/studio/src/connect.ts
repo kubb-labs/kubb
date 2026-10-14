@@ -39,6 +39,8 @@ import {
   type InstalledExtensions,
   MAX_FILES_PER_REQUEST,
   MAX_PAGE_LINES,
+  type ReadDocumentInput,
+  type ReadDocumentResult,
   type ReadFilesInput,
   type ReadFilesResult,
   type SaveConfigInput,
@@ -100,7 +102,7 @@ declare global {
       /**
        * A finished command and what it did, such as `applied 2/3 edits to kubb.config.ts`.
        */
-      'studio:command': [ctx: { command: 'generate' | 'saveConfig' | 'readFiles'; info: string }]
+      'studio:command': [ctx: { command: 'generate' | 'saveConfig' | 'readFiles' | 'readDocument'; info: string }]
       /**
        * A refused or ignored request, with the missing permission so the host can add a remedy.
        */
@@ -413,6 +415,7 @@ class Agent extends RpcTarget implements AgentApi {
     })
 
     const output = await this.#generations.keep({ jobId, source: 'output', files, maxSetMb: this.#limits.maxMb })
+    await this.#generations.keepDocument({ jobId, document: files.document })
     if (!output.paths.length && Object.keys(output.hashes).length) {
       await this.#warn({ message: 'Kept only the hashes of this generation: its output is too large to keep' })
     }
@@ -467,6 +470,21 @@ class Agent extends RpcTarget implements AgentApi {
 
   readFiles(input: ReadFilesInput): Promise<ReadFilesResult> {
     return this.#command({ command: 'readFiles', run: () => this.#readFiles(input) })
+  }
+
+  readDocument(input: ReadDocumentInput): Promise<ReadDocumentResult> {
+    return this.#command({ command: 'readDocument', run: () => this.#readDocument(input) })
+  }
+
+  async #readDocument(input: ReadDocumentInput): Promise<{ value: ReadDocumentResult; info: string }> {
+    if (!this.#permissions.allowRead) return this.#refuse({ message: 'The agent was not granted permission to read generated files', permission: 'allowRead' })
+    if (typeof input.jobId !== 'string' || !input.jobId) return this.#refuse({ message: 'The request must name a job' })
+
+    if (!(await this.#generations.get(input.jobId))) return this.#refuse({ message: GENERATION_GONE_MESSAGE })
+    const document = await this.#generations.readDocument(input.jobId)
+    if (document === undefined) return this.#refuse({ message: 'This job kept no source document' })
+
+    return { value: { document }, info: 'read the source document' }
   }
 
   async #readFiles(input: ReadFilesInput): Promise<{ value: ReadFilesResult; info: string }> {

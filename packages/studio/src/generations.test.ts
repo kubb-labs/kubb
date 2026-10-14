@@ -14,6 +14,20 @@ async function addRun({ store, jobId, files }: { store: GenerationStore; jobId: 
 }
 
 describe('createGenerationStore', () => {
+  it('keeps a job document across a restart and drops it with the job', async () => {
+    const storage = memoryStorage()
+    const store = createGenerationStore({ storage, maxCount: 4, maxMb: 10 })
+    await store.keepDocument({ jobId: 'job-1', document: { openapi: '3.1.0' } })
+    await store.keepDocument({ jobId: 'job-2', document: null })
+
+    const restarted = createGenerationStore({ storage, maxCount: 4, maxMb: 10 })
+
+    await expect(restarted.readDocument('job-1')).resolves.toStrictEqual({ openapi: '3.1.0' })
+    await expect(restarted.readDocument('job-2')).resolves.toBeUndefined()
+    await restarted.drop('job-1')
+    await expect(restarted.readDocument('job-1')).resolves.toBeUndefined()
+  })
+
   it('reads a generation back by its job id only, including after a restart', async () => {
     const storage = memoryStorage()
     await addRun({ store: createGenerationStore({ storage, maxCount: 4, maxMb: 10 }), jobId: 'job-1', files: { 'a.ts': 'one' } })

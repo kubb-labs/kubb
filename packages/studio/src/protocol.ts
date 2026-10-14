@@ -362,6 +362,22 @@ export type FilePage = { nextCursor: number | null; totalLines: number }
 export type ReadFilesResult = { files: Record<string, string>; pages?: Record<string, FilePage> }
 
 /**
+ * Asks the agent for the parsed source document of one generation job, such as the OpenAPI
+ * document, so Studio can describe the API without reading the spec itself.
+ */
+export type ReadDocumentInput = {
+  /**
+   * The job whose document to read. A job the agent no longer keeps fails with {@link GENERATION_GONE_MESSAGE}.
+   */
+  jobId: string
+}
+
+/**
+ * The parsed document the job's adapter produced, as JSON.
+ */
+export type ReadDocumentResult = { document: unknown }
+
+/**
  * The error a file read fails with once the agent no longer keeps the job's files.
  */
 export const GENERATION_GONE_MESSAGE = 'The files of this generation are no longer kept on the agent, run the generation again'
@@ -405,6 +421,10 @@ export type AgentApi = {
   startGeneration: (input: GenerateInput) => GenerationRun
   saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
   readFiles: (input: ReadFilesInput) => Promise<ReadFilesResult>
+  /**
+   * Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}.
+   */
+  readDocument: (input: ReadDocumentInput) => Promise<ReadDocumentResult>
 }
 
 /**
