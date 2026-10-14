@@ -58,17 +58,17 @@ export async function run({ ids, check, yes }: UpdateOptions): Promise<void> {
 
     let selected = proposals
     if (!yes) {
-      const ids = await clack.multiselect({
+      const chosen = await clack.multiselect({
         message: 'Select the updates to install:',
         options: proposals.map((entry) => ({ value: entry.id, label: entry.artifact.package, hint: change(entry) })),
         initialValues: proposals.map((entry) => entry.id),
         required: true,
       })
-      if (clack.isCancel(ids)) {
+      if (clack.isCancel(chosen)) {
         clack.cancel('Operation canceled.')
         return
       }
-      selected = proposals.filter((entry) => ids.includes(entry.id))
+      selected = proposals.filter((entry) => chosen.includes(entry.id))
     }
 
     const plural = selected.length === 1 ? '' : 's'

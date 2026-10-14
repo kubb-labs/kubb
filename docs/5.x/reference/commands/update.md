@@ -42,7 +42,7 @@ List the updates without installing them:
 kubb update --check
 ```
 
-Update two extensions without the confirmation:
+Install the updates for two extensions without the prompt:
 
 ```shell [Terminal]
 kubb update plugin-zod plugin-ts --yes

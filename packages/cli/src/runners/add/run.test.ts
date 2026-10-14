@@ -68,15 +68,11 @@ describe('kubb add', () => {
     await run({ yes: false, install: false })
 
     const prompt = vi.mocked(clack.autocomplete).mock.calls[0]![0]
-    expect(prompt.options).toEqual([
-      { value: 'acme/plugin-x', label: 'plugin-x', hint: 'acme/plugin-x · plugin 1.2.0 · An extension.' },
-      { value: 'acme/adapter-x', label: 'Adapter X', hint: 'acme/adapter-x · adapter 2.0.0 · Reads X files.' },
-    ])
-    const matches = (search: string) =>
-      (prompt.options as Array<{ value: string; label: string; hint: string }>).filter((option) => prompt.filter!(search, option)).map((option) => option.value)
-    expect(matches('Adapter')).toEqual(['acme/adapter-x'])
-    expect(matches('plugin-x')).toEqual(['acme/plugin-x'])
-    expect(matches('x files')).toEqual(['acme/adapter-x'])
+    const adapter = { value: 'acme/adapter-x', label: 'Adapter X', hint: 'acme/adapter-x · adapter 2.0.0 · Reads X files.' }
+    expect(prompt.options).toEqual([adapter, { value: 'acme/plugin-x', label: 'plugin-x', hint: 'acme/plugin-x · plugin 1.2.0 · An extension.' }])
+    expect(prompt.filter!('Adapter', adapter)).toBe(true)
+    expect(prompt.filter!('x files', adapter)).toBe(true)
+    expect(prompt.filter!('plugin-x', adapter)).toBe(false)
     expect(await readFile(path.join(cwd, 'kubb.config.ts'), 'utf8')).toContain('plugins: [pluginX()]')
   })
 

@@ -14,7 +14,7 @@ navigation:
 
 # kubb add
 
-Run `kubb add` to install an extension from the [Kubb registry](/docs/5.x/reference/registry) at the version the registry pins. Without an id, it lists every plugin, adapter, and parser in the registry with its name, id, kind, pinned version, and description, and asks which one to add. Type to search the list on any of those. It checks that the extension supports your Kubb and Node.js versions, asks for confirmation, and installs the package as a dev dependency. For a plugin, it also adds the plugin to `kubb.config.ts`. For an adapter or parser, it prints the code to add.
+Run `kubb add` to install an extension from the [Kubb registry](/docs/5.x/reference/registry) at the version the registry pins. Without an id, it asks which extension to add. It checks that the extension supports your Kubb and Node.js versions, asks for confirmation, and installs the package as a dev dependency. For a plugin, it also adds the plugin to `kubb.config.ts`. For an adapter or parser, it prints the code to add.
 
 Kubb detects the package manager (`npm`, `pnpm`, `yarn`, or `bun`) from your project.
 
@@ -28,12 +28,12 @@ kubb add
 
 ```text [Output]
 ◆  Select an extension to add:
-│  Search: Type to search
-│  ● React Query (kubb-labs/plugin-react-query · plugin 5.2.0 · Generates TanStack Query hooks for React.)
+│  Search: _
+│  ● OpenAPI (kubb-labs/adapter-oas · adapter 5.2.0 · Reads OpenAPI and Swagger documents.)
+│  ○ TypeScript parser
+│  ○ React Query
 │  ○ TypeScript
 │  ○ Zod
-│  ○ OpenAPI
-│  ○ TypeScript parser
 │  ↑/↓ to select • Enter: confirm • Type: to search
 ```
 

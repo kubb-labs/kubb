@@ -52,12 +52,10 @@ export async function addToConfig({
   }
 }
 
-/** Asks which registry extension to add, searchable by name, id, kind, or description. `undefined` when canceled. */
 async function selectExtension(registry: string): Promise<string | undefined> {
   const entries = await fetchRegistryIndex({ registry })
-  const kinds: Array<ExtensionManifest['kind']> = ['plugin', 'adapter', 'parser']
   const options = entries
-    .toSorted((a, b) => kinds.indexOf(a.kind) - kinds.indexOf(b.kind) || a.id.localeCompare(b.id))
+    .toSorted((a, b) => a.id.localeCompare(b.id))
     .map((entry) => ({
       value: entry.id,
       label: entry.manifest.displayName,
@@ -67,9 +65,7 @@ async function selectExtension(registry: string): Promise<string | undefined> {
 
   const id = await clack.autocomplete({
     message: 'Select an extension to add:',
-    placeholder: 'Type to search',
     options,
-    maxItems: 10,
     filter: (search, option) => `${option.label} ${option.hint}`.toLowerCase().includes(search.toLowerCase()),
   })
   return clack.isCancel(id) ? undefined : id
