@@ -100,12 +100,12 @@ export async function generate({
   allowExec: boolean
 }): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
-  // The driver drops its `InputNode` once the build ends, so keep the one the adapter returns.
+  // The driver drops its `InputNode` once the build ends, so keep the one the adapter returns. A proxy, not a
+  // copy, so getters such as `document` keep reading the live adapter.
   let input: InputNode | null = null
-  const adapter = config.adapter && {
-    ...config.adapter,
-    parse: async (...args: Parameters<Adapter['parse']>) => (input = await config.adapter!.parse(...args)),
-  }
+  const parse = async (...args: Parameters<Adapter['parse']>) => (input = await config.adapter!.parse(...args))
+  const adapter =
+    config.adapter && new Proxy(config.adapter, { get: (target, key, receiver) => (key === 'parse' ? parse : Reflect.get(target, key, receiver)) })
   const kubb = createKubb({ ...config, output, adapter }, { hooks, signal })
   const result = await kubb.generate()
   if (!result.success) throw generationFailure(result.diagnostics)
@@ -218,9 +218,9 @@ export function createGenerationStore({
     drop,
     /**
      * Keeps the `InputNode` of `jobId` and returns its size in bytes. Ref schemas drop the copy of their target, which
-     * `input.schemas` holds. Nothing is kept for `null` or an input JSON cannot hold.
+     * `input.schemas` holds. Nothing is kept for `null`, an input JSON cannot hold, or one above `maxSetMb`.
      */
-    async keepInput({ jobId, input }: { jobId: string; input: InputNode | null }): Promise<number> {
+    async keepInput({ jobId, input, maxSetMb }: { jobId: string; input: InputNode | null; maxSetMb: number }): Promise<number> {
       if (!input) return 0
       const slim = ast.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) })
       let serialized: string
@@ -229,6 +229,7 @@ export function createGenerationStore({
       } catch {
         return 0
       }
+      if (Buffer.byteLength(serialized) > maxSetMb * MB) return 0
       await storage.writeItem(`${dirOf(jobId)}input.json`, serialized)
       return Buffer.byteLength(serialized)
     },

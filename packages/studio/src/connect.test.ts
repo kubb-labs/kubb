@@ -435,6 +435,15 @@ describe('readInput', () => {
     await expect(agent.readInput({ jobId: 'job-1' })).resolves.toStrictEqual({ input: JSON.parse(JSON.stringify(input)) })
   })
 
+  it('keeps no input for a run without allowRead, so a later grant finds none', async () => {
+    const first = await connectStudio({ loadConfig: withInput })
+    await run({ agent: first.agent, jobId: 'job-1' })
+
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+
+    await expect(agent.readInput({ jobId: 'job-1' })).rejects.toThrow('This job kept no API input')
+  })
+
   it('refuses a job the agent does not keep', async () => {
     const { agent } = await connectStudio({ permissions: { allowRead: true }, loadConfig: withInput })
 
