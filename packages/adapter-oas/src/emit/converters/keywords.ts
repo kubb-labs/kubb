@@ -5,26 +5,20 @@ import type { ConvertContext } from '../parseSchema.ts'
 
 type Subschema = SchemaObject | boolean
 
+const subschemaKeys = ['not', 'if', 'then', 'else', 'propertyNames', 'contains', 'unevaluatedProperties', 'unevaluatedItems'] as const
+
 /**
  * The JSON Schema 2020-12 keywords read by {@link convertKeywords}. `SchemaObject` unions several
  * JSON Schema drafts that type these differently, so they are read through this view.
  */
 type KeywordsObject = {
-  not?: Subschema
-  if?: Subschema
-  then?: Subschema
-  else?: Subschema
+  [key in (typeof subschemaKeys)[number]]?: Subschema
+} & {
   dependentRequired?: Record<string, Array<string>>
   dependentSchemas?: Record<string, Subschema>
-  propertyNames?: Subschema
-  contains?: Subschema
   minContains?: number
   maxContains?: number
-  unevaluatedProperties?: Subschema
-  unevaluatedItems?: Subschema
 }
-
-const subschemaKeys = ['not', 'if', 'then', 'else', 'propertyNames', 'contains', 'unevaluatedProperties', 'unevaluatedItems'] as const
 
 /**
  * Parses a subschema. `required` names without a matching property (as in `not: { required: ['a', 'b'] }`)
