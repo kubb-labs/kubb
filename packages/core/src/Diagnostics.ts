@@ -7,19 +7,34 @@ import type { ExtensionKind, ExtensionNamed } from './defineExtension.ts'
 import type { KubbHooks } from './types.ts'
 import type { Hookable } from './Hookable.ts'
 
-/** Docs major version, derived from the package version so the link tracks the published major. */
+/**
+ * Docs major version, derived from the package version so the link tracks the published major.
+ */
 const docsMajor = version.split('.')[0] ?? '5'
 
-/** How serious a diagnostic is. `error` fails the build, `warning` and `info` are reported but do not. */
+/**
+ * How serious a diagnostic is. `error` fails the build, `warning` and `info`
+ * are reported but do not.
+ */
 export type DiagnosticSeverity = 'error' | 'warning' | 'info'
 
-/** A human-readable explanation of a diagnostic code: a short title, what triggers it, and how to resolve it. This is the source of truth the kubb.dev `/reference/diagnostics#<slug>` sections mirror, so every code stays documented in one place. Adding a code without documenting it fails the build. */
+/**
+ * A human-readable explanation of a diagnostic code: a short title, what triggers it, and how
+ * to resolve it. This is the source of truth the kubb.dev `/reference/diagnostics#<slug>` sections mirror, so
+ * every code stays documented in one place. Adding a code without documenting it fails the build.
+ */
 export type DiagnosticDoc = {
-  /** Short title shown as the docs heading. */
+  /**
+   * Short title shown as the docs heading.
+   */
   title: string
-  /** What triggers the diagnostic. */
+  /**
+   * What triggers the diagnostic.
+   */
   cause: string
-  /** The action that resolves it. */
+  /**
+   * The action that resolves it.
+   */
   fix: string
 }
 

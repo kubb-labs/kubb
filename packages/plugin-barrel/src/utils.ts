@@ -188,7 +188,9 @@ function findDirectory(tree: DirectoryNode, targetPath: string): DirectoryNode |
 }
 
 type GetBarrelFilesParams = {
-  /** Index built once via {@link buildBarrelIndex} for the shared output root. */
+  /**
+   * Index built once via {@link buildBarrelIndex} for the shared output root.
+   */
   index: BarrelIndex
   /** Absolute directory to root the barrel(s) at, a subtree of the index root. Defaults to the index root. */
   targetPath?: string
@@ -198,7 +200,9 @@ type GetBarrelFilesParams = {
   nested?: boolean
   /** Also generate a barrel for each sub-directory when `nested` is false. */
   recursive?: boolean
-  /** Collision identities reported by related barrel generations in the same build. */
+  /**
+   * Collision identities reported by related barrel generations in the same build.
+   */
   reportedCollisions?: Set<string>
 }
 
