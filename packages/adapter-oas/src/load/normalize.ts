@@ -91,14 +91,12 @@ export async function bundleDocument(pathOrUrl: string): Promise<Document> {
  * ```
  */
 export async function parseFromConfig(source: AdapterSource): Promise<Document> {
-  let raw: Document
-  if (source.type === 'data') {
+  const raw = await (async (): Promise<Document> => {
     // `parse` also handles JSON.
-    raw = typeof source.data === 'string' ? parse(source.data) : structuredClone(source.data as Document)
-  } else {
+    if (source.type === 'data') return typeof source.data === 'string' ? parse(source.data) : structuredClone(source.data as Document)
     await assertInputExists(source.path)
-    raw = await bundleDocument(source.path)
-  }
+    return bundleDocument(source.path)
+  })()
 
   // `upgrade` chains Swagger 2.0 -> 3.0 -> 3.1, leaving documents already on 3.1 untouched.
   return upgrade(raw, '3.1') as Document
