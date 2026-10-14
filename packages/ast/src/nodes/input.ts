@@ -2,39 +2,25 @@ import type { BaseNode } from './base.ts'
 import type { OperationNode } from './operation.ts'
 import type { SchemaNode } from './schema.ts'
 
-/**
- * A server the API document declares, with its `{variable}` placeholders filled from their defaults.
- */
+/** A server the API document declares, with its `{variable}` placeholders filled from their defaults. */
 export type InputServer = {
   url: string
   description?: string
 }
 
-/**
- * An authentication scheme the API document declares, such as a bearer token or an API key header.
- */
+/** An authentication scheme the API document declares, such as a bearer token or an API key header. */
 export type InputSecurityScheme = {
-  /**
-   * The scheme's key in the source document, such as `api_key`.
-   */
+  /** The scheme's key in the source document, such as `api_key`. */
   name: string
-  /**
-   * The scheme type: `apiKey`, `http`, `oauth2`, `openIdConnect`, or `mutualTLS`.
-   */
+  /** `apiKey`, `http`, `oauth2`, `openIdConnect`, or `mutualTLS`. */
   type: string
   description?: string
-  /**
-   * The HTTP authorization scheme of an `http` scheme, such as `bearer` or `basic`.
-   */
+  /** The HTTP authorization scheme of an `http` scheme, such as `bearer`. */
   scheme?: string
   bearerFormat?: string
-  /**
-   * Where an `apiKey` is sent: `header`, `query`, or `cookie`.
-   */
+  /** Where an `apiKey` is sent: `header`, `query`, or `cookie`. */
   in?: string
-  /**
-   * The header, query parameter, or cookie name of an `apiKey`.
-   */
+  /** The header, query parameter, or cookie name of an `apiKey`. */
   parameterName?: string
 }
 
@@ -67,13 +53,9 @@ export type InputMeta = {
    * Resolved base URL from the first matching server entry in the source document.
    */
   baseURL?: string | null
-  /**
-   * Every server the source document declares, in order. `baseURL` picks one of them.
-   */
+  /** Every server the source document declares, in order. `baseURL` picks one of them. */
   servers?: Array<InputServer>
-  /**
-   * Every authentication scheme the source document declares.
-   */
+  /** Every authentication scheme the source document declares. */
   securitySchemes?: Array<InputSecurityScheme>
   /**
    * Names of schemas that participate in a circular reference chain.

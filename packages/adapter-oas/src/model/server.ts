@@ -62,14 +62,7 @@ export function resolveServerUrl(server: ServerObject, overrides?: Record<string
   return url
 }
 
-/**
- * Every server the document declares, in order, with `{variable}` placeholders filled from their
- * defaults. A server whose default is outside its `enum` keeps its template URL instead of failing
- * the run.
- *
- * @example
- * `listServers(document) // [{ url: 'https://api.example.com/v1', description: 'Production' }]`
- */
+/** Every server the document declares, with `{variable}` defaults filled in. An invalid default keeps the template URL. */
 export function listServers(document: Document): Array<ast.InputServer> {
   return (document.servers ?? []).flatMap((server) => {
     if (typeof server?.url !== 'string' || !server.url) return []
@@ -77,7 +70,7 @@ export function listServers(document: Document): Array<ast.InputServer> {
     try {
       url = resolveServerUrl(server)
     } catch {
-      // Listing servers is informational, so a bad variable default never fails the run.
+      // Keeps the template URL.
     }
     return [server.description ? { url, description: server.description } : { url }]
   })

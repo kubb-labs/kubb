@@ -217,10 +217,8 @@ export function createGenerationStore({
     keep,
     drop,
     /**
-     * Keeps the `InputNode` of `jobId` next to its files and returns its size in bytes. A ref schema
-     * keeps its name but not the copy of its target, which `input.schemas` already holds, so the
-     * kept input stays close to the size of the spec. Nothing is kept for `null` or an input JSON
-     * cannot hold.
+     * Keeps the `InputNode` of `jobId` and returns its size in bytes. Ref schemas drop the copy of their target, which
+     * `input.schemas` holds. Nothing is kept for `null` or an input JSON cannot hold.
      */
     async keepInput({ jobId, input }: { jobId: string; input: InputNode | null }): Promise<number> {
       if (!input) return 0
@@ -234,9 +232,7 @@ export function createGenerationStore({
       await storage.writeItem(`${dirOf(jobId)}input.json`, serialized)
       return Buffer.byteLength(serialized)
     },
-    /**
-     * The input {@link keepInput} kept for `jobId`, or `undefined` when there is none.
-     */
+    /** The input {@link keepInput} kept for `jobId`, or `undefined` when there is none. */
     async readInput(jobId: string): Promise<InputNode | undefined> {
       const stored = await storage.readItem(`${dirOf(jobId)}input.json`)
       return stored === null ? undefined : (JSON.parse(stored) as InputNode)

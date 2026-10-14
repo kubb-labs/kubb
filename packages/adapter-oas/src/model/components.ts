@@ -200,13 +200,7 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
   return { schemas: sortSchemas(schemas), renames }
 }
 
-/**
- * Every authentication scheme in `components.securitySchemes`, by its key. A Swagger 2.0
- * `securityDefinitions` map arrives here too, since the document is up-converted first.
- *
- * @example
- * `listSecuritySchemes(document) // [{ name: 'api_key', type: 'apiKey', in: 'header', parameterName: 'X-API-Key' }]`
- */
+/** Every scheme in `components.securitySchemes` by its key, Swagger 2.0 `securityDefinitions` included after up-conversion. */
 export function listSecuritySchemes(document: Document): Array<ast.InputSecurityScheme> {
   return Object.entries(document.components?.securitySchemes ?? {}).flatMap(([name, value]) => {
     if (!value || typeof value !== 'object' || isReference(value)) return []
