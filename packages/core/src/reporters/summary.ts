@@ -1,6 +1,5 @@
 import { styleText } from 'node:util'
 import { formatMs } from '@internals/utils'
-import { SUMMARY_MAX_BAR_LENGTH, SUMMARY_TIME_SCALE_DIVISOR } from '../constants.ts'
 import type { Report } from './report.ts'
 
 /**
@@ -55,7 +54,8 @@ export function formatSummary(report: Report, { showTimings }: { showTimings: bo
     lines.push(styleText('dim', 'Timings'.padStart(labelWidth)))
     for (const timing of timings) {
       const timeStr = formatMs(timing.durationMs)
-      const barLength = Math.min(Math.ceil(timing.durationMs / SUMMARY_TIME_SCALE_DIVISOR), SUMMARY_MAX_BAR_LENGTH)
+      const barLength = Math.min(Math.ceil(timing.durationMs / 100), 10)
+      // One block per 100 ms, capped at ten.
       const bar = styleText('dim', '█'.repeat(barLength))
       lines.push(`${indent}${styleText('dim', '•')} ${timing.plugin.padEnd(nameWidth)} ${bar} ${timeStr}`)
     }

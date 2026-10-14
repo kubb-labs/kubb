@@ -10,9 +10,25 @@ export { containsCircularRef } from './utils/schemaGraph.ts'
 export {
   addGenerator,
   addMacro,
+  assertPluginOption,
+  createAdapter,
+  createRenderer,
+  createResolver,
+  createStorage,
+  defineExtension,
+  defineGenerator,
+  defineParser,
+  definePlugin,
+  Diagnostics,
+  fsStorage,
+  Hookable,
   injectFile,
+  isExtensionManifest,
   kubbContext,
+  manifestProblems,
+  memoryStorage,
   requirePlugin,
+  Resolver,
   setMacros,
   setOptions,
   setResolver,
@@ -21,19 +37,6 @@ export {
   useKubb,
   useOptions,
 } from '@kubb/core'
-export { createAdapter } from '@kubb/core'
-export { createRenderer } from '@kubb/core'
-export { createStorage } from '@kubb/core'
-export { defineExtension } from '@kubb/core'
-export { defineGenerator } from '@kubb/core'
-export { defineParser } from '@kubb/core'
-export { assertPluginOption, definePlugin } from '@kubb/core'
-export { createResolver, Resolver } from '@kubb/core'
-export { Diagnostics } from '@kubb/core'
-export { Hookable } from '@kubb/core'
-export { isExtensionManifest, manifestProblems } from '@kubb/core'
-export { fsStorage } from '@kubb/core'
-export { memoryStorage } from '@kubb/core'
 export type {
   Adapter,
   AdapterDefinition,

@@ -2,46 +2,13 @@ import { randomBytes } from 'node:crypto'
 import os from 'node:os'
 import process from 'node:process'
 import { getElapsedMs, isCIEnvironment, runtime } from '@internals/utils'
-import { getAgentName } from './agent.ts'
+import { getAgentProfile } from 'gunshi/agent'
 import { version } from '../package.json'
 
 /** OpenTelemetry ingestion endpoint for anonymous usage telemetry. */
 const OTLP_ENDPOINT = 'https://otlp.kubb.dev' as const
 
 type TelemetryCommand = 'generate' | 'mcp' | 'studio' | 'validate'
-
-type OtlpValue =
-  | { stringValue: string }
-  | { boolValue: boolean }
-  | { intValue: number }
-  | { arrayValue: { values: Array<OtlpValue> } }
-  | { kvlistValue: { values: Array<OtlpKeyValue> } }
-
-type OtlpKeyValue = {
-  key: string
-  value: OtlpValue
-}
-
-type OtlpSpan = {
-  traceId: string
-  spanId: string
-  name: string
-  kind: 1
-  startTimeUnixNano: string
-  endTimeUnixNano: string
-  attributes: Array<OtlpKeyValue>
-  status: { code: 1 | 2 }
-}
-
-type OtlpExportTraceServiceRequest = {
-  resourceSpans: Array<{
-    resource: { attributes: Array<OtlpKeyValue> }
-    scopeSpans: Array<{
-      scope: { name: string; version: string }
-      spans: Array<OtlpSpan>
-    }>
-  }>
-}
 
 /**
  * Anonymous plugin name and options snapshot sent with each telemetry event.
@@ -57,35 +24,11 @@ export type TelemetryPlugin = {
   options: Record<string, unknown>
 }
 
-/**
- * Anonymous snapshot of a single Kubb run, built by {@link buildTelemetryEvent} and sent by {@link sendTelemetry}.
- */
-type TelemetryEvent = {
-  command: string
-  kubbVersion: string
-  /**
-   * Major version of Node that executed the run, e.g. `'22'`.
-   */
-  nodeVersion: string
-  /**
-   * Name of the JavaScript runtime that executed the run, `'bun'`, `'deno'`, or `'node'`.
-   */
-  runtime: string
-  /**
-   * Major version of the active runtime, e.g. `'1'` under Bun or `'22'` under Node.
-   */
-  runtimeVersion: string
-  platform: string
-  ci: boolean
-  /**
-   * Name of the detected AI coding agent (e.g. `'claude'`, `'cursor'`), when the CLI is invoked
-   * by one. `undefined` when run by a human or an unrecognized caller.
-   */
-  agent?: string
-  plugins: Array<TelemetryPlugin>
-  duration: number
-  filesCreated: number
+/** How a command run ended, as the command reports it to the function {@link trackRun} returned. */
+type RunResult = {
   status: 'success' | 'failed'
+  plugins?: Array<TelemetryPlugin>
+  filesCreated?: number
 }
 
 /**
@@ -95,71 +38,36 @@ export function isDisabled(): boolean {
   return ['DO_NOT_TRACK', 'KUBB_DISABLE_TELEMETRY'].some((name) => ['1', 'true'].includes(process.env[name] ?? ''))
 }
 
-/**
- * Build an anonymous telemetry payload from a completed generation run.
- */
-export function buildTelemetryEvent(options: {
-  command: TelemetryCommand
-  kubbVersion: string
-  plugins?: Array<TelemetryPlugin>
-  hrStart: [number, number]
-  filesCreated?: number
-  status: 'success' | 'failed'
-}): TelemetryEvent {
-  const duration = Math.round(getElapsedMs(options.hrStart))
-
-  return {
-    command: options.command,
-    kubbVersion: options.kubbVersion,
-    nodeVersion: process.versions.node.split('.')[0] as string,
-    runtime: runtime.name,
-    runtimeVersion: runtime.version.split('.')[0] as string,
-    platform: os.platform(),
-    ci: isCIEnvironment(),
-    agent: getAgentName(),
-    plugins: options.plugins ?? [],
-    duration,
-    filesCreated: options.filesCreated ?? 0,
-    status: options.status,
-  }
-}
-
-type TrackRunOptions = {
-  command: TelemetryCommand
-  /** `process.hrtime()` snapshot taken when the command started. */
-  hrStart: [number, number]
-}
-
-type RunResult = Pick<TelemetryEvent, 'status'> & Partial<Pick<TelemetryEvent, 'plugins' | 'filesCreated'>>
-
 /** Tracks one command run for the running CLI version; returns the reporter the command calls once it knows how it ended. */
-export function trackRun({ command, hrStart }: TrackRunOptions): (result: RunResult) => Promise<void> {
-  return (result) => sendTelemetry(buildTelemetryEvent({ command, kubbVersion: version, hrStart, ...result }))
+export function trackRun({ command, hrStart }: { command: TelemetryCommand; hrStart: [number, number] }): (result: RunResult) => Promise<void> {
+  return (result) => sendTelemetry(buildOtlpPayload({ command, duration: Math.round(getElapsedMs(hrStart)), ...result }))
 }
 
 /**
- * Convert a {@link TelemetryEvent} into an OTLP-compatible JSON trace payload.
+ * The OTLP trace payload for one run: a span named after the command whose attributes are the
+ * anonymous run facts. The attribute keys are the contract with otlp.kubb.dev.
  *
  * @see https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/
  */
-export function buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceRequest {
+export function buildOtlpPayload({ command, duration, status, plugins = [], filesCreated = 0 }: RunResult & { command: TelemetryCommand; duration: number }) {
   const traceId = randomBytes(16).toString('hex')
   const spanId = randomBytes(8).toString('hex')
   const endTimeNs = BigInt(Date.now()) * 1_000_000n
-  const startTimeNs = endTimeNs - BigInt(event.duration) * 1_000_000n
-  const pluginNames = [...new Set(event.plugins.map((plugin) => plugin.name))].sort()
+  const startTimeNs = endTimeNs - BigInt(duration) * 1_000_000n
+  const pluginNames = [...new Set(plugins.map((plugin) => plugin.name))].sort()
+  const agent = getAgentProfile()
 
-  const attributes: Array<OtlpKeyValue> = [
-    { key: 'kubb.command', value: { stringValue: event.command } },
-    { key: 'kubb.version', value: { stringValue: event.kubbVersion } },
-    { key: 'kubb.node_version', value: { stringValue: event.nodeVersion } },
-    { key: 'kubb.runtime', value: { stringValue: event.runtime } },
-    { key: 'kubb.runtime_version', value: { stringValue: event.runtimeVersion } },
-    { key: 'kubb.platform', value: { stringValue: event.platform } },
-    { key: 'kubb.ci', value: { boolValue: event.ci } },
-    ...(event.agent ? [{ key: 'kubb.agent', value: { stringValue: event.agent } }] : []),
-    { key: 'kubb.files_created', value: { intValue: event.filesCreated } },
-    { key: 'kubb.status', value: { stringValue: event.status } },
+  const attributes = [
+    { key: 'kubb.command', value: { stringValue: command } },
+    { key: 'kubb.version', value: { stringValue: version } },
+    { key: 'kubb.node_version', value: { stringValue: process.versions.node.split('.')[0] as string } },
+    { key: 'kubb.runtime', value: { stringValue: runtime.name } },
+    { key: 'kubb.runtime_version', value: { stringValue: runtime.version.split('.')[0] as string } },
+    { key: 'kubb.platform', value: { stringValue: os.platform() } },
+    { key: 'kubb.ci', value: { boolValue: isCIEnvironment() } },
+    ...(agent.isAgent && agent.name ? [{ key: 'kubb.agent', value: { stringValue: agent.name } }] : []),
+    { key: 'kubb.files_created', value: { intValue: filesCreated } },
+    { key: 'kubb.status', value: { stringValue: status } },
     {
       key: 'kubb.plugins',
       value: { arrayValue: { values: pluginNames.map((name) => ({ stringValue: name })) } },
@@ -169,7 +77,7 @@ export function buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceR
       key: 'kubb.plugin_options',
       value: {
         arrayValue: {
-          values: event.plugins.map((p) => ({
+          values: plugins.map((p) => ({
             kvlistValue: {
               values: [
                 { key: 'name', value: { stringValue: p.name } },
@@ -196,27 +104,24 @@ export function buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceR
         resource: {
           attributes: [
             { key: 'service.name', value: { stringValue: 'kubb' } },
-            {
-              key: 'service.version',
-              value: { stringValue: event.kubbVersion },
-            },
+            { key: 'service.version', value: { stringValue: version } },
             { key: 'telemetry.sdk.language', value: { stringValue: 'nodejs' } },
           ],
         },
         scopeSpans: [
           {
-            scope: { name: 'kubb-core', version: event.kubbVersion },
+            scope: { name: 'kubb-core', version },
             spans: [
               {
                 traceId,
                 spanId,
-                name: event.command,
+                name: command,
                 kind: 1,
                 startTimeUnixNano: String(startTimeNs),
                 endTimeUnixNano: String(endTimeNs),
                 attributes,
                 status: {
-                  code: event.status === 'success' ? 1 : 2,
+                  code: status === 'success' ? 1 : 2,
                 },
               },
             ],
@@ -228,11 +133,11 @@ export function buildOtlpPayload(event: TelemetryEvent): OtlpExportTraceServiceR
 }
 
 /**
- * Send an anonymous telemetry event to the Kubb OTLP endpoint. Respects `DO_NOT_TRACK` and
+ * Send an OTLP payload to the Kubb endpoint. Respects `DO_NOT_TRACK` and
  * `KUBB_DISABLE_TELEMETRY`, and fails silently so telemetry never interrupts a run. No file
  * paths, OpenAPI specs, or secrets are sent.
  */
-export async function sendTelemetry(event: TelemetryEvent): Promise<void> {
+export async function sendTelemetry(payload: ReturnType<typeof buildOtlpPayload>): Promise<void> {
   if (isDisabled()) {
     return
   }
@@ -245,7 +150,7 @@ export async function sendTelemetry(event: TelemetryEvent): Promise<void> {
         'Kubb-Telemetry-Version': '1',
         'Kubb-Telemetry-Source': 'kubb-cli',
       },
-      body: JSON.stringify(buildOtlpPayload(event)),
+      body: JSON.stringify(payload),
       signal: AbortSignal.timeout(5_000),
     })
   } catch (_e) {

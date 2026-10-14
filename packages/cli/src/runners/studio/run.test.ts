@@ -10,7 +10,7 @@ import * as env from '../../utils/env.ts'
 import * as config from '../../config.ts'
 import * as credentialsStore from './credentials.ts'
 import type { Credentials } from './credentials.ts'
-import { connect, formatPermissionRows, login, resolvePermissions, type StudioOptions } from './run.ts'
+import { connect, login, resolvePermissions, type StudioOptions } from './run.ts'
 
 vi.mock('@clack/prompts', () => ({
   confirm: vi.fn(),
@@ -138,22 +138,6 @@ describe('resolvePermissions', () => {
     }
   })
 
-  it('asks for editing kubb.config.ts on its own, not as part of writing generated files', async () => {
-    using _project = stubProject()
-    confirm.mockResolvedValue(false)
-
-    await resolvePermissions(options, credentials)
-
-    // The project path is machine-specific, so it is stood in for rather than snapshotted.
-    const questions = confirm.mock.calls.map(([call]) => call?.message?.replace(process.cwd(), '<project>'))
-    expect(questions).toStrictEqual([
-      'Let Kubb Studio read the files a generation produced and its parsed spec?',
-      'Let Kubb Studio write generated files into <project>?',
-      'Let Kubb Studio change plugin options in kubb.config.ts?',
-      'Let Kubb Studio run the formatter, the linter, and output.postGenerate?',
-    ])
-  })
-
   it('names the config the project actually has, not the default', async () => {
     using _project = stubProject()
     confirm.mockResolvedValue(false)
@@ -176,27 +160,6 @@ describe('resolvePermissions', () => {
     })
     expect(confirm).not.toHaveBeenCalled()
     expect(project.write).not.toHaveBeenCalled()
-  })
-
-  it('still asks for the other two when one permission is granted by flag', async () => {
-    using _project = stubProject()
-    confirm.mockResolvedValue(false)
-
-    await resolvePermissions({ ...options, permission: { ...options.permission, allowConfigEdit: true } }, credentials)
-
-    expect(confirm).toHaveBeenCalledTimes(3)
-    expect(confirm.mock.calls.some(([call]) => call?.message?.includes('plugin options'))).toBe(false)
-  })
-})
-
-describe('formatPermissionRows', () => {
-  it('marks every permission with whether it was granted', () => {
-    expect(formatPermissionRows({ allowRead: true, allowWrite: true, allowConfigEdit: false, allowExec: false })).toStrictEqual([
-      '✔ read generated files',
-      '✔ write generated files',
-      '✘ edit kubb.config.ts',
-      '✘ run formatter, linter, postGenerate',
-    ])
   })
 })
 

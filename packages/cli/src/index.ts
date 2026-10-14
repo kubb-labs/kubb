@@ -3,15 +3,15 @@ import dryrun from '@gunshi/plugin-dryrun'
 import { cli } from 'gunshi'
 import { isDisabled as isTelemetryDisabled } from './Telemetry.ts'
 import { version } from '../package.json'
-import { command as addCommand } from './commands/add.ts'
 import { command as generateCommand } from './commands/generate.ts'
-import { command as initCommand } from './commands/init.ts'
-import { command as listCommand } from './commands/list.ts'
 import { command as mcpCommand } from './commands/mcp.ts'
 import { command as studioCommand, routeStudioFlags } from './commands/studio/index.ts'
-import { command as updateCommand } from './commands/update.ts'
 import { command as validateCommand } from './commands/validate.ts'
 import { resolveDeprecatedFlags } from './deprecatedFlags.ts'
+import { command as addCommand } from './runners/add/run.ts'
+import { command as initCommand } from './runners/init/run.ts'
+import { command as listCommand } from './runners/list/run.ts'
+import { command as updateCommand } from './runners/update/run.ts'
 
 /** Flags that short-circuit execution (help and version). The telemetry notice is suppressed for these. */
 const QUIET_FLAGS = new Set<string>(['--help', '-h', '--version', '-v', '--json'])
@@ -31,7 +31,7 @@ export async function run(argv: Array<string> = process.argv.slice(2)): Promise<
     )
   }
 
-  // Each command's `run` imports its runner, so an optional peer (@kubb/adapter-oas, @kubb/mcp, @kubb/studio) loads only when it runs.
+  // validate, mcp and studio import their runner when they run, so an optional peer (@kubb/adapter-oas, @kubb/mcp, @kubb/studio) loads only then.
   await cli(args, generateCommand, {
     name: 'kubb',
     version,

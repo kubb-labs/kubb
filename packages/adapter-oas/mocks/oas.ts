@@ -1,185 +1,188 @@
-import { parseDocument } from '../src/load/normalize.ts'
+import { upgrade } from '@scalar/openapi-upgrader'
 import type { Document } from '../src/types.ts'
 
-export async function buildMinimalOas() {
-  // Intentionally a 3.0.3 document (note `nullable`) to exercise the 3.0 -> 3.1 upgrade in
-  // `parseDocument`. The `Document` type describes the upgraded 3.1 output, so cast the input.
-  return parseDocument({
-    openapi: '3.0.3',
-    info: { title: 'Test', version: '1.0.0' },
-    paths: {
-      '/pets': {
-        get: {
-          operationId: 'listPets',
-          summary: 'List all pets',
-          tags: ['pets'],
-          parameters: [
-            {
-              name: 'limit',
-              in: 'query',
-              required: false,
-              schema: { type: 'integer', minimum: 1, maximum: 100 },
-            },
-          ],
-          responses: {
-            '200': {
-              description: 'A list of pets',
-              content: {
-                'application/json': {
-                  schema: { $ref: '#/components/schemas/PetList' },
+export async function buildMinimalOas(): Promise<Document> {
+  // Intentionally a 3.0.3 document (note `nullable`) to exercise the 3.0 -> 3.1 upgrade.
+  // The `Document` type describes the upgraded 3.1 output, so cast the input.
+  return upgrade(
+    {
+      openapi: '3.0.3',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/pets': {
+          get: {
+            operationId: 'listPets',
+            summary: 'List all pets',
+            tags: ['pets'],
+            parameters: [
+              {
+                name: 'limit',
+                in: 'query',
+                required: false,
+                schema: { type: 'integer', minimum: 1, maximum: 100 },
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'A list of pets',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/PetList' },
+                  },
                 },
               },
-            },
-            '400': {
-              description: 'Bad request',
-              content: {
-                'application/json': {
-                  schema: { $ref: '#/components/schemas/Error' },
-                },
-              },
-            },
-          },
-        },
-        post: {
-          operationId: 'createPet',
-          tags: ['pets'],
-          deprecated: true,
-          requestBody: {
-            description: 'New pet to create',
-            required: true,
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/NewPet' },
-              },
-            },
-          },
-          responses: {
-            '201': {
-              description: 'Pet created',
-              content: {
-                'application/json': {
-                  schema: { $ref: '#/components/schemas/Pet' },
+              '400': {
+                description: 'Bad request',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/Error' },
+                  },
                 },
               },
             },
           },
-        },
-      },
-      '/pets/{petId}': {
-        get: {
-          operationId: 'getPetById',
-          tags: ['pets'],
-          parameters: [
-            {
-              name: 'petId',
-              in: 'path',
+          post: {
+            operationId: 'createPet',
+            tags: ['pets'],
+            deprecated: true,
+            requestBody: {
+              description: 'New pet to create',
               required: true,
-              schema: { type: 'integer' },
-            },
-          ],
-          responses: {
-            '200': {
-              description: 'A single pet',
               content: {
                 'application/json': {
-                  schema: { $ref: '#/components/schemas/Pet' },
+                  schema: { $ref: '#/components/schemas/NewPet' },
                 },
               },
             },
-            '404': { description: 'Not found' },
-          },
-        },
-        patch: {
-          operationId: 'patchPet',
-          tags: ['pets'],
-          parameters: [
-            {
-              name: 'petId',
-              in: 'path',
-              required: true,
-              schema: { type: 'integer' },
-            },
-          ],
-          requestBody: {
-            description: 'Optional pet fields to update',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/NewPet' },
+            responses: {
+              '201': {
+                description: 'Pet created',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/Pet' },
+                  },
+                },
               },
             },
           },
-          responses: {
-            '200': {
-              description: 'Pet updated',
+        },
+        '/pets/{petId}': {
+          get: {
+            operationId: 'getPetById',
+            tags: ['pets'],
+            parameters: [
+              {
+                name: 'petId',
+                in: 'path',
+                required: true,
+                schema: { type: 'integer' },
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'A single pet',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/Pet' },
+                  },
+                },
+              },
+              '404': { description: 'Not found' },
+            },
+          },
+          patch: {
+            operationId: 'patchPet',
+            tags: ['pets'],
+            parameters: [
+              {
+                name: 'petId',
+                in: 'path',
+                required: true,
+                schema: { type: 'integer' },
+              },
+            ],
+            requestBody: {
+              description: 'Optional pet fields to update',
               content: {
                 'application/json': {
-                  schema: { $ref: '#/components/schemas/Pet' },
+                  schema: { $ref: '#/components/schemas/NewPet' },
+                },
+              },
+            },
+            responses: {
+              '200': {
+                description: 'Pet updated',
+                content: {
+                  'application/json': {
+                    schema: { $ref: '#/components/schemas/Pet' },
+                  },
                 },
               },
             },
           },
         },
       },
-    },
-    components: {
-      schemas: {
-        Pet: {
-          type: 'object',
-          required: ['id', 'name'],
-          properties: {
-            id: { type: 'integer', readOnly: true },
-            name: { type: 'string' },
-            tag: { type: 'string', nullable: true },
-          },
-        },
-        NewPet: {
-          type: 'object',
-          required: ['name'],
-          properties: {
-            name: { type: 'string' },
-            tag: { type: 'string' },
-          },
-        },
-        PetList: {
-          type: 'array',
-          items: { $ref: '#/components/schemas/Pet' },
-        },
-        Error: {
-          type: 'object',
-          required: ['code', 'message'],
-          properties: {
-            code: { type: 'integer' },
-            message: { type: 'string' },
-          },
-        },
-        Status: {
-          type: 'string',
-          enum: ['active', 'inactive', 'pending'],
-        },
-        PetOrError: {
-          oneOf: [{ $ref: '#/components/schemas/Pet' }, { $ref: '#/components/schemas/Error' }],
-        },
-        FullPet: {
-          allOf: [
-            { $ref: '#/components/schemas/Pet' },
-            {
-              type: 'object',
-              properties: {
-                createdAt: { type: 'string', format: 'date-time' },
-                email: { type: 'string', format: 'email' },
-              },
+      components: {
+        schemas: {
+          Pet: {
+            type: 'object',
+            required: ['id', 'name'],
+            properties: {
+              id: { type: 'integer', readOnly: true },
+              name: { type: 'string' },
+              tag: { type: 'string', nullable: true },
             },
-          ],
-        },
-        NullableString: {
-          example: 'some-value',
-          readOnly: true,
-          allOf: [{ type: 'string', nullable: true }],
-        },
-        NullableRef: {
-          allOf: [{ $ref: '#/components/schemas/Pet', nullable: true }],
+          },
+          NewPet: {
+            type: 'object',
+            required: ['name'],
+            properties: {
+              name: { type: 'string' },
+              tag: { type: 'string' },
+            },
+          },
+          PetList: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/Pet' },
+          },
+          Error: {
+            type: 'object',
+            required: ['code', 'message'],
+            properties: {
+              code: { type: 'integer' },
+              message: { type: 'string' },
+            },
+          },
+          Status: {
+            type: 'string',
+            enum: ['active', 'inactive', 'pending'],
+          },
+          PetOrError: {
+            oneOf: [{ $ref: '#/components/schemas/Pet' }, { $ref: '#/components/schemas/Error' }],
+          },
+          FullPet: {
+            allOf: [
+              { $ref: '#/components/schemas/Pet' },
+              {
+                type: 'object',
+                properties: {
+                  createdAt: { type: 'string', format: 'date-time' },
+                  email: { type: 'string', format: 'email' },
+                },
+              },
+            ],
+          },
+          NullableString: {
+            example: 'some-value',
+            readOnly: true,
+            allOf: [{ type: 'string', nullable: true }],
+          },
+          NullableRef: {
+            allOf: [{ $ref: '#/components/schemas/Pet', nullable: true }],
+          },
         },
       },
-    },
-  } as unknown as Document)
+    } as unknown as Document,
+    '3.1',
+  ) as Document
 }

@@ -1,4 +1,3 @@
-import { EventEmitter as NodeEventEmitter } from 'node:events'
 import { toError } from '@internals/utils'
 
 /**
@@ -9,7 +8,6 @@ type AsyncListener<TArgs extends Array<unknown>> = (...args: TArgs) => unknown
 
 /**
  * Typed hook emitter that awaits all async listeners before resolving.
- * Wraps Node's `EventEmitter` with full TypeScript hook-map inference.
  *
  * @example
  * ```ts
@@ -19,15 +17,7 @@ type AsyncListener<TArgs extends Array<unknown>> = (...args: TArgs) => unknown
  * ```
  */
 export class Hookable<THooks extends { [K in keyof THooks]: Array<unknown> }> {
-  /**
-   * Maximum number of listeners per hook before Node emits a memory-leak warning.
-   * @default 10
-   */
-  constructor(maxListener = 10) {
-    this.#emitter.setMaxListeners(maxListener)
-  }
-
-  #emitter = new NodeEventEmitter()
+  readonly #listeners = new Map<string, Set<AsyncListener<Array<unknown>>>>()
 
   /**
    * Calls `hookName` and awaits all registered listeners sequentially.
@@ -39,20 +29,13 @@ export class Hookable<THooks extends { [K in keyof THooks]: Array<unknown> }> {
    * ```
    */
   callHook<THookName extends keyof THooks & string>(hookName: THookName, ...hookArgs: THooks[THookName]): Promise<void> | void {
-    const listeners = this.#emitter.listeners(hookName) as Array<AsyncListener<THooks[THookName]>>
+    const listeners = this.#listeners.get(hookName)
+    if (!listeners?.size) return
 
-    if (listeners.length === 0) {
-      return
-    }
-
-    return this.#emitAll(hookName, listeners, hookArgs)
+    return this.#emitAll(hookName, [...listeners], hookArgs)
   }
 
-  async #emitAll<THookName extends keyof THooks & string>(
-    hookName: THookName,
-    listeners: Array<AsyncListener<THooks[THookName]>>,
-    hookArgs: THooks[THookName],
-  ): Promise<void> {
+  async #emitAll(hookName: string, listeners: Array<AsyncListener<Array<unknown>>>, hookArgs: Array<unknown>): Promise<void> {
     for (const listener of listeners) {
       try {
         await listener(...hookArgs)
@@ -73,7 +56,9 @@ export class Hookable<THooks extends { [K in keyof THooks]: Array<unknown> }> {
    * ```
    */
   hook<THookName extends keyof THooks & string>(hookName: THookName, handler: AsyncListener<THooks[THookName]>): () => void {
-    this.#emitter.on(hookName, handler as AsyncListener<Array<unknown>>)
+    let listeners = this.#listeners.get(hookName)
+    if (!listeners) this.#listeners.set(hookName, (listeners = new Set()))
+    listeners.add(handler as AsyncListener<Array<unknown>>)
     return () => this.removeHook(hookName, handler)
   }
 
@@ -106,7 +91,7 @@ export class Hookable<THooks extends { [K in keyof THooks]: Array<unknown> }> {
    * ```
    */
   removeHook<THookName extends keyof THooks & string>(hookName: THookName, handler: AsyncListener<THooks[THookName]>): void {
-    this.#emitter.off(hookName, handler as AsyncListener<Array<unknown>>)
+    this.#listeners.get(hookName)?.delete(handler as AsyncListener<Array<unknown>>)
   }
 
   /**
@@ -119,21 +104,15 @@ export class Hookable<THooks extends { [K in keyof THooks]: Array<unknown> }> {
    * ```
    */
   listenerCount<THookName extends keyof THooks & string>(hookName: THookName): number {
-    return this.#emitter.listenerCount(hookName)
+    return this.#listeners.get(hookName)?.size ?? 0
   }
 
   /**
-   * Raises or lowers the per-hook listener ceiling before Node warns about a memory leak.
-   * Set this above the expected listener count when many listeners attach by design.
+   * No-op kept for callers written against the `EventEmitter`-backed version. Listeners are unbounded.
    *
-   * @example
-   * ```ts
-   * hooks.setMaxListeners(40)
-   * ```
+   * @deprecated There is no listener ceiling anymore.
    */
-  setMaxListeners(max: number): void {
-    this.#emitter.setMaxListeners(max)
-  }
+  setMaxListeners(_max: number): void {}
 
   /**
    * Removes all listeners from every hook channel.
@@ -144,6 +123,6 @@ export class Hookable<THooks extends { [K in keyof THooks]: Array<unknown> }> {
    * ```
    */
   removeAllHooks(): void {
-    this.#emitter.removeAllListeners()
+    this.#listeners.clear()
   }
 }

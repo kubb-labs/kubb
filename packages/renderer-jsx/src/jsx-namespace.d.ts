@@ -1,6 +1,6 @@
 import type { KubbReactElement, KubbReactNode, Key } from './types'
 
-import type { ast } from '@kubb/kit'
+import type { ast } from '@kubb/ast'
 
 /**
  * JSX contract for `@kubb/renderer-jsx`, resolved through `jsxImportSource`.

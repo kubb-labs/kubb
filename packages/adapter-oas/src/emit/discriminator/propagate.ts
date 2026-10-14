@@ -18,20 +18,12 @@ export function buildDiscriminatorChildMap(schemas: Array<ast.SchemaNode>): Map<
   for (const schema of schemas) {
     // Case 1: top-level schema is a union (oneOf/anyOf with discriminator)
     // Case 2: top-level schema is an intersection wrapping a union (oneOf/anyOf + shared properties)
-    let unionNode = ast.narrowSchema(schema, 'union')
-
-    if (!unionNode) {
-      const intersectionMembers = ast.narrowSchema(schema, 'intersection')?.members
-      if (intersectionMembers) {
-        for (const m of intersectionMembers) {
-          const u = ast.narrowSchema(m, 'union')
-          if (u) {
-            unionNode = u
-            break
-          }
-        }
-      }
-    }
+    const unionNode =
+      ast.narrowSchema(schema, 'union') ??
+      ast
+        .narrowSchema(schema, 'intersection')
+        ?.members?.map((member) => ast.narrowSchema(member, 'union'))
+        .find((union) => union)
 
     if (!unionNode?.discriminatorPropertyName || !unionNode.members) continue
 

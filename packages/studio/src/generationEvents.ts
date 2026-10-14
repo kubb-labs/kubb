@@ -15,7 +15,7 @@ const isDiscardable = (event: GenerationEvent) => event.type === 'kubb:files:pro
 export function createGenerationStream(
   hooks: Hookable<KubbHooks>,
   jobId: string,
-): { stream: ReadableStream<GenerationEvent>; close: () => Promise<void>; dispose: () => void; fail: (error: unknown) => void } {
+): { stream: ReadableStream<GenerationEvent>; close: () => Promise<void>; fail: (error?: unknown) => void } {
   const unhooks: Array<() => void> = []
   let root = ''
   let controller!: ReadableStreamDefaultController<GenerationEvent>
@@ -154,5 +154,5 @@ export function createGenerationStream(
     controller.error(error)
   }
 
-  return { stream, close, dispose: () => fail(), fail }
+  return { stream, close, fail }
 }

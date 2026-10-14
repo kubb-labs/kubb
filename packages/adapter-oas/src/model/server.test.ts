@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { parseFromConfig } from '../load/normalize.ts'
 import type { Document } from '../types.ts'
 import { listServers, resolveBaseUrl, resolveServerUrl } from './server.ts'
 
@@ -27,20 +26,16 @@ const minimalSpec: Document = {
 }
 
 describe('resolveBaseUrl', () => {
-  it('returns the server URL at the given index', async () => {
-    const document = await parseFromConfig({ type: 'data', data: minimalSpec })
-    const url = resolveBaseUrl({ document, server: { index: 0 } })
-    expect(url).toBe('https://api.example.com/v1')
+  it('returns the server URL at the given index', () => {
+    expect(resolveBaseUrl({ document: minimalSpec, server: { index: 0 } })).toBe('https://api.example.com/v1')
   })
 
   it.each([
     { title: 'no server index is provided', server: {} },
     { title: 'no server is provided', server: undefined },
     { title: 'the server index is out of range', server: { index: 99 } },
-  ])('returns null when $title', async ({ server }) => {
-    const document = await parseFromConfig({ type: 'data', data: minimalSpec })
-
-    expect(resolveBaseUrl({ document, server })).toBeNull()
+  ])('returns null when $title', ({ server }) => {
+    expect(resolveBaseUrl({ document: minimalSpec, server })).toBeNull()
   })
 })
 
@@ -49,37 +44,16 @@ describe('resolveServerUrl', () => {
     expect(resolveServerUrl({ url: 'https://api.example.com' })).toBe('https://api.example.com')
   })
 
-  it('replaces a variable with the provided override', () => {
-    expect(
-      resolveServerUrl(
-        {
-          url: 'https://{env}.api.example.com',
-          variables: { env: { default: 'dev', enum: ['dev', 'prod'] } },
-        },
-        { env: 'prod' },
-      ),
-    ).toBe('https://prod.api.example.com')
-  })
-
-  it('falls back to the variable default when no override is given', () => {
-    expect(
-      resolveServerUrl({
-        url: 'https://{env}.api.example.com',
-        variables: { env: { default: 'dev' } },
-      }),
-    ).toBe('https://dev.api.example.com')
-  })
-
-  it('replaces multiple variables', () => {
+  it('replaces variables from the override, falling back to the variable default', () => {
     expect(
       resolveServerUrl(
         {
           url: 'https://{env}.api.example.com/{version}',
-          variables: { env: { default: 'dev' }, version: { default: 'v1' } },
+          variables: { env: { default: 'dev', enum: ['dev', 'prod'] }, version: { default: 'v1' } },
         },
-        { env: 'prod', version: 'v2' },
+        { env: 'prod' },
       ),
-    ).toBe('https://prod.api.example.com/v2')
+    ).toBe('https://prod.api.example.com/v1')
   })
 
   it('throws when an override value is not in the allowed enum list', () => {

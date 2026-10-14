@@ -1,4 +1,4 @@
-import type { ast } from '@kubb/kit'
+import type { ast } from '@kubb/ast'
 import type { Key, KubbReactElement, KubbReactNode } from '../types.ts'
 
 type BasePropsWithBaseName = {

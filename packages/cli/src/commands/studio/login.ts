@@ -1,14 +1,13 @@
-import { define } from 'gunshi'
 import { command as connectCommand } from './connect.ts'
+import { studioCommand } from './studioCommand.ts'
 
-export const command = define({
+export const command = studioCommand({
   name: 'login',
   description: 'Pair this machine with Kubb Studio without connecting.',
   examples: ['kubb studio login', 'kubb studio login --url http://localhost:3000'].join('\n'),
-  toKebab: true,
   args: connectCommand.args,
-  async run(ctx) {
-    const { loginRunner } = await import('../../runners/studio/commands.ts')
-    await loginRunner(ctx)
+  async action(options) {
+    const { login } = await import('../../runners/studio/run.ts')
+    await login(options)
   },
 })

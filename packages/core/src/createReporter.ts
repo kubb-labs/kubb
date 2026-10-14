@@ -94,7 +94,6 @@ export type Reporter = {
    * Whether the host should collect files from `kubb:plugin:end` hooks.
    */
   needsPluginFiles?: boolean
-  [Symbol.dispose](): void
 }
 
 /**
@@ -147,9 +146,6 @@ export function createReporter<T = void>(reporter: UserReporter<T>): Reporter {
     },
     async drain(context) {
       await reporter.drain?.(context, [...reports])
-      reports.length = 0
-    },
-    [Symbol.dispose]() {
       reports.length = 0
     },
   }

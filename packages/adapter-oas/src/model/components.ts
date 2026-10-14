@@ -43,7 +43,7 @@ type GetSchemasResult = {
  * // SchemaObject | null
  * ```
  */
-export function extractSchemaFromContent(content: Record<string, unknown> | undefined, preferredContentType?: ContentType): SchemaObject | null {
+function extractSchemaFromContent(content: Record<string, unknown> | undefined, preferredContentType?: ContentType): SchemaObject | null {
   if (!content) return null
 
   const firstContentType = Object.keys(content)[0] ?? 'application/json'
@@ -91,7 +91,7 @@ function* collectRefs(schema: unknown): Generator<string, void, undefined> {
  * // Pet appears before Order when Order.$ref points at Pet
  * ```
  */
-export function sortSchemas(schemas: Record<string, SchemaObject>): Record<string, SchemaObject> {
+function sortSchemas(schemas: Record<string, SchemaObject>): Record<string, SchemaObject> {
   const deps = new Map<string, Array<string>>()
 
   for (const [name, schema] of Object.entries(schemas)) {
@@ -125,28 +125,6 @@ const semanticSuffixes: Record<SchemaSourceMode, string> = {
   schemas: 'Schema',
   responses: 'Response',
   requestBodies: 'Request',
-}
-
-/**
- * Picks the collision suffix for one name-colliding schema: none when the name is unique,
- * a semantic suffix (`Schema`, `Response`, `Request`) when the collision spans sources, otherwise
- * a numeric suffix (`2`, `3`, …) for same-source collisions.
- */
-function collisionSuffix({
-  isSingle,
-  hasMultipleSources,
-  source,
-  index,
-}: {
-  isSingle: boolean
-  hasMultipleSources: boolean
-  source: SchemaSourceMode
-  index: number
-}): string {
-  if (isSingle) return ''
-  if (hasMultipleSources) return semanticSuffixes[source]
-  if (index === 0) return ''
-  return String(index + 1)
 }
 
 /**
@@ -211,7 +189,8 @@ export function getSchemas(document: Document, { contentType }: { contentType?: 
     const hasMultipleSources = !isSingle && new Set(items.map((item) => item.source)).size > 1
 
     items.forEach((item, index) => {
-      const suffix = collisionSuffix({ isSingle, hasMultipleSources, source: item.source, index })
+      // Unique names keep theirs. A collision across sources gets a semantic suffix, within one source a numeric one.
+      const suffix = isSingle ? '' : hasMultipleSources ? semanticSuffixes[item.source] : index ? String(index + 1) : ''
       const uniqueName = item.originalName + suffix
       schemas[uniqueName] = item.schema
       if (suffix) renames.set(`#/components/${item.source}/${item.originalName}`, uniqueName)

@@ -1,8 +1,7 @@
-import { ast, type Diagnostic, Diagnostics } from '@kubb/kit'
+import { type Diagnostic, Diagnostics } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
 import { adapterOas } from './adapter.ts'
 import { formatMap, specialCasedFormats } from './constants.ts'
-import { scanSchema } from './schemaDiagnostics.ts'
 
 const spec = {
   openapi: '3.0.3',
@@ -117,42 +116,5 @@ describe('schema diagnostics during parse', () => {
     const diagnostics = await collect(allFormats)
 
     expect(diagnostics.filter((diagnostic) => diagnostic.code === 'KUBB_UNSUPPORTED_FORMAT')).toHaveLength(0)
-  })
-})
-
-describe('scanSchema referenced names', () => {
-  it('collects ref names nested in properties, arrays and unions in one walk', () => {
-    const node = ast.factory.createSchema({
-      type: 'object',
-      name: 'Pet',
-      properties: [
-        ast.factory.createProperty({
-          name: 'category',
-          required: false,
-          schema: ast.factory.createSchema({ type: 'ref', name: 'Category', ref: '#/components/schemas/Category' }),
-        }),
-        ast.factory.createProperty({
-          name: 'tags',
-          required: false,
-          schema: ast.factory.createSchema({ type: 'array', items: [ast.factory.createSchema({ type: 'ref', name: 'Tag', ref: '#/components/schemas/Tag' })] }),
-        }),
-        ast.factory.createProperty({
-          name: 'owner',
-          required: false,
-          schema: ast.factory.createSchema({
-            type: 'union',
-            members: [ast.factory.createSchema({ type: 'null' }), ast.factory.createSchema({ type: 'ref', name: 'User', ref: '#/components/schemas/User' })],
-          }),
-        }),
-      ],
-    })
-
-    expect(scanSchema({ node, name: 'Pet' })).toStrictEqual(new Set(['Category', 'Tag', 'User']))
-  })
-
-  it('returns an empty set for a schema without refs', () => {
-    const node = ast.factory.createSchema({ type: 'string' })
-
-    expect(scanSchema({ node, name: 'Name' })).toStrictEqual(new Set())
   })
 })

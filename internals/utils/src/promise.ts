@@ -9,18 +9,6 @@
  */
 export type PossiblePromise<T> = Promise<T> | T
 
-/** Returns `true` when `result` is a thenable `Promise`.
- *
- * @example
- * ```ts
- * isPromise(Promise.resolve(1)) // true
- * isPromise(42)                 // false
- * ```
- */
-export function isPromise<T>(result: PossiblePromise<T>): result is Promise<T> {
-  return result !== null && result !== undefined && typeof (result as Record<string, unknown>)['then'] === 'function'
-}
-
 type Store<TKey, TValue> = {
   has(key: TKey): boolean
   get(key: TKey): TValue | undefined

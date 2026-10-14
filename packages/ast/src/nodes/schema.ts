@@ -1,4 +1,3 @@
-import type { InferSchemaNode } from '../infer.ts'
 import type { BaseNode, DistributiveOmit } from './base.ts'
 import type { PropertyNode } from './property.ts'
 
@@ -64,7 +63,7 @@ export type SchemaType = keyof SchemaNodeByType
 /**
  * Scalar schema types without extra object/array/ref structure or constraints.
  */
-export type ScalarSchemaType = 'boolean' | 'null' | 'any' | 'unknown' | 'void' | 'never' | 'blob'
+export type ScalarSchemaType = 'boolean' | 'null' | 'any' | 'unknown' | 'void' | 'never' | 'blob' | 'ipv4' | 'ipv6'
 
 /**
  * Fields shared by all schema nodes.
@@ -561,36 +560,6 @@ type FormatStringSchemaNode = SchemaNodeBase & {
 }
 
 /**
- * IPv4 address schema node.
- *
- * @example
- * ```ts
- * const ipv4Schema: Ipv4SchemaNode = { kind: 'Schema', type: 'ipv4' }
- * ```
- */
-type Ipv4SchemaNode = SchemaNodeBase & {
-  /**
-   * Schema type discriminator.
-   */
-  type: 'ipv4'
-}
-
-/**
- * IPv6 address schema node.
- *
- * @example
- * ```ts
- * const ipv6Schema: Ipv6SchemaNode = { kind: 'Schema', type: 'ipv6' }
- * ```
- */
-type Ipv6SchemaNode = SchemaNodeBase & {
-  /**
-   * Schema type discriminator.
-   */
-  type: 'ipv6'
-}
-
-/**
  * Mapping from schema type literals to concrete schema node types.
  * Used by `narrowSchema`.
  */
@@ -618,8 +587,8 @@ export type SchemaNodeByType = {
   uuid: FormatStringSchemaNode
   email: FormatStringSchemaNode
   url: UrlSchemaNode
-  ipv4: Ipv4SchemaNode
-  ipv6: Ipv6SchemaNode
+  ipv4: ScalarSchemaNode
+  ipv6: ScalarSchemaNode
   blob: ScalarSchemaNode
 }
 
@@ -640,15 +609,11 @@ export type SchemaNode =
   | NumberSchemaNode
   | UrlSchemaNode
   | FormatStringSchemaNode
-  | Ipv4SchemaNode
-  | Ipv6SchemaNode
   | ScalarSchemaNode
 
 type CreateSchemaObjectInput = Omit<ObjectSchemaNode, 'kind' | 'properties' | 'primitive'> & { properties?: Array<PropertyNode>; primitive?: 'object' }
 type CreateSchemaInput = CreateSchemaObjectInput | DistributiveOmit<Exclude<SchemaNode, ObjectSchemaNode>, 'kind'>
-type CreateSchemaOutput<T extends CreateSchemaInput> = InferSchemaNode<T> & {
-  kind: 'Schema'
-}
+type CreateSchemaOutput<T extends CreateSchemaInput> = SchemaNodeByType[T['type']] & { kind: 'Schema' }
 
 /**
  * Maps schema `type` to its underlying `primitive`.

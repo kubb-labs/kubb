@@ -10,11 +10,6 @@ import type { ResponseNode } from './response.ts'
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'TRACE' | 'QUERY'
 
 /**
- * Transport an operation belongs to.
- */
-type OperationProtocol = 'http'
-
-/**
  * Fields shared by every operation, regardless of transport.
  */
 type OperationNodeBase = BaseNode & {
@@ -92,10 +87,7 @@ export type HttpOperationNode = OperationNodeBase & {
  * Operation for a non-HTTP transport. HTTP-only fields are forbidden.
  */
 export type GenericOperationNode = OperationNodeBase & {
-  /**
-   * Transport the operation belongs to.
-   */
-  protocol?: Exclude<OperationProtocol, 'http'>
+  protocol?: never
   method?: never
   path?: never
 }

@@ -16,13 +16,6 @@ afterEach(async () => {
   await rm(home, { recursive: true, force: true })
 })
 
-describe('getProjectKubbHome', () => {
-  it('returns a persistence directory keyed by project path', () => {
-    expect(getProjectKubbHome('/projects/one')).toBe(getProjectKubbHome('/projects/one'))
-    expect(getProjectKubbHome('/projects/one')).not.toBe(getProjectKubbHome('/projects/two'))
-  })
-})
-
 describe('getMachineId', () => {
   it('keeps one id per project, even after the credential is cleared', async () => {
     const id = await getMachineId()

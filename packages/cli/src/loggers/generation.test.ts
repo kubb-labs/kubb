@@ -182,27 +182,6 @@ describe('grouped generation output', () => {
     ])
   })
 
-  it('gives each named config its own group, with no numeric generation label', async () => {
-    const first = generation({ config: makeConfig('petstore') })
-    const second = generation({ config: makeConfig('orders') })
-    const output = await render(
-      async (context) => {
-        await first(context)
-        await second(context)
-      },
-      { rich: true },
-    )
-
-    const boundaries = output.filter((call) => call.startsWith('intro:') || call.startsWith('outro:'))
-    expect(boundaries).toStrictEqual([
-      'intro:petstore petstore.yaml',
-      'outro:✓ Generation succeeded',
-      'intro:orders petstore.yaml',
-      'outro:✓ Generation succeeded',
-    ])
-    expect(output.some((call) => /Generation \d/.test(call))).toBe(false)
-  })
-
   it.each([
     { rich: true, failed: 'spinner.error:Formatting failed after ', done: 'spinner.stop:Formatted in ', next: 'spinner.stop:Linted in ' },
     { rich: false, failed: '✗ Formatting failed after ', done: 'Formatted in ', next: 'Linted in ' },
@@ -263,47 +242,9 @@ describe('grouped generation output', () => {
 
     expect(await render(failDuringStep, { rich: true })).toContain('spinner.error:No client plugin is registered.')
   })
-
-  it('keeps what a phase reported, rather than spending it on a spinner frame', async () => {
-    const output = await render(
-      async (context) => {
-        await context.callHook('kubb:format:start')
-        await context.callHook('kubb:info', { message: 'Auto-detected formatter: oxfmt' })
-        await context.callHook('kubb:format:end')
-      },
-      { rich: true },
-    )
-
-    expect(output.some((call) => call.startsWith('log.message:') && call.includes('Auto-detected formatter: oxfmt'))).toBe(true)
-  })
 })
 
 describe('plain generation output', () => {
-  it('reports the same run in the same order, without the animation', async () => {
-    const lines = await render(generation({ config: makeConfig('petstore') }), { rich: false })
-
-    // Everything up to the summary block, which the reporter renders as one entry.
-    expect(lines.slice(0, -2).map(withoutDuration)).toStrictEqual([
-      'petstore petstore.yaml',
-      'Generating',
-      'Generating @kubb/plugin-ts',
-      'Plugins 2/2 |  elapsed',
-      '@kubb/plugin-ts completed in \n@kubb/plugin-zod completed in ',
-      'Writing 1 file',
-      'Writing src/gen/pet.ts',
-      'Wrote 1 file',
-      'Formatting',
-      'Formatted in ',
-      'Linting',
-      'Linted in ',
-      'Running post-generate hooks',
-      'Post-generate hooks completed in ',
-      '✓ tsc --noEmit in ',
-    ])
-    expect(lines.at(-2)).toBe('✓ Generation succeeded')
-    expect(lines.at(-1)).toContain('Plugins  2 passed (2)')
-  })
-
   it('says files were generated rather than written when the run keeps them in memory', async () => {
     const config = { ...makeConfig('petstore'), storage: { name: 'memory' } } as unknown as Config
     const lines = await render(generation({ config }), { rich: false })

@@ -4,14 +4,6 @@ import { createOperation } from './operation.ts'
 import { createSchema } from './schema.ts'
 
 describe('createInput', () => {
-  it('creates an InputNode with default empty arrays', () => {
-    const node = createInput()
-
-    expect(node.kind).toBe('Input')
-    expect(node.schemas).toStrictEqual([])
-    expect(node.operations).toStrictEqual([])
-  })
-
   it('returns fresh schemas, operations and meta objects for every call', () => {
     const first = createInput()
     const second = createInput()

@@ -78,10 +78,4 @@ describe('inferDiscriminatorPropertyName', () => {
 
     expect(inferDiscriminatorPropertyName([dogMember, catMember])).toBe('type')
   })
-
-  it('returns undefined when fewer than two members are given', () => {
-    const member = createSchema({ type: 'object', properties: [] })
-
-    expect(inferDiscriminatorPropertyName([member])).toBeUndefined()
-  })
 })

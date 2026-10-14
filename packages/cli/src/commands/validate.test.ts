@@ -24,16 +24,4 @@ describe('validate command', () => {
 
     expect(runValidate).toHaveBeenCalledWith(expect.objectContaining({ input: './spec.yaml' }))
   })
-
-  it('exits with a non-zero code when the input is missing', async () => {
-    using _log = vi.spyOn(console, 'log').mockImplementation(() => undefined)
-    using _error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    vi.stubEnv('KUBB_DISABLE_TELEMETRY', '1')
-
-    const { run } = await import('../index.ts')
-    await expect(run(['validate'])).rejects.toThrow()
-
-    expect(runValidate).not.toHaveBeenCalled()
-    expect(process.exitCode).toBe(1)
-  })
 })

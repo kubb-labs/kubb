@@ -2,9 +2,11 @@ import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import * as clack from '@clack/prompts'
+import { define } from 'gunshi'
+import { findConfigFile } from '@internals/shared'
 import { getErrorMessage } from '@internals/utils'
 import type { ExtensionManifest, RegistryDetail } from '@kubb/core'
-import { findConfigFile } from '../../config.ts'
+import { configArg, yesArg } from '../../commands/shared.ts'
 import { logBlock, logError, logInfo, logIntro, logOutro, logStep, logWarn } from '../../loggers/output.ts'
 import { fetchRegistryDetail, fetchRegistryIndex, incompatibility, installSpec, registryUrl, toRegistryId } from '../../utils/registry.ts'
 import { detectPackageManager, installPackages } from '../init/utils.ts'
@@ -132,3 +134,33 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     process.exitCode = 1
   }
 }
+
+export const command = define({
+  name: 'add',
+  description:
+    'Install a plugin, adapter, or parser from the Kubb registry at its reviewed version. Without an id, pick one from the registry. A plugin is added to kubb.config.ts, an adapter or parser prints the code to add. Reads KUBB_REGISTRY to use another registry.',
+  examples: [
+    'kubb add',
+    'kubb add plugin-zod',
+    'kubb add kubb-labs/plugin-react-query',
+    'kubb add acme/plugin-x --yes',
+    'kubb add plugin-zod --no-install',
+  ].join('\n'),
+  toKebab: true,
+  args: {
+    id: {
+      type: 'positional',
+      description: 'Registry id: owner/slug, or a slug for an official extension. Asked for when omitted',
+      required: false,
+    },
+    ...configArg,
+    ...yesArg,
+    install: {
+      type: 'boolean',
+      description: 'Install the package. Pass --no-install to only edit the config',
+      negatable: true,
+      default: true,
+    },
+  },
+  run: ({ values }) => run({ id: values.id, configPath: values.config, yes: values.yes, install: values.install }),
+})

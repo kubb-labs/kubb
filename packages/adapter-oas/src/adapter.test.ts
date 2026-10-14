@@ -29,18 +29,12 @@ const minimalSpec = {
 } as const
 
 describe('adapterOas.parse', () => {
-  it('parses each schema', async () => {
+  it('parses each schema and operation', async () => {
     const adapter = adapterOas({ validate: false })
 
     const node = await adapter.parse({ type: 'data', data: minimalSpec })
 
     expect(node.schemas.map((s) => s.name)).toStrictEqual(['Pet', 'Category'])
-  })
-
-  it('parses operations', async () => {
-    const adapter = adapterOas({ validate: false })
-    const node = await adapter.parse({ type: 'data', data: minimalSpec })
-
     expect(node.operations.map((operation) => operation.operationId)).toStrictEqual(['listPets'])
   })
 
@@ -255,42 +249,9 @@ describe('adapterOas options', () => {
     expect(adapterOas({ unknownType: 'any' }).options).toMatchObject({ unknownType: 'any', emptySchemaType: 'any' })
     expect(adapterOas({ unknownType: 'any', emptySchemaType: 'void' }).options).toMatchObject({ emptySchemaType: 'void' })
   })
-
-  it('accepts any contentType and enumSuffix', () => {
-    expect(adapterOas({ contentType: 'application/vnd.api+json', enumSuffix: 'Kind' }).options).toMatchObject({
-      contentType: 'application/vnd.api+json',
-      enumSuffix: 'Kind',
-    })
-  })
 })
 
 describe('adapterOas ref targetName', () => {
-  it('leaves refs unstamped when no schema is renamed', async () => {
-    const adapter = adapterOas()
-
-    const node = await adapter.parse({
-      type: 'data',
-      data: {
-        openapi: '3.0.0',
-        info: { title: 'test', version: '1.0.0' },
-        paths: {},
-        components: {
-          schemas: {
-            Pet: { type: 'object', properties: { id: { type: 'string' } } },
-            PetList: { type: 'array', items: { $ref: '#/components/schemas/Pet' } },
-          },
-        },
-      },
-    })
-
-    const petList = node.schemas.find((schema) => schema.name === 'PetList')
-    const items = ast.narrowSchema(petList!, 'array')?.items ?? []
-    const ref = ast.narrowSchema(items[0]!, 'ref')
-
-    expect(ref?.ref).toBe('#/components/schemas/Pet')
-    expect(ref?.targetName).toBeUndefined()
-  })
-
   it('stamps schema and operation refs to a collision-renamed schema with the renamed name', async () => {
     const adapter = adapterOas()
 

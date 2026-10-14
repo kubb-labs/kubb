@@ -1,4 +1,4 @@
-import type { ast } from '@kubb/kit'
+import type { ast } from '@kubb/ast'
 
 /**
  * Unique key for a Kubb JSX element in lists or conditional renders.

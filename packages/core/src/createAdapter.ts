@@ -1,6 +1,6 @@
 import type { PossiblePromise } from '@internals/utils'
 import type { InputNode } from '@kubb/ast'
-import { createExtensionFactory, defineExtension } from './defineExtension.ts'
+import { defineExtension } from './defineExtension.ts'
 import type { ExtensionFactory, ExtensionMeta } from './defineExtension.ts'
 
 /**
@@ -82,8 +82,6 @@ export type Adapter<TOptions extends AdapterFactoryOptions = AdapterFactoryOptio
   validate: (input: string, options?: { throwOnError?: boolean }) => Promise<void>
 }
 
-type AdapterBuilder<T extends AdapterFactoryOptions> = (options: T['options']) => Adapter<T>
-
 /**
  * The object passed to `defineExtension` with `kind: 'adapter'`.
  */
@@ -115,19 +113,6 @@ export type AdapterFactory<T extends AdapterFactoryOptions = AdapterFactoryOptio
  *
  * @deprecated Use `defineExtension` with `kind: 'adapter'` instead.
  */
-export function createAdapter<T extends AdapterFactoryOptions = AdapterFactoryOptions>(definition: AdapterDefinition<T>): AdapterFactory<T>
-/**
- * Wraps a factory function that returns an `Adapter`.
- *
- * @deprecated Pass a definition object with `kind: 'adapter'`, `meta`, and `build` to `defineExtension` instead. The factory form is removed in the next major.
- */
-export function createAdapter<T extends AdapterFactoryOptions = AdapterFactoryOptions>(
-  build: AdapterBuilder<T>,
-): ((options?: T['options']) => Adapter<T>) & { kind: 'adapter' }
-export function createAdapter(input: AdapterDefinition | AdapterBuilder<AdapterFactoryOptions>) {
-  if (typeof input === 'function') {
-    return createExtensionFactory({ kind: 'adapter', build: (options: object): Adapter => input(options) })
-  }
-
-  return defineExtension({ kind: 'adapter', ...input })
+export function createAdapter<T extends AdapterFactoryOptions = AdapterFactoryOptions>(definition: AdapterDefinition<T>): AdapterFactory<T> {
+  return defineExtension({ kind: 'adapter', ...definition })
 }

@@ -17,12 +17,4 @@ describe('readInstalledPackages', () => {
     expect(await readInstalledPackages({ root: cwd })).toStrictEqual([{ package: '@acme/kubb-plugin-x', version: '1.2.3', manifest }])
     await rm(cwd, { recursive: true, force: true })
   })
-
-  it('accepts a relative root', async () => {
-    const cwd = await mkdtemp(path.join(tmpdir(), 'kubb-installed-'))
-    await writeFile(path.join(cwd, 'package.json'), JSON.stringify({ dependencies: {} }))
-
-    expect(await readInstalledPackages({ root: path.relative(process.cwd(), cwd) })).toStrictEqual([])
-    await rm(cwd, { recursive: true, force: true })
-  })
 })

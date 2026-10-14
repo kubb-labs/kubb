@@ -1,5 +1,5 @@
-import { getAgentName } from '../agent.ts'
 import { isCIEnvironment } from '@internals/utils'
+import { getAgentProfile } from 'gunshi/agent'
 
 /**
  * Returns `true` when the process has an interactive TTY with a valid terminal
@@ -27,5 +27,5 @@ export function canUseTTY(): boolean {
  * pseudo-TTY, so it gets the plain writer.
  */
 export function isRichOutput(): boolean {
-  return canUseTTY() && !getAgentName()
+  return canUseTTY() && !getAgentProfile().isAgent
 }

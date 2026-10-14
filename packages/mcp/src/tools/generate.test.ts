@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
 import { generateTool } from './generate.ts'
 
-// loadUserConfig only loads a config that lives inside the current working directory,
+// The generate tool only loads a config that lives inside the current working directory,
 // so the fixture dir is created under the package (cwd during the test run).
 const dir = await mkdtemp(join(process.cwd(), 'kubb-mcp-generate-'))
 

@@ -5,20 +5,12 @@ describe('resolveDeprecatedFlags', () => {
   it.each([
     { argv: ['studio', '--allowWrite'], expected: ['studio', '--allow-write'], label: 'a deprecated camelCase flag' },
     { argv: ['generate', '--logLevel=verbose'], expected: ['generate', '--log-level=verbose'], label: 'a deprecated flag with an inline value' },
-  ])('rewrites $label to its kebab-case replacement', ({ argv, expected }) => {
-    using _ = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-
-    expect(resolveDeprecatedFlags(argv)).toStrictEqual(expected)
-  })
-
-  it('warns once per deprecated flag encountered', () => {
+  ])('rewrites $label to its kebab-case replacement and warns once', ({ argv, expected }) => {
     using spy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
-    resolveDeprecatedFlags(['studio', '--allowWrite', '--allowExec'])
-
-    expect(spy).toHaveBeenCalledTimes(2)
-    expect(spy.mock.calls[0]?.[0]).toContain('--allowWrite is deprecated, use --allow-write instead')
-    expect(spy.mock.calls[1]?.[0]).toContain('--allowExec is deprecated, use --allow-exec instead')
+    expect(resolveDeprecatedFlags(argv)).toStrictEqual(expected)
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy.mock.calls[0]?.[0]).toContain(`${argv[1]!.split('=')[0]} is deprecated, use ${expected[1]!.split('=')[0]} instead`)
   })
 
   it.each([

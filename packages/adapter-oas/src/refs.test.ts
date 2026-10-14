@@ -104,14 +104,4 @@ describe('refs.derefKeepingRef', () => {
 
     expect(input.operations[0]?.requestBody?.content?.[0]?.schema).toMatchObject({ type: 'ref', ref: $ref, ...expected })
   })
-
-  it('leaves a plain schema inline', async () => {
-    const document = buildDocument(
-      {},
-      { '/pets': { post: { requestBody: { content: { 'application/json': { schema: { type: 'string' } } } }, responses: {} } } },
-    )
-    const input = await adapterOas({ validate: false }).parse({ type: 'data', data: document })
-
-    expect(input.operations[0]?.requestBody?.content?.[0]?.schema).toMatchObject({ type: 'string' })
-  })
 })

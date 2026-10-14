@@ -1,6 +1,6 @@
 import { ast } from '@kubb/kit'
 import { describe, expect, it } from 'vitest'
-import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './propagate.ts'
+import { buildDiscriminatorChildMap } from './propagate.ts'
 
 function refSchema(name: string) {
   return ast.factory.createSchema({ type: 'ref', name, ref: `#/components/schemas/${name}` })
@@ -86,34 +86,5 @@ describe('buildDiscriminatorChildMap', () => {
 
     const map = buildDiscriminatorChildMap([unionA, unionB])
     expect(map.get('Pet')).toStrictEqual({ propertyName: 'kind', enumValues: ['cat', 'kitten'] })
-  })
-})
-
-describe('patchDiscriminatorNode', () => {
-  it('returns the node unchanged when it is not an object schema', () => {
-    const node = ast.factory.createSchema({ type: 'string' })
-    const result = patchDiscriminatorNode(node, { propertyName: 'kind', enumValues: ['cat'] })
-    expect(result).toBe(node)
-  })
-
-  it('adds the discriminant property when absent', () => {
-    const node = objectSchema([{ name: 'id', schema: ast.factory.createSchema({ type: 'integer' }) }])
-    const result = patchDiscriminatorNode(node, { propertyName: 'kind', enumValues: ['cat'] })
-
-    const obj = ast.narrowSchema(result, 'object')
-    expect(obj?.properties.map((p) => p.name)).toStrictEqual(['id', 'kind'])
-    const kind = obj?.properties.find((p) => p.name === 'kind')
-    expect(ast.narrowSchema(kind!.schema, 'enum')?.enumValues).toStrictEqual(['cat'])
-  })
-
-  it('replaces an existing property with the same name', () => {
-    const node = objectSchema([{ name: 'kind', schema: ast.factory.createSchema({ type: 'string' }) }])
-    const result = patchDiscriminatorNode(node, { propertyName: 'kind', enumValues: ['cat'] })
-
-    const obj = ast.narrowSchema(result, 'object')
-    expect(obj?.properties).toHaveLength(1)
-    const kind = obj?.properties[0]
-    expect(kind?.name).toBe('kind')
-    expect(ast.narrowSchema(kind!.schema, 'enum')?.enumValues).toStrictEqual(['cat'])
   })
 })

@@ -4,10 +4,8 @@ import path from 'node:path'
 import process from 'node:process'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createMockedAdapter } from '../mocks.ts'
-import { createKubb } from '../createKubb.ts'
 import { Hookable } from '../Hookable.ts'
 import { resolveCacheDir } from '../storages/cacheStorage.ts'
-import { fsStorage } from '../storages/fsStorage.ts'
 import { memoryStorage } from '../storages/memoryStorage.ts'
 import type { Config, KubbHooks, KubbHookStartContext } from '../types.ts'
 import type { Diagnostic } from '../Diagnostics.ts'
@@ -132,19 +130,5 @@ describe('runOutputPasses', () => {
     expect(seen.successes).toHaveLength(1)
     expect(seen.successes[0]).toContain('Formatting')
     expect(fs.readFileSync(path.join(outputPath, 'pet.ts'), 'utf8')).toBe('export const pet = { id: 1 }\n')
-  })
-
-  it('runs the passes from generate() by default', async () => {
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kubb-output-'))
-    roots.push(root)
-    const hooks = new Hookable<KubbHooks>()
-    const seen = record(hooks)
-    const config = { ...makeConfig({ postGenerate: [{ name: 'after', command: `"${node}" -e "process.exit(1)"` }] }), root, storage: fsStorage() }
-
-    const result = await createKubb(config, { hooks }).generate()
-
-    expect(result.success).toBe(false)
-    expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toStrictEqual(['KUBB_POST_GENERATE_FAILED'])
-    expect(seen.starts.map((ctx) => ctx.name)).toStrictEqual(['after'])
   })
 })

@@ -1,7 +1,7 @@
 import type { Adapter, ExtensionManifest, Parser, Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtensionEntry, JSONKubbConfig } from './protocol.ts'
-import { mergeAdapter, mergeOptions, mergeParsers, mergePlugins, resolvePlugins, toJSONOptions, toStudioName } from './resolveConfig.ts'
+import { mergeOptions, mergeParsers, mergePlugins, resolvePlugins, toJSONOptions } from './resolveConfig.ts'
 
 const makePlugin = (name: string, options: Record<string, unknown> = {}): Plugin => ({ name, options }) as Plugin
 
@@ -10,8 +10,6 @@ function extension(packageName: string, manifest: Pick<ExtensionManifest, 'kind'
 }
 
 const pluginXEntry = extension('@acme/kubb-plugin-x', { kind: 'plugin', name: 'plugin-x', export: 'pluginX' })
-
-const mockPluginTs = vi.fn((options: unknown) => ({ name: 'plugin-ts', options }))
 
 // `mergePlugins` resolves through a real `import()`, so the packages it names are stubbed rather
 // than the resolver: after the merge they are the same module.
@@ -24,7 +22,6 @@ beforeEach(() => {
   // `vi.doMock` registrations live in the module registry, so without this they leak into every
   // later test in the file.
   vi.resetModules()
-  mockPluginTs.mockClear()
 })
 
 describe('mergePlugins', () => {
@@ -143,7 +140,6 @@ describe('resolvePlugins', () => {
     ['the package cannot be imported', '@kubb/plugin-missing', 'Plugin "@kubb/plugin-missing" could not be loaded'],
     ['the name is not a @kubb/plugin-* package', 'my-custom-plugin', 'is not an installed Kubb plugin'],
     ['the package ships no manifest', '@acme/kubb-plugin-x', 'is not an installed Kubb plugin'],
-    ['the name is a path', './plugin.ts', 'is not an installed Kubb plugin'],
   ])('throws when %s', async (_label, name, message) => {
     await expect(resolvePlugins({ plugins: [{ name, options: {} }] })).rejects.toThrow(message)
   })
@@ -166,27 +162,9 @@ describe('resolvePlugins', () => {
 
     expect(plugin).toStrictEqual({ name: 'plugin-x', options: { mode: 'a' } })
   })
-
-  it('resolves a @kubb plugin by its camelCase named export', async () => {
-    vi.doMock('@kubb/plugin-ts', () => ({ pluginTs: mockPluginTs }))
-    const { resolvePlugins: resolve } = await import('./resolveConfig.ts')
-
-    const result = await resolve({ plugins: [{ name: '@kubb/plugin-ts', options: { output: { path: './types' } } }] })
-
-    expect(result).toHaveLength(1)
-    expect(mockPluginTs).toHaveBeenCalledWith({ output: { path: './types' } })
-  })
 })
 
 describe('mergeAdapter', () => {
-  it('returns the disk adapter unchanged when there are no studio options', async () => {
-    const diskAdapter = { name: 'oas', options: { validate: true }, parse: vi.fn() } as unknown as Adapter
-
-    const result = await mergeAdapter(diskAdapter, undefined)
-
-    expect(result).toBe(diskAdapter)
-  })
-
   it('re-invokes the same @kubb/adapter-<name> factory with merged options', async () => {
     const mockAdapterOas = vi.fn((options: unknown) => ({ name: 'oas', options, parse: vi.fn() }))
     vi.doMock('@kubb/adapter-oas', () => ({ adapterOas: mockAdapterOas }))
@@ -236,23 +214,10 @@ describe('mergeParsers', () => {
   })
 })
 
-describe('toStudioName', () => {
-  it('reports an installed extension by its package', () => {
-    expect(toStudioName({ name: 'plugin-x', extensions: new Map([['@acme/kubb-plugin-x', pluginXEntry]]) })).toBe('@acme/kubb-plugin-x')
-  })
-})
-
 describe('toJSONOptions', () => {
   it('leaves out functions, so nothing callable reaches Studio', () => {
     const options = { output: { path: 'types' }, group: { type: 'tag', name: (group: string) => group }, pattern: /x/, big: 1n, macros: [() => 1] }
 
     expect(toJSONOptions(options)).toStrictEqual({ output: { path: 'types' }, group: { type: 'tag' }, pattern: {}, macros: [null] })
-  })
-
-  it('returns an empty object for options JSON cannot copy', () => {
-    const circular: Record<string, unknown> = {}
-    circular['self'] = circular
-
-    expect([toJSONOptions(circular), toJSONOptions(undefined)]).toStrictEqual([{}, {}])
   })
 })

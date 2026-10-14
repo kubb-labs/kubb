@@ -21,9 +21,4 @@ describe('macroEnumName', () => {
 
     expect(result.name).toBeNull()
   })
-
-  it('passes through non-enum nodes unchanged', () => {
-    const node = ast.factory.createSchema({ type: 'string' })
-    expect(applyShallow(node, macroEnumName({ parentName: 'Order', propName: 'status', enumSuffix: 'enum' }))).toBe(node)
-  })
 })

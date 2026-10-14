@@ -1,14 +1,14 @@
 import { x } from 'tinyexec'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { isCIEnvironment } from './isCIEnvironment.ts'
 import { openInBrowser } from './openInBrowser.ts'
 
 vi.mock('tinyexec', () => ({ x: vi.fn(() => Promise.resolve()) }))
-
-afterEach(() => vi.unstubAllEnvs())
+vi.mock('./isCIEnvironment.ts', () => ({ isCIEnvironment: vi.fn() }))
 
 describe('openInBrowser', () => {
   it('does not open a browser in CI', () => {
-    vi.stubEnv('CI', 'true')
+    vi.mocked(isCIEnvironment).mockReturnValue(true)
 
     openInBrowser('https://kubb.dev')
 
@@ -16,20 +16,7 @@ describe('openInBrowser', () => {
   })
 
   it('opens the URL with the platform browser command', () => {
-    for (const key of [
-      'CI',
-      'GITHUB_ACTIONS',
-      'GITLAB_CI',
-      'BITBUCKET_BUILD_NUMBER',
-      'JENKINS_URL',
-      'CIRCLECI',
-      'TRAVIS',
-      'TEAMCITY_VERSION',
-      'BUILDKITE',
-      'TF_BUILD',
-    ]) {
-      vi.stubEnv(key, '')
-    }
+    vi.mocked(isCIEnvironment).mockReturnValue(false)
 
     openInBrowser('https://kubb.dev')
 

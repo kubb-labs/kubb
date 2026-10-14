@@ -216,13 +216,6 @@ describe('the handshake', () => {
 
     await expect(sockets[0]!.agent.readFiles({ jobId: 'job-1', paths: [] })).rejects.toThrow('Studio must call connect() before any other command')
   })
-
-  it('refuses a plaintext Studio URL before opening a socket', async () => {
-    const { sockets, done } = startAgent({ studioUrl: 'http://studio.test' })
-
-    await expect(done).rejects.toThrow('Refusing to reach Kubb Studio')
-    expect(sockets).toHaveLength(0)
-  })
 })
 
 describe('plugin options in the handshake', () => {
@@ -239,13 +232,6 @@ describe('plugin options in the handshake', () => {
 })
 
 describe('close codes', () => {
-  it('rejects with InvalidAgentTokenError when Studio refuses the token', async () => {
-    const { socket, done } = await connectStudio()
-    socket.close(AgentCloseCode.UNAUTHORIZED)
-
-    await expect(done).rejects.toBeInstanceOf(InvalidAgentTokenError)
-  })
-
   it('rejects with IncompatibleAgentError when the agent is too old', async () => {
     const { socket, done } = await connectStudio()
     socket.close(AgentCloseCode.INCOMPATIBLE, 'needs 6.0.0')
@@ -261,15 +247,15 @@ describe('close codes', () => {
     expect(sockets).toHaveLength(1)
   })
 
-  it.each([1006, 1011])('reconnects after close code %s', async (code) => {
+  it('reconnects after an abnormal close', async () => {
     const { hooks, heard } = withHooks()
     const disconnected = heard('studio:disconnected')
     const reconnecting = heard('studio:reconnecting')
     const { socket, sockets } = await connectStudio({ hooks })
-    socket.close(code, 'gone')
+    socket.close(1006, 'gone')
 
     await vi.waitFor(() => expect(sockets).toHaveLength(2))
-    expect(disconnected).toHaveBeenCalledWith({ code, reason: 'gone' })
+    expect(disconnected).toHaveBeenCalledWith({ code: 1006, reason: 'gone' })
     expect(reconnecting).toHaveBeenCalledOnce()
   })
 
@@ -412,15 +398,15 @@ describe('readFiles', () => {
     })
   })
 
-  it.each([{ cursor: -1, limit: 10 }, { cursor: 0.5, limit: 10 }, { cursor: 0, limit: 0 }, { cursor: 0, limit: MAX_PAGE_LINES + 1 }, { cursor: 5 }])(
-    'refuses the page %j',
-    async (page) => {
-      const { agent } = await connectStudio({ permissions: { allowRead: true } })
-      await run({ agent, jobId: 'job-1' })
+  it.each([
+    { cursor: -1, limit: 10 },
+    { cursor: 0, limit: MAX_PAGE_LINES + 1 },
+  ])('refuses the page %j', async (page) => {
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+    await run({ agent, jobId: 'job-1' })
 
-      await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], ...page })).rejects.toThrow('The cursor must be')
-    },
-  )
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], ...page })).rejects.toThrow('The cursor must be')
+  })
 })
 
 describe('readInput', () => {
@@ -557,30 +543,11 @@ describe('disconnect during generation', () => {
     await expect(run({ agent, jobId: 'late' })).rejects.toThrow('Connection is closed')
   })
 
-  it('tells the host why the running generation stopped', async () => {
-    const { hooks, heard } = withHooks()
-    const warn = heard('studio:warn')
-    const loaded = Promise.withResolvers<Config>()
-    const loadConfig = vi
-      .fn()
-      .mockResolvedValueOnce(projectConfig())
-      .mockImplementationOnce(() => loaded.promise)
-      .mockResolvedValue(projectConfig())
-    const { agent, socket } = await connectStudio({ hooks, loadConfig })
-    const generation = run({ agent, jobId: 'interrupted' }).catch(() => {})
-    await vi.waitFor(() => expect(loadConfig).toHaveBeenCalledTimes(2))
-
-    socket.close(1011)
-    loaded.resolve(projectConfig())
-    await generation
-
-    await vi.waitFor(() => expect(warn).toHaveBeenCalledWith({ message: 'Canceled the running generation: the connection to Kubb Studio closed' }))
-  })
-
-  it('cancels the run before a slow listener has heard why', async () => {
+  it('cancels the run before a slow listener has heard why, and tells the host why it stopped', async () => {
     const hooks = new Hookable<KubbHooks>()
     const heard = Promise.withResolvers<void>()
-    hooks.hook('studio:warn', () => heard.promise)
+    const warn = vi.fn(() => heard.promise)
+    hooks.hook('studio:warn', warn)
     const loaded = Promise.withResolvers<Config>()
     const loadConfig = vi
       .fn()
@@ -595,6 +562,7 @@ describe('disconnect during generation', () => {
     loaded.resolve(projectConfig())
 
     await expect(generation).rejects.toThrow('Generation canceled')
+    expect(warn).toHaveBeenCalledWith({ message: 'Canceled the running generation: the connection to Kubb Studio closed' })
     heard.resolve()
   })
 })

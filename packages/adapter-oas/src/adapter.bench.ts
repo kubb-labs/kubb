@@ -2,7 +2,7 @@ import path from 'node:path'
 import { ast } from '@kubb/kit'
 import { test } from 'vitest'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
-import { parseDocument } from './load/normalize.ts'
+import { parseFromConfig } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
 import { getOperations, parseOperation } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
@@ -16,25 +16,24 @@ let petStoreDoc: Document | undefined
 
 async function getPetStoreDocument(): Promise<Document> {
   if (!petStoreDoc) {
-    petStoreDoc = await parseDocument(petStorePath)
+    petStoreDoc = await parseFromConfig({ type: 'path', path: petStorePath })
   }
   return petStoreDoc
 }
 
-// Mirrors the adapter's convert pass: parse each schema, then in the same walk report diagnostics
-// and collect its outbound refs, so circular detection reads the collected graph instead of sweeping
-// the nodes a second time.
+// Mirrors the adapter's convert pass: parse each schema, report its diagnostics, then detect cycles.
 function parseOas(document: Document): void {
   const refs = createRefs(document)
   const { schemas: schemaObjects } = getSchemas(document, {}, refs)
   const parseSchema = createSchemaParser({ document, refs, options: DEFAULT_PARSER_OPTIONS })
 
-  const graph = new Map<string, Set<string>>()
+  const nodes: Array<ast.SchemaNode> = []
   for (const [name, schema] of Object.entries(schemaObjects)) {
     const node = parseSchema({ schema, name })
-    if (node.name) graph.set(node.name, scanSchema({ node, name }))
+    scanSchema({ node, name })
+    nodes.push(node)
   }
-  ast.findCircularSchemasFromGraph(graph)
+  ast.findCircularSchemas(nodes)
 
   for (const operation of getOperations(document, refs)) parseOperation({ operation, refs, options: DEFAULT_PARSER_OPTIONS, parseSchema })
 }

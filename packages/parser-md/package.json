@@ -1,7 +1,7 @@
 {
   "name": "@kubb/parser-md",
-  "version": "5.9.3",
-  "description": "Markdown source file parser for Kubb. Converts the universal AST to `.md` source and renders YAML frontmatter via the `print` helper.",
+  "version": "5.9.4",
+  "description": "Markdown source file parser for Kubb. Converts the universal AST to `.md` source and prepends YAML frontmatter from the file meta.",
   "keywords": [
     "codegen",
     "frontmatter",
@@ -65,7 +65,8 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@kubb/kit": "workspace:*",
+    "@kubb/ast": "workspace:*",
+    "@kubb/core": "workspace:*",
     "yaml": "catalog:"
   },
   "engines": {

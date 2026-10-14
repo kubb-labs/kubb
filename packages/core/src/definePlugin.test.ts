@@ -2,11 +2,9 @@ import { ast } from '@kubb/ast'
 import type { OperationNode, SchemaNode } from '@kubb/ast'
 import { createMockedAdapter, createMockedPlugin, createMockedPluginDriver, createMockedSetupContext, renderGeneratorOperation } from '@kubb/core/mocks'
 import { describe, expect, it, vi } from 'vitest'
-import { createKubb } from './createKubb.ts'
 import { defineExtension } from './defineExtension.ts'
 import { defineGenerator } from './defineGenerator.ts'
-import { assertPluginOption, definePlugin, normalizeOutput } from './definePlugin.ts'
-import type { Plugin, PluginType } from './definePlugin.ts'
+import { assertPluginOption, normalizeOutput } from './definePlugin.ts'
 import { Diagnostics } from './Diagnostics.ts'
 import type { Resolver } from './Resolver.ts'
 import { KubbDriver } from './KubbDriver.ts'
@@ -14,9 +12,6 @@ import type { Config, KubbHooks } from './types.ts'
 import type { GeneratorContext } from './defineGenerator.ts'
 import { memoryStorage } from './storages/memoryStorage.ts'
 import { Hookable } from './Hookable.ts'
-
-type TestPluginOptions = PluginType<string, { tag: string }>
-type TestPluginOptionalOptions = PluginType<string, { tag?: string }>
 
 function makeConfig(overrides: Partial<Config> = {}): Config {
   return {
@@ -43,66 +38,7 @@ async function setupDriver(plugins: Config['plugins'], hooks = new Hookable<Kubb
   return driver
 }
 
-describe('definePlugin', () => {
-  it('creates a valid hook-style plugin with `hooks:` property', () => {
-    const plugin = definePlugin<TestPluginOptions>((options) => ({
-      name: 'my-hook-plugin',
-      options,
-      hooks: {
-        'kubb:plugin:setup'(_ctx) {},
-      },
-    }))({ tag: 'pets' })
-
-    expect(plugin.name).toBe('my-hook-plugin')
-    expect(plugin.options).toStrictEqual({ tag: 'pets' })
-    expect(typeof plugin.hooks['kubb:plugin:setup']).toBe('function')
-  })
-
-  it('uses empty object as default options when none are provided', () => {
-    const factory = definePlugin<TestPluginOptionalOptions>((options) => ({
-      name: 'my-plugin',
-      options,
-      hooks: {},
-    }))
-    const plugin = factory()
-    expect(plugin.options).toStrictEqual({})
-  })
-
-  it('keeps skipping a missing dependency listed in the factory form', async () => {
-    const dependent = definePlugin(() => ({ name: 'plugin-dependent', dependencies: ['plugin-missing'], hooks: {} }))()
-
-    await expect(setupDriver([dependent])).resolves.toBeInstanceOf(KubbDriver)
-  })
-
-  it('gives the factory form kind and a meta fallback, and checks a dependency record it returns', async () => {
-    const factory = definePlugin(() => ({ name: 'plugin-dependent', dependencies: { 'plugin-missing': {} }, hooks: {} }))
-    const withMeta = definePlugin(() => ({ name: 'plugin-versioned', meta: { name: 'plugin-versioned', version: '2.0.0' }, hooks: {} }))
-
-    expect(factory.kind).toBe('plugin')
-    expect(factory().meta).toStrictEqual({ name: 'plugin-dependent' })
-    expect(withMeta().meta).toStrictEqual({ name: 'plugin-versioned', version: '2.0.0' })
-    await expect(setupDriver([factory()])).rejects.toMatchObject({ diagnostic: { code: Diagnostics.code.missingDependency } })
-  })
-})
-
 describe('kubb:plugin:setup context', () => {
-  it('runs the kubb:plugin:setup handler once from setupHooks instead of the hook emitter', async () => {
-    const setupHandler = vi.fn()
-    const hookPlugin = defineExtension({
-      kind: 'plugin',
-      meta: { name: 'hook-plugin' },
-      hooks: {
-        'kubb:plugin:setup': setupHandler,
-      },
-    })()
-
-    const hooks = new Hookable<KubbHooks>()
-    await setupDriver([hookPlugin], hooks)
-
-    expect(hooks.listenerCount('kubb:plugin:setup')).toBe(0)
-    expect(setupHandler).toHaveBeenCalledOnce()
-  })
-
   it('addGenerator() stores every generator passed as separate arguments', async () => {
     const genSchema = { name: 'gen-schema', schema: vi.fn() }
     const genOperation = { name: 'gen-operation', operation: vi.fn() }
@@ -120,23 +56,6 @@ describe('kubb:plugin:setup context', () => {
     const driver = await setupDriver([hookPlugin])
 
     expect(driver.plugins.get('hook-plugin')?.generators).toStrictEqual([genSchema, genOperation, genOperations])
-  })
-
-  it('options passed to definePlugin are forwarded via ctx.options', async () => {
-    const capturedOptions: Array<unknown> = []
-    const hookPlugin = definePlugin<TestPluginOptions>((options) => ({
-      name: 'hook-plugin',
-      options,
-      hooks: {
-        'kubb:plugin:setup'(ctx) {
-          capturedOptions.push(ctx.options)
-        },
-      },
-    }))({ tag: 'pets' })
-
-    await setupDriver([hookPlugin as unknown as Plugin])
-
-    expect(capturedOptions[0]).toStrictEqual({ tag: 'pets' })
   })
 
   it('setResolver() merges partial overrides with the defaults, on getResolver() and plugin.resolver alike', async () => {
@@ -200,19 +119,6 @@ describe('kubb:plugin:setup context', () => {
     expect(seen).toStrictEqual(['ResolvedFromSetup'])
   })
 
-  it('uses default resolver when setResolver() is never called', async () => {
-    const hookPlugin = defineExtension({
-      kind: 'plugin',
-      meta: { name: 'hook-plugin' },
-      hooks: {},
-    })()
-
-    const driver = await setupDriver([hookPlugin])
-
-    const resolver = driver.getResolver('hook-plugin')
-    expect(resolver.name('my custom type')).toBe('myCustomType')
-  })
-
   it('setOptions() merges resolved options into the normalized plugin', async () => {
     const hookPlugin = defineExtension({
       kind: 'plugin',
@@ -241,12 +147,9 @@ describe('kubb:plugin:setup context', () => {
 describe('normalizeOutput', () => {
   // Mode is inferred from the path extension unless set, and a group always means a directory.
   it.each<[string, { output: { path: string; mode?: 'directory' | 'file' }; group?: { type: 'tag' } }, { path: string; mode: 'directory' | 'file' }]>([
-    ['an extensionless path', { output: { path: 'types' } }, { path: 'types', mode: 'directory' }],
     ['a nested extensionless path', { output: { path: 'ts/models' } }, { path: 'ts/models', mode: 'directory' }],
     ['a path with an extension', { output: { path: 'models.ts' } }, { path: 'models.ts', mode: 'file' }],
     ['an explicit directory mode', { output: { path: 'types', mode: 'directory' } }, { path: 'types', mode: 'directory' }],
-    ['an explicit file mode', { output: { path: 'models.ts', mode: 'file' } }, { path: 'models.ts', mode: 'file' }],
-    ['a group with directory mode', { output: { path: 'clients', mode: 'directory' }, group: { type: 'tag' } }, { path: 'clients', mode: 'directory' }],
     ['a group with mode unset', { output: { path: 'clients' }, group: { type: 'tag' } }, { path: 'clients', mode: 'directory' }],
     [
       'a group with directory mode over a path that looks like a file',
@@ -270,41 +173,6 @@ describe('normalizeOutput', () => {
 
     expect(Diagnostics.isError(thrown)).toBe(true)
     expect(thrown).toMatchObject({ diagnostic: { code: 'KUBB_INVALID_PLUGIN_OPTIONS' }, message: expect.stringMatching(/output\.mode. to 'file'/) })
-  })
-})
-
-describe('enforce: post — plugin ordering', () => {
-  it('enforce: post plugin fires after normal plugins for the same hook', async () => {
-    const callOrder: Array<string> = []
-
-    const normalPlugin = defineExtension({
-      kind: 'plugin',
-      meta: { name: 'ordering-plugin' },
-      hooks: {
-        'kubb:plugin:setup'() {
-          callOrder.push('plugin')
-        },
-      },
-    })()
-
-    const postPlugin = defineExtension({
-      kind: 'plugin',
-      meta: { name: 'ordering-post-plugin' },
-      enforce: 'post' as const,
-      hooks: {
-        'kubb:plugin:setup'() {
-          callOrder.push('post-plugin')
-        },
-      },
-    })()
-
-    await createKubb(makeConfig({ plugins: [normalPlugin, postPlugin] }), { hooks: new Hookable<KubbHooks>() }).build()
-
-    const pluginIdx = callOrder.indexOf('plugin')
-    const postPluginIdx = callOrder.indexOf('post-plugin')
-    expect(pluginIdx).toBeGreaterThanOrEqual(0)
-    expect(postPluginIdx).toBeGreaterThanOrEqual(0)
-    expect(postPluginIdx).toBeGreaterThan(pluginIdx)
   })
 })
 

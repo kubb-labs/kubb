@@ -68,33 +68,26 @@ describe('pollForPairingToken', () => {
     await expect(promise).rejects.toBeInstanceOf(PairingExpiredError)
   })
 
-  it('keeps polling when Studio is briefly unreachable, and reports each miss through onRetry', async () => {
-    using warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const onRetry = vi.fn()
-    const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
-    fetchMock.mockRejectedValueOnce(new Error('socket hang up')).mockResolvedValueOnce(createMockResponse(result))
-
-    const promise = pollForPairingToken({ studioUrl: 'https://studio.test', session, onRetry })
-    await vi.runAllTimersAsync()
-
-    await expect(promise).resolves.toEqual(result)
-    expect(onRetry).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining('socket hang up') }))
-    expect(warn).not.toHaveBeenCalled()
-  })
-
   it.each([
-    ['a proxy answers a deploy with a 5xx page instead of JSON', new Response('<html>Bad Gateway</html>', { status: 502 }), 502],
-    ['Studio answers with a null JSON body', createMockResponse(null, 400), 400],
-  ])('keeps polling when %s', async (_case, first, status) => {
+    ['Studio is briefly unreachable', new Error('socket hang up'), 'socket hang up'],
+    [
+      'a proxy answers a deploy with a 5xx page instead of JSON',
+      new Response('<html>Bad Gateway</html>', { status: 502 }),
+      'Kubb Studio answered with status 502',
+    ],
+    ['Studio answers with a null JSON body', createMockResponse(null, 400), 'Kubb Studio answered with status 400'],
+  ])('keeps polling when %s, and reports the miss through onRetry', async (_case, first, message) => {
     const onRetry = vi.fn()
     const result = { token: 'agent-token', agent: { id: '1', slug: 'brave-otter', name: 'demo' } }
-    fetchMock.mockResolvedValueOnce(first).mockResolvedValueOnce(createMockResponse(result))
+    fetchMock
+      .mockImplementationOnce(() => (first instanceof Error ? Promise.reject(first) : Promise.resolve(first)))
+      .mockResolvedValueOnce(createMockResponse(result))
 
     const promise = pollForPairingToken({ studioUrl: 'https://studio.test', session, onRetry })
     await vi.runAllTimersAsync()
 
     await expect(promise).resolves.toEqual(result)
-    expect(onRetry).toHaveBeenCalledWith(expect.objectContaining({ message: `Kubb Studio answered with status ${status}` }))
+    expect(onRetry).toHaveBeenCalledWith(expect.objectContaining({ message: expect.stringContaining(message) }))
   })
 
   it('rejects with PairingCanceledError when the signal aborts during the wait between polls', async () => {

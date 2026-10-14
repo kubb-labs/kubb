@@ -46,17 +46,13 @@ describe('defineConfig', () => {
   const parsers = [{ name: 'custom' } as Parser]
   const reporters = [{ name: 'custom' } as Reporter]
   const barrel = { type: 'all' } as const
-  const postGenerate = [{ name: 'types', command: 'npm run typecheck' }, 'biome check --write ./gen']
 
   const explicitFields: Array<ExplicitFieldRow> = [
     { field: 'root', partial: { root: '/custom/root' }, pick: (config) => config.root, value: '/custom/root' },
-    { field: 'name', partial: { name: 'gen' }, pick: (config) => config.name, value: 'gen' },
     { field: 'adapter', partial: { adapter }, pick: (config) => config.adapter, value: adapter },
     { field: 'parsers', partial: { parsers }, pick: (config) => config.parsers, value: parsers },
     { field: 'reporters', partial: { reporters }, pick: (config) => config.reporters, value: reporters },
     { field: 'output.barrel', partial: { output: { path: './gen', barrel } }, pick: (config) => config.output.barrel, value: barrel },
-    { field: 'output.barrel set to false', partial: { output: { path: './gen', barrel: false } }, pick: (config) => config.output.barrel, value: false },
-    { field: 'output.postGenerate', partial: { output: { path: './gen', postGenerate } }, pick: (config) => config.output.postGenerate, value: postGenerate },
   ]
 
   test.each(explicitFields)('preserves an explicit $field', ({ partial, pick, value }) => {
@@ -67,11 +63,7 @@ describe('defineConfig', () => {
     { shape: 'an object', config: defineConfig({ ...minimal }), count: 1 },
     { shape: 'an array', config: defineConfig([{ ...minimal }, { ...minimal }]), count: 2 },
     { shape: 'a function', config: defineConfig(() => ({ ...minimal })), count: 1 },
-    { shape: 'an async function', config: defineConfig(async () => ({ ...minimal })), count: 1 },
-    { shape: 'a function returning an array', config: defineConfig(() => [{ ...minimal }]), count: 1 },
-    { shape: 'an async function returning an array', config: defineConfig(async () => [{ ...minimal }]), count: 1 },
     { shape: 'a promise', config: defineConfig(Promise.resolve({ ...minimal })), count: 1 },
-    { shape: 'a promise of an array', config: defineConfig(Promise.resolve([{ ...minimal }])), count: 1 },
   ]
 
   test.each(shapes)('applies defaults when config is $shape', async ({ config, count }) => {

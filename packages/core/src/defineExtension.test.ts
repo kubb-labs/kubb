@@ -112,15 +112,9 @@ describe('checkDependencies', () => {
 
 describe('defineExtension', () => {
   it('keeps the literal extNames of a parser whose build takes no options', () => {
-    const parser = defineExtension({
-      kind: 'parser',
-      meta: { name: 'text' },
-      build() {
-        return { extNames: ['.txt'], parse: () => '', print: () => '' }
-      },
-    })()
+    const parser = defineExtension({ kind: 'parser', meta: { name: 'text' }, build: () => ({ extNames: ['.txt'], parse: () => '', print: () => '' }) })
 
-    expect(parser.extNames).toStrictEqual(['.txt'])
+    expectTypeOf(parser()).toExtend<Parser>()
   })
 })
 

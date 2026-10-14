@@ -1,4 +1,4 @@
-import { access, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, isAbsolute, relative, resolve } from 'node:path'
 import { runtime } from './runtime.ts'
 
@@ -129,18 +129,6 @@ export async function write(path: string, data: string, options: WriteOptions = 
   }
 
   return content
-}
-
-/**
- * Recursively removes `path`. Silently succeeds when `path` does not exist.
- *
- * @example
- * ```ts
- * await clean('./dist')
- * ```
- */
-export async function clean(path: string): Promise<void> {
-  return rm(path, { recursive: true, force: true })
 }
 
 /**

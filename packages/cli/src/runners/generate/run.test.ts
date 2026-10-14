@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { adapterOas } from '@kubb/adapter-oas'
-import { type Config, definePlugin, fsStorage, type PostGenerateCommand, resolveCacheDir, type UserConfig } from '@kubb/core'
+import { type Config, fsStorage, type PostGenerateCommand, resolveCacheDir, resolveMeta, type UserConfig } from '@kubb/core'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as config from '../../config.ts'
 import * as env from '../../utils/env.ts'
@@ -67,11 +67,10 @@ describe('bootstrap configuration group', () => {
   })
 
   it('reports a diagnostic thrown while the config file runs with its code', async () => {
-    // A factory-form plugin with neither `meta.name` nor `name` throws KUBB_INVALID_PLUGIN_OPTIONS when called.
-    const pluginNameless = definePlugin(() => ({ hooks: {} }))
+    // An extension with neither `meta.name` nor `name` throws KUBB_INVALID_PLUGIN_OPTIONS.
     const cause = (() => {
       try {
-        pluginNameless()
+        resolveMeta({})
       } catch (error) {
         return error
       }

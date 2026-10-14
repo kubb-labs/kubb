@@ -1,8 +1,7 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
-import { promisify } from 'node:util'
-import { gzip } from 'node:zlib'
+import { gzipSync } from 'node:zlib'
 import { type Config, fsStorage, type Hookable, type KubbHooks, readInstalledPackages, resolveMeta } from '@kubb/core'
 import { ofetch } from 'ofetch'
 import { generate, hashOf } from './generations.ts'
@@ -10,7 +9,6 @@ import { MAX_SNAPSHOT_BYTES, type PublishedSnapshot, type SnapshotUploadMetadata
 import { toPackageName } from './resolveConfig.ts'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
-const gzipAsync = promisify(gzip)
 const UPLOAD_TIMEOUT_MS = 120_000
 
 // Plugins whose output a snapshot carries without depending on the plugin package.
@@ -125,7 +123,7 @@ export async function createSnapshotPackage({ files, packageInfo }: { files: Sna
       const bytes = Buffer.from(content)
       return [header(`package/${path}`, bytes.length), bytes, Buffer.alloc((512 - (bytes.length % 512)) % 512)]
     })
-    return await gzipAsync(Buffer.concat([...chunks, Buffer.alloc(1024)]))
+    return gzipSync(Buffer.concat([...chunks, Buffer.alloc(1024)]))
   } finally {
     await rm(root, { recursive: true, force: true })
   }
