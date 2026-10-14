@@ -2133,6 +2133,34 @@ describe('parseSchema JSON Schema keywords', () => {
     ])
   })
 
+  it('keeps `required` names missing from `properties` inside `not`', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: { type: 'object', not: { type: 'object', properties: { a: { type: 'string' } }, required: ['a', 'id'] } } as SchemaObject,
+    })
+    const not = node.keywords?.not as ast.ObjectSchemaNode
+
+    expect(not.properties.map((p) => [p.name, p.required, p.schema.type])).toStrictEqual([
+      ['a', true, 'string'],
+      ['id', true, 'unknown'],
+    ])
+  })
+
+  it('does not invent a property for `required` under `additionalProperties: false`', () => {
+    const node = parseSchema(emptyCtx, { schema: { not: { required: ['id'], additionalProperties: false } } as SchemaObject })
+
+    expect((node.keywords?.not as ast.ObjectSchemaNode).properties ?? []).toStrictEqual([])
+  })
+
+  it('keeps keywords of a sole `allOf` member next to the outer keywords', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: { allOf: [{ type: 'string', not: { const: 'a' } }], not: { const: 'b' } } as SchemaObject,
+    })
+    const members = ast.narrowSchema(node, 'intersection')?.members
+
+    expect(members?.map((m) => m.keywords?.not)).toStrictEqual([expect.objectContaining({ type: 'enum' }), expect.objectContaining({ type: 'enum' })])
+    expect(members?.[0]).toMatchObject({ type: 'string' })
+  })
+
   it('keeps a keyword-only schema as emptySchemaType with its keywords', () => {
     const node = parseSchema(emptyCtx, { schema: { not: { type: 'string' } } as SchemaObject })
 
