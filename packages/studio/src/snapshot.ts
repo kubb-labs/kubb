@@ -86,10 +86,8 @@ export async function createSnapshotPackage({ files, packageInfo }: { files: Sna
     )
     const entry = [...sources.keys()].filter((path) => /\.(?:[cm]?[jt]sx?)$/.test(path)).map((path) => join(root, path))
     if (entry.length) {
-      // An optional peer: tsdown is large, and only `kubb studio snapshot` packs a snapshot.
-      const { build } = await import('tsdown').catch((cause: unknown) => {
-        throw new Error('`kubb studio snapshot` builds the package with tsdown. Install it in the project: `npm install --save-dev tsdown`', { cause })
-      })
+      // Loaded on first use: tsdown is large, and most agent processes never pack a snapshot.
+      const { build } = await import('tsdown')
       // `fixedExtension` emits the `.mjs`/`.cjs` the manifest names, whatever "type" the host's own package.json sets.
       await build({
         entry,

@@ -473,6 +473,9 @@ importers:
       ofetch:
         specifier: ^1.5.1
         version: 1.5.1
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.23.1(typescript@6.0.3)
     devDependencies:
       '@internals/utils':
         specifier: workspace:*
@@ -483,9 +486,6 @@ importers:
       '@kubb/ast':
         specifier: workspace:*
         version: link:../ast
-      tsdown:
-        specifier: 'catalog:'
-        version: 0.23.1(typescript@6.0.3)
 
   packages/unplugin-kubb:
     dependencies:

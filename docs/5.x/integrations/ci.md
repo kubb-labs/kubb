@@ -14,7 +14,7 @@ navigation:
 
 # Publish snapshots from CI
 
-`kubb studio snapshot` generates a package on a CI runner, uploads it to [Studio](/docs/5.x/integrations/studio) in one request, and exits. Run it on pull or merge requests and on the default branch so reviewers can compare their output. The runner needs `tsdown` installed next to `kubb` (`npm install --save-dev tsdown`), as the snapshot build uses it.
+`kubb studio snapshot` generates a package on a CI runner, uploads it to [Studio](/docs/5.x/integrations/studio) in one request, and exits. Run it on pull or merge requests and on the default branch so reviewers can compare their output.
 
 ## Supported providers
 

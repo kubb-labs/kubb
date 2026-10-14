@@ -70,21 +70,13 @@
     "@kubb/core": "workspace:*",
     "capnweb": "^0.12.0",
     "magicast": "^0.5.5",
-    "ofetch": "^1.5.1"
+    "ofetch": "^1.5.1",
+    "tsdown": "catalog:"
   },
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "@kubb/adapter-oas": "workspace:*",
-    "@kubb/ast": "workspace:*",
-    "tsdown": "catalog:"
-  },
-  "peerDependencies": {
-    "tsdown": "catalog:"
-  },
-  "peerDependenciesMeta": {
-    "tsdown": {
-      "optional": true
-    }
+    "@kubb/ast": "workspace:*"
   },
   "engines": {
     "node": ">=22"
