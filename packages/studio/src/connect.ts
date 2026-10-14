@@ -366,6 +366,7 @@ class Agent extends RpcTarget implements AgentApi {
     }
   }
 
+  /** Runs one generation for Studio and keeps its output, and its input with `allowRead`. */
   async #generate({ input, root, signal }: { input: GenerateInput; root: string; signal: AbortSignal }): Promise<GenerateResult> {
     const { jobId, config: patch } = input
     // A sandbox has no spec on disk, so it only ever generates from the content Studio sends. A path

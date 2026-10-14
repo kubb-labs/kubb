@@ -49,6 +49,7 @@ type KeptGeneration = {
  */
 export const hashOf = (content: string) => createHash('sha1').update(content).digest('hex').slice(0, 16)
 
+/** The bytes `entries` hold on disk: output, written files, and kept input. */
 const totalBytes = (entries: Array<KeptGeneration>) =>
   entries.reduce((sum, { output, disk, inputBytes }) => sum + output.bytes + (disk?.bytes ?? 0) + (inputBytes ?? 0), 0)
 
@@ -239,6 +240,7 @@ export function createGenerationStore({
       return stored === null ? undefined : (JSON.parse(stored) as InputNode)
     },
     get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId && isLive(generation)),
+    /** Indexes `generation` and drops expired ones, then the oldest past `maxCount` or `maxMb`. */
     async add(generation: KeptGeneration): Promise<void> {
       const current = await load()
       for (const expired of current.filter((entry) => !isLive(entry))) await drop(expired.jobId)
