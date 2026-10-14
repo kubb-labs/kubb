@@ -1,5 +1,125 @@
 # Changelog
 
+## v5.9.4 — Oct 14, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- `datetime` schema nodes always set both `offset` and `local`, and circular schemas are found through the shared `@kubb/ast` graph. ([#4293](https://github.com/kubb-labs/kubb/pull/4293), [`d5bca28`](https://github.com/kubb-labs/kubb/commit/d5bca28594a6df117b98fb902397c670fd6008d6))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Trim the AST package to the nodes and helpers that are used.
+  
+  - Remove `OutputNode`, `createOutput` and the `output` visitor key.
+  - Remove `ast.factory.update` and the `InferSchemaNode` helper types. `createSchema` now returns `SchemaNodeByType[type]`.
+  - Replace `Ipv4SchemaNode` and `Ipv6SchemaNode` with `'ipv4' | 'ipv6'` in `ScalarSchemaType`.
+  - Remove the `@kubb/ast/types` subpath. Import types from `@kubb/ast`.
+  - Add `ast.refName(ref)` to read the last segment of a `$ref`. ([#4293](https://github.com/kubb-labs/kubb/pull/4293), [`d5bca28`](https://github.com/kubb-labs/kubb/commit/d5bca28594a6df117b98fb902397c670fd6008d6))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Load the config with one loader and drop the `unconfig` dependency. Config discovery is unchanged. The banner uses terminal palette colors, and `kubb studio logout` and `kubb studio status` no longer accept connect flags they ignored. ([#4293](https://github.com/kubb-labs/kubb/pull/4293), [`d5bca28`](https://github.com/kubb-labs/kubb/commit/d5bca28594a6df117b98fb902397c670fd6008d6))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Remove unused core surface so plugins build on a smaller API.
+  
+  - Remove `Storage.existsItem`, `Reporter[Symbol.dispose]`, `FileManagerHooks` and `FileManager#hooks`. `FileManager.write()` now emits `kubb:files:processing:*` on the kubb hooks it receives.
+  - `createAdapter`, `defineParser` and `definePlugin` accept only the definition object. The factory-function form and the parser `setup` alias are gone. Use `defineExtension`.
+  - `Hookable` no longer wraps `EventEmitter`, and `setMaxListeners` is a no-op.
+  - Remove `applyConfigDefaults`. The `defineConfig` defaults live in `unplugin-kubb` as `applyDefaults`.
+  - Macros run through `@kubb/ast` `applyMacros` instead of a per-plugin transform cache. Output is unchanged.
+  
+  ```typescript
+  // Before
+  const plugin = definePlugin(() => ({ meta: { name: 'x' }, hooks: {} }))
+  
+  // After
+  const plugin = defineExtension({ kind: 'plugin', meta: { name: 'x' }, setup() {} })
+  ``` ([#4293](https://github.com/kubb-labs/kubb/pull/4293), [`d5bca28`](https://github.com/kubb-labs/kubb/commit/d5bca28594a6df117b98fb902397c670fd6008d6))
+
+### @kubb/kit
+
+#### Bug Fixes
+
+- `Url.toGroupedTemplateString` uses dot access for path parameters named like reserved words.
+  
+  ```typescript
+  // Before
+  const before = `/pets/${path['class']}`
+  
+  // After
+  const after = `/pets/${path.class}`
+  ``` ([#4293](https://github.com/kubb-labs/kubb/pull/4293), [`d5bca28`](https://github.com/kubb-labs/kubb/commit/d5bca28594a6df117b98fb902397c670fd6008d6))
+
+### @kubb/mcp
+
+#### Bug Fixes
+
+- Find the config the way `kubb generate` does and hand plugin installs to `kubb add`.
+  
+  - `generate` searches `.kubbrc`, `kubb.config.*`, `.config/`, `configs/` and parent folders, and replies with errors, warnings and diagnostics only.
+  - `init` no longer takes `plugins`. It tells the agent to run `kubb add <id> --yes`. ([#4293](https://github.com/kubb-labs/kubb/pull/4293), [`d5bca28`](https://github.com/kubb-labs/kubb/commit/d5bca28594a6df117b98fb902397c670fd6008d6))
+
+### @kubb/parser-md
+
+#### Bug Fixes
+
+- `parserMd().print` takes markdown strings and joins them with blank lines. Frontmatter comes from `file.meta.frontmatter`. ([#4293](https://github.com/kubb-labs/kubb/pull/4293), [`d5bca28`](https://github.com/kubb-labs/kubb/commit/d5bca28594a6df117b98fb902397c670fd6008d6))
+
+### @kubb/parser-ts
+
+#### Bug Fixes
+
+- `parserTsx` lives next to `parserTs` and the package no longer bundles internal path helpers. No API change. ([#4293](https://github.com/kubb-labs/kubb/pull/4293), [`d5bca28`](https://github.com/kubb-labs/kubb/commit/d5bca28594a6df117b98fb902397c670fd6008d6))
+
+### @kubb/renderer-jsx
+
+#### Bug Fixes
+
+- Export types from the package root and derive component props from the AST nodes.
+  
+  - Remove the `@kubb/renderer-jsx/types` subpath. `KubbReactNode`, `KubbReactElement`, `Key` and `JSDoc` are exported from the root.
+  - `Const`, `Function`, `Function.Arrow` and `Type` props are the matching `@kubb/ast` node fields.
+  - A `generics` array is passed to the node as an array instead of being joined. ([#4293](https://github.com/kubb-labs/kubb/pull/4293), [`d5bca28`](https://github.com/kubb-labs/kubb/commit/d5bca28594a6df117b98fb902397c670fd6008d6))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Resolve plugin and adapter factories through one loader and read the config file once per connect. No API change. ([#4293](https://github.com/kubb-labs/kubb/pull/4293), [`7923989`](https://github.com/kubb-labs/kubb/commit/79239890348c8ce92c3fee963d020ba5e5817c81))
+
+### kubb
+
+#### Bug Fixes
+
+- `defineConfig` takes its defaults from `unplugin-kubb` so both entry points agree, and `kubb/jsx` types come from the `@kubb/renderer-jsx` root. ([#4293](https://github.com/kubb-labs/kubb/pull/4293), [`d5bca28`](https://github.com/kubb-labs/kubb/commit/d5bca28594a6df117b98fb902397c670fd6008d6))
+
+### unplugin-kubb
+
+#### Bug Fixes
+
+- Report builds the same way `kubb generate` does and apply the same config defaults.
+  
+  - Print the `kubb generate` summary after a build instead of one console line per hook.
+  - Apply the `defineConfig` defaults (`parserMd`, built-in reporters, `root`) and export them as `applyDefaults`.
+  - Remove the `unplugin-kubb/types` and `unplugin-kubb/unpluginFactory` subpaths. `Options` and `unpluginFactory` stay on the package root.
+  - Stop re-exporting `BarrelType`. Import it from `kubb` or `@kubb/plugin-barrel`. ([#4293](https://github.com/kubb-labs/kubb/pull/4293), [`d5bca28`](https://github.com/kubb-labs/kubb/commit/d5bca28594a6df117b98fb902397c670fd6008d6))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.9.3 — Oct 14, 2026
 
 ### @kubb/cli
