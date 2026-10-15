@@ -115,10 +115,10 @@ Notes:
 
 Notes:
 
-1. Pair the `kubb studio` CLI or the `kubblabs/kubb-agent` Docker image. Studio does not store your OpenAPI spec.
-2. On the Pro plan. Studio renders the skills from the Kubb AST, so they use the names Kubb generates, and the code your AI tools write calls your generated clients instead of guessing endpoints.
+1. Pair the `kubb studio` CLI or the `kubblabs/kubb-agent` Docker image. The agent never uploads your local spec file. With `--allow-read`, Studio can read the generated files and the spec as Kubb parsed it.
+2. On the Pro plan, with an agent started with `--allow-read`. Studio renders the skills from the Kubb AST, so they use the names Kubb generates, and the code your AI tools write calls your generated clients instead of guessing endpoints. A published plugin keeps the servers, operations, and schemas its skills describe.
 3. The [orval playground](https://orval.dev/playground) generates code from a spec and config you edit in the browser.
-4. HeyAPI links a demo project on StackBlitz. Its hosted [Hey API Platform](https://heyapi.dev/openapi-ts/configuration/input) also stores spec versions as a registry. Studio has no registry, since it never stores your spec.
+4. HeyAPI links a demo project on StackBlitz. Its hosted [Hey API Platform](https://heyapi.dev/openapi-ts/configuration/input) also stores spec versions as a registry. Studio has no spec registry and keeps no copy of your spec file.
 
 ## When not to use Kubb
 
