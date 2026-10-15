@@ -76,6 +76,8 @@ export function buildOtlpPayload({
     { key: 'kubb.runtime_version', value: { stringValue: runtime.version.split('.')[0] as string } },
     { key: 'kubb.platform', value: { stringValue: os.platform() } },
     { key: 'kubb.ci', value: { boolValue: isCIEnvironment() } },
+    // A terminal on stdin means a person typed the command; agents, scripts, and CI pipe it.
+    { key: 'kubb.tty', value: { boolValue: process.stdin.isTTY === true } },
     ...(agent.isAgent && agent.name ? [{ key: 'kubb.agent', value: { stringValue: agent.name } }] : []),
     // The client picks this name, so cap its length before it leaves the machine.
     ...(mcpClient ? [{ key: 'kubb.mcp_client', value: { stringValue: mcpClient.slice(0, 64) } }] : []),
