@@ -37,6 +37,6 @@ export default defineConfig([
     format: ['esm', 'cjs'],
     ...shared,
     outputOptions: {},
-    dts: { emitDtsOnly: true },
+    dts: { emitDtsOnly: true, tsconfig: 'tsconfig.build.json' },
   },
 ])

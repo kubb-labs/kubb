@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@internals/utils": ["../../internals/utils/src/index.ts"],
+      "@internals/shared": ["../../internals/shared/src/index.ts"]
+    }
+  }
+}

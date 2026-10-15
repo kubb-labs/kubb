@@ -21,7 +21,8 @@
         "src/**/*.html",
         "tsdown.config.ts",
         "package.json",
-        "tsconfig.json"
+        "tsconfig.json",
+        "tsconfig.build.json"
       ]
     },
     "start": {
