@@ -272,6 +272,32 @@ describe('buildAst', () => {
       expect(op?.parameters.find((p) => p.name === 'tags')).toMatchObject({ style: 'spaceDelimited', explode: false })
     })
 
+    it('captures the parameter allowReserved metadata', async () => {
+      const oas = {
+        openapi: '3.0.3',
+        info: { title: 'Test', version: '1.0.0' },
+        paths: {
+          '/files': {
+            get: {
+              operationId: 'listFiles',
+              parameters: [
+                { name: 'path', in: 'query', allowReserved: true, schema: { type: 'string' } },
+                { name: 'filter', in: 'query', allowReserved: false, schema: { type: 'string' } },
+                { name: 'sort', in: 'query', schema: { type: 'string' } },
+              ],
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      }
+      const root = await parseOas(oas)
+      const op = findOperation(root, 'listFiles')
+
+      expect(op?.parameters.find((p) => p.name === 'path')).toMatchObject({ allowReserved: true })
+      expect(op?.parameters.find((p) => p.name === 'filter')).toMatchObject({ allowReserved: false })
+      expect(op?.parameters.find((p) => p.name === 'sort')).not.toHaveProperty('allowReserved')
+    })
+
     it('converts requestBody with description, required and a single content entry', async () => {
       const root = await parseOas(await buildMinimalOas())
       const createPet = findOperation(root, 'createPet')

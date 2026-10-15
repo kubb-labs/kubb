@@ -51,6 +51,11 @@ export type ParameterNode = BaseNode & {
    * leaving consumers to apply the default for the style.
    */
   explode?: boolean
+  /**
+   * Whether reserved characters (RFC 3986 `:/?#[]@!$&'()*+,;=`) are sent as-is instead of
+   * percent-encoded. Only applies to query parameters. Absent when the source omits it.
+   */
+  allowReserved?: boolean
 }
 
 type UserParameterNode = Pick<ParameterNode, 'name' | 'in' | 'schema'> & Partial<Omit<ParameterNode, 'kind' | 'name' | 'in' | 'schema'>>
