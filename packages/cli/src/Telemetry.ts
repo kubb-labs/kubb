@@ -29,6 +29,10 @@ type RunResult = {
   status: 'success' | 'failed'
   plugins?: Array<TelemetryPlugin>
   filesCreated?: number
+  /**
+   * Name the MCP client sends in its `initialize` request, e.g. `'claude-code'`. Only set for `kubb mcp`.
+   */
+  mcpClient?: string
 }
 
 /**
@@ -49,7 +53,14 @@ export function trackRun({ command, hrStart }: { command: TelemetryCommand; hrSt
  *
  * @see https://opentelemetry.io/docs/languages/sdk-configuration/otlp-exporter/
  */
-export function buildOtlpPayload({ command, duration, status, plugins = [], filesCreated = 0 }: RunResult & { command: TelemetryCommand; duration: number }) {
+export function buildOtlpPayload({
+  command,
+  duration,
+  status,
+  plugins = [],
+  filesCreated = 0,
+  mcpClient,
+}: RunResult & { command: TelemetryCommand; duration: number }) {
   const traceId = randomBytes(16).toString('hex')
   const spanId = randomBytes(8).toString('hex')
   const endTimeNs = BigInt(Date.now()) * 1_000_000n
@@ -65,7 +76,11 @@ export function buildOtlpPayload({ command, duration, status, plugins = [], file
     { key: 'kubb.runtime_version', value: { stringValue: runtime.version.split('.')[0] as string } },
     { key: 'kubb.platform', value: { stringValue: os.platform() } },
     { key: 'kubb.ci', value: { boolValue: isCIEnvironment() } },
+    // A terminal on stdin means a person typed the command; agents, scripts, and CI pipe it.
+    { key: 'kubb.tty', value: { boolValue: process.stdin.isTTY === true } },
     ...(agent.isAgent && agent.name ? [{ key: 'kubb.agent', value: { stringValue: agent.name } }] : []),
+    // The client picks this name, so cap its length before it leaves the machine.
+    ...(mcpClient ? [{ key: 'kubb.mcp_client', value: { stringValue: mcpClient.slice(0, 64) } }] : []),
     { key: 'kubb.files_created', value: { intValue: filesCreated } },
     { key: 'kubb.status', value: { stringValue: status } },
     {
