@@ -35,10 +35,9 @@ const shared: Partial<UserConfig> = {
 
 export default defineConfig([
   {
-    // ESM: generate dts here only to avoid two competing type chunks
     entry,
     format: 'esm',
-    dts: true,
+    dts: false,
     ...shared,
   },
   {
@@ -46,6 +45,14 @@ export default defineConfig([
     format: 'cjs',
     dts: false,
     ...shared,
+  },
+  {
+    // Declarations get their own build: `keepNames` leaks an untyped `__name` helper into .d.ts/.d.cts files.
+    entry,
+    format: ['esm', 'cjs'],
+    ...shared,
+    outputOptions: {},
+    dts: { emitDtsOnly: true },
   },
   {
     entry: { 'html/ui': 'src/reporters/html/ui.ts' },
