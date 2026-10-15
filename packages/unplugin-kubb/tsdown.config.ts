@@ -4,6 +4,7 @@ const entry = ['src/*.ts', '!src/*.test.ts']
 
 const shared: Partial<UserConfig> = {
   platform: 'node',
+  sourcemap: true,
   shims: true,
   deps: {
     neverBundle: [/^@kubb\//],
