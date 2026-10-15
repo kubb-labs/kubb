@@ -466,6 +466,25 @@ describe('Kubb#generate', () => {
     expect(result.success).toBe(true)
   })
 
+  it('turns a setup failure into an emitted diagnostic and a failed generation:end', async () => {
+    hooks = new Hookable<KubbHooks>()
+    const emitted: Array<string> = []
+    let end: { status?: string; diagnostics?: Array<Diagnostic> } | undefined
+    hooks.hook('kubb:diagnostic', ({ diagnostic }) => {
+      emitted.push(diagnostic.code)
+    })
+    hooks.hook('kubb:generation:end', (ctx) => {
+      end = ctx
+    })
+
+    const result = await createKubb(makeConfig({ plugins: [null as unknown as Plugin] }), { hooks }).generate()
+
+    expect(result.success).toBe(false)
+    expect(emitted).toStrictEqual([Diagnostics.code.invalidPluginOptions])
+    expect(end?.status).toBe('failed')
+    expect(end?.diagnostics).toMatchObject([{ code: Diagnostics.code.invalidPluginOptions, message: 'plugins[0] is null, not a plugin.' }])
+  })
+
   it('reports failure and ends failed when processOutput returns an error', async () => {
     hooks = new Hookable<KubbHooks>()
     const diagnostic: Diagnostic = { code: Diagnostics.code.formatFailed, severity: 'error', message: 'formatter failed', location: { kind: 'config' } }

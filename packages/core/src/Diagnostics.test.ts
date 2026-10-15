@@ -20,7 +20,7 @@ describe('Diagnostics.explain', () => {
 })
 
 describe('Diagnostics.serialize', () => {
-  it('keeps the JSON-safe fields and adds a docsUrl, dropping the cause', () => {
+  it('keeps the JSON-safe fields, adds the catalog entry and a docsUrl, and turns the cause into messages', () => {
     const serialized = Diagnostics.serialize(
       problem({ help: 'fix it', plugin: '@kubb/plugin-zod', location: { kind: 'schema', pointer: '#/components/schemas/Pet' }, cause: new Error('root') }),
     )
@@ -29,11 +29,30 @@ describe('Diagnostics.serialize', () => {
       code: 'KUBB_REF_NOT_FOUND',
       severity: 'error',
       message: 'boom',
+      title: Diagnostics.explain('KUBB_REF_NOT_FOUND').title,
+      cause: Diagnostics.explain('KUBB_REF_NOT_FOUND').cause,
       help: 'fix it',
       plugin: '@kubb/plugin-zod',
       location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
+      causes: ['root'],
       docsUrl: Diagnostics.docsUrl('KUBB_REF_NOT_FOUND'),
     })
+  })
+
+  it('falls back to the catalog fix when the diagnostic has no help, except for info', () => {
+    expect(Diagnostics.serialize(problem()).help).toBe(Diagnostics.explain('KUBB_REF_NOT_FOUND').fix)
+    expect(Diagnostics.serialize(problem({ code: 'KUBB_PLUGIN_INFO', severity: 'info' })).help).toBeUndefined()
+  })
+
+  it('lists the cause chain without the messages already in `message`, and adds the root stack for a crash', () => {
+    const root = new TypeError('x is undefined')
+    const wrapped = new Error('Config failed loading', { cause: root })
+
+    const crash = Diagnostics.serialize(problem({ code: 'KUBB_PLUGIN_FAILED', message: 'Config failed loading', cause: wrapped }))
+    expect(crash.causes).toStrictEqual(['TypeError: x is undefined'])
+    expect(crash.stack).toBe(root.stack)
+
+    expect(Diagnostics.serialize(problem({ cause: wrapped })).stack).toBeUndefined()
   })
 
   it('omits the docsUrl for the unknown fallback code', () => {
@@ -162,6 +181,13 @@ describe('Diagnostics.format', () => {
     expect(details.some((line) => line.includes('report: https://github.com/acme/plugin/issues'))).toBe(true)
     expect(details.some((line) => line.includes('see: https://kubb.dev'))).toBe(true)
     expect(Diagnostics.format({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom' }).details.some((line) => line.includes('see:'))).toBe(false)
+  })
+
+  it('falls back to the catalog fix and lists each underlying error', () => {
+    const { details } = Diagnostics.format(problem({ cause: new Error('outer', { cause: new Error('inner') }) }))
+
+    expect(details.some((line) => line.includes(`fix: ${Diagnostics.explain('KUBB_REF_NOT_FOUND').fix}`))).toBe(true)
+    expect(details.filter((line) => line.includes('caused by:')).map((line) => line.split('caused by: ')[1])).toStrictEqual(['outer', 'inner'])
   })
 })
 

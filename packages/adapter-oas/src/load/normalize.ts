@@ -1,11 +1,10 @@
-import { getErrorMessage } from '@internals/utils'
+import { getErrorMessage, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
 import type { AdapterSource } from '@kubb/kit'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { bundle } from 'api-ref-bundler'
-import { parse } from 'yaml'
 import type { Document } from '../types.ts'
-import { assertInputExists, resolveSource, urlRegExp } from './source.ts'
+import { assertInputExists, parseYaml, resolveSource, urlRegExp } from './source.ts'
 
 /**
  * True when `node` contains a `$ref` pointing outside the current document (a relative path,
@@ -92,14 +91,33 @@ export async function bundleDocument(pathOrUrl: string): Promise<Document> {
  */
 export async function parseFromConfig(source: AdapterSource): Promise<Document> {
   const raw = await (async (): Promise<Document> => {
-    // `parse` also handles JSON.
-    if (source.type === 'data') return typeof source.data === 'string' ? parse(source.data) : structuredClone(source.data as Document)
+    // YAML parsing also handles JSON.
+    if (source.type === 'data') {
+      return typeof source.data === 'string'
+        ? (parseYaml(source.data, {
+            origin: 'the inline `input` string',
+            help: 'Fix the syntax at the reported line. Kubb reads `input` as an inline spec, not a file path, because it starts with `{`, `[`, `openapi:`, or `swagger:`, or spans several lines.',
+          }) as Document)
+        : structuredClone(source.data as Document)
+    }
     await assertInputExists(source.path)
     return bundleDocument(source.path)
   })()
 
   // `upgrade` chains Swagger 2.0 -> 3.0 -> 3.1, leaving documents already on 3.1 untouched.
-  return upgrade(raw, '3.1') as Document
+  try {
+    return upgrade(raw, '3.1') as Document
+  } catch (error) {
+    const declared = raw && typeof raw === 'object' ? ((raw as { openapi?: unknown }).openapi ?? (raw as { swagger?: unknown }).swagger) : undefined
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.invalidDocument,
+      severity: 'error',
+      message: `Cannot upgrade the document${declared ? ` (version ${String(declared)})` : ''} to OpenAPI 3.1: ${getErrorMessage(error)}`,
+      help: 'Kubb reads Swagger 2.0, OpenAPI 3.0, and OpenAPI 3.1. Set `swagger` or `openapi` to one of those versions, and fix the reported problem in the document.',
+      location: { kind: 'config' },
+      cause: toError(error),
+    })
+  }
 }
 
 /**
@@ -111,7 +129,8 @@ export async function parseFromConfig(source: AdapterSource): Promise<Document> 
  * be a usable document, so it is fatal regardless of the `validate` option.
  */
 export function assertDocument(document: Document): void {
-  if (document && ('openapi' in document || 'swagger' in document)) return
+  // An inline string with no YAML mapping parses to a plain string, which the `in` checks would throw on.
+  if (document && typeof document === 'object' && ('openapi' in document || 'swagger' in document)) return
 
   throw new Diagnostics.Error({
     code: Diagnostics.code.invalidDocument,

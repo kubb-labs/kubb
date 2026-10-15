@@ -1,3 +1,5 @@
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it, vi } from 'vitest'
@@ -48,6 +50,28 @@ components:
     const doc = await parseFromConfig({ type: 'data', data: swagger2 })
 
     expect(doc.openapi).toMatch(/^3\./)
+  })
+
+  it('throws KUBB_INVALID_DOCUMENT with the line and column for invalid inline YAML', async () => {
+    const error = await parseFromConfig({ type: 'data', data: 'openapi: 3.0.0\ninfo:\n  title: [unclosed\n' }).catch((caught: unknown) => caught)
+
+    expect(Diagnostics.from(error)).toMatchObject({ code: Diagnostics.code.invalidDocument, location: { kind: 'config' } })
+    expect(Diagnostics.from(error).message).toMatch(/^Cannot parse the inline `input` string as JSON or YAML: .*line \d+, column \d+/s)
+    expect(Diagnostics.from(error).cause).toBeInstanceOf(Error)
+  })
+
+  it('throws KUBB_INVALID_DOCUMENT naming the file for an invalid YAML file', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'kubb-oas-'))
+    const file = path.join(dir, 'broken.yaml')
+    await writeFile(file, 'openapi: 3.0.0\npaths:\n  /pets: [unclosed\n')
+
+    try {
+      const error = await parseFromConfig({ type: 'path', path: file }).catch((caught: unknown) => caught)
+
+      expect(Diagnostics.from(error)).toMatchObject({ code: Diagnostics.code.invalidDocument, message: expect.stringContaining(`Cannot parse ${file}`) })
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
   })
 })
 

@@ -18,7 +18,11 @@ function buildProblemSection(diagnostics: ReadonlyArray<Diagnostic>): Array<stri
     return []
   }
 
-  const blocks = problems.map((diagnostic) => Diagnostics.formatLines(diagnostic).join('\n'))
+  // A crash also gets its stack, the part a bug report needs.
+  const blocks = problems.map((diagnostic) => {
+    const { stack } = Diagnostics.serialize(diagnostic)
+    return [...Diagnostics.formatLines(diagnostic), ...(stack ? [`  stack: ${stack.replaceAll('\n', '\n    ')}`] : [])].join('\n')
+  })
   return ['## Problems', '', blocks.join('\n\n')]
 }
 

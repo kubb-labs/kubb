@@ -63,6 +63,31 @@ describe('KubbDriver#setup', () => {
     await expect(driver.setup()).rejects.toThrow('Plugin dependencies form a cycle')
   })
 
+  test.each([
+    ['an uncalled factory', [function pluginTs() {}], 'plugins[0] is a function ("pluginTs"), not a plugin.', 'Call it: pluginTs()'],
+    ['a null entry', [null], 'plugins[0] is null, not a plugin.', undefined],
+    [
+      'a duplicate name',
+      [
+        { name: 'dup', hooks: {} },
+        { name: 'dup', hooks: {} },
+      ],
+      'Plugin "dup" appears twice in `plugins`.',
+      'Remove the duplicate, or merge its options.',
+    ],
+  ])('setup rejects %s with KUBB_INVALID_PLUGIN_OPTIONS', async (_label, plugins, message, help) => {
+    const driver = makeDriver(makeConfig({ plugins: plugins as unknown as Array<Plugin> }))
+
+    const error = await driver.setup().catch((caught: unknown) => caught)
+
+    expect(Diagnostics.from(error)).toMatchObject({
+      code: Diagnostics.code.invalidPluginOptions,
+      message,
+      location: { kind: 'config' },
+      ...(help ? { help } : {}),
+    })
+  })
+
   test('plugin and post-plugin listeners fire in order, and dispose drops both for the next build', async () => {
     const calls: Array<string> = []
     const pluginHook = vi.fn(() => void calls.push('plugin'))
@@ -142,6 +167,28 @@ describe('GeneratorContext diagnostics', () => {
     collect((ctx) => ctx.error('boom'))
 
     expect(onError).not.toHaveBeenCalled()
+  })
+
+  it('keeps the code, help, and location of a Diagnostics.Error passed to ctx.error', () => {
+    const error = new Diagnostics.Error({
+      code: Diagnostics.code.refNotFound,
+      severity: 'error',
+      message: 'Could not find #/components/schemas/Pet',
+      help: 'Add the schema.',
+      location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
+    })
+
+    expect(collect((ctx) => ctx.error(error))).toMatchObject([
+      { code: Diagnostics.code.refNotFound, help: 'Add the schema.', location: { pointer: '#/components/schemas/Pet' }, plugin: 'pluginA' },
+    ])
+  })
+
+  it('applies the help and location options to ctx.warn', () => {
+    const location = { kind: 'schema', pointer: '#/components/schemas/Status' } as const
+
+    expect(collect((ctx) => ctx.warn('Enum has no values', { help: 'Add values.', location }))).toMatchObject([
+      { code: Diagnostics.code.pluginWarning, severity: 'warning', message: 'Enum has no values', help: 'Add values.', location },
+    ])
   })
 
   it.each([
@@ -337,8 +384,36 @@ describe('KubbDriver generator dispatch', () => {
     expect(rec.schema.map((entry) => entry.name)).toStrictEqual(['Pet', 'Store'])
     expect(diagnostics.find((diagnostic) => 'plugin' in diagnostic && diagnostic.plugin === 'boom' && diagnostic.severity === 'error')).toMatchObject({
       code: 'KUBB_PLUGIN_FAILED',
-      message: 'boom in schema',
+      message: 'While generating schema "Pet": boom in schema',
+      location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
       issues: 'https://github.com/example/boom/issues',
+    })
+  })
+
+  it('names the operation a generator crashed on, with an escaped pointer', async () => {
+    const boomPlugin: Plugin = {
+      name: 'boom',
+      hooks: {
+        'kubb:plugin:setup'(ctx) {
+          ctx.addGenerator({
+            name: 'boom-gen',
+            operation(node) {
+              if (node.operationId === 'listPets') throw new TypeError('x is undefined')
+              return []
+            },
+          })
+        },
+      },
+    }
+    const boomDriver = makeDriver(makeConfig({ adapter: inputAdapter(), plugins: [boomPlugin] }))
+    await boomDriver.setup()
+
+    const { diagnostics } = await boomDriver.run()
+
+    expect(diagnostics.find((diagnostic) => diagnostic.severity === 'error')).toMatchObject({
+      code: 'KUBB_PLUGIN_FAILED',
+      message: 'While generating operation "listPets" (GET /pets): x is undefined',
+      location: { kind: 'operation', pointer: '#/paths/~1pets/get' },
     })
   })
 

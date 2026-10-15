@@ -45,7 +45,7 @@ const myGenerator = defineGenerator({
 ### Generator methods
 
 | Method         | Input                                   | Output                                | When to use                                                      |
-| -------------- | ---------------------------------------- | -------------------------------------- | ------------------------------------------------------------------ |
+| -------------- | --------------------------------------- | ------------------------------------- | ---------------------------------------------------------------- |
 | `schema()`     | `SchemaNode` (per data schema)          | `TElement \| Array<FileNode> \| void` | Generate types, validators, factories. Called once per schema    |
 | `operation()`  | `OperationNode` (per API operation)     | `TElement \| Array<FileNode> \| void` | Generate hooks, clients, handlers. Called once per operation     |
 | `operations()` | `Array<OperationNode>` (all operations) | `TElement \| Array<FileNode> \| void` | Generate index or barrel files. Called once after all operations |
@@ -53,7 +53,6 @@ const myGenerator = defineGenerator({
 ### Scoping with `match` {#match}
 
 Add a `match(node, ctx)` predicate to skip `schema` or `operation` for nodes a generator does not apply to. A `false` result skips that node. Omitting `match` runs the generator for every node. `match` does not filter `operations()`.
-
 
 ```typescript twoslash [scoped-generator.ts]
 import { ast, defineGenerator } from 'kubb/kit'
@@ -72,23 +71,23 @@ const getOnlyGenerator = defineGenerator({
 
 ### `GeneratorContext` properties (the `ctx` argument passed to each method)
 
-| Property              | Type                                                | Purpose                                                              |
-| --------------------- | ----------------------------------------------------| ---------------------------------------------------------------------|
-| `ctx.config`          | `Config`                                            | Resolved Kubb configuration                                          |
-| `ctx.root`            | `string`                                            | Absolute path to the output directory for the current plugin         |
-| `ctx.options`         | `TResolvedOptions`                                  | Per-node resolved options (after exclude/include/override filtering) |
-| `ctx.plugin`          | `Plugin`                                            | The owning plugin descriptor                                         |
-| `ctx.resolver`        | `Resolver`                                          | Resolver for the current plugin                                      |
-| `ctx.driver`          | `KubbDriver`                                        | Plugin driver for cross-plugin access                                |
-| `ctx.hooks`           | `Hookable<KubbHooks>`                               | Event bus for `KubbHooks` events                                     |
-| `ctx.adapter`         | `Adapter`                                           | The adapter that parsed the input spec                               |
-| `ctx.meta`            | `InputMeta`                                         | Document metadata from the adapter. Carries `title`, `version`, `baseURL`, every declared `servers` entry and `securitySchemes` entry, and the pre-computed `circularNames` and `enumNames` arrays. |
-| `ctx.cache`           | `NodeCache`                                         | Cache scoped to the node being generated, shared by every plugin generating from that node in the current pass. Exposes `readItem`, `writeItem`, and `ensureItem` |
-| `ctx.addFile()`       | `(...files: FileNode[]) => Promise<void>`           | Add files, skipping any that already exist                           |
-| `ctx.upsertFile()`    | `(...files: FileNode[]) => Promise<void>`           | Add or merge files (concatenates sources and imports)                |
-| `ctx.getPlugin()`     | `(name: string) => Plugin \| undefined`             | Get a plugin by name                                                 |
-| `ctx.requirePlugin()` | `(name: string) => Plugin`                          | Get a plugin by name or throw a descriptive error                    |
-| `ctx.getResolver()`   | `(name: string) => Resolver`                        | Get a resolver by plugin name                                        |
-| `ctx.info()`          | `(message: string) => void`                         | Emit an info message via the build event system                      |
-| `ctx.warn()`          | `(message: string) => void`                         | Emit a warning via the build event system                            |
-| `ctx.error()`         | `(error: string \| Error) => void`                  | Emit an error via the build event system                             |
+| Property              | Type                                                                      | Purpose                                                                                                                                                                                             |
+| --------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ctx.config`          | `Config`                                                                  | Resolved Kubb configuration                                                                                                                                                                         |
+| `ctx.root`            | `string`                                                                  | Absolute path to the output directory for the current plugin                                                                                                                                        |
+| `ctx.options`         | `TResolvedOptions`                                                        | Per-node resolved options (after exclude/include/override filtering)                                                                                                                                |
+| `ctx.plugin`          | `Plugin`                                                                  | The owning plugin descriptor                                                                                                                                                                        |
+| `ctx.resolver`        | `Resolver`                                                                | Resolver for the current plugin                                                                                                                                                                     |
+| `ctx.driver`          | `KubbDriver`                                                              | Plugin driver for cross-plugin access                                                                                                                                                               |
+| `ctx.hooks`           | `Hookable<KubbHooks>`                                                     | Event bus for `KubbHooks` events                                                                                                                                                                    |
+| `ctx.adapter`         | `Adapter`                                                                 | The adapter that parsed the input spec                                                                                                                                                              |
+| `ctx.meta`            | `InputMeta`                                                               | Document metadata from the adapter. Carries `title`, `version`, `baseURL`, every declared `servers` entry and `securitySchemes` entry, and the pre-computed `circularNames` and `enumNames` arrays. |
+| `ctx.cache`           | `NodeCache`                                                               | Cache scoped to the node being generated, shared by every plugin generating from that node in the current pass. Exposes `readItem`, `writeItem`, and `ensureItem`                                   |
+| `ctx.addFile()`       | `(...files: FileNode[]) => Promise<void>`                                 | Add files, skipping any that already exist                                                                                                                                                          |
+| `ctx.upsertFile()`    | `(...files: FileNode[]) => Promise<void>`                                 | Add or merge files (concatenates sources and imports)                                                                                                                                               |
+| `ctx.getPlugin()`     | `(name: string) => Plugin \| undefined`                                   | Get a plugin by name                                                                                                                                                                                |
+| `ctx.requirePlugin()` | `(name: string) => Plugin`                                                | Get a plugin by name or throw a descriptive error                                                                                                                                                   |
+| `ctx.getResolver()`   | `(name: string) => Resolver`                                              | Get a resolver by plugin name                                                                                                                                                                       |
+| `ctx.info()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Emit an info message via the build event system                                                                                                                                                     |
+| `ctx.warn()`          | `(message: string, options?: { code?, help?, location? }) => void`        | Emit a warning via the build event system. `options` sets the fix and the source pointer                                                                                                            |
+| `ctx.error()`         | `(error: string \| Error, options?: { code?, help?, location? }) => void` | Emit an error via the build event system. A `Diagnostics.Error` keeps its code, help, and location                                                                                                  |

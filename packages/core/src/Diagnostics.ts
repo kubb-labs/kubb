@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { styleText } from 'node:util'
-import { getErrorMessage } from '@internals/utils'
+import { getErrorChain, getErrorMessage, toError } from '@internals/utils'
 import { version } from '../package.json'
 import { type DiagnosticCode, diagnosticCode } from './constants.ts'
 import type { ExtensionKind, ExtensionNamed } from './defineExtension.ts'
@@ -202,6 +202,25 @@ const isPerformance = isKind<PerformanceDiagnostic>('performance')
 const isUpdate = isKind<UpdateDiagnostic>('update')
 
 /**
+ * The fix to show for a problem: its own `help`, or the catalog fix when it has none. `info`
+ * diagnostics get no fallback, since their catalog fix only says no action is needed.
+ */
+function getHelp(problem: ProblemDiagnostic): string | undefined {
+  if (problem.help || problem.severity === 'info') return problem.help
+  return diagnosticCatalog[problem.code].fix
+}
+
+/**
+ * Messages of the errors in a problem's `cause` chain, outermost first, skipping any the
+ * diagnostic message already contains.
+ */
+function getCauses(problem: ProblemDiagnostic): Array<string> {
+  return getErrorChain(problem.cause)
+    .filter((error) => !problem.message.includes(error.message))
+    .map((error) => (error.name === 'Error' ? error.message : `${error.name}: ${error.message}`))
+}
+
+/**
  * Accent color per severity. The color tints the `[CODE]` tag (red error, yellow warning,
  * blue info).
  */
@@ -217,21 +236,46 @@ const failedCode = {
   parser: diagnosticCode.parserFailed,
 } as const satisfies Record<ExtensionKind, ProblemCode>
 
+/**
+ * Codes for a crash rather than a known problem. Their serialized form carries the root cause's
+ * stack, the one place a maintainer can find where it broke.
+ */
+const crashCodes: ReadonlySet<DiagnosticCode> = new Set([diagnosticCode.unknown, ...Object.values(failedCode)])
+
 const countKey = { error: 'errors', warning: 'warnings', info: 'infos' } as const satisfies Record<DiagnosticSeverity, string>
 
 /**
  * A {@link Diagnostic} reduced to its JSON-safe fields plus a `docsUrl`, for
- * machine-readable output (the `--reporter json` report, the MCP tools). Drops the
- * non-serializable `cause` and the `kind`/`duration` bookkeeping.
+ * machine-readable output (the `--reporter json` report, the MCP tools). Replaces the
+ * non-serializable `cause` with its message chain and drops the `kind`/`duration` bookkeeping.
  */
 export type SerializedDiagnostic = {
   code: DiagnosticCode
   severity: DiagnosticSeverity
   message: string
+  /**
+   * The catalog title for the code, for a problem.
+   */
+  title?: string
+  /**
+   * What triggers the code, from the catalog, for a problem.
+   */
+  cause?: string
   location?: DiagnosticLocation
+  /**
+   * The suggested fix: the diagnostic's own `help`, or the catalog fix when it has none.
+   */
   help?: string
   plugin?: string
   issues?: string
+  /**
+   * Messages of the underlying errors, outermost first, without the ones `message` already repeats.
+   */
+  causes?: Array<string>
+  /**
+   * Stack of the deepest underlying error, only for a crash (`KUBB_UNKNOWN` and the `*_FAILED` extension codes).
+   */
+  stack?: string
   /**
    * The kubb.dev docs link for the code, omitted for the unknown fallback.
    */
@@ -277,8 +321,9 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   },
   [diagnosticCode.invalidDocument]: {
     title: 'Invalid document',
-    cause: 'The parsed `input` has no `openapi` or `swagger` version field, so it is not an OpenAPI or Swagger document.',
-    fix: 'Point `input` at a document that declares `openapi` or `swagger`, and check that a passed object is the spec itself rather than a wrapper around it.',
+    cause:
+      'The `input` cannot be read as an OpenAPI or Swagger document: its JSON or YAML has a syntax error, it declares no `openapi` or `swagger` version field, or its version cannot be upgraded to OpenAPI 3.1.',
+    fix: 'Fix the syntax at the reported line, and check that `input` points at the spec and not an HTML page. Point `input` at a Swagger 2.0, OpenAPI 3.0, or OpenAPI 3.1 document, and check that a passed object is the spec itself rather than a wrapper around it.',
   },
   [diagnosticCode.invalidSpec]: {
     title: 'Invalid spec',
@@ -318,17 +363,17 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   [diagnosticCode.pluginFailed]: {
     title: 'Plugin failed',
     cause: 'A plugin threw while generating, or reported an error through `ctx.error`.',
-    fix: 'Read the underlying error and check the plugin options and the schema or operation it failed on. If the plugin crashed, rerun with `--verbose` for the stack trace and report it to the plugin maintainers, at the `report:` link when one is shown.',
+    fix: 'Read the underlying error and check the plugin options and the schema or operation at the `at:` pointer. If the plugin crashed, report it to the plugin maintainers with the stack trace (in `--reporter json` output, or rerun with `--verbose`), at the `report:` link when one is shown.',
   },
   [diagnosticCode.adapterFailed]: {
     title: 'Adapter failed',
     cause: 'The adapter threw an unexpected error while parsing the input.',
-    fix: 'This is likely a bug in the adapter. Rerun with `--verbose` for the stack trace and report it to the adapter maintainers, at the `report:` link when one is shown.',
+    fix: 'This is likely a bug in the adapter. Report it to the adapter maintainers with the stack trace (in `--reporter json` output, or rerun with `--verbose`), at the `report:` link when one is shown.',
   },
   [diagnosticCode.parserFailed]: {
     title: 'Parser failed',
     cause: 'A parser threw an unexpected error while printing a generated file.',
-    fix: 'This is likely a bug in the parser. Rerun with `--verbose` for the stack trace and report it to the parser maintainers, at the `report:` link when one is shown.',
+    fix: 'This is likely a bug in the parser. Report it to the parser maintainers with the stack trace (in `--reporter json` output, or rerun with `--verbose`), at the `report:` link when one is shown.',
   },
   [diagnosticCode.pluginWarning]: {
     title: 'Plugin warning',
@@ -497,12 +542,40 @@ export class Diagnostics {
   }
 
   /**
-   * Emits a diagnostic on the run's `kubb:diagnostic` hook so the loggers render it live.
-   * Use it instead of calling `hooks.callHook('kubb:diagnostic', ...)` directly. To collect a
-   * diagnostic into the build result from deep in a run, use {@link Diagnostics.report} instead.
+   * Emits a diagnostic on the run's hooks so the loggers render it live: `kubb:diagnostic`, or
+   * `kubb:error` with the underlying error for a `KUBB_UNKNOWN` problem, so its stack survives.
+   * Use it instead of calling either hook directly. To collect a diagnostic into the build result
+   * from deep in a run, use {@link Diagnostics.report} instead.
    */
   static async emit(hooks: Hookable<KubbHooks>, diagnostic: ProblemDiagnostic | UpdateDiagnostic): Promise<void> {
+    if (isProblem(diagnostic) && diagnostic.code === diagnosticCode.unknown) {
+      await hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+      return
+    }
     await hooks.callHook('kubb:diagnostic', { diagnostic })
+  }
+
+  /**
+   * Emits a thrown value on the run's hooks. A coded error goes through {@link Diagnostics.emit};
+   * anything else goes out as `kubb:error` whole, so the message of every wrapper in its cause
+   * chain survives.
+   *
+   * @example
+   * ```ts
+   * try {
+   *   await loadConfig()
+   * } catch (error) {
+   *   await Diagnostics.emitError(hooks, error)
+   * }
+   * ```
+   */
+  static async emitError(hooks: Hookable<KubbHooks>, error: unknown): Promise<void> {
+    const diagnostic = Diagnostics.from(error)
+    if (diagnostic.code !== diagnosticCode.unknown) {
+      await Diagnostics.emit(hooks, diagnostic)
+      return
+    }
+    await hooks.callHook('kubb:error', { error: toError(error) })
   }
 
   /**
@@ -513,20 +586,15 @@ export class Diagnostics {
     // The hook emitter and the build's AggregateError wrap the original, so walk the cause chain to
     // recover a Diagnostics.Error thrown deeper down. `root` tracks the deepest error so
     // the unknown diagnostic reports the original message and stack, not the wrapper's.
-    const seen = new Set<unknown>()
-    let current: unknown = error
-    let root: Error | undefined
-    while (current instanceof Error && !seen.has(current)) {
-      // Match structurally, not just by `instanceof`: a `Diagnostics.Error` thrown from a
-      // duplicated `@kubb/core` copy (bundled into an adapter or plugin) is a different
-      // class, but still carries the same `diagnostic`, so its code must survive.
-      if (Diagnostics.isError(current)) {
-        return current.diagnostic
-      }
-      seen.add(current)
-      root = current
-      current = current.cause
+    const chain = getErrorChain(error)
+    // Match structurally, not just by `instanceof`: a `Diagnostics.Error` thrown from a
+    // duplicated `@kubb/core` copy (bundled into an adapter or plugin) is a different
+    // class, but still carries the same `diagnostic`, so its code must survive.
+    const coded = chain.find((current) => Diagnostics.isError(current))
+    if (coded) {
+      return (coded as InstanceType<typeof Diagnostics.Error>).diagnostic
     }
+    const root = chain.at(-1)
 
     return {
       code: diagnosticCode.unknown,
@@ -661,19 +729,28 @@ export class Diagnostics {
 
   /**
    * Reduces a diagnostic to its JSON-safe fields plus a `docsUrl`, for machine-readable
-   * consumers. The `cause`, `kind`, and `duration` are dropped, and absent optional
-   * fields are omitted rather than set to `undefined`.
+   * consumers. A problem gains its catalog `title` and `cause`, falls back to the catalog fix
+   * when it has no `help`, and turns its `cause` error into `causes` (and `stack` for a crash).
+   * The `kind` and `duration` are dropped, and absent optional fields are omitted rather than
+   * set to `undefined`.
    */
   static serialize(diagnostic: Diagnostic): SerializedDiagnostic {
     const problem = isProblem(diagnostic) ? diagnostic : undefined
+    const doc = problem ? diagnosticCatalog[problem.code] : undefined
+    const help = problem ? getHelp(problem) : undefined
+    const causes = problem ? getCauses(problem) : []
+    const stack = problem && crashCodes.has(problem.code) ? getErrorChain(problem.cause).at(-1)?.stack : undefined
     return {
       code: diagnostic.code,
       severity: diagnostic.severity,
       message: diagnostic.message,
+      ...(doc ? { title: doc.title, cause: doc.cause } : {}),
       ...(problem?.location ? { location: problem.location } : {}),
-      ...(problem?.help ? { help: problem.help } : {}),
+      ...(help ? { help } : {}),
       ...(problem?.plugin ? { plugin: problem.plugin } : {}),
       ...(problem?.issues ? { issues: problem.issues } : {}),
+      ...(causes.length ? { causes } : {}),
+      ...(stack ? { stack } : {}),
       ...(diagnostic.code === diagnosticCode.unknown ? {} : { docsUrl: Diagnostics.docsUrl(diagnostic.code) }),
     }
   }
@@ -681,7 +758,8 @@ export class Diagnostics {
   /**
    * Renders a {@link Diagnostic} for terminal output as its parts: the `headline`
    * (`[CODE] plugin: message`, with the code in the severity color) and the indented `details`
-   * rows (`at:` pointer, `fix:` help, `see:` docs link, `report:` issue tracker).
+   * rows (`at:` pointer, `fix:` help or the catalog fix, `caused by:` per underlying error, `see:`
+   * docs link, `report:` issue tracker).
    *
    * Hosts compose these to fit their gutter: a clack logger passes `[headline, ...details]` as the
    * message with no gutter symbol, while plain text outputs use {@link Diagnostics.formatLines}.
@@ -698,8 +776,12 @@ export class Diagnostics {
     if (problem?.location && 'pointer' in problem.location) {
       details.push(`  ${styleText('dim', 'at:')} ${styleText('cyan', problem.location.pointer)}`)
     }
-    if (problem?.help) {
-      details.push(`  ${styleText('cyan', 'fix:')} ${problem.help}`)
+    const help = problem ? getHelp(problem) : undefined
+    if (help) {
+      details.push(`  ${styleText('cyan', 'fix:')} ${help}`)
+    }
+    for (const cause of problem ? getCauses(problem) : []) {
+      details.push(`  ${styleText('dim', 'caused by:')} ${cause}`)
     }
     if (code !== diagnosticCode.unknown) {
       details.push(`  ${styleText('dim', 'see:')} ${styleText('cyan', Diagnostics.docsUrl(code))}`)
