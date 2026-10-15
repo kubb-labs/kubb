@@ -21,28 +21,30 @@ import {
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { version as kubbVersion } from '../package.json'
 import { readConfig, readImports, writeConfigEdits } from './configFile.ts'
+import { diffHunks, pageHunks } from './diff.ts'
 import { createGenerationStream } from './generationEvents.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
 import {
   AGENT_INSTANCE_HEADER,
   AGENT_SOCKET_PATH,
   type AgentApi,
+  AgentPermission,
   AgentCloseCode,
+  AgentMessage,
   type AgentConnectInfo,
   type AgentPermissions,
   type ConfigFileView,
   type ConnectMessagePayload,
+  FileSource,
   type GenerateInput,
   type GenerateResult,
   type GenerationEvent,
   type GenerationRun,
-  GENERATION_GONE_MESSAGE,
   type InstalledExtensions,
   MAX_FILES_PER_REQUEST,
   MAX_PAGE_LINES,
-  NO_INPUT_MESSAGE,
-  READ_AST_NOT_ALLOWED_MESSAGE,
-  READ_NOT_ALLOWED_MESSAGE,
+  type ReadDiffInput,
+  type ReadDiffResult,
   type ReadFilesInput,
   type ReadFilesResult,
   type ReadInputInput,
@@ -106,11 +108,11 @@ declare global {
       /**
        * A finished command and what it did, such as `applied 2/3 edits to kubb.config.ts`.
        */
-      'studio:command': [ctx: { command: 'generate' | 'saveConfig' | 'readFiles' | 'readInput'; info: string }]
+      'studio:command': [ctx: { command: 'generate' | 'saveConfig' | 'readFiles' | 'readInput' | 'readDiff'; info: string }]
       /**
        * A refused or ignored request, with the missing permission so the host can add a remedy.
        */
-      'studio:warn': [ctx: { message: string; permission?: keyof AgentPermissions }]
+      'studio:warn': [ctx: { message: string; permission?: AgentPermission }]
       'studio:error': [ctx: { error: Error }]
     }
   }
@@ -220,6 +222,8 @@ class Agent extends RpcTarget implements AgentApi {
   readonly #session: Session
   readonly #limits = resolveGenerationLimits()
   #store: GenerationStore | undefined
+  // Kept sets never change, so a diff is computed once and its pages are cut from it.
+  readonly #diffs = new Map<string, ReturnType<typeof diffHunks>>()
 
   constructor({ options, session }: { options: ResolvedOptions; session: Session }) {
     super()
@@ -249,12 +253,12 @@ class Agent extends RpcTarget implements AgentApi {
     return this.#store
   }
 
-  #warn({ message, permission }: { message: string; permission?: keyof AgentPermissions }): Promise<void> {
+  #warn({ message, permission }: { message: string; permission?: AgentPermission }): Promise<void> {
     return emit(this.#options.hooks, 'studio:warn', { message, permission })
   }
 
   // Studio shows the thrown message, and the host logs the same text.
-  async #refuse({ message, permission }: { message: string; permission?: keyof AgentPermissions }): Promise<never> {
+  async #refuse({ message, permission }: { message: string; permission?: AgentPermission }): Promise<never> {
     await this.#warn({ message, permission })
     throw new Diagnostics.Error({ code: Diagnostics.code.unknown, severity: 'error', message })
   }
@@ -403,7 +407,9 @@ class Agent extends RpcTarget implements AgentApi {
 
     const hasProjectOnDisk = !this.#sandbox && this.#permissions.allowRead
     const diskFiles = hasProjectOnDisk ? await listDisk({ root, outputPath: config.output.path, maxFiles: DISK_SNAPSHOT_MAX_FILES }) : undefined
-    const disk = diskFiles ? await this.#generations.keep({ jobId, source: 'disk', files: diskFiles, maxSetMb: this.#limits.maxSnapshotMb }) : undefined
+    const disk = diskFiles
+      ? await this.#generations.keep({ jobId, source: FileSource.DISK, files: diskFiles, maxSetMb: this.#limits.maxSnapshotMb })
+      : undefined
 
     const files = await generate({
       config: {
@@ -423,7 +429,7 @@ class Agent extends RpcTarget implements AgentApi {
       throw error
     })
 
-    const output = await this.#generations.keep({ jobId, source: 'output', files, maxSetMb: this.#limits.maxMb })
+    const output = await this.#generations.keep({ jobId, source: FileSource.OUTPUT, files, maxSetMb: this.#limits.maxMb })
     // Only `readInput` reads it, which needs `allowReadAst`.
     const inputBytes = await this.#generations.keepInput({ jobId, input: this.#permissions.allowReadAst ? files.input : null, maxSetMb: this.#limits.maxMb })
     if (!output.paths.length && Object.keys(output.hashes).length) {
@@ -482,14 +488,14 @@ class Agent extends RpcTarget implements AgentApi {
    */
   async readInput(input: ReadInputInput): Promise<ReadInputResult> {
     this.#assertConnected()
-    if (!this.#permissions.allowReadAst) return this.#refuse({ message: READ_AST_NOT_ALLOWED_MESSAGE, permission: 'allowReadAst' })
+    if (!this.#permissions.allowReadAst) return this.#refuse({ message: AgentMessage.READ_AST_NOT_ALLOWED, permission: AgentPermission.READ_AST })
     if (typeof input.jobId !== 'string' || !input.jobId) return this.#refuse({ message: 'The request must name a job' })
 
     const generation = await this.#generations.get(input.jobId)
-    if (!generation) return this.#refuse({ message: GENERATION_GONE_MESSAGE })
+    if (!generation) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
     // A rerun of the job can leave an earlier run's input on disk, so trust only what this run kept.
     const kept = generation.inputBytes ? await this.#generations.readInput(input.jobId) : undefined
-    if (!kept) return this.#refuse({ message: NO_INPUT_MESSAGE })
+    if (!kept) return this.#refuse({ message: AgentMessage.NO_INPUT })
     await this.#logCommand('readInput', 'read the API input')
 
     return { input: kept }
@@ -500,7 +506,7 @@ class Agent extends RpcTarget implements AgentApi {
    */
   async readFiles(input: ReadFilesInput): Promise<ReadFilesResult> {
     this.#assertConnected()
-    if (!this.#permissions.allowRead) return this.#refuse({ message: READ_NOT_ALLOWED_MESSAGE, permission: 'allowRead' })
+    if (!this.#permissions.allowRead) return this.#refuse({ message: AgentMessage.READ_NOT_ALLOWED, permission: AgentPermission.READ })
     if (!Array.isArray(input.paths) || typeof input.jobId !== 'string' || !input.jobId) {
       return this.#refuse({ message: 'The request must name a job and carry paths' })
     }
@@ -508,10 +514,10 @@ class Agent extends RpcTarget implements AgentApi {
     if (paths.length > MAX_FILES_PER_REQUEST) return this.#refuse({ message: `At most ${MAX_FILES_PER_REQUEST} paths may be requested at once` })
 
     const generation = await this.#generations.get(input.jobId)
-    if (!generation) return this.#refuse({ message: GENERATION_GONE_MESSAGE })
+    if (!generation) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
     if (!isValidPage(input)) return this.#refuse({ message: `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines` })
 
-    const source = input.source === 'disk' ? 'disk' : 'output'
+    const source = input.source === FileSource.DISK ? FileSource.DISK : FileSource.OUTPUT
     if (!generation[source]) return this.#refuse({ message: 'This agent kept no snapshot of the files on disk for that job' })
 
     // Only paths the set holds are read, never an arbitrary path.
@@ -519,6 +525,54 @@ class Agent extends RpcTarget implements AgentApi {
     await this.#logCommand('readFiles', `read ${Object.keys(result.files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}`)
 
     return result
+  }
+
+  /**
+   * Returns one page of the line diff of a file between two kept sets. Refused without `allowRead`.
+   */
+  async readDiff(input: ReadDiffInput): Promise<ReadDiffResult> {
+    this.#assertConnected()
+    if (!this.#permissions.allowRead) return this.#refuse({ message: AgentMessage.READ_NOT_ALLOWED, permission: AgentPermission.READ })
+    const { jobId, path, base, cursor = 0, limit } = input
+    if (typeof jobId !== 'string' || !jobId || typeof path !== 'string' || !path || typeof base?.jobId !== 'string' || !base.jobId) {
+      return this.#refuse({ message: 'The request must name a job, a base, and a path' })
+    }
+    if (!isValidPage({ cursor, limit })) {
+      return this.#refuse({ message: `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines` })
+    }
+
+    const [generation, baseGeneration] = await Promise.all([this.#generations.get(jobId), this.#generations.get(base.jobId)])
+    if (!generation || !baseGeneration) return this.#refuse({ message: AgentMessage.GENERATION_GONE })
+    const baseSource = base.source === FileSource.DISK ? FileSource.DISK : FileSource.OUTPUT
+    if (!baseGeneration[baseSource]) return this.#refuse({ message: 'This agent kept no snapshot of the files on disk for that job' })
+
+    // Only paths the sets hold are read, never an arbitrary path.
+    const [after, before] = await Promise.all([
+      this.#generations.read({ generation, source: FileSource.OUTPUT, paths: [path] }),
+      this.#generations.read({ generation: baseGeneration, source: baseSource, paths: [path] }),
+    ])
+    const afterContent = after.files[path]
+    // Over the size cap only hashes are kept, which must not read as a deleted file.
+    if (afterContent === undefined && path in generation.output.hashes) return this.#refuse({ message: 'This agent kept only the hashes of that job' })
+    const beforeContent = before.files[path]
+    if (beforeContent === undefined) return { hunks: [], nextCursor: null, hasBase: false }
+
+    const key = JSON.stringify([jobId, base.jobId, baseSource, path])
+    let hunks = this.#diffs.get(key)
+    if (!hunks) {
+      hunks = diffHunks(beforeContent, afterContent ?? '')
+      this.#diffs.set(key, hunks)
+      // A few recent diffs cover paging through the open file and switching back to the last one.
+      if (this.#diffs.size > 4) this.#diffs.delete(this.#diffs.keys().next().value!)
+    }
+    const all = await hunks
+    if (!all) {
+      this.#diffs.delete(key)
+      return this.#refuse({ message: 'The two versions differ too much to diff' })
+    }
+    await this.#logCommand('readDiff', `read the diff of ${path}`)
+
+    return { ...pageHunks({ hunks: all, cursor, limit }), hasBase: true }
   }
 }
 
