@@ -103,6 +103,28 @@ describe('adapterOas.parse', () => {
     })
   })
 
+  it('carries x-* vendor extensions on the operation and the document root', async () => {
+    const adapter = adapterOas({ validate: false })
+    const node = await adapter.parse({
+      type: 'data',
+      data: {
+        ...minimalSpec,
+        'x-org-constants': { retries: 3 },
+        paths: {
+          '/pets': {
+            'x-org-path': true,
+            get: { ...minimalSpec.paths['/pets'].get, 'x-org-ignore': true, 'x-org-streaming': false },
+            post: { operationId: 'createPet', responses: { '200': { description: 'ok' } } },
+          },
+        },
+      },
+    })
+
+    expect(node.meta.extensions).toEqual({ 'x-org-constants': { retries: 3 } })
+    expect(node.operations[0]?.extensions).toEqual({ 'x-org-ignore': true, 'x-org-streaming': false })
+    expect(node.operations[1]?.extensions).toBeUndefined()
+  })
+
   it('lists servers with variable defaults filled in and resolves a referenced security scheme', async () => {
     const adapter = adapterOas({ validate: false })
     const node = await adapter.parse({

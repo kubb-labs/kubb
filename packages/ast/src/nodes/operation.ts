@@ -49,6 +49,10 @@ type OperationNodeBase = BaseNode & {
    * Operation responses.
    */
   responses: Array<ResponseNode>
+  /**
+   * Vendor extensions (`x-*` keys) from the source operation, copied as-is. Absent when the source has none.
+   */
+  extensions?: Record<string, unknown>
 }
 
 /**

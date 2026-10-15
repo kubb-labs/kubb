@@ -18,6 +18,14 @@ export function isNullable(schema?: SchemaObject & { 'x-nullable'?: boolean }): 
 }
 
 /**
+ * Returns the `x-*` keys of `source` as-is, or `undefined` when there are none.
+ */
+export function pickExtensions(source: Record<string, unknown>): Record<string, unknown> | undefined {
+  const entries = Object.entries(source).filter(([key]) => key.startsWith('x-'))
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined
+}
+
+/**
  * Returns `true` when `obj` is an OpenAPI `$ref` pointer object.
  */
 export function isReference(obj?: unknown): obj is ReferenceObject {

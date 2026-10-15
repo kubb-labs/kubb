@@ -2,7 +2,7 @@ import { pascalCase } from '@internals/utils'
 import { ast } from '@kubb/kit'
 import { SUPPORTED_METHODS } from './constants.ts'
 import type { ParseFn } from './emit/parseSchema.ts'
-import { getBinaryFallbackSchema, isJsonMimeType, isReference } from './oas.ts'
+import { getBinaryFallbackSchema, isJsonMimeType, isReference, pickExtensions } from './oas.ts'
 import type { Refs } from './refs.ts'
 import type {
   ContentType,
@@ -305,5 +305,6 @@ export function parseOperation({ operation, ...ctx }: OperationParseContext & { 
     parameters,
     requestBody,
     responses,
+    extensions: pickExtensions(operation.schema),
   })
 }

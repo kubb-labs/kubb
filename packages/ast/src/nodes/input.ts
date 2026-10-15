@@ -55,6 +55,10 @@ export type InputMeta = {
   servers?: Array<InputServer>
   securitySchemes?: Array<InputSecurityScheme>
   /**
+   * Vendor extensions (`x-*` keys) from the document root, copied as-is. Absent when the root has none.
+   */
+  extensions?: Record<string, unknown>
+  /**
    * Names of schemas that participate in a circular reference chain.
    * Computed once during the adapter pre-scan, so a generator never has to
    * call `findCircularSchemas` itself.
