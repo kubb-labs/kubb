@@ -202,6 +202,7 @@ function parseParameter({
     : ast.factory.createSchema({ type: options.unknownType })
   const style = param.style as ast.ParameterStyle | undefined
   const explode = param.explode
+  const allowReserved = param.allowReserved
 
   return ast.factory.createParameter({
     name: param.name,
@@ -213,6 +214,7 @@ function parseParameter({
     required: param.required ?? false,
     ...(style !== undefined ? { style } : {}),
     ...(explode !== undefined ? { explode } : {}),
+    ...(allowReserved !== undefined ? { allowReserved } : {}),
   })
 }
 
