@@ -1,7 +1,7 @@
 import { relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { formatMs, getElapsedMs } from '@internals/utils'
+import { formatMs, getElapsedMs, getErrorChain } from '@internals/utils'
 import type { Config } from '@kubb/core'
 import { Diagnostics, logLevel as logLevelMap } from '@kubb/core'
 import type { StudioConnectedContext } from '@kubb/studio'
@@ -329,12 +329,20 @@ export function createLogger(writer: LoggerWriter): Logger {
         state.phase.failed = true
       }
 
-      // The writer draws the error symbol, so the message goes in bare.
+      // The name tells a `TypeError` from a plain `Error`. The writer draws the error symbol, so the message goes in bare.
+      const message = error.name === 'Error' ? error.message : `${error.name}: ${error.message}`
       if (state.spinner) {
-        stopSpinner(error.message, 'failed')
+        stopSpinner(message, 'failed')
       } else {
-        writer.error(text(error.message))
+        writer.error(text(message))
       }
+
+      // The detail rows of a `KUBB_UNKNOWN` diagnostic (the fix and every `caused by:`), plus where the
+      // root error was thrown, so the output alone says what broke and where.
+      const { details } = Diagnostics.format({ code: Diagnostics.code.unknown, severity: 'error', message: error.message, cause: error })
+      const root = getErrorChain(error).at(-1) ?? error
+      const frame = logLevel < logLevelMap.verbose && root.stack ? topFrames(root.stack)[0] : undefined
+      writer.block([...details, ...(frame ? [`  ${styleText('dim', frame)}`] : [])].map(text))
 
       writeErrorFrames(error)
     })

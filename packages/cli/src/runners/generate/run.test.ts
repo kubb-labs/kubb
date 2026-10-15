@@ -27,9 +27,14 @@ type BootstrapOptions = {
  */
 async function bootstrap({ fail = false, reporters, configs = [] }: BootstrapOptions = {}) {
   const lines: Array<string> = []
+  // What reached stdout alone, since `json` keeps it for the report.
+  const stdout: Array<string> = []
   using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(false)
   using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(false)
-  using _log = vi.spyOn(console, 'log').mockImplementation((line = '') => void lines.push(String(line)))
+  using _log = vi.spyOn(console, 'log').mockImplementation((line = '') => {
+    lines.push(String(line))
+    stdout.push(String(line))
+  })
   using _warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   using _error = vi.spyOn(console, 'error').mockImplementation((line = '') => void lines.push(String(line)))
   using _fetch = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('offline'))
@@ -46,7 +51,7 @@ async function bootstrap({ fail = false, reporters, configs = [] }: BootstrapOpt
 
   await run({ logLevel: 'info', watch: false, reporters }).catch((error: Error) => void lines.push(error.message))
 
-  return lines
+  return Object.assign(lines, { stdout })
 }
 
 describe('bootstrap configuration group', () => {
@@ -82,10 +87,18 @@ describe('bootstrap configuration group', () => {
     expect(lines.at(-1)).toBe('exit 1')
   })
 
+  it('writes a config failure to stderr, not stdout, when json owns stdout', async () => {
+    const lines = await bootstrap({ fail: new Error('Config failed loading: kubb.config.ts', { cause: new Error('boom') }), reporters: ['json'] })
+
+    expect(lines.stdout).toStrictEqual([])
+    expect(lines.some((line) => line.includes('Config failed loading: kubb.config.ts'))).toBe(true)
+    expect(lines.some((line) => line.includes('caused by: boom'))).toBe(true)
+  })
+
   it('writes nothing of its own when json owns stdout', async () => {
     const lines = await bootstrap({ reporters: ['json'] })
 
-    expect(lines).toStrictEqual([])
+    expect([...lines]).toStrictEqual([])
   })
 })
 

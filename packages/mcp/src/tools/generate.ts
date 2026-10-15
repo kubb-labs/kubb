@@ -2,7 +2,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { CONFIG_EXTENSIONS, findConfigFile, loadConfigFile } from '@internals/shared'
 import { isPathInside } from '@internals/utils'
-import { type Config, createKubb, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
+import { type Config, createKubb, type Diagnostic, Diagnostics, type KubbHooks, Hookable } from '@kubb/core'
 import { defineTool } from 'tmcp/tool'
 import { tool } from 'tmcp/utils'
 import * as z from 'zod/mini'
@@ -32,10 +32,20 @@ export const generateTool = defineTool(
   },
   async function generate(schema: z.input<typeof generateSchema>) {
     const { config: configPath, input, output, logLevel } = schema
+    const messages: Array<string> = []
+
+    /**
+     * The failure response: the diagnostics as text and JSON, then the messages collected so far,
+     * such as warnings, so the agent sees everything the run said.
+     */
+    const failure = (title: string, diagnostics: ReadonlyArray<Diagnostic>) => {
+      const serialized = diagnostics.map((diagnostic) => Diagnostics.serialize(diagnostic))
+      const log = messages.length ? `\n\nMessages:\n${messages.join('\n')}` : ''
+      return tool.error(`${title}:\n${formatDiagnostics(serialized)}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\`${log}`)
+    }
 
     try {
       const hooks = new Hookable<KubbHooks>()
-      const messages: Array<string> = []
 
       const notify = (type: string, message: string, data?: Record<string, unknown>) => {
         messages.push(data ? `${type}: ${message} ${JSON.stringify(data)}` : `${type}: ${message}`)
@@ -72,7 +82,7 @@ export const generateTool = defineTool(
         if (!first) throw new Error('The config file exports an empty array of configurations')
         userConfig = first
       } catch (error) {
-        return tool.error(`Failed to load config: ${error instanceof Error ? error.message : String(error)}`)
+        return failure(`Failed to load config ${file}`, [Diagnostics.from(error)])
       }
 
       const cwd = path.dirname(file)
@@ -99,16 +109,14 @@ export const generateTool = defineTool(
       if (errors.length > 0) {
         notify('BUILD_FAILED', `Build failed with ${errors.length} diagnostic(s)`)
 
-        const serialized = problems.map((diagnostic) => Diagnostics.serialize(diagnostic))
-        return tool.error(`Build failed:\n${formatDiagnostics(serialized)}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\``)
+        return failure('Build failed', problems)
       }
 
       notify('BUILD_SUCCESS', `Build completed successfully - Generated ${result.files.length} files`)
 
       return tool.text(`Build completed successfully!\n\nGenerated ${result.files.length} files\n\n${messages.join('\n')}`)
     } catch (caughtError) {
-      const serialized = Diagnostics.serialize(Diagnostics.from(caughtError))
-      return tool.error(`Build error:\n${formatDiagnostics([serialized])}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\``)
+      return failure('Build error', [Diagnostics.from(caughtError)])
     }
   },
 )

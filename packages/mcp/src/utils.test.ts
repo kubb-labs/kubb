@@ -26,6 +26,26 @@ describe('formatDiagnostics', () => {
     )
   })
 
+  it('renders the cause, the underlying errors, and the report link', () => {
+    const diagnostic: SerializedDiagnostic = {
+      code: 'KUBB_PLUGIN_FAILED',
+      severity: 'error',
+      message: 'boom',
+      cause: 'A plugin threw while generating.',
+      causes: ['TypeError: x is undefined'],
+      issues: 'https://github.com/example/plugin/issues',
+    }
+
+    expect(formatDiagnostics([diagnostic])).toBe(
+      [
+        '[KUBB_PLUGIN_FAILED]: boom',
+        '  why: A plugin threw while generating.',
+        '  caused by: TypeError: x is undefined',
+        '  report: https://github.com/example/plugin/issues',
+      ].join('\n'),
+    )
+  })
+
   it('drops absent fields and uses the bare code when no plugin is set', () => {
     expect(formatDiagnostics([{ code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom' }])).toBe('[KUBB_UNKNOWN]: boom')
   })

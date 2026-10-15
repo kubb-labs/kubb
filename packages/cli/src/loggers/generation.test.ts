@@ -242,6 +242,19 @@ describe('grouped generation output', () => {
 
     expect(await render(failDuringStep, { rich: true })).toContain('spinner.error:No client plugin is registered.')
   })
+
+  it('prints every cause and where the root error was thrown', async () => {
+    const lines = await render(
+      async (context) => {
+        await context.callHook('kubb:error', { error: new Error('Config failed loading: kubb.config.ts', { cause: new TypeError('x is undefined') }) })
+      },
+      { rich: false },
+    )
+    const output = lines.join('\n')
+
+    expect(output).toContain('caused by: TypeError: x is undefined')
+    expect(output).toMatch(/^\s+at .+:\d+:\d+/m)
+  })
 })
 
 describe('plain generation output', () => {
