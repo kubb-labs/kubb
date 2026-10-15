@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.10.1 — Oct 15, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Telemetry now shows who ran a command. `kubb.tty` is `true` when a terminal is attached to stdin, which usually means a person typed the command. `kubb mcp` also reports the name of the MCP client that connected, such as `claude-code` or `cursor-vscode`, and sends its event when that client connects instead of at server start. `startServer` in `@kubb/mcp` now returns the server. ([#4325](https://github.com/kubb-labs/kubb/pull/4325), [`d648107`](https://github.com/kubb-labs/kubb/commit/d6481071a518e79fd9ad240d8d04df5f9af89619))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.10.0 — Oct 15, 2026
 
 ### @kubb/adapter-oas
