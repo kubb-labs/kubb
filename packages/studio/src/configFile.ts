@@ -357,6 +357,42 @@ function disabledBlocks(source: string, config: ObjectNode): Array<{ packageName
   })
 }
 
+/**
+ * Reads an object option that holds some code: its literal members as `value`, and the paths of
+ * the members that are code as `locked`. `set` can write any path outside `locked`, so Studio
+ * edits those fields. `undefined` for a computed key, since it could set any path.
+ */
+function readPartial(node: ObjectNode, prefix: Array<string> = []): { value: Record<string, OptionValue>; locked: Array<Array<string>> } | undefined {
+  const value: Record<string, OptionValue> = {}
+  const locked: Array<Array<string>> = []
+
+  for (const [index, entry] of node.properties.entries()) {
+    if (entry.type === 'SpreadElement') continue
+    const key = memberKey(entry)
+    if (key === undefined) return undefined
+    // The last member wins when a key repeats.
+    if (findMember(node, key)?.index !== index) continue
+
+    const path = [...prefix, key]
+    // A `__proto__` key replaces the prototype, so it reads as code.
+    if (!isSafeKey(key)) {
+      locked.push(path)
+      continue
+    }
+    const member = entry.type === 'ObjectProperty' && !isShadowed(node, index) ? entry.value : undefined
+    const literal = readLiteral(member)
+    if (literal !== undefined) {
+      value[key] = literal
+      continue
+    }
+    const nested = member?.type === 'ObjectExpression' ? readPartial(member, path) : { value: undefined, locked: [path] }
+    if (!nested) return undefined
+    if (nested.value) value[key] = nested.value
+    locked.push(...nested.locked)
+  }
+  return { value, locked }
+}
+
 /** The top-level options of a plugin call, each flagged with whether Studio may write it. */
 function readOptions(call: CallNode): PluginView['options'] {
   const entries: PluginView['options'] = {}
@@ -367,8 +403,10 @@ function readOptions(call: CallNode): PluginView['options'] {
     const key = memberKey(entry)
     if (key === undefined || !isSafeKey(key)) continue
     // A spread after the option can override it, so `set` refuses it like code.
-    const value = entry.type === 'ObjectProperty' && !isShadowed(options, index) ? readLiteral(entry.value) : undefined
-    entries[key] = value === undefined ? { literal: false } : { literal: true, value }
+    const member = entry.type === 'ObjectProperty' && !isShadowed(options, index) ? entry.value : undefined
+    const value = readLiteral(member)
+    const partial = value === undefined && member?.type === 'ObjectExpression' ? readPartial(member) : undefined
+    entries[key] = value !== undefined ? { literal: true, value } : partial ? { literal: false, ...partial } : { literal: false }
   }
   return entries
 }

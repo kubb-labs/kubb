@@ -74,6 +74,8 @@ describe('readConfig', () => {
       },
       'axios.group': {
         literal: false,
+        value: { type: 'tag' },
+        locked: [['name']],
       },
       'faker.group': {
         literal: true,
@@ -86,6 +88,8 @@ describe('readConfig', () => {
       },
       'faker.resolver': {
         literal: false,
+        value: { file: {} },
+        locked: [['name'], ['file', 'baseName']],
       },
       'ts.override': {
         literal: true,
@@ -179,6 +183,16 @@ describe('readConfig', () => {
       f: { literal: false },
       g: { literal: false },
       h: { literal: false },
+    })
+  })
+
+  it('reports the literal members and the code paths of an object option that holds some code', () => {
+    const view = readConfig(
+      `import { pluginTs } from '@kubb/plugin-ts'\nexport default defineConfig({\n  plugins: [pluginTs({ output: { path: './gen', footer: 'x', ...shared, banner: () => '', nested: { a: 1, b: run() } }, group: { [key]: 1 } })],\n})\n`,
+    )
+    expect(view.managed && view.configs[0]!.plugins[0]!.options).toStrictEqual({
+      output: { literal: false, value: { nested: { a: 1 } }, locked: [['path'], ['footer'], ['banner'], ['nested', 'b']] },
+      group: { literal: false },
     })
   })
 })
@@ -527,7 +541,7 @@ describe('applyConfigEdits', () => {
       const view = readConfig(source.replace(`arrayType: 'generic'`, `arrayType: 'generic', __proto__: { polluted: 'x' }, enum: { __proto__: {} }`))
       expect(view.managed && view.configs[0]!.plugins[0]!.options).toStrictEqual({
         arrayType: { literal: true, value: 'generic' },
-        enum: { literal: false },
+        enum: { literal: false, value: {}, locked: [['__proto__']] },
       })
     })
   })
@@ -560,7 +574,17 @@ describe('applyConfigEdits', () => {
       expect(view.managed && view.configs[0]!.plugins[0]!.options).toStrictEqual({
         importPath: { literal: false },
         inferred: { literal: false },
-        resolver: { literal: false },
+        resolver: { literal: false, value: {}, locked: [['name']] },
+      })
+    })
+
+    it('writes a path outside the locked members of an object that holds a method', () => {
+      const result = applyConfigEdits({ source, edits: [{ operation: 'set', plugin: '@kubb/plugin-zod', path: ['resolver', 'suffix'], value: 'Schema' }] })
+      const view = readConfig(result.source)
+      expect(view.managed && view.configs[0]!.plugins[0]!.options.resolver).toStrictEqual({
+        literal: false,
+        value: { suffix: 'Schema' },
+        locked: [['name']],
       })
     })
 
