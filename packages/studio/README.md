@@ -75,6 +75,7 @@ running in a developer's project and a container running a fixed plugin set.
 | `pair.ts`        | `pairAgent`: RFC 8628 device pairing.                                            |
 | `snapshot.ts`    | `createSnapshot` for CI, and packing a generation into an npm tarball.           |
 | `generations.ts` | Running a generation and keeping its files and AST for `readFiles`/`readInput`.  |
+| `diff.ts`        | The paged line diff `readDiff` serves between two kept sets.                     |
 | `configFile.ts`  | Reading and patching plugin options in `kubb.config.ts`.                         |
 
 ## Connection

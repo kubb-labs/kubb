@@ -419,6 +419,64 @@ describe('readFiles', () => {
   })
 })
 
+describe('readDiff', () => {
+  async function twoRuns(permissions = { allowRead: true }) {
+    const content = { current: 'export const pet = 1' }
+    const { agent } = await connectStudio({ permissions, loadConfig: async () => projectConfig({ content: content.current }) })
+    await run({ agent, jobId: 'job-1' })
+    content.current = 'export const pet = 2'
+    await run({ agent, jobId: 'job-2' })
+    return agent
+  }
+  const base = { jobId: 'job-1', source: 'output' } as const
+
+  it('refuses without allowRead', async () => {
+    const agent = await twoRuns({ allowRead: false })
+    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 10 })).rejects.toThrow(READ_NOT_ALLOWED_MESSAGE)
+  })
+
+  it('returns the changed lines of a file between two jobs', async () => {
+    const agent = await twoRuns()
+    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 10 })).resolves.toStrictEqual({
+      hunks: [
+        {
+          index: 0,
+          oldStart: 1,
+          newStart: 1,
+          lines: ['-export const pet = 1', '\\ No newline at end of file', '+export const pet = 2', '\\ No newline at end of file'],
+        },
+      ],
+      nextCursor: null,
+      hasBase: true,
+    })
+  })
+
+  it('pages the patch lines', async () => {
+    const agent = await twoRuns()
+    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 2 })).resolves.toMatchObject({ nextCursor: 2 })
+    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, cursor: 2, limit: 2 })).resolves.toMatchObject({
+      hunks: [{ index: 0, lines: ['+export const pet = 2', '\\ No newline at end of file'] }],
+      nextCursor: null,
+    })
+  })
+
+  it('reports a path the base does not hold, and never reads outside the sets', async () => {
+    const agent = await twoRuns()
+    await expect(agent.readDiff({ jobId: 'job-2', path: '../../etc/passwd', base, limit: 10 })).resolves.toStrictEqual({
+      hunks: [],
+      nextCursor: null,
+      hasBase: false,
+    })
+  })
+
+  it('refuses a job the agent no longer keeps', async () => {
+    const agent = await twoRuns()
+    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base: { jobId: 'job-gone', source: 'output' }, limit: 10 })).rejects.toThrow(
+      GENERATION_GONE_MESSAGE,
+    )
+  })
+})
+
 describe('readInput', () => {
   const input = ast.factory.createInput({
     operations: [ast.factory.createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })],

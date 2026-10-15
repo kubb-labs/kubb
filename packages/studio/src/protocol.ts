@@ -363,6 +363,47 @@ export type FilePage = { nextCursor: number | null; totalLines: number }
 export type ReadFilesResult = { files: Record<string, string>; pages?: Record<string, FilePage> }
 
 /**
+ * Asks for the line diff of one file between two kept sets, one page of patch lines at a time, so a
+ * large file never leaves the agent whole.
+ */
+export type ReadDiffInput = {
+  /**
+   * The job whose `output` is the newer side.
+   */
+  jobId: string
+  path: string
+  /**
+   * The older side: another job's `output`, or this job's `disk`.
+   */
+  base: { jobId: string; source: FileSource }
+  /**
+   * The patch line to start from (0-based), the `nextCursor` of the previous page. Defaults to 0.
+   */
+  cursor?: number
+  /**
+   * Patch lines per page, at most {@link MAX_PAGE_LINES}.
+   */
+  limit: number
+}
+
+/**
+ * One hunk of a diff page, its `lines` prefixed with ` `, `-`, or `+` as in a unified diff. A hunk
+ * split across pages keeps its `index` and starts, so the pages join back into one hunk.
+ */
+export type DiffHunk = { index: number; oldStart: number; newStart: number; lines: Array<string> }
+
+/**
+ * One page of a diff. `hasBase` is false when the base set does not hold the path, as when it was
+ * too large to keep, and the page is then empty.
+ */
+export type ReadDiffResult = { hunks: Array<DiffHunk>; nextCursor: number | null; hasBase: boolean }
+
+/**
+ * Why `readDiff` refuses when the two sides take too long to diff.
+ */
+export const DIFF_TOO_LARGE_MESSAGE = 'The two versions differ too much to diff'
+
+/**
  * Asks for the Kubb AST one job parsed its spec into. A job the agent no longer keeps fails with {@link GENERATION_GONE_MESSAGE}.
  */
 export type ReadInputInput = { jobId: string }
@@ -427,6 +468,10 @@ export type AgentApi = {
    * Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}.
    */
   readInput: (input: ReadInputInput) => Promise<ReadInputResult>
+  /**
+   * Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}.
+   */
+  readDiff: (input: ReadDiffInput) => Promise<ReadDiffResult>
 }
 
 /**

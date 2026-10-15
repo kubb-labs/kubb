@@ -20,6 +20,7 @@ import {
 import { newWebSocketRpcSession, RpcTarget } from 'capnweb'
 import { version as kubbVersion } from '../package.json'
 import { readConfig, readImports, writeConfigEdits } from './configFile.ts'
+import { diffHunks, pageHunks } from './diff.ts'
 import { createGenerationStream } from './generationEvents.ts'
 import { createGenerationStore, generate, type GenerationStore, listDisk, resolveGenerationLimits } from './generations.ts'
 import {
@@ -31,6 +32,7 @@ import {
   type AgentPermissions,
   type ConfigFileView,
   type ConnectMessagePayload,
+  DIFF_TOO_LARGE_MESSAGE,
   type GenerateInput,
   type GenerateResult,
   type GenerationEvent,
@@ -42,6 +44,8 @@ import {
   NO_INPUT_MESSAGE,
   READ_AST_NOT_ALLOWED_MESSAGE,
   READ_NOT_ALLOWED_MESSAGE,
+  type ReadDiffInput,
+  type ReadDiffResult,
   type ReadFilesInput,
   type ReadFilesResult,
   type ReadInputInput,
@@ -105,7 +109,7 @@ declare global {
       /**
        * A finished command and what it did, such as `applied 2/3 edits to kubb.config.ts`.
        */
-      'studio:command': [ctx: { command: 'generate' | 'saveConfig' | 'readFiles' | 'readInput'; info: string }]
+      'studio:command': [ctx: { command: 'generate' | 'saveConfig' | 'readFiles' | 'readInput' | 'readDiff'; info: string }]
       /**
        * A refused or ignored request, with the missing permission so the host can add a remedy.
        */
@@ -219,6 +223,8 @@ class Agent extends RpcTarget implements AgentApi {
   readonly #session: Session
   readonly #limits = resolveGenerationLimits()
   #store: GenerationStore | undefined
+  // Kept sets never change, so a diff is computed once and its pages are cut from it.
+  readonly #diffs = new Map<string, ReturnType<typeof diffHunks>>()
 
   constructor({ options, session }: { options: ResolvedOptions; session: Session }) {
     super()
@@ -517,6 +523,51 @@ class Agent extends RpcTarget implements AgentApi {
     await this.#logCommand('readFiles', `read ${Object.keys(result.files).length}/${paths.length} requested file${paths.length === 1 ? '' : 's'}`)
 
     return result
+  }
+
+  /**
+   * Returns one page of the line diff of a file between two kept sets. Refused without `allowRead`.
+   */
+  async readDiff(input: ReadDiffInput): Promise<ReadDiffResult> {
+    this.#assertConnected()
+    if (!this.#permissions.allowRead) return this.#refuse({ message: READ_NOT_ALLOWED_MESSAGE, permission: 'allowRead' })
+    const { jobId, path, base, cursor = 0, limit } = input
+    if (typeof jobId !== 'string' || !jobId || typeof path !== 'string' || !path || typeof base?.jobId !== 'string' || !base.jobId) {
+      return this.#refuse({ message: 'The request must name a job, a base, and a path' })
+    }
+    if (limit === undefined || !isValidPage({ cursor, limit })) {
+      return this.#refuse({ message: `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines` })
+    }
+
+    const [generation, baseGeneration] = await Promise.all([this.#generations.get(jobId), this.#generations.get(base.jobId)])
+    if (!generation || !baseGeneration) return this.#refuse({ message: GENERATION_GONE_MESSAGE })
+    const baseSource = base.source === 'disk' ? 'disk' : 'output'
+    if (!baseGeneration[baseSource]) return this.#refuse({ message: 'This agent kept no snapshot of the files on disk for that job' })
+
+    // Only paths the sets hold are read, never an arbitrary path.
+    const [after, before] = await Promise.all([
+      this.#generations.read({ generation, source: 'output', paths: [path] }),
+      this.#generations.read({ generation: baseGeneration, source: baseSource, paths: [path] }),
+    ])
+    const beforeContent = before.files[path]
+    if (beforeContent === undefined) return { hunks: [], nextCursor: null, hasBase: false }
+
+    const key = JSON.stringify([jobId, base.jobId, baseSource, path])
+    let hunks = this.#diffs.get(key)
+    if (!hunks) {
+      hunks = diffHunks(beforeContent, after.files[path] ?? '')
+      this.#diffs.set(key, hunks)
+      // A few recent diffs cover paging through the open file and switching back to the last one.
+      if (this.#diffs.size > 4) this.#diffs.delete(this.#diffs.keys().next().value!)
+    }
+    const all = await hunks
+    if (!all) {
+      this.#diffs.delete(key)
+      return this.#refuse({ message: DIFF_TOO_LARGE_MESSAGE })
+    }
+    await this.#logCommand('readDiff', `read the diff of ${path}`)
+
+    return { ...pageHunks({ hunks: all, cursor, limit }), hasBase: true }
   }
 }
 
