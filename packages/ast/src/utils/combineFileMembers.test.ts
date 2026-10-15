@@ -21,6 +21,12 @@ describe('combineSources', () => {
     expect(result).toHaveLength(1)
   })
 
+  it('keeps unnamed sources with the same text when they are different nodes', () => {
+    const result = combineSources([createSource({ nodes: [createText('Deprecated.')] }), createSource({ nodes: [createText('Deprecated.')] })])
+
+    expect(result).toHaveLength(2)
+  })
+
   it.each(['isExportable', 'isTypeOnly'] as const)('treats sources with the same name but different %s as distinct', (flag) => {
     const a = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')], [flag]: true })
     const b = createSource({ name: 'Pet', nodes: [createText('export type Pet = {}')], [flag]: false })

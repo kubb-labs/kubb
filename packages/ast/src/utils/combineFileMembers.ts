@@ -5,7 +5,6 @@
  * schema content.
  */
 import type { ExportNode, ImportNode, SourceNode } from '../nodes/file.ts'
-import { extractStringsFromNodes } from './extractStringsFromNodes.ts'
 
 const IDENTIFIER_RUN = /[\w$]+/g
 
@@ -72,17 +71,17 @@ function mergeByPath<TNode extends FileMember>(result: Array<TNode>): (member: {
 
 /**
  * Deduplicates `SourceNode` objects by `name + isExportable + isTypeOnly`, keeping the first of each
- * key. Unnamed sources fall back to their extracted node strings as the name part of the key. Returns
- * the deduplicated array in original order.
+ * key. An unnamed source only drops when the same node appears twice, so markdown can repeat a
+ * paragraph or a table. Returns the deduplicated array in original order.
  */
 export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
-  const seen = new Map<string, SourceNode>()
-  for (const source of sources) {
-    const nameKey = source.name ?? extractStringsFromNodes(source.nodes)
-    const key = `${nameKey}:${source.isExportable ?? false}:${source.isTypeOnly ?? false}`
-    if (!seen.has(key)) seen.set(key, source)
-  }
-  return [...seen.values()]
+  const seen = new Set<SourceNode | string>()
+  return sources.filter((source) => {
+    const key = source.name ? `${source.name}:${source.isExportable ?? false}:${source.isTypeOnly ?? false}` : source
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
 }
 
 /**
