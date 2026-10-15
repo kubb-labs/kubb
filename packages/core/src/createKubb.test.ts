@@ -375,6 +375,47 @@ describe('createKubb', () => {
       expect(seen.find((entry) => entry.name === 'B')?.options.marker).toBe('overridden')
     })
 
+    it('filters operations by vendor extension in exclude, include, and override', async () => {
+      const operation = (operationId: string, extensions?: Record<string, unknown>) =>
+        ast.factory.createOperation({ operationId, method: 'GET', path: `/${operationId}`, parameters: [], responses: [], tags: [], extensions })
+      const operations = [operation('hidden', { 'x-org-ignore': true }), operation('shown', { 'x-org-ignore': false, 'x-org-beta': 'yes' }), operation('plain')]
+      const run = async (options: Record<string, unknown>) => {
+        const seen: Array<{ operationId: string; marker?: string }> = []
+        const plugin = defineExtension({
+          kind: 'plugin',
+          meta: { name: 'extension-filter-plugin' },
+          hooks: {
+            'kubb:plugin:setup'(ctx) {
+              ctx.setOptions({ output: { path: '.' }, exclude: [], override: [], ...options })
+              ctx.addGenerator({
+                name: 'extension-filter-gen',
+                operation(node, generatorCtx) {
+                  seen.push({ operationId: node.operationId, marker: (generatorCtx.options as { marker?: string }).marker })
+                },
+              })
+            },
+          },
+        })()
+
+        await createKubb(makeConfig({ adapter: makeAdapter({ operations }), plugins: [plugin as unknown as Plugin] }), {
+          hooks: new Hookable<KubbHooks>(),
+        }).build()
+
+        return seen
+      }
+
+      expect((await run({ exclude: [{ type: 'extension', key: 'x-org-ignore', value: true }] })).map(({ operationId }) => operationId)).toEqual([
+        'shown',
+        'plain',
+      ])
+      expect((await run({ include: [{ type: 'extension', key: 'x-org-beta' }] })).map(({ operationId }) => operationId)).toEqual(['shown'])
+      expect(await run({ override: [{ type: 'extension', key: 'x-org-ignore', options: { marker: 'flagged' } }] })).toEqual([
+        { operationId: 'hidden', marker: 'flagged' },
+        { operationId: 'shown', marker: 'flagged' },
+        { operationId: 'plain', marker: undefined },
+      ])
+    })
+
     it('passes the same transformed node to operation and operations generators', async () => {
       const perNode: Array<OperationNode> = []
       let batch: Array<OperationNode> = []

@@ -237,11 +237,27 @@ type ByContentType = {
   pattern: string | RegExp
 }
 
+type ByExtension = {
+  /**
+   * Filter operations by a vendor extension (`x-*` key) on the source operation, for example
+   * `x-internal: true`. Does not apply to schemas.
+   */
+  type: 'extension'
+  /**
+   * Extension key to look up, including the `x-` prefix.
+   */
+  key: `x-${string}`
+  /**
+   * Value the extension must strictly equal. When omitted, the key being present is enough.
+   */
+  value?: unknown
+}
+
 /**
  * Pattern filter for include, exclude, and override rules. Matches operations or schemas
- * by tag, operationId, path, method, content type, or schema name.
+ * by tag, operationId, path, method, content type, schema name, or vendor extension.
  */
-export type Filter = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName
+export type Filter = ByTag | ByOperationId | ByPath | ByMethod | ByContentType | BySchemaName | ByExtension
 
 /**
  * Filter that skips matching operations or schemas during generation, for example
@@ -253,6 +269,7 @@ export type Filter = ByTag | ByOperationId | ByPath | ByMethod | ByContentType |
  *   { type: 'tag', pattern: 'internal' },
  *   { type: 'path', pattern: /^\/admin/ },
  *   { type: 'operationId', pattern: /^deprecated_/ },
+ *   { type: 'extension', key: 'x-internal', value: true },
  * ]
  * ```
  */

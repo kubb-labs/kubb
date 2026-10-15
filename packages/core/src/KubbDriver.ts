@@ -44,7 +44,7 @@ type RequirePluginContext = {
 const ENFORCE_ORDER = { pre: -1, post: 1 } satisfies Record<Enforce, number>
 
 /** `include` filter types that select operations, and so prune the schemas they do not reach. */
-const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType'])
+const OPERATION_FILTER_TYPES: ReadonlySet<string> = new Set(['tag', 'operationId', 'path', 'method', 'contentType', 'extension'])
 
 const enforceWeight = (plugin: NormalizedPlugin): number => (plugin.enforce ? ENFORCE_ORDER[plugin.enforce] : 0)
 
