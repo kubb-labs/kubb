@@ -63,6 +63,9 @@ jobs:
         name: Build
         run: pnpm run build
 
+      - name: Check published types only import declared dependencies
+        run: node scripts/check-dts-deps.mjs
+
   typecheck:
     name: Typecheck
     timeout-minutes: 15
