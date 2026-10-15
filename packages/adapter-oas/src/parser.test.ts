@@ -2167,6 +2167,12 @@ describe('parseSchema not keyword', () => {
     ])
   })
 
+  it('keeps a `not` next to a `$ref`', () => {
+    const node = parseSchema(emptyCtx, { schema: { $ref: '#/components/schemas/Pet', not: { type: 'null' } } })
+
+    expect(node).toMatchObject({ type: 'intersection', members: [{ type: 'ref', ref: '#/components/schemas/Pet' }, { type: 'not' }] })
+  })
+
   it('keeps a keyword-only `not` as emptySchemaType plus the negation', () => {
     const node = parseSchema(emptyCtx, { schema: { not: { type: 'string' } } })
 

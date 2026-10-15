@@ -51,6 +51,15 @@ describe('schema diagnostics during parse', () => {
     expect(formatWarnings[0]).toMatchObject({ severity: 'warning', location: { pointer: '#/components/schemas/Pet/properties/id' } })
   })
 
+  it('reports a deprecated schema inside `not`', async () => {
+    const data = { ...spec, components: { schemas: { Name: { type: 'string', not: { type: 'string', deprecated: true } } } } }
+    const diagnostics = await collect(data)
+
+    expect(diagnostics).toContainEqual(
+      expect.objectContaining({ code: 'KUBB_DEPRECATED', location: { kind: 'schema', pointer: '#/components/schemas/Name/members/1/members/0' } }),
+    )
+  })
+
   it('points at the full nested path, not the immediate parent', async () => {
     const nested = {
       openapi: '3.0.3',
