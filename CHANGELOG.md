@@ -1,5 +1,20 @@
 # Changelog
 
+## v5.10.4 — Oct 15, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Keep function and class names in the CommonJS build, as the ESM build already does. Two builds wrote `.cjs` files to the same folder, so a published package could ship the copy without names. ([#4340](https://github.com/kubb-labs/kubb/pull/4340), [`3a10f90`](https://github.com/kubb-labs/kubb/commit/3a10f90d98870bcf12c8880dd3fcdedbd93af0f6))
+- Require Node.js 22.12 or higher. `unplugin-kubb`, the bundler integrations in `kubb` (`kubb/vite`, `kubb/webpack`, and the others), and the test helpers (`@kubb/core/mocks`, `@kubb/kit/testing`, `kubb/kit/testing`) now ship as ES modules only. From CommonJS, read the plugin from `.default`: `require('unplugin-kubb/vite').default`. ([#4343](https://github.com/kubb-labs/kubb/pull/4343), [`216ba2b`](https://github.com/kubb-labs/kubb/commit/216ba2bc737120a1732c620622b693ae1224a4d5))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.10.3 — Oct 15, 2026
 
 ### @kubb/adapter-oas
