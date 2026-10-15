@@ -385,9 +385,13 @@ function readPartial(node: ObjectNode, prefix: Array<string> = []): { value: Rec
       value[key] = literal
       continue
     }
-    const nested = member?.type === 'ObjectExpression' ? readPartial(member, path) : { value: undefined, locked: [path] }
+    if (member?.type !== 'ObjectExpression') {
+      locked.push(path)
+      continue
+    }
+    const nested = readPartial(member, path)
     if (!nested) return undefined
-    if (nested.value) value[key] = nested.value
+    value[key] = nested.value
     locked.push(...nested.locked)
   }
   return { value, locked }
@@ -406,7 +410,7 @@ function readOptions(call: CallNode): PluginView['options'] {
     const member = entry.type === 'ObjectProperty' && !isShadowed(options, index) ? entry.value : undefined
     const value = readLiteral(member)
     const partial = value === undefined && member?.type === 'ObjectExpression' ? readPartial(member) : undefined
-    entries[key] = value !== undefined ? { literal: true, value } : partial ? { literal: false, ...partial } : { literal: false }
+    entries[key] = value !== undefined ? { literal: true, value } : { literal: false, ...partial }
   }
   return entries
 }
