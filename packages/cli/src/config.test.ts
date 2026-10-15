@@ -47,7 +47,7 @@ describe('getConfigs', () => {
     using _cwd = vi.spyOn(process, 'cwd').mockReturnValue(dir)
 
     await expect(getConfigs({ configPath: join(dir, 'missing.config.ts') })).rejects.toThrow(/Config/)
-    await expect(getConfigs({})).rejects.toThrow('Config not defined')
+    await expect(getConfigs({})).rejects.toThrow('No Kubb config found')
   })
 
   it('wraps a config that fails to load', async () => {
@@ -55,7 +55,7 @@ describe('getConfigs', () => {
     const configPath = join(dir, 'kubb.config.mjs')
     await writeFile(configPath, `throw new Error('boom')\n`)
 
-    await expect(getConfigs({ configPath })).rejects.toThrow('Config failed loading')
+    await expect(getConfigs({ configPath })).rejects.toThrow(`Config failed loading: ${configPath}`)
   })
 
   it.each([

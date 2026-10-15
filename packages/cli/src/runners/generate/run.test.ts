@@ -27,9 +27,14 @@ type BootstrapOptions = {
  */
 async function bootstrap({ fail = false, reporters, configs = [] }: BootstrapOptions = {}) {
   const lines: Array<string> = []
+  // What reached stdout alone, since `json` keeps it for the report.
+  const stdout: Array<string> = []
   using _rich = vi.spyOn(env, 'isRichOutput').mockReturnValue(false)
   using _tty = vi.spyOn(env, 'canUseTTY').mockReturnValue(false)
-  using _log = vi.spyOn(console, 'log').mockImplementation((line = '') => void lines.push(String(line)))
+  using _log = vi.spyOn(console, 'log').mockImplementation((line = '') => {
+    lines.push(String(line))
+    stdout.push(String(line))
+  })
   using _warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
   using _error = vi.spyOn(console, 'error').mockImplementation((line = '') => void lines.push(String(line)))
   using _fetch = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('offline'))
@@ -46,7 +51,7 @@ async function bootstrap({ fail = false, reporters, configs = [] }: BootstrapOpt
 
   await run({ logLevel: 'info', watch: false, reporters }).catch((error: Error) => void lines.push(error.message))
 
-  return lines
+  return Object.assign(lines, { stdout })
 }
 
 describe('bootstrap configuration group', () => {
@@ -78,14 +83,22 @@ describe('bootstrap configuration group', () => {
 
     const lines = await bootstrap({ fail: new Error('Config failed loading', { cause }) })
 
-    expect(lines.some((line) => line.includes('[KUBB_INVALID_PLUGIN_OPTIONS]') && line.includes('neither `meta.name` nor `name`'))).toBe(true)
+    expect(lines.some((line) => line.includes('error KUBB_INVALID_PLUGIN_OPTIONS') && line.includes('neither `meta.name` nor `name`'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
+  })
+
+  it('writes a config failure to stderr, not stdout, when json owns stdout', async () => {
+    const lines = await bootstrap({ fail: new Error('Config failed loading: kubb.config.ts', { cause: new Error('boom') }), reporters: ['json'] })
+
+    expect(lines.stdout).toStrictEqual([])
+    expect(lines.some((line) => line.includes('Config failed loading: kubb.config.ts'))).toBe(true)
+    expect(lines.some((line) => line.includes('caused by: boom'))).toBe(true)
   })
 
   it('writes nothing of its own when json owns stdout', async () => {
     const lines = await bootstrap({ reporters: ['json'] })
 
-    expect(lines).toStrictEqual([])
+    expect([...lines]).toStrictEqual([])
   })
 })
 
@@ -102,7 +115,7 @@ describe('reporters', () => {
     // `getConfigs` hands the exported object through as a `Config`, without `reporters`.
     const lines = await bootstrap({ configs: [config as unknown as Config] })
 
-    expect(lines.some((line) => line.includes('✗'))).toBe(true)
+    expect(lines.some((line) => line.startsWith('Kubb failed: 1 error'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })
 })
@@ -142,7 +155,7 @@ describe('output passes', () => {
 
     expect(lines.some((line) => line.startsWith('✓ types in '))).toBe(true)
     expect(lines.some((line) => line.startsWith('Post-generate hooks completed in '))).toBe(true)
-    expect(lines).toContain('✓ Generation succeeded')
+    expect(lines.some((line) => line.startsWith('Kubb succeeded: '))).toBe(true)
     expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
   })
 
@@ -150,8 +163,10 @@ describe('output passes', () => {
     const lines = await bootstrap({ configs: [withPostGenerate([{ name: 'types', command: `"${node}" -e "process.exit(1)"` }])] })
 
     expect(lines.some((line) => line.startsWith('✗ types failed (Hook execute failed: '))).toBe(true)
-    expect(lines.some((line) => line.startsWith('[KUBB_POST_GENERATE_FAILED]: Post-generate command failed: '))).toBe(true)
-    expect(lines).toContain('✗ Generation failed')
+    expect(lines.some((line) => line.startsWith('error KUBB_POST_GENERATE_FAILED: Post-generate command failed: '))).toBe(true)
+    // An agent gets the verdict line instead of the group's closing line.
+    expect(lines).not.toContain('✗ Generation failed')
+    expect(lines.some((line) => line.startsWith('Kubb failed: 1 error. Exit code 1.'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })
 })

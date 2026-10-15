@@ -6,7 +6,7 @@ import * as clack from '@clack/prompts'
 import type { DryRunExtension } from '@gunshi/plugin-dryrun'
 import { defineWithTypes } from 'gunshi'
 import { generateConfigFile, initDefaults, KUBB_CONFIG_FILENAME, KUBB_PACKAGE_NAME } from '@internals/shared'
-import type { RegistryEntry } from '@kubb/core'
+import { Diagnostics, type RegistryEntry } from '@kubb/core'
 import { dryRunId, type DryRunExtensions } from '../../commands/shared.ts'
 import { createSpinner, logError, logInfo, logIntro, logOutro } from '../../loggers/output.ts'
 import { addToConfig } from '../add/run.ts'
@@ -134,7 +134,13 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
           .map((id) => id.trim())
           .filter(Boolean)
         const unknown = ids.filter((id) => !byId.has(toRegistryId(id)))
-        if (unknown.length) throw new Error(`Not in the Kubb registry: ${unknown.join(', ')}. Browse the plugins at https://kubb.dev/extensions.`)
+        if (unknown.length)
+          throw new Diagnostics.Error({
+            code: Diagnostics.code.pluginNotFound,
+            severity: 'error',
+            message: `Not in the Kubb registry: ${unknown.join(', ')}. Browse the plugins at https://kubb.dev/extensions.`,
+            help: 'Use plugin ids from https://kubb.dev/extensions, such as plugin-ts.',
+          })
         const entries = ids.map((id) => byId.get(toRegistryId(id))!)
         logInfo(`Using plugins: ${pluginLabel(entries)}`)
         return entries
@@ -159,7 +165,11 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
       manifests: selectedPlugins.map((entry) => entry.manifest),
     })
     if (missing.length) {
-      throw new Error(`${missing.join('\n')}\nAdd the missing plugins and run kubb init again.`)
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.missingDependency,
+        severity: 'error',
+        message: `${missing.join('\n')}\nAdd the missing plugins and run kubb init again.`,
+      })
     }
 
     // Install `kubb` at the running CLI's version and each plugin at the version the registry pins
@@ -210,7 +220,13 @@ export async function run({ yes, input: inputFlag, output: outputFlag, plugins: 
         message: `add ${entry.manifest.export}() to ${KUBB_CONFIG_FILENAME}`,
         resolve: () => undefined,
       })
-      if (reason) throw new Error(`Could not add ${entry.manifest.export}() to ${KUBB_CONFIG_FILENAME}: ${reason}`)
+      if (reason)
+        throw new Diagnostics.Error({
+          code: Diagnostics.code.unknown,
+          severity: 'error',
+          message: `Could not add ${entry.manifest.export}() to ${KUBB_CONFIG_FILENAME}: ${reason}`,
+          help: `Add ${entry.manifest.export}() to the plugins array in ${KUBB_CONFIG_FILENAME} by hand.`,
+        })
     }
 
     configSpinner.stop(`Created ${KUBB_CONFIG_FILENAME}`)

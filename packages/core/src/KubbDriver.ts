@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
-import { getElapsedMs, toError } from '@internals/utils'
+import { escapePointerToken, getElapsedMs, toError } from '@internals/utils'
 import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
-import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
+import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
 import type { Parser } from './defineParser.ts'
 import type { KubbPluginSetupContext, Plugin, PluginName, ResolvePluginOptions, Group, NormalizedPlugin, PluginType } from './definePlugin.ts'
@@ -66,6 +66,49 @@ function normalizePluginOptions(rawOptions: Plugin['options'], pluginName: strin
   return options
 }
 
+/**
+ * Throws `KUBB_INVALID_PLUGIN_OPTIONS` when a `plugins` entry is not a plugin object, such as a
+ * factory passed without calling it.
+ */
+function assertPluginEntry(entry: unknown, index: number): asserts entry is Plugin {
+  if (typeof entry === 'function') {
+    const name = entry.name || 'pluginName'
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.invalidPluginOptions,
+      severity: 'error',
+      message: `plugins[${index}] is a function ("${name}"), not a plugin.`,
+      help: `Call it: ${name}()`,
+      location: { kind: 'config' },
+    })
+  }
+  if (typeof entry !== 'object' || entry === null) {
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.invalidPluginOptions,
+      severity: 'error',
+      message: `plugins[${index}] is ${entry === null ? 'null' : typeof entry}, not a plugin.`,
+      help: 'Pass the result of a plugin factory, for example `pluginTs()`, or remove the entry.',
+      location: { kind: 'config' },
+    })
+  }
+}
+
+/**
+ * Where a generator crashed: a label naming the node and, when the node has one, a JSON pointer
+ * to it. Built from the node fields so core stays adapter-agnostic.
+ */
+function getCrashSite(node: SchemaNode | OperationNode): { label: string; location?: DiagnosticLocation } {
+  if (node.kind === 'Schema') {
+    return node.name
+      ? { label: `schema "${node.name}"`, location: { kind: 'schema', pointer: `#/components/schemas/${escapePointerToken(node.name)}` } }
+      : { label: 'an inline schema' }
+  }
+  if (!node.method || !node.path) return { label: `operation "${node.operationId}"` }
+  return {
+    label: `operation "${node.operationId}" (${node.method.toUpperCase()} ${node.path})`,
+    location: { kind: 'operation', pointer: `#/paths/${escapePointerToken(node.path)}/${node.method.toLowerCase()}` },
+  }
+}
+
 export class KubbDriver {
   readonly config: Config
   readonly options: Options
@@ -113,11 +156,24 @@ export class KubbDriver {
       if (extension?.meta) checkCompatibility(extension.meta)
     }
 
+    // Plugins are keyed by name, so a second entry with the same name would silently replace the first.
+    const names = new Set<string>()
     const normalized = this.#sortPlugins(
-      this.config.plugins.map((rawPlugin) => {
+      this.config.plugins.map((rawPlugin, index) => {
+        assertPluginEntry(rawPlugin, index)
         if (rawPlugin.meta) checkCompatibility(rawPlugin.meta)
 
         const meta = resolveMeta(rawPlugin)
+        if (names.has(meta.name)) {
+          throw new Diagnostics.Error({
+            code: Diagnostics.code.invalidPluginOptions,
+            severity: 'error',
+            message: `Plugin "${meta.name}" appears twice in \`plugins\`.`,
+            help: 'Remove the duplicate, or merge its options.',
+            location: { kind: 'config' },
+          })
+        }
+        names.add(meta.name)
         const normalizedPlugin: NormalizedPlugin = {
           name: meta.name,
           meta,
@@ -482,6 +538,8 @@ export class KubbDriver {
         operationsGenerators: generators.filter((generator) => generator.operations),
         pluginOperations: [] as Array<OperationNode>,
         error: null as Error | null,
+        // The node a generator crashed on, so the diagnostic can name it.
+        crashSite: undefined as ReturnType<typeof getCrashSite> | undefined,
       }
     })
 
@@ -534,6 +592,7 @@ export class KubbDriver {
           await this.hooks.callHook('kubb:generate:schema', transformedNode, ctx)
         } catch (caughtError) {
           state.error = toError(caughtError)
+          state.crashSite = getCrashSite(node)
         }
       }
     }
@@ -564,6 +623,7 @@ export class KubbDriver {
           }
         } catch (caughtError) {
           state.error = toError(caughtError)
+          state.crashSite = getCrashSite(node)
         }
       }
     }
@@ -590,7 +650,14 @@ export class KubbDriver {
       await this.#emitPluginEnd({ plugin: state.plugin, duration, success: !state.error, error: state.error ?? undefined })
 
       if (state.error) {
-        diagnostics.push(Diagnostics.fromExtension(state.error, { kind: 'plugin', extension: state.plugin }))
+        const diagnostic = Diagnostics.fromExtension(state.error, { kind: 'plugin', extension: state.plugin })
+        // Only a crash gains the node it failed on. A coded error already says where it is.
+        const site = diagnostic.code === Diagnostics.code.pluginFailed && !diagnostic.location ? state.crashSite : undefined
+        diagnostics.push(
+          site
+            ? { ...diagnostic, message: `While generating ${site.label}: ${diagnostic.message}`, ...(site.location ? { location: site.location } : {}) }
+            : diagnostic,
+        )
       }
       diagnostics.push(Diagnostics.performance({ plugin: state.plugin.name, duration }))
     }
@@ -684,15 +751,19 @@ export class KubbDriver {
       get resolver() {
         return driver.getResolver(plugin.name)
       },
-      warn(message: string) {
-        report({ code: Diagnostics.code.pluginWarning, severity: 'warning', message })
+      warn(message, options) {
+        report({ code: Diagnostics.code.pluginWarning, severity: 'warning', message, ...options })
       },
-      error(error: string | Error) {
+      error(error, options) {
+        if (Diagnostics.isError(error)) {
+          report({ ...options, ...error.diagnostic })
+          return
+        }
         const cause = typeof error === 'string' ? undefined : error
-        report({ code: Diagnostics.code.pluginFailed, severity: 'error', message: typeof error === 'string' ? error : error.message, cause })
+        report({ code: Diagnostics.code.pluginFailed, severity: 'error', message: typeof error === 'string' ? error : error.message, cause, ...options })
       },
-      info(message: string) {
-        report({ code: Diagnostics.code.pluginInfo, severity: 'info', message })
+      info(message, options) {
+        report({ code: Diagnostics.code.pluginInfo, severity: 'info', message, ...options })
       },
     }
   }

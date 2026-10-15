@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises'
-import { inParallel, matchesStored } from '@internals/utils'
+import { inParallel, matchesStored, toError } from '@internals/utils'
 import { ast, extractStringsFromNodes, type CodeNode, type FileNode } from '@kubb/ast'
 import type { RendererFactory } from './createRenderer.ts'
 import type { Storage } from './createStorage.ts'
@@ -55,7 +55,13 @@ async function parseCopy(file: FileNode, parser: Parser | undefined): Promise<st
   try {
     content = await readFile(file.copy as string, 'utf8')
   } catch (err) {
-    throw new Error(`[kubb] Could not copy file into output: ${file.copy}`, { cause: err })
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.pluginFailed,
+      severity: 'error',
+      message: `Could not copy file into output: ${file.copy}`,
+      help: 'Check that the file a plugin copies into the output exists and is readable.',
+      cause: toError(err),
+    })
   }
 
   if (parser?.copy) {

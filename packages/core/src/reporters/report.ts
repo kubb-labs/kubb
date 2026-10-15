@@ -1,7 +1,8 @@
 import { resolve } from 'node:path'
 import { getElapsedMs } from '@internals/utils'
 import type { GenerationResult } from '../createReporter.ts'
-import { Diagnostics, type SerializedDiagnostic } from '../Diagnostics.ts'
+import { Diagnostics } from '../Diagnostics.ts'
+import type { SerializedDiagnostic } from '../formatDiagnostic.ts'
 
 /**
  * One plugin's elapsed time, derived from a `performance` diagnostic.
@@ -74,7 +75,8 @@ export function buildReport(result: GenerationResult): Report {
   return {
     name: config.name ?? '',
     status,
-    plugins: { passed: total - failed.length, failed, total },
+    // A failed run without timings stopped before any plugin ran, such as on an invalid plugin entry.
+    plugins: { passed: status === 'failed' && timings.length === 0 ? 0 : total - failed.length, failed, total },
     counts,
     filesCreated,
     durationMs: getElapsedMs(hrStart),

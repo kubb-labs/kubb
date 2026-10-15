@@ -15,13 +15,28 @@ navigation:
 # Diagnostics
 
 When a build fails, Kubb prints a diagnostic with a stable code, the message, the location in your
-document, and a suggested fix. The CLI leads with the code and lists the details below it. The severity tints the `[CODE]` tag: red for `error`, yellow for `warning`, blue for `info`.
+document, and a suggested fix. In a terminal, Kubb groups problems by plugin, with the code on the right and a link to its entry below:
 
 ```text [Terminal]
-[KUBB_REF_NOT_FOUND]: Could not find a definition for #/components/schemas/Pet.
-  at: #/components/schemas/Pet
-  fix: Add the schema under components.schemas, or fix the $ref.
-  see: https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found
+ plugin-ts
+
+  ✖ Could not find #/components/schemas/Owner                    KUBB_REF_NOT_FOUND
+    at   #/components/schemas/Pet/properties/owner
+    fix  Add the missing definition under components.schemas, or fix the $ref.
+    ↳ Learn more  kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found
+```
+
+When an AI coding agent, CI, or a pipe reads the output, Kubb prints plain labeled rows instead. The rows include the cause and fix from this page, so the output alone explains the problem. A crash adds `caused by:` and the first `stack:` frames:
+
+```text [Agent]
+error KUBB_REF_NOT_FOUND [plugin-ts]: Could not find #/components/schemas/Owner
+  at: #/components/schemas/Pet/properties/owner
+  why: A `$ref` could not be resolved in the source document.
+  fix: Add the missing definition under components.schemas, or fix the $ref.
+  docs: https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found
+
+Kubb failed: 1 error (plugin-ts). Exit code 1.
+Rerun with --reporter json for machine-readable diagnostics.
 ```
 
 ## Codes
@@ -36,7 +51,7 @@ An error fails the run with a non-zero exit code.
 
 The adapter threw an unexpected error while parsing the input. Errors the adapter reports on purpose, such as `KUBB_REF_NOT_FOUND`, keep their own code.
 
-This is likely a bug in the adapter. Rerun with `--verbose` to print the stack trace, then report it to the adapter's maintainers. When the adapter sets [`meta.issues`](/docs/5.x/reference/kit/extensions#meta), Kubb prints its issue tracker as a `report:` link.
+Check the input and the adapter options. If it is a bug, report it to the adapter's maintainers with the stack trace. Kubb prints the stack for this code, and `--reporter json` includes it as `stack`. When the adapter sets [`meta.issues`](/docs/5.x/reference/kit/extensions#meta), Kubb prints its issue tracker as a `report:` link.
 
 ### KUBB_ADAPTER_REQUIRED: Adapter required {#kubb-adapter-required}
 
@@ -98,11 +113,17 @@ A URL set as `input` never answered, so the request failed before a status came 
 
 Start the server and check its host and port. Fetch the URL from the machine running Kubb. Connect to any required VPN or proxy, or use a downloaded spec. The message includes the connection failure reason.
 
+### KUBB_INTERNAL_ERROR: Internal error {#kubb-internal-error}
+
+Kubb hit a state it does not expect. This is a bug in Kubb, not in your config or your spec.
+
+Rerun with `--reporter json` or `--verbose` to get the stack. Then [open an issue](https://github.com/kubb-labs/kubb/issues) with the spec and config that trigger it.
+
 ### KUBB_INVALID_DOCUMENT: Invalid document {#kubb-invalid-document}
 
-The document resolved from `input` declares neither `openapi` nor `swagger`, so the adapter has nothing to read it as.
+The document resolved from `input` cannot be read as an OpenAPI or Swagger document. Its JSON or YAML has a syntax error, it declares neither `openapi` nor `swagger`, or its version cannot be upgraded to OpenAPI 3.1.
 
-Use a document declaring `openapi` or `swagger`. Pass the document itself rather than a wrapper. Missing versions fail even when validation is disabled.
+Fix the syntax at the line the message reports, and check that `input` points at the spec and not an HTML page. Use a Swagger 2.0, OpenAPI 3.0, or OpenAPI 3.1 document, and pass the document itself rather than a wrapper. Missing versions fail even when validation is disabled.
 
 ### KUBB_INVALID_PLUGIN_OPTIONS: Invalid plugin options {#kubb-invalid-plugin-options}
 
@@ -144,7 +165,7 @@ Call the composable inside `setup` or `kubb:plugin:setup`. Code that setup await
 
 A parser threw an unexpected error while printing a generated file.
 
-This is likely a bug in the parser. Rerun with `--verbose` to print the stack trace, then report it to the parser's maintainers. When the parser sets [`meta.issues`](/docs/5.x/reference/kit/extensions#meta), Kubb prints its issue tracker as a `report:` link.
+Check the parser options. If it is a bug, report it to the parser's maintainers with the stack trace. Kubb prints the stack for this code, and `--reporter json` includes it as `stack`. When the parser sets [`meta.issues`](/docs/5.x/reference/kit/extensions#meta), Kubb prints its issue tracker as a `report:` link.
 
 ### KUBB_PATH_TRAVERSAL: Path traversal {#kubb-path-traversal}
 
@@ -156,7 +177,7 @@ Keep generated paths within `output.path` and resolver `file.path` overrides wit
 
 A plugin threw while generating, or reported an error through `ctx.error`. The diagnostic is attributed to the plugin and fails the run.
 
-Check the plugin options and the schema or operation named in the message. When the plugin crashed, rerun with `--verbose` to print the stack trace and report it to the plugin's maintainers. When the plugin sets [`meta.issues`](/docs/5.x/reference/kit/extensions#meta), Kubb prints its issue tracker as a `report:` link. Include a spec fragment that reproduces it. The diagnostic preserves an underlying error as its cause. For structured errors, plugin authors can use [`Diagnostics.Error` or `Diagnostics.report`](/docs/5.x/reference/kit/engine#diagnostics).
+Check the plugin options and the node at the `at:` pointer. If it is a bug, report it to the plugin's maintainers with the stack trace. Kubb prints the stack for this code, and `--reporter json` includes it as `stack`. When the plugin sets [`meta.issues`](/docs/5.x/reference/kit/extensions#meta), Kubb prints its issue tracker as a `report:` link. Include a spec fragment that reproduces it. The diagnostic preserves an underlying error as its cause. For structured errors, plugin authors can use [`Diagnostics.Error` or `Diagnostics.report`](/docs/5.x/reference/kit/engine#diagnostics).
 
 ### KUBB_PLUGIN_NOT_FOUND: Plugin not found {#kubb-plugin-not-found}
 
@@ -254,6 +275,8 @@ without scraping the terminal:
         "code": "KUBB_REF_NOT_FOUND",
         "severity": "error",
         "message": "Could not find a definition for #/components/schemas/Pet.",
+        "title": "Reference not found",
+        "cause": "A `$ref` could not be resolved in the source document.",
         "location": { "kind": "schema", "pointer": "#/components/schemas/Pet" },
         "help": "Add the schema under components.schemas, or fix the $ref. Run `kubb validate` to check the spec.",
         "docsUrl": "https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found"
@@ -265,6 +288,11 @@ without scraping the terminal:
 
 Each config emits one report. `counts` totals the `problem` diagnostics by severity. `timings` lists
 per-plugin durations slowest first. `name` is the config name, empty when unnamed.
+
+Each diagnostic carries the catalog `title` and `cause` for its code, so an agent can act on it
+without opening this page. `help` falls back to the catalog fix when the diagnostic has none.
+When the diagnostic wraps a thrown error, `causes` lists the messages of the underlying errors,
+and a crash (`KUBB_UNKNOWN` or a `*_FAILED` extension code) adds the root `stack`.
 
 The exit code is unchanged: non-zero on any error. See [`--reporter`](/docs/5.x/reference/commands/generate#reporters)
 for the other reporters.

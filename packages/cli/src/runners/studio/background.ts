@@ -4,6 +4,7 @@ import { createRequire } from 'node:module'
 import { connect as connectSocket, createServer } from 'node:net'
 import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
+import { Diagnostics } from '@kubb/core'
 import { x } from 'tinyexec'
 import { getProjectKubbHome } from './credentials.ts'
 import { prepareConnection, type PreparedConnection, type StudioOptions, type WorkerState } from './run.ts'
@@ -57,7 +58,8 @@ function requestWorker(record: WorkerRecord, command: 'status' | 'stop'): Promis
     socket.once('end', () => {
       try {
         const response = JSON.parse(received) as WorkerRecord
-        if (response.id !== record.id || response.pid !== record.pid || !states.includes(response.state)) throw new Error('Worker identity changed')
+        if (response.id !== record.id || response.pid !== record.pid || !states.includes(response.state))
+          throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Worker identity changed' })
         resolve(response)
       } catch (error) {
         reject(error)
@@ -89,7 +91,12 @@ export async function stopWorker(): Promise<void> {
       record.state !== 'stopped' &&
       record.state !== 'authentication required'
     ) {
-      throw new Error('Cannot verify the background worker. No process was signaled.')
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.unknown,
+        severity: 'error',
+        message: 'Cannot verify the background worker. No process was signaled.',
+        help: 'Check `worker.log`, then stop the process by hand if it is still running.',
+      })
     }
     return
   }
@@ -102,7 +109,11 @@ export async function stopWorker(): Promise<void> {
     }
     await delay(100)
   }
-  throw new Error('The worker has not finished shutting down. Check worker.log and try again.')
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.unknown,
+    severity: 'error',
+    message: 'The worker has not finished shutting down. Check worker.log and try again.',
+  })
 }
 
 /** The listening port is the project lock, so stale state never needs a PID-based takeover. */
@@ -151,7 +162,11 @@ export async function serveWorker(shutdown: AbortController) {
         /* Refuse an unverified listener. */
       }
     }
-    throw new Error('The project control port is occupied or another worker is starting. Try again after stopping that listener.')
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: 'The project control port is occupied or another worker is starting. Try again after stopping that listener.',
+    })
   }
   record.port = port
   let saving = Promise.resolve()
@@ -201,7 +216,13 @@ export async function startWorker(options: StudioOptions): Promise<void> {
   const child = x(process.execPath, [...process.execArgv, entry], {
     nodeOptions: { cwd: process.cwd(), detached: true, stdio: ['ignore', 'ignore', 'ignore', 'ipc'] },
   }).process
-  if (!child) throw new Error('Background worker failed to start')
+  if (!child)
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: 'Background worker failed to start',
+      help: 'Run `kubb studio` in the foreground to see why it fails.',
+    })
   try {
     const started = new Promise<void>((resolve, reject) => {
       const timer = setTimeout(() => done(new Error('Background worker startup timed out')), 20_000)

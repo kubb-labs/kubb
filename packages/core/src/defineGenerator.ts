@@ -1,6 +1,7 @@
 import type { PossiblePromise } from '@internals/utils'
 import type { FileNode, InputMeta, OperationNode, SchemaNode } from '@kubb/ast'
 import type { Adapter } from './createAdapter.ts'
+import type { ProblemDiagnostic } from './Diagnostics.ts'
 import type { RendererFactory } from './createRenderer.ts'
 import type { KubbHooks } from './types.ts'
 import type { KubbDriver } from './KubbDriver.ts'
@@ -79,21 +80,24 @@ export type GeneratorContext<TOptions extends PluginType = PluginType> = {
   resolver: TOptions['resolver']
   /**
    * Report a warning. Collected as a `warning` diagnostic attributed to the current
-   * plugin. It surfaces in the run summary but does not fail the build. For a structured
-   * diagnostic with a code and source location, use `Diagnostics.report` or throw a
-   * `Diagnostics.Error` directly.
+   * plugin. It surfaces in the run summary but does not fail the build. Pass `options` to set
+   * the `code`, the `help` text, or the source `location`.
+   *
+   * @example
+   * `ctx.warn('Enum has no values', { help: 'Add values to the enum.', location: { kind: 'schema', pointer: '#/components/schemas/Status' } })`
    */
-  warn: (message: string) => void
+  warn: (message: string, options?: Partial<Pick<ProblemDiagnostic, 'code' | 'help' | 'location'>>) => void
   /**
    * Report an error. Collected as an `error` diagnostic attributed to the current
-   * plugin, which fails the build.
+   * plugin, which fails the build. A `Diagnostics.Error` keeps its own code, help, and location.
+   * Pass `options` to set them for a plain message or error.
    */
-  error: (error: string | Error) => void
+  error: (error: string | Error, options?: Partial<Pick<ProblemDiagnostic, 'code' | 'help' | 'location'>>) => void
   /**
    * Report an informational message. Collected as an `info` diagnostic attributed to
-   * the current plugin.
+   * the current plugin. Pass `options` to set the `code`, the `help` text, or the source `location`.
    */
-  info: (message: string) => void
+  info: (message: string, options?: Partial<Pick<ProblemDiagnostic, 'code' | 'help' | 'location'>>) => void
   /**
    * The configured adapter instance.
    */

@@ -2,7 +2,7 @@ import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
 import { read } from '@internals/utils'
-import { cliReporter, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { cliReporter, Diagnostics, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { createSnapshot } from '@kubb/studio'
 import type { BranchSnapshotChanges, PublishedSnapshot, SnapshotChanges } from '@kubb/studio/protocol'
 import { logBlock } from '../../loggers/output.ts'
@@ -21,7 +21,13 @@ async function findPackageJson(directory: string): Promise<{ name: string; versi
   if (packageJson.name && packageJson.version) return { name: packageJson.name, version: packageJson.version }
 
   const parent = dirname(directory)
-  if (parent === directory) throw new Error(`No package.json with a name and a version found above ${process.cwd()}`)
+  if (parent === directory)
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: `No package.json with a name and a version found above ${process.cwd()}`,
+      help: 'Pass `--name` and `--version`, or run from a package with a package.json.',
+    })
 
   return findPackageJson(parent)
 }
@@ -38,7 +44,11 @@ function resolveToken(options: SnapshotOptions): string {
   const token = options.token ?? process.env.KUBB_TOKEN
 
   if (!token) {
-    throw new Error('An organization CI API key is required. Pass --token or set KUBB_TOKEN.')
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: 'An organization CI API key is required. Pass --token or set KUBB_TOKEN.',
+    })
   }
 
   return token
@@ -50,7 +60,11 @@ function resolveCiIdentity(options: SnapshotOptions): CiContext {
   const ci = options.id ? { id: options.id, name: detected?.name ?? options.id, commit: detected?.commit } : detected
 
   if (!ci) {
-    throw new Error('Could not detect a supported CI provider (GitHub Actions, GitLab CI, Bitbucket Pipelines, CircleCI). Pass --id.')
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: 'Could not detect a supported CI provider (GitHub Actions, GitLab CI, Bitbucket Pipelines, CircleCI). Pass --id.',
+    })
   }
 
   // An explicit --base-id may not name a branch, so it labels the comparison itself.

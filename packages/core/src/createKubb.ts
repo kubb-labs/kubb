@@ -121,7 +121,8 @@ export class Kubb {
   }
 
   get driver(): KubbDriver {
-    if (!this.#driver) throw new Error('[kubb] setup() must be called before accessing driver')
+    if (!this.#driver)
+      throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: '[kubb] setup() must be called before accessing driver' })
     return this.#driver
   }
 
@@ -209,23 +210,27 @@ export class Kubb {
 
     await hooks.callHook('kubb:generation:start', { config })
 
-    await hooks.callHook('kubb:setup:start')
-    await this.setup()
-    await hooks.callHook('kubb:setup:end')
+    // A setup failure, such as an invalid plugin entry, becomes a diagnostic like any build
+    // problem, so reporters still get a failed `kubb:generation:end` for this config.
+    let output: Pick<BuildOutput, 'files' | 'diagnostics'>
+    try {
+      await hooks.callHook('kubb:setup:start')
+      await this.setup()
+      await hooks.callHook('kubb:setup:end')
 
-    const { files, diagnostics, storage } = await this.safeBuild()
+      output = await this.safeBuild()
+    } catch (caughtError) {
+      if (signal?.aborted) throw caughtError
+      output = { files: [], diagnostics: [Diagnostics.from(caughtError)] }
+    }
+    const { files, diagnostics } = output
+    const storage = this.storage
     signal?.throwIfAborted()
 
-    // Surface every problem on the diagnostic hooks. An unstructured `unknown` error goes out as
-    // `kubb:error` so its stack survives, everything else as `kubb:diagnostic`. Hosts route from
-    // there. `performance` diagnostics feed the summary, not the log, so they are skipped.
+    // Surface every problem on the hooks. `performance` diagnostics feed the summary, not the
+    // log, so they are skipped.
     for (const diagnostic of diagnostics) {
-      if (!Diagnostics.isProblem(diagnostic)) continue
-      if (diagnostic.code === Diagnostics.code.unknown) {
-        await hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
-        continue
-      }
-      await Diagnostics.emit(hooks, diagnostic)
+      if (Diagnostics.isProblem(diagnostic)) await Diagnostics.emit(hooks, diagnostic)
     }
 
     if (Diagnostics.hasError(diagnostics)) {

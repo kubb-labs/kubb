@@ -1,4 +1,4 @@
-import { exists, getErrorMessage, read } from '@internals/utils'
+import { exists, getErrorMessage, read, toError } from '@internals/utils'
 import { Diagnostics } from '@kubb/kit'
 import { parse } from 'yaml'
 
@@ -93,7 +93,29 @@ export async function resolveSource(sourcePath: string): Promise<object | string
   try {
     return JSON.parse(data) as object
   } catch {
+    return parseYaml(data, {
+      origin: sourcePath,
+      help: 'Fix the syntax at the reported line, or check that `input` points at the spec and not an HTML page.',
+    })
+  }
+}
+
+/**
+ * Parses a YAML (or JSON) spec. A syntax error throws `KUBB_INVALID_DOCUMENT` naming `origin`,
+ * with the parser message, which keeps the line and column.
+ */
+export function parseYaml(data: string, { origin, help }: { origin: string; help: string }): object {
+  try {
     return parse(data) as object
+  } catch (error) {
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.invalidDocument,
+      severity: 'error',
+      message: `Cannot parse ${origin} as JSON or YAML: ${getErrorMessage(error)}`,
+      help,
+      location: { kind: 'config' },
+      cause: toError(error),
+    })
   }
 }
 

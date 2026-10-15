@@ -5,7 +5,7 @@ import * as clack from '@clack/prompts'
 import { define } from 'gunshi'
 import { findConfigFile } from '@internals/shared'
 import { getErrorMessage } from '@internals/utils'
-import type { ExtensionManifest, RegistryDetail } from '@kubb/core'
+import { Diagnostics, type ExtensionManifest, type RegistryDetail } from '@kubb/core'
 import { configArg, yesArg } from '../../commands/shared.ts'
 import { logBlock, logError, logInfo, logIntro, logOutro, logStep, logWarn } from '../../loggers/output.ts'
 import { fetchRegistryDetail, fetchRegistryIndex, incompatibility, installSpec, registryUrl, toRegistryId } from '../../utils/registry.ts'
@@ -63,7 +63,13 @@ async function selectExtension(registry: string): Promise<string | undefined> {
       label: entry.manifest.displayName,
       hint: `${entry.id} · ${entry.kind} ${entry.artifact.version} · ${entry.manifest.description}`,
     }))
-  if (!options.length) throw new Error(`The registry at ${registry} lists no extensions.`)
+  if (!options.length)
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: `The registry at ${registry} lists no extensions.`,
+      help: 'Check that `KUBB_REGISTRY` points at a Kubb registry, or unset it to use https://kubb.dev/registry.',
+    })
 
   const id = await clack.autocomplete({
     message: 'Select an extension to add:',
@@ -84,7 +90,13 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
 
   try {
     const registry = registryUrl()
-    if (!input && yes) throw new Error('Pass a registry id, such as plugin-zod, when using --yes.')
+    if (!input && yes)
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.unknown,
+        severity: 'error',
+        message: 'Pass a registry id, such as plugin-zod, when using --yes.',
+        help: 'Run `kubb add plugin-zod --yes`, or drop `--yes` to pick from a list.',
+      })
     const id = input ? toRegistryId(input) : await selectExtension(registry)
     if (!id) {
       clack.cancel('Operation canceled.')
@@ -94,11 +106,23 @@ export async function run({ id: input, configPath, yes, install }: AddOptions): 
     const { artifact, manifest } = detail
 
     const problem = incompatibility(manifest)
-    if (problem) throw new Error(problem)
+    if (problem)
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.incompatibleExtension,
+        severity: 'error',
+        message: problem,
+        help: 'Upgrade Kubb or Node.js to a version the extension supports.',
+      })
 
     const spec = installSpec(artifact)
     const configFile = manifest.kind === 'plugin' ? (configPath ? path.resolve(configPath) : findConfigFile(cwd)) : undefined
-    if (manifest.kind === 'plugin' && !configFile) throw new Error('No kubb.config.ts found. Run `kubb init` first, or pass --config.')
+    if (manifest.kind === 'plugin' && !configFile)
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.unknown,
+        severity: 'error',
+        message: 'No kubb.config.ts found. Run `kubb init` first, or pass --config.',
+        help: 'Run `kubb init` to create a config, or pass its path with `--config`.',
+      })
 
     logInfo(`${styleText('cyan', manifest.displayName)} (${manifest.kind}): ${manifest.description}`)
     logBlock([

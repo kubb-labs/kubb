@@ -1,7 +1,7 @@
 import path from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { formatters, linters, toError } from '@internals/utils'
+import { formatters, linters } from '@internals/utils'
 import {
   Hookable,
   type CLIOptions,
@@ -22,6 +22,7 @@ import { version } from '../../../package.json'
 import { trackRun } from '../../Telemetry.ts'
 import { pluralize } from '../../loggers/createLogger.ts'
 import setupReporters, { selectReporters } from '../../loggers/reporters.ts'
+import { createPlainLogger } from '../../loggers/plainLogger.ts'
 import { createSpinner, logBanner, logError, logInfo, logIntro, logOutro, logSpacer, logStep, logTip } from '../../loggers/output.ts'
 import { getConfigs } from '../../config.ts'
 import { isOutdated } from '../../utils/registry.ts'
@@ -76,7 +77,10 @@ async function generate(options: GenerateProps): Promise<boolean> {
   }
 
   await report({
-    plugins: Array.from(kubb.driver.plugins.values(), (p) => ({ name: p.name, options: p.options as Record<string, unknown> })),
+    // A setup that threw leaves no driver, so read the configured plugins instead.
+    plugins: kubb.config.plugins.flatMap((p) =>
+      p && typeof p === 'object' ? [{ name: p.meta?.name ?? p.name ?? '', options: (p.options ?? {}) as Record<string, unknown> }] : [],
+    ),
     filesCreated: result.files.length,
     status: result.success ? 'success' : 'failed',
   })
@@ -119,7 +123,13 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   const requestedNames: Array<ReporterName> = cliReporters?.length ? cliReporters : ['cli']
 
   // The `json` reporter owns stdout, so the command writes nothing of its own around it.
-  const quiet = logLevel <= logLevelMap.silent || requestedNames.includes('json')
+  const json = requestedNames.includes('json')
+  const quiet = logLevel <= logLevelMap.silent || json
+
+  // Errors raised outside a build have no report entry. In `json` mode they go to a stderr logger,
+  // so they are never silent and stdout stays one JSON document.
+  const errorHooks = json ? new Hookable<KubbHooks>() : hooks
+  if (json) setupReporters(errorHooks, { logLevel, reporters: [cliReporter], logger: createPlainLogger(console.error) })
 
   if (!quiet) {
     logBanner(version)
@@ -147,10 +157,9 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
   } catch (error) {
     if (!quiet) configSpinner.error('Config failed loading')
 
-    setupReporters(hooks, { logLevel, reporters: [cliReporter] })
+    if (!json) setupReporters(hooks, { logLevel, reporters: [cliReporter] })
     // A diagnostic thrown while the config file runs, such as invalid extension options, sits in the cause chain.
-    const diagnostic = Diagnostics.from(error)
-    await (diagnostic.code === Diagnostics.code.unknown ? hooks.callHook('kubb:error', { error: toError(error) }) : Diagnostics.emit(hooks, diagnostic))
+    await Diagnostics.emit(errorHooks, error)
 
     if (!quiet) logOutro(styleText('red', '✗ Configuration failed'))
     process.exit(1)
@@ -200,7 +209,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         try {
           await build(watchedPaths)
         } catch (buildError) {
-          await hooks.callHook('kubb:error', { error: toError(buildError) })
+          await Diagnostics.emit(errorHooks, buildError)
         }
 
         if (inputKind === 'url') {
@@ -213,7 +222,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
           const succeeded = await generate({ input, config, hooks, dryRun })
           if (!succeeded) anyFailed = true
         } catch (configError) {
-          await hooks.callHook('kubb:error', { error: toError(configError) })
+          await Diagnostics.emit(errorHooks, configError)
           anyFailed = true
         }
       }
@@ -231,7 +240,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
       process.exit(1)
     }
   } catch (error) {
-    await hooks.callHook('kubb:error', { error: toError(error) })
+    await Diagnostics.emit(errorHooks, error)
     process.exit(1)
   }
 }

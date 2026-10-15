@@ -43,4 +43,10 @@ describe('buildReport', () => {
     expect(report.diagnostics[0]).toMatchObject({ code: 'KUBB_REF_NOT_FOUND', plugin: '@kubb/plugin-zod', location: { pointer: '#/components/schemas/Pet' } })
     expect(report.diagnostics[0]?.docsUrl).toMatch(/\/diagnostics#kubb-ref-not-found$/)
   })
+
+  it('counts no plugin as passed when the run failed before any plugin ran', () => {
+    const report = buildReport({ ...result, diagnostics: [{ code: 'KUBB_INVALID_PLUGIN_OPTIONS', severity: 'error', message: 'plugins[0] is a function' }] })
+
+    expect(report.plugins).toStrictEqual({ passed: 0, failed: [], total: 2 })
+  })
 })

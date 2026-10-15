@@ -41,7 +41,7 @@ export default {
     expect(isError).toBe(true)
     expect(text).toContain('KUBB_INPUT_NOT_FOUND')
     // The same diagnostic is included as a JSON payload, with a docs link for the code.
-    const json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1))
+    const [json] = JSON.parse(text.slice(text.indexOf('```json\n') + 8, text.indexOf('\n```', text.indexOf('```json\n'))))
     expect(json).toMatchObject({
       code: 'KUBB_INPUT_NOT_FOUND',
       severity: 'error',
@@ -68,5 +68,17 @@ export default [{
 
     expect(isError).toBe(true)
     expect(text).toContain('KUBB_INPUT_NOT_FOUND')
+  })
+
+  it('keeps the code and the config path when the config fails to load', async () => {
+    const configPath = join(dir, 'kubb.broken.config.ts')
+    await writeFile(configPath, `throw new Error('boom')\n`)
+
+    const { isError, text } = await run({ config: configPath })
+
+    expect(isError).toBe(true)
+    expect(text).toContain(`Failed to load config ${configPath}`)
+    expect(text).toContain('error KUBB_UNKNOWN: boom')
+    expect(text).toContain('"stack"')
   })
 })

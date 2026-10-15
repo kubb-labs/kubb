@@ -1,8 +1,8 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
-import { styleText } from 'node:util'
-import { getErrorMessage } from '@internals/utils'
+import { getErrorChain, getErrorMessage, toError } from '@internals/utils'
 import { version } from '../package.json'
-import { type DiagnosticCode, diagnosticCode } from './constants.ts'
+import { type DiagnosticCode, diagnosticCatalog, diagnosticCode } from './diagnosticCatalog.ts'
+import { crashCodes, format, serialize } from './formatDiagnostic.ts'
 import type { ExtensionKind, ExtensionNamed } from './defineExtension.ts'
 import type { KubbHooks } from './types.ts'
 import type { Hookable } from './Hookable.ts'
@@ -201,213 +201,15 @@ const isPerformance = isKind<PerformanceDiagnostic>('performance')
  */
 const isUpdate = isKind<UpdateDiagnostic>('update')
 
-/**
- * Accent color per severity. The color tints the `[CODE]` tag (red error, yellow warning,
- * blue info).
- */
-const severityStyle: Record<DiagnosticSeverity, 'red' | 'yellow' | 'blue'> = {
-  error: 'red',
-  warning: 'yellow',
-  info: 'blue',
-}
-
 const failedCode = {
   plugin: diagnosticCode.pluginFailed,
   adapter: diagnosticCode.adapterFailed,
   parser: diagnosticCode.parserFailed,
 } as const satisfies Record<ExtensionKind, ProblemCode>
 
+const docsByCode = new Map<DiagnosticCode, DiagnosticDoc>(Object.values(diagnosticCatalog).map((doc) => [doc.code, doc]))
+
 const countKey = { error: 'errors', warning: 'warnings', info: 'infos' } as const satisfies Record<DiagnosticSeverity, string>
-
-/**
- * A {@link Diagnostic} reduced to its JSON-safe fields plus a `docsUrl`, for
- * machine-readable output (the `--reporter json` report, the MCP tools). Drops the
- * non-serializable `cause` and the `kind`/`duration` bookkeeping.
- */
-export type SerializedDiagnostic = {
-  code: DiagnosticCode
-  severity: DiagnosticSeverity
-  message: string
-  location?: DiagnosticLocation
-  help?: string
-  plugin?: string
-  issues?: string
-  /**
-   * The kubb.dev docs link for the code, omitted for the unknown fallback.
-   */
-  docsUrl?: string
-}
-
-/**
- * Explanation for every {@link diagnosticCode}. Use {@link Diagnostics.explain} to look one up
- * and `Diagnostics.docsUrl` for the matching kubb.dev page.
- */
-const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
-  [diagnosticCode.unknown]: {
-    title: 'Unknown error',
-    cause: 'An error was thrown without a stable Kubb code, so it is reported as-is.',
-    fix: 'Read the underlying message and stack. If it comes from a plugin or adapter, check its configuration; otherwise report it as a possible Kubb bug.',
-  },
-  [diagnosticCode.inputNotFound]: {
-    title: 'Input not found',
-    cause:
-      'The file set as `input` (or passed as `kubb generate PATH`) could not be read. A URL reports `KUBB_INPUT_REQUEST_FAILED` or `KUBB_INPUT_UNREACHABLE` instead.',
-    fix: 'Check that the path exists and is readable, then set it as `input` or pass it on the CLI.',
-  },
-  [diagnosticCode.inputRequestFailed]: {
-    title: 'Input request failed',
-    cause: 'A URL set as `input` (or reached through a `$ref`) answered with a 4xx or 5xx status instead of the document.',
-    fix: 'Open the URL to see what the server returns. A 401 or 403 needs credentials Kubb does not send, so download the document and point `input` at the local file. A 404 means the path is wrong, and a 5xx means the server itself failed.',
-  },
-  [diagnosticCode.inputUnreachable]: {
-    title: 'Input unreachable',
-    cause:
-      'A URL set as `input` (or reached through a `$ref`) never answered, so the request failed before a status came back. A refused connection, an unknown host, an expired certificate, and a timeout all land here.',
-    fix: 'Check that the host is running and reachable from this machine. For a local server, start it and confirm the port matches the one in `input`.',
-  },
-  [diagnosticCode.inputRequired]: {
-    title: 'Input required',
-    cause: 'An adapter is configured but no `input` was provided.',
-    fix: 'Set `input` to a file path, a URL, an inline spec (JSON/YAML string), or a parsed object in your Kubb config.',
-  },
-  [diagnosticCode.legacyInput]: {
-    title: 'Legacy input shape',
-    cause: '`input` is a `{ path }` or `{ data }` wrapper, which v4 used to point at a document and v5 reads as the document itself.',
-    fix: 'Unwrap it: `input: { path: "./petStore.yaml" }` becomes `input: "./petStore.yaml"`, and `input: { data: spec }` becomes `input: spec`.',
-  },
-  [diagnosticCode.invalidDocument]: {
-    title: 'Invalid document',
-    cause: 'The parsed `input` has no `openapi` or `swagger` version field, so it is not an OpenAPI or Swagger document.',
-    fix: 'Point `input` at a document that declares `openapi` or `swagger`, and check that a passed object is the spec itself rather than a wrapper around it.',
-  },
-  [diagnosticCode.invalidSpec]: {
-    title: 'Invalid spec',
-    cause: 'The document does not pass OpenAPI schema validation. Kubb still generates from it, but the output can be incomplete or wrong.',
-    fix: 'Fix the reported problem in the spec. Run `kubb validate` to list every error, or set `validate: false` on the adapter to skip the check.',
-  },
-  [diagnosticCode.refNotFound]: {
-    title: 'Reference not found',
-    cause: 'A `$ref` could not be resolved in the source document.',
-    fix: 'Add the missing definition (for example under `components.schemas`) or fix the `$ref`. Run `kubb validate` to check the spec.',
-  },
-  [diagnosticCode.invalidServerVariable]: {
-    title: 'Invalid server variable',
-    cause: 'A server variable value is not allowed by its `enum`.',
-    fix: 'Use one of the values listed in the server variable `enum`, or update the spec.',
-  },
-  [diagnosticCode.pluginNotFound]: {
-    title: 'Plugin not found',
-    cause: 'A plugin that another plugin depends on is missing from the config.',
-    fix: 'Add the required plugin to the `plugins` array in kubb.config.ts, or remove the dependency on it.',
-  },
-  [diagnosticCode.incompatibleExtension]: {
-    title: 'Incompatible extension',
-    cause: 'A plugin sets `meta.compatibility.kubb` or `meta.compatibility.node` to a range the running Kubb or Node.js version does not satisfy.',
-    fix: 'Upgrade Kubb or Node.js to a version in the range, or install a version of the plugin that supports your current Kubb and Node.js.',
-  },
-  [diagnosticCode.missingDependency]: {
-    title: 'Missing dependency',
-    cause: 'A plugin lists another plugin in its `dependencies` record without `optional: true`, and the config does not include it.',
-    fix: 'Add the missing plugin to the `plugins` array in kubb.config.ts.',
-  },
-  [diagnosticCode.incompatibleDependency]: {
-    title: 'Incompatible dependency',
-    cause: "A plugin's `dependencies` record sets a `version` range, and the configured plugin's `meta.version` falls outside it.",
-    fix: 'Install a version of the dependency inside the range, or a version of the dependent plugin that supports the installed dependency.',
-  },
-  [diagnosticCode.pluginFailed]: {
-    title: 'Plugin failed',
-    cause: 'A plugin threw while generating, or reported an error through `ctx.error`.',
-    fix: 'Read the underlying error and check the plugin options and the schema or operation it failed on. If the plugin crashed, rerun with `--verbose` for the stack trace and report it to the plugin maintainers, at the `report:` link when one is shown.',
-  },
-  [diagnosticCode.adapterFailed]: {
-    title: 'Adapter failed',
-    cause: 'The adapter threw an unexpected error while parsing the input.',
-    fix: 'This is likely a bug in the adapter. Rerun with `--verbose` for the stack trace and report it to the adapter maintainers, at the `report:` link when one is shown.',
-  },
-  [diagnosticCode.parserFailed]: {
-    title: 'Parser failed',
-    cause: 'A parser threw an unexpected error while printing a generated file.',
-    fix: 'This is likely a bug in the parser. Rerun with `--verbose` for the stack trace and report it to the parser maintainers, at the `report:` link when one is shown.',
-  },
-  [diagnosticCode.pluginWarning]: {
-    title: 'Plugin warning',
-    cause: 'A plugin reported a non-fatal warning through `ctx.warn`.',
-    fix: 'Review the message. It does not fail the build; adjust the plugin options or input if the warning is unwanted.',
-  },
-  [diagnosticCode.pluginInfo]: {
-    title: 'Plugin info',
-    cause: 'A plugin reported an informational message through `ctx.info`.',
-    fix: 'Informational only. No action is required.',
-  },
-  [diagnosticCode.noContext]: {
-    title: 'No plugin context',
-    cause:
-      'A `kubb/kit` composable such as `useKubb()` or `addGenerator()` ran outside the `setup` and `kubb:plugin:setup` of a plugin, so there is no plugin to apply it to.',
-    fix: 'Call the composable inside `setup` or `kubb:plugin:setup`, including in code that setup awaits.',
-  },
-  [diagnosticCode.unsupportedFormat]: {
-    title: 'Unsupported format',
-    cause: 'A schema uses a `format` Kubb does not map to a specific type, so it falls back to the base type.',
-    fix: 'Use a format Kubb supports, or handle the custom format with a parser or plugin.',
-  },
-  [diagnosticCode.deprecated]: {
-    title: 'Deprecated',
-    cause: 'A referenced schema or operation is marked `deprecated`.',
-    fix: 'Migrate off the deprecated definition if the warning is unwanted.',
-  },
-  [diagnosticCode.adapterRequired]: {
-    title: 'Adapter required',
-    cause: 'An action needs an adapter but none is configured.',
-    fix: 'Set `adapter` in kubb.config.ts, for example `adapterOas()`.',
-  },
-  [diagnosticCode.pathTraversal]: {
-    title: 'Path traversal',
-    cause: 'A resolved output path escaped the output directory, which can stem from a path traversal in the spec or a misconfigured `group.name`.',
-    fix: 'Keep generated paths within the output directory. Review the `group.name` function and the names coming from the spec.',
-  },
-  [diagnosticCode.cleanRoot]: {
-    title: 'Clean targets the project root',
-    cause:
-      '`output.clean` is enabled and `output.path` resolves to the project root or a parent of it, so cleaning would delete `kubb.config` and every source file.',
-    fix: 'Point `output.path` at a subdirectory such as `./src/gen` so clean only removes generated code, or disable `output.clean`.',
-  },
-  [diagnosticCode.invalidPluginOptions]: {
-    title: 'Invalid plugin options',
-    cause: "A plugin was configured with options that cannot be honored, for example `output.mode: 'file'` paired with a `group` option.",
-    fix: "Fix the plugin options. A single-file output has nothing to group, so remove the `group` option or use `output.mode: 'directory'`.",
-  },
-  [diagnosticCode.postGenerateFailed]: {
-    title: 'Post-generate command failed',
-    cause: 'A post-generate command (`output.postGenerate`) exited with a non-zero status.',
-    fix: 'Check the command is installed and correct, and run it manually to see the error.',
-  },
-  [diagnosticCode.formatFailed]: {
-    title: 'Format failed',
-    cause: 'The formatter pass over the generated files failed.',
-    fix: 'Check the formatter (oxfmt, biome, or prettier) is installed and its config is valid, then run it manually on the output.',
-  },
-  [diagnosticCode.lintFailed]: {
-    title: 'Lint failed',
-    cause: 'The linter pass over the generated files failed.',
-    fix: 'Check the linter (oxlint, biome, or eslint) is installed and its config is valid, then run it manually on the output.',
-  },
-  [diagnosticCode.barrelDuplicateExport]: {
-    title: 'Duplicate barrel export',
-    cause: 'Two generated modules export the same name, so the barrel cannot re-export both.',
-    fix: 'Rename one of the colliding declarations, or configure the plugin resolver to produce distinct names.',
-  },
-  [diagnosticCode.performance]: {
-    title: 'Performance',
-    cause: 'Not a failure. Records a plugin’s elapsed time, summed into the run total.',
-    fix: 'No action. This is an informational metric.',
-  },
-  [diagnosticCode.updateAvailable]: {
-    title: 'Update available',
-    cause: 'A newer Kubb version is published on npm than the one running.',
-    fix: 'Update the `@kubb/*` packages, for example `npm install -g @kubb/cli`, to get the latest fixes.',
-  },
-}
 
 /**
  * Static helpers for working with {@link Diagnostic}s, plus the run-scoped sink
@@ -497,12 +299,21 @@ export class Diagnostics {
   }
 
   /**
-   * Emits a diagnostic on the run's `kubb:diagnostic` hook so the loggers render it live.
-   * Use it instead of calling `hooks.callHook('kubb:diagnostic', ...)` directly. To collect a
-   * diagnostic into the build result from deep in a run, use {@link Diagnostics.report} instead.
+   * Emits a diagnostic, or any thrown value, on the run's hooks so the loggers render it live.
+   * A coded problem or an update goes to `kubb:diagnostic`. An uncoded one goes to `kubb:error`
+   * whole, so every wrapper's message, its help, and the stack survive. To collect a diagnostic into
+   * the build result from deep in a run, use {@link Diagnostics.report} instead.
    */
-  static async emit(hooks: Hookable<KubbHooks>, diagnostic: ProblemDiagnostic | UpdateDiagnostic): Promise<void> {
-    await hooks.callHook('kubb:diagnostic', { diagnostic })
+  static async emit(hooks: Hookable<KubbHooks>, value: ProblemDiagnostic | UpdateDiagnostic | unknown): Promise<void> {
+    const thrown = value instanceof Error || typeof (value as Diagnostic | undefined)?.code !== 'string'
+    const diagnostic = thrown ? Diagnostics.from(value) : (value as ProblemDiagnostic | UpdateDiagnostic)
+    if (!isProblem(diagnostic) || diagnostic.code !== diagnosticCode.unknown) {
+      await hooks.callHook('kubb:diagnostic', { diagnostic })
+      return
+    }
+    const { cause, help, message } = diagnostic
+    const bare = cause && !help && cause.message === message
+    await hooks.callHook('kubb:error', { error: thrown ? toError(value) : bare ? cause : new Diagnostics.Error(diagnostic) })
   }
 
   /**
@@ -513,20 +324,18 @@ export class Diagnostics {
     // The hook emitter and the build's AggregateError wrap the original, so walk the cause chain to
     // recover a Diagnostics.Error thrown deeper down. `root` tracks the deepest error so
     // the unknown diagnostic reports the original message and stack, not the wrapper's.
-    const seen = new Set<unknown>()
-    let current: unknown = error
-    let root: Error | undefined
-    while (current instanceof Error && !seen.has(current)) {
-      // Match structurally, not just by `instanceof`: a `Diagnostics.Error` thrown from a
-      // duplicated `@kubb/core` copy (bundled into an adapter or plugin) is a different
-      // class, but still carries the same `diagnostic`, so its code must survive.
-      if (Diagnostics.isError(current)) {
-        return current.diagnostic
-      }
-      seen.add(current)
-      root = current
-      current = current.cause
+    const chain = getErrorChain(error)
+    // Match structurally, not just by `instanceof`: a `Diagnostics.Error` thrown from a
+    // duplicated `@kubb/core` copy (bundled into an adapter or plugin) is a different
+    // class, but still carries the same `diagnostic`, so its code must survive.
+    // The innermost one wins: it is where the problem started, and a wrapper only adds context.
+    const coded = chain.findLast((current) => Diagnostics.isError(current))
+    if (coded) {
+      const { diagnostic } = coded as InstanceType<typeof Diagnostics.Error>
+      // A crash thrown without a cause still needs a stack, so it points at itself.
+      return diagnostic.cause || !crashCodes.has(diagnostic.code) ? diagnostic : { ...diagnostic, cause: coded }
     }
+    const root = chain.at(-1)
 
     return {
       code: diagnosticCode.unknown,
@@ -548,7 +357,9 @@ export class Diagnostics {
     // `plugin` feeds the failed-plugin count, so an adapter or parser is named in the message instead.
     const owner = kind === 'plugin' ? { plugin: diagnostic.plugin ?? name } : {}
     // An abort is the user canceling the run, not a crash.
-    if (diagnostic.code !== diagnosticCode.unknown || diagnostic.cause?.name === 'AbortError') {
+    const crashed = diagnostic.code === diagnosticCode.unknown && diagnostic.cause?.name !== 'AbortError'
+    const failed = Object.values<DiagnosticCode>(failedCode).includes(diagnostic.code)
+    if (!crashed && !failed) {
       return { ...diagnostic, ...owner }
     }
 
@@ -556,8 +367,8 @@ export class Diagnostics {
     return {
       ...diagnostic,
       ...owner,
-      code: failedCode[kind],
-      message: kind === 'plugin' ? diagnostic.message : `${kind} "${name}" crashed: ${diagnostic.message}`,
+      code: crashed ? failedCode[kind] : diagnostic.code,
+      message: crashed && kind !== 'plugin' ? `${kind} "${name}" crashed: ${diagnostic.message}` : diagnostic.message,
       ...(issues ? { issues } : {}),
     }
   }
@@ -656,67 +467,18 @@ export class Diagnostics {
    * `/reference/diagnostics#<slug>` section.
    */
   static explain(code: DiagnosticCode): DiagnosticDoc {
-    return diagnosticCatalog[code]
+    return docsByCode.get(code)!
   }
 
   /**
    * Reduces a diagnostic to its JSON-safe fields plus a `docsUrl`, for machine-readable
-   * consumers. The `cause`, `kind`, and `duration` are dropped, and absent optional
-   * fields are omitted rather than set to `undefined`.
+   * consumers, with the catalog `title`, `cause`, and fix, and the `cause` error as `causes` and
+   * `stack`. Absent optional fields are omitted.
    */
-  static serialize(diagnostic: Diagnostic): SerializedDiagnostic {
-    const problem = isProblem(diagnostic) ? diagnostic : undefined
-    return {
-      code: diagnostic.code,
-      severity: diagnostic.severity,
-      message: diagnostic.message,
-      ...(problem?.location ? { location: problem.location } : {}),
-      ...(problem?.help ? { help: problem.help } : {}),
-      ...(problem?.plugin ? { plugin: problem.plugin } : {}),
-      ...(problem?.issues ? { issues: problem.issues } : {}),
-      ...(diagnostic.code === diagnosticCode.unknown ? {} : { docsUrl: Diagnostics.docsUrl(diagnostic.code) }),
-    }
-  }
+  static serialize = serialize
 
   /**
-   * Renders a {@link Diagnostic} for terminal output as its parts: the `headline`
-   * (`[CODE] plugin: message`, with the code in the severity color) and the indented `details`
-   * rows (`at:` pointer, `fix:` help, `see:` docs link, `report:` issue tracker).
-   *
-   * Hosts compose these to fit their gutter: a clack logger passes `[headline, ...details]` as the
-   * message with no gutter symbol, while plain text outputs use {@link Diagnostics.formatLines}.
+   * Renders a diagnostic as lines for an `agent` (the default) or a `human`. See {@link format}.
    */
-  static format(diagnostic: Diagnostic): { headline: string; details: Array<string> } {
-    const { code, severity, message } = diagnostic
-    const color = severityStyle[severity]
-    const problem = isProblem(diagnostic) ? diagnostic : undefined
-
-    const tag = styleText(color, styleText('bold', `[${code}]`))
-    const headline = problem?.plugin ? `${tag} ${problem.plugin}: ${message}` : `${tag}: ${message}`
-
-    const details: Array<string> = []
-    if (problem?.location && 'pointer' in problem.location) {
-      details.push(`  ${styleText('dim', 'at:')} ${styleText('cyan', problem.location.pointer)}`)
-    }
-    if (problem?.help) {
-      details.push(`  ${styleText('cyan', 'fix:')} ${problem.help}`)
-    }
-    if (code !== diagnosticCode.unknown) {
-      details.push(`  ${styleText('dim', 'see:')} ${styleText('cyan', Diagnostics.docsUrl(code))}`)
-    }
-    if (problem?.issues) {
-      details.push(`  ${styleText('dim', 'report:')} ${styleText('cyan', problem.issues)}`)
-    }
-
-    return { headline, details }
-  }
-
-  /**
-   * The self-contained block form of {@link Diagnostics.format}: the `headline` followed by the
-   * indented detail rows. Used where there is no gutter (plain and file output).
-   */
-  static formatLines(diagnostic: Diagnostic): Array<string> {
-    const { headline, details } = Diagnostics.format(diagnostic)
-    return [headline, ...details]
-  }
+  static format = format
 }

@@ -6,6 +6,7 @@ import process from 'node:process'
 import { setTimeout as delay } from 'node:timers/promises'
 import { getErrorMessage, read, toError } from '@internals/utils'
 import {
+  Diagnostics,
   cacheStorage,
   type Config,
   fsStorage,
@@ -255,11 +256,12 @@ class Agent extends RpcTarget implements AgentApi {
   // Studio shows the thrown message, and the host logs the same text.
   async #refuse({ message, permission }: { message: string; permission?: keyof AgentPermissions }): Promise<never> {
     await this.#warn({ message, permission })
-    throw new Error(message)
+    throw new Diagnostics.Error({ code: Diagnostics.code.unknown, severity: 'error', message })
   }
 
   #assertConnected(): void {
-    if (!this.#session.info) throw new Error('Studio must call connect() before any other command')
+    if (!this.#session.info)
+      throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Studio must call connect() before any other command' })
   }
 
   #logCommand(command: KubbHooks['studio:command'][0]['command'], info: string): Promise<void> {
@@ -351,7 +353,7 @@ class Agent extends RpcTarget implements AgentApi {
   async #runGeneration(input: GenerateInput, controller: AbortController): Promise<GenerateResult> {
     this.#assertConnected()
     // Checked before the first `await`, so two calls in the same tick can't both pass.
-    if (this.#session.closed) throw new Error('Connection is closed')
+    if (this.#session.closed) throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: 'Connection is closed' })
     if (this.#session.active) return this.#refuse({ message: 'A generation is already in progress, please wait for it to finish' })
     const settled = Promise.withResolvers<void>()
     this.#session.active = { jobId: input.jobId, abort: () => controller.abort(new Error('Generation canceled')), settled: settled.promise }

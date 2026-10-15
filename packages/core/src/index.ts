@@ -14,6 +14,7 @@ export {
   useOptions,
 } from './composables.ts'
 export { Diagnostics } from './Diagnostics.ts'
+export type { DiagnosticFormatOptions, SerializedDiagnostic } from './formatDiagnostic.ts'
 export { createKubb } from './createKubb.ts'
 export { createReporter, logLevel, type ReporterPluginFiles } from './createReporter.ts'
 export { cliReporter, createCliReporter } from './reporters/cliReporter.ts'
@@ -48,7 +49,6 @@ export type {
   PerformanceDiagnostic,
   ProblemCode,
   ProblemDiagnostic,
-  SerializedDiagnostic,
   UpdateDiagnostic,
 } from './Diagnostics.ts'
 export type { CreateKubbOptions, GenerateOptions, GenerateResult, Kubb } from './createKubb.ts'

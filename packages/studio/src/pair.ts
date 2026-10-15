@@ -1,6 +1,7 @@
 import { hash } from 'node:crypto'
 import { setTimeout as delay } from 'node:timers/promises'
 import { toError } from '@internals/utils'
+import { Diagnostics } from '@kubb/core'
 import { ofetch } from 'ofetch'
 import { defaultStudioUrl, secureUrl } from './url.ts'
 
@@ -114,7 +115,13 @@ export async function startPairing({ studioUrl = defaultStudioUrl, type, name, h
       },
       signal,
     })
-    if (typeof pairing?.device_code !== 'string') throw new Error('Kubb Studio returned no pairing code')
+    if (typeof pairing?.device_code !== 'string')
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.unknown,
+        severity: 'error',
+        message: 'Kubb Studio returned no pairing code',
+        help: 'Try again later. If it keeps failing, check the Kubb Studio status.',
+      })
 
     return pairing
   } catch (error) {
@@ -192,7 +199,13 @@ export async function pollForPairingToken({ studioUrl = defaultStudioUrl, sessio
         signal,
         ignoreResponseError: true,
       })
-      if (status >= 500 || !_data || typeof _data !== 'object') throw new Error(`Kubb Studio answered with status ${status}`)
+      if (status >= 500 || !_data || typeof _data !== 'object')
+        throw new Diagnostics.Error({
+          code: Diagnostics.code.inputRequestFailed,
+          severity: 'error',
+          message: `Kubb Studio answered with status ${status}`,
+          help: 'Try again later.',
+        })
       response = _data
     } catch (error) {
       if (signal?.aborted) {
@@ -209,7 +222,11 @@ export async function pollForPairingToken({ studioUrl = defaultStudioUrl, sessio
     }
 
     if (!('error' in response) || typeof response.error !== 'string') {
-      throw new Error('Kubb Studio returned an empty pairing response, pair again')
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.unknown,
+        severity: 'error',
+        message: 'Kubb Studio returned an empty pairing response, pair again',
+      })
     }
 
     if (response.error === 'authorization_pending') {
@@ -229,7 +246,12 @@ export async function pollForPairingToken({ studioUrl = defaultStudioUrl, sessio
       throw new PairingExpiredError(response.error_description)
     }
 
-    throw new Error(response.error_description ?? `Pairing failed (${response.error})`)
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: response.error_description ?? `Pairing failed (${response.error})`,
+      help: 'Pair again with `kubb studio login`.',
+    })
   }
 
   throw new PairingExpiredError()

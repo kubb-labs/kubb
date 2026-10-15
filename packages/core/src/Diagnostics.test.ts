@@ -1,5 +1,9 @@
+import { stripVTControlCharacters } from 'node:util'
 import { describe, expect, it } from 'vitest'
 import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
+import type { DiagnosticFormatOptions } from './formatDiagnostic.ts'
+import { Hookable } from './Hookable.ts'
+import type { KubbHooks } from './types.ts'
 
 const problem = (over: Partial<ProblemDiagnostic> = {}): ProblemDiagnostic => ({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', ...over })
 
@@ -20,7 +24,7 @@ describe('Diagnostics.explain', () => {
 })
 
 describe('Diagnostics.serialize', () => {
-  it('keeps the JSON-safe fields and adds a docsUrl, dropping the cause', () => {
+  it('keeps the JSON-safe fields, adds the catalog entry and a docsUrl, and turns the cause into messages', () => {
     const serialized = Diagnostics.serialize(
       problem({ help: 'fix it', plugin: '@kubb/plugin-zod', location: { kind: 'schema', pointer: '#/components/schemas/Pet' }, cause: new Error('root') }),
     )
@@ -29,11 +33,30 @@ describe('Diagnostics.serialize', () => {
       code: 'KUBB_REF_NOT_FOUND',
       severity: 'error',
       message: 'boom',
+      title: Diagnostics.explain('KUBB_REF_NOT_FOUND').title,
+      cause: Diagnostics.explain('KUBB_REF_NOT_FOUND').cause,
       help: 'fix it',
       plugin: '@kubb/plugin-zod',
       location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
+      causes: ['root'],
       docsUrl: Diagnostics.docsUrl('KUBB_REF_NOT_FOUND'),
     })
+  })
+
+  it('falls back to the catalog fix when the diagnostic has no help, except for info', () => {
+    expect(Diagnostics.serialize(problem()).help).toBe(Diagnostics.explain('KUBB_REF_NOT_FOUND').fix)
+    expect(Diagnostics.serialize(problem({ code: 'KUBB_PLUGIN_INFO', severity: 'info' })).help).toBeUndefined()
+  })
+
+  it('lists the cause chain without the messages already in `message`, and adds the root stack for a crash', () => {
+    const root = new TypeError('x is undefined')
+    const wrapped = new Error('Config failed loading', { cause: root })
+
+    const crash = Diagnostics.serialize(problem({ code: 'KUBB_PLUGIN_FAILED', message: 'Config failed loading', cause: wrapped }))
+    expect(crash.causes).toStrictEqual(['TypeError: x is undefined'])
+    expect(crash.stack).toBe(root.stack)
+
+    expect(Diagnostics.serialize(problem({ cause: wrapped })).stack).toBeUndefined()
   })
 
   it('omits the docsUrl for the unknown fallback code', () => {
@@ -82,6 +105,20 @@ describe('Diagnostics.from', () => {
     expect(diagnostic.cause).toBe(root)
   })
 
+  it('returns the innermost coded error, where the problem started', () => {
+    const inner = new Diagnostics.Error({ code: 'KUBB_INVALID_PLUGIN_OPTIONS', severity: 'error', message: 'inner' })
+    const outer = new Diagnostics.Error({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'Config failed loading', cause: inner })
+
+    expect(Diagnostics.from(outer)).toMatchObject({ code: 'KUBB_INVALID_PLUGIN_OPTIONS', message: 'inner' })
+  })
+
+  it('points a crash thrown without a cause at itself, so its stack survives', () => {
+    const error = new Diagnostics.Error({ code: 'KUBB_PLUGIN_FAILED', severity: 'error', message: 'invariant broken' })
+
+    expect(Diagnostics.serialize(Diagnostics.from(error)).stack).toBe(error.stack)
+    expect(Diagnostics.from(new Diagnostics.Error({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'x' })).cause).toBeUndefined()
+  })
+
   it('should not loop on a self-referencing cause', () => {
     const error = new Error('boom') as Error & { cause: unknown }
     error.cause = error
@@ -101,6 +138,17 @@ describe('Diagnostics.fromExtension', () => {
       severity: 'error',
       message: 'boom',
       cause,
+      plugin: 'plugin-acme',
+      issues: 'https://github.com/acme/plugin/issues',
+    })
+  })
+
+  it('adds the issue tracker to a *_FAILED code the extension throws itself', () => {
+    const error = new Diagnostics.Error({ code: 'KUBB_PLUGIN_FAILED', severity: 'error', message: 'invariant broken' })
+
+    expect(Diagnostics.fromExtension(error, { kind: 'plugin', extension })).toMatchObject({
+      code: 'KUBB_PLUGIN_FAILED',
+      message: 'invariant broken',
       plugin: 'plugin-acme',
       issues: 'https://github.com/acme/plugin/issues',
     })
@@ -144,24 +192,79 @@ describe('Diagnostics.count', () => {
 
 // styleText respects NO_COLOR/non-TTY, so assert on the plain text the parts contain.
 describe('Diagnostics.format', () => {
-  it('splits a diagnostic into a headline and tree details', () => {
-    const { headline, details } = Diagnostics.format({
-      code: 'KUBB_PLUGIN_FAILED',
-      severity: 'error',
-      message: 'boom',
-      help: 'fix the ref',
-      plugin: '@kubb/plugin-zod',
-      issues: 'https://github.com/acme/plugin/issues',
-      location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
-    })
+  /** An error with a fixed stack, so the snapshots do not depend on where the test runs. */
+  const withStack = (error: Error, frames: Array<string>) =>
+    Object.assign(error, { stack: [`${error.name}: ${error.message}`, ...frames.map((frame) => `    at ${frame}`)].join('\n') })
 
-    expect(headline).toContain('[KUBB_PLUGIN_FAILED] @kubb/plugin-zod:')
-    expect(headline).toContain('boom')
-    expect(details.some((line) => line.includes('at: #/components/schemas/Pet'))).toBe(true)
-    expect(details.some((line) => line.includes('fix: fix the ref'))).toBe(true)
-    expect(details.some((line) => line.includes('report: https://github.com/acme/plugin/issues'))).toBe(true)
-    expect(details.some((line) => line.includes('see: https://kubb.dev'))).toBe(true)
-    expect(Diagnostics.format({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom' }).details.some((line) => line.includes('see:'))).toBe(false)
+  const cases: Array<[string, Diagnostic]> = [
+    [
+      'a coded problem with location and help',
+      {
+        code: 'KUBB_REF_NOT_FOUND',
+        severity: 'error',
+        message: 'Could not find #/components/schemas/Owner',
+        plugin: 'plugin-ts',
+        location: { kind: 'schema', pointer: '#/components/schemas/Pet/properties/owner' },
+        help: 'Add the missing definition under components.schemas, or fix the $ref.',
+      },
+    ],
+    [
+      'a plugin crash with a cause chain',
+      {
+        code: 'KUBB_PLUGIN_FAILED',
+        severity: 'error',
+        message: 'While generating operation "listPets" (GET /pets): Cannot read name',
+        plugin: 'plugin-zod',
+        location: { kind: 'operation', pointer: '#/paths/~1pets/get' },
+        issues: 'https://github.com/acme/plugin-zod/issues',
+        cause: new Error('Cannot read name', { cause: withStack(new TypeError('node.schema is undefined'), ['print (zod.ts:12:3)', 'run (zod.ts:40:9)']) }),
+      },
+    ],
+    ['an unknown error', { code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom', cause: withStack(new Error('boom'), ['config (kubb.config.ts:3:9)']) }],
+    [
+      'a warning',
+      {
+        code: 'KUBB_UNSUPPORTED_FORMAT',
+        severity: 'warning',
+        message: 'Format "money" falls back to string',
+        plugin: 'plugin-ts',
+        location: { kind: 'schema', pointer: '#/components/schemas/Order/properties/total' },
+      },
+    ],
+  ]
+
+  const render = (diagnostic: Diagnostic, options: DiagnosticFormatOptions) => stripVTControlCharacters(Diagnostics.format(diagnostic, options).join('\n'))
+
+  it.each(cases)('renders %s for an agent', (_label, diagnostic) => {
+    expect(render(diagnostic, { audience: 'agent' })).toMatchSnapshot()
+  })
+
+  it.each(cases)('renders %s for a human', (_label, diagnostic) => {
+    expect(render(diagnostic, { audience: 'human', width: 80 })).toMatchSnapshot()
+  })
+
+  it('shows the full stack to a human only when verbose', () => {
+    const [, crash] = cases[1]!
+
+    expect(render(crash, { audience: 'human', width: 80 })).not.toContain('at run (zod.ts:40:9)')
+    expect(render(crash, { audience: 'human', width: 80, verbose: true })).toContain('at run (zod.ts:40:9)')
+  })
+
+  it('keeps the code on the first line of a multi-line message for both audiences', () => {
+    const multiLine: Diagnostic = { code: 'KUBB_INVALID_DOCUMENT', severity: 'error', message: 'Cannot parse at line 7, column 1:\n\n  /pets: [unclosed\n^' }
+
+    expect(render(multiLine, { audience: 'agent' }).split('\n').slice(0, 3)).toStrictEqual([
+      'error KUBB_INVALID_DOCUMENT: Cannot parse at line 7, column 1:',
+      '    /pets: [unclosed',
+      '  ^',
+    ])
+    expect(render(multiLine, { audience: 'human', width: 80 }).split('\n')[0]).toMatch(/^✖ Cannot parse at line 7, column 1: +KUBB_INVALID_DOCUMENT$/)
+  })
+
+  it('keeps an agent block free of escape codes even when color is on', () => {
+    const [, coded] = cases[0]!
+
+    expect(Diagnostics.format(coded).join('\n')).toBe(render(coded, { audience: 'agent' }))
   })
 })
 
@@ -195,5 +298,35 @@ describe('Diagnostics.scope / Diagnostics.report', () => {
 
   it('returns false when there is no active run', () => {
     expect(Diagnostics.report(problem())).toBe(false)
+  })
+})
+
+describe('Diagnostics.emit', () => {
+  it('sends an unknown problem with its own message and help to kubb:error, keeping the cause', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const errors: Array<Error> = []
+    hooks.hook('kubb:error', ({ error }) => void errors.push(error))
+    const root = new Error('boom')
+
+    await Diagnostics.emit(hooks, { code: 'KUBB_UNKNOWN', severity: 'error', message: 'Config failed loading: kubb.config.ts', help: 'Fix it.', cause: root })
+    await Diagnostics.emit(hooks, { code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom', cause: root })
+
+    expect(errors[0]).toMatchObject({ message: 'Config failed loading: kubb.config.ts', diagnostic: { help: 'Fix it.' }, cause: root })
+    expect(errors[1]).toBe(root)
+  })
+
+  it('takes a thrown value: a coded one as kubb:diagnostic, anything else whole as kubb:error', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const codes: Array<string> = []
+    const errors: Array<Error> = []
+    hooks.hook('kubb:diagnostic', ({ diagnostic }) => void codes.push(diagnostic.code))
+    hooks.hook('kubb:error', ({ error }) => void errors.push(error))
+    const wrapper = new Error('Config failed loading', { cause: new Error('boom') })
+
+    await Diagnostics.emit(hooks, new Error('outer', { cause: new Diagnostics.Error({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'x' }) }))
+    await Diagnostics.emit(hooks, wrapper)
+
+    expect(codes).toStrictEqual(['KUBB_REF_NOT_FOUND'])
+    expect(errors).toStrictEqual([wrapper])
   })
 })

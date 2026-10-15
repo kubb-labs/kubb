@@ -54,14 +54,16 @@ export type ExtensionNamed = { name?: string; meta?: ExtensionMeta }
 /**
  * Returns `meta`, or `{ name }` for an extension that only sets the deprecated `name`. Throws `KUBB_INVALID_PLUGIN_OPTIONS` when it has neither.
  */
-export function resolveMeta({ name, meta }: ExtensionNamed): ExtensionMeta {
+export function resolveMeta(extension: ExtensionNamed): ExtensionMeta {
+  const { name, meta } = extension
   if (meta) return meta
   if (name) return { name }
 
+  const keys = Object.keys(extension)
   throw new Diagnostics.Error({
     code: Diagnostics.code.invalidPluginOptions,
     severity: 'error',
-    message: 'An extension has neither `meta.name` nor `name`.',
+    message: `An extension has neither \`meta.name\` nor \`name\`. Received keys: ${keys.length ? keys.join(', ') : 'none'}.`,
     help: 'Set `meta: { name }` on the plugin or parser.',
     location: { kind: 'config' },
   })
