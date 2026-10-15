@@ -27,17 +27,11 @@ export default defineConfig([
     ...shared,
   },
   {
-    entry,
-    format: 'cjs',
-    dts: false,
-    ...shared,
-  },
-  {
-    // Declarations get their own build: `keepNames` leaks an untyped `__name` helper into .d.ts/.d.cts files.
+    // Also builds the CJS JavaScript. `keepNames` stays off the declaration passes: it leaks an untyped `__name` helper into .d.ts/.d.cts files.
     entry,
     format: ['esm', 'cjs'],
     ...shared,
-    outputOptions: {},
+    outputOptions: (options, format, { cjsDts }) => ({ ...options, keepNames: format === 'cjs' && !cjsDts }),
     dts: { emitDtsOnly: true, compilerOptions: { baseUrl: '../..' } },
   },
 ])
