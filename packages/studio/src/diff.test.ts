@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { diffHunks, pageHunks } from './diff.ts'
+import { diffHunks, pageHunks, replaceHunk } from './diff.ts'
 
 const lines = (count: number, change?: number) => Array.from({ length: count }, (_, i) => (i === change ? `changed ${i}` : `line ${i}`)).join('\n')
 
@@ -13,6 +13,26 @@ describe('diffHunks', () => {
 
   it('returns no hunks for equal files', async () => {
     await expect(diffHunks('a\n', 'a\n')).resolves.toStrictEqual([])
+  })
+})
+
+describe('replaceHunk', () => {
+  it('replaces the lines between the shared start and end, with context', () => {
+    expect(replaceHunk(lines(20), lines(20, 10))).toStrictEqual([
+      {
+        oldStart: 8,
+        oldLines: 7,
+        newStart: 8,
+        newLines: 7,
+        lines: [' line 7', ' line 8', ' line 9', '-line 10', '+changed 10', ' line 11', ' line 12', ' line 13'],
+      },
+    ])
+  })
+
+  it('handles added, deleted, and equal files', () => {
+    expect(replaceHunk('', 'a\nb\n')[0]).toMatchObject({ oldLines: 0, newLines: 2, lines: ['+a', '+b'] })
+    expect(replaceHunk('a\n', '')[0]).toMatchObject({ oldLines: 1, newLines: 0, lines: ['-a'] })
+    expect(replaceHunk('a\n', 'a\n')).toStrictEqual([])
   })
 })
 

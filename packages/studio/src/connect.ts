@@ -566,10 +566,6 @@ class Agent extends RpcTarget implements AgentApi {
       if (this.#diffs.size > 4) this.#diffs.delete(this.#diffs.keys().next().value!)
     }
     const all = await hunks
-    if (!all) {
-      this.#diffs.delete(key)
-      return this.#refuse({ message: 'The two versions differ too much to diff' })
-    }
     await this.#logCommand('readDiff', `read the diff of ${path}`)
 
     return { ...pageHunks({ hunks: all, cursor, limit }), hasBase: true }
