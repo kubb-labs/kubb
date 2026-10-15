@@ -6,7 +6,7 @@ import { connect } from './run.ts'
 process.title = 'Kubb'
 
 const logPath = getWorkerLogPath()
-const tokens = [process.env.KUBB_AGENT_TOKEN, process.env.KUBB_TOKEN]
+const tokens = [process.env.KUBB_TOKEN]
 function log(...args: Array<unknown>) {
   let line = `${new Date().toISOString()} ${format(...args)}\n`
   for (const token of tokens) {

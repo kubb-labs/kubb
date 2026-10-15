@@ -94,4 +94,4 @@ kubb studio stop
 See [Background connection](/docs/5.x/reference/commands/studio#background-connection) for worker states, logs, and restart behavior.
 
 > [!IMPORTANT]
-> Without a TTY the CLI skips the permission prompts, so pass the permission flags the run needs. In CI it does not pair either: set `KUBB_AGENT_TOKEN` to a paired agent's token. A CI API key works only with `kubb studio snapshot`.
+> Without a TTY the CLI skips the permission prompts, so pass the permission flags the run needs. In CI it does not pair either, so use `kubb studio snapshot` with a CI API key there.

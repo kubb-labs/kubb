@@ -121,21 +121,16 @@ describe('login', () => {
 })
 
 describe('resolvePermissions', () => {
-  it.each([
-    { persist: true, writes: 1 },
-    { persist: false, writes: 0 },
-  ])('returns every answer and writes to disk $writes times when persist is $persist', async ({ persist, writes }) => {
+  it('returns every answer and writes it to disk', async () => {
     using project = stubProject()
     confirm.mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(true)
 
     const answers = { allowRead: false, allowWrite: true, allowConfigEdit: false, allowExec: true }
 
-    await expect(resolvePermissions(options, credentials, undefined, persist)).resolves.toEqual(answers)
+    await expect(resolvePermissions(options, credentials)).resolves.toEqual(answers)
     expect(confirm).toHaveBeenCalledTimes(4)
-    expect(project.write).toHaveBeenCalledTimes(writes)
-    if (writes) {
-      expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ projects: { [process.cwd()]: answers } }))
-    }
+    expect(project.write).toHaveBeenCalledTimes(1)
+    expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ projects: { [process.cwd()]: answers } }))
   })
 
   it('names the config the project actually has, not the default', async () => {
@@ -190,16 +185,6 @@ describe('connect', () => {
 
     return calls
   }
-
-  it('tells the operator to update KUBB_AGENT_TOKEN when Studio rejects an env-sourced token, without touching stored credentials', async () => {
-    using project = stubProject({ stored: credentials })
-    vi.stubEnv('KUBB_AGENT_TOKEN', 'env-token')
-    mockConnection('rejected')
-
-    await expect(connect(options)).rejects.toThrow(/update KUBB_AGENT_TOKEN/)
-    expect(project.clear).not.toHaveBeenCalled()
-    expect(project.write).not.toHaveBeenCalled()
-  })
 
   it('forgets a rejected token on a run that cannot pair again, and says how to pair', async () => {
     using project = stubProject({ stored: credentials, ci: true })
