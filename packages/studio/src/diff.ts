@@ -5,10 +5,7 @@ const CONTEXT_LINES = 3
 // Generated files that differ this much would not read as a diff anyway.
 const DIFF_TIMEOUT_MS = 10_000
 
-/**
- * The hunks between two versions of a file, or `undefined` when they take too long to diff. Runs
- * in async mode, so a large file does not block the socket's heartbeat.
- */
+// Async mode, so a large file does not block the socket's heartbeat. `undefined` when it times out.
 export function diffHunks(before: string, after: string): Promise<Array<StructuredPatchHunk> | undefined> {
   return new Promise((resolve) => {
     structuredPatch('', '', before, after, undefined, undefined, {
@@ -19,10 +16,7 @@ export function diffHunks(before: string, after: string): Promise<Array<Structur
   })
 }
 
-/**
- * The `limit` patch lines from line `cursor`, counted across all hunks. A hunk the page boundary
- * cuts through comes back in parts that share its `index`.
- */
+// A hunk the page boundary cuts through comes back in parts that share its `index`.
 export function pageHunks({ hunks, cursor, limit }: { hunks: Array<StructuredPatchHunk>; cursor: number; limit: number }): {
   hunks: Array<DiffHunk>
   nextCursor: number | null
