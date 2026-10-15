@@ -52,7 +52,8 @@ export default defineConfig([
     format: ['esm', 'cjs'],
     ...shared,
     outputOptions: {},
-    dts: { emitDtsOnly: true },
+    // Root tsconfig `paths` would resolve from this package; without the base every bundled @internals file gets its own TypeScript program.
+    dts: { emitDtsOnly: true, compilerOptions: { baseUrl: '../..' } },
   },
   {
     entry: { 'html/ui': 'src/reporters/html/ui.ts' },
