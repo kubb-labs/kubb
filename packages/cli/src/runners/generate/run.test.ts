@@ -115,7 +115,7 @@ describe('reporters', () => {
     // `getConfigs` hands the exported object through as a `Config`, without `reporters`.
     const lines = await bootstrap({ configs: [config as unknown as Config] })
 
-    expect(lines.some((line) => line.includes('✗'))).toBe(true)
+    expect(lines.some((line) => line.startsWith('Kubb failed: 1 error'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })
 })
@@ -155,7 +155,7 @@ describe('output passes', () => {
 
     expect(lines.some((line) => line.startsWith('✓ types in '))).toBe(true)
     expect(lines.some((line) => line.startsWith('Post-generate hooks completed in '))).toBe(true)
-    expect(lines).toContain('✓ Generation succeeded')
+    expect(lines.some((line) => line.startsWith('Kubb succeeded: '))).toBe(true)
     expect(lines.filter((line) => line.startsWith('exit '))).toStrictEqual([])
   })
 
@@ -164,7 +164,8 @@ describe('output passes', () => {
 
     expect(lines.some((line) => line.startsWith('✗ types failed (Hook execute failed: '))).toBe(true)
     expect(lines.some((line) => line.startsWith('error KUBB_POST_GENERATE_FAILED: Post-generate command failed: '))).toBe(true)
-    expect(lines).toContain('✗ Generation failed')
+    // An agent gets the verdict line instead of the group's closing line.
+    expect(lines).not.toContain('✗ Generation failed')
     expect(lines.some((line) => line.startsWith('Kubb failed: 1 error. Exit code 1.'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })

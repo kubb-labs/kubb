@@ -18,7 +18,7 @@ exports[`Diagnostics.format > renders a coded problem with location and help for
 exports[`Diagnostics.format > renders a plugin crash with a cause chain for a human 1`] = `
 "✖ While generating operation "listPets" (GET /pets): Cannot read name  KUBB_PLUGIN_FAILED
   at   #/paths/~1pets/get
-  fix  Read the underlying error and check the plugin options and the schema or operation at the \`at:\` pointer. If the plugin crashed, report it to the plugin maintainers with the stack trace (in \`--reporter json\` output, or rerun with \`--verbose\`), at the \`report:\` link when one is shown.
+  fix  Check the plugin options and the node at \`at:\`; if it is a bug, report it with the stack at \`report:\`.
   caused by  TypeError: node.schema is undefined
   report  https://github.com/acme/plugin-zod/issues
   ↳ Learn more  kubb.dev/docs/5.x/reference/diagnostics#kubb-plugin-failed"
@@ -28,7 +28,7 @@ exports[`Diagnostics.format > renders a plugin crash with a cause chain for an a
 "error KUBB_PLUGIN_FAILED [plugin-zod]: While generating operation "listPets" (GET /pets): Cannot read name
   at: #/paths/~1pets/get
   why: A plugin threw while generating, or reported an error through \`ctx.error\`.
-  fix: Read the underlying error and check the plugin options and the schema or operation at the \`at:\` pointer. If the plugin crashed, report it to the plugin maintainers with the stack trace (in \`--reporter json\` output, or rerun with \`--verbose\`), at the \`report:\` link when one is shown.
+  fix: Check the plugin options and the node at \`at:\`; if it is a bug, report it with the stack at \`report:\`.
   caused by: TypeError: node.schema is undefined
   stack:
     at print (zod.ts:12:3)

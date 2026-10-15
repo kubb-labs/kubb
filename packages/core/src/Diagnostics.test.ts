@@ -240,6 +240,17 @@ describe('Diagnostics.format', () => {
     expect(render(crash, { audience: 'human', width: 80, verbose: true })).toContain('at run (zod.ts:40:9)')
   })
 
+  it('keeps the code on the first line of a multi-line message for both audiences', () => {
+    const multiLine: Diagnostic = { code: 'KUBB_INVALID_DOCUMENT', severity: 'error', message: 'Cannot parse at line 7, column 1:\n\n  /pets: [unclosed\n^' }
+
+    expect(render(multiLine, { audience: 'agent' }).split('\n').slice(0, 3)).toStrictEqual([
+      'error KUBB_INVALID_DOCUMENT: Cannot parse at line 7, column 1:',
+      '    /pets: [unclosed',
+      '  ^',
+    ])
+    expect(render(multiLine, { audience: 'human', width: 80 }).split('\n')[0]).toMatch(/^✖ Cannot parse at line 7, column 1: +KUBB_INVALID_DOCUMENT$/)
+  })
+
   it('keeps an agent block free of escape codes even when color is on', () => {
     const [, coded] = cases[0]!
 

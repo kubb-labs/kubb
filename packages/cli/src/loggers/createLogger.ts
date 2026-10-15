@@ -574,7 +574,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
 
       context.hook('kubb:plugins:end', () => {
         const failed = state.failedPlugins > 0
-        stopSpinner(buildProgressLine(state) ?? 'No plugins ran', failed ? 'failed' : 'success')
+        stopSpinner(buildProgressLine(state) ?? undefined, failed ? 'failed' : 'success')
 
         if (state.pluginLines.length) {
           writer.block(state.pluginLines)
@@ -630,11 +630,16 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
           return
         }
 
-        closeGroup(status)
         if (human) {
+          closeGroup(status)
           writer.diagnostic([...lines])
           return
         }
+
+        // The verdict below replaces the group's closing line.
+        stopSpinner()
+        stopProgress()
+        state.groupOpen = false
 
         // An agent gets one verdict line instead of the aligned table, and on failure where to get more.
         const { diagnostics = [], filesCreated = 0, hrStart = process.hrtime() } = state.outcome ?? {}

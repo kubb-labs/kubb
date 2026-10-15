@@ -371,17 +371,17 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
   [diagnosticCode.pluginFailed]: {
     title: 'Plugin failed',
     cause: 'A plugin threw while generating, or reported an error through `ctx.error`.',
-    fix: 'Read the underlying error and check the plugin options and the schema or operation at the `at:` pointer. If the plugin crashed, report it to the plugin maintainers with the stack trace (in `--reporter json` output, or rerun with `--verbose`), at the `report:` link when one is shown.',
+    fix: 'Check the plugin options and the node at `at:`; if it is a bug, report it with the stack at `report:`.',
   },
   [diagnosticCode.adapterFailed]: {
     title: 'Adapter failed',
     cause: 'The adapter threw an unexpected error while parsing the input.',
-    fix: 'This is likely a bug in the adapter. Report it to the adapter maintainers with the stack trace (in `--reporter json` output, or rerun with `--verbose`), at the `report:` link when one is shown.',
+    fix: 'Check the input and the adapter options; if it is a bug, report it with the stack at `report:`.',
   },
   [diagnosticCode.parserFailed]: {
     title: 'Parser failed',
     cause: 'A parser threw an unexpected error while printing a generated file.',
-    fix: 'This is likely a bug in the parser. Report it to the parser maintainers with the stack trace (in `--reporter json` output, or rerun with `--verbose`), at the `report:` link when one is shown.',
+    fix: 'Check the parser options; if it is a bug, report it with the stack at `report:`.',
   },
   [diagnosticCode.pluginWarning]: {
     title: 'Plugin warning',
@@ -775,6 +775,7 @@ export class Diagnostics {
     const human = audience === 'human'
     const paint: typeof styleText = human ? styleText : (_format, text) => text
 
+    const [firstLine = '', ...rest] = message.split('\n')
     const pointer = problem?.location && 'pointer' in problem.location ? problem.location.pointer : undefined
     const help = problem ? getHelp(problem) : undefined
     const causes = problem ? getCauses(problem) : []
@@ -786,7 +787,7 @@ export class Diagnostics {
       .map((frame) => `    ${paint('dim', frame.trim())}`)
 
     if (!human) {
-      const details: Array<string> = []
+      const details = rest.filter((line) => line.trim()).map((line) => `  ${line}`)
       const row = (label: string, value: string | undefined) => {
         if (value) details.push(`  ${label}: ${value}`)
       }
@@ -798,11 +799,9 @@ export class Diagnostics {
       if (code !== diagnosticCode.unknown) row('docs', Diagnostics.docsUrl(code))
       row('report', problem?.issues)
 
-      return { headline: `${severity} ${code}${problem?.plugin ? ` [${problem.plugin}]` : ''}: ${message}`, details }
+      return { headline: `${severity} ${code}${problem?.plugin ? ` [${problem.plugin}]` : ''}: ${firstLine}`, details }
     }
 
-    // A multi-line message, such as a YAML code frame, keeps the code on the first line.
-    const [firstLine = '', ...rest] = message.split('\n')
     const left = `${paint(severityStyle[severity], severityIcon[severity])} ${paint('bold', firstLine)}`
     const gap = Math.max(2, width - stripVTControlCharacters(left).length - code.length)
     const headline = `${left}${' '.repeat(gap)}${paint('dim', code)}`

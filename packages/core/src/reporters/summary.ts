@@ -19,11 +19,18 @@ export function formatSummary(report: Report, { showTimings }: { showTimings: bo
 
   const rows: Array<[label: string, value: string]> = []
 
+  const notRun = plugins.total - plugins.passed - plugins.failed.length
   rows.push([
     'Plugins',
     status === 'success'
       ? `${styleText('green', `${plugins.passed} passed`)} (${plugins.total})`
-      : `${styleText('green', `${plugins.passed} passed`)} | ${styleText('red', `${plugins.failed.length} failed`)} (${plugins.total})`,
+      : [
+          styleText('green', `${plugins.passed} passed`),
+          styleText('red', `${plugins.failed.length} failed`),
+          notRun > 0 ? styleText('dim', `${notRun} not run`) : undefined,
+        ]
+          .filter(Boolean)
+          .join(' | ') + ` (${plugins.total})`,
   ])
 
   if (status === 'failed' && plugins.failed.length > 0) {
