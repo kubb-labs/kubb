@@ -469,6 +469,13 @@ describe('readDiff', () => {
     })
   })
 
+  it('refuses a file whose content was too large to keep, rather than reading it as deleted', async () => {
+    vi.stubEnv('KUBB_AGENT_MAX_GENERATIONS_MB', '0.000001')
+    const agent = await twoRuns()
+    vi.unstubAllEnvs()
+    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 10 })).rejects.toThrow('kept only the hashes')
+  })
+
   it('refuses a job the agent no longer keeps', async () => {
     const agent = await twoRuns()
     await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base: { jobId: 'job-gone', source: 'output' }, limit: 10 })).rejects.toThrow(

@@ -548,13 +548,16 @@ class Agent extends RpcTarget implements AgentApi {
       this.#generations.read({ generation, source: 'output', paths: [path] }),
       this.#generations.read({ generation: baseGeneration, source: baseSource, paths: [path] }),
     ])
+    const afterContent = after.files[path]
+    // Over the size cap only hashes are kept, which must not read as a deleted file.
+    if (afterContent === undefined && path in generation.output.hashes) return this.#refuse({ message: 'This agent kept only the hashes of that job' })
     const beforeContent = before.files[path]
     if (beforeContent === undefined) return { hunks: [], nextCursor: null, hasBase: false }
 
     const key = JSON.stringify([jobId, base.jobId, baseSource, path])
     let hunks = this.#diffs.get(key)
     if (!hunks) {
-      hunks = diffHunks(beforeContent, after.files[path] ?? '')
+      hunks = diffHunks(beforeContent, afterContent ?? '')
       this.#diffs.set(key, hunks)
       // A few recent diffs cover paging through the open file and switching back to the last one.
       if (this.#diffs.size > 4) this.#diffs.delete(this.#diffs.keys().next().value!)
