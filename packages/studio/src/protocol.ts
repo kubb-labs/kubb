@@ -376,14 +376,44 @@ export type ReadFilesResult = { files: Record<string, string>; pages?: Record<st
 export type ReadDiffInput = { jobId: string; path: string; base: { jobId: string; source: FileSource }; cursor?: number; limit: number }
 
 /**
- * One hunk of a diff page. A hunk split across pages keeps its `index` and starts, so the pages join back.
+ * One hunk of a diff page, with its full `@@` header. Pages hold whole hunks, and only a hunk longer than a page is
+ * split: its parts keep `index` and the header, and `offset` says where in the hunk's `lines` each part starts.
  */
-export type DiffHunk = { index: number; oldStart: number; newStart: number; lines: Array<string> }
+export type DiffHunk = {
+  index: number
+  oldStart: number
+  oldLines: number
+  newStart: number
+  newLines: number
+  /**
+   * Unchanged lines between the previous hunk, or the start of the file, and this one.
+   */
+  collapsedBefore: number
+  offset: number
+  lines: Array<string>
+}
+
+/**
+ * The size of a whole diff, sent with every page so a viewer can size itself before it has read all of it.
+ */
+export type DiffStats = {
+  additions: number
+  deletions: number
+  hunks: number
+  /**
+   * Patch lines in all hunks, the range `cursor` pages through.
+   */
+  lines: number
+  /**
+   * True when part of the diff ran out of time and shows as one block that replaces those lines.
+   */
+  coarse: boolean
+}
 
 /**
  * One page of a diff. `hasBase` is false, and the page empty, when the base set does not hold the path.
  */
-export type ReadDiffResult = { hunks: Array<DiffHunk>; nextCursor: number | null; hasBase: boolean }
+export type ReadDiffResult = { hunks: Array<DiffHunk>; nextCursor: number | null; hasBase: boolean; stats: DiffStats }
 
 /**
  * Asks for the Kubb AST one job parsed its spec into. A job the agent no longer keeps fails with {@link AgentMessage.GENERATION_GONE}.

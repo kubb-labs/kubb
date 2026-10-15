@@ -432,12 +432,17 @@ describe('readDiff', () => {
         {
           index: 0,
           oldStart: 1,
+          oldLines: 1,
           newStart: 1,
+          newLines: 1,
+          collapsedBefore: 0,
+          offset: 0,
           lines: ['-export const pet = 1', '\\ No newline at end of file', '+export const pet = 2', '\\ No newline at end of file'],
         },
       ],
       nextCursor: null,
       hasBase: true,
+      stats: { additions: 1, deletions: 1, hunks: 1, lines: 4, coarse: false },
     })
   })
 
@@ -445,7 +450,7 @@ describe('readDiff', () => {
     const agent = await twoRuns()
     await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 2 })).resolves.toMatchObject({ nextCursor: 2 })
     await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, cursor: 2, limit: 2 })).resolves.toMatchObject({
-      hunks: [{ index: 0, lines: ['+export const pet = 2', '\\ No newline at end of file'] }],
+      hunks: [{ index: 0, offset: 2, lines: ['+export const pet = 2', '\\ No newline at end of file'] }],
       nextCursor: null,
     })
   })
@@ -456,6 +461,7 @@ describe('readDiff', () => {
       hunks: [],
       nextCursor: null,
       hasBase: false,
+      stats: { additions: 0, deletions: 0, hunks: 0, lines: 0, coarse: false },
     })
   })
 

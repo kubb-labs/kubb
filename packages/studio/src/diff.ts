@@ -1,5 +1,5 @@
 import { structuredPatch, type StructuredPatchHunk } from 'diff'
-import type { DiffHunk } from './protocol.ts'
+import type { DiffHunk, DiffStats } from './protocol.ts'
 
 const CONTEXT_LINES = 3
 // Past this, each remaining segment shows as one replace block.
@@ -101,13 +101,14 @@ function replaceHunk(before: Array<string>, after: Array<string>): Array<Structu
 
 // One Myers diff over a whole file grows with lines times changes and stalls on large specs, so each segment
 // between cuts is diffed on its own.
-export function diffHunks(before: string, after: string, timeout = DIFF_TIMEOUT_MS): Array<StructuredPatchHunk> {
+export function diffHunks(before: string, after: string, timeout = DIFF_TIMEOUT_MS): { hunks: Array<StructuredPatchHunk>; stats: DiffStats } {
   const beforeLines = splitLines(before)
   const afterLines = splitLines(after)
   const cuts = cutPoints(beforeLines, afterLines)
   const deadline = Date.now() + timeout
 
   const hunks: Array<StructuredPatchHunk> = []
+  let coarse = false
   for (const [index, [beforeStart, afterStart]] of cuts.slice(0, -1).entries()) {
     const [beforeEnd, afterEnd] = cuts[index + 1]!
     const segmentBefore = beforeLines.slice(beforeStart, beforeEnd)
@@ -116,27 +117,57 @@ export function diffHunks(before: string, after: string, timeout = DIFF_TIMEOUT_
       context: CONTEXT_LINES,
       timeout: Math.max(0, deadline - Date.now()),
     })
+    if (!patch) coarse = true
     for (const hunk of patch?.hunks ?? replaceHunk(segmentBefore, segmentAfter)) {
       hunks.push({ ...hunk, oldStart: hunk.oldStart + beforeStart, newStart: hunk.newStart + afterStart })
     }
   }
-  return hunks
+
+  const lines = hunks.flatMap((hunk) => hunk.lines)
+  const stats: DiffStats = {
+    additions: lines.filter((line) => line[0] === '+').length,
+    deletions: lines.filter((line) => line[0] === '-').length,
+    hunks: hunks.length,
+    lines: lines.length,
+    coarse,
+  }
+  return { hunks, stats }
 }
 
-// A hunk the page boundary cuts through comes back in parts that share its `index`.
+// Pages hold whole hunks, so a hunk is cut only when it alone is longer than a page. Its parts share its `index`.
 export function pageHunks({ hunks, cursor, limit }: { hunks: Array<StructuredPatchHunk>; cursor: number; limit: number }): {
   hunks: Array<DiffHunk>
   nextCursor: number | null
 } {
   const page: Array<DiffHunk> = []
-  const end = cursor + limit
-  let start = 0
+  const total = hunks.reduce((sum, hunk) => sum + hunk.lines.length, 0)
+  let used = 0
+  let position = 0
+  let oldEnd = 1
   for (const [index, hunk] of hunks.entries()) {
-    const next = start + hunk.lines.length
-    if (next > cursor && start < end) {
-      page.push({ index, oldStart: hunk.oldStart, newStart: hunk.newStart, lines: hunk.lines.slice(Math.max(0, cursor - start), end - start) })
-    }
-    start = next
+    const collapsedBefore = Math.max(0, hunk.oldStart - oldEnd)
+    oldEnd = hunk.oldStart + hunk.oldLines
+    const start = position
+    position += hunk.lines.length
+    if (position <= cursor) continue
+
+    const offset = Math.max(0, cursor - start)
+    const remaining = hunk.lines.length - offset
+    if (used > 0 && remaining > limit - used) break
+    const take = Math.min(remaining, limit - used)
+    page.push({
+      index,
+      oldStart: hunk.oldStart,
+      oldLines: hunk.oldLines,
+      newStart: hunk.newStart,
+      newLines: hunk.newLines,
+      collapsedBefore,
+      offset,
+      lines: hunk.lines.slice(offset, offset + take),
+    })
+    used += take
+    if (used === limit) break
   }
-  return { hunks: page, nextCursor: end < start ? end : null }
+  const end = cursor + used
+  return { hunks: page, nextCursor: end < total ? end : null }
 }
