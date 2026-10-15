@@ -17,8 +17,8 @@ function getCauses(problem: ProblemDiagnostic): Array<string> {
 }
 
 /**
- * Accent color per severity. The color tints the `[CODE]` tag (red error, yellow warning,
- * blue info).
+ * Accent color per severity, which paints the icon in the `human` layout (red error, yellow
+ * warning, blue info). The code itself stays dim.
  */
 const severityStyle: Record<DiagnosticSeverity, 'red' | 'yellow' | 'blue'> = {
   error: 'red',
@@ -37,13 +37,14 @@ const severityIcon: Record<DiagnosticSeverity, string> = {
  */
 export type DiagnosticFormatOptions = {
   /**
-   * `agent` spells out every detail on labeled rows; `human` keeps it short and links to the docs.
+   * Who reads the output.
+   * - `'agent'` spells out every detail on labeled rows
+   * - `'human'` keeps it short and links to the docs
    * @default 'agent'
    */
   audience?: 'agent' | 'human'
   /**
    * Show the root cause's full stack.
-   * @default false
    */
   verbose?: boolean
   /**
@@ -53,7 +54,9 @@ export type DiagnosticFormatOptions = {
   width?: number
 }
 
-/** Codes for a crash, which carry the root cause's stack. */
+/**
+ * Codes for a crash, which carry the root cause's stack.
+ */
 export const crashCodes: ReadonlySet<DiagnosticCode> = new Set([
   diagnosticCode.unknown,
   diagnosticCode.internalError,
@@ -71,18 +74,28 @@ export type SerializedDiagnostic = {
   code: DiagnosticCode
   severity: DiagnosticSeverity
   message: string
-  /** Catalog title. */
+  /**
+   * Catalog title.
+   */
   title?: string
-  /** Catalog cause. */
+  /**
+   * Catalog cause.
+   */
   cause?: string
   location?: DiagnosticLocation
-  /** The diagnostic's `help`, or the catalog fix. */
+  /**
+   * The diagnostic's `help`, or the catalog fix.
+   */
   help?: string
   plugin?: string
   issues?: string
-  /** Messages of the underlying errors, outermost first. */
+  /**
+   * Messages of the underlying errors, outermost first.
+   */
   causes?: Array<string>
-  /** Root cause's stack, for `KUBB_UNKNOWN`, `KUBB_INTERNAL_ERROR`, and `*_FAILED` codes. */
+  /**
+   * Root cause's stack, for `KUBB_UNKNOWN`, `KUBB_INTERNAL_ERROR`, and `*_FAILED` codes.
+   */
   stack?: string
   /**
    * The kubb.dev docs link for the code, omitted for the unknown fallback.

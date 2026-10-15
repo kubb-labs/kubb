@@ -44,7 +44,10 @@ export function toRegistryId(input: string): string {
   return input.includes('/') ? input : `kubb-labs/${input}`
 }
 
-/** GETs `url` as JSON. A non-2xx answer or a body that is not JSON returns no `body`; a network error throws with the URL. */
+/**
+ * GETs `url` as JSON. A non-2xx answer or a body that is not JSON returns no `body`.
+ * A network error throws with the URL.
+ */
 async function fetchJSON(url: string): Promise<{ status: number; body?: unknown }> {
   let response: Response
   try {

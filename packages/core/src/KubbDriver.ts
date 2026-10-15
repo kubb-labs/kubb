@@ -651,7 +651,7 @@ export class KubbDriver {
 
       if (state.error) {
         const diagnostic = Diagnostics.fromExtension(state.error, { kind: 'plugin', extension: state.plugin })
-        // Only a crash gains the node it failed on; a coded error already says where it is.
+        // Only a crash gains the node it failed on. A coded error already says where it is.
         const site = diagnostic.code === Diagnostics.code.pluginFailed && !diagnostic.location ? state.crashSite : undefined
         diagnostics.push(
           site

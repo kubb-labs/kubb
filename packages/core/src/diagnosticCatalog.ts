@@ -95,19 +95,19 @@ export const diagnosticCatalog = {
     code: 'KUBB_PLUGIN_FAILED',
     title: 'Plugin failed',
     cause: 'A plugin threw while generating, or reported an error through `ctx.error`.',
-    fix: 'Check the plugin options and the node at `at:`; if it is a bug, report it with the stack at `report:`.',
+    fix: 'Check the plugin options and the node at `at:`. If it is a bug, report it with the stack at `report:`.',
   },
   adapterFailed: {
     code: 'KUBB_ADAPTER_FAILED',
     title: 'Adapter failed',
     cause: 'The adapter threw an unexpected error while parsing the input.',
-    fix: 'Check the input and the adapter options; if it is a bug, report it with the stack at `report:`.',
+    fix: 'Check the input and the adapter options. If it is a bug, report it with the stack at `report:`.',
   },
   parserFailed: {
     code: 'KUBB_PARSER_FAILED',
     title: 'Parser failed',
     cause: 'A parser threw an unexpected error while printing a generated file.',
-    fix: 'Check the parser options; if it is a bug, report it with the stack at `report:`.',
+    fix: 'Check the parser options. If it is a bug, report it with the stack at `report:`.',
   },
   pluginWarning: {
     code: 'KUBB_PLUGIN_WARNING',
@@ -192,8 +192,8 @@ export const diagnosticCatalog = {
   internalError: {
     code: 'KUBB_INTERNAL_ERROR',
     title: 'Internal error',
-    cause: 'Kubb hit a state it does not expect; this is a bug in Kubb, not in your config.',
-    fix: 'Rerun with the JSON reporter or `--verbose` for the stack and report it at https://github.com/kubb-labs/kubb/issues with the spec and config that trigger it.',
+    cause: 'Kubb hit a state it does not expect. This is a bug in Kubb, not in your config.',
+    fix: 'Rerun with `--reporter json` or `--verbose` to get the stack. Then report it at https://github.com/kubb-labs/kubb/issues with the spec and config that trigger it.',
   },
   performance: {
     code: 'KUBB_PERFORMANCE',
