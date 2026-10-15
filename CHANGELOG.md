@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.9.7 — Oct 15, 2026
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Remove `KUBB_AGENT_TOKEN` from `kubb studio`. The CLI now connects only through a paired machine, and in CI you run `kubb studio snapshot` with `KUBB_TOKEN` instead. ([#4317](https://github.com/kubb-labs/kubb/pull/4317), [`c764393`](https://github.com/kubb-labs/kubb/commit/c7643930c0af2b2d8bc9d386cdd8285fd6d65655))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.9.6 — Oct 15, 2026
 
 ### @kubb/adapter-oas
