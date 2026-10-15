@@ -1,3 +1,4 @@
+import type { InputNode } from '@kubb/ast'
 import type { ExtensionKind, ExtensionManifest, KubbHooks } from '@kubb/core'
 
 /**
@@ -362,9 +363,23 @@ export type FilePage = { nextCursor: number | null; totalLines: number }
 export type ReadFilesResult = { files: Record<string, string>; pages?: Record<string, FilePage> }
 
 /**
+ * Asks for the Kubb AST one job parsed its spec into. A job the agent no longer keeps fails with {@link GENERATION_GONE_MESSAGE}.
+ */
+export type ReadInputInput = { jobId: string }
+
+/**
+ * The job's `InputNode`, as JSON. A ref schema names its target, which `input.schemas` holds, without a copy.
+ */
+export type ReadInputResult = { input: InputNode }
+
+/**
  * The error a file read fails with once the agent no longer keeps the job's files.
  */
 export const GENERATION_GONE_MESSAGE = 'The files of this generation are no longer kept on the agent, run the generation again'
+
+export const READ_NOT_ALLOWED_MESSAGE = 'The agent was not granted permission to read generated files'
+
+export const NO_INPUT_MESSAGE = 'This job kept no API input'
 
 /**
  * A generation in flight. Cap'n Web keeps the three calls pointed at the same run, so a caller can
@@ -405,6 +420,10 @@ export type AgentApi = {
   startGeneration: (input: GenerateInput) => GenerationRun
   saveConfig: (input: SaveConfigInput) => Promise<SaveResult>
   readFiles: (input: ReadFilesInput) => Promise<ReadFilesResult>
+  /**
+   * Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}.
+   */
+  readInput: (input: ReadInputInput) => Promise<ReadInputResult>
 }
 
 /**

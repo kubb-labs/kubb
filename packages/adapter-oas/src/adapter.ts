@@ -7,7 +7,7 @@ import { buildDiscriminatorChildMap, patchDiscriminatorNode } from './emit/discr
 import type { DiscriminatorTarget } from './emit/discriminator/propagate.ts'
 import { assertDocument, parseFromConfig, validateDocument } from './load/normalize.ts'
 import { getSchemas } from './model/components.ts'
-import { resolveBaseUrl } from './model/server.ts'
+import { resolveBaseUrl, resolveServerUrl } from './model/server.ts'
 import { getOperations, parseOperation } from './operation.ts'
 import { createSchemaParser } from './parser.ts'
 import { collectInlineEnums, refPromotedEnums } from './promoteEnums.ts'
@@ -71,8 +71,9 @@ export const adapterOas = defineExtension<AdapterOas>({
     // fresh for each document, scoped to this one pass.
     const inputCache = new WeakMap<AdapterSource, Promise<ast.InputNode>>()
 
-    // Parses every schema and operation once. Ref aliases and discriminator children are
-    // resolved from the schemas already parsed in this same pass rather than re-parsed.
+    /**
+     * Parses every schema and operation once, resolving ref aliases and discriminator children from that same pass.
+     */
     function parseInput({
       document,
       refs,
@@ -139,6 +140,31 @@ export const adapterOas = defineExtension<AdapterOas>({
           description: document.info?.description,
           version: document.info?.version,
           baseURL: resolveBaseUrl({ document, server }),
+          servers: (document.servers ?? [])
+            .filter((entry) => entry.url)
+            .map(({ url, description, variables }) => {
+              try {
+                return { url: resolveServerUrl({ url, variables }), description }
+              } catch {
+                return { url, description }
+              }
+            }),
+          securitySchemes: Object.entries(document.components?.securitySchemes ?? {}).flatMap(([name, value]) => {
+            const scheme = refs.deref<Record<string, string>>(value)
+            return scheme?.type
+              ? [
+                  {
+                    name,
+                    type: scheme.type,
+                    description: scheme.description,
+                    scheme: scheme.scheme,
+                    bearerFormat: scheme.bearerFormat,
+                    in: scheme.in,
+                    parameterName: scheme.name,
+                  },
+                ]
+              : []
+          }),
           circularNames,
           enumNames,
         },

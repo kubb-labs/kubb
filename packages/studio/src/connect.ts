@@ -39,8 +39,12 @@ import {
   type InstalledExtensions,
   MAX_FILES_PER_REQUEST,
   MAX_PAGE_LINES,
+  NO_INPUT_MESSAGE,
+  READ_NOT_ALLOWED_MESSAGE,
   type ReadFilesInput,
   type ReadFilesResult,
+  type ReadInputInput,
+  type ReadInputResult,
   type SaveConfigInput,
   type SaveResult,
   type StudioApi,
@@ -100,7 +104,7 @@ declare global {
       /**
        * A finished command and what it did, such as `applied 2/3 edits to kubb.config.ts`.
        */
-      'studio:command': [ctx: { command: 'generate' | 'saveConfig' | 'readFiles'; info: string }]
+      'studio:command': [ctx: { command: 'generate' | 'saveConfig' | 'readFiles' | 'readInput'; info: string }]
       /**
        * A refused or ignored request, with the missing permission so the host can add a remedy.
        */
@@ -342,6 +346,7 @@ class Agent extends RpcTarget implements AgentApi {
     })
   }
 
+  /** Runs one job and keeps its output, and its input with `allowRead`, for later reads. */
   async #runGeneration(input: GenerateInput, controller: AbortController): Promise<GenerateResult> {
     this.#assertConnected()
     // Checked before the first `await`, so two calls in the same tick can't both pass.
@@ -416,10 +421,12 @@ class Agent extends RpcTarget implements AgentApi {
     })
 
     const output = await this.#generations.keep({ jobId, source: 'output', files, maxSetMb: this.#limits.maxMb })
+    // Only `readInput` reads it, which needs `allowRead`.
+    const inputBytes = await this.#generations.keepInput({ jobId, input: this.#permissions.allowRead ? files.input : null, maxSetMb: this.#limits.maxMb })
     if (!output.paths.length && Object.keys(output.hashes).length) {
       await this.#warn({ message: 'Kept only the hashes of this generation: its output is too large to keep' })
     }
-    await this.#generations.add({ jobId, output, disk })
+    await this.#generations.add({ jobId, output, disk, inputBytes })
     await this.#logCommand(
       'generate',
       `${activePlugins.length} plugin${activePlugins.length === 1 ? '' : 's'}, ${this.#permissions.allowWrite ? 'written to disk' : 'in memory'}${studioInput !== undefined ? ', from a Studio spec' : ''}`,
@@ -467,9 +474,30 @@ class Agent extends RpcTarget implements AgentApi {
     }
   }
 
+  /**
+   * Returns the Kubb AST a kept job parsed its spec into. Refused without `allowRead`.
+   */
+  async readInput(input: ReadInputInput): Promise<ReadInputResult> {
+    this.#assertConnected()
+    if (!this.#permissions.allowRead) return this.#refuse({ message: READ_NOT_ALLOWED_MESSAGE, permission: 'allowRead' })
+    if (typeof input.jobId !== 'string' || !input.jobId) return this.#refuse({ message: 'The request must name a job' })
+
+    const generation = await this.#generations.get(input.jobId)
+    if (!generation) return this.#refuse({ message: GENERATION_GONE_MESSAGE })
+    // A rerun of the job can leave an earlier run's input on disk, so trust only what this run kept.
+    const kept = generation.inputBytes ? await this.#generations.readInput(input.jobId) : undefined
+    if (!kept) return this.#refuse({ message: NO_INPUT_MESSAGE })
+    await this.#logCommand('readInput', 'read the API input')
+
+    return { input: kept }
+  }
+
+  /**
+   * Returns the requested files of a kept job, one page of lines at a time. Refused without `allowRead`.
+   */
   async readFiles(input: ReadFilesInput): Promise<ReadFilesResult> {
     this.#assertConnected()
-    if (!this.#permissions.allowRead) return this.#refuse({ message: 'The agent was not granted permission to read generated files', permission: 'allowRead' })
+    if (!this.#permissions.allowRead) return this.#refuse({ message: READ_NOT_ALLOWED_MESSAGE, permission: 'allowRead' })
     if (!Array.isArray(input.paths) || typeof input.jobId !== 'string' || !input.jobId) {
       return this.#refuse({ message: 'The request must name a job and carry paths' })
     }

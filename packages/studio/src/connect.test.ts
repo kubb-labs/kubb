@@ -4,10 +4,21 @@ import { createServer, type IncomingHttpHeaders } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { ast } from '@kubb/ast'
 import { type Config, defineExtension, fsStorage, Hookable, type KubbHooks, resolveCacheDir, type Storage } from '@kubb/core'
+import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type ConnectAgentOptions, connectAgent, IncompatibleAgentError, InvalidAgentTokenError, type OpenRpc, runAgent } from './connect.ts'
-import { AGENT_INSTANCE_HEADER, type AgentApi, AgentCloseCode, type AgentConnectInfo, MAX_PAGE_LINES } from './protocol.ts'
+import {
+  AGENT_INSTANCE_HEADER,
+  type AgentApi,
+  AgentCloseCode,
+  type AgentConnectInfo,
+  GENERATION_GONE_MESSAGE,
+  MAX_PAGE_LINES,
+  NO_INPUT_MESSAGE,
+  READ_NOT_ALLOWED_MESSAGE,
+} from './protocol.ts'
 import { projectConfig, root } from './testing.ts'
 
 vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
@@ -382,7 +393,7 @@ describe('readFiles', () => {
     const warn = heard('studio:warn')
     const { agent } = await connectStudio({ hooks })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).rejects.toThrow('The agent was not granted permission to read generated files')
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).rejects.toThrow(READ_NOT_ALLOWED_MESSAGE)
     expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('not granted'), permission: 'allowRead' })
   })
 
@@ -404,6 +415,45 @@ describe('readFiles', () => {
     await run({ agent, jobId: 'job-1' })
 
     await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'], ...page })).rejects.toThrow('The cursor must be')
+  })
+})
+
+describe('readInput', () => {
+  const input = ast.factory.createInput({
+    operations: [ast.factory.createOperation({ operationId: 'listPets', method: 'GET', path: '/pets' })],
+    meta: { title: 'Pet store', circularNames: [], enumNames: [] },
+  })
+  /** A project config whose adapter parses to `input`. */
+  const withInput = async () => ({ ...projectConfig(), adapter: createMockedAdapter({ parse: async () => input }) })
+
+  it('refuses to read when the host did not grant allowRead, and names the permission for the host', async () => {
+    const { hooks, heard } = withHooks()
+    const warn = heard('studio:warn')
+    const { agent } = await connectStudio({ hooks })
+
+    await expect(agent.readInput({ jobId: 'job-1' })).rejects.toThrow(READ_NOT_ALLOWED_MESSAGE)
+    expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('not granted'), permission: 'allowRead' })
+  })
+
+  it('returns the AST the job parsed, also after the agent restarts, and refuses a job it does not keep', async () => {
+    const first = await connectStudio({ permissions: { allowRead: true }, loadConfig: withInput })
+    await run({ agent: first.agent, jobId: 'job-1' })
+
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+
+    await expect(agent.readInput({ jobId: 'job-1' })).resolves.toStrictEqual({ input: JSON.parse(JSON.stringify(input)) })
+    await expect(agent.readInput({ jobId: 'job-unknown' })).rejects.toThrow(GENERATION_GONE_MESSAGE)
+  })
+
+  it('keeps no input for a run without allowRead, so a later grant finds none, not even an earlier run of the job', async () => {
+    const first = await connectStudio({ permissions: { allowRead: true }, loadConfig: withInput })
+    await run({ agent: first.agent, jobId: 'job-1' })
+    const rerun = await connectStudio({ loadConfig: withInput })
+    await run({ agent: rerun.agent, jobId: 'job-1' })
+
+    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+
+    await expect(agent.readInput({ jobId: 'job-1' })).rejects.toThrow(NO_INPUT_MESSAGE)
   })
 })
 

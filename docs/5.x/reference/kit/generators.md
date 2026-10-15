@@ -82,7 +82,7 @@ const getOnlyGenerator = defineGenerator({
 | `ctx.driver`          | `KubbDriver`                                        | Plugin driver for cross-plugin access                                |
 | `ctx.hooks`           | `Hookable<KubbHooks>`                               | Event bus for `KubbHooks` events                                     |
 | `ctx.adapter`         | `Adapter`                                           | The adapter that parsed the input spec                               |
-| `ctx.meta`            | `InputMeta`                                         | Document metadata from the adapter. Carries `title`, `version`, `baseURL`, and the pre-computed `circularNames` and `enumNames` arrays. |
+| `ctx.meta`            | `InputMeta`                                         | Document metadata from the adapter. Carries `title`, `version`, `baseURL`, every declared `servers` entry and `securitySchemes` entry, and the pre-computed `circularNames` and `enumNames` arrays. |
 | `ctx.cache`           | `NodeCache`                                         | Cache scoped to the node being generated, shared by every plugin generating from that node in the current pass. Exposes `readItem`, `writeItem`, and `ensureItem` |
 | `ctx.addFile()`       | `(...files: FileNode[]) => Promise<void>`           | Add files, skipping any that already exist                           |
 | `ctx.upsertFile()`    | `(...files: FileNode[]) => Promise<void>`           | Add or merge files (concatenates sources and imports)                |

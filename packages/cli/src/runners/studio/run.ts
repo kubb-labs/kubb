@@ -163,7 +163,7 @@ const PERMISSIONS: ReadonlyArray<{
   {
     key: 'allowRead',
     label: 'read generated files',
-    question: () => 'Let Kubb Studio read the files a generation produced?',
+    question: () => 'Let Kubb Studio read the files a generation produced and its parsed spec?',
   },
   { key: 'allowWrite', label: 'write generated files', question: (project) => `Let Kubb Studio write generated files into ${project}?` },
   {

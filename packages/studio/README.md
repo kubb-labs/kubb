@@ -74,7 +74,7 @@ running in a developer's project and a container running a fixed plugin set.
 | `connect.ts`     | `connectAgent`: the socket loop and the `Agent` that serves Studio's calls.      |
 | `pair.ts`        | `pairAgent`: RFC 8628 device pairing.                                            |
 | `snapshot.ts`    | `createSnapshot` for CI, and packing a generation into an npm tarball.           |
-| `generations.ts` | Running a generation and keeping its files for `readFiles`.                      |
+| `generations.ts` | Running a generation and keeping its files and AST for `readFiles`/`readInput`.  |
 | `configFile.ts`  | Reading and patching plugin options in `kubb.config.ts`.                         |
 
 ## Connection
@@ -107,7 +107,7 @@ Every permission is off by default, and each covers one trust boundary:
 | `allowWrite`      | Generated files are written to disk. Off means they exist only in memory and stream to Studio. |
 | `allowExec`       | The formatter, the linter, and `output.postGenerate` run as child processes.                   |
 | `allowConfigEdit` | Studio may change plugin options in `kubb.config.ts`.                                          |
-| `allowRead`       | Studio may read back the files a generation produced.                                          |
+| `allowRead`       | Studio may read back the files a generation produced and its parsed spec.                      |
 
 A sandbox never writes or edits config, and always allows reads.
 

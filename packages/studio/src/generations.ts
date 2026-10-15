@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { isAbsolute, relative, resolve, sep } from 'node:path'
 import process from 'node:process'
 import { inParallel } from '@internals/utils'
+import { ast, type InputNode } from '@kubb/ast'
 import { type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
 import type { FilePage, FileSource, ReadFilesResult } from './protocol.ts'
 
@@ -39,6 +40,7 @@ type KeptGeneration = {
   keptAt?: number
   output: KeptSet
   disk?: KeptSet
+  inputBytes?: number
 }
 
 /**
@@ -46,7 +48,11 @@ type KeptGeneration = {
  */
 export const hashOf = (content: string) => createHash('sha1').update(content).digest('hex').slice(0, 16)
 
-const totalBytes = (entries: Array<KeptGeneration>) => entries.reduce((sum, { output, disk }) => sum + output.bytes + (disk?.bytes ?? 0), 0)
+/**
+ * The bytes `entries` keep on disk: output, written files, and kept input.
+ */
+const totalBytes = (entries: Array<KeptGeneration>) =>
+  entries.reduce((sum, { output, disk, inputBytes }) => sum + output.bytes + (disk?.bytes ?? 0) + (inputBytes ?? 0), 0)
 
 function positiveNumber(value: string | undefined): number | undefined {
   const parsed = Number(value)
@@ -94,10 +100,15 @@ export async function generate({
   hooks?: Hookable<KubbHooks>
   signal?: AbortSignal
   allowExec: boolean
-}): Promise<SourceFiles> {
+}): Promise<SourceFiles & { input: InputNode | null }> {
   const output = allowExec ? config.output : { ...config.output, format: false as const, lint: false as const, postGenerate: [] }
   const kubb = createKubb({ ...config, output }, { hooks, signal })
-  const result = await kubb.generate()
+  let input: InputNode | null = null
+  // The driver drops its `inputNode` once the build is over, so read it as the build ends.
+  const unhook = kubb.hooks.hook('kubb:build:end', (ctx) => {
+    if (ctx.config === kubb.config) input = kubb.driver.inputNode
+  })
+  const result = await kubb.generate().finally(unhook)
   if (!result.success) throw generationFailure(result.diagnostics)
 
   // `kubb.config` carries the defaults, such as the fs storage a config loaded by the CLI leaves unset.
@@ -106,6 +117,7 @@ export async function generate({
     storage,
     root,
     paths: new Set(result.files.map((file) => relativeStoragePath({ root, filePath: file.path }))),
+    input,
   }
 }
 
@@ -205,6 +217,31 @@ export function createGenerationStore({
   return {
     keep,
     drop,
+    /**
+     * Keeps the `InputNode` of `jobId` and returns its size in bytes, or 0 when it keeps none. A ref schema loses
+     * the copy of its target, which `input.schemas` holds: with it, a large spec outgrows what `JSON.stringify` can return.
+     */
+    async keepInput({ jobId, input, maxSetMb }: { jobId: string; input: InputNode | null; maxSetMb: number }): Promise<number> {
+      if (!input) return 0
+      let json: string
+      try {
+        json = JSON.stringify(ast.transform(input, { schema: (node) => (node.type === 'ref' && node.schema ? { ...node, schema: undefined } : undefined) }))
+      } catch {
+        // An adapter can return what JSON cannot hold, which must not fail a finished generation.
+        return 0
+      }
+      const bytes = Buffer.byteLength(json)
+      if (bytes > maxSetMb * MB) return 0
+      await storage.writeItem(`${dirOf(jobId)}input.json`, json)
+      return bytes
+    },
+    /**
+     * The input `keepInput` kept for `jobId`, or `undefined` when there is none.
+     */
+    async readInput(jobId: string): Promise<InputNode | undefined> {
+      const stored = await storage.readItem(`${dirOf(jobId)}input.json`)
+      return stored === null ? undefined : (JSON.parse(stored) as InputNode)
+    },
     get: async (jobId: string) => (await load()).find((generation) => generation.jobId === jobId && isLive(generation)),
     async add(generation: KeptGeneration): Promise<void> {
       const current = await load()

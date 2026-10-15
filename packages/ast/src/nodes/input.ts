@@ -3,6 +3,27 @@ import type { OperationNode } from './operation.ts'
 import type { SchemaNode } from './schema.ts'
 
 /**
+ * A server from the source document, with `{variable}` placeholders filled from their defaults.
+ */
+export type InputServer = {
+  url: string
+  description?: string
+}
+
+/**
+ * An authentication scheme from the source document, keyed by `name`. `parameterName` is the header, query, or cookie name of an `apiKey`.
+ */
+export type InputSecurityScheme = {
+  name: string
+  type: string
+  description?: string
+  scheme?: string
+  bearerFormat?: string
+  in?: string
+  parameterName?: string
+}
+
+/**
  * Metadata for an API document, populated by the adapter and available to every generator.
  *
  * All fields are plain JSON-serializable values, no `Set`, no `Map`, no class instances.
@@ -31,6 +52,8 @@ export type InputMeta = {
    * Resolved base URL from the first matching server entry in the source document.
    */
   baseURL?: string | null
+  servers?: Array<InputServer>
+  securitySchemes?: Array<InputSecurityScheme>
   /**
    * Names of schemas that participate in a circular reference chain.
    * Computed once during the adapter pre-scan, so a generator never has to

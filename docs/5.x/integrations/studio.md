@@ -26,7 +26,7 @@ kubb studio
 Approve the pairing code in the Studio window and answer the permission prompts. Each project directory pairs as its own agent. Keep the command running, select the connected agent in Studio, and generate to see progress and the file tree.
 
 > [!NOTE]
-> With a CLI or Docker agent, generation runs in your environment. Studio receives plugin settings, the project path, progress, generated file paths, and a hash of each generated file. A local spec is not uploaded. Reading generated file contents or changing local files requires the agent's permission.
+> With a CLI or Docker agent, generation runs in your environment. Studio receives plugin settings, the project path, progress, generated file paths, and a hash of each generated file. The agent never uploads a local spec. With `--allow-read`, Studio can read generated file contents and the spec as Kubb parsed it. Writing files needs `--allow-write`, and editing `kubb.config.ts` needs `--allow-config-edit`.
 
 ## Review and save generated files
 
