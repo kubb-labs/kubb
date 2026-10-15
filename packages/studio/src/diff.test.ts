@@ -35,10 +35,13 @@ describe('diffHunks', () => {
     // Every clock read moves 1 ms on, so the diff always runs past a 0 ms deadline.
     let now = 0
     const clock = vi.spyOn(Date, 'now').mockImplementation(() => now++)
-    const { hunks, stats } = diffHunks('a\nb\nc\nd\n', 'a\nx\nc\ny\n', 0)
-    expect(stats.coarse).toBe(true)
-    expect(hunks).toStrictEqual([{ oldStart: 1, oldLines: 4, newStart: 1, newLines: 4, lines: [' a', '-b', '-c', '-d', '+x', '+c', '+y'] }])
-    clock.mockRestore()
+    try {
+      const { hunks, stats } = diffHunks('a\nb\nc\nd\n', 'a\nx\nc\ny\n', 0)
+      expect(stats.coarse).toBe(true)
+      expect(hunks).toStrictEqual([{ oldStart: 1, oldLines: 4, newStart: 1, newLines: 4, lines: [' a', '-b', '-c', '-d', '+x', '+c', '+y'] }])
+    } finally {
+      clock.mockRestore()
+    }
   })
 
   it('shifts the hunks of later segments to their place in the file', () => {
