@@ -1,5 +1,31 @@
 # Changelog
 
+## v5.10.2 — Oct 15, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Declare `@kubb/core` as a dependency and import `defineExtension` from it. The published types of `adapterOas` and `pluginBarrel` import `@kubb/core`, so they failed to resolve under pnpm and other strict installers. ([#4332](https://github.com/kubb-labs/kubb/pull/4332), [`0af2fc3`](https://github.com/kubb-labs/kubb/commit/0af2fc327a7cfba8a21aee21e98a53aa1c0d9a64))
+
+### @kubb/core
+
+#### Bug Fixes
+
+- Diagnostics now say why a build failed and how to fix it, in a terminal layout for people and a plain layout for AI agents, CI, and `--reporter json`. A plugin listed twice in `plugins` now fails. ([#4329](https://github.com/kubb-labs/kubb/pull/4329), [`7d28d16`](https://github.com/kubb-labs/kubb/commit/7d28d163c9e83e8927ce361766f70bcb6f517d53))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Report the editable parts of an object option that also holds code. For `output: { path: './gen', banner: () => '' }`, the plugin view now carries `value: { path: './gen' }` and `locked: [['banner']]`, so Studio can edit `output.path` and keep `banner` as it is. Options that are entirely literal or entirely code report the same as before. ([#4330](https://github.com/kubb-labs/kubb/pull/4330), [`49c829e`](https://github.com/kubb-labs/kubb/commit/49c829eb8901beebb452cba5de420e051b57da0c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.10.1 — Oct 15, 2026
 
 ### @kubb/cli
