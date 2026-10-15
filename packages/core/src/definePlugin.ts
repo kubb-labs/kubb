@@ -238,18 +238,11 @@ type ByContentType = {
 }
 
 type ByExtension = {
-  /**
-   * Filter operations by a vendor extension (`x-*` key) on the source operation, for example
-   * `x-internal: true`. Does not apply to schemas.
-   */
+  /** Filter operations by a vendor extension (`x-*` key) on the source operation. Does not apply to schemas. */
   type: 'extension'
-  /**
-   * Extension key to look up, including the `x-` prefix.
-   */
+  /** Extension key, including the `x-` prefix. */
   key: `x-${string}`
-  /**
-   * Value the extension must strictly equal. When omitted, the key being present is enough.
-   */
+  /** Value the extension must strictly equal. When omitted, the key being present is enough. */
   value?: unknown
 }
 
