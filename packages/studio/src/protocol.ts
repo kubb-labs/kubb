@@ -379,6 +379,9 @@ export const GENERATION_GONE_MESSAGE = 'The files of this generation are no long
 
 export const READ_NOT_ALLOWED_MESSAGE = 'The agent was not granted permission to read generated files'
 
+/** Why `readInput` refuses: reading the parsed spec is its own permission. */
+export const READ_AST_NOT_ALLOWED_MESSAGE = 'The agent was not granted permission to read the parsed spec'
+
 export const NO_INPUT_MESSAGE = 'This job kept no API input'
 
 /**
@@ -558,6 +561,11 @@ export type AgentPermissions = {
    * sandbox.
    */
   allowRead: boolean
+  /**
+   * Whether the agent hands back the parsed spec (the Kubb AST) in response to `readInput`.
+   * Separate from `allowRead`, which covers generated files. Always true for a sandbox.
+   */
+  allowReadAst: boolean
 }
 
 /**

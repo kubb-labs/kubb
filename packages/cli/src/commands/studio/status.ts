@@ -43,6 +43,7 @@ export const command = studioCommand({
 
     for (const row of formatPermissionRows({
       allowRead: remembered.allowRead === true,
+      allowReadAst: remembered.allowReadAst === true,
       allowWrite: remembered.allowWrite === true,
       allowConfigEdit: remembered.allowConfigEdit === true,
       allowExec: remembered.allowExec === true,

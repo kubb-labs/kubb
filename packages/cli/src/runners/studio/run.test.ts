@@ -31,7 +31,7 @@ const confirm = vi.mocked(prompts.confirm)
 const options: StudioOptions = {
   version: '0.0.0',
   studioUrl: 'http://localhost:3000',
-  permission: { allowRead: false, allowWrite: false, allowConfigEdit: false, allowExec: false },
+  permission: { allowRead: false, allowReadAst: false, allowWrite: false, allowConfigEdit: false, allowExec: false },
   autoOpen: false,
 }
 
@@ -123,12 +123,12 @@ describe('login', () => {
 describe('resolvePermissions', () => {
   it('returns every answer and writes it to disk', async () => {
     using project = stubProject()
-    confirm.mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(true)
+    confirm.mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(true)
 
-    const answers = { allowRead: false, allowWrite: true, allowConfigEdit: false, allowExec: true }
+    const answers = { allowRead: false, allowReadAst: true, allowWrite: true, allowConfigEdit: false, allowExec: true }
 
     await expect(resolvePermissions(options, credentials)).resolves.toEqual(answers)
-    expect(confirm).toHaveBeenCalledTimes(4)
+    expect(confirm).toHaveBeenCalledTimes(5)
     expect(project.write).toHaveBeenCalledTimes(1)
     expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ projects: { [process.cwd()]: answers } }))
   })
@@ -146,7 +146,7 @@ describe('resolvePermissions', () => {
 
   it('asks nothing again once the project answered, and never stores a flag-granted permission', async () => {
     using project = stubProject()
-    const remembered = { allowRead: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
+    const remembered = { allowRead: false, allowReadAst: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
     const stored: Credentials = { ...credentials, projects: { [process.cwd()]: remembered } }
 
     await expect(resolvePermissions({ ...options, permission: { ...options.permission, allowExec: true } }, stored)).resolves.toEqual({

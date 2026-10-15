@@ -107,7 +107,8 @@ Every permission is off by default, and each covers one trust boundary:
 | `allowWrite`      | Generated files are written to disk. Off means they exist only in memory and stream to Studio. |
 | `allowExec`       | The formatter, the linter, and `output.postGenerate` run as child processes.                   |
 | `allowConfigEdit` | Studio may change plugin options in `kubb.config.ts`.                                          |
-| `allowRead`       | Studio may read back the files a generation produced and its parsed spec.                      |
+| `allowRead`       | Studio may read back the files a generation produced.                                          |
+| `allowReadAst`    | Studio may read back the parsed spec (the Kubb AST).                                           |
 
 A sandbox never writes or edits config, and always allows reads.
 

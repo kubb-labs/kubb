@@ -41,7 +41,7 @@ export type Credentials = {
    * Permissions the user has already granted, keyed by absolute project path, so the CLI asks
    * once per project instead of on every run.
    */
-  projects?: Record<string, { allowRead?: boolean; allowWrite?: boolean; allowConfigEdit?: boolean; allowExec?: boolean }>
+  projects?: Record<string, { allowRead?: boolean; allowReadAst?: boolean; allowWrite?: boolean; allowConfigEdit?: boolean; allowExec?: boolean }>
 }
 
 /**
