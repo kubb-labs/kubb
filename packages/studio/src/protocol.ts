@@ -104,8 +104,14 @@ export type PluginView = {
    * value found in the file. An option marked `literal: false` holds a function or a reference the
    * agent will not overwrite, so Studio shows the control disabled rather than hiding it, and
    * `value` is absent since there is nothing safe to display as the current value.
+   *
+   * An object option that holds code in only some members, such as
+   * `output: { path: './gen', banner: () => '' }`, also carries `value` with its literal members
+   * and `locked` with the paths of the members that are code, relative to the option
+   * (`[['banner']]`). A `set` at any deeper path outside `locked` succeeds, so Studio can edit
+   * `output.path` there.
    */
-  options: Record<string, { literal: boolean; value?: OptionValue }>
+  options: Record<string, { literal: boolean; value?: OptionValue; locked?: Array<Array<string>> }>
   /**
    * Set when the plugin call is commented out in the file. Its options stay on disk but are not
    * readable, so `options` is empty until it is enabled again.
