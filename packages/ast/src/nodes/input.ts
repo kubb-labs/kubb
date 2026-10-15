@@ -5,9 +5,23 @@ import type { SchemaNode } from './schema.ts'
 /**
  * A server from the source document, with `{variable}` placeholders filled from their defaults.
  */
+/**
+ * A variable declared by a server URL template.
+ */
+export type InputServerVariable = {
+  default?: string
+  enum?: Array<string>
+  description?: string
+}
+
 export type InputServer = {
   url: string
   description?: string
+  /**
+   * Variables of the source URL template, copied as-is. `url` already has their defaults filled in, so
+   * this tells a templated server apart from a literal one. Absent when the server declares none.
+   */
+  variables?: Record<string, InputServerVariable>
 }
 
 /**
