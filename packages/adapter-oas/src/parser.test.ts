@@ -295,7 +295,9 @@ describe('buildAst', () => {
 
       expect(op?.parameters.find((p) => p.name === 'path')).toMatchObject({ allowReserved: true })
       expect(op?.parameters.find((p) => p.name === 'filter')).toMatchObject({ allowReserved: false })
-      expect(op?.parameters.find((p) => p.name === 'sort')).not.toHaveProperty('allowReserved')
+      const sort = op?.parameters.find((p) => p.name === 'sort')
+      expect(sort).toBeDefined()
+      expect(sort).not.toHaveProperty('allowReserved')
     })
 
     it('converts requestBody with description, required and a single content entry', async () => {
