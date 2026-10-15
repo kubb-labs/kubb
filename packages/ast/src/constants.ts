@@ -72,6 +72,10 @@ export const schemaTypes = {
    */
   intersection: 'intersection',
   /**
+   * "Not" a single schema member.
+   */
+  not: 'not',
+  /**
    * Enum schema.
    */
   enum: 'enum',

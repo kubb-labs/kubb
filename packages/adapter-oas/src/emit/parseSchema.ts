@@ -2,7 +2,7 @@ import type { ast } from '@kubb/kit'
 import { isBinary, isReference } from '../oas.ts'
 import type { Refs } from '../refs.ts'
 import type { Document, SchemaObject } from '../types.ts'
-import { convertAllOf, convertMultiType, convertRef, convertUnion } from './converters/composition.ts'
+import { convertAllOf, convertMultiType, convertNot, convertRef, convertUnion } from './converters/composition.ts'
 import { convertConst, convertEnum, convertFormat, convertNumeric, convertString, createNullNode } from './converters/scalar.ts'
 import { convertArray, convertObject, convertTuple } from './converters/structural.ts'
 import { createNode } from './createNode.ts'
@@ -48,7 +48,7 @@ type SchemaRule = {
 }
 
 /**
- * Ordered schema rule table. Order is significant: composition keywords (`$ref`, `allOf`,
+ * Ordered schema rule table. Order is significant: composition keywords (`$ref`, `not`, `allOf`,
  * `oneOf`/`anyOf`) take precedence over `const`, which takes precedence over a genuine OAS 3.1
  * multi-type array (more than one non-`null` type), which takes precedence over `format`/`type`.
  * A multi-type array must split into its per-type members before `format` runs, otherwise
@@ -60,6 +60,8 @@ type SchemaRule = {
  */
 export const schemaRules: Array<SchemaRule> = [
   { match: ({ schema }) => isReference(schema), convert: convertRef },
+  // Object `not` only: a boolean `not` has no JSON Schema use in practice and stays ignored.
+  { match: ({ schema }) => typeof schema.not === 'object' && schema.not !== null, convert: convertNot },
   { match: ({ schema }) => !!schema.allOf?.length, convert: convertAllOf },
   { match: ({ schema }) => !!(schema.oneOf?.length || schema.anyOf?.length), convert: convertUnion },
   { match: ({ schema }) => 'const' in schema && schema.const !== undefined, convert: convertConst },
