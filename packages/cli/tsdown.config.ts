@@ -4,7 +4,6 @@ const entry = { index: 'src/index.ts', studioWorker: 'src/runners/studio/worker.
 
 const shared: Partial<UserConfig> = {
   platform: 'node',
-  sourcemap: true,
   shims: true,
   deps: {
     neverBundle: [/^@kubb\//],
