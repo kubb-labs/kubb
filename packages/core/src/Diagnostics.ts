@@ -240,7 +240,7 @@ const failedCode = {
  * Codes for a crash rather than a known problem. Their serialized form carries the root cause's
  * stack, the one place a maintainer can find where it broke.
  */
-const crashCodes: ReadonlySet<DiagnosticCode> = new Set([diagnosticCode.unknown, ...Object.values(failedCode)])
+const crashCodes: ReadonlySet<DiagnosticCode> = new Set([diagnosticCode.unknown, diagnosticCode.internalError, ...Object.values(failedCode)])
 
 const countKey = { error: 'errors', warning: 'warnings', info: 'infos' } as const satisfies Record<DiagnosticSeverity, string>
 
@@ -442,6 +442,11 @@ const diagnosticCatalog: Record<DiagnosticCode, DiagnosticDoc> = {
     cause: 'Two generated modules export the same name, so the barrel cannot re-export both.',
     fix: 'Rename one of the colliding declarations, or configure the plugin resolver to produce distinct names.',
   },
+  [diagnosticCode.internalError]: {
+    title: 'Internal error',
+    cause: 'Kubb hit a state it does not expect; this is a bug in Kubb, not in your config.',
+    fix: 'Rerun with the JSON reporter or `--verbose` for the stack and report it at https://github.com/kubb-labs/kubb/issues with the spec and config that trigger it.',
+  },
   [diagnosticCode.performance]: {
     title: 'Performance',
     cause: 'Not a failure. Records a plugin’s elapsed time, summed into the run total.',
@@ -590,7 +595,8 @@ export class Diagnostics {
     // Match structurally, not just by `instanceof`: a `Diagnostics.Error` thrown from a
     // duplicated `@kubb/core` copy (bundled into an adapter or plugin) is a different
     // class, but still carries the same `diagnostic`, so its code must survive.
-    const coded = chain.find((current) => Diagnostics.isError(current))
+    // The innermost one wins: it is where the problem started, and a wrapper only adds context.
+    const coded = chain.findLast((current) => Diagnostics.isError(current))
     if (coded) {
       return (coded as InstanceType<typeof Diagnostics.Error>).diagnostic
     }
@@ -616,7 +622,10 @@ export class Diagnostics {
     // `plugin` feeds the failed-plugin count, so an adapter or parser is named in the message instead.
     const owner = kind === 'plugin' ? { plugin: diagnostic.plugin ?? name } : {}
     // An abort is the user canceling the run, not a crash.
-    if (diagnostic.code !== diagnosticCode.unknown || diagnostic.cause?.name === 'AbortError') {
+    const crashed = diagnostic.code === diagnosticCode.unknown && diagnostic.cause?.name !== 'AbortError'
+    // A `*_FAILED` code thrown on purpose is a crash the extension reports itself, so it gets the link too.
+    const failed = Object.values<DiagnosticCode>(failedCode).includes(diagnostic.code)
+    if (!crashed && !failed) {
       return { ...diagnostic, ...owner }
     }
 
@@ -624,8 +633,8 @@ export class Diagnostics {
     return {
       ...diagnostic,
       ...owner,
-      code: failedCode[kind],
-      message: kind === 'plugin' ? diagnostic.message : `${kind} "${name}" crashed: ${diagnostic.message}`,
+      code: crashed ? failedCode[kind] : diagnostic.code,
+      message: crashed && kind !== 'plugin' ? `${kind} "${name}" crashed: ${diagnostic.message}` : diagnostic.message,
       ...(issues ? { issues } : {}),
     }
   }

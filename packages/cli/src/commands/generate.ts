@@ -1,5 +1,5 @@
 import { defineWithTypes } from 'gunshi'
-import type { ReporterName } from '@kubb/core'
+import { Diagnostics, type ReporterName } from '@kubb/core'
 import { configArg, dryRunId, type DryRunExtensions, logLevelArg } from './shared.ts'
 
 const REPORTER_NAMES: Array<ReporterName> = ['cli', 'json', 'file', 'html']
@@ -15,7 +15,12 @@ function parseReporters(value: string): Array<ReporterName> {
 
   for (const name of names) {
     if (!REPORTER_NAMES.includes(name as ReporterName)) {
-      throw new Error(`must be one of cli, json, file, html (got "${name}")`)
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.unknown,
+        severity: 'error',
+        message: `must be one of cli, json, file, html (got "${name}")`,
+        help: 'Use one of cli, json, file, html.',
+      })
     }
   }
 

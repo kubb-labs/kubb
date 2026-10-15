@@ -1,3 +1,5 @@
+import { Diagnostics } from '@kubb/core'
+
 /**
  * Hosted Kubb Studio URL, used when a host passes none.
  */
@@ -21,7 +23,11 @@ export function secureUrl({ studioUrl, path, socket = false }: { studioUrl: stri
   const url = new URL(`${studioUrl.replace(/\/+$/, '')}${path}`)
 
   if (url.protocol !== 'https:' && !(url.protocol === 'http:' && isLoopbackHost(url.hostname))) {
-    throw new Error(`Refusing to reach Kubb Studio at ${url.origin}: use an https:// URL, or a loopback host for local development`)
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: `Refusing to reach Kubb Studio at ${url.origin}: use an https:// URL, or a loopback host for local development`,
+    })
   }
   if (socket) url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
 

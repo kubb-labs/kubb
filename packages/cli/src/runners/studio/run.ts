@@ -6,7 +6,7 @@ import * as prompts from '@clack/prompts'
 import { KUBB_CONFIG_FILENAME } from '@internals/shared'
 import { isCIEnvironment, openInBrowser, toError } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
-import { cliReporter, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
+import { cliReporter, Diagnostics, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { connectAgent, defaultStudioUrl, InvalidAgentTokenError, pairAgent, PairingCanceledError } from '@kubb/studio'
 import { trackRun } from '../../Telemetry.ts'
 import { plainLogger } from '../../loggers/plainLogger.ts'
@@ -236,7 +236,11 @@ export async function loadConfigs(options: Pick<StudioOptions, 'configPath' | 'l
   const [config] = configs
 
   if (!config) {
-    throw new Error('Config not defined, create a kubb.config.ts or pass it with --config')
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: 'Config not defined, create a kubb.config.ts or pass it with --config',
+    })
   }
 
   // `getConfigs` resolves this to an absolute path. Relativized here, once, so the permission
@@ -276,9 +280,11 @@ export async function prepareConnection(options: StudioOptions, signal?: AbortSi
   const credentials = await (async () => {
     if (stored?.studioUrl === options.studioUrl) return stored
     if (isCIEnvironment()) {
-      throw new Error(
-        `Not paired with ${options.studioUrl}. In CI, run \`kubb studio snapshot\` instead, or run \`kubb studio login\` on a machine with a browser.`,
-      )
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.unknown,
+        severity: 'error',
+        message: `Not paired with ${options.studioUrl}. In CI, run \`kubb studio snapshot\` instead, or run \`kubb studio login\` on a machine with a browser.`,
+      })
     }
     return login(options, { signal })
   })()
@@ -309,7 +315,12 @@ export async function connect(
     if (!context.prepared) {
       const { getWorkerStatus } = await import('./background.ts')
       const worker = await getWorkerStatus()
-      if (worker.running) throw new Error('This project is running in the background. Run `kubb studio stop` first.')
+      if (worker.running)
+        throw new Diagnostics.Error({
+          code: Diagnostics.code.unknown,
+          severity: 'error',
+          message: 'This project is running in the background. Run `kubb studio stop` first.',
+        })
     }
     const prepared = context.prepared ?? (await prepareConnection(options, signal))
     let { credentials, permissions } = prepared

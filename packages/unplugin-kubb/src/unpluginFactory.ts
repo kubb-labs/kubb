@@ -69,7 +69,13 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
   // Throw: webpack, Rspack, esbuild, and Farm contexts have no `this.error`.
   async function runBuild() {
     if (!options?.config) {
-      throw new Error(`[${name}] Config is not set`)
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.inputRequired,
+        severity: 'error',
+        message: `[${name}] Config is not set`,
+        help: 'Pass your Kubb config as the `config` option of the plugin.',
+        location: { kind: 'config' },
+      })
     }
 
     const kubb = createKubb(applyDefaults(options.config) as Config, { hooks })
@@ -80,7 +86,11 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (options, m
       const firstError = result.diagnostics.filter(Diagnostics.isProblem).find((diagnostic) => diagnostic.severity === 'error')
       const message = failedCount > 0 ? `Build Error with ${failedCount} failed plugins` : (firstError?.message ?? 'Build failed')
 
-      throw new Error(`[${name}] ${message}`, { cause: firstError?.cause })
+      // Keep the first error's code, help, and location, so the bundler shows the same diagnostic.
+      throw new Diagnostics.Error({
+        ...(firstError ?? { code: Diagnostics.code.unknown, severity: 'error' }),
+        message: `[${name}] ${message}`,
+      })
     }
   }
 

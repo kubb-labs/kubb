@@ -98,6 +98,12 @@ A URL set as `input` never answered, so the request failed before a status came 
 
 Start the server and check its host and port. Fetch the URL from the machine running Kubb. Connect to any required VPN or proxy, or use a downloaded spec. The message includes the connection failure reason.
 
+### KUBB_INTERNAL_ERROR: Internal error {#kubb-internal-error}
+
+Kubb hit a state it does not expect. This is a bug in Kubb, not in your config or your spec.
+
+Rerun with `--reporter json` or `--verbose` to get the stack trace, then [open an issue](https://github.com/kubb-labs/kubb/issues) with the spec and config that trigger it.
+
 ### KUBB_INVALID_DOCUMENT: Invalid document {#kubb-invalid-document}
 
 The document resolved from `input` cannot be read as an OpenAPI or Swagger document. Its JSON or YAML has a syntax error, it declares neither `openapi` nor `swagger`, or its version cannot be upgraded to OpenAPI 3.1.

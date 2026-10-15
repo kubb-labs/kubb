@@ -179,7 +179,13 @@ export async function validateDocument(document: Document, { throwOnError = fals
   }
 
   if (result.valid) return
-  if (throwOnError) throw new Error(compileErrors(result))
+  if (throwOnError)
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.invalidSpec,
+      severity: 'error',
+      message: compileErrors(result),
+      help: 'Fix each problem listed in the spec, then validate again.',
+    })
 
   for (const { message } of result.errors) {
     // The code frame after the first line numbers a JSON copy of the spec, not the user's file.

@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises'
-import type { ExtensionKind } from '@kubb/core'
+import { Diagnostics, type ExtensionKind } from '@kubb/core'
 import { getErrorMessage, read } from '@internals/utils'
 import { detectCodeFormat, parseExpression, parseModule } from 'magicast'
 import type { ASTNode, ProxifiedModule } from 'magicast'
@@ -56,7 +56,12 @@ function invalidEdit(edit: ConfigEdit): string | undefined {
 
 /** Where a node sits in the source text. */
 function rangeOf(node: { start?: number | null; end?: number | null }): { start: number; end: number } {
-  if (typeof node.start !== 'number' || typeof node.end !== 'number') throw new Error('the config file could not be mapped back to its source text')
+  if (typeof node.start !== 'number' || typeof node.end !== 'number')
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.internalError,
+      severity: 'error',
+      message: 'the config file could not be mapped back to its source text',
+    })
   return { start: node.start, end: node.end }
 }
 

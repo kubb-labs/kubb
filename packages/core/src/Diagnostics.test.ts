@@ -101,6 +101,13 @@ describe('Diagnostics.from', () => {
     expect(diagnostic.cause).toBe(root)
   })
 
+  it('returns the innermost coded error, where the problem started', () => {
+    const inner = new Diagnostics.Error({ code: 'KUBB_INVALID_PLUGIN_OPTIONS', severity: 'error', message: 'inner' })
+    const outer = new Diagnostics.Error({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'Config failed loading', cause: inner })
+
+    expect(Diagnostics.from(outer)).toMatchObject({ code: 'KUBB_INVALID_PLUGIN_OPTIONS', message: 'inner' })
+  })
+
   it('should not loop on a self-referencing cause', () => {
     const error = new Error('boom') as Error & { cause: unknown }
     error.cause = error
@@ -120,6 +127,17 @@ describe('Diagnostics.fromExtension', () => {
       severity: 'error',
       message: 'boom',
       cause,
+      plugin: 'plugin-acme',
+      issues: 'https://github.com/acme/plugin/issues',
+    })
+  })
+
+  it('adds the issue tracker to a *_FAILED code the extension throws itself', () => {
+    const error = new Diagnostics.Error({ code: 'KUBB_PLUGIN_FAILED', severity: 'error', message: 'invariant broken' })
+
+    expect(Diagnostics.fromExtension(error, { kind: 'plugin', extension })).toMatchObject({
+      code: 'KUBB_PLUGIN_FAILED',
+      message: 'invariant broken',
       plugin: 'plugin-acme',
       issues: 'https://github.com/acme/plugin/issues',
     })

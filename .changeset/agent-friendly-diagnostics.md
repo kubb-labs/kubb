@@ -3,6 +3,8 @@
 '@kubb/cli': minor
 '@kubb/adapter-oas': minor
 '@kubb/mcp': minor
+'@kubb/studio': minor
+'unplugin-kubb': minor
 ---
 
 Diagnostics now say why a build failed and how to fix it, without a trip to kubb.dev:
@@ -15,3 +17,4 @@ Diagnostics now say why a build failed and how to fix it, without a trip to kubb
 - `ctx.warn`, `ctx.error`, and `ctx.info` take an optional `{ code, help, location }`, and `ctx.error` keeps the code of a `Diagnostics.Error`.
 - A failure in setup, such as an invalid plugin entry, now reaches the reporters as a failed run, so `--reporter json` still gets an entry. Errors outside a build go to stderr in `json` mode.
 - A config that fails to load names its path, and a missing config lists where Kubb looked and suggests `kubb init`.
+- Kubb, its CLI, Studio, and the bundler plugin now throw every error as a `Diagnostics.Error` with a code, so each one can be shown with its fix or read by a tool. A new `KUBB_INTERNAL_ERROR` code marks a bug in Kubb itself. When a cause chain holds several coded errors, the innermost one wins. A `*_FAILED` code an extension throws itself now also gets its `report:` link.

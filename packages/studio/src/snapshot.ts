@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { gzipSync } from 'node:zlib'
-import { type Config, fsStorage, type Hookable, type KubbHooks, readInstalledPackages, resolveMeta } from '@kubb/core'
+import { type Config, Diagnostics, fsStorage, type Hookable, type KubbHooks, readInstalledPackages, resolveMeta } from '@kubb/core'
 import { ofetch } from 'ofetch'
 import { generate, hashOf } from './generations.ts'
 import { MAX_SNAPSHOT_BYTES, type PublishedSnapshot, type SnapshotUploadMetadata } from './protocol.ts'
@@ -39,7 +39,12 @@ function splitEntryPath(path: string): { name: string; prefix: string } {
     const name = path.slice(i + 1)
     if (Buffer.byteLength(prefix) <= 155 && Buffer.byteLength(name) <= 100) return { name, prefix }
   }
-  throw new Error(`Snapshot path is too long for a tar entry: ${path}`)
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.unknown,
+    severity: 'error',
+    message: `Snapshot path is too long for a tar entry: ${path}`,
+    help: 'Shorten the output path or the generated file names.',
+  })
 }
 
 function header(path: string, size: number): Buffer {
@@ -70,7 +75,13 @@ export async function createSnapshotPackage({ files, packageInfo }: { files: Sna
   for (const [name, content] of Object.entries(files)) {
     const path = packagePath(name)
     const owner = sources.get(path)?.name
-    if (owner) throw new Error(`Snapshot has two generated files that sanitize to the same path "package/${path}": "${owner}" and "${name}"`)
+    if (owner)
+      throw new Diagnostics.Error({
+        code: Diagnostics.code.unknown,
+        severity: 'error',
+        message: `Snapshot has two generated files that sanitize to the same path "package/${path}": "${owner}" and "${name}"`,
+        help: 'Rename one of the generated files, for example with a plugin resolver.',
+      })
     sources.set(path, { name, content })
   }
   const root = await mkdtemp(join(tmpdir(), 'kubb-snapshot-'))
@@ -165,7 +176,12 @@ export async function createSnapshot({
     await Promise.all(
       [...generated.paths].map(async (path) => {
         const content = await generated.storage.readItem(resolve(generated.root, path))
-        if (content === null) throw new Error(`The generation listed ${path} but did not keep its content`)
+        if (content === null)
+          throw new Diagnostics.Error({
+            code: Diagnostics.code.internalError,
+            severity: 'error',
+            message: `The generation listed ${path} but did not keep its content`,
+          })
         return [path, content] as const
       }),
     ),
@@ -178,11 +194,22 @@ export async function createSnapshot({
   const peerDependencies = Object.fromEntries(installed.flatMap(({ package: name, version }) => (names.includes(name) && version ? [[name, version]] : [])))
   // The package would declare no version for a plugin that is not installed.
   const missing = names.filter((name) => !(name in peerDependencies) && !BUNDLED_DEPENDENCIES.includes(name))
-  if (missing.length) throw new Error(`Missing dependencies: ${missing.join(', ')}`)
+  if (missing.length)
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.missingDependency,
+      severity: 'error',
+      message: `Missing dependencies: ${missing.join(', ')}`,
+      help: 'Install the listed plugin packages in the project.',
+    })
 
   const bytes = await createSnapshotPackage({ files, packageInfo: { name: metadata.packageName, version: metadata.version, peerDependencies } })
   if (bytes.length > MAX_SNAPSHOT_BYTES) {
-    throw new Error(`The snapshot is ${Math.ceil(bytes.length / 1024 / 1024)} MB, over the ${MAX_SNAPSHOT_BYTES / 1024 / 1024} MB limit`)
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.unknown,
+      severity: 'error',
+      message: `The snapshot is ${Math.ceil(bytes.length / 1024 / 1024)} MB, over the ${MAX_SNAPSHOT_BYTES / 1024 / 1024} MB limit`,
+      help: 'Generate fewer files, for example with `include` or `exclude` on the plugins.',
+    })
   }
 
   const hashes = Object.fromEntries(Object.entries(files).map(([path, content]) => [path, hashOf(content)]))
@@ -202,8 +229,19 @@ export async function createSnapshot({
   })
   if (!ok) {
     const upgrade = _data?.data?.upgradeUrl ? ` Upgrade at ${_data.data.upgradeUrl}.` : ''
-    throw new Error(`Kubb Studio refused the snapshot (status ${status})${_data?.message ? `: ${_data.message}` : ''}.${upgrade}`)
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.inputRequestFailed,
+      severity: 'error',
+      message: `Kubb Studio refused the snapshot (status ${status})${_data?.message ? `: ${_data.message}` : ''}.${upgrade}`,
+      help: 'Check the API key and your plan, then try again.',
+    })
   }
-  if (!_data?.snapshot) throw new Error(`Kubb Studio returned no snapshot (status ${status})`)
+  if (!_data?.snapshot)
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.inputRequestFailed,
+      severity: 'error',
+      message: `Kubb Studio returned no snapshot (status ${status})`,
+      help: 'Try again later.',
+    })
   return _data.snapshot
 }

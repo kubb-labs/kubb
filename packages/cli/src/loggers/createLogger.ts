@@ -339,7 +339,8 @@ export function createLogger(writer: LoggerWriter): Logger {
 
       // The detail rows of a `KUBB_UNKNOWN` diagnostic (the fix and every `caused by:`), plus where the
       // root error was thrown, so the output alone says what broke and where.
-      const { details } = Diagnostics.format({ code: Diagnostics.code.unknown, severity: 'error', message: error.message, cause: error })
+      const help = Diagnostics.isError(error) ? error.diagnostic.help : undefined
+      const { details } = Diagnostics.format({ code: Diagnostics.code.unknown, severity: 'error', message: error.message, help, cause: error })
       const root = getErrorChain(error).at(-1) ?? error
       const frame = logLevel < logLevelMap.verbose && root.stack ? topFrames(root.stack)[0] : undefined
       writer.block([...details, ...(frame ? [`  ${styleText('dim', frame)}`] : [])].map(text))

@@ -121,7 +121,8 @@ export class Kubb {
   }
 
   get driver(): KubbDriver {
-    if (!this.#driver) throw new Error('[kubb] setup() must be called before accessing driver')
+    if (!this.#driver)
+      throw new Diagnostics.Error({ code: Diagnostics.code.internalError, severity: 'error', message: '[kubb] setup() must be called before accessing driver' })
     return this.#driver
   }
 

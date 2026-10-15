@@ -128,6 +128,10 @@ export const diagnosticCode = {
    */
   barrelDuplicateExport: 'KUBB_BARREL_DUPLICATE_EXPORT',
   /**
+   * Kubb reached a state it does not expect. A bug in Kubb itself, not in the config or the spec.
+   */
+  internalError: 'KUBB_INTERNAL_ERROR',
+  /**
    * Not a failure. Carries a plugin's elapsed time, summed into the run total.
    */
   performance: 'KUBB_PERFORMANCE',

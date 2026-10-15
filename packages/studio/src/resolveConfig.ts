@@ -1,8 +1,8 @@
 import { existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
-import { type Adapter, type ExtensionKind, isPackageName, type Parser, type Plugin, resolveMeta } from '@kubb/core'
-import { camelCase } from '@internals/utils'
+import { type Adapter, Diagnostics, type ExtensionKind, isPackageName, type Parser, type Plugin, resolveMeta } from '@kubb/core'
+import { camelCase, toError } from '@internals/utils'
 import type { InstalledExtensions, JSONKubbConfig, OptionValue } from './protocol.ts'
 
 /**
@@ -129,20 +129,35 @@ async function loadFactory({ packageName, extensions }: { packageName: string; e
   try {
     mod = await importFromProject(packageName)
   } catch (cause) {
-    throw new Error(`Plugin "${packageName}" could not be loaded. Make sure it is installed: \`npm install ${packageName}\``, { cause })
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.pluginNotFound,
+      severity: 'error',
+      message: `Plugin "${packageName}" could not be loaded. Make sure it is installed: \`npm install ${packageName}\``,
+      cause: toError(cause),
+    })
   }
 
   const manifestExport = extensions.get(packageName)?.manifest.export
   if (manifestExport) {
     if (typeof mod[manifestExport] === 'function') return mod[manifestExport] as (options: unknown) => unknown
-    throw new Error(`Plugin "${packageName}" does not export "${manifestExport}", the factory its kubb-extension.json names.`)
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.incompatibleExtension,
+      severity: 'error',
+      message: `Plugin "${packageName}" does not export "${manifestExport}", the factory its kubb-extension.json names.`,
+      help: 'Install a version of the plugin whose exports match its kubb-extension.json.',
+    })
   }
 
   const exportName = toExportName(packageName)
   if (typeof mod[exportName] === 'function') return mod[exportName] as (options: unknown) => unknown
   if (typeof mod['default'] === 'function') return mod['default'] as (options: unknown) => unknown
 
-  throw new Error(`Plugin "${packageName}" does not export a callable factory. Tried the named export "${exportName}" and "default".`)
+  throw new Diagnostics.Error({
+    code: Diagnostics.code.incompatibleExtension,
+    severity: 'error',
+    message: `Plugin "${packageName}" does not export a callable factory. Tried the named export "${exportName}" and "default".`,
+    help: 'Install a Kubb plugin package that exports its factory.',
+  })
 }
 
 /**
@@ -169,9 +184,11 @@ export async function resolvePlugins({
   return Promise.all(
     plugins.map(async ({ name, options }) => {
       if (!isAllowedPlugin({ packageName: name, extensions })) {
-        throw new Error(
-          `Plugin "${name}" is not an installed Kubb plugin. Studio loads @kubb/plugin-* packages and installed packages that ship a kubb-extension.json with kind "plugin".`,
-        )
+        throw new Diagnostics.Error({
+          code: Diagnostics.code.pluginNotFound,
+          severity: 'error',
+          message: `Plugin "${name}" is not an installed Kubb plugin. Studio loads @kubb/plugin-* packages and installed packages that ship a kubb-extension.json with kind "plugin".`,
+        })
       }
       const factory = await loadFactory({ packageName: name, extensions })
       return factory(options ?? {}) as Plugin
@@ -325,10 +342,12 @@ export async function mergePlugins({
       const unchanged = JSON.stringify(toJSONOptions(options)) === JSON.stringify(toJSONOptions(diskOptions))
       const [resolved] = await resolvePlugins({ plugins: [{ name: studioEntry.name, options }], extensions }).catch((cause: unknown) => {
         if (unchanged) return [diskPlugin]
-        throw new Error(
-          `Plugin "${diskPlugin.name}" is not an installed @kubb/plugin-* package or Kubb extension, so Studio cannot change its options. Edit it in the config file, or only enable or disable it from Studio.`,
-          { cause },
-        )
+        throw new Diagnostics.Error({
+          code: Diagnostics.code.pluginNotFound,
+          severity: 'error',
+          message: `Plugin "${diskPlugin.name}" is not an installed @kubb/plugin-* package or Kubb extension, so Studio cannot change its options. Edit it in the config file, or only enable or disable it from Studio.`,
+          cause: toError(cause),
+        })
       })
 
       return resolved ?? diskPlugin
@@ -366,7 +385,12 @@ async function rebuildExtension<T extends Adapter | Parser>({
   const installed = [...extensions.values()].find(({ manifest }) => manifest.kind === kind && manifest.name === name)
   const packageName = installed?.package ?? `@kubb/${kind}-${name}`
   const factory = await loadFactory({ packageName, extensions }).catch((cause: unknown) => {
-    throw new Error(`The ${kind} "${name}" is not an installed Kubb extension, so Studio cannot change its options. Edit it in the config file.`, { cause })
+    throw new Diagnostics.Error({
+      code: Diagnostics.code.pluginNotFound,
+      severity: 'error',
+      message: `The ${kind} "${name}" is not an installed Kubb extension, so Studio cannot change its options. Edit it in the config file.`,
+      cause: toError(cause),
+    })
   })
 
   return factory(mergeOptions((disk.options as Record<string, unknown>) ?? {}, studioOptions as Record<string, unknown>)) as T

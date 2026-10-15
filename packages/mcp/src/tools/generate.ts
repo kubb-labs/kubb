@@ -79,7 +79,12 @@ export const generateTool = defineTool(
       let userConfig: Config
       try {
         const [first] = await loadConfigFile<Config>(file, { logLevel, config: configPath })
-        if (!first) throw new Error('The config file exports an empty array of configurations')
+        if (!first)
+          throw new Diagnostics.Error({
+            code: Diagnostics.code.unknown,
+            severity: 'error',
+            message: 'The config file exports an empty array of configurations',
+          })
         userConfig = first
       } catch (error) {
         return failure(`Failed to load config ${file}`, [Diagnostics.from(error)])
