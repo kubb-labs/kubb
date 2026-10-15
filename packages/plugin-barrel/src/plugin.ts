@@ -1,7 +1,7 @@
 import path from 'node:path'
 import { isPathInside } from '@internals/utils'
 import { defineExtension, Diagnostics } from '@kubb/kit'
-import type { ast, Config, NormalizedPlugin, Plugin } from '@kubb/kit'
+import type { ast, Config, NormalizedPlugin, Plugin, PluginFactory } from '@kubb/kit'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
 import type { BarrelType, PluginBarrelConfig } from './types.ts'
@@ -91,7 +91,8 @@ function getState(config: Config): BarrelState {
  * })
  * ```
  */
-export const pluginBarrel = defineExtension({
+// Annotated so the emitted declaration names @kubb/kit, a dependency, not the inferred @kubb/core type.
+export const pluginBarrel: PluginFactory = defineExtension({
   kind: 'plugin',
   meta: { name: pluginBarrelName, version, compatibility, issues: 'https://github.com/kubb-labs/kubb/issues' },
   enforce: 'post',

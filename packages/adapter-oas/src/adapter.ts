@@ -1,5 +1,5 @@
 import { ast, defineExtension } from '@kubb/kit'
-import type { AdapterSource } from '@kubb/kit'
+import type { AdapterFactory, AdapterSource } from '@kubb/kit'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
 import { DEFAULT_PARSER_OPTIONS } from './constants.ts'
@@ -48,7 +48,8 @@ export const adapterOasName = 'oas' satisfies AdapterOas['name']
  * })
  * ```
  */
-export const adapterOas = defineExtension<AdapterOas>({
+// Annotated so the emitted declaration names @kubb/kit, a dependency, not the inferred @kubb/core type.
+export const adapterOas: AdapterFactory<AdapterOas> = defineExtension<AdapterOas>({
   kind: 'adapter',
   meta: { name: adapterOasName, version, compatibility, issues: 'https://github.com/kubb-labs/kubb/issues' },
   setup: ({
