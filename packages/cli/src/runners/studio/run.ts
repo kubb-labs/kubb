@@ -17,7 +17,7 @@ import { getConfigs } from '../../config.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getMachineId, readCredentials, writeCredentials } from './credentials.ts'
 import { version } from '../../../package.json'
 
-type Permission = 'allowRead' | 'allowWrite' | 'allowConfigEdit' | 'allowExec'
+type Permission = 'allowRead' | 'allowReadAst' | 'allowWrite' | 'allowConfigEdit' | 'allowExec'
 
 export type StudioOptions = {
   /**
@@ -72,6 +72,7 @@ export type StudioValues = {
   config?: string
   url?: string
   allowRead?: boolean
+  allowReadAst?: boolean
   allowWrite?: boolean
   allowConfigEdit?: boolean
   allowExec?: boolean
@@ -163,8 +164,9 @@ const PERMISSIONS: ReadonlyArray<{
   {
     key: 'allowRead',
     label: 'read generated files',
-    question: () => 'Let Kubb Studio read the files a generation produced and its parsed spec?',
+    question: () => 'Let Kubb Studio read the files a generation produced?',
   },
+  { key: 'allowReadAst', label: 'read parsed spec', question: () => 'Let Kubb Studio read the parsed spec (the Kubb AST)?' },
   { key: 'allowWrite', label: 'write generated files', question: (project) => `Let Kubb Studio write generated files into ${project}?` },
   {
     key: 'allowConfigEdit',
@@ -197,7 +199,7 @@ export async function resolvePermissions(
 ): Promise<Record<Permission, boolean>> {
   const project = process.cwd()
   const remembered = credentials.projects?.[project]
-  const granted: Record<Permission, boolean> = { allowRead: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
+  const granted: Record<Permission, boolean> = { allowRead: false, allowReadAst: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
   const answers: Partial<Record<Permission, boolean>> = {}
   prompts.updateSettings({ withGuide: true })
 
@@ -385,6 +387,7 @@ export async function runStudio(
     studioUrl: values.url ?? defaultStudioUrl,
     permission: {
       allowRead: values.allowRead ?? false,
+      allowReadAst: values.allowReadAst ?? false,
       allowWrite: values.allowWrite ?? false,
       allowConfigEdit: values.allowConfigEdit ?? false,
       allowExec: values.allowExec ?? false,

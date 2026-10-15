@@ -40,6 +40,7 @@ import {
   MAX_FILES_PER_REQUEST,
   MAX_PAGE_LINES,
   NO_INPUT_MESSAGE,
+  READ_AST_NOT_ALLOWED_MESSAGE,
   READ_NOT_ALLOWED_MESSAGE,
   type ReadFilesInput,
   type ReadFilesResult,
@@ -232,7 +233,7 @@ class Agent extends RpcTarget implements AgentApi {
   // A sandbox has no project to write to or edit, and Studio may always read what it generated there.
   get #permissions(): AgentPermissions {
     const { permissions } = this.#options
-    return this.#sandbox ? { ...permissions, allowWrite: false, allowConfigEdit: false, allowRead: true } : permissions
+    return this.#sandbox ? { ...permissions, allowWrite: false, allowConfigEdit: false, allowRead: true, allowReadAst: true } : permissions
   }
 
   // Kept in the project's cache directory so it survives a restart. A sandbox keeps them in memory,
@@ -421,8 +422,8 @@ class Agent extends RpcTarget implements AgentApi {
     })
 
     const output = await this.#generations.keep({ jobId, source: 'output', files, maxSetMb: this.#limits.maxMb })
-    // Only `readInput` reads it, which needs `allowRead`.
-    const inputBytes = await this.#generations.keepInput({ jobId, input: this.#permissions.allowRead ? files.input : null, maxSetMb: this.#limits.maxMb })
+    // Only `readInput` reads it, which needs `allowReadAst`.
+    const inputBytes = await this.#generations.keepInput({ jobId, input: this.#permissions.allowReadAst ? files.input : null, maxSetMb: this.#limits.maxMb })
     if (!output.paths.length && Object.keys(output.hashes).length) {
       await this.#warn({ message: 'Kept only the hashes of this generation: its output is too large to keep' })
     }
@@ -475,11 +476,11 @@ class Agent extends RpcTarget implements AgentApi {
   }
 
   /**
-   * Returns the Kubb AST a kept job parsed its spec into. Refused without `allowRead`.
+   * Returns the Kubb AST a kept job parsed its spec into. Refused without `allowReadAst`.
    */
   async readInput(input: ReadInputInput): Promise<ReadInputResult> {
     this.#assertConnected()
-    if (!this.#permissions.allowRead) return this.#refuse({ message: READ_NOT_ALLOWED_MESSAGE, permission: 'allowRead' })
+    if (!this.#permissions.allowReadAst) return this.#refuse({ message: READ_AST_NOT_ALLOWED_MESSAGE, permission: 'allowReadAst' })
     if (typeof input.jobId !== 'string' || !input.jobId) return this.#refuse({ message: 'The request must name a job' })
 
     const generation = await this.#generations.get(input.jobId)
@@ -605,7 +606,7 @@ export async function runAgent({ options, openRpc }: { options: ConnectAgentOpti
     studioUrl: options.studioUrl ?? defaultStudioUrl,
     root,
     configFile: path.resolve(root, options.configPath),
-    permissions: { allowWrite: false, allowConfigEdit: false, allowExec: false, allowRead: false, ...options.permissions },
+    permissions: { allowWrite: false, allowConfigEdit: false, allowExec: false, allowRead: false, allowReadAst: false, ...options.permissions },
     hooks: options.hooks ?? new Hookable<KubbHooks>(),
     maxRetryDelay: options.maxRetryDelay ?? MAX_RETRY_DELAY_MS,
     heartbeatInterval: Math.min(options.heartbeatInterval ?? HEARTBEAT_INTERVAL_MS, MAX_HEARTBEAT_INTERVAL_MS),

@@ -17,6 +17,7 @@ import {
   GENERATION_GONE_MESSAGE,
   MAX_PAGE_LINES,
   NO_INPUT_MESSAGE,
+  READ_AST_NOT_ALLOWED_MESSAGE,
   READ_NOT_ALLOWED_MESSAGE,
 } from './protocol.ts'
 import { projectConfig, root } from './testing.ts'
@@ -426,32 +427,32 @@ describe('readInput', () => {
   /** A project config whose adapter parses to `input`. */
   const withInput = async () => ({ ...projectConfig(), adapter: createMockedAdapter({ parse: async () => input }) })
 
-  it('refuses to read when the host did not grant allowRead, and names the permission for the host', async () => {
+  it('refuses to read when the host did not grant allowReadAst, and names the permission for the host', async () => {
     const { hooks, heard } = withHooks()
     const warn = heard('studio:warn')
     const { agent } = await connectStudio({ hooks })
 
-    await expect(agent.readInput({ jobId: 'job-1' })).rejects.toThrow(READ_NOT_ALLOWED_MESSAGE)
-    expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('not granted'), permission: 'allowRead' })
+    await expect(agent.readInput({ jobId: 'job-1' })).rejects.toThrow(READ_AST_NOT_ALLOWED_MESSAGE)
+    expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('not granted'), permission: 'allowReadAst' })
   })
 
   it('returns the AST the job parsed, also after the agent restarts, and refuses a job it does not keep', async () => {
-    const first = await connectStudio({ permissions: { allowRead: true }, loadConfig: withInput })
+    const first = await connectStudio({ permissions: { allowReadAst: true }, loadConfig: withInput })
     await run({ agent: first.agent, jobId: 'job-1' })
 
-    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+    const { agent } = await connectStudio({ permissions: { allowReadAst: true } })
 
     await expect(agent.readInput({ jobId: 'job-1' })).resolves.toStrictEqual({ input: JSON.parse(JSON.stringify(input)) })
     await expect(agent.readInput({ jobId: 'job-unknown' })).rejects.toThrow(GENERATION_GONE_MESSAGE)
   })
 
-  it('keeps no input for a run without allowRead, so a later grant finds none, not even an earlier run of the job', async () => {
-    const first = await connectStudio({ permissions: { allowRead: true }, loadConfig: withInput })
+  it('keeps no input for a run without allowReadAstAst, so a later grant finds none, not even an earlier run of the job', async () => {
+    const first = await connectStudio({ permissions: { allowReadAst: true }, loadConfig: withInput })
     await run({ agent: first.agent, jobId: 'job-1' })
     const rerun = await connectStudio({ loadConfig: withInput })
     await run({ agent: rerun.agent, jobId: 'job-1' })
 
-    const { agent } = await connectStudio({ permissions: { allowRead: true } })
+    const { agent } = await connectStudio({ permissions: { allowReadAst: true } })
 
     await expect(agent.readInput({ jobId: 'job-1' })).rejects.toThrow(NO_INPUT_MESSAGE)
   })

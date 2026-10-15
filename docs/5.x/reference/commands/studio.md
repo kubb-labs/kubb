@@ -14,7 +14,7 @@ navigation:
 
 # kubb studio
 
-Run `kubb studio` to connect a project to [Kubb Studio](https://kubb.studio). The CLI runs generation on your machine and sends progress and generated file paths to Studio. Grant `--allow-read` to view generated file contents and diffs in the browser.
+Run `kubb studio` to connect a project to [Kubb Studio](https://kubb.studio). The CLI runs generation on your machine and sends progress and generated file paths to Studio. Grant `--allow-read` to view generated file contents and diffs in the browser, and `--allow-read-ast` to share the parsed spec.
 
 ## Usage
 
@@ -54,7 +54,8 @@ The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, whic
 | ------------------------------------------ | --------------------- | ---------------------------------------------------------------------------------- |
 | `--config=<path>`, `-c <path>`             |                       | Path to a config file, such as `./kubb.staging.ts`.                                |
 | `--url=<url>`                               | `https://kubb.studio` | URL for Kubb Studio. Plain `http://` works only for `localhost`, `127.0.0.1`, or `[::1]`. |
-| `--allow-read`                             | `false`               | Let Studio read generated file contents and the parsed spec. Asked once per project when omitted. |
+| `--allow-read`                             | `false`               | Let Studio read generated file contents. Asked once per project when omitted. |
+| `--allow-read-ast`                         | `false`               | Let Studio read the parsed spec (the Kubb AST). Asked once per project when omitted. |
 | `--allow-write`                            | `false`               | Write generated files to disk. Asked once per project when omitted.                |
 | `--allow-config-edit`                      | `false`               | Let Studio change plugin options in `kubb.config.ts`. Asked once per project.      |
 | `--allow-exec`                             | `false`               | Run the formatter, the linter, and `output.postGenerate`. Asked once per project.  |
