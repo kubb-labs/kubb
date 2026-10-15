@@ -66,11 +66,11 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@kubb/core": "workspace:*",
     "@kubb/kit": "workspace:*"
   },
   "devDependencies": {
-    "@internals/utils": "workspace:*",
-    "@kubb/core": "workspace:*"
+    "@internals/utils": "workspace:*"
   },
   "engines": {
     "node": ">=22"

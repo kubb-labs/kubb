@@ -1,7 +1,8 @@
 import path from 'node:path'
 import { isPathInside } from '@internals/utils'
-import { defineExtension, Diagnostics } from '@kubb/kit'
-import type { ast, Config, NormalizedPlugin, Plugin, PluginFactory } from '@kubb/kit'
+import { defineExtension } from '@kubb/core'
+import { Diagnostics } from '@kubb/kit'
+import type { ast, Config, NormalizedPlugin, Plugin } from '@kubb/kit'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
 import type { BarrelType, PluginBarrelConfig } from './types.ts'
@@ -91,7 +92,7 @@ function getState(config: Config): BarrelState {
  * })
  * ```
  */
-export const pluginBarrel: PluginFactory = defineExtension({
+export const pluginBarrel = defineExtension({
   kind: 'plugin',
   meta: { name: pluginBarrelName, version, compatibility, issues: 'https://github.com/kubb-labs/kubb/issues' },
   enforce: 'post',
