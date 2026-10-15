@@ -95,13 +95,3 @@ See [Background connection](/docs/5.x/reference/commands/studio#background-conne
 
 > [!IMPORTANT]
 > Without a TTY the CLI skips the permission prompts, so pass the permission flags the run needs. In CI it does not pair either: set `KUBB_AGENT_TOKEN` to a paired agent's token. A CI API key works only with `kubb studio snapshot`.
-
-## Use a plugin from the registry
-
-Studio lists the plugins in the [Kubb registry](/docs/5.x/reference/registry), but it can only run the ones installed in your project. To enable one marked as not installed, install it from the project directory:
-
-```shell [Terminal]
-kubb add acme/plugin-graphql
-```
-
-Then reconnect, so the agent reports the new plugin. Stop `kubb studio` and run it again, or run `kubb studio stop` and `kubb studio start` for a background connection. Any installed plugin that ships a `kubb-extension.json` works, with or without a registry entry. See [Plugins in Studio](/docs/5.x/reference/commands/studio#plugins-in-studio).
