@@ -1,4 +1,5 @@
-import { ast, defineExtension } from '@kubb/kit'
+import { defineExtension } from '@kubb/core'
+import { ast } from '@kubb/kit'
 import type { AdapterSource } from '@kubb/kit'
 import { compatibility } from '../kubb-extension.json'
 import { version } from '../package.json'
