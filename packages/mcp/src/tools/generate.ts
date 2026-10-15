@@ -41,7 +41,7 @@ export const generateTool = defineTool(
     const failure = (title: string, diagnostics: ReadonlyArray<Diagnostic>) => {
       const serialized = diagnostics.map((diagnostic) => Diagnostics.serialize(diagnostic))
       const log = messages.length ? `\n\nMessages:\n${messages.join('\n')}` : ''
-      return tool.error(`${title}:\n${formatDiagnostics(serialized)}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\`${log}`)
+      return tool.error(`${title}:\n${formatDiagnostics(diagnostics)}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\`${log}`)
     }
 
     try {

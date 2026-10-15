@@ -20,8 +20,9 @@ export const validateTool = defineTool(
       await adapterOas().validate(input, { throwOnError: true })
       return tool.text(`Validation successful: ${input}`)
     } catch (err) {
-      const serialized = Diagnostics.serialize(Diagnostics.from(err))
-      return tool.error(`Validation failed:\n${formatDiagnostics([serialized])}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\``)
+      const diagnostic = Diagnostics.from(err)
+      const serialized = Diagnostics.serialize(diagnostic)
+      return tool.error(`Validation failed:\n${formatDiagnostics([diagnostic])}\n\n\`\`\`json\n${JSON.stringify(serialized, null, 2)}\n\`\`\``)
     }
   },
 )

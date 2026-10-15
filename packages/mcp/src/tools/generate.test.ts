@@ -78,7 +78,7 @@ export default [{
 
     expect(isError).toBe(true)
     expect(text).toContain(`Failed to load config ${configPath}`)
-    expect(text).toContain('[KUBB_UNKNOWN]: boom')
+    expect(text).toContain('error KUBB_UNKNOWN: boom')
     expect(text).toContain('"stack"')
   })
 })

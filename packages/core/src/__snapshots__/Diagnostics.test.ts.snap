@@ -1,0 +1,64 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Diagnostics.format > renders a coded problem with location and help for a human 1`] = `
+"✖ Could not find #/components/schemas/Owner                   KUBB_REF_NOT_FOUND
+  at   #/components/schemas/Pet/properties/owner
+  fix  Add the missing definition under components.schemas, or fix the $ref.
+  ↳ Learn more  kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found"
+`;
+
+exports[`Diagnostics.format > renders a coded problem with location and help for an agent 1`] = `
+"error KUBB_REF_NOT_FOUND [plugin-ts]: Could not find #/components/schemas/Owner
+  at: #/components/schemas/Pet/properties/owner
+  why: A \`$ref\` could not be resolved in the source document.
+  fix: Add the missing definition under components.schemas, or fix the $ref.
+  docs: https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found"
+`;
+
+exports[`Diagnostics.format > renders a plugin crash with a cause chain for a human 1`] = `
+"✖ While generating operation "listPets" (GET /pets): Cannot read name  KUBB_PLUGIN_FAILED
+  at   #/paths/~1pets/get
+  fix  Read the underlying error and check the plugin options and the schema or operation at the \`at:\` pointer. If the plugin crashed, report it to the plugin maintainers with the stack trace (in \`--reporter json\` output, or rerun with \`--verbose\`), at the \`report:\` link when one is shown.
+  caused by  TypeError: node.schema is undefined
+  report  https://github.com/acme/plugin-zod/issues
+  ↳ Learn more  kubb.dev/docs/5.x/reference/diagnostics#kubb-plugin-failed"
+`;
+
+exports[`Diagnostics.format > renders a plugin crash with a cause chain for an agent 1`] = `
+"error KUBB_PLUGIN_FAILED [plugin-zod]: While generating operation "listPets" (GET /pets): Cannot read name
+  at: #/paths/~1pets/get
+  why: A plugin threw while generating, or reported an error through \`ctx.error\`.
+  fix: Read the underlying error and check the plugin options and the schema or operation at the \`at:\` pointer. If the plugin crashed, report it to the plugin maintainers with the stack trace (in \`--reporter json\` output, or rerun with \`--verbose\`), at the \`report:\` link when one is shown.
+  caused by: TypeError: node.schema is undefined
+  stack:
+    at print (zod.ts:12:3)
+    at run (zod.ts:40:9)
+  docs: https://kubb.dev/docs/5.x/reference/diagnostics#kubb-plugin-failed
+  report: https://github.com/acme/plugin-zod/issues"
+`;
+
+exports[`Diagnostics.format > renders a warning for a human 1`] = `
+"⚠ Format "money" falls back to string                    KUBB_UNSUPPORTED_FORMAT
+  at   #/components/schemas/Order/properties/total"
+`;
+
+exports[`Diagnostics.format > renders a warning for an agent 1`] = `
+"warning KUBB_UNSUPPORTED_FORMAT [plugin-ts]: Format "money" falls back to string
+  at: #/components/schemas/Order/properties/total
+  why: A schema uses a \`format\` Kubb does not map to a specific type, so it falls back to the base type.
+  fix: Use a format Kubb supports, or handle the custom format with a parser or plugin.
+  docs: https://kubb.dev/docs/5.x/reference/diagnostics#kubb-unsupported-format"
+`;
+
+exports[`Diagnostics.format > renders an unknown error for a human 1`] = `
+"✖ boom                                                              KUBB_UNKNOWN
+  fix  Read the underlying message and stack. If it comes from a plugin or adapter, check its configuration; otherwise report it as a possible Kubb bug."
+`;
+
+exports[`Diagnostics.format > renders an unknown error for an agent 1`] = `
+"error KUBB_UNKNOWN: boom
+  why: An error was thrown without a stable Kubb code, so it is reported as-is.
+  fix: Read the underlying message and stack. If it comes from a plugin or adapter, check its configuration; otherwise report it as a possible Kubb bug.
+  stack:
+    at config (kubb.config.ts:3:9)"
+`;

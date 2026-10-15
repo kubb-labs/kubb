@@ -15,13 +15,28 @@ navigation:
 # Diagnostics
 
 When a build fails, Kubb prints a diagnostic with a stable code, the message, the location in your
-document, and a suggested fix. The CLI leads with the code and lists the details below it. The severity tints the `[CODE]` tag: red for `error`, yellow for `warning`, blue for `info`.
+document, and a suggested fix. In a terminal, problems are grouped by plugin, with the code on the right and a link to its entry below:
 
 ```text [Terminal]
-[KUBB_REF_NOT_FOUND]: Could not find a definition for #/components/schemas/Pet.
-  at: #/components/schemas/Pet
-  fix: Add the schema under components.schemas, or fix the $ref.
-  see: https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found
+ plugin-ts
+
+  ✖ Could not find #/components/schemas/Owner                    KUBB_REF_NOT_FOUND
+    at   #/components/schemas/Pet/properties/owner
+    fix  Add the missing definition under components.schemas, or fix the $ref.
+    ↳ Learn more  kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found
+```
+
+When an AI coding agent, CI, or a pipe reads the output, Kubb prints plain labeled rows instead, with the cause and fix from this page inline, so the output alone explains the problem. A crash adds `caused by:` and the first `stack:` frames:
+
+```text [Agent]
+error KUBB_REF_NOT_FOUND [plugin-ts]: Could not find #/components/schemas/Owner
+  at: #/components/schemas/Pet/properties/owner
+  why: A `$ref` could not be resolved in the source document.
+  fix: Add the missing definition under components.schemas, or fix the $ref.
+  docs: https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found
+
+Kubb failed: 1 error (plugin-ts). Exit code 1.
+Rerun with --reporter json for machine-readable diagnostics.
 ```
 
 ## Codes

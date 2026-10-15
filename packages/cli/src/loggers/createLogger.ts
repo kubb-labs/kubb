@@ -1,9 +1,9 @@
 import { relative } from 'node:path'
 import process from 'node:process'
 import { styleText } from 'node:util'
-import { formatMs, getElapsedMs, getErrorChain } from '@internals/utils'
+import { formatMs, getElapsedMs } from '@internals/utils'
 import type { Config } from '@kubb/core'
-import { Diagnostics, logLevel as logLevelMap } from '@kubb/core'
+import { type Diagnostic, type DiagnosticFormatOptions, Diagnostics, logLevel as logLevelMap, type ProblemDiagnostic } from '@kubb/core'
 import type { StudioConnectedContext } from '@kubb/studio'
 import { formatMsWithColor } from './banner.ts'
 import type { Logger, LoggerWriter, LogStatus, WriterProgress, WriterSpinner } from './defineLogger.ts'
@@ -39,36 +39,6 @@ function formatMessage(message: string, logLevel: number): string {
  */
 function formatVersions({ studio, kubb, agent }: StudioConnectedContext['versions']): string {
   return [`v${agent}`, kubb !== agent ? `runtime v${kubb}` : undefined, `Studio v${studio}`].filter(Boolean).join(', ')
-}
-
-/** The first three frames of a stack, without the message line. */
-function topFrames(stack: string): Array<string> {
-  return stack
-    .split('\n')
-    .slice(1, 4)
-    .map((frame) => frame.trim())
-}
-
-/** First stack frames for verbose error output, including an optional `cause` chain. */
-function formatErrorFrames(error: Error): { frames: Array<string>; cause?: { header: string; frames: Array<string> } } | null {
-  if (!error.stack) {
-    return null
-  }
-
-  const frames = topFrames(error.stack)
-  const caused = error.cause instanceof Error ? error.cause : undefined
-
-  if (!caused?.stack) {
-    return { frames }
-  }
-
-  return {
-    frames,
-    cause: {
-      header: `└─ caused by ${caused.message}`,
-      frames: topFrames(caused.stack),
-    },
-  }
 }
 
 type ProgressState = {
@@ -183,12 +153,19 @@ function trimBlankEdges(lines: ReadonlyArray<string>): Array<string> {
  *
  * @example
  * ```ts
- * export const plainLogger = createLogger(writer)
+ * export const plainLogger = createLogger(writer, { audience: 'agent' })
  * ```
  */
-export function createLogger(writer: LoggerWriter): Logger {
+export function createLogger(writer: LoggerWriter, { audience }: { audience: DiagnosticFormatOptions['audience'] }): Logger {
   return function install(context, { logLevel }) {
     const silent = logLevel <= logLevelMap.silent
+    const human = audience === 'human'
+    const formatOptions: DiagnosticFormatOptions = {
+      audience,
+      verbose: logLevel >= logLevelMap.verbose,
+      // The code lines up at the right edge, inside the two-column group indent.
+      width: Math.min(process.stdout.columns || 80, 100) - 2,
+    }
     const state = {
       ...createProgressCounters(),
       spinner: null as WriterSpinner | null,
@@ -204,6 +181,14 @@ export function createLogger(writer: LoggerWriter): Logger {
        * Whether this run keeps its files in memory, as a `kubb studio` run without `--allow-write` does.
        */
       inMemory: false,
+      /**
+       * Problems held back so the human view can print them grouped by plugin once the build ends.
+       */
+      problems: [] as Array<ProblemDiagnostic>,
+      /**
+       * The finished config's diagnostics and file count, for the closing summary.
+       */
+      outcome: null as { diagnostics: Array<Diagnostic>; filesCreated: number; hrStart: [number, number] } | null,
     }
 
     function text(message: string): string {
@@ -276,6 +261,17 @@ export function createLogger(writer: LoggerWriter): Logger {
       }
     }
 
+    /** `✖ Failed  1 error · 1 warning  in plugin-ts` once the build ended, or `✗ Generation failed` for a run that stopped early. */
+    function failedTitle(): string {
+      const diagnostics = state.outcome?.diagnostics ?? []
+      const counts = formatCounts(diagnostics)
+      if (!human || !counts) {
+        return '✗ Generation failed'
+      }
+      const plugins = Diagnostics.failedPlugins(diagnostics)
+      return `✖ Failed  ${counts}${plugins.length ? `  in ${plugins.join(', ')}` : ''}`
+    }
+
     // A run that throws before `kubb:generation:end` never reaches the summary, so the lifecycle
     // end calls this too rather than leave a group without its closing line.
     function closeGroup(status: LogStatus) {
@@ -286,7 +282,7 @@ export function createLogger(writer: LoggerWriter): Logger {
 
       stopSpinner()
       stopProgress()
-      writer.groupEnd(status === 'failed' ? styleText('red', '✗ Generation failed') : styleText('green', '✓ Generation succeeded'))
+      writer.groupEnd(status === 'failed' ? styleText('red', failedTitle()) : styleText('green', '✓ Generation succeeded'))
     }
 
     function reset() {
@@ -297,18 +293,35 @@ export function createLogger(writer: LoggerWriter): Logger {
       state.pluginLines = []
       state.phase = null
       state.groupOpen = false
+      state.problems = []
+      state.outcome = null
     }
 
-    function writeErrorFrames(error: Error) {
-      const frames = logLevel >= logLevelMap.verbose ? formatErrorFrames(error) : null
-      if (!frames) {
+    /**
+     * Prints problems grouped under their plugin's name, each with the code aligned at the right.
+     */
+    function writeProblems(problems: ReadonlyArray<ProblemDiagnostic>) {
+      if (!problems.length) {
+        return
+      }
+      if (!human) {
+        for (const problem of problems) writer.diagnostic(Diagnostics.formatLines(problem, formatOptions))
         return
       }
 
-      writer.block(frames.frames.map((frame) => text(styleText('dim', frame))))
-      if (frames.cause) {
-        writer.block([styleText('dim', frames.cause.header), ...frames.cause.frames.map((frame) => text(`    ${styleText('dim', frame)}`))])
-      }
+      const byPlugin = Map.groupBy(problems, (problem) => problem.plugin ?? '')
+      const lines = [...byPlugin].flatMap(([plugin, group]) => [
+        ...(plugin ? [` ${styleText('bold', plugin)}`, ''] : []),
+        ...group.flatMap((problem) => [...Diagnostics.formatLines(problem, formatOptions).map((line) => `  ${line}`), '']),
+      ])
+      writer.diagnostic(lines.slice(0, -1))
+    }
+
+    /** The run's verdict: `1 error · 1 warning` for a human, `1 error, 1 warning` for an agent. */
+    function formatCounts(diagnostics: ReadonlyArray<Diagnostic>): string {
+      const { errors, warnings } = Diagnostics.count(diagnostics)
+      const parts = [errors && pluralize(errors, 'error'), warnings && pluralize(warnings, 'warning')].filter(Boolean)
+      return parts.join(human ? ' · ' : ', ')
     }
 
     function formatLine(symbol: string, message: string, info?: string): string {
@@ -329,23 +342,28 @@ export function createLogger(writer: LoggerWriter): Logger {
         state.phase.failed = true
       }
 
-      // The name tells a `TypeError` from a plain `Error`. The writer draws the error symbol, so the message goes in bare.
-      const message = error.name === 'Error' ? error.message : `${error.name}: ${error.message}`
+      // Rendered as a `KUBB_UNKNOWN` diagnostic, so the output alone says what broke and where. The
+      // name tells a `TypeError` from a plain `Error`.
+      const message = error.name === 'Error' || Diagnostics.isError(error) ? error.message : `${error.name}: ${error.message}`
+      const help = Diagnostics.isError(error) ? error.diagnostic.help : undefined
+      const { headline, details } = Diagnostics.format({ code: Diagnostics.code.unknown, severity: 'error', message, help, cause: error }, formatOptions)
+
+      if (!human) {
+        stopSpinner()
+        stopProgress()
+        writer.diagnostic([headline, ...details])
+        return
+      }
+
+      // The writer draws the error symbol, so the message goes in bare.
       if (state.spinner) {
         stopSpinner(message, 'failed')
       } else {
         writer.error(text(message))
       }
-
-      // The detail rows of a `KUBB_UNKNOWN` diagnostic (the fix and every `caused by:`), plus where the
-      // root error was thrown, so the output alone says what broke and where.
-      const help = Diagnostics.isError(error) ? error.diagnostic.help : undefined
-      const { details } = Diagnostics.format({ code: Diagnostics.code.unknown, severity: 'error', message: error.message, help, cause: error })
-      const root = getErrorChain(error).at(-1) ?? error
-      const frame = logLevel < logLevelMap.verbose && root.stack ? topFrames(root.stack)[0] : undefined
-      writer.block([...details, ...(frame ? [`  ${styleText('dim', frame)}`] : [])].map(text))
-
-      writeErrorFrames(error)
+      if (details.length) {
+        writer.block(details.map(text))
+      }
     })
 
     context.hook('kubb:diagnostic', ({ diagnostic }) => {
@@ -365,12 +383,12 @@ export function createLogger(writer: LoggerWriter): Logger {
         return
       }
 
-      const { headline, details } = Diagnostics.format(diagnostic)
-      writer.diagnostic([headline, ...details])
-      // The stack of a crash is what its maintainers need in a bug report.
-      if (Diagnostics.isProblem(diagnostic) && diagnostic.cause) {
-        writeErrorFrames(diagnostic.cause)
+      // Inside a build, the human view waits for the end to group by plugin.
+      if (human && state.groupOpen) {
+        state.problems.push(diagnostic)
+        return
       }
+      writeProblems([diagnostic])
     })
 
     // A `kubb studio` session emits these on the same emitter as its generations, so one logger
@@ -481,12 +499,15 @@ export function createLogger(writer: LoggerWriter): Logger {
       writeOutput(active.lines)
     })
 
-    context.hook('kubb:generation:end', () => {
+    context.hook('kubb:generation:end', ({ diagnostics = [], filesCreated = 0, hrStart = process.hrtime() }) => {
       stopSpinner()
       stopProgress()
+      state.outcome = { diagnostics, filesCreated, hrStart }
+      writeProblems(state.problems.splice(0))
     })
 
     context.hook('kubb:lifecycle:end', () => {
+      writeProblems(state.problems.splice(0))
       closeGroup('failed')
       reset()
     })
@@ -610,7 +631,25 @@ export function createLogger(writer: LoggerWriter): Logger {
         }
 
         closeGroup(status)
-        writer.diagnostic([...lines])
+        if (human) {
+          writer.diagnostic([...lines])
+          return
+        }
+
+        // An agent gets one verdict line instead of the aligned table, and on failure where to get more.
+        const { diagnostics = [], filesCreated = 0, hrStart = process.hrtime() } = state.outcome ?? {}
+        if (status === 'failed') {
+          const plugins = Diagnostics.failedPlugins(diagnostics)
+          writer.diagnostic([
+            `Kubb failed: ${formatCounts(diagnostics) || 'an error'}${plugins.length ? ` (${plugins.join(', ')})` : ''}. Exit code 1.`,
+            'Rerun with --reporter json for machine-readable diagnostics.',
+          ])
+          return
+        }
+        const warnings = formatCounts(diagnostics)
+        writer.diagnostic([
+          `Kubb succeeded: ${pluralize(filesCreated, 'file')} generated in ${formatMs(getElapsedMs(hrStart))}${warnings ? `, ${warnings}` : ''}.`,
+        ])
       },
     }
   }

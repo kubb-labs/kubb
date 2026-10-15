@@ -23,6 +23,8 @@ const QUIET_FLAGS = new Set<string>(['--help', '-h', '--version', '-v', '--json'
 export async function run(argv: Array<string> = process.argv.slice(2)): Promise<void> {
   const args = routeStudioFlags(resolveDeprecatedFlags(argv))
   const isQuietFlag = args.some((arg) => QUIET_FLAGS.has(arg))
+  // `--reporter json` owns stdout, so gunshi's header line must not land there.
+  const isJsonReporter = args.some((arg, index) => /^--reporter=.*\bjson\b/.test(arg) || (arg === '--reporter' && /\bjson\b/.test(args[index + 1] ?? '')))
 
   // stderr, so the notice never lands in a stream a client parses, such as `kubb mcp` stdio.
   if (!isTelemetryDisabled() && !isQuietFlag) {
@@ -49,6 +51,7 @@ export async function run(argv: Array<string> = process.argv.slice(2)): Promise<
       list: listCommand,
     },
     fallbackToEntry: true,
+    ...(isJsonReporter ? { renderHeader: null } : {}),
     strict: true,
     plugins: [dryrun({ name: 'dry-run' })],
     onErrorCommand: async (_ctx, error) => {

@@ -83,7 +83,7 @@ describe('bootstrap configuration group', () => {
 
     const lines = await bootstrap({ fail: new Error('Config failed loading', { cause }) })
 
-    expect(lines.some((line) => line.includes('[KUBB_INVALID_PLUGIN_OPTIONS]') && line.includes('neither `meta.name` nor `name`'))).toBe(true)
+    expect(lines.some((line) => line.includes('error KUBB_INVALID_PLUGIN_OPTIONS') && line.includes('neither `meta.name` nor `name`'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })
 
@@ -163,8 +163,9 @@ describe('output passes', () => {
     const lines = await bootstrap({ configs: [withPostGenerate([{ name: 'types', command: `"${node}" -e "process.exit(1)"` }])] })
 
     expect(lines.some((line) => line.startsWith('✗ types failed (Hook execute failed: '))).toBe(true)
-    expect(lines.some((line) => line.startsWith('[KUBB_POST_GENERATE_FAILED]: Post-generate command failed: '))).toBe(true)
+    expect(lines.some((line) => line.startsWith('error KUBB_POST_GENERATE_FAILED: Post-generate command failed: '))).toBe(true)
     expect(lines).toContain('✗ Generation failed')
+    expect(lines.some((line) => line.startsWith('Kubb failed: 1 error. Exit code 1.'))).toBe(true)
     expect(lines.at(-1)).toBe('exit 1')
   })
 })

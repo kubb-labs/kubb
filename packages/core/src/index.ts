@@ -42,6 +42,7 @@ export type { Adapter, AdapterDefinition, AdapterFactory, AdapterFactoryOptions,
 export type {
   Diagnostic,
   DiagnosticDoc,
+  DiagnosticFormatOptions,
   DiagnosticKind,
   DiagnosticLocation,
   DiagnosticSeverity,

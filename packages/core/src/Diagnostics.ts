@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
-import { styleText } from 'node:util'
+import { stripVTControlCharacters, styleText } from 'node:util'
 import { getErrorChain, getErrorMessage, toError } from '@internals/utils'
 import { version } from '../package.json'
 import { type DiagnosticCode, diagnosticCode } from './constants.ts'
@@ -201,19 +201,13 @@ const isPerformance = isKind<PerformanceDiagnostic>('performance')
  */
 const isUpdate = isKind<UpdateDiagnostic>('update')
 
-/**
- * The fix to show for a problem: its own `help`, or the catalog fix when it has none. `info`
- * diagnostics get no fallback, since their catalog fix only says no action is needed.
- */
+/** A problem's `help`, or the catalog fix. `info` gets none: its catalog fix says no action is needed. */
 function getHelp(problem: ProblemDiagnostic): string | undefined {
   if (problem.help || problem.severity === 'info') return problem.help
   return diagnosticCatalog[problem.code].fix
 }
 
-/**
- * Messages of the errors in a problem's `cause` chain, outermost first, skipping any the
- * diagnostic message already contains.
- */
+/** The `cause` chain's messages, outermost first, minus those `message` already contains. */
 function getCauses(problem: ProblemDiagnostic): Array<string> {
   return getErrorChain(problem.cause)
     .filter((error) => !problem.message.includes(error.message))
@@ -230,16 +224,40 @@ const severityStyle: Record<DiagnosticSeverity, 'red' | 'yellow' | 'blue'> = {
   info: 'blue',
 }
 
+const severityIcon: Record<DiagnosticSeverity, string> = {
+  error: '✖',
+  warning: '⚠',
+  info: 'ℹ',
+}
+
+/**
+ * How {@link Diagnostics.format} renders a diagnostic.
+ */
+export type DiagnosticFormatOptions = {
+  /**
+   * `agent` spells out every detail on labeled rows; `human` keeps it short and links to the docs.
+   * @default 'agent'
+   */
+  audience?: 'agent' | 'human'
+  /**
+   * Show the root cause's full stack.
+   * @default false
+   */
+  verbose?: boolean
+  /**
+   * Columns the `human` headline fills, so the code lines up at the right edge.
+   * @default 0
+   */
+  width?: number
+}
+
 const failedCode = {
   plugin: diagnosticCode.pluginFailed,
   adapter: diagnosticCode.adapterFailed,
   parser: diagnosticCode.parserFailed,
 } as const satisfies Record<ExtensionKind, ProblemCode>
 
-/**
- * Codes for a crash rather than a known problem. Their serialized form carries the root cause's
- * stack, the one place a maintainer can find where it broke.
- */
+/** Codes for a crash, which carry the root cause's stack. */
 const crashCodes: ReadonlySet<DiagnosticCode> = new Set([diagnosticCode.unknown, diagnosticCode.internalError, ...Object.values(failedCode)])
 
 const countKey = { error: 'errors', warning: 'warnings', info: 'infos' } as const satisfies Record<DiagnosticSeverity, string>
@@ -253,28 +271,18 @@ export type SerializedDiagnostic = {
   code: DiagnosticCode
   severity: DiagnosticSeverity
   message: string
-  /**
-   * The catalog title for the code, for a problem.
-   */
+  /** Catalog title. */
   title?: string
-  /**
-   * What triggers the code, from the catalog, for a problem.
-   */
+  /** Catalog cause. */
   cause?: string
   location?: DiagnosticLocation
-  /**
-   * The suggested fix: the diagnostic's own `help`, or the catalog fix when it has none.
-   */
+  /** The diagnostic's `help`, or the catalog fix. */
   help?: string
   plugin?: string
   issues?: string
-  /**
-   * Messages of the underlying errors, outermost first, without the ones `message` already repeats.
-   */
+  /** Messages of the underlying errors, outermost first. */
   causes?: Array<string>
-  /**
-   * Stack of the deepest underlying error, only for a crash (`KUBB_UNKNOWN` and the `*_FAILED` extension codes).
-   */
+  /** Root cause's stack, for `KUBB_UNKNOWN`, `KUBB_INTERNAL_ERROR`, and `*_FAILED` codes. */
   stack?: string
   /**
    * The kubb.dev docs link for the code, omitted for the unknown fallback.
@@ -561,18 +569,8 @@ export class Diagnostics {
   }
 
   /**
-   * Emits a thrown value on the run's hooks. A coded error goes through {@link Diagnostics.emit};
-   * anything else goes out as `kubb:error` whole, so the message of every wrapper in its cause
-   * chain survives.
-   *
-   * @example
-   * ```ts
-   * try {
-   *   await loadConfig()
-   * } catch (error) {
-   *   await Diagnostics.emitError(hooks, error)
-   * }
-   * ```
+   * Emits a thrown value: a coded error through {@link Diagnostics.emit}, anything else whole as
+   * `kubb:error`, so every wrapper's message survives.
    */
   static async emitError(hooks: Hookable<KubbHooks>, error: unknown): Promise<void> {
     const diagnostic = Diagnostics.from(error)
@@ -623,7 +621,6 @@ export class Diagnostics {
     const owner = kind === 'plugin' ? { plugin: diagnostic.plugin ?? name } : {}
     // An abort is the user canceling the run, not a crash.
     const crashed = diagnostic.code === diagnosticCode.unknown && diagnostic.cause?.name !== 'AbortError'
-    // A `*_FAILED` code thrown on purpose is a crash the extension reports itself, so it gets the link too.
     const failed = Object.values<DiagnosticCode>(failedCode).includes(diagnostic.code)
     if (!crashed && !failed) {
       return { ...diagnostic, ...owner }
@@ -738,10 +735,8 @@ export class Diagnostics {
 
   /**
    * Reduces a diagnostic to its JSON-safe fields plus a `docsUrl`, for machine-readable
-   * consumers. A problem gains its catalog `title` and `cause`, falls back to the catalog fix
-   * when it has no `help`, and turns its `cause` error into `causes` (and `stack` for a crash).
-   * The `kind` and `duration` are dropped, and absent optional fields are omitted rather than
-   * set to `undefined`.
+   * consumers, with the catalog `title`, `cause`, and fix, and the `cause` error as `causes` and
+   * `stack`. Absent optional fields are omitted.
    */
   static serialize(diagnostic: Diagnostic): SerializedDiagnostic {
     const problem = isProblem(diagnostic) ? diagnostic : undefined
@@ -765,38 +760,69 @@ export class Diagnostics {
   }
 
   /**
-   * Renders a {@link Diagnostic} for terminal output as its parts: the `headline`
-   * (`[CODE] plugin: message`, with the code in the severity color) and the indented `details`
-   * rows (`at:` pointer, `fix:` help or the catalog fix, `caused by:` per underlying error, `see:`
-   * docs link, `report:` issue tracker).
-   *
-   * Hosts compose these to fit their gutter: a clack logger passes `[headline, ...details]` as the
-   * message with no gutter symbol, while plain text outputs use {@link Diagnostics.formatLines}.
+   * Renders a {@link Diagnostic} as a `headline` and indented `details` rows. `agent` (the default)
+   * prints uncolored labeled rows (`at:`, `why:`, `fix:`, `caused by:`, `stack:` for a crash,
+   * `docs:`, `report:`). `human` prints an icon, the bold message, and the code aligned to `width`,
+   * with `at`, `fix`, the first cause, and `Learn more` for an error, and one row for a warning.
+   * `verbose` adds the full stack.
    */
-  static format(diagnostic: Diagnostic): { headline: string; details: Array<string> } {
+  static format(
+    diagnostic: Diagnostic,
+    { audience = 'agent', verbose = false, width = 0 }: DiagnosticFormatOptions = {},
+  ): { headline: string; details: Array<string> } {
     const { code, severity, message } = diagnostic
-    const color = severityStyle[severity]
     const problem = isProblem(diagnostic) ? diagnostic : undefined
+    const human = audience === 'human'
+    const paint: typeof styleText = human ? styleText : (_format, text) => text
 
-    const tag = styleText(color, styleText('bold', `[${code}]`))
-    const headline = problem?.plugin ? `${tag} ${problem.plugin}: ${message}` : `${tag}: ${message}`
-
-    const details: Array<string> = []
-    if (problem?.location && 'pointer' in problem.location) {
-      details.push(`  ${styleText('dim', 'at:')} ${styleText('cyan', problem.location.pointer)}`)
-    }
+    const pointer = problem?.location && 'pointer' in problem.location ? problem.location.pointer : undefined
     const help = problem ? getHelp(problem) : undefined
-    if (help) {
-      details.push(`  ${styleText('cyan', 'fix:')} ${help}`)
+    const causes = problem ? getCauses(problem) : []
+    const crash = problem ? crashCodes.has(problem.code) : false
+    const stack = problem && (verbose || (!human && crash)) ? getErrorChain(problem.cause).at(-1)?.stack : undefined
+    const frames = stack
+      ?.split('\n')
+      .slice(1, verbose ? undefined : 4)
+      .map((frame) => `    ${paint('dim', frame.trim())}`)
+
+    if (!human) {
+      const details: Array<string> = []
+      const row = (label: string, value: string | undefined) => {
+        if (value) details.push(`  ${label}: ${value}`)
+      }
+      row('at', pointer)
+      if (problem && severity !== 'info') row('why', diagnosticCatalog[problem.code].cause)
+      row('fix', help)
+      for (const cause of causes) row('caused by', cause)
+      if (frames?.length) details.push('  stack:', ...frames)
+      if (code !== diagnosticCode.unknown) row('docs', Diagnostics.docsUrl(code))
+      row('report', problem?.issues)
+
+      return { headline: `${severity} ${code}${problem?.plugin ? ` [${problem.plugin}]` : ''}: ${message}`, details }
     }
-    for (const cause of problem ? getCauses(problem) : []) {
-      details.push(`  ${styleText('dim', 'caused by:')} ${cause}`)
+
+    // A multi-line message, such as a YAML code frame, keeps the code on the first line.
+    const [firstLine = '', ...rest] = message.split('\n')
+    const left = `${paint(severityStyle[severity], severityIcon[severity])} ${paint('bold', firstLine)}`
+    const gap = Math.max(2, width - stripVTControlCharacters(left).length - code.length)
+    const headline = `${left}${' '.repeat(gap)}${paint('dim', code)}`
+
+    const frame = rest.filter((line) => line.trim()).map((line) => `  ${paint('dim', line)}`)
+    const label = (name: string) => paint('dim', name.length < 4 ? name.padEnd(4) : `${name} `)
+    const rows: Array<[label: string, value: string | undefined]> = [
+      ['at', pointer && paint('cyan', pointer)],
+      ['fix', help],
+    ]
+    if (severity !== 'error') {
+      const first = rows.find(([, value]) => value)
+      return { headline, details: [...frame, ...(first ? [`  ${label(first[0])} ${first[1]}`] : [])] }
     }
+    rows.push(['caused by', causes[0]], ['report', problem?.issues && paint('cyan', problem.issues)])
+
+    const details = [...frame, ...rows.flatMap(([name, value]) => (value ? [`  ${label(name)} ${value}`] : []))]
+    if (frames?.length) details.push(`  ${paint('dim', 'stack')}`, ...frames)
     if (code !== diagnosticCode.unknown) {
-      details.push(`  ${styleText('dim', 'see:')} ${styleText('cyan', Diagnostics.docsUrl(code))}`)
-    }
-    if (problem?.issues) {
-      details.push(`  ${styleText('dim', 'report:')} ${styleText('cyan', problem.issues)}`)
+      details.push(`  ${paint('dim', '↳ Learn more')}  ${paint('cyan', Diagnostics.docsUrl(code).replace(/^https:\/\//, ''))}`)
     }
 
     return { headline, details }
@@ -804,10 +830,10 @@ export class Diagnostics {
 
   /**
    * The self-contained block form of {@link Diagnostics.format}: the `headline` followed by the
-   * indented detail rows. Used where there is no gutter (plain and file output).
+   * indented detail rows. Used where there is no gutter (plain and file output, the MCP tools).
    */
-  static formatLines(diagnostic: Diagnostic): Array<string> {
-    const { headline, details } = Diagnostics.format(diagnostic)
+  static formatLines(diagnostic: Diagnostic, options?: DiagnosticFormatOptions): Array<string> {
+    const { headline, details } = Diagnostics.format(diagnostic, options)
     return [headline, ...details]
   }
 }

@@ -45,4 +45,4 @@ export const clackWriter: LoggerWriter = {
 /**
  * TTY logger for local development, with animated steps and progress bars.
  */
-export const clackLogger: Logger = createLogger(clackWriter)
+export const clackLogger: Logger = createLogger(clackWriter, { audience: 'human' })

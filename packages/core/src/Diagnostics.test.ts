@@ -1,5 +1,6 @@
+import { stripVTControlCharacters } from 'node:util'
 import { describe, expect, it } from 'vitest'
-import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
+import { type Diagnostic, type DiagnosticFormatOptions, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 
 const problem = (over: Partial<ProblemDiagnostic> = {}): ProblemDiagnostic => ({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', ...over })
 
@@ -181,31 +182,68 @@ describe('Diagnostics.count', () => {
 
 // styleText respects NO_COLOR/non-TTY, so assert on the plain text the parts contain.
 describe('Diagnostics.format', () => {
-  it('splits a diagnostic into a headline and tree details', () => {
-    const { headline, details } = Diagnostics.format({
-      code: 'KUBB_PLUGIN_FAILED',
-      severity: 'error',
-      message: 'boom',
-      help: 'fix the ref',
-      plugin: '@kubb/plugin-zod',
-      issues: 'https://github.com/acme/plugin/issues',
-      location: { kind: 'schema', pointer: '#/components/schemas/Pet' },
-    })
+  /** An error with a fixed stack, so the snapshots do not depend on where the test runs. */
+  const withStack = (error: Error, frames: Array<string>) =>
+    Object.assign(error, { stack: [`${error.name}: ${error.message}`, ...frames.map((frame) => `    at ${frame}`)].join('\n') })
 
-    expect(headline).toContain('[KUBB_PLUGIN_FAILED] @kubb/plugin-zod:')
-    expect(headline).toContain('boom')
-    expect(details.some((line) => line.includes('at: #/components/schemas/Pet'))).toBe(true)
-    expect(details.some((line) => line.includes('fix: fix the ref'))).toBe(true)
-    expect(details.some((line) => line.includes('report: https://github.com/acme/plugin/issues'))).toBe(true)
-    expect(details.some((line) => line.includes('see: https://kubb.dev'))).toBe(true)
-    expect(Diagnostics.format({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom' }).details.some((line) => line.includes('see:'))).toBe(false)
+  const cases: Array<[string, Diagnostic]> = [
+    [
+      'a coded problem with location and help',
+      {
+        code: 'KUBB_REF_NOT_FOUND',
+        severity: 'error',
+        message: 'Could not find #/components/schemas/Owner',
+        plugin: 'plugin-ts',
+        location: { kind: 'schema', pointer: '#/components/schemas/Pet/properties/owner' },
+        help: 'Add the missing definition under components.schemas, or fix the $ref.',
+      },
+    ],
+    [
+      'a plugin crash with a cause chain',
+      {
+        code: 'KUBB_PLUGIN_FAILED',
+        severity: 'error',
+        message: 'While generating operation "listPets" (GET /pets): Cannot read name',
+        plugin: 'plugin-zod',
+        location: { kind: 'operation', pointer: '#/paths/~1pets/get' },
+        issues: 'https://github.com/acme/plugin-zod/issues',
+        cause: new Error('Cannot read name', { cause: withStack(new TypeError('node.schema is undefined'), ['print (zod.ts:12:3)', 'run (zod.ts:40:9)']) }),
+      },
+    ],
+    ['an unknown error', { code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom', cause: withStack(new Error('boom'), ['config (kubb.config.ts:3:9)']) }],
+    [
+      'a warning',
+      {
+        code: 'KUBB_UNSUPPORTED_FORMAT',
+        severity: 'warning',
+        message: 'Format "money" falls back to string',
+        plugin: 'plugin-ts',
+        location: { kind: 'schema', pointer: '#/components/schemas/Order/properties/total' },
+      },
+    ],
+  ]
+
+  const render = (diagnostic: Diagnostic, options: DiagnosticFormatOptions) => stripVTControlCharacters(Diagnostics.formatLines(diagnostic, options).join('\n'))
+
+  it.each(cases)('renders %s for an agent', (_label, diagnostic) => {
+    expect(render(diagnostic, { audience: 'agent' })).toMatchSnapshot()
   })
 
-  it('falls back to the catalog fix and lists each underlying error', () => {
-    const { details } = Diagnostics.format(problem({ cause: new Error('outer', { cause: new Error('inner') }) }))
+  it.each(cases)('renders %s for a human', (_label, diagnostic) => {
+    expect(render(diagnostic, { audience: 'human', width: 80 })).toMatchSnapshot()
+  })
 
-    expect(details.some((line) => line.includes(`fix: ${Diagnostics.explain('KUBB_REF_NOT_FOUND').fix}`))).toBe(true)
-    expect(details.filter((line) => line.includes('caused by:')).map((line) => line.split('caused by: ')[1])).toStrictEqual(['outer', 'inner'])
+  it('shows the full stack to a human only when verbose', () => {
+    const [, crash] = cases[1]!
+
+    expect(render(crash, { audience: 'human', width: 80 })).not.toContain('at run (zod.ts:40:9)')
+    expect(render(crash, { audience: 'human', width: 80, verbose: true })).toContain('at run (zod.ts:40:9)')
+  })
+
+  it('keeps an agent block free of escape codes even when color is on', () => {
+    const [, coded] = cases[0]!
+
+    expect(Diagnostics.formatLines(coded).join('\n')).toBe(render(coded, { audience: 'agent' }))
   })
 })
 

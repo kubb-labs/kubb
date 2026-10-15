@@ -1,5 +1,6 @@
+import { stripVTControlCharacters } from 'node:util'
 import type { FileNode } from '@kubb/ast'
-import { Hookable, cliReporter, type Config, type KubbHooks, logLevel, type NormalizedPlugin, type Storage } from '@kubb/core'
+import { Hookable, cliReporter, type Config, type KubbHooks, logLevel, type NormalizedPlugin, type ProblemDiagnostic, type Storage } from '@kubb/core'
 import { describe, expect, it, vi } from 'vitest'
 import * as env from '../utils/env.ts'
 import setupReporters from './reporters.ts'
@@ -237,7 +238,7 @@ describe('grouped generation output', () => {
     }
 
     const lines = await render(failDuringStep, { rich: false })
-    expect(lines).toContain('✗ No client plugin is registered.')
+    expect(lines.some((line) => line.startsWith('error KUBB_UNKNOWN: No client plugin is registered.'))).toBe(true)
     expect(lines.some((line) => line.includes('✗ ✗'))).toBe(false)
 
     expect(await render(failDuringStep, { rich: true })).toContain('spinner.error:No client plugin is registered.')
@@ -276,6 +277,7 @@ describe('plain generation output', () => {
  * drifting apart again.
  */
 describe('both loggers', () => {
+  // Only the closing summary differs: an agent gets one verdict line instead of the human table.
   it('report the same run, in the same order', async () => {
     const emit = () => generation({ config: makeConfig('petstore'), hookLines: ['tsc: no errors'] })
 
@@ -292,9 +294,65 @@ describe('both loggers', () => {
             .replace(/^[◇✓✗]\s*/, '')
             .trim(),
         )
-        .filter(Boolean)
+        .filter((line) => line && !/^(Kubb succeeded|Plugins {2}|Files {2}|Duration|Output {2})/.test(line))
         .sort()
 
     expect(messages(plain)).toStrictEqual(messages(rich))
+  })
+})
+
+describe('diagnostics per audience', () => {
+  const problems: Array<ProblemDiagnostic> = [
+    {
+      code: 'KUBB_REF_NOT_FOUND',
+      severity: 'error',
+      message: 'Could not find #/components/schemas/Owner',
+      plugin: 'plugin-ts',
+      location: { kind: 'schema', pointer: '#/components/schemas/Pet/properties/owner' },
+    },
+    { code: 'KUBB_UNSUPPORTED_FORMAT', severity: 'warning', message: 'Format "money" falls back to string', plugin: 'plugin-ts' },
+  ]
+
+  const failedRun: Emit = async (context) => {
+    const config = makeConfig('petstore')
+    await context.callHook('kubb:generation:start', { config })
+    for (const diagnostic of problems) await context.callHook('kubb:diagnostic', { diagnostic })
+    await context.callHook('kubb:generation:end', {
+      config,
+      storage: {} as Storage,
+      diagnostics: problems,
+      filesCreated: 0,
+      status: 'failed',
+      hrStart: process.hrtime(),
+    })
+  }
+
+  it('groups problems under their plugin for a human and closes on the counts', async () => {
+    const calls = await render(failedRun, { rich: true })
+    const block = stripVTControlCharacters(calls.find((call) => call.includes('plugin-ts')) ?? '')
+
+    expect(block.split('\n').slice(0, 4)).toStrictEqual([
+      'log.message.bare: plugin-ts',
+      '',
+      expect.stringMatching(/^ {2}✖ Could not find #\/components\/schemas\/Owner +KUBB_REF_NOT_FOUND$/),
+      '    at   #/components/schemas/Pet/properties/owner',
+    ])
+    expect(block).toMatch(/⚠ Format "money" falls back to string +KUBB_UNSUPPORTED_FORMAT/)
+    expect(calls.map((call) => stripVTControlCharacters(call))).toContain('outro:✖ Failed  1 error · 1 warning  in plugin-ts')
+  })
+
+  it('writes labeled rows and one verdict line for an agent', async () => {
+    const lines = await render(failedRun, { rich: false })
+
+    expect(lines).toContain(
+      [
+        'error KUBB_REF_NOT_FOUND [plugin-ts]: Could not find #/components/schemas/Owner',
+        '  at: #/components/schemas/Pet/properties/owner',
+        '  why: A `$ref` could not be resolved in the source document.',
+        '  fix: Add the missing definition (for example under `components.schemas`) or fix the `$ref`. Run `kubb validate` to check the spec.',
+        '  docs: https://kubb.dev/docs/5.x/reference/diagnostics#kubb-ref-not-found',
+      ].join('\n'),
+    )
+    expect(lines.at(-1)).toBe('Kubb failed: 1 error, 1 warning (plugin-ts). Exit code 1.\nRerun with --reporter json for machine-readable diagnostics.')
   })
 })

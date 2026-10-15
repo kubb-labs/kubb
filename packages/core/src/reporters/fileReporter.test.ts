@@ -53,7 +53,7 @@ describe('fileReporter', () => {
     expect(written).toContain(' Plugins  2 passed (2)')
     expect(written).toContain('   Files  1 generated')
     expect(written).toContain('## Problems')
-    expect(written).toContain('[KUBB_DEPRECATED]: This schema is marked as deprecated.')
+    expect(written).toContain('info KUBB_DEPRECATED: This schema is marked as deprecated.')
     expect(written).toContain('at: #/components/schemas/Tag')
     expect(written).not.toContain('Issues')
     expect(written).toContain(' Timings')
