@@ -275,6 +275,12 @@ export type IntersectionSchemaNode = CompositeSchemaNodeBase & {
   type: 'intersection'
 }
 
+/** Negation from `not`: the value must not match its single member. Printers that cannot express it return `null`. */
+export type NotSchemaNode = CompositeSchemaNodeBase & {
+  /** Schema type discriminator. */
+  type: 'not'
+}
+
 /**
  * One named enum item.
  */
@@ -569,6 +575,7 @@ export type SchemaNodeByType = {
   tuple: ArraySchemaNode
   union: UnionSchemaNode
   intersection: IntersectionSchemaNode
+  not: NotSchemaNode
   enum: EnumSchemaNode
   ref: RefSchemaNode
   datetime: DatetimeSchemaNode
@@ -600,6 +607,7 @@ export type SchemaNode =
   | ArraySchemaNode
   | UnionSchemaNode
   | IntersectionSchemaNode
+  | NotSchemaNode
   | EnumSchemaNode
   | RefSchemaNode
   | DatetimeSchemaNode
@@ -618,7 +626,7 @@ type CreateSchemaOutput<T extends CreateSchemaInput> = SchemaNodeByType[T['type'
 /**
  * Maps schema `type` to its underlying `primitive`.
  * Primitive types map to themselves and special string formats map to `'string'`.
- * Any type not listed here (such as `ref`, `enum`, `union`, `intersection`, `tuple`, `ipv4`, `ipv6`, `blob`) has no `primitive`.
+ * Any type not listed here (such as `ref`, `enum`, `union`, `intersection`, `not`, `tuple`, `ipv4`, `ipv6`, `blob`) has no `primitive`.
  */
 const TYPE_TO_PRIMITIVE: Partial<Record<SchemaNode['type'], PrimitiveSchemaType>> = {
   string: 'string',

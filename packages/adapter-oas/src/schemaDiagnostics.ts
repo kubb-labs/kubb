@@ -69,7 +69,7 @@ function visit(node: ast.SchemaNode, pointer: string): void {
     return
   }
 
-  if (node.type === 'union' || node.type === 'intersection') {
+  if (node.type === 'union' || node.type === 'intersection' || node.type === 'not') {
     for (const [index, member] of (node.members ?? []).entries()) {
       visit(member, `${pointer}/members/${index}`)
     }

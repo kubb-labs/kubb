@@ -2139,11 +2139,44 @@ describe('parser options', () => {
 })
 
 describe('parseSchema not keyword', () => {
-  // JSON Schema `not` has no direct equivalent in most code generators.
-  // The parser intentionally does not handle it and falls through to the configured emptySchemaType.
-  // Cast required: `not` is valid JSON Schema / OAS 3.1 but not in the TS SchemaObject type.
-  it('falls through to emptySchemaType since "not" is not supported', () => {
-    expect(parseSchema(emptyCtx, { schema: { not: { type: 'string' } } as SchemaObject }).type).toBe('unknown')
+  it('wraps the schema and its `not` in an intersection', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: { type: 'string', minLength: 3, not: { $ref: '#/components/schemas/ReservedName' } },
+    })
+
+    expect(node).toMatchObject({
+      type: 'intersection',
+      members: [
+        { type: 'string', min: 3 },
+        { type: 'not', members: [{ type: 'ref', ref: '#/components/schemas/ReservedName' }] },
+      ],
+    })
+  })
+
+  it('borrows outer properties for a bare `required` list inside `not`', () => {
+    const node = parseSchema(emptyCtx, {
+      schema: { type: 'object', properties: { query: { type: 'string' }, id: { type: 'string' } }, not: { required: ['query', 'id'] } },
+    })
+    const notNode = ast.narrowSchema(ast.narrowSchema(node, 'intersection')?.members?.[1], 'not')
+    const inner = ast.narrowSchema(notNode?.members?.[0], 'object')
+
+    expect(notNode).not.toBeNull()
+    expect(inner?.properties.map((p) => [p.name, p.required, p.schema.type])).toStrictEqual([
+      ['query', true, 'string'],
+      ['id', true, 'string'],
+    ])
+  })
+
+  it('keeps a `not` next to a `$ref`', () => {
+    const node = parseSchema(emptyCtx, { schema: { $ref: '#/components/schemas/Pet', not: { type: 'null' } } })
+
+    expect(node).toMatchObject({ type: 'intersection', members: [{ type: 'ref', ref: '#/components/schemas/Pet' }, { type: 'not' }] })
+  })
+
+  it('keeps a keyword-only `not` as emptySchemaType plus the negation', () => {
+    const node = parseSchema(emptyCtx, { schema: { not: { type: 'string' } } })
+
+    expect(node).toMatchObject({ type: 'intersection', members: [{ type: 'unknown' }, { type: 'not', members: [{ type: 'string' }] }] })
   })
 })
 

@@ -140,6 +140,15 @@ export function convertRef({ schema, name, nullable, defaultValue, document, par
   })
 }
 
+/** Converts `{ ...rest, not: X }` into `intersection[rest, not[X]]`; a bare `required` inside `not` borrows the outer `properties`. */
+export function convertNot({ schema, name, nullable, defaultValue, parse }: ConvertContext): ast.SchemaNode {
+  const { not, ...rest } = schema as SchemaObject & { not: SchemaObject }
+  const [subschema] = resolveUnionMembers([not], (rest.properties ?? {}) as Record<string, unknown>) as [SchemaObject]
+  const notNode = ast.factory.createSchema({ type: 'not', members: [parse({ schema: subschema })] })
+
+  return createNode({ schema, name, nullable, defaultValue }, { type: 'intersection', members: [parse({ schema: rest, name }), notNode] })
+}
+
 /**
  * Converts an `allOf` schema into a flattened node or an `IntersectionSchemaNode`.
  */

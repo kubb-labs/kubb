@@ -71,6 +71,8 @@ export const schemaTypes = {
    * "All of" multiple schema members.
    */
   intersection: 'intersection',
+  /** "Not" a single schema member. */
+  not: 'not',
   /**
    * Enum schema.
    */
