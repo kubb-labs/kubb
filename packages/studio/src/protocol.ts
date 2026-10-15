@@ -376,8 +376,6 @@ export type DiffHunk = { index: number; oldStart: number; newStart: number; line
 /** One page of a diff. `hasBase` is false, and the page empty, when the base set does not hold the path. */
 export type ReadDiffResult = { hunks: Array<DiffHunk>; nextCursor: number | null; hasBase: boolean }
 
-export const DIFF_TOO_LARGE_MESSAGE = 'The two versions differ too much to diff'
-
 /**
  * Asks for the Kubb AST one job parsed its spec into. A job the agent no longer keeps fails with {@link GENERATION_GONE_MESSAGE}.
  */

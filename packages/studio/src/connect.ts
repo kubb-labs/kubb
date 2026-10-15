@@ -32,7 +32,6 @@ import {
   type AgentPermissions,
   type ConfigFileView,
   type ConnectMessagePayload,
-  DIFF_TOO_LARGE_MESSAGE,
   type GenerateInput,
   type GenerateResult,
   type GenerationEvent,
@@ -535,7 +534,7 @@ class Agent extends RpcTarget implements AgentApi {
     if (typeof jobId !== 'string' || !jobId || typeof path !== 'string' || !path || typeof base?.jobId !== 'string' || !base.jobId) {
       return this.#refuse({ message: 'The request must name a job, a base, and a path' })
     }
-    if (limit === undefined || !isValidPage({ cursor, limit })) {
+    if (!isValidPage({ cursor, limit })) {
       return this.#refuse({ message: `The cursor must be a whole line from 0 and come with a limit of 1 to ${MAX_PAGE_LINES} lines` })
     }
 
@@ -563,7 +562,7 @@ class Agent extends RpcTarget implements AgentApi {
     const all = await hunks
     if (!all) {
       this.#diffs.delete(key)
-      return this.#refuse({ message: DIFF_TOO_LARGE_MESSAGE })
+      return this.#refuse({ message: 'The two versions differ too much to diff' })
     }
     await this.#logCommand('readDiff', `read the diff of ${path}`)
 
