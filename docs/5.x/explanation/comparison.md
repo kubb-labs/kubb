@@ -14,7 +14,7 @@ navigation:
 
 # Kubb vs orval, HeyAPI, and openapi-typescript
 
-Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typescript](https://openapi-ts.dev) all generate code from OpenAPI specs. The tables compare generated outputs, response handling, runtime behavior, and what [Kubb Studio](#kubb-studio) adds around the generator.
+Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typescript](https://openapi-ts.dev) all generate code from OpenAPI specs. The tables compare generated outputs, response handling, runtime behavior, and what [Kubb Studio](#kubb-studio) adds around the generator. Each cell was checked against the project's own docs in October 2026.
 
 ## Plugin and feature coverage
 
@@ -32,10 +32,10 @@ Legend:
 | [HTTP client (Axios, Fetch)](/extensions/kubb-labs/plugin-axios) |  ✅  |  ✅   | ✅             | 🔶<sup>2</sup> |
 | [React Query hooks](/extensions/kubb-labs/plugin-react-query)    |  ✅  |  ✅   | ✅             | 🟡<sup>3</sup> |
 | [Vue Query composables](/extensions/kubb-labs/plugin-vue-query)  |  ✅  |  ✅   | ✅             |       🛑       |
-| [SWR hooks](/extensions/kubb-labs/plugin-swr)                    |  ✅  |  ✅   | ✅             | 🟡<sup>4</sup> |
+| [SWR hooks](/extensions/kubb-labs/plugin-swr)                    |  ✅  |  ✅   | 🛑<sup>6</sup> | 🟡<sup>4</sup> |
 | [Zod validation schemas](/extensions/kubb-labs/plugin-zod)       |  ✅  |  ✅   | ✅<sup>5</sup> |       🛑       |
-| [MSW request handlers](/extensions/kubb-labs/plugin-msw)         |  ✅  |  ✅   | ✅             |       🛑       |
-| [Faker.js mock data](/extensions/kubb-labs/plugin-faker)         |  ✅  |  ✅   | ✅             |       🛑       |
+| [MSW request handlers](/extensions/kubb-labs/plugin-msw)         |  ✅  |  ✅   | ✅<sup>7</sup> |       🛑       |
+| [Faker.js mock data](/extensions/kubb-labs/plugin-faker)         |  ✅  |  ✅   | ✅<sup>7</sup> |       🛑       |
 | [Cypress E2E tests](/extensions/kubb-labs/plugin-cypress)        |  ✅  |  🛑   | 🛑             |       🛑       |
 | [MCP server](/extensions/kubb-labs/plugin-mcp)                   |  ✅  |  ✅   | 🛑             |       🛑       |
 | [Redoc API documentation](/extensions/kubb-labs/plugin-redoc)    |  ✅  |  🛑   | 🛑             |       🛑       |
@@ -48,6 +48,8 @@ Notes:
 3. openapi-typescript generates no hooks. React Query support comes from the first-party [`openapi-react-query`](https://www.npmjs.com/package/openapi-react-query) runtime, also in maintenance mode.
 4. openapi-typescript relies on the community [`swr-openapi`](https://github.com/htunnicliff/swr-openapi) package.
 5. HeyAPI also generates Valibot schemas alongside Zod.
+6. HeyAPI lists its SWR plugin as planned.
+7. HeyAPI marks its MSW and Faker plugins as in progress.
 
 ## Type safety and response handling
 
@@ -100,21 +102,23 @@ Notes:
 
 [Kubb Studio](https://kubb.studio) is the web IDE for Kubb. It runs the same generator through an agent on your machine. The table lists what Studio adds on top of it.
 
-| Feature                                                                                                    |  Kubb Studio   | orval | HeyAPI | openapi-ts |
-| ---------------------------------------------------------------------------------------------------------- | :------------: | :---: | :----: | :--------: |
-| Generation on your own machine                                                                             | ✅<sup>1</sup> |  ✅   |   ✅   |     ✅     |
-| [API skills for Claude Code, Cursor, and Codex](/docs/5.x/integrations/studio#give-your-ai-tools-your-api) | ✅<sup>2</sup> |  🛑   |   🛑   |     🛑     |
-| One AI plugin marketplace for your team                                                                    | ✅<sup>2</sup> |  🛑   |   🛑   |     🛑     |
-| [Review added, changed, and removed files](/docs/5.x/integrations/studio#review-and-save-generated-files)  |       ✅       |  🛑   |   🛑   |     🛑     |
-| Edit `kubb.config.ts` from the browser                                                                     |       ✅       |  🛑   |   🛑   |     🛑     |
-| [Installable snapshot for every pull request](/docs/5.x/integrations/github-actions)                       |       ✅       |  🛑   |   🛑   |     🛑     |
-| Shared agents for the whole team                                                                           |       ✅       |  🛑   |   🛑   |     🛑     |
-| Try without installing anything                                                                            |       ✅       |  🛑   |   🛑   |     🛑     |
+| Feature                                                                                                    |  Kubb Studio   |     orval      |     HeyAPI     | openapi-ts |
+| ---------------------------------------------------------------------------------------------------------- | :------------: | :------------: | :------------: | :--------: |
+| Generation on your own machine                                                                             | ✅<sup>1</sup> |       ✅       |       ✅       |     ✅     |
+| [API skills for Claude Code, Cursor, and Codex](/docs/5.x/integrations/studio#give-your-ai-tools-your-api) | ✅<sup>2</sup> |       🛑       |       🛑       |     🛑     |
+| One AI plugin marketplace for your team                                                                    | ✅<sup>2</sup> |       🛑       |       🛑       |     🛑     |
+| [Review added, changed, and removed files](/docs/5.x/integrations/studio#review-and-save-generated-files)  |       ✅       |       🛑       |       🛑       |     🛑     |
+| Edit `kubb.config.ts` from the browser                                                                     |       ✅       |       🛑       |       🛑       |     🛑     |
+| [Installable snapshot for every pull request](/docs/5.x/integrations/github-actions)                       |       ✅       |       🛑       |       🛑       |     🛑     |
+| Shared agents for the whole team                                                                           |       ✅       |       🛑       |       🛑       |     🛑     |
+| Try without installing anything                                                                            |       ✅       | ✅<sup>3</sup> | 🟡<sup>4</sup> |     🛑     |
 
 Notes:
 
 1. Pair the `kubb studio` CLI or the `kubblabs/kubb-agent` Docker image. Studio does not store your OpenAPI spec.
 2. On the Pro plan. Studio renders the skills from the Kubb AST, so they use the names Kubb generates, and the code your AI tools write calls your generated clients instead of guessing endpoints.
+3. The [orval playground](https://orval.dev/playground) generates code from a spec and config you edit in the browser.
+4. HeyAPI links a demo project on StackBlitz. Its hosted [Hey API Platform](https://heyapi.dev/openapi-ts/configuration/input) also stores spec versions as a registry. Studio has no registry, since it never stores your spec.
 
 ## When not to use Kubb
 
