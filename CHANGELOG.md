@@ -1,5 +1,35 @@
 # Changelog
 
+## v5.10.0 — Oct 15, 2026
+
+### @kubb/adapter-oas
+
+#### Features
+
+- Keep server variables on `InputMeta.servers`. `InputServer` gains an optional `variables` field with the source URL template's variables, copied as-is next to the resolved `url`, so a consumer can tell a templated server from a literal one. It is absent when the server declares no variables. ([#4315](https://github.com/kubb-labs/kubb/pull/4315), [`ca30312`](https://github.com/kubb-labs/kubb/commit/ca30312db27754b9fb5c6297822854739ae9c70c))
+
+#### Bug Fixes
+
+- Carry vendor extensions on the AST. `OperationNode` and `InputMeta` gain an optional `extensions` bag with every `x-*` key copied as-is, set only when the source has one. The OAS adapter fills it from the operation object and the document root, so plugins can read keys like `x-org-ignore` without walking the raw document. Path-level extensions are not copied. ([#4311](https://github.com/kubb-labs/kubb/pull/4311), [`331f7d5`](https://github.com/kubb-labs/kubb/commit/331f7d55b54bc5130f7b5ffb310ba92133e3a7b7))
+
+### @kubb/cli
+
+#### Bug Fixes
+
+- Remove `KUBB_AGENT_TOKEN` from `kubb studio`. The CLI now connects only through a paired machine, and in CI you run `kubb studio snapshot` with `KUBB_TOKEN` instead. ([#4317](https://github.com/kubb-labs/kubb/pull/4317), [`c764393`](https://github.com/kubb-labs/kubb/commit/c7643930c0af2b2d8bc9d386cdd8285fd6d65655))
+
+### @kubb/studio
+
+#### Features
+
+- Add a separate `allowReadAst` permission (`--allow-read-ast`) for reading the parsed spec. `allowRead` now covers only generated files, so projects that granted `allowRead` before are asked once more about the spec. ([#4320](https://github.com/kubb-labs/kubb/pull/4320), [`240c37f`](https://github.com/kubb-labs/kubb/commit/240c37f7d4886c2238cf81c32f467996cafc437c))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@mohammad-naji7](https://github.com/mohammad-naji7), [@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.9.6 — Oct 15, 2026
 
 ### @kubb/adapter-oas
