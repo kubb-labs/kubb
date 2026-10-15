@@ -382,7 +382,7 @@ export type ReadDiffInput = { jobId: string; path: string; base: { jobId: string
 export type DiffHunk = { index: number; oldStart: number; oldLines: number; newStart: number; newLines: number; lines: Array<string> }
 
 /**
- * The size of a whole diff, sent with every page so a viewer can size itself before it has read all of it.
+ * The size of the whole diff, sent with every page, so a viewer can summarize it before reading every page.
  */
 export type DiffStats = {
   additions: number
