@@ -154,7 +154,9 @@ export function pageHunks({ hunks, cursor, limit }: { hunks: Array<StructuredPat
     const offset = Math.max(0, cursor - start)
     const remaining = hunk.lines.length - offset
     if (used > 0 && remaining > limit - used) break
-    const take = Math.min(remaining, limit - used)
+    let take = Math.min(remaining, limit - used)
+    // A `\ No newline` marker stays with its line, so no part starts with one.
+    if (hunk.lines[offset + take]?.startsWith('\\')) take++
     page.push({
       index,
       oldStart: hunk.oldStart,
@@ -166,7 +168,7 @@ export function pageHunks({ hunks, cursor, limit }: { hunks: Array<StructuredPat
       lines: hunk.lines.slice(offset, offset + take),
     })
     used += take
-    if (used === limit) break
+    if (used >= limit) break
   }
   const end = cursor + used
   return { hunks: page, nextCursor: end < total ? end : null }

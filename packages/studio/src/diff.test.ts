@@ -90,6 +90,11 @@ describe('pageHunks', () => {
     expect(pageHunks({ hunks, cursor: 2, limit: 2 })).toStrictEqual({ hunks: [{ ...first, offset: 2, lines: ['+c'] }], nextCursor: 3 })
   })
 
+  it('keeps a no-newline marker on the page of its line', () => {
+    const end = [{ oldStart: 1, oldLines: 1, newStart: 1, newLines: 1, lines: ['-a', '\\ No newline at end of file', '+b'] }]
+    expect(pageHunks({ hunks: end, cursor: 0, limit: 1 })).toMatchObject({ hunks: [{ lines: ['-a', '\\ No newline at end of file'] }], nextCursor: 2 })
+  })
+
   it('returns every hunk that fits, and a null cursor on the last page', () => {
     expect(pageHunks({ hunks, cursor: 0, limit: 10 })).toStrictEqual({
       hunks: [
