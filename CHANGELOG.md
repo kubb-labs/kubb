@@ -1,5 +1,25 @@
 # Changelog
 
+## v5.9.6 — Oct 15, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Keep `allowReserved` on parameters. `ParameterNode` gains an optional `allowReserved` flag, and the OAS adapter copies it from the source parameter like `style` and `explode`, so plugins can read the flag and pass it to the runtime. ([#4304](https://github.com/kubb-labs/kubb/pull/4304), [`2cd7104`](https://github.com/kubb-labs/kubb/commit/2cd710490839094d8bde22034d1639792f432da0))
+
+### @kubb/ast
+
+#### Bug Fixes
+
+- Keep every `Heading`, `Paragraph`, `List`, `Callout`, and `Frontmatter` in a markdown file. Each one used to share a source name, so a file kept only the first of each kind. An unnamed source now only drops when the same node is added twice, so a file can repeat a paragraph or a table. ([#4302](https://github.com/kubb-labs/kubb/pull/4302), [`919f982`](https://github.com/kubb-labs/kubb/commit/919f9828a8dc829c8292d7ad2188f8aa634cdf89))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@mohammad-naji7](https://github.com/mohammad-naji7), [@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.9.5 — Oct 15, 2026
 
 ### @kubb/studio
