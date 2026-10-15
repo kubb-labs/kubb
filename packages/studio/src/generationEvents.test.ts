@@ -34,6 +34,20 @@ describe('Generation event stream', () => {
     expect(events.at(-1)?.type).toBe('kubb:error')
   })
 
+  it('lets the event loop run after a step event, so a run busy rendering in memory still sends it', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const generation = createGenerationStream(hooks, 'job-1')
+    let ticked = false
+    setImmediate(() => {
+      ticked = true
+    })
+
+    await hooks.callHook('kubb:lint:start')
+    await generation.close()
+
+    expect(ticked).toBe(true)
+  })
+
   it('strips terminal styling from messages, which core writes for a console', async () => {
     const hooks = new Hookable<KubbHooks>()
     const generation = createGenerationStream(hooks, 'job-1')

@@ -9,7 +9,7 @@ type Projections = { [Type in GenerationEventType]: (...args: KubbHooks[Type]) =
 
 const MAX_QUEUED_EVENTS = 1_024
 const RESERVED_EVENTS = 64
-const isDiscardable = (event: GenerationEvent) => event.type === 'kubb:files:processing:update' || event.type === 'kubb:info' || event.type === 'kubb:success'
+const isDiscardable = (type: GenerationEventType) => type === 'kubb:files:processing:update' || type === 'kubb:info' || type === 'kubb:success'
 
 /** Forwards selected Kubb lifecycle events to a native Cap'n Web stream. */
 export function createGenerationStream(
@@ -44,7 +44,7 @@ export function createGenerationStream(
   function emitEvent<Type extends GenerationEventType>(type: Type, data: GenerationEventPayloads[Type]): void {
     if (closed) return
     const event = { jobId, type, data, version: 1 as const, timestamp: Date.now() } as unknown as GenerationEvent
-    if (controller.desiredSize! <= RESERVED_EVENTS && isDiscardable(event)) return
+    if (controller.desiredSize! <= RESERVED_EVENTS && isDiscardable(type)) return
     if (controller.desiredSize! <= 0) {
       fail(new Error(`Generation event stream exceeded ${MAX_QUEUED_EVENTS} queued events`))
       return
@@ -105,7 +105,11 @@ export function createGenerationStream(
   }
 
   function forward<Type extends GenerationEventType>(type: Type): void {
-    on(type, (...args: KubbHooks[Type]) => emitEvent(type, projections[type](...args)))
+    on(type, (...args: KubbHooks[Type]) => {
+      emitEvent(type, projections[type](...args))
+      // Generators render in memory without awaiting I/O, so the socket only sends once the event loop gets a turn.
+      if (!isDiscardable(type)) return new Promise<void>((resolve) => setImmediate(resolve))
+    })
   }
 
   // Paths in `kubb:files:processing:update` are made relative to the root the build announced.
