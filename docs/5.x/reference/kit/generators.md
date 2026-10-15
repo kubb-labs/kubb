@@ -15,7 +15,7 @@ navigation:
 
 # Generators
 
-## `defineGenerator` {#defineGenerator}
+## `defineGenerator` {#definegenerator}
 
 `defineGenerator` declares a named generator unit consumed by a plugin. Generators walk the [AST](/docs/5.x/explanation/architecture#ast) and emit files. Kubb calls each method for the matching node type.
 
