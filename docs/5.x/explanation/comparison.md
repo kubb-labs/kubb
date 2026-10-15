@@ -1,8 +1,8 @@
 ---
 layout: doc
 title: Kubb vs orval, HeyAPI, and openapi-typescript
-description: Feature-by-feature comparison of Kubb against orval, HeyAPI, and
-  openapi-typescript.
+description: Feature-by-feature comparison of Kubb and Kubb Studio against
+  orval, HeyAPI, and openapi-typescript.
 outline:
   - 2
   - 3
@@ -14,7 +14,7 @@ navigation:
 
 # Kubb vs orval, HeyAPI, and openapi-typescript
 
-Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typescript](https://openapi-ts.dev) all generate code from OpenAPI specs. The tables compare generated outputs, response handling, and runtime behavior.
+Kubb, [orval](https://orval.dev), [HeyAPI](https://heyapi.dev), and [openapi-typescript](https://openapi-ts.dev) all generate code from OpenAPI specs. The tables compare generated outputs, response handling, runtime behavior, and what [Kubb Studio](#kubb-studio) adds around the generator.
 
 ## Plugin and feature coverage
 
@@ -95,6 +95,26 @@ Notes:
 4. orval and HeyAPI expose a single body serializer and one response transformer, so a new media type means replacing them, not registering one.
 5. Off by default. Kubb validates request and response bodies through any Standard Schema validator (Zod, valibot, arktype). HeyAPI validates both with Zod or Valibot. orval validates responses only, with Zod.
 6. orval streams NDJSON on its `fetch` client but has no server-sent events (`text/event-stream`) support. Kubb and HeyAPI consume SSE.
+
+## Kubb Studio
+
+[Kubb Studio](https://kubb.studio) is the web IDE for Kubb. It runs the same generator through an agent on your machine. The table lists what Studio adds on top of it.
+
+| Feature                                                                                                    |  Kubb Studio   | orval | HeyAPI | openapi-ts |
+| ---------------------------------------------------------------------------------------------------------- | :------------: | :---: | :----: | :--------: |
+| Generation on your own machine                                                                             | ✅<sup>1</sup> |  ✅   |   ✅   |     ✅     |
+| [API skills for Claude Code, Cursor, and Codex](/docs/5.x/integrations/studio#give-your-ai-tools-your-api) | ✅<sup>2</sup> |  🛑   |   🛑   |     🛑     |
+| One AI plugin marketplace for your team                                                                    | ✅<sup>2</sup> |  🛑   |   🛑   |     🛑     |
+| [Review added, changed, and removed files](/docs/5.x/integrations/studio#review-and-save-generated-files)  |       ✅       |  🛑   |   🛑   |     🛑     |
+| Edit `kubb.config.ts` from the browser                                                                     |       ✅       |  🛑   |   🛑   |     🛑     |
+| [Installable snapshot for every pull request](/docs/5.x/integrations/github-actions)                       |       ✅       |  🛑   |   🛑   |     🛑     |
+| Shared agents for the whole team                                                                           |       ✅       |  🛑   |   🛑   |     🛑     |
+| Try without installing anything                                                                            |       ✅       |  🛑   |   🛑   |     🛑     |
+
+Notes:
+
+1. Pair the `kubb studio` CLI or the `kubblabs/kubb-agent` Docker image. Studio does not store your OpenAPI spec.
+2. On the Pro plan. Studio renders the skills from the Kubb AST, so they use the names Kubb generates, and the code your AI tools write calls your generated clients instead of guessing endpoints.
 
 ## When not to use Kubb
 
