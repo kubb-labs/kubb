@@ -144,10 +144,11 @@ export const adapterOas = defineExtension<AdapterOas>({
           servers: (document.servers ?? [])
             .filter((entry) => entry.url)
             .map(({ url, description, variables }) => {
+              const declared = variables && Object.keys(variables).length > 0 ? { variables } : {}
               try {
-                return { url: resolveServerUrl({ url, variables }), description }
+                return { url: resolveServerUrl({ url, variables }), description, ...declared }
               } catch {
-                return { url, description }
+                return { url, description, ...declared }
               }
             }),
           securitySchemes: Object.entries(document.components?.securitySchemes ?? {}).flatMap(([name, value]) => {
