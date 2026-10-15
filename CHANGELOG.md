@@ -1,5 +1,21 @@
 # Changelog
 
+## v5.9.5 — Oct 15, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Agents granted `--allow-read` keep the Kubb AST (`InputNode`) of each generation and return it through the new `readInput` call, so Kubb Studio can describe your API in the names Kubb generates. The permission prompt now mentions the parsed spec.
+  
+  `InputMeta` gains `servers` and `securitySchemes`: every server and authentication scheme the spec declares. `@kubb/adapter-oas` fills both, also for Swagger 2.0 documents. ([#4300](https://github.com/kubb-labs/kubb/pull/4300), [`5d06382`](https://github.com/kubb-labs/kubb/commit/5d063829017be5e9d53e0682996c4217773c3c5e))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.9.4 — Oct 14, 2026
 
 ### @kubb/adapter-oas
