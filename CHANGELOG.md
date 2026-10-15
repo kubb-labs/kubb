@@ -1,5 +1,31 @@
 # Changelog
 
+## v5.10.3 — Oct 15, 2026
+
+### @kubb/adapter-oas
+
+#### Bug Fixes
+
+- Ship separate CommonJS type declarations, so `require` consumers get correct types under `moduleResolution: node16` and `nodenext`.
+  
+  - Points the `require` condition at new `.d.cts` files. It used to reuse the ESM `.d.ts`, which TypeScript then read as ESM.
+  - Removes the untyped `rolldown-runtime` import from the published declarations, which failed under `skipLibCheck: false`.
+  - Adds `typesVersions` for the `kubb`, `@kubb/kit/testing`, and `@kubb/studio/protocol` subpaths, so `moduleResolution: node10` finds them.
+  - Declares `vitest` as an optional peer of `@kubb/core`, `@kubb/kit`, and `kubb`, so `@kubb/core/mocks` and `@kubb/kit/testing` resolve under strict installers. ([#4337](https://github.com/kubb-labs/kubb/pull/4337), [`7603e7f`](https://github.com/kubb-labs/kubb/commit/7603e7ff7287ddf1c3752c28c4dca01867a91b68))
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Diff large generated files in under a second instead of failing with "The two versions differ too much to diff". `readDiff` pages now include `stats` for the whole diff and end on hunk boundaries. ([#4336](https://github.com/kubb-labs/kubb/pull/4336), [`a9e0e3a`](https://github.com/kubb-labs/kubb/commit/a9e0e3a4b367b753a2689a516e1ba61193cd617c))
+- Send generation events to Studio while the run is in progress. Plugins that render in memory never gave the event loop a turn, so the agent sent every event at once when the run ended and the Run panel in Studio only updated at the end. The agent now yields after each step event. ([#4338](https://github.com/kubb-labs/kubb/pull/4338), [`41602fb`](https://github.com/kubb-labs/kubb/commit/41602fb4ef4533385cbc247d0b47b15ce06e7ada))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.10.2 — Oct 15, 2026
 
 ### @kubb/adapter-oas
