@@ -1,38 +1,54 @@
+import { applyPatch } from 'diff'
 import { describe, expect, it } from 'vitest'
-import { diffHunks, pageHunks, replaceHunk } from './diff.ts'
+import { diffHunks, pageHunks } from './diff.ts'
 
 const lines = (count: number, change?: number) => Array.from({ length: count }, (_, i) => (i === change ? `changed ${i}` : `line ${i}`)).join('\n')
 
 describe('diffHunks', () => {
-  it('returns only the changed lines with their context', async () => {
-    const hunks = await diffHunks(lines(100), lines(100, 50))
+  it('returns only the changed lines with their context', () => {
+    const hunks = diffHunks(lines(100), lines(100, 50))
     expect(hunks).toHaveLength(1)
-    expect(hunks![0]).toMatchObject({ oldStart: 48, newStart: 48 })
-    expect(hunks![0]!.lines).toStrictEqual([' line 47', ' line 48', ' line 49', '-line 50', '+changed 50', ' line 51', ' line 52', ' line 53'])
+    expect(hunks[0]).toMatchObject({ oldStart: 48, oldLines: 7, newStart: 48, newLines: 7 })
+    expect(hunks[0]!.lines).toStrictEqual([' line 47', ' line 48', ' line 49', '-line 50', '+changed 50', ' line 51', ' line 52', ' line 53'])
   })
 
-  it('returns no hunks for equal files', async () => {
-    await expect(diffHunks('a\n', 'a\n')).resolves.toStrictEqual([])
-  })
-})
-
-describe('replaceHunk', () => {
-  it('replaces the lines between the shared start and end, with context', () => {
-    expect(replaceHunk(lines(20), lines(20, 10))).toStrictEqual([
-      {
-        oldStart: 8,
-        oldLines: 7,
-        newStart: 8,
-        newLines: 7,
-        lines: [' line 7', ' line 8', ' line 9', '-line 10', '+changed 10', ' line 11', ' line 12', ' line 13'],
-      },
-    ])
+  it('returns no hunks for equal files', () => {
+    expect(diffHunks('a\n', 'a\n')).toStrictEqual([])
   })
 
-  it('handles added, deleted, and equal files', () => {
-    expect(replaceHunk('', 'a\nb\n')[0]).toMatchObject({ oldLines: 0, newLines: 2, lines: ['+a', '+b'] })
-    expect(replaceHunk('a\n', '')[0]).toMatchObject({ oldLines: 1, newLines: 0, lines: ['-a'] })
-    expect(replaceHunk('a\n', 'a\n')).toStrictEqual([])
+  it('marks a last line without a newline', () => {
+    expect(diffHunks('a\n', 'a')).toStrictEqual([{ oldStart: 1, oldLines: 1, newStart: 1, newLines: 1, lines: ['-a', '+a', '\\ No newline at end of file'] }])
+  })
+
+  it('handles added and deleted files', () => {
+    expect(diffHunks('', 'a\nb\n')).toStrictEqual([{ oldStart: 0, oldLines: 0, newStart: 1, newLines: 2, lines: ['+a', '+b'] }])
+    expect(diffHunks('a\n', '')).toStrictEqual([{ oldStart: 1, oldLines: 1, newStart: 0, newLines: 0, lines: ['-a'] }])
+  })
+
+  it('replaces a region it has no time to diff', () => {
+    expect(diffHunks('a\nb\nc\n', 'a\nx\nc\n', 0)).toStrictEqual([{ oldStart: 1, oldLines: 3, newStart: 1, newLines: 3, lines: [' a', '-b', '+x', ' c'] }])
+  })
+
+  it('returns hunks that rebuild the new file', () => {
+    let seed = 1
+    const random = (max: number) => (seed = (seed * 48271) % 2147483647) % max
+    for (let run = 0; run < 200; run++) {
+      const before = Array.from({ length: random(40) }, () => `line ${random(15)}`)
+      const after = before.flatMap((line) => [[], [line], [`line ${random(15)}`], [line, `line ${random(15)}`]][random(4)]!)
+      const end = random(2) ? '\n' : ''
+      const text = (rows: Array<string>) => rows.join('\n') + (rows.length ? end : '')
+      for (const timeout of [1_000, 0]) {
+        expect(
+          applyPatch(text(before), {
+            oldFileName: '',
+            newFileName: '',
+            oldHeader: undefined,
+            newHeader: undefined,
+            hunks: diffHunks(text(before), text(after), timeout),
+          }),
+        ).toBe(text(after))
+      }
+    }
   })
 })
 

@@ -1,5 +1,5 @@
 ---
-"@kubb/studio": patch
+'@kubb/studio': patch
 ---
 
-Show the diff of a file that changed too much to line-diff in time. After 3 seconds, the agent now returns one hunk that replaces the changed lines, instead of refusing with "The two versions differ too much to diff".
+Diff large generated files fast enough to show them. The agent now splits each file on lines that occur once in both versions, and diffs the regions between them. A 50,000-line file with 3,000 changes takes about 0.3 seconds instead of 7. Previously, large specs returned "The two versions differ too much to diff". A region that still takes over a second shows as one replace block.

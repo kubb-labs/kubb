@@ -558,14 +558,13 @@ class Agent extends RpcTarget implements AgentApi {
     if (beforeContent === undefined) return { hunks: [], nextCursor: null, hasBase: false }
 
     const key = JSON.stringify([jobId, base.jobId, baseSource, path])
-    let hunks = this.#diffs.get(key)
-    if (!hunks) {
-      hunks = diffHunks(beforeContent, afterContent ?? '')
-      this.#diffs.set(key, hunks)
+    let all = this.#diffs.get(key)
+    if (!all) {
+      all = diffHunks(beforeContent, afterContent ?? '')
+      this.#diffs.set(key, all)
       // A few recent diffs cover paging through the open file and switching back to the last one.
       if (this.#diffs.size > 4) this.#diffs.delete(this.#diffs.keys().next().value!)
     }
-    const all = await hunks
     await this.#logCommand('readDiff', `read the diff of ${path}`)
 
     return { ...pageHunks({ hunks: all, cursor, limit }), hasBase: true }
