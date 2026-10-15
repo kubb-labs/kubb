@@ -183,6 +183,14 @@ describe('GeneratorContext diagnostics', () => {
     ])
   })
 
+  it('lets a Diagnostics.Error passed to ctx.error keep its own code over the options', () => {
+    const error = new Diagnostics.Error({ code: Diagnostics.code.refNotFound, severity: 'error', message: 'missing', help: 'own help' })
+
+    expect(collect((ctx) => ctx.error(error, { code: Diagnostics.code.pluginFailed, help: 'other', location: { kind: 'config' } }))).toMatchObject([
+      { code: Diagnostics.code.refNotFound, help: 'own help', location: { kind: 'config' } },
+    ])
+  })
+
   it('applies the help and location options to ctx.warn', () => {
     const location = { kind: 'schema', pointer: '#/components/schemas/Status' } as const
 

@@ -756,7 +756,7 @@ export class KubbDriver {
       },
       error(error, options) {
         if (Diagnostics.isError(error)) {
-          report({ ...error.diagnostic, ...options })
+          report({ ...options, ...error.diagnostic })
           return
         }
         const cause = typeof error === 'string' ? undefined : error

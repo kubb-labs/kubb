@@ -44,12 +44,11 @@ export function toRegistryId(input: string): string {
   return input.includes('/') ? input : `kubb-labs/${input}`
 }
 
-/** GETs `url` as JSON. A non-2xx answer returns only its status; a network error throws with the URL. */
+/** GETs `url` as JSON. A non-2xx answer or a body that is not JSON returns no `body`; a network error throws with the URL. */
 async function fetchJSON(url: string): Promise<{ status: number; body?: unknown }> {
+  let response: Response
   try {
-    const response = await globalThis.fetch(url, { headers: { accept: 'application/json' } })
-    if (!response.ok) return { status: response.status }
-    return { status: response.status, body: (await response.json()) as unknown }
+    response = await globalThis.fetch(url, { headers: { accept: 'application/json' } })
   } catch (cause) {
     throw new Diagnostics.Error({
       code: Diagnostics.code.inputUnreachable,
@@ -59,6 +58,8 @@ async function fetchJSON(url: string): Promise<{ status: number; body?: unknown 
       cause: toError(cause),
     })
   }
+  if (!response.ok) return { status: response.status }
+  return { status: response.status, body: await response.json().catch(() => undefined) }
 }
 
 /** Fetches one extension's detail document. */

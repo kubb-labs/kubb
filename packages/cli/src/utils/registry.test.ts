@@ -1,5 +1,6 @@
-import { afterEach, describe, expect, it } from 'vitest'
-import { isOutdated, registryUrl, toRegistryId } from './registry.ts'
+import { Diagnostics } from '@kubb/core'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { fetchRegistryIndex, isOutdated, registryUrl, toRegistryId } from './registry.ts'
 
 afterEach(() => {
   delete process.env.KUBB_REGISTRY
@@ -33,5 +34,15 @@ describe('isOutdated', () => {
       isOutdated({ installed: undefined, latest: '1.0.0' }),
       isOutdated({ installed: '1.0.0', latest: 'latest' }),
     ]).toStrictEqual([true, false, true, false])
+  })
+})
+
+describe('fetchRegistryIndex', () => {
+  it('reports a 200 whose body is not JSON as an invalid index, not as unreachable', async () => {
+    using _fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('<html>', { status: 200 }))
+
+    const error = await fetchRegistryIndex({ registry: 'https://example.test' }).catch((caught: unknown) => caught)
+
+    expect(Diagnostics.from(error)).toMatchObject({ code: Diagnostics.code.inputRequestFailed, message: expect.stringContaining('sent an invalid index') })
   })
 })

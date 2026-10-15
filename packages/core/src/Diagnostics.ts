@@ -562,7 +562,9 @@ export class Diagnostics {
    */
   static async emit(hooks: Hookable<KubbHooks>, diagnostic: ProblemDiagnostic | UpdateDiagnostic): Promise<void> {
     if (isProblem(diagnostic) && diagnostic.code === diagnosticCode.unknown) {
-      await hooks.callHook('kubb:error', { error: diagnostic.cause ?? new Error(diagnostic.message) })
+      // The bare cause loses nothing only when the diagnostic adds no message or help of its own.
+      const bare = diagnostic.cause && !diagnostic.help && diagnostic.cause.message === diagnostic.message
+      await hooks.callHook('kubb:error', { error: bare ? diagnostic.cause! : new Diagnostics.Error(diagnostic) })
       return
     }
     await hooks.callHook('kubb:diagnostic', { diagnostic })
@@ -596,7 +598,9 @@ export class Diagnostics {
     // The innermost one wins: it is where the problem started, and a wrapper only adds context.
     const coded = chain.findLast((current) => Diagnostics.isError(current))
     if (coded) {
-      return (coded as InstanceType<typeof Diagnostics.Error>).diagnostic
+      const { diagnostic } = coded as InstanceType<typeof Diagnostics.Error>
+      // A crash thrown without a cause still needs a stack, so it points at itself.
+      return diagnostic.cause || !crashCodes.has(diagnostic.code) ? diagnostic : { ...diagnostic, cause: coded }
     }
     const root = chain.at(-1)
 

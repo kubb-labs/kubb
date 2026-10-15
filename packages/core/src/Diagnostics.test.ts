@@ -1,6 +1,8 @@
 import { stripVTControlCharacters } from 'node:util'
 import { describe, expect, it } from 'vitest'
 import { type Diagnostic, type DiagnosticFormatOptions, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
+import { Hookable } from './Hookable.ts'
+import type { KubbHooks } from './types.ts'
 
 const problem = (over: Partial<ProblemDiagnostic> = {}): ProblemDiagnostic => ({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'boom', ...over })
 
@@ -107,6 +109,13 @@ describe('Diagnostics.from', () => {
     const outer = new Diagnostics.Error({ code: 'KUBB_UNKNOWN', severity: 'error', message: 'Config failed loading', cause: inner })
 
     expect(Diagnostics.from(outer)).toMatchObject({ code: 'KUBB_INVALID_PLUGIN_OPTIONS', message: 'inner' })
+  })
+
+  it('points a crash thrown without a cause at itself, so its stack survives', () => {
+    const error = new Diagnostics.Error({ code: 'KUBB_PLUGIN_FAILED', severity: 'error', message: 'invariant broken' })
+
+    expect(Diagnostics.serialize(Diagnostics.from(error)).stack).toBe(error.stack)
+    expect(Diagnostics.from(new Diagnostics.Error({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'x' })).cause).toBeUndefined()
   })
 
   it('should not loop on a self-referencing cause', () => {
@@ -288,5 +297,20 @@ describe('Diagnostics.scope / Diagnostics.report', () => {
 
   it('returns false when there is no active run', () => {
     expect(Diagnostics.report(problem())).toBe(false)
+  })
+})
+
+describe('Diagnostics.emit', () => {
+  it('sends an unknown problem with its own message and help to kubb:error, keeping the cause', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const errors: Array<Error> = []
+    hooks.hook('kubb:error', ({ error }) => void errors.push(error))
+    const root = new Error('boom')
+
+    await Diagnostics.emit(hooks, { code: 'KUBB_UNKNOWN', severity: 'error', message: 'Config failed loading: kubb.config.ts', help: 'Fix it.', cause: root })
+    await Diagnostics.emit(hooks, { code: 'KUBB_UNKNOWN', severity: 'error', message: 'boom', cause: root })
+
+    expect(errors[0]).toMatchObject({ message: 'Config failed loading: kubb.config.ts', diagnostic: { help: 'Fix it.' }, cause: root })
+    expect(errors[1]).toBe(root)
   })
 })

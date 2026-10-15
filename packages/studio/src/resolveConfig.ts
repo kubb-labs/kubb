@@ -124,15 +124,24 @@ export function isAllowedPlugin({ packageName, extensions }: { packageName: stri
  *
  * @throws if the package cannot be imported or exports no callable factory.
  */
-async function loadFactory({ packageName, extensions }: { packageName: string; extensions: InstalledExtensions }): Promise<(options: unknown) => unknown> {
+async function loadFactory({
+  packageName,
+  extensions,
+  kind = 'plugin',
+}: {
+  packageName: string
+  extensions: InstalledExtensions
+  kind?: ExtensionKind
+}): Promise<(options: unknown) => unknown> {
+  const label = { plugin: 'Plugin', adapter: 'Adapter', parser: 'Parser' }[kind]
   let mod: Record<string, unknown>
   try {
     mod = await importFromProject(packageName)
   } catch (cause) {
     throw new Diagnostics.Error({
-      code: Diagnostics.code.pluginNotFound,
+      code: kind === 'plugin' ? Diagnostics.code.pluginNotFound : Diagnostics.code.unknown,
       severity: 'error',
-      message: `Plugin "${packageName}" could not be loaded. Make sure it is installed: \`npm install ${packageName}\``,
+      message: `${label} "${packageName}" could not be loaded. Make sure it is installed: \`npm install ${packageName}\``,
       cause: toError(cause),
     })
   }
@@ -143,7 +152,7 @@ async function loadFactory({ packageName, extensions }: { packageName: string; e
     throw new Diagnostics.Error({
       code: Diagnostics.code.incompatibleExtension,
       severity: 'error',
-      message: `Plugin "${packageName}" does not export "${manifestExport}", the factory its kubb-extension.json names.`,
+      message: `${label} "${packageName}" does not export "${manifestExport}", the factory its kubb-extension.json names.`,
       help: 'Install a version of the plugin whose exports match its kubb-extension.json.',
     })
   }
@@ -155,7 +164,7 @@ async function loadFactory({ packageName, extensions }: { packageName: string; e
   throw new Diagnostics.Error({
     code: Diagnostics.code.incompatibleExtension,
     severity: 'error',
-    message: `Plugin "${packageName}" does not export a callable factory. Tried the named export "${exportName}" and "default".`,
+    message: `${label} "${packageName}" does not export a callable factory. Tried the named export "${exportName}" and "default".`,
     help: 'Install a Kubb plugin package that exports its factory.',
   })
 }
@@ -384,9 +393,9 @@ async function rebuildExtension<T extends Adapter | Parser>({
   const { name } = resolveMeta(disk)
   const installed = [...extensions.values()].find(({ manifest }) => manifest.kind === kind && manifest.name === name)
   const packageName = installed?.package ?? `@kubb/${kind}-${name}`
-  const factory = await loadFactory({ packageName, extensions }).catch((cause: unknown) => {
+  const factory = await loadFactory({ packageName, extensions, kind }).catch((cause: unknown) => {
     throw new Diagnostics.Error({
-      code: Diagnostics.code.pluginNotFound,
+      code: kind === 'plugin' ? Diagnostics.code.pluginNotFound : Diagnostics.code.unknown,
       severity: 'error',
       message: `The ${kind} "${name}" is not an installed Kubb extension, so Studio cannot change its options. Edit it in the config file.`,
       cause: toError(cause),

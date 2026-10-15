@@ -1,4 +1,4 @@
-import type { Adapter, ExtensionManifest, Parser, Plugin } from '@kubb/core'
+import { type Adapter, Diagnostics, type ExtensionManifest, type Parser, type Plugin } from '@kubb/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ExtensionEntry, JSONKubbConfig } from './protocol.ts'
 import { mergeOptions, mergeParsers, mergePlugins, resolvePlugins, toJSONOptions } from './resolveConfig.ts'
@@ -208,9 +208,11 @@ describe('mergeParsers', () => {
   it('refuses an override for a parser no installed package provides, instead of dropping it', async () => {
     const parserTsx = { meta: { name: 'tsx' }, extNames: ['.tsx'], parse: vi.fn(), print: vi.fn() } as unknown as Parser
 
-    await expect(mergeParsers({ diskParsers: [parserTsx], studioParsers: [{ name: 'tsx', options: { indent: 4 } }] })).rejects.toThrow(
-      'The parser "tsx" is not an installed Kubb extension',
-    )
+    const error = await mergeParsers({ diskParsers: [parserTsx], studioParsers: [{ name: 'tsx', options: { indent: 4 } }] }).catch((caught: unknown) => caught)
+
+    expect(error).toHaveProperty('message', expect.stringContaining('The parser "tsx" is not an installed Kubb extension'))
+    // A parser is not a plugin, so the error does not claim KUBB_PLUGIN_NOT_FOUND.
+    expect(Diagnostics.from(error).code).toBe(Diagnostics.code.unknown)
   })
 })
 
