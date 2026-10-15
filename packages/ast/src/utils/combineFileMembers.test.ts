@@ -21,6 +21,10 @@ describe('combineSources', () => {
     expect(result).toHaveLength(1)
   })
 
+  it('deduplicates sources named with an empty string by that name', () => {
+    expect(combineSources([createSource({ name: '', nodes: [createText('a')] }), createSource({ name: '', nodes: [createText('b')] })])).toHaveLength(1)
+  })
+
   it('keeps unnamed sources with the same text when they are different nodes', () => {
     const result = combineSources([createSource({ nodes: [createText('Deprecated.')] }), createSource({ nodes: [createText('Deprecated.')] })])
 

@@ -77,7 +77,7 @@ function mergeByPath<TNode extends FileMember>(result: Array<TNode>): (member: {
 export function combineSources(sources: Array<SourceNode>): Array<SourceNode> {
   const seen = new Set<SourceNode | string>()
   return sources.filter((source) => {
-    const key = source.name ? `${source.name}:${source.isExportable ?? false}:${source.isTypeOnly ?? false}` : source
+    const key = source.name != null ? `${source.name}:${source.isExportable ?? false}:${source.isTypeOnly ?? false}` : source
     if (seen.has(key)) return false
     seen.add(key)
     return true
