@@ -66,14 +66,8 @@
       }
     },
     "./mocks": {
-      "import": {
-        "types": "./dist/mocks.d.ts",
-        "default": "./dist/mocks.js"
-      },
-      "require": {
-        "types": "./dist/mocks.d.cts",
-        "default": "./dist/mocks.cjs"
-      }
+      "types": "./dist/mocks.d.ts",
+      "default": "./dist/mocks.js"
     },
     "./schemas/*": "./schemas/*",
     "./package.json": "./package.json"

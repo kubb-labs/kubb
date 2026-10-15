@@ -64,14 +64,8 @@
       }
     },
     "./testing": {
-      "import": {
-        "types": "./dist/testing.d.ts",
-        "default": "./dist/testing.js"
-      },
-      "require": {
-        "types": "./dist/testing.d.cts",
-        "default": "./dist/testing.cjs"
-      }
+      "types": "./dist/testing.d.ts",
+      "default": "./dist/testing.js"
     },
     "./package.json": "./package.json"
   },
