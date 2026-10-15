@@ -74,29 +74,20 @@ function cutPoints(before: Array<string>, after: Array<string>): Array<[number, 
   return cuts
 }
 
-const patchLines = (prefix: string, lines: Array<string>) =>
-  lines.flatMap((line) => (line.endsWith('\n') ? [`${prefix}${line.slice(0, -1)}`] : [`${prefix}${line}`, '\\ No newline at end of file']))
-
 // A segment with no time left to diff shows as one block that replaces everything between its shared first and last lines.
 function replaceHunk(before: Array<string>, after: Array<string>): Array<StructuredPatchHunk> {
   let start = 0
   while (start < before.length && start < after.length && before[start] === after[start]) start++
   let end = 0
   while (end < before.length - start && end < after.length - start && before[before.length - 1 - end] === after[after.length - 1 - end]) end++
-  if (start + end === before.length && start + end === after.length) return []
+  const removed = before.slice(start, before.length - end)
+  const added = after.slice(start, after.length - end)
+  if (!removed.length && !added.length) return []
 
-  const from = Math.max(0, start - CONTEXT_LINES)
-  const to = before.length - end + Math.min(end, CONTEXT_LINES)
-  const oldLines = to - from
-  const newLines = oldLines + after.length - before.length
-  const lines = [
-    ...patchLines(' ', before.slice(from, start)),
-    ...patchLines('-', before.slice(start, before.length - end)),
-    ...patchLines('+', after.slice(start, after.length - end)),
-    ...patchLines(' ', before.slice(before.length - end, to)),
-  ]
+  const lines = (prefix: string, rows: Array<string>) =>
+    rows.flatMap((row) => (row.endsWith('\n') ? [`${prefix}${row.slice(0, -1)}`] : [`${prefix}${row}`, '\\ No newline at end of file']))
   // Same numbering as `structuredPatch`, which starts an empty side at line 1 too.
-  return [{ oldStart: from + 1, oldLines, newStart: from + 1, newLines, lines }]
+  return [{ oldStart: start + 1, oldLines: removed.length, newStart: start + 1, newLines: added.length, lines: [...lines('-', removed), ...lines('+', added)] }]
 }
 
 // One Myers diff over a whole file grows with lines times changes and stalls on large specs, so each segment
@@ -140,36 +131,21 @@ export function pageHunks({ hunks, cursor, limit }: { hunks: Array<StructuredPat
   nextCursor: number | null
 } {
   const page: Array<DiffHunk> = []
-  const total = hunks.reduce((sum, hunk) => sum + hunk.lines.length, 0)
   let used = 0
-  let position = 0
-  let oldEnd = 1
+  let start = 0
   for (const [index, hunk] of hunks.entries()) {
-    const collapsedBefore = Math.max(0, hunk.oldStart - oldEnd)
-    oldEnd = hunk.oldStart + hunk.oldLines
-    const start = position
-    position += hunk.lines.length
-    if (position <= cursor) continue
-
     const offset = Math.max(0, cursor - start)
+    start += hunk.lines.length
     const remaining = hunk.lines.length - offset
+    if (remaining <= 0) continue
     if (used > 0 && remaining > limit - used) break
     let take = Math.min(remaining, limit - used)
     // A `\ No newline` marker stays with its line, so no part starts with one.
     if (hunk.lines[offset + take]?.startsWith('\\')) take++
-    page.push({
-      index,
-      oldStart: hunk.oldStart,
-      oldLines: hunk.oldLines,
-      newStart: hunk.newStart,
-      newLines: hunk.newLines,
-      collapsedBefore,
-      offset,
-      lines: hunk.lines.slice(offset, offset + take),
-    })
+    page.push({ index, ...hunk, lines: hunk.lines.slice(offset, offset + take) })
     used += take
     if (used >= limit) break
   }
-  const end = cursor + used
-  return { hunks: page, nextCursor: end < total ? end : null }
+  const total = hunks.reduce((sum, hunk) => sum + hunk.lines.length, 0)
+  return { hunks: page, nextCursor: cursor + used < total ? cursor + used : null }
 }

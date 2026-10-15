@@ -376,22 +376,10 @@ export type ReadFilesResult = { files: Record<string, string>; pages?: Record<st
 export type ReadDiffInput = { jobId: string; path: string; base: { jobId: string; source: FileSource }; cursor?: number; limit: number }
 
 /**
- * One hunk of a diff page, with its full `@@` header. Pages hold whole hunks, and only a hunk longer than a page is
- * split: its parts keep `index` and the header, and `offset` says where in the hunk's `lines` each part starts.
+ * One hunk of a diff page, with its `@@` header. Pages hold whole hunks, and only a hunk longer than a page is
+ * split: its parts keep `index` and the header.
  */
-export type DiffHunk = {
-  index: number
-  oldStart: number
-  oldLines: number
-  newStart: number
-  newLines: number
-  /**
-   * Unchanged lines between the previous hunk, or the start of the file, and this one.
-   */
-  collapsedBefore: number
-  offset: number
-  lines: Array<string>
-}
+export type DiffHunk = { index: number; oldStart: number; oldLines: number; newStart: number; newLines: number; lines: Array<string> }
 
 /**
  * The size of a whole diff, sent with every page so a viewer can size itself before it has read all of it.

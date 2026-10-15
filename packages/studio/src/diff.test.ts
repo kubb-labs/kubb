@@ -38,7 +38,7 @@ describe('diffHunks', () => {
     try {
       const { hunks, stats } = diffHunks('a\nb\nc\nd\n', 'a\nx\nc\ny\n', 0)
       expect(stats.coarse).toBe(true)
-      expect(hunks).toStrictEqual([{ oldStart: 1, oldLines: 4, newStart: 1, newLines: 4, lines: [' a', '-b', '-c', '-d', '+x', '+c', '+y'] }])
+      expect(hunks).toStrictEqual([{ oldStart: 2, oldLines: 3, newStart: 2, newLines: 3, lines: ['-b', '-c', '-d', '+x', '+c', '+y'] }])
     } finally {
       clock.mockRestore()
     }
@@ -80,17 +80,17 @@ describe('pageHunks', () => {
     { oldStart: 1, oldLines: 2, newStart: 1, newLines: 2, lines: [' a', '-b', '+c'] },
     { oldStart: 10, oldLines: 1, newStart: 10, newLines: 1, lines: ['-d', '+e'] },
   ]
-  const first = { index: 0, oldStart: 1, oldLines: 2, newStart: 1, newLines: 2, collapsedBefore: 0 }
-  const second = { index: 1, oldStart: 10, oldLines: 1, newStart: 10, newLines: 1, collapsedBefore: 7 }
+  const first = { index: 0, oldStart: 1, oldLines: 2, newStart: 1, newLines: 2 }
+  const second = { index: 1, oldStart: 10, oldLines: 1, newStart: 10, newLines: 1 }
 
   it('ends a page before a hunk that does not fit', () => {
-    expect(pageHunks({ hunks, cursor: 0, limit: 4 })).toStrictEqual({ hunks: [{ ...first, offset: 0, lines: [' a', '-b', '+c'] }], nextCursor: 3 })
-    expect(pageHunks({ hunks, cursor: 3, limit: 4 })).toStrictEqual({ hunks: [{ ...second, offset: 0, lines: ['-d', '+e'] }], nextCursor: null })
+    expect(pageHunks({ hunks, cursor: 0, limit: 4 })).toStrictEqual({ hunks: [{ ...first, lines: [' a', '-b', '+c'] }], nextCursor: 3 })
+    expect(pageHunks({ hunks, cursor: 3, limit: 4 })).toStrictEqual({ hunks: [{ ...second, lines: ['-d', '+e'] }], nextCursor: null })
   })
 
   it('splits only a hunk longer than a page, with its header on each part', () => {
-    expect(pageHunks({ hunks, cursor: 0, limit: 2 })).toStrictEqual({ hunks: [{ ...first, offset: 0, lines: [' a', '-b'] }], nextCursor: 2 })
-    expect(pageHunks({ hunks, cursor: 2, limit: 2 })).toStrictEqual({ hunks: [{ ...first, offset: 2, lines: ['+c'] }], nextCursor: 3 })
+    expect(pageHunks({ hunks, cursor: 0, limit: 2 })).toStrictEqual({ hunks: [{ ...first, lines: [' a', '-b'] }], nextCursor: 2 })
+    expect(pageHunks({ hunks, cursor: 2, limit: 2 })).toStrictEqual({ hunks: [{ ...first, lines: ['+c'] }], nextCursor: 3 })
   })
 
   it('keeps a no-newline marker on the page of its line', () => {
@@ -101,8 +101,8 @@ describe('pageHunks', () => {
   it('returns every hunk that fits, and a null cursor on the last page', () => {
     expect(pageHunks({ hunks, cursor: 0, limit: 10 })).toStrictEqual({
       hunks: [
-        { ...first, offset: 0, lines: [' a', '-b', '+c'] },
-        { ...second, offset: 0, lines: ['-d', '+e'] },
+        { ...first, lines: [' a', '-b', '+c'] },
+        { ...second, lines: ['-d', '+e'] },
       ],
       nextCursor: null,
     })
