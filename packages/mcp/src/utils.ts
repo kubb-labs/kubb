@@ -8,5 +8,5 @@ import { type Diagnostic, Diagnostics } from '@kubb/core'
  * tracker, so the agent can act on the problem rather than parsing a bare message.
  */
 export function formatDiagnostics(diagnostics: ReadonlyArray<Diagnostic>): string {
-  return diagnostics.map((diagnostic) => stripVTControlCharacters(Diagnostics.formatLines(diagnostic, { audience: 'agent' }).join('\n'))).join('\n\n')
+  return diagnostics.map((diagnostic) => stripVTControlCharacters(Diagnostics.format(diagnostic, { audience: 'agent' }).join('\n'))).join('\n\n')
 }

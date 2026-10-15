@@ -305,14 +305,14 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
         return
       }
       if (!human) {
-        for (const problem of problems) writer.diagnostic(Diagnostics.formatLines(problem, formatOptions))
+        for (const problem of problems) writer.diagnostic(Diagnostics.format(problem, formatOptions))
         return
       }
 
       const byPlugin = Map.groupBy(problems, (problem) => problem.plugin ?? '')
       const lines = [...byPlugin].flatMap(([plugin, group]) => [
         ...(plugin ? [` ${styleText('bold', plugin)}`, ''] : []),
-        ...group.flatMap((problem) => [...Diagnostics.formatLines(problem, formatOptions).map((line) => `  ${line}`), '']),
+        ...group.flatMap((problem) => [...Diagnostics.format(problem, formatOptions).map((line) => `  ${line}`), '']),
       ])
       writer.diagnostic(lines.slice(0, -1))
     }
@@ -346,7 +346,7 @@ export function createLogger(writer: LoggerWriter, { audience }: { audience: Dia
       // name tells a `TypeError` from a plain `Error`.
       const message = error.name === 'Error' || Diagnostics.isError(error) ? error.message : `${error.name}: ${error.message}`
       const help = Diagnostics.isError(error) ? error.diagnostic.help : undefined
-      const { headline, details } = Diagnostics.format({ code: Diagnostics.code.unknown, severity: 'error', message, help, cause: error }, formatOptions)
+      const [headline = '', ...details] = Diagnostics.format({ code: Diagnostics.code.unknown, severity: 'error', message, help, cause: error }, formatOptions)
 
       if (!human) {
         stopSpinner()

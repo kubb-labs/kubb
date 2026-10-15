@@ -1,7 +1,8 @@
 import { resolve } from 'node:path'
 import { getElapsedMs } from '@internals/utils'
 import type { GenerationResult } from '../createReporter.ts'
-import { Diagnostics, type SerializedDiagnostic } from '../Diagnostics.ts'
+import { Diagnostics } from '../Diagnostics.ts'
+import type { SerializedDiagnostic } from '../formatDiagnostic.ts'
 
 /**
  * One plugin's elapsed time, derived from a `performance` diagnostic.

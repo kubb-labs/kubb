@@ -159,7 +159,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
 
     if (!json) setupReporters(hooks, { logLevel, reporters: [cliReporter] })
     // A diagnostic thrown while the config file runs, such as invalid extension options, sits in the cause chain.
-    await Diagnostics.emitError(errorHooks, error)
+    await Diagnostics.emit(errorHooks, error)
 
     if (!quiet) logOutro(styleText('red', '✗ Configuration failed'))
     process.exit(1)
@@ -209,7 +209,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
         try {
           await build(watchedPaths)
         } catch (buildError) {
-          await Diagnostics.emitError(errorHooks, buildError)
+          await Diagnostics.emit(errorHooks, buildError)
         }
 
         if (inputKind === 'url') {
@@ -222,7 +222,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
           const succeeded = await generate({ input, config, hooks, dryRun })
           if (!succeeded) anyFailed = true
         } catch (configError) {
-          await Diagnostics.emitError(errorHooks, configError)
+          await Diagnostics.emit(errorHooks, configError)
           anyFailed = true
         }
       }
@@ -240,7 +240,7 @@ export async function run({ input, configPath, logLevel: logLevelKey, watch, rep
       process.exit(1)
     }
   } catch (error) {
-    await Diagnostics.emitError(errorHooks, error)
+    await Diagnostics.emit(errorHooks, error)
     process.exit(1)
   }
 }

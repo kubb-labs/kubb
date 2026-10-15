@@ -19,7 +19,7 @@ function buildProblemSection(diagnostics: ReadonlyArray<Diagnostic>): Array<stri
   }
 
   // The full stack, since a log file is what a bug report attaches.
-  const blocks = problems.map((diagnostic) => Diagnostics.formatLines(diagnostic, { verbose: true }).join('\n'))
+  const blocks = problems.map((diagnostic) => Diagnostics.format(diagnostic, { verbose: true }).join('\n'))
   return ['## Problems', '', blocks.join('\n\n')]
 }
 

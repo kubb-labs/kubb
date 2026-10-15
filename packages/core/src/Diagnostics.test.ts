@@ -1,6 +1,7 @@
 import { stripVTControlCharacters } from 'node:util'
 import { describe, expect, it } from 'vitest'
-import { type Diagnostic, type DiagnosticFormatOptions, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
+import { type Diagnostic, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
+import type { DiagnosticFormatOptions } from './formatDiagnostic.ts'
 import { Hookable } from './Hookable.ts'
 import type { KubbHooks } from './types.ts'
 
@@ -232,7 +233,7 @@ describe('Diagnostics.format', () => {
     ],
   ]
 
-  const render = (diagnostic: Diagnostic, options: DiagnosticFormatOptions) => stripVTControlCharacters(Diagnostics.formatLines(diagnostic, options).join('\n'))
+  const render = (diagnostic: Diagnostic, options: DiagnosticFormatOptions) => stripVTControlCharacters(Diagnostics.format(diagnostic, options).join('\n'))
 
   it.each(cases)('renders %s for an agent', (_label, diagnostic) => {
     expect(render(diagnostic, { audience: 'agent' })).toMatchSnapshot()
@@ -263,7 +264,7 @@ describe('Diagnostics.format', () => {
   it('keeps an agent block free of escape codes even when color is on', () => {
     const [, coded] = cases[0]!
 
-    expect(Diagnostics.formatLines(coded).join('\n')).toBe(render(coded, { audience: 'agent' }))
+    expect(Diagnostics.format(coded).join('\n')).toBe(render(coded, { audience: 'agent' }))
   })
 })
 
@@ -312,5 +313,20 @@ describe('Diagnostics.emit', () => {
 
     expect(errors[0]).toMatchObject({ message: 'Config failed loading: kubb.config.ts', diagnostic: { help: 'Fix it.' }, cause: root })
     expect(errors[1]).toBe(root)
+  })
+
+  it('takes a thrown value: a coded one as kubb:diagnostic, anything else whole as kubb:error', async () => {
+    const hooks = new Hookable<KubbHooks>()
+    const codes: Array<string> = []
+    const errors: Array<Error> = []
+    hooks.hook('kubb:diagnostic', ({ diagnostic }) => void codes.push(diagnostic.code))
+    hooks.hook('kubb:error', ({ error }) => void errors.push(error))
+    const wrapper = new Error('Config failed loading', { cause: new Error('boom') })
+
+    await Diagnostics.emit(hooks, new Error('outer', { cause: new Diagnostics.Error({ code: 'KUBB_REF_NOT_FOUND', severity: 'error', message: 'x' }) }))
+    await Diagnostics.emit(hooks, wrapper)
+
+    expect(codes).toStrictEqual(['KUBB_REF_NOT_FOUND'])
+    expect(errors).toStrictEqual([wrapper])
   })
 })
