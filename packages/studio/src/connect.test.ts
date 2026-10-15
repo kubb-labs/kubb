@@ -432,12 +432,15 @@ describe('readDiff', () => {
         {
           index: 0,
           oldStart: 1,
+          oldLines: 1,
           newStart: 1,
+          newLines: 1,
           lines: ['-export const pet = 1', '\\ No newline at end of file', '+export const pet = 2', '\\ No newline at end of file'],
         },
       ],
       nextCursor: null,
       hasBase: true,
+      stats: { additions: 1, deletions: 1, hunks: 1, lines: 4, coarse: false },
     })
   })
 
@@ -456,6 +459,7 @@ describe('readDiff', () => {
       hunks: [],
       nextCursor: null,
       hasBase: false,
+      stats: { additions: 0, deletions: 0, hunks: 0, lines: 0, coarse: false },
     })
   })
 
