@@ -25,6 +25,16 @@ describe('createFile', () => {
     ).toThrow(/No extname found/)
   })
 
+  it('keeps repeated sources in a markdown file, which code files deduplicate', () => {
+    const sources = [
+      createSource({ name: 'heading', nodes: [createText('## Servers')] }),
+      createSource({ name: 'heading', nodes: [createText('## Authentication')] }),
+    ]
+
+    expect(createFile({ baseName: 'SKILL.md', path: 'skills/SKILL.md', sources }).sources).toHaveLength(2)
+    expect(createFile({ baseName: 'pet.ts', path: 'src/pet.ts', sources }).sources).toHaveLength(1)
+  })
+
   it('filters unused imports', () => {
     const usedImport = createImport({ name: ['z'], path: 'zod' })
     const unusedImport = createImport({ name: ['unused'], path: 'lodash' })

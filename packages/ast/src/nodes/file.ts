@@ -361,7 +361,8 @@ export function createFile<TMeta extends object = object>(input: UserFileNode<TM
       return [kept.length === imp.name.length ? imp : { ...imp, name: kept }]
     })
   })()
-  const resolvedSources = input.sources?.length ? combineSources(input.sources) : []
+  // Markdown repeats headings, paragraphs, and lists on purpose, so only code files drop duplicate sources.
+  const resolvedSources = !input.sources?.length ? [] : extname === '.md' ? input.sources : combineSources(input.sources)
 
   return {
     ...input,
