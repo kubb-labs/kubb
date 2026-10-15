@@ -1,10 +1,10 @@
 ---
-'@kubb/core': minor
-'@kubb/cli': minor
-'@kubb/adapter-oas': minor
-'@kubb/mcp': minor
-'@kubb/studio': minor
-'unplugin-kubb': minor
+'@kubb/core': patch
+'@kubb/cli': patch
+'@kubb/adapter-oas': patch
+'@kubb/mcp': patch
+'@kubb/studio': patch
+'unplugin-kubb': patch
 ---
 
 Diagnostics now say why a build failed and how to fix it, without a trip to kubb.dev:

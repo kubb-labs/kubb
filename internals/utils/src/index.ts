@@ -1,6 +1,7 @@
 export { camelCase, pascalCase } from './casing.ts'
 export { getErrorChain, getErrorMessage, toError } from './errors.ts'
 export { isCIEnvironment } from './isCIEnvironment.ts'
+export { escapePointerToken } from './jsonPointer.ts'
 export { openInBrowser } from './openInBrowser.ts'
 export { exists, isPathInside, matchesStored, read, toPosixPath, trimExtName, write } from './fs.ts'
 export type { PossiblePromise } from './promise.ts'

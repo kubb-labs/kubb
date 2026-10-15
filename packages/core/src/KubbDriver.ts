@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { getElapsedMs, toError } from '@internals/utils'
+import { escapePointerToken, getElapsedMs, toError } from '@internals/utils'
 import { ast, collectUsedSchemaNames, type Enforce, type FileNode, type InputMeta, type InputNode, type OperationNode, type SchemaNode } from '@kubb/ast'
 import { type Diagnostic, type DiagnosticLocation, Diagnostics, type ProblemDiagnostic } from './Diagnostics.ts'
 import type { Generator, GeneratorContext } from './defineGenerator.ts'
@@ -90,13 +90,6 @@ function assertPluginEntry(entry: unknown, index: number): asserts entry is Plug
       location: { kind: 'config' },
     })
   }
-}
-
-/**
- * Escapes a single JSON pointer reference token per RFC 6901 (`~` → `~0`, `/` → `~1`).
- */
-function escapePointerToken(token: string): string {
-  return token.replaceAll('~', '~0').replaceAll('/', '~1')
 }
 
 /**

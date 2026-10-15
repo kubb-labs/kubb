@@ -1,3 +1,4 @@
+import { escapePointerToken } from '@internals/utils'
 import type { ast } from '@kubb/kit'
 import { Diagnostics } from '@kubb/kit'
 import { isHandledFormat } from './emit/schemaShape.ts'
@@ -13,14 +14,6 @@ import { isHandledFormat } from './emit/schemaShape.ts'
  */
 export function scanSchema({ node, name }: { node: ast.SchemaNode; name: string }): void {
   visit(node, `#/components/schemas/${escapePointerToken(name)}`)
-}
-
-/**
- * Escapes a single JSON pointer reference token per RFC 6901 (`~` → `~0`, `/` → `~1`), so a
- * property name with those characters maps to a distinct pointer instead of colliding in the dedupe.
- */
-function escapePointerToken(token: string): string {
-  return token.replace(/~/g, '~0').replace(/\//g, '~1')
 }
 
 function visit(node: ast.SchemaNode, pointer: string): void {
