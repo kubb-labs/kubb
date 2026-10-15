@@ -1,17 +1,17 @@
 ---
 layout: doc
-title: Create and extend a plugin
-description: Create and test a Kubb plugin, then add a configurable comment prefix.
+title: Create aplugin
+description: Create and test a Kubb plugin.
 outline:
   - 2
   - 3
 order: 2
 navigation:
-  title: Create and extend a plugin
+  title: Create a plugin
   icon: i-iconoir-ev-plug
 ---
 
-# Create and extend a plugin
+# Create a plugin
 
 Build a plugin that writes `listPets.ts` containing the method and path of one API operation, then add a configurable prefix. You need Node.js 22 or higher, npm, and TypeScript knowledge.
 
