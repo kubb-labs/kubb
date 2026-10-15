@@ -60,7 +60,6 @@ type SchemaRule = {
  */
 export const schemaRules: Array<SchemaRule> = [
   { match: ({ schema }) => isReference(schema), convert: convertRef },
-  // Object `not` only: a boolean `not` has no JSON Schema use in practice and stays ignored.
   { match: ({ schema }) => typeof schema.not === 'object' && schema.not !== null, convert: convertNot },
   { match: ({ schema }) => !!schema.allOf?.length, convert: convertAllOf },
   { match: ({ schema }) => !!(schema.oneOf?.length || schema.anyOf?.length), convert: convertUnion },

@@ -140,11 +140,7 @@ export function convertRef({ schema, name, nullable, defaultValue, document, par
   })
 }
 
-/**
- * Converts a schema carrying `not` into `intersection[rest, not[subschema]]`, where `rest` is the
- * schema without `not`. A bare `required` list inside `not` (`not: { required: [a, b] }`) borrows
- * the outer `properties`, the same way union members do.
- */
+/** Converts `{ ...rest, not: X }` into `intersection[rest, not[X]]`; a bare `required` inside `not` borrows the outer `properties`. */
 export function convertNot({ schema, name, nullable, defaultValue, parse }: ConvertContext): ast.SchemaNode {
   const { not, ...rest } = schema as SchemaObject & { not: SchemaObject }
   const [subschema] = resolveUnionMembers([not], (rest.properties ?? {}) as Record<string, unknown>) as [SchemaObject]

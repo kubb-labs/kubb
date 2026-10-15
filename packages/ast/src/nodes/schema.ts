@@ -275,24 +275,9 @@ export type IntersectionSchemaNode = CompositeSchemaNodeBase & {
   type: 'intersection'
 }
 
-/**
- * Negation schema from `not`: the value must not match its single member. The adapter emits it as
- * an intersection member next to the rest of the schema, so a printer that cannot express negation
- * (TypeScript types) returns `null` for it and the intersection drops it.
- *
- * @example
- * ```ts
- * const notSchema: NotSchemaNode = {
- *   kind: 'Schema',
- *   type: 'not',
- *   members: [{ kind: 'Schema', type: 'string', primitive: 'string' }],
- * }
- * ```
- */
+/** Negation from `not`: the value must not match its single member. Printers that cannot express it return `null`. */
 export type NotSchemaNode = CompositeSchemaNodeBase & {
-  /**
-   * Schema type discriminator.
-   */
+  /** Schema type discriminator. */
   type: 'not'
 }
 
