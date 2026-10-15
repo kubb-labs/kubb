@@ -374,7 +374,9 @@ export type ReadDiffInput = { jobId: string; path: string; base: { jobId: string
  */
 export type DiffHunk = { index: number; oldStart: number; newStart: number; lines: Array<string> }
 
-/** One page of a diff. `hasBase` is false, and the page empty, when the base set does not hold the path. */
+/**
+ * One page of a diff. `hasBase` is false, and the page empty, when the base set does not hold the path.
+ */
 export type ReadDiffResult = { hunks: Array<DiffHunk>; nextCursor: number | null; hasBase: boolean }
 
 /**
@@ -391,10 +393,14 @@ export type ReadInputResult = { input: InputNode }
  * Why the agent refuses a request. Studio matches on these to answer with the right status.
  */
 export const AgentMessage = {
-  /** A read for a job whose files the agent no longer keeps. */
+  /**
+   * A read for a job whose files the agent no longer keeps.
+   */
   GENERATION_GONE: 'The files of this generation are no longer kept on the agent, run the generation again',
   READ_NOT_ALLOWED: 'The agent was not granted permission to read generated files',
-  /** Reading the parsed spec is its own permission. */
+  /**
+   * Reading the parsed spec is its own permission.
+   */
   READ_AST_NOT_ALLOWED: 'The agent was not granted permission to read the parsed spec',
   NO_INPUT: 'This job kept no API input',
 } as const
@@ -443,6 +449,9 @@ export type AgentApi = {
    * Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}.
    */
   readInput: (input: ReadInputInput) => Promise<ReadInputResult>
+  /**
+   * Refused unless the agent was granted `allowRead`, like {@link AgentApi.readFiles}.
+   */
   readDiff: (input: ReadDiffInput) => Promise<ReadDiffResult>
 }
 
