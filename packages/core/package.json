@@ -56,14 +56,24 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./mocks": {
-      "types": "./dist/mocks.d.ts",
-      "import": "./dist/mocks.js",
-      "require": "./dist/mocks.cjs"
+      "import": {
+        "types": "./dist/mocks.d.ts",
+        "default": "./dist/mocks.js"
+      },
+      "require": {
+        "types": "./dist/mocks.d.cts",
+        "default": "./dist/mocks.cjs"
+      }
     },
     "./schemas/*": "./schemas/*",
     "./package.json": "./package.json"
@@ -86,6 +96,14 @@
   "devDependencies": {
     "@internals/utils": "workspace:*",
     "vue": "^3.5.43"
+  },
+  "peerDependencies": {
+    "vitest": "^4.0.0 || ^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vitest": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=22"
