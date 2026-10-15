@@ -4,7 +4,7 @@ import process from 'node:process'
 import { inParallel } from '@internals/utils'
 import { ast, type InputNode } from '@kubb/ast'
 import { type Config, createKubb, type Diagnostic, Diagnostics, fsStorage, type Hookable, type KubbHooks, type Storage } from '@kubb/core'
-import type { FilePage, FileSource, ReadFilesResult } from './protocol.ts'
+import { type FilePage, FileSource, type ReadFilesResult } from './protocol.ts'
 
 const READ_CONCURRENCY = 50
 const MB = 1024 * 1024
@@ -197,8 +197,8 @@ export function createGenerationStore({
         // Output is kept as writing it to disk would leave it (see `write`): skipped when empty once
         // trimmed, and hashed trimmed with one trailing newline. A run kept in memory then reports the
         // same files and hashes as one with `allowWrite`, the disk snapshot, and a CI upload.
-        if (source === 'output' && !content.trim()) return
-        hashes[path] = hashOf(source === 'output' ? `${content.trim()}\n` : content)
+        if (source === FileSource.OUTPUT && !content.trim()) return
+        hashes[path] = hashOf(source === FileSource.OUTPUT ? `${content.trim()}\n` : content)
         bytes += Buffer.byteLength(content)
         if (bytes <= maxSetBytes) await storage.writeItem(`${dirOf(jobId)}${source}/${path}`, content)
       },

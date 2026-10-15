@@ -9,17 +9,7 @@ import { type Config, defineExtension, fsStorage, Hookable, type KubbHooks, reso
 import { createMockedAdapter } from '@kubb/core/mocks'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type ConnectAgentOptions, connectAgent, IncompatibleAgentError, InvalidAgentTokenError, type OpenRpc, runAgent } from './connect.ts'
-import {
-  AGENT_INSTANCE_HEADER,
-  type AgentApi,
-  AgentCloseCode,
-  type AgentConnectInfo,
-  GENERATION_GONE_MESSAGE,
-  MAX_PAGE_LINES,
-  NO_INPUT_MESSAGE,
-  READ_AST_NOT_ALLOWED_MESSAGE,
-  READ_NOT_ALLOWED_MESSAGE,
-} from './protocol.ts'
+import { AGENT_INSTANCE_HEADER, type AgentApi, AgentCloseCode, AgentMessage, type AgentConnectInfo, MAX_PAGE_LINES } from './protocol.ts'
 import { projectConfig, root } from './testing.ts'
 
 vi.mock('../package.json', () => ({ version: '5.0.0-test' }))
@@ -394,7 +384,7 @@ describe('readFiles', () => {
     const warn = heard('studio:warn')
     const { agent } = await connectStudio({ hooks })
 
-    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).rejects.toThrow(READ_NOT_ALLOWED_MESSAGE)
+    await expect(agent.readFiles({ jobId: 'job-1', paths: ['src/gen/pet.ts'] })).rejects.toThrow(AgentMessage.READ_NOT_ALLOWED)
     expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('not granted'), permission: 'allowRead' })
   })
 
@@ -432,7 +422,7 @@ describe('readDiff', () => {
 
   it('refuses without allowRead', async () => {
     const agent = await twoRuns({ allowRead: false })
-    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 10 })).rejects.toThrow(READ_NOT_ALLOWED_MESSAGE)
+    await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base, limit: 10 })).rejects.toThrow(AgentMessage.READ_NOT_ALLOWED)
   })
 
   it('returns the changed lines of a file between two jobs', async () => {
@@ -479,7 +469,7 @@ describe('readDiff', () => {
   it('refuses a job the agent no longer keeps', async () => {
     const agent = await twoRuns()
     await expect(agent.readDiff({ jobId: 'job-2', path: 'src/gen/pet.ts', base: { jobId: 'job-gone', source: 'output' }, limit: 10 })).rejects.toThrow(
-      GENERATION_GONE_MESSAGE,
+      AgentMessage.GENERATION_GONE,
     )
   })
 })
@@ -497,7 +487,7 @@ describe('readInput', () => {
     const warn = heard('studio:warn')
     const { agent } = await connectStudio({ hooks })
 
-    await expect(agent.readInput({ jobId: 'job-1' })).rejects.toThrow(READ_AST_NOT_ALLOWED_MESSAGE)
+    await expect(agent.readInput({ jobId: 'job-1' })).rejects.toThrow(AgentMessage.READ_AST_NOT_ALLOWED)
     expect(warn).toHaveBeenCalledWith({ message: expect.stringContaining('not granted'), permission: 'allowReadAst' })
   })
 
@@ -508,7 +498,7 @@ describe('readInput', () => {
     const { agent } = await connectStudio({ permissions: { allowReadAst: true } })
 
     await expect(agent.readInput({ jobId: 'job-1' })).resolves.toStrictEqual({ input: JSON.parse(JSON.stringify(input)) })
-    await expect(agent.readInput({ jobId: 'job-unknown' })).rejects.toThrow(GENERATION_GONE_MESSAGE)
+    await expect(agent.readInput({ jobId: 'job-unknown' })).rejects.toThrow(AgentMessage.GENERATION_GONE)
   })
 
   it('keeps no input for a run without allowReadAstAst, so a later grant finds none, not even an earlier run of the job', async () => {
@@ -519,7 +509,7 @@ describe('readInput', () => {
 
     const { agent } = await connectStudio({ permissions: { allowReadAst: true } })
 
-    await expect(agent.readInput({ jobId: 'job-1' })).rejects.toThrow(NO_INPUT_MESSAGE)
+    await expect(agent.readInput({ jobId: 'job-1' })).rejects.toThrow(AgentMessage.NO_INPUT)
   })
 })
 

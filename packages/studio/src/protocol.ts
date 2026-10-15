@@ -323,7 +323,8 @@ export type SaveResult = { outcomes: Array<ConfigEditOutcome>; changed: boolean 
  * What a file read returns for a job: the files that job generated (`output`), or what the output
  * directory held on disk before that job ran (`disk`, only on an agent with a project on disk).
  */
-export type FileSource = 'output' | 'disk'
+export const FileSource = { OUTPUT: 'output', DISK: 'disk' } as const
+export type FileSource = (typeof FileSource)[keyof typeof FileSource]
 
 /**
  * Asks the agent to read files of one generation job back.
@@ -331,7 +332,7 @@ export type FileSource = 'output' | 'disk'
 export type ReadFilesInput = {
   /**
    * The job whose files to read, the only lookup key, so the caller decides whose jobs a reader may
-   * see. A job the agent no longer keeps fails with {@link GENERATION_GONE_MESSAGE}.
+   * see. A job the agent no longer keeps fails with {@link AgentMessage.GENERATION_GONE}.
    */
   jobId: string
   /**
@@ -377,7 +378,7 @@ export type DiffHunk = { index: number; oldStart: number; newStart: number; line
 export type ReadDiffResult = { hunks: Array<DiffHunk>; nextCursor: number | null; hasBase: boolean }
 
 /**
- * Asks for the Kubb AST one job parsed its spec into. A job the agent no longer keeps fails with {@link GENERATION_GONE_MESSAGE}.
+ * Asks for the Kubb AST one job parsed its spec into. A job the agent no longer keeps fails with {@link AgentMessage.GENERATION_GONE}.
  */
 export type ReadInputInput = { jobId: string }
 
@@ -387,16 +388,17 @@ export type ReadInputInput = { jobId: string }
 export type ReadInputResult = { input: InputNode }
 
 /**
- * The error a file read fails with once the agent no longer keeps the job's files.
+ * Why the agent refuses a request. Studio matches on these to answer with the right status.
  */
-export const GENERATION_GONE_MESSAGE = 'The files of this generation are no longer kept on the agent, run the generation again'
-
-export const READ_NOT_ALLOWED_MESSAGE = 'The agent was not granted permission to read generated files'
-
-/** Why `readInput` refuses: reading the parsed spec is its own permission. */
-export const READ_AST_NOT_ALLOWED_MESSAGE = 'The agent was not granted permission to read the parsed spec'
-
-export const NO_INPUT_MESSAGE = 'This job kept no API input'
+export const AgentMessage = {
+  /** A read for a job whose files the agent no longer keeps. */
+  GENERATION_GONE: 'The files of this generation are no longer kept on the agent, run the generation again',
+  READ_NOT_ALLOWED: 'The agent was not granted permission to read generated files',
+  /** Reading the parsed spec is its own permission. */
+  READ_AST_NOT_ALLOWED: 'The agent was not granted permission to read the parsed spec',
+  NO_INPUT: 'This job kept no API input',
+} as const
+export type AgentMessage = (typeof AgentMessage)[keyof typeof AgentMessage]
 
 /**
  * A generation in flight. Cap'n Web keeps the three calls pointed at the same run, so a caller can
@@ -582,6 +584,18 @@ export type AgentPermissions = {
    */
   allowReadAst: boolean
 }
+
+/**
+ * The keys of {@link AgentPermissions}, such as the permission a refused request names.
+ */
+export const AgentPermission = {
+  READ: 'allowRead',
+  READ_AST: 'allowReadAst',
+  WRITE: 'allowWrite',
+  CONFIG_EDIT: 'allowConfigEdit',
+  EXEC: 'allowExec',
+} as const satisfies Record<string, keyof AgentPermissions>
+export type AgentPermission = (typeof AgentPermission)[keyof typeof AgentPermission]
 
 /**
  * Metadata part of `POST /api/snapshots`. The `tarball` part carries the packed package.

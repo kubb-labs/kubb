@@ -8,6 +8,7 @@ import { isCIEnvironment, openInBrowser, toError } from '@internals/utils'
 import type { CLIOptions, Config } from '@kubb/core'
 import { cliReporter, Hookable, type KubbHooks, logLevel as logLevelMap } from '@kubb/core'
 import { connectAgent, defaultStudioUrl, InvalidAgentTokenError, pairAgent, PairingCanceledError } from '@kubb/studio'
+import { AgentPermission } from '@kubb/studio/protocol'
 import { trackRun } from '../../Telemetry.ts'
 import { plainLogger } from '../../loggers/plainLogger.ts'
 import setupReporters from '../../loggers/reporters.ts'
@@ -16,8 +17,6 @@ import { canUseTTY } from '../../utils/env.ts'
 import { getConfigs } from '../../config.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getMachineId, readCredentials, writeCredentials } from './credentials.ts'
 import { version } from '../../../package.json'
-
-type Permission = 'allowRead' | 'allowReadAst' | 'allowWrite' | 'allowConfigEdit' | 'allowExec'
 
 export type StudioOptions = {
   /**
@@ -34,7 +33,7 @@ export type StudioOptions = {
    * What Studio may do in this project. Each flag grants outright; the rest are asked once per
    * project through {@link resolvePermissions}.
    */
-  permission: Record<Permission, boolean>
+  permission: Record<AgentPermission, boolean>
   /**
    * Whether to open the approval page in a browser during pairing.
    */
@@ -154,7 +153,7 @@ export async function login({ studioUrl, autoOpen }: StudioOptions, { signal, pr
  * What each permission is asked as, in the order the questions appear.
  */
 const PERMISSIONS: ReadonlyArray<{
-  key: Permission
+  key: AgentPermission
   /**
    * Short label for status output and the connect summary.
    */
@@ -162,19 +161,19 @@ const PERMISSIONS: ReadonlyArray<{
   question: (project: string, configPath: string) => string
 }> = [
   {
-    key: 'allowRead',
+    key: AgentPermission.READ,
     label: 'read generated files',
     question: () => 'Let Kubb Studio read the files a generation produced?',
   },
-  { key: 'allowReadAst', label: 'read parsed spec', question: () => 'Let Kubb Studio read the parsed spec (the Kubb AST)?' },
-  { key: 'allowWrite', label: 'write generated files', question: (project) => `Let Kubb Studio write generated files into ${project}?` },
+  { key: AgentPermission.READ_AST, label: 'read parsed spec', question: () => 'Let Kubb Studio read the parsed spec (the Kubb AST)?' },
+  { key: AgentPermission.WRITE, label: 'write generated files', question: (project) => `Let Kubb Studio write generated files into ${project}?` },
   {
-    key: 'allowConfigEdit',
+    key: AgentPermission.CONFIG_EDIT,
     label: 'edit kubb.config.ts',
     question: (_project, configPath) => `Let Kubb Studio change plugin options in ${configPath}?`,
   },
   {
-    key: 'allowExec',
+    key: AgentPermission.EXEC,
     label: 'run formatter, linter, postGenerate',
     question: () => 'Let Kubb Studio run the formatter, the linter, and output.postGenerate?',
   },
@@ -184,7 +183,7 @@ const PERMISSIONS: ReadonlyArray<{
  * One row per permission, for the connect banner and `kubb studio status`. A list rather than a
  * joined line: four labels this long read as one run-on sentence side by side.
  */
-export function formatPermissionRows(granted: Record<Permission, boolean>): Array<string> {
+export function formatPermissionRows(granted: Record<AgentPermission, boolean>): Array<string> {
   return PERMISSIONS.map(({ key, label }) => `${granted[key] ? styleText('green', '✔') : styleText('red', '✘')} ${label}`)
 }
 
@@ -196,11 +195,11 @@ export async function resolvePermissions(
   options: StudioOptions,
   credentials: Credentials,
   configPath: string = KUBB_CONFIG_FILENAME,
-): Promise<Record<Permission, boolean>> {
+): Promise<Record<AgentPermission, boolean>> {
   const project = process.cwd()
   const remembered = credentials.projects?.[project]
-  const granted: Record<Permission, boolean> = { allowRead: false, allowReadAst: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
-  const answers: Partial<Record<Permission, boolean>> = {}
+  const granted: Record<AgentPermission, boolean> = { allowRead: false, allowReadAst: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
+  const answers: Partial<Record<AgentPermission, boolean>> = {}
   prompts.updateSettings({ withGuide: true })
 
   for (const { key, question } of PERMISSIONS) {
