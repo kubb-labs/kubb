@@ -1,5 +1,5 @@
 import { applyPatch } from 'diff'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { diffHunks, pageHunks } from './diff.ts'
 
 const lines = (count: number, change?: number) => Array.from({ length: count }, (_, i) => (i === change ? `changed ${i}` : `line ${i}`)).join('\n')
@@ -21,12 +21,29 @@ describe('diffHunks', () => {
   })
 
   it('handles added and deleted files', () => {
-    expect(diffHunks('', 'a\nb\n')).toStrictEqual([{ oldStart: 0, oldLines: 0, newStart: 1, newLines: 2, lines: ['+a', '+b'] }])
-    expect(diffHunks('a\n', '')).toStrictEqual([{ oldStart: 1, oldLines: 1, newStart: 0, newLines: 0, lines: ['-a'] }])
+    // A timeout of 0 takes the fallback, which must number them the same way.
+    for (const timeout of [1_000, 0]) {
+      expect(diffHunks('', 'a\nb\n', timeout)).toStrictEqual([{ oldStart: 1, oldLines: 0, newStart: 1, newLines: 2, lines: ['+a', '+b'] }])
+      expect(diffHunks('a\n', '', timeout)).toStrictEqual([{ oldStart: 1, oldLines: 1, newStart: 1, newLines: 0, lines: ['-a'] }])
+    }
   })
 
-  it('replaces a region it has no time to diff', () => {
-    expect(diffHunks('a\nb\nc\n', 'a\nx\nc\n', 0)).toStrictEqual([{ oldStart: 1, oldLines: 3, newStart: 1, newLines: 3, lines: [' a', '-b', '+x', ' c'] }])
+  it('replaces a segment it has no time to diff', () => {
+    // Every clock read moves 1 ms on, so the diff always runs past a 0 ms deadline.
+    let now = 0
+    const clock = vi.spyOn(Date, 'now').mockImplementation(() => now++)
+    expect(diffHunks('a\nb\nc\nd\n', 'a\nx\nc\ny\n', 0)).toStrictEqual([
+      { oldStart: 1, oldLines: 4, newStart: 1, newLines: 4, lines: [' a', '-b', '-c', '-d', '+x', '+c', '+y'] },
+    ])
+    clock.mockRestore()
+  })
+
+  it('shifts the hunks of later segments to their place in the file', () => {
+    const hunks = diffHunks(lines(100, 10), lines(100, 80))
+    expect(hunks!.map(({ oldStart, newStart, lines }) => ({ oldStart, newStart, lines: lines.filter((line) => line[0] !== ' ') }))).toStrictEqual([
+      { oldStart: 8, newStart: 8, lines: ['-changed 10', '+line 10'] },
+      { oldStart: 78, newStart: 78, lines: ['-line 80', '+changed 80'] },
+    ])
   })
 
   it('returns hunks that rebuild the new file', () => {

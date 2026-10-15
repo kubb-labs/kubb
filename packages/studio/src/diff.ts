@@ -1,11 +1,9 @@
-import { diffArrays, type StructuredPatchHunk } from 'diff'
+import { structuredPatch, type StructuredPatchHunk } from 'diff'
 import type { DiffHunk } from './protocol.ts'
 
 const CONTEXT_LINES = 3
-// Past this, each remaining region shows as one replace block.
+// Past this, each remaining segment shows as one replace block.
 const DIFF_TIMEOUT_MS = 1_000
-
-type Op = { type: ' ' | '-' | '+'; line: string }
 
 // Lines keep their `\n`, so a last line without one differs from the same line with one.
 const splitLines = (text: string) => (text === '' ? [] : text.split(/(?<=\n)/))
@@ -30,9 +28,9 @@ function longestIncreasing(values: Array<number>): Array<number> {
   return result.reverse()
 }
 
-// Patience-style anchoring: lines that occur once in each file, in the same order, split the diff into small
-// regions that Myers handles fast. One diff over the whole file grows with lines times changes and stalls on large specs.
-function diffLines(before: Array<string>, after: Array<string>, deadline: number): Array<Op> {
+// Where to cut both files so each segment diffs on its own: inside each unchanged stretch that keeps a full
+// context on both sides, so no hunk crosses a cut. Lines that occur once in each file, in the same order, find them.
+function cutPoints(before: Array<string>, after: Array<string>): Array<[number, number]> {
   const counts = new Map<string, { before: number; after: number; index: number }>()
   for (const [index, line] of before.entries()) {
     const count = counts.get(line)
@@ -52,60 +50,75 @@ function diffLines(before: Array<string>, after: Array<string>, deadline: number
     .map(([line, count]) => [count.index, afterIndex.get(line)!] as const)
   const anchors = longestIncreasing(unique.map(([, index]) => index)).map((index) => unique[index]!)
 
-  const ops: Array<Op> = []
+  const cuts: Array<[number, number]> = [[0, 0]]
+  let run = { before: 0, after: 0, length: 0 }
+  const closeRun = () => {
+    if (run.length > 2 * CONTEXT_LINES) cuts.push([run.before + CONTEXT_LINES, run.after + CONTEXT_LINES])
+  }
   let i = 0
   let j = 0
-  for (const [anchorBefore, anchorAfter] of [...anchors, [before.length, after.length] as const]) {
-    const removed = before.slice(i, anchorBefore)
-    const added = after.slice(j, anchorAfter)
-    const changes = diffArrays(removed, added, { timeout: Math.max(0, deadline - Date.now()) }) ?? [
-      { removed: true, added: false, value: removed },
-      { removed: false, added: true, value: added },
-    ]
-    for (const change of changes) {
-      for (const line of change.value) ops.push({ type: change.added ? '+' : change.removed ? '-' : ' ', line })
+  for (const [anchorBefore, anchorAfter] of anchors) {
+    // The lines between two anchors are unchanged when both sides hold the same lines.
+    const unchanged = anchorBefore - i === anchorAfter - j && before.slice(i, anchorBefore).every((line, offset) => line === after[j + offset])
+    if (unchanged && run.length && run.before + run.length === i) {
+      run.length += anchorBefore - i + 1
+    } else {
+      closeRun()
+      run = unchanged ? { before: i, after: j, length: anchorBefore - i + 1 } : { before: anchorBefore, after: anchorAfter, length: 1 }
     }
-    if (anchorBefore < before.length) ops.push({ type: ' ', line: before[anchorBefore]! })
     i = anchorBefore + 1
     j = anchorAfter + 1
   }
-  return ops
+  closeRun()
+  cuts.push([before.length, after.length])
+  return cuts
 }
 
-export function diffHunks(before: string, after: string, timeout = DIFF_TIMEOUT_MS): Array<StructuredPatchHunk> {
-  const ops = diffLines(splitLines(before), splitLines(after), Date.now() + timeout)
+const patchLines = (prefix: string, lines: Array<string>) =>
+  lines.flatMap((line) => (line.endsWith('\n') ? [`${prefix}${line.slice(0, -1)}`] : [`${prefix}${line}`, '\\ No newline at end of file']))
 
-  // Each change shows with its context; ranges that touch merge into one hunk.
-  const ranges: Array<[number, number]> = []
-  for (const [index, op] of ops.entries()) {
-    if (op.type === ' ') continue
-    const last = ranges.at(-1)
-    const start = Math.max(0, index - CONTEXT_LINES)
-    const end = Math.min(ops.length - 1, index + CONTEXT_LINES)
-    if (last && start <= last[1] + 1) last[1] = end
-    else ranges.push([start, end])
-  }
+// A segment with no time left to diff shows as one block that replaces everything between its shared first and last lines.
+function replaceHunk(before: Array<string>, after: Array<string>): Array<StructuredPatchHunk> {
+  let start = 0
+  while (start < before.length && start < after.length && before[start] === after[start]) start++
+  let end = 0
+  while (end < before.length - start && end < after.length - start && before[before.length - 1 - end] === after[after.length - 1 - end]) end++
+  if (start + end === before.length && start + end === after.length) return []
+
+  const from = Math.max(0, start - CONTEXT_LINES)
+  const to = before.length - end + Math.min(end, CONTEXT_LINES)
+  const oldLines = to - from
+  const newLines = oldLines + after.length - before.length
+  const lines = [
+    ...patchLines(' ', before.slice(from, start)),
+    ...patchLines('-', before.slice(start, before.length - end)),
+    ...patchLines('+', after.slice(start, after.length - end)),
+    ...patchLines(' ', before.slice(before.length - end, to)),
+  ]
+  // Same numbering as `structuredPatch`, which starts an empty side at line 1 too.
+  return [{ oldStart: from + 1, oldLines, newStart: from + 1, newLines, lines }]
+}
+
+// One Myers diff over a whole file grows with lines times changes and stalls on large specs, so each segment
+// between cuts is diffed on its own.
+export function diffHunks(before: string, after: string, timeout = DIFF_TIMEOUT_MS): Array<StructuredPatchHunk> {
+  const beforeLines = splitLines(before)
+  const afterLines = splitLines(after)
+  const cuts = cutPoints(beforeLines, afterLines)
+  const deadline = Date.now() + timeout
 
   const hunks: Array<StructuredPatchHunk> = []
-  let oldLine = 0
-  let newLine = 0
-  let index = 0
-  for (const [start, end] of ranges) {
-    for (; index < start; index++) {
-      if (ops[index]!.type !== '+') oldLine++
-      if (ops[index]!.type !== '-') newLine++
-    }
-    const slice = ops.slice(start, end + 1)
-    const oldLines = slice.filter((op) => op.type !== '+').length
-    const newLines = slice.filter((op) => op.type !== '-').length
-    // Unified diff numbers an empty side by the line before it.
-    hunks.push({
-      oldStart: oldLines ? oldLine + 1 : oldLine,
-      oldLines,
-      newStart: newLines ? newLine + 1 : newLine,
-      newLines,
-      lines: slice.flatMap((op) => (op.line.endsWith('\n') ? [`${op.type}${op.line.slice(0, -1)}`] : [`${op.type}${op.line}`, '\\ No newline at end of file'])),
+  for (const [index, [beforeStart, afterStart]] of cuts.slice(0, -1).entries()) {
+    const [beforeEnd, afterEnd] = cuts[index + 1]!
+    const segmentBefore = beforeLines.slice(beforeStart, beforeEnd)
+    const segmentAfter = afterLines.slice(afterStart, afterEnd)
+    const patch = structuredPatch('', '', segmentBefore.join(''), segmentAfter.join(''), undefined, undefined, {
+      context: CONTEXT_LINES,
+      timeout: Math.max(0, deadline - Date.now()),
     })
+    for (const hunk of patch?.hunks ?? replaceHunk(segmentBefore, segmentAfter)) {
+      hunks.push({ ...hunk, oldStart: hunk.oldStart + beforeStart, newStart: hunk.newStart + afterStart })
+    }
   }
   return hunks
 }
