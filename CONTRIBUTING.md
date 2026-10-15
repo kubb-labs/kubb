@@ -10,7 +10,7 @@ Please read and follow our [Code of Conduct](https://github.com/kubb-labs/.githu
 
 ## Prerequisites
 
-- Node.js 22 or newer
+- Node.js 22.12 or newer
 - pnpm 11 or newer. The repo pins a version in `packageManager`, so the easiest way to match it is `corepack enable` and let Corepack pick the right pnpm
 - Git
 

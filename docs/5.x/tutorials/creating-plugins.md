@@ -13,7 +13,7 @@ navigation:
 
 # Create a plugin
 
-Build a plugin that writes `listPets.ts` containing the method and path of one API operation, then add a configurable prefix. You need Node.js 22 or higher, npm, and TypeScript knowledge.
+Build a plugin that writes `listPets.ts` containing the method and path of one API operation, then add a configurable prefix. You need Node.js 22.12 or higher, npm, and TypeScript knowledge.
 
 ::steps{level="2"}
 

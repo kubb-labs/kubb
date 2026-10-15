@@ -84,7 +84,7 @@
     "openapi-types": "^12.1.3"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.12"
   },
   "inlinedDependencies": {
     "@types/json-schema": "7.0.15",
