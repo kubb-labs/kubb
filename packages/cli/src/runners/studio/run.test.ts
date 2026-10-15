@@ -31,7 +31,7 @@ const confirm = vi.mocked(prompts.confirm)
 const options: StudioOptions = {
   version: '0.0.0',
   studioUrl: 'http://localhost:3000',
-  permission: { allowRead: false, allowWrite: false, allowConfigEdit: false, allowExec: false },
+  permission: { allowRead: false, allowReadAst: false, allowWrite: false, allowConfigEdit: false, allowExec: false },
   autoOpen: false,
 }
 
@@ -121,21 +121,16 @@ describe('login', () => {
 })
 
 describe('resolvePermissions', () => {
-  it.each([
-    { persist: true, writes: 1 },
-    { persist: false, writes: 0 },
-  ])('returns every answer and writes to disk $writes times when persist is $persist', async ({ persist, writes }) => {
+  it('returns every answer and writes it to disk', async () => {
     using project = stubProject()
-    confirm.mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(true)
+    confirm.mockResolvedValueOnce(false).mockResolvedValueOnce(true).mockResolvedValueOnce(true).mockResolvedValueOnce(false).mockResolvedValueOnce(true)
 
-    const answers = { allowRead: false, allowWrite: true, allowConfigEdit: false, allowExec: true }
+    const answers = { allowRead: false, allowReadAst: true, allowWrite: true, allowConfigEdit: false, allowExec: true }
 
-    await expect(resolvePermissions(options, credentials, undefined, persist)).resolves.toEqual(answers)
-    expect(confirm).toHaveBeenCalledTimes(4)
-    expect(project.write).toHaveBeenCalledTimes(writes)
-    if (writes) {
-      expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ projects: { [process.cwd()]: answers } }))
-    }
+    await expect(resolvePermissions(options, credentials)).resolves.toEqual(answers)
+    expect(confirm).toHaveBeenCalledTimes(5)
+    expect(project.write).toHaveBeenCalledTimes(1)
+    expect(project.write).toHaveBeenCalledWith(expect.objectContaining({ projects: { [process.cwd()]: answers } }))
   })
 
   it('names the config the project actually has, not the default', async () => {
@@ -151,7 +146,7 @@ describe('resolvePermissions', () => {
 
   it('asks nothing again once the project answered, and never stores a flag-granted permission', async () => {
     using project = stubProject()
-    const remembered = { allowRead: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
+    const remembered = { allowRead: false, allowReadAst: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
     const stored: Credentials = { ...credentials, projects: { [process.cwd()]: remembered } }
 
     await expect(resolvePermissions({ ...options, permission: { ...options.permission, allowExec: true } }, stored)).resolves.toEqual({
@@ -190,16 +185,6 @@ describe('connect', () => {
 
     return calls
   }
-
-  it('tells the operator to update KUBB_AGENT_TOKEN when Studio rejects an env-sourced token, without touching stored credentials', async () => {
-    using project = stubProject({ stored: credentials })
-    vi.stubEnv('KUBB_AGENT_TOKEN', 'env-token')
-    mockConnection('rejected')
-
-    await expect(connect(options)).rejects.toThrow(/update KUBB_AGENT_TOKEN/)
-    expect(project.clear).not.toHaveBeenCalled()
-    expect(project.write).not.toHaveBeenCalled()
-  })
 
   it('forgets a rejected token on a run that cannot pair again, and says how to pair', async () => {
     using project = stubProject({ stored: credentials, ci: true })

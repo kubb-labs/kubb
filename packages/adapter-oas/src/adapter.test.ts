@@ -144,11 +144,25 @@ describe('adapterOas.parse', () => {
       },
     })
 
-    expect(node.meta.servers).toEqual([{ url: 'https://api.example.com', description: 'Main' }, { url: 'https://{env}.example.com' }])
+    expect(node.meta.servers).toEqual([
+      { url: 'https://api.example.com', description: 'Main', variables: { env: { default: 'api' } } },
+      { url: 'https://{env}.example.com', variables: { env: { default: 'staging', enum: ['dev', 'prod'] } } },
+    ])
     expect(node.meta.securitySchemes).toEqual([
       { name: 'bearer', type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       { name: 'shared', type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
     ])
+  })
+
+  it('leaves variables off a server that declares none', async () => {
+    const adapter = adapterOas({ validate: false })
+    const node = await adapter.parse({
+      type: 'data',
+      data: { ...minimalSpec, servers: [{ url: '/api' }, { url: '/v1', variables: {} }] },
+    })
+
+    expect(node.meta.servers).toEqual([{ url: '/api' }, { url: '/v1' }])
+    expect(node.meta.servers?.[0]).not.toHaveProperty('variables')
   })
 
   it('lists the servers and security schemes of a Swagger 2.0 document', async () => {

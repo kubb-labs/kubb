@@ -16,8 +16,9 @@ export async function run(): Promise<void> {
     // The MCP stdio transport owns stdout: anything else written there corrupts the JSON-RPC stream.
     console.error(styleText('cyan', '⏳ Starting MCP server...'))
     console.warn(styleText('yellow', 'This feature is still under development, use with caution'))
-    await startMcpServer()
-    await report({ status: 'success' })
+    const server = startMcpServer()
+    // Report once the client introduces itself, so the event names the client (e.g. `claude-code`, `cursor-vscode`).
+    server.on('initialize', ({ clientInfo }) => void report({ status: 'success', mcpClient: clientInfo.name }), { once: true })
   } catch (error) {
     await report({ status: 'failed' })
     console.error(toError(error).message)

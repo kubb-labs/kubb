@@ -63,6 +63,5 @@ The CLI reads these shared environment variables.
 | `KUBB_DISABLE_TELEMETRY` | `boolean` | all      | Turn off anonymous usage telemetry. Set it to `1` or `true`.                    |
 | `DO_NOT_TRACK`           | `boolean` | all      | Standard opt-out convention. Set it to `1` or `true`.                           |
 | `KUBB_HOME`              | `string`  | `studio` | Directory the CLI keeps its Studio state in. Defaults to `~/.kubb`.             |
-| `KUBB_AGENT_TOKEN`       | `string`  | `studio` | Connect with an existing agent token instead of approving this machine.         |
 | `KUBB_TOKEN`             | `string`  | `studio snapshot` | Organization CI API key. Same as `--token`.                            |
 | `KUBB_REGISTRY`          | `string`  | `add`, `update`, `list` | Base URL of the extension registry. Defaults to `https://kubb.dev/registry`. |

@@ -17,7 +17,7 @@ import { getConfigs } from '../../config.ts'
 import { clearCredentials, type Credentials, getCredentialsPath, getMachineId, readCredentials, writeCredentials } from './credentials.ts'
 import { version } from '../../../package.json'
 
-type Permission = 'allowRead' | 'allowWrite' | 'allowConfigEdit' | 'allowExec'
+type Permission = 'allowRead' | 'allowReadAst' | 'allowWrite' | 'allowConfigEdit' | 'allowExec'
 
 export type StudioOptions = {
   /**
@@ -72,6 +72,7 @@ export type StudioValues = {
   config?: string
   url?: string
   allowRead?: boolean
+  allowReadAst?: boolean
   allowWrite?: boolean
   allowConfigEdit?: boolean
   allowExec?: boolean
@@ -163,8 +164,9 @@ const PERMISSIONS: ReadonlyArray<{
   {
     key: 'allowRead',
     label: 'read generated files',
-    question: () => 'Let Kubb Studio read the files a generation produced and its parsed spec?',
+    question: () => 'Let Kubb Studio read the files a generation produced?',
   },
+  { key: 'allowReadAst', label: 'read parsed spec', question: () => 'Let Kubb Studio read the parsed spec (the Kubb AST)?' },
   { key: 'allowWrite', label: 'write generated files', question: (project) => `Let Kubb Studio write generated files into ${project}?` },
   {
     key: 'allowConfigEdit',
@@ -188,21 +190,16 @@ export function formatPermissionRows(granted: Record<Permission, boolean>): Arra
 
 /**
  * Resolves Studio permissions for the current project.
- * Flags win, saved answers are reused, and new answers are stored unless `persist` is false.
+ * Flags win, saved answers are reused, and new answers are stored in `~/.kubb/credentials.json`.
  */
 export async function resolvePermissions(
   options: StudioOptions,
   credentials: Credentials,
   configPath: string = KUBB_CONFIG_FILENAME,
-  /**
-   * Stores new answers in `~/.kubb/credentials.json`.
-   * Pass `false` for `KUBB_AGENT_TOKEN` sessions so a temporary token is not written back to disk.
-   */
-  persist = true,
 ): Promise<Record<Permission, boolean>> {
   const project = process.cwd()
   const remembered = credentials.projects?.[project]
-  const granted: Record<Permission, boolean> = { allowRead: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
+  const granted: Record<Permission, boolean> = { allowRead: false, allowReadAst: false, allowWrite: false, allowConfigEdit: false, allowExec: false }
   const answers: Partial<Record<Permission, boolean>> = {}
   prompts.updateSettings({ withGuide: true })
 
@@ -220,7 +217,7 @@ export async function resolvePermissions(
     granted[key] = (await prompts.confirm({ message: question(project, configPath), initialValue: false })) === true
     answers[key] = granted[key]
   }
-  if (persist && Object.keys(answers).length) {
+  if (Object.keys(answers).length) {
     await writeCredentials({
       ...credentials,
       projects: { ...credentials.projects, [project]: { ...remembered, ...answers } },
@@ -249,21 +246,16 @@ export async function loadConfigs(options: Pick<StudioOptions, 'configPath' | 'l
 }
 
 /**
- * Why a rejected token could not be recovered automatically: it came from `KUBB_AGENT_TOKEN`, no
- * browser is available to re-pair with, or the token this run already re-paired for was rejected
- * again.
+ * Why a rejected token could not be recovered automatically: no browser is available to re-pair
+ * with, or the token this run already re-paired for was rejected again.
  */
-type RejectedTokenReason = 'envToken' | 'nonInteractive' | 'reauthExhausted'
+type RejectedTokenReason = 'nonInteractive' | 'reauthExhausted'
 
 /**
  * Explains a rejected token to the operator. Builds the error and nothing else, so each caller
  * decides what happens to the credentials.
  */
 function explainRejectedToken(error: InvalidAgentTokenError, reason: RejectedTokenReason): Error {
-  if (reason === 'envToken') {
-    return new Error(`${error.message} Pair again and update KUBB_AGENT_TOKEN.`)
-  }
-
   if (reason === 'reauthExhausted') {
     return new Error(`${error.message} Studio rejected the newly approved token too. Run \`kubb studio login\` and try again.`)
   }
@@ -280,17 +272,17 @@ export type PreparedConnection = {
 /** Validates the project and resolves pairing and permissions before starting its worker. */
 export async function prepareConnection(options: StudioOptions, signal?: AbortSignal): Promise<PreparedConnection> {
   const { configPath } = await loadConfigs(options)
-  const envToken = process.env.KUBB_AGENT_TOKEN
-  const stored = envToken ? null : await readCredentials()
+  const stored = await readCredentials()
   const credentials = await (async () => {
-    if (envToken) return { studioUrl: options.studioUrl, token: envToken, agentId: '', agentSlug: '' }
     if (stored?.studioUrl === options.studioUrl) return stored
     if (isCIEnvironment()) {
-      throw new Error(`Not paired with ${options.studioUrl}. Set KUBB_AGENT_TOKEN, or run \`kubb studio login\` on a machine with a browser.`)
+      throw new Error(
+        `Not paired with ${options.studioUrl}. In CI, run \`kubb studio snapshot\` instead, or run \`kubb studio login\` on a machine with a browser.`,
+      )
     }
     return login(options, { signal })
   })()
-  const permissions = await resolvePermissions(options, credentials, configPath, !envToken)
+  const permissions = await resolvePermissions(options, credentials, configPath)
   return { configPath, credentials, permissions }
 }
 
@@ -361,7 +353,6 @@ export async function connect(
       } catch (error) {
         if (!(error instanceof InvalidAgentTokenError)) throw error
         await context.onState?.('authentication required')
-        if (process.env.KUBB_AGENT_TOKEN) throw explainRejectedToken(error, 'envToken')
         await clearCredentials()
         if (pairedAgain) throw explainRejectedToken(error, 'reauthExhausted')
         if (context.onState || isCIEnvironment() || !canUseTTY()) throw explainRejectedToken(error, 'nonInteractive')
@@ -396,6 +387,7 @@ export async function runStudio(
     studioUrl: values.url ?? defaultStudioUrl,
     permission: {
       allowRead: values.allowRead ?? false,
+      allowReadAst: values.allowReadAst ?? false,
       allowWrite: values.allowWrite ?? false,
       allowConfigEdit: values.allowConfigEdit ?? false,
       allowExec: values.allowExec ?? false,

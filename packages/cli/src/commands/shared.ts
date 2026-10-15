@@ -54,6 +54,12 @@ export const studioPermissionArgs = {
     default: false,
     toKebab: true,
   },
+  allowReadAst: {
+    type: 'boolean',
+    description: 'Read the parsed spec (the Kubb AST). Asked for once per project when omitted',
+    default: false,
+    toKebab: true,
+  },
   allowWrite: {
     type: 'boolean',
     description: 'Write generated files to disk. Asked for once per project when omitted',

@@ -23,28 +23,30 @@ The Kubb CLI collects anonymous command, plugin, and performance data.
 
 Telemetry includes these fields:
 
-| Field          | Description                                          | Example                                                                         |
-| -------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `command`      | CLI command that was run                             | `"generate"`, `"validate"`, `"mcp"`                                             |
-| `kubbVersion`  | Kubb CLI version                                     | `"5.0.0"`                                                                       |
-| `nodeVersion`  | Node.js major version                                | `"22"`                                                                          |
-| `runtime`      | JavaScript runtime name                              | `"node"`, `"bun"`, `"deno"`                                                     |
-| `runtimeVersion` | Runtime major version                              | `"22"`                                                                          |
-| `platform`     | Operating system                                     | `"linux"`, `"darwin"`, `"win32"`                                                |
-| `ci`           | Whether running in CI                                | `true`                                                                          |
-| `agent`        | Name of the AI coding agent that ran the command, if any | `"claude"`                                                                  |
-| `plugins`      | Plugin names and their options (only for `generate`) | `[{ "name": "@kubb/plugin-ts", "options": { "output": { "path": "types" } } }]` |
-| `duration`     | Command execution time in milliseconds               | `1432`                                                                          |
-| `filesCreated` | Number of files generated (only for `generate`)      | `47`                                                                            |
-| `status`       | Whether the command succeeded or failed              | `"success"`                                                                     |
+| Field            | Description                                                                             | Example                                                                         |
+| ---------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `command`        | CLI command that was run                                                                | `"generate"`, `"validate"`, `"mcp"`                                             |
+| `kubbVersion`    | Kubb CLI version                                                                        | `"5.0.0"`                                                                       |
+| `nodeVersion`    | Node.js major version                                                                   | `"22"`                                                                          |
+| `runtime`        | JavaScript runtime name                                                                 | `"node"`, `"bun"`, `"deno"`                                                     |
+| `runtimeVersion` | Runtime major version                                                                   | `"22"`                                                                          |
+| `platform`       | Operating system                                                                        | `"linux"`, `"darwin"`, `"win32"`                                                |
+| `ci`             | Whether running in CI                                                                   | `true`                                                                          |
+| `tty`            | Whether a terminal is attached to stdin, which usually means a person typed the command | `true`                                                                          |
+| `agent`          | Name of the AI coding agent that ran the command, if any                                | `"claude"`                                                                      |
+| `mcpClient`      | Name the MCP client reports when it connects (only for `mcp`)                           | `"claude-code"`, `"cursor-vscode"`                                              |
+| `plugins`        | Plugin names and their options (only for `generate`)                                    | `[{ "name": "@kubb/plugin-ts", "options": { "output": { "path": "types" } } }]` |
+| `duration`       | Command execution time in milliseconds                                                  | `1432`                                                                          |
+| `filesCreated`   | Number of files generated (only for `generate`)                                         | `47`                                                                            |
+| `status`         | Whether the command succeeded or failed                                                 | `"success"`                                                                     |
 
 ### Commands that send telemetry
 
-| Command            | Description                                          |
-| ------------------ | ---------------------------------------------------- |
-| `kubb generate`    | Sent after code generation completes or fails        |
-| `kubb validate`    | Sent after OpenAPI validation completes or fails     |
-| `kubb mcp`         | Sent after the MCP server starts or fails to start   |
+| Command         | Description                                                         |
+| --------------- | ------------------------------------------------------------------- |
+| `kubb generate` | Sent after code generation completes or fails                       |
+| `kubb validate` | Sent after OpenAPI validation completes or fails                    |
+| `kubb mcp`      | Sent when an MCP client connects, or when the server fails to start |
 
 ## What is not collected
 

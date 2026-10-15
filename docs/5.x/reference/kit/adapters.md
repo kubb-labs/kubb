@@ -88,7 +88,7 @@ Cross-references need no adapter hook: every plugin resolves `$ref` imports thro
 
 ## Adapter naming convention
 
-Name adapters like plugins, so [`getResolver`](./generators#defineGenerator), the registry, and the docs can find them:
+Name adapters like plugins, so [`getResolver`](./generators#definegenerator), the registry, and the docs can find them:
 
 | Surface                       | Pattern                                            | Example             |
 | ----------------------------- | -------------------------------------------------- | ------------------- |

@@ -1,17 +1,17 @@
 ---
 layout: doc
-title: Create and extend a plugin
-description: Create and test a Kubb plugin, then add a configurable comment prefix.
+title: Create aplugin
+description: Create and test a Kubb plugin.
 outline:
   - 2
   - 3
 order: 2
 navigation:
-  title: Create and extend a plugin
+  title: Create a plugin
   icon: i-iconoir-ev-plug
 ---
 
-# Create and extend a plugin
+# Create a plugin
 
 Build a plugin that writes `listPets.ts` containing the method and path of one API operation, then add a configurable prefix. You need Node.js 22 or higher, npm, and TypeScript knowledge.
 
@@ -161,61 +161,5 @@ npx vitest run src/plugin.test.ts
 ```
 
 Vitest reports one passing test. It checks the generated file in memory without writing to disk.
-
-## Extend the plugin {#extend-the-plugin}
-
-Add a `prefix` option so users can label the generated comment. Type the plugin with `PluginType`, return the resolved option from `setup`, and read it back from `ctx.options` in the generator. Apply these changes to `src/plugin.ts`:
-
-```diff [src/plugin.ts]
- import { addGenerator, ast, createResolver, defineExtension, defineGenerator, setResolver } from 'kubb/kit'
-+import type { PluginType } from 'kubb/kit'
-
--const resolver = createResolver({ pluginName: 'plugin-example' })
-+type ExamplePlugin = PluginType<'plugin-example', { prefix?: string }, { prefix: string }>
-+
-+const resolver = createResolver<ExamplePlugin>({ pluginName: 'plugin-example' })
-
--const operationsGenerator = defineGenerator({
-+const operationsGenerator = defineGenerator<ExamplePlugin>({
-   name: 'operation-comments',
-   operation(node, ctx) {
-     const name = ctx.resolver.name(node.operationId)
-     return [
-       ast.factory.createFile({
-         baseName: `${name}.ts`,
-         path: `${ctx.root}/${name}.ts`,
-         sources: [
-           ast.factory.createSource({
--            nodes: [ast.factory.createText(`// ${node.method} ${node.path}\n`)],
-+            nodes: [ast.factory.createText(`// ${ctx.options.prefix}${node.method} ${node.path}\n`)],
-           }),
-         ],
-       }),
-     ]
-   },
- })
-
--export const pluginExample = defineExtension({
-+export const pluginExample = defineExtension<ExamplePlugin>({
-   kind: 'plugin',
-   meta: { name: 'plugin-example', version: '1.0.0' },
-   setup(options) {
-     setResolver(resolver)
-     addGenerator(operationsGenerator)
--    return options
-+    return { prefix: options.prefix ?? '' }
-   },
- })
-```
-
-Change the config to `plugins: [pluginExample({ prefix: 'API: ' })]`, then run `npx kubb generate` again. The generated comment now reads:
-
-```typescript [src/gen/listPets.ts]
-// API: GET /pets
-```
-
-Add a second test inside the existing `describe` block that passes `pluginExample({ prefix: 'API: ' })` and expects `// API: GET /pets`, then run `npx vitest run src/plugin.test.ts` again. Both tests pass: the original behavior remains available, and the new option changes the output.
-
-You now have a tested plugin with one option. To ship it, follow [Publish a plugin](/docs/5.x/how-to/publish-a-plugin). For further extensions, use the [Plugin reference](/docs/5.x/reference/kit/plugins) and [Generator reference](/docs/5.x/reference/kit/generators). A dependency on another plugin lets your generator reuse its resolver rather than guessing generated names. See [Dependencies and ordering](/docs/5.x/explanation/extensions#dependencies).
 
 ::

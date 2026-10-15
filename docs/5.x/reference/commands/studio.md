@@ -14,7 +14,7 @@ navigation:
 
 # kubb studio
 
-Run `kubb studio` to connect a project to [Kubb Studio](https://kubb.studio). The CLI runs generation on your machine and sends progress and generated file paths to Studio. Grant `--allow-read` to view generated file contents and diffs in the browser.
+Run `kubb studio` to connect a project to [Kubb Studio](https://kubb.studio). The CLI runs generation on your machine and sends progress and generated file paths to Studio. Grant `--allow-read` to view generated file contents and diffs in the browser, and `--allow-read-ast` to share the parsed spec.
 
 ## Usage
 
@@ -54,7 +54,8 @@ The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, whic
 | ------------------------------------------ | --------------------- | ---------------------------------------------------------------------------------- |
 | `--config=<path>`, `-c <path>`             |                       | Path to a config file, such as `./kubb.staging.ts`.                                |
 | `--url=<url>`                               | `https://kubb.studio` | URL for Kubb Studio. Plain `http://` works only for `localhost`, `127.0.0.1`, or `[::1]`. |
-| `--allow-read`                             | `false`               | Let Studio read generated file contents and the parsed spec. Asked once per project when omitted. |
+| `--allow-read`                             | `false`               | Let Studio read generated file contents. Asked once per project when omitted. |
+| `--allow-read-ast`                         | `false`               | Let Studio read the parsed spec (the Kubb AST). Asked once per project when omitted. |
 | `--allow-write`                            | `false`               | Write generated files to disk. Asked once per project when omitted.                |
 | `--allow-config-edit`                      | `false`               | Let Studio change plugin options in `kubb.config.ts`. Asked once per project.      |
 | `--allow-exec`                             | `false`               | Run the formatter, the linter, and `output.postGenerate`. Asked once per project.  |
@@ -69,7 +70,7 @@ The CLI keeps credentials, worker state, and the worker log in `KUBB_HOME`, whic
 
 `snapshot` takes no `--allow-*` flag. It generates like `kubb generate`: it writes to `output.path`, then runs the formatter, the linter, and `output.postGenerate`. It refuses a tarball over 50 MB.
 
-Without `--allow-read`, a session still generates and reports file paths, but Studio cannot display their contents. The CLI asks about permissions not supplied as flags and remembers answers per project directory. Without a TTY it skips the permission prompts, so pass the flags the run needs. In CI it also refuses to pair interactively and needs stored credentials or `KUBB_AGENT_TOKEN`.
+Without `--allow-read`, a session still generates and reports file paths, but Studio cannot display their contents. The CLI asks about permissions not supplied as flags and remembers answers per project directory. Without a TTY it skips the permission prompts, so pass the flags the run needs. In CI it also refuses to pair and needs stored credentials, so use `snapshot` there instead.
 
 Each action exits with code 1 when it fails.
 
@@ -78,7 +79,6 @@ Each action exits with code 1 when it fails.
 | Variable           | Description                                                                        |
 | ------------------ | ---------------------------------------------------------------------------------- |
 | `KUBB_HOME`        | Directory the CLI keeps its Studio state in. Defaults to `~/.kubb`.                |
-| `KUBB_AGENT_TOKEN` | Connect with an existing agent token instead of approving this machine.            |
 | `KUBB_TOKEN`       | `snapshot` only: organization CI API key. Same as `--token`.                       |
 | `KUBB_AGENT_MAX_GENERATIONS` | How many recent generations the agent keeps for Studio to read. Defaults to `8`. |
 | `KUBB_AGENT_MAX_GENERATIONS_MB` | Size cap in MB for the kept generations. Defaults to `100`. |

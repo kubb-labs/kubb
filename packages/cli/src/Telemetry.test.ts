@@ -1,3 +1,4 @@
+import process from 'node:process'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { buildOtlpPayload, isDisabled, sendTelemetry } from './Telemetry.ts'
 
@@ -40,6 +41,26 @@ describe('isDisabled', () => {
 })
 
 describe('buildOtlpPayload', () => {
+  it.each([
+    [true, true],
+    [undefined, false],
+  ])('reports kubb.tty when stdin.isTTY is %s', (isTTY, expected) => {
+    const original = process.stdin.isTTY
+    process.stdin.isTTY = isTTY as true
+    const attribute = getSpan().attributes.find((attribute) => attribute.key === 'kubb.tty')
+    process.stdin.isTTY = original
+
+    expect(attribute).toStrictEqual({ key: 'kubb.tty', value: { boolValue: expected } })
+  })
+
+  it('adds the MCP client name only when one is given, capped at 64 characters', () => {
+    const find = (span: ReturnType<typeof getSpan>) => span.attributes.find((attribute) => attribute.key === 'kubb.mcp_client')
+
+    expect(find(getSpan())).toBeUndefined()
+    expect(find(getSpan({ command: 'mcp', mcpClient: 'claude-code' }))).toStrictEqual({ key: 'kubb.mcp_client', value: { stringValue: 'claude-code' } })
+    expect(find(getSpan({ command: 'mcp', mcpClient: 'x'.repeat(100) }))?.value).toStrictEqual({ stringValue: 'x'.repeat(64) })
+  })
+
   it.each([
     ['plugin-zod', 'plugin-ts', 'plugin-ts'],
     ['plugin-ts', 'plugin-zod'],
