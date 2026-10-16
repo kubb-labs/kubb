@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.11.0 — Oct 16, 2026
+
+### @kubb/core
+
+#### Features
+
+- Filter operations by vendor extension. `include`, `exclude`, and `override` accept `{ type: 'extension', key: 'x-…', value? }`, which matches `OperationNode.extensions`: the key must be present and, when `value` is given, strictly equal to it. Schemas are not matched, like `tag`. ([#4316](https://github.com/kubb-labs/kubb/pull/4316), [`2fbd3b5`](https://github.com/kubb-labs/kubb/commit/2fbd3b5fab86c07cce73be6ff5fac1dc62ff9310))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@mohammad-naji7](https://github.com/mohammad-naji7)
+
 ## v5.10.4 — Oct 15, 2026
 
 ### @kubb/adapter-oas
