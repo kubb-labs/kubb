@@ -471,7 +471,13 @@ export class Resolver {
     return value.match(pattern) !== null
   }
 
-  static #matchesOperation(node: OperationNode, { type, pattern }: Filter): boolean {
+  static #matchesOperation(node: OperationNode, filter: Filter): boolean {
+    if (filter.type === 'extension') {
+      const { extensions } = node
+      return extensions !== undefined && Object.hasOwn(extensions, filter.key) && (filter.value === undefined || extensions[filter.key] === filter.value)
+    }
+
+    const { type, pattern } = filter
     if (type === 'tag') return node.tags.some((tag) => Resolver.#testPattern(tag, pattern))
     if (type === 'operationId') return Resolver.#testPattern(node.operationId, pattern)
     if (type === 'path') return node.path !== undefined && Resolver.#testPattern(node.path, pattern)
@@ -484,8 +490,8 @@ export class Resolver {
    * Returns `null` when the filter type doesn't apply to schemas, so include rules built
    * from operation filters (e.g. `tag`) don't exclude every schema.
    */
-  static #matchesSchema(node: SchemaNode, { type, pattern }: Filter): boolean | null {
-    if (type === 'schemaName') return node.name ? Resolver.#testPattern(node.name, pattern) : false
+  static #matchesSchema(node: SchemaNode, filter: Filter): boolean | null {
+    if (filter.type === 'schemaName') return node.name ? Resolver.#testPattern(node.name, filter.pattern) : false
     return null
   }
 

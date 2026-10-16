@@ -227,11 +227,19 @@ Generates only the operations and schemas that match at least one entry, and ski
 
 Each entry filters by `tag`, `operationId`, `path`, `method`, `contentType`, or `schemaName`, with a `pattern` that is a string or a `RegExp`. A string is compiled with `new RegExp(pattern)`, so it is not an exact match: `pattern: 'pet'` also matches `'petType'` and `'superpet'`. Anchor it (`'^pet$'`) for an exact match. For `type: 'method'`, a string pattern is an uppercase HTTP method such as `'GET'`.
 
+An `extension` entry matches operations by a vendor extension on the source operation instead of a pattern: `key` is the `x-*` key, and the optional `value` must be strictly equal. Without `value`, the key being present is enough. It does not apply to schemas.
+
 ```typescript [Type definition]
-export type Include = {
-  type: 'tag' | 'operationId' | 'path' | 'method' | 'contentType' | 'schemaName'
-  pattern: string | RegExp
-}
+export type Include =
+  | {
+      type: 'tag' | 'operationId' | 'path' | 'method' | 'contentType' | 'schemaName'
+      pattern: string | RegExp
+    }
+  | {
+      type: 'extension'
+      key: `x-${string}`
+      value?: unknown
+    }
 ```
 
 ```typescript [kubb.config.ts]
@@ -255,7 +263,7 @@ Skips any operation or schema that matches at least one entry, the opposite of `
 | Required | `false` |
 | Default | `[]` |
 
-Entries use the same `type` and `pattern` fields as `include`. When both options match an item, `exclude` wins.
+Entries use the same fields as `include`. When both options match an item, `exclude` wins.
 
 When a client plugin (`@kubb/plugin-fetch` or `@kubb/plugin-axios`) excludes operations, the plugins that build on it (`@kubb/plugin-react-query`, `@kubb/plugin-vue-query`, `@kubb/plugin-swr`, `@kubb/plugin-mcp`) skip those operations too, so you do not repeat the `exclude` list.
 
@@ -266,6 +274,7 @@ pluginTs({
   exclude: [
     { type: 'tag', pattern: 'internal' },
     { type: 'operationId', pattern: /^deprecated_/ },
+    { type: 'extension', key: 'x-internal', value: true },
   ],
 })
 ```
@@ -280,12 +289,10 @@ Applies different plugin options to operations that match a pattern.
 | Required | `false` |
 | Default | `[]` |
 
-Each entry takes the same `type` and `pattern` as `include`, plus an `options` object that accepts any plugin option except `override`, so rules cannot nest. Entries are checked top to bottom. The first match merges onto the plugin defaults, and later entries do not stack.
+Each entry takes the same fields as an `include` entry, plus an `options` object that accepts any plugin option except `override`, so rules cannot nest. Entries are checked top to bottom. The first match merges onto the plugin defaults, and later entries do not stack.
 
 ```typescript [Type definition]
-export type Override = {
-  type: 'tag' | 'operationId' | 'path' | 'method' | 'contentType' | 'schemaName'
-  pattern: string | RegExp
+export type Override = Include & {
   options: Omit<Partial<Options>, 'override'>
 }
 ```
