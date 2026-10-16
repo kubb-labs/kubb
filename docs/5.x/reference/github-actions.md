@@ -52,8 +52,8 @@ Below the install command, the comment lists which generated files changed:
 
 | Section | Compared with |
 | --- | --- |
-| Changes against `main` | The latest snapshot of the base branch, from the `push` trigger |
-| Changes since `abc1234` | The previous snapshot on the same pull request |
+| Changes against `main` | The latest snapshot of the base branch, from the `push` trigger. The heading links its commit. |
+| Changes since the previous snapshot | The previous snapshot on the same pull request. The heading links its commit, or shows its date. |
 
 A failed snapshot shows its error in the comment.
 

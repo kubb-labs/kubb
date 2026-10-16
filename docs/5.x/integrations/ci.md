@@ -25,7 +25,7 @@ navigation:
 | Bitbucket Pipelines, CircleCI | Detected. Pass `--base-id` to compare with a branch | Run `kubb studio snapshot` with `KUBB_TOKEN` set |
 | Other | Pass `--id` and `--base-id` | See below |
 
-Every provider needs an organization CI API key stored as `KUBB_TOKEN`. Snapshot installation uses a separate `registry` API key. Create both in Studio under Settings > Developer > Tokens.
+Every provider needs an organization CI API key stored as `KUBB_TOKEN`. Snapshot installation uses a separate `registry` API key. Create both in Studio under Settings › Developers › Tokens.
 
 > [!NOTE]
 > Snapshots expire after seven days. Schedule a default-branch run if it can go a week without a push.
@@ -51,4 +51,10 @@ Configure the registry API key, then run the install command from the snapshot r
 
 ```shell [Terminal]
 npm i https://kubb.studio/packages/<agent>/<package>.tgz
+```
+
+pnpm and Yarn install the same URL with the same `.npmrc`. Yarn 1 also needs the registry for the package's scope, or the install fails with HTTP 403:
+
+```ini [.npmrc]
+@<scope>:registry=https://kubb.studio/
 ```

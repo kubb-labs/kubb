@@ -42,25 +42,25 @@ With no permissions granted, Kubb leaves your output folder alone and Studio see
 
 On the Pro plan, Studio turns an agent's OpenAPI spec into a plugin for Claude Code, Cursor, and Codex. The plugin holds skills that list the API's servers, authentication, operations, and schemas. Your organization gets one plugin marketplace, with one plugin per published agent.
 
-1. Connect the agent with `--allow-read` and run a generation. Studio reads the parsed spec of the latest successful generation.
+1. Connect the agent with `--allow-read-ast` and run a generation. Studio reads the parsed spec of the latest successful generation.
 2. In Studio, open **Settings › your organization › AI**, select **Publish an agent**, and choose the agent.
-3. Create a registry key under **Settings › Developers › Tokens**. Git asks for it as the password the first time; any username works.
+3. Create an AI key: a token of type **AI (read-only)** under **Settings › Developers › Tokens**, or use the **Create an AI key** link on the AI page. A registry key does not work here. Git asks for the AI key as the password the first time; any username works.
 4. Add the marketplace once with your tool, then install the plugin for each API:
 
 :::code-group{sync="ai-tool"}
 
 ```shell [Claude Code]
-claude plugin marketplace add https://kubb.studio/plugins/<organization>.git
-claude plugin install <plugin>@<organization>
+claude plugin marketplace add https://kubb.studio/plugins/<organization-slug>.git
+claude plugin install <plugin>@<marketplace>
 ```
 
 ```shell [Cursor]
-agent plugin marketplace add https://kubb.studio/plugins/<organization>.git
+agent plugin marketplace add https://kubb.studio/plugins/<organization-slug>.git
 # Then start the Cursor CLI, run /plugin, and install the plugin from the Marketplace tab.
 ```
 
 ```shell [Codex]
-codex plugin marketplace add https://kubb.studio/plugins/<organization>.git
+codex plugin marketplace add https://kubb.studio/plugins/<organization-slug>.git
 # Then start codex, run /plugins, and select Install plugin.
 ```
 
@@ -69,7 +69,7 @@ codex plugin marketplace add https://kubb.studio/plugins/<organization>.git
 Cursor and Codex install a plugin from their plugin browser, not with a command. Studio shows the exact commands for each plugin. Republish the agent after the spec changes, then update the marketplace in your tool.
 
 > [!NOTE]
-> Plans without AI plugins see the AI page locked. A registry key in the URL, such as `https://kubb:<key>@kubb.studio/...`, works in CI but ends up in shell history and logs.
+> Plans without AI plugins see the AI page locked. An AI key in the URL, such as `https://kubb:<key>@kubb.studio/...`, works in CI but ends up in shell history and logs.
 
 ## Keep an agent running in the background
 
