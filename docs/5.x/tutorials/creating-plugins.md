@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Create a Kubb plugin
-description: Build a Kubb plugin that writes the method and path of one OpenAPI operation to a file, then test its output in memory with createKubb and Vitest.
+description: Build a Kubb plugin that writes the method and path of one API operation to a file, then test its output in memory with createKubb and Vitest.
 outline:
   - 2
   - 3

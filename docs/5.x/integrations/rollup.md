@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Generate code from OpenAPI with Rollup
-description: Add the kubb/rollup plugin to rollup.config.ts so every Rollup build generates code from your OpenAPI spec with the plugins in your kubb.config.ts.
+title: Generate code from your API spec with Rollup
+description: Add the kubb/rollup plugin to rollup.config.ts so every Rollup build generates code from your API spec with the plugins in your kubb.config.ts.
 outline: [2, 3]
 order: 8
 navigation:
@@ -9,7 +9,7 @@ navigation:
   icon: i-simple-icons-rollupdotjs
 ---
 
-# Generate code from OpenAPI with Rollup
+# Generate code from your API spec with Rollup
 
 ::steps{level="2"}
 

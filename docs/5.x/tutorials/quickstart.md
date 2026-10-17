@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Generate your first TypeScript client from OpenAPI
-description: Follow five steps to generate TypeScript types and a typed Axios client from a one-operation Petstore OpenAPI spec, then inspect the output and regenerate it.
+title: Your first TypeScript client from an API spec
+description: Follow five steps to generate TypeScript types and a typed Axios client from a one-operation Petstore API spec, then inspect the output and regenerate it.
 outline:
   - 2
   - 3
@@ -11,7 +11,7 @@ navigation:
   icon: i-iconoir-rocket
 ---
 
-# Generate your first TypeScript client from OpenAPI
+# Your first TypeScript client from an API spec
 
 Generate TypeScript types and an Axios client for one Petstore operation. You need Node.js 22.12 or higher and npm. You'll inspect the generated operation and its types.
 

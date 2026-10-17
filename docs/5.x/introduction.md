@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Introduction to Kubb, the OpenAPI code generator
-description: Kubb generates TypeScript types, Axios and Fetch clients, TanStack Query hooks, Zod schemas, and MSW mocks from OpenAPI. Regenerate to keep them in sync.
+title: "Introduction to Kubb: turn your API spec into code"
+description: Kubb generates TypeScript types, Axios and Fetch clients, TanStack Query hooks, Zod schemas, and MSW mocks from your API spec. Regenerate to keep them in sync.
 outline:
   - 2
   - 3
@@ -11,7 +11,7 @@ navigation:
   icon: i-iconoir-info-circle
 ---
 
-# Introduction to Kubb, the OpenAPI code generator
+# Introduction to Kubb: turn your API spec into code
 
 Kubb generates code from API specifications: TypeScript types, API clients, query hooks, validators, and mocks. Regenerate when your specification changes to keep these files in sync with your API, then import them in your application.
 
