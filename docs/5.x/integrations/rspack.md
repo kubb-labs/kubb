@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Generate code from OpenAPI with Rspack
-description: Add the kubb/rspack plugin to rspack.config.ts so every Rspack build generates code from your OpenAPI spec with the plugins in your kubb.config.ts.
+title: Generate code from your API spec with Rspack
+description: Add the kubb/rspack plugin to rspack.config.ts so every Rspack build generates code from your API spec with the plugins in your kubb.config.ts.
 outline: [2, 3]
 order: 10
 navigation:
@@ -9,7 +9,7 @@ navigation:
   icon: i-iconoir-journal
 ---
 
-# Generate code from OpenAPI with Rspack
+# Generate code from your API spec with Rspack
 
 ::steps{level="2"}
 

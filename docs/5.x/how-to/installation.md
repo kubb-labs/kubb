@@ -1,7 +1,7 @@
 ---
 layout: doc
 title: Install Kubb with npm, pnpm, Yarn, or Bun
-description: Install the Kubb CLI and the plugins your output needs with npm, pnpm, Yarn, or Bun, verify the version, and create the kubb.config.ts for your OpenAPI spec.
+description: Install the Kubb CLI and the plugins your output needs with npm, pnpm, Yarn, or Bun, verify the version, and create the kubb.config.ts for your API spec.
 outline: [2, 3]
 order: 1
 navigation:

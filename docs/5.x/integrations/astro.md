@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Generate code from OpenAPI with Astro
-description: Add the kubb/astro integration to astro.config.mjs so every Astro build generates code from your OpenAPI spec with the plugins in your kubb.config.ts.
+title: Generate code from your API spec with Astro
+description: Add the kubb/astro integration to astro.config.mjs so every Astro build generates code from your API spec with the plugins in your kubb.config.ts.
 outline: [2, 3]
 order: 14
 navigation:
@@ -9,7 +9,7 @@ navigation:
   icon: i-simple-icons-astro
 ---
 
-# Generate code from OpenAPI with Astro
+# Generate code from your API spec with Astro
 
 > [!IMPORTANT]
 > This integration generates during builds only. Run `kubb generate` before starting the development server.
