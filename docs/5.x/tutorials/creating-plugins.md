@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Create aplugin
-description: Create and test a Kubb plugin.
+title: Create a Kubb plugin
+description: Build a Kubb plugin that writes the method and path of one OpenAPI operation to a file, then test its output in memory with createKubb and Vitest.
 outline:
   - 2
   - 3
@@ -11,9 +11,9 @@ navigation:
   icon: i-iconoir-ev-plug
 ---
 
-# Create a plugin
+# Create a Kubb plugin
 
-Build a plugin that writes `listPets.ts` containing the method and path of one API operation, then add a configurable prefix. You need Node.js 22.12 or higher, npm, and TypeScript knowledge.
+Build a plugin that writes `listPets.ts` containing the method and path of one API operation, then test its output. You need Node.js 22.12 or higher, npm, and TypeScript knowledge.
 
 ::steps{level="2"}
 

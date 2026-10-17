@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Generate with Nuxt
-description: Run Kubb code generation during Nuxt builds.
+title: Generate code from OpenAPI with Nuxt
+description: Add the kubb/nuxt module to nuxt.config.ts so every Nuxt build generates code from your OpenAPI spec with the plugins in your kubb.config.ts.
 outline: [2, 3]
 order: 13
 navigation:
@@ -9,7 +9,7 @@ navigation:
   icon: i-simple-icons-nuxt
 ---
 
-# Generate with Nuxt
+# Generate code from OpenAPI with Nuxt
 
 > [!IMPORTANT]
 > This integration generates during builds only. Run `kubb generate` before starting the development server.
