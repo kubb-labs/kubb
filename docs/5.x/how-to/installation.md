@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Installation
-description: Install Kubb, the plugins your output needs, and verify the CLI.
+title: Install Kubb with npm, pnpm, Yarn, or Bun
+description: Install the Kubb CLI and the plugins your output needs with npm, pnpm, Yarn, or Bun, verify the version, and create the kubb.config.ts for your OpenAPI spec.
 outline: [2, 3]
 order: 1
 navigation:
@@ -9,7 +9,7 @@ navigation:
   icon: i-iconoir-download
 ---
 
-# Installation
+# Install Kubb with npm, pnpm, Yarn, or Bun
 
 Install Kubb in an existing project. To learn generation with a supplied specification and expected output, follow [Generate your first client](/docs/5.x/tutorials/quickstart) instead.
 

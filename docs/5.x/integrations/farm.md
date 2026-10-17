@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Generate with Farm
-description: Run Kubb code generation during Farm builds.
+title: Generate code from OpenAPI with Farm
+description: Add the kubb/farm plugin to farm.config.ts so every Farm build generates code from your OpenAPI spec with the plugins in your kubb.config.ts.
 outline: [2, 3]
 order: 12
 navigation:
@@ -9,7 +9,7 @@ navigation:
   icon: i-iconoir-light-bulb
 ---
 
-# Generate with Farm
+# Generate code from OpenAPI with Farm
 
 ::steps{level="2"}
 

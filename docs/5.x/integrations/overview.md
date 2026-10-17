@@ -1,6 +1,6 @@
 ---
 layout: doc
-title: Integrations overview
+title: Integrate Kubb with Studio, CI, and build tools
 description: Connect Kubb to Studio, publish snapshots from CI, or run generation during a Vite, webpack, Rollup, Rolldown, Rspack, esbuild, Farm, Nuxt, or Astro build.
 outline: [2, 3]
 order: 0
@@ -9,7 +9,7 @@ navigation:
   icon: i-iconoir-view-grid
 ---
 
-# Integrations overview
+# Integrate Kubb with Studio, CI, and build tools
 
 Run Kubb from Studio, from CI, or during your build. Each integration uses your shared `kubb.config.ts`.
 

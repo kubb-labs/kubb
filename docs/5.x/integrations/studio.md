@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Connect a project to Studio
-description: Connect a local Kubb project to Studio, review generated files, and keep an agent running in the background.
+title: Connect a project to Kubb Studio
+description: Run kubb studio to pair a local Kubb project with Kubb Studio, review generated clients, types, and mocks in the browser, and keep an agent running.
 outline: [2, 3]
 order: 1
 navigation:
@@ -9,7 +9,7 @@ navigation:
   icon: i-iconoir-cube
 ---
 
-# Connect a project to Studio
+# Connect a project to Kubb Studio
 
 Use [Kubb Studio](https://kubb.studio) to generate and review a project's clients, types, schemas, hooks, and mocks from the browser. Start with Kubb installed and a `kubb.config.ts` in your project. `kubb studio` needs Kubb 5.6.1 or later, because Studio refuses older agents. `kubb studio snapshot` needs Kubb 5.6.2 or later.
 

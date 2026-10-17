@@ -1,8 +1,7 @@
 ---
 layout: doc
 title: Kubb vs orval, HeyAPI, and openapi-typescript
-description: Feature-by-feature comparison of Kubb and Kubb Studio against
-  orval, HeyAPI, and openapi-typescript.
+description: Compare Kubb with orval, HeyAPI, and openapi-typescript on generated outputs, type safety, client runtime, and Kubb Studio, checked against each project's docs.
 outline:
   - 2
   - 3

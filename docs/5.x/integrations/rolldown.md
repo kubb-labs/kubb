@@ -1,7 +1,7 @@
 ---
 layout: doc
-title: Generate with Rolldown
-description: Run Kubb code generation during Rolldown builds.
+title: Generate code from OpenAPI with Rolldown
+description: Add the kubb/rolldown plugin to rolldown.config.ts so every Rolldown build generates code from your OpenAPI spec with the plugins in your kubb.config.ts.
 outline: [2, 3]
 order: 9
 navigation:
@@ -9,7 +9,7 @@ navigation:
   icon: i-simple-icons-rolldown
 ---
 
-# Generate with Rolldown
+# Generate code from OpenAPI with Rolldown
 
 ::steps{level="2"}
 

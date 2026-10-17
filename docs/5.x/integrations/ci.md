@@ -1,8 +1,7 @@
 ---
 layout: doc
-title: Publish snapshots from CI
-description: Publish installable Kubb Studio snapshots from GitHub Actions,
-  GitLab CI, or any other provider and review generated-file changes.
+title: Publish Kubb Studio snapshots from CI
+description: Run kubb studio snapshot in GitHub Actions, GitLab CI, or any CI provider to publish an installable package and review generated-code changes per pull request.
 outline:
   - 2
   - 3
@@ -12,7 +11,7 @@ navigation:
   icon: i-iconoir-git-merge
 ---
 
-# Publish snapshots from CI
+# Publish Kubb Studio snapshots from CI
 
 `kubb studio snapshot` generates a package on a CI runner, uploads it to [Studio](/docs/5.x/integrations/studio) in one request, and exits. Run it on pull or merge requests and on the default branch so reviewers can compare their output.
 
