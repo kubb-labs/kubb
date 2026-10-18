@@ -376,6 +376,7 @@ class Agent extends RpcTarget implements AgentApi {
     }
   }
 
+  /** Merges Studio's config over the disk config, refuses output paths outside the output folder, then generates in `root`. */
   async #generate({ input, root, signal }: { input: GenerateInput; root: string; signal: AbortSignal }): Promise<GenerateResult> {
     const { jobId, config: patch } = input
     // A sandbox has no spec on disk, so it only ever generates from the content Studio sends. A path
