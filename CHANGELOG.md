@@ -1,5 +1,19 @@
 # Changelog
 
+## v5.11.2 — Oct 18, 2026
+
+### @kubb/studio
+
+#### Bug Fixes
+
+- Refuse a Studio output path, also in `override`, that resolves outside the config's output folder, unless `kubb.config.ts` sets that path itself. The agent reports `KUBB_PATH_TRAVERSAL` and writes nothing. ([#4353](https://github.com/kubb-labs/kubb/pull/4353), [`04591b4`](https://github.com/kubb-labs/kubb/commit/04591b4b99b55d554348421c5ba411aa2dabe685))
+
+### Contributors
+
+Thanks to everyone who contributed to this release:
+
+[@stijnvanhulle](https://github.com/stijnvanhulle)
+
 ## v5.11.1 — Oct 18, 2026
 
 ### @kubb/cli
